@@ -10,18 +10,21 @@ subroutine test_init()
   type(time_based_controller_t) ctrl
 
   call ctrl%init(0.0_rp, 1.0_rp, "simulationtime", 10.0_rp)
+  @assertEqual(ctrl%start_time, 0.0_rp, tolerance=1e-6_rp)
   @assertEqual(ctrl%end_time, 1.0_rp, tolerance=1e-6_rp)
   @assertEqual(ctrl%time_interval, 10.0_rp, tolerance=1e-6_rp)
   @assertEqual(ctrl%frequency, 0.1_rp, tolerance=1e-6_rp)
   @assertEqual(ctrl%nsteps, 0)
 
   call ctrl%init(0.0_rp, 1.0_rp, "nsamples", 10.0_rp)
+  @assertEqual(ctrl%start_time, 0.0_rp, tolerance=1e-6_rp)
   @assertEqual(ctrl%end_time, 1.0_rp, tolerance=1e-6_rp)
   @assertEqual(ctrl%time_interval, 0.1_rp, tolerance=1e-6_rp)
   @assertEqual(ctrl%frequency, 10.0_rp, tolerance=1e-6_rp)
   @assertEqual(ctrl%nsteps, 0)
 
   call ctrl%init(0.0_rp, 1.0_rp, "tsteps", 10.0_rp)
+  @assertEqual(ctrl%start_time, 0.0_rp, tolerance=1e-6_rp)
   @assertEqual(ctrl%end_time, 1.0_rp, tolerance=1e-6_rp)
   @assertEqual(ctrl%time_interval, 0.0_rp, tolerance=1e-6_rp)
   @assertEqual(ctrl%frequency, 0.0_rp, tolerance=1e-6_rp)
