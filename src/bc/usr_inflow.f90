@@ -40,6 +40,7 @@ module usr_inflow
   use utils, only : neko_error, nonlinear_index, neko_warning
   use bc, only : bc_t
   use json_module, only : json_file
+  use, intrinsic :: iso_c_binding, only : c_sizeof, c_ptr, C_NULL_PTR
   implicit none
   private
 
@@ -276,7 +277,7 @@ contains
            (this%msk(0) .gt. 0)) then
          allocate(x(m), y(m), z(m)) ! Temp arrays
 
-         s = m*rp
+         s = m * c_sizeof(x(1))
 
          call device_alloc(usr_x_d, s)
          call device_alloc(usr_y_d, s)
@@ -372,10 +373,19 @@ contains
   end subroutine usr_inflow_validate
 
   !> Finalize
-  subroutine usr_inflow_finalize(this)
+  subroutine usr_inflow_finalize(this, only_facets)
     class(usr_inflow_t), target, intent(inout) :: this
+    logical, optional, intent(in) :: only_facets
+    logical :: only_facets_ = .false.
 
-    call this%finalize_base()
+    if (present(only_facets)) then
+       only_facets_ = only_facets
+    else
+       only_facets_ = .false.
+    end if
+
+    call this%finalize_base(only_facets_)
+
     call this%validate()
   end subroutine usr_inflow_finalize
 end module usr_inflow

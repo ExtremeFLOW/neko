@@ -20,7 +20,7 @@ htable_test_TESTS := htable_i4.pf\
 htable_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs/ -lneko
 $(eval $(call make_pfunit_test,htable_test))
 
-
+distclean:
 clean:
 	$(RM) *.o *.mod *.a  *.inc *.F90 htable_test
 

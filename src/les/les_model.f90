@@ -49,8 +49,7 @@ module les_model
   use device, only : device_memcpy, HOST_TO_DEVICE
   use math, only : col2
   use device_math, only : device_col2
-  use utils, only : neko_type_error, concat_string_array, neko_error, &
-       neko_warning
+  use utils, only : neko_type_error, neko_error, neko_warning
   use comm, only : pe_rank
   implicit none
   private

@@ -42,6 +42,7 @@ module shear_stress
   use neumann, only : neumann_t
   use json_module, only : json_file
   use json_utils, only : json_get
+  use vector, only : vector_t
   implicit none
   private
 
@@ -133,7 +134,7 @@ contains
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
 
-    call neko_error("shear_stress bc not implemented on the device")
+    call neko_error("The shear stress bc is not applicable to scalar fields.")
 
   end subroutine shear_stress_apply_scalar_dev
 
@@ -148,8 +149,17 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
+    logical :: strong_ = .true.
 
-    call neko_error("shear_stress bc not implemented on the device")
+    if (present(strong)) strong_ = strong
+
+    if (strong_) then
+       call this%symmetry%apply_vector_dev(x_d, y_d, z_d, t, tstep, .true.)
+    else
+       call this%neumann_x%apply_scalar_dev(x_d, t, tstep, .false.)
+       call this%neumann_y%apply_scalar_dev(y_d, t, tstep, .false.)
+       call this%neumann_z%apply_scalar_dev(z_d, t, tstep, .false.)
+    end if
 
   end subroutine shear_stress_apply_vector_dev
 
@@ -166,7 +176,7 @@ contains
 
     if (size(value) .ne. 3) then
        call neko_error ("The shear stress vector provided for the shear stress &
-            & boundary condition should have 3 components.")
+       & boundary condition should have 3 components.")
     end if
 
     call this%init_from_components(coef, value)
@@ -196,10 +206,18 @@ contains
 
   end subroutine shear_stress_init_from_components
 
-  subroutine shear_stress_finalize(this)
+  subroutine shear_stress_finalize(this, only_facets)
     class(shear_stress_t), target, intent(inout) :: this
+    logical, optional, intent(in) :: only_facets
+    logical :: only_facets_ = .false.
 
-    call this%finalize_base()
+    if (present(only_facets)) then
+       only_facets_ = only_facets
+    else
+       only_facets_ = .false.
+    end if
+
+    call this%finalize_base(only_facets_)
 
     call this%symmetry%mark_facets(this%marked_facet)
     call this%symmetry%finalize()
@@ -209,9 +227,9 @@ contains
     call this%neumann_y%mark_facets(this%marked_facet)
     call this%neumann_z%mark_facets(this%marked_facet)
 
-    call this%neumann_x%finalize()
-    call this%neumann_y%finalize()
-    call this%neumann_z%finalize()
+    call this%neumann_x%finalize(only_facets_)
+    call this%neumann_y%finalize(only_facets_)
+    call this%neumann_z%finalize(only_facets_)
 
   end subroutine shear_stress_finalize
 
@@ -231,11 +249,14 @@ contains
   end subroutine shear_stress_set_stress_scalar
 
   !> Set the shear stress components.
+  !! @param tau_x The x component of the stress.
+  !! @param tau_y The y component of the stress.
+  !! @param tau_z The z component of the stress.
   subroutine shear_stress_set_stress_array(this, tau_x, tau_y, tau_z)
     class(shear_stress_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: tau_x(this%msk(0))
-    real(kind=rp), intent(in) :: tau_y(this%msk(0))
-    real(kind=rp), intent(in) :: tau_z(this%msk(0))
+    type(vector_t), intent(in) :: tau_x
+    type(vector_t), intent(in) :: tau_y
+    type(vector_t), intent(in) :: tau_z
 
     call this%neumann_x%set_flux(tau_x)
     call this%neumann_y%set_flux(tau_y)

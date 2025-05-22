@@ -16,7 +16,7 @@ field_suite_TESTS := field_parallel.pf
 field_suite_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko @LDFLAGS@ @LIBS@
 $(eval $(call make_pfunit_test,field_suite))
 
-
+distclean:
 clean:
 	$(RM) *.o *.mod *.a  *.inc *.F90 field_suite
 

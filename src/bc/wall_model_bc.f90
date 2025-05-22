@@ -34,14 +34,11 @@
 !! Maintainer: Timofey Mukha.
 module wall_model_bc
   use num_types, only : rp
-  use bc, only : bc_t
   use, intrinsic :: iso_c_binding, only : c_ptr
-  use utils, only : neko_error, nonlinear_index
+  use utils, only : neko_error
   use json_utils, only : json_get
   use coefs, only : coef_t
   use wall_model, only : wall_model_t, wall_model_factory
-  use rough_log_law, only : rough_log_law_t
-  use spalding, only : spalding_t
   use shear_stress, only : shear_stress_t
   use json_module, only : json_file
   implicit none
@@ -114,18 +111,7 @@ contains
        call this%wall_model%compute(t, tstep)
 
        ! Populate the 3D wall stress field for post-processing.
-       do i = 1, this%msk(0)
-          magtau = sqrt(this%wall_model%tau_x(i)**2 + &
-               this%wall_model%tau_y(i)**2 + &
-               this%wall_model%tau_z(i)**2)
-
-          ! Mark sampling nodes with a -1 for debugging
-          this%wall_model%tau_field%x(this%wall_model%ind_r(i), &
-               this%wall_model%ind_s(i), &
-               this%wall_model%ind_t(i), &
-               this%wall_model%ind_e(i)) = -1.0_rp
-          this%wall_model%tau_field%x(this%msk(i),1,1,1) = magtau
-       end do
+       call this%wall_model%compute_mag_field()
 
        ! Set the computed stress for application by the underlying Neumann
        ! boundary conditions.
@@ -147,7 +133,7 @@ contains
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
 
-    call neko_error("wall_model_bc bc not implemented on the device")
+    call neko_error("The wall model bc is not applicable to scalar fields.")
 
   end subroutine wall_model_bc_apply_scalar_dev
 
@@ -162,8 +148,25 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
+    logical :: strong_ = .true.
 
-    call neko_error("wall_model_bc bc not implemented on the device")
+    if (present(strong)) strong_ = strong
+
+    if (.not. strong_) then
+       ! Compute the wall stress using the wall model.
+       call this%wall_model%compute(t, tstep)
+
+       ! Populate the 3D wall stress field for post-processing.
+       call this%wall_model%compute_mag_field()
+
+       ! Set the computed stress for application by the underlying Neumann
+       ! boundary conditions.
+       call this%set_stress(this%wall_model%tau_x, this%wall_model%tau_y, &
+            this%wall_model%tau_z)
+    end if
+
+    ! Either add the stress to the RHS or apply the non-penetration condition
+    call this%shear_stress_t%apply_vector_dev(x_d, y_d, z_d, t, tstep, strong_)
 
   end subroutine wall_model_bc_apply_vector_dev
 
@@ -192,14 +195,21 @@ contains
   end subroutine wall_model_bc_free
 
   !> Finalize by building mask arrays and init'ing the wall model.
-  subroutine wall_model_bc_finalize(this)
+  subroutine wall_model_bc_finalize(this, only_facets)
     class(wall_model_bc_t), target, intent(inout) :: this
+    logical, optional, intent(in) :: only_facets
+    logical :: only_facets_ = .false.
 
-    call this%shear_stress_t%finalize()
+    if (present(only_facets)) then
+       if (only_facets .eqv. .false.) then
+          call neko_error("For wall_model_bc_t, only_facets has to be true.")
+       end if
+    end if
+
+    call this%shear_stress_t%finalize(.true.)
+
     call wall_model_factory(this%wall_model, this%coef, this%msk, &
          this%facet, this%nu, this%params_)
-
-
   end subroutine wall_model_bc_finalize
 
 end module wall_model_bc
