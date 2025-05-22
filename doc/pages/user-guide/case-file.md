@@ -89,7 +89,7 @@ to the variable time-stepping algorithm.
 | Name                      | Description                                                                                 | Admissible values                 | Default value |
 | ------------------------- | ------------------------------------------------------------------------------------------- | --------------------------------- | ------------- |
 | `start_time`              | Start time at which the simulation is initiated.                                            | Positive reals                    | `0.0`         |
-| `end_time`                | Final time at which the simulation is stopped.                                              | Positive reals                    | -             |
+| `end_time`                | Final time after which the simulation is stopped.                                              | Positive reals                    | -             |
 | `timestep`                | Time-step size                                                                              | Positive reals                    | -             |
 | `variable_timestep`       | Whether to use variable dt                                                                  | `true` or `false`                 | `false`       |
 | `max_timestep`            | Maximum time-step size when variable time step is activated                                 | Positive reals                    | `huge`        |
