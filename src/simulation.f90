@@ -75,10 +75,10 @@ contains
     write(log_buf, '(A, E15.7,A,E15.7,A)') &
          'T  : [', C%time%t, ',', C%time%end_time, ']'
     call neko_log%message(log_buf)
-    if (.not. dt_controller%if_variable_dt) then
+    if (.not. dt_controller%is_variable_dt) then
        write(log_buf, '(A, E15.7)') 'dt :  ', C%time%dt
     else
-       write(log_buf, '(A, E15.7)') 'CFL :  ', dt_controller%set_cfl
+       write(log_buf, '(A, E15.7)') 'CFL :  ', dt_controller%cfl_trg
     end if
     call neko_log%message(log_buf)
 
@@ -131,10 +131,7 @@ contains
     tstep_start_time = start_time
 
     ! Compute the next time step
-    if (dt_controller%dt_last_change .eq. 0) then
-       cfl_avrg = cfl
-    end if
-    call dt_controller%set_dt(C%time%dt, cfl, cfl_avrg, C%time%tstep)
+    call dt_controller%set_dt(C%time, cfl)
 
     ! Calculate the cfl after the possibly varied dt
     cfl = C%fluid%compute_cfl(C%time%dt)
@@ -184,6 +181,7 @@ contains
     ! Execute all simulation components
     call neko_simcomps%compute(C%time)
 
+    ! Run the user checks
     call C%usr%user_check(C%time%t, C%time%tstep, C%fluid%u, C%fluid%v, &
          C%fluid%w, C%fluid%p, C%fluid%c_Xh, C%params)
 
