@@ -41,7 +41,6 @@
    Re         : 2.000000E+02
    Poly order : 5
    GLL points : 72576
-   Unique pts.: 44100
    rho        : 1.000000E+00
    mu         : 5.000000E-03
    Dealias    : T
@@ -131,7 +130,6 @@
         0.060000 | Y-Vel.       3    0.6731E-02    0.8003E-07
         0.060000 | Z-Vel.       2    0.3973E-04    0.1190E-07
     Fluid step time (s):     0.4503493E+00
-    Total elapsed time (s):  0.4503505E+00
 
     --------Postprocessing--------
     Force and torque on zone    7  Cylinder
@@ -160,7 +158,6 @@
         0.070000 | Y-Vel.       3    0.6173E-02    0.7185E-07
         0.070000 | Z-Vel.       2    0.3653E-04    0.1866E-07
     Fluid step time (s):     0.4628981E+00
-    Total elapsed time (s):  0.9383035E+00
 
     --------Postprocessing--------
     Force and torque on zone    7  Cylinder
@@ -189,7 +186,6 @@
         0.080000 | Y-Vel.       3    0.5904E-02    0.6759E-07
         0.080000 | Z-Vel.       2    0.2328E-04    0.7189E-08
     Fluid step time (s):     0.3957462E+00
-    Total elapsed time (s):  0.1356460E+01
 
     --------Postprocessing--------
     Force and torque on zone    7  Cylinder
@@ -218,7 +214,6 @@
         0.090000 | Y-Vel.       3    0.5718E-02    0.6455E-07
         0.090000 | Z-Vel.       2    0.1769E-04    0.5218E-08
     Fluid step time (s):     0.3641772E+00
-    Total elapsed time (s):  0.1743365E+01
 
     --------Postprocessing--------
     Force and torque on zone    7  Cylinder
@@ -247,7 +242,6 @@
         0.100000 | Y-Vel.       3    0.5563E-02    0.6210E-07
         0.100000 | Z-Vel.       2    0.8202E-05    0.1800E-08
     Fluid step time (s):     0.3880680E+00
-    Total elapsed time (s):  0.2153879E+01
 
     --------Postprocessing--------
     Force and torque on zone    7  Cylinder
@@ -283,7 +277,6 @@
         0.110000 | Y-Vel.       3    0.5447E-02    0.6005E-07
         0.110000 | Z-Vel.       2    0.1675E-04    0.2654E-08
     Fluid step time (s):     0.3381902E+00
-    Total elapsed time (s):  0.2527777E+01
 
     --------Postprocessing--------
     Force and torque on zone    7  Cylinder

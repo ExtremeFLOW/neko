@@ -41,7 +41,6 @@
    Re         : 2.000000E+02
    Poly order : 5
    GLL points : 72576
-   Unique pts.: 44100
    rho        : 1.000000E+00
    mu         : 5.000000E-03
    Dealias    : T
@@ -132,7 +131,6 @@
         0.010000 | Y-Vel.       5    0.2396E+00    0.3435E-07
         0.010000 | Z-Vel.       2    0.3865E-04    0.2519E-07
     Fluid step time (s):     0.7245635E+00
-    Total elapsed time (s):  0.7245657E+00
 
     --------Postprocessing--------
     Force and torque on zone    7  Cylinder
@@ -161,7 +159,6 @@
         0.020000 | Y-Vel.       4    0.1247E+00    0.6375E-07
         0.020000 | Z-Vel.       2    0.9152E-04    0.3041E-07
     Fluid step time (s):     0.7148586E+00
-    Total elapsed time (s):  0.1465081E+01
 
     --------Postprocessing--------
     Force and torque on zone    7  Cylinder
@@ -190,7 +187,6 @@
         0.030000 | Y-Vel.       4    0.3156E-01    0.5894E-08
         0.030000 | Z-Vel.       2    0.6959E-04    0.3397E-07
     Fluid step time (s):     0.6538639E+00
-    Total elapsed time (s):  0.2142178E+01
 
     --------Postprocessing--------
     Force and torque on zone    7  Cylinder
@@ -219,7 +215,6 @@
         0.040000 | Y-Vel.       4    0.1013E-01    0.2310E-08
         0.040000 | Z-Vel.       2    0.8058E-04    0.3750E-07
     Fluid step time (s):     0.6874368E+00
-    Total elapsed time (s):  0.2855441E+01
 
     --------Postprocessing--------
     Force and torque on zone    7  Cylinder
@@ -248,7 +243,6 @@
         0.050000 | Y-Vel.       4    0.1039E-01    0.2139E-08
         0.050000 | Z-Vel.       2    0.6036E-04    0.2458E-07
     Fluid step time (s):     0.5927321E+00
-    Total elapsed time (s):  0.3473119E+01
 
     --------Postprocessing--------
     Force and torque on zone    7  Cylinder
@@ -284,7 +278,6 @@
         0.060000 | Y-Vel.       3    0.6731E-02    0.8003E-07
         0.060000 | Z-Vel.       2    0.3973E-04    0.1190E-07
     Fluid step time (s):     0.4309591E+00
-    Total elapsed time (s):  0.3951747E+01
 
     --------Postprocessing--------
     Force and torque on zone    7  Cylinder
@@ -313,7 +306,6 @@
         0.070000 | Y-Vel.       3    0.6173E-02    0.7185E-07
         0.070000 | Z-Vel.       2    0.3653E-04    0.1866E-07
     Fluid step time (s):     0.4609448E+00
-    Total elapsed time (s):  0.4436733E+01
 
     --------Postprocessing--------
     Force and torque on zone    7  Cylinder
@@ -342,7 +334,6 @@
         0.080000 | Y-Vel.       3    0.5904E-02    0.6759E-07
         0.080000 | Z-Vel.       2    0.2328E-04    0.7189E-08
     Fluid step time (s):     0.4048951E+00
-    Total elapsed time (s):  0.4864234E+01
 
     --------Postprocessing--------
     Force and torque on zone    7  Cylinder
@@ -371,7 +362,6 @@
         0.090000 | Y-Vel.       3    0.5718E-02    0.6455E-07
         0.090000 | Z-Vel.       2    0.1769E-04    0.5218E-08
     Fluid step time (s):     0.3694462E+00
-    Total elapsed time (s):  0.5258614E+01
 
     --------Postprocessing--------
     Force and torque on zone    7  Cylinder
@@ -400,7 +390,6 @@
         0.100000 | Y-Vel.       3    0.5563E-02    0.6210E-07
         0.100000 | Z-Vel.       2    0.8202E-05    0.1800E-08
     Fluid step time (s):     0.3598261E+00
-    Total elapsed time (s):  0.5641323E+01
 
     --------Postprocessing--------
     Force and torque on zone    7  Cylinder
@@ -436,7 +425,6 @@
         0.110000 | Y-Vel.       3    0.5447E-02    0.6005E-07
         0.110000 | Z-Vel.       2    0.1675E-04    0.2654E-08
     Fluid step time (s):     0.3545675E+00
-    Total elapsed time (s):  0.6041530E+01
 
     --------Postprocessing--------
     Force and torque on zone    7  Cylinder
