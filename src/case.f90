@@ -238,9 +238,9 @@ contains
        allocate(this%scalar)
        call json_extract_object(this%params, 'case.scalar', scalar_params)
        call this%scalar%init(this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
-            scalar_params, numerics_params, this%usr, this%chkp, this%fluid%ulag, &
-            this%fluid%vlag, this%fluid%wlag, this%fluid%ext_bdf, &
-            this%fluid%rho)
+            scalar_params, numerics_params, this%usr, this%chkp, &
+            this%fluid%ulag, this%fluid%vlag, this%fluid%wlag, &
+            this%fluid%ext_bdf, this%fluid%rho)
 
     end if
 
@@ -263,12 +263,12 @@ contains
        if (trim(string_val) .eq. 'compressible') then
           call set_flow_ic(this%fluid%rho, &
                this%fluid%u, this%fluid%v, this%fluid%w, this%fluid%p, &
-               this%fluid%c_Xh, this%fluid%gs_Xh, this%usr%fluid_compressible_user_ic, &
-               this%params)
+               this%fluid%c_Xh, this%fluid%gs_Xh, &
+               this%usr%fluid_compressible_user_ic, this%params)
        else
-          call set_flow_ic(this%fluid%u, this%fluid%v, this%fluid%w, this%fluid%p,&
-               this%fluid%c_Xh, this%fluid%gs_Xh, this%usr%fluid_user_ic, &
-               this%params)
+          call set_flow_ic(this%fluid%u, this%fluid%v, this%fluid%w, &
+               this%fluid%p, this%fluid%c_Xh, this%fluid%gs_Xh, &
+               this%usr%fluid_user_ic, this%params)
        end if
     end if
 

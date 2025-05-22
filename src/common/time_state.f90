@@ -53,7 +53,8 @@ module time_state
 
    contains
      generic :: init => init_from_components, init_from_json
-     procedure, pass(this) :: init_from_components => time_state_init_from_components
+     procedure, pass(this) :: init_from_components => &
+          time_state_init_from_components
      procedure, pass(this) :: init_from_json => time_state_init_from_json
      procedure, pass(this) :: reset => time_state_reset
      procedure, pass(this) :: status => time_state_status
