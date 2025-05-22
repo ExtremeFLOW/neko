@@ -53,6 +53,7 @@ module scalars
   use user_intf, only: user_t
   use utils, only: neko_error
   use coefs, only : coef_t
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -97,7 +98,7 @@ contains
     type(user_t), target, intent(in) :: user
     type(field_series_t), target, intent(in) :: ulag, vlag, wlag
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
-    real(kind=rp), intent(in) :: rho
+    TYPE(field_t), TARGET, INTENT(IN) :: rho
     type(chkp_t), target, intent(inout) :: chkp
     type(json_file) :: json_subdict
     integer :: i
@@ -122,7 +123,7 @@ contains
     type(chkp_t), target, intent(inout) :: chkp
     type(field_series_t), target, intent(in) :: ulag, vlag, wlag
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
-    real(kind=rp), intent(in) :: rho
+    TYPE(field_t), TARGET, INTENT(IN) :: rho
     
     ! Allocate a single scalar field
     allocate(scalar_pnpn_t::this%scalar(1))
@@ -132,32 +133,31 @@ contains
   end subroutine scalars_init_single
   
   !> Perform a time step for all scalar fields
-  subroutine scalars_step(this, t, tstep, dt, ext_bdf, dt_controller)
+  subroutine scalars_step(this, time, ext_bdf, dt_controller)
     class(scalars_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    real(kind=rp), intent(in) :: dt
+    type(time_state_t), intent(in) :: time
     type(time_scheme_controller_t), intent(inout) :: ext_bdf
     type(time_step_controller_t), intent(inout) :: dt_controller
     integer :: i
 
     ! Iterate through all scalar fields
     do i = 1, size(this%scalar)
-       call this%scalar(i)%step(t, tstep, dt, ext_bdf, dt_controller)
-       !exit ! DEBUGGING This loop doesn't work because of some dependencies in the scalar_pnpn module
+       call this%scalar(i)%step(time, ext_bdf, dt_controller)
     end do
   end subroutine scalars_step
   
   !> Update the material properties for all scalar fields
-  subroutine scalars_update_material_properties(this)
+  subroutine scalars_update_material_properties(this, t, tstep)
     class(scalars_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
     integer :: i
     
     ! Iterate through all scalar fields
     do i = 1, size(this%scalar)
        this%scalar(i)%cp = 1.0_rp
        this%scalar(i)%lambda = 1e-16_rp
-       call this%scalar(i)%update_material_properties()
+       call this%scalar(i)%update_material_properties(t, tstep)
     end do
   end subroutine scalars_update_material_properties
   

@@ -173,23 +173,29 @@ module user_intf
   !> Abstract interface for setting material properties.
   !! @param t Time value.
   !! @param tstep Current time step.
-  !! @param rho Fluid density.
-  !! @param mu Fluid dynamic viscosity.
-  !! @param cp Scalar specific heat capacity.
-  !! @param lambda Scalar thermal conductivity.
+  !! @param name The name of the solver calling the routine. By default
+  !! "fluid" or "scalar"
+  !! @param properties Array of properties, defined by convention for each
+  !! scheme.
+  !! @param params The JSON configuration of the scheme.
   abstract interface
-     subroutine user_material_properties(t, tstep, rho, mu, cp, lambda, params)
-       import rp
-       import json_file
+     subroutine user_material_properties(t, tstep, name, properties)
+       import rp, field_list_t
        real(kind=rp), intent(in) :: t
        integer, intent(in) :: tstep
-       real(kind=rp), intent(inout) :: rho, mu, cp, lambda
-       type(json_file), intent(inout) :: params
+       character(len=*), intent(in) :: name
+       type(field_list_t), intent(inout) :: properties
      end subroutine user_material_properties
   end interface
 
-  !> A type collecting all the overridable user routines.
+  !> A type collecting all the overridable user routines and flag to suppress
+  !! type injection from custom modules.
   type, public :: user_t
+     !> Setting this to true in the user_setup routine in the user file will
+     !! suppress custom modules registering their types in the factories. So you
+     !! have to take care of type injection in `user_startup`. Use if you really
+     !! want full control  over type injection for some reason.
+     logical :: suppress_type_injection = .false.
      !> Run as soon as the case file is read, with nothing else initialized.
      !! Use to manipulate the case file, and define custom parameters.
      procedure(user_startup_intrf), nopass, pointer :: &
@@ -562,12 +568,11 @@ contains
     integer, intent(in) :: tstep
   end subroutine dirichlet_do_nothing
 
-  subroutine dummy_user_material_properties(t, tstep, rho, mu, cp, lambda,&
-       params)
+  subroutine dummy_user_material_properties(t, tstep, name, properties)
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    real(kind=rp), intent(inout) :: rho, mu, cp, lambda
-    type(json_file), intent(inout) :: params
+    character(len=*), intent(in) :: name
+    type(field_list_t), intent(inout) :: properties
   end subroutine dummy_user_material_properties
 
   ! ========================================================================== !
