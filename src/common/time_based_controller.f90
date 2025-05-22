@@ -143,7 +143,7 @@ contains
     logical :: check
     logical :: ifforce
 
-    t = time%t
+    t = time%t - time%start_time
     dt = time%dt
     tstep = time%tstep
 
@@ -199,7 +199,8 @@ contains
     type(time_state_t) :: time
 
     if (this%nsteps .eq. 0) then
-       this%nexecutions = int((time%t+0.1_rp*time%dt) / this%time_interval) + 1
+       this%nexecutions = int(((time%t - time%start_time) + 0.1_rp*time%dt) &
+            / this%time_interval) + 1
     end if
 
   end subroutine time_based_controller_set_counter
