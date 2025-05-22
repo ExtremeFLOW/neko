@@ -76,7 +76,7 @@ module output_controller
 contains
 
   !> Constructor.
-  !! @param time_end The end time of thesimulation.
+  !! @param time_end The end time of the simulation.
   !! @param size The number of controllers to allocate for. Optional, defaults
   !! to 1.
   subroutine output_controller_init(this, time_end, size)
@@ -137,11 +137,19 @@ contains
     real(kind=rp), intent(in) :: write_par
     character(len=*), intent(in) :: write_control
     real(kind=rp), optional, intent(in) :: start_time
+    real(kind=rp) :: start_time_
     type(output_ptr_t), allocatable :: tmp(:)
     type(time_based_controller_t), allocatable :: tmp_ctrl(:)
     character(len=LOG_SIZE) :: log_buf
     integer :: n, nexecutions
     class(*), pointer :: ft
+
+    if (present(start_time)) then
+       start_time_ = start_time
+    else
+       start_time_ = 0.0_rp
+    end if
+
 
     if (this%n .ge. this%size) then
        allocate(tmp(this%size * 2))
@@ -163,7 +171,8 @@ contains
     if (trim(write_control) .eq. "org") then
        this%controllers(n) = this%controllers(1)
     else
-       call this%controllers(n)%init(this%time_end, write_control, write_par)
+       call this%controllers(n)%init(start_time_, this%time_end, &
+            write_control, write_par)
     end if
 
     if (present(start_time)) then

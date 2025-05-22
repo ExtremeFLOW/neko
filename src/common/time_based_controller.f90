@@ -52,6 +52,8 @@ module time_based_controller
      real(kind=rp) :: time_interval = 0
      !> Number of time steps in between executions.
      integer :: nsteps = 0
+     !> Simulation start time.
+     real(kind=rp) :: start_time = 0
      !> Simulation end time.
      real(kind=rp) :: end_time = 0
      !> Number of times already executed.
@@ -88,13 +90,15 @@ contains
   !! @param end_time The final simulation time.
   !! @param control_mode The way to interpret the `control_value` parameter.
   !! @param control_value The value definining the execution frequency.
-  subroutine time_based_controller_init(this, end_time, control_mode, &
-       control_value)
+  subroutine time_based_controller_init(this, start_time, end_time, &
+       control_mode, control_value)
     class(time_based_controller_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: start_time
     real(kind=rp), intent(in) :: end_time
     character(len=*), intent(in) :: control_mode
     real(kind=rp), intent(in) :: control_value
 
+    this%start_time = start_time
     this%end_time = end_time
     this%control_mode = control_mode
     this%control_value = control_value
@@ -108,7 +112,7 @@ contains
           call neko_error("nsamples must be positive")
        end if
 
-       this%frequency = control_value / end_time
+       this%frequency = control_value / (end_time - start_time)
        this%time_interval = 1.0_rp / this%frequency
        this%nsteps = 0
     else if (trim(control_mode) .eq. 'tsteps') then
@@ -143,7 +147,7 @@ contains
     logical :: check
     logical :: ifforce
 
-    t = time%t - time%start_time
+    t = time%t - this%start_time
     dt = time%dt
     tstep = time%tstep
 
