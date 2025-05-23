@@ -101,10 +101,48 @@ contains
     TYPE(field_t), TARGET, INTENT(IN) :: rho
     type(chkp_t), target, intent(inout) :: chkp
     type(json_file) :: json_subdict
-    integer :: i
+    integer :: i, j
+    character(len=:), allocatable :: field_name
+    character(len=256) :: error_msg
+    character(len=:), allocatable :: field_names(:)
+
     ! Allocate the scalar fields
     ! If there are more scalar_scheme_t types, add a factory function here
     allocate(scalar_pnpn_t::this%scalar(n_scalars))
+
+    ! For multiple scalars, collect and validate field names
+    if (n_scalars > 1) then
+      allocate(character(len=256) :: field_names(n_scalars))
+      
+      do i = 1, n_scalars
+        call json_extract_item(params, "", i, json_subdict)
+        
+        ! Require field_name to be explicitly specified
+        if (.not. json_subdict%valid_path('field_name')) then
+            write(error_msg, '(A,I0,A)') 'field_name is required for scalar ', i, &
+                ' when using multiple scalars. Please specify a unique field_name for each scalar.'
+            call neko_error(trim(error_msg))
+        end if
+        
+        call json_get(json_subdict, 'field_name', field_name)
+        
+        ! Check that field_name is not empty
+        if (len_trim(field_name) == 0) then
+            write(error_msg, '(A,I0,A)') 'field_name cannot be empty for scalar ', i, &
+                ' when using multiple scalars.'
+            call neko_error(trim(error_msg))
+        end if
+        
+        field_names(i) = trim(field_name)
+        
+        ! Check for duplicates
+        do j = 1, i-1
+          if (trim(field_names(i)) == trim(field_names(j))) then
+             call neko_error('Duplicate field_name found. Each scalar must have a unique field_name')
+          end if
+        end do
+      end do
+    end if
 
     do i = 1, n_scalars
        call json_extract_item(params, "", i, json_subdict)
