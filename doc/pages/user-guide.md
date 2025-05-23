@@ -11,3 +11,4 @@ advanced topics such as statistics and user defined extensions.
 - \subpage point-zones
 - \subpage statistics-guide
 - \subpage io
+- \subpage extending
