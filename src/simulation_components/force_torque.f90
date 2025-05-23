@@ -35,6 +35,7 @@
 
 module force_torque
   use num_types, only : rp, dp, sp
+  use time_based_controller, only : time_based_controller_t
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
@@ -43,9 +44,7 @@ module force_torque
   use field, only : field_t
   use operators, only : curl
   use case, only : case_t
-  use fld_file_output, only : fld_file_output_t
   use json_utils, only : json_get, json_get_or_default
-  use field_writer, only : field_writer_t
   use coefs, only : coef_t
   use operators, only : strain_rate
   use vector, only : vector_t
@@ -98,7 +97,17 @@ module force_torque
      !> Constructor from json, wrapping the actual constructor.
      procedure, pass(this) :: init => force_torque_init_from_json
      !> Common part of constructors.
-     procedure, pass(this) :: init_common => force_torque_init_common
+     procedure, private, pass(this) :: init_common => force_torque_init_common
+     !> Generic for constructing from components.
+     generic :: init_from_components => &
+          init_from_controllers, init_from_controllers_properties
+     !> Constructor from components, passing time_based_controllers.
+     procedure, pass(this) :: init_from_controllers => &
+          force_torque_init_from_controllers
+     !> Constructor from components, passing the properties of
+     !! time_based_controllers.
+     procedure, pass(this) :: init_from_controllers_properties => &
+          force_torque_init_from_controllers_properties
      !> Destructor.
      procedure, pass(this) :: free => force_torque_free
      !> Compute the force_torque field.
@@ -127,11 +136,101 @@ contains
     call json_get_or_default(json, 'long_print', long_print, .false.)
     call json_get(json, 'center', center)
 
-    call force_torque_init_common(this, fluid_name, zone_id, zone_name, &
-         center, scale, case%fluid%c_xh, long_print)
+    call this%init_common(fluid_name, zone_id, zone_name, center, scale, &
+         case%fluid%c_xh, long_print)
   end subroutine force_torque_init_from_json
 
-  !> Actual constructor.
+  !> Constructor from components, passing controllers.
+  !! @param case The simulation case object.
+  !! @param order The execution oder priority of the simcomp.
+  !! @param preprocess_controller The controller for running preprocessing.
+  !! @param compute_controller The controller for running compute.
+  !! @param output_controller The controller for producing output.
+  !! @param fluid_name The name of the fluid solver.
+  !! @param zone_id The id of the boundary zone.
+  !! @param zone_name The name of the boundary zone, to use in the log. 
+  !! @param center The center of the torque calculation.
+  !! @param scale Normalization factor.
+  !! @param coef The SEM coefficients.
+  !! @param long_print If true, use a more precise print format.
+  subroutine force_torque_init_from_controllers(this, case, order, &
+       preprocess_controller, compute_controller, output_controller, &
+       fluid_name, zone_id, zone_name, center, scale, coef, long_print)
+    class(force_torque_t), intent(inout) :: this
+    class(case_t), intent(inout), target :: case
+    integer :: order
+    type(time_based_controller_t), intent(in) :: preprocess_controller
+    type(time_based_controller_t), intent(in) :: compute_controller
+    type(time_based_controller_t), intent(in) :: output_controller
+    character(len=*), intent(in) :: fluid_name
+    character(len=*), intent(in) :: zone_name
+    integer, intent(in) :: zone_id
+    real(kind=rp), intent(in) :: center(3)
+    real(kind=rp), intent(in) :: scale
+    type(coef_t), target, intent(in) :: coef
+    logical, intent(in) :: long_print
+
+    call this%init_base_from_components(case, order, preprocess_controller, &
+         compute_controller, output_controller)
+    call this%init_common(fluid_name, zone_id, zone_name, center, scale, &
+         coef, long_print)
+
+  end subroutine force_torque_init_from_controllers
+
+  !> Constructor from components, passing properties to the
+  !! time_based_controller` components in the base type.
+  !! @param case The simulation case object.
+  !! @param order The execution oder priority of the simcomp.
+  !! @param preprocess_controller Control mode for preprocessing.
+  !! @param preprocess_value Value parameter for preprocessing.
+  !! @param compute_controller Control mode for computing.
+  !! @param compute_value Value parameter for computing.
+  !! @param output_controller Control mode for output.
+  !! @param output_value Value parameter for output.
+  !! @param fluid_name The name of the fluid solver.
+  !! @param zone_id The id of the boundary zone.
+  !! @param zone_name The name of the boundary zone, to use in the log. 
+  !! @param center The center of the torque calculation.
+  !! @param scale Normalization factor.
+  !! @param coef The SEM coefficients.
+  !! @param long_print If true, use a more precise print format.
+  subroutine force_torque_init_from_controllers_properties(this, &
+       case, order, preprocess_control, preprocess_value, compute_control, &
+       compute_value, output_control, output_value, fluid_name, zone_name, &
+       zone_id, center, scale, coef, long_print)  
+    class(force_torque_t), intent(inout) :: this
+    class(case_t), intent(inout), target :: case
+    integer :: order
+    character(len=*), intent(in) :: preprocess_control
+    real(kind=rp), intent(in) :: preprocess_value
+    character(len=*), intent(in) :: compute_control
+    real(kind=rp), intent(in) :: compute_value
+    character(len=*), intent(in) :: output_control
+    real(kind=rp), intent(in) :: output_value
+    character(len=*), intent(in) :: fluid_name
+    character(len=*), intent(in) :: zone_name
+    integer, intent(in) :: zone_id
+    real(kind=rp), intent(in) :: center(3)
+    real(kind=rp), intent(in) :: scale
+    type(coef_t), target, intent(in) :: coef
+    logical, intent(in) :: long_print
+
+    call this%init_base_from_components(case, order, preprocess_control, &
+         preprocess_value, compute_control, compute_value, output_control, &
+         output_value)
+    call this%init_common(fluid_name, zone_id, zone_name, center, scale, &
+         coef, long_print)
+
+  end subroutine force_torque_init_from_controllers_properties
+
+  !> Common part of constructors.
+  !! @param fluid_name The name of the fluid solver.
+  !! @param zone_id The id of the boundary zone.
+  !! @param zone_name The name of the boundary zone, to use in the log. 
+  !! @param center The center of the torque calculation.
+  !! @param scale Normalization factor.
+  !! @param coef The SEM coefficients.
+  !! @param long_print If true, use a more precise print format.
   subroutine force_torque_init_common(this, fluid_name, zone_id, &
   & zone_name, center, scale, coef, long_print)
     class(force_torque_t), intent(inout) :: this
@@ -161,7 +260,7 @@ contains
     this%v => neko_field_registry%get_field_by_name("v")
     this%w => neko_field_registry%get_field_by_name("w")
     this%p => neko_field_registry%get_field_by_name("p")
-    this%mu => neko_field_registry%get_field_by_name(fluid_name // 'mu_tot')
+    this%mu => neko_field_registry%get_field_by_name(fluid_name // '_mu_tot')
 
 
     call this%bc%init_base(this%coef)

@@ -108,7 +108,7 @@ module neko
        simulation_component_allocator, simulation_component_allocate, &
        register_simulation_component
   use probes, only : probes_t
-  use spectral_error
+  use spectral_error, only : spectral_error_t
   use profiler, only : profiler_start, profiler_stop, &
        profiler_start_region, profiler_end_region
   use system, only : system_cpu_name, system_cpuid
@@ -137,6 +137,7 @@ module neko
   use curl_simcomp, only : curl_t
   use gradient_simcomp, only : gradient_t
   use weak_gradient_simcomp, only : weak_gradient_t
+  use force_torque, only : force_torque_t
   use lambda2, only : lambda2_t
   use time_based_controller, only : time_based_controller_t
   use time_step_controller, only : time_step_controller_t
