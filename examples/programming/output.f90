@@ -9,7 +9,8 @@ module user
   use neko
   implicit none
 
-  ! A custom field we will output
+  ! Custom fields we will output. We add the target attribute to make sure we
+  ! can point to them.
   type(field_t), target :: my_field1
   type(field_t), target :: my_field2
 
@@ -42,12 +43,10 @@ contains
     type(json_file), intent(inout) :: params
     ! A writer for .fld files
     type(fld_file_t) :: fld_writer
-    ! Storage for a list of fields
+    ! Storage for a list of fields, two in our case
     type(field_list_t) :: field_pair
     ! A writer for CSV files
     type(csv_file_t) :: csv_writer
-
-    type(field_t), pointer :: field_ptr1, field_ptr2
 
     !
     ! WRITING FLD FILES
@@ -73,22 +72,23 @@ contains
     ! Initialize the field_list_t object with the number of fields we want to 
     ! pack.
     call field_pair%init(2)
+
     ! Assign the fields to the list, the first parameter is the index of the
     ! field in the list, the second is the field itself.
+    call field_pair%assign_to_field(1, my_field1)
+    call field_pair%assign_to_field(2, my_field2)
 
-    field_ptr1 => my_field1
-    field_ptr2 => my_field2 
-    call field_pair%assign(1, field_ptr1)
-    call field_pair%assign(2, field_ptr2)
 
     ! Write the list of fields to a different file, they will be put in the 
     ! pressure and temperature inside the fld.
     call fld_writer%init("my_output2.fld")
     call fld_writer%write(field_pair)
 
-    ! If one has 3 fields in the list, they will instead be writtent as velocity
-    ! components. Further adding 1 will populate the pressure, then the next
-    ! field will be the temperature, and all consecutive fields wil be scalars.
+    ! If one has 3 fields in the list, they will instead be written as velocity
+    ! components. Further adding 1 will populate the pressure with the first
+    ! field and then the next 3 will be the velocity components. Adding a fifth
+    ! field will put it into temperature, and all consecutive fields will be
+    ! scalars.
 
     ! Finally, note that you can set the precision of the output by calling
     call fld_writer%set_precision(dp) ! <- sets double precision output
@@ -127,7 +127,7 @@ contains
     real(kind=rp) :: t
     type(json_file), intent(inout) :: params
 
-    ! Don't forget to free the types you initialized
+    ! Don't forget to free the objects you initialized
     call my_field1%free()
     call my_field2%free()
     call vec%free()
