@@ -50,13 +50,16 @@ module force_torque
   use operators, only : strain_rate
   use vector, only : vector_t
   use dirichlet, only : dirichlet_t
-  use drag_torque
+  use drag_torque, only : calc_force_array, device_calc_force_array, &
+      setup_normals
   use logger, only : LOG_SIZE, neko_log
-  use comm
+  use neko_config, only : NEKO_BCKND_DEVICE
   use math, only : masked_gather_copy, cadd, glsum, vcross
   use device_math, only : device_masked_gather_copy, device_cadd, &
        device_glsum, device_vcross
-  use device
+  use mpi_f08, only : MPI_INTEGER, MPI_SUM
+  use comm, only : NEKO_COMM
+  use device, only: device_memcpy, HOST_TO_DEVICE
 
   implicit none
   private
