@@ -11,9 +11,9 @@ contains
   end subroutine user_setup
 
   !> User initial condition for the scalars
-  subroutine set_scalars_ic(s, solver_name, params)
+  subroutine set_scalars_ic(s, field_name, params)
     type(field_t), intent(inout) :: s
-    CHARACTER(len=*), INTENT(IN) :: solver_name
+    CHARACTER(len=*), INTENT(IN) :: field_name
     type(json_file), intent(inout) :: params
     integer :: i, e, k, j
     real(kind=rp) :: cone_radius, mux, muy, x, y, r, theta

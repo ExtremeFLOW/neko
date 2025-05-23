@@ -115,6 +115,7 @@ contains
       allocate(character(len=256) :: field_names(n_scalars))
       
       do i = 1, n_scalars
+        ! Extract element i from the "scalars" array
         call json_extract_item(params, "", i, json_subdict)
         
         ! Require field_name to be explicitly specified

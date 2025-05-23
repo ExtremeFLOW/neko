@@ -150,18 +150,18 @@ contains
   !> Set scalar initial condition (user defined)
   !! @details Set scalar initial condition using a user defined function.
   !! @param s Scalar field.
-  !! @param solver_name Name of the scalar_scheme_t solver.
+  !! @param field_name Name of the scalar_scheme_t solver.
   !! @param params JSON parameters.
-  subroutine set_scalars_ic_usr(s, coef, gs, usr_ic, solver_name, params)
+  subroutine set_scalars_ic_usr(s, coef, gs, usr_ic, field_name, params)
     type(field_t), intent(inout) :: s
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
     procedure(useric_scalars) :: usr_ic
-    character(len=*), intent(in) :: solver_name
+    character(len=*), intent(in) :: field_name
     type(json_file), intent(inout) :: params
 
     call neko_log%message("Type: user")
-    call usr_ic(s, solver_name, params)
+    call usr_ic(s, field_name, params)
 
     call set_scalar_ic_common(s, coef, gs)
 

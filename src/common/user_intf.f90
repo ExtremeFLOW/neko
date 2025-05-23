@@ -100,11 +100,11 @@ module user_intf
   end interface
 
   abstract interface
-     subroutine useric_scalars(s, solver_name, params)
+     subroutine useric_scalars(s, field_name, params)
        import field_t
        import json_file
        type(field_t), intent(inout) :: s
-       character(len=*), intent(in) :: solver_name
+       character(len=*), intent(in) :: field_name
        type(json_file), intent(inout) :: params
      end subroutine useric_scalars
   end interface
@@ -458,9 +458,9 @@ contains
     call neko_error('Dummy user defined scalar initial condition set')
   end subroutine dummy_user_ic_scalar
 
-  subroutine dummy_user_ic_scalars(s, solver_name, params)
+  subroutine dummy_user_ic_scalars(s, field_name, params)
       type(field_t), intent(inout) :: s
-      character(len=*), intent(in) :: solver_name
+      character(len=*), intent(in) :: field_name
       type(json_file), intent(inout) :: params
     call neko_warning('Dummy multiple scalar initial condition called')
   end subroutine dummy_user_ic_scalars

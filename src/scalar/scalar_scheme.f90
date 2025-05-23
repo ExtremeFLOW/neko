@@ -260,7 +260,9 @@ contains
     this%rho => rho
 
     ! Assign a name
-    call json_get_or_default(params, 'name', this%name, 'scalar')
+    call json_get_or_default(params, 'field_name', field_name, 's')
+
+    this%name = field_name
 
     call neko_log%section('Scalar')
     call json_get(params, 'solver.type', solver_type)
@@ -291,8 +293,6 @@ contains
     this%dm_Xh => this%u%dof
     this%params => params
     this%msh => msh
-
-    call json_get_or_default(params, 'field_name', field_name, 's')
 
     if (.not. neko_field_registry%field_exists(field_name)) then
        call neko_field_registry%add_field(this%dm_Xh, field_name)
