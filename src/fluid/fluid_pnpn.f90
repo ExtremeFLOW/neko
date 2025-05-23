@@ -642,7 +642,7 @@ contains
          vel_projection_dim => this%vel_projection_dim, &
          pr_projection_dim => this%pr_projection_dim, &
          oifs => this%oifs, &
-         rho => this%rho, mu => this%mu, &
+         rho => this%rho, mu_tot => this%mu_tot, &
          f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
          t => time%t, tstep => time%tstep, dt => time%dt, &
          ext_bdf => this%ext_bdf, event => glb_cmd_event)
@@ -719,7 +719,7 @@ contains
            c_Xh, gs_Xh, &
            this%bc_prs_surface, this%bc_sym_surface,&
            Ax_prs, ext_bdf%diffusion_coeffs(1), dt, &
-           mu, rho, event)
+           mu_tot, rho, event)
 
       ! De-mean the pressure residual when no strong pressure boundaries present
       if (.not. this%prs_dirichlet) call ortho(p_res%x, this%glb_n_points, n)
@@ -763,7 +763,7 @@ contains
            p, &
            f_x, f_y, f_z, &
            c_Xh, msh, Xh, &
-           mu, rho, ext_bdf%diffusion_coeffs(1), &
+           mu_tot, rho, ext_bdf%diffusion_coeffs(1), &
            dt, dm_Xh%size())
 
       call gs_Xh%op(u_res, GS_OP_ADD, event)
@@ -805,7 +805,7 @@ contains
       if (this%forced_flow_rate) then
          ! Horrible mu hack?!
          call this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &
-              c_Xh, gs_Xh, ext_bdf, rho%x(1,1,1,1), mu%x(1,1,1,1), &
+              c_Xh, gs_Xh, ext_bdf, rho%x(1,1,1,1), mu_tot, &
               dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &
               this%bclst_dw, this%bclst_vel_res, Ax_vel, Ax_prs, this%ksp_prs, &
               this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_prs%max_iter, &

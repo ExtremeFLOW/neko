@@ -61,8 +61,8 @@ module force_torque
   implicit none
   private
 
-  !> A simulation component that computes the force_torque field.
-  !! Added to the field registry as `omega_x`, `omega_y``, and `omega_z`.
+  !> A simulation component that computes the force and torque on a given
+  !! boundary zone.
   type, public, extends(simulation_component_t) :: force_torque_t
      !> X velocity component.
      type(field_t), pointer :: u
@@ -72,6 +72,8 @@ module force_torque
      type(field_t), pointer :: w
      !> Pressure.
      type(field_t), pointer :: p
+     !> Total dynamic viscosity.
+     type(field_t), pointer :: mu
 
      !Masked working arrays
      type(vector_t) :: n1, n2, n3
@@ -79,6 +81,7 @@ module force_torque
      type(vector_t) :: force1, force2, force3
      type(vector_t) :: force4, force5, force6
      type(vector_t) :: pmsk
+     type(vector_t) :: mu_msk
      type(vector_t) :: s11msk, s22msk, s33msk, s12msk, s13msk, s23msk
      real(kind=rp) :: center(3) = 0.0_rp
      real(kind=rp) :: scale
@@ -91,9 +94,8 @@ module force_torque
    contains
      !> Constructor from json, wrapping the actual constructor.
      procedure, pass(this) :: init => force_torque_init_from_json
-     !> Actual constructor.
-     procedure, pass(this) :: init_from_components => &
-          force_torque_init_from_components
+     !> Common part of constructors.
+     procedure, pass(this) :: init_common => force_torque_init_common
      !> Destructor.
      procedure, pass(this) :: free => force_torque_free
      !> Compute the force_torque field.
@@ -109,31 +111,30 @@ contains
     class(case_t), intent(inout), target :: case
     integer :: zone_id
     real(kind=rp), allocatable :: center(:)
-    character(len=:), allocatable :: zone_name
+    character(len=:), allocatable :: zone_name, fluid_name
     real(kind=rp) :: scale
     logical :: long_print
 
-    ! Add fields keyword to the json so that the field_writer picks it up.
-    ! Will also add fields to the registry.
-
     call this%init_base(json, case)
 
+    call json_get_or_default(json, 'fluid_name', fluid_name, 'fluid')
     call json_get(json, 'zone_id', zone_id)
     call json_get_or_default(json, 'zone_name', zone_name, ' ')
     call json_get_or_default(json, 'scale', scale, 1.0_rp)
     call json_get_or_default(json, 'long_print', long_print, .false.)
     call json_get(json, 'center', center)
-    call force_torque_init_from_components(this, zone_id, zone_name, &
-         center, scale, case%fluid%c_xh, &
-         long_print)
+
+    call force_torque_init_common(this, fluid_name, zone_id, zone_name, &
+         center, scale, case%fluid%c_xh, long_print)
   end subroutine force_torque_init_from_json
 
   !> Actual constructor.
-  subroutine force_torque_init_from_components(this, zone_id, zone_name, &
-       center, scale, coef, long_print)
+  subroutine force_torque_init_common(this, fluid_name, zone_id, &
+  & zone_name, center, scale, coef, long_print)
     class(force_torque_t), intent(inout) :: this
     real(kind=rp), intent(in) :: center(3)
     real(kind=rp), intent(in) :: scale
+    character(len=*), intent(in) :: fluid_name
     character(len=*), intent(in) :: zone_name
     integer, intent(in) :: zone_id
     type(coef_t), target, intent(in) :: coef
@@ -146,6 +147,7 @@ contains
     this%center = center
     this%scale = scale
     this%zone_name = zone_name
+
     if (long_print ) then
        this%print_format = '(I7,E20.10,E20.10,E20.10,E20.10,A)'
     else
@@ -156,6 +158,7 @@ contains
     this%v => neko_field_registry%get_field_by_name("v")
     this%w => neko_field_registry%get_field_by_name("w")
     this%p => neko_field_registry%get_field_by_name("p")
+    this%mu => neko_field_registry%get_field_by_name(fluid_name // 'mu_tot')
 
 
     call this%bc%init_base(this%coef)
@@ -181,6 +184,8 @@ contains
     call this%s13msk%init(n_pts)
     call this%s23msk%init(n_pts)
     call this%pmsk%init(n_pts)
+    call this%mu_msk%init(n_pts)
+
     call setup_normals(this%coef, this%bc%msk, this%bc%facet, &
          this%n1%x, this%n2%x, this%n3%x, n_pts)
     call masked_gather_copy(this%r1%x, this%coef%dof%x, this%bc%msk, &
@@ -196,22 +201,24 @@ contains
     call neko_log%section('Force/torque calculation')
     write(log_buf, '(A,I4,A,A)') 'Zone ', zone_id, '   ', trim(zone_name)
     call neko_log%message(log_buf)
-    write(log_buf, '(A,I6, I6)') 'Global number of GLL points in zone: ', glb_n_pts
+    write(log_buf, '(A,I6, I6)') 'Global number of GLL points in zone: ', &
+         glb_n_pts
     call neko_log%message(log_buf)
-    write(log_buf, '(A,E15.7,E15.7,E15.7)') 'Average of zone''s coordinates: ', &
+    write(log_buf, '(A,E15.7,E15.7,E15.7)') 'Average of zone''s coordinates: ',&
          glsum(this%r1%x, n_pts)/glb_n_pts, &
          glsum(this%r2%x, n_pts)/glb_n_pts, &
          glsum(this%r3%x, n_pts)/glb_n_pts
     call neko_log%message(log_buf)
-    write(log_buf, '(A,E15.7,E15.7,E15.7)') 'Center for torque calculation: ', center
+    write(log_buf, '(A,E15.7,E15.7,E15.7)') 'Center for torque calculation: ', &
+         center
     call neko_log%message(log_buf)
     write(log_buf, '(A,E15.7)') 'Scale: ', scale
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
-    call cadd(this%r1%x,-center(1), n_pts)
-    call cadd(this%r2%x,-center(2), n_pts)
-    call cadd(this%r3%x,-center(3), n_pts)
+    call cadd(this%r1%x, -center(1), n_pts)
+    call cadd(this%r2%x, -center(2), n_pts)
+    call cadd(this%r3%x, -center(3), n_pts)
     if (NEKO_BCKND_DEVICE .eq. 1 .and. n_pts .gt. 0) then
        call device_memcpy(this%n1%x, this%n1%x_d, n_pts, HOST_TO_DEVICE, &
             .false.)
@@ -227,7 +234,7 @@ contains
             .true.)
     end if
 
-  end subroutine force_torque_init_from_components
+  end subroutine force_torque_init_common
 
   !> Destructor.
   subroutine force_torque_free(this)
@@ -242,11 +249,11 @@ contains
   end subroutine force_torque_free
 
   !> Compute the force_torque field.
-  !! @param t The time value.
-  !! @param tstep The current time-step
+  !! @param time The current time state.
   subroutine force_torque_compute(this, time)
     class(force_torque_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
+
     real(kind=rp) :: dgtq(12) = 0.0_rp
     integer :: n_pts, temp_indices(6)
     type(field_t), pointer :: s11, s22, s33, s12, s13, s23
@@ -280,6 +287,8 @@ contains
             this%u%size(), n_pts)
        call masked_gather_copy(this%pmsk%x, this%p%x, this%bc%msk, &
             this%u%size(), n_pts)
+       call masked_gather_copy(this%mu_msk%x, this%mu%x, this%bc%msk, &
+            this%u%size(), n_pts)
        call calc_force_array(this%force1%x, this%force2%x, this%force3%x, &
             this%force4%x, this%force5%x, this%force6%x, &
             this%s11msk%x, &
@@ -292,8 +301,7 @@ contains
             this%n1%x, &
             this%n2%x, &
             this%n3%x, &
-       ! Horrible mu hack
-            this%case%fluid%mu%x(1,1,1,1), &
+            this%mu_msk%x, &
             n_pts)
        dgtq(1) = glsum(this%force1%x, n_pts)
        dgtq(2) = glsum(this%force2%x, n_pts)
@@ -337,6 +345,8 @@ contains
                this%bc%msk_d, this%u%size(), n_pts)
           call device_masked_gather_copy(this%pmsk%x_d, this%p%x_d, &
                this%bc%msk_d, this%u%size(), n_pts)
+          call device_masked_gather_copy(this%mu_msk%x_d, this%mu%x_d, &
+               this%bc%msk_d, this%u%size(), n_pts)
 
           call device_calc_force_array(this%force1%x_d, this%force2%x_d, &
                this%force3%x_d, &
@@ -354,7 +364,7 @@ contains
                this%n2%x_d, &
                this%n3%x_d, &
           ! Horrible mu hack
-               this%case%fluid%mu%x(1,1,1,1), &
+               this%mu%x_d, &
                n_pts)
           !Overwriting masked s11, s22, s33 as they are no longer needed
           call device_vcross(this%s11msk%x_d, this%s22msk%x_d, &
@@ -362,7 +372,7 @@ contains
                this%r1%x_d, this%r2%x_d, this%r3%x_d, &
                this%force1%x_d, this%force2%x_d, &
                this%force3%x_d, n_pts)
-          call device_vcross(this%s12msk%x_d,this%s13msk%x_d,this%s23msk%x_d, &
+          call device_vcross(this%s12msk%x_d, this%s13msk%x_d, this%s23msk%x_d,&
                this%r1%x_d, this%r2%x_d, this%r3%x_d, &
                this%force4%x_d, this%force5%x_d, this%force6%x_d, n_pts)
        end if
@@ -387,22 +397,22 @@ contains
          'Time step, time, total force/torque, pressure, viscous, direction'
     call neko_log%message(log_buf)
     write(log_buf, this%print_format) &
-         time%tstep,time%t,dgtq(1)+dgtq(4),dgtq(1),dgtq(4),', forcex'
+         time%tstep, time%t, dgtq(1) + dgtq(4), dgtq(1), dgtq(4), ', forcex'
     call neko_log%message(log_buf)
     write(log_buf, this%print_format) &
-         time%tstep,time%t,dgtq(2)+dgtq(5),dgtq(2),dgtq(5),', forcey'
+         time%tstep, time%t, dgtq(2) + dgtq(5), dgtq(2), dgtq(5), ', forcey'
     call neko_log%message(log_buf)
     write(log_buf, this%print_format) &
-         time%tstep,time%t,dgtq(3)+dgtq(6),dgtq(3),dgtq(6),', forcez'
+         time%tstep, time%t, dgtq(3) + dgtq(6), dgtq(3), dgtq(6), ', forcez'
     call neko_log%message(log_buf)
     write(log_buf, this%print_format) &
-         time%tstep,time%t,dgtq(7)+dgtq(10),dgtq(7),dgtq(10),', torquex'
+         time%tstep, time%t, dgtq(7) + dgtq(10), dgtq(7), dgtq(10), ', torquex'
     call neko_log%message(log_buf)
     write(log_buf, this%print_format) &
-         time%tstep,time%t,dgtq(8)+dgtq(11),dgtq(8),dgtq(11),', torquey'
+         time%tstep, time%t, dgtq(8) + dgtq(11), dgtq(8), dgtq(11), ', torquey'
     call neko_log%message(log_buf)
     write(log_buf, this%print_format) &
-         time%tstep,time%t,dgtq(9)+dgtq(12),dgtq(9),dgtq(12),', torquez'
+         time%tstep, time%t, dgtq(9) + dgtq(12), dgtq(9), dgtq(12), ', torquez'
     call neko_log%message(log_buf)
     call neko_scratch_registry%relinquish_field(temp_indices)
 

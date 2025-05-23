@@ -73,7 +73,7 @@ module fluid_scheme_incompressible
   use utils, only : neko_error, neko_warning
   use field_series, only : field_series_t
   use time_step_controller, only : time_step_controller_t
-  use field_math, only : field_cfill, field_add2s2, field_addcol3
+  use field_math, only : field_cfill, field_add2s2, field_addcol3, field_copy
   use shear_stress, only : shear_stress_t
   use device, only : device_event_sync, glb_cmd_event, DEVICE_TO_HOST, &
        device_memcpy
@@ -105,6 +105,9 @@ module fluid_scheme_incompressible
 
      !> The turbulent kinematic viscosity field name
      character(len=:), allocatable :: nut_field_name
+
+     ! The total viscosity field
+     type(field_t), pointer :: mu_tot
 
      !> Global number of GLL points for the fluid (not unique)
      integer(kind=i8) :: glb_n_points
@@ -577,7 +580,10 @@ contains
 
     if (len(trim(this%nut_field_name)) > 0) then
        nut => neko_field_registry%get_field(this%nut_field_name)
-       call field_addcol3(this%mu, nut, this%rho)
+       ! Copy material property
+       call field_copy(this%mu_tot, this%mu)
+       ! Add turbulent contribution
+       call field_addcol3(this%mu_tot, nut, this%rho)
     end if
 
     ! Since mu, rho is a field_t, and we use the %x(1,1,1,1)
@@ -610,8 +616,10 @@ contains
     dummy_mp_ptr => dummy_user_material_properties
 
     call neko_field_registry%add_field(this%dm_Xh, this%name // "_mu")
+    call neko_field_registry%add_field(this%dm_Xh, this%name // "_mu_tot")
     call neko_field_registry%add_field(this%dm_Xh, this%name // "_rho")
     this%mu => neko_field_registry%get_field(this%name // "_mu")
+    this%mu_tot => neko_field_registry%get_field(this%name // "_mu_tot")
     this%rho => neko_field_registry%get_field(this%name // "_rho")
     call this%material_properties%init(2)
     call this%material_properties%assign(1, this%rho)
