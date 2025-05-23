@@ -198,7 +198,8 @@ contains
     ksp_results%res_start = rnorm
     ksp_results%res_final = rnorm
     ksp_results%iter = 0
-    if(abscmp(rnorm, zero)) return
+    ksp_results%converged = this%is_converged(0, rnorm)
+    if (ksp_results%converged) return
     call this%monitor_start('CG')
     do iter = 1, max_iter
        call this%M%solve(this%z, this%r, n)

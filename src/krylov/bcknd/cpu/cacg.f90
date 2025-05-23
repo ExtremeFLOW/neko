@@ -169,7 +169,8 @@ contains
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
       iter = 0
-      if(abscmp(rnorm, 0.0_rp)) return
+      ksp_results%converged = this%is_converged(0, rnorm)
+      if (ksp_results%converged) return
       call this%monitor_start('CACG')
       do while (iter < max_iter)
 

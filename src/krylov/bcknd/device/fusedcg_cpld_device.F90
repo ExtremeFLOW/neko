@@ -585,7 +585,8 @@ contains
       ksp_results%res_final = rnorm
       ksp_results(1)%iter = 0
       ksp_results(2:3)%iter = -1
-      if(abscmp(rnorm, 0.0_rp)) return
+      ksp_results%converged = this%is_converged(0, rnorm)
+      if (all(ksp_results%converged)) return
       call this%monitor_start('fcpldCG')
       do iter = 1, max_iter
          call this%M%solve(z1, r1, n)

@@ -170,9 +170,10 @@ contains
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
+      ksp_results%converged = this%is_converged(0, rnorm)
+      if (ksp_results%converged) return
       p_prev = CG_P_SPACE
       p_cur = 1
-      if(abscmp(rnorm, 0.0_rp)) return
       call this%monitor_start('CG')
       do iter = 1, max_iter
          call this%M%solve(z, r, n)
