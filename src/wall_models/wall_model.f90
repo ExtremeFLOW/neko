@@ -122,7 +122,7 @@ module wall_model
      !> A part of the constructor that parses the JSON without initializing the
      !! base `wall_model_t` type. Used in `wall_model_bc_t` during the init
      !! stage of the bc construction. So, in this routine you cannot use the
-     !! bc mask and facets. The construction can be finished by calling 
+     !! bc mask and facets. The construction can be finished by calling
      !! `finalize_base`. This generally follows the same pattern as in `bc_t`.
      !! This constructor gets the scheme_name from the JSON. This is currently
      !! hacked in by the `pnpn_bc_factory`.
@@ -151,7 +151,7 @@ module wall_model
 
   abstract interface
      !> Common constructor.
-     !! @param scheme_name The name of the scheme for which the wall model is 
+     !! @param scheme_name The name of the scheme for which the wall model is
      !! used.
      !! @param coef SEM coefficients.
      !! @param msk The boundary mask.
@@ -206,7 +206,7 @@ module wall_model
   interface
      !> Wall model factory. Both constructs and initializes the object.
      !! @param object The object to be allocated.
-     !! @param scheme_name The name of the scheme for which the wall model is 
+     !! @param scheme_name The name of the scheme for which the wall model is
      !! used.
      !! @param coef SEM coefficients.
      !! @param msk The boundary mask.

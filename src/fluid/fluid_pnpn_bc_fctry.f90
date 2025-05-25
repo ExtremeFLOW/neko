@@ -162,7 +162,7 @@ contains
        allocate(shear_stress_t::object)
     case ("wall_model")
        allocate(wall_model_bc_t::object)
-       ! Kind of hack, but  OK for now 
+       ! Kind of hack, but  OK for now
        call json%add("scheme_name", scheme%name)
 
     case ("user_velocity")

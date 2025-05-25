@@ -50,7 +50,7 @@ module force_torque
   use vector, only : vector_t
   use dirichlet, only : dirichlet_t
   use drag_torque, only : calc_force_array, device_calc_force_array, &
-      setup_normals
+       setup_normals
   use logger, only : LOG_SIZE, neko_log
   use neko_config, only : NEKO_BCKND_DEVICE
   use math, only : masked_gather_copy, cadd, glsum, vcross
@@ -148,7 +148,7 @@ contains
   !! @param output_controller The controller for producing output.
   !! @param fluid_name The name of the fluid solver.
   !! @param zone_id The id of the boundary zone.
-  !! @param zone_name The name of the boundary zone, to use in the log. 
+  !! @param zone_name The name of the boundary zone, to use in the log.
   !! @param center The center of the torque calculation.
   !! @param scale Normalization factor.
   !! @param coef The SEM coefficients.
@@ -189,7 +189,7 @@ contains
   !! @param output_value Value parameter for output.
   !! @param fluid_name The name of the fluid solver.
   !! @param zone_id The id of the boundary zone.
-  !! @param zone_name The name of the boundary zone, to use in the log. 
+  !! @param zone_name The name of the boundary zone, to use in the log.
   !! @param center The center of the torque calculation.
   !! @param scale Normalization factor.
   !! @param coef The SEM coefficients.
@@ -197,7 +197,7 @@ contains
   subroutine force_torque_init_from_controllers_properties(this, &
        case, order, preprocess_control, preprocess_value, compute_control, &
        compute_value, output_control, output_value, fluid_name, zone_name, &
-       zone_id, center, scale, coef, long_print)  
+       zone_id, center, scale, coef, long_print)
     class(force_torque_t), intent(inout) :: this
     class(case_t), intent(inout), target :: case
     integer :: order
@@ -226,7 +226,7 @@ contains
   !> Common part of constructors.
   !! @param fluid_name The name of the fluid solver.
   !! @param zone_id The id of the boundary zone.
-  !! @param zone_name The name of the boundary zone, to use in the log. 
+  !! @param zone_name The name of the boundary zone, to use in the log.
   !! @param center The center of the torque calculation.
   !! @param scale Normalization factor.
   !! @param coef The SEM coefficients.

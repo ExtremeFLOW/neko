@@ -60,11 +60,11 @@ module spalding
      !> The log-law intercept.
      real(kind=rp) :: B = 5.2_rp
      !> The kinematic viscosity.
-      type(vector_t) :: nu
+     type(vector_t) :: nu
    contains
      !> Constructor from JSON.
      procedure, pass(this) :: init => spalding_init
-     !> Partial constructor from JSON, meant to work as the first stage of 
+     !> Partial constructor from JSON, meant to work as the first stage of
      !! initialization before the `finalize` call.
      procedure, pass(this) :: partial_init => spalding_partial_init
      !> Finalize the construction using the mask and facet arrays of the bc.
@@ -170,7 +170,7 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_masked_gather_copy(this%nu%x_d, temp%x_d, this%msk_d, &
-            temp%size(), this%nu%size())  
+            temp%size(), this%nu%size())
     else
        call masked_gather_copy(this%nu%x, temp%x, this%msk, temp%size(), &
             this%nu%size())

@@ -62,7 +62,7 @@ module rough_log_law
    contains
      !> Constructor from JSON.
      procedure, pass(this) :: init => rough_log_law_init
-     !> Partial constructor from JSON, meant to work as the first stage of 
+     !> Partial constructor from JSON, meant to work as the first stage of
      !! initialization before the `finalize` call.
      procedure, pass(this) :: partial_init => rough_log_law_partial_init
      !> Finalize the construction using the mask and facet arrays of the bc.
@@ -99,7 +99,7 @@ contains
     call json_get(json, "B", B)
     call json_get(json, "z0", z0)
 
-    call this%init_from_components(scheme_name, coef, msk, facet, h_index, & 
+    call this%init_from_components(scheme_name, coef, msk, facet, h_index, &
          kappa, B, z0)
   end subroutine rough_log_law_init
 
