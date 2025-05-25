@@ -172,7 +172,8 @@ module wall_model
   end interface
 
   abstract interface
-     !> Common constructor.
+     !> Partial constructor from JSON, meant to work as the first stage of
+     !! initialization before the `finalize` call.
      !! @param coef SEM coefficients.
      !! @param json A dictionary with parameters.
      subroutine wall_model_partial_init(this, coef, json)
