@@ -107,7 +107,7 @@ module fluid_scheme_incompressible
      character(len=:), allocatable :: nut_field_name
 
      ! The total viscosity field
-     type(field_t), pointer :: mu_tot
+     type(field_t), pointer :: mu_tot => null()
 
      !> Global number of GLL points for the fluid (not unique)
      integer(kind=i8) :: glb_n_points
@@ -403,6 +403,7 @@ contains
     nullify(this%f_z)
     nullify(this%rho)
     nullify(this%mu)
+    nullify(this%mu_tot)
 
   end subroutine fluid_scheme_free
 
@@ -684,6 +685,9 @@ contains
        write(log_buf, '(A,ES13.6)') 'mu         :', const_mu
        call neko_log%message(log_buf)
     end if
+
+    ! Copy over material property to the total one
+    call field_copy(this%mu_tot, this%mu)
 
     ! Since mu, rho is a field_t, and we use the %x(1,1,1,1)
     ! host array data to pass constant density and viscosity
