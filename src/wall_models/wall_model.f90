@@ -51,6 +51,7 @@ module wall_model
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   use device, only : device_map, device_free, device_get_ptr
   use wall_model_device, only : wall_model_compute_mag_field_device
+  use json_utils, only : json_get
   implicit none
   private
 
@@ -60,6 +61,14 @@ module wall_model
      type(coef_t), pointer :: coef => null()
      !> Map of degrees of freedom.
      type(dofmap_t), pointer :: dof => null()
+     !> The dynamic viscosity of the fluid
+     type(field_t), pointer :: mu => null()
+     !> The density of the fluid
+     type(field_t), pointer :: rho => null()
+     !> The name of the scheme for which the wall model is used.
+     !! This is used to identify the name of the mu an rho fields in the
+     !! registry.
+     character(len=:), allocatable :: scheme_name
      !> The boundary condition mask. Stores the array size at index zero!
      integer, pointer :: msk(:) => null()
      type(c_ptr) :: msk_d = C_NULL_PTR
@@ -95,19 +104,31 @@ module wall_model
      integer :: h_index = 0
      !> Number of nodes in the boundary
      integer :: n_nodes = 0
-     !> Kinematic viscosity value.
-     real(kind=rp) :: nu = 0_rp
      !> The 3D field with the computed stress magnitude at the boundary.
      type(field_t), pointer :: tau_field => null()
    contains
      !> Constructor for the wall_model_t (base) class.
      procedure, pass(this) :: init_base => wall_model_init_base
+     !> Base type implementation of the deferred `partial_init`.
+     procedure, pass(this) :: partial_init_base => wall_model_partial_init_base
+     !> Base type implementation of the deferred `finilize`.
+     procedure, pass(this) :: finalize_base => wall_model_finalize_base
      !> Destructor for the wall_model_t (base) class.
      procedure, pass(this) :: free_base => wall_model_free_base
      !> Compute the wall shear stress's magnitude.
      procedure, pass(this) :: compute_mag_field => wall_model_compute_mag_field
      !> The common constructor.
      procedure(wall_model_init), pass(this), deferred :: init
+     !> A part of the constructor that parses the JSON without initializing the
+     !! base `wall_model_t` type. Used in `wall_model_bc_t` during the init
+     !! stage of the bc construction. So, in this routine you cannot use the
+     !! bc mask and facets. The construction can be finished by calling 
+     !! `finalize_base`. This generally follows the same pattern as in `bc_t`.
+     !! This constructor gets the scheme_name from the JSON. This is currently
+     !! hacked in by the `pnpn_bc_factory`.
+     procedure(wall_model_partial_init), pass(this), deferred :: partial_init
+     !> Finalization of the partial construction, similar to `bc_t`.
+     procedure(wall_model_finalize), pass(this), deferred :: finalize
      !> Destructor.
      procedure(wall_model_free), pass(this), deferred :: free
      !> Compute the wall shear stress.
@@ -130,22 +151,48 @@ module wall_model
 
   abstract interface
      !> Common constructor.
+     !! @param scheme_name The name of the scheme for which the wall model is 
+     !! used.
      !! @param coef SEM coefficients.
      !! @param msk The boundary mask.
      !! @param facet The boundary facets.
-     !! @param nu The molecular kinematic viscosity.
      !! @param h_index The off-wall index of the sampling cell.
      !! @param json A dictionary with parameters.
-     subroutine wall_model_init(this, coef, msk, facet, nu, h_index, json)
+     subroutine wall_model_init(this, scheme_name, coef, msk, facet, &
+          h_index, json)
        import wall_model_t, json_file, dofmap_t, coef_t, rp
        class(wall_model_t), intent(inout) :: this
+       character(len=*), intent(in) :: scheme_name
        type(coef_t), intent(in) :: coef
        integer, intent(in) :: msk(:)
        integer, intent(in) :: facet(:)
-       real(kind=rp), intent(in) :: nu
        integer, intent(in) :: h_index
        type(json_file), intent(inout) :: json
      end subroutine wall_model_init
+  end interface
+
+  abstract interface
+     !> Common constructor.
+     !! @param coef SEM coefficients.
+     !! @param json A dictionary with parameters.
+     subroutine wall_model_partial_init(this, coef, json)
+       import wall_model_t, json_file, dofmap_t, coef_t, rp
+       class(wall_model_t), intent(inout) :: this
+       type(coef_t), intent(in) :: coef
+       type(json_file), intent(inout) :: json
+     end subroutine wall_model_partial_init
+  end interface
+
+  abstract interface
+     !> Finilzation of partial construction, similar to `bc_t`
+     !! @param msk The boundary mask.
+     !! @param facet The boundary facets.
+     subroutine wall_model_finalize(this, msk, facet)
+       import wall_model_t
+       class(wall_model_t), intent(inout) :: this
+       integer, intent(in) :: msk(:)
+       integer, intent(in) :: facet(:)
+     end subroutine wall_model_finalize
   end interface
 
   abstract interface
@@ -159,19 +206,20 @@ module wall_model
   interface
      !> Wall model factory. Both constructs and initializes the object.
      !! @param object The object to be allocated.
+     !! @param scheme_name The name of the scheme for which the wall model is 
+     !! used.
      !! @param coef SEM coefficients.
      !! @param msk The boundary mask.
      !! @param facet The boundary facets.
-     !! @param nu The molecular kinematic viscosity.
      !! @param h_index The off-wall index of the sampling cell.
      !! @param json A dictionary with parameters.
-     module subroutine wall_model_factory(object, coef, msk, facet, nu, &
-          json)
+     module subroutine wall_model_factory(object, scheme_name, coef, msk, &
+          facet, json)
        class(wall_model_t), allocatable, intent(inout) :: object
+       character(len=*), intent(in) :: scheme_name
        type(coef_t), intent(in) :: coef
        integer, intent(in) :: msk(:)
        integer, intent(in) :: facet(:)
-       real(kind=rp), intent(in) :: nu
        type(json_file), intent(inout) :: json
      end subroutine wall_model_factory
   end interface
@@ -182,7 +230,7 @@ module wall_model
      !! @param type_name The name of the type to allocate.
      module subroutine wall_model_allocator(object, type_name)
        class(wall_model_t), allocatable, intent(inout) :: object
-       character(len=:), allocatable, intent(in) :: type_name
+       character(len=*), intent(in) :: type_name
      end subroutine wall_model_allocator
   end interface
 
@@ -229,31 +277,66 @@ contains
   !! @param coef SEM coefficients.
   !! @param msk The underlying mask of the boundary condition.
   !! @param facet, The underlying facet index list of the boundary condition.
-  !! @param nu The kinematic viscosity.
+  !! @param scheme_name The name of the scheme for which the wall model is used.
   !! @param index The off-wall index of the sampling point.
-  subroutine wall_model_init_base(this, coef, msk, facet, nu, index)
+  subroutine wall_model_init_base(this, scheme_name, coef, msk, facet, index)
     class(wall_model_t), intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
     integer, target, intent(in) :: msk(0:)
     integer, target, intent(in) :: facet(0:)
-    real(kind=rp), intent(in) :: nu
+    character(len=*) :: scheme_name
     integer, intent(in) :: index
-    type(c_ptr), target :: msk_d
 
     call this%free_base
 
     this%coef => coef
     this%dof => coef%dof
-    this%msk(0:msk(0)) => msk
-    if (NEKO_BCKND_DEVICE .eq. 1) this%msk_d = device_get_ptr(msk)
-    this%facet(0:msk(0)) => facet
-    this%nu = nu
     this%h_index = index
+    this%scheme_name = trim(scheme_name)
+    this%mu => neko_field_registry%get_field_by_name(this%scheme_name // "_mu")
+    this%rho => neko_field_registry%get_field_by_name(this%scheme_name // &
+         "_rho")
 
     call neko_field_registry%add_field(this%dof, "tau", &
          ignore_existing = .true.)
-
     this%tau_field => neko_field_registry%get_field("tau")
+
+    call this%finalize_base(msk, facet)
+  end subroutine wall_model_init_base
+
+  !> Partial initialization based on JSON, prior to knowing the mask and facets.
+  !! @param coef SEM coefficients.
+  !! @param The name of the scheme for which the wall model is used.
+  !! @param json A dictionary with parameters.
+  subroutine wall_model_partial_init_base(this, coef, json)
+    class(wall_model_t), intent(inout) :: this
+    type(coef_t), target, intent(in) :: coef
+    type(json_file), intent(inout) :: json
+
+    call this%free_base()
+
+    this%coef => coef
+    this%dof => coef%dof
+    call json_get(json, "h_index", this%h_index)
+    call json_get(json, "scheme_name", this%scheme_name)
+
+    this%mu => neko_field_registry%get_field_by_name(this%scheme_name // "_mu")
+    this%rho => neko_field_registry%get_field_by_name(this%scheme_name // &
+         "_rho")
+
+    call neko_field_registry%add_field(this%dof, "tau", &
+         ignore_existing = .true.)
+    this%tau_field => neko_field_registry%get_field("tau")
+  end subroutine wall_model_partial_init_base
+
+  subroutine wall_model_finalize_base(this, msk, facet)
+    class(wall_model_t), intent(inout) :: this
+    integer, target, intent(in) :: msk(:)
+    integer, target, intent(in) :: facet(:)
+
+    this%msk(0:msk(0)) => msk
+    if (NEKO_BCKND_DEVICE .eq. 1) this%msk_d = device_get_ptr(msk)
+    this%facet(0:msk(0)) => facet
 
     call this%tau_x%init(this%msk(0))
     call this%tau_y%init(this%msk(0))
@@ -269,7 +352,7 @@ contains
     call this%n_y%init(this%msk(0))
     call this%n_z%init(this%msk(0))
 
-    call this%find_points
+    call this%find_points()
 
     ! Initialize pointers for device
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -287,7 +370,7 @@ contains
             HOST_TO_DEVICE, sync = .false.)
     end if
 
-  end subroutine wall_model_init_base
+  end subroutine wall_model_finalize_base
 
   !> Destructor for the wall_model_t (base) class.
   subroutine wall_model_free_base(this)
@@ -297,6 +380,8 @@ contains
     nullify(this%msk)
     nullify(this%facet)
     nullify(this%tau_field)
+    nullify(this%mu)
+    nullify(this%rho)
 
     call this%tau_x%free()
     call this%tau_y%free()

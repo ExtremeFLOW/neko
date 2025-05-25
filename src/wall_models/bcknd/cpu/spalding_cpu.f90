@@ -49,8 +49,7 @@ contains
     integer, intent(in) :: n_nodes, lx, nelv, tstep
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w
     integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
-    real(kind=rp), dimension(n_nodes), intent(in) :: n_x, n_y, n_z, h
-    real(kind=rp), intent(in) :: nu
+    real(kind=rp), dimension(n_nodes), intent(in) :: n_x, n_y, n_z, h, nu
     real(kind=rp), dimension(n_nodes), intent(inout) :: tau_x, tau_y, tau_z
     real(kind=rp), intent(in) :: kappa, B
     integer :: i
@@ -73,13 +72,13 @@ contains
 
        ! Get initial guess for Newton solver
        if (tstep .eq. 1) then
-          guess = sqrt(magu * nu / h(i))
+          guess = sqrt(magu * nu(i) / h(i))
        else
           guess = tau_x(i)**2 + tau_y(i)**2 + tau_z(i)**2
           guess = sqrt(sqrt(guess))
        end if
 
-       utau = solve_cpu(magu, h(i), guess, nu, kappa, B)
+       utau = solve_cpu(magu, h(i), guess, nu(i), kappa, B)
 
        ! Distribute according to the velocity vector
        tau_x(i) = -utau**2 * ui / magu

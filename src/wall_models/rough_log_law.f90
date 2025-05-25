@@ -43,6 +43,7 @@ module rough_log_law
   use json_utils, only : json_get_or_default, json_get
   use rough_log_law_device, only : rough_log_law_compute_device
   use rough_log_law_cpu, only : rough_log_law_compute_cpu
+  use scratch_registry, only : neko_scratch_registry
   implicit none
   private
 
@@ -61,6 +62,11 @@ module rough_log_law
    contains
      !> Constructor from JSON.
      procedure, pass(this) :: init => rough_log_law_init
+     !> Partial constructor from JSON, meant to work as the first stage of 
+     !! initialization before the `finalize` call.
+     procedure, pass(this) :: partial_init => rough_log_law_partial_init
+     !> Finalize the construction using the mask and facet arrays of the bc.
+     procedure, pass(this) :: finalize => rough_log_law_finalize
      !> Constructor from components.
      procedure, pass(this) :: init_from_components => &
           rough_log_law_init_from_components
@@ -72,18 +78,19 @@ module rough_log_law
 
 contains
   !> Constructor from JSON.
+  !! @param scheme_name The name of the scheme for which the wall model is used.
   !! @param coef SEM coefficients.
   !! @param msk The boundary mask.
   !! @param facet The boundary facets.
-  !! @param nu The molecular kinematic viscosity.
   !! @param h_index The off-wall index of the sampling cell.
   !! @param json A dictionary with parameters.
-  subroutine rough_log_law_init(this, coef, msk, facet, nu, h_index, json)
+  subroutine rough_log_law_init(this, scheme_name, coef, msk, facet, &
+       h_index, json)
     class(rough_log_law_t), intent(inout) :: this
+    character(len=*), intent(in) :: scheme_name
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
-    real(kind=rp), intent(in) :: nu
     integer, intent(in) :: h_index
     type(json_file), intent(inout) :: json
     real(kind=rp) :: kappa, B, z0
@@ -92,31 +99,59 @@ contains
     call json_get(json, "B", B)
     call json_get(json, "z0", z0)
 
-    call this%init_from_components(coef, msk, facet, nu, h_index, kappa, B, z0)
+    call this%init_from_components(scheme_name, coef, msk, facet, h_index, & 
+         kappa, B, z0)
   end subroutine rough_log_law_init
 
+  !> Constructor from JSON.
+  !! @param coef SEM coefficients.
+  !! @param json A dictionary with parameters.
+  subroutine rough_log_law_partial_init(this, coef, json)
+    class(rough_log_law_t), intent(inout) :: this
+    type(coef_t), intent(in) :: coef
+    type(json_file), intent(inout) :: json
+
+    call this%partial_init_base(coef, json)
+    call json_get_or_default(json, "kappa", this%kappa, 0.41_rp)
+    call json_get(json, "B", this%B)
+    call json_get(json, "z0", this%z0)
+
+  end subroutine rough_log_law_partial_init
+
+  !> Finalize the construction using the mask and facet arrays of the bc.
+  !! @param msk The boundary mask.
+  !! @param facet The boundary facets.
+  subroutine rough_log_law_finalize(this, msk, facet)
+    class(rough_log_law_t), intent(inout) :: this
+    integer, intent(in) :: msk(:)
+    integer, intent(in) :: facet(:)
+
+    call this%finalize_base(msk, facet)
+
+  end subroutine rough_log_law_finalize
+
   !> Constructor from components.
+  !! @param scheme_name The name of the scheme for which the wall model is used.
   !! @param coef SEM coefficients.
   !! @param msk The boundary mask.
   !! @param facet The boundary facets.
-  !! @param nu The molecular kinematic viscosity.
   !! @param h_index The off-wall index of the sampling cell.
   !! @param kappa The von Karman coefficient.
   !! @param B The log-law intercept.
   !! @param z0 The roughness height.
-  subroutine rough_log_law_init_from_components(this, coef, msk, facet,&
-       nu, h_index, kappa, B, z0)
+  subroutine rough_log_law_init_from_components(this, scheme_name, coef, msk, &
+       facet, h_index, kappa, B, z0)
     class(rough_log_law_t), intent(inout) :: this
+    character(len=*), intent(in) :: scheme_name
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
-    real(kind=rp), intent(in) :: nu
     integer, intent(in) :: h_index
     real(kind=rp), intent(in) :: kappa
     real(kind=rp), intent(in) :: B
     real(kind=rp), intent(in) :: z0
 
-    call this%init_base(coef, msk, facet, nu, h_index)
+    call this%init_base(scheme_name, coef, msk, facet, h_index)
 
     this%kappa = kappa
     this%B = B
@@ -153,13 +188,13 @@ contains
        call rough_log_law_compute_device(u%x_d, v%x_d, w%x_d, this%ind_r_d, &
             this%ind_s_d, this%ind_t_d, this%ind_e_d, &
             this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
-            this%nu, this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
+            this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
             this%tau_z%x_d, this%n_nodes, u%Xh%lx, this%kappa, &
             this%B, this%z0, tstep)
     else
        call rough_log_law_compute_cpu(u%x, v%x, w%x, this%ind_r, this%ind_s, &
             this%ind_t, this%ind_e, this%n_x%x, this%n_y%x, this%n_z%x, &
-            this%nu, this%h%x, this%tau_x%x, this%tau_y%x, this%tau_z%x, &
+            this%h%x, this%tau_x%x, this%tau_y%x, this%tau_z%x, &
             this%n_nodes, u%Xh%lx, u%msh%nelv, this%kappa, &
             this%B, this%z0, tstep)
     end if
