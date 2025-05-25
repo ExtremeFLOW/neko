@@ -411,6 +411,21 @@ extern "C" {
   }
 
   /**
+   * Fortran wrapper for invcol3
+   * Vector division \f$ a = b / c \f$
+   */
+  void hip_invcol2(void *a, void *b, void *c, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(invcol2_kernel<real>),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) a, (real *) b,  (real *) c, *n);
+    HIP_CHECK(hipGetLastError());
+  }
+
+  /**
    * Fortran wrapper for col2
    * Vector multiplication with 2 vectors \f$ a = a \cdot b \f$
    */

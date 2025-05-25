@@ -70,7 +70,7 @@ module spalding_device
        implicit none
        type(c_ptr), value :: u_d, v_d, w_d
        type(c_ptr), value :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
-       type(c_ptr), value :: n_x_d, n_y_d, n_z_d, h_d
+       type(c_ptr), value :: n_x_d, n_y_d, n_z_d, h_d, nu_d
        real(c_rp) :: kappa, B
        type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d
        integer(c_int) :: n_nodes, lx, tstep
