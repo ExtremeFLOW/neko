@@ -104,11 +104,9 @@ program mesh_checker
      write(*,'(A,2(g10.3,1X))') '    x', xmin, xmax
      write(*,'(A,2(g10.3,1X))') '    y', ymin, ymax
      write(*,'(A,2(g10.3,1X))') '    z', zmin, zmax
-  end if
-
-  if (pe_rank .eq. 0) then
+     write(*,*) ''
      write(*,*) '--------------Zones------------'
-     write(*,'(A, I0)') 'Number of periodic faces: ', periodic_size
+     write(*,'(A, I0)') ' Number of periodic faces: ', periodic_size
      write(*,*) ''
      write(*,*) 'Labeled zones: '
   end if
