@@ -264,6 +264,8 @@ contains
     end if
 
     call neko_field_registry%free()
+    call neko_log%free()
+
     call device_finalize
     call neko_mpi_types_free
     call comm_free
