@@ -59,29 +59,29 @@ module scalars
 
   !> Type to manage multiple scalar transport equations
   type, public :: scalars_t
-    !> The scalar fields
-    class(scalar_scheme_t), allocatable :: scalar(:)
-    !> Shared KSP solver for all scalar fields
-    class(ksp_t), allocatable :: shared_ksp
-    !> Time lag
-    real(kind=rp), pointer :: tlag(:) => null()
-    !> Time step lag
-    real(kind=rp), pointer :: dtlag(:) => null()
-  contains
-    !> Initialize the scalars container
-    generic :: init => scalars_init, scalars_init_single
-    procedure, private :: scalars_init
-    procedure, private :: scalars_init_single
-    !> Perform a time step for all scalar fields
-    procedure :: step => scalars_step
-    !> Update the material properties for all scalar fields
-    procedure :: update_material_properties => scalars_update_material_properties
-    !> Restart from checkpoint data
-    procedure :: restart => scalars_restart
-    !> Check if the configuration is valid
-    procedure :: validate => scalars_validate
-    !> Clean up all resources
-    procedure :: free => scalars_free
+     !> The scalar fields
+     class(scalar_scheme_t), allocatable :: scalar(:)
+     !> Shared KSP solver for all scalar fields
+     class(ksp_t), allocatable :: shared_ksp
+     !> Time lag
+     real(kind=rp), pointer :: tlag(:) => null()
+     !> Time step lag
+     real(kind=rp), pointer :: dtlag(:) => null()
+   contains
+     !> Initialize the scalars container
+     generic :: init => scalars_init, scalars_init_single
+     procedure, private :: scalars_init
+     procedure, private :: scalars_init_single
+     !> Perform a time step for all scalar fields
+     procedure :: step => scalars_step
+     !> Update the material properties for all scalar fields
+     procedure :: update_material_properties => scalars_update_material_properties
+     !> Restart from checkpoint data
+     procedure :: restart => scalars_restart
+     !> Check if the configuration is valid
+     procedure :: validate => scalars_validate
+     !> Clean up all resources
+     procedure :: free => scalars_free
   end type scalars_t
 
 contains
@@ -112,37 +112,37 @@ contains
 
     ! For multiple scalars, collect and validate field names
     if (n_scalars > 1) then
-      allocate(character(len=256) :: field_names(n_scalars))
-      
-      do i = 1, n_scalars
-        ! Extract element i from the "scalars" array
-        call json_extract_item(params, "", i, json_subdict)
-        
-        ! Require field_name to be explicitly specified
-        if (.not. json_subdict%valid_path('field_name')) then
-            write(error_msg, '(A,I0,A)') 'field_name is required for scalar ', i, &
+       allocate(character(len=256) :: field_names(n_scalars))
+
+       do i = 1, n_scalars
+          ! Extract element i from the "scalars" array
+          call json_extract_item(params, "", i, json_subdict)
+
+          ! Require field_name to be explicitly specified
+          if (.not. json_subdict%valid_path('field_name')) then
+             write(error_msg, '(A,I0,A)') 'field_name is required for scalar ', i, &
                 ' when using multiple scalars. Please specify a unique field_name for each scalar.'
-            call neko_error(trim(error_msg))
-        end if
-        
-        call json_get(json_subdict, 'field_name', field_name)
-        
-        ! Check that field_name is not empty
-        if (len_trim(field_name) == 0) then
-            write(error_msg, '(A,I0,A)') 'field_name cannot be empty for scalar ', i, &
-                ' when using multiple scalars.'
-            call neko_error(trim(error_msg))
-        end if
-        
-        field_names(i) = trim(field_name)
-        
-        ! Check for duplicates
-        do j = 1, i-1
-          if (trim(field_names(i)) == trim(field_names(j))) then
-             call neko_error('Duplicate field_name found. Each scalar must have a unique field_name')
+             call neko_error(trim(error_msg))
           end if
-        end do
-      end do
+
+          call json_get(json_subdict, 'field_name', field_name)
+
+          ! Check that field_name is not empty
+          if (len_trim(field_name) == 0) then
+             write(error_msg, '(A,I0,A)') 'field_name cannot be empty for scalar ', i, &
+                ' when using multiple scalars.'
+             call neko_error(trim(error_msg))
+          end if
+
+          field_names(i) = trim(field_name)
+
+          ! Check for duplicates
+          do j = 1, i-1
+             if (trim(field_names(i)) == trim(field_names(j))) then
+                call neko_error('Duplicate field_name found. Each scalar must have a unique field_name')
+             end if
+          end do
+       end do
     end if
 
     do i = 1, n_scalars
@@ -163,14 +163,14 @@ contains
     type(field_series_t), target, intent(in) :: ulag, vlag, wlag
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
     TYPE(field_t), TARGET, INTENT(IN) :: rho
-    
+
     ! Allocate a single scalar field
     allocate(scalar_pnpn_t::this%scalar(1))
-    
+
     ! Initialize it directly with the params
     call this%scalar(1)%init(msh, coef, gs, params, numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
   end subroutine scalars_init_single
-  
+
   !> Perform a time step for all scalar fields
   subroutine scalars_step(this, time, ext_bdf, dt_controller)
     class(scalars_t), intent(inout) :: this
@@ -184,14 +184,14 @@ contains
        call this%scalar(i)%step(time, ext_bdf, dt_controller)
     end do
   end subroutine scalars_step
-  
+
   !> Update the material properties for all scalar fields
   subroutine scalars_update_material_properties(this, t, tstep)
     class(scalars_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     integer :: i
-    
+
     ! Iterate through all scalar fields
     do i = 1, size(this%scalar)
        this%scalar(i)%cp = 1.0_rp
@@ -199,7 +199,7 @@ contains
        call this%scalar(i)%update_material_properties(t, tstep)
     end do
   end subroutine scalars_update_material_properties
-  
+
   !> Restart from checkpoint data
   subroutine scalars_restart(this, chkp)
     class(scalars_t), intent(inout) :: this
@@ -210,7 +210,7 @@ contains
        call this%scalar(i)%restart(chkp)
     end do
   end subroutine scalars_restart
-  
+
   !> Check if the configuration is valid
   subroutine scalars_validate(this)
     class(scalars_t), intent(inout) :: this
@@ -220,18 +220,18 @@ contains
        call this%scalar(i)%validate()
     end do
   end subroutine scalars_validate
-  
+
   !> Clean up all resources
   subroutine scalars_free(this)
     class(scalars_t), intent(inout) :: this
     integer :: i
-    
+
     ! Iterate through all scalar fields
     if (allocated(this%scalar)) then
-      do i = 1, size(this%scalar)
-         call this%scalar(i)%free()
-      end do
-      deallocate(this%scalar)
+       do i = 1, size(this%scalar)
+          call this%scalar(i)%free()
+       end do
+       deallocate(this%scalar)
     end if
   end subroutine scalars_free
 

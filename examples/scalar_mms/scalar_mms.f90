@@ -80,7 +80,7 @@ contains
 
     do i = 1, u%dof%size()
 
-      ! Simple advection in x
+       ! Simple advection in x
        u%x(i,1,1,1) = 1
        v%x(i,1,1,1) = 0
        w%x(i,1,1,1) = 0

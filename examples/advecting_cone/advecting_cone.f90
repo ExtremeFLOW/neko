@@ -33,9 +33,9 @@ contains
 
        ! Check if the point is inside the cone's base
        if (r > cone_radius) then
-         s%x(i,1,1,1) = 0.0
+          s%x(i,1,1,1) = 0.0
        else
-         s%x(i,1,1,1) = 1.0 - r / cone_radius
+          s%x(i,1,1,1) = 1.0 - r / cone_radius
        endif
     end do
 

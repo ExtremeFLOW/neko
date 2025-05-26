@@ -119,10 +119,10 @@ contains
     call this%init_base(coef)
 
     if (json%valid_path('field_name')) then
-      call json_get(json, 'field_name', field_name_temp)
-      this%field_name = field_name_temp
+       call json_get(json, 'field_name', field_name_temp)
+       this%field_name = field_name_temp
     else
-      this%field_name = 's'
+       this%field_name = 's'
     end if
   end subroutine usr_scalar_init
 
@@ -136,7 +136,7 @@ contains
     end if
 
     if (allocated(this%field_name)) then
-      deallocate(this%field_name)
+       deallocate(this%field_name)
     end if
 
   end subroutine usr_scalar_free

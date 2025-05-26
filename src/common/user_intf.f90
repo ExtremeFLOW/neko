@@ -461,9 +461,9 @@ contains
   end subroutine dummy_user_ic_scalar
 
   subroutine dummy_user_ic_scalars(s, field_name, params)
-      type(field_t), intent(inout) :: s
-      character(len=*), intent(in) :: field_name
-      type(json_file), intent(inout) :: params
+    type(field_t), intent(inout) :: s
+    character(len=*), intent(in) :: field_name
+    type(json_file), intent(inout) :: params
     call neko_warning('Dummy multiple scalar initial condition called')
   end subroutine dummy_user_ic_scalars
 

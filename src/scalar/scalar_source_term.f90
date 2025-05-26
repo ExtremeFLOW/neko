@@ -93,7 +93,7 @@ contains
     allocate(scalar_user_source_term_t::source_term)
 
     select type (source_term)
-      type is (scalar_user_source_term_t)
+    type is (scalar_user_source_term_t)
        call source_term%init_from_components(rhs_fields, coef, type, &
             user%scalar_user_f_vector, &
             user%scalar_user_f, field_name)

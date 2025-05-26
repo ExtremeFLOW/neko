@@ -130,7 +130,7 @@ contains
     type(coef_t), intent(in), target :: coef
 
     call neko_error("The user scalar source term &
-         &should be init from components")
+    &should be init from components")
 
   end subroutine scalar_user_source_term_init
 
@@ -171,7 +171,7 @@ contains
          present(eval_pointwise)) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call neko_error('Pointwise source terms not &
-               &supported on accelerators')
+          &supported on accelerators')
        end if
        this%compute_vector_ => pointwise_eval_driver
        this%compute_pw_ => eval_pointwise
@@ -230,7 +230,7 @@ contains
     integer :: jj, kk, ll, ee
 
     select type (this)
-      type is (scalar_user_source_term_t)
+    type is (scalar_user_source_term_t)
        do e = 1, size(this%s, 4)
           ee = e
           do l = 1, size(this%s, 3)
@@ -244,7 +244,7 @@ contains
              end do
           end do
        end do
-      class default
+    class default
        call neko_error('Incorrect source type in pointwise eval driver!')
     end select
 
