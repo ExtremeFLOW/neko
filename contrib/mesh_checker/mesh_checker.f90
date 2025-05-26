@@ -91,7 +91,7 @@ program mesh_checker
   zmin = glmin(dofmap%z, dofmap%size())
   xmax = glmax(dofmap%x, dofmap%size())
   ymax = glmax(dofmap%y, dofmap%size())
-  zmax = glmax(dofmap%z, dofmap%size()) 
+  zmax = glmax(dofmap%z, dofmap%size())
 
   if (pe_rank .eq. 0) then
      write(*,*) ''
