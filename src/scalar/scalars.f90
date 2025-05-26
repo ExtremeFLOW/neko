@@ -106,6 +106,7 @@ contains
     integer :: i, j
     character(len=:), allocatable :: field_name
     character(len=:), allocatable :: field_names(:)
+    character(len=256) :: error_msg
 
     ! Allocate the scalar fields
     ! If there are more scalar_scheme_t types, add a factory function here
