@@ -60,7 +60,7 @@ module scalar_ic
   private
 
   interface set_scalar_ic
-     module procedure set_scalar_ic_int, set_scalar_ic_usr, set_scalars_ic_usr
+     module procedure set_scalar_ic_int, set_scalar_ic_usr
   end interface set_scalar_ic
 
   public :: set_scalar_ic
@@ -133,7 +133,8 @@ contains
   !! @param gs Gather-Scatter object.
   !! @param usr_ic User defined initial condition function.
   !! @param params JSON parameters.
-  subroutine set_scalar_ic_usr(s, coef, gs, usr_ic, params)
+  subroutine set_scalar_ic_usr(field_name, s, coef, gs, usr_ic, params)
+    character(len=*), intent(in) :: field_name
     type(field_t), intent(inout) :: s
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
@@ -141,31 +142,11 @@ contains
     type(json_file), intent(inout) :: params
 
     call neko_log%message("Type: user")
-    call usr_ic(s, params)
+    call usr_ic(field_name, s, params)
 
     call set_scalar_ic_common(s, coef, gs)
 
   end subroutine set_scalar_ic_usr
-
-  !> Set scalar initial condition (user defined)
-  !! @details Set scalar initial condition using a user defined function.
-  !! @param s Scalar field.
-  !! @param field_name Name of the scalar_scheme_t solver.
-  !! @param params JSON parameters.
-  subroutine set_scalars_ic_usr(s, coef, gs, usr_ic, field_name, params)
-    type(field_t), intent(inout) :: s
-    type(coef_t), intent(in) :: coef
-    type(gs_t), intent(inout) :: gs
-    procedure(useric_scalars) :: usr_ic
-    character(len=*), intent(in) :: field_name
-    type(json_file), intent(inout) :: params
-
-    call neko_log%message("Type: user")
-    call usr_ic(s, field_name, params)
-
-    call set_scalar_ic_common(s, coef, gs)
-
-  end subroutine set_scalars_ic_usr
 
   !> Set scalar initial condition (common)
   !! @details Finalize scalar initial condition by distributing the initial

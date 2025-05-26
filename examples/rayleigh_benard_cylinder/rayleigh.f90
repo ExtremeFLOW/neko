@@ -73,7 +73,8 @@ contains
 
   end subroutine set_scalar_boundary_conditions
 
-  subroutine set_initial_conditions_for_s(s, params)
+  subroutine set_initial_conditions_for_s(field_name, s, params)
+    character(len=*), intent(in) :: field_name
     type(field_t), intent(inout) :: s
     type(json_file), intent(inout) :: params
     integer :: i, j, k, e

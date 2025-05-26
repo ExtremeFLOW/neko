@@ -6,14 +6,14 @@ contains
   !> Register user defined functions (see user_intf.f90)
   subroutine user_setup(u)
     type(user_t), intent(inout) :: u
-    u%scalars_user_ic => set_scalars_ic
+    u%scalar_user_ic => set_scalars_ic
     u%fluid_user_ic => set_velocity
   end subroutine user_setup
 
   !> User initial condition for the scalars
-  subroutine set_scalars_ic(s, field_name, params)
-    type(field_t), intent(inout) :: s
+  subroutine set_scalars_ic(field_name, s, params)
     CHARACTER(len=*), INTENT(IN) :: field_name
+    type(field_t), intent(inout) :: s
     type(json_file), intent(inout) :: params
     integer :: i, e, k, j
     real(kind=rp) :: cone_radius, mux, muy, x, y, r, theta

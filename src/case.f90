@@ -318,7 +318,7 @@ contains
                   this%scalars%scalar(1)%c_Xh, this%scalars%scalar(1)%gs_Xh, &
                   string_val, json_subdict)
           else
-             call set_scalar_ic(this%scalars%scalar(1)%s, &
+             call set_scalar_ic(this%scalars%scalar(1)%name, this%scalars%scalar(1)%s, &
                   this%scalars%scalar(1)%c_Xh, this%scalars%scalar(1)%gs_Xh, &
                   this%usr%scalar_user_ic, this%params)
           end if
@@ -335,9 +335,9 @@ contains
                     this%scalars%scalar(i)%c_Xh, this%scalars%scalar(i)%gs_Xh, &
                     string_val, json_subdict)
             else
-               call set_scalar_ic(this%scalars%scalar(i)%s, &
+               call set_scalar_ic(this%scalars%scalar(i)%name, this%scalars%scalar(i)%s, &
                     this%scalars%scalar(i)%c_Xh, this%scalars%scalar(i)%gs_Xh, &
-                    this%usr%scalars_user_ic, this%scalars%scalar(i)%name, this%params)
+                    this%usr%scalar_user_ic, this%params)
             end if
          end do
        end if
