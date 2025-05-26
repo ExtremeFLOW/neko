@@ -267,6 +267,8 @@ contains
     integer :: pre, pos
     integer :: lvl_
 
+    call this%begin()
+
     if (present(lvl)) then
        lvl_ = lvl
     else
@@ -278,9 +280,6 @@ contains
     end if
 
     if (pe_rank .eq. 0) then
-       this%section_id_ = this%section_id_ + 1
-       this%indent_ = this%indent_ + this%tab_size_
-
        pre = (30 - len_trim(msg)) / 2
        pos = 30 - (len_trim(msg) + pre)
 
@@ -288,7 +287,6 @@ contains
        call this%indent()
        write(this%unit_, '(A,A,A)') &
             repeat('-', pre), trim(msg), repeat('-', pos)
-
     end if
 
   end subroutine log_section
@@ -300,27 +298,11 @@ contains
     integer, optional :: lvl
     integer :: lvl_
 
-    if (present(lvl)) then
-       lvl_ = lvl
-    else
-       lvl_ = NEKO_LOG_INFO
-    end if
-
-    if (lvl_ .gt. this%level_) then
-       return
-    end if
-
     if (present(msg)) then
-       call this%message(msg, NEKO_LOG_QUIET)
+       call this%message(msg, lvl)
     end if
 
-    if (pe_rank .eq. 0) then
-       if (this%section_id_ .eq. 0) then
-          call neko_error("Log is unbalanced")
-       end if
-       this%section_id_ = this%section_id_ - 1
-       this%indent_ = this%indent_ - this%tab_size_
-    end if
+    call this%end()
 
   end subroutine log_end_section
 
