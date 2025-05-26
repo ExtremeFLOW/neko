@@ -504,8 +504,9 @@ contains
   end subroutine dummy_scalar_user_f
 
   !> Dummy user boundary condition for scalar
-  subroutine dummy_scalar_user_bc(s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, &
+  subroutine dummy_scalar_user_bc(field_name, s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, &
        tstep)
+    character(len=*), intent(in) :: field_name
     real(kind=rp), intent(inout) :: s
     real(kind=rp), intent(in) :: x
     real(kind=rp), intent(in) :: y

@@ -39,6 +39,7 @@ module usr_scalar
   use device_inhom_dirichlet
   use utils, only : neko_error, nonlinear_index, neko_warning
   use json_module, only : json_file
+  use json_utils, only : json_get
   use, intrinsic :: iso_c_binding, only : c_sizeof, c_ptr, C_NULL_PTR
   implicit none
   private
@@ -47,6 +48,7 @@ module usr_scalar
   type, public, extends(bc_t) :: usr_scalar_t
      procedure(usr_scalar_bc_eval), nopass, pointer :: eval => null()
      type(c_ptr), private :: usr_x_d = C_NULL_PTR
+     character(len=:), allocatable :: field_name
    contains
      procedure, pass(this) :: apply_scalar => usr_scalar_apply_scalar
      procedure, pass(this) :: apply_vector => usr_scalar_apply_vector
@@ -80,9 +82,10 @@ module usr_scalar
      !! @param ie The element idx of this point
      !! @param t Current time
      !! @param tstep Current time-step
-     subroutine usr_scalar_bc_eval(s, x, y, z, nx, ny, nz, &
+     subroutine usr_scalar_bc_eval(field_name, s, x, y, z, nx, ny, nz, &
           ix, iy, iz, ie, t, tstep)
        import rp
+       character(len=*), intent(in) :: field_name
        real(kind=rp), intent(inout) :: s
        real(kind=rp), intent(in) :: x
        real(kind=rp), intent(in) :: y
@@ -111,8 +114,16 @@ contains
     class(usr_scalar_t), intent(inout), target :: this
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) :: json
+    character(len=:), allocatable :: field_name_temp
 
     call this%init_base(coef)
+
+    if (json%valid_path('field_name')) then
+      call json_get(json, 'field_name', field_name_temp)
+      this%field_name = field_name_temp
+    else
+      this%field_name = 's'
+    end if
   end subroutine usr_scalar_init
 
   subroutine usr_scalar_free(this)
@@ -122,6 +133,10 @@ contains
 
     if (c_associated(this%usr_x_d)) then
        call device_free(this%usr_x_d)
+    end if
+
+    if (allocated(this%field_name)) then
+      deallocate(this%field_name)
     end if
 
   end subroutine usr_scalar_free
@@ -167,7 +182,7 @@ contains
             idx = nonlinear_index(k, lx, lx, lx)
             select case (facet)
             case (1, 2)
-               call this%eval(x(k), &
+               call this%eval(this%field_name, x(k), &
                     xc(idx(1), idx(2), idx(3), idx(4)), &
                     yc(idx(1), idx(2), idx(3), idx(4)), &
                     zc(idx(1), idx(2), idx(3), idx(4)), &
@@ -177,7 +192,7 @@ contains
                     idx(1), idx(2), idx(3), idx(4), &
                     t_, tstep_)
             case (3, 4)
-               call this%eval(x(k), &
+               call this%eval(this%field_name, x(k), &
                     xc(idx(1), idx(2), idx(3), idx(4)), &
                     yc(idx(1), idx(2), idx(3), idx(4)), &
                     zc(idx(1), idx(2), idx(3), idx(4)), &
@@ -187,7 +202,7 @@ contains
                     idx(1), idx(2), idx(3), idx(4), &
                     t_, tstep_)
             case (5, 6)
-               call this%eval(x(k), &
+               call this%eval(this%field_name, x(k), &
                     xc(idx(1), idx(2), idx(3), idx(4)), &
                     yc(idx(1), idx(2), idx(3), idx(4)), &
                     zc(idx(1), idx(2), idx(3), idx(4)), &
@@ -254,7 +269,7 @@ contains
             idx = nonlinear_index(k, lx, lx, lx)
             select case(facet)
             case (1,2)
-               call this%eval(x(i), &
+               call this%eval(this%field_name, x(i), &
                     xc(idx(1), idx(2), idx(3), idx(4)), &
                     yc(idx(1), idx(2), idx(3), idx(4)), &
                     zc(idx(1), idx(2), idx(3), idx(4)), &
@@ -264,7 +279,7 @@ contains
                     idx(1), idx(2), idx(3), idx(4), &
                     t_, tstep_)
             case (3,4)
-               call this%eval(x(i), &
+               call this%eval(this%field_name, x(i), &
                     xc(idx(1), idx(2), idx(3), idx(4)), &
                     yc(idx(1), idx(2), idx(3), idx(4)), &
                     zc(idx(1), idx(2), idx(3), idx(4)), &
@@ -274,7 +289,7 @@ contains
                     idx(1), idx(2), idx(3), idx(4), &
                     t_, tstep_)
             case (5,6)
-               call this%eval(x(i), &
+               call this%eval(this%field_name, x(i), &
                     xc(idx(1), idx(2), idx(3), idx(4)), &
                     yc(idx(1), idx(2), idx(3), idx(4)), &
                     zc(idx(1), idx(2), idx(3), idx(4)), &
