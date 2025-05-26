@@ -161,9 +161,20 @@ provided, the simulation will issue an error.
 As an alternative to providing material properties in the case file, it is
 possible to do that in a special routine in the user file. This is demonstrated
 in the `rayleigh_benard_cylinder` example. Ultimately, both `rho` and `mu` have
-to be set in the subroutine, but it can be based on arbitrary computations and
-arbitrary parameters read from the case file. Additionally, this allows to
-change the material properties in time.
+to be set in the subroutine.  Additionally, this allows to change the material
+properties in time. Yet another options is to directly manipulate the case file
+programmatically in the `user_startup` routine and inject the material
+properties there. This is demonstrated in the `rayleigh_benard` example.
+
+When material properties are constant or only vary in time, one can use the
+simplified form of the viscous stress tensor in the governing equations.
+However, when there are spatial variations, it is necessary to use the general
+(full) form. The variation may come, for example,  due to a turbulence model,
+the modifications in the above-mentioned user routine. The general form of the
+stress tensor requires solving the 3 equations for the velocity components in a
+coupled manner, which requires an appropriate linear solver. By default, Neko
+will use the simplified form of the tensor, and the full one must be selected
+by the user by setting `full_stress_formulation` to true.
 
 ### Turbulence modelling
 
@@ -224,7 +235,9 @@ table below.
 | velocity_value          | A Dirichlet condition for velocity.                                                                                                                     |
 | no_slip                 | A no-slip wall.                                                                                                                                         |
 | outflow                 | A pressure outlet.                                                                                                                                      |
-| normal_outflow          | An Neumann condition  for the surface-normal component of velocity combined with a Dirichlet for the surface-parallel components. Must be axis-aligned. |
+| normal_outflow          | An Neumann condition for the surface-normal component of velocity combined with a Dirichlet for the surface-parallel components. Must be axis-aligned.  |
+| outflow+user            | Same as `outflow` but with user-specified pressure.                                                                                                     |
+| normal_outflow+user     | Same as `normal_outflow` but with user-specified pressure.                                                                                              |
 | outflow+dong            | A pressure outlet with the Dong condition applied.                                                                                                      |
 | normal_outflow+dong     | The `normal_outflow` with the Dong condition applied. Must be axis-aligned.                                                                             |
 | shear_stress            | Prescribed wall shear stress. Must be axis-aligned.                                                                                                     |
@@ -277,6 +290,23 @@ A more detailed description of each boundary condition is provided below.
   component, but fixes the values of the surface-parallel components. The latter
   values are not prescribed in the boundary condition's JSON, but are instead
   taken from the initial conditions. The boundary must be axis-aligned.
+  ```json
+  {
+    "type": "normal_outflow",
+    "zone_indices": [1, 2]
+  }
+  ```
+* `outflow+user`. Same as `outflow`, but with user-specified
+  pressure. The pressure is specified via the same interface as `user_pressure`,
+  see the 
+  [relevant section](#user-file_field-dirichlet-update) for more information.
+
+* `normal_outflow+user`. Same as `normal_outflow`, but with user-specified
+  pressure. The pressure profile is specified via the same interface as 
+  `user_pressure`, see
+  the [relevant section](#user-file_field-dirichlet-update) for more information.
+  Note that, similarly to `normal_outflow`, surface-parallel velocity components
+  are taken from the initial conditions. 
 
 * `outflow+dong`. Same as `outflow`, but additionally applies the Dong boundary
   condition on the pressure. This is a way to prevent backflow and therefore
@@ -625,14 +655,15 @@ The following keywords are used, with the corresponding options.
   - `pipecg`, a pipelined conjugate gradient solver.
   - `bicgstab`, a bi-conjugate gradient stabilized solver.
   - `cacg`, a communication-avoiding conjugate gradient solver.
-  - `cpldcg`, a coupled conjugate gradient solver. Must be used for velocity
+  - `coupledcg`, a coupled conjugate gradient solver. Must be used for velocity
     when viscosity varies in space.
   - `gmres`, a GMRES solver. Typically used for pressure.
   - `fusedcg`, a conjugate gradient solver optimised for accelerators using
-    kernel fusion.
-  - `fcpldcg`, a coupled conjugate gradient solver optimised for accelerators
+  - `fusedcoupledcg`, a coupled conjugate gradient solver optimised for accelerators using
+    kernel fusion. Must be used for velocity when viscosity varies in space and
+    device backened is used.
     using kernel fusion.
-* `preconditioner`, preconditioner type.
+* `preconditioner.type`, preconditioner type.
   - `jacobi`, a Jacobi preconditioner. Typically used for velocity.
   - `hsmg`, a hybrid-Schwarz multigrid preconditioner. Typically used for
     pressure.
@@ -702,14 +733,14 @@ concisely directly in the table.
 | `gradient_jump_penalty`                 | Array of JSON objects, defining additional gradient jump penalty.                                 | See list of gradient jump penalty above                     | -             |
 | `boundary_types`                        | Boundary types/conditions labels.                                                                 | Array of strings                                            | -             |
 | `velocity_solver.type`                  | Linear solver for the momentum equation.                                                          | `cg`, `pipecg`, `bicgstab`, `cacg`, `gmres`                 | -             |
-| `velocity_solver.preconditioner`        | Linear solver preconditioner for the momentum equation.                                           | `ident`, `hsmg`, `jacobi`                                   | -             |
+| `velocity_solver.preconditioner.type`   | Linear solver preconditioner for the momentum equation.                                           | `ident`, `hsmg`, `jacobi`                                   | -             |
 | `velocity_solver.absolute_tolerance`    | Linear solver convergence criterion for the momentum equation.                                    | Positive real                                               | -             |
 | `velocity_solver.maxiter`               | Linear solver max iteration count for the momentum equation.                                      | Positive real                                               | 800           |
 | `velocity_solver.projection_space_size` | Projection space size for the momentum equation.                                                  | Positive integer                                            | 0             |
 | `velocity_solver.projection_hold_steps` | Holding steps of the projection for the momentum equation.                                        | Positive integer                                            | 5             |
 | `velocity_solver.monitor`               | Monitor residuals in the linear solver for the momentum equation.                                 | `true` or `false`                                           | `false`       |
 | `pressure_solver.type`                  | Linear solver for the pressure equation.                                                          | `cg`, `pipecg`, `bicgstab`, `cacg`, `gmres`                 | -             |
-| `pressure_solver.preconditioner`        | Linear solver preconditioner for the pressure equation.                                           | `ident`, `hsmg`, `jacobi`                                   | -             |
+| `pressure_solver.preconditioner.type`   | Linear solver preconditioner for the pressure equation.                                           | `ident`, `hsmg`, `jacobi`                                   | -             |
 | `pressure_solver.absolute_tolerance`    | Linear solver convergence criterion for the pressure equation.                                    | Positive real                                               | -             |
 | `pressure_solver.maxiter`               | Linear solver max iteration count for the pressure equation.                                      | Positive real                                               | 800           |
 | `pressure_solver.projection_space_size` | Projection space size for the pressure equation.                                                  | Positive integer                                            | 0             |
@@ -720,6 +751,7 @@ concisely directly in the table.
 | `flow_rate_force.use_averaged_flow`     | Whether bulk velocity or volumetric flow rate is given by the `value` parameter.                  | `true` or `false`                                           | -             |
 | `freeze`                                | Whether to fix the velocity field at initial conditions.                                          | `true` or `false`                                           | `false`       |
 | `advection`                             | Whether to compute the advection term.                                                            | `true` or `false`                                           | `true`        |
+| `full_stress_formulation`               | Whether to use the full form of the visous stress tensor term.                                    | `true` or `false`                                   | `false`               |
 
 ## Scalar {#case-file_scalar}
 The scalar object allows to add a scalar transport equation to the solution. The
@@ -829,7 +861,7 @@ standard choice would be `"type": "cg"` and `"preconditioner": "jacobi"`.
 | `gradient_jump_penalty`        | Array of JSON objects, defining additional gradient jump penalty. | See list of gradient jump penalty above     | -             |
 | `advection`                    | Whether to compute the advetion term.                             | `true` or `false`                           | `true`        |
 | `solver.type`                  | Linear solver for scalar equation.                                | `cg`, `pipecg`, `bicgstab`, `cacg`, `gmres` | -             |
-| `solver.preconditioner`        | Linear solver preconditioner for the momentum equation.           | `ident`, `hsmg`, `jacobi`                   | -             |
+| `solver.preconditioner.type`   | Linear solver preconditioner for the momentum equation.           | `ident`, `hsmg`, `jacobi`                   | -             |
 | `solver.absolute_tolerance`    | Linear solver convergence criterion for the momentum equation.    | Positive real                               | -             |
 | `solver.maxiter`               | Linear solver max iteration count for the momentum equation.      | Positive real                               | 800           |
 | `solver.projection_space_size` | Projection space size for the scalar equation.                    | Positive integer                            | 0            |

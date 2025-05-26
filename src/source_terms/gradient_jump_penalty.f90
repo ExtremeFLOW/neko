@@ -834,11 +834,11 @@ contains
        call this%compute_single(this%s_fields%items(i)%ptr)
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_invcol2(this%penalty_d, this%coef%B_d, n)
           call device_add2(this%fields%x_d(i), this%penalty_d, n)
-          call device_invcol2(this%fields%x_d(i), this%coef%B_d, n)
        else
+          call invcol2(this%penalty, this%coef%B, n)
           call add2(this%fields%items(i)%ptr%x, this%penalty, n)
-          call invcol2(this%fields%items(i)%ptr%x, this%coef%B, n)
        end if
     end do
 
