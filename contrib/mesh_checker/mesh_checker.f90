@@ -122,7 +122,6 @@ program mesh_checker
      end if
   end do
 
-
   if (write_zone_ids) then
      if (pe_rank .eq. 0) write(*,*) 'Writing zone ids to zone_indices0.f00000'
      call gs%init(dofmap)
