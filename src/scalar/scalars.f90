@@ -75,7 +75,8 @@ module scalars
      !> Perform a time step for all scalar fields
      procedure :: step => scalars_step
      !> Update the material properties for all scalar fields
-     procedure :: update_material_properties => scalars_update_material_properties
+     procedure :: update_material_properties => &
+          scalars_update_material_properties
      !> Restart from checkpoint data
      procedure :: restart => scalars_restart
      !> Check if the configuration is valid
@@ -87,7 +88,8 @@ module scalars
 contains
 
   !> Initialize the scalars container
-  subroutine scalars_init(this, n_scalars, msh, coef, gs, params, numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
+  subroutine scalars_init(this, n_scalars, msh, coef, gs, params, &
+       numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
     class(scalars_t), intent(inout) :: this
     integer, intent(in) :: n_scalars
     type(mesh_t), target, intent(in) :: msh
@@ -103,7 +105,6 @@ contains
     type(json_file) :: json_subdict
     integer :: i, j
     character(len=:), allocatable :: field_name
-    character(len=256) :: error_msg
     character(len=:), allocatable :: field_names(:)
 
     ! Allocate the scalar fields
@@ -120,8 +121,10 @@ contains
 
           ! Require field_name to be explicitly specified
           if (.not. json_subdict%valid_path('field_name')) then
-             write(error_msg, '(A,I0,A)') 'field_name is required for scalar ', i, &
-                ' when using multiple scalars. Please specify a unique field_name for each scalar.'
+             write(error_msg, '(A,I0,A)') &
+                  'field_name is required for scalar ', i, &
+                  ' when using multiple scalars. Please specify a unique ' // &
+                  'field_name for each scalar.'
              call neko_error(trim(error_msg))
           end if
 
@@ -129,8 +132,9 @@ contains
 
           ! Check that field_name is not empty
           if (len_trim(field_name) == 0) then
-             write(error_msg, '(A,I0,A)') 'field_name cannot be empty for scalar ', i, &
-                ' when using multiple scalars.'
+             write(error_msg, '(A,I0,A)') &
+                  'field_name cannot be empty for scalar ', i, &
+                  ' when using multiple scalars.'
              call neko_error(trim(error_msg))
           end if
 
@@ -139,7 +143,8 @@ contains
           ! Check for duplicates
           do j = 1, i-1
              if (trim(field_names(i)) == trim(field_names(j))) then
-                call neko_error('Duplicate field_name found. Each scalar must have a unique field_name')
+                call neko_error('Duplicate field_name found. Each scalar must ' // &
+                     'have a unique field_name')
              end if
           end do
        end do
@@ -147,11 +152,13 @@ contains
 
     do i = 1, n_scalars
        call json_extract_item(params, "", i, json_subdict)
-       call this%scalar(i)%init(msh, coef, gs, json_subdict, numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
+       call this%scalar(i)%init(msh, coef, gs, json_subdict, numerics_params, &
+            user, chkp, ulag, vlag, wlag, time_scheme, rho)
     end do
   end subroutine scalars_init
 
-  subroutine scalars_init_single(this, msh, coef, gs, params, numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
+  subroutine scalars_init_single(this, msh, coef, gs, params, numerics_params, &
+       user, chkp, ulag, vlag, wlag, time_scheme, rho)
     class(scalars_t), intent(inout) :: this
     type(mesh_t), target, intent(in) :: msh
     type(coef_t), target, intent(in) :: coef
@@ -168,7 +175,8 @@ contains
     allocate(scalar_pnpn_t::this%scalar(1))
 
     ! Initialize it directly with the params
-    call this%scalar(1)%init(msh, coef, gs, params, numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
+    call this%scalar(1)%init(msh, coef, gs, params, numerics_params, user, &
+         chkp, ulag, vlag, wlag, time_scheme, rho)
   end subroutine scalars_init_single
 
   !> Perform a time step for all scalar fields

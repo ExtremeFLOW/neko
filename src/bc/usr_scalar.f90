@@ -267,7 +267,7 @@ contains
             k = this%msk(i)
             facet = this%facet(i)
             idx = nonlinear_index(k, lx, lx, lx)
-            select case(facet)
+            select case (facet)
             case (1,2)
                call this%eval(this%field_name, x(i), &
                     xc(idx(1), idx(2), idx(3), idx(4)), &

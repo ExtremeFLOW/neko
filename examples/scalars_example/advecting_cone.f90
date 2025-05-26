@@ -38,12 +38,12 @@ contains
           s%x(i,1,1,1) = 0.0
        else
           s%x(i,1,1,1) = 1.0 - r / cone_radius
-       endif
+       end if
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(s%x, s%x_d, s%dof%size(), &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
     end if
   end subroutine set_scalars_ic
 
@@ -69,11 +69,11 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(u%x, u%x_d, u%dof%size(), &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(v%x, v%x_d, v%dof%size(), &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(w%x, w%x_d, w%dof%size(), &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
     end if
   end subroutine set_velocity
 
@@ -95,7 +95,7 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(f%s, f%s_d, f%dm%size(), &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
     end if
 
   end subroutine set_source_vector
