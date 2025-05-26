@@ -50,6 +50,7 @@ program mesh_checker
   type(coef_t) :: coef
   type(dofmap_t) :: dofmap
   logical :: write_zone_ids
+  real(kind=rp) :: xmin, xmax, ymin, ymax, zmin, zmax
 
   argc = command_argument_count()
 
@@ -77,11 +78,20 @@ program mesh_checker
   end do
 
   mesh_file = file_t(trim(mesh_fname))
-
   call mesh_file%read(msh)
+
+  call Xh%init(1, 2, 2, 2)
+  call dofmap%init(msh, Xh)
 
   call MPI_Allreduce(msh%periodic%size, periodic_size, 1, &
        MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+
+  xmin = glmin(dofmap%x, dofmap%size())
+  ymin = glmin(dofmap%y, dofmap%size())
+  zmin = glmin(dofmap%z, dofmap%size())
+  xmax = glmax(dofmap%x, dofmap%size())
+  ymax = glmax(dofmap%y, dofmap%size())
+  zmax = glmax(dofmap%z, dofmap%size()) 
 
   if (pe_rank .eq. 0) then
      write(*,*) ''
@@ -90,7 +100,13 @@ program mesh_checker
      write(*,*) 'Number of points:   ', msh%glb_mpts
      write(*,*) 'Number of faces:    ', msh%glb_mfcs
      write(*,*) 'Number of edges:    ', msh%glb_meds
-     write(*,*) ''
+     write(*,*) 'Bounding box:'
+     write(*,'(A,2(g10.3,1X))') '    x', xmin, xmax
+     write(*,'(A,2(g10.3,1X))') '    y', ymin, ymax
+     write(*,'(A,2(g10.3,1X))') '    z', zmin, zmax
+  end if
+
+  if (pe_rank .eq. 0) then
      write(*,*) '--------------Zones------------'
      write(*,'(A, I0)') 'Number of periodic faces: ', periodic_size
      write(*,*) ''
@@ -108,10 +124,9 @@ program mesh_checker
      end if
   end do
 
+
   if (write_zone_ids) then
      if (pe_rank .eq. 0) write(*,*) 'Writing zone ids to zone_indices0.f00000'
-     call Xh%init(1, 2, 2, 2)
-     call dofmap%init(msh, Xh)
      call gs%init(dofmap)
      call coef%init(gs)
 
@@ -128,13 +143,14 @@ program mesh_checker
      bdry_file = file_t('zone_indices.fld')
      call bdry_file%write(bdry_field)
 
-     call Xh%free()
-     call gs%free()
      call dofmap%free()
      call bdry_field%free()
      call msh%free()
      call bdry_mask%free()
   end if
+
+  call Xh%free()
+  call gs%free()
 
   if (pe_rank .eq. 0) write(*,*) 'Done'
   call neko_finalize
