@@ -45,10 +45,11 @@ module logger
   integer, public, parameter :: LOG_SIZE = 79
 
   type, public :: log_t
-     integer :: indent_
-     integer :: section_id_
-     integer :: level_
-     integer :: unit_
+     integer, private :: indent_
+     integer, private :: section_id_
+     integer, private :: tab_size_
+     integer, private :: level_
+     integer, private :: unit_
    contains
      procedure, pass(this) :: init => log_init
      procedure, pass(this) :: begin => log_begin
