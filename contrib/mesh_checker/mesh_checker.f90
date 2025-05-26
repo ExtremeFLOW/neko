@@ -145,12 +145,12 @@ program mesh_checker
 
      call dofmap%free()
      call bdry_field%free()
-     call msh%free()
      call bdry_mask%free()
   end if
 
   call Xh%free()
   call gs%free()
+  call msh%free()
 
   if (pe_rank .eq. 0) write(*,*) 'Done'
   call neko_finalize
