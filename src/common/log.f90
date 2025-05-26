@@ -264,29 +264,19 @@ contains
     character(len=*), intent(in) :: msg
     integer, optional :: lvl
 
+    character(len=LOG_SIZE) :: log_msg
     integer :: pre, pos
-    integer :: lvl_
 
     call this%begin()
-
-    if (present(lvl)) then
-       lvl_ = lvl
-    else
-       lvl_ = NEKO_LOG_INFO
-    end if
-
-    if (lvl_ .gt. this%level_) then
-       return
-    end if
 
     if (pe_rank .eq. 0) then
        pre = (30 - len_trim(msg)) / 2
        pos = 30 - (len_trim(msg) + pre)
 
-       write(this%unit_, '(A)') ''
-       call this%indent()
-       write(this%unit_, '(A,A,A)') &
-            repeat('-', pre), trim(msg), repeat('-', pos)
+       write(log_msg, '(A,A,A)') repeat('-', pre), trim(msg), repeat('-', pos)
+
+       call this%newline(lvl)
+       call this%message(trim(log_msg), lvl)
     end if
 
   end subroutine log_section
