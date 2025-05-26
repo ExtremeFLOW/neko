@@ -120,7 +120,8 @@ contains
     character(len=38) :: log_fmt
     real(kind=rp) :: t_prog
 
-    t_prog = 100.0_rp * (this%t - this%start_time) / this%end_time
+    t_prog = 100.0_rp * (this%t - this%start_time) / &
+         (this%end_time - this%start_time)
 
     write(log_fmt, '(A,I2,A)') &
          '(A7,1X,I10,1X,A4,E15.7,', LOG_SIZE - 49, 'X,A2,F6.2,A3)'
