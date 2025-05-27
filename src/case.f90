@@ -241,7 +241,7 @@ contains
     !
     ! @todo no scalar factory for now, probably not needed
     if (this%params%valid_path('case.scalar')) then
-       call json_get_or_default(this%params, 'case.scalar.enabled', scalar,&
+       call json_get_or_default(this%params, 'case.scalar.enabled', scalar, &
             .true.)
     end if
 
@@ -249,9 +249,9 @@ contains
        allocate(this%scalar)
        call json_extract_object(this%params, 'case.scalar', scalar_params)
        call this%scalar%init(this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
-            scalar_params, numerics_params, this%usr, this%chkp, this%fluid%ulag, &
-            this%fluid%vlag, this%fluid%wlag, this%fluid%ext_bdf, &
-            this%fluid%rho)
+            scalar_params, numerics_params, this%usr, this%chkp, &
+            this%fluid%ulag, this%fluid%vlag, this%fluid%wlag, &
+            this%fluid%ext_bdf, this%fluid%rho)
 
     end if
 
@@ -274,12 +274,12 @@ contains
        if (trim(string_val) .eq. 'compressible') then
           call set_flow_ic(this%fluid%rho, &
                this%fluid%u, this%fluid%v, this%fluid%w, this%fluid%p, &
-               this%fluid%c_Xh, this%fluid%gs_Xh, this%usr%fluid_compressible_user_ic, &
-               this%params)
+               this%fluid%c_Xh, this%fluid%gs_Xh, &
+               this%usr%fluid_compressible_user_ic, this%params)
        else
-          call set_flow_ic(this%fluid%u, this%fluid%v, this%fluid%w, this%fluid%p,&
-               this%fluid%c_Xh, this%fluid%gs_Xh, this%usr%fluid_user_ic, &
-               this%params)
+          call set_flow_ic(this%fluid%u, this%fluid%v, this%fluid%w, &
+               this%fluid%p, this%fluid%c_Xh, this%fluid%gs_Xh, &
+               this%usr%fluid_user_ic, this%params)
        end if
     end if
 
@@ -420,8 +420,8 @@ contains
             path = this%output_directory, fmt = trim(string_val))
        call json_get_or_default(this%params, 'case.checkpoint_control', &
             string_val, "simulationtime")
-       call json_get_or_default(this%params, 'case.checkpoint_value', real_val,&
-            1e10_rp)
+       call json_get_or_default(this%params, 'case.checkpoint_value', &
+            real_val, 1e10_rp)
        call this%output_controller%add(this%chkp_out, real_val, string_val, &
             NEKO_EPS)
     end if

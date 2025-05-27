@@ -189,7 +189,7 @@ contains
           tem%ptr => data%items(5)%ptr%x(:,1,1,1)
           n_scalar_fields = data%size() - 5
           allocate(scalar_fields(n_scalar_fields))
-          do i = 1,n_scalar_fields
+          do i = 1, n_scalar_fields
              scalar_fields(i)%ptr => data%items(i+5)%ptr%x(:,1,1,1)
           end do
           write_pressure = .true.
@@ -399,7 +399,7 @@ contains
     do i = 1, n_scalar_fields
        call outbuf_npar%fill(scalar_fields(i)%ptr, n)
        if (this%layout .le. 3) then
-          write(id_str, '(a,i1,i1)') 's', i/10, i-10*(i/10)
+          write(id_str, '(a,i1,i1)') 's', i / 10, i - 10*(i / 10)
           call outbuf_npar%define(variable, ioWriter, trim(id_str), ierr)
           call outbuf_npar%write(bpWriter, variable, ierr)
        end if
@@ -416,8 +416,9 @@ contains
     ! Write metadata file
     if (pe_rank .eq. 0) then
        tslash_pos = filename_tslash_pos(this%fname)
-       write(start_field,"(I5,A7)") this%start_counter,'.adios2'
-       open(unit = newunit(file_unit), file = trim(this%fname(1:suffix_pos - 1)) &
+       write(start_field, "(I5,A7)") this%start_counter, '.adios2'
+       open(unit = newunit(file_unit), &
+            file = trim(this%fname(1:suffix_pos - 1)) &
             // trim(adjustl(start_field)), status='replace')
        write(file_unit, fmt = '(A,A,A)') 'filetemplate:         ', &
             this%fname(tslash_pos+1:suffix_pos-1),'%01d.%05d.bp'
@@ -473,9 +474,9 @@ contains
              data%fld_series_fname = string(:scan(trim(string), '%') - 1)
              data%fld_series_fname = trim(data%fld_series_fname) // '0'
              read(file_unit, fmt = '(A)') string
-             read(string(scan(string,':')+1:),*) data%meta_start_counter
+             read(string(scan(string, ':')+1:), *) data%meta_start_counter
              read(file_unit, fmt = '(A)') string
-             read(string(scan(string,':')+1:),*) data%meta_nsamples
+             read(string(scan(string, ':')+1:), *) data%meta_nsamples
 
              close(file_unit)
              write(*,*) 'Reading meta file for bp series'
@@ -494,7 +495,7 @@ contains
 
        if (meta_file) then
           write(id_str, '(i5.5,a)') this%counter, '.bp'
-          fname = trim(data%fld_series_fname)//'.'//id_str
+          fname = trim(data%fld_series_fname) // '.' // id_str
           if (this%counter .ge. data%meta_nsamples+data%meta_start_counter) then
              call neko_error('Trying to read more bp files than exist')
           end if

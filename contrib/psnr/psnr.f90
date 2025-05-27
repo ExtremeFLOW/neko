@@ -122,9 +122,9 @@ program psnr
   call neko_init
 
   call get_command_argument(1, inputchar)
-  read(inputchar, fmt='(A)') original_fname
+  read(inputchar, fmt = '(A)') original_fname
   call get_command_argument(2, inputchar)
-  read(inputchar, fmt='(A)') compressed_fname
+  read(inputchar, fmt = '(A)') compressed_fname
   call get_command_argument(3, inputchar)
   read(inputchar, *) dp_precision
 

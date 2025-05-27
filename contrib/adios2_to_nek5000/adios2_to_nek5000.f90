@@ -23,9 +23,9 @@ program adios2_to_nek5000
   call neko_init
 
   call get_command_argument(1, inputchar)
-  read(inputchar, fmt='(A)') field_fname
+  read(inputchar, fmt = '(A)') field_fname
   call get_command_argument(2, inputchar)
-  read(inputchar, fmt='(A)') output_fname
+  read(inputchar, fmt = '(A)') output_fname
   call get_command_argument(3, inputchar)
   read(inputchar, *) dp_precision
   call get_command_argument(4, inputchar)
