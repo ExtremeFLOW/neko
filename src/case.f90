@@ -425,6 +425,12 @@ contains
        call jobctrl_set_time_limit(string_val)
     end if
 
+    !
+    ! Initialize time and step
+    !
+    this%time%t = 0d0
+    this%time%tstep = 0
+
     call neko_log%end_section()
 
   end subroutine case_init_common
