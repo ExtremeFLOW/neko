@@ -126,7 +126,7 @@ program psnr
      n_scalars = compressed_data%size() - 5
      if (compressed_data%u%n .eq. original_data%u%n) then
         write(*,*) "Error in velocity components"
-        if (file_precision) then
+        if (dp_precision) then
            call calculate_psnr_dp(original_data%u%x, compressed_data%u%x, &
                 compressed_data%u%n)
            call calculate_psnr_dp(original_data%v%x, compressed_data%v%x, &
@@ -144,7 +144,7 @@ program psnr
      end if
      if (compressed_data%u%n .eq. original_data%p%n) then
         write(*,*) "Error in pressure"
-        if (file_precision) then
+        if (dp_precision) then
            call calculate_psnr_dp(original_data%p%x, compressed_data%p%x, &
                 compressed_data%p%n)
         else
@@ -154,7 +154,7 @@ program psnr
      end if
      if (compressed_data%u%n .eq. original_data%t%n) then
         write(*,*) "Error in temperature"
-        if (file_precision) then
+        if (dp_precision) then
            call calculate_psnr_dp(original_data%t%x, compressed_data%t%x, &
                 compressed_data%t%n)
         else
@@ -165,7 +165,7 @@ program psnr
      do j = 1, n_scalars
         if (compressed_data%s(j)%n .eq. original_data%s(j)%n) then
            write(*,*) "Error in scalar ", j
-           if (file_precision) then
+           if (dp_precision) then
               call calculate_psnr_dp(original_data%s(j)%x, &
                    compressed_data%s(j)%x, compressed_data%s(j)%n)
            else
