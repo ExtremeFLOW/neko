@@ -34,6 +34,7 @@
 module logger
   use comm, only : pe_rank
   use num_types, only : rp
+  use utils, only: neko_error
   use, intrinsic :: iso_fortran_env, only: stdout => output_unit, &
        stderr => error_unit
   implicit none
@@ -45,12 +46,14 @@ module logger
   integer, public, parameter :: LOG_SIZE = 79
 
   type, public :: log_t
-     integer :: indent_
-     integer :: section_id_
-     integer :: level_
-     integer :: unit_
+     integer, private :: indent_
+     integer, private :: section_id_
+     integer, private :: tab_size_
+     integer, private :: level_
+     integer, private :: unit_
    contains
      procedure, pass(this) :: init => log_init
+     procedure, pass(this) :: free => log_free
      procedure, pass(this) :: begin => log_begin
      procedure, pass(this) :: end => log_end
      procedure, pass(this) :: indent => log_indent
@@ -80,11 +83,19 @@ contains
   subroutine log_init(this)
     class(log_t), intent(inout) :: this
     character(len=255) :: log_level
+    character(len=255) :: log_tab_size
     character(len=255) :: log_file
     integer :: envvar_len
 
-    this%indent_ = 1
+    this%indent_ = 0
     this%section_id_ = 0
+
+    call get_environment_variable("NEKO_LOG_TAB_SIZE", log_tab_size, envvar_len)
+    if (envvar_len .gt. 0) then
+       read(log_tab_size(1:envvar_len), *) this%tab_size_
+    else
+       this%tab_size_ = 1
+    end if
 
     call get_environment_variable("NEKO_LOG_LEVEL", log_level, envvar_len)
     if (envvar_len .gt. 0) then
@@ -103,12 +114,31 @@ contains
 
   end subroutine log_init
 
+  !> Free a log
+  subroutine log_free(this)
+    class(log_t), intent(inout) :: this
+
+    if (this%section_id_ .ne. 0) then
+       call neko_error("Log is unbalanced")
+    end if
+
+    if (this%unit_ .ne. stdout) then
+       close(this%unit_)
+    end if
+
+    this%indent_ = 0
+    this%level_ = NEKO_LOG_INFO
+    this%unit_ = -1
+
+  end subroutine log_free
+
   !> Increase indention level
   subroutine log_begin(this)
     class(log_t), intent(inout) :: this
 
     if (pe_rank .eq. 0) then
-       this%indent_ = this%indent_ + 1
+       this%section_id_ = this%section_id_ + 1
+       this%indent_ = this%indent_ + this%tab_size_
     end if
 
   end subroutine log_begin
@@ -118,7 +148,11 @@ contains
     class(log_t), intent(inout) :: this
 
     if (pe_rank .eq. 0) then
-       this%indent_ = this%indent_ - 1
+       if (this%section_id_ .eq. 0) then
+          call neko_error("Log is unbalanced")
+       end if
+       this%section_id_ = this%section_id_ - 1
+       this%indent_ = this%indent_ - this%tab_size_
     end if
 
   end subroutine log_end
@@ -230,32 +264,19 @@ contains
     character(len=*), intent(in) :: msg
     integer, optional :: lvl
 
+    character(len=LOG_SIZE) :: log_msg
     integer :: pre, pos
-    integer :: lvl_
 
-    if (present(lvl)) then
-       lvl_ = lvl
-    else
-       lvl_ = NEKO_LOG_INFO
-    end if
-
-    if (lvl_ .gt. this%level_) then
-       return
-    end if
+    call this%begin()
 
     if (pe_rank .eq. 0) then
-
-       this%indent_ = this%indent_ + this%section_id_
-       this%section_id_ = this%section_id_ + 1
-
        pre = (30 - len_trim(msg)) / 2
        pos = 30 - (len_trim(msg) + pre)
 
-       write(this%unit_, '(A)') ''
-       call this%indent()
-       write(this%unit_, '(A,A,A)') &
-            repeat('-', pre), trim(msg), repeat('-', pos)
+       write(log_msg, '(A,A,A)') repeat('-', pre), trim(msg), repeat('-', pos)
 
+       call this%newline(lvl)
+       call this%message(trim(log_msg), lvl)
     end if
 
   end subroutine log_section
@@ -267,24 +288,11 @@ contains
     integer, optional :: lvl
     integer :: lvl_
 
-    if (present(lvl)) then
-       lvl_ = lvl
-    else
-       lvl_ = NEKO_LOG_INFO
-    end if
-
-    if (lvl_ .gt. this%level_) then
-       return
-    end if
-
     if (present(msg)) then
-       call this%message(msg, NEKO_LOG_QUIET)
+       call this%message(msg, lvl)
     end if
 
-    if (pe_rank .eq. 0) then
-       this%section_id_ = this%section_id_ - 1
-       this%indent_ = this%indent_ - this%section_id_
-    end if
+    call this%end()
 
   end subroutine log_end_section
 
