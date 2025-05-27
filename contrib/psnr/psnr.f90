@@ -5,9 +5,37 @@ module calculate_psnr
 
 contains
 
+  subroutine calculate_psnr_rp(compressed, original, size)
+    class(*), intent(in) :: compressed(:)
+    class(*), intent(in) :: original(:)
+    integer, intent(in) :: size
+
+    select type (com => compressed)
+    type is (real(kind=sp))
+       select type (ori => original)
+       type is (real(kind=sp))
+          call calculate_psnr_sp(com, ori, size)
+       class default
+          write(*,*) "Unsupported type for PSNR calculation"
+          error stop
+       end select
+    type is (real(kind=dp))
+       select type (ori => original)
+       type is (real(kind=dp))
+          call calculate_psnr_dp(com, ori, size)
+       class default
+          write(*,*) "Unsupported type for PSNR calculation"
+          error stop
+       end select
+    class default
+       write(*,*) "Unsupported type for PSNR calculation"
+       error stop
+    end select
+  end subroutine calculate_psnr_rp
+
   subroutine calculate_psnr_sp(compressed, original, size)
-    real(kind=sp), allocatable, intent(in) :: compressed(:)
-    real(kind=sp), allocatable, intent(in) :: original(:)
+    real(kind=sp), intent(in) :: compressed(:)
+    real(kind=sp), intent(in) :: original(:)
     integer, intent(in) :: size
     real(kind=sp) :: minVal, maxVal, peakVal, mse, psnr, sum
     integer :: i
@@ -35,8 +63,8 @@ contains
   end subroutine calculate_psnr_sp
 
   subroutine calculate_psnr_dp(original, compressed, size)
-    real(kind=dp), allocatable, intent(in) :: original(:)
-    real(kind=dp), allocatable, intent(in) :: compressed(:)
+    real(kind=dp), intent(in) :: original(:)
+    real(kind=dp), intent(in) :: compressed(:)
     integer, intent(in) :: size
     real(kind=dp) :: minVal, maxVal, peakVal, mse, psnr, sum
     integer :: i
@@ -126,52 +154,28 @@ program psnr
      n_scalars = compressed_data%size() - 5
      if (compressed_data%u%n .eq. original_data%u%n) then
         write(*,*) "Error in velocity components"
-        if (dp_precision) then
-           call calculate_psnr_dp(original_data%u%x, compressed_data%u%x, &
-                compressed_data%u%n)
-           call calculate_psnr_dp(original_data%v%x, compressed_data%v%x, &
-                compressed_data%v%n)
-           call calculate_psnr_dp(original_data%w%x, compressed_data%w%x, &
-                compressed_data%w%n)
-        else
-           call calculate_psnr_sp(original_data%u%x, compressed_data%u%x, &
-                compressed_data%u%n)
-           call calculate_psnr_sp(original_data%v%x, compressed_data%v%x, &
-                compressed_data%v%n)
-           call calculate_psnr_sp(original_data%w%x, compressed_data%w%x, &
-                compressed_data%w%n)
-        end if
+        call calculate_psnr_rp(original_data%u%x, compressed_data%u%x, &
+             compressed_data%u%n)
+        call calculate_psnr_rp(original_data%v%x, compressed_data%v%x, &
+             compressed_data%v%n)
+        call calculate_psnr_rp(original_data%w%x, compressed_data%w%x, &
+             compressed_data%w%n)
      end if
      if (compressed_data%u%n .eq. original_data%p%n) then
         write(*,*) "Error in pressure"
-        if (dp_precision) then
-           call calculate_psnr_dp(original_data%p%x, compressed_data%p%x, &
-                compressed_data%p%n)
-        else
-           call calculate_psnr_sp(original_data%p%x, compressed_data%p%x, &
-                compressed_data%p%n)
-        end if
+        call calculate_psnr_rp(original_data%p%x, compressed_data%p%x, &
+             compressed_data%p%n)
      end if
      if (compressed_data%u%n .eq. original_data%t%n) then
         write(*,*) "Error in temperature"
-        if (dp_precision) then
-           call calculate_psnr_dp(original_data%t%x, compressed_data%t%x, &
-                compressed_data%t%n)
-        else
-           call calculate_psnr_sp(original_data%t%x, compressed_data%t%x, &
-                compressed_data%t%n)
-        end if
+        call calculate_psnr_rp(original_data%t%x, compressed_data%t%x, &
+             compressed_data%t%n)
      end if
      do j = 1, n_scalars
         if (compressed_data%s(j)%n .eq. original_data%s(j)%n) then
            write(*,*) "Error in scalar ", j
-           if (dp_precision) then
-              call calculate_psnr_dp(original_data%s(j)%x, &
-                   compressed_data%s(j)%x, compressed_data%s(j)%n)
-           else
-              call calculate_psnr_sp(original_data%s(j)%x, &
-                   compressed_data%s(j)%x, compressed_data%s(j)%n)
-           end if
+           call calculate_psnr_rp(original_data%s(j)%x, &
+                compressed_data%s(j)%x, compressed_data%s(j)%n)
         end if
      end do
 

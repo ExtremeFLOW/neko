@@ -58,7 +58,8 @@ module buffer_4d
 
 contains
 
-  subroutine buffer_4d_init(this, precision, gdim, glb_nelv, offset_el, nelv, lx, ly, lz)
+  subroutine buffer_4d_init(this, precision, gdim, glb_nelv, offset_el, nelv, &
+       lx, ly, lz)
     class(buffer_4d_t), intent(inout) :: this
     logical, intent(in) :: precision
     integer, intent(in) :: gdim, glb_nelv, offset_el, nelv, lx, ly, lz
@@ -103,7 +104,7 @@ contains
              do k = 1, ly
                 do l = 1, lx
                    index = (l-1) + lx*(k-1) + lx*ly*(j-1) + lx*ly*lz*(i-1) + 1
-                   this%data_dp(i,l,k,j) = real(x(index),dp)
+                   this%data_dp(i,l,k,j) = real(x(index), dp)
                 end do
              end do
           end do
@@ -114,7 +115,7 @@ contains
              do k = 1, ly
                 do l = 1, lx
                    index = (l-1) + lx*(k-1) + lx*ly*(j-1) + lx*ly*lz*(i-1) + 1
-                   this%data_sp(i,l,k,j) = real(x(index),sp)
+                   this%data_sp(i,l,k,j) = real(x(index), sp)
                 end do
              end do
           end do

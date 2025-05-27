@@ -58,7 +58,8 @@ module buffer_1d
 
 contains
 
-  subroutine buffer_1d_init(this, precision, gdim, glb_nelv, offset_el, nelv, lx, ly, lz)
+  subroutine buffer_1d_init(this, precision, gdim, glb_nelv, offset_el, nelv, &
+       lx, ly, lz)
     class(buffer_1d_t), intent(inout) :: this
     logical, intent(in) :: precision
     integer, intent(in) :: gdim, glb_nelv, offset_el, nelv, lx, ly, lz
@@ -94,11 +95,11 @@ contains
 
     if (this%dp_precision) then
        do i = 1, n
-          this%data_dp(i) = real(x(i),dp)
+          this%data_dp(i) = real(x(i), dp)
        end do
     else
        do i = 1, n
-          this%data_sp(i) = real(x(i),sp)
+          this%data_sp(i) = real(x(i), sp)
        end do
     end if
 

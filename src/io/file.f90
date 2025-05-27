@@ -183,7 +183,7 @@ contains
     integer :: n
     n = 0
 
-    select type(ft => this%file_type)
+    select type (ft => this%file_type)
     class is (generic_file_t)
        n = ft%counter
     end select
@@ -195,7 +195,7 @@ contains
     class(file_t), intent(inout) :: this
     integer, intent(in) :: n
 
-    select type(ft => this%file_type)
+    select type (ft => this%file_type)
     class is (generic_file_t)
        call ft%set_counter(n)
     end select
@@ -207,7 +207,7 @@ contains
     class(file_t), intent(inout) :: this
     integer, intent(in) :: n
 
-    select type(ft => this%file_type)
+    select type (ft => this%file_type)
     class is (generic_file_t)
        call ft%set_start_counter(n)
     end select
@@ -221,12 +221,12 @@ contains
 
     character(len=80) :: suffix
 
-    select type(ft => this%file_type)
+    select type (ft => this%file_type)
     class is (csv_file_t)
        call ft%set_header(hd)
     class default
        call filename_suffix(this%file_type%fname, suffix)
-       call neko_warning("No set_header defined for " // trim(suffix) // " yet!")
+       call neko_warning("No set_header defined for " // trim(suffix) // " yet")
     end select
 
   end subroutine file_set_header
@@ -239,15 +239,15 @@ contains
 
     character(len=80) :: suffix
 
-    select type(ft => this%file_type)
+    select type (ft => this%file_type)
     type is (fld_file_t)
        call ft%set_precision(precision)
     type is (bp_file_t)
        call ft%set_precision(precision)
     class default
        call filename_suffix(this%file_type%fname, suffix)
-       call neko_warning("No precision strategy defined for " // trim(suffix) //&
-            " files!")
+       call neko_warning("No precision strategy defined for " // trim(suffix) &
+            // " files")
     end select
 
   end subroutine file_set_precision
@@ -260,7 +260,7 @@ contains
 
     character(len=80) :: suffix
 
-    select type(ft => this%file_type)
+    select type (ft => this%file_type)
     type is (bp_file_t)
        call ft%set_layout(layout)
     class default

@@ -61,7 +61,8 @@ module buffer_4d_npar
 
 contains
 
-  subroutine buffer_4d_npar_init(this, precision, gdim, glb_nelv, offset_el, nelv, lx, ly, lz)
+  subroutine buffer_4d_npar_init(this, precision, gdim, glb_nelv, offset_el, &
+       nelv, lx, ly, lz)
     class(buffer_4d_npar_t), intent(inout) :: this
     logical, intent(in) :: precision
     integer, intent(in) :: gdim, glb_nelv, offset_el, nelv, lx, ly, lz
@@ -85,9 +86,12 @@ contains
        allocate(this%data_sp(nelv, lx, ly, lz, npar))
     end if
 
-    this%shape_dims = [int(glb_nelv, i8), int(lx, i8), int(ly, i8), int(lz, i8), int(npar, i8)]
-    this%start_dims = [int(offset_el, i8), int(0, i8), int(0, i8), int(0, i8), int(0, i8)]
-    this%count_dims = [int(nelv, i8), int(lx, i8), int(ly, i8), int(lz, i8), int(npar, i8)]
+    this%shape_dims = [int(glb_nelv, i8), int(lx, i8), int(ly, i8), &
+         int(lz, i8), int(npar, i8)]
+    this%start_dims = [int(offset_el, i8), int(0, i8), int(0, i8), &
+         int(0, i8), int(0, i8)]
+    this%count_dims = [int(nelv, i8), int(lx, i8), int(ly, i8), &
+         int(lz, i8), int(npar, i8)]
 
   end subroutine buffer_4d_npar_init
 
@@ -110,8 +114,8 @@ contains
              do j = 1, lz
                 do k = 1, ly
                    do l = 1, lx
-                      index = (l-1) + lx*(k-1) + lx*ly*(j-1) + lx*ly*lz*(i-1) + 1
-                      this%data_dp(i,l,k,j,nthpar) = real(x(index),dp)
+                      index = (l-1) + lx*(k-1) + lx*ly*(j-1) + lx*ly*lz*(i-1) +1
+                      this%data_dp(i,l,k,j, nthpar) = real(x(index), dp)
                    end do
                 end do
              end do
@@ -121,8 +125,8 @@ contains
              do j = 1, lz
                 do k = 1, ly
                    do l = 1, lx
-                      index = (l-1) + lx*(k-1) + lx*ly*(j-1) + lx*ly*lz*(i-1) + 1
-                      this%data_sp(i,l,k,j,nthpar) = real(x(index),sp)
+                      index = (l-1) + lx*(k-1) + lx*ly*(j-1) + lx*ly*lz*(i-1) +1
+                      this%data_sp(i,l,k,j, nthpar) = real(x(index), sp)
                    end do
                 end do
              end do
@@ -225,8 +229,8 @@ contains
              do j = 1, lz
                 do k = 1, ly
                    do l = 1, lx
-                      index = (l-1) + lx*(k-1) + lx*ly*(j-1) + lx*ly*lz*(i-1) + 1
-                      x%x(index) = this%data_dp(i,l,k,j,nthpar)
+                      index = (l-1) + lx*(k-1) + lx*ly*(j-1) + lx*ly*lz*(i-1) +1
+                      x%x(index) = this%data_dp(i,l,k,j, nthpar)
                    end do
                 end do
              end do
@@ -236,8 +240,8 @@ contains
              do j = 1, lz
                 do k = 1, ly
                    do l = 1, lx
-                      index = (l-1) + lx*(k-1) + lx*ly*(j-1) + lx*ly*lz*(i-1) + 1
-                      x%x(index) = this%data_sp(i,l,k,j,nthpar)
+                      index = (l-1) + lx*(k-1) + lx*ly*(j-1) + lx*ly*lz*(i-1) +1
+                      x%x(index) = this%data_sp(i,l,k,j, nthpar)
                    end do
                 end do
              end do

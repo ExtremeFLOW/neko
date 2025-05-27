@@ -104,11 +104,12 @@ contains
     type(adios2_variable) :: variable_idx, variable_hdr, variable, variable_msh
     type(adios2_variable) :: variable_v, variable_p, variable_temp
     integer(kind=8), dimension(1) :: shape_dims, start_dims, count_dims
+    integer :: file_unit
 
     if (present(t)) then
-       time = real(t,dp)
+       time = real(t, dp)
     else
-       time = 0d0
+       time = 0.0_rp
     end if
 
     nullify(msh)
@@ -120,7 +121,7 @@ contains
     write_temperature = .false.
 
     !> @todo support for other input data types like in fld_file
-    select type(data)
+    select type (data)
     type is (fld_file_data_t)
        npar = data%size()
        if (data%x%n .gt. 0) x%ptr => data%x%x
@@ -297,17 +298,17 @@ contains
     end if
 
     ! Create binary header information
-    write(hdr, 1) adios2_type, lx, ly, lz, this%layout, glb_nelv,&
-         time, this%counter, npar, (rdcode(i),i=1,10)
-1   format('#std',1x,i1,1x,i2,1x,i2,1x,i2,1x,i10,1x,i10,1x,e20.13,&
-         1x,i9,1x,i6,1x,10a)
+    write(hdr, 1) adios2_type, lx, ly, lz, this%layout, glb_nelv, &
+         time, this%counter, npar, (rdcode(i), i = 1, 10)
+1   format('#std',1x, i1, 1x, i2, 1x, i2, 1x, i2, 1x, i10, 1x, i10, 1x, &
+         e20.13, 1x, i9, 1x, i6, 1x, 10a)
 
     ! Adapt filename with counter
     !> @todo write into single file with multiple steps
     !> @todo write into function because of code duplication
     suffix_pos = filename_suffix_pos(this%fname)
     write(id_str, '(i5.5,a)') this%counter, '.bp'
-    fname = trim(this%fname(1:suffix_pos-1))//"0."//id_str
+    fname = trim(this%fname(1:suffix_pos-1)) // "0." // id_str
 
     if (.not. adios%valid) then
        !> @todo enable parsing XML filename
@@ -366,17 +367,17 @@ contains
        if (this%layout .le. 3) then
           call outbuf_npar%define(variable, ioWriter, 'velocity-u', ierr)
           call outbuf_npar%write(bpWriter, variable, ierr)
-       endif
+       end if
        call outbuf_npar%fill(v%ptr, n)
        if (this%layout .le. 3) then
           call outbuf_npar%define(variable, ioWriter, 'velocity-v', ierr)
           call outbuf_npar%write(bpWriter, variable, ierr)
-       endif
+       end if
        call outbuf_npar%fill(w%ptr, n)
        if (this%layout .le. 3) then
           call outbuf_npar%define(variable, ioWriter, 'velocity-w', ierr)
           call outbuf_npar%write(bpWriter, variable, ierr)
-       endif
+       end if
     end if
 
     if (write_pressure) then
@@ -384,7 +385,7 @@ contains
        if (this%layout .le. 3) then
           call outbuf_npar%define(variable, ioWriter, 'pressure', ierr)
           call outbuf_npar%write(bpWriter, variable, ierr)
-       endif
+       end if
     end if
 
     if (write_temperature) then
@@ -392,7 +393,7 @@ contains
        if (this%layout .le. 3) then
           call outbuf_npar%define(variable, ioWriter, 'temperature', ierr)
           call outbuf_npar%write(bpWriter, variable, ierr)
-       endif
+       end if
     end if
 
     do i = 1, n_scalar_fields
@@ -401,7 +402,7 @@ contains
           write(id_str, '(a,i1,i1)') 's', i/10, i-10*(i/10)
           call outbuf_npar%define(variable, ioWriter, trim(id_str), ierr)
           call outbuf_npar%write(bpWriter, variable, ierr)
-       endif
+       end if
     end do
 
     if (this%layout .gt. 3) then
@@ -416,15 +417,15 @@ contains
     if (pe_rank .eq. 0) then
        tslash_pos = filename_tslash_pos(this%fname)
        write(start_field,"(I5,A7)") this%start_counter,'.adios2'
-       open(unit=9, file=trim(this%fname(1:suffix_pos - 1)) &
+       open(unit = newunit(file_unit), file = trim(this%fname(1:suffix_pos - 1)) &
             // trim(adjustl(start_field)), status='replace')
-       write(9, fmt='(A,A,A)') 'filetemplate:         ', &
+       write(file_unit, fmt = '(A,A,A)') 'filetemplate:         ', &
             this%fname(tslash_pos+1:suffix_pos-1),'%01d.%05d.bp'
-       write(9, fmt='(A,i5)') 'firsttimestep: ', this%start_counter
-       write(9, fmt='(A,i5)') 'numtimesteps: ', &
+       write(file_unit, fmt = '(A,i5)') 'firsttimestep: ', this%start_counter
+       write(file_unit, fmt = '(A,i5)') 'numtimesteps: ', &
             (this%counter + 1) - this%start_counter
-       write(9, fmt='(A)') 'type: adios2-bp'
-       close(9)
+       write(file_unit, fmt = '(A)') 'type: adios2-bp'
+       close(file_unit)
     end if
 
     this%counter = this%counter + 1
@@ -453,29 +454,30 @@ contains
     type(adios2_engine) :: bpReader
     type(adios2_variable) :: variable_hdr, variable_idx, variable
     integer(kind=8), dimension(1) :: start_dims, count_dims
+    integer :: file_unit
 
-    select type(data)
+    select type (data)
     type is (fld_file_data_t)
        suffix_pos = filename_suffix_pos(this%fname)
        meta_fname = trim(this%fname(1:suffix_pos-1))
        call filename_chsuffix(meta_fname, meta_fname,'adios2')
 
        !> @ todo debug and check if correct strings and filenames are extracted
-       inquire(file=trim(meta_fname), exist=meta_file)
+       inquire(file = trim(meta_fname), exist = meta_file)
        if (meta_file .and. data%meta_nsamples .eq. 0) then
           if (pe_rank .eq. 0) then
-             open(unit=9, file=trim(meta_fname))
-             read(9, fmt='(A)') string
-             read(string(14:),fmt='(A)') string
+             open(unit = newunit(file_unit), file = trim(meta_fname))
+             read(file_unit, fmt = '(A)') string
+             read(string(14:), fmt = '(A)') string
              string = trim(string)
-             data%fld_series_fname = string(:scan(trim(string), '%')-1)
-             data%fld_series_fname = trim(data%fld_series_fname)//'0'
-             read(9, fmt='(A)') string
+             data%fld_series_fname = string(:scan(trim(string), '%') - 1)
+             data%fld_series_fname = trim(data%fld_series_fname) // '0'
+             read(file_unit, fmt = '(A)') string
              read(string(scan(string,':')+1:),*) data%meta_start_counter
-             read(9, fmt='(A)') string
+             read(file_unit, fmt = '(A)') string
              read(string(scan(string,':')+1:),*) data%meta_nsamples
 
-             close(9)
+             close(file_unit)
              write(*,*) 'Reading meta file for bp series'
              write(*,*) 'Name: ', trim(data%fld_series_fname)
              write(*,*) 'Start counter: ', data%meta_start_counter, &
@@ -487,7 +489,7 @@ contains
                NEKO_COMM, ierr)
           call MPI_Bcast(data%meta_nsamples, 1, MPI_INTEGER, 0, &
                NEKO_COMM, ierr)
-          if(this%counter .eq. 0) this%counter = data%meta_start_counter
+          if (this%counter .eq. 0) this%counter = data%meta_start_counter
        end if
 
        if (meta_file) then
@@ -526,9 +528,9 @@ contains
        call adios2_get(bpReader, variable_hdr, hdr, adios2_mode_sync, ierr)
 
        read(hdr, 1) temp_str, adios2_type, lx, ly, lz, this%layout, glb_nelv,&
-            time, counter, npar, (rdcode(i),i=1,10)
-1      format(4a,1x,i1,1x,i2,1x,i2,1x,i2,1x,i10,1x,i10,1x,e20.13,&
-            1x,i9,1x,i6,1x,10a)
+            time, counter, npar, (rdcode(i),i = 1,10)
+1      format(4a, 1x, i1, 1x, i2, 1x, i2, 1x, i2, 1x, i10, 1x, i10, 1x, &
+            e20.13, 1x, i9, 1x, i6, 1x, 10a)
        if (data%nelv .eq. 0) then
           dist = linear_dist_t(glb_nelv, pe_rank, pe_size, NEKO_COMM)
           data%nelv = dist%num_local()
@@ -568,7 +570,7 @@ contains
           if (.not. allocated(inpbuf)) allocate(buffer_4d_npar_t::inpbuf)
        end if
 
-       select type(inpbuf)
+       select type (inpbuf)
        type is (buffer_1d_t)
           call inpbuf%init(this%dp_precision, data%gdim, data%glb_nelv, &
                data%offset_el, data%nelv, lx, ly, lz)
@@ -700,7 +702,7 @@ contains
           if (this%layout .le. 3) then
              call inpbuf%inquire(variable, ioReader, 'pressure', ierr)
              call inpbuf%read(bpReader, variable, ierr)
-          endif
+          end if
           call inpbuf%copy(data%p)
        end if
 
@@ -708,7 +710,7 @@ contains
           if (this%layout .le. 3) then
              call inpbuf%inquire(variable, ioReader, 'temperature', ierr)
              call inpbuf%read(bpReader, variable, ierr)
-          endif
+          end if
           call inpbuf%copy(data%t)
        end if
 
@@ -717,7 +719,7 @@ contains
              write(id_str, '(a,i1,i1)') 's', i/10, i-10*(i/10)
              call inpbuf%inquire(variable, ioReader, trim(id_str), ierr)
              call inpbuf%read(bpReader, variable, ierr)
-          endif
+          end if
           call inpbuf%copy(data%s(i))
        end do
 
