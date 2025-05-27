@@ -24,31 +24,31 @@ contains
     integer :: i
     character(len=40) :: out_format
 
-    out_format = '(F12.6, A, A,2x, I6,3x, E11.4,3x, E11.4)'
+    out_format = '(I12,A3,A10,2x,I6,3x,E11.4,3x,E11.4)'
 
-    write(log_buf, '(A,A,A,A,A,A)') &
-         '       Time:', ' | ', &
-         'Field:  ', 'Iters:   ',&
-         'Start res.:   ', 'Final res.: '
+    write(log_buf, '(A12,A3,A10,2x,A6,3x,A11,3x,A11)') &
+         'Time-step:', ' | ', &
+         'Field:', 'Iters:', &
+         'Start res.:', 'Final res.:'
     call neko_log%message(log_buf)
 
     write(log_buf, out_format) &
-         t, ' | ' , 'Press.' , ksp_results(1)%iter, &
+         step, ' | ' , 'Pressure  ' , ksp_results(1)%iter, &
          ksp_results(1)%res_start, ksp_results(1)%res_final
     call neko_log%message(log_buf)
 
     write(log_buf, out_format) &
-         t, ' | ' , 'X-Vel.' , ksp_results(2)%iter, &
+         step, ' | ' , 'X-Velocity' , ksp_results(2)%iter, &
          ksp_results(2)%res_start, ksp_results(2)%res_final
     call neko_log%message(log_buf)
 
     write(log_buf, out_format) &
-         t, ' | ' , 'Y-Vel.' , ksp_results(3)%iter, &
+         step, ' | ' , 'Y-Velocity' , ksp_results(3)%iter, &
          ksp_results(3)%res_start, ksp_results(3)%res_final
     call neko_log%message(log_buf)
 
     write(log_buf, out_format) &
-         t, ' | ' , 'Z-Vel.' , ksp_results(4)%iter, &
+         step, ' | ' , 'Z-Velocity' , ksp_results(4)%iter, &
          ksp_results(4)%res_start, ksp_results(4)%res_final
     call neko_log%message(log_buf)
 
