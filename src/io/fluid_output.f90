@@ -54,7 +54,8 @@ module fluid_output
 
 contains
 
-  subroutine fluid_output_init(this, precision, fluid, scalar, name, path, fmt, layout)
+  subroutine fluid_output_init(this, precision, fluid, scalar, name, path, &
+       fmt, layout)
     class(fluid_output_t), intent(inout) :: this
     integer, intent(inout) :: precision
     class(fluid_scheme_base_t), intent(in), target :: fluid

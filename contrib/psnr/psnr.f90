@@ -66,7 +66,8 @@ contains
 
 end module calculate_psnr
 
-!> Program to convert calculate MSE and PSNR of compressed to original data from adios2 file format.
+!> Program to convert calculate MSE and PSNR of compressed to original data from
+!! adios2 file format.
 program psnr
   use neko
   use calculate_psnr
@@ -106,12 +107,12 @@ program psnr
   end if
 
   if (pe_rank .eq. 0) write(*,*) 'Reading file:', trim(original_fname)
-  original_file = file_t(trim(original_fname),precision=file_precision)
+  original_file = file_t(trim(original_fname), precision = file_precision)
   call original_data%init()
   call original_file%read(original_data)
 
   if (pe_rank .eq. 0) write(*,*) 'Reading file:', trim(compressed_fname)
-  compressed_file = file_t(trim(compressed_fname),precision=file_precision)
+  compressed_file = file_t(trim(compressed_fname), precision = file_precision)
   call compressed_data%init()
   call compressed_file%read(compressed_data)
 
@@ -165,11 +166,11 @@ program psnr
         if (compressed_data%s(j)%n .eq. original_data%s(j)%n) then
            write(*,*) "Error in scalar ", j
            if (file_precision) then
-              call calculate_psnr_dp(original_data%s(j)%x, compressed_data%s(j)%x, &
-                   compressed_data%s(j)%n)
+              call calculate_psnr_dp(original_data%s(j)%x, &
+                   compressed_data%s(j)%x, compressed_data%s(j)%n)
            else
-              call calculate_psnr_sp(original_data%s(j)%x, compressed_data%s(j)%x, &
-                   compressed_data%s(j)%n)
+              call calculate_psnr_sp(original_data%s(j)%x, &
+                   compressed_data%s(j)%x, compressed_data%s(j)%n)
            end if
         end if
      end do

@@ -239,19 +239,23 @@ contains
     end if
 
     if (.not. allocated(outbuf_points)) allocate(buffer_1d_t::outbuf_points)
-    call outbuf_points%init(this%dp_precision, gdim, glb_nelv, offset_el, nelv, lx, ly, lz)
+    call outbuf_points%init(this%dp_precision, gdim, glb_nelv, offset_el, &
+         nelv, lx, ly, lz)
 
     write(*,*) "writing layout ", this%layout
     if (.not. allocated(outbuf_npar)) then
        if (this%layout .eq. 1) then
           allocate(buffer_1d_t::outbuf_npar)
-          call outbuf_npar%init(this%dp_precision, gdim, glb_nelv, offset_el, nelv, lx, ly, lz)
+          call outbuf_npar%init(this%dp_precision, gdim, glb_nelv, offset_el, &
+               nelv, lx, ly, lz)
        else if (this%layout .eq. 2) then
           allocate(buffer_4d_t::outbuf_npar)
-          call outbuf_npar%init(this%dp_precision, gdim, glb_nelv, offset_el, nelv, lx, ly, lz)
+          call outbuf_npar%init(this%dp_precision, gdim, glb_nelv, offset_el, &
+               nelv, lx, ly, lz)
        else if (this%layout .eq. 4) then
           allocate(buffer_4d_npar_t::outbuf_npar)
-          call outbuf_npar%init(this%dp_precision, npar, glb_nelv, offset_el, nelv, lx, ly, lz)
+          call outbuf_npar%init(this%dp_precision, npar, glb_nelv, offset_el, &
+               nelv, lx, ly, lz)
        else
           call neko_error('Invalid buffer')
        end if
@@ -315,13 +319,15 @@ contains
        call adios2_set_engine(ioWriter, 'BP5', ierr)
     end if
 
-    call adios2_open(bpWriter, ioWriter, trim(fname), adios2_mode_write, NEKO_COMM%mpi_val, ierr)
+    call adios2_open(bpWriter, ioWriter, trim(fname), adios2_mode_write, &
+         NEKO_COMM%mpi_val, ierr)
     call adios2_begin_step(bpWriter, ierr)
 
     ! Write header
     call adios2_inquire_variable(variable_hdr, ioWriter, 'header', ierr)
     if (.not.variable_hdr%valid) then
-       call adios2_define_variable(variable_hdr, ioWriter, 'header', adios2_type_character, ierr)
+       call adios2_define_variable(variable_hdr, ioWriter, 'header', &
+            adios2_type_character, ierr)
     end if
     call adios2_put(bpWriter, variable_hdr, hdr, adios2_mode_sync, ierr)
 
@@ -331,8 +337,9 @@ contains
     count_dims = (int(nelv, i8))
     call adios2_inquire_variable(variable_idx, ioWriter, 'idx', ierr)
     if (.not.variable_idx%valid) then
-       call adios2_define_variable(variable_idx, ioWriter, 'idx', adios2_type_integer4,&
-            size(shape_dims), shape_dims, start_dims, count_dims, .false., ierr)
+       call adios2_define_variable(variable_idx, ioWriter, 'idx', &
+            adios2_type_integer4, size(shape_dims), shape_dims, start_dims, &
+            count_dims, .false., ierr)
     else
        call adios2_set_shape(variable_idx, size(shape_dims), shape_dims, ierr)
        call adios2_set_selection(variable_idx, size(start_dims), &
@@ -409,12 +416,13 @@ contains
     if (pe_rank .eq. 0) then
        tslash_pos = filename_tslash_pos(this%fname)
        write(start_field,"(I5,A7)") this%start_counter,'.adios2'
-       open(unit=9, file=trim(this%fname(1:suffix_pos-1))//trim(adjustl(start_field)), &
-            status='replace')
+       open(unit=9, file=trim(this%fname(1:suffix_pos - 1)) &
+            // trim(adjustl(start_field)), status='replace')
        write(9, fmt='(A,A,A)') 'filetemplate:         ', &
             this%fname(tslash_pos+1:suffix_pos-1),'%01d.%05d.bp'
        write(9, fmt='(A,i5)') 'firsttimestep: ', this%start_counter
-       write(9, fmt='(A,i5)') 'numtimesteps: ', (this%counter + 1)-this%start_counter
+       write(9, fmt='(A,i5)') 'numtimesteps: ', &
+            (this%counter + 1) - this%start_counter
        write(9, fmt='(A)') 'type: adios2-bp'
        close(9)
     end if
@@ -470,11 +478,15 @@ contains
              close(9)
              write(*,*) 'Reading meta file for bp series'
              write(*,*) 'Name: ', trim(data%fld_series_fname)
-             write(*,*) 'Start counter: ', data%meta_start_counter, 'Nsamples: ', data%meta_nsamples
+             write(*,*) 'Start counter: ', data%meta_start_counter, &
+                  'Nsamples: ', data%meta_nsamples
           end if
-          call MPI_Bcast(data%fld_series_fname, 1024, MPI_CHARACTER, 0, NEKO_COMM, ierr)
-          call MPI_Bcast(data%meta_start_counter, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
-          call MPI_Bcast(data%meta_nsamples, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
+          call MPI_Bcast(data%fld_series_fname, 1024, MPI_CHARACTER, 0, &
+               NEKO_COMM, ierr)
+          call MPI_Bcast(data%meta_start_counter, 1, MPI_INTEGER, 0, &
+               NEKO_COMM, ierr)
+          call MPI_Bcast(data%meta_nsamples, 1, MPI_INTEGER, 0, &
+               NEKO_COMM, ierr)
           if(this%counter .eq. 0) this%counter = data%meta_start_counter
        end if
 
@@ -485,7 +497,7 @@ contains
              call neko_error('Trying to read more bp files than exist')
           end if
        else
-          !> @todo write into function because of code duplication
+          ! @todo write into function because of code duplication
           !suffix_pos = filename_suffix_pos(this%fname)
           !write(id_str, '(i5.5,a)') this%counter, '.bp'
           !fname = trim(this%fname(1:suffix_pos-1))//'.'//id_str
@@ -493,7 +505,7 @@ contains
        end if
 
        if (.not.adios%valid) then
-          !> @todo enable parsing XML filename
+          ! @todo enable parsing XML filename
           call adios2_init(adios, 'adios2.xml', NEKO_COMM%mpi_val, ierr)
        end if
        if (.not.ioReader%valid) then
@@ -501,8 +513,10 @@ contains
           call adios2_set_engine(ioReader, 'BP5', ierr)
        end if
 
-       !> @todo check if engines and variables should be brought in to local subroutine scope
-       call adios2_open(bpReader, ioReader, trim(fname), adios2_mode_read, NEKO_COMM%mpi_val, ierr)
+       ! @todo check if engines and variables should be brought in to local
+       ! subroutine scope
+       call adios2_open(bpReader, ioReader, trim(fname), adios2_mode_read, &
+            NEKO_COMM%mpi_val, ierr)
        call adios2_begin_step(bpReader, ierr)
 
        ! Read header and adjust data accordingly
@@ -542,8 +556,8 @@ contains
        end if
 
        if (.not. allocated(inpbuf_points)) allocate(buffer_1d_t::inpbuf_points)
-       call inpbuf_points%init(this%dp_precision, data%gdim, data%glb_nelv, data%offset_el, &
-            data%nelv, lx, ly, lz)
+       call inpbuf_points%init(this%dp_precision, data%gdim, data%glb_nelv, &
+            data%offset_el, data%nelv, lx, ly, lz)
 
        write(*,*) "layout ", this%layout
        if (this%layout .eq. 1) then
@@ -556,14 +570,14 @@ contains
 
        select type(inpbuf)
        type is (buffer_1d_t)
-          call inpbuf%init(this%dp_precision, data%gdim, data%glb_nelv, data%offset_el, &
-               data%nelv, lx, ly, lz)
+          call inpbuf%init(this%dp_precision, data%gdim, data%glb_nelv, &
+               data%offset_el, data%nelv, lx, ly, lz)
        type is (buffer_4d_t)
-          call inpbuf%init(this%dp_precision, data%gdim, data%glb_nelv, data%offset_el, &
-               data%nelv, lx, ly, lz)
+          call inpbuf%init(this%dp_precision, data%gdim, data%glb_nelv, &
+               data%offset_el, data%nelv, lx, ly, lz)
        type is (buffer_4d_npar_t)
-          call inpbuf%init(this%dp_precision, npar, data%glb_nelv, data%offset_el, &
-               data%nelv, lx, ly, lz)
+          call inpbuf%init(this%dp_precision, npar, data%glb_nelv, &
+               data%offset_el, data%nelv, lx, ly, lz)
        class default
           call neko_error('Invalid buffer')
        end select

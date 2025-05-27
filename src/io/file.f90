@@ -265,7 +265,7 @@ contains
        call ft%set_layout(layout)
     class default
        call filename_suffix(this%file_type%fname, suffix)
-       call neko_warning("No set_layout defined for " // trim(suffix) // " yet!")
+       call neko_warning("No set_layout defined for " // trim(suffix) // " yet")
     end select
 
   end subroutine file_set_layout
