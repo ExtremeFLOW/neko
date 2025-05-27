@@ -108,7 +108,7 @@ contains
     end if
 
     ! Finalize the user modules
-    call C%usr%user_finalize_modules(C%time%t, C%params)
+    call C%user%user_finalize_modules(C%time%t, C%params)
 
     call neko_log%end_section('Normal end.')
 
@@ -184,7 +184,7 @@ contains
     ! Execute all simulation components
     call neko_simcomps%compute(C%time)
 
-    call C%usr%user_check(C%time%t, C%time%tstep, C%fluid%u, C%fluid%v, &
+    call C%user%user_check(C%time%t, C%time%tstep, C%fluid%u, C%fluid%v, &
          C%fluid%w, C%fluid%p, C%fluid%c_Xh, C%params)
 
     ! Run any IO needed.
