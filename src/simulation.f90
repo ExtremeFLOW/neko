@@ -115,13 +115,12 @@ contains
   end subroutine simulation_finalize
 
   !> Compute a single time-step of a case
-  subroutine simulation_step(C, dt_controller, cfl, tstep_loop_start_time)
+  subroutine simulation_step(C, dt_controller, tstep_loop_start_time)
     type(case_t), intent(inout) :: C
-    real(kind=rp), intent(inout) :: cfl
     type(time_step_controller_t), intent(inout) :: dt_controller
     real(kind=dp), intent(in) :: tstep_loop_start_time
     real(kind=dp) :: start_time, end_time, tstep_start_time
-    real(kind=rp) :: cfl_avrg
+    real(kind=rp) :: cfl
     character(len=LOG_SIZE) :: log_buf
 
     ! Setup the time step, and start time
@@ -130,10 +129,9 @@ contains
     tstep_start_time = start_time
 
     ! Compute the next time step
-    call dt_controller%set_dt(C%time, cfl)
-
-    ! Calculate the cfl after the possibly varied dt
     cfl = C%fluid%compute_cfl(C%time%dt)
+    call dt_controller%set_dt(C%time, cfl)
+    if (dt_controller%is_variable_dt) cfl = C%fluid%compute_cfl(C%time%dt)
 
     ! Advance time step from t to t+dt and print the status
     call simulation_settime(C%time, C%fluid%ext_bdf)

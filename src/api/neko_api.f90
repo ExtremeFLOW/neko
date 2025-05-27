@@ -174,7 +174,7 @@ contains
   !! @param case_iptr Opaque pointer for the Neko case
   !! @param tstep The current time-step of a case
   function neko_api_case_tstep(case_iptr) result(tstep) &
-    bind(c, name="neko_case_tstep")
+       bind(c, name="neko_case_tstep")
     integer(c_intptr_t), intent(inout) :: case_iptr
     type(case_t), pointer :: C
     type(c_ptr) :: cptr
@@ -217,7 +217,6 @@ contains
     type(c_ptr) :: cptr
     type(time_step_controller_t), save, allocatable :: dt_controller
     real(kind=dp), save :: step_loop_start = 0.0_dp
-    real(kind=rp), save :: cfl
 
     cptr = transfer(case_iptr, c_null_ptr)
     if (c_associated(cptr)) then
@@ -231,12 +230,11 @@ contains
        if (C%time%tstep .eq. 0) then
           call simulation_init(C, dt_controller)
 
-          cfl = C%fluid%compute_cfl(C%time%dt)
           step_loop_start = MPI_Wtime()
        end if
 
        if (C%time%t .lt. C%time%end_time) then
-          call simulation_step(C, dt_controller, cfl, step_loop_start)
+          call simulation_step(C, dt_controller, step_loop_start)
        end if
 
        if (C%time%t .ge. C%time%end_time) then

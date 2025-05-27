@@ -241,11 +241,10 @@ contains
     call simulation_init(C, dt_controller)
 
     call profiler_start
-    cfl = C%fluid%compute_cfl(C%time%dt)
     tstep_loop_start_time = MPI_WTIME()
 
     do while (C%time%t .lt. C%time%end_time .and. (.not. jobctrl_time_limit()))
-       call simulation_step(C, dt_controller, cfl, tstep_loop_start_time)
+       call simulation_step(C, dt_controller, tstep_loop_start_time)
     end do
     call profiler_stop
 
