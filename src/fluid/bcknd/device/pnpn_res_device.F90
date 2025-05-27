@@ -275,7 +275,7 @@ contains
          c_Xh%B_d, c_Xh%h1_d, mu_val, rho_val, n)
 #elif HAVE_OPENCL
     call pnpn_prs_res_part1_opencl(ta1%x_d, ta2%x_d, ta3%x_d, &
-         wa1%x_d, wa2%x_d, wa3%x_d, f_x%x_d, f_z%x_d, f_z%x_d, &
+         wa1%x_d, wa2%x_d, wa3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, &
          c_Xh%B_d, c_Xh%h1_d, mu_val, rho_val, n)
 #endif
     c_Xh%ifh2 = .false.

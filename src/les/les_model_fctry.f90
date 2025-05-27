@@ -37,6 +37,7 @@ submodule (les_model) les_model_fctry
   use sigma, only : sigma_t
   use fluid_scheme_base, only : fluid_scheme_base_t
   use wale, only : wale_t
+  use utils, only : neko_type_registration_error
   implicit none
 
   ! List of all possible types created by the factory routine
@@ -103,11 +104,25 @@ contains
   !> Register a custom LES model allocator.
   !! Called in custom user modules inside the `module_name_register_types`
   !! routine to add a custom type allocator to the registry.
+  !! @param type_name The name of the type to allocate.
   !! @param allocator The allocator for the custom user type.
   module subroutine register_les_model(type_name, allocator)
     character(len=*), intent(in) :: type_name
     procedure(les_model_allocate), pointer, intent(in) :: allocator
     type(allocator_entry), allocatable :: temp(:)
+    integer :: i
+
+    do i = 1, size(LES_KNOWN_TYPES)
+       if (trim(type_name) .eq. trim(LES_KNOWN_TYPES(i))) then
+          call neko_type_registration_error("LES model", type_name, .true.)
+       end if
+    end do
+
+    do i = 1, les_model_registry_size
+       if (trim(type_name) .eq. trim(les_model_registry(i)%type_name)) then
+          call neko_type_registration_error("LES model", type_name, .false.)
+       end if
+    end do
 
     ! Expand registry
     if (les_model_registry_size == 0) then

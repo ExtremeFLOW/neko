@@ -272,7 +272,7 @@ contains
     else
        call json_get(this%params, 'case.fluid.scheme', string_val)
        if (trim(string_val) .eq. 'compressible') then
-          call set_flow_ic(this%fluid%rho_field, &
+          call set_flow_ic(this%fluid%rho, &
                this%fluid%u, this%fluid%v, this%fluid%w, this%fluid%p, &
                this%fluid%c_Xh, this%fluid%gs_Xh, this%usr%fluid_compressible_user_ic, &
                this%params)
@@ -433,6 +433,12 @@ contains
        call json_get(this%params, 'case.job_timelimit', string_val)
        call jobctrl_set_time_limit(string_val)
     end if
+
+    !
+    ! Initialize time and step
+    !
+    this%time%t = 0d0
+    this%time%tstep = 0
 
     call neko_log%end_section()
 

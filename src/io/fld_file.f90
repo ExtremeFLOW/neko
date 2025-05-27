@@ -89,6 +89,7 @@ contains
     character(len=6) :: id_str
     character(len= 1024) :: fname
     character(len= 1024) :: start_field
+    integer :: file_unit
     integer :: i, ierr, n, suffix_pos, tslash_pos
     integer :: lx, ly, lz, lxyz, gdim, glb_nelv, nelv, offset_el
     integer, allocatable :: idx(:)
@@ -517,7 +518,7 @@ contains
     if (pe_rank .eq. 0) then
        tslash_pos = filename_tslash_pos(this%fname)
        write(start_field, "(I5,A8)") this%start_counter, '.nek5000'
-       open(unit = 9, &
+       open(newunit = file_unit, &
             file = trim(this%fname(1:suffix_pos-1)) // &
             trim(adjustl(start_field)), status = 'replace')
        ! The following string will specify that the files in the file series
@@ -526,12 +527,12 @@ contains
        ! the output file is split across.
        ! In the past, many .f files were generated for each write.
        ! To be consistent with this the trailing 0 is still necessary today.
-       write(9, fmt = '(A,A,A)') 'filetemplate:         ', &
+       write(file_unit, fmt = '(A,A,A)') 'filetemplate:         ', &
             this%fname(tslash_pos+1:suffix_pos-1), '%01d.f%05d'
-       write(9, fmt = '(A,i5)') 'firsttimestep: ', this%start_counter
-       write(9, fmt = '(A,i5)') 'numtimesteps: ', &
+       write(file_unit, fmt = '(A,i5)') 'firsttimestep: ', this%start_counter
+       write(file_unit, fmt = '(A,i5)') 'numtimesteps: ', &
             (this%counter + 1) - this%start_counter
-       close(9)
+       close(file_unit)
     end if
 
     this%counter = this%counter + 1
@@ -695,6 +696,7 @@ contains
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, byte_offset
     integer :: lx, ly, lz, glb_nelv, counter, lxyz
     integer :: FLD_DATA_SIZE, n_scalars, n
+    integer :: file_unit
     real(kind=rp) :: time
     real(kind=sp) :: temp
     type(linear_dist_t) :: dist
@@ -708,19 +710,19 @@ contains
        inquire(file = trim(meta_fname), exist = meta_file)
        if (meta_file .and. data%meta_nsamples .eq. 0) then
           if (pe_rank .eq. 0) then
-             open(unit = 9, file = trim(meta_fname))
-             read(9, fmt = '(A)') string
+             open(newunit = file_unit, file = trim(meta_fname))
+             read(file_unit, fmt = '(A)') string
              read(string(14:), fmt = '(A)') string
              string = trim(string)
              data%fld_series_fname = string(:scan(trim(string), '%')-1)
              data%fld_series_fname = adjustl(data%fld_series_fname)
              data%fld_series_fname = trim(data%fld_series_fname)//'0'
-             read(9, fmt = '(A)') string
+             read(file_unit, fmt = '(A)') string
              read(string(scan(string, ':')+1:), *) data%meta_start_counter
-             read(9, fmt = '(A)') string
+             read(file_unit, fmt = '(A)') string
              read(string(scan(string, ':')+1:), *) data%meta_nsamples
 
-             close(9)
+             close(file_unit)
              write(*,*) 'Reading meta file for fld series'
              write(*,*) 'Name: ', trim(data%fld_series_fname)
              write(*,*) 'Start counter: ', data%meta_start_counter, &
@@ -858,7 +860,7 @@ contains
             MPI_REAL, status, ierr)
        if (temp .ne. test_pattern) then
           call neko_error('Incorrect format for fld file, &
-            &test pattern does not match.')
+          &test pattern does not match.')
        end if
        mpi_offset = mpi_offset + MPI_REAL_SIZE
 
@@ -939,7 +941,7 @@ contains
        if (allocated(tmp_sp)) deallocate(tmp_sp)
     class default
        call neko_error('Currently we only read into fld_file_data_t, &
-         &please use that data structure instead.')
+       &please use that data structure instead.')
     end select
 
   end subroutine fld_file_read
