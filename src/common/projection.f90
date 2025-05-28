@@ -689,11 +689,10 @@ contains
     character(len=LOG_SIZE) :: log_buf
 
     if (this%proj_m .gt. 0) then
-       write(log_buf, '(A,A)') 'Projection ', string
-       call neko_log%message(log_buf)
-       write(log_buf, '(A,A)') 'Proj. vec.:', '   Orig. residual:'
-       call neko_log%message(log_buf)
-       write(log_buf, '(I11,3x, E15.7,5x)') this%proj_m, this%proj_res
+       write(log_buf, '(A11,1X,A8,A10,1X,I3,A20,1X,E10.4)') &
+            'Projection:', string, &
+            ', Vectors:', this%proj_m, &
+            ', Original residual:', this%proj_res
        call neko_log%message(log_buf)
        call neko_log%newline()
     end if
