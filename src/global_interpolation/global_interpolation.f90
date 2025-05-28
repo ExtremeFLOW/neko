@@ -262,7 +262,7 @@ contains
     this%nelv = nelv
     if (present(tol)) then
        this%tol = tol
-    else 
+    else
        this%tol = NEKO_EPS*1e3_xp
     end if
 
@@ -834,10 +834,8 @@ contains
     call this%temp%init(this%n_points)
 
     !Initialize interpolator for local interpolation
-    call this%local_interp%free()
-    call this%local_interp%init(this%Xh, this%rst_local(1,:),&
-         this%rst_local(2,:), &
-         this%rst_local(3,:), this%n_points_local)
+    call this%local_interp%init(this%Xh, this%rst_local, &
+         this%n_points_local)
 
 
     if (NEKO_BCKND_DEVICE .eq. 1) then

@@ -71,13 +71,15 @@ module local_interpolation
      type(c_ptr) :: weights_t_d = c_null_ptr
    contains
      !> Constructor.
-     procedure, pass(this) :: init => local_interpolator_init
+     procedure, pass(this) :: init_3arrays => local_interpolator_init_3arrays
+     procedure, pass(this) :: init_1array => local_interpolator_init_1array
      !> Destructor.
      procedure, pass(this) :: free => local_interpolator_free
      !> Interpolates the scalar field \f$ X \f$ on the specified coordinates
      procedure, pass(this) :: evaluate => local_interpolator_evaluate
      !> COmputes weights based on rst coordinates
      procedure, pass(this) :: compute_weights => local_interpolator_compute_weights
+     generic :: init => init_3arrays, init_1array
 
   end type local_interpolator_t
 
@@ -85,7 +87,7 @@ contains
 
   !> Initialization of point interpolation.
   !! @param xh Function space.
-  subroutine local_interpolator_init(this, Xh, r, s, t, n_points)
+  subroutine local_interpolator_init_3arrays(this, Xh, r, s, t, n_points)
     class(local_interpolator_t), intent(inout), target :: this
     type(space_t), intent(in), target :: Xh
     integer, intent(in) :: n_points
@@ -117,7 +119,37 @@ contains
             size_weights, HOST_TO_DEVICE, sync = .true.)
     end if
 
-  end subroutine local_interpolator_init
+  end subroutine local_interpolator_init_3arrays
+
+  !> Initialization of point interpolation.
+  !! @param xh Function space.
+  subroutine local_interpolator_init_1array(this, Xh, rst, n_points)
+    class(local_interpolator_t), intent(inout), target :: this
+    type(space_t), intent(in), target :: Xh
+    integer, intent(in) :: n_points
+    real(kind=rp), intent(in) :: rst(3,n_points)
+    real(kind=rp), allocatable :: r(:), s(:), t(:)
+    integer :: i
+
+    if (allocated(r)) deallocate(r)
+    allocate(r(n_points))
+    if (allocated(s)) deallocate(s)
+    allocate(s(n_points))
+    if (allocated(t)) deallocate(t)
+    allocate(t(n_points))
+
+    do i = 1, n_points
+       r(i) = rst(1,i)
+       s(i) = rst(2,i)
+       t(i) = rst(3,i)
+    end do
+
+    call this%init_3arrays(Xh, r, s, t, n_points)
+
+    deallocate(r,s,t)
+
+  end subroutine local_interpolator_init_1array
+
 
   !> Free pointers
   subroutine local_interpolator_free(this)
