@@ -173,12 +173,12 @@ contains
     if (pe_rank .eq. 0) then
        call glob_interp%init(dof%x(:,1,1,1), dof%y(:,1,1,1), dof%z(:,1,1,1), &
          dof%msh%gdim, 0, dof%Xh)
-       test_tol = glob_interp%tol
        call glob_interp%find_points(dof%x, dof%y, dof%z, 0)
     else 
        call glob_interp%init(dof)
        call glob_interp%find_points(dof%x, dof%y, dof%z, dof%size())
     end if
+    test_tol = glob_interp%tol
     call glob_interp%evaluate(test_field%x, dof%x, .true.)
     if (pe_rank .ne. 0) then
        do i = 1, dof%size()
