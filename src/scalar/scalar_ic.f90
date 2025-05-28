@@ -36,7 +36,7 @@ module scalar_ic
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use device_math, only : device_col2
-  use device, only : device_memcpy, HOST_TO_DEVICE
+  use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
   use field, only : field_t
   use utils, only : neko_error, filename_chsuffix, filename_suffix, &
        neko_warning, NEKO_FNAME_LEN, extract_fld_file_index
@@ -358,12 +358,21 @@ contains
        class default
        end select
 
+       ! Copy all fld data to device since the reader loads everything on the host
+       call fld_data%x%copyto(HOST_TO_DEVICE, .false.)
+       call fld_data%y%copyto(HOST_TO_DEVICE, .false.)
+       call fld_data%z%copyto(HOST_TO_DEVICE, .false.)
+       call fld_data%t%copyto(HOST_TO_DEVICE, .true.)
+
        ! Generates an interpolator object and performs the point search
        call fld_data%generate_interpolator(global_interp, s%dof, s%msh, tolerance)
 
        ! Evaluate scalar
-       call global_interp%evaluate(s%x, fld_data%t%x, .true.)
+       call global_interp%evaluate(s%x, fld_data%t%x, .false.)
        call global_interp%free
+
+       ! Copy back to the host for set_scalar_ic_common
+       call fld_data%t%copyto(DEVICE_TO_HOST, .true.)
 
     else ! No interpolation, just potentially from different spaces
 
