@@ -179,7 +179,7 @@ contains
        call neko_log%message('Initialize user simcomp')
 
        call json_extract_object(case%params, root_name, comp_subdict)
-       call case%usr%init_user_simcomp(comp_subdict)
+       call case%user%init_user_simcomp(comp_subdict)
     end if
 
     ! Cleanup
