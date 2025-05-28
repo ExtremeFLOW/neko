@@ -42,8 +42,8 @@ module global_interpolation
   use utils, only: neko_error
   use local_interpolation, only : local_interpolator_t
   use device, only: device_free, device_map, device_memcpy, &
-      device_deassociate, HOST_TO_DEVICE, DEVICE_TO_HOST, &
-      device_get_ptr
+       device_deassociate, HOST_TO_DEVICE, DEVICE_TO_HOST, &
+       device_get_ptr
   use aabb_pe_finder, only: aabb_pe_finder_t
   use aabb_el_finder, only: aabb_el_finder_t
   use cartesian_el_finder, only: cartesian_el_finder_t
@@ -53,9 +53,9 @@ module global_interpolation
   use pe_finder, only: pe_finder_t
   use comm, only: NEKO_COMM
   use mpi_f08, only: MPI_SUM, MPI_COMM, MPI_Comm_rank, &
-      MPI_Comm_size, MPI_Wtime, MPI_Allreduce, MPI_IN_PLACE, MPI_INTEGER, &
-      MPI_MIN, MPI_Barrier, MPI_Reduce_Scatter_block, MPI_alltoall, &
-      MPI_ISend, MPI_IRecv
+       MPI_Comm_size, MPI_Wtime, MPI_Allreduce, MPI_IN_PLACE, MPI_INTEGER, &
+       MPI_MIN, MPI_Barrier, MPI_Reduce_Scatter_block, MPI_alltoall, &
+       MPI_ISend, MPI_IRecv
   use gs_mpi, only: gs_mpi_t
   use gs_ops, only: GS_OP_SET
   use vector, only: vector_t
@@ -154,17 +154,17 @@ module global_interpolation
      procedure, pass(this) :: free_points => global_interpolation_free_points
      procedure, pass(this) :: free_points_local => global_interpolation_free_points_local
      procedure, pass(this) :: find_points_and_redist => &
-         global_interpolation_find_and_redist
+          global_interpolation_find_and_redist
      !> Finds the process owner, global element number,
      !! and local rst coordinates for each point.
      !! Sets up correct values to be able to evalute the points
      procedure, pass(this) :: find_points_coords => &
-         global_interpolation_find_coords
+          global_interpolation_find_coords
      procedure, pass(this) :: find_points_coords1d => &
-         global_interpolation_find_coords1d
+          global_interpolation_find_coords1d
      !> Subroutine to check if the points are within the tolerance
      procedure, pass(this) :: check_points => &
-         global_interpolation_check_points
+          global_interpolation_check_points
      procedure, pass(this) :: find_points_xyz => global_interpolation_find_xyz
      generic :: find_points => find_points_xyz, find_points_coords, find_points_coords1d
      !> Evaluate the value of the field in each point.
@@ -206,7 +206,7 @@ contains
   !! @param tol Tolerance for Newton iterations.
   !! @param pad Padding of the bounding boxes.
   subroutine global_interpolation_init_xyz(this, x, y, z, gdim, nelv, Xh, &
-    comm, tol, pad)
+       comm, tol, pad)
     class(global_interpolation_t), intent(inout) :: this
     real(kind=rp), intent(in) :: x(:)
     real(kind=rp), intent(in) :: y(:)
@@ -245,11 +245,11 @@ contains
 
     call MPI_Comm_rank(this%comm, this%pe_rank, ierr)
     call MPI_Comm_size(this%comm, this%pe_size, ierr)
-    
+
     this%gdim = gdim
     this%nelv = nelv
     if (present(tol)) this%tol = tol
-     
+
     call MPI_Allreduce(nelv, this%glb_nelv, 1, MPI_INTEGER, &
          MPI_SUM, this%comm, ierr)
     lx = Xh%lx
@@ -294,32 +294,32 @@ contains
        allocate(aabb_pe_finder_t :: this%pe_finder)
     end if
     select type(el_find => this%el_finder)
-      type is (aabb_el_finder_t)
+    type is (aabb_el_finder_t)
        call neko_log%message('Using AABB element finder')
        call el_find%init(x, y, z, nelv, Xh, padding)
-      type is (cartesian_el_finder_t)
+    type is (cartesian_el_finder_t)
        call neko_log%message('Using Cartesian element finder')
        boxdim = max(lx*int(real(nelv,xp)**(1.0_xp/3.0_xp)),2)
        boxdim = min(boxdim, 300)
        call el_find%init(x, y, z, nelv, Xh, boxdim, padding)
-      class default
+    class default
        call neko_error('Unknown element finder type')
     end select
 
     select type(pe_find => this%pe_finder)
-      type is (aabb_pe_finder_t)
+    type is (aabb_pe_finder_t)
        call neko_log%message('Using AABB PE finder')
        call pe_find%init(this%x%x, this%y%x, this%z%x, &
             nelv, Xh, this%comm, padding)
-      type is (cartesian_pe_finder_t)
+    type is (cartesian_pe_finder_t)
        call neko_log%message('Using Cartesian PE finder')
        boxdim = lx*int(real(this%glb_nelv,xp)**(1.0_xp/3.0_xp))
        boxdim = max(boxdim,32)
        boxdim = min(boxdim, &
-                    int(8.0_xp*(30000.0_xp*this%pe_size)**(1.0_xp/3.0_xp)))
+            int(8.0_xp*(30000.0_xp*this%pe_size)**(1.0_xp/3.0_xp)))
        call pe_find%init(this%x%x, this%y%x, this%z%x, &
             nelv, Xh, this%comm, boxdim, padding)
-      class default
+    class default
        call neko_error('Unknown PE finder type')
     end select
 
@@ -327,7 +327,7 @@ contains
     if (allocated(this%n_points_pe)) deallocate(this%n_points_pe)
     if (allocated(this%n_points_pe_local)) deallocate(this%n_points_pe_local)
     if (allocated(this%n_points_offset_pe_local)) &
-       deallocate(this%n_points_offset_pe_local)
+         deallocate(this%n_points_offset_pe_local)
     if (allocated(this%n_points_offset_pe)) deallocate(this%n_points_offset_pe)
     allocate(this%n_points_pe(0:(this%pe_size-1)))
     allocate(this%n_points_offset_pe(0:(this%pe_size-1)))
@@ -550,7 +550,7 @@ contains
     n_point_cand = all_el_candidates%size()
     if (n_point_cand .gt. 1e8) then
        print *,'Warning, many point candidates on rank', this%pe_rank,'cands:', n_point_cand, &
-               'Consider increasing number of ranks'
+            'Consider increasing number of ranks'
     end if
     call x_t%init(n_point_cand)
     call y_t%init(n_point_cand)
@@ -688,8 +688,8 @@ contains
           point_id = point_ids(j)
           ii = ii + 1
           if (rst_cmp(this%rst(:,point_id), rst_results(:,ii), &
-              res%x(:,point_id), res_results(:,ii), this%padding) .or. &
-              this%pe_owner(point_ids(j)) .eq. -1 ) then
+               res%x(:,point_id), res_results(:,ii), this%padding) .or. &
+               this%pe_owner(point_ids(j)) .eq. -1 ) then
              this%rst(:,point_ids(j)) = rst_results(:,ii)
              res%x(:,point_ids(j)) = res_results(:,ii)
              this%pe_owner(point_ids(j)) = gs_find_back%recv_pe(i)
@@ -711,11 +711,11 @@ contains
        stupid_intent = i
        if (this%pe_owner(i) .eq. -1 .or. this%el_owner0(i) .eq. -1) then
           print *, 'No owning rank found for',&
-            ' point ', stupid_intent, ' with coords', this%xyz(:,i), &
-            ' Interpolation will always yield 0.0. Try increase padding.'
+               ' point ', stupid_intent, ' with coords', this%xyz(:,i), &
+               ' Interpolation will always yield 0.0. Try increase padding.'
        else
           call this%points_at_pe(this%pe_owner(i))%push(stupid_intent)
-          this%n_points_pe(this%pe_owner(i)) =  this%n_points_pe(this%pe_owner(i)) + 1
+          this%n_points_pe(this%pe_owner(i)) = this%n_points_pe(this%pe_owner(i)) + 1
        end if
     end do
     call MPI_Reduce_scatter_block(this%n_points_pe, this%n_points_local, 1, MPI_INTEGER, &
@@ -892,15 +892,15 @@ contains
        isdiff = norm2(real((/xdiff,ydiff,zdiff/),xp)) > this%tol
        if (isdiff) then
           write(*,*) 'Point ', i,'at rank ', this%pe_rank, 'with coordinates: ', &
-                this%xyz(1, i), this%xyz(2, i), this%xyz(3, i), &
-                'Differ from interpolated coords: ', &
-                x_check%x(i), y_check%x(i), z_check%x(i), &
-                'Actual difference: ', &
-                xdiff, ydiff, zdiff, norm2(real((/xdiff,ydiff,zdiff/),xp)),&
-                'Process, element: ', &
-                this%pe_owner(i), this%el_owner0(i)+1, &
-                'Calculated rst: ', &
-                this%rst(1,i), this%rst(2,i), this%rst(3,i)
+               this%xyz(1, i), this%xyz(2, i), this%xyz(3, i), &
+               'Differ from interpolated coords: ', &
+               x_check%x(i), y_check%x(i), z_check%x(i), &
+               'Actual difference: ', &
+               xdiff, ydiff, zdiff, norm2(real((/xdiff,ydiff,zdiff/),xp)),&
+               'Process, element: ', &
+               this%pe_owner(i), this%el_owner0(i)+1, &
+               'Calculated rst: ', &
+               this%rst(1,i), this%rst(2,i), this%rst(3,i)
           j = j + 1
        end if
     end do
@@ -1037,7 +1037,6 @@ contains
     integer, intent(inout) :: n_points
     !!Perhaps this should be kind dp
     real(kind=rp), allocatable, intent(inout) :: xyz(:,:)
-    integer :: i
 
 
     call this%free_points()
@@ -1082,11 +1081,7 @@ contains
     real(kind=rp), intent(inout) :: interp_values(this%n_points)
     real(kind=rp), intent(inout) :: field(this%nelv*this%Xh%lxyz)
     logical, intent(in) :: on_host
-    integer :: ierr, i
-    real(kind=rp) :: time1, time2
-    type(c_ptr) :: interp_d, null_ptr = c_null_ptr
-    integer :: nreqs
-    character(len=8000) :: log_buf
+    type(c_ptr) :: interp_d
 
     if (.not. this%all_points_local) then
        call this%local_interp%evaluate(this%temp_local%x, this%el_owner0_local, &
@@ -1116,8 +1111,8 @@ contains
   !! tol specifies the range for the rst coordinate to be within: (r,s,t) in (-1+tol,1+tol)^3.
   !! @param rst1 local coordinates for point 1
   !! @param rst2 local coordinates for point 2
-  !! @param rst1 distance between xyz(rst1) and the true xyz coordinate 
-  !! @param rst2 distance between xyz(rst2) and the true xyz coordinate 
+  !! @param rst1 distance between xyz(rst1) and the true xyz coordinate
+  !! @param rst2 distance between xyz(rst2) and the true xyz coordinate
   !! @param tol Tolerance for how much rst1 and rst2 can over/undershoot [-1,1]
   function rst_cmp(rst1, rst2,res1, res2, tol) result(rst2_better)
     real(kind=rp) :: rst1(3), res1(3)
@@ -1127,11 +1122,11 @@ contains
     !If rst1 is invalid and rst2 is valid, take rst2
     ! If both invalidl, take smallest residual
     if (abs(rst1(1)) .gt. 1.0_xp+tol .or. &
-       abs(rst1(2)) .gt. 1.0_xp+tol .or. &
-       abs(rst1(3)) .gt. 1.0_xp+tol) then
+         abs(rst1(2)) .gt. 1.0_xp+tol .or. &
+         abs(rst1(3)) .gt. 1.0_xp+tol) then
        if (abs(rst2(1)) .le. 1.0_xp+tol .and. &
-          abs(rst2(2)) .le. 1.0_xp+tol .and. &
-          abs(rst2(3)) .le. 1.0_xp+tol) then
+            abs(rst2(2)) .le. 1.0_xp+tol .and. &
+            abs(rst2(3)) .le. 1.0_xp+tol) then
           rst2_better = .true.
        else
           rst2_better = (norm2(real(res2,xp)) .lt. norm2(real(res1,xp)))
@@ -1139,9 +1134,9 @@ contains
     else
        !> Else we check rst2 is inside and has a smaller distance
        rst2_better = (norm2(real(res2,xp)) .lt. norm2(real(res1,xp)) .and.&
-                      abs(rst2(1)) .le. 1.0_xp+tol .and. &
-                      abs(rst2(2)) .le. 1.0_xp+tol .and. &
-                      abs(rst2(3)) .le. 1.0_xp+tol)
+            abs(rst2(1)) .le. 1.0_xp+tol .and. &
+            abs(rst2(2)) .le. 1.0_xp+tol .and. &
+            abs(rst2(3)) .le. 1.0_xp+tol)
     end if
   end function rst_cmp
 

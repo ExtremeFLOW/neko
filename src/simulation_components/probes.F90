@@ -513,10 +513,10 @@ contains
           call mat_coords%init(this%n_global_probes,3)
        end if
        call MPI_Gatherv(this%xyz, 3*this%n_local_probes, &
-                        MPI_REAL_PRECISION, global_output_coords, &
-                        3*this%n_local_probes_tot, &
-                        3*this%n_local_probes_tot_offset, &
-                        MPI_REAL_PRECISION, 0, NEKO_COMM, ierr)
+            MPI_REAL_PRECISION, global_output_coords, &
+            3*this%n_local_probes_tot, &
+            3*this%n_local_probes_tot_offset, &
+            MPI_REAL_PRECISION, 0, NEKO_COMM, ierr)
        if (pe_rank .eq. 0) then
           call trsp(mat_coords%x, this%n_global_probes, &
                global_output_coords, 3)
@@ -647,8 +647,8 @@ contains
     !> Check controller to determine if we must write
     do i = 1, this%n_fields
        call this%global_interp%evaluate(this%out_values(:,i), &
-                                        this%sampled_fields%items(i)%ptr%x, &
-                                        do_interp_on_host)
+            this%sampled_fields%items(i)%ptr%x, &
+            do_interp_on_host)
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -665,11 +665,11 @@ contains
           call trsp(this%out_vals_trsp, this%n_fields, &
                this%out_values, this%n_local_probes)
           call MPI_Gatherv(this%out_vals_trsp, &
-                           this%n_fields*this%n_local_probes, &
-                           MPI_REAL_PRECISION, this%global_output_values, &
-                           this%n_fields*this%n_local_probes_tot, &
-                           this%n_fields*this%n_local_probes_tot_offset, &
-                           MPI_REAL_PRECISION, 0, NEKO_COMM, ierr)
+               this%n_fields*this%n_local_probes, &
+               MPI_REAL_PRECISION, this%global_output_values, &
+               this%n_fields*this%n_local_probes_tot, &
+               this%n_fields*this%n_local_probes_tot_offset, &
+               MPI_REAL_PRECISION, 0, NEKO_COMM, ierr)
           if (pe_rank .eq. 0) then
              call trsp(this%mat_out%x, this%n_global_probes, &
                   this%global_output_values, this%n_fields)

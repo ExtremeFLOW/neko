@@ -47,7 +47,7 @@ module stack
 
   !> Base type for a stack
   type, abstract, private :: stack_t
-     class(*),  allocatable :: data(:)
+     class(*), allocatable :: data(:)
      integer :: top_
      integer :: size_
    contains
@@ -157,7 +157,7 @@ contains
     class(stack_t), intent(inout) :: this
     integer, optional :: size !< Initial size of the stack
     integer :: size_t
-    
+
     call this%free()
 
     if (present(size)) then
@@ -232,11 +232,11 @@ contains
   end function stack_size
 
   !> Return true if the stack is empty
-   pure function stack_is_empty(this) result(is_empty)
-      class(stack_t), intent(in) :: this
-      logical :: is_empty
-      is_empty = this%top_ .eq. 0
-   end function stack_is_empty
+  pure function stack_is_empty(this) result(is_empty)
+    class(stack_t), intent(in) :: this
+    logical :: is_empty
+    is_empty = this%top_ .eq. 0
+  end function stack_is_empty
 
   !> Push data onto the stack
   subroutine stack_push(this, data)

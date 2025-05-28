@@ -63,10 +63,10 @@ module cartesian_el_finder
      procedure, pass(this) :: free => cartesian_el_finder_free
      procedure, pass(this) :: find => cartesian_el_finder_find_candidates
      procedure, pass(this) :: find_batch => &
-                              cartesian_el_finder_find_candidates_batch
+          cartesian_el_finder_find_candidates_batch
      procedure, pass(this) :: compute_idx => cartesian_el_finder_compute_idx
      procedure, pass(this) :: compute_3idx => &
-                              cartesian_el_finder_compute_xyz_idxs
+          cartesian_el_finder_compute_xyz_idxs
   end type cartesian_el_finder_t
 
 contains
@@ -205,7 +205,7 @@ contains
                    do j2 = 0, 1
                       do k2 = 0, 1
                          lin_idx = linear_index(i+i2,j+j2,k+k2, &
-                                                1, Xh%lx, Xh%lx, Xh%lx)
+                              1, Xh%lx, Xh%lx, Xh%lx)
                          max_bb_x = max(max_bb_x, el_x(lin_idx))
                          min_bb_x = min(min_bb_x, el_x(lin_idx))
                          max_bb_y = max(max_bb_y, el_y(lin_idx))
@@ -223,10 +223,10 @@ contains
                    do j2 = min_id(2), max_id(2)
                       do k2 = min_id(3), max_id(3)
                          if (i2 .ge. 1 .and. i2 .le. this%n_boxes .and. &
-                             j2 .ge. 1 .and. j2 .le. this%n_boxes .and. &
-                             k2 .ge. 1 .and. k2 .le. this%n_boxes) then
+                              j2 .ge. 1 .and. j2 .le. this%n_boxes .and. &
+                              k2 .ge. 1 .and. k2 .le. this%n_boxes) then
                             el_idx = linear_index(i2, j2, k2, 1, &
-                            this%n_boxes, this%n_boxes, this%n_boxes)
+                                 this%n_boxes, this%n_boxes, this%n_boxes)
                             if (marked_box%get(el_idx,htable_data) .ne. 0)then
                                call marked_box%set(el_idx, htable_data)
                                call this%el_map(el_idx)%push(e)
@@ -263,7 +263,7 @@ contains
 
     ids = this%compute_3idx(x, y, z)
     idx = linear_index(ids(1), ids(2), ids(3), 1, &
-           this%n_boxes, this%n_boxes, this%n_boxes)
+         this%n_boxes, this%n_boxes, this%n_boxes)
 
   end function cartesian_el_finder_compute_idx
 
@@ -321,7 +321,7 @@ contains
 
   ! In order to get more cache hits
   subroutine cartesian_el_finder_find_candidates_batch(this, points, n_points, &
-             all_el_candidates, n_el_cands)
+       all_el_candidates, n_el_cands)
     class(cartesian_el_finder_t), intent(inout) :: this
     integer, intent(in) :: n_points
     real(kind=rp), intent(in) :: points(3,n_points)
@@ -336,12 +336,12 @@ contains
 
     do i = 1, n_points
        idx3 = this%compute_3idx(real(points(1,i),xp),&
-             real(points(2,i),xp),real(points(3,i),xp))
+            real(points(2,i),xp),real(points(3,i),xp))
        if (idx3(1) .ge. 1 .and. idx3(1) .le. this%n_boxes .and. &
-           idx3(2) .ge. 1 .and. idx3(2) .le. this%n_boxes .and. &
-           idx3(3) .ge. 1 .and. idx3(3) .le. this%n_boxes) then
+            idx3(2) .ge. 1 .and. idx3(2) .le. this%n_boxes .and. &
+            idx3(3) .ge. 1 .and. idx3(3) .le. this%n_boxes) then
           idx = this%compute_idx(real(points(1,i),xp), &
-             real(points(2,i),xp),real(points(3,i),xp))
+               real(points(2,i),xp),real(points(3,i),xp))
           el_cands => this%el_map(idx)%array()
           do j = 1, this%el_map(idx)%size()
              adjusted_index = el_cands(j) - 1 ! Adjusting for zero-based indexing

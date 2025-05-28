@@ -375,7 +375,7 @@ contains
     real(kind=rp) :: center_x, center_y, center_z
     integer :: i, e
     type(dofmap_t) :: dof
-   
+
     call this%check_exists()
 
     select type(data)
@@ -468,7 +468,7 @@ contains
     if ( ( glb_nelv .ne. msh%glb_nelv ) .or. &
          ( gdim .ne. msh%gdim) .or. &
          ( (have_lag .eq. 0) .and. (read_lag) ) .or. &
-        ( (have_scalar .eq. 0) .and. (read_scalar) ) ) then
+         ( (have_scalar .eq. 0) .and. (read_scalar) ) ) then
        call neko_error('Checkpoint does not match case')
     end if
     nel = msh%nelv
@@ -621,10 +621,10 @@ contains
 
     n = this%chkp_xh%lxyz*nel
     allocate(read_array(n))
-   
+
     call rzero(read_array,n)
     call MPI_File_read_at_all(fh, byte_offset, read_array, &
-               n, MPI_REAL_PRECISION, status, ierr)
+         n, MPI_REAL_PRECISION, status, ierr)
     if (this%mesh2mesh) then
        x = 0.0_rp
        call this%global_interp%evaluate(x, read_array, interp_on_host)

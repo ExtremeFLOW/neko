@@ -44,14 +44,14 @@ module legendre_rst_finder
   use tensor_cpu, only: tnsr3d_cpu, tnsr3d_el_cpu
   use device_local_interpolation, only: device_find_rst_legendre
   use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr, &
-      c_sizeof, c_loc, c_bool
+       c_sizeof, c_loc, c_bool
   use device, only: device_alloc, device_free, device_memcpy, &
-      device_get_ptr, glb_cmd_queue
+       device_get_ptr, glb_cmd_queue
   implicit none
   private
 
- !> Type to compute local element (rst) coordinates 
- !! for a gives set points in physical (xyz) space on a SEM grid.
+  !> Type to compute local element (rst) coordinates
+  !! for a gives set points in physical (xyz) space on a SEM grid.
   type, public :: legendre_rst_finder_t
      type(vector_t) :: x_hat, y_hat, z_hat
      type(space_t), pointer :: Xh => Null()
@@ -129,12 +129,12 @@ contains
 
   end subroutine legendre_rst_finder_free
 
-!> Given a set of element candidates containing 
+!> Given a set of element candidates containing
 !! the given points and computes the local RST coordinates for those points.
-!! This subroutine supports both CPU and device (GPU) execution, depending 
+!! This subroutine supports both CPU and device (GPU) execution, depending
 !! on the configugered backend of `NEKO_BCKND_DEVICE`.
 !! @param this An instance of the `legendre_rst_finder_t` class.
-!! @param rst_local_cand A matrix to store the local RST coordinates 
+!! @param rst_local_cand A matrix to store the local RST coordinates
 !! of the candidate points.
 !! @param x_t A vector containing the x-coordinates of the target points.
 !! @param y_t A vector containing the y-coordinates of the target points.
@@ -145,7 +145,7 @@ contains
 !! @param resy A vector to store the residuals in the y-direction.
 !! @param resz A vector to store the residuals in the z-direction.
   subroutine legendre_rst_finder_find(this, rst_local_cand, x_t, y_t, z_t, &
-      el_cands, n_point_cand, resx, resy, resz)
+       el_cands, n_point_cand, resx, resy, resz)
     class(legendre_rst_finder_t), intent(inout) :: this
     type(matrix_t), intent(inout) :: rst_local_cand
     type(vector_t), intent(in) :: x_t, y_t, z_t
@@ -182,7 +182,7 @@ contains
   !! @param n_pts the number of points
   !! @param res{x,y,z} are the difference between pt_{xyz} and xyz
   subroutine find_rst_legendre_device(this, rst, pt_x, pt_y, pt_z, &
-      el_list, n_pts, resx, resy, resz)
+       el_list, n_pts, resx, resy, resz)
     type(legendre_rst_finder_t), intent(inout) :: this
     type(c_ptr), intent(inout) :: rst
     type(c_ptr), intent(in) :: pt_x, pt_y, pt_z
@@ -207,7 +207,7 @@ contains
     bytes = n_pts*c_sizeof(conv_pts(1))
     call device_alloc(conv_pts_d,bytes)
     call device_memcpy(c_loc(conv_pts), conv_pts_d, bytes, HOST_TO_DEVICE, &
-    .false., glb_cmd_queue)
+         .false., glb_cmd_queue)
     iter = 0
     converged = .false.
     !Iterate until found, not heavily optimized
@@ -218,7 +218,7 @@ contains
             this%Xh%lx,el_list, n_pts, this%tol, &
             conv_pts_d)
        call device_memcpy(c_loc(conv_pts), conv_pts_d, bytes, DEVICE_TO_HOST, &
-             .true., glb_cmd_queue)
+            .true., glb_cmd_queue)
        converged = .true.
        iter = iter + 1
 
@@ -240,13 +240,13 @@ contains
   !! @param n_pts the number of points
   !! @param res{x,y,z} are the difference between pt_{xyz} and xyz
   subroutine find_rst_legendre_cpu(this, rst, pt_x, pt_y, pt_z, &
-      el_list, n_pts, resx, resy, resz)
+       el_list, n_pts, resx, resy, resz)
     type(legendre_rst_finder_t), intent(inout) :: this
     integer, intent(in) :: n_pts
     real(kind=rp), intent(inout) :: rst(3, n_pts)
-    real(kind=rp), intent(in)  :: pt_x(n_pts)
-    real(kind=rp), intent(in)  :: pt_y(n_pts)
-    real(kind=rp), intent(in)  :: pt_z(n_pts)
+    real(kind=rp), intent(in) :: pt_x(n_pts)
+    real(kind=rp), intent(in) :: pt_y(n_pts)
+    real(kind=rp), intent(in) :: pt_z(n_pts)
     real(kind=rp), intent(inout) :: resx(n_pts)
     real(kind=rp), intent(inout) :: resy(n_pts)
     real(kind=rp), intent(inout) :: resz(n_pts)
@@ -276,7 +276,7 @@ contains
        iter = 0
        converged = .false.
        do while (.not. converged)
-          iter  = iter + 1
+          iter = iter + 1
           ! Compute legendre polynomials in this rst coordinate
           r_legendre(1) = 1.0
           r_legendre(2) = rst(1,i)
@@ -292,20 +292,20 @@ contains
           dt_legendre(2) = 1.0
           do j = 2, lx-1
              r_legendre(j+1) = ((2.0_xp*(j-1.0_xp)+1.0_xp) * rst(1,i) &
-                             * r_legendre(j) - (j-1.0_xp) & 
-                             * r_legendre(j-1)) / (real(j,xp))
+                  * r_legendre(j) - (j-1.0_xp) &
+                  * r_legendre(j-1)) / (real(j,xp))
              s_legendre(j+1) = ((2.0_xp*(j-1.0_xp)+1.0_xp) * rst(2,i) &
-                              * s_legendre(j) - (j-1.0_xp) &
-                              * s_legendre(j-1))/(real(j,xp))
+                  * s_legendre(j) - (j-1.0_xp) &
+                  * s_legendre(j-1))/(real(j,xp))
              t_legendre(j+1) = ((2.0_xp*(j-1.0_xp)+1.0_xp) * rst(3,i) &
-                             * t_legendre(j) - (j-1.0_xp) &
-                             * t_legendre(j-1))/(real(j,xp))
+                  * t_legendre(j) - (j-1.0_xp) &
+                  * t_legendre(j-1))/(real(j,xp))
              dr_legendre(j+1) = ((j-1.0_xp)+1.0_xp) * r_legendre(j) &
-                              + rst(1,i)*dr_legendre(j)
+                  + rst(1,i)*dr_legendre(j)
              ds_legendre(j+1) = ((j-1.0_xp)+1.0_xp) * s_legendre(j) &
-                              + rst(2,i)*ds_legendre(j)
+                  + rst(2,i)*ds_legendre(j)
              dt_legendre(j+1) = ((j-1.0_xp)+1.0_xp) * t_legendre(j) &
-                              + rst(3,i)*dt_legendre(j)
+                  + rst(3,i)*dt_legendre(j)
           end do
           e = (el_list(i))*this%Xh%lxyz + 1
           ! Compute the current xyz value
@@ -340,18 +340,18 @@ contains
           resz(i) = pt_z(i) - resz(i)
           ! Jacobian inverse
           jacinv = matinv39(jac(1,1), jac(1,2), jac(1,3),&
-                            jac(2,1), jac(2,2), jac(2,3),&
-                            jac(3,1), jac(3,2), jac(3,3))
+               jac(2,1), jac(2,2), jac(2,3),&
+               jac(3,1), jac(3,2), jac(3,3))
           ! Update direction
           rst_d(1) = (resx(i)*jacinv(1,1) &
-                   + jacinv(2,1)*resy(i) &
-                   + jacinv(3,1)*resz(i))
+               + jacinv(2,1)*resy(i) &
+               + jacinv(3,1)*resz(i))
           rst_d(2) = (resx(i)*jacinv(1,2) &
-                   + jacinv(2,2)*resy(i) &
-                   + jacinv(3,2)*resz(i))
+               + jacinv(2,2)*resy(i) &
+               + jacinv(3,2)*resz(i))
           rst_d(3) = (resx(i)*jacinv(1,3) &
-                   + jacinv(2,3)*resy(i) &
-                   + jacinv(3,3)*resz(i))
+               + jacinv(2,3)*resy(i) &
+               + jacinv(3,3)*resz(i))
 
           conv_pts = 0
           if (norm2(real(rst_d,xp)) .le. this%tol) then

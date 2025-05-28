@@ -187,30 +187,30 @@ contains
 
     select type(object)
 
-      type is (aabb_t)
+    type is (aabb_t)
        call box%init(object%get_min(), object%get_max())
-      type is (point_t)
+    type is (point_t)
        box = get_aabb_point(object)
-      type is (tri_t)
+    type is (tri_t)
        box = get_aabb_element(object)
-      type is (hex_t)
+    type is (hex_t)
        box = get_aabb_element(object)
-      type is (tet_t)
+    type is (tet_t)
        box = get_aabb_element(object)
-      type is (quad_t)
+    type is (quad_t)
        box = get_aabb_element(object)
-      class is (element_t)
+    class is (element_t)
        box = get_aabb_element(object)
-         
-         
-      type is (mesh_t)
+
+
+    type is (mesh_t)
        box = get_aabb_mesh(object)
-      type is (tri_mesh_t)
+    type is (tri_mesh_t)
        box = get_aabb_tri_mesh(object)
-      type is (tet_mesh_t)
+    type is (tet_mesh_t)
        box = get_aabb_tet_mesh(object)
 
-      class default
+    class default
        call neko_error("get_aabb: Unsupported object type")
     end select
 
@@ -256,7 +256,7 @@ contains
     box_max = max(box_max, object%x)
     call box%init(box_min, box_max)
   end function get_aabb_point
-  
+
   !> @brief Get the aabb of an arbitrary element.
   !!
   !! @details This function calculates the aabb of an element. The aabb is
@@ -465,7 +465,7 @@ contains
        is_overlapping = .false.
     else
        is_overlapping = all(this%box_min .le. other%box_max) .and. &
-         all(this%box_max .ge. other%box_min)
+            all(this%box_max .ge. other%box_min)
     end if
 
   end function aabb_overlaps
@@ -481,7 +481,7 @@ contains
     ! end if
 
     is_contained = all(this%box_min .le. other%box_min) .and. &
-      all(this%box_max .ge. other%box_max)
+         all(this%box_max .ge. other%box_max)
 
   end function aabb_contains_other
 
@@ -540,10 +540,10 @@ contains
     real(kind=dp) :: surface_area
 
     surface_area = 2.0 * (&
-      & this%get_width() * this%get_height() &
-      & + this%get_width() * this%get_depth() &
-      & + this%get_height() * this%get_depth() &
-      &)
+    & this%get_width() * this%get_height() &
+    & + this%get_width() * this%get_depth() &
+    & + this%get_height() * this%get_depth() &
+    &)
   end function calculate_surface_area
 
   ! ========================================================================== !

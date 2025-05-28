@@ -3,7 +3,7 @@
 module user
   use neko
   implicit none
-   
+
   type(global_interpolation_t) :: interpolate
   type(matrix_t) :: xyz
   type(vector_t) :: res, B
@@ -63,33 +63,33 @@ contains
     if (field_bc_list%items(1)%ptr%name .eq. "u") then
 
        associate(u => field_bc_list%items(1)%ptr, &
-                 v => field_bc_list%items(2)%ptr, &
-                 w => field_bc_list%items(3)%ptr)
-       
-       field => neko_field_registry%get_field('u')
-       ! get the x-velocity (u) values 10 units upstream into res
-       call interpolate%evaluate(res%x, field%x, .false.)
-       !Enforce that bulk velocity is 1
-       !If we run on GPU, do this on the GPU directly
-       !Moving data to and from the GPU kills performance
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          scale = 1.0_rp/(device_glsc2(res%x_d,B%x_d,n_pts)/vol)
-          call device_cmult(res%x_d,scale, n_pts)
-       else
-          scale = 1.0_rp/(glsc2(res%x,B%x,n_pts)/vol)
-          call cmult(res%x,scale, n_pts)
-       end if
-       ! scatter the values in res into the correct spots in u
-       call field_masked_scatter_copy(u, res%x, bc%msk, u%size(), n_pts)
-       ! repeat for v and w
-       field => neko_field_registry%get_field('v')
-       call interpolate%evaluate(res%x, field%x, .false.)
-       call field_masked_scatter_copy(v, res%x, bc%msk, u%size(), n_pts)
-     
-       field => neko_field_registry%get_field('w')
-       call interpolate%evaluate(res%x, field%x, .false.)
-       call field_masked_scatter_copy(w, res%x, bc%msk, u%size(), n_pts)
-      
+            v => field_bc_list%items(2)%ptr, &
+            w => field_bc_list%items(3)%ptr)
+
+         field => neko_field_registry%get_field('u')
+         ! get the x-velocity (u) values 10 units upstream into res
+         call interpolate%evaluate(res%x, field%x, .false.)
+         !Enforce that bulk velocity is 1
+         !If we run on GPU, do this on the GPU directly
+         !Moving data to and from the GPU kills performance
+         if (NEKO_BCKND_DEVICE .eq. 1) then
+            scale = 1.0_rp/(device_glsc2(res%x_d,B%x_d,n_pts)/vol)
+            call device_cmult(res%x_d,scale, n_pts)
+         else
+            scale = 1.0_rp/(glsc2(res%x,B%x,n_pts)/vol)
+            call cmult(res%x,scale, n_pts)
+         end if
+         ! scatter the values in res into the correct spots in u
+         call field_masked_scatter_copy(u, res%x, bc%msk, u%size(), n_pts)
+         ! repeat for v and w
+         field => neko_field_registry%get_field('v')
+         call interpolate%evaluate(res%x, field%x, .false.)
+         call field_masked_scatter_copy(v, res%x, bc%msk, u%size(), n_pts)
+
+         field => neko_field_registry%get_field('w')
+         call interpolate%evaluate(res%x, field%x, .false.)
+         call field_masked_scatter_copy(w, res%x, bc%msk, u%size(), n_pts)
+
        end associate
     end if
 
@@ -172,52 +172,52 @@ contains
     llz = 4./3.*pi
 
     Re_tau = 180
-    C      = 5.17
-    k      = 0.41
-    Re_b   = 2800
+    C = 5.17
+    k = 0.41
+    Re_b = 2800
 
     yp = (1-y)*Re_tau
     if (y .lt. 0) yp = (1+y)*Re_tau
 
     ! Reichardt function
-    ux  = 1/k*log(1.0+k*yp) + (C - (1.0/k)*log(k)) * &
+    ux = 1/k*log(1.0+k*yp) + (C - (1.0/k)*log(k)) * &
          (1.0 - exp(-yp/11.0) - yp/11*exp(-yp/3.0))
-    ux  = ux * Re_tau/Re_b
+    ux = ux * Re_tau/Re_b
 
     ! actually, sometimes one may not use the turbulent profile, but
     ! rather the parabolic lamianr one
     ! ux = 1.5*(1-y**2)
-    
+
     ! add perturbations to trigger turbulence
     ! base flow
-    uvw(1)  = ux
-    uvw(2)  = 0
-    uvw(3)  = 0
+    uvw(1) = ux
+    uvw(2) = 0
+    uvw(3) = 0
 
     ! first, large scale perturbation
     eps = 0.05
-    kx  = 3
-    kz  = 4
+    kx = 3
+    kz = 4
     alpha = kx * 2*PI/llx
-    beta  = kz * 2*PI/llz
-    uvw(1)  = uvw(1) + eps*beta  * sin(alpha*x)*cos(beta*z)
-    uvw(2)  = uvw(2) + eps       * sin(alpha*x)*sin(beta*z)
-    uvw(3)  = uvw(3) -eps*alpha * cos(alpha*x)*sin(beta*z)
+    beta = kz * 2*PI/llz
+    uvw(1) = uvw(1) + eps*beta * sin(alpha*x)*cos(beta*z)
+    uvw(2) = uvw(2) + eps * sin(alpha*x)*sin(beta*z)
+    uvw(3) = uvw(3) -eps*alpha * cos(alpha*x)*sin(beta*z)
 
     ! second, small scale perturbation
     eps = 0.005
-    kx  = 17
-    kz  = 13
+    kx = 17
+    kz = 13
     alpha = kx * 2*PI/llx
-    beta  = kz * 2*PI/llz
-    uvw(1)  = uvw(1) + eps*beta  * sin(alpha*x)*cos(beta*z)
-    uvw(2)  = uvw(2) + eps       * sin(alpha*x)*sin(beta*z)
-    uvw(3)  = uvw(3) -eps*alpha * cos(alpha*x)*sin(beta*z)
+    beta = kz * 2*PI/llz
+    uvw(1) = uvw(1) + eps*beta * sin(alpha*x)*cos(beta*z)
+    uvw(2) = uvw(2) + eps * sin(alpha*x)*sin(beta*z)
+    uvw(3) = uvw(3) -eps*alpha * cos(alpha*x)*sin(beta*z)
 
     ! finally, random perturbations only in y
     eps1 = 0.001
     ran = sin(-20*x*z+y**3*tan(x*z**2)+100*z*y-20*sin(x*y*z)**5)
-    uvw(2)  = uvw(2) + eps1*ran
+    uvw(2) = uvw(2) + eps1*ran
 
   end function channel_ic
 

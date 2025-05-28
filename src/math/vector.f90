@@ -132,6 +132,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(v%x, v%x_d, n)
        call device_cfill(v%x_d, 0.0_rp, n)
+       call device_sync()
     end if
 
     v%n = n
@@ -162,6 +163,7 @@ contains
     end if
 
     if (c_associated(v%x_d)) then
+       call device_deassociate(v%x)
        call device_free(v%x_d)
     end if
 
@@ -187,7 +189,7 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(v%x, v%x_d, v%n, &
-                          memdir, sync)
+            memdir, sync)
     end if
 
   end subroutine vector_copyto

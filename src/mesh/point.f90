@@ -40,7 +40,7 @@ module point
   private
 
   !> A point in \f$ \mathbb{R}^d \f$ with coordinates \f$ (x,y,z)\f$.
-  type, extends(entity_t), public ::  point_t
+  type, extends(entity_t), public :: point_t
      real(kind=dp), dimension(3) :: x
    contains
      procedure :: point_eq
@@ -66,7 +66,7 @@ module point
   end type point_t
 
   !> Defines a pointer to a point type.
-  type, public ::  point_ptr
+  type, public :: point_ptr
      type(point_t), pointer :: p
   end type point_ptr
 
@@ -79,11 +79,11 @@ contains
   !> Initialize a point from an array @a x of \f$ (x,y,z) \f$ coordinates.
   !! @param x coords
   !! @id point id
-  subroutine point_init_from_array(this, x, id) 
+  subroutine point_init_from_array(this, x, id)
     real(kind=dp), dimension(3), intent(in) :: x
     integer, optional, intent(inout) :: id
     class(point_t), intent(inout) :: this
-   
+
     call this%free()
 
     if (present(id)) then
@@ -97,7 +97,7 @@ contains
   end subroutine point_init_from_array
 
   !> Destructor.
-  subroutine point_free(this) 
+  subroutine point_free(this)
     class(point_t), intent(inout) :: this
     this%x = 0.0
 
@@ -259,9 +259,9 @@ contains
     type(point_t), intent(in) :: p2
     real(kind=rp) :: res
 
-    res = sqrt(  (p1%x(1) - p2%x(1))**2 &
-               + (p1%x(2) - p2%x(2))**2 &
-               + (p1%x(3) - p2%x(3))**2 )
+    res = sqrt( (p1%x(1) - p2%x(1))**2 &
+         + (p1%x(2) - p2%x(2))**2 &
+         + (p1%x(3) - p2%x(3))**2 )
   end function point_euclid_dist
 
   !> Computes matrix-vector product in \f$ \mathbb{R}^3 \f$: \f$ b = Ax \f$.

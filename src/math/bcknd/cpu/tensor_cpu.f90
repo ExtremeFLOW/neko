@@ -58,15 +58,15 @@ contains
     else if (nv .eq. 1) then
        select case (nu)
        case (4)
-          call tnsr3d_el_1_4_cpu(v, u,  A, Bt, Ct)
+          call tnsr3d_el_1_4_cpu(v, u, A, Bt, Ct)
        case (6)
-          call tnsr3d_el_1_6_cpu(v, u,  A, Bt, Ct)
+          call tnsr3d_el_1_6_cpu(v, u, A, Bt, Ct)
        case (8)
-          call tnsr3d_el_1_8_cpu(v, u,  A, Bt, Ct)
+          call tnsr3d_el_1_8_cpu(v, u, A, Bt, Ct)
        case (10)
-          call tnsr3d_el_1_10_cpu(v, u,  A, Bt, Ct)
+          call tnsr3d_el_1_10_cpu(v, u, A, Bt, Ct)
        case (12)
-          call tnsr3d_el_1_12_cpu(v, u,  A, Bt, Ct)
+          call tnsr3d_el_1_12_cpu(v, u, A, Bt, Ct)
        case default
           call tnsr3d_el_1_nu_cpu(v, u, nu, A, Bt, Ct)
        end select
@@ -127,8 +127,8 @@ contains
 
   end subroutine tnsr3d_el_nvnu_cpu
 
-  subroutine tnsr3d_el_1_nu_cpu(v,  u, nu, A, Bt, Ct)
-    integer, intent(in) ::  nu
+  subroutine tnsr3d_el_1_nu_cpu(v, u, nu, A, Bt, Ct)
+    integer, intent(in) :: nu
     real(kind=rp), intent(inout) :: v(1), u(nu*nu*nu)
     real(kind=rp), intent(inout) :: A(1,nu),Bt(nu, 1),Ct(nu,1)
     real(kind=rp) :: work(nu**2), work2(nu)
@@ -138,17 +138,17 @@ contains
     nunu = nu * nu
 
     do j = 1, nunu
-          tmp = 0.0_rp
-          do k = 1, nu
-             tmp = tmp + A(1,k) * u(k + nu * (j - 1))
-          end do
-          work(j) = tmp
+       tmp = 0.0_rp
+       do k = 1, nu
+          tmp = tmp + A(1,k) * u(k + nu * (j - 1))
+       end do
+       work(j) = tmp
     end do
 
     do i = 1, nu
        tmp = 0.0_rp
        do k = 1, nu
-          jj = k  + nu * (i - 1)
+          jj = k + nu * (i - 1)
           tmp = tmp + work(jj) * Bt(k,1)
        end do
        work2(i) = tmp
@@ -162,7 +162,7 @@ contains
 
   end subroutine tnsr3d_el_1_nu_cpu
 
-  subroutine tnsr3d_el_1_4_cpu(v,  u, A, Bt, Ct)
+  subroutine tnsr3d_el_1_4_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 4
     integer, parameter :: nn = n**2
     real(kind=rp), intent(inout) :: v(1), u(n*n*n)
@@ -172,27 +172,27 @@ contains
     integer :: ii, jj
 
     do j = 1, nn
-           work(j) = A(1,1) * u(1 + n * (j - 1)) &
-                   + A(1,2) * u(2 + n * (j - 1)) &
-                   + A(1,3) * u(3 + n * (j - 1)) &
-                   + A(1,4) * u(4 + n * (j - 1)) 
+       work(j) = A(1,1) * u(1 + n * (j - 1)) &
+            + A(1,2) * u(2 + n * (j - 1)) &
+            + A(1,3) * u(3 + n * (j - 1)) &
+            + A(1,4) * u(4 + n * (j - 1))
     end do
 
     do i = 1, n
        work2(i) = work(1 + n * (i - 1)) * Bt(1,1) &
-                + work(2 + n * (i - 1)) * Bt(2,1) &
-                + work(3 + n * (i - 1)) * Bt(3,1) &
-                + work(4 + n * (i - 1)) * Bt(4,1) 
+            + work(2 + n * (i - 1)) * Bt(2,1) &
+            + work(3 + n * (i - 1)) * Bt(3,1) &
+            + work(4 + n * (i - 1)) * Bt(4,1)
     end do
 
-    v(1)  = work2(1) * Ct(1, 1) &
-          + work2(2) * Ct(2, 1) &
-          + work2(3) * Ct(3, 1) &
-          + work2(4) * Ct(4, 1) 
+    v(1) = work2(1) * Ct(1, 1) &
+         + work2(2) * Ct(2, 1) &
+         + work2(3) * Ct(3, 1) &
+         + work2(4) * Ct(4, 1)
 
   end subroutine tnsr3d_el_1_4_cpu
 
-  subroutine tnsr3d_el_1_6_cpu(v,  u, A, Bt, Ct)
+  subroutine tnsr3d_el_1_6_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 6
     integer, parameter :: nn = n**2
     real(kind=rp), intent(inout) :: v(1), u(n*n*n)
@@ -202,33 +202,33 @@ contains
     integer :: ii, jj
 
     do j = 1, nn
-           work(j) = A(1,1) * u(1 + n * (j - 1)) &
-                   + A(1,2) * u(2 + n * (j - 1)) &
-                   + A(1,3) * u(3 + n * (j - 1)) &
-                   + A(1,4) * u(4 + n * (j - 1)) &
-                   + A(1,5) * u(5 + n * (j - 1)) &
-                   + A(1,6) * u(6 + n * (j - 1)) 
+       work(j) = A(1,1) * u(1 + n * (j - 1)) &
+            + A(1,2) * u(2 + n * (j - 1)) &
+            + A(1,3) * u(3 + n * (j - 1)) &
+            + A(1,4) * u(4 + n * (j - 1)) &
+            + A(1,5) * u(5 + n * (j - 1)) &
+            + A(1,6) * u(6 + n * (j - 1))
     end do
 
     do i = 1, n
        work2(i) = work(1 + n * (i - 1)) * Bt(1,1) &
-                + work(2 + n * (i - 1)) * Bt(2,1) &
-                + work(3 + n * (i - 1)) * Bt(3,1) &
-                + work(4 + n * (i - 1)) * Bt(4,1) &
-                + work(5 + n * (i - 1)) * Bt(5,1) &
-                + work(6 + n * (i - 1)) * Bt(6,1) 
+            + work(2 + n * (i - 1)) * Bt(2,1) &
+            + work(3 + n * (i - 1)) * Bt(3,1) &
+            + work(4 + n * (i - 1)) * Bt(4,1) &
+            + work(5 + n * (i - 1)) * Bt(5,1) &
+            + work(6 + n * (i - 1)) * Bt(6,1)
     end do
 
-    v(1)  = work2(1) * Ct(1, 1) &
-          + work2(2) * Ct(2, 1) &
-          + work2(3) * Ct(3, 1) &
-          + work2(4) * Ct(4, 1) &
-          + work2(5) * Ct(5, 1) &
-          + work2(6) * Ct(6, 1) 
+    v(1) = work2(1) * Ct(1, 1) &
+         + work2(2) * Ct(2, 1) &
+         + work2(3) * Ct(3, 1) &
+         + work2(4) * Ct(4, 1) &
+         + work2(5) * Ct(5, 1) &
+         + work2(6) * Ct(6, 1)
 
   end subroutine tnsr3d_el_1_6_cpu
 
-  subroutine tnsr3d_el_1_8_cpu(v,  u, A, Bt, Ct)
+  subroutine tnsr3d_el_1_8_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 8
     integer, parameter :: nn = n**2
     real(kind=rp), intent(inout) :: v(1), u(n*n*n)
@@ -238,41 +238,41 @@ contains
     integer :: ii, jj
 
     do j = 1, nn
-           work(j) = A(1,1) * u(1 + n * (j - 1)) &
-                   + A(1,2) * u(2 + n * (j - 1)) &
-                   + A(1,3) * u(3 + n * (j - 1)) &
-                   + A(1,4) * u(4 + n * (j - 1)) &
-                   + A(1,5) * u(5 + n * (j - 1)) &
-                   + A(1,6) * u(6 + n * (j - 1)) &
-                   + A(1,7) * u(7 + n * (j - 1)) &
-                   + A(1,8) * u(8 + n * (j - 1))
+       work(j) = A(1,1) * u(1 + n * (j - 1)) &
+            + A(1,2) * u(2 + n * (j - 1)) &
+            + A(1,3) * u(3 + n * (j - 1)) &
+            + A(1,4) * u(4 + n * (j - 1)) &
+            + A(1,5) * u(5 + n * (j - 1)) &
+            + A(1,6) * u(6 + n * (j - 1)) &
+            + A(1,7) * u(7 + n * (j - 1)) &
+            + A(1,8) * u(8 + n * (j - 1))
     end do
 
     do i = 1, n
        work2(i) = work(1 + n * (i - 1)) * Bt(1,1) &
-                + work(2 + n * (i - 1)) * Bt(2,1) &
-                + work(3 + n * (i - 1)) * Bt(3,1) &
-                + work(4 + n * (i - 1)) * Bt(4,1) &
-                + work(5 + n * (i - 1)) * Bt(5,1) &
-                + work(6 + n * (i - 1)) * Bt(6,1) &
-                + work(7 + n * (i - 1)) * Bt(7,1) &
-                + work(8 + n * (i - 1)) * Bt(8,1)
+            + work(2 + n * (i - 1)) * Bt(2,1) &
+            + work(3 + n * (i - 1)) * Bt(3,1) &
+            + work(4 + n * (i - 1)) * Bt(4,1) &
+            + work(5 + n * (i - 1)) * Bt(5,1) &
+            + work(6 + n * (i - 1)) * Bt(6,1) &
+            + work(7 + n * (i - 1)) * Bt(7,1) &
+            + work(8 + n * (i - 1)) * Bt(8,1)
     end do
 
-    v(1)  = work2(1) * Ct(1, 1) &
-          + work2(2) * Ct(2, 1) &
-          + work2(3) * Ct(3, 1) &
-          + work2(4) * Ct(4, 1) &
-          + work2(5) * Ct(5, 1) &
-          + work2(6) * Ct(6, 1) &
-          + work2(7) * Ct(7, 1) &
-          + work2(8) * Ct(8, 1)
+    v(1) = work2(1) * Ct(1, 1) &
+         + work2(2) * Ct(2, 1) &
+         + work2(3) * Ct(3, 1) &
+         + work2(4) * Ct(4, 1) &
+         + work2(5) * Ct(5, 1) &
+         + work2(6) * Ct(6, 1) &
+         + work2(7) * Ct(7, 1) &
+         + work2(8) * Ct(8, 1)
 
 
   end subroutine tnsr3d_el_1_8_cpu
 
 
-  subroutine tnsr3d_el_1_10_cpu(v,  u, A, Bt, Ct)
+  subroutine tnsr3d_el_1_10_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 10
     integer, parameter :: nn = n**2
     real(kind=rp), intent(inout) :: v(1), u(n*n*n)
@@ -282,46 +282,46 @@ contains
     integer :: ii, jj
 
     do j = 1, nn
-           work(j) = A(1,1) * u(1 + n * (j - 1)) &
-                   + A(1,2) * u(2 + n * (j - 1)) &
-                   + A(1,3) * u(3 + n * (j - 1)) &
-                   + A(1,4) * u(4 + n * (j - 1)) &
-                   + A(1,5) * u(5 + n * (j - 1)) &
-                   + A(1,6) * u(6 + n * (j - 1)) &
-                   + A(1,7) * u(7 + n * (j - 1)) &
-                   + A(1,8) * u(8 + n * (j - 1)) &
-                   + A(1,9) * u(9 + n * (j - 1)) &
-                   + A(1,10) * u(10 + n * (j - 1)) 
+       work(j) = A(1,1) * u(1 + n * (j - 1)) &
+            + A(1,2) * u(2 + n * (j - 1)) &
+            + A(1,3) * u(3 + n * (j - 1)) &
+            + A(1,4) * u(4 + n * (j - 1)) &
+            + A(1,5) * u(5 + n * (j - 1)) &
+            + A(1,6) * u(6 + n * (j - 1)) &
+            + A(1,7) * u(7 + n * (j - 1)) &
+            + A(1,8) * u(8 + n * (j - 1)) &
+            + A(1,9) * u(9 + n * (j - 1)) &
+            + A(1,10) * u(10 + n * (j - 1))
     end do
 
     do i = 1, n
        work2(i) = work(1 + n * (i - 1)) * Bt(1,1) &
-                + work(2 + n * (i - 1)) * Bt(2,1) &
-                + work(3 + n * (i - 1)) * Bt(3,1) &
-                + work(4 + n * (i - 1)) * Bt(4,1) &
-                + work(5 + n * (i - 1)) * Bt(5,1) &
-                + work(6 + n * (i - 1)) * Bt(6,1) &
-                + work(7 + n * (i - 1)) * Bt(7,1) &
-                + work(8 + n * (i - 1)) * Bt(8,1) &
-                + work(9 + n * (i - 1)) * Bt(9,1) &
-                + work(10 + n * (i - 1)) * Bt(10,1) 
+            + work(2 + n * (i - 1)) * Bt(2,1) &
+            + work(3 + n * (i - 1)) * Bt(3,1) &
+            + work(4 + n * (i - 1)) * Bt(4,1) &
+            + work(5 + n * (i - 1)) * Bt(5,1) &
+            + work(6 + n * (i - 1)) * Bt(6,1) &
+            + work(7 + n * (i - 1)) * Bt(7,1) &
+            + work(8 + n * (i - 1)) * Bt(8,1) &
+            + work(9 + n * (i - 1)) * Bt(9,1) &
+            + work(10 + n * (i - 1)) * Bt(10,1)
     end do
 
-    v(1)  = work2(1) * Ct(1, 1) &
-          + work2(2) * Ct(2, 1) &
-          + work2(3) * Ct(3, 1) &
-          + work2(4) * Ct(4, 1) &
-          + work2(5) * Ct(5, 1) &
-          + work2(6) * Ct(6, 1) &
-          + work2(7) * Ct(7, 1) &
-          + work2(8) * Ct(8, 1) &
-          + work2(9) * Ct(9, 1) &
-          + work2(10) * Ct(10, 1) 
+    v(1) = work2(1) * Ct(1, 1) &
+         + work2(2) * Ct(2, 1) &
+         + work2(3) * Ct(3, 1) &
+         + work2(4) * Ct(4, 1) &
+         + work2(5) * Ct(5, 1) &
+         + work2(6) * Ct(6, 1) &
+         + work2(7) * Ct(7, 1) &
+         + work2(8) * Ct(8, 1) &
+         + work2(9) * Ct(9, 1) &
+         + work2(10) * Ct(10, 1)
 
   end subroutine tnsr3d_el_1_10_cpu
 
 
-  subroutine tnsr3d_el_1_12_cpu(v,  u, A, Bt, Ct)
+  subroutine tnsr3d_el_1_12_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 12
     integer, parameter :: nn = n**2
     real(kind=rp), intent(inout) :: v(1), u(n*n*n)
@@ -331,47 +331,47 @@ contains
     integer :: ii, jj
 
     do j = 1, nn
-           work(j) = A(1,1) * u(1 + n * (j - 1)) &
-                   + A(1,2) * u(2 + n * (j - 1)) &
-                   + A(1,3) * u(3 + n * (j - 1)) &
-                   + A(1,4) * u(4 + n * (j - 1)) &
-                   + A(1,5) * u(5 + n * (j - 1)) &
-                   + A(1,6) * u(6 + n * (j - 1)) &
-                   + A(1,7) * u(7 + n * (j - 1)) &
-                   + A(1,8) * u(8 + n * (j - 1)) &
-                   + A(1,9) * u(9 + n * (j - 1)) &
-                   + A(1,10) * u(10 + n * (j - 1)) &
-                   + A(1,11) * u(11 + n * (j - 1)) &
-                   + A(1,12) * u(12 + n * (j - 1))
+       work(j) = A(1,1) * u(1 + n * (j - 1)) &
+            + A(1,2) * u(2 + n * (j - 1)) &
+            + A(1,3) * u(3 + n * (j - 1)) &
+            + A(1,4) * u(4 + n * (j - 1)) &
+            + A(1,5) * u(5 + n * (j - 1)) &
+            + A(1,6) * u(6 + n * (j - 1)) &
+            + A(1,7) * u(7 + n * (j - 1)) &
+            + A(1,8) * u(8 + n * (j - 1)) &
+            + A(1,9) * u(9 + n * (j - 1)) &
+            + A(1,10) * u(10 + n * (j - 1)) &
+            + A(1,11) * u(11 + n * (j - 1)) &
+            + A(1,12) * u(12 + n * (j - 1))
     end do
 
     do i = 1, n
        work2(i) = work(1 + n * (i - 1)) * Bt(1,1) &
-                + work(2 + n * (i - 1)) * Bt(2,1) &
-                + work(3 + n * (i - 1)) * Bt(3,1) &
-                + work(4 + n * (i - 1)) * Bt(4,1) &
-                + work(5 + n * (i - 1)) * Bt(5,1) &
-                + work(6 + n * (i - 1)) * Bt(6,1) &
-                + work(7 + n * (i - 1)) * Bt(7,1) &
-                + work(8 + n * (i - 1)) * Bt(8,1) &
-                + work(9 + n * (i - 1)) * Bt(9,1) &
-                + work(10 + n * (i - 1)) * Bt(10,1) &
-                + work(11 + n * (i - 1)) * Bt(11,1) &
-                + work(12 + n * (i - 1)) * Bt(12,1)
+            + work(2 + n * (i - 1)) * Bt(2,1) &
+            + work(3 + n * (i - 1)) * Bt(3,1) &
+            + work(4 + n * (i - 1)) * Bt(4,1) &
+            + work(5 + n * (i - 1)) * Bt(5,1) &
+            + work(6 + n * (i - 1)) * Bt(6,1) &
+            + work(7 + n * (i - 1)) * Bt(7,1) &
+            + work(8 + n * (i - 1)) * Bt(8,1) &
+            + work(9 + n * (i - 1)) * Bt(9,1) &
+            + work(10 + n * (i - 1)) * Bt(10,1) &
+            + work(11 + n * (i - 1)) * Bt(11,1) &
+            + work(12 + n * (i - 1)) * Bt(12,1)
     end do
 
-    v(1)  = work2(1) * Ct(1, 1) &
-          + work2(2) * Ct(2, 1) &
-          + work2(3) * Ct(3, 1) &
-          + work2(4) * Ct(4, 1) &
-          + work2(5) * Ct(5, 1) &
-          + work2(6) * Ct(6, 1) &
-          + work2(7) * Ct(7, 1) &
-          + work2(8) * Ct(8, 1) &
-          + work2(9) * Ct(9, 1) &
-          + work2(10) * Ct(10, 1) &
-          + work2(11) * Ct(11, 1) &
-          + work2(12) * Ct(12, 1)
+    v(1) = work2(1) * Ct(1, 1) &
+         + work2(2) * Ct(2, 1) &
+         + work2(3) * Ct(3, 1) &
+         + work2(4) * Ct(4, 1) &
+         + work2(5) * Ct(5, 1) &
+         + work2(6) * Ct(6, 1) &
+         + work2(7) * Ct(7, 1) &
+         + work2(8) * Ct(8, 1) &
+         + work2(9) * Ct(9, 1) &
+         + work2(10) * Ct(10, 1) &
+         + work2(11) * Ct(11, 1) &
+         + work2(12) * Ct(12, 1)
 
   end subroutine tnsr3d_el_1_12_cpu
 
@@ -394,7 +394,7 @@ contains
           do k = 1, n
              tmp = tmp + A(i,k) * u(k + n * (j - 1))
           end do
-          work(ii) =  tmp
+          work(ii) = tmp
        end do
     end do
 
@@ -437,19 +437,19 @@ contains
        do i = 1, n
           ii = i + n * (j - 1)
           work(ii) = A(i,1) * u(1 + n * (j - 1)) &
-                   + A(i,2) * u(2 + n * (j - 1)) &
-                   + A(i,3) * u(3 + n * (j - 1)) &
-                   + A(i,4) * u(4 + n * (j - 1)) &
-                   + A(i,5) * u(5 + n * (j - 1)) &
-                   + A(i,6) * u(6 + n * (j - 1)) &
-                   + A(i,7) * u(7 + n * (j - 1)) &
-                   + A(i,8) * u(8 + n * (j - 1)) &
-                   + A(i,9) * u(9 + n * (j - 1)) &
-                   + A(i,10) * u(10 + n * (j - 1)) &
-                   + A(i,11) * u(11 + n * (j - 1)) &
-                   + A(i,12) * u(12 + n * (j - 1)) &
-                   + A(i,13) * u(13 + n * (j - 1)) &
-                   + A(i,14) * u(14 + n * (j - 1))
+               + A(i,2) * u(2 + n * (j - 1)) &
+               + A(i,3) * u(3 + n * (j - 1)) &
+               + A(i,4) * u(4 + n * (j - 1)) &
+               + A(i,5) * u(5 + n * (j - 1)) &
+               + A(i,6) * u(6 + n * (j - 1)) &
+               + A(i,7) * u(7 + n * (j - 1)) &
+               + A(i,8) * u(8 + n * (j - 1)) &
+               + A(i,9) * u(9 + n * (j - 1)) &
+               + A(i,10) * u(10 + n * (j - 1)) &
+               + A(i,11) * u(11 + n * (j - 1)) &
+               + A(i,12) * u(12 + n * (j - 1)) &
+               + A(i,13) * u(13 + n * (j - 1)) &
+               + A(i,14) * u(14 + n * (j - 1))
        end do
     end do
 
@@ -458,19 +458,19 @@ contains
           do l = 1, n
              ii = l + n * (j - 1) + nn * (i - 1)
              work2(ii) = work(l + n * (1 - 1) + nn * (i - 1)) * Bt(1,j) &
-                       + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
-                       + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
-                       + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) &
-                       + work(l + n * (5 - 1) + nn * (i - 1)) * Bt(5,j) &
-                       + work(l + n * (6 - 1) + nn * (i - 1)) * Bt(6,j) &
-                       + work(l + n * (7 - 1) + nn * (i - 1)) * Bt(7,j) &
-                       + work(l + n * (8 - 1) + nn * (i - 1)) * Bt(8,j) &
-                       + work(l + n * (9 - 1) + nn * (i - 1)) * Bt(9,j) &
-                       + work(l + n * (10 - 1) + nn * (i - 1)) * Bt(10,j) &
-                       + work(l + n * (11 - 1) + nn * (i - 1)) * Bt(11,j) &
-                       + work(l + n * (12 - 1) + nn * (i - 1)) * Bt(12,j) &
-                       + work(l + n * (13 - 1) + nn * (i - 1)) * Bt(13,j) &
-                       + work(l + n * (14 - 1) + nn * (i - 1)) * Bt(14,j)
+                  + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
+                  + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
+                  + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) &
+                  + work(l + n * (5 - 1) + nn * (i - 1)) * Bt(5,j) &
+                  + work(l + n * (6 - 1) + nn * (i - 1)) * Bt(6,j) &
+                  + work(l + n * (7 - 1) + nn * (i - 1)) * Bt(7,j) &
+                  + work(l + n * (8 - 1) + nn * (i - 1)) * Bt(8,j) &
+                  + work(l + n * (9 - 1) + nn * (i - 1)) * Bt(9,j) &
+                  + work(l + n * (10 - 1) + nn * (i - 1)) * Bt(10,j) &
+                  + work(l + n * (11 - 1) + nn * (i - 1)) * Bt(11,j) &
+                  + work(l + n * (12 - 1) + nn * (i - 1)) * Bt(12,j) &
+                  + work(l + n * (13 - 1) + nn * (i - 1)) * Bt(13,j) &
+                  + work(l + n * (14 - 1) + nn * (i - 1)) * Bt(14,j)
           end do
        end do
     end do
@@ -479,19 +479,19 @@ contains
        do i = 1, nn
           jj = i + nn * (j - 1)
           v(jj) = work2(i + nn * (1 - 1)) * Ct(1, j) &
-                + work2(i + nn * (2 - 1)) * Ct(2, j) &
-                + work2(i + nn * (3 - 1)) * Ct(3, j) &
-                + work2(i + nn * (4 - 1)) * Ct(4, j) &
-                + work2(i + nn * (5 - 1)) * Ct(5, j) &
-                + work2(i + nn * (6 - 1)) * Ct(6, j) &
-                + work2(i + nn * (7 - 1)) * Ct(7, j) &
-                + work2(i + nn * (8 - 1)) * Ct(8, j) &
-                + work2(i + nn * (9 - 1)) * Ct(9, j) &
-                + work2(i + nn * (10 - 1)) * Ct(10, j) &
-                + work2(i + nn * (11 - 1)) * Ct(11, j) &
-                + work2(i + nn * (12 - 1)) * Ct(12, j) &
-                + work2(i + nn * (13 - 1)) * Ct(13, j) &
-                + work2(i + nn * (14 - 1)) * Ct(14, j)
+               + work2(i + nn * (2 - 1)) * Ct(2, j) &
+               + work2(i + nn * (3 - 1)) * Ct(3, j) &
+               + work2(i + nn * (4 - 1)) * Ct(4, j) &
+               + work2(i + nn * (5 - 1)) * Ct(5, j) &
+               + work2(i + nn * (6 - 1)) * Ct(6, j) &
+               + work2(i + nn * (7 - 1)) * Ct(7, j) &
+               + work2(i + nn * (8 - 1)) * Ct(8, j) &
+               + work2(i + nn * (9 - 1)) * Ct(9, j) &
+               + work2(i + nn * (10 - 1)) * Ct(10, j) &
+               + work2(i + nn * (11 - 1)) * Ct(11, j) &
+               + work2(i + nn * (12 - 1)) * Ct(12, j) &
+               + work2(i + nn * (13 - 1)) * Ct(13, j) &
+               + work2(i + nn * (14 - 1)) * Ct(14, j)
        end do
     end do
 
@@ -510,18 +510,18 @@ contains
        do i = 1, n
           ii = i + n * (j - 1)
           work(ii) = A(i,1) * u(1 + n * (j - 1)) &
-                   + A(i,2) * u(2 + n * (j - 1)) &
-                   + A(i,3) * u(3 + n * (j - 1)) &
-                   + A(i,4) * u(4 + n * (j - 1)) &
-                   + A(i,5) * u(5 + n * (j - 1)) &
-                   + A(i,6) * u(6 + n * (j - 1)) &
-                   + A(i,7) * u(7 + n * (j - 1)) &
-                   + A(i,8) * u(8 + n * (j - 1)) &
-                   + A(i,9) * u(9 + n * (j - 1)) &
-                   + A(i,10) * u(10 + n * (j - 1)) &
-                   + A(i,11) * u(11 + n * (j - 1)) &
-                   + A(i,12) * u(12 + n * (j - 1)) &
-                   + A(i,13) * u(13 + n * (j - 1))
+               + A(i,2) * u(2 + n * (j - 1)) &
+               + A(i,3) * u(3 + n * (j - 1)) &
+               + A(i,4) * u(4 + n * (j - 1)) &
+               + A(i,5) * u(5 + n * (j - 1)) &
+               + A(i,6) * u(6 + n * (j - 1)) &
+               + A(i,7) * u(7 + n * (j - 1)) &
+               + A(i,8) * u(8 + n * (j - 1)) &
+               + A(i,9) * u(9 + n * (j - 1)) &
+               + A(i,10) * u(10 + n * (j - 1)) &
+               + A(i,11) * u(11 + n * (j - 1)) &
+               + A(i,12) * u(12 + n * (j - 1)) &
+               + A(i,13) * u(13 + n * (j - 1))
        end do
     end do
 
@@ -530,18 +530,18 @@ contains
           do l = 1, n
              ii = l + n * (j - 1) + nn * (i - 1)
              work2(ii) = work(l + n * (1 - 1) + nn * (i - 1)) * Bt(1,j) &
-                       + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
-                       + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
-                       + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) &
-                       + work(l + n * (5 - 1) + nn * (i - 1)) * Bt(5,j) &
-                       + work(l + n * (6 - 1) + nn * (i - 1)) * Bt(6,j) &
-                       + work(l + n * (7 - 1) + nn * (i - 1)) * Bt(7,j) &
-                       + work(l + n * (8 - 1) + nn * (i - 1)) * Bt(8,j) &
-                       + work(l + n * (9 - 1) + nn * (i - 1)) * Bt(9,j) &
-                       + work(l + n * (10 - 1) + nn * (i - 1)) * Bt(10,j) &
-                       + work(l + n * (11 - 1) + nn * (i - 1)) * Bt(11,j) &
-                       + work(l + n * (12 - 1) + nn * (i - 1)) * Bt(12,j) &
-                       + work(l + n * (13 - 1) + nn * (i - 1)) * Bt(13,j)
+                  + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
+                  + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
+                  + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) &
+                  + work(l + n * (5 - 1) + nn * (i - 1)) * Bt(5,j) &
+                  + work(l + n * (6 - 1) + nn * (i - 1)) * Bt(6,j) &
+                  + work(l + n * (7 - 1) + nn * (i - 1)) * Bt(7,j) &
+                  + work(l + n * (8 - 1) + nn * (i - 1)) * Bt(8,j) &
+                  + work(l + n * (9 - 1) + nn * (i - 1)) * Bt(9,j) &
+                  + work(l + n * (10 - 1) + nn * (i - 1)) * Bt(10,j) &
+                  + work(l + n * (11 - 1) + nn * (i - 1)) * Bt(11,j) &
+                  + work(l + n * (12 - 1) + nn * (i - 1)) * Bt(12,j) &
+                  + work(l + n * (13 - 1) + nn * (i - 1)) * Bt(13,j)
           end do
        end do
     end do
@@ -550,18 +550,18 @@ contains
        do i = 1, nn
           jj = i + nn * (j - 1)
           v(jj) = work2(i + nn * (1 - 1)) * Ct(1, j) &
-                + work2(i + nn * (2 - 1)) * Ct(2, j) &
-                + work2(i + nn * (3 - 1)) * Ct(3, j) &
-                + work2(i + nn * (4 - 1)) * Ct(4, j) &
-                + work2(i + nn * (5 - 1)) * Ct(5, j) &
-                + work2(i + nn * (6 - 1)) * Ct(6, j) &
-                + work2(i + nn * (7 - 1)) * Ct(7, j) &
-                + work2(i + nn * (8 - 1)) * Ct(8, j) &
-                + work2(i + nn * (9 - 1)) * Ct(9, j) &
-                + work2(i + nn * (10 - 1)) * Ct(10, j) &
-                + work2(i + nn * (11 - 1)) * Ct(11, j) &
-                + work2(i + nn * (12 - 1)) * Ct(12, j) &
-                + work2(i + nn * (13 - 1)) * Ct(13, j)
+               + work2(i + nn * (2 - 1)) * Ct(2, j) &
+               + work2(i + nn * (3 - 1)) * Ct(3, j) &
+               + work2(i + nn * (4 - 1)) * Ct(4, j) &
+               + work2(i + nn * (5 - 1)) * Ct(5, j) &
+               + work2(i + nn * (6 - 1)) * Ct(6, j) &
+               + work2(i + nn * (7 - 1)) * Ct(7, j) &
+               + work2(i + nn * (8 - 1)) * Ct(8, j) &
+               + work2(i + nn * (9 - 1)) * Ct(9, j) &
+               + work2(i + nn * (10 - 1)) * Ct(10, j) &
+               + work2(i + nn * (11 - 1)) * Ct(11, j) &
+               + work2(i + nn * (12 - 1)) * Ct(12, j) &
+               + work2(i + nn * (13 - 1)) * Ct(13, j)
        end do
     end do
 
@@ -580,17 +580,17 @@ contains
        do i = 1, n
           ii = i + n * (j - 1)
           work(ii) = A(i,1) * u(1 + n * (j - 1)) &
-                   + A(i,2) * u(2 + n * (j - 1)) &
-                   + A(i,3) * u(3 + n * (j - 1)) &
-                   + A(i,4) * u(4 + n * (j - 1)) &
-                   + A(i,5) * u(5 + n * (j - 1)) &
-                   + A(i,6) * u(6 + n * (j - 1)) &
-                   + A(i,7) * u(7 + n * (j - 1)) &
-                   + A(i,8) * u(8 + n * (j - 1)) &
-                   + A(i,9) * u(9 + n * (j - 1)) &
-                   + A(i,10) * u(10 + n * (j - 1)) &
-                   + A(i,11) * u(11 + n * (j - 1)) &
-                   + A(i,12) * u(12 + n * (j - 1))
+               + A(i,2) * u(2 + n * (j - 1)) &
+               + A(i,3) * u(3 + n * (j - 1)) &
+               + A(i,4) * u(4 + n * (j - 1)) &
+               + A(i,5) * u(5 + n * (j - 1)) &
+               + A(i,6) * u(6 + n * (j - 1)) &
+               + A(i,7) * u(7 + n * (j - 1)) &
+               + A(i,8) * u(8 + n * (j - 1)) &
+               + A(i,9) * u(9 + n * (j - 1)) &
+               + A(i,10) * u(10 + n * (j - 1)) &
+               + A(i,11) * u(11 + n * (j - 1)) &
+               + A(i,12) * u(12 + n * (j - 1))
        end do
     end do
 
@@ -599,17 +599,17 @@ contains
           do l = 1, n
              ii = l + n * (j - 1) + nn * (i - 1)
              work2(ii) = work(l + n * (1 - 1) + nn * (i - 1)) * Bt(1,j) &
-                       + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
-                       + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
-                       + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) &
-                       + work(l + n * (5 - 1) + nn * (i - 1)) * Bt(5,j) &
-                       + work(l + n * (6 - 1) + nn * (i - 1)) * Bt(6,j) &
-                       + work(l + n * (7 - 1) + nn * (i - 1)) * Bt(7,j) &
-                       + work(l + n * (8 - 1) + nn * (i - 1)) * Bt(8,j) &
-                       + work(l + n * (9 - 1) + nn * (i - 1)) * Bt(9,j) &
-                       + work(l + n * (10 - 1) + nn * (i - 1)) * Bt(10,j) &
-                       + work(l + n * (11 - 1) + nn * (i - 1)) * Bt(11,j) &
-                       + work(l + n * (12 - 1) + nn * (i - 1)) * Bt(12,j)
+                  + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
+                  + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
+                  + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) &
+                  + work(l + n * (5 - 1) + nn * (i - 1)) * Bt(5,j) &
+                  + work(l + n * (6 - 1) + nn * (i - 1)) * Bt(6,j) &
+                  + work(l + n * (7 - 1) + nn * (i - 1)) * Bt(7,j) &
+                  + work(l + n * (8 - 1) + nn * (i - 1)) * Bt(8,j) &
+                  + work(l + n * (9 - 1) + nn * (i - 1)) * Bt(9,j) &
+                  + work(l + n * (10 - 1) + nn * (i - 1)) * Bt(10,j) &
+                  + work(l + n * (11 - 1) + nn * (i - 1)) * Bt(11,j) &
+                  + work(l + n * (12 - 1) + nn * (i - 1)) * Bt(12,j)
           end do
        end do
     end do
@@ -618,17 +618,17 @@ contains
        do i = 1, nn
           jj = i + nn * (j - 1)
           v(jj) = work2(i + nn * (1 - 1)) * Ct(1, j) &
-                + work2(i + nn * (2 - 1)) * Ct(2, j) &
-                + work2(i + nn * (3 - 1)) * Ct(3, j) &
-                + work2(i + nn * (4 - 1)) * Ct(4, j) &
-                + work2(i + nn * (5 - 1)) * Ct(5, j) &
-                + work2(i + nn * (6 - 1)) * Ct(6, j) &
-                + work2(i + nn * (7 - 1)) * Ct(7, j) &
-                + work2(i + nn * (8 - 1)) * Ct(8, j) &
-                + work2(i + nn * (9 - 1)) * Ct(9, j) &
-                + work2(i + nn * (10 - 1)) * Ct(10, j) &
-                + work2(i + nn * (11 - 1)) * Ct(11, j) &
-                + work2(i + nn * (12 - 1)) * Ct(12, j)
+               + work2(i + nn * (2 - 1)) * Ct(2, j) &
+               + work2(i + nn * (3 - 1)) * Ct(3, j) &
+               + work2(i + nn * (4 - 1)) * Ct(4, j) &
+               + work2(i + nn * (5 - 1)) * Ct(5, j) &
+               + work2(i + nn * (6 - 1)) * Ct(6, j) &
+               + work2(i + nn * (7 - 1)) * Ct(7, j) &
+               + work2(i + nn * (8 - 1)) * Ct(8, j) &
+               + work2(i + nn * (9 - 1)) * Ct(9, j) &
+               + work2(i + nn * (10 - 1)) * Ct(10, j) &
+               + work2(i + nn * (11 - 1)) * Ct(11, j) &
+               + work2(i + nn * (12 - 1)) * Ct(12, j)
        end do
     end do
 
@@ -647,16 +647,16 @@ contains
        do i = 1, n
           ii = i + n * (j - 1)
           work(ii) = A(i,1) * u(1 + n * (j - 1)) &
-                   + A(i,2) * u(2 + n * (j - 1)) &
-                   + A(i,3) * u(3 + n * (j - 1)) &
-                   + A(i,4) * u(4 + n * (j - 1)) &
-                   + A(i,5) * u(5 + n * (j - 1)) &
-                   + A(i,6) * u(6 + n * (j - 1)) &
-                   + A(i,7) * u(7 + n * (j - 1)) &
-                   + A(i,8) * u(8 + n * (j - 1)) &
-                   + A(i,9) * u(9 + n * (j - 1)) &
-                   + A(i,10) * u(10 + n * (j - 1)) &
-                   + A(i,11) * u(11 + n * (j - 1))
+               + A(i,2) * u(2 + n * (j - 1)) &
+               + A(i,3) * u(3 + n * (j - 1)) &
+               + A(i,4) * u(4 + n * (j - 1)) &
+               + A(i,5) * u(5 + n * (j - 1)) &
+               + A(i,6) * u(6 + n * (j - 1)) &
+               + A(i,7) * u(7 + n * (j - 1)) &
+               + A(i,8) * u(8 + n * (j - 1)) &
+               + A(i,9) * u(9 + n * (j - 1)) &
+               + A(i,10) * u(10 + n * (j - 1)) &
+               + A(i,11) * u(11 + n * (j - 1))
        end do
     end do
 
@@ -665,16 +665,16 @@ contains
           do l = 1, n
              ii = l + n * (j - 1) + nn * (i - 1)
              work2(ii) = work(l + n * (1 - 1) + nn * (i - 1)) * Bt(1,j) &
-                       + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
-                       + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
-                       + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) &
-                       + work(l + n * (5 - 1) + nn * (i - 1)) * Bt(5,j) &
-                       + work(l + n * (6 - 1) + nn * (i - 1)) * Bt(6,j) &
-                       + work(l + n * (7 - 1) + nn * (i - 1)) * Bt(7,j) &
-                       + work(l + n * (8 - 1) + nn * (i - 1)) * Bt(8,j) &
-                       + work(l + n * (9 - 1) + nn * (i - 1)) * Bt(9,j) &
-                       + work(l + n * (10 - 1) + nn * (i - 1)) * Bt(10,j) &
-                       + work(l + n * (11 - 1) + nn * (i - 1)) * Bt(11,j)
+                  + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
+                  + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
+                  + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) &
+                  + work(l + n * (5 - 1) + nn * (i - 1)) * Bt(5,j) &
+                  + work(l + n * (6 - 1) + nn * (i - 1)) * Bt(6,j) &
+                  + work(l + n * (7 - 1) + nn * (i - 1)) * Bt(7,j) &
+                  + work(l + n * (8 - 1) + nn * (i - 1)) * Bt(8,j) &
+                  + work(l + n * (9 - 1) + nn * (i - 1)) * Bt(9,j) &
+                  + work(l + n * (10 - 1) + nn * (i - 1)) * Bt(10,j) &
+                  + work(l + n * (11 - 1) + nn * (i - 1)) * Bt(11,j)
           end do
        end do
     end do
@@ -683,16 +683,16 @@ contains
        do i = 1, nn
           jj = i + nn * (j - 1)
           v(jj) = work2(i + nn * (1 - 1)) * Ct(1, j) &
-                + work2(i + nn * (2 - 1)) * Ct(2, j) &
-                + work2(i + nn * (3 - 1)) * Ct(3, j) &
-                + work2(i + nn * (4 - 1)) * Ct(4, j) &
-                + work2(i + nn * (5 - 1)) * Ct(5, j) &
-                + work2(i + nn * (6 - 1)) * Ct(6, j) &
-                + work2(i + nn * (7 - 1)) * Ct(7, j) &
-                + work2(i + nn * (8 - 1)) * Ct(8, j) &
-                + work2(i + nn * (9 - 1)) * Ct(9, j) &
-                + work2(i + nn * (10 - 1)) * Ct(10, j) &
-                + work2(i + nn * (11 - 1)) * Ct(11, j)
+               + work2(i + nn * (2 - 1)) * Ct(2, j) &
+               + work2(i + nn * (3 - 1)) * Ct(3, j) &
+               + work2(i + nn * (4 - 1)) * Ct(4, j) &
+               + work2(i + nn * (5 - 1)) * Ct(5, j) &
+               + work2(i + nn * (6 - 1)) * Ct(6, j) &
+               + work2(i + nn * (7 - 1)) * Ct(7, j) &
+               + work2(i + nn * (8 - 1)) * Ct(8, j) &
+               + work2(i + nn * (9 - 1)) * Ct(9, j) &
+               + work2(i + nn * (10 - 1)) * Ct(10, j) &
+               + work2(i + nn * (11 - 1)) * Ct(11, j)
        end do
     end do
 
@@ -711,15 +711,15 @@ contains
        do i = 1, n
           ii = i + n * (j - 1)
           work(ii) = A(i,1) * u(1 + n * (j - 1)) &
-                   + A(i,2) * u(2 + n * (j - 1)) &
-                   + A(i,3) * u(3 + n * (j - 1)) &
-                   + A(i,4) * u(4 + n * (j - 1)) &
-                   + A(i,5) * u(5 + n * (j - 1)) &
-                   + A(i,6) * u(6 + n * (j - 1)) &
-                   + A(i,7) * u(7 + n * (j - 1)) &
-                   + A(i,8) * u(8 + n * (j - 1)) &
-                   + A(i,9) * u(9 + n * (j - 1)) &
-                   + A(i,10) * u(10 + n * (j - 1))
+               + A(i,2) * u(2 + n * (j - 1)) &
+               + A(i,3) * u(3 + n * (j - 1)) &
+               + A(i,4) * u(4 + n * (j - 1)) &
+               + A(i,5) * u(5 + n * (j - 1)) &
+               + A(i,6) * u(6 + n * (j - 1)) &
+               + A(i,7) * u(7 + n * (j - 1)) &
+               + A(i,8) * u(8 + n * (j - 1)) &
+               + A(i,9) * u(9 + n * (j - 1)) &
+               + A(i,10) * u(10 + n * (j - 1))
        end do
     end do
 
@@ -728,15 +728,15 @@ contains
           do l = 1, n
              ii = l + n * (j - 1) + nn * (i - 1)
              work2(ii) = work(l + n * (1 - 1) + nn * (i - 1)) * Bt(1,j) &
-                       + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
-                       + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
-                       + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) &
-                       + work(l + n * (5 - 1) + nn * (i - 1)) * Bt(5,j) &
-                       + work(l + n * (6 - 1) + nn * (i - 1)) * Bt(6,j) &
-                       + work(l + n * (7 - 1) + nn * (i - 1)) * Bt(7,j) &
-                       + work(l + n * (8 - 1) + nn * (i - 1)) * Bt(8,j) &
-                       + work(l + n * (9 - 1) + nn * (i - 1)) * Bt(9,j) &
-                       + work(l + n * (10 - 1) + nn * (i - 1)) * Bt(10,j)
+                  + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
+                  + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
+                  + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) &
+                  + work(l + n * (5 - 1) + nn * (i - 1)) * Bt(5,j) &
+                  + work(l + n * (6 - 1) + nn * (i - 1)) * Bt(6,j) &
+                  + work(l + n * (7 - 1) + nn * (i - 1)) * Bt(7,j) &
+                  + work(l + n * (8 - 1) + nn * (i - 1)) * Bt(8,j) &
+                  + work(l + n * (9 - 1) + nn * (i - 1)) * Bt(9,j) &
+                  + work(l + n * (10 - 1) + nn * (i - 1)) * Bt(10,j)
           end do
        end do
     end do
@@ -745,15 +745,15 @@ contains
        do i = 1, nn
           jj = i + nn * (j - 1)
           v(jj) = work2(i + nn * (1 - 1)) * Ct(1, j) &
-                + work2(i + nn * (2 - 1)) * Ct(2, j) &
-                + work2(i + nn * (3 - 1)) * Ct(3, j) &
-                + work2(i + nn * (4 - 1)) * Ct(4, j) &
-                + work2(i + nn * (5 - 1)) * Ct(5, j) &
-                + work2(i + nn * (6 - 1)) * Ct(6, j) &
-                + work2(i + nn * (7 - 1)) * Ct(7, j) &
-                + work2(i + nn * (8 - 1)) * Ct(8, j) &
-                + work2(i + nn * (9 - 1)) * Ct(9, j) &
-                + work2(i + nn * (10 - 1)) * Ct(10, j)
+               + work2(i + nn * (2 - 1)) * Ct(2, j) &
+               + work2(i + nn * (3 - 1)) * Ct(3, j) &
+               + work2(i + nn * (4 - 1)) * Ct(4, j) &
+               + work2(i + nn * (5 - 1)) * Ct(5, j) &
+               + work2(i + nn * (6 - 1)) * Ct(6, j) &
+               + work2(i + nn * (7 - 1)) * Ct(7, j) &
+               + work2(i + nn * (8 - 1)) * Ct(8, j) &
+               + work2(i + nn * (9 - 1)) * Ct(9, j) &
+               + work2(i + nn * (10 - 1)) * Ct(10, j)
        end do
     end do
 
@@ -772,14 +772,14 @@ contains
        do i = 1, n
           ii = i + n * (j - 1)
           work(ii) = A(i,1) * u(1 + n * (j - 1)) &
-                   + A(i,2) * u(2 + n * (j - 1)) &
-                   + A(i,3) * u(3 + n * (j - 1)) &
-                   + A(i,4) * u(4 + n * (j - 1)) &
-                   + A(i,5) * u(5 + n * (j - 1)) &
-                   + A(i,6) * u(6 + n * (j - 1)) &
-                   + A(i,7) * u(7 + n * (j - 1)) &
-                   + A(i,8) * u(8 + n * (j - 1)) &
-                   + A(i,9) * u(9 + n * (j - 1))
+               + A(i,2) * u(2 + n * (j - 1)) &
+               + A(i,3) * u(3 + n * (j - 1)) &
+               + A(i,4) * u(4 + n * (j - 1)) &
+               + A(i,5) * u(5 + n * (j - 1)) &
+               + A(i,6) * u(6 + n * (j - 1)) &
+               + A(i,7) * u(7 + n * (j - 1)) &
+               + A(i,8) * u(8 + n * (j - 1)) &
+               + A(i,9) * u(9 + n * (j - 1))
        end do
     end do
 
@@ -788,14 +788,14 @@ contains
           do l = 1, n
              ii = l + n * (j - 1) + nn * (i - 1)
              work2(ii) = work(l + n * (1 - 1) + nn * (i - 1)) * Bt(1,j) &
-                       + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
-                       + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
-                       + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) &
-                       + work(l + n * (5 - 1) + nn * (i - 1)) * Bt(5,j) &
-                       + work(l + n * (6 - 1) + nn * (i - 1)) * Bt(6,j) &
-                       + work(l + n * (7 - 1) + nn * (i - 1)) * Bt(7,j) &
-                       + work(l + n * (8 - 1) + nn * (i - 1)) * Bt(8,j) &
-                       + work(l + n * (9 - 1) + nn * (i - 1)) * Bt(9,j)
+                  + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
+                  + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
+                  + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) &
+                  + work(l + n * (5 - 1) + nn * (i - 1)) * Bt(5,j) &
+                  + work(l + n * (6 - 1) + nn * (i - 1)) * Bt(6,j) &
+                  + work(l + n * (7 - 1) + nn * (i - 1)) * Bt(7,j) &
+                  + work(l + n * (8 - 1) + nn * (i - 1)) * Bt(8,j) &
+                  + work(l + n * (9 - 1) + nn * (i - 1)) * Bt(9,j)
           end do
        end do
     end do
@@ -804,14 +804,14 @@ contains
        do i = 1, nn
           jj = i + nn * (j - 1)
           v(jj) = work2(i + nn * (1 - 1)) * Ct(1, j) &
-                + work2(i + nn * (2 - 1)) * Ct(2, j) &
-                + work2(i + nn * (3 - 1)) * Ct(3, j) &
-                + work2(i + nn * (4 - 1)) * Ct(4, j) &
-                + work2(i + nn * (5 - 1)) * Ct(5, j) &
-                + work2(i + nn * (6 - 1)) * Ct(6, j) &
-                + work2(i + nn * (7 - 1)) * Ct(7, j) &
-                + work2(i + nn * (8 - 1)) * Ct(8, j) &
-                + work2(i + nn * (9 - 1)) * Ct(9, j)
+               + work2(i + nn * (2 - 1)) * Ct(2, j) &
+               + work2(i + nn * (3 - 1)) * Ct(3, j) &
+               + work2(i + nn * (4 - 1)) * Ct(4, j) &
+               + work2(i + nn * (5 - 1)) * Ct(5, j) &
+               + work2(i + nn * (6 - 1)) * Ct(6, j) &
+               + work2(i + nn * (7 - 1)) * Ct(7, j) &
+               + work2(i + nn * (8 - 1)) * Ct(8, j) &
+               + work2(i + nn * (9 - 1)) * Ct(9, j)
        end do
     end do
 
@@ -830,13 +830,13 @@ contains
        do i = 1, n
           ii = i + n * (j - 1)
           work(ii) = A(i,1) * u(1 + n * (j - 1)) &
-                   + A(i,2) * u(2 + n * (j - 1)) &
-                   + A(i,3) * u(3 + n * (j - 1)) &
-                   + A(i,4) * u(4 + n * (j - 1)) &
-                   + A(i,5) * u(5 + n * (j - 1)) &
-                   + A(i,6) * u(6 + n * (j - 1)) &
-                   + A(i,7) * u(7 + n * (j - 1)) &
-                   + A(i,8) * u(8 + n * (j - 1))
+               + A(i,2) * u(2 + n * (j - 1)) &
+               + A(i,3) * u(3 + n * (j - 1)) &
+               + A(i,4) * u(4 + n * (j - 1)) &
+               + A(i,5) * u(5 + n * (j - 1)) &
+               + A(i,6) * u(6 + n * (j - 1)) &
+               + A(i,7) * u(7 + n * (j - 1)) &
+               + A(i,8) * u(8 + n * (j - 1))
        end do
     end do
 
@@ -845,13 +845,13 @@ contains
           do l = 1, n
              ii = l + n * (j - 1) + nn * (i - 1)
              work2(ii) = work(l + n * (1 - 1) + nn * (i - 1)) * Bt(1,j) &
-                       + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
-                       + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
-                       + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) &
-                       + work(l + n * (5 - 1) + nn * (i - 1)) * Bt(5,j) &
-                       + work(l + n * (6 - 1) + nn * (i - 1)) * Bt(6,j) &
-                       + work(l + n * (7 - 1) + nn * (i - 1)) * Bt(7,j) &
-                       + work(l + n * (8 - 1) + nn * (i - 1)) * Bt(8,j)
+                  + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
+                  + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
+                  + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) &
+                  + work(l + n * (5 - 1) + nn * (i - 1)) * Bt(5,j) &
+                  + work(l + n * (6 - 1) + nn * (i - 1)) * Bt(6,j) &
+                  + work(l + n * (7 - 1) + nn * (i - 1)) * Bt(7,j) &
+                  + work(l + n * (8 - 1) + nn * (i - 1)) * Bt(8,j)
           end do
        end do
     end do
@@ -860,13 +860,13 @@ contains
        do i = 1, nn
           jj = i + nn * (j - 1)
           v(jj) = work2(i + nn * (1 - 1)) * Ct(1, j) &
-                + work2(i + nn * (2 - 1)) * Ct(2, j) &
-                + work2(i + nn * (3 - 1)) * Ct(3, j) &
-                + work2(i + nn * (4 - 1)) * Ct(4, j) &
-                + work2(i + nn * (5 - 1)) * Ct(5, j) &
-                + work2(i + nn * (6 - 1)) * Ct(6, j) &
-                + work2(i + nn * (7 - 1)) * Ct(7, j) &
-                + work2(i + nn * (8 - 1)) * Ct(8, j)
+               + work2(i + nn * (2 - 1)) * Ct(2, j) &
+               + work2(i + nn * (3 - 1)) * Ct(3, j) &
+               + work2(i + nn * (4 - 1)) * Ct(4, j) &
+               + work2(i + nn * (5 - 1)) * Ct(5, j) &
+               + work2(i + nn * (6 - 1)) * Ct(6, j) &
+               + work2(i + nn * (7 - 1)) * Ct(7, j) &
+               + work2(i + nn * (8 - 1)) * Ct(8, j)
        end do
     end do
 
@@ -885,12 +885,12 @@ contains
        do i = 1, n
           ii = i + n * (j - 1)
           work(ii) = A(i,1) * u(1 + n * (j - 1)) &
-                   + A(i,2) * u(2 + n * (j - 1)) &
-                   + A(i,3) * u(3 + n * (j - 1)) &
-                   + A(i,4) * u(4 + n * (j - 1)) &
-                   + A(i,5) * u(5 + n * (j - 1)) &
-                   + A(i,6) * u(6 + n * (j - 1)) &
-                   + A(i,7) * u(7 + n * (j - 1))
+               + A(i,2) * u(2 + n * (j - 1)) &
+               + A(i,3) * u(3 + n * (j - 1)) &
+               + A(i,4) * u(4 + n * (j - 1)) &
+               + A(i,5) * u(5 + n * (j - 1)) &
+               + A(i,6) * u(6 + n * (j - 1)) &
+               + A(i,7) * u(7 + n * (j - 1))
        end do
     end do
 
@@ -899,12 +899,12 @@ contains
           do l = 1, n
              ii = l + n * (j - 1) + nn * (i - 1)
              work2(ii) = work(l + n * (1 - 1) + nn * (i - 1)) * Bt(1,j) &
-                       + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
-                       + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
-                       + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) &
-                       + work(l + n * (5 - 1) + nn * (i - 1)) * Bt(5,j) &
-                       + work(l + n * (6 - 1) + nn * (i - 1)) * Bt(6,j) &
-                       + work(l + n * (7 - 1) + nn * (i - 1)) * Bt(7,j)
+                  + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
+                  + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
+                  + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) &
+                  + work(l + n * (5 - 1) + nn * (i - 1)) * Bt(5,j) &
+                  + work(l + n * (6 - 1) + nn * (i - 1)) * Bt(6,j) &
+                  + work(l + n * (7 - 1) + nn * (i - 1)) * Bt(7,j)
           end do
        end do
     end do
@@ -913,12 +913,12 @@ contains
        do i = 1, nn
           jj = i + nn * (j - 1)
           v(jj) = work2(i + nn * (1 - 1)) * Ct(1, j) &
-                + work2(i + nn * (2 - 1)) * Ct(2, j) &
-                + work2(i + nn * (3 - 1)) * Ct(3, j) &
-                + work2(i + nn * (4 - 1)) * Ct(4, j) &
-                + work2(i + nn * (5 - 1)) * Ct(5, j) &
-                + work2(i + nn * (6 - 1)) * Ct(6, j) &
-                + work2(i + nn * (7 - 1)) * Ct(7, j)
+               + work2(i + nn * (2 - 1)) * Ct(2, j) &
+               + work2(i + nn * (3 - 1)) * Ct(3, j) &
+               + work2(i + nn * (4 - 1)) * Ct(4, j) &
+               + work2(i + nn * (5 - 1)) * Ct(5, j) &
+               + work2(i + nn * (6 - 1)) * Ct(6, j) &
+               + work2(i + nn * (7 - 1)) * Ct(7, j)
        end do
     end do
 
@@ -937,11 +937,11 @@ contains
        do i = 1, n
           ii = i + n * (j - 1)
           work(ii) = A(i,1) * u(1 + n * (j - 1)) &
-                   + A(i,2) * u(2 + n * (j - 1)) &
-                   + A(i,3) * u(3 + n * (j - 1)) &
-                   + A(i,4) * u(4 + n * (j - 1)) &
-                   + A(i,5) * u(5 + n * (j - 1)) &
-                   + A(i,6) * u(6 + n * (j - 1))
+               + A(i,2) * u(2 + n * (j - 1)) &
+               + A(i,3) * u(3 + n * (j - 1)) &
+               + A(i,4) * u(4 + n * (j - 1)) &
+               + A(i,5) * u(5 + n * (j - 1)) &
+               + A(i,6) * u(6 + n * (j - 1))
        end do
     end do
 
@@ -950,11 +950,11 @@ contains
           do l = 1, n
              ii = l + n * (j - 1) + nn * (i - 1)
              work2(ii) = work(l + n * (1 - 1) + nn * (i - 1)) * Bt(1,j) &
-                       + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
-                       + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
-                       + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) &
-                       + work(l + n * (5 - 1) + nn * (i - 1)) * Bt(5,j) &
-                       + work(l + n * (6 - 1) + nn * (i - 1)) * Bt(6,j)
+                  + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
+                  + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
+                  + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) &
+                  + work(l + n * (5 - 1) + nn * (i - 1)) * Bt(5,j) &
+                  + work(l + n * (6 - 1) + nn * (i - 1)) * Bt(6,j)
           end do
        end do
     end do
@@ -963,11 +963,11 @@ contains
        do i = 1, nn
           jj = i + nn * (j - 1)
           v(jj) = work2(i + nn * (1 - 1)) * Ct(1, j) &
-                + work2(i + nn * (2 - 1)) * Ct(2, j) &
-                + work2(i + nn * (3 - 1)) * Ct(3, j) &
-                + work2(i + nn * (4 - 1)) * Ct(4, j) &
-                + work2(i + nn * (5 - 1)) * Ct(5, j) &
-                + work2(i + nn * (6 - 1)) * Ct(6, j)
+               + work2(i + nn * (2 - 1)) * Ct(2, j) &
+               + work2(i + nn * (3 - 1)) * Ct(3, j) &
+               + work2(i + nn * (4 - 1)) * Ct(4, j) &
+               + work2(i + nn * (5 - 1)) * Ct(5, j) &
+               + work2(i + nn * (6 - 1)) * Ct(6, j)
        end do
     end do
 
@@ -986,10 +986,10 @@ contains
        do i = 1, n
           ii = i + n * (j - 1)
           work(ii) = A(i,1) * u(1 + n * (j - 1)) &
-                   + A(i,2) * u(2 + n * (j - 1)) &
-                   + A(i,3) * u(3 + n * (j - 1)) &
-                   + A(i,4) * u(4 + n * (j - 1)) &
-                   + A(i,5) * u(5 + n * (j - 1))
+               + A(i,2) * u(2 + n * (j - 1)) &
+               + A(i,3) * u(3 + n * (j - 1)) &
+               + A(i,4) * u(4 + n * (j - 1)) &
+               + A(i,5) * u(5 + n * (j - 1))
        end do
     end do
 
@@ -998,10 +998,10 @@ contains
           do l = 1, n
              ii = l + n * (j - 1) + nn * (i - 1)
              work2(ii) = work(l + n * (1 - 1) + nn * (i - 1)) * Bt(1,j) &
-                       + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
-                       + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
-                       + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) &
-                       + work(l + n * (5 - 1) + nn * (i - 1)) * Bt(5,j)
+                  + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
+                  + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
+                  + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) &
+                  + work(l + n * (5 - 1) + nn * (i - 1)) * Bt(5,j)
           end do
        end do
     end do
@@ -1010,10 +1010,10 @@ contains
        do i = 1, nn
           jj = i + nn * (j - 1)
           v(jj) = work2(i + nn * (1 - 1)) * Ct(1, j) &
-                + work2(i + nn * (2 - 1)) * Ct(2, j) &
-                + work2(i + nn * (3 - 1)) * Ct(3, j) &
-                + work2(i + nn * (4 - 1)) * Ct(4, j) &
-                + work2(i + nn * (5 - 1)) * Ct(5, j)
+               + work2(i + nn * (2 - 1)) * Ct(2, j) &
+               + work2(i + nn * (3 - 1)) * Ct(3, j) &
+               + work2(i + nn * (4 - 1)) * Ct(4, j) &
+               + work2(i + nn * (5 - 1)) * Ct(5, j)
        end do
     end do
 
@@ -1032,9 +1032,9 @@ contains
        do i = 1, n
           ii = i + n * (j - 1)
           work(ii) = A(i,1) * u(1 + n * (j - 1)) &
-                   + A(i,2) * u(2 + n * (j - 1)) &
-                   + A(i,3) * u(3 + n * (j - 1)) &
-                   + A(i,4) * u(4 + n * (j - 1))
+               + A(i,2) * u(2 + n * (j - 1)) &
+               + A(i,3) * u(3 + n * (j - 1)) &
+               + A(i,4) * u(4 + n * (j - 1))
        end do
     end do
 
@@ -1043,9 +1043,9 @@ contains
           do l = 1, n
              ii = l + n * (j - 1) + nn * (i - 1)
              work2(ii) = work(l + n * (1 - 1) + nn * (i - 1)) * Bt(1,j) &
-                       + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
-                       + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
-                       + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j)
+                  + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
+                  + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
+                  + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j)
           end do
        end do
     end do
@@ -1054,9 +1054,9 @@ contains
        do i = 1, nn
           jj = i + nn * (j - 1)
           v(jj) = work2(i + nn * (1 - 1)) * Ct(1, j) &
-                + work2(i + nn * (2 - 1)) * Ct(2, j) &
-                + work2(i + nn * (3 - 1)) * Ct(3, j) &
-                + work2(i + nn * (4 - 1)) * Ct(4, j)
+               + work2(i + nn * (2 - 1)) * Ct(2, j) &
+               + work2(i + nn * (3 - 1)) * Ct(3, j) &
+               + work2(i + nn * (4 - 1)) * Ct(4, j)
        end do
     end do
 
@@ -1075,8 +1075,8 @@ contains
        do i = 1, n
           ii = i + n * (j - 1)
           work(ii) = A(i,1) * u(1 + n * (j - 1)) &
-                   + A(i,2) * u(2 + n * (j - 1)) &
-                   + A(i,3) * u(3 + n * (j - 1))
+               + A(i,2) * u(2 + n * (j - 1)) &
+               + A(i,3) * u(3 + n * (j - 1))
        end do
     end do
 
@@ -1085,8 +1085,8 @@ contains
           do l = 1, n
              ii = l + n * (j - 1) + nn * (i - 1)
              work2(ii) = work(l + n * (1 - 1) + nn * (i - 1)) * Bt(1,j) &
-                       + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
-                       + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j)
+                  + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
+                  + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j)
           end do
        end do
     end do
@@ -1095,8 +1095,8 @@ contains
        do i = 1, nn
           jj = i + nn * (j - 1)
           v(jj) = work2(i + nn * (1 - 1)) * Ct(1, j) &
-                + work2(i + nn * (2 - 1)) * Ct(2, j) &
-                + work2(i + nn * (3 - 1)) * Ct(3, j)
+               + work2(i + nn * (2 - 1)) * Ct(2, j) &
+               + work2(i + nn * (3 - 1)) * Ct(3, j)
        end do
     end do
 
@@ -1115,7 +1115,7 @@ contains
        do i = 1, n
           ii = i + n * (j - 1)
           work(ii) = A(i,1) * u(1 + n * (j - 1)) &
-                   + A(i,2) * u(2 + n * (j - 1))
+               + A(i,2) * u(2 + n * (j - 1))
        end do
     end do
 
@@ -1124,7 +1124,7 @@ contains
           do l = 1, n
              ii = l + n * (j - 1) + nn * (i - 1)
              work2(ii) = work(l + n * (1 - 1) + nn * (i - 1)) * Bt(1,j) &
-                       + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j)
+                  + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j)
           end do
        end do
     end do
@@ -1133,7 +1133,7 @@ contains
        do i = 1, nn
           jj = i + nn * (j - 1)
           v(jj) = work2(i + nn * (1 - 1)) * Ct(1, j) &
-                + work2(i + nn * (2 - 1)) * Ct(2, j)
+               + work2(i + nn * (2 - 1)) * Ct(2, j)
        end do
     end do
 
@@ -1227,7 +1227,7 @@ contains
           do i = 1, nv
              ii = i + nv * (j - 1)
              work(ii) = A(i,1) * u(1 + nu * (j - 1), ie) &
-                      + A(i,2) * u(2 + nu * (j - 1), ie)
+                  + A(i,2) * u(2 + nu * (j - 1), ie)
           end do
        end do
 
@@ -1249,7 +1249,7 @@ contains
           do i = 1, nvnv
              jj = i + nvnv * (j - 1)
              v(jj, ie) = work2(i + nvnv * (1 - 1)) * Ct(1, j) &
-                       + work2(i + nvnv * (2 - 1)) * Ct(2, j)
+                  + work2(i + nvnv * (2 - 1)) * Ct(2, j)
           end do
        end do
     end do
@@ -1275,9 +1275,9 @@ contains
           do i = 1, nv
              ii = i + nv * (j - 1)
              work(ii) = A(i,1) * u(1 + nu * (j - 1), ie) &
-                      + A(i,2) * u(2 + nu * (j - 1), ie) &
-                      + A(i,3) * u(3 + nu * (j - 1), ie) &
-                      + A(i,4) * u(4 + nu * (j - 1), ie)
+                  + A(i,2) * u(2 + nu * (j - 1), ie) &
+                  + A(i,3) * u(3 + nu * (j - 1), ie) &
+                  + A(i,4) * u(4 + nu * (j - 1), ie)
           end do
        end do
 
@@ -1299,9 +1299,9 @@ contains
           do i = 1, nvnv
              jj = i + nvnv * (j - 1)
              v(jj, ie) = work2(i + nvnv * (1 - 1)) * Ct(1, j) &
-                       + work2(i + nvnv * (2 - 1)) * Ct(2, j) &
-                       + work2(i + nvnv * (3 - 1)) * Ct(3, j) &
-                       + work2(i + nvnv * (4 - 1)) * Ct(4, j)
+                  + work2(i + nvnv * (2 - 1)) * Ct(2, j) &
+                  + work2(i + nvnv * (3 - 1)) * Ct(3, j) &
+                  + work2(i + nvnv * (4 - 1)) * Ct(4, j)
           end do
        end do
     end do
@@ -1417,9 +1417,9 @@ contains
           do i = 1, nv
              ii = i + nv * (j - 1)
              work(ii) = A(i,1) * v(1 + nu * (j - 1) + iu) &
-                      + A(i,2) * v(2 + nu * (j - 1) + iu) &
-                      + A(i,3) * v(3 + nu * (j - 1) + iu) &
-                      + A(i,4) * v(4 + nu * (j - 1) + iu)
+                  + A(i,2) * v(2 + nu * (j - 1) + iu) &
+                  + A(i,3) * v(3 + nu * (j - 1) + iu) &
+                  + A(i,4) * v(4 + nu * (j - 1) + iu)
           end do
        end do
 
@@ -1441,9 +1441,9 @@ contains
           do i = 1, nvnv
              jj = i + nvnv * (j - 1) + iv
              v(jj) = work2(i + nvnv * (1 - 1)) * Ct(1, j) &
-                   + work2(i + nvnv * (2 - 1)) * Ct(2, j) &
-                   + work2(i + nvnv * (3 - 1)) * Ct(3, j) &
-                   + work2(i + nvnv * (4 - 1)) * Ct(4, j)
+                  + work2(i + nvnv * (2 - 1)) * Ct(2, j) &
+                  + work2(i + nvnv * (3 - 1)) * Ct(3, j) &
+                  + work2(i + nvnv * (4 - 1)) * Ct(4, j)
 
           end do
        end do

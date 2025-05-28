@@ -159,8 +159,8 @@ contains
 
     do i = 1, N
        if ((r(i) <= 1.1_rp .and. r(i) >= -1.1_rp) .and. &
-           (s(i) <= 1.1_rp .and. s(i) >= -1.1_rp) .and. &
-           (t(i) <= 1.1_rp .and. t(i) >= -1.1_rp)) then
+            (s(i) <= 1.1_rp .and. s(i) >= -1.1_rp) .and. &
+            (t(i) <= 1.1_rp .and. t(i) >= -1.1_rp)) then
           call fd_weights_full(r(i), this%Xh%zg(:,1), lx-1, 0, this%weights_r(:,i))
           call fd_weights_full(s(i), this%Xh%zg(:,2), lx-1, 0, this%weights_s(:,i))
           call fd_weights_full(t(i), this%Xh%zg(:,3), lx-1, 0, this%weights_t(:,i))

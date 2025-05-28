@@ -108,7 +108,7 @@ contains
     type(stack_i4_t), intent(inout) :: el_candidates
 
     ! Find the element candidates for a given point
-    call this%local_aabb_tree%query_overlaps(my_point, -1,  el_candidates)
+    call this%local_aabb_tree%query_overlaps(my_point, -1, el_candidates)
 
   end subroutine aabb_el_finder_find_candidates
 

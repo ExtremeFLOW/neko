@@ -61,14 +61,14 @@ module space
   !! @warning Although the type has separate members for the poly orders in x,
   !! y, and z, in the current implementation these are forced to be equal.
   type, public :: space_t
-     integer :: t               !< Space type (GL, GLL, GJ, ...)
-     integer :: lx              !< Polynomial dimension in x-direction
-     integer :: ly              !< Polynomial dimension in y-direction
-     integer :: lz              !< Polynomial dimension in z-direction
-     integer :: lxy             !< Number of points in xy-plane
-     integer :: lyz             !< Number of points in yz-plane
-     integer :: lxz             !< Number of points in xz-plane
-     integer :: lxyz            !< Number of points in xyz-block
+     integer :: t !< Space type (GL, GLL, GJ, ...)
+     integer :: lx !< Polynomial dimension in x-direction
+     integer :: ly !< Polynomial dimension in y-direction
+     integer :: lz !< Polynomial dimension in z-direction
+     integer :: lxy !< Number of points in xy-plane
+     integer :: lyz !< Number of points in yz-plane
+     integer :: lxz !< Number of points in xz-plane
+     integer :: lxyz !< Number of points in xyz-block
 
      real(kind=rp), allocatable :: zg(:,:) !< Quadrature points
 
@@ -76,9 +76,9 @@ module space
      real(kind=rp), allocatable :: ds_inv(:) !< 1/dist quadrature points
      real(kind=rp), allocatable :: dt_inv(:) !< 1/dist quadrature points
 
-     real(kind=rp), allocatable :: wx(:)   !< Quadrature weights
-     real(kind=rp), allocatable :: wy(:)   !< Quadrature weights
-     real(kind=rp), allocatable :: wz(:)   !< Quadrature weights
+     real(kind=rp), allocatable :: wx(:) !< Quadrature weights
+     real(kind=rp), allocatable :: wy(:) !< Quadrature weights
+     real(kind=rp), allocatable :: wz(:) !< Quadrature weights
 
      real(kind=rp), allocatable :: w3(:,:,:) !< wx * wy * wz
 
@@ -97,12 +97,12 @@ module space
      real(kind=rp), allocatable :: dzt(:,:)
 
      !> Legendre transformation matrices
-     real(kind=rp), allocatable :: v(:,:)        !< legendre to physical
-     real(kind=rp), allocatable :: vt(:,:)       !< legendre to physical t
-     real(kind=rp), allocatable :: vinv(:,:)     !< Physical to legendre
-     real(kind=rp), allocatable :: vinvt(:,:)    !< Physical to legendre t
+     real(kind=rp), allocatable :: v(:,:) !< legendre to physical
+     real(kind=rp), allocatable :: vt(:,:) !< legendre to physical t
+     real(kind=rp), allocatable :: vinv(:,:) !< Physical to legendre
+     real(kind=rp), allocatable :: vinvt(:,:) !< Physical to legendre t
      !> Legendre weights in matrix form
-     real(kind=rp), allocatable :: w(:,:)        !< Legendre weights
+     real(kind=rp), allocatable :: w(:,:) !< Legendre weights
 
      !
      ! Device pointers (if present)
@@ -147,9 +147,9 @@ contains
   !> Initialize a function space @a s with given polynomial dimensions
   subroutine space_init(s, t, lx, ly, lz)
     class(space_t), intent(inout) :: s
-    integer, intent(in) :: t            !< Quadrature type
-    integer, intent(in) :: lx           !< Polynomial dimension in x-direction
-    integer, intent(in) :: ly           !< Polynomial dimension in y-direction
+    integer, intent(in) :: t !< Quadrature type
+    integer, intent(in) :: lx !< Polynomial dimension in x-direction
+    integer, intent(in) :: ly !< Polynomial dimension in y-direction
     integer, optional, intent(in) :: lz !< Polynomial dimension in z-direction
     integer :: ix, iy, iz
 
@@ -278,11 +278,11 @@ contains
        call device_map(s%dyt, s%dyt_d, s%lxy)
        call device_map(s%dzt, s%dzt_d, s%lxy)
        call device_map(s%w3, s%w3_d, s%lxyz)
-       call device_map(s%v,     s%v_d,     s%lxy)
-       call device_map(s%vt,    s%vt_d,    s%lxy)
-       call device_map(s%vinv,  s%vinv_d,  s%lxy)
+       call device_map(s%v, s%v_d, s%lxy)
+       call device_map(s%vt, s%vt_d, s%lxy)
+       call device_map(s%vinv, s%vinv_d, s%lxy)
        call device_map(s%vinvt, s%vinvt_d, s%lxy)
-       call device_map(s%w,     s%w_d,     s%lxy)
+       call device_map(s%w, s%w_d, s%lxy)
 
        call device_memcpy(s%dr_inv, s%dr_inv_d, s%lx, HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(s%ds_inv, s%ds_inv_d, s%lx, HOST_TO_DEVICE, sync=.false.)
@@ -297,15 +297,15 @@ contains
        call device_memcpy(s%dyt, s%dyt_d, s%lxy, HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(s%dzt, s%dzt_d, s%lxy, HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(s%w3, s%w3_d, s%lxyz, HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(s%v,     s%v_d,     s%lxy, HOST_TO_DEVICE, &
+       call device_memcpy(s%v, s%v_d, s%lxy, HOST_TO_DEVICE, &
             sync = .false.)
-       call device_memcpy(s%vt,    s%vt_d,    s%lxy, HOST_TO_DEVICE, &
+       call device_memcpy(s%vt, s%vt_d, s%lxy, HOST_TO_DEVICE, &
             sync = .false.)
-       call device_memcpy(s%vinv,  s%vinv_d,  s%lxy, HOST_TO_DEVICE, &
+       call device_memcpy(s%vinv, s%vinv_d, s%lxy, HOST_TO_DEVICE, &
             sync = .false.)
        call device_memcpy(s%vinvt, s%vinvt_d, s%lxy, HOST_TO_DEVICE, &
             sync = .false.)
-       call device_memcpy(s%w,     s%w_d,     s%lxy, HOST_TO_DEVICE, &
+       call device_memcpy(s%w, s%w_d, s%lxy, HOST_TO_DEVICE, &
             sync = .false.)
 
        ix = s%lx * 3
@@ -535,11 +535,11 @@ contains
     real(kind=rp) :: L(0:Xh%lx-1)
     real(kind=rp) :: delta(Xh%lx)
     integer :: i, kj, j, j2, kk
-    type(matrix_t) :: m 
+    type(matrix_t) :: m
     logical :: scaled = .false.
 
     associate(v=> Xh%v, vt => Xh%vt, &
-      vinv => Xh%vinv, vinvt => Xh%vinvt, w => Xh%w)
+         vinv => Xh%vinv, vinvt => Xh%vinvt, w => Xh%w)
       ! Get the Legendre polynomials for each point
       ! Then proceed to compose the transform matrix
       kj = 0

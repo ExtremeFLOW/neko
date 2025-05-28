@@ -75,35 +75,35 @@ module math
   real(kind=rp), public, parameter :: pi = 4._rp*atan(1._rp)
 
   interface abscmp
-    module procedure sabscmp, dabscmp, qabscmp
+     module procedure sabscmp, dabscmp, qabscmp
   end interface abscmp
 
   interface sort
-    module procedure sortrp, sorti4
+     module procedure sortrp, sorti4
   end interface sort
 
   interface swap
-    module procedure swapdp, swapi4
+     module procedure swapdp, swapi4
   end interface swap
 
   interface reord
-    module procedure reorddp, reordi4
+     module procedure reorddp, reordi4
   end interface reord
 
   interface flipv
-    module procedure flipvdp, flipvi4
+     module procedure flipvdp, flipvi4
   end interface flipv
 
   interface relcmp
-    module procedure srelcmp, drelcmp, qrelcmp
+     module procedure srelcmp, drelcmp, qrelcmp
   end interface relcmp
 
   interface pwmax
-    module procedure pwmax_vec2, pwmax_vec3, pwmax_scal2, pwmax_scal3
+     module procedure pwmax_vec2, pwmax_vec3, pwmax_scal2, pwmax_scal3
   end interface pwmax
 
   interface pwmin
-    module procedure pwmin_vec2, pwmin_vec3, pwmin_sca2, pwmin_sca3
+     module procedure pwmin_vec2, pwmin_vec3, pwmin_sca2, pwmin_sca3
   end interface pwmin
 
   public :: abscmp, rzero, izero, row_zero, rone, copy, cmult, cadd, cfill, &
@@ -1338,10 +1338,10 @@ contains
   ! https://fortranwiki.org/fortran/show/Matrix+inversion
   ! Invert 3x3 matrix
   function matinv39(a11, a12, a13, a21, a22, a23, a31, a32, a33) &
-   result(B)
+       result(B)
     real(kind=rp), intent(in) :: a11, a12, a13, a21, a22, a23, a31, a32, a33
-    real(xp) :: A(3,3)   !! Matrix
-    real(rp) :: B(3,3)   !! Inverse matrix
+    real(xp) :: A(3,3) !! Matrix
+    real(rp) :: B(3,3) !! Inverse matrix
     A(1,1) = a11
     A(1,2) = a12
     A(1,3) = a13
@@ -1360,15 +1360,15 @@ contains
   !! Invert 3x3 matrix
   function matinv3(A) result(B)
     !! Performs a direct calculation of the inverse of a 3×3 matrix.
-    real(kind=xp), intent(in) :: A(3,3)   !! Matrix
-    real(kind=xp) :: B(3,3)   !! Inverse matrix
+    real(kind=xp), intent(in) :: A(3,3) !! Matrix
+    real(kind=xp) :: B(3,3) !! Inverse matrix
     real(kind=xp) :: detinv
 
     ! Calculate the inverse determinant of the matrix
     ! first index x,y,z, second r, s, t
     detinv = 1.0_xp/real(A(1,1)*A(2,2)*A(3,3) - A(1,1)*A(2,3)*A(3,2)&
-          - A(1,2)*A(2,1)*A(3,3) + A(1,2)*A(2,3)*A(3,1)&
-          + A(1,3)*A(2,1)*A(3,2) - A(1,3)*A(2,2)*A(3,1),xp)
+         - A(1,2)*A(2,1)*A(3,3) + A(1,2)*A(2,3)*A(3,1)&
+         + A(1,3)*A(2,1)*A(3,2) - A(1,3)*A(2,2)*A(3,1),xp)
     ! Calculate the inverse of the matrix
     ! first index r, s, t, second x, y, z
     B(1,1) = +detinv * (A(2,2)*A(3,3) - A(2,3)*A(3,2))

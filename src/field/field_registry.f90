@@ -138,12 +138,12 @@ contains
     logical, optional, intent(in) :: ignore_existing
 
     if (this%field_exists(fld_name)) then
-      if (present(ignore_existing) .and. ignore_existing .eqv. .true.) then
-         return
-      else
-         call neko_error("Field with name " // fld_name // &
-                         " is already registered")
-      end if
+       if (present(ignore_existing) .and. ignore_existing .eqv. .true.) then
+          return
+       else
+          call neko_error("Field with name " // fld_name // &
+               " is already registered")
+       end if
     end if
 
     if (this%n_fields() == size(this%fields)) then
@@ -210,7 +210,7 @@ contains
     integer :: i
 
     found = .false.
-   
+
     do i=1, this%n_fields()
        if (this%fields(i)%name == name) then
           f => this%fields(i)

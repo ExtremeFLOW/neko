@@ -36,7 +36,7 @@ module neko
   use comm
   use utils
   use logger
-  use math 
+  use math
   use field_math
   use speclib
   use dofmap, only : dofmap_t
@@ -79,7 +79,7 @@ module neko
   use jobctrl, only : jobctrl_init, jobctrl_set_time_limit, &
        jobctrl_time_limit, jobctrl_jobtime
   use device
-  use device_math 
+  use device_math
   use map_1d, only : map_1d_t
   use map_2d, only : map_2d_t
   use cpr, only : cpr_t, cpr_init, cpr_free

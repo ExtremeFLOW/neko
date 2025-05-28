@@ -165,8 +165,8 @@ contains
        ! ICE with NAG.
        !associate(send_data => this%send_buf(i)%data)
        call MPI_Isend(this%send_buf(i)%data, this%send_dof(dst)%size(), &
-              MPI_REAL_PRECISION, this%send_pe(i), thrdid, &
-              this%comm, this%send_buf(i)%request, ierr)
+            MPI_REAL_PRECISION, this%send_pe(i), thrdid, &
+            this%comm, this%send_buf(i)%request, ierr)
        !end associate
        this%send_buf(i)%flag = .false.
     end do
@@ -282,33 +282,33 @@ contains
                 sp => this%recv_dof(src)%array()
                 !Do operation with data in buffer on dof specified by recv_dof
                 select case(op)
-                  case (GS_OP_ADD)
+                case (GS_OP_ADD)
                    !NEC$ IVDEP
                    do j = 1, this%recv_dof(src)%size()
 
                       u(sp(j)) = u(sp(j)) + this%recv_buf(i)%data(j)
                    end do
-                  case (GS_OP_MUL)
+                case (GS_OP_MUL)
                    !NEC$ IVDEP
                    do concurrent (j = 1:this%recv_dof(src)%size())
                       u(sp(j)) = u(sp(j)) * this%recv_buf(i)%data(j)
                    end do
-                  case (GS_OP_MIN)
+                case (GS_OP_MIN)
                    !NEC$ IVDEP
                    do concurrent (j = 1:this%recv_dof(src)%size())
                       u(sp(j)) = min(u(sp(j)), this%recv_buf(i)%data(j))
                    end do
-                  case (GS_OP_MAX)
+                case (GS_OP_MAX)
                    !NEC$ IVDEP
                    do concurrent (j = 1:this%recv_dof(src)%size())
                       u(sp(j)) = max(u(sp(j)), this%recv_buf(i)%data(j))
                    end do
-                  case (GS_OP_SET)
+                case (GS_OP_SET)
                    !NEC$ IVDEP
                    do concurrent (j = 1:this%recv_dof(src)%size())
                       u(sp(j)) = this%recv_buf(i)%data(j)
                    end do
-                  case default
+                case default
                    call neko_error("Unknown operation in gs_nbwait_mpi")
                 end select
 

@@ -43,51 +43,51 @@ module pe_finder
 
   !> Implements global interpolation for arbitrary points in the domain.
   type, public, abstract :: pe_finder_t
-       integer :: pe_size
-       integer :: pe_rank
-       type(MPI_COMM):: comm
+     integer :: pe_size
+     integer :: pe_rank
+     type(MPI_COMM):: comm
    contains
      procedure(pe_finder_free), pass(this), deferred :: free
-     procedure(pe_finder_find), pass(this), deferred :: find 
+     procedure(pe_finder_find), pass(this), deferred :: find
      procedure(pe_finder_find_batch), pass(this), deferred :: find_batch
   end type pe_finder_t
 
   !> Destructor
   abstract interface
-    subroutine pe_finder_free(this)
-      import pe_finder_t
-      class(pe_finder_t), intent(inout) :: this
-    end subroutine pe_finder_free
+     subroutine pe_finder_free(this)
+       import pe_finder_t
+       class(pe_finder_t), intent(inout) :: this
+     end subroutine pe_finder_free
   end interface
-  
-   !> Find rank candidates for a given point in the domain.
-   abstract interface
-      subroutine pe_finder_find(this, my_point, pe_candidates)
-         import rp
-         import stack_i4_t
-         import point_t
-         import pe_finder_t
-         implicit none
-         class(pe_finder_t), intent(inout) :: this
-         type(point_t), intent(in) :: my_point
-         type(stack_i4_t), intent(inout) :: pe_candidates
-      end subroutine pe_finder_find
-   end interface
-   !> Find rank candidates for a batch of points in the domain.
-   abstract interface
-      subroutine pe_finder_find_batch(this, points, n_points, points_at_pe, n_points_pe)
-         import rp
-         import stack_i4_t
-         import point_t
-         import pe_finder_t
-         implicit none
-         class(pe_finder_t), intent(inout) :: this
-         integer, intent(in) :: n_points
-         real(kind=rp), intent(in) :: points(3,n_points)
-         type(stack_i4_t), intent(inout) :: points_at_pe(0:(this%pe_size-1))
-         integer, intent(inout) :: n_points_pe(0:(this%pe_size-1))
-      end subroutine pe_finder_find_batch
-   end interface
+
+  !> Find rank candidates for a given point in the domain.
+  abstract interface
+     subroutine pe_finder_find(this, my_point, pe_candidates)
+       import rp
+       import stack_i4_t
+       import point_t
+       import pe_finder_t
+       implicit none
+       class(pe_finder_t), intent(inout) :: this
+       type(point_t), intent(in) :: my_point
+       type(stack_i4_t), intent(inout) :: pe_candidates
+     end subroutine pe_finder_find
+  end interface
+  !> Find rank candidates for a batch of points in the domain.
+  abstract interface
+     subroutine pe_finder_find_batch(this, points, n_points, points_at_pe, n_points_pe)
+       import rp
+       import stack_i4_t
+       import point_t
+       import pe_finder_t
+       implicit none
+       class(pe_finder_t), intent(inout) :: this
+       integer, intent(in) :: n_points
+       real(kind=rp), intent(in) :: points(3,n_points)
+       type(stack_i4_t), intent(inout) :: points_at_pe(0:(this%pe_size-1))
+       integer, intent(inout) :: n_points_pe(0:(this%pe_size-1))
+     end subroutine pe_finder_find_batch
+  end interface
 
 end module pe_finder
 

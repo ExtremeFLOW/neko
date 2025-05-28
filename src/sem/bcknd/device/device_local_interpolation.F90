@@ -42,12 +42,12 @@ module device_local_interpolation
 #ifdef HAVE_HIP
   interface
      subroutine hip_find_rst_legendre(rst, pt_x, pt_y, pt_z, &
-                                       x_hat, y_hat, z_hat, &
-                                       resx, resy, resz, &
-                                       lx, el_ids, n_pt, tol, conv_pts) &
+          x_hat, y_hat, z_hat, &
+          resx, resy, resz, &
+          lx, el_ids, n_pt, tol, conv_pts) &
           bind(c, name='hip_find_rst_legendre')
        use, intrinsic :: iso_c_binding
-       use num_types 
+       use num_types
        implicit none
        type(c_ptr), value :: rst
        type(c_ptr), value :: pt_x, pt_y, pt_z
@@ -62,12 +62,12 @@ module device_local_interpolation
 #elif HAVE_CUDA
   interface
      subroutine cuda_find_rst_legendre(rst, pt_x, pt_y, pt_z, &
-                                       x_hat, y_hat, z_hat, &
-                                       resx, resy, resz, &
-                                       lx, el_ids, n_pt, tol, conv_pts) &
+          x_hat, y_hat, z_hat, &
+          resx, resy, resz, &
+          lx, el_ids, n_pt, tol, conv_pts) &
           bind(c, name='cuda_find_rst_legendre')
        use, intrinsic :: iso_c_binding
-       use num_types 
+       use num_types
        implicit none
        type(c_ptr), value :: rst
        type(c_ptr), value :: pt_x, pt_y, pt_z
@@ -84,9 +84,9 @@ module device_local_interpolation
 contains
 
   subroutine device_find_rst_legendre(rst_d, pt_x_d, pt_y_d, pt_z_d, &
-                                      x_hat_d, y_hat_d, z_hat_d, &
-                                      resx_d, resy_d, resz_d, &
-                                      lx, el_ids_d, n_pts, tol, conv_pts_d)
+       x_hat_d, y_hat_d, z_hat_d, &
+       resx_d, resy_d, resz_d, &
+       lx, el_ids_d, n_pts, tol, conv_pts_d)
     type(c_ptr) :: rst_d, pt_x_d, pt_y_d, pt_z_d
     type(c_ptr) :: x_hat_d, y_hat_d, z_hat_d
     type(c_ptr) :: resx_d, resy_d, resz_d
@@ -95,15 +95,15 @@ contains
     real(kind=c_rp) :: tol
 
 #ifdef HAVE_HIP
-     call hip_find_rst_legendre(rst_d, pt_x_d, pt_y_d, pt_z_d, &
-                                       x_hat_d, y_hat_d, z_hat_d, &
-                                       resx_d, resy_d, resz_d, &
-                                       lx, el_ids_d, n_pts, tol, conv_pts_d)
+    call hip_find_rst_legendre(rst_d, pt_x_d, pt_y_d, pt_z_d, &
+         x_hat_d, y_hat_d, z_hat_d, &
+         resx_d, resy_d, resz_d, &
+         lx, el_ids_d, n_pts, tol, conv_pts_d)
 #elif HAVE_CUDA
-     call cuda_find_rst_legendre(rst_d, pt_x_d, pt_y_d, pt_z_d, &
-                                       x_hat_d, y_hat_d, z_hat_d, &
-                                       resx_d, resy_d, resz_d, &
-                                       lx, el_ids_d, n_pts, tol, conv_pts_d)
+    call cuda_find_rst_legendre(rst_d, pt_x_d, pt_y_d, pt_z_d, &
+         x_hat_d, y_hat_d, z_hat_d, &
+         resx_d, resy_d, resz_d, &
+         lx, el_ids_d, n_pts, tol, conv_pts_d)
 #elif HAVE_OPENCL
     call neko_error('OpenCL not supported yet for finding rst')
 #else

@@ -45,10 +45,10 @@ module cartesian_pe_finder
   use point, only: point_t
   use comm, only: NEKO_COMM, MPI_REAL_PRECISION, pe_rank, pe_size
   use mpi_f08, only: MPI_MAX, MPI_Allreduce, MPI_COMM, MPI_Comm_rank, &
-      MPI_Comm_size, MPI_Wtime, MPI_INTEGER, MPI_INTEGER8, &
-      MPI_MIN, MPI_SUM, MPI_Irecv, MPI_Isend, MPI_Wait, &
-      MPI_Exscan, MPI_Request, MPI_Status, &
-      MPI_Alltoall, MPI_IN_PLACE
+       MPI_Comm_size, MPI_Wtime, MPI_INTEGER, MPI_INTEGER8, &
+       MPI_MIN, MPI_SUM, MPI_Irecv, MPI_Isend, MPI_Wait, &
+       MPI_Exscan, MPI_Request, MPI_Status, &
+       MPI_Alltoall, MPI_IN_PLACE
   implicit none
   private
 
@@ -299,8 +299,8 @@ contains
                    do j2 = min_id(2), max_id(2)
                       do k2 = min_id(3), max_id(3)
                          if (i2 .ge. 0 .and. i2 .lt. this%n_boxes .and. &
-                         j2 .ge. 0 .and. j2 .lt. this%n_boxes .and. &
-                         k2 .ge. 0 .and. k2 .lt. this%n_boxes) then
+                              j2 .ge. 0 .and. j2 .lt. this%n_boxes .and. &
+                              k2 .ge. 0 .and. k2 .lt. this%n_boxes) then
                             glob_id = i2 + j2*this%n_boxes + k2*this%n_boxes**2
                             pe_id = get_pe_idx(this, glob_id)
                             if (marked_box%get(glob_id,htable_data) .ne. 0) then
@@ -348,7 +348,7 @@ contains
           do j = 1, n_recv(i)
              glob_id = glb_ids(j)
              loc_id = glob_id - int(this%pe_rank,i8) * &
-                                int(this%n_boxes_per_pe,i8)
+                  int(this%n_boxes_per_pe,i8)
              if (loc_id .ge. this%n_boxes_per_pe .or. loc_id < 0) then
                 call neko_warning('loc_id out of bounds')
              end if
@@ -468,20 +468,20 @@ contains
     do i = 1, n_points
        glob_id = get_global_idx(this, points(1,i), points(2,i), points(3,i))
        lin_glob_id = glob_id(1) + &
-                     glob_id(2)*this%n_boxes + &
-                     glob_id(3)*this%n_boxes**2
+            glob_id(2)*this%n_boxes + &
+            glob_id(3)*this%n_boxes**2
        pe_id = get_pe_idx(this, lin_glob_id)
        if (glob_id(1) .ge. 0 .and. glob_id(1) .lt. this%n_boxes .and. &
-                    glob_id(2) .ge. 0 .and. glob_id(2) .lt. this%n_boxes .and. &
-                    glob_id(3) .ge. 0 .and. glob_id(3) .lt. this%n_boxes) then
+            glob_id(2) .ge. 0 .and. glob_id(2) .lt. this%n_boxes .and. &
+            glob_id(3) .ge. 0 .and. glob_id(3) .lt. this%n_boxes) then
           call work_pe_ids(pe_id)%push(lin_glob_id)
           call work_pt_ids(pe_id)%push(int(i,i8))
           n_work_ids(pe_id) = n_work_ids(pe_id) + 1
        else
           print *, 'Point found outside domain:', points(1,i), &
-              points(2,i), points(3,i), &
-              'Computed global id:', lin_glob_id, &
-              'Global box id (x,y,z):', glob_id(1), glob_id(2), glob_id(3)
+               points(2,i), points(3,i), &
+               'Computed global id:', lin_glob_id, &
+               'Global box id (x,y,z):', glob_id(1), glob_id(2), glob_id(3)
        end if
     end do
 
@@ -507,7 +507,7 @@ contains
           pt_ids => temp_pt_ids(i)%array()
           do j = 1, n_temp_ids(i)
              loc_id = ids(j) - int(this%pe_rank,i8) * &
-                               int(this%n_boxes_per_pe,i8)
+                  int(this%n_boxes_per_pe,i8)
              pe_cands => this%pe_map(int(loc_id))%array()
              do k = 1, this%pe_map(int(loc_id))%size()
                 call work_pe_ids(i)%push(int(pe_cands(k),i8))
@@ -516,7 +516,7 @@ contains
              end do
              if (this%pe_map(int(loc_id))%size() .lt. 1) then
                 print *, 'No PE candidates found for point:', points(1,pt_ids(j)), &
-                  points(2,pt_ids(j)), points(3,pt_ids(j))
+                     points(2,pt_ids(j)), points(3,pt_ids(j))
              end if
           end do
        end if
@@ -555,7 +555,7 @@ contains
     integer(i8) , pointer :: sp(:)
 
     call MPI_Alltoall(n_send_values, 1, MPI_INTEGER, &
-       n_recv_values, 1, MPI_INTEGER, this%comm, ierr)
+         n_recv_values, 1, MPI_INTEGER, this%comm, ierr)
 
     do i = 0, this%pe_size-1
        if (n_recv_values(i) .gt. 0) then
@@ -565,7 +565,7 @@ contains
              this%recv_buf(i)%size = n_recv_values(i)
           end if
           call MPI_Irecv(this%recv_buf(i)%data, n_recv_values(i), MPI_INTEGER8, &
-              i, 0, this%comm, this%recv_buf(i)%request, ierr)
+               i, 0, this%comm, this%recv_buf(i)%request, ierr)
        end if
     end do
 
@@ -582,7 +582,7 @@ contains
              this%send_buf(i)%data(j) = sp(j)
           end do
           call MPI_Isend(this%send_buf(i)%data, n_send_values(i), MPI_INTEGER8, &
-            i, 0, this%comm, this%send_buf(i)%request, ierr)
+               i, 0, this%comm, this%send_buf(i)%request, ierr)
        end if
     end do
     do i = 0, this%pe_size-1

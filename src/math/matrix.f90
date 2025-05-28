@@ -56,7 +56,7 @@ module matrix
      procedure, pass(m) :: free => matrix_free
      !> Returns the number of entries in the matrix.
      procedure, pass(m) :: size => matrix_size
-     !> Copy between host and device 
+     !> Copy between host and device
      procedure, pass(m) :: copyto => matrix_copyto
      !> Assignment \f$ m = w \f$
      procedure, pass(m) :: matrix_assign_matrix
@@ -112,6 +112,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(m%x, m%x_d, m%n)
        call device_cfill(m%x_d, 0.0_rp, m%n)
+       call device_sync()
     end if
 
   end subroutine matrix_init
@@ -153,7 +154,7 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(m%x, m%x_d, m%n, &
-                          memdir, sync)
+            memdir, sync)
     end if
 
   end subroutine matrix_copyto
@@ -382,7 +383,7 @@ contains
     ! rmult is m  work array of length nrows = ncols
     class(matrix_t), intent(inout) :: m
     integer :: indr(m%nrows), indc(m%ncols), ipiv(m%ncols)
-    real(kind=xp) ::  rmult(m%nrows), amx, tmp, piv, eps
+    real(kind=xp) :: rmult(m%nrows), amx, tmp, piv, eps
     integer :: i, j, k, ir, jc
 
     if (.not. (m%ncols .eq. m%nrows)) then

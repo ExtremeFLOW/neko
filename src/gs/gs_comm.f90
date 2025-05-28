@@ -40,7 +40,7 @@ module gs_comm
   implicit none
   private
 
-  integer, public, parameter :: GS_COMM_MPI = 1, GS_COMM_MPIGPU = 2, &       
+  integer, public, parameter :: GS_COMM_MPI = 1, GS_COMM_MPIGPU = 2, &
        GS_COMM_NCCL = 3, GS_COMM_NVSHMEM = 4
 
   !> Gather-scatter communication method
@@ -152,7 +152,7 @@ contains
     class(gs_comm_t), intent(inout) :: this
     integer, optional, intent(in) :: comm_size
     integer :: i
-    
+
     if (present(comm_size)) then
        this%pe_size = comm_size
     else
