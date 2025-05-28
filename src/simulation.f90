@@ -83,7 +83,7 @@ contains
     call neko_log%message(log_buf)
 
     ! Execute outputs and user-init before time loop
-    call neko_log%section('Postprocessing')
+    call neko_log%section('Preprocessing')
     call C%output_controller%execute(C%time)
 
     call C%usr%user_init_modules(C%time%t, C%fluid%u, C%fluid%v, C%fluid%w,&
@@ -158,8 +158,7 @@ contains
     start_time = MPI_WTIME()
     call C%fluid%step(C%time, dt_controller)
     end_time = MPI_WTIME()
-    write(log_buf, '(A,3X,E15.7)') &
-         'Fluid step time (s):', end_time-start_time
+    write(log_buf, '(A,3X,E15.7)') 'Fluid step time (s):', end_time - start_time
     call neko_log%end_section(log_buf)
 
     ! Scalar step
@@ -168,8 +167,7 @@ contains
        call neko_log%section('Scalar')
        call C%scalar%step(C%time, C%fluid%ext_bdf, dt_controller)
        end_time = MPI_WTIME()
-       write(log_buf, '(A,6X,E15.7)') &
-            'Scalar step time:', end_time-start_time
+       write(log_buf, '(A,6X,E15.7)') 'Scalar step time:', end_time - start_time
        call neko_log%end_section(log_buf)
     end if
 
@@ -190,15 +188,16 @@ contains
     ! End the step and print summary
     end_time = MPI_WTIME()
     call neko_log%section('Step summary')
-    write(log_buf, '(A,I8,A,E15.7)') &
-         'Total time for step ', C%time%tstep, ' (s): ', end_time-tstep_start_time
+    write(log_buf, '(A20,I8,A6,E15.7)') &
+         'Total time for step ', C%time%tstep, ' (s): ', &
+         end_time-tstep_start_time
     call neko_log%message(log_buf)
 
     if (present(tstep_loop_start_time)) then
-       write(log_buf, '(A,E15.7)') &
-            'Total elapsed time (s):           ', end_time-tstep_loop_start_time
+       write(log_buf, '(A34,E15.7)') &
+            'Total elapsed time (s):', end_time - tstep_loop_start_time
+       call neko_log%message(log_buf)
     end if
-    call neko_log%message(log_buf)
 
     call neko_log%end_section()
     call neko_log%end()
