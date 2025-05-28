@@ -50,7 +50,8 @@ module legendre_rst_finder
   implicit none
   private
 
-
+ !> Type to compute local element (rst) coordinates 
+ !! for a gives set points in physical (xyz) space on a SEM grid.
   type, public :: legendre_rst_finder_t
      type(vector_t) :: x_hat, y_hat, z_hat
      type(space_t), pointer :: Xh => Null()
@@ -128,6 +129,21 @@ contains
 
   end subroutine legendre_rst_finder_free
 
+!> Given a set of element candidates containing 
+!! the given points and computes the local RST coordinates for those points.
+!! This subroutine supports both CPU and device (GPU) execution, depending 
+!! on the configugered backend of `NEKO_BCKND_DEVICE`.
+!! @param this An instance of the `legendre_rst_finder_t` class.
+!! @param rst_local_cand A matrix to store the local RST coordinates 
+!! of the candidate points.
+!! @param x_t A vector containing the x-coordinates of the target points.
+!! @param y_t A vector containing the y-coordinates of the target points.
+!! @param z_t A vector containing the z-coordinates of the target points.
+!! @param el_cands An array with the indices of the candidate elements.
+!! @param n_point_cand The number of candidate points to process.
+!! @param resx A vector to store the residuals in the x-direction.
+!! @param resy A vector to store the residuals in the y-direction.
+!! @param resz A vector to store the residuals in the z-direction.
   subroutine legendre_rst_finder_find(this, rst_local_cand, x_t, y_t, z_t, &
       el_cands, n_point_cand, resx, resy, resz)
     class(legendre_rst_finder_t), intent(inout) :: this
@@ -145,8 +161,9 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        el_cands_d = device_get_ptr(el_cands)
-       call find_rst_legendre_device(this, rst_local_cand%x_d, x_t%x_d, y_t%x_d, &
-            z_t%x_d, el_cands_d, n_point_cand, &
+       call find_rst_legendre_device(this, rst_local_cand%x_d, &
+            x_t%x_d, y_t%x_d, z_t%x_d, &
+            el_cands_d, n_point_cand, &
             resx%x_d, resy%x_d, resz%x_d)
 
     else
@@ -204,7 +221,7 @@ contains
              .true., glb_cmd_queue)
        converged = .true.
        iter = iter + 1
-       
+
        do i = 1, n_pts
           converged = converged .and. conv_pts(i)
        end do
@@ -253,11 +270,14 @@ contains
     if (n_pts .lt. 1) return
 
     rst = 0.0_rp
+    ! If performance critical we should do multiple points at the time
+    ! Currently we do one point at the time
     do i = 1, n_pts
        iter = 0
        converged = .false.
        do while (.not. converged)
           iter  = iter + 1
+          ! Compute legendre polynomials in this rst coordinate
           r_legendre(1) = 1.0
           r_legendre(2) = rst(1,i)
           s_legendre(1) = 1.0
@@ -271,21 +291,32 @@ contains
           dt_legendre(1) = 0.0
           dt_legendre(2) = 1.0
           do j = 2, lx-1
-             r_legendre(j+1) = ((2.0_xp*(j-1.0_xp)+1.0_xp)*rst(1,i)*r_legendre(j) - (j-1.0_xp)*r_legendre(j-1))/(real(j,xp))
-             s_legendre(j+1) = ((2.0_xp*(j-1.0_xp)+1.0_xp)*rst(2,i)*s_legendre(j) - (j-1.0_xp)*s_legendre(j-1))/(real(j,xp))
-             t_legendre(j+1) = ((2.0_xp*(j-1.0_xp)+1.0_xp)*rst(3,i)*t_legendre(j) - (j-1.0_xp)*t_legendre(j-1))/(real(j,xp))
-             dr_legendre(j+1) = ((j-1.0_xp)+1.0_xp) * r_legendre(j) + rst(1,i)*dr_legendre(j)
-             ds_legendre(j+1) = ((j-1.0_xp)+1.0_xp) * s_legendre(j) + rst(2,i)*ds_legendre(j)
-             dt_legendre(j+1) = ((j-1.0_xp)+1.0_xp) * t_legendre(j) + rst(3,i)*dt_legendre(j)
+             r_legendre(j+1) = ((2.0_xp*(j-1.0_xp)+1.0_xp) * rst(1,i) &
+                             * r_legendre(j) - (j-1.0_xp) & 
+                             * r_legendre(j-1)) / (real(j,xp))
+             s_legendre(j+1) = ((2.0_xp*(j-1.0_xp)+1.0_xp) * rst(2,i) &
+                              * s_legendre(j) - (j-1.0_xp) &
+                              * s_legendre(j-1))/(real(j,xp))
+             t_legendre(j+1) = ((2.0_xp*(j-1.0_xp)+1.0_xp) * rst(3,i) &
+                             * t_legendre(j) - (j-1.0_xp) &
+                             * t_legendre(j-1))/(real(j,xp))
+             dr_legendre(j+1) = ((j-1.0_xp)+1.0_xp) * r_legendre(j) &
+                              + rst(1,i)*dr_legendre(j)
+             ds_legendre(j+1) = ((j-1.0_xp)+1.0_xp) * s_legendre(j) &
+                              + rst(2,i)*ds_legendre(j)
+             dt_legendre(j+1) = ((j-1.0_xp)+1.0_xp) * t_legendre(j) &
+                              + rst(3,i)*dt_legendre(j)
           end do
           e = (el_list(i))*this%Xh%lxyz + 1
+          ! Compute the current xyz value
           call tnsr3d_el_cpu(resx(i), 1, this%x_hat%x(e), lx, &
                r_legendre, s_legendre, t_legendre)
           call tnsr3d_el_cpu(resy(i), 1, this%y_hat%x(e), lx, &
                r_legendre, s_legendre, t_legendre)
           call tnsr3d_el_cpu(resz(i), 1, this%z_hat%x(e), lx, &
                r_legendre, s_legendre, t_legendre)
-
+          ! This should in principle be merged into some larger kernel
+          ! Compute the jacobian
           call tnsr3d_el_cpu(jac(1,1), 1, this%x_hat%x(e), lx, &
                dr_legendre, s_legendre(1), t_legendre)
           call tnsr3d_el_cpu(jac(1,2), 1, this%y_hat%x(e), lx, &
@@ -307,20 +338,29 @@ contains
           resx(i) = pt_x(i) - resx(i)
           resy(i) = pt_y(i) - resy(i)
           resz(i) = pt_z(i) - resz(i)
-          jacinv = matinv39(jac(1,1),jac(1,2),jac(1,3),&
-               jac(2,1),jac(2,2),jac(2,3),&
-               jac(3,1),jac(3,2),jac(3,3))
-          rst_d(1) = (resx(i)*jacinv(1,1)+jacinv(2,1)*resy(i)+jacinv(3,1)*resz(i))
-          rst_d(2) = (resx(i)*jacinv(1,2)+jacinv(2,2)*resy(i)+jacinv(3,2)*resz(i))
-          rst_d(3) = (resx(i)*jacinv(1,3)+jacinv(2,3)*resy(i)+jacinv(3,3)*resz(i))
+          ! Jacobian inverse
+          jacinv = matinv39(jac(1,1), jac(1,2), jac(1,3),&
+                            jac(2,1), jac(2,2), jac(2,3),&
+                            jac(3,1), jac(3,2), jac(3,3))
+          ! Update direction
+          rst_d(1) = (resx(i)*jacinv(1,1) &
+                   + jacinv(2,1)*resy(i) &
+                   + jacinv(3,1)*resz(i))
+          rst_d(2) = (resx(i)*jacinv(1,2) &
+                   + jacinv(2,2)*resy(i) &
+                   + jacinv(3,2)*resz(i))
+          rst_d(3) = (resx(i)*jacinv(1,3) &
+                   + jacinv(2,3)*resy(i) &
+                   + jacinv(3,3)*resz(i))
 
           conv_pts = 0
-          if (norm2(real(rst_d,xp)) .le. this%tol)then
+          if (norm2(real(rst_d,xp)) .le. this%tol) then
              conv_pts = 1
           end if
-          if (norm2(real(rst_d,xp)) .gt. 4.0)then
+          if (norm2(real(rst_d,xp)) .gt. 4.0) then
              conv_pts = 1
           end if
+          ! Update rst coordinates
           rst(1,i) = rst(1,i) + rst_d(1)
           rst(2,i) = rst(2,i) + rst_d(2)
           rst(3,i) = rst(3,i) + rst_d(3)
