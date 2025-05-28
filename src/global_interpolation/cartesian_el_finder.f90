@@ -40,14 +40,14 @@ module cartesian_el_finder
   use tuple, only: tuple_i4_t
   use point, only: point_t
   use htable, only: htable_i4_t
-  use utils, only: linear_index
+  use utils, only: linear_index, neko_error
   use mpi_f08, only: MPI_Wtime
   use tensor_cpu, only: tnsr3d_cpu
   use fast3d, only: setup_intp
   implicit none
   private
 
-  !> Implements global interpolation for arbitrary points in the domain.
+
   type, public, extends(el_finder_t) :: cartesian_el_finder_t
      !> Structure to find rank candidates
      type(stack_i4_t), allocatable :: el_map(:)
@@ -62,9 +62,11 @@ module cartesian_el_finder
      procedure, pass(this) :: init => cartesian_el_finder_init
      procedure, pass(this) :: free => cartesian_el_finder_free
      procedure, pass(this) :: find => cartesian_el_finder_find_candidates
-     procedure, pass(this) :: find_batch => cartesian_el_finder_find_candidates_batch
+     procedure, pass(this) :: find_batch => &
+                              cartesian_el_finder_find_candidates_batch
      procedure, pass(this) :: compute_idx => cartesian_el_finder_compute_idx
-     procedure, pass(this) :: compute_3idx => cartesian_el_finder_compute_xyz_idxs
+     procedure, pass(this) :: compute_3idx => &
+                              cartesian_el_finder_compute_xyz_idxs
   end type cartesian_el_finder_t
 
 contains
@@ -100,12 +102,16 @@ contains
 
 
     call this%free()
-    allocate(this%el_map(n_boxes**3))
+    ! Ensure n_boxes is within a reasonable range
+    if (n_boxes > 0 .and. n_boxes <= 1000) then
+       allocate(this%el_map(n_boxes**3))
+    else
+       call neko_error("Cartesian el finder, n_boxes is too large or negative")
+    end if
     do i = 1, n_boxes**3
        call this%el_map(i)%init()
     end do
 
-    time_start = MPI_Wtime()
     current_size = 0
     this%padding = padding
     this%max_x = maxval(x(1:nel*Xh%lxyz))
@@ -114,7 +120,7 @@ contains
     this%min_y = minval(y(1:nel*Xh%lxyz))
     this%max_z = maxval(z(1:nel*Xh%lxyz))
     this%min_z = minval(z(1:nel*Xh%lxyz))
-    
+
     center_x = (this%max_x + this%min_x) /2.0_xp
     center_y = (this%max_y + this%min_y) /2.0_xp
     center_z = (this%max_z + this%min_z) /2.0_xp
@@ -125,14 +131,14 @@ contains
     this%min_x = this%min_x - center_x
     this%min_y = this%min_y - center_y
     this%min_z = this%min_z - center_z
-    this%max_x = this%max_x * (1.0_xp+this%padding) + center_x
-    this%max_y = this%max_y * (1.0_xp+this%padding) + center_y
-    this%max_z = this%max_z * (1.0_xp+this%padding) + center_z
-    this%min_x = this%min_x * (1.0_xp+this%padding) + center_x
-    this%min_y = this%min_y * (1.0_xp+this%padding) + center_y
-    this%min_z = this%min_z * (1.0_xp+this%padding) + center_z
+    this%max_x = this%max_x * (1.0_xp + this%padding) + center_x
+    this%max_y = this%max_y * (1.0_xp + this%padding) + center_y
+    this%max_z = this%max_z * (1.0_xp + this%padding) + center_z
+    this%min_x = this%min_x * (1.0_xp + this%padding) + center_x
+    this%min_y = this%min_y * (1.0_xp + this%padding) + center_y
+    this%min_z = this%min_z * (1.0_xp + this%padding) + center_z
 
-    
+
 
     !Resulting resolution
     this%x_res = (this%max_x - this%min_x) / real(n_boxes, xp)
@@ -154,11 +160,11 @@ contains
           center_x = x(lin_idx)
           center_y = y(lin_idx)
           center_z = z(lin_idx)
-       else 
+       else
           center_x = 0d0
           center_y = 0d0
           center_z = 0d0
-          do i = lx2, lx2+1
+          do i = lx2, lx2 + 1
              do j = lx2, lx2 + 1
                 do k = lx2, lx2 + 1
                    lin_idx = linear_index(i,j,k,e, Xh%lx, Xh%lx, Xh%lx)
@@ -172,18 +178,19 @@ contains
           center_y = center_y / 8.0_xp
           center_z = center_z / 8.0_xp
        end if
- 
-       !Maybe this is a stupid way to do it
+
+       ! Scaling the element coordinates with padding
+       ! for bounding box computations
 
        el_x = x((e-1)*lxyz+1:e*lxyz) - center_x
        el_y = y((e-1)*lxyz+1:e*lxyz) - center_y
        el_z = z((e-1)*lxyz+1:e*lxyz) - center_z
-       el_x = el_x * (1.0_rp+padding) + center_x
-       el_y = el_y * (1.0_rp+padding) + center_y
-       el_z = el_z * (1.0_rp+padding) + center_z
+       el_x = el_x * (1.0_rp + padding) + center_x
+       el_y = el_y * (1.0_rp + padding) + center_y
+       el_z = el_z * (1.0_rp + padding) + center_z
        !Padded and ready
 
-       !Now we go the bounding boxes of all subboxes in the element
+       ! Now we go through the bounding boxes of all subboxes in the element
        do i = 1, Xh%lx - 1
           do j = 1, Xh%ly - 1
              do k = 1, Xh%lz - 1
@@ -197,7 +204,8 @@ contains
                 do i2 = 0, 1
                    do j2 = 0, 1
                       do k2 = 0, 1
-                         lin_idx = linear_index(i+i2,j+j2,k+k2, 1, Xh%lx, Xh%lx, Xh%lx)
+                         lin_idx = linear_index(i+i2,j+j2,k+k2, &
+                                                1, Xh%lx, Xh%lx, Xh%lx)
                          max_bb_x = max(max_bb_x, el_x(lin_idx))
                          min_bb_x = min(min_bb_x, el_x(lin_idx))
                          max_bb_y = max(max_bb_y, el_y(lin_idx))
@@ -237,7 +245,14 @@ contains
 
   subroutine cartesian_el_finder_free(this)
     class(cartesian_el_finder_t), intent(inout) :: this
+    integer :: i
 
+    if (allocated(this%el_map)) then
+       do i = 1, size(this%el_map)
+          call this%el_map(i)%free()
+       end do
+       deallocate(this%el_map)
+    end if
   end subroutine cartesian_el_finder_free
 
   function cartesian_el_finder_compute_idx(this, x, y, z) result(idx)
@@ -292,15 +307,15 @@ contains
     class(cartesian_el_finder_t), intent(inout) :: this
     type(point_t), intent(in) :: my_point
     type(stack_i4_t), intent(inout) :: el_candidates
-    integer :: idx, i, stupid_intent
+    integer :: idx, i, adjusted_index
     integer, pointer :: el_cands(:)
 
     call el_candidates%clear()
     idx = this%compute_idx(my_point%x(1),my_point%x(2),my_point%x(3))
     el_cands => this%el_map(idx)%array()
     do i = 1, this%el_map(idx)%size()
-       stupid_intent = el_cands(i) - 1
-       call el_candidates%push(stupid_intent)
+       adjusted_index = el_cands(i) - 1
+       call el_candidates%push(adjusted_index)
     end do
   end subroutine cartesian_el_finder_find_candidates
 
@@ -312,7 +327,7 @@ contains
     real(kind=rp), intent(in) :: points(3,n_points)
     type(stack_i4_t), intent(inout) :: all_el_candidates
     integer, intent(inout) :: n_el_cands(n_points)
-    integer :: i, j, stupid_intent
+    integer :: i, j, adjusted_index
     integer :: idx3(3), idx
     integer, pointer :: el_cands(:)
 
@@ -325,14 +340,14 @@ contains
        if (idx3(1) .ge. 1 .and. idx3(1) .le. this%n_boxes .and. &
            idx3(2) .ge. 1 .and. idx3(2) .le. this%n_boxes .and. &
            idx3(3) .ge. 1 .and. idx3(3) .le. this%n_boxes) then
-       idx = this%compute_idx(real(points(1,i),xp),&
+          idx = this%compute_idx(real(points(1,i),xp), &
              real(points(2,i),xp),real(points(3,i),xp))
-       el_cands => this%el_map(idx)%array()
-       do j = 1, this%el_map(idx)%size()
-          stupid_intent = el_cands(j) - 1
-          call all_el_candidates%push(stupid_intent) !< OBS c indexing
-       end do
-       n_el_cands(i) = this%el_map(idx)%size()
+          el_cands => this%el_map(idx)%array()
+          do j = 1, this%el_map(idx)%size()
+             adjusted_index = el_cands(j) - 1 ! Adjusting for zero-based indexing
+             call all_el_candidates%push(adjusted_index)
+          end do
+          n_el_cands(i) = this%el_map(idx)%size()
        end if
     end do
 
