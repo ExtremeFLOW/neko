@@ -119,7 +119,7 @@ contains
     
     call test_field%init(dof)
     if (pe_rank .eq. 0) then
-       call glob_interp%find_points(dof%x, dof%y, dof%z, dof%size())
+       call glob_interp%find_points(dof%x, dof%y, dof%z, 0)
     else 
        call glob_interp%find_points(dof%x, dof%y, dof%z, dof%size())
     end if
