@@ -99,7 +99,6 @@ contains
     real(kind=dp), intent(in) :: padding
     integer :: lx, ly, lz, max_pts_per_iter, ierr, i, id1, id2, n, j
     real(kind=dp), allocatable :: rank_xyz_max(:,:), rank_xyz_min(:,:), max_xyz(:,:), min_xyz(:,:)
-    type(stack_i4_t) :: pe_candidates
     type(stack_i4t2_t) :: traverse_stack
     type(aabb_tree_t) :: local_aabb_tree
     type(aabb_t), allocatable :: local_aabb(:)
@@ -182,10 +181,11 @@ contains
           end if
        end if
     end do
+    call traverse_stack%free()
     !If somehow we dont need all boxes we just put a point here
     if (nelv .eq. 0) then
        !> Set the boxes to be empty
-       do j = i, this%pe_box_num
+       do j = 1, this%pe_box_num
           min_xyz(:,j) = [NEKO_EPS, NEKO_EPS, NEKO_EPS]
           max_xyz(:,j) = [NEKO_EPS, NEKO_EPS, NEKO_EPS]
        end do
@@ -209,6 +209,7 @@ contains
        call this%global_aabb(i)%init(rank_xyz_min(:,i), rank_xyz_max(:,i))
     end do
     call this%global_aabb_tree%build_from_aabb(this%global_aabb,padding)
+    deallocate(local_aabb)
   end subroutine aabb_pe_finder_init
 
 
@@ -285,6 +286,7 @@ contains
        end if
     end do
     call marked_rank%free()
+    call pe_candidates%free()
 
   end subroutine aabb_pe_finder_find_candidates_batch
 
