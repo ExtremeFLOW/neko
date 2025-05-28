@@ -81,8 +81,6 @@ module local_interpolation
 
   end type local_interpolator_t
 
-  public :: rst_cmp
-
 contains
 
   !> Initialization of point interpolation.
@@ -273,34 +271,5 @@ contains
     end do
 
   end subroutine jacobian_inverse
-
-  !> Compares two sets of rst coordinates and checks whether rst2 is better than rst1 given a tolerance
-  !> res1 and res2 are the distances to the interpolated xyz coordinate and true xyz coord
-  function rst_cmp(rst1, rst2,res1, res2, tol) result(rst2_better)
-    real(kind=rp) :: rst1(3), res1(3)
-    real(kind=rp) :: rst2(3), res2(3)
-    real(kind=rp) :: tol
-    logical :: rst2_better
-    !If rst1 is invalid and rst2 is valid, take rst2
-    ! If both invalidl, take smallest residual
-    if (abs(rst1(1)) .gt. 1.0_xp+tol .or. &
-        abs(rst1(2)) .gt. 1.0_xp+tol .or. &
-        abs(rst1(3)) .gt. 1.0_xp+tol) then
-       if (abs(rst2(1)) .le. 1.0_xp+tol .and. &
-           abs(rst2(2)) .le. 1.0_xp+tol .and. &
-           abs(rst2(3)) .le. 1.0_xp+tol) then
-          rst2_better = .true.
-       else
-          rst2_better = (norm2(real(res2,xp)) .lt. norm2(real(res1,xp)))
-       end if
-    else
-       !> Else we check rst2 is inside and has a smaller distance
-       rst2_better = (norm2(real(res2,xp)) .lt. norm2(real(res1,xp)) .and.&
-                       abs(rst2(1)) .le. 1.0_xp+tol .and. &
-                       abs(rst2(2)) .le. 1.0_xp+tol .and. &
-                       abs(rst2(3)) .le. 1.0_xp+tol)
-    end if
-  end function rst_cmp
-
 
 end module local_interpolation
