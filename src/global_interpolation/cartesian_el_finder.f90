@@ -311,7 +311,8 @@ contains
     integer, pointer :: el_cands(:)
 
     call el_candidates%clear()
-    idx = this%compute_idx(my_point%x(1),my_point%x(2),my_point%x(3))
+    idx = this%compute_idx(real(my_point%x(1),rp), &
+                           real(my_point%x(2),rp), real(my_point%x(3),rp))
     el_cands => this%el_map(idx)%array()
     do i = 1, this%el_map(idx)%size()
        adjusted_index = el_cands(i) - 1
@@ -335,13 +336,13 @@ contains
     n_el_cands = 0
 
     do i = 1, n_points
-       idx3 = this%compute_3idx(real(points(1,i),xp),&
-            real(points(2,i),xp),real(points(3,i),xp))
+       idx3 = this%compute_3idx(real(points(1,i),rp),&
+            real(points(2,i),rp),real(points(3,i),rp))
        if (idx3(1) .ge. 1 .and. idx3(1) .le. this%n_boxes .and. &
             idx3(2) .ge. 1 .and. idx3(2) .le. this%n_boxes .and. &
             idx3(3) .ge. 1 .and. idx3(3) .le. this%n_boxes) then
-          idx = this%compute_idx(real(points(1,i),xp), &
-               real(points(2,i),xp),real(points(3,i),xp))
+          idx = this%compute_idx(real(points(1,i),rp), &
+               real(points(2,i),rp),real(points(3,i),rp))
           el_cands => this%el_map(idx)%array()
           do j = 1, this%el_map(idx)%size()
              adjusted_index = el_cands(j) - 1 ! Adjusting for zero-based indexing
