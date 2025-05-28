@@ -316,8 +316,7 @@ contains
           msg(len:len) = c_msg(len)
        end do
 
-       call neko_log%indent()
-       write(neko_log%unit_, '(A)') trim(msg(1:len))
+       call neko_log%message(trim(msg(1:len)))
     end if
 
   end subroutine log_message_c
