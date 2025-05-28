@@ -645,7 +645,8 @@ contains
              this%xyz_local(3,i) = resz%x(ii)
              this%el_owner0_local(i) = el_cands(ii)
           end if
-          ! if (this%pe_rank .eq. 0) print *,i,  this%rst_local(:,i),this%xyz_local(:,i), this%el_owner0_local(i)
+          ! if (this%pe_rank .eq. 0) print *,i,  this%rst_local(:,i), &
+          !  this%xyz_local(:,i), this%el_owner0_local(i)
        end do
     end do
     call res%init(3,this%n_points)
@@ -695,7 +696,8 @@ contains
              this%pe_owner(point_ids(j)) = gs_find_back%recv_pe(i)
              this%el_owner0(point_ids(j)) = el_owner_results(ii)
           end if
-          !  if (this%pe_rank .eq. 0) print *,point_id,  this%rst(:,point_ids(j)),res%x(:,point_ids(j)), this%el_owner0(point_ids(j))
+          !  if (this%pe_rank .eq. 0) print *,point_id,  &
+          !this%rst(:,point_ids(j)),res%x(:,point_ids(j)), this%el_owner0(point_ids(j))
        end do
     end do
 
