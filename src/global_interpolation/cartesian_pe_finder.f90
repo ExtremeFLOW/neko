@@ -444,12 +444,33 @@ contains
     integer(i8), pointer :: pe_cands8(:) => Null()
     integer(i8), pointer :: pt_ids(:) => Null()
     integer :: ierr
-    if (allocated(work_pe_ids)) deallocate(work_pe_ids)
-    if (allocated(work_pt_ids)) deallocate(work_pt_ids)
-    if (allocated(temp_pe_ids)) deallocate(temp_pe_ids)
-    if (allocated(temp_pt_ids)) deallocate(temp_pt_ids)
+    if (allocated(work_pe_ids)) then
+       do i = 0, this%pe_size-1
+          call work_pe_ids(i)%free()
+       end do
+       deallocate(work_pe_ids)
+    end if
+    if (allocated(temp_pe_ids)) then
+       do i = 0, this%pe_size-1
+          call temp_pe_ids(i)%free()
+       end do
+       deallocate(temp_pe_ids)
+    end if
+    if (allocated(temp_pt_ids)) then
+       do i = 0, this%pe_size-1
+          call temp_pt_ids(i)%free()
+       end do
+       deallocate(temp_pt_ids)
+    end if
+    if (allocated(work_pt_ids)) then
+       do i = 0, this%pe_size-1
+          call work_pt_ids(i)%free()
+       end do
+       deallocate(work_pt_ids)
+    end if
     if (allocated(n_work_ids)) deallocate(n_work_ids)
     if (allocated(n_temp_ids)) deallocate(n_temp_ids)
+    !Should dellocate properly I think
     allocate(work_pe_ids(0:this%pe_size-1))
     allocate(work_pt_ids(0:this%pe_size-1))
     allocate(temp_pe_ids(0:this%pe_size-1))
