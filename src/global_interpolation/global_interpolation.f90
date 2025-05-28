@@ -558,6 +558,7 @@ contains
     !Okay, now we need to find the rst...
     call all_el_candidates%init()
     call el_candidates%init()
+    if (allocated(n_el_cands)) deallocate(n_el_cands)
     allocate(n_el_cands(this%n_points_local))
     !> Find element candidates at this rank
     call this%el_finder%find_batch(this%xyz_local, this%n_points_local, all_el_candidates, n_el_cands)
@@ -868,8 +869,11 @@ contains
     if (associated(pe_cands)) pe_cands => Null()
     if (associated(el_cands)) pe_cands => Null()
     if (associated(point_ids)) point_ids => Null()
-    if (allocated(el_owner_results)) deallocate(el_owner_results)
 
+    if (allocated(n_el_cands)) deallocate(n_el_cands)
+    if (allocated(rst_results)) deallocate(rst_results)
+    if (allocated(res_results)) deallocate(res_results)
+    if (allocated(el_owner_results)) deallocate(el_owner_results)
     call MPI_Barrier(this%comm, ierr)
     time2 = MPI_Wtime()
     write(log_buf, '(A,E15.7)') 'Global interpolation find points done, time (s):', &
