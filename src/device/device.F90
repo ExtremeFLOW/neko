@@ -187,6 +187,10 @@ contains
     type(c_ptr), intent(inout) :: x_d
     integer(c_size_t) :: s
     integer :: ierr
+
+    if (s .eq. 0) then
+       x_d = c_null_ptr
+    end if
 #ifdef HAVE_HIP
     if (hipMalloc(x_d, s) .ne. hipSuccess) then
        call neko_error('Memory allocation on device failed')
@@ -413,6 +417,14 @@ contains
     integer, intent(in), value :: dir
     logical, intent(in) :: sync_device
     type(c_ptr), intent(inout) :: stream
+
+    if (s .eq. 0) then
+       if (sync_device) then
+          call device_sync_stream(stream)
+       end if
+       return 
+    end if
+
 #ifdef HAVE_HIP
     if (dir .eq. HOST_TO_DEVICE) then
        if (hipMemcpyAsync(x_d, ptr_h, s, &
