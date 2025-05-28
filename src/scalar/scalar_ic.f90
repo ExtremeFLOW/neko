@@ -358,12 +358,21 @@ contains
        class default
        end select
 
+       ! Copy all fld data to device since the reader loads everything on the host
+       call fld_data%x%copyto(HOST_TO_DEVICE, .false.)
+       call fld_data%y%copyto(HOST_TO_DEVICE, .false.)
+       call fld_data%z%copyto(HOST_TO_DEVICE, .false.)
+       call fld_data%t%copyto(HOST_TO_DEVICE, .true.)
+
        ! Generates an interpolator object and performs the point search
        call fld_data%generate_interpolator(global_interp, s%dof, s%msh, tolerance)
 
        ! Evaluate scalar
-       call global_interp%evaluate(s%x, fld_data%t%x, .true.)
+       call global_interp%evaluate(s%x, fld_data%t%x, .false.)
        call global_interp%free
+
+       ! Copy back to the host for set_scalar_ic_common
+       call fld_data%t%copyto(DEVICE_TO_HOST, .true.)
 
     else ! No interpolation, just potentially from different spaces
 
