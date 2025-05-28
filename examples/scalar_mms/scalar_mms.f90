@@ -4,12 +4,12 @@ module user
 
 contains
   !> Register user defined functions (see user_intf.f90)
-  subroutine user_setup(u)
-    type(user_t), intent(inout) :: u
-    u%scalar_user_ic => set_s_ic
-    u%fluid_user_ic => set_velocity
-    u%scalar_user_f_vector => set_source
-    u%user_mesh_setup => user_mesh_scale
+  subroutine user_setup(user)
+    type(user_t), intent(inout) :: user
+    user%scalar_user_ic => set_s_ic
+    user%fluid_user_ic => set_velocity
+    user%scalar_user_f_vector => set_source
+    user%user_mesh_setup => user_mesh_scale
   end subroutine user_setup
 
   ! Stretch bounds to 2pi

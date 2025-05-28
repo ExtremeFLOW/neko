@@ -4,10 +4,10 @@ module user
 
 contains
   !> Register user defined functions (see user_intf.f90)
-  subroutine user_setup(u)
-    type(user_t), intent(inout) :: u
-    u%scalar_user_ic => set_s_ic
-    u%fluid_user_ic => set_velocity
+  subroutine user_setup(user)
+    type(user_t), intent(inout) :: user
+    user%scalar_user_ic => set_s_ic
+    user%fluid_user_ic => set_velocity
   end subroutine user_setup
 
   !> User initial condition for the scalar

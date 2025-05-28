@@ -12,11 +12,11 @@ module user
 contains
 
   ! Register user defined functions (see user_intf.f90)
-  subroutine user_setup(usr)
-    type(user_t), intent(inout) :: usr
+  subroutine user_setup(user)
+    type(user_t), intent(inout) :: user
 
-    usr%user_mesh_setup => user_mesh_scale
-    usr%fluid_user_ic => user_ic
+    user%user_mesh_setup => user_mesh_scale
+    user%fluid_user_ic => user_ic
 
   end subroutine user_setup
 
