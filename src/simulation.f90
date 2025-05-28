@@ -195,7 +195,7 @@ contains
 
     if (present(tstep_loop_start_time)) then
        write(log_buf, '(A34,E15.7)') &
-            'Total elapsed time (s):', end_time - tstep_loop_start_time
+            'Total elapsed time (s):           ', end_time - tstep_loop_start_time
        call neko_log%message(log_buf)
     end if
 
