@@ -149,6 +149,10 @@ contains
     this%pe_box_num = max(this%pe_box_num,2) !> At least 2 boxes
     this%glob_map_size = this%pe_box_num*this%pe_size
     if (pe_rank .eq. 0) print *, this%pe_box_num, this%glob_map_size
+    if (allocated(rank_xyz_max)) deallocate(rank_xyz_max)
+    if (allocated(rank_xyz_min)) deallocate(rank_xyz_min)
+    if (allocated(max_xyz)) deallocate(max_xyz)
+    if (allocated(min_xyz)) deallocate(min_xyz)
     allocate(rank_xyz_max(3,this%glob_map_size))
     allocate(rank_xyz_min(3,this%glob_map_size))
     allocate(min_xyz(3,this%pe_box_num))
