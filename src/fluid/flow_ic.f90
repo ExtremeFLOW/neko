@@ -38,7 +38,7 @@ module flow_ic
   use neko_config, only : NEKO_BCKND_DEVICE
   use flow_profile, only : blasius_profile, blasius_linear, blasius_cubic, &
        blasius_quadratic, blasius_quartic, blasius_sin
-  use device, only: device_memcpy, HOST_TO_DEVICE
+  use device, only: device_memcpy, HOST_TO_DEVICE, device_to_host, device_sync
   use field, only : field_t
   use utils, only : neko_error, filename_suffix, filename_chsuffix, &
        neko_warning, NEKO_FNAME_LEN, extract_fld_file_index
@@ -504,14 +504,22 @@ contains
        end if
 
        ! Generates an interpolator object and performs the point search
-       global_interp = fld_data%generate_interpolator(u%dof, u%msh, &
+       call fld_data%generate_interpolator(global_interp, u%dof, u%msh, &
             tolerance)
-
+       call fld_data%u%copyto(host_to_device, .true.)
+       call fld_data%v%copyto(host_to_device, .true.)
+       call fld_data%w%copyto(host_to_device, .true.)
+       call fld_data%p%copyto(host_to_device, .true.)
        ! Evaluate velocities and pressure
-       call global_interp%evaluate(u%x, fld_data%u%x, .true.)
-       call global_interp%evaluate(v%x, fld_data%v%x, .true.)
-       call global_interp%evaluate(w%x, fld_data%w%x, .true.)
-       call global_interp%evaluate(p%x, fld_data%p%x, .true.)
+
+       call global_interp%evaluate(u%x(:,1,1,1), fld_data%u%x, .false.)
+       call global_interp%evaluate(v%x(:,1,1,1), fld_data%v%x, .false.)
+       call global_interp%evaluate(w%x(:,1,1,1), fld_data%w%x, .false.)
+       call global_interp%evaluate(p%x(:,1,1,1), fld_data%p%x, .false.)
+       call u%copyto(device_to_host, .true.)
+       call v%copyto(device_to_host, .true.)
+       call w%copyto(device_to_host, .true.)
+       call p%copyto(device_to_host, .true.)
 
        call global_interp%free
 
