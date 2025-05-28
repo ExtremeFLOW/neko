@@ -149,11 +149,8 @@ contains
     this%nelv = nelv
     this%n_boxes_per_pe = (this%glob_n_boxes+int(this%pe_size-1,i8))/int(this%pe_size,i8)
 
-    if (allocated(this%send_buf)) deallocate(this%send_buf)
     allocate(this%send_buf(0:this%pe_size-1))
-    if (allocated(this%recv_buf)) deallocate(this%recv_buf)
     allocate(this%recv_buf(0:this%pe_size-1))
-    if (allocated(this%pe_map)) deallocate(this%pe_map)
     allocate(this%pe_map(0:this%n_boxes_per_pe-1))
     do i = 0, this%n_boxes_per_pe-1
        call this%pe_map(i)%init()
@@ -374,10 +371,20 @@ contains
        end if
     end do
 
-    if (allocated(recv_ids)) deallocate(recv_ids)
-    if (allocated(glob_ids)) deallocate(glob_ids)
-    if (allocated(n_recv)) deallocate(n_recv)
-    if (allocated(n_send)) deallocate(n_send)
+    if (allocated(recv_ids)) then
+         do i = 0, this%pe_size-1
+            call recv_ids(i)%free()
+         end do
+         deallocate(recv_ids)
+      end if
+       if (allocated(glob_ids)) then
+         do i = 0, this%pe_size-1
+            call glob_ids(i)%free()
+         end do
+         deallocate(glob_ids)
+      end if
+      if (allocated(n_recv)) deallocate(n_recv)
+      if (allocated(n_send)) deallocate(n_send)
   end subroutine cartesian_pe_finder_init
 
   subroutine cartesian_pe_finder_find(this, my_point, pe_candidates)

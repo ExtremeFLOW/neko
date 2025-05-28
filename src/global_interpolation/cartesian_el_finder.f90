@@ -83,9 +83,6 @@ contains
     integer :: el_npts, el_x_npts, el_y_npts, el_z_npts
     real(kind=rp) :: el_x(Xh%lxyz), el_y(Xh%lxyz), el_z(Xh%lxyz)
     integer :: lxyz
-    real(kind=rp), allocatable :: el_rst(:)
-    real(kind=rp), allocatable :: res_x(:), res_y(:), res_z(:)
-    real(kind=rp), allocatable :: interp_mat(:,:), interp_matT(:,:)
     integer :: el_idx
     integer :: htable_data
     real(kind=rp) :: center_x, center_y, center_z, r_res
