@@ -190,6 +190,7 @@ contains
 
     if (s .eq. 0) then
        x_d = c_null_ptr
+       return
     end if
 #ifdef HAVE_HIP
     if (hipMalloc(x_d, s) .ne. hipSuccess) then
