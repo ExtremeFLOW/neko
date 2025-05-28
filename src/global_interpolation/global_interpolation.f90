@@ -186,12 +186,24 @@ contains
     type(MPI_COMM), optional, intent(in) :: comm
     real(kind=rp), optional :: tol
     real(kind=rp), optional :: pad
+    real(kind=rp) :: padding, tolerance
 
+    if (present(pad)) then
+       padding = pad
+    else
+       padding = 1e-2 ! 1% padding of the bounding boxes
+    end if
+
+    if (present(tol)) then
+       tolerance = tol
+    else
+       tolerance = NEKO_EPS*1e3_xp ! 1% padding of the bounding boxes
+    end if
     ! NOTE: Passing dof%x(:,1,1,1), etc in init_xyz passes down the entire
     ! dof%x array and not a slice. It is done this way for
     ! to get the right dimension (see global_interpolation_init_xyz).
     call this%init_xyz(dof%x(:,1,1,1), dof%y(:,1,1,1), dof%z(:,1,1,1), &
-         dof%msh%gdim, dof%msh%nelv, dof%Xh, comm,tol = tol, pad=pad)
+         dof%msh%gdim, dof%msh%nelv, dof%Xh, comm,tol = tolerance, pad=padding)
 
   end subroutine global_interpolation_init_dof
 
@@ -248,7 +260,11 @@ contains
 
     this%gdim = gdim
     this%nelv = nelv
-    if (present(tol)) this%tol = tol
+    if (present(tol)) then
+       this%tol = tol
+    else 
+       this%tol = NEKO_EPS*1e3_xp
+    end if
 
     call MPI_Allreduce(nelv, this%glb_nelv, 1, MPI_INTEGER, &
          MPI_SUM, this%comm, ierr)
