@@ -80,8 +80,8 @@ module tensor
   end interface triple_tensor_product
 
   public :: tensr3, transpose, trsp, trsp1, &
-     tnsr2d_el, tnsr3d_el, tnsr3d, tnsr1_3d, addtnsr, &
-     triple_tensor_product, tnsr3d_el_list
+       tnsr2d_el, tnsr3d_el, tnsr3d, tnsr1_3d, addtnsr, &
+       triple_tensor_product, tnsr3d_el_list
 
 
 contains
@@ -271,7 +271,7 @@ contains
 
     integer, intent(in) :: nx, ny, nz
     real(kind=rp), intent(in) :: h1(nx), h2(ny), h3(nz)
-    real(kind=rp), intent(inout) ::  s(nx, ny, nz)
+    real(kind=rp), intent(inout) :: s(nx, ny, nz)
     real(kind=rp) :: hh
     integer :: ix, iy, iz
 

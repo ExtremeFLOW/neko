@@ -423,7 +423,7 @@ contains
        if (sync_device) then
           call device_sync_stream(stream)
        end if
-       return 
+       return
     end if
 
 #ifdef HAVE_HIP
