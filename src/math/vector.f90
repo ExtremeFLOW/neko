@@ -36,7 +36,7 @@ module vector
   use math, only: sub3, chsign, add3, cmult2, cadd2, cfill, copy, col3, cdiv2, &
        col2, invcol3
   use num_types, only: rp
-  use device, only: device_map, device_free, device_memcpy
+  use device, only: device_map, device_free, device_memcpy, device_deassociate
   use device_math, only: device_copy, device_cfill, device_cmult, &
        device_sub3, device_cmult2, device_add3, device_cadd2, device_col3, &
        device_col2, device_invcol3, device_cdiv2
