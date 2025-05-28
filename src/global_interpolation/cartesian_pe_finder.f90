@@ -232,8 +232,15 @@ contains
     do i = 0, this%pe_size-1
        call recv_ids(i)%init()
        call glob_ids(i)%init()
+       if (allocated(this%recv_buf(i)%data)) then
+          deallocate(this%recv_buf(i)%data)
+       end if
+       if (allocated(this%send_buf(i)%data)) then
+          deallocate(this%send_buf(i)%data)
+       end if
+       this%send_buf(i)%size = 0
+       this%recv_buf(i)%size = 0
     end do
-
     n_recv = 0
     n_send = 0
 
