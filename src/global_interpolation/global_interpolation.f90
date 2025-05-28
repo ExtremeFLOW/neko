@@ -40,7 +40,7 @@ module global_interpolation
   use dofmap, only: dofmap_t
   use logger, only: neko_log, LOG_SIZE
   use utils, only: neko_error
-  use local_interpolation, only : local_interpolator_t, rst_cmp
+  use local_interpolation, only : local_interpolator_t
   use device, only: device_free, device_map, device_memcpy, &
       device_deassociate, HOST_TO_DEVICE, DEVICE_TO_HOST, &
       device_get_ptr
@@ -71,11 +71,11 @@ module global_interpolation
   !> Implements global interpolation for arbitrary points in the domain.
   type, public :: global_interpolation_t
      !> X coordinates from which to interpolate.
-     type(array_ptr_t) :: x
+     type(vector_t) :: x
      !> Y coordinates from which to interpolate.
-     type(array_ptr_t) :: y
+     type(vector_t) :: y
      !> Z coordinates from which to interpolate.
-     type(array_ptr_t) :: z
+     type(vector_t) :: z
      !> Geometric dimension of the simulation.
      integer :: gdim
      !> Number of elements.
@@ -89,7 +89,7 @@ module global_interpolation
      !> pe_size of comm
      integer :: pe_size
      !> Space.
-     type(space_t), pointer :: Xh
+     type(space_t) :: Xh
      !> Components related to the points we want to evalute
      !> Number of points we want to evaluate
      integer :: n_points
@@ -182,14 +182,14 @@ contains
   !! @param tol Tolerance for Newton iterations.
   subroutine global_interpolation_init_dof(this, dof, comm, tol, pad)
     class(global_interpolation_t), intent(inout) :: this
-    type(dofmap_t), target :: dof
+    type(dofmap_t) :: dof
     type(MPI_COMM), optional, intent(in) :: comm
     real(kind=rp), optional :: tol
     real(kind=rp), optional :: pad
 
     ! NOTE: Passing dof%x(:,1,1,1), etc in init_xyz passes down the entire
     ! dof%x array and not a slice. It is done this way for
-    ! this%x%ptr to point to dof%x (see global_interpolation_init_xyz).
+    ! to get the right dimension (see global_interpolation_init_xyz).
     call this%init_xyz(dof%x(:,1,1,1), dof%y(:,1,1,1), dof%z(:,1,1,1), &
          dof%msh%gdim, dof%msh%nelv, dof%Xh, comm,tol = tol, pad=pad)
 
@@ -208,13 +208,13 @@ contains
   subroutine global_interpolation_init_xyz(this, x, y, z, gdim, nelv, Xh, &
     comm, tol, pad)
     class(global_interpolation_t), intent(inout) :: this
-    real(kind=rp), intent(in), target :: x(:)
-    real(kind=rp), intent(in), target :: y(:)
-    real(kind=rp), intent(in), target :: z(:)
+    real(kind=rp), intent(in) :: x(:)
+    real(kind=rp), intent(in) :: y(:)
+    real(kind=rp), intent(in) :: z(:)
     integer, intent(in) :: gdim
     integer, intent(in) :: nelv
     type(MPI_COMM), intent(in), optional :: comm
-    type(space_t), intent(in), target :: Xh
+    type(space_t), intent(in) :: Xh
     real(kind=rp), intent(in), optional :: tol
     real(kind=rp), intent(in), optional :: pad
     integer :: lx, ly, lz, ierr, i, n
@@ -245,31 +245,41 @@ contains
 
     call MPI_Comm_rank(this%comm, this%pe_rank, ierr)
     call MPI_Comm_size(this%comm, this%pe_size, ierr)
-
-    this%x%ptr => x
-    this%y%ptr => y
-    this%z%ptr => z
+    
     this%gdim = gdim
     this%nelv = nelv
-    this%Xh => Xh
     if (present(tol)) this%tol = tol
-
+     
     call MPI_Allreduce(nelv, this%glb_nelv, 1, MPI_INTEGER, &
          MPI_SUM, this%comm, ierr)
     lx = Xh%lx
     ly = Xh%ly
     lz = Xh%lz
     n = nelv * lx*ly*lz
+    call this%x%init(n)
+    call this%y%init(n)
+    call this%z%init(n)
+    call copy(this%x%x, x, n)
+    call this%x%copyto(HOST_TO_DEVICE,.false.)
+    call copy(this%y%x, y, n)
+    call this%y%copyto(HOST_TO_DEVICE,.false.)
+    call copy(this%z%x, z, n)
+    call this%z%copyto(HOST_TO_DEVICE,.false.)
+    call this%Xh%init(Xh%t, lx, ly, lz)
+
+
 
     call neko_log%message('Initializing global interpolation')
-    call get_environment_variable("NEKO_GLOBAL_INTERP_EL_FINDER", mode_str, envvar_len)
+    call get_environment_variable("NEKO_GLOBAL_INTERP_EL_FINDER", &
+         mode_str, envvar_len)
 
     if (envvar_len .gt. 0) then
        if (mode_str(1:envvar_len) == 'unsafe') then
           allocate(cartesian_el_finder_t :: this%el_finder)
        end if
     end if
-    call get_environment_variable("NEKO_GLOBAL_INTERP_PE_FINDER", mode_str, envvar_len)
+    call get_environment_variable("NEKO_GLOBAL_INTERP_PE_FINDER", &
+         mode_str, envvar_len)
 
     if (envvar_len .gt. 0) then
        if (mode_str(1:envvar_len) == 'unsafe') then
@@ -299,18 +309,21 @@ contains
     select type(pe_find => this%pe_finder)
       type is (aabb_pe_finder_t)
        call neko_log%message('Using AABB PE finder')
-       call pe_find%init(x, y, z, nelv, Xh, this%comm, padding)
+       call pe_find%init(this%x%x, this%y%x, this%z%x, &
+            nelv, Xh, this%comm, padding)
       type is (cartesian_pe_finder_t)
        call neko_log%message('Using Cartesian PE finder')
        boxdim = lx*int(real(this%glb_nelv,xp)**(1.0_xp/3.0_xp))
        boxdim = max(boxdim,32)
-       boxdim = min(boxdim,int(8.0_xp*(30000.0_xp*this%pe_size)**(1.0_xp/3.0_xp)))
-       call pe_find%init(x, y, z, nelv, Xh, this%comm, boxdim, padding)
+       boxdim = min(boxdim, &
+                    int(8.0_xp*(30000.0_xp*this%pe_size)**(1.0_xp/3.0_xp)))
+       call pe_find%init(this%x%x, this%y%x, this%z%x, &
+            nelv, Xh, this%comm, boxdim, padding)
       class default
        call neko_error('Unknown PE finder type')
     end select
 
-    call this%rst_finder%init(x, y, z, nelv, Xh, this%tol)
+    call this%rst_finder%init(this%x%x, this%y%x, this%z%x, nelv, Xh, this%tol)
     if (allocated(this%n_points_pe)) deallocate(this%n_points_pe)
     if (allocated(this%n_points_pe_local)) deallocate(this%n_points_pe_local)
     if (allocated(this%n_points_offset_pe_local)) &
@@ -337,10 +350,10 @@ contains
     class(global_interpolation_t), intent(inout) :: this
     integer :: i
 
-    nullify(this%x%ptr)
-    nullify(this%y%ptr)
-    nullify(this%z%ptr)
-    nullify(this%Xh)
+    call this%x%free()
+    call this%y%free()
+    call this%z%free()
+    call this%Xh%free()
 
     this%nelv = 0
     this%gdim = 0
@@ -632,7 +645,7 @@ contains
              this%xyz_local(3,i) = resz%x(ii)
              this%el_owner0_local(i) = el_cands(ii)
           end if
-           ! if (this%pe_rank .eq. 0) print *,i,  this%rst_local(:,i),this%xyz_local(:,i), this%el_owner0_local(i) 
+          ! if (this%pe_rank .eq. 0) print *,i,  this%rst_local(:,i),this%xyz_local(:,i), this%el_owner0_local(i)
        end do
     end do
     call res%init(3,this%n_points)
@@ -682,7 +695,7 @@ contains
              this%pe_owner(point_ids(j)) = gs_find_back%recv_pe(i)
              this%el_owner0(point_ids(j)) = el_owner_results(ii)
           end if
-          !  if (this%pe_rank .eq. 0) print *,point_id,  this%rst(:,point_ids(j)),res%x(:,point_ids(j)), this%el_owner0(point_ids(j)) 
+          !  if (this%pe_rank .eq. 0) print *,point_id,  this%rst(:,point_ids(j)),res%x(:,point_ids(j)), this%el_owner0(point_ids(j))
        end do
     end do
 
@@ -816,7 +829,7 @@ contains
             this%n_points_local, HOST_TO_DEVICE, sync = .true.)
     end if
 
-    call this%check_points(this%x%ptr,this%y%ptr, this%z%ptr)
+    call this%check_points(this%x%x,this%y%x, this%z%x)
 
     !Free stuff
     call send_pe%free()
@@ -969,11 +982,15 @@ contains
   subroutine global_interpolation_init_point_arrays(this)
     class(global_interpolation_t) :: this
 
-    allocate(this%xyz(3, this%n_points))
-    allocate(this%rst(3, this%n_points))
+    if (allocated(this%xyz)) deallocate(this%xyz)
+    if (allocated(this%rst)) deallocate(this%rst)
+    if (allocated(this%pe_owner)) deallocate(this%pe_owner)
+    if (allocated(this%el_owner0)) deallocate(this%el_owner0)
+
     allocate(this%pe_owner(this%n_points))
     allocate(this%el_owner0(this%n_points))
-
+    allocate(this%xyz(3, this%n_points))
+    allocate(this%rst(3, this%n_points))
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(this%el_owner0, this%el_owner0_d, this%n_points)
     end if
@@ -1092,5 +1109,40 @@ contains
     end if
 
   end subroutine global_interpolation_evaluate
+
+
+  !> Compares two sets of rst coordinates and checks whether rst2 is better than rst1 given a tolerance
+  !! res1 and res2 are the distances to the interpolated xyz coordinate and true xyz coord for point 1 and 2
+  !! tol specifies the range for the rst coordinate to be within: (r,s,t) in (-1+tol,1+tol)^3.
+  !! @param rst1 local coordinates for point 1
+  !! @param rst2 local coordinates for point 2
+  !! @param rst1 distance between xyz(rst1) and the true xyz coordinate 
+  !! @param rst2 distance between xyz(rst2) and the true xyz coordinate 
+  !! @param tol Tolerance for how much rst1 and rst2 can over/undershoot [-1,1]
+  function rst_cmp(rst1, rst2,res1, res2, tol) result(rst2_better)
+    real(kind=rp) :: rst1(3), res1(3)
+    real(kind=rp) :: rst2(3), res2(3)
+    real(kind=rp) :: tol
+    logical :: rst2_better
+    !If rst1 is invalid and rst2 is valid, take rst2
+    ! If both invalidl, take smallest residual
+    if (abs(rst1(1)) .gt. 1.0_xp+tol .or. &
+       abs(rst1(2)) .gt. 1.0_xp+tol .or. &
+       abs(rst1(3)) .gt. 1.0_xp+tol) then
+       if (abs(rst2(1)) .le. 1.0_xp+tol .and. &
+          abs(rst2(2)) .le. 1.0_xp+tol .and. &
+          abs(rst2(3)) .le. 1.0_xp+tol) then
+          rst2_better = .true.
+       else
+          rst2_better = (norm2(real(res2,xp)) .lt. norm2(real(res1,xp)))
+       end if
+    else
+       !> Else we check rst2 is inside and has a smaller distance
+       rst2_better = (norm2(real(res2,xp)) .lt. norm2(real(res1,xp)) .and.&
+                      abs(rst2(1)) .le. 1.0_xp+tol .and. &
+                      abs(rst2(2)) .le. 1.0_xp+tol .and. &
+                      abs(rst2(3)) .le. 1.0_xp+tol)
+    end if
+  end function rst_cmp
 
 end module global_interpolation
