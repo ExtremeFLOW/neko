@@ -375,6 +375,7 @@ contains
     this%gdim = 0
 
     call this%free_points()
+    call this%free_points_local()
     call this%local_interp%free()
     if (allocated(this%el_finder)) then
        call this%el_finder%free()
@@ -394,6 +395,12 @@ contains
        end do
        deallocate(this%points_at_pe)
     end if
+    if (allocated(this%n_points_pe)) deallocate(this%n_points_pe)
+    if (allocated(this%n_points_pe_local)) deallocate(this%n_points_pe_local)
+    if (allocated(this%n_points_offset_pe_local)) &
+         deallocate(this%n_points_offset_pe_local)
+    if (allocated(this%n_points_offset_pe)) deallocate(this%n_points_offset_pe)
+  
 
 
   end subroutine global_interpolation_free
@@ -452,7 +459,6 @@ contains
     type(matrix_t) :: res
     integer :: i, j, stupid_intent
     type(stack_i4_t) :: all_el_candidates
-    type(stack_i4_t) :: el_candidates
     integer, allocatable :: n_el_cands(:)
     integer, pointer :: pe_cands(:) => Null()
     integer, pointer :: el_cands(:) => Null()
@@ -557,7 +563,6 @@ contains
     call neko_log%message(log_buf)
     !Okay, now we need to find the rst...
     call all_el_candidates%init()
-    call el_candidates%init()
     if (allocated(n_el_cands)) deallocate(n_el_cands)
     allocate(n_el_cands(this%n_points_local))
     !> Find element candidates at this rank
@@ -863,7 +868,6 @@ contains
     call resz%free()
     call res%free()
     call all_el_candidates%free()
-    call el_candidates%free()
     if (associated(pe_cands)) pe_cands => Null()
     if (associated(el_cands)) pe_cands => Null()
     if (associated(point_ids)) point_ids => Null()
