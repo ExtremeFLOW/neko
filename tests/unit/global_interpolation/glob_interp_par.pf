@@ -172,7 +172,7 @@ contains
     call test_field%init(dof)
     if (pe_rank .eq. 0) then
        call glob_interp%init(dof%x(:,1,1,1), dof%y(:,1,1,1), dof%z(:,1,1,1), &
-         dof%msh%gdim, 0, dof%Xh)
+         dof%msh%gdim, 1, dof%Xh)
        call glob_interp%find_points(dof%x, dof%y, dof%z, 0)
     else 
        call glob_interp%init(dof)
