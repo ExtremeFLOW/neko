@@ -13,7 +13,7 @@ on:
 jobs:
   check_depend:
     name: "Dependencies (make depend)"
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
     - name: Setup env.
       id: setup-env

@@ -40,39 +40,41 @@
 #include <cmath>
 #include <algorithm>
 template< typename T>
-__global__ void smagorinsky_nut_compute(T * __restrict__ s11,
-                                      T * __restrict__ s22,
-                                      T * __restrict__ s33,
-                                      T * __restrict__ s12,
-                                      T * __restrict__ s13,
-                                      T * __restrict__ s23,
-                                      T * __restrict__ delta,
+__global__ void smagorinsky_nut_compute(const T * __restrict__ s11,
+                                      const T * __restrict__ s22,
+                                      const T * __restrict__ s33,
+                                      const T * __restrict__ s12,
+                                      const T * __restrict__ s13,
+                                      const T * __restrict__ s23,
+                                      const T * __restrict__ delta,
                                       T * __restrict__ nut,
-                                      T * __restrict__ mult,
+                                      const T * __restrict__ mult,
                                       const T c_s,
                                       const int n){
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
+  T s_abs;
+
   for (int i = idx; i < n; i += str) {
-    T s_abs;
 
-    s11[i] = s11[i] * mult[i];
-    s22[i] = s22[i] * mult[i];
-    s33[i] = s33[i] * mult[i];
-    s12[i] = s12[i] * mult[i];
-    s13[i] = s13[i] * mult[i];
-    s23[i] = s23[i] * mult[i];
+    const T s11_r = s11[i];
+    const T s22_r = s22[i];
+    const T s33_r = s33[i];
+    const T s12_r = s12[i];
+    const T s13_r = s13[i];
+    const T s23_r = s23[i];
+    const T delta_r = delta[i];
+    
+    s_abs = sqrt(2.0 * (s11_r * s11_r +
+                        s22_r * s22_r +
+                        s33_r * s33_r) + 
+                 4.0 * (s12_r * s12_r +
+                        s13_r * s13_r +
+                        s23_r * s23_r));
 
-    s_abs = sqrt(2.0 * (s11[i] * s11[i] +
-                        s22[i] * s22[i] +
-                        s33[i] * s33[i]) + 
-                 4.0 * (s12[i] * s12[i] +
-                        s13[i] * s13[i] +
-                        s23[i] * s23[i]));
-
-    nut[i] = c_s * c_s * delta[i] * delta[i] * s_abs;
+    nut[i] = c_s * c_s * delta_r * delta_r * s_abs * mult[i];
   }
 }
 #endif // __COMMON_SMAGORINSKY_NUT_KERNEL_H__

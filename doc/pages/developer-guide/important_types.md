@@ -39,7 +39,7 @@ as subroutines.
 - [case_t](#case::case_t): An abstraction for the simulation case. Stores the
   fluid and scalar solver as components, handles IO via
   [sampler_t](#sampler::sampler_t).
-- [fluid_scheme_t](#fluid_scheme::fluid_scheme_t): Navier-Stokes solvers.
+- [fluid_scheme_incompressible_t](#fluid_scheme_incompressible::fluid_scheme_incompressible_t): Navier-Stokes solvers.
 - [scalar_scheme_t](#scalar_scheme::scalar_scheme_t): Scalar
   advection-diffusion-reaction solvers.
 - [bc_t](#bc::bc_t): Boundary conditions.

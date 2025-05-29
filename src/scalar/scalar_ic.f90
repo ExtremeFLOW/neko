@@ -94,32 +94,25 @@ contains
 
     if (trim(type) .eq. 'uniform') then
 
-       call json_get(params, 'case.scalar.initial_condition.value', ic_value)
+       call json_get(params, 'value', ic_value)
        call set_scalar_ic_uniform(s, ic_value)
 
     else if (trim(type) .eq. 'point_zone') then
 
-       call json_get(params, 'case.scalar.initial_condition.base_value', &
-            ic_value)
-       call json_get(params, 'case.scalar.initial_condition.zone_name', &
-            read_str)
-       call json_get(params, 'case.scalar.initial_condition.zone_value', &
-            zone_value)
+       call json_get(params, 'base_value', ic_value)
+       call json_get(params, 'zone_name', read_str)
+       call json_get(params, 'zone_value', zone_value)
 
        call set_scalar_ic_point_zone(s, ic_value, read_str, zone_value)
 
     else if (trim(type) .eq. 'field') then
 
-       call json_get(params, 'case.scalar.initial_condition.file_name', &
-            read_str)
+       call json_get(params, 'file_name', read_str)
        fname = trim(read_str)
-       call json_get_or_default(params, &
-            'case.scalar.initial_condition.interpolate', interpolate, &
+       call json_get_or_default(params, 'interpolate', interpolate, &
             .false.)
-       call json_get_or_default(params, &
-            'case.scalar.initial_condition.tolerance', tol, 0.000001_rp)
-       call json_get_or_default(params, &
-            'case.scalar.initial_condition.mesh_file_name', read_str, &
+       call json_get_or_default(params, 'tolerance', tol, 0.000001_rp)
+       call json_get_or_default(params, 'mesh_file_name', read_str, &
             "none")
        mesh_fname = trim(read_str)
 
@@ -169,7 +162,7 @@ contains
     n = s%dof%size()
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(s%x, s%x_d, n, &
-                          HOST_TO_DEVICE, sync = .false.)
+            HOST_TO_DEVICE, sync = .false.)
     end if
 
     ! Ensure continuity across elements for initial conditions
@@ -280,15 +273,14 @@ contains
     call neko_log%message("File name     : " // trim(file_name))
     write (log_buf, '(A,L1)') "Interpolation : ", interpolate
     call neko_log%message(log_buf)
-    if (interpolate) then
-    end if
 
     ! Extract sample index from the file name
     sample_idx = extract_fld_file_index(file_name, -1)
 
-    if (sample_idx .eq. -1) &
-         call neko_error("Invalid file name for the initial condition. The&
-         & file format must be e.g. 'mean0.f00001'")
+    if (sample_idx .eq. -1) then
+       call neko_error("Invalid file name for the initial condition. The " // &
+            "file format must be e.g. 'mean0.f00001'")
+    end if
 
     ! Change from "field0.f000*" to "field0.fld" for the fld reader
     call filename_chsuffix(file_name, file_name, 'fld')
@@ -307,13 +299,14 @@ contains
           ! Extract sample index from the mesh file name
           sample_mesh_idx = extract_fld_file_index(mesh_file_name, -1)
 
-          if (sample_mesh_idx .eq. -1) &
-               call neko_error("Invalid file name for the initial condition. &
-&The file format must be e.g. 'mean0.f00001'")
+          if (sample_mesh_idx .eq. -1) then
+             call neko_error("Invalid file name for the initial condition." // &
+                  " The file format must be e.g. 'mean0.f00001'")
+          end if
 
           write (log_buf, '(A,ES12.6)') "Tolerance     : ", tolerance
           call neko_log%message(log_buf)
-          write (log_buf, '(A,A)')     "Mesh file     : ", &
+          write (log_buf, '(A,A)') "Mesh file     : ", &
                trim(mesh_file_name)
           call neko_log%message(log_buf)
 
@@ -341,11 +334,11 @@ contains
          fld_data%gdim .ne. s%msh%gdim)
 
     if (mesh_mismatch .and. .not. interpolate) then
-       call neko_error("The fld file must match the current mesh! &
-&Use 'interpolate': 'true' to enable interpolation.")
+       call neko_error("The fld file must match the current mesh! " // &
+            "Use 'interpolate': 'true' to enable interpolation.")
     else if (.not. mesh_mismatch .and. interpolate) then
-       call neko_log%warning("You have activated interpolation but you might &
-&still be using the same mesh.")
+       call neko_log%warning("You have activated interpolation but you " // &
+            "might still be using the same mesh.")
     end if
 
 
@@ -355,12 +348,12 @@ contains
        select type (ft => f%file_type)
        type is (fld_file_t)
           if (.not. ft%dp_precision) then
-             call neko_warning("The coordinates read from the field file are &
-&in single precision.")
-             call neko_log%message("It is recommended to use a mesh in double &
-&precision for better interpolation results.")
-             call neko_log%message("If the interpolation does not work, you&
-&can try to increase the tolerance.")
+             call neko_warning("The coordinates read from the field file " // &
+                  "are in single precision.")
+             call neko_log%message("It is recommended to use a mesh in " // &
+                  "double precision for better interpolation results.")
+             call neko_log%message("If the interpolation does not work, " // &
+                  "you can try to increase the tolerance.")
           end if
        class default
        end select

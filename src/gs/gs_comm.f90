@@ -39,14 +39,22 @@ module gs_comm
   implicit none
   private
 
-  integer, public, parameter :: GS_COMM_MPI = 1, GS_COMM_MPIGPU = 2
+  integer, public, parameter :: GS_COMM_MPI = 1, GS_COMM_MPIGPU = 2, &       
+       GS_COMM_NCCL = 3, GS_COMM_NVSHMEM = 4
 
   !> Gather-scatter communication method
   type, public, abstract :: gs_comm_t
-     type(stack_i4_t), allocatable :: send_dof(:)     !< Send dof to shared-gs
-     type(stack_i4_t), allocatable :: recv_dof(:)     !< Recv dof to shared-gs
-     integer, allocatable :: send_pe(:)               !< Send order
-     integer, allocatable :: recv_pe(:)               !< Recv order
+     !> A list of stacks of dof indices local to this process to send to rank_i
+     type(stack_i4_t), allocatable :: send_dof(:)
+     !> recv_dof(rank_i) is a stack of dof indices local to this process to
+     !! receive from rank_i. size(recv_dof) == pe_size
+     type(stack_i4_t), allocatable :: recv_dof(:)
+     !> Array of ranks that this process should send to
+     !! @note: this will usually be fewer than the total number of ranks
+     !! size(send_pe) <= pe_size
+     integer, allocatable :: send_pe(:)
+     !> array of ranks that this process will receive messages from
+     integer, allocatable :: recv_pe(:)
    contains
      procedure(gs_comm_init), pass(this), deferred :: init
      procedure(gs_comm_free), pass(this), deferred :: free
@@ -59,7 +67,9 @@ module gs_comm
      procedure, pass(this) :: free_order
   end type gs_comm_t
 
-  !> Abstract interface for initialising a Gather-scatter communication method
+  !> Abstract interface for initializing a Gather-scatter communication method
+  !! @param send_pe, stack of ranks this process will send messages to
+  !! @param recv_pe, stack of ranks this process will receive messages from
   abstract interface
      subroutine gs_comm_init(this, send_pe, recv_pe)
        import gs_comm_t
@@ -79,6 +89,11 @@ module gs_comm
   end interface
 
   !> Abstract interface for initiating non-blocking send operations
+  !! Sends the values in u(send_dof(send_pe(i))) to each rank send_pe(i) for all
+  !! ranks in send_pe
+  !! @param n, length of u (redundant)
+  !! @param deps, gather_event (for device aware mpi)
+  !! @param strm, device stream to execute operation on
   abstract interface
      subroutine gs_nbsend(this, u, n, deps, strm)
        import gs_comm_t
@@ -93,7 +108,9 @@ module gs_comm
      end subroutine gs_nbsend
   end interface
 
-  !> Abstract interface for initiating non-blocking receive operations
+
+  !> Abstract interface for initiating non-blocking recieve operations
+  !! Posts non-blocking recieve of values and puts the values into buffers
   abstract interface
      subroutine gs_nbrecv(this)
        import gs_comm_t
@@ -101,7 +118,14 @@ module gs_comm
      end subroutine gs_nbrecv
   end interface
 
-  !> Abstract interface for watining on non-blocking operations
+  !> Abstract interface for waiting on non-blocking operations
+  !! Waits and checks that data is in buffers and unpacks buffers
+  !! into correct location in u
+  !! u(recv_dof(recv_pe(i))) = gs_op(recieve_buffers(recv_pe) for this dof)
+  !! @param u, data to store operation into
+  !! @param n, length of u (redundant)
+  !! @param op, gather scatter operation to carry out
+  !! @param strm, device stream to execute this operation on
   abstract interface
      subroutine gs_nbwait(this, u, n, op, strm)
        import gs_comm_t
@@ -118,7 +142,7 @@ module gs_comm
 
   public :: gs_comm_init, gs_comm_free, gs_nbsend, gs_nbrecv, gs_nbwait
 contains
-
+  !Initalize stacks for each rank of dof indices to send/recv
   subroutine init_dofs(this)
     class(gs_comm_t), intent(inout) :: this
     integer :: i
@@ -155,6 +179,9 @@ contains
 
   end subroutine free_dofs
 
+  !>Obtains which ranks to send and receive data from
+  !! @param send_pe, only contains rank ids this porcesss should send to
+  !! @param recv_pe, only the ranks this process should receive from
   subroutine init_order(this, send_pe, recv_pe)
     class(gs_comm_t), intent(inout) :: this
     type(stack_i4_t), intent(inout) :: send_pe

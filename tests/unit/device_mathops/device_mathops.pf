@@ -6,6 +6,7 @@ subroutine test_mathops_opchsign
   use device_mathops
   use num_types
   use neko_config
+  use, intrinsic :: iso_c_binding
   implicit none 
   integer, parameter :: n = 17
   real(kind=rp), dimension(n) :: a1, a2, a3
@@ -60,6 +61,7 @@ subroutine test_mathops_opcolv
   use device_mathops
   use num_types
   use neko_config
+  use, intrinsic :: iso_c_binding
   implicit none 
   integer, parameter :: n = 17
   real(kind=rp), dimension(n) :: a1, a2, a3, c
@@ -116,6 +118,7 @@ subroutine test_mathops_opcolv3c
   use device_mathops
   use num_types
   use neko_config
+  use, intrinsic :: iso_c_binding
   implicit none 
   integer, parameter :: n = 17
   real(kind=rp), dimension(n):: c(n)
@@ -186,6 +189,7 @@ subroutine test_mathops_opadd2cm
   use device_mathops
   use num_types
   use neko_config
+  use, intrinsic :: iso_c_binding
   implicit none 
   integer, parameter :: n = 17
   real(kind=rp), parameter :: c = 42.0_rp
@@ -251,6 +255,7 @@ subroutine test_mathops_opadd2col
   use device_mathops
   use num_types
   use neko_config
+  use, intrinsic :: iso_c_binding
   implicit none 
   integer, parameter :: n = 17
   real(kind=rp), dimension(n) :: c

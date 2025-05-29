@@ -59,7 +59,7 @@ module ax_product
   end interface
 
   public :: ax_helm_factory
-  
+
   !> Abstract interface for computing\f$ Ax \f$ inside a Krylov method
   !!
   !! @param w Vector of size @a (lx,ly,lz,nelv).
@@ -75,11 +75,11 @@ module ax_product
        import ax_t
        import rp
        implicit none
-       type(space_t), intent(inout) :: Xh
-       type(mesh_t), intent(inout) :: msh
-       type(coef_t), intent(inout) :: coef
+       type(space_t), intent(in) :: Xh
+       type(mesh_t), intent(in) :: msh
+       type(coef_t), intent(in) :: coef
        real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-       real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+       real(kind=rp), intent(in) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
      end subroutine ax_compute
   end interface
 
@@ -103,15 +103,15 @@ module ax_product
        import rp
        implicit none
        class(ax_t), intent(in) :: this
-       type(space_t), intent(inout) :: Xh
-       type(mesh_t), intent(inout) :: msh
-       type(coef_t), intent(inout) :: coef
+       type(space_t), intent(in) :: Xh
+       type(mesh_t), intent(in) :: msh
+       type(coef_t), intent(in) :: coef
        real(kind=rp), intent(inout) :: au(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
        real(kind=rp), intent(inout) :: av(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
        real(kind=rp), intent(inout) :: aw(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-       real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-       real(kind=rp), intent(inout) :: v(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-       real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+       real(kind=rp), intent(in) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+       real(kind=rp), intent(in) :: v(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+       real(kind=rp), intent(in) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
      end subroutine ax_compute_vector
   end interface
 

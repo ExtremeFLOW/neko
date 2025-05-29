@@ -15,7 +15,7 @@ krylov_test_TESTS := krylov.pf
 krylov_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko
 $(eval $(call make_pfunit_test,krylov_test))
 
-
+distclean:
 clean:
 	$(RM) *.o *.mod *.a  *.inc *.F90 krylov_test
 

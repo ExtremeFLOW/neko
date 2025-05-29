@@ -36,13 +36,13 @@ module rough_log_law
   use field, only: field_t
   use num_types, only : rp
   use json_module, only : json_file
-  use dofmap, only : dofmap_t
   use coefs, only : coef_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use wall_model, only : wall_model_t
   use field_registry, only : neko_field_registry
   use json_utils, only : json_get_or_default, json_get
-  use utils, only : neko_error
+  use rough_log_law_device, only : rough_log_law_compute_device
+  use rough_log_law_cpu, only : rough_log_law_compute_cpu
   implicit none
   private
 
@@ -63,7 +63,7 @@ module rough_log_law
      procedure, pass(this) :: init => rough_log_law_init
      !> Constructor from components.
      procedure, pass(this) :: init_from_components => &
-       rough_log_law_init_from_components
+          rough_log_law_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => rough_log_law_free
      !> Compute the wall shear stress.
@@ -105,7 +105,7 @@ contains
   !! @param B The log-law intercept.
   !! @param z0 The roughness height.
   subroutine rough_log_law_init_from_components(this, coef, msk, facet,&
-                                                nu, h_index, kappa, B, z0)
+       nu, h_index, kappa, B, z0)
     class(rough_log_law_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
@@ -115,10 +115,6 @@ contains
     real(kind=rp), intent(in) :: kappa
     real(kind=rp), intent(in) :: B
     real(kind=rp), intent(in) :: z0
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call neko_error("The rough loglaw is only available on the CPU backend.")
-    end if
 
     call this%init_base(coef, msk, facet, nu, h_index)
 
@@ -153,29 +149,20 @@ contains
     v => neko_field_registry%get_field("v")
     w => neko_field_registry%get_field("w")
 
-    do i = 1, this%n_nodes
-      ! Sample the velocity
-      ui = u%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))
-      vi = v%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))
-      wi = w%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))
-
-      ! Project on tangential direction
-      normu = ui * this%n_x%x(i) + vi * this%n_y%x(i) + wi * this%n_z%x(i)
-
-      ui = ui - normu * this%n_x%x(i)
-      vi = vi - normu * this%n_y%x(i)
-      wi = wi - normu * this%n_z%x(i)
-
-      magu = sqrt(ui**2 + vi**2 + wi**2)
-
-      ! Compute the stress
-      utau = (magu - this%B) * this%kappa / log(this%h%x(i) / this%z0)
-
-      ! Distribute according to the velocity vector
-      this%tau_x(i) = -utau**2 * ui / magu
-      this%tau_y(i) = -utau**2 * vi / magu
-      this%tau_z(i) = -utau**2 * wi / magu
-    end do
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call rough_log_law_compute_device(u%x_d, v%x_d, w%x_d, this%ind_r_d, &
+            this%ind_s_d, this%ind_t_d, this%ind_e_d, &
+            this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
+            this%nu, this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
+            this%tau_z%x_d, this%n_nodes, u%Xh%lx, this%kappa, &
+            this%B, this%z0, tstep)
+    else
+       call rough_log_law_compute_cpu(u%x, v%x, w%x, this%ind_r, this%ind_s, &
+            this%ind_t, this%ind_e, this%n_x%x, this%n_y%x, this%n_z%x, &
+            this%nu, this%h%x, this%tau_x%x, this%tau_y%x, this%tau_z%x, &
+            this%n_nodes, u%Xh%lx, u%msh%nelv, this%kappa, &
+            this%B, this%z0, tstep)
+    end if
 
   end subroutine rough_log_law_compute
 

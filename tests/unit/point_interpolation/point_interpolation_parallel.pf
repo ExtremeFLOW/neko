@@ -102,7 +102,7 @@ contains
     call create_points(p)
 
     call msh%init(3, dist)
-    call msh%add_element(1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
+    call msh%add_element(1, 1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
 
     call msh%generate_conn()
     call Xh%init(GLL, lx, lx, lx)
@@ -142,7 +142,7 @@ contains
     dist = linear_dist_t(1, pe_rank, pe_size, NEKO_COMM)
     call create_points(p)
     call msh%init(3, dist)
-    call msh%add_element(1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
+    call msh%add_element(1, 1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
     call msh%generate_conn()
     call Xh%init(GLL, lx, lx, lx)
     call dof%init(msh, Xh)
@@ -206,7 +206,7 @@ contains
     dist = linear_dist_t(1, pe_rank, pe_size, NEKO_COMM)
     call create_points(p)
     call msh%init(3, dist)
-    call msh%add_element(1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
+    call msh%add_element(1, 1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
     call msh%generate_conn()
     call Xh%init(GLL, lx, lx, lx)
     call dof%init(msh, Xh)

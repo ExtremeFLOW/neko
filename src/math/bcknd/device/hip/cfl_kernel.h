@@ -153,7 +153,7 @@ __global__ void cfl_kernel(const T dt,
     if ( i < LX && j < LX && k < LX) {
       const T cflr = fabs( dt * ( ( shu[ijk] * drdx[ijk + e * LX * LX * LX]
                                     + shv[ijk] * drdy[ijk + e * LX * LX * LX]
-                                    * shw[ijk] * drdz[ijk + e * LX * LX * LX] 
+                                    + shw[ijk] * drdz[ijk + e * LX * LX * LX] 
                                     ) * shjacinv[ijk]) * shdr_inv[i]);
       const T cfls = fabs( dt * ( ( shu[ijk] * dsdx[ijk + e * LX * LX * LX]
                                     + shv[ijk] * dsdy[ijk + e * LX * LX * LX]

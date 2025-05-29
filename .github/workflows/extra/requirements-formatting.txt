@@ -1,0 +1,5 @@
+# Simple requirements file for pip
+# This file is used to install the required packages for the project formatting
+# and is only used in the CI/CD workflows.
+
+findent >= 4.2.6

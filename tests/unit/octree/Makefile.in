@@ -15,7 +15,7 @@ octree_test_TESTS := octree.pf
 octree_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko
 $(eval $(call make_pfunit_test,octree_test))
 
-
+distclean:
 clean:
 	$(RM) *.o *.mod *.a  *.inc *.F90 octree_test
 

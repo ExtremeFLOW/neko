@@ -79,11 +79,11 @@ module ax_helm_xsmm
 contains
 
   subroutine ax_helm_xsmm_compute(w, u, coef, msh, Xh)
-    type(mesh_t), intent(inout) :: msh
-    type(space_t), intent(inout) :: Xh
-    type(coef_t), intent(inout) :: coef
+    type(mesh_t), intent(in) :: msh
+    type(space_t), intent(in) :: Xh
+    type(coef_t), intent(in) :: coef
     real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(in) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 #ifdef HAVE_LIBXSMM
     real(kind=rp) :: dudr(Xh%lx,Xh%ly,Xh%lz)
     real(kind=rp) :: duds(Xh%lx,Xh%ly,Xh%lz)

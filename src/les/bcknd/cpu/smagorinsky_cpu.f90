@@ -40,6 +40,7 @@ module smagorinsky_cpu
   use operators, only : strain_rate
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
+  use math, only : col2
   implicit none
   private
 
@@ -48,13 +49,15 @@ module smagorinsky_cpu
 contains
 
   !> Compute eddy viscosity on the CPU.
+  !! @param if_ext If extrapolate the velocity field to evaluate
   !! @param t The time value.
   !! @param tstep The current time-step.
   !! @param coef SEM coefficients.
   !! @param nut The SGS viscosity array.
   !! @param delta The LES lengthscale.
   !! @param c_s The smagorinsky model constant
-  subroutine smagorinsky_compute_cpu(t, tstep, coef, nut, delta, c_s)
+  subroutine smagorinsky_compute_cpu(if_ext, t, tstep, coef, nut, delta, c_s)
+    logical, intent(in) :: if_ext
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
@@ -62,15 +65,21 @@ contains
     type(field_t), intent(in) :: delta
     real(kind=rp), intent(in) :: c_s
     type(field_t), pointer :: u, v, w
-    ! double of the strain rate tensor
+    ! strain rate tensor
     type(field_t), pointer :: s11, s22, s33, s12, s13, s23
     real(kind=rp) :: s_abs
     integer :: temp_indices(6)
     integer :: e, i
 
-    u => neko_field_registry%get_field_by_name("u")
-    v => neko_field_registry%get_field_by_name("v")
-    w => neko_field_registry%get_field_by_name("w")
+    if (if_ext .eqv. .true.) then
+       u => neko_field_registry%get_field_by_name("u_e")
+       v => neko_field_registry%get_field_by_name("v_e")
+       w => neko_field_registry%get_field_by_name("w_e")
+    else
+       u => neko_field_registry%get_field_by_name("u")
+       v => neko_field_registry%get_field_by_name("v")
+       w => neko_field_registry%get_field_by_name("w")
+    end if
 
     call neko_scratch_registry%request_field(s11, temp_indices(1))
     call neko_scratch_registry%request_field(s22, temp_indices(2))
@@ -89,27 +98,22 @@ contains
     call coef%gs_h%op(s13, GS_OP_ADD)
     call coef%gs_h%op(s23, GS_OP_ADD)
 
-    do concurrent (i = 1:s11%dof%size())
-       s11%x(i,1,1,1) = s11%x(i,1,1,1) * coef%mult(i,1,1,1)
-       s22%x(i,1,1,1) = s22%x(i,1,1,1) * coef%mult(i,1,1,1)
-       s33%x(i,1,1,1) = s33%x(i,1,1,1) * coef%mult(i,1,1,1)
-       s12%x(i,1,1,1) = s12%x(i,1,1,1) * coef%mult(i,1,1,1)
-       s13%x(i,1,1,1) = s13%x(i,1,1,1) * coef%mult(i,1,1,1)
-       s23%x(i,1,1,1) = s23%x(i,1,1,1) * coef%mult(i,1,1,1)
-    end do
-
     do concurrent (e = 1:coef%msh%nelv)
        do concurrent (i = 1:coef%Xh%lxyz)
           s_abs = sqrt(2.0_rp * (s11%x(i,1,1,e)*s11%x(i,1,1,e) + &
-                                 s22%x(i,1,1,e)*s22%x(i,1,1,e) + &
-                                 s33%x(i,1,1,e)*s33%x(i,1,1,e)) + &
-                       4.0_rp * (s12%x(i,1,1,e)*s12%x(i,1,1,e) + &
-                                 s13%x(i,1,1,e)*s13%x(i,1,1,e) + &
-                                 s23%x(i,1,1,e)*s23%x(i,1,1,e)))
+               s22%x(i,1,1,e)*s22%x(i,1,1,e) + &
+               s33%x(i,1,1,e)*s33%x(i,1,1,e)) + &
+               4.0_rp * (s12%x(i,1,1,e)*s12%x(i,1,1,e) + &
+               s13%x(i,1,1,e)*s13%x(i,1,1,e) + &
+               s23%x(i,1,1,e)*s23%x(i,1,1,e)))
 
-          nut%x(i,1,1,e) = c_s**2 * delta%x(i,1,1,e)**2 * s_abs
+          nut%x(i,1,1,e) = c_s**2 * delta%x(i,1,1,e)**2 * s_abs &
+               * coef%mult(i,1,1,e)
        end do
     end do
+
+    call coef%gs_h%op(nut, GS_OP_ADD)
+    call col2(nut%x, coef%mult, nut%dof%size())
 
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine smagorinsky_compute_cpu

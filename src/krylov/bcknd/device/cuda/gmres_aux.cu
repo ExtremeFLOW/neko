@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2022, The Neko Authors
+ Copyright (c) 2022-2025, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -37,11 +37,21 @@
 #include <device/device_config.h>
 #include <device/cuda/check.h>
 
+#ifdef HAVE_NVSHMEM
+#include <nvshmem.h>
+#include <nvshmemx.h>
+#endif
+
 extern "C" {
 
 #include <math/bcknd/device/device_mpi_reduce.h>
 #include <math/bcknd/device/device_mpi_op.h>
-  
+
+#ifdef HAVE_NCCL
+#include <math/bcknd/device/device_nccl_reduce.h>
+#include <math/bcknd/device/device_nccl_op.h>
+#endif
+
   /**
    * @todo Make sure that this gets deleted at some point...
    */
@@ -50,37 +60,65 @@ extern "C" {
   int gmres_bf_len = 0;
 
   real cuda_gmres_part2(void *w, void *v, void *h, void * mult, int *j, int *n) {
-        
+
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
-    
+
     if (gmres_bf1 != NULL && gmres_bf_len < nb) {
       CUDA_CHECK(cudaFreeHost(gmres_bf1));
+#ifdef HAVE_NVSHMEM
+      nvshmem_free(gmres_bfd1);
+#else
       CUDA_CHECK(cudaFree(gmres_bfd1));
+#endif
       gmres_bf1 = NULL;
     }
 
     if (gmres_bf1 == NULL){
       CUDA_CHECK(cudaMallocHost(&gmres_bf1, nb*sizeof(real)));
+#ifdef HAVE_NVSHMEM
+      gmres_bfd1 = (real *) nvshmem_malloc(nb*sizeof(real));
+#else
       CUDA_CHECK(cudaMalloc(&gmres_bfd1, nb*sizeof(real)));
+#endif
       gmres_bf_len = nb;
     }
-     
+
     gmres_part2_kernel<real>
       <<<nblcks, nthrds, 0, stream>>>((real *) w, (real **) v,
                                       (real *) mult,(real *) h,
-                                      gmres_bfd1, *j, *n);
+                                      (real *) gmres_bfd1, *j, *n);
     CUDA_CHECK(cudaGetLastError());
-    reduce_kernel<real><<<1, 1024, 0, stream>>>(gmres_bfd1, nb);
+    reduce_kernel<real><<<1, 1024, 0, stream>>>((real *) gmres_bfd1, nb);
     CUDA_CHECK(cudaGetLastError());
 
-#ifdef HAVE_DEVICE_MPI
+#ifdef HAVE_NCCL
+    device_nccl_allreduce(gmres_bfd1, gmres_bfd1, 1, sizeof(real),
+                          DEVICE_NCCL_SUM, stream);
+    CUDA_CHECK(cudaMemcpyAsync(gmres_bf1, gmres_bfd1, sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+#elif HAVE_NVSHMEM
+    if (sizeof(real) == sizeof(float)) {
+      nvshmemx_float_sum_reduce_on_stream(NVSHMEM_TEAM_WORLD,
+                                           (float *) gmres_bfd1,
+                                           (float *) gmres_bfd1, 1, stream);
+    }
+    else if (sizeof(real) == sizeof(double)) {
+      nvshmemx_double_sum_reduce_on_stream(NVSHMEM_TEAM_WORLD,
+                                           (double *) gmres_bfd1,
+                                           (double *) gmres_bfd1, 1, stream);
+    }
+    CUDA_CHECK(cudaMemcpyAsync(gmres_bf1, gmres_bfd1, sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+#elif HAVE_DEVICE_MPI
     cudaStreamSynchronize(stream);
     device_mpi_allreduce(gmres_bfd1, gmres_bf1, 1, sizeof(real), DEVICE_MPI_SUM);
 #else
-    
+
     CUDA_CHECK(cudaMemcpyAsync(gmres_bf1, gmres_bfd1, sizeof(real),
                                cudaMemcpyDeviceToHost, stream));
     cudaStreamSynchronize(stream);

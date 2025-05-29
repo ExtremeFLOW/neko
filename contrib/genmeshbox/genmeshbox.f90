@@ -107,11 +107,11 @@ program genmeshbox
         if (.not. file_exists) then
 
            open(unit=10, file=trim(log_fname), status = 'new', action = 'write')
-           write (10, '(A,2(F10.6," "),I4,L2)') "xmin, xmax, Nel, periodic:", &
+           write (10, '(A,2(F12.6," "),I4,L2)') "xmin, xmax, Nel, periodic:", &
                 x0, x1, nelx, period_x
-           write (10, '(A,2(F10.6," "),I4,L2)') "ymin, ymax, Nel, periodic:", &
+           write (10, '(A,2(F12.6," "),I4,L2)') "ymin, ymax, Nel, periodic:", &
                 y0, y1, nely, period_y
-           write (10, '(A,2(F10.6," "),I4,L2)') "zmin, zmax, Nel, periodic:", &
+           write (10, '(A,2(F12.6," "),I4,L2)') "zmin, zmax, Nel, periodic:", &
                 z0, z1, nelz, period_z
            close(10)
            exit
@@ -210,7 +210,7 @@ program genmeshbox
                  end do
               end do
            end do
-           call msh%add_element(i, p(1,1,1), p(2,1,1),p(1,2,1),p(2,2,1),&
+           call msh%add_element(i, i, p(1,1,1), p(2,1,1),p(1,2,1),p(2,2,1),&
                 p(1,1,2), p(2,1,2), p(1,2,2), p(2,2,2))
            i = i + 1
         end do

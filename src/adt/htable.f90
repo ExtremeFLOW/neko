@@ -368,11 +368,46 @@ contains
 
     call htable_init(tmp, ishft(this%size, 1), key, data)
 
+    !
+    ! When rebuilding the table we used the following loop:
+    !
+    ! do i = 0, this%size - 1
+    !   if (this%t(i)%valid) then
+    !      call htable_set(tmp, this%t(i)%key, this%t(i)%data)
+    !   end if
+    ! end do
+    !
+    ! However, CCE 18.x (and probably other llvm based compilers)
+    ! segfault faults unless the data variable is enclosed in a
+    ! select type block
+    !
+
     do i = 0, this%size - 1
        if (this%t(i)%valid) then
-          call htable_set(tmp, this%t(i)%key, this%t(i)%data)
+          select type (datap => this%t(i)%data)
+          type is (integer)
+             call htable_set(tmp, this%t(i)%key, datap)
+          type is (integer(i8))
+             call htable_set(tmp, this%t(i)%key, datap)
+          type is (double precision)
+             call htable_set(tmp, this%t(i)%key, datap)
+          type is (point_t)
+             call htable_set(tmp, this%t(i)%key, datap)
+          class is (tuple_t)
+             select type(tuplep => datap)
+             type is (tuple_i4_t)
+                call htable_set(tmp, this%t(i)%key, tuplep)
+             type is (tuple4_i4_t)
+                call htable_set(tmp, this%t(i)%key, tuplep)
+             end select
+          type is (h_cptr_t)
+             call htable_set(tmp, this%t(i)%key, datap)
+          class default
+             call neko_error('Invalid htable data')
+          end select
        end if
     end do
+
     this%size = tmp%size
     call move_alloc(tmp%t, this%t)
 
@@ -552,7 +587,7 @@ contains
     type is (double precision)
        select type(key)
        type is (double precision)
-          res = (kp .eq. key)
+          res = abs(kp - key) .lt. epsilon(1.0_dp)
        end select
     type is (point_t)
        select type (key)

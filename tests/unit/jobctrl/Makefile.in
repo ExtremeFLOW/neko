@@ -16,7 +16,7 @@ jobctrl_suite_TESTS := jobctrl_parallel.pf
 jobctrl_suite_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko 
 $(eval $(call make_pfunit_test,jobctrl_suite))
 
-
+distclean:
 clean:
 	$(RM) *.o *.mod *.a  *.inc *.F90 jobctrl_suite
 

@@ -47,8 +47,8 @@ module simcomp_example
      ! Constructor from json, wrapping the actual constructor.
      procedure, pass(this) :: init => simcomp_test_init_from_json
      ! Actual constructor.
-     procedure, pass(this) :: init_from_attributes => &
-       simcomp_test_init_from_attributes
+     procedure, pass(this) :: init_from_components => &
+          simcomp_test_init_from_components
      ! Destructor.
      procedure, pass(this) :: free => simcomp_test_free
      ! Compute the simcomp_test field.
@@ -63,17 +63,17 @@ contains
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
 
-    call this%init_from_attributes()
+    call this%init_from_components()
     call this%init_base(json, case)
 
   end subroutine simcomp_test_init_from_json
 
   ! Actual constructor.
-  subroutine simcomp_test_init_from_attributes(this)
+  subroutine simcomp_test_init_from_components(this)
     class(user_simcomp_t), intent(inout) :: this
 
     write(*,*) "Initializing simcomp_test field"
-  end subroutine simcomp_test_init_from_attributes
+  end subroutine simcomp_test_init_from_components
 
   ! Destructor.
   subroutine simcomp_test_free(this)

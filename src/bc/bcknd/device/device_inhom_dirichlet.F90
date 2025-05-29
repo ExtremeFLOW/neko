@@ -113,6 +113,7 @@ contains
     integer, intent(in) :: m
     type(c_ptr) :: msk, x, y, z, bla_x, bla_y, bla_z
 
+    if (m .lt. 1) return
 #ifdef HAVE_HIP
     call hip_inhom_dirichlet_apply_vector(msk, x, y, z, bla_x, bla_y, bla_z, m)
 #elif HAVE_CUDA
@@ -129,6 +130,7 @@ contains
     integer, intent(in) :: m
     type(c_ptr) :: msk, x, bla_x
 
+    if (m .lt. 1) return
 #ifdef HAVE_HIP
     call hip_inhom_dirichlet_apply_scalar(msk, x, bla_x, m)
 #elif HAVE_CUDA

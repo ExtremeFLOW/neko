@@ -43,22 +43,36 @@ module opencl_math
        integer(c_int) :: n
      end subroutine opencl_copy
 
-     subroutine opencl_masked_copy(a_d, b_d, mask_d, n, m) &
+     subroutine opencl_masked_copy(a_d, b_d, mask_d, n, n_mask) &
           bind(c, name = 'opencl_masked_copy')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        type(c_ptr), value :: a_d, b_d, mask_d
-       integer(c_int) :: n, m
+       integer(c_int) :: n, n_mask
      end subroutine opencl_masked_copy
 
-     subroutine opencl_cfill_mask(a_d, c, size, mask_d, mask_size) &
+     subroutine opencl_masked_gather_copy(a_d, b_d, mask_d, n, n_mask) &
+          bind(c, name = 'opencl_masked_gather_copy')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       type(c_ptr), value :: a_d, b_d, mask_d
+       integer(c_int) :: n, n_mask
+     end subroutine opencl_masked_gather_copy
+
+     subroutine opencl_masked_scatter_copy(a_d, b_d, mask_d, n, n_mask) &
+          bind(c, name = 'opencl_masked_scatter_copy')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       type(c_ptr), value :: a_d, b_d, mask_d
+       integer(c_int) :: n, n_mask
+     end subroutine opencl_masked_scatter_copy
+
+     subroutine opencl_cfill_mask(a_d, c, n, mask_d, n_mask) &
           bind(c, name = 'opencl_cfill_mask')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a_d
        real(c_rp) :: c
-       integer(c_int) :: size
+       integer(c_int) :: n
        type(c_ptr), value :: mask_d
-       integer(c_int) :: mask_size
+       integer(c_int) :: n_mask
      end subroutine opencl_cfill_mask
 
      subroutine opencl_cmult(a_d, c, n) &
@@ -78,6 +92,24 @@ module opencl_math
        real(c_rp) :: c
        integer(c_int) :: n
      end subroutine opencl_cmult2
+
+     subroutine opencl_cdiv(a_d, c, n) &
+          bind(c, name = 'opencl_cdiv')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: a_d
+       real(c_rp) :: c
+       integer(c_int) :: n
+     end subroutine opencl_cdiv
+
+     subroutine opencl_cdiv2(a_d, b_d, c, n) &
+          bind(c, name = 'opencl_cdiv2')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: a_d, b_d
+       real(c_rp) :: c
+       integer(c_int) :: n
+     end subroutine opencl_cdiv2
 
      subroutine opencl_cadd(a_d, c, n) &
           bind(c, name = 'opencl_cadd')
@@ -273,6 +305,16 @@ module opencl_math
        type(c_ptr), value :: dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d
        integer(c_int) :: n
      end subroutine opencl_vdot3
+
+     subroutine opencl_vcross(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, &
+          w1_d, w2_d, w3_d, n) &
+          bind(c, name = 'opencl_vcross')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       type(c_ptr), value :: u1_d, u2_d, u3_d
+       type(c_ptr), value :: v1_d, v2_d, v3_d
+       type(c_ptr), value :: w1_d, w2_d, w3_d
+       integer(c_int) :: n
+     end subroutine opencl_vcross
 
      real(c_rp) function opencl_glsc3(a_d, b_d, c_d, n) &
           bind(c, name = 'opencl_glsc3')

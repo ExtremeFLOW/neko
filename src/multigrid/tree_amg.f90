@@ -32,74 +32,88 @@
 !
 !> Implements the base type for TreeAMG hierarchy structure.
 module tree_amg
-  use num_types
-  use utils
-  use math
+  use num_types, only : rp
+  use utils, only : neko_error
+  use math, only : rzero, col2
+  use device_math , only : device_rzero, device_col2, device_masked_atomic_reduction, &
+       device_masked_gather_copy, device_cfill
   use coefs, only : coef_t
   use mesh, only : mesh_t
   use space, only : space_t
   use ax_product, only: ax_t
   use bc_list, only: bc_list_t
   use gather_scatter, only : gs_t, GS_OP_ADD
+  use device, only: device_map, device_free, device_stream_wait_event, glb_cmd_queue, glb_cmd_event
+  use neko_config, only: NEKO_BCKND_DEVICE
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 
   !> Type for storing TreeAMG tree node information
   type, private :: tamg_node_t
-    logical :: isleaf = .true. !< Is the node a leaf node
-    integer :: gid = -1 !< The gid of the node TODO: relative to what? MPI or true global
-    integer :: lvl = -1 !< The hierarchy level on which the node lives
-    integer :: ndofs = 0 !< The number of dofs on the node
-    integer, allocatable :: dofs(:) !< The dofs on the node
-    real(kind=rp) :: xyz(3) !< Coordinates of the node
-    real(kind=rp), allocatable :: interp_r(:) !< Resriciton factors from dofs to node gid
-    real(kind=rp), allocatable :: interp_p(:) !< Prolongation factors from node gid to dofs
+     logical :: isleaf = .true. !< Is the node a leaf node
+     integer :: gid = -1 !< The gid of the node TODO: relative to what? MPI or true global
+     integer :: lvl = -1 !< The hierarchy level on which the node lives
+     integer :: ndofs = 0 !< The number of dofs on the node
+     integer, allocatable :: dofs(:) !< The dofs on the node
+     real(kind=rp) :: xyz(3) !< Coordinates of the node
+     real(kind=rp), allocatable :: interp_r(:) !< Resriciton factors from dofs to node gid
+     real(kind=rp), allocatable :: interp_p(:) !< Prolongation factors from node gid to dofs
   end type tamg_node_t
 
   !> Type for storing TreeAMG level information
   type, private :: tamg_lvl_t
-    integer :: lvl = -1 !< The level id
-    integer :: nnodes = 0 !< number of nodes on the level
-    type(tamg_node_t), allocatable :: nodes(:) !< TreeAMG tree nodes on the level
-    integer :: fine_lvl_dofs = 0 !< Number of dofs on the level(TODO:sum of dofs on each node?)
-    real(kind=rp), allocatable :: wrk_in(:) !< Work vector for data coming into the level
-    real(kind=rp), allocatable :: wrk_out(:) !< Work vector for data leaving the level
-    integer, allocatable :: map_f2c_dof(:)
-    integer, allocatable :: map_c2f_dof(:)
-    !--!
-    integer, allocatable :: nodes_ptr(:)
-    integer, allocatable :: nodes_gid(:)
-    integer, allocatable :: nodes_dofs(:)
-    integer, allocatable :: nodes_gids(:)
-    ! could make another array of the same size of nodes_dofs
-    ! that stores the parent node gid information
-    ! (similar to nodes_gid that stores the gid of each node)
-    ! then some loops can be simplified to a single loop
-    ! of len(nodes_dofs) instead of going through each node
-    ! and looping through nodes_ptr(i) to nodes_ptr(i+1)-1
+     integer :: lvl = -1 !< The level id
+     integer :: nnodes = 0 !< number of nodes on the level
+     type(tamg_node_t), allocatable :: nodes(:) !< TreeAMG tree nodes on the level
+     integer :: fine_lvl_dofs = 0 !< Number of dofs on the level(TODO:sum of dofs on each node?)
+     real(kind=rp), allocatable :: wrk_in(:) !< Work vector for data coming into the level
+     type(c_ptr) :: wrk_in_d = C_NULL_PTR
+     real(kind=rp), allocatable :: wrk_out(:) !< Work vector for data leaving the level
+     type(c_ptr) :: wrk_out_d = C_NULL_PTR
+     integer, allocatable :: map_finest2lvl(:)
+     type(c_ptr) :: map_finest2lvl_d = C_NULL_PTR
+     !--!
+     integer, allocatable :: nodes_ptr(:)
+     type(c_ptr) :: nodes_ptr_d = C_NULL_PTR
+     integer, allocatable :: nodes_gid(:)
+     type(c_ptr) :: nodes_gid_d = C_NULL_PTR
+     integer, allocatable :: nodes_dofs(:)
+     type(c_ptr) :: nodes_dofs_d = C_NULL_PTR
+     integer, allocatable :: map_f2c(:)
+     type(c_ptr) :: map_f2c_d = C_NULL_PTR
+     ! could make another array of the same size of nodes_dofs
+     ! that stores the parent node gid information
+     ! (similar to nodes_gid that stores the gid of each node)
+     ! then some loops can be simplified to a single loop
+     ! of len(nodes_dofs) instead of going through each node
+     ! and looping through nodes_ptr(i) to nodes_ptr(i+1)-1
   end type tamg_lvl_t
 
   !> Type for a TreeAMG hierarchy
   type, public :: tamg_hierarchy_t
-    !> Number of AMG levels in the hierarchy
-    integer :: nlvls
-    !> Levels of the hierarchy
-    type(tamg_lvl_t), allocatable :: lvl(:)
+     !> Number of AMG levels in the hierarchy
+     integer :: nlvls
+     !> Levels of the hierarchy
+     type(tamg_lvl_t), allocatable :: lvl(:)
 
-    !> Things needed to do finest level matvec
-    class(ax_t), pointer :: ax
-    type(mesh_t), pointer :: msh
-    type(space_t), pointer :: Xh
-    type(coef_t), pointer :: coef
-    type(gs_t), pointer :: gs_h
-    type(bc_list_t), pointer :: blst
+     !> Things needed to do finest level matvec
+     class(ax_t), pointer :: ax
+     type(mesh_t), pointer :: msh
+     type(space_t), pointer :: Xh
+     type(coef_t), pointer :: coef
+     type(gs_t), pointer :: gs_h
+     type(bc_list_t), pointer :: blst
 
-  contains
-    procedure, pass(this) :: init => tamg_init
-    procedure, pass(this) :: matvec => tamg_matvec
-    procedure, pass(this) :: matvec_impl => tamg_matvec_impl
-    procedure, pass(this) :: interp_f2c => tamg_restriction_operator
-    procedure, pass(this) :: interp_c2f => tamg_prolongation_operator
+   contains
+     procedure, pass(this) :: init => tamg_init
+     procedure, pass(this) :: matvec => tamg_matvec
+     procedure, pass(this) :: matvec_impl => tamg_matvec_impl
+     procedure, pass(this) :: interp_f2c => tamg_restriction_operator
+     procedure, pass(this) :: interp_c2f => tamg_prolongation_operator
+     procedure, pass(this) :: interp_f2c_d => tamg_device_restriction_operator
+     procedure, pass(this) :: interp_c2f_d => tamg_device_prolongation_operator
+     procedure, pass(this) :: device_matvec => tamg_device_matvec_flat_impl
   end type tamg_hierarchy_t
 
   public tamg_lvl_init, tamg_node_init
@@ -133,15 +147,17 @@ contains
     this%blst => blst
 
     if (nlvls .lt. 2) then
-      call neko_error("Need to request at least two multigrid levels.")
+       call neko_error("Need to request at least two multigrid levels.")
     end if
 
     this%nlvls = nlvls
     allocate( this%lvl(this%nlvls) )
 
     do i = 1, nlvls
-      allocate( this%lvl(i)%map_f2c_dof( coef%dof%size() ))
-      allocate( this%lvl(i)%map_c2f_dof( coef%dof%size() ))
+       allocate( this%lvl(i)%map_finest2lvl( 0:coef%dof%size() ))
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_map(this%lvl(i)%map_finest2lvl, this%lvl(i)%map_finest2lvl_d, coef%dof%size()+1)
+       end if
     end do
 
   end subroutine tamg_init
@@ -163,11 +179,20 @@ contains
     allocate( tamg_lvl%nodes_ptr(tamg_lvl%nnodes+1) )
     allocate( tamg_lvl%nodes_gid(tamg_lvl%nnodes) )
     allocate( tamg_lvl%nodes_dofs(ndofs) )
-    allocate( tamg_lvl%nodes_gids(ndofs) )
+    allocate( tamg_lvl%map_f2c(0:ndofs) )
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(tamg_lvl%map_f2c, tamg_lvl%map_f2c_d, ndofs+1)
+    end if
 
     tamg_lvl%fine_lvl_dofs = ndofs
     allocate( tamg_lvl%wrk_in( ndofs ) )
     allocate( tamg_lvl%wrk_out( ndofs ) )
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(tamg_lvl%wrk_in, tamg_lvl%wrk_in_d, ndofs)
+       call device_cfill(tamg_lvl%wrk_in_d, 0.0_rp, ndofs)
+       call device_map(tamg_lvl%wrk_out, tamg_lvl%wrk_out_d, ndofs)
+       call device_cfill(tamg_lvl%wrk_out_d, 0.0_rp, ndofs)
+    end if
   end subroutine tamg_lvl_init
 
   !> Initialization of a TreeAMG tree node
@@ -185,8 +210,8 @@ contains
     node%dofs = -1
     allocate( node%interp_r( node%ndofs) )
     allocate( node%interp_p( node%ndofs) )
-    node%interp_r = 1.0
-    node%interp_p = 1.0
+    node%interp_r = 1.0_rp
+    node%interp_p = 1.0_rp
   end subroutine tamg_node_init
 
   !> Wrapper for matrix vector product using the TreeAMG hierarchy structure
@@ -220,52 +245,54 @@ contains
     integer, intent(in) :: lvl_out
     integer :: i, n, e
 
-    vec_out = 0d0
-
     if (lvl .eq. 0) then !> isleaf true
-      !> If on finest level, pass to neko ax_t matvec operator
-      n = size(vec_in)
-      !> Call local finite element assembly
-      call this%gs_h%op(vec_in, n, GS_OP_ADD)
-      call col2( vec_in, this%coef%mult(1,1,1,1), n)
-      !>
-      call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
-      !>
-      call this%gs_h%op(vec_out, n, GS_OP_ADD)
-      call this%blst%apply(vec_out, n)
-      !>
+       !> If on finest level, pass to neko ax_t matvec operator
+       n = size(vec_in)
+       !> Call local finite element assembly
+       call this%gs_h%op(vec_in, n, GS_OP_ADD)
+       call col2( vec_in, this%coef%mult, n)
+
+       call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
+       call this%gs_h%op(vec_out, n, GS_OP_ADD)
+       call this%blst%apply(vec_out, n)
+
+       if (lvl_out .ne. 0) then
+          call col2(vec_out, this%coef%mult, n)
+       end if
+       !>
     else !> pass down through hierarchy
-      if (lvl_out .ge. lvl) then
-        !> lvl is finer than desired output
-        !> project input vector to finer grid
-        associate( wrk_in => this%lvl(lvl)%wrk_in, wrk_out => this%lvl(lvl)%wrk_out)
-        wrk_in = 0d0
-        wrk_out = 0d0
-        do n = 1, this%lvl(lvl)%nnodes
-          associate (node => this%lvl(lvl)%nodes(n))
-          do i = 1, node%ndofs
-            wrk_in( node%dofs(i) ) = wrk_in( node%dofs(i) ) + vec_in( node%gid ) * node%interp_p( i )
-          end do
-          end associate
-        end do
+       if (lvl_out .ge. lvl) then
+          !> lvl is finer than desired output
+          !> project input vector to finer grid
+          associate( wrk_in => this%lvl(lvl)%wrk_in, wrk_out => this%lvl(lvl)%wrk_out)
+            n = this%lvl(lvl)%fine_lvl_dofs
+            call rzero(wrk_in, n)
+            call rzero(vec_out, this%lvl(lvl)%nnodes)
+            do n = 1, this%lvl(lvl)%nnodes
+               associate (node => this%lvl(lvl)%nodes(n))
+                 do i = 1, node%ndofs
+                    wrk_in( node%dofs(i) ) = wrk_in( node%dofs(i) ) + vec_in( node%gid ) * node%interp_p( i )
+                 end do
+               end associate
+            end do
 
-        call this%matvec_impl(wrk_out, wrk_in, lvl-1, lvl_out)
+            call this%matvec_impl(wrk_out, wrk_in, lvl-1, lvl_out)
 
-        !> restrict to coarser grid
-        do n = 1, this%lvl(lvl)%nnodes
-          associate (node => this%lvl(lvl)%nodes(n))
-          do i = 1, node%ndofs
-            vec_out( node%gid ) = vec_out(node%gid ) + wrk_out( node%dofs(i) ) * node%interp_r( i )
-          end do
+            !> restrict to coarser grid
+            do n = 1, this%lvl(lvl)%nnodes
+               associate (node => this%lvl(lvl)%nodes(n))
+                 do i = 1, node%ndofs
+                    vec_out( node%gid ) = vec_out(node%gid ) + wrk_out( node%dofs(i) ) * node%interp_r( i )
+                 end do
+               end associate
+            end do
           end associate
-        end do
-        end associate
-      else if (lvl_out .lt. lvl) then
-        !> lvl is coarser then desired output. Continue down tree
-        call this%matvec_impl(vec_out, vec_in, lvl-1, lvl_out)
-      else
-        call neko_error("TAMG: matvec level numbering problem.")
-      end if
+       else if (lvl_out .lt. lvl) then
+          !> lvl is coarser then desired output. Continue down tree
+          call this%matvec_impl(vec_out, vec_in, lvl-1, lvl_out)
+       else
+          call neko_error("TAMG: matvec level numbering problem.")
+       end if
     end if
   end subroutine tamg_matvec_impl
 
@@ -280,50 +307,40 @@ contains
     integer :: i, n, cdof, lvl
 
     lvl = lvl_out
+    n = this%lvl(1)%fine_lvl_dofs
     if (lvl .eq. 0) then !> isleaf true
-      !> If on finest level, pass to neko ax_t matvec operator
-      n = size(vec_in)
-      !> Call local finite element assembly
-      call this%gs_h%op(vec_in, n, GS_OP_ADD)
-      call col2( vec_in, this%coef%mult(1,1,1,1), n)
-      !>
-      call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
-      !>
-      call this%gs_h%op(vec_out, n, GS_OP_ADD)
-      call this%blst%apply(vec_out, n)
-      !>
+       call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
+       call this%gs_h%op(vec_out, n, GS_OP_ADD)
+       call this%blst%apply(vec_out, n)
     else !> pass down through hierarchy
+       associate( wrk_in => this%lvl(1)%wrk_in, wrk_out => this%lvl(1)%wrk_out)
+         !> Map input level to finest level
+         do i = 1, n
+            cdof = this%lvl(lvl)%map_finest2lvl(i)
+            wrk_in(i) = vec_in( cdof )
+         end do
 
-      associate( wrk_in => this%lvl(1)%wrk_in, wrk_out => this%lvl(1)%wrk_out)
-      n = size(wrk_in)
-      wrk_out = 0d0
-      vec_out = 0d0
+         !> Average on overlapping dofs
+         call this%gs_h%op(wrk_in, n, GS_OP_ADD)
+         call col2( wrk_in, this%coef%mult, n)
 
-      !> Map input level to finest level
-      do i = 1, n
-        cdof = this%lvl(lvl)%map_f2c_dof(i)
-        wrk_in(i) = vec_in( cdof )
-      end do
+         !> Finest level matvec (Call local finite element assembly)
+         call this%ax%compute(wrk_out, wrk_in, this%coef, this%msh, this%Xh)
+         call this%gs_h%op(wrk_out, n, GS_OP_ADD)
+         call this%blst%apply(wrk_out, n)
 
-      !> Average on overlapping dofs
-      call this%gs_h%op(wrk_in, n, GS_OP_ADD)
-      call col2( wrk_in, this%coef%mult(1,1,1,1), n)
-      !> Finest level matvec (Call local finite element assembly)
-      call this%ax%compute(wrk_out, wrk_in, this%coef, this%msh, this%Xh)
-      !>
-      call this%gs_h%op(wrk_out, n, GS_OP_ADD)
-      call this%blst%apply(wrk_out, n)
-      !>
+         call col2(wrk_out, this%coef%mult, n)
 
-      !> Map finest level matvec back to output level
-      do i = 1, n
-        cdof = this%lvl(lvl)%map_f2c_dof(i)
-        vec_out(cdof) = vec_out(cdof) + wrk_out( i )
-      end do
-      end associate
-
+         !> Map finest level matvec back to output level
+         call rzero(vec_out, this%lvl(lvl)%nnodes)
+         do i = 1, n
+            cdof = this%lvl(lvl)%map_finest2lvl(i)
+            vec_out(cdof) = vec_out(cdof) + wrk_out( i )
+         end do
+       end associate
     end if
   end subroutine tamg_matvec_flat_impl
+
 
 
   !> Restriction operator for TreeAMG. vec_out = R * vec_in
@@ -338,22 +355,16 @@ contains
     integer :: i, n, node_start, node_end, node_id
 
     vec_out = 0d0
+    if (lvl-1 .eq. 0) then
+       call col2(vec_in, this%coef%mult, this%lvl(lvl)%fine_lvl_dofs)
+    end if
     do n = 1, this%lvl(lvl)%nnodes
-      associate (node => this%lvl(lvl)%nodes(n))
-      do i = 1, node%ndofs
-        vec_out( node%gid ) = vec_out( node%gid ) + vec_in( node%dofs(i) ) * node%interp_r( i )
-      end do
-      end associate
+       associate (node => this%lvl(lvl)%nodes(n))
+         do i = 1, node%ndofs
+            vec_out( node%gid ) = vec_out( node%gid ) + vec_in( node%dofs(i) ) * node%interp_r( i )
+         end do
+       end associate
     end do
-    !do n = 1, this%lvl(lvl)%nnodes
-    !  node_start = this%lvl(lvl)%nodes_ptr(n)
-    !  node_end   = this%lvl(lvl)%nodes_ptr(n+1)-1
-    !  node_id    = this%lvl(lvl)%nodes_gid(n)
-    !  do i = node_start, node_end
-    !    vec_out( node_id ) = vec_out( node_id ) + &
-    !      vec_in( this%lvl(lvl)%nodes_dofs(i) )
-    !  end do
-    !end do
   end subroutine tamg_restriction_operator
 
   !> Prolongation operator for TreeAMG. vec_out = P * vec_in
@@ -369,21 +380,91 @@ contains
 
     vec_out = 0d0
     do n = 1, this%lvl(lvl)%nnodes
-      associate (node => this%lvl(lvl)%nodes(n))
-      do i = 1, node%ndofs
-        vec_out( node%dofs(i) ) = vec_out( node%dofs(i) ) + vec_in( node%gid ) * node%interp_p( i )
-      end do
-      end associate
+       associate (node => this%lvl(lvl)%nodes(n))
+         do i = 1, node%ndofs
+            vec_out( node%dofs(i) ) = vec_out( node%dofs(i) ) + vec_in( node%gid ) * node%interp_p( i )
+         end do
+       end associate
     end do
-    !do n = 1, this%lvl(lvl)%nnodes
-    !  node_start = this%lvl(lvl)%nodes_ptr(n)
-    !  node_end   = this%lvl(lvl)%nodes_ptr(n+1)-1
-    !  node_id    = this%lvl(lvl)%nodes_gid(n)
-    !  do i = node_start, node_end
-    !    vec_out( this%lvl(lvl)%nodes_dofs(i) ) = vec_out( this%lvl(lvl)%nodes_dofs(i) ) + &
-    !      vec_in(node_id)
-    !  end do
-    !end do
+    if (lvl-1 .eq. 0) then
+       call this%gs_h%op(vec_out, this%lvl(lvl)%fine_lvl_dofs, GS_OP_ADD)
+       call col2(vec_out, this%coef%mult, this%lvl(lvl)%fine_lvl_dofs)
+    end if
   end subroutine tamg_prolongation_operator
+
+
+  subroutine tamg_device_matvec_flat_impl(this, vec_out, vec_in, vec_out_d, vec_in_d, lvl_out)
+    class(tamg_hierarchy_t), intent(inout) :: this
+    real(kind=rp), intent(inout) :: vec_out(:)
+    real(kind=rp), intent(inout) :: vec_in(:)
+    type(c_ptr) :: vec_out_d
+    type(c_ptr) :: vec_in_d
+    integer, intent(in) :: lvl_out
+    integer :: i, n, cdof, lvl
+
+    lvl = lvl_out
+    n = this%lvl(1)%fine_lvl_dofs
+    if (lvl .eq. 0) then !> isleaf true
+       call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
+       call this%gs_h%op(vec_out, n, GS_OP_ADD, glb_cmd_event)
+       call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
+       call this%blst%apply(vec_out, n)
+    else !> pass down through hierarchy
+
+       associate( wrk_in_d => this%lvl(1)%wrk_in_d, wrk_out_d => this%lvl(1)%wrk_out_d)
+         !> Map input level to finest level
+         call device_masked_gather_copy(wrk_in_d, vec_in_d, this%lvl(lvl)%map_finest2lvl_d, this%lvl(lvl)%nnodes, n)
+         !> Average on overlapping dofs
+         call this%gs_h%op(this%lvl(1)%wrk_in, n, GS_OP_ADD, glb_cmd_event)
+         call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
+         call device_col2( wrk_in_d, this%coef%mult_d, n)
+
+         !> Finest level matvec (Call local finite element assembly)
+         call this%ax%compute(this%lvl(1)%wrk_out, this%lvl(1)%wrk_in, this%coef, this%msh, this%Xh)
+         call this%gs_h%op(this%lvl(1)%wrk_out, n, GS_OP_ADD, glb_cmd_event)
+         call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
+         call this%blst%apply(this%lvl(1)%wrk_out, n)
+
+         call device_col2( wrk_out_d, this%coef%mult_d, n)
+
+         !> Map finest level matvec back to output level
+         call device_rzero(vec_out_d, this%lvl(lvl)%nnodes)
+         call device_masked_atomic_reduction(vec_out_d, wrk_out_d, this%lvl(lvl)%map_finest2lvl_d, this%lvl(lvl)%nnodes, n)
+       end associate
+
+    end if
+  end subroutine tamg_device_matvec_flat_impl
+
+  subroutine tamg_device_restriction_operator(this, vec_out_d, vec_in_d, lvl)
+    class(tamg_hierarchy_t), intent(inout) :: this
+    type(c_ptr) :: vec_out_d
+    type(c_ptr) :: vec_in_d
+    integer, intent(in) :: lvl
+    integer :: i, n, m
+    n = this%lvl(lvl)%nnodes
+    m = this%lvl(lvl)%fine_lvl_dofs
+    if (lvl-1 .eq. 0) then
+       call device_col2(vec_in_d, this%coef%mult_d, m)
+    end if
+    call device_rzero(vec_out_d, n)
+    call device_masked_atomic_reduction(vec_out_d, vec_in_d, this%lvl(lvl)%map_f2c_d, n, m)
+  end subroutine tamg_device_restriction_operator
+
+  subroutine tamg_device_prolongation_operator(this, vec_out_d, vec_in_d, lvl, vec_out)
+    class(tamg_hierarchy_t), intent(inout) :: this
+    real(kind=rp), intent(inout) :: vec_out(:)
+    type(c_ptr) :: vec_out_d
+    type(c_ptr) :: vec_in_d
+    integer, intent(in) :: lvl
+    integer :: i, n, m
+    n = this%lvl(lvl)%nnodes
+    m = this%lvl(lvl)%fine_lvl_dofs
+    call device_masked_gather_copy(vec_out_d, vec_in_d, this%lvl(lvl)%map_f2c_d, n, m)
+    if (lvl-1 .eq. 0) then
+       call this%gs_h%op(vec_out, m, GS_OP_ADD, glb_cmd_event)
+       call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
+       call device_col2( vec_out_d, this%coef%mult_d, m)
+    end if
+  end subroutine tamg_device_prolongation_operator
 
 end module tree_amg

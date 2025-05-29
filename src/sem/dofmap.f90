@@ -46,7 +46,7 @@ module dofmap
   use element, only : element_t
   use quad, only : quad_t
   use hex, only : hex_t
-  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
 

@@ -1,0 +1,168 @@
+@test
+subroutine test_rk1()
+  use pfunit
+  use num_types, only : rp
+  use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
+  implicit none
+  
+  type(runge_kutta_time_scheme_t) :: rk
+  
+  ! Test Forward Euler (RK1)
+  call rk%init(1)
+  
+  ! Check coefficients A
+  @assertEqual(rk%coeffs_A(1,1), 0.0_rp, tolerance=1e-14_rp)
+  
+  ! Check coefficients b
+  @assertEqual(rk%coeffs_b(1), 1.0_rp, tolerance=1e-14_rp)
+  
+  ! Check coefficients c
+  @assertEqual(rk%coeffs_c(1), 0.0_rp, tolerance=1e-14_rp)
+  
+  call rk%free()
+end subroutine test_rk1
+
+@test
+subroutine test_rk2()
+  use pfunit
+  use num_types, only : rp
+  use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
+  implicit none
+  
+  type(runge_kutta_time_scheme_t) :: rk
+  
+  ! Test Heun's method (RK2)
+  call rk%init(2)
+  
+  ! Check coefficients A
+  @assertEqual(rk%coeffs_A(1,1), 0.0_rp, tolerance=1e-14_rp)
+  @assertEqual(rk%coeffs_A(2,1), 1.0_rp, tolerance=1e-14_rp)
+  @assertEqual(rk%coeffs_A(1,2), 0.0_rp, tolerance=1e-14_rp)
+  @assertEqual(rk%coeffs_A(2,2), 0.0_rp, tolerance=1e-14_rp)
+  
+  ! Check coefficients b
+  @assertEqual(rk%coeffs_b(1), 0.5_rp, tolerance=1e-14_rp)
+  @assertEqual(rk%coeffs_b(2), 0.5_rp, tolerance=1e-14_rp)
+  
+  ! Check coefficients c
+  @assertEqual(rk%coeffs_c(1), 0.0_rp, tolerance=1e-14_rp)
+  @assertEqual(rk%coeffs_c(2), 1.0_rp, tolerance=1e-14_rp)
+  
+  call rk%free()
+end subroutine test_rk2
+
+@test
+subroutine test_rk3()
+  use pfunit
+  use num_types, only : rp
+  use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
+  implicit none
+  
+  type(runge_kutta_time_scheme_t) :: rk
+  
+  ! Test SSPRK3
+  call rk%init(3)
+  
+  ! Check coefficients A
+  @assertEqual(rk%coeffs_A(1,1), 0.0_rp, tolerance=1e-14_rp)
+  @assertEqual(rk%coeffs_A(2,1), 1.0_rp, tolerance=1e-14_rp)
+  @assertEqual(rk%coeffs_A(3,1), 0.25_rp, tolerance=1e-14_rp)
+  @assertEqual(rk%coeffs_A(3,2), 0.25_rp, tolerance=1e-14_rp)
+  
+  ! Check coefficients b
+  @assertEqual(rk%coeffs_b(1), 1.0_rp/6.0_rp, tolerance=1e-14_rp)
+  @assertEqual(rk%coeffs_b(2), 1.0_rp/6.0_rp, tolerance=1e-14_rp)
+  @assertEqual(rk%coeffs_b(3), 2.0_rp/3.0_rp, tolerance=1e-14_rp)
+  
+  ! Check coefficients c
+  @assertEqual(rk%coeffs_c(1), 0.0_rp, tolerance=1e-14_rp)
+  @assertEqual(rk%coeffs_c(2), 1.0_rp, tolerance=1e-14_rp)
+  @assertEqual(rk%coeffs_c(3), 0.5_rp, tolerance=1e-14_rp)
+  
+  call rk%free()
+end subroutine test_rk3
+
+@test
+subroutine test_rk4()
+  use pfunit
+  use num_types, only : rp
+  use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
+  implicit none
+  
+  type(runge_kutta_time_scheme_t) :: rk
+  
+  ! Test classical RK4
+  call rk%init(4)
+  
+  ! Check coefficients A
+  @assertEqual(rk%coeffs_A(1,1), 0.0_rp, tolerance=1e-14_rp)
+  @assertEqual(rk%coeffs_A(2,1), 0.5_rp, tolerance=1e-14_rp)
+  @assertEqual(rk%coeffs_A(3,2), 0.5_rp, tolerance=1e-14_rp)
+  @assertEqual(rk%coeffs_A(4,3), 1.0_rp, tolerance=1e-14_rp)
+  
+  ! Check coefficients b
+  @assertEqual(rk%coeffs_b(1), 1.0_rp/6.0_rp, tolerance=1e-14_rp)
+  @assertEqual(rk%coeffs_b(2), 1.0_rp/3.0_rp, tolerance=1e-14_rp)
+  @assertEqual(rk%coeffs_b(3), 1.0_rp/3.0_rp, tolerance=1e-14_rp)
+  @assertEqual(rk%coeffs_b(4), 1.0_rp/6.0_rp, tolerance=1e-14_rp)
+  
+  ! Check coefficients c
+  @assertEqual(rk%coeffs_c(1), 0.0_rp, tolerance=1e-14_rp)
+  @assertEqual(rk%coeffs_c(2), 0.5_rp, tolerance=1e-14_rp)
+  @assertEqual(rk%coeffs_c(3), 0.5_rp, tolerance=1e-14_rp)
+  @assertEqual(rk%coeffs_c(4), 1.0_rp, tolerance=1e-14_rp)
+  
+  call rk%free()
+end subroutine test_rk4
+
+! @test
+! subroutine test_invalid_order()
+!   use pfunit
+!   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
+!   implicit none
+  
+!   type(runge_kutta_time_scheme_t) :: rk
+!   logical :: has_error = .false.
+  
+!   ! Test invalid order
+!   ! This should trigger neko_error
+!   try 
+!     call rk%init(5)
+!   catch
+!     has_error = .true.
+!   end try
+  
+!   @assertTrue(has_error)
+! end subroutine test_invalid_order
+
+@test 
+subroutine test_memory_management()
+  use pfunit
+  use neko_config
+  use device
+  use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
+  use, intrinsic :: iso_c_binding, only : c_associated
+  implicit none
+  
+  type(runge_kutta_time_scheme_t) :: rk
+  
+  ! Initialize with RK4
+  call rk%init(4)
+  
+  ! Test device pointers are properly allocated when NEKO_BCKND_DEVICE = 1
+  if (NEKO_BCKND_DEVICE == 1) then
+    @assertTrue(c_associated(rk%coeffs_A_d))
+    @assertTrue(c_associated(rk%coeffs_b_d))
+    @assertTrue(c_associated(rk%coeffs_c_d))
+  end if
+  
+  ! Free memory
+  call rk%free()
+  
+  ! Test device pointers are properly deallocated
+  if (NEKO_BCKND_DEVICE == 1) then
+    @assertFalse(c_associated(rk%coeffs_A_d))
+    @assertFalse(c_associated(rk%coeffs_b_d))
+    @assertFalse(c_associated(rk%coeffs_c_d))
+  end if
+end subroutine test_memory_management

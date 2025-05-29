@@ -36,20 +36,24 @@
 !! be found at https://github.com/Nek5000/gslib/blob/master/src/findpts.c
 !!
 module global_interpolation
-  use num_types, only: rp
-  use space, only: space_t
-  use dofmap, only: dofmap_t
-  use mesh, only: mesh_t
-  use logger, only: neko_log, LOG_SIZE
-  use utils, only: neko_error, neko_warning
-  use local_interpolation
-  use comm
-  use math, only: copy
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use num_types, only : rp
+  use space, only : space_t
+  use dofmap, only : dofmap_t
+  use mesh, only : mesh_t
+  use logger, only : neko_log, LOG_SIZE
+  use utils, only : neko_error, neko_warning
+  use local_interpolation, only : local_interpolator_t
+  use device
+  use comm, only : NEKO_COMM, pe_size, pe_rank, MPI_Gather, &
+       MPI_DOUBLE_PRECISION, MPI_INTEGER, MPI_SUM, MPI_Reduce, MPI_Gatherv
+  use math, only : copy
   use neko_mpi_types
-  use structs, only: array_ptr_t
+  use structs, only : array_ptr_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
+
   !> Implements global interpolation for arbitrary points in the domain.
   type, public :: global_interpolation_t
      !> X coordinates from which to interpolate.

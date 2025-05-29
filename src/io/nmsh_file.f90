@@ -48,7 +48,7 @@ module nmsh_file
        MPI_MODE_WRONLY, MPI_MODE_CREATE, MPI_MODE_RDONLY, MPI_INFO_NULL, &
        MPI_File_open, MPI_File_close, MPI_File_read_all, MPI_File_write_all, &
        MPI_File_write_at_all, MPI_File_read_at_all, MPI_INTEGER, MPI_SUM, &
-       MPI_Exscan, MPI_Barrier, MPI_Type_size
+       MPI_Exscan, MPI_Barrier, MPI_Type_size, MPI_Allreduce, MPI_File_sync
   use logger, only: neko_log, LOG_SIZE
   implicit none
 
@@ -80,7 +80,7 @@ contains
     integer :: i, j, ierr, element_offset
     integer :: nmsh_quad_size, nmsh_hex_size, nmsh_zone_size
     integer :: nelv, gdim, nzones, ncurves
-    integer :: el_idx
+    integer :: el_idx, el_idx_glb
     type(point_t), target :: p(8)
     type(linear_dist_t) :: dist
     character(len=LOG_SIZE) :: log_buf
@@ -89,9 +89,9 @@ contains
     call this%check_exists()
 
     select type (data)
-      type is (mesh_t)
+    type is (mesh_t)
        msh => data
-      class default
+    class default
        call neko_error('Invalid output data')
     end select
 
@@ -141,7 +141,8 @@ contains
                 p(j) = point_t(nmsh_quad(i)%v(j)%v_xyz, nmsh_quad(i)%v(j)%v_idx)
              end do
              ! swap vertices to keep symmetric vertex numbering in neko
-             call msh%add_element(i, p(1), p(2), p(4), p(3))
+             call msh%add_element(i, nmsh_quad(i)%el_idx, &
+                  p(1), p(2), p(4), p(3))
           end do
           deallocate(nmsh_quad)
           mpi_el_offset = int(2 * MPI_INTEGER_SIZE, i8) + &
@@ -157,7 +158,7 @@ contains
                 p(j) = point_t(nmsh_hex(i)%v(j)%v_xyz, nmsh_hex(i)%v(j)%v_idx)
              end do
              ! swap vertices to keep symmetric vertex numbering in neko
-             call msh%add_element(i, &
+             call msh%add_element(i, nmsh_hex(i)%el_idx, &
                   p(1), p(2), p(4), p(3), p(5), p(6), p(8), p(7))
           end do
           deallocate(nmsh_hex)
@@ -184,26 +185,14 @@ contains
                nmsh_zone, nzones, MPI_NMSH_ZONE, status, ierr)
 
           do i = 1, nzones
-             el_idx = nmsh_zone(i)%e
-             if (el_idx .gt. msh%offset_el .and. &
-                  el_idx .le. msh%offset_el + msh%nelv) then
-                el_idx = el_idx - msh%offset_el
+             el_idx_glb = nmsh_zone(i)%e
+             if (msh%htel%get(el_idx_glb, el_idx) .eq. 0) then
                 select case (nmsh_zone(i)%type)
-                  case (1)
-                   call msh%mark_wall_facet(nmsh_zone(i)%f, el_idx)
-                  case (2)
-                   call msh%mark_inlet_facet(nmsh_zone(i)%f, el_idx)
-                  case (3)
-                   call msh%mark_outlet_facet(nmsh_zone(i)%f, el_idx)
-                  case (4)
-                   call msh%mark_sympln_facet(nmsh_zone(i)%f, el_idx)
-                  case (5)
+                case (5)
                    call msh%mark_periodic_facet(nmsh_zone(i)%f, el_idx, &
                         nmsh_zone(i)%p_f, nmsh_zone(i)%p_e, &
                         nmsh_zone(i)%glb_pt_ids)
-                  case (6)
-                   call msh%mark_outlet_normal_facet(nmsh_zone(i)%f, el_idx)
-                  case (7)
+                case (7)
                    call msh%mark_labeled_facet(nmsh_zone(i)%f, el_idx, &
                         nmsh_zone(i)%p_f)
                 end select
@@ -211,12 +200,10 @@ contains
           end do
           !Apply facets, important that marking is finished
           do i = 1, nzones
-             el_idx = nmsh_zone(i)%e
-             if (el_idx .gt. msh%offset_el .and. &
-                  el_idx .le. msh%offset_el + msh%nelv) then
-                el_idx = el_idx - msh%offset_el
+             el_idx_glb = nmsh_zone(i)%e
+             if (msh%htel%get(el_idx_glb, el_idx) .eq. 0) then
                 select case (nmsh_zone(i)%type)
-                  case (5)
+                case (5)
                    call msh%apply_periodic_facet(nmsh_zone(i)%f, el_idx, &
                         nmsh_zone(i)%p_f, nmsh_zone(i)%p_e, &
                         nmsh_zone(i)%glb_pt_ids)
@@ -242,9 +229,8 @@ contains
                nmsh_curve, ncurves, MPI_NMSH_CURVE, status, ierr)
 
           do i = 1, ncurves
-             el_idx = nmsh_curve(i)%e - msh%offset_el
-             if (el_idx .gt. 0 .and. &
-                  el_idx .le. msh%nelv) then
+             el_idx_glb = nmsh_curve(i)%e
+             if (msh%htel%get(el_idx_glb, el_idx) .eq. 0) then
                 call msh%mark_curve_element(el_idx, &
                      nmsh_curve(i)%curve_data, nmsh_curve(i)%type)
              end if
@@ -287,7 +273,7 @@ contains
     integer :: i, j, ierr, element_offset, id
     integer :: nmsh_quad_size, nmsh_hex_size, nmsh_zone_size
     integer :: nelv, gdim, nzones, ncurves, ids(4)
-    integer :: el_idx
+    integer :: el_idx_glb, el_idx
     type(point_t) :: p(8)
     type(linear_dist_t) :: dist
     character(len=LOG_SIZE) :: log_buf
@@ -334,7 +320,7 @@ contains
           p(j+4) = point_t(coord, id)
        end do
        ! swap vertices to keep symmetric vertex numbering in neko
-       call msh%add_element(i, &
+       call msh%add_element(i, nmsh_quad(i)%el_idx, &
             p(1), p(2), p(4), p(3), p(5), p(6), p(8), p(7))
     end do
     deallocate(nmsh_quad)
@@ -357,20 +343,10 @@ contains
             nmsh_zone, nzones, MPI_NMSH_ZONE, status, ierr)
 
        do i = 1, nzones
-          el_idx = nmsh_zone(i)%e
-          if (el_idx .gt. msh%offset_el .and. &
-               el_idx .le. msh%offset_el + msh%nelv) then
-             el_idx = el_idx - msh%offset_el
+          el_idx_glb = nmsh_zone(i)%e
+          if (msh%htel%get(el_idx_glb, el_idx) .eq. 0) then
              select case (nmsh_zone(i)%type)
-               case (1)
-                call msh%mark_wall_facet(nmsh_zone(i)%f, el_idx)
-               case (2)
-                call msh%mark_inlet_facet(nmsh_zone(i)%f, el_idx)
-               case (3)
-                call msh%mark_outlet_facet(nmsh_zone(i)%f, el_idx)
-               case (4)
-                call msh%mark_sympln_facet(nmsh_zone(i)%f, el_idx)
-               case (5)
+             case (5)
                 nmsh_zone(i)%glb_pt_ids(3) = nmsh_zone(i)%glb_pt_ids(1) + &
                      msh%glb_nelv * 8
                 nmsh_zone(i)%glb_pt_ids(4) = nmsh_zone(i)%glb_pt_ids(2) + &
@@ -389,9 +365,7 @@ contains
                 nmsh_zone(i)%glb_pt_ids = ids
                 call msh%mark_periodic_facet(nmsh_zone(i)%f, el_idx, &
                      nmsh_zone(i)%p_f, nmsh_zone(i)%p_e, ids)
-               case (6)
-                call msh%mark_outlet_normal_facet(nmsh_zone(i)%f, el_idx)
-               case (7)
+             case (7)
                 call msh%mark_labeled_facet(nmsh_zone(i)%f, el_idx, &
                      nmsh_zone(i)%p_f)
              end select
@@ -399,12 +373,10 @@ contains
        end do
        !Apply facets, important that marking is finished
        do i = 1, nzones
-          el_idx = nmsh_zone(i)%e
-          if (el_idx .gt. msh%offset_el .and. &
-               el_idx .le. msh%offset_el + msh%nelv) then
-             el_idx = el_idx - msh%offset_el
+          el_idx_glb = nmsh_zone(i)%e
+          if (msh%htel%get(el_idx_glb, el_idx) .eq. 0) then
              select case (nmsh_zone(i)%type)
-               case (5)
+             case (5)
                 call msh%apply_periodic_facet(nmsh_zone(i)%f, el_idx, &
                      nmsh_zone(i)%p_f, nmsh_zone(i)%p_e, &
                      nmsh_zone(i)%glb_pt_ids)
@@ -447,13 +419,11 @@ contains
             nmsh_curve, ncurves, MPI_NMSH_CURVE, status, ierr)
 
        do i = 1, ncurves
-          el_idx = nmsh_curve(i)%e - msh%offset_el
-          if (el_idx .gt. 0 .and. &
-               el_idx .le. msh%nelv) then
+          el_idx_glb = nmsh_curve(i)%e
+          if (msh%htel%get(el_idx_glb, el_idx) .eq. 0) then
              call msh%mark_curve_element(el_idx, &
                   nmsh_curve(i)%curve_data, nmsh_curve(i)%type)
           end if
-
        end do
 
        deallocate(nmsh_curve)
@@ -481,17 +451,19 @@ contains
     type(MPI_Status) :: status
     type(MPI_File) :: fh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, mpi_el_offset
-    integer :: i, j, ierr, nelgv, element_offset, k
+    integer :: i, j, ierr, k
     integer :: nmsh_quad_size, nmsh_hex_size, nmsh_zone_size, nmsh_curve_size
-    integer :: nzones, ncurves
+    integer :: nzones, nzones_glb, nzones_offset
+    integer :: ncurves, ncurves_glb, ncurves_offset
+    integer :: el_idx, el_idx_glb
     class(element_t), pointer :: ep
-    integer(i4), dimension(8), parameter :: vcyc_to_sym = [1, 2, 4, 3, 5, &
-         & 6, 8, 7] ! cyclic to symmetric vertex mapping
+    integer(i4), dimension(8), parameter :: vcyc_to_sym = &
+         [1, 2, 4, 3, 5, 6, 8, 7] ! cyclic to symmetric vertex mapping
 
     select type (data)
-      type is (mesh_t)
+    type is (mesh_t)
        msh => data
-      class default
+    class default
        call neko_error('Invalid output data')
     end select
 
@@ -500,18 +472,12 @@ contains
     call MPI_Type_size(MPI_NMSH_ZONE, nmsh_zone_size, ierr)
     call MPI_Type_size(MPI_NMSH_CURVE, nmsh_curve_size, ierr)
 
-    call MPI_Reduce(msh%nelv, nelgv, 1, MPI_INTEGER, &
-         MPI_SUM, 0, NEKO_COMM, ierr)
-    element_offset = 0
-    call MPI_Exscan(msh%nelv, element_offset, 1, &
-         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-
     call neko_log%message('Writing data as a binary Neko file ' // this%fname)
 
     call MPI_File_open(NEKO_COMM, trim(this%fname), &
          MPI_MODE_WRONLY + MPI_MODE_CREATE, MPI_INFO_NULL, fh, ierr)
 
-    call MPI_File_write_all(fh, nelgv, 1, MPI_INTEGER, status, ierr)
+    call MPI_File_write_all(fh, msh%glb_nelv, 1, MPI_INTEGER, status, ierr)
     call MPI_File_write_all(fh, msh%gdim, 1, MPI_INTEGER, status, ierr)
 
     call msh%reset_periodic_ids()
@@ -527,12 +493,12 @@ contains
           end do
        end do
        mpi_offset = int(2 * MPI_INTEGER_SIZE, i8) + &
-            int(element_offset, i8) * int(nmsh_quad_size, i8)
+            int(msh%offset_el, i8) * int(nmsh_quad_size, i8)
        call MPI_File_write_at_all(fh, mpi_offset, &
             nmsh_quad, msh%nelv, MPI_NMSH_QUAD, status, ierr)
        deallocate(nmsh_quad)
        mpi_el_offset = int(2 * MPI_INTEGER_SIZE, i8) + &
-            int(nelgv, i8) * int(nmsh_quad_size, i8)
+            int(msh%glb_nelv, i8) * int(nmsh_quad_size, i8)
     else if (msh%gdim .eq. 3) then
        allocate(nmsh_hex(msh%nelv))
        do i = 1, msh%nelv
@@ -544,12 +510,12 @@ contains
           end do
        end do
        mpi_offset = int(2 * MPI_INTEGER_SIZE, i8) + &
-            int(element_offset, i8) * int(nmsh_hex_size, i8)
+            int(msh%offset_el, i8) * int(nmsh_hex_size, i8)
        call MPI_File_write_at_all(fh, mpi_offset, &
             nmsh_HEX, min(msh%nelv, max_write_nel), MPI_NMSH_HEX, status, ierr)
        do i = 1, msh%nelv/max_write_nel
           mpi_offset = int(2 * MPI_INTEGER_SIZE, i8) + &
-               int(element_offset+i*max_write_nel, i8) * int(nmsh_hex_size, i8)
+               int(msh%offset_el+i*max_write_nel, i8) * int(nmsh_hex_size, i8)
           call MPI_File_write_at_all(fh, mpi_offset, &
                nmsh_HEX(i*max_write_nel+1), &
                min(msh%nelv-i*max_write_nel, max_write_nel), &
@@ -557,83 +523,58 @@ contains
        end do
        deallocate(nmsh_hex)
        mpi_el_offset = int(2 * MPI_INTEGER_SIZE, i8) + &
-            int(nelgv, i8) * int(nmsh_hex_size, i8)
+            int(msh%glb_nelv, i8) * int(nmsh_hex_size, i8)
     else
        call neko_error('Invalid dimension of mesh')
     end if
 
-    nzones = msh%wall%size + msh%inlet%size + msh%outlet%size + &
-         msh%sympln%size + msh%periodic%size + msh%outlet_normal%size
-
+    nzones = msh%periodic%size
     do i = 1, NEKO_MSH_MAX_ZLBLS
        nzones = nzones + msh%labeled_zones(i)%size
     end do
+
+    call MPI_Allreduce(nzones, nzones_glb, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+
+    nzones_offset = 0
+    call MPI_Exscan(nzones, nzones_offset, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+
     mpi_offset = mpi_el_offset
     call MPI_File_write_at_all(fh, mpi_offset, &
-         nzones, 1, MPI_INTEGER, status, ierr)
+         nzones_glb, 1, MPI_INTEGER, status, ierr)
 
-    if (nzones .gt. 0) then
+    if (nzones_glb .gt. 0) then
        allocate(nmsh_zone(nzones))
 
-       nmsh_zone(:)%type = 0
+       if (nzones .gt. 0) then
+          nmsh_zone(:)%type = 0
 
-       j = 1
-       do i = 1, msh%wall%size
-          nmsh_zone(j)%e = msh%wall%facet_el(i)%x(2) + msh%offset_el
-          nmsh_zone(j)%f = msh%wall%facet_el(i)%x(1)
-          nmsh_zone(j)%type = 1
-          j = j + 1
-       end do
-
-       do i = 1, msh%inlet%size
-          nmsh_zone(j)%e = msh%inlet%facet_el(i)%x(2) + msh%offset_el
-          nmsh_zone(j)%f = msh%inlet%facet_el(i)%x(1)
-          nmsh_zone(j)%type = 2
-          j = j + 1
-       end do
-
-       do i = 1, msh%outlet%size
-          nmsh_zone(j)%e = msh%outlet%facet_el(i)%x(2) + msh%offset_el
-          nmsh_zone(j)%f = msh%outlet%facet_el(i)%x(1)
-          nmsh_zone(j)%type = 3
-          j = j + 1
-       end do
-
-       do i = 1, msh%sympln%size
-          nmsh_zone(j)%e = msh%sympln%facet_el(i)%x(2) + msh%offset_el
-          nmsh_zone(j)%f = msh%sympln%facet_el(i)%x(1)
-          nmsh_zone(j)%type = 4
-          j = j + 1
-       end do
-
-       do i = 1, msh%periodic%size
-          nmsh_zone(j)%e = msh%periodic%facet_el(i)%x(2) + msh%offset_el
-          nmsh_zone(j)%f = msh%periodic%facet_el(i)%x(1)
-          nmsh_zone(j)%p_e = msh%periodic%p_facet_el(i)%x(2)
-          nmsh_zone(j)%p_f = msh%periodic%p_facet_el(i)%x(1)
-          nmsh_zone(j)%glb_pt_ids = msh%periodic%p_ids(i)%x
-          nmsh_zone(j)%type = 5
-          j = j + 1
-       end do
-       do i = 1, msh%outlet_normal%size
-          nmsh_zone(j)%e = msh%outlet_normal%facet_el(i)%x(2) + msh%offset_el
-          nmsh_zone(j)%f = msh%outlet_normal%facet_el(i)%x(1)
-          nmsh_zone(j)%type = 6
-          j = j + 1
-       end do
-       do k = 1, NEKO_MSH_MAX_ZLBLS
-          do i = 1, msh%labeled_zones(k)%size
-             nmsh_zone(j)%e = msh%labeled_zones(k)%facet_el(i)%x(2) + &
-                  msh%offset_el
-             nmsh_zone(j)%f = msh%labeled_zones(k)%facet_el(i)%x(1)
-             nmsh_zone(j)%p_f = k
-             nmsh_zone(j)%type = 7
+          j = 1
+          do i = 1, msh%periodic%size
+             nmsh_zone(j)%e = msh%elements(msh%periodic%facet_el(i)%x(2))%e%id()
+             nmsh_zone(j)%f = msh%periodic%facet_el(i)%x(1)
+             nmsh_zone(j)%p_e = msh%periodic%p_facet_el(i)%x(2)
+             nmsh_zone(j)%p_f = msh%periodic%p_facet_el(i)%x(1)
+             nmsh_zone(j)%glb_pt_ids = msh%periodic%p_ids(i)%x
+             nmsh_zone(j)%type = 5
              j = j + 1
           end do
-       end do
 
+          do k = 1, NEKO_MSH_MAX_ZLBLS
+             do i = 1, msh%labeled_zones(k)%size
+                nmsh_zone(j)%e = &
+                     msh%elements(msh%labeled_zones(k)%facet_el(i)%x(2))%e%id()
+                nmsh_zone(j)%f = msh%labeled_zones(k)%facet_el(i)%x(1)
+                nmsh_zone(j)%p_f = k
+                nmsh_zone(j)%type = 7
+                j = j + 1
+             end do
+          end do
+       end if
 
-       mpi_offset = mpi_el_offset + int(MPI_INTEGER_SIZE, i8)
+       mpi_offset = mpi_el_offset + int(MPI_INTEGER_SIZE, i8) + &
+            int(nzones_offset, i8) * int(nmsh_zone_size, i8)
        call MPI_File_write_at_all(fh, mpi_offset, &
             nmsh_zone, nzones, MPI_NMSH_ZONE, status, ierr)
 
@@ -641,34 +582,60 @@ contains
     end if
 
     ncurves = msh%curve%size
+
+
+    call MPI_Allreduce(ncurves, ncurves_glb, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+
+    ncurves_offset = 0
+    call MPI_Exscan(ncurves, ncurves_offset, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+
     mpi_offset = mpi_el_offset + int(MPI_INTEGER_SIZE, i8) + &
-         int(nzones, i8)*int(nmsh_zone_size, i8)
+         int(nzones_glb, i8)*int(nmsh_zone_size, i8)
 
     call MPI_File_write_at_all(fh, mpi_offset, &
-         ncurves, 1, MPI_INTEGER, status, ierr)
+         ncurves_glb, 1, MPI_INTEGER, status, ierr)
 
-    if (ncurves .gt. 0) then
+    if (ncurves_glb .gt. 0) then
+
        allocate(nmsh_curve(ncurves))
+
        do i = 1, ncurves
           nmsh_curve(i)%type = 0
        end do
 
        do i = 1, ncurves
-          nmsh_curve(i)%e = msh%curve%curve_el(i)%el_idx + msh%offset_el
+          nmsh_curve(i)%e = msh%elements(msh%curve%curve_el(i)%el_idx)%e%id()
           nmsh_curve(i)%curve_data = msh%curve%curve_el(i)%curve_data
           nmsh_curve(i)%type = msh%curve%curve_el(i)%curve_type
        end do
+
        mpi_offset = mpi_el_offset + int(2*MPI_INTEGER_SIZE, i8) + &
-            int(nzones, i8)*int(nmsh_zone_size, i8)
+            int(nzones_glb, i8) * int(nmsh_zone_size, i8) + &
+            int(ncurves_offset, i8) * int(nmsh_curve_size, i8)
+
        call MPI_File_write_at_all(fh, mpi_offset, &
             nmsh_curve, ncurves, MPI_NMSH_CURVE, status, ierr)
-
        deallocate(nmsh_curve)
     end if
 
     call MPI_File_sync(fh, ierr)
     call MPI_File_close(fh, ierr)
     call neko_log%message('Done')
+
+    !
+    ! Re-apply periodic facets
+    ! (necessary if the mesh is going to be used after I/O)
+    !
+    do i = 1, msh%periodic%size
+       el_idx_glb = msh%elements(msh%periodic%facet_el(i)%x(2))%e%id()
+       if (msh%htel%get(el_idx_glb, el_idx) .eq. 0) then
+          call msh%apply_periodic_facet(msh%periodic%facet_el(i)%x(1), el_idx, &
+               msh%periodic%p_facet_el(i)%x(1), msh%periodic%p_facet_el(i)%x(2), &
+               msh%periodic%p_ids(i)%x)
+       end if
+    end do
 
   end subroutine nmsh_file_write
 

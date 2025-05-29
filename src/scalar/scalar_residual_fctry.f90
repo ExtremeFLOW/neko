@@ -57,7 +57,7 @@ contains
     else
        allocate(scalar_residual_cpu_t::object)
     end if
-    
+
   end subroutine scalar_residual_factory
-  
+
 end submodule scalar_residual_fctry

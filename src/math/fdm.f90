@@ -171,7 +171,7 @@ contains
       n2 = lx1 - 1
       nz0 = 1
       nzn = 1
-      nx  = lx1 - 2
+      nx = lx1 - 2
       if (gdim .eq. 3) then
          nz0 = 0
          nzn = n2
@@ -194,10 +194,10 @@ contains
          end do
          if (NEKO_BCKND_DEVICE .eq. 1) then
             call device_memcpy(l, this%swplen_d, this%dof%size(), &
-                               HOST_TO_DEVICE, sync=.false.)
+                 HOST_TO_DEVICE, sync=.false.)
             call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
             call device_memcpy(l, this%swplen_d, this%dof%size(), &
-                               DEVICE_TO_HOST, sync=.false.)
+                 DEVICE_TO_HOST, sync=.true.)
          else
             call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
          end if
@@ -222,10 +222,10 @@ contains
 
          if (NEKO_BCKND_DEVICE .eq. 1) then
             call device_memcpy(l, this%swplen_d, this%dof%size(), &
-                               HOST_TO_DEVICE, sync=.false.)
+                 HOST_TO_DEVICE, sync=.false.)
             call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
             call device_memcpy(l, this%swplen_d, this%dof%size(), &
-                               DEVICE_TO_HOST, sync=.true.)
+                 DEVICE_TO_HOST, sync=.true.)
          else
             call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
          end if
@@ -244,14 +244,14 @@ contains
   !! We no longer base this on the finest grid, but rather
   !! the dofmap we are working with, Karp 210112
   subroutine plane_space(lr, ls, lt, i1, i2, w, x, y, z, &
-                         nx, nxn, nz0, nzn, nelv, gdim)
+       nx, nxn, nz0, nzn, nelv, gdim)
     integer, intent(in) :: nxn, nzn, i1, i2, nelv, gdim, nx, nz0
     real(kind=rp), intent(inout) :: lr(nelv), ls(nelv), lt(nelv)
     real(kind=rp), intent(inout) :: w(nx)
     real(kind=rp), intent(in) :: x(0:nxn,0:nxn,nz0:nzn,nelv)
     real(kind=rp), intent(in) :: y(0:nxn,0:nxn,nz0:nzn,nelv)
     real(kind=rp), intent(in) :: z(0:nxn,0:nxn,nz0:nzn,nelv)
-    real(kind=rp) ::  lr2, ls2, lt2, weight, wsum
+    real(kind=rp) :: lr2, ls2, lt2, weight, wsum
     integer :: ny, nz, j1, k1, j2, k2, i, j, k, ie
     ny = nx
     nz = nx
@@ -262,71 +262,71 @@ contains
     !   Now, for each element, compute lr,ls,lt between specified planes
     do ie = 1,nelv
        if (gdim .eq. 3) then
-          lr2  = 0d0
+          lr2 = 0d0
           wsum = 0d0
           do k = 1,nz
              do j = 1,ny
                 weight = w(j)*w(k)
-                lr2  = lr2  +   weight /&
+                lr2 = lr2 + weight /&
                      ( (x(i2,j,k,ie)-x(i1,j,k,ie))**2&
-                     +   (y(i2,j,k,ie)-y(i1,j,k,ie))**2&
-                     +   (z(i2,j,k,ie)-z(i1,j,k,ie))**2 )
+                     + (y(i2,j,k,ie)-y(i1,j,k,ie))**2&
+                     + (z(i2,j,k,ie)-z(i1,j,k,ie))**2 )
                 wsum = wsum + weight
              end do
           end do
-          lr2     = lr2/wsum
-          lr(ie)  = 1d0/sqrt(lr2)
+          lr2 = lr2/wsum
+          lr(ie) = 1d0/sqrt(lr2)
           ls2 = 0d0
           wsum = 0d0
           do k = 1,nz
              do i = 1,nx
                 weight = w(i)*w(k)
-                ls2  = ls2  +   weight / &
+                ls2 = ls2 + weight / &
                      ( (x(i,j2,k,ie)-x(i,j1,k,ie))**2 &
-                     +   (y(i,j2,k,ie)-y(i,j1,k,ie))**2 &
-                     +   (z(i,j2,k,ie)-z(i,j1,k,ie))**2 )
+                     + (y(i,j2,k,ie)-y(i,j1,k,ie))**2 &
+                     + (z(i,j2,k,ie)-z(i,j1,k,ie))**2 )
                 wsum = wsum + weight
              end do
           end do
-          ls2     = ls2/wsum
-          ls(ie)  = 1d0/sqrt(ls2)
+          ls2 = ls2/wsum
+          ls(ie) = 1d0/sqrt(ls2)
           lt2 = 0d0
           wsum = 0d0
           do j=1,ny
              do i=1,nx
                 weight = w(i)*w(j)
-                lt2  = lt2  +   weight / &
+                lt2 = lt2 + weight / &
                      ( (x(i,j,k2,ie)-x(i,j,k1,ie))**2 &
-                     +   (y(i,j,k2,ie)-y(i,j,k1,ie))**2 &
-                     +   (z(i,j,k2,ie)-z(i,j,k1,ie))**2 )
+                     + (y(i,j,k2,ie)-y(i,j,k1,ie))**2 &
+                     + (z(i,j,k2,ie)-z(i,j,k1,ie))**2 )
                 wsum = wsum + weight
              end do
           end do
-          lt2     = lt2/wsum
-          lt(ie)  = 1d0/sqrt(lt2)
-       else              ! 2D
+          lt2 = lt2/wsum
+          lt(ie) = 1d0/sqrt(lt2)
+       else ! 2D
           lr2 = 0d0
           wsum = 0d0
           do j=1,ny
              weight = w(j)
-             lr2  = lr2  + weight / &
-                          ( (x(i2,j,1,ie)-x(i1,j,1,ie))**2 &
-                          + (y(i2,j,1,ie)-y(i1,j,1,ie))**2 )
+             lr2 = lr2 + weight / &
+                  ( (x(i2,j,1,ie)-x(i1,j,1,ie))**2 &
+                  + (y(i2,j,1,ie)-y(i1,j,1,ie))**2 )
              wsum = wsum + weight
           enddo
-          lr2     = lr2/wsum
-          lr(ie)  = 1d0/sqrt(lr2)
+          lr2 = lr2/wsum
+          lr(ie) = 1d0/sqrt(lr2)
           ls2 = 0d0
           wsum = 0d0
           do i=1,nx
              weight = w(i)
-             ls2  = ls2  + weight / &
-                          ( (x(i,j2,1,ie)-x(i,j1,1,ie))**2 &
-                        +   (y(i,j2,1,ie)-y(i,j1,1,ie))**2 )
+             ls2 = ls2 + weight / &
+                  ( (x(i,j2,1,ie)-x(i,j1,1,ie))**2 &
+                  + (y(i,j2,1,ie)-y(i,j1,1,ie))**2 )
              wsum = wsum + weight
           enddo
-          ls2     = ls2/wsum
-          ls(ie)  = 1d0/sqrt(ls2)
+          ls2 = ls2/wsum
+          ls(ie) = 1d0/sqrt(ls2)
        endif
     enddo
     ie = 1014
@@ -336,7 +336,7 @@ contains
   subroutine fdm_setup_fast(this, ah, bh, nl, n)
     integer, intent(in) :: nl, n
     type(fdm_t), intent(inout) :: this
-    real(kind=rp), intent(inout) ::  ah(n+1,n+1), bh(n+1)
+    real(kind=rp), intent(inout) :: ah(n+1,n+1), bh(n+1)
     real(kind=rp), dimension(2*this%Xh%lx + 4) :: lr, ls, lt
     integer :: i, j, k
     integer :: ie, il, nr, ns, nt
@@ -344,9 +344,9 @@ contains
     real(kind=rp) :: eps, diag
 
     associate(s => this%s, d => this%d, &
-              llr => this%len_lr, lls => this%len_ls, llt => this%len_lt, &
-              lmr => this%len_mr, lms => this%len_ms, lmt => this%len_mt, &
-              lrr => this%len_rr, lrs => this%len_rs, lrt => this%len_rt)
+         llr => this%len_lr, lls => this%len_ls, llt => this%len_lt, &
+         lmr => this%len_mr, lms => this%len_ms, lmt => this%len_mt, &
+         lrr => this%len_rr, lrs => this%len_rs, lrt => this%len_rt)
       do ie=1,this%dof%msh%nelv
          lbr = this%dof%msh%facet_type(1, ie)
          rbr = this%dof%msh%facet_type(2, ie)
@@ -404,10 +404,10 @@ contains
   end subroutine fdm_setup_fast
 
   subroutine fdm_setup_fast1d(s, lam, nl, lbc, rbc, ll, lm, lr, ah, bh, n)
-    integer, intent(in)  :: nl, lbc, rbc, n
+    integer, intent(in) :: nl, lbc, rbc, n
     real(kind=rp), intent(inout) :: s(nl, nl, 2), lam(nl), ll, lm, lr
-    real(kind=rp), intent(inout) ::  ah(0:n, 0:n), bh(0:n)
-    integer ::  lx1, lxm
+    real(kind=rp), intent(inout) :: ah(0:n, 0:n), bh(0:n)
+    integer :: lx1, lxm
     real(kind=rp) :: b(2*(n+3)**2)
 
     lx1 = n + 1
@@ -504,8 +504,8 @@ contains
     if(lbc .eq. 0) then
        fac = 2.0_rp / ll
        a(0,0) = fac * ah(n-1,n-1)
-       a(1,0) = fac * ah(n  ,n-1)
-       a(0,1) = fac * ah(n-1,n  )
+       a(1,0) = fac * ah(n ,n-1)
+       a(0,1) = fac * ah(n-1,n )
        a(1,1) = a(1,1) + fac * ah(n,n)
     else
        a(0,0) = 1.0_rp

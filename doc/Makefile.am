@@ -33,6 +33,7 @@ EXTRA_DIST = pages/appendices/governing-equations.md \
 			pages/user-guide/simcomps.md \
 			pages/user-guide/statistics-guide.md \
 			pages/user-guide/user-file.md \
+			pages/user-guide/extension.md \
 			pages/appendices.md \
 			pages/developer-guide.md \
 			pages/index.md \

@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2024, The Neko Authors
+ Copyright (c) 2024-2025, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -36,11 +36,16 @@
 #include <device/device_config.h>
 #include <device/cuda/check.h>
 
+#ifdef HAVE_NVSHMEM
+#include <nvshmem.h>
+#include <nvshmemx.h>
+#endif
+
 /**
  * @todo Make sure that this gets deleted at some point...
  */
 real *fusedcg_cpld_buf = NULL;
-real *fusedcg_cpld_buf_d = NULL;
+void *fusedcg_cpld_buf_d = NULL;
 int fusedcg_cpld_buf_len = 0;
 
 extern "C" {
@@ -55,26 +60,26 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
-    
+
     fusedcg_cpld_part1_kernel<real>
       <<<nblcks, nthrds, 0, stream>>>((real *) a1, (real *) a2, (real *) a3,
                                       (real *) b1, (real *) b2, (real *) b3,
                                       (real *) tmp, *n);
     CUDA_CHECK(cudaGetLastError());
   }
-  
+
   void cuda_fusedcg_cpld_update_p(void *p1, void *p2, void *p3,
                                   void *z1, void *z2, void *z3,
                                   void *po1, void *po2, void *po3,
                                   real *beta, int *n) {
-        
+
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
-    
+
     fusedcg_cpld_update_p_kernel<real>
       <<<nblcks, nthrds, 0, stream>>>((real *) p1, (real *) p2, (real *) p3,
-                                      (real *) z1, (real *) z2, (real *) z3, 
+                                      (real *) z1, (real *) z2, (real *) z3,
                                       (real *) po1, (real *) po2, (real *) po3,
                                       *beta, *n);
     CUDA_CHECK(cudaGetLastError());
@@ -88,7 +93,7 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
-    
+
     fusedcg_cpld_update_x_kernel<real>
       <<<nblcks, nthrds, 0, stream>>>((real *) x1, (real *) x2, (real *) x3,
                                       (const real **) p1, (const real **) p2,
@@ -100,7 +105,7 @@ extern "C" {
   real cuda_fusedcg_cpld_part2(void *a1, void *a2, void *a3, void *b,
                                void *c1, void *c2, void *c3, void *alpha_d ,
                                real *alpha, int *p_cur, int * n) {
-    
+
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
@@ -108,13 +113,21 @@ extern "C" {
 
     if (fusedcg_cpld_buf != NULL && fusedcg_cpld_buf_len < nb) {
       CUDA_CHECK(cudaFreeHost(fusedcg_cpld_buf));
+#ifdef HAVE_NVSHMEM
+      nvshmem_free(fusedcg_cpld_buf_d);
+#else
       CUDA_CHECK(cudaFree(fusedcg_cpld_buf_d));
+#endif
       fusedcg_cpld_buf = NULL;
     }
-    
+
     if (fusedcg_cpld_buf == NULL){
       CUDA_CHECK(cudaMallocHost(&fusedcg_cpld_buf, 2*sizeof(real)));
+#ifdef HAVE_NVSHMEM
+      fusedcg_cpld_buf_d = (real *) nvshmem_malloc(nb*sizeof(real));
+#else
       CUDA_CHECK(cudaMalloc(&fusedcg_cpld_buf_d, nb*sizeof(real)));
+#endif
       fusedcg_cpld_buf_len = nb;
     }
 
@@ -122,26 +135,43 @@ extern "C" {
     fusedcg_cpld_buf[1] = (*alpha);
 
     /* Update alpha_d(p_cur) = alpha(p_cur) */
-    real *alpha_d_p_cur = ((real *) alpha_d) + ((*p_cur - 1));   
+    real *alpha_d_p_cur = ((real *) alpha_d) + ((*p_cur - 1));
     CUDA_CHECK(cudaMemcpyAsync(alpha_d_p_cur, &fusedcg_cpld_buf[1],
                                sizeof(real), cudaMemcpyHostToDevice,
                                stream));
 
-   
+
     fusedcg_cpld_part2_kernel<real>
       <<<nblcks, nthrds, 0, stream>>>((real *) a1, (real *) a2, (real *) a3,
                                       (real *) b, (real *) c1, (real *) c2,
-                                      (real *) c3, *alpha, fusedcg_cpld_buf_d,
-                                      *n);
+                                      (real *) c3, *alpha,
+                                      (real *) fusedcg_cpld_buf_d, *n);
     CUDA_CHECK(cudaGetLastError());
 
-    reduce_kernel<real><<<1, 1024, 0, stream>>>(fusedcg_cpld_buf_d, nb);
+    reduce_kernel<real><<<1, 1024, 0, stream>>>((real *) fusedcg_cpld_buf_d, nb);
     CUDA_CHECK(cudaGetLastError());
 
 #ifdef HAVE_DEVICE_MPI
     cudaStreamSynchronize(stream);
     device_mpi_allreduce(fusedcg_cpld_buf_d, fusedcg_cpld_buf, 1,
                          sizeof(real), DEVICE_MPI_SUM);
+#elif HAVE_NVSHMEM
+    if (sizeof(real) == sizeof(float)) {
+      nvshmemx_float_sum_reduce_on_stream(NVSHMEM_TEAM_WORLD,
+                                          (float *) fusedcg_cpld_buf_d,
+                                          (float *) fusedcg_cpld_buf_d,
+                                          1, stream);
+    }
+    else if (sizeof(real) == sizeof(double)) {
+      nvshmemx_double_sum_reduce_on_stream(NVSHMEM_TEAM_WORLD,
+                                           (double *) fusedcg_cpld_buf_d,
+                                           (double *) fusedcg_cpld_buf_d,
+                                           1, stream);
+
+    }
+    CUDA_CHECK(cudaMemcpyAsync(fusedcg_cpld_buf, fusedcg_cpld_buf_d,
+                               sizeof(real), cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
 #else
     CUDA_CHECK(cudaMemcpyAsync(fusedcg_cpld_buf, fusedcg_cpld_buf_d, sizeof(real),
                                cudaMemcpyDeviceToHost, stream));
@@ -151,4 +181,3 @@ extern "C" {
     return fusedcg_cpld_buf[0];
   }
 }
-

@@ -42,7 +42,12 @@ extern "C" {
 
 #include <math/bcknd/device/device_mpi_reduce.h>
 #include <math/bcknd/device/device_mpi_op.h>
-  
+
+#ifdef HAVE_RCCL
+#include <math/bcknd/device/device_nccl_reduce.h>
+#include <math/bcknd/device/device_nccl_op.h>
+#endif
+
   /**
    * @todo Make sure that this gets deleted at some point...
    */
@@ -77,7 +82,14 @@ extern "C" {
                        1, 1024, 0, (hipStream_t) glb_cmd_queue, gmres_bfd1, nb);
     HIP_CHECK(hipGetLastError());
 
-#ifdef HAVE_DEVICE_MPI
+#ifdef HAVE_RCCL
+    device_nccl_allreduce(gmres_bfd1, gmres_bfd1, 1, sizeof(real),
+                          DEVICE_NCCL_SUM, glb_cmd_queue);
+    HIP_CHECK(hipMemcpyAsync(gmres_bf1, gmres_bfd1, sizeof(real),
+                             hipMemcpyDeviceToHost,
+                             (hipStream_t) glb_cmd_queue));
+    HIP_CHECK(hipStreamSynchronize((hipStream_t) glb_cmd_queue));
+#elif HAVE_DEVICE_MPI
     HIP_CHECK(hipStreamSynchronize((hipStream_t) glb_cmd_queue));
     device_mpi_allreduce(gmres_bfd1, gmres_bf1, 1, sizeof(real), DEVICE_MPI_SUM);
 #else

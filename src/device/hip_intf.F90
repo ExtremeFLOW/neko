@@ -38,18 +38,6 @@ module hip_intf
 
 #ifdef HAVE_HIP
 
-  !> Global HIP command queue
-  type(c_ptr), bind(c) :: glb_cmd_queue = C_NULL_PTR
-
-  !> Aux HIP command queue
-  type(c_ptr), bind(c) :: aux_cmd_queue = C_NULL_PTR
-
-  !> High priority stream setting
-  integer :: STRM_HIGH_PRIO
-
-  !> Low priority stream setting
-  integer :: STRM_LOW_PRIO
-
   !> Enum @a hipError_t
   enum, bind(c)
     enumerator :: hipSuccess = 0
@@ -234,7 +222,12 @@ module hip_intf
 
 contains
 
-  subroutine hip_init
+  subroutine hip_init(glb_cmd_queue, aux_cmd_queue, &
+       STRM_HIGH_PRIO, STRM_LOW_PRIO)
+    type(c_ptr), intent(inout) :: glb_cmd_queue
+    type(c_ptr), intent(inout) :: aux_cmd_queue
+    integer, intent(inout) :: STRM_HIGH_PRIO
+    integer, intent(inout) :: STRM_LOW_PRIO
 
     if (hipDeviceGetStreamPriorityRange(STRM_LOW_PRIO, STRM_HIGH_PRIO) &
         .ne. hipSuccess) then
@@ -252,7 +245,10 @@ contains
     end if
   end subroutine hip_init
 
-  subroutine hip_finalize
+  subroutine hip_finalize(glb_cmd_queue, aux_cmd_queue)
+    type(c_ptr), intent(inout) :: glb_cmd_queue
+    type(c_ptr), intent(inout) :: aux_cmd_queue
+    
     if (hipStreamDestroy(glb_cmd_queue) .ne. hipSuccess) then
        call neko_error('Error destroying main stream')
     end if

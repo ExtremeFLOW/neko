@@ -33,9 +33,11 @@ AC_DEFUN([AX_ROCTX],[
 	   fi
 
               _CC=$CC
+              _CFLAGS=$CFLAGS
 	      _LIBS=$LIBS
 	      AC_LANG_PUSH([C])
 	      CC=$HIPCC
+              CFLAGS=""
 	      LIBS=""
 
 	      AC_CHECK_LIB(roctx64, roctxRangePop,
@@ -51,6 +53,7 @@ AC_DEFUN([AX_ROCTX],[
                  AC_MSG_ERROR([ROCTX not found])
               fi
               CC=$_CC
+              CFLAGS=$_CFLAGS
               AC_LANG_POP([C])
         fi
         AC_SUBST(roctx_bcknd)      

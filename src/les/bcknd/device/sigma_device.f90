@@ -51,13 +51,15 @@ module sigma_device
 contains
 
   !> Compute eddy viscosity on device.
+  !! @param if_ext If extrapolate the velocity field to evaluate
   !! @param t The time value.
   !! @param tstep The current time-step.
   !! @param coef SEM coefficients.
   !! @param nut The SGS viscosity array.
   !! @param delta The LES lengthscale.
   !! @param c The Sigma model constant
-  subroutine sigma_compute_device(t, tstep, coef, nut, delta, c)
+  subroutine sigma_compute_device(if_ext, t, tstep, coef, nut, delta, c)
+    logical, intent(in) :: if_ext
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
@@ -78,9 +80,15 @@ contains
     eps = NEKO_EPS
 
     ! get fields from registry
-    u => neko_field_registry%get_field_by_name("u")
-    v => neko_field_registry%get_field_by_name("v")
-    w => neko_field_registry%get_field_by_name("w")
+    if (if_ext .eqv. .true.) then
+       u => neko_field_registry%get_field_by_name("u_e")
+       v => neko_field_registry%get_field_by_name("v_e")
+       w => neko_field_registry%get_field_by_name("w_e")
+    else
+       u => neko_field_registry%get_field_by_name("u")
+       v => neko_field_registry%get_field_by_name("v")
+       w => neko_field_registry%get_field_by_name("w")
+    end if
 
     call neko_scratch_registry%request_field(g11, temp_indices(1))
     call neko_scratch_registry%request_field(g12, temp_indices(2))
@@ -116,10 +124,13 @@ contains
     call coef%gs_h%op(g33, GS_OP_ADD)
 
     call device_sigma_nut_compute(g11%x_d, g12%x_d, g13%x_d, &
-                                  g21%x_d, g22%x_d, g23%x_d, &
-                                  g31%x_d, g32%x_d, g33%x_d, &
-                                  delta%x_d, nut%x_d, coef%mult_d, &
-                                  c, eps, g11%dof%size())
+         g21%x_d, g22%x_d, g23%x_d, &
+         g31%x_d, g32%x_d, g33%x_d, &
+         delta%x_d, nut%x_d, coef%mult_d, &
+         c, eps, g11%dof%size())
+
+    call coef%gs_h%op(nut, GS_OP_ADD)
+    call device_col2(nut%x_d, coef%mult_d, nut%dof%size())
 
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine sigma_compute_device

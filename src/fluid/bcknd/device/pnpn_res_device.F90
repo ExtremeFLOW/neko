@@ -1,4 +1,4 @@
-! Copyright (c) 2022-2023, The Neko Authors
+! Copyright (c) 2022-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -43,6 +43,7 @@ module pnpn_res_device
   use device_math
   use device_mathops
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
+  use device, only : device_event_sync
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   use scratch_registry, only : neko_scratch_registry
   implicit none
@@ -221,7 +222,7 @@ contains
 
   subroutine pnpn_prs_res_device_compute(p, p_res, u, v, w, u_e, v_e, w_e, &
        f_x, f_y, f_z, c_Xh, gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt,&
-       mu, rho)
+       mu, rho, event)
     type(field_t), intent(inout) :: p, u, v, w
     type(field_t), intent(in) :: u_e, v_e, w_e
     type(field_t), intent(inout) :: p_res
@@ -235,6 +236,7 @@ contains
     real(kind=rp), intent(in) :: dt
     type(field_t), intent(in) :: mu
     type(field_t), intent(in) :: rho
+    type(c_ptr), intent(inout) :: event
     real(kind=rp) :: dtbd
     real(kind=rp) :: mu_val, rho_val
     integer :: n, gdim
@@ -258,8 +260,8 @@ contains
     n = u%dof%size()
     gdim = c_Xh%msh%gdim
 
-    call curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
-    call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
+    call curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh, event)
+    call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh, event)
 
 
 #ifdef HAVE_HIP
@@ -273,15 +275,18 @@ contains
          c_Xh%B_d, c_Xh%h1_d, mu_val, rho_val, n)
 #elif HAVE_OPENCL
     call pnpn_prs_res_part1_opencl(ta1%x_d, ta2%x_d, ta3%x_d, &
-         wa1%x_d, wa2%x_d, wa3%x_d, f_x%x_d, f_z%x_d, f_z%x_d, &
+         wa1%x_d, wa2%x_d, wa3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, &
          c_Xh%B_d, c_Xh%h1_d, mu_val, rho_val, n)
 #endif
     c_Xh%ifh2 = .false.
     call device_cfill(c_Xh%h1_d, 1.0_rp / rho_val, n)
 
-    call gs_Xh%op(ta1, GS_OP_ADD)
-    call gs_Xh%op(ta2, GS_OP_ADD)
-    call gs_Xh%op(ta3, GS_OP_ADD)
+    call gs_Xh%op(ta1, GS_OP_ADD, event)
+    call device_event_sync(event)
+    call gs_Xh%op(ta2, GS_OP_ADD, event)
+    call device_event_sync(event)
+    call gs_Xh%op(ta3, GS_OP_ADD, event)
+    call device_event_sync(event)
 
     call device_opcolv(ta1%x_d, ta2%x_d, ta3%x_d, c_Xh%Binv_d, gdim, n)
 

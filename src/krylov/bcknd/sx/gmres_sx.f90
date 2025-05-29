@@ -47,7 +47,7 @@ module gmres_sx
 
   !> Standard preconditioned generalized minimal residual method (SX version)
   type, public, extends(ksp_t) :: sx_gmres_t
-     integer :: lgmres
+     integer :: lgmres = 30
      real(kind=rp), allocatable :: w(:)
      real(kind=rp), allocatable :: c(:)
      real(kind=rp), allocatable :: r(:)
@@ -70,23 +70,14 @@ module gmres_sx
 contains
 
   !> Initialise a standard GMRES solver
-  subroutine sx_gmres_init(this, n, max_iter, M, lgmres, &
-       rel_tol, abs_tol, monitor)
-    class(sx_gmres_t), intent(inout) :: this
+  subroutine sx_gmres_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
+    class(sx_gmres_t), target, intent(inout) :: this
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
     class(pc_t), optional, intent(in), target :: M
-    integer, optional, intent(in) :: lgmres
     real(kind=rp), optional, intent(in) :: rel_tol
     real(kind=rp), optional, intent(in) :: abs_tol
     logical, optional, intent(in) :: monitor
-
-    if (present(lgmres)) then
-       this%lgmres = lgmres
-    else
-       this%lgmres = 30
-    end if
-
 
     call this%free()
 

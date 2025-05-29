@@ -46,78 +46,46 @@
  */
 #define DEFINE_SCHWARZ_EXTRUDE_KERNEL(NX)                                      \
 __kernel void schwarz_extrude_kernel_nx##NX(__global real * a1,                \
-                                     const int l1,                             \
-                                     const real f1,                            \
-                                     __global real * a2,                       \
-                                     const int l2,                             \
-                                     const real f2) {                          \
+                                            const int l1,                      \
+                                            const real f1,                     \
+                                            __global real * a2,                \
+                                            const int l2,                      \
+                                            const real f2) {                   \
                                                                                \
-  __local real x1[NX*NX],x2[NX*NX];                                            \
-  __local real y1[NX*NX],y2[NX*NX];                                            \
-  __local real z1[NX*NX],z2[NX*NX];                                            \
   const int idx = get_local_id(0);                                             \
-  const int el = get_group_id(0) * NX*NX*NX;                                   \
+  const int el = get_group_id(0)*NX*NX*NX;                                     \
+  const int x = idx%(NX-2) + 1;                                                \
+  const int y = idx/(NX-2) + 1;                                                \
+  int idx1,idx2;                                                               \
                                                                                \
-  if(idx < NX*NX){                                                             \
-    int i = idx%NX;                                                            \
-    int k = idx/NX;                                                            \
-    int idx_x1 = l2 + i*NX + k*NX*NX + el;                                     \
-    x1[idx]=a2[idx_x1];                                                        \
-    int idx_x2 = NX-1-l2 + i*NX + k*NX*NX + el;                                \
-    x2[idx]=a2[idx_x2];                                                        \
+  idx1 = l1 + x*NX + y*NX*NX + el;                                             \
+  idx2 = l2 + x*NX + y*NX*NX + el;                                             \
+  a1[idx1] = f1*a1[idx1] + f2*a2[idx2];                                        \
                                                                                \
-    int idx_y1 = i + l2*NX + k*NX*NX + el;                                     \
-    y1[idx]=a2[idx_y1];                                                        \
-    int idx_y2 = i + (NX-1-l2)*NX + k*NX*NX + el;                              \
-    y2[idx]=a2[idx_y2];                                                        \
+  idx1 = (NX-1-l1) + x*NX + y*NX*NX + el;                                      \
+  idx2 = (NX-1-l2) + x*NX + y*NX*NX + el;                                      \
+  a1[idx1] = f1*a1[idx1] + f2*a2[idx2];                                        \
                                                                                \
-    int idx_z1 = i + k*NX + l2*NX*NX + el;                                     \
-    z1[idx]=a2[idx_z1];                                                        \
-    int idx_z2 = i + k*NX + (NX-l2-1)*NX*NX + el;                              \
-    z2[idx]=a2[idx_z2];                                                        \
-  }                                                                            \
   barrier(CLK_LOCAL_MEM_FENCE);                                                \
                                                                                \
-  for(int ijk = idx; ijk<NX*NX*NX; ijk+=get_local_size(0)){                    \
-    int jk = ijk/NX;                                                           \
-     int i = ijk - NX*jk;                                                      \
-     int k = jk/NX;                                                            \
-     int j = jk -k*NX;                                                         \
-     if(j>0 && j< NX-1 && k > 0 && k < NX -1){                                 \
-       int idx1 = i + j*NX + k*NX*NX + el;                                     \
-       if(i == l1){                                                            \
-         int idx2 = j + k*NX;                                                  \
-         a1[idx1] = f1*a1[idx1] + f2*x1[idx2];                                 \
-       }                                                                       \
-       if(i == NX-1-l1){                                                       \
-         int idx2 = j + k*NX;                                                  \
-         a1[idx1] = f1*a1[idx1] + f2*x2[idx2];                                 \
-       }                                                                       \
-     }                                                                         \
-     if( i > 0 && i < NX-1 && k > 0 && k < NX -1){                             \
-       int idx1 = i + j*NX + k*NX*NX + el;                                     \
-       if(j == l1){                                                            \
-         int idx2 = i + k*NX;                                                  \
-         a1[idx1] = f1*a1[idx1] + f2*y1[idx2];                                 \
-       }                                                                       \
-       if(j == NX-1-l1){                                                       \
-         int idx2 = i + k*NX;                                                  \
-         a1[idx1] = f1*a1[idx1] + f2*y2[idx2];                                 \
-       }                                                                       \
-     }                                                                         \
-     if( i > 0 && i < NX-1 && j>0 && j< NX-1 ){                                \
-       int idx1 = i + j*NX + k*NX*NX + el;                                     \
-       if(k == l1){                                                            \
-         int idx2 = i + j*NX;                                                  \
-         a1[idx1] = f1*a1[idx1] + f2*z1[idx2];                                 \
-       }                                                                       \
-       if(k == NX-1-l1){                                                       \
-         int idx2 = i + j*NX;                                                  \
-         a1[idx1] = f1*a1[idx1] + f2*z2[idx2];                                 \
-       }                                                                       \
-     }                                                                         \
-  }                                                                            \
-}                                                                              
+  idx1 = x + l1*NX + y*NX*NX + el;                                             \
+  idx2 = x + l2*NX + y*NX*NX + el;                                             \
+  a1[idx1] = f1*a1[idx1] + f2*a2[idx2];                                        \
+                                                                               \
+  idx1 = x + (NX-1-l1)*NX + y*NX*NX + el;                                      \
+  idx2 = x + (NX-1-l2)*NX + y*NX*NX + el;                                      \
+  a1[idx1] = f1*a1[idx1] + f2*a2[idx2];                                        \
+                                                                               \
+  barrier(CLK_LOCAL_MEM_FENCE);                                                \
+                                                                               \
+  idx1 = x + y*NX + l1*NX*NX + el;                                             \
+  idx2 = x + y*NX + l2*NX*NX + el;                                             \
+  a1[idx1] = f1*a1[idx1] + f2*a2[idx2];                                        \
+                                                                               \
+  idx1 = x + y*NX + (NX-1-l1)*NX*NX + el;                                      \
+  idx2 = x + y*NX + (NX-1-l2)*NX*NX + el;                                      \
+  a1[idx1] = f1*a1[idx1] + f2*a2[idx2];                                        \
+}
 
 DEFINE_SCHWARZ_EXTRUDE_KERNEL(2);
 DEFINE_SCHWARZ_EXTRUDE_KERNEL(3);
@@ -151,7 +119,7 @@ __kernel void schwarz_toext3d_kernel(__global real * __restrict__ a,
   }
 
   barrier(CLK_LOCAL_MEM_FENCE);
-  
+
   for(int ijk = idx; ijk<nx*nx*nx; ijk+=get_local_size(0)){
     const int jk = ijk / nx;
     const int i = ijk - jk * nx;

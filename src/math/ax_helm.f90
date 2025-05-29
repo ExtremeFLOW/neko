@@ -61,15 +61,15 @@ contains
   !! @param Xh Function space \f$ X_h \f$.
   subroutine ax_helm_compute_vector(this, au, av, aw, u, v, w, coef, msh, Xh)
     class(ax_helm_t), intent(in) :: this
-    type(space_t), intent(inout) :: Xh
-    type(mesh_t), intent(inout) :: msh
-    type(coef_t), intent(inout) :: coef
+    type(space_t), intent(in) :: Xh
+    type(mesh_t), intent(in) :: msh
+    type(coef_t), intent(in) :: coef
     real(kind=rp), intent(inout) :: au(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=rp), intent(inout) :: av(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=rp), intent(inout) :: aw(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: v(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(in) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(in) :: v(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(in) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
     call this%compute(au, u, coef, msh, Xh)
     call this%compute(av, v, coef, msh, Xh)

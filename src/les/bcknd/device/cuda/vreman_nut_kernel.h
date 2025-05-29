@@ -40,18 +40,18 @@
 #include <cmath>
 #include <algorithm>
 template< typename T>
-__global__ void vreman_nut_compute(T * __restrict__ a11,
-                                      T * __restrict__ a12,
-                                      T * __restrict__ a13,
-                                      T * __restrict__ a21,
-                                      T * __restrict__ a22,
-                                      T * __restrict__ a23,
-                                      T * __restrict__ a31,
-                                      T * __restrict__ a32,
-                                      T * __restrict__ a33,
-                                      T * __restrict__ delta,
+__global__ void vreman_nut_compute(const T * __restrict__ a11,
+                                      const T * __restrict__ a12,
+                                      const T * __restrict__ a13,
+                                      const T * __restrict__ a21,
+                                      const T * __restrict__ a22,
+                                      const T * __restrict__ a23,
+                                      const T * __restrict__ a31,
+                                      const T * __restrict__ a32,
+                                      const T * __restrict__ a33,
+                                      const T * __restrict__ delta,
                                       T * __restrict__ nut,
-                                      T * __restrict__ mult,
+                                      const T * __restrict__ mult,
                                       const T c,
                                       const T eps,
                                       const int n){
@@ -59,27 +59,29 @@ __global__ void vreman_nut_compute(T * __restrict__ a11,
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
+  T beta11, beta22, beta33;
+  T beta12, beta13, beta23;
+  T b_beta, aijaij;
+
   for (int i = idx; i < n; i += str) {
-    T beta11, beta22, beta33;
-    T beta12, beta13, beta23;
-    T b_beta, aijaij;
+    
+    const T a11_r = a11[i];
+    const T a12_r = a12[i];
+    const T a13_r = a13[i];
+    const T a21_r = a21[i];
+    const T a22_r = a22[i];
+    const T a23_r = a23[i];
+    const T a31_r = a31[i];
+    const T a32_r = a32[i];
+    const T a33_r = a33[i];
+    const T delta_r = delta[i];
 
-    a11[i] = a11[i] * mult[i];
-    a12[i] = a12[i] * mult[i];
-    a13[i] = a13[i] * mult[i];
-    a21[i] = a21[i] * mult[i];
-    a22[i] = a22[i] * mult[i];
-    a23[i] = a23[i] * mult[i];
-    a31[i] = a31[i] * mult[i];
-    a32[i] = a32[i] * mult[i];
-    a33[i] = a33[i] * mult[i];
-
-    beta11 = a11[i]*a11[i] + a21[i]*a21[i] + a31[i]*a31[i];
-    beta22 = a12[i]*a12[i] + a22[i]*a22[i] + a32[i]*a32[i];
-    beta33 = a13[i]*a13[i] + a23[i]*a23[i] + a33[i]*a33[i];
-    beta12 = a11[i]*a12[i] + a21[i]*a22[i] + a31[i]*a32[i];
-    beta13 = a11[i]*a13[i] + a21[i]*a23[i] + a31[i]*a33[i];
-    beta23 = a12[i]*a13[i] + a22[i]*a23[i] + a32[i]*a33[i];
+    beta11 = a11_r*a11_r + a21_r*a21_r + a31_r*a31_r;
+    beta22 = a12_r*a12_r + a22_r*a22_r + a32_r*a32_r;
+    beta33 = a13_r*a13_r + a23_r*a23_r + a33_r*a33_r;
+    beta12 = a11_r*a12_r + a21_r*a22_r + a31_r*a32_r;
+    beta13 = a11_r*a13_r + a21_r*a23_r + a31_r*a33_r;
+    beta23 = a12_r*a13_r + a22_r*a23_r + a32_r*a33_r;
 
     b_beta = beta11*beta22 - beta12*beta12
            + beta11*beta33 - beta13*beta13
@@ -89,8 +91,8 @@ __global__ void vreman_nut_compute(T * __restrict__ a11,
 
     aijaij = beta11 + beta22 + beta33;
 
-    nut[i] = c * delta[i] * delta[i]
-             * sqrt(b_beta / (aijaij + eps));
+    nut[i] = c * delta_r * delta_r
+             * sqrt(b_beta / (aijaij + eps)) * mult[i];
   }
 }
 #endif // __COMMON_VREMAN_NUT_KERNEL_H__

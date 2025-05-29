@@ -60,7 +60,7 @@ module ax_helm_device
        type(c_ptr), value :: dx_d, dy_d, dz_d
        type(c_ptr), value :: dxt_d, dyt_d, dzt_d
        type(c_ptr), value :: h1_d, g11_d, g22_d, g33_d, g12_d, g13_d, g23_d
-       integer(c_int) :: nel, lx
+       integer(c_int) :: nelv, lx
      end subroutine hip_ax_helm
   end interface
 
@@ -75,7 +75,7 @@ module ax_helm_device
        type(c_ptr), value :: dx_d, dy_d, dz_d
        type(c_ptr), value :: dxt_d, dyt_d, dzt_d
        type(c_ptr), value :: h1_d, g11_d, g22_d, g33_d, g12_d, g13_d, g23_d
-       integer(c_int) :: nel, lx
+       integer(c_int) :: nelv, lx
      end subroutine hip_ax_helm_vector
   end interface
 
@@ -100,7 +100,7 @@ module ax_helm_device
        type(c_ptr), value :: dx_d, dy_d, dz_d
        type(c_ptr), value :: dxt_d, dyt_d, dzt_d
        type(c_ptr), value :: h1_d, g11_d, g22_d, g33_d, g12_d, g13_d, g23_d
-       integer(c_int) :: nel, lx
+       integer(c_int) :: nelv, lx
      end subroutine cuda_ax_helm
   end interface
 
@@ -115,7 +115,7 @@ module ax_helm_device
        type(c_ptr), value :: dx_d, dy_d, dz_d
        type(c_ptr), value :: dxt_d, dyt_d, dzt_d
        type(c_ptr), value :: h1_d, g11_d, g22_d, g33_d, g12_d, g13_d, g23_d
-       integer(c_int) :: nel, lx
+       integer(c_int) :: nelv, lx
      end subroutine cuda_ax_helm_vector
   end interface
 
@@ -140,7 +140,7 @@ module ax_helm_device
        type(c_ptr), value :: dx_d, dy_d, dz_d
        type(c_ptr), value :: dxt_d, dyt_d, dzt_d
        type(c_ptr), value :: h1_d, g11_d, g22_d, g33_d, g12_d, g13_d, g23_d
-       integer(c_int) :: nel, lx
+       integer(c_int) :: nelv, lx
      end subroutine opencl_ax_helm
   end interface
 #endif
@@ -148,11 +148,11 @@ module ax_helm_device
 contains
 
   subroutine ax_helm_device_compute(w, u, coef, msh, Xh)
-    type(mesh_t), intent(inout) :: msh
-    type(space_t), intent(inout) :: Xh
-    type(coef_t), intent(inout) :: coef
+    type(mesh_t), intent(in) :: msh
+    type(space_t), intent(in) :: Xh
+    type(coef_t), intent(in) :: coef
     real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(in) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     type(c_ptr) :: u_d, w_d
 
     u_d = device_get_ptr(u)
@@ -185,17 +185,17 @@ contains
   end subroutine ax_helm_device_compute
 
   subroutine ax_helm_device_compute_vector(this, au, av, aw, &
-                                           u, v, w, coef, msh, Xh)
+       u, v, w, coef, msh, Xh)
     class(ax_helm_device_t), intent(in) :: this
-    type(space_t), intent(inout) :: Xh
-    type(mesh_t), intent(inout) :: msh
-    type(coef_t), intent(inout) :: coef
+    type(space_t), intent(in) :: Xh
+    type(mesh_t), intent(in) :: msh
+    type(coef_t), intent(in) :: coef
     real(kind=rp), intent(inout) :: au(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=rp), intent(inout) :: av(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=rp), intent(inout) :: aw(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: v(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(in) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(in) :: v(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(in) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     type(c_ptr) :: u_d, v_d, w_d
     type(c_ptr) :: au_d, av_d, aw_d
 
@@ -240,10 +240,10 @@ contains
     if (coef%ifh2) then
 #ifdef HAVE_HIP
        call hip_ax_helm_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
-                                     coef%h2_d, coef%B_d, coef%dof%size())
+            coef%h2_d, coef%B_d, coef%dof%size())
 #elif HAVE_CUDA
        call cuda_ax_helm_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
-                                      coef%h2_d, coef%B_d, coef%dof%size())
+            coef%h2_d, coef%B_d, coef%dof%size())
 #else
        call device_addcol4(au_d ,coef%h2_d, coef%B_d, u_d, coef%dof%size())
        call device_addcol4(av_d ,coef%h2_d, coef%B_d, v_d, coef%dof%size())
