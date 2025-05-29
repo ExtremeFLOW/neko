@@ -21,11 +21,11 @@ contains
 
 
   ! Register user defined functions (see user_intf.f90)
-  subroutine user_setup(u)
-    type(user_t), intent(inout) :: u
-    u%fluid_user_ic => user_ic
-    u%fluid_user_if => user_inflow_eval
-    u%user_dirichlet_update => dirichlet_update
+  subroutine user_setup(user)
+    type(user_t), intent(inout) :: user
+    user%fluid_user_ic => user_ic
+    user%fluid_user_if => user_inflow_eval
+    user%user_dirichlet_update => dirichlet_update
   end subroutine user_setup
 
   subroutine cylinder_deform(msh)

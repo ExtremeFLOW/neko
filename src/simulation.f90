@@ -48,27 +48,17 @@ module simulation
   implicit none
   private
 
-  public :: neko_solve
+  public :: simulation_init, simulation_step, simulation_finalize
 
 contains
 
-  !> Main driver to solve a case @a C
-  subroutine neko_solve(C)
-    type(case_t), target, intent(inout) :: C
-    real(kind=rp) :: cfl
-    real(kind=dp) :: start_time_org, start_time, end_time, tstep_start_time
+  !> Initialise a simulation of a case
+  subroutine simulation_init(C, dt_controller)
+    type(case_t), intent(inout) :: C
+    type(time_step_controller_t), intent(inout) :: dt_controller
     character(len=LOG_SIZE) :: log_buf
+    logical :: found
     character(len=:), allocatable :: restart_file
-    logical :: output_at_end, found
-    ! for variable_tsteping
-    real(kind=rp) :: cfl_avrg = 0.0_rp
-    type(time_step_controller_t) :: dt_controller
-    real(kind=rp) :: rho, mu, cp, lambda
-
-    ! Initialize the time and step
-    C%time%t = 0d0
-    C%time%tstep = 0
-    call dt_controller%init(C%params)
 
     ! Restart the case if needed
     call C%params%get('case.restart_file', restart_file, found)
@@ -96,99 +86,17 @@ contains
     call neko_log%section('Postprocessing')
     call C%output_controller%execute(C%time)
 
-    call C%usr%user_init_modules(C%time%t, C%fluid%u, C%fluid%v, C%fluid%w,&
+    call C%user%user_init_modules(C%time%t, C%fluid%u, C%fluid%v, C%fluid%w, &
          C%fluid%p, C%fluid%c_Xh, C%params)
     call neko_log%end_section()
     call neko_log%newline()
 
-    call profiler_start
-    cfl = C%fluid%compute_cfl(C%time%dt)
-    start_time_org = MPI_WTIME()
+  end subroutine simulation_init
 
-    do while (C%time%t .lt. C%time%end_time .and. (.not. jobctrl_time_limit()))
-
-       ! Setup the time step, and start time
-       call profiler_start_region('Time-Step')
-       C%time%tstep = C%time%tstep + 1
-       start_time = MPI_WTIME()
-       tstep_start_time = start_time
-
-       ! Compute the next time step
-       if (dt_controller%dt_last_change .eq. 0) then
-          cfl_avrg = cfl
-       end if
-       call dt_controller%set_dt(C%time%dt, cfl, cfl_avrg, C%time%tstep)
-
-       ! Calculate the cfl after the possibly varied dt
-       cfl = C%fluid%compute_cfl(C%time%dt)
-
-       ! Advance time step from t to t+dt and print the status
-       call simulation_settime(C%time, C%fluid%ext_bdf)
-       call C%time%status()
-       call neko_log%begin()
-
-       write(log_buf, '(A,E15.7,1x,A,E15.7)') 'CFL:', cfl, 'dt:', C%time%dt
-       call neko_log%message(log_buf)
-
-       ! Run the preprocessing
-       call neko_log%section('Preprocessing')
-       call neko_simcomps%preprocess(C%time)
-       call neko_log%end_section()
-
-       ! Fluid step
-       call neko_log%section('Fluid')
-       start_time = MPI_WTIME()
-       call C%fluid%step(C%time, dt_controller)
-       end_time = MPI_WTIME()
-       write(log_buf, '(A,E15.7)') &
-            'Fluid step time (s):   ', end_time-start_time
-       call neko_log%message(log_buf)
-       write(log_buf, '(A,E15.7)') &
-            'Total elapsed time (s):', end_time-start_time_org
-       call neko_log%end_section(log_buf)
-
-       ! Scalar step
-       if (allocated(C%scalar)) then
-          start_time = MPI_WTIME()
-          call neko_log%section('Scalar')
-          call C%scalar%step(C%time, C%fluid%ext_bdf, dt_controller)
-          end_time = MPI_WTIME()
-          write(log_buf, '(A,E15.7)') &
-               'Scalar step time:      ', end_time-start_time
-          call neko_log%message(log_buf)
-          write(log_buf, '(A,E15.7)') &
-               'Total elapsed time (s):', end_time-start_time_org
-          call neko_log%end_section(log_buf)
-       end if
-
-       ! Postprocessing
-       call neko_log%section('Postprocessing')
-
-       ! Execute all simulation components
-       call neko_simcomps%compute(C%time)
-
-       call C%usr%user_check(C%time%t, C%time%tstep, C%fluid%u, C%fluid%v, &
-            C%fluid%w, C%fluid%p, C%fluid%c_Xh, C%params)
-
-       ! Run any IO needed.
-       call C%output_controller%execute(C%time)
-
-       call neko_log%end_section()
-
-       ! End the step and print summary
-       end_time = MPI_WTIME()
-       call neko_log%section('Step summary')
-       write(log_buf, '(A,I8,A,E15.7)') &
-            'Total time for step ', C%time%tstep, ' (s): ', end_time-tstep_start_time
-       call neko_log%message(log_buf)
-       write(log_buf, '(A,E15.7)') &
-            'Total elapsed time (s):           ', end_time-start_time_org
-       call neko_log%message(log_buf)
-       call neko_log%end_section()
-       call neko_log%end()
-       call profiler_end_region
-    end do
-    call profiler_stop
+  !> Finalize a simulation of a case
+  subroutine simulation_finalize(C)
+    type(case_t), intent(inout) :: C
+    logical :: output_at_end
 
     ! Run a final output if specified in the json
     call json_get_or_default(C%params, 'case.output_at_end', &
@@ -200,11 +108,105 @@ contains
     end if
 
     ! Finalize the user modules
-    call C%usr%user_finalize_modules(C%time%t, C%params)
+    call C%user%user_finalize_modules(C%time%t, C%params)
 
     call neko_log%end_section('Normal end.')
 
-  end subroutine neko_solve
+  end subroutine simulation_finalize
+
+  !> Compute a single time-step of a case
+  subroutine simulation_step(C, dt_controller, cfl, tstep_loop_start_time)
+    type(case_t), intent(inout) :: C
+    real(kind=rp), intent(inout) :: cfl
+    type(time_step_controller_t), intent(inout) :: dt_controller
+    real(kind=dp), intent(in) :: tstep_loop_start_time
+    real(kind=dp) :: start_time, end_time, tstep_start_time
+    real(kind=rp) :: cfl_avrg
+    character(len=LOG_SIZE) :: log_buf
+
+    ! Setup the time step, and start time
+    call profiler_start_region('Time-Step')
+    C%time%tstep = C%time%tstep + 1
+    start_time = MPI_WTIME()
+    tstep_start_time = start_time
+
+    ! Compute the next time step
+    if (dt_controller%dt_last_change .eq. 0) then
+       cfl_avrg = cfl
+    end if
+    call dt_controller%set_dt(C%time%dt, cfl, cfl_avrg, C%time%tstep)
+
+    ! Calculate the cfl after the possibly varied dt
+    cfl = C%fluid%compute_cfl(C%time%dt)
+
+    ! Advance time step from t to t+dt and print the status
+    call simulation_settime(C%time, C%fluid%ext_bdf)
+    call C%time%status()
+    call neko_log%begin()
+
+    write(log_buf, '(A,E15.7,1x,A,E15.7)') 'CFL:', cfl, 'dt:', C%time%dt
+    call neko_log%message(log_buf)
+
+    ! Run the preprocessing
+    call neko_log%section('Preprocessing')
+    call neko_simcomps%preprocess(C%time)
+    call neko_log%end_section()
+
+    ! Fluid step
+    call neko_log%section('Fluid')
+    start_time = MPI_WTIME()
+    call C%fluid%step(C%time, dt_controller)
+    end_time = MPI_WTIME()
+    write(log_buf, '(A,E15.7)') &
+         'Fluid step time (s):   ', end_time-start_time
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,E15.7)') &
+         'Total elapsed time (s):', end_time-tstep_loop_start_time
+    call neko_log%end_section(log_buf)
+
+    ! Scalar step
+    if (allocated(C%scalar)) then
+       start_time = MPI_WTIME()
+       call neko_log%section('Scalar')
+       call C%scalar%step(C%time, C%fluid%ext_bdf, dt_controller)
+       end_time = MPI_WTIME()
+       write(log_buf, '(A,E15.7)') &
+            'Scalar step time:      ', end_time-start_time
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,E15.7)') &
+            'Total elapsed time (s):', end_time-tstep_loop_start_time
+       call neko_log%end_section(log_buf)
+    end if
+
+    ! Postprocessing
+    call neko_log%section('Postprocessing')
+
+    ! Execute all simulation components
+    call neko_simcomps%compute(C%time)
+
+    call C%user%user_check(C%time%t, C%time%tstep, C%fluid%u, C%fluid%v, &
+         C%fluid%w, C%fluid%p, C%fluid%c_Xh, C%params)
+
+    ! Run any IO needed.
+    call C%output_controller%execute(C%time)
+
+    call neko_log%end_section()
+
+    ! End the step and print summary
+    end_time = MPI_WTIME()
+    call neko_log%section('Step summary')
+    write(log_buf, '(A,I8,A,E15.7)') &
+         'Total time for step ', C%time%tstep, ' (s): ', end_time-tstep_start_time
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,E15.7)') &
+         'Total elapsed time (s):           ', end_time-tstep_loop_start_time
+    call neko_log%message(log_buf)
+
+    call neko_log%end_section()
+    call neko_log%end()
+    call profiler_end_region
+
+  end subroutine simulation_step
 
   subroutine simulation_settime(time, ext_bdf)
     type(time_state_t), intent(inout) :: time
@@ -306,5 +308,3 @@ contains
   end subroutine simulation_joblimit_chkp
 
 end module simulation
-
-

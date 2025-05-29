@@ -1,4 +1,4 @@
-! Copyright (c) 2022-2024, The Neko Authors
+! Copyright (c) 2022-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -100,7 +100,7 @@ contains
     if (this%order .eq. 2) then
 
        n = f%dof%size()
-       w_past   = ( t_future - t ) / ( t_future - t_past )
+       w_past = ( t_future - t ) / ( t_future - t_past )
        w_future = ( t - t_past ) / ( t_future - t_past )
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -112,7 +112,7 @@ contains
 
     else
        call neko_error("Time interpolation of required order &
-                       &is not implemented")
+       &is not implemented")
     end if
 
   end subroutine time_interpolator_interpolate
@@ -134,24 +134,23 @@ contains
     integer :: no, i, l
 
 
-    integer, parameter :: lwtmax = 10
-    real(kind=rp) :: wt(0:lwtmax)
+    real(kind=rp), dimension(0:this%order + 1) :: wt
     wt = 0
 
-    if (this%order .gt. lwtmax) then
-      call neko_error("lwtmax is smaller than the number &
-                      &of stored convecting fields")
-    end if
 
     no = this%order - 1
     call fd_weights_full(t, tlag, no, 0, wt) ! interpolation weights
-    call rzero(f_interpolated, n)
 
-    do concurrent (i = 1:n)
-       do l = 0, no
-        f_interpolated(i) = f_interpolated(i) + wt(l) * f_n(i,l)
-      end do
-    end do
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_error('no device backend configured')
+    else
+       do concurrent (i = 1:n)
+          f_interpolated(i) = wt(0) * f_n(i, 0)
+          do l = 1, no
+             f_interpolated(i) = f_interpolated(i) + wt(l) * f_n(i, l)
+          end do
+       end do
+    end if
 
   end subroutine time_interpolator_scalar
 

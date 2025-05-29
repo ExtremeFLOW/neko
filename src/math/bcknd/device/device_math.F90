@@ -792,7 +792,7 @@ contains
     if (n .lt. 1) return
 
 #if HAVE_HIP
-    call neko_error('No HIP backend for device_pwmax_vec2')
+    call hip_pwmax_vec2(a_d, b_d, n)
 #elif HAVE_CUDA
     call cuda_pwmax_vec2(a_d, b_d, n)
 #elif HAVE_OPENCL
@@ -810,7 +810,7 @@ contains
     if (n .lt. 1) return
 
 #if HAVE_HIP
-    call neko_error('No HIP backend for device_pwmax_vec3')
+    call hip_pwmax_vec3(a_d, b_d, c_d, n)
 #elif HAVE_CUDA
     call cuda_pwmax_vec3(a_d, b_d, c_d, n)
 #elif HAVE_OPENCL
@@ -830,7 +830,7 @@ contains
     if (n .lt. 1) return
 
 #if HAVE_HIP
-    call neko_error('No HIP backend for device_pwmax_sca2')
+    call hip_pwmax_sca2(a_d, c, n)
 #elif HAVE_CUDA
     call cuda_pwmax_sca2(a_d, c, n)
 #elif HAVE_OPENCL
@@ -850,7 +850,7 @@ contains
     if (n .lt. 1) return
 
 #if HAVE_HIP
-    call neko_error('No HIP backend for device_pwmax_sca3')
+    call hip_pwmax_sca3(a_d, b_d, c, n)
 #elif HAVE_CUDA
     call cuda_pwmax_sca3(a_d, b_d, c, n)
 #elif HAVE_OPENCL
@@ -872,7 +872,7 @@ contains
     if (n .lt. 1) return
 
 #if HAVE_HIP
-    call neko_error('No HIP backend for device_pwmin_vec2')
+    call hip_pwmin_vec2(a_d, b_d, n)
 #elif HAVE_CUDA
     call cuda_pwmin_vec2(a_d, b_d, n)
 #elif HAVE_OPENCL
@@ -890,7 +890,7 @@ contains
     if (n .lt. 1) return
 
 #if HAVE_HIP
-    call neko_error('No HIP backend for device_pwmin_vec3')
+    call hip_pwmin_vec3(a_d, b_d, c_d, n)
 #elif HAVE_CUDA
     call cuda_pwmin_vec3(a_d, b_d, c_d, n)
 #elif HAVE_OPENCL
@@ -910,7 +910,7 @@ contains
     if (n .lt. 1) return
 
 #if HAVE_HIP
-    call neko_error('No HIP backend for device_pwmin_sca2')
+    call hip_pwmin_sca2(a_d, c, n)
 #elif HAVE_CUDA
     call cuda_pwmin_sca2(a_d, c, n)
 #elif HAVE_OPENCL
@@ -930,7 +930,7 @@ contains
     if (n .lt. 1) return
 
 #if HAVE_HIP
-    call neko_error('No HIP backend for device_pwmin_sca3')
+    call hip_pwmin_sca3(a_d, b_d, c, n)
 #elif HAVE_CUDA
     call cuda_pwmin_sca3(a_d, b_d, c, n)
 #elif HAVE_OPENCL

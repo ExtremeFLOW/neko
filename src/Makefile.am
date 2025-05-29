@@ -1,6 +1,7 @@
 lib_LTLIBRARIES = libneko.la
 libneko_la_LDFLAGS = -release ${PACKAGE_VERSION}
 neko_fortran_SOURCES = \
+	api/neko_api.f90\
 	config/num_types.f90\
 	common/structs.f90\
 	io/format/nmsh.f90\
@@ -18,6 +19,7 @@ neko_fortran_SOURCES = \
 	common/json_utils.f90\
 	common/system.f90\
 	common/runtime_statistics.f90\
+	common/user_access_singleton.f90\
 	math/mxm_wrapper.F90\
 	sem/speclib.f90 \
 	qoi/drag_torque.f90\
@@ -301,11 +303,13 @@ neko_fortran_SOURCES = \
 	scalar/source_scalar.f90\
 	simulation_components/simulation_component.f90\
 	simulation_components/simcomp_executor.f90\
-	simulation_components/vorticity.f90\
 	simulation_components/spectral_error.f90\
 	simulation_components/lambda2.f90\
-	simulation_components/weak_grad.f90\
-	simulation_components/derivative.f90\
+	simulation_components/curl_simcomp.f90\
+	simulation_components/divergence_simcomp.f90\
+	simulation_components/weak_gradient_simcomp.f90\
+	simulation_components/gradient_simcomp.f90\
+	simulation_components/derivative_simcomp.f90\
 	simulation_components/les_simcomp.f90\
 	simulation_components/simulation_component_fctry.f90\
 	source_terms/source_term.f90\
@@ -608,6 +612,11 @@ depend:
 	$(MAKEDEPF90) $(neko_fortran_SOURCES) | $(SED) 's/\.o/\.lo/g'  > .depends
 endif
 
+if ENABLE_PYTHON
+nobase_python_PYTHON = python/pyneko/__init__.py\
+		       python/pyneko/intf.py
+endif
+
 # Note we need to list any headers etc here for the dist. script
 EXTRA_DIST = \
 	bc/bcknd/device/cuda/dirichlet_kernel.h\
@@ -745,8 +754,12 @@ EXTRA_DIST = \
 	comm/comm.h\
 	common/neko_log.h
 
+
 # Expose the listed headers in the package
 nobase_pkginclude_HEADERS = ${EXTRA_DIST}
+
+# Expose API header
+include_HEADERS = api/neko.h
 
 # Fortran deps. (updated with makedepf90 via target 'depend')
 include	.depends
