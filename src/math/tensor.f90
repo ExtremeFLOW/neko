@@ -191,7 +191,9 @@ contains
     logical, intent(in) :: on_host
     type(c_ptr) :: v_d, u_d, A_d, Bt_d, Ct_d, el_list_d
     integer :: i
+
     if (n_pt .lt. 1) return
+
     if (NEKO_BCKND_SX .eq. 1) then
        do i = 1, n_pt
           call tnsr3d_el_sx(v(1,i), nv, u(1,el_list(i)), nu, A(1,1,i), Bt(1,1,i), Ct(1,1,i))
@@ -227,6 +229,7 @@ contains
     real(kind=rp), intent(in) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
     type(c_ptr) :: v_d, u_d, A_d, Bt_d, Ct_d
 
+    if (nelv .eq. 0) return
 
     if (NEKO_BCKND_SX .eq. 1) then
        call tnsr3d_sx(v, nv, u, nu, A, Bt, Ct, nelv)
@@ -250,6 +253,8 @@ contains
     integer, intent(inout) :: nv, nu, nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv*nelv)
     real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+
+    if (nelv .eq. 0) return
 
     if (NEKO_BCKND_SX .eq. 1) then
        call tnsr1_3d_sx(v, nv, nu, A, Bt, Ct, nelv)
