@@ -37,21 +37,23 @@ submodule (precon) precon_fctry
   use sx_jacobi, only : sx_jacobi_t
   use device_jacobi, only : device_jacobi_t
   use hsmg, only : hsmg_t
-  use utils, only : concat_string_array, neko_error
+  use phmg, only : phmg_t
+  use utils, only : neko_type_error
   use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: PC_KNOWN_TYPES(3) = [character(len=20) :: &
-     "jacobi", &
-     "hsmg", &
-     "ident"]
+  character(len=20) :: PC_KNOWN_TYPES(4) = [character(len=20) :: &
+       "jacobi", &
+       "hsmg", &
+       "phmg", &
+       "ident"]
 
 contains
 
   !> Create a preconditioner
   module subroutine precon_factory(pc, type_name)
-    class(pc_t), target, allocatable, intent(inout) :: pc
+    class(pc_t), allocatable, intent(inout) :: pc
     character(len=*), intent(in) :: type_name
     character(len=:), allocatable :: type_string
 
@@ -60,7 +62,8 @@ contains
        deallocate(pc)
     end if
 
-    if (trim(type_name) .eq. 'jacobi') then
+    select case (trim(type_name))
+    case ('jacobi')
        if (NEKO_BCKND_SX .eq. 1) then
           allocate(sx_jacobi_t::pc)
        else if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -68,21 +71,19 @@ contains
        else
           allocate(jacobi_t::pc)
        end if
-    else if (type_name(1:4) .eq. 'hsmg') then
+    case ('hsmg')
        allocate(hsmg_t::pc)
-    else if(trim(type_name) .eq. 'ident') then
+    case ('phmg')
+       allocate(phmg_t::pc)
+    case('ident')
        if (NEKO_BCKND_DEVICE .eq. 1) then
           allocate(device_ident_t::pc)
        else
           allocate(ident_t::pc)
        end if
-    else
-       type_string =  concat_string_array(PC_KNOWN_TYPES, &
-            NEW_LINE('A') // "-  ",  .true.)
-       call neko_error("Unknown preconditioner type: " &
-                       // trim(type_name) // ".  Known types are: " &
-                       // type_string)
-    end if
+    case default
+       call neko_type_error("preconditioner", type_name, PC_KNOWN_TYPES)
+    end select
 
   end subroutine precon_factory
 
@@ -99,6 +100,8 @@ contains
        type is (device_jacobi_t)
           call pcp%free()
        type is (hsmg_t)
+          call pcp%free()
+       type is (phmg_t)
           call pcp%free()
        end select
     end if

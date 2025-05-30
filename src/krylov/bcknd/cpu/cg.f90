@@ -32,14 +32,14 @@
 !
 !> Defines various Conjugate Gradient methods
 module cg
-  use num_types, only: rp
+  use num_types, only: rp, xp
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
-  use precon,  only : pc_t
+  use precon, only : pc_t
   use ax_product, only : ax_t
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc, only : bc_list_t, bc_list_apply
+  use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, abscmp
   use comm
   implicit none
@@ -67,10 +67,10 @@ contains
   subroutine cg_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
     class(cg_t), intent(inout), target :: this
     integer, intent(in) :: max_iter
-    class(pc_t), optional, intent(inout), target :: M
+    class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
-    real(kind=rp), optional, intent(inout) :: rel_tol
-    real(kind=rp), optional, intent(inout) :: abs_tol
+    real(kind=rp), optional, intent(in) :: rel_tol
+    real(kind=rp), optional, intent(in) :: abs_tol
     logical, optional, intent(in) :: monitor
 
     call this%free()
@@ -137,10 +137,10 @@ contains
   !> Standard PCG solve
   function cg_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
     class(cg_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: f
+    real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
@@ -187,7 +187,7 @@ contains
 
          call Ax%compute(w, p(1,p_cur), coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD)
-         call bc_list_apply(blst, w, n)
+         call blst%apply(w, n)
 
          pap = glsc3(w, coef%mult, p(1,p_cur), n)
 
@@ -197,7 +197,7 @@ contains
          call this%monitor_iter(iter, rnorm)
 
          if ((p_cur .eq. CG_P_SPACE) .or. &
-             (rnorm .lt. this%abs_tol) .or. iter .eq. max_iter) then
+              (rnorm .lt. this%abs_tol) .or. iter .eq. max_iter) then
             do i = 0, n, NEKO_BLK_SIZE
                if (i + NEKO_BLK_SIZE .le. n) then
                   do k = 1, NEKO_BLK_SIZE
@@ -233,22 +233,24 @@ contains
     call this%monitor_stop()
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
-
+    ksp_results%converged = this%is_converged(iter, rnorm)
   end function cg_solve
 
   subroutine second_cg_part(rtr, r, mult, w, alpha, n)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: r(n), rtr
+    real(kind=xp) :: tmp
     real(kind=rp), intent(in) ::mult(n), w(n), alpha
     integer :: i, ierr
 
-    rtr = 0.0_rp
+    tmp = 0.0_xp
     do i = 1, n
        r(i) = r(i) - alpha*w(i)
-       rtr = rtr + r(i) * r(i) * mult(i)
+       tmp = tmp + r(i) * r(i) * mult(i)
     end do
-    call MPI_Allreduce(MPI_IN_PLACE, rtr, 1, &
-         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, tmp, 1, &
+         MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    rtr = tmp
 
   end subroutine second_cg_part
 
@@ -256,14 +258,14 @@ contains
   function cg_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
        n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
     class(cg_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     type(field_t), intent(inout) :: y
     type(field_t), intent(inout) :: z
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: fx
-    real(kind=rp), dimension(n), intent(inout) :: fy
-    real(kind=rp), dimension(n), intent(inout) :: fz
+    real(kind=rp), dimension(n), intent(in) :: fx
+    real(kind=rp), dimension(n), intent(in) :: fy
+    real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blstx
     type(bc_list_t), intent(inout) :: blsty
@@ -272,9 +274,9 @@ contains
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
 
-    ksp_results(1) =  this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) =  this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
 
   end function cg_solve_coupled
 

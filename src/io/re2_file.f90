@@ -72,6 +72,7 @@ contains
     class(re2_file_t) :: this
     class(*), target, intent(inout) :: data
     type(mesh_t), pointer :: msh
+    integer :: file_unit
     character(len=5) :: hdr_ver
     character(len=54) :: hdr_str
     character(len=80) :: hdr_full
@@ -104,10 +105,10 @@ contains
     end select
 
     v2_format = .false.
-    open(unit=9,file=trim(this%fname), status='old', iostat=ierr)
+    open(newunit=file_unit,file=trim(this%fname), status='old', iostat=ierr)
     call neko_log%message('Reading binary NEKTON file ' // this%fname)
 
-    read(9,'(a80)') hdr_full
+    read(file_unit,'(a80)') hdr_full
     read(hdr_full, '(a5)') hdr_ver
 
     if (hdr_ver .eq. '#v004') then
@@ -135,7 +136,7 @@ contains
     write(log_buf,1) ndim, nelv
 1   format('gdim = ', i1, ', nelements =', i7)
     call neko_log%message(log_buf)
-    close(9)
+    close(file_unit)
 
     call filename_chsuffix(this%fname, map_fname,'map')
 
@@ -231,7 +232,7 @@ contains
     integer :: element_offset
     integer :: re2_data_xy_size
     integer :: re2_data_xyz_size
- 
+
     select type(data)
     type is (mesh_t)
        msh => data
@@ -349,7 +350,7 @@ contains
                 if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
              end if
              ! swap vertices to keep symmetric vertex numbering in neko
-             call msh%add_element(i, p(1), p(2), p(4), p(3))
+             call msh%add_element(i, i, p(1), p(2), p(4), p(3))
           end do
           deallocate(re2v1_data_xy)
        else
@@ -366,7 +367,7 @@ contains
                 if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
              end if
              ! swap vertices to keep symmetric vertex numbering in neko
-             call msh%add_element(i, p(1), p(2), p(4), p(3))
+             call msh%add_element(i, i, p(1), p(2), p(4), p(3))
           end do
           deallocate(re2v2_data_xy)
        end if
@@ -387,7 +388,7 @@ contains
                 if(mod(i,nelv/100) .eq. 0) write(*,*) i, 'elements read'
              end if
              ! swap vertices to keep symmetric vertex numbering in neko
-             call msh%add_element(i, &
+             call msh%add_element(i, i, &
                   p(1), p(2), p(4), p(3), p(5), p(6), p(8), p(7))
           end do
           deallocate(re2v1_data_xyz)
@@ -406,7 +407,7 @@ contains
                 if(mod(i,nelv/100) .eq. 0) write(*,*) i, 'elements read'
              end if
              ! swap vertices to keep symmetric vertex numbering in neko
-             call msh%add_element(i, &
+             call msh%add_element(i, i, &
                   p(1), p(2), p(4), p(3), p(5), p(6), p(8), p(7))
           end do
           deallocate(re2v2_data_xyz)
@@ -601,7 +602,7 @@ contains
           sym_facet = facet_map(int(re2v2_data_bc(i)%face))
           select case(trim(re2v2_data_bc(i)%type))
           case ('MSH', 'msh', 'EXO','exo')
-               !Do nothing, already handled
+             !Do nothing, already handled
           case ('W')
              if (NEKO_W_BC_LABEL .eq. -1) then
                 NEKO_W_BC_LABEL = current_internal_zone
@@ -886,10 +887,10 @@ contains
 
     if (mark_label .lt. 1 .or. mark_label .gt. NEKO_MSH_MAX_ZLBLS) then
        call neko_error("You have reached the maximum amount of allowed labeled&
-& zones (max allowed: 20). This happened when converting re2 internal labels&
-& like e.g. 'w', 'V' or 'o' to labeled zones. Please reduce the number of&
-& labeled zones that you have defined or make sure that they are labeled&
-& from [1,...,20].")
+       & zones (max allowed: 20). This happened when converting re2 internal labels&
+       & like e.g. 'w', 'V' or 'o' to labeled zones. Please reduce the number of&
+       & labeled zones that you have defined or make sure that they are labeled&
+       & from [1,...,20].")
     end if
 
     if (print_info) then

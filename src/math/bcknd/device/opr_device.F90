@@ -34,7 +34,7 @@
 module opr_device
   use gather_scatter, only : GS_OP_ADD
   use num_types, only : rp, c_rp
-  use device, only : device_get_ptr
+  use device, only : device_get_ptr, device_event_sync
   use space, only : space_t
   use coefs, only : coef_t
   use field, only : field_t
@@ -511,16 +511,17 @@ contains
 
   end subroutine opr_device_conv1
 
-  subroutine opr_device_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
+  subroutine opr_device_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh, event)
     type(field_t), intent(inout) :: w1
     type(field_t), intent(inout) :: w2
     type(field_t), intent(inout) :: w3
-    type(field_t), intent(inout) :: u1
-    type(field_t), intent(inout) :: u2
-    type(field_t), intent(inout) :: u3
+    type(field_t), intent(in) :: u1
+    type(field_t), intent(in) :: u2
+    type(field_t), intent(in) :: u3
     type(field_t), intent(inout) :: work1
     type(field_t), intent(inout) :: work2
     type(coef_t), intent(in) :: c_Xh
+    type(c_ptr), optional, intent(inout) :: event
     integer :: gdim, n, nelv
 
     n = w1%dof%size()
@@ -650,9 +651,20 @@ contains
     !!    BC dependent, Needs to change if cyclic
 
     call device_opcolv(w1%x_d, w2%x_d, w3%x_d, c_Xh%B_d, gdim, n)
-    call c_Xh%gs_h%op(w1, GS_OP_ADD)
-    call c_Xh%gs_h%op(w2, GS_OP_ADD)
-    call c_Xh%gs_h%op(w3, GS_OP_ADD)
+
+    if (present(event)) then
+       call c_Xh%gs_h%op(w1, GS_OP_ADD, event)
+       call device_event_sync(event)
+       call c_Xh%gs_h%op(w2, GS_OP_ADD, event)
+       call device_event_sync(event)
+       call c_Xh%gs_h%op(w3, GS_OP_ADD, event)
+       call device_event_sync(event)
+    else
+       call c_Xh%gs_h%op(w1, GS_OP_ADD)
+       call c_Xh%gs_h%op(w2, GS_OP_ADD)
+       call c_Xh%gs_h%op(w3, GS_OP_ADD)
+    end if
+
     call device_opcolv(w1%x_d, w2%x_d, w3%x_d, c_Xh%Binv_d, gdim, n)
 
 #else

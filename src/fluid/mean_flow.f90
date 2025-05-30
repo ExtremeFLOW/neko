@@ -53,10 +53,10 @@ contains
   !> Initialize a mean flow field
   subroutine mean_flow_init(this, u, v, w, p)
     class(mean_flow_t), intent(inout) :: this
-    type(field_t), target, intent(inout) :: u
-    type(field_t), target, intent(inout) :: v
-    type(field_t), target, intent(inout) :: w
-    type(field_t), target, intent(inout) :: p
+    type(field_t), target, intent(in) :: u
+    type(field_t), target, intent(in) :: v
+    type(field_t), target, intent(in) :: w
+    type(field_t), target, intent(in) :: p
 
     call this%free()
 

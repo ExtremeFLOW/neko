@@ -12,6 +12,7 @@ module pnpn_res_stress_cpu
   use num_types, only : rp
   use space, only : space_t
   use math, only : rzero, vdot3, cmult, sub2, col2, copy, cfill, invers2, cmult2
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 
@@ -33,20 +34,21 @@ contains
 
   subroutine pnpn_prs_res_stress_cpu_compute(p, p_res, u, v, w, u_e, v_e, w_e,&
        f_x, f_y, f_z, c_Xh, gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt,&
-       mu, rho)
+       mu, rho, event)
     type(field_t), intent(inout) :: p, u, v, w
-    type(field_t), intent(inout) :: u_e, v_e, w_e
+    type(field_t), intent(in) :: u_e, v_e, w_e
     type(field_t), intent(inout) :: p_res
-    type(field_t), intent(inout) :: f_x, f_y, f_z
+    type(field_t), intent(in) :: f_x, f_y, f_z
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
-    type(facet_normal_t), intent(inout) :: bc_prs_surface
-    type(facet_normal_t), intent(inout) :: bc_sym_surface
+    type(facet_normal_t), intent(in) :: bc_prs_surface
+    type(facet_normal_t), intent(in) :: bc_sym_surface
     class(Ax_t), intent(inout) :: Ax
-    real(kind=rp), intent(inout) :: bd
+    real(kind=rp), intent(in) :: bd
     real(kind=rp), intent(in) :: dt
     type(field_t), intent(in) :: mu
     type(field_t), intent(in) :: rho
+    type(c_ptr), intent(inout) :: event
     real(kind=rp) :: dtbd
     integer :: n, nelv, lxyz
     integer :: i, e
@@ -66,7 +68,7 @@ contains
     call neko_scratch_registry%request_field(work2, temp_indices(8))
     call neko_scratch_registry%request_field(work3, temp_indices(9))
 
-   ! Stress tensor
+    ! Stress tensor
     call neko_scratch_registry%request_field(s11, temp_indices(10))
     call neko_scratch_registry%request_field(s22, temp_indices(11))
     call neko_scratch_registry%request_field(s33, temp_indices(12))
@@ -93,7 +95,7 @@ contains
 
     ! The strain rate tensor
     call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, &
-                     u_e, v_e, w_e, c_Xh)
+         u_e, v_e, w_e, c_Xh)
 
 
     ! Gradient of viscosity * 2
@@ -108,19 +110,19 @@ contains
     ! S^T grad \mu
     do e = 1, nelv
        call vdot3(work1%x(:, :, :, e), &
-                  ta1%x(:, :, :, e), ta2%x(:, :, :, e), ta3%x(:, :, :, e), &
-                  s11%x(:, :, :, e), s12%x(:, :, :, e), s13%x(:, :, :, e), &
-                  lxyz)
+            ta1%x(:, :, :, e), ta2%x(:, :, :, e), ta3%x(:, :, :, e), &
+            s11%x(:, :, :, e), s12%x(:, :, :, e), s13%x(:, :, :, e), &
+            lxyz)
 
        call vdot3 (work2%x(:, :, :, e), &
-                   ta1%x(:, :, :, e), ta2%x(:, :, :, e), ta3%x(:, :, :, e), &
-                   s12%x(:, :, :, e), s22%x(:, :, :, e), s23%x(:, :, :, e), &
-                   lxyz)
+            ta1%x(:, :, :, e), ta2%x(:, :, :, e), ta3%x(:, :, :, e), &
+            s12%x(:, :, :, e), s22%x(:, :, :, e), s23%x(:, :, :, e), &
+            lxyz)
 
        call vdot3 (work3%x(:, :, :, e), &
-                   ta1%x(:, :, :, e), ta2%x(:, :, :, e), ta3%x(:, :, :, e), &
-                   s13%x(:, :, :, e), s23%x(:, :, :, e), s33%x(:, :, :, e), &
-                   lxyz)
+            ta1%x(:, :, :, e), ta2%x(:, :, :, e), ta3%x(:, :, :, e), &
+            s13%x(:, :, :, e), s23%x(:, :, :, e), s33%x(:, :, :, e), &
+            lxyz)
     end do
 
     ! Subtract the two terms of the viscous stress to get
@@ -132,12 +134,12 @@ contains
     call sub2(wa3%x, work3%x, n)
 
     do concurrent (i = 1:n)
-        ta1%x(i,1,1,1) = f_x%x(i,1,1,1) / rho%x(i,1,1,1) &
-             - ((wa1%x(i,1,1,1) / rho%x(i,1,1,1)) * c_Xh%B(i,1,1,1))
-        ta2%x(i,1,1,1) = f_y%x(i,1,1,1) / rho%x(i,1,1,1) &
-             - ((wa2%x(i,1,1,1) / rho%x(i,1,1,1)) * c_Xh%B(i,1,1,1))
-        ta3%x(i,1,1,1) = f_z%x(i,1,1,1) / rho%x(i,1,1,1) &
-             - ((wa3%x(i,1,1,1) / rho%x(i,1,1,1)) * c_Xh%B(i,1,1,1))
+       ta1%x(i,1,1,1) = f_x%x(i,1,1,1) / rho%x(i,1,1,1) &
+            - ((wa1%x(i,1,1,1) / rho%x(i,1,1,1)) * c_Xh%B(i,1,1,1))
+       ta2%x(i,1,1,1) = f_y%x(i,1,1,1) / rho%x(i,1,1,1) &
+            - ((wa2%x(i,1,1,1) / rho%x(i,1,1,1)) * c_Xh%B(i,1,1,1))
+       ta3%x(i,1,1,1) = f_z%x(i,1,1,1) / rho%x(i,1,1,1) &
+            - ((wa3%x(i,1,1,1) / rho%x(i,1,1,1)) * c_Xh%B(i,1,1,1))
     end do
 
     call gs_Xh%op(ta1, GS_OP_ADD)
@@ -160,7 +162,7 @@ contains
 
     do i = 1, n
        p_res%x(i,1,1,1) = (-p_res%x(i,1,1,1)) &
-                        + wa1%x(i,1,1,1) + wa2%x(i,1,1,1) + wa3%x(i,1,1,1)
+            + wa1%x(i,1,1,1) + wa2%x(i,1,1,1) + wa3%x(i,1,1,1)
     end do
 
     !
@@ -173,7 +175,7 @@ contains
     end do
 
     call bc_sym_surface%apply_surfvec(wa1%x, wa2%x, wa3%x, ta1%x, ta2%x, ta3%x,&
-                                      n)
+         n)
 
     dtbd = bd / dt
     do i = 1, n
@@ -201,7 +203,7 @@ contains
     type(space_t), intent(inout) :: Xh
     type(field_t), intent(inout) :: p, u, v, w
     type(field_t), intent(inout) :: u_res, v_res, w_res
-    type(field_t), intent(inout) :: f_x, f_y, f_z
+    type(field_t), intent(in) :: f_x, f_y, f_z
     type(coef_t), intent(inout) :: c_Xh
     type(field_t), intent(in) :: mu
     type(field_t), intent(in) :: rho
@@ -218,7 +220,7 @@ contains
 
     ! Viscous stresses
     call Ax%compute_vector(u_res%x, v_res%x, w_res%x, u%x, v%x, w%x, c_Xh,&
-                                msh, Xh)
+         msh, Xh)
 
     call neko_scratch_registry%request_field(ta1, temp_indices(1))
     call neko_scratch_registry%request_field(ta2, temp_indices(2))

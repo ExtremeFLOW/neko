@@ -41,9 +41,10 @@ module cheby
   use mesh, only : mesh_t
   use space, only : space_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc, only : bc_list_t, bc_list_apply
-  use math, only : glsc3, rzero, rone, copy, sub2, cmult2, abscmp, glsc2,  &
-       add2s1, add2s2
+  use bc_list, only : bc_list_t
+  use schwarz, only : schwarz_t
+  use math, only : glsc3, rzero, rone, copy, sub2, cmult2, abscmp, glsc2, &
+       add2s1, add2s2, sub3, cmult, add2
   use comm
   implicit none
   private
@@ -56,10 +57,12 @@ module cheby
      real(kind=rp) :: tha, dlt
      integer :: power_its = 150
      logical :: recompute_eigs = .true.
+     logical :: zero_initial_guess = .false.
+     type(schwarz_t), pointer :: schwarz => null() !< Schwarz decompostions
    contains
      procedure, pass(this) :: init => cheby_init
      procedure, pass(this) :: free => cheby_free
-     procedure, pass(this) :: solve => cheby_solve
+     procedure, pass(this) :: solve => cheby_impl
      procedure, pass(this) :: solve_coupled => cheby_solve_coupled
   end type cheby_t
 
@@ -69,10 +72,10 @@ contains
   subroutine cheby_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
     class(cheby_t), intent(inout), target :: this
     integer, intent(in) :: max_iter
-    class(pc_t), optional, intent(inout), target :: M
+    class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
-    real(kind=rp), optional, intent(inout) :: rel_tol
-    real(kind=rp), optional, intent(inout) :: abs_tol
+    real(kind=rp), optional, intent(in) :: rel_tol
+    real(kind=rp), optional, intent(in) :: abs_tol
     logical, optional, intent(in) :: monitor
 
     call this%free()
@@ -113,41 +116,55 @@ contains
 
   subroutine cheby_power(this, Ax, x, n, coef, blst, gs_h)
     class(cheby_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
     real(kind=rp) :: lam, b, a, rn
-    real(kind=rp) :: boost = 1.2_rp
+    real(kind=rp) :: boost = 1.1_rp
     real(kind=rp) :: lam_factor = 30.0_rp
     real(kind=rp) :: wtw, dtw, dtd
     integer :: i
-    associate(w => this%w, d => this%d)
+    associate(w => this%w, d => this%d, r => this%r)
 
       do i = 1, n
-        !TODO: replace with a better way to initialize power method
-        call random_number(rn)
-        d(i) = rn + 10.0_rp
+         !TODO: replace with a better way to initialize power method
+         call random_number(rn)
+         d(i) = rn + 10.0_rp
       end do
       call gs_h%op(d, n, GS_OP_ADD)
-      call bc_list_apply(blst, d, n)
+      call blst%apply(d, n)
 
       !Power method to get lamba max
       do i = 1, this%power_its
-        call ax%compute(w, d, coef, x%msh, x%Xh)
-        call gs_h%op(w, n, GS_OP_ADD)
-        call bc_list_apply(blst, w, n)
+         call ax%compute(w, d, coef, x%msh, x%Xh)
+         call gs_h%op(w, n, GS_OP_ADD)
+         call blst%apply(w, n)
+         if (associated(this%schwarz)) then
+            call this%schwarz%compute(r, w)
+            call copy(w, r, n)
+         else
+            call this%M%solve(r, w, n)
+            call copy(w, r, n)
+         end if
 
-        wtw = glsc3(w, coef%mult, w, n)
-        call cmult2(d, w, 1.0_rp/sqrt(wtw), n)
-        call bc_list_apply(blst, d, n)
+         wtw = glsc3(w, coef%mult, w, n)
+         call cmult2(d, w, 1.0_rp/sqrt(wtw), n)
+         call blst%apply(d, n)
       end do
 
       call ax%compute(w, d, coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD)
-      call bc_list_apply(blst, w, n)
+      call blst%apply(w, n)
+      if (associated(this%schwarz)) then
+         call this%schwarz%compute(r, w)
+         call copy(w, r, n)
+      else
+         call this%M%solve(r, w, n)
+         call copy(w, r, n)
+      end if
 
       dtw = glsc3(d, coef%mult, w, n)
       dtd = glsc3(d, coef%mult, d, n)
@@ -165,10 +182,10 @@ contains
   function cheby_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) &
        result(ksp_results)
     class(cheby_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: f
+    real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
@@ -193,7 +210,7 @@ contains
       call copy(r, f, n)
       call ax%compute(w, x%x, coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD)
-      call bc_list_apply(blst, w, n)
+      call blst%apply(w, n)
       call sub2(r, w, n)
 
       rtr = glsc3(r, coef%mult, r, n)
@@ -210,47 +227,129 @@ contains
 
       ! Rest of the iterations
       do iter = 2, max_iter
-        ! calculate residual
-        call copy(r, f, n)
-        call ax%compute(w, x%x, coef, x%msh, x%Xh)
-        call gs_h%op(w, n, GS_OP_ADD)
-        call bc_list_apply(blst, w, n)
-        call sub2(r, w, n)
+         ! calculate residual
+         call copy(r, f, n)
+         call ax%compute(w, x%x, coef, x%msh, x%Xh)
+         call gs_h%op(w, n, GS_OP_ADD)
+         call blst%apply(w, n)
+         call sub2(r, w, n)
 
-        call this%M%solve(w, r, n)
+         call this%M%solve(w, r, n)
 
-        b = (this%dlt * a / 2.0_rp)**2
-        a = 1.0_rp / (this%tha - b)
-        call add2s1(d, w, b, n)! d = w + b*d
+         if (iter .eq. 2) then
+            b = 0.5_rp * (this%dlt * a)**2
+         else
+            b = (this%dlt * a / 2.0_rp)**2
+         end if
+         a = 1.0_rp/(this%tha - b/a)
+         call add2s1(d, w, b, n)! d = w + b*d
 
-        call add2s2(x%x, d, a, n)! x = x + a*d
+         call add2s2(x%x, d, a, n)! x = x + a*d
       end do
 
       ! calculate residual
       call copy(r, f, n)
       call ax%compute(w, x%x, coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD)
-      call bc_list_apply(blst, w, n)
+      call blst%apply(w, n)
       call sub2(r, w, n)
       rtr = glsc3(r, coef%mult, r, n)
       rnorm = sqrt(rtr) * norm_fac
       ksp_results%res_final = rnorm
       ksp_results%iter = iter
+      ksp_results%converged = this%is_converged(iter, rnorm)
     end associate
   end function cheby_solve
+
+  !> A chebyshev preconditioner
+  function cheby_impl(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+       result(ksp_results)
+    class(cheby_t), intent(inout) :: this
+    class(ax_t), intent(in) :: Ax
+    type(field_t), intent(inout) :: x
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(in) :: f
+    type(coef_t), intent(inout) :: coef
+    type(bc_list_t), intent(inout) :: blst
+    type(gs_t), intent(inout) :: gs_h
+    type(ksp_monitor_t) :: ksp_results
+    integer, optional, intent(in) :: niter
+    integer :: iter, max_iter
+    real(kind=rp) :: a, b, rtr, rnorm, norm_fac
+    real(kind=rp) :: rhok, rhokp1, sig1, tmp1, tmp2
+
+    if (this%recompute_eigs) then
+       call cheby_power(this, Ax, x, n, coef, blst, gs_h)
+    end if
+
+    if (present(niter)) then
+       max_iter = niter
+    else
+       max_iter = this%max_iter
+    end if
+    norm_fac = 1.0_rp / sqrt(coef%volume)
+
+    associate( w => this%w, r => this%r, d => this%d)
+      ! calculate residual
+      if (.not.this%zero_initial_guess) then
+         call ax%compute(w, x%x, coef, x%msh, x%Xh)
+         call gs_h%op(w, n, GS_OP_ADD)
+         call blst%apply(w, n)
+         call sub3(r, f, w, n)
+      else
+         call copy(r, f, n)
+         this%zero_initial_guess = .false.
+      end if
+
+      ! First iteration
+      if (associated(this%schwarz)) then
+         call this%schwarz%compute(d, r)
+      else
+         call this%M%solve(d, r, n)
+      end if
+      call cmult( d, (1.0_rp / this%tha), n)
+      call add2( x%x, d, n)
+
+      sig1 = this%tha / this%dlt
+      rhok = 1.0_rp / sig1
+
+      ! Rest of the iterations
+      do iter = 2, max_iter
+         rhokp1 = 1.0_rp / (2.0_rp * sig1 - rhok)
+         tmp1 = rhokp1 * rhok
+         tmp2 = 2.0_rp * rhokp1 / this%dlt
+         rhok = rhokp1
+         ! calculate residual
+         call ax%compute(w, x%x, coef, x%msh, x%Xh)
+         call gs_h%op(w, n, GS_OP_ADD)
+         call blst%apply(w, n)
+         call sub3(r, f, w, n)
+
+         if (associated(this%schwarz)) then
+            call this%schwarz%compute(w, r)
+         else
+            call this%M%solve(w, r, n)
+         end if
+         call cmult( d, tmp1, n)
+         call add2s2( d, w, tmp2, n)
+         call add2( x%x, d, n)
+      end do
+
+    end associate
+  end function cheby_impl
 
   !> Standard Chebyshev coupled solve
   function cheby_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
        n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
     class(cheby_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     type(field_t), intent(inout) :: y
     type(field_t), intent(inout) :: z
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: fx
-    real(kind=rp), dimension(n), intent(inout) :: fy
-    real(kind=rp), dimension(n), intent(inout) :: fz
+    real(kind=rp), dimension(n), intent(in) :: fx
+    real(kind=rp), dimension(n), intent(in) :: fy
+    real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blstx
     type(bc_list_t), intent(inout) :: blsty

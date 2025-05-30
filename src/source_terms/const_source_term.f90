@@ -71,8 +71,8 @@ contains
   subroutine const_source_term_init_from_json(this, json, fields, coef)
     class(const_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    type(field_list_t), intent(inout), target :: fields
-    type(coef_t), intent(inout), target :: coef
+    type(field_list_t), intent(in), target :: fields
+    type(coef_t), intent(in), target :: coef
     real(kind=rp), allocatable :: values(:)
     real(kind=rp) :: start_time, end_time
 
@@ -95,7 +95,7 @@ contains
   subroutine const_source_term_init_from_components(this, fields, values, &
                                                     coef, start_time, end_time)
     class(const_source_term_t), intent(inout) :: this
-    class(field_list_t), intent(inout), target :: fields
+    class(field_list_t), intent(in), target :: fields
     real(kind=rp), intent(in) :: values(:)
     type(coef_t) :: coef
     real(kind=rp), intent(in) :: start_time

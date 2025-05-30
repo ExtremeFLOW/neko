@@ -34,14 +34,14 @@
 module bicgstab
   use num_types, only: rp
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
-  use precon,  only : pc_t
+  use precon, only : pc_t
   use ax_product, only : ax_t
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc, only : bc_list_t, bc_list_apply
+  use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, NEKO_EPS, add2s2, x_update, &
-                   p_update, abscmp
+       p_update, abscmp
   use utils, only : neko_error
   implicit none
   private
@@ -70,12 +70,12 @@ contains
 
   !> Constructor.
   subroutine bicgstab_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
-    class(bicgstab_t), intent(inout) :: this
-    class(pc_t), optional, intent(inout), target :: M
+    class(bicgstab_t), target, intent(inout) :: this
+    class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
-    real(kind=rp), optional, intent(inout) :: rel_tol
-    real(kind=rp), optional, intent(inout) :: abs_tol
+    real(kind=rp), optional, intent(in) :: rel_tol
+    real(kind=rp), optional, intent(in) :: abs_tol
     logical, optional, intent(in) :: monitor
 
 
@@ -154,10 +154,10 @@ contains
   !> Bi-Conjugate Gradient Stabilized method solve
   function bicgstab_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
     class(bicgstab_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: f
+    real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
@@ -206,7 +206,7 @@ contains
          call this%M%solve(p_hat, p, n)
          call Ax%compute(v, p_hat, coef, x%msh, x%Xh)
          call gs_h%op(v, n, GS_OP_ADD)
-         call bc_list_apply(blst, v, n)
+         call blst%apply(v, n)
          alpha = rho_1 / glsc3(f, coef%mult, v, n)
          call copy(s, r, n)
          call add2s2(s, v, -alpha, n)
@@ -220,7 +220,7 @@ contains
          call this%M%solve(s_hat, s, n)
          call Ax%compute(t, s_hat, coef, x%msh, x%Xh)
          call gs_h%op(t, n, GS_OP_ADD)
-         call bc_list_apply(blst, t, n)
+         call blst%apply(t, n)
          omega = glsc3(t, coef%mult, s, n) &
               / glsc3(t, coef%mult, t, n)
          call x_update(x%x, p_hat, s_hat, alpha, omega, n)
@@ -244,20 +244,21 @@ contains
     call this%monitor_stop()
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
+    ksp_results%converged = this%is_converged(iter, rnorm)
   end function bicgstab_solve
 
   !> Standard BiCGSTAB coupled solve
   function bicgstab_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
        n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
     class(bicgstab_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     type(field_t), intent(inout) :: y
     type(field_t), intent(inout) :: z
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: fx
-    real(kind=rp), dimension(n), intent(inout) :: fy
-    real(kind=rp), dimension(n), intent(inout) :: fz
+    real(kind=rp), dimension(n), intent(in) :: fx
+    real(kind=rp), dimension(n), intent(in) :: fy
+    real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blstx
     type(bc_list_t), intent(inout) :: blsty
@@ -266,9 +267,9 @@ contains
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
 
-    ksp_results(1) =  this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) =  this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
 
   end function bicgstab_solve_coupled
 

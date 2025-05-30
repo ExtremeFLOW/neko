@@ -46,7 +46,8 @@ module utils
   public :: neko_error, neko_warning, nonlinear_index, filename_chsuffix, &
        filename_suffix, filename_suffix_pos, filename_tslash_pos, &
        linear_index, split_string, NEKO_FNAME_LEN, index_is_on_facet, &
-       concat_string_array
+       concat_string_array, extract_fld_file_index, neko_type_error, &
+       neko_type_registration_error
 
 
 contains
@@ -83,6 +84,51 @@ contains
     new_fname = trim(fname(1:suffix_pos))//new_suffix
 
   end subroutine filename_chsuffix
+
+  !> Extracts the index of a field file. For example, "myfield.f00045"
+  !! will return `45`. If the suffix of the file name is invalid, returns
+  !! a default index value.
+  !! @param fld_filename Name of the fld file, e.g. `myfield0.f00035`.
+  !! @param default_index The index to return in case the suffix of
+  !! `fld_filename` is invalid.
+  function extract_fld_file_index(fld_filename, default_index) result(index)
+    character(len=*), intent(in) :: fld_filename
+    integer, intent(in) :: default_index
+
+    character(len=80) :: suffix
+    integer :: index, fpos, i
+    logical :: valid
+
+    call filename_suffix(fld_filename, suffix)
+
+    valid = .true.
+
+    ! This value will be modified when reading the file name extension
+    ! e.g. "field0.f00035" will set sample_idx = 35
+    index = default_index
+
+    !
+    ! Try to extract the index of the field file from the suffix "fxxxxx"
+    !
+    fpos = scan(trim(suffix), 'f')
+    if (fpos .eq. 1) then
+       ! Make sure that the suffix only contains integers from 0 to 9
+       do i = 2, len(trim(suffix))
+          if (.not. (iachar(suffix(i:i)) >= iachar('0') &
+               .and. iachar(suffix(i:i)) <= iachar('9'))) then
+             valid = .false.
+          end if
+       end do
+    else
+       valid = .false.
+    end if
+
+    ! Must be exactly 6 characters long, i.e. an 'f' with 5 integers after
+    if (len(trim(suffix)) .ne. 6) valid = .false.
+
+    if (valid) read (suffix(2:), "(I5.5)") index
+
+  end function extract_fld_file_index
 
   !> Split a string based on delimiter (tokenizer)
   !! OBS: very hacky, this should really be improved, it is rather embarrasing
@@ -156,17 +202,17 @@ contains
 
     is_on = .false.
     select case (facet)
-      case (1)
+    case (1)
        if (i .eq. 1) is_on = .true.
-      case (2)
+    case (2)
        if (i .eq. lx) is_on = .true.
-      case (3)
+    case (3)
        if (j .eq. 1) is_on = .true.
-      case (4)
+    case (4)
        if (j .eq. ly) is_on = .true.
-      case (5)
+    case (5)
        if (k .eq. 1) is_on = .true.
-      case (6)
+    case (6)
        if (k .eq. lz) is_on = .true.
     end select
 
@@ -194,6 +240,44 @@ contains
     write(error_unit, *) '*** ERROR: ', error_msg, ' ***'
     error stop
   end subroutine neko_error_msg
+
+  !> Reports an error allocating a type for a particular base pointer class.
+  !! @details Should be used in factories.
+  !! @param base_type The base type of the object, which the factory tried to
+  !! construct.
+  !! @param wrong_type The type that was attempted to construct.
+  !! @param known_types A list of the types that are known.
+  subroutine neko_type_error(base_type, wrong_type, known_types)
+    character(len=*), intent(in) :: base_type
+    character(len=*), intent(in) :: wrong_type
+    character(len=*), intent(in) :: known_types(:)
+    integer :: i
+
+    write(error_unit, *) '*** ERROR WHEN SELECTING TYPE ***'
+    write(error_unit, *) 'Type ', wrong_type, ' does not exist for ', base_type
+    write(error_unit, *) 'Valid types are:'
+    do i = 1, size(known_types)
+       write(error_unit, *) "    ", known_types(i)
+    end do
+    error stop
+  end subroutine neko_type_error
+
+  subroutine neko_type_registration_error(base_type, wrong_type, known)
+    character(len=*), intent(in) :: base_type
+    character(len=*),intent(in) :: wrong_type
+    logical, intent(in) :: known
+
+    write(error_unit, *) '*** ERROR WHEN REGISTERING TYPE ***'
+    write(error_unit, *) 'Type name ', wrong_type, &
+         ' conflicts with and already existing ', base_type, " type"
+    if (known) then
+       write(error_unit, *) 'Please rename your custom type.'
+    else
+       write(error_unit, *) 'The already existing type is also custom.' // &
+            ' Make all custom type names unique!'
+    end if
+    error stop
+  end subroutine neko_type_registration_error
 
   !> Reports a warning to standard output
   subroutine neko_warning(warning_msg)

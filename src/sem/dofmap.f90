@@ -37,7 +37,7 @@ module dofmap
   use mesh, only : mesh_t
   use space, only : space_t, GLL
   use tuple, only : tuple_i4_t, tuple4_i4_t
-  use num_types, only : i4, i8, rp
+  use num_types, only : i4, i8, rp, xp
   use utils, only : neko_error, neko_warning
   use fast3d, only : fd_weights_full
   use tensor, only : tensr3, tnsr2d_el, trsp, addtnsr
@@ -46,7 +46,7 @@ module dofmap
   use element, only : element_t
   use quad, only : quad_t
   use hex, only : hex_t
-  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
 
@@ -240,7 +240,7 @@ contains
     num_dofs_edges(1) =  int(Xh%lx - 2, i8)
     num_dofs_edges(2) =  int(Xh%ly - 2, i8)
     num_dofs_edges(3) =  int(Xh%lz - 2, i8)
-    edge_offset = int(msh%glb_mpts, i8) + int(1, 4)
+    edge_offset = int(msh%glb_mpts, i8) + int(1, i8)
 
     do i = 1, msh%nelv
 
@@ -380,7 +380,7 @@ contains
              end do
           end if
 
-          call ep%edge_id(edge, i8)
+          call ep%edge_id(edge, 8)
           shared_dof = msh%is_shared(edge)
           global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
@@ -946,7 +946,7 @@ contains
     real(kind=rp), intent(inout) ::  e(n, n, n)
     real(kind=rp), intent(inout) ::  v(n, n, n)
     integer :: gh_type, ntot, kk, jj, ii, k, j, i
-    real(kind=rp) :: si, sj, sk, hi, hj, hk
+    real(kind=xp) :: si, sj, sk, hi, hj, hk
 
     !
     !  Build vertex interpolant
@@ -958,9 +958,9 @@ contains
 
     do concurrent (i = 1:n, j = 1:n, k = 1:n, &
                    ii = 1:n:n-1, jj = 1:n:n-1, kk = 1:n:n-1)
-       si       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
-       sj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
-       sk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
+       si       = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+       sj       = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+       sk       = 0.5_xp*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
        v(i,j,k) = v(i,j,k) + si * sj* sk * x(ii, jj, kk)
     end do
 
@@ -980,24 +980,24 @@ contains
     !  x-edges
     !
     do concurrent (i = 1:n, j = 1:n, k = 1:n, jj = 1:n:n-1, kk = 1:n:n-1)
-       hj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
-       hk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
+       hj       = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+       hk       = 0.5_xp*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
        e(i,j,k) = e(i,j,k) + hj*hk*(x(i, jj, kk) - v(i, jj, kk))
     end do
     !
     !  y-edges
     !
     do concurrent (i = 1:n, j = 1:n, k = 1:n, ii = 1:n:n-1, kk = 1:n:n-1)
-       hi       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
-       hk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
+       hi       = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+       hk       = 0.5_xp*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
        e(i,j,k) = e(i,j,k) + hi*hk*(x(ii, j, kk) - v(ii, j, kk))
     end do
     !
     !  z-edges
     !
     do concurrent (i = 1:n, j = 1:n, k = 1:n, ii = 1:n:n-1, jj = 1:n:n-1)
-       hi       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
-       hj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+       hi       = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+       hj       = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
        e(i,j,k) = e(i,j,k) + hi*hj*(x(ii, jj, k) - v(ii, jj, k))
     end do
 
@@ -1021,7 +1021,7 @@ contains
     !  x-edges
     !
     do concurrent (i = 1:n, j = 1:n, k = 1:n, ii = 1:n:n-1)
-       hi       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+       hi       = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
        v(i,j,k) = v(i,j,k) + hi*(x(ii,j,k)-e(ii,j,k))
     end do
 
@@ -1029,7 +1029,7 @@ contains
     ! y-edges
     !
     do concurrent (i = 1:n, j = 1:n, k = 1:n, jj = 1:n:n-1)
-       hj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+       hj       = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
        v(i,j,k) = v(i,j,k) + hj*(x(i, jj, k) - e(i, jj, k))
     end do
 
@@ -1037,7 +1037,7 @@ contains
     !  z-edges
     !
     do concurrent (i = 1:n, j = 1:n, k = 1:n, kk = 1:n:n-1)
-       hk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
+       hk       = 0.5_xp*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
        v(i,j,k) = v(i,j,k) + hk*(x(i, j, kk) - e(i, j, kk))
     end do
 
@@ -1069,8 +1069,8 @@ contains
        do ii = 1, n, n-1
           do j = 1, n
              do i = 1, n
-                si     = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
-                sj     = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+                si     = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+                sj     = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
                 v(i,j) = v(i,j) + si*sj*x(ii, jj)
              end do
           end do
@@ -1089,7 +1089,7 @@ contains
     do jj = 1, n, n-1
        do j = 1, n
           do i = 1, n
-             hj     = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+             hj     = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
              e(i,j) = e(i,j) + hj*(x(i, jj) - v(i, jj))
           end do
        end do
@@ -1100,7 +1100,7 @@ contains
     do ii = 1, n, n-1
        do j = 1, n
           do i = 1, n
-             hi     = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+             hi     = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
              e(i,j) = e(i,j) + hi*(x(ii,j)-v(ii,j))
           end do
        end do
@@ -1161,7 +1161,7 @@ contains
     if (abs(2.0 * radius) <= xys * 1.00001) &
     & call neko_error('Radius to small for arced element surface')
     ! find center
-    dtheta = abs(asin(0.5*xys/radius))
+    dtheta = abs(asin(0.5_xp*xys/radius))
     pt12x  = (pt1x + pt2x)/2.0
     pt12y  = (pt1y + pt2y)/2.0
     xcenn  = pt12x - xs/xys * radius*cos(dtheta)

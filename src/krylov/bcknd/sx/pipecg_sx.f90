@@ -33,13 +33,13 @@
 !> Defines a pipelined Conjugate Gradient methods SX-Aurora backend
 module pipecg_sx
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
-  use precon,  only : pc_t
+  use precon, only : pc_t
   use ax_product, only : ax_t
   use num_types, only: rp
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc, only : bc_list_t, bc_list_apply
+  use bc_list, only : bc_list_t
   use math, only : glsc3, abscmp
   use comm
   implicit none
@@ -67,12 +67,12 @@ contains
 
   !> Initialise a pipelined PCG solver
   subroutine sx_pipecg_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
-    class(sx_pipecg_t), intent(inout) :: this
-    class(pc_t), optional, intent(inout), target :: M
+    class(sx_pipecg_t), target, intent(inout) :: this
+    class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
-    real(kind=rp), optional, intent(inout) :: rel_tol
-    real(kind=rp), optional, intent(inout) :: abs_tol
+    real(kind=rp), optional, intent(in) :: rel_tol
+    real(kind=rp), optional, intent(in) :: abs_tol
     logical, optional, intent(in) :: monitor
 
     call this%free()
@@ -152,10 +152,10 @@ contains
   !> Pipelined PCG solve
   function sx_pipecg_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
     class(sx_pipecg_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: f
+    real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
@@ -187,7 +187,7 @@ contains
     call this%M%solve(this%u, this%r, n)
     call Ax%compute(this%w, this%u, coef, x%msh, x%Xh)
     call gs_h%op(this%w, n, GS_OP_ADD)
-    call bc_list_apply(blst, this%w, n)
+    call blst%apply_scalar(this%w, n)
 
     rtr = glsc3(this%r, coef%mult, this%r, n)
     rnorm = sqrt(rtr)*norm_fac
@@ -219,7 +219,7 @@ contains
        call this%M%solve(this%mi, this%w, n)
        call Ax%compute(this%ni, this%mi, coef, x%msh, x%Xh)
        call gs_h%op(this%ni, n, GS_OP_ADD)
-       call bc_list_apply(blst, this%ni, n)
+       call blst%apply(this%ni, n)
 
        call MPI_Wait(request, status, ierr)
        gamma2 = gamma1
@@ -266,14 +266,14 @@ contains
   function sx_pipecg_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
        n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
     class(sx_pipecg_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     type(field_t), intent(inout) :: y
     type(field_t), intent(inout) :: z
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: fx
-    real(kind=rp), dimension(n), intent(inout) :: fy
-    real(kind=rp), dimension(n), intent(inout) :: fz
+    real(kind=rp), dimension(n), intent(in) :: fx
+    real(kind=rp), dimension(n), intent(in) :: fy
+    real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blstx
     type(bc_list_t), intent(inout) :: blsty
@@ -282,9 +282,9 @@ contains
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
 
-    ksp_results(1) =  this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) =  this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
 
   end function sx_pipecg_solve_coupled
 
