@@ -17,5 +17,5 @@ fi
 log="run_neko.log"
 
 # Run the command
-mpirun -n "$nprocs" "$neko" "case_templates/$case_file" > "$log" 2>&1
+mpirun -n "$nprocs" "$neko" "$case_file"
 

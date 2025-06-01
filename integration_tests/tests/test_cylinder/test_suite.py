@@ -1,6 +1,7 @@
 import subprocess
 import pytest
 import os
+from os.path import join
 from testlib import get_neko
 
 
@@ -21,7 +22,7 @@ def test_cylinder(launcher_script, request):
 
     # Either specify a case, or load it here into a json, manipulate
     # and save a new case file.
-    case_file = "cylinder.case"
+    case_file = join("case_templates", "cylinder.case")
 
     # Run Neko
     with open(log_file, "w") as log:
