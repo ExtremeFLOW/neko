@@ -116,7 +116,8 @@ jobs:
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none
       RP: ${{ matrix.precision }}
-      NEKO_BIN: ${{ github.workspace }}/src
+      NEKO_EXEC: ${{ github.workspace }}/src/neko
+      MAKENEKO_EXEC: ${{ github.workspace }}/makeneko
 
     steps:
       - name: Checkout
@@ -208,9 +209,10 @@ jobs:
       - name: Regresion tests
         if: matrix.backend == 'cpu'
         run: |
+           chomd +x $MAKENEKO_EXEC
            cd tests/integration
            pytest --max_nprocs=2
-           cd ..
+           cd ../..
 
 
       - name: Check

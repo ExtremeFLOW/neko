@@ -10,12 +10,17 @@ from conftest import logger, MAX_NPROCS
 def get_neko():
     """
     Returns the path to the turboneko executable via the environmental variable 
-    NEKO_BIN, or just returns "neko", assuming it is in the PATH.
+    NEKO_EXEC, or just returns "neko", assuming it is in the PATH.
     """
 
-    bin_dir = os.getenv("NEKO_BIN")
-    if bin_dir:
-        return os.path.join(bin_dir, "neko")
+    if os.getenv("NEKO_EXEC"):
+        return os.getenv("NEKO_EXEC")
+    else:
+        return "neko"
+
+def get_makeneko():
+    if os.getenv("MAKENEKO_EXEC"):
+        return os.getenv("MAKENEKO_EXEC")
     else:
         return "neko"
 
