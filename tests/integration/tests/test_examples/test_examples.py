@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import pytest
 import os
 from os.path import join
-from testlib import get_neko, get_neko_dir, run_neko, configure_nprocs
+from testlib import get_neko, get_neko_dir, run_neko, configure_nprocs, get_makeneko
 import json5
 import json
 
@@ -180,9 +180,11 @@ def test_example_compile(example, log_file):
     """
     import subprocess
 
+    makeneko = get_makeneko()
+
     with open(log_file, "w") as f:
         result = subprocess.run(
-            ["makeneko", examples[example].user_file],
+            [makeneko, examples[example].user_file],
             stdout=f,
             stderr=subprocess.STDOUT,
             text=True)
