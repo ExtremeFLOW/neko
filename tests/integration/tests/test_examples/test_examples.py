@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import pytest
 import os
 from os.path import join
-from testlib import get_neko, get_neko_dir, run_neko
+from testlib import get_neko, get_neko_dir, run_neko, configure_nprocs
 import json5
 import json
 
@@ -126,7 +126,7 @@ def manipulate_case(example, case):
 
 @pytest.mark.parametrize("example", ["hemi", "rayleigh_benard", "tgv"])
 #@pytest.mark.parametrize("example", examples.keys())
-def test_example_smoke(example, launcher_script, request, log_file):
+def test_example_smoke(example, launcher_script, request, log_file, backend):
     """Run a smoke test for the specified Neko example.
     
     Parameterized against the examples dictionary keys. Note that not all
@@ -135,8 +135,9 @@ def test_example_smoke(example, launcher_script, request, log_file):
     fixed, in principle.
     
     """
-    # Number of ranks to launch on
-    nprocs = 2
+    # Max number of ranks to launch on
+    max_nprocs = 2
+    nprocs = configure_nprocs(max_nprocs, backend)
 
     test_name = request.node.name
     case_file = examples[example].case_file

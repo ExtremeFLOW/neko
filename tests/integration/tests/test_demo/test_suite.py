@@ -1,19 +1,18 @@
-import subprocess
-import pytest
-import os
 from os.path import join
-from testlib import get_neko, run_neko
+from testlib import get_neko, run_neko, configure_nprocs
 
 
 def test_demo(launcher_script, log_file):
-    """A very good description of the test."""
+    """A demo test. Notice that the parameters here are passed in via 
+    fixtures defined in conftest.py."""
 
     # Get the path to the neko executable
     neko = get_neko()
 
     # Number of ranks to launch on
-    nprocs = 2
+    max_nprocs = 2
 
+    nprocs = configure_nprocs(max_nprocs)
     # Either specify a case, or load it here into a json, manipulate
     # and save a new case file.
     case_file = join("case_templates", "cylinder.case")

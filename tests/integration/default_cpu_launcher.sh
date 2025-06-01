@@ -13,9 +13,6 @@ if [ -z "$nprocs" ] || [ -z "$case_file" ] || [ -z "$neko" ]; then
     exit 1
 fi
 
-# Create a log file
-log="run_neko.log"
-
 # Run the command
 mpirun -n "$nprocs" "$neko" "$case_file"
 

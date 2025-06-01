@@ -1,19 +1,36 @@
+"""Configuration for pytest integration tests. Contains useful fixtures and 
+defines command line options.
+
+"""
 import os
+import pytest
 
 def pytest_addoption(parser):
     parser.addoption(
         "--launcher-script",
         action="store",
-        default="./default_runner.sh",  # default value
+        default="./default_cpu_launcher.sh",  # default value
         help="Path to the launcher script for running neko."
     )
-
-import pytest
+    parser.addoption(
+        "--backend",
+        action="store",
+        default="cpu",
+        choices=["cpu", "cuda", "hip", "opencl"],
+        help="Backend to use for tests (cpu [default], cuda, hip, opencl)."
+    )
 
 @pytest.fixture
 def launcher_script(request):
     return request.config.getoption("--launcher-script")
 
+@pytest.fixture(scope="session")
+def backend(request):
+    return request.config.getoption("--backend")
+
+@pytest.fixture(scope="session")
+def uses_gpu(backend):
+    return backend != "cpu"
 
 @pytest.fixture
 def log_file(request):
@@ -27,3 +44,4 @@ def log_file(request):
     log_path = os.path.join("logs", f"{test_name}.log")
 
     return log_path
+
