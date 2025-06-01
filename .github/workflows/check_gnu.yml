@@ -104,7 +104,8 @@ jobs:
               brew install openmpi
               brew install automake
               brew install libtool
-              pip3 install pytest json5
+              brew install pytest
+              bew install json5
               echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
               echo "os-version=$(sw_vers -productName)-$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
 

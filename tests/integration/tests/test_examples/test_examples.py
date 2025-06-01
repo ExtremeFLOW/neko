@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import subprocess
 import pytest
 import os
 from os.path import join
@@ -155,10 +156,11 @@ def test_example_smoke(example, launcher_script, request, log_file, tmp_path):
         json.dump(case, f, indent=4)
 
     neko = turboneko
+    makeneko = get_makeneko()
+
     if examples[example].user_file:
-        import subprocess
         result = subprocess.run(
-            ["makeneko", examples[example].user_file],
+            [makeneko, examples[example].user_file],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True)
@@ -178,7 +180,6 @@ def test_example_compile(example, log_file):
     """Compile all examples that have a user file.
     
     """
-    import subprocess
 
     makeneko = get_makeneko()
 
