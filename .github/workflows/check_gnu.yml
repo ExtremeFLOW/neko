@@ -209,7 +209,7 @@ jobs:
       - name: Regresion tests
         if: matrix.backend == 'cpu'
         run: |
-           chomd +x $MAKENEKO_EXEC
+           chmod +x $MAKENEKO_EXEC
            cd tests/integration
            pytest --max_nprocs=2
            cd ../..
