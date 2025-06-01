@@ -17,9 +17,10 @@ to run the tests
 
 Otherwise there are two things you have to provide.
 
-1. Pass the backed to pytest using the `--backend` option. Can be one of `cpu`,
-   `cuda`, `hip`, `opencl`. Defaults to `cpu`
-2. Provide a shell script that wraps the command used to execute neko. It should
+1. The backend to pytest using the `--backend` option. Can be one of `cpu`,
+   `cuda`, `hip`, `opencl`. Defaults to `cpu`. This can be used to configure
+   tests based on the active backend. 
+2. A shell script that wraps the command used to execute neko. It should
    accept 3 arguments
    - Number of ranks.
    - The path to the neko executable.
@@ -28,6 +29,9 @@ Otherwise there are two things you have to provide.
    - `default_cpu_launcher.sh` is used by default and uses `mpirun`.
    - `default_cuda_launcher.sh` may work with CUDA on some machines, but is more
      provided for inspiration.
+3. Additionally, you can also provide `--max_nprocs` to override the number of
+   ranks the tests are run on. Useful if you, for example, have 1 GPU and want
+   to run tests, for which the number of ranks is set to something bigger.
 
 So, running `pytest` is equivalent to
 ```

@@ -3,8 +3,8 @@
 """
 import os
 import subprocess
-from conftest import BACKEND
-import logging
+from conftest import logger, MAX_NPROCS
+
 
 
 def get_neko():
@@ -59,51 +59,17 @@ def run_neko(launcher_script, nprocs, case_file, neko, log_file):
 
 def configure_nprocs(nprocs):
     """
-    Validates and adjusts the number of processes (nprocs) based on the system
-    and the backend.
+    Validates and adjusts the number of processes (nprocs) based on the CLI
+    option and the test.
 
+    Returns min(nprocs, MAX_NPROCS)
     """
 
-
-    global BACKEND
+    global MAX_NPROCS
 
     real_nprocs = nprocs
-
-    if BACKEND in ("cuda", "hip"):
-        # Check available GPUs
-        num_gpus = 0
-
-        if BACKEND == "cuda":
-            try:
-                result = subprocess.run(
-                    ["nvidia-smi", "-L"],
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    timeout=5,
-                    check=True
-                )
-                num_gpus = len(result.stdout.decode().strip().split("\n"))
-            except Exception as e:
-                raise RuntimeError("Could not query CUDA GPUs with nvidia-smi. Error: {}".format(e))
-
-        elif BACKEND == "hip":
-            # For HIP, use rocminfo or rocm-smi
-            try:
-                result = subprocess.run(
-                    ["rocminfo"],
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    timeout=5,
-                    check=True
-                )
-                # Count "Agent" entries as GPUs
-                num_gpus = sum(1 for line in result.stdout.decode().splitlines() if "Agent" in line)
-            except Exception as e:
-                raise RuntimeError("Could not query HIP GPUs with rocminfo. Error: {}".format(e))
-
-        if num_gpus < nprocs:
-            logger = logging.getLogger("pytest_configure")
-            logger.warning(f"Requested {nprocs} processes, but only {num_gpus} GPUs available. Setting nprocs to {num_gpus}.")
-            real_nprocs = num_gpus
+    if nprocs > MAX_NPROCS:
+        logger.warning(f"Requested {nprocs} processes is larger than {MAX_NPROCS}. Setting nprocs to {MAX_NPROCS}.")
+        real_nprocs = MAX_NPROCS
 
     return real_nprocs

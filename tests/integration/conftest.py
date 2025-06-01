@@ -4,11 +4,25 @@ defines command line options.
 """
 import os
 import pytest
+import logging
 
 # The backend used to run Neko.
 BACKEND = "cpu"
 # Whether the backned is not the CPU.
 USES_DEVICE = False
+# The max number of ranks to launch on.
+MAX_NPROCS = 1e+9  
+
+logger = logging.getLogger("pytest_configure")
+logger.setLevel(logging.DEBUG)  # ensure it captures debug and above
+
+# Check if logger has no handlers and add one
+if not logger.handlers:
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)  # or .INFO, depending on what you want
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
 
 def pytest_addoption(parser):
     parser.addoption(
@@ -24,12 +38,19 @@ def pytest_addoption(parser):
         choices=["cpu", "cuda", "hip", "opencl"],
         help="Backend to use for tests (cpu [default], cuda, hip, opencl)."
     )
+    parser.addoption(
+        "--max_nprocs",
+        action="store",
+        default=1e+9,
+        help="The maximum number of processes to launch on. Defaults to 1e9 (no limit)."
+    )
 
 def pytest_configure(config):
-    global BACKEND, USES_DEVICE
+    global BACKEND, USES_DEVICE, MAX_NPROCS
     BACKEND = config.getoption("--backend")
     USES_DEVICE = backend != "cpu"
-    print(f"Using backend: {BACKEND}, uses_device: {USES_DEVICE}")
+    MAX_NPROCS = int(config.getoption("--max_nprocs"))
+    print(f"Using backend: {BACKEND}, uses_device: {USES_DEVICE}, max number of ranks: {MAX_NPROCS}")
 
 @pytest.fixture
 def launcher_script(request):
