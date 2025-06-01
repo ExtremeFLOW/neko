@@ -208,8 +208,8 @@ jobs:
       - name: Regresion tests
         if: matrix.backend == 'cpu'
         run: |
-           cd integration_tests
-           pytest --tb=no
+           cd tests/integration
+           pytest --max_nprocs=2
            cd ..
 
 
@@ -231,7 +231,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Integration test logs - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
-          path: integration_tests/logs
+          path: tests/integration/logs
           retention-days: 1
 
       - name: Dist (CPU backend)
