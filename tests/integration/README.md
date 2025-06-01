@@ -42,7 +42,7 @@ pytest --launcher-script=./default_cpu_launcher.sh --backend=cpu
 
 - Take a look at `conftest.py` and `testlib.py` to get a sense of what fixtures 
   and convenience routines are available. 
-- The `test_demo/test_suite.py` has a simple test that runs Neko.
+- The `tests/test_demo/test_suite.py` has a simple test that runs Neko.
 - LLMs are very good at `pytest`. If you upload the above-mentioned files to
   an LLM, it will help you a lot to write whatever test you want.
 - You can get meshes and case files from the `examples` folder. Pick on one that
@@ -52,8 +52,8 @@ pytest --launcher-script=./default_cpu_launcher.sh --backend=cpu
 
 ## Conventions.
 
-- Each test suite should be in its own directory, where you can also add
-  necessary stuff such as reference log files.
+- Each test suite should be in its own directory inside `tests`, where you can
+  also add necessary stuff such as reference log files.
 - Each test suite should be in a file test_\*.py, this way it is automatically
   discovered by `pytest`.
 - Each test in the suite should be in a function which starts with `test_`.
