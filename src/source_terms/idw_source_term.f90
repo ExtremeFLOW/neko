@@ -129,6 +129,11 @@ contains
     call json_get_or_default(json, "rmax", this%rmax, 1.0_rp)
     write(log_buf, '(A,f5.2)') 'Rmax       : ', this%rmax
     call neko_log%message(log_buf)
+
+    call json_get_or_default(json, "padding", aabb_padding, 0.125_rp)
+    write(log_buf, '(A,f5.2)') 'Padding    : ', this%rmax
+    call neko_log%message(log_buf)
+    
     call json_get_or_default(json, "power_parameter", this%pwr_param, 0.5_rp)
     write(log_buf, '(A,f5.2)') 'IDW Power  : ', this%pwr_param
     call neko_log%message(log_buf)
@@ -267,7 +272,6 @@ contains
     write(log_buf, '(A,ES13.6)') 'Maximum ds :', this%ds_max
     call neko_log%message(log_buf)
 
-    aabb_padding = 16 * ds_max
 
     call this%intersect%init(coef%msh, aabb_padding)
     call lagrangian_points%init()
