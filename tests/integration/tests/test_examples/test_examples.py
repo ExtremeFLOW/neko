@@ -180,12 +180,12 @@ def test_example_compile(example, log_file):
     """
     import subprocess
 
-#    with open(log_file, "w") as f:
-#        result = subprocess.run(
-#            ["makeneko", examples[example].user_file],
-#            stdout=f,
-#            stderr=subprocess.STDOUT,
-#            text=True)
-#    assert (
-#        result.returncode == 0
-#    ), f"makeneko process failed with exit code {result.returncode}"
+    with open(log_file, "w") as f:
+        result = subprocess.run(
+            ["makeneko", examples[example].user_file],
+            stdout=f,
+            stderr=subprocess.STDOUT,
+            text=True)
+    assert (
+        result.returncode == 0
+    ), f"makeneko process failed with exit code {result.returncode}"

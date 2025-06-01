@@ -83,7 +83,7 @@ jobs:
               sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf \
                 automake autotools-dev libopenblas-dev make git m4 python3 \
                 python3-pip cmake-curses-gui
-              sudo pip3 install pytest
+              sudo pip3 install pytest json5
               echo "nproc=$(nproc)" >> $GITHUB_OUTPUT
               echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
 
@@ -93,7 +93,7 @@ jobs:
               brew install openmpi
               brew install automake
               brew install python
-              pip3 install pytest
+              pip3 install pytest json5
               echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
               echo "os-version=$(sw_vers -productName)-$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
 
@@ -104,7 +104,7 @@ jobs:
               brew install automake
               brew install libtool
               brew install python
-              pip3 install pytest
+              pip3 install pytest json5
               echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
               echo "os-version=$(sw_vers -productName)-$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
 
