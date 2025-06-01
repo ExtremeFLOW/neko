@@ -199,11 +199,6 @@ jobs:
             success=false
           fi
 
-#          if [ "$reframe_status" != "success" ]; then
-#            fail+=("\t- ReFrame check: $reframe_status")
-#            success=false
-#          fi
-
           if [ "$success" = false ]; then
             >&2 echo "The following checks failed:"
             for i in "${fail[@]}"; do
