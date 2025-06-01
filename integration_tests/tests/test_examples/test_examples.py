@@ -4,11 +4,13 @@ import os
 from os.path import join
 from testlib import get_neko, get_neko_dir, run_neko
 import json5
+import json
 
 neko_dir = get_neko_dir()
 examples_dir = join(neko_dir, "examples")
-neko = get_neko()
+turboneko = get_neko()
 
+"""A simple structure to hold the test case information for Neko examples."""
 @dataclass
 class NekoTestCase:
     case_file: str = None
@@ -16,14 +18,20 @@ class NekoTestCase:
     mesh_file: str = None
 
 
+# The examples to run smoke tests on.
 examples = {
     "hemi": NekoTestCase(
         case_file=join(examples_dir, "hemi", "hemi.case"),
-        mesh_file=join(examples_dir, "hemi", "hemi.nmsh")
+        mesh_file=join(examples_dir, "hemi", "hemi.nmsh"),
         ),
     "cylinder": NekoTestCase(
         case_file=join(examples_dir, "cylinder", "cylinder.case"),
-        mesh_file=join(examples_dir, "cylinder", "cylinder.nmsh")
+        mesh_file=join(examples_dir, "cylinder", "cylinder.nmsh"),
+        ),
+    "rayleigh_benard": NekoTestCase(
+        case_file=join(examples_dir, "rayleigh_benard", "rayleigh.case"),
+        mesh_file=join(examples_dir, "rayleigh_benard", "box.nmsh"),
+        user_file=join(examples_dir, "rayleigh_benard", "rayleigh.f90"),
         ),
 }
 
@@ -46,55 +54,36 @@ def manipulate_case(example, case):
     case_object["mesh_file"] = examples[example].mesh_file
 
 
-def test_hemi(launcher_script, request, log_file):
+@pytest.mark.parametrize("example", examples.keys())
+def test_example_smoke(example, launcher_script, request, log_file):
 
     # Number of ranks to launch on
     nprocs = 2
 
     test_name = request.node.name
-    case_file = examples["hemi"].case_file
+    case_file = examples[example].case_file
     with open(case_file, "r") as f:
         case = json5.load(f)
 
-    manipulate_case("hemi", case)
+    manipulate_case(example, case)
 
     case_file = join("tests", "test_examples", test_name + ".case") 
 
     with open(case_file, "w") as f:
         json.dump(case, f, indent=4)
 
+    neko = turboneko
+    if examples[example].user_file:
+        import subprocess
+        result = subprocess.run(
+            ["makeneko", examples[example].user_file],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True)
+        neko = "./neko"
+    
     # Run Neko
-    result = run_neko(launcher_script, nprocs, case_file, neko)
-
-    # Check if the process completed successfully
-    assert (
-        result.returncode == 0
-    ), f"neko process failed with exit code {result.returncode}"
-
-
-def test_cylinder(launcher_script, request):
-
-    # Get the path to the neko executable
-
-    # Get the name of the test from the request object
-    test_name = request.node.name
-
-    # Number of ranks to launch on
-    nprocs = 2
-
-    case_file = examples["cylinder"].case_file
-    with open(case_file, "r") as f:
-        case = json5.load(f)
-
-    manipulate_case("cylinder", case)
-
-    case_file = join("tests", "test_examples", test_name + ".case") 
-
-    with open(case_file, "w") as f:
-        json.dump(case, f, indent=4)
-
-    # Run Neko
-    result = run_neko(launcher_script, nprocs, case_file, neko)
+    result = run_neko(launcher_script, nprocs, case_file, neko, log_file)
 
     # Check if the process completed successfully
     assert (

@@ -1,4 +1,5 @@
 import os
+import subprocess
 
 def get_neko():
     """
@@ -16,7 +17,7 @@ def get_neko_dir():
     return ".."
 
 
-def run_neko(launcher_script, nprocs, case_file, neko):
+def run_neko(launcher_script, nprocs, case_file, neko, log_file):
     """
     Runs the neko executable with the specified parameters.
 
@@ -30,17 +31,17 @@ def run_neko(launcher_script, nprocs, case_file, neko):
         The path to the case file.
     neko : str
         The path to the neko executable.
+    log_file : str,
+        Output is written to this file instead of being captured.
 
     Returns
     -------
     result : subprocess.CompletedProcess
         The result of the subprocess run.
     """
-    import subprocess
+    cmd = [launcher_script, str(nprocs), case_file, neko]
 
-    return subprocess.run(
-        [launcher_script, str(nprocs), case_file, neko],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        text=True
-    )
+    with open(log_file, "w") as f:
+            result = subprocess.run(cmd, stdout=f, stderr=subprocess.STDOUT, text=True)
+
+    return result

@@ -3,3 +3,4 @@ __pycache__
 *0.f0*
 *.nek5000
 logs/
+tests/**/*.case
