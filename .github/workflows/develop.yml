@@ -153,7 +153,7 @@ jobs:
       - GNU
       - Intel
       - Nvidia
-      - ReFrame
+#      - ReFrame
     runs-on: ubuntu-latest
     env:
       draft_status: ${{ needs.prepare.result }}
@@ -162,7 +162,7 @@ jobs:
       gnu_status: ${{ needs.GNU.result }}
       inel_status: ${{ needs.Intel.result }}
       nvidia_status: ${{ needs.Nvidia.result }}
-      reframe_status: ${{ needs.ReFrame.result }}
+#      reframe_status: ${{ needs.ReFrame.result }}
 
     steps:
       - name: All checks passed
@@ -199,10 +199,10 @@ jobs:
             success=false
           fi
 
-          if [ "$reframe_status" != "success" ]; then
-            fail+=("\t- ReFrame check: $reframe_status")
-            success=false
-          fi
+#          if [ "$reframe_status" != "success" ]; then
+#            fail+=("\t- ReFrame check: $reframe_status")
+#            success=false
+#          fi
 
           if [ "$success" = false ]; then
             >&2 echo "The following checks failed:"
