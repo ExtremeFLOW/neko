@@ -163,7 +163,19 @@ contains
                        abs(x(i+1, j-1, k-1, e) - x(i,j,k,e)), &
                        abs(x(i+1, j-1, k+1, e) - x(i,j,k,e)), &
                        abs(x(i+1, j+1, k+1, e) - x(i,j,k,e)), &
-                       abs(x(i+1, j+1, k-1, e) - x(i,j,k,e)))
+                       abs(x(i+1, j+1, k-1, e) - x(i,j,k,e)), &
+                       abs(x(i, j+1, k+1, e) - x(i,j,k,e)), &
+                       abs(x(i, j+1, k-1, e) - x(i,j,k,e)), &
+                       abs(x(i, j-1, k+1, e) - x(i,j,k,e)), &
+                       abs(x(i, j-1, k-1, e) - x(i,j,k,e)), &
+                       abs(x(i-1, j, k+1, e) - x(i,j,k,e)), &
+                       abs(x(i-1, j, k-1, e) - x(i,j,k,e)), &
+                       abs(x(i+1, j, k+1, e) - x(i,j,k,e)), &
+                       abs(x(i+1, j, k-1, e) - x(i,j,k,e)), &
+                       abs(x(i-1, j-1, k, e) - x(i,j,k,e)), &
+                       abs(x(i-1, j+1, k, e) - x(i,j,k,e)), &
+                       abs(x(i+1, j-1, k, e) - x(i,j,k,e)), &
+                       abs(x(i+1, j+1, k, e) - x(i,j,k,e)))
 
                   dy_max = max(abs(y(i,j,k,e) - y(i+1,j,k,e)), &
                        abs(y(i-1,j,k,e) - y(i,j,k,e)), &
@@ -178,7 +190,19 @@ contains
                        abs(y(i+1, j-1, k-1, e) - y(i,j,k,e)), &
                        abs(y(i+1, j-1, k+1, e) - y(i,j,k,e)), &
                        abs(y(i+1, j+1, k+1, e) - y(i,j,k,e)), &
-                       abs(y(i+1, j+1, k-1, e) - y(i,j,k,e)))
+                       abs(y(i+1, j+1, k-1, e) - y(i,j,k,e)), &
+                       abs(y(i, j+1, k+1, e) - y(i,j,k,e)), &
+                       abs(y(i, j+1, k-1, e) - y(i,j,k,e)), &
+                       abs(y(i, j-1, k+1, e) - y(i,j,k,e)), &
+                       abs(y(i, j-1, k-1, e) - y(i,j,k,e)), &
+                       abs(y(i-1, j, k+1, e) - y(i,j,k,e)), &
+                       abs(y(i-1, j, k-1, e) - y(i,j,k,e)), &
+                       abs(y(i+1, j, k+1, e) - y(i,j,k,e)), &
+                       abs(y(i+1, j, k-1, e) - y(i,j,k,e)), &
+                       abs(y(i-1, j-1, k, e) - y(i,j,k,e)), &
+                       abs(y(i-1, j+1, k, e) - y(i,j,k,e)), &
+                       abs(y(i+1, j-1, k, e) - y(i,j,k,e)), &
+                       abs(y(i+1, j+1, k, e) - y(i,j,k,e)))
 
 
                   dz_max = max(abs(z(i,j,k,e) - z(i+1,j,k,e)), &
@@ -194,7 +218,19 @@ contains
                        abs(z(i+1, j-1, k-1, e) - z(i,j,k,e)), &
                        abs(z(i+1, j-1, k+1, e) - z(i,j,k,e)), &
                        abs(z(i+1, j+1, k+1, e) - z(i,j,k,e)), &
-                       abs(z(i+1, j+1, k-1, e) - z(i,j,k,e)))
+                       abs(z(i+1, j+1, k-1, e) - z(i,j,k,e)), &
+                       abs(z(i, j+1, k+1, e) - z(i,j,k,e)), &
+                       abs(z(i, j+1, k-1, e) - z(i,j,k,e)), &
+                       abs(z(i, j-1, k+1, e) - z(i,j,k,e)), &
+                       abs(z(i, j-1, k-1, e) - z(i,j,k,e)), &
+                       abs(z(i-1, j, k+1, e) - z(i,j,k,e)), &
+                       abs(z(i-1, j, k-1, e) - z(i,j,k,e)), &
+                       abs(z(i+1, j, k+1, e) - z(i,j,k,e)), &
+                       abs(z(i+1, j, k-1, e) - z(i,j,k,e)), &
+                       abs(z(i-1, j-1, k, e) - z(i,j,k,e)), &
+                       abs(z(i-1, j+1, k, e) - z(i,j,k,e)), &
+                       abs(z(i+1, j-1, k, e) - z(i,j,k,e)), &
+                       abs(z(i+1, j+1, k, e) - z(i,j,k,e)))
                   ds(i,j,k,e) = (dx_max + dy_max + dz_max) / 3.0_rp
                end do
             end do
