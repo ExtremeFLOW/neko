@@ -5,6 +5,11 @@ defines command line options.
 import os
 import pytest
 
+# The backend used to run Neko.
+BACKEND = "cpu"
+# Whether the backned is not the CPU.
+USES_DEVICE = False
+
 def pytest_addoption(parser):
     parser.addoption(
         "--launcher-script",
@@ -20,6 +25,12 @@ def pytest_addoption(parser):
         help="Backend to use for tests (cpu [default], cuda, hip, opencl)."
     )
 
+def pytest_configure(config):
+    global BACKEND, USES_DEVICE
+    BACKEND = config.getoption("--backend")
+    USES_DEVICE = backend != "cpu"
+    print(f"Using backend: {BACKEND}, uses_device: {USES_DEVICE}")
+
 @pytest.fixture
 def launcher_script(request):
     return request.config.getoption("--launcher-script")
@@ -29,11 +40,17 @@ def backend(request):
     return request.config.getoption("--backend")
 
 @pytest.fixture(scope="session")
-def uses_gpu(backend):
+def uses_device(backend):
     return backend != "cpu"
 
 @pytest.fixture
 def log_file(request):
+    """Fixture to create a log file for each test.
+
+    The log file is named after the test function and stored in a 'logs' 
+    directory.
+    
+    """
     # Use the test function name
     test_name = request.node.name
 

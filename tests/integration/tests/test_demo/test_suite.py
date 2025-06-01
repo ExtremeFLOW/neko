@@ -13,6 +13,7 @@ def test_demo(launcher_script, log_file):
     max_nprocs = 2
 
     nprocs = configure_nprocs(max_nprocs)
+
     # Either specify a case, or load it here into a json, manipulate
     # and save a new case file.
     case_file = join("case_templates", "cylinder.case")

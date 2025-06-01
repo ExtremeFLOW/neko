@@ -126,7 +126,7 @@ def manipulate_case(example, case):
 
 @pytest.mark.parametrize("example", ["hemi", "rayleigh_benard", "tgv"])
 #@pytest.mark.parametrize("example", examples.keys())
-def test_example_smoke(example, launcher_script, request, log_file, backend):
+def test_example_smoke(example, launcher_script, request, log_file):
     """Run a smoke test for the specified Neko example.
     
     Parameterized against the examples dictionary keys. Note that not all
@@ -137,7 +137,7 @@ def test_example_smoke(example, launcher_script, request, log_file, backend):
     """
     # Max number of ranks to launch on
     max_nprocs = 2
-    nprocs = configure_nprocs(max_nprocs, backend)
+    nprocs = configure_nprocs(max_nprocs)
 
     test_name = request.node.name
     case_file = examples[example].case_file
@@ -171,7 +171,7 @@ def test_example_smoke(example, launcher_script, request, log_file, backend):
 
 
 @pytest.mark.parametrize("example", [key for key in examples.keys() if examples[key].user_file])
-def test_example_compile(example, launcher_script, request, log_file):
+def test_example_compile(example, log_file):
     """Compile all examples that have a user file.
     
     """

@@ -1,19 +1,11 @@
-"""Contains useful functions for running neko, makeneko, getting paths, the
-backend, etc. 
+"""Contains useful functions for running neko, makeneko, getting paths, etc.
 
 """
 import os
 import subprocess
+from conftest import BACKEND
+import logging
 
-# The backend used to run Neko.
-backend = "cpu"
-# Whether the backened is not the CPU.
-uses_device = False
-
-def pytest_configure(config):
-    global backend, uses_device
-    backend = config.getoption("--backend")
-    uses_device = backend != "cpu"
 
 def get_neko():
     """
@@ -73,15 +65,15 @@ def configure_nprocs(nprocs):
     """
 
 
-    global backend
+    global BACKEND
 
     real_nprocs = nprocs
 
-    if backend in ("cuda", "hip"):
+    if BACKEND in ("cuda", "hip"):
         # Check available GPUs
         num_gpus = 0
 
-        if backend == "cuda":
+        if BACKEND == "cuda":
             try:
                 result = subprocess.run(
                     ["nvidia-smi", "-L"],
@@ -94,7 +86,7 @@ def configure_nprocs(nprocs):
             except Exception as e:
                 raise RuntimeError("Could not query CUDA GPUs with nvidia-smi. Error: {}".format(e))
 
-        elif backend == "hip":
+        elif BACKEND == "hip":
             # For HIP, use rocminfo or rocm-smi
             try:
                 result = subprocess.run(
@@ -110,7 +102,8 @@ def configure_nprocs(nprocs):
                 raise RuntimeError("Could not query HIP GPUs with rocminfo. Error: {}".format(e))
 
         if num_gpus < nprocs:
-            print(f"[WARNING] Requested {nprocs} processes, but only {num_gpus} GPUs detected for {backend} backend. Adjusting nprocs to {num_gpus}.")
+            logger = logging.getLogger("pytest_configure")
+            logger.warning(f"Requested {nprocs} processes, but only {num_gpus} GPUs available. Setting nprocs to {num_gpus}.")
             real_nprocs = num_gpus
 
     return real_nprocs
