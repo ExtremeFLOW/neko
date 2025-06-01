@@ -41,6 +41,10 @@ pytest --launcher-script=./default_cpu_launcher.sh --backend=cpu
 - The `test_demo/test_suite.py` has a simple test that runs Neko.
 - LLMs are very good at `pytest`. If you upload the above-mentioned files to
   an LLM, it will help you a lot to write whatever test you want.
+- You can get meshes and case files from the `examples` folder. Pick on one that
+  is close to what you need, and manipulate it in Python. There is also a small
+  cylinder mesh sitting in the `meshes`, which is recommended as the default
+  one.
 
 ## Conventions.
 
