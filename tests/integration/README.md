@@ -4,21 +4,51 @@ Small cases, which tests that overall functionality have not been broken.
 Ideally each test should not be longer than a few seconds.
 The tests are run with `pytest`, you can install it using pip.
 
-Execute
+## Running
+
+You need Python and the  `pytest` and `json5` Python packages to run the tests.
+
+If you run Neko on the CPU  with `mpirun`, and `neko` and `makeneko` are in the
+`$PATH`, you just execute
 ```
-pytest --tb=no
+pytest
 ```
-to run the tests.
+to run the tests
 
+Otherwise there are two things you have to provide.
 
-Directory structure.
+1. Pass the backed to pytest using the `--backend` option. Can be one of `cpu`,
+   `cuda`, `hip`, `opencl`. Defaults to `cpu`
+2. Provide a shell script that wraps the command used to execute neko. It should
+   accept 3 arguments
+   - Number of ranks.
+   - The path to the neko executable.
+   - The case file.
+   There such launchers already provided. 
+   - `default_cpu_launcher.sh` is used by default and uses `mpirun`.
+   - `default_cuda_launcher.sh` may work with CUDA on some machines, but is more
+     provided for inspiration.
 
-- meshes. Mesh files that can be used in the tests. Add a new one if really
-  needed.
-- case\_templates. A few case files that can be used as a start to build one for
-  your case. You can also add a new one directly to your test suite.
+So, running `pytest` is equivalent to
+```
+pytest --launcher-script=./default_cpu_launcher.sh --backend=cpu
+```
+
+## Adding new tests
+
+- Take a look at `conftest.py` and `testlib.py` to get a sense of what fixtures 
+  and convenience routines are available. 
+- The `test_demo/test_suite.py` has a simple test that runs Neko.
+- LLMs are very good at `pytest`. If you upload the above-mentioned files to
+  an LLM, it will help you a lot to write whatever test you want.
+
+## Conventions.
+
 - Each test suite should be in its own directory, where you can also add
   necessary stuff such as reference log files.
 - Each test suite should be in a file test_\*.py, this way it is automatically
   discovered by `pytest`.
 - Each test in the suite should be in a function which starts with `test_`.
+- There is a fixture provided to generate a log file, that will be inside the 
+  `logs` directory. This directory will be packaged by the CI for download and
+  inspection.
