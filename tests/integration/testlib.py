@@ -14,7 +14,7 @@ def get_neko():
         return "neko"
 
 def get_neko_dir():
-    return ".."
+    return "../.."
 
 
 def run_neko(launcher_script, nprocs, case_file, neko, log_file):
@@ -42,6 +42,7 @@ def run_neko(launcher_script, nprocs, case_file, neko, log_file):
     cmd = [launcher_script, str(nprocs), case_file, neko]
 
     with open(log_file, "w") as f:
-            result = subprocess.run(cmd, stdout=f, stderr=subprocess.STDOUT, text=True)
+            result = subprocess.run(cmd, stdout=f, stderr=subprocess.STDOUT, 
+                                    text=True)
 
     return result
