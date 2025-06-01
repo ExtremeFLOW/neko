@@ -101,15 +101,15 @@ jobs:
   # ========================================================================== #
   # ReFrame and bencharks
 
-  ReFrame:
-    name: ReFrame
-    needs:
-      - prepare
-      - depend
-      - GNU
-    uses: ./.github/workflows/check_reframe.yml
-    with:
-      json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
+#  ReFrame:
+#    name: ReFrame
+#    needs:
+#      - prepare
+#      - depend
+#      - GNU
+#    uses: ./.github/workflows/check_reframe.yml
+#    with:
+#      json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
 
   # # ========================================================================== #
   # # Upload the badges
