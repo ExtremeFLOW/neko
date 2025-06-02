@@ -246,7 +246,7 @@ __global__ void scatter_kernel(T * __restrict__ v,
     facet_offset = bo[nb - 1] + b[nb - 1];
   }
  
-  for (int i = ((facet_offset - 1) + idx); i < m; i += str) {
+  for (int i = (facet_offset + idx); i < m; i += str) {
     u[gd[i] - 1] = v[dg[i] - 1];
   }
   
