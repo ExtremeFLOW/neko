@@ -71,7 +71,7 @@ mesh/search_tree/aabb.lo : mesh/search_tree/aabb.f90 common/utils.lo mesh/tet_me
 mesh/aabb_tree.lo : mesh/aabb_tree.f90 adt/stack.lo common/utils.lo config/num_types.lo mesh/tri.lo mesh/search_tree/aabb.lo 
 mesh/tet_mesh.lo : mesh/tet_mesh.f90 common/utils.lo mesh/point.lo mesh/tet.lo mesh/mesh.lo 
 mesh/tri_mesh.lo : mesh/tri_mesh.f90 mesh/point.lo mesh/tri.lo 
-field/field_registry.lo : field/field_registry.f90 comm/comm.lo adt/htable.lo common/utils.lo sem/dofmap.lo field/field.lo 
+field/field_registry.lo : field/field_registry.f90 common/json_utils.lo comm/comm.lo adt/htable.lo common/utils.lo sem/dofmap.lo field/field.lo 
 field/scratch_registry.lo : field/scratch_registry.f90 sem/dofmap.lo field/field.lo 
 field/field.lo : field/field.f90 sem/dofmap.lo sem/space.lo mesh/mesh.lo math/math.lo device/device.lo config/num_types.lo math/bcknd/device/device_math.lo config/neko_config.lo 
 field/field_list.lo : field/field_list.f90 common/utils.lo mesh/mesh.lo sem/dofmap.lo sem/space.lo config/num_types.lo field/field.lo 
