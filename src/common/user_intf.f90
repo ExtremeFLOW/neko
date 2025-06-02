@@ -212,7 +212,6 @@ module user_intf
           fluid_compressible_user_ic => null()
      !> Compute user initial conditions for the scalar.
      procedure(useric_scalar), nopass, pointer :: scalar_user_ic => null()
-     procedure(useric_scalars), nopass, pointer :: scalars_user_ic => null()
      !> Constructor for the user simcomp. Ran in the constructor of
      !! neko_simcomps.
      procedure(user_simcomp_init), nopass, pointer :: &
@@ -296,14 +295,6 @@ contains
        user_extended = .true.
        n = n + 1
        write(extensions(n), '(A)') '- Scalar initial condition'
-    end if
-
-    if (.not. associated(this%scalars_user_ic)) then
-       this%scalars_user_ic => dummy_user_ic_scalars
-    else
-       user_extended = .true.
-       n = n + 1
-       write(extensions(n), '(A)') '- Multiple scalar initial conditions'
     end if
 
     if (.not. associated(this%fluid_compressible_user_ic)) then
