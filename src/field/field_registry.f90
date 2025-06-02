@@ -202,20 +202,20 @@ contains
     character(len=*), target, intent(in) :: fld_name
 
     if (this%field_exists(alias)) then
-         call neko_error("Cannot create alias. Field " // alias // &
-               " already exists in the registry")
+       call neko_error("Cannot create alias. Field " // alias // &
+            " already exists in the registry")
     end if
 
     if (this%field_exists(fld_name)) then
-      if (this%n_aliases_ == size(this%aliases)) then
-         call this%expand_aliases()
-      end if
+       if (this%n_aliases_ == size(this%aliases)) then
+          call this%expand_aliases()
+       end if
 
-      this%n_aliases_ = this%n_aliases_ + 1
+       this%n_aliases_ = this%n_aliases_ + 1
 
-      call this%aliases(this%n_aliases_)%initialize()
-      call this%aliases(this%n_aliases_)%add("alias", alias)
-      call this%aliases(this%n_aliases_)%add("target", fld_name)
+       call this%aliases(this%n_aliases_)%initialize()
+       call this%aliases(this%n_aliases_)%add("alias", alias)
+       call this%aliases(this%n_aliases_)%add("target", fld_name)
     else
        call neko_error("Cannot create alias. Field " // fld_name // &
             " could not be found in the registry")
@@ -292,9 +292,9 @@ contains
 
     do i = 1, this%n_aliases()
        alias_json => this%aliases(i)
-       call alias_json%get("alias", alias) 
+       call alias_json%get("alias", alias)
        if (alias == trim(name)) then
-          call alias_json%get("target", alias_target) 
+          call alias_json%get("target", alias_target)
           f => this%get_field_by_name(alias_target)
           found = .true.
           exit
@@ -318,7 +318,7 @@ contains
   function field_registry_field_exists(this, name) result(found)
     class(field_registry_t), target, intent(in) :: this
     character(len=*), intent(in) :: name
-    character(len=:), allocatable  :: alias
+    character(len=:), allocatable :: alias
     logical :: found
     integer :: i
     type(json_file), pointer :: alias_json
@@ -333,7 +333,7 @@ contains
 
     do i=1, this%n_aliases()
        alias_json => this%aliases(i)
-       call alias_json%get("alias", alias) 
+       call alias_json%get("alias", alias)
        if (alias == name) then
           found = .true.
           exit
