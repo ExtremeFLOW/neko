@@ -292,9 +292,9 @@ contains
 
     do i = 1, this%n_aliases()
        alias_json => this%aliases(i)
-       call alias_json%get("alias", alias)
+       call json_get(alias_json, "alias", alias)
        if (alias == trim(name)) then
-          call alias_json%get("target", alias_target)
+          call json_get(alias_json, "target", alias_target)
           f => this%get_field_by_name(alias_target)
           found = .true.
           exit
