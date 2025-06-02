@@ -22,7 +22,7 @@ def get_makeneko():
     if os.getenv("MAKENEKO_EXEC"):
         return os.getenv("MAKENEKO_EXEC")
     else:
-        return "neko"
+        return "makeneko"
 
 def get_neko_dir():
     """Returns the root of the neko dirctory structure relative to the directory
