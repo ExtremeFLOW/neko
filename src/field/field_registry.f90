@@ -133,7 +133,12 @@ contains
        deallocate(this%fields)
     end if
 
+    if (allocated(this%aliases)) then
+       deallocate(this%aliases)
+    end if
+
     this%n_fields_ = 0
+    this%n_aliases_ = 0
     this%expansion_size = 0
   end subroutine field_registry_free
 
@@ -287,7 +292,7 @@ contains
 
     do i = 1, this%n_aliases()
        alias_json => this%aliases(i)
-       call alias_json%get("alias", found) 
+       call alias_json%get("alias", alias) 
        if (alias == trim(name)) then
           call alias_json%get("target", alias_target) 
           f => this%get_field_by_name(alias_target)
@@ -312,13 +317,24 @@ contains
   !> Check if a field with a given name is already in the registry.
   function field_registry_field_exists(this, name) result(found)
     class(field_registry_t), target, intent(in) :: this
-    character(len=*), intent(in) ::name
+    character(len=*), intent(in) :: name
+    character(len=:), allocatable  :: alias
     logical :: found
     integer :: i
+    type(json_file), pointer :: alias_json
 
     found = .false.
     do i=1, this%n_fields()
        if (this%fields(i)%name == name) then
+          found = .true.
+          exit
+       end if
+    end do
+
+    do i=1, this%n_aliases()
+       alias_json => this%aliases(i)
+       call alias_json%get("alias", alias) 
+       if (alias == name) then
           found = .true.
           exit
        end if

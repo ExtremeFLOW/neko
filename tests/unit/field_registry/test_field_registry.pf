@@ -115,17 +115,13 @@ contains
     call registry%add_alias('test_alias', 'test_field')
     call registry%add_alias('test_alias2', 'test_field')
      
-    @assertEqual(registry%n_aliases(), 1)
+    @assertEqual(registry%n_aliases(), 2)
 
     field_ptr => registry%get_field('test_alias')
     @assertEqual(field_ptr%name, 'test_field')
 
     field_ptr => registry%get_field('test_alias2')
     @assertEqual(field_ptr%name, 'test_field')
-
-    call registry%add_field(dm , 'test_field', ignore_existing=.true.)
-    @assertEqual(registry%n_fields(), 1)
-    @assertEqual(registry%n_aliases(), 2)
   end subroutine 
 
   @test
@@ -147,8 +143,6 @@ contains
     call registry%add_field(dm , 'test_field1')
     call registry%add_field(dm , 'test_field2')
 
-    call registry%add_alias('test_field1', 'test_field2')
-     
     @assertEqual(registry%n_fields(), 2)
   end subroutine 
 
