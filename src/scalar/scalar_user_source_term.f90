@@ -91,7 +91,7 @@ module scalar_user_source_term
      !! @param tstep The current time-step.
      subroutine scalar_source_compute_vector(field_name, this, t)
        import scalar_user_source_term_t, rp
-       CHARACTER(len=*), INTENT(IN) :: field_name
+       character(len=*), intent(in) :: field_name
        class(scalar_user_source_term_t), intent(inout) :: this
        real(kind=rp), intent(in) :: t
      end subroutine scalar_source_compute_vector
@@ -107,7 +107,7 @@ module scalar_user_source_term
      !! @param t The time value.
      subroutine scalar_source_compute_pointwise(field_name, s, j, k, l, e, t)
        import rp
-       CHARACTER(len=*), INTENT(IN) :: field_name
+       character(len=*), intent(in) :: field_name
        real(kind=rp), intent(inout) :: s
        integer, intent(in) :: j
        integer, intent(in) :: k
