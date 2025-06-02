@@ -80,7 +80,7 @@ contains
     ! Calculate total number of fields
     n_scalars = 0
     if (present(scalar_fields)) then
-       n_scalars = size(scalar_fields%scalar)
+       n_scalars = size(scalar_fields%scalar_fields)
     end if
 
     ! Initialize field list with appropriate size
@@ -94,7 +94,7 @@ contains
     ! Assign all scalar fields
     if (present(scalar_fields)) then
        do i = 1, n_scalars
-          call this%fluid%assign(4 + i, scalar_fields%scalar(i)%s)
+          call this%fluid%assign(4 + i, scalar_fields%scalar_fields(i)%s)
        end do
     end if
 

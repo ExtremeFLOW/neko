@@ -314,12 +314,12 @@ contains
           call json_extract_object(this%params, 'case.scalar.initial_condition', json_subdict)
 
           if (trim(string_val) .ne. 'user') then
-             call set_scalar_ic(this%scalars%scalar(1)%s, &
-                  this%scalars%scalar(1)%c_Xh, this%scalars%scalar(1)%gs_Xh, &
+             call set_scalar_ic(this%scalars%scalar_fields(1)%s, &
+                  this%scalars%scalar_fields(1)%c_Xh, this%scalars%scalar_fields(1)%gs_Xh, &
                   string_val, json_subdict)
           else
-             call set_scalar_ic(this%scalars%scalar(1)%name, this%scalars%scalar(1)%s, &
-                  this%scalars%scalar(1)%c_Xh, this%scalars%scalar(1)%gs_Xh, &
+             call set_scalar_ic(this%scalars%scalar_fields(1)%name, this%scalars%scalar_fields(1)%s, &
+                  this%scalars%scalar_fields(1)%c_Xh, this%scalars%scalar_fields(1)%gs_Xh, &
                   this%user%scalar_user_ic, this%params)
           end if
 
@@ -331,12 +331,12 @@ contains
              call json_extract_object(scalar_params, 'initial_condition', json_subdict)
 
              if (trim(string_val) .ne. 'user') then
-                call set_scalar_ic(this%scalars%scalar(i)%s, &
-                    this%scalars%scalar(i)%c_Xh, this%scalars%scalar(i)%gs_Xh, &
+                call set_scalar_ic(this%scalars%scalar_fields(i)%s, &
+                    this%scalars%scalar_fields(i)%c_Xh, this%scalars%scalar_fields(i)%gs_Xh, &
                     string_val, json_subdict)
              else
-                call set_scalar_ic(this%scalars%scalar(i)%name, this%scalars%scalar(i)%s, &
-                    this%scalars%scalar(i)%c_Xh, this%scalars%scalar(i)%gs_Xh, &
+                call set_scalar_ic(this%scalars%scalar_fields(i)%name, this%scalars%scalar_fields(i)%s, &
+                    this%scalars%scalar_fields(i)%c_Xh, this%scalars%scalar_fields(i)%gs_Xh, &
                     this%user%scalar_user_ic, this%params)
              end if
           end do
@@ -359,10 +359,7 @@ contains
     call this%fluid%validate
 
     if (scalar) then
-       do i = 1, size(this%scalars%scalar)
-          call this%scalars%scalar(i)%slag%set(this%scalars%scalar(i)%s)
-          call this%scalars%scalar(i)%validate
-       end do
+       call this%scalars%validate()
     end if
 
     !

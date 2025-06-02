@@ -60,7 +60,7 @@ module scalars
   !> Type to manage multiple scalar transport equations
   type, public :: scalars_t
      !> The scalar fields
-     class(scalar_scheme_t), allocatable :: scalar(:)
+     class(scalar_scheme_t), allocatable :: scalar_fields(:)
      !> Shared KSP solver for all scalar fields
      class(ksp_t), allocatable :: shared_ksp
      !> Time lag
@@ -110,7 +110,7 @@ contains
 
     ! Allocate the scalar fields
     ! If there are more scalar_scheme_t types, add a factory function here
-    allocate(scalar_pnpn_t::this%scalar(n_scalars))
+    allocate(scalar_pnpn_t::this%scalar_fields(n_scalars))
 
     ! For multiple scalars, collect and validate field names
     if (n_scalars > 1) then
@@ -153,7 +153,7 @@ contains
 
     do i = 1, n_scalars
        call json_extract_item(params, "", i, json_subdict)
-       call this%scalar(i)%init(msh, coef, gs, json_subdict, numerics_params, &
+       call this%scalar_fields(i)%init(msh, coef, gs, json_subdict, numerics_params, &
             user, chkp, ulag, vlag, wlag, time_scheme, rho)
     end do
   end subroutine scalars_init
@@ -173,10 +173,10 @@ contains
     TYPE(field_t), TARGET, INTENT(IN) :: rho
 
     ! Allocate a single scalar field
-    allocate(scalar_pnpn_t::this%scalar(1))
+    allocate(scalar_pnpn_t::this%scalar_fields(1))
 
     ! Initialize it directly with the params
-    call this%scalar(1)%init(msh, coef, gs, params, numerics_params, user, &
+    call this%scalar_fields(1)%init(msh, coef, gs, params, numerics_params, user, &
          chkp, ulag, vlag, wlag, time_scheme, rho)
   end subroutine scalars_init_single
 
@@ -189,8 +189,8 @@ contains
     integer :: i
 
     ! Iterate through all scalar fields
-    do i = 1, size(this%scalar)
-       call this%scalar(i)%step(time, ext_bdf, dt_controller)
+    do i = 1, size(this%scalar_fields)
+       call this%scalar_fields(i)%step(time, ext_bdf, dt_controller)
     end do
   end subroutine scalars_step
 
@@ -202,10 +202,10 @@ contains
     integer :: i
 
     ! Iterate through all scalar fields
-    do i = 1, size(this%scalar)
-       this%scalar(i)%cp = 1.0_rp
-       this%scalar(i)%lambda = 1e-16_rp
-       call this%scalar(i)%update_material_properties(t, tstep)
+    do i = 1, size(this%scalar_fields)
+       this%scalar_fields(i)%cp = 1.0_rp
+       this%scalar_fields(i)%lambda = 1e-16_rp
+       call this%scalar_fields(i)%update_material_properties(t, tstep)
     end do
   end subroutine scalars_update_material_properties
 
@@ -215,8 +215,8 @@ contains
     type(chkp_t), intent(inout) :: chkp
     integer :: i
     ! Iterate through all scalar fields
-    do i = 1, size(this%scalar)
-       call this%scalar(i)%restart(chkp)
+    do i = 1, size(this%scalar_fields)
+       call this%scalar_fields(i)%restart(chkp)
     end do
   end subroutine scalars_restart
 
@@ -225,8 +225,9 @@ contains
     class(scalars_t), intent(inout) :: this
     integer :: i
     ! Iterate through all scalar fields
-    do i = 1, size(this%scalar)
-       call this%scalar(i)%validate()
+    do i = 1, size(this%scalar_fields)
+       call this%scalar_fields(i)%slag%set(this%scalar_fields(i)%s)
+       call this%scalar_fields(i)%validate()
     end do
   end subroutine scalars_validate
 
@@ -236,11 +237,11 @@ contains
     integer :: i
 
     ! Iterate through all scalar fields
-    if (allocated(this%scalar)) then
-       do i = 1, size(this%scalar)
-          call this%scalar(i)%free()
+    if (allocated(this%scalar_fields)) then
+       do i = 1, size(this%scalar_fields)
+          call this%scalar_fields(i)%free()
        end do
-       deallocate(this%scalar)
+       deallocate(this%scalar_fields)
     end if
   end subroutine scalars_free
 
