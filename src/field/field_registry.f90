@@ -333,7 +333,7 @@ contains
 
     do i=1, this%n_aliases()
        alias_json => this%aliases(i)
-       call alias_json%get("alias", alias)
+       call json_get(alias_json, "alias", alias)
        if (alias == name) then
           found = .true.
           exit
