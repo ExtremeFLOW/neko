@@ -40,6 +40,7 @@ module fluid_output
   use neko_config, only : NEKO_BCKND_DEVICE
   use device
   use output, only : output_t
+  use scalars, only : scalars_t
   implicit none
   private
 
@@ -54,14 +55,15 @@ module fluid_output
 
 contains
 
-  subroutine fluid_output_init(this, precision, fluid, scalar, name, path)
+  subroutine fluid_output_init(this, precision, fluid, scalar_fields, name, path)
     class(fluid_output_t), intent(inout) :: this
     integer, intent(inout) :: precision
     class(fluid_scheme_base_t), intent(in), target :: fluid
-    class(scalar_scheme_t), intent(in), optional, target :: scalar
+    class(scalars_t), intent(in), optional, target :: scalar_fields
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path
     character(len=1024) :: fname
+    integer :: i, n_scalars
 
     if (present(name) .and. present(path)) then
        fname = trim(path) // trim(name) // '.fld'
@@ -75,19 +77,25 @@ contains
 
     call this%init_base(fname, precision)
 
-    if (present(scalar)) then
-       call this%fluid%init(5)
-    else
-       call this%fluid%init(4)
+    ! Calculate total number of fields
+    n_scalars = 0
+    if (present(scalar_fields)) then
+       n_scalars = size(scalar_fields%scalar)
     end if
+
+    ! Initialize field list with appropriate size
+    call this%fluid%init(4 + n_scalars)
 
     call this%fluid%assign(1, fluid%p)
     call this%fluid%assign(2, fluid%u)
     call this%fluid%assign(3, fluid%v)
     call this%fluid%assign(4, fluid%w)
 
-    if (present(scalar)) then
-       call this%fluid%assign(5, scalar%s)
+    ! Assign all scalar fields
+    if (present(scalar_fields)) then
+       do i = 1, n_scalars
+          call this%fluid%assign(4 + i, scalar_fields%scalar(i)%s)
+       end do
     end if
 
   end subroutine fluid_output_init
