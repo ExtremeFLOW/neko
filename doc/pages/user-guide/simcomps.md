@@ -36,8 +36,8 @@ in Neko. The list will be updated as new simcomps are added.
 - Computation of subgrid-scale (SGS) eddy viscosity via a SGS model \ref
   simcomp_les_model
 - User defined components \ref user-file_simcomps
-- Fluid statistics simcomp, "fluid_stats", for more details see the [statistics
-  guide](@ref statistics-guide)
+- Fluid statistics simcomp, "fluid_stats", for more details see the 
+  [statistics guide](@ref statistics-guide)
 - Computation of the spectral error indicator \ref simcomp_speri
 
 ## Controling execution and file output

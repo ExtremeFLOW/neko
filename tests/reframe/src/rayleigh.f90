@@ -8,12 +8,12 @@ module user
 
 contains
   ! Register user defined functions (see user_intf.f90)
-  subroutine user_setup(u)
-    type(user_t), intent(inout) :: u
-    u%scalar_user_ic => set_ic
-    u%fluid_user_f_vector => forcing
-    u%scalar_user_bc => scalar_bc
-    u%user_startup => startup
+  subroutine user_setup(user)
+    type(user_t), intent(inout) :: user
+    user%scalar_user_ic => set_ic
+    user%fluid_user_f_vector => forcing
+    user%scalar_user_bc => scalar_bc
+    user%user_startup => startup
   end subroutine user_setup
 
   subroutine startup(params)
