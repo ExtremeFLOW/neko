@@ -105,7 +105,9 @@ jobs:
               brew install automake
               brew install libtool
               brew install pytest
-              brew install json5
+              python3 -m venv myenv
+              source myenv/bin/activate
+              pip install pytest json5
               echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
               echo "os-version=$(sw_vers -productName)-$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
 
