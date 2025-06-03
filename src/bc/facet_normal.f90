@@ -234,14 +234,14 @@ contains
     end if
 
     call this%finalize_base(.true.)
-    ! This part is purely needed to ensure that contributions 
+    ! This part is purely needed to ensure that contributions
     ! for all faces a point is on is properly summed up.
-    ! If one simply uses the original mask, if a point is on a corner 
+    ! If one simply uses the original mask, if a point is on a corner
     ! where both faces are on the boundary
     ! one will only get the contribution from one face, not both
-    ! We solve this by adding up the normals of both faces for these points 
+    ! We solve this by adding up the normals of both faces for these points
     ! and storing this sum in this%nx, this%ny, this%nz.
-    ! As both contrbutions are added already, 
+    ! As both contrbutions are added already,
     ! we also ensure that we only visit each point once
     ! and create a new mask with only unique points (this%unique_mask).
     if (allocated(this%unique_mask)) then
