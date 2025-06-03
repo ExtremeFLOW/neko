@@ -82,10 +82,10 @@ module usr_scalar
      !! @param ie The element idx of this point
      !! @param t Current time
      !! @param tstep Current time-step
-     subroutine usr_scalar_bc_eval(field_name, s, x, y, z, nx, ny, nz, &
+     subroutine usr_scalar_bc_eval(scalar_name, s, x, y, z, nx, ny, nz, &
           ix, iy, iz, ie, t, tstep)
        import rp
-       character(len=*), intent(in) :: field_name
+       character(len=*), intent(in) :: scalar_name
        real(kind=rp), intent(inout) :: s
        real(kind=rp), intent(in) :: x
        real(kind=rp), intent(in) :: y
