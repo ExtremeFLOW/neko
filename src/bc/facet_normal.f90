@@ -34,18 +34,27 @@
 module facet_normal
   use device_facet_normal
   use num_types, only : rp
+  use neko_config, only : NEKO_BCKND_DEVICE
   use math, only: cfill_mask
+  use device_math, only : device_col2, device_masked_gather_copy, &
+       device_masked_scatter_copy
   use vector, only : vector_t
   use coefs, only : coef_t
   use bc, only : bc_t
   use utils, only : neko_error, nonlinear_index
   use json_module, only : json_file
-  use, intrinsic :: iso_c_binding, only : c_ptr
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr, c_associated
+  use htable, only : htable_i4_t
+  use device, only : device_map, device_memcpy, device_free, &
+       HOST_TO_DEVICE, DEVICE_TO_HOST
   implicit none
   private
 
   !> Dirichlet condition in facet normal direction
   type, public, extends(bc_t) :: facet_normal_t
+     integer, allocatable :: unique_mask(:)
+     type(c_ptr) :: unique_mask_d = c_null_ptr
+     type(vector_t) :: nx, ny, nz, work
    contains
      procedure, pass(this) :: apply_scalar => facet_normal_apply_scalar
      procedure, pass(this) :: apply_scalar_dev => facet_normal_apply_scalar_dev
@@ -146,25 +155,15 @@ contains
     integer, intent(in), optional :: tstep
     integer :: i, m, k, idx(4), facet
     real(kind=rp) :: normal(3), area
-    associate(c => this%coef)
-      m = this%msk(0)
 
-      call cfill_mask(x, 0.0_rp, n, this%msk, m)
-      call cfill_mask(y, 0.0_rp, n, this%msk, m)
-      call cfill_mask(z, 0.0_rp, n, this%msk, m)
+    m = this%unique_mask(0)
 
-      do i = 1, m
-         k = this%msk(i)
-         facet = this%facet(i)
-         idx = nonlinear_index(k, c%Xh%lx, c%Xh%lx, c%Xh%lx)
-         normal = c%get_normal(idx(1), idx(2), idx(3), idx(4), facet)
-         area = c%get_area(idx(1), idx(2), idx(3), idx(4), facet)
-         normal = normal * area !Scale normal by area
-         x(k) =  u(k) * normal(1)
-         y(k) =  v(k) * normal(2)
-         z(k) =  w(k) * normal(3)
-      end do
-    end associate
+    do i = 1, m
+       k = this%unique_mask(i)
+       x(k) = u(k) * this%nx%x(i)
+       y(k) = v(k) * this%ny%x(i)
+       z(k) = w(k) * this%nz%x(i)
+    end do
 
   end subroutine facet_normal_apply_surfvec
 
@@ -175,14 +174,28 @@ contains
     type(c_ptr) :: x_d, y_d, z_d, u_d, v_d, w_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    integer :: n, m
 
-    associate(c => this%coef)
-      if (this%msk(0) .gt. 0) then
-         call device_facet_normal_apply_surfvec(this%msk_d, this%facet_d, &
-              x_d, y_d, z_d, u_d, v_d, w_d, c%nx_d, c%ny_d, c%nz_d, c%area_d, &
-              c%Xh%lx, size(this%msk))
-      end if
-    end associate
+    n = this%coef%dof%size()
+    m = this%unique_mask(0)
+
+    if (m .gt. 0) then
+       call device_masked_gather_copy(this%work%x_d, u_d, this%unique_mask_d, &
+            n , m)
+       call device_col2(this%work%x_d, this%nx%x_d, m)
+       call device_masked_scatter_copy(x_d, this%work%x_d, &
+            this%unique_mask_d, n, m)
+       call device_masked_gather_copy(this%work%x_d, v_d, this%unique_mask_d, &
+            n , m)
+       call device_col2(this%work%x_d, this%ny%x_d, m)
+       call device_masked_scatter_copy(y_d, this%work%x_d, &
+            this%unique_mask_d, n, m)
+       call device_masked_gather_copy(this%work%x_d, w_d, this%unique_mask_d, &
+            n , m)
+       call device_col2(this%work%x_d, this%nz%x_d, m)
+       call device_masked_scatter_copy(y_d, this%work%x_d, &
+            this%unique_mask_d, n, m)
+    end if
 
   end subroutine facet_normal_apply_surfvec_dev
 
@@ -191,6 +204,17 @@ contains
     class(facet_normal_t), target, intent(inout) :: this
 
     call this%free_base()
+    if (allocated(this%unique_mask)) then
+       deallocate(this%unique_mask)
+    end if
+    if (c_associated(this%unique_mask_d)) then
+       call device_free(this%unique_mask_d)
+    end if
+
+    call this%nx%free()
+    call this%ny%free()
+    call this%nz%free()
+    call this%work%free()
 
   end subroutine facet_normal_free
 
@@ -199,6 +223,9 @@ contains
     class(facet_normal_t), target, intent(inout) :: this
     logical, optional, intent(in) :: only_facets
     logical :: only_facets_
+    type(htable_i4_t) :: unique_point_idx
+    integer :: htable_data, rcode, i, j, idx(4), facet
+    real(kind=rp) :: area, normal(3)
 
     if (present(only_facets)) then
        if (only_facets .eqv. .false.) then
@@ -207,6 +234,68 @@ contains
     end if
 
     call this%finalize_base(.true.)
+
+    if (allocated(this%unique_mask)) then
+       deallocate(this%unique_mask)
+    end if
+    if (c_associated(this%unique_mask_d)) then
+       call device_free(this%unique_mask_d)
+    end if
+
+    call unique_point_idx%init(this%msk(0), htable_data)
+    j = 0
+    do i = 1, this%msk(0)
+       if (unique_point_idx%get(this%msk(i),htable_data) .ne. 0) then
+          j = j + 1
+          htable_data = j
+          call unique_point_idx%set(this%msk(i), j)
+       end if
+    end do
+    call this%nx%init(unique_point_idx%num_entries())
+    call this%ny%init(unique_point_idx%num_entries())
+    call this%nz%init(unique_point_idx%num_entries())
+    call this%work%init(unique_point_idx%num_entries())
+    allocate(this%unique_mask(0:unique_point_idx%num_entries()))
+
+    this%unique_mask(0) = unique_point_idx%num_entries()
+    do i = 1, this%unique_mask(0)
+       this%unique_mask(i) = 0
+       this%nx%x(i) = 0.0_rp
+       this%ny%x(i) = 0.0_rp
+       this%nz%x(i) = 0.0_rp
+    end do
+
+
+    do i = 1, this%msk(0)
+       rcode = unique_point_idx%get(this%msk(i), htable_data)
+       if (rcode .ne. 0) call neko_error("Facet normal: htable get failed.")
+       this%unique_mask(htable_data) = this%msk(i)
+       facet = this%facet(i)
+
+       idx = nonlinear_index(this%msk(i), this%Xh%lx, this%Xh%lx, this%Xh%lx)
+       normal = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), facet)
+       area = this%coef%get_area(idx(1), idx(2), idx(3), idx(4), facet)
+       normal = normal * area !Scale normal by area
+       this%nx%x(htable_data) = this%nx%x(htable_data) + normal(1)
+       this%ny%x(htable_data) = this%ny%x(htable_data) + normal(2)
+       this%nz%x(htable_data) = this%nz%x(htable_data) + normal(3)
+    end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(this%unique_mask, this%unique_mask_d, &
+           size(this%unique_mask))
+       call device_memcpy(this%unique_mask, this%unique_mask_d, &
+           size(this%unique_mask), HOST_TO_DEVICE, sync = .true.)
+       call device_memcpy(this%nx%x, this%nx%x_d, &
+            this%nx%n, HOST_TO_DEVICE, sync = .true.)
+       call device_memcpy(this%ny%x, this%ny%x_d, &
+            this%ny%n, HOST_TO_DEVICE, sync = .true.)
+       call device_memcpy(this%nz%x, this%nz%x_d, &
+            this%nz%n, HOST_TO_DEVICE, sync = .true.)
+    end if
+
+    call unique_point_idx%free()
+
   end subroutine facet_normal_finalize
 
 end module facet_normal
