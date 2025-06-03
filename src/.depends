@@ -155,7 +155,7 @@ bc/field_dirichlet.lo : bc/field_dirichlet.f90 common/json_utils.lo sem/dofmap.l
 bc/field_dirichlet_vector.lo : bc/field_dirichlet_vector.f90 bc/field_dirichlet.lo sem/dofmap.lo math/bcknd/device/device_math.lo math/math.lo field/field_list.lo field/field.lo common/utils.lo bc/bc_list.lo bc/bc.lo bc/dirichlet.lo sem/coef.lo config/num_types.lo 
 bc/usr_inflow.lo : bc/usr_inflow.f90 bc/bc.lo common/utils.lo bc/bcknd/device/device_inhom_dirichlet.lo device/device.lo bc/inflow.lo sem/coef.lo config/num_types.lo 
 bc/usr_scalar.lo : bc/usr_scalar.f90 common/utils.lo bc/bcknd/device/device_inhom_dirichlet.lo device/device.lo bc/bc.lo sem/coef.lo config/num_types.lo 
-bc/facet_normal.lo : bc/facet_normal.f90 common/utils.lo bc/bc.lo sem/coef.lo math/math.lo config/num_types.lo bc/bcknd/device/device_facet_normal.lo 
+bc/facet_normal.lo : bc/facet_normal.f90 device/device.lo adt/htable.lo common/utils.lo bc/bc.lo sem/coef.lo math/vector.lo math/bcknd/device/device_math.lo math/math.lo config/neko_config.lo config/num_types.lo bc/bcknd/device/device_facet_normal.lo 
 bc/symmetry.lo : bc/symmetry.f90 bc/zero_dirichlet.lo sem/coef.lo adt/tuple.lo bc/bc.lo config/num_types.lo bc/dirichlet.lo bc/bcknd/device/device_symmetry.lo 
 bc/non_normal.lo : bc/non_normal.f90 sem/coef.lo adt/tuple.lo config/num_types.lo bc/symmetry.lo 
 bc/blasius.lo : bc/blasius.f90 common/json_utils.lo bc/bc.lo fluid/flow_profile.lo bc/bcknd/device/device_inhom_dirichlet.lo device/device.lo common/utils.lo sem/coef.lo config/num_types.lo 
