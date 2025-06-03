@@ -193,7 +193,7 @@ contains
        call device_masked_gather_copy(this%work%x_d, w_d, this%unique_mask_d, &
             n , m)
        call device_col2(this%work%x_d, this%nz%x_d, m)
-       call device_masked_scatter_copy(y_d, this%work%x_d, &
+       call device_masked_scatter_copy(z_d, this%work%x_d, &
             this%unique_mask_d, n, m)
     end if
 
