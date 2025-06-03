@@ -34,7 +34,8 @@
 module facet_normal
   use device_facet_normal
   use num_types, only : rp
-  use math
+  use math, only: cfill_mask
+  use vector, only : vector_t
   use coefs, only : coef_t
   use bc, only : bc_t
   use utils, only : neko_error, nonlinear_index
@@ -144,36 +145,24 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     integer :: i, m, k, idx(4), facet
-
+    real(kind=rp) :: normal(3), area
     associate(c => this%coef)
       m = this%msk(0)
+
+      call cfill_mask(x, 0.0_rp, n, this%msk, m)
+      call cfill_mask(y, 0.0_rp, n, this%msk, m)
+      call cfill_mask(z, 0.0_rp, n, this%msk, m)
+
       do i = 1, m
          k = this%msk(i)
          facet = this%facet(i)
          idx = nonlinear_index(k, c%Xh%lx, c%Xh%lx, c%Xh%lx)
-         select case (facet)
-         case (1,2)
-            x(k) = u(k) * c%nx(idx(2), idx(3), facet, idx(4)) &
-                 * c%area(idx(2), idx(3), facet, idx(4))
-            y(k) = v(k) * c%ny(idx(2), idx(3), facet, idx(4)) &
-                 * c%area(idx(2), idx(3), facet, idx(4))
-            z(k) = w(k) * c%nz(idx(2), idx(3), facet, idx(4)) &
-                 * c%area(idx(2), idx(3), facet, idx(4))
-         case (3,4)
-            x(k) = u(k) * c%nx(idx(1), idx(3), facet, idx(4)) &
-                 * c%area(idx(1), idx(3), facet, idx(4))
-            y(k) = v(k) * c%ny(idx(1), idx(3), facet, idx(4)) &
-                 * c%area(idx(1), idx(3), facet, idx(4))
-            z(k) = w(k) * c%nz(idx(1), idx(3), facet, idx(4)) &
-                 * c%area(idx(1), idx(3), facet, idx(4))
-         case (5,6)
-            x(k) = u(k) * c%nx(idx(1), idx(2), facet, idx(4)) &
-                 * c%area(idx(1), idx(2), facet, idx(4))
-            y(k) = v(k) * c%ny(idx(1), idx(2), facet, idx(4)) &
-                 * c%area(idx(1), idx(2), facet, idx(4))
-            z(k) = w(k) * c%nz(idx(1), idx(2), facet, idx(4)) &
-                 * c%area(idx(1), idx(2), facet, idx(4))
-         end select
+         normal = c%get_normal(idx(1), idx(2), idx(3), idx(4), facet)
+         area = c%get_area(idx(1), idx(2), idx(3), idx(4), facet)
+         normal = normal * area !Scale normal by area
+         x(k) =  u(k) * normal(1)
+         y(k) =  v(k) * normal(2)
+         z(k) =  w(k) * normal(3)
       end do
     end associate
 
