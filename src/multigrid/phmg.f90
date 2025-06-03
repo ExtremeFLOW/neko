@@ -219,11 +219,13 @@ contains
             coef%msh)
        if (use_jacobi) then
           if (NEKO_BCKND_DEVICE .eq. 1) then
-             call this%phmg_hrchy%lvl(i)%device_jacobi%init(this%phmg_hrchy%lvl(i)%coef, &
+             call this%phmg_hrchy%lvl(i)%device_jacobi%init(&
+                  this%phmg_hrchy%lvl(i)%coef, &
                   this%phmg_hrchy%lvl(i)%dm_Xh, &
                   this%phmg_hrchy%lvl(i)%gs_h)
           else
-             call this%phmg_hrchy%lvl(i)%jacobi%init(this%phmg_hrchy%lvl(i)%coef, &
+             call this%phmg_hrchy%lvl(i)%jacobi%init(&
+                  this%phmg_hrchy%lvl(i)%coef, &
                   this%phmg_hrchy%lvl(i)%dm_Xh, &
                   this%phmg_hrchy%lvl(i)%gs_h)
           end if
