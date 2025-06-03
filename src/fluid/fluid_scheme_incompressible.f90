@@ -544,7 +544,7 @@ contains
     type is (hsmg_t)
        call pcp%init(coef, bclst, pcparams)
     type is (phmg_t)
-       call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst)
+       call pcp%init(coef, bclst, pcparams)
     end select
 
     call ksp%set_pc(pc)
