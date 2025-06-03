@@ -136,7 +136,7 @@ contains
              if (trim(field_names(i)) == trim(field_names(j))) then
                 write(field_name, '(A,I0)') trim(field_names(i))//'_', j
                 field_names(i) = trim(field_name)
-                j = 1  ! Start over to check if new name is unique
+                j = 1 ! Start over to check if new name is unique
              else
                 j = j + 1
              end if
