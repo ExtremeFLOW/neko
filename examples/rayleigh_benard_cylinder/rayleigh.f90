@@ -48,8 +48,8 @@ contains
   end subroutine set_material_properties
 
 
-  subroutine set_scalar_boundary_conditions(field_name, s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
-    character(len=*), intent(in) :: field_name
+  subroutine set_scalar_boundary_conditions(scalar_name, s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
+    character(len=*), intent(in) :: scalar_name
     real(kind=rp), intent(inout) :: s
     real(kind=rp), intent(in) :: x
     real(kind=rp), intent(in) :: y
@@ -73,8 +73,7 @@ contains
 
   end subroutine set_scalar_boundary_conditions
 
-  subroutine set_initial_conditions_for_s(field_name, s, params)
-    character(len=*), intent(in) :: field_name
+  subroutine set_initial_conditions_for_s(s, params)
     type(field_t), intent(inout) :: s
     type(json_file), intent(inout) :: params
     integer :: i, j, k, e

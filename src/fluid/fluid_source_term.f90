@@ -74,7 +74,7 @@ contains
     call rhs_fields%assign(2, f_y)
     call rhs_fields%assign(3, f_z)
 
-    call this%init_base(rhs_fields, coef, user, "velocity")
+    call this%init_base(rhs_fields, coef, user, "fluid")
   end subroutine fluid_source_term_init
 
   !> Initialize the user source term.
@@ -86,13 +86,13 @@ contains
   !! @param user The user type containing the user source term routines.
   !! @param field_name The field name (not used for fluid, but required by interface).
   subroutine fluid_init_user_source(source_term, rhs_fields, coef, type, user, &
-                                    field_name)
+                                    variable_name)
     class(source_term_t), allocatable, intent(inout) :: source_term
     type(field_list_t) :: rhs_fields
     type(coef_t), intent(in) :: coef
     character(len=*) :: type
     type(user_t), intent(in) :: user
-    character(len=*), intent(in) :: field_name
+    character(len=*), intent(in) :: variable_name
 
     allocate(fluid_user_source_term_t::source_term)
 

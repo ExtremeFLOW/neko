@@ -116,32 +116,29 @@ contains
           ! Extract element i from the "scalars" array
           call json_extract_item(params, "", i, json_subdict)
 
-          ! Require field_name to be explicitly specified
-          if (.not. json_subdict%valid_path('field_name')) then
-             write(error_msg, '(A,I0,A)') &
-                  'field_name is required for scalar ', i, &
-                  ' when using multiple scalars. Please specify a unique ' // &
-                  'field_name for each scalar.'
-             call neko_error(trim(error_msg))
+          ! Try to get name from JSON, generate one if not found or empty
+          if (json_subdict%valid_path('name')) then
+             call json_get(json_subdict, 'name', field_name)
+          else
+             field_name = ''
           end if
 
-          call json_get(json_subdict, 'field_name', field_name)
-
-          ! Check that field_name is not empty
+          ! If name is empty or not provided, generate a default one
           if (len_trim(field_name) == 0) then
-             write(error_msg, '(A,I0,A)') &
-                  'field_name cannot be empty for scalar ', i, &
-                  ' when using multiple scalars.'
-             call neko_error(trim(error_msg))
+             write(field_name, '(A,I0)') 'scalar_', i
           end if
 
           field_names(i) = trim(field_name)
 
-          ! Check for duplicates
-          do j = 1, i-1
+          ! If there's a duplicate, append a number until unique
+          j = 1
+          do while (j < i)
              if (trim(field_names(i)) == trim(field_names(j))) then
-                call neko_error('Duplicate field_name found. Each scalar must ' // &
-                     'have a unique field_name')
+                write(field_name, '(A,I0)') trim(field_names(i))//'_', j
+                field_names(i) = trim(field_name)
+                j = 1  ! Start over to check if new name is unique
+             else
+                j = j + 1
              end if
           end do
        end do

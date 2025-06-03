@@ -63,7 +63,7 @@ module scalar_user_source_term
      !> The source term.
      real(kind=rp), allocatable :: s(:, :, :, :)
      !> Field name for this scalar
-     character(len=:), allocatable :: field_name
+     character(len=:), allocatable :: scalar_name
 
      !> Device pointer for `s`.
      type(c_ptr) :: s_d = C_NULL_PTR
@@ -89,9 +89,9 @@ module scalar_user_source_term
      !> Computes the source term and adds the result to `fields`.
      !! @param t The time value.
      !! @param tstep The current time-step.
-     subroutine scalar_source_compute_vector(field_name, this, t)
+     subroutine scalar_source_compute_vector(scalar_name, this, t)
        import scalar_user_source_term_t, rp
-       character(len=*), intent(in) :: field_name
+       character(len=*), intent(in) :: scalar_name
        class(scalar_user_source_term_t), intent(inout) :: this
        real(kind=rp), intent(in) :: t
      end subroutine scalar_source_compute_vector
@@ -105,9 +105,9 @@ module scalar_user_source_term
      !! @param l The z-index of GLL point.
      !! @param e The index of element.
      !! @param t The time value.
-     subroutine scalar_source_compute_pointwise(field_name, s, j, k, l, e, t)
+     subroutine scalar_source_compute_pointwise(scalar_name, s, j, k, l, e, t)
        import rp
-       character(len=*), intent(in) :: field_name
+       character(len=*), intent(in) :: scalar_name
        real(kind=rp), intent(inout) :: s
        integer, intent(in) :: j
        integer, intent(in) :: k
@@ -142,20 +142,20 @@ contains
   !! @param eval_vector The procedure to vector-compute the source term.
   !! @param eval_pointwise The procedure to pointwise-compute the source term.
   subroutine scalar_user_source_term_init_from_components(this, fields, coef, &
-       source_term_type, eval_vector, eval_pointwise, field_name)
+       source_term_type, eval_vector, eval_pointwise, scalar_name)
     class(scalar_user_source_term_t), intent(inout) :: this
     type(field_list_t), intent(in), target :: fields
     type(coef_t), intent(in) :: coef
     character(len=*) :: source_term_type
     procedure(scalar_source_compute_vector), optional :: eval_vector
     procedure(scalar_source_compute_pointwise), optional :: eval_pointwise
-    character(len=*), intent(in) :: field_name
+    character(len=*), intent(in) :: scalar_name
 
     call this%free()
     call this%init_base(fields, coef, 0.0_rp, huge(0.0_rp))
 
     this%dm => fields%dof(1)
-    this%field_name = trim(field_name)
+    this%scalar_name = trim(scalar_name)
 
     allocate(this%s(this%dm%Xh%lx, this%dm%Xh%ly, this%dm%Xh%lz, &
          this%dm%msh%nelv))
@@ -188,7 +188,7 @@ contains
     class(scalar_user_source_term_t), intent(inout) :: this
 
     if (allocated(this%s)) deallocate(this%s)
-    if (allocated(this%field_name)) deallocate(this%field_name)
+    if (allocated(this%scalar_name)) deallocate(this%scalar_name)
 
     if (c_associated(this%s_d)) call device_free(this%s_d)
 
@@ -209,7 +209,7 @@ contains
     integer :: n
 
     if (t .ge. this%start_time .and. t .le. this%end_time) then
-       call this%compute_vector_(this%field_name, this, t)
+       call this%compute_vector_(this%scalar_name, this, t)
        n = this%fields%item_size(1)
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -222,8 +222,8 @@ contains
 
   !> Driver for all pointwise source term evaluatons.
   !! @param t The time value.
-  subroutine pointwise_eval_driver(field_name, this, t)
-    character(len=*), intent(in) :: field_name
+  subroutine pointwise_eval_driver(scalar_name, this, t)
+    character(len=*), intent(in) :: scalar_name
     class(scalar_user_source_term_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer :: j, k, l, e
@@ -239,7 +239,7 @@ contains
                 kk = k
                 do j = 1, size(this%s, 1)
                    jj = j
-                   call this%compute_pw_(field_name, this%s(j,k,l,e), jj, kk, ll, ee, t)
+                   call this%compute_pw_(scalar_name, this%s(j,k,l,e), jj, kk, ll, ee, t)
                 end do
              end do
           end do

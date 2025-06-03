@@ -42,7 +42,7 @@ module scalar_ic
        neko_warning, NEKO_FNAME_LEN, extract_fld_file_index
   use coefs, only : coef_t
   use math, only : col2, cfill, cfill_mask
-  use user_intf, only : useric_scalar, useric_scalars
+  use user_intf, only : useric_scalar
   use json_module, only : json_file
   use json_utils, only: json_get, json_get_or_default
   use point_zone, only: point_zone_t
@@ -142,7 +142,7 @@ contains
     type(json_file), intent(inout) :: params
 
     call neko_log%message("Type: user")
-    call usr_ic(field_name, s, params)
+    call usr_ic(s, params)
 
     call set_scalar_ic_common(s, coef, gs)
 

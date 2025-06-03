@@ -48,8 +48,7 @@ contains
   end subroutine set_source
 
   !> User initial condition for the scalar
-  subroutine set_s_ic(field_name, s, params)
-    character(len=*), intent(in) :: field_name
+  subroutine set_s_ic(s, params)
     type(field_t), intent(inout) :: s
     type(json_file), intent(inout) :: params
     integer :: i, e, k, j

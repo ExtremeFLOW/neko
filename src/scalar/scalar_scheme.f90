@@ -250,7 +250,7 @@ contains
     logical :: logical_val
     real(kind=rp) :: real_val, solver_abstol
     integer :: integer_val, ierr
-    character(len=:), allocatable :: solver_type, solver_precon, field_name
+    character(len=:), allocatable :: solver_type, solver_precon
     type(json_file) :: precon_params
     real(kind=rp) :: GJP_param_a, GJP_param_b
 
@@ -260,9 +260,7 @@ contains
     this%rho => rho
 
     ! Assign a name
-    call json_get_or_default(params, 'field_name', field_name, 's')
-
-    this%name = field_name
+    call json_get_or_default(params, 'name', this%name, 'scalar')
 
     call neko_log%section('Scalar')
     call json_get(params, 'solver.type', solver_type)
@@ -294,11 +292,11 @@ contains
     this%params => params
     this%msh => msh
 
-    if (.not. neko_field_registry%field_exists(field_name)) then
-       call neko_field_registry%add_field(this%dm_Xh, field_name)
+    if (.not. neko_field_registry%field_exists(this%name)) then
+       call neko_field_registry%add_field(this%dm_Xh, this%name)
     end if
 
-    this%s => neko_field_registry%get_field(field_name)
+    this%s => neko_field_registry%get_field(this%name)
 
     call this%slag%init(this%s, 2)
 

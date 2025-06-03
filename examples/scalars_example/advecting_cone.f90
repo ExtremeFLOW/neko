@@ -6,15 +6,14 @@ contains
   !> Register user defined functions (see user_intf.f90)
   subroutine user_setup(u)
     type(user_t), intent(inout) :: u
-    u%scalar_user_ic => set_scalars_ic
+    u%scalar_user_ic => set_scalar_ic
     u%fluid_user_ic => set_velocity
     u%scalar_user_f_vector => set_source_vector
     u%scalar_user_f => set_source
   end subroutine user_setup
 
   !> User initial condition for the scalars
-  subroutine set_scalars_ic(field_name, s, params)
-    CHARACTER(len=*), INTENT(IN) :: field_name
+  subroutine set_scalar_ic(s, params)
     type(field_t), intent(inout) :: s
     type(json_file), intent(inout) :: params
     integer :: i, e, k, j
@@ -45,7 +44,7 @@ contains
        call device_memcpy(s%x, s%x_d, s%dof%size(), &
                           HOST_TO_DEVICE, sync = .false.)
     end if
-  end subroutine set_scalars_ic
+  end subroutine set_scalar_ic
 
   !> Set the advecting velocity field.
   subroutine set_velocity(u, v, w, p, params)
@@ -78,8 +77,8 @@ contains
   end subroutine set_velocity
 
   !> Set source term vector
-  subroutine set_source_vector(field_name, f, t)
-    character(len=*), intent(in) :: field_name
+  subroutine set_source_vector(scalar_name, f, t)
+    character(len=*), intent(in) :: scalar_name
     class(scalar_user_source_term_t), intent(inout) :: f
     real(kind=rp), intent(in) :: t
     real(kind=rp) :: x, y
@@ -101,8 +100,8 @@ contains
   end subroutine set_source_vector
 
   !> Set source term vector
-  subroutine set_source(field_name, s, j, k, l, e, t)
-    CHARACTER(len=*), INTENT(IN) :: field_name
+  subroutine set_source(scalar_name, s, j, k, l, e, t)
+    CHARACTER(len=*), INTENT(IN) :: scalar_name
     real(kind=rp), intent(inout) :: s
     integer, intent(in) :: j
     integer, intent(in) :: k
@@ -110,7 +109,7 @@ contains
     integer, intent(in) :: e
     real(kind=rp), intent(in) :: t
 
-    if (field_name == "s1") then
+    if (scalar_name == "s1") then
        s = 0.01_rp
     else
        s = 0.0_rp

@@ -91,23 +91,12 @@ module user_intf
 
   !> Abstract interface for user defined scalar initial conditions
   abstract interface
-     subroutine useric_scalar(field_name, s, params)
+     subroutine useric_scalar(s, params)
        import field_t
        import json_file
-       character(len=*), intent(in) :: field_name
        type(field_t), intent(inout) :: s
        type(json_file), intent(inout) :: params
      end subroutine useric_scalar
-  end interface
-
-  abstract interface
-     subroutine useric_scalars(s, field_name, params)
-       import field_t
-       import json_file
-       type(field_t), intent(inout) :: s
-       character(len=*), intent(in) :: field_name
-       type(json_file), intent(inout) :: params
-     end subroutine useric_scalars
   end interface
 
   !> Abstract interface for initilialization of modules
@@ -247,7 +236,7 @@ module user_intf
      procedure, pass(this) :: init => user_intf_init
   end type user_t
 
-  public :: useric, useric_scalar, useric_scalars, useric_compressible, &
+  public :: useric, useric_scalar, useric_compressible, &
        user_initialize_modules, usermsh, dummy_user_material_properties, &
        user_material_properties, user_startup_intrf
 contains
@@ -427,8 +416,7 @@ contains
   !> Dummy user initial condition for scalar field
   !! @param s Scalar field.
   !! @param params JSON parameters.
-  subroutine dummy_user_ic_scalar(field_name, s, params)
-    character(len=*), intent(in) :: field_name
+  subroutine dummy_user_ic_scalar(s, params)
     type(field_t), intent(inout) :: s
     type(json_file), intent(inout) :: params
     call neko_error('Dummy user defined scalar initial condition set')
