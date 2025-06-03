@@ -27,7 +27,7 @@ contains
     out_format = '(I12,A3,A10,2x,I6,3x,E11.4,3x,E11.4)'
 
     write(log_buf, '(A12,A3,A10,2x,A6,3x,A11,3x,A11)') &
-         'Time-step:', ' | ', &
+         'Step:', ' | ', &
          'Field:', 'Iters:', &
          'Start res.:', 'Final res.:'
     call neko_log%message(log_buf)
