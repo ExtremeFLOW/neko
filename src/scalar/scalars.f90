@@ -63,10 +63,6 @@ module scalars
      class(scalar_scheme_t), allocatable :: scalar_fields(:)
      !> Shared KSP solver for all scalar fields
      class(ksp_t), allocatable :: shared_ksp
-     !> Time lag
-     real(kind=rp), pointer :: tlag(:) => null()
-     !> Time step lag
-     real(kind=rp), pointer :: dtlag(:) => null()
    contains
      !> Initialize the scalars container
      generic :: init => scalars_init, scalars_init_single
