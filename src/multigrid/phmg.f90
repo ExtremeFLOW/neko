@@ -292,8 +292,9 @@ contains
          call device_copy(mglvl(0)%r%x_d, r_d, n)
          call device_rzero(mglvl(0)%z%x_d, n)
          call device_rzero(mglvl(0)%w%x_d, n)
-         call phmg_mg_cycle(mglvl(0)%z, mglvl(0)%r, mglvl(0)%w, 0, this%nlvls -1, &
-              mglvl, this%intrp, this%msh, this%Ax, this%amg_solver)
+         call phmg_mg_cycle(mglvl(0)%z, mglvl(0)%r, mglvl(0)%w, 0, &
+              this%nlvls -1, mglvl, this%intrp, this%msh, this%Ax, &
+              this%amg_solver)
 
          call mglvl(0)%bclst%apply_scalar(mglvl(0)%z%x, n)
          call device_copy(z_d, mglvl(0)%z%x_d, n)
@@ -304,8 +305,9 @@ contains
          mglvl(0)%z%x = 0.0_rp
          mglvl(0)%w%x = 0.0_rp
 
-         call phmg_mg_cycle(mglvl(0)%z, mglvl(0)%r, mglvl(0)%w, 0, this%nlvls -1, &
-              mglvl, this%intrp, this%msh, this%Ax, this%amg_solver)
+         call phmg_mg_cycle(mglvl(0)%z, mglvl(0)%r, mglvl(0)%w, 0, &
+              this%nlvls -1, mglvl, this%intrp, this%msh, this%Ax, &
+              this%amg_solver)
 
          call mglvl(0)%bclst%apply_scalar(mglvl(0)%z%x, n)
          call copy(z, mglvl(0)%z%x, n)
@@ -386,7 +388,8 @@ contains
     call intrp(lvl+1)%map(mg(lvl+1)%r%x, w%x, msh%nelv, mg(lvl+1)%Xh)
     call profiler_end_region('PHMG_map_to_coarse', 9)
 
-    call mg(lvl+1)%gs_h%op(mg(lvl+1)%r%x, mg(lvl+1)%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
+    call mg(lvl+1)%gs_h%op(mg(lvl+1)%r%x, mg(lvl+1)%dm_Xh%size(), &
+         GS_OP_ADD, glb_cmd_event)
     call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
 
     call mg(lvl+1)%bclst%apply_scalar( &
@@ -442,7 +445,8 @@ contains
     !>----------<!
     call profiler_start_region('PHMG_PostSmooth', 9)
     if (use_jacobi) then
-       call phmg_jacobi_smoother(z, r, w, mg(lvl), msh, Ax, mg(lvl)%dm_Xh%size(), lvl)
+       call phmg_jacobi_smoother(z, r, w, mg(lvl), msh, Ax, &
+            mg(lvl)%dm_Xh%size(), lvl)
     else
        if (NEKO_BCKND_DEVICE .eq. 1) then
           ksp_results = mg(lvl)%cheby_device%solve(Ax, z, &

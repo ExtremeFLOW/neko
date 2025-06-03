@@ -218,13 +218,17 @@ contains
 
     call neko_log%section('HSMG')
     if (this%nlvls .lt. 1e1) then
-       write(log_buf, '(A,I1,A)') 'HSMG hierarchy      : ', this%nlvls, ' levels'
+       write(log_buf, '(A,I1,A)') 'HSMG hierarchy      : ', &
+            this%nlvls, ' levels'
     else if (this%nlvls .lt. 1e2) then
-       write(log_buf, '(A,I2,A)') 'HSMG hierarchy      : ', this%nlvls, ' levels'
+       write(log_buf, '(A,I2,A)') 'HSMG hierarchy      : ', &
+            this%nlvls, ' levels'
     else if (this%nlvls .lt. 1e3) then
-       write(log_buf, '(A,I3,A)') 'HSMG hierarchy      : ', this%nlvls, ' levels'
+       write(log_buf, '(A,I3,A)') 'HSMG hierarchy      : ', this%nlvls, &
+            ' levels'
     else
-       write(log_buf, '(A,I6,A)') 'HSMG hierarchy      : ', this%nlvls, ' levels'
+       write(log_buf, '(A,I6,A)') 'HSMG hierarchy      : ', this%nlvls, &
+            ' levels'
     end if
     call neko_log%message(log_buf)
     if (trim(crs_solver) .ne. 'tamg' .or. trim(crs_solver) .eq. 'cheby') then

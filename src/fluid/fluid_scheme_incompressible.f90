@@ -569,7 +569,7 @@ contains
   !! @param tstep Current time step.
   subroutine fluid_scheme_update_material_properties(this, t, tstep)
     class(fluid_scheme_incompressible_t), intent(inout) :: this
-    real(kind=rp),intent(in) :: t
+    real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(field_t), pointer :: nut
 
@@ -587,9 +587,9 @@ contains
     ! values are also filled
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%rho%x, this%rho%x_d, this%rho%size(), &
-            DEVICE_TO_HOST, sync=.false.)
+            DEVICE_TO_HOST, sync = .false.)
        call device_memcpy(this%mu%x, this%mu%x_d, this%mu%size(), &
-            DEVICE_TO_HOST, sync=.false.)
+            DEVICE_TO_HOST, sync = .false.)
     end if
   end subroutine fluid_scheme_update_material_properties
 
@@ -682,9 +682,9 @@ contains
     ! values are also filled
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%rho%x, this%rho%x_d, this%rho%size(), &
-            DEVICE_TO_HOST, sync=.false.)
+            DEVICE_TO_HOST, sync= .false.)
        call device_memcpy(this%mu%x, this%mu%x_d, this%mu%size(), &
-            DEVICE_TO_HOST, sync=.false.)
+            DEVICE_TO_HOST, sync= .false.)
     end if
   end subroutine fluid_scheme_set_material_properties
 
