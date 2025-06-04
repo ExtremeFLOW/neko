@@ -415,7 +415,7 @@ extern "C" {
          (real *) rst,(real *) pt_x, (real *) pt_y, (real *) pt_z,                              \
          (real *) x_hat, (real *) y_hat, (real *) z_hat,                              \
          (real *) resx, (real *) resy, (real *) resz, (int *) el_ids,                           \
-         *n_pt, *tol, (bool *) conv_pts);                                  \
+         *n_pt, *tol, (real *) conv_pts);                                  \
       HIP_CHECK(hipGetLastError());                                           \
       break
     
