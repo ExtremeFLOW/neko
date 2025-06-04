@@ -562,6 +562,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        n = msk_c + 1
        call device_map(this%msk, this%msk_d, n)
+       !Observe the facet_mask is only junk if only_facet is false
        call device_map(this%facet, this%facet_d, n)
 
        call device_memcpy(this%msk, this%msk_d, n, &
