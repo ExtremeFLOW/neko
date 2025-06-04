@@ -19,8 +19,8 @@ grep ' | Pressure' log1 | wc -l >l1
 grep ' | Pressure' ${ref1} | wc -l >r1
 diff l1 r1 >>res
 # Check that residual is same after restart
-grep ' | Pressure' log1 | head -7 | tail -1 | sed 's/^[^|]*|/|/' >l1
-grep ' | Pressure' log2 | head -2 | tail -1 | sed 's/^[^|]*|/|/' >l2
+grep '7 | Pressure' log1 | sed 's/^[^|]*|/|/' >l1
+grep '2 | Pressure' log2 | sed 's/^[^|]*|/|/' >l2
 diff l1 l2 >>res
 
 if [ -s res ]; then
