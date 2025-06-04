@@ -269,21 +269,23 @@ contains
             call device_memcpy(gd, gd_d, m, HOST_TO_DEVICE, &
                                sync=.false., strm=strm)
          end if
+          
+         if (nb .gt. 0) then
+            if (.not. c_associated(b_d)) then
+               call device_map(b, b_d, nb)
+               call device_memcpy(b, b_d, nb, HOST_TO_DEVICE, &
+                                  sync=.false., strm=strm)
+            end if
 
-         if (.not. c_associated(b_d)) then
-            call device_map(b, b_d, nb)
-            call device_memcpy(b, b_d, nb, HOST_TO_DEVICE, &
-                               sync=.false., strm=strm)
-         end if
-
-         if (.not. c_associated(bo_d)) then
-            call device_map(bo, bo_d, nb)
-            bo(1) = 0
-            do  i = 2, nb
-               bo(i) = bo(i - 1) + b(i - 1)
-            end do
-            call device_memcpy(bo, bo_d, nb, HOST_TO_DEVICE, &
-                               sync=.false., strm=strm)
+            if (.not. c_associated(bo_d)) then
+               call device_map(bo, bo_d, nb)
+               bo(1) = 0
+               do  i = 2, nb
+                  bo(i) = bo(i - 1) + b(i - 1)
+               end do
+               call device_memcpy(bo, bo_d, nb, HOST_TO_DEVICE, &
+                                  sync=.false., strm=strm)
+            end if
          end if
 
 #ifdef HAVE_HIP
@@ -322,20 +324,22 @@ contains
                                sync=.false., strm=strm)
          end if
 
-         if (.not. c_associated(b_d)) then
-            call device_map(b, b_d, nb)
-            call device_memcpy(b, b_d, nb, HOST_TO_DEVICE, &
-                               sync=.false., strm=strm)
-         end if
+         if (nb .gt. 0) then
+            if (.not. c_associated(b_d)) then
+               call device_map(b, b_d, nb)
+               call device_memcpy(b, b_d, nb, HOST_TO_DEVICE, &
+                                  sync=.false., strm=strm)
+            end if
 
-         if (.not. c_associated(bo_d)) then
-            call device_map(bo, bo_d, nb)
-            bo(1) = 0
-            do  i = 2, nb
-               bo(i) = bo(i - 1) + b(i - 1)
-            end do
-            call device_memcpy(bo, bo_d, nb, HOST_TO_DEVICE, &
-                               sync=.false., strm=strm)
+            if (.not. c_associated(bo_d)) then
+               call device_map(bo, bo_d, nb)
+               bo(1) = 0
+               do  i = 2, nb
+                  bo(i) = bo(i - 1) + b(i - 1)
+               end do
+               call device_memcpy(bo, bo_d, nb, HOST_TO_DEVICE, &
+                                  sync=.false., strm=strm)
+            end if
          end if
 
 

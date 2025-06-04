@@ -314,6 +314,8 @@ contains
     end if
 
 
+    call device_sync()
+
   end subroutine space_init
 
   !> Deallocate a space @a s
