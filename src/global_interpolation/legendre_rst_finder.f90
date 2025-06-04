@@ -47,6 +47,7 @@ module legendre_rst_finder
        c_sizeof, c_loc, c_bool
   use device, only: device_alloc, device_free, device_memcpy, &
        device_get_ptr, glb_cmd_queue
+  use device_math, only: device_vlsc3
   implicit none
   private
 
@@ -189,25 +190,17 @@ contains
     type(c_ptr), intent(in) :: el_list
     type(c_ptr), intent(inout) :: resx, resy, resz
     integer, intent(in) :: n_pts
-    logical(kind=c_bool) , allocatable, target :: conv_pts(:)
-    type(c_ptr) :: conv_pts_d = c_null_ptr
+    type(vector_t) :: conv_pts
     integer :: i, iter
     logical :: converged
-    integer(kind=i8) :: bytes
+    real(kind=rp) :: conv_sum
 
     if (n_pts .eq. 0) return
 
-    if (allocated(conv_pts)) then
-       deallocate(conv_pts)
-    end if
+    call conv_pts%init(n_pts)
 
-    allocate(conv_pts(n_pts))
+    conv_pts = 1.0_rp
 
-    conv_pts = .false.
-    bytes = n_pts*c_sizeof(conv_pts(1))
-    call device_alloc(conv_pts_d,bytes)
-    call device_memcpy(c_loc(conv_pts), conv_pts_d, bytes, HOST_TO_DEVICE, &
-         .false., glb_cmd_queue)
     iter = 0
     converged = .false.
     !Iterate until found, not heavily optimized
@@ -216,21 +209,15 @@ contains
             this%x_hat%x_d, this%y_hat%x_d, this%z_hat%x_d, &
             resx, resy, resz, &
             this%Xh%lx,el_list, n_pts, this%tol, &
-            conv_pts_d)
-       call device_memcpy(c_loc(conv_pts), conv_pts_d, bytes, DEVICE_TO_HOST, &
-            .true., glb_cmd_queue)
-       converged = .true.
-       iter = iter + 1
-
-       do i = 1, n_pts
-          converged = converged .and. conv_pts(i)
-       end do
+            conv_pts%x_d)
+       !This can be made more approriate... avoid memcpy at least
+       conv_sum =  device_vlsc3(conv_pts%x_d,conv_pts%x_d,conv_pts%x_d,n_pts)
+       converged = conv_sum .lt. 0.5
+       print *, conv_sum
        if( iter .ge. this%max_iter) converged = .true.
     end do
 
-    call device_free(conv_pts_d)
-    deallocate(conv_pts)
-
+    call conv_pts%free()
   end subroutine find_rst_legendre_device
 
   !> Using the Legendre polynomials to find the rst coordinates.
