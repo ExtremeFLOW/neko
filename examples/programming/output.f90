@@ -1,6 +1,6 @@
 ! This tutorial demonstrates how to output simulation data to .fld and .csv
 ! files in Neko. It covers:
-! 
+!
 ! - Writing single fields and lists of fields to .fld files using `fld_file_t`.
 ! - Controlling output precision for .fld files.
 ! - Writing data to .csv files using `csv_file_t` and `vector_t`.
@@ -50,7 +50,7 @@ contains
 
     !
     ! WRITING FLD FILES
-    ! 
+    !
 
     ! Initialize the fields and set the values to 1.0 and 2.0
     call my_field1%init(coef%dof, "my_field1")
@@ -69,7 +69,7 @@ contains
     ! pass a field_list_t object to the writer. The field_list_t is a list of
     ! field pointers.
 
-    ! Initialize the field_list_t object with the number of fields we want to 
+    ! Initialize the field_list_t object with the number of fields we want to
     ! pack.
     call field_pair%init(2)
 
@@ -79,7 +79,7 @@ contains
     call field_pair%assign_to_field(2, my_field2)
 
 
-    ! Write the list of fields to a different file, they will be put in the 
+    ! Write the list of fields to a different file, they will be put in the
     ! pressure and temperature inside the fld.
     call fld_writer%init("my_output2.fld")
     call fld_writer%write(field_pair)
@@ -96,7 +96,7 @@ contains
 
     !
     ! WRITING CSV FILES
-    ! 
+    !
 
     ! A vector_t can be used to pass values to a CSV file writer. Let us init
     ! one to have 5 elements and set them to 3.0.
@@ -113,13 +113,13 @@ contains
 
     ! Let us add another line. A common scenario is that you will update a
     ! vector at each time step, e.f. in user_check and then append the result
-    ! to the CSV file. 
+    ! to the CSV file.
     vec = 4.0_rp
     call csv_writer%write(vec)
 
     ! Note that the CSV writer will append to file, if it exists, so you have
     ! to take care of that manually. Finally, note that one can also use
-    ! matrix_t objects to write to CSV files, in case you have 2D data. 
+    ! matrix_t objects to write to CSV files, in case you have 2D data.
 
   end subroutine user_init_modules
 
