@@ -68,7 +68,8 @@ module scalar_scheme
   use scalar_source_term, only : scalar_source_term_t
   use field_series, only : field_series_t
   use math, only : cfill, add2s2
-  use field_math, only : field_cmult2, field_col3, field_cfill, field_add2
+  use field_math, only : field_cmult, field_col3, field_cfill, field_add2, &
+       field_col2
   use device_math, only : device_cfill, device_add2s2
   use neko_config, only : NEKO_BCKND_DEVICE
   use field_series, only : field_series_t
@@ -514,7 +515,8 @@ contains
        call neko_scratch_registry%request_field(lambda_factor, index)
 
        call field_col3(lambda_factor, this%cp, this%rho)
-       call field_cmult2(lambda_factor, nut, 1.0_rp / this%pr_turb)
+       call field_col2(lambda_factor, nut)
+       call field_cmult(lambda_factor, 1.0_rp / this%pr_turb)
        call field_add2(this%lambda, lambda_factor)
        call neko_scratch_registry%relinquish_field(index)
     end if

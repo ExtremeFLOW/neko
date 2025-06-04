@@ -71,7 +71,7 @@ module case
      type(time_state_t) :: time
      type(chkp_output_t) :: chkp_out
      type(chkp_t) :: chkp
-     type(user_t) :: usr
+     type(user_t) :: user
      class(fluid_scheme_base_t), allocatable :: fluid
      type(scalar_pnpn_t), allocatable :: scalar
   end type case_t
@@ -152,10 +152,10 @@ contains
     !
     ! Setup user defined functions
     !
-    call this%usr%init()
+    call this%user%init()
 
     ! Run user startup routine
-    call this%usr%user_startup(this%params)
+    call this%user%user_startup(this%params)
 
     !
     ! Load mesh
@@ -202,7 +202,7 @@ contains
     call neko_point_zone_registry%init(this%params, this%msh)
 
     ! Run user mesh motion routine
-    call this%usr%user_mesh_setup(this%msh)
+    call this%user%user_mesh_setup(this%msh)
 
     call json_extract_object(this%params, 'case.numerics', numerics_params)
 
@@ -217,7 +217,7 @@ contains
     ! Set time lags in chkp
     this%chkp%tlag => this%time%tlag
     this%chkp%dtlag => this%time%dtlag
-    call this%fluid%init(this%msh, lx, this%params, this%usr, this%chkp)
+    call this%fluid%init(this%msh, lx, this%params, this%user, this%chkp)
 
 
     !
@@ -238,7 +238,7 @@ contains
        allocate(this%scalar)
        call json_extract_object(this%params, 'case.scalar', scalar_params)
        call this%scalar%init(this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
-            scalar_params, numerics_params, this%usr, this%chkp, &
+            scalar_params, numerics_params, this%user, this%chkp, &
             this%fluid%ulag, this%fluid%vlag, this%fluid%wlag, &
             this%fluid%ext_bdf, this%fluid%rho)
 
@@ -264,11 +264,11 @@ contains
           call set_flow_ic(this%fluid%rho, &
                this%fluid%u, this%fluid%v, this%fluid%w, this%fluid%p, &
                this%fluid%c_Xh, this%fluid%gs_Xh, &
-               this%usr%fluid_compressible_user_ic, this%params)
+               this%user%fluid_compressible_user_ic, this%params)
        else
           call set_flow_ic(this%fluid%u, this%fluid%v, this%fluid%w, &
                this%fluid%p, this%fluid%c_Xh, this%fluid%gs_Xh, &
-               this%usr%fluid_user_ic, this%params)
+               this%user%fluid_user_ic, this%params)
        end if
     end if
 
@@ -288,7 +288,7 @@ contains
                this%scalar%c_Xh, this%scalar%gs_Xh, string_val, json_subdict)
        else
           call set_scalar_ic(this%scalar%s, &
-               this%scalar%c_Xh, this%scalar%gs_Xh, this%usr%scalar_user_ic, &
+               this%scalar%c_Xh, this%scalar%gs_Xh, this%user%scalar_user_ic, &
                this%params)
        end if
 
