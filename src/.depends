@@ -5,7 +5,7 @@ io/format/nmsh.lo : io/format/nmsh.f90 config/num_types.lo
 io/format/re2.lo : io/format/re2.f90 config/num_types.lo 
 io/format/map.lo : io/format/map.f90 mesh/mesh.lo 
 io/format/stl.lo : io/format/stl.f90 config/num_types.lo 
-common/log.lo : common/log.f90 config/num_types.lo comm/comm.lo 
+common/log.lo : common/log.f90 common/utils.lo config/num_types.lo comm/comm.lo 
 comm/comm.lo : comm/comm.F90 config/neko_config.lo common/utils.lo 
 mesh/curve.lo : mesh/curve.f90 common/utils.lo adt/stack.lo common/structs.lo config/num_types.lo 
 comm/mpi_types.lo : comm/mpi_types.f90 io/format/stl.lo io/format/nmsh.lo io/format/re2.lo comm/comm.lo 
