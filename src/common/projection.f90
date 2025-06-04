@@ -688,12 +688,14 @@ contains
     character(len=*), intent(in) :: string
     integer, intent(in) :: tstep
     character(len=LOG_SIZE) :: log_buf
+    character(len=12) :: tstep_str
 
     if (this%proj_m .gt. 0) then
-       write(log_buf, '(I12,A14,1X,A8,A10,1X,I3,A20,1X,E10.4)') &
-            ' | Projection:', string, &
+       write(tstep_str, '(I12)') tstep
+       write(log_buf, '(A12,A14,1X,A8,A10,1X,I3,A16,1X,E10.4)') &
+            adjustl(tstep_str), ' | Projection:', string, &
             ', Vectors:', this%proj_m, &
-            ', Original residual:', this%proj_res
+            ', Original res.:', this%proj_res
        call neko_log%message(log_buf)
        call neko_log%newline()
     end if
