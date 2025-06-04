@@ -55,10 +55,10 @@ __global__ void find_rst_legendre_kernel(T * __restrict__ rst,
                                          const int * el_ids,
                                          const int n_pt,
                                          T tol,
-                                         bool * __restrict__ conv_pts){
+                                         T * __restrict__ conv_pts){
 				
   const int pt = blockIdx.x;
-  if (conv_pts[pt] == true) return;
+  if (conv_pts[pt] < 0.5) return;
   const int e = el_ids[pt];
   const int elx3 = e*LX*LX*LX;
   const int str = blockDim.y;
@@ -379,10 +379,10 @@ __global__ void find_rst_legendre_kernel(T * __restrict__ rst,
     rst[3*pt + 1] += rstd[1];
     rst[3*pt + 2] += rstd[2];
     rstdiff = rstd[0]*rstd[0]+rstd[1]*rstd[1]+rstd[2]*rstd[2];
-    conv_pts[pt] = 0;
+    conv_pts[pt] = 1.0;
     tol2 = tol*tol;
-    if (rstdiff <= tol2) conv_pts[pt] = true;
-    if (rstdiff > 12.0) conv_pts[pt] = true;
+    if (rstdiff <= tol2) conv_pts[pt] = 0.0;
+    if (rstdiff > 12.0) conv_pts[pt] = 0.0;
     //leg_outside = LX*LX*(LX-one)*(LX-one)/4.0;
     //if(r_leg[LX-1]*r_leg[LX-1] > leg_outside) conv_pts[pt] = true;
     //if(s_leg[LX-1]*s_leg[LX-1] > leg_outside) conv_pts[pt] = true;
