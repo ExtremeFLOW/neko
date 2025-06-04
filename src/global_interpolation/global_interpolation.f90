@@ -570,7 +570,6 @@ contains
 
 
     n_point_cand = all_el_candidates%size()
-    print *, 'n_point_cands', n_point_cand, this%pe_rank
     if (n_point_cand .gt. 1e8) then
        print *,'Warning, many point candidates on rank', this%pe_rank,'cands:', n_point_cand, &
             'Consider increasing number of ranks'
@@ -1107,8 +1106,6 @@ contains
     real(kind=rp), intent(inout), target :: field(this%nelv*this%Xh%lxyz)
     logical, intent(in) :: on_host
     type(c_ptr) :: interp_d
-
-    print *, 'global_interp eval', this%n_points, this%n_points_local, this%pe_rank
 
     if (.not. this%all_points_local) then
        call this%local_interp%evaluate(this%temp_local%x, this%el_owner0_local, &
