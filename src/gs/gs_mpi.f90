@@ -163,11 +163,11 @@ contains
        ! We should not need this extra associate block, ant it works
        ! great without it for GNU, Intel, NEC and Cray, but throws an
        ! ICE with NAG.
-       !associate(send_data => this%send_buf(i)%data)
-       call MPI_Isend(this%send_buf(i)%data, this%send_dof(dst)%size(), &
-            MPI_REAL_PRECISION, this%send_pe(i), thrdid, &
-            this%comm, this%send_buf(i)%request, ierr)
-       !end associate
+       associate(send_data => this%send_buf(i)%data)
+         call MPI_Isend(send_data, this%send_dof(dst)%size(), &
+              MPI_REAL_PRECISION, this%send_pe(i), thrdid, &
+              this%comm, this%send_buf(i)%request, ierr)
+       end associate
        this%send_buf(i)%flag = .false.
     end do
   end subroutine gs_nbsend_mpi
@@ -285,7 +285,6 @@ contains
                 case (GS_OP_ADD)
                    !NEC$ IVDEP
                    do j = 1, this%recv_dof(src)%size()
-
                       u(sp(j)) = u(sp(j)) + this%recv_buf(i)%data(j)
                    end do
                 case (GS_OP_MUL)
