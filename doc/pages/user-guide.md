@@ -10,5 +10,6 @@ advanced topics such as statistics and user defined extensions.
 - \subpage simcomps
 - \subpage point-zones
 - \subpage statistics-guide
+- \subpage global_interpolation
 - \subpage io
 - \subpage extending
