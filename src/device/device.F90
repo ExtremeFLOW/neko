@@ -189,6 +189,7 @@ contains
     integer :: ierr
 
     if (s .eq. 0) then
+       call device_sync()
        x_d = c_null_ptr
        return
     end if

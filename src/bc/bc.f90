@@ -516,6 +516,13 @@ contains
           end do
        end select
     end do
+    this%facet(0) = msk_c
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       !Observe the facet_mask is junk if only_facet is false
+       call device_map(this%facet, this%facet_d, n)
+       call device_memcpy(this%facet, this%facet_d, n, &
+            HOST_TO_DEVICE, sync = .true.)
+    end if
     if ( .not. only_facet) then
        !Makes check for points not on facet that should have bc applied
        call test_field%init(this%dof)
@@ -557,17 +564,13 @@ contains
     end if
 
     this%msk(0) = msk_c
-    this%facet(0) = msk_c
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        n = msk_c + 1
        call device_map(this%msk, this%msk_d, n)
-       call device_map(this%facet, this%facet_d, n)
 
        call device_memcpy(this%msk, this%msk_d, n, &
             HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(this%facet, this%facet_d, n, &
-            HOST_TO_DEVICE, sync = .true.)
     end if
 
   end subroutine bc_finalize_base

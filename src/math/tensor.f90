@@ -192,7 +192,7 @@ contains
     type(c_ptr) :: v_d, u_d, A_d, Bt_d, Ct_d, el_list_d
     integer :: i
 
-    if (n_pt .lt. 1) return
+    if (n_pt .eq. 0) return
 
     if (NEKO_BCKND_SX .eq. 1) then
        do i = 1, n_pt

@@ -62,13 +62,13 @@ contains
     t_prog = 100.0_rp * this%t / this%end_time
 
     write(log_fmt, '(A,I2,A)') &
-         '(A7,1X,I10,1X,A4,E15.7,', LOG_SIZE - 49, 'X,A2,F6.2,A3)'
+         '(A7,1X,I10,1X,A4,E15.7,', LOG_SIZE - 50, 'X,A2,F6.2,A3)'
     write(log_buf, log_fmt) 'Step = ', this%tstep, 't = ', this%t, &
          '[ ', t_prog, '% ]'
 
-    call neko_log%message(repeat('-', LOG_SIZE))
+    call neko_log%message(repeat('-', LOG_SIZE - 1))
     call neko_log%message(log_buf, NEKO_LOG_QUIET)
-    call neko_log%message(repeat('-', LOG_SIZE))
+    call neko_log%message(repeat('-', LOG_SIZE - 1))
 
   end subroutine time_state_status
 

@@ -208,9 +208,9 @@ contains
 
       call this%s_res%init(dm_Xh, "s_res")
 
-      call this%abx1%init(dm_Xh, "abx1")
+      call this%abx1%init(dm_Xh, "s_abx1")
 
-      call this%abx2%init(dm_Xh, "abx2")
+      call this%abx2%init(dm_Xh, "s_abx2")
 
       call this%advs%init(dm_Xh, "advs")
 
