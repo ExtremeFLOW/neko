@@ -303,6 +303,8 @@ contains
 
     call space_generate_transformation_matrices(s)
 
+    call device_sync()
+
   end subroutine space_init
 
   !> Deallocate a space @a s
