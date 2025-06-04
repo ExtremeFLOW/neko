@@ -66,6 +66,7 @@ module scalar_pnpn
   use zero_dirichlet, only : zero_dirichlet_t
   use time_step_controller, only : time_step_controller_t
   use scratch_registry, only : neko_scratch_registry
+  use time_state, only : time_state_t
   use bc, only : bc_t
   implicit none
   private
@@ -175,7 +176,7 @@ contains
     type(chkp_t), target, intent(inout) :: chkp
     type(field_series_t), target, intent(in) :: ulag, vlag, wlag
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
-    real(kind=rp), intent(in) :: rho
+    type(field_t), target, intent(in) :: rho
     integer :: i
     class(bc_t), pointer :: bc_i
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
@@ -207,9 +208,9 @@ contains
 
       call this%s_res%init(dm_Xh, "s_res")
 
-      call this%abx1%init(dm_Xh, "abx1")
+      call this%abx1%init(dm_Xh, "s_abx1")
 
-      call this%abx2%init(dm_Xh, "abx2")
+      call this%abx2%init(dm_Xh, "s_abx2")
 
       call this%advs%init(dm_Xh, "advs")
 
@@ -333,11 +334,9 @@ contains
 
   end subroutine scalar_pnpn_free
 
-  subroutine scalar_pnpn_step(this, t, tstep, dt, ext_bdf, dt_controller)
+  subroutine scalar_pnpn_step(this, time, ext_bdf, dt_controller)
     class(scalar_pnpn_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    real(kind=rp), intent(in) :: dt
+    type(time_state_t), intent(in) :: time
     type(time_scheme_controller_t), intent(in) :: ext_bdf
     type(time_step_controller_t), intent(in) :: dt_controller
     ! Number of degrees of freedom
@@ -350,18 +349,16 @@ contains
 
     call profiler_start_region('Scalar', 2)
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
-         cp => this%cp, rho => this%rho, &
+         cp => this%cp, rho => this%rho, lambda => this%lambda, &
          ds => this%ds, &
          s_res => this%s_res, &
          Ax => this%Ax, f_Xh => this%f_Xh, Xh => this%Xh, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
          slag => this%slag, oifs => this%oifs, &
-         lambda_field => this%lambda_field, &
          projection_dim => this%projection_dim, &
          msh => this%msh, res => this%res, makeoifs => this%makeoifs, &
          makeext => this%makeext, makebdf => this%makebdf, &
-         if_variable_dt => dt_controller%if_variable_dt, &
-         dt_last_change => dt_controller%dt_last_change)
+         t => time%t, tstep => time%tstep, dt => time%dt)
 
       ! Logs extra information the log level is NEKO_LOG_DEBUG or above.
       call print_debug(this)
@@ -376,10 +373,11 @@ contains
          call this%adv%compute_scalar(u, v, w, s, this%advs, &
               Xh, this%c_Xh, dm_Xh%size())
 
-         call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, rho, &
-              ext_bdf%advection_coeffs, n)
+         call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, &
+              rho%x(1,1,1,1), ext_bdf%advection_coeffs, n)
 
-         call makeoifs%compute_scalar(this%advs%x, f_Xh%x, rho, dt, n)
+         call makeoifs%compute_scalar(this%advs%x, f_Xh%x, rho%x(1,1,1,1), dt,&
+              n)
       else
          ! Add the advection operators to the right-hans-side.
          call this%adv%compute_scalar(u, v, w, s, f_Xh, &
@@ -389,12 +387,12 @@ contains
          ! Neumann boundary sources and additional source terms, evaluated using
          ! the scalar field from the previous time-step. Now, this value is used in
          ! the explicit time scheme to advance these terms in time.
-         call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, rho, &
-              ext_bdf%advection_coeffs, n)
+         call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, &
+              rho%x(1,1,1,1), ext_bdf%advection_coeffs, n)
 
          ! Add the RHS contributions coming from the BDF scheme.
-         call makebdf%compute_scalar(slag, f_Xh%x, s, c_Xh%B, rho, dt, &
-              ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
+         call makebdf%compute_scalar(slag, f_Xh%x, s, c_Xh%B, rho%x(1,1,1,1), &
+              dt, ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
       end if
 
       call slag%update()
@@ -403,12 +401,13 @@ contains
       call this%bcs%apply_scalar(this%s%x, this%dm_Xh%size(), t, tstep, .true.)
 
       ! Update material properties if necessary
-      call this%update_material_properties()
+      call this%update_material_properties(t, tstep)
 
       ! Compute scalar residual.
       call profiler_start_region('Scalar_residual', 20)
-      call res%compute(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, lambda_field, &
-           rho*cp, ext_bdf%diffusion_coeffs(1), dt, dm_Xh%size())
+      call res%compute(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, lambda, &
+           rho%x(1,1,1,1)*cp%x(1,1,1,1), ext_bdf%diffusion_coeffs(1), dt, &
+           dm_Xh%size())
 
       call gs_Xh%op(s_res, GS_OP_ADD)
 

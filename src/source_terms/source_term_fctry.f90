@@ -108,6 +108,7 @@ contains
   !> Register a custom source term allocator.
   !! Called in custom user modules inside the `module_name_register_types`
   !! routine to add a custom type allocator to the registry.
+  !! @param type_name The name of the type to allocate.
   !! @param allocator The allocator for the custom user type.
   module subroutine register_source_term(type_name, allocator)
     character(len=*), intent(in) :: type_name

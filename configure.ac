@@ -34,6 +34,10 @@ AC_ARG_ENABLE(device-mpi,
 AC_ARG_ENABLE(openmp, AC_HELP_STRING([--enable-openmp], [Enable OpenMP]),
               [enable_openmp=${enableval}], [enable_openmp=no])
 
+AC_ARG_ENABLE(python, AC_HELP_STRING([--enable-python],
+              [Install Python modules, requires a Python interpreter]),
+              [enable_python=${enableval}],[enable_python=no])
+
 # Test for a sane fortran environment (^-^)
 AC_LANG(Fortran)
 AC_PROG_FC(,90)
@@ -192,6 +196,7 @@ if test "x$enable_real" = xssp; then
    AC_SUBST(NEKO_C_XREAL_TYPE, "c_float")
    AC_SUBST(NEKO_MPI_XREAL_TYPE, "MPI_REAL")
    AC_SUBST(NEKO_DEV_XREAL_TYPE, "float")
+   AC_SUBST(NEKO_PY_REAL_TYPE, "c_float")
 elif test "x$enable_real" = xsp; then
    AC_SUBST(NEKO_REAL_TYPE, "sp")
    AC_SUBST(NEKO_C_REAL_TYPE, "c_float")
@@ -201,6 +206,7 @@ elif test "x$enable_real" = xsp; then
    AC_SUBST(NEKO_C_XREAL_TYPE, "c_double")
    AC_SUBST(NEKO_MPI_XREAL_TYPE, "MPI_DOUBLE_PRECISION")
    AC_SUBST(NEKO_DEV_XREAL_TYPE, "double")
+   AC_SUBST(NEKO_PY_REAL_TYPE, "c_float")
 elif test "x$enable_real" = xdp; then
    AC_SUBST(NEKO_REAL_TYPE, "dp")
    AC_SUBST(NEKO_C_REAL_TYPE, "c_double")
@@ -210,6 +216,7 @@ elif test "x$enable_real" = xdp; then
    AC_SUBST(NEKO_C_XREAL_TYPE, "c_double")
    AC_SUBST(NEKO_MPI_XREAL_TYPE, "MPI_DOUBLE_PRECISION")
    AC_SUBST(NEKO_DEV_XREAL_TYPE, "double")
+   AC_SUBST(NEKO_PY_REAL_TYPE, "c_double")
 elif test "x$enable_real" = xqp; then
    AC_SUBST(NEKO_REAL_TYPE, "qp")
    AC_SUBST(NEKO_C_REAL_TYPE, "c_long_double")
@@ -219,6 +226,7 @@ elif test "x$enable_real" = xqp; then
    AC_SUBST(NEKO_C_XREAL_TYPE, "c_long_double")
    AC_SUBST(NEKO_MPI_XREAL_TYPE, "MPI_REAL16")
    AC_SUBST(NEKO_DEV_XREAL_TYPE, "long double")
+   AC_SUBST(NEKO_PY_REAL_TYPE, "c_longdouble")
 else
    AC_MSG_ERROR([Invalid working precision])
 fi
@@ -335,19 +343,32 @@ else
     AC_SUBST(device_bcknd, "0")
 fi
 
+# Checks for python bindings
+found_python="no"
+if (test "x$enable_python" = xyes); then
+   AM_PATH_PYTHON([3.5])
+   if ! ${HAVE_PYTHON}; then
+        AC_MSG_ERROR([Python interpreter not found, pyneko cannot be installed.])
+   fi
+   found_python="yes"
+fi
+
+AM_CONDITIONAL([ENABLE_PYTHON], [test "x${found_python}" = xyes])
+
 # Append the NEKO compiler flags to the FCFLAGS
 AC_SUBST(NEKO_PKG_FCFLAGS)
 FCFLAGS="$FCFLAGS $NEKO_PKG_FCFLAGS"
 
-AC_CONFIG_FILES([
-        Makefile\
+AC_CONFIG_FILES([Makefile\
         src/Makefile\
         tests/unit/Makefile\
         src/comm/comm.F90\
         src/config/neko_config.f90\
         src/config/num_types.f90\
         src/device/device_config.h\
+        src/python/pyneko/intf.py\
         src/scripts/cltostring.sh\
+        src/api/neko.h\
         makeneko\
         neko.pc])
 
@@ -381,6 +402,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/vector/Makefile\
         tests/unit/matrix/Makefile\
         tests/unit/scratch_registry/Makefile\
+        tests/unit/field_registry/Makefile\
         tests/unit/fast3d/Makefile\
         tests/unit/time_scheme/Makefile\
         tests/unit/time_scheme_controller/Makefile\
@@ -390,17 +412,18 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
 
 if test "x${enable_contrib}" = xyes; then
    AC_CONFIG_FILES([contrib/Makefile\
-            contrib/rea2nbin/Makefile\
-            contrib/genmeshbox/Makefile\
-            contrib/average_fields_in_time/Makefile\
-            contrib/calc_lift_from_field/Makefile\
-            contrib/postprocess_fluid_stats/Makefile\
-            contrib/average_field_in_space/Makefile\
-            contrib/map_to_equidistant_1d/Makefile\
-            contrib/mesh_checker/Makefile\
-            contrib/prepart/Makefile])
+        contrib/rea2nbin/Makefile\
+        contrib/genmeshbox/Makefile\
+        contrib/average_fields_in_time/Makefile\
+        contrib/calc_lift_from_field/Makefile\
+        contrib/postprocess_fluid_stats/Makefile\
+        contrib/average_field_in_space/Makefile\
+        contrib/map_to_equidistant_1d/Makefile\
+        contrib/mesh_checker/Makefile\
+        contrib/prepart/Makefile])
 fi
 # Doxygen
 AC_CONFIG_FILES([doc/Doxyfile doc/Makefile])
 
 AC_OUTPUT
+

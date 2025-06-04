@@ -209,21 +209,20 @@ various material properties, such as `rho`, `mu` for the fluid and `cp`,
 example](https://github.com/ExtremeFLOW/neko/blob/564686b127ff75a362a06126c6b23e9b4e21879e/examples/rayleigh_benard_cylinder/rayleigh.f90#L22C1-L38C41).
 
 ```fortran
-
-  subroutine set_material_properties(t, tstep, rho, mu, cp, lambda, params)
+  subroutine set_material_properties(t, tstep, name, properties)
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    real(kind=rp), intent(inout) :: rho, mu, cp, lambda
-    type(json_file), intent(inout) :: params
+    character(len=*), intent(in) :: name
+    type(field_list_t), intent(inout) :: properties
 
-    ! Re and Pr computed in `user_startup`
-
-    mu = 1.0_rp / Re
-    lambda = mu / Pr
-    rho = 1.0_rp
-    cp = 1.0_rp
+    if (name .eq. "fluid") then
+       call field_cfill(properties%get_by_name("rho"), 1.0_rp)
+       call field_cfill(properties%get_by_name("mu"), mu)
+    else if (name .eq. "scalar") then
+       call field_cfill(properties%get_by_name("cp"), 1.0_rp)
+       call field_cfill(properties%get_by_name("lambda"), mu / Pr)
+    end if
   end subroutine set_material_properties
-
 ```
 
 And of course not forgetting to register our function in `user_setup` by adding
@@ -271,10 +270,10 @@ The registering of the above function in `user_setup` should then be done as fol
 ### Scalar boundary conditions {#user-file_scalar-bc}
 
 This user function can be used to specify the scalar boundary values, on all
-boundaries of type `user_pointwise`. 
-See [relevant section of the case file](@ref case-file_scalar). The example 
-below sets the scalar boundary condition values to be a linear function of the 
-`z` coordinate (taken from the 
+boundaries of type `user_pointwise`.
+See [relevant section of the case file](@ref case-file_scalar). The example
+below sets the scalar boundary condition values to be a linear function of the
+`z` coordinate (taken from the
 [rayleigh_benard example](https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/rayleigh_benard_cylinder/rayleigh.f90#L41-L63)).
 
 ```fortran
@@ -307,47 +306,6 @@ registering of the above function in `user_setup` should be done as follows:
 ```fortran
     u%scalar_user_bc => set_scalar_boundary_conditions
 ```
-
-### User defined simulation components {#user-file_simcomps}
-
-In addition to the case-specific user functions, the user can also define their
-own simulation components. This can be done by writing a new type which extends
-the \ref simulation_component_t type, and implementing the necessary functions
-for the new type. The user can then specify the component in the list of
-simulation components in the case file. The setting `is_user` should be set to
-`true` in the JSON object for the new simulation component. The typename is used
-to extract the settings for the simulation component from the JSON file.
-
-```json
-{
-    "type": "my_comp",
-    "is_user": true,
-    // other settings
-}
-```
-```fortran
-  subroutine user_simcomp(params)
-    type(json_file), intent(inout) :: params
-    type(user_simcomp_t), allocatable :: my_simcomp
-    type(json_file) :: simcomp_settings
-
-    ! Allocate a simulation component
-    allocate(my_simcomp)
-    simcomp_settings = simulation_component_user_settings("my_comp", params)
-    call neko_simcomps%add_user_simcomp(my_simcomp, simcomp_settings)
-
-  end subroutine user_simcomp
-```
-
-In the example above, the subroutine `user_simcomp` contains the actual
-implementation, and needs to be registered by adding:
-
-```fortran
-    u%init_user_simcomp => user_simcomp
-```
-
-A full example of a user-defined simulation component can be found in the
-examples.
 
 ## Case-specific user functions
 

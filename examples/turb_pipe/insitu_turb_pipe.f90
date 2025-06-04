@@ -9,12 +9,12 @@ module user
 contains
 
   ! Register user defined functions (see user_intf.f90)
-  subroutine user_setup(u)
-    type(user_t), intent(inout) :: u
-    u%fluid_user_ic => user_ic
-    u%user_check => user_check
-    u%user_init_modules => user_initialize
-    u%user_finalize_modules => user_finalize
+  subroutine user_setup(user)
+    type(user_t), intent(inout) :: user
+    user%fluid_user_ic => user_ic
+    user%user_check => user_check
+    user%user_init_modules => user_initialize
+    user%user_finalize_modules => user_finalize
   end subroutine user_setup
 
   ! User-defined initialization called just before time loop starts

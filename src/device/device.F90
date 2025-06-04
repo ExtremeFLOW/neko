@@ -36,6 +36,7 @@ module device
   use opencl_intf
   use cuda_intf
   use hip_intf
+  use neko_config, only: NEKO_BCKND_DEVICE
   use htable, only : htable_cptr_t, h_cptr_t
   use utils, only : neko_error
   use opencl_prgm_lib
@@ -131,6 +132,13 @@ contains
 #endif
     call device_event_create(glb_cmd_event, 2)
 #endif
+
+    ! Check the device count against the number of MPI ranks
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       if (device_count() .ne. 1) then
+          call neko_error('Only one device is supported per MPI rank')
+       end if
+    end if
   end subroutine device_init
 
   subroutine device_finalize
@@ -179,6 +187,12 @@ contains
     type(c_ptr), intent(inout) :: x_d
     integer(c_size_t) :: s
     integer :: ierr
+
+    if (s .eq. 0) then
+       call device_sync()
+       x_d = c_null_ptr
+       return
+    end if
 #ifdef HAVE_HIP
     if (hipMalloc(x_d, s) .ne. hipSuccess) then
        call neko_error('Memory allocation on device failed')
@@ -233,16 +247,16 @@ contains
 
     select type (x)
     type is (integer)
-       s = n * 4
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
     type is (integer(i8))
-       s = n * 8
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     type is (real)
-       s = n * 4
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
     type is (double precision)
-       s = n * 8
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
@@ -271,16 +285,16 @@ contains
 
     select type (x)
     type is (integer)
-       s = n * 4
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
     type is (integer(i8))
-       s = n * 8
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     type is (real)
-       s = n * 4
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
     type is (double precision)
-       s = n * 8
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
@@ -309,16 +323,16 @@ contains
 
     select type (x)
     type is (integer)
-       s = n * 4
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
     type is (integer(i8))
-       s = n * 8
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     type is (real)
-       s = n * 4
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
     type is (double precision)
-       s = n * 8
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
@@ -347,16 +361,16 @@ contains
 
     select type (x)
     type is (integer)
-       s = n * 4
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
     type is (integer(i8))
-       s = n * 8
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     type is (real)
-       s = n * 4
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
     type is (double precision)
-       s = n * 8
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
@@ -405,20 +419,28 @@ contains
     integer, intent(in), value :: dir
     logical, intent(in) :: sync_device
     type(c_ptr), intent(inout) :: stream
+
+    if (s .eq. 0) then
+       if (sync_device) then
+          call device_sync_stream(stream)
+       end if
+       return
+    end if
+
 #ifdef HAVE_HIP
     if (dir .eq. HOST_TO_DEVICE) then
        if (hipMemcpyAsync(x_d, ptr_h, s, &
-                          hipMemcpyHostToDevice, stream) .ne. hipSuccess) then
+            hipMemcpyHostToDevice, stream) .ne. hipSuccess) then
           call neko_error('Device memcpy async (host-to-device) failed')
        end if
     else if (dir .eq. DEVICE_TO_HOST) then
        if (hipMemcpyAsync(ptr_h, x_d, s, &
-                          hipMemcpyDeviceToHost, stream) .ne. hipSuccess) then
+            hipMemcpyDeviceToHost, stream) .ne. hipSuccess) then
           call neko_error('Device memcpy async (device-to-host) failed')
        end if
     else if (dir .eq. DEVICE_TO_DEVICE) then
        if (hipMemcpyAsync(ptr_h, x_d, s, hipMemcpyDeviceToDevice, stream) &
-           .ne. hipSuccess) then
+            .ne. hipSuccess) then
           call neko_error('Device memcpy async (device-to-device) failed')
        end if
     else
@@ -430,17 +452,17 @@ contains
 #elif HAVE_CUDA
     if (dir .eq. HOST_TO_DEVICE) then
        if (cudaMemcpyAsync(x_d, ptr_h, s, cudaMemcpyHostToDevice, stream) &
-           .ne. cudaSuccess) then
+            .ne. cudaSuccess) then
           call neko_error('Device memcpy async (host-to-device) failed')
        end if
     else if (dir .eq. DEVICE_TO_HOST) then
        if (cudaMemcpyAsync(ptr_h, x_d, s, cudaMemcpyDeviceToHost, stream) &
-           .ne. cudaSuccess) then
+            .ne. cudaSuccess) then
           call neko_error('Device memcpy async (device-to-host) failed')
        end if
     else if (dir .eq. DEVICE_TO_DEVICE) then
        if (cudaMemcpyAsync(ptr_h, x_d, s, cudaMemcpyDeviceToDevice, stream) &
-           .ne. cudaSuccess) then
+            .ne. cudaSuccess) then
           call neko_error('Device memcpy async (device-to-device) failed')
        end if
     else
@@ -453,20 +475,20 @@ contains
     if (sync_device) then
        if (dir .eq. HOST_TO_DEVICE) then
           if (clEnqueueWriteBuffer(stream, x_d, CL_TRUE, 0_i8, s, &
-                                   ptr_h, 0, C_NULL_PTR, C_NULL_PTR) &
-              .ne. CL_SUCCESS) then
+               ptr_h, 0, C_NULL_PTR, C_NULL_PTR) &
+               .ne. CL_SUCCESS) then
              call neko_error('Device memcpy (host-to-device) failed')
           end if
        else if (dir .eq. DEVICE_TO_HOST) then
           if (clEnqueueReadBuffer(stream, x_d, CL_TRUE, 0_i8, s, ptr_h, &
-                                  0, C_NULL_PTR, C_NULL_PTR) &
-              .ne. CL_SUCCESS) then
+               0, C_NULL_PTR, C_NULL_PTR) &
+               .ne. CL_SUCCESS) then
              call neko_error('Device memcpy (device-to-host) failed')
           end if
        else if (dir .eq. DEVICE_TO_DEVICE) then
           if (clEnqueueCopyBuffer(stream, x_d, ptr_h, 0_i8, 0_i8, s, &
-                                  0, C_NULL_PTR, C_NULL_PTR) &
-              .ne. CL_SUCCESS) then
+               0, C_NULL_PTR, C_NULL_PTR) &
+               .ne. CL_SUCCESS) then
              call neko_error('Device memcpy (device-to-device) failed')
           end if
        else
@@ -475,20 +497,20 @@ contains
     else
        if (dir .eq. HOST_TO_DEVICE) then
           if (clEnqueueWriteBuffer(stream, x_d, CL_FALSE, 0_i8, s, &
-                                   ptr_h, 0, C_NULL_PTR, C_NULL_PTR) &
-              .ne. CL_SUCCESS) then
+               ptr_h, 0, C_NULL_PTR, C_NULL_PTR) &
+               .ne. CL_SUCCESS) then
              call neko_error('Device memcpy (host-to-device) failed')
           end if
        else if (dir .eq. DEVICE_TO_HOST) then
           if (clEnqueueReadBuffer(stream, x_d, CL_FALSE, 0_i8, s, ptr_h,&
-                                  0, C_NULL_PTR, C_NULL_PTR) &
-              .ne. CL_SUCCESS) then
+               0, C_NULL_PTR, C_NULL_PTR) &
+               .ne. CL_SUCCESS) then
              call neko_error('Device memcpy (device-to-host) failed')
           end if
        else if (dir .eq. DEVICE_TO_DEVICE) then
           if (clEnqueueCopyBuffer(stream, x_d, ptr_h, 0_i8, 0_i8, s, &
-                                  0, C_NULL_PTR, C_NULL_PTR) &
-              .ne. CL_SUCCESS) then
+               0, C_NULL_PTR, C_NULL_PTR) &
+               .ne. CL_SUCCESS) then
              call neko_error('Device memcpy (device-to-device) failed')
           end if
        else
@@ -707,13 +729,13 @@ contains
 
     select type (x)
     type is (integer)
-       s = n * 4
+       s = n * int(4, c_size_t)
     type is (integer(i8))
-       s = n * 8
+       s = n * int(8, c_size_t)
     type is (real)
-       s = n * 4
+       s = n * int(4, c_size_t)
     type is (double precision)
-       s = n * 8
+       s = n * int(8, c_size_t)
     class default
        call neko_error('Unknown Fortran type')
     end select
@@ -736,13 +758,13 @@ contains
 
     select type (x)
     type is (integer)
-       s = n * 4
+       s = n * int(4, c_size_t)
     type is (integer(i8))
-       s = n * 8
+       s = n * int(8, c_size_t)
     type is (real)
-       s = n * 4
+       s = n * int(4, c_size_t)
     type is (double precision)
-       s = n * 8
+       s = n * int(8, c_size_t)
     class default
        call neko_error('Unknown Fortran type')
     end select
@@ -765,13 +787,13 @@ contains
 
     select type (x)
     type is (integer)
-       s = n * 4
+       s = n * int(4, c_size_t)
     type is (integer(i8))
-       s = n * 8
+       s = n * int(8, c_size_t)
     type is (real)
-       s = n * 4
+       s = n * int(4, c_size_t)
     type is (double precision)
-       s = n * 8
+       s = n * int(8, c_size_t)
     class default
        call neko_error('Unknown Fortran type')
     end select
@@ -794,13 +816,13 @@ contains
 
     select type (x)
     type is (integer)
-       s = n * 4
+       s = n * int(4, c_size_t)
     type is (integer(i8))
-       s = n * 8
+       s = n * int(8, c_size_t)
     type is (real)
-       s = n * 4
+       s = n * int(4, c_size_t)
     type is (double precision)
-       s = n * 8
+       s = n * int(8, c_size_t)
     class default
        call neko_error('Unknown Fortran type')
     end select
