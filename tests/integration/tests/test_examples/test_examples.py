@@ -128,7 +128,7 @@ def manipulate_case(example, case, tmp_path):
     case_object["output_directory"] = str(tmp_path)
 
 
-@pytest.mark.parametrize("example", ["hemi", "rayleigh_benard", "tgv"])
+@pytest.mark.parametrize("example", ["hemi", "rayleigh_benard", "cylinder"])
 #@pytest.mark.parametrize("example", examples.keys())
 def test_example_smoke(example, launcher_script, request, log_file, tmp_path):
     """Run a smoke test for the specified Neko example.
