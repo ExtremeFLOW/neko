@@ -132,11 +132,11 @@ module space
   end type space_t
 
   interface operator(.eq.)
-     module procedure space_eq
+    module procedure space_eq
   end interface operator(.eq.)
 
   interface operator(.ne.)
-     module procedure space_ne
+    module procedure space_ne
   end interface operator(.ne.)
 
   public :: operator(.eq.), operator(.ne.)
