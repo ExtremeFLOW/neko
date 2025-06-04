@@ -519,6 +519,7 @@ contains
     this%facet(0) = msk_c
     if (NEKO_BCKND_DEVICE .eq. 1) then
        !Observe the facet_mask is junk if only_facet is false
+       n = msk_c + 1
        call device_map(this%facet, this%facet_d, n)
        call device_memcpy(this%facet, this%facet_d, n, &
             HOST_TO_DEVICE, sync = .true.)
@@ -568,9 +569,8 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        n = msk_c + 1
        call device_map(this%msk, this%msk_d, n)
-
        call device_memcpy(this%msk, this%msk_d, n, &
-            HOST_TO_DEVICE, sync = .false.)
+            HOST_TO_DEVICE, sync = .true.)
     end if
 
   end subroutine bc_finalize_base
