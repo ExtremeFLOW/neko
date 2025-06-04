@@ -14,10 +14,10 @@ ref2=ref2_${2}.log
 # We look for the 11'th pressure iterations and 3 lines following it.
 # Here we trim the first column, which is the time step number, since that is
 # not relevant for the comparison.
-grep -A3 '11 | Pressure' log1 | sed 's/^[^|]*|/|/' >l1
-grep -A3 ' 6 | Pressure' log2 | sed 's/^[^|]*|/|/' >l2
-grep -A3 '11 | Pressure' $ref1 | sed 's/^[^|]*|/|/' >r1
-grep -A3 ' 6 | Pressure' $ref2 | sed 's/^[^|]*|/|/' >r2
+grep -A3 -E ' 11\s+\| Pressure' log1 | sed 's/^[^|]*|/|/' >l1
+grep -A3 -E '  6\s+\| Pressure' log2 | sed 's/^[^|]*|/|/' >l2
+grep -A3 -E ' 11\s+\| Pressure' $ref1 | sed 's/^[^|]*|/|/' >r1
+grep -A3 -E '  6\s+\| Pressure' $ref2 | sed 's/^[^|]*|/|/' >r2
 
 # Compare that they are identical to what was done before
 diff l1 r1 >res

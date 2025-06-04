@@ -21,34 +21,36 @@ contains
     real(kind=rp), intent(in) :: t, dt
     logical, intent(in) :: strict_convergence
     character(len=LOG_SIZE) :: log_buf
+    character(len=12) :: step_str
     integer :: i
     character(len=40) :: out_format
 
-    out_format = '(I12,A3,A10,2x,I6,3x,E11.4,3x,E11.4)'
+    out_format = '(A12,A3,A10,1x,I6,3x,E15.9,3x,E15.9)'
+    write(step_str, '(I12)') step
+    step_str = adjustl(step_str)
 
-    write(log_buf, '(A12,A3,A10,2x,A6,3x,A11,3x,A11)') &
-         'Step:', ' | ', &
-         'Field:', 'Iters:', &
-         'Start res.:', 'Final res.:'
+    write(log_buf, '((A5,7x),A3,(A5,5x),1x,A6,3x,A15,3x,A15)') &
+         'Step:', ' | ', 'Field:', 'Iters:', &
+         'Start residual:', 'Final residual:'
     call neko_log%message(log_buf)
 
     write(log_buf, out_format) &
-         step, ' | ' , 'Pressure  ' , ksp_results(1)%iter, &
+         step_str, ' | ' , 'Pressure  ' , ksp_results(1)%iter, &
          ksp_results(1)%res_start, ksp_results(1)%res_final
     call neko_log%message(log_buf)
 
     write(log_buf, out_format) &
-         step, ' | ' , 'X-Velocity' , ksp_results(2)%iter, &
+         step_str, ' | ' , 'X-Velocity' , ksp_results(2)%iter, &
          ksp_results(2)%res_start, ksp_results(2)%res_final
     call neko_log%message(log_buf)
 
     write(log_buf, out_format) &
-         step, ' | ' , 'Y-Velocity' , ksp_results(3)%iter, &
+         step_str, ' | ' , 'Y-Velocity' , ksp_results(3)%iter, &
          ksp_results(3)%res_start, ksp_results(3)%res_final
     call neko_log%message(log_buf)
 
     write(log_buf, out_format) &
-         step, ' | ' , 'Z-Velocity' , ksp_results(4)%iter, &
+         step_str, ' | ' , 'Z-Velocity' , ksp_results(4)%iter, &
          ksp_results(4)%res_start, ksp_results(4)%res_final
     call neko_log%message(log_buf)
 
