@@ -4,11 +4,11 @@
  /_/|_/ /___/ /_/|_|  \____/
 
  (version: 0.9.99)
- (build: 2025-06-03 on x86_64-pc-linux-gnu using gnu)
+ (build: 2025-06-04 on x86_64-pc-linux-gnu using gnu)
 
 
  -------Job Information--------
- Start time: 12:39 / 2025-06-03
+ Start time: 08:01 / 2025-06-04
  Running on: 1 MPI rank
  CPU type  : AMD EPYC 7763 64-Core Processor
  Bcknd type: CPU
@@ -25,7 +25,7 @@
   Reading deformation data
   Mesh read, setting up connectivity
   Done setting up mesh and connectivity
-  Mesh and connectivity setup (excluding read) time (s):  0.003314
+  Mesh and connectivity setup (excluding read) time (s):  0.002765
 
   --------Gather-Scatter--------
   Comm         :          MPI
@@ -120,7 +120,7 @@
    --------Writer output---------
    File name     : field.fld
    Output number :     0
-   Writing at time:     0.000000 Output time (s):  0.006446
+   Writing at time:     0.000000 Output time (s):  0.009441
 
  ------------------------------------------------------------------------------
  Step =           1 t =   0.1000000E-01                             [  10.00% ]
@@ -130,12 +130,12 @@
    CFL:  0.4282  dt: 1.0000000E-02
 
    ------------Fluid-------------
-          Step: |     Field:  Iters:   Start res.:   Final res.:
-              1 | Pressure        16    0.5209E+00    0.7402E-03
-              1 | X-Velocity       5    0.2323E+00    0.1319E-07
-              1 | Y-Velocity       5    0.2396E+00    0.3435E-07
-              1 | Z-Velocity       2    0.3865E-04    0.2519E-07
-   Fluid step time (s):     0.2038475E+00
+   Step:        | Field      Iters:   Start residual:   Final residual:
+   1            | Pressure       16   0.520860903E+00   0.740160169E-03
+   1            | X-Velocity      5   0.232322121E+00   0.131941994E-07
+   1            | Y-Velocity      5   0.239595562E+00   0.343456026E-07
+   1            | Z-Velocity      2   0.386482135E-04   0.251879929E-07
+   Fluid step time (s):     0.1650422E+00
 
    --------Postprocessing--------
    Force and torque on zone    7  Cylinder
@@ -148,8 +148,8 @@
          1  0.10000E-01  0.10079E-06  0.39114E-07  0.61673E-07, torquez
 
    ---------Step summary---------
-   Total time for step        1 (s):   0.2075881E+00
-   Total elapsed time (s):             0.2075908E+00
+   Total time for step        1 (s):   0.1685550E+00
+   Total elapsed time (s):             0.1685564E+00
  ------------------------------------------------------------------------------
  Step =           2 t =   0.2000000E-01                             [  20.00% ]
  ------------------------------------------------------------------------------
@@ -158,12 +158,12 @@
    CFL:  0.4326  dt: 1.0000000E-02
 
    ------------Fluid-------------
-          Step: |     Field:  Iters:   Start res.:   Final res.:
-              2 | Pressure        16    0.5844E+00    0.9497E-03
-              2 | X-Velocity       4    0.1209E+00    0.3287E-07
-              2 | Y-Velocity       4    0.1247E+00    0.6375E-07
-              2 | Z-Velocity       2    0.9152E-04    0.3041E-07
-   Fluid step time (s):     0.1442645E+00
+   Step:        | Field      Iters:   Start residual:   Final residual:
+   2            | Pressure       16   0.584373118E+00   0.949675180E-03
+   2            | X-Velocity      4   0.120915185E+00   0.328670171E-07
+   2            | Y-Velocity      4   0.124706063E+00   0.637452133E-07
+   2            | Z-Velocity      2   0.915203558E-04   0.304141674E-07
+   Fluid step time (s):     0.1357674E+00
 
    --------Postprocessing--------
    Force and torque on zone    7  Cylinder
@@ -176,8 +176,8 @@
          2  0.20000E-01  0.39674E-06  0.54455E-07  0.34229E-06, torquez
 
    ---------Step summary---------
-   Total time for step        2 (s):   0.1481795E+00
-   Total elapsed time (s):             0.3557932E+00
+   Total time for step        2 (s):   0.1392555E+00
+   Total elapsed time (s):             0.3078416E+00
  ------------------------------------------------------------------------------
  Step =           3 t =   0.3000000E-01                             [  30.00% ]
  ------------------------------------------------------------------------------
@@ -186,12 +186,12 @@
    CFL:  0.4723  dt: 1.0000000E-02
 
    ------------Fluid-------------
-          Step: |     Field:  Iters:   Start res.:   Final res.:
-              3 | Pressure        15    0.4957E+00    0.9914E-03
-              3 | X-Velocity       4    0.5349E-01    0.8249E-08
-              3 | Y-Velocity       4    0.3156E-01    0.5894E-08
-              3 | Z-Velocity       2    0.6959E-04    0.3397E-07
-   Fluid step time (s):     0.1351892E+00
+   Step:        | Field      Iters:   Start residual:   Final residual:
+   3            | Pressure       15   0.495706838E+00   0.991374523E-03
+   3            | X-Velocity      4   0.534923352E-01   0.824898697E-08
+   3            | Y-Velocity      4   0.315648653E-01   0.589430494E-08
+   3            | Z-Velocity      2   0.695904450E-04   0.339654061E-07
+   Fluid step time (s):     0.1289302E+00
 
    --------Postprocessing--------
    Force and torque on zone    7  Cylinder
@@ -204,8 +204,8 @@
          3  0.30000E-01  0.66198E-06  0.77178E-07  0.58480E-06, torquez
 
    ---------Step summary---------
-   Total time for step        3 (s):   0.1388279E+00
-   Total elapsed time (s):             0.4946628E+00
+   Total time for step        3 (s):   0.1323497E+00
+   Total elapsed time (s):             0.4402260E+00
  ------------------------------------------------------------------------------
  Step =           4 t =   0.4000000E-01                             [  40.00% ]
  ------------------------------------------------------------------------------
@@ -214,12 +214,12 @@
    CFL:  0.4584  dt: 1.0000000E-02
 
    ------------Fluid-------------
-          Step: |     Field:  Iters:   Start res.:   Final res.:
-              4 | Pressure        15    0.5056E+00    0.8956E-03
-              4 | X-Velocity       4    0.2002E-01    0.3377E-08
-              4 | Y-Velocity       4    0.1013E-01    0.2310E-08
-              4 | Z-Velocity       2    0.8058E-04    0.3750E-07
-   Fluid step time (s):     0.1355806E+00
+   Step:        | Field      Iters:   Start residual:   Final residual:
+   4            | Pressure       15   0.505620970E+00   0.895591897E-03
+   4            | X-Velocity      4   0.200218131E-01   0.337689226E-08
+   4            | Y-Velocity      4   0.101341661E-01   0.231040159E-08
+   4            | Z-Velocity      2   0.805823694E-04   0.374979840E-07
+   Fluid step time (s):     0.1300990E+00
 
    --------Postprocessing--------
    Force and torque on zone    7  Cylinder
@@ -232,8 +232,8 @@
          4  0.40000E-01  0.15385E-06 -0.47194E-07  0.20105E-06, torquez
 
    ---------Step summary---------
-   Total time for step        4 (s):   0.1392439E+00
-   Total elapsed time (s):             0.6339528E+00
+   Total time for step        4 (s):   0.1334861E+00
+   Total elapsed time (s):             0.5737534E+00
  ------------------------------------------------------------------------------
  Step =           5 t =   0.5000000E-01                             [  50.00% ]
  ------------------------------------------------------------------------------
@@ -242,12 +242,12 @@
    CFL:  0.4583  dt: 1.0000000E-02
 
    ------------Fluid-------------
-          Step: |     Field:  Iters:   Start res.:   Final res.:
-              5 | Pressure        13    0.1492E+00    0.7877E-03
-              5 | X-Velocity       4    0.1494E-01    0.1823E-08
-              5 | Y-Velocity       4    0.1039E-01    0.2139E-08
-              5 | Z-Velocity       2    0.6036E-04    0.2458E-07
-   Fluid step time (s):     0.1218401E+00
+   Step:        | Field      Iters:   Start residual:   Final residual:
+   5            | Pressure       13   0.149244768E+00   0.787716903E-03
+   5            | X-Velocity      4   0.149426772E-01   0.182325875E-08
+   5            | Y-Velocity      4   0.103860376E-01   0.213910730E-08
+   5            | Z-Velocity      2   0.603555201E-04   0.245770271E-07
+   Fluid step time (s):     0.1213616E+00
 
    --------Postprocessing--------
    Force and torque on zone    7  Cylinder
@@ -264,11 +264,11 @@
     Output number :     1
     File name     : fluid.chkp
     Output number :     1
-    Writing at time:     0.050000 Output time (s):  0.010232
+    Writing at time:     0.050000 Output time (s):  0.009745
 
    ---------Step summary---------
-   Total time for step        5 (s):   0.1357342E+00
-   Total elapsed time (s):             0.7697079E+00
+   Total time for step        5 (s):   0.1346732E+00
+   Total elapsed time (s):             0.7084631E+00
  ------------------------------------------------------------------------------
  Step =           6 t =   0.6000000E-01                             [  60.00% ]
  ------------------------------------------------------------------------------
@@ -277,12 +277,12 @@
    CFL:  0.4589  dt: 1.0000000E-02
 
    ------------Fluid-------------
-          Step: |     Field:  Iters:   Start res.:   Final res.:
-              6 | Pressure         8    0.3043E-01    0.9228E-03
-              6 | X-Velocity       3    0.1092E-01    0.8281E-07
-              6 | Y-Velocity       3    0.6731E-02    0.8003E-07
-              6 | Z-Velocity       2    0.3973E-04    0.1190E-07
-   Fluid step time (s):     0.8650267E-01
+   Step:        | Field      Iters:   Start residual:   Final residual:
+   6            | Pressure        8   0.304308620E-01   0.922765378E-03
+   6            | X-Velocity      3   0.109236059E-01   0.828055410E-07
+   6            | Y-Velocity      3   0.673113164E-02   0.800325420E-07
+   6            | Z-Velocity      2   0.397262818E-04   0.118999358E-07
+   Fluid step time (s):     0.8333593E-01
 
    --------Postprocessing--------
    Force and torque on zone    7  Cylinder
@@ -295,8 +295,8 @@
          6  0.60000E-01  0.10063E-06  0.12801E-07  0.87832E-07, torquez
 
    ---------Step summary---------
-   Total time for step        6 (s):   0.9004859E-01
-   Total elapsed time (s):             0.8597999E+00
+   Total time for step        6 (s):   0.8675352E-01
+   Total elapsed time (s):             0.7952622E+00
  ------------------------------------------------------------------------------
  Step =           7 t =   0.7000000E-01                             [  70.00% ]
  ------------------------------------------------------------------------------
@@ -305,12 +305,12 @@
    CFL:  0.4580  dt: 1.0000000E-02
 
    ------------Fluid-------------
-          Step: |     Field:  Iters:   Start res.:   Final res.:
-              7 | Pressure         9    0.2200E-01    0.8258E-03
-              7 | X-Velocity       3    0.8987E-02    0.7460E-07
-              7 | Y-Velocity       3    0.6173E-02    0.7185E-07
-              7 | Z-Velocity       2    0.3653E-04    0.1866E-07
-   Fluid step time (s):     0.9233886E-01
+   Step:        | Field      Iters:   Start residual:   Final residual:
+   7            | Pressure        9   0.220014904E-01   0.825832662E-03
+   7            | X-Velocity      3   0.898670293E-02   0.745984090E-07
+   7            | Y-Velocity      3   0.617283227E-02   0.718527828E-07
+   7            | Z-Velocity      2   0.365344993E-04   0.186559277E-07
+   Fluid step time (s):     0.8923506E-01
 
    --------Postprocessing--------
    Force and torque on zone    7  Cylinder
@@ -323,8 +323,8 @@
          7  0.70000E-01 -0.34877E-06 -0.64225E-07 -0.28455E-06, torquez
 
    ---------Step summary---------
-   Total time for step        7 (s):   0.9594487E-01
-   Total elapsed time (s):             0.9557689E+00
+   Total time for step        7 (s):   0.9265910E-01
+   Total elapsed time (s):             0.8879587E+00
  ------------------------------------------------------------------------------
  Step =           8 t =   0.8000000E-01                             [  80.00% ]
  ------------------------------------------------------------------------------
@@ -333,12 +333,12 @@
    CFL:  0.4573  dt: 1.0000000E-02
 
    ------------Fluid-------------
-          Step: |     Field:  Iters:   Start res.:   Final res.:
-              8 | Pressure         7    0.1392E-01    0.7679E-03
-              8 | X-Velocity       3    0.7838E-02    0.6765E-07
-              8 | Y-Velocity       3    0.5904E-02    0.6759E-07
-              8 | Z-Velocity       2    0.2328E-04    0.7189E-08
-   Fluid step time (s):     0.8119653E-01
+   Step:        | Field      Iters:   Start residual:   Final residual:
+   8            | Pressure        7   0.139208628E-01   0.767942470E-03
+   8            | X-Velocity      3   0.783843878E-02   0.676535658E-07
+   8            | Y-Velocity      3   0.590446642E-02   0.675930216E-07
+   8            | Z-Velocity      2   0.232832892E-04   0.718851441E-08
+   Fluid step time (s):     0.7746314E-01
 
    --------Postprocessing--------
    Force and torque on zone    7  Cylinder
@@ -351,8 +351,8 @@
          8  0.80000E-01 -0.32550E-06 -0.27570E-07 -0.29793E-06, torquez
 
    ---------Step summary---------
-   Total time for step        8 (s):   0.8478324E-01
-   Total elapsed time (s):             0.1040574E+01
+   Total time for step        8 (s):   0.8083491E-01
+   Total elapsed time (s):             0.9688323E+00
  ------------------------------------------------------------------------------
  Step =           9 t =   0.9000000E-01                             [  90.00% ]
  ------------------------------------------------------------------------------
@@ -361,12 +361,12 @@
    CFL:  0.4567  dt: 1.0000000E-02
 
    ------------Fluid-------------
-          Step: |     Field:  Iters:   Start res.:   Final res.:
-              9 | Pressure         6    0.1115E-01    0.9396E-03
-              9 | X-Velocity       3    0.7059E-02    0.6106E-07
-              9 | Y-Velocity       3    0.5718E-02    0.6455E-07
-              9 | Z-Velocity       2    0.1769E-04    0.5218E-08
-   Fluid step time (s):     0.7681492E-01
+   Step:        | Field      Iters:   Start residual:   Final residual:
+   9            | Pressure        6   0.111522302E-01   0.939553256E-03
+   9            | X-Velocity      3   0.705855219E-02   0.610645988E-07
+   9            | Y-Velocity      3   0.571834933E-02   0.645492509E-07
+   9            | Z-Velocity      2   0.176908418E-04   0.521841520E-08
+   Fluid step time (s):     0.7173728E-01
 
    --------Postprocessing--------
    Force and torque on zone    7  Cylinder
@@ -379,8 +379,8 @@
          9  0.90000E-01 -0.44256E-07  0.38559E-07 -0.82815E-07, torquez
 
    ---------Step summary---------
-   Total time for step        9 (s):   0.8031674E-01
-   Total elapsed time (s):             0.1120924E+01
+   Total time for step        9 (s):   0.7506367E-01
+   Total elapsed time (s):             0.1043935E+01
  ------------------------------------------------------------------------------
  Step =          10 t =   0.1000000E+00                             [ 100.00% ]
  ------------------------------------------------------------------------------
@@ -389,12 +389,12 @@
    CFL:  0.4561  dt: 1.0000000E-02
 
    ------------Fluid-------------
-          Step: |     Field:  Iters:   Start res.:   Final res.:
-             10 | Pressure         6    0.9582E-02    0.8153E-03
-             10 | X-Velocity       3    0.6471E-02    0.5502E-07
-             10 | Y-Velocity       3    0.5563E-02    0.6210E-07
-             10 | Z-Velocity       2    0.8202E-05    0.1800E-08
-   Fluid step time (s):     0.7662205E-01
+   Step:        | Field      Iters:   Start residual:   Final residual:
+   10           | Pressure        6   0.958246659E-02   0.815321870E-03
+   10           | X-Velocity      3   0.647097983E-02   0.550186582E-07
+   10           | Y-Velocity      3   0.556280114E-02   0.621035705E-07
+   10           | Z-Velocity      2   0.820168774E-05   0.179987238E-08
+   Fluid step time (s):     0.7209425E-01
 
    --------Postprocessing--------
    Force and torque on zone    7  Cylinder
@@ -411,11 +411,11 @@
     Output number :     2
     File name     : fluid.chkp
     Output number :     2
-    Writing at time:     0.100000 Output time (s):  0.009475
+    Writing at time:     0.100000 Output time (s):  0.008981
 
    ---------Step summary---------
-   Total time for step       10 (s):   0.9011071E-01
-   Total elapsed time (s):             0.1211076E+01
+   Total time for step       10 (s):   0.8444418E-01
+   Total elapsed time (s):             0.1128417E+01
  ------------------------------------------------------------------------------
  Step =          11 t =   0.1100000E+00                             [ 110.00% ]
  ------------------------------------------------------------------------------
@@ -424,12 +424,12 @@
    CFL:  0.4555  dt: 1.0000000E-02
 
    ------------Fluid-------------
-          Step: |     Field:  Iters:   Start res.:   Final res.:
-             11 | Pressure         5    0.8424E-02    0.8711E-03
-             11 | X-Velocity       3    0.6016E-02    0.4978E-07
-             11 | Y-Velocity       3    0.5447E-02    0.6005E-07
-             11 | Z-Velocity       2    0.1675E-04    0.2654E-08
-   Fluid step time (s):     0.6963524E-01
+   Step:        | Field      Iters:   Start residual:   Final residual:
+   11           | Pressure        5   0.842387048E-02   0.871069692E-03
+   11           | X-Velocity      3   0.601593394E-02   0.497842966E-07
+   11           | Y-Velocity      3   0.544708195E-02   0.600543786E-07
+   11           | Z-Velocity      2   0.167460487E-04   0.265406809E-08
+   Fluid step time (s):     0.6631218E-01
 
    --------Postprocessing--------
    Force and torque on zone    7  Cylinder
@@ -442,13 +442,13 @@
         11  0.11000E+00 -0.17386E-06 -0.29434E-07 -0.14443E-06, torquez
 
    ---------Step summary---------
-   Total time for step       11 (s):   0.7332176E-01
-   Total elapsed time (s):             0.1284455E+01
+   Total time for step       11 (s):   0.6997502E-01
+   Total elapsed time (s):             0.1198441E+01
 
   --------Writer output---------
   File name     : field.fld
   Output number :     3
   File name     : fluid.chkp
   Output number :     3
-  Writing at time:     0.110000 Output time (s):  0.009305
+  Writing at time:     0.110000 Output time (s):  0.009218
  Normal end.
