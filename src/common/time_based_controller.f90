@@ -151,7 +151,6 @@ contains
     dt = time%dt
     tstep = time%tstep
 
-
     if (present(force)) then
        ifforce = force
     else

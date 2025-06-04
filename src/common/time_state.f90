@@ -62,21 +62,6 @@ module time_state
 
 contains
 
-  !> Initialize time state
-  subroutine time_state_init_from_components(this, start_time, end_time, step)
-    class(time_state_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: start_time
-    real(kind=rp), intent(in) :: end_time
-    real(kind=rp), intent(in) :: step
-
-    this%start_time = start_time
-    this%end_time = end_time
-    this%dt = step
-
-    this%t = start_time
-
-  end subroutine time_state_init_from_components
-
   !> Initialize time state from JSON
   subroutine time_state_init_from_json(this, params)
     class(time_state_t), intent(inout) :: this
@@ -87,6 +72,8 @@ contains
     real(kind=rp) :: end_time
     logical :: is_variable
 
+    call json_get_or_default(params, 'start_time', start_time, 0.0_rp)
+    call json_get(params, 'end_time', end_time)
     call json_get_or_default(params, 'variable_timestep', is_variable, .false.)
     if (.not. is_variable) then
        call json_get(params, 'timestep', time_step)
@@ -95,12 +82,27 @@ contains
        time_step = 1.0_rp
     end if
 
-    call json_get_or_default(params, 'start_time', start_time, 0.0_rp)
-    call json_get(params, 'end_time', end_time)
-
     call this%init_from_components(start_time, end_time, time_step)
 
   end subroutine time_state_init_from_json
+
+  !> Initialize time state
+  subroutine time_state_init_from_components(this, start_time, end_time, dt)
+    class(time_state_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: start_time
+    real(kind=rp), intent(in) :: end_time
+    real(kind=rp), intent(in) :: dt
+
+    this%start_time = start_time
+    this%end_time = end_time
+    this%dt = dt
+
+    this%t = start_time
+    this%tstep = 0
+    this%tlag = start_time
+    this%dtlag = dt
+
+  end subroutine time_state_init_from_components
 
   !> Reset time state
   subroutine time_state_reset(this)
@@ -108,8 +110,8 @@ contains
 
     this%t = this%start_time
     this%tstep = 0
-    this%dtlag = 0.0_rp
-    this%tlag = 0.0_rp
+    this%tlag = this%start_time
+    this%dtlag = this%dt
 
   end subroutine time_state_reset
 
