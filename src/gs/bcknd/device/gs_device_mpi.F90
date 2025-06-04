@@ -251,8 +251,10 @@ contains
           end do
        end select
     end do
-
-    call device_memcpy(dofs, this%dof_d, total, HOST_TO_DEVICE, sync=.false.)
+    call device_memcpy(dofs, this%dof_d, total, HOST_TO_DEVICE, sync=.true.)
+    ! Syncing here prevents the memory in dofs to accidently be corrupted
+    ! while this memcpy is happening.
+    ! This might be happening in many other places as well. Karp 4/6-25
 
     deallocate(dofs)
     call doftable%free()
