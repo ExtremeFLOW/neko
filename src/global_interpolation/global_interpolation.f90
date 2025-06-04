@@ -181,7 +181,7 @@ contains
   !! @param dof Dofmap on which the interpolation is to be carried out.
   !! @param tol Tolerance for Newton iterations.
   subroutine global_interpolation_init_dof(this, dof, comm, tol, pad)
-    class(global_interpolation_t), intent(inout) :: this
+    class(global_interpolation_t), target, intent(inout) :: this
     type(dofmap_t) :: dof
     type(MPI_COMM), optional, intent(in) :: comm
     real(kind=rp), optional :: tol
@@ -219,7 +219,7 @@ contains
   !! @param pad Padding of the bounding boxes.
   subroutine global_interpolation_init_xyz(this, x, y, z, gdim, nelv, Xh, &
        comm, tol, pad)
-    class(global_interpolation_t), intent(inout) :: this
+    class(global_interpolation_t), target, intent(inout) :: this
     real(kind=rp), intent(in) :: x(:)
     real(kind=rp), intent(in) :: y(:)
     real(kind=rp), intent(in) :: z(:)
@@ -363,7 +363,7 @@ contains
 
   !> Destructor
   subroutine global_interpolation_free(this)
-    class(global_interpolation_t), intent(inout) :: this
+    class(global_interpolation_t), target, intent(inout) :: this
     integer :: i
 
     call this%x%free()
@@ -407,7 +407,7 @@ contains
 
   !> Destructor for point arrays
   subroutine global_interpolation_free_points(this)
-    class(global_interpolation_t), intent(inout) :: this
+    class(global_interpolation_t), target, intent(inout) :: this
 
     this%n_points = 0
     this%all_points_local = .false.
@@ -428,7 +428,7 @@ contains
 
 
   subroutine global_interpolation_free_points_local(this)
-    class(global_interpolation_t), intent(inout) :: this
+    class(global_interpolation_t), target, intent(inout) :: this
 
     this%n_points_local = 0
     this%all_points_local = .false.
@@ -446,7 +446,7 @@ contains
 
   !> Common routine for finding the points.
   subroutine global_interpolation_find_common(this)
-    class(global_interpolation_t), intent(inout) :: this
+    class(global_interpolation_t), target, intent(inout) :: this
     character(len=8000) :: log_buf
     type(vector_t) :: x_t
     type(vector_t) :: y_t
@@ -458,7 +458,7 @@ contains
     type(c_ptr) :: el_cands_d = c_null_ptr
     type(matrix_t) :: res
     integer :: i, j, stupid_intent
-    type(stack_i4_t) :: all_el_candidates
+    type(stack_i4_t), target :: all_el_candidates
     integer, allocatable :: n_el_cands(:)
     integer, pointer :: pe_cands(:) => Null()
     integer, pointer :: el_cands(:) => Null()
@@ -570,6 +570,7 @@ contains
 
 
     n_point_cand = all_el_candidates%size()
+    print *, 'n_point_cands', n_point_cand, this%pe_rank
     if (n_point_cand .gt. 1e8) then
        print *,'Warning, many point candidates on rank', this%pe_rank,'cands:', n_point_cand, &
             'Consider increasing number of ranks'
@@ -888,7 +889,7 @@ contains
   !! This is used to check that the points are valid and that the interpolation
   !! is correct. It checks that the points are within the tolerance.
   subroutine global_interpolation_check_points(this, x, y, z)
-    class(global_interpolation_t), intent(inout) :: this
+    class(global_interpolation_t), target, intent(inout) :: this
     real(kind=rp), intent(inout) :: x(:)
     real(kind=rp), intent(inout) :: y(:)
     real(kind=rp), intent(inout) :: z(:)
@@ -1101,11 +1102,13 @@ contains
   !! @param field Array of values used for interpolation.
   !! @param on_host If interpolation should be carried out on the host
   subroutine global_interpolation_evaluate(this, interp_values, field, on_host)
-    class(global_interpolation_t), intent(inout) :: this
-    real(kind=rp), intent(inout) :: interp_values(this%n_points)
-    real(kind=rp), intent(inout) :: field(this%nelv*this%Xh%lxyz)
+    class(global_interpolation_t), target, intent(inout) :: this
+    real(kind=rp), intent(inout), target :: interp_values(this%n_points)
+    real(kind=rp), intent(inout), target :: field(this%nelv*this%Xh%lxyz)
     logical, intent(in) :: on_host
     type(c_ptr) :: interp_d
+
+    print *, 'global_interp eval', this%n_points, this%n_points_local, this%pe_rank
 
     if (.not. this%all_points_local) then
        call this%local_interp%evaluate(this%temp_local%x, this%el_owner0_local, &
