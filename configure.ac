@@ -86,8 +86,6 @@ fi
 AC_FC_PP_SRCEXT([F90])
 AX_COMPILER_VENDOR
 
-
-
 # Checks for platform headers
 AC_LANG_PUSH([C])
 AC_CHECK_HEADERS([cpuid.h])
