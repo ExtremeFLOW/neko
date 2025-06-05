@@ -259,7 +259,7 @@ contains
        call neko_error('Device memset async failed')
     end if
 #elif HAVE_OPENCL
-    if (clEnqueueFillBuffer(strm, x_d, c_loc(v), s, c_sizeof(v), 0, &
+    if (clEnqueueFillBuffer(strm, x_d, c_loc(v), c_sizeof(v), 0, &
          s, 0, C_NULL_PTR, C_NULL_PTR) .ne. CL_SUCCESS) then
        call neko_error('Device memset async failed')
     end if
