@@ -199,7 +199,7 @@ module opencl_intf
   interface
      integer(c_int) function clEnqueueWriteBuffer(queue, buffer, &
           blocking_write, offset, size, ptr, num_events_in_wait_list, &
-          event_wait_list, event)  bind(c, name = 'clEnqueueWriteBuffer')
+          event_wait_list, event) bind(c, name = 'clEnqueueWriteBuffer')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: queue
@@ -234,7 +234,7 @@ module opencl_intf
 
   interface
      integer(c_int) function clEnqueueFillBuffer(queue, buffer, &
-          pattern, pattern_size, offset, size,  num_events_in_wait_list, &
+          pattern, pattern_size, offset, size, num_events_in_wait_list, &
           event_wait_list, event) bind(c, name = 'clEnqueueFillBuffer')
        use, intrinsic :: iso_c_binding
        implicit none
@@ -244,7 +244,7 @@ module opencl_intf
        integer(c_size_t), value :: pattern_size
        integer(c_size_t), value :: offset,
        integer(c_size_t), value :: size,
-              integer(c_int), value :: num_events_in_wait_list
+       integer(c_int), value :: num_events_in_wait_list
        type(c_ptr), value :: event_wait_list
        type(c_ptr), value :: event
      end function clEnqueueFillBuffer
@@ -273,7 +273,7 @@ module opencl_intf
      end function clEnqueueMarker
   end interface
 
-    interface
+  interface
      integer(c_int) function clEnqueueBarrier(cmd_queue) &
           bind(c, name = 'clEnqueueBarrier')
        use, intrinsic :: iso_c_binding
