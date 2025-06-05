@@ -178,7 +178,7 @@ contains
     call json_get_or_default(hsmg_params, 'coarse_grid.cycles', &
          crs_tamg_cycles, 1)
 
-    call json_get_or_Default(hsmg_params, 'coarse_grid.cheby_degree', &
+    call json_get_or_default(hsmg_params, 'coarse_grid.cheby_degree', &
          crs_tamg_cheby_degree, 5)
 
     call this%init_from_components(coef, bclst, crs_solver, crs_pc, &
