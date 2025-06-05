@@ -242,8 +242,8 @@ module opencl_intf
        type(c_ptr), value :: buffer
        type(c_ptr), value :: pattern
        integer(c_size_t), value :: pattern_size
-       integer(c_size_t), value :: offset,
-       integer(c_size_t), value :: size,
+       integer(c_size_t), value :: offset
+       integer(c_size_t), value :: size
        integer(c_int), value :: num_events_in_wait_list
        type(c_ptr), value :: event_wait_list
        type(c_ptr), value :: event
