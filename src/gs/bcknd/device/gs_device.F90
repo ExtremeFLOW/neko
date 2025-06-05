@@ -36,6 +36,7 @@ module gs_device
   use num_types
   use gs_bcknd
   use device
+  use device_math, only : device_rzero
   use gs_ops
   use utils
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int, C_NULL_PTR, &
@@ -256,6 +257,9 @@ contains
 
          if (.not. c_associated(v_d)) then
             call device_map(v, v_d, m)
+            call device_rzero(v_d, m)
+            !Since gs might be in another stream we need the sync
+            call device_sync()
          end if
 
          if (.not. c_associated(dg_d)) then
@@ -308,6 +312,9 @@ contains
 
          if (.not. c_associated(v_d)) then
             call device_map(v, v_d, m)
+            call device_rzero(v_d, m)
+            !Since gs might be in another stream we need the sync
+            call device_sync()
          end if
 
          if (.not. c_associated(dg_d)) then
