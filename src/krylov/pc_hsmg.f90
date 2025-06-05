@@ -434,7 +434,7 @@ contains
        r_d = device_get_ptr(r)
        !We should not work with the input
        call device_copy(this%r_d, r_d, n)
-       call this%bclst_reg%apply_scalar(r, n)
+       call this%bclst_reg%apply_scalar(this%r, n)
 
        !OVERLAPPING Schwarz exchange and solve
        !! DOWNWARD Leg of V-cycle, we are pretty hardcoded here but w/e
@@ -446,8 +446,9 @@ contains
        call this%grids(2)%gs_h%op(this%e%x, &
             this%grids(2)%dof%size(), GS_OP_ADD, this%gs_event)
        call device_event_sync(this%gs_event)
+       !This shoudl probably be double checked again
        call device_copy(this%r_d, r_d, n)
-       call this%bclst_reg%apply_scalar(r, n)
+       call this%bclst_reg%apply_scalar(this%r, n)
        call device_copy(this%w_d, this%e%x_d, this%grids(2)%dof%size())
        call this%bclst_mg%apply_scalar(this%w, this%grids(2)%dof%size())
        !OVERLAPPING Schwarz exchange and solve
@@ -456,9 +457,8 @@ contains
        !restrict residual to crs
        call this%interp_mid_crs%map(this%wf%x, this%w, this%msh%nelv, &
             this%grids(1)%Xh)
-       !Crs solve
-       call device_copy(this%w_d, this%e%x_d, this%grids(2)%dof%size())
-       call this%bclst_mg%apply_scalar(this%w, this%grids(2)%dof%size())
+       call this%grids(1)%bclst%apply_scalar(this%wf%x, &
+            this%grids(1)%dof%size())
 
        !$omp parallel private(thrdid, nthrds)
 
