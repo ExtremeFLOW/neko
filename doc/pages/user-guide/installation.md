@@ -162,6 +162,8 @@ Optional packages are controlled by passing either `--with-PACKAGE[=ARG]` or `--
 | `--with-opencl=DIR`             | Compile with OpenCL backend                   |
 | `--with-nvtx=DIR`               | Compile with support for NVTX                 |
 | `--with-roctx=DIR`              | Compile with support for ROCTX                |
+| `--with-nccl=DIR`               | Compiler with support for NCCL                |
+| `--with-rccl=DIR`               | Compiler with support for RCCL                |
 | `--with-hdf5`                   | Compile with support for HDF5                 |
 | `--with-pfunit=DIR`             | Directory for pFUnit (see \subpage testing)   |
 
@@ -204,6 +206,13 @@ $ ./configure  --with-hip=/opt/rocm/hip HIP_HIPCC_FLAGS=-O3  HIPCC=/opt/rocm/hip
 ```
 
 @note More examples, and instructions for specific machines can be found on Neko's [user discussions](https://github.com/ExtremeFLOW/neko/discussions) pages.
+
+#### Compiling Neko with a collective communications library
+To compile Neko to use a collective communcations library on GPUs
+* Configure Neko to use NCCL (on NVIDIA GPUs) using the `--with-nccl=/path/to/nccl` argument to `configure`
+* Configure Neko to use RCCL (on AMD GPUs) using the `--with-rccl=/path/to/rccl` argument to `configure`
+
+@note This will change all collective communications (reductions etc) during a simulation step to use NCCL/RCCL, while gather-scatter operations still uses MPI.
 
 ## Installing via Spack
 Neko is distributed as part of the package manager Spack as `neko`. The package can install releases of Neko as well as the latest commit to the `develop` branch, for most of Neko's supported backends. For a list of all supported variants, see `spack info neko`
