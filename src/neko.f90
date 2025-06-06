@@ -232,9 +232,6 @@ contains
     type(time_step_controller_t) :: dt_controller
     type(json_file) :: dt_params
     real(kind=dp) :: tstep_loop_start_time
-    character(len=LOG_SIZE) :: log_buf
-    real(kind=rp) :: cfl
-    logical :: output_at_end
 
     call json_extract_object(C%params, 'case.time', dt_params)
     call dt_controller%init(dt_params)
@@ -244,7 +241,7 @@ contains
     call profiler_start
     tstep_loop_start_time = MPI_WTIME()
 
-    do while (C%time%t .lt. C%time%end_time .and. (.not. jobctrl_time_limit()))
+    do while (.not. C%time%is_done() .and. (.not. jobctrl_time_limit()))
        call simulation_step(C, dt_controller, tstep_loop_start_time)
     end do
     call profiler_stop

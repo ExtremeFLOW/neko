@@ -58,6 +58,7 @@ module time_state
      procedure, pass(this) :: init_from_json => time_state_init_from_json
      procedure, pass(this) :: reset => time_state_reset
      procedure, pass(this) :: status => time_state_status
+     procedure, pass(this) :: is_done => time_state_is_done
   end type time_state_t
 
 contains
@@ -92,6 +93,11 @@ contains
     real(kind=rp), intent(in) :: start_time
     real(kind=rp), intent(in) :: end_time
     real(kind=rp), intent(in) :: dt
+
+    if (dt .gt. 0.0_rp .and. start_time .gt. end_time .or. &
+         dt .lt. 0.0_rp .and. start_time .lt. end_time) then
+       call neko_log%error('Time step size must match direction of time.')
+    end if
 
     this%start_time = start_time
     this%end_time = end_time
@@ -135,5 +141,14 @@ contains
     call neko_log%message(repeat('-', LOG_SIZE - 1))
 
   end subroutine time_state_status
+
+  !> Check if the simulation is done
+  pure function time_state_is_done(this) result(is_done)
+    class(time_state_t), intent(in) :: this
+    logical :: is_done
+
+    is_done = (this%t - this%start_time .ge. this%end_time - this%start_time)
+
+  end function time_state_is_done
 
 end module time_state
