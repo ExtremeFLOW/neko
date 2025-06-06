@@ -128,7 +128,7 @@ contains
     start_time = MPI_WTIME()
     tstep_start_time = start_time
 
-    ! Compute the next time step
+    ! Compute the next time step size
     cfl = C%fluid%compute_cfl(C%time%dt)
     call dt_controller%set_dt(C%time, cfl)
     if (dt_controller%is_variable_dt) cfl = C%fluid%compute_cfl(C%time%dt)
@@ -139,9 +139,6 @@ contains
     call neko_log%begin()
 
     call neko_log%section('Preprocessing')
-
-    ! Calculate the cfl after the possibly varied dt
-    cfl = C%fluid%compute_cfl(C%time%dt)
 
     write(log_buf, "(A,F8.4,2x,A,1P,E14.7)") 'CFL:', cfl, 'dt:', C%time%dt
     call neko_log%message(log_buf)
