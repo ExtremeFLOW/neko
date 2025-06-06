@@ -108,16 +108,14 @@ module hip_intf
        integer(c_int), value :: dir
      end function hipMemcpyAsync
 
-     interface
-        integer(c_int) function hipMemsetAsync(ptr, v, s, stream) &
-             bind(c, name = 'hipMemsetAsync')
-          use, intrinsic :: iso_c_binding
-          implicit none
-          type(c_ptr), value :: ptr, stream
-          integer(c_int), value :: v
-          integer(c_size_t), value :: s
-        end function hipMemsetAsync
-     end interface
+     integer(c_int) function hipMemsetAsync(ptr, v, s, stream) &
+          bind(c, name = 'hipMemsetAsync')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: ptr, stream
+       integer(c_int), value :: v
+       integer(c_size_t), value :: s
+     end function hipMemsetAsync
 
      integer(c_int) function hipDeviceSynchronize() &
           bind(c, name = 'hipDeviceSynchronize')
