@@ -13,7 +13,7 @@ module rhs_maker_cpu
      procedure, nopass :: compute_fluid => rhs_maker_sumab_cpu
   end type rhs_maker_sumab_cpu_t
 
-  type, public, extends(rhs_maker_ext_t) ::  rhs_maker_ext_cpu_t
+  type, public, extends(rhs_maker_ext_t) :: rhs_maker_ext_cpu_t
    contains
      procedure, nopass :: compute_fluid => rhs_maker_ext_cpu
      procedure, nopass :: compute_scalar => scalar_rhs_maker_ext_cpu
