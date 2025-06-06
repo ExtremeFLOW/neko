@@ -147,7 +147,8 @@ contains
     class(time_state_t), intent(in) :: this
     logical :: is_done
 
-    is_done = (this%t - this%start_time .ge. this%end_time - this%start_time)
+    is_done = this%t - this%start_time .ge. this%end_time - this%start_time &
+         .and. this%tstep .gt. 0
 
   end function time_state_is_done
 
