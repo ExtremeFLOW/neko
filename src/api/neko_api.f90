@@ -233,11 +233,11 @@ contains
           step_loop_start = MPI_Wtime()
        end if
 
-       if (C%time%t .lt. C%time%end_time) then
+       if (.not. C%time%is_done()) then
           call simulation_step(C, dt_controller, step_loop_start)
        end if
 
-       if (C%time%t .ge. C%time%end_time) then
+       if (C%time%is_done()) then
           call simulation_finalize(C)
           if (allocated(dt_controller)) then
              deallocate(dt_controller)
