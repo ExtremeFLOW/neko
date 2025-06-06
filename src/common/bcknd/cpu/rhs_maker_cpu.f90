@@ -146,16 +146,12 @@ contains
     real(kind=rp), intent(in) :: B(n)
     real(kind=rp), intent(in) :: dt, rho, bd(4)
     type(field_t), pointer :: tb1, tb2, tb3
-    type(field_t), pointer :: ta1, ta2, ta3
-    integer :: temp_indices(6)
+    integer :: temp_indices(3)
     integer :: i, ilag
 
-    call neko_scratch_registry%request_field(ta1, temp_indices(1))
-    call neko_scratch_registry%request_field(ta2, temp_indices(2))
-    call neko_scratch_registry%request_field(ta3, temp_indices(3))
-    call neko_scratch_registry%request_field(tb1, temp_indices(4))
-    call neko_scratch_registry%request_field(tb2, temp_indices(5))
-    call neko_scratch_registry%request_field(tb3, temp_indices(6))
+    call neko_scratch_registry%request_field(tb1, temp_indices(1))
+    call neko_scratch_registry%request_field(tb2, temp_indices(2))
+    call neko_scratch_registry%request_field(tb3, temp_indices(3))
 
     do concurrent (i = 1:n)
        tb1%x(i,1,1,1) = u%x(i,1,1,1) * B(i) * bd(2)
@@ -165,15 +161,12 @@ contains
 
     do ilag = 2, nbd
        do concurrent (i = 1:n)
-          ta1%x(i,1,1,1) = ulag%lf(ilag-1)%x(i,1,1,1) * B(i) * bd(ilag+1)
-          ta2%x(i,1,1,1) = vlag%lf(ilag-1)%x(i,1,1,1) * B(i) * bd(ilag+1)
-          ta3%x(i,1,1,1) = wlag%lf(ilag-1)%x(i,1,1,1) * B(i) * bd(ilag+1)
-       end do
-
-       do concurrent (i = 1:n)
-          tb1%x(i,1,1,1) = tb1%x(i,1,1,1) + ta1%x(i,1,1,1)
-          tb2%x(i,1,1,1) = tb2%x(i,1,1,1) + ta2%x(i,1,1,1)
-          tb3%x(i,1,1,1) = tb3%x(i,1,1,1) + ta3%x(i,1,1,1)
+          tb1%x(i,1,1,1) = tb1%x(i,1,1,1) + &
+               (ulag%lf(ilag-1)%x(i,1,1,1) * B(i) * bd(ilag+1))
+          tb2%x(i,1,1,1) = tb2%x(i,1,1,1) + &
+               (vlag%lf(ilag-1)%x(i,1,1,1) * B(i) * bd(ilag+1))
+          tb3%x(i,1,1,1) = tb3%x(i,1,1,1) + &
+               (wlag%lf(ilag-1)%x(i,1,1,1) * B(i) * bd(ilag+1))
        end do
     end do
 
@@ -195,28 +188,24 @@ contains
     real(kind=rp), intent(in) :: B(n)
     real(kind=rp), intent(in) :: dt, rho, bd(4)
     integer :: i, ilag
-    type(field_t), pointer :: temp1, temp2
-    integer :: temp_indices(2)
+    type(field_t), pointer :: temp1
+    integer :: temp_indices
 
-    call neko_scratch_registry%request_field(temp1, temp_indices(1))
-    call neko_scratch_registry%request_field(temp2, temp_indices(2))
+    call neko_scratch_registry%request_field(temp1, temp_indices)
 
     do concurrent (i = 1:n)
-       temp2%x(i,1,1,1) = s%x(i,1,1,1) * B(i) * bd(2)
+       temp1%x(i,1,1,1) = s%x(i,1,1,1) * B(i) * bd(2)
     end do
 
     do ilag = 2, nbd
        do concurrent (i = 1:n)
-          temp1%x(i,1,1,1) = s_lag%lf(ilag-1)%x(i,1,1,1) * B(i) * bd(ilag+1)
-       end do
-
-       do concurrent (i = 1:n)
-          temp2%x(i,1,1,1) = temp2%x(i,1,1,1) + temp1%x(i,1,1,1)
+          temp1%x(i,1,1,1) = temp1%x(i,1,1,1) + &
+               (s_lag%lf(ilag-1)%x(i,1,1,1) * B(i) * bd(ilag+1))
        end do
     end do
 
     do concurrent (i = 1:n)
-       fs(i) = fs(i) + temp2%x(i,1,1,1) * (rho / dt)
+       fs(i) = fs(i) + temp1%x(i,1,1,1) * (rho / dt)
     end do
 
     call neko_scratch_registry%relinquish_field(temp_indices)
