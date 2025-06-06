@@ -236,6 +236,7 @@ contains
     call json_extract_object(C%params, 'case.time', dt_params)
     call dt_controller%init(dt_params)
 
+    call C%time%reset()
     call simulation_init(C, dt_controller)
 
     call profiler_start
