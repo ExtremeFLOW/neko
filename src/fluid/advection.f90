@@ -37,6 +37,8 @@ module advection
   use field, only : field_t
   use coefs, only : coef_t
   use json_module, only : json_file
+  use field_series, only: field_series_t
+  use time_scheme_controller, only: time_scheme_controller_t
   implicit none
   private
 
@@ -54,17 +56,32 @@ module advection
      !! @param object The object allocated by the factory.
      !! @param json The parameter file.
      !! @param coef The coefficients of the (space, mesh) pair.
-     module subroutine advection_factory(object, json, coef)
+     !! @param ulag, vlag, wlag The lagged velocity fields.
+     !! @param dtlag The lagged time steps.
+     !! @param tlag The lagged times.
+     !! @param time_scheme The bdf-ext time scheme used in the method.
+     !! @param use_dummy If true, a dummy zero-valued advection type is
+     !! @param slag The lagged scalar field.
+     !! allocated. This can be used to kill the advection term.
+     !! @note The factory both allocates and initializes `object`.
+     module subroutine advection_factory(object, json, coef, &
+          ulag, vlag, wlag, dtlag, tlag, time_scheme, use_dummy, slag)
        class(advection_t), allocatable, intent(inout) :: object
        type(json_file), intent(inout) :: json
        type(coef_t), intent(inout), target :: coef
+       type(field_series_t), intent(in), target :: ulag, vlag, wlag
+       real(kind=rp), intent(in), target :: dtlag(10)
+       real(kind=rp), intent(in), target :: tlag(10)
+       type(time_scheme_controller_t), intent(in), target :: time_scheme
+       logical, optional, intent(in) :: use_dummy
+       type(field_series_t), target, optional, intent(in) :: slag
      end subroutine advection_factory
   end interface
 
   public :: advection_factory
 
   abstract interface
-     !> Add advection operator to the right-hand-side for a fluld.
+     !> Add advection operator to the right-hand-side for a fluid.
      !! @param this The object.
      !! @param vx The x component of velocity.
      !! @param vy The y component of velocity.
@@ -75,18 +92,20 @@ module advection
      !! @param Xh The function space.
      !! @param coef The coefficients of the (Xh, mesh) pair.
      !! @param n Typically the size of the mesh.
-     subroutine compute_adv(this, vx, vy, vz, fx, fy, fz, Xh, coef, n)
+     !! @param dt Current time step used in OIFS method.
+     subroutine compute_adv(this, vx, vy, vz, fx, fy, fz, Xh, coef, n, dt)
        import :: advection_t
        import :: coef_t
        import :: space_t
        import :: field_t
        import :: rp
        class(advection_t), intent(inout) :: this
-       type(space_t), intent(inout) :: Xh
-       type(coef_t), intent(inout) :: coef
+       type(space_t), intent(in) :: Xh
+       type(coef_t), intent(in) :: coef
        type(field_t), intent(inout) :: vx, vy, vz
        type(field_t), intent(inout) :: fx, fy, fz
        integer, intent(in) :: n
+       real(kind=rp), intent(in), optional :: dt
      end subroutine compute_adv
   end interface
 
@@ -101,7 +120,8 @@ module advection
      !! @param Xh The function space.
      !! @param coef The coefficients of the (Xh, mesh) pair.
      !! @param n Typically the size of the mesh.
-     subroutine compute_scalar_adv(this, vx, vy, vz, s, fs, Xh, coef, n)
+     !! @param dt Current time step used in OIFS method.
+     subroutine compute_scalar_adv(this, vx, vy, vz, s, fs, Xh, coef, n, dt)
        import :: advection_t
        import :: coef_t
        import :: space_t
@@ -111,9 +131,10 @@ module advection
        type(field_t), intent(inout) :: vx, vy, vz
        type(field_t), intent(inout) :: s
        type(field_t), intent(inout) :: fs
-       type(space_t), intent(inout) :: Xh
-       type(coef_t), intent(inout) :: coef
+       type(space_t), intent(in) :: Xh
+       type(coef_t), intent(in) :: coef
        integer, intent(in) :: n
+       real(kind=rp), intent(in), optional :: dt
      end subroutine compute_scalar_adv
   end interface
 

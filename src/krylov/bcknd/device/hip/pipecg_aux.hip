@@ -116,7 +116,7 @@ extern "C" {
                              hipMemcpyDeviceToHost, stream));
     HIP_CHECK(hipGetLastError());
 
-    hipStreamSynchronize(stream);
+    HIP_CHECK(hipStreamSynchronize(stream));
         
     reduction[0] = buf[0];
     reduction[1] = buf[1];

@@ -178,28 +178,28 @@ int tune_opgrad(void *ux, void *uy, void *uz, void *u,
     }
   }
 
-  hipEventCreate(&start);
-  hipEventCreate(&stop);
+  HIP_CHECK(hipEventCreate(&start));
+  HIP_CHECK(hipEventCreate(&stop));
   
-  hipEventRecord(start,0);
+  HIP_CHECK(hipEventRecord(start,0));
    
   for(int i = 0; i < 100; i++) {
     CASE_1D(LX);
   }
   
-  hipEventRecord(stop,0); 
-  hipEventSynchronize(stop);
-  hipEventElapsedTime(&time1, start, stop);
+  HIP_CHECK(hipEventRecord(stop,0)); 
+  HIP_CHECK(hipEventSynchronize(stop));
+  HIP_CHECK(hipEventElapsedTime(&time1, start, stop));;
   
-  hipEventRecord(start,0);
+  HIP_CHECK(hipEventRecord(start,0));
    
   for(int i = 0; i < 100; i++) {
      CASE_KSTEP(LX);
    }
   
-  hipEventRecord(stop,0); 
-  hipEventSynchronize(stop);
-  hipEventElapsedTime(&time2, start, stop);
+  HIP_CHECK(hipEventRecord(stop,0)); 
+  HIP_CHECK(hipEventSynchronize(stop));
+  HIP_CHECK(hipEventElapsedTime(&time2, start, stop));
   
   if(time1 < time2) {
      retval = 1;

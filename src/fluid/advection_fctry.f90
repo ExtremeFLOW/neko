@@ -37,6 +37,8 @@ submodule (advection) advection_fctry
   ! Advection and derivatives
   use adv_dealias, only : adv_dealias_t
   use adv_no_dealias, only : adv_no_dealias_t
+  use adv_oifs, only : adv_oifs_t
+  use adv_dummy, only : adv_dummy_t
 
 
 contains
@@ -46,19 +48,29 @@ contains
   !! @param object The object allocated by the factory.
   !! @param json The parameter file.
   !! @param coef The coefficients of the (space, mesh) pair.
-  module subroutine advection_factory(object, json, coef)
+  !! @param ulag, vlag, wlag The lagged velocity fields.
+  !! @param dtlag The lagged time steps.
+  !! @param tlag The lagged times.
+  !! @param time_scheme The bdf-ext time scheme used in the method.
+  !! @param use_dummy If true, a dummy zero-valued advection type is allocated.
+  !! @param slag The lagged scalar field. Optional.
+  !! This can be used to kill the advection term.
+  !! @note The factory both allocates and initializes `object`.
+  module subroutine advection_factory(object, json, coef, ulag, vlag, wlag, &
+       dtlag, tlag, time_scheme, use_dummy, slag)
     class(advection_t), allocatable, intent(inout) :: object
     type(json_file), intent(inout) :: json
     type(coef_t), intent(inout), target :: coef
-    logical :: dealias
+    type(field_series_t), intent(in), target :: ulag, vlag, wlag
+    real(kind=rp), intent(in), target :: dtlag(10)
+    real(kind=rp), intent(in), target :: tlag(10)
+    type(time_scheme_controller_t), intent(in), target :: time_scheme
+    logical, optional, intent(in) :: use_dummy
+    type(field_series_t), target, optional, intent(in) :: slag
+
+    logical :: dealias, oifs
+    real(kind=rp) :: ctarget
     integer :: lxd, order
-
-    ! Read the parameters from the json file
-    call json_get(json, 'case.numerics.dealias', dealias)
-    call json_get(json, 'case.numerics.polynomial_order', order)
-
-    call json_get_or_default(json, 'case.numerics.dealiased_polynomial_order', &
-                             lxd, ( 3 * (order + 1) ) / 2)
 
     ! Free allocatables if necessary
     if (allocated(object)) then
@@ -66,17 +78,47 @@ contains
        deallocate(object)
     end if
 
-    if (dealias) then
-       allocate(adv_dealias_t::object)
+    if (present(use_dummy)) then
+       if (use_dummy .eqv. .true.) then
+          allocate(adv_dummy_t::object)
+          return
+       end if
+    end if
+
+    ! Read the parameters from the json file
+    call json_get(json, 'dealias', dealias)
+    call json_get(json, 'polynomial_order', order)
+    call json_get_or_default(json, 'oifs', oifs, .false.)
+
+    call json_get_or_default(json, 'dealiased_polynomial_order', &
+         lxd, ( 3 * (order + 1) ) / 2)
+
+    call json_get_or_default(json, 'target_cfl', ctarget, 1.9_rp)
+
+
+    if (oifs) then
+       allocate(adv_oifs_t::object)
     else
-       allocate(adv_no_dealias_t::object)
+       if (dealias) then
+          allocate(adv_dealias_t::object)
+       else
+          allocate(adv_no_dealias_t::object)
+       end if
     end if
 
     select type (adv => object)
-      type is (adv_dealias_t)
+    type is (adv_dealias_t)
        call adv%init(lxd, coef)
-      type is (adv_no_dealias_t)
+    type is (adv_no_dealias_t)
        call adv%init(coef)
+    type is (adv_oifs_t)
+       if (present(slag)) then
+          call adv%init(lxd, coef, ctarget, ulag, vlag, wlag, &
+               dtlag, tlag, time_scheme, slag)
+       else
+          call adv%init(lxd, coef, ctarget, ulag, vlag, wlag, &
+               dtlag, tlag, time_scheme)
+       end if
     end select
 
   end subroutine advection_factory

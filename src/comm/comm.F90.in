@@ -10,16 +10,41 @@ module comm
           bind(c, name='neko_comm_wrapper_init')
        integer, value :: fcomm
      end subroutine neko_comm_wrapper_init
+
+#ifdef HAVE_NVSHMEM
+     subroutine neko_comm_nvshmem_init() &
+          bind(c, name='neko_comm_nvshmem_init')
+     end subroutine neko_comm_nvshmem_init
+
+     subroutine neko_comm_nvshmem_finalize() &
+          bind(c, name='neko_comm_nvshmem_finalize')
+     end subroutine neko_comm_nvshmem_finalize
+#endif
+
+#if defined(HAVE_NCCL) || defined(HAVE_RCCL)
+     subroutine neko_comm_nccl_init() &
+          bind(c, name='neko_comm_nccl_init')
+     end subroutine neko_comm_nccl_init
+     
+     subroutine neko_comm_nccl_finalize() &
+          bind(c, name='neko_comm_nccl_finalize')
+     end subroutine neko_comm_nccl_finalize
+#endif
+     
   end interface
+
   
   !> MPI communicator
   type(MPI_Comm) :: NEKO_COMM
+  type(MPI_Comm) :: NEKO_GLOBAL_COMM
 
   !> MPI type for working precision of REAL types
 #ifdef HAVE_MPI_PARAM_DTYPE
   type(MPI_Datatype), parameter :: MPI_REAL_PRECISION = @NEKO_MPI_REAL_TYPE@
+  type(MPI_Datatype), parameter :: MPI_EXTRA_PRECISION = @NEKO_MPI_XREAL_TYPE@
 #else
   type(MPI_Datatype) :: MPI_REAL_PRECISION
+  type(MPI_Datatype) :: MPI_EXTRA_PRECISION
 #endif
   
   !> MPI rank
@@ -31,17 +56,33 @@ module comm
   !> I/O node
   logical :: nio
 
+  !> Global MPI rank
+  integer :: global_pe_rank
+
+  !> Global MPI size of communicator
+  integer :: global_pe_size
+
 contains
   subroutine comm_init
     integer :: ierr
     logical :: initialized
     integer :: provided, nthrds
+    integer :: color = 0
+    integer :: envvar_len
+    character(len=255) :: color_str
 
     pe_rank = -1
     pe_size = 0
     nio = .false.
 
     call MPI_Initialized(initialized, ierr)
+
+    call get_environment_variable("NEKO_COMM_ID", color_str, envvar_len)
+    if (envvar_len .gt. 0) then
+       read(color_str(1:envvar_len), *) color
+    else
+       color = 0
+    end if
 
     nthrds = 1
     !$omp parallel
@@ -71,23 +112,44 @@ contains
 
 #ifndef HAVE_MPI_PARAM_DTYPE
     MPI_REAL_PRECISION = @NEKO_MPI_REAL_TYPE@
+    MPI_EXTRA_PRECISION = @NEKO_MPI_XREAL_TYPE@
 #endif
     
 
 #ifdef HAVE_ADIOS2
     ! We split the communicator it to work asynchronously (MPMD)
     call MPI_Comm_rank(MPI_COMM_WORLD, pe_rank, ierr)
-    call MPI_Comm_split(MPI_COMM_WORLD, 0, pe_rank, NEKO_COMM, ierr)
+    call MPI_Comm_split(MPI_COMM_WORLD, 0, pe_rank, NEKO_GLOBAL_COMM, ierr)
 #else    
     ! Original version duplicates the communicator:
-    call MPI_Comm_dup(MPI_COMM_WORLD, NEKO_COMM, ierr)
+    call MPI_Comm_dup(MPI_COMM_WORLD, NEKO_GLOBAL_COMM, ierr)
 #endif
 
+    call MPI_Comm_rank(NEKO_GLOBAL_COMM, global_pe_rank, ierr)
+    call MPI_Comm_size(NEKO_GLOBAL_COMM, global_pe_size, ierr)
+    if (envvar_len .gt. 0) then
+       call MPI_Comm_split(NEKO_GLOBAL_COMM, color, global_pe_rank, &
+            NEKO_COMM, ierr)
+    else
+       call MPI_Comm_dup(NEKO_GLOBAL_COMM, NEKO_COMM, ierr)
+    end if
     call MPI_Comm_rank(NEKO_COMM, pe_rank, ierr)
     call MPI_Comm_size(NEKO_COMM, pe_size, ierr)
 
     ! Setup C/C++ wrapper
     call neko_comm_wrapper_init(NEKO_COMM%mpi_val)
+
+
+#ifdef HAVE_NVSHMEM
+    ! Setup NVSHMEM (if requested)
+    call neko_comm_nvshmem_init()
+#endif
+
+#if defined(HAVE_NCCL) | defined(HAVE_RCCL)
+    ! Setup NCCL (if requested)
+    call neko_comm_nccl_init()
+#endif
+
 
   end subroutine comm_init
 
@@ -96,6 +158,15 @@ contains
 
     call MPI_Barrier(NEKO_COMM, ierr)
     call MPI_Comm_free(NEKO_COMM, ierr)
+
+#ifdef HAVE_NCCL
+    call neko_comm_nccl_finalize()
+#endif
+
+#ifdef HAVE_NVSHMEM
+    call neko_comm_nvshmem_finalize()
+#endif
+
     call MPI_Finalize(ierr)
 
   end subroutine comm_free

@@ -19,6 +19,8 @@ EXTRA_DIST = pages/appendices/governing-equations.md \
 			pages/appendices/publications.md \
 			pages/developer-guide \
 			pages/developer-guide/accelerators.md \
+			pages/developer-guide/run_time_selectable_types.md \
+			pages/developer-guide/important_types.md \
 			pages/developer-guide/code-style.md \
 			pages/developer-guide/contributing.md \
 			pages/developer-guide/dev_patterns.md \
@@ -31,6 +33,7 @@ EXTRA_DIST = pages/appendices/governing-equations.md \
 			pages/user-guide/simcomps.md \
 			pages/user-guide/statistics-guide.md \
 			pages/user-guide/user-file.md \
+			pages/user-guide/extension.md \
 			pages/appendices.md \
 			pages/developer-guide.md \
 			pages/index.md \

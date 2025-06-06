@@ -1,0 +1,75 @@
+# Check the formatting of source files
+#
+# This workflow checks the formatting of the source files in the repository. It
+# uses the `findent` tool to format the Fortran source files. This allow us to
+# enforce rather strickt formatting rules.
+
+name: Check Formatting
+
+on:
+  # Allow the workflow to be called from other workflows.
+  # This is useful when we want to run the workflow on a specific event.
+  workflow_call:
+
+jobs:
+  check-formatting:
+    name: Check formatting of changed files
+    runs-on: ubuntu-24.04
+    steps:
+      # ---------------------------------------------------------------------- #
+      # Checkout the repository and setup the environment
+      # ---------------------------------------------------------------------- #
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Python cache
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: "**/requirements-formatting.txt"
+
+      - name: Install findent
+        run: |
+          pip install -r .github/workflows/extra/requirements-formatting.txt
+
+      # ---------------------------------------------------------------------- #
+      # Determine modification of source files
+      # ---------------------------------------------------------------------- #
+
+      - name: Get changed files
+        id: get-changed-files
+        run: |
+          git fetch --unshallow origin develop
+          changes=($(git diff --name-only --diff-filter=d origin/develop))
+          echo "changed-files=${changes[@]}" >> $GITHUB_OUTPUT
+
+      # ---------------------------------------------------------------------- #
+      # Format the changed source files and check for changes
+      # ---------------------------------------------------------------------- #
+
+      - name: Format sources
+        run: |
+          for file in ${{ steps.get-changed-files.outputs.changed-files }}; do
+            if [[ ${file: -4} != ".f90" && ${file: -4} != ".F90" ]]; then
+              continue
+            fi
+            findent -Rr -i2 -d3 -f3 -s3 -c3 -w3 -t3 -j3 -k- --ws_remred --openmp=0 < $file > $file.tmp
+            mv -f $file.tmp $file
+          done
+
+      - name: Check format
+        run: |
+          if [[ $(git diff --exit-code) ]]; then
+            echo "The formatting of the source files is incorrect." >&2
+            echo "" >&2
+            echo "Please run the following commands to fix the formatting:" >&2
+            echo "pip install findent" >&2
+            echo "findent -Rr -i2 -d3 -f3 -s3 -c3 -w3 -t3 -j3 -k- --ws_remred --openmp=0 <file.f90 >file.f90.tmp" >&2
+            echo "mv file.f90.tmp file.f90" >&2
+            git diff >&2
+            exit 1
+          fi

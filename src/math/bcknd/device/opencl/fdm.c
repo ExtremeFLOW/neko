@@ -46,7 +46,8 @@
 
 #include "fdm_kernel.cl.h"
 
-void opencl_fdm_do_fast(void *e, void *r, void *s, void *d, int *nl, int *nel) {
+void opencl_fdm_do_fast(void *e, void *r, void *s, void *d, int *nl, int *nel,
+                        cl_command_queue cmd_queue) {
   cl_int err;
 
   if (fdm_program == NULL)
@@ -68,7 +69,7 @@ void opencl_fdm_do_fast(void *e, void *r, void *s, void *d, int *nl, int *nel) {
       CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &s));        \
       CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &d));        \
                                                                                \
-      CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel,\
+      CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel,                       \
                                       1, NULL, &global_item_size,              \
                                       &local_item_size, 0, NULL, NULL));       \
     }                                                                          \

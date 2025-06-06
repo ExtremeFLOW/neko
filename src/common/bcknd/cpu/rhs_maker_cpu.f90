@@ -1,5 +1,6 @@
 module rhs_maker_cpu
-  use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_sumab_t
+  use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_sumab_t, &
+                        rhs_maker_oifs_t
   use field_series, only : field_series_t
   use field, only : field_t
   use num_types, only : rp, c_rp
@@ -24,9 +25,16 @@ module rhs_maker_cpu
      procedure, nopass :: compute_scalar => scalar_rhs_maker_bdf_cpu
   end type rhs_maker_bdf_cpu_t
 
+  type, public, extends(rhs_maker_oifs_t) :: rhs_maker_oifs_cpu_t
+   contains
+     procedure, nopass :: compute_fluid => rhs_maker_oifs_cpu
+     procedure, nopass :: compute_scalar => scalar_rhs_maker_oifs_cpu
+  end type rhs_maker_oifs_cpu_t
+
 contains
 
-  subroutine rhs_maker_sumab_cpu(u, v, w, uu, vv, ww, uulag, vvlag, wwlag, ab, nab)
+  subroutine rhs_maker_sumab_cpu(u, v, w, uu, vv, ww, uulag, vvlag, wwlag, &
+                                 ab, nab)
     type(field_t), intent(inout) :: u,v, w
     type(field_t), intent(inout) :: uu, vv, ww
     type(field_series_t), intent(inout) :: uulag, vvlag, wwlag
@@ -36,19 +44,21 @@ contains
 
     n = uu%dof%size()
     !$omp parallel
-    !$omp do
-    do concurrent (i = 1:n)
-       u%x(i,1,1,1) = ab(1) * uu%x(i,1,1,1) + ab(2) * uulag%lf(1)%x(i,1,1,1)
-       v%x(i,1,1,1) = ab(1) * vv%x(i,1,1,1) + ab(2) * vvlag%lf(1)%x(i,1,1,1)
-       w%x(i,1,1,1) = ab(1) * ww%x(i,1,1,1) + ab(2) * wwlag%lf(1)%x(i,1,1,1)
-    end do
-    !$omp end do
     if (nab .eq. 3) then
        !$omp do
        do concurrent (i = 1:n)
-          u%x(i,1,1,1) = u%x(i,1,1,1) + ab(3) * uulag%lf(2)%x(i,1,1,1)
-          v%x(i,1,1,1) = v%x(i,1,1,1) + ab(3) * vvlag%lf(2)%x(i,1,1,1)
-          w%x(i,1,1,1) = w%x(i,1,1,1) + ab(3) * wwlag%lf(2)%x(i,1,1,1)
+          u%x(i,1,1,1) = ab(1) * uu%x(i,1,1,1) + &
+               ab(2) * uulag%lf(1)%x(i,1,1,1) + ab(3) * uulag%lf(2)%x(i,1,1,1)
+          v%x(i,1,1,1) = ab(1) * vv%x(i,1,1,1) + &
+               ab(2) * vvlag%lf(1)%x(i,1,1,1) + ab(3) * vvlag%lf(2)%x(i,1,1,1)
+          w%x(i,1,1,1) = ab(1) * ww%x(i,1,1,1) + &
+               ab(2) * wwlag%lf(1)%x(i,1,1,1) + ab(3) * wwlag%lf(2)%x(i,1,1,1)
+       end do
+    else
+       do concurrent (i = 1:n)
+          u%x(i,1,1,1) = ab(1) * uu%x(i,1,1,1) + ab(2) * uulag%lf(1)%x(i,1,1,1)
+          v%x(i,1,1,1) = ab(1) * vv%x(i,1,1,1) + ab(2) * vvlag%lf(1)%x(i,1,1,1)
+          w%x(i,1,1,1) = ab(1) * ww%x(i,1,1,1) + ab(2) * wwlag%lf(1)%x(i,1,1,1)
        end do
        !$omp end do
     end if
@@ -60,7 +70,7 @@ contains
                              rho, ext_coeffs, n)
     type(field_t), intent(inout) :: fx_lag, fy_lag, fz_lag
     type(field_t), intent(inout) :: fx_laglag, fy_laglag, fz_laglag
-    real(kind=rp), intent(inout) :: rho, ext_coeffs(4)
+    real(kind=rp), intent(in) :: rho, ext_coeffs(4)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: fx(n), fy(n), fz(n)
     integer :: i
@@ -103,10 +113,11 @@ contains
 
   end subroutine rhs_maker_ext_cpu
 
-  subroutine scalar_rhs_maker_ext_cpu(fs_lag, fs_laglag, fs, rho, ext_coeffs, n)
+  subroutine scalar_rhs_maker_ext_cpu(fs_lag, fs_laglag, fs, rho, &
+                                      ext_coeffs, n)
     type(field_t), intent(inout) :: fs_lag
     type(field_t), intent(inout) :: fs_laglag
-    real(kind=rp), intent(inout) :: rho, ext_coeffs(4)
+    real(kind=rp), intent(in) :: rho, ext_coeffs(4)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: fs(n)
     integer :: i
@@ -232,6 +243,35 @@ contains
     !$omp end parallel
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine scalar_rhs_maker_bdf_cpu
+
+  subroutine rhs_maker_oifs_cpu(phi_x, phi_y, phi_z, bf_x, bf_y, bf_z, &
+                                rho, dt, n)
+    real(kind=rp), intent(in) :: rho, dt
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: bf_x(n), bf_y(n), bf_z(n)
+    real(kind=rp), intent(inout) :: phi_x(n), phi_y(n), phi_z(n)
+    integer :: i
+
+    do concurrent (i = 1:n)
+       bf_x(i) = bf_x(i) + phi_x(i) * (rho / dt)
+       bf_y(i) = bf_y(i) + phi_y(i) * (rho / dt)
+       bf_z(i) = bf_z(i) + phi_z(i) * (rho / dt)
+    end do
+
+  end subroutine rhs_maker_oifs_cpu
+
+  subroutine scalar_rhs_maker_oifs_cpu(phi_s, bf_s, rho, dt, n)
+    real(kind=rp), intent(in) :: rho, dt
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: bf_s(n)
+    real(kind=rp), intent(inout) :: phi_s(n)
+    integer :: i
+
+    do concurrent (i = 1:n)
+       bf_s(i) = bf_s(i) + phi_s(i) * (rho / dt)
+    end do
+
+  end subroutine scalar_rhs_maker_oifs_cpu
 
 end module rhs_maker_cpu
 

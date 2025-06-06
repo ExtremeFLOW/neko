@@ -58,8 +58,10 @@
 ! not be used for advertising or product endorsement purposes.
 !
 module math
-  use num_types, only : rp, dp, sp, qp, i4
-  use comm
+  use num_types, only : rp, dp, sp, qp, i4, xp
+  use comm, only: NEKO_COMM, MPI_REAL_PRECISION, MPI_EXTRA_PRECISION
+  use mpi_f08, only: MPI_MIN, MPI_MAX, MPI_SUM, MPI_IN_PLACE, MPI_INTEGER, &
+       MPI_Allreduce
   implicit none
   private
 
@@ -96,13 +98,22 @@ module math
      module procedure srelcmp, drelcmp, qrelcmp
   end interface relcmp
 
+  interface pwmax
+     module procedure pwmax_vec2, pwmax_vec3, pwmax_scal2, pwmax_scal3
+  end interface pwmax
+
+  interface pwmin
+     module procedure pwmin_vec2, pwmin_vec3, pwmin_sca2, pwmin_sca3
+  end interface pwmin
+
   public :: abscmp, rzero, izero, row_zero, rone, copy, cmult, cadd, cfill, &
        glsum, glmax, glmin, chsign, vlmax, vlmin, invcol1, invcol3, invers2, &
        vcross, vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, sub3, &
        add2s1, add2s2, addsqr2s2, cmult2, invcol2, col2, col3, subcol3, &
        add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
        glsc3, glsc4, sort, masked_copy, cfill_mask, relcmp, glimax, glimin, &
-       swap, reord, flipv, cadd2
+       swap, reord, flipv, cadd2, masked_gather_copy, absval, pwmax, pwmin, &
+       masked_scatter_copy, cdiv, cdiv2
 
 contains
 
@@ -239,34 +250,81 @@ contains
   !> Copy a masked vector \f$ a(mask) = b(mask) \f$.
   !! @param a Destination array of size `n`.
   !! @param b Source array of size `n`.
-  !! @param mask Mask array of length m+1, where `mask(0) =m`
+  !! @param mask Mask array of length n_mask + 1, where `mask(0) = n_mask`
   !! the length of the mask array.
   !! @param n Size of the arrays `a` and `b`.
-  !! @param m Size of the mask array `mask`.
-  subroutine masked_copy(a, b, mask, n, m)
-    integer, intent(in) :: n, m
+  !! @param n_mask Size of the mask array `mask`.
+  subroutine masked_copy(a, b, mask, n, n_mask)
+    integer, intent(in) :: n, n_mask
     real(kind=rp), dimension(n), intent(in) :: b
     real(kind=rp), dimension(n), intent(inout) :: a
-    integer, dimension(0:m) :: mask
+    integer, dimension(0:n_mask) :: mask
     integer :: i, j
 
-    do i = 1, m
+    do i = 1, n_mask
        j = mask(i)
        a(j) = b(j)
     end do
 
   end subroutine masked_copy
 
+  !> Gather a masked vector to reduced contigous vector
+  !! \f$ a = b(mask) \f$.
+  !! @param a Destination array of size `n_mask`.
+  !! @param b Source array of size `n`.
+  !! @param mask Mask array of length n_mask + 1, where `mask(0) = n_mask`
+  !! the length of the mask array.
+  !! @param n Size of the array `b`.
+  !! @param n_mask Size of the mask array `mask` and `a`.
+  !! @note Assumes `n .ge. n_mask`.
+  subroutine masked_gather_copy(a, b, mask, n, n_mask)
+    integer, intent(in) :: n, n_mask
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), dimension(n_mask), intent(inout) :: a
+    integer, dimension(0:n_mask) :: mask
+    integer :: i, j
+
+    do i = 1, n_mask
+       j = mask(i)
+       a(i) = b(j)
+    end do
+
+  end subroutine masked_gather_copy
+
+
+  !> Scatter a contigous vector to masked positions in a target array
+  !! \f$ a(mask) = b \f$.
+  !! @param a Destination array of size `n`.
+  !! @param b Source array of size `n_mask`.
+  !! @param mask Mask array of length n_mask + 1, where `mask(0) = n_mask + 1`
+  !! the length of the mask array.
+  !! @param n Size of the array `mask`and array `b`.
+  !! @param m Size of the mask array `a`.
+  !! @note Assumes `n .ge. n_mask`.
+  subroutine masked_scatter_copy(a, b, mask, n, n_mask)
+    integer, intent(in) :: n, n_mask
+    real(kind=rp), dimension(n_mask), intent(in) :: b
+    real(kind=rp), dimension(n), intent(inout) :: a
+    integer, dimension(0:n_mask) :: mask
+    integer :: i, j
+
+    do i = 1, n_mask
+       j = mask(i)
+       a(j) = b(i)
+    end do
+
+  end subroutine masked_scatter_copy
+
   !> @brief Fill a constant to a masked vector.
   !! \f$ a_i = c, for i in mask \f$
-  subroutine cfill_mask(a, c, size, mask, mask_size)
-    integer, intent(in) :: size, mask_size
-    real(kind=rp), dimension(size), intent(inout) :: a
+  subroutine cfill_mask(a, c, n, mask, n_mask)
+    integer, intent(in) :: n, n_mask
+    real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), intent(in) :: c
-    integer, dimension(mask_size), intent(in) :: mask
+    integer, dimension(n_mask), intent(in) :: mask
     integer :: i
 
-    do i = 1, mask_size
+    do i = 1, n_mask
        a(mask(i)) = c
     end do
 
@@ -283,6 +341,45 @@ contains
        a(i) = c * a(i)
     end do
   end subroutine cmult
+
+  !> Multiplication by constant c \f$ a = c \cdot b \f$
+  subroutine cmult2(a, b, c, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), intent(in) :: c
+    integer :: i
+
+    do i = 1, n
+       a(i) = c * b(i)
+    end do
+
+  end subroutine cmult2
+
+  !> Division of constant c by elements of a \f$ a = c / a \f$
+  subroutine cdiv(a, c, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), intent(in) :: c
+    integer :: i
+
+    do i = 1, n
+       a(i) = c / a(i)
+    end do
+  end subroutine cdiv
+
+  !> Division of constant c by elements of a \f$ a = c / b \f$
+  subroutine cdiv2(a, b, c, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), intent(in) :: c
+    integer :: i
+
+    do i = 1, n
+       a(i) = c / b(i)
+    end do
+  end subroutine cdiv2
 
   !> Add a scalar to vector \f$ a_i = a_i + s \f$
   subroutine cadd(a, s, n)
@@ -325,14 +422,16 @@ contains
   function glsum(a, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n) :: a
-    real(kind=rp) :: tmp, glsum
+    real(kind=rp) :: glsum
+    real(kind=xp) :: tmp
     integer :: i, ierr
     tmp = 0.0_rp
     do i = 1, n
        tmp = tmp + a(i)
     end do
-    call MPI_Allreduce(tmp, glsum, 1, &
-                       MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, tmp, 1, &
+         MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    glsum = tmp
 
   end function glsum
 
@@ -342,12 +441,13 @@ contains
     real(kind=rp), dimension(n) :: a
     real(kind=rp) :: tmp, glmax
     integer :: i, ierr
-    tmp = a(1)
-    do i = 2, n
+
+    tmp = -huge(0.0_rp)
+    do i = 1, n
        tmp = max(tmp,a(i))
     end do
     call MPI_Allreduce(tmp, glmax, 1, &
-                       MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+         MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
   end function glmax
 
   !>Max of an integer vector of length n
@@ -356,12 +456,13 @@ contains
     integer, dimension(n) :: a
     integer :: tmp, glimax
     integer :: i, ierr
-    tmp = a(1)
-    do i = 2, n
+
+    tmp = -huge(0)
+    do i = 1, n
        tmp = max(tmp,a(i))
     end do
     call MPI_Allreduce(tmp, glimax, 1, &
-                       MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
+         MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
   end function glimax
 
   !>Min of a vector of length n
@@ -370,12 +471,13 @@ contains
     real(kind=rp), dimension(n) :: a
     real(kind=rp) :: tmp, glmin
     integer :: i, ierr
-    tmp = a(1)
-    do i = 2, n
+
+    tmp = huge(0.0_rp)
+    do i = 1, n
        tmp = min(tmp,a(i))
     end do
     call MPI_Allreduce(tmp, glmin, 1, &
-                       MPI_REAL_PRECISION, MPI_MIN, NEKO_COMM, ierr)
+         MPI_REAL_PRECISION, MPI_MIN, NEKO_COMM, ierr)
   end function glmin
 
   !>Min of an integer vector of length n
@@ -384,12 +486,13 @@ contains
     integer, dimension(n) :: a
     integer :: tmp, glimin
     integer :: i, ierr
-    tmp = a(1)
-    do i = 2, n
+
+    tmp = huge(0)
+    do i = 1, n
        tmp = min(tmp,a(i))
     end do
     call MPI_Allreduce(tmp, glimin, 1, &
-                       MPI_INTEGER, MPI_MIN, NEKO_COMM, ierr)
+         MPI_INTEGER, MPI_MIN, NEKO_COMM, ierr)
   end function glimin
 
 
@@ -437,7 +540,7 @@ contains
     integer :: i
 
     do i = 1, n
-       a(i) = 1.0_rp / a(i)
+       a(i) = 1.0_xp / real(a(i),xp)
     end do
 
   end subroutine invcol1
@@ -450,7 +553,7 @@ contains
     integer :: i
 
     do i = 1, n
-       a(i) = b(i) / c(i)
+       a(i) = real(b(i),xp) / c(i)
     end do
 
   end subroutine invcol3
@@ -463,7 +566,7 @@ contains
     integer :: i
 
     do i = 1, n
-       a(i) = 1.0_rp / b(i)
+       a(i) = 1.0_xp / real(b(i),xp)
     end do
 
   end subroutine invers2
@@ -572,10 +675,10 @@ contains
   !> Vector addition \f$ a = b + c + d\f$
   subroutine add4(a, b, c, d, n)
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: d
-    real(kind=rp), dimension(n), intent(inout) :: c
-    real(kind=rp), dimension(n), intent(inout) :: b
     real(kind=rp), dimension(n), intent(out) :: a
+    real(kind=rp), dimension(n), intent(in) :: d
+    real(kind=rp), dimension(n), intent(in) :: c
+    real(kind=rp), dimension(n), intent(in) :: b
     integer :: i
 
     do i = 1, n
@@ -656,20 +759,6 @@ contains
 
   end subroutine addsqr2s2
 
-  !> Multiplication by constant c \f$ a = c \cdot b \f$
-  subroutine cmult2(a, b, c, n)
-    integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(in) :: b
-    real(kind=rp), intent(in) :: c
-    integer :: i
-
-    do i = 1, n
-       a(i) = c * b(i)
-    end do
-
-  end subroutine cmult2
-
   !> Vector division \f$ a = a / b \f$
   subroutine invcol2(a, b, n)
     integer, intent(in) :: n
@@ -678,7 +767,7 @@ contains
     integer :: i
 
     do i = 1, n
-       a(i) = a(i) /b(i)
+       a(i) = real(a(i),xp) /b(i)
     end do
 
   end subroutine invcol2
@@ -836,17 +925,18 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: a
     real(kind=rp), dimension(n), intent(in) :: b
-    real(kind=rp) :: glsc2, tmp
+    real(kind=rp) :: glsc2
+    real(kind=xp) :: tmp
     integer :: i, ierr
 
-    tmp = 0.0_rp
+    tmp = 0.0_xp
     do i = 1, n
        tmp = tmp + a(i) * b(i)
     end do
 
-    call MPI_Allreduce(tmp, glsc2, 1, &
-                       MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-
+    call MPI_Allreduce(MPI_IN_PLACE, tmp, 1, &
+         MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    glsc2 = tmp
   end function glsc2
 
   !> Weighted inner product \f$ a^T b c \f$
@@ -855,16 +945,18 @@ contains
     real(kind=rp), dimension(n), intent(in) :: a
     real(kind=rp), dimension(n), intent(in) :: b
     real(kind=rp), dimension(n), intent(in) :: c
-    real(kind=rp) :: glsc3, tmp
+    real(kind=rp) :: glsc3
+    real(kind=xp) :: tmp
     integer :: i, ierr
 
-    tmp = 0.0_rp
+    tmp = 0.0_xp
     do i = 1, n
        tmp = tmp + a(i) * b(i) * c(i)
     end do
 
-    call MPI_Allreduce(tmp, glsc3, 1, &
-                       MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, tmp, 1, &
+         MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    glsc3 = tmp
 
   end function glsc3
   function glsc4(a, b, c, d, n)
@@ -873,16 +965,18 @@ contains
     real(kind=rp), dimension(n), intent(in) :: b
     real(kind=rp), dimension(n), intent(in) :: c
     real(kind=rp), dimension(n), intent(in) :: d
-    real(kind=rp) :: glsc4, tmp
+    real(kind=rp) :: glsc4
+    real(kind=xp) :: tmp
     integer :: i, ierr
 
-    tmp = 0.0_rp
+    tmp = 0.0_xp
     do i = 1, n
        tmp = tmp + a(i) * b(i) * c(i) * d(i)
     end do
 
-    call MPI_Allreduce(tmp, glsc4, 1, &
-                       MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, tmp, 1, &
+         MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    glsc4 = tmp
 
   end function glsc4
 
@@ -967,12 +1061,12 @@ contains
     do while (.true.)
        if (l .gt. 1) then
           l = l - 1
-          aa  = a  (l)
-          ii  = ind(l)
+          aa = a (l)
+          ii = ind(l)
        else
-          aa =   a(ir)
+          aa = a(ir)
           ii = ind(ir)
-          a(ir) =   a( 1)
+          a(ir) = a( 1)
           ind(ir) = ind( 1)
           ir = ir - 1
           if (ir .eq. 1) then
@@ -1126,5 +1220,118 @@ contains
        ind(i) = tempind(i)
     end do
   end subroutine flipvi4
+
+  !> Take the absolute value of an array
+  !! @param[inout]   a     vector to be manipulated
+  !! @param[in]      n     array size
+  subroutine absval(a, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    integer :: i
+    do i = 1, n
+       a(i) = abs(a(i))
+    end do
+  end subroutine absval
+
+  ! ========================================================================== !
+  ! Point-wise operations
+
+  !> Point-wise maximum of two vectors \f$ a = \max(a, b) \f$
+  subroutine pwmax_vec2(a, b, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
+    integer :: i
+
+    do i = 1, n
+       a(i) = max(a(i), b(i))
+    end do
+  end subroutine pwmax_vec2
+
+  !> Point-wise maximum of two vectors \f$ a = \max(b, c) \f$
+  subroutine pwmax_vec3(a, b, c, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b, c
+    integer :: i
+
+    do i = 1, n
+       a(i) = max(b(i), c(i))
+    end do
+  end subroutine pwmax_vec3
+
+  !> Point-wise maximum of scalar and vector \f$ a = \max(a, b) \f$
+  subroutine pwmax_scal2(a, b, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), intent(in) :: b
+    integer :: i
+
+    do i = 1, n
+       a(i) = max(a(i), b)
+    end do
+  end subroutine pwmax_scal2
+
+  !> Point-wise maximum of scalar and vector \f$ a = \max(b, c) \f$
+  subroutine pwmax_scal3(a, b, c, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), intent(in) :: c
+    integer :: i
+
+    do i = 1, n
+       a(i) = max(b(i), c)
+    end do
+  end subroutine pwmax_scal3
+
+  !> Point-wise minimum of two vectors \f$ a = \min(a, b) \f$
+  subroutine pwmin_vec2(a, b, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
+    integer :: i
+
+    do i = 1, n
+       a(i) = min(a(i), b(i))
+    end do
+  end subroutine pwmin_vec2
+
+  !> Point-wise minimum of two vectors \f$ a = \min(b, c) \f$
+  subroutine pwmin_vec3(a, b, c, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b, c
+    integer :: i
+
+    do i = 1, n
+       a(i) = min(b(i), c(i))
+    end do
+  end subroutine pwmin_vec3
+
+  !> Point-wise minimum of scalar and vector \f$ a = \min(a, b) \f$
+  subroutine pwmin_sca2(a, b, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), intent(in) :: b
+    integer :: i
+
+    do i = 1, n
+       a(i) = min(a(i), b)
+    end do
+  end subroutine pwmin_sca2
+
+  !> Point-wise minimum of scalar and vector \f$ a = \min(b, c) \f$
+  subroutine pwmin_sca3(a, b, c, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), intent(in) :: c
+    integer :: i
+
+    do i = 1, n
+       a(i) = min(b(i), c)
+    end do
+  end subroutine pwmin_sca3
 
 end module math
