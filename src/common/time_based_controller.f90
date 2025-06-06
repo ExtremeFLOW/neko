@@ -162,7 +162,7 @@ contains
        check = .true.
     else if (this%never) then
        check = .false.
-    else if (time%t .lt. this%start_time .or. time%t .gt. this%end_time) then
+    else if (time%t - this%start_time .gt. this%end_time - this%start_time) then
        check = .false.
     else if ( (this%nsteps .eq. 0) .and. &
          (t .ge. this%nexecutions * this%time_interval - 0.1_rp * dt) ) then
