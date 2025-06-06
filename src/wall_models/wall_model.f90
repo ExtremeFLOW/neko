@@ -342,6 +342,7 @@ contains
     real(kind=rp) :: hmin, hmax
     type(field_t), pointer :: h_field
     type(file_t) :: h_file
+    character(len=:), allocatable :: log_msg
 
     n_nodes = this%msk(0)
     this%n_nodes = n_nodes
@@ -423,10 +424,10 @@ contains
 
        ! Look at how much the total distance distance from the normal and warn
        ! if significant
-       if ((this%h%x(i) - magp) / magp > 0.1 &
-            .and. (neko_log%level_ .eq. NEKO_LOG_DEBUG)) then
-          write(*,*) "Significant missalignment between wall normal and &
-          & sampling point direction at wall node", xw, yw, zw
+       if ((this%h%x(i) - magp) / magp > 0.1) then
+          write(log_msg,*) "Significant misalignment between wall normal and &
+          &sampling point direction at wall node", xw, yw, zw
+          call neko_log%message(log_msg, NEKO_LOG_DEBUG)
        end if
     end do
 

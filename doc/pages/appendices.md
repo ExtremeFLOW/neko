@@ -11,13 +11,14 @@ of the code. But can be useful for users and developers alike.
 
 ## Environmental variable reference {#appendices_env-var}
 
-| Name             | Description                                                 | Default value |
-| ---------------- | ----------------------------------------------------------- | ------------- |
-| `NEKO_AUTOTUNE`  | Force Ax auto-tuning strategy (``'1D'``,``'KSTEP'``)        | Unset         |
-| `NEKO_LOG_FILE`  | Log file name, uses `stdout` if not set.                    | Unset         |
-| `NEKO_LOG_LEVEL` | Log verbosity level (integer > 0, default: 1)               | Unset         |
-| `NEKO_GS_STRTGY` | Gather-scatter device MPI sync. strategy (0 < integer < 5 ) | Unset         |
-| `NEKO_COMM_ID`   | Communicator id for this process (non-negative integer)     | 0             |
+| Name                | Description                                                           | Default value |
+| ------------------- | --------------------------------------------------------------------- | ------------- |
+| `NEKO_AUTOTUNE`     | Force Ax auto-tuning strategy (``'1D'``,``'KSTEP'``)                  | Unset         |
+| `NEKO_LOG_FILE`     | Log file name, uses `stdout` if not set.                              | Unset         |
+| `NEKO_LOG_TAB_SIZE` | Number of spaces added for each level of indentation in the log file. | 1             |
+| `NEKO_LOG_LEVEL`    | Log verbosity level (integer > 0, default: 1)                         | Unset         |
+| `NEKO_GS_STRTGY`    | Gather-scatter device MPI sync. strategy (0 < integer < 5 )           | Unset         |
+| `NEKO_COMM_ID`      | Communicator id for this process (non-negative integer)               | 0             |
 
 ### Logging level details
 
