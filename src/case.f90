@@ -55,11 +55,13 @@ module case
   use jobctrl, only : jobctrl_set_time_limit
   use user_intf, only : user_t
   use scalar_pnpn, only : scalar_pnpn_t
+  use scalar_scheme, only : scalar_scheme_t
   use time_state, only : time_state_t
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default, json_extract_object
+  use json_utils, only : json_get, json_get_or_default, json_extract_object, json_extract_item
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   use point_zone_registry, only: neko_point_zone_registry
+  use scalars, only : scalars_t
   implicit none
   private
   type, public :: case_t
@@ -73,7 +75,7 @@ module case
      type(chkp_t) :: chkp
      type(user_t) :: user
      class(fluid_scheme_base_t), allocatable :: fluid
-     type(scalar_pnpn_t), allocatable :: scalar
+     type(scalars_t), allocatable :: scalars
   end type case_t
 
   interface case_init
@@ -148,6 +150,7 @@ contains
     integer :: precision, layout
     type(json_file) :: scalar_params, numerics_params
     type(json_file) :: json_subdict
+    integer :: n_scalars, i
 
     !
     ! Setup user defined functions
@@ -240,19 +243,36 @@ contains
     ! Setup scalar scheme
     !
     ! @todo no scalar factory for now, probably not needed
+    scalar = .false.
+    n_scalars = 0
     if (this%params%valid_path('case.scalar')) then
        call json_get_or_default(this%params, 'case.scalar.enabled', scalar, &
             .true.)
+       n_scalars = 1
+    else if (this%params%valid_path('case.scalars')) then
+       call this%params%info('case.scalars', n_children = n_scalars)
+       if (n_scalars > 0) then
+          scalar = .true.
+       end if
     end if
 
     if (scalar) then
-       allocate(this%scalar)
-       call json_extract_object(this%params, 'case.scalar', scalar_params)
-       call this%scalar%init(this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
-            scalar_params, numerics_params, this%user, this%chkp, &
-            this%fluid%ulag, this%fluid%vlag, this%fluid%wlag, &
-            this%fluid%ext_bdf, this%fluid%rho)
-
+       allocate(this%scalars)
+       if (this%params%valid_path('case.scalar')) then
+          ! For backward compatibility
+          call json_extract_object(this%params, 'case.scalar', scalar_params)
+          call this%scalars%init(this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
+               scalar_params, numerics_params, this%user, this%chkp, this%fluid%ulag, &
+               this%fluid%vlag, this%fluid%wlag, this%fluid%ext_bdf, &
+               this%fluid%rho)
+       else
+          ! Multiple scalars
+          call json_extract_object(this%params, 'case.scalars', json_subdict)
+          call this%scalars%init(n_scalars, this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
+               json_subdict, numerics_params, this%user, this%chkp, this%fluid%ulag, &
+               this%fluid%vlag, this%fluid%wlag, this%fluid%ext_bdf, &
+               this%fluid%rho)
+       end if
     end if
 
     !
@@ -286,25 +306,43 @@ contains
     call neko_log%end_section()
 
     if (scalar) then
-
-       call json_get(this%params, 'case.scalar.initial_condition.type', &
-            string_val)
-       call json_extract_object(this%params, 'case.scalar.initial_condition', &
-            json_subdict)
-
        call neko_log%section("Scalar initial condition ")
 
-       if (trim(string_val) .ne. 'user') then
-          call set_scalar_ic(this%scalar%s, &
-               this%scalar%c_Xh, this%scalar%gs_Xh, string_val, json_subdict)
+       if (this%params%valid_path('case.scalar')) then
+          ! For backward compatibility with single scalar
+          call json_get(this%params, 'case.scalar.initial_condition.type', string_val)
+          call json_extract_object(this%params, 'case.scalar.initial_condition', json_subdict)
+
+          if (trim(string_val) .ne. 'user') then
+             call set_scalar_ic(this%scalars%scalar_fields(1)%s, &
+                  this%scalars%scalar_fields(1)%c_Xh, this%scalars%scalar_fields(1)%gs_Xh, &
+                  string_val, json_subdict)
+          else
+             call set_scalar_ic(this%scalars%scalar_fields(1)%name, this%scalars%scalar_fields(1)%s, &
+                  this%scalars%scalar_fields(1)%c_Xh, this%scalars%scalar_fields(1)%gs_Xh, &
+                  this%user%scalar_user_ic, this%params)
+          end if
+
        else
-          call set_scalar_ic(this%scalar%s, &
-               this%scalar%c_Xh, this%scalar%gs_Xh, this%user%scalar_user_ic, &
-               this%params)
+          ! Handle multiple scalars
+          do i = 1, n_scalars
+             call json_extract_item(this%params, 'case.scalars', i, scalar_params)
+             call json_get(scalar_params, 'initial_condition.type', string_val)
+             call json_extract_object(scalar_params, 'initial_condition', json_subdict)
+
+             if (trim(string_val) .ne. 'user') then
+                call set_scalar_ic(this%scalars%scalar_fields(i)%s, &
+                    this%scalars%scalar_fields(i)%c_Xh, this%scalars%scalar_fields(i)%gs_Xh, &
+                    string_val, json_subdict)
+             else
+                call set_scalar_ic(this%scalars%scalar_fields(i)%name, this%scalars%scalar_fields(i)%s, &
+                    this%scalars%scalar_fields(i)%c_Xh, this%scalars%scalar_fields(i)%gs_Xh, &
+                    this%user%scalar_user_ic, this%params)
+             end if
+          end do
        end if
 
        call neko_log%end_section()
-
     end if
 
     ! Add initial conditions to BDF scheme (if present)
@@ -321,8 +359,7 @@ contains
     call this%fluid%validate
 
     if (scalar) then
-       call this%scalar%slag%set(this%scalar%s)
-       call this%scalar%validate
+       call this%scalars%validate()
     end if
 
     !
@@ -380,7 +417,7 @@ contains
          file_format, 'fld')
     call this%output_controller%init(this%time%end_time)
     if (scalar) then
-       call this%f_out%init(precision, this%fluid, this%scalar, name = name, &
+       call this%f_out%init(precision, this%fluid, this%scalars, name = name, &
             path = trim(this%output_directory), &
             fmt = trim(file_format), layout = layout)
     else
@@ -453,9 +490,9 @@ contains
        deallocate(this%fluid)
     end if
 
-    if (allocated(this%scalar)) then
-       call this%scalar%free()
-       deallocate(this%scalar)
+    if (allocated(this%scalars)) then
+       call this%scalars%free()
+       deallocate(this%scalars)
     end if
 
     call this%msh%free()

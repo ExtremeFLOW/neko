@@ -30,6 +30,8 @@ The current high-level structure of the case file is shown below.
     }
 }
 ~~~~~~~~~~~~~~~
+Neko also supports multiple scalar fields, using the keyword `scalars` in the case object. Users can define multiple scalar fields, and each field can have its own boundary conditions, source terms, and solver settings. When using multiple scalar fields, the `name` property of each scalar field is used to identify the scalar field in the user file, defaulted to `s_1, s_2, ...`.
+
 The `version` keyword is reserved to track changes in the format of the file.
 The subsections below we list all the configuration options for each of the high-level objects.
 Some parameters will have default values, and are therefore optional.

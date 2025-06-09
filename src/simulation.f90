@@ -162,10 +162,10 @@ contains
     call neko_log%end_section(log_buf)
 
     ! Scalar step
-    if (allocated(C%scalar)) then
+    if (allocated(C%scalars)) then
        start_time = MPI_WTIME()
        call neko_log%section('Scalar')
-       call C%scalar%step(C%time, C%fluid%ext_bdf, dt_controller)
+       call C%scalars%step(C%time, C%fluid%ext_bdf, dt_controller)
        end_time = MPI_WTIME()
        write(log_buf, '(A,6X,E15.7)') 'Scalar step time:', end_time - start_time
        call neko_log%end_section(log_buf)
@@ -266,7 +266,7 @@ contains
 
     call C%fluid%restart(C%chkp)
     call C%chkp%previous_mesh%free()
-    if (allocated(C%scalar)) call C%scalar%restart(C%chkp)
+    if (allocated(C%scalars)) call C%scalars%restart(C%chkp)
 
     C%time%t = C%chkp%restart_time()
     call neko_log%section('Restarting from checkpoint')
