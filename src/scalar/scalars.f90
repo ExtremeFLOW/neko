@@ -125,7 +125,7 @@ contains
 
           ! If name is empty or not provided, generate a default one
           if (len_trim(field_name) == 0) then
-             write(field_name, '(A,I0)') 'scalar_', i
+             write(field_name, '(A,I0)') 's_', i
           end if
 
           field_names(i) = trim(field_name)
@@ -146,6 +146,14 @@ contains
 
     do i = 1, n_scalars
        call json_extract_item(params, "", i, json_subdict)
+       
+       ! Use the processed field names for multiple scalars
+       if (n_scalars > 1) then
+          call json_subdict%add('name', trim(field_names(i)))
+       else
+          call json_subdict%add('name', 's')
+       end if
+       
        call this%scalar_fields(i)%init(msh, coef, gs, json_subdict, numerics_params, &
             user, chkp, ulag, vlag, wlag, time_scheme, rho)
     end do
@@ -167,6 +175,9 @@ contains
 
     ! Allocate a single scalar field
     allocate(scalar_pnpn_t::this%scalar_fields(1))
+
+    ! Set the scalar name to "s"
+    call params%add('name', 's')
 
     ! Initialize it directly with the params
     call this%scalar_fields(1)%init(msh, coef, gs, params, numerics_params, user, &
