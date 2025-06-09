@@ -143,14 +143,14 @@ contains
 
     do i = 1, n_scalars
        call json_extract_item(params, "", i, json_subdict)
-       
+
        ! Use the processed field names for multiple scalars
        if (n_scalars > 1) then
           call json_subdict%add('name', trim(field_names(i)))
        else
           call json_subdict%add('name', 's')
        end if
-       
+
        call this%scalar_fields(i)%init(msh, coef, gs, json_subdict, numerics_params, &
             user, chkp, ulag, vlag, wlag, time_scheme, rho)
     end do
