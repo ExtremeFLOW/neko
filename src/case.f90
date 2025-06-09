@@ -145,9 +145,9 @@ contains
     logical :: found, logical_val
     integer :: integer_val
     real(kind=rp) :: real_val
-    character(len = :), allocatable :: string_val, name
+    character(len = :), allocatable :: string_val, name, file_format
     integer :: output_dir_len
-    integer :: precision
+    integer :: precision, layout
     type(json_file) :: scalar_params, numerics_params
     type(json_file) :: json_subdict
     integer :: n_scalars, i
@@ -246,7 +246,7 @@ contains
     scalar = .false.
     n_scalars = 0
     if (this%params%valid_path('case.scalar')) then
-       call json_get_or_default(this%params, 'case.scalar.enabled', scalar,&
+       call json_get_or_default(this%params, 'case.scalar.enabled', scalar, &
             .true.)
        n_scalars = 1
     else if (this%params%valid_path('case.scalars')) then
@@ -404,17 +404,26 @@ contains
     end if
 
     !
+    ! Setup output layout of the field bp file
+    !
+    call json_get_or_default(this%params, 'case.output_layout', layout, 1)
+
+    !
     ! Setup output_controller
     !
-    call this%output_controller%init(this%time%end_time)
     call json_get_or_default(this%params, 'case.fluid.output_filename', &
          name, "field")
+    call json_get_or_default(this%params, 'case.fluid.output_format', &
+         file_format, 'fld')
+    call this%output_controller%init(this%time%end_time)
     if (scalar) then
        call this%f_out%init(precision, this%fluid, this%scalars, name = name, &
-            path = trim(this%output_directory))
+            path = trim(this%output_directory), &
+            fmt = trim(file_format), layout = layout)
     else
        call this%f_out%init(precision, this%fluid, name = name, &
-            path = trim(this%output_directory))
+            path = trim(this%output_directory), &
+            fmt = trim(file_format), layout = layout)
     end if
 
     call json_get_or_default(this%params, 'case.fluid.output_control',&
@@ -448,8 +457,8 @@ contains
             path = this%output_directory, fmt = trim(string_val))
        call json_get_or_default(this%params, 'case.checkpoint_control', &
             string_val, "simulationtime")
-       call json_get_or_default(this%params, 'case.checkpoint_value', real_val,&
-            1e10_rp)
+       call json_get_or_default(this%params, 'case.checkpoint_value', &
+            real_val, 1e10_rp)
        call this%output_controller%add(this%chkp_out, real_val, string_val, &
             NEKO_EPS)
     end if

@@ -55,27 +55,42 @@ module fluid_output
 
 contains
 
-  subroutine fluid_output_init(this, precision, fluid, scalar_fields, name, path)
+  subroutine fluid_output_init(this, precision, fluid, scalar_fields, name, path, &
+       fmt, layout)
     class(fluid_output_t), intent(inout) :: this
     integer, intent(inout) :: precision
     class(fluid_scheme_base_t), intent(in), target :: fluid
     class(scalars_t), intent(in), optional, target :: scalar_fields
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path
+    character(len=*), intent(in), optional :: fmt
+    integer, intent(in), optional :: layout
     character(len=1024) :: fname
     integer :: i, n_scalars
+    character(len=10) :: suffix
 
-    if (present(name) .and. present(path)) then
-       fname = trim(path) // trim(name) // '.fld'
-    else if (present(name)) then
-       fname = trim(name) // '.fld'
-    else if (present(path)) then
-       fname = trim(path) // 'field.fld'
-    else
-       fname = 'field.fld'
+    suffix = '.fld'
+    if (present(fmt)) then
+       if (fmt .eq. 'adios2') then
+          suffix = '.bp'
+       end if
     end if
 
-    call this%init_base(fname, precision)
+    if (present(name) .and. present(path)) then
+       fname = trim(path) // trim(name) // trim(suffix)
+    else if (present(name)) then
+       fname = trim(name) // trim(suffix)
+    else if (present(path)) then
+       fname = trim(path) // 'field' // trim(suffix)
+    else
+       fname = 'field' // trim(suffix)
+    end if
+
+    if (present(layout)) then
+       call this%init_base(fname, precision, layout)
+    else
+       call this%init_base(fname, precision)
+    end if
 
     ! Calculate total number of fields
     n_scalars = 0
@@ -120,7 +135,7 @@ contains
          do i = 1, size(fields)
             call device_memcpy(fields(i)%ptr%x, fields(i)%ptr%x_d, &
                  fields(i)%ptr%dof%size(), DEVICE_TO_HOST, &
-                 sync=(i .eq. size(fields))) ! Sync on the last field
+                 sync = (i .eq. size(fields))) ! Sync on the last field
          end do
        end associate
 

@@ -5,7 +5,11 @@ io/format/nmsh.lo : io/format/nmsh.f90 config/num_types.lo
 io/format/re2.lo : io/format/re2.f90 config/num_types.lo 
 io/format/map.lo : io/format/map.f90 mesh/mesh.lo 
 io/format/stl.lo : io/format/stl.f90 config/num_types.lo 
-common/log.lo : common/log.f90 config/num_types.lo comm/comm.lo 
+io/buffer/buffer.lo : io/buffer/buffer.F90 math/vector.lo config/num_types.lo 
+io/buffer/buffer_1d.lo : io/buffer/buffer_1d.F90 io/buffer/buffer.lo math/vector.lo config/num_types.lo 
+io/buffer/buffer_4d.lo : io/buffer/buffer_4d.F90 io/buffer/buffer.lo math/vector.lo config/num_types.lo 
+io/buffer/buffer_4d_npar.lo : io/buffer/buffer_4d_npar.F90 io/buffer/buffer.lo math/vector.lo config/num_types.lo 
+common/log.lo : common/log.f90 common/utils.lo config/num_types.lo comm/comm.lo 
 comm/comm.lo : comm/comm.F90 config/neko_config.lo common/utils.lo 
 mesh/curve.lo : mesh/curve.f90 common/utils.lo adt/stack.lo common/structs.lo config/num_types.lo 
 comm/mpi_types.lo : comm/mpi_types.f90 io/format/stl.lo io/format/nmsh.lo io/format/re2.lo comm/comm.lo 
@@ -71,7 +75,7 @@ mesh/search_tree/aabb.lo : mesh/search_tree/aabb.f90 common/utils.lo mesh/tet_me
 mesh/aabb_tree.lo : mesh/aabb_tree.f90 adt/stack.lo common/utils.lo config/num_types.lo mesh/tri.lo mesh/search_tree/aabb.lo 
 mesh/tet_mesh.lo : mesh/tet_mesh.f90 common/utils.lo mesh/point.lo mesh/tet.lo mesh/mesh.lo 
 mesh/tri_mesh.lo : mesh/tri_mesh.f90 mesh/point.lo mesh/tri.lo 
-field/field_registry.lo : field/field_registry.f90 comm/comm.lo adt/htable.lo common/utils.lo sem/dofmap.lo field/field.lo 
+field/field_registry.lo : field/field_registry.f90 common/json_utils.lo comm/comm.lo adt/htable.lo common/utils.lo sem/dofmap.lo field/field.lo 
 field/scratch_registry.lo : field/scratch_registry.f90 sem/dofmap.lo field/field.lo 
 field/field.lo : field/field.f90 sem/dofmap.lo sem/space.lo mesh/mesh.lo math/math.lo device/device.lo config/num_types.lo math/bcknd/device/device_math.lo config/neko_config.lo 
 field/field_list.lo : field/field_list.f90 common/utils.lo mesh/mesh.lo sem/dofmap.lo sem/space.lo config/num_types.lo field/field.lo 
@@ -122,6 +126,7 @@ io/generic_file.lo : io/generic_file.f90 comm/comm.lo common/utils.lo config/num
 io/map_file.lo : io/map_file.f90 io/format/map.lo comm/comm.lo common/utils.lo io/generic_file.lo 
 io/re2_file.lo : io/re2_file.f90 common/log.lo adt/htable.lo io/map_file.lo io/format/map.lo io/format/re2.lo common/datadist.lo comm/mpi_types.lo comm/comm.lo mesh/point.lo mesh/mesh.lo common/utils.lo config/num_types.lo io/generic_file.lo 
 io/rea_file.lo : io/rea_file.f90 common/log.lo adt/htable.lo common/datadist.lo comm/comm.lo io/map_file.lo io/re2_file.lo io/format/rea.lo io/format/map.lo mesh/point.lo mesh/mesh.lo common/utils.lo config/num_types.lo io/generic_file.lo 
+io/bp_file.lo : io/bp_file.F90 io/buffer/buffer_4d_npar.lo io/buffer/buffer_4d.lo io/buffer/buffer_1d.lo comm/comm.lo common/datadist.lo common/utils.lo io/fld_file_data.lo common/structs.lo mesh/mesh.lo sem/space.lo math/vector.lo sem/dofmap.lo field/field_list.lo io/generic_file.lo 
 io/fld_file.lo : io/fld_file.f90 comm/mpi_types.lo math/math.lo common/datadist.lo comm/comm.lo common/utils.lo mesh/mesh.lo fluid/mean_sqr_flow.lo fluid/mean_flow.lo io/fld_file_data.lo math/vector.lo common/structs.lo sem/space.lo sem/dofmap.lo field/field_list.lo field/field.lo io/generic_file.lo config/num_types.lo 
 io/fld_file_data.lo : io/fld_file_data.f90 mesh/mesh.lo common/utils.lo common/global_interpolation.lo sem/space.lo sem/dofmap.lo field/field.lo math/vector.lo math/math.lo config/num_types.lo 
 io/vtk_file.lo : io/vtk_file.f90 comm/comm.lo common/log.lo mesh/tri_mesh.lo mesh/tet_mesh.lo field/mesh_field.lo sem/dofmap.lo field/field.lo mesh/mesh.lo common/utils.lo io/generic_file.lo config/num_types.lo 
@@ -130,7 +135,7 @@ io/nmsh_file.lo : io/nmsh_file.f90 common/log.lo comm/mpi_types.lo common/datadi
 io/chkp_file.lo : io/chkp_file.f90 common/global_interpolation.lo comm/comm.lo comm/mpi_types.lo sem/interpolation.lo math/math.lo mesh/mesh.lo sem/space.lo common/utils.lo math/bcknd/device/device_math.lo sem/dofmap.lo field/field.lo config/num_types.lo common/checkpoint.lo field/field_series.lo io/generic_file.lo 
 io/csv_file.lo : io/csv_file.f90 comm/comm.lo common/log.lo config/num_types.lo common/utils.lo io/generic_file.lo math/matrix.lo math/vector.lo 
 io/hdf5_file.lo : io/hdf5_file.F90 comm/comm.lo common/log.lo sem/dofmap.lo field/field_series.lo field/field_list.lo field/field.lo mesh/mesh.lo common/utils.lo common/checkpoint.lo io/generic_file.lo config/num_types.lo 
-io/file.lo : io/file.f90 io/hdf5_file.lo io/csv_file.lo io/stl_file.lo io/vtk_file.lo io/fld_file_data.lo io/fld_file.lo io/re2_file.lo io/rea_file.lo io/map_file.lo io/chkp_file.lo io/nmsh_file.lo io/generic_file.lo config/num_types.lo common/utils.lo 
+io/file.lo : io/file.f90 io/hdf5_file.lo io/csv_file.lo io/stl_file.lo io/vtk_file.lo io/fld_file_data.lo io/fld_file.lo io/bp_file.lo io/re2_file.lo io/rea_file.lo io/map_file.lo io/chkp_file.lo io/nmsh_file.lo io/generic_file.lo config/num_types.lo common/utils.lo 
 io/output.lo : io/output.f90 io/file.lo config/num_types.lo 
 io/fluid_output.lo : io/fluid_output.f90 scalar/scalars.lo io/output.lo device/device.lo config/neko_config.lo field/field_list.lo scalar/scalar_scheme.lo fluid/fluid_scheme_base.lo fluid/fluid_scheme_incompressible.lo config/num_types.lo 
 io/fld_file_output.lo : io/fld_file_output.f90 io/output.lo device/device.lo config/neko_config.lo field/field_list.lo config/num_types.lo 
@@ -155,7 +160,7 @@ bc/field_dirichlet.lo : bc/field_dirichlet.f90 common/json_utils.lo sem/dofmap.l
 bc/field_dirichlet_vector.lo : bc/field_dirichlet_vector.f90 bc/field_dirichlet.lo sem/dofmap.lo math/bcknd/device/device_math.lo math/math.lo field/field_list.lo field/field.lo common/utils.lo bc/bc_list.lo bc/bc.lo bc/dirichlet.lo sem/coef.lo config/num_types.lo 
 bc/usr_inflow.lo : bc/usr_inflow.f90 bc/bc.lo common/utils.lo bc/bcknd/device/device_inhom_dirichlet.lo device/device.lo bc/inflow.lo sem/coef.lo config/num_types.lo 
 bc/usr_scalar.lo : bc/usr_scalar.f90 common/json_utils.lo common/utils.lo bc/bcknd/device/device_inhom_dirichlet.lo device/device.lo bc/bc.lo sem/coef.lo config/num_types.lo 
-bc/facet_normal.lo : bc/facet_normal.f90 common/utils.lo bc/bc.lo sem/coef.lo math/math.lo config/num_types.lo bc/bcknd/device/device_facet_normal.lo 
+bc/facet_normal.lo : bc/facet_normal.f90 device/device.lo adt/htable.lo common/utils.lo bc/bc.lo sem/coef.lo math/vector.lo math/bcknd/device/device_math.lo math/math.lo config/neko_config.lo config/num_types.lo bc/bcknd/device/device_facet_normal.lo 
 bc/symmetry.lo : bc/symmetry.f90 bc/zero_dirichlet.lo sem/coef.lo adt/tuple.lo bc/bc.lo config/num_types.lo bc/dirichlet.lo bc/bcknd/device/device_symmetry.lo 
 bc/non_normal.lo : bc/non_normal.f90 sem/coef.lo adt/tuple.lo config/num_types.lo bc/symmetry.lo 
 bc/blasius.lo : bc/blasius.f90 common/json_utils.lo bc/bc.lo fluid/flow_profile.lo bc/bcknd/device/device_inhom_dirichlet.lo device/device.lo common/utils.lo sem/coef.lo config/num_types.lo 

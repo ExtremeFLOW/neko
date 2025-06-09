@@ -67,7 +67,9 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `mesh_file`                | The name of the mesh file.                                                                            | Strings ending with `.nmsh`                     | -             |
 | `output_boundary`          | Whether to write a `bdry0.f0000` file with boundary labels. Can be used to check boundary conditions. | `true` or `false`                               | `false`       |
 | `output_directory`         | Folder for redirecting solver output. Note that the folder has to exist!                              | Path to an existing directory                   | `.`           |
+| `output_format`            | The file format of field data.                                                                        | `nek5000` or `adios2`                           | `nek5000`     |
 | `output_precision`         | Whether to output snapshots in single or double precision                                             | `single` or `double`                            | `single`      |
+| `output_layout`            | Data layout for `adios2' files. (Choose `2' or `3' for ADIOS2 supported compressors BigWhoop or ZFP.) | Positive integer `1`, `2', `3'                  | `1`           |
 | `load_balancing`           | Whether to apply load balancing.                                                                      | `true` or `false`                               | `false`       |
 | `output_partitions`        | Whether to write a `partitions.vtk` file with domain partitioning.                                    | `true` or `false`                               | `false`       |
 | `output_checkpoints`       | Whether to output checkpoints, i.e. restart files.                                                    | `true` or `false`                               | `false`       |
