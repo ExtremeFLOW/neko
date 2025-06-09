@@ -70,9 +70,6 @@ module scalars
      procedure, private :: scalars_init_single
      !> Perform a time step for all scalar fields
      procedure :: step => scalars_step
-     !> Update the material properties for all scalar fields
-     procedure :: update_material_properties => &
-          scalars_update_material_properties
      !> Restart from checkpoint data
      procedure :: restart => scalars_restart
      !> Check if the configuration is valid
@@ -197,21 +194,6 @@ contains
        call this%scalar_fields(i)%step(time, ext_bdf, dt_controller)
     end do
   end subroutine scalars_step
-
-  !> Update the material properties for all scalar fields
-  subroutine scalars_update_material_properties(this, t, tstep)
-    class(scalars_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    integer :: i
-
-    ! Iterate through all scalar fields
-    do i = 1, size(this%scalar_fields)
-       this%scalar_fields(i)%cp = 1.0_rp
-       this%scalar_fields(i)%lambda = 1e-16_rp
-       call this%scalar_fields(i)%update_material_properties(t, tstep)
-    end do
-  end subroutine scalars_update_material_properties
 
   !> Restart from checkpoint data
   subroutine scalars_restart(this, chkp)
