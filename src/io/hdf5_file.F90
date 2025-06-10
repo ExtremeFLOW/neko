@@ -525,7 +525,7 @@ contains
   subroutine hdf5_file_write(this, data, t)
     class(hdf5_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    type(time_state_t), intent(in), optional :: t
     call neko_error('Neko needs to be built with HDF5 support')
   end subroutine hdf5_file_write
 
