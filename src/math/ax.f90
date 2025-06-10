@@ -42,7 +42,7 @@ module ax_product
   !> Base type for a matrix-vector product providing \f$ Ax \f$
   type, public, abstract :: ax_t
    contains
-     procedure(ax_compute), nopass, deferred :: compute
+     procedure(ax_compute), pass(this), deferred :: compute
      procedure(ax_compute_vector), pass(this), deferred :: compute_vector
   end type ax_t
 
@@ -68,13 +68,14 @@ module ax_product
   !! @param msh Mesh.
   !! @param Xh Function space \f$ X_h \f$.
   abstract interface
-     subroutine ax_compute(w, u, coef, msh, Xh)
+     subroutine ax_compute(this, w, u, coef, msh, Xh)
        import space_t
        import mesh_t
        import coef_t
        import ax_t
        import rp
        implicit none
+       class(ax_t), intent(in) :: this
        type(space_t), intent(in) :: Xh
        type(mesh_t), intent(in) :: msh
        type(coef_t), intent(in) :: coef

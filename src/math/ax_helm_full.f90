@@ -45,7 +45,7 @@ module ax_helm_full
   type, public, abstract, extends(ax_t) :: ax_helm_full_t
    contains
      !> Compute the product for 3 fields.
-     procedure, nopass :: compute => ax_helm_full_compute
+     procedure, pass(this) :: compute => ax_helm_full_compute
   end type ax_helm_full_t
 
 contains
@@ -57,7 +57,8 @@ contains
   !! @param coef Coefficients.
   !! @param msh Mesh.
   !! @param Xh Function space \f$ X_h \f$.
-  subroutine ax_helm_full_compute(w, u, coef, msh, Xh)
+  subroutine ax_helm_full_compute(this, w, u, coef, msh, Xh)
+    class(ax_helm_full_t), intent(in) :: this
     type(mesh_t), intent(in) :: msh
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef

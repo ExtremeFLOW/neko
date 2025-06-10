@@ -44,7 +44,7 @@ module ax_helm_cpu
   type, public, extends(ax_helm_t) :: ax_helm_cpu_t
    contains
      !> Compute the product.
-     procedure, nopass :: compute => ax_helm_compute
+     procedure, pass(this) :: compute => ax_helm_compute
   end type ax_helm_cpu_t
 
 contains
@@ -57,7 +57,8 @@ contains
   !! @param Xh Function space \f$ X_h \f$.
   !! @note Since this is a performance-crtical routine, it is implemented in
   !! several kernels corresponding to different polynmial orders.
-  subroutine ax_helm_compute(w, u, coef, msh, Xh)
+  subroutine ax_helm_compute(this, w, u, coef, msh, Xh)
+    class(ax_helm_cpu_t), intent(in) :: this
     type(mesh_t), intent(in) :: msh
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
