@@ -30,6 +30,8 @@ The current high-level structure of the case file is shown below.
     }
 }
 ~~~~~~~~~~~~~~~
+Neko also supports multiple scalar fields, using the keyword `scalars` in the case object. Users can define multiple scalar fields, and each field can have its own boundary conditions, source terms, and solver settings. When using multiple scalar fields, the `name` property of each scalar field is used to identify the scalar field in the user file, defaulted to `s_1, s_2, ...`.
+
 The `version` keyword is reserved to track changes in the format of the file.
 The subsections below we list all the configuration options for each of the high-level objects.
 Some parameters will have default values, and are therefore optional.
@@ -65,7 +67,9 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `mesh_file`                | The name of the mesh file.                                                                            | Strings ending with `.nmsh`                     | -             |
 | `output_boundary`          | Whether to write a `bdry0.f0000` file with boundary labels. Can be used to check boundary conditions. | `true` or `false`                               | `false`       |
 | `output_directory`         | Folder for redirecting solver output. Note that the folder has to exist!                              | Path to an existing directory                   | `.`           |
+| `output_format`            | The file format of field data.                                                                        | `nek5000` or `adios2`                           | `nek5000`     |
 | `output_precision`         | Whether to output snapshots in single or double precision                                             | `single` or `double`                            | `single`      |
+| `output_layout`            | Data layout for `adios2' files. (Choose `2' or `3' for ADIOS2 supported compressors BigWhoop or ZFP.) | Positive integer `1`, `2', `3'                  | `1`           |
 | `load_balancing`           | Whether to apply load balancing.                                                                      | `true` or `false`                               | `false`       |
 | `output_partitions`        | Whether to write a `partitions.vtk` file with domain partitioning.                                    | `true` or `false`                               | `false`       |
 | `output_checkpoints`       | Whether to output checkpoints, i.e. restart files.                                                    | `true` or `false`                               | `false`       |
@@ -235,7 +239,9 @@ table below.
 | velocity_value          | A Dirichlet condition for velocity.                                                                                                                     |
 | no_slip                 | A no-slip wall.                                                                                                                                         |
 | outflow                 | A pressure outlet.                                                                                                                                      |
-| normal_outflow          | An Neumann condition  for the surface-normal component of velocity combined with a Dirichlet for the surface-parallel components. Must be axis-aligned. |
+| normal_outflow          | An Neumann condition for the surface-normal component of velocity combined with a Dirichlet for the surface-parallel components. Must be axis-aligned.  |
+| outflow+user            | Same as `outflow` but with user-specified pressure.                                                                                                     |
+| normal_outflow+user     | Same as `normal_outflow` but with user-specified pressure.                                                                                              |
 | outflow+dong            | A pressure outlet with the Dong condition applied.                                                                                                      |
 | normal_outflow+dong     | The `normal_outflow` with the Dong condition applied. Must be axis-aligned.                                                                             |
 | shear_stress            | Prescribed wall shear stress. Must be axis-aligned.                                                                                                     |
@@ -288,6 +294,23 @@ A more detailed description of each boundary condition is provided below.
   component, but fixes the values of the surface-parallel components. The latter
   values are not prescribed in the boundary condition's JSON, but are instead
   taken from the initial conditions. The boundary must be axis-aligned.
+  ```json
+  {
+    "type": "normal_outflow",
+    "zone_indices": [1, 2]
+  }
+  ```
+* `outflow+user`. Same as `outflow`, but with user-specified
+  pressure. The pressure is specified via the same interface as `user_pressure`,
+  see the 
+  [relevant section](#user-file_field-dirichlet-update) for more information.
+
+* `normal_outflow+user`. Same as `normal_outflow`, but with user-specified
+  pressure. The pressure profile is specified via the same interface as 
+  `user_pressure`, see
+  the [relevant section](#user-file_field-dirichlet-update) for more information.
+  Note that, similarly to `normal_outflow`, surface-parallel velocity components
+  are taken from the initial conditions. 
 
 * `outflow+dong`. Same as `outflow`, but additionally applies the Dong boundary
   condition on the pressure. This is a way to prevent backflow and therefore
@@ -644,7 +667,7 @@ The following keywords are used, with the corresponding options.
     kernel fusion. Must be used for velocity when viscosity varies in space and
     device backened is used.
     using kernel fusion.
-* `preconditioner`, preconditioner type.
+* `preconditioner.type`, preconditioner type.
   - `jacobi`, a Jacobi preconditioner. Typically used for velocity.
   - `hsmg`, a hybrid-Schwarz multigrid preconditioner. Typically used for
     pressure.
@@ -667,6 +690,33 @@ convergence criteria. This is done by setting the
 `case.fluid.strict_convergence` keyword to `true`. This will force the solver to
 converge to the specified tolerance within the specified number of iterations.
 If the solver does not converge, the simulation will be terminated.
+
+### Multilevel preconditioners
+The multilevel preconditioners, `hsmg` and `phmg`, come with an
+additional set of parameters related to the solution of the coarse
+grid problem. These parameters are specified as a `coarse_grid` block
+under `preconditioner`.
+
+For `hsmg`, the following keywords are used:
+
+| Name                               | Description                                                                                   | Admissible values                 | Default value |
+|------------------------------------|-----------------------------------------------------------------------------------------------|-----------------------------------|---------------|
+| `coarse_grid.solver`               | Type of linear solver for the coarse grid, any of the Krylov solvers or TreeAMG  `tamg`       | A solver `type`                   | `cg`          |
+| `coarse_grid.preconditioner`       | Type of the preconditioner to use (only valid for a Krylov based `solver`)                    | A preconditioner `type`           | `jacobi       |
+| `coarse_grid.iterations`           | Number of lienar solver iteration (only valid for a Krylov based `solver`)                    | An integer                        | 10            |
+| `coarse_grid.monitor`              | Monitor residuals in the coarse grid (only valid for a Krylov based `solver`)                 | `true` or `false`                 | `false`       |
+| `coarse_grid.levels`               | Number of AMG levels to construct (only valid for `solver` type `tamg`)                       | An integer                        | 3             |
+| `coarse_grid.cycles`               | Number of AMG cycles (only valid for `solver` type `tamg`)                                    | An integer                        | 1             |
+| `coarse_grid.cheby_degree`         | Degree of the Chebyshev based AMG smoother                                                    | An integer                        | 5             |
+
+For `phmg`, the following keywords are used:
+
+| Name                               | Description                                                                                   | Admissible values                 | Default value |
+|------------------------------------|-----------------------------------------------------------------------------------------------|-----------------------------------|---------------|
+| `coarse_grid.smoother_iterations`  | Number of smoother iterations in the p-multigrid parts                                        | An integer                        | 10            |
+| `coarse_grid.levels`               | Number of AMG levels to construct (only valid for `solver` type `tamg`)                       | An integer                        | 3             |
+| `coarse_grid.cycles`               | Number of AMG cycles (only valid for `solver` type `tamg`)                                    | An integer                        | 1             |
+| `coarse_grid.cheby_degree`         | Degree of the Chebyshev based AMG smoother                                                    | An integer                        | 5             |
 
 ### Flow rate forcing
 The optional `flow_rate_force` object can be used to force a particular flow
@@ -714,14 +764,14 @@ concisely directly in the table.
 | `gradient_jump_penalty`                 | Array of JSON objects, defining additional gradient jump penalty.                                 | See list of gradient jump penalty above                     | -             |
 | `boundary_types`                        | Boundary types/conditions labels.                                                                 | Array of strings                                            | -             |
 | `velocity_solver.type`                  | Linear solver for the momentum equation.                                                          | `cg`, `pipecg`, `bicgstab`, `cacg`, `gmres`                 | -             |
-| `velocity_solver.preconditioner`        | Linear solver preconditioner for the momentum equation.                                           | `ident`, `hsmg`, `jacobi`                                   | -             |
+| `velocity_solver.preconditioner.type`   | Linear solver preconditioner for the momentum equation.                                           | `ident`, `hsmg`, `jacobi`                                   | -             |
 | `velocity_solver.absolute_tolerance`    | Linear solver convergence criterion for the momentum equation.                                    | Positive real                                               | -             |
 | `velocity_solver.maxiter`               | Linear solver max iteration count for the momentum equation.                                      | Positive real                                               | 800           |
 | `velocity_solver.projection_space_size` | Projection space size for the momentum equation.                                                  | Positive integer                                            | 0             |
 | `velocity_solver.projection_hold_steps` | Holding steps of the projection for the momentum equation.                                        | Positive integer                                            | 5             |
 | `velocity_solver.monitor`               | Monitor residuals in the linear solver for the momentum equation.                                 | `true` or `false`                                           | `false`       |
 | `pressure_solver.type`                  | Linear solver for the pressure equation.                                                          | `cg`, `pipecg`, `bicgstab`, `cacg`, `gmres`                 | -             |
-| `pressure_solver.preconditioner`        | Linear solver preconditioner for the pressure equation.                                           | `ident`, `hsmg`, `jacobi`                                   | -             |
+| `pressure_solver.preconditioner.type`   | Linear solver preconditioner for the pressure equation.                                           | `ident`, `hsmg`, `jacobi`                                   | -             |
 | `pressure_solver.absolute_tolerance`    | Linear solver convergence criterion for the pressure equation.                                    | Positive real                                               | -             |
 | `pressure_solver.maxiter`               | Linear solver max iteration count for the pressure equation.                                      | Positive real                                               | 800           |
 | `pressure_solver.projection_space_size` | Projection space size for the pressure equation.                                                  | Positive integer                                            | 0             |
@@ -842,7 +892,7 @@ standard choice would be `"type": "cg"` and `"preconditioner": "jacobi"`.
 | `gradient_jump_penalty`        | Array of JSON objects, defining additional gradient jump penalty. | See list of gradient jump penalty above     | -             |
 | `advection`                    | Whether to compute the advetion term.                             | `true` or `false`                           | `true`        |
 | `solver.type`                  | Linear solver for scalar equation.                                | `cg`, `pipecg`, `bicgstab`, `cacg`, `gmres` | -             |
-| `solver.preconditioner`        | Linear solver preconditioner for the momentum equation.           | `ident`, `hsmg`, `jacobi`                   | -             |
+| `solver.preconditioner.type`   | Linear solver preconditioner for the momentum equation.           | `ident`, `hsmg`, `jacobi`                   | -             |
 | `solver.absolute_tolerance`    | Linear solver convergence criterion for the momentum equation.    | Positive real                               | -             |
 | `solver.maxiter`               | Linear solver max iteration count for the momentum equation.      | Positive real                               | 800           |
 | `solver.projection_space_size` | Projection space size for the scalar equation.                    | Positive integer                            | 0            |

@@ -168,6 +168,7 @@ contains
     type(json_file) :: wm_json
     character(len=:), allocatable :: string_val1, string_val2
     real(kind=rp) :: GJP_param_a, GJP_param_b
+    type(json_file) :: json_subdict
 
     !
     ! SEM simulation fundamentals
@@ -265,6 +266,12 @@ contains
     write(log_buf, '(A, L1)') 'Save bdry  : ', logical_val
     call neko_log%message(log_buf)
 
+    call json_get_or_default(params, "case.fluid.full_stress_formulation", &
+         logical_val, .false.)
+    write(log_buf, '(A, L1)') 'Full stress: ', logical_val
+    call neko_log%message(log_buf)
+
+
     !
     ! Setup right-hand side fields.
     !
@@ -282,8 +289,10 @@ contains
             'case.fluid.velocity_solver.max_iterations', &
             integer_val, KSP_MAX_ITER)
        call json_get(params, 'case.fluid.velocity_solver.type', string_val1)
-       call json_get(params, 'case.fluid.velocity_solver.preconditioner', &
+       call json_get(params, 'case.fluid.velocity_solver.preconditioner.type', &
             string_val2)
+       call json_extract_object(params, &
+            'case.fluid.velocity_solver.preconditioner', json_subdict)
        call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance', &
             real_val)
        call json_get_or_default(params, &
@@ -298,7 +307,8 @@ contains
        call this%solver_factory(this%ksp_vel, this%dm_Xh%size(), &
             string_val1, integer_val, real_val, logical_val)
        call this%precon_factory_(this%pc_vel, this%ksp_vel, &
-            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_vel, string_val2)
+            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_vel, &
+            string_val2, json_subdict)
        call neko_log%end_section()
     end if
 
@@ -323,7 +333,6 @@ contains
     call this%source_term%init(this%f_x, this%f_y, this%f_z, this%c_Xh, user)
     call this%source_term%add(params, 'case.fluid.source_terms')
 
-    call neko_log%end_section()
 
   end subroutine fluid_scheme_init_base
 
@@ -512,7 +521,7 @@ contains
 
   !> Initialize a Krylov preconditioner
   subroutine fluid_scheme_precon_factory(this, pc, ksp, coef, dof, gs, bclst, &
-       pctype)
+       pctype, pcparams)
     class(fluid_scheme_incompressible_t), intent(inout) :: this
     class(pc_t), allocatable, target, intent(inout) :: pc
     class(ksp_t), target, intent(inout) :: ksp
@@ -521,6 +530,7 @@ contains
     type(gs_t), target, intent(inout) :: gs
     type(bc_list_t), target, intent(inout) :: bclst
     character(len=*) :: pctype
+    type(json_file), intent(inout) :: pcparams
 
     call precon_factory(pc, pctype)
 
@@ -532,18 +542,9 @@ contains
     type is (device_jacobi_t)
        call pcp%init(coef, dof, gs)
     type is (hsmg_t)
-       if (len_trim(pctype) .gt. 4) then
-          if (index(pctype, '+') .eq. 5) then
-             call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst, &
-                  trim(pctype(6:)))
-          else
-             call neko_error('Unknown coarse grid solver')
-          end if
-       else
-          call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst)
-       end if
+       call pcp%init(coef, bclst, pcparams)
     type is (phmg_t)
-       call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst)
+       call pcp%init(coef, bclst, pcparams)
     end select
 
     call ksp%set_pc(pc)
@@ -568,7 +569,7 @@ contains
   !! @param tstep Current time step.
   subroutine fluid_scheme_update_material_properties(this, t, tstep)
     class(fluid_scheme_incompressible_t), intent(inout) :: this
-    real(kind=rp),intent(in) :: t
+    real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(field_t), pointer :: nut
 
@@ -586,9 +587,9 @@ contains
     ! values are also filled
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%rho%x, this%rho%x_d, this%rho%size(), &
-            DEVICE_TO_HOST, sync=.false.)
+            DEVICE_TO_HOST, sync = .false.)
        call device_memcpy(this%mu%x, this%mu%x_d, this%mu%size(), &
-            DEVICE_TO_HOST, sync=.false.)
+            DEVICE_TO_HOST, sync = .false.)
     end if
   end subroutine fluid_scheme_update_material_properties
 
@@ -681,9 +682,9 @@ contains
     ! values are also filled
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%rho%x, this%rho%x_d, this%rho%size(), &
-            DEVICE_TO_HOST, sync=.false.)
+            DEVICE_TO_HOST, sync = .false.)
        call device_memcpy(this%mu%x, this%mu%x_d, this%mu%size(), &
-            DEVICE_TO_HOST, sync=.false.)
+            DEVICE_TO_HOST, sync = .false.)
     end if
   end subroutine fluid_scheme_set_material_properties
 

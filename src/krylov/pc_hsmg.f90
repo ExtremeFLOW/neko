@@ -82,10 +82,13 @@ module hsmg
   use field, only : field_t
   use coefs, only : coef_t
   use mesh, only : mesh_t
+  use json_module, only : json_file
+  use json_utils, only : json_get_or_default
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
        krylov_solver_factory
   use tree_amg_multigrid, only : tamg_solver_t
   use zero_dirichlet, only : zero_dirichlet_t
+  use logger, only : neko_log, LOG_SIZE
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   !$ use omp_lib
   implicit none
@@ -117,7 +120,7 @@ module hsmg
      type(field_t) :: wf !< Work fields
      class(ksp_t), allocatable :: crs_solver !< Solver for course problem
      type(tamg_solver_t), allocatable :: amg_solver
-     integer :: niter = 10 !< Number of iter of crs sovlve
+     integer :: niter !< Number of iter of crs iterations
      class(pc_t), allocatable :: pc_crs !< Some basic precon for crs
      class(ax_t), allocatable :: ax !< Matrix for crs solve
      real(kind=rp), allocatable :: r(:)!< Residual work array
@@ -130,6 +133,8 @@ module hsmg
      type(c_ptr) :: gs_event
    contains
      procedure, pass(this) :: init => hsmg_init
+     procedure, pass(this) :: init_from_components => &
+          hsmg_init_from_components
      procedure, pass(this) :: free => hsmg_free
      procedure, pass(this) :: solve => hsmg_solve
      procedure, pass(this) :: update => hsmg_set_h
@@ -137,63 +142,143 @@ module hsmg
 
 contains
 
-  !> @note I do not think we actually use the same grids as they do in the original!
-  subroutine hsmg_init(this, msh, Xh, coef, dof, gs_h, bclst, crs_pctype)
+  subroutine hsmg_init(this, coef, bclst, hsmg_params)
     class(hsmg_t), intent(inout), target :: this
-    type(mesh_t), intent(inout), target :: msh
-    type(space_t), intent(inout), target :: Xh
     type(coef_t), intent(in), target :: coef
-    type(dofmap_t), intent(in), target :: dof
-    type(gs_t), intent(inout), target :: gs_h
     type(bc_list_t), intent(inout), target :: bclst
-    character(len=*), optional :: crs_pctype
+    type(json_file), intent(inout) :: hsmg_params
+    character(len=:), allocatable :: crs_solver, crs_pc
+    logical :: crs_monitor
+    integer :: crs_tamg_lvls, crs_tamg_cycles, crs_tamg_cheby_degree
+
+    ! Exract coarse grid parameters
+
+    ! Common parameters for the coarse grid
+    call json_get_or_default(hsmg_params, 'coarse_grid.solver', &
+         crs_solver, "cg")
+
+    !
+    ! Parameters for a Krylov based coarse grid solverthis
+    !
+    call json_get_or_default(hsmg_params, 'coarse_grid.iterations', &
+         this%niter, 10)
+
+    call json_get_or_default(hsmg_params, 'coarse_grid.preconditioner', &
+         crs_pc, "jacobi")
+
+    call json_get_or_default(hsmg_params, 'coarse_grid.monitor', &
+         crs_monitor, .false.)
+
+    !
+    ! Parameters for a tree-amg based coarse grid solver
+    !
+    call json_get_or_default(hsmg_params, 'coarse_grid.levels', &
+         crs_tamg_lvls, 3)
+
+    call json_get_or_default(hsmg_params, 'coarse_grid.cycles', &
+         crs_tamg_cycles, 1)
+
+    call json_get_or_default(hsmg_params, 'coarse_grid.cheby_degree', &
+         crs_tamg_cheby_degree, 5)
+
+    call this%init_from_components(coef, bclst, crs_solver, crs_pc, &
+         crs_monitor, crs_tamg_lvls, crs_tamg_cycles, crs_tamg_cheby_degree)
+
+  end subroutine hsmg_init
+
+  subroutine hsmg_init_from_components(this, coef, bclst, crs_solver, crs_pc, &
+       crs_monitor, crs_tamg_lvls, crs_tamg_cycles, crs_tamg_cheby_degree)
+    class(hsmg_t), intent(inout), target :: this
+    type(coef_t), intent(in), target :: coef
+    type(bc_list_t), intent(inout), target :: bclst
+    character(len=:), intent(inout), allocatable :: crs_solver, crs_pc
+    logical, intent(inout) :: crs_monitor
+    integer, intent(in) :: crs_tamg_lvls, crs_tamg_cycles, crs_tamg_cheby_degree
     integer :: n, i
     integer :: lx_crs, lx_mid
     class(bc_t), pointer :: bc_i
 
+    character(len=LOG_SIZE) :: log_buf
+
     call this%free()
+    !> @note I do not think we actually use the same grids as they do in the original!
     this%nlvls = 3
     lx_crs = 2
-    if (Xh%lx .lt. 5) then
-       lx_mid = max(Xh%lx-1,3)
+    if (coef%Xh%lx .lt. 5) then
+       lx_mid = max(coef%Xh%lx-1,3)
 
-       if (Xh%lx .le. 2) then
+       if (coef%Xh%lx .le. 2) then
           call neko_error('Polynomial order < 2 not supported for hsmg precon')
        end if
 
     else
        lx_mid = 4
     end if
-    this%msh => msh
+
+
+    call neko_log%section('HSMG')
+    if (this%nlvls .lt. 1e1) then
+       write(log_buf, '(A,I1,A)') 'HSMG hierarchy      : ', &
+            this%nlvls, ' levels'
+    else if (this%nlvls .lt. 1e2) then
+       write(log_buf, '(A,I2,A)') 'HSMG hierarchy      : ', &
+            this%nlvls, ' levels'
+    else if (this%nlvls .lt. 1e3) then
+       write(log_buf, '(A,I3,A)') 'HSMG hierarchy      : ', this%nlvls, &
+            ' levels'
+    else
+       write(log_buf, '(A,I6,A)') 'HSMG hierarchy      : ', this%nlvls, &
+            ' levels'
+    end if
+    call neko_log%message(log_buf)
+    if (trim(crs_solver) .ne. 'tamg' .or. trim(crs_solver) .eq. 'cheby') then
+       call neko_log%message('Coarse grid solver  : (' // trim(crs_solver) // &
+            ', ' // trim(crs_pc) // ')')
+
+       if (this%niter .lt. 1e1) then
+          write(log_buf, '(A,I1)') 'Coarse grid iters.  : ', this%niter
+       else if (this%niter .lt. 1e2) then
+          write(log_buf, '(A,I2)') 'Coarse grid iters.  : ', this%niter
+       else if (this%niter .lt. 1e3) then
+          write(log_buf, '(A,I3)') 'Coarse grid iters.  : ', this%niter
+       else if (this%niter .lt. 1e4) then
+          write(log_buf, '(A,I4)') 'Coarse grid iters.  : ', this%niter
+       else
+          write(log_buf, '(A,I6)') 'Coarse grid iters.  : ', this%niter
+       end if
+
+       call neko_log%message(log_buf)
+    else
+       call neko_log%message('Coarse grid solver  : ' // trim(crs_solver) )
+    end if
+
+    this%msh => coef%msh
     allocate(this%grids(this%nlvls))
-    allocate(this%w(dof%size()))
-    allocate(this%r(dof%size()))
+    allocate(this%w(coef%dof%size()))
+    allocate(this%r(coef%dof%size()))
 
 
     ! Compute all elements as if they are deformed
-    call msh%all_deformed()
+    call coef%msh%all_deformed()
 
-    n = dof%size()
-    call this%e%init(dof, 'work array')
-    call this%wf%init(dof, 'work 2')
+    n = coef%dof%size()
+    call this%e%init(coef%dof, 'work array')
+    call this%wf%init(coef%dof, 'work 2')
 
     call this%Xh_crs%init(GLL, lx_crs, lx_crs, lx_crs)
-    call this%dm_crs%init(msh, this%Xh_crs)
+    call this%dm_crs%init(coef%msh, this%Xh_crs)
     call this%gs_crs%init(this%dm_crs)
     call this%e_crs%init(this%dm_crs, 'work crs')
     call this%c_crs%init(this%gs_crs)
 
     call this%Xh_mg%init(GLL, lx_mid, lx_mid, lx_mid)
-    call this%dm_mg%init(msh, this%Xh_mg)
+    call this%dm_mg%init(coef%msh, this%Xh_mg)
     call this%gs_mg%init(this%dm_mg)
     call this%e_mg%init(this%dm_mg, 'work midl')
     call this%c_mg%init(this%gs_mg)
 
     ! Create backend specific Ax operator
     call ax_helm_factory(this%ax, full_formulation = .false.)
-
-    ! Create a backend specific preconditioner
-    call precon_factory(this%pc_crs, 'jacobi')
 
     call this%bc_crs%init_base(this%c_crs)
     call this%bc_mg%init_base(this%c_mg)
@@ -220,15 +305,16 @@ contains
     call this%bclst_crs%append(this%bc_crs)
     call this%bclst_mg%append(this%bc_mg)
 
-    call this%schwarz%init(Xh, dof, gs_h, this%bclst_reg, msh)
+    call this%schwarz%init(coef%Xh, coef%dof, coef%gs_h, &
+         this%bclst_reg, coef%msh)
     call this%schwarz_mg%init(this%Xh_mg, this%dm_mg, this%gs_mg,&
-         this%bclst_mg, msh)
+         this%bclst_mg, coef%msh)
 
-    call this%interp_fine_mid%init(Xh, this%Xh_mg)
+    call this%interp_fine_mid%init(coef%Xh, this%Xh_mg)
     call this%interp_mid_crs%init(this%Xh_mg, this%Xh_crs)
 
-    call hsmg_fill_grid(dof, gs_h, Xh, coef, this%bclst_reg, this%schwarz, &
-         this%e, this%grids, 3)
+    call hsmg_fill_grid(coef%dof, coef%gs_h, coef%Xh, coef, &
+         this%bclst_reg, this%schwarz, this%e, this%grids, 3)
     call hsmg_fill_grid(this%dm_mg, this%gs_mg, this%Xh_mg, this%c_mg, &
          this%bclst_mg, this%schwarz_mg, this%e_mg, &
          this%grids, 2)
@@ -242,39 +328,38 @@ contains
        call device_map(this%r, this%r_d, n)
     end if
 
-    select type (pc => this%pc_crs)
-    type is (jacobi_t)
-       call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
-    type is (sx_jacobi_t)
-       call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
-    type is (device_jacobi_t)
-       call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
-    end select
-
     call device_event_create(this%hsmg_event, 2)
     call device_event_create(this%gs_event, 2)
 
+
+
     ! Create a backend specific krylov solver
-    if (present(crs_pctype)) then
-       if (trim(crs_pctype) .eq. 'tamg') then
-          allocate(this%amg_solver)
-          call this%amg_solver%init(this%ax, this%grids(1)%e%Xh, &
-               this%grids(1)%coef, this%msh, this%grids(1)%gs_h, 4, &
-               this%grids(1)%bclst, 1)
-       else
-          call krylov_solver_factory(this%crs_solver, &
-               this%dm_crs%size(), trim(crs_pctype), KSP_MAX_ITER, &
-               M = this%pc_crs)
-       end if
+    if (trim(crs_solver) .eq. 'tamg') then
+       allocate(this%amg_solver)
+       call this%amg_solver%init(this%ax, this%grids(1)%e%Xh, &
+            this%grids(1)%coef, this%msh, this%grids(1)%gs_h, crs_tamg_lvls, &
+            this%grids(1)%bclst, crs_tamg_cycles, crs_tamg_cheby_degree)
     else
+       ! Create a backend specific preconditioner
+       call precon_factory(this%pc_crs, crs_pc)
+
+       select type (pc => this%pc_crs)
+       type is (jacobi_t)
+          call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+       type is (sx_jacobi_t)
+          call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+       type is (device_jacobi_t)
+          call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+       end select
+
        call krylov_solver_factory(this%crs_solver, &
-            this%dm_crs%size(), 'cg', KSP_MAX_ITER, M = this%pc_crs)
+            this%dm_crs%size(), trim(crs_solver), KSP_MAX_ITER, &
+            M = this%pc_crs, monitor = crs_monitor)
     end if
 
+    call neko_log%end_section()
 
-
-
-  end subroutine hsmg_init
+  end subroutine hsmg_init_from_components
 
   subroutine hsmg_set_h(this)
     class(hsmg_t), intent(inout) :: this

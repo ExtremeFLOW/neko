@@ -8,12 +8,12 @@ module user
 
 contains
   ! Register user defined functions (see user_intf.f90)
-  subroutine user_setup(u)
-    type(user_t), intent(inout) :: u
-    u%scalar_user_ic => set_ic
-    u%fluid_user_f_vector => forcing
-    u%scalar_user_bc => scalar_bc
-    u%user_startup => startup
+  subroutine user_setup(user)
+    type(user_t), intent(inout) :: user
+    user%scalar_user_ic => set_ic
+    user%fluid_user_f_vector => forcing
+    user%scalar_user_bc => scalar_bc
+    user%user_startup => startup
   end subroutine user_setup
 
   subroutine startup(params)
@@ -35,7 +35,8 @@ contains
     call params%add("case.scalar.cp", cp)
   end subroutine startup
 
-  subroutine scalar_bc(s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
+  subroutine scalar_bc(scalar_name, s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
+    character(len=*), intent(in) :: scalar_name
     real(kind=rp), intent(inout) :: s
     real(kind=rp), intent(in) :: x
     real(kind=rp), intent(in) :: y

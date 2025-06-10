@@ -58,7 +58,8 @@ module scalar_scheme
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use field_registry, only : neko_field_registry
   use usr_scalar, only : usr_scalar_t, usr_scalar_bc_eval
-  use json_utils, only : json_get, json_get_or_default, json_extract_item
+  use json_utils, only : json_get, json_get_or_default, json_extract_item, &
+       json_extract_object
   use json_module, only : json_file
   use user_intf, only : user_t, dummy_user_material_properties, &
        user_material_properties
@@ -67,7 +68,8 @@ module scalar_scheme
   use scalar_source_term, only : scalar_source_term_t
   use field_series, only : field_series_t
   use math, only : cfill, add2s2
-  use field_math, only : field_cmult2, field_col3, field_cfill, field_add2
+  use field_math, only : field_cmult, field_col3, field_cfill, field_add2, &
+       field_col2
   use device_math, only : device_cfill, device_add2s2
   use neko_config, only : NEKO_BCKND_DEVICE
   use field_series, only : field_series_t
@@ -135,6 +137,8 @@ module scalar_scheme
      type(field_list_t) :: material_properties
      !> Is lambda varying in time? Currently only due to LES models.
      logical :: variable_material_properties = .false.
+     ! Lag arrays for the RHS.
+     type(field_t) :: abx1, abx2
      procedure(user_material_properties), nopass, pointer :: &
           user_material_properties => null()
    contains
@@ -247,7 +251,8 @@ contains
     logical :: logical_val
     real(kind=rp) :: real_val, solver_abstol
     integer :: integer_val, ierr
-    character(len=:), allocatable :: solver_type, solver_precon, field_name
+    character(len=:), allocatable :: solver_type, solver_precon
+    type(json_file) :: precon_params
     real(kind=rp) :: GJP_param_a, GJP_param_b
 
     this%u => neko_field_registry%get_field('u')
@@ -260,8 +265,9 @@ contains
 
     call neko_log%section('Scalar')
     call json_get(params, 'solver.type', solver_type)
-    call json_get(params, 'solver.preconditioner', &
+    call json_get(params, 'solver.preconditioner.type', &
          solver_precon)
+    call json_extract_object(params, 'solver.preconditioner', precon_params)
     call json_get(params, 'solver.absolute_tolerance', &
          solver_abstol)
 
@@ -287,13 +293,11 @@ contains
     this%params => params
     this%msh => msh
 
-    call json_get_or_default(params, 'field_name', field_name, 's')
-
-    if (.not. neko_field_registry%field_exists(field_name)) then
-       call neko_field_registry%add_field(this%dm_Xh, field_name)
+    if (.not. neko_field_registry%field_exists(this%name)) then
+       call neko_field_registry%add_field(this%dm_Xh, this%name)
     end if
 
-    this%s => neko_field_registry%get_field(field_name)
+    this%s => neko_field_registry%get_field(this%name)
 
     call this%slag%init(this%s, 2)
 
@@ -348,7 +352,7 @@ contains
     call this%f_Xh%init(this%dm_Xh, fld_name = "scalar_rhs")
 
     ! Initialize the source term
-    call this%source_term%init(this%f_Xh, this%c_Xh, user)
+    call this%source_term%init(this%f_Xh, this%c_Xh, user, this%name)
     call this%source_term%add(params, 'source_terms')
 
     ! todo parameter file ksp tol should be added
@@ -361,7 +365,8 @@ contains
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
          solver_type, integer_val, solver_abstol, logical_val)
     call scalar_scheme_precon_factory(this%pc, this%ksp, &
-         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs, solver_precon)
+         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs, &
+         solver_precon, precon_params)
 
     call neko_log%end_section()
 
@@ -458,7 +463,7 @@ contains
 
   !> Initialize a Krylov preconditioner
   subroutine scalar_scheme_precon_factory(pc, ksp, coef, dof, gs, bclst, &
-       pctype)
+       pctype, pcparams)
     class(pc_t), allocatable, target, intent(inout) :: pc
     class(ksp_t), target, intent(inout) :: ksp
     type(coef_t), target, intent(in) :: coef
@@ -466,6 +471,7 @@ contains
     type(gs_t), target, intent(inout) :: gs
     type(bc_list_t), target, intent(inout) :: bclst
     character(len=*) :: pctype
+    type(json_file), intent(inout) :: pcparams
 
     call precon_factory(pc, pctype)
 
@@ -477,16 +483,7 @@ contains
     type is (device_jacobi_t)
        call pcp%init(coef, dof, gs)
     type is (hsmg_t)
-       if (len_trim(pctype) .gt. 4) then
-          if (index(pctype, '+') .eq. 5) then
-             call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst, &
-                  trim(pctype(6:)))
-          else
-             call neko_error('Unknown coarse grid solver')
-          end if
-       else
-          call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst)
-       end if
+       call pcp%init(coef, bclst, pcparams)
     end select
 
     call ksp%set_pc(pc)
@@ -518,7 +515,8 @@ contains
        call neko_scratch_registry%request_field(lambda_factor, index)
 
        call field_col3(lambda_factor, this%cp, this%rho)
-       call field_cmult2(lambda_factor, nut, 1.0_rp / this%pr_turb)
+       call field_col2(lambda_factor, nut)
+       call field_cmult(lambda_factor, 1.0_rp / this%pr_turb)
        call field_add2(this%lambda, lambda_factor)
        call neko_scratch_registry%relinquish_field(index)
     end if

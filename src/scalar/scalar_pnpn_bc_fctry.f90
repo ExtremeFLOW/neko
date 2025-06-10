@@ -76,6 +76,9 @@ contains
        select type (obj => object)
        type is (usr_scalar_t)
           call obj%set_eval(user%scalar_user_bc)
+          ! Add the name of the dummy field in the bc, matching the scalar
+          ! solved for.
+          call json%add("field_name", scheme%s%name)
        end select
     case ("user")
        allocate(field_dirichlet_t::object)

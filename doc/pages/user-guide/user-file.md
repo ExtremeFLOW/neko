@@ -307,47 +307,6 @@ registering of the above function in `user_setup` should be done as follows:
     u%scalar_user_bc => set_scalar_boundary_conditions
 ```
 
-### User defined simulation components {#user-file_simcomps}
-
-In addition to the case-specific user functions, the user can also define their
-own simulation components. This can be done by writing a new type which extends
-the \ref simulation_component_t type, and implementing the necessary functions
-for the new type. The user can then specify the component in the list of
-simulation components in the case file. The setting `is_user` should be set to
-`true` in the JSON object for the new simulation component. The typename is used
-to extract the settings for the simulation component from the JSON file.
-
-```json
-{
-    "type": "my_comp",
-    "is_user": true,
-    // other settings
-}
-```
-```fortran
-  subroutine user_simcomp(params)
-    type(json_file), intent(inout) :: params
-    type(user_simcomp_t), allocatable :: my_simcomp
-    type(json_file) :: simcomp_settings
-
-    ! Allocate a simulation component
-    allocate(my_simcomp)
-    simcomp_settings = simulation_component_user_settings("my_comp", params)
-    call neko_simcomps%add_user_simcomp(my_simcomp, simcomp_settings)
-
-  end subroutine user_simcomp
-```
-
-In the example above, the subroutine `user_simcomp` contains the actual
-implementation, and needs to be registered by adding:
-
-```fortran
-    u%init_user_simcomp => user_simcomp
-```
-
-A full example of a user-defined simulation component can be found in the
-examples.
-
 ## Case-specific user functions
 
 As explained in the [case file](case-file.md) page, certain components of the
@@ -439,7 +398,8 @@ the
 ```fortran
 
   !> User initial condition for the scalar
-  subroutine set_s_ic(s, params)
+  subroutine set_s_ic(field_name, s, params)
+    CHARACTER(len=*), INTENT(IN) :: field_name
     type(field_t), intent(inout) :: s
     type(json_file), intent(inout) :: params
     integer :: i, e, k, j

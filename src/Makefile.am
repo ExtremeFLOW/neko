@@ -1,12 +1,17 @@
 lib_LTLIBRARIES = libneko.la
 libneko_la_LDFLAGS = -release ${PACKAGE_VERSION}
 neko_fortran_SOURCES = \
+	api/neko_api.f90\
 	config/num_types.f90\
 	common/structs.f90\
 	io/format/nmsh.f90\
 	io/format/re2.f90\
 	io/format/map.f90\
 	io/format/stl.f90\
+	io/buffer/buffer.F90\
+	io/buffer/buffer_1d.F90\
+	io/buffer/buffer_4d.F90\
+	io/buffer/buffer_4d_npar.F90\
 	common/log.f90\
 	comm/comm.F90\
 	mesh/curve.f90\
@@ -18,6 +23,7 @@ neko_fortran_SOURCES = \
 	common/json_utils.f90\
 	common/system.f90\
 	common/runtime_statistics.f90\
+	common/user_access_singleton.f90\
 	math/mxm_wrapper.F90\
 	sem/speclib.f90 \
 	qoi/drag_torque.f90\
@@ -123,6 +129,7 @@ neko_fortran_SOURCES = \
 	io/map_file.f90\
 	io/re2_file.f90\
 	io/rea_file.f90\
+	io/bp_file.F90\
 	io/fld_file.f90\
 	io/fld_file_data.f90\
 	io/vtk_file.f90\
@@ -288,6 +295,7 @@ neko_fortran_SOURCES = \
 	bc/bcknd/device/device_dong_outflow.F90\
 	scalar/bcknd/device/scalar_residual_device.F90\
 	scalar/scalar_scheme.f90\
+	scalar/scalars.f90\
 	scalar/scalar_pnpn.f90\
 	scalar/scalar_pnpn_bc_fctry.f90\
 	scalar/scalar_aux.f90\
@@ -301,11 +309,13 @@ neko_fortran_SOURCES = \
 	scalar/source_scalar.f90\
 	simulation_components/simulation_component.f90\
 	simulation_components/simcomp_executor.f90\
-	simulation_components/vorticity.f90\
 	simulation_components/spectral_error.f90\
 	simulation_components/lambda2.f90\
-	simulation_components/weak_grad.f90\
-	simulation_components/derivative.f90\
+	simulation_components/curl_simcomp.f90\
+	simulation_components/divergence_simcomp.f90\
+	simulation_components/weak_gradient_simcomp.f90\
+	simulation_components/gradient_simcomp.f90\
+	simulation_components/derivative_simcomp.f90\
 	simulation_components/les_simcomp.f90\
 	simulation_components/simulation_component_fctry.f90\
 	source_terms/source_term.f90\
@@ -353,8 +363,13 @@ neko_fortran_SOURCES = \
 	les/wale.f90\
 	les/bcknd/cpu/wale_cpu.f90\
 	wall_models/wall_model.f90\
+	wall_models/bcknd/device/wall_model_device.F90\
 	wall_models/rough_log_law.f90\
+	wall_models/bcknd/cpu/rough_log_law_cpu.f90\
+	wall_models/bcknd/device/rough_log_law_device.F90\
 	wall_models/spalding.f90\
+	wall_models/bcknd/cpu/spalding_cpu.f90\
+	wall_models/bcknd/device/spalding_device.F90\
 	wall_models/wall_model_fctry.f90\
 	neko.f90
 
@@ -418,7 +433,10 @@ libneko_la_SOURCES += \
 	les/bcknd/device/hip/sigma_nut.hip\
 	les/bcknd/device/hip/vreman_nut.hip\
 	les/bcknd/device/hip/smagorinsky_nut.hip\
-	les/bcknd/device/hip/dynamic_smagorinsky_nut.hip
+	les/bcknd/device/hip/dynamic_smagorinsky_nut.hip\
+	wall_models/bcknd/device/hip/wall_model.hip\
+	wall_models/bcknd/device/hip/spalding.hip\
+	wall_models/bcknd/device/hip/rough_log_law.hip
 endif
 
 if ENABLE_CUDA
@@ -465,7 +483,10 @@ libneko_la_SOURCES += \
 	les/bcknd/device/cuda/vreman_nut.cu\
 	les/bcknd/device/cuda/smagorinsky_nut.cu\
 	les/bcknd/device/cuda/dynamic_smagorinsky_nut.cu\
-	comm/bcknd/device/cuda/comm_nvshmem.cu
+	comm/bcknd/device/cuda/comm_nvshmem.cu\
+	wall_models/bcknd/device/cuda/wall_model.cu\
+	wall_models/bcknd/device/cuda/spalding.cu\
+	wall_models/bcknd/device/cuda/rough_log_law.cu
 
 
 BUILT_SOURCES = libtool_cuda
@@ -597,6 +618,11 @@ depend:
 	$(MAKEDEPF90) $(neko_fortran_SOURCES) | $(SED) 's/\.o/\.lo/g'  > .depends
 endif
 
+if ENABLE_PYTHON
+nobase_python_PYTHON = python/pyneko/__init__.py\
+		       python/pyneko/intf.py
+endif
+
 # Note we need to list any headers etc here for the dist. script
 EXTRA_DIST = \
 	bc/bcknd/device/cuda/dirichlet_kernel.h\
@@ -637,6 +663,9 @@ EXTRA_DIST = \
 	les/bcknd/device/cuda/vreman_nut_kernel.h\
 	les/bcknd/device/cuda/smagorinsky_nut_kernel.h\
 	les/bcknd/device/cuda/dynamic_smagorinsky_nut_kernel.h\
+	wall_models/bcknd/device/cuda/wall_model_kernel.h\
+	wall_models/bcknd/device/cuda/spalding_kernel.h\
+	wall_models/bcknd/device/cuda/rough_log_law_kernel.h\
 	bc/bcknd/device/hip/dirichlet_kernel.h\
 	bc/bcknd/device/hip/inflow_kernel.h\
 	bc/bcknd/device/hip/zero_dirichlet_kernel.h\
@@ -682,6 +711,9 @@ EXTRA_DIST = \
 	les/bcknd/device/hip/vreman_nut_kernel.h\
 	les/bcknd/device/hip/smagorinsky_nut_kernel.h\
 	les/bcknd/device/hip/dynamic_smagorinsky_nut_kernel.h\
+	wall_models/bcknd/device/hip/wall_model_kernel.h\
+	wall_models/bcknd/device/hip/spalding_kernel.h\
+	wall_models/bcknd/device/hip/rough_log_law_kernel.h\
 	bc/bcknd/device/opencl/dirichlet_kernel.cl\
 	bc/bcknd/device/opencl/inflow_kernel.cl\
 	bc/bcknd/device/opencl/zero_dirichlet_kernel.cl\
@@ -728,8 +760,12 @@ EXTRA_DIST = \
 	comm/comm.h\
 	common/neko_log.h
 
+
 # Expose the listed headers in the package
 nobase_pkginclude_HEADERS = ${EXTRA_DIST}
+
+# Expose API header
+include_HEADERS = api/neko.h
 
 # Fortran deps. (updated with makedepf90 via target 'depend')
 include	.depends

@@ -187,6 +187,12 @@ contains
     type(c_ptr), intent(inout) :: x_d
     integer(c_size_t) :: s
     integer :: ierr
+
+    if (s .eq. 0) then
+       call device_sync()
+       x_d = c_null_ptr
+       return
+    end if
 #ifdef HAVE_HIP
     if (hipMalloc(x_d, s) .ne. hipSuccess) then
        call neko_error('Memory allocation on device failed')
@@ -241,16 +247,16 @@ contains
 
     select type (x)
     type is (integer)
-       s = n * 4
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
     type is (integer(i8))
-       s = n * 8
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     type is (real)
-       s = n * 4
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
     type is (double precision)
-       s = n * 8
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
@@ -279,16 +285,16 @@ contains
 
     select type (x)
     type is (integer)
-       s = n * 4
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
     type is (integer(i8))
-       s = n * 8
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     type is (real)
-       s = n * 4
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
     type is (double precision)
-       s = n * 8
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
@@ -317,16 +323,16 @@ contains
 
     select type (x)
     type is (integer)
-       s = n * 4
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
     type is (integer(i8))
-       s = n * 8
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     type is (real)
-       s = n * 4
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
     type is (double precision)
-       s = n * 8
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
@@ -355,16 +361,16 @@ contains
 
     select type (x)
     type is (integer)
-       s = n * 4
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
     type is (integer(i8))
-       s = n * 8
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     type is (real)
-       s = n * 4
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
     type is (double precision)
-       s = n * 8
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
@@ -413,6 +419,14 @@ contains
     integer, intent(in), value :: dir
     logical, intent(in) :: sync_device
     type(c_ptr), intent(inout) :: stream
+
+    if (s .eq. 0) then
+       if (sync_device) then
+          call device_sync_stream(stream)
+       end if
+       return
+    end if
+
 #ifdef HAVE_HIP
     if (dir .eq. HOST_TO_DEVICE) then
        if (hipMemcpyAsync(x_d, ptr_h, s, &
@@ -715,13 +729,13 @@ contains
 
     select type (x)
     type is (integer)
-       s = n * 4
+       s = n * int(4, c_size_t)
     type is (integer(i8))
-       s = n * 8
+       s = n * int(8, c_size_t)
     type is (real)
-       s = n * 4
+       s = n * int(4, c_size_t)
     type is (double precision)
-       s = n * 8
+       s = n * int(8, c_size_t)
     class default
        call neko_error('Unknown Fortran type')
     end select
@@ -744,13 +758,13 @@ contains
 
     select type (x)
     type is (integer)
-       s = n * 4
+       s = n * int(4, c_size_t)
     type is (integer(i8))
-       s = n * 8
+       s = n * int(8, c_size_t)
     type is (real)
-       s = n * 4
+       s = n * int(4, c_size_t)
     type is (double precision)
-       s = n * 8
+       s = n * int(8, c_size_t)
     class default
        call neko_error('Unknown Fortran type')
     end select
@@ -773,13 +787,13 @@ contains
 
     select type (x)
     type is (integer)
-       s = n * 4
+       s = n * int(4, c_size_t)
     type is (integer(i8))
-       s = n * 8
+       s = n * int(8, c_size_t)
     type is (real)
-       s = n * 4
+       s = n * int(4, c_size_t)
     type is (double precision)
-       s = n * 8
+       s = n * int(8, c_size_t)
     class default
        call neko_error('Unknown Fortran type')
     end select
@@ -802,13 +816,13 @@ contains
 
     select type (x)
     type is (integer)
-       s = n * 4
+       s = n * int(4, c_size_t)
     type is (integer(i8))
-       s = n * 8
+       s = n * int(8, c_size_t)
     type is (real)
-       s = n * 4
+       s = n * int(4, c_size_t)
     type is (double precision)
-       s = n * 8
+       s = n * int(8, c_size_t)
     class default
        call neko_error('Unknown Fortran type')
     end select

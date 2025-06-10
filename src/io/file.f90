@@ -40,6 +40,7 @@ module file
   use map_file, only : map_file_t
   use rea_file, only : rea_file_t
   use re2_file, only : re2_file_t
+  use bp_file, only : bp_file_t
   use fld_file, only : fld_file_t
   use fld_file_data, only : fld_file_data_t
   use vtk_file, only : vtk_file_t
@@ -68,6 +69,8 @@ module file
      procedure :: set_header => file_set_header
      !> Set a file's output precision.
      procedure :: set_precision => file_set_precision
+     !> Set a file's output layout.
+     procedure :: set_layout => file_set_layout
      !> File operation destructor.
      final :: file_free
   end type file_t
@@ -80,10 +83,11 @@ contains
 
   !> File reader/writer constructor.
   !! @param fname Filename.
-  function file_init(fname, header, precision) result(this)
+  function file_init(fname, header, precision, layout) result(this)
     character(len=*) :: fname
     character(len=*), optional :: header
     integer, optional :: precision
+    integer, optional :: layout
     type(file_t), target :: this
     character(len=80) :: suffix
     class(generic_file_t), pointer :: q
@@ -105,6 +109,8 @@ contains
        allocate(vtk_file_t::this%file_type)
     case ("nmsh")
        allocate(nmsh_file_t::this%file_type)
+    case ("bp")
+       allocate(bp_file_t::this%file_type)
     case ("fld")
        allocate(fld_file_t::this%file_type)
     case ("chkp")
@@ -128,6 +134,10 @@ contains
 
     if (present(precision)) then
        call this%set_precision(precision)
+    end if
+
+    if (present(layout) .and. (suffix .eq. "bp")) then
+       call this%set_layout(layout)
     end if
 
   end function file_init
@@ -173,7 +183,7 @@ contains
     integer :: n
     n = 0
 
-    select type(ft => this%file_type)
+    select type (ft => this%file_type)
     class is (generic_file_t)
        n = ft%counter
     end select
@@ -185,7 +195,7 @@ contains
     class(file_t), intent(inout) :: this
     integer, intent(in) :: n
 
-    select type(ft => this%file_type)
+    select type (ft => this%file_type)
     class is (generic_file_t)
        call ft%set_counter(n)
     end select
@@ -197,7 +207,7 @@ contains
     class(file_t), intent(inout) :: this
     integer, intent(in) :: n
 
-    select type(ft => this%file_type)
+    select type (ft => this%file_type)
     class is (generic_file_t)
        call ft%set_start_counter(n)
     end select
@@ -211,12 +221,12 @@ contains
 
     character(len=80) :: suffix
 
-    select type(ft => this%file_type)
+    select type (ft => this%file_type)
     class is (csv_file_t)
        call ft%set_header(hd)
     class default
        call filename_suffix(this%file_type%fname, suffix)
-       call neko_warning("No set_header defined for " // trim(suffix) // " yet!")
+       call neko_warning("No set_header defined for " // trim(suffix) // " yet")
     end select
 
   end subroutine file_set_header
@@ -229,15 +239,35 @@ contains
 
     character(len=80) :: suffix
 
-    select type(ft => this%file_type)
+    select type (ft => this%file_type)
     type is (fld_file_t)
+       call ft%set_precision(precision)
+    type is (bp_file_t)
        call ft%set_precision(precision)
     class default
        call filename_suffix(this%file_type%fname, suffix)
-       call neko_warning("No precision strategy defined for " // trim(suffix) //&
-            " files!")
+       call neko_warning("No precision strategy defined for " // trim(suffix) &
+            // " files")
     end select
 
   end subroutine file_set_precision
+
+  !> Set a file's output layout.
+  !! @param layout The data layout as defined in bp_file.f90 and src/io/buffer/.
+  subroutine file_set_layout(this, layout)
+    class(file_t), intent(inout) :: this
+    integer, intent(in) :: layout
+
+    character(len=80) :: suffix
+
+    select type (ft => this%file_type)
+    type is (bp_file_t)
+       call ft%set_layout(layout)
+    class default
+       call filename_suffix(this%file_type%fname, suffix)
+       call neko_warning("No set_layout defined for " // trim(suffix) // " yet")
+    end select
+
+  end subroutine file_set_layout
 
 end module file

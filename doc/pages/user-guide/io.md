@@ -24,13 +24,11 @@ convenience.
 
 It should be noted, that the `.re2` format allows to store boundary conditions.
 This is relevant for users that have old Nek5000 cases, who wish to convert them
-to Neko. Boundary conditions are converted and used by Neko, and for these
-boundaries one does not need to provide information in the `boundary_types`
-keyword in the case file. This is why in some of the examples, `boundary_types`
-is only filled for some of the boundaries. However, since this feature
-complicates the code and leads to somewhat confusing case setups, it is planned
-to deprecate it at some point. Note that periodic boundaries are also directly
-encoded into the mesh file, and this will remain so in the future.
+to Neko. Boundary conditions are not converted by Neko as such, but the faces
+where they were applied are saved into regular boundary zones. The relevant
+conditions should then be prescribed in the case file as usual. Note also that
+periodic boundaries are directly encoded into the mesh file, and this will
+remain so in the future.
 
 ## Three-dimensional field output
 Neko stores the 3D fields with results in the `.fld` format, which is the same
@@ -39,12 +37,63 @@ in Paraview and VisIt, which can be used to visualize them. Note that the latest
 version of Paraview actually has two reader for `.fld`. For now, Neko has only
 been tested with the older reader, which uses VisIt under the hood.  A file with
 the `.nek5000` extension is used as the entry point for the readers and stores
-some metadata. Users may also find the Python package `pymech` useful for
+some metadata. Users may also find the Python package `pysemtools` useful for
 working with `.fld`s. Note that only the first output `.fld` file stores the
 mesh.
 
+### Compression of field output
+Neko supports compression of the 3D field data when writing through the ADIOS2.
+If the ADIOS2 dependency was compiled with compression library support like
+BigWhoop, SZ, or ZFP the field output can be compressed using one of these lossy
+compressors (and other lossless compression techniques.) Using algorithms based
+on image compression, such as BigWhoop and ZFP, the local structure from higher
+order elements needs to be regarded. Setting `output\_layout=2` uses the
+implicit neighbourhood relations of DoFs in x,y,z in a 4D layout. The first
+three dimensions represent the DoFs and the fourth dimension refers to the
+number of elements in numeric order. This layout can be used for BigWhoop and
+ZFP. Additionally, benefits in compression efficiency can be observed for
+BigWhoop when packing and compressing field parameters together, effectively
+adding a fifth dimension for the number of field parameters. This layout is
+enabled when `output\_format=3`. (The default `output_layout=1` creates a
+contiguous 1D array access pattern equivalent to the data layout in the nek5000
+files.)
+
+The compression algorithms are controlled by an additional file `adios2.xml`.
+Please refer to the documentation of ADIOS2 (and the specific compression
+library) to configure the data "operators" of the parallel I/O library.
+
+The tool `adios2_to_nek5000` can be used to decompress the field data for
+postprocessing and visualization with the conventional nek5000 format.
+Additionally, the data can be compressed using this tool as a postprocessing
+step using the `adios2.xml` configuration and a given uncompressed data set as
+input.
+```
+adios2_to_nek5000 input.bp/fld output.fld/bp .false. 1
+```
+The bool parameter specifies whether output is written using double precision.
+The parsed integer specifies the data layout in the case of an ADIOS2 `.bp`
+output file.
+
+The tool `psnr` can be used to analyze the Peak-Signal-to-Noise Ratio (PSNR),
+quantifying the compression efficiency, namely, the relation between compression
+ratio and the lost accuracy due to lossy data compression.
+```
+psnr compressed_fields.bp uncompressed_fields.fld/bp .false.
+```
+(The bool parameter specifies whether output should be double precision.) Test
+data sets can be generated during preprocessing and in an initial case setup
+workflow to compare and find an optimal compression rate with an acceptable
+accuracy loss. The value of the PSNR decreases with increasing accuracy loss.
+Tune the compression by increasing the compression ratio until a desired lower
+limiting value for the PSNR is reached. As a rule of thumb, target values of 60
+or 40 can be used as lower limit for accurate postprocessing or visualization,
+respectively.  Separately, it is recommended to check for compression errors
+from lossy compressors in the specific quantities of interest in postprocessing
+and visualization.
+
 ## Checkpoint files
-Simulations cannot be restarted from `.fld` files. Instead, separate checkpoint
-files can be output for the purpose of restarts. These contain additional
-information allowing a clean restart, with, e.g., the correct time integration
-order. A separate file format, `.chkp` is adopted for the checkpoint files.
+Simulations cannot be restarted from `.fld` files (although you can use an `fld`
+to provide initial conditions). Instead, separate checkpoint files can be output
+for the purpose of restarts. These contain additional information allowing a
+clean restart, with, e.g., the correct time integration order. A separate file
+format, `.chkp` is adopted for the checkpoint files.
