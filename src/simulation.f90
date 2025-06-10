@@ -34,6 +34,7 @@
 module simulation
   use mpi_f08
   use case, only : case_t
+  use checkpoint, only : chkp_t
   use num_types, only : rp, dp
   use time_scheme_controller, only : time_scheme_controller_t
   use file, only : file_t
@@ -48,7 +49,13 @@ module simulation
   implicit none
   private
 
-  public :: simulation_init, simulation_step, simulation_finalize
+  interface simulation_restart
+     module procedure case_restart_from_parameters, &
+          case_restart_from_checkpoint
+  end interface simulation_restart
+
+  public :: simulation_init, simulation_step, simulation_finalize, &
+       simulation_restart
 
 contains
 
@@ -64,7 +71,7 @@ contains
     call C%params%get('case.restart_file', restart_file, found)
     if (found .and. len_trim(restart_file) .gt. 0) then
        ! Restart the case
-       call case_restart(C)
+       call simulation_restart(C)
 
        ! Restart the simulation components
        call neko_simcomps%restart(C%time)
@@ -231,18 +238,17 @@ contains
   end subroutine simulation_settime
 
   !> Restart a case @a C from a given checkpoint
-  subroutine case_restart(C)
-    implicit none
+  subroutine case_restart_from_parameters(C)
     type(case_t), intent(inout) :: C
-    integer :: i
     type(file_t) :: chkpf, previous_meshf
     character(len=LOG_SIZE) :: log_buf
     character(len=:), allocatable :: restart_file
     character(len=:), allocatable :: restart_mesh_file
     real(kind=rp) :: tol
     logical :: found, check_cont
+    integer :: i
 
-    call C%params%get('case.restart_file', restart_file, found)
+    call json_get(C%params, 'case.restart_file', restart_file)
     call C%params%get('case.restart_mesh_file', restart_mesh_file, found)
 
     if (found) then
@@ -254,30 +260,40 @@ contains
 
     if (found) C%chkp%mesh2mesh_tol = tol
 
+    call neko_log%section('Restarting from checkpoint')
+    write(log_buf, '(A,A)') 'File :   ', trim(restart_file)
+    call neko_log%message(log_buf)
+
     chkpf = file_t(trim(restart_file))
     call chkpf%read(C%chkp)
-    C%time%dtlag = C%chkp%dtlag
-    C%time%tlag = C%chkp%tlag
+
+    call case_restart_from_checkpoint(C, C%chkp)
+    call C%chkp%previous_mesh%free()
+
+    write(log_buf, '(A,E15.7)') 'Time : ', C%time%t
+    call neko_log%message(log_buf)
+    call neko_log%end_section()
+
+  end subroutine case_restart_from_parameters
+
+  !> Restart a case @a C from a given checkpoint
+  subroutine case_restart_from_checkpoint(C, chkp)
+    type(case_t), intent(inout) :: C
+    type(chkp_t), intent(inout) :: chkp
+    integer :: i
+
+    call C%time%restart(chkp)
 
     ! Free the previous mesh, dont need it anymore
     do i = 1, size(C%time%dtlag)
        call C%fluid%ext_bdf%set_coeffs(C%time%dtlag)
     end do
 
-    call C%fluid%restart(C%chkp)
-    call C%chkp%previous_mesh%free()
-    if (allocated(C%scalar)) call C%scalar%restart(C%chkp)
-
-    C%time%t = C%chkp%restart_time()
-    call neko_log%section('Restarting from checkpoint')
-    write(log_buf, '(A,A)') 'File :   ', trim(restart_file)
-    call neko_log%message(log_buf)
-    write(log_buf, '(A,E15.7)') 'Time : ', C%time%t
-    call neko_log%message(log_buf)
-    call neko_log%end_section()
+    call C%fluid%restart(chkp)
+    if (allocated(C%scalar)) call C%scalar%restart(chkp)
 
     call C%output_controller%set_counter(C%time)
-  end subroutine case_restart
+  end subroutine case_restart_from_checkpoint
 
   !> Write a checkpoint at joblimit
   subroutine simulation_joblimit_chkp(C, t)

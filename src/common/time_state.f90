@@ -34,6 +34,7 @@
 module time_state
   use num_types, only : rp
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_QUIET
+  use checkpoint, only : chkp_t
   implicit none
   private
 
@@ -47,10 +48,25 @@ module time_state
      integer :: tstep = 0 !< Current timestep
 
    contains
+     procedure, pass(this) :: restart => time_state_restart
      procedure, pass(this) :: status => time_state_status
   end type time_state_t
 
 contains
+
+  !> Restart time state
+  subroutine time_state_restart(this, chkp)
+    class(time_state_t), intent(inout) :: this
+    type(chkp_t), intent(in) :: chkp
+
+    this%t = chkp%t
+    this%dtlag = chkp%dtlag
+    this%tlag = chkp%tlag
+
+    ! Compute the current timestep
+    this%tstep = int(this%t / this%dt + 0.5_rp)
+
+  end subroutine time_state_restart
 
   !> Write status banner
   subroutine time_state_status(this)
