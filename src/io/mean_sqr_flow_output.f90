@@ -32,9 +32,10 @@
 !
 !> Defines an output for a mean squared flow field
 module mean_sqr_flow_output
-  use mean_sqr_flow
-  use num_types
-  use output
+  use mean_sqr_flow, only: mean_sqr_flow_t
+  use num_types, only: rp
+  use time_state, only: time_state_t
+  use output, only: output_t
   implicit none
   private
 
@@ -77,9 +78,9 @@ contains
   !> Sample a mean squared flow field at time @a t
   subroutine mean_sqr_flow_output_sample(this, t)
     class(mean_sqr_flow_output_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    type(time_state_t), intent(in) :: t
 
-    if (t .ge. this%T_begin) then
+    if (t%t .ge. this%T_begin) then
        call this%file_%write(this%msqrf, t)
     end if
 

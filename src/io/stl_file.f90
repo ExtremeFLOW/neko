@@ -34,6 +34,7 @@
 module stl_file
   use num_types, only : rp
   use generic_file, only : generic_file_t
+  use time_state, only : time_state_t
   use tri_mesh, only : tri_mesh_t
   use logger, only : neko_log
   use point, only : point_t
@@ -57,7 +58,7 @@ contains
   subroutine stl_file_write(this, data, t)
     class(stl_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    type(time_state_t), intent(in), optional :: t
     call neko_log%error('Not implemented')
   end subroutine stl_file_write
 

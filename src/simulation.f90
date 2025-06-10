@@ -104,7 +104,7 @@ contains
     call C%output_controller%execute(C%time, output_at_end)
 
     if (.not. (output_at_end) .and. C%time%t .lt. C%time%end_time) then
-       call simulation_joblimit_chkp(C, C%time%t)
+       call simulation_joblimit_chkp(C, C%time)
     end if
 
     ! Finalize the user modules
@@ -282,7 +282,7 @@ contains
   !> Write a checkpoint at joblimit
   subroutine simulation_joblimit_chkp(C, t)
     type(case_t), intent(inout) :: C
-    real(kind=rp), intent(inout) :: t
+    type(time_state_t), intent(inout) :: t
     type(file_t) :: chkpf
     character(len=:), allocatable :: chkp_format
     character(len=LOG_SIZE) :: log_buf

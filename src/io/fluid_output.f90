@@ -33,12 +33,13 @@
 !> Defines an output for a fluid
 module fluid_output
   use num_types, only : rp
+  use time_state, only : time_state_t
   use fluid_scheme_incompressible, only : fluid_scheme_incompressible_t
   use fluid_scheme_base, only : fluid_scheme_base_t
   use scalar_scheme, only : scalar_scheme_t
   use field_list, only : field_list_t
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device
+  use device, only: device_memcpy, DEVICE_TO_HOST
   use output, only : output_t
   use scalars, only : scalars_t
   implicit none
@@ -126,7 +127,7 @@ contains
   !> Sample a fluid solution at time @a t
   subroutine fluid_output_sample(this, t)
     class(fluid_output_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    type(time_state_t), intent(in) :: t
     integer :: i
 
     if (NEKO_BCKND_DEVICE .eq. 1) then

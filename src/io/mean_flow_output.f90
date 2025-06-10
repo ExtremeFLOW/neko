@@ -34,7 +34,8 @@
 module mean_flow_output
   use mean_flow, only : mean_flow_t
   use num_types, only : rp
-  use device
+  use time_state, only : time_state_t
+  use device, only : device_memcpy, DEVICE_TO_HOST
   use output, only : output_t
   implicit none
   private
@@ -78,17 +79,17 @@ contains
   !> Sample a mean flow field at time @a t
   subroutine mean_flow_output_sample(this, t)
     class(mean_flow_output_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    type(time_state_t), intent(in) :: t
 
-    if (t .ge. this%T_begin) then
-       call device_memcpy(this%mf%p%mf%x, this%mf%p%mf%x_d, this%mf%p%mf%dof%size(), &
-                          DEVICE_TO_HOST, sync=.false.)
-       call device_memcpy(this%mf%u%mf%x, this%mf%u%mf%x_d, this%mf%p%mf%dof%size(), &
-                          DEVICE_TO_HOST, sync=.false.)
-       call device_memcpy(this%mf%v%mf%x, this%mf%v%mf%x_d, this%mf%p%mf%dof%size(), &
-                          DEVICE_TO_HOST, sync=.false.)
-       call device_memcpy(this%mf%w%mf%x, this%mf%w%mf%x_d, this%mf%p%mf%dof%size(), &
-                          DEVICE_TO_HOST, sync=.true.)
+    if (t%t .ge. this%T_begin) then
+       call device_memcpy(this%mf%p%mf%x, this%mf%p%mf%x_d, &
+            this%mf%p%mf%dof%size(), DEVICE_TO_HOST, sync=.false.)
+       call device_memcpy(this%mf%u%mf%x, this%mf%u%mf%x_d, &
+            this%mf%p%mf%dof%size(), DEVICE_TO_HOST, sync=.false.)
+       call device_memcpy(this%mf%v%mf%x, this%mf%v%mf%x_d, &
+            this%mf%p%mf%dof%size(), DEVICE_TO_HOST, sync=.false.)
+       call device_memcpy(this%mf%w%mf%x, this%mf%w%mf%x_d, &
+            this%mf%p%mf%dof%size(), DEVICE_TO_HOST, sync=.true.)
        call this%file_%write(this%mf, t)
        call this%mf%reset()
     end if

@@ -44,6 +44,7 @@ module vtk_file
   use tri_mesh
   use logger
   use comm
+  use time_state, only: time_state_t
   implicit none
   private
 
@@ -60,7 +61,7 @@ contains
   subroutine vtk_file_write(this, data, t)
     class(vtk_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    type(time_state_t), intent(in), optional :: t
     type(mesh_t), pointer :: msh => null()
     type(field_t), pointer :: fld => null()
     type(mesh_fld_t), pointer :: mfld => null()

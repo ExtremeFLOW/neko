@@ -35,6 +35,7 @@ module fluid_stats_output
   use fluid_stats, only : fluid_stats_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
+  use time_state, only : time_state_t
   use map_1d, only : map_1d_t
   use map_2d, only : map_2d_t
   use fld_file_data, only : fld_file_data_t
@@ -44,7 +45,7 @@ module fluid_stats_output
   implicit none
   private
 
-  !> Defines an output for the fluid statistics computed using the 
+  !> Defines an output for the fluid statistics computed using the
   !! `fluid_stats_t` object.
   type, public, extends(output_t) :: fluid_stats_output_t
      !> Pointer to the object computing the statistics.
@@ -77,10 +78,10 @@ contains
     character(len=1024) :: fname
 
     if (trim(hom_dir) .eq. 'none' .or. &
-        trim(hom_dir) .eq. 'x' .or.&
-        trim(hom_dir) .eq. 'y' .or.&
-        trim(hom_dir) .eq. 'z'&
-       ) then
+         trim(hom_dir) .eq. 'x' .or.&
+         trim(hom_dir) .eq. 'y' .or.&
+         trim(hom_dir) .eq. 'z'&
+         ) then
        if (present(name) .and. present(path)) then
           fname = trim(path) // trim(name) // '.fld'
        else if (present(name)) then
@@ -94,8 +95,8 @@ contains
        this%output_dim = 3
 
        if (trim(hom_dir) .eq. 'x' .or.&
-           trim(hom_dir) .eq. 'y' .or.&
-           trim(hom_dir) .eq. 'z' ) then
+            trim(hom_dir) .eq. 'y' .or.&
+            trim(hom_dir) .eq. 'z' ) then
           call this%map_2d%init_char(stats%coef, hom_dir, 1e-7_rp)
           this%output_dim = 2
        end if
@@ -121,13 +122,13 @@ contains
   !> Sample fluid_stats at time @a t
   subroutine fluid_stats_output_sample(this, t)
     class(fluid_stats_output_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    type(time_state_t), intent(in) :: t
     integer :: i
     type(matrix_t) :: avg_output_1d
     type(fld_file_data_t) :: output_2d
     real(kind=rp) :: u, v, w, p
     associate (out_fields => this%stats%stat_fields%items)
-      if (t .ge. this%T_begin) then
+      if (t%t .ge. this%T_begin) then
          call this%stats%make_strong_grad()
          if ( NEKO_BCKND_DEVICE .eq. 1) then
             do i = 1, size(out_fields)
@@ -154,7 +155,7 @@ contains
                output_2d%v%x(i) = v
                output_2d%w%x(i) = w
             end do
-            
+
             call this%file_%write(output_2d, t)
          else
             call this%file_%write(this%stats%stat_fields, t)

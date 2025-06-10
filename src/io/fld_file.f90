@@ -40,6 +40,7 @@ module fld_file
   use dofmap, only: dofmap_t
   use space, only: space_t
   use structs, only: array_ptr_t
+  use time_state, only: time_state_t
   use vector, only: vector_t
   use fld_file_data, only: fld_file_data_t
   use mean_flow, only: mean_flow_t
@@ -77,7 +78,7 @@ contains
   subroutine fld_file_write(this, data, t)
     class(fld_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    type(time_state_t), intent(in), optional :: t
     type(array_ptr_t) :: x, y, z, u, v, w, p, tem
     real(kind=rp), allocatable, target :: tempo(:)
     type(mesh_t), pointer :: msh
@@ -102,7 +103,7 @@ contains
     integer :: FLD_DATA_SIZE, n_scalar_fields
 
     if (present(t)) then
-       time = real(t, dp)
+       time = real(t%t, dp)
     else
        time = 0d0
     end if
@@ -772,7 +773,7 @@ contains
        data%lz = lz
        data%glb_nelv = glb_nelv
        data%t_counter = counter
-       data%time = time
+       data%time%t = time
        lxyz = lx * ly * lz
        n = lxyz * data%nelv
 

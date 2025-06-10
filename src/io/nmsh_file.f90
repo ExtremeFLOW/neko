@@ -36,6 +36,7 @@ module nmsh_file
   use comm, only: NEKO_COMM, pe_rank, pe_size
   use num_types, only: rp, dp, i4, i8
   use mesh, only: mesh_t, NEKO_MSH_MAX_ZLBLS
+  use time_state, only: time_state_t
   use utils, only: neko_error
   use point, only: point_t
   use tuple, only: tuple4_i4_t
@@ -442,7 +443,7 @@ contains
   subroutine nmsh_file_write(this, data, t)
     class(nmsh_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    type(time_state_t), intent(in), optional :: t
     type(nmsh_quad_t), allocatable :: nmsh_quad(:)
     type(nmsh_hex_t), allocatable :: nmsh_hex(:)
     type(nmsh_zone_t), allocatable :: nmsh_zone(:)

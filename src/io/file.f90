@@ -34,6 +34,7 @@
 module file
   use utils, only : neko_error, neko_warning, filename_suffix
   use num_types, only : rp
+  use time_state, only: time_state_t
   use generic_file, only : generic_file_t
   use nmsh_file, only : nmsh_file_t
   use chkp_file, only : chkp_file_t
@@ -157,14 +158,9 @@ contains
   subroutine file_write(this, data, t)
     class(file_t), intent(inout) :: this
     class(*), intent(inout) :: data
-    real(kind=rp), intent(in), optional :: t
+    type(time_state_t), intent(in), optional :: t
 
-    if (present(t)) then
-       call this%file_type%write(data, t)
-    else
-       call this%file_type%write(data)
-    end if
-
+    call this%file_type%write(data, t)
   end subroutine file_write
 
   !> Read @a data from a file.

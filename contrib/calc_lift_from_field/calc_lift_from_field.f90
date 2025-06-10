@@ -192,7 +192,7 @@ program calc_lift_from_field
         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
      call MPI_Allreduce(MPI_IN_PLACE,drag_torq%x(1,2), glb_n_gll_pts, &
         MPI_REAL_PRECISION, MPI_MIN, NEKO_COMM, ierr)
-     drag_torq%x(:,1) = field_data%time
+     drag_torq%x(:,1) = field_data%time%t
      if (pe_rank .eq. 0) then
         call output_file%write(drag_torq)
      end if

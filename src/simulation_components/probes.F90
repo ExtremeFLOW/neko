@@ -672,7 +672,7 @@ contains
           if (pe_rank .eq. 0) then
              call trsp(this%mat_out%x, this%n_global_probes, &
                   this%global_output_values, this%n_fields)
-             call this%fout%write(this%mat_out, time%t)
+             call this%fout%write(this%mat_out, time)
           end if
        else
           call neko_error('probes sim comp, parallel io need implementation')

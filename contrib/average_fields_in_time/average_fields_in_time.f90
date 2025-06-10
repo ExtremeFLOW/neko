@@ -39,19 +39,19 @@ program average_fields_in_time
 
   call fld_file%read(fld_data_avg)
   
-  call fld_data_avg%scale(fld_data_avg%time-start_time)
+  call fld_data_avg%scale(fld_data_avg%time%t-start_time)
   if (pe_rank .eq. 0) write(*,*) fld_data_avg%nelv, fld_data_avg%n_scalars
 
   do i = 1, fld_data_avg%meta_nsamples-1
      if (pe_rank .eq. 0) write(*,*) 'Reading file:', i+1
      call fld_file%read(fld_data)
-     call fld_data%scale(fld_data%time-fld_data_avg%time)
+     call fld_data%scale(fld_data%time%t-fld_data_avg%time%t)
      call fld_data_avg%add(fld_data)
 
-     if (pe_rank .eq. 0) write(*,*) 'dt', fld_data%time - fld_data_avg%time
-     fld_data_avg%time = fld_data%time
+     if (pe_rank .eq. 0) write(*,*) 'dt', fld_data%time%t - fld_data_avg%time%t
+     fld_data_avg%time%t = fld_data%time%t
   end do
-  call fld_data_avg%scale(1.0_rp/(fld_data_avg%time-start_time))
+  call fld_data_avg%scale(1.0_rp/(fld_data_avg%time%t-start_time))
 
   output_file = file_t(trim(output_fname))
 

@@ -36,6 +36,7 @@ module rea_file
   use generic_file
   use num_types
   use utils
+  use time_state, only: time_state_t
   use mesh
   use point
   use map
@@ -449,7 +450,7 @@ contains
   subroutine rea_file_write(this, data, t)
     class(rea_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    type(time_state_t), intent(in), optional :: t
   end subroutine rea_file_write
 
   subroutine rea_file_add_point(htp, p, idx)

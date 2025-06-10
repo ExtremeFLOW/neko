@@ -278,7 +278,7 @@ contains
                   int(this%controllers(i)%nexecutions)
              call neko_log%message(log_buf)
 
-             call samp%output_list(i)%ptr%sample(time%t)
+             call samp%output_list(i)%ptr%sample(time)
 
              call this%controllers(i)%register_execution()
           end if

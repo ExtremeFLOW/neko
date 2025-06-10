@@ -39,11 +39,12 @@ module csv_file
   use utils, only: neko_error
   use num_types, only: rp
   use logger, only: neko_log, log_size
+  use time_state, only: time_state_t
   use comm
   implicit none
 
   type, public, extends(generic_file_t) :: csv_file_t
-     character(len=1024) :: header = ""     !< Contains header of file.
+     character(len=1024) :: header = "" !< Contains header of file.
      logical :: header_is_written = .false. !< Has header already been written?
    contains
      !> Writes data to an output file.
@@ -65,7 +66,7 @@ contains
   subroutine csv_file_write(this, data, t)
     class (csv_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    type(time_state_t), intent(in), optional :: t
 
     type(vector_t), pointer :: vec
     type(matrix_t), pointer :: mat
@@ -77,22 +78,22 @@ contains
     type is (vector_t)
        if (.not. allocated(data%x)) then
           call neko_error("Vector is not allocated. Use &
-&vector%init() to associate your array &
-&with a vector_t object")
+          &vector%init() to associate your array &
+          &with a vector_t object")
        end if
        vec => data
 
     type is (matrix_t)
        if (.not. allocated(data%x)) then
           call neko_error("Matrix is not allocated. Use &
-&matrix%init() to associate your array &
-&with a matrix_t object")
+          &matrix%init() to associate your array &
+          &with a matrix_t object")
        end if
        mat => data
 
     class default
        call neko_error("Invalid data. Expected vector_t or &
-&matrix_t")
+       &matrix_t")
     end select
 
     ! Write is performed on rank 0
@@ -120,7 +121,7 @@ contains
   subroutine csv_file_write_vector(f, data, t)
     class(csv_file_t), intent(inout) :: f
     type(vector_t), intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    type(time_state_t), intent(in), optional :: t
     integer :: file_unit, ierr
 
     open(file = trim(f%fname), position = "append", iostat = ierr, &
@@ -134,7 +135,7 @@ contains
     end if
 
     ! Add time at the beginning if specified
-    if (present(t)) write (file_unit, '(g0,",")', advance = "no") t
+    if (present(t)) write (file_unit, '(g0,",")', advance = "no") t%t
 
     write (file_unit, '(*(g0,","))', advance = "no") data%x(1:data%n-1)
     write (file_unit,'(g0)') data%x(data%n)
@@ -151,7 +152,7 @@ contains
   subroutine csv_file_write_matrix(f, data, t)
     class(csv_file_t), intent(inout) :: f
     type(matrix_t), intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    type(time_state_t), intent(in), optional :: t
     integer :: file_unit, i, ierr
 
     open(file = trim(f%fname), position = "append", iostat = ierr, &
@@ -165,7 +166,7 @@ contains
     end if
 
     do i = 1, data%nrows
-       if (present(t)) write (file_unit, '(g0,",")', advance = "no") t
+       if (present(t)) write (file_unit, '(g0,",")', advance = "no") t%t
        write (file_unit, '(*(g0,","))', advance = "no") &
             data%x(i, 1:data%ncols-1)
        write (file_unit, '(g0)') data%x(i, data%ncols)
@@ -194,22 +195,22 @@ contains
        vec => data
        if (.not. allocated(data%x)) then
           call neko_error("Vector is not allocated. Use &
-&vector%init() to associate your array &
-&with a vector_t object")
+          &vector%init() to associate your array &
+          &with a vector_t object")
        end if
 
     type is (matrix_t)
        mat => data
        if (.not. allocated(data%x)) then
           call neko_error("Matrix is not allocated. Use &
-&matrix%init() to associate your array &
-&with a matrix_t object")
+          &matrix%init() to associate your array &
+          &with a matrix_t object")
        end if
 
 
     class default
        call neko_error("Invalid data type for csv_file (expected: vector_t, &
-&matrix_t)")
+       &matrix_t)")
     end select
 
     if (pe_rank .eq. 0) then

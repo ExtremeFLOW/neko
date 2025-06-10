@@ -32,8 +32,8 @@
 !
 !> Defines an output
 module output
-  use num_types, only : rp
   use file, only : file_t
+  use time_state, only: time_state_t
   implicit none
   private
 
@@ -56,9 +56,9 @@ module output
   abstract interface
      subroutine output_sample(this, t)
        import :: output_t
-       import rp
+       import :: time_state_t
        class(output_t), intent(inout) :: this
-       real(kind=rp), intent(in) :: t
+       type(time_state_t), intent(in) :: t
      end subroutine output_sample
   end interface
 

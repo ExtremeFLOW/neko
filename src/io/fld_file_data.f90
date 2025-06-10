@@ -15,6 +15,7 @@ module fld_file_data
   use global_interpolation, only: global_interpolation_t
   use utils, only: neko_error
   use mesh, only: mesh_t
+  use time_state, only: time_state_t
   implicit none
   private
 
@@ -31,9 +32,9 @@ module fld_file_data
      type(vector_t), allocatable :: s(:) !< Numbered scalar fields
      integer :: gdim !< spatial dimensions
      integer :: n_scalars = 0 !< number of numbered scalar fields
-     real(kind=rp) :: time = 0.0 !< time of sample
+     type(time_state_t) :: time !< time of sample
      integer :: glb_nelv = 0 !< global number of elements
-     integer :: nelv = 0  !< n elements on the pe
+     integer :: nelv = 0 !< n elements on the pe
      integer :: offset_el = 0 !< element offset for this pe
      integer :: lx = 0 !< N GLL points in x
      integer :: ly = 0
@@ -91,7 +92,7 @@ contains
     class(fld_file_data_t), target, intent(in) :: fld_file
     integer, intent(in) :: n
     integer :: i, j
-    
+
     if(fld_file%u%n .gt. 0) then
        call this%u%init(n)
     end if
@@ -136,7 +137,7 @@ contains
     end if
     if(n_fields .gt. 4) then
        call this%t%init(n)
-    end if 
+    end if
     if (n_fields .gt. 5) then
        this%n_scalars = n_fields-5
        allocate(this%s(this%n_scalars))
@@ -238,7 +239,6 @@ contains
        deallocate(this%s)
     end if
     this%n_scalars = 0
-    this%time = 0.0
     this%glb_nelv = 0
     this%nelv = 0
     this%offset_el = 0
@@ -268,7 +268,7 @@ contains
     type(space_t) :: fld_Xh
     real(kind=rp), allocatable :: x_coords(:,:,:,:), y_coords(:,:,:,:), &
          z_coords(:,:,:,:)
-    real(kind=rp) :: center_x,  center_y, center_z
+    real(kind=rp) :: center_x, center_y, center_z
     integer :: e, i
     ! ---
 
@@ -279,16 +279,16 @@ contains
     if (.not. allocated(this%x%x) .or. &
          .not. allocated(this%y%x) .or. &
          .not. allocated(this%z%x)) call neko_error("Unable to retrieve &
-&mesh information from fld data.")
+    &mesh information from fld data.")
 
     ! Create a space based on the fld data
-    call fld_Xh%init(GLL, this%lx,  this%ly, this%lz)
+    call fld_Xh%init(GLL, this%lx, this%ly, this%lz)
 
     ! These are the coordinates of our current dofmap
     ! that we use for the interpolation
-    allocate(x_coords(to_Xh%lx,  to_Xh%ly, to_Xh%lz, to_msh%nelv))
-    allocate(y_coords(to_Xh%lx,  to_Xh%ly, to_Xh%lz, to_msh%nelv))
-    allocate(z_coords(to_Xh%lx,  to_Xh%ly, to_Xh%lz, to_msh%nelv))
+    allocate(x_coords(to_Xh%lx, to_Xh%ly, to_Xh%lz, to_msh%nelv))
+    allocate(y_coords(to_Xh%lx, to_Xh%ly, to_Xh%lz, to_msh%nelv))
+    allocate(z_coords(to_Xh%lx, to_Xh%ly, to_Xh%lz, to_msh%nelv))
 
     !> To ensure that each point is within an element
     !! Remedies issue with points on the boundary

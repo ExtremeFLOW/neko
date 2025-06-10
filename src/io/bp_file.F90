@@ -41,6 +41,7 @@ module bp_file
   use space, only: space_t
   use mesh, only: mesh_t
   use structs, only: array_ptr_t
+  use time_state, only: time_state_t
   use fld_file_data
   use utils
   use datadist
@@ -81,7 +82,7 @@ contains
   subroutine bp_file_write(this, data, t)
     class(bp_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    type(time_state_t), intent(in), optional :: t
     type(array_ptr_t) :: x, y, z, u, v, w, p, tem
     type(mesh_t), pointer :: msh
     type(dofmap_t), pointer :: dof
@@ -107,7 +108,7 @@ contains
     integer :: file_unit
 
     if (present(t)) then
-       time = real(t, dp)
+       time = real(t%t, dp)
     else
        time = 0.0_rp
     end if
@@ -744,7 +745,7 @@ contains
   subroutine bp_file_write(this, data, t)
     class(bp_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    type(time_state_t), intent(in), optional :: t
     call neko_error('Neko needs to be built with ADIOS2 Fortran support')
   end subroutine bp_file_write
 

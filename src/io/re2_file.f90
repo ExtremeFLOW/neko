@@ -35,6 +35,7 @@
 module re2_file
   use generic_file, only: generic_file_t
   use num_types, only: rp
+  use time_state, only: time_state_t
   use utils
   use mesh, only: mesh_t
   use point, only: point_t
@@ -219,7 +220,7 @@ contains
   subroutine re2_file_write(this, data, t)
     class(re2_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    type(time_state_t), intent(in), optional :: t
     type(re2v1_xy_t), allocatable :: re2_data_xy(:)
     type(re2v1_xyz_t), allocatable :: re2_data_xyz(:)
     type(mesh_t), pointer :: msh

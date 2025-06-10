@@ -31,7 +31,11 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module generic_file
-  use num_types
+  use num_types, only: rp
+  use time_state, only: time_state_t
+  use utils, only: neko_error
+  use comm, only: pe_rank, NEKO_COMM
+  use mpi_f08, only: MPI_Bcast, MPI_LOGICAL
   implicit none
 
   !> A generic file handler.
@@ -60,9 +64,10 @@ module generic_file
      subroutine generic_file_write(this, data, t)
        import :: generic_file_t
        import :: rp
+       import :: time_state_t
        class(generic_file_t), intent(inout) :: this
        class(*), target, intent(in) :: data
-       real(kind=rp), intent(in), optional :: t
+       type(time_state_t), intent(in), optional :: t
      end subroutine generic_file_write
   end interface
 
@@ -103,11 +108,6 @@ contains
 
   !> check if the file exists
   subroutine generic_file_check_exists(this)
-    use utils, only: neko_error
-    use comm, only: pe_rank, NEKO_COMM
-    use mpi_f08
-    implicit none
-
     class(generic_file_t), intent(in) :: this
     logical :: file_exists
     integer :: neko_mpi_ierr

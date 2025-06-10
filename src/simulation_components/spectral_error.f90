@@ -342,7 +342,7 @@ contains
   !! @param t Current simulation time.
   subroutine spectral_error_write(this, t)
     class(spectral_error_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    type(time_state_t), intent(in) :: t
 
     integer i, e
     integer lx, ly, lz, nelv
@@ -350,7 +350,7 @@ contains
     !> Write the file
     !! Remember that the list is already ponting to the fields
     !! that were just modified.
-    call this%mf_speri%write(this%speri_l,t)
+    call this%mf_speri%write(this%speri_l, t)
 
   end subroutine spectral_error_write
 

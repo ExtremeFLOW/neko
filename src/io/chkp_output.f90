@@ -33,8 +33,8 @@
 !> Defines an output for a checkpoint
 module chkp_output
   use checkpoint, only : chkp_t
-  use output
-  use num_types, only : rp
+  use output, only: output_t
+  use time_state, only: time_state_t
   implicit none
   private
 
@@ -83,7 +83,7 @@ contains
   !> Sample a checkpoint at time @a t
   subroutine chkp_output_sample(this, t)
     class(chkp_output_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    type(time_state_t), intent(in) :: t
 
     call this%chkp%sync_host()
     call this%file_%write(this%chkp, t)
