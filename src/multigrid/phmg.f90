@@ -52,6 +52,8 @@ module phmg
   use ax_product, only : ax_t, ax_helm_factory
   use tree_amg_multigrid, only : tamg_solver_t
   use interpolation, only : interpolator_t
+  use json_module, only : json_file
+  use json_utils, only : json_get_or_default
   use math, only : copy, col2, add2, sub3, add2s2
   use device, only : device_get_ptr, device_stream_wait_event, glb_cmd_queue, &
        glb_cmd_event
@@ -98,6 +100,8 @@ module phmg
      type(mesh_t), pointer :: msh
    contains
      procedure, pass(this) :: init => phmg_init
+     procedure, pass(this) :: init_from_components => &
+          phmg_init_from_components
      procedure, pass(this) :: free => phmg_free
      procedure, pass(this) :: solve => phmg_solve
      procedure, pass(this) :: update => phmg_update
@@ -105,33 +109,48 @@ module phmg
 
 contains
 
-  subroutine phmg_init(this, msh, Xh, coef, dof, gs_h, bclst)
+  subroutine phmg_init(this, coef, bclst, phmg_params)
     class(phmg_t), intent(inout), target :: this
-    type(mesh_t), intent(inout), target :: msh
-    type(space_t), intent(inout), target :: Xh
     type(coef_t), intent(in), target :: coef
-    type(dofmap_t), intent(in), target :: dof
-    type(gs_t), intent(inout), target :: gs_h
     type(bc_list_t), intent(inout), target :: bclst
+    type(json_file), intent(inout) :: phmg_params
+    integer :: crs_tamg_lvls, crs_tamg_cycles, crs_tamg_cheby_degree
+    integer :: smoother_itrs
+
+    call json_get_or_Default(phmg_params, 'smoother_iterations', &
+         smoother_itrs, 10)
+
+    call json_get_or_default(phmg_params, 'coarse_grid.levels', &
+         crs_tamg_lvls, 3)
+
+    call json_get_or_default(phmg_params, 'coarse_grid.cycles', &
+         crs_tamg_cycles, 1)
+
+    call json_get_or_default(phmg_params, 'coarse_grid.cheby_degree', &
+         crs_tamg_cheby_degree, 5)
+
+    call this%init_from_components(coef, bclst, smoother_itrs, &
+         crs_tamg_lvls, crs_tamg_cycles, crs_tamg_cheby_degree)
+
+  end subroutine phmg_init
+
+  subroutine phmg_init_from_components(this, coef, bclst, smoother_itrs, &
+       crs_tamg_lvls, crs_tamg_cycles, crs_tamg_cheby_degree)
+    class(phmg_t), intent(inout), target :: this
+    type(coef_t), intent(in), target :: coef
+    type(bc_list_t), intent(inout), target :: bclst
+    integer, intent(in) :: smoother_itrs
+    integer, intent(in) :: crs_tamg_lvls, crs_tamg_cycles
+    integer, intent(in) :: crs_tamg_cheby_degree
     integer :: lx_crs, lx_mid
     integer, allocatable :: lx_lvls(:)
-    integer :: n, i, j
+    integer :: n, i, j, st
     class(bc_t), pointer :: bc_j
     logical :: use_jacobi, use_cheby
-    character(len=255) :: env_smoother_itrs
-    integer :: env_len, smoother_itrs, st
     use_jacobi = .true.
     use_cheby = .true.
 
-    this%msh => msh
-
-    call get_environment_variable("NEKO_PHMG_SMOOTHER_ITERS", &
-         env_smoother_itrs, env_len)
-    if (env_len .eq. 0) then
-       smoother_itrs = 10
-    else
-       read(env_smoother_itrs(1:env_len), *) smoother_itrs
-    end if
+    this%msh => coef%msh
 
     !TODO: hard coding the levels for now. (note: these levels match hsmg).
     !this%nlvls = Xh%lx - 1
@@ -149,10 +168,10 @@ contains
 
     this%phmg_hrchy%lvl(0)%lvl = 0
     this%phmg_hrchy%lvl(0)%smoother_itrs = smoother_itrs
-    this%phmg_hrchy%lvl(0)%Xh => Xh
+    this%phmg_hrchy%lvl(0)%Xh => coef%Xh
     this%phmg_hrchy%lvl(0)%coef => coef
-    this%phmg_hrchy%lvl(0)%dm_Xh => dof
-    this%phmg_hrchy%lvl(0)%gs_h => gs_h
+    this%phmg_hrchy%lvl(0)%dm_Xh => coef%dof
+    this%phmg_hrchy%lvl(0)%gs_h => coef%gs_h
 
     do i = 1, this%nlvls - 1
        allocate(this%phmg_hrchy%lvl(i)%Xh)
@@ -164,7 +183,8 @@ contains
        this%phmg_hrchy%lvl(i)%smoother_itrs = smoother_itrs
        call this%phmg_hrchy%lvl(i)%Xh%init(GLL, lx_lvls(i), lx_lvls(i), &
             lx_lvls(i))
-       call this%phmg_hrchy%lvl(i)%dm_Xh%init(msh, this%phmg_hrchy%lvl(i)%Xh)
+       call this%phmg_hrchy%lvl(i)%dm_Xh%init(coef%msh, &
+            this%phmg_hrchy%lvl(i)%Xh)
        call this%phmg_hrchy%lvl(i)%gs_h%init(this%phmg_hrchy%lvl(i)%dm_Xh)
        call this%phmg_hrchy%lvl(i)%coef%init(this%phmg_hrchy%lvl(i)%gs_h)
     end do
@@ -196,14 +216,16 @@ contains
             this%phmg_hrchy%lvl(i)%dm_Xh, &
             this%phmg_hrchy%lvl(i)%gs_h, &
             this%phmg_hrchy%lvl(i)%bclst, &
-            msh)
+            coef%msh)
        if (use_jacobi) then
           if (NEKO_BCKND_DEVICE .eq. 1) then
-             call this%phmg_hrchy%lvl(i)%device_jacobi%init(this%phmg_hrchy%lvl(i)%coef, &
+             call this%phmg_hrchy%lvl(i)%device_jacobi%init(&
+                  this%phmg_hrchy%lvl(i)%coef, &
                   this%phmg_hrchy%lvl(i)%dm_Xh, &
                   this%phmg_hrchy%lvl(i)%gs_h)
           else
-             call this%phmg_hrchy%lvl(i)%jacobi%init(this%phmg_hrchy%lvl(i)%coef, &
+             call this%phmg_hrchy%lvl(i)%jacobi%init(&
+                  this%phmg_hrchy%lvl(i)%coef, &
                   this%phmg_hrchy%lvl(i)%dm_Xh, &
                   this%phmg_hrchy%lvl(i)%gs_h)
           end if
@@ -245,10 +267,11 @@ contains
 
     call this%amg_solver%init(this%ax, this%phmg_hrchy%lvl(this%nlvls -1)%Xh, &
          this%phmg_hrchy%lvl(this%nlvls -1)%coef, this%msh, &
-         this%phmg_hrchy%lvl(this%nlvls-1)%gs_h, 4, &
-         this%phmg_hrchy%lvl(this%nlvls -1)%bclst, 1)
+         this%phmg_hrchy%lvl(this%nlvls-1)%gs_h, crs_tamg_lvls, &
+         this%phmg_hrchy%lvl(this%nlvls -1)%bclst, &
+         crs_tamg_cycles, crs_tamg_cheby_degree)
 
-  end subroutine phmg_init
+  end subroutine phmg_init_from_components
 
   subroutine phmg_free(this)
     class(phmg_t), intent(inout) :: this
@@ -271,8 +294,9 @@ contains
          call device_copy(mglvl(0)%r%x_d, r_d, n)
          call device_rzero(mglvl(0)%z%x_d, n)
          call device_rzero(mglvl(0)%w%x_d, n)
-         call phmg_mg_cycle(mglvl(0)%z, mglvl(0)%r, mglvl(0)%w, 0, this%nlvls -1, &
-              mglvl, this%intrp, this%msh, this%Ax, this%amg_solver)
+         call phmg_mg_cycle(mglvl(0)%z, mglvl(0)%r, mglvl(0)%w, 0, &
+              this%nlvls -1, mglvl, this%intrp, this%msh, this%Ax, &
+              this%amg_solver)
 
          call mglvl(0)%bclst%apply_scalar(mglvl(0)%z%x, n)
          call device_copy(z_d, mglvl(0)%z%x_d, n)
@@ -283,8 +307,9 @@ contains
          mglvl(0)%z%x = 0.0_rp
          mglvl(0)%w%x = 0.0_rp
 
-         call phmg_mg_cycle(mglvl(0)%z, mglvl(0)%r, mglvl(0)%w, 0, this%nlvls -1, &
-              mglvl, this%intrp, this%msh, this%Ax, this%amg_solver)
+         call phmg_mg_cycle(mglvl(0)%z, mglvl(0)%r, mglvl(0)%w, 0, &
+              this%nlvls -1, mglvl, this%intrp, this%msh, this%Ax, &
+              this%amg_solver)
 
          call mglvl(0)%bclst%apply_scalar(mglvl(0)%z%x, n)
          call copy(z, mglvl(0)%z%x, n)
@@ -365,7 +390,8 @@ contains
     call intrp(lvl+1)%map(mg(lvl+1)%r%x, w%x, msh%nelv, mg(lvl+1)%Xh)
     call profiler_end_region('PHMG_map_to_coarse', 9)
 
-    call mg(lvl+1)%gs_h%op(mg(lvl+1)%r%x, mg(lvl+1)%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
+    call mg(lvl+1)%gs_h%op(mg(lvl+1)%r%x, mg(lvl+1)%dm_Xh%size(), &
+         GS_OP_ADD, glb_cmd_event)
     call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
 
     call mg(lvl+1)%bclst%apply_scalar( &
@@ -421,7 +447,8 @@ contains
     !>----------<!
     call profiler_start_region('PHMG_PostSmooth', 9)
     if (use_jacobi) then
-       call phmg_jacobi_smoother(z, r, w, mg(lvl), msh, Ax, mg(lvl)%dm_Xh%size(), lvl)
+       call phmg_jacobi_smoother(z, r, w, mg(lvl), msh, Ax, &
+            mg(lvl)%dm_Xh%size(), lvl)
     else
        if (NEKO_BCKND_DEVICE .eq. 1) then
           ksp_results = mg(lvl)%cheby_device%solve(Ax, z, &
