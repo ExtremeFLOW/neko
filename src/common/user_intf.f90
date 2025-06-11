@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2024, The Neko Authors
+! Copyright (c) 2020-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -116,14 +116,6 @@ module user_intf
      end subroutine user_initialize_modules
   end interface
 
-  !> Abstract interface for adding user defined simulation components
-  abstract interface
-     subroutine user_simcomp_init(params)
-       import json_file
-       type(json_file), intent(inout) :: params
-     end subroutine user_simcomp_init
-  end interface
-
   !> Abstract interface for user defined mesh deformation functions
   abstract interface
      subroutine usermsh(msh)
@@ -201,10 +193,6 @@ module user_intf
           fluid_compressible_user_ic => null()
      !> Compute user initial conditions for the scalar.
      procedure(useric_scalar), nopass, pointer :: scalar_user_ic => null()
-     !> Constructor for the user simcomp. Ran in the constructor of
-     !! neko_simcomps.
-     procedure(user_simcomp_init), nopass, pointer :: &
-          init_user_simcomp => null()
      !> Run right after reading the mesh and allows to manipulate it.
      procedure(usermsh), nopass, pointer :: user_mesh_setup => null()
      !> Run at the end of each time-step in the time loop, right before field
@@ -250,8 +238,7 @@ module user_intf
 
   public :: useric, useric_scalar, useric_compressible, &
        user_initialize_modules, usermsh, dummy_user_material_properties, &
-       user_material_properties, user_simcomp_init, &
-       simulation_component_user_settings, user_startup_intrf
+       user_material_properties, user_startup_intrf
 contains
 
   !> Constructor.
@@ -366,10 +353,6 @@ contains
        write(extensions(n), '(A)') '- Initialize modules'
     end if
 
-    if (.not. associated(this%init_user_simcomp)) then
-       this%init_user_simcomp => dummy_user_init_no_simcomp
-    end if
-
     if (.not. associated(this%user_finalize_modules)) then
        this%user_finalize_modules => dummy_user_final_no_modules
     else
@@ -439,6 +422,13 @@ contains
     call neko_error('Dummy user defined scalar initial condition set')
   end subroutine dummy_user_ic_scalar
 
+  subroutine dummy_user_ic_scalars(s, field_name, params)
+    type(field_t), intent(inout) :: s
+    character(len=*), intent(in) :: field_name
+    type(json_file), intent(inout) :: params
+    call neko_warning('Dummy multiple scalar initial condition called')
+  end subroutine dummy_user_ic_scalars
+
   !> Dummy user (fluid) forcing
   subroutine dummy_user_f_vector(f, t)
     class(fluid_user_source_term_t), intent(inout) :: f
@@ -460,14 +450,16 @@ contains
   end subroutine dummy_user_f
 
   !> Dummy user (scalar) forcing
-  subroutine dummy_user_scalar_f_vector(f, t)
+  subroutine dummy_user_scalar_f_vector(field_name, f, t)
+    character(len=*), intent(in) :: field_name
     class(scalar_user_source_term_t), intent(inout) :: f
     real(kind=rp), intent(in) :: t
     call neko_error('Dummy user defined vector valued forcing set')
   end subroutine dummy_user_scalar_f_vector
 
   !> Dummy user (scalar) forcing
-  subroutine dummy_scalar_user_f(s, j, k, l, e, t)
+  subroutine dummy_scalar_user_f(field_name, s, j, k, l, e, t)
+    character(len=*), intent(in) :: field_name
     real(kind=rp), intent(inout) :: s
     integer, intent(in) :: j
     integer, intent(in) :: k
@@ -478,8 +470,9 @@ contains
   end subroutine dummy_scalar_user_f
 
   !> Dummy user boundary condition for scalar
-  subroutine dummy_scalar_user_bc(s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, &
+  subroutine dummy_scalar_user_bc(scalar_name, s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, &
        tstep)
+    character(len=*), intent(in) :: scalar_name
     real(kind=rp), intent(inout) :: s
     real(kind=rp), intent(in) :: x
     real(kind=rp), intent(in) :: y
@@ -549,50 +542,5 @@ contains
     type(field_list_t), intent(inout) :: properties
   end subroutine dummy_user_material_properties
 
-  ! ========================================================================== !
-  ! Helper functions for user defined interfaces
 
-  !> JSON extraction helper function for simulation components
-  !! @param name The name of the object to be created.
-  !! @param params The JSON object containing the user-defined component.
-  !! @return The JSON object for initializing the simulation component.
-  function simulation_component_user_settings(name, params) result(comp_subdict)
-    character(len=*), intent(in) :: name
-    type(json_file), intent(inout) :: params
-    type(json_file) :: comp_subdict
-
-    character(len=:), allocatable :: current_type
-    integer :: n_simcomps
-    integer :: i
-    logical :: found, is_user
-
-    call params%info('', n_children = n_simcomps)
-
-    found = .false.
-    do i = 1, n_simcomps
-       call json_extract_item(params, "", i, comp_subdict)
-       call json_get_or_default(comp_subdict, "is_user", is_user, .false.)
-       if (.not. is_user) cycle
-
-       call json_get(comp_subdict, "type", current_type)
-       if (trim(current_type) .eq. trim(name)) then
-          found = .true.
-          exit
-       end if
-    end do
-
-    if (.not. found) then
-       call neko_error("User-defined simulation component " &
-            // trim(name) // " not found in case file.")
-    end if
-
-  end function simulation_component_user_settings
-
-
-  !> @example simulation_components/user_simcomp.f90
-  !! @brief User defined simulation components.
-  !! @details
-  !! Example of how to use the simcomp_executor to add a user defined
-  !! simulation component to the list.
-  !! @include simulation_components/user_simcomp.case
 end module user_intf

@@ -8,12 +8,12 @@ module user
 
 contains
   ! Register user defined functions (see user_intf.f90)
-  subroutine user_setup(u)
-    type(user_t), intent(inout) :: u
-    u%scalar_user_ic => set_ic
-    u%fluid_user_f_vector => forcing
-    u%scalar_user_bc => scalar_bc
-    u%user_startup => startup
+  subroutine user_setup(user)
+    type(user_t), intent(inout) :: user
+    user%scalar_user_ic => set_ic
+    user%fluid_user_f_vector => forcing
+    user%scalar_user_bc => scalar_bc
+    user%user_startup => startup
   end subroutine user_setup
 
   subroutine startup(params)
@@ -35,7 +35,9 @@ contains
     call params%add("case.scalar.cp", cp)
   end subroutine startup
 
-  subroutine scalar_bc(s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
+  subroutine scalar_bc(scalar_name, s, x, y, z, nx, ny, nz, ix, iy, iz, ie, &
+       t, tstep)
+    character(len=*), intent(in) :: scalar_name
     real(kind=rp), intent(inout) :: s
     real(kind=rp), intent(in) :: x
     real(kind=rp), intent(in) :: y
@@ -73,7 +75,7 @@ contains
 
                 !call random_number(rand)
                 !Somewhat random
-                rand = cos(real(e+s%msh%offset_el,rp)*real(i*j*k,rp))
+                rand = cos(real(e + s%msh%offset_el, rp) * real(i*j*k, rp))
                 z = s%dof%z(i,j,k,e)
                 s%x(i,j,k,e) = 1-z + 0.0001* rand*&
                      sin(4*pi/4.5*s%dof%x(i,j,k,e)) &
@@ -87,7 +89,7 @@ contains
     if ((NEKO_BCKND_DEVICE .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
          .or. (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(s%x, s%x_d, s%dof%size(), &
-            HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync = .false.)
     end if
 
 
@@ -109,13 +111,13 @@ contains
 
     if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
          .or. (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_cmult2(f%u_d,v%x_d,Ta2Pr,f%dm%size())
-       call device_cmult2(f%v_d,u%x_d,Ta2Pr,f%dm%size())
-       call device_cmult2(f%w_d,s%x_d,rapr,f%dm%size())
+       call device_cmult2(f%u_d, v%x_d, Ta2Pr, f%dm%size())
+       call device_cmult2(f%v_d, u%x_d, Ta2Pr, f%dm%size())
+       call device_cmult2(f%w_d, s%x_d, rapr, f%dm%size())
     else
-       call cmult2(f%u,v%x,Ta2Pr,f%dm%size())
-       call cmult2(f%v,u%x,Ta2Pr,f%dm%size())
-       call cmult2(f%w,s%x,rapr,f%dm%size())
+       call cmult2(f%u, v%x, Ta2Pr, f%dm%size())
+       call cmult2(f%v, u%x, Ta2Pr, f%dm%size())
+       call cmult2(f%w, s%x, rapr, f%dm%size())
     end if
   end subroutine forcing
 end module user

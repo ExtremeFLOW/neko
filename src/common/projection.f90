@@ -238,7 +238,7 @@ contains
     character(len=*), optional :: string
 
     if (tstep .gt. this%activ_step .and. this%L .gt. 0) then
-       if (dt_controller%if_variable_dt) then
+       if (dt_controller%is_variable_dt) then
           ! the time step at which dt is changed
           if (dt_controller%dt_last_change .eq. 0) then
              call this%clear(n)
@@ -247,13 +247,13 @@ contains
              ! note that dt_last_change start from 0
              call this%project_on(b, coef, n)
              if (present(string)) then
-                call this%log_info(string)
+                call this%log_info(string, tstep)
              end if
           end if
        else
           call this%project_on(b, coef, n)
           if (present(string)) then
-             call this%log_info(string)
+             call this%log_info(string, tstep)
           end if
        end if
     end if
@@ -273,7 +273,7 @@ contains
     type(time_step_controller_t), intent(in) :: dt_controller
 
     if (tstep .gt. this%activ_step .and. this%L .gt. 0) then
-       if (.not.(dt_controller%if_variable_dt) .or. &
+       if (.not.(dt_controller%is_variable_dt) .or. &
             (dt_controller%dt_last_change .gt. this%activ_step - 1)) then
           call this%project_back(x, Ax, coef, bclst, gs_h, n)
        end if
@@ -683,18 +683,21 @@ contains
 
   end subroutine cpu_proj_ortho
 
-  subroutine print_proj_info(this, string)
+  subroutine print_proj_info(this, string, tstep)
     class(projection_t), intent(in) :: this
     character(len=*), intent(in) :: string
+    integer, intent(in) :: tstep
     character(len=LOG_SIZE) :: log_buf
+    character(len=12) :: tstep_str
 
     if (this%proj_m .gt. 0) then
-       write(log_buf, '(A,A)') 'Projection ', string
+       write(tstep_str, '(I12)') tstep
+       write(log_buf, '(A12,A14,1X,A8,A10,1X,I3,A16,1X,E10.4)') &
+            adjustl(tstep_str), ' | Projection:', string, &
+            ', Vectors:', this%proj_m, &
+            ', Original res.:', this%proj_res
        call neko_log%message(log_buf)
-       write(log_buf, '(A,A)') 'Proj. vec.:', '   Orig. residual:'
-       call neko_log%message(log_buf)
-       write(log_buf, '(I11,3x, E15.7,5x)') this%proj_m, this%proj_res
-       call neko_log%message(log_buf)
+       call neko_log%newline()
     end if
 
   end subroutine print_proj_info

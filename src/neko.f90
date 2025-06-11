@@ -143,6 +143,7 @@ module neko
   use time_step_controller, only : time_step_controller_t
   use source_term, only : source_term_t, source_term_allocate, &
        register_source_term, source_term_factory, source_term_allocator
+  use user_access_singleton, only : neko_user_access
   use, intrinsic :: iso_fortran_env
   !$ use omp_lib
   implicit none
@@ -229,21 +230,20 @@ contains
   subroutine neko_solve(C)
     type(case_t), target, intent(inout) :: C
     type(time_step_controller_t) :: dt_controller
+    type(json_file) :: dt_params
     real(kind=dp) :: tstep_loop_start_time
-    character(len=LOG_SIZE) :: log_buf
-    real(kind=rp) :: cfl
-    logical :: output_at_end
 
-    call dt_controller%init(C%params)
+    call json_extract_object(C%params, 'case.time', dt_params)
+    call dt_controller%init(dt_params)
 
+    call C%time%reset()
     call simulation_init(C, dt_controller)
 
     call profiler_start
-    cfl = C%fluid%compute_cfl(C%time%dt)
     tstep_loop_start_time = MPI_WTIME()
 
-    do while (C%time%t .lt. C%time%end_time .and. (.not. jobctrl_time_limit()))
-       call simulation_step(C, dt_controller, cfl, tstep_loop_start_time)
+    do while (.not. (C%time%is_done() .or. jobctrl_time_limit()))
+       call simulation_step(C, dt_controller, tstep_loop_start_time)
     end do
     call profiler_stop
 
@@ -265,6 +265,7 @@ contains
     end if
 
     call neko_field_registry%free()
+    call neko_user_access%free()
     call device_finalize
     call neko_mpi_types_free
     call comm_free

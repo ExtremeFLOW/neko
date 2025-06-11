@@ -5,9 +5,9 @@ module user
 contains
 
   ! Register user defined functions (see user_intf.f90)
-  subroutine user_setup(u)
-    type(user_t), intent(inout) :: u
-    u%fluid_user_ic => user_ic
+  subroutine user_setup(user)
+    type(user_t), intent(inout) :: user
+    user%fluid_user_ic => user_ic
   end subroutine user_setup
   ! User defined initial condition
   subroutine user_ic(u, v, w, p, params)

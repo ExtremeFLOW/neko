@@ -68,6 +68,8 @@ module source_term_handler
      type(coef_t), pointer :: coef
      !> The user object.
      type(user_t), pointer :: user
+     !> Field name for this handler
+     character(len=:), allocatable :: variable_name
 
    contains
      !> Constructor.
@@ -91,24 +93,26 @@ module source_term_handler
 
   abstract interface
      subroutine source_term_handler_init_user_source(source_term, rhs_fields, &
-          coef, type, user)
+          coef, type, user, variable_name)
        import :: source_term_t, field_list_t, coef_t, user_t
        class(source_term_t), allocatable, intent(inout) :: source_term
        type(field_list_t) :: rhs_fields
        type(coef_t), intent(in) :: coef
        character(len=*) :: type
        type(user_t), intent(in) :: user
+       character(len=*), intent(in) :: variable_name
      end subroutine source_term_handler_init_user_source
   end interface
 
 contains
 
   !> Constructor.
-  subroutine source_term_handler_init_base(this, rhs_fields, coef, user)
+  subroutine source_term_handler_init_base(this, rhs_fields, coef, user, variable_name)
     class(source_term_handler_t), intent(inout) :: this
     type(field_list_t), intent(in) :: rhs_fields
     type(coef_t), target, intent(in) :: coef
     type(user_t), target, intent(in) :: user
+    character(len=*), intent(in) :: variable_name
 
     call this%free()
 
@@ -116,6 +120,7 @@ contains
     this%rhs_fields = rhs_fields
     this%coef => coef
     this%user => user
+    this%variable_name = trim(variable_name)
 
   end subroutine source_term_handler_init_base
 
@@ -213,7 +218,7 @@ contains
                (trim(type) .eq. "user_pointwise")) then
 
              call this%init_user_source(this%source_terms(i+ i0)%source_term, &
-                  this%rhs_fields, this%coef, type, this%user)
+                  this%rhs_fields, this%coef, type, this%user, this%variable_name)
 
              call json_get_or_default(source_subdict, "start_time", &
                   this%source_terms(i + i0)%source_term%start_time, 0.0_rp)

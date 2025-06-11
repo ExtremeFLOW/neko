@@ -15,46 +15,53 @@ contains
 
   !> Prints for prs, velx, vely, velz the following:
   !! Number of iterations, start residual, end residual
-  subroutine fluid_step_info(step, t, dt, ksp_results, strict_convergence)
+  subroutine fluid_step_info(step, t, dt, ksp_results, &
+       full_stress_formulation, strict_convergence)
     type(ksp_monitor_t), intent(in) :: ksp_results(4)
     integer, intent(in) :: step
     real(kind=rp), intent(in) :: t, dt
+    logical, intent(in) :: full_stress_formulation
     logical, intent(in) :: strict_convergence
     character(len=LOG_SIZE) :: log_buf
+    character(len=12) :: step_str
     integer :: i
+    character(len=40) :: out_format
 
-    call neko_log%message('Pressure')
+    out_format = '(A12,A3,A10,1x,I6,3x,E15.9,3x,E15.9)'
+    write(step_str, '(I12)') step
+    step_str = adjustl(step_str)
 
-    write(log_buf, '(A,A,A)') 'Iterations:   ',&
-         'Start residual:     ', 'Final residual:'
+    write(log_buf, '((A5,7x),A3,(A5,5x),1x,A6,3x,A15,3x,A15)') &
+         'Step:', ' | ', 'Field:', 'Iters:', &
+         'Start residual:', 'Final residual:'
     call neko_log%message(log_buf)
-    write(log_buf, '(I11,3x, E15.7,5x, E15.7)') ksp_results(1)%iter, &
+
+    write(log_buf, out_format) &
+         step_str, ' | ' , 'Pressure  ' , ksp_results(1)%iter, &
          ksp_results(1)%res_start, ksp_results(1)%res_final
     call neko_log%message(log_buf)
 
-    call neko_log%message('X-Velocity')
-    write(log_buf, '(A,A,A)') 'Iterations:   ',&
-         'Start residual:     ', 'Final residual:'
-    call neko_log%message(log_buf)
-    write(log_buf, '(I11,3x, E15.7,5x, E15.7)') ksp_results(2)%iter, &
-         ksp_results(2)%res_start, ksp_results(2)%res_final
-    call neko_log%message(log_buf)
+    if (full_stress_formulation) then
+       write(log_buf, out_format) &
+            step_str, ' | ' , 'Momentum  ' , ksp_results(2)%iter, &
+            ksp_results(2)%res_start, ksp_results(2)%res_final
+       call neko_log%message(log_buf)
+    else
+       write(log_buf, out_format) &
+            step_str, ' | ' , 'X-Velocity' , ksp_results(2)%iter, &
+            ksp_results(2)%res_start, ksp_results(2)%res_final
+       call neko_log%message(log_buf)
 
-    call neko_log%message('Y-Velocity')
-    write(log_buf, '(A,A,A)') 'Iterations:   ',&
-         'Start residual:     ', 'Final residual:'
-    call neko_log%message(log_buf)
-    write(log_buf, '(I11,3x, E15.7,5x, E15.7)') ksp_results(3)%iter, &
-         ksp_results(3)%res_start, ksp_results(3)%res_final
-    call neko_log%message(log_buf)
+       write(log_buf, out_format) &
+            step_str, ' | ' , 'Y-Velocity' , ksp_results(3)%iter, &
+            ksp_results(3)%res_start, ksp_results(3)%res_final
+       call neko_log%message(log_buf)
 
-    call neko_log%message('Z-Velocity')
-    write(log_buf, '(A,A,A)') 'Iterations:   ', &
-         'Start residual:     ', 'Final residual:'
-    call neko_log%message(log_buf)
-    write(log_buf, '(I11,3x, E15.7,5x, E15.7)') ksp_results(4)%iter, &
-         ksp_results(4)%res_start, ksp_results(4)%res_final
-    call neko_log%message(log_buf)
+       write(log_buf, out_format) &
+            step_str, ' | ' , 'Z-Velocity' , ksp_results(4)%iter, &
+            ksp_results(4)%res_start, ksp_results(4)%res_final
+       call neko_log%message(log_buf)
+    end if
 
     ! Check for convergence
     do i = 1, 4
@@ -68,7 +75,11 @@ contains
           case(1)
              log_buf = trim(log_buf) // ' pressure'
           case(2)
-             log_buf = trim(log_buf) // ' x-velocity'
+             if (full_stress_formulation) then
+                log_buf = trim(log_buf) // ' momentum'
+             else
+                log_buf = trim(log_buf) // ' x-velocity'
+             end if
           case(3)
              log_buf = trim(log_buf) // ' y-velocity'
           case(4)

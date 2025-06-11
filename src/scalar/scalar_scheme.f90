@@ -68,7 +68,8 @@ module scalar_scheme
   use scalar_source_term, only : scalar_source_term_t
   use field_series, only : field_series_t
   use math, only : cfill, add2s2
-  use field_math, only : field_cmult2, field_col3, field_cfill, field_add2
+  use field_math, only : field_cmult, field_col3, field_cfill, field_add2, &
+       field_col2
   use device_math, only : device_cfill, device_add2s2
   use neko_config, only : NEKO_BCKND_DEVICE
   use field_series, only : field_series_t
@@ -136,6 +137,8 @@ module scalar_scheme
      type(field_list_t) :: material_properties
      !> Is lambda varying in time? Currently only due to LES models.
      logical :: variable_material_properties = .false.
+     ! Lag arrays for the RHS.
+     type(field_t) :: abx1, abx2
      procedure(user_material_properties), nopass, pointer :: &
           user_material_properties => null()
    contains
@@ -248,7 +251,7 @@ contains
     logical :: logical_val
     real(kind=rp) :: real_val, solver_abstol
     integer :: integer_val, ierr
-    character(len=:), allocatable :: solver_type, solver_precon, field_name
+    character(len=:), allocatable :: solver_type, solver_precon
     type(json_file) :: precon_params
     real(kind=rp) :: GJP_param_a, GJP_param_b
 
@@ -290,13 +293,11 @@ contains
     this%params => params
     this%msh => msh
 
-    call json_get_or_default(params, 'field_name', field_name, 's')
-
-    if (.not. neko_field_registry%field_exists(field_name)) then
-       call neko_field_registry%add_field(this%dm_Xh, field_name)
+    if (.not. neko_field_registry%field_exists(this%name)) then
+       call neko_field_registry%add_field(this%dm_Xh, this%name)
     end if
 
-    this%s => neko_field_registry%get_field(field_name)
+    this%s => neko_field_registry%get_field(this%name)
 
     call this%slag%init(this%s, 2)
 
@@ -351,7 +352,7 @@ contains
     call this%f_Xh%init(this%dm_Xh, fld_name = "scalar_rhs")
 
     ! Initialize the source term
-    call this%source_term%init(this%f_Xh, this%c_Xh, user)
+    call this%source_term%init(this%f_Xh, this%c_Xh, user, this%name)
     call this%source_term%add(params, 'source_terms')
 
     ! todo parameter file ksp tol should be added
@@ -514,7 +515,8 @@ contains
        call neko_scratch_registry%request_field(lambda_factor, index)
 
        call field_col3(lambda_factor, this%cp, this%rho)
-       call field_cmult2(lambda_factor, nut, 1.0_rp / this%pr_turb)
+       call field_col2(lambda_factor, nut)
+       call field_cmult(lambda_factor, 1.0_rp / this%pr_turb)
        call field_add2(this%lambda, lambda_factor)
        call neko_scratch_registry%relinquish_field(index)
     end if

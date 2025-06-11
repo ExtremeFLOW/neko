@@ -96,11 +96,11 @@ contains
   !! @param coef Finest level coeff thing
   !! @param msh Finest level mesh information
   !! @param gs_h Finest level gather scatter operator
-  !! @param nlvls_in Number of levels for the TreeAMG hierarchy
+  !! @param nlvls Number of levels for the TreeAMG hierarchy
   !! @param blst Finest level BC list
   !! @param max_iter Number of AMG iterations
-  subroutine tamg_mg_init(this, ax, Xh, coef, msh, gs_h, nlvls_in, blst, &
-       max_iter)
+  subroutine tamg_mg_init(this, ax, Xh, coef, msh, gs_h, nlvls, blst, &
+       max_iter, cheby_degree)
     class(tamg_solver_t), intent(inout), target :: this
     class(ax_t), target, intent(in) :: ax
     type(space_t), target, intent(in) :: Xh
@@ -108,24 +108,14 @@ contains
     type(mesh_t), target, intent(in) :: msh
     type(gs_t), target, intent(in) :: gs_h
     type(bc_list_t), target, intent(in) :: blst
-    integer, intent(in) :: nlvls_in
+    integer, intent(in) :: nlvls
     integer, intent(in) :: max_iter
-    integer :: nlvls, lvl, n, cheby_degree, env_len, mlvl, target_num_aggs
+    integer, intent(in) :: cheby_degree
+    integer :: lvl, n, mlvl, target_num_aggs
     integer, allocatable :: agg_nhbr(:,:), asdf(:,:)
-    character(len=255) :: env_cheby_degree, env_mlvl
     character(len=LOG_SIZE) :: log_buf
 
     call neko_log%section('AMG')
-
-    call get_environment_variable("NEKO_TAMG_MAX_LVL", &
-         env_mlvl, env_len)
-    if (env_len .eq. 0) then
-       !yeah...
-       nlvls = nlvls_in
-    else
-       read(env_mlvl(1:env_len), *) mlvl
-       nlvls = mlvl
-    end if
 
     write(log_buf, '(A28,I2,A8)') 'Creating AMG hierarchy with', &
          nlvls, 'levels.'
@@ -162,14 +152,6 @@ contains
        call neko_error( &
             "Requested number multigrid levels &
        & is greater than the initialized AMG levels")
-    end if
-
-    call get_environment_variable("NEKO_TAMG_CHEBY_DEGREE", &
-         env_cheby_degree, env_len)
-    if (env_len .eq. 0) then
-       cheby_degree = 10
-    else
-       read(env_cheby_degree(1:env_len), *) cheby_degree
     end if
 
     allocate(this%smoo(0:(nlvls)))

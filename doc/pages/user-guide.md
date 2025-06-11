@@ -12,4 +12,4 @@ advanced topics such as statistics and user defined extensions.
 - \subpage statistics-guide
 - \subpage io
 - \subpage programming-examples
-
+- \subpage extending

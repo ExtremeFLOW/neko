@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2023, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -107,8 +107,7 @@ module opencl_intf
 
   interface
      integer(c_int) function clGetPlatformIDs(num_entries, platforms, &
-                                              num_platforms) &
-          bind(c, name = 'clGetPlatformIDs')
+          num_platforms) bind(c, name = 'clGetPlatformIDs')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int), value :: num_entries
@@ -119,8 +118,7 @@ module opencl_intf
 
   interface
      integer(c_int) function clGetDeviceIDs(platform, device_type, &
-                                            num_entries, devices, num_devices) &
-          bind(c, name = 'clGetDeviceIDs')
+          num_entries, devices, num_devices) bind(c, name = 'clGetDeviceIDs')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: platform
@@ -133,8 +131,7 @@ module opencl_intf
 
   interface
      type (c_ptr) function clCreateContext(properties, num_devices, devices, &
-                                           pfn_notify, user_data, ierr) &
-          bind(c, name = 'clCreateContext')
+          pfn_notify, user_data, ierr) bind(c, name = 'clCreateContext')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: properties
@@ -148,8 +145,7 @@ module opencl_intf
 
   interface
      type(c_ptr) function clCreateCommandQueue(context, device, &
-                                               properties, ierr) &
-          bind(c, name = 'clCreateCommandQueue')
+          properties, ierr) bind(c, name = 'clCreateCommandQueue')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: context
@@ -184,9 +180,7 @@ module opencl_intf
 
   interface
      integer(c_int) function clEnqueueReadBuffer(queue, buffer, blocking_read, &
-                                                 offset, size, ptr, &
-                                                 num_events_in_wait_list, &
-                                                 event_wait_list, event) &
+          offset, size, ptr, num_events_in_wait_list, event_wait_list, event) &
           bind(c, name = 'clEnqueueReadBuffer')
        use, intrinsic :: iso_c_binding
        implicit none
@@ -204,11 +198,8 @@ module opencl_intf
 
   interface
      integer(c_int) function clEnqueueWriteBuffer(queue, buffer, &
-                                                  blocking_write, offset, &
-                                                  size, ptr, &
-                                                  num_events_in_wait_list, &
-                                                  event_wait_list, event) &
-          bind(c, name = 'clEnqueueWriteBuffer')
+          blocking_write, offset, size, ptr, num_events_in_wait_list, &
+          event_wait_list, event) bind(c, name = 'clEnqueueWriteBuffer')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: queue
@@ -225,11 +216,8 @@ module opencl_intf
 
   interface
      integer(c_int) function clEnqueueCopyBuffer(queue, src_buffer, &
-                                                 dst_buffer, src_offset, &
-                                                 dst_offset, size, &
-                                                 num_events_in_wait_list, &
-                                                 event_wait_list, event) &
-          bind(c, name = 'clEnqueueCopyBuffer')
+          dst_buffer, src_offset, dst_offset, size, num_events_in_wait_list, &
+          event_wait_list, event) bind(c, name = 'clEnqueueCopyBuffer')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: queue
@@ -242,6 +230,24 @@ module opencl_intf
        type(c_ptr), value :: event_wait_list
        type(c_ptr), value :: event
      end function clEnqueueCopyBuffer
+  end interface
+
+  interface
+     integer(c_int) function clEnqueueFillBuffer(queue, buffer, &
+          pattern, pattern_size, offset, size, num_events_in_wait_list, &
+          event_wait_list, event) bind(c, name = 'clEnqueueFillBuffer')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: queue
+       type(c_ptr), value :: buffer
+       type(c_ptr), value :: pattern
+       integer(c_size_t), value :: pattern_size
+       integer(c_size_t), value :: offset
+       integer(c_size_t), value :: size
+       integer(c_int), value :: num_events_in_wait_list
+       type(c_ptr), value :: event_wait_list
+       type(c_ptr), value :: event
+     end function clEnqueueFillBuffer
   end interface
 
   interface
@@ -267,7 +273,7 @@ module opencl_intf
      end function clEnqueueMarker
   end interface
 
-    interface
+  interface
      integer(c_int) function clEnqueueBarrier(cmd_queue) &
           bind(c, name = 'clEnqueueBarrier')
        use, intrinsic :: iso_c_binding
@@ -278,8 +284,7 @@ module opencl_intf
 
   interface
      integer(c_int) function clEnqueueWaitForEvents(queue, &
-                                                    num_events, event_list) &
-          bind(c, name = 'clEnqueueWaitForEvents')
+          num_events, event_list) bind(c, name = 'clEnqueueWaitForEvents')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: queue
@@ -310,8 +315,7 @@ module opencl_intf
 
   interface
      integer(c_int) function clGetDeviceInfo(device, param_name, &
-                                             param_value_size, param_value, &
-                                             param_value_size_ret) &
+          param_value_size, param_value, param_value_size_ret) &
           bind(c, name = 'clGetDeviceInfo')
        use, intrinsic :: iso_c_binding
        implicit none
@@ -452,7 +456,7 @@ contains
   subroutine opencl_finalize(glb_cmd_queue, aux_cmd_queue)
     type(c_ptr), intent(inout) :: glb_cmd_queue
     type(c_ptr), intent(inout) :: aux_cmd_queue
-    
+
     if (c_associated(glb_ctx)) then
        if (clReleaseContext(glb_ctx) .ne. CL_SUCCESS) then
           call neko_error('Failed to release context')
