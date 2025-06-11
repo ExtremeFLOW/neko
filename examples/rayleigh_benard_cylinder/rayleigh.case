@@ -4,8 +4,10 @@
         "mesh_file": "rayleigh.nmsh",
         "output_at_end": true,
         "output_boundary": true,
-        "end_time": 250,
-        "timestep": 2e-3,
+        "time": {
+            "end_time": 250,
+            "timestep": 2e-3
+        },
         "output_checkpoints": true,
         "checkpoint_control": "simulationtime",
         "checkpoint_value": 50,
@@ -22,7 +24,7 @@
             "source_terms": [
                 {
                     "type": "boussinesq",
-                    "g" : [0, 0, 1],
+                    "g": [ 0, 0, 1 ],
                     "reference_value": 0,
                     "beta": 1
                 }
@@ -58,7 +60,7 @@
             "boundary_conditions": [
                 {
                     "type": "no_slip",
-                    "zone_indices": [1, 2, 3]
+                    "zone_indices": [ 1, 2, 3 ]
                 }
             ]
         },
@@ -80,12 +82,12 @@
             "boundary_conditions": [
                 {
                     "type": "user_pointwise",
-                    "zone_indices": [1, 2]
+                    "zone_indices": [ 1, 2 ]
                 },
                 {
                     "type": "neumann",
                     "flux": 0,
-                    "zone_indices": [3]
+                    "zone_indices": [ 3 ]
                 }
             ]
         },

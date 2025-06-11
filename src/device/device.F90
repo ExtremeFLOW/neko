@@ -112,7 +112,7 @@ module device
        device_profiler_start, device_profiler_stop, device_alloc, &
        device_init, device_name, device_event_create, device_event_destroy, &
        device_event_record, device_event_sync, device_finalize, &
-       device_stream_wait_event, device_count, &
+       device_stream_wait_event, device_count, device_memset, &
        device_stream_create_with_priority
 
   private :: device_memcpy_common
@@ -227,6 +227,49 @@ contains
 #endif
     x_d = C_NULL_PTR
   end subroutine device_free
+
+  !> Set memory on the device to a value
+  subroutine device_memset(x_d, v, s, sync, strm)
+    type(c_ptr), intent(inout) :: x_d
+    integer(c_int), target, value :: v
+    integer(c_size_t), intent(in) :: s
+    logical, optional :: sync
+    type(c_ptr), optional :: strm
+    type(c_ptr) :: stream
+    logical :: sync_device
+
+    if (present(sync)) then
+       sync_device = sync
+    else
+       sync_device = .false.
+    end if
+
+    if (present(strm)) then
+       stream = strm
+    else
+       stream = glb_cmd_queue
+    end if
+
+#ifdef HAVE_HIP
+    if (hipMemsetAsync(x_d, v, s, stream) .ne. hipSuccess) then
+       call neko_error('Device memset async failed')
+    end if
+#elif HAVE_CUDA
+    if (cudaMemsetAsync(x_d, v, s, stream) .ne. cudaSuccess) then
+       call neko_error('Device memset async failed')
+    end if
+#elif HAVE_OPENCL
+    if (clEnqueueFillBuffer(strm, x_d, c_loc(v), c_sizeof(v), 0_i8, &
+         s, 0, C_NULL_PTR, C_NULL_PTR) .ne. CL_SUCCESS) then
+       call neko_error('Device memset async failed')
+    end if
+#endif
+
+    if (sync_device) then
+       call device_sync_stream(stream)
+    end if
+
+  end subroutine device_memset
 
   !> Copy data between host and device (rank 1 arrays)
   subroutine device_memcpy_r1(x, x_d, n, dir, sync, strm)

@@ -137,6 +137,8 @@ module scalar_scheme
      type(field_list_t) :: material_properties
      !> Is lambda varying in time? Currently only due to LES models.
      logical :: variable_material_properties = .false.
+     ! Lag arrays for the RHS.
+     type(field_t) :: abx1, abx2
      procedure(user_material_properties), nopass, pointer :: &
           user_material_properties => null()
    contains
@@ -249,7 +251,7 @@ contains
     logical :: logical_val
     real(kind=rp) :: real_val, solver_abstol
     integer :: integer_val, ierr
-    character(len=:), allocatable :: solver_type, solver_precon, field_name
+    character(len=:), allocatable :: solver_type, solver_precon
     type(json_file) :: precon_params
     real(kind=rp) :: GJP_param_a, GJP_param_b
 
@@ -291,13 +293,11 @@ contains
     this%params => params
     this%msh => msh
 
-    call json_get_or_default(params, 'field_name', field_name, 's')
-
-    if (.not. neko_field_registry%field_exists(field_name)) then
-       call neko_field_registry%add_field(this%dm_Xh, field_name)
+    if (.not. neko_field_registry%field_exists(this%name)) then
+       call neko_field_registry%add_field(this%dm_Xh, this%name)
     end if
 
-    this%s => neko_field_registry%get_field(field_name)
+    this%s => neko_field_registry%get_field(this%name)
 
     call this%slag%init(this%s, 2)
 
@@ -352,7 +352,7 @@ contains
     call this%f_Xh%init(this%dm_Xh, fld_name = "scalar_rhs")
 
     ! Initialize the source term
-    call this%source_term%init(this%f_Xh, this%c_Xh, user)
+    call this%source_term%init(this%f_Xh, this%c_Xh, user, this%name)
     call this%source_term%add(params, 'source_terms')
 
     ! todo parameter file ksp tol should be added

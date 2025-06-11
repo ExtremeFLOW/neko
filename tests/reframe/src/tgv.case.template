@@ -8,8 +8,10 @@
   "output_at_end": true,
   "load_balance": false,
   "job_timelimit": "00:00:00",
-  "end_time": 3.0,
-  "timestep": 1e-2,
+  "time": {
+    "end_time": 3.0,
+    "timestep": 1e-2
+  },
   "nsamples": 2,
   "numerics": {
     "time_order": 3,
@@ -41,7 +43,7 @@
       "max_iterations": 800
     }
   },
-  "simulation_components": 
+  "simulation_components":
   [
     {
       "type": "vorticity",
