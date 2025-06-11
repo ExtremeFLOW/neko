@@ -33,7 +33,7 @@
 !> Defines a pipelined Conjugate Gradient methods
 module pipecg_device
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
-  use precon,  only : pc_t
+  use precon, only : pc_t
   use ax_product, only : ax_t
   use num_types, only: rp, c_rp
   use field, only : field_t
@@ -48,7 +48,7 @@ module pipecg_device
   use comm, only : NEKO_COMM, pe_size, MPI_Iallreduce, MPI_Status, &
        MPI_REAL_PRECISION, MPI_SUM, MPI_IN_PLACE, MPI_Request, &
        MPI_Wait
-  use, intrinsic :: iso_c_binding, only :  c_ptr, C_NULL_PTR, &
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, &
        c_associated, c_size_t, c_sizeof, c_int, c_loc
   implicit none
   private
@@ -368,7 +368,7 @@ contains
 
     associate(p => this%p, q => this%q, r => this%r, s => this%s, &
          u => this%u, w => this%w, z => this%z, mi => this%mi, ni => this%ni, &
-         alpha => this%alpha, beta => this%beta,  &
+         alpha => this%alpha, beta => this%beta, &
          alpha_d => this%alpha_d, beta_d => this%beta_d, &
          p_d => this%p_d, q_d => this%q_d, r_d => this%r_d, &
          s_d => this%s_d, u_d => this%u_d, u_d_d => this%u_d_d, &
@@ -396,7 +396,8 @@ contains
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
-      if(abscmp(rnorm, 0.0_rp)) return
+      ksp_results%converged = this%is_converged(0, rnorm)
+      if (ksp_results%converged) return
 
       gamma1 = 0.0_rp
       tmp1 = 0.0_rp
@@ -498,9 +499,9 @@ contains
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
 
-    ksp_results(1) =  this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) =  this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
 
   end function pipecg_device_solve_coupled
 

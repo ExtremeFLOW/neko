@@ -45,6 +45,7 @@ module krylov
   use device_identity, only : device_ident_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use logger, only : neko_log, LOG_SIZE
+  use math, only : NEKO_EPS
   implicit none
   private
 

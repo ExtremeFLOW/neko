@@ -260,7 +260,8 @@ contains
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
-      if (rnorm .eq. zero) return
+      ksp_results%converged = this%is_converged(0, rnorm)
+      if (all(ksp_results%converged)) return
 
       call this%monitor_start('cpldCG')
       do iter = 1, max_iter

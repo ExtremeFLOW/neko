@@ -33,7 +33,7 @@
 !> Defines a fused Conjugate Gradient method for accelerators
 module fusedcg_device
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
-  use precon,  only : pc_t
+  use precon, only : pc_t
   use ax_product, only : ax_t
   use num_types, only: rp, c_rp
   use field, only : field_t
@@ -332,7 +332,7 @@ contains
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
     integer :: iter, max_iter, ierr, i, p_cur, p_prev
-    real(kind=rp) :: rnorm, rtr, norm_fac,  rtz1, rtz2
+    real(kind=rp) :: rnorm, rtr, norm_fac, rtz1, rtz2
     real(kind=rp) :: pap, beta
     type(c_ptr) :: f_d
     f_d = device_get_ptr(f)
@@ -361,7 +361,8 @@ contains
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
-      if(abscmp(rnorm, 0.0_rp)) return
+      ksp_results%converged = this%is_converged(0, rnorm)
+      if (ksp_results%converged) return
 
       call this%monitor_start('FusedCG')
       do iter = 1, max_iter
@@ -424,9 +425,9 @@ contains
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
 
-    ksp_results(1) =  this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) =  this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
 
   end function fusedcg_device_solve_coupled
 
