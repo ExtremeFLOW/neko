@@ -108,7 +108,7 @@ contains
     call this%free_base()
   end subroutine my_source_term_free
 
-  !> Will jsut pring our greeting to the console.
+  !> Will just bring our greeting to the console.
   !! @param t The time value.
   !! @param tstep The current time-step.
   subroutine my_source_term_compute(this, t, tstep)
