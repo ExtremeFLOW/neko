@@ -209,17 +209,17 @@ contains
     this%res_y = (this%max_y_global - this%min_y_global) / real(this%n_boxes, xp)
     this%res_z = (this%max_z_global - this%min_z_global) / real(this%n_boxes, xp)
     if (allocated(recv_ids)) then
-      do i = 0, this%pe_size-1
-         call recv_ids(i)%free()
-      end do
-      deallocate(recv_ids)
-   end if
+       do i = 0, this%pe_size-1
+          call recv_ids(i)%free()
+       end do
+       deallocate(recv_ids)
+    end if
     if (allocated(glob_ids)) then
-      do i = 0, this%pe_size-1
-         call glob_ids(i)%free()
-      end do
-      deallocate(glob_ids)
-   end if
+       do i = 0, this%pe_size-1
+          call glob_ids(i)%free()
+       end do
+       deallocate(glob_ids)
+    end if
     if (allocated(n_recv)) deallocate(n_recv)
     if (allocated(n_send)) deallocate(n_send)
     allocate(n_recv(0:this%pe_size-1))
@@ -372,19 +372,19 @@ contains
     end do
 
     if (allocated(recv_ids)) then
-         do i = 0, this%pe_size-1
-            call recv_ids(i)%free()
-         end do
-         deallocate(recv_ids)
-      end if
-       if (allocated(glob_ids)) then
-         do i = 0, this%pe_size-1
-            call glob_ids(i)%free()
-         end do
-         deallocate(glob_ids)
-      end if
-      if (allocated(n_recv)) deallocate(n_recv)
-      if (allocated(n_send)) deallocate(n_send)
+       do i = 0, this%pe_size-1
+          call recv_ids(i)%free()
+       end do
+       deallocate(recv_ids)
+    end if
+    if (allocated(glob_ids)) then
+       do i = 0, this%pe_size-1
+          call glob_ids(i)%free()
+       end do
+       deallocate(glob_ids)
+    end if
+    if (allocated(n_recv)) deallocate(n_recv)
+    if (allocated(n_send)) deallocate(n_send)
   end subroutine cartesian_pe_finder_init
 
   subroutine cartesian_pe_finder_find(this, my_point, pe_candidates)

@@ -309,7 +309,7 @@ contains
 
     call el_candidates%clear()
     idx = this%compute_idx(real(my_point%x(1),rp), &
-                           real(my_point%x(2),rp), real(my_point%x(3),rp))
+         real(my_point%x(2),rp), real(my_point%x(3),rp))
     el_cands => this%el_map(idx)%array()
     do i = 1, this%el_map(idx)%size()
        adjusted_index = el_cands(i) - 1
