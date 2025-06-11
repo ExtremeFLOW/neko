@@ -43,7 +43,7 @@ module simulation
   use profiler, only : profiler_start, profiler_stop, &
        profiler_start_region, profiler_end_region
   use simcomp_executor, only : neko_simcomps
-  use json_utils, only : json_get_or_default
+  use json_utils, only : json_get, json_get_or_default
   use time_state, only : time_state_t
   use time_step_controller, only : time_step_controller_t
   implicit none
@@ -72,9 +72,6 @@ contains
     if (found .and. len_trim(restart_file) .gt. 0) then
        ! Restart the case
        call simulation_restart(C)
-
-       ! Restart the simulation components
-       call neko_simcomps%restart(C%time)
     end if
 
     ! Write the initial logging message
@@ -293,6 +290,10 @@ contains
     if (allocated(C%scalar)) call C%scalar%restart(chkp)
 
     call C%output_controller%set_counter(C%time)
+
+    ! Restart the simulation components
+    call neko_simcomps%restart(C%time)
+
   end subroutine case_restart_from_checkpoint
 
   !> Write a checkpoint at joblimit
@@ -305,15 +306,15 @@ contains
     character(len=10) :: format_str
     logical :: found
 
-    call C%params%get('case.checkpoint_format', chkp_format, found)
+    call json_get_or_default(C%params, 'case.checkpoint_format', chkp_format, &
+         'default')
     call C%chkp%sync_host()
-    format_str = '.chkp'
-    if (found) then
-       if (chkp_format .eq. 'hdf5') then
-          format_str = '.h5'
-       end if
+    if (chkp_format .eq. 'hdf5') then
+       format_str = '.h5'
+    else
+       format_str = '.chkp'
     end if
-    chkpf = file_t(C%output_directory // 'joblimit'//trim(format_str))
+    chkpf = file_t(C%output_directory // 'joblimit' // trim(format_str))
     call chkpf%write(C%chkp, t)
     write(log_buf, '(A)') '! saving checkpoint >>>'
     call neko_log%message(log_buf)
