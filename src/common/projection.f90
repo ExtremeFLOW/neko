@@ -238,7 +238,7 @@ contains
     character(len=*), optional :: string
 
     if (tstep .gt. this%activ_step .and. this%L .gt. 0) then
-       if (dt_controller%if_variable_dt) then
+       if (dt_controller%is_variable_dt) then
           ! the time step at which dt is changed
           if (dt_controller%dt_last_change .eq. 0) then
              call this%clear(n)
@@ -273,7 +273,7 @@ contains
     type(time_step_controller_t), intent(in) :: dt_controller
 
     if (tstep .gt. this%activ_step .and. this%L .gt. 0) then
-       if (.not.(dt_controller%if_variable_dt) .or. &
+       if (.not.(dt_controller%is_variable_dt) .or. &
             (dt_controller%dt_last_change .gt. this%activ_step - 1)) then
           call this%project_back(x, Ax, coef, bclst, gs_h, n)
        end if

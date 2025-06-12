@@ -1,0 +1,91 @@
+[workspace]
+authors = ["Neko authors"]
+channels = ["conda-forge"]
+name = "neko"
+platforms = ["osx-arm64", "osx-64", "linux-64"]
+version = "0.9.0"
+
+[activation.env]
+PREFIX = "$PWD/install"
+PKG_CONFIG_PATH = "$PREFIX/lib/pkgconfig:$CONDA_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
+PATH = "$PREFIX/bin:$PATH"
+LD_LIBRARY_PATH = "$PREFIX/lib:$LD_LIBRARY_PATH"
+LIBRARY_PATH = "$PREFIX/lib:$LIBRARY_PATH"
+CPATH = "$PREFIX/include:$CPATH"
+
+[tasks]
+download-deps = { cmd = [
+  "sh",
+  "-c",
+  '''
+  mkdir -p $PREFIX/deps && cd $PREFIX/deps
+  rm -rf *
+  git clone https://github.com/Nek5000/gslib.git gslib
+  wget https://github.com/HDFGroup/hdf5/archive/refs/tags/hdf5_1.14.6.tar.gz
+  '''
+]}
+
+build-gslib = { cmd = [
+  "sh",
+  "-c",
+  '''
+  cd $PREFIX/deps/gslib 
+  make CC=mpicc DESTDIR=$PREFIX 
+  make install
+  '''
+  ]}
+
+build-hdf5 = { cmd = [
+  "bash", "-c",
+  '''
+  cd $PREFIX/deps
+  tar xvf hdf5_1.14.6.tar.gz
+  cd hdf5-hdf5_1.14.6
+  cmake -B build -S . -DCMAKE_INSTALL_PREFIX=$PREFIX -DCMAKE_C_COMPILER=mpicc -DCMAKE_CXX_COMPILER=mpicxx -DCMAKE_Fortran_COMPILER=mpifort -DHDF5_ENABLE_PARALLEL=ON -DHDF5_BUILD_FORTRAN=ON -DCMAKE_BUILD_TYPE=Release
+  cmake --build build/ --parallel
+  cmake --install build/
+  '''
+  ]}
+
+build-neko-cpu = { cmd = [
+  "bash",
+  "-c",
+  '''
+  set -e
+  ./regen.sh
+  ./configure FCFLAGS="-O3" --prefix=$PREFIX --with-hdf5=$PREFIX --with-parmetis=$PREFIX --with-gslib=$PREFIX
+  grep hdf5 config.log
+  grep parmetis config.log
+  grep gslib config.log
+  make -j install
+  '''
+  ]}
+
+install-neko-cpu = { cmd = [
+  "bash",
+  "-c",
+  '''
+  set -e
+  pixi run download-deps
+  pixi run build-gslib
+  pixi run build-hdf5
+  pixi run build-neko-cpu
+
+  '''
+  ]}
+
+[dependencies]
+gfortran = "14.*"
+openmpi = "5.*"
+cmake = "3.*"
+json-fortran  = "*"
+parmetis  = "4.0.3.*"
+metis  = "5.1.0.*"
+libtool = "*"
+autoconf = "*"
+automake = "*"
+pkg-config = "*"
+wget = "*"
+blas = "*"
+lapack = "*"
+

@@ -34,23 +34,90 @@
 module time_state
   use num_types, only : rp
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_QUIET
+  use json_module, only : json_file
+  use json_utils, only : json_get, json_get_or_default
   implicit none
   private
 
   !> A struct that contains all info about the time, expand as needed
   type, public :: time_state_t
-     real(kind=rp), dimension(10) :: tlag = 0.0_rp!< Old times
-     real(kind=rp), dimension(10) :: dtlag = 0.0_rp!< Old dts
-     real(kind=rp) :: dt = 0.0_rp!< Current dt
+     real(kind=rp), dimension(10) :: tlag = 0.0_rp !< Old times
+     real(kind=rp), dimension(10) :: dtlag = 0.0_rp !< Old dts
      real(kind=rp) :: t = 0.0_rp !< Current time
+     real(kind=rp) :: dt = 0.0_rp !< Current dt
+     real(kind=rp) :: start_time = 0.0_rp !< Start time
      real(kind=rp) :: end_time = 0.0_rp !< End time
      integer :: tstep = 0 !< Current timestep
 
    contains
+     generic :: init => init_from_components, init_from_json
+     procedure, pass(this) :: init_from_components => &
+          time_state_init_from_components
+     procedure, pass(this) :: init_from_json => time_state_init_from_json
+     procedure, pass(this) :: reset => time_state_reset
      procedure, pass(this) :: status => time_state_status
+     procedure, pass(this) :: is_done => time_state_is_done
   end type time_state_t
 
 contains
+
+  !> Initialize time state from JSON
+  subroutine time_state_init_from_json(this, params)
+    class(time_state_t), intent(inout) :: this
+    type(json_file), intent(inout) :: params
+
+    real(kind=rp) :: time_step
+    real(kind=rp) :: start_time
+    real(kind=rp) :: end_time
+    logical :: is_variable
+
+    call json_get_or_default(params, 'start_time', start_time, 0.0_rp)
+    call json_get(params, 'end_time', end_time)
+    call json_get_or_default(params, 'variable_timestep', is_variable, .false.)
+    if (.not. is_variable) then
+       call json_get(params, 'timestep', time_step)
+    else
+       ! randomly set an initial dt to get cfl when dt is variable
+       time_step = 1.0_rp
+    end if
+
+    call this%init_from_components(start_time, end_time, time_step)
+
+  end subroutine time_state_init_from_json
+
+  !> Initialize time state
+  subroutine time_state_init_from_components(this, start_time, end_time, dt)
+    class(time_state_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: start_time
+    real(kind=rp), intent(in) :: end_time
+    real(kind=rp), intent(in) :: dt
+
+    if (dt .gt. 0.0_rp .and. start_time .gt. end_time .or. &
+         dt .lt. 0.0_rp .and. start_time .lt. end_time) then
+       call neko_log%error('Time step size must match direction of time.')
+    end if
+
+    this%start_time = start_time
+    this%end_time = end_time
+    this%dt = dt
+
+    this%t = start_time
+    this%tstep = 0
+    this%tlag = start_time
+    this%dtlag = dt
+
+  end subroutine time_state_init_from_components
+
+  !> Reset time state
+  subroutine time_state_reset(this)
+    class(time_state_t), intent(inout) :: this
+
+    this%t = this%start_time
+    this%tstep = 0
+    this%tlag = this%start_time
+    this%dtlag = this%dt
+
+  end subroutine time_state_reset
 
   !> Write status banner
   subroutine time_state_status(this)
@@ -59,7 +126,8 @@ contains
     character(len=38) :: log_fmt
     real(kind=rp) :: t_prog
 
-    t_prog = 100.0_rp * this%t / this%end_time
+    t_prog = 100.0_rp * (this%t - this%start_time) / &
+         (this%end_time - this%start_time)
 
     write(log_fmt, '(A,I2,A)') &
          '(A7,1X,I10,1X,A4,E15.7,', LOG_SIZE - 50, 'X,A2,F6.2,A3)'
@@ -71,5 +139,15 @@ contains
     call neko_log%message(repeat('-', LOG_SIZE - 1))
 
   end subroutine time_state_status
+
+  !> Check if the simulation is done
+  pure function time_state_is_done(this) result(is_done)
+    class(time_state_t), intent(in) :: this
+    logical :: is_done
+
+    is_done = this%t - this%start_time .ge. this%end_time - this%start_time &
+         .and. this%tstep .gt. 0
+
+  end function time_state_is_done
 
 end module time_state

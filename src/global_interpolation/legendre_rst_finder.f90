@@ -211,7 +211,7 @@ contains
             this%Xh%lx,el_list, n_pts, this%tol, &
             conv_pts%x_d)
        !This can be made more approriate... avoid memcpy at least
-       conv_sum =  device_vlsc3(conv_pts%x_d,conv_pts%x_d,conv_pts%x_d,n_pts)
+       conv_sum = device_vlsc3(conv_pts%x_d,conv_pts%x_d,conv_pts%x_d,n_pts)
        converged = conv_sum .lt. 0.5
        print *, conv_sum
        if( iter .ge. this%max_iter) converged = .true.

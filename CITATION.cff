@@ -54,6 +54,8 @@ authors:
     given-names: Jonathan
   - family-names: Wahlgren
     given-names: Jacob
+  - family-names: Weiss
+    given-names: Gregor
 identifiers:
   - type: doi
     value: 10.5281/zenodo.6631055
