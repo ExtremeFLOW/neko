@@ -714,24 +714,26 @@ under `preconditioner`.
 
 For `hsmg`, the following keywords are used:
 
-| Name                         | Description                                                                             | Admissible values       | Default value |
-| ---------------------------- | --------------------------------------------------------------------------------------- | ----------------------- | ------------- |
-| `coarse_grid.solver`         | Type of linear solver for the coarse grid, any of the Krylov solvers or TreeAMG  `tamg` | A solver `type`         | `cg`          |
-| `coarse_grid.preconditioner` | Type of the preconditioner to use (only valid for a Krylov based `solver`)              | A preconditioner `type` | `jacobi       |
-| `coarse_grid.iterations`     | Number of lienar solver iteration (only valid for a Krylov based `solver`)              | An integer              | 10            |
-| `coarse_grid.monitor`        | Monitor residuals in the coarse grid (only valid for a Krylov based `solver`)           | `true` or `false`       | `false`       |
-| `coarse_grid.levels`         | Number of AMG levels to construct (only valid for `solver` type `tamg`)                 | An integer              | 3             |
-| `coarse_grid.cycles`         | Number of AMG cycles (only valid for `solver` type `tamg`)                              | An integer              | 1             |
-| `coarse_grid.cheby_degree`   | Degree of the Chebyshev based AMG smoother                                              | An integer              | 5             |
+| Name                               | Description                                                                                   | Admissible values                 | Default value |
+|------------------------------------|-----------------------------------------------------------------------------------------------|-----------------------------------|---------------|
+| `coarse_grid.solver`               | Type of linear solver for the coarse grid, any of the Krylov solvers or TreeAMG  `tamg`       | A solver `type`                   | `cg`          |
+| `coarse_grid.preconditioner`       | Type of the preconditioner to use (only valid for a Krylov based `solver`)                    | A preconditioner `type`           | `jacobi       |
+| `coarse_grid.iterations`           | Number of linear solver iterations (only valid for a Krylov based `solver`)                   | An integer                        | 10            |
+| `coarse_grid.monitor`              | Monitor residuals in the coarse grid (only valid for a Krylov based `solver`)                 | `true` or `false`                 | `false`       |
+| `coarse_grid.levels`               | Number of AMG levels to construct (only valid for `solver` type `tamg`)                       | An integer                        | 3             |
+| `coarse_grid.iterations`           | Number of AMG iterations (only valid for `solver` type `tamg`)                                | An integer                        | 1             |
+| `coarse_grid.cheby_degree`         | Degree of the Chebyshev based AMG smoother                                                    | An integer                        | 5             |
 
 For `phmg`, the following keywords are used:
 
-| Name                              | Description                                                             | Admissible values | Default value |
-| --------------------------------- | ----------------------------------------------------------------------- | ----------------- | ------------- |
-| `coarse_grid.smoother_iterations` | Number of smoother iterations in the p-multigrid parts                  | An integer        | 10            |
-| `coarse_grid.levels`              | Number of AMG levels to construct (only valid for `solver` type `tamg`) | An integer        | 3             |
-| `coarse_grid.cycles`              | Number of AMG cycles (only valid for `solver` type `tamg`)              | An integer        | 1             |
-| `coarse_grid.cheby_degree`        | Degree of the Chebyshev based AMG smoother                              | An integer        | 5             |
+| Name                               | Description                                                                                   | Admissible values                 | Default value |
+|------------------------------------|-----------------------------------------------------------------------------------------------|-----------------------------------|---------------|
+| `smoother_iterations`              | Number of smoother iterations in the p-multigrid parts                                        | An integer                        | 10            |
+| `smoother_cheby_acc`               | Type of Chebyshev acceleration (non-accelerated semi-iterative Chebyshev method if not set)   | 'jacobi' or 'schwarz'             | -             |
+| `coarse_grid.levels`               | Number of AMG levels to construct (only valid for `solver` type `tamg`)                       | An integer                        | 3             |
+| `coarse_grid.iterations`           | Number of linear solver iterations for coarse grid solver                                     | An integer                        | 1             |
+| `coarse_grid.cheby_degree`         | Degree of the Chebyshev based AMG smoother                                                    | An integer                        | 5             |
+
 
 ### Flow rate forcing
 The optional `flow_rate_force` object can be used to force a particular flow

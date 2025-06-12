@@ -149,7 +149,7 @@ contains
     type(json_file), intent(inout) :: hsmg_params
     character(len=:), allocatable :: crs_solver, crs_pc
     logical :: crs_monitor
-    integer :: crs_tamg_lvls, crs_tamg_cycles, crs_tamg_cheby_degree
+    integer :: crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree
 
     ! Exract coarse grid parameters
 
@@ -175,25 +175,25 @@ contains
     call json_get_or_default(hsmg_params, 'coarse_grid.levels', &
          crs_tamg_lvls, 3)
 
-    call json_get_or_default(hsmg_params, 'coarse_grid.cycles', &
-         crs_tamg_cycles, 1)
+    call json_get_or_default(hsmg_params, 'coarse_grid.iterations', &
+         crs_tamg_itrs, 1)
 
     call json_get_or_default(hsmg_params, 'coarse_grid.cheby_degree', &
          crs_tamg_cheby_degree, 5)
 
     call this%init_from_components(coef, bclst, crs_solver, crs_pc, &
-         crs_monitor, crs_tamg_lvls, crs_tamg_cycles, crs_tamg_cheby_degree)
+         crs_monitor, crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree)
 
   end subroutine hsmg_init
 
   subroutine hsmg_init_from_components(this, coef, bclst, crs_solver, crs_pc, &
-       crs_monitor, crs_tamg_lvls, crs_tamg_cycles, crs_tamg_cheby_degree)
+       crs_monitor, crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree)
     class(hsmg_t), intent(inout), target :: this
     type(coef_t), intent(in), target :: coef
     type(bc_list_t), intent(inout), target :: bclst
     character(len=:), intent(inout), allocatable :: crs_solver, crs_pc
     logical, intent(inout) :: crs_monitor
-    integer, intent(in) :: crs_tamg_lvls, crs_tamg_cycles, crs_tamg_cheby_degree
+    integer, intent(in) :: crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree
     integer :: n, i
     integer :: lx_crs, lx_mid
     class(bc_t), pointer :: bc_i
@@ -338,7 +338,7 @@ contains
        allocate(this%amg_solver)
        call this%amg_solver%init(this%ax, this%grids(1)%e%Xh, &
             this%grids(1)%coef, this%msh, this%grids(1)%gs_h, crs_tamg_lvls, &
-            this%grids(1)%bclst, crs_tamg_cycles, crs_tamg_cheby_degree)
+            this%grids(1)%bclst, crs_tamg_itrs, crs_tamg_cheby_degree)
     else
        ! Create a backend specific preconditioner
        call precon_factory(this%pc_crs, crs_pc)
