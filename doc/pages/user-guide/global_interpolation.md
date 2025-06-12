@@ -72,8 +72,8 @@ The `global_interpolation_t` type encapsulates the functionality for global inte
 
 #### Point Management
 - `find_points_coords(x, y, z)`: Finds process owners, elements, and `rst` coordinates for given points.
-- `find_points_coords1d(x, y, z)`: Similar to `find_points_coords`, but optimized for 1D arrays.
-- `find_points_and_redist()`: Finds points and redistributes them to their respective owners.
+- `find_points_coords1d(x, y, z)`: Similar to `find_points_coords`, but for 1D arrays.
+- `find_points_and_redist()`: Finds points and redistributes them to their respective owners, changes the points this process has.
 
 #### Interpolation
 - `evaluate(interp_values, field, on_host)`: Evaluates interpolated values at the points using a given field.
@@ -94,7 +94,7 @@ The `global_interpolation_t` type encapsulates the functionality for global inte
 ```fortran
 type(global_interpolation_t) :: glob_interp
 type(space_t) :: Xh
-type(dofmap_t) :: do
+type(dofmap_t) :: dof
 
 ! Initialize global interpolation object
 call glob_interp%init_dof(dof, NEKO_COMM, tol=1e-6, pad=1e-2)
@@ -138,9 +138,14 @@ call glob_interp%evaluate(interp_values, field, on_host)
 - **Error Handling**: Ensure `tol` and `pad` are appropriately set for accurate interpolation.
 - **Parallelism**: The module relies on MPI for distributed computations. Ensure MPI is properly initialized.
 
+### Environment variables
+
+This module depends on the environemnt variables `NEKO_GLOBAL_INTERP_PE_FINDER` and `NEKO_GLOBAL_INTERP_EL_FINDER`. Unless these are specified to AABB (using Axis aligned bounding boxes to find PEs and elements), the global interpolation object will make use of a structured cartesian grid for this. This grid is distributed among all processes for finding the PEs and local for each PE to find the element candidates. This is in general a lot faster than the AABB trees, but if you run into issues try specifying these environment variables to AABB.
+
 ---
 
 ### Related Modules
 - `local_interpolation`: Provides local interpolation functionality.
 - `legendre_rst_finder`: Finds `rst` coordinates for interpolation.
 - `aabb_pe_finder` and `cartesian_pe_finder`: Tools for finding process owners.
+- `aabb_el_finder` and `cartesian_el_finder`: Tools for finding element candidates on this process.
