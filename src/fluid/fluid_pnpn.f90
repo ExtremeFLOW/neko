@@ -112,6 +112,8 @@ module fluid_pnpn
      !> Pressure projection
      type(projection_t) :: proj_prs
      type(projection_vel_t) :: proj_vel
+    
+     integer :: n_substeps = 1
 
      !
      ! Special Karniadakis scheme boundary conditions in the pressure equation
@@ -257,9 +259,17 @@ contains
     logical :: monitor, found
     logical :: advection
     type(json_file) :: numerics_params, precon_params
+    integer :: envvar_len
+    character(len=255) :: color_str
 
     call this%free()
 
+    call get_environment_variable("NEKO_N_SUBSTEPS", color_str, envvar_len)
+    if (envvar_len .gt. 0) then
+       read(color_str(1:envvar_len), *)  this%n_substeps
+    else
+       this%n_substeps = 1
+    end if
     ! Initialize base class
     call this%init_base(msh, lx, params, scheme, user, .true.)
 
@@ -614,7 +624,7 @@ contains
     type(time_state_t), intent(in) :: time
     type(time_step_controller_t), intent(in) :: dt_controller
     ! number of degrees of freedom
-    integer :: n
+    integer :: n, i
     ! Solver results monitors (pressure + 3 velocity)
     type(ksp_monitor_t) :: ksp_results(4)
 
@@ -702,7 +712,9 @@ contains
       call ulag%update()
       call vlag%update()
       call wlag%update()
-
+      do i = 1, this%n_substeps
+      if (pe_rank .eq. 0) print *, 'Substep', i          
+          
       call this%bc_apply_vel(t, tstep, strong = .true.)
       call this%bc_apply_prs(t, tstep)
 
@@ -813,6 +825,7 @@ contains
       end if
 
       call fluid_step_info(tstep, t, dt, ksp_results, this%strict_convergence)
+      end do
 
     end associate
     call profiler_end_region('Fluid', 1)
