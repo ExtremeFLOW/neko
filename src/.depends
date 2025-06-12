@@ -16,7 +16,7 @@ comm/mpi_types.lo : comm/mpi_types.f90 io/format/stl.lo io/format/nmsh.lo io/for
 common/datadist.lo : common/datadist.f90 
 common/distdata.lo : common/distdata.f90 adt/uset.lo adt/tuple.lo adt/stack.lo 
 common/utils.lo : common/utils.f90 
-common/time_state.lo : common/time_state.f90 common/log.lo config/num_types.lo 
+common/time_state.lo : common/time_state.f90 common/json_utils.lo common/log.lo config/num_types.lo 
 common/json_utils.lo : common/json_utils.f90 common/utils.lo config/num_types.lo 
 common/system.lo : common/system.f90 
 common/runtime_statistics.lo : common/runtime_statistics.f90 comm/comm.lo math/matrix.lo io/file.lo common/json_utils.lo config/num_types.lo adt/tuple.lo adt/stack.lo common/log.lo 
@@ -247,7 +247,7 @@ fluid/bcknd/sx/euler_res_sx.lo : fluid/bcknd/sx/euler_res_sx.f90 field/field_lis
 fluid/bcknd/device/euler_res_device.lo : fluid/bcknd/device/euler_res_device.F90 math/bcknd/device/device_math.lo field/field_list.lo time_schemes/runge_kutta_scheme.lo math/field_math.lo math/operators.lo common/utils.lo field/scratch_registry.lo config/num_types.lo gs/gather_scatter.lo sem/coef.lo math/ax.lo field/field.lo fluid/euler_res.lo 
 fluid/fluid_user_source_term.lo : fluid/fluid_user_source_term.f90 sem/dofmap.lo math/math.lo math/bcknd/device/device_math.lo device/device.lo sem/coef.lo field/field_list.lo source_terms/source_term.lo common/utils.lo config/num_types.lo config/neko_config.lo 
 fluid/fluid_source_term.lo : fluid/fluid_source_term.f90 common/user_intf.lo sem/coef.lo field/field_list.lo field/field.lo source_terms/source_term_handler.lo source_terms/source_term.lo fluid/fluid_user_source_term.lo 
-common/time_step_controller.lo : common/time_step_controller.f90 common/json_utils.lo common/log.lo config/num_types.lo 
+common/time_step_controller.lo : common/time_step_controller.f90 common/time_state.lo common/json_utils.lo common/log.lo config/num_types.lo 
 simulation.lo : simulation.f90 common/time_step_controller.lo common/time_state.lo common/json_utils.lo simulation_components/simcomp_executor.lo common/profiler.lo common/jobctrl.lo common/log.lo io/file.lo time_schemes/time_scheme_controller.lo config/num_types.lo case.lo 
 math/ax_helm_fctry.lo : math/ax_helm_fctry.f90 common/utils.lo math/bcknd/device/ax_helm_full_device.lo math/bcknd/cpu/ax_helm_full_cpu.lo math/bcknd/cpu/ax_helm_cpu.lo math/ax_helm.lo math/bcknd/sx/ax_helm_sx.lo math/bcknd/xsmm/ax_helm_xsmm.lo math/bcknd/device/ax_helm_device.lo config/neko_config.lo math/ax.lo 
 math/ax_helm.lo : math/ax_helm.f90 math/math.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax.lo 

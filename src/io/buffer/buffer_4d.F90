@@ -41,7 +41,7 @@ module buffer_4d
   implicit none
 
   type, extends(buffer_t) :: buffer_4d_t
-     integer(kind=8), dimension(4) :: shape_dims, start_dims, count_dims
+     integer(kind=i8), dimension(4) :: shape_dims, start_dims, count_dims
      real(kind=dp), private, allocatable :: data_dp(:,:,:,:)
      real(kind=sp), private, allocatable :: data_sp(:,:,:,:)
    contains

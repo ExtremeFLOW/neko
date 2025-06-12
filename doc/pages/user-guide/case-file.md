@@ -22,6 +22,7 @@ The current high-level structure of the case file is shown below.
 {
     "version": 1.0
     "case": {
+        "time": {}
         "numerics": {}
         "fluid": {}
         "scalar": {}
@@ -30,7 +31,11 @@ The current high-level structure of the case file is shown below.
     }
 }
 ~~~~~~~~~~~~~~~
-Neko also supports multiple scalar fields, using the keyword `scalars` in the case object. Users can define multiple scalar fields, and each field can have its own boundary conditions, source terms, and solver settings. When using multiple scalar fields, the `name` property of each scalar field is used to identify the scalar field in the user file, defaulted to `s_1, s_2, ...`.
+Neko also supports multiple scalar fields, using the keyword `scalars` in the
+case object. Users can define multiple scalar fields, and each field can have
+its own boundary conditions, source terms, and solver settings. When using
+multiple scalar fields, the `name` property of each scalar field is used to
+identify the scalar field in the user file, defaulted to `s_1, s_2, ...`.
 
 The `version` keyword is reserved to track changes in the format of the file.
 The subsections below we list all the configuration options for each of the high-level objects.
@@ -62,36 +67,50 @@ The three following options are possible.
 This object is mostly used as a high-level container for all the other objects,
 but also defines several parameters that pertain to the simulation as a whole.
 
-| Name                       | Description                                                                                           | Admissible values                               | Default value |
-|----------------------------|-------------------------------------------------------------------------------------------------------|-------------------------------------------------|---------------|
-| `mesh_file`                | The name of the mesh file.                                                                            | Strings ending with `.nmsh`                     | -             |
-| `output_boundary`          | Whether to write a `bdry0.f0000` file with boundary labels. Can be used to check boundary conditions. | `true` or `false`                               | `false`       |
-| `output_directory`         | Folder for redirecting solver output. Note that the folder has to exist!                              | Path to an existing directory                   | `.`           |
-| `output_format`            | The file format of field data.                                                                        | `nek5000` or `adios2`                           | `nek5000`     |
-| `output_precision`         | Whether to output snapshots in single or double precision                                             | `single` or `double`                            | `single`      |
-| `output_layout`            | Data layout for `adios2' files. (Choose `2' or `3' for ADIOS2 supported compressors BigWhoop or ZFP.) | Positive integer `1`, `2', `3'                  | `1`           |
-| `load_balancing`           | Whether to apply load balancing.                                                                      | `true` or `false`                               | `false`       |
-| `output_partitions`        | Whether to write a `partitions.vtk` file with domain partitioning.                                    | `true` or `false`                               | `false`       |
-| `output_checkpoints`       | Whether to output checkpoints, i.e. restart files.                                                    | `true` or `false`                               | `false`       |
-| `checkpoint_control`       | Defines the interpretation of `checkpoint_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never` | -             |
-| `checkpoint_value`         | The frequency of sampling in terms of `checkpoint_control`.                                           | Positive real or integer                        | -             |
-| `checkpoint_filename`      | The filename of written checkpoint.                                                                   | Strings such as `my_name`                       | `fluid`       |
-| `checkpoint_format`        | The file format of checkpoints                                                                        | `chkp` or `hdf5`                                | `chkp`        |
-| `restart_file`             | checkpoint to use for a restart from previous data                                                    | Strings ending with `.chkp`                     | -             |
-| `restart_mesh_file`        | If the restart file is on a different mesh, specify the .nmsh file used to generate it here           | Strings ending with `.nmsh`                     | -             |
-| `mesh2mesh_tolerance`      | Tolerance for the restart when restarting from another mesh                                           | Positive reals                                  | 1e-6          |
-| `timestep`                 | Time-step size                                                                                        | Positive reals                                  | -             |
-| `variable_timestep`        | Whether to use variable dt                                                                            | `true` or `false`                               | `false`       |
-| `max_timestep`             | Maximum time-step size when variable time step is activated                                           | Positive reals                                  | -             |
-| `target_cfl`               | The desired CFL number                                                                                | Positive real                                   | `0.4`         |
-| `cfl_max_update_frequency` | The minimum interval between two time-step-updating steps in terms of time steps                      | Integer                                         | `0`           |
-| `cfl_running_avg_coeff`    | The running average coefficient `a` where `cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old`           | Positive real between `0` and `1`               | `0.5`         |
-| `max_dt_increase_factor`   | The maximum scaling factor to increase time step                                                      | Positive real greater than `1`                  | `1.2`         |
-| `min_dt_decrease_factor`   | The minimum scaling factor to decrease time step                                                      | Positive real less than `1`                     | `0.5`         |
-| `cfl_deviation_tolerance`  | The tolerance of the deviation from the target CFL number                                             | Positive real less than `1`                     | `0.2`         |
-| `end_time`                 | Final time at which the simulation is stopped.                                                        | Positive reals                                  | -             |
-| `job_timelimit`            | The maximum wall clock duration of the simulation.                                                    | String formatted as HH:MM:SS                    | No limit      |
-| `output_at_end`            | Whether to always write all enabled output at the end of the run.                                     | `true` or `false`                               | `true`        |
+| Name                  | Description                                                                                           | Admissible values                               | Default value |
+| --------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------- | ------------- |
+| `mesh_file`           | The name of the mesh file.                                                                            | Strings ending with `.nmsh`                     | -             |
+| `output_boundary`     | Whether to write a `bdry0.f0000` file with boundary labels. Can be used to check boundary conditions. | `true` or `false`                               | `false`       |
+| `output_directory`    | Folder for redirecting solver output. Note that the folder has to exist!                              | Path to an existing directory                   | `.`           |
+| `output_format`       | The file format of field data.                                                                        | `nek5000` or `adios2`                           | `nek5000`     |
+| `output_precision`    | Whether to output snapshots in single or double precision                                             | `single` or `double`                            | `single`      |
+| `output_layout`       | Data layout for `adios2` files. (Choose `2` or `3` for ADIOS2 supported compressors BigWhoop or ZFP.) | Positive integer `1`, `2`, `3`                  | `1`           |
+| `load_balancing`      | Whether to apply load balancing.                                                                      | `true` or `false`                               | `false`       |
+| `output_partitions`   | Whether to write a `partitions.vtk` file with domain partitioning.                                    | `true` or `false`                               | `false`       |
+| `output_checkpoints`  | Whether to output checkpoints, i.e. restart files.                                                    | `true` or `false`                               | `false`       |
+| `checkpoint_control`  | Defines the interpretation of `checkpoint_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never` | -             |
+| `checkpoint_value`    | The frequency of sampling in terms of `checkpoint_control`.                                           | Positive real or integer                        | -             |
+| `checkpoint_filename` | The filename of written checkpoint.                                                                   | Strings such as `my_name`                       | `fluid`       |
+| `checkpoint_format`   | The file format of checkpoints                                                                        | `chkp` or `hdf5`                                | `chkp`        |
+| `restart_file`        | checkpoint to use for a restart from previous data                                                    | Strings ending with `.chkp`                     | -             |
+| `restart_mesh_file`   | If the restart file is on a different mesh, specify the .nmsh file used to generate it here           | Strings ending with `.nmsh`                     | -             |
+| `mesh2mesh_tolerance` | Tolerance for the restart when restarting from another mesh                                           | Positive reals                                  | 1e-6          |
+| `job_timelimit`       | The maximum wall clock duration of the simulation.                                                    | String formatted as HH:MM:SS                    | No limit      |
+| `output_at_end`       | Whether to always write all enabled output at the end of the run.                                     | `true` or `false`                               | `true`        |
+
+
+### Time control
+The time control object is used to define the time-stepping of the simulation,
+including the time-step size, the start and end time, and the variables related
+to the variable time-stepping algorithm.
+
+| Name                       | Description                                                                                 | Admissible values                 | Default value |
+| -------------------------- | ------------------------------------------------------------------------------------------- | --------------------------------- | ------------- |
+| `start_time`               | Start time at which the simulation is initiated.                                            | Positive reals                    | `0.0`         |
+| `end_time`                 | Final time after which the simulation is stopped.                                           | Positive reals                    | -             |
+| `timestep`                 | Time-step size                                                                              | Positive reals                    | -             |
+| `variable_timestep`        | Whether to use variable dt                                                                  | `true` or `false`                 | `false`       |
+| `max_timestep`             | Maximum time-step size when variable time step is activated                                 | Positive reals                    | `huge`        |
+| `min_timestep`             | Minimum time-step size when variable time step is activated                                 | Positive reals                    | `0.0`         |
+| `target_cfl`               | The desired CFL number                                                                      | Positive real                     | `0.4`         |
+| `max_update_frequency`     | The minimum interval between two time-step-updating steps in terms of time steps            | Integer                           | `0`           |
+| `min_update_frequency`     | The maximum interval between two time-step-updating steps in terms of time steps            | Integer                           | `huge`        |
+| `running_avg_coeff`        | The running average coefficient `a` where `cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old` | Positive real between `0` and `1` | `0.5`         |
+| `max_dt_increase_factor`   | The maximum scaling factor to increase time step                                            | Positive real greater than `1`    | `1.2`         |
+| `min_dt_decrease_factor`   | The minimum scaling factor to decrease time step                                            | Positive real less than `1`       | `0.5`         |
+| `cfl_deviation_tolerance`  | The tolerance of the deviation from the target CFL number                                   | Positive real less than `1`       | `0.2`         |
+| `cfl_max_update_frequency` | The minimum interval between two time-step-updating steps in terms of time steps            | Integer                           | `0`           |
+| `cfl_running_avg_coeff`    | The running average coefficient `a` where `cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old` | Positive real between `0` and `1` | `0.5`         |
 
 ### Restarts and joblimit
 Restarts will restart the simulation from the exact state at a given time that
@@ -118,7 +137,7 @@ way to debug the simulation setup. The value of the number depends on the type
 of the boundary as follows.
 
 | Boundary Condition              | Key |
-|---------------------------------|-----|
+| ------------------------------- | --- |
 | no_slip                         | 1   |
 | velocity_value                  | 2   |
 | outflow, normal_outflow (+dong) | 3   |
@@ -137,7 +156,7 @@ For a description of the boundary conditions themselves, see below.
 Used to define the properties of the numerical discretization.
 
 | Name                         | Description                                                                                                     | Admissible values          | Default value                   |
-|------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------------|---------------------------------|
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------- | -------------------------- | ------------------------------- |
 | `polynomial_order`           | The order of the polynomial basis.                                                                              | Integers, typically 5 to 9 | -                               |
 | `time_order`                 | The order of the time integration scheme. Refer to the `time_scheme_controller` type documentation for details. | 1, 2, 3                    | -                               |
 | `dealias`                    | Whether to apply dealiasing to advection terms.                                                                 | `true` or `false`          | `false`                         |
@@ -195,7 +214,6 @@ Note that the full viscous stress tensor requires the equations for the 3
 velocity components to be solved in a coupled manner. Therefore, the `cpldcg`
 solver should be used for velocity.
 
-=======
 ### Boundary conditions {#case-file_fluid-boundary-conditions}
 The optional `boundary_conditions` keyword can be used to specify boundary
 conditions. The reason for it being optional, is that periodic boundary
@@ -233,23 +251,23 @@ The conditions to apply is specified by `type` keyword inside each of the JSON
 objects. The full list of possible conditions for the fluid is specified in the
 table below.
 
-| Boundary Condition      | Description                                                                                                                                             |
-|-------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
-| symmetry                | A symmetry plain. Must be axis-aligned.                                                                                                                 |
-| velocity_value          | A Dirichlet condition for velocity.                                                                                                                     |
-| no_slip                 | A no-slip wall.                                                                                                                                         |
-| outflow                 | A pressure outlet.                                                                                                                                      |
-| normal_outflow          | An Neumann condition for the surface-normal component of velocity combined with a Dirichlet for the surface-parallel components. Must be axis-aligned.  |
-| outflow+user            | Same as `outflow` but with user-specified pressure.                                                                                                     |
-| normal_outflow+user     | Same as `normal_outflow` but with user-specified pressure.                                                                                              |
-| outflow+dong            | A pressure outlet with the Dong condition applied.                                                                                                      |
-| normal_outflow+dong     | The `normal_outflow` with the Dong condition applied. Must be axis-aligned.                                                                             |
-| shear_stress            | Prescribed wall shear stress. Must be axis-aligned.                                                                                                     |
-| wall_model              | Shear stress condition based on a wall model for large-eddy simulation.                                                                                 |
-| blasius_profile         | A Blasius velocity profile.                                                                                                                             |
-| user_velocity           | The `field_dirichlet_vector_t` user-defined Dirichlet condition for velocity.                                                                           |
-| user_pressure           | The `field_dirichlet_t` user-defined Dirichlet condition for pressure.                                                                                  |
-| user_velocity_pointwise | The pointwise user-defined Dirichlet condition for velocity.                                                                                            |
+| Boundary Condition      | Description                                                                                                                                            |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| symmetry                | A symmetry plain. Must be axis-aligned.                                                                                                                |
+| velocity_value          | A Dirichlet condition for velocity.                                                                                                                    |
+| no_slip                 | A no-slip wall.                                                                                                                                        |
+| outflow                 | A pressure outlet.                                                                                                                                     |
+| normal_outflow          | An Neumann condition for the surface-normal component of velocity combined with a Dirichlet for the surface-parallel components. Must be axis-aligned. |
+| outflow+user            | Same as `outflow` but with user-specified pressure.                                                                                                    |
+| normal_outflow+user     | Same as `normal_outflow` but with user-specified pressure.                                                                                             |
+| outflow+dong            | A pressure outlet with the Dong condition applied.                                                                                                     |
+| normal_outflow+dong     | The `normal_outflow` with the Dong condition applied. Must be axis-aligned.                                                                            |
+| shear_stress            | Prescribed wall shear stress. Must be axis-aligned.                                                                                                    |
+| wall_model              | Shear stress condition based on a wall model for large-eddy simulation.                                                                                |
+| blasius_profile         | A Blasius velocity profile.                                                                                                                            |
+| user_velocity           | The `field_dirichlet_vector_t` user-defined Dirichlet condition for velocity.                                                                          |
+| user_pressure           | The `field_dirichlet_t` user-defined Dirichlet condition for pressure.                                                                                 |
+| user_velocity_pointwise | The pointwise user-defined Dirichlet condition for velocity.                                                                                           |
 
 A more detailed description of each boundary condition is provided below.
 
@@ -426,7 +444,7 @@ file documentation.
    The following keywords can be used:
 
 | Name             | Description                                                                                        | Admissible values            | Default value |
-|------------------|----------------------------------------------------------------------------------------------------|------------------------------|---------------|
+| ---------------- | -------------------------------------------------------------------------------------------------- | ---------------------------- | ------------- |
 | `file_name`      | Name of the field file to use (e.g. `myfield0.f00034`).                                            | Strings ending with `f*****` | -             |
 | `interpolate`    | Whether to interpolate the velocity and pressure fields from the field file onto the current mesh. | `true` or `false`            | `false`       |
 | `tolerance`      | Tolerance for the point search.                                                                    | Positive real.               | `1e-6`        |
@@ -452,9 +470,6 @@ file documentation.
    @attention Neko does not detect wether interpolation is needed or not.
    Interpolation will always be performed if `"interpolate"` is set
    to `true` even if the field file matches with the current simulation.
-
-
-
 
 
 ### Source terms {#case-file_fluid-source-term}
@@ -569,7 +584,7 @@ applied to the final indicator field, after all sources have been added.
 Additional keywords are available to modify the Brinkman force term.
 
 | Name                               | Description                                                                                   | Admissible values                 | Default value |
-|------------------------------------|-----------------------------------------------------------------------------------------------|-----------------------------------|---------------|
+| ---------------------------------- | --------------------------------------------------------------------------------------------- | --------------------------------- | ------------- |
 | `brinkman.limits`                  | Brinkman factor at free-flow (\f$ \kappa_0 \f$) and solid domain (\f$ \kappa_1 \f$).          | Vector of 2 reals.                | -             |
 | `brinkman.penalty`                 | Penalty parameter \f$ q \f$ when estimating Brinkman factor.                                  | Real                              | \f$ 1.0 \f$   |
 | `objects`                          | Array of JSON objects, defining the objects to be immersed.                                   | Each object must specify a `type` | -             |
@@ -719,6 +734,7 @@ For `phmg`, the following keywords are used:
 | `coarse_grid.iterations`           | Number of linear solver iterations for coarse grid solver                                     | An integer                        | 1             |
 | `coarse_grid.cheby_degree`         | Degree of the Chebyshev based AMG smoother                                                    | An integer                        | 5             |
 
+
 ### Flow rate forcing
 The optional `flow_rate_force` object can be used to force a particular flow
 rate through the domain.
@@ -738,7 +754,7 @@ subobjects discussed above, as well as keyword parameters that can be described
 concisely directly in the table.
 
 | Name                                    | Description                                                                                       | Admissible values                                           | Default value |
-|-----------------------------------------|---------------------------------------------------------------------------------------------------|-------------------------------------------------------------|---------------|
+| --------------------------------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- | ------------- |
 | `scheme`                                | The fluid solve type.                                                                             | `pnpn`                                                      | -             |
 | `name`                                  | The name associated to the fluid solver.                                                          | String                                                      | `fluid`       |
 | `Re`                                    | The Reynolds number.                                                                              | Positive real                                               | -             |
@@ -783,7 +799,7 @@ concisely directly in the table.
 | `flow_rate_force.use_averaged_flow`     | Whether bulk velocity or volumetric flow rate is given by the `value` parameter.                  | `true` or `false`                                           | -             |
 | `freeze`                                | Whether to fix the velocity field at initial conditions.                                          | `true` or `false`                                           | `false`       |
 | `advection`                             | Whether to compute the advection term.                                                            | `true` or `false`                                           | `true`        |
-| `full_stress_formulation`               | Whether to use the full form of the visous stress tensor term.                                    | `true` or `false`                                   | `false`               |
+| `full_stress_formulation`               | Whether to use the full form of the visous stress tensor term.                                    | `true` or `false`                                           | `false`       |
 
 ## Scalar {#case-file_scalar}
 The scalar object allows to add a scalar transport equation to the solution. The
@@ -877,7 +893,7 @@ standard choice would be `"type": "cg"` and `"preconditioner": "jacobi"`.
 ### Full parameter table
 
 | Name                           | Description                                                       | Admissible values                           | Default value |
-|--------------------------------|-------------------------------------------------------------------|---------------------------------------------|---------------|
+| ------------------------------ | ----------------------------------------------------------------- | ------------------------------------------- | ------------- |
 | `enabled`                      | Whether to enable the scalar computation.                         | `true` or `false`                           | `true`        |
 | `name`                         | The name associated to the scalar solver.                         | String                                      | `scalar`      |
 | `field_name`                   | The name of the solution in the field registry.                   | A string                                    | `s`           |
@@ -896,7 +912,7 @@ standard choice would be `"type": "cg"` and `"preconditioner": "jacobi"`.
 | `solver.preconditioner.type`   | Linear solver preconditioner for the momentum equation.           | `ident`, `hsmg`, `jacobi`                   | -             |
 | `solver.absolute_tolerance`    | Linear solver convergence criterion for the momentum equation.    | Positive real                               | -             |
 | `solver.maxiter`               | Linear solver max iteration count for the momentum equation.      | Positive real                               | 800           |
-| `solver.projection_space_size` | Projection space size for the scalar equation.                    | Positive integer                            | 0            |
+| `solver.projection_space_size` | Projection space size for the scalar equation.                    | Positive integer                            | 0             |
 | `solver.projection_hold_steps` | Holding steps of the projection for the scalar equation.          | Positive integer                            | 5             |
 
 
@@ -931,6 +947,6 @@ currently supports 50 regions, with id 1..25 being reserved for internal use.
 
 
 | Name             | Description                                                 | Admissible values | Default value |
-|------------------|-------------------------------------------------------------|-------------------|---------------|
+| ---------------- | ----------------------------------------------------------- | ----------------- | ------------- |
 | `enabled`        | Whether to enable gathering of runtime statistics           | `true` or `false` | `false`       |
 | `output_profile` | Whether to output all gathered profiling data as a CSV file | `true` or `false` | `false`       |
