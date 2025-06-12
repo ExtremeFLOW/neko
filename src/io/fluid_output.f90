@@ -114,8 +114,16 @@ contains
                  fields(i)%ptr%dof%size(), DEVICE_TO_HOST, &
                  sync=(i .eq. size(fields))) ! Sync on the last field
          end do
+       call device_memcpy(fields(1)%ptr%dof%x, fields(1)%ptr%dof%x_d, &
+            fields(1)%ptr%dof%size(), DEVICE_TO_HOST, &
+            sync=.true.) ! Sync on the last field
+       call device_memcpy(fields(1)%ptr%dof%y, fields(1)%ptr%dof%y_d, &
+            fields(1)%ptr%dof%size(), DEVICE_TO_HOST, &
+            sync=.true.) ! Sync on the last field
+       call device_memcpy(fields(1)%ptr%dof%z, fields(1)%ptr%dof%z_d, &
+            fields(1)%ptr%dof%size(), DEVICE_TO_HOST, &
+            sync=.true.) ! Sync on the last field
        end associate
-
     end if
 
     call this%file_%write(this%fluid, t)
