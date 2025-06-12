@@ -291,7 +291,7 @@ contains
     ! Create fld header for NEKTON's multifile output
     !
 
-    write_mesh = (this%counter .eq. this%start_counter)
+    write_mesh = .true. !(this%counter .eq. this%start_counter)
     call MPI_Allreduce(MPI_IN_PLACE, write_mesh, 1, &
          MPI_LOGICAL, MPI_LOR, NEKO_COMM)
     call MPI_Allreduce(MPI_IN_PLACE, write_velocity, 1, &
