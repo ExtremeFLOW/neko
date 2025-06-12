@@ -290,24 +290,24 @@ contains
          mode_str, envvar_len)
 
     if (envvar_len .gt. 0) then
-       if (mode_str(1:envvar_len) == 'unsafe') then
-          allocate(cartesian_el_finder_t :: this%el_finder)
+       if (mode_str(1:envvar_len) == 'AABB') then
+          allocate(aabb_el_finder_t :: this%el_finder)
        end if
     end if
     call get_environment_variable("NEKO_GLOBAL_INTERP_PE_FINDER", &
          mode_str, envvar_len)
 
     if (envvar_len .gt. 0) then
-       if (mode_str(1:envvar_len) == 'unsafe') then
-          allocate(cartesian_pe_finder_t :: this%pe_finder)
+       if (mode_str(1:envvar_len) == 'AABB') then
+          allocate(aabb_pe_finder_t :: this%pe_finder)
        end if
     end if
 
     if (.not. allocated(this%el_finder)) then
-       allocate(aabb_el_finder_t :: this%el_finder)
+       allocate(cartesian_el_finder_t :: this%el_finder)
     end if
     if (.not. allocated(this%pe_finder)) then
-       allocate(aabb_pe_finder_t :: this%pe_finder)
+       allocate(cartesian_pe_finder_t :: this%pe_finder)
     end if
     select type(el_find => this%el_finder)
     type is (aabb_el_finder_t)
