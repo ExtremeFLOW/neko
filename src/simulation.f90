@@ -277,6 +277,7 @@ contains
   subroutine case_restart_from_checkpoint(C, chkp)
     type(case_t), intent(inout) :: C
     type(chkp_t), intent(inout) :: chkp
+    character(len=LOG_SIZE) :: log_buf
     integer :: i
 
     call C%time%restart(chkp)
