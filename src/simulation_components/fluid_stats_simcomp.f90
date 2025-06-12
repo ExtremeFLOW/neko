@@ -227,6 +227,21 @@ contains
     character(len=LOG_SIZE) :: log_buf
     integer :: ierr
 
+    if (time%start_time .gt. this%start_time) then
+       write(log_buf, '(A)') 'Simulation start time is later than the ' &
+            // 'fluid stats start time.'
+       call neko_log%warning(log_buf)
+       write(log_buf, '(A,E15.7)') 'Simulation start time:', time%start_time
+       call neko_log%warning(log_buf)
+       write(log_buf, '(A,E15.7)') 'Fluid stats start time:', this%start_time
+       call neko_log%warning(log_buf)
+       write(log_buf, '(A)') 'Assigning the statistics start time to ' &
+            // 'the simulation start time.'
+       call neko_log%warning(log_buf)
+       this%start_time = time%start_time
+       this%time = time%start_time
+    end if
+
     t = time%t
 
     if (t .ge. this%start_time) then

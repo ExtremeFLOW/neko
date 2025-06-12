@@ -280,75 +280,75 @@ contains
 
        select type(tmp)
        type is (integer)
-          select type(sdp=>this%data)
+          select type(sdp => this%data)
           type is (integer)
              tmp(1:this%top_) = sdp
           end select
        type is (integer(i8))
-          select type(sdp=>this%data)
+          select type(sdp => this%data)
           type is (integer(i8))
              tmp(1:this%top_) = sdp
           end select
        type is (double precision)
-          select type(sdp=>this%data)
+          select type(sdp => this%data)
           type is (double precision)
              tmp(1:this%top_) = sdp
           end select
        type is (tuple_i4_t)
-          select type(sdp=>this%data)
+          select type(sdp => this%data)
           type is (tuple_i4_t)
              do i = 1, this%top_
                 tmp(i) = sdp(i)
              end do
           end select
        type is (tuple4_i4_t)
-          select type(sdp=>this%data)
+          select type(sdp => this%data)
           type is (tuple4_i4_t)
              do i = 1, this%top_
                 tmp(i) = sdp(i)
              end do
           end select
        type is (tuple_i4r8_t)
-          select type(sdp=>this%data)
+          select type(sdp => this%data)
           type is (tuple_i4r8_t)
              do i = 1, this%top_
                 tmp(i) = sdp(i)
              end do
           end select
        type is (tuple_2i4r8_t)
-          select type(sdp=>this%data)
+          select type(sdp => this%data)
           type is (tuple_2i4r8_t)
              do i = 1, this%top_
                 tmp(i) = sdp(i)
              end do
           end select
        type is (struct_curve_t)
-          select type(sdp=>this%data)
+          select type(sdp => this%data)
           type is (struct_curve_t)
              tmp(1:this%top_) = sdp
           end select
        type is (nmsh_quad_t)
-          select type(sdp=>this%data)
+          select type(sdp => this%data)
           type is(nmsh_quad_t)
              tmp(1:this%top_) = sdp
           end select
        type is (nmsh_hex_t)
-          select type(sdp=>this%data)
+          select type(sdp => this%data)
           type is(nmsh_hex_t)
              tmp(1:this%top_) = sdp
           end select
        type is (nmsh_zone_t)
-          select type(sdp=>this%data)
+          select type(sdp => this%data)
           type is(nmsh_zone_t)
              tmp(1:this%top_) = sdp
           end select
        type is (nmsh_curve_el_t)
-          select type(sdp=>this%data)
+          select type(sdp => this%data)
           type is(nmsh_curve_el_t)
              tmp(1:this%top_) = sdp
           end select
        type is (point_t)
-          select type(sdp=>this%data)
+          select type(sdp => this%data)
           type is(point_t)
              tmp(1:this%top_) = sdp
           end select
@@ -360,7 +360,7 @@ contains
 
     this%top_ = this%top_ + 1
 
-    select type(sdp=>this%data)
+    select type(sdp => this%data)
     type is (integer)
        select type(data)
        type is (integer)
@@ -436,7 +436,7 @@ contains
     class(stack_i4_t), target, intent(inout) :: this
     integer :: data
 
-    select type (sdp=>this%data)
+    select type (sdp => this%data)
     type is (integer)
        data = sdp(this%top_)
     class default
@@ -450,7 +450,7 @@ contains
     class(stack_i4_t), target, intent(inout) :: this
     integer, contiguous, pointer :: data(:)
 
-    select type (sdp=>this%data)
+    select type (sdp => this%data)
     type is (integer)
        data => sdp
     class default
@@ -463,7 +463,7 @@ contains
     class(stack_i8_t), target, intent(inout) :: this
     integer(kind=i8) :: data
 
-    select type (sdp=>this%data)
+    select type (sdp => this%data)
     type is (integer(i8))
        data = sdp(this%top_)
     class default
@@ -477,7 +477,7 @@ contains
     class(stack_i8_t), target, intent(inout) :: this
     integer(kind=i8), contiguous, pointer :: data(:)
 
-    select type (sdp=>this%data)
+    select type (sdp => this%data)
     type is (integer(i8))
        data => sdp
     class default
@@ -490,7 +490,7 @@ contains
     class(stack_r8_t), target, intent(inout) :: this
     real(kind=dp) :: data
 
-    select type (sdp=>this%data)
+    select type (sdp => this%data)
     type is (double precision)
        data = sdp(this%top_)
     class default
@@ -504,7 +504,7 @@ contains
     class(stack_r8_t), target, intent(inout) :: this
     real(kind=dp), contiguous, pointer :: data(:)
 
-    select type (sdp=>this%data)
+    select type (sdp => this%data)
     type is (double precision)
        data => sdp
     class default
@@ -517,7 +517,7 @@ contains
     class(stack_i4t2_t), target, intent(inout) :: this
     type(tuple_i4_t) :: data
 
-    select type (sdp=>this%data)
+    select type (sdp => this%data)
     type is (tuple_i4_t)
        data = sdp(this%top_)
     class default
@@ -531,7 +531,7 @@ contains
     class(stack_i4t2_t), target, intent(inout) :: this
     type(tuple_i4_t), contiguous, pointer :: data(:)
 
-    select type (sdp=>this%data)
+    select type (sdp => this%data)
     type is (tuple_i4_t)
        data => sdp
     class default
@@ -544,7 +544,7 @@ contains
     class(stack_i4t4_t), target, intent(inout) :: this
     type(tuple4_i4_t) :: data
 
-    select type (sdp=>this%data)
+    select type (sdp => this%data)
     type is (tuple4_i4_t)
        data = sdp(this%top_)
     class default
@@ -558,7 +558,7 @@ contains
     class(stack_i4t4_t), target, intent(inout) :: this
     type(tuple4_i4_t), contiguous, pointer :: data(:)
 
-    select type (sdp=>this%data)
+    select type (sdp => this%data)
     type is (tuple4_i4_t)
        data => sdp
     class default
@@ -571,7 +571,7 @@ contains
     class(stack_i4r8t2_t), target, intent(inout) :: this
     type(tuple_i4r8_t) :: data
 
-    select type (sdp=>this%data)
+    select type (sdp => this%data)
     type is (tuple_i4r8_t)
        data = sdp(this%top_)
     class default
@@ -585,7 +585,7 @@ contains
     class(stack_i4r8t2_t), target, intent(inout) :: this
     type(tuple_i4r8_t), contiguous, pointer :: data(:)
 
-    select type (sdp=>this%data)
+    select type (sdp => this%data)
     type is (tuple_i4r8_t)
        data => sdp
     class default
@@ -598,7 +598,7 @@ contains
     class(stack_2i4r8t3_t), target, intent(inout) :: this
     type(tuple_2i4r8_t) :: data
 
-    select type (sdp=>this%data)
+    select type (sdp => this%data)
     type is (tuple_2i4r8_t)
        data = sdp(this%top_)
     class default
@@ -612,7 +612,7 @@ contains
     class(stack_2i4r8t3_t), target, intent(inout) :: this
     type(tuple_2i4r8_t), contiguous, pointer :: data(:)
 
-    select type (sdp=>this%data)
+    select type (sdp => this%data)
     type is (tuple_2i4r8_t)
        data => sdp
     class default
@@ -625,7 +625,7 @@ contains
     class(stack_curve_t), target, intent(inout) :: this
     type(struct_curve_t) :: data
 
-    select type (sdp=>this%data)
+    select type (sdp => this%data)
     type is (struct_curve_t)
        data = sdp(this%top_)
     class default
@@ -639,7 +639,7 @@ contains
     class(stack_curve_t), target, intent(inout) :: this
     type(struct_curve_t), contiguous, pointer :: data(:)
 
-    select type (sdp=>this%data)
+    select type (sdp => this%data)
     type is (struct_curve_t)
        data => sdp
     class default
@@ -652,7 +652,7 @@ contains
     class(stack_nq_t), target, intent(inout) :: this
     type(nmsh_quad_t) :: data
 
-    select type (sdp=>this%data)
+    select type (sdp => this%data)
     type is (nmsh_quad_t)
        data = sdp(this%top_)
     class default
@@ -666,7 +666,7 @@ contains
     class(stack_nq_t), target, intent(inout) :: this
     type(nmsh_quad_t), contiguous, pointer :: data(:)
 
-    select type (sdp=>this%data)
+    select type (sdp => this%data)
     type is (nmsh_quad_t)
        data => sdp
     class default
@@ -679,7 +679,7 @@ contains
     class(stack_nh_t), target, intent(inout) :: this
     type(nmsh_hex_t) :: data
 
-    select type (sdp=>this%data)
+    select type (sdp => this%data)
     type is (nmsh_hex_t)
        data = sdp(this%top_)
     class default
@@ -706,7 +706,7 @@ contains
     class(stack_nz_t), target, intent(inout) :: this
     type(nmsh_zone_t) :: data
 
-    select type (sdp=>this%data)
+    select type (sdp => this%data)
     type is (nmsh_zone_t)
        data = sdp(this%top_)
     class default
@@ -720,7 +720,7 @@ contains
     class(stack_nz_t), target, intent(inout) :: this
     type(nmsh_zone_t), contiguous, pointer :: data(:)
 
-    select type (sdp=>this%data)
+    select type (sdp => this%data)
     type is (nmsh_zone_t)
        data => sdp
     class default
@@ -733,7 +733,7 @@ contains
     class(stack_nc_t), target, intent(inout) :: this
     type(nmsh_curve_el_t) :: data
 
-    select type (sdp=>this%data)
+    select type (sdp => this%data)
     type is (nmsh_curve_el_t)
        data = sdp(this%top_)
     class default
@@ -747,7 +747,7 @@ contains
     class(stack_nc_t), target, intent(inout) :: this
     type(nmsh_curve_el_t), pointer :: data(:)
 
-    select type (sdp=>this%data)
+    select type (sdp => this%data)
     type is (nmsh_curve_el_t)
        data => sdp
     class default
@@ -760,7 +760,7 @@ contains
     class(stack_pt_t), target, intent(inout) :: this
     type(point_t) :: data
 
-    select type (sdp=>this%data)
+    select type (sdp => this%data)
     type is (point_t)
        data = sdp(this%top_)
     class default
@@ -774,7 +774,7 @@ contains
     class(stack_pt_t), target, intent(inout) :: this
     type(point_t), contiguous, pointer :: data(:)
 
-    select type (sdp=>this%data)
+    select type (sdp => this%data)
     type is (point_t)
        data => sdp
     class default

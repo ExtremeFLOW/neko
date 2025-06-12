@@ -398,7 +398,8 @@ the
 ```fortran
 
   !> User initial condition for the scalar
-  subroutine set_s_ic(s, params)
+  subroutine set_s_ic(field_name, s, params)
+    CHARACTER(len=*), INTENT(IN) :: field_name
     type(field_t), intent(inout) :: s
     type(json_file), intent(inout) :: params
     integer :: i, e, k, j

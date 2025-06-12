@@ -103,9 +103,6 @@ module scalar_pnpn
      ! Time interpolation scheme
      logical :: oifs
 
-     ! Lag arrays for the RHS.
-     type(field_t) :: abx1, abx2
-
      ! Advection terms for the oifs method
      type(field_t) :: advs
 
@@ -503,7 +500,7 @@ contains
                 write(error_unit, '(A, A, I0, A, A, I0, A)') "*** ERROR ***: ",&
                      "Zone index ", zone_indices(j), &
                      " is invalid as this zone has 0 size, meaning it ", &
-                     "does not in the mesh. Check scalar boundary condition ", &
+                     "does not exist in the mesh. Check scalar boundary condition ", &
                      i, "."
                 error stop
              end if

@@ -400,7 +400,7 @@ contains
     if (allocated(this%n_points_offset_pe_local)) &
          deallocate(this%n_points_offset_pe_local)
     if (allocated(this%n_points_offset_pe)) deallocate(this%n_points_offset_pe)
-  
+
 
 
   end subroutine global_interpolation_free

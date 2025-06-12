@@ -183,6 +183,9 @@ fi
 # Checks for ADIOS2
 AX_ADIOS2
 
+# Checks for ADIOS2 with Fortran bindings
+AX_ADIOS2_FORTRAN
+
 # Checks for gslib
 AX_GSLIB
 
@@ -323,6 +326,7 @@ FCFLAGS="$JSON_Fortran_CFLAGS $FCFLAGS"
 
 AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
 AM_CONDITIONAL([ENABLE_ADIOS2], [test "x${have_adios2}" = xyes])
+AM_CONDITIONAL([ENABLE_ADIOS2_FORTRAN], [test "x${have_adios2_fortran}" = xyes])
 AM_CONDITIONAL([ENABLE_CUDA], [test "x${have_cuda}" = xyes])
 AM_CONDITIONAL([ENABLE_HIP], [test "x${have_hip}" = xyes])
 AM_CONDITIONAL([ENABLE_OPENCL], [test "x${have_opencl}" = xyes])
@@ -417,7 +421,9 @@ if test "x${enable_contrib}" = xyes; then
 		    contrib/average_field_in_space/Makefile\
 		    contrib/map_to_equidistant_1d/Makefile\
 		    contrib/mesh_checker/Makefile\
-		    contrib/prepart/Makefile])
+		    contrib/prepart/Makefile\
+		    contrib/adios2_to_nek5000/Makefile\
+		    contrib/psnr/Makefile])
 fi
 # Doxygen
 AC_CONFIG_FILES([doc/Doxyfile doc/Makefile])
