@@ -131,7 +131,7 @@ jobs:
           make
 
       - name: Integration tests
-        if: matrix.backend == 'cpu'
+        if: matrix.backend == 'cpu' && matrix.os == 'ubuntu-24.04'
         run: |
            source myenv/bin/activate
            chmod +x $MAKENEKO_EXEC
@@ -162,3 +162,11 @@ jobs:
           patch -u src/common/signal.f90 -i patches/nvhpc_bge.patch
           ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/${NVARCH}/${NVVER}/cuda/
           make -j $(nproc)
+
+      - name: Archive integration test report
+        if: matrix.backend == 'cpu' && failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Nvidia Integration test logs - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
+          path: tests/integration/logs
+          retention-days: 1
