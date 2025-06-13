@@ -28,12 +28,15 @@ jobs:
           - os: ubuntu-24.04
             setup-env: |
               sudo apt-get update
-              sudo apt-get install -y autoconf automake autotools-dev make git m4 libopenblas-dev
+              sudo apt-get install -y autoconf automake autotools-dev make git m4 libopenblas-dev python3 python3-pip
               curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg
               echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list
               sudo apt-get update -y
               sudo apt-get install -y nvhpc-25-5
               sudo apt-get clean
+              python3 -m venv myenv
+              source myenv/bin/activate
+              pip install pytest json5
               NVARCH=`uname -s`_`uname -m`
               export NVARCH
               NVVER=25.5
@@ -44,16 +47,19 @@ jobs:
               export PATH=$NVCOMPILERS/$NVARCH/$NVVER/comm_libs/mpi/bin:$PATH
               printenv >> $GITHUB_ENV
               echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
-              
+
           - os: ubuntu-24.04-arm
             setup-env: |
               sudo apt-get update
-              sudo apt-get install -y autoconf automake autotools-dev make git m4 libopenblas-dev
+              sudo apt-get install -y autoconf automake autotools-dev make git m4 libopenblas-deva python3 python3-pip
               curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg
               echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/arm64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list
               sudo apt-get update -y
               sudo apt-get install -y nvhpc-25-5
               sudo apt-get clean
+              python3 -m venv myenv
+              source myenv/bin/activate
+              pip install pytest json5
               NVARCH=`uname -s`_`uname -m`
               export NVARCH
               NVVER=25.5
@@ -123,7 +129,16 @@ jobs:
           ./regen.sh
           ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/${NVARCH}/${NVVER}/cuda/
           make
-          
+
+      - name: Integration tests
+        if: matrix.backend == 'cpu'
+        run: |
+           source myenv/bin/activate
+           chmod +x $MAKENEKO_EXEC
+           cd tests/integration
+           pytest --max_nprocs=2
+           cd ../..
+
       - name: Dist (CPU backend)
         if: matrix.backend == 'cpu'
         run: |
