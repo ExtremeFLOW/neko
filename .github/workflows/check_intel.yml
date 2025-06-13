@@ -30,6 +30,9 @@ jobs:
               wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null
               echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
               sudo apt-get update -y
+              python3 -m venv myenv
+              source myenv/bin/activate
+              pip install pytest json5
               sudo apt install -y --no-install-recommends intel-oneapi-compiler-fortran intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic
               source /opt/intel/oneapi/setvars.sh
               sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 python3-pip ca-certificates cmake
@@ -37,9 +40,6 @@ jobs:
               export PATH=$INTEL_PATH:${PATH}
               printenv >> $GITHUB_ENV
               echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
-              python3 -m venv myenv
-              source myenv/bin/activate
-              pip install pytest json5
 
     env:
       CC: icc
@@ -88,6 +88,7 @@ jobs:
 
       - name: Integration tests
         run: |
+           cd ${{ github.workspace }}
            source myenv/bin/activate
            chmod +x $MAKENEKO_EXEC
            cd tests/integration
