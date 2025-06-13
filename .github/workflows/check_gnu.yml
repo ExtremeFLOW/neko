@@ -217,7 +217,21 @@ jobs:
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" --enable-real=${RP} --with-opencl
           make -j ${{ steps.setup-env.outputs.nproc }}
 
-      - name: Regresion tests
+      - name: Regression test FP32
+        if: matrix.backend == 'cpu' && matrix.precision == 'sp'
+        run: |
+           cd tests/regression/cylinder
+           ./test_easy.sh 1 sp
+           cd ../..
+
+      - name: Regression test FP64
+        if: matrix.backend == 'cpu' && matrix.precision == 'dp'
+        run: |
+           cd tests/regression/cylinder
+           ./test.sh 1 dp
+           cd ../..
+
+      - name: Integration tests
         if: matrix.backend == 'cpu'
         run: |
            source myenv/bin/activate
