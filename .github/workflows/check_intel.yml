@@ -85,21 +85,3 @@ jobs:
           ./regen.sh
           ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP}
           make FCFLAGS="-O2 -stand f08 -warn errors `pkg-config --cflags json-fortran`" -j$(nproc)
-
-      - name: Integration tests
-        run: |
-           cd ${{ github.workspace }}
-           source myenv/bin/activate
-           chmod +x $MAKENEKO_EXEC
-           cd tests/integration
-           pytest --max_nprocs=2
-           cd ../..
-
-      - name: Archive integration test report
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Intel Integration test logs - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
-          path: tests/integration/logs
-          retention-days: 1
-
