@@ -1,4 +1,4 @@
-"""Configuration for pytest integration tests. Contains useful fixtures and 
+"""Configuration for pytest integration tests. Contains useful fixtures and
 defines command line options.
 
 """
@@ -11,7 +11,7 @@ BACKEND = "cpu"
 # Whether the backned is not the CPU.
 USES_DEVICE = False
 # The max number of ranks to launch on.
-MAX_NPROCS = 1e+9  
+MAX_NPROCS = 1e+9
 
 logger = logging.getLogger("pytest_configure")
 logger.setLevel(logging.DEBUG)  # ensure it captures debug and above
@@ -48,7 +48,7 @@ def pytest_addoption(parser):
 def pytest_configure(config):
     global BACKEND, USES_DEVICE, MAX_NPROCS
     BACKEND = config.getoption("--backend")
-    USES_DEVICE = backend != "cpu"
+    USES_DEVICE = BACKEND != "cpu"
     MAX_NPROCS = int(config.getoption("--max_nprocs"))
     print(f"Using backend: {BACKEND}, uses_device: {USES_DEVICE}, max number of ranks: {MAX_NPROCS}")
 
@@ -68,9 +68,9 @@ def uses_device(backend):
 def log_file(request):
     """Fixture to create a log file for each test.
 
-    The log file is named after the test function and stored in a 'logs' 
+    The log file is named after the test function and stored in a 'logs'
     directory.
-    
+
     """
     # Use the test function name
     test_name = request.node.name

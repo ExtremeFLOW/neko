@@ -118,12 +118,13 @@ def manipulate_case(example, case, tmp_path):
         The dictionary representation of the case file.
     tmp_path : pathlib.Path
         The temporary path where the output files will go.
-    
+
     """
 
     case_object = case["case"]
-    timestep = case_object.get("timestep", case_object.get("max_timestep"))
-    case_object["end_time"] = 2 * timestep
+    time_object = case_object["time"]
+    timestep = time_object.get("timestep", time_object.get("max_timestep"))
+    time_object["end_time"] = 2 * timestep
     case_object["mesh_file"] = examples[example].mesh_file
     case_object["output_directory"] = str(tmp_path)
 
@@ -132,12 +133,12 @@ def manipulate_case(example, case, tmp_path):
 #@pytest.mark.parametrize("example", examples.keys())
 def test_example_smoke(example, launcher_script, request, log_file, tmp_path):
     """Run a smoke test for the specified Neko example.
-    
+
     Parameterized against the examples dictionary keys. Note that not all
     examples will work, because this does not run prepare scripts or copy over
-    any extra files like the .bin for the TS_channel example. This can be 
+    any extra files like the .bin for the TS_channel example. This can be
     fixed, in principle.
-    
+
     """
     # Max number of ranks to launch on
     max_nprocs = 2
@@ -150,7 +151,7 @@ def test_example_smoke(example, launcher_script, request, log_file, tmp_path):
 
     manipulate_case(example, case, tmp_path)
 
-    case_file = join("tests", "test_examples", test_name + ".case") 
+    case_file = join("tests", "test_examples", test_name + ".case")
 
     with open(case_file, "w") as f:
         json.dump(case, f, indent=4)
@@ -165,7 +166,7 @@ def test_example_smoke(example, launcher_script, request, log_file, tmp_path):
             stderr=subprocess.STDOUT,
             text=True)
         neko = "./neko"
-    
+
     # Run Neko
     result = run_neko(launcher_script, nprocs, case_file, neko, log_file)
 
@@ -178,7 +179,7 @@ def test_example_smoke(example, launcher_script, request, log_file, tmp_path):
 @pytest.mark.parametrize("example", [key for key in examples.keys() if examples[key].user_file])
 def test_example_compile(example, log_file):
     """Compile all examples that have a user file.
-    
+
     """
 
     makeneko = get_makeneko()
