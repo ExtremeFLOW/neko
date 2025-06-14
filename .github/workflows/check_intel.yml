@@ -45,6 +45,8 @@ jobs:
       CC: icc
       FC: ${{ matrix.compiler }}
       RP: ${{ matrix.precision }}
+      NEKO_EXEC: ${{ github.workspace }}/src/neko
+      MAKENEKO_EXEC: ${{ github.workspace }}/makeneko
     name: ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
     steps:
       - name: Setup env.

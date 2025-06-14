@@ -80,6 +80,8 @@ jobs:
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none
       RP: ${{ matrix.precision }}
+      NEKO_EXEC: ${{ github.workspace }}/src/neko
+      MAKENEKO_EXEC: ${{ github.workspace }}/makeneko
     name: ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
     steps:
       - name: Checkout
