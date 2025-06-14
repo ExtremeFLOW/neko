@@ -14,12 +14,12 @@ program average_fields_in_time
 
   if ((argc .lt. 3) .or. (argc .gt. 3)) then
      if (pe_rank .eq. 0) then
-     write(*,*) 'Usage: ./average_fields_in_time field_series_name.fld start_time output_name.fld'
-     write(*,*) 'Example command: ./average_fields_in_time mean_field104.fld 103.2 mean_field_avg.fld'
-     write(*,*) 'Computes the average field over the fld files described in mean_field104.nek5000'
-     write(*,*) 'The start time is the time at which the first file startsto collect stats'
-     write(*,*) 'The files need to be aranged chronological order.'
-     write(*,*) 'The average field is then stored in a fld series, i.e. output_name.nek5000 and output_name.f00000'
+        write(*,*) 'Usage: ./average_fields_in_time field_series_name.fld start_time output_name.fld'
+        write(*,*) 'Example command: ./average_fields_in_time mean_field104.fld 103.2 mean_field_avg.fld'
+        write(*,*) 'Computes the average field over the fld files described in mean_field104.nek5000'
+        write(*,*) 'The start time is the time at which the first file startsto collect stats'
+        write(*,*) 'The files need to be aranged chronological order.'
+        write(*,*) 'The average field is then stored in a fld series, i.e. output_name.nek5000 and output_name.f00000'
      end if
      stop
   end if

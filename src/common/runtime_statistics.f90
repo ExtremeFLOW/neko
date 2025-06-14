@@ -56,7 +56,7 @@ module runtime_stats
      type(stack_i4r8t2_t) :: region_timestamp_
      logical :: enabled_
      logical :: output_profile_
-    contains
+   contains
      procedure, pass(this) :: init => runtime_stats_init
      procedure, pass(this) :: free => runtime_stats_free
      procedure, pass(this) :: start_region => runtime_stats_start_region
@@ -164,7 +164,7 @@ contains
 
     if (trim(this%rt_stats_id(region_id)) .ne. trim(name)) then
        call neko_error('Invalid profiler region closed (' // name // ', &
-            &expected: ' // trim(this%rt_stats_id(region_id)) // ')')
+       &expected: ' // trim(this%rt_stats_id(region_id)) // ')')
     end if
     region_data = this%region_timestamp_%pop()
 
@@ -217,7 +217,7 @@ contains
                 std = (total - avg)**2 / nsamples
                 sem = std /sqrt(real(nsamples, dp))
              end select
-             write(log_buf, '(A, E15.7,1x,1x,E15.7,1x,1x,E15.7)')  &
+             write(log_buf, '(A, E15.7,1x,1x,E15.7,1x,1x,E15.7)') &
                   this%rt_stats_id(i), total, avg, 2.5758_dp * sem
              call neko_log%message(log_buf)
           end if

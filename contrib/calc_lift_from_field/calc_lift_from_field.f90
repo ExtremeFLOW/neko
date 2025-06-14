@@ -36,7 +36,7 @@ program calc_lift_from_field
         write(*,*) 'Usage: ./calc_lift_from_field mesh.nmsh field.fld zone_number viscosity function_of_coord output.csv'
         write(*,*) 'Example command: ./calc_lift_from_field mesh.nmsh fieldblabla.fld 5 0.04 y out.csv'
         write(*,*) 'Outputs the total force and torque on zone 5 using velocity values from fieldblabla.fld'
-        write(*,*)  'as well as writes the distribution of the force and torque across y to output.csv'
+        write(*,*) 'as well as writes the distribution of the force and torque across y to output.csv'
      end if
      stop
   end if
@@ -132,8 +132,8 @@ program calc_lift_from_field
   glb_n_gll_pts = map_1d%n_el_lvls*lx
   call drag_torq%init(glb_n_gll_pts, 14)
   if (pe_rank .eq. 0) call output_file%set_header('time, coord, forcepx, forcepy, &
-             & forcepz, forcevx, forcevy, forcevz, torqpx, torqpy, &
-             & torqpz, torqvx, torqvy, torqvz')
+  & forcepz, forcevx, forcevy, forcevz, torqpx, torqpy, &
+  & torqpz, torqvx, torqvy, torqvz')
 
   do t = 1, field_data%meta_nsamples
      if (t .ne. 1) call field_file%read(field_data)
@@ -152,16 +152,16 @@ program calc_lift_from_field
 
      call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, u, v, w, coef)
      call drag_torque_zone(dgtq,field_data%t_counter, msh%labeled_zones(zone_id), center,&
-                           s11%x, s22%x, s33%x, s12%x, s13%x, s23%x,&
-                           p, coef, visc)
+          s11%x, s22%x, s33%x, s12%x, s13%x, s23%x,&
+          p, coef, visc)
      if (pe_rank .eq. 0) then
-         write(*,*) field_data%t_counter,dgtq(1)+dgtq(4),dgtq(1),dgtq(4),'dragx'
-         write(*,*) field_data%t_counter,dgtq(2)+dgtq(5),dgtq(2),dgtq(5),'dragy'
-         write(*,*) field_data%t_counter,dgtq(3)+dgtq(6),dgtq(3),dgtq(6),'dragz'
-      end if
+        write(*,*) field_data%t_counter,dgtq(1)+dgtq(4),dgtq(1),dgtq(4),'dragx'
+        write(*,*) field_data%t_counter,dgtq(2)+dgtq(5),dgtq(2),dgtq(5),'dragy'
+        write(*,*) field_data%t_counter,dgtq(3)+dgtq(6),dgtq(3),dgtq(6),'dragz'
+     end if
 
 
-     do mem  = 1,msh%labeled_zones(zone_id)%size
+     do mem = 1,msh%labeled_zones(zone_id)%size
         e = msh%labeled_zones(zone_id)%facet_el(mem)%x(2)
         f = msh%labeled_zones(zone_id)%facet_el(mem)%x(1)
         do k = 1, lx
@@ -176,12 +176,12 @@ program calc_lift_from_field
                     s23_ = s23%x(i,j,k,e)
                     s33_ = s33%x(i,j,k,e)
                     call drag_torque_pt(dgtq,dof%x(i,j,k,e), dof%y(i,j,k,e),dof%z(i,j,k,e),&
-                                        center, &
-                                        s11_, s22_, s33_, s12_, s13_, s23_,&
-                                        p%x(i,j,k,e), nv(1), nv(2), nv(3), visc)
+                         center, &
+                         s11_, s22_, s33_, s12_, s13_, s23_,&
+                         p%x(i,j,k,e), nv(1), nv(2), nv(3), visc)
                     drag_torq%x(map_1d%pt_lvl(i,j,k,e),3:14) = &
-                    drag_torq%x(map_1d%pt_lvl(i,j,k,e),3:14) + dgtq
-                    drag_torq%x(map_1d%pt_lvl(i,j,k,e),2) =  line(i,j,k,e)
+                         drag_torq%x(map_1d%pt_lvl(i,j,k,e),3:14) + dgtq
+                    drag_torq%x(map_1d%pt_lvl(i,j,k,e),2) = line(i,j,k,e)
                  end if
               end do
            end do
@@ -189,9 +189,9 @@ program calc_lift_from_field
      end do
 
      call MPI_Allreduce(MPI_IN_PLACE,drag_torq%x(1,3), 12*glb_n_gll_pts, &
-        MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
      call MPI_Allreduce(MPI_IN_PLACE,drag_torq%x(1,2), glb_n_gll_pts, &
-        MPI_REAL_PRECISION, MPI_MIN, NEKO_COMM, ierr)
+          MPI_REAL_PRECISION, MPI_MIN, NEKO_COMM, ierr)
      drag_torq%x(:,1) = field_data%time
      if (pe_rank .eq. 0) then
         call output_file%write(drag_torq)

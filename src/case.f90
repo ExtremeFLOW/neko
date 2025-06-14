@@ -321,12 +321,12 @@ contains
 
              if (trim(string_val) .ne. 'user') then
                 call set_scalar_ic(this%scalars%scalar_fields(i)%s, &
-                    this%scalars%scalar_fields(i)%c_Xh, this%scalars%scalar_fields(i)%gs_Xh, &
-                    string_val, json_subdict)
+                     this%scalars%scalar_fields(i)%c_Xh, this%scalars%scalar_fields(i)%gs_Xh, &
+                     string_val, json_subdict)
              else
                 call set_scalar_ic(this%scalars%scalar_fields(i)%name, this%scalars%scalar_fields(i)%s, &
-                    this%scalars%scalar_fields(i)%c_Xh, this%scalars%scalar_fields(i)%gs_Xh, &
-                    this%user%scalar_user_ic, this%params)
+                     this%scalars%scalar_fields(i)%c_Xh, this%scalars%scalar_fields(i)%gs_Xh, &
+                     this%user%scalar_user_ic, this%params)
              end if
           end do
        end if
