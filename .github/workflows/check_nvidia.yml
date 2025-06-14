@@ -82,14 +82,15 @@ jobs:
       RP: ${{ matrix.precision }}
     name: ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
     steps:
-      - name: Setup env.
-        id: setup-env
-        run: ${{ matrix.setup-env }}
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+
+      - name: Setup env.
+        id: setup-env
+        run: ${{ matrix.setup-env }}
+
 
       - name: Setup dependencies
         id: setup-deps
