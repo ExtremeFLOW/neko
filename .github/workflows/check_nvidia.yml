@@ -80,8 +80,8 @@ jobs:
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none
       RP: ${{ matrix.precision }}
-      NEKO_EXEC: ${{ github.workspace }}/src/neko
-      MAKENEKO_EXEC: ${{ github.workspace }}/makeneko
+      NEKO_EXEC: ${{ github.workspace }}/install/bin/neko
+      MAKENEKO_EXEC: ${{ github.workspace }}/install/bin/makeneko
     name: ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
     steps:
       - name: Checkout
@@ -120,10 +120,13 @@ jobs:
       - name: Build (CPU backend)
         if: matrix.backend == 'cpu'
         run: |
+          mkdir ${{ github.workspace }}/install
+          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${{ github.workspace }}/install/lib/pkgconfig" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${{ github.workspace }}/install/lib" >> $GITHUB_ENV
           git apply patches/nvhpc_bge.patch
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP}
-          make
+          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --prefix=${{ github.workspace }}/install
+          make -j${{ steps.setup-env.outputs.nproc }} install
 
       - name: Build (CUDA backend)
         if: matrix.backend == 'cuda'
@@ -131,7 +134,7 @@ jobs:
           git apply patches/nvhpc_bge.patch
           ./regen.sh
           ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/${NVARCH}/${NVVER}/cuda/
-          make
+          make -j${{ steps.setup-env.outputs.nproc }}
 
       - name: Integration tests
         if: matrix.backend == 'cpu' && matrix.os == 'ubuntu-24.04'
@@ -139,7 +142,7 @@ jobs:
            source myenv/bin/activate
            chmod +x $MAKENEKO_EXEC
            cd tests/integration
-           pytest --max_nprocs=2
+           pytest --max_nprocs=${{ steps.setup-env.outputs.nproc }}
            cd ../..
 
       - name: Dist (CPU backend)
