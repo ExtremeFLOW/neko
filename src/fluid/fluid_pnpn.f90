@@ -1173,7 +1173,7 @@ contains
     end do
 
 
-    bdry_file = file_t('bdry.fld')
+    call bdry_file%init('bdry.fld')
     call bdry_file%write(bdry_field)
 
     call this%scratch%relinquish_field(temp_index)

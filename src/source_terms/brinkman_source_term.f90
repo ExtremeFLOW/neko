@@ -69,12 +69,12 @@ module brinkman_source_term
      private
 
      !> The unfiltered indicator field
-     type(field_t) :: indicator_unfiltered 
+     type(field_t) :: indicator_unfiltered
      !> The value of the source term.
      type(field_t) :: indicator
      !> Brinkman permeability field.
      type(field_t) :: brinkman
-     !> Filter 
+     !> Filter
      class(filter_t), allocatable :: filter
    contains
      !> The common constructor using a JSON object.
@@ -190,7 +190,7 @@ contains
           ! Initialize the filter
           call this%filter%init(json, coef)
 
-          ! Copy the current indicator to unfiltered (essentially a rename) 
+          ! Copy the current indicator to unfiltered (essentially a rename)
           call field_copy(this%indicator_unfiltered, this%indicator)
 
           ! Apply the filter
@@ -301,7 +301,7 @@ contains
     ! ------------------------------------------------------------------------ !
     ! Load the immersed boundary mesh
 
-    mesh_file = file_t(mesh_file_name)
+    call mesh_file%init(mesh_file_name)
     call mesh_file%read(boundary_mesh)
 
     if (boundary_mesh%nelv .eq. 0) then

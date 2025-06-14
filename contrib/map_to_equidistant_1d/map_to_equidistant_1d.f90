@@ -48,7 +48,7 @@ program map_to_equidistant_1d
      file_precision = sp
   end if
 
-  field_file = file_t(trim(field_fname),precision=file_precision)
+  call field_file%init(trim(field_fname),precision=file_precision)
 
   if (trim(hom_dir) .ne. 'x' .and. trim(hom_dir) .ne. 'y' .and. trim(hom_dir) .ne. 'z') then
      call neko_error('The homogenous direction should be "x", "y" or "z"')
@@ -97,7 +97,7 @@ program map_to_equidistant_1d
   end do
 
   ! output at t=0
-  output_file = file_t(trim(output_fname),precision=file_precision)
+  call output_file%init(trim(output_fname),precision=file_precision)
   call output_file%write(field_data, field_data%time)
 
   ! interpolate field for t>0

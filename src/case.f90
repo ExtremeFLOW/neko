@@ -169,7 +169,7 @@ contains
        call neko_error('The mesh_file keyword could not be found in the .' // &
             'case file. Often caused by incorrectly formatted json.')
     end if
-    msh_file = file_t(string_val)
+    call msh_file%init(string_val)
 
     call msh_file%read(this%msh)
 
@@ -187,7 +187,7 @@ contains
        ! store the balanced mesh (for e.g. restarts)
        string_val = trim(string_val(1:scan(trim(string_val), &
             '.', back = .true.) - 1)) // '_lb.nmsh'
-       msh_file = file_t(string_val)
+       call msh_file%init(string_val)
        call msh_file%write(this%msh)
 
        call neko_log%end_section()
@@ -375,7 +375,7 @@ contains
     if (logical_val) then
        call mesh_field_init(msh_part, this%msh, 'MPI_Rank')
        msh_part%data = pe_rank
-       part_file = file_t(trim(this%output_directory)//'partitions.vtk')
+       call part_file%init(trim(this%output_directory)//'partitions.vtk')
        call part_file%write(msh_part)
        call mesh_field_free(msh_part)
     end if
