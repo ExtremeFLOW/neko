@@ -49,14 +49,14 @@ jobs:
       MAKENEKO_EXEC: ${{ github.workspace }}/makeneko
     name: ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
     steps:
-      - name: Setup env.
-        id: setup-env
-        run: ${{ matrix.setup-env }}
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+
+      - name: Setup env.
+        id: setup-env
+        run: ${{ matrix.setup-env }}
 
       - name: Setup dependencies
         id: setup-deps
@@ -84,6 +84,9 @@ jobs:
 
       - name: Build
         run: |
+          mkdir ${{ github.workspace }}/install
+          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${{ github.workspace }}/install/lib/pkgconfig" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${{ github.workspace }}/install/lib" >> $GITHUB_ENV
           ./regen.sh
-          ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP}
-          make FCFLAGS="-O2 -stand f08 -warn errors `pkg-config --cflags json-fortran`" -j$(nproc)
+          ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP} --prefix=${{ github.workspace }}/install
+          make FCFLAGS="-O2 -stand f08 -warn errors `pkg-config --cflags json-fortran`" -j$(nproc) install

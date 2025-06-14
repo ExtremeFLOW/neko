@@ -142,7 +142,7 @@ jobs:
            source myenv/bin/activate
            chmod +x $MAKENEKO_EXEC
            cd tests/integration
-           pytest --max_nprocs=${{ steps.setup-env.outputs.nproc }}
+           pytest --max_nprocs=2
            cd ../..
 
       - name: Dist (CPU backend)
