@@ -48,7 +48,7 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
   implicit none
 
   ! List of all possible types created by the boundary condition factories
-  character(len=25) :: FLUID_PNPN_KNOWN_BCS(15) = [character(len=25) :: &
+  character(len=25) :: FLUID_PNPN_KNOWN_BCS(14) = [character(len=25) :: &
        "symmetry", &
        "velocity_value", &
        "no_slip", &
@@ -62,7 +62,6 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
        "user_velocity", &
        "user_pressure", &
        "blasius_profile", &
-       "user_velocity_pointwise", &
        "wall_model"]
 
 contains
@@ -172,13 +171,6 @@ contains
        select type (obj => object)
        type is (field_dirichlet_vector_t)
           obj%update => user%user_dirichlet_update
-       end select
-
-    case ("user_velocity_pointwise")
-       allocate(usr_inflow_t::object)
-       select type (obj => object)
-       type is (usr_inflow_t)
-          call obj%set_eval(user%fluid_user_if)
        end select
 
     case default

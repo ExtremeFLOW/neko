@@ -158,7 +158,7 @@ contains
     call this%user%init()
 
     ! Run user startup routine
-    call this%user%user_startup(this%params)
+    call this%user%startup(this%params)
 
     !
     ! Load mesh
@@ -205,7 +205,7 @@ contains
     call neko_point_zone_registry%init(this%params, this%msh)
 
     ! Run user mesh motion routine
-    call this%user%user_mesh_setup(this%msh)
+    call this%user%mesh_setup(this%time, this%msh)
 
     call json_extract_object(this%params, 'case.numerics', numerics_params)
 

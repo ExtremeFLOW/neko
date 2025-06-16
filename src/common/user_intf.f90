@@ -51,15 +51,16 @@ module user_intf
   use logger, only : neko_log
   use bc, only : bc_t
   use field_dirichlet, only : field_dirichlet_t
+  use time_state, only : time_state_t
   implicit none
   private
 
   !> Abstract interface for a user start-up routine
   abstract interface
-     subroutine user_startup_intrf(params)
+     subroutine user_startup(params)
        import json_file
        type(json_file), intent(inout) :: params
-     end subroutine user_startup_intrf
+     end subroutine user_startup
   end interface
 
   !> Abstract interface for user defined initial conditions
@@ -101,55 +102,38 @@ module user_intf
 
   !> Abstract interface for initilialization of modules
   abstract interface
-     subroutine user_initialize_modules(t, u, v, w, p, coef, params)
-       import field_t
-       import json_file
-       import coef_t
-       import rp
-       real(kind=rp) :: t
-       type(field_t), intent(inout) :: u
-       type(field_t), intent(inout) :: v
-       type(field_t), intent(inout) :: w
-       type(field_t), intent(inout) :: p
-       type(coef_t), intent(inout) :: coef
-       type(json_file), intent(inout) :: params
-     end subroutine user_initialize_modules
+     subroutine user_initialize(time)
+       import time_state_t
+       type(time_state_t), intent(in) :: time
+     end subroutine user_initialize
   end interface
 
   !> Abstract interface for user defined mesh deformation functions
   abstract interface
-     subroutine usermsh(msh)
+     subroutine user_mesh_setup(time, msh)
        import mesh_t
+       import time_state_t
+       type(time_state_t), intent(in) :: time
        type(mesh_t), intent(inout) :: msh
-     end subroutine usermsh
+     end subroutine user_mesh_setup
   end interface
 
   !> Abstract interface for user defined check functions
   abstract interface
-     subroutine usercheck(t, tstep, u, v, w, p, coef, param)
-       import field_t
-       import coef_t
-       import json_file
-       import rp
-       real(kind=rp), intent(in) :: t
-       integer, intent(in) :: tstep
-       type(field_t), intent(inout) :: u
-       type(field_t), intent(inout) :: v
-       type(field_t), intent(inout) :: w
-       type(field_t), intent(inout) :: p
-       type(coef_t), intent(inout) :: coef
-       type(json_file), intent(inout) :: param
-     end subroutine usercheck
+     subroutine user_compute(time)
+       import time_state_t
+       type(time_state_t), intent(in) :: time
+     end subroutine user_compute
   end interface
 
   !> Abstract interface for finalizating user variables
   abstract interface
-     subroutine user_final_modules(t, param)
+     subroutine user_finalize(t, param)
        import json_file
        import rp
        real(kind=rp) :: t
        type(json_file), intent(inout) :: param
-     end subroutine user_final_modules
+     end subroutine user_finalize
   end interface
 
   !> Abstract interface for setting material properties.
@@ -176,16 +160,14 @@ module user_intf
      !> Setting this to true in the user_setup routine in the user file will
      !! suppress custom modules registering their types in the factories. So you
      !! have to take care of type injection in `user_startup`. Use if you really
-     !! want full control  over type injection for some reason.
+     !! want full control over type injection for some reason.
      logical :: suppress_type_injection = .false.
      !> Run as soon as the case file is read, with nothing else initialized.
      !! Use to manipulate the case file, and define custom parameters.
-     procedure(user_startup_intrf), nopass, pointer :: &
-          user_startup => null()
+     procedure(user_startup), nopass, pointer :: startup => null()
      !> Run after the entire case is initialized and restarted, but before the
      !! time loop. Good place to create auxillary fields, etc.
-     procedure(user_initialize_modules), nopass, pointer :: &
-          user_init_modules => null()
+     procedure(user_initialize), nopass, pointer :: initialize => null()
      !> Compute user initial conditions for the incompressible fluid.
      procedure(useric), nopass, pointer :: fluid_user_ic => null()
      !> Compute user initial conditions for the compressible fluid.
@@ -194,14 +176,14 @@ module user_intf
      !> Compute user initial conditions for the scalar.
      procedure(useric_scalar), nopass, pointer :: scalar_user_ic => null()
      !> Run right after reading the mesh and allows to manipulate it.
-     procedure(usermsh), nopass, pointer :: user_mesh_setup => null()
+     procedure(user_mesh_setup), nopass, pointer :: mesh_setup => null()
      !> Run at the end of each time-step in the time loop, right before field
      !! output to disk.
-     procedure(usercheck), nopass, pointer :: user_check => null()
+     procedure(user_compute), nopass, pointer :: compute => null()
      !> Runs in the end of the simulation, after the last output. Mean as a
      !! place to run `free()` on user-allocated objects.
-     procedure(user_final_modules), nopass, pointer :: &
-          user_finalize_modules => null()
+     procedure(user_finalize), nopass, pointer :: &
+          finalize => null()
      !> User forcing for the fluid, pointwise interface.
      procedure(fluid_source_compute_pointwise), nopass, pointer :: &
           fluid_user_f => null()
@@ -214,10 +196,6 @@ module user_intf
      !> User forcing for the scalar, field (vector) interface.
      procedure(scalar_source_compute_vector), nopass, pointer :: &
           scalar_user_f_vector => null()
-     !> User boundary condition for the fluid, pointwise interface.
-     procedure(usr_inflow_eval), nopass, pointer :: fluid_user_if => null()
-     !> User boundary condition for the scalar, pointwise interface.
-     procedure(usr_scalar_bc_eval), nopass, pointer :: scalar_user_bc => null()
      !> User boundary condition for the fluid or the scalar, field interface
      !! (much more powerful than pointwise in terms of what can be done).
      procedure(field_dirichlet_update), nopass, pointer :: &
@@ -237,8 +215,8 @@ module user_intf
   end type user_t
 
   public :: useric, useric_scalar, useric_compressible, &
-       user_initialize_modules, usermsh, dummy_user_material_properties, &
-       user_material_properties, user_startup_intrf
+       user_initialize, user_mesh_setup, dummy_user_material_properties, &
+       user_material_properties, user_startup
 contains
 
   !> Constructor.
@@ -249,8 +227,8 @@ contains
     integer :: i, n
 
     n = 0
-    if (.not. associated(this%user_startup)) then
-       this%user_startup => dummy_user_startup
+    if (.not. associated(this%startup)) then
+       this%startup => dummy_startup
     else
        user_extended = .true.
        n = n + 1
@@ -313,14 +291,6 @@ contains
        write(extensions(n), '(A)') '- Scalar source term vector'
     end if
 
-    if (.not. associated(this%scalar_user_bc)) then
-       this%scalar_user_bc => dummy_scalar_user_bc
-    else
-       user_extended = .true.
-       n = n + 1
-       write(extensions(n), '(A)') '- Scalar boundary condition'
-    end if
-
     if (.not. associated(this%user_dirichlet_update)) then
        this%user_dirichlet_update => dirichlet_do_nothing
     else
@@ -329,32 +299,32 @@ contains
        write(extensions(n), '(A)') '- Dirichlet boundary condition'
     end if
 
-    if (.not. associated(this%user_mesh_setup)) then
-       this%user_mesh_setup => dummy_user_mesh_setup
+    if (.not. associated(this%mesh_setup)) then
+       this%mesh_setup => dummy_user_mesh_setup
     else
        user_extended = .true.
        n = n + 1
        write(extensions(n), '(A)') '- Mesh setup'
     end if
 
-    if (.not. associated(this%user_check)) then
-       this%user_check => dummy_user_check
+    if (.not. associated(this%compute)) then
+       this%compute => dummy_user_check
     else
        user_extended = .true.
        n = n + 1
        write(extensions(n), '(A)') '- User check'
     end if
 
-    if (.not. associated(this%user_init_modules)) then
-       this%user_init_modules => dummy_user_init_no_modules
+    if (.not. associated(this%initialize)) then
+       this%initialize => dummy_initialize
     else
        user_extended = .true.
        n = n + 1
        write(extensions(n), '(A)') '- Initialize modules'
     end if
 
-    if (.not. associated(this%user_finalize_modules)) then
-       this%user_finalize_modules => dummy_user_final_no_modules
+    if (.not. associated(this%finalize)) then
+       this%finalize => dummy_user_final_no_modules
     else
        user_extended = .true.
        n = n + 1
@@ -388,9 +358,9 @@ contains
   !
 
   !> Dummy user startup
-  subroutine dummy_user_startup(params)
+  subroutine dummy_startup(params)
     type(json_file), intent(inout) :: params
-  end subroutine dummy_user_startup
+  end subroutine dummy_startup
 
   !> Dummy user initial condition
   subroutine dummy_user_ic(u, v, w, p, params)
@@ -469,53 +439,20 @@ contains
     call neko_error('Dummy user defined forcing set')
   end subroutine dummy_scalar_user_f
 
-  !> Dummy user boundary condition for scalar
-  subroutine dummy_scalar_user_bc(scalar_name, s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, &
-       tstep)
-    character(len=*), intent(in) :: scalar_name
-    real(kind=rp), intent(inout) :: s
-    real(kind=rp), intent(in) :: x
-    real(kind=rp), intent(in) :: y
-    real(kind=rp), intent(in) :: z
-    real(kind=rp), intent(in) :: nx
-    real(kind=rp), intent(in) :: ny
-    real(kind=rp), intent(in) :: nz
-    integer, intent(in) :: ix
-    integer, intent(in) :: iy
-    integer, intent(in) :: iz
-    integer, intent(in) :: ie
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    call neko_warning('Dummy scalar user bc set, applied on all' // &
-         ' non-labeled zones')
-  end subroutine dummy_scalar_user_bc
-
   !> Dummy user mesh apply
-  subroutine dummy_user_mesh_setup(msh)
+  subroutine dummy_user_mesh_setup(time, msh)
+    type(time_state_t), intent(in) :: time
     type(mesh_t), intent(inout) :: msh
   end subroutine dummy_user_mesh_setup
 
-  !> Dummy user check
-  subroutine dummy_user_check(t, tstep, u, v, w, p, coef, params)
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    type(coef_t), intent(inout) :: coef
-    type(json_file), intent(inout) :: params
+  !> Dummy user compute
+  subroutine dummy_user_check(time)
+    type(time_state_t), intent(in) :: time
   end subroutine dummy_user_check
 
-  subroutine dummy_user_init_no_modules(t, u, v, w, p, coef, params)
-    real(kind=rp) :: t
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    type(coef_t), intent(inout) :: coef
-    type(json_file), intent(inout) :: params
-  end subroutine dummy_user_init_no_modules
+  subroutine dummy_initialize(time)
+      type(time_state_t), intent(in) :: time
+  end subroutine dummy_initialize
 
   subroutine dummy_user_init_no_simcomp(params)
     type(json_file), intent(inout) :: params
