@@ -7,6 +7,11 @@ to extend the capabilities of the default Neko executable. The user file can be
 used for setting advanced initial/boundary conditions, source terms, I/O
 operations, and interactions with the Neko framework.
 
+This section will provide a written explanation of the user file, its
+structure, and how to compile and run it. For a more hands-on approach, see the
+[examples](@ref programming-examples) section, which contains several user file
+examples that demonstrate various aspects of programming with Neko.
+
 ## Compiling and running
 
 The user file is a regular Fortran `.f90` file that needs to be compiled with
@@ -398,7 +403,8 @@ the
 ```fortran
 
   !> User initial condition for the scalar
-  subroutine set_s_ic(s, params)
+  subroutine set_s_ic(field_name, s, params)
+    CHARACTER(len=*), INTENT(IN) :: field_name
     type(field_t), intent(inout) :: s
     type(json_file), intent(inout) :: params
     integer :: i, e, k, j

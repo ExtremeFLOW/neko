@@ -25,7 +25,8 @@ contains
   end subroutine user_mesh_scale
 
   !> Set source term
-  subroutine set_source(f, t)
+  subroutine set_source(field_name, f, t)
+    character(len=*), intent(in) :: field_name
     class(scalar_user_source_term_t), intent(inout) :: f
     real(kind=rp), intent(in) :: t
     real(kind=rp) :: x, y

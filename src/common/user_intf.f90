@@ -422,6 +422,13 @@ contains
     call neko_error('Dummy user defined scalar initial condition set')
   end subroutine dummy_user_ic_scalar
 
+  subroutine dummy_user_ic_scalars(s, field_name, params)
+    type(field_t), intent(inout) :: s
+    character(len=*), intent(in) :: field_name
+    type(json_file), intent(inout) :: params
+    call neko_warning('Dummy multiple scalar initial condition called')
+  end subroutine dummy_user_ic_scalars
+
   !> Dummy user (fluid) forcing
   subroutine dummy_user_f_vector(f, t)
     class(fluid_user_source_term_t), intent(inout) :: f
@@ -443,14 +450,16 @@ contains
   end subroutine dummy_user_f
 
   !> Dummy user (scalar) forcing
-  subroutine dummy_user_scalar_f_vector(f, t)
+  subroutine dummy_user_scalar_f_vector(field_name, f, t)
+    character(len=*), intent(in) :: field_name
     class(scalar_user_source_term_t), intent(inout) :: f
     real(kind=rp), intent(in) :: t
     call neko_error('Dummy user defined vector valued forcing set')
   end subroutine dummy_user_scalar_f_vector
 
   !> Dummy user (scalar) forcing
-  subroutine dummy_scalar_user_f(s, j, k, l, e, t)
+  subroutine dummy_scalar_user_f(field_name, s, j, k, l, e, t)
+    character(len=*), intent(in) :: field_name
     real(kind=rp), intent(inout) :: s
     integer, intent(in) :: j
     integer, intent(in) :: k
@@ -461,8 +470,9 @@ contains
   end subroutine dummy_scalar_user_f
 
   !> Dummy user boundary condition for scalar
-  subroutine dummy_scalar_user_bc(s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, &
+  subroutine dummy_scalar_user_bc(scalar_name, s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, &
        tstep)
+    character(len=*), intent(in) :: scalar_name
     real(kind=rp), intent(inout) :: s
     real(kind=rp), intent(in) :: x
     real(kind=rp), intent(in) :: y
