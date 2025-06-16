@@ -128,11 +128,10 @@ module user_intf
 
   !> Abstract interface for finalizating user variables
   abstract interface
-     subroutine user_finalize(t, param)
+     subroutine user_finalize(time)
        import json_file
-       import rp
-       real(kind=rp) :: t
-       type(json_file), intent(inout) :: param
+       import time_state_t
+       type(time_state_t), intent(in) :: time
      end subroutine user_finalize
   end interface
 
@@ -324,7 +323,7 @@ contains
     end if
 
     if (.not. associated(this%finalize)) then
-       this%finalize => dummy_user_final_no_modules
+       this%finalize => dummy_user_finalize
     else
        user_extended = .true.
        n = n + 1
@@ -458,10 +457,9 @@ contains
     type(json_file), intent(inout) :: params
   end subroutine dummy_user_init_no_simcomp
 
-  subroutine dummy_user_final_no_modules(t, params)
-    real(kind=rp) :: t
-    type(json_file), intent(inout) :: params
-  end subroutine dummy_user_final_no_modules
+  subroutine dummy_user_finalize(time)
+    type(time_state_t), intent(in) :: time
+  end subroutine dummy_user_finalize
 
   subroutine dirichlet_do_nothing(dirichlet_field_list, dirichlet_bc, &
        coef, t, tstep)
