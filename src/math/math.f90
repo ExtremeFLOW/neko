@@ -61,7 +61,7 @@ module math
   use num_types, only : rp, dp, sp, qp, i4, xp
   use comm, only: NEKO_COMM, MPI_REAL_PRECISION, MPI_EXTRA_PRECISION
   use mpi_f08, only: MPI_MIN, MPI_MAX, MPI_SUM, MPI_IN_PLACE, MPI_INTEGER, &
-       MPI_Allreduce
+  MPI_Allreduce
   implicit none
   private
 
@@ -107,13 +107,13 @@ module math
   end interface pwmin
 
   public :: abscmp, rzero, izero, row_zero, rone, copy, cmult, cadd, cfill, &
-       glsum, glmax, glmin, chsign, vlmax, vlmin, invcol1, invcol3, invers2, &
-       vcross, vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, sub3, &
-       add2s1, add2s2, addsqr2s2, cmult2, invcol2, col2, col3, subcol3, &
-       add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
-       glsc3, glsc4, sort, masked_copy, cfill_mask, relcmp, glimax, glimin, &
-       swap, reord, flipv, cadd2, masked_gather_copy, absval, pwmax, pwmin, &
-       masked_scatter_copy, cdiv, cdiv2
+  glsum, glmax, glmin, chsign, vlmax, vlmin, invcol1, invcol3, invers2, &
+  vcross, vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, sub3, &
+  add2s1, add2s2, addsqr2s2, cmult2, invcol2, col2, col3, subcol3, &
+  add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
+  glsc3, glsc4, sort, masked_copy, cfill_mask, relcmp, glimax, glimin, &
+  swap, reord, flipv, cadd2, masked_gather_copy, absval, pwmax, pwmin, &
+  masked_scatter_copy, cdiv, cdiv2
 
 contains
 
@@ -430,7 +430,7 @@ contains
        tmp = tmp + a(i)
     end do
     call MPI_Allreduce(MPI_IN_PLACE, tmp, 1, &
-         MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     glsum = tmp
 
   end function glsum
@@ -447,7 +447,7 @@ contains
        tmp = max(tmp,a(i))
     end do
     call MPI_Allreduce(tmp, glmax, 1, &
-         MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+    MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
   end function glmax
 
   !>Max of an integer vector of length n
@@ -462,7 +462,7 @@ contains
        tmp = max(tmp,a(i))
     end do
     call MPI_Allreduce(tmp, glimax, 1, &
-         MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
+    MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
   end function glimax
 
   !>Min of a vector of length n
@@ -477,7 +477,7 @@ contains
        tmp = min(tmp,a(i))
     end do
     call MPI_Allreduce(tmp, glmin, 1, &
-         MPI_REAL_PRECISION, MPI_MIN, NEKO_COMM, ierr)
+    MPI_REAL_PRECISION, MPI_MIN, NEKO_COMM, ierr)
   end function glmin
 
   !>Min of an integer vector of length n
@@ -492,7 +492,7 @@ contains
        tmp = min(tmp,a(i))
     end do
     call MPI_Allreduce(tmp, glimin, 1, &
-         MPI_INTEGER, MPI_MIN, NEKO_COMM, ierr)
+    MPI_INTEGER, MPI_MIN, NEKO_COMM, ierr)
   end function glimin
 
 
@@ -935,7 +935,7 @@ contains
     end do
 
     call MPI_Allreduce(MPI_IN_PLACE, tmp, 1, &
-         MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     glsc2 = tmp
   end function glsc2
 
@@ -955,7 +955,7 @@ contains
     end do
 
     call MPI_Allreduce(MPI_IN_PLACE, tmp, 1, &
-         MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     glsc3 = tmp
 
   end function glsc3
@@ -975,7 +975,7 @@ contains
     end do
 
     call MPI_Allreduce(MPI_IN_PLACE, tmp, 1, &
-         MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     glsc4 = tmp
 
   end function glsc4
