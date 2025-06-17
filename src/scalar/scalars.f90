@@ -174,7 +174,9 @@ contains
     allocate(scalar_pnpn_t::this%scalar_fields(1))
 
     ! Set the scalar name to "s"
-    call params%add('name', 's')
+    if (.not. params%valid_path('name')) then
+       call params%add('name', 's')
+    end if
 
     ! Initialize it directly with the params
     call this%scalar_fields(1)%init(msh, coef, gs, params, numerics_params, user, &
