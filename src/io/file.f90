@@ -83,10 +83,10 @@ contains
   !! @param fname Filename.
   subroutine file_init(this, fname, header, precision, layout)
     class(file_t), intent(inout) :: this
-    character(len=*) :: fname
-    character(len=*), optional :: header
-    integer, optional :: precision
-    integer, optional :: layout
+    character(len=*), intent(in) :: fname
+    character(len=*), intent(in), optional :: header
+    integer, intent(in), optional :: precision
+    integer, intent(in), optional :: layout
     character(len=80) :: suffix
     class(generic_file_t), pointer :: q
 
