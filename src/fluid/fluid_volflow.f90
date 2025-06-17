@@ -116,7 +116,7 @@ contains
     call json_get(params, 'case.fluid.flow_rate_force.direction', direction)
     call json_get(params, 'case.fluid.flow_rate_force.value', rate)
     call json_get(params, 'case.fluid.flow_rate_force.use_averaged_flow',&
-                  average)
+         average)
 
     this%flow_dir = direction
     this%avflow = average
@@ -129,7 +129,7 @@ contains
        call this%p_vol%init(dm_Xh, 'p_vol')
     end if
 
-    this%scratch = scratch_registry_t(dm_Xh, 3, 1)
+    call this%scratch%init(dm_Xh, 3, 1)
 
   end subroutine fluid_vol_flow_init
 
@@ -185,9 +185,9 @@ contains
       n = c_Xh%dof%size()
       xlmin = glmin(c_Xh%dof%x, n)
       xlmax = glmax(c_Xh%dof%x, n)
-      ylmin = glmin(c_Xh%dof%y, n)          !  for Y!
+      ylmin = glmin(c_Xh%dof%y, n) !  for Y!
       ylmax = glmax(c_Xh%dof%y, n)
-      zlmin = glmin(c_Xh%dof%z, n)          !  for Z!
+      zlmin = glmin(c_Xh%dof%z, n) !  for Z!
       zlmax = glmax(c_Xh%dof%z, n)
       if (this%flow_dir .eq. 1) then
          this%domain_length = xlmax - xlmin
@@ -287,7 +287,7 @@ contains
       call pc_vel%update()
 
       ksp_results(2:4) = ksp_vel%solve_coupled(Ax_vel, &
-           u_vol, v_vol, w_vol,  &
+           u_vol, v_vol, w_vol, &
            u_res%x, v_res%x, w_res%x, &
            n, c_Xh, &
            bclst_du, bclst_dv, bclst_dw, &
@@ -390,21 +390,21 @@ contains
       if (NEKO_BCKND_DEVICE .eq. 1) then
          if (this%flow_dir .eq. 1) then
             current_flow = &
-                 device_glsc2(u%x_d, c_Xh%B_d, n) / this%domain_length  ! for X
+                 device_glsc2(u%x_d, c_Xh%B_d, n) / this%domain_length ! for X
          else if (this%flow_dir .eq. 2) then
             current_flow = &
-                 device_glsc2(v%x_d, c_Xh%B_d, n) / this%domain_length  ! for Y
+                 device_glsc2(v%x_d, c_Xh%B_d, n) / this%domain_length ! for Y
          else if (this%flow_dir .eq. 3) then
             current_flow = &
-                 device_glsc2(w%x_d, c_Xh%B_d, n) / this%domain_length  ! for Z
+                 device_glsc2(w%x_d, c_Xh%B_d, n) / this%domain_length ! for Z
          end if
       else
          if (this%flow_dir .eq. 1) then
-            current_flow = glsc2(u%x, c_Xh%B, n) / this%domain_length  ! for X
+            current_flow = glsc2(u%x, c_Xh%B, n) / this%domain_length ! for X
          else if (this%flow_dir .eq. 2) then
-            current_flow = glsc2(v%x, c_Xh%B, n) / this%domain_length  ! for Y
+            current_flow = glsc2(v%x, c_Xh%B, n) / this%domain_length ! for Y
          else if (this%flow_dir .eq. 3) then
-            current_flow = glsc2(w%x, c_Xh%B, n) / this%domain_length  ! for Z
+            current_flow = glsc2(w%x, c_Xh%B, n) / this%domain_length ! for Z
          end if
       end if
 
