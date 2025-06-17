@@ -137,7 +137,6 @@ contains
     type(coef_t) :: coef
     real(kind=rp), intent(in) :: start_time
     real(kind=rp), intent(in) :: end_time
-    character(len=*), intent(in) :: variable_name
 
     call this%free()
     call this%init_base(fields, coef, start_time, end_time)
