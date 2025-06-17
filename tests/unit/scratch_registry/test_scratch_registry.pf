@@ -65,7 +65,7 @@ contains
     call Xh%init(GLL, lx, lx, lx)
     call dm%init(msh, Xh)
     
-    cal scratch%init(dm) 
+    call scratch%init(dm) 
 
     @assertEqual(scratch%get_nfields(), 0)
     @assertEqual(scratch%get_expansion_size(), 10)
