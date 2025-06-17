@@ -176,6 +176,8 @@ module user_intf
      procedure(useric_scalar), nopass, pointer :: scalar_user_ic => null()
      !> Run right after reading the mesh and allows to manipulate it.
      procedure(user_mesh_setup), nopass, pointer :: mesh_setup => null()
+     !> Run at the start of each time-step in the time loop.
+     procedure(user_compute), nopass, pointer :: preprocess => null()
      !> Run at the end of each time-step in the time loop, right before field
      !! output to disk.
      procedure(user_compute), nopass, pointer :: compute => null()
@@ -307,11 +309,19 @@ contains
     end if
 
     if (.not. associated(this%compute)) then
-       this%compute => dummy_user_check
+       this%compute => dummy_user_compute
     else
        user_extended = .true.
        n = n + 1
-       write(extensions(n), '(A)') '- User check'
+       write(extensions(n), '(A)') '- User compute'
+    end if
+
+    if (.not. associated(this%preprocess)) then
+       this%preprocess => dummy_user_compute
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- User preprocess'
     end if
 
     if (.not. associated(this%initialize)) then
@@ -445,9 +455,9 @@ contains
   end subroutine dummy_user_mesh_setup
 
   !> Dummy user compute
-  subroutine dummy_user_check(time)
+  subroutine dummy_user_compute(time)
     type(time_state_t), intent(in) :: time
-  end subroutine dummy_user_check
+  end subroutine dummy_user_compute
 
   subroutine dummy_initialize(time)
       type(time_state_t), intent(in) :: time

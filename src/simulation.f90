@@ -107,7 +107,7 @@ contains
     end if
 
     ! Finalize the user modules
-    call C%user%finalize(C%time%t, C%params)
+    call C%user%finalize(C%time)
 
     call neko_log%end_section('Normal end.')
 
@@ -143,6 +143,7 @@ contains
     call neko_log%message(log_buf)
 
     ! Run the preprocessing
+    call C%user%preprocess(C%time)
     call neko_simcomps%preprocess(C%time)
     call neko_log%end_section()
 
@@ -188,7 +189,8 @@ contains
 
     if (present(tstep_loop_start_time)) then
        write(log_buf, '(A34,E15.7)') &
-            'Total elapsed time (s):           ', end_time - tstep_loop_start_time
+            'Total elapsed time (s):           ', &
+            end_time - tstep_loop_start_time
        call neko_log%message(log_buf)
     end if
 
