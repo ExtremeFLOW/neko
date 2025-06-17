@@ -87,3 +87,6 @@ libneko*.so
 !contrib/postprocess_fluid_stats
 !contrib/map_to_equidistant_1d
 !contrib/calc_lift_from_field
+
+pixi.lock
+install

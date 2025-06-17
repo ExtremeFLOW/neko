@@ -812,7 +812,8 @@ contains
               this%ksp_vel%max_iter)
       end if
 
-      call fluid_step_info(tstep, t, dt, ksp_results, this%strict_convergence)
+      call fluid_step_info(tstep, t, dt, ksp_results, &
+           this%full_stress_formulation, this%strict_convergence)
 
     end associate
     call profiler_end_region('Fluid', 1)
