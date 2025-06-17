@@ -101,11 +101,13 @@ contains
   !! @param json The JSON object for the source.
   !! @param fields A list of fields for adding the source values.
   !! @param coef The SEM coeffs.
-  subroutine brinkman_source_term_init_from_json(this, json, fields, coef)
+  !! @param variable_name The name of the variable for which the source term is
+  subroutine brinkman_source_term_init_from_json(this, json, fields, coef, variable_name)
     class(brinkman_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_list_t), intent(in), target :: fields
     type(coef_t), intent(in), target :: coef
+    character(len=*), intent(in) :: variable_name
     real(kind=rp) :: start_time, end_time
 
     character(len=:), allocatable :: filter_type

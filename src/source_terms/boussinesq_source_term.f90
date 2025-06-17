@@ -82,11 +82,13 @@ contains
   !! @param json The JSON object for the source.
   !! @param fields A list of fields for adding the source values.
   !! @param coef The SEM coeffs.
-  subroutine boussinesq_source_term_init_from_json(this, json, fields, coef)
+  !! @param variable_name The name of the variable for which the source term is
+  subroutine boussinesq_source_term_init_from_json(this, json, fields, coef, variable_name)
     class(boussinesq_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_list_t), intent(in), target :: fields
     type(coef_t), intent(in), target :: coef
+    character(len=*), intent(in) :: variable_name
     real(kind=rp), allocatable :: values(:)
     real(kind=rp) :: start_time, end_time, ref_value
     character(len=:), allocatable :: scalar_name
@@ -135,14 +137,15 @@ contains
     type(coef_t) :: coef
     real(kind=rp), intent(in) :: start_time
     real(kind=rp), intent(in) :: end_time
+    character(len=*), intent(in) :: variable_name
 
     call this%free()
     call this%init_base(fields, coef, start_time, end_time)
 
     if (.not. neko_field_registry%field_exists(scalar_name)) then
-       call neko_field_registry%add_field(this%fields%dof(1), "s")
+       call neko_field_registry%add_field(this%fields%dof(1), "temperature")
     end if
-    this%s => neko_field_registry%get_field("s")
+    this%s => neko_field_registry%get_field("temperature")
 
     this%ref_value = ref_value
     this%g = g

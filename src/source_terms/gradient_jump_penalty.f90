@@ -157,11 +157,13 @@ contains
   !! @param fields A list of fields for adding the source values.
   !! @param coef The SEM coeffs.
   !! @param a, b Coefficients to determine tau
-  subroutine gradient_jump_penalty_init(this, json, fields, coef)
+  !! @param variable_name The name of the variable for this source term.
+  subroutine gradient_jump_penalty_init(this, json, fields, coef, variable_name)
     implicit none
     class(gradient_jump_penalty_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(coef_t), target, intent(in) :: coef
+    character(len=*), intent(in) :: variable_name
     type(field_list_t), intent(in), target :: fields
 
     real(kind=rp) :: start_time, end_time
@@ -178,7 +180,8 @@ contains
        call json_get_or_default(json, 'scaling_exponent', b, 4.0_rp)
     end if
 
-    call this%init_from_components(coef, fields, start_time, end_time, a, b)
+    call this%init_from_components(coef, fields, start_time, end_time, a, b, &
+         variable_name)
 
   end subroutine gradient_jump_penalty_init
 
@@ -186,14 +189,18 @@ contains
   !! @param fields A list of fields for adding the source values.
   !! @param coef The SEM coeffs.
   !! @param a, b Coefficients to determine tau
+  !! @param start_time When to start adding the source term.
+  !! @param end_time When to stop adding the source term.
+  !! @param variable_name The name of the variable for this source term.
   subroutine gradient_jump_penalty_init_from_components(this, coef, fields, &
-       start_time, end_time, a, b)
+       start_time, end_time, a, b, variable_name)
     class(gradient_jump_penalty_t), intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
     type(field_list_t), intent(in), target :: fields
     real(kind=rp), intent(in) :: start_time
     real(kind=rp), intent(in) :: end_time
     real(kind=rp), intent(in) :: a, b
+    character(len=*), intent(in) :: variable_name
 
     integer :: i, j, k, l
     real(kind=rp), allocatable :: zg(:) ! Quadrature points
@@ -209,7 +216,7 @@ contains
 
     if (fields%size() .eq. 1) then
        call this%s_fields%init(1)
-       call this%s_fields%assign(1, neko_field_registry%get_field("s"))
+       call this%s_fields%assign(1, neko_field_registry%get_field(variable_name))
     else if (fields%size() .eq. 3) then
        call this%s_fields%init(3)
        call this%s_fields%assign(1, this%u)

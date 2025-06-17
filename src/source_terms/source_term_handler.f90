@@ -227,7 +227,7 @@ contains
           else
 
              call source_term_factory(this%source_terms(i + i0)%source_term, &
-                  source_subdict, this%rhs_fields, this%coef)
+                  source_subdict, this%rhs_fields, this%coef, this%variable_name)
           end if
        end do
     end if

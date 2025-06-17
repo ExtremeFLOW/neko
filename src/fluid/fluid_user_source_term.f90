@@ -131,11 +131,12 @@ contains
   !! @details
   !! This will throw, as the user source term should be initialized directly
   !! from components.
-  subroutine fluid_user_source_term_init(this, json, fields, coef)
+  subroutine fluid_user_source_term_init(this, json, fields, coef, variable_name)
     class(fluid_user_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_list_t), intent(in), target :: fields
     type(coef_t), intent(in), target :: coef
+    character(len=*), intent(in) :: variable_name
 
     call neko_error("The user fluid source term should be init from components")
 
