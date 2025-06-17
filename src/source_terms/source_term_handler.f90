@@ -36,7 +36,7 @@ module source_term_handler
   use neko_config, only: NEKO_BCKND_DEVICE
   use num_types, only: rp
   use source_term, only: source_term_wrapper_t, source_term_t, &
-       source_term_factory
+  source_term_factory
   use field, only: field_t
   use field_list, only: field_list_t
   use json_utils, only: json_get, json_extract_item, json_get_or_default
@@ -82,18 +82,18 @@ module source_term_handler
      generic :: add => add_source_term, add_json_source_terms
      !> Append a new source term to the source_terms array.
      procedure, pass(this) :: add_source_term => &
-          source_term_handler_add_source_term
+     source_term_handler_add_source_term
      !> Read from the json file and initialize the source terms.
      procedure, pass(this) :: add_json_source_terms => &
-          source_term_handler_add_json_source_terms
+     source_term_handler_add_json_source_terms
      !> Initialize the user source term.
      procedure(source_term_handler_init_user_source), &
-          nopass, deferred :: init_user_source
+     nopass, deferred :: init_user_source
   end type source_term_handler_t
 
   abstract interface
      subroutine source_term_handler_init_user_source(source_term, rhs_fields, &
-          coef, type, user, variable_name)
+     coef, type, user, variable_name)
        import :: source_term_t, field_list_t, coef_t, user_t
        class(source_term_t), allocatable, intent(inout) :: source_term
        type(field_list_t) :: rhs_fields
@@ -215,19 +215,19 @@ contains
 
           ! The user source is treated separately
           if ((trim(type) .eq. "user_vector") .or. &
-               (trim(type) .eq. "user_pointwise")) then
+          (trim(type) .eq. "user_pointwise")) then
 
              call this%init_user_source(this%source_terms(i+ i0)%source_term, &
-                  this%rhs_fields, this%coef, type, this%user, this%variable_name)
+             this%rhs_fields, this%coef, type, this%user, this%variable_name)
 
              call json_get_or_default(source_subdict, "start_time", &
-                  this%source_terms(i + i0)%source_term%start_time, 0.0_rp)
+             this%source_terms(i + i0)%source_term%start_time, 0.0_rp)
              call json_get_or_default(source_subdict, "end_time", &
-                  this%source_terms(i + i0)%source_term%end_time, huge(0.0_rp))
+             this%source_terms(i + i0)%source_term%end_time, huge(0.0_rp))
           else
 
              call source_term_factory(this%source_terms(i + i0)%source_term, &
-                  source_subdict, this%rhs_fields, this%coef, this%variable_name)
+             source_subdict, this%rhs_fields, this%coef, this%variable_name)
           end if
        end do
     end if
@@ -255,7 +255,7 @@ contains
     if (allocated(temp)) then
        do i = 1, n_sources
           call move_alloc(temp(i)%source_term, &
-               this%source_terms(i)%source_term)
+          this%source_terms(i)%source_term)
        end do
     end if
 

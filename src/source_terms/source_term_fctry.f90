@@ -44,11 +44,11 @@ submodule (source_term) source_term_fctry
 
   ! List of all possible types created by the factory routine
   character(len=20) :: SOURCE_KNOWN_TYPES(5) = [character(len=20) :: &
-       "constant", &
-       "boussinesq", &
-       "coriolis", &
-       "gradient_jump_penalty", &
-       "brinkman"]
+  "constant", &
+  "boussinesq", &
+  "coriolis", &
+  "gradient_jump_penalty", &
+  "brinkman"]
 
 contains
 

@@ -69,16 +69,16 @@ module scalar_user_source_term
      type(c_ptr) :: s_d = C_NULL_PTR
      !> Compute the source term for a single point
      procedure(scalar_source_compute_pointwise), nopass, pointer :: &
-          compute_pw_ => null()
+     compute_pw_ => null()
      !> Compute the source term for the entire boundary
      procedure(scalar_source_compute_vector), nopass, pointer :: &
-          compute_vector_ => null()
+     compute_vector_ => null()
    contains
      !> Constructor from JSON (will throw!).
      procedure, pass(this) :: init => scalar_user_source_term_init
      !> Constructor from components.
      procedure, pass(this) :: init_from_components => &
-          scalar_user_source_term_init_from_components
+     scalar_user_source_term_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => scalar_user_source_term_free
      !> Computes the source term and adds the result to `fields`.
@@ -143,7 +143,7 @@ contains
   !! @param eval_vector The procedure to vector-compute the source term.
   !! @param eval_pointwise The procedure to pointwise-compute the source term.
   subroutine scalar_user_source_term_init_from_components(this, fields, coef, &
-       source_term_type, eval_vector, eval_pointwise, scalar_name)
+  source_term_type, eval_vector, eval_pointwise, scalar_name)
     class(scalar_user_source_term_t), intent(inout) :: this
     type(field_list_t), intent(in), target :: fields
     type(coef_t), intent(in) :: coef
@@ -159,7 +159,7 @@ contains
     this%scalar_name = trim(scalar_name)
 
     allocate(this%s(this%dm%Xh%lx, this%dm%Xh%ly, this%dm%Xh%lz, &
-         this%dm%msh%nelv))
+    this%dm%msh%nelv))
 
     this%s = 0d0
 
@@ -169,7 +169,7 @@ contains
 
 
     if (trim(source_term_type) .eq. 'user_pointwise' .and. &
-         present(eval_pointwise)) then
+    present(eval_pointwise)) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call neko_error('Pointwise source terms not &
           &supported on accelerators')
@@ -177,7 +177,7 @@ contains
        this%compute_vector_ => pointwise_eval_driver
        this%compute_pw_ => eval_pointwise
     else if (trim(source_term_type) .eq. 'user_vector' .and. &
-         present(eval_vector)) then
+    present(eval_vector)) then
        this%compute_vector_ => eval_vector
     else
        call neko_error('Invalid fluid source term '//source_term_type)

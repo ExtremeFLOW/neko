@@ -52,9 +52,9 @@ module gradient_jump_penalty
   use gather_scatter, only : gs_t
   use device, only : device_map, HOST_TO_DEVICE, device_memcpy, device_free
   use device_math, only : device_col2, device_add2, device_add2s2, &
-       device_col3, device_add3s2, device_invcol2, device_absval
+  device_col3, device_add3s2, device_invcol2, device_absval
   use device_gradient_jump_penalty, only : device_pick_facet_value_hex, &
-       device_gradient_jump_penalty_finalize
+  device_gradient_jump_penalty_finalize
   use source_term, only : source_term_t
   use field_list, only : field_list_t
   use field_registry, only : neko_field_registry
@@ -89,7 +89,7 @@ module gradient_jump_penalty
      type(c_ptr) :: penalty_facet_d = C_NULL_PTR
      !> Gradient of the quatity of interest
      real(kind=rp), allocatable, dimension(:, :, :, :) :: grad1, &
-          grad2, grad3
+     grad2, grad3
      type(c_ptr) :: grad1_d = C_NULL_PTR
      type(c_ptr) :: grad2_d = C_NULL_PTR
      type(c_ptr) :: grad3_d = C_NULL_PTR
@@ -103,7 +103,7 @@ module gradient_jump_penalty
      type(c_ptr) :: flux3_d = C_NULL_PTR
      !> 3 parts of the flux of the volumetric flow
      real(kind=rp), allocatable, dimension(:, :, :, :) :: volflux1, &
-          volflux2, volflux3
+     volflux2, volflux3
      type(c_ptr) :: volflux1_d = C_NULL_PTR
      type(c_ptr) :: volflux2_d = C_NULL_PTR
      type(c_ptr) :: volflux3_d = C_NULL_PTR
@@ -140,12 +140,12 @@ module gradient_jump_penalty
      procedure, pass(this) :: init => gradient_jump_penalty_init
      !> Constructor from components.
      procedure, pass(this) :: init_from_components => &
-          gradient_jump_penalty_init_from_components
+     gradient_jump_penalty_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => gradient_jump_penalty_free
      !> Compute gradient jump penalty term.
      procedure, pass(this) :: compute_single => &
-          gradient_jump_penalty_compute_single
+     gradient_jump_penalty_compute_single
      !> Perform gradient jump penalty term.
      procedure, pass(this) :: compute_ => gradient_jump_penalty_compute
 
@@ -181,7 +181,7 @@ contains
     end if
 
     call this%init_from_components(coef, fields, start_time, end_time, a, b, &
-         variable_name)
+    variable_name)
 
   end subroutine gradient_jump_penalty_init
 
@@ -193,7 +193,7 @@ contains
   !! @param end_time When to stop adding the source term.
   !! @param variable_name The name of the variable for this source term.
   subroutine gradient_jump_penalty_init_from_components(this, coef, fields, &
-       start_time, end_time, a, b, variable_name)
+  start_time, end_time, a, b, variable_name)
     class(gradient_jump_penalty_t), intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
     type(field_list_t), intent(in), target :: fields
@@ -254,7 +254,7 @@ contains
     this%n_facet_max = maxval(this%n_facet)
 
     allocate(this%h2(this%lx + 2, this%lx + 2, &
-         this%lx + 2, this%coef%msh%nelv))
+    this%lx + 2, this%coef%msh%nelv))
 
     do i = 1, this%coef%msh%nelv
        select type (ep => this%coef%msh%elements(i)%e)
@@ -282,29 +282,29 @@ contains
     allocate(this%grad3(this%lx, this%lx, this%lx, this%coef%msh%nelv))
 
     allocate(this%penalty_facet(this%lx + 2, this%lx + 2, &
-         this%lx + 2, this%coef%msh%nelv))
+    this%lx + 2, this%coef%msh%nelv))
     allocate(this%G(this%lx + 2, this%lx + 2, &
-         this%lx + 2, this%coef%msh%nelv))
+    this%lx + 2, this%coef%msh%nelv))
     allocate(this%flux1(this%lx + 2, this%lx + 2, &
-         this%lx + 2, this%coef%msh%nelv))
+    this%lx + 2, this%coef%msh%nelv))
     allocate(this%flux2(this%lx + 2, this%lx + 2, &
-         this%lx + 2, this%coef%msh%nelv))
+    this%lx + 2, this%coef%msh%nelv))
     allocate(this%flux3(this%lx + 2, this%lx + 2, &
-         this%lx + 2, this%coef%msh%nelv))
+    this%lx + 2, this%coef%msh%nelv))
     allocate(this%volflux1(this%lx + 2, this%lx + 2, &
-         this%lx + 2, this%coef%msh%nelv))
+    this%lx + 2, this%coef%msh%nelv))
     allocate(this%volflux2(this%lx + 2, this%lx + 2, &
-         this%lx + 2, this%coef%msh%nelv))
+    this%lx + 2, this%coef%msh%nelv))
     allocate(this%volflux3(this%lx + 2, this%lx + 2, &
-         this%lx + 2, this%coef%msh%nelv))
+    this%lx + 2, this%coef%msh%nelv))
     allocate(this%absvolflux(this%lx + 2, this%lx + 2, &
-         this%lx + 2, this%coef%msh%nelv))
+    this%lx + 2, this%coef%msh%nelv))
     allocate(this%n1(this%lx + 2, this%lx + 2, &
-         this%lx + 2, this%coef%msh%nelv))
+    this%lx + 2, this%coef%msh%nelv))
     allocate(this%n2(this%lx + 2, this%lx + 2, &
-         this%lx + 2, this%coef%msh%nelv))
+    this%lx + 2, this%coef%msh%nelv))
     allocate(this%n3(this%lx + 2, this%lx + 2, &
-         this%lx + 2, this%coef%msh%nelv))
+    this%lx + 2, this%coef%msh%nelv))
 
     ! Extract facets' normals
     do i = 1, this%coef%msh%nelv
@@ -361,7 +361,7 @@ contains
     ! Initialize pointers for device
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(this%dphidxi, this%dphidxi_d, &
-            this%lx * this%lx)
+       this%lx * this%lx)
        call device_map(this%penalty, this%penalty_d, this%n)
        call device_map(this%grad1, this%grad1_d, this%n)
        call device_map(this%grad2, this%grad2_d, this%n)
@@ -384,16 +384,16 @@ contains
        call device_map(this%facet_factor, this%facet_factor_d, this%n_large)
 
        call device_memcpy(this%dphidxi, this%dphidxi_d, &
-            this%lx * this%lx, &
-            HOST_TO_DEVICE, sync = .false.)
+       this%lx * this%lx, &
+       HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%n1, this%n1_d, this%n_large, &
-            HOST_TO_DEVICE, sync = .false.)
+       HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%n2, this%n2_d, this%n_large, &
-            HOST_TO_DEVICE, sync = .false.)
+       HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%n3, this%n3_d, this%n_large, &
-            HOST_TO_DEVICE, sync = .false.)
+       HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%facet_factor, this%facet_factor_d, this%n_large,&
-            HOST_TO_DEVICE, sync = .false.)
+       HOST_TO_DEVICE, sync = .false.)
 
     end if
 
@@ -420,22 +420,22 @@ contains
              select case (j)
              case (1)
                 h2_el(1, l + 1, k + 1) = &
-                     dist2_quadrature_hex(l, k, j, i, n, dm, coef)
+                dist2_quadrature_hex(l, k, j, i, n, dm, coef)
              case (2)
                 h2_el(n + 2, l + 1, k + 1) = &
-                     dist2_quadrature_hex(l, k, j, i, n, dm, coef)
+                dist2_quadrature_hex(l, k, j, i, n, dm, coef)
              case (3)
                 h2_el(l + 1, 1, k + 1) = &
-                     dist2_quadrature_hex(l, k, j, i, n, dm, coef)
+                dist2_quadrature_hex(l, k, j, i, n, dm, coef)
              case (4)
                 h2_el(l + 1, n + 2, k + 1) = &
-                     dist2_quadrature_hex(l, k, j, i, n, dm, coef)
+                dist2_quadrature_hex(l, k, j, i, n, dm, coef)
              case (5)
                 h2_el(l + 1, k + 1, 1) = &
-                     dist2_quadrature_hex(l, k, j, i, n, dm, coef)
+                dist2_quadrature_hex(l, k, j, i, n, dm, coef)
              case (6)
                 h2_el(l + 1, k + 1, n + 2) = &
-                     dist2_quadrature_hex(l, k, j, i, n, dm, coef)
+                dist2_quadrature_hex(l, k, j, i, n, dm, coef)
              case default
                 call neko_error("The face index is not correct")
              end select
@@ -573,15 +573,15 @@ contains
     real(kind=rp) :: area_tmp
 
     allocate(this%facet_factor(this%lx + 2, this%lx + 2, &
-         this%lx + 2, this%coef%msh%nelv))
+    this%lx + 2, this%coef%msh%nelv))
 
     associate(facet_factor => this%facet_factor, &
-         coef => this%coef, &
-         lx => this%lx, &
-         nelv => this%coef%msh%nelv, &
-         jacinv => this%coef%jacinv, h2 => this%h2, &
-         tau => this%tau, n1 => this%n1, &
-         n2 => this%n2, n3 => this%n3)
+    coef => this%coef, &
+    lx => this%lx, &
+    nelv => this%coef%msh%nelv, &
+    jacinv => this%coef%jacinv, h2 => this%h2, &
+    tau => this%tau, n1 => this%n1, &
+    n2 => this%n2, n3 => this%n3)
 
       do i = 1, nelv
          do j = 1, 6 ! for hexahedral elementsh2
@@ -591,62 +591,62 @@ contains
                   case (1)
                      area_tmp = coef%get_area(1, l, k, i, j)
                      facet_factor(1, l + 1, k + 1, i) = area_tmp * tau * &
-                          h2(1, l + 1, k + 1, i) * &
-                          (n1(1, l + 1, k + 1, i) * coef%drdx(1, l, k, i) + &
-                          n2(1, l + 1, k + 1, i) * coef%drdy(1, l, k, i) + &
-                          n3(1, l + 1, k + 1, i) * coef%drdz(1, l, k, i) ) &
-                          * jacinv(1, l, k, i)
+                     h2(1, l + 1, k + 1, i) * &
+                     (n1(1, l + 1, k + 1, i) * coef%drdx(1, l, k, i) + &
+                     n2(1, l + 1, k + 1, i) * coef%drdy(1, l, k, i) + &
+                     n3(1, l + 1, k + 1, i) * coef%drdz(1, l, k, i) ) &
+                     * jacinv(1, l, k, i)
                   case (2)
                      area_tmp = coef%get_area(1, l, k, i, j)
                      facet_factor(lx + 2, l + 1, k + 1, i) = area_tmp * tau * &
-                          h2(lx + 2, l + 1, k + 1, i) * &
-                          (n1(lx + 2, l + 1, k + 1, i) * &
-                          coef%drdx(lx, l, k, i) + &
-                          n2(lx + 2, l + 1, k + 1, i) * &
-                          coef%drdy(lx, l, k, i) + &
-                          n3(lx + 2, l + 1, k + 1, i) * &
-                          coef%drdz(lx, l, k, i) ) &
-                          * jacinv(lx, l, k, i)
+                     h2(lx + 2, l + 1, k + 1, i) * &
+                     (n1(lx + 2, l + 1, k + 1, i) * &
+                     coef%drdx(lx, l, k, i) + &
+                     n2(lx + 2, l + 1, k + 1, i) * &
+                     coef%drdy(lx, l, k, i) + &
+                     n3(lx + 2, l + 1, k + 1, i) * &
+                     coef%drdz(lx, l, k, i) ) &
+                     * jacinv(lx, l, k, i)
                   case (3)
                      area_tmp = coef%get_area(l, 1, k, i, j)
                      facet_factor(l + 1, 1, k + 1, i) = area_tmp * tau * &
-                          h2(l + 1, 1, k + 1, i) * &
-                          (n1(l + 1, 1, k + 1, i) * coef%dsdx(l, 1, k, i) + &
-                          n2(l + 1, 1, k + 1, i) * coef%dsdy(l, 1, k, i) + &
-                          n3(l + 1, 1, k + 1, i) * coef%dsdz(l, 1, k, i) ) &
-                          * jacinv(l, 1, k, i)
+                     h2(l + 1, 1, k + 1, i) * &
+                     (n1(l + 1, 1, k + 1, i) * coef%dsdx(l, 1, k, i) + &
+                     n2(l + 1, 1, k + 1, i) * coef%dsdy(l, 1, k, i) + &
+                     n3(l + 1, 1, k + 1, i) * coef%dsdz(l, 1, k, i) ) &
+                     * jacinv(l, 1, k, i)
                   case (4)
                      area_tmp = coef%get_area(l, 1, k, i, j)
                      facet_factor(l + 1, lx + 2, k + 1, i) = area_tmp * tau * &
-                          h2(l + 1, lx + 2, k + 1, i) * &
-                          (n1(l + 1, lx + 2, k + 1, i) * &
-                          coef%dsdx(l, lx, k, i) + &
-                          n2(l + 1, lx + 2, k + 1, i) * &
-                          coef%dsdy(l, lx, k, i) + &
-                          n3(l + 1, lx + 2, k + 1, i) * &
-                          coef%dsdz(l, lx, k, i) ) &
-                          * jacinv(l, lx, k, i)
+                     h2(l + 1, lx + 2, k + 1, i) * &
+                     (n1(l + 1, lx + 2, k + 1, i) * &
+                     coef%dsdx(l, lx, k, i) + &
+                     n2(l + 1, lx + 2, k + 1, i) * &
+                     coef%dsdy(l, lx, k, i) + &
+                     n3(l + 1, lx + 2, k + 1, i) * &
+                     coef%dsdz(l, lx, k, i) ) &
+                     * jacinv(l, lx, k, i)
                   case (5)
                      area_tmp = coef%get_area(l, k, 1, i, j)
                      facet_factor(l + 1, k + 1, 1, i) = area_tmp * tau * &
-                          h2(l + 1, k + 1, 1, i) * &
-                          (n1(l + 1, k + 1, 1, i) * coef%dtdx(l, k, 1, i) + &
-                          n2(l + 1, k + 1, 1, i) * coef%dtdy(l, k, 1, i) + &
-                          n3(l + 1, k + 1, 1, i) * coef%dtdz(l, k, 1, i) ) &
-                          * jacinv(l, k, 1, i)
+                     h2(l + 1, k + 1, 1, i) * &
+                     (n1(l + 1, k + 1, 1, i) * coef%dtdx(l, k, 1, i) + &
+                     n2(l + 1, k + 1, 1, i) * coef%dtdy(l, k, 1, i) + &
+                     n3(l + 1, k + 1, 1, i) * coef%dtdz(l, k, 1, i) ) &
+                     * jacinv(l, k, 1, i)
                   case (6)
                      area_tmp = coef%get_area(l, k, 1, i, j)
                      facet_factor(l + 1, k + 1, lx + 2, i) = area_tmp * tau * &
-                          h2(l + 1, k + 1, lx + 2, i) * &
-                          ( &
-                          n1(l + 1, k + 1, lx + 2, i) * &
-                          coef%dtdx(l, k, lx, i) + &
-                          n2(l + 1, k + 1, lx + 2, i) * &
-                          coef%dtdy(l, k, lx, i) + &
-                          n3(l + 1, k + 1, lx + 2, i) * &
-                          coef%dtdz(l, k, lx, i) &
-                          ) &
-                          * jacinv(l, k, lx, i)
+                     h2(l + 1, k + 1, lx + 2, i) * &
+                     ( &
+                     n1(l + 1, k + 1, lx + 2, i) * &
+                     coef%dtdx(l, k, lx, i) + &
+                     n2(l + 1, k + 1, lx + 2, i) * &
+                     coef%dtdy(l, k, lx, i) + &
+                     n3(l + 1, k + 1, lx + 2, i) * &
+                     coef%dtdz(l, k, lx, i) &
+                     ) &
+                     * jacinv(l, k, lx, i)
                   case default
                      call neko_error("The face index is not correct")
                   end select
@@ -806,18 +806,18 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_col3(this%penalty_facet_d, this%absvolflux_d, this%G_d, &
-            this%n_large)
+       this%n_large)
        call device_col2(this%penalty_facet_d, this%facet_factor_d, this%n_large)
        call device_gradient_jump_penalty_finalize(this%penalty_d, &
-            this%penalty_facet_d, &
-            this%dphidxi_d, &
-            this%lx, this%coef%msh%nelv)
+       this%penalty_facet_d, &
+       this%dphidxi_d, &
+       this%lx, this%coef%msh%nelv)
     else
        call col3(this%penalty_facet, this%absvolflux, this%G, this%n_large)
        call col2(this%penalty_facet, this%facet_factor, this%n_large)
        call gradient_jump_penalty_finalize(this%penalty, this%penalty_facet, &
-            this%dphidxi, &
-            this%lx, this%coef%msh%nelv)
+       this%dphidxi, &
+       this%lx, this%coef%msh%nelv)
     end if
 
   end subroutine gradient_jump_penalty_compute_single
@@ -887,18 +887,18 @@ contains
        do j = 1, lx
           do k = 1, lx
              penalty(i, j, k, :) = &
-                  wa(1, j + 1, k + 1, :) * &
-                  dphidxi(1, i) + &
-                  wa(lx + 2, j + 1, k + 1, :) * &
-                  dphidxi(lx, i) + &
-                  wa(i + 1, 1, k + 1, :) * &
-                  dphidxi(1, j) + &
-                  wa(i + 1, lx + 2, k + 1, :) * &
-                  dphidxi(lx, j) + &
-                  wa(i + 1, j + 1, 1, :) * &
-                  dphidxi(1, k) + &
-                  wa(i + 1, j + 1, lx + 2, :) * &
-                  dphidxi(lx, k)
+             wa(1, j + 1, k + 1, :) * &
+             dphidxi(1, i) + &
+             wa(lx + 2, j + 1, k + 1, :) * &
+             dphidxi(lx, i) + &
+             wa(i + 1, 1, k + 1, :) * &
+             dphidxi(1, j) + &
+             wa(i + 1, lx + 2, k + 1, :) * &
+             dphidxi(lx, j) + &
+             wa(i + 1, j + 1, 1, :) * &
+             dphidxi(1, k) + &
+             wa(i + 1, j + 1, lx + 2, :) * &
+             dphidxi(lx, k)
           end do
        end do
     end do
@@ -912,32 +912,32 @@ contains
     type(field_t), intent(in) :: s
 
     call dudxyz(this%grad1, s%x, this%coef%drdx, &
-         this%coef%dsdx, this%coef%dtdx, this%coef)
+    this%coef%dsdx, this%coef%dtdx, this%coef)
     call dudxyz(this%grad2, s%x, this%coef%drdy, &
-         this%coef%dsdy, this%coef%dtdy, this%coef)
+    this%coef%dsdy, this%coef%dtdy, this%coef)
     call dudxyz(this%grad3, s%x, this%coef%drdz, &
-         this%coef%dsdz, this%coef%dtdz, this%coef)
+    this%coef%dsdz, this%coef%dtdz, this%coef)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_pick_facet_value_hex(this%flux1_d, this%grad1_d, &
-            this%lx, this%coef%msh%nelv)
+       this%lx, this%coef%msh%nelv)
        call device_pick_facet_value_hex(this%flux2_d, this%grad2_d, &
-            this%lx, this%coef%msh%nelv)
+       this%lx, this%coef%msh%nelv)
        call device_pick_facet_value_hex(this%flux3_d, this%grad3_d, &
-            this%lx, this%coef%msh%nelv)
+       this%lx, this%coef%msh%nelv)
        call device_col2(this%flux1_d, this%n1_d, this%n_large)
        call device_col2(this%flux2_d, this%n2_d, this%n_large)
        call device_col2(this%flux3_d, this%n3_d, this%n_large)
        call device_add3s2(this%G_d, this%flux1_d, this%flux2_d, &
-            1.0_rp, 1.0_rp, this%n_large)
+       1.0_rp, 1.0_rp, this%n_large)
        call device_add2(this%G_d, this%flux3_d, this%n_large)
     else
        call pick_facet_value_hex(this%flux1, this%grad1, &
-            this%lx, this%coef%msh%nelv)
+       this%lx, this%coef%msh%nelv)
        call pick_facet_value_hex(this%flux2, this%grad2, &
-            this%lx, this%coef%msh%nelv)
+       this%lx, this%coef%msh%nelv)
        call pick_facet_value_hex(this%flux3, this%grad3, &
-            this%lx, this%coef%msh%nelv)
+       this%lx, this%coef%msh%nelv)
        call col2(this%flux1, this%n1, this%n_large)
        call col2(this%flux2, this%n2, this%n_large)
        call col2(this%flux3, this%n3, this%n_large)
@@ -961,25 +961,25 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_pick_facet_value_hex(this%volflux1_d, u%x_d, this%lx, &
-            this%coef%msh%nelv)
+       this%coef%msh%nelv)
        call device_pick_facet_value_hex(this%volflux2_d, v%x_d, this%lx, &
-            this%coef%msh%nelv)
+       this%coef%msh%nelv)
        call device_pick_facet_value_hex(this%volflux3_d, w%x_d, this%lx, &
-            this%coef%msh%nelv)
+       this%coef%msh%nelv)
        call device_col2(this%volflux1_d, this%n1_d, this%n_large)
        call device_col2(this%volflux2_d, this%n2_d, this%n_large)
        call device_col2(this%volflux3_d, this%n3_d, this%n_large)
        call device_add3s2(this%absvolflux_d, this%volflux1_d, &
-            this%volflux2_d, 1.0_rp, 1.0_rp, this%n_large)
+       this%volflux2_d, 1.0_rp, 1.0_rp, this%n_large)
        call device_add2(this%absvolflux_d, this%volflux3_d, this%n_large)
        call device_absval(this%absvolflux_d, this%n_large)
     else
        call pick_facet_value_hex(this%volflux1, u%x, &
-            this%lx, this%coef%msh%nelv)
+       this%lx, this%coef%msh%nelv)
        call pick_facet_value_hex(this%volflux2, v%x, &
-            this%lx, this%coef%msh%nelv)
+       this%lx, this%coef%msh%nelv)
        call pick_facet_value_hex(this%volflux3, w%x, &
-            this%lx, this%coef%msh%nelv)
+       this%lx, this%coef%msh%nelv)
        call col2(this%volflux1, this%n1, this%n_large)
        call col2(this%volflux2, this%n2, this%n_large)
        call col2(this%volflux3, this%n3, this%n_large)
@@ -1001,17 +1001,17 @@ contains
     real(kind=rp), intent(inout) :: f_facet(lx + 2, lx + 2, lx + 2, nelv)
 
     call copy(f_facet(1, 2: lx + 1, 2: lx + 1, :), &
-         f_field(1, :, :, :), lx * lx * nelv)
+    f_field(1, :, :, :), lx * lx * nelv)
     call copy(f_facet(lx + 2, 2: lx + 1, 2: lx + 1, :), &
-         f_field(lx, :, :, :), lx * lx * nelv)
+    f_field(lx, :, :, :), lx * lx * nelv)
     call copy(f_facet(2: lx + 1, 1, 2: lx + 1, :), &
-         f_field(:, 1, :, :), lx * lx * nelv)
+    f_field(:, 1, :, :), lx * lx * nelv)
     call copy(f_facet(2: lx + 1, lx + 2, 2: lx + 1, :), &
-         f_field(:, lx, :, :), lx * lx * nelv)
+    f_field(:, lx, :, :), lx * lx * nelv)
     call copy(f_facet(2: lx + 1, 2: lx + 1, 1, :), &
-         f_field(:, :, 1, :), lx * lx * nelv)
+    f_field(:, :, 1, :), lx * lx * nelv)
     call copy(f_facet(2: lx + 1, 2: lx + 1, lx + 2, :), &
-         f_field(:, :, lx, :), lx * lx * nelv)
+    f_field(:, :, lx, :), lx * lx * nelv)
 
   end subroutine pick_facet_value_hex
 
