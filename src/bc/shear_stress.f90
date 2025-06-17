@@ -168,7 +168,7 @@ contains
   !! @param[inout] json The JSON object configuring the boundary condition.
   subroutine shear_stress_init(this, coef, json)
     class(shear_stress_t), target, intent(inout) :: this
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) ::json
     real(kind=rp), allocatable :: value(:)
 
