@@ -251,7 +251,7 @@ contains
        if (pe_rank .eq. 0) then
           block
             type(file_t) :: profile_file
-            profile_file = file_t('profile.csv')
+            call profile_file%init('profile.csv')
             call profile_file%set_header(hdr)
             call profile_file%write(profile_data)
           end block

@@ -45,10 +45,10 @@ program calc_lift_from_field
 
   call get_command_argument(1, inputchar)
   read(inputchar, *) mesh_fname
-  mesh_file = file_t(trim(mesh_fname))
+  call mesh_file%init(trim(mesh_fname))
   call get_command_argument(2, inputchar)
   read(inputchar, *) field_fname
-  field_file = file_t(trim(field_fname))
+  call field_file%init(trim(field_fname))
   call get_command_argument(3, inputchar)
   read(inputchar, *) zone_id
   call get_command_argument(4, inputchar)
@@ -57,7 +57,7 @@ program calc_lift_from_field
   read(inputchar, *) hom_dir
   call get_command_argument(6, inputchar)
   read(inputchar, *) output_fname
-  output_file = file_t(trim(output_fname))
+  call output_file%init(trim(output_fname))
 
   call mesh_file%read(msh)
 

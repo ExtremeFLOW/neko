@@ -80,7 +80,7 @@ contains
   !! @param[inout] json The JSON object configuring the boundary condition.
   subroutine blasius_init(this, coef, json)
     class(blasius_t), intent(inout), target :: this
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) :: json
     real(kind=rp) :: delta
     real(kind=rp), allocatable :: uinf(:)
@@ -109,7 +109,7 @@ contains
   subroutine blasius_init_from_components(this, coef, delta, uinf, &
        approximation)
     class(blasius_t), intent(inout), target :: this
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
     real(kind=rp) :: delta
     real(kind=rp) :: uinf(3)
     character(len=*) :: approximation

@@ -303,7 +303,7 @@ contains
     ! ------------------------------------------------------------------------ !
     ! Load the immersed boundary mesh
 
-    mesh_file = file_t(mesh_file_name)
+    call mesh_file%init(mesh_file_name)
     call mesh_file%read(boundary_mesh)
 
     if (boundary_mesh%nelv .eq. 0) then

@@ -74,13 +74,13 @@ contains
     integer, intent(in), optional :: layout
 
     if (present(precision) .and. present(layout)) then
-       this%file_ = file_t(fname, precision = precision, layout = layout)
+       call this%file_%init(fname, precision = precision, layout = layout)
     else if (present(precision)) then
-       this%file_ = file_t(fname, precision = precision)
+       call this%file_%init(fname, precision = precision)
     else if (present(layout)) then
-       this%file_ = file_t(fname, layout = layout)
+       call this%file_%init(fname, layout = layout)
     else
-       this%file_ = file_t(fname)
+       call this%file_%init(fname)
     end if
 
   end subroutine output_init

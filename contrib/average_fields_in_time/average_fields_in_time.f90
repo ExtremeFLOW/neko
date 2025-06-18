@@ -28,7 +28,7 @@ program average_fields_in_time
 
   call get_command_argument(1, inputchar)
   read(inputchar, *) fld_fname
-  fld_file = file_t(trim(fld_fname))
+  call fld_file%init(trim(fld_fname))
   call get_command_argument(2, inputchar)
   read(inputchar, *) start_time
   call get_command_argument(3, inputchar)
@@ -53,7 +53,7 @@ program average_fields_in_time
   end do
   call fld_data_avg%scale(1.0_rp/(fld_data_avg%time-start_time))
 
-  output_file = file_t(trim(output_fname))
+  call output_file%init(trim(output_fname))
 
 
 

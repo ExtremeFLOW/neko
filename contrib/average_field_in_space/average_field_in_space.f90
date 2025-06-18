@@ -50,10 +50,10 @@ program average_field_in_space
 
   call get_command_argument(1, inputchar)
   read(inputchar, *) mesh_fname
-  mesh_file = file_t(trim(mesh_fname))
+  call mesh_file%init(trim(mesh_fname))
   call get_command_argument(2, inputchar)
   read(inputchar, *) field_fname
-  field_file = file_t(trim(field_fname))
+  call field_file%init(trim(field_fname))
   call get_command_argument(3, inputchar)
   read(inputchar, *) hom_dir
   call get_command_argument(4, inputchar)
@@ -131,7 +131,7 @@ program average_field_in_space
 
   !allocate array with pointers to all vectors in the file
 
-  output_file = file_t(trim(output_fname))
+  call output_file%init(trim(output_fname))
   do tstep = 0, field_data%meta_nsamples-1
      if (pe_rank .eq. 0) write(*,*) 'Averaging field:', tstep
      if (tstep .gt. 0) call field_file%read(field_data)

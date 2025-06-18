@@ -28,7 +28,7 @@ program axbench
   call get_command_argument(2, lxchar)
   read(lxchar, *) lx
 
-  nmsh_file = file_t(fname)
+  call nmsh_file%init(fname)
   call nmsh_file%read(msh)
 
   call space_init(Xh, GLL, lx, lx, lx)

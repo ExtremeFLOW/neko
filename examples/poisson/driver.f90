@@ -40,7 +40,7 @@ program poisson
   read(lxchar, *) lx
   read(iterchar, *) niter
 
-  nmsh_file = file_t(fname)
+  call nmsh_file%init(fname)
   call nmsh_file%read(msh)
 
   call Xh%init(GLL, lx, lx, lx)
@@ -80,7 +80,7 @@ program poisson
   call set_timer_flop_cnt(1, msh%glb_nelv, x%Xh%lx, niter, n_glb, ksp_mon)
 
   fname = 'out.fld'
-  mf = file_t(fname)
+  call mf%init(fname)
   call mf%write(x)
   deallocate(f)
   call solver%free()

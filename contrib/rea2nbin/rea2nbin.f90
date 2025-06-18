@@ -39,13 +39,13 @@ program rea2nbin
   end if
 
 
-  rea_file = file_t(fname)
+  call rea_file%init(fname)
 
   msh%lgenc = .false.
 
   call rea_file%read(msh)
 
-  nmsh_file = file_t(output_)
+  call nmsh_file%init(output_)
 
   call nmsh_file%write(msh)
 

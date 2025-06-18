@@ -450,7 +450,7 @@ contains
 
     ! Each wall_model bc will do a write unfortunately... But very helpful
     ! for setup debugging.
-    h_file = file_t("sampling_height.fld")
+    call h_file%init("sampling_height.fld")
     call h_file%write(h_field)
   end subroutine wall_model_find_points
 
