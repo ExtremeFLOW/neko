@@ -356,7 +356,8 @@ contains
        do i = 1, this%gdim * this%npts * this%nelv
           call this%point_neigh(i)%free()
        end do
-       deallocate(this%point_neigh)
+       ! This causes Cray Fortran to take a long vacation
+       !deallocate(this%point_neigh)
     end if
 
     if (allocated(this%facet_type)) then
