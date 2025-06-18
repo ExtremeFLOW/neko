@@ -130,6 +130,8 @@ contains
        this%bla => blasius_quartic
     case ('sin')
        this%bla => blasius_sin
+    case ('tanh')
+       this%bla => blasius_tanh
     case default
        call neko_error('Invalid Blasius approximation')
     end select
@@ -318,6 +320,8 @@ contains
        this%bla => blasius_quartic
     case ('sin')
        this%bla => blasius_sin
+    case ('tanh')
+       this%bla => blasius_tanh
     case default
        call neko_error('Invalid Blasius approximation')
     end select
