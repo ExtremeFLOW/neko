@@ -128,12 +128,12 @@ program average_field_in_space
   else
      call map_2d%init(coef, dir, 1e-7_rp)
   end if
-  
+
   !allocate array with pointers to all vectors in the file
 
   output_file = file_t(trim(output_fname))
   do tstep = 0, field_data%meta_nsamples-1
-    if (pe_rank .eq. 0) write(*,*) 'Averaging field:', tstep
+     if (pe_rank .eq. 0) write(*,*) 'Averaging field:', tstep
      if (tstep .gt. 0) call field_file%read(field_data)
      if (avg_to_1d) then
         call map_1d%average_planes(avg_matrix, fields)

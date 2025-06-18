@@ -82,7 +82,7 @@ contains
 
   !> Initialize the scalars container
   subroutine scalars_init(this, n_scalars, msh, coef, gs, params, &
-  numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
+       numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
     class(scalars_t), intent(inout) :: this
     integer, intent(in) :: n_scalars
     type(mesh_t), target, intent(in) :: msh
@@ -152,12 +152,12 @@ contains
        end if
 
        call this%scalar_fields(i)%init(msh, coef, gs, json_subdict, numerics_params, &
-       user, chkp, ulag, vlag, wlag, time_scheme, rho)
+            user, chkp, ulag, vlag, wlag, time_scheme, rho)
     end do
   end subroutine scalars_init
 
   subroutine scalars_init_single(this, msh, coef, gs, params, numerics_params, &
-  user, chkp, ulag, vlag, wlag, time_scheme, rho)
+       user, chkp, ulag, vlag, wlag, time_scheme, rho)
     class(scalars_t), intent(inout) :: this
     type(mesh_t), target, intent(in) :: msh
     type(coef_t), target, intent(in) :: coef
@@ -180,7 +180,7 @@ contains
 
     ! Initialize it directly with the params
     call this%scalar_fields(1)%init(msh, coef, gs, params, numerics_params, user, &
-    chkp, ulag, vlag, wlag, time_scheme, rho)
+         chkp, ulag, vlag, wlag, time_scheme, rho)
   end subroutine scalars_init_single
 
   !> Perform a time step for all scalar fields

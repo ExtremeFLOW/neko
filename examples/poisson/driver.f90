@@ -80,7 +80,7 @@ program poisson
   call set_timer_flop_cnt(1, msh%glb_nelv, x%Xh%lx, niter, n_glb, ksp_mon)
 
   fname = 'out.fld'
-  mf =  file_t(fname)
+  mf = file_t(fname)
   call mf%write(x)
   deallocate(f)
   call solver%free()

@@ -21,22 +21,22 @@ program nekobone
      write(*,*) 'Usage: ./nekobone <neko mesh> <N>'
      stop
   end if
-  
-  call neko_init 
-  
+
+  call neko_init
+
   call get_command_argument(1, fname)
   call get_command_argument(2, lxchar)
   read(lxchar, *) lx
-  
+
   nmsh_file = file_t(fname)
-  call nmsh_file%read(msh)  
+  call nmsh_file%read(msh)
   call mesh_generate_conn(msh)
 
   call space_init(Xh, GLL, lx, lx, lx)
 
   call dm%init(msh, Xh)
   call gs_init(gs_h, dm)
-  
+
   call field_init(x, msh, Xh, "x")
   call field_init(w, msh, Xh, "work")
 
@@ -46,16 +46,16 @@ program nekobone
 
   allocate(g(6, Xh%lx, Xh%ly, Xh%lz, msh%nelv))
   call setup_g(g, Xh%wx, Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-  
+
   niter = 100
   allocate(f(n), c(n), r(n), p(n), z(n))
   call set_multiplicity(c, n, gs_h)
   call set_f(f, c, n, gs_h)
-  
+
   call cg(x, f, g, c, r, w, p, z, n, msk, niter, gs_h)
 
   n_glb = Xh%lx * Xh%ly * Xh%lz * msh%glb_nelv
-  
+
   call MPI_Barrier(NEKO_COMM, ierr)
 
   call set_timer_flop_cnt(0, msh%glb_nelv, x%Xh%lx, niter, n_glb)
@@ -66,7 +66,7 @@ program nekobone
   call space_free(Xh)
   call field_free(x)
   call mesh_free(msh)
-  
+
   call neko_finalize
 
 end program nekobone
