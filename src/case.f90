@@ -226,7 +226,7 @@ contains
     !
     ! Setup scratch registry
     !
-    neko_scratch_registry = scratch_registry_t(this%fluid%dm_Xh, 10, 10)
+    call neko_scratch_registry%init(this%fluid%dm_Xh, 10, 10)
 
     !
     ! Setup scalar scheme
@@ -442,7 +442,7 @@ contains
             name, "fluid")
        call json_get_or_default(this%params, 'case.checkpoint_format', &
             string_val, "chkp")
-       this%chkp_out = chkp_output_t(this%chkp, name = name,&
+       call this%chkp_out%init(this%chkp, name = name,&
             path = this%output_directory, fmt = trim(string_val))
        call json_get_or_default(this%params, 'case.checkpoint_control', &
             string_val, "simulationtime")
