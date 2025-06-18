@@ -113,7 +113,7 @@ module math
        add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
        glsc3, glsc4, sort, masked_copy, cfill_mask, relcmp, glimax, glimin, &
        swap, reord, flipv, cadd2, masked_gather_copy, absval, pwmax, pwmin, &
-       masked_scatter_copy, cdiv, cdiv2
+       masked_scatter_copy, cdiv, cdiv2, glsubnorm
 
 contains
 
@@ -979,6 +979,27 @@ contains
     glsc4 = tmp
 
   end function glsc4
+
+  !> Returns the norm of the difference of two vectors
+  !! \f$ \sqrt{(a-b)^T (a-b)} \f$
+  function glsubnorm(a, b, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(in) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp) :: glsubnorm
+    real(kind=xp) :: tmp
+    integer :: i, ierr
+
+    tmp = 0.0_xp
+    do i = 1, n
+       tmp = tmp + (a(i) - b(i))**2
+    end do
+
+    call MPI_Allreduce(MPI_IN_PLACE, tmp, 1, &
+         MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    glsubnorm = sqrt(tmp)
+
+  end function glsubnorm
 
   !> Heap Sort for double precision arrays
   !! @details Following p 231 Num. Rec., 1st Ed.
