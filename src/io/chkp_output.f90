@@ -75,7 +75,7 @@ contains
 
     call this%init_base(fname)
     this%chkp => chkp
-   end subroutine chkp_output_init
+  end subroutine chkp_output_init
 
   !> Sample a checkpoint at time @a t
   subroutine chkp_output_sample(this, t)
