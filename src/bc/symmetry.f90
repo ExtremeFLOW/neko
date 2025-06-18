@@ -74,7 +74,7 @@ contains
   !! @param[inout] json The JSON object configuring the boundary condition.
   subroutine symmetry_init(this, coef, json)
     class(symmetry_t), intent(inout), target :: this
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) ::json
 
     call this%init_from_components(coef)
@@ -85,7 +85,7 @@ contains
   !! @param[in] coef The SEM coefficients.
   subroutine symmetry_init_from_components(this, coef)
     class(symmetry_t), intent(inout), target :: this
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
 
     call this%free()
     this%strong = .false.

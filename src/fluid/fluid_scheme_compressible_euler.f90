@@ -342,7 +342,7 @@ contains
   !> @param user User-defined boundary conditions
   !> @param params Configuration parameters
   subroutine fluid_scheme_compressible_euler_setup_bcs(this, user, params)
-    class(fluid_scheme_compressible_euler_t), intent(inout) :: this
+    class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
     type(user_t), target, intent(in) :: user
     type(json_file), intent(inout) :: params
     integer :: i, n_bcs, zone_index, j, zone_size, global_zone_size, ierr

@@ -485,7 +485,7 @@ contains
     end if
 
     !> Initialize the output file
-    this%fout = file_t(trim(output_file))
+    call this%fout%init(trim(output_file))
 
     select type (ft => this%fout%file_type)
     type is (csv_file_t)
@@ -696,7 +696,7 @@ contains
     !> Supporting variables
     type(file_t) :: file_in
 
-    file_in = file_t(trim(points_file))
+    call file_in%init(trim(points_file))
     !> Reads on rank 0 and distributes the probes across the different ranks
     select type (ft => file_in%file_type)
     type is (csv_file_t)

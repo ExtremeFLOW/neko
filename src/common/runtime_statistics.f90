@@ -46,7 +46,7 @@ module runtime_stats
   private
 
   integer :: RT_STATS_MAX_REGIONS = 50
-  
+
   type :: runtime_stats_t
      !> Name of measured region
      character(len=19), allocatable :: rt_stats_id(:)
@@ -56,7 +56,7 @@ module runtime_stats
      type(stack_i4r8t2_t) :: region_timestamp_
      logical :: enabled_
      logical :: output_profile_
-    contains
+   contains
      procedure, pass(this) :: init => runtime_stats_init
      procedure, pass(this) :: free => runtime_stats_free
      procedure, pass(this) :: start_region => runtime_stats_start_region
@@ -73,7 +73,7 @@ contains
     class(runtime_stats_t), intent(inout) :: this
     type(json_file), intent(inout) :: params
     integer :: i
-    
+
     call this%free()
 
     call json_get_or_default(params, 'case.runtime_statistics.enabled', &
@@ -85,25 +85,25 @@ contains
     if (this%enabled_) then
 
        allocate(this%rt_stats_id(RT_STATS_MAX_REGIONS))
-       
+
        this%rt_stats_id = ''
-       
+
        allocate(this%elapsed_time_(RT_STATS_MAX_REGIONS))
        do i = 1, RT_STATS_MAX_REGIONS
           call this%elapsed_time_(i)%init()
        end do
-       
+
        call this%region_timestamp_%init(100)
 
     end if
-    
+
   end subroutine runtime_stats_init
 
-  !> Destroy runtime statistics 
+  !> Destroy runtime statistics
   subroutine runtime_stats_free(this)
     class(runtime_stats_t), intent(inout) :: this
     integer :: i
-    
+
     if (allocated(this%rt_stats_id)) then
        deallocate(this%rt_stats_id)
     end if
@@ -116,7 +116,7 @@ contains
     end if
 
     call this%region_timestamp_%free()
-    
+
   end subroutine runtime_stats_free
 
   !> Start measuring time for the region
@@ -130,7 +130,7 @@ contains
     if (.not. this%enabled_) then
        return
     end if
-    
+
     if (region_id .gt. 0 .and. region_id .le. RT_STATS_MAX_REGIONS) then
        if (len_trim(this%rt_stats_id(region_id)) .eq. 0) then
           this%rt_stats_id(region_id) = trim(name)
@@ -145,7 +145,7 @@ contains
     else
        call neko_error('Invalid profiling region id')
     end if
-    
+
   end subroutine runtime_stats_start_region
 
   !> Compute elapsed time for the current region
@@ -164,10 +164,10 @@ contains
 
     if (trim(this%rt_stats_id(region_id)) .ne. trim(name)) then
        call neko_error('Invalid profiler region closed (' // name // ', &
-            &expected: ' // trim(this%rt_stats_id(region_id)) // ')')
+       &expected: ' // trim(this%rt_stats_id(region_id)) // ')')
     end if
     region_data = this%region_timestamp_%pop()
-    
+
     if (region_data%x .gt. 0) then
        elapsed_time = end_time - region_data%y
        call this%elapsed_time_(region_data%x)%push(elapsed_time)
@@ -187,7 +187,7 @@ contains
     if (.not. this%enabled_) then
        return
     end if
-    
+
     call neko_log%section('Runtime statistics')
     call neko_log%newline()
     write(log_buf, '(A,A,1x,A,1x,A)') '                  ',&
@@ -203,9 +203,9 @@ contains
     do i = 1, size(this%elapsed_time_)
        if (len_trim(this%rt_stats_id(i)) .gt. 0) then
           nsamples = this%elapsed_time_(i)%size()
-          ncols = ncols + 1          
+          ncols = ncols + 1
           hdr = trim(hdr) // trim(this%rt_stats_id(i)) // ', '
-          nrows = max(nrows, nsamples)             
+          nrows = max(nrows, nsamples)
           if (nsamples .gt. 0) then
              select type (region_sample => this%elapsed_time_(i)%data)
              type is (double precision)
@@ -217,7 +217,7 @@ contains
                 std = (total - avg)**2 / nsamples
                 sem = std /sqrt(real(nsamples, dp))
              end select
-             write(log_buf, '(A, E15.7,1x,1x,E15.7,1x,1x,E15.7)')  &
+             write(log_buf, '(A, E15.7,1x,1x,E15.7,1x,1x,E15.7)') &
                   this%rt_stats_id(i), total, avg, 2.5758_dp * sem
              call neko_log%message(log_buf)
           end if
@@ -232,7 +232,7 @@ contains
        do i = 1, size(this%elapsed_time_)
           if (len_trim(this%rt_stats_id(i)) .gt. 0) then
              nsamples = this%elapsed_time_(i)%size()
-             col_idx = col_idx + 1             
+             col_idx = col_idx + 1
              if (nsamples .gt. 0) then
                 select type (region_sample => this%elapsed_time_(i)%data)
                 type is (double precision)
@@ -247,11 +247,11 @@ contains
              end if
           end if
        end do
-       
+
        if (pe_rank .eq. 0) then
           block
-            type(file_t) :: profile_file    
-            profile_file = file_t('profile.csv')
+            type(file_t) :: profile_file
+            call profile_file%init('profile.csv')
             call profile_file%set_header(hdr)
             call profile_file%write(profile_data)
           end block
@@ -262,5 +262,5 @@ contains
     call profile_data%free()
 
   end subroutine runtime_stats_report
-  
+
 end module runtime_stats
