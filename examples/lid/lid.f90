@@ -74,7 +74,7 @@ contains
 
     ! Initialize the file object and create the output.csv file
     ! in the working directory
-    output_file%init("ekin.csv")
+    call output_file%init("ekin.csv")
     call output_file%set_header("# t,Ekin,enst")
     call vec_out%init(2) ! Initialize our vector with 2 elements (Ekin, enst)
 
