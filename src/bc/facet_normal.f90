@@ -81,7 +81,7 @@ contains
   !! @param[inout] json The JSON object configuring the boundary condition.
   subroutine facet_normal_init(this, coef, json)
     class(facet_normal_t), intent(inout), target :: this
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) ::json
 
     call this%init_from_components(coef)
@@ -91,7 +91,7 @@ contains
   !! @param[in] coef The SEM coefficients.
   subroutine facet_normal_init_from_components(this, coef)
     class(facet_normal_t), intent(inout), target :: this
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
 
     call this%init_base(coef)
   end subroutine facet_normal_init_from_components

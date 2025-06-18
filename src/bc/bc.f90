@@ -136,7 +136,7 @@ module bc
      subroutine bc_constructor(this, coef, json)
        import :: bc_t, coef_t, json_file
        class(bc_t), intent(inout), target :: this
-       type(coef_t), intent(in) :: coef
+       type(coef_t), target, intent(in) :: coef
        type(json_file), intent(inout) :: json
      end subroutine bc_constructor
   end interface
