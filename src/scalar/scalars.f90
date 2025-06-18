@@ -43,7 +43,7 @@ module scalars
   use time_step_controller, only: time_step_controller_t
   use json_module, only: json_file
   use json_utils, only: json_get, json_get_or_default, json_extract_object, &
-  json_extract_item
+       json_extract_item
   use field, only: field_t
   use field_series, only: field_series_t
   use field_registry, only: neko_field_registry
