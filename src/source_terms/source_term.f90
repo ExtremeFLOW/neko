@@ -172,7 +172,7 @@ module source_term
   integer :: source_term_registry_size = 0
 
   public :: source_term_factory, source_term_allocator, register_source_term, &
-  source_term_allocate
+       source_term_allocate
 
 contains
 
