@@ -226,7 +226,7 @@ contains
     !
     ! Setup scratch registry
     !
-    neko_scratch_registry = scratch_registry_t(this%fluid%dm_Xh, 10, 10)
+    call neko_scratch_registry%init(this%fluid%dm_Xh, 10, 10)
 
     !
     ! Setup scalar scheme
