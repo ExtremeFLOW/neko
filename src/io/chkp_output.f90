@@ -41,21 +41,18 @@ module chkp_output
   type, public, extends(output_t) :: chkp_output_t
      type(chkp_t), pointer :: chkp
    contains
+     procedure, pass(this) :: init => chkp_output_init
      procedure, pass(this) :: sample => chkp_output_sample
   end type chkp_output_t
 
-  interface chkp_output_t
-     module procedure chkp_output_init
-  end interface chkp_output_t
-
 contains
 
-  function chkp_output_init(chkp, name, path, fmt) result(this)
+  subroutine chkp_output_init(this, chkp, name, path, fmt)
+    class(chkp_output_t), intent(inout) :: this
     type(chkp_t), intent(in), target :: chkp
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path
     character(len=*), intent(in), optional :: fmt
-    type(chkp_output_t) :: this
     character(len=1024) :: fname
     character(len=10) :: suffix
 
@@ -78,7 +75,7 @@ contains
 
     call this%init_base(fname)
     this%chkp => chkp
-  end function chkp_output_init
+   end subroutine chkp_output_init
 
   !> Sample a checkpoint at time @a t
   subroutine chkp_output_sample(this, t)
