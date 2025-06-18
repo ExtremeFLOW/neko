@@ -49,7 +49,7 @@ module output
 
   !> Wrapper around an `output_t` pointer.
   type, public :: output_ptr_t
-     class(output_t), pointer :: ptr
+     class(output_t), pointer :: ptr => null()
   end type output_ptr_t
 
   !> Abstract interface for sampling an output type at time @a t

@@ -86,7 +86,7 @@ contains
 
   !> Constructor from json.
   subroutine gradient_init_from_json(this, json, case)
-    class(gradient_t), intent(inout) :: this
+    class(gradient_t), intent(inout), target :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: field_name
