@@ -86,6 +86,8 @@ contains
     character(len=*), intent(in) :: name
     integer :: i
 
+    nullify(f)
+
     do i=1, this%size()
       if (this%name(i) .eq. trim(name)) then
          f => this%items(i)%ptr
