@@ -41,7 +41,7 @@ sem/bcknd/device/device_coef.lo : sem/bcknd/device/device_coef.F90 common/utils.
 gs/gs_bcknd.lo : gs/gs_bcknd.f90 config/num_types.lo 
 gs/bcknd/cpu/gs_cpu.lo : gs/bcknd/cpu/gs_cpu.f90 gs/gs_ops.lo gs/gs_bcknd.lo config/num_types.lo 
 gs/bcknd/sx/gs_sx.lo : gs/bcknd/sx/gs_sx.f90 gs/gs_ops.lo gs/gs_bcknd.lo config/num_types.lo 
-gs/bcknd/device/gs_device.lo : gs/bcknd/device/gs_device.F90 common/utils.lo gs/gs_ops.lo device/device.lo gs/gs_bcknd.lo config/num_types.lo config/neko_config.lo 
+gs/bcknd/device/gs_device.lo : gs/bcknd/device/gs_device.F90 common/utils.lo device/device.lo gs/gs_bcknd.lo config/num_types.lo 
 gs/gs_ops.lo : gs/gs_ops.f90 
 gs/gs_comm.lo : gs/gs_comm.f90 adt/stack.lo comm/comm.lo config/num_types.lo 
 gs/gs_mpi.lo : gs/gs_mpi.f90 comm/comm.lo adt/stack.lo gs/gs_ops.lo gs/gs_comm.lo config/num_types.lo 
