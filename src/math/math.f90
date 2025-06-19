@@ -118,32 +118,47 @@ module math
 contains
 
   !> Return single precision absolute comparison \f$ | x - y | < \epsilon \f$
-  pure function sabscmp(x, y)
+  pure function sabscmp(x, y, tol)
     real(kind=sp), intent(in) :: x
     real(kind=sp), intent(in) :: y
+    real(kind=sp), intent(in), optional :: tol
     logical :: sabscmp
 
-    sabscmp = abs(x - y) .lt. NEKO_EPS
+    if (present(tol)) then
+       sabscmp = abs(x - y) .lt. tol
+    else
+       sabscmp = abs(x - y) .lt. NEKO_EPS
+    end if
 
   end function sabscmp
 
   !> Return double precision absolute comparison \f$ | x - y | < \epsilon \f$
-  pure function dabscmp(x, y)
+  pure function dabscmp(x, y, tol)
     real(kind=dp), intent(in) :: x
     real(kind=dp), intent(in) :: y
+    real(kind=dp), intent(in), optional :: tol
     logical :: dabscmp
 
-    dabscmp = abs(x - y) .lt. NEKO_EPS
+    if (present(tol)) then
+       dabscmp = abs(x - y) .lt. tol
+    else
+       dabscmp = abs(x - y) .lt. NEKO_EPS
+    end if
 
   end function dabscmp
 
   !> Return double precision absolute comparison \f$ | x - y | < \epsilon \f$
-  pure function qabscmp(x, y)
+  pure function qabscmp(x, y, tol)
     real(kind=qp), intent(in) :: x
     real(kind=qp), intent(in) :: y
+    real(kind=qp), intent(in), optional :: tol
     logical :: qabscmp
 
-    qabscmp = abs(x - y) .lt. NEKO_EPS
+    if (present(tol)) then
+       qabscmp = abs(x - y) .lt. tol
+    else
+       qabscmp = abs(x - y) .lt. NEKO_EPS
+    end if
 
   end function qabscmp
 
