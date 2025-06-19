@@ -766,6 +766,8 @@ contains
             MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     end if
 #endif
+
+    res = sqrt(res)
   end function device_glsubnorm
 
   !> Sum a vector of length n
