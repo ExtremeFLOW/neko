@@ -70,7 +70,7 @@ contains
   !! @param[inout] json The JSON object configuring the boundary condition.
   subroutine dirichlet_init(this, coef, json)
     class(dirichlet_t), intent(inout), target :: this
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) ::json
     real(kind=rp) :: g
 
@@ -85,7 +85,7 @@ contains
   !! @param[in] g The value to apply at the boundary.
   subroutine dirichlet_init_from_components(this, coef, g)
     class(dirichlet_t), intent(inout), target :: this
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
     real(kind=rp), intent(in) :: g
 
     call this%init_base(coef)

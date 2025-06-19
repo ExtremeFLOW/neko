@@ -245,7 +245,7 @@ contains
     call C%params%get('case.restart_mesh_file', restart_mesh_file, found)
 
     if (found) then
-       previous_meshf = file_t(trim(restart_mesh_file))
+       call previous_meshf%init(trim(restart_mesh_file))
        call previous_meshf%read(C%chkp%previous_mesh)
     end if
 
@@ -257,7 +257,7 @@ contains
     write(log_buf, '(A,A)') 'File :   ', trim(restart_file)
     call neko_log%message(log_buf)
 
-    chkpf = file_t(trim(restart_file))
+    call chkpf%init(trim(restart_file))
     call chkpf%read(C%chkp)
 
     call case_restart_from_checkpoint(C, C%chkp)
@@ -311,7 +311,7 @@ contains
     else
        format_str = '.chkp'
     end if
-    chkpf = file_t(C%output_directory // 'joblimit' // trim(format_str))
+    call chkpf%init(C%output_directory // 'joblimit'//trim(format_str))
     call chkpf%write(C%chkp, t)
     write(log_buf, '(A)') '! saving checkpoint >>>'
     call neko_log%message(log_buf)

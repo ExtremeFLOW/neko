@@ -37,14 +37,14 @@ program adios2_to_nek5000
      file_precision = sp
   end if
 
-  field_file = file_t(trim(field_fname), precision = file_precision)
+  call field_file%init(trim(field_fname), precision = file_precision)
 
   call field_data%init()
   if (pe_rank .eq. 0) write(*,*) 'Reading file:', 1
   call field_file%read(field_data)
 
   ! output at t=0
-  output_file = file_t(trim(output_fname), precision = file_precision, &
+  call output_file%init(trim(output_fname), precision = file_precision, &
        layout = layout)
   call output_file%write(field_data, field_data%time)
 

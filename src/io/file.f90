@@ -55,6 +55,8 @@ module file
   type file_t
      class(generic_file_t), allocatable :: file_type
    contains
+     !> Constructor
+     procedure, pass (this) :: init => file_init
      !> Writes data to a file.
      procedure :: write => file_write
      !> Read @a data from a file.
@@ -75,20 +77,16 @@ module file
      final :: file_free
   end type file_t
 
-  interface file_t
-     module procedure file_init
-  end interface file_t
-
 contains
 
-  !> File reader/writer constructor.
+  !> Constructor.
   !! @param fname Filename.
-  function file_init(fname, header, precision, layout) result(this)
-    character(len=*) :: fname
-    character(len=*), optional :: header
-    integer, optional :: precision
-    integer, optional :: layout
-    type(file_t), target :: this
+  subroutine file_init(this, fname, header, precision, layout)
+    class(file_t), intent(inout) :: this
+    character(len=*), intent(in) :: fname
+    character(len=*), intent(in), optional :: header
+    integer, intent(in), optional :: precision
+    integer, intent(in), optional :: layout
     character(len=80) :: suffix
     class(generic_file_t), pointer :: q
 
@@ -140,7 +138,7 @@ contains
        call this%set_layout(layout)
     end if
 
-  end function file_init
+  end subroutine file_init
 
   !> File operation destructor.
   subroutine file_free(this)
