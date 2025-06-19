@@ -124,7 +124,7 @@ contains
 
   !> Constructor from json.
   subroutine probes_init_from_json(this, json, case)
-    class(probes_t), intent(inout) :: this
+    class(probes_t), intent(inout), target :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: output_file

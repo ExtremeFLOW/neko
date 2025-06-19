@@ -113,7 +113,7 @@ contains
 
   !> Constructor.
   subroutine spectral_error_init(this, json, case)
-    class(spectral_error_t), intent(inout) :: this
+    class(spectral_error_t), intent(inout), target :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
 
