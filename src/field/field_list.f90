@@ -89,10 +89,10 @@ contains
     nullify(f)
 
     do i=1, this%size()
-      if (this%name(i) .eq. trim(name)) then
-         f => this%items(i)%ptr
-         return
-      end if
+       if (this%name(i) .eq. trim(name)) then
+          f => this%items(i)%ptr
+          return
+       end if
     end do
 
     call neko_error("No field with name " // trim(name) // " found in list")
