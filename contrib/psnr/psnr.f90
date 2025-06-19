@@ -135,12 +135,12 @@ program psnr
   end if
 
   if (pe_rank .eq. 0) write(*,*) 'Reading file:', trim(original_fname)
-  original_file = file_t(trim(original_fname), precision = file_precision)
+  call original_file%init(trim(original_fname), precision = file_precision)
   call original_data%init()
   call original_file%read(original_data)
 
   if (pe_rank .eq. 0) write(*,*) 'Reading file:', trim(compressed_fname)
-  compressed_file = file_t(trim(compressed_fname), precision = file_precision)
+  call compressed_file%init(trim(compressed_fname), precision = file_precision)
   call compressed_data%init()
   call compressed_file%read(compressed_data)
 

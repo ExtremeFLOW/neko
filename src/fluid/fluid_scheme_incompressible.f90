@@ -189,7 +189,7 @@ contains
     call this%c_Xh%init(this%gs_Xh)
 
     ! Local scratch registry
-    this%scratch = scratch_registry_t(this%dm_Xh, 10, 2)
+    call this%scratch%init(this%dm_Xh, 10, 2)
 
     ! Assign a name
     call json_get_or_default(params, 'case.fluid.name', this%name, "fluid")
@@ -597,7 +597,7 @@ contains
   !! @param params The case paramter file.
   !! @param user The user interface.
   subroutine fluid_scheme_set_material_properties(this, params, user)
-    class(fluid_scheme_incompressible_t), intent(inout) :: this
+    class(fluid_scheme_incompressible_t), target, intent(inout) :: this
     type(json_file), intent(inout) :: params
     type(user_t), target, intent(in) :: user
     character(len=LOG_SIZE) :: log_buf

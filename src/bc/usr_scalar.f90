@@ -112,7 +112,7 @@ contains
   !! @param[inout] json The JSON object configuring the boundary condition.
   subroutine usr_scalar_init(this, coef, json)
     class(usr_scalar_t), intent(inout), target :: this
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: field_name_temp
 

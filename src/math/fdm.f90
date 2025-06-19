@@ -90,10 +90,10 @@ module fdm
      real(kind=rp), allocatable :: len_rr(:), len_rs(:), len_rt(:)
      real(kind=rp), allocatable :: swplen(:,:,:,:)
      type(c_ptr) :: swplen_d = C_NULL_PTR
-     type(space_t), pointer :: Xh
-     type(dofmap_t), pointer :: dof
-     type(gs_t), pointer :: gs_h
-     type(mesh_t), pointer :: msh
+     type(space_t), pointer :: Xh => null()
+     type(dofmap_t), pointer :: dof => null()
+     type(gs_t), pointer :: gs_h => null()
+     type(mesh_t), pointer :: msh => null()
    contains
      procedure, pass(this) :: init => fdm_init
      procedure, pass(this) :: free => fdm_free

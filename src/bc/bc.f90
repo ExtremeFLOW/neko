@@ -136,7 +136,7 @@ module bc
      subroutine bc_constructor(this, coef, json)
        import :: bc_t, coef_t, json_file
        class(bc_t), intent(inout), target :: this
-       type(coef_t), intent(in) :: coef
+       type(coef_t), target, intent(in) :: coef
        type(json_file), intent(inout) :: json
      end subroutine bc_constructor
   end interface
@@ -594,7 +594,7 @@ contains
        k = this%msk(i)
        bdry_field%x(k,1,1,1) = 1.0_rp
     end do
-    dump_file = file_t(file_name)
+    call dump_file%init(file_name)
     call dump_file%write(bdry_field)
 
   end subroutine bc_debug_mask
