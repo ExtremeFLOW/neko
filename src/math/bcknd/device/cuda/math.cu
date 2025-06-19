@@ -715,6 +715,33 @@ extern "C" {
 
     return bufred[0];
   }
+
+  /**
+   * Fortran wrapper glsubnorm
+   * Squared Norm of difference \f$ \| a - b \|_2^2 \f$
+   */
+  real cuda_glsubnorm2(void *a, void *b, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const int nb = ((*n) + 1024 - 1)/ 1024;
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+    cuda_redbuf_check_alloc(nb);
+
+    if ( *n > 0) {
+      glsubnorm2_kernel<real>
+        <<<nblcks, nthrds, 0, stream>>>((real *) a,
+                                        (real *) b,
+                                        (real *) bufred_d, *n);
+      CUDA_CHECK(cudaGetLastError());
+      reduce_kernel<real><<<1, 1024, 0, stream>>> ((real *) bufred_d, nb);
+      CUDA_CHECK(cudaGetLastError());
+    } else { cuda_rzero(bufred_d,&red_s); }
+    cuda_global_reduce_add(bufred, bufred_d, 1, stream);
+
+    return bufred[0];
+  }
    /**
    * Fortran wrapper glsum
    * Sum a vector of length n
