@@ -73,7 +73,7 @@ module fdm
   use comm, only : pe_rank
   use math, only : vlmax
   use device, only : glb_cmd_queue, DEVICE_TO_HOST, HOST_TO_DEVICE, &
-       device_memcpy
+       device_memcpy, device_map
   use fast3d, only : semhat
   use tensor, only : trsp
   use math, only : rzero, row_zero
