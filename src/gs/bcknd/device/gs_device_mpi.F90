@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -34,11 +34,14 @@
 module gs_device_mpi
   use num_types, only : rp, c_rp
   use gs_comm, only : gs_comm_t
-  use gs_ops
   use stack, only : stack_i4_t
   use comm, only : pe_size, pe_rank
   use htable, only : htable_i4_t
-  use device
+  use device, only : device_memcpy, device_alloc, device_event_create, &
+       device_event_destroy, device_stream_create_with_priority, device_sync, &
+       device_stream_wait_event, device_get_ptr, device_event_record, &
+       device_stream_destroy, device_free, device_memset, &
+       STRM_HIGH_PRIO, HOST_TO_DEVICE
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_sizeof, c_int32_t, &
        c_ptr, C_NULL_PTR, c_size_t, c_associated
@@ -218,6 +221,7 @@ contains
 
     sz = c_sizeof(rp_dummy) * total
     call device_alloc(this%buf_d, sz)
+    call device_memset(this%buf_d, 0, sz, sync=.true.)
 
     sz = c_sizeof(i4_dummy) * total
     call device_alloc(this%dof_d, sz)
