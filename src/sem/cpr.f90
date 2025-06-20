@@ -41,7 +41,6 @@ module cpr
   use mesh, only : mesh_t
   use coefs, only : coef_t
   use tensor
-  use mxm_wrapper
   use logger
   use dofmap, only : dofmap_t
   implicit none
