@@ -42,11 +42,12 @@ module chkp_file
   use utils, only : neko_error, filename_suffix_pos
   use space, only : space_t, GLL
   use mesh, only : mesh_t
-  use math
+  use math, only : rzero
   use interpolation, only : interpolator_t
-  use neko_mpi_types
-  use comm
+  use neko_mpi_types, only : MPI_REAL_PREC_SIZE, MPI_INTEGER_SIZE, &
+       MPI_DOUBLE_PRECISION_SIZE, MPI_REAL_PREC_SIZE
   use global_interpolation, only : global_interpolation_t
+  use comm
   implicit none
   private
 
