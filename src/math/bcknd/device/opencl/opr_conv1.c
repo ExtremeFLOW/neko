@@ -109,5 +109,9 @@ void opencl_conv1(void *du, void *u,
     CASE(10);
     CASE(11);
     CASE(12);
+    CASE(13);
+    CASE(14);
+    CASE(15);
+    CASE(16);
   }
 } 
