@@ -142,9 +142,9 @@ contains
     call this%init_base(fields, coef, start_time, end_time)
 
     if (.not. neko_field_registry%field_exists(scalar_name)) then
-       call neko_field_registry%add_field(this%fields%dof(1), "temperature")
+       call neko_field_registry%add_field(this%fields%dof(1), scalar_name)
     end if
-    this%s => neko_field_registry%get_field("temperature")
+    this%s => neko_field_registry%get_field(scalar_name)
 
     this%ref_value = ref_value
     this%g = g
