@@ -39,7 +39,7 @@ module time_interpolator
   use math, only : add3s2, rzero
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding
-  use fast3d, only: fd_weights_full
+  use fast3d, only : fd_weights_full
   implicit none
   private
 

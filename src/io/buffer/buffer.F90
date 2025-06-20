@@ -32,8 +32,8 @@
 !
 !> Generic buffer that is extended with buffers of varying rank
 module buffer
-  use num_types
-  use vector
+  use num_types, only : rp
+  use vector, only : vector_t
 #ifdef HAVE_ADIOS2_FORTRAN
   use adios2
 #endif

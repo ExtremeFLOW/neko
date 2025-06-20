@@ -34,7 +34,7 @@
 module cpr
   use gather_scatter
   use neko_config
-  use num_types
+  use num_types, only : rp
   use field, only : field_t
   use space, only : space_t
   use math

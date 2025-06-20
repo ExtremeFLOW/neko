@@ -33,21 +33,20 @@
 !> Neko checkpoint file format
 !! @details this module defines interface to read/write Neko's ceckpoint files
 module chkp_file
-  use generic_file
-  use field_series
-  use checkpoint
-  use num_types
-  use field
+  use generic_file, only : generic_file_t
+  use field_series, only : field_series_t
+  use checkpoint, only : chkp_t
+  use num_types, only : rp, dp, i8
+  use field, only : field_t
   use dofmap, only: dofmap_t
-  use device_math
-  use utils
-  use space
-  use mesh
+  use utils, only : neko_error, filename_suffix_pos
+  use space, only : space_t, GLL
+  use mesh, only : mesh_t
   use math
-  use interpolation
+  use interpolation, only : interpolator_t
   use neko_mpi_types
   use comm
-  use global_interpolation
+  use global_interpolation, only : global_interpolation_t
   implicit none
   private
 
@@ -375,7 +374,7 @@ contains
     real(kind=rp) :: center_x, center_y, center_z
     integer :: i, e
     type(dofmap_t) :: dof
-   
+
     call this%check_exists()
 
     select type(data)

@@ -35,10 +35,11 @@ module checkpoint
   use neko_config
   use num_types, only : rp, dp
   use field_series, only : field_series_t
-  use space
-  use device
+  use space, only : space_t, operator(.ne.)
+  use device, only : device_memcpy, DEVICE_TO_HOST, HOST_TO_DEVICE, &
+       device_sync, glb_cmd_queue
   use field, only : field_t
-  use utils, only : neko_error
+  use utils, only : neko_error, filename_suffix_pos
   use mesh, only: mesh_t
   implicit none
   private
