@@ -60,19 +60,19 @@ module scalar_source_term
 contains
 
   !> Constructor.
-  subroutine scalar_source_term_init(this, f, coef, user)
+  subroutine scalar_source_term_init(this, f, coef, user, scalar_name)
     class(scalar_source_term_t), intent(inout) :: this
     type(field_t), pointer, intent(in) :: f
     type(coef_t), target, intent(in) :: coef
     type(user_t), target, intent(in) :: user
-
+    character(len=*), intent(in) :: scalar_name
     type(field_list_t) :: rhs_fields
 
     ! We package the fields for the source term to operate on in a field list.
     call rhs_fields%init(1)
     call rhs_fields%assign(1, f)
 
-    call this%init_base(rhs_fields, coef, user)
+    call this%init_base(rhs_fields, coef, user, scalar_name)
   end subroutine scalar_source_term_init
 
   !> Initialize the user source term.
@@ -82,20 +82,21 @@ contains
   !! @param type The type of the user source term, "user_vector" or
   !! "user_poinwise".
   !! @param user The user type containing the user source term routines.
-  subroutine scalar_init_user_source(source_term, rhs_fields, coef, type, user)
+  subroutine scalar_init_user_source(source_term, rhs_fields, coef, type, user, variable_name)
     class(source_term_t), allocatable, intent(inout) :: source_term
     type(field_list_t) :: rhs_fields
     type(coef_t), intent(in) :: coef
     character(len=*) :: type
     type(user_t), intent(in) :: user
+    character(len=*), intent(in) :: variable_name
 
     allocate(scalar_user_source_term_t::source_term)
 
     select type (source_term)
-      type is (scalar_user_source_term_t)
+    type is (scalar_user_source_term_t)
        call source_term%init_from_components(rhs_fields, coef, type, &
             user%scalar_user_f_vector, &
-            user%scalar_user_f)
+            user%scalar_user_f, variable_name)
     end select
   end subroutine scalar_init_user_source
 

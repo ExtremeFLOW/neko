@@ -216,7 +216,7 @@ module fluid_pnpn
        class(bc_t), pointer, intent(inout) :: object
        type(fluid_pnpn_t), intent(in) :: scheme
        type(json_file), intent(inout) :: json
-       type(coef_t), intent(in) :: coef
+       type(coef_t), target, intent(in) :: coef
        type(user_t), intent(in) :: user
      end subroutine pressure_bc_factory
   end interface
@@ -233,7 +233,7 @@ module fluid_pnpn
        class(bc_t), pointer, intent(inout) :: object
        type(fluid_pnpn_t), intent(in) :: scheme
        type(json_file), intent(inout) :: json
-       type(coef_t), intent(in) :: coef
+       type(coef_t), target, intent(in) :: coef
        type(user_t), intent(in) :: user
      end subroutine velocity_bc_factory
   end interface
@@ -812,7 +812,8 @@ contains
               this%ksp_vel%max_iter)
       end if
 
-      call fluid_step_info(tstep, t, dt, ksp_results, this%strict_convergence)
+      call fluid_step_info(tstep, t, dt, ksp_results, &
+           this%full_stress_formulation, this%strict_convergence)
 
     end associate
     call profiler_end_region('Fluid', 1)
@@ -821,7 +822,7 @@ contains
   !> Sets up the boundary condition for the scheme.
   !! @param user The user interface.
   subroutine fluid_pnpn_setup_bcs(this, user, params)
-    class(fluid_pnpn_t), intent(inout) :: this
+    class(fluid_pnpn_t), target, intent(inout) :: this
     type(user_t), target, intent(in) :: user
     type(json_file), intent(inout) :: params
     integer :: i, n_bcs, zone_index, j, zone_size, global_zone_size, ierr
@@ -1172,7 +1173,7 @@ contains
     end do
 
 
-    bdry_file = file_t('bdry.fld')
+    call bdry_file%init('bdry.fld')
     call bdry_file%write(bdry_field)
 
     call this%scratch%relinquish_field(temp_index)

@@ -113,7 +113,7 @@ contains
     call this%c_Xh%init(this%gs_Xh)
 
     ! Local scratch registry
-    this%scratch = scratch_registry_t(this%dm_Xh, 10, 2)
+    call this%scratch%init(this%dm_Xh, 10, 2)
 
     ! Case parameters
     this%params => params

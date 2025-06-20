@@ -127,7 +127,8 @@ module neko
   use field_dirichlet_vector, only : field_dirichlet_vector_t
   use runtime_stats, only : neko_rt_stats
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default, json_extract_item
+  use json_utils, only : json_get, json_get_or_default, json_extract_item, &
+       json_extract_object
   use bc_list, only : bc_list_t
   use les_model, only : les_model_t, les_model_allocate, register_les_model, &
        les_model_factory, les_model_allocator
@@ -229,21 +230,20 @@ contains
   subroutine neko_solve(C)
     type(case_t), target, intent(inout) :: C
     type(time_step_controller_t) :: dt_controller
+    type(json_file) :: dt_params
     real(kind=dp) :: tstep_loop_start_time
-    character(len=LOG_SIZE) :: log_buf
-    real(kind=rp) :: cfl
-    logical :: output_at_end
 
-    call dt_controller%init(C%params)
+    call json_extract_object(C%params, 'case.time', dt_params)
+    call dt_controller%init(dt_params)
 
+    call C%time%reset()
     call simulation_init(C, dt_controller)
 
     call profiler_start
-    cfl = C%fluid%compute_cfl(C%time%dt)
     tstep_loop_start_time = MPI_WTIME()
 
-    do while (C%time%t .lt. C%time%end_time .and. (.not. jobctrl_time_limit()))
-       call simulation_step(C, dt_controller, cfl, tstep_loop_start_time)
+    do while (.not. (C%time%is_done() .or. jobctrl_time_limit()))
+       call simulation_step(C, dt_controller, tstep_loop_start_time)
     end do
     call profiler_stop
 

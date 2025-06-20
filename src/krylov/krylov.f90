@@ -318,9 +318,9 @@ contains
        call neko_log%section(trim(log_buf))
        call neko_log%newline()
        call neko_log%begin()
-       write(log_buf, '(A)') ' Iter.       Residual'
+       write(log_buf, '(A)') ' Iter.          Residual'
        call neko_log%message(log_buf)
-       write(log_buf, '(A)') '---------------------'
+       write(log_buf, '(A)') '-------------------------'
        call neko_log%message(log_buf)
     end if
   end subroutine krylov_monitor_start
@@ -345,7 +345,7 @@ contains
     character(len=LOG_SIZE) :: log_buf
 
     if (this%monitor) then
-       write(log_buf, '(I6,E15.7)') iter, rnorm
+       write(log_buf, '(I6,E18.9)') iter, rnorm
        call neko_log%message(log_buf)
     end if
 

@@ -40,7 +40,7 @@ module cg_cpld
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
-  use math, only : glsc3, glsc2
+  use math, only : glsc3, glsc2, abscmp
   use utils, only : neko_error
   implicit none
   private
@@ -220,8 +220,6 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
-    real(kind=rp), parameter :: one = 1.0
-    real(kind=rp), parameter :: zero = 0.0
     integer :: i, iter, max_iter
     real(kind=rp) :: rnorm, rtr, rtr0, rtz2, rtz1
     real(kind=rp) :: beta, pap, alpha, alphm, norm_fac
@@ -231,14 +229,14 @@ contains
     else
        max_iter = this%max_iter
     end if
-    norm_fac = one / coef%volume
+    norm_fac = 1.0_rp / coef%volume
 
     associate (p1 => this%p1, p2 => this%p2, p3 => this%p3, z1 => this%z1, &
          z2 => this%z2, z3 => this%z3, r1 => this%r1, r2 => this%r2, &
          r3 => this%r3, tmp => this%tmp, w1 => this%w1, w2 => this%w2, &
          w3 => this%w3)
 
-      rtz1 = one
+      rtz1 = 1.0_rp
       do concurrent (i = 1:n)
          x%x(i,1,1,1) = 0.0_rp
          y%x(i,1,1,1) = 0.0_rp
@@ -279,7 +277,7 @@ contains
          rtz1 = glsc2(tmp, coef%mult, n)
 
          beta = rtz1 / rtz2
-         if (iter .eq. 1) beta = zero
+         if (iter .eq. 1) beta = 0.0_rp
          do concurrent (i = 1:n)
             p1(i) = p1(i) * beta + z1(i)
             p2(i) = p2(i) * beta + z2(i)

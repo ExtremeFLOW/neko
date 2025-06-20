@@ -63,7 +63,8 @@ void device_mpi_isend(void *buf_d, int offset, int nbytes, int rank,
 #else
   int tid = 0;
 #endif
-  MPI_Isend(buf_d+offset, nbytes, MPI_BYTE, rank, tid, NEKO_COMM, &reqs[i-1]);
+  void *buf = (char *)buf_d + offset; // Adjust pointer to the correct offset
+  MPI_Isend(buf, nbytes, MPI_BYTE, rank, tid, NEKO_COMM, &reqs[i-1]);
 }
 
 void device_mpi_irecv(void *buf_d, int offset, int nbytes, int rank,
@@ -74,8 +75,8 @@ void device_mpi_irecv(void *buf_d, int offset, int nbytes, int rank,
 #else
   int tid = 0;
 #endif
-
-  MPI_Irecv(buf_d+offset, nbytes, MPI_BYTE, rank, tid, NEKO_COMM, &reqs[i-1]);
+  void *buf = (char *)buf_d + offset; // Adjust pointer to the correct offset
+  MPI_Irecv(buf, nbytes, MPI_BYTE, rank, tid, NEKO_COMM, &reqs[i-1]);
 }
 
 int device_mpi_test(void *vreqs, int i) {
