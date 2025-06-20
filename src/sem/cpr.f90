@@ -48,7 +48,7 @@ module cpr
   private
 
   !> include information needed for compressing fields
-  type, public  :: cpr_t
+  type, public :: cpr_t
      real(kind=rp), allocatable :: v(:,:) !< Transformation matrix
 
      real(kind=rp), allocatable :: vt(:,:) !< Transformation matrix transposed
@@ -59,7 +59,7 @@ module cpr
 
      real(kind=rp), allocatable :: fldhat(:,:,:,:) !< transformed Field data
 
-     type(field_t), pointer :: fld  => null()
+     type(field_t), pointer :: fld => null()
      type(space_t), pointer :: Xh => null()
      type(mesh_t), pointer :: msh => null()
      type(dofmap_t), pointer :: dof => null()

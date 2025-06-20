@@ -90,7 +90,7 @@ contains
   !! @param t_future time in future for interpolation
   !! @param f_future time in future for interpolation
   subroutine time_interpolator_interpolate(this, t, f, t_past, f_past, &
-                                           t_future, f_future)
+       t_future, f_future)
     class(time_interpolator_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: t, t_past, t_future
     type(field_t), intent(inout) :: f, f_past, f_future
@@ -105,7 +105,7 @@ contains
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_add3s2(f%x_d, f_past%x_d, f_future%x_d, &
-        w_past, w_future, n)
+               w_past, w_future, n)
        else
           call add3s2(f%x, f_past%x, f_future%x, w_past, w_future, n)
        end if

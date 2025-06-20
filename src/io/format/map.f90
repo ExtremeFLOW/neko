@@ -9,7 +9,7 @@ module map
      integer :: nel, nlv
      integer, allocatable :: imap(:)
      integer, allocatable :: vertex(:,:)
-  contains
+   contains
      !> Contrutctor
      generic :: init => init_nel_nelv, init_mesh
      procedure, private, pass(this) :: init_common => map_init_common
