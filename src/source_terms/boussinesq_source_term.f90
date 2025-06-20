@@ -102,7 +102,7 @@ contains
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
     call json_get_or_default(json, "end_time", end_time, huge(0.0_rp))
 
-    call json_get_or_default(json, "scalar_field", scalar_name, "s")
+    call json_get_or_default(json, "scalar_field", scalar_name, "temperature")
     call json_get(json, "g", g)
 
     if (.not. size(g) == 3) then
