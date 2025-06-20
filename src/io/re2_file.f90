@@ -43,7 +43,7 @@ module re2_file
   use map, only : map_t
   use mesh, only : NEKO_MSH_MAX_ZLBLS
   use logger, only: neko_log, LOG_SIZE
-  use utils, only : neko_error
+  use utils, only : neko_error, filename_chsuffix
   use re2, only : Re2_ENDIAN_TEST, RE2_HDR_SIZE, re2v1_xyz_t, re2v1_xy_t, &
          re2v1_curve_t, re2v1_bc_t, re2v2_xyz_t, re2v2_xy_t, &
          re2v2_curve_t, re2v2_bc_t
