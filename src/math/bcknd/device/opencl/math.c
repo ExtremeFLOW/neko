@@ -101,7 +101,7 @@ void opencl_masked_gather_copy(void *a, void *b, void *mask, int *n, int *m) {
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &mask));
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
-  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), m));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), m));
 
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
@@ -130,7 +130,7 @@ void opencl_masked_scatter_copy(void *a, void *b, void *mask, int *n, int *m) {
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &mask));
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
-  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), m));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), m));
 
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
