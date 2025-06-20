@@ -117,7 +117,8 @@ module source_term
      !! @param fields The list of fields updated by the source term.
      !! @param coef The SEM coefficients.
      !! @param variable_name The name of the variable for which the source term is
-     module subroutine source_term_factory(object, json, fields, coef, variable_name)
+     module subroutine source_term_factory(object, json, fields, coef, &
+          variable_name)
        class(source_term_t), allocatable, intent(inout) :: object
        type(json_file), intent(inout) :: json
        type(field_list_t), intent(inout) :: fields

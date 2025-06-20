@@ -216,7 +216,8 @@ contains
 
     if (fields%size() .eq. 1) then
        call this%s_fields%init(1)
-       call this%s_fields%assign(1, neko_field_registry%get_field(variable_name))
+       call this%s_fields%assign(1, &
+            neko_field_registry%get_field(variable_name))
     else if (fields%size() .eq. 3) then
        call this%s_fields%init(3)
        call this%s_fields%assign(1, this%u)

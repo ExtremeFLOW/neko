@@ -69,7 +69,8 @@ contains
   !! @param fields A list of fields for adding the source values.
   !! @param coef The SEM coeffs.
   !! @param variable_name The name of the variable for this source term.
-  subroutine const_source_term_init_from_json(this, json, fields, coef, variable_name)
+  subroutine const_source_term_init_from_json(this, json, fields, coef, &
+       variable_name)
     class(const_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_list_t), intent(in), target :: fields

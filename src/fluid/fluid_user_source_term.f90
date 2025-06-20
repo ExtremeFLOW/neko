@@ -131,7 +131,8 @@ contains
   !! @details
   !! This will throw, as the user source term should be initialized directly
   !! from components.
-  subroutine fluid_user_source_term_init(this, json, fields, coef, variable_name)
+  subroutine fluid_user_source_term_init(this, json, fields, coef, &
+       variable_name)
     class(fluid_user_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_list_t), intent(in), target :: fields
