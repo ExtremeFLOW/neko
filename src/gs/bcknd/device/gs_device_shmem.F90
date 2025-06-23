@@ -45,7 +45,7 @@ module gs_device_shmem
   implicit none
   private
 
-   !> Buffers for non-blocking communication and packing/unpacking
+  !> Buffers for non-blocking communication and packing/unpacking
   type, private :: gs_device_shmem_buf_t
      integer, allocatable :: ndofs(:) !< Number of dofs
      integer, allocatable :: offset(:) !< Offset into buf
@@ -376,6 +376,6 @@ contains
             this%event(done_req), 0)
     end do
 #endif
-end subroutine gs_device_shmem_nbwait
+  end subroutine gs_device_shmem_nbwait
 
 end module gs_device_shmem
