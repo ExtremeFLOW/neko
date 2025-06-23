@@ -292,7 +292,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: u
     type(c_ptr), intent(inout) :: deps
     type(c_ptr), intent(inout) :: strm
-    integer ::  i
+    integer :: i
     type(c_ptr) :: u_d
 
     u_d = device_get_ptr(u)
