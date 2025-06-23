@@ -543,6 +543,11 @@ contains
              error stop
           end if
        end do
+
+       ! For a pure periodic case, we still need to initilise the bc lists
+       ! to a zero size to avoid issues with apply() in step()
+       call this%bcs%init()
+
     end if
   end subroutine scalar_pnpn_setup_bcs_
 
