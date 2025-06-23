@@ -609,6 +609,7 @@ void opencl_invcol1(void *a, int *n) {
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
 
   cl_kernel kernel = clCreateKernel(math_program, "invcol1_kernel", &err);
+  CL_CHECK(err);
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(int), n));
