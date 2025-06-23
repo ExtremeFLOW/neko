@@ -79,7 +79,8 @@ module source_term
      !! @param json The JSON object for the source.
      !! @param fields A list of fields for adding the source values.
      !! @param coef The SEM coeffs.
-     !! @param variable_name The name of the variable for which the source term is
+     !! @param variable_name The name of the variable
+     !!        where the source term acts.
      subroutine source_term_init(this, json, fields, coef, variable_name)
        import source_term_t, json_file, field_list_t, coef_t
        class(source_term_t), intent(inout) :: this
@@ -116,7 +117,8 @@ module source_term
      !! @param json JSON object initializing the source term.
      !! @param fields The list of fields updated by the source term.
      !! @param coef The SEM coefficients.
-     !! @param variable_name The name of the variable for which the source term is
+     !! @param variable_name The name of the variable 
+     !!        where the source term acts.
      module subroutine source_term_factory(object, json, fields, coef, &
           variable_name)
        class(source_term_t), allocatable, intent(inout) :: object
