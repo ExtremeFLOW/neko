@@ -117,7 +117,7 @@ module source_term
      !! @param json JSON object initializing the source term.
      !! @param fields The list of fields updated by the source term.
      !! @param coef The SEM coefficients.
-     !! @param variable_name The name of the variable 
+     !! @param variable_name The name of the variable
      !!        where the source term acts.
      module subroutine source_term_factory(object, json, fields, coef, &
           variable_name)
