@@ -953,6 +953,7 @@ contains
 
                 call this%bcs_vel%append(bc_i)
              class default
+
                 ! For the default case we use our dummy zero_dirichlet bcs to
                 ! mark the same faces as in ordinary velocity dirichlet
                 ! conditions.
