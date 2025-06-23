@@ -45,14 +45,14 @@ module gs_device_shmem
   implicit none
   private
 
-   !> Buffers for non-blocking communication and packing/unpacking
+  !> Buffers for non-blocking communication and packing/unpacking
   type, private :: gs_device_shmem_buf_t
-     integer, allocatable :: ndofs(:)           !< Number of dofs
-     integer, allocatable :: offset(:)          !< Offset into buf
-     integer, allocatable :: remote_offset(:)   !< Offset into buf for remote rank
-     integer :: total                           !< Total number of dofs
-     type(c_ptr) :: buf_d = C_NULL_PTR          !< Device buffer
-     type(c_ptr) :: dof_d = C_NULL_PTR          !< Dof mapping for pack/unpack
+     integer, allocatable :: ndofs(:) !< Number of dofs
+     integer, allocatable :: offset(:) !< Offset into buf
+     integer, allocatable :: remote_offset(:) !< Offset into buf for remote rank
+     integer :: total !< Total number of dofs
+     type(c_ptr) :: buf_d = C_NULL_PTR !< Device buffer
+     type(c_ptr) :: dof_d = C_NULL_PTR !< Dof mapping for pack/unpack
    contains
      procedure, pass(this) :: init => gs_device_shmem_buf_init
      procedure, pass(this) :: free => gs_device_shmem_buf_free
@@ -109,7 +109,7 @@ module gs_device_shmem
        integer(c_int), value :: n, offset, srank, roffset, rrank, iter
        integer(c_int), value :: nvshmem_counter
        type(c_ptr), value :: u_d, buf_d, dof_d, stream, rbuf_d, notifyDone, notifyReady
-       integer(c_int),dimension(*) ::  remote_offset
+       integer(c_int),dimension(*) :: remote_offset
      end subroutine cuda_gs_pack_and_push
   end interface
 
@@ -185,28 +185,28 @@ contains
        ! %array() breaks on cray
        select type (arr => dof_stack(pe_order(i))%data)
        type is (integer)
-         do j = 1, this%ndofs(i)
-            k = this%offset(i) + j
-            if (mark_dupes) then
-               if (doftable%get(arr(j), dupe) .eq. 0) then
-                  if (dofs(dupe) .gt. 0) then
-                     dofs(dupe) = -dofs(dupe)
-                     marked = marked + 1
-                  end if
-                  dofs(k) = -arr(j)
-                  marked = marked + 1
-               else
-                  call doftable%set(arr(j), k)
-                  dofs(k) = arr(j)
-               end if
-            else
-               dofs(k) = arr(j)
-            end if
-         end do
+          do j = 1, this%ndofs(i)
+             k = this%offset(i) + j
+             if (mark_dupes) then
+                if (doftable%get(arr(j), dupe) .eq. 0) then
+                   if (dofs(dupe) .gt. 0) then
+                      dofs(dupe) = -dofs(dupe)
+                      marked = marked + 1
+                   end if
+                   dofs(k) = -arr(j)
+                   marked = marked + 1
+                else
+                   call doftable%set(arr(j), k)
+                   dofs(k) = arr(j)
+                end if
+             else
+                dofs(k) = arr(j)
+             end if
+          end do
        end select
     end do
 
-    call device_memcpy(dofs, this%dof_d, total, HOST_TO_DEVICE, sync=.false.)
+    call device_memcpy(dofs, this%dof_d, total, HOST_TO_DEVICE, sync=.true.)
 
     deallocate(dofs)
     call doftable%free()
@@ -292,7 +292,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: u
     type(c_ptr), intent(inout) :: deps
     type(c_ptr), intent(inout) :: strm
-    integer ::  i
+    integer :: i
     type(c_ptr) :: u_d
 
     u_d = device_get_ptr(u)
@@ -329,7 +329,7 @@ contains
     u_d = device_get_ptr(u)
 #ifdef HAVE_NVSHMEM
     do i = 1, size(this%send_pe)
-      if (this%recv_buf%remote_offset(i) .eq. -1) then
+       if (this%recv_buf%remote_offset(i) .eq. -1) then
           call MPI_Sendrecv(this%recv_buf%offset(i), 1, MPI_INTEGER, &
                this%recv_pe(i), 0, &
                this%recv_buf%remote_offset(i), 1, MPI_INTEGER, &
@@ -376,6 +376,6 @@ contains
             this%event(done_req), 0)
     end do
 #endif
-end subroutine gs_device_shmem_nbwait
+  end subroutine gs_device_shmem_nbwait
 
 end module gs_device_shmem
