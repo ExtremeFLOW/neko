@@ -1014,6 +1014,11 @@ contains
           end if
        end do
 
+       ! For a pure periodic case, we still need to initilise the bc lists
+       ! to a zero size to avoid issues with apply() in step()
+       call this%bcs_vel%init()
+       call this%bcs_prs%init()
+
     end if
 
     call this%bc_prs_surface%finalize()
