@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2024, The Neko Authors
+ Copyright (c) 2021-2025, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -72,7 +72,7 @@ void opencl_masked_copy(void *a, void *b, void *mask, int *n, int *m) {
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &mask));
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
-  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), m));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), m));
 
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
