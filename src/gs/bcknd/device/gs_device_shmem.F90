@@ -206,7 +206,7 @@ contains
        end select
     end do
 
-    call device_memcpy(dofs, this%dof_d, total, HOST_TO_DEVICE, sync=.false.)
+    call device_memcpy(dofs, this%dof_d, total, HOST_TO_DEVICE, sync=.true.)
 
     deallocate(dofs)
     call doftable%free()
