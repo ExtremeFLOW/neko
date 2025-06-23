@@ -953,7 +953,6 @@ contains
 
                 call this%bcs_vel%append(bc_i)
              class default
-
                 ! For the default case we use our dummy zero_dirichlet bcs to
                 ! mark the same faces as in ordinary velocity dirichlet
                 ! conditions.
@@ -1013,6 +1012,11 @@ contains
              call neko_error("No boundary_conditions entry in the case file!")
           end if
        end do
+
+       ! For a pure periodic case, we still need to initilise the bc lists
+       ! to a zero size to avoid issues with apply() in step()
+       call this%bcs_vel%init()
+       call this%bcs_prs%init()
 
     end if
 
