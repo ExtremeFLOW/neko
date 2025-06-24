@@ -791,9 +791,13 @@ contains
            this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, &
            this%ksp_vel%max_iter)
       call profiler_end_region("Velocity_solve", 4)
-      ksp_results(2)%name = 'X-Velocity'
-      ksp_results(3)%name = 'Y-Velocity'
-      ksp_results(4)%name = 'Z-Velocity'
+      if (this%full_stress_formulation) then
+         ksp_results(2)%name = 'Momentum'
+      else
+         ksp_results(2)%name = 'X-Velocity'
+         ksp_results(3)%name = 'Y-Velocity'
+         ksp_results(4)%name = 'Z-Velocity'
+      end if
 
       call this%proj_vel%post_solving(du%x, dv%x, dw%x, Ax_vel, c_Xh, &
            this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, n, tstep, &
