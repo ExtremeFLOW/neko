@@ -97,17 +97,17 @@ contains
     integer, intent(in) :: tstep
     type(facet_zone_t) :: zone
     type(coef_t), intent(inout) :: coef
-    real(kind=rp), intent(inout) :: s11(coef%Xh%lx, coef%Xh%lx, coef%Xh%lz, &
+    real(kind=rp), intent(inout) :: s11(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
          coef%msh%nelv)
-    real(kind=rp), intent(inout) :: s22(coef%Xh%lx, coef%Xh%lx, coef%Xh%lz, &
+    real(kind=rp), intent(inout) :: s22(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
          coef%msh%nelv)
-    real(kind=rp), intent(inout) :: s33(coef%Xh%lx, coef%Xh%lx, coef%Xh%lz, &
+    real(kind=rp), intent(inout) :: s33(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
          coef%msh%nelv)
-    real(kind=rp), intent(inout) :: s12(coef%Xh%lx, coef%Xh%lx, coef%Xh%lz, &
+    real(kind=rp), intent(inout) :: s12(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
          coef%msh%nelv)
-    real(kind=rp), intent(inout) :: s13(coef%Xh%lx, coef%Xh%lx, coef%Xh%lz, &
+    real(kind=rp), intent(inout) :: s13(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
          coef%msh%nelv)
-    real(kind=rp), intent(inout) :: s23(coef%Xh%lx, coef%Xh%lx, coef%Xh%lz, &
+    real(kind=rp), intent(inout) :: s23(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
          coef%msh%nelv)
     type(field_t), intent(inout) :: p
     real(kind=rp), intent(in) :: visc, center(3)
