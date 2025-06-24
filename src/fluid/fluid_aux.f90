@@ -19,16 +19,15 @@ contains
     type(ksp_monitor_t), dimension(:), intent(in) :: ksp_results
     type(time_state_t), intent(in) :: time
     logical, intent(in) :: full_stress_formulation
-    logical, intent(in) :: strict_convergence
+    logical, intent(in), optional :: strict_convergence
     character(len=LOG_SIZE) :: log_buf
     integer :: i, n
 
     n = size(ksp_results)
     if (full_stress_formulation) n = 2
 
-    call ksp_results(1)%print_header()
-
     ! Do the printing
+    call ksp_results(1)%print_header()
     do i = 1, n
        call ksp_results(i)%print_result(time%tstep)
     end do
@@ -36,16 +35,21 @@ contains
     ! Check for convergence
     do i = 1, size(ksp_results)
        if (ieee_is_nan(ksp_results(i)%res_final)) then
-          call neko_error("Solver diverged")
+          call neko_error("Fluid solver diverged for " // &
+               trim(ksp_results(i)%name))
        end if
 
-       if (.not. ksp_results(i)%converged) then
-          log_buf = 'Solver did not converge for ' // trim(ksp_results(i)%name)
+       if (present(strict_convergence)) then
 
-          if (strict_convergence) then
-             call neko_error(log_buf)
-          else
-             call neko_warning(log_buf)
+          if (.not. ksp_results(i)%converged) then
+             log_buf = 'Fluid solver did not converge for ' &
+                  // trim(ksp_results(i)%name)
+
+             if (strict_convergence) then
+                call neko_error(log_buf)
+             else
+                call neko_warning(log_buf)
+             end if
           end if
        end if
     end do
