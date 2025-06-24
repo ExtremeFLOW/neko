@@ -54,6 +54,8 @@ module krylov
 
   !> Type for storing initial and final residuals in a Krylov solver.
   type, public :: ksp_monitor_t
+     !> Name of the solver in question
+     character(len=10) :: name
      !> Iteration number.
      integer :: iter
      !> Initial residual.

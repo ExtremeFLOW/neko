@@ -17,7 +17,7 @@ contains
   !! Number of iterations, start residual, end residual
   subroutine fluid_step_info(step, t, dt, ksp_results, &
        full_stress_formulation, strict_convergence)
-    type(ksp_monitor_t), intent(in) :: ksp_results(4)
+    type(ksp_monitor_t), dimension(:), intent(in) :: ksp_results
     integer, intent(in) :: step
     real(kind=rp), intent(in) :: t, dt
     logical, intent(in) :: full_stress_formulation
@@ -27,64 +27,35 @@ contains
     integer :: i
     character(len=40) :: out_format
 
-    out_format = '(A12,A3,A10,1x,I6,3x,E15.9,3x,E15.9)'
-    write(step_str, '(I12)') step
-    step_str = adjustl(step_str)
-
+    ! Print the header
     write(log_buf, '((A5,7x),A3,(A5,5x),1x,A6,3x,A15,3x,A15)') &
          'Step:', ' | ', 'Field:', 'Iters:', &
          'Start residual:', 'Final residual:'
     call neko_log%message(log_buf)
 
-    write(log_buf, out_format) &
-         step_str, ' | ' , 'Pressure  ' , ksp_results(1)%iter, &
-         ksp_results(1)%res_start, ksp_results(1)%res_final
-    call neko_log%message(log_buf)
+    ! Define the output format
+    out_format = '(A12,A3,A10,1x,I6,3x,E15.9,3x,E15.9)'
+    write(step_str, '(I12)') step
+    step_str = adjustl(step_str)
 
-    if (full_stress_formulation) then
+    ! Do the printing
+    do i = 1, size(ksp_results)
        write(log_buf, out_format) &
-            step_str, ' | ' , 'Momentum  ' , ksp_results(2)%iter, &
-            ksp_results(2)%res_start, ksp_results(2)%res_final
+            step_str, ' | ' , adjustl(ksp_results(i)%name), &
+            ksp_results(i)%iter, &
+            ksp_results(i)%res_start, ksp_results(i)%res_final
        call neko_log%message(log_buf)
-    else
-       write(log_buf, out_format) &
-            step_str, ' | ' , 'X-Velocity' , ksp_results(2)%iter, &
-            ksp_results(2)%res_start, ksp_results(2)%res_final
-       call neko_log%message(log_buf)
-
-       write(log_buf, out_format) &
-            step_str, ' | ' , 'Y-Velocity' , ksp_results(3)%iter, &
-            ksp_results(3)%res_start, ksp_results(3)%res_final
-       call neko_log%message(log_buf)
-
-       write(log_buf, out_format) &
-            step_str, ' | ' , 'Z-Velocity' , ksp_results(4)%iter, &
-            ksp_results(4)%res_start, ksp_results(4)%res_final
-       call neko_log%message(log_buf)
-    end if
+    end do
 
     ! Check for convergence
-    do i = 1, 4
+    do i = 1, size(ksp_results)
        if (ieee_is_nan(ksp_results(i)%res_final)) then
           call neko_error("Fluid solver diverged")
        end if
 
        if ((.not. ksp_results(i)%converged) .and. (pe_rank .eq. 0)) then
-          log_buf = 'Fluid solver did not converge for'
-          select case(i)
-          case(1)
-             log_buf = trim(log_buf) // ' pressure'
-          case(2)
-             if (full_stress_formulation) then
-                log_buf = trim(log_buf) // ' momentum'
-             else
-                log_buf = trim(log_buf) // ' x-velocity'
-             end if
-          case(3)
-             log_buf = trim(log_buf) // ' y-velocity'
-          case(4)
-             log_buf = trim(log_buf) // ' z-velocity'
-          end select
+          log_buf = 'Fluid solver did not converge for ' // &
+               trim(ksp_results(i)%name)
 
           if (strict_convergence) then
              call neko_error(log_buf)

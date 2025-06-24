@@ -745,6 +745,7 @@ contains
       ksp_results(1) = &
            this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, &
            this%bclst_dp, gs_Xh)
+      ksp_results(1)%name = 'Pressure'
 
 
       call profiler_end_region('Pressure_solve', 3)
@@ -790,6 +791,9 @@ contains
            this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, &
            this%ksp_vel%max_iter)
       call profiler_end_region("Velocity_solve", 4)
+      ksp_results(2)%name = 'X-Velocity'
+      ksp_results(3)%name = 'Y-Velocity'
+      ksp_results(4)%name = 'Z-Velocity'
 
       call this%proj_vel%post_solving(du%x, dv%x, dw%x, Ax_vel, c_Xh, &
            this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, n, tstep, &
