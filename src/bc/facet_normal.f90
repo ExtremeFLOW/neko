@@ -292,9 +292,9 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(this%unique_mask, this%unique_mask_d, &
-           size(this%unique_mask))
+            size(this%unique_mask))
        call device_memcpy(this%unique_mask, this%unique_mask_d, &
-           size(this%unique_mask), HOST_TO_DEVICE, sync = .true.)
+            size(this%unique_mask), HOST_TO_DEVICE, sync = .true.)
        call device_memcpy(this%nx%x, this%nx%x_d, &
             this%nx%n, HOST_TO_DEVICE, sync = .true.)
        call device_memcpy(this%ny%x, this%ny%x_d, &
