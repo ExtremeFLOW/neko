@@ -122,8 +122,10 @@ contains
     call json_get_or_default(params, 'case.fluid.name', this%name, "fluid")
 
     ! Fill mu and rho field with the physical value
-    call this%mu%init(this%dm_Xh, "mu")
-    call this%rho%init(this%dm_Xh, "rho")
+    call neko_field_registry%add_Field(this%dm_Xh, this%name // "_mu")
+    call neko_field_registry%add_Field(this%dm_Xh, this%name // "_rho")
+    this%mu => neko_field_registry%get_field(this%name // "_mu")
+    this%rho => neko_field_registry%get_field(this%name // "_rho")
     call field_cfill(this%mu, 0.0_rp, this%mu%size())
 
     ! Assign momentum fields
@@ -156,11 +158,6 @@ contains
     this%p => neko_field_registry%get_field('p')
     call this%p%init(this%dm_Xh, "p")
 
-    ! !! Initialize time-lag fields
-    call this%ulag%init(this%u, 1)
-    call this%vlag%init(this%v, 1)
-    call this%wlag%init(this%w, 1)
-
     !
     ! Setup right-hand side fields.
     !
@@ -184,27 +181,34 @@ contains
     call this%c_Xh%free()
     call this%Xh%free()
 
-    call this%mu%free()
-    call this%rho%free()
-    call this%m_x%free()
-    call this%m_y%free()
-    call this%m_z%free()
-    call this%E%free()
+    if (associated(this%m_x)) then
+       call this%m_x%free()
+    end if
+
+    if (associated(this%m_y)) then
+       call this%m_y%free()
+    end if
+
+    if (associated(this%m_z)) then
+       call this%m_z%free()
+    end if
+
+    if (associated(this%E)) then
+       call this%E%free()
+    end if
 
     nullify(this%m_x)
     nullify(this%m_y)
     nullify(this%m_z)
-
     nullify(this%E)
 
     nullify(this%u)
     nullify(this%v)
     nullify(this%w)
     nullify(this%p)
+    nullify(this%rho)
+    nullify(this%mu)
 
-    call this%ulag%free()
-    call this%vlag%free()
-    call this%wlag%free()
   end subroutine fluid_scheme_compressible_free
 
   !> Validate field initialization and compute derived quantities
