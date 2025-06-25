@@ -40,7 +40,7 @@ module scalar_scheme
   use field_list, only: field_list_t
   use space, only : space_t
   use dofmap, only : dofmap_t
-  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER
+  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER, ksp_monitor_t
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
   use neumann, only : neumann_t
@@ -213,15 +213,18 @@ module scalar_scheme
 
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine scalar_scheme_step_intrf(this, time, ext_bdf, dt_controller)
+     subroutine scalar_scheme_step_intrf(this, time, ext_bdf, dt_controller, &
+          ksp_results)
        import scalar_scheme_t
        import time_state_t
        import time_scheme_controller_t
        import time_step_controller_t
+       import ksp_monitor_t
        class(scalar_scheme_t), intent(inout) :: this
        type(time_state_t), intent(in) :: time
        type(time_scheme_controller_t), intent(in) :: ext_bdf
        type(time_step_controller_t), intent(in) :: dt_controller
+       type(ksp_monitor_t), intent(inout) :: ksp_results
      end subroutine scalar_scheme_step_intrf
   end interface
 
