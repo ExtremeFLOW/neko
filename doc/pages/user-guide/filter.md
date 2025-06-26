@@ -10,7 +10,27 @@ The derived type of `filter_t` includes `PDE_filter_t`, `elementwise_filter_t`, 
 
 ## PDE filter
 
-The PDE filter is defined in the derived type `PDE_filter_t`. ...
+The PDE filter is defined in the derived type `PDE_filter_t`.
+The filter is `based on the work of   [B. S. Lazarov, O. Sigmund]( https://doi.org/10.1002/nme.3072)
+that solves a Helmholtz-type differential equation to provide smoothing. The
+equation has the form
+\f[
+    -r^2 \nabla^2 X_\text{out} + X_\text{out} = X_\text{in},
+\f]
+subject to Neumann boundary conditions.
+The filter has the
+following input parameters:
+
+
+| Name | Description  | Admissible values | Default value |
+|------|--------------|-------------------|---------------|
+| `r` | \f$r\f$ is the above equation. | Real | - |
+| `tol`| The desired tolerance used when solving the system. | Real | `0.0000000001` |
+| `max_iter` | Maximum number of iterations when solving the system. | Integer | `200` |
+| `solver` | Numerical solver used to solve the system. | `cg`,`gmres`, `gmres` | `cg` |
+| `preconditioner` | Pre-conditioner used to solve the system. | `ident`, `hsmg`, `jacobi` | `jacobi`  |
+
+
 
 ## Elementwise filter
 
