@@ -100,10 +100,10 @@ module fluid_scheme_base
      character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
 
      !> Density field
-     type(field_t) :: rho
+     type(field_t), pointer :: rho => null()
 
      !> The dynamic viscosity
-     type(field_t) :: mu
+     type(field_t), pointer :: mu => null()
 
      !> A helper that packs material properties to pass to the user routine.
      type(field_list_t) :: material_properties
@@ -251,7 +251,7 @@ module fluid_scheme_base
   abstract interface
      subroutine fluid_scheme_setup_bcs_intrf(this, user, params)
        import fluid_scheme_base_t, user_t, json_file
-       class(fluid_scheme_base_t), intent(inout) :: this
+       class(fluid_scheme_base_t), target, intent(inout) :: this
        type(user_t), target, intent(in) :: user
        type(json_file), intent(inout) :: params
      end subroutine fluid_scheme_setup_bcs_intrf

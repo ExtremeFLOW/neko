@@ -180,6 +180,7 @@ contains
 
     conv = .false.
     iter = 0
+    rnorm = 0.0_rp
 
     if (present(niter)) then
        max_iter = niter
@@ -214,7 +215,7 @@ contains
             ksp_results%res_start = gam(1) * norm_fac
          end if
 
-         if (abscmp(gam(1), 0.0_xp)) return
+         if (abscmp(gam(1), 0.0_xp)) exit
 
          rnorm = 0.0_rp
          temp = 1.0_rp / gam(1)

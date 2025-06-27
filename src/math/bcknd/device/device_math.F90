@@ -67,7 +67,8 @@ module device_math
        device_glsum, device_masked_copy, device_cfill_mask, &
        device_vcross, device_absval, device_masked_atomic_reduction, &
        device_pwmax, device_pwmin, device_masked_gather_copy, &
-       device_masked_scatter_copy, device_invcol3, device_cdiv, device_cdiv2
+       device_masked_scatter_copy, device_invcol3, device_cdiv, device_cdiv2, &
+       device_glsubnorm
 
 contains
 
@@ -740,6 +741,34 @@ contains
     end if
 #endif
   end function device_glsc2
+
+  !> Returns the norm of the difference of two vectors
+  !! \f$ \sqrt{(a-b)^T (a-b)} \f$
+  function device_glsubnorm(a_d, b_d, n) result(res)
+    type(c_ptr), intent(in) :: a_d, b_d
+    integer, intent(in) :: n
+    integer :: ierr
+    real(kind=rp) :: res
+    res = 0.0_rp
+#if HAVE_HIP
+    res = hip_glsubnorm2(a_d, b_d, n)
+#elif HAVE_CUDA
+    res = cuda_glsubnorm2(a_d, b_d, n)
+#elif HAVE_OPENCL
+    res = opencl_glsubnorm2(a_d, b_d, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+
+#ifndef HAVE_DEVICE_MPI
+    if (pe_size .gt. 1) then
+       call MPI_Allreduce(MPI_IN_PLACE, res, 1, &
+            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    end if
+#endif
+
+    res = sqrt(res)
+  end function device_glsubnorm
 
   !> Sum a vector of length n
   function device_glsum(a_d, n) result(res)

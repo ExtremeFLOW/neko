@@ -436,6 +436,7 @@ file documentation.
       - `cubic`, cubic approximation.
       - `quartic`, quartic approximation.
       - `sin`, sine function approximation.
+      - `tanh`, hyperbolic tangent approximation of Savaş (2012). In this case `delta` is the 99\% thickness.
 4. `point_zone`, the values are set to a constant base value, supplied under the
    `base_value` keyword, and then assigned a zone value inside a point zone. The
    point zone is specified by the `name` keyword, and should be defined in the
@@ -717,7 +718,7 @@ For `hsmg`, the following keywords are used:
 | Name                               | Description                                                                                   | Admissible values                 | Default value |
 |------------------------------------|-----------------------------------------------------------------------------------------------|-----------------------------------|---------------|
 | `coarse_grid.solver`               | Type of linear solver for the coarse grid, any of the Krylov solvers or TreeAMG  `tamg`       | A solver `type`                   | `cg`          |
-| `coarse_grid.preconditioner`       | Type of the preconditioner to use (only valid for a Krylov based `solver`)                    | A preconditioner `type`           | `jacobi       |
+| `coarse_grid.preconditioner`       | Type of the preconditioner to use (only valid for a Krylov based `solver`)                    | A preconditioner `type`           | `jacobi`      |
 | `coarse_grid.iterations`           | Number of linear solver iterations (only valid for a Krylov based `solver`)                   | An integer                        | 10            |
 | `coarse_grid.monitor`              | Monitor residuals in the coarse grid (only valid for a Krylov based `solver`)                 | `true` or `false`                 | `false`       |
 | `coarse_grid.levels`               | Number of AMG levels to construct (only valid for `solver` type `tamg`)                       | An integer                        | 3             |
@@ -729,7 +730,7 @@ For `phmg`, the following keywords are used:
 | Name                               | Description                                                                                   | Admissible values                 | Default value |
 |------------------------------------|-----------------------------------------------------------------------------------------------|-----------------------------------|---------------|
 | `smoother_iterations`              | Number of smoother iterations in the p-multigrid parts                                        | An integer                        | 10            |
-| `smoother_cheby_acc`               | Type of Chebyshev acceleration (non-accelerated semi-iterative Chebyshev method if not set)   | 'jacobi' or 'schwarz'             | -             |
+| `smoother_cheby_acc`               | Type of Chebyshev acceleration (non-accelerated semi-iterative Chebyshev method if not set)   | `jacobi` or `schwarz`             | -             |
 | `coarse_grid.levels`               | Number of AMG levels to construct (only valid for `solver` type `tamg`)                       | An integer                        | 3             |
 | `coarse_grid.iterations`           | Number of linear solver iterations for coarse grid solver                                     | An integer                        | 1             |
 | `coarse_grid.cheby_degree`         | Degree of the Chebyshev based AMG smoother                                                    | An integer                        | 5             |
@@ -774,7 +775,7 @@ concisely directly in the table.
 | `initial_condition.tolerance`           | If `"type" = "field"`, and file type is `chkp`, tolerance to use for mesh interpolation.          | Positive real.                                              | 1e-6          |
 | `blasius.delta`                         | Boundary layer thickness in the Blasius profile.                                                  | Positive real                                               | -             |
 | `blasius.freestream_velocity`           | Free-stream velocity in the Blasius profile.                                                      | Vector of 3 reals                                           | -             |
-| `blasius.approximation`                 | Numerical approximation of the Blasius profile.                                                   | `linear`, `quadratic`, `cubic`, `quartic`, `sin`            | -             |
+| `blasius.approximation`                 | Numerical approximation of the Blasius profile.                                                   | `linear`, `quadratic`, `cubic`, `quartic`, `sin`, `tanh`    | -             |
 | `shear_stress.value`                    | The shear stress vector value for `sh` boundaries                                                 | Vector of 3 reals                                           | `[0, 0, 0]`   |
 | `wall_modelling.type`                   | The wall model type for `wm` boundaries. See documentation for additional config parameters.      | `rough_log_law`, `spalding`                                 | -             |
 | `source_terms`                          | Array of JSON objects, defining additional source terms.                                          | See list of source terms above                              | -             |

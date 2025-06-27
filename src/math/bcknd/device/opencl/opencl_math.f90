@@ -344,6 +344,15 @@ module opencl_math
        integer(c_int) :: n
      end function opencl_glsc2
 
+     real(c_rp) function opencl_glsubnorm2(a_d, b_d, n) &
+          bind(c, name = 'opencl_glsubnorm2')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       implicit none
+       type(c_ptr), value :: a_d, b_d
+       integer(c_int) :: n
+     end function opencl_glsubnorm2
+
      real(c_rp) function opencl_glsum(a_d, n) &
           bind(c, name = 'opencl_glsum')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int

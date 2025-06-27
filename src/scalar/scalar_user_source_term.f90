@@ -123,11 +123,13 @@ contains
   !! @details
   !! This will throw, as the user source term should be initialized directly
   !! from components.
-  subroutine scalar_user_source_term_init(this, json, fields, coef)
+  subroutine scalar_user_source_term_init(this, json, fields, coef, &
+       variable_name)
     class(scalar_user_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_list_t), intent(in), target :: fields
     type(coef_t), intent(in), target :: coef
+    character(len=*), intent(in) :: variable_name
 
     call neko_error("The user scalar source term &
     &should be init from components")
@@ -239,7 +241,8 @@ contains
                 kk = k
                 do j = 1, size(this%s, 1)
                    jj = j
-                   call this%compute_pw_(scalar_name, this%s(j,k,l,e), jj, kk, ll, ee, t)
+                   call this%compute_pw_(scalar_name, this%s(j,k,l,e), jj, &
+                        kk, ll, ee, t)
                 end do
              end do
           end do

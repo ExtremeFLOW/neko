@@ -43,7 +43,7 @@ module user_access_singleton
 
   !> Helper type to give users global access to the simulation case.
   type, public :: user_access_t
-     type(case_t), pointer :: case
+     type(case_t), pointer :: case => null()
    contains
      !> Constructor.
      procedure, pass(this) :: init => user_access_init

@@ -107,7 +107,8 @@ module source_term_handler
 contains
 
   !> Constructor.
-  subroutine source_term_handler_init_base(this, rhs_fields, coef, user, variable_name)
+  subroutine source_term_handler_init_base(this, rhs_fields, coef, user, &
+       variable_name)
     class(source_term_handler_t), intent(inout) :: this
     type(field_list_t), intent(in) :: rhs_fields
     type(coef_t), target, intent(in) :: coef
@@ -200,7 +201,8 @@ contains
           allocate(this%source_terms(i0 + n_sources))
           if (allocated(temp)) then
              do i = 1, i0
-                call move_alloc(temp(i)%source_term, this%source_terms(i)%source_term)
+                call move_alloc(temp(i)%source_term, &
+                     this%source_terms(i)%source_term)
              end do
           end if
        else
@@ -218,7 +220,8 @@ contains
                (trim(type) .eq. "user_pointwise")) then
 
              call this%init_user_source(this%source_terms(i+ i0)%source_term, &
-                  this%rhs_fields, this%coef, type, this%user, this%variable_name)
+                  this%rhs_fields, this%coef, type, this%user, &
+                  this%variable_name)
 
              call json_get_or_default(source_subdict, "start_time", &
                   this%source_terms(i + i0)%source_term%start_time, 0.0_rp)
@@ -227,7 +230,8 @@ contains
           else
 
              call source_term_factory(this%source_terms(i + i0)%source_term, &
-                  source_subdict, this%rhs_fields, this%coef)
+                  source_subdict, this%rhs_fields, this%coef, &
+                  this%variable_name)
           end if
        end do
     end if

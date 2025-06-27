@@ -46,7 +46,7 @@ module flow_profile
   end interface
 
   public :: blasius_profile, blasius_linear, blasius_cubic, blasius_quadratic, &
-            blasius_quartic, blasius_sin
+            blasius_quartic, blasius_sin, blasius_tanh
 
 contains
 
@@ -135,5 +135,21 @@ contains
     end if
 
   end function blasius_sin
+
+  !> Hyperbolic tangent approximate Blasius Profile from O. Savas (2012)
+  !! \f$ \frac{u}{U} = (\tanh((5.075 a \frac{y}{\delta})^n))^{1/n} \f$
+  !! where \f$ \delta \f$ is the 99 percent thickness and the
+  !! coefficients are \f$ a = 0.33245 \f$ and \f$ n = 5/3 \f$
+  !! Reference: https://doi.org/10.1016/j.cnsns.2012.02.002
+  function blasius_tanh(y, delta, u)
+    real(kind=rp), intent(in) :: y, delta, u
+    real(kind=rp) :: blasius_tanh
+    real(kind=rp), parameter :: a = 0.33245_rp, &
+                                n = 5.0_rp/3.0_rp, &
+                                eta99 = 5.075
+
+    blasius_tanh = u * tanh((a * eta99 * (y/delta))**n)**(1/n)
+
+  end function blasius_tanh
 
 end module flow_profile
