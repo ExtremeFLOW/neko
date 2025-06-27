@@ -32,12 +32,12 @@
 !
 !> Jacobi preconditioner
 module jacobi
-  use math
-  use precon
+  use math, only : col2, col3, invcol1, addcol3
+  use precon, only : pc_t
   use coefs, only : coef_t
   use num_types, only : rp
-  use dofmap
-  use gather_scatter
+  use dofmap, only : dofmap_t
+  use gather_scatter, only : gs_t, GS_OP_ADD
   implicit none
   private
 
@@ -165,7 +165,7 @@ contains
 
   !> Generic CPU kernel for updating the Jacobi preconditioner
   subroutine jacobi_update_lx(d, dxt, dyt, dzt, G11, G22, G33, &
-                              G12, G13, G23, dfrmd_el, n, lx)
+       G12, G13, G23, dfrmd_el, n, lx)
     integer, intent(in) :: n, lx
     real(kind=rp), intent(inout) :: d(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
@@ -179,7 +179,7 @@ contains
     real(kind=rp), intent(in) :: dzt(lx, lx)
     logical, intent(in) :: dfrmd_el(n)
     integer :: i, j, k, l, e
-      
+
     d = 0d0
 
     do e = 1,n
@@ -213,7 +213,7 @@ contains
              end do
           end do
        end do
-       
+
        if (dfrmd_el(e)) then
           do j = 1,lx,lx-1
              do k = 1,lx,lx-1
@@ -225,7 +225,7 @@ contains
                      + G13(lx,j,k,e) * dxt(lx,lx)*dzt(k,k)
              end do
           end do
-          
+
           do i = 1,lx,lx-1
              do k = 1,lx,lx-1
                 d(i,1,k,e) = d(i,1,k,e) &
@@ -251,7 +251,7 @@ contains
   end subroutine jacobi_update_lx
 
   subroutine jacobi_update_lx14(d, dxt, dyt, dzt, G11, G22, G33, &
-                                G12, G13, G23, dfrmd_el, n)
+       G12, G13, G23, dfrmd_el, n)
     integer, parameter :: lx = 14
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: d(lx, lx, lx, n)
@@ -266,7 +266,7 @@ contains
     real(kind=rp), intent(in) :: dzt(lx, lx)
     logical, intent(in) :: dfrmd_el(n)
     integer :: i, j, k, l, e
-      
+
     d = 0d0
 
     do e = 1,n
@@ -300,7 +300,7 @@ contains
              end do
           end do
        end do
-       
+
        if (dfrmd_el(e)) then
           do j = 1,lx,lx-1
              do k = 1,lx,lx-1
@@ -312,7 +312,7 @@ contains
                      + G13(lx,j,k,e) * dxt(lx,lx)*dzt(k,k)
              end do
           end do
-          
+
           do i = 1,lx,lx-1
              do k = 1,lx,lx-1
                 d(i,1,k,e) = d(i,1,k,e) &
@@ -336,9 +336,9 @@ contains
        end if
     end do
   end subroutine jacobi_update_lx14
-  
+
   subroutine jacobi_update_lx13(d, dxt, dyt, dzt, G11, G22, G33, &
-                              G12, G13, G23, dfrmd_el, n)
+       G12, G13, G23, dfrmd_el, n)
     integer, parameter :: lx = 13
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: d(lx, lx, lx, n)
@@ -353,7 +353,7 @@ contains
     real(kind=rp), intent(in) :: dzt(lx, lx)
     logical, intent(in) :: dfrmd_el(n)
     integer :: i, j, k, l, e
-    
+
     d = 0d0
 
     do e = 1,n
@@ -387,7 +387,7 @@ contains
              end do
           end do
        end do
-       
+
        if (dfrmd_el(e)) then
           do j = 1,lx,lx-1
              do k = 1,lx,lx-1
@@ -399,7 +399,7 @@ contains
                      + G13(lx,j,k,e) * dxt(lx,lx)*dzt(k,k)
              end do
           end do
-          
+
           do i = 1,lx,lx-1
              do k = 1,lx,lx-1
                 d(i,1,k,e) = d(i,1,k,e) &
@@ -423,9 +423,9 @@ contains
        end if
     end do
   end subroutine jacobi_update_lx13
-  
+
   subroutine jacobi_update_lx12(d, dxt, dyt, dzt, G11, G22, G33, &
-                                G12, G13, G23, dfrmd_el, n)
+       G12, G13, G23, dfrmd_el, n)
     integer, parameter :: lx = 12
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: d(lx, lx, lx, n)
@@ -440,7 +440,7 @@ contains
     real(kind=rp), intent(in) :: dzt(lx, lx)
     logical, intent(in) :: dfrmd_el(n)
     integer :: i, j, k, l, e
-      
+
     d = 0d0
 
     do e = 1,n
@@ -474,7 +474,7 @@ contains
              end do
           end do
        end do
-       
+
        if (dfrmd_el(e)) then
           do j = 1,lx,lx-1
              do k = 1,lx,lx-1
@@ -486,7 +486,7 @@ contains
                      + G13(lx,j,k,e) * dxt(lx,lx)*dzt(k,k)
              end do
           end do
-          
+
           do i = 1,lx,lx-1
              do k = 1,lx,lx-1
                 d(i,1,k,e) = d(i,1,k,e) &
@@ -510,9 +510,9 @@ contains
        end if
     end do
   end subroutine jacobi_update_lx12
-  
+
   subroutine jacobi_update_lx11(d, dxt, dyt, dzt, G11, G22, G33, &
-                                G12, G13, G23, dfrmd_el, n)
+       G12, G13, G23, dfrmd_el, n)
     integer, parameter :: lx = 11
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: d(lx, lx, lx, n)
@@ -527,7 +527,7 @@ contains
     real(kind=rp), intent(in) :: dzt(lx, lx)
     logical, intent(in) :: dfrmd_el(n)
     integer :: i, j, k, l, e
-      
+
     d = 0d0
 
     do e = 1,n
@@ -561,7 +561,7 @@ contains
              end do
           end do
        end do
-       
+
        if (dfrmd_el(e)) then
           do j = 1,lx,lx-1
              do k = 1,lx,lx-1
@@ -573,7 +573,7 @@ contains
                      + G13(lx,j,k,e) * dxt(lx,lx)*dzt(k,k)
              end do
           end do
-          
+
           do i = 1,lx,lx-1
              do k = 1,lx,lx-1
                 d(i,1,k,e) = d(i,1,k,e) &
@@ -597,9 +597,9 @@ contains
        end if
     end do
   end subroutine jacobi_update_lx11
-  
+
   subroutine jacobi_update_lx10(d, dxt, dyt, dzt, G11, G22, G33, &
-                                G12, G13, G23, dfrmd_el, n)
+       G12, G13, G23, dfrmd_el, n)
     integer, parameter :: lx = 10
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: d(lx, lx, lx, n)
@@ -614,7 +614,7 @@ contains
     real(kind=rp), intent(in) :: dzt(lx, lx)
     logical, intent(in) :: dfrmd_el(n)
     integer :: i, j, k, l, e
-      
+
     d = 0d0
 
     do e = 1,n
@@ -648,7 +648,7 @@ contains
              end do
           end do
        end do
-       
+
        if (dfrmd_el(e)) then
           do j = 1,lx,lx-1
              do k = 1,lx,lx-1
@@ -660,7 +660,7 @@ contains
                      + G13(lx,j,k,e) * dxt(lx,lx)*dzt(k,k)
              end do
           end do
-          
+
           do i = 1,lx,lx-1
              do k = 1,lx,lx-1
                 d(i,1,k,e) = d(i,1,k,e) &
@@ -684,9 +684,9 @@ contains
        end if
     end do
   end subroutine jacobi_update_lx10
-  
+
   subroutine jacobi_update_lx9(d, dxt, dyt, dzt, G11, G22, G33, &
-                              G12, G13, G23, dfrmd_el, n)
+       G12, G13, G23, dfrmd_el, n)
     integer, parameter :: lx = 9
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: d(lx, lx, lx, n)
@@ -701,7 +701,7 @@ contains
     real(kind=rp), intent(in) :: dzt(lx, lx)
     logical, intent(in) :: dfrmd_el(n)
     integer :: i, j, k, l, e
-      
+
     d = 0d0
 
     do e = 1,n
@@ -735,7 +735,7 @@ contains
              end do
           end do
        end do
-       
+
        if (dfrmd_el(e)) then
           do j = 1,lx,lx-1
              do k = 1,lx,lx-1
@@ -747,7 +747,7 @@ contains
                      + G13(lx,j,k,e) * dxt(lx,lx)*dzt(k,k)
              end do
           end do
-          
+
           do i = 1,lx,lx-1
              do k = 1,lx,lx-1
                 d(i,1,k,e) = d(i,1,k,e) &
@@ -771,9 +771,9 @@ contains
        end if
     end do
   end subroutine jacobi_update_lx9
-  
+
   subroutine jacobi_update_lx8(d, dxt, dyt, dzt, G11, G22, G33, &
-                               G12, G13, G23, dfrmd_el, n)
+       G12, G13, G23, dfrmd_el, n)
     integer, parameter :: lx = 8
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: d(lx, lx, lx, n)
@@ -788,7 +788,7 @@ contains
     real(kind=rp), intent(in) :: dzt(lx, lx)
     logical, intent(in) :: dfrmd_el(n)
     integer :: i, j, k, l, e
-      
+
     d = 0d0
 
     do e = 1,n
@@ -822,7 +822,7 @@ contains
              end do
           end do
        end do
-       
+
        if (dfrmd_el(e)) then
           do j = 1,lx,lx-1
              do k = 1,lx,lx-1
@@ -834,7 +834,7 @@ contains
                      + G13(lx,j,k,e) * dxt(lx,lx)*dzt(k,k)
              end do
           end do
-          
+
           do i = 1,lx,lx-1
              do k = 1,lx,lx-1
                 d(i,1,k,e) = d(i,1,k,e) &
@@ -858,9 +858,9 @@ contains
        end if
     end do
   end subroutine jacobi_update_lx8
-  
+
   subroutine jacobi_update_lx7(d, dxt, dyt, dzt, G11, G22, G33, &
-                              G12, G13, G23, dfrmd_el, n)
+       G12, G13, G23, dfrmd_el, n)
     integer, parameter :: lx = 7
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: d(lx, lx, lx, n)
@@ -875,7 +875,7 @@ contains
     real(kind=rp), intent(in) :: dzt(lx, lx)
     logical, intent(in) :: dfrmd_el(n)
     integer :: i, j, k, l, e
-      
+
     d = 0d0
 
     do e = 1,n
@@ -909,7 +909,7 @@ contains
              end do
           end do
        end do
-       
+
        if (dfrmd_el(e)) then
           do j = 1,lx,lx-1
              do k = 1,lx,lx-1
@@ -921,7 +921,7 @@ contains
                      + G13(lx,j,k,e) * dxt(lx,lx)*dzt(k,k)
              end do
           end do
-          
+
           do i = 1,lx,lx-1
              do k = 1,lx,lx-1
                 d(i,1,k,e) = d(i,1,k,e) &
@@ -945,9 +945,9 @@ contains
        end if
     end do
   end subroutine jacobi_update_lx7
-  
+
   subroutine jacobi_update_lx6(d, dxt, dyt, dzt, G11, G22, G33, &
-                               G12, G13, G23, dfrmd_el, n)
+       G12, G13, G23, dfrmd_el, n)
     integer, parameter :: lx = 6
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: d(lx, lx, lx, n)
@@ -962,7 +962,7 @@ contains
     real(kind=rp), intent(in) :: dzt(lx, lx)
     logical, intent(in) :: dfrmd_el(n)
     integer :: i, j, k, l, e
-      
+
     d = 0d0
 
     do e = 1,n
@@ -996,7 +996,7 @@ contains
              end do
           end do
        end do
-       
+
        if (dfrmd_el(e)) then
           do j = 1,lx,lx-1
              do k = 1,lx,lx-1
@@ -1008,7 +1008,7 @@ contains
                      + G13(lx,j,k,e) * dxt(lx,lx)*dzt(k,k)
              end do
           end do
-          
+
           do i = 1,lx,lx-1
              do k = 1,lx,lx-1
                 d(i,1,k,e) = d(i,1,k,e) &
@@ -1032,9 +1032,9 @@ contains
        end if
     end do
   end subroutine jacobi_update_lx6
-  
+
   subroutine jacobi_update_lx5(d, dxt, dyt, dzt, G11, G22, G33, &
-                               G12, G13, G23, dfrmd_el, n)
+       G12, G13, G23, dfrmd_el, n)
     integer, parameter :: lx = 5
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: d(lx, lx, lx, n)
@@ -1049,7 +1049,7 @@ contains
     real(kind=rp), intent(in) :: dzt(lx, lx)
     logical, intent(in) :: dfrmd_el(n)
     integer :: i, j, k, l, e
-      
+
     d = 0d0
 
     do e = 1,n
@@ -1083,7 +1083,7 @@ contains
              end do
           end do
        end do
-       
+
        if (dfrmd_el(e)) then
           do j = 1,lx,lx-1
              do k = 1,lx,lx-1
@@ -1095,7 +1095,7 @@ contains
                      + G13(lx,j,k,e) * dxt(lx,lx)*dzt(k,k)
              end do
           end do
-          
+
           do i = 1,lx,lx-1
              do k = 1,lx,lx-1
                 d(i,1,k,e) = d(i,1,k,e) &
@@ -1119,9 +1119,9 @@ contains
        end if
     end do
   end subroutine jacobi_update_lx5
-  
+
   subroutine jacobi_update_lx4(d, dxt, dyt, dzt, G11, G22, G33, &
-                               G12, G13, G23, dfrmd_el, n)
+       G12, G13, G23, dfrmd_el, n)
     integer, parameter :: lx = 4
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: d(lx, lx, lx, n)
@@ -1136,7 +1136,7 @@ contains
     real(kind=rp), intent(in) :: dzt(lx, lx)
     logical, intent(in) :: dfrmd_el(n)
     integer :: i, j, k, l, e
-      
+
     d = 0d0
 
     do e = 1,n
@@ -1170,7 +1170,7 @@ contains
              end do
           end do
        end do
-       
+
        if (dfrmd_el(e)) then
           do j = 1,lx,lx-1
              do k = 1,lx,lx-1
@@ -1182,7 +1182,7 @@ contains
                      + G13(lx,j,k,e) * dxt(lx,lx)*dzt(k,k)
              end do
           end do
-          
+
           do i = 1,lx,lx-1
              do k = 1,lx,lx-1
                 d(i,1,k,e) = d(i,1,k,e) &
@@ -1206,9 +1206,9 @@ contains
        end if
     end do
   end subroutine jacobi_update_lx4
-  
+
   subroutine jacobi_update_lx3(d, dxt, dyt, dzt, G11, G22, G33, &
-                               G12, G13, G23, dfrmd_el, n)
+       G12, G13, G23, dfrmd_el, n)
     integer, parameter :: lx = 3
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: d(lx, lx, lx, n)
@@ -1223,7 +1223,7 @@ contains
     real(kind=rp), intent(in) :: dzt(lx, lx)
     logical, intent(in) :: dfrmd_el(n)
     integer :: i, j, k, l, e
-      
+
     d = 0d0
 
     do e = 1,n
@@ -1257,7 +1257,7 @@ contains
              end do
           end do
        end do
-       
+
        if (dfrmd_el(e)) then
           do j = 1,lx,lx-1
              do k = 1,lx,lx-1
@@ -1269,7 +1269,7 @@ contains
                      + G13(lx,j,k,e) * dxt(lx,lx)*dzt(k,k)
              end do
           end do
-          
+
           do i = 1,lx,lx-1
              do k = 1,lx,lx-1
                 d(i,1,k,e) = d(i,1,k,e) &
@@ -1293,9 +1293,9 @@ contains
        end if
     end do
   end subroutine jacobi_update_lx3
-  
+
   subroutine jacobi_update_lx2(d, dxt, dyt, dzt, G11, G22, G33, &
-                               G12, G13, G23, dfrmd_el, n)
+       G12, G13, G23, dfrmd_el, n)
     integer, parameter :: lx = 2
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: d(lx, lx, lx, n)
@@ -1310,7 +1310,7 @@ contains
     real(kind=rp), intent(in) :: dzt(lx, lx)
     logical, intent(in) :: dfrmd_el(n)
     integer :: i, j, k, l, e
-      
+
     d = 0d0
 
     do e = 1,n
@@ -1344,7 +1344,7 @@ contains
              end do
           end do
        end do
-       
+
        if (dfrmd_el(e)) then
           do j = 1,lx,lx-1
              do k = 1,lx,lx-1
@@ -1356,7 +1356,7 @@ contains
                      + G13(lx,j,k,e) * dxt(lx,lx)*dzt(k,k)
              end do
           end do
-          
+
           do i = 1,lx,lx-1
              do k = 1,lx,lx-1
                 d(i,1,k,e) = d(i,1,k,e) &

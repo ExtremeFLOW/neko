@@ -34,19 +34,22 @@
 !! @details This module is used to read/write binary NEKTION mesh data
 module re2_file
   use generic_file, only: generic_file_t
-  use num_types, only: rp
-  use utils
+  use num_types, only: rp, i8, sp, dp
+  use map_file, only : map_file_t
   use mesh, only: mesh_t
   use point, only: point_t
+  use neko_mpi_types
+  use datadist, only : linear_dist_t
+  use map, only : map_t
+  use mesh, only : NEKO_MSH_MAX_ZLBLS
+  use logger, only: neko_log, LOG_SIZE
+  use utils, only : neko_error, filename_chsuffix
+  use re2, only : Re2_ENDIAN_TEST, RE2_HDR_SIZE, re2v1_xyz_t, re2v1_xy_t, &
+       re2v1_curve_t, re2v1_bc_t, re2v2_xyz_t, re2v2_xy_t, &
+       re2v2_curve_t, re2v2_bc_t
+  use htable, only : htable_pt_t
   use comm
   use mpi_f08
-  use neko_mpi_types
-  use datadist
-  use re2
-  use map
-  use map_file
-  use htable
-  use logger, only: neko_log, LOG_SIZE
   implicit none
   private
 
@@ -142,7 +145,7 @@ contains
 
     inquire(file=map_fname, exist=read_map)
     if (read_map) then
-       call map_init(nm, nelv, 2**ndim)
+       call nm%init(nelv, 2**ndim)
        call map_file%init(map_fname)
        call map_file%read(nm)
     else

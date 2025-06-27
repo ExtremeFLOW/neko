@@ -33,21 +33,21 @@
 !> Neko checkpoint file format
 !! @details this module defines interface to read/write Neko's ceckpoint files
 module chkp_file
-  use generic_file
-  use field_series
-  use checkpoint
-  use num_types
-  use field
+  use generic_file, only : generic_file_t
+  use field_series, only : field_series_t
+  use checkpoint, only : chkp_t
+  use num_types, only : rp, dp, i8
+  use field, only : field_t
   use dofmap, only: dofmap_t
-  use device_math
-  use utils
-  use space
-  use mesh
-  use math
-  use interpolation
-  use neko_mpi_types
+  use utils, only : neko_error, filename_suffix_pos
+  use space, only : space_t, GLL
+  use mesh, only : mesh_t
+  use math, only : rzero
+  use interpolation, only : interpolator_t
+  use neko_mpi_types, only : MPI_REAL_PREC_SIZE, MPI_INTEGER_SIZE, &
+       MPI_DOUBLE_PRECISION_SIZE, MPI_REAL_PREC_SIZE
+  use global_interpolation, only : global_interpolation_t
   use comm
-  use global_interpolation
   implicit none
   private
 
@@ -375,7 +375,7 @@ contains
     real(kind=rp) :: center_x, center_y, center_z
     integer :: i, e
     type(dofmap_t) :: dof
-   
+
     call this%check_exists()
 
     select type(data)
@@ -468,7 +468,7 @@ contains
     if ( ( glb_nelv .ne. msh%glb_nelv ) .or. &
          ( gdim .ne. msh%gdim) .or. &
          ( (have_lag .eq. 0) .and. (read_lag) ) .or. &
-        ( (have_scalar .eq. 0) .and. (read_scalar) ) ) then
+         ( (have_scalar .eq. 0) .and. (read_scalar) ) ) then
        call neko_error('Checkpoint does not match case')
     end if
     nel = msh%nelv
@@ -650,7 +650,7 @@ contains
 
     call rzero(read_array,n)
     call MPI_File_read_at_all(fh, byte_offset, read_array, &
-               n, MPI_REAL_PRECISION, status, ierr)
+         n, MPI_REAL_PRECISION, status, ierr)
     if (this%mesh2mesh) then
        x = 0.0_rp
        call this%global_interp%evaluate(x,read_array)
