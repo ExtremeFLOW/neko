@@ -32,17 +32,16 @@
 !
 !> Compression
 module cpr
-  use gather_scatter
-  use neko_config
   use num_types, only : rp
   use field, only : field_t
   use space, only : space_t
-  use math
+  use math, only : copy, sub3, flipv, swap, reord, sort
+  use tensor, only : trsp1
   use mesh, only : mesh_t
   use coefs, only : coef_t
-  use tensor
-  use logger
+  use logger, only : neko_log, LOG_SIZE
   use dofmap, only : dofmap_t
+  use mxm_wrapper, only : mxm
   implicit none
   private
 
