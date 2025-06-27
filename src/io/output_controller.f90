@@ -35,6 +35,7 @@ module output_controller
   use output, only: output_t, output_ptr_t
   use fld_file, only: fld_file_t
   use comm
+  use time_state, only : time_state_t
   use logger, only : neko_log, LOG_SIZE
   use utils, only : neko_error
   use profiler, only : profiler_start_region, profiler_end_region
@@ -45,7 +46,7 @@ module output_controller
 
 
   !> Centralized controller for a list of outputs.
-  !! @details Holds a list of `output_t` and corresponding 
+  !! @details Holds a list of `output_t` and corresponding
   !! `time_based_controller_t`s. Uses the latter to determine, which outputs
   !! need to be sampled and written to disk at a given time step.
   type, public :: output_controller_t
@@ -75,7 +76,7 @@ module output_controller
 contains
 
   !> Constructor.
-  !! @param time_end The end time of thesimulation.
+  !! @param time_end The end time of the simulation.
   !! @param size The number of controllers to allocate for. Optional, defaults
   !! to 1.
   subroutine output_controller_init(this, time_end, size)
@@ -124,20 +125,31 @@ contains
 
   !> Add an output @a out to the controller
   !! @param out The output to add.
-  !! @param write_par The output frequency value, in accordance with 
+  !! @param write_par The output frequency value, in accordance with
   !! `write_control`.
   !! @param write_control Determines the meaning of `write_par`. Accepts the
   !! usual list of control options.
-  subroutine output_controller_add(this, out, write_par, write_control)
+  !! @param start_time When to start writing the output
+  subroutine output_controller_add(this, out, write_par, write_control, &
+       start_time)
     class(output_controller_t), intent(inout) :: this
     class(output_t), intent(inout), target :: out
     real(kind=rp), intent(in) :: write_par
     character(len=*), intent(in) :: write_control
+    real(kind=rp), optional, intent(in) :: start_time
+    real(kind=rp) :: start_time_
     type(output_ptr_t), allocatable :: tmp(:)
     type(time_based_controller_t), allocatable :: tmp_ctrl(:)
     character(len=LOG_SIZE) :: log_buf
-    integer :: n
+    integer :: n, nexecutions
     class(*), pointer :: ft
+
+    if (present(start_time)) then
+       start_time_ = start_time
+    else
+       start_time_ = 0.0_rp
+    end if
+
 
     if (this%n .ge. this%size) then
        allocate(tmp(this%size * 2))
@@ -151,6 +163,7 @@ contains
        this%size = this%size * 2
     end if
 
+
     this%n = this%n + 1
     n = this%n
     this%output_list(this%n)%ptr => out
@@ -158,13 +171,14 @@ contains
     if (trim(write_control) .eq. "org") then
        this%controllers(n) = this%controllers(1)
     else
-       call this%controllers(n)%init(this%time_end, write_control, write_par)
+       call this%controllers(n)%init(start_time_, this%time_end, &
+            write_control, write_par)
     end if
 
     ! The code below only prints to console
     call neko_log%section('Adding write output')
     call neko_log%message('File name        : '// &
-          trim(this%output_list(this%n)%ptr%file_%file_type%fname))
+         trim(this%output_list(this%n)%ptr%file_%file_type%fname))
     call neko_log%message('Write control    : '//trim(write_control))
 
     ! Show the output precision if we are outputting an fld file
@@ -177,28 +191,28 @@ contains
        end if
     end select
 
-   if (trim(write_control) .eq. 'simulationtime') then
+    if (trim(write_control) .eq. 'simulationtime') then
        write(log_buf, '(A,ES13.6)') 'Writes per time unit (Freq.): ', &
-             this%controllers(n)%frequency
+            this%controllers(n)%frequency
        call neko_log%message(log_buf)
        write(log_buf, '(A,ES13.6)') 'Time between writes: ', &
-          this%controllers(n)%time_interval
+            this%controllers(n)%time_interval
        call neko_log%message(log_buf)
     else if (trim(write_control) .eq. 'nsamples') then
-       write(log_buf, '(A,I13)') 'Total samples: ',  int(write_par)
+       write(log_buf, '(A,I13)') 'Total samples: ', int(write_par)
        call neko_log%message(log_buf)
-       write(log_buf, '(A,ES13.6)') 'Writes per time unit (Freq.): ',  &
-             this%controllers(n)%frequency
+       write(log_buf, '(A,ES13.6)') 'Writes per time unit (Freq.): ', &
+            this%controllers(n)%frequency
        call neko_log%message(log_buf)
        write(log_buf, '(A,ES13.6)') 'Time between writes: ', &
-          this%controllers(n)%time_interval
+            this%controllers(n)%time_interval
        call neko_log%message(log_buf)
     else if (trim(write_control) .eq. 'tsteps') then
-       write(log_buf, '(A,I13)') 'Time step interval: ',  int(write_par)
+       write(log_buf, '(A,I13)') 'Time step interval: ', int(write_par)
        call neko_log%message(log_buf)
     else if (trim(write_control) .eq. 'org') then
        write(log_buf, '(A)') &
-             'Write control not set, defaulting to first output settings'
+            'Write control not set, defaulting to first output settings'
        call neko_log%message(log_buf)
     end if
 
@@ -210,10 +224,9 @@ contains
   !! @param t The time value.
   !! @param tstep The current time-stepper iteration.
   !! @param ifforce Whether to force a write. Optional, defaults to 0.
-  subroutine output_controller_execute(this, t, tstep, ifforce)
+  subroutine output_controller_execute(this, time, ifforce)
     class(output_controller_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     logical, intent(in), optional :: ifforce
     real(kind=dp) :: sample_start_time, sample_end_time
     real(kind=dp) :: sample_time
@@ -240,7 +253,7 @@ contains
     select type (samp => this)
     type is (output_controller_t)
        do i = 1, samp%n
-          if (this%controllers(i)%check(t, tstep, force)) then
+          if (this%controllers(i)%check(time, force)) then
              write_output = .true.
              exit
           end if
@@ -258,7 +271,7 @@ contains
     select type (samp => this)
     type is (output_controller_t)
        do i = 1, this%n
-          if (this%controllers(i)%check(t, tstep, force)) then
+          if (this%controllers(i)%check(time, force)) then
              call neko_log%message('File name     : '// &
                   trim(samp%output_list(i)%ptr%file_%file_type%fname))
 
@@ -266,7 +279,7 @@ contains
                   int(this%controllers(i)%nexecutions)
              call neko_log%message(log_buf)
 
-             call samp%output_list(i)%ptr%sample(t)
+             call samp%output_list(i)%ptr%sample(time%t)
 
              call this%controllers(i)%register_execution()
           end if
@@ -280,7 +293,7 @@ contains
 
     sample_time = sample_end_time - sample_start_time
     if (write_output) then
-       write(log_buf, '(A16,1x,F10.6,A,F9.6)') 'Writing at time:', t, &
+       write(log_buf, '(A16,1x,F12.6,A,F9.6)') 'Writing at time:', time%t, &
             ' Output time (s): ', sample_time
        call neko_log%message(log_buf)
        call neko_log%end_section()
@@ -289,18 +302,17 @@ contains
   end subroutine output_controller_execute
 
   !> Set write counter based on time (after restart)
-  !> @param t Time value.
-  subroutine output_controller_set_counter(this, t)
+  !> @param time Current time info.
+  subroutine output_controller_set_counter(this, time)
     class(output_controller_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    type(time_state_t), intent(in) :: time
     integer :: i, nexecutions
 
 
     do i = 1, this%n
        if (this%controllers(i)%nsteps .eq. 0) then
-          nexecutions = int(t / this%controllers(i)%time_interval) + 1
-          this%controllers(i)%nexecutions = nexecutions
-
+          call this%controllers(i)%set_counter(time)
+          nexecutions =this%controllers(i)%nexecutions
           call this%output_list(i)%ptr%set_counter(nexecutions)
           call this%output_list(i)%ptr%set_start_counter(nexecutions)
        end if

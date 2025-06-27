@@ -40,18 +40,18 @@
 #include <cmath>
 #include <algorithm>
 template< typename T>
-__global__ void sigma_nut_compute(T * __restrict__ g11,
-                                      T * __restrict__ g12,
-                                      T * __restrict__ g13,
-                                      T * __restrict__ g21,
-                                      T * __restrict__ g22,
-                                      T * __restrict__ g23,
-                                      T * __restrict__ g31,
-                                      T * __restrict__ g32,
-                                      T * __restrict__ g33,
-                                      T * __restrict__ delta,
+__global__ void sigma_nut_compute(const T * __restrict__ g11,
+                                      const T * __restrict__ g12,
+                                      const T * __restrict__ g13,
+                                      const T * __restrict__ g21,
+                                      const T * __restrict__ g22,
+                                      const T * __restrict__ g23,
+                                      const T * __restrict__ g31,
+                                      const T * __restrict__ g32,
+                                      const T * __restrict__ g33,
+                                      const T * __restrict__ delta,
                                       T * __restrict__ nut,
-                                      T * __restrict__ mult,
+                                      const T * __restrict__ mult,
                                       const T c,
                                       const T eps,
                                       const int n){
@@ -59,39 +59,39 @@ __global__ void sigma_nut_compute(T * __restrict__ g11,
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
+  T sigG11, sigG12, sigG13, sigG22, sigG23, sigG33;
+  T sigma1, sigma2, sigma3;
+  T Invariant1, Invariant2, Invariant3;
+  T alpha1, alpha2, alpha3;
+  T Dsigma;
+  const T pi_3 = 4.0/3.0*atan(1.0);
+  T tmp1;
+
   for (int i = idx; i < n; i += str) {
-    T sigG11, sigG12, sigG13, sigG22, sigG23, sigG33;
-    T sigma1, sigma2, sigma3;
-    T Invariant1, Invariant2, Invariant3;
-    T alpha1, alpha2, alpha3;
-    T Dsigma;
-    T pi_3;
-    T tmp1;
-    
-    pi_3 = 4.0/3.0*atan(1.0);
 
-    g11[i] = g11[i] * mult[i];
-    g12[i] = g12[i] * mult[i];
-    g13[i] = g13[i] * mult[i];
-    g21[i] = g21[i] * mult[i];
-    g22[i] = g22[i] * mult[i];
-    g23[i] = g23[i] * mult[i];
-    g31[i] = g31[i] * mult[i];
-    g32[i] = g32[i] * mult[i];
-    g33[i] = g33[i] * mult[i];
+    const T g11_r = g11[i];
+    const T g12_r = g12[i];
+    const T g13_r = g13[i];
+    const T g21_r = g21[i];
+    const T g22_r = g22[i];
+    const T g23_r = g23[i];
+    const T g31_r = g31[i];
+    const T g32_r = g32[i];
+    const T g33_r = g33[i];
+    const T delta_r = delta[i];
 
-    sigG11 = g11[i]*g11[i] + g21[i]*g21[i] + g31[i]*g31[i];
-    sigG22 = g12[i]*g12[i] + g22[i]*g22[i] + g32[i]*g32[i];
-    sigG33 = g13[i]*g13[i] + g23[i]*g23[i] + g33[i]*g33[i];
-    sigG12 = g11[i]*g12[i] + \
-             g21[i]*g22[i] + \
-             g31[i]*g32[i];
-    sigG13 = g11[i]*g13[i] + \
-             g21[i]*g23[i] + \
-             g31[i]*g33[i];
-    sigG23 = g12[i]*g13[i] + \
-             g22[i]*g23[i] + \
-             g32[i]*g33[i];
+    sigG11 = g11_r*g11_r + g21_r*g21_r + g31_r*g31_r;
+    sigG22 = g12_r*g12_r + g22_r*g22_r + g32_r*g32_r;
+    sigG33 = g13_r*g13_r + g23_r*g23_r + g33_r*g33_r;
+    sigG12 = g11_r*g12_r + \
+             g21_r*g22_r + \
+             g31_r*g32_r;
+    sigG13 = g11_r*g13_r + \
+             g21_r*g23_r + \
+             g31_r*g33_r;
+    sigG23 = g12_r*g13_r + \
+             g22_r*g23_r + \
+             g32_r*g33_r;
 
     if (abs(sigG11) < eps) {
         sigG11 = 0.0;
@@ -177,7 +177,7 @@ __global__ void sigma_nut_compute(T * __restrict__ g11,
 
     Dsigma = max(Dsigma, 0.0);
 
-    nut[i] = (c*delta[i])*(c*delta[i]) * Dsigma;
+    nut[i] = (c*delta_r)*(c*delta_r) * Dsigma * mult[i];
   }
 }
 #endif // __COMMON_SIGMA_NUT_KERNEL_H__

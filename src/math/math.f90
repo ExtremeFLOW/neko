@@ -112,37 +112,53 @@ module math
        add2s1, add2s2, addsqr2s2, cmult2, invcol2, col2, col3, subcol3, &
        add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
        glsc3, glsc4, sort, masked_copy, cfill_mask, relcmp, glimax, glimin, &
-       swap, reord, flipv, cadd2, masked_red_copy, absval, pwmax, pwmin
+       swap, reord, flipv, cadd2, masked_gather_copy, absval, pwmax, pwmin, &
+       masked_scatter_copy, cdiv, cdiv2, glsubnorm
 
 contains
 
   !> Return single precision absolute comparison \f$ | x - y | < \epsilon \f$
-  pure function sabscmp(x, y)
+  pure function sabscmp(x, y, tol)
     real(kind=sp), intent(in) :: x
     real(kind=sp), intent(in) :: y
+    real(kind=sp), intent(in), optional :: tol
     logical :: sabscmp
 
-    sabscmp = abs(x - y) .lt. NEKO_EPS
+    if (present(tol)) then
+       sabscmp = abs(x - y) .lt. tol
+    else
+       sabscmp = abs(x - y) .lt. NEKO_EPS
+    end if
 
   end function sabscmp
 
   !> Return double precision absolute comparison \f$ | x - y | < \epsilon \f$
-  pure function dabscmp(x, y)
+  pure function dabscmp(x, y, tol)
     real(kind=dp), intent(in) :: x
     real(kind=dp), intent(in) :: y
+    real(kind=dp), intent(in), optional :: tol
     logical :: dabscmp
 
-    dabscmp = abs(x - y) .lt. NEKO_EPS
+    if (present(tol)) then
+       dabscmp = abs(x - y) .lt. tol
+    else
+       dabscmp = abs(x - y) .lt. NEKO_EPS
+    end if
 
   end function dabscmp
 
   !> Return double precision absolute comparison \f$ | x - y | < \epsilon \f$
-  pure function qabscmp(x, y)
+  pure function qabscmp(x, y, tol)
     real(kind=qp), intent(in) :: x
     real(kind=qp), intent(in) :: y
+    real(kind=qp), intent(in), optional :: tol
     logical :: qabscmp
 
-    qabscmp = abs(x - y) .lt. NEKO_EPS
+    if (present(tol)) then
+       qabscmp = abs(x - y) .lt. tol
+    else
+       qabscmp = abs(x - y) .lt. NEKO_EPS
+    end if
 
   end function qabscmp
 
@@ -249,57 +265,81 @@ contains
   !> Copy a masked vector \f$ a(mask) = b(mask) \f$.
   !! @param a Destination array of size `n`.
   !! @param b Source array of size `n`.
-  !! @param mask Mask array of length m+1, where `mask(0) =m`
+  !! @param mask Mask array of length n_mask + 1, where `mask(0) = n_mask`
   !! the length of the mask array.
   !! @param n Size of the arrays `a` and `b`.
-  !! @param m Size of the mask array `mask`.
-  subroutine masked_copy(a, b, mask, n, m)
-    integer, intent(in) :: n, m
+  !! @param n_mask Size of the mask array `mask`.
+  subroutine masked_copy(a, b, mask, n, n_mask)
+    integer, intent(in) :: n, n_mask
     real(kind=rp), dimension(n), intent(in) :: b
     real(kind=rp), dimension(n), intent(inout) :: a
-    integer, dimension(0:m) :: mask
+    integer, dimension(0:n_mask) :: mask
     integer :: i, j
 
-    do i = 1, m
+    do i = 1, n_mask
        j = mask(i)
        a(j) = b(j)
     end do
 
   end subroutine masked_copy
 
-  !> Copy a masked vector to reduced contigous vector
+  !> Gather a masked vector to reduced contigous vector
   !! \f$ a = b(mask) \f$.
-  !! @param a Destination array of size `m`.
+  !! @param a Destination array of size `n_mask`.
   !! @param b Source array of size `n`.
-  !! @param mask Mask array of length m+1, where `mask(0) =m`
+  !! @param mask Mask array of length n_mask + 1, where `mask(0) = n_mask`
   !! the length of the mask array.
   !! @param n Size of the array `b`.
-  !! @param m Size of the mask array `mask` and `a`.
-  subroutine masked_red_copy(a, b, mask, n, m)
-    integer, intent(in) :: n, m
+  !! @param n_mask Size of the mask array `mask` and `a`.
+  !! @note Assumes `n .ge. n_mask`.
+  subroutine masked_gather_copy(a, b, mask, n, n_mask)
+    integer, intent(in) :: n, n_mask
     real(kind=rp), dimension(n), intent(in) :: b
-    real(kind=rp), dimension(m), intent(inout) :: a
-    integer, dimension(0:m) :: mask
+    real(kind=rp), dimension(n_mask), intent(inout) :: a
+    integer, dimension(0:n_mask) :: mask
     integer :: i, j
 
-    do i = 1, m
+    do i = 1, n_mask
        j = mask(i)
        a(i) = b(j)
     end do
 
-  end subroutine masked_red_copy
+  end subroutine masked_gather_copy
 
+
+  !> Scatter a contigous vector to masked positions in a target array
+  !! \f$ a(mask) = b \f$.
+  !! @param a Destination array of size `n`.
+  !! @param b Source array of size `n_mask`.
+  !! @param mask Mask array of length n_mask + 1, where `mask(0) = n_mask + 1`
+  !! the length of the mask array.
+  !! @param n Size of the array `mask`and array `b`.
+  !! @param m Size of the mask array `a`.
+  !! @note Assumes `n .ge. n_mask`.
+  subroutine masked_scatter_copy(a, b, mask, n, n_mask)
+    integer, intent(in) :: n, n_mask
+    real(kind=rp), dimension(n_mask), intent(in) :: b
+    real(kind=rp), dimension(n), intent(inout) :: a
+    integer, dimension(0:n_mask) :: mask
+    integer :: i, j
+
+    do i = 1, n_mask
+       j = mask(i)
+       a(j) = b(i)
+    end do
+
+  end subroutine masked_scatter_copy
 
   !> @brief Fill a constant to a masked vector.
   !! \f$ a_i = c, for i in mask \f$
-  subroutine cfill_mask(a, c, size, mask, mask_size)
-    integer, intent(in) :: size, mask_size
-    real(kind=rp), dimension(size), intent(inout) :: a
+  subroutine cfill_mask(a, c, n, mask, n_mask)
+    integer, intent(in) :: n, n_mask
+    real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), intent(in) :: c
-    integer, dimension(mask_size), intent(in) :: mask
+    integer, dimension(n_mask), intent(in) :: mask
     integer :: i
 
-    do i = 1, mask_size
+    do i = 1, n_mask
        a(mask(i)) = c
     end do
 
@@ -316,6 +356,45 @@ contains
        a(i) = c * a(i)
     end do
   end subroutine cmult
+
+  !> Multiplication by constant c \f$ a = c \cdot b \f$
+  subroutine cmult2(a, b, c, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), intent(in) :: c
+    integer :: i
+
+    do i = 1, n
+       a(i) = c * b(i)
+    end do
+
+  end subroutine cmult2
+
+  !> Division of constant c by elements of a \f$ a = c / a \f$
+  subroutine cdiv(a, c, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), intent(in) :: c
+    integer :: i
+
+    do i = 1, n
+       a(i) = c / a(i)
+    end do
+  end subroutine cdiv
+
+  !> Division of constant c by elements of a \f$ a = c / b \f$
+  subroutine cdiv2(a, b, c, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), intent(in) :: c
+    integer :: i
+
+    do i = 1, n
+       a(i) = c / b(i)
+    end do
+  end subroutine cdiv2
 
   !> Add a scalar to vector \f$ a_i = a_i + s \f$
   subroutine cadd(a, s, n)
@@ -671,7 +750,7 @@ contains
   subroutine add2s2(a, b, c1, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(inout) :: b
+    real(kind=rp), dimension(n), intent(in) :: b
     real(kind=rp), intent(in) :: c1
     integer :: i
 
@@ -694,20 +773,6 @@ contains
     end do
 
   end subroutine addsqr2s2
-
-  !> Multiplication by constant c \f$ a = c \cdot b \f$
-  subroutine cmult2(a, b, c, n)
-    integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(in) :: b
-    real(kind=rp), intent(in) :: c
-    integer :: i
-
-    do i = 1, n
-       a(i) = c * b(i)
-    end do
-
-  end subroutine cmult2
 
   !> Vector division \f$ a = a / b \f$
   subroutine invcol2(a, b, n)
@@ -929,6 +994,27 @@ contains
     glsc4 = tmp
 
   end function glsc4
+
+  !> Returns the norm of the difference of two vectors
+  !! \f$ \sqrt{(a-b)^T (a-b)} \f$
+  function glsubnorm(a, b, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(in) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp) :: glsubnorm
+    real(kind=xp) :: tmp
+    integer :: i, ierr
+
+    tmp = 0.0_xp
+    do i = 1, n
+       tmp = tmp + (a(i) - b(i))**2
+    end do
+
+    call MPI_Allreduce(MPI_IN_PLACE, tmp, 1, &
+         MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    glsubnorm = sqrt(tmp)
+
+  end function glsubnorm
 
   !> Heap Sort for double precision arrays
   !! @details Following p 231 Num. Rec., 1st Ed.

@@ -39,10 +39,12 @@ module usr_inflow
   use device_inhom_dirichlet
   use utils, only : neko_error, nonlinear_index, neko_warning
   use bc, only : bc_t
+  use json_module, only : json_file
+  use, intrinsic :: iso_c_binding, only : c_sizeof, c_ptr, C_NULL_PTR
   implicit none
   private
 
-  !> User defined dirichlet condition for inlet (vector valued)
+  !> User defined dirichlet condition for velocity.
   type, public, extends(bc_t) :: usr_inflow_t
      procedure(usr_inflow_eval), nopass, pointer :: eval => null()
      type(c_ptr), private :: usr_x_d = C_NULL_PTR
@@ -55,8 +57,12 @@ module usr_inflow
      procedure, pass(this) :: set_eval => usr_inflow_set_eval
      procedure, pass(this) :: apply_vector_dev => usr_inflow_apply_vector_dev
      procedure, pass(this) :: apply_scalar_dev => usr_inflow_apply_scalar_dev
+     !> Constructor
+     procedure, pass(this) :: init => usr_inflow_init
      !> Destructor.
      procedure, pass(this) :: free => usr_inflow_free
+     !> Finalize.
+     procedure, pass(this) :: finalize => usr_inflow_finalize
   end type usr_inflow_t
 
   abstract interface
@@ -78,7 +84,7 @@ module usr_inflow
      !! @param t Current time
      !! @param tstep Current time-step
      subroutine usr_inflow_eval(u, v, w, x, y, z, nx, ny, nz, &
-                                ix, iy, iz, ie, t, tstep)
+          ix, iy, iz, ie, t, tstep)
        import rp
        real(kind=rp), intent(inout) :: u
        real(kind=rp), intent(inout) :: v
@@ -102,6 +108,17 @@ module usr_inflow
 
 contains
 
+  !> Constructor
+  !! @param[in] coef The SEM coefficients.
+  !! @param[inout] json The JSON object configuring the boundary condition.
+  subroutine usr_inflow_init(this, coef, json)
+    class(usr_inflow_t), intent(inout), target :: this
+    type(coef_t), target, intent(in) :: coef
+    type(json_file), intent(inout) ::json
+
+    call this%init_base(coef)
+  end subroutine usr_inflow_init
+
   subroutine usr_inflow_free(this)
     class(usr_inflow_t), target, intent(inout) :: this
 
@@ -122,33 +139,39 @@ contains
   end subroutine usr_inflow_free
 
   !> No-op scalar apply
-  subroutine usr_inflow_apply_scalar(this, x, n, t, tstep)
+  subroutine usr_inflow_apply_scalar(this, x, n, t, tstep, strong)
     class(usr_inflow_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=rp), intent(inout),  dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
   end subroutine usr_inflow_apply_scalar
 
   !> No-op scalar apply (device version)
-  subroutine usr_inflow_apply_scalar_dev(this, x_d, t, tstep)
+  subroutine usr_inflow_apply_scalar_dev(this, x_d, t, tstep, strong)
     class(usr_inflow_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
   end subroutine usr_inflow_apply_scalar_dev
 
   !> Apply user defined inflow conditions (vector valued)
-  subroutine usr_inflow_apply_vector(this, x, y, z, n, t, tstep)
+  subroutine usr_inflow_apply_vector(this, x, y, z, n, t, tstep, strong)
     class(usr_inflow_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=rp), intent(inout),  dimension(n) :: x
-    real(kind=rp), intent(inout),  dimension(n) :: y
-    real(kind=rp), intent(inout),  dimension(n) :: z
+    real(kind=rp), intent(inout), dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: y
+    real(kind=rp), intent(inout), dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
     integer :: i, m, k, idx(4), facet, tstep_
     real(kind=rp) :: t_
+    logical :: strong_ = .true.
+
+    if (present(strong)) strong_ = strong
 
     if (present(t)) then
        t_ = t
@@ -167,60 +190,66 @@ contains
          nx => this%coef%nx, ny => this%coef%ny, nz => this%coef%nz, &
          lx => this%coef%Xh%lx)
       m = this%msk(0)
-      do i = 1, m
-         k = this%msk(i)
-         facet = this%facet(i)
-         idx = nonlinear_index(k, lx, lx, lx)
-         select case (facet)
-         case (1,2)
-            call this%eval(x(k), y(k), z(k), &
-                 xc(idx(1), idx(2), idx(3), idx(4)), &
-                 yc(idx(1), idx(2), idx(3), idx(4)), &
-                 zc(idx(1), idx(2), idx(3), idx(4)), &
-                 nx(idx(2), idx(3), facet, idx(4)), &
-                 ny(idx(2), idx(3), facet, idx(4)), &
-                 nz(idx(2), idx(3), facet, idx(4)), &
-                 idx(1), idx(2), idx(3), idx(4), &
-                 t_, tstep_)
-         case (3,4)
-            call this%eval(x(k), y(k), z(k), &
-                 xc(idx(1), idx(2), idx(3), idx(4)), &
-                 yc(idx(1), idx(2), idx(3), idx(4)), &
-                 zc(idx(1), idx(2), idx(3), idx(4)), &
-                 nx(idx(1), idx(3), facet, idx(4)), &
-                 ny(idx(1), idx(3), facet, idx(4)), &
-                 nz(idx(1), idx(3), facet, idx(4)), &
-                 idx(1), idx(2), idx(3), idx(4), &
-                 t_, tstep_)
-         case (5,6)
-            call this%eval(x(k), y(k), z(k), &
-                 xc(idx(1), idx(2), idx(3), idx(4)), &
-                 yc(idx(1), idx(2), idx(3), idx(4)), &
-                 zc(idx(1), idx(2), idx(3), idx(4)), &
-                 nx(idx(1), idx(2), facet, idx(4)), &
-                 ny(idx(1), idx(2), facet, idx(4)), &
-                 nz(idx(1), idx(2), facet, idx(4)), &
-                 idx(1), idx(2), idx(3), idx(4), &
-                 t_, tstep_)
-         end select
-      end do
+      if (strong_) then
+         do i = 1, m
+            k = this%msk(i)
+            facet = this%facet(i)
+            idx = nonlinear_index(k, lx, lx, lx)
+            select case (facet)
+            case (1,2)
+               call this%eval(x(k), y(k), z(k), &
+                    xc(idx(1), idx(2), idx(3), idx(4)), &
+                    yc(idx(1), idx(2), idx(3), idx(4)), &
+                    zc(idx(1), idx(2), idx(3), idx(4)), &
+                    nx(idx(2), idx(3), facet, idx(4)), &
+                    ny(idx(2), idx(3), facet, idx(4)), &
+                    nz(idx(2), idx(3), facet, idx(4)), &
+                    idx(1), idx(2), idx(3), idx(4), &
+                    t_, tstep_)
+            case (3,4)
+               call this%eval(x(k), y(k), z(k), &
+                    xc(idx(1), idx(2), idx(3), idx(4)), &
+                    yc(idx(1), idx(2), idx(3), idx(4)), &
+                    zc(idx(1), idx(2), idx(3), idx(4)), &
+                    nx(idx(1), idx(3), facet, idx(4)), &
+                    ny(idx(1), idx(3), facet, idx(4)), &
+                    nz(idx(1), idx(3), facet, idx(4)), &
+                    idx(1), idx(2), idx(3), idx(4), &
+                    t_, tstep_)
+            case (5,6)
+               call this%eval(x(k), y(k), z(k), &
+                    xc(idx(1), idx(2), idx(3), idx(4)), &
+                    yc(idx(1), idx(2), idx(3), idx(4)), &
+                    zc(idx(1), idx(2), idx(3), idx(4)), &
+                    nx(idx(1), idx(2), facet, idx(4)), &
+                    ny(idx(1), idx(2), facet, idx(4)), &
+                    nz(idx(1), idx(2), facet, idx(4)), &
+                    idx(1), idx(2), idx(3), idx(4), &
+                    t_, tstep_)
+            end select
+         end do
+      end if
     end associate
 
   end subroutine usr_inflow_apply_vector
 
-  subroutine usr_inflow_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
+  subroutine usr_inflow_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, strong)
     class(usr_inflow_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
     integer :: i, m, k, idx(4), facet, tstep_
     integer(c_size_t) :: s
     real(kind=rp) :: t_
     real(kind=rp), allocatable :: x(:)
     real(kind=rp), allocatable :: y(:)
     real(kind=rp), allocatable :: z(:)
+    logical :: strong_ = .true.
+
+    if (present(strong)) strong_ = strong
 
     if (present(t)) then
        t_ = t
@@ -244,10 +273,11 @@ contains
 
 
       ! Pretabulate values during first call to apply
-      if (.not. c_associated(usr_x_d)) then
+      if (.not. c_associated(usr_x_d) .and. strong_ .and. &
+           (this%msk(0) .gt. 0)) then
          allocate(x(m), y(m), z(m)) ! Temp arrays
 
-         s = m*rp
+         s = m * c_sizeof(x(1))
 
          call device_alloc(usr_x_d, s)
          call device_alloc(usr_y_d, s)
@@ -303,8 +333,10 @@ contains
          deallocate(x, y, z)
       end if
 
-      call device_inhom_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
-           usr_x_d, usr_y_d, usr_z_d, m)
+      if (strong_ .and. (this%msk(0) .gt. 0)) then
+         call device_inhom_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
+              usr_x_d, usr_y_d, usr_z_d, m)
+      end if
 
     end associate
 
@@ -340,4 +372,20 @@ contains
 
   end subroutine usr_inflow_validate
 
+  !> Finalize
+  subroutine usr_inflow_finalize(this, only_facets)
+    class(usr_inflow_t), target, intent(inout) :: this
+    logical, optional, intent(in) :: only_facets
+    logical :: only_facets_ = .false.
+
+    if (present(only_facets)) then
+       only_facets_ = only_facets
+    else
+       only_facets_ = .false.
+    end if
+
+    call this%finalize_base(only_facets_)
+
+    call this%validate()
+  end subroutine usr_inflow_finalize
 end module usr_inflow

@@ -107,7 +107,7 @@ __kernel void cfl_kernel_lx##LX(const real dt,                                 \
     if ( i < LX && j < LX && k < LX) {                                         \
       const real cflr = fabs(dt * (( shu[ijk] * drdx[ijk + e * LX * LX * LX]   \
                                      + shv[ijk] * drdy[ijk + e * LX * LX * LX] \
-                                     * shw[ijk] * drdz[ijk + e * LX * LX * LX] \
+                                     + shw[ijk] * drdz[ijk + e * LX * LX * LX] \
                                      ) * shjacinv[ijk]) * shdr_inv[i]);        \
       const real cfls = fabs(dt * (( shu[ijk] * dsdx[ijk + e * LX * LX * LX]   \
                                      + shv[ijk] * dsdy[ijk + e * LX * LX * LX] \
@@ -146,6 +146,13 @@ DEFINE_CFL_KERNEL(6, 256)
 DEFINE_CFL_KERNEL(7, 256)
 DEFINE_CFL_KERNEL(8, 256)
 DEFINE_CFL_KERNEL(9, 256)
+DEFINE_CFL_KERNEL(10, 256)
+DEFINE_CFL_KERNEL(11, 256)
+DEFINE_CFL_KERNEL(12, 256)
+DEFINE_CFL_KERNEL(13, 256)
+DEFINE_CFL_KERNEL(14, 256)
+DEFINE_CFL_KERNEL(15, 256)
+DEFINE_CFL_KERNEL(16, 256)
 
 
 #endif // __MATH_CFL_KERNEL_CL__

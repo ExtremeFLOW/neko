@@ -32,6 +32,7 @@
 !
 !> Defines various GMRES methods
 module gmres_device
+  use neko_config, only : NEKO_BCKND_OPENCL
   use krylov, only : ksp_t, ksp_monitor_t
   use precon, only : pc_t
   use ax_product, only : ax_t
@@ -43,18 +44,21 @@ module gmres_device
   use device_identity, only : device_ident_t
   use math, only : rone, rzero, abscmp
   use device_math, only : device_rzero, device_copy, device_glsc3, &
-                          device_add2s2, device_add2s1, device_rone, &
-                          device_cmult2, device_add2s2_many, device_glsc3_many,&
-                          device_sub2
+       device_add2s2, device_add2s1, device_rone, &
+       device_cmult2, device_add2s2_many, device_glsc3_many,&
+       device_sub2
   use device
-  use comm
-  use, intrinsic :: iso_c_binding
+  use utils, only : neko_error
+  use comm, only : NEKO_COMM, MPI_IN_PLACE, MPI_SUM, MPI_REAL_PRECISION, &
+       MPI_Allreduce, pe_size
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_loc, &
+       c_associated, c_int, c_size_t, c_sizeof
   implicit none
   private
 
   !> Standard preconditioned generalized minimal residual method
   type, public, extends(ksp_t) :: gmres_device_t
-     integer :: m_restart
+     integer :: m_restart = 30
      real(kind=rp), allocatable :: w(:)
      real(kind=rp), allocatable :: c(:)
      real(kind=rp), allocatable :: r(:)
@@ -130,13 +134,11 @@ contains
   end function device_gmres_part2
 
   !> Initialise a standard GMRES solver
-  subroutine gmres_device_init(this, n, max_iter, M, m_restart, &
-       rel_tol, abs_tol, monitor)
+  subroutine gmres_device_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
     class(gmres_device_t), target, intent(inout) :: this
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
     class(pc_t), optional, intent(in), target :: M
-    integer, optional, intent(in) :: m_restart
     real(kind=rp), optional, intent(in) :: rel_tol
     real(kind=rp), optional, intent(in) :: abs_tol
     logical, optional, intent(in) :: monitor
@@ -144,13 +146,6 @@ contains
     type(c_ptr) :: ptr
     integer(c_size_t) :: z_size
     integer :: i
-
-    if (present(m_restart)) then
-       this%m_restart = m_restart
-    else
-       this%m_restart = 30
-    end if
-
 
     call this%free()
 
@@ -195,13 +190,13 @@ contains
     call device_alloc(this%h_d_d, z_size)
     ptr = c_loc(this%z_d)
     call device_memcpy(ptr, this%z_d_d, z_size, &
-                       HOST_TO_DEVICE, sync = .false.)
+         HOST_TO_DEVICE, sync = .false.)
     ptr = c_loc(this%v_d)
     call device_memcpy(ptr, this%v_d_d, z_size, &
-                       HOST_TO_DEVICE, sync = .false.)
+         HOST_TO_DEVICE, sync = .false.)
     ptr = c_loc(this%h_d)
     call device_memcpy(ptr, this%h_d_d, z_size, &
-                       HOST_TO_DEVICE, sync = .false.)
+         HOST_TO_DEVICE, sync = .false.)
 
 
     if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
@@ -336,6 +331,7 @@ contains
 
     conv = .false.
     iter = 0
+    rnorm = 0.0_rp
 
     if (present(niter)) then
        max_iter = niter
@@ -360,9 +356,9 @@ contains
       call device_rone(this%c_d, this%m_restart)
 
       call rzero(this%h, this%m_restart**2)
-!       do j = 1, this%m_restart
-!          call device_rzero(h_d(j), this%m_restart)
-!       end do
+      !       do j = 1, this%m_restart
+      !          call device_rzero(h_d(j), this%m_restart)
+      !       end do
 
       call this%monitor_start('GMRES')
       do while (.not. conv .and. iter .lt. max_iter)
@@ -383,7 +379,7 @@ contains
             ksp_results%res_start = gam(1) * norm_fac
          end if
 
-         if (abscmp(gam(1), 0.0_rp)) return
+         if (abscmp(gam(1), 0.0_rp)) exit
 
          rnorm = 0.0_rp
          temp = 1.0_rp / gam(1)
@@ -410,7 +406,7 @@ contains
                call device_glsc3_many(h(1,j), w_d, v_d_d, coef%mult_d, j, n)
 
                call device_memcpy(h(:,j), h_d(j), j, &
-                                   HOST_TO_DEVICE, sync = .false.)
+                    HOST_TO_DEVICE, sync = .false.)
 
                alpha2 = device_gmres_part2(w_d, v_d_d, h_d(j), &
                     coef%mult_d, j, n)
@@ -436,7 +432,7 @@ contains
             s(j) = alpha * temp
             h(j,j) = lr
             call device_memcpy(h(:,j), h_d(j), j, &
-                                HOST_TO_DEVICE, sync = .false.)
+                 HOST_TO_DEVICE, sync = .false.)
             gam(j+1) = -s(j) * gam(j)
             gam(j) = c(j) * gam(j)
 
@@ -510,5 +506,3 @@ contains
   end function gmres_device_solve_coupled
 
 end module gmres_device
-
-

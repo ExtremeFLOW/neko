@@ -46,10 +46,9 @@ module elementwise_filter
   use matrix, only : matrix_t
   use mxm_wrapper, only : mxm
   use tensor, only : tnsr3d, trsp
-  use device, only : device_map, device_free, c_ptr, &
-                    C_NULL_PTR, device_memcpy, HOST_TO_DEVICE
+  use device, only : device_map, device_free, device_memcpy, HOST_TO_DEVICE
   use device_math, only : device_cfill
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
 
@@ -72,8 +71,8 @@ module elementwise_filter
      !> Constructor.
      procedure, pass(this) :: init => elementwise_filter_init_from_json
      !> Actual constructor.
-     procedure, pass(this) :: init_from_attributes => &
-          elementwise_filter_init_from_attributes
+     procedure, pass(this) :: init_from_components => &
+          elementwise_filter_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => elementwise_filter_free
      !> Set up 1D filter inside an element.
@@ -116,9 +115,9 @@ contains
   subroutine elementwise_filter_init_from_attributes(this, nx)
     class(elementwise_filter_t), intent(inout) :: this
     integer :: nx
-    
+
     this%nx = nx
-    this%nt = nx ! initialize as if nothing is filtered yet 
+    this%nt = nx ! initialize as if nothing is filtered yet
 
     allocate(this%fh(nx, nx))
     allocate(this%fht(nx, nx))
@@ -134,8 +133,8 @@ contains
        call device_cfill(this%fh_d, 0.0_rp, this%nx * this%nx)
        call device_cfill(this%fht_d, 0.0_rp, this%nx * this%nx)
     end if
-    
-  end subroutine elementwise_filter_init_from_attributes
+
+  end subroutine elementwise_filter_init_from_components
 
   !> Destructor.
   subroutine elementwise_filter_free(this)
@@ -177,9 +176,9 @@ contains
                                this%nx, this%elementwise_filter_type)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%fh, this%fh_d, &
-                          this%nx * this%nx, HOST_TO_DEVICE, sync = .false.)
+            this%nx * this%nx, HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%fht, this%fht_d, &
-                          this%nx * this%nx, HOST_TO_DEVICE, sync = .false.)
+            this%nx * this%nx, HOST_TO_DEVICE, sync = .false.)
     end if
 
   end subroutine build_1d
@@ -192,7 +191,7 @@ contains
 
     ! F_out = fh x fh x fh x F_in
     call tnsr3d(F_out%x, this%nx, F_in%x, this%nx, this%fh, this%fht, this%fht, &
-                this%coef%msh%nelv)
+         this%coef%msh%nelv)
 
   end subroutine elementwise_field_filter_3d
 
@@ -218,7 +217,7 @@ contains
 
     call zwgll(zpts, rmult, nx)
 
-    n  = nx-1
+    n = nx-1
     do j = 1, nx
        z = zpts(j)
        call legendre_poly(Lj, z, n)
@@ -245,10 +244,10 @@ contains
        diag(i,i) = trnsfr(i)
     end do
 
-    call mxm  (diag, nx, pht%x, nx, fh, nx)       !          -1
-    call mxm  (phi%x, nx, fh, nx, pht%x, nx)      !     V D V
+    call mxm (diag, nx, pht%x, nx, fh, nx) !          -1
+    call mxm (phi%x, nx, fh, nx, pht%x, nx) !     V D V
 
-    call copy      (fh, pht%x, nx*nx)
+    call copy (fh, pht%x, nx*nx)
     call trsp (fht, nx, fh, nx)
 
   end subroutine build_1d_cpu

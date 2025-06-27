@@ -58,13 +58,14 @@ module neko
   use global_interpolation
   use file
   use field, only : field_t, field_ptr_t
+  use field_math
   use neko_mpi_types
   use gather_scatter
   use krylov
   use coefs, only : coef_t
-  use bc
-  use bc_list
-  use wall, only : no_slip_wall_t
+  use bc, only : bc_t
+  use zero_dirichlet, only : zero_dirichlet_t
+  use bc_list, only : bc_list_t
   use dirichlet, only : dirichlet_t
   use ax_product, only : ax_t, ax_helm_factory
   use parmetis, only : parmetis_partgeom, parmetis_partmeshkway
@@ -72,13 +73,14 @@ module neko
   use case, only : case_t, case_init, case_free
   use output_controller, only : output_controller_t
   use output, only : output_t
-  use simulation, only : neko_solve
+  use simulation, only : simulation_step, simulation_init, simulation_finalize
   use operators, only : dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl,&
        lambda2op, strain_rate, div, grad
   use mathops, only : opchsign, opcolv, opcolv3c, opadd2cm, opadd2col
   use projection
   use user_intf
   use signal
+  use time_state
   use jobctrl, only : jobctrl_init, jobctrl_set_time_limit, &
        jobctrl_time_limit, jobctrl_jobtime
   use device
@@ -102,9 +104,13 @@ module neko
   use matrix, only : matrix_t
   use tensor
   use simulation_component, only : simulation_component_t, &
-       simulation_component_wrapper_t
+       simulation_component_wrapper_t, simulation_component_factory, &
+       simulation_component_allocator, simulation_component_allocate, &
+       register_simulation_component
   use probes, only : probes_t
   use spectral_error
+  use profiler, only : profiler_start, profiler_stop, &
+       profiler_start_region, profiler_end_region
   use system, only : system_cpu_name, system_cpuid
   use drag_torque, only : drag_torque_zone, drag_torque_facet, drag_torque_pt
   use field_registry, only : neko_field_registry
@@ -121,7 +127,23 @@ module neko
   use field_dirichlet_vector, only : field_dirichlet_vector_t
   use runtime_stats, only : neko_rt_stats
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default, json_extract_item
+  use json_utils, only : json_get, json_get_or_default, json_extract_item, &
+       json_extract_object
+  use bc_list, only : bc_list_t
+  use les_model, only : les_model_t, les_model_allocate, register_les_model, &
+       les_model_factory, les_model_allocator
+  use field_writer, only : field_writer_t
+  use derivative_simcomp, only : derivative_t
+  use divergence_simcomp, only : divergence_t
+  use curl_simcomp, only : curl_t
+  use gradient_simcomp, only : gradient_t
+  use weak_gradient_simcomp, only : weak_gradient_t
+  use lambda2, only : lambda2_t
+  use time_based_controller, only : time_based_controller_t
+  use time_step_controller, only : time_step_controller_t
+  use source_term, only : source_term_t, source_term_allocate, &
+       register_source_term, source_term_factory, source_term_allocator
+  use user_access_singleton, only : neko_user_access
   use, intrinsic :: iso_fortran_env
   !$ use omp_lib
   implicit none
@@ -152,6 +174,9 @@ contains
 
     if (present(C)) then
 
+       !
+       ! Command line arguments
+       !
        argc = command_argument_count()
 
        if (argc .lt. 1) then
@@ -167,21 +192,15 @@ contains
           call neko_error('Invalid case file')
        end if
 
-       ! Check the device count against the number of MPI ranks
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          if (device_count() .ne. 1) then
-             call neko_error('Only one device is supported per MPI rank')
-          end if
-       end if
-
        if (argc .gt. 1) then
           write(log_buf, '(a)') 'Running with command line arguments: '
           call neko_log%message(log_buf, NEKO_LOG_QUIET)
-          do i = 2,argc
+          do i = 2, argc
              call get_command_argument(i, args)
              call neko_log%message(args, NEKO_LOG_QUIET)
           end do
        end if
+
        !
        ! Job information
        !
@@ -207,6 +226,31 @@ contains
 
   end subroutine neko_init
 
+  !> Main driver to solve a case @a C
+  subroutine neko_solve(C)
+    type(case_t), target, intent(inout) :: C
+    type(time_step_controller_t) :: dt_controller
+    type(json_file) :: dt_params
+    real(kind=dp) :: tstep_loop_start_time
+
+    call json_extract_object(C%params, 'case.time', dt_params)
+    call dt_controller%init(dt_params)
+
+    call C%time%reset()
+    call simulation_init(C, dt_controller)
+
+    call profiler_start
+    tstep_loop_start_time = MPI_WTIME()
+
+    do while (.not. (C%time%is_done() .or. jobctrl_time_limit()))
+       call simulation_step(C, dt_controller, tstep_loop_start_time)
+    end do
+    call profiler_stop
+
+    call simulation_finalize(C)
+
+  end subroutine neko_solve
+
   !> Finalize Neko
   subroutine neko_finalize(C)
     type(case_t), intent(inout), optional :: C
@@ -221,6 +265,7 @@ contains
     end if
 
     call neko_field_registry%free()
+    call neko_user_access%free()
     call device_finalize
     call neko_mpi_types_free
     call comm_free
@@ -234,7 +279,7 @@ contains
     character(8), optional, intent(in) :: date
     character(len=LOG_SIZE) :: log_buf
     integer :: nthrds, rw, sw
-    
+
     call neko_log%section("Job Information")
 
     if (present(time) .and. present(date)) then

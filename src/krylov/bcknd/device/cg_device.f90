@@ -34,7 +34,7 @@
 module cg_device
   use num_types, only: rp
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
-  use precon,  only : pc_t
+  use precon, only : pc_t
   use ax_product, only : ax_t
   use field, only : field_t
   use coefs, only : coef_t
@@ -43,7 +43,8 @@ module cg_device
   use math, only : abscmp
   use device
   use device_math, only : device_rzero, device_copy, device_glsc3, &
-                          device_add2s2, device_add2s1
+       device_add2s2, device_add2s1
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
 
   !> Device based preconditioned conjugate gradient method
@@ -68,7 +69,7 @@ contains
 
   !> Initialise a device based PCG solver
   subroutine cg_device_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
-    class(cg_device_t), intent(inout) :: this
+    class(cg_device_t), target, intent(inout) :: this
     class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
@@ -197,7 +198,10 @@ contains
     ksp_results%res_start = rnorm
     ksp_results%res_final = rnorm
     ksp_results%iter = 0
-    if(abscmp(rnorm, zero)) return
+    if(abscmp(rnorm, zero)) then
+       ksp_results%converged = .true.
+       return
+    end if
     call this%monitor_start('CG')
     do iter = 1, max_iter
        call this%M%solve(this%z, this%r, n)
@@ -254,12 +258,10 @@ contains
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
 
-    ksp_results(1) =  this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) =  this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
 
   end function cg_device_solve_coupled
 
 end module cg_device
-
-

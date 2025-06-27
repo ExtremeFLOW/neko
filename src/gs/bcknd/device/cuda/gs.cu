@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021, The Neko Authors
+ Copyright (c) 2021-2025, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -45,16 +45,16 @@
 
 extern "C" {
 
-  /** 
+  /**
    * Fortran wrapper for device gather kernels
    */
   void cuda_gather_kernel(void *v, int *m, int *o, void *dg,
                           void *u, int *n, void *gd, int *nb,
                           void *b, void *bo, int *op,
                           cudaStream_t stream) {
-  
+
     if ((*m) == 0) return;
-    
+
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+ 1024 - 1)/ 1024, 1, 1);
 
@@ -99,7 +99,7 @@ extern "C" {
                            cudaStream_t stream) {
 
     if ((*m) == 0) return;
-        
+
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
@@ -119,17 +119,10 @@ extern "C" {
     const int nthrds = 1024;
     const int nblcks = (n + nthrds - 1) / nthrds;
 
-    if (stream == NULL) {
-      gs_pack_kernel<real>
-        <<<nblcks, nthrds>>>((real *) u_d, (real *) buf_d + offset,
-                             (int *) dof_d + offset, n);
-    }
-    else {
-      gs_pack_kernel<real>
-        <<<nblcks, nthrds, 0, stream>>>((real *) u_d, (real *) buf_d + offset,
-                                        (int *) dof_d + offset, n);
-    }
-      
+    gs_pack_kernel<real>
+      <<<nblcks, nthrds, 0, stream>>>((real *) u_d, (real *) buf_d + offset,
+                                      (int *) dof_d + offset, n);
+
     CUDA_CHECK(cudaGetLastError());
   }
 
@@ -144,15 +137,19 @@ extern "C" {
 
     switch (op) {
     case GS_OP_ADD:
-      if (stream == NULL) {
-        gs_unpack_add_kernel<real>
-          <<<nblcks, nthrds>>>(u_d, buf_d + offset, dof_d + offset, n);
-      }
-      else {
-        gs_unpack_add_kernel<real>
+      gs_unpack_add_kernel<real>
+        <<<nblcks, nthrds, 0, stream>>>(u_d, buf_d + offset,
+                                        dof_d + offset, n);
+      break;
+    case GS_OP_MIN:
+      gs_unpack_min_kernel<real>
+        <<<nblcks, nthrds, 0, stream>>>(u_d, buf_d + offset,
+                                        dof_d + offset, n);
+      break;
+    case GS_OP_MAX:
+      gs_unpack_max_kernel<real>
           <<<nblcks, nthrds, 0, stream>>>(u_d, buf_d + offset,
                                           dof_d + offset, n);
-      }
       break;
     default:
       printf("%s: unknown gs op %d\n", __FILE__, op);

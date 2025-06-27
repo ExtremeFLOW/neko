@@ -61,7 +61,7 @@ contains
 
   !> Initialise a standard PCG solver
   subroutine sx_cg_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
-    class(sx_cg_t), intent(inout) :: this
+    class(sx_cg_t), target, intent(inout) :: this
     class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
@@ -163,7 +163,11 @@ contains
     ksp_results%res_start = rnorm
     ksp_results%res_final = rnorm
     ksp_results%iter = 0
-    if(abscmp(rnorm, zero)) return
+    if(abscmp(rnorm, zero)) then
+       ksp_results%converged = .true.
+       return
+    end if
+
     call this%monitor_start('CG')
     do iter = 1, max_iter
        call this%M%solve(this%z, this%r, n)

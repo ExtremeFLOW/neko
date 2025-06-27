@@ -14,16 +14,26 @@ authors:
     given-names: Victor
   - family-names: Chien
     given-names: Steven
+  - family-names: Corbin
+    given-names: Gregor
   - family-names: Dao
     given-names: Tuan Anh
   - family-names: Du
     given-names: Shiyu
+  - family-names: Gray
+    given-names: Alan
+  - family-names: Harper
+    given-names: Graham
+  - family-names: Huusko
+    given-names: Linnea
   - family-names: Jansson
     given-names: Niclas
   - family-names: Karp
     given-names: Martin
   - family-names: Moaveni
     given-names: Kamyar
+  - family-names: Morse
+    given-names: Nick
   - family-names: Mukha
     given-names: Timofey
   - family-names: Münsch
@@ -46,6 +56,8 @@ authors:
     given-names: Jonathan
   - family-names: Wahlgren
     given-names: Jacob
+  - family-names: Weiss
+    given-names: Gregor
 identifiers:
   - type: doi
     value: 10.5281/zenodo.6631055

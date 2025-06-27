@@ -79,12 +79,15 @@ module source_term
      !! @param json The JSON object for the source.
      !! @param fields A list of fields for adding the source values.
      !! @param coef The SEM coeffs.
-     subroutine source_term_init(this, json, fields, coef)
+     !! @param variable_name The name of the variable
+     !!        where the source term acts.
+     subroutine source_term_init(this, json, fields, coef, variable_name)
        import source_term_t, json_file, field_list_t, coef_t
        class(source_term_t), intent(inout) :: this
        type(json_file), intent(inout) :: json
        type(field_list_t), intent(in), target :: fields
        type(coef_t), intent(in), target :: coef
+       character(len=*), intent(in) :: variable_name
      end subroutine source_term_init
   end interface
 
@@ -110,19 +113,70 @@ module source_term
 
   interface
      !> Source term factory. Both constructs and initializes the object.
+     !! @param object The object to be initialized.
      !! @param json JSON object initializing the source term.
      !! @param fields The list of fields updated by the source term.
      !! @param coef The SEM coefficients.
-     module subroutine source_term_factory(object, json, fields, coef)
+     !! @param variable_name The name of the variable
+     !!        where the source term acts.
+     module subroutine source_term_factory(object, json, fields, coef, &
+          variable_name)
        class(source_term_t), allocatable, intent(inout) :: object
        type(json_file), intent(inout) :: json
        type(field_list_t), intent(inout) :: fields
        type(coef_t), intent(inout) :: coef
+       character(len=*), intent(in) :: variable_name
      end subroutine source_term_factory
   end interface
 
-  public :: source_term_factory
-  
+  interface
+     !> Source term allocator.
+     !! @param object The object to be allocated.
+     !! @param type_name The name of the type to allocate.
+     module subroutine source_term_allocator(object, type_name)
+       class(source_term_t), allocatable, intent(inout) :: object
+       character(len=:), allocatable, intent(in) :: type_name
+     end subroutine source_term_allocator
+  end interface
+
+  !
+  ! Machinery for injecting user-defined types
+  !
+
+  !> Interface for an object allocator.
+  !! Implemented in the user modules, should allocate the `obj` to the custom
+  !! user type.
+  abstract interface
+     subroutine source_term_allocate(obj)
+       import source_term_t
+       class(source_term_t), allocatable, intent(inout) :: obj
+     end subroutine source_term_allocate
+  end interface
+
+  interface
+     !> Called in user modules to add an allocator for custom types.
+     module subroutine register_source_term(type_name, allocator)
+       character(len=*), intent(in) :: type_name
+       procedure(source_term_allocate), pointer, intent(in) :: allocator
+     end subroutine register_source_term
+  end interface
+
+  ! A name-allocator pair for user-defined types. A helper type to define a
+  ! registry of custom allocators.
+  type allocator_entry
+     character(len=20) :: type_name
+     procedure(source_term_allocate), pointer, nopass :: allocator
+  end type allocator_entry
+
+  !> Registry of source term allocators for user-defined types
+  type(allocator_entry), allocatable :: source_term_registry(:)
+
+  !> The size of the `source_term_registry`
+  integer :: source_term_registry_size = 0
+
+  public :: source_term_factory, source_term_allocator, register_source_term, &
+       source_term_allocate
+
 contains
 
   !> Constructor for the `source_term_t` (base) type.

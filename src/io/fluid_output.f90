@@ -33,12 +33,14 @@
 !> Defines an output for a fluid
 module fluid_output
   use num_types, only : rp
-  use fluid_scheme, only : fluid_scheme_t
+  use fluid_scheme_incompressible, only : fluid_scheme_incompressible_t
+  use fluid_scheme_base, only : fluid_scheme_base_t
   use scalar_scheme, only : scalar_scheme_t
   use field_list, only : field_list_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use device
   use output, only : output_t
+  use scalars, only : scalars_t
   implicit none
   private
 
@@ -46,53 +48,72 @@ module fluid_output
   type, public, extends(output_t) :: fluid_output_t
      type(field_list_t) :: fluid
    contains
+     procedure, pass(this) :: init => fluid_output_init
      procedure, pass(this) :: sample => fluid_output_sample
      procedure, pass(this) :: free => fluid_output_free
   end type fluid_output_t
 
-  interface fluid_output_t
-     module procedure fluid_output_init
-  end interface fluid_output_t
-
 contains
 
-  function fluid_output_init(precision, fluid, scalar, name, path) result(this)
+  subroutine fluid_output_init(this, precision, fluid, scalar_fields, name, path, &
+       fmt, layout)
+    class(fluid_output_t), intent(inout) :: this
     integer, intent(inout) :: precision
-    class(fluid_scheme_t), intent(in), target :: fluid
-    class(scalar_scheme_t), intent(in), optional, target :: scalar
+    class(fluid_scheme_base_t), intent(in), target :: fluid
+    class(scalars_t), intent(in), optional, target :: scalar_fields
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path
-    type(fluid_output_t) :: this
+    character(len=*), intent(in), optional :: fmt
+    integer, intent(in), optional :: layout
     character(len=1024) :: fname
+    integer :: i, n_scalars
+    character(len=10) :: suffix
+
+    suffix = '.fld'
+    if (present(fmt)) then
+       if (fmt .eq. 'adios2') then
+          suffix = '.bp'
+       end if
+    end if
 
     if (present(name) .and. present(path)) then
-       fname = trim(path) // trim(name) // '.fld'
+       fname = trim(path) // trim(name) // trim(suffix)
     else if (present(name)) then
-       fname = trim(name) // '.fld'
+       fname = trim(name) // trim(suffix)
     else if (present(path)) then
-       fname = trim(path) // 'field.fld'
+       fname = trim(path) // 'field' // trim(suffix)
     else
-       fname = 'field.fld'
+       fname = 'field' // trim(suffix)
     end if
 
-    call this%init_base(fname, precision)
-
-    if (present(scalar)) then
-       call this%fluid%init(5)
+    if (present(layout)) then
+       call this%init_base(fname, precision, layout)
     else
-       call this%fluid%init(4)
+       call this%init_base(fname, precision)
     end if
+
+    ! Calculate total number of fields
+    n_scalars = 0
+    if (present(scalar_fields)) then
+       n_scalars = size(scalar_fields%scalar_fields)
+    end if
+
+    ! Initialize field list with appropriate size
+    call this%fluid%init(4 + n_scalars)
 
     call this%fluid%assign(1, fluid%p)
     call this%fluid%assign(2, fluid%u)
     call this%fluid%assign(3, fluid%v)
     call this%fluid%assign(4, fluid%w)
 
-    if (present(scalar)) then
-       call this%fluid%assign(5, scalar%s)
+    ! Assign all scalar fields
+    if (present(scalar_fields)) then
+       do i = 1, n_scalars
+          call this%fluid%assign(4 + i, scalar_fields%scalar_fields(i)%s)
+       end do
     end if
 
-  end function fluid_output_init
+  end subroutine fluid_output_init
 
   !> Destroy a fluid output list
   subroutine fluid_output_free(this)
@@ -114,7 +135,7 @@ contains
          do i = 1, size(fields)
             call device_memcpy(fields(i)%ptr%x, fields(i)%ptr%x_d, &
                  fields(i)%ptr%dof%size(), DEVICE_TO_HOST, &
-                 sync=(i .eq. size(fields))) ! Sync on the last field
+                 sync = (i .eq. size(fields))) ! Sync on the last field
          end do
        end associate
 

@@ -14,26 +14,26 @@ program axbench
   real(kind=dp), allocatable :: u(:), ur(:), us(:), ut(:), wk(:)
   real(kind=dp), allocatable :: g(:, :, :, :, :)
   integer :: i
-  
+
   argc = command_argument_count()
 
   if ((argc .lt. 2) .or. (argc .gt. 2)) then
      write(*,*) 'Usage: ./axbench <neko mesh> <N>'
      stop
   end if
-  
-  call neko_init 
-  
+
+  call neko_init
+
   call get_command_argument(1, fname)
   call get_command_argument(2, lxchar)
   read(lxchar, *) lx
-  
-  nmsh_file = file_t(fname)
-  call nmsh_file%read(msh)  
+
+  call nmsh_file%init(fname)
+  call nmsh_file%read(msh)
 
   call space_init(Xh, GLL, lx, lx, lx)
   call w%init(msh, Xh, "w")
- 
+
   allocate(g(6, Xh%lx, Xh%ly, Xh%lz, msh%nelv))
   call setup_g(g, Xh%wx, Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
@@ -49,18 +49,18 @@ program axbench
   call ax(w, u, g, ur, us, ut, wk, m)
 
   n_glb = n * msh%glb_nelv
-  
+
   call set_timer_flop_cnt(0, msh%glb_nelv, Xh%lx, niter, n_glb)
   do i = 1, niter
      call ax(w, u, g, ur, us, ut, wk, m)
   end do
   call set_timer_flop_cnt(1, msh%glb_nelv, Xh%lx, niter, n_glb)
-  
+
   deallocate(u,ur,us,ut,wk)
   call space_free(Xh)
   call w%free()
   call msh%free()
-  
+
   call neko_finalize
 
 end program axbench
@@ -76,12 +76,12 @@ subroutine set_timer_flop_cnt(iset, nelt, nx1, niter, n)
   integer, intent(inout) :: niter
   integer, intent(inout) :: n
   real(kind=dp), save :: time0, time1, mflops, flop_a, flop_cg
-  integer :: ierr  
+  integer :: ierr
   real(kind=dp) :: nxyz, nx
-  
+
   nx = dble(nx1)
   nxyz = dble(nx1 * nx1 * nx1)
-  call MPI_Barrier(NEKO_COMM, ierr)  
+  call MPI_Barrier(NEKO_COMM, ierr)
   if (iset .eq. 0) then
      time0 = MPI_Wtime()
   else

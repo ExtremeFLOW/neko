@@ -4,12 +4,14 @@ pkgconfig_DATA = neko.pc
 
 SUBDIRS = src
 
+if !ENABLE_NVSHMEM
 if ENABLE_CONTRIB
 SUBDIRS += contrib
 endif
 
 if ENABLE_PFUNIT
 SUBDIRS += tests/unit
+endif
 endif
 
 if ENABLE_DOXYGEN
@@ -50,7 +52,6 @@ EXTRA_DIST = \
 	examples/hemi/hemi.case\
 	examples/lid/lid.f90\
 	examples/lid/lid2d.nmsh\
-	examples/lid/lid2d.f90\
 	examples/lid/lid.nmsh\
 	examples/lid/README.md\
 	examples/lid/lid2d.box\
@@ -97,6 +98,14 @@ EXTRA_DIST = \
 	examples/rayleigh_benard_cylinder/rayleigh.geo\
 	examples/rayleigh_benard_cylinder/rayleigh.case\
 	examples/rayleigh_benard_cylinder/postprocess_probes.py\
+	examples/api/pyneko/README.md\
+	examples/api/pyneko/cylinder.case\
+	examples/api/pyneko/cylinder.py\
+	examples/api/pyneko/cylinder.nmsh\
+	examples/api/c/README.md\
+	examples/api/c/cylinder.case\
+	examples/api/c/cylinder.c\
+	examples/api/c/cylinder.nmsh\
 	tests/reframe/checks.py\
 	tests/reframe/settings.py\
 	tests/reframe/README.md\

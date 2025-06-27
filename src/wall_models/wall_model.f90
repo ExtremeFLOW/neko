@@ -45,8 +45,12 @@ module wall_model
   use utils, only : neko_error, nonlinear_index
   use math, only : glmin, glmax
   use comm, only : pe_rank
-  use logger, only : neko_log, NEKO_LOG_DEBUG
-
+  use logger, only : neko_log, NEKO_LOG_DEBUG, LOG_SIZE
+  use file, only : file_t
+  use field_registry, only : neko_field_registry
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
+  use device, only : device_map, device_free, device_get_ptr
+  use wall_model_device, only : wall_model_compute_mag_field_device
   implicit none
   private
 
@@ -58,14 +62,15 @@ module wall_model
      type(dofmap_t), pointer :: dof => null()
      !> The boundary condition mask. Stores the array size at index zero!
      integer, pointer :: msk(:) => null()
+     type(c_ptr) :: msk_d = C_NULL_PTR
      !> The boundary condition facet ids. Stores the array size at index zero!
      integer, pointer :: facet(:) => null()
      !> The x component of the shear stress.
-     real(kind=rp), allocatable :: tau_x(:)
+     type(vector_t) :: tau_x
      !> The y component of the shear stress.
-     real(kind=rp), allocatable :: tau_y(:)
+     type(vector_t) :: tau_y
      !> The z component of the shear stress.
-     real(kind=rp), allocatable :: tau_z(:)
+     type(vector_t) :: tau_z
      !> The x component of the normal.
      type(vector_t) :: n_x
      !> The y component of the normal.
@@ -74,12 +79,16 @@ module wall_model
      type(vector_t) :: n_z
      !> The r indices of the sampling points
      integer, allocatable :: ind_r(:)
+     type(c_ptr) :: ind_r_d = C_NULL_PTR
      !> The s indices of the sampling points
      integer, allocatable :: ind_s(:)
+     type(c_ptr) :: ind_s_d = C_NULL_PTR
      !> The t indices of the sampling points
      integer, allocatable :: ind_t(:)
+     type(c_ptr) :: ind_t_d = C_NULL_PTR
      !> The element indices of the sampling points
      integer, allocatable :: ind_e(:)
+     type(c_ptr) :: ind_e_d = C_NULL_PTR
      !> The sampling height
      type(vector_t) :: h
      !> Sampling index
@@ -95,6 +104,8 @@ module wall_model
      procedure, pass(this) :: init_base => wall_model_init_base
      !> Destructor for the wall_model_t (base) class.
      procedure, pass(this) :: free_base => wall_model_free_base
+     !> Compute the wall shear stress's magnitude.
+     procedure, pass(this) :: compute_mag_field => wall_model_compute_mag_field
      !> The common constructor.
      procedure(wall_model_init), pass(this), deferred :: init
      !> Destructor.
@@ -165,7 +176,53 @@ module wall_model
      end subroutine wall_model_factory
   end interface
 
-  public :: wall_model_factory
+  interface
+     !> Wall model allocator.
+     !! @param object The object to be allocated.
+     !! @param type_name The name of the type to allocate.
+     module subroutine wall_model_allocator(object, type_name)
+       class(wall_model_t), allocatable, intent(inout) :: object
+       character(len=:), allocatable, intent(in) :: type_name
+     end subroutine wall_model_allocator
+  end interface
+
+  !
+  ! Machinery for injecting user-defined types
+  !
+
+  !> Interface for an object allocator.
+  !! Implemented in the user modules, should allocate the `obj` to the custom
+  !! user type.
+  abstract interface
+     subroutine wall_model_allocate(obj)
+       import wall_model_t
+       class(wall_model_t), allocatable, intent(inout) :: obj
+     end subroutine wall_model_allocate
+  end interface
+
+  interface
+     !> Called in user modules to add an allocator for custom types.
+     module subroutine register_wall_model(type_name, allocator)
+       character(len=*), intent(in) :: type_name
+       procedure(wall_model_allocate), pointer, intent(in) :: allocator
+     end subroutine register_wall_model
+  end interface
+
+  ! A name-allocator pair for user-defined types. A helper type to define a
+  ! registry of custom allocators.
+  type allocator_entry
+     character(len=20) :: type_name
+     procedure(wall_model_allocate), pointer, nopass :: allocator
+  end type allocator_entry
+
+  !> Registry of wall model allocators for user-defined types
+  type(allocator_entry), allocatable :: wall_model_registry(:)
+
+  !> The size of the `wall_model_registry`
+  integer :: wall_model_registry_size = 0
+
+  public :: wall_model_factory, wall_model_allocator, register_wall_model, &
+       wall_model_allocate
 
 contains
   !> Constructor for the wall_model_t (base) class.
@@ -181,24 +238,26 @@ contains
     integer, target, intent(in) :: facet(0:)
     real(kind=rp), intent(in) :: nu
     integer, intent(in) :: index
+    type(c_ptr), target :: msk_d
 
     call this%free_base
 
     this%coef => coef
     this%dof => coef%dof
     this%msk(0:msk(0)) => msk
+    if (NEKO_BCKND_DEVICE .eq. 1) this%msk_d = device_get_ptr(msk)
     this%facet(0:msk(0)) => facet
     this%nu = nu
     this%h_index = index
 
     call neko_field_registry%add_field(this%dof, "tau", &
-                                       ignore_existing = .true.)
+         ignore_existing = .true.)
 
     this%tau_field => neko_field_registry%get_field("tau")
 
-    allocate(this%tau_x(this%msk(0)))
-    allocate(this%tau_y(this%msk(0)))
-    allocate(this%tau_z(this%msk(0)))
+    call this%tau_x%init(this%msk(0))
+    call this%tau_y%init(this%msk(0))
+    call this%tau_z%init(this%msk(0))
 
     allocate(this%ind_r(this%msk(0)))
     allocate(this%ind_s(this%msk(0)))
@@ -212,6 +271,22 @@ contains
 
     call this%find_points
 
+    ! Initialize pointers for device
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(this%ind_r, this%ind_r_d, this%n_nodes)
+       call device_map(this%ind_s, this%ind_s_d, this%n_nodes)
+       call device_map(this%ind_t, this%ind_t_d, this%n_nodes)
+       call device_map(this%ind_e, this%ind_e_d, this%n_nodes)
+       call device_memcpy(this%ind_r, this%ind_r_d, this%n_nodes, &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%ind_s, this%ind_s_d, this%n_nodes, &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%ind_t, this%ind_t_d, this%n_nodes, &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%ind_e, this%ind_e_d, this%n_nodes, &
+            HOST_TO_DEVICE, sync = .false.)
+    end if
+
   end subroutine wall_model_init_base
 
   !> Destructor for the wall_model_t (base) class.
@@ -223,17 +298,34 @@ contains
     nullify(this%facet)
     nullify(this%tau_field)
 
-    if (allocated(this%tau_x)) then
-      deallocate(this%tau_x)
-    end if
-    if (allocated(this%tau_y)) then
-      deallocate(this%tau_y)
-    end if
-    if (allocated(this%tau_z)) then
-      deallocate(this%tau_z)
-    end if
+    call this%tau_x%free()
+    call this%tau_y%free()
+    call this%tau_z%free()
+
     if (allocated(this%ind_r)) then
-      deallocate(this%ind_r)
+       deallocate(this%ind_r)
+    end if
+    if (allocated(this%ind_s)) then
+       deallocate(this%ind_s)
+    end if
+    if (allocated(this%ind_t)) then
+       deallocate(this%ind_t)
+    end if
+
+    if (c_associated(this%msk_d)) then
+       call device_free(this%msk_d)
+    end if
+    if (c_associated(this%ind_r_d)) then
+       call device_free(this%ind_r_d)
+    end if
+    if (c_associated(this%ind_s_d)) then
+       call device_free(this%ind_s_d)
+    end if
+    if (c_associated(this%ind_t_d)) then
+       call device_free(this%ind_t_d)
+    end if
+    if (c_associated(this%ind_e_d)) then
+       call device_free(this%ind_e_d)
     end if
 
     call this%h%free()
@@ -248,15 +340,23 @@ contains
     integer :: n_nodes, fid, idx(4), i, linear
     real(kind=rp) :: normal(3), p(3), x, y, z, xw, yw, zw, magp
     real(kind=rp) :: hmin, hmax
+    type(field_t), pointer :: h_field
+    type(file_t) :: h_file
+    character(len=LOG_SIZE), allocatable :: log_msg
 
     n_nodes = this%msk(0)
     this%n_nodes = n_nodes
 
+    call neko_field_registry%add_field(this%coef%dof, "sampling_height", &
+         ignore_existing=.true.)
+
+    h_field => neko_field_registry%get_field_by_name("sampling_height")
+
     do i = 1, n_nodes
        linear = this%msk(i)
        fid = this%facet(i)
-       idx = nonlinear_index(linear, this%coef%Xh%lx, this%coef%Xh%lx,&
-                             this%coef%Xh%lx)
+       idx = nonlinear_index(linear, this%coef%Xh%lx, this%coef%Xh%ly,&
+            this%coef%Xh%lz)
        normal = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), fid)
 
        this%n_x%x(i) = normal(1)
@@ -268,31 +368,31 @@ contains
 
        select case (fid)
        case (1)
-         this%ind_r(i) = idx(1) + this%h_index
-         this%ind_s(i) = idx(2)
-         this%ind_t(i) = idx(3)
+          this%ind_r(i) = idx(1) + this%h_index
+          this%ind_s(i) = idx(2)
+          this%ind_t(i) = idx(3)
        case (2)
-         this%ind_r(i) = idx(1) - this%h_index
-         this%ind_s(i) = idx(2)
-         this%ind_t(i) = idx(3)
+          this%ind_r(i) = idx(1) - this%h_index
+          this%ind_s(i) = idx(2)
+          this%ind_t(i) = idx(3)
        case (3)
-         this%ind_r(i) = idx(1)
-         this%ind_s(i) = idx(2) + this%h_index
-         this%ind_t(i) = idx(3)
+          this%ind_r(i) = idx(1)
+          this%ind_s(i) = idx(2) + this%h_index
+          this%ind_t(i) = idx(3)
        case (4)
-         this%ind_r(i) = idx(1)
-         this%ind_s(i) = idx(2) - this%h_index
-         this%ind_t(i) = idx(3)
+          this%ind_r(i) = idx(1)
+          this%ind_s(i) = idx(2) - this%h_index
+          this%ind_t(i) = idx(3)
        case (5)
-         this%ind_r(i) = idx(1)
-         this%ind_s(i) = idx(2)
-         this%ind_t(i) = idx(3) + this%h_index
+          this%ind_r(i) = idx(1)
+          this%ind_s(i) = idx(2)
+          this%ind_t(i) = idx(3) + this%h_index
        case (6)
-         this%ind_r(i) = idx(1)
-         this%ind_s(i) = idx(2)
-         this%ind_t(i) = idx(3) - this%h_index
+          this%ind_r(i) = idx(1)
+          this%ind_s(i) = idx(2)
+          this%ind_t(i) = idx(3) - this%h_index
        case default
-         call neko_error("The face index is not correct ")
+          call neko_error("The face index is not correct ")
        end select
        this%ind_e(i) = idx(4)
 
@@ -303,12 +403,11 @@ contains
 
        ! Location of the sampling point
        x = this%dof%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
-                      this%ind_e(i))
+            this%ind_e(i))
        y = this%dof%y(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
-                      this%ind_e(i))
+            this%ind_e(i))
        z = this%dof%z(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
-                         this%ind_e(i))
-
+            this%ind_e(i))
 
        ! Vector from the sampling point to the wall
        p(1) = x - xw
@@ -321,34 +420,64 @@ contains
        ! Project on the normal direction to get h
        this%h%x(i) = p(1)*normal(1) + p(2)*normal(2) + p(3)*normal(3)
 
+       h_field%x(linear,1,1,1) = this%h%x(i)
+
        ! Look at how much the total distance distance from the normal and warn
        ! if significant
-       if ((this%h%x(i) - magp) / magp > 0.1 &
-           .and. (neko_log%level_ .eq. NEKO_LOG_DEBUG)) then
-          write(*,*) "Significant missalignment between wall normal and &
-                   & sampling point direction at wall node", xw, yw, zw
+       if ((this%h%x(i) - magp) / magp > 0.1) then
+          write(log_msg,*) "Significant misalignment between wall normal and"
+          call neko_log%message(log_msg, NEKO_LOG_DEBUG)
+          write(log_msg,*) "sampling point direction at wall node", xw, yw, zw
+          call neko_log%message(log_msg, NEKO_LOG_DEBUG)
        end if
     end do
 
-    hmin = glmin(this%h%x, n_nodes)
+!    hmin = glmin(this%h%x, n_nodes)
 !    hmax = glmax(this%h%x, n_nodes)
-!
 !    if (pe_rank .eq. 0) then
 !       write(*, "(A, F10.4, F10.4)") "   h min / max:", hmin, hmax
 !    end if
 
-
-
     if (NEKO_BCKND_DEVICE .eq. 1) then
-      call device_memcpy(this%h%x, this%h%x_d, n_nodes, HOST_TO_DEVICE,&
-                         sync = .false.)
-      call device_memcpy(this%n_x%x, this%n_x%x_d, n_nodes, HOST_TO_DEVICE, &
-                         sync = .false.)
-      call device_memcpy(this%n_y%x, this%n_y%x_d, n_nodes, HOST_TO_DEVICE, &
-                         sync = .false.)
-      call device_memcpy(this%n_z%x, this%n_z%x_d, n_nodes, HOST_TO_DEVICE, &
-                         sync = .true.)
+       call device_memcpy(this%h%x, this%h%x_d, n_nodes, HOST_TO_DEVICE,&
+            sync = .false.)
+       call device_memcpy(this%n_x%x, this%n_x%x_d, n_nodes, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(this%n_y%x, this%n_y%x_d, n_nodes, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(this%n_z%x, this%n_z%x_d, n_nodes, HOST_TO_DEVICE, &
+            sync = .true.)
     end if
+
+    ! Each wall_model bc will do a write unfortunately... But very helpful
+    ! for setup debugging.
+    call h_file%init("sampling_height.fld")
+    call h_file%write(h_field)
   end subroutine wall_model_find_points
+
+  subroutine wall_model_compute_mag_field(this)
+    class(wall_model_t), intent(inout) :: this
+    integer :: i, m
+    real(kind=rp) :: magtau
+
+    m = this%msk(0)
+    if (m > 0) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call wall_model_compute_mag_field_device(this%tau_x%x_d, &
+               this%tau_y%x_d, &
+               this%tau_z%x_d, &
+               this%tau_field%x_d, &
+               this%msk_d, m)
+       else
+          do i = 1, m
+             magtau = sqrt(this%tau_x%x(i)**2 + &
+                  this%tau_y%x(i)**2 + &
+                  this%tau_z%x(i)**2)
+             this%tau_field%x(this%msk(i),1,1,1) = magtau
+          end do
+       end if
+    end if
+
+  end subroutine wall_model_compute_mag_field
 
 end module wall_model
