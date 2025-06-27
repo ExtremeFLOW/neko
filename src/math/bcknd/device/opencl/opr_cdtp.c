@@ -98,8 +98,5 @@ void opencl_cdtp(void *dtx, void *x,
     CASE(11);
     CASE(12);
     CASE(13);
-    CASE(14);
-    CASE(15);
-    CASE(16);
   }
 }
