@@ -106,7 +106,7 @@ contains
           call neko_error('Coupled CG only supported for CPU')
        end if
 
-    case ('pipe_cg')
+    case ('pipecg')
        if (NEKO_BCKND_SX .eq. 1) then
           allocate(sx_pipecg_t::object)
        else if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -138,7 +138,7 @@ contains
           call neko_error('Coupled FusedCG only supported for CUDA/HIP')
        end if
 
-    case ('ca_cg')
+    case ('cacg')
        allocate(cacg_t::object)
 
     case ('gmres')
