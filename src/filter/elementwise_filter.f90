@@ -71,8 +71,8 @@ module elementwise_filter
      !> Constructor.
      procedure, pass(this) :: init => elementwise_filter_init_from_json
      !> Actual constructor.
-     procedure, pass(this) :: init_from_components => &
-          elementwise_filter_init_from_components
+     procedure, pass(this) :: init_from_attributes => &
+          elementwise_filter_init_from_attributes
      !> Destructor.
      procedure, pass(this) :: free => elementwise_filter_free
      !> Set up 1D filter inside an element.
@@ -134,7 +134,7 @@ contains
        call device_cfill(this%fht_d, 0.0_rp, this%nx * this%nx)
     end if
 
-  end subroutine elementwise_filter_init_from_components
+  end subroutine elementwise_filter_init_from_attributes
 
   !> Destructor.
   subroutine elementwise_filter_free(this)
