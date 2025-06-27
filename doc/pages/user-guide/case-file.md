@@ -672,9 +672,9 @@ The following keywords are used, with the corresponding options.
 
 * `type`, solver type.
   - `cg`, a conjugate gradient solver.
-  - `pipe_cg`, a pipelined conjugate gradient solver.
+  - `pipecg`, a pipelined conjugate gradient solver.
   - `bicgstab`, a bi-conjugate gradient stabilized solver.
-  - `ca_cg`, a communication-avoiding conjugate gradient solver.
+  - `cacg`, a communication-avoiding conjugate gradient solver.
   - `coupled_cg`, a coupled conjugate gradient solver. Must be used for velocity
     when viscosity varies in space.
   - `gmres`, a GMRES solver. Typically used for pressure.

@@ -56,9 +56,9 @@ submodule (krylov) krylov_fctry
   ! List of all possible types created by the factory routine
   character(len=20) :: KSP_KNOWN_TYPES(9) = [character(len=20) :: &
        "cg", &
-       "pipe_cg", &
+       "pipecg", &
        "fused_cg", &
-       "ca_cg", &
+       "cacg", &
        "gmres", &
        "cheby", &
        "bicgstab", &
