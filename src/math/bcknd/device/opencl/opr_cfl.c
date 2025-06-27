@@ -116,10 +116,6 @@ real opencl_cfl(real *dt, void *u, void *v, void *w,
     CASE(10);
     CASE(11);
     CASE(12);
-    CASE(13);
-    CASE(14);
-    CASE(15);
-    CASE(16);
   }
 
   CL_CHECK(clEnqueueReadBuffer((cl_command_queue) glb_cmd_queue,
