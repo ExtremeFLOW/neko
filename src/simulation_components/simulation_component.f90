@@ -112,7 +112,7 @@ module simulation_component
      !! @param case The case_t object.
      subroutine simulation_component_init(this, json, case)
        import simulation_component_t, json_file, case_t
-       class(simulation_component_t), intent(inout) :: this
+       class(simulation_component_t), intent(inout), target :: this
        type(json_file), intent(inout) :: json
        class(case_t), intent(inout), target :: case
      end subroutine simulation_component_init
@@ -238,12 +238,12 @@ contains
     this%case => case
     this%order = order
 
-    call this%preprocess_controller%init(case%time%end_time, &
-         preprocess_control, preprocess_value)
-    call this%compute_controller%init(case%time%end_time, compute_control, &
-         compute_value)
-    call this%output_controller%init(case%time%end_time, output_control, &
-         output_value)
+    call this%preprocess_controller%init(case%time%start_time, &
+         case%time%end_time, preprocess_control, preprocess_value)
+    call this%compute_controller%init(case%time%start_time, case%time%end_time,&
+         compute_control, compute_value)
+    call this%output_controller%init(case%time%start_time, case%time%end_time, &
+         output_control, output_value)
 
   end subroutine simulation_component_init_base_from_controllers_properties
 

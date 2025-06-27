@@ -69,12 +69,12 @@ module brinkman_source_term
      private
 
      !> The unfiltered indicator field
-     type(field_t) :: indicator_unfiltered 
+     type(field_t) :: indicator_unfiltered
      !> The value of the source term.
      type(field_t) :: indicator
      !> Brinkman permeability field.
      type(field_t) :: brinkman
-     !> Filter 
+     !> Filter
      class(filter_t), allocatable :: filter
    contains
      !> The common constructor using a JSON object.
@@ -101,11 +101,14 @@ contains
   !! @param json The JSON object for the source.
   !! @param fields A list of fields for adding the source values.
   !! @param coef The SEM coeffs.
-  subroutine brinkman_source_term_init_from_json(this, json, fields, coef)
+  !! @param variable_name The name of the variable where the source term acts.
+  subroutine brinkman_source_term_init_from_json(this, json, fields, coef, &
+       variable_name)
     class(brinkman_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_list_t), intent(in), target :: fields
     type(coef_t), intent(in), target :: coef
+    character(len=*), intent(in) :: variable_name
     real(kind=rp) :: start_time, end_time
 
     character(len=:), allocatable :: filter_type
@@ -161,15 +164,15 @@ contains
        call json_get_or_default(object_settings, 'type', object_type, 'none')
 
        select case (object_type)
-         case ('boundary_mesh')
+       case ('boundary_mesh')
           call this%init_boundary_mesh(object_settings)
-         case ('point_zone')
+       case ('point_zone')
           call this%init_point_zone(object_settings)
 
-         case ('none')
+       case ('none')
           call object_settings%print()
           call neko_error('Brinkman source term objects require a region type')
-         case default
+       case default
           call neko_error('Brinkman source term unknown region type')
        end select
 
@@ -180,36 +183,36 @@ contains
 
     call json_get_or_default(json, 'filter.type', filter_type, 'none')
     select case (filter_type)
-       case ('PDE')
-          ! Initialize the unfiltered design field
-          call this%indicator_unfiltered%init(coef%dof)
+    case ('PDE')
+       ! Initialize the unfiltered design field
+       call this%indicator_unfiltered%init(coef%dof)
 
-          ! Allocate a PDE filter
-          allocate(PDE_filter_t::this%filter)
+       ! Allocate a PDE filter
+       allocate(PDE_filter_t::this%filter)
 
-          ! Initialize the filter
-          call this%filter%init(json, coef)
+       ! Initialize the filter
+       call this%filter%init(json, coef)
 
-          ! Copy the current indicator to unfiltered (essentially a rename) 
-          call field_copy(this%indicator_unfiltered, this%indicator)
+       ! Copy the current indicator to unfiltered (essentially a rename)
+       call field_copy(this%indicator_unfiltered, this%indicator)
 
-          ! Apply the filter
-          call this%filter%apply(this%indicator, this%indicator_unfiltered)
+       ! Apply the filter
+       call this%filter%apply(this%indicator, this%indicator_unfiltered)
 
-          ! Set up sampler to include the unfiltered and filtered fields
-          call output%init(sp, 'brinkman', 3)
-          call output%fields%assign_to_field(1, this%indicator_unfiltered)
-          call output%fields%assign_to_field(2, this%indicator)
-          call output%fields%assign_to_field(3, this%brinkman)
+       ! Set up sampler to include the unfiltered and filtered fields
+       call output%init(sp, 'brinkman', 3)
+       call output%fields%assign_to_field(1, this%indicator_unfiltered)
+       call output%fields%assign_to_field(2, this%indicator)
+       call output%fields%assign_to_field(3, this%brinkman)
 
-       case ('none')
-          ! Set up sampler to include the unfiltered field
-          call output%init(sp, 'brinkman', 2)
-          call output%fields%assign_to_field(1, this%indicator)
-          call output%fields%assign_to_field(2, this%brinkman)
+    case ('none')
+       ! Set up sampler to include the unfiltered field
+       call output%init(sp, 'brinkman', 2)
+       call output%fields%assign_to_field(1, this%indicator)
+       call output%fields%assign_to_field(2, this%brinkman)
 
-       case default
-          call neko_error('Brinkman source term unknown filter type')
+    case default
+       call neko_error('Brinkman source term unknown filter type')
     end select
 
     ! ------------------------------------------------------------------------ !
@@ -301,7 +304,7 @@ contains
     ! ------------------------------------------------------------------------ !
     ! Load the immersed boundary mesh
 
-    mesh_file = file_t(mesh_file_name)
+    call mesh_file%init(mesh_file_name)
     call mesh_file%read(boundary_mesh)
 
     if (boundary_mesh%nelv .eq. 0) then
@@ -315,9 +318,9 @@ contains
          mesh_transform, 'none')
 
     select case (mesh_transform)
-      case ('none')
+    case ('none')
        ! Do nothing
-      case ('bounding_box')
+    case ('bounding_box')
        call json_get(json, 'mesh_transform.box_min', box_min)
        call json_get(json, 'mesh_transform.box_max', box_max)
        call json_get_or_default(json, 'mesh_transform.keep_aspect_ratio', &
@@ -325,7 +328,7 @@ contains
 
        if (size(box_min) .ne. 3 .or. size(box_max) .ne. 3) then
           call neko_error('Case file: mesh_transform. &
-               &box_min and box_max must be 3 element arrays of reals')
+          &box_min and box_max must be 3 element arrays of reals')
        end if
 
        call target_box%init(box_min, box_max)
@@ -352,7 +355,7 @@ contains
        write(log_msg, '(A, 3F12.6)') "Translation: ", translation
        call neko_log%message(log_msg)
 
-      case default
+    case default
        call neko_error('Unknown mesh transform')
     end select
 
@@ -368,14 +371,14 @@ contains
 
     ! Select how to transform the distance field to a design field
     select case (distance_transform)
-      case ('smooth_step')
+    case ('smooth_step')
        call json_get(json, 'distance_transform.value', scalar_d)
        scalar_r = real(scalar_d, kind=rp)
 
        call signed_distance_field(temp_field, boundary_mesh, scalar_d)
        call smooth_step_field(temp_field, scalar_r, 0.0_rp)
 
-      case ('step')
+    case ('step')
 
        call json_get(json, 'distance_transform.value', scalar_d)
        scalar_r = real(scalar_d, kind=rp)
@@ -383,7 +386,7 @@ contains
        call signed_distance_field(temp_field, boundary_mesh, scalar_d)
        call step_function_field(temp_field, scalar_r, 1.0_rp, 0.0_rp)
 
-      case default
+    case default
        call neko_error('Unknown distance transform')
     end select
 

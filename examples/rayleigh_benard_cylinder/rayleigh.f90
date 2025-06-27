@@ -39,16 +39,17 @@ contains
     type(field_list_t), intent(inout) :: properties
 
     if (name .eq. "fluid") then
-       call field_cfill(properties%get_by_name("rho"), 1.0_rp)
-       call field_cfill(properties%get_by_name("mu"), mu)
+       call field_cfill(properties%get_by_name("fluid_rho"), 1.0_rp)
+       call field_cfill(properties%get_by_name("fluid_mu"), mu)
     else if (name .eq. "scalar") then
-       call field_cfill(properties%get_by_name("cp"), 1.0_rp)
-       call field_cfill(properties%get_by_name("lambda"), mu / Pr)
+       call field_cfill(properties%get_by_name("scalar_cp"), 1.0_rp)
+       call field_cfill(properties%get_by_name("scalar_lambda"), mu / Pr)
     end if
   end subroutine set_material_properties
 
 
-  subroutine set_scalar_boundary_conditions(s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
+  subroutine set_scalar_boundary_conditions(scalar_name, s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
+    character(len=*), intent(in) :: scalar_name
     real(kind=rp), intent(inout) :: s
     real(kind=rp), intent(in) :: x
     real(kind=rp), intent(in) :: y

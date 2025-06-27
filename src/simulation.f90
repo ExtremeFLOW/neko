@@ -75,10 +75,10 @@ contains
     write(log_buf, '(A, E15.7,A,E15.7,A)') &
          'T  : [', C%time%t, ',', C%time%end_time, ']'
     call neko_log%message(log_buf)
-    if (.not. dt_controller%if_variable_dt) then
+    if (.not. dt_controller%is_variable_dt) then
        write(log_buf, '(A, E15.7)') 'dt :  ', C%time%dt
     else
-       write(log_buf, '(A, E15.7)') 'CFL :  ', dt_controller%set_cfl
+       write(log_buf, '(A, E15.7)') 'CFL :  ', dt_controller%cfl_trg
     end if
     call neko_log%message(log_buf)
 
@@ -115,26 +115,23 @@ contains
   end subroutine simulation_finalize
 
   !> Compute a single time-step of a case
-  subroutine simulation_step(C, dt_controller, cfl, tstep_loop_start_time)
+  subroutine simulation_step(C, dt_controller, tstep_loop_start_time)
     type(case_t), intent(inout) :: C
-    real(kind=rp), intent(inout) :: cfl
     type(time_step_controller_t), intent(inout) :: dt_controller
     real(kind=dp), optional, intent(in) :: tstep_loop_start_time
     real(kind=dp) :: start_time, end_time, tstep_start_time
-    real(kind=rp) :: cfl_avrg
+    real(kind=rp) :: cfl
     character(len=LOG_SIZE) :: log_buf
 
     ! Setup the time step, and start time
     call profiler_start_region('Time-Step')
-    C%time%tstep = C%time%tstep + 1
     start_time = MPI_WTIME()
     tstep_start_time = start_time
 
-    ! Compute the next time step
-    if (dt_controller%dt_last_change .eq. 0) then
-       cfl_avrg = cfl
-    end if
-    call dt_controller%set_dt(C%time%dt, cfl, cfl_avrg, C%time%tstep)
+    ! Compute the next time step size
+    cfl = C%fluid%compute_cfl(C%time%dt)
+    call dt_controller%set_dt(C%time, cfl)
+    if (dt_controller%is_variable_dt) cfl = C%fluid%compute_cfl(C%time%dt)
 
     ! Advance time step from t to t+dt and print the status
     call simulation_settime(C%time, C%fluid%ext_bdf)
@@ -142,9 +139,6 @@ contains
     call neko_log%begin()
 
     call neko_log%section('Preprocessing')
-
-    ! Calculate the cfl after the possibly varied dt
-    cfl = C%fluid%compute_cfl(C%time%dt)
 
     write(log_buf, "(A,F8.4,2x,A,1P,E14.7)") 'CFL:', cfl, 'dt:', C%time%dt
     call neko_log%message(log_buf)
@@ -162,10 +156,10 @@ contains
     call neko_log%end_section(log_buf)
 
     ! Scalar step
-    if (allocated(C%scalar)) then
+    if (allocated(C%scalars)) then
        start_time = MPI_WTIME()
        call neko_log%section('Scalar')
-       call C%scalar%step(C%time, C%fluid%ext_bdf, dt_controller)
+       call C%scalars%step(C%time, C%fluid%ext_bdf, dt_controller)
        end_time = MPI_WTIME()
        write(log_buf, '(A,6X,E15.7)') 'Scalar step time:', end_time - start_time
        call neko_log%end_section(log_buf)
@@ -177,6 +171,7 @@ contains
     ! Execute all simulation components
     call neko_simcomps%compute(C%time)
 
+    ! Run the user checks
     call C%user%user_check(C%time%t, C%time%tstep, C%fluid%u, C%fluid%v, &
          C%fluid%w, C%fluid%p, C%fluid%c_Xh, C%params)
 
@@ -226,6 +221,7 @@ contains
        call ext_bdf%set_coeffs(time%dtlag)
     end if
 
+    time%tstep = time%tstep + 1
     time%t = time%t + time%dt
 
   end subroutine simulation_settime
@@ -246,7 +242,7 @@ contains
     call C%params%get('case.restart_mesh_file', restart_mesh_file, found)
 
     if (found) then
-       previous_meshf = file_t(trim(restart_mesh_file))
+       call previous_meshf%init(trim(restart_mesh_file))
        call previous_meshf%read(C%chkp%previous_mesh)
     end if
 
@@ -254,7 +250,7 @@ contains
 
     if (found) C%chkp%mesh2mesh_tol = tol
 
-    chkpf = file_t(trim(restart_file))
+    call chkpf%init(trim(restart_file))
     call chkpf%read(C%chkp)
     C%time%dtlag = C%chkp%dtlag
     C%time%tlag = C%chkp%tlag
@@ -266,7 +262,7 @@ contains
 
     call C%fluid%restart(C%chkp)
     call C%chkp%previous_mesh%free()
-    if (allocated(C%scalar)) call C%scalar%restart(C%chkp)
+    if (allocated(C%scalars)) call C%scalars%restart(C%chkp)
 
     C%time%t = C%chkp%restart_time()
     call neko_log%section('Restarting from checkpoint')
@@ -297,7 +293,7 @@ contains
           format_str = '.h5'
        end if
     end if
-    chkpf = file_t(C%output_directory // 'joblimit'//trim(format_str))
+    call chkpf%init(C%output_directory // 'joblimit'//trim(format_str))
     call chkpf%write(C%chkp, t)
     write(log_buf, '(A)') '! saving checkpoint >>>'
     call neko_log%message(log_buf)

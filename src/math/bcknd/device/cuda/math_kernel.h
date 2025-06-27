@@ -779,6 +779,41 @@ __global__ void glsc2_kernel(const T * a,
 }
 
 /**
+ * Device kernel for glsubnorm2
+ */
+template< typename T >
+__global__ void glsubnorm2_kernel(const T * a,
+                             const T * b,
+                             T * buf_h,
+                             const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  const unsigned int lane = threadIdx.x % warpSize;
+  const unsigned int wid = threadIdx.x / warpSize;
+
+  __shared__ T shared[32];
+  T sum = 0.0;
+  for (int i = idx; i < n; i+= str) {
+    sum += pow(a[i] - b[i], 2.0);
+  }
+
+  sum = reduce_warp<T>(sum);
+  if (lane == 0)
+    shared[wid] = sum;
+  __syncthreads();
+
+  sum = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
+  if (wid == 0)
+    sum = reduce_warp<T>(sum);
+
+  if (threadIdx.x == 0)
+    buf_h[blockIdx.x] = sum;
+
+}
+
+/**
  * Device kernel for glsum
  */
 template< typename T >

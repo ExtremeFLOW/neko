@@ -118,7 +118,7 @@ contains
     integer :: avg_strtgy, env_len
     character(len=255) :: env_strtgy, env_gscomm
     real(kind=dp) :: strtgy_time(4)
-    
+
     call gs%free()
 
     call neko_log%section('Gather-Scatter')
@@ -129,7 +129,7 @@ contains
     use_device_mpi = .false.
     use_device_nccl = .false.
     use_device_shmem = .false.
-    use_host_mpi = .false.    
+    use_host_mpi = .false.
     ! Check if a comm-backend is requested via env. variables
     call get_environment_variable("NEKO_GS_COMM", env_gscomm, env_len)
     if (env_len .gt. 0) then
@@ -178,7 +178,7 @@ contains
        allocate(gs_device_nccl_t::gs%comm)
     case (GS_COMM_NVSHMEM)
        call neko_log%message('Comm         :      NVSHMEM')
-       allocate(gs_device_shmem_t::gs%comm)       
+       allocate(gs_device_shmem_t::gs%comm)
     case default
        call neko_error('Unknown Gather-scatter comm. backend')
     end select
@@ -291,6 +291,8 @@ contains
                    do j = 1, 100
                       call gs_op_vector(gs, tmp, dofmap%size(), GS_OP_ADD)
                    end do
+                   call device_sync
+                   call MPI_Barrier(NEKO_COMM)
                    strtgy_time(i) = (MPI_Wtime() - strtgy_time(i)) / 100d0
                 end do
 

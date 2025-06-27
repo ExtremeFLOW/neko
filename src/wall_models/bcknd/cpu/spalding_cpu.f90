@@ -33,7 +33,7 @@
 !> Implements the CPU kernel for the `spalding_t` type.
 module spalding_cpu
   use num_types, only : rp
-  use logger, only : neko_log, NEKO_LOG_DEBUG
+  use logger, only : neko_log, NEKO_LOG_DEBUG, LOG_SIZE
   implicit none
   private
 
@@ -104,7 +104,7 @@ contains
     real(kind=rp) :: yp, up, utau
     real(kind=rp) :: error, f, df, old
     integer :: niter, k, maxiter
-    character(len=:), allocatable :: log_msg
+    character(len=LOG_SIZE), allocatable :: log_msg
 
     utau = guess
 

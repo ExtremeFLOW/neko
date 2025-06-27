@@ -133,7 +133,8 @@ contains
   !! @param gs Gather-Scatter object.
   !! @param usr_ic User defined initial condition function.
   !! @param params JSON parameters.
-  subroutine set_scalar_ic_usr(s, coef, gs, usr_ic, params)
+  subroutine set_scalar_ic_usr(field_name, s, coef, gs, usr_ic, params)
+    character(len=*), intent(in) :: field_name
     type(field_t), intent(inout) :: s
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
@@ -286,7 +287,7 @@ contains
     call filename_chsuffix(file_name, file_name, 'fld')
 
     call fld_data%init
-    f = file_t(trim(file_name))
+    call f%init(trim(file_name))
 
     if (interpolate) then
 

@@ -5,8 +5,10 @@
   "mesh_file": "ext_cyl.nmsh",
   "output_checkpoints": false,
   "output_at_end": true,
-  "end_time": 2.0,
-  "timestep": 1e-3,
+  "time":{
+      "end_time": 2.0,
+      "timestep": 1e-3
+  },
 
   "numerics": {
     "time_order": 3,

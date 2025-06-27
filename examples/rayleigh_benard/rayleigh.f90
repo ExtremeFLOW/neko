@@ -35,7 +35,8 @@ contains
     call params%add("case.scalar.cp", cp)
   end subroutine startup
 
-  subroutine scalar_bc(s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
+  subroutine scalar_bc(scalar_name, s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
+    character(len=*), intent(in) :: scalar_name
     real(kind=rp), intent(inout) :: s
     real(kind=rp), intent(in) :: x
     real(kind=rp), intent(in) :: y
@@ -103,7 +104,7 @@ contains
     u => neko_field_registry%get_field('u')
     v => neko_field_registry%get_field('v')
     w => neko_field_registry%get_field('w')
-    s => neko_field_registry%get_field('s')
+    s => neko_field_registry%get_field('temperature')
     rapr = Ra*Pr
     ta2pr = ta2*Pr
 

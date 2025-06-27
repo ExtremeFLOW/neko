@@ -8,6 +8,10 @@ neko_fortran_SOURCES = \
 	io/format/re2.f90\
 	io/format/map.f90\
 	io/format/stl.f90\
+	io/buffer/buffer.F90\
+	io/buffer/buffer_1d.F90\
+	io/buffer/buffer_4d.F90\
+	io/buffer/buffer_4d_npar.F90\
 	common/log.f90\
 	comm/comm.F90\
 	mesh/curve.f90\
@@ -125,6 +129,7 @@ neko_fortran_SOURCES = \
 	io/map_file.f90\
 	io/re2_file.f90\
 	io/rea_file.f90\
+	io/bp_file.F90\
 	io/fld_file.f90\
 	io/fld_file_data.f90\
 	io/vtk_file.f90\
@@ -290,6 +295,7 @@ neko_fortran_SOURCES = \
 	bc/bcknd/device/device_dong_outflow.F90\
 	scalar/bcknd/device/scalar_residual_device.F90\
 	scalar/scalar_scheme.f90\
+	scalar/scalars.f90\
 	scalar/scalar_pnpn.f90\
 	scalar/scalar_pnpn_bc_fctry.f90\
 	scalar/scalar_aux.f90\

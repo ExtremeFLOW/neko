@@ -1,4 +1,4 @@
-! Copyright (c) 2022-2024, The Neko Authors
+! Copyright (c) 2022-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ module scalar_scheme
   use field_list, only: field_list_t
   use space, only : space_t
   use dofmap, only : dofmap_t
-  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER
+  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER, ksp_monitor_t
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
   use neumann, only : neumann_t
@@ -128,15 +128,17 @@ module scalar_scheme
      !> Density.
      type(field_t), pointer :: rho => null()
      !> Thermal diffusivity.
-     type(field_t) :: lambda
+     type(field_t), pointer :: lambda => null()
      !> Specific heat capacity.
-     type(field_t) :: cp
+     type(field_t), pointer :: cp => null()
      !> Turbulent Prandtl number.
      real(kind=rp) :: pr_turb
      !> Field list with cp and lambda
      type(field_list_t) :: material_properties
      !> Is lambda varying in time? Currently only due to LES models.
      logical :: variable_material_properties = .false.
+     ! Lag arrays for the RHS.
+     type(field_t) :: abx1, abx2
      procedure(user_material_properties), nopass, pointer :: &
           user_material_properties => null()
    contains
@@ -211,15 +213,18 @@ module scalar_scheme
 
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine scalar_scheme_step_intrf(this, time, ext_bdf, dt_controller)
+     subroutine scalar_scheme_step_intrf(this, time, ext_bdf, dt_controller, &
+          ksp_results)
        import scalar_scheme_t
        import time_state_t
        import time_scheme_controller_t
        import time_step_controller_t
+       import ksp_monitor_t
        class(scalar_scheme_t), intent(inout) :: this
        type(time_state_t), intent(in) :: time
        type(time_scheme_controller_t), intent(in) :: ext_bdf
        type(time_step_controller_t), intent(in) :: dt_controller
+       type(ksp_monitor_t), intent(inout) :: ksp_results
      end subroutine scalar_scheme_step_intrf
   end interface
 
@@ -249,7 +254,7 @@ contains
     logical :: logical_val
     real(kind=rp) :: real_val, solver_abstol
     integer :: integer_val, ierr
-    character(len=:), allocatable :: solver_type, solver_precon, field_name
+    character(len=:), allocatable :: solver_type, solver_precon
     type(json_file) :: precon_params
     real(kind=rp) :: GJP_param_a, GJP_param_b
 
@@ -291,13 +296,11 @@ contains
     this%params => params
     this%msh => msh
 
-    call json_get_or_default(params, 'field_name', field_name, 's')
-
-    if (.not. neko_field_registry%field_exists(field_name)) then
-       call neko_field_registry%add_field(this%dm_Xh, field_name)
+    if (.not. neko_field_registry%field_exists(this%name)) then
+       call neko_field_registry%add_field(this%dm_Xh, this%name)
     end if
 
-    this%s => neko_field_registry%get_field(field_name)
+    this%s => neko_field_registry%get_field(this%name)
 
     call this%slag%init(this%s, 2)
 
@@ -352,7 +355,7 @@ contains
     call this%f_Xh%init(this%dm_Xh, fld_name = "scalar_rhs")
 
     ! Initialize the source term
-    call this%source_term%init(this%f_Xh, this%c_Xh, user)
+    call this%source_term%init(this%f_Xh, this%c_Xh, user, this%name)
     call this%source_term%add(params, 'source_terms')
 
     ! todo parameter file ksp tol should be added
@@ -396,10 +399,10 @@ contains
     call this%source_term%free()
 
     call this%bcs%free()
-
-    call this%cp%free()
-    call this%lambda%free()
     call this%slag%free()
+
+    nullify(this%cp)
+    nullify(this%lambda)
 
   end subroutine scalar_scheme_free
 
@@ -547,12 +550,15 @@ contains
     dummy_mp_ptr => dummy_user_material_properties
 
     ! Fill lambda field with the physical value
-    call this%lambda%init(this%dm_Xh, "lambda")
-    call this%cp%init(this%dm_Xh, "cp")
+
+    call neko_field_registry%add_field(this%dm_Xh, this%name // "_lambda")
+    call neko_field_registry%add_field(this%dm_Xh, this%name // "_cp")
+    this%lambda => neko_field_registry%get_field(this%name // "_lambda")
+    this%cp => neko_field_registry%get_field(this%name // "_cp")
 
     call this%material_properties%init(2)
-    call this%material_properties%assign_to_field(1, this%cp)
-    call this%material_properties%assign_to_field(2, this%lambda)
+    call this%material_properties%assign(1, this%cp)
+    call this%material_properties%assign(2, this%lambda)
 
     if (.not. associated(user%material_properties, dummy_mp_ptr)) then
 
