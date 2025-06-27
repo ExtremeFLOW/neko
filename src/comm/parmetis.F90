@@ -108,10 +108,10 @@ contains
 
   !> Compute a k-way partitioning of a mesh @a msh
   subroutine parmetis_partmeshkway(msh, parts, weights, nprts)
-    type(mesh_t), intent(inout) :: msh                !< Mesh
-    type(mesh_fld_t), intent(inout) :: parts          !< Partitions
+    type(mesh_t), intent(inout) :: msh !< Mesh
+    type(mesh_fld_t), intent(inout) :: parts !< Partitions
     type(mesh_fld_t), intent(in), optional :: weights !< Weights
-    integer, intent(in), optional :: nprts            !< Number of partitions
+    integer, intent(in), optional :: nprts !< Number of partitions
     integer(kind=M_INT), target :: wgtflag, numflag, ncon, ncommonnodes
     integer(kind=M_INT), target :: nparts, options(3), edgecut, rcode
     real(kind=M_REAL), allocatable, target, dimension(:) :: tpwgts, ubvec
@@ -179,7 +179,7 @@ contains
   !> Compute a k-way partitioning of a mesh @a msh using
   !! a coordinated-based space-filing curves method
   subroutine parmetis_partgeom(msh, parts)
-    type(mesh_t), intent(inout) :: msh       !< Mesh
+    type(mesh_t), intent(inout) :: msh !< Mesh
     type(mesh_fld_t), intent(inout) :: parts !< Partitions
     integer(kind=M_INT), target :: ndims
     real(kind=M_REAL), allocatable, target, dimension(:) :: xyz
@@ -285,17 +285,17 @@ contains
 
   !> Compute a k-way partitioning of a mesh @a msh
   subroutine parmetis_partmeshkway(msh, parts, weights, nprts)
-    type(mesh_t), intent(inout) :: msh                !< Mesh
-    type(mesh_fld_t), intent(inout) :: parts          !< Partitions
+    type(mesh_t), intent(inout) :: msh !< Mesh
+    type(mesh_fld_t), intent(inout) :: parts !< Partitions
     type(mesh_fld_t), intent(in), optional :: weights !< Weights
-    integer, intent(in), optional :: nprts            !< Number of partitions
+    integer, intent(in), optional :: nprts !< Number of partitions
     call neko_error('NEKO needs to be built with ParMETIS support')
   end subroutine parmetis_partmeshkway
 
   !> Compute a k-way partitioning of a mesh @a msh using
   !! a coordinated-based space-filing curves method
   subroutine parmetis_partgeom(msh, parts)
-    type(mesh_t), intent(inout) :: msh       !< Mesh
+    type(mesh_t), intent(inout) :: msh !< Mesh
     type(mesh_fld_t), intent(inout) :: parts !< Partitions
     call neko_error('NEKO needs to be built with ParMETIS support')
   end subroutine parmetis_partgeom
