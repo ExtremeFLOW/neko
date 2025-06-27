@@ -33,16 +33,16 @@
 !> Legacy VTK file format
 !! @details This module defines interface to read/write legacy VTK file
 module vtk_file
-  use num_types
-  use generic_file
-  use utils
-  use mesh
-  use field
-  use dofmap
-  use mesh_field
-  use tet_mesh
-  use tri_mesh
-  use logger
+  use num_types, only : rp, dp
+  use generic_file, only : generic_file_t
+  use utils, only : neko_error, filename_suffix_pos
+  use mesh, only : mesh_t
+  use field, only : field_t
+  use dofmap, only : dofmap_t
+  use mesh_field, only : mesh_fld_t
+  use tet_mesh, only : tet_mesh_t
+  use tri_mesh, only : tri_mesh_t
+  use logger, only : neko_log
   use comm
   implicit none
   private
