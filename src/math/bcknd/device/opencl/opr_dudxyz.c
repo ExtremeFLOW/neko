@@ -96,7 +96,6 @@ void opencl_dudxyz(void *du, void *u,
     CASE(9);
     CASE(10);
     CASE(11);
-    CASE(12);
-  }
+   }
 } 
 

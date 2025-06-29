@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2024, The Neko Authors
+ Copyright (c) 2021-2025, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -72,7 +72,7 @@ void opencl_masked_copy(void *a, void *b, void *mask, int *n, int *m) {
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &mask));
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
-  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), m));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), m));
 
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
@@ -101,7 +101,7 @@ void opencl_masked_gather_copy(void *a, void *b, void *mask, int *n, int *m) {
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &mask));
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
-  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), m));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), m));
 
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
@@ -130,7 +130,7 @@ void opencl_masked_scatter_copy(void *a, void *b, void *mask, int *n, int *m) {
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &mask));
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
-  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), m));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), m));
 
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
@@ -609,6 +609,7 @@ void opencl_invcol1(void *a, int *n) {
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
 
   cl_kernel kernel = clCreateKernel(math_program, "invcol1_kernel", &err);
+  CL_CHECK(err);
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(int), n));
@@ -1049,6 +1050,55 @@ real opencl_glsc2(void *a, void *b, int *n) {
   real * buf = (real *) malloc(nb * sizeof(real));
 
   cl_kernel kernel = clCreateKernel(math_program, "glsc2_kernel", &err);
+  CL_CHECK(err);
+
+  cl_mem buf_d = clCreateBuffer(glb_ctx, CL_MEM_READ_WRITE,
+                                nb * sizeof(real), NULL, &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &buf_d));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
+
+  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, &kern_wait));
+
+
+  CL_CHECK(clEnqueueReadBuffer((cl_command_queue) glb_cmd_queue, buf_d, CL_TRUE,
+                               0, nb * sizeof(real), buf, 1, &kern_wait, NULL));
+
+  real res = 0.0;
+  for (i = 0; i < nb; i++) {
+    res += buf[i];
+  }
+
+  free(buf);
+  CL_CHECK(clReleaseMemObject(buf_d));
+
+  return res;
+}
+
+/**
+ * Fortran wrapper glsubnorm2
+ * Weighted inner product \f$ a^T b c \f$
+ */
+real opencl_glsubnorm2(void *a, void *b, int *n) {
+  cl_int err;
+  cl_event kern_wait;
+  int i;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  real * buf = (real *) malloc(nb * sizeof(real));
+
+  cl_kernel kernel = clCreateKernel(math_program, "glsubnorm2_kernel", &err);
   CL_CHECK(err);
 
   cl_mem buf_d = clCreateBuffer(glb_ctx, CL_MEM_READ_WRITE,

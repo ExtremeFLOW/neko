@@ -33,19 +33,19 @@
 !> NEKTON session data reader
 !! @details This module is used to read NEKTON session data in ascii
 module rea_file
-  use generic_file
-  use num_types
-  use utils
-  use mesh
-  use point
-  use map
-  use rea
+  use generic_file, only : generic_file_t
+  use num_types, only : rp, dp
+  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS
+  use point, only :point_t
+  use map, only : map_t
+  use rea, only : rea_t, rea_free
   use re2_file, only: re2_file_t
-  use map_file
+  use map_file, only : map_file_t
   use comm
-  use datadist
-  use htable
-  use logger
+  use datadist, only : linear_dist_t
+  use htable, only : htable_pt_t
+  use logger, only : LOG_SIZE, neko_log, NEKO_LOG_DEBUG
+  use utils, only : neko_error, filename_chsuffix
   implicit none
   private
 
@@ -177,7 +177,7 @@ contains
        call filename_chsuffix(this%fname, map_fname, 'map')
        inquire(file=map_fname, exist=read_map)
        if (read_map) then
-          call map_init(nm, nelgv, 2**ndim)
+          call nm%init(nelgv, 2**ndim)
           call map_file%init(map_fname)
           call map_file%read(nm)
        else
@@ -284,7 +284,7 @@ contains
        read(file_unit,*)
        read(file_unit,*)
        if (.not. read_bcs) then ! Mark zones in the mesh
-          call neko_log%message("Reading boundary conditions", neko_log_debug)
+          call neko_log%message("Reading boundary conditions", NEKO_LOG_DEBUG)
           allocate(cbc(6,nelgv))
           allocate(bc_data(6,2*ndim,nelgv))
           off = 0

@@ -104,7 +104,7 @@ contains
     u => neko_field_registry%get_field('u')
     v => neko_field_registry%get_field('v')
     w => neko_field_registry%get_field('w')
-    s => neko_field_registry%get_field('s')
+    s => neko_field_registry%get_field('temperature')
     rapr = Ra*Pr
     ta2pr = ta2*Pr
 

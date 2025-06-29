@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,14 +32,15 @@
 !
 !> Generic Gather-scatter backend for accelerators
 module gs_device
-  use neko_config
-  use num_types
-  use gs_bcknd
-  use device
-  use gs_ops
-  use utils
+  use num_types, only : rp, c_rp
+  use gs_bcknd, only : gs_bcknd_t
+  use device, only : device_map, device_memcpy, device_memset, &
+       device_free, device_event_destroy, device_event_create, &
+       device_event_record, device_get_ptr, glb_cmd_queue, &
+       device_sync, HOST_TO_DEVICE, DEVICE_TO_HOST
+  use utils, only: neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int, C_NULL_PTR, &
-       c_associated
+       c_associated, c_sizeof, c_size_t
   implicit none
   private
 
@@ -110,22 +111,22 @@ module gs_device
   end interface
 #elif HAVE_OPENCL
   interface
-     subroutine opencl_gather_kernel(v, m, o, dg, u, n, gd, nb, b, bo, op) &
+     subroutine opencl_gather_kernel(v, m, o, dg, u, n, gd, nb, b, bo, op, strm) &
           bind(c, name='opencl_gather_kernel')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, n, nb, o, op
-       type(c_ptr), value :: v, u, dg, gd, b, bo
+       type(c_ptr), value :: v, u, dg, gd, b, bo, strm
      end subroutine opencl_gather_kernel
   end interface
 
   interface
-     subroutine opencl_scatter_kernel(v, m, dg, u, n, gd, nb, b, bo) &
+     subroutine opencl_scatter_kernel(v, m, dg, u, n, gd, nb, b, bo, strm) &
           bind(c, name='opencl_scatter_kernel')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, n, nb
-       type(c_ptr), value :: v, u, dg, gd, b, bo
+       type(c_ptr), value :: v, u, dg, gd, b, bo, strm
      end subroutine opencl_scatter_kernel
   end interface
 #endif
@@ -256,6 +257,12 @@ contains
 
          if (.not. c_associated(v_d)) then
             call device_map(v, v_d, m)
+            block
+              real(c_rp) :: rp_dummy
+              integer(c_size_t) :: s
+              s = c_sizeof(rp_dummy) * m
+              call device_memset(v_d, 0, s, strm = strm)
+            end block
          end if
 
          if (.not. c_associated(dg_d)) then
@@ -296,7 +303,7 @@ contains
               nb, b_d, bo_d, op, strm)
 #elif HAVE_OPENCL
          call opencl_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
-              nb, b_d, bo_d, op)
+              nb, b_d, bo_d, op, strm)
 #else
          call neko_error('No device backend configured')
 #endif
@@ -310,6 +317,12 @@ contains
 
          if (.not. c_associated(v_d)) then
             call device_map(v, v_d, m)
+            block
+              real(c_rp) :: rp_dummy
+              integer(c_size_t) :: s
+              s = c_sizeof(rp_dummy) * m
+              call device_memset(v_d, 0, s, strm = strm)
+            end block
          end if
 
          if (.not. c_associated(dg_d)) then
@@ -351,12 +364,12 @@ contains
               nb, b_d, bo_d, op, strm)
 #elif HAVE_OPENCL
          call opencl_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
-              nb, b_d, bo_d, op)
+              nb, b_d, bo_d, op, strm)
 #else
          call neko_error('No device backend configured')
 #endif
 
-#if defined(HAVE_HIP) || defined(HAVE_CUDA)
+#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL)
          call device_event_record(this%gather_event, strm)
 #endif
 
@@ -398,7 +411,7 @@ contains
 #elif HAVE_CUDA
          call cuda_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, bo_d, strm)
 #elif HAVE_OPENCL
-         call opencl_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, bo_d)
+         call opencl_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, bo_d, strm)
 #else
          call neko_error('No device backend configured')
 #endif
@@ -418,12 +431,12 @@ contains
 #elif HAVE_CUDA
          call cuda_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, bo_d, strm)
 #elif HAVE_OPENCL
-         call opencl_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, bo_d)
+         call opencl_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, bo_d, strm)
 #else
          call neko_error('No device backend configured')
 #endif
 
-#if defined(HAVE_HIP) || defined(HAVE_CUDA)
+#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL)
          if (c_associated(event)) then
             call device_event_record(event, strm)
          else

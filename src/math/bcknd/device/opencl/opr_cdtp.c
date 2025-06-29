@@ -46,7 +46,7 @@
 
 #include "cdtp_kernel.cl.h"
 
-/** 
+/**
  * Fortran wrapper for device OpenCL \f$ D^T X \f$
  */
 void opencl_cdtp(void *dtx, void *x,
@@ -54,10 +54,10 @@ void opencl_cdtp(void *dtx, void *x,
                  void *dxt, void *dyt, void *dzt,
                  void *w3, int *nel, int *lx) {
   cl_int err;
-  
+
   if (cdtp_program == NULL)
     opencl_kernel_jit(cdtp_kernel, (cl_program *) &cdtp_program);
-  
+
   const size_t global_item_size = 256 * (*nel);
   const size_t local_item_size = 256;
 
@@ -84,7 +84,7 @@ void opencl_cdtp(void *dtx, void *x,
                                       &local_item_size, 0, NULL, NULL));        \
     }                                                                           \
     break
-    
+
   switch(*lx) {
     CASE(2);
     CASE(3);
@@ -97,6 +97,6 @@ void opencl_cdtp(void *dtx, void *x,
     CASE(10);
     CASE(11);
     CASE(12);
+    CASE(13);
   }
-} 
-
+}

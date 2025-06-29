@@ -198,6 +198,7 @@ contains
 
     conv = .false.
     iter = 0
+    rnorm = 0.0_rp
     glb_n = n / x%msh%nelv * x%msh%glb_nelv
 
     if (present(niter)) then
@@ -236,7 +237,7 @@ contains
           ksp_results%res_start = div0
        endif
 
-       if (abscmp(this%gam(1), 0.0_rp)) return
+       if (abscmp(this%gam(1), 0.0_rp)) exit
 
        rnorm = 0.0_rp
        temp = one / this%gam(1)

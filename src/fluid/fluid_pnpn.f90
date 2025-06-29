@@ -745,6 +745,7 @@ contains
       ksp_results(1) = &
            this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, &
            this%bclst_dp, gs_Xh)
+      ksp_results(1)%name = 'Pressure'
 
 
       call profiler_end_region('Pressure_solve', 3)
@@ -790,6 +791,13 @@ contains
            this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, &
            this%ksp_vel%max_iter)
       call profiler_end_region("Velocity_solve", 4)
+      if (this%full_stress_formulation) then
+         ksp_results(2)%name = 'Momentum'
+      else
+         ksp_results(2)%name = 'X-Velocity'
+         ksp_results(3)%name = 'Y-Velocity'
+         ksp_results(4)%name = 'Z-Velocity'
+      end if
 
       call this%proj_vel%post_solving(du%x, dv%x, dw%x, Ax_vel, c_Xh, &
            this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, n, tstep, &
@@ -812,7 +820,7 @@ contains
               this%ksp_vel%max_iter)
       end if
 
-      call fluid_step_info(tstep, t, dt, ksp_results, &
+      call fluid_step_info(time, ksp_results, &
            this%full_stress_formulation, this%strict_convergence)
 
     end associate
@@ -1013,6 +1021,11 @@ contains
              call neko_error("No boundary_conditions entry in the case file!")
           end if
        end do
+
+       ! For a pure periodic case, we still need to initilise the bc lists
+       ! to a zero size to avoid issues with apply() in step()
+       call this%bcs_vel%init()
+       call this%bcs_prs%init()
 
     end if
 

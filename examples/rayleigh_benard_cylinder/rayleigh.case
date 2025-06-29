@@ -65,6 +65,7 @@
             ]
         },
         "scalar": {
+            "name": "temperature",
             "enabled": true,
             "Pr": 1.0,
             "initial_condition": {

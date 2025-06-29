@@ -398,9 +398,8 @@ contains
     nullify(this%f_x)
     nullify(this%f_y)
     nullify(this%f_z)
-
-    call this%rho%free()
-    call this%mu%free()
+    nullify(this%rho)
+    nullify(this%mu)
 
   end subroutine fluid_scheme_free
 
@@ -610,11 +609,13 @@ contains
 
     dummy_mp_ptr => dummy_user_material_properties
 
-    call this%mu%init(this%dm_Xh, "mu")
-    call this%rho%init(this%dm_Xh, "rho")
+    call neko_field_registry%add_field(this%dm_Xh, this%name // "_mu")
+    call neko_field_registry%add_field(this%dm_Xh, this%name // "_rho")
+    this%mu => neko_field_registry%get_field(this%name // "_mu")
+    this%rho => neko_field_registry%get_field(this%name // "_rho")
     call this%material_properties%init(2)
-    call this%material_properties%assign_to_field(1, this%rho)
-    call this%material_properties%assign_to_field(2, this%mu)
+    call this%material_properties%assign(1, this%rho)
+    call this%material_properties%assign(2, this%mu)
 
     if (.not. associated(user%material_properties, dummy_mp_ptr)) then
 
