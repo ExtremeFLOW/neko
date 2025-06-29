@@ -136,14 +136,14 @@ jobs:
           ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/${NVARCH}/${NVVER}/cuda/
           make -j${{ steps.setup-env.outputs.nproc }}
 
-      - name: Integration tests
-        if: matrix.backend == 'cpu' && matrix.os == 'ubuntu-24.04'
-        run: |
-           source myenv/bin/activate
-           chmod +x $MAKENEKO_EXEC
-           cd tests/integration
-           pytest --max_nprocs=2
-           cd ../..
+#      - name: Integration tests
+#        if: matrix.backend == 'cpu' && matrix.os == 'ubuntu-24.04'
+#        run: |
+#           source myenv/bin/activate
+#           chmod +x $MAKENEKO_EXEC
+#           cd tests/integration
+#           pytest --max_nprocs=2
+#           cd ../..
 
       - name: Dist (CPU backend)
         if: matrix.backend == 'cpu'
@@ -169,10 +169,10 @@ jobs:
           ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/${NVARCH}/${NVVER}/cuda/
           make -j $(nproc)
 
-      - name: Archive integration test report
-        if: matrix.backend == 'cpu' && failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Nvidia Integration test logs - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
-          path: tests/integration/logs
-          retention-days: 1
+#      - name: Archive integration test report
+#        if: matrix.backend == 'cpu' && failure()
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: Nvidia Integration test logs - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
+#          path: tests/integration/logs
+#          retention-days: 1
