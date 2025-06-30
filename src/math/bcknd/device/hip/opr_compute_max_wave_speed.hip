@@ -39,7 +39,7 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 #include <hip/hip_runtime.h>
-#include <math/bcknd/device/device_config.h>
+#include <device/device_config.h>
 #include <math/bcknd/device/hip/mathops_kernel.h>
 
 void hip_compute_max_wave_speed(real *max_wave_speed_d, 

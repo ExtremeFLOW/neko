@@ -36,10 +36,10 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <math/bcknd/device/device_config.h>
-#include <math/bcknd/device/opencl/jit.h>
-#include <math/bcknd/device/opencl/prgm_lib.h>
-#include <math/bcknd/device/opencl/check.h>
+#include <device/device_config.h>
+#include <device/opencl/jit.h>
+#include <device/opencl/prgm_lib.h>
+#include <device/opencl/check.h>
 
 #include "compute_max_wave_speed_kernel.cl.h"
 

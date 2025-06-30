@@ -41,7 +41,7 @@ extern "C" {
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <cublas.h>
-#include <math/bcknd/device/device_config.h>
+#include <device/device_config.h>
 #include <math/bcknd/device/cuda/mathops_kernel.h>
 
 void cuda_compute_max_wave_speed(real *max_wave_speed_d, 
