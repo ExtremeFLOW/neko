@@ -55,7 +55,7 @@ module krylov
   !> Type for storing initial and final residuals in a Krylov solver.
   type, public :: ksp_monitor_t
      !> Name of the solver in question
-     character(len=10) :: name
+     character(len=18) :: name
      !> Iteration number.
      integer :: iter
      !> Initial residual.
@@ -380,7 +380,7 @@ contains
     class(ksp_monitor_t), intent(in) :: this
     character(len=LOG_SIZE) :: log_buf
 
-    write(log_buf, '((A5,7x),A3,(A5,5x),1x,A6,3x,A15,3x,A15)') &
+    write(log_buf, '((A5,7x),A3,(A5,13x),1x,A6,3x,A15,3x,A15)') &
          'Step:', ' | ', 'Field:', 'Iters:', &
          'Start residual:', 'Final residual:'
     call neko_log%message(log_buf)
@@ -396,7 +396,7 @@ contains
     character(len=:), allocatable :: output_format
 
     ! Define the output format
-    output_format = '(A12,A3,A10,1x,I6,3x,E15.9,3x,E15.9)'
+    output_format = '(A12,A3,A18,1x,I6,3x,E15.9,3x,E15.9)'
     write(step_str, '(I12)') step
     step_str = adjustl(step_str)
 
