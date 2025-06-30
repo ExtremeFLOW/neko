@@ -260,10 +260,14 @@ contains
           call unique_point_idx%set(this%msk(i), j)
        end if
     end do
-    call this%nx%init(unique_point_idx%num_entries())
-    call this%ny%init(unique_point_idx%num_entries())
-    call this%nz%init(unique_point_idx%num_entries())
-    call this%work%init(unique_point_idx%num_entries())
+
+    ! Only allocate work vectors if size is non-zero
+    if (unique_point_idx%num_entries() .gt. 0 ) then
+       call this%nx%init(unique_point_idx%num_entries())
+       call this%ny%init(unique_point_idx%num_entries())
+       call this%nz%init(unique_point_idx%num_entries())
+       call this%work%init(unique_point_idx%num_entries())
+    end if
     allocate(this%unique_mask(0:unique_point_idx%num_entries()))
 
     this%unique_mask(0) = unique_point_idx%num_entries()
@@ -290,7 +294,8 @@ contains
        this%nz%x(htable_data) = this%nz%x(htable_data) + normal(3)
     end do
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
+    if (NEKO_BCKND_DEVICE .eq. 1 .and. &
+         (unique_point_idx%num_entries() .gt. 0 )) then
        call device_map(this%unique_mask, this%unique_mask_d, &
             size(this%unique_mask))
        call device_memcpy(this%unique_mask, this%unique_mask_d, &
