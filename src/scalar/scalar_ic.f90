@@ -360,7 +360,7 @@ contains
        end select
 
        ! Generates an interpolator object and performs the point search
-       global_interp = fld_data%generate_interpolator(s%dof, s%msh, tolerance)
+       call fld_data%generate_interpolator(global_interp, s%dof, s%msh, tolerance)
 
        ! Evaluate scalar
        call global_interp%evaluate(s%x, fld_data%t%x)
