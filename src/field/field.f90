@@ -82,7 +82,15 @@ module field
      type(field_t), pointer :: ptr => null()
   end type field_ptr_t
 
+  public :: assign_pointer
+
 contains
+
+  subroutine assign_pointer(a,b)
+    type(field_t), intent(inout), target :: a
+    type(field_t), intent(inout), pointer :: b
+    b => a
+  end subroutine assign_pointer
 
   !> Initialize a field @a this on the mesh @a msh using an internal dofmap
   subroutine field_init_internal_dof(this, msh, space, fld_name)
