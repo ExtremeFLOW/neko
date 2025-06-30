@@ -32,15 +32,14 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <hip/hip_runtime.h>
 #include <device/device_config.h>
+#include <device/hip/check.h>
 #include <math/bcknd/device/hip/mathops_kernel.h>
+
+extern "C" {
 
 void hip_compute_max_wave_speed(real *max_wave_speed_d, 
                                 real *u_d, real *v_d, real *w_d,
@@ -52,17 +51,15 @@ void hip_compute_max_wave_speed(real *max_wave_speed_d,
   
 #ifdef HAVE_REAL_SINGLE
   hipLaunchKernelGGL(compute_max_wave_speed_kernel<float>, nblcks, nthrds, 0, 
-                     (hipStream_t) glb_cmd_strm, max_wave_speed_d, 
+                     (hipStream_t) glb_cmd_queue, max_wave_speed_d, 
                      u_d, v_d, w_d, gamma, p_d, rho_d, n);
 #else
   hipLaunchKernelGGL(compute_max_wave_speed_kernel<double>, nblcks, nthrds, 0, 
-                     (hipStream_t) glb_cmd_strm, max_wave_speed_d, 
+                     (hipStream_t) glb_cmd_queue, max_wave_speed_d, 
                      u_d, v_d, w_d, gamma, p_d, rho_d, n);
 #endif
   HIP_CHECK(hipGetLastError());
   
 }
 
-#ifdef __cplusplus
-}
-#endif 
+} 
