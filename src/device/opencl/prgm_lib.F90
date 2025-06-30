@@ -89,6 +89,9 @@ module opencl_prgm_lib
   !> Device lambda2 kernels
   type(c_ptr), public, bind(c) :: lambda2_program = C_NULL_PTR
 
+  !> Device compute_max_wave_speed kernels
+  type(c_ptr), public, bind(c) :: compute_max_wave_speed_program = C_NULL_PTR
+
   !> Device filter kernels
   type(c_ptr), public, bind(c) :: filter_program = C_NULL_PTR
 
@@ -278,6 +281,13 @@ contains
           call neko_error('Failed to release program')
        end if
        lambda2_program = C_NULL_PTR
+    end if
+
+    if (c_associated(compute_max_wave_speed_program)) then
+       if(clReleaseProgram(compute_max_wave_speed_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       compute_max_wave_speed_program = C_NULL_PTR
     end if
 
     if (c_associated(filter_program)) then

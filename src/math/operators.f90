@@ -37,7 +37,8 @@ module operators
   use num_types, only : rp, i8
   use opr_cpu, only : opr_cpu_cfl, opr_cpu_curl, opr_cpu_opgrad, &
        opr_cpu_conv1, opr_cpu_convect_scalar, opr_cpu_cdtp, &
-       opr_cpu_dudxyz, opr_cpu_lambda2, opr_cpu_set_convect_rst
+       opr_cpu_dudxyz, opr_cpu_lambda2, opr_cpu_set_convect_rst, &
+       opr_cpu_compute_max_wave_speed
   use opr_sx, only : opr_sx_cfl, opr_sx_curl, opr_sx_opgrad, &
        opr_sx_conv1, opr_sx_convect_scalar, opr_sx_cdtp, &
        opr_sx_dudxyz, opr_sx_lambda2, opr_sx_set_convect_rst
@@ -46,7 +47,7 @@ module operators
        opr_xsmm_convect_scalar, opr_xsmm_set_convect_rst
   use opr_device, only : opr_device_cdtp, opr_device_cfl, opr_device_curl, &
        opr_device_conv1, opr_device_dudxyz, &
-       opr_device_lambda2, opr_device_opgrad
+       opr_device_lambda2, opr_device_opgrad, opr_device_compute_max_wave_speed
   use space, only : space_t
   use coefs, only : coef_t
   use field, only : field_t
@@ -62,8 +63,9 @@ module operators
   implicit none
   private
 
-  public :: dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl, &
-       lambda2op, strain_rate, div, grad, set_convect_rst, runge_kutta
+  public :: dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl, cfl_compressible, &
+       lambda2op, strain_rate, div, grad, set_convect_rst, runge_kutta, &
+       compute_max_wave_speed
 
 contains
 
@@ -428,6 +430,33 @@ contains
 
   end function cfl
 
+  !! Compute the CFL number for compressible flows
+  !! @param dt The timestep.
+  !! @param max_wave_speed The precomputed maximum wave speed field.
+  !! @param Xh The SEM function space.
+  !! @param coef The SEM coefficients.
+  !! @param nelv The total number of elements.
+  !! @param gdim Number of geometric dimensions.
+  function cfl_compressible(dt, max_wave_speed, Xh, coef, nelv, gdim)
+    type(space_t), intent(in) :: Xh
+    type(coef_t), intent(in) :: coef
+    integer, intent(in) :: nelv, gdim
+    real(kind=rp), intent(in) :: dt
+    real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv), intent(in) :: max_wave_speed
+    real(kind=rp) :: cfl_compressible
+    integer :: ierr, n
+    real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: zero_velocity
+
+    n = Xh%lx * Xh%ly * Xh%lz * nelv
+    
+    ! Initialize zero velocity arrays for v and w components
+    call rzero(zero_velocity, n)
+    
+    ! Use incompressible CFL with max_wave_speed as u-component, zero v and w
+    cfl_compressible = cfl(dt, max_wave_speed, zero_velocity, zero_velocity, Xh, coef, nelv, gdim)
+
+  end function cfl_compressible
+
   !> Compute the strain rate tensor, i.e 0.5 * du_i/dx_j + du_j/dx_i
   !! @param s11 Will hold the 1,1 component of the strain rate tensor.
   !! @param s22 Will hold the 2,2 component of the strain rate tensor.
@@ -630,5 +659,29 @@ contains
     end do
 
   end subroutine runge_kutta
+
+  !> Compute the maximum wave speed for compressible flows
+  !! @param max_wave_speed The computed maximum wave speed field.
+  !! @param u The x component of velocity.
+  !! @param v The y component of velocity.
+  !! @param w The z component of velocity.
+  !! @param gamma The ratio of specific heats.
+  !! @param p The pressure field.
+  !! @param rho The density field.
+  !! @param n The total number of grid points.
+  subroutine compute_max_wave_speed(max_wave_speed, u, v, w, gamma, p, rho, n)
+    integer, intent(in) :: n
+    real(kind=rp), intent(in) :: gamma
+    real(kind=rp), dimension(n), intent(in) :: u, v, w, p, rho
+    real(kind=rp), dimension(n), intent(inout) :: max_wave_speed
+    
+    !> TODO: Add support for SX
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call opr_device_compute_max_wave_speed(max_wave_speed, u, v, w, gamma, p, rho, n)
+    else
+       call opr_cpu_compute_max_wave_speed(max_wave_speed, u, v, w, gamma, p, rho, n)
+    end if
+    
+  end subroutine compute_max_wave_speed
 
 end module operators
