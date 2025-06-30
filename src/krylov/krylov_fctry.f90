@@ -57,13 +57,13 @@ submodule (krylov) krylov_fctry
   character(len=20) :: KSP_KNOWN_TYPES(9) = [character(len=20) :: &
        "cg", &
        "pipecg", &
-       "fusedcg", &
+       "fused_cg", &
        "cacg", &
        "gmres", &
        "cheby", &
        "bicgstab", &
-       "fusedcoupledcg", &
-       "coupledcg"]
+       "fused_coupled_cg", &
+       "coupled_cg"]
 
 contains
 
@@ -100,7 +100,7 @@ contains
           allocate(cg_t::object)
        end if
 
-    case ('coupledcg')
+    case ('coupled_cg')
        allocate(cg_cpld_t::object)
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call neko_error('Coupled CG only supported for CPU')
@@ -118,7 +118,7 @@ contains
           allocate(pipecg_t::object)
        end if
 
-    case ('fusedcg')
+    case ('fused_cg')
        if (NEKO_BCKND_DEVICE .eq. 1) then
           if (NEKO_BCKND_OPENCL .eq. 1) then
              call neko_error('FusedCG not supported for OpenCL')
@@ -128,7 +128,7 @@ contains
           call neko_error('FusedCG only supported for CUDA/HIP')
        end if
 
-    case ('fusedcoupledcg')
+    case ('fused_coupled_cg')
        if (NEKO_BCKND_DEVICE .eq. 1) then
           if (NEKO_BCKND_OPENCL .eq. 1) then
              call neko_error('Coupled FusedCG not supported for OpenCL')

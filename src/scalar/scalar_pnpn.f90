@@ -331,20 +331,19 @@ contains
 
   end subroutine scalar_pnpn_free
 
-  subroutine scalar_pnpn_step(this, time, ext_bdf, dt_controller)
+  subroutine scalar_pnpn_step(this, time, ext_bdf, dt_controller, &
+       ksp_results)
     class(scalar_pnpn_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     type(time_scheme_controller_t), intent(in) :: ext_bdf
     type(time_step_controller_t), intent(in) :: dt_controller
+    type(ksp_monitor_t), intent(inout) :: ksp_results
     ! Number of degrees of freedom
     integer :: n
-    ! Linear solver results monitor
-    type(ksp_monitor_t) :: ksp_results(1)
-    character(len=LOG_SIZE) :: log_buf
 
     n = this%dm_Xh%size()
 
-    call profiler_start_region('Scalar', 2)
+    call profiler_start_region(trim(this%name), 2)
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
          cp => this%cp, rho => this%rho, lambda => this%lambda, &
          ds => this%ds, &
@@ -401,26 +400,26 @@ contains
       call this%update_material_properties(t, tstep)
 
       ! Compute scalar residual.
-      call profiler_start_region('Scalar_residual', 20)
+      call profiler_start_region(trim(this%name) // '_residual', 20)
       call res%compute(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, lambda, &
            rho%x(1,1,1,1)*cp%x(1,1,1,1), ext_bdf%diffusion_coeffs(1), dt, &
            dm_Xh%size())
 
       call gs_Xh%op(s_res, GS_OP_ADD)
 
-
       ! Apply a 0-valued Dirichlet boundary conditions on the ds.
       call this%bclst_ds%apply_scalar(s_res%x, dm_Xh%size())
 
-      call profiler_end_region('Scalar_residual', 20)
+      call profiler_end_region(trim(this%name) // '_residual', 20)
 
       call this%proj_s%pre_solving(s_res%x, tstep, c_Xh, n, dt_controller)
 
       call this%pc%update()
-      call profiler_start_region('Scalar_solve', 21)
-      ksp_results(1) = this%ksp%solve(Ax, ds, s_res%x, n, &
+      call profiler_start_region(trim(this%name) // '_solve', 21)
+      ksp_results = this%ksp%solve(Ax, ds, s_res%x, n, &
            c_Xh, this%bclst_ds, gs_Xh)
-      call profiler_end_region('Scalar_solve', 21)
+      ksp_results%name = trim(this%name)
+      call profiler_end_region(trim(this%name) // '_solve', 21)
 
       call this%proj_s%post_solving(ds%x, Ax, c_Xh, this%bclst_ds, gs_Xh, &
            n, tstep, dt_controller)
@@ -432,10 +431,8 @@ contains
          call add2s2(s%x, ds%x, 1.0_rp, n)
       end if
 
-      call scalar_step_info(tstep, t, dt, ksp_results)
-
     end associate
-    call profiler_end_region('Scalar', 2)
+    call profiler_end_region(trim(this%name), 2)
   end subroutine scalar_pnpn_step
 
   subroutine print_debug(this)

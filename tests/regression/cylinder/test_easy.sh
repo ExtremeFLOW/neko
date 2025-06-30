@@ -11,16 +11,16 @@ ref1=ref1_${2}.log
 ref2=ref2_${2}.log
 
 # Check that first residual is the same, allowed to differ on last digit...
-grep -E '\d+\s+\| Pressure' log1 | head -1 >l1
-grep -E '\d+\s+\| Pressure' ${ref1} | head -1 >r1
+grep -E '\d+\s+\| Pressure' log1 | head -1 | tr -s '[:space:]' >l1
+grep -E '\d+\s+\| Pressure' ${ref1} | head -1 | tr -s '[:space:]' >r1
 diff l1 r1 >res
 # Check that we do same number of residuals
 grep -E '\d+\s+\| Pressure' log1 | wc -l >l1
 grep -E '\d+\s+\| Pressure' ${ref1} | wc -l >r1
 diff l1 r1 >>res
 # Check that residual is same after restart
-grep -E ' 7\s+\| Pressure' log1 | sed 's/^[^|]*|/|/' >l1
-grep -E ' 2\s+\| Pressure' log2 | sed 's/^[^|]*|/|/' >l2
+grep -E ' 7\s+\| Pressure' log1 | sed 's/^[^|]*|/|/' | tr -s '[:space:]' >l1
+grep -E ' 2\s+\| Pressure' log2 | sed 's/^[^|]*|/|/' | tr -s '[:space:]' >l2
 diff l1 l2 >res
 
 if [ -s res ]; then
