@@ -406,11 +406,13 @@ contains
          file_format, 'fld')
     call this%output_controller%init(this%time%end_time)
     if (scalar) then
-       call this%f_out%init(precision, this%fluid, this%scalars, name = name, &
+       call this%f_out%init(precision, this%fluid%u, this%fluid%v, &
+            this%fluid%w, this%fluid%p, this%scalars, name = name, &
             path = trim(this%output_directory), &
             fmt = trim(file_format), layout = layout)
     else
-       call this%f_out%init(precision, this%fluid, name = name, &
+       call this%f_out%init(precision, this%fluid%u, this%fluid%v, &
+            this%fluid%w, this%fluid%p, name = name, &
             path = trim(this%output_directory), &
             fmt = trim(file_format), layout = layout)
     end if

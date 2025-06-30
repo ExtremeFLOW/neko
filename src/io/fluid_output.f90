@@ -33,6 +33,7 @@
 !> Defines an output for a fluid
 module fluid_output
   use num_types, only : rp
+  use field, only: field_t
   use fluid_scheme_incompressible, only : fluid_scheme_incompressible_t
   use fluid_scheme_base, only : fluid_scheme_base_t
   use scalar_scheme, only : scalar_scheme_t
@@ -55,11 +56,11 @@ module fluid_output
 
 contains
 
-  subroutine fluid_output_init(this, precision, fluid, scalar_fields, name, path, &
+  subroutine fluid_output_init(this, precision, u,v,w,p, scalar_fields, name, path, &
        fmt, layout)
     class(fluid_output_t), intent(inout) :: this
-    integer, intent(inout) :: precision
-    class(fluid_scheme_base_t), intent(in), target :: fluid
+    integer, intent(in) :: precision
+    type(field_t), intent(in), pointer :: u,v,w,p
     class(scalars_t), intent(in), optional, target :: scalar_fields
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path
@@ -101,10 +102,10 @@ contains
     ! Initialize field list with appropriate size
     call this%fluid%init(4 + n_scalars)
 
-    call this%fluid%assign(1, fluid%p)
-    call this%fluid%assign(2, fluid%u)
-    call this%fluid%assign(3, fluid%v)
-    call this%fluid%assign(4, fluid%w)
+    call this%fluid%assign(1, p)
+    call this%fluid%assign(2, u)
+    call this%fluid%assign(3, v)
+    call this%fluid%assign(4, w)
 
     ! Assign all scalar fields
     if (present(scalar_fields)) then
