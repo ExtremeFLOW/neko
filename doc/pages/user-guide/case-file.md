@@ -441,15 +441,14 @@ file documentation.
    `base_value` keyword, and then assigned a zone value inside a point zone. The
    point zone is specified by the `name` keyword, and should be defined in the
    `case.point_zones` object. See more about point zones @ref point-zones.md.
-5. `field`, where the initial condition is retrieved from a field file.
+5. `field`, where the initial condition is retrieved from a field file. 
    The following keywords can be used:
-
-| Name             | Description                                                                                        | Admissible values            | Default value |
-| ---------------- | -------------------------------------------------------------------------------------------------- | ---------------------------- | ------------- |
-| `file_name`      | Name of the field file to use (e.g. `myfield0.f00034`).                                            | Strings ending with `f*****` | -             |
-| `interpolate`    | Whether to interpolate the velocity and pressure fields from the field file onto the current mesh. | `true` or `false`            | `false`       |
-| `tolerance`      | Tolerance for the point search.                                                                    | Positive real.               | `1e-6`        |
-| `mesh_file_name` | If interpolation is enabled, the name of the field file that contains the mesh coordinates.        | Strings ending with `f*****` | `file_name`   |
+   | Name             | Description                                                                                        | Admissible values            | Default value |
+   |------------------|----------------------------------------------------------------------------------------------------|------------------------------|---------------|
+   | `file_name`      | Name of the field file to use (e.g. `myfield0.f00034`).                                            | Strings ending with `f*****` | -             |
+   | `interpolate`    | Whether to interpolate the velocity and pressure fields from the field file onto the current mesh. | `true` or `false`            | `false`       |
+   | `tolerance`      | Tolerance for the point search.                                                                    | Positive real.               | `1e-6`        |
+   | `mesh_file_name` | If interpolation is enabled, the name of the field file that contains the mesh coordinates.        | Strings ending with `f*****` | `file_name`   |
 
    @attention Interpolating a field from the same mesh but different
    polynomial order is performed implicitly and does not require to enable
@@ -464,13 +463,13 @@ file documentation.
    ~~~~~~~~~~~~~~~
    The output `#std 4 ...` indicates single precision,
    whereas `#std 8 ...` indicates double precision.
-   Neko write single precision `fld` files by default. To write your
+   Neko writes single precision `fld` files by default. To write your
    files in double precision, set `case.output_precision` to
    `"double"`.
 
-   @attention Neko does not detect wether interpolation is needed or not.
+   @attention Neko does not automatically detect if interpolation is needed.
    Interpolation will always be performed if `"interpolate"` is set
-   to `true` even if the field file matches with the current simulation.
+   to `true`, even if the field file matches with the current simulation.
 
 
 ### Source terms {#case-file_fluid-source-term}
@@ -530,6 +529,8 @@ The following types are currently implemented.
    non-pointwise user file subroutine. Should be used when running on the GPU.
 6. `brinkman`, Brinkman permeability forcing inside a pre-defined region.
 7. `gradient_jump_penalty`, perform gradient_jump_penalisation.
+8. `sponge`, adds a sponge term based on a reference velocity field, which is 
+   applied in a user-specified region of the domain.
 
 #### Brinkman
 The Brinkman source term introduces regions of resistance in the fluid domain.
@@ -664,6 +665,175 @@ uses the following parameters:
 * `scaling_exponent`, the scaling parameter \f$ b \f$ for \f$ P > 1 \f$, default
   to be `4.0`.
 
+#### Sponge
+
+The sponge source term adds a term to each of the momentum equations of the form
+
+\f$ \lambda_i f(\mathbf{x}) ( u_i^{bf} - u_i) \f$, where
+
+- \f$ \lambda_i \f$ is the amplitude of the sponge forcing in each Cartesian direction,
+- \f$ u_i^{\text{bf}} \f$ is a reference (baseflow) velocity field,
+- \f$ f(\mathbf{x}) \f$ is a user-defined sponge mask field, with values in 
+  \f$ [0, 1] \f$, defining where the sponge is active.
+ 
+Amplitudes are specified using the `amplitudes` keyword with an array of
+3 reals. Any of those values can be set to 0 to suppress the forcing in that
+particular direction. For example `[1.0, 1.0, 0.0]` will multiply the fringe
+field by 1, 1, and 0 in the `x`, `y` and `z` directions respectively, 
+effectively removing the forcing in the `z` direction.
+ 
+The reference velocity field, or `baseflow` can be set from three methods:
+1. `constant`, applies constant values according to the `values` keyword:
+
+   <details>
+   <summary><b><u>Example code snippet</u></b></summary>
+   ```json
+   "source_terms": [
+      {
+         "type": "sponge",
+         "amplitudes": [1.0, 1.0, 1.0],
+         "baseflow": {
+             "method": "constant",
+             "value": [2.0, 0.0, 0.0]
+         }
+      }
+   ]
+   ```
+   </details>
+
+2. `field`, where the velocity fields are retrieved from an `fld` file. 
+   Uses the same parameters as the field initial condition.
+   @note The same parameters as the `field` initial condition apply here.
+   
+   <details>
+   <summary><b><u>Example code snippet</u></b></summary>
+   ```json
+   "source_terms": [
+      {
+         "type": "sponge",
+         "amplitudes": [1.0, 1.0, 1.0],
+         "baseflow": {
+             "method": "field",
+             "file_name": "my_field0.f00016",
+             "mesh_file_name": "my_field0.f00000",
+             "interpolate": true,
+             "tolerance": 1e-6
+         }
+      }
+   ]
+   ```
+   </details>
+
+3. `initial_condition`, where the velocity field is set according to what 
+   is defined in `case.fluid.initial_condition`. Useful for setting 
+   velocity fields manually, especially for the `user` type initial condition.
+   <details>
+   <summary><b><u>Example code snippet</u></b></summary>
+   ```json
+   "source_terms": [
+      {
+         "type": "sponge",
+         "amplitudes": [1.0, 1.0, 1.0],
+         "baseflow": {
+             "method": "initial_condition"
+         }
+      }
+   ]
+   ```
+   </details>
+
+Finally, the fringe function field must be filled by the user. This must be
+done through the user file by adding the fringe field to the 
+`neko_field_registry` in either `user_init_modules` or `fluid_user_ic` (more 
+specifically, before the first call to compute the sponge source term).
+
+The fringe field must be set by adding a field to the `neko_field_registry` 
+under a specific name that can be retrieved internally. By default, Neko will
+search for the field `"sponge_fringe"` in the registry, but this can be changed
+by setting the parameter `fringe_registry_name`, which is important when using
+more than one sponge source term.
+
+<details>
+<summary><b><u>Example using `user_init_modules`</u></b></summary> 
+```fortran
+module user
+  use neko
+  implicit none
+
+contains
+
+  ! Register user-defined functions (see user_intf.f90)
+  subroutine user_setup(user)
+    type(user_t), intent(inout) :: user
+    user%user_init_modules => user_initialize
+  end subroutine user_setup
+
+  ! User-defined initialization called just before time loop starts
+  subroutine user_initialize(t, u, v, w, p, coef, params)
+    real(kind=rp) :: t
+    type(field_t), intent(inout) :: u, v, w, p
+    type(coef_t), intent(inout) :: coef
+    type(json_file), intent(inout) :: params
+
+    class(point_zone_t), pointer :: pz
+    type(field_t), pointer :: fringe
+
+    integer :: i, imask
+
+    pz => null()
+    fringe => null()
+
+    ! 
+    ! 1. Add the "sponge_field" to the field registry.
+    !    NOTE: The name of the fringe field in the registry 
+    !    can be changed with the parameter `fringe_registry_name`.
+    !    
+    !
+    call neko_field_registry%add_field(u%dof,"sponge_fringe") 
+    fringe => neko_field_registry%get_field("sponge_fringe")
+
+    !
+    ! 2. Set the function f(x,y,z) from 0 to 1. Here we do it
+    ! according to a poing zone we have set in the case file
+    ! called "myzone"
+    !
+    pz => neko_point_zone_registry%get_point_zone("myzone")
+    do i = 1, pz%size
+       imask = pz%mask(i)
+       fringe%x(imask,1,1,1) = 1.0_rp
+    end do
+
+    ! NOTE: You can dump the fringe field to file using the `dump_fields`
+    ! parameter. The fringe field will be stored under `pressure`.
+
+    nullify(fringe)
+    nullify(pz)
+
+  end subroutine user_initialize
+end module user
+```
+</details>
+
+In order to visualize your baseflow and fringe field, you may set 
+`dump_fields` to `true`. An `fld` file will be written to disk as 
+`spng_fields.fld`(note, not in `output_directory`) with the fringe field 
+stored as `pressure`. You may change the name of the field file by setting
+`dump_file_name` (must have the extension `fld`).
+
+The parameters for the sponge source term are summarized in the table below: 
+
+| Name                     | Description                                                                 | Admissible values                     | Default value       |
+|--------------------------|-----------------------------------------------------------------------------|---------------------------------------|---------------------|
+| `amplitudes`             | Sponge forcing strength in each Cartesian direction                         | Array of 3 reals                      | -                   |
+| `baseflow.method`        | Method to define the reference (baseflow) velocity                          | `"constant"`, `"field"`, `"initial_condition"` | -          |
+| `baseflow.value`        | Velocity vector for constant baseflow                                       | Array of 3 reals                      | -                   |
+| `baseflow.file_name`     | File containing baseflow velocity field                                     | String                                | -                   |
+| `baseflow.mesh_file_name`| Mesh file corresponding to the baseflow field                               | String                                | -                   |
+| `baseflow.interpolate`   | Whether to interpolate field values to current mesh                         | Boolean                               | `false`             |
+| `baseflow.tolerance`     | Tolerance for interpolation convergence                                     | Real                                  | -                   |
+| `fringe_registry_name`   | Name of the fringe mask field in `neko_field_registry`                      | String                                | `"sponge_fringe"`   |
+| `dump_fields`            | If `true`, dumps the fringe and baseflow fields for visualization           | Boolean                               | `false`             |
+| `dump_file_name`         | Name of the `fld` file in which to dump the base flow and fringe fields     | String ending with `fld`              | `spng_fields.fld`   |
 
 ## Linear solver configuration
 The mandatory `velocity_solver` and `pressure_solver` objects are used to
