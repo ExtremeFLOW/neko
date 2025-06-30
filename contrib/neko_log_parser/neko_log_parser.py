@@ -110,7 +110,7 @@ def save_as_csv(array, columns, output_file):
 
     header = ",".join(columns)
     np.savetxt(
-        output_file, array, delimiter=",", header=header, comments="", fmt="fmt=%.17e"
+        output_file, array, delimiter=",", header=header, comments="", fmt="%.17e"
     )
     print(f"Saved CSV to {output_file}")
 
