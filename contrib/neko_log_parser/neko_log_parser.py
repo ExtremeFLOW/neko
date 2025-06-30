@@ -65,11 +65,8 @@ def parse_neko_log(log_lines):
 def flatten_parsed_data(parsed_data):
     import numpy as np
 
-    # Collect all unique field names across all steps
-    all_fields = set()
-    for step in parsed_data.values():
-        all_fields.update(step["fields"].keys())
-    all_fields = sorted(all_fields)
+    first_step = next(iter(parsed_data.values()))
+    all_fields = sorted(first_step["fields"].keys())
 
     # Define the full list of column names
     columns = ["step", "time", "CFL", "dt", "total_step_time"]
