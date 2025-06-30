@@ -131,7 +131,7 @@ contains
     type(json_file) :: baseflow_subdict
     integer :: i,izone
 
-    call neko_log%section("SPONGE SOURCE TERM", LVL=NEKO_LOG_INFO)
+    call neko_log%section("SPONGE SOURCE TERM", LVL=NEKO_LOG_DEBUG)
 
     call json_get_or_default(json, "dump_fields", dump_fields, .false.)
     call json_get_or_default(json, "dump_file_name", dump_fname, &
@@ -198,7 +198,7 @@ contains
             " is not a valid method")
     end select
 
-    call neko_log%end_section(lvl=NEKO_LOG_INFO)
+    call neko_log%end_section(lvl=NEKO_LOG_DEBUG)
 
   end subroutine sponge_init_from_json
 
@@ -324,16 +324,16 @@ contains
     this%dump_fields = dump_fields
     this%dump_fname = trim(dump_fname)
 
-    call neko_log%message("Initializing sponge", lvl = NEKO_LOG_INFO)
+    call neko_log%message("Initializing sponge", lvl = NEKO_LOG_DEBUG)
 
     call neko_log%message("Pointing at fields u,v,w", &
-         lvl = NEKO_LOG_INFO)
+         lvl = NEKO_LOG_DEBUG)
     this%u => neko_field_registry%get_field_by_name("u")
     this%v => neko_field_registry%get_field_by_name("v")
     this%w => neko_field_registry%get_field_by_name("w")
 
     call neko_log%message("Initializing bf fields", &
-         lvl = NEKO_LOG_INFO)
+         lvl = NEKO_LOG_DEBUG)
 
     call this%u_bf%init(this%u%dof, "sponge_u_bf")
     call this%v_bf%init(this%u%dof, "sponge_v_bf")
