@@ -453,8 +453,7 @@ contains
     call rzero(zero_velocity, n)
     
     ! Use incompressible CFL with max_wave_speed as u-component, zero v and w
-    !cfl_compressible = cfl(dt, max_wave_speed, zero_velocity, zero_velocity, Xh, coef, nelv, gdim)
-    cfl_compressible = 0.01_rp
+    cfl_compressible = cfl(dt, max_wave_speed, max_wave_speed, max_wave_speed, Xh, coef, nelv, gdim)
 
   end function cfl_compressible
 

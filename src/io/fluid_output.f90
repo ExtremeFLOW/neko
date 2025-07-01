@@ -132,6 +132,7 @@ contains
     end if
 
     ! Add density field if it exists (for compressible flows)
+    ! Bug: the output of the density field is not correct
     if (has_density) then
        i = i + 1
        call this%fluid%assign(i, fluid%rho)
