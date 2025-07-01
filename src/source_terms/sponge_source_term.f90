@@ -36,7 +36,7 @@ module sponge_source_term
   use num_types, only : rp, dp, sp
   use json_module, only : json_file
   use field_registry, only : neko_field_registry
-  use field, only : field_t, assign_pointer
+  use field, only : field_t
   use json_utils, only : json_get, json_get_or_default, json_extract_object
   use utils, only: neko_error
   use device, only: device_memcpy, HOST_TO_DEVICE
@@ -52,8 +52,8 @@ module sponge_source_term
   use coefs, only: coef_t
   use utils, only: NEKO_FNAME_LEN
   use file, only: file_t
-  use fluid_output, only: fluid_output_t
   use comm, only: pe_rank
+  use fld_file_output, only: fld_file_output_t
   implicit none
   private
 
@@ -387,13 +387,8 @@ contains
     type(json_file) :: json_subdict
     character(len=:), allocatable :: string_val
 
-    type(fluid_output_t) :: fout
-    type(field_t), pointer :: ud, vd, wd
+    type(fld_file_output_t) :: fout
     class(case_t), pointer :: case
-    ud => null()
-    vd => null()
-    wd => null()
-
     case => null()
 
     !
@@ -454,16 +449,12 @@ contains
        ! Dump the fringe and/or baseflow fields for visualization
        !
        if (this%dump_fields) then
-
-          call assign_pointer(this%u_bf, ud)
-          call assign_pointer(this%v_bf, vd)
-          call assign_pointer(this%w_bf, wd)
-          call fout%init(sp, ud, vd, wd, this%fringe, &
-               name=trim(this%dump_fname))
+          call fout%init(sp, trim(this%dump_fname), 4)
+          call fout%fields%assign_to_ptr(1, this%fringe)
+          call fout%fields%assign_to_field(2, this%u_bf)
+          call fout%fields%assign_to_field(3, this%v_bf)
+          call fout%fields%assign_to_field(4, this%w_bf)
           call fout%sample(0.0_rp)
-          nullify(ud)
-          nullify(vd)
-          nullify(wd)
        end if
     end if
 
