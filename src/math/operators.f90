@@ -662,24 +662,25 @@ contains
 
   !> Compute the maximum wave speed for compressible flows
   !! @param max_wave_speed The computed maximum wave speed field.
-  !! @param u The x component of velocity.
-  !! @param v The y component of velocity.
-  !! @param w The z component of velocity.
+  !! @param u The x component of velocity field.
+  !! @param v The y component of velocity field.
+  !! @param w The z component of velocity field.
   !! @param gamma The ratio of specific heats.
   !! @param p The pressure field.
   !! @param rho The density field.
-  !! @param n The total number of grid points.
-  subroutine compute_max_wave_speed(max_wave_speed, u, v, w, gamma, p, rho, n)
-    integer, intent(in) :: n
+  subroutine compute_max_wave_speed(max_wave_speed, u, v, w, gamma, p, rho)
     real(kind=rp), intent(in) :: gamma
-    real(kind=rp), dimension(n), intent(in) :: u, v, w, p, rho
-    real(kind=rp), dimension(n), intent(inout) :: max_wave_speed
+    type(field_t), intent(inout) :: max_wave_speed
+    type(field_t), intent(in) :: u, v, w, p, rho
+    integer :: n
+    
+    n = u%dof%size()
     
     !> TODO: Add support for SX
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call opr_device_compute_max_wave_speed(max_wave_speed, u, v, w, gamma, p, rho, n)
     else
-       call opr_cpu_compute_max_wave_speed(max_wave_speed, u, v, w, gamma, p, rho, n)
+       call opr_cpu_compute_max_wave_speed(max_wave_speed%x, u%x, v%x, w%x, gamma, p%x, rho%x, n)
     end if
     
   end subroutine compute_max_wave_speed

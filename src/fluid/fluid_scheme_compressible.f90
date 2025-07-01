@@ -272,11 +272,9 @@ contains
              max_wave_speed => this%max_wave_speed)
     
       n = Xh%lx * Xh%ly * Xh%lz * msh%nelv
-
-
       
       ! Compute and store maximum wave speed: |u| + c = sqrt(u^2 + v^2 + w^2) + sqrt(gamma * p / rho)
-      call compute_max_wave_speed(max_wave_speed%x, u%x, v%x, w%x, gamma, p%x, rho%x, n)
+      call compute_max_wave_speed(max_wave_speed, u, v, w, gamma, p, rho)
       
       ! Use the compressible CFL function with precomputed maximum wave speed
       c = cfl_compressible(dt, max_wave_speed%x, Xh, c_Xh, msh%nelv, msh%gdim)

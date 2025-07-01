@@ -757,23 +757,15 @@ contains
   subroutine opr_device_compute_max_wave_speed(max_wave_speed, u, v, w, gamma, p, rho, n)
     integer, intent(in) :: n
     real(kind=rp), intent(in) :: gamma
-    real(kind=rp), dimension(n), intent(in) :: u, v, w, p, rho
-    real(kind=rp), dimension(n), intent(inout) :: max_wave_speed
-    type(c_ptr) :: max_wave_speed_d, u_d, v_d, w_d, p_d, rho_d
-
-    max_wave_speed_d = device_get_ptr(max_wave_speed)
-    u_d = device_get_ptr(u)
-    v_d = device_get_ptr(v)
-    w_d = device_get_ptr(w)
-    p_d = device_get_ptr(p)
-    rho_d = device_get_ptr(rho)
+    type(field_t), intent(inout) :: max_wave_speed
+    type(field_t), intent(in) :: u, v, w, p, rho
 
 #ifdef HAVE_HIP
-    call hip_compute_max_wave_speed(max_wave_speed_d, u_d, v_d, w_d, gamma, p_d, rho_d, n)
+    call hip_compute_max_wave_speed(max_wave_speed%x_d, u%x_d, v%x_d, w%x_d, gamma, p%x_d, rho%x_d, n)
 #elif HAVE_CUDA
-    call cuda_compute_max_wave_speed(max_wave_speed_d, u_d, v_d, w_d, gamma, p_d, rho_d, n)
+    call cuda_compute_max_wave_speed(max_wave_speed%x_d, u%x_d, v%x_d, w%x_d, gamma, p%x_d, rho%x_d, n)
 #elif HAVE_OPENCL
-    call opencl_compute_max_wave_speed(max_wave_speed_d, u_d, v_d, w_d, gamma, p_d, rho_d, n)
+    call opencl_compute_max_wave_speed(max_wave_speed%x_d, u%x_d, v%x_d, w%x_d, gamma, p%x_d, rho%x_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
