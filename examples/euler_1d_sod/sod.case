@@ -25,6 +25,14 @@
             "boundary_conditions": [],
             "output_control": "nsamples",
             "output_value": 100
-        }
+        },
+        "simulation_components": [
+            {
+                "type": "field_writer",
+                "fields": ["max_wave_speed"],
+                "output_control": "nsamples",
+                "output_value": 100
+            }
+        ]
     }
 }

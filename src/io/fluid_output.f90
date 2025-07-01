@@ -41,6 +41,8 @@ module fluid_output
   use device
   use output, only : output_t
   use scalars, only : scalars_t
+  use field_registry, only : neko_field_registry
+  use field, only : field_t
   implicit none
   private
 
@@ -66,8 +68,10 @@ contains
     character(len=*), intent(in), optional :: fmt
     integer, intent(in), optional :: layout
     character(len=1024) :: fname
-    integer :: i, n_scalars
+    integer :: i, j, n_scalars
     character(len=10) :: suffix
+    logical :: has_max_wave_speed
+    type(field_t), pointer :: max_wave_speed_field
 
     suffix = '.fld'
     if (present(fmt)) then
@@ -98,18 +102,34 @@ contains
        n_scalars = size(scalar_fields%scalar_fields)
     end if
 
+    ! Check if max_wave_speed field exists (for compressible flows)
+    has_max_wave_speed = neko_field_registry%field_exists("max_wave_speed")
+    
     ! Initialize field list with appropriate size
-    call this%fluid%init(4 + n_scalars)
+    if (has_max_wave_speed) then
+       call this%fluid%init(5 + n_scalars)  ! Include max_wave_speed
+    else
+       call this%fluid%init(4 + n_scalars)  ! Standard fields only
+    end if
 
     call this%fluid%assign(1, fluid%p)
     call this%fluid%assign(2, fluid%u)
     call this%fluid%assign(3, fluid%v)
     call this%fluid%assign(4, fluid%w)
 
+    ! Add max_wave_speed field if it exists (for compressible flows)
+    i = 4
+    if (has_max_wave_speed) then
+       i = i + 1
+       max_wave_speed_field => neko_field_registry%get_field("max_wave_speed")
+       call this%fluid%assign(i, max_wave_speed_field)
+    end if
+
     ! Assign all scalar fields
     if (present(scalar_fields)) then
-       do i = 1, n_scalars
-          call this%fluid%assign(4 + i, scalar_fields%scalar_fields(i)%s)
+       do j = 1, n_scalars
+          i = i + 1
+          call this%fluid%assign(i, scalar_fields%scalar_fields(j)%s)
        end do
     end if
 
