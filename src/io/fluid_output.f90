@@ -70,7 +70,7 @@ contains
     character(len=1024) :: fname
     integer :: i, j, n_scalars
     character(len=10) :: suffix
-    logical :: has_max_wave_speed
+    logical :: has_max_wave_speed, has_density
     type(field_t), pointer :: max_wave_speed_field
 
     suffix = '.fld'
@@ -105,11 +105,16 @@ contains
     ! Check if max_wave_speed field exists (for compressible flows)
     has_max_wave_speed = neko_field_registry%field_exists("max_wave_speed")
     
+    ! Check if density field exists (for compressible flows)
+    has_density = associated(fluid%rho)
+    
     ! Initialize field list with appropriate size
-    if (has_max_wave_speed) then
-       call this%fluid%init(5 + n_scalars)  ! Include max_wave_speed
+    ! Standard fields: p, u, v, w (4)
+    ! Compressible fields: density + max_wave_speed (2 additional)
+    if (has_max_wave_speed .and. has_density) then
+       call this%fluid%init(6 + n_scalars)  ! Compressible: include density and max_wave_speed
     else
-       call this%fluid%init(4 + n_scalars)  ! Standard fields only
+       call this%fluid%init(4 + n_scalars)  ! Incompressible: standard fields only
     end if
 
     call this%fluid%assign(1, fluid%p)
@@ -117,20 +122,26 @@ contains
     call this%fluid%assign(3, fluid%v)
     call this%fluid%assign(4, fluid%w)
 
-    ! Add max_wave_speed field if it exists (for compressible flows)
+    ! Assign all scalar fields first
     i = 4
-    if (has_max_wave_speed) then
-       i = i + 1
-       max_wave_speed_field => neko_field_registry%get_field("max_wave_speed")
-       call this%fluid%assign(i, max_wave_speed_field)
-    end if
-
-    ! Assign all scalar fields
     if (present(scalar_fields)) then
        do j = 1, n_scalars
           i = i + 1
           call this%fluid%assign(i, scalar_fields%scalar_fields(j)%s)
        end do
+    end if
+
+    ! Add density field if it exists (for compressible flows)
+    if (has_density) then
+       i = i + 1
+       call this%fluid%assign(i, fluid%rho)
+    end if
+
+    ! Add max_wave_speed field if it exists (for compressible flows)
+    if (has_max_wave_speed) then
+       i = i + 1
+       max_wave_speed_field => neko_field_registry%get_field("max_wave_speed")
+       call this%fluid%assign(i, max_wave_speed_field)
     end if
 
   end subroutine fluid_output_init

@@ -127,8 +127,8 @@ contains
     call json_get_or_default(params, 'case.fluid.name', this%name, "fluid")
 
     ! Fill mu and rho field with the physical value
-    call neko_field_registry%add_Field(this%dm_Xh, this%name // "_mu")
-    call neko_field_registry%add_Field(this%dm_Xh, this%name // "_rho")
+    call neko_field_registry%add_field(this%dm_Xh, this%name // "_mu")
+    call neko_field_registry%add_field(this%dm_Xh, this%name // "_rho")
     this%mu => neko_field_registry%get_field(this%name // "_mu")
     this%rho => neko_field_registry%get_field(this%name // "_rho")
     call field_cfill(this%mu, 0.0_rp, this%mu%size())
@@ -272,9 +272,6 @@ contains
              max_wave_speed => this%max_wave_speed)
     
       n = Xh%lx * Xh%ly * Xh%lz * msh%nelv
-      
-      ! Compute and store maximum wave speed: |u| + c = sqrt(u^2 + v^2 + w^2) + sqrt(gamma * p / rho)
-      call compute_max_wave_speed(max_wave_speed, u, v, w, gamma, p, rho)
       
       ! Use the compressible CFL function with precomputed maximum wave speed
       !c = cfl_compressible(dt, max_wave_speed%x, Xh, c_Xh, msh%nelv, msh%gdim)
