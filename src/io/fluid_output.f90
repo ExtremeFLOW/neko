@@ -110,12 +110,19 @@ contains
     
     ! Initialize field list with appropriate size
     ! Standard fields: p, u, v, w (4)
+    ! Scalar fields: n_scalars
     ! Compressible fields: density + max_wave_speed (2 additional)
-    if (has_max_wave_speed .and. has_density) then
-       call this%fluid%init(6 + n_scalars)  ! Compressible: include density and max_wave_speed
-    else
-       call this%fluid%init(4 + n_scalars)  ! Incompressible: standard fields only
+    i = 4
+
+    if (has_density) then
+      i = i + 1
     end if
+
+    if (has_max_wave_speed) then
+       i = i + 1
+    end if
+
+    call this%fluid%init(i + n_scalars)
 
     call this%fluid%assign(1, fluid%p)
     call this%fluid%assign(2, fluid%u)
