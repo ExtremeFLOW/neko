@@ -496,7 +496,7 @@ contains
        end select
 
        ! Generates an interpolator object and performs the point search
-       global_interp = fld_data%generate_interpolator(u%dof, u%msh, &
+       call fld_data%generate_interpolator(global_interp, u%dof, u%msh, &
             tolerance)
 
        ! Evaluate velocities and pressure
