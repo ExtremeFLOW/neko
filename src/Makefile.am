@@ -738,6 +738,7 @@ EXTRA_DIST = \
 	math/bcknd/device/opencl/conv1_kernel.cl\
 	math/bcknd/device/opencl/lambda2_kernel.cl\
 	math/bcknd/device/opencl/cfl_kernel.cl\
+	math/bcknd/device/opencl/compute_max_wave_speed_kernel.cl\
 	common/bcknd/device/opencl/rhs_maker_kernel.cl\
 	fluid/bcknd/device/opencl/pnpn_res_kernel.cl\
 	fluid/bcknd/device/opencl/euler_res_kernel.cl\

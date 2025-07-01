@@ -51,9 +51,14 @@ __kernel void compute_max_wave_speed_kernel(__global real * max_wave_speed,
   const int str = get_global_size(0);
 
   for (int i = idx; i < n; i += str) {
-    real vel_mag = sqrt(u[i]*u[i] + v[i]*v[i] + w[i]*w[i]);
-    real sound_speed = sqrt(gamma * p[i] / rho[i]);
-    max_wave_speed[i] = vel_mag + sound_speed;
+    if (i < n) {
+      real u_sq = u[i] * u[i];
+      real v_sq = v[i] * v[i]; 
+      real w_sq = w[i] * w[i];
+      real vel_mag = sqrt(u_sq + v_sq + w_sq);
+      real sound_speed = sqrt(gamma * p[i] / rho[i]);
+      max_wave_speed[i] = vel_mag + sound_speed;
+    }
   }
 
 }
