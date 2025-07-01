@@ -254,7 +254,6 @@ contains
   !> Generates a global_interpolation object to interpolate the fld data.
   !! @param global_interp Global interpolation object which will be initialized
   !! and ready to be used for interpolation.
-  !! interpolation.
   !! @param to_dof Dofmap on which to interpolate.
   !! @param to_msh Mesh on which to interpolate.
   !! @param tolerance Tolerance for the newton iterations.
