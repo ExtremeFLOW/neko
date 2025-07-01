@@ -48,7 +48,7 @@ module fluid_scheme_compressible_euler
   use num_types, only : rp
   use mesh, only : mesh_t
   use checkpoint, only : chkp_t
-  use operators, only: div, grad, compute_max_wave_speed
+  use operators, only: div, grad
   use json_module, only : json_file, json_core, json_value
   use json_utils, only : json_get, json_get_or_default, json_extract_item
   use profiler, only : profiler_start_region, profiler_end_region
@@ -325,9 +325,6 @@ contains
       call field_cmult(E, 1.0_rp / (this%gamma - 1.0_rp), n)
       ! temp = 0.5 * rho * (u^2 + v^2 + w^2)
       call field_add2(E, temp, n)
-
-      ! Update max_wave_speed field after flow variables have been updated
-      call compute_max_wave_speed(this%max_wave_speed, u, v, w, this%gamma, p, rho)
 
       ! Hack: If m_z is always zero, use it to visualize rho
       ! call field_copy(w, rho, n)
