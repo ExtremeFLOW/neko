@@ -45,23 +45,23 @@ extern "C" {
 
 void cuda_compute_max_wave_speed(void *max_wave_speed_d, 
                                  void *u_d, void *v_d, void *w_d,
-                                 real gamma, void *p_d, void *rho_d, 
-                                 int n) {
+                                 real *gamma, void *p_d, void *rho_d, 
+                                 int *n) {
   
-  const dim3 nthrds(256);
-  const dim3 nblcks((n + 256 - 1) / 256);
+  const dim3 nthrds(1024, 1, 1);
+  const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
   const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
   
 #ifdef HAVE_REAL_SINGLE
   compute_max_wave_speed_kernel<float>
     <<<nblcks, nthrds, 0, stream>>>((real *) max_wave_speed_d, 
                                      (real *) u_d, (real *) v_d, (real *) w_d, 
-                                     gamma, (real *) p_d, (real *) rho_d, n);
+                                     *gamma, (real *) p_d, (real *) rho_d, *n);
 #else
   compute_max_wave_speed_kernel<double>
     <<<nblcks, nthrds, 0, stream>>>((real *) max_wave_speed_d, 
                                      (real *) u_d, (real *) v_d, (real *) w_d, 
-                                     gamma, (real *) p_d, (real *) rho_d, n);
+                                     *gamma, (real *) p_d, (real *) rho_d, *n);
 #endif
   CUDA_CHECK(cudaGetLastError());
   
