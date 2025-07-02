@@ -49,15 +49,9 @@ void hip_compute_max_wave_speed(void *max_wave_speed_d,
   const dim3 nthrds(1024, 1, 1);
   const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
   
-#ifdef HAVE_REAL_SINGLE
-  hipLaunchKernelGGL(compute_max_wave_speed_kernel<float>, nblcks, nthrds, 0,
+  hipLaunchKernelGGL(compute_max_wave_speed_kernel<real>, nblcks, nthrds, 0,
                      (hipStream_t) glb_cmd_queue, (real *) max_wave_speed_d, 
                      (real *) u_d, (real *) v_d, (real *) w_d, *gamma, (real *) p_d, (real *) rho_d, *n);
-#else
-  hipLaunchKernelGGL(compute_max_wave_speed_kernel<double>, nblcks, nthrds, 0,
-                     (hipStream_t) glb_cmd_queue, (real *) max_wave_speed_d, 
-                     (real *) u_d, (real *) v_d, (real *) w_d, *gamma, (real *) p_d, (real *) rho_d, *n);
-#endif
   HIP_CHECK(hipGetLastError());
   
 }
