@@ -147,8 +147,8 @@ module opr_device
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: max_wave_speed_d, u_d, v_d, w_d, p_d, rho_d
-       real(c_rp), value :: gamma
-       integer(c_int), value :: n
+       real(c_rp) :: gamma
+       integer(c_int) :: n
      end subroutine hip_compute_max_wave_speed
   end interface
 
@@ -250,8 +250,8 @@ module opr_device
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: max_wave_speed_d, u_d, v_d, w_d, p_d, rho_d
-       real(c_rp), value :: gamma
-       integer(c_int), value :: n
+       real(c_rp) :: gamma
+       integer(c_int) :: n
      end subroutine cuda_compute_max_wave_speed
   end interface
 
