@@ -99,7 +99,7 @@ contains
 
       call this%free()
       call this%init_base(fluid, nut_name, delta_type, if_ext)
-      
+
       call json_extract_object(json, "test_filter", json_subdict)
       call this%test_filter%init(json_subdict, coef)
       call set_ds_filt(this%test_filter)
