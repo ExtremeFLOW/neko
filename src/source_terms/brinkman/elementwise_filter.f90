@@ -89,7 +89,7 @@ contains
     type(coef_t), intent(in) :: coef
     character(len=:), allocatable :: filter_type
 
-    call json_get_or_default(json, "test_filter_type", filter_type, "nonBoyd")
+    call json_get_or_default(json, "filter_type", filter_type, "nonBoyd")
     this%filter_type = filter_type
 
     ! Filter assumes lx = ly = lz

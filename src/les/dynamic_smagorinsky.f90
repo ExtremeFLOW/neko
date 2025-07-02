@@ -36,7 +36,7 @@ module dynamic_smagorinsky
   use field, only : field_t
   use fluid_scheme_base, only : fluid_scheme_base_t
   use les_model, only : les_model_t
-  use json_utils, only : json_get_or_default
+  use json_utils, only : json_get_or_default, json_extract_object
   use json_module, only : json_file
   use utils, only : neko_error
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -83,6 +83,7 @@ contains
     class(dynamic_smagorinsky_t), intent(inout) :: this
     class(fluid_scheme_base_t), intent(inout), target :: fluid
     type(json_file), intent(inout) :: json
+    type(json_file) :: json_subdict
     character(len=:), allocatable :: nut_name
     integer :: i
     character(len=:), allocatable :: delta_type
@@ -98,7 +99,9 @@ contains
 
       call this%free()
       call this%init_base(fluid, nut_name, delta_type, if_ext)
-      call this%test_filter%init(json, coef)
+      
+      call json_extract_object(json, "test_filter", json_subdict)
+      call this%test_filter%init(json_subdict, coef)
       call set_ds_filt(this%test_filter)
 
       call neko_log%section('LES model')
