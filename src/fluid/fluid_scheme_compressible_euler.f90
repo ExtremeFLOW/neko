@@ -326,8 +326,6 @@ contains
       ! temp = 0.5 * rho * (u^2 + v^2 + w^2)
       call field_add2(E, temp, n)
 
-      !> TODO: Update maximum wave speed
-
       ! Hack: If m_z is always zero, use it to visualize rho
       ! call field_copy(w, rho, n)
 
