@@ -120,6 +120,13 @@ contains
     call coef%gs_h%op(s13%x, s11%dof%size(), GS_OP_ADD)
     call coef%gs_h%op(s23%x, s11%dof%size(), GS_OP_ADD)
 
+    call device_col2(s11%x_d, coef%mult_d, s11%dof%size())
+    call device_col2(s22%x_d, coef%mult_d, s22%dof%size())
+    call device_col2(s33%x_d, coef%mult_d, s33%dof%size())
+    call device_col2(s12%x_d, coef%mult_d, s12%dof%size())
+    call device_col2(s13%x_d, coef%mult_d, s13%dof%size())
+    call device_col2(s23%x_d, coef%mult_d, s23%dof%size())
+
     call device_s_abs_compute(s_abs%x_d, s11%x_d, s22%x_d, s33%x_d, &
          s12%x_d, s13%x_d, s23%x_d, &
          s11%dof%size())
@@ -292,7 +299,7 @@ contains
          fsabss11%x_d, fsabss22%x_d, fsabss33%x_d, &
          fsabss12%x_d, fsabss13%x_d, fsabss23%x_d, &
          num%x_d, den%x_d, c_dyn%x_d, delta%x_d, &
-         s_abs%x_d, nut%x_d, alpha, coef%mult_d, n)
+         s_abs%x_d, nut%x_d, alpha, n)
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine compute_nut_device
 
