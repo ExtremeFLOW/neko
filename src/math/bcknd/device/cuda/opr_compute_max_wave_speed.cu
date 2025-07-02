@@ -43,9 +43,9 @@
 
 extern "C" {
 
-void cuda_compute_max_wave_speed(real *max_wave_speed_d, 
-                                 real *u_d, real *v_d, real *w_d,
-                                 real gamma, real *p_d, real *rho_d, 
+void cuda_compute_max_wave_speed(void *max_wave_speed_d, 
+                                 void *u_d, void *v_d, void *w_d,
+                                 real gamma, void *p_d, void *rho_d, 
                                  int n) {
   
   const dim3 nthrds(256);
@@ -54,14 +54,14 @@ void cuda_compute_max_wave_speed(real *max_wave_speed_d,
   
 #ifdef HAVE_REAL_SINGLE
   compute_max_wave_speed_kernel<float>
-    <<<nblcks, nthrds, 0, stream>>>(max_wave_speed_d, 
-                                     u_d, v_d, w_d, 
-                                     gamma, p_d, rho_d, n);
+    <<<nblcks, nthrds, 0, stream>>>((real *) max_wave_speed_d, 
+                                     (real *) u_d, (real *) v_d, (real *) w_d, 
+                                     gamma, (real *) p_d, (real *) rho_d, n);
 #else
   compute_max_wave_speed_kernel<double>
-    <<<nblcks, nthrds, 0, stream>>>(max_wave_speed_d, 
-                                     u_d, v_d, w_d, 
-                                     gamma, p_d, rho_d, n);
+    <<<nblcks, nthrds, 0, stream>>>((real *) max_wave_speed_d, 
+                                     (real *) u_d, (real *) v_d, (real *) w_d, 
+                                     gamma, (real *) p_d, (real *) rho_d, n);
 #endif
   CUDA_CHECK(cudaGetLastError());
   
