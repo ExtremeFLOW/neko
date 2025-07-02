@@ -450,16 +450,16 @@ contains
     integer :: ind
 
     n = Xh%lx * Xh%ly * Xh%lz * nelv
-    
+
     ! Request a scratch field for zero vector
     call neko_scratch_registry%request_field(zero_vector, ind)
-    
+
     ! Initialize zero vector
     call field_rzero(zero_vector)
-    
+
     ! Use incompressible CFL with max_wave_speed as u-component, zero v and w
     cfl_compressible = cfl(dt, max_wave_speed, zero_vector%x, zero_vector%x, Xh, coef, nelv, gdim)
-    
+
     ! Release the scratch field
     call neko_scratch_registry%relinquish_field(ind)
 
@@ -681,16 +681,16 @@ contains
     type(field_t), intent(inout) :: max_wave_speed
     type(field_t), intent(in) :: u, v, w, p, rho
     integer :: n
-    
+
     n = u%dof%size()
-    
+
     !> TODO: Add support for SX
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call opr_device_compute_max_wave_speed(max_wave_speed, u, v, w, gamma, p, rho, n)
     else
        call opr_cpu_compute_max_wave_speed(max_wave_speed%x, u%x, v%x, w%x, gamma, p%x, rho%x, n)
     end if
-    
+
   end subroutine compute_max_wave_speed
 
 end module operators

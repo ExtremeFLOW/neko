@@ -104,10 +104,10 @@ contains
 
     ! Check if max_wave_speed field exists (for compressible flows)
     has_max_wave_speed = neko_field_registry%field_exists("max_wave_speed")
-    
+
     ! Check if density field exists (for compressible flows)
     has_density = associated(fluid%rho)
-    
+
     ! Initialize field list with appropriate size
     ! Standard fields: p, u, v, w (4)
     ! Scalar fields: n_scalars
@@ -115,7 +115,7 @@ contains
     i = 4
 
     if (has_density) then
-      i = i + 1
+       i = i + 1
     end if
 
     if (has_max_wave_speed) then

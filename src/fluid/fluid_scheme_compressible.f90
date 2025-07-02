@@ -265,21 +265,21 @@ contains
     real(kind=rp), intent(in) :: dt
     real(kind=rp) :: c
     integer :: n
-    
+
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
              rho => this%rho, Xh => this%Xh, c_Xh => this%c_Xh, &
              msh => this%msh, gamma => this%gamma, &
              max_wave_speed => this%max_wave_speed)
-    
+
       n = Xh%lx * Xh%ly * Xh%lz * msh%nelv
 
       ! Update max_wave_speed field after flow variables have been updated
       call compute_max_wave_speed(this%max_wave_speed, u, v, w, this%gamma, p, rho)
-      
+
       ! Use the compressible CFL function with precomputed maximum wave speed
       c = cfl_compressible(dt, max_wave_speed%x, Xh, c_Xh, msh%nelv, msh%gdim)
     end associate
-    
+
   end function fluid_scheme_compressible_compute_cfl
 
   !> Set rho and mu
