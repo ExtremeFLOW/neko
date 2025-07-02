@@ -105,6 +105,9 @@ module fluid_scheme_base
      !> The dynamic viscosity
      type(field_t), pointer :: mu => null()
 
+     !> The physical dynamic viscosity, which is a constant
+     real(kind=rp) :: const_mu
+
      !> A helper that packs material properties to pass to the user routine.
      type(field_list_t) :: material_properties
 
@@ -112,6 +115,7 @@ module fluid_scheme_base
      logical :: freeze = .false.
 
      !> User material properties routine
+     logical :: user_material_properties_set = .false.
      procedure(user_material_properties), nopass, pointer :: &
           user_material_properties => null()
 

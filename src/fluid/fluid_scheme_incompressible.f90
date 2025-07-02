@@ -577,6 +577,9 @@ contains
 
     if (len(trim(this%nut_field_name)) > 0) then
        nut => neko_field_registry%get_field(this%nut_field_name)
+       if (.not. this%user_material_properties_set) then
+          call field_cfill(this%mu, this%const_mu)
+       end if
        call field_addcol3(this%mu, nut, this%rho)
     end if
 
@@ -604,7 +607,7 @@ contains
     procedure(user_material_properties), pointer :: dummy_mp_ptr
     logical :: nondimensional
     real(kind=rp) :: dummy_lambda, dummy_cp
-    real(kind=rp) :: const_mu, const_rho
+    real(kind=rp) :: const_rho
 
 
     dummy_mp_ptr => dummy_user_material_properties
@@ -618,6 +621,7 @@ contains
     call this%material_properties%assign(2, this%mu)
 
     if (.not. associated(user%material_properties, dummy_mp_ptr)) then
+       this%user_material_properties_set = .true.
 
        write(log_buf, '(A)') "Material properties must be set in the user&
        & file!"
@@ -629,6 +633,7 @@ contains
 
     else
        this%user_material_properties => dummy_user_material_properties
+       this%user_material_properties_set = .false.
        ! Incorrect user input
        if (params%valid_path('case.fluid.Re') .and. &
             (params%valid_path('case.fluid.mu') .or. &
@@ -646,19 +651,19 @@ contains
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
 
           ! Read Re into mu for further manipulation.
-          call json_get(params, 'case.fluid.Re', const_mu)
+          call json_get(params, 'case.fluid.Re', this%const_mu)
           write(log_buf, '(A)') 'Read non-dimensional material properties'
           call neko_log%message(log_buf)
-          write(log_buf, '(A,ES13.6)') 'Re         :', const_mu
+          write(log_buf, '(A,ES13.6)') 'Re         :', this%const_mu
           call neko_log%message(log_buf)
 
           ! Set rho to 1 since the setup is non-dimensional.
           const_rho = 1.0_rp
           ! Invert the Re to get viscosity.
-          const_mu = 1.0_rp/const_mu
+          this%const_mu = 1.0_rp/this%const_mu
        else
           ! Dimensional case
-          call json_get(params, 'case.fluid.mu', const_mu)
+          call json_get(params, 'case.fluid.mu', this%const_mu)
           call json_get(params, 'case.fluid.rho', const_rho)
        end if
     end if
@@ -667,13 +672,13 @@ contains
     ! if the user routine is not used.
     if (associated(user%material_properties, dummy_mp_ptr)) then
        ! Fill mu and rho field with the physical value
-       call field_cfill(this%mu, const_mu)
+       call field_cfill(this%mu, this%const_mu)
        call field_cfill(this%rho, const_rho)
 
 
        write(log_buf, '(A,ES13.6)') 'rho        :', const_rho
        call neko_log%message(log_buf)
-       write(log_buf, '(A,ES13.6)') 'mu         :', const_mu
+       write(log_buf, '(A,ES13.6)') 'mu         :', this%const_mu
        call neko_log%message(log_buf)
     end if
 
