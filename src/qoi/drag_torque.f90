@@ -369,13 +369,13 @@ contains
     r2 = y - center(2)
     r3 = z - center(3)
     !pressure torque
-    dgtq(1,3) = (r2*dgtq(3,1) - r3*dgtq(2,1))
-    dgtq(2,3) = (r3*dgtq(1,1) - r1*dgtq(3,1))
-    dgtq(3,3) = (r1*dgtq(2,1) - r2*dgtq(1,1))
+    dgtq(1,3) = r2*dgtq(3,1) - r3*dgtq(2,1)
+    dgtq(2,3) = r3*dgtq(1,1) - r1*dgtq(3,1)
+    dgtq(3,3) = r1*dgtq(2,1) - r2*dgtq(1,1)
     !viscous torque
-    dgtq(1,4) = (r2*dgtq(3,2) - r3*dgtq(2,2))
-    dgtq(2,4) = (r3*dgtq(1,2) - r1*dgtq(3,2))
-    dgtq(3,4) = (r1*dgtq(2,2) - r2*dgtq(1,2))
+    dgtq(1,4) = r2*dgtq(3,2) - r3*dgtq(2,2)
+    dgtq(2,4) = r3*dgtq(1,2) - r1*dgtq(3,2)
+    dgtq(3,4) = r1*dgtq(2,2) - r2*dgtq(1,2)
   end subroutine drag_torque_pt
 
   !> Calculate drag and torque from array of points
