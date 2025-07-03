@@ -101,7 +101,7 @@
                 "output_file": "output.csv",
                 "fields": [
                     "w",
-                    "s"
+                    "temperature"
                 ]
             }
         ]
