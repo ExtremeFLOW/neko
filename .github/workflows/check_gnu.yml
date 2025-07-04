@@ -223,7 +223,7 @@ jobs:
            source myenv/bin/activate
            chmod +x $MAKENEKO_EXEC
            cd tests/integration
-           pytest --max_nprocs=2 --real-precision=${RP}
+           pytest --max_nprocs=2 --real_precision=${RP}
            cd ../..
 
       - name: Check
