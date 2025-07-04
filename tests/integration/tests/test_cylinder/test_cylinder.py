@@ -7,21 +7,32 @@ Checks
 """
 
 from os.path import join
+import os
 from testlib import get_neko, run_neko, configure_nprocs, get_neko_dir, parse_log
 import json5
 import json
 import numpy as np
 from numpy.testing import assert_allclose
+from conftest import RP
 
 
-def test_cylinder_part1(launcher_script, request, log_file, tmp_path):
+def test_cylinder(launcher_script, request, tmp_path):
     """
     First part of the test, which just runs the case for a bit.
+
+    Note, we handle log names manually here to have _part1 and part2.
+    The reason we do everything in a single test is that we want to compare
+    logs from 2 runs, one with a restart and one without.
     """
 
-    # Gets the nameof the test, i.e. test_demo here. `request` can be use for
-    # other things like this.
-    test_name = request.node.name
+    # Make sure logs directory exists
+    os.makedirs("logs", exist_ok=True)
+
+    # Set the precision for the test
+    eps = 1e-15 if RP == "dp" else 1e-6
+
+    test_name = request.node.name + "part_1"
+    log_file = os.path.join("logs", f"{test_name}.log")
 
     # Get the path to the neko executable
     neko = get_neko()
@@ -42,43 +53,32 @@ def test_cylinder_part1(launcher_script, request, log_file, tmp_path):
     ), f"neko process failed with exit code {result.returncode}"
 
     # Reference parsed log data
-    ref_data = np.genfromtxt(join(test_dir, "reflog1_dp.csv"), delimiter=",",
-        names=True)
+    ref_data = np.genfromtxt(join(test_dir, "reflog1_" + RP + ".csv"),
+         delimiter=",", names=True)
 
     # Parse the log file from the test run
-    parse_log(log_file, join(test_dir, "log1_dp.csv"))
+    parsed_log = join(test_dir, "log1.csv")
+    parse_log(log_file, parsed_log)
 
     # Load the parsed data
-    parsed_data = np.genfromtxt(join(test_dir, "log1_dp.csv"), delimiter=",",
-        names=True)
+    parsed_data_part1 = np.genfromtxt(parsed_log, delimiter=",", names=True)
 
     # Compare
-    columns = parsed_data.dtype.names # Get column names read from  the CSV
+    columns = parsed_data_part1.dtype.names # Get column names read from  the CSV
 
     for i in columns:
         if i == "total_step_time":
             # Skip total_step_time as it may vary
             continue
-        assert_allclose(parsed_data[i], ref_data[i], rtol=1e-15,
+        assert_allclose(parsed_data_part1[i], ref_data[i], rtol=eps,
                         err_msg=f"Column '{i}' does not match reference data.")
 
-def test_cylinder_part2(launcher_script, request, log_file, tmp_path):
-    """
-    Second part of the test, which test the restart functionality.
-    """
+    #
+    # Part 2, run from chekpoint file
+    #
 
-    # Gets the nameof the test, i.e. test_demo here. `request` can be use for
-    # other things like this.
-    test_name = request.node.name
-
-    # Get the path to the neko executable
-    neko = get_neko()
-    neko_dir = get_neko_dir()
-    test_dir = join(neko_dir, "tests", "integration", "tests", "test_cylinder")
-
-    max_nprocs = 1
-
-    nprocs = configure_nprocs(max_nprocs)
+    test_name = request.node.name + "part_2"
+    log_file = os.path.join("logs", f"{test_name}.log")
 
     # We start with the p1 file and moidfy it
     case_file_p1 = join(test_dir, "cylinder_part1.case")
@@ -101,22 +101,31 @@ def test_cylinder_part2(launcher_script, request, log_file, tmp_path):
     ), f"neko process failed with exit code {result.returncode}"
 
     # Reference parsed log data
-    ref_data = np.genfromtxt(join(test_dir, "reflog2_dp.csv"), delimiter=",",
-        names=True)
+    ref_data = np.genfromtxt(join(test_dir, "reflog2_" + RP + ".csv"),
+        delimiter=",", names=True)
 
     # Parse the log file from the test run
-    parse_log(log_file, join(test_dir, "log2_dp.csv"))
+    parse_log(log_file, join(test_dir, "log2.csv"))
 
     # Load the parsed data
-    parsed_data = np.genfromtxt(join(test_dir, "log2_dp.csv"), delimiter=",",
+    parsed_data_part2 = np.genfromtxt(join(test_dir, "log2.csv"), delimiter=",",
         names=True)
-
-    # Compare
-    columns = parsed_data.dtype.names # Get column names read from  the CSV
 
     for i in columns:
         if i == "total_step_time":
             # Skip total_step_time as it may vary
             continue
-        assert_allclose(parsed_data[i], ref_data[i], rtol=1e-15,
+        assert_allclose(parsed_data_part2[i], ref_data[i], rtol=eps,
                         err_msg=f"Column '{i}' does not match reference data.")
+
+    #
+    # Part 3, compare overlapping time steps from the 2 runs
+    #
+
+    parsed_data_part1 = parsed_data_part1[parsed_data_part1["time"] > 5e-2]
+    for i in columns:
+        if i in ["total_step_time", "step"]:
+            continue
+        assert_allclose(parsed_data_part2[i], parsed_data_part1[i], rtol=eps,
+                        err_msg=f"Column '{i}' does not match reference data.")
+
