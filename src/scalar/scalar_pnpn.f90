@@ -118,6 +118,9 @@ module scalar_pnpn
      !> Contributions to the RHS from the OIFS method.
      class(rhs_maker_oifs_t), allocatable :: makeoifs
 
+     !> Lag arrays
+     type(field_t) :: abx1, abx2
+
    contains
      !> Constructor.
      procedure, pass(this) :: init => scalar_pnpn_init
@@ -345,7 +348,7 @@ contains
 
     call profiler_start_region(trim(this%name), 2)
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
-         cp => this%cp, rho => this%rho, lambda => this%lambda, &
+         cp => this%cp, rho => this%rho, lambda_tot => this%lambda_tot, &
          ds => this%ds, &
          s_res => this%s_res, &
          Ax => this%Ax, f_Xh => this%f_Xh, Xh => this%Xh, &
@@ -401,7 +404,7 @@ contains
 
       ! Compute scalar residual.
       call profiler_start_region(trim(this%name) // '_residual', 20)
-      call res%compute(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, lambda, &
+      call res%compute(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, lambda_tot, &
            rho%x(1,1,1,1)*cp%x(1,1,1,1), ext_bdf%diffusion_coeffs(1), dt, &
            dm_Xh%size())
 

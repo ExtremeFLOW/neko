@@ -36,6 +36,7 @@
 !! it on each call.
 module scratch_registry
   use field, only : field_t, field_ptr_t
+  use field_math, only : field_rzero
   use dofmap, only : dofmap_t
   implicit none
   private
@@ -207,15 +208,16 @@ contains
 
     associate(nfields => this%nfields, nfields_inuse => this%nfields_inuse)
 
-      do index=1,this%get_size()
+      do index = 1, this%get_size()
          if (this%inuse(index) .eqv. .false.) then
-            write (name, "(A3,I0.3)") "wrk", index
+            write(name, "(A3,I0.3)") "wrk", index
 
             if (.not. allocated(this%fields(index)%ptr%x)) then
                call this%fields(index)%ptr%init(this%dof, trim(name))
                nfields = nfields + 1
             end if
             f => this%fields(index)%ptr
+            call field_rzero(f)
             this%inuse(index) = .true.
             this%nfields_inuse = this%nfields_inuse + 1
             return

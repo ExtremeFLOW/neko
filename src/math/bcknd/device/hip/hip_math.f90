@@ -219,6 +219,13 @@ module hip_math
        integer(c_int) :: n
      end subroutine hip_invcol2
 
+     subroutine hip_invcol3(a_d, b_d, c_d, n) &
+          bind(c, name = 'hip_invcol3')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       type(c_ptr), value :: a_d, b_d, c_d
+       integer(c_int) :: n
+     end subroutine hip_invcol3
+
      subroutine hip_col2(a_d, b_d, n) &
           bind(c, name = 'hip_col2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int

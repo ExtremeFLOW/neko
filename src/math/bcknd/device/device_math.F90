@@ -471,11 +471,9 @@ contains
     type(c_ptr) :: a_d, b_d, c_d
     integer :: n
 #ifdef HAVE_HIP
-    ! call hip_invcol3(a_d, b_d, c_d, n)
-    call neko_error('hip_invcol3 not implemented')
+    call hip_invcol3(a_d, b_d, c_d, n)
 #elif HAVE_CUDA
-    ! call cuda_invcol3(a_d, b_d, c_d, n)
-    call neko_error('cuda_invcol3 not implemented')
+    call cuda_invcol3(a_d, b_d, c_d, n)
 #elif HAVE_OPENCL
     ! call opencl_invcol3(a_d, b_d, c_d, n)
     call neko_error('opencl_invcol3 not implemented')

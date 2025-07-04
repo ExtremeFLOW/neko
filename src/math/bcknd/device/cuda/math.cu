@@ -397,6 +397,20 @@ extern "C" {
   }
 
   /**
+   * Fortran wrapper for invcol3
+   * Vector division \f$ a = b / c \f$
+   */
+  void cuda_invcol3(void *a, void *b, void *c, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    invcol3_kernel<real><<<nblcks, nthrds, 0, (cudaStream_t) glb_cmd_queue>>>((real *) a,
+                                             (real *) b,  (real *) c, *n);
+    CUDA_CHECK(cudaGetLastError());
+  }
+
+  /**
    * Fortran wrapper for col2
    * Vector multiplication with 2 vectors \f$ a = a \cdot b \f$
    */
