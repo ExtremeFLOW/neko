@@ -65,7 +65,7 @@ contains
     call Xh%init(GLL, lx, lx, lx)
     call dm%init(msh, Xh)
     
-    scratch = scratch_registry_t(dm) 
+    call scratch%init(dm) 
 
     @assertEqual(scratch%get_nfields(), 0)
     @assertEqual(scratch%get_expansion_size(), 10)
@@ -88,7 +88,7 @@ contains
     call Xh%init(GLL, lx, lx, lx)
     call dm%init(msh, Xh)
     
-    scratch = scratch_registry_t(dm, 5, 3) 
+    call scratch%init(dm, 5, 3) 
 
     @assertEqual(scratch%get_nfields(), 0)
     @assertEqual(scratch%get_expansion_size(), 3)
@@ -112,7 +112,7 @@ contains
     call Xh%init(GLL, lx, lx, lx)
     call dm%init(msh, Xh)
     
-    scratch = scratch_registry_t(dm, 5, 3) 
+    call scratch%init(dm, 5, 3) 
     
     call scratch%request_field(f1, index1)
     call scratch%request_field(f2, index2)
@@ -147,7 +147,7 @@ contains
     call Xh%init(GLL, lx, lx, lx)
     call dm%init(msh, Xh)
     
-    scratch = scratch_registry_t(dm, 5, 3) 
+    call scratch%init(dm, 5, 3) 
     
     call scratch%request_field(f, index)
     call scratch%relinquish_field(index)
@@ -172,7 +172,7 @@ contains
     call Xh%init(GLL, lx, lx, lx)
     call dm%init(msh, Xh)
     
-    scratch = scratch_registry_t(dm, 1, 1) 
+    call scratch%init(dm, 1, 1) 
 
     call scratch%request_field(f1, index1)
     call cfill(f1%x, 1.0_rp, f1%dof%size())
@@ -211,7 +211,7 @@ contains
    call dm%init(msh, Xh)
     
   !  write(*,*) "TEST COMBO"
-   scratch = scratch_registry_t(dm, 2, 2) 
+   call scratch%init(dm, 2, 2) 
     
    ! add 2 fields, no expansion
    call scratch%request_field(f1, index1)
@@ -285,7 +285,7 @@ end subroutine test_scratch_registry_combo
    call dm%init(msh, Xh)
     
   !  write(*,*) "TEST COMBO"
-   scratch = scratch_registry_t(dm, 2, 2) 
+   call scratch%init(dm, 2, 2) 
     
    ! add 2 fields, no expansion
    call scratch%request_field(f1, indices(1))

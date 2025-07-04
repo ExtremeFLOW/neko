@@ -86,7 +86,7 @@ contains
   !! @param[inout] json The JSON object configuring the boundary condition.
   subroutine neumann_init(this, coef, json)
     class(neumann_t), intent(inout), target :: this
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) :: json
     real(kind=rp) :: flux
 

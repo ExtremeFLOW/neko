@@ -40,7 +40,7 @@ module scalar_scheme
   use field_list, only: field_list_t
   use space, only : space_t
   use dofmap, only : dofmap_t
-  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER
+  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER, ksp_monitor_t
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
   use neumann, only : neumann_t
@@ -211,15 +211,18 @@ module scalar_scheme
 
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine scalar_scheme_step_intrf(this, time, ext_bdf, dt_controller)
+     subroutine scalar_scheme_step_intrf(this, time, ext_bdf, dt_controller, &
+          ksp_results)
        import scalar_scheme_t
        import time_state_t
        import time_scheme_controller_t
        import time_step_controller_t
+       import ksp_monitor_t
        class(scalar_scheme_t), intent(inout) :: this
        type(time_state_t), intent(in) :: time
        type(time_scheme_controller_t), intent(in) :: ext_bdf
        type(time_step_controller_t), intent(in) :: dt_controller
+       type(ksp_monitor_t), intent(inout) :: ksp_results
      end subroutine scalar_scheme_step_intrf
   end interface
 
@@ -249,7 +252,7 @@ contains
     logical :: logical_val
     real(kind=rp) :: real_val, solver_abstol
     integer :: integer_val, ierr
-    character(len=:), allocatable :: solver_type, solver_precon, field_name
+    character(len=:), allocatable :: solver_type, solver_precon
     type(json_file) :: precon_params
     real(kind=rp) :: GJP_param_a, GJP_param_b
 
@@ -291,13 +294,11 @@ contains
     this%params => params
     this%msh => msh
 
-    call json_get_or_default(params, 'field_name', field_name, 's')
-
-    if (.not. neko_field_registry%field_exists(field_name)) then
-       call neko_field_registry%add_field(this%dm_Xh, field_name)
+    if (.not. neko_field_registry%field_exists(this%name)) then
+       call neko_field_registry%add_field(this%dm_Xh, this%name)
     end if
 
-    this%s => neko_field_registry%get_field(field_name)
+    this%s => neko_field_registry%get_field(this%name)
 
     call this%slag%init(this%s, 2)
 
@@ -327,7 +328,7 @@ contains
     call this%f_Xh%init(this%dm_Xh, fld_name = "scalar_rhs")
 
     ! Initialize the source term
-    call this%source_term%init(this%f_Xh, this%c_Xh, user)
+    call this%source_term%init(this%f_Xh, this%c_Xh, user, this%name)
     call this%source_term%add(params, 'source_terms')
 
     ! todo parameter file ksp tol should be added
@@ -488,7 +489,6 @@ contains
 
        ! lambda_tot = lambda + rho * cp * nut / pr_turb
        call neko_scratch_registry%request_field(lambda_factor, index)
-
        call field_col3(lambda_factor, this%cp, this%rho)
        call field_cmult2(lambda_factor, nut, 1.0_rp / this%pr_turb)
        call field_add3(this%lambda_tot, this%lambda, lambda_factor)

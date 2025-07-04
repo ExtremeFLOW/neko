@@ -118,6 +118,10 @@ __kernel void opgrad_kernel_lx##LX(__global real * __restrict__ ux,            \
   }                                                                            \
 }                                                                              
 
+DEFINE_OPGRAD_KERNEL(16, 256)
+DEFINE_OPGRAD_KERNEL(15, 256)
+DEFINE_OPGRAD_KERNEL(14, 256)
+DEFINE_OPGRAD_KERNEL(13, 256)
 DEFINE_OPGRAD_KERNEL(12, 256)
 DEFINE_OPGRAD_KERNEL(11, 256)
 DEFINE_OPGRAD_KERNEL(10, 256)

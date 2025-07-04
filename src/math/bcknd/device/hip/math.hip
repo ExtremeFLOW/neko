@@ -723,6 +723,36 @@ extern "C" {
   }
 
   /**
+   * Fortran wrapper glsubnorm2
+   * Weighted inner product \f$ a^T b \f$
+   */
+  real hip_glsubnorm2(void* a, void* b, int* n) {
+
+      const dim3        nthrds(1024, 1, 1);
+      const dim3        nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+      const int         nb     = ((*n) + 1024 - 1) / 1024;
+      const hipStream_t stream = (hipStream_t)glb_cmd_queue;
+
+      hip_redbuf_check_alloc(nb);
+
+      if (*n > 0) {
+          hipLaunchKernelGGL(
+              HIP_KERNEL_NAME(glsubnorm2_kernel<real>), nblcks, nthrds, 0,
+              stream, (real*)a, (real*)b, bufred_d, *n);
+          HIP_CHECK(hipGetLastError());
+          hipLaunchKernelGGL(
+              HIP_KERNEL_NAME(reduce_kernel<real>), 1, 1024, 0, stream,
+              bufred_d, nb);
+          HIP_CHECK(hipGetLastError());
+      } else {
+          hip_rzero(bufred_d, &red_s);
+      }
+      hip_global_reduce_add(bufred, bufred_d, 1, stream);
+
+      return bufred[0];
+  }
+
+  /**
    * Fortran wrapper glsum
    * Sum a vector of length n
    */

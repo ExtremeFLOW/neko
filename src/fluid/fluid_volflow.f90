@@ -130,7 +130,7 @@ contains
        call this%p_vol%init(dm_Xh, 'p_vol')
     end if
 
-    this%scratch = scratch_registry_t(dm_Xh, 3, 1)
+    call this%scratch%init(dm_Xh, 3, 1)
 
   end subroutine fluid_vol_flow_init
 

@@ -143,7 +143,7 @@ __kernel void cdiv_kernel(__global real * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = c / a[i];
-  } 
+  }
 }
 
 /**
@@ -159,7 +159,7 @@ __kernel void cdiv2_kernel(__global real * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = c / b[i];
-  } 
+  }
 }
 
 /**
@@ -624,6 +624,41 @@ __kernel void glsc2_kernel(__global const real * __restrict__ a,
 
   for (int i = idx; i < n; i+= str) {
     tmp += a[i] * b[i];
+  }
+  buf[get_local_id(0)] = tmp;
+  barrier(CLK_LOCAL_MEM_FENCE);
+
+  int i = (get_local_size(0))>>1;
+  while (i != 0) {
+    if (get_local_id(0) < i) {
+      buf[get_local_id(0)] += buf[get_local_id(0) + i];
+    }
+    barrier(CLK_LOCAL_MEM_FENCE);
+    i = i>>1;
+  }
+
+  if (get_local_id(0) == 0) {
+    buf_h[get_group_id(0)] = buf[0];
+  }
+
+}
+
+/**
+ * Device kernel for glsubnorm2
+ */
+__kernel void glsubnorm2_kernel(__global const real * __restrict__ a,
+                                __global const real * __restrict__ b,
+                                __global real * __restrict__ buf_h,
+                                const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  __local real buf[256]; /* Make this nice...*/
+  real tmp = 0.0;
+
+  for (int i = idx; i < n; i+= str) {
+    tmp += pow(a[i] - b[i], (real) 2.0);
   }
   buf[get_local_id(0)] = tmp;
   barrier(CLK_LOCAL_MEM_FENCE);

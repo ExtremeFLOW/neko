@@ -83,7 +83,7 @@ contains
   !! @param[inout] json The JSON object configuring the boundary condition.
   subroutine dong_outflow_init(this, coef, json)
     class(dong_outflow_t), target, intent(inout) :: this
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) :: json
     call this%free()
     call this%init_base(coef)
@@ -107,7 +107,7 @@ contains
     logical :: strong_ = .true.
 
     if (present(strong)) strong_ = strong
-
+    !Im actually not sure what to do if one has two dong that share a corner.
     if (strong_) then
        m = this%msk(0)
        do i = 1, m

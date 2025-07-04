@@ -118,7 +118,7 @@ contains
 
   !> Constructor from json.
   subroutine force_torque_init_from_json(this, json, case)
-    class(force_torque_t), intent(inout) :: this
+    class(force_torque_t), intent(inout), target :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     integer :: zone_id

@@ -192,7 +192,7 @@ contains
     call this%c_Xh%init(this%gs_Xh)
 
     ! Local scratch registry
-    this%scratch = scratch_registry_t(this%dm_Xh, 10, 2)
+    call this%scratch%init(this%dm_Xh, 10, 2)
 
     ! Assign a name
     call json_get_or_default(params, 'case.fluid.name', this%name, "fluid")
@@ -547,7 +547,7 @@ contains
     type is (hsmg_t)
        call pcp%init(coef, bclst, pcparams)
     type is (phmg_t)
-       call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst)
+       call pcp%init(coef, bclst, pcparams)
     end select
 
     call ksp%set_pc(pc)
@@ -572,7 +572,7 @@ contains
   !! @param tstep Current time step.
   subroutine fluid_scheme_update_material_properties(this, t, tstep)
     class(fluid_scheme_incompressible_t), intent(inout) :: this
-    real(kind=rp),intent(in) :: t
+    real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(field_t), pointer :: nut
 
@@ -601,7 +601,7 @@ contains
   !! @param params The case paramter file.
   !! @param user The user interface.
   subroutine fluid_scheme_set_material_properties(this, params, user)
-    class(fluid_scheme_incompressible_t), intent(inout) :: this
+    class(fluid_scheme_incompressible_t), target, intent(inout) :: this
     type(json_file), intent(inout) :: params
     type(user_t), target, intent(in) :: user
     character(len=LOG_SIZE) :: log_buf
@@ -620,6 +620,7 @@ contains
     this%mu => neko_field_registry%get_field(this%name // "_mu")
     this%mu_tot => neko_field_registry%get_field(this%name // "_mu_tot")
     this%rho => neko_field_registry%get_field(this%name // "_rho")
+
     call this%material_properties%init(2)
     call this%material_properties%assign(1, this%rho)
     call this%material_properties%assign(2, this%mu)
@@ -693,9 +694,9 @@ contains
     ! values are also filled
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%rho%x, this%rho%x_d, this%rho%size(), &
-            DEVICE_TO_HOST, sync=.false.)
+            DEVICE_TO_HOST, sync = .false.)
        call device_memcpy(this%mu%x, this%mu%x_d, this%mu%size(), &
-            DEVICE_TO_HOST, sync=.false.)
+            DEVICE_TO_HOST, sync = .false.)
     end if
   end subroutine fluid_scheme_set_material_properties
 

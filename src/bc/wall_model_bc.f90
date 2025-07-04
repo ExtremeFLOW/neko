@@ -171,7 +171,7 @@ contains
   !! @param[inout] json The JSON object configuring the boundary condition.
   subroutine wall_model_bc_init(this, coef, json)
     class(wall_model_bc_t), target, intent(inout) :: this
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) :: json
     real(kind=rp) :: value(3) = [0, 0, 0]
     character(len=:), allocatable :: type_name

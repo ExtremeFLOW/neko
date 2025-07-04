@@ -1,0 +1,6 @@
+__pycache__
+*.chkp
+*0.f0*
+*.nek5000
+logs/
+tests/**/*.case

@@ -113,37 +113,52 @@ module math
        add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
        glsc3, glsc4, sort, masked_copy, cfill_mask, relcmp, glimax, glimin, &
        swap, reord, flipv, cadd2, masked_gather_copy, absval, pwmax, pwmin, &
-       masked_scatter_copy, cdiv, cdiv2
+       masked_scatter_copy, cdiv, cdiv2, glsubnorm
 
 contains
 
   !> Return single precision absolute comparison \f$ | x - y | < \epsilon \f$
-  pure function sabscmp(x, y)
+  pure function sabscmp(x, y, tol)
     real(kind=sp), intent(in) :: x
     real(kind=sp), intent(in) :: y
+    real(kind=sp), intent(in), optional :: tol
     logical :: sabscmp
 
-    sabscmp = abs(x - y) .lt. NEKO_EPS
+    if (present(tol)) then
+       sabscmp = abs(x - y) .lt. tol
+    else
+       sabscmp = abs(x - y) .lt. NEKO_EPS
+    end if
 
   end function sabscmp
 
   !> Return double precision absolute comparison \f$ | x - y | < \epsilon \f$
-  pure function dabscmp(x, y)
+  pure function dabscmp(x, y, tol)
     real(kind=dp), intent(in) :: x
     real(kind=dp), intent(in) :: y
+    real(kind=dp), intent(in), optional :: tol
     logical :: dabscmp
 
-    dabscmp = abs(x - y) .lt. NEKO_EPS
+    if (present(tol)) then
+       dabscmp = abs(x - y) .lt. tol
+    else
+       dabscmp = abs(x - y) .lt. NEKO_EPS
+    end if
 
   end function dabscmp
 
   !> Return double precision absolute comparison \f$ | x - y | < \epsilon \f$
-  pure function qabscmp(x, y)
+  pure function qabscmp(x, y, tol)
     real(kind=qp), intent(in) :: x
     real(kind=qp), intent(in) :: y
+    real(kind=qp), intent(in), optional :: tol
     logical :: qabscmp
 
-    qabscmp = abs(x - y) .lt. NEKO_EPS
+    if (present(tol)) then
+       qabscmp = abs(x - y) .lt. tol
+    else
+       qabscmp = abs(x - y) .lt. NEKO_EPS
+    end if
 
   end function qabscmp
 
@@ -735,7 +750,7 @@ contains
   subroutine add2s2(a, b, c1, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(inout) :: b
+    real(kind=rp), dimension(n), intent(in) :: b
     real(kind=rp), intent(in) :: c1
     integer :: i
 
@@ -979,6 +994,27 @@ contains
     glsc4 = tmp
 
   end function glsc4
+
+  !> Returns the norm of the difference of two vectors
+  !! \f$ \sqrt{(a-b)^T (a-b)} \f$
+  function glsubnorm(a, b, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(in) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp) :: glsubnorm
+    real(kind=xp) :: tmp
+    integer :: i, ierr
+
+    tmp = 0.0_xp
+    do i = 1, n
+       tmp = tmp + (a(i) - b(i))**2
+    end do
+
+    call MPI_Allreduce(MPI_IN_PLACE, tmp, 1, &
+         MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    glsubnorm = sqrt(tmp)
+
+  end function glsubnorm
 
   !> Heap Sort for double precision arrays
   !! @details Following p 231 Num. Rec., 1st Ed.

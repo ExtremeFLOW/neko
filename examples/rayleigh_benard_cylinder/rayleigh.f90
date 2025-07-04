@@ -12,12 +12,12 @@ module user
 
 contains
   ! Register user defined functions (see user_intf.f90)
-  subroutine user_setup(u)
-    type(user_t), intent(inout) :: u
-    u%scalar_user_ic => set_initial_conditions_for_s
-    u%scalar_user_bc => set_scalar_boundary_conditions
-    u%material_properties => set_material_properties
-    u%user_startup => startup
+  subroutine user_setup(user)
+    type(user_t), intent(inout) :: user
+    user%scalar_user_ic => set_initial_conditions_for_s
+    user%scalar_user_bc => set_scalar_boundary_conditions
+    user%material_properties => set_material_properties
+    user%user_startup => startup
   end subroutine user_setup
 
   subroutine startup(params)
@@ -48,7 +48,8 @@ contains
   end subroutine set_material_properties
 
 
-  subroutine set_scalar_boundary_conditions(s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
+  subroutine set_scalar_boundary_conditions(scalar_name, s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
+    character(len=*), intent(in) :: scalar_name
     real(kind=rp), intent(inout) :: s
     real(kind=rp), intent(in) :: x
     real(kind=rp), intent(in) :: y

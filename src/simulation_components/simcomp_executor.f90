@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,7 @@ module simcomp_executor
      !> Destructor.
      procedure, pass(this) :: free => simcomp_executor_free
      !> Appending a new simcomp to the executor.
-     procedure, pass(this) :: add_user_simcomp => simcomp_executor_add
+     procedure, pass(this) :: add => simcomp_executor_add
      !> Execute preprocess_ for all simcomps.
      procedure, pass(this) :: preprocess => simcomp_executor_preprocess
      !> Execute compute_ for all simcomps.
@@ -95,7 +95,7 @@ contains
     character(len=*), optional, intent(in) :: simcomp_root
     integer :: n_simcomps, i
     type(json_file) :: comp_subdict
-    logical :: found, is_user, has_user
+    logical :: found
     ! Help array for finding minimal values
     logical, allocatable :: mask(:)
     ! The order value for each simcomp in order of appearance in the case file.
@@ -130,13 +130,9 @@ contains
     ! We need a separate loop to figure out the order, so that we can
     ! apply the order to the initialization as well.
     max_order = 0
-    has_user = .false.
     do i = 1, n_simcomps
        ! Create a new json containing just the subdict for this simcomp
        call json_extract_item(case%params, root_name, i, comp_subdict)
-
-       call json_get_or_default(comp_subdict, "is_user", is_user, .false.)
-       has_user = has_user .or. is_user
 
        call json_get_or_default(comp_subdict, "order", read_order(i), -1)
        if (read_order(i) .gt. max_order) then
@@ -166,21 +162,13 @@ contains
     do i = 1, n_simcomps
        call json_extract_item(case%params, root_name, order(i), comp_subdict)
 
-       ! Log the component type if it is not a user component
+       ! Log the component type
        call json_get(comp_subdict, "type", comp_type)
-       call json_get_or_default(comp_subdict, "is_user", is_user, .false.)
-       if (.not. is_user) call neko_log%message('- ' // trim(comp_type))
+       call neko_log%message('- ' // trim(comp_type))
 
        call simulation_component_factory(this%simcomps(i)%simcomp, &
             comp_subdict, case)
     end do
-
-    if (has_user) then
-       call neko_log%message('Initialize user simcomp')
-
-       call json_extract_object(case%params, root_name, comp_subdict)
-       call case%usr%init_user_simcomp(comp_subdict)
-    end if
 
     ! Cleanup
     deallocate(order)

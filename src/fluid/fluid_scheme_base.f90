@@ -251,7 +251,7 @@ module fluid_scheme_base
   abstract interface
      subroutine fluid_scheme_setup_bcs_intrf(this, user, params)
        import fluid_scheme_base_t, user_t, json_file
-       class(fluid_scheme_base_t), intent(inout) :: this
+       class(fluid_scheme_base_t), target, intent(inout) :: this
        type(user_t), target, intent(in) :: user
        type(json_file), intent(inout) :: params
      end subroutine fluid_scheme_setup_bcs_intrf

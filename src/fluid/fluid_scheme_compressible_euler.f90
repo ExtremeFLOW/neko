@@ -231,6 +231,8 @@ contains
   subroutine fluid_scheme_compressible_euler_free(this)
     class(fluid_scheme_compressible_euler_t), intent(inout) :: this
 
+    call this%scheme_free()
+
     if (allocated(this%Ax)) then
        deallocate(this%Ax)
     end if
@@ -267,7 +269,6 @@ contains
          Xh => this%Xh, msh => this%msh, Ax => this%Ax, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
          E => this%E, rho => this%rho, mu => this%mu, &
-         ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
          f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
          drho => this%drho, dm_x => this%dm_x, dm_y => this%dm_y, &
          dm_z => this%dm_z, dE => this%dE, &
@@ -342,7 +343,7 @@ contains
   !> @param user User-defined boundary conditions
   !> @param params Configuration parameters
   subroutine fluid_scheme_compressible_euler_setup_bcs(this, user, params)
-    class(fluid_scheme_compressible_euler_t), intent(inout) :: this
+    class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
     type(user_t), target, intent(in) :: user
     type(json_file), intent(inout) :: params
     integer :: i, n_bcs, zone_index, j, zone_size, global_zone_size, ierr
@@ -428,6 +429,20 @@ contains
              call this%bcs_density%append(bc_i)
           end if
        end do
+    else
+       ! Check that there are no labeled zones, i.e. all are periodic.
+       do i = 1, size(this%msh%labeled_zones)
+          if (this%msh%labeled_zones(i)%size .gt. 0) then
+             call neko_error("No boundary_conditions entry in the case file!")
+          end if
+       end do
+
+       ! For a pure periodic case, we still need to initilise the bc lists
+       ! to a zero size to avoid issues with apply() in step()
+       call this%bcs_prs%init()
+       call this%bcs_vel%init()
+       call this%bcs_density%init()
+
     end if
   end subroutine fluid_scheme_compressible_euler_setup_bcs
 

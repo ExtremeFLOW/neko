@@ -340,6 +340,14 @@ module cuda_math
        integer(c_int) :: n
      end function cuda_glsc2
 
+     real(c_rp) function cuda_glsubnorm2(a_d, b_d, n) &
+          bind(c, name = 'cuda_glsubnorm2')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: a_d, b_d
+       integer(c_int) :: n
+     end function cuda_glsubnorm2
+
      real(c_rp) function cuda_glsum(a_d, n) &
           bind(c, name = 'cuda_glsum')
        use, intrinsic :: iso_c_binding, only: c_int, c_ptr

@@ -65,7 +65,7 @@ contains
   !! @param[inout] json The JSON object configuring the boundary condition.
   subroutine inflow_init(this, coef, json)
     class(inflow_t), intent(inout), target :: this
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) ::json
     real(kind=rp), allocatable :: x(:)
 

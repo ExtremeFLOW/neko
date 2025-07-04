@@ -92,7 +92,7 @@ contains
   !> @param json JSON object with the parameters.
   !! @param case The case object.
   subroutine fluid_stats_simcomp_init_from_json(this, json, case)
-    class(fluid_stats_simcomp_t), intent(inout) :: this
+    class(fluid_stats_simcomp_t), target, intent(inout) :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: filename
@@ -139,12 +139,12 @@ contains
   !! @param stat_set Set of statistics to compute (basic/full)
   subroutine fluid_stats_simcomp_init_from_components(this, u, v, w, p, coef, &
        start_time, hom_dir, stat_set, fname)
-    class(fluid_stats_simcomp_t), intent(inout) :: this
+    class(fluid_stats_simcomp_t), target, intent(inout) :: this
     character(len=*), intent(in) :: hom_dir
     character(len=*), intent(in) :: stat_set
     real(kind=rp), intent(in) :: start_time
-    type(field_t), intent(in) :: u, v, w, p
-    type(coef_t), intent(in) :: coef
+    type(field_t), intent(in), target :: u, v, w, p
+    type(coef_t), intent(in), target :: coef
     character(len=*), intent(in), optional :: fname
     character(len=NEKO_FNAME_LEN) :: stats_fname
     character(len=LOG_SIZE) :: log_buf
@@ -226,6 +226,21 @@ contains
     real(kind=rp) :: sample_start_time, sample_time
     character(len=LOG_SIZE) :: log_buf
     integer :: ierr
+
+    if (time%start_time .gt. this%start_time) then
+       write(log_buf, '(A)') 'Simulation start time is later than the ' &
+            // 'fluid stats start time.'
+       call neko_log%warning(log_buf)
+       write(log_buf, '(A,E15.7)') 'Simulation start time:', time%start_time
+       call neko_log%warning(log_buf)
+       write(log_buf, '(A,E15.7)') 'Fluid stats start time:', this%start_time
+       call neko_log%warning(log_buf)
+       write(log_buf, '(A)') 'Assigning the statistics start time to ' &
+            // 'the simulation start time.'
+       call neko_log%warning(log_buf)
+       this%start_time = time%start_time
+       this%time = time%start_time
+    end if
 
     t = time%t
 

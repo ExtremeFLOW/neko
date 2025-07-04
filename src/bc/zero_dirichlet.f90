@@ -70,7 +70,7 @@ contains
   !! @param[inout] json The JSON object configuring the boundary condition.
   subroutine zero_dirichlet_init(this, coef, json)
     class(zero_dirichlet_t), intent(inout), target :: this
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) :: json
 
     call this%init_from_components(coef)
@@ -80,7 +80,7 @@ contains
   !! @param[in] coef The SEM coefficients.
   subroutine zero_dirichlet_init_from_components(this, coef)
     class(zero_dirichlet_t), intent(inout), target :: this
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
 
     call this%init_base(coef)
   end subroutine zero_dirichlet_init_from_components

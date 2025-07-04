@@ -136,7 +136,7 @@ module bc
      subroutine bc_constructor(this, coef, json)
        import :: bc_t, coef_t, json_file
        class(bc_t), intent(inout), target :: this
-       type(coef_t), intent(in) :: coef
+       type(coef_t), target, intent(in) :: coef
        type(json_file), intent(inout) :: json
      end subroutine bc_constructor
   end interface
@@ -516,6 +516,14 @@ contains
           end do
        end select
     end do
+    this%facet(0) = msk_c
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       !Observe the facet_mask is junk if only_facet is false
+       n = msk_c + 1
+       call device_map(this%facet, this%facet_d, n)
+       call device_memcpy(this%facet, this%facet_d, n, &
+            HOST_TO_DEVICE, sync = .true.)
+    end if
     if ( .not. only_facet) then
        !Makes check for points not on facet that should have bc applied
        call test_field%init(this%dof)
@@ -557,16 +565,11 @@ contains
     end if
 
     this%msk(0) = msk_c
-    this%facet(0) = msk_c
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        n = msk_c + 1
        call device_map(this%msk, this%msk_d, n)
-       call device_map(this%facet, this%facet_d, n)
-
        call device_memcpy(this%msk, this%msk_d, n, &
-            HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(this%facet, this%facet_d, n, &
             HOST_TO_DEVICE, sync = .true.)
     end if
 
@@ -591,7 +594,7 @@ contains
        k = this%msk(i)
        bdry_field%x(k,1,1,1) = 1.0_rp
     end do
-    dump_file = file_t(file_name)
+    call dump_file%init(file_name)
     call dump_file%write(bdry_field)
 
   end subroutine bc_debug_mask

@@ -54,6 +54,8 @@ module krylov
 
   !> Type for storing initial and final residuals in a Krylov solver.
   type, public :: ksp_monitor_t
+     !> Name of the solver in question
+     character(len=18) :: name
      !> Iteration number.
      integer :: iter
      !> Initial residual.
@@ -62,6 +64,9 @@ module krylov
      real(kind=rp) :: res_final
      !> Status
      logical :: converged = .false.
+   contains
+     procedure, pass(this) :: print_header => krylov_monitor_print_header
+     procedure, pass(this) :: print_result => krylov_monitor_print_result
   end type ksp_monitor_t
 
   !> Base abstract type for a canonical Krylov method, solving \f$ Ax = f \f$.
@@ -162,7 +167,7 @@ module krylov
   !! @param fz right hand side
   !! @param n integer, size of vectors
   !! @param coef Coefficients
-  !! @param blst list of  boundary conditions
+  !! @param blst list of boundary conditions
   !! @param gs_h Gather-scatter handle
   !! @param niter iteration trip count
   abstract interface
@@ -317,9 +322,9 @@ contains
        call neko_log%section(trim(log_buf))
        call neko_log%newline()
        call neko_log%begin()
-       write(log_buf, '(A)') ' Iter.       Residual'
+       write(log_buf, '(A)') ' Iter.          Residual'
        call neko_log%message(log_buf)
-       write(log_buf, '(A)') '---------------------'
+       write(log_buf, '(A)') '-------------------------'
        call neko_log%message(log_buf)
     end if
   end subroutine krylov_monitor_start
@@ -344,7 +349,7 @@ contains
     character(len=LOG_SIZE) :: log_buf
 
     if (this%monitor) then
-       write(log_buf, '(I6,E15.7)') iter, rnorm
+       write(log_buf, '(I6,E18.9)') iter, rnorm
        call neko_log%message(log_buf)
     end if
 
@@ -369,5 +374,37 @@ contains
     if (residual .gt. this%abs_tol) converged = .false.
 
   end function krylov_is_converged
+
+  !> Print the Krylov solver's result header.
+  subroutine krylov_monitor_print_header(this)
+    class(ksp_monitor_t), intent(in) :: this
+    character(len=LOG_SIZE) :: log_buf
+
+    write(log_buf, '((A5,7x),A3,(A5,13x),1x,A6,3x,A15,3x,A15)') &
+         'Step:', ' | ', 'Field:', 'Iters:', &
+         'Start residual:', 'Final residual:'
+    call neko_log%message(log_buf)
+
+  end subroutine krylov_monitor_print_header
+
+  !> Print the Krylov solver's result.
+  subroutine krylov_monitor_print_result(this, step)
+    class(ksp_monitor_t), intent(in) :: this
+    integer, intent(in) :: step
+    character(len=LOG_SIZE) :: log_buf
+    character(len=12) :: step_str
+    character(len=:), allocatable :: output_format
+
+    ! Define the output format
+    output_format = '(A12,A3,A18,1x,I6,3x,E15.9,3x,E15.9)'
+    write(step_str, '(I12)') step
+    step_str = adjustl(step_str)
+
+    write(log_buf, output_format) &
+         step_str, ' | ' , adjustl(this%name), this%iter, &
+         this%res_start, this%res_final
+    call neko_log%message(log_buf)
+
+  end subroutine krylov_monitor_print_result
 
 end module krylov
