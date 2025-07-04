@@ -76,7 +76,7 @@ jobs:
                 python3-pip cmake-curses-gui
               python3 -m venv myenv
               source myenv/bin/activate
-              pip install pytest json5
+              pip install pytest json5 numpy
               echo "nproc=$(nproc)" >> $GITHUB_OUTPUT
               echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
 
