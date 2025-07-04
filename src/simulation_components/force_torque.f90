@@ -465,7 +465,6 @@ contains
                this%n1%x_d, &
                this%n2%x_d, &
                this%n3%x_d, &
-          ! Horrible mu hack
                this%mu%x_d, &
                n_pts)
           !Overwriting masked s11, s22, s33 as they are no longer needed

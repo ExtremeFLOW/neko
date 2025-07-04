@@ -97,17 +97,17 @@ contains
     integer, intent(in) :: tstep
     type(facet_zone_t) :: zone
     type(coef_t), intent(inout) :: coef
-    real(kind=rp), intent(inout) :: s11(coef%Xh%lx, coef%Xh%lx, coef%Xh%lz, &
+    real(kind=rp), intent(inout) :: s11(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
          coef%msh%nelv)
-    real(kind=rp), intent(inout) :: s22(coef%Xh%lx, coef%Xh%lx, coef%Xh%lz, &
+    real(kind=rp), intent(inout) :: s22(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
          coef%msh%nelv)
-    real(kind=rp), intent(inout) :: s33(coef%Xh%lx, coef%Xh%lx, coef%Xh%lz, &
+    real(kind=rp), intent(inout) :: s33(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
          coef%msh%nelv)
-    real(kind=rp), intent(inout) :: s12(coef%Xh%lx, coef%Xh%lx, coef%Xh%lz, &
+    real(kind=rp), intent(inout) :: s12(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
          coef%msh%nelv)
-    real(kind=rp), intent(inout) :: s13(coef%Xh%lx, coef%Xh%lx, coef%Xh%lz, &
+    real(kind=rp), intent(inout) :: s13(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
          coef%msh%nelv)
-    real(kind=rp), intent(inout) :: s23(coef%Xh%lx, coef%Xh%lx, coef%Xh%lz, &
+    real(kind=rp), intent(inout) :: s23(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
          coef%msh%nelv)
     type(field_t), intent(inout) :: p
     real(kind=rp), intent(in) :: visc, center(3)
@@ -369,13 +369,13 @@ contains
     r2 = y - center(2)
     r3 = z - center(3)
     !pressure torque
-    dgtq(1,3) = (r2*dgtq(3,1) - r3*dgtq(2,1))
-    dgtq(2,3) = (r3*dgtq(1,1) - r1*dgtq(3,1))
-    dgtq(3,3) = (r1*dgtq(2,1) - r2*dgtq(1,1))
+    dgtq(1,3) = r2*dgtq(3,1) - r3*dgtq(2,1)
+    dgtq(2,3) = r3*dgtq(1,1) - r1*dgtq(3,1)
+    dgtq(3,3) = r1*dgtq(2,1) - r2*dgtq(1,1)
     !viscous torque
-    dgtq(1,4) = (r2*dgtq(3,2) - r3*dgtq(2,2))
-    dgtq(2,4) = (r3*dgtq(1,2) - r1*dgtq(3,2))
-    dgtq(3,4) = (r1*dgtq(2,2) - r2*dgtq(1,2))
+    dgtq(1,4) = r2*dgtq(3,2) - r3*dgtq(2,2)
+    dgtq(2,4) = r3*dgtq(1,2) - r1*dgtq(3,2)
+    dgtq(3,4) = r1*dgtq(2,2) - r2*dgtq(1,2)
   end subroutine drag_torque_pt
 
   !> Calculate drag and torque from array of points
