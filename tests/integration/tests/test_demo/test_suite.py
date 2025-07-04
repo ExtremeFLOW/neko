@@ -26,8 +26,6 @@ def test_demo(launcher_script, request, log_file, tmp_path):
     # and save a new case file.
     case_file = join(neko_dir, "examples", "cylinder", "cylinder.case")
 
-    print("hi")
-
     # Read the case file. We use json5 to allow comments in the case file.
     with open(case_file, "r") as f:
         case = json5.load(f)
