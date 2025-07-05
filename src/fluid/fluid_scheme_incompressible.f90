@@ -667,6 +667,7 @@ contains
     if (associated(user%material_properties, dummy_mp_ptr)) then
        ! Fill mu and rho field with the physical value
        call field_cfill(this%mu, const_mu)
+       call field_cfill(this%mu_tot, const_mu)
        call field_cfill(this%rho, const_rho)
 
 
@@ -687,6 +688,8 @@ contains
        call device_memcpy(this%rho%x, this%rho%x_d, this%rho%size(), &
             DEVICE_TO_HOST, sync = .false.)
        call device_memcpy(this%mu%x, this%mu%x_d, this%mu%size(), &
+            DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(this%mu_tot%x, this%mu_tot%x_d, this%mu%size(), &
             DEVICE_TO_HOST, sync = .false.)
     end if
   end subroutine fluid_scheme_set_material_properties
