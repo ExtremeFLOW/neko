@@ -34,6 +34,7 @@
 module fluid_output
   use num_types, only : rp
   use fluid_scheme_incompressible, only : fluid_scheme_incompressible_t
+  use fluid_scheme_compressible, only : fluid_scheme_compressible_t
   use fluid_scheme_base, only : fluid_scheme_base_t
   use scalar_scheme, only : scalar_scheme_t
   use field_list, only : field_list_t
@@ -106,7 +107,14 @@ contains
     has_max_wave_speed = neko_field_registry%field_exists("max_wave_speed")
 
     ! Check if density field exists (for compressible flows)
-    has_density = associated(fluid%rho)
+    ! We need to check the solver type here since the incompressible
+    ! solver also has a rho field due to the material properties
+    select type (fluid)
+    class is (fluid_scheme_compressible_t)
+       has_density = associated(fluid%rho)
+    class default
+       has_density = .false.
+    end select
 
     ! Initialize field list with appropriate size
     ! Standard fields: p, u, v, w (4)
