@@ -332,7 +332,7 @@ contains
 
   subroutine wall_model_finalize_base(this, msk, facet)
     class(wall_model_t), intent(inout) :: this
-    integer, target, intent(in) :: msk(:)
+    integer, target, intent(in) :: msk(0:)
     integer, target, intent(in) :: facet(:)
 
     this%msk(0:msk(0)) => msk
