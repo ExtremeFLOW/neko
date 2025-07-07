@@ -117,7 +117,7 @@ EXTRA_DIST = \
 	tests/reframe/src/tgv.case.template\
 	tests/reframe/src/tgv.f90\
 	tests/integration/default_cpu_launcher.sh\
-	tests/integration/default_gpu_launcher.sh\
+	tests/integration/default_cuda_launcher.sh\
 	tests/integration/conftest.py\
 	tests/integration/testlib.py\
 	tests/integration/pytest.ini\
