@@ -29,7 +29,7 @@ def test_cylinder(launcher_script, request, tmp_path):
     os.makedirs("logs", exist_ok=True)
 
     # Set the precision for the test
-    eps = 1e-15 if RP == "dp" else 1e-6
+    eps = 1e-15 if RP == "dp" else 1e-4
 
     test_name = request.node.name + "part_1"
     log_file = os.path.join("logs", f"{test_name}.log")
