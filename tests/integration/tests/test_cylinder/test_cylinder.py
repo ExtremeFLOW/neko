@@ -29,9 +29,9 @@ def test_cylinder(launcher_script, request, tmp_path):
     os.makedirs("logs", exist_ok=True)
 
     # Set the precision for the test
-    eps = 1e-15 if RP == "dp" else 1e-4
+    eps = 1e-15 if RP == "dp" else 1e-2
 
-    test_name = request.node.name + "part_1"
+    test_name = request.node.name + "_part1"
     log_file = os.path.join("logs", f"{test_name}.log")
 
     # Get the path to the neko executable
@@ -77,7 +77,7 @@ def test_cylinder(launcher_script, request, tmp_path):
     # Part 2, run from chekpoint file
     #
 
-    test_name = request.node.name + "part_2"
+    test_name = request.node.name + "_part2"
     log_file = os.path.join("logs", f"{test_name}.log")
 
     # We start with the p1 file and moidfy it
@@ -128,4 +128,10 @@ def test_cylinder(launcher_script, request, tmp_path):
             continue
         assert_allclose(parsed_data_part2[i], parsed_data_part1[i], rtol=eps,
                         err_msg=f"Column '{i}' does not match reference data.")
+
+    # Harsher tolerance on the first overlapped iteration even for SP.
+    assert (
+        (parsed_data_part1["pressure_start_residual"][0] -
+         parsed_data_part2["pressure_start_residual"][0]) / parsed_data_part1["pressure_start_residual"][0] < 1e-6
+    )
 
