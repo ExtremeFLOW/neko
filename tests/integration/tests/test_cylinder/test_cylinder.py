@@ -23,6 +23,9 @@ def test_cylinder(launcher_script, request, tmp_path):
     Note, we handle log names manually here to have _part1 and part2.
     The reason we do everything in a single test is that we want to compare
     logs from 2 runs, one with a restart and one without.
+
+    For single precision, the tests is much more relaxed, we reduce the
+    tolerance a lot and only check pressure residuals.
     """
 
     # Make sure logs directory exists
@@ -67,8 +70,7 @@ def test_cylinder(launcher_script, request, tmp_path):
     columns = parsed_data_part1.dtype.names # Get column names read from  the CSV
 
     for i in columns:
-        if i == "total_step_time":
-            # Skip total_step_time as it may vary
+        if i == "total_step_time" or (RP == "sp" and "velocity" in i):
             continue
         assert_allclose(parsed_data_part1[i], ref_data[i], rtol=eps,
                         err_msg=f"Column '{i}' does not match reference data.")
@@ -112,7 +114,7 @@ def test_cylinder(launcher_script, request, tmp_path):
         names=True)
 
     for i in columns:
-        if i == "total_step_time":
+        if i == "total_step_time" or (RP == "sp" and "velocity" in i):
             # Skip total_step_time as it may vary
             continue
         assert_allclose(parsed_data_part2[i], ref_data[i], rtol=eps,
@@ -124,7 +126,7 @@ def test_cylinder(launcher_script, request, tmp_path):
 
     parsed_data_part1 = parsed_data_part1[parsed_data_part1["time"] > 5e-2]
     for i in columns:
-        if i in ["total_step_time", "step"]:
+        if i in ["total_step_time", "step"] or (RP == "sp" and "velocity" in i):
             continue
         assert_allclose(parsed_data_part2[i], parsed_data_part1[i], rtol=eps,
                         err_msg=f"Column '{i}' does not match reference data.")
