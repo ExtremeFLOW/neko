@@ -445,7 +445,7 @@ contains
     type(json_file), intent(inout) :: object
 
     type(json_value), pointer :: ptr
-    type(json_core)  :: core
+    type(json_core) :: core
     logical :: found
     character(len=:), allocatable :: buffer
 
