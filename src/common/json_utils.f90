@@ -39,10 +39,10 @@ module json_utils
   private
 
   public :: json_get, json_get_or_default, json_extract_item, &
-       json_extract_object, neko_no_defaults
+       json_extract_object, json_no_defaults
 
   !> If true, the json_get_or_default routines will not add missing parameters
-  logical :: neko_no_defaults = .false.
+  logical :: json_no_defaults = .false.
 
   !> Retrieves a parameter by name or throws an error
   interface json_get
@@ -289,7 +289,7 @@ contains
 
     call json%get(name, value, found)
 
-    if ((.not. found) .and. (neko_no_defaults .eqv. .false.)) then
+    if ((.not. found) .and. (json_no_defaults .eqv. .false.)) then
        value = default
        call json%add(name, value)
     else if (.not. found) then
@@ -311,7 +311,7 @@ contains
 
     call json%get(name, value, found)
 
-    if ((.not. found) .and. (neko_no_defaults .eqv. .false.)) then
+    if ((.not. found) .and. (json_no_defaults .eqv. .false.)) then
        value = default
        call json%add(name, value)
     else if (.not. found) then
@@ -333,7 +333,7 @@ contains
 
     call json%get(name, value, found)
 
-    if ((.not. found) .and. (neko_no_defaults .eqv. .false.)) then
+    if ((.not. found) .and. (json_no_defaults .eqv. .false.)) then
        value = default
        call json%add(name, value)
     else if (.not. found) then
@@ -355,7 +355,7 @@ contains
 
     call json%get(name, value, found)
 
-    if ((.not. found) .and. (neko_no_defaults .eqv. .false.)) then
+    if ((.not. found) .and. (json_no_defaults .eqv. .false.)) then
        value = default
        call json%add(name, value)
     else if (.not. found) then
@@ -377,7 +377,7 @@ contains
 
     call json%get(name, value, found)
 
-    if ((.not. found) .and. (neko_no_defaults .eqv. .false.)) then
+    if ((.not. found) .and. (json_no_defaults .eqv. .false.)) then
        value = default
        call json%add(name, value)
     else if (.not. found) then

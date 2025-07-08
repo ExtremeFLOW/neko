@@ -58,7 +58,7 @@ module case
   use scalar_scheme, only : scalar_scheme_t
   use time_state, only : time_state_t
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default, json_extract_object, json_extract_item, neko_no_defaults
+  use json_utils, only : json_get, json_get_or_default, json_extract_object, json_extract_item, json_no_defaults
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   use point_zone_registry, only: neko_point_zone_registry
   use scalars, only : scalars_t
@@ -162,7 +162,7 @@ contains
 
     ! Check if default value fill-in is allowed
     if (this%params%valid_path('case.no_defaults')) then
-       call json_get(this%params, 'case.no_defaults', neko_no_defaults)
+       call json_get(this%params, 'case.no_defaults', json_no_defaults)
     end if
 
     !
