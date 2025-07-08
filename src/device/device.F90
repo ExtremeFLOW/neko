@@ -427,8 +427,8 @@ contains
   !! @note For host-device copies @a dst is the host pointer and @a src is the
   !! device pointer (regardless of @a dir)
   subroutine device_memcpy_cptr(dst, src, s, dir, sync, strm)
-    type(c_ptr), intent(inout) :: dst
-    type(c_ptr), intent(inout) :: src
+    type(c_ptr), intent(in) :: dst
+    type(c_ptr), intent(in) :: src
     integer(c_size_t), intent(in) :: s
     integer, intent(in), value :: dir
     logical, optional :: sync
@@ -456,8 +456,8 @@ contains
   !! @note For device to device copies, @a ptr_h is assumed
   !! to be the dst device pointer
   subroutine device_memcpy_common(ptr_h, x_d, s, dir, sync_device, stream)
-    type(c_ptr), intent(inout) :: ptr_h
-    type(c_ptr), intent(inout) :: x_d
+    type(c_ptr), intent(in) :: ptr_h
+    type(c_ptr), intent(in) :: x_d
     integer(c_size_t), intent(in) :: s
     integer, intent(in), value :: dir
     logical, intent(in) :: sync_device
