@@ -887,9 +887,16 @@ Finally, observe that we use the flag `NEKO_BCKND_DEVICE` to check if we are
 indeed running on GPUs. In that case, `NEKO_BCKND_DEVICE` would be equal to 1.
 
 #### Custom GPU kernels {#user-file_tips_running-on-gpus-custom-kernels}
-When running on GPUs it is possible to call an own custom kernel. This could be more performant for more complex source terms or boundary conditions. 
 
-Assume we have a custom kernel called `mydevice_kernel` in a CUDA file called `mykernel.cu`, to set the initial velicity field. To call the custom kernel, the user file must define a C interface to the routine (inside the `.cu` file) that launches the kernel
+When running on GPUs it is possible to call an own custom kernel. This
+could be more performant for more complex source terms or boundary
+conditions.
+
+Assume we have a custom kernel called `mydevice_kernel` in a CUDA file
+called `mykernel.cu`, to set the initial velicity field. To call the
+custom kernel, the user file must define a C interface to the routine
+(inside the `.cu` file) that launches the kernel
+
 ```fortran
 interface
   subroutine mydevice_kernel(u_d, v_d, w_d, n) &
@@ -900,7 +907,10 @@ interface
   end subroutine mydevice_kernel
 end interface
 ```
-Furthermore, the CUDA/HIP file must allow for C linkage, hence the routine `mydevice_kernel` must be inside an `extern "C"` block.
+
+Furthermore, the CUDA/HIP file must allow for C linkage, hence the
+routine `mydevice_kernel` must be inside an `extern "C"` block.
+
 ```C++
 extern "C" {
   void mydevice_kernel(void *u, void *v, void *w, int *n) {
@@ -908,8 +918,9 @@ extern "C" {
   }
 }
 ```
+The user defined routine for initial conditions calls the kernel in
+the following way.
 
-The user defined routine for initial conditions calls the kernel in the following way.
 ```fortran
 
   !> Set the advecting velocity field.
@@ -928,7 +939,8 @@ The user defined routine for initial conditions calls the kernel in the followin
 
 ```
 
-Finally, compile using `makeneko` and provide both the `user.f90` and `mykernel.cu` file.
+Finally, compile using `makeneko` and provide both the `user.f90` and
+`mykernel.cu` file.
 
 ```bash
 makeneko user.f90 mykernel.cu
