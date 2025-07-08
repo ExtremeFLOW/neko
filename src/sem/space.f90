@@ -297,20 +297,17 @@ contains
        call device_memcpy(s%dyt, s%dyt_d, s%lxy, HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(s%dzt, s%dzt_d, s%lxy, HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(s%w3, s%w3_d, s%lxyz, HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(s%v, s%v_d, s%lxy, HOST_TO_DEVICE, &
-            sync = .false.)
-       call device_memcpy(s%vt, s%vt_d, s%lxy, HOST_TO_DEVICE, &
-            sync = .false.)
+       call device_memcpy(s%v, s%v_d, s%lxy, HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(s%vt, s%vt_d, s%lxy, HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(s%vinv, s%vinv_d, s%lxy, HOST_TO_DEVICE, &
             sync = .false.)
        call device_memcpy(s%vinvt, s%vinvt_d, s%lxy, HOST_TO_DEVICE, &
             sync = .false.)
-       call device_memcpy(s%w, s%w_d, s%lxy, HOST_TO_DEVICE, &
-            sync = .false.)
+       call device_memcpy(s%w, s%w_d, s%lxy, HOST_TO_DEVICE, sync = .false.)
 
        ix = s%lx * 3
        call device_map(s%zg, s%zg_d, ix)
-       call device_memcpy(s%zg, s%zg_d, ix, HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(s%zg, s%zg_d, ix, HOST_TO_DEVICE, sync=.true.)
     end if
 
 

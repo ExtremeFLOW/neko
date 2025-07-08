@@ -80,9 +80,9 @@ contains
   !! @param x coords
   !! @id point id
   subroutine point_init_from_array(this, x, id)
+    class(point_t), intent(inout) :: this
     real(kind=dp), dimension(3), intent(in) :: x
     integer, optional, intent(inout) :: id
-    class(point_t), intent(inout) :: this
 
     call this%free()
 

@@ -141,30 +141,30 @@ contains
        end do
        c1 = c2
     end do
-    c = cx
+    c = real(cx, kind=rp)
   end subroutine fd_weights_full
 
 
-!>  Generate matrices for single element, 1D operators:
-!!        a    = Laplacian
-!!        b    = diagonal mass matrix
-!!        c    = convection operator b*d
-!!        d    = derivative matrix
-!!        dgll = derivative matrix,    mapping from pressure nodes to velocity
-!!        jgll = interpolation matrix, mapping from pressure nodes to velocity
-!!        z    = GLL points
-!!
-!!        zgl  = GL points
-!!        bgl  = diagonal mass matrix on GL
-!!        dgl  = derivative matrix,    mapping from velocity nodes to pressure
-!!        jgl  = interpolation matrix, mapping from velocity nodes to pressure
-!!
-!!        n    = polynomial degree (velocity space)
-!!        w    = work array of size 2*n+2
-!!
-!!     Currently, this is set up for pressure nodes on the interior GLL pts.
-!!
-!!
+  !>  Generate matrices for single element, 1D operators:
+  !!        a    = Laplacian
+  !!        b    = diagonal mass matrix
+  !!        c    = convection operator b*d
+  !!        d    = derivative matrix
+  !!        dgll = derivative matrix,    mapping from pressure nodes to velocity
+  !!        jgll = interpolation matrix, mapping from pressure nodes to velocity
+  !!        z    = GLL points
+  !!
+  !!        zgl  = GL points
+  !!        bgl  = diagonal mass matrix on GL
+  !!        dgl  = derivative matrix,    mapping from velocity nodes to pressure
+  !!        jgl  = interpolation matrix, mapping from velocity nodes to pressure
+  !!
+  !!        n    = polynomial degree (velocity space)
+  !!        w    = work array of size 2*n+2
+  !!
+  !!     Currently, this is set up for pressure nodes on the interior GLL pts.
+  !!
+  !!
   subroutine semhat(a, b, c, d, z, dgll, jgll, bgl, zgl, dgl, jgl, n, w)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: a(0:n,0:n)
@@ -195,8 +195,8 @@ contains
     do i = 0,n
        call fd_weights_full(z(i), z(1), n2, 1, w(1))
        do j = 1,nm
-          jgll(i,j) = w(j ) !  Interpolation matrix
-          dgll(i,j) = w(j+nm) !  Derivative    matrix
+          jgll(i,j) = w(j) ! Interpolation matrix
+          dgll(i,j) = w(j + nm) ! Derivative matrix
        end do
     end do
     call rzero(a, np*np)
