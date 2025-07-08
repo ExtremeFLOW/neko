@@ -138,7 +138,7 @@ contains
     call schwarz_setup_wt(this)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_alloc(this%wt_d, &
-            int(this%dof%size() * c_sizeof(this%work1(1)), i8))
+            int(this%dof%size(), i8) * int(c_sizeof(this%work1(1)), i8))
        call rone(this%work1, this%dof%size())
        call schwarz_wt3d(this%work1, this%wt, Xh%lx, msh%nelv)
        call device_memcpy(this%work1, this%wt_d, this%dof%size(), &
@@ -429,6 +429,7 @@ contains
          call device_event_sync(this%event)
 
          call this%gs_h%op(e, n, GS_OP_ADD, this%event)
+         call device_event_sync(this%event)
          call this%bclst%apply_scalar(e, n)
          call device_col2(e_d,this%wt_d, n)
          call device_stream_wait_event(aux_cmd_queue, this%event, 0)
