@@ -1,7 +1,7 @@
 {
     "version": 1.0,
     "case": {
-        "mesh_file": "small_test_cyl.nmsh",
+        "mesh_file": "meshes/small_test_cyl.nmsh",
         "output_at_end": true,
         "output_boundary": false,
         "output_checkpoints": true,

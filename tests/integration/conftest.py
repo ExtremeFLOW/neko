@@ -12,6 +12,8 @@ BACKEND = "cpu"
 USES_DEVICE = False
 # The max number of ranks to launch on.
 MAX_NPROCS = 1e+9
+# Real precision
+RP = "dp"
 
 logger = logging.getLogger("pytest_configure")
 logger.setLevel(logging.DEBUG)  # ensure it captures debug and above
@@ -44,13 +46,20 @@ def pytest_addoption(parser):
         default=1e+9,
         help="The maximum number of processes to launch on. Defaults to 1e9 (no limit)."
     )
+    parser.addoption(
+        "--real_precision",
+        action="store",
+        default="dp",
+        help="Precisions of reals for Neko (dp [default], sp)."
+    )
 
 def pytest_configure(config):
-    global BACKEND, USES_DEVICE, MAX_NPROCS
+    global BACKEND, USES_DEVICE, MAX_NPROCS, RP
     BACKEND = config.getoption("--backend")
     USES_DEVICE = BACKEND != "cpu"
     MAX_NPROCS = int(config.getoption("--max_nprocs"))
-    print(f"Using backend: {BACKEND}, uses_device: {USES_DEVICE}, max number of ranks: {MAX_NPROCS}")
+    RP = config.getoption("--real_precision")
+    print(f"Using backend: {BACKEND}, uses_device: {USES_DEVICE}, max number of ranks: {MAX_NPROCS}, real precision: {RP}")
 
 @pytest.fixture
 def launcher_script(request):

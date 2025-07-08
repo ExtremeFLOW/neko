@@ -2,6 +2,7 @@
 
 """
 import os
+from os.path import join
 import subprocess
 from conftest import logger, MAX_NPROCS
 
@@ -9,7 +10,7 @@ from conftest import logger, MAX_NPROCS
 
 def get_neko():
     """
-    Returns the path to the turboneko executable via the environmental variable 
+    Returns the path to the turboneko executable via the environmental variable
     NEKO_EXEC, or just returns "neko", assuming it is in the PATH.
     """
 
@@ -27,7 +28,7 @@ def get_makeneko():
 def get_neko_dir():
     """Returns the root of the neko dirctory structure relative to the directory
     with the integration tests
-    
+
     """
     return "../.."
 
@@ -57,10 +58,34 @@ def run_neko(launcher_script, nprocs, case_file, neko, log_file):
     cmd = [launcher_script, str(nprocs), case_file, neko]
 
     with open(log_file, "w") as f:
-            result = subprocess.run(cmd, stdout=f, stderr=subprocess.STDOUT, 
+            result = subprocess.run(cmd, stdout=f, stderr=subprocess.STDOUT,
                                     text=True)
 
     return result
+
+def parse_log(log_file, output_file):
+    """
+    Parses the neko log file and saves the output to a specified file.
+
+    Parameters
+    ----------
+    log_file : str
+        The path to the neko log file.
+    output_file : str
+        The path to the output file where parsed data will be saved.
+    """
+
+    neko_dir = get_neko_dir()
+
+    command = [
+        "python",
+         join(neko_dir, "contrib/neko_log_parser/neko_log_parser.py"),
+        log_file,
+        "-o",
+        output_file
+    ]
+
+    result = subprocess.run(command, capture_output=True, text=True)
 
 def configure_nprocs(nprocs):
     """
