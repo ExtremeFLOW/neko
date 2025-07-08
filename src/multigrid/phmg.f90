@@ -114,33 +114,40 @@ contains
     type(coef_t), intent(in), target :: coef
     type(bc_list_t), intent(inout), target :: bclst
     type(json_file), intent(inout) :: phmg_params
-    integer :: crs_tamg_lvls, crs_tamg_cycles, crs_tamg_cheby_degree
+    integer :: crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree
     integer :: smoother_itrs
+    character(len=:), allocatable :: cheby_acc
 
     call json_get_or_Default(phmg_params, 'smoother_iterations', &
          smoother_itrs, 10)
 
+    call json_get_or_Default(phmg_params, 'smoother_cheby_acc', &
+         cheby_acc, "jacobi")
+
     call json_get_or_default(phmg_params, 'coarse_grid.levels', &
          crs_tamg_lvls, 3)
 
-    call json_get_or_default(phmg_params, 'coarse_grid.cycles', &
-         crs_tamg_cycles, 1)
+    call json_get_or_default(phmg_params, 'coarse_grid.iterations', &
+         crs_tamg_itrs, 1)
 
     call json_get_or_default(phmg_params, 'coarse_grid.cheby_degree', &
          crs_tamg_cheby_degree, 5)
 
     call this%init_from_components(coef, bclst, smoother_itrs, &
-         crs_tamg_lvls, crs_tamg_cycles, crs_tamg_cheby_degree)
+         cheby_acc, &
+         crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree)
 
   end subroutine phmg_init
 
   subroutine phmg_init_from_components(this, coef, bclst, smoother_itrs, &
-       crs_tamg_lvls, crs_tamg_cycles, crs_tamg_cheby_degree)
+       cheby_acc, &
+       crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree)
     class(phmg_t), intent(inout), target :: this
     type(coef_t), intent(in), target :: coef
     type(bc_list_t), intent(inout), target :: bclst
     integer, intent(in) :: smoother_itrs
-    integer, intent(in) :: crs_tamg_lvls, crs_tamg_cycles
+    character(len=:), allocatable :: cheby_acc
+    integer, intent(in) :: crs_tamg_lvls, crs_tamg_itrs
     integer, intent(in) :: crs_tamg_cheby_degree
     integer :: lx_crs, lx_mid
     integer, allocatable :: lx_lvls(:)
@@ -211,43 +218,58 @@ contains
        call this%phmg_hrchy%lvl(i)%bclst%append(this%phmg_hrchy%lvl(i)%bc)
 
        !> Initialize Smoothers
-       call this%phmg_hrchy%lvl(i)%schwarz%init( &
-            this%phmg_hrchy%lvl(i)%Xh, &
-            this%phmg_hrchy%lvl(i)%dm_Xh, &
-            this%phmg_hrchy%lvl(i)%gs_h, &
-            this%phmg_hrchy%lvl(i)%bclst, &
-            coef%msh)
-       if (use_jacobi) then
-          if (NEKO_BCKND_DEVICE .eq. 1) then
-             call this%phmg_hrchy%lvl(i)%device_jacobi%init(&
-                  this%phmg_hrchy%lvl(i)%coef, &
-                  this%phmg_hrchy%lvl(i)%dm_Xh, &
-                  this%phmg_hrchy%lvl(i)%gs_h)
-          else
-             call this%phmg_hrchy%lvl(i)%jacobi%init(&
-                  this%phmg_hrchy%lvl(i)%coef, &
-                  this%phmg_hrchy%lvl(i)%dm_Xh, &
-                  this%phmg_hrchy%lvl(i)%gs_h)
-          end if
+       if (trim(cheby_acc) .eq. "schwarz") then
+          call this%phmg_hrchy%lvl(i)%schwarz%init( &
+               this%phmg_hrchy%lvl(i)%Xh, &
+               this%phmg_hrchy%lvl(i)%dm_Xh, &
+               this%phmg_hrchy%lvl(i)%gs_h, &
+               this%phmg_hrchy%lvl(i)%bclst, &
+               coef%msh)
        end if
 
-       st = 0
-       if (use_cheby) then
-          st = 1
-          if (NEKO_BCKND_DEVICE .eq. 1) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call this%phmg_hrchy%lvl(i)%device_jacobi%init(&
+               this%phmg_hrchy%lvl(i)%coef, &
+               this%phmg_hrchy%lvl(i)%dm_Xh, &
+               this%phmg_hrchy%lvl(i)%gs_h)
+       else
+          call this%phmg_hrchy%lvl(i)%jacobi%init(&
+               this%phmg_hrchy%lvl(i)%coef, &
+               this%phmg_hrchy%lvl(i)%dm_Xh, &
+               this%phmg_hrchy%lvl(i)%gs_h)
+       end if
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          if (trim(cheby_acc) .eq. "jacobi") then
              call this%phmg_hrchy%lvl(i)%cheby_device%init( &
                   this%phmg_hrchy%lvl(i)%dm_Xh%size(), smoother_itrs, &
                   this%phmg_hrchy%lvl(i)%device_jacobi)
-             this%phmg_hrchy%lvl(i)%cheby_device%schwarz => &
-                this%phmg_hrchy%lvl(i)%schwarz
-             st = 2
+             st = 1
           else
+             call this%phmg_hrchy%lvl(i)%cheby_device%init( &
+                  this%phmg_hrchy%lvl(i)%dm_Xh%size(), smoother_itrs)
+             st = 0
+             if (trim(cheby_acc) .eq. "schwarz") then
+                this%phmg_hrchy%lvl(i)%cheby_device%schwarz => &
+                   this%phmg_hrchy%lvl(i)%schwarz
+                st = 2
+             end if
+          end if
+       else
+          if (trim(cheby_acc) .eq. "jacobi") then
              call this%phmg_hrchy%lvl(i)%cheby%init( &
                   this%phmg_hrchy%lvl(i)%dm_Xh%size(), smoother_itrs, &
                   this%phmg_hrchy%lvl(i)%jacobi)
-             this%phmg_hrchy%lvl(i)%cheby%schwarz => &
-                this%phmg_hrchy%lvl(i)%schwarz
-             st = 2
+             st = 1
+          else
+             call this%phmg_hrchy%lvl(i)%cheby%init( &
+                  this%phmg_hrchy%lvl(i)%dm_Xh%size(), smoother_itrs)
+             st = 0
+             if (trim(cheby_acc) .eq. "schwarz") then
+                this%phmg_hrchy%lvl(i)%cheby%schwarz => &
+                   this%phmg_hrchy%lvl(i)%schwarz
+                st = 2
+             end if
           end if
        end if
 
@@ -269,7 +291,7 @@ contains
          this%phmg_hrchy%lvl(this%nlvls -1)%coef, this%msh, &
          this%phmg_hrchy%lvl(this%nlvls-1)%gs_h, crs_tamg_lvls, &
          this%phmg_hrchy%lvl(this%nlvls -1)%bclst, &
-         crs_tamg_cycles, crs_tamg_cheby_degree)
+         crs_tamg_itrs, crs_tamg_cheby_degree)
 
   end subroutine phmg_init_from_components
 

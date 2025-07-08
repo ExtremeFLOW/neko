@@ -252,16 +252,18 @@ contains
   end subroutine fld_file_data_free
 
   !> Generates a global_interpolation object to interpolate the fld data.
+  !! @param global_interp Global interpolation object which will be initialized
+  !! and ready to be used for interpolation.
   !! @param to_dof Dofmap on which to interpolate.
   !! @param to_msh Mesh on which to interpolate.
   !! @param tolerance Tolerance for the newton iterations.
   subroutine fld_file_data_generate_interpolator(this, global_interp, to_dof, &
        to_msh, tolerance)
     class(fld_file_data_t), intent(in) :: this
+    type(global_interpolation_t), intent(inout) :: global_interp
     type(dofmap_t), intent(in), target :: to_dof
     type(mesh_t), intent(in), target :: to_msh
     real(kind=rp), intent(in) :: tolerance
-    type(global_interpolation_t), intent(inout) :: global_interp
 
     ! --- variables for interpolation
     type(space_t) :: fld_Xh

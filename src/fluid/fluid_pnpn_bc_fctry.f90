@@ -77,7 +77,7 @@ contains
     class(bc_t), pointer, intent(inout) :: object
     type(fluid_pnpn_t), intent(in) :: scheme
     type(json_file), intent(inout) :: json
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
     type(user_t), intent(in) :: user
     character(len=:), allocatable :: type
     integer :: i, j, k
@@ -139,7 +139,7 @@ contains
     class(bc_t), pointer, intent(inout) :: object
     type(fluid_pnpn_t), intent(in) :: scheme
     type(json_file), intent(inout) :: json
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
     type(user_t), intent(in) :: user
     character(len=:), allocatable :: type
     integer :: i, j, k
@@ -162,10 +162,8 @@ contains
        allocate(shear_stress_t::object)
     case ("wall_model")
        allocate(wall_model_bc_t::object)
-       ! Kind of hack, but maybe OK? The thing is, we need the nu for
-       ! initing the wall model, and forcing the user duplicate that there
-       ! would be a nightmare.
-       call json%add("nu", scheme%mu%x(1,1,1,1) / scheme%rho%x(1,1,1,1))
+       ! Kind of hack, but  OK for now
+       call json%add("scheme_name", scheme%name)
 
     case ("user_velocity")
        allocate(field_dirichlet_vector_t::object)

@@ -36,6 +36,7 @@ module scalars
   use num_types, only: rp
   use scalar_pnpn, only: scalar_pnpn_t
   use scalar_scheme, only: scalar_scheme_t
+  use scalar_aux, only: scalar_step_info
   use mesh, only: mesh_t
   use space, only: space_t
   use gather_scatter, only: gs_t
@@ -43,12 +44,12 @@ module scalars
   use time_step_controller, only: time_step_controller_t
   use json_module, only: json_file
   use json_utils, only: json_get, json_get_or_default, json_extract_object, &
-                        json_extract_item
+       json_extract_item
   use field, only: field_t
   use field_series, only: field_series_t
   use field_registry, only: neko_field_registry
   use checkpoint, only: chkp_t
-  use krylov, only: ksp_t
+  use krylov, only: ksp_t, ksp_monitor_t
   use logger, only: neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use user_intf, only: user_t
   use utils, only: neko_error
@@ -151,8 +152,8 @@ contains
           call json_subdict%add('name', 's')
        end if
 
-       call this%scalar_fields(i)%init(msh, coef, gs, json_subdict, numerics_params, &
-            user, chkp, ulag, vlag, wlag, time_scheme, rho)
+       call this%scalar_fields(i)%init(msh, coef, gs, json_subdict, &
+            numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
     end do
   end subroutine scalars_init
 
@@ -174,11 +175,13 @@ contains
     allocate(scalar_pnpn_t::this%scalar_fields(1))
 
     ! Set the scalar name to "s"
-    call params%add('name', 's')
+    if (.not. params%valid_path('name')) then
+       call params%add('name', 's')
+    end if
 
     ! Initialize it directly with the params
-    call this%scalar_fields(1)%init(msh, coef, gs, params, numerics_params, user, &
-         chkp, ulag, vlag, wlag, time_scheme, rho)
+    call this%scalar_fields(1)%init(msh, coef, gs, params, numerics_params, &
+         user, chkp, ulag, vlag, wlag, time_scheme, rho)
   end subroutine scalars_init_single
 
   !> Perform a time step for all scalar fields
@@ -188,11 +191,15 @@ contains
     type(time_scheme_controller_t), intent(inout) :: ext_bdf
     type(time_step_controller_t), intent(inout) :: dt_controller
     integer :: i
+    type(ksp_monitor_t), dimension(size(this%scalar_fields)) :: ksp_results
 
     ! Iterate through all scalar fields
     do i = 1, size(this%scalar_fields)
-       call this%scalar_fields(i)%step(time, ext_bdf, dt_controller)
+       call this%scalar_fields(i)%step(time, ext_bdf, dt_controller, &
+            ksp_results(i))
     end do
+
+    call scalar_step_info(time, ksp_results)
   end subroutine scalars_step
 
   !> Restart from checkpoint data

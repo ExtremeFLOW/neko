@@ -1,4 +1,3 @@
-! Copyright (c) 2021, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -287,7 +286,7 @@ contains
     call filename_chsuffix(file_name, file_name, 'fld')
 
     call fld_data%init
-    f = file_t(trim(file_name))
+    call f%init(trim(file_name))
 
     if (interpolate) then
 
@@ -366,7 +365,8 @@ contains
        call fld_data%t%copyto(HOST_TO_DEVICE, .true.)
 
        ! Generates an interpolator object and performs the point search
-       call fld_data%generate_interpolator(global_interp, s%dof, s%msh, tolerance)
+       call fld_data%generate_interpolator(global_interp, s%dof, s%msh, &
+            tolerance)
 
        ! Evaluate scalar
        call global_interp%evaluate(s%x, fld_data%t%x, .false.)

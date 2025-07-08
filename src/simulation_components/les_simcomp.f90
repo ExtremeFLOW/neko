@@ -68,7 +68,7 @@ contains
 
   !> Constructor from json.
   subroutine les_simcomp_init_from_json(this, json, case)
-    class(les_simcomp_t), intent(inout) :: this
+    class(les_simcomp_t), intent(inout), target :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: name

@@ -34,14 +34,14 @@
 module space
   use neko_config
   use num_types, only : rp
-  use speclib
+  use speclib, only : zwgll, zwgl, dgll, legendre_poly
   use device
   use matrix, only : matrix_t
   use utils, only : neko_error
   use fast3d, only : setup_intp
-  use math
   use tensor, only : trsp1
   use mxm_wrapper, only: mxm
+  use math, only : copy
   use, intrinsic :: iso_c_binding
   implicit none
   private

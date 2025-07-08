@@ -57,6 +57,7 @@
             ]
         },
         "scalar": {
+            "name": "temperature",
             "enabled": true,
             "Pr": 0.71,
             "solver": {

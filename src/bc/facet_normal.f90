@@ -81,7 +81,7 @@ contains
   !! @param[inout] json The JSON object configuring the boundary condition.
   subroutine facet_normal_init(this, coef, json)
     class(facet_normal_t), intent(inout), target :: this
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) ::json
 
     call this%init_from_components(coef)
@@ -91,7 +91,7 @@ contains
   !! @param[in] coef The SEM coefficients.
   subroutine facet_normal_init_from_components(this, coef)
     class(facet_normal_t), intent(inout), target :: this
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
 
     call this%init_base(coef)
   end subroutine facet_normal_init_from_components
@@ -260,10 +260,14 @@ contains
           call unique_point_idx%set(this%msk(i), j)
        end if
     end do
-    call this%nx%init(unique_point_idx%num_entries())
-    call this%ny%init(unique_point_idx%num_entries())
-    call this%nz%init(unique_point_idx%num_entries())
-    call this%work%init(unique_point_idx%num_entries())
+
+    ! Only allocate work vectors if size is non-zero
+    if (unique_point_idx%num_entries() .gt. 0 ) then
+       call this%nx%init(unique_point_idx%num_entries())
+       call this%ny%init(unique_point_idx%num_entries())
+       call this%nz%init(unique_point_idx%num_entries())
+       call this%work%init(unique_point_idx%num_entries())
+    end if
     allocate(this%unique_mask(0:unique_point_idx%num_entries()))
 
     this%unique_mask(0) = unique_point_idx%num_entries()
@@ -290,11 +294,12 @@ contains
        this%nz%x(htable_data) = this%nz%x(htable_data) + normal(3)
     end do
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
+    if (NEKO_BCKND_DEVICE .eq. 1 .and. &
+         (unique_point_idx%num_entries() .gt. 0 )) then
        call device_map(this%unique_mask, this%unique_mask_d, &
-           size(this%unique_mask))
+            size(this%unique_mask))
        call device_memcpy(this%unique_mask, this%unique_mask_d, &
-           size(this%unique_mask), HOST_TO_DEVICE, sync = .true.)
+            size(this%unique_mask), HOST_TO_DEVICE, sync = .true.)
        call device_memcpy(this%nx%x, this%nx%x_d, &
             this%nx%n, HOST_TO_DEVICE, sync = .true.)
        call device_memcpy(this%ny%x, this%ny%x_d, &

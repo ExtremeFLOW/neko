@@ -12,4 +12,5 @@ advanced topics such as statistics and user defined extensions.
 - \subpage statistics-guide
 - \subpage global_interpolation
 - \subpage io
+- \subpage programming-examples
 - \subpage extending
