@@ -1,9 +1,10 @@
 # Extending neko {#extending}
 
 In addition to compiling the user file, `makeneko` can also compile extra `.f90`
-files containing Fortran modules. A common use of this is to separate out
-functionality needed by the user file into individual source files. However, you
-can also use this feature to extend Neko's core functionality.
+files containing Fortran modules and `.cu/.hip` files containing CUDA/HIP
+kernels. A common use of this is to separate out functionality needed by the
+user file into individual source files. However, you can also use this feature
+to extend Neko's core functionality.
 
 Specifically, you can write modules that implement custom components such as LES
 models, wall models, or simulation components. These modules can then be
@@ -32,8 +33,7 @@ supports this. Here is a list of things you can implement.
 - Point zones (`point_zone_t` descendants).
 
 This list will hopefully be extended later. Notable omissions are scalar and
-fluid schemes, so currently you cannot add new solvers like this. Note also that
-you can only use Fortran, so you cannot write custom device kernels this way.
+fluid schemes, so currently you cannot add new solvers like this. 
 
 To implement a new type, the easiest thing is to start by copying over the
 `.f90` of an already existing type, renaming things inside and then adding the
@@ -84,6 +84,31 @@ statements. Then, two routines need to be defined in the module.
   Note that the `*_register_types` routine can register maybe types, not
   necessarily just one.
 
+For custom device kernels, `mymodule` must define a C interface to a CUDA/HIP
+routine that launches the kernel.
+
+```fortran
+interface
+  subroutine device_kernel(a_d, n) &
+        bind(c, name = 'device_kernel')
+    use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+    type(c_ptr), value :: a_d
+    integer(c_int) :: n
+  end subroutine device_kernel
+end interface
+```
+
+Furthermore, the CUDA/HIP file must allow for C linkage, hence the routine
+`device_kernel` must be inside an `extern "C"` block.
+
+```C++
+extern "C" {
+  void device_kernel(void *a, int *n) {
+    /* Launch device kernel here */
+  }
+}
+```
+
 After compiling with `makeneko`, you can select your type in the JSON in the 
 appropriate place.
 
@@ -105,3 +130,4 @@ advantages:
 
 That said, writing a custom type does take more effort than simply filling in 
 the user routine.
+
