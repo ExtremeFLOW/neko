@@ -40,7 +40,7 @@ module point
   private
 
   !> A point in \f$ \mathbb{R}^d \f$ with coordinates \f$ (x,y,z)\f$.
-  type, extends(entity_t), public ::  point_t
+  type, extends(entity_t), public :: point_t
      real(kind=dp), dimension(3) :: x
    contains
      procedure :: point_eq
@@ -53,6 +53,8 @@ module point
      procedure :: point_scalar_mult
      procedure, pass(p1) :: dist => point_euclid_dist
      procedure, pass(x) :: point_mat_mult
+     procedure, pass(this) :: init => point_init_from_array
+     procedure, pass(this) :: free => point_free
      generic :: operator(.eq.) => point_eq
      generic :: operator(.ne.) => point_ne
      generic :: operator(.lt.) => point_lt
@@ -64,7 +66,7 @@ module point
   end type point_t
 
   !> Defines a pointer to a point type.
-  type, public ::  point_ptr
+  type, public :: point_ptr
      type(point_t), pointer :: p
   end type point_ptr
 
@@ -73,6 +75,35 @@ module point
   end interface point_t
 
 contains
+
+  !> Initialize a point from an array @a x of \f$ (x,y,z) \f$ coordinates.
+  !! @param x coords
+  !! @id point id
+  subroutine point_init_from_array(this, x, id)
+    class(point_t), intent(inout) :: this
+    real(kind=dp), dimension(3), intent(in) :: x
+    integer, optional, intent(inout) :: id
+
+    call this%free()
+
+    if (present(id)) then
+       call this%set_id(id)
+    else
+       call this%set_id(-1)
+    end if
+
+    this%x = x
+
+  end subroutine point_init_from_array
+
+  !> Destructor.
+  subroutine point_free(this)
+    class(point_t), intent(inout) :: this
+    this%x = 0.0
+
+  end subroutine point_free
+
+
 
   !> Initialize a point from an array @a x of \f$ (x,y,z) \f$ coordinates.
   function point_init(x, id) result(this)
@@ -228,9 +259,9 @@ contains
     type(point_t), intent(in) :: p2
     real(kind=rp) :: res
 
-    res = sqrt(  (p1%x(1) - p2%x(1))**2 &
-               + (p1%x(2) - p2%x(2))**2 &
-               + (p1%x(3) - p2%x(3))**2 )
+    res = sqrt( (p1%x(1) - p2%x(1))**2 &
+         + (p1%x(2) - p2%x(2))**2 &
+         + (p1%x(3) - p2%x(3))**2 )
   end function point_euclid_dist
 
   !> Computes matrix-vector product in \f$ \mathbb{R}^3 \f$: \f$ b = Ax \f$.
