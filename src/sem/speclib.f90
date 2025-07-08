@@ -160,7 +160,7 @@ contains
   SUBROUTINE ZWGL (Z,W,NP)
     REAL(KIND=RP) Z(1),W(1), ALPHA, BETA
     ALPHA = 0.
-    BETA  = 0.
+    BETA = 0.
     CALL ZWGJ (Z,W,NP,ALPHA,BETA)
     RETURN
   end subroutine ZWGL
@@ -177,7 +177,7 @@ contains
 !--------------------------------------------------------------------
     REAL(KIND=RP) Z(1),W(1), ALPHA, BETA
     ALPHA = 0.
-    BETA  = 0.
+    BETA = 0.
     CALL ZWGLJ (Z,W,NP,ALPHA,BETA)
     RETURN
   end subroutine ZWGLL
@@ -193,7 +193,7 @@ contains
 !--------------------------------------------------------------------
     PARAMETER (NMAX=84)
     PARAMETER (NZD = NMAX)
-    REAL(KIND=XP)  ZD(NZD),WD(NZD),ALPHAD,BETAD
+    REAL(KIND=XP) ZD(NZD),WD(NZD),ALPHAD,BETAD
     REAL(KIND=RP) Z(1),W(1),ALPHA,BETA
 
     NPMAX = NZD
@@ -204,7 +204,7 @@ contains
        call neko_error
     ENDIF
     ALPHAD = ALPHA
-    BETAD  = BETA
+    BETAD = BETA
     CALL ZWGJD (ZD,WD,NP,ALPHAD,BETAD)
     DO 100 I=1,NP
        Z(I) = ZD(I)
@@ -222,14 +222,14 @@ contains
 !     Double precision version.
 !
 !--------------------------------------------------------------------
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
-    REAL(KIND=XP)  Z(1),W(1),ALPHA,BETA
+    IMPLICIT REAL(KIND=XP) (A-H,O-Z)
+    REAL(KIND=XP) Z(1),W(1),ALPHA,BETA
 
-    N     = NP-1
-    DN    = ((N))
-    ONE   = 1.
-    TWO   = 2.
-    APB   = ALPHA+BETA
+    N = NP-1
+    DN = ((N))
+    ONE = 1.
+    TWO = 2.
+    APB = ALPHA+BETA
 
     IF (NP.LE.0) THEN
        WRITE (6,*) 'ZWGJD: Minimum number of Gauss points is 1',np
@@ -243,19 +243,19 @@ contains
     IF (NP.EQ.1) THEN
        Z(1) = (BETA-ALPHA)/(APB+TWO)
        W(1) = GAMMAF(ALPHA+ONE)*GAMMAF(BETA+ONE)/GAMMAF(APB+TWO) &
-              * TWO**(APB+ONE)
+            * TWO**(APB+ONE)
        RETURN
     ENDIF
 
     CALL JACG (Z,NP,ALPHA,BETA)
 
-    NP1   = N+1
-    NP2   = N+2
-    DNP1  = ((NP1))
-    DNP2  = ((NP2))
-    FAC1  = DNP1+ALPHA+BETA+ONE
-    FAC2  = FAC1+DNP1
-    FAC3  = FAC2+ONE
+    NP1 = N+1
+    NP2 = N+2
+    DNP1 = ((NP1))
+    DNP2 = ((NP2))
+    FAC1 = DNP1+ALPHA+BETA+ONE
+    FAC2 = FAC1+DNP1
+    FAC3 = FAC2+ONE
     FNORM = PNORMJ(NP1,ALPHA,BETA)
     RCOEF = (FNORM*FAC2*FAC3)/(TWO*FAC1*DNP2)
     DO 100 I=1,NP
@@ -276,7 +276,7 @@ contains
 !--------------------------------------------------------------------
     PARAMETER (NMAX=84)
     PARAMETER (NZD = NMAX)
-    REAL(KIND=XP)  ZD(NZD),WD(NZD),ALPHAD,BETAD
+    REAL(KIND=XP) ZD(NZD),WD(NZD),ALPHAD,BETAD
     REAL(KIND=RP) Z(1),W(1),ALPHA,BETA
 
     NPMAX = NZD
@@ -287,7 +287,7 @@ contains
        call neko_error
     ENDIF
     ALPHAD = ALPHA
-    BETAD  = BETA
+    BETAD = BETA
     CALL ZWGLJD (ZD,WD,NP,ALPHAD,BETAD)
     DO 100 I=1,NP
        Z(I) = ZD(I)
@@ -305,13 +305,13 @@ contains
 !     Double precision version.
 !
 !--------------------------------------------------------------------
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
-    REAL(KIND=XP)  Z(NP),W(NP),ALPHA,BETA
+    IMPLICIT REAL(KIND=XP) (A-H,O-Z)
+    REAL(KIND=XP) Z(NP),W(NP),ALPHA,BETA
 
-    N     = NP-1
-    NM1   = N-1
-    ONE   = 1.
-    TWO   = 2.
+    N = NP-1
+    NM1 = N-1
+    ONE = 1.
+    TWO = 2.
 
     IF (NP.LE.1) THEN
        WRITE (6,*) 'ZWGLJD: Minimum number of Gauss-Lobatto points is 2'
@@ -324,38 +324,38 @@ contains
     ENDIF
 
     IF (NM1.GT.0) THEN
-       ALPG  = ALPHA+ONE
-       BETG  = BETA+ONE
+       ALPG = ALPHA+ONE
+       BETG = BETA+ONE
        CALL ZWGJD (Z(2),W(2),NM1,ALPG,BETG)
     ENDIF
-    Z(1)  = -ONE
-    Z(NP) =  ONE
-    DO 100  I=2,NP-1
+    Z(1) = -ONE
+    Z(NP) = ONE
+    DO 100 I=2,NP-1
        W(I) = W(I)/(ONE-Z(I)**2)
 100 CONTINUE
     CALL JACOBF (P,PD,PM1,PDM1,PM2,PDM2,N,ALPHA,BETA,Z(1))
-    W(1)  = ENDW1 (N,ALPHA,BETA)/(TWO*PD)
+    W(1) = ENDW1 (N,ALPHA,BETA)/(TWO*PD)
     CALL JACOBF (P,PD,PM1,PDM1,PM2,PDM2,N,ALPHA,BETA,Z(NP))
     W(NP) = ENDW2 (N,ALPHA,BETA)/(TWO*PD)
 
 !      RETURN
   end subroutine ZWGLJD
 
-  REAL(KIND=XP)  FUNCTION ENDW1 (N,ALPHA,BETA)
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
-    REAL(KIND=XP)  ALPHA,BETA
-    ZERO  = 0.
-    ONE   = 1.
-    TWO   = 2.
+  REAL(KIND=XP) FUNCTION ENDW1 (N,ALPHA,BETA)
+    IMPLICIT REAL(KIND=XP) (A-H,O-Z)
+    REAL(KIND=XP) ALPHA,BETA
+    ZERO = 0.
+    ONE = 1.
+    TWO = 2.
     THREE = 3.
-    FOUR  = 4.
-    APB   = ALPHA+BETA
+    FOUR = 4.
+    APB = ALPHA+BETA
     IF (N.EQ.0) THEN
        ENDW1 = ZERO
        RETURN
     ENDIF
-    F1   = GAMMAF(ALPHA+TWO)*GAMMAF(BETA+ONE)/GAMMAF(APB+THREE)
-    F1   = F1*(APB+TWO)*TWO**(APB+TWO)/TWO
+    F1 = GAMMAF(ALPHA+TWO)*GAMMAF(BETA+ONE)/GAMMAF(APB+THREE)
+    F1 = F1*(APB+TWO)*TWO**(APB+TWO)/TWO
     IF (N.EQ.1) THEN
        ENDW1 = F1
        RETURN
@@ -364,42 +364,42 @@ contains
     FINT1 = FINT1*TWO**(APB+TWO)
     FINT2 = GAMMAF(ALPHA+TWO)*GAMMAF(BETA+TWO)/GAMMAF(APB+FOUR)
     FINT2 = FINT2*TWO**(APB+THREE)
-    F2    = (-TWO*(BETA+TWO)*FINT1 + (APB+FOUR)*FINT2) &
-           * (APB+THREE)/FOUR
+    F2 = (-TWO*(BETA+TWO)*FINT1 + (APB+FOUR)*FINT2) &
+         * (APB+THREE)/FOUR
     IF (N.EQ.2) THEN
        ENDW1 = F2
        RETURN
     ENDIF
     DO 100 I=3,N
-       DI   = ((I-1))
-       ABN  = ALPHA+BETA+DI
+       DI = ((I-1))
+       ABN = ALPHA+BETA+DI
        ABNN = ABN+DI
-       A1   = -(TWO*(DI+ALPHA)*(DI+BETA))/(ABN*ABNN*(ABNN+ONE))
-       A2   =  (TWO*(ALPHA-BETA))/(ABNN*(ABNN+TWO))
-       A3   =  (TWO*(ABN+ONE))/((ABNN+TWO)*(ABNN+ONE))
-       F3   =  -(A2*F2+A1*F1)/A3
-       F1   = F2
-       F2   = F3
+       A1 = -(TWO*(DI+ALPHA)*(DI+BETA))/(ABN*ABNN*(ABNN+ONE))
+       A2 = (TWO*(ALPHA-BETA))/(ABNN*(ABNN+TWO))
+       A3 = (TWO*(ABN+ONE))/((ABNN+TWO)*(ABNN+ONE))
+       F3 = -(A2*F2+A1*F1)/A3
+       F1 = F2
+       F2 = F3
 100 CONTINUE
-    ENDW1  = F3
+    ENDW1 = F3
     RETURN
   end function ENDW1
 
-  REAL(KIND=XP)  FUNCTION ENDW2 (N,ALPHA,BETA)
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
-    REAL(KIND=XP)  ALPHA,BETA
-    ZERO  = 0.
-    ONE   = 1.
-    TWO   = 2.
+  REAL(KIND=XP) FUNCTION ENDW2 (N,ALPHA,BETA)
+    IMPLICIT REAL(KIND=XP) (A-H,O-Z)
+    REAL(KIND=XP) ALPHA,BETA
+    ZERO = 0.
+    ONE = 1.
+    TWO = 2.
     THREE = 3.
-    FOUR  = 4.
-    APB   = ALPHA+BETA
+    FOUR = 4.
+    APB = ALPHA+BETA
     IF (N.EQ.0) THEN
        ENDW2 = ZERO
        RETURN
     ENDIF
-    F1   = GAMMAF(ALPHA+ONE)*GAMMAF(BETA+TWO)/GAMMAF(APB+THREE)
-    F1   = F1*(APB+TWO)*TWO**(APB+TWO)/TWO
+    F1 = GAMMAF(ALPHA+ONE)*GAMMAF(BETA+TWO)/GAMMAF(APB+THREE)
+    F1 = F1*(APB+TWO)*TWO**(APB+TWO)/TWO
     IF (N.EQ.1) THEN
        ENDW2 = F1
        RETURN
@@ -408,72 +408,72 @@ contains
     FINT1 = FINT1*TWO**(APB+TWO)
     FINT2 = GAMMAF(ALPHA+TWO)*GAMMAF(BETA+TWO)/GAMMAF(APB+FOUR)
     FINT2 = FINT2*TWO**(APB+THREE)
-    F2    = (TWO*(ALPHA+TWO)*FINT1 - (APB+FOUR)*FINT2) &
-           * (APB+THREE)/FOUR
+    F2 = (TWO*(ALPHA+TWO)*FINT1 - (APB+FOUR)*FINT2) &
+         * (APB+THREE)/FOUR
     IF (N.EQ.2) THEN
        ENDW2 = F2
        RETURN
     ENDIF
     DO 100 I=3,N
-       DI   = ((I-1))
-       ABN  = ALPHA+BETA+DI
+       DI = ((I-1))
+       ABN = ALPHA+BETA+DI
        ABNN = ABN+DI
-       A1   =  -(TWO*(DI+ALPHA)*(DI+BETA))/(ABN*ABNN*(ABNN+ONE))
-       A2   =  (TWO*(ALPHA-BETA))/(ABNN*(ABNN+TWO))
-       A3   =  (TWO*(ABN+ONE))/((ABNN+TWO)*(ABNN+ONE))
-       F3   =  -(A2*F2+A1*F1)/A3
-       F1   = F2
-       F2   = F3
+       A1 = -(TWO*(DI+ALPHA)*(DI+BETA))/(ABN*ABNN*(ABNN+ONE))
+       A2 = (TWO*(ALPHA-BETA))/(ABNN*(ABNN+TWO))
+       A3 = (TWO*(ABN+ONE))/((ABNN+TWO)*(ABNN+ONE))
+       F3 = -(A2*F2+A1*F1)/A3
+       F1 = F2
+       F2 = F3
 100 CONTINUE
-    ENDW2  = F3
+    ENDW2 = F3
     RETURN
   end function ENDW2
 
-  REAL(KIND=XP)  FUNCTION GAMMAF (X)
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
-    REAL(KIND=XP)  X
+  REAL(KIND=XP) FUNCTION GAMMAF (X)
+    IMPLICIT REAL(KIND=XP) (A-H,O-Z)
+    REAL(KIND=XP) X
     ZERO = 0.0
     HALF = 0.5
-    ONE  = 1.0
-    TWO  = 2.0
+    ONE = 1.0
+    TWO = 2.0
     FOUR = 4.0
-    PI   = FOUR*ATAN(ONE)
+    PI = FOUR*ATAN(ONE)
     GAMMAF = ONE
     IF (X.EQ.-HALF) GAMMAF = -TWO*SQRT(PI)
-    IF (X.EQ. HALF) GAMMAF =  SQRT(PI)
-    IF (X.EQ. ONE ) GAMMAF =  ONE
-    IF (X.EQ. TWO ) GAMMAF =  ONE
-    IF (X.EQ. 1.5  ) GAMMAF =  SQRT(PI)/2.
-    IF (X.EQ. 2.5) GAMMAF =  1.5*SQRT(PI)/2.
-    IF (X.EQ. 3.5) GAMMAF =  0.5*(2.5*(1.5*SQRT(PI)))
-    IF (X.EQ. 3. ) GAMMAF =  2.
+    IF (X.EQ. HALF) GAMMAF = SQRT(PI)
+    IF (X.EQ. ONE ) GAMMAF = ONE
+    IF (X.EQ. TWO ) GAMMAF = ONE
+    IF (X.EQ. 1.5 ) GAMMAF = SQRT(PI)/2.
+    IF (X.EQ. 2.5) GAMMAF = 1.5*SQRT(PI)/2.
+    IF (X.EQ. 3.5) GAMMAF = 0.5*(2.5*(1.5*SQRT(PI)))
+    IF (X.EQ. 3. ) GAMMAF = 2.
     IF (X.EQ. 4. ) GAMMAF = 6.
     IF (X.EQ. 5. ) GAMMAF = 24.
     IF (X.EQ. 6. ) GAMMAF = 120.
     RETURN
   end function GAMMAF
 
-  REAL(KIND=XP)  FUNCTION PNORMJ (N,ALPHA,BETA)
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
-    REAL(KIND=XP)  ALPHA,BETA
-    ONE   = 1.
-    TWO   = 2.
-    DN    = ((N))
+  REAL(KIND=XP) FUNCTION PNORMJ (N,ALPHA,BETA)
+    IMPLICIT REAL(KIND=XP) (A-H,O-Z)
+    REAL(KIND=XP) ALPHA,BETA
+    ONE = 1.
+    TWO = 2.
+    DN = ((N))
     CONST = ALPHA+BETA+ONE
     IF (N.LE.1) THEN
-       PROD   = GAMMAF(DN+ALPHA)*GAMMAF(DN+BETA)
-       PROD   = PROD/(GAMMAF(DN)*GAMMAF(DN+ALPHA+BETA))
+       PROD = GAMMAF(DN+ALPHA)*GAMMAF(DN+BETA)
+       PROD = PROD/(GAMMAF(DN)*GAMMAF(DN+ALPHA+BETA))
        PNORMJ = PROD * TWO**CONST/(TWO*DN+CONST)
        RETURN
     ENDIF
-    PROD  = GAMMAF(ALPHA+ONE)*GAMMAF(BETA+ONE)
-    PROD  = PROD/(TWO*(ONE+CONST)*GAMMAF(CONST+ONE))
-    PROD  = PROD*(ONE+ALPHA)*(TWO+ALPHA)
-    PROD  = PROD*(ONE+BETA)*(TWO+BETA)
+    PROD = GAMMAF(ALPHA+ONE)*GAMMAF(BETA+ONE)
+    PROD = PROD/(TWO*(ONE+CONST)*GAMMAF(CONST+ONE))
+    PROD = PROD*(ONE+ALPHA)*(TWO+ALPHA)
+    PROD = PROD*(ONE+BETA)*(TWO+BETA)
     DO 100 I=3,N
        DINDX = ((I))
-       FRAC  = (DINDX+ALPHA)*(DINDX+BETA)/(DINDX*(DINDX+ALPHA+BETA))
-       PROD  = PROD*FRAC
+       FRAC = (DINDX+ALPHA)*(DINDX+BETA)/(DINDX*(DINDX+ALPHA+BETA))
+       PROD = PROD*FRAC
 100 CONTINUE
     PNORMJ = PROD * TWO**CONST/(TWO*DN+CONST)
     RETURN
@@ -490,11 +490,11 @@ contains
 !     ALPHA = BETA = -0.5  ->  Chebyshev points
 !
 !--------------------------------------------------------------------
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
-    REAL(KIND=XP)  XJAC(1)
+    IMPLICIT REAL(KIND=XP) (A-H,O-Z)
+    REAL(KIND=XP) XJAC(1)
     DATA KSTOP /10/
     DATA EPS/1.0e-12_RP/
-    N   = NP-1
+    N = NP-1
     one = 1.
     DTH = 4.*ATAN(one)/(2.*((N))+2.)
     DO 40 J=1,NP
@@ -503,7 +503,7 @@ contains
        ELSE
           X1 = COS((2.*(((J))-1.)+1.)*DTH)
           X2 = XLAST
-          X  = (X1+X2)/2.
+          X = (X1+X2)/2.
        ENDIF
        DO 30 K=1,KSTOP
           CALL JACOBF (P,PD,PM1,PDM1,PM2,PDM2,NP,ALPHA,BETA,X)
@@ -513,12 +513,12 @@ contains
              RECSUM = RECSUM+1./(X-XJAC(NP-I+1))
 29        CONTINUE
           DELX = -P/(PD-RECSUM*P)
-          X    = X+DELX
+          X = X+DELX
           IF (ABS(DELX) .LT. EPS) GOTO 31
 30     CONTINUE
 31     CONTINUE
        XJAC(NP-J+1) = X
-       XLAST        = X
+       XLAST = X
 40  CONTINUE
     DO 200 I=1,NP
        XMIN = 2.
@@ -544,15 +544,15 @@ contains
 !     of degree N at X.
 !
 !--------------------------------------------------------------------
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
-    APB  = ALP+BET
+    IMPLICIT REAL(KIND=XP) (A-H,O-Z)
+    APB = ALP+BET
     POLY = 1.
     PDER = 0.
     IF (N .EQ. 0) RETURN
     POLYL = POLY
     PDERL = PDER
-    POLY  = (ALP-BET+(APB+2.)*X)/2.
-    PDER  = (APB+2.)/2.
+    POLY = (ALP-BET+(APB+2.)*X)/2.
+    PDER = (APB+2.)/2.
     IF (N .EQ. 1) RETURN
     DO 20 K=2,N
        DK = ((K))
@@ -561,14 +561,14 @@ contains
        B3 = (2.*DK+APB-2.)
        A3 = B3*(B3+1.)*(B3+2.)
        A4 = 2.*(DK+ALP-1.)*(DK+BET-1.)*(2.*DK+APB)
-       POLYN  = ((A2+A3*X)*POLY-A4*POLYL)/A1
-       PDERN  = ((A2+A3*X)*PDER-A4*PDERL+A3*POLY)/A1
-       PSAVE  = POLYL
+       POLYN = ((A2+A3*X)*POLY-A4*POLYL)/A1
+       PDERN = ((A2+A3*X)*PDER-A4*PDERL+A3*POLY)/A1
+       PSAVE = POLYL
        PDSAVE = PDERL
-       POLYL  = POLY
-       POLY   = POLYN
-       PDERL  = PDER
-       PDER   = PDERN
+       POLYL = POLY
+       POLY = POLYN
+       PDERL = PDER
+       PDER = PDERN
 20  CONTINUE
     POLYM1 = POLYL
     PDERM1 = PDERL
@@ -587,8 +587,8 @@ contains
 !---------------------------------------------------------------------
     PARAMETER (NMAX=84)
     PARAMETER (NZD = NMAX)
-    REAL(KIND=XP)  ZD,ZGJD(NZD),ALPHAD,BETAD
-    REAL(KIND=XP)  Z,ZGJ(1),ALPHA,BETA
+    REAL(KIND=XP) ZD,ZGJD(NZD),ALPHAD,BETAD
+    REAL(KIND=XP) Z,ZGJ(1),ALPHA,BETA
     NPMAX = NZD
     IF (NP.GT.NPMAX) THEN
        WRITE (6,*) 'Too large polynomial degree in HGJ'
@@ -601,12 +601,12 @@ contains
        ZGJD(I) = ZGJ(I)
 100 CONTINUE
     ALPHAD = ALPHA
-    BETAD  = BETA
-    HGJ    = HGJD (II,ZD,ZGJD,NP,ALPHAD,BETAD)
+    BETAD = BETA
+    HGJ = HGJD (II,ZD,ZGJD,NP,ALPHAD,BETAD)
     RETURN
   end function HGJ
 
-  REAL(KIND=XP)  FUNCTION HGJD (II,Z,ZGJ,NP,ALPHA,BETA)
+  REAL(KIND=XP) FUNCTION HGJD (II,Z,ZGJ,NP,ALPHA,BETA)
 !---------------------------------------------------------------------
 !
 !     Compute the value of the Lagrangian interpolant HGJD through
@@ -614,19 +614,19 @@ contains
 !     Double precision version.
 !
 !---------------------------------------------------------------------
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
-    REAL(KIND=XP)  Z,ZGJ(1),ALPHA,BETA
+    IMPLICIT REAL(KIND=XP) (A-H,O-Z)
+    REAL(KIND=XP) Z,ZGJ(1),ALPHA,BETA
     EPS = 1.e-5
     ONE = 1.
-    ZI  = ZGJ(II)
-    DZ  = Z-ZI
+    ZI = ZGJ(II)
+    DZ = Z-ZI
     IF (ABS(DZ).LT.EPS) THEN
        HGJD = ONE
        RETURN
     ENDIF
     CALL JACOBF (PZI,PDZI,PM1,PDM1,PM2,PDM2,NP,ALPHA,BETA,ZI)
     CALL JACOBF (PZ,PDZ,PM1,PDM1,PM2,PDM2,NP,ALPHA,BETA,Z)
-    HGJD  = PZ/(PDZI*(Z-ZI))
+    HGJD = PZ/(PDZI*(Z-ZI))
     RETURN
   end function HGJD
 
@@ -640,8 +640,8 @@ contains
 !---------------------------------------------------------------------
     PARAMETER (NMAX=84)
     PARAMETER (NZD = NMAX)
-    REAL(KIND=XP)  ZD,ZGLJD(NZD),ALPHAD,BETAD
-    REAL(KIND=XP)  Z,ZGLJ(1),ALPHA,BETA
+    REAL(KIND=XP) ZD,ZGLJD(NZD),ALPHAD,BETAD
+    REAL(KIND=XP) Z,ZGLJ(1),ALPHA,BETA
     NPMAX = NZD
     IF (NP.GT.NPMAX) THEN
        WRITE (6,*) 'Too large polynomial degree in HGLJ'
@@ -654,12 +654,12 @@ contains
        ZGLJD(I) = ZGLJ(I)
 100 CONTINUE
     ALPHAD = ALPHA
-    BETAD  = BETA
-    HGLJ   = HGLJD (II,ZD,ZGLJD,NP,ALPHAD,BETAD)
+    BETAD = BETA
+    HGLJ = HGLJD (II,ZD,ZGLJD,NP,ALPHAD,BETAD)
     RETURN
   end function HGLJ
 
-  REAL(KIND=XP)  FUNCTION HGLJD (I,Z,ZGLJ,NP,ALPHA,BETA)
+  REAL(KIND=XP) FUNCTION HGLJD (I,Z,ZGLJ,NP,ALPHA,BETA)
 !---------------------------------------------------------------------
 !
 !     Compute the value of the Lagrangian interpolant HGLJD through
@@ -667,23 +667,23 @@ contains
 !     Double precision version.
 !
 !---------------------------------------------------------------------
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
-    REAL(KIND=XP)  Z,ZGLJ(1),ALPHA,BETA
+    IMPLICIT REAL(KIND=XP) (A-H,O-Z)
+    REAL(KIND=XP) Z,ZGLJ(1),ALPHA,BETA
     EPS = 1.e-5
     ONE = 1.
-    ZI  = ZGLJ(I)
-    DZ  = Z-ZI
+    ZI = ZGLJ(I)
+    DZ = Z-ZI
     IF (ABS(DZ).LT.EPS) THEN
        HGLJD = ONE
        RETURN
     ENDIF
-    N      = NP-1
-    DN     = ((N))
+    N = NP-1
+    DN = ((N))
     EIGVAL = -DN*(DN+ALPHA+BETA+ONE)
     CALL JACOBF (PI,PDI,PM1,PDM1,PM2,PDM2,N,ALPHA,BETA,ZI)
-    CONST  = EIGVAL*PI+ALPHA*(ONE+ZI)*PDI-BETA*(ONE-ZI)*PDI
+    CONST = EIGVAL*PI+ALPHA*(ONE+ZI)*PDI-BETA*(ONE-ZI)*PDI
     CALL JACOBF (P,PD,PM1,PDM1,PM2,PDM2,N,ALPHA,BETA,Z)
-    HGLJD  = (ONE-Z**2)*PD/(CONST*(Z-ZI))
+    HGLJD = (ONE-Z**2)*PD/(CONST*(Z-ZI))
     RETURN
   end function HGLJD
 
@@ -699,7 +699,7 @@ contains
 !-----------------------------------------------------------------
     PARAMETER (NMAX=84)
     PARAMETER (NZDD = NMAX)
-    REAL(KIND=XP)  DD(NZDD,NZDD),DTD(NZDD,NZDD),ZD(NZDD),ALPHAD,BETAD
+    REAL(KIND=XP) DD(NZDD,NZDD),DTD(NZDD,NZDD),ZD(NZDD),ALPHAD,BETAD
     REAL(KIND=XP) D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
 
     IF (NZ.LE.0) THEN
@@ -717,14 +717,14 @@ contains
        call neko_error
     ENDIF
     ALPHAD = ALPHA
-    BETAD  = BETA
+    BETAD = BETA
     DO 100 I=1,NZ
        ZD(I) = Z(I)
 100 CONTINUE
     CALL DGJD (DD,DTD,ZD,NZ,NZDD,ALPHAD,BETAD)
     DO I=1,NZ
        DO J=1,NZ
-          D(I,J)  = DD(I,J)
+          D(I,J) = DD(I,J)
           DT(I,J) = DTD(I,J)
        END DO
     END DO
@@ -741,12 +741,12 @@ contains
 !     Double precision version.
 !
 !-----------------------------------------------------------------
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
-    REAL(KIND=XP)  D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
-    N    = NZ-1
-    DN   = ((N))
-    ONE  = 1.
-    TWO  = 2.
+    IMPLICIT REAL(KIND=XP) (A-H,O-Z)
+    REAL(KIND=XP) D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
+    N = NZ-1
+    DN = ((N))
+    ONE = 1.
+    TWO = 2.
 
     IF (NZ.LE.1) THEN
        WRITE (6,*) 'DGJD: Minimum number of Gauss-Lobatto points is 2'
@@ -763,7 +763,7 @@ contains
           CALL JACOBF (PJ,PDJ,PM1,PDM1,PM2,PDM2,NZ,ALPHA,BETA,Z(J))
           IF (I.NE.J) D(I,J) = PDI/(PDJ*(Z(I)-Z(J)))
           IF (I.EQ.J) D(I,J) = ((ALPHA+BETA+TWO)*Z(I)+ALPHA-BETA)/ &
-              (TWO*(ONE-Z(I)**2))
+               (TWO*(ONE-Z(I)**2))
           DT(J,I) = D(I,J)
        END DO
     END DO
@@ -782,7 +782,7 @@ contains
 !-----------------------------------------------------------------
     PARAMETER (NMAX=84)
     PARAMETER (NZDD = NMAX)
-    REAL(KIND=XP)  DD(NZDD,NZDD),DTD(NZDD,NZDD),ZD(NZDD),ALPHAD,BETAD
+    REAL(KIND=XP) DD(NZDD,NZDD),DTD(NZDD,NZDD),ZD(NZDD),ALPHAD,BETAD
     REAL(KIND=XP) D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
 
     IF (NZ.LE.1) THEN
@@ -800,14 +800,14 @@ contains
        call neko_error
     ENDIF
     ALPHAD = ALPHA
-    BETAD  = BETA
+    BETAD = BETA
     DO 100 I=1,NZ
        ZD(I) = Z(I)
 100 CONTINUE
     CALL DGLJD (DD,DTD,ZD,NZ,NZDD,ALPHAD,BETAD)
     DO I=1,NZ
        DO J=1,NZ
-          D(I,J)  = DD(I,J)
+          D(I,J) = DD(I,J)
           DT(I,J) = DTD(I,J)
        END DO
     END DO
@@ -824,12 +824,12 @@ contains
 !     Double precision version.
 !
 !-----------------------------------------------------------------
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
-    REAL(KIND=XP)  D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
-    N    = NZ-1
-    DN   = ((N))
-    ONE  = 1.
-    TWO  = 2.
+    IMPLICIT REAL(KIND=XP) (A-H,O-Z)
+    REAL(KIND=XP) D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
+    N = NZ-1
+    DN = ((N))
+    ONE = 1.
+    TWO = 2.
     EIGVAL = -DN*(DN+ALPHA+BETA+ONE)
 
     IF (NZ.LE.1) THEN
@@ -849,12 +849,12 @@ contains
           CJ = EIGVAL*PJ-(BETA*(ONE-Z(J))-ALPHA*(ONE+Z(J)))*PDJ
           IF (I.NE.J) D(I,J) = CI/(CJ*(Z(I)-Z(J)))
           IF ((I.EQ.J).AND.(I.NE.1).AND.(I.NE.NZ)) &
-              D(I,J) = (ALPHA*(ONE+Z(I))-BETA*(ONE-Z(I)))/ &
-              (TWO*(ONE-Z(I)**2))
+               D(I,J) = (ALPHA*(ONE+Z(I))-BETA*(ONE-Z(I)))/ &
+               (TWO*(ONE-Z(I)**2))
           IF ((I.EQ.J).AND.(I.EQ.1)) &
-              D(I,J) =  (EIGVAL+ALPHA)/(TWO*(BETA+TWO))
+               D(I,J) = (EIGVAL+ALPHA)/(TWO*(BETA+TWO))
           IF ((I.EQ.J).AND.(I.EQ.NZ)) &
-              D(I,J) = -(EIGVAL+BETA)/(TWO*(ALPHA+TWO))
+               D(I,J) = -(EIGVAL+BETA)/(TWO*(ALPHA+TWO))
           DT(J,I) = D(I,J)
        END DO
     END DO
@@ -870,10 +870,10 @@ contains
 !     Note: D and DT are square matrices.
 !
 !-----------------------------------------------------------------
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
+    IMPLICIT REAL(KIND=XP) (A-H,O-Z)
     PARAMETER (NMAX=84)
     REAL(KIND=RP) D(NZD,NZD),DT(NZD,NZD),Z(1)
-    N  = NZ-1
+    N = NZ-1
     IF (NZ .GT. NMAX) THEN
        WRITE (6,*) 'Subroutine DGLL'
        WRITE (6,*) 'Maximum polynomial degree =',NMAX
@@ -888,10 +888,10 @@ contains
     DO I=1,NZ
        DO J=1,NZ
           D(I,J) = 0.
-          IF  (I.NE.J) D(I,J) = PNLEG(real(Z(I),xp),N)/ &
-                             (PNLEG(real(Z(J),xp),N)*(Z(I)-Z(J)))
-          IF ((I.EQ.J).AND.(I.EQ.1))  D(I,J) = -d0
-          IF ((I.EQ.J).AND.(I.EQ.NZ)) D(I,J) =  d0
+          IF (I.NE.J) D(I,J) = PNLEG(real(Z(I),xp),N)/ &
+               (PNLEG(real(Z(J),xp),N)*(Z(I)-Z(J)))
+          IF ((I.EQ.J).AND.(I.EQ.1)) D(I,J) = -d0
+          IF ((I.EQ.J).AND.(I.EQ.NZ)) D(I,J) = d0
           DT(J,I) = D(I,J)
        END DO
     END DO
@@ -905,7 +905,7 @@ contains
 !     the NZ Gauss-Lobatto Legendre points ZGLL at the point Z.
 !
 !---------------------------------------------------------------------
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
+    IMPLICIT REAL(KIND=XP) (A-H,O-Z)
     REAL(KIND=XP) ZGLL(1), EPS, DZ, Z
     EPS = 1.E-5
     DZ = Z - ZGLL(I)
@@ -916,7 +916,7 @@ contains
     N = NZ - 1
     ALFAN = (N)*((N)+1.)
     HGLL = - (1.-Z*Z)*PNDLEG(Z,N)/ &
-           (ALFAN*PNLEG(ZGLL(I),N)*(Z-ZGLL(I)))
+         (ALFAN*PNLEG(ZGLL(I),N)*(Z-ZGLL(I)))
     RETURN
   end function HGLL
 
@@ -951,29 +951,29 @@ contains
 !     This next statement is to overcome the underflow bug in the i860.
 !     It can be removed at a later date.  11 Aug 1990   pff.
 !
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
+    IMPLICIT REAL(KIND=XP) (A-H,O-Z)
     REAL(KIND=XP) Z, P1, P2, P3
-    IF(ABS(Z) .LT. 1.0E-25) Z = 0.0
+    !IF(ABS(Z) .LT. 1.0E-25) Z = 0.0
 
 
-    P1   = 1.
+    P1 = 1.
     IF (N.EQ.0) THEN
        PNLEG = P1
        RETURN
     ENDIF
-    P2   = Z
-    P3   = P2
+    P2 = Z
+    P3 = P2
     DO 10 K = 1, N-1
-       FK  = (K)
-       P3  = ((2.*FK+1.)*Z*P2 - FK*P1)/(FK+1.)
-       P1  = P2
-       P2  = P3
+       FK = (K)
+       P3 = ((2.0_rp*FK+1.0_rp)*Z*P2 - FK*P1)/(FK+1.0_rp)
+       P1 = P2
+       P2 = P3
 10  CONTINUE
     PNLEG = P3
     if (n.eq.0) pnleg = 1.
     RETURN
   end function PNLEG
-   
+
   !> Evaluate Legendre polynomials of degrees 0-N at point x
   !! and store in array L
   subroutine legendre_poly(L, x, N)
@@ -987,7 +987,7 @@ contains
 
     do j=1, N-1
        L(j+1) = ( (2.0_xp * real(j, xp) + 1.0_xp) * x * L(j) &
-            - real(j, xp) * L(j-1) ) / (real(j, xp) + 1.0_xp) 
+            - real(j, xp) * L(j-1) ) / (real(j, xp) + 1.0_xp)
     end do
   end subroutine legendre_poly
 
@@ -999,19 +999,19 @@ contains
 !     Based on the recursion formula for the Legendre polynomials.
 !
 !----------------------------------------------------------------------
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
+    IMPLICIT REAL(KIND=XP) (A-H,O-Z)
     REAL(KIND=XP) P1, P2, P1D, P2D, P3D, Z
-    P1   = 1.
-    P2   = Z
-    P1D  = 0.
-    P2D  = 1.
-    P3D  = 1.
+    P1 = 1.
+    P2 = Z
+    P1D = 0.
+    P2D = 1.
+    P3D = 1.
     DO 10 K = 1, N-1
-       FK  = (K)
-       P3  = ((2.*FK+1.)*Z*P2 - FK*P1)/(FK+1.)
+       FK = (K)
+       P3 = ((2.*FK+1.)*Z*P2 - FK*P1)/(FK+1.)
        P3D = ((2.*FK+1.)*P2 + (2.*FK+1.)*Z*P2D - FK*P1D)/(FK+1.)
-       P1  = P2
-       P2  = P3
+       P1 = P2
+       P2 = P3
        P1D = P2D
        P2D = P3D
 10  CONTINUE
@@ -1049,7 +1049,7 @@ contains
              D(IP,JQ) = 0.
           ELSE
              D(IP,JQ) = (PNLEG(ZP,NM1)/PNLEG(ZQ,NM1) &
-                     -IM12(IP,JQ))/(ZP-ZQ)
+                  -IM12(IP,JQ))/(ZP-ZQ)
           ENDIF
           DT(JQ,IP) = D(IP,JQ)
        END DO
@@ -1073,9 +1073,9 @@ contains
     REAL(KIND=XP) D(ND2,ND1), DT(ND1,ND2), ZGL(ND1), ZG(ND2), IGLG(ND2,ND1)
     PARAMETER (NMAX=84)
     PARAMETER (NDD = NMAX)
-    REAL(KIND=XP)  DD(NDD,NDD), DTD(NDD,NDD)
-    REAL(KIND=XP)  ZGD(NDD), ZGLD(NDD), IGLGD(NDD,NDD)
-    REAL(KIND=XP)  ALPHAD, BETAD
+    REAL(KIND=XP) DD(NDD,NDD), DTD(NDD,NDD)
+    REAL(KIND=XP) ZGD(NDD), ZGLD(NDD), IGLGD(NDD,NDD)
+    REAL(KIND=XP) ALPHAD, BETAD
 
     IF (NPGL.LE.1) THEN
        WRITE(6,*) 'DGLJGJ: Minimum number of Gauss-Lobatto points is 2'
@@ -1093,7 +1093,7 @@ contains
     ENDIF
 
     ALPHAD = ALPHA
-    BETAD  = BETA
+    BETAD = BETA
     DO I=1,NPG
        ZGD(I) = ZG(I)
        DO J=1,NPGL
@@ -1106,7 +1106,7 @@ contains
     CALL DGLJGJD (DD,DTD,ZGLD,ZGD,IGLGD,NPGL,NPG,NDD,NDD,ALPHAD,BETAD)
     DO I=1,NPG
        DO J=1,NPGL
-          D(I,J)  = DD(I,J)
+          D(I,J) = DD(I,J)
           DT(J,I) = DTD(J,I)
        END DO
     END DO
@@ -1126,9 +1126,9 @@ contains
 !     Double precision version.
 !
 !-----------------------------------------------------------------------
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
-    REAL(KIND=XP)  D(ND2,ND1), DT(ND1,ND2), ZGL(ND1), ZG(ND2)
-    REAL(KIND=XP)  IGLG(ND2,ND1), ALPHA, BETA
+    IMPLICIT REAL(KIND=XP) (A-H,O-Z)
+    REAL(KIND=XP) D(ND2,ND1), DT(ND1,ND2), ZGL(ND1), ZG(ND2)
+    REAL(KIND=XP) IGLG(ND2,ND1), ALPHA, BETA
 
     IF (NPGL.LE.1) THEN
        WRITE(6,*) 'DGLJGJD: Minimum number of Gauss-Lobatto points is 2'
@@ -1139,11 +1139,11 @@ contains
        call neko_error
     ENDIF
 
-    EPS    = 1.e-6
-    ONE    = 1.
-    TWO    = 2.
-    NGL    = NPGL-1
-    DN     = ((NGL))
+    EPS = 1.e-6
+    ONE = 1.
+    TWO = 2.
+    NGL = NPGL-1
+    DN = ((NGL))
     EIGVAL = -DN*(DN+ALPHA+BETA+ONE)
 
     DO I=1,NPG
@@ -1151,15 +1151,15 @@ contains
           DZ = ABS(ZG(I)-ZGL(J))
           IF (DZ.LT.EPS) THEN
              D(I,J) = (ALPHA*(ONE+ZG(I))-BETA*(ONE-ZG(I)))/ &
-                 (TWO*(ONE-ZG(I)**2))
+                  (TWO*(ONE-ZG(I)**2))
           ELSE
              CALL JACOBF (PI,PDI,PM1,PDM1,PM2,PDM2,NGL,ALPHA,BETA,ZG(I))
              CALL JACOBF (PJ,PDJ,PM1,PDM1,PM2,PDM2,NGL,ALPHA,BETA,ZGL(J))
-             FACI   = ALPHA*(ONE+ZG(I))-BETA*(ONE-ZG(I))
-             FACJ   = ALPHA*(ONE+ZGL(J))-BETA*(ONE-ZGL(J))
-             CONST  = EIGVAL*PJ+FACJ*PDJ
+             FACI = ALPHA*(ONE+ZG(I))-BETA*(ONE-ZG(I))
+             FACJ = ALPHA*(ONE+ZGL(J))-BETA*(ONE-ZGL(J))
+             CONST = EIGVAL*PJ+FACJ*PDJ
              D(I,J) = ((EIGVAL*PI+FACI*PDI)*(ZG(I)-ZGL(J)) &
-                 -(ONE-ZG(I)**2)*PDI)/(CONST*(ZG(I)-ZGL(J))**2)
+                  -(ONE-ZG(I)**2)*PDI)/(CONST*(ZG(I)-ZGL(J))**2)
           ENDIF
           DT(J,I) = D(I,J)
        END DO
