@@ -104,9 +104,14 @@ contains
     logical, intent(in), optional :: strong
     integer :: i, m, k, facet, idx(4)
     real(kind=rp) :: vn, S0, ux, uy, uz, normal_xyz(3)
-    logical :: strong_ = .true.
+    logical :: strong_
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
+
     !Im actually not sure what to do if one has two dong that share a corner.
     if (strong_) then
        m = this%msk(0)
@@ -149,9 +154,13 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
-    logical :: strong_ = .true.
+    logical :: strong_
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
 
     if (strong_ .and. this%msk(0) .gt. 0) then
        call device_dong_outflow_apply_scalar(this%msk_d, x_d, &
@@ -192,7 +201,6 @@ contains
   subroutine dong_outflow_finalize(this, only_facets)
     class(dong_outflow_t), target, intent(inout) :: this
     logical, optional, intent(in) :: only_facets
-    logical :: only_facets_ = .false.
     real(kind=rp), allocatable :: temp_x(:)
     real(kind=rp), allocatable :: temp_y(:)
     real(kind=rp), allocatable :: temp_z(:)
