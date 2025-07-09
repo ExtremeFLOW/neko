@@ -146,12 +146,13 @@ contains
   end subroutine zero_dirichlet_apply_vector
 
   !> Apply boundary condition to a scalar field, device version.
-  subroutine zero_dirichlet_apply_scalar_dev(this, x_d, t, tstep, strong)
+  subroutine zero_dirichlet_apply_scalar_dev(this, x_d, t, tstep, strong, strm)
     class(zero_dirichlet_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
+    type(c_ptr) :: strm
     logical :: strong_
 
     if (present(strong)) then
@@ -161,14 +162,15 @@ contains
     end if
 
     if (strong_ .and. (this%msk(0) .gt. 0)) then
-       call device_zero_dirichlet_apply_scalar(this%msk_d, x_d, size(this%msk))
+       call device_zero_dirichlet_apply_scalar(this%msk_d, x_d, &
+            size(this%msk), strm)
     end if
 
   end subroutine zero_dirichlet_apply_scalar_dev
 
   !> Apply boundary condition to a vector field, device version.
   subroutine zero_dirichlet_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, &
-       strong)
+       strong, strm)
     class(zero_dirichlet_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
@@ -176,6 +178,7 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
+    type(c_ptr) :: strm
     logical :: strong_
 
     if (present(strong)) then
@@ -186,7 +189,7 @@ contains
 
     if (strong_ .and. (this%msk(0) .gt. 0)) then
        call device_zero_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
-            size(this%msk))
+            size(this%msk), strm)
     end if
 
   end subroutine zero_dirichlet_apply_vector_dev

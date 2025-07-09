@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2022-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -148,12 +148,13 @@ contains
 
   !> Boundary condition apply for a generic Dirichlet condition
   !! to a vector @a x (device version)
-  subroutine dong_outflow_apply_scalar_dev(this, x_d, t, tstep, strong)
+  subroutine dong_outflow_apply_scalar_dev(this, x_d, t, tstep, strong, strm)
     class(dong_outflow_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
+    type(c_ptr) :: strm
     logical :: strong_
 
     if (present(strong)) then
@@ -167,7 +168,7 @@ contains
             this%normal_x_d, this%normal_y_d, this%normal_z_d, &
             this%u%x_d, this%v%x_d, this%w%x_d, &
             this%uinf, this%delta, &
-            this%msk(0))
+            this%msk(0), strm)
     end if
 
   end subroutine dong_outflow_apply_scalar_dev
@@ -175,7 +176,7 @@ contains
   !> Boundary condition apply for a generic Dirichlet condition
   !! to vectors @a x, @a y and @a z (device version)
   subroutine dong_outflow_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, &
-       strong)
+       strong, strm)
     class(dong_outflow_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
@@ -183,6 +184,7 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
+    type(c_ptr) :: strm
 
     !call device_dong_outflow_apply_vector(this%msk_d, x_d, y_d, z_d, &
     !                                   this%g, size(this%msk))
