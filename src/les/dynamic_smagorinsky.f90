@@ -113,7 +113,7 @@ contains
          call json_get(json, "filter.type", filter_type)
          if (trim(filter_type) .ne. "elementwise") then
             call neko_error("Currently only elementwise filter is supported &
-                 for dynamic smagorinsky model.")
+            &for dynamic smagorinsky model.")
          end if
       end if
 
