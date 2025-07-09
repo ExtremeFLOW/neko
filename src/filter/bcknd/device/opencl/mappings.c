@@ -57,7 +57,7 @@ void opencl_smooth_step(void* x, real* edge0, real* edge1, int* n) {
     cl_int err;
 
     if (mapping_program == NULL)
-        opencl_kernel_jit(mapping_kernels, (cl_program*)mappingr_program);
+        opencl_kernel_jit(mapping_kernels, (cl_program*)mapping_program);
 
     cl_kernel kernel =
         clCreateKernel(mapping_program, "smooth_step_kernel", &err);
