@@ -102,7 +102,25 @@ examples = {
         case_file=join(examples_dir, "turb_pipe", "turb_pipe.case"),
         mesh_file=join(examples_dir, "turb_pipe", "turb_pipe.nmsh"),
         user_file=join(examples_dir, "turb_pipe", "turb_pipe.f90")
-    )
+    ),
+    "programming_custom_types": NekoTestCase(
+        user_file=join(examples_dir, "programming", "custom_types.f90")
+    ),
+    "programming_fields_vectors_math": NekoTestCase(
+        user_file=join(examples_dir, "programming", "fields_vectors_math.f90")
+    ),
+    "programming_output": NekoTestCase(
+        user_file=join(examples_dir, "programming", "output.f90")
+    ),
+    "programming_registries": NekoTestCase(
+        user_file=join(examples_dir, "programming", "registries.f90")
+    ),
+    "programming_startup_json": NekoTestCase(
+        user_file=join(examples_dir, "programming", "startup_and_json.f90")
+    ),
+    "programming_user_file_template": NekoTestCase(
+        user_file=join(examples_dir, "programming", "user_file_template.f90")
+    ),
 }
 
 
