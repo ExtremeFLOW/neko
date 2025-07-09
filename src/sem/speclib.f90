@@ -159,8 +159,8 @@ contains
   !! @param NP Number of quadrature points.
   subroutine ZWGL (Z,W,NP)
     real(kind=rp) Z(1),W(1), ALPHA, BETA
-    ALPHA = 0.
-    BETA = 0.
+    ALPHA = 0.0_rp
+    BETA = 0.0_rp
     call ZWGJ (Z,W,NP,ALPHA,BETA)
   end subroutine ZWGL
 
@@ -175,8 +175,8 @@ contains
 !
 !--------------------------------------------------------------------
     real(kind=rp) Z(1),W(1), ALPHA, BETA
-    ALPHA = 0.
-    BETA = 0.
+    ALPHA = 0.0_rp
+    BETA = 0.0_rp
     call ZWGLJ (Z,W,NP,ALPHA,BETA)
   end subroutine ZWGLL
 
@@ -204,7 +204,7 @@ contains
     ALPHAD = ALPHA
     BETAD = BETA
     call ZWGJD (ZD,WD,NP,ALPHAD,BETAD)
-    do I=1,NP
+    do I = 1, NP
        Z(I) = ZD(I)
        W(I) = WD(I)
     end do
@@ -255,7 +255,7 @@ contains
     FAC3 = FAC2+ONE
     FNORM = PNORMJ(NP1,ALPHA,BETA)
     RCOEF = (FNORM*FAC2*FAC3)/(TWO*FAC1*DNP2)
-    do I=1,NP
+    do I = 1, NP
        call JACOBF (P,PD,PM1,PDM1,PM2,PDM2,NP2,ALPHA,BETA,Z(I))
        W(I) = -RCOEF/(P*PDM1)
     end do
@@ -285,7 +285,7 @@ contains
     ALPHAD = ALPHA
     BETAD = BETA
     call ZWGLJD (ZD,WD,NP,ALPHAD,BETAD)
-    do I=1,NP
+    do I = 1, NP
        Z(I) = ZD(I)
        W(I) = WD(I)
     end do
@@ -325,7 +325,7 @@ contains
     end if
     Z(1) = -ONE
     Z(NP) = ONE
-    do I=2,NP-1
+    do I = 2, NP-1
        W(I) = W(I)/(ONE-Z(I)**2)
     end do
     call JACOBF (P,PD,PM1,PDM1,PM2,PDM2,N,ALPHA,BETA,Z(1))
@@ -364,7 +364,7 @@ contains
        ENDW1 = F2
        return
     end if
-    do I=3,N
+    do I = 3, N
        DI = ((I-1))
        ABN = ALPHA+BETA+DI
        ABNN = ABN+DI
@@ -407,7 +407,7 @@ contains
        ENDW2 = F2
        return
     end if
-    do I=3,N
+    do I = 3, N
        DI = ((I-1))
        ABN = ALPHA+BETA+DI
        ABNN = ABN+DI
@@ -461,7 +461,7 @@ contains
     PROD = PROD/(TWO*(ONE+CONST)*GAMMAF(CONST+ONE))
     PROD = PROD*(ONE+ALPHA)*(TWO+ALPHA)
     PROD = PROD*(ONE+BETA)*(TWO+BETA)
-    do I=3,N
+    do I = 3, N
        DINDX = ((I))
        FRAC = (DINDX+ALPHA)*(DINDX+BETA)/(DINDX*(DINDX+ALPHA+BETA))
        PROD = PROD*FRAC
@@ -487,7 +487,7 @@ contains
     N = NP-1
     one = 1.
     DTH = 4.*atan(one)/(2.*((N))+2.)
-    do J=1,NP
+    do J = 1, NP
        if (J .eq. 1) then
           X = cos((2.*(((J))-1.)+1.)*DTH)
        else
@@ -495,11 +495,11 @@ contains
           X2 = XLAST
           X = (X1+X2)/2.
        end if
-       do K=1,KSTOP
+       do K = 1, KSTOP
           call JACOBF (P,PD,PM1,PDM1,PM2,PDM2,NP,ALPHA,BETA,X)
           RECSUM = 0.
           JM = J-1
-          do I=1,JM
+          do I = 1, JM
              RECSUM = RECSUM+1./(X-XJAC(NP-I+1))
           end do
           DELX = -P/(PD-RECSUM*P)
@@ -510,9 +510,9 @@ contains
        XJAC(NP-J+1) = X
        XLAST = X
     end do
-    do I=1,NP
+    do I = 1, NP
        XMIN = 2.
-       do J=I,NP
+       do J = I, NP
           if (XJAC(J) .lt. XMIN) then
              XMIN = XJAC(J)
              JMIN = J
@@ -543,7 +543,7 @@ contains
     POLY = (ALP-BET+(APB+2.)*X)/2.
     PDER = (APB+2.)/2.
     if (N .eq. 1) return
-    do K=2,N
+    do K = 2, N
        DK = ((K))
        A1 = 2.*DK*(DK+APB)*(2.*DK+APB-2.)
        A2 = (2.*DK+APB-1.)*(ALP**2-BET**2)
@@ -585,7 +585,7 @@ contains
        call neko_error
     end if
     ZD = Z
-    do I=1,NP
+    do I = 1, NP
        ZGJD(I) = ZGJ(I)
     end do
     ALPHAD = ALPHA
@@ -636,7 +636,7 @@ contains
        call neko_error
     end if
     ZD = Z
-    do I=1,NP
+    do I = 1, NP
        ZGLJD(I) = ZGLJ(I)
     end do
     ALPHAD = ALPHA
@@ -702,12 +702,12 @@ contains
     end if
     ALPHAD = ALPHA
     BETAD = BETA
-    do I=1,NZ
+    do I = 1, NZ
        ZD(I) = Z(I)
     end do
     call DGJD (DD,DTD,ZD,NZ,NZDD,ALPHAD,BETAD)
-    do I=1,NZ
-       do J=1,NZ
+    do I = 1, NZ
+       do J = 1, NZ
           D(I,J) = DD(I,J)
           DT(I,J) = DTD(I,J)
        end do
@@ -740,8 +740,8 @@ contains
        call neko_error
     end if
 
-    do I=1,NZ
-       do J=1,NZ
+    do I = 1, NZ
+       do J = 1, NZ
           call JACOBF (PI,PDI,PM1,PDM1,PM2,PDM2,NZ,ALPHA,BETA,Z(I))
           call JACOBF (PJ,PDJ,PM1,PDM1,PM2,PDM2,NZ,ALPHA,BETA,Z(J))
           if (I.NE.J) D(I,J) = PDI/(PDJ*(Z(I)-Z(J)))
@@ -783,12 +783,12 @@ contains
     end if
     ALPHAD = ALPHA
     BETAD = BETA
-    do I=1,NZ
+    do I = 1, NZ
        ZD(I) = Z(I)
     end do
     call DGLJD (DD,DTD,ZD,NZ,NZDD,ALPHAD,BETAD)
-    do I=1,NZ
-       do J=1,NZ
+    do I = 1, NZ
+       do J = 1, NZ
           D(I,J) = DD(I,J)
           DT(I,J) = DTD(I,J)
        end do
@@ -822,19 +822,19 @@ contains
        call neko_error
     end if
 
-    do I=1,NZ
-       do J=1,NZ
+    do I = 1, NZ
+       do J = 1, NZ
           call JACOBF (PI,PDI,PM1,PDM1,PM2,PDM2,N,ALPHA,BETA,Z(I))
           call JACOBF (PJ,PDJ,PM1,PDM1,PM2,PDM2,N,ALPHA,BETA,Z(J))
           CI = EIGVAL*PI-(BETA*(ONE-Z(I))-ALPHA*(ONE+Z(I)))*PDI
           CJ = EIGVAL*PJ-(BETA*(ONE-Z(J))-ALPHA*(ONE+Z(J)))*PDJ
           if (I.NE.J) D(I,J) = CI/(CJ*(Z(I)-Z(J)))
-          if ((I .eq. J).AND.(I.NE.1).AND.(I.NE.NZ)) &
+          if ((I .eq. J) .and. (I.NE.1) .and. (I.NE.NZ)) &
                D(I,J) = (ALPHA*(ONE+Z(I))-BETA*(ONE-Z(I)))/ &
                (TWO*(ONE-Z(I)**2))
-          if ((I .eq. J).AND.(I .eq. 1)) &
+          if ((I .eq. J) .and. (I .eq. 1)) &
                D(I,J) = (EIGVAL+ALPHA)/(TWO*(BETA+TWO))
-          if ((I .eq. J).AND.(I .eq. NZ)) &
+          if ((I .eq. J) .and. (I .eq. NZ)) &
                D(I,J) = -(EIGVAL+BETA)/(TWO*(ALPHA+TWO))
           DT(J,I) = D(I,J)
        end do
@@ -865,13 +865,13 @@ contains
     end if
     FN = (N)
     d0 = FN*(FN+1.)/4.
-    do I=1,NZ
-       do J=1,NZ
-          D(I,J) = 0.
+    do I = 1, NZ
+       do J = 1, NZ
+          D(I,J) = 0.0_rp
           if (I.NE.J) D(I,J) = PNLEG(real(Z(I),xp),N)/ &
                (PNLEG(real(Z(J),xp),N)*(Z(I)-Z(J)))
-          if ((I .eq. J).AND.(I .eq. 1)) D(I,J) = -d0
-          if ((I .eq. J).AND.(I .eq. NZ)) D(I,J) = d0
+          if ((I .eq. J) .and. (I .eq. 1)) D(I,J) = -d0
+          if ((I .eq. J) .and. (I .eq. NZ)) D(I,J) = d0
           DT(J,I) = D(I,J)
        end do
     end do
@@ -961,7 +961,7 @@ contains
     if (N .eq. 0) return
     L(1) = x
 
-    do j=1, N-1
+    do j = 1, N-1
        L(j+1) = ( (2.0_xp * real(j, xp) + 1.0_xp) * x * L(j) &
             - real(j, xp) * L(j-1) ) / (real(j, xp) + 1.0_xp)
     end do
@@ -1020,7 +1020,7 @@ contains
        do JQ = 1, NZM1
           ZP = ZM2(IP)
           ZQ = ZM1(JQ)
-          if ((abs(ZP) .lt. EPS).AND.(abs(ZQ) .lt. EPS)) then
+          if ((abs(ZP) .lt. EPS) .and. (abs(ZQ) .lt. EPS)) then
              D(IP,JQ) = 0.
           else
              D(IP,JQ) = (PNLEG(ZP,NM1)/PNLEG(ZQ,NM1) &
@@ -1068,18 +1068,18 @@ contains
 
     ALPHAD = ALPHA
     BETAD = BETA
-    do I=1,NPG
+    do I = 1, NPG
        ZGD(I) = ZG(I)
-       do J=1,NPGL
+       do J = 1, NPGL
           IGLGD(I,J) = IGLG(I,J)
        end do
     end do
-    do I=1,NPGL
+    do I = 1, NPGL
        ZGLD(I) = ZGL(I)
     end do
     call DGLJGJD (DD,DTD,ZGLD,ZGD,IGLGD,NPGL,NPG,NDD,NDD,ALPHAD,BETAD)
-    do I=1,NPG
-       do J=1,NPGL
+    do I = 1, NPG
+       do J = 1, NPGL
           D(I,J) = DD(I,J)
           DT(J,I) = DTD(J,I)
        end do
@@ -1119,8 +1119,8 @@ contains
     DN = ((NGL))
     EIGVAL = -DN*(DN+ALPHA+BETA+ONE)
 
-    do I=1,NPG
-       do J=1,NPGL
+    do I = 1, NPG
+       do J = 1, NPGL
           DZ = abs(ZG(I)-ZGL(J))
           if (DZ .lt. EPS) then
              D(I,J) = (ALPHA*(ONE+ZG(I))-BETA*(ONE-ZG(I)))/ &
@@ -1155,9 +1155,9 @@ contains
        IT12(1,1) = 1.
        return
     end if
-    do I=1,NZ2
+    do I = 1, NZ2
        ZI = Z2(I)
-       do J=1,NZ1
+       do J = 1, NZ1
           I12 (I,J) = HGL(J,ZI,Z1,NZ1)
           IT12(J,I) = I12(I,J)
        end do
@@ -1180,9 +1180,9 @@ contains
        IT12(1,1) = 1.
        return
     end if
-    do I=1,NZ2
+    do I = 1, NZ2
        ZI = Z2(I)
-       do J=1,NZ1
+       do J = 1, NZ1
           I12 (I,J) = HGLL(J,ZI,Z1,NZ1)
           IT12(J,I) = I12(I,J)
        end do
@@ -1206,9 +1206,9 @@ contains
        IT12(1,1) = 1.
        return
     end if
-    do I=1,NZ2
+    do I = 1, NZ2
        ZI = Z2(I)
-       do J=1,NZ1
+       do J = 1, NZ1
           I12 (I,J) = HGJ(J,ZI,Z1,NZ1,ALPHA,BETA)
           IT12(J,I) = I12(I,J)
        end do
@@ -1232,9 +1232,9 @@ contains
        IT12(1,1) = 1.
        return
     end if
-    do I=1,NZ2
+    do I = 1, NZ2
        ZI = Z2(I)
-       do J=1,NZ1
+       do J = 1, NZ1
           I12 (I,J) = HGLJ(J,ZI,Z1,NZ1,ALPHA,BETA)
           IT12(J,I) = I12(I,J)
        end do
