@@ -1,4 +1,4 @@
-! Copyright (c) 2023, The Neko Authors
+! Copyright (c) 2023-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -155,9 +155,13 @@ contains
     logical, intent(in), optional :: strong
     integer :: i, m, k, idx(4), facet, tstep_
     real(kind=rp) :: t_
-    logical :: strong_ = .true.
+    logical :: strong_
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
 
     if (present(t)) then
        t_ = t
@@ -232,11 +236,15 @@ contains
     real(kind=rp) :: t_
     integer(c_size_t) :: s
     real(kind=rp), allocatable :: x(:)
-    logical :: strong_ = .true.
+    logical :: strong_
 
     m = this%msk(0)
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = strong
+    end if
 
     if (present(t)) then
        t_ = t
@@ -374,7 +382,7 @@ contains
   subroutine usr_scalar_finalize(this, only_facets)
     class(usr_scalar_t), target, intent(inout) :: this
     logical, optional, intent(in) :: only_facets
-    logical :: only_facets_ = .false.
+    logical :: only_facets_
 
     if (present(only_facets)) then
        only_facets_ = only_facets
