@@ -189,8 +189,8 @@ contains
 !     Single precision version.
 !
 !--------------------------------------------------------------------
-    parameter (NMAX=84)
-    parameter (NZD = NMAX)
+    integer, parameter :: NMAX = 84
+    integer, parameter :: NZD = NMAX
     real(kind=xp) ZD(NZD),WD(NZD),ALPHAD,BETAD
     real(kind=rp) Z(1),W(1),ALPHA,BETA
 
@@ -248,8 +248,8 @@ contains
 
     NP1 = N+1
     NP2 = N+2
-    DNP1 = ((NP1))
-    DNP2 = ((NP2))
+    DNP1 = real(NP1, kind=xp)
+    DNP2 = real(NP2, kind=xp)
     FAC1 = DNP1+ALPHA+BETA+ONE
     FAC2 = FAC1+DNP1
     FAC3 = FAC2+ONE
@@ -270,8 +270,8 @@ contains
 !     Single precision version.
 !
 !--------------------------------------------------------------------
-    parameter (NMAX=84)
-    parameter (NZD = NMAX)
+    integer, parameter :: NMAX = 84
+    integer, parameter :: NZD = NMAX
     real(kind=xp) ZD(NZD),WD(NZD),ALPHAD,BETAD
     real(kind=rp) Z(1),W(1),ALPHA,BETA
 
@@ -573,8 +573,8 @@ contains
 !     Single precision version.
 !
 !---------------------------------------------------------------------
-    parameter (NMAX=84)
-    parameter (NZD = NMAX)
+    integer, parameter :: NMAX = 84
+    integer, parameter :: NZD = NMAX
     real(kind=xp) ZD,ZGJD(NZD),ALPHAD,BETAD
     real(kind=xp) Z,ZGJ(1),ALPHA,BETA
     NPMAX = NZD
@@ -624,8 +624,8 @@ contains
 !     Single precision version.
 !
 !---------------------------------------------------------------------
-    parameter (NMAX=84)
-    parameter (NZD = NMAX)
+    integer, parameter :: NMAX = 84
+    integer, parameter :: NZD = NMAX
     real(kind=xp) ZD,ZGLJD(NZD),ALPHAD,BETAD
     real(kind=xp) Z,ZGLJ(1),ALPHA,BETA
     NPMAX = NZD
@@ -681,8 +681,8 @@ contains
 !     Single precision version.
 !
 !-----------------------------------------------------------------
-    parameter (NMAX=84)
-    parameter (NZDD = NMAX)
+    integer, parameter :: NMAX = 84
+    integer, parameter :: NZDD = NMAX
     real(kind=xp) DD(NZDD,NZDD),DTD(NZDD,NZDD),ZD(NZDD),ALPHAD,BETAD
     real(kind=xp) D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
 
@@ -762,8 +762,8 @@ contains
 !     Single precision version.
 !
 !-----------------------------------------------------------------
-    parameter (NMAX=84)
-    parameter (NZDD = NMAX)
+    integer, parameter :: NMAX = 84
+    integer, parameter :: NZDD = NMAX
     real(kind=xp) DD(NZDD,NZDD),DTD(NZDD,NZDD),ZD(NZDD),ALPHAD,BETAD
     real(kind=xp) D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
 
@@ -851,7 +851,7 @@ contains
 !
 !-----------------------------------------------------------------
     implicit real(kind=xp) (A-H,O-Z)
-    parameter (NMAX=84)
+    integer, parameter :: NMAX = 84
     real(kind=rp) D(NZD,NZD),DT(NZD,NZD),Z(1)
     N = NZ-1
     if (NZ .gt. NMAX) then
@@ -1045,8 +1045,8 @@ contains
 !
 !-----------------------------------------------------------------------
     real(kind=xp) D(ND2,ND1), DT(ND1,ND2), ZGL(ND1), ZG(ND2), IGLG(ND2,ND1)
-    parameter (NMAX=84)
-    parameter (NDD = NMAX)
+    integer, parameter :: NMAX = 84
+    integer, parameter :: NDD = NMAX
     real(kind=xp) DD(NDD,NDD), DTD(NDD,NDD)
     real(kind=xp) ZGD(NDD), ZGLD(NDD), IGLGD(NDD,NDD)
     real(kind=xp) ALPHAD, BETAD
