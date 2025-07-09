@@ -45,7 +45,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "filter_kernels.cl.h"
+#include "mapping_kernels.cl.h"
 
 /** Fortran wrapper for 2nd order smooth_step
  *
@@ -56,11 +56,11 @@
 void opencl_smooth_step(void* x, real* edge0, real* edge1, int* n) {
     cl_int err;
 
-    if (filter_program == NULL)
-        opencl_kernel_jit(filter_kernels, (cl_program*)&filter_program);
+    if (mapping_program == NULL)
+        opencl_kernel_jit(mapping_kernels, (cl_program*)mappingr_program);
 
     cl_kernel kernel =
-        clCreateKernel(filter_program, "smooth_step_kernel", &err);
+        clCreateKernel(mapping_program, "smooth_step_kernel", &err);
     CL_CHECK(err);
 
     CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void*)&x));
@@ -93,11 +93,11 @@ void opencl_step_function(
     void* x, real* edge, real* left, real* right, int* n) {
     cl_int err;
 
-    if (filter_program == NULL)
-        opencl_kernel_jit(filter_kernels, (cl_program*)&filter_program);
+    if (mapping_program == NULL)
+        opencl_kernel_jit(mapping_kernels, (cl_program*)mappingr_program);
 
     cl_kernel kernel =
-        clCreateKernel(filter_program, "step_function_kernel", &err);
+        clCreateKernel(mapping_program, "step_function_kernel", &err);
     CL_CHECK(err);
 
     CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void*)&x));
@@ -115,9 +115,9 @@ void opencl_step_function(
         &local_item_size, 0, NULL, NULL));
 }
 
-/** Fortran wrapper for the permeability filter
+/** Fortran wrapper for the permeability mapping
  *
- * @param x array to apply the permeability filter on
+ * @param x array to apply the permeability mapping on
  * @param k_0 lower bound of the permeability
  * @param k_1 upper bound of the permeability
  * @param q parameter
@@ -126,11 +126,11 @@ void opencl_step_function(
 void opencl_permeability(void* x, real* k_0, real* k_1, real* q, int* n) {
     cl_int err;
 
-    if (filter_program == NULL)
-        opencl_kernel_jit(filter_kernels, (cl_program*)&filter_program);
+    if (mapping_program == NULL)
+        opencl_kernel_jit(mapping_kernels, (cl_program*)mappingr_program);
 
     cl_kernel kernel =
-        clCreateKernel(filter_program, "permeability_kernel", &err);
+        clCreateKernel(mapping_program, "permeability_kernel", &err);
     CL_CHECK(err);
 
     CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void*)&x));

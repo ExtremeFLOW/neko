@@ -36,7 +36,7 @@
 #include <device/hip/check.h>
 #include <hip/hip_runtime.h>
 
-#include "filter_kernels.h"
+#include "mapping_kernels.h"
 
 extern "C" {
 
@@ -79,9 +79,9 @@ void hip_step_function(void* x, real* edge, real* left, real* right, int* n) {
     HIP_CHECK(hipGetLastError());
 }
 
-/** Fortran wrapper for the permeability filter
+/** Fortran wrapper for the permeability mapping
  *
- * @param x array to apply the permeability filter on
+ * @param x array to apply the permeability mapping on
  * @param k_0 lower bound of the permeability
  * @param k_1 upper bound of the permeability
  * @param q parameter

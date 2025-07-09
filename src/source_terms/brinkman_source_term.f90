@@ -40,7 +40,7 @@ module brinkman_source_term
   use field_list, only : field_list_t
   use field_math, only : field_subcol3, field_copy
   use field_registry, only : neko_field_registry
-  use filters, only : smooth_step_field, step_function_field, permeability_field
+  use mappings, only : smooth_step_field, step_function_field, permeability_field
   use file, only : file_t
   use json_module, only : json_file, json_core, json_value
   use json_utils, only : json_get, json_get_or_default, json_extract_item

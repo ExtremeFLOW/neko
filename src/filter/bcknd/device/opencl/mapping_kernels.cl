@@ -1,5 +1,5 @@
-#ifndef __SOURCE_TERMS_FILTER_KERNELS__
-#define __SOURCE_TERMS_FILTER_KERNELS__
+#ifndef __SOURCE_TERMS_MAPPING_KERNELS__
+#define __SOURCE_TERMS_MAPPING_KERNELS__
 /*
  Copyright (c) 2021-2024, The Neko Authors
  All rights reserved.
@@ -100,4 +100,4 @@ __kernel void permeability_kernel(
     }
 }
 
-#endif /* __SOURCE_TERMS_FILTER_KERNELS__ */
+#endif /* __SOURCE_TERMS_MAPPING_KERNELS__ */
