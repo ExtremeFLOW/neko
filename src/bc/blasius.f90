@@ -168,12 +168,13 @@ contains
   end subroutine blasius_apply_scalar
 
   !> No-op scalar apply (device version)
-  subroutine blasius_apply_scalar_dev(this, x_d, t, tstep, strong)
+  subroutine blasius_apply_scalar_dev(this, x_d, t, tstep, strong, strm)
     class(blasius_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
+    type(c_ptr) :: strm
   end subroutine blasius_apply_scalar_dev
 
   !> Apply blasius conditions (vector valued)
@@ -227,7 +228,7 @@ contains
   end subroutine blasius_apply_vector
 
   !> Apply blasius conditions (vector valued) (device version)
-  subroutine blasius_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, strong)
+  subroutine blasius_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, strong, strm)
     class(blasius_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
@@ -239,6 +240,7 @@ contains
     integer(c_size_t) :: s
     real(kind=rp), allocatable :: bla_x(:), bla_y(:), bla_z(:)
     logical :: strong_
+    type(c_ptr) :: strm
 
     if (present(strong)) then
        strong_ = strong
@@ -301,7 +303,7 @@ contains
 
       if (strong_ .and. this%msk(0) .gt. 0) then
          call device_inhom_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
-              blax_d, blay_d, blaz_d, m)
+              blax_d, blay_d, blaz_d, m, strm)
       end if
 
     end associate

@@ -163,12 +163,13 @@ contains
   !! @param t Time.
   !! @param tstep Time step.
   subroutine field_dirichlet_vector_apply_scalar_dev(this, x_d, t, tstep, &
-       strong)
+       strong, strm)
     class(field_dirichlet_vector_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
+    type(c_ptr) :: strm
 
     call neko_error("field_dirichlet_vector cannot apply scalar BCs.&
     & Use field_dirichlet instead!")
@@ -222,8 +223,9 @@ contains
   !! @param z z-component of the field onto which to apply the values.
   !! @param t Time.
   !! @param tstep Time step.
+  !! @param strm Device stream
   subroutine field_dirichlet_vector_apply_vector_dev(this, x_d, y_d, z_d, t, &
-       tstep, strong)
+       tstep, strong, strm)
     class(field_dirichlet_vector_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
@@ -231,6 +233,7 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
+    type(c_ptr) :: strm
     logical :: strong_
 
     if (present(strong)) then
@@ -247,11 +250,11 @@ contains
 
        if (this%msk(0) .gt. 0) then
           call device_masked_copy(x_d, this%bc_u%field_bc%x_d, this%bc_u%msk_d,&
-               this%bc_u%dof%size(), this%msk(0))
+               this%bc_u%dof%size(), this%msk(0), strm)
           call device_masked_copy(y_d, this%bc_v%field_bc%x_d, this%bc_v%msk_d,&
-               this%bc_v%dof%size(), this%msk(0))
+               this%bc_v%dof%size(), this%msk(0), strm)
           call device_masked_copy(z_d, this%bc_w%field_bc%x_d, this%bc_w%msk_d,&
-               this%bc_w%dof%size(), this%msk(0))
+               this%bc_w%dof%size(), this%msk(0), strm)
        end if
     end if
 

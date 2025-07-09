@@ -51,7 +51,8 @@
  */
 void opencl_neumann_apply_scalar(void *msk, void *facet,
                                  void *x, void *flux,
-                                 void *area, int *lx, int *m) {
+                                 void *area, int *lx, int *m,
+                                 cl_command_queue cmd_queue) {
 
   cl_int err;
   
@@ -74,7 +75,7 @@ void opencl_neumann_apply_scalar(void *msk, void *facet,
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
 
-  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
-                                NULL, &global_item_size, &local_item_size,
-                                0, NULL, NULL));
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
+                                  &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
 } 

@@ -85,12 +85,13 @@ contains
   end subroutine inflow_apply_scalar
 
   !> No-op scalar apply (device version)
-  subroutine inflow_apply_scalar_dev(this, x_d, t, tstep, strong)
+  subroutine inflow_apply_scalar_dev(this, x_d, t, tstep, strong, strm)
     class(inflow_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
+    type(c_ptr) :: strm
   end subroutine inflow_apply_scalar_dev
 
   !> Apply inflow conditions (vector valued)
@@ -125,7 +126,8 @@ contains
   end subroutine inflow_apply_vector
 
   !> Apply inflow conditions (vector valued) (device version)
-  subroutine inflow_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, strong)
+  subroutine inflow_apply_vector_dev(this, x_d, y_d, z_d, &
+       t, tstep, strong, strm)
     class(inflow_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
@@ -133,6 +135,7 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
+    type(c_ptr) :: strm
     logical :: strong_
 
     if (present(strong)) then
@@ -143,7 +146,7 @@ contains
 
     if (strong_ .and. (this%msk(0) .gt. 0)) then
        call device_inflow_apply_vector(this%msk_d, x_d, y_d, z_d, &
-            c_loc(this%x), this%msk(0))
+            c_loc(this%x), this%msk(0), strm)
     end if
 
   end subroutine inflow_apply_vector_dev
