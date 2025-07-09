@@ -208,6 +208,12 @@ regexp-rules:
     replacement: ' = \2'
     active: true
 
+  missing-spaces-after-only:
+    message: Missing spaces after "only"
+    regexp: ((only):)
+    replacement: '\1 : '
+    active: true
+
   # -------------------------------------------------------------------------- #
   # Work in progress rules
 
