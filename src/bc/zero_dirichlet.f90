@@ -102,7 +102,7 @@ contains
     else
        strong_ = .true.
     end if
-    
+
     m = this%msk(0)
 
     if (strong_) then
