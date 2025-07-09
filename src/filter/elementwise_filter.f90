@@ -104,7 +104,7 @@ contains
           this%trnsfr = trnsfr
        else
           call neko_error("The transfer function of the elementwise &
-               filter must correspond the order of the polynomial")
+               &filter must correspond the order of the polynomial")
        end if
        call this%build_1d()
     end if
