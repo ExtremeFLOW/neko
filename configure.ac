@@ -1,5 +1,5 @@
 AC_PREREQ([2.69])
-AC_INIT([neko],[0.9.99])
+AC_INIT([neko],[1.99.1])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
@@ -12,24 +12,24 @@ LT_INIT([disable-shared])
 LT_LANG([Fortran])
 
 AC_ARG_ENABLE(contrib,
-              AS_HELP_STRING([--enable-contrib],[Compile various tools]), 
+              AS_HELP_STRING([--enable-contrib],[Compile various tools]),
               [enable_contrib=${enableval}], [enable_contrib=yes])
 
 AC_ARG_ENABLE(real,
-	      AS_HELP_STRING([--enable-real=Xp  Specify working precision of REAL types:
-                    ssp -- REAL(kind=4) xp -- sp 
+          AS_HELP_STRING([--enable-real=Xp  Specify working precision of REAL types:
+                    ssp -- REAL(kind=4) xp -- sp
                     sp -- REAL(kind=4) xp -- dp
                     dp -- REAL(kind=8) xp -- dp (default)
                     qp -- REAL(kind=16) xp -- qp]),
-	        [enable_real=${enableval}], [enable_real=dp])
+            [enable_real=${enableval}], [enable_real=dp])
 
 AC_ARG_ENABLE(blk_size,
               AS_HELP_STRING([--enable-blk_size=number of values Specify size of fast memory]),
               [blk_size=${enableval}], [blk_size="10000"])
 
 AC_ARG_ENABLE(device-mpi,
-	      AS_HELP_STRING([--enable-device-mpi],[Enable device aware MPI]),
-	      [enable_device_mpi=${enableval}], [enable_device_mpi=no])
+          AS_HELP_STRING([--enable-device-mpi],[Enable device aware MPI]),
+          [enable_device_mpi=${enableval}], [enable_device_mpi=no])
 
 AC_ARG_ENABLE(openmp, AC_HELP_STRING([--enable-openmp], [Enable OpenMP]),
               [enable_openmp=${enableval}], [enable_openmp=no])
@@ -64,7 +64,7 @@ if test "x${have_mpi}" != xno; then
    fi
    AC_LANG(Fortran)
 else
-   AC_MSG_ERROR([Can't find a suitable MPI compiler])   
+   AC_MSG_ERROR([Can't find a suitable MPI compiler])
 fi
 AX_MPIF08
 AX_MPI_DTYPE
@@ -73,7 +73,7 @@ AX_MPI_DTYPE
 if test "x${enable_openmp}" != xno; then
    AX_OPENMP([have_openmp=yes], [have_openmp=no])
    if test "x${have_openmp}" != xno; then
-      FCFLAGS="$FCFLAGS $OPENMP_FCFLAGS"
+      NEKO_PKG_FCFLAGS="$NEKO_PKG_FCFLAGS $OPENMP_FCFLAGS"
       AC_LANG(C)
       AX_OPENMP([have_openmp=yes], [have_openmp=no])
       if test "x${have_openmp}" != xno; then
@@ -86,20 +86,18 @@ fi
 AC_FC_PP_SRCEXT([F90])
 AX_COMPILER_VENDOR
 
-        
-              
 # Checks for platform headers
 AC_LANG_PUSH([C])
 AC_CHECK_HEADERS([cpuid.h])
-AC_LANG_POP([C])  
+AC_LANG_POP([C])
 
 # Set necessary flags to fix issues with various compilers
 if test "x$ax_cv_fc_compiler_vendor" = xportland; then
-   FCFLAGS="$FCFLAGS  -Mbackslash"
+   NEKO_PKG_FCFLAGS="$NEKO_PKG_FCFLAGS  -Mbackslash"
 fi
 
 if test "x$ax_cv_fc_compiler_vendor" = xnvhpc; then
-   FCFLAGS="$FCFLAGS  -Mbackslash"
+   NEKO_PKG_FCFLAGS="$NEKO_PKG_FCFLAGS  -Mbackslash"
 fi
 
 # Store build information (date, host, FC)
@@ -208,7 +206,7 @@ elif test "x$enable_real" = xsp; then
    AC_SUBST(NEKO_XREAL_TYPE, "dp")
    AC_SUBST(NEKO_C_XREAL_TYPE, "c_double")
    AC_SUBST(NEKO_MPI_XREAL_TYPE, "MPI_DOUBLE_PRECISION")
-   AC_SUBST(NEKO_DEV_XREAL_TYPE, "double") 
+   AC_SUBST(NEKO_DEV_XREAL_TYPE, "double")
    AC_SUBST(NEKO_PY_REAL_TYPE, "c_float")
 elif test "x$enable_real" = xdp; then
    AC_SUBST(NEKO_REAL_TYPE, "dp")
@@ -218,7 +216,7 @@ elif test "x$enable_real" = xdp; then
    AC_SUBST(NEKO_XREAL_TYPE, "dp")
    AC_SUBST(NEKO_C_XREAL_TYPE, "c_double")
    AC_SUBST(NEKO_MPI_XREAL_TYPE, "MPI_DOUBLE_PRECISION")
-   AC_SUBST(NEKO_DEV_XREAL_TYPE, "double")   				
+   AC_SUBST(NEKO_DEV_XREAL_TYPE, "double")
    AC_SUBST(NEKO_PY_REAL_TYPE, "c_double")
 elif test "x$enable_real" = xqp; then
    AC_SUBST(NEKO_REAL_TYPE, "qp")
@@ -241,7 +239,7 @@ else
    if test "x$enable_real" = xqp; then
       AC_MSG_ERROR([REAL128 not supported])
    fi
-fi                          
+fi
 
 AC_SUBST(blk_size, ${blk_size})
 
@@ -272,19 +270,19 @@ if (test "x${have_cuda}" = xyes ||
    if test "x${enable_device_mpi}" = xyes; then
 
       # Check that necessary accelerator modules are loaded
-      if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then    
-      	 AX_CRAY_ACCEL
+      if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then
+           AX_CRAY_ACCEL
       fi
 
       AC_SUBST(device_mpi, .true.)
       AC_DEFINE(HAVE_DEVICE_MPI, 1, [Define if device MPI is requested.])
-      
+
       if test "x${have_cuda}" = xyes; then
          CUDA_CFLAGS="$CUDA_CFLAGS -DHAVE_DEVICE_MPI=1"
 
          # Make sure we have support for atomicAdd
-      	 AS_IF([test "$CUDA_ARCH"],[],[CUDA_ARCH="-arch sm_60"])         
-      fi      
+           AS_IF([test "$CUDA_ARCH"],[],[CUDA_ARCH="-arch sm_60"])
+      fi
 
       if  test "x${have_hip}" = xyes; then
          HIP_HIPCC_FLAGS="$HIP_HIPCC_FLAGS -DHAVE_DEVICE_MPI=1"
@@ -322,7 +320,7 @@ fi
 # JSON-Fortran
 PKG_CHECK_MODULES([JSON_Fortran],[json-fortran >= 7.1.0])
 LIBS="$JSON_Fortran_LIBS $LIBS"
-FCFLAGS="$JSON_Fortran_CFLAGS $FCFLAGS"
+NEKO_PKG_FCFLAGS="$NEKO_PKG_FCFLAGS $JSON_Fortran_CFLAGS"
 
 AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
 AM_CONDITIONAL([ENABLE_ADIOS2], [test "x${have_adios2}" = xyes])
@@ -359,56 +357,60 @@ fi
 
 AM_CONDITIONAL([ENABLE_PYTHON], [test "x${found_python}" = xyes])
 
+# Append the NEKO compiler flags to the FCFLAGS
+AC_SUBST(NEKO_PKG_FCFLAGS)
+FCFLAGS="$FCFLAGS $NEKO_PKG_FCFLAGS"
+
 AC_CONFIG_FILES([Makefile\
-		 src/Makefile\
-		 tests/unit/Makefile\
-		 src/comm/comm.F90\
-	 	 src/config/neko_config.f90\
-		 src/config/num_types.f90\
-		 src/device/device_config.h\
-                 src/python/pyneko/intf.py\
-		 src/scripts/cltostring.sh\
-                 src/api/neko.h\
-		 makeneko\
-		 neko.pc])
+        src/Makefile\
+        tests/unit/Makefile\
+        src/comm/comm.F90\
+        src/config/neko_config.f90\
+        src/config/num_types.f90\
+        src/device/device_config.h\
+        src/python/pyneko/intf.py\
+        src/scripts/cltostring.sh\
+        src/api/neko.h\
+        makeneko\
+        neko.pc])
 
 # Config tests/unit
 AC_CONFIG_FILES([tests/unit/stack/Makefile\
-		 tests/unit/tuple/Makefile\
- 		 tests/unit/point/Makefile\
-		 tests/unit/htable/Makefile\
-		 tests/unit/uset/Makefile\
-		 tests/unit/quad/Makefile\
-		 tests/unit/hex/Makefile\
-		 tests/unit/tet/Makefile\
-		 tests/unit/tri/Makefile\
-		 tests/unit/math/Makefile\
-		 tests/unit/mesh/Makefile\
-		 tests/unit/space/Makefile\
-		 tests/unit/dofmap/Makefile\
-		 tests/unit/field/Makefile\
-		 tests/unit/mean_field/Makefile\
-		 tests/unit/mean_sqr_field/Makefile\
-		 tests/unit/gather_scatter/Makefile\
-		 tests/unit/krylov/Makefile\
-		 tests/unit/bc/Makefile\
-		 tests/unit/signal/Makefile\
-		 tests/unit/jobctrl/Makefile\
-		 tests/unit/device/Makefile\
-		 tests/unit/device_math/Makefile\
-		 tests/unit/mathops/Makefile\
-		 tests/unit/device_mathops/Makefile\
-		 tests/unit/octree/Makefile\
-                 tests/unit/vector/Makefile\
-                 tests/unit/matrix/Makefile\
-                 tests/unit/scratch_registry/Makefile\
-                 tests/unit/field_registry/Makefile\
-                 tests/unit/fast3d/Makefile\
-                 tests/unit/time_scheme/Makefile\
-                 tests/unit/time_scheme_controller/Makefile\
-                 tests/unit/runge_kutta_scheme/Makefile\
-                 tests/unit/time_based_controller/Makefile\
-                 tests/unit/point_interpolation/Makefile])
+        tests/unit/tuple/Makefile\
+        tests/unit/point/Makefile\
+        tests/unit/htable/Makefile\
+        tests/unit/uset/Makefile\
+        tests/unit/quad/Makefile\
+        tests/unit/hex/Makefile\
+        tests/unit/tet/Makefile\
+        tests/unit/tri/Makefile\
+        tests/unit/math/Makefile\
+        tests/unit/mesh/Makefile\
+        tests/unit/space/Makefile\
+        tests/unit/dofmap/Makefile\
+        tests/unit/field/Makefile\
+        tests/unit/mean_field/Makefile\
+        tests/unit/mean_sqr_field/Makefile\
+        tests/unit/gather_scatter/Makefile\
+        tests/unit/krylov/Makefile\
+        tests/unit/bc/Makefile\
+        tests/unit/signal/Makefile\
+        tests/unit/jobctrl/Makefile\
+        tests/unit/device/Makefile\
+        tests/unit/device_math/Makefile\
+        tests/unit/mathops/Makefile\
+        tests/unit/device_mathops/Makefile\
+        tests/unit/octree/Makefile\
+        tests/unit/vector/Makefile\
+        tests/unit/matrix/Makefile\
+        tests/unit/scratch_registry/Makefile\
+        tests/unit/field_registry/Makefile\
+        tests/unit/fast3d/Makefile\
+        tests/unit/time_scheme/Makefile\
+        tests/unit/time_scheme_controller/Makefile\
+        tests/unit/runge_kutta_scheme/Makefile\
+        tests/unit/time_based_controller/Makefile\
+        tests/unit/point_interpolation/Makefile])
 
 if test "x${enable_contrib}" = xyes; then
    AC_CONFIG_FILES([contrib/Makefile\

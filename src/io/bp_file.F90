@@ -34,23 +34,25 @@
 !! @details this module defines the interface to write ADIOS2 files
 !! to use compression
 module bp_file
-  use generic_file
-  use field_list
-  use dofmap, only: dofmap_t
-  use vector, only: vector_t
-  use space, only: space_t
-  use mesh, only: mesh_t
-  use structs, only: array_ptr_t
-  use fld_file_data
-  use utils
-  use datadist
+  use num_types, only : dp, sp, i8, rp
+  use generic_file, only : generic_file_t
+  use field_list, only : field_list_t
+  use dofmap, only : dofmap_t
+  use vector, only : vector_t
+  use space, only : space_t
+  use mesh, only : mesh_t
+  use structs, only : array_ptr_t
+  use fld_file_data, only : fld_file_data_t
+  use utils, only : neko_error
+  use datadist, only : linear_dist_t
   use comm
 #ifdef HAVE_ADIOS2_FORTRAN
   use adios2
 #endif
-  use buffer_1d
-  use buffer_4d
-  use buffer_4d_npar
+  use buffer_1d, only : buffer_1d_t
+  use buffer_4d, only : buffer_4d_t
+  use buffer_4d_npar, only : buffer_4d_npar_t
+  use buffer, only : buffer_t
   implicit none
   private
 

@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -121,9 +121,13 @@ contains
     integer :: i, m, k, facet
     ! Store non-linear index
     integer :: idx(4)
-    logical :: strong_ = .true.
+    logical :: strong_
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
 
     m = this%msk(0)
     if (.not. strong_) then
@@ -171,9 +175,13 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
-    logical :: strong_ = .true.
+    logical :: strong_
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
 
     if (.not. this%uniform_0 .and. this%msk(0) .gt. 0 .and. &
          strong .eqv. .false.) then
@@ -211,8 +219,6 @@ contains
   subroutine neumann_finalize(this, only_facets)
     class(neumann_t), target, intent(inout) :: this
     logical, optional, intent(in) :: only_facets
-    logical :: only_facets_ = .false.
-
     integer :: i
 
     if (present(only_facets)) then

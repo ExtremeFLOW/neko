@@ -36,7 +36,7 @@ module dynamic_smagorinsky
   use field, only : field_t
   use fluid_scheme_base, only : fluid_scheme_base_t
   use les_model, only : les_model_t
-  use json_utils, only : json_get_or_default, json_get
+  use json_utils, only : json_get_or_default, json_getjson_extract_object
   use json_module, only : json_file
   use utils, only : neko_error
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -83,6 +83,7 @@ contains
     class(dynamic_smagorinsky_t), intent(inout) :: this
     class(fluid_scheme_base_t), intent(inout), target :: fluid
     type(json_file), intent(inout) :: json
+    type(json_file) :: json_subdict
     character(len=:), allocatable :: nut_name
     integer :: i
     character(len=:), allocatable :: delta_type
@@ -99,21 +100,23 @@ contains
 
       call this%free()
       call this%init_base(fluid, nut_name, delta_type, if_ext)
-      call this%test_filter%init(json, coef)
-    if (json%valid_path('filter.transfer_function')) then
-       call neko_error("Dynamic Smagorinsky model does not support transfer &
-                        &function specified in the json file. &
-                        &Please hard-code it in &
-                        &subroutine set_ds_filt() in &
-                        &src/les/dynamic_smagorisnky.f90")
-    end if
-    if (json%valid_path('filter.type')) then
-       call json_get(json, "filter.type", filter_type)
-       if (trim(filter_type) .ne. "elementwise") then
-          call neko_error("Currently only elementwise filter is supported &
-                           for dynamic smagorinsky model.")
-       end if
-    end if
+      call json_extract_object(json, "test_filter", json_subdict)
+      call this%test_filter%init(json_subdict, coef)
+      if (json%valid_path('filter.transfer_function')) then
+         call neko_error("Dynamic Smagorinsky model does not support transfer &
+                           &function specified in the json file. &
+                           &Please hard-code it in &
+                           &subroutine set_ds_filt() in &
+                           &src/les/dynamic_smagorisnky.f90")
+      end if
+      if (json%valid_path('filter.type')) then
+         call json_get(json, "filter.type", filter_type)
+         if (trim(filter_type) .ne. "elementwise") then
+            call neko_error("Currently only elementwise filter is supported &
+                              for dynamic smagorinsky model.")
+         end if
+      end if
+
       call set_ds_filt(this%test_filter)
 
       call neko_log%section('LES model')

@@ -33,7 +33,7 @@ contains
     end do
 
     ! Check for convergence
-    do i = 1, size(ksp_results)
+    do i = 1, n
        if (ieee_is_nan(ksp_results(i)%res_final)) then
           call neko_error("Fluid solver diverged for " // &
                trim(ksp_results(i)%name))

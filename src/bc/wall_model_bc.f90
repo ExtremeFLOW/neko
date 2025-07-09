@@ -38,7 +38,7 @@ module wall_model_bc
   use utils, only : neko_error
   use json_utils, only : json_get
   use coefs, only : coef_t
-  use wall_model, only : wall_model_t, wall_model_factory
+  use wall_model, only : wall_model_t, wall_model_allocator
   use shear_stress, only : shear_stress_t
   use json_module, only : json_file
   implicit none
@@ -50,10 +50,6 @@ module wall_model_bc
   type, public, extends(shear_stress_t) :: wall_model_bc_t
      !> The wall model to compute the stress.
      class(wall_model_t), allocatable :: wall_model
-     !> The kinematic viscosity.
-     real(kind=rp) :: nu
-     !> Parameter dictionary for the wall model
-     type(json_file) params_
    contains
      !> Constructor.
      procedure, pass(this) :: init => wall_model_bc_init
@@ -102,9 +98,13 @@ contains
     logical, intent(in), optional :: strong
     integer :: i, m, k, fid
     real(kind=rp) :: magtau
-    logical :: strong_ = .true.
+    logical :: strong_
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
 
     if (.not. strong_) then
        ! Compute the wall stress using the wall model.
@@ -148,9 +148,13 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
-    logical :: strong_ = .true.
+    logical :: strong_
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
 
     if (.not. strong_) then
        ! Compute the wall stress using the wall model.
@@ -178,11 +182,15 @@ contains
     type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) :: json
     real(kind=rp) :: value(3) = [0, 0, 0]
+    character(len=:), allocatable :: type_name
 
+    ! Initialize the shear stress base class.
     call this%shear_stress_t%init_from_components(coef, value)
-    call json_get(json, "nu", this%nu)
-    this%params_ = json
+    ! Partial initialization of the wall model by parsing the JSON.
+    call json_get(json, "model", type_name)
+    call wall_model_allocator(this%wall_model, type_name)
 
+    call this%wall_model%partial_init(coef, json)
   end subroutine wall_model_bc_init
 
   !> Destructor.
@@ -198,7 +206,6 @@ contains
   subroutine wall_model_bc_finalize(this, only_facets)
     class(wall_model_bc_t), target, intent(inout) :: this
     logical, optional, intent(in) :: only_facets
-    logical :: only_facets_ = .false.
 
     if (present(only_facets)) then
        if (only_facets .eqv. .false.) then
@@ -207,9 +214,7 @@ contains
     end if
 
     call this%shear_stress_t%finalize(.true.)
-
-    call wall_model_factory(this%wall_model, this%coef, this%msk, &
-         this%facet, this%nu, this%params_)
+    call this%wall_model%finalize(this%msk, this%facet)
   end subroutine wall_model_bc_finalize
 
 end module wall_model_bc

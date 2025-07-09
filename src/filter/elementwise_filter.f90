@@ -88,7 +88,11 @@ contains
     type(json_file), intent(inout) :: json
     type(coef_t), intent(in) :: coef
     real(kind=rp), allocatable :: trnsfr(:)
-    
+    character(len=:), allocatable :: filter_type
+
+    call json_get_or_default(json, "filter_type", filter_type, "nonBoyd")
+    this%filter_type = filter_type
+
     ! Filter assumes lx = ly = lz
     call this%init_base(json, coef)
 

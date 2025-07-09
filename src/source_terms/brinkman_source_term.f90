@@ -33,32 +33,32 @@
 !> Implements the `brinkman_source_term_t` type.
 module brinkman_source_term
   use aabb, only : aabb_t, get_aabb
-  use coefs, only: coef_t
-  use device, only: device_memcpy, HOST_TO_DEVICE
-  use device_math, only: device_pwmax, device_cfill_mask
-  use field, only: field_t
-  use field_list, only: field_list_t
-  use field_math, only: field_subcol3, field_copy
-  use field_registry, only: neko_field_registry
-  use filters, only: smooth_step_field, step_function_field, permeability_field
-  use file, only: file_t
-  use json_module, only: json_file, json_core, json_value
-  use json_utils, only: json_get, json_get_or_default, json_extract_item
-  use logger, only: neko_log, LOG_SIZE
-  use math, only: pwmax, cfill_mask
-  use tri_mesh, only: tri_mesh_t
-  use neko_config, only: NEKO_BCKND_DEVICE
-  use num_types, only: rp, dp
-  use point_zone, only: point_zone_t
-  use point_zone_registry, only: neko_point_zone_registry
-  use profiler, only: profiler_start_region, profiler_end_region
-  use signed_distance, only: signed_distance_field
-  use source_term, only: source_term_t
-  use utils, only: neko_error
-  use filter, only: filter_t
-  use PDE_filter, only: PDE_filter_t
-  use fld_file_output, only: fld_file_output_t
-  use num_types, only: sp
+  use coefs, only : coef_t
+  use device, only : device_memcpy, HOST_TO_DEVICE
+  use device_math, only : device_pwmax, device_cfill_mask
+  use field, only : field_t
+  use field_list, only : field_list_t
+  use field_math, only : field_subcol3, field_copy
+  use field_registry, only : neko_field_registry
+  use filters, only : smooth_step_field, step_function_field, permeability_field
+  use file, only : file_t
+  use json_module, only : json_file, json_core, json_value
+  use json_utils, only : json_get, json_get_or_default, json_extract_item
+  use logger, only : neko_log, LOG_SIZE
+  use math, only : pwmax, cfill_mask
+  use tri_mesh, only : tri_mesh_t
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use num_types, only : rp, dp
+  use point_zone, only : point_zone_t
+  use point_zone_registry, only : neko_point_zone_registry
+  use profiler, only : profiler_start_region, profiler_end_region
+  use signed_distance, only : signed_distance_field
+  use source_term, only : source_term_t
+  use utils, only : neko_error
+  use filter, only : filter_t
+  use PDE_filter, only : PDE_filter_t
+  use fld_file_output, only : fld_file_output_t
+  use num_types, only : sp
   implicit none
   private
 

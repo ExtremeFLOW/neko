@@ -60,22 +60,23 @@
 !> Type for the Fast Diagonalization connected with the schwarz overlapping solves.
 module fdm
   use neko_config
-  use num_types
-  use speclib
-  use math
-  use mesh
-  use space
-  use dofmap
-  use gather_scatter
-  use fast3d
-  use tensor
-  use fdm_sx
-  use fdm_xsmm
-  use fdm_cpu
-  use fdm_device
-  use device
-  use utils
+  use num_types, only : rp, sp, dp, qp
+  use mesh, only : mesh_t
+  use space, only : space_t
+  use dofmap, only : dofmap_t
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use fdm_cpu, only : fdm_do_fast_cpu
+  use fdm_device, only : fdm_do_fast_device
+  use fdm_sx, only : fdm_do_fast_sx
+  use fdm_xsmm, only : fdm_do_fast_xsmm
+  use utils, only : neko_error, neko_warning
   use comm, only : pe_rank
+  use math, only : vlmax
+  use device, only : glb_cmd_queue, DEVICE_TO_HOST, HOST_TO_DEVICE, &
+       device_memcpy, device_map
+  use fast3d, only : semhat
+  use tensor, only : trsp
+  use math, only : rzero, row_zero
   use, intrinsic :: iso_c_binding
   implicit none
   private

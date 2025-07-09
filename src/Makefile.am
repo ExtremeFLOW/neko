@@ -406,6 +406,7 @@ libneko_la_SOURCES += \
 	math/bcknd/device/hip/opr_opgrad.hip\
 	math/bcknd/device/hip/opr_lambda2.hip\
 	math/bcknd/device/hip/opr_cfl.hip\
+	math/bcknd/device/hip/opr_compute_max_wave_speed.hip\
 	math/bcknd/device/hip/ax_helm.hip\
 	math/bcknd/device/hip/ax_helm_full.hip\
 	krylov/bcknd/device/hip/pc_jacobi.hip\
@@ -454,6 +455,7 @@ libneko_la_SOURCES += \
 	math/bcknd/device/cuda/opr_opgrad.cu\
 	math/bcknd/device/cuda/opr_lambda2.cu\
 	math/bcknd/device/cuda/opr_cfl.cu\
+	math/bcknd/device/cuda/opr_compute_max_wave_speed.cu\
 	math/bcknd/device/cuda/ax_helm.cu\
 	math/bcknd/device/cuda/ax_helm_full.cu\
 	krylov/bcknd/device/cuda/pc_jacobi.cu\
@@ -509,6 +511,7 @@ libneko_la_SOURCES += \
 	math/bcknd/device/opencl/opr_opgrad.c\
 	math/bcknd/device/opencl/opr_lambda2.c\
 	math/bcknd/device/opencl/opr_cfl.c\
+	math/bcknd/device/opencl/opr_compute_max_wave_speed.c\
 	math/bcknd/device/opencl/ax_helm.c\
 	krylov/bcknd/device/opencl/pc_jacobi.c\
 	gs/bcknd/device/opencl/gs.c\
@@ -736,6 +739,7 @@ EXTRA_DIST = \
 	math/bcknd/device/opencl/conv1_kernel.cl\
 	math/bcknd/device/opencl/lambda2_kernel.cl\
 	math/bcknd/device/opencl/cfl_kernel.cl\
+	math/bcknd/device/opencl/compute_max_wave_speed_kernel.cl\
 	common/bcknd/device/opencl/rhs_maker_kernel.cl\
 	fluid/bcknd/device/opencl/pnpn_res_kernel.cl\
 	fluid/bcknd/device/opencl/euler_res_kernel.cl\
