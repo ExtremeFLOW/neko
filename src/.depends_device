@@ -108,9 +108,9 @@ fluid/bcknd/device/opencl/pnpn_res.lo : fluid/bcknd/device/opencl/pnpn_res.c flu
 fluid/bcknd/device/opencl/euler_res.lo : fluid/bcknd/device/opencl/euler_res.c fluid/bcknd/device/opencl/euler_res_kernel.cl.h
 scalar/bcknd/device/opencl/scalar_residual.lo : scalar/bcknd/device/opencl/scalar_residual.c scalar/bcknd/device/opencl/scalar_residual_kernel.cl.h
 sem/bcknd/device/opencl/coef.lo : sem/bcknd/device/opencl/coef.c sem/bcknd/device/opencl/coef_kernel.cl.h
-source_terms/bcknd/device/cuda/mappings.lo : source_terms/bcknd/device/cuda/mappings.cu source_terms/bcknd/device/cuda/mapping_kernels.h
-source_terms/bcknd/device/hip/mappings.lo : source_terms/bcknd/device/hip/mappings.hip source_terms/bcknd/device/hip/mapping_kernels.h
-source_terms/bcknd/device/opencl/mappings.lo : source_terms/bcknd/device/opencl/mappings.c source_terms/bcknd/device/opencl/mapping_kernels.cl.h
+filter/bcknd/device/cuda/mappings.lo : filter/bcknd/device/cuda/mappings.cu filter/bcknd/device/cuda/mapping_kernels.h
+filter/bcknd/device/hip/mappings.lo : filter/bcknd/device/hip/mappings.hip filter/bcknd/device/hip/mapping_kernels.h
+filter/bcknd/device/opencl/mappings.lo : filter/bcknd/device/opencl/mappings.c filter/bcknd/device/opencl/mapping_kernels.cl.h
 wall_models/bcknd/device/cuda/wall_models.lo : wall_models/bcknd/device/cuda/wall_models.cu wall_models/bcknd/device/cuda/wall_model_kernels.h
 wall_models/bcknd/device/cuda/spalding.lo : wall_models/bcknd/device/cuda/spalding.cu wall_models/bcknd/device/cuda/spalding_kernel.h
 wall_models/bcknd/device/cuda/rough_log_law.lo : wall_models/bcknd/device/cuda/rough_log_law.cu wall_models/bcknd/device/cuda/rough_log_law_kernel.h
