@@ -96,7 +96,7 @@ contains
     call this%init_from_attributes(coef%dof%xh%lx)
 
     call json_get_or_default(json, "filter.elementwise_filter_type", &
-                             this%elementwise_filter_type, "nonBoyd")
+         this%elementwise_filter_type, "nonBoyd")
 
     if (json%valid_path('filter.transfer_function')) then
        call json_get(json, 'filter.transfer_function', trnsfr)
@@ -104,11 +104,11 @@ contains
           this%trnsfr = trnsfr
        else
           call neko_error("The transfer function of the elementwise &
-                  filter must correspond the order of the polynomial")
+               filter must correspond the order of the polynomial")
        end if
        call this%build_1d()
     end if
-    
+
   end subroutine elementwise_filter_init_from_json
 
   !> Actual Constructor.
@@ -174,7 +174,7 @@ contains
     class(elementwise_filter_t), intent(inout) :: this
 
     call build_1d_cpu(this%fh, this%fht, this%trnsfr, &
-                               this%nx, this%elementwise_filter_type)
+         this%nx, this%elementwise_filter_type)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%fh, this%fh_d, &
             this%nx * this%nx, HOST_TO_DEVICE, sync = .false.)

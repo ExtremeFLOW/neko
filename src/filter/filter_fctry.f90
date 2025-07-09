@@ -38,8 +38,8 @@ submodule (filter) filter_fctry
 
   ! List of all possible types created by the factory routine
   character(len=20) :: FILTER_KNOWN_TYPES(2) = [character(len=20) :: &
-     "elementwise", &
-     "PDE"]
+       "elementwise", &
+       "PDE"]
 
 contains
   !> Filter factory. Both constructs and initializes the object.
@@ -61,11 +61,11 @@ contains
     else if (trim(type_name) .eq. 'PDE') then
        allocate(pde_filter_t::object)
     else
-       type_string =  concat_string_array(FILTER_KNOWN_TYPES, &
+       type_string = concat_string_array(FILTER_KNOWN_TYPES, &
             NEW_LINE('A') // "-  ", .true.)
        call neko_error("Unknown filter type: " &
-                       // trim(type_name) // ".  Known types are: " &
-                       // type_string)
+            // trim(type_name) // ".  Known types are: " &
+            // type_string)
        stop
 
     end if

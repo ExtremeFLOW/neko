@@ -47,8 +47,8 @@ module filter
   !> Base abstract class for filter.
   type, abstract, public :: filter_t
      !> Coefficients for the SEM.
-     type(coef_t), pointer :: coef => null() 
- 
+     type(coef_t), pointer :: coef => null()
+
    contains
      !> Constructor for the filter_t class.
      procedure, pass(this) :: init_base => filter_init_base
@@ -92,8 +92,8 @@ module filter
      subroutine filter_apply(this, F_out, F_in)
        import filter_t, field_t
        class(filter_t), intent(inout) :: this
-       type(field_t), intent(in) ::  F_in
-       type(field_t), intent(inout) ::  F_out
+       type(field_t), intent(in) :: F_in
+       type(field_t), intent(inout) :: F_out
      end subroutine filter_apply
   end interface
 

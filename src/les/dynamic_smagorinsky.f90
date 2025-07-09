@@ -104,16 +104,16 @@ contains
       call this%test_filter%init(json_subdict, coef)
       if (json%valid_path('filter.transfer_function')) then
          call neko_error("Dynamic Smagorinsky model does not support transfer &
-                           &function specified in the json file. &
-                           &Please hard-code it in &
-                           &subroutine set_ds_filt() in &
-                           &src/les/dynamic_smagorisnky.f90")
+         &function specified in the json file. &
+         &Please hard-code it in &
+         &subroutine set_ds_filt() in &
+         &src/les/dynamic_smagorisnky.f90")
       end if
       if (json%valid_path('filter.type')) then
          call json_get(json, "filter.type", filter_type)
          if (trim(filter_type) .ne. "elementwise") then
             call neko_error("Currently only elementwise filter is supported &
-                              for dynamic smagorinsky model.")
+                 for dynamic smagorinsky model.")
          end if
       end if
 
