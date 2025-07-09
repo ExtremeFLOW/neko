@@ -147,8 +147,8 @@
 !==============================================================================
 module speclib
   use num_types, only : rp, xp
-  use utils, only: neko_error
-
+  use utils, only : neko_error
+  use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
 
 contains
   !> Generate `NP` Gauss Legendre points `Z` and weights `W`
@@ -196,9 +196,9 @@ contains
 
     NPMAX = NZD
     if (NP .gt. NPMAX) then
-       write (6,*) 'Too large polynomial degree in ZWGJ'
-       write (6,*) 'Maximum polynomial degree is',NMAX
-       write (6,*) 'Here NP=',NP
+       write (stderr, *) 'Too large polynomial degree in ZWGJ'
+       write (stderr, *) 'Maximum polynomial degree is',NMAX
+       write (stderr, *) 'Here NP=',NP
        call neko_error
     end if
     ALPHAD = ALPHA
@@ -229,11 +229,11 @@ contains
     APB = ALPHA+BETA
 
     if (NP .le. 0) then
-       write (6,*) 'ZWGJD: Minimum number of Gauss points is 1',np
+       write (stderr, *) 'ZWGJD: Minimum number of Gauss points is 1',np
        call neko_error
     end if
     if ((ALPHA .le. -ONE) .or. (BETA .le. -ONE)) then
-       write (6,*) 'ZWGJD: Alpha and Beta must be greater than -1'
+       write (stderr, *) 'ZWGJD: Alpha and Beta must be greater than -1'
        call neko_error
     end if
 
@@ -277,9 +277,9 @@ contains
 
     NPMAX = NZD
     if (NP .gt. NPMAX) then
-       write (6,*) 'Too large polynomial degree in ZWGLJ'
-       write (6,*) 'Maximum polynomial degree is',NMAX
-       write (6,*) 'Here NP=',NP
+       write (stderr, *) 'Too large polynomial degree in ZWGLJ'
+       write (stderr, *) 'Maximum polynomial degree is',NMAX
+       write (stderr, *) 'Here NP=',NP
        call neko_error
     end if
     ALPHAD = ALPHA
@@ -309,12 +309,12 @@ contains
     TWO = 2.0_xp
 
     if (NP .le. 1) then
-       write (6,*) 'ZWGLJD: Minimum number of Gauss-Lobatto points is 2'
-       write (6,*) 'ZWGLJD: alpha,beta:', alpha, beta, np
+       write (stderr, *) 'ZWGLJD: Minimum number of Gauss-Lobatto points is 2'
+       write (stderr, *) 'ZWGLJD: alpha,beta:', alpha, beta, np
        call neko_error
     end if
     if ((ALPHA .le. -ONE) .or. (BETA .le. -ONE)) then
-       write (6,*) 'ZWGLJD: Alpha and Beta must be greater than -1'
+       write (stderr, *) 'ZWGLJD: Alpha and Beta must be greater than -1'
        call neko_error
     end if
 
@@ -579,9 +579,9 @@ contains
     real(kind=xp) Z,ZGJ(1),ALPHA,BETA
     NPMAX = NZD
     if (NP .gt. NPMAX) then
-       write (6,*) 'Too large polynomial degree in HGJ'
-       write (6,*) 'Maximum polynomial degree is',NMAX
-       write (6,*) 'Here NP=',NP
+       write (stderr, *) 'Too large polynomial degree in HGJ'
+       write (stderr, *) 'Maximum polynomial degree is',NMAX
+       write (stderr, *) 'Here NP=',NP
        call neko_error
     end if
     ZD = Z
@@ -630,9 +630,9 @@ contains
     real(kind=xp) Z,ZGLJ(1),ALPHA,BETA
     NPMAX = NZD
     if (NP .gt. NPMAX) then
-       write (6,*) 'Too large polynomial degree in HGLJ'
-       write (6,*) 'Maximum polynomial degree is',NMAX
-       write (6,*) 'Here NP=',NP
+       write (stderr, *) 'Too large polynomial degree in HGLJ'
+       write (stderr, *) 'Maximum polynomial degree is',NMAX
+       write (stderr, *) 'Here NP=',NP
        call neko_error
     end if
     ZD = Z
@@ -687,17 +687,17 @@ contains
     real(kind=xp) D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
 
     if (NZ .le. 0) then
-       write (6,*) 'DGJ: Minimum number of Gauss points is 1'
+       write (stderr, *) 'DGJ: Minimum number of Gauss points is 1'
        call neko_error
     end if
     if (NZ .gt. NMAX) then
-       write (6,*) 'Too large polynomial degree in DGJ'
-       write (6,*) 'Maximum polynomial degree is',NMAX
-       write (6,*) 'Here Nz=',Nz
+       write (stderr, *) 'Too large polynomial degree in DGJ'
+       write (stderr, *) 'Maximum polynomial degree is',NMAX
+       write (stderr, *) 'Here Nz=',Nz
        call neko_error
     end if
     if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
-       write (6,*) 'DGJ: Alpha and Beta must be greater than -1'
+       write (stderr, *) 'DGJ: Alpha and Beta must be greater than -1'
        call neko_error
     end if
     ALPHAD = ALPHA
@@ -732,11 +732,11 @@ contains
     TWO = 2.0_xp
 
     if (NZ .le. 1) then
-       write (6,*) 'DGJD: Minimum number of Gauss-Lobatto points is 2'
+       write (stderr, *) 'DGJD: Minimum number of Gauss-Lobatto points is 2'
        call neko_error
     end if
     if ((ALPHA .le. -ONE) .or. (BETA .le. -ONE)) then
-       write (6,*) 'DGJD: Alpha and Beta must be greater than -1'
+       write (stderr, *) 'DGJD: Alpha and Beta must be greater than -1'
        call neko_error
     end if
 
@@ -768,17 +768,17 @@ contains
     real(kind=xp) D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
 
     if (NZ .le. 1) then
-       write (6,*) 'DGLJ: Minimum number of Gauss-Lobatto points is 2'
+       write (stderr, *) 'DGLJ: Minimum number of Gauss-Lobatto points is 2'
        call neko_error
     end if
     if (NZ .gt. NMAX) then
-       write (6,*) 'Too large polynomial degree in DGLJ'
-       write (6,*) 'Maximum polynomial degree is',NMAX
-       write (6,*) 'Here NZ=',NZ
+       write (stderr, *) 'Too large polynomial degree in DGLJ'
+       write (stderr, *) 'Maximum polynomial degree is',NMAX
+       write (stderr, *) 'Here NZ=',NZ
        call neko_error
     end if
     if ((ALPHA .le. -1.) .or. (BETA .le. -1.)) then
-       write (6,*) 'DGLJ: Alpha and Beta must be greater than -1'
+       write (stderr, *) 'DGLJ: Alpha and Beta must be greater than -1'
        call neko_error
     end if
     ALPHAD = ALPHA
@@ -814,11 +814,11 @@ contains
     EIGVAL = -DN*(DN+ALPHA+BETA+ONE)
 
     if (NZ .le. 1) then
-       write (6,*) 'DGLJD: Minimum number of Gauss-Lobatto points is 2'
+       write (stderr, *) 'DGLJD: Minimum number of Gauss-Lobatto points is 2'
        call neko_error
     end if
     if ((ALPHA .le. -ONE) .or. (BETA .le. -ONE)) then
-       write (6,*) 'DGLJD: Alpha and Beta must be greater than -1'
+       write (stderr, *) 'DGLJD: Alpha and Beta must be greater than -1'
        call neko_error
     end if
 
@@ -855,9 +855,9 @@ contains
     real(kind=rp) D(NZD,NZD),DT(NZD,NZD),Z(1)
     N = NZ-1
     if (NZ .gt. NMAX) then
-       write (6,*) 'Subroutine DGLL'
-       write (6,*) 'Maximum polynomial degree =',NMAX
-       write (6,*) 'Polynomial degree         =',NZ
+       write (stderr, *) 'Subroutine DGLL'
+       write (stderr, *) 'Maximum polynomial degree =',NMAX
+       write (stderr, *) 'Polynomial degree         =',NZ
     end if
     if (NZ .eq. 1) then
        D(1,1) = 0.0_rp
