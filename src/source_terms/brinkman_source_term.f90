@@ -33,7 +33,7 @@
 !> Implements the `brinkman_source_term_t` type.
 module brinkman_source_term
   use aabb, only : aabb_t, get_aabb
-  use coefs, only: coef_t
+  use coefs, only : coef_t
   use device, only: device_memcpy, HOST_TO_DEVICE
   use device_math, only: device_pwmax, device_cfill_mask
   use field, only: field_t
