@@ -148,7 +148,8 @@
 module speclib
   use num_types, only : rp, xp
   use utils, only : neko_error
-  use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
+  use, intrinsic :: iso_fortran_env, only : stderr => error_unit
+  implicit none
 
 contains
   !> Generate `NP` Gauss Legendre points `Z` and weights `W`
@@ -199,6 +200,7 @@ contains
     real(kind=rp), intent(in) :: ALPHA, BETA
     integer, intent(in) :: NP
     real(kind=xp) ZD(NZD), WD(NZD), ALPHAD, BETAD
+    integer :: I, NPMAX
 
     NPMAX = NZD
     if (NP .gt. NPMAX) then
@@ -231,6 +233,7 @@ contains
     real(kind=xp), intent(inout) :: Z(1), W(1)
     real(kind=xp), intent(in) :: ALPHA, BETA
     integer, intent(in) :: NP
+    integer :: N, NP1, NP2, I
 
     N = NP-1
     DN = real(N, kind=xp)
@@ -286,6 +289,7 @@ contains
     real(kind=rp), intent(in) :: ALPHA, BETA
     integer, intent(in) :: NP
     real(kind=xp) ZD(NZD), WD(NZD), ALPHAD, BETAD
+    integer :: I, NPMAX
 
     NPMAX = NZD
     if (NP .gt. NPMAX) then
@@ -318,7 +322,7 @@ contains
     real(kind=xp), intent(inout) :: Z(NP), W(NP)
     real(kind=xp), intent(in) :: ALPHA, BETA
     integer, intent(in) :: NP
-
+    integer :: N, NM1, I
 
     N = NP-1
     NM1 = N-1
@@ -359,7 +363,9 @@ contains
     integer, intent(in) :: N
     real(kind=xp), intent(in) :: ALPHA, BETA
 
-    ZERO = 0.
+    integer :: I
+
+    ZERO = 0.0_xp
     ONE = 1.0_xp
     TWO = 2.0_xp
     THREE = 3.0_xp
@@ -405,6 +411,7 @@ contains
 
     integer, intent(in) :: N
     real(kind=xp), intent(in) :: ALPHA, BETA
+    integer :: I
 
     ZERO = 0.0_xp
     ONE = 1.0_xp
@@ -478,6 +485,7 @@ contains
 
     real(kind=xp), intent(in) :: ALPHA, BETA
     integer, intent(in) :: N
+    integer :: I
 
     ONE = 1.0_xp
     TWO = 2.0_xp
@@ -521,6 +529,7 @@ contains
 
     integer, parameter :: KSTOP = 10
     real(kind=rp), parameter :: EPS = 1.0e-12_rp
+    integer :: I, J, K, N, JM, JMIN
 
     N = NP-1
     one = 1.0_xp
@@ -578,6 +587,7 @@ contains
          POLYM1, PDERM1, POLYM2, PDERM2
     integer, intent(in) :: N
     real(kind=xp), intent(in) :: ALP, BET, X
+    integer :: K
 
     APB = ALP+BET
     POLY = 1.0_xp
@@ -623,7 +633,8 @@ contains
     real(kind=xp), intent(in) :: Z, ZGJ(1), ALPHA, BETA
     integer, intent(in) :: NP, II
 
-    real(kind=xp) ZD,ZGJD(NZD),ALPHAD,BETAD
+    real(kind=xp) ZD, ZGJD(NZD), ALPHAD, BETAD
+    integer :: I, NPMAX
 
     NPMAX = NZD
     if (NP .gt. NPMAX) then
@@ -681,7 +692,8 @@ contains
 
     real(kind=xp), intent(in) :: Z, ZGLJ(1), ALPHA, BETA
     integer, intent(in) :: NP, II
-    real(kind=xp) ZD,ZGLJD(NZD),ALPHAD,BETAD
+    real(kind=xp) ZD, ZGLJD(NZD), ALPHAD, BETAD
+    integer :: I, NPMAX
 
     NPMAX = NZD
     if (NP .gt. NPMAX) then
@@ -712,6 +724,7 @@ contains
 
     real(kind=xp), intent(in) :: Z, ZGLJ(1), ALPHA, BETA
     integer, intent(in) :: NP, I
+    integer :: N
 
     EPS = 1.0e-5_xp
     ONE = 1.0_xp
@@ -746,7 +759,8 @@ contains
     real(kind=xp), intent(inout) :: D(NZD,NZD), DT(NZD,NZD)
     real(kind=xp), intent(in) :: Z(1), ALPHA, BETA
 
-    real(kind=xp) DD(NZDD,NZDD),DTD(NZDD,NZDD),ZD(NZDD),ALPHAD,BETAD
+    real(kind=xp) DD(NZDD,NZDD), DTD(NZDD,NZDD), ZD(NZDD), ALPHAD, BETAD
+    integer :: I, J
 
     if (NZ .le. 0) then
        write (stderr, *) 'DGJ: Minimum number of Gauss points is 1'
@@ -792,6 +806,7 @@ contains
     integer, intent(in) :: NZ, NZD
     real(kind=xp), intent(inout) :: D(NZD,NZD), DT(NZD,NZD)
     real(kind=xp), intent(in) :: Z(1), ALPHA, BETA
+    integer :: I, J, N
 
     N = NZ-1
     DN = real(N, kind=xp)
@@ -831,8 +846,12 @@ contains
 !-----------------------------------------------------------------
     integer, parameter :: NMAX = 84
     integer, parameter :: NZDD = NMAX
-    real(kind=xp) DD(NZDD,NZDD),DTD(NZDD,NZDD),ZD(NZDD),ALPHAD,BETAD
-    real(kind=xp) D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
+    integer, intent(in) :: NZ, NZD
+    real(kind=xp), intent(inout) :: D(NZD,NZD), DT(NZD,NZD)
+    real(kind=xp), intent(in) :: Z(1), ALPHA, BETA
+
+    real(kind=xp) :: DD(NZDD,NZDD), DTD(NZDD,NZDD), ZD(NZDD), ALPHAD, BETAD
+    integer :: I, J
 
     if (NZ .le. 1) then
        write (stderr, *) 'DGLJ: Minimum number of Gauss-Lobatto points is 2'
@@ -878,6 +897,8 @@ contains
     integer, intent(in) :: NZ, NZD
     real(kind=xp), intent(inout) :: D(NZD,NZD), DT(NZD,NZD)
     real(kind=xp), intent(in) :: Z(1), ALPHA, BETA
+
+    integer :: I, J, N
 
     N = NZ-1
     DN = real(N, kind=xp)
@@ -930,6 +951,8 @@ contains
     real(kind=rp), intent(inout) :: D(NZD,NZD), DT(NZD,NZD)
     real(kind=rp), intent(in) :: Z(1)
 
+    integer :: I, J, N
+
     N = NZ-1
     if (NZ .gt. NMAX) then
        write (stderr, *) 'Subroutine DGLL'
@@ -968,6 +991,8 @@ contains
     real(kind=xp), intent(in) :: ZGLL(1), Z
     real(kind=xp) :: EPS, DZ
 
+    integer :: N
+
     EPS = 1.0e-5_xp
     DZ = Z - ZGLL(I)
     if (abs(DZ) .lt. EPS) then
@@ -975,7 +1000,7 @@ contains
        return
     end if
     N = NZ - 1
-    ALFAN = (N)*(real(N, kind=xp) + 1.0_xp)
+    ALFAN = real(N, kind=xp)*(real(N, kind=xp) + 1.0_xp)
     HGLL = - (1.0_xp-Z*Z)*PNDLEG(Z,N)/ &
          (ALFAN*PNLEG(ZGLL(I),N)*(Z-ZGLL(I)))
   end function HGLL
@@ -990,6 +1015,8 @@ contains
     integer, intent(in) :: I, NZ
     real(kind=xp), intent(in) :: ZGL(1), Z
     real(kind=xp) :: EPS, DZ
+
+    integer :: N
 
     EPS = 1.0e-5_xp
     DZ = Z - ZGL(I)
@@ -1012,13 +1039,14 @@ contains
 !
 !     This next statement is to overcome the underflow bug in the i860.
 !     It can be removed at a later date.  11 Aug 1990   pff.
-    !
+!
     ! Bug: Remove implicit types
     implicit real(kind=xp) (A-H,O-Z)
 
     real(kind=xp), intent(in) :: Z
     integer, intent(in) :: N
     real(kind=xp) :: P1, P2, P3
+    integer :: K
 
     P1 = 1.0_xp
     if (N .eq. 0) then
@@ -1069,6 +1097,7 @@ contains
     real(kind=xp), intent(in) :: Z
     integer, intent(in) :: N
     real(kind=xp) :: P1, P2, P1D, P2D, P3D
+    integer :: K
 
     P1 = 1.0_xp
     P2 = Z
@@ -1100,10 +1129,11 @@ contains
 !     Note: D and DT are rectangular matrices.
 !
 !-----------------------------------------------------------------------
-    integer, intent(in) :: ND1, ND2
+    integer, intent(in) :: NZM1, NZM2, ND1, ND2
     real(kind=xp), intent(inout) :: D(ND2,ND1), DT(ND1,ND2)
     real(kind=xp), intent(in) :: ZM1(ND1), ZM2(ND2), IM12(ND2,ND1)
     real(kind=xp) EPS, ZP, ZQ
+    integer :: IP, JQ, NM1
 
     if (NZM1 .eq. 1) then
        D (1,1) = 0.0_xp
@@ -1144,11 +1174,12 @@ contains
     integer, parameter :: NDD = NMAX
     integer, intent(in) :: NPGL, NPG, ND1, ND2
     real(kind=xp), intent(inout) :: D(ND2,ND1), DT(ND1,ND2)
-    real(kind=xp), intent(in) :: ZGL(ND1), ZG(ND2), IGLG(ND2,ND1)
+    real(kind=xp), intent(in) :: ZGL(ND1), ZG(ND2), IGLG(ND2,ND1), ALPHA, BETA
 
     real(kind=xp) DD(NDD,NDD), DTD(NDD,NDD)
     real(kind=xp) ZGD(NDD), ZGLD(NDD), IGLGD(NDD,NDD)
     real(kind=xp) ALPHAD, BETAD
+    integer :: I, J
 
     if (NPGL .le. 1) then
        write(6,*) 'DGLJGJ: Minimum number of Gauss-Lobatto points is 2'
@@ -1204,6 +1235,7 @@ contains
     integer, intent(in) :: NPGL, NPG, ND1, ND2
     real(kind=xp), intent(inout) :: D(ND2,ND1), DT(ND1,ND2)
     real(kind=xp), intent(in) :: ZGL(ND1), ZG(ND2), IGLG(ND2,ND1), ALPHA, BETA
+    integer :: I, J, NGL
 
     if (NPGL .le. 1) then
        write(6,*) 'DGLJGJD: Minimum number of Gauss-Lobatto points is 2'
@@ -1253,8 +1285,9 @@ contains
 !--------------------------------------------------------------------
     integer, intent(in) :: NZ1, NZ2, ND1, ND2
     real(kind=xp), intent(inout) :: I12(ND2,ND1), IT12(ND1,ND2)
-    real(kind=xp), intent(in) :: Z1(ND1),Z2(ND2)
+    real(kind=xp), intent(in) :: Z1(ND1), Z2(ND2)
     real(kind=xp) :: ZI
+    integer :: I, J
 
     if (NZ1 .eq. 1) then
        I12 (1,1) = 1.0_xp
@@ -1284,6 +1317,7 @@ contains
     real(kind=xp), intent(inout) :: I12(ND2,ND1), IT12(ND1,ND2)
     real(kind=xp), intent(in) :: Z1(ND1), Z2(ND2)
     real(kind=xp) :: ZI
+    integer :: I, J
 
     if (NZ1 .eq. 1) then
        I12 (1,1) = 1.0_xp
@@ -1314,6 +1348,7 @@ contains
     real(kind=xp), intent(inout) :: I12(ND2,ND1), IT12(ND1,ND2)
     real(kind=xp), intent(in) :: Z1(ND1), Z2(ND2), ALPHA, BETA
     real(kind=xp) :: ZI
+    integer :: I, J
 
     if (NZ1 .eq. 1) then
        I12 (1,1) = 1.0_xp
@@ -1344,6 +1379,7 @@ contains
     real(kind=xp), intent(inout) :: I12(ND2,ND1), IT12(ND1,ND2)
     real(kind=xp), intent(in) :: Z1(ND1), Z2(ND2), ALPHA, BETA
     real(kind=xp) :: ZI
+    integer :: I, J
 
     if (NZ1 .eq. 1) then
        I12 (1,1) = 1.0_xp
