@@ -94,7 +94,7 @@ void opencl_step_function(
     cl_int err;
 
     if (mapping_program == NULL)
-        opencl_kernel_jit(mapping_kernels, (cl_program*)mappingr_program);
+        opencl_kernel_jit(mapping_kernels, (cl_program*)mapping_program);
 
     cl_kernel kernel =
         clCreateKernel(mapping_program, "step_function_kernel", &err);
@@ -127,7 +127,7 @@ void opencl_permeability(void* x, real* k_0, real* k_1, real* q, int* n) {
     cl_int err;
 
     if (mapping_program == NULL)
-        opencl_kernel_jit(mapping_kernels, (cl_program*)mappingr_program);
+        opencl_kernel_jit(mapping_kernels, (cl_program*)mapping_program);
 
     cl_kernel kernel =
         clCreateKernel(mapping_program, "permeability_kernel", &err);
