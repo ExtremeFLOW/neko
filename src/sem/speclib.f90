@@ -204,10 +204,10 @@ contains
     ALPHAD = ALPHA
     BETAD = BETA
     call ZWGJD (ZD,WD,NP,ALPHAD,BETAD)
-    do 100 I=1,NP
+    do I=1,NP
        Z(I) = ZD(I)
        W(I) = WD(I)
-100 continue
+    end do
   end subroutine ZWGJ
 
   subroutine ZWGJD (Z,W,NP,ALPHA,BETA)
@@ -255,10 +255,10 @@ contains
     FAC3 = FAC2+ONE
     FNORM = PNORMJ(NP1,ALPHA,BETA)
     RCOEF = (FNORM*FAC2*FAC3)/(TWO*FAC1*DNP2)
-    do 100 I=1,NP
+    do I=1,NP
        call JACOBF (P,PD,PM1,PDM1,PM2,PDM2,NP2,ALPHA,BETA,Z(I))
        W(I) = -RCOEF/(P*PDM1)
-100 continue
+    end do
   end subroutine ZWGJD
 
   subroutine ZWGLJ (Z,W,NP,ALPHA,BETA)
@@ -285,10 +285,10 @@ contains
     ALPHAD = ALPHA
     BETAD = BETA
     call ZWGLJD (ZD,WD,NP,ALPHAD,BETAD)
-    do 100 I=1,NP
+    do I=1,NP
        Z(I) = ZD(I)
        W(I) = WD(I)
-100 continue
+    end do
   end subroutine ZWGLJ
 
   subroutine ZWGLJD (Z,W,NP,ALPHA,BETA)
@@ -325,9 +325,9 @@ contains
     end if
     Z(1) = -ONE
     Z(NP) = ONE
-    do 100 I=2,NP-1
+    do I=2,NP-1
        W(I) = W(I)/(ONE-Z(I)**2)
-100 continue
+    end do
     call JACOBF (P,PD,PM1,PDM1,PM2,PDM2,N,ALPHA,BETA,Z(1))
     W(1) = ENDW1 (N,ALPHA,BETA)/(TWO*PD)
     call JACOBF (P,PD,PM1,PDM1,PM2,PDM2,N,ALPHA,BETA,Z(NP))
@@ -364,7 +364,7 @@ contains
        ENDW1 = F2
        return
     end if
-    do 100 I=3,N
+    do I=3,N
        DI = ((I-1))
        ABN = ALPHA+BETA+DI
        ABNN = ABN+DI
@@ -374,7 +374,7 @@ contains
        F3 = -(A2*F2+A1*F1)/A3
        F1 = F2
        F2 = F3
-100 continue
+    end do
     ENDW1 = F3
   end function ENDW1
 
@@ -407,7 +407,7 @@ contains
        ENDW2 = F2
        return
     end if
-    do 100 I=3,N
+    do I=3,N
        DI = ((I-1))
        ABN = ALPHA+BETA+DI
        ABNN = ABN+DI
@@ -417,7 +417,7 @@ contains
        F3 = -(A2*F2+A1*F1)/A3
        F1 = F2
        F2 = F3
-100 continue
+    end do
     ENDW2 = F3
   end function ENDW2
 
@@ -461,11 +461,11 @@ contains
     PROD = PROD/(TWO*(ONE+CONST)*GAMMAF(CONST+ONE))
     PROD = PROD*(ONE+ALPHA)*(TWO+ALPHA)
     PROD = PROD*(ONE+BETA)*(TWO+BETA)
-    do 100 I=3,N
+    do I=3,N
        DINDX = ((I))
        FRAC = (DINDX+ALPHA)*(DINDX+BETA)/(DINDX*(DINDX+ALPHA+BETA))
        PROD = PROD*FRAC
-100 continue
+    end do
     PNORMJ = PROD * TWO**CONST/(TWO*DN+CONST)
   end function PNORMJ
 
@@ -487,7 +487,7 @@ contains
     N = NP-1
     one = 1.
     DTH = 4.*ATAN(one)/(2.*((N))+2.)
-    do 40 J=1,NP
+    do J=1,NP
        if (J .eq. 1) then
           X = COS((2.*(((J))-1.)+1.)*DTH)
        else
@@ -495,35 +495,35 @@ contains
           X2 = XLAST
           X = (X1+X2)/2.
        end if
-       do 30 K=1,KSTOP
+       do K=1,KSTOP
           call JACOBF (P,PD,PM1,PDM1,PM2,PDM2,NP,ALPHA,BETA,X)
           RECSUM = 0.
           JM = J-1
-          do 29 I=1,JM
+          do I=1,JM
              RECSUM = RECSUM+1./(X-XJAC(NP-I+1))
-29        continue
+          end do
           DELX = -P/(PD-RECSUM*P)
           X = X+DELX
-          if (ABS(DELX) .LT. EPS) GOTO 31
-30     continue
-31     continue
+          if (ABS(DELX) .LT. EPS) exit
+       end do
+
        XJAC(NP-J+1) = X
        XLAST = X
-40  continue
-    do 200 I=1,NP
+    end do
+    do I=1,NP
        XMIN = 2.
-       do 100 J=I,NP
+       do J=I,NP
           if (XJAC(J).LT.XMIN) then
              XMIN = XJAC(J)
              JMIN = J
           end if
-100    continue
+       end do
        if (JMIN.NE.I) then
           SWAP = XJAC(I)
           XJAC(I) = XJAC(JMIN)
           XJAC(JMIN) = SWAP
        end if
-200 continue
+    end do
   end subroutine JACG
 
   subroutine JACOBF (POLY,PDER,POLYM1,PDERM1,POLYM2,PDERM2,N,ALP,BET,X)
@@ -543,7 +543,7 @@ contains
     POLY = (ALP-BET+(APB+2.)*X)/2.
     PDER = (APB+2.)/2.
     if (N .eq. 1) return
-    do 20 K=2,N
+    do K=2,N
        DK = ((K))
        A1 = 2.*DK*(DK+APB)*(2.*DK+APB-2.)
        A2 = (2.*DK+APB-1.)*(ALP**2-BET**2)
@@ -558,7 +558,7 @@ contains
        POLY = POLYN
        PDERL = PDER
        PDER = PDERN
-20  continue
+    end do
     POLYM1 = POLYL
     PDERM1 = PDERL
     POLYM2 = PSAVE
@@ -585,9 +585,9 @@ contains
        call neko_error
     end if
     ZD = Z
-    do 100 I=1,NP
+    do I=1,NP
        ZGJD(I) = ZGJ(I)
-100 continue
+    end do
     ALPHAD = ALPHA
     BETAD = BETA
     HGJ = HGJD (II,ZD,ZGJD,NP,ALPHAD,BETAD)
@@ -636,9 +636,9 @@ contains
        call neko_error
     end if
     ZD = Z
-    do 100 I=1,NP
+    do I=1,NP
        ZGLJD(I) = ZGLJ(I)
-100 continue
+    end do
     ALPHAD = ALPHA
     BETAD = BETA
     HGLJ = HGLJD (II,ZD,ZGLJD,NP,ALPHAD,BETAD)
@@ -702,9 +702,9 @@ contains
     end if
     ALPHAD = ALPHA
     BETAD = BETA
-    do 100 I=1,NZ
+    do I=1,NZ
        ZD(I) = Z(I)
-100 continue
+    end do
     call DGJD (DD,DTD,ZD,NZ,NZDD,ALPHAD,BETAD)
     do I=1,NZ
        do J=1,NZ
@@ -783,9 +783,9 @@ contains
     end if
     ALPHAD = ALPHA
     BETAD = BETA
-    do 100 I=1,NZ
+    do I=1,NZ
        ZD(I) = Z(I)
-100 continue
+    end do
     call DGLJD (DD,DTD,ZD,NZ,NZDD,ALPHAD,BETAD)
     do I=1,NZ
        do J=1,NZ
@@ -940,12 +940,12 @@ contains
     end if
     P2 = Z
     P3 = P2
-    do 10 K = 1, N-1
+    do K = 1, N-1
        FK = (K)
        P3 = ((2.0_rp*FK+1.0_rp)*Z*P2 - FK*P1)/(FK+1.0_rp)
        P1 = P2
        P2 = P3
-10  continue
+    end do
     PNLEG = P3
     if (n .eq. 0) pnleg = 1.
   end function PNLEG
@@ -982,7 +982,7 @@ contains
     P1D = 0.
     P2D = 1.
     P3D = 1.
-    do 10 K = 1, N-1
+    do K = 1, N-1
        FK = (K)
        P3 = ((2.*FK+1.)*Z*P2 - FK*P1)/(FK+1.)
        P3D = ((2.*FK+1.)*P2 + (2.*FK+1.)*Z*P2D - FK*P1D)/(FK+1.)
@@ -990,7 +990,7 @@ contains
        P2 = P3
        P1D = P2D
        P2D = P3D
-10  continue
+    end do
     PNDLEG = P3D
     if (N .eq. 0) pndleg = 0.
   end function PNDLEG
@@ -1074,9 +1074,9 @@ contains
           IGLGD(I,J) = IGLG(I,J)
        end do
     end do
-    do 200 I=1,NPGL
+    do I=1,NPGL
        ZGLD(I) = ZGL(I)
-200 continue
+    end do
     call DGLJGJD (DD,DTD,ZGLD,ZGD,IGLGD,NPGL,NPG,NDD,NDD,ALPHAD,BETAD)
     do I=1,NPG
        do J=1,NPGL
