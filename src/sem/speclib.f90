@@ -162,7 +162,6 @@ contains
     ALPHA = 0.
     BETA = 0.
     call ZWGJ (Z,W,NP,ALPHA,BETA)
-    return
   end subroutine ZWGL
 
   subroutine ZWGLL (Z,W,NP)
@@ -179,7 +178,6 @@ contains
     ALPHA = 0.
     BETA = 0.
     call ZWGLJ (Z,W,NP,ALPHA,BETA)
-    return
   end subroutine ZWGLL
 
   subroutine ZWGJ (Z,W,NP,ALPHA,BETA)
@@ -210,7 +208,6 @@ contains
        Z(I) = ZD(I)
        W(I) = WD(I)
 100 continue
-    return
   end subroutine ZWGJ
 
   subroutine ZWGJD (Z,W,NP,ALPHA,BETA)
@@ -262,7 +259,6 @@ contains
        call JACOBF (P,PD,PM1,PDM1,PM2,PDM2,NP2,ALPHA,BETA,Z(I))
        W(I) = -RCOEF/(P*PDM1)
 100 continue
-    return
   end subroutine ZWGJD
 
   subroutine ZWGLJ (Z,W,NP,ALPHA,BETA)
@@ -293,7 +289,6 @@ contains
        Z(I) = ZD(I)
        W(I) = WD(I)
 100 continue
-    return
   end subroutine ZWGLJ
 
   subroutine ZWGLJD (Z,W,NP,ALPHA,BETA)
@@ -338,7 +333,6 @@ contains
     call JACOBF (P,PD,PM1,PDM1,PM2,PDM2,N,ALPHA,BETA,Z(NP))
     W(NP) = ENDW2 (N,ALPHA,BETA)/(TWO*PD)
 
-!      return
   end subroutine ZWGLJD
 
   real(kind=xp) function ENDW1 (N,ALPHA,BETA)
@@ -382,7 +376,6 @@ contains
        F2 = F3
 100 continue
     ENDW1 = F3
-    return
   end function ENDW1
 
   real(kind=xp) function ENDW2 (N,ALPHA,BETA)
@@ -426,7 +419,6 @@ contains
        F2 = F3
 100 continue
     ENDW2 = F3
-    return
   end function ENDW2
 
   real(kind=xp) function GAMMAF (X)
@@ -450,7 +442,6 @@ contains
     if (X .eq. 4. ) GAMMAF = 6.
     if (X .eq. 5. ) GAMMAF = 24.
     if (X .eq. 6. ) GAMMAF = 120.
-    return
   end function GAMMAF
 
   real(kind=xp) function PNORMJ (N,ALPHA,BETA)
@@ -476,7 +467,6 @@ contains
        PROD = PROD*FRAC
 100 continue
     PNORMJ = PROD * TWO**CONST/(TWO*DN+CONST)
-    return
   end function PNORMJ
 
   subroutine JACG (XJAC,NP,ALPHA,BETA)
@@ -534,7 +524,6 @@ contains
           XJAC(JMIN) = SWAP
        end if
 200 continue
-    return
   end subroutine JACG
 
   subroutine JACOBF (POLY,PDER,POLYM1,PDERM1,POLYM2,PDERM2,N,ALP,BET,X)
@@ -574,7 +563,6 @@ contains
     PDERM1 = PDERL
     POLYM2 = PSAVE
     PDERM2 = PDSAVE
-    return
   end subroutine JACOBF
 
   real(kind=xp) function HGJ (II,Z,ZGJ,NP,ALPHA,BETA)
@@ -603,7 +591,6 @@ contains
     ALPHAD = ALPHA
     BETAD = BETA
     HGJ = HGJD (II,ZD,ZGJD,NP,ALPHAD,BETAD)
-    return
   end function HGJ
 
   real(kind=xp) function HGJD (II,Z,ZGJ,NP,ALPHA,BETA)
@@ -627,7 +614,6 @@ contains
     call JACOBF (PZI,PDZI,PM1,PDM1,PM2,PDM2,NP,ALPHA,BETA,ZI)
     call JACOBF (PZ,PDZ,PM1,PDM1,PM2,PDM2,NP,ALPHA,BETA,Z)
     HGJD = PZ/(PDZI*(Z-ZI))
-    return
   end function HGJD
 
   real(kind=xp) function HGLJ (II,Z,ZGLJ,NP,ALPHA,BETA)
@@ -656,7 +642,6 @@ contains
     ALPHAD = ALPHA
     BETAD = BETA
     HGLJ = HGLJD (II,ZD,ZGLJD,NP,ALPHAD,BETAD)
-    return
   end function HGLJ
 
   real(kind=xp) function HGLJD (I,Z,ZGLJ,NP,ALPHA,BETA)
@@ -684,7 +669,6 @@ contains
     CONST = EIGVAL*PI+ALPHA*(ONE+ZI)*PDI-BETA*(ONE-ZI)*PDI
     call JACOBF (P,PD,PM1,PDM1,PM2,PDM2,N,ALPHA,BETA,Z)
     HGLJD = (ONE-Z**2)*PD/(CONST*(Z-ZI))
-    return
   end function HGLJD
 
   subroutine DGJ (D,DT,Z,NZ,NZD,ALPHA,BETA)
@@ -728,7 +712,6 @@ contains
           DT(I,J) = DTD(I,J)
        end do
     end do
-    return
   end subroutine DGJ
 
   subroutine DGJD (D,DT,Z,NZ,NZD,ALPHA,BETA)
@@ -767,7 +750,6 @@ contains
           DT(J,I) = D(I,J)
        end do
     end do
-    return
   end subroutine DGJD
 
   subroutine DGLJ (D,DT,Z,NZ,NZD,ALPHA,BETA)
@@ -811,7 +793,6 @@ contains
           DT(I,J) = DTD(I,J)
        end do
     end do
-    return
   end subroutine DGLJ
 
   subroutine DGLJD (D,DT,Z,NZ,NZD,ALPHA,BETA)
@@ -858,7 +839,6 @@ contains
           DT(J,I) = D(I,J)
        end do
     end do
-    return
   end subroutine DGLJD
 
   subroutine DGLL (D,DT,Z,NZ,NZD)
@@ -895,7 +875,6 @@ contains
           DT(J,I) = D(I,J)
        end do
     end do
-    return
   end subroutine DGLL
 
   real(kind=xp) function HGLL (I,Z,ZGLL,NZ)
@@ -917,7 +896,6 @@ contains
     ALFAN = (N)*((N)+1.)
     HGLL = - (1.-Z*Z)*PNDLEG(Z,N)/ &
          (ALFAN*PNLEG(ZGLL(I),N)*(Z-ZGLL(I)))
-    return
   end function HGLL
 
   real(kind=xp) function HGL (I,Z,ZGL,NZ)
@@ -936,7 +914,6 @@ contains
     end if
     N = NZ-1
     HGL = PNLEG(Z,NZ)/(PNDLEG(ZGL(I),NZ)*(Z-ZGL(I)))
-    return
   end function HGL
 
   real(kind=xp) function PNLEG (Z,N)
@@ -971,7 +948,6 @@ contains
 10  continue
     PNLEG = P3
     if (n .eq. 0) pnleg = 1.
-    return
   end function PNLEG
 
   !> Evaluate Legendre polynomials of degrees 0-N at point x
@@ -1017,7 +993,6 @@ contains
 10  continue
     PNDLEG = P3D
     if (N .eq. 0) pndleg = 0.
-    return
   end function PNDLEG
 
   subroutine DGLLGL (D,DT,ZM1,ZM2,IM12,NZM1,NZM2,ND1,ND2)
@@ -1054,7 +1029,6 @@ contains
           DT(JQ,IP) = D(IP,JQ)
        end do
     end do
-    return
   end subroutine DGLLGL
 
   subroutine DGLJGJ (D,DT,ZGL,ZG,IGLG,NPGL,NPG,ND1,ND2,ALPHA,BETA)
@@ -1110,7 +1084,6 @@ contains
           DT(J,I) = DTD(J,I)
        end do
     end do
-    return
   end subroutine DGLJGJ
 
   subroutine DGLJGJD (D,DT,ZGL,ZG,IGLG,NPGL,NPG,ND1,ND2,ALPHA,BETA)
@@ -1164,7 +1137,6 @@ contains
           DT(J,I) = D(I,J)
        end do
     end do
-    return
   end subroutine DGLJGJD
 
   subroutine IGLM (I12,IT12,Z1,Z2,NZ1,NZ2,ND1,ND2)
@@ -1190,7 +1162,6 @@ contains
           IT12(J,I) = I12(I,J)
        end do
     end do
-    return
   end subroutine IGLM
 
   subroutine IGLLM (I12,IT12,Z1,Z2,NZ1,NZ2,ND1,ND2)
@@ -1216,7 +1187,6 @@ contains
           IT12(J,I) = I12(I,J)
        end do
     end do
-    return
   end subroutine IGLLM
 
   subroutine IGJM (I12,IT12,Z1,Z2,NZ1,NZ2,ND1,ND2,ALPHA,BETA)
@@ -1243,7 +1213,6 @@ contains
           IT12(J,I) = I12(I,J)
        end do
     end do
-    return
   end subroutine IGJM
 
   subroutine IGLJM (I12,IT12,Z1,Z2,NZ1,NZ2,ND1,ND2,ALPHA,BETA)
@@ -1270,6 +1239,5 @@ contains
           IT12(J,I) = I12(I,J)
        end do
     end do
-    return
   end subroutine IGLJM
 end module speclib
