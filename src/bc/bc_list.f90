@@ -187,7 +187,7 @@ contains
        else
           strm_ = glb_cmd_queue
        end if
-       
+
        x_d = device_get_ptr(x)
        if (present(strong)) then
           if (present(t) .and. present(tstep)) then
@@ -307,7 +307,7 @@ contains
        else
           strm_ = glb_cmd_queue
        end if
-       
+
        x_d = device_get_ptr(x)
        y_d = device_get_ptr(y)
        z_d = device_get_ptr(z)
@@ -426,7 +426,7 @@ contains
        else
           strm_ = glb_cmd_queue
        end if
-       
+
        if (present(strong)) then
           if (present(t) .and. present(tstep)) then
              do i = 1, this%size_
@@ -516,7 +516,7 @@ contains
        else
           strm_ = glb_cmd_queue
        end if
-       
+
        if (present(strong)) then
           if (present(t) .and. present(tstep)) then
              do i = 1, this%size_

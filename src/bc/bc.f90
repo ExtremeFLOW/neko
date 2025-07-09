@@ -206,7 +206,7 @@ module bc
      !! @param t The time value.
      !! @param tstep The time iteration.
      !! @param strong Whether we are setting a strong or a weak bc.
-     !! @param strm Device stream 
+     !! @param strm Device stream
      subroutine bc_apply_scalar_dev(this, x_d, t, tstep, strong, strm)
        import :: c_ptr
        import :: bc_t
@@ -325,7 +325,7 @@ contains
        else
           strm_ = glb_cmd_queue
        end if
-       
+
        x_d = device_get_ptr(x)
        y_d = device_get_ptr(y)
        z_d = device_get_ptr(z)
@@ -381,7 +381,7 @@ contains
        else
           strm_ = glb_cmd_queue
        end if
-       
+
        x_d = device_get_ptr(x)
        if (present(t) .and. present(tstep)) then
           call this%apply_scalar_dev(x_d, t = t, tstep = tstep, strm = strm_)

@@ -204,7 +204,7 @@ contains
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
     type(c_ptr) :: strm
-    
+
     if (.not. this%uniform_0 .and. this%msk(0) .gt. 0) then
        call neko_error("Neumann bc not implemented for vectors.")
     end if
