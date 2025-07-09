@@ -36,7 +36,7 @@ module dynamic_smagorinsky
   use field, only : field_t
   use fluid_scheme_base, only : fluid_scheme_base_t
   use les_model, only : les_model_t
-  use json_utils, only : json_get_or_default, json_getjson_extract_object
+  use json_utils, only : json_get_or_default, json_get, json_extract_object
   use json_module, only : json_file
   use utils, only : neko_error
   use neko_config, only : NEKO_BCKND_DEVICE

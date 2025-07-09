@@ -90,9 +90,6 @@ contains
     real(kind=rp), allocatable :: trnsfr(:)
     character(len=:), allocatable :: filter_type
 
-    call json_get_or_default(json, "filter_type", filter_type, "nonBoyd")
-    this%filter_type = filter_type
-
     ! Filter assumes lx = ly = lz
     call this%init_base(json, coef)
 
@@ -109,11 +106,11 @@ contains
           call neko_error("The transfer function of the elementwise &
                   filter must correspond the order of the polynomial")
        end if
+       call this%build_1d()
     end if
-
-    call this%build_1d()
-
+    
   end subroutine elementwise_filter_init_from_json
+
   !> Actual Constructor.
   !! @param nx number of points in an elements in one direction.
   subroutine elementwise_filter_init_from_attributes(this, nx)
