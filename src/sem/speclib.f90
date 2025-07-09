@@ -429,15 +429,15 @@ contains
     ONE = 1.0
     TWO = 2.0
     FOUR = 4.0
-    PI = FOUR*ATAN(ONE)
+    PI = FOUR*atan(ONE)
     GAMMAF = ONE
-    if (X .eq. -HALF) GAMMAF = -TWO*SQRT(PI)
-    if (X .eq. HALF) GAMMAF = SQRT(PI)
+    if (X .eq. -HALF) GAMMAF = -TWO*sqrt(PI)
+    if (X .eq. HALF) GAMMAF = sqrt(PI)
     if (X .eq. ONE ) GAMMAF = ONE
     if (X .eq. TWO ) GAMMAF = ONE
-    if (X .eq. 1.5 ) GAMMAF = SQRT(PI)/2.
-    if (X .eq. 2.5) GAMMAF = 1.5*SQRT(PI)/2.
-    if (X .eq. 3.5) GAMMAF = 0.5*(2.5*(1.5*SQRT(PI)))
+    if (X .eq. 1.5 ) GAMMAF = sqrt(PI)/2.
+    if (X .eq. 2.5) GAMMAF = 1.5*sqrt(PI)/2.
+    if (X .eq. 3.5) GAMMAF = 0.5*(2.5*(1.5*sqrt(PI)))
     if (X .eq. 3. ) GAMMAF = 2.
     if (X .eq. 4. ) GAMMAF = 6.
     if (X .eq. 5. ) GAMMAF = 24.
@@ -486,12 +486,12 @@ contains
     data EPS/1.0e-12_RP/
     N = NP-1
     one = 1.
-    DTH = 4.*ATAN(one)/(2.*((N))+2.)
+    DTH = 4.*atan(one)/(2.*((N))+2.)
     do J=1,NP
        if (J .eq. 1) then
-          X = COS((2.*(((J))-1.)+1.)*DTH)
+          X = cos((2.*(((J))-1.)+1.)*DTH)
        else
-          X1 = COS((2.*(((J))-1.)+1.)*DTH)
+          X1 = cos((2.*(((J))-1.)+1.)*DTH)
           X2 = XLAST
           X = (X1+X2)/2.
        end if
@@ -504,7 +504,7 @@ contains
           end do
           DELX = -P/(PD-RECSUM*P)
           X = X+DELX
-          if (ABS(DELX) .LT. EPS) exit
+          if (abs(DELX) .lt. EPS) exit
        end do
 
        XJAC(NP-J+1) = X
@@ -513,7 +513,7 @@ contains
     do I=1,NP
        XMIN = 2.
        do J=I,NP
-          if (XJAC(J).LT.XMIN) then
+          if (XJAC(J) .lt. XMIN) then
              XMIN = XJAC(J)
              JMIN = J
           end if
@@ -607,7 +607,7 @@ contains
     ONE = 1.
     ZI = ZGJ(II)
     DZ = Z-ZI
-    if (ABS(DZ).LT.EPS) then
+    if (abs(DZ) .lt. EPS) then
        HGJD = ONE
        return
     end if
@@ -658,7 +658,7 @@ contains
     ONE = 1.
     ZI = ZGLJ(I)
     DZ = Z-ZI
-    if (ABS(DZ).LT.EPS) then
+    if (abs(DZ) .lt. EPS) then
        HGLJD = ONE
        return
     end if
@@ -888,7 +888,7 @@ contains
     real(kind=xp) ZGLL(1), EPS, DZ, Z
     EPS = 1.E-5
     DZ = Z - ZGLL(I)
-    if (ABS(DZ) .LT. EPS) then
+    if (abs(DZ) .lt. EPS) then
        HGLL = 1.
        return
     end if
@@ -908,7 +908,7 @@ contains
     real(kind=xp) ZGL(1), Z, EPS, DZ
     EPS = 1.E-5
     DZ = Z - ZGL(I)
-    if (ABS(DZ) .LT. EPS) then
+    if (abs(DZ) .lt. EPS) then
        HGL = 1.
        return
     end if
@@ -930,7 +930,7 @@ contains
 !
     implicit real(kind=xp) (A-H,O-Z)
     real(kind=xp) Z, P1, P2, P3
-    !if(ABS(Z) .LT. 1.0E-25) Z = 0.0
+    !if(abs(Z)  .lt.  1.0E-25) Z = 0.0
 
 
     P1 = 1.
@@ -1020,7 +1020,7 @@ contains
        do JQ = 1, NZM1
           ZP = ZM2(IP)
           ZQ = ZM1(JQ)
-          if ((ABS(ZP) .LT. EPS).AND.(ABS(ZQ) .LT. EPS)) then
+          if ((abs(ZP) .lt. EPS).AND.(abs(ZQ) .lt. EPS)) then
              D(IP,JQ) = 0.
           else
              D(IP,JQ) = (PNLEG(ZP,NM1)/PNLEG(ZQ,NM1) &
@@ -1121,8 +1121,8 @@ contains
 
     do I=1,NPG
        do J=1,NPGL
-          DZ = ABS(ZG(I)-ZGL(J))
-          if (DZ.LT.EPS) then
+          DZ = abs(ZG(I)-ZGL(J))
+          if (DZ .lt. EPS) then
              D(I,J) = (ALPHA*(ONE+ZG(I))-BETA*(ONE-ZG(I)))/ &
                   (TWO*(ONE-ZG(I)**2))
           else
