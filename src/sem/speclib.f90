@@ -223,9 +223,9 @@ contains
     real(kind=xp) Z(1),W(1),ALPHA,BETA
 
     N = NP-1
-    DN = ((N))
-    ONE = 1.
-    TWO = 2.
+    DN = real(N, kind=xp)
+    ONE = 1.0_xp
+    TWO = 2.0_xp
     APB = ALPHA+BETA
 
     if (NP .le. 0) then
@@ -305,12 +305,12 @@ contains
 
     N = NP-1
     NM1 = N-1
-    ONE = 1.
-    TWO = 2.
+    ONE = 1.0_xp
+    TWO = 2.0_xp
 
     if (NP .le. 1) then
        write (6,*) 'ZWGLJD: Minimum number of Gauss-Lobatto points is 2'
-       write (6,*) 'ZWGLJD: alpha,beta:',alpha,beta,np
+       write (6,*) 'ZWGLJD: alpha,beta:', alpha, beta, np
        call neko_error
     end if
     if ((ALPHA .le. -ONE) .or. (BETA .le. -ONE)) then
@@ -339,10 +339,10 @@ contains
     implicit real(kind=xp) (A-H,O-Z)
     real(kind=xp) ALPHA,BETA
     ZERO = 0.
-    ONE = 1.
-    TWO = 2.
-    THREE = 3.
-    FOUR = 4.
+    ONE = 1.0_xp
+    TWO = 2.0_xp
+    THREE = 3.0_xp
+    FOUR = 4.0_xp
     APB = ALPHA+BETA
     if (N .eq. 0) then
        ENDW1 = ZERO
@@ -381,11 +381,11 @@ contains
   real(kind=xp) function ENDW2 (N,ALPHA,BETA)
     implicit real(kind=xp) (A-H,O-Z)
     real(kind=xp) ALPHA,BETA
-    ZERO = 0.
-    ONE = 1.
-    TWO = 2.
-    THREE = 3.
-    FOUR = 4.
+    ZERO = 0.0_xp
+    ONE = 1.0_xp
+    TWO = 2.0_xp
+    THREE = 3.0_xp
+    FOUR = 4.0_xp
     APB = ALPHA+BETA
     if (N .eq. 0) then
        ENDW2 = ZERO
@@ -424,32 +424,32 @@ contains
   real(kind=xp) function GAMMAF (X)
     implicit real(kind=xp) (A-H,O-Z)
     real(kind=xp) X
-    ZERO = 0.0
-    HALF = 0.5
-    ONE = 1.0
-    TWO = 2.0
-    FOUR = 4.0
+    ZERO = 0.0_xp
+    HALF = 0.5_xp
+    ONE = 1.0_xp
+    TWO = 2.0_xp
+    FOUR = 4.0_xp
     PI = FOUR*atan(ONE)
     GAMMAF = ONE
     if (X .eq. -HALF) GAMMAF = -TWO*sqrt(PI)
     if (X .eq. HALF) GAMMAF = sqrt(PI)
     if (X .eq. ONE ) GAMMAF = ONE
     if (X .eq. TWO ) GAMMAF = ONE
-    if (X .eq. 1.5 ) GAMMAF = sqrt(PI)/2.
-    if (X .eq. 2.5) GAMMAF = 1.5*sqrt(PI)/2.
-    if (X .eq. 3.5) GAMMAF = 0.5*(2.5*(1.5*sqrt(PI)))
-    if (X .eq. 3. ) GAMMAF = 2.
-    if (X .eq. 4. ) GAMMAF = 6.
-    if (X .eq. 5. ) GAMMAF = 24.
-    if (X .eq. 6. ) GAMMAF = 120.
+    if (X .eq. 1.5_xp) GAMMAF = sqrt(PI) / 2.0_xp
+    if (X .eq. 2.5_xp) GAMMAF = 1.5_xp * sqrt(PI) / 2.0_xp
+    if (X .eq. 3.5_xp) GAMMAF = 0.5_xp * (2.5_xp * (1.5_xp * sqrt(PI)))
+    if (X .eq. 3.0_xp) GAMMAF = 2.0_xp
+    if (X .eq. 4.0_xp) GAMMAF = 6.0_xp
+    if (X .eq. 5.0_xp) GAMMAF = 24.0_xp
+    if (X .eq. 6.0_xp) GAMMAF = 120.0_xp
   end function GAMMAF
 
   real(kind=xp) function PNORMJ (N,ALPHA,BETA)
     implicit real(kind=xp) (A-H,O-Z)
     real(kind=xp) ALPHA,BETA
-    ONE = 1.
-    TWO = 2.
-    DN = ((N))
+    ONE = 1.0_xp
+    TWO = 2.0_xp
+    DN = real(N, kind=xp)
     CONST = ALPHA+BETA+ONE
     if (N .le. 1) then
        PROD = GAMMAF(DN+ALPHA)*GAMMAF(DN+BETA)
@@ -485,22 +485,22 @@ contains
     data KSTOP /10/
     data EPS/1.0e-12_RP/
     N = NP-1
-    one = 1.
-    DTH = 4.*atan(one)/(2.*((N))+2.)
+    one = 1.0_xp
+    DTH = 4.0_xp*atan(one)/(2.0_xp*real(N, kind=xp) + 2.0_xp)
     do J = 1, NP
        if (J .eq. 1) then
-          X = cos((2.*(((J))-1.)+1.)*DTH)
+          X = cos((2.0_xp*(real(J, kind=xp)-1.0_xp)+1.0_xp)*DTH)
        else
-          X1 = cos((2.*(((J))-1.)+1.)*DTH)
+          X1 = cos((2.0_xp*(real(J, kind=xp)-1.0_xp)+1.0_xp)*DTH)
           X2 = XLAST
-          X = (X1+X2)/2.
+          X = (X1+X2)/2.0_xp
        end if
        do K = 1, KSTOP
           call JACOBF (P,PD,PM1,PDM1,PM2,PDM2,NP,ALPHA,BETA,X)
-          RECSUM = 0.
+          RECSUM = 0.0_xp
           JM = J-1
           do I = 1, JM
-             RECSUM = RECSUM+1./(X-XJAC(NP-I+1))
+             RECSUM = RECSUM+1.0_xp/(X-XJAC(NP-I+1))
           end do
           DELX = -P/(PD-RECSUM*P)
           X = X+DELX
@@ -518,7 +518,7 @@ contains
              JMIN = J
           end if
        end do
-       if (JMIN.NE.I) then
+       if (JMIN .ne. I) then
           SWAP = XJAC(I)
           XJAC(I) = XJAC(JMIN)
           XJAC(JMIN) = SWAP
@@ -535,21 +535,21 @@ contains
 !--------------------------------------------------------------------
     implicit real(kind=xp) (A-H,O-Z)
     APB = ALP+BET
-    POLY = 1.
-    PDER = 0.
+    POLY = 1.0_xp
+    PDER = 0.0_xp
     if (N .eq. 0) return
     POLYL = POLY
     PDERL = PDER
-    POLY = (ALP-BET+(APB+2.)*X)/2.
-    PDER = (APB+2.)/2.
+    POLY = (ALP-BET+(APB+2.0_xp)*X)/2.0_xp
+    PDER = (APB+2.0_xp)/2.0_xp
     if (N .eq. 1) return
     do K = 2, N
        DK = ((K))
-       A1 = 2.*DK*(DK+APB)*(2.*DK+APB-2.)
-       A2 = (2.*DK+APB-1.)*(ALP**2-BET**2)
-       B3 = (2.*DK+APB-2.)
-       A3 = B3*(B3+1.)*(B3+2.)
-       A4 = 2.*(DK+ALP-1.)*(DK+BET-1.)*(2.*DK+APB)
+       A1 = 2.0_xp*DK*(DK+APB)*(2.0_xp*DK+APB-2.0_xp)
+       A2 = (2.0_xp*DK+APB-1.0_xp)*(ALP**2-BET**2)
+       B3 = (2.0_xp*DK+APB-2.0_xp)
+       A3 = B3*(B3+1.0_xp)*(B3+2.0_xp)
+       A4 = 2.0_xp*(DK+ALP-1.0_xp)*(DK+BET-1.0_xp)*(2.0_xp*DK+APB)
        POLYN = ((A2+A3*X)*POLY-A4*POLYL)/A1
        PDERN = ((A2+A3*X)*PDER-A4*PDERL+A3*POLY)/A1
        PSAVE = POLYL
@@ -603,8 +603,8 @@ contains
 !---------------------------------------------------------------------
     implicit real(kind=xp) (A-H,O-Z)
     real(kind=xp) Z,ZGJ(1),ALPHA,BETA
-    EPS = 1.e-5
-    ONE = 1.
+    EPS = 1.0e-5_xp
+    ONE = 1.0_xp
     ZI = ZGJ(II)
     DZ = Z-ZI
     if (abs(DZ) .lt. EPS) then
@@ -654,8 +654,8 @@ contains
 !---------------------------------------------------------------------
     implicit real(kind=xp) (A-H,O-Z)
     real(kind=xp) Z,ZGLJ(1),ALPHA,BETA
-    EPS = 1.e-5
-    ONE = 1.
+    EPS = 1.0e-5_xp
+    ONE = 1.0_xp
     ZI = ZGLJ(I)
     DZ = Z-ZI
     if (abs(DZ) .lt. EPS) then
@@ -663,7 +663,7 @@ contains
        return
     end if
     N = NP-1
-    DN = ((N))
+    DN = real(N, kind=xp)
     EIGVAL = -DN*(DN+ALPHA+BETA+ONE)
     call JACOBF (PI,PDI,PM1,PDM1,PM2,PDM2,N,ALPHA,BETA,ZI)
     CONST = EIGVAL*PI+ALPHA*(ONE+ZI)*PDI-BETA*(ONE-ZI)*PDI
@@ -696,7 +696,7 @@ contains
        write (6,*) 'Here Nz=',Nz
        call neko_error
     end if
-    if ((ALPHA .le. -1.) .or. (BETA .le. -1.)) then
+    if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
        write (6,*) 'DGJ: Alpha and Beta must be greater than -1'
        call neko_error
     end if
@@ -727,9 +727,9 @@ contains
     implicit real(kind=xp) (A-H,O-Z)
     real(kind=xp) D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
     N = NZ-1
-    DN = ((N))
-    ONE = 1.
-    TWO = 2.
+    DN = real(N, kind=xp)
+    ONE = 1.0_xp
+    TWO = 2.0_xp
 
     if (NZ .le. 1) then
        write (6,*) 'DGJD: Minimum number of Gauss-Lobatto points is 2'
@@ -744,7 +744,7 @@ contains
        do J = 1, NZ
           call JACOBF (PI,PDI,PM1,PDM1,PM2,PDM2,NZ,ALPHA,BETA,Z(I))
           call JACOBF (PJ,PDJ,PM1,PDM1,PM2,PDM2,NZ,ALPHA,BETA,Z(J))
-          if (I.NE.J) D(I,J) = PDI/(PDJ*(Z(I)-Z(J)))
+          if (I .ne. J) D(I,J) = PDI/(PDJ*(Z(I)-Z(J)))
           if (I .eq. J) D(I,J) = ((ALPHA+BETA+TWO)*Z(I)+ALPHA-BETA)/ &
                (TWO*(ONE-Z(I)**2))
           DT(J,I) = D(I,J)
@@ -808,9 +808,9 @@ contains
     implicit real(kind=xp) (A-H,O-Z)
     real(kind=xp) D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
     N = NZ-1
-    DN = ((N))
-    ONE = 1.
-    TWO = 2.
+    DN = real(N, kind=xp)
+    ONE = 1.0_xp
+    TWO = 2.0_xp
     EIGVAL = -DN*(DN+ALPHA+BETA+ONE)
 
     if (NZ .le. 1) then
@@ -828,8 +828,8 @@ contains
           call JACOBF (PJ,PDJ,PM1,PDM1,PM2,PDM2,N,ALPHA,BETA,Z(J))
           CI = EIGVAL*PI-(BETA*(ONE-Z(I))-ALPHA*(ONE+Z(I)))*PDI
           CJ = EIGVAL*PJ-(BETA*(ONE-Z(J))-ALPHA*(ONE+Z(J)))*PDJ
-          if (I.NE.J) D(I,J) = CI/(CJ*(Z(I)-Z(J)))
-          if ((I .eq. J) .and. (I.NE.1) .and. (I.NE.NZ)) &
+          if (I .ne. J) D(I,J) = CI/(CJ*(Z(I)-Z(J)))
+          if ((I .eq. J) .and. (I .ne. 1) .and. (I .ne. NZ)) &
                D(I,J) = (ALPHA*(ONE+Z(I))-BETA*(ONE-Z(I)))/ &
                (TWO*(ONE-Z(I)**2))
           if ((I .eq. J) .and. (I .eq. 1)) &
@@ -860,15 +860,15 @@ contains
        write (6,*) 'Polynomial degree         =',NZ
     end if
     if (NZ .eq. 1) then
-       D(1,1) = 0.
+       D(1,1) = 0.0_rp
        return
     end if
     FN = (N)
-    d0 = FN*(FN+1.)/4.
+    d0 = FN*(FN + 1.0_rp)/4.0_rp
     do I = 1, NZ
        do J = 1, NZ
           D(I,J) = 0.0_rp
-          if (I.NE.J) D(I,J) = PNLEG(real(Z(I),xp),N)/ &
+          if (I .ne. J) D(I,J) = PNLEG(real(Z(I),xp),N)/ &
                (PNLEG(real(Z(J),xp),N)*(Z(I)-Z(J)))
           if ((I .eq. J) .and. (I .eq. 1)) D(I,J) = -d0
           if ((I .eq. J) .and. (I .eq. NZ)) D(I,J) = d0
@@ -886,15 +886,15 @@ contains
 !---------------------------------------------------------------------
     implicit real(kind=xp) (A-H,O-Z)
     real(kind=xp) ZGLL(1), EPS, DZ, Z
-    EPS = 1.E-5
+    EPS = 1.0e-5_xp
     DZ = Z - ZGLL(I)
     if (abs(DZ) .lt. EPS) then
-       HGLL = 1.
+       HGLL = 1.0_xp
        return
     end if
     N = NZ - 1
-    ALFAN = (N)*((N)+1.)
-    HGLL = - (1.-Z*Z)*PNDLEG(Z,N)/ &
+    ALFAN = (N)*(real(N, kind=xp) + 1.0_xp)
+    HGLL = - (1.0_xp-Z*Z)*PNDLEG(Z,N)/ &
          (ALFAN*PNLEG(ZGLL(I),N)*(Z-ZGLL(I)))
   end function HGLL
 
@@ -906,10 +906,10 @@ contains
 !
 !---------------------------------------------------------------------
     real(kind=xp) ZGL(1), Z, EPS, DZ
-    EPS = 1.E-5
+    EPS = 1.0e-5_xp
     DZ = Z - ZGL(I)
     if (abs(DZ) .lt. EPS) then
-       HGL = 1.
+       HGL = 1.0_xp
        return
     end if
     N = NZ-1
@@ -933,7 +933,7 @@ contains
     !if(abs(Z)  .lt.  1.0E-25) Z = 0.0
 
 
-    P1 = 1.
+    P1 = 1.0_xp
     if (N .eq. 0) then
        PNLEG = P1
        return
@@ -942,12 +942,12 @@ contains
     P3 = P2
     do K = 1, N-1
        FK = (K)
-       P3 = ((2.0_rp*FK+1.0_rp)*Z*P2 - FK*P1)/(FK+1.0_rp)
+       P3 = ((2.0_xp*FK+1.0_xp)*Z*P2 - FK*P1)/(FK+1.0_xp)
        P1 = P2
        P2 = P3
     end do
     PNLEG = P3
-    if (n .eq. 0) pnleg = 1.
+    if (n .eq. 0) pnleg = 1.0_xp
   end function PNLEG
 
   !> Evaluate Legendre polynomials of degrees 0-N at point x
@@ -957,13 +957,13 @@ contains
     real(kind=rp) :: x
     integer :: N, j
 
-    L(0) = 1.0_xp
+    L(0) = 1.0_rp
     if (N .eq. 0) return
     L(1) = x
 
     do j = 1, N-1
-       L(j+1) = ( (2.0_xp * real(j, xp) + 1.0_xp) * x * L(j) &
-            - real(j, xp) * L(j-1) ) / (real(j, xp) + 1.0_xp)
+       L(j+1) = real( ((2.0_xp * real(j,rp) + 1.0_xp) * x * L(j) &
+            - real(j, kind=xp) * L(j-1) ) / (real(j,kind=xp) + 1.0_xp), kind=rp)
     end do
   end subroutine legendre_poly
 
@@ -977,22 +977,22 @@ contains
 !----------------------------------------------------------------------
     implicit real(kind=xp) (A-H,O-Z)
     real(kind=xp) P1, P2, P1D, P2D, P3D, Z
-    P1 = 1.
+    P1 = 1.0_xp
     P2 = Z
-    P1D = 0.
-    P2D = 1.
-    P3D = 1.
+    P1D = 0.0_xp
+    P2D = 1.0_xp
+    P3D = 1.0_xp
     do K = 1, N-1
        FK = (K)
-       P3 = ((2.*FK+1.)*Z*P2 - FK*P1)/(FK+1.)
-       P3D = ((2.*FK+1.)*P2 + (2.*FK+1.)*Z*P2D - FK*P1D)/(FK+1.)
+       P3 = ((2.0_xp*FK+1.0_xp)*Z*P2 - FK*P1)/(FK+1.0_xp)
+       P3D = ((2.0_xp*FK+1.0_xp)*P2 + (2.0_xp*FK+1.0_xp)*Z*P2D - FK*P1D)/(FK+1.0_xp)
        P1 = P2
        P2 = P3
        P1D = P2D
        P2D = P3D
     end do
     PNDLEG = P3D
-    if (N .eq. 0) pndleg = 0.
+    if (N .eq. 0) pndleg = 0.0_xp
   end function PNDLEG
 
   subroutine DGLLGL (D,DT,ZM1,ZM2,IM12,NZM1,NZM2,ND1,ND2)
@@ -1010,18 +1010,18 @@ contains
     real(kind=xp) D(ND2,ND1), DT(ND1,ND2), ZM1(ND1), ZM2(ND2), IM12(ND2,ND1)
     real(kind=xp) EPS, ZP, ZQ
     if (NZM1 .eq. 1) then
-       D (1,1) = 0.
-       DT(1,1) = 0.
+       D (1,1) = 0.0_xp
+       DT(1,1) = 0.0_xp
        return
     end if
-    EPS = 1.E-6
+    EPS = 1.0E-6_xp
     NM1 = NZM1-1
     do IP = 1, NZM2
        do JQ = 1, NZM1
           ZP = ZM2(IP)
           ZQ = ZM1(JQ)
           if ((abs(ZP) .lt. EPS) .and. (abs(ZQ) .lt. EPS)) then
-             D(IP,JQ) = 0.
+             D(IP,JQ) = 0.0_xp
           else
              D(IP,JQ) = (PNLEG(ZP,NM1)/PNLEG(ZQ,NM1) &
                   -IM12(IP,JQ))/(ZP-ZQ)
@@ -1112,9 +1112,9 @@ contains
        call neko_error
     end if
 
-    EPS = 1.e-6
-    ONE = 1.
-    TWO = 2.
+    EPS = 1.0e-6_xp
+    ONE = 1.0_xp
+    TWO = 2.0_xp
     NGL = NPGL-1
     DN = ((NGL))
     EIGVAL = -DN*(DN+ALPHA+BETA+ONE)
@@ -1151,8 +1151,8 @@ contains
 !--------------------------------------------------------------------
     real(kind=xp) I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2), ZI
     if (NZ1 .eq. 1) then
-       I12 (1,1) = 1.
-       IT12(1,1) = 1.
+       I12 (1,1) = 1.0_xp
+       IT12(1,1) = 1.0_xp
        return
     end if
     do I = 1, NZ2
@@ -1176,8 +1176,8 @@ contains
 !--------------------------------------------------------------------
     real(kind=xp) I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2),ZI
     if (NZ1 .eq. 1) then
-       I12 (1,1) = 1.
-       IT12(1,1) = 1.
+       I12 (1,1) = 1.0_xp
+       IT12(1,1) = 1.0_xp
        return
     end if
     do I = 1, NZ2
@@ -1202,8 +1202,8 @@ contains
 !--------------------------------------------------------------------
     real(kind=xp) I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2),ZI,ALPHA,BETA
     if (NZ1 .eq. 1) then
-       I12 (1,1) = 1.
-       IT12(1,1) = 1.
+       I12 (1,1) = 1.0_xp
+       IT12(1,1) = 1.0_xp
        return
     end if
     do I = 1, NZ2
@@ -1228,8 +1228,8 @@ contains
 !--------------------------------------------------------------------
     real(kind=xp) I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2),ZI,ALPHA,BETA
     if (NZ1 .eq. 1) then
-       I12 (1,1) = 1.
-       IT12(1,1) = 1.
+       I12 (1,1) = 1.0_xp
+       IT12(1,1) = 1.0_xp
        return
     end if
     do I = 1, NZ2
