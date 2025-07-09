@@ -158,7 +158,9 @@ contains
   !! @param W Quadrature weights.
   !! @param NP Number of quadrature points.
   subroutine ZWGL (Z,W,NP)
-    real(kind=rp) Z(1),W(1), ALPHA, BETA
+    real(kind=rp), intent(inout) :: Z(1), W(1)
+    integer, intent(in) :: NP
+    real(kind=rp) ALPHA, BETA
     ALPHA = 0.0_rp
     BETA = 0.0_rp
     call ZWGJ (Z,W,NP,ALPHA,BETA)
@@ -174,7 +176,9 @@ contains
 !     operations are done in double precision.
 !
 !--------------------------------------------------------------------
-    real(kind=rp) Z(1),W(1), ALPHA, BETA
+    real(kind=rp), intent(inout) :: Z(1), W(1)
+    integer, intent(in) :: NP
+    real(kind=rp) ALPHA, BETA
     ALPHA = 0.0_rp
     BETA = 0.0_rp
     call ZWGLJ (Z,W,NP,ALPHA,BETA)
@@ -191,8 +195,10 @@ contains
 !--------------------------------------------------------------------
     integer, parameter :: NMAX = 84
     integer, parameter :: NZD = NMAX
-    real(kind=xp) ZD(NZD),WD(NZD),ALPHAD,BETAD
-    real(kind=rp) Z(1),W(1),ALPHA,BETA
+    real(kind=rp), intent(inout) :: Z(1), W(1)
+    real(kind=rp), intent(in) :: ALPHA, BETA
+    integer, intent(in) :: NP
+    real(kind=xp) ZD(NZD), WD(NZD), ALPHAD, BETAD
 
     NPMAX = NZD
     if (NP .gt. NPMAX) then
@@ -201,8 +207,8 @@ contains
        write (stderr, *) 'Here NP=',NP
        call neko_error
     end if
-    ALPHAD = ALPHA
-    BETAD = BETA
+    ALPHAD = real(ALPHA, kind=xp)
+    BETAD = real(BETA, kind=xp)
     call ZWGJD (ZD,WD,NP,ALPHAD,BETAD)
     do I = 1, NP
        Z(I) = ZD(I)
@@ -219,8 +225,12 @@ contains
 !     Double precision version.
 !
 !--------------------------------------------------------------------
+    ! Bug: Remove implicit types
     implicit real(kind=xp) (A-H,O-Z)
-    real(kind=xp) Z(1),W(1),ALPHA,BETA
+
+    real(kind=xp), intent(inout) :: Z(1), W(1)
+    real(kind=xp), intent(in) :: ALPHA, BETA
+    integer, intent(in) :: NP
 
     N = NP-1
     DN = real(N, kind=xp)
@@ -272,18 +282,20 @@ contains
 !--------------------------------------------------------------------
     integer, parameter :: NMAX = 84
     integer, parameter :: NZD = NMAX
-    real(kind=xp) ZD(NZD),WD(NZD),ALPHAD,BETAD
-    real(kind=rp) Z(1),W(1),ALPHA,BETA
+    real(kind=rp), intent(inout) :: Z(1), W(1)
+    real(kind=rp), intent(in) :: ALPHA, BETA
+    integer, intent(in) :: NP
+    real(kind=xp) ZD(NZD), WD(NZD), ALPHAD, BETAD
 
     NPMAX = NZD
     if (NP .gt. NPMAX) then
        write (stderr, *) 'Too large polynomial degree in ZWGLJ'
-       write (stderr, *) 'Maximum polynomial degree is',NMAX
-       write (stderr, *) 'Here NP=',NP
+       write (stderr, *) 'Maximum polynomial degree is', NMAX
+       write (stderr, *) 'Here NP=', NP
        call neko_error
     end if
-    ALPHAD = ALPHA
-    BETAD = BETA
+    ALPHAD = real(ALPHA, kind=xp)
+    BETAD = real(BETA, kind=xp)
     call ZWGLJD (ZD,WD,NP,ALPHAD,BETAD)
     do I = 1, NP
        Z(I) = ZD(I)
@@ -300,8 +312,13 @@ contains
 !     Double precision version.
 !
 !--------------------------------------------------------------------
+    ! Bug: Remove implicit types
     implicit real(kind=xp) (A-H,O-Z)
-    real(kind=xp) Z(NP),W(NP),ALPHA,BETA
+
+    real(kind=xp), intent(inout) :: Z(NP), W(NP)
+    real(kind=xp), intent(in) :: ALPHA, BETA
+    integer, intent(in) :: NP
+
 
     N = NP-1
     NM1 = N-1
@@ -336,8 +353,12 @@ contains
   end subroutine ZWGLJD
 
   real(kind=xp) function ENDW1 (N,ALPHA,BETA)
+    ! Bug: Remove implicit types
     implicit real(kind=xp) (A-H,O-Z)
-    real(kind=xp) ALPHA,BETA
+
+    integer, intent(in) :: N
+    real(kind=xp), intent(in) :: ALPHA, BETA
+
     ZERO = 0.
     ONE = 1.0_xp
     TWO = 2.0_xp
@@ -379,8 +400,12 @@ contains
   end function ENDW1
 
   real(kind=xp) function ENDW2 (N,ALPHA,BETA)
+    ! Bug: Remove implicit types
     implicit real(kind=xp) (A-H,O-Z)
-    real(kind=xp) ALPHA,BETA
+
+    integer, intent(in) :: N
+    real(kind=xp), intent(in) :: ALPHA, BETA
+
     ZERO = 0.0_xp
     ONE = 1.0_xp
     TWO = 2.0_xp
@@ -422,8 +447,11 @@ contains
   end function ENDW2
 
   real(kind=xp) function GAMMAF (X)
+    ! Bug: Remove implicit types
     implicit real(kind=xp) (A-H,O-Z)
-    real(kind=xp) X
+
+    real(kind=xp), intent(in) :: X
+
     ZERO = 0.0_xp
     HALF = 0.5_xp
     ONE = 1.0_xp
@@ -445,8 +473,12 @@ contains
   end function GAMMAF
 
   real(kind=xp) function PNORMJ (N,ALPHA,BETA)
+    ! Bug: Remove implicit types
     implicit real(kind=xp) (A-H,O-Z)
-    real(kind=xp) ALPHA,BETA
+
+    real(kind=xp), intent(in) :: ALPHA, BETA
+    integer, intent(in) :: N
+
     ONE = 1.0_xp
     TWO = 2.0_xp
     DN = real(N, kind=xp)
@@ -480,10 +512,16 @@ contains
 !     ALPHA = BETA = -0.5  ->  Chebyshev points
 !
 !--------------------------------------------------------------------
+    ! Bug: Remove implicit types
     implicit real(kind=xp) (A-H,O-Z)
-    real(kind=xp) XJAC(1)
-    data KSTOP /10/
-    data EPS/1.0e-12_RP/
+
+    real(kind=xp), intent(inout) :: XJAC(1)
+    integer, intent(in) :: NP
+    real(kind=xp), intent(in) :: ALPHA, BETA
+
+    integer, parameter :: KSTOP = 10
+    real(kind=rp), parameter :: EPS = 1.0e-12_rp
+
     N = NP-1
     one = 1.0_xp
     DTH = 4.0_xp*atan(one)/(2.0_xp*real(N, kind=xp) + 2.0_xp)
@@ -533,7 +571,14 @@ contains
 !     of degree N at X.
 !
 !--------------------------------------------------------------------
+    ! Bug: Remove implicit types
     implicit real(kind=xp) (A-H,O-Z)
+
+    real(kind=xp), intent(inout) :: POLY, PDER, &
+         POLYM1, PDERM1, POLYM2, PDERM2
+    integer, intent(in) :: N
+    real(kind=xp), intent(in) :: ALP, BET, X
+
     APB = ALP+BET
     POLY = 1.0_xp
     PDER = 0.0_xp
@@ -575,8 +620,11 @@ contains
 !---------------------------------------------------------------------
     integer, parameter :: NMAX = 84
     integer, parameter :: NZD = NMAX
+    real(kind=xp), intent(in) :: Z, ZGJ(1), ALPHA, BETA
+    integer, intent(in) :: NP, II
+
     real(kind=xp) ZD,ZGJD(NZD),ALPHAD,BETAD
-    real(kind=xp) Z,ZGJ(1),ALPHA,BETA
+
     NPMAX = NZD
     if (NP .gt. NPMAX) then
        write (stderr, *) 'Too large polynomial degree in HGJ'
@@ -601,8 +649,12 @@ contains
 !     Double precision version.
 !
 !---------------------------------------------------------------------
+    ! Bug: Remove implicit types
     implicit real(kind=xp) (A-H,O-Z)
-    real(kind=xp) Z,ZGJ(1),ALPHA,BETA
+
+    real(kind=xp), intent(in) :: Z, ZGJ(1), ALPHA, BETA
+    integer, intent(in) :: NP, II
+
     EPS = 1.0e-5_xp
     ONE = 1.0_xp
     ZI = ZGJ(II)
@@ -626,8 +678,11 @@ contains
 !---------------------------------------------------------------------
     integer, parameter :: NMAX = 84
     integer, parameter :: NZD = NMAX
+
+    real(kind=xp), intent(in) :: Z, ZGLJ(1), ALPHA, BETA
+    integer, intent(in) :: NP, II
     real(kind=xp) ZD,ZGLJD(NZD),ALPHAD,BETAD
-    real(kind=xp) Z,ZGLJ(1),ALPHA,BETA
+
     NPMAX = NZD
     if (NP .gt. NPMAX) then
        write (stderr, *) 'Too large polynomial degree in HGLJ'
@@ -652,8 +707,12 @@ contains
 !     Double precision version.
 !
 !---------------------------------------------------------------------
+    ! Bug: Remove implicit types
     implicit real(kind=xp) (A-H,O-Z)
-    real(kind=xp) Z,ZGLJ(1),ALPHA,BETA
+
+    real(kind=xp), intent(in) :: Z, ZGLJ(1), ALPHA, BETA
+    integer, intent(in) :: NP, I
+
     EPS = 1.0e-5_xp
     ONE = 1.0_xp
     ZI = ZGLJ(I)
@@ -683,8 +742,11 @@ contains
 !-----------------------------------------------------------------
     integer, parameter :: NMAX = 84
     integer, parameter :: NZDD = NMAX
+    integer, intent(in) :: NZ, NZD
+    real(kind=xp), intent(inout) :: D(NZD,NZD), DT(NZD,NZD)
+    real(kind=xp), intent(in) :: Z(1), ALPHA, BETA
+
     real(kind=xp) DD(NZDD,NZDD),DTD(NZDD,NZDD),ZD(NZDD),ALPHAD,BETAD
-    real(kind=xp) D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
 
     if (NZ .le. 0) then
        write (stderr, *) 'DGJ: Minimum number of Gauss points is 1'
@@ -724,8 +786,13 @@ contains
 !     Double precision version.
 !
 !-----------------------------------------------------------------
+    ! Bug: Remove implicit types
     implicit real(kind=xp) (A-H,O-Z)
-    real(kind=xp) D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
+
+    integer, intent(in) :: NZ, NZD
+    real(kind=xp), intent(inout) :: D(NZD,NZD), DT(NZD,NZD)
+    real(kind=xp), intent(in) :: Z(1), ALPHA, BETA
+
     N = NZ-1
     DN = real(N, kind=xp)
     ONE = 1.0_xp
@@ -805,8 +872,13 @@ contains
 !     Double precision version.
 !
 !-----------------------------------------------------------------
+    ! Bug: Remove implicit types
     implicit real(kind=xp) (A-H,O-Z)
-    real(kind=xp) D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
+
+    integer, intent(in) :: NZ, NZD
+    real(kind=xp), intent(inout) :: D(NZD,NZD), DT(NZD,NZD)
+    real(kind=xp), intent(in) :: Z(1), ALPHA, BETA
+
     N = NZ-1
     DN = real(N, kind=xp)
     ONE = 1.0_xp
@@ -850,9 +922,14 @@ contains
 !     Note: D and DT are square matrices.
 !
 !-----------------------------------------------------------------
+    ! Bug: Remove implicit types
     implicit real(kind=xp) (A-H,O-Z)
+
     integer, parameter :: NMAX = 84
-    real(kind=rp) D(NZD,NZD),DT(NZD,NZD),Z(1)
+    integer, intent(in) :: NZ, NZD
+    real(kind=rp), intent(inout) :: D(NZD,NZD), DT(NZD,NZD)
+    real(kind=rp), intent(in) :: Z(1)
+
     N = NZ-1
     if (NZ .gt. NMAX) then
        write (stderr, *) 'Subroutine DGLL'
@@ -884,8 +961,13 @@ contains
 !     the NZ Gauss-Lobatto Legendre points ZGLL at the point Z.
 !
 !---------------------------------------------------------------------
+    ! Bug: Remove implicit types
     implicit real(kind=xp) (A-H,O-Z)
-    real(kind=xp) ZGLL(1), EPS, DZ, Z
+
+    integer, intent(in) :: I, NZ
+    real(kind=xp), intent(in) :: ZGLL(1), Z
+    real(kind=xp) :: EPS, DZ
+
     EPS = 1.0e-5_xp
     DZ = Z - ZGLL(I)
     if (abs(DZ) .lt. EPS) then
@@ -905,7 +987,10 @@ contains
 !     the NZ Gauss Legendre points ZGL at the point Z.
 !
 !---------------------------------------------------------------------
-    real(kind=xp) ZGL(1), Z, EPS, DZ
+    integer, intent(in) :: I, NZ
+    real(kind=xp), intent(in) :: ZGL(1), Z
+    real(kind=xp) :: EPS, DZ
+
     EPS = 1.0e-5_xp
     DZ = Z - ZGL(I)
     if (abs(DZ) .lt. EPS) then
@@ -927,11 +1012,13 @@ contains
 !
 !     This next statement is to overcome the underflow bug in the i860.
 !     It can be removed at a later date.  11 Aug 1990   pff.
-!
+    !
+    ! Bug: Remove implicit types
     implicit real(kind=xp) (A-H,O-Z)
-    real(kind=xp) Z, P1, P2, P3
-    !if(abs(Z)  .lt.  1.0E-25) Z = 0.0
 
+    real(kind=xp), intent(in) :: Z
+    integer, intent(in) :: N
+    real(kind=xp) :: P1, P2, P3
 
     P1 = 1.0_xp
     if (N .eq. 0) then
@@ -953,9 +1040,10 @@ contains
   !> Evaluate Legendre polynomials of degrees 0-N at point x
   !! and store in array L
   subroutine legendre_poly(L, x, N)
-    real(kind=rp), intent(inout):: L(0:N)
-    real(kind=rp) :: x
-    integer :: N, j
+    integer, intent(in) :: N
+    real(kind=rp), intent(inout) :: L(0:N)
+    real(kind=rp), intent(in) :: x
+    integer :: j
 
     L(0) = 1.0_rp
     if (N .eq. 0) return
@@ -975,8 +1063,13 @@ contains
 !     Based on the recursion formula for the Legendre polynomials.
 !
 !----------------------------------------------------------------------
+    ! Bug: Remove implicit types
     implicit real(kind=xp) (A-H,O-Z)
-    real(kind=xp) P1, P2, P1D, P2D, P3D, Z
+
+    real(kind=xp), intent(in) :: Z
+    integer, intent(in) :: N
+    real(kind=xp) :: P1, P2, P1D, P2D, P3D
+
     P1 = 1.0_xp
     P2 = Z
     P1D = 0.0_xp
@@ -1007,8 +1100,11 @@ contains
 !     Note: D and DT are rectangular matrices.
 !
 !-----------------------------------------------------------------------
-    real(kind=xp) D(ND2,ND1), DT(ND1,ND2), ZM1(ND1), ZM2(ND2), IM12(ND2,ND1)
+    integer, intent(in) :: ND1, ND2
+    real(kind=xp), intent(inout) :: D(ND2,ND1), DT(ND1,ND2)
+    real(kind=xp), intent(in) :: ZM1(ND1), ZM2(ND2), IM12(ND2,ND1)
     real(kind=xp) EPS, ZP, ZQ
+
     if (NZM1 .eq. 1) then
        D (1,1) = 0.0_xp
        DT(1,1) = 0.0_xp
@@ -1044,9 +1140,12 @@ contains
 !     Single precision version.
 !
 !-----------------------------------------------------------------------
-    real(kind=xp) D(ND2,ND1), DT(ND1,ND2), ZGL(ND1), ZG(ND2), IGLG(ND2,ND1)
     integer, parameter :: NMAX = 84
     integer, parameter :: NDD = NMAX
+    integer, intent(in) :: NPGL, NPG, ND1, ND2
+    real(kind=xp), intent(inout) :: D(ND2,ND1), DT(ND1,ND2)
+    real(kind=xp), intent(in) :: ZGL(ND1), ZG(ND2), IGLG(ND2,ND1)
+
     real(kind=xp) DD(NDD,NDD), DTD(NDD,NDD)
     real(kind=xp) ZGD(NDD), ZGLD(NDD), IGLGD(NDD,NDD)
     real(kind=xp) ALPHAD, BETAD
@@ -1099,9 +1198,12 @@ contains
 !     Double precision version.
 !
 !-----------------------------------------------------------------------
+    ! Bug: Remove implicit types
     implicit real(kind=xp) (A-H,O-Z)
-    real(kind=xp) D(ND2,ND1), DT(ND1,ND2), ZGL(ND1), ZG(ND2)
-    real(kind=xp) IGLG(ND2,ND1), ALPHA, BETA
+
+    integer, intent(in) :: NPGL, NPG, ND1, ND2
+    real(kind=xp), intent(inout) :: D(ND2,ND1), DT(ND1,ND2)
+    real(kind=xp), intent(in) :: ZGL(ND1), ZG(ND2), IGLG(ND2,ND1), ALPHA, BETA
 
     if (NPGL .le. 1) then
        write(6,*) 'DGLJGJD: Minimum number of Gauss-Lobatto points is 2'
@@ -1149,7 +1251,11 @@ contains
 !     Z2 : NZ2 points on mesh M.
 !
 !--------------------------------------------------------------------
-    real(kind=xp) I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2), ZI
+    integer, intent(in) :: NZ1, NZ2, ND1, ND2
+    real(kind=xp), intent(inout) :: I12(ND2,ND1), IT12(ND1,ND2)
+    real(kind=xp), intent(in) :: Z1(ND1),Z2(ND2)
+    real(kind=xp) :: ZI
+
     if (NZ1 .eq. 1) then
        I12 (1,1) = 1.0_xp
        IT12(1,1) = 1.0_xp
@@ -1174,7 +1280,11 @@ contains
 !     Z2 : NZ2 points on mesh M.
 !
 !--------------------------------------------------------------------
-    real(kind=xp) I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2),ZI
+    integer, intent(in) :: NZ1, NZ2, ND1, ND2
+    real(kind=xp), intent(inout) :: I12(ND2,ND1), IT12(ND1,ND2)
+    real(kind=xp), intent(in) :: Z1(ND1), Z2(ND2)
+    real(kind=xp) :: ZI
+
     if (NZ1 .eq. 1) then
        I12 (1,1) = 1.0_xp
        IT12(1,1) = 1.0_xp
@@ -1200,7 +1310,11 @@ contains
 !     Single precision version.
 !
 !--------------------------------------------------------------------
-    real(kind=xp) I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2),ZI,ALPHA,BETA
+    integer, intent(in) :: NZ1, NZ2, ND1, ND2
+    real(kind=xp), intent(inout) :: I12(ND2,ND1), IT12(ND1,ND2)
+    real(kind=xp), intent(in) :: Z1(ND1), Z2(ND2), ALPHA, BETA
+    real(kind=xp) :: ZI
+
     if (NZ1 .eq. 1) then
        I12 (1,1) = 1.0_xp
        IT12(1,1) = 1.0_xp
@@ -1226,7 +1340,11 @@ contains
 !     Single precision version.
 !
 !--------------------------------------------------------------------
-    real(kind=xp) I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2),ZI,ALPHA,BETA
+    integer, intent(in) :: NZ1, NZ2, ND1, ND2
+    real(kind=xp), intent(inout) :: I12(ND2,ND1), IT12(ND1,ND2)
+    real(kind=xp), intent(in) :: Z1(ND1), Z2(ND2), ALPHA, BETA
+    real(kind=xp) :: ZI
+
     if (NZ1 .eq. 1) then
        I12 (1,1) = 1.0_xp
        IT12(1,1) = 1.0_xp
