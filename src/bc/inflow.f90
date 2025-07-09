@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -104,9 +104,13 @@ contains
     logical, intent(in), optional :: strong
     integer, intent(in), optional :: tstep
     integer :: i, m, k
-    logical :: strong_ = .true.
+    logical :: strong_
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
 
     m = this%msk(0)
 
@@ -129,9 +133,13 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
-    logical :: strong_ = .true.
+    logical :: strong_
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
 
     if (strong_ .and. (this%msk(0) .gt. 0)) then
        call device_inflow_apply_vector(this%msk_d, x_d, y_d, z_d, &
@@ -151,7 +159,7 @@ contains
   subroutine inflow_finalize(this, only_facets)
     class(inflow_t), target, intent(inout) :: this
     logical, optional, intent(in) :: only_facets
-    logical :: only_facets_ = .false.
+    logical :: only_facets_
 
     integer :: i
 

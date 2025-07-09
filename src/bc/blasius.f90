@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -187,9 +187,13 @@ contains
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
     integer :: i, m, k, idx(4), facet
-    logical :: strong_ = .true.
+    logical :: strong_
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
 
     associate(xc => this%coef%dof%x, yc => this%coef%dof%y, &
          zc => this%coef%dof%z, nx => this%coef%nx, ny => this%coef%ny, &
@@ -234,9 +238,13 @@ contains
     integer :: i, m, k, idx(4), facet
     integer(c_size_t) :: s
     real(kind=rp), allocatable :: bla_x(:), bla_y(:), bla_z(:)
-    logical :: strong_ = .true.
+    logical :: strong_
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
 
     associate(xc => this%coef%dof%x, yc => this%coef%dof%y, &
          zc => this%coef%dof%z, nx => this%coef%nx, ny => this%coef%ny, &
@@ -331,7 +339,7 @@ contains
   subroutine blasius_finalize(this, only_facets)
     class(blasius_t), target, intent(inout) :: this
     logical, optional, intent(in) :: only_facets
-    logical :: only_facets_ = .false.
+    logical :: only_facets_
 
     if (present(only_facets)) then
        only_facets_ = only_facets
