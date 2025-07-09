@@ -131,12 +131,13 @@ contains
 
   !> Boundary condition apply for a generic shear_stress condition
   !! to a vector @a x (device version)
-  subroutine shear_stress_apply_scalar_dev(this, x_d, t, tstep, strong)
+  subroutine shear_stress_apply_scalar_dev(this, x_d, t, tstep, strong, strm)
     class(shear_stress_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
+    type(c_ptr) :: strm
 
     call neko_error("The shear stress bc is not applicable to scalar fields.")
 
@@ -145,7 +146,7 @@ contains
   !> Boundary condition apply for a generic shear_stress condition
   !! to vectors @a x, @a y and @a z (device version)
   subroutine shear_stress_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, &
-       strong)
+       strong, strm)
     class(shear_stress_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
@@ -153,6 +154,7 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
+    type(c_ptr) :: strm
     logical :: strong_
 
     if (present(strong)) then
@@ -162,11 +164,12 @@ contains
     end if
 
     if (strong_) then
-       call this%symmetry%apply_vector_dev(x_d, y_d, z_d, t, tstep, .true.)
+       call this%symmetry%apply_vector_dev(x_d, y_d, z_d, &
+            t, tstep, .true., strm)
     else
-       call this%neumann_x%apply_scalar_dev(x_d, t, tstep, .false.)
-       call this%neumann_y%apply_scalar_dev(y_d, t, tstep, .false.)
-       call this%neumann_z%apply_scalar_dev(z_d, t, tstep, .false.)
+       call this%neumann_x%apply_scalar_dev(x_d, t, tstep, .false., strm)
+       call this%neumann_y%apply_scalar_dev(y_d, t, tstep, .false., strm)
+       call this%neumann_z%apply_scalar_dev(z_d, t, tstep, .false., strm)
     end if
 
   end subroutine shear_stress_apply_vector_dev

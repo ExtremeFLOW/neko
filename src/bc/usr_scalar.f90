@@ -226,12 +226,14 @@ contains
   !! Applies boundary conditions in eval on x
   !! @param x The array of values to apply.
   !! @param n The size of x.
-  subroutine usr_scalar_apply_scalar_dev(this, x_d, t, tstep, strong)
+  !! @param strm Device stream
+  subroutine usr_scalar_apply_scalar_dev(this, x_d, t, tstep, strong, strm)
     class(usr_scalar_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
+    type(c_ptr) :: strm
     integer :: i, m, k, idx(4), facet, tstep_
     real(kind=rp) :: t_
     integer(c_size_t) :: s
@@ -316,7 +318,7 @@ contains
 
       if (strong_) then
          call device_inhom_dirichlet_apply_scalar(this%msk_d, x_d, &
-              this%usr_x_d, m)
+              this%usr_x_d, m, strm)
       end if
     end associate
 
@@ -337,7 +339,8 @@ contains
   end subroutine usr_scalar_apply_vector
 
   !> No-op vector apply (device version)
-  subroutine usr_scalar_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, strong)
+  subroutine usr_scalar_apply_vector_dev(this, x_d, y_d, z_d, &
+       t, tstep, strong, strm)
     class(usr_scalar_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
@@ -345,6 +348,7 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
+    type(c_ptr) :: strm
 
   end subroutine usr_scalar_apply_vector_dev
 
