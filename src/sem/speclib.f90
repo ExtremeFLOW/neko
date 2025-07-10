@@ -213,8 +213,8 @@ contains
     BETAD = real(BETA, kind=xp)
     call ZWGJD (ZD,WD,NP,ALPHAD,BETAD)
     do I = 1, NP
-       Z(I) = ZD(I)
-       W(I) = WD(I)
+       Z(I) = real(ZD(I), kind=rp)
+       W(I) = real(WD(I), kind=rp)
     end do
   end subroutine ZWGJ
 
@@ -308,8 +308,8 @@ contains
     BETAD = real(BETA, kind=xp)
     call ZWGLJD (ZD,WD,NP,ALPHAD,BETAD)
     do I = 1, NP
-       Z(I) = ZD(I)
-       W(I) = WD(I)
+       Z(I) = real(ZD(I), kind=rp)
+       W(I) = real(WD(I), kind=rp)
     end do
   end subroutine ZWGLJ
 
@@ -498,7 +498,7 @@ contains
     ONE = 1.0_xp
     TWO = 2.0_xp
     DN = real(N, kind=xp)
-    CONST = ALPHA+BETA+ONE
+    CONST = ALPHA + BETA + ONE
     if (N .le. 1) then
        PROD = GAMMAF(DN+ALPHA)*GAMMAF(DN+BETA)
        PROD = PROD/(GAMMAF(DN)*GAMMAF(DN+ALPHA+BETA))
@@ -646,7 +646,7 @@ contains
     real(kind=xp), intent(in) :: Z, ZGJ(1), ALPHA, BETA
     integer, intent(in) :: NP, II
 
-    real(kind=xp) ZD, ZGJD(NZD), ALPHAD, BETAD
+    real(kind=xp) ZD, ZGJD(NZD)
     integer :: I, NPMAX
 
     NPMAX = NZD
@@ -660,9 +660,7 @@ contains
     do I = 1, NP
        ZGJD(I) = ZGJ(I)
     end do
-    ALPHAD = ALPHA
-    BETAD = BETA
-    HGJ = HGJD (II,ZD,ZGJD,NP,ALPHAD,BETAD)
+    HGJ = HGJD (II,ZD,ZGJD,NP,ALPHA,BETA)
   end function HGJ
 
   real(kind=xp) function HGJD (II,Z,ZGJ,NP,ALPHA,BETA)
@@ -706,7 +704,7 @@ contains
 
     real(kind=xp), intent(in) :: Z, ZGLJ(1), ALPHA, BETA
     integer, intent(in) :: NP, II
-    real(kind=xp) ZD, ZGLJD(NZD), ALPHAD, BETAD
+    real(kind=xp) ZD, ZGLJD(NZD)
     integer :: I, NPMAX
 
     NPMAX = NZD
@@ -720,9 +718,7 @@ contains
     do I = 1, NP
        ZGLJD(I) = ZGLJ(I)
     end do
-    ALPHAD = ALPHA
-    BETAD = BETA
-    HGLJ = HGLJD (II,ZD,ZGLJD,NP,ALPHAD,BETAD)
+    HGLJ = HGLJD (II,ZD,ZGLJD,NP,ALPHA,BETA)
   end function HGLJ
 
   real(kind=xp) function HGLJD (I,Z,ZGLJ,NP,ALPHA,BETA)
@@ -775,7 +771,7 @@ contains
     real(kind=xp), intent(inout) :: D(NZD,NZD), DT(NZD,NZD)
     real(kind=xp), intent(in) :: Z(1), ALPHA, BETA
 
-    real(kind=xp) :: DD(NZDD,NZDD), DTD(NZDD,NZDD), ZD(NZDD), ALPHAD, BETAD
+    real(kind=xp) :: DD(NZDD,NZDD), DTD(NZDD,NZDD), ZD(NZDD)
     integer :: I, J
 
     if (NZ .le. 0) then
@@ -792,12 +788,10 @@ contains
        write (stderr, *) 'DGJ: Alpha and Beta must be greater than -1'
        call neko_error
     end if
-    ALPHAD = ALPHA
-    BETAD = BETA
     do I = 1, NZ
        ZD(I) = Z(I)
     end do
-    call DGJD (DD,DTD,ZD,NZ,NZDD,ALPHAD,BETAD)
+    call DGJD (DD,DTD,ZD,NZ,NZDD,ALPHA,BETA)
     do I = 1, NZ
        do J = 1, NZ
           D(I,J) = DD(I,J)
@@ -867,7 +861,7 @@ contains
     real(kind=xp), intent(inout) :: D(NZD,NZD), DT(NZD,NZD)
     real(kind=xp), intent(in) :: Z(1), ALPHA, BETA
 
-    real(kind=xp) :: DD(NZDD,NZDD), DTD(NZDD,NZDD), ZD(NZDD), ALPHAD, BETAD
+    real(kind=xp) :: DD(NZDD,NZDD), DTD(NZDD,NZDD), ZD(NZDD)
     integer :: I, J
 
     if (NZ .le. 1) then
@@ -884,12 +878,10 @@ contains
        write (stderr, *) 'DGLJ: Alpha and Beta must be greater than -1'
        call neko_error
     end if
-    ALPHAD = ALPHA
-    BETAD = BETA
     do I = 1, NZ
        ZD(I) = Z(I)
     end do
-    call DGLJD (DD,DTD,ZD,NZ,NZDD,ALPHAD,BETAD)
+    call DGLJD (DD,DTD,ZD,NZ,NZDD,ALPHA,BETA)
     do I = 1, NZ
        do J = 1, NZ
           D(I,J) = DD(I,J)
@@ -1196,7 +1188,6 @@ contains
 
     real(kind=xp) DD(NDD,NDD), DTD(NDD,NDD)
     real(kind=xp) ZGD(NDD), ZGLD(NDD), IGLGD(NDD,NDD)
-    real(kind=xp) ALPHAD, BETAD
     integer :: I, J
 
     if (NPGL .le. 1) then
@@ -1209,13 +1200,11 @@ contains
        write(6,*) 'Here NPGL=',NPGL
        call neko_error
     end if
-    if ((ALPHA .le. -1.) .or. (BETA .le. -1.)) then
+    if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
        write(6,*) 'DGLJGJ: Alpha and Beta must be greater than -1'
        call neko_error
     end if
 
-    ALPHAD = ALPHA
-    BETAD = BETA
     do I = 1, NPG
        ZGD(I) = ZG(I)
        do J = 1, NPGL
@@ -1225,7 +1214,7 @@ contains
     do I = 1, NPGL
        ZGLD(I) = ZGL(I)
     end do
-    call DGLJGJD (DD,DTD,ZGLD,ZGD,IGLGD,NPGL,NPG,NDD,NDD,ALPHAD,BETAD)
+    call DGLJGJD (DD,DTD,ZGLD,ZGD,IGLGD,NPGL,NPG,NDD,NDD,ALPHA,BETA)
     do I = 1, NPG
        do J = 1, NPGL
           D(I,J) = DD(I,J)
