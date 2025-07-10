@@ -64,7 +64,7 @@ contains
        call neko_type_error("filter type: ", type_name, &
             FILTER_KNOWN_TYPES)
     end if
-    
+
     call object%init(json, coef)
   end subroutine filter_factory
 
