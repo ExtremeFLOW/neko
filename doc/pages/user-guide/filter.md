@@ -1,4 +1,4 @@
-# Filter {#filter}
+# Filtering {#filter}
 
 \tableofcontents
 
@@ -36,9 +36,9 @@ following input parameters:
 
 The elementwise filter is defined in the derived type `elementwise_filter_t`. Basing on the spectral element discretization, it is performed by mapping the field into hierarchical polynomials element by element (currently only Legendre-like polynomials are supported) and then attenuating the kernel for different orders. One could directly set it up through the json file if the filter is needed in any section.
 
-One could also modify `elementwise_filter_type` and `transfer_function` according to his/her need.
+The user can also modify `elementwise_filter_type` and `transfer_function` according to their need.
 
-`elementwise_filter_type` is a optional string to specify the type of usage of the polynomial for the filter.
+`elementwise_filter_type` is an optional string to specify the type of usage of the polynomial for the filter.
 
 | Name                         | Polynomials |
 | ---------------------------- | -------------------------- |
