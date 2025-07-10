@@ -39,7 +39,7 @@ module gs_comm
   implicit none
   private
 
-  integer, public, parameter :: GS_COMM_MPI = 1, GS_COMM_MPIGPU = 2, &       
+  integer, public, parameter :: GS_COMM_MPI = 1, GS_COMM_MPIGPU = 2, &
        GS_COMM_NCCL = 3, GS_COMM_NVSHMEM = 4
 
   !> Gather-scatter communication method
@@ -125,9 +125,10 @@ module gs_comm
   !! @param u, data to store operation into
   !! @param n, length of u (redundant)
   !! @param op, gather scatter operation to carry out
+  !! @param deps, (local) scatter_event (for device aware mpi)
   !! @param strm, device stream to execute this operation on
   abstract interface
-     subroutine gs_nbwait(this, u, n, op, strm)
+     subroutine gs_nbwait(this, u, n, op, deps, strm)
        import gs_comm_t
        import stack_i4_t
        import c_ptr
@@ -136,6 +137,7 @@ module gs_comm
        integer, intent(in) :: n
        real(kind=rp), dimension(n), intent(inout) :: u
        integer :: op
+       type(c_ptr), intent(inout) :: deps
        type(c_ptr), intent(inout) :: strm
      end subroutine gs_nbwait
   end interface
