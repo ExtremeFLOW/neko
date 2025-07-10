@@ -122,7 +122,7 @@ contains
     integer, intent(in) :: n_elements
     integer, intent(in) :: mask_array(n_elements )
 
-    call this%allocate(this%n_elements)
+    call this%allocate(n_elements)
 
     this%mask = mask_array
     if (NEKO_BCKND_DEVICE .eq. 1) then
