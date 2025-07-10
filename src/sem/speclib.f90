@@ -256,25 +256,25 @@ contains
     end if
 
     if (NP .eq. 1) then
-       Z(1) = (BETA-ALPHA)/(APB+TWO)
-       W(1) = GAMMAF(ALPHA+ONE)*GAMMAF(BETA+ONE)/GAMMAF(APB+TWO) &
-            * TWO**(APB+ONE)
+       Z(1) = (BETA-ALPHA) / (APB + TWO)
+       W(1) = GAMMAF(ALPHA + ONE)*GAMMAF(BETA + ONE)/GAMMAF(APB + TWO) &
+            * TWO**(APB + ONE)
        return
     end if
 
-    call JACG (Z, NP, ALPHA, BETA)
+    call JACG(Z, NP, ALPHA, BETA)
 
-    NP1 = N+1
-    NP2 = N+2
+    NP1 = N + 1
+    NP2 = N + 2
     DNP1 = real(NP1, kind=xp)
     DNP2 = real(NP2, kind=xp)
-    FAC1 = DNP1+ALPHA+BETA+ONE
-    FAC2 = FAC1+DNP1
-    FAC3 = FAC2+ONE
+    FAC1 = DNP1 + ALPHA + BETA + ONE
+    FAC2 = FAC1 + DNP1
+    FAC3 = FAC2 + ONE
     FNORM = PNORMJ(NP1, ALPHA, BETA)
-    RCOEF = (FNORM*FAC2*FAC3)/(TWO*FAC1*DNP2)
+    RCOEF = (FNORM*FAC2*FAC3) / (TWO*FAC1*DNP2)
     do I = 1, NP
-       call JACOBF (P, PD, PM1, PDM1, PM2, PDM2, NP2, ALPHA, BETA, Z(I))
+       call JACOBF(P, PD, PM1, PDM1, PM2, PDM2, NP2, ALPHA, BETA, Z(I))
        W(I) = -RCOEF/(P*PDM1)
     end do
   end subroutine ZWGJD
@@ -333,8 +333,8 @@ contains
     real(kind=xp) :: P, PD, PM1, PDM1, PM2, PDM2
     integer :: N, NM1, I
 
-    N = NP-1
-    NM1 = N-1
+    N = NP - 1
+    NM1 = N - 1
     ONE = 1.0_xp
     TWO = 2.0_xp
 
@@ -349,19 +349,19 @@ contains
     end if
 
     if (NM1 .gt. 0) then
-       ALPG = ALPHA+ONE
-       BETG = BETA+ONE
+       ALPG = ALPHA + ONE
+       BETG = BETA + ONE
        call ZWGJD(Z(2), W(2), NM1, ALPG, BETG)
     end if
     Z(1) = -ONE
     Z(NP) = ONE
-    do I = 2, NP-1
-       W(I) = W(I)/(ONE-Z(I)**2)
+    do I = 2, NP - 1
+       W(I) = W(I) / (ONE-Z(I)**2)
     end do
-    call JACOBF (P, PD, PM1, PDM1, PM2, PDM2, N, ALPHA, BETA, Z(1))
-    W(1) = ENDW1(N, ALPHA, BETA)/(TWO*PD)
-    call JACOBF (P, PD, PM1, PDM1, PM2, PDM2, N, ALPHA, BETA, Z(NP))
-    W(NP) = ENDW2(N, ALPHA, BETA)/(TWO*PD)
+    call JACOBF(P, PD, PM1, PDM1, PM2, PDM2, N, ALPHA, BETA, Z(1))
+    W(1) = ENDW1(N, ALPHA, BETA) / (TWO*PD)
+    call JACOBF(P, PD, PM1, PDM1, PM2, PDM2, N, ALPHA, BETA, Z(NP))
+    W(NP) = ENDW2(N, ALPHA, BETA) / (TWO*PD)
 
   end subroutine ZWGLJD
 
@@ -380,34 +380,33 @@ contains
     TWO = 2.0_xp
     THREE = 3.0_xp
     FOUR = 4.0_xp
-    APB = ALPHA+BETA
+    APB = ALPHA + BETA
     if (N .eq. 0) then
        ENDW1 = ZERO
        return
     end if
-    F1 = GAMMAF(ALPHA+TWO)*GAMMAF(BETA+ONE)/GAMMAF(APB+THREE)
-    F1 = F1*(APB+TWO)*TWO**(APB+TWO)/TWO
+    F1 = GAMMAF(ALPHA + TWO)*GAMMAF(BETA + ONE) / GAMMAF(APB + THREE)
+    F1 = F1*(APB + TWO)*TWO**(APB + TWO)/TWO
     if (N .eq. 1) then
        ENDW1 = F1
        return
     end if
-    FINT1 = GAMMAF(ALPHA+TWO)*GAMMAF(BETA+ONE)/GAMMAF(APB+THREE)
-    FINT1 = FINT1*TWO**(APB+TWO)
-    FINT2 = GAMMAF(ALPHA+TWO)*GAMMAF(BETA+TWO)/GAMMAF(APB+FOUR)
-    FINT2 = FINT2*TWO**(APB+THREE)
-    F2 = (-TWO*(BETA+TWO)*FINT1 + (APB+FOUR)*FINT2) &
-         * (APB+THREE)/FOUR
+    FINT1 = GAMMAF(ALPHA + TWO)*GAMMAF(BETA + ONE) / GAMMAF(APB + THREE)
+    FINT1 = FINT1*TWO**(APB + TWO)
+    FINT2 = GAMMAF(ALPHA + TWO)*GAMMAF(BETA + TWO) / GAMMAF(APB + FOUR)
+    FINT2 = FINT2*TWO**(APB + THREE)
+    F2 = (-TWO*(BETA + TWO)*FINT1 + (APB + FOUR)*FINT2) * (APB + THREE) / FOUR
     if (N .eq. 2) then
        ENDW1 = F2
        return
     end if
     do I = 3, N
-       DI = real(I-1, kind=xp)
-       ABN = ALPHA+BETA+DI
-       ABNN = ABN+DI
-       A1 = -(TWO*(DI + ALPHA)*(DI + BETA)) / (ABN*ABNN*(ABNN + ONE))
+       DI = real(I - 1, kind=xp)
+       ABN = ALPHA + BETA + DI
+       ABNN = ABN + DI
+       A1 = -(TWO*(DI + ALPHA) * (DI + BETA)) / (ABN*ABNN*(ABNN + ONE))
        A2 = (TWO*(ALPHA - BETA)) / (ABNN*(ABNN + TWO))
-       A3 = (TWO*(ABN + ONE)) / ((ABNN + TWO)*(ABNN + ONE))
+       A3 = (TWO*(ABN + ONE)) / ((ABNN + TWO) * (ABNN + ONE))
        F3 = -(A2*F2 + A1*F1) / A3
        F1 = F2
        F2 = F3
@@ -430,42 +429,41 @@ contains
     TWO = 2.0_xp
     THREE = 3.0_xp
     FOUR = 4.0_xp
-    APB = ALPHA+BETA
+    APB = ALPHA + BETA
     if (N .eq. 0) then
        ENDW2 = ZERO
        return
     end if
-    F1 = GAMMAF(ALPHA+ONE)*GAMMAF(BETA+TWO)/GAMMAF(APB+THREE)
-    F1 = F1*(APB+TWO)*TWO**(APB+TWO)/TWO
+    F1 = GAMMAF(ALPHA + ONE)*GAMMAF(BETA + TWO) / GAMMAF(APB + THREE)
+    F1 = F1*(APB + TWO)*TWO**(APB + TWO)/TWO
     if (N .eq. 1) then
        ENDW2 = F1
        return
     end if
-    FINT1 = GAMMAF(ALPHA+ONE)*GAMMAF(BETA+TWO)/GAMMAF(APB+THREE)
-    FINT1 = FINT1*TWO**(APB+TWO)
-    FINT2 = GAMMAF(ALPHA+TWO)*GAMMAF(BETA+TWO)/GAMMAF(APB+FOUR)
-    FINT2 = FINT2*TWO**(APB+THREE)
-    F2 = (TWO*(ALPHA+TWO)*FINT1 - (APB+FOUR)*FINT2) &
-         * (APB+THREE)/FOUR
+    FINT1 = GAMMAF(ALPHA + ONE)*GAMMAF(BETA + TWO) / GAMMAF(APB + THREE)
+    FINT1 = FINT1*TWO**(APB + TWO)
+    FINT2 = GAMMAF(ALPHA + TWO)*GAMMAF(BETA + TWO) / GAMMAF(APB + FOUR)
+    FINT2 = FINT2*TWO**(APB + THREE)
+    F2 = (TWO*(ALPHA + TWO)*FINT1 - (APB + FOUR)*FINT2) * (APB + THREE) / FOUR
     if (N .eq. 2) then
        ENDW2 = F2
        return
     end if
     do I = 3, N
        DI = ((I-1))
-       ABN = ALPHA+BETA+DI
-       ABNN = ABN+DI
-       A1 = -(TWO*(DI+ALPHA)*(DI+BETA))/(ABN*ABNN*(ABNN+ONE))
-       A2 = (TWO*(ALPHA-BETA))/(ABNN*(ABNN+TWO))
-       A3 = (TWO*(ABN+ONE))/((ABNN+TWO)*(ABNN+ONE))
-       F3 = -(A2*F2+A1*F1)/A3
+       ABN = ALPHA + BETA + DI
+       ABNN = ABN + DI
+       A1 = -(TWO*(DI + ALPHA) * (DI + BETA)) / (ABN*ABNN*(ABNN + ONE))
+       A2 = (TWO*(ALPHA-BETA)) / (ABNN*(ABNN + TWO))
+       A3 = (TWO*(ABN + ONE)) / ((ABNN + TWO) * (ABNN + ONE))
+       F3 = -(A2*F2 + A1*F1)/A3
        F1 = F2
        F2 = F3
     end do
     ENDW2 = F3
   end function ENDW2
 
-  real(kind=xp) function GAMMAF (X)
+  real(kind=xp) function GAMMAF(X)
     real(kind=xp), intent(in) :: X
     real(kind=xp) :: ZERO, HALF, ONE, TWO, FOUR, PI
 
@@ -489,7 +487,7 @@ contains
     if (X .eq. 6.0_xp) GAMMAF = 120.0_xp
   end function GAMMAF
 
-  real(kind=xp) function PNORMJ (N, ALPHA, BETA)
+  real(kind=xp) function PNORMJ(N, ALPHA, BETA)
     real(kind=xp), intent(in) :: ALPHA, BETA
     integer, intent(in) :: N
 
@@ -502,24 +500,24 @@ contains
     DN = real(N, kind=xp)
     CONST = ALPHA + BETA + ONE
     if (N .le. 1) then
-       PROD = GAMMAF(DN+ALPHA)*GAMMAF(DN+BETA)
-       PROD = PROD/(GAMMAF(DN)*GAMMAF(DN+ALPHA+BETA))
-       PNORMJ = PROD * TWO**CONST/(TWO*DN+CONST)
+       PROD = GAMMAF(DN + ALPHA)*GAMMAF(DN + BETA)
+       PROD = PROD / (GAMMAF(DN)*GAMMAF(DN + ALPHA + BETA))
+       PNORMJ = PROD * TWO**CONST / (TWO*DN + CONST)
        return
     end if
-    PROD = GAMMAF(ALPHA+ONE)*GAMMAF(BETA+ONE)
-    PROD = PROD/(TWO*(ONE+CONST)*GAMMAF(CONST+ONE))
-    PROD = PROD*(ONE+ALPHA)*(TWO+ALPHA)
-    PROD = PROD*(ONE+BETA)*(TWO+BETA)
+    PROD = GAMMAF(ALPHA + ONE)*GAMMAF(BETA + ONE)
+    PROD = PROD/(TWO*(ONE + CONST)*GAMMAF(CONST + ONE))
+    PROD = PROD*(ONE + ALPHA) * (TWO + ALPHA)
+    PROD = PROD*(ONE + BETA) * (TWO + BETA)
     do I = 3, N
        DINDX = real(I, kind=xp)
-       FRAC = (DINDX+ALPHA)*(DINDX+BETA)/(DINDX*(DINDX+ALPHA+BETA))
+       FRAC = (DINDX + ALPHA) * (DINDX + BETA) / (DINDX*(DINDX + ALPHA + BETA))
        PROD = PROD*FRAC
     end do
-    PNORMJ = PROD * TWO**CONST/(TWO*DN+CONST)
+    PNORMJ = PROD*TWO**CONST / (TWO*DN + CONST)
   end function PNORMJ
 
-  subroutine JACG (XJAC, NP, ALPHA, BETA)
+  subroutine JACG(XJAC, NP, ALPHA, BETA)
 !--------------------------------------------------------------------
 !
 !     Compute NP Gauss points XJAC, which are the zeros of the
@@ -530,7 +528,6 @@ contains
 !     ALPHA = BETA = -0.5  ->  Chebyshev points
 !
 !--------------------------------------------------------------------
-
 
     integer, intent(in) :: NP
     real(kind=xp), intent(inout) :: XJAC(NP)
@@ -544,30 +541,30 @@ contains
     real(kind=xp) :: RECSUM, SWAP
     integer :: I, J, K, N, JM, JMIN
 
-    N = NP-1
+    N = NP - 1
     one = 1.0_xp
-    DTH = 4.0_xp*atan(one)/(2.0_xp*real(N, kind=xp) + 2.0_xp)
+    DTH = 4.0_xp*atan(one) / (2.0_xp*real(N, kind=xp) + 2.0_xp)
     do J = 1, NP
        if (J .eq. 1) then
-          X = cos((2.0_xp*(real(J, kind=xp)-1.0_xp)+1.0_xp)*DTH)
+          X = cos((2.0_xp*(real(J, kind=xp) - 1.0_xp) + 1.0_xp)*DTH)
        else
-          X1 = cos((2.0_xp*(real(J, kind=xp)-1.0_xp)+1.0_xp)*DTH)
+          X1 = cos((2.0_xp*(real(J, kind=xp) - 1.0_xp) + 1.0_xp)*DTH)
           X2 = XLAST
-          X = (X1+X2)/2.0_xp
+          X = (X1 + X2) / 2.0_xp
        end if
        do K = 1, KSTOP
-          call JACOBF (P, PD, PM1, PDM1, PM2, PDM2, NP, ALPHA, BETA, X)
+          call JACOBF(P, PD, PM1, PDM1, PM2, PDM2, NP, ALPHA, BETA, X)
           RECSUM = 0.0_xp
-          JM = J-1
+          JM = J - 1
           do I = 1, JM
-             RECSUM = RECSUM+1.0_xp/(X-XJAC(NP-I+1))
+             RECSUM = RECSUM + 1.0_xp / (X-XJAC(NP - I + 1))
           end do
-          DELX = -P/(PD-RECSUM*P)
-          X = X+DELX
+          DELX = -P / (PD - RECSUM*P)
+          X = X + DELX
           if (abs(DELX) .lt. EPS) exit
        end do
 
-       XJAC(NP-J+1) = X
+       XJAC(NP-J + 1) = X
        XLAST = X
     end do
     do I = 1, NP
@@ -586,7 +583,7 @@ contains
     end do
   end subroutine JACG
 
-  subroutine JACOBF (POLY, PDER, POLYM1, PDERM1, POLYM2, PDERM2, N, ALP, BET, X)
+  subroutine JACOBF(POLY, PDER, POLYM1, PDERM1, POLYM2, PDERM2, N, ALP, BET, X)
 !--------------------------------------------------------------------
 !
 !     Computes the Jacobi polynomial (POLY) and its derivative (PDER)
@@ -604,24 +601,24 @@ contains
     real(kind=xp) :: DK
     integer :: K
 
-    APB = ALP+BET
+    APB = ALP + BET
     POLY = 1.0_xp
     PDER = 0.0_xp
     if (N .eq. 0) return
     POLYL = POLY
     PDERL = PDER
-    POLY = (ALP-BET+(APB+2.0_xp)*X)/2.0_xp
-    PDER = (APB+2.0_xp)/2.0_xp
+    POLY = (ALP - BET + (APB + 2.0_xp)*X) / 2.0_xp
+    PDER = (APB + 2.0_xp) / 2.0_xp
     if (N .eq. 1) return
     do K = 2, N
        DK = real(K, kind=xp)
-       A1 = 2.0_xp*DK*(DK+APB)*(2.0_xp*DK+APB-2.0_xp)
-       A2 = (2.0_xp*DK+APB-1.0_xp)*(ALP**2-BET**2)
-       B3 = (2.0_xp*DK+APB-2.0_xp)
-       A3 = B3*(B3+1.0_xp)*(B3+2.0_xp)
-       A4 = 2.0_xp*(DK+ALP-1.0_xp)*(DK+BET-1.0_xp)*(2.0_xp*DK+APB)
-       POLYN = ((A2+A3*X)*POLY-A4*POLYL)/A1
-       PDERN = ((A2+A3*X)*PDER-A4*PDERL+A3*POLY)/A1
+       A1 = 2.0_xp*DK*(DK + APB) * (2.0_xp*DK + APB - 2.0_xp)
+       A2 = (2.0_xp*DK + APB - 1.0_xp) * (ALP**2 - BET**2)
+       B3 = (2.0_xp*DK + APB - 2.0_xp)
+       A3 = B3*(B3 + 1.0_xp) * (B3 + 2.0_xp)
+       A4 = 2.0_xp*(DK + ALP - 1.0_xp) * (DK + BET - 1.0_xp) * (2.0_xp*DK + APB)
+       POLYN = ((A2 + A3*X)*POLY - A4*POLYL) / A1
+       PDERN = ((A2 + A3*X)*PDER - A4*PDERL + A3*POLY) / A1
        PSAVE = POLYL
        PDSAVE = PDERL
        POLYL = POLY
@@ -635,7 +632,7 @@ contains
     PDERM2 = PDSAVE
   end subroutine JACOBF
 
-  real(kind=xp) function HGJ (II, Z, ZGJ, NP, ALPHA, BETA)
+  real(kind=xp) function HGJ(II, Z, ZGJ, NP, ALPHA, BETA)
 !---------------------------------------------------------------------
 !
 !     Compute the value of the Lagrangian interpolant HGJ through
@@ -663,10 +660,10 @@ contains
     do I = 1, NP
        ZGJD(I) = ZGJ(I)
     end do
-    HGJ = HGJD (II, ZD, ZGJD, NP, ALPHA, BETA)
+    HGJ = HGJD(II, ZD, ZGJD, NP, ALPHA, BETA)
   end function HGJ
 
-  real(kind=xp) function HGJD (II, Z, ZGJ, NP, ALPHA, BETA)
+  real(kind=xp) function HGJD(II, Z, ZGJ, NP, ALPHA, BETA)
 !---------------------------------------------------------------------
 !
 !     Compute the value of the Lagrangian interpolant HGJD through
@@ -684,17 +681,17 @@ contains
     EPS = 1.0e-5_xp
     ONE = 1.0_xp
     ZI = ZGJ(II)
-    DZ = Z-ZI
+    DZ = Z - ZI
     if (abs(DZ) .lt. EPS) then
        HGJD = ONE
        return
     end if
-    call JACOBF (PZI, PDZI, PM1, PDM1, PM2, PDM2, NP, ALPHA, BETA, ZI)
-    call JACOBF (PZ, PDZ, PM1, PDM1, PM2, PDM2, NP, ALPHA, BETA, Z)
-    HGJD = PZ/(PDZI*(Z-ZI))
+    call JACOBF(PZI, PDZI, PM1, PDM1, PM2, PDM2, NP, ALPHA, BETA, ZI)
+    call JACOBF(PZ, PDZ, PM1, PDM1, PM2, PDM2, NP, ALPHA, BETA, Z)
+    HGJD = PZ / (PDZI*(Z-ZI))
   end function HGJD
 
-  real(kind=xp) function HGLJ (II, Z, ZGLJ, NP, ALPHA, BETA)
+  real(kind=xp) function HGLJ(II, Z, ZGLJ, NP, ALPHA, BETA)
 !---------------------------------------------------------------------
 !
 !     Compute the value of the Lagrangian interpolant HGLJ through
@@ -702,11 +699,13 @@ contains
 !     Single precision version.
 !
 !---------------------------------------------------------------------
-    integer, parameter :: NMAX = 84
-    integer, parameter :: NZD = NMAX
 
     integer, intent(in) :: NP, II
     real(kind=xp), intent(in) :: Z, ZGLJ(NP), ALPHA, BETA
+
+    integer, parameter :: NMAX = 84
+    integer, parameter :: NZD = NMAX
+
     real(kind=xp) ZD, ZGLJD(NZD)
     integer :: I, NPMAX
 
@@ -721,10 +720,10 @@ contains
     do I = 1, NP
        ZGLJD(I) = ZGLJ(I)
     end do
-    HGLJ = HGLJD (II, ZD, ZGLJD, NP, ALPHA, BETA)
+    HGLJ = HGLJD(II, ZD, ZGLJD, NP, ALPHA, BETA)
   end function HGLJ
 
-  real(kind=xp) function HGLJD (I, Z, ZGLJ, NP, ALPHA, BETA)
+  real(kind=xp) function HGLJD(I, Z, ZGLJ, NP, ALPHA, BETA)
 !---------------------------------------------------------------------
 !
 !     Compute the value of the Lagrangian interpolant HGLJD through
@@ -749,16 +748,16 @@ contains
        HGLJD = ONE
        return
     end if
-    N = NP-1
+    N = NP - 1
     DN = real(N, kind=xp)
-    EIGVAL = -DN*(DN+ALPHA+BETA+ONE)
-    call JACOBF (PI, PDI, PM1, PDM1, PM2, PDM2, N, ALPHA, BETA, ZI)
-    CONST = EIGVAL*PI+ALPHA*(ONE+ZI)*PDI-BETA*(ONE-ZI)*PDI
-    call JACOBF (P, PD, PM1, PDM1, PM2, PDM2, N, ALPHA, BETA, Z)
-    HGLJD = (ONE-Z**2)*PD/(CONST*(Z-ZI))
+    EIGVAL = -DN*(DN + ALPHA + BETA + ONE)
+    call JACOBF(PI, PDI, PM1, PDM1, PM2, PDM2, N, ALPHA, BETA, ZI)
+    CONST = EIGVAL*PI + ALPHA*(ONE + ZI)*PDI - BETA*(ONE - ZI)*PDI
+    call JACOBF(P, PD, PM1, PDM1, PM2, PDM2, N, ALPHA, BETA, Z)
+    HGLJD = (ONE - Z**2)*PD / (CONST*(Z - ZI))
   end function HGLJD
 
-  subroutine DGJ (D, DT, Z, NZ, NZD, ALPHA, BETA)
+  subroutine DGJ(D, DT, Z, NZ, NZD, ALPHA, BETA)
 !-----------------------------------------------------------------
 !
 !     Compute the derivative matrix D and its transpose DT
@@ -795,7 +794,7 @@ contains
     do I = 1, NZ
        ZD(I) = Z(I)
     end do
-    call DGJD (DD, DTD, ZD, NZ, NZDD, ALPHA, BETA)
+    call DGJD(DD, DTD, ZD, NZ, NZDD, ALPHA, BETA)
     do I = 1, NZ
        do J = 1, NZ
           D(I, J) = DD(I, J)
@@ -804,7 +803,7 @@ contains
     end do
   end subroutine DGJ
 
-  subroutine DGJD (D, DT, Z, NZ, NZD, ALPHA, BETA)
+  subroutine DGJD(D, DT, Z, NZ, NZD, ALPHA, BETA)
 !-----------------------------------------------------------------
 !
 !     Compute the derivative matrix D and its transpose DT
@@ -823,7 +822,7 @@ contains
     real(kind=xp) :: PDI, PDJ, PI, PJ, PM1, PDM1, PM2, PDM2
     integer :: I, J, N
 
-    N = NZ-1
+    N = NZ - 1
     DN = real(N, kind=xp)
     ONE = 1.0_xp
     TWO = 2.0_xp
@@ -839,17 +838,17 @@ contains
 
     do I = 1, NZ
        do J = 1, NZ
-          call JACOBF (PI, PDI, PM1, PDM1, PM2, PDM2, NZ, ALPHA, BETA, Z(I))
-          call JACOBF (PJ, PDJ, PM1, PDM1, PM2, PDM2, NZ, ALPHA, BETA, Z(J))
+          call JACOBF(PI, PDI, PM1, PDM1, PM2, PDM2, NZ, ALPHA, BETA, Z(I))
+          call JACOBF(PJ, PDJ, PM1, PDM1, PM2, PDM2, NZ, ALPHA, BETA, Z(J))
           if (I .ne. J) D(I, J) = PDI/(PDJ*(Z(I)-Z(J)))
-          if (I .eq. J) D(I, J) = ((ALPHA+BETA+TWO)*Z(I)+ALPHA-BETA)/ &
-               (TWO*(ONE-Z(I)**2))
+          if (I .eq. J) D(I, J) = ((ALPHA + BETA + TWO)*Z(I) + ALPHA-BETA) / &
+               (TWO*(ONE - Z(I)**2))
           DT(J, I) = D(I, J)
        end do
     end do
   end subroutine DGJD
 
-  subroutine DGLJ (D, DT, Z, NZ, NZD, ALPHA, BETA)
+  subroutine DGLJ(D, DT, Z, NZ, NZD, ALPHA, BETA)
 !-----------------------------------------------------------------
 !
 !     Compute the derivative matrix D and its transpose DT
@@ -885,7 +884,7 @@ contains
     do I = 1, NZ
        ZD(I) = Z(I)
     end do
-    call DGLJD (DD, DTD, ZD, NZ, NZDD, ALPHA, BETA)
+    call DGLJD(DD, DTD, ZD, NZ, NZDD, ALPHA, BETA)
     do I = 1, NZ
        do J = 1, NZ
           D(I, J) = DD(I, J)
@@ -894,7 +893,7 @@ contains
     end do
   end subroutine DGLJ
 
-  subroutine DGLJD (D, DT, Z, NZ, NZD, ALPHA, BETA)
+  subroutine DGLJD(D, DT, Z, NZ, NZD, ALPHA, BETA)
 !-----------------------------------------------------------------
 !
 !     Compute the derivative matrix D and its transpose DT
@@ -914,11 +913,11 @@ contains
     real(kind=xp) :: CI, CJ
     integer :: I, J, N
 
-    N = NZ-1
+    N = NZ - 1
     DN = real(N, kind=xp)
     ONE = 1.0_xp
     TWO = 2.0_xp
-    EIGVAL = -DN*(DN+ALPHA+BETA+ONE)
+    EIGVAL = -DN*(DN + ALPHA + BETA + ONE)
 
     if (NZ .le. 1) then
        write (stderr, *) 'DGLJD: Minimum number of Gauss-Lobatto points is 2'
@@ -931,24 +930,31 @@ contains
 
     do I = 1, NZ
        do J = 1, NZ
-          call JACOBF (PI, PDI, PM1, PDM1, PM2, PDM2, N, ALPHA, BETA, Z(I))
-          call JACOBF (PJ, PDJ, PM1, PDM1, PM2, PDM2, N, ALPHA, BETA, Z(J))
-          CI = EIGVAL*PI-(BETA*(ONE-Z(I))-ALPHA*(ONE+Z(I)))*PDI
-          CJ = EIGVAL*PJ-(BETA*(ONE-Z(J))-ALPHA*(ONE+Z(J)))*PDJ
-          if (I .ne. J) D(I, J) = CI/(CJ*(Z(I)-Z(J)))
-          if ((I .eq. J) .and. (I .ne. 1) .and. (I .ne. NZ)) &
-               D(I, J) = (ALPHA*(ONE+Z(I))-BETA*(ONE-Z(I)))/ &
-               (TWO*(ONE-Z(I)**2))
-          if ((I .eq. J) .and. (I .eq. 1)) &
-               D(I, J) = (EIGVAL+ALPHA)/(TWO*(BETA+TWO))
-          if ((I .eq. J) .and. (I .eq. NZ)) &
-               D(I, J) = -(EIGVAL+BETA)/(TWO*(ALPHA+TWO))
+          call JACOBF(PI, PDI, PM1, PDM1, PM2, PDM2, N, ALPHA, BETA, Z(I))
+          call JACOBF(PJ, PDJ, PM1, PDM1, PM2, PDM2, N, ALPHA, BETA, Z(J))
+          CI = EIGVAL*PI - (BETA*(ONE - Z(I)) - ALPHA*(ONE + Z(I)))*PDI
+          CJ = EIGVAL*PJ - (BETA*(ONE - Z(J)) - ALPHA*(ONE + Z(J)))*PDJ
+
+          ! Todo: This should have some elses in there
+          if (I .ne. J) then
+             D(I, J) = CI / (CJ*(Z(I) - Z(J)))
+          end if
+          if ((I .eq. J) .and. (I .ne. 1) .and. (I .ne. NZ)) then
+             D(I, J) = (ALPHA*(ONE + Z(I)) - BETA*(ONE - Z(I))) / &
+                  (TWO*(ONE - Z(I)**2))
+          end if
+          if ((I .eq. J) .and. (I .eq. 1)) then
+             D(I, J) = (EIGVAL + ALPHA) / (TWO*(BETA + TWO))
+          end if
+          if ((I .eq. J) .and. (I .eq. NZ)) then
+             D(I, J) = -(EIGVAL + BETA) / (TWO*(ALPHA + TWO))
+          end if
           DT(J, I) = D(I, J)
        end do
     end do
   end subroutine DGLJD
 
-  subroutine DGLL (D, DT, Z, NZ, NZD)
+  subroutine DGLL(D, DT, Z, NZ, NZD)
 !-----------------------------------------------------------------
 !
 !     Compute the derivative matrix D and its transpose DT
@@ -967,13 +973,13 @@ contains
     real(kind=xp) :: d0, FN
     integer :: I, J, N
 
-    N = NZ-1
+    N = NZ - 1
     if (NZ .gt. NMAX) then
        write (stderr, *) 'Subroutine DGLL'
        write (stderr, *) 'Maximum polynomial degree =', NMAX
        write (stderr, *) 'Polynomial degree         =', NZ
-    end if
-    if (NZ .eq. 1) then
+       call neko_error
+    else if (NZ .eq. 1) then
        D(1, 1) = 0.0_rp
        return
     end if
@@ -983,7 +989,7 @@ contains
        do J = 1, NZ
           D(I, J) = 0.0_rp
           if (I .ne. J) D(I, J) = PNLEG(real(Z(I), xp), N)/ &
-               (PNLEG(real(Z(J), xp), N)*(Z(I)-Z(J)))
+               (PNLEG(real(Z(J), xp), N) * (Z(I)-Z(J)))
           if ((I .eq. J) .and. (I .eq. 1)) D(I, J) = -d0
           if ((I .eq. J) .and. (I .eq. NZ)) D(I, J) = d0
           DT(J, I) = D(I, J)
@@ -991,7 +997,7 @@ contains
     end do
   end subroutine DGLL
 
-  real(kind=xp) function HGLL (I, Z, ZGLL, NZ)
+  real(kind=xp) function HGLL(I, Z, ZGLL, NZ)
 !---------------------------------------------------------------------
 !
 !     Compute the value of the Lagrangian interpolant L through
@@ -1013,9 +1019,9 @@ contains
        return
     end if
     N = NZ - 1
-    ALFAN = real(N, kind=xp)*(real(N, kind=xp) + 1.0_xp)
+    ALFAN = real(N, kind=xp) * (real(N, kind=xp) + 1.0_xp)
     HGLL = -(1.0_xp - Z*Z)*PNDLEG(Z, N) / &
-         (ALFAN*PNLEG(ZGLL(I), N)*(Z - ZGLL(I)))
+         (ALFAN*PNLEG(ZGLL(I), N) * (Z - ZGLL(I)))
   end function HGLL
 
   real(kind=xp) function HGL (I, Z, ZGL, NZ)
@@ -1037,11 +1043,11 @@ contains
        HGL = 1.0_xp
        return
     end if
-    N = NZ-1
-    HGL = PNLEG(Z, NZ)/(PNDLEG(ZGL(I), NZ)*(Z-ZGL(I)))
+    N = NZ - 1
+    HGL = PNLEG(Z, NZ) / (PNDLEG(ZGL(I), NZ) * (Z - ZGL(I)))
   end function HGL
 
-  real(kind=xp) function PNLEG (Z, N)
+  real(kind=xp) function PNLEG(Z, N)
 !---------------------------------------------------------------------
 !
 !     Compute the value of the Nth order Legendre polynomial at Z.
@@ -1069,7 +1075,7 @@ contains
     P3 = P2
     do K = 1, N-1
        FK = real(K, kind=xp)
-       P3 = ((2.0_xp*FK + 1.0_xp)*Z*P2 - FK*P1)/(FK + 1.0_xp)
+       P3 = ((2.0_xp*FK + 1.0_xp)*Z*P2 - FK*P1) / (FK + 1.0_xp)
        P1 = P2
        P2 = P3
     end do
@@ -1092,11 +1098,11 @@ contains
 
     do j = 1, N-1
        DJ = real(j, kind=rp)
-       L(j+1) = ((2.0_rp*DJ + 1.0_rp)*x*L(j) - DJ*L(j-1)) / (DJ + 1.0_rp)
+       L(j + 1) = ((2.0_rp*DJ + 1.0_rp)*x*L(j) - DJ*L(j-1)) / (DJ + 1.0_rp)
     end do
   end subroutine legendre_poly
 
-  real(kind=xp) function PNDLEG (Z, N)
+  real(kind=xp) function PNDLEG(Z, N)
 !----------------------------------------------------------------------
 !
 !     Compute the derivative of the Nth order Legendre polynomial at Z.
@@ -1270,29 +1276,29 @@ contains
     TWO = 2.0_xp
     NGL = NPGL-1
     DN = real(NGL, kind=xp)
-    EIGVAL = -DN*(DN+ALPHA+BETA+ONE)
+    EIGVAL = -DN*(DN + ALPHA + BETA + ONE)
 
     do I = 1, NPG
        do J = 1, NPGL
           DZ = abs(ZG(I)-ZGL(J))
           if (DZ .lt. EPS) then
-             D(I, J) = (ALPHA*(ONE+ZG(I))-BETA*(ONE-ZG(I)))/ &
+             D(I, J) = (ALPHA*(ONE + ZG(I))-BETA*(ONE-ZG(I)))/ &
                   (TWO*(ONE-ZG(I)**2))
           else
-             call JACOBF (PI, PDI, PM1, PDM1, PM2, PDM2, NGL, ALPHA, BETA, ZG(I))
-             call JACOBF (PJ, PDJ, PM1, PDM1, PM2, PDM2, NGL, ALPHA, BETA, ZGL(J))
-             FACI = ALPHA*(ONE+ZG(I))-BETA*(ONE-ZG(I))
-             FACJ = ALPHA*(ONE+ZGL(J))-BETA*(ONE-ZGL(J))
-             CONST = EIGVAL*PJ+FACJ*PDJ
-             D(I, J) = ((EIGVAL*PI+FACI*PDI)*(ZG(I)-ZGL(J)) &
-                  -(ONE-ZG(I)**2)*PDI)/(CONST*(ZG(I)-ZGL(J))**2)
+             call JACOBF(PI, PDI, PM1, PDM1, PM2, PDM2, NGL, ALPHA, BETA, ZG(I))
+             call JACOBF(PJ, PDJ, PM1, PDM1, PM2, PDM2, NGL, ALPHA, BETA, ZGL(J))
+             FACI = ALPHA*(ONE + ZG(I))-BETA*(ONE-ZG(I))
+             FACJ = ALPHA*(ONE + ZGL(J))-BETA*(ONE-ZGL(J))
+             CONST = EIGVAL*PJ + FACJ*PDJ
+             D(I, J) = ((EIGVAL*PI + FACI*PDI) * (ZG(I) - ZGL(J)) - &
+                  (ONE-ZG(I)**2)*PDI) / (CONST*(ZG(I) - ZGL(J))**2)
           end if
           DT(J, I) = D(I, J)
        end do
     end do
   end subroutine DGLJGJD
 
-  subroutine IGLM (I12, IT12, Z1, Z2, NZ1, NZ2, ND1, ND2)
+  subroutine IGLM(I12, IT12, Z1, Z2, NZ1, NZ2, ND1, ND2)
 !----------------------------------------------------------------------
 !
 !     Compute the one-dimensional interpolation operator (matrix) I12
@@ -1322,7 +1328,7 @@ contains
     end do
   end subroutine IGLM
 
-  subroutine IGLLM (I12, IT12, Z1, Z2, NZ1, NZ2, ND1, ND2)
+  subroutine IGLLM(I12, IT12, Z1, Z2, NZ1, NZ2, ND1, ND2)
 !----------------------------------------------------------------------
 !
 !     Compute the one-dimensional interpolation operator (matrix) I12
@@ -1352,7 +1358,7 @@ contains
     end do
   end subroutine IGLLM
 
-  subroutine IGJM (I12, IT12, Z1, Z2, NZ1, NZ2, ND1, ND2, ALPHA, BETA)
+  subroutine IGJM(I12, IT12, Z1, Z2, NZ1, NZ2, ND1, ND2, ALPHA, BETA)
 !----------------------------------------------------------------------
 !
 !     Compute the one-dimensional interpolation operator (matrix) I12
@@ -1383,7 +1389,7 @@ contains
     end do
   end subroutine IGJM
 
-  subroutine IGLJM (I12, IT12, Z1, Z2, NZ1, NZ2, ND1, ND2, ALPHA, BETA)
+  subroutine IGLJM(I12, IT12, Z1, Z2, NZ1, NZ2, ND1, ND2, ALPHA, BETA)
 !----------------------------------------------------------------------
 !
 !     Compute the one-dimensional interpolation operator (matrix) I12
