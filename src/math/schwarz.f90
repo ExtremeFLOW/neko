@@ -96,7 +96,7 @@ module schwarz
      type(gs_t), pointer :: gs_h
      type(mesh_t), pointer :: msh
      type(c_ptr) :: event
-     logical :: local_gs
+     logical :: local_gs = .false.
    contains
      procedure, pass(this) :: init => schwarz_init
      procedure, pass(this) :: free => schwarz_free
