@@ -158,13 +158,13 @@ contains
   !! @param Z Quadrature points.
   !! @param W Quadrature weights.
   !! @param NP Number of quadrature points.
-  subroutine ZWGL (Z,W,NP)
+  subroutine ZWGL(Z,W,NP)
     real(kind=rp), intent(inout) :: Z(1), W(1)
     integer, intent(in) :: NP
     real(kind=rp) ALPHA, BETA
     ALPHA = 0.0_rp
     BETA = 0.0_rp
-    call ZWGJ (Z,W,NP,ALPHA,BETA)
+    call ZWGJ(Z,W,NP,ALPHA,BETA)
   end subroutine ZWGL
 
   subroutine ZWGLL (Z,W,NP)
@@ -185,7 +185,7 @@ contains
     call ZWGLJ (Z,W,NP,ALPHA,BETA)
   end subroutine ZWGLL
 
-  subroutine ZWGJ (Z,W,NP,ALPHA,BETA)
+  subroutine ZWGJ(Z,W,NP,ALPHA,BETA)
 !--------------------------------------------------------------------
 !
 !     Generate NP GAUSS JACOBI points (Z) and weights (W)
@@ -196,9 +196,9 @@ contains
 !--------------------------------------------------------------------
     integer, parameter :: NMAX = 84
     integer, parameter :: NZD = NMAX
-    real(kind=rp), intent(inout) :: Z(1), W(1)
-    real(kind=rp), intent(in) :: ALPHA, BETA
     integer, intent(in) :: NP
+    real(kind=rp), intent(inout) :: Z(NP), W(NP)
+    real(kind=rp), intent(in) :: ALPHA, BETA
     real(kind=xp) ZD(NZD), WD(NZD), ALPHAD, BETAD
     integer :: I, NPMAX
 
@@ -211,14 +211,14 @@ contains
     end if
     ALPHAD = real(ALPHA, kind=xp)
     BETAD = real(BETA, kind=xp)
-    call ZWGJD (ZD,WD,NP,ALPHAD,BETAD)
+    call ZWGJD(ZD,WD,NP,ALPHAD,BETAD)
     do I = 1, NP
        Z(I) = real(ZD(I), kind=rp)
        W(I) = real(WD(I), kind=rp)
     end do
   end subroutine ZWGJ
 
-  subroutine ZWGJD (Z,W,NP,ALPHA,BETA)
+  subroutine ZWGJD(Z,W,NP,ALPHA,BETA)
 !--------------------------------------------------------------------
 !
 !     Generate NP GAUSS JACOBI points (Z) and weights (W)
@@ -228,9 +228,9 @@ contains
 !
 !--------------------------------------------------------------------
 
-    real(kind=xp), intent(inout) :: Z(1), W(1)
-    real(kind=xp), intent(in) :: ALPHA, BETA
     integer, intent(in) :: NP
+    real(kind=xp), intent(inout) :: Z(1), W(NP)
+    real(kind=xp), intent(in) :: ALPHA, BETA
 
     real(kind=xp) :: DN, ONE, TWO, APB
     real(kind=xp) :: FAC1, FAC2, FAC3, FNORM
@@ -287,9 +287,9 @@ contains
 !
 !--------------------------------------------------------------------
 
-    real(kind=rp), intent(inout) :: Z(1), W(1)
-    real(kind=rp), intent(in) :: ALPHA, BETA
     integer, intent(in) :: NP
+    real(kind=rp), intent(inout) :: Z(NP), W(NP)
+    real(kind=rp), intent(in) :: ALPHA, BETA
 
     integer, parameter :: NMAX = 84
     integer, parameter :: NZD = NMAX
@@ -306,14 +306,14 @@ contains
     end if
     ALPHAD = real(ALPHA, kind=xp)
     BETAD = real(BETA, kind=xp)
-    call ZWGLJD (ZD,WD,NP,ALPHAD,BETAD)
+    call ZWGLJD(ZD,WD,NP,ALPHAD,BETAD)
     do I = 1, NP
        Z(I) = real(ZD(I), kind=rp)
        W(I) = real(WD(I), kind=rp)
     end do
   end subroutine ZWGLJ
 
-  subroutine ZWGLJD (Z,W,NP,ALPHA,BETA)
+  subroutine ZWGLJD(Z,W,NP,ALPHA,BETA)
 !--------------------------------------------------------------------
 !
 !     Generate NP GAUSS LOBATTO JACOBI points (Z) and weights (W)
@@ -323,9 +323,9 @@ contains
 !
 !--------------------------------------------------------------------
 
+    integer, intent(in) :: NP
     real(kind=xp), intent(inout) :: Z(NP), W(NP)
     real(kind=xp), intent(in) :: ALPHA, BETA
-    integer, intent(in) :: NP
 
     real(kind=xp) :: ONE, TWO, ALPG, BETG
     real(kind=xp) :: P, PD, PM1, PDM1, PM2, PDM2
@@ -349,7 +349,7 @@ contains
     if (NM1 .gt. 0) then
        ALPG = ALPHA+ONE
        BETG = BETA+ONE
-       call ZWGJD (Z(2),W(2),NM1,ALPG,BETG)
+       call ZWGJD(Z(2),W(2),NM1,ALPG,BETG)
     end if
     Z(1) = -ONE
     Z(NP) = ONE
@@ -400,7 +400,7 @@ contains
        return
     end if
     do I = 3, N
-       DI = ((I-1))
+       DI = real(I-1, kind=xp)
        ABN = ALPHA+BETA+DI
        ABNN = ABN+DI
        A1 = -(TWO*(DI+ALPHA)*(DI+BETA))/(ABN*ABNN*(ABNN+ONE))
@@ -530,9 +530,9 @@ contains
 !--------------------------------------------------------------------
 
 
-    real(kind=xp), intent(inout) :: XJAC(1)
-    real(kind=xp), intent(in) :: ALPHA, BETA
     integer, intent(in) :: NP
+    real(kind=xp), intent(inout) :: XJAC(NP)
+    real(kind=xp), intent(in) :: ALPHA, BETA
 
     integer, parameter :: KSTOP = 10
     real(kind=rp), parameter :: EPS = 1.0e-12_rp
@@ -593,8 +593,8 @@ contains
 !--------------------------------------------------------------------
 
     real(kind=xp), intent(inout) :: POLY, PDER, POLYM1, PDERM1, POLYM2, PDERM2
-    integer, intent(in) :: N
     real(kind=xp), intent(in) :: ALP, BET, X
+    integer, intent(in) :: N
 
     real(kind=xp) :: APB, POLYL, PDERL, POLYN, PDERN
     real(kind=xp) :: PSAVE, PDSAVE
@@ -612,7 +612,7 @@ contains
     PDER = (APB+2.0_xp)/2.0_xp
     if (N .eq. 1) return
     do K = 2, N
-       DK = ((K))
+       DK = real(K, kind=xp)
        A1 = 2.0_xp*DK*(DK+APB)*(2.0_xp*DK+APB-2.0_xp)
        A2 = (2.0_xp*DK+APB-1.0_xp)*(ALP**2-BET**2)
        B3 = (2.0_xp*DK+APB-2.0_xp)
@@ -641,10 +641,11 @@ contains
 !     Single precision version.
 !
 !---------------------------------------------------------------------
+    integer, intent(in) :: NP, II
+    real(kind=xp), intent(in) :: Z, ZGJ(NP), ALPHA, BETA
+
     integer, parameter :: NMAX = 84
     integer, parameter :: NZD = NMAX
-    real(kind=xp), intent(in) :: Z, ZGJ(1), ALPHA, BETA
-    integer, intent(in) :: NP, II
 
     real(kind=xp) ZD, ZGJD(NZD)
     integer :: I, NPMAX
@@ -702,8 +703,8 @@ contains
     integer, parameter :: NMAX = 84
     integer, parameter :: NZD = NMAX
 
-    real(kind=xp), intent(in) :: Z, ZGLJ(1), ALPHA, BETA
     integer, intent(in) :: NP, II
+    real(kind=xp), intent(in) :: Z, ZGLJ(NP), ALPHA, BETA
     real(kind=xp) ZD, ZGLJD(NZD)
     integer :: I, NPMAX
 
@@ -765,11 +766,12 @@ contains
 !     Single precision version.
 !
 !-----------------------------------------------------------------
-    integer, parameter :: NMAX = 84
-    integer, parameter :: NZDD = NMAX
     integer, intent(in) :: NZ, NZD
     real(kind=xp), intent(inout) :: D(NZD,NZD), DT(NZD,NZD)
-    real(kind=xp), intent(in) :: Z(1), ALPHA, BETA
+    real(kind=xp), intent(in) :: Z(NZ), ALPHA, BETA
+
+    integer, parameter :: NMAX = 84
+    integer, parameter :: NZDD = NMAX
 
     real(kind=xp) :: DD(NZDD,NZDD), DTD(NZDD,NZDD), ZD(NZDD)
     integer :: I, J
@@ -813,7 +815,7 @@ contains
 
     integer, intent(in) :: NZ, NZD
     real(kind=xp), intent(inout) :: D(NZD,NZD), DT(NZD,NZD)
-    real(kind=xp), intent(in) :: Z(1), ALPHA, BETA
+    real(kind=xp), intent(in) :: Z(NZ), ALPHA, BETA
 
     real(kind=xp) :: DN, ONE, TWO
     real(kind=xp) :: PDI, PDJ, PI, PJ, PM1, PDM1, PM2, PDM2
@@ -859,7 +861,7 @@ contains
     integer, parameter :: NZDD = NMAX
     integer, intent(in) :: NZ, NZD
     real(kind=xp), intent(inout) :: D(NZD,NZD), DT(NZD,NZD)
-    real(kind=xp), intent(in) :: Z(1), ALPHA, BETA
+    real(kind=xp), intent(in) :: Z(NZ), ALPHA, BETA
 
     real(kind=xp) :: DD(NZDD,NZDD), DTD(NZDD,NZDD), ZD(NZDD)
     integer :: I, J
@@ -903,7 +905,7 @@ contains
 
     integer, intent(in) :: NZ, NZD
     real(kind=xp), intent(inout) :: D(NZD,NZD), DT(NZD,NZD)
-    real(kind=xp), intent(in) :: Z(1), ALPHA, BETA
+    real(kind=xp), intent(in) :: Z(NZ), ALPHA, BETA
 
     real(kind=xp) :: DN, ONE, TWO, EIGVAL
     real(kind=xp) :: PDI, PDJ, PI, PJ, PM1, PDM1, PM2, PDM2
@@ -956,7 +958,7 @@ contains
 
     integer, intent(in) :: NZ, NZD
     real(kind=rp), intent(inout) :: D(NZD,NZD), DT(NZD,NZD)
-    real(kind=rp), intent(in) :: Z(1)
+    real(kind=rp), intent(in) :: Z(NZ)
 
     integer, parameter :: NMAX = 84
 
@@ -1064,13 +1066,12 @@ contains
     P2 = Z
     P3 = P2
     do K = 1, N-1
-       FK = (K)
-       P3 = ((2.0_xp*FK+1.0_xp)*Z*P2 - FK*P1)/(FK+1.0_xp)
+       FK = real(K, kind=xp)
+       P3 = ((2.0_xp*FK + 1.0_xp)*Z*P2 - FK*P1)/(FK + 1.0_xp)
        P1 = P2
        P2 = P3
     end do
     PNLEG = P3
-    if (n .eq. 0) pnleg = 1.0_xp
   end function PNLEG
 
   !> Evaluate Legendre polynomials of degrees 0-N at point x
@@ -1080,6 +1081,7 @@ contains
     real(kind=rp), intent(inout) :: L(0:N)
     real(kind=rp), intent(in) :: x
 
+    real(kind=rp) :: DJ
     integer :: j
 
     L(0) = 1.0_rp
@@ -1087,8 +1089,8 @@ contains
     L(1) = x
 
     do j = 1, N-1
-       L(j+1) = real( ((2.0_xp * real(j,rp) + 1.0_xp) * x * L(j) &
-            - real(j, kind=xp) * L(j-1) ) / (real(j,kind=xp) + 1.0_xp), kind=rp)
+       DJ = real(j, kind=rp)
+       L(j+1) = ((2.0_rp*DJ + 1.0_rp)*x*L(j) - DJ*L(j-1)) / (DJ + 1.0_rp)
     end do
   end subroutine legendre_poly
 
@@ -1107,6 +1109,11 @@ contains
     real(kind=xp) :: P1, P2, P3, P1D, P2D, P3D, FK
     integer :: K
 
+    if (N .eq. 0) then
+       PNDLEG = 0.0_xp
+       return
+    end if
+
     P1 = 1.0_xp
     P2 = Z
     P1D = 0.0_xp
@@ -1114,18 +1121,18 @@ contains
     P3D = 1.0_xp
     do K = 1, N-1
        FK = real(K, kind=xp)
-       P3 = ((2.0_xp*FK+1.0_xp)*Z*P2 - FK*P1)/(FK+1.0_xp)
-       P3D = ((2.0_xp*FK+1.0_xp)*P2 + (2.0_xp*FK+1.0_xp)*Z*P2D - FK*P1D)/(FK+1.0_xp)
+       P3 = ((2.0_xp*FK + 1.0_xp)*Z*P2 - FK*P1) / (FK + 1.0_xp)
+       P3D = ((2.0_xp*FK + 1.0_xp)*P2 + (2.0_xp*FK + 1.0_xp)*Z*P2D - FK*P1D) / &
+            (FK + 1.0_xp)
        P1 = P2
        P2 = P3
        P1D = P2D
        P2D = P3D
     end do
     PNDLEG = P3D
-    if (N .eq. 0) pndleg = 0.0_xp
   end function PNDLEG
 
-  subroutine DGLLGL (D,DT,ZM1,ZM2,IM12,NZM1,NZM2,ND1,ND2)
+  subroutine DGLLGL(D,DT,ZM1,ZM2,IM12,NZM1,NZM2,ND1,ND2)
 !-----------------------------------------------------------------------
 !
 !     Compute the (one-dimensional) derivative matrix D and its
@@ -1159,15 +1166,15 @@ contains
           if ((abs(ZP) .lt. EPS) .and. (abs(ZQ) .lt. EPS)) then
              D(IP,JQ) = 0.0_xp
           else
-             D(IP,JQ) = (PNLEG(ZP,NM1)/PNLEG(ZQ,NM1) &
-                  -IM12(IP,JQ))/(ZP-ZQ)
+             D(IP,JQ) = (PNLEG(ZP, NM1) / PNLEG(ZQ, NM1) - IM12(IP, JQ)) / &
+                  (ZP - ZQ)
           end if
           DT(JQ,IP) = D(IP,JQ)
        end do
     end do
   end subroutine DGLLGL
 
-  subroutine DGLJGJ (D,DT,ZGL,ZG,IGLG,NPGL,NPG,ND1,ND2,ALPHA,BETA)
+  subroutine DGLJGJ(D,DT,ZGL,ZG,IGLG,NPGL,NPG,ND1,ND2,ALPHA,BETA)
 !-----------------------------------------------------------------------
 !
 !     Compute the (one-dimensional) derivative matrix D and its
@@ -1214,7 +1221,7 @@ contains
     do I = 1, NPGL
        ZGLD(I) = ZGL(I)
     end do
-    call DGLJGJD (DD,DTD,ZGLD,ZGD,IGLGD,NPGL,NPG,NDD,NDD,ALPHA,BETA)
+    call DGLJGJD(DD,DTD,ZGLD,ZGD,IGLGD,NPGL,NPG,NDD,NDD,ALPHA,BETA)
     do I = 1, NPG
        do J = 1, NPGL
           D(I,J) = DD(I,J)
@@ -1223,7 +1230,7 @@ contains
     end do
   end subroutine DGLJGJ
 
-  subroutine DGLJGJD (D,DT,ZGL,ZG,IGLG,NPGL,NPG,ND1,ND2,ALPHA,BETA)
+  subroutine DGLJGJD(D,DT,ZGL,ZG,IGLG,NPGL,NPG,ND1,ND2,ALPHA,BETA)
 !-----------------------------------------------------------------------
 !
 !     Compute the (one-dimensional) derivative matrix D and its
