@@ -227,19 +227,22 @@ contains
 !     Double precision version.
 !
 !--------------------------------------------------------------------
-    ! Bug: Remove implicit types
-    implicit real(kind=xp) (A-H,O-Z)
 
     real(kind=xp), intent(inout) :: Z(1), W(1)
     real(kind=xp), intent(in) :: ALPHA, BETA
     integer, intent(in) :: NP
+
+    real(kind=xp) :: DN, ONE, TWO, APB
+    real(kind=xp) :: FAC1, FAC2, FAC3, FNORM
+    real(kind=xp) :: RCOEF, P, PD, PM1, PDM1, PM2, PDM2
+    real(kind=xp) :: DNP1, DNP2
     integer :: N, NP1, NP2, I
 
-    N = NP-1
+    N = NP - 1
     DN = real(N, kind=xp)
     ONE = 1.0_xp
     TWO = 2.0_xp
-    APB = ALPHA+BETA
+    APB = ALPHA + BETA
 
     if (NP .le. 0) then
        write (stderr, *) 'ZWGJD: Minimum number of Gauss points is 1',np
@@ -283,11 +286,14 @@ contains
 !     Single precision version.
 !
 !--------------------------------------------------------------------
-    integer, parameter :: NMAX = 84
-    integer, parameter :: NZD = NMAX
+
     real(kind=rp), intent(inout) :: Z(1), W(1)
     real(kind=rp), intent(in) :: ALPHA, BETA
     integer, intent(in) :: NP
+
+    integer, parameter :: NMAX = 84
+    integer, parameter :: NZD = NMAX
+
     real(kind=xp) ZD(NZD), WD(NZD), ALPHAD, BETAD
     integer :: I, NPMAX
 
@@ -316,12 +322,13 @@ contains
 !     Double precision version.
 !
 !--------------------------------------------------------------------
-    ! Bug: Remove implicit types
-    implicit real(kind=xp) (A-H,O-Z)
 
     real(kind=xp), intent(inout) :: Z(NP), W(NP)
     real(kind=xp), intent(in) :: ALPHA, BETA
     integer, intent(in) :: NP
+
+    real(kind=xp) :: ONE, TWO, ALPG, BETG
+    real(kind=xp) :: P, PD, PM1, PDM1, PM2, PDM2
     integer :: N, NM1, I
 
     N = NP-1
@@ -357,12 +364,13 @@ contains
   end subroutine ZWGLJD
 
   real(kind=xp) function ENDW1 (N,ALPHA,BETA)
-    ! Bug: Remove implicit types
-    implicit real(kind=xp) (A-H,O-Z)
 
-    integer, intent(in) :: N
     real(kind=xp), intent(in) :: ALPHA, BETA
+    integer, intent(in) :: N
 
+    real(kind=xp) :: ZERO, ONE, TWO, THREE, FOUR, APB
+    real(kind=xp) :: F1, F2, F3, FINT1, FINT2
+    real(kind=xp) :: A1, A2, A3, DI, ABN, ABNN
     integer :: I
 
     ZERO = 0.0_xp
@@ -406,11 +414,13 @@ contains
   end function ENDW1
 
   real(kind=xp) function ENDW2 (N,ALPHA,BETA)
-    ! Bug: Remove implicit types
-    implicit real(kind=xp) (A-H,O-Z)
 
-    integer, intent(in) :: N
     real(kind=xp), intent(in) :: ALPHA, BETA
+    integer, intent(in) :: N
+
+    real(kind=xp) :: ZERO, ONE, TWO, THREE, FOUR, APB
+    real(kind=xp) :: F1, F2, F3, FINT1, FINT2
+    real(kind=xp) :: A1, A2, A3, DI, ABN, ABNN
     integer :: I
 
     ZERO = 0.0_xp
@@ -454,10 +464,8 @@ contains
   end function ENDW2
 
   real(kind=xp) function GAMMAF (X)
-    ! Bug: Remove implicit types
-    implicit real(kind=xp) (A-H,O-Z)
-
     real(kind=xp), intent(in) :: X
+    real(kind=xp) :: ZERO, HALF, ONE, TWO, FOUR, PI
 
     ZERO = 0.0_xp
     HALF = 0.5_xp
@@ -480,11 +488,11 @@ contains
   end function GAMMAF
 
   real(kind=xp) function PNORMJ (N,ALPHA,BETA)
-    ! Bug: Remove implicit types
-    implicit real(kind=xp) (A-H,O-Z)
-
     real(kind=xp), intent(in) :: ALPHA, BETA
     integer, intent(in) :: N
+
+    real(kind=xp) :: ONE, TWO, DN, DINDX
+    real(kind=xp) :: CONST, PROD, FRAC
     integer :: I
 
     ONE = 1.0_xp
@@ -502,7 +510,7 @@ contains
     PROD = PROD*(ONE+ALPHA)*(TWO+ALPHA)
     PROD = PROD*(ONE+BETA)*(TWO+BETA)
     do I = 3, N
-       DINDX = ((I))
+       DINDX = real(I, kind=xp)
        FRAC = (DINDX+ALPHA)*(DINDX+BETA)/(DINDX*(DINDX+ALPHA+BETA))
        PROD = PROD*FRAC
     end do
@@ -520,15 +528,18 @@ contains
 !     ALPHA = BETA = -0.5  ->  Chebyshev points
 !
 !--------------------------------------------------------------------
-    ! Bug: Remove implicit types
-    implicit real(kind=xp) (A-H,O-Z)
+
 
     real(kind=xp), intent(inout) :: XJAC(1)
-    integer, intent(in) :: NP
     real(kind=xp), intent(in) :: ALPHA, BETA
+    integer, intent(in) :: NP
 
     integer, parameter :: KSTOP = 10
     real(kind=rp), parameter :: EPS = 1.0e-12_rp
+
+    real(kind=xp) :: one, DTH, X, X1, X2, XLAST, DELX, XMIN
+    real(kind=xp) :: P, PD, PM1, PDM1, PM2, PDM2
+    real(kind=xp) :: RECSUM, SWAP
     integer :: I, J, K, N, JM, JMIN
 
     N = NP-1
@@ -580,13 +591,15 @@ contains
 !     of degree N at X.
 !
 !--------------------------------------------------------------------
-    ! Bug: Remove implicit types
-    implicit real(kind=xp) (A-H,O-Z)
 
-    real(kind=xp), intent(inout) :: POLY, PDER, &
-         POLYM1, PDERM1, POLYM2, PDERM2
+    real(kind=xp), intent(inout) :: POLY, PDER, POLYM1, PDERM1, POLYM2, PDERM2
     integer, intent(in) :: N
     real(kind=xp), intent(in) :: ALP, BET, X
+
+    real(kind=xp) :: APB, POLYL, PDERL, POLYN, PDERN
+    real(kind=xp) :: PSAVE, PDSAVE
+    real(kind=xp) :: A1, A2, A3, A4, B3
+    real(kind=xp) :: DK
     integer :: K
 
     APB = ALP+BET
@@ -660,11 +673,12 @@ contains
 !     Double precision version.
 !
 !---------------------------------------------------------------------
-    ! Bug: Remove implicit types
-    implicit real(kind=xp) (A-H,O-Z)
 
     real(kind=xp), intent(in) :: Z, ZGJ(1), ALPHA, BETA
     integer, intent(in) :: NP, II
+
+    real(kind=xp) :: EPS, ONE, ZI, DZ
+    real(kind=xp) :: PZ, PDZ, PZI, PDZI, PM1, PDM1, PM2, PDM2
 
     EPS = 1.0e-5_xp
     ONE = 1.0_xp
@@ -719,11 +733,13 @@ contains
 !     Double precision version.
 !
 !---------------------------------------------------------------------
-    ! Bug: Remove implicit types
-    implicit real(kind=xp) (A-H,O-Z)
 
     real(kind=xp), intent(in) :: Z, ZGLJ(1), ALPHA, BETA
     integer, intent(in) :: NP, I
+
+    real(kind=xp) :: EPS, ONE, ZI, DZ, DN
+    real(kind=xp) :: P, PD, PI, PDI, PM1, PDM1, PM2, PDM2
+    real(kind=xp) :: EIGVAL, CONST
     integer :: N
 
     EPS = 1.0e-5_xp
@@ -759,7 +775,7 @@ contains
     real(kind=xp), intent(inout) :: D(NZD,NZD), DT(NZD,NZD)
     real(kind=xp), intent(in) :: Z(1), ALPHA, BETA
 
-    real(kind=xp) DD(NZDD,NZDD), DTD(NZDD,NZDD), ZD(NZDD), ALPHAD, BETAD
+    real(kind=xp) :: DD(NZDD,NZDD), DTD(NZDD,NZDD), ZD(NZDD), ALPHAD, BETAD
     integer :: I, J
 
     if (NZ .le. 0) then
@@ -800,12 +816,13 @@ contains
 !     Double precision version.
 !
 !-----------------------------------------------------------------
-    ! Bug: Remove implicit types
-    implicit real(kind=xp) (A-H,O-Z)
 
     integer, intent(in) :: NZ, NZD
     real(kind=xp), intent(inout) :: D(NZD,NZD), DT(NZD,NZD)
     real(kind=xp), intent(in) :: Z(1), ALPHA, BETA
+
+    real(kind=xp) :: DN, ONE, TWO
+    real(kind=xp) :: PDI, PDJ, PI, PJ, PM1, PDM1, PM2, PDM2
     integer :: I, J, N
 
     N = NZ-1
@@ -891,13 +908,14 @@ contains
 !     Double precision version.
 !
 !-----------------------------------------------------------------
-    ! Bug: Remove implicit types
-    implicit real(kind=xp) (A-H,O-Z)
 
     integer, intent(in) :: NZ, NZD
     real(kind=xp), intent(inout) :: D(NZD,NZD), DT(NZD,NZD)
     real(kind=xp), intent(in) :: Z(1), ALPHA, BETA
 
+    real(kind=xp) :: DN, ONE, TWO, EIGVAL
+    real(kind=xp) :: PDI, PDJ, PI, PJ, PM1, PDM1, PM2, PDM2
+    real(kind=xp) :: CI, CJ
     integer :: I, J, N
 
     N = NZ-1
@@ -943,14 +961,14 @@ contains
 !     Note: D and DT are square matrices.
 !
 !-----------------------------------------------------------------
-    ! Bug: Remove implicit types
-    implicit real(kind=xp) (A-H,O-Z)
 
-    integer, parameter :: NMAX = 84
     integer, intent(in) :: NZ, NZD
     real(kind=rp), intent(inout) :: D(NZD,NZD), DT(NZD,NZD)
     real(kind=rp), intent(in) :: Z(1)
 
+    integer, parameter :: NMAX = 84
+
+    real(kind=xp) :: d0, FN
     integer :: I, J, N
 
     N = NZ-1
@@ -963,8 +981,8 @@ contains
        D(1,1) = 0.0_rp
        return
     end if
-    FN = (N)
-    d0 = FN*(FN + 1.0_rp)/4.0_rp
+    FN = real(N, kind=xp)
+    d0 = FN*(FN + 1.0_xp)/4.0_xp
     do I = 1, NZ
        do J = 1, NZ
           D(I,J) = 0.0_rp
@@ -984,13 +1002,12 @@ contains
 !     the NZ Gauss-Lobatto Legendre points ZGLL at the point Z.
 !
 !---------------------------------------------------------------------
-    ! Bug: Remove implicit types
-    implicit real(kind=xp) (A-H,O-Z)
 
-    integer, intent(in) :: I, NZ
     real(kind=xp), intent(in) :: ZGLL(1), Z
-    real(kind=xp) :: EPS, DZ
+    integer, intent(in) :: I, NZ
 
+    real(kind=xp) :: EPS, DZ
+    real(kind=xp) :: ALFAN
     integer :: N
 
     EPS = 1.0e-5_xp
@@ -1040,12 +1057,11 @@ contains
 !     This next statement is to overcome the underflow bug in the i860.
 !     It can be removed at a later date.  11 Aug 1990   pff.
 !
-    ! Bug: Remove implicit types
-    implicit real(kind=xp) (A-H,O-Z)
 
     real(kind=xp), intent(in) :: Z
     integer, intent(in) :: N
-    real(kind=xp) :: P1, P2, P3
+
+    real(kind=xp) :: P1, P2, P3, FK
     integer :: K
 
     P1 = 1.0_xp
@@ -1071,6 +1087,7 @@ contains
     integer, intent(in) :: N
     real(kind=rp), intent(inout) :: L(0:N)
     real(kind=rp), intent(in) :: x
+
     integer :: j
 
     L(0) = 1.0_rp
@@ -1091,12 +1108,11 @@ contains
 !     Based on the recursion formula for the Legendre polynomials.
 !
 !----------------------------------------------------------------------
-    ! Bug: Remove implicit types
-    implicit real(kind=xp) (A-H,O-Z)
 
     real(kind=xp), intent(in) :: Z
     integer, intent(in) :: N
-    real(kind=xp) :: P1, P2, P1D, P2D, P3D
+
+    real(kind=xp) :: P1, P2, P3, P1D, P2D, P3D, FK
     integer :: K
 
     P1 = 1.0_xp
@@ -1105,7 +1121,7 @@ contains
     P2D = 1.0_xp
     P3D = 1.0_xp
     do K = 1, N-1
-       FK = (K)
+       FK = real(K, kind=xp)
        P3 = ((2.0_xp*FK+1.0_xp)*Z*P2 - FK*P1)/(FK+1.0_xp)
        P3D = ((2.0_xp*FK+1.0_xp)*P2 + (2.0_xp*FK+1.0_xp)*Z*P2D - FK*P1D)/(FK+1.0_xp)
        P1 = P2
@@ -1129,9 +1145,11 @@ contains
 !     Note: D and DT are rectangular matrices.
 !
 !-----------------------------------------------------------------------
+
     integer, intent(in) :: NZM1, NZM2, ND1, ND2
     real(kind=xp), intent(inout) :: D(ND2,ND1), DT(ND1,ND2)
     real(kind=xp), intent(in) :: ZM1(ND1), ZM2(ND2), IM12(ND2,ND1)
+
     real(kind=xp) EPS, ZP, ZQ
     integer :: IP, JQ, NM1
 
@@ -1229,12 +1247,14 @@ contains
 !     Double precision version.
 !
 !-----------------------------------------------------------------------
-    ! Bug: Remove implicit types
-    implicit real(kind=xp) (A-H,O-Z)
 
     integer, intent(in) :: NPGL, NPG, ND1, ND2
     real(kind=xp), intent(inout) :: D(ND2,ND1), DT(ND1,ND2)
     real(kind=xp), intent(in) :: ZGL(ND1), ZG(ND2), IGLG(ND2,ND1), ALPHA, BETA
+
+    real(kind=xp) :: EPS, ONE, TWO, EIGVAL, DN
+    real(kind=xp) :: PDI, PDJ, PI, PJ, PM1, PDM1, PM2, PDM2
+    real(kind=xp) :: DZ, FACI, FACJ, CONST
     integer :: I, J, NGL
 
     if (NPGL .le. 1) then
@@ -1250,7 +1270,7 @@ contains
     ONE = 1.0_xp
     TWO = 2.0_xp
     NGL = NPGL-1
-    DN = ((NGL))
+    DN = real(NGL, kind=xp)
     EIGVAL = -DN*(DN+ALPHA+BETA+ONE)
 
     do I = 1, NPG
