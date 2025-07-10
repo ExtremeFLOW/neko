@@ -435,17 +435,17 @@ contains
 #else
          call neko_error('No device backend configured')
 #endif
-
-#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL)
-         if (c_associated(event)) then
-            call device_event_record(event, strm)
-         else
-            call device_sync(strm)
-         end if
-#endif
-
        end associate
     end if
+
+#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL)
+    if (c_associated(event)) then
+       call device_event_record(event, this%gs_stream)
+    else
+       call device_sync(this%gs_stream)
+    end if
+#endif
+
 
   end subroutine gs_scatter_device
 
