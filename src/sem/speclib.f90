@@ -206,6 +206,7 @@ contains
        write (stderr, *) 'Here NP=', NP
        call neko_error
     end if
+
     ALPHAD = real(ALPHA, kind=xp)
     BETAD = real(BETA, kind=xp)
     call ZWGJD(ZD, WD, NP, ALPHAD, BETAD)
@@ -238,13 +239,12 @@ contains
     if (NP .le. 0) then
        write (stderr, *) 'ZWGJD: Minimum number of Gauss points is 1', np
        call neko_error
-    end if
-    if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
+    else if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
        call neko_error('ZWGJD: Alpha and Beta must be greater than -1')
     end if
 
     if (NP .eq. 1) then
-       Z(1) = (BETA-ALPHA) / (APB + 2.0_xp)
+       Z(1) = (BETA - ALPHA) / (APB + 2.0_xp)
        W(1) = GAMMAF(ALPHA + 1.0_xp) * GAMMAF(BETA + 1.0_xp) / &
             GAMMAF(APB + 2.0_xp) * 2.0_xp**(APB + 1.0_xp)
        return
@@ -316,13 +316,11 @@ contains
     N = NP - 1
     NM1 = N - 1
 
-
     if (NP .le. 1) then
        write (stderr, *) 'ZWGLJD: Minimum number of Gauss-Lobatto points is 2'
        write (stderr, *) 'ZWGLJD: alpha, beta:', alpha, beta, np
        call neko_error
-    end if
-    if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
+    else if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
        call neko_error('ZWGLJD: Alpha and Beta must be greater than -1')
     end if
 
@@ -331,6 +329,7 @@ contains
        BETG = BETA + 1.0_xp
        call ZWGJD(Z(2), W(2), NM1, ALPG, BETG)
     end if
+
     Z(1) = -1.0_xp
     Z(NP) = 1.0_xp
     do I = 2, NP - 1
@@ -354,17 +353,19 @@ contains
     real(kind=xp) :: A1, A2, A3, DI, ABN, ABNN
     integer :: I
 
-    APB = ALPHA + BETA
     if (N .eq. 0) then
        ENDW1 = 0.0_xp
        return
     end if
+
+    APB = ALPHA + BETA
     F1 = GAMMAF(ALPHA + 2.0_xp)*GAMMAF(BETA + 1.0_xp) / GAMMAF(APB + 3.0_xp)
     F1 = F1*(APB + 2.0_xp)*2.0_xp**(APB + 2.0_xp)/2.0_xp
     if (N .eq. 1) then
        ENDW1 = F1
        return
     end if
+
     FINT1 = GAMMAF(ALPHA + 2.0_xp)*GAMMAF(BETA + 1.0_xp) / GAMMAF(APB + 3.0_xp)
     FINT1 = FINT1*2.0_xp**(APB + 2.0_xp)
     FINT2 = GAMMAF(ALPHA + 2.0_xp)*GAMMAF(BETA + 2.0_xp) / GAMMAF(APB + 4.0_xp)
@@ -375,6 +376,7 @@ contains
        ENDW1 = F2
        return
     end if
+
     do I = 3, N
        DI = real(I - 1, kind=xp)
        ABN = ALPHA + BETA + DI
@@ -401,17 +403,19 @@ contains
     integer :: I
 
 
-    APB = ALPHA + BETA
     if (N .eq. 0) then
        ENDW2 = 0.0_xp
        return
     end if
+
+    APB = ALPHA + BETA
     F1 = GAMMAF(ALPHA + 1.0_xp)*GAMMAF(BETA + 2.0_xp) / GAMMAF(APB + 3.0_xp)
     F1 = F1*(APB + 2.0_xp)*2.0_xp**(APB + 2.0_xp)/2.0_xp
     if (N .eq. 1) then
        ENDW2 = F1
        return
     end if
+
     FINT1 = GAMMAF(ALPHA + 1.0_xp)*GAMMAF(BETA + 2.0_xp) / GAMMAF(APB + 3.0_xp)
     FINT1 = FINT1*2.0_xp**(APB + 2.0_xp)
     FINT2 = GAMMAF(ALPHA + 2.0_xp)*GAMMAF(BETA + 2.0_xp) / GAMMAF(APB + 4.0_xp)
@@ -422,6 +426,7 @@ contains
        ENDW2 = F2
        return
     end if
+
     do I = 3, N
        DI = ((I-1))
        ABN = ALPHA + BETA + DI
@@ -472,6 +477,7 @@ contains
        PNORMJ = PROD * 2.0_xp**CONST / (2.0_xp*DN + CONST)
        return
     end if
+
     PROD = GAMMAF(ALPHA + 1.0_xp)*GAMMAF(BETA + 1.0_xp)
     PROD = PROD/(2.0_xp*(1.0_xp + CONST)*GAMMAF(CONST + 1.0_xp))
     PROD = PROD*(1.0_xp + ALPHA) * (2.0_xp + ALPHA)
@@ -514,6 +520,7 @@ contains
           X2 = XLAST
           X = (X1 + X2) / 2.0_xp
        end if
+
        do K = 1, KSTOP
           call JACOBF(P, PD, PM1, PDM1, PM2, PDM2, NP, ALPHA, BETA, X)
           RECSUM = 0.0_xp
@@ -529,6 +536,7 @@ contains
        XJAC(NP-J + 1) = X
        XLAST = X
     end do
+
     do I = 1, NP
        XMIN = 2.
        do J = I, NP
@@ -563,11 +571,13 @@ contains
     POLY = 1.0_xp
     PDER = 0.0_xp
     if (N .eq. 0) return
+
     POLYL = POLY
     PDERL = PDER
     POLY = (ALP - BET + (APB + 2.0_xp)*X) / 2.0_xp
     PDER = (APB + 2.0_xp) / 2.0_xp
     if (N .eq. 1) return
+
     do K = 2, N
        DK = real(K, kind=xp)
        A1 = 2.0_xp*DK*(DK + APB) * (2.0_xp*DK + APB - 2.0_xp)
@@ -610,6 +620,7 @@ contains
        write (stderr, *) 'Here NP=', NP
        call neko_error
     end if
+
     ZD = Z
     do I = 1, NP
        ZGJD(I) = ZGJ(I)
@@ -685,6 +696,7 @@ contains
        HGLJD = 1.0_xp
        return
     end if
+
     N = NP - 1
     DN = real(N, kind=xp)
     EIGVAL = -DN*(DN + ALPHA + BETA + 1.0_xp)
@@ -712,16 +724,15 @@ contains
 
     if (NZ .le. 0) then
        call neko_error('DGJ: Minimum number of Gauss points is 1')
-    end if
-    if (NZ .gt. NMAX) then
+    else if (NZ .gt. NMAX) then
        write (stderr, *) 'Too large polynomial degree in DGJ'
        write (stderr, *) 'Maximum polynomial degree is', NMAX
        write (stderr, *) 'Here Nz=', Nz
        call neko_error
-    end if
-    if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
+    else if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
        call neko_error('DGJ: Alpha and Beta must be greater than -1')
     end if
+
     do I = 1, NZ
        ZD(I) = Z(I)
     end do
@@ -754,8 +765,7 @@ contains
 
     if (NZ .le. 1) then
        call neko_error('DGJD: Minimum number of Gauss-Lobatto points is 2')
-    end if
-    if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
+    else if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
        call neko_error('DGJD: Alpha and Beta must be greater than -1')
     end if
 
@@ -763,9 +773,12 @@ contains
        do J = 1, NZ
           call JACOBF(PI, PDI, PM1, PDM1, PM2, PDM2, NZ, ALPHA, BETA, Z(I))
           call JACOBF(PJ, PDJ, PM1, PDM1, PM2, PDM2, NZ, ALPHA, BETA, Z(J))
-          if (I .ne. J) D(I, J) = PDI/(PDJ*(Z(I)-Z(J)))
-          if (I .eq. J) D(I, J) = ((ALPHA + BETA + 2.0_xp)*Z(I) + ALPHA-BETA) / &
-               (2.0_xp*(1.0_xp - Z(I)**2))
+          if (I .ne. J) then
+             D(I, J) = PDI / (PDJ*(Z(I) - Z(J)))
+          else
+             D(I, J) = ((ALPHA + BETA + 2.0_xp)*Z(I) + ALPHA - BETA) / &
+                  (2.0_xp*(1.0_xp - Z(I)**2))
+          end if
           DT(J, I) = D(I, J)
        end do
     end do
@@ -788,16 +801,15 @@ contains
 
     if (NZ .le. 1) then
        call neko_error('DGLJ: Minimum number of Gauss-Lobatto points is 2')
-    end if
-    if (NZ .gt. NMAX) then
+    else if (NZ .gt. NMAX) then
        write (stderr, *) 'Too large polynomial degree in DGLJ'
        write (stderr, *) 'Maximum polynomial degree is', NMAX
        write (stderr, *) 'Here NZ=', NZ
        call neko_error
-    end if
-    if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
+    else if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
        call neko_error('DGLJ: Alpha and Beta must be greater than -1')
     end if
+
     do I = 1, NZ
        ZD(I) = Z(I)
     end do
@@ -833,8 +845,7 @@ contains
 
     if (NZ .le. 1) then
        call neko_error('DGLJD: Minimum number of Gauss-Lobatto points is 2')
-    end if
-    if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
+    else if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
        call neko_error('DGLJD: Alpha and Beta must be greater than -1')
     end if
 
@@ -848,16 +859,13 @@ contains
           ! Todo: This should have some elses in there
           if (I .ne. J) then
              D(I, J) = CI / (CJ*(Z(I) - Z(J)))
-          end if
-          if ((I .eq. J) .and. (I .ne. 1) .and. (I .ne. NZ)) then
+          else if (I .eq. 1) then
+             D(I, J) = (EIGVAL + ALPHA) / (2.0_xp*(BETA + 2.0_xp))
+          else if (I .eq. NZ) then
+             D(I, J) = -(EIGVAL + BETA) / (2.0_xp*(ALPHA + 2.0_xp))
+          else
              D(I, J) = (ALPHA*(1.0_xp + Z(I)) - BETA*(1.0_xp - Z(I))) / &
                   (2.0_xp*(1.0_xp - Z(I)**2))
-          end if
-          if ((I .eq. J) .and. (I .eq. 1)) then
-             D(I, J) = (EIGVAL + ALPHA) / (2.0_xp*(BETA + 2.0_xp))
-          end if
-          if ((I .eq. J) .and. (I .eq. NZ)) then
-             D(I, J) = -(EIGVAL + BETA) / (2.0_xp*(ALPHA + 2.0_xp))
           end if
           DT(J, I) = D(I, J)
        end do
@@ -889,15 +897,21 @@ contains
        D(1, 1) = 0.0_rp
        return
     end if
+
     FN = real(N, kind=xp)
     d0 = FN*(FN + 1.0_xp)/4.0_xp
     do I = 1, NZ
        do J = 1, NZ
-          D(I, J) = 0.0_rp
-          if (I .ne. J) D(I, J) = PNLEG(real(Z(I), xp), N)/ &
-               (PNLEG(real(Z(J), xp), N) * (Z(I)-Z(J)))
-          if ((I .eq. J) .and. (I .eq. 1)) D(I, J) = -d0
-          if ((I .eq. J) .and. (I .eq. NZ)) D(I, J) = d0
+          if (I .ne. J) then
+             D(I, J) = PNLEG(real(Z(I), xp), N)/ &
+                  (PNLEG(real(Z(J), xp), N) * (Z(I) - Z(J)))
+          else if (I .eq. 1) then
+             D(I, J) = -d0
+          else if (I .eq. NZ) then
+             D(I, J) = d0
+          else
+             D(I, J) = 0.0_rp
+          end if
           DT(J, I) = D(I, J)
        end do
     end do
@@ -919,10 +933,11 @@ contains
        HGLL = 1.0_xp
        return
     end if
+
     N = NZ - 1
     ALFAN = real(N, kind=xp) * (real(N, kind=xp) + 1.0_xp)
-    HGLL = -(1.0_xp - Z*Z)*PNDLEG(Z, N) / &
-         (ALFAN*PNLEG(ZGLL(I), N) * (Z - ZGLL(I)))
+    HGLL = -(1.0_xp - Z*Z)*PNDLEG(Z, N) / (ALFAN*PNLEG(ZGLL(I), N) * &
+         (Z - ZGLL(I)))
   end function HGLL
 
   !> Compute the value of the Lagrangian interpolant HGL through
@@ -940,6 +955,7 @@ contains
        HGL = 1.0_xp
        return
     end if
+
     N = NZ - 1
     HGL = PNLEG(Z, NZ) / (PNDLEG(ZGL(I), NZ) * (Z - ZGL(I)))
   end function HGL
@@ -966,6 +982,7 @@ contains
        PNLEG = P1
        return
     end if
+
     P2 = Z
     P3 = P2
     do K = 1, N-1
@@ -1051,7 +1068,7 @@ contains
        return
     end if
     EPS = 1.0E-6_xp
-    NM1 = NZM1-1
+    NM1 = NZM1 - 1
     do IP = 1, NZM2
        do JQ = 1, NZM1
           ZP = ZM2(IP)
@@ -1089,14 +1106,12 @@ contains
 
     if (NPGL .le. 1) then
        call neko_error('DGLJGJ: Minimum number of Gauss-Lobatto points is 2')
-    end if
-    if (NPGL .gt. NMAX) then
+    else if (NPGL .gt. NMAX) then
        write(6, *) 'Polynomial degree too high in DGLJGJ'
        write(6, *) 'Maximum polynomial degree is', NMAX
        write(6, *) 'Here NPGL=', NPGL
        call neko_error
-    end if
-    if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
+    else if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
        call neko_error('DGLJGJ: Alpha and Beta must be greater than -1')
     end if
 
@@ -1138,8 +1153,7 @@ contains
 
     if (NPGL .le. 1) then
        call neko_error('DGLJGJD: Minimum number of Gauss-Lobatto points is 2')
-    end if
-    if ((ALPHA .le. -1.) .or. (BETA .le. -1.)) then
+    else if ((ALPHA .le. -1.) .or. (BETA .le. -1.)) then
        call neko_error('DGLJGJD: Alpha and Beta must be greater than -1')
     end if
 
@@ -1212,6 +1226,7 @@ contains
        IT12(1, 1) = 1.0_xp
        return
     end if
+
     do I = 1, NZ2
        ZI = Z2(I)
        do J = 1, NZ1
@@ -1239,6 +1254,7 @@ contains
        IT12(1, 1) = 1.0_xp
        return
     end if
+
     do I = 1, NZ2
        ZI = Z2(I)
        do J = 1, NZ1
@@ -1266,6 +1282,7 @@ contains
        IT12(1, 1) = 1.0_xp
        return
     end if
+
     do I = 1, NZ2
        ZI = Z2(I)
        do J = 1, NZ1
