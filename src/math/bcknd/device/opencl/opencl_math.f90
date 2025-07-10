@@ -112,14 +112,23 @@ module opencl_math
        integer(c_int) :: n
      end subroutine opencl_cdiv2
 
-     subroutine opencl_cadd(a_d, c, n, strm) &
-          bind(c, name = 'opencl_cadd')
+     subroutine opencl_radd(a_d, c, n, strm) &
+          bind(c, name = 'opencl_radd')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a_d, strm
        real(c_rp) :: c
        integer(c_int) :: n
-     end subroutine opencl_cadd
+     end subroutine opencl_radd
+
+     subroutine opencl_iadd(a_d, c, n, strm) &
+          bind(c, name = 'opencl_iadd')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: a_d, strm
+       integer(c_int) :: c
+       integer(c_int) :: n
+     end subroutine opencl_iadd
 
      subroutine opencl_cadd2(a_d, b_d, c, n, strm) &
           bind(c, name = 'opencl_cadd2')

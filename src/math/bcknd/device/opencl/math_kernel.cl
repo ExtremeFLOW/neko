@@ -163,10 +163,25 @@ __kernel void cdiv2_kernel(__global real * __restrict__ a,
 }
 
 /**
- * Device kernel for cadd
+ * Device kernel for radd
  */
-__kernel void cadd_kernel(__global real * __restrict__ a,
+__kernel void radd_kernel(__global real * __restrict__ a,
                           const real c,
+                          const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = a[i] + c;
+  }
+}
+
+/**
+ * Device kernel for iadd
+ */
+__kernel void iadd_kernel(__global int * __restrict__ a,
+                          const int c,
                           const int n) {
 
   const int idx = get_global_id(0);
