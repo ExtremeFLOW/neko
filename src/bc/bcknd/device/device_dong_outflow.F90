@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -39,41 +39,41 @@ module device_dong_outflow
 
 #ifdef HAVE_HIP
   interface
-     subroutine hip_dong_outflow_apply_scalar(msk, x, normal_x, normal_y,&
-                                              normal_z, u, v, w, uinf, delta, m) &
+     subroutine hip_dong_outflow_apply_scalar(msk, x, normal_x, normal_y, &
+          normal_z, u, v, w, uinf, delta, m, strm) &
           bind(c, name='hip_dong_outflow_apply_scalar')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
        integer(c_int) :: m
        real(kind=c_rp) :: uinf, delta
-       type(c_ptr), value :: msk, x, u, v, w, normal_x, normal_y, normal_z
+       type(c_ptr), value :: msk, x, u, v, w, normal_x, normal_y, normal_z, strm
      end subroutine hip_dong_outflow_apply_scalar
   end interface
 #elif HAVE_CUDA
   interface
      subroutine cuda_dong_outflow_apply_scalar(msk, x, normal_x, normal_y,&
-                                              normal_z, u, v, w, uinf, delta, m) &
+          normal_z, u, v, w, uinf, delta, m, strm) &
           bind(c, name='cuda_dong_outflow_apply_scalar')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
        integer(c_int) :: m
        real(kind=c_rp) :: uinf, delta
-       type(c_ptr), value :: msk, x, u, v, w, normal_x, normal_y, normal_z
+       type(c_ptr), value :: msk, x, u, v, w, normal_x, normal_y, normal_z, strm
      end subroutine cuda_dong_outflow_apply_scalar
   end interface
 #elif HAVE_OPENCL
   interface
      subroutine opencl_dong_outflow_apply_scalar(msk, x, normal_x, normal_y,&
-                                              normal_z, u, v, w, uinf, delta, m) &
+          normal_z, u, v, w, uinf, delta, m, strm) &
           bind(c, name='opencl_dong_outflow_apply_scalar')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
        integer(c_int) :: m
        real(kind=c_rp) :: uinf, delta
-       type(c_ptr), value :: msk, x, u, v, w, normal_x, normal_y, normal_z
+       type(c_ptr), value :: msk, x, u, v, w, normal_x, normal_y, normal_z, strm
      end subroutine opencl_dong_outflow_apply_scalar
   end interface
 #endif
@@ -83,20 +83,20 @@ module device_dong_outflow
 contains
 
   subroutine device_dong_outflow_apply_scalar(msk, x, normal_x, normal_y,&
-                                              normal_z, u, v, w, uinf, delta, m)
+       normal_z, u, v, w, uinf, delta, m, strm)
     integer(c_int) :: m
     real(kind=c_rp) :: uinf, delta
-    type(c_ptr) :: msk, x, u, v, w, normal_x, normal_y, normal_z
+    type(c_ptr) :: msk, x, u, v, w, normal_x, normal_y, normal_z, strm
 
 #ifdef HAVE_HIP
     call hip_dong_outflow_apply_scalar(msk, x, normal_x, normal_y, &
-                                              normal_z, u, v, w, uinf, delta, m)
+         normal_z, u, v, w, uinf, delta, m, strm)
 #elif HAVE_CUDA
     call cuda_dong_outflow_apply_scalar(msk, x, normal_x, normal_y, &
-                                              normal_z, u, v, w, uinf, delta, m)
+         normal_z, u, v, w, uinf, delta, m, strm)
 #elif HAVE_OPENCL
     call opencl_dong_outflow_apply_scalar(msk, x, normal_x, normal_y, &
-         normal_z, u, v, w, uinf, delta, m)
+         normal_z, u, v, w, uinf, delta, m, strm)
 
 #else
     call neko_error('No device backend configured')
