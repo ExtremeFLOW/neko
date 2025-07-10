@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -98,9 +98,13 @@ contains
     logical, intent(in), optional :: strong
     integer :: i, m, k, fid
     real(kind=rp) :: magtau
-    logical :: strong_ = .true.
+    logical :: strong_
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
 
     if (.not. strong_) then
        ! Compute the wall stress using the wall model.
@@ -122,12 +126,13 @@ contains
 
   !> Boundary condition apply for a generic wall_model_bc condition
   !! to a vector @a x (device version)
-  subroutine wall_model_bc_apply_scalar_dev(this, x_d, t, tstep, strong)
+  subroutine wall_model_bc_apply_scalar_dev(this, x_d, t, tstep, strong, strm)
     class(wall_model_bc_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
+    type(c_ptr) :: strm
 
     call neko_error("The wall model bc is not applicable to scalar fields.")
 
@@ -136,7 +141,7 @@ contains
   !> Boundary condition apply for a generic wall_model_bc condition
   !! to vectors @a x, @a y and @a z (device version)
   subroutine wall_model_bc_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, &
-       strong)
+       strong, strm)
     class(wall_model_bc_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
@@ -144,9 +149,14 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
-    logical :: strong_ = .true.
+    logical :: strong_
+    type(c_ptr) :: strm
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
 
     if (.not. strong_) then
        ! Compute the wall stress using the wall model.
@@ -162,7 +172,8 @@ contains
     end if
 
     ! Either add the stress to the RHS or apply the non-penetration condition
-    call this%shear_stress_t%apply_vector_dev(x_d, y_d, z_d, t, tstep, strong_)
+    call this%shear_stress_t%apply_vector_dev(x_d, y_d, z_d, &
+         t, tstep, strong_, strm)
 
   end subroutine wall_model_bc_apply_vector_dev
 
@@ -198,7 +209,6 @@ contains
   subroutine wall_model_bc_finalize(this, only_facets)
     class(wall_model_bc_t), target, intent(inout) :: this
     logical, optional, intent(in) :: only_facets
-    logical :: only_facets_ = .false.
 
     if (present(only_facets)) then
        if (only_facets .eqv. .false.) then
