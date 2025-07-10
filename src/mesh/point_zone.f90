@@ -38,7 +38,8 @@ module point_zone
   use dofmap, only: dofmap_t
   use json_module, only: json_file
   use neko_config, only: NEKO_BCKND_DEVICE
-  use device
+  use mask, only: mask_t
+  use device, only: device_map, device_memcpy, device_free
   use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr, c_associated
   implicit none
   private
@@ -46,9 +47,7 @@ module point_zone
   !> Base abstract type for point zones.
   type, public, abstract :: point_zone_t
      !> List of linear indices of the GLL points in the zone.
-     integer, allocatable :: mask(:)
-     !> List of linear indices of the GLL points in the zone on the device.
-     type(c_ptr) :: mask_d = c_null_ptr
+     type(mask_t) :: mask
      !> Scratch stack of integers to build the list mask.
      type(stack_i4_t), private :: scratch
      !> Size of the point zone mask.
@@ -227,18 +226,12 @@ contains
   !> Destructor for the point_zone_t base type.
   subroutine point_zone_free_base(this)
     class(point_zone_t), intent(inout) :: this
-    if (allocated(this%mask)) then
-       deallocate(this%mask)
-    end if
 
     this%finalized = .false.
     this%size = 0
 
     call this%scratch%free()
-
-    if (c_associated(this%mask_d)) then
-       call device_free(this%mask_d)
-    end if
+    call this%mask%free()
 
   end subroutine point_zone_free_base
 
@@ -246,29 +239,16 @@ contains
   subroutine point_zone_finalize(this)
     class(point_zone_t), intent(inout) :: this
     integer, pointer :: tp(:)
-    integer :: i
 
     if (.not. this%finalized) then
 
        if (this%scratch%size() .ne. 0) then
 
-          allocate(this%mask(this%scratch%size()))
-
           tp => this%scratch%array()
-          do i = 1, this%scratch%size()
-             this%mask(i) = tp(i)
-          end do
-
           this%size = this%scratch%size()
+          call this%mask%init(tp, this%size)
 
           call this%scratch%clear()
-
-          if (NEKO_BCKND_DEVICE .eq. 1) then
-             call device_map(this%mask, this%mask_d, this%size)
-             call device_memcpy(this%mask, this%mask_d, this%size, &
-                  HOST_TO_DEVICE, sync = .false.)
-          end if
-
        else
 
           this%size = 0
