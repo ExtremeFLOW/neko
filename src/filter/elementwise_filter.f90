@@ -56,7 +56,7 @@ module elementwise_filter
   type, public, extends(filter_t) :: elementwise_filter_t
      !> filter type:
      !> possible options: "Boyd", "nonBoyd"
-     character(len=:), allocatable :: elementwise_filter_type
+     character(len=:), allocatable :: filter_type
      !> dimension
      integer :: nx
      !> filtered wavenumber
@@ -66,13 +66,13 @@ module elementwise_filter
      type(c_ptr) :: fh_d = C_NULL_PTR
      type(c_ptr) :: fht_d = C_NULL_PTR
      !> transfer function
-     real(kind=rp), allocatable :: trnsfr(:)
+     real(kind=rp), allocatable :: transfer(:)
    contains
      !> Constructor.
      procedure, pass(this) :: init => elementwise_filter_init_from_json
      !> Actual constructor.
-     procedure, pass(this) :: init_from_attributes => &
-          elementwise_filter_init_from_attributes
+     procedure, pass(this) :: init_from_components => &
+          elementwise_filter_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => elementwise_filter_free
      !> Set up 1D filter inside an element.
@@ -87,24 +87,24 @@ contains
     class(elementwise_filter_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(coef_t), intent(in) :: coef
-    real(kind=rp), allocatable :: trnsfr(:)
+    real(kind=rp), allocatable :: transfer(:)
     character(len=:), allocatable :: filter_type
 
     ! Filter assumes lx = ly = lz
     call this%init_base(json, coef)
 
-    call this%init_from_attributes(coef%dof%xh%lx)
+    call this%init_from_components(coef%dof%xh%lx)
 
     call json_get_or_default(json, "filter.elementwise_filter_type", &
-         this%elementwise_filter_type, "nonBoyd")
+         this%filter_type, "nonBoyd")
 
     if (json%valid_path('filter.transfer_function')) then
-       call json_get(json, 'filter.transfer_function', trnsfr)
-       if (size(trnsfr) .eq. coef%dof%xh%lx) then
-          this%trnsfr = trnsfr
+       call json_get(json, 'filter.transfer_function', transfer)
+       if (size(transfer) .eq. coef%dof%xh%lx) then
+          this%transfer = transfer
        else
-          call neko_error("The transfer function of the elementwise &
-          &filter must correspond the order of the polynomial")
+          call neko_error("The transfer function of the elementwise " // &
+                          "filter must correspond the order of the polynomial")
        end if
        call this%build_1d()
     end if
@@ -113,7 +113,7 @@ contains
 
   !> Actual Constructor.
   !! @param nx number of points in an elements in one direction.
-  subroutine elementwise_filter_init_from_attributes(this, nx)
+  subroutine elementwise_filter_init_from_components(this, nx)
     class(elementwise_filter_t), intent(inout) :: this
     integer :: nx
 
@@ -122,11 +122,11 @@ contains
 
     allocate(this%fh(nx, nx))
     allocate(this%fht(nx, nx))
-    allocate(this%trnsfr(nx))
+    allocate(this%transfer(nx))
 
     call rzero(this%fh, nx*nx)
     call rzero(this%fht, nx*nx)
-    call rone(this%trnsfr, nx) ! initialize as if nothing is filtered yet
+    call rone(this%transfer, nx) ! initialize as if nothing is filtered yet
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(this%fh, this%fh_d, this%nx * this%nx)
@@ -135,7 +135,7 @@ contains
        call device_cfill(this%fht_d, 0.0_rp, this%nx * this%nx)
     end if
 
-  end subroutine elementwise_filter_init_from_attributes
+  end subroutine elementwise_filter_init_from_components
 
   !> Destructor.
   subroutine elementwise_filter_free(this)
@@ -149,8 +149,8 @@ contains
        deallocate(this%fht)
     end if
 
-    if (allocated(this%trnsfr)) then
-       deallocate(this%trnsfr)
+    if (allocated(this%transfer)) then
+       deallocate(this%transfer)
     end if
 
     if (c_associated(this%fh_d)) then
@@ -161,7 +161,7 @@ contains
        call device_free(this%fht_d)
     end if
 
-    this%elementwise_filter_type = ""
+    this%filter_type = ""
     this%nx = 0
     this%nt = 0
 
@@ -173,8 +173,8 @@ contains
   subroutine build_1d(this)
     class(elementwise_filter_t), intent(inout) :: this
 
-    call build_1d_cpu(this%fh, this%fht, this%trnsfr, &
-         this%nx, this%elementwise_filter_type)
+    call build_1d_cpu(this%fh, this%fht, this%transfer, &
+         this%nx, this%filter_type)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%fh, this%fh_d, &
             this%nx * this%nx, HOST_TO_DEVICE, sync = .false.)
@@ -203,10 +203,10 @@ contains
   !! @param trnfr The transfer function containing weights for different modes.
   !! @param nx number of points, dimension of x.
   !! @param filter_type
-  subroutine build_1d_cpu(fh, fht, trnsfr, nx, filter_type)
+  subroutine build_1d_cpu(fh, fht, transfer, nx, filter_type)
     integer, intent(in) :: nx
     real(kind=rp), intent(inout) :: fh(nx, nx), fht(nx, nx)
-    real(kind=rp), intent(in) :: trnsfr(nx)
+    real(kind=rp), intent(in) :: transfer(nx)
     real(kind=rp) :: diag(nx, nx), rmult(nx), Lj(nx), zpts(nx)
     type(matrix_t) :: phi, pht
     integer :: n, i, j, k
@@ -242,7 +242,7 @@ contains
     diag = 0.0_rp
 
     do i=1,nx
-       diag(i,i) = trnsfr(i)
+       diag(i,i) = transfer(i)
     end do
 
     call mxm (diag, nx, pht%x, nx, fh, nx) !          -1

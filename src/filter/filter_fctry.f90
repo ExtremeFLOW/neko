@@ -33,7 +33,7 @@
 submodule (filter) filter_fctry
   use elementwise_filter, only : elementwise_filter_t
   use PDE_filter, only : PDE_filter_t
-  use utils, only : concat_string_array, neko_error
+  use utils, only : concat_string_array, neko_type_error
   implicit none
 
   ! List of all possible types created by the factory routine
@@ -61,14 +61,10 @@ contains
     else if (trim(type_name) .eq. 'PDE') then
        allocate(pde_filter_t::object)
     else
-       type_string = concat_string_array(FILTER_KNOWN_TYPES, &
-            NEW_LINE('A') // "-  ", .true.)
-       call neko_error("Unknown filter type: " &
-            // trim(type_name) // ".  Known types are: " &
-            // type_string)
-       stop
-
+       call neko_type_error("filter type: ", type_name, &
+            FILTER_KNOWN_TYPES)
     end if
+    
     call object%init(json, coef)
   end subroutine filter_factory
 
