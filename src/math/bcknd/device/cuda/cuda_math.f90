@@ -118,14 +118,14 @@ module cuda_math
        integer(c_int) :: n
      end subroutine cuda_cdiv2
 
-     subroutine ruda_cadd(a_d, c, n, strm) &
-          bind(c, name = 'ruda_cadd')
+     subroutine cuda_radd(a_d, c, n, strm) &
+          bind(c, name = 'cuda_radd')
        use, intrinsic :: iso_c_binding, only: c_int, c_ptr
        import c_rp
        type(c_ptr), value :: a_d, strm
        real(c_rp) :: c
        integer(c_int) :: n
-     end subroutine ruda_cadd
+     end subroutine cuda_radd
 
      subroutine cuda_cadd2(a_d, b_d, c, n, strm) &
           bind(c, name = 'cuda_cadd2')
