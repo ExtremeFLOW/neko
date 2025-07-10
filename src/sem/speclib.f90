@@ -147,6 +147,7 @@
 !==============================================================================
 module speclib
   use num_types, only : rp, xp
+  use math, only: abscmp
   use utils, only : neko_error
   use, intrinsic :: iso_fortran_env, only : stderr => error_unit
   implicit none
@@ -443,17 +444,17 @@ contains
     real(kind=xp), parameter :: PI = 4.0_xp*atan(1.0_xp)
 
     GAMMAF = 1.0_xp
-    if (X .eq. -0.5_xp) GAMMAF = -2.0_xp*sqrt(PI)
-    if (X .eq. 0.5_xp) GAMMAF = sqrt(PI)
-    if (X .eq. 1.0_xp ) GAMMAF = 1.0_xp
-    if (X .eq. 2.0_xp ) GAMMAF = 1.0_xp
-    if (X .eq. 1.5_xp) GAMMAF = sqrt(PI) / 2.0_xp
-    if (X .eq. 2.5_xp) GAMMAF = 1.5_xp * sqrt(PI) / 2.0_xp
-    if (X .eq. 3.5_xp) GAMMAF = 0.5_xp * (2.5_xp * (1.5_xp * sqrt(PI)))
-    if (X .eq. 3.0_xp) GAMMAF = 2.0_xp
-    if (X .eq. 4.0_xp) GAMMAF = 6.0_xp
-    if (X .eq. 5.0_xp) GAMMAF = 24.0_xp
-    if (X .eq. 6.0_xp) GAMMAF = 120.0_xp
+    if (abscmp(X, -0.5_xp)) GAMMAF = -2.0_xp*sqrt(PI)
+    if (abscmp(X, 0.5_xp)) GAMMAF = sqrt(PI)
+    if (abscmp(X, 1.0_xp)) GAMMAF = 1.0_xp
+    if (abscmp(X, 2.0_xp)) GAMMAF = 1.0_xp
+    if (abscmp(X, 1.5_xp)) GAMMAF = sqrt(PI) / 2.0_xp
+    if (abscmp(X, 2.5_xp)) GAMMAF = 1.5_xp * sqrt(PI) / 2.0_xp
+    if (abscmp(X, 3.5_xp)) GAMMAF = 0.5_xp * (2.5_xp * (1.5_xp * sqrt(PI)))
+    if (abscmp(X, 3.0_xp)) GAMMAF = 2.0_xp
+    if (abscmp(X, 4.0_xp)) GAMMAF = 6.0_xp
+    if (abscmp(X, 5.0_xp)) GAMMAF = 24.0_xp
+    if (abscmp(X, 6.0_xp)) GAMMAF = 120.0_xp
   end function GAMMAF
 
   !> @todo document PNORMJ

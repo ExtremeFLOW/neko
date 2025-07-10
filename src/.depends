@@ -22,7 +22,7 @@ common/system.lo : common/system.f90
 common/runtime_statistics.lo : common/runtime_statistics.f90 comm/comm.lo math/matrix.lo io/file.lo common/json_utils.lo config/num_types.lo adt/tuple.lo adt/stack.lo common/log.lo 
 common/user_access_singleton.lo : common/user_access_singleton.f90 case.lo 
 math/mxm_wrapper.lo : math/mxm_wrapper.F90 common/utils.lo config/num_types.lo 
-sem/speclib.lo : sem/speclib.f90 common/utils.lo config/num_types.lo 
+sem/speclib.lo : sem/speclib.f90 common/utils.lo math/math.lo config/num_types.lo 
 qoi/drag_torque.lo : qoi/drag_torque.f90 comm/comm.lo math/bcknd/device/device_math.lo config/neko_config.lo common/utils.lo config/num_types.lo sem/space.lo math/math.lo mesh/facet_zone.lo sem/coef.lo field/field.lo 
 sem/local_interpolation.lo : sem/local_interpolation.f90 config/neko_config.lo math/bcknd/device/device_math.lo device/device.lo field/field_list.lo field/field.lo common/utils.lo math/fast3d.lo math/math.lo mesh/point.lo config/num_types.lo sem/space.lo math/tensor.lo 
 math/math.lo : math/math.f90 comm/comm.lo config/num_types.lo 
