@@ -38,6 +38,7 @@ module mask
   use device, only: device_map, device_free, device_memcpy, &
        HOST_TO_DEVICE, DEVICE_TO_HOST, DEVICE_TO_DEVICE
   use device_math, only: device_cadd
+  use utils, only: neko_error
 
   implicit none
   private
@@ -62,10 +63,10 @@ module mask
 
      procedure, public, pass(this) :: size => mask_size
      procedure, public, pass(this) :: is_set => mask_is_set
-     procedure, public, pass(this) :: get => mask_get
      procedure, public, pass(this) :: get_d => mask_get_d
 
      generic, public :: set => mask_set, mask_set_d
+     generic, public :: get => mask_get, mask_get_i
 
      ! Private procedures
      procedure, pass(this) :: allocate => mask_allocate
@@ -74,8 +75,12 @@ module mask
      procedure, pass(this) :: init_from_mask
 
      ! Setters
-     procedure, public, pass(this) :: mask_set
-     procedure, public, pass(this) :: mask_set_d
+     procedure, pass(this) :: mask_set
+     procedure, pass(this) :: mask_set_d
+
+     ! Getters
+     procedure, pass(this) :: mask_get
+     procedure, pass(this) :: mask_get_i
 
   end type mask_t
 
@@ -120,7 +125,7 @@ contains
   subroutine init_from_array(this, mask_array, n_elements)
     class(mask_t), intent(inout) :: this
     integer, intent(in) :: n_elements
-    integer, intent(in) :: mask_array(n_elements )
+    integer, intent(in) :: mask_array(n_elements)
 
     call this%allocate(n_elements)
 
@@ -194,13 +199,31 @@ contains
     class(mask_t), intent(in), target :: this
     integer, pointer :: mask_array(:)
 
+    if (.not. this%is_set()) call neko_error("Mask is not set.")
+
     mask_array => this%mask
   end function mask_get
+
+  !> Get the mask array.
+  function mask_get_i(this, index) result(mask_value)
+    class(mask_t), intent(in), target :: this
+    integer, intent(in) :: index
+    integer :: mask_value
+
+    if (.not. this%is_set()) call neko_error("Mask is not set.")
+    if (index < 1 .or. index > this%n_elements) then
+       call neko_error("Index out of bounds in mask_get_i")
+    end if
+
+    mask_value = this%mask(index)
+  end function mask_get_i
 
   !> Get the device pointer to the mask array.
   function mask_get_d(this) result(mask_array_d)
     class(mask_t), intent(in) :: this
     type(c_ptr) :: mask_array_d
+
+    if (.not. this%is_set()) call neko_error("Mask is not set.")
 
     mask_array_d = this%mask_d
   end function mask_get_d
