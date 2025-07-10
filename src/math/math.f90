@@ -113,7 +113,8 @@ module math
        add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
        glsc3, glsc4, sort, masked_copy_0, cfill_mask, relcmp, glimax, glimin, &
        swap, reord, flipv, cadd2, masked_gather_copy_0, absval, pwmax, pwmin, &
-       masked_scatter_copy_0, cdiv, cdiv2, glsubnorm
+       masked_scatter_copy_0, cdiv, cdiv2, glsubnorm, &
+       masked_copy, masked_gather_copy, masked_scatter_copy
 
 contains
 
