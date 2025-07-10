@@ -291,8 +291,6 @@ contains
                    do j = 1, 100
                       call gs_op_vector(gs, tmp, dofmap%size(), GS_OP_ADD)
                    end do
-                   call device_sync
-                   call MPI_Barrier(NEKO_COMM)
                    strtgy_time(i) = (MPI_Wtime() - strtgy_time(i)) / 100d0
                 end do
 
@@ -1409,12 +1407,14 @@ contains
     call gs%bcknd%gather(gs%local_gs, m, lo, gs%local_dof_gs, u, n, &
          gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, op, .false.)
     call gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u, n, &
-         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, .false., C_NULL_PTR)
+         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, &
+         .false., gs%bcknd%scatter_event)
     call profiler_end_region("gs_local", 12)
     ! Scatter shared dofs
     if (pe_size .gt. 1) then
        call profiler_start_region("gs_nbwait", 7)
-       call gs%comm%nbwait(gs%shared_gs, l, op, gs%bcknd%gs_stream)
+       call gs%comm%nbwait(gs%shared_gs, l, op, &
+            gs%bcknd%scatter_event, gs%bcknd%gs_stream)
        call profiler_end_region("gs_nbwait", 7)
        call profiler_start_region("gs_scatter_shared", 15)
        if (present(event)) then
