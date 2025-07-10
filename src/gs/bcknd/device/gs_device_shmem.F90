@@ -318,11 +318,10 @@ contains
   end subroutine gs_device_shmem_nbrecv
 
   !> Wait for non-blocking operations
-  subroutine gs_device_shmem_nbwait(this, u, n, op, deps, strm)
+  subroutine gs_device_shmem_nbwait(this, u, n, op, strm)
     class(gs_device_shmem_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: u
-    type(c_ptr), intent(inout) :: deps
     type(c_ptr), intent(inout) :: strm
     integer :: op, done_req, i
     type(c_ptr) :: u_d

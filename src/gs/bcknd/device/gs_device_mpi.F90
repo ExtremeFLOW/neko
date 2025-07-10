@@ -417,11 +417,10 @@ contains
   end subroutine gs_device_mpi_nbrecv
 
   !> Wait for non-blocking operations
-  subroutine gs_device_mpi_nbwait(this, u, n, op, deps, strm)
+  subroutine gs_device_mpi_nbwait(this, u, n, op, strm)
     class(gs_device_mpi_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: u
-    type(c_ptr), intent(inout) :: deps
     type(c_ptr), intent(inout) :: strm
     integer :: op, done_req, i
     type(c_ptr) :: u_d
@@ -453,11 +452,6 @@ contains
        call device_sync(strm)
 
     else
-
-       ! Sync unpacking streams with deps.
-       do i = 1, size(this%recv_pe)
-          call device_stream_wait_event(this%stream(i), deps, 0)
-       end do
 
        do while(device_mpi_waitany(size(this%recv_pe), &
             this%recv_buf%reqs, done_req) .ne. 0)

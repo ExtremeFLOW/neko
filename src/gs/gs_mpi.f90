@@ -185,11 +185,10 @@ contains
   end subroutine gs_nbrecv_mpi
 
   !> Wait for non-blocking operations
-  subroutine gs_nbwait_mpi(this, u, n, op, deps, strm)
+  subroutine gs_nbwait_mpi(this, u, n, op, strm)
     class(gs_mpi_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: u
-    type(c_ptr), intent(inout) :: deps
     type(c_ptr), intent(inout) :: strm
     integer :: i, j, src, ierr
     integer :: op
