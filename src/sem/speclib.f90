@@ -223,7 +223,7 @@ contains
     real(kind=xp), intent(inout) :: Z(NP), W(NP)
     real(kind=xp), intent(in) :: ALPHA, BETA
 
-    real(kind=xp) :: DN, ONE, TWO, APB
+    real(kind=xp) :: DN, APB
     real(kind=xp) :: FAC1, FAC2, FAC3, FNORM
     real(kind=xp) :: RCOEF, P, PD, PM1, PDM1, PM2, PDM2
     real(kind=xp) :: DNP1, DNP2
@@ -231,23 +231,22 @@ contains
 
     N = NP - 1
     DN = real(N, kind=xp)
-    ONE = 1.0_xp
-    TWO = 2.0_xp
+
     APB = ALPHA + BETA
 
     if (NP .le. 0) then
        write (stderr, *) 'ZWGJD: Minimum number of Gauss points is 1', np
        call neko_error
     end if
-    if ((ALPHA .le. -ONE) .or. (BETA .le. -ONE)) then
+    if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
        write (stderr, *) 'ZWGJD: Alpha and Beta must be greater than -1'
        call neko_error
     end if
 
     if (NP .eq. 1) then
-       Z(1) = (BETA-ALPHA) / (APB + TWO)
-       W(1) = GAMMAF(ALPHA + ONE)*GAMMAF(BETA + ONE)/GAMMAF(APB + TWO) &
-            * TWO**(APB + ONE)
+       Z(1) = (BETA-ALPHA) / (APB + 2.0_xp)
+       W(1) = GAMMAF(ALPHA + 1.0_xp) * GAMMAF(BETA + 1.0_xp) / &
+            GAMMAF(APB + 2.0_xp) * 2.0_xp**(APB + 1.0_xp)
        return
     end if
 
@@ -257,11 +256,11 @@ contains
     NP2 = N + 2
     DNP1 = real(NP1, kind=xp)
     DNP2 = real(NP2, kind=xp)
-    FAC1 = DNP1 + ALPHA + BETA + ONE
+    FAC1 = DNP1 + ALPHA + BETA + 1.0_xp
     FAC2 = FAC1 + DNP1
-    FAC3 = FAC2 + ONE
+    FAC3 = FAC2 + 1.0_xp
     FNORM = PNORMJ(NP1, ALPHA, BETA)
-    RCOEF = (FNORM*FAC2*FAC3) / (TWO*FAC1*DNP2)
+    RCOEF = (FNORM*FAC2*FAC3) / (2.0_xp*FAC1*DNP2)
     do I = 1, NP
        call JACOBF(P, PD, PM1, PDM1, PM2, PDM2, NP2, ALPHA, BETA, Z(I))
        W(I) = -RCOEF/(P*PDM1)
@@ -310,39 +309,38 @@ contains
     real(kind=xp), intent(inout) :: Z(NP), W(NP)
     real(kind=xp), intent(in) :: ALPHA, BETA
 
-    real(kind=xp) :: ONE, TWO, ALPG, BETG
+    real(kind=xp) :: ALPG, BETG
     real(kind=xp) :: P, PD, PM1, PDM1, PM2, PDM2
     integer :: N, NM1, I
 
     N = NP - 1
     NM1 = N - 1
-    ONE = 1.0_xp
-    TWO = 2.0_xp
+
 
     if (NP .le. 1) then
        write (stderr, *) 'ZWGLJD: Minimum number of Gauss-Lobatto points is 2'
        write (stderr, *) 'ZWGLJD: alpha, beta:', alpha, beta, np
        call neko_error
     end if
-    if ((ALPHA .le. -ONE) .or. (BETA .le. -ONE)) then
+    if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
        write (stderr, *) 'ZWGLJD: Alpha and Beta must be greater than -1'
        call neko_error
     end if
 
     if (NM1 .gt. 0) then
-       ALPG = ALPHA + ONE
-       BETG = BETA + ONE
+       ALPG = ALPHA + 1.0_xp
+       BETG = BETA + 1.0_xp
        call ZWGJD(Z(2), W(2), NM1, ALPG, BETG)
     end if
-    Z(1) = -ONE
-    Z(NP) = ONE
+    Z(1) = -1.0_xp
+    Z(NP) = 1.0_xp
     do I = 2, NP - 1
-       W(I) = W(I) / (ONE-Z(I)**2)
+       W(I) = W(I) / (1.0_xp-Z(I)**2)
     end do
     call JACOBF(P, PD, PM1, PDM1, PM2, PDM2, N, ALPHA, BETA, Z(1))
-    W(1) = ENDW1(N, ALPHA, BETA) / (TWO*PD)
+    W(1) = ENDW1(N, ALPHA, BETA) / (2.0_xp*PD)
     call JACOBF(P, PD, PM1, PDM1, PM2, PDM2, N, ALPHA, BETA, Z(NP))
-    W(NP) = ENDW2(N, ALPHA, BETA) / (TWO*PD)
+    W(NP) = ENDW2(N, ALPHA, BETA) / (2.0_xp*PD)
 
   end subroutine ZWGLJD
 
@@ -352,32 +350,28 @@ contains
     real(kind=xp), intent(in) :: ALPHA, BETA
     integer, intent(in) :: N
 
-    real(kind=xp) :: ZERO, ONE, TWO, THREE, FOUR, APB
+    real(kind=xp) :: APB
     real(kind=xp) :: F1, F2, F3, FINT1, FINT2
     real(kind=xp) :: A1, A2, A3, DI, ABN, ABNN
     integer :: I
 
-    ZERO = 0.0_xp
-    ONE = 1.0_xp
-    TWO = 2.0_xp
-    THREE = 3.0_xp
-    FOUR = 4.0_xp
     APB = ALPHA + BETA
     if (N .eq. 0) then
-       ENDW1 = ZERO
+       ENDW1 = 0.0_xp
        return
     end if
-    F1 = GAMMAF(ALPHA + TWO)*GAMMAF(BETA + ONE) / GAMMAF(APB + THREE)
-    F1 = F1*(APB + TWO)*TWO**(APB + TWO)/TWO
+    F1 = GAMMAF(ALPHA + 2.0_xp)*GAMMAF(BETA + 1.0_xp) / GAMMAF(APB + 3.0_xp)
+    F1 = F1*(APB + 2.0_xp)*2.0_xp**(APB + 2.0_xp)/2.0_xp
     if (N .eq. 1) then
        ENDW1 = F1
        return
     end if
-    FINT1 = GAMMAF(ALPHA + TWO)*GAMMAF(BETA + ONE) / GAMMAF(APB + THREE)
-    FINT1 = FINT1*TWO**(APB + TWO)
-    FINT2 = GAMMAF(ALPHA + TWO)*GAMMAF(BETA + TWO) / GAMMAF(APB + FOUR)
-    FINT2 = FINT2*TWO**(APB + THREE)
-    F2 = (-TWO*(BETA + TWO)*FINT1 + (APB + FOUR)*FINT2) * (APB + THREE) / FOUR
+    FINT1 = GAMMAF(ALPHA + 2.0_xp)*GAMMAF(BETA + 1.0_xp) / GAMMAF(APB + 3.0_xp)
+    FINT1 = FINT1*2.0_xp**(APB + 2.0_xp)
+    FINT2 = GAMMAF(ALPHA + 2.0_xp)*GAMMAF(BETA + 2.0_xp) / GAMMAF(APB + 4.0_xp)
+    FINT2 = FINT2*2.0_xp**(APB + 3.0_xp)
+    F2 = (-2.0_xp*(BETA + 2.0_xp)*FINT1 + (APB + 4.0_xp)*FINT2) * &
+         (APB + 3.0_xp) / 4.0_xp
     if (N .eq. 2) then
        ENDW1 = F2
        return
@@ -386,9 +380,9 @@ contains
        DI = real(I - 1, kind=xp)
        ABN = ALPHA + BETA + DI
        ABNN = ABN + DI
-       A1 = -(TWO*(DI + ALPHA) * (DI + BETA)) / (ABN*ABNN*(ABNN + ONE))
-       A2 = (TWO*(ALPHA - BETA)) / (ABNN*(ABNN + TWO))
-       A3 = (TWO*(ABN + ONE)) / ((ABNN + TWO) * (ABNN + ONE))
+       A1 = -(2.0_xp*(DI + ALPHA) * (DI + BETA)) / (ABN*ABNN*(ABNN + 1.0_xp))
+       A2 = (2.0_xp*(ALPHA - BETA)) / (ABNN*(ABNN + 2.0_xp))
+       A3 = (2.0_xp*(ABN + 1.0_xp)) / ((ABNN + 2.0_xp) * (ABNN + 1.0_xp))
        F3 = -(A2*F2 + A1*F1) / A3
        F1 = F2
        F2 = F3
@@ -402,32 +396,29 @@ contains
     real(kind=xp), intent(in) :: ALPHA, BETA
     integer, intent(in) :: N
 
-    real(kind=xp) :: ZERO, ONE, TWO, THREE, FOUR, APB
+    real(kind=xp) :: APB
     real(kind=xp) :: F1, F2, F3, FINT1, FINT2
     real(kind=xp) :: A1, A2, A3, DI, ABN, ABNN
     integer :: I
 
-    ZERO = 0.0_xp
-    ONE = 1.0_xp
-    TWO = 2.0_xp
-    THREE = 3.0_xp
-    FOUR = 4.0_xp
+
     APB = ALPHA + BETA
     if (N .eq. 0) then
-       ENDW2 = ZERO
+       ENDW2 = 0.0_xp
        return
     end if
-    F1 = GAMMAF(ALPHA + ONE)*GAMMAF(BETA + TWO) / GAMMAF(APB + THREE)
-    F1 = F1*(APB + TWO)*TWO**(APB + TWO)/TWO
+    F1 = GAMMAF(ALPHA + 1.0_xp)*GAMMAF(BETA + 2.0_xp) / GAMMAF(APB + 3.0_xp)
+    F1 = F1*(APB + 2.0_xp)*2.0_xp**(APB + 2.0_xp)/2.0_xp
     if (N .eq. 1) then
        ENDW2 = F1
        return
     end if
-    FINT1 = GAMMAF(ALPHA + ONE)*GAMMAF(BETA + TWO) / GAMMAF(APB + THREE)
-    FINT1 = FINT1*TWO**(APB + TWO)
-    FINT2 = GAMMAF(ALPHA + TWO)*GAMMAF(BETA + TWO) / GAMMAF(APB + FOUR)
-    FINT2 = FINT2*TWO**(APB + THREE)
-    F2 = (TWO*(ALPHA + TWO)*FINT1 - (APB + FOUR)*FINT2) * (APB + THREE) / FOUR
+    FINT1 = GAMMAF(ALPHA + 1.0_xp)*GAMMAF(BETA + 2.0_xp) / GAMMAF(APB + 3.0_xp)
+    FINT1 = FINT1*2.0_xp**(APB + 2.0_xp)
+    FINT2 = GAMMAF(ALPHA + 2.0_xp)*GAMMAF(BETA + 2.0_xp) / GAMMAF(APB + 4.0_xp)
+    FINT2 = FINT2*2.0_xp**(APB + 3.0_xp)
+    F2 = (2.0_xp*(ALPHA + 2.0_xp)*FINT1 - (APB + 4.0_xp)*FINT2) * &
+         (APB + 3.0_xp) / 4.0_xp
     if (N .eq. 2) then
        ENDW2 = F2
        return
@@ -436,9 +427,9 @@ contains
        DI = ((I-1))
        ABN = ALPHA + BETA + DI
        ABNN = ABN + DI
-       A1 = -(TWO*(DI + ALPHA) * (DI + BETA)) / (ABN*ABNN*(ABNN + ONE))
-       A2 = (TWO*(ALPHA-BETA)) / (ABNN*(ABNN + TWO))
-       A3 = (TWO*(ABN + ONE)) / ((ABNN + TWO) * (ABNN + ONE))
+       A1 = -(2.0_xp*(DI + ALPHA) * (DI + BETA)) / (ABN*ABNN*(ABNN + 1.0_xp))
+       A2 = (2.0_xp*(ALPHA - BETA)) / (ABNN*(ABNN + 2.0_xp))
+       A3 = (2.0_xp*(ABN + 1.0_xp)) / ((ABNN + 2.0_xp) * (ABNN + 1.0_xp))
        F3 = -(A2*F2 + A1*F1)/A3
        F1 = F2
        F2 = F3
@@ -449,19 +440,13 @@ contains
   !> @todo document GAMMAF
   real(kind=xp) function GAMMAF(X)
     real(kind=xp), intent(in) :: X
-    real(kind=xp) :: ZERO, HALF, ONE, TWO, FOUR, PI
+    real(kind=xp), parameter :: PI = 4.0_xp*atan(1.0_xp)
 
-    ZERO = 0.0_xp
-    HALF = 0.5_xp
-    ONE = 1.0_xp
-    TWO = 2.0_xp
-    FOUR = 4.0_xp
-    PI = FOUR*atan(ONE)
-    GAMMAF = ONE
-    if (X .eq. -HALF) GAMMAF = -TWO*sqrt(PI)
-    if (X .eq. HALF) GAMMAF = sqrt(PI)
-    if (X .eq. ONE ) GAMMAF = ONE
-    if (X .eq. TWO ) GAMMAF = ONE
+    GAMMAF = 1.0_xp
+    if (X .eq. -0.5_xp) GAMMAF = -2.0_xp*sqrt(PI)
+    if (X .eq. 0.5_xp) GAMMAF = sqrt(PI)
+    if (X .eq. 1.0_xp ) GAMMAF = 1.0_xp
+    if (X .eq. 2.0_xp ) GAMMAF = 1.0_xp
     if (X .eq. 1.5_xp) GAMMAF = sqrt(PI) / 2.0_xp
     if (X .eq. 2.5_xp) GAMMAF = 1.5_xp * sqrt(PI) / 2.0_xp
     if (X .eq. 3.5_xp) GAMMAF = 0.5_xp * (2.5_xp * (1.5_xp * sqrt(PI)))
@@ -476,30 +461,28 @@ contains
     real(kind=xp), intent(in) :: ALPHA, BETA
     integer, intent(in) :: N
 
-    real(kind=xp) :: ONE, TWO, DN, DINDX
+    real(kind=xp) :: DN, DINDX
     real(kind=xp) :: CONST, PROD, FRAC
     integer :: I
 
-    ONE = 1.0_xp
-    TWO = 2.0_xp
     DN = real(N, kind=xp)
-    CONST = ALPHA + BETA + ONE
+    CONST = ALPHA + BETA + 1.0_xp
     if (N .le. 1) then
        PROD = GAMMAF(DN + ALPHA)*GAMMAF(DN + BETA)
        PROD = PROD / (GAMMAF(DN)*GAMMAF(DN + ALPHA + BETA))
-       PNORMJ = PROD * TWO**CONST / (TWO*DN + CONST)
+       PNORMJ = PROD * 2.0_xp**CONST / (2.0_xp*DN + CONST)
        return
     end if
-    PROD = GAMMAF(ALPHA + ONE)*GAMMAF(BETA + ONE)
-    PROD = PROD/(TWO*(ONE + CONST)*GAMMAF(CONST + ONE))
-    PROD = PROD*(ONE + ALPHA) * (TWO + ALPHA)
-    PROD = PROD*(ONE + BETA) * (TWO + BETA)
+    PROD = GAMMAF(ALPHA + 1.0_xp)*GAMMAF(BETA + 1.0_xp)
+    PROD = PROD/(2.0_xp*(1.0_xp + CONST)*GAMMAF(CONST + 1.0_xp))
+    PROD = PROD*(1.0_xp + ALPHA) * (2.0_xp + ALPHA)
+    PROD = PROD*(1.0_xp + BETA) * (2.0_xp + BETA)
     do I = 3, N
        DINDX = real(I, kind=xp)
        FRAC = (DINDX + ALPHA) * (DINDX + BETA) / (DINDX*(DINDX + ALPHA + BETA))
        PROD = PROD*FRAC
     end do
-    PNORMJ = PROD*TWO**CONST / (TWO*DN + CONST)
+    PNORMJ = PROD*2.0_xp**CONST / (2.0_xp*DN + CONST)
   end function PNORMJ
 
   !> Compute NP Gauss points XJAC, which are the zeros of the
@@ -515,15 +498,15 @@ contains
 
     integer, parameter :: KSTOP = 10
     real(kind=rp), parameter :: EPS = 1.0e-12_rp
+    real(kind=xp), parameter :: PI = 4.0_xp*atan(1.0_xp)
 
-    real(kind=xp) :: one, DTH, X, X1, X2, XLAST, DELX, XMIN
+    real(kind=xp) :: DTH, X, X1, X2, XLAST, DELX, XMIN
     real(kind=xp) :: P, PD, PM1, PDM1, PM2, PDM2
     real(kind=xp) :: RECSUM, SWAP
     integer :: I, J, K, N, JM, JMIN
 
     N = NP - 1
-    one = 1.0_xp
-    DTH = 4.0_xp*atan(one) / (2.0_xp*real(N, kind=xp) + 2.0_xp)
+    DTH = PI / (2.0_xp*real(N, kind=xp) + 2.0_xp)
     do J = 1, NP
        if (J .eq. 1) then
           X = cos((2.0_xp*(real(J, kind=xp) - 1.0_xp) + 1.0_xp)*DTH)
@@ -642,15 +625,14 @@ contains
     integer, intent(in) :: NP, II
     real(kind=xp), intent(in) :: Z, ZGJ(NP), ALPHA, BETA
 
-    real(kind=xp) :: EPS, ONE, ZI, DZ
+    real(kind=xp) :: EPS, ZI, DZ
     real(kind=xp) :: PZ, PDZ, PZI, PDZI, PM1, PDM1, PM2, PDM2
 
     EPS = 1.0e-5_xp
-    ONE = 1.0_xp
     ZI = ZGJ(II)
     DZ = Z - ZI
     if (abs(DZ) .lt. EPS) then
-       HGJD = ONE
+       HGJD = 1.0_xp
        return
     end if
     call JACOBF(PZI, PDZI, PM1, PDM1, PM2, PDM2, NP, ALPHA, BETA, ZI)
@@ -692,26 +674,25 @@ contains
     integer, intent(in) :: NP, I
     real(kind=xp), intent(in) :: Z, ZGLJ(NP), ALPHA, BETA
 
-    real(kind=xp) :: EPS, ONE, ZI, DZ, DN
+    real(kind=xp) :: EPS, ZI, DZ, DN
     real(kind=xp) :: P, PD, PI, PDI, PM1, PDM1, PM2, PDM2
     real(kind=xp) :: EIGVAL, CONST
     integer :: N
 
     EPS = 1.0e-5_xp
-    ONE = 1.0_xp
     ZI = ZGLJ(I)
     DZ = Z-ZI
     if (abs(DZ) .lt. EPS) then
-       HGLJD = ONE
+       HGLJD = 1.0_xp
        return
     end if
     N = NP - 1
     DN = real(N, kind=xp)
-    EIGVAL = -DN*(DN + ALPHA + BETA + ONE)
+    EIGVAL = -DN*(DN + ALPHA + BETA + 1.0_xp)
     call JACOBF(PI, PDI, PM1, PDM1, PM2, PDM2, N, ALPHA, BETA, ZI)
-    CONST = EIGVAL*PI + ALPHA*(ONE + ZI)*PDI - BETA*(ONE - ZI)*PDI
+    CONST = EIGVAL*PI + ALPHA*(1.0_xp + ZI)*PDI - BETA*(1.0_xp - ZI)*PDI
     call JACOBF(P, PD, PM1, PDM1, PM2, PDM2, N, ALPHA, BETA, Z)
-    HGLJD = (ONE - Z**2)*PD / (CONST*(Z - ZI))
+    HGLJD = (1.0_xp - Z**2)*PD / (CONST*(Z - ZI))
   end function HGLJD
 
   !> Compute the derivative matrix D and its transpose DT
@@ -766,20 +747,19 @@ contains
     real(kind=xp), intent(inout) :: D(NZD, NZD), DT(NZD, NZD)
     real(kind=xp), intent(in) :: Z(NZ), ALPHA, BETA
 
-    real(kind=xp) :: DN, ONE, TWO
+    real(kind=xp) :: DN
     real(kind=xp) :: PDI, PDJ, PI, PJ, PM1, PDM1, PM2, PDM2
     integer :: I, J, N
 
     N = NZ - 1
     DN = real(N, kind=xp)
-    ONE = 1.0_xp
-    TWO = 2.0_xp
+
 
     if (NZ .le. 1) then
        write (stderr, *) 'DGJD: Minimum number of Gauss-Lobatto points is 2'
        call neko_error
     end if
-    if ((ALPHA .le. -ONE) .or. (BETA .le. -ONE)) then
+    if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
        write (stderr, *) 'DGJD: Alpha and Beta must be greater than -1'
        call neko_error
     end if
@@ -789,8 +769,8 @@ contains
           call JACOBF(PI, PDI, PM1, PDM1, PM2, PDM2, NZ, ALPHA, BETA, Z(I))
           call JACOBF(PJ, PDJ, PM1, PDM1, PM2, PDM2, NZ, ALPHA, BETA, Z(J))
           if (I .ne. J) D(I, J) = PDI/(PDJ*(Z(I)-Z(J)))
-          if (I .eq. J) D(I, J) = ((ALPHA + BETA + TWO)*Z(I) + ALPHA-BETA) / &
-               (TWO*(ONE - Z(I)**2))
+          if (I .eq. J) D(I, J) = ((ALPHA + BETA + 2.0_xp)*Z(I) + ALPHA-BETA) / &
+               (2.0_xp*(1.0_xp - Z(I)**2))
           DT(J, I) = D(I, J)
        end do
     end do
@@ -848,22 +828,21 @@ contains
     real(kind=xp), intent(inout) :: D(NZD, NZD), DT(NZD, NZD)
     real(kind=xp), intent(in) :: Z(NZ), ALPHA, BETA
 
-    real(kind=xp) :: DN, ONE, TWO, EIGVAL
+    real(kind=xp) :: DN, EIGVAL
     real(kind=xp) :: PDI, PDJ, PI, PJ, PM1, PDM1, PM2, PDM2
     real(kind=xp) :: CI, CJ
     integer :: I, J, N
 
     N = NZ - 1
     DN = real(N, kind=xp)
-    ONE = 1.0_xp
-    TWO = 2.0_xp
-    EIGVAL = -DN*(DN + ALPHA + BETA + ONE)
+
+    EIGVAL = -DN*(DN + ALPHA + BETA + 1.0_xp)
 
     if (NZ .le. 1) then
        write (stderr, *) 'DGLJD: Minimum number of Gauss-Lobatto points is 2'
        call neko_error
     end if
-    if ((ALPHA .le. -ONE) .or. (BETA .le. -ONE)) then
+    if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
        write (stderr, *) 'DGLJD: Alpha and Beta must be greater than -1'
        call neko_error
     end if
@@ -872,22 +851,22 @@ contains
        do J = 1, NZ
           call JACOBF(PI, PDI, PM1, PDM1, PM2, PDM2, N, ALPHA, BETA, Z(I))
           call JACOBF(PJ, PDJ, PM1, PDM1, PM2, PDM2, N, ALPHA, BETA, Z(J))
-          CI = EIGVAL*PI - (BETA*(ONE - Z(I)) - ALPHA*(ONE + Z(I)))*PDI
-          CJ = EIGVAL*PJ - (BETA*(ONE - Z(J)) - ALPHA*(ONE + Z(J)))*PDJ
+          CI = EIGVAL*PI - (BETA*(1.0_xp - Z(I)) - ALPHA*(1.0_xp + Z(I)))*PDI
+          CJ = EIGVAL*PJ - (BETA*(1.0_xp - Z(J)) - ALPHA*(1.0_xp + Z(J)))*PDJ
 
           ! Todo: This should have some elses in there
           if (I .ne. J) then
              D(I, J) = CI / (CJ*(Z(I) - Z(J)))
           end if
           if ((I .eq. J) .and. (I .ne. 1) .and. (I .ne. NZ)) then
-             D(I, J) = (ALPHA*(ONE + Z(I)) - BETA*(ONE - Z(I))) / &
-                  (TWO*(ONE - Z(I)**2))
+             D(I, J) = (ALPHA*(1.0_xp + Z(I)) - BETA*(1.0_xp - Z(I))) / &
+                  (2.0_xp*(1.0_xp - Z(I)**2))
           end if
           if ((I .eq. J) .and. (I .eq. 1)) then
-             D(I, J) = (EIGVAL + ALPHA) / (TWO*(BETA + TWO))
+             D(I, J) = (EIGVAL + ALPHA) / (2.0_xp*(BETA + 2.0_xp))
           end if
           if ((I .eq. J) .and. (I .eq. NZ)) then
-             D(I, J) = -(EIGVAL + BETA) / (TWO*(ALPHA + TWO))
+             D(I, J) = -(EIGVAL + BETA) / (2.0_xp*(ALPHA + 2.0_xp))
           end if
           DT(J, I) = D(I, J)
        end do
@@ -1163,7 +1142,7 @@ contains
     real(kind=xp), intent(inout) :: D(ND2, ND1), DT(ND1, ND2)
     real(kind=xp), intent(in) :: ZGL(ND1), ZG(ND2), IGLG(ND2, ND1), ALPHA, BETA
 
-    real(kind=xp) :: EPS, ONE, TWO, EIGVAL, DN
+    real(kind=xp) :: EPS, EIGVAL, DN
     real(kind=xp) :: PDI, PDJ, PI, PJ, PM1, PDM1, PM2, PDM2
     real(kind=xp) :: DZ, FACI, FACJ, CONST
     integer :: I, J, NGL
@@ -1178,26 +1157,25 @@ contains
     end if
 
     EPS = 1.0e-6_xp
-    ONE = 1.0_xp
-    TWO = 2.0_xp
+
     NGL = NPGL-1
     DN = real(NGL, kind=xp)
-    EIGVAL = -DN*(DN + ALPHA + BETA + ONE)
+    EIGVAL = -DN*(DN + ALPHA + BETA + 1.0_xp)
 
     do I = 1, NPG
        do J = 1, NPGL
           DZ = abs(ZG(I)-ZGL(J))
           if (DZ .lt. EPS) then
-             D(I, J) = (ALPHA*(ONE + ZG(I))-BETA*(ONE-ZG(I)))/ &
-                  (TWO*(ONE-ZG(I)**2))
+             D(I, J) = (ALPHA*(1.0_xp + ZG(I))-BETA*(1.0_xp-ZG(I)))/ &
+                  (2.0_xp*(1.0_xp-ZG(I)**2))
           else
              call JACOBF(PI, PDI, PM1, PDM1, PM2, PDM2, NGL, ALPHA, BETA, ZG(I))
              call JACOBF(PJ, PDJ, PM1, PDM1, PM2, PDM2, NGL, ALPHA, BETA, ZGL(J))
-             FACI = ALPHA*(ONE + ZG(I))-BETA*(ONE-ZG(I))
-             FACJ = ALPHA*(ONE + ZGL(J))-BETA*(ONE-ZGL(J))
+             FACI = ALPHA*(1.0_xp + ZG(I))-BETA*(1.0_xp-ZG(I))
+             FACJ = ALPHA*(1.0_xp + ZGL(J))-BETA*(1.0_xp-ZGL(J))
              CONST = EIGVAL*PJ + FACJ*PDJ
              D(I, J) = ((EIGVAL*PI + FACI*PDI) * (ZG(I) - ZGL(J)) - &
-                  (ONE-ZG(I)**2)*PDI) / (CONST*(ZG(I) - ZGL(J))**2)
+                  (1.0_xp-ZG(I)**2)*PDI) / (CONST*(ZG(I) - ZGL(J))**2)
           end if
           DT(J, I) = D(I, J)
        end do
