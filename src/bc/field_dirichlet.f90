@@ -40,8 +40,8 @@ module field_dirichlet
   use utils, only: split_string
   use field, only : field_t
   use field_list, only : field_list_t
-  use math, only: masked_copy
-  use device_math, only: device_masked_copy
+  use math, only: masked_copy_0
+  use device_math, only: device_masked_copy_0
   use dofmap, only : dofmap_t
   use utils, only: neko_error
   use json_module, only : json_file
@@ -187,7 +187,7 @@ contains
           this%updated = .true.
        end if
 
-       call masked_copy(x, this%field_bc%x, this%msk, n, this%msk(0))
+       call masked_copy_0(x, this%field_bc%x, this%msk, n, this%msk(0))
     end if
 
   end subroutine field_dirichlet_apply_scalar
@@ -219,7 +219,7 @@ contains
        end if
 
        if (this%msk(0) .gt. 0) then
-          call device_masked_copy(x_d, this%field_bc%x_d, this%msk_d, &
+          call device_masked_copy_0(x_d, this%field_bc%x_d, this%msk_d, &
                this%field_bc%dof%size(), this%msk(0), strm)
        end if
     end if

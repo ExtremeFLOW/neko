@@ -252,6 +252,9 @@ contains
        else
 
           this%size = 0
+          tp => this%scratch%array()
+          call this%mask%init(tp, this%size)
+
           call this%scratch%clear()
 
        end if

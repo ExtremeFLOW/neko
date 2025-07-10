@@ -68,10 +68,10 @@ module device_math
        device_col2, device_col3, device_subcol3, device_sub2, device_sub3, &
        device_addcol3, device_addcol4, device_vdot3, device_vlsc3, &
        device_glsc3, device_glsc3_many, device_add2s2_many, device_glsc2, &
-       device_glsum, device_masked_copy, device_cfill_mask, &
-       device_vcross, device_absval, device_masked_atomic_reduction, &
-       device_pwmax, device_pwmin, device_masked_gather_copy, &
-       device_masked_scatter_copy, device_invcol3, device_cdiv, device_cdiv2, &
+       device_glsum, device_masked_copy_0, device_cfill_mask, &
+       device_vcross, device_absval, device_masked_atomic_reduction_0, &
+       device_pwmax, device_pwmin, device_masked_gather_copy_0, &
+       device_masked_scatter_copy_0, device_invcol3, device_cdiv, device_cdiv2, &
        device_glsubnorm
 
 contains
@@ -103,7 +103,7 @@ contains
   end subroutine device_copy
 
   !> Copy a masked vector \f$ a(mask) = b(mask) \f$.
-  subroutine device_masked_copy(a_d, b_d, mask_d, n, n_mask, strm)
+  subroutine device_masked_copy_0(a_d, b_d, mask_d, n, n_mask, strm)
     type(c_ptr) :: a_d, b_d, mask_d
     integer :: n, n_mask
     type(c_ptr), optional :: strm
@@ -126,10 +126,10 @@ contains
 #else
     call neko_error('no device backend configured')
 #endif
-  end subroutine device_masked_copy
+  end subroutine device_masked_copy_0
 
   !> Gather a masked vector \f$ a(i) = b(mask(i)) \f$.
-  subroutine device_masked_gather_copy(a_d, b_d, mask_d, n, n_mask, strm)
+  subroutine device_masked_gather_copy_0(a_d, b_d, mask_d, n, n_mask, strm)
     type(c_ptr) :: a_d, b_d, mask_d
     integer :: n, n_mask
     type(c_ptr), optional :: strm
@@ -152,10 +152,10 @@ contains
 #else
     call neko_error('no device backend configured')
 #endif
-  end subroutine device_masked_gather_copy
+  end subroutine device_masked_gather_copy_0
 
   !> Scatter a masked vector \f$ a((mask(i)) = b(i) \f$.
-  subroutine device_masked_scatter_copy(a_d, b_d, mask_d, n, n_mask, strm)
+  subroutine device_masked_scatter_copy_0(a_d, b_d, mask_d, n, n_mask, strm)
     type(c_ptr) :: a_d, b_d, mask_d
     integer :: n, n_mask
     type(c_ptr), optional :: strm
@@ -178,9 +178,9 @@ contains
 #else
     call neko_error('no device backend configured')
 #endif
-  end subroutine device_masked_scatter_copy
+  end subroutine device_masked_scatter_copy_0
 
-  subroutine device_masked_atomic_reduction(a_d, b_d, mask_d, n, n_mask, strm)
+  subroutine device_masked_atomic_reduction_0(a_d, b_d, mask_d, n, n_mask, strm)
     type(c_ptr) :: a_d, b_d, mask_d
     integer :: n, n_mask
     type(c_ptr), optional :: strm
@@ -203,7 +203,7 @@ contains
 #else
     call neko_error('no device backend configured')
 #endif
-  end subroutine device_masked_atomic_reduction
+  end subroutine device_masked_atomic_reduction_0
 
   !> @brief Fill a constant to a masked vector.
   !! \f$ a_i = c, for i in mask \f$

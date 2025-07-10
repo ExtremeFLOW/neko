@@ -40,8 +40,8 @@ module field_dirichlet_vector
   use utils, only: split_string
   use field, only : field_t
   use field_list, only : field_list_t
-  use math, only: masked_copy
-  use device_math, only: device_masked_copy
+  use math, only: masked_copy_0
+  use device_math, only: device_masked_copy_0
   use dofmap, only : dofmap_t
   use field_dirichlet, only: field_dirichlet_t, field_dirichlet_update
   use utils, only: neko_error
@@ -210,9 +210,9 @@ contains
           this%updated = .true.
        end if
 
-       call masked_copy(x, this%bc_u%field_bc%x, this%msk, n, this%msk(0))
-       call masked_copy(y, this%bc_v%field_bc%x, this%msk, n, this%msk(0))
-       call masked_copy(z, this%bc_w%field_bc%x, this%msk, n, this%msk(0))
+       call masked_copy_0(x, this%bc_u%field_bc%x, this%msk, n, this%msk(0))
+       call masked_copy_0(y, this%bc_v%field_bc%x, this%msk, n, this%msk(0))
+       call masked_copy_0(z, this%bc_w%field_bc%x, this%msk, n, this%msk(0))
     end if
 
   end subroutine field_dirichlet_vector_apply_vector
@@ -249,11 +249,11 @@ contains
        end if
 
        if (this%msk(0) .gt. 0) then
-          call device_masked_copy(x_d, this%bc_u%field_bc%x_d, this%bc_u%msk_d,&
+          call device_masked_copy_0(x_d, this%bc_u%field_bc%x_d, this%bc_u%msk_d,&
                this%bc_u%dof%size(), this%msk(0), strm)
-          call device_masked_copy(y_d, this%bc_v%field_bc%x_d, this%bc_v%msk_d,&
+          call device_masked_copy_0(y_d, this%bc_v%field_bc%x_d, this%bc_v%msk_d,&
                this%bc_v%dof%size(), this%msk(0), strm)
-          call device_masked_copy(z_d, this%bc_w%field_bc%x_d, this%bc_w%msk_d,&
+          call device_masked_copy_0(z_d, this%bc_w%field_bc%x_d, this%bc_w%msk_d,&
                this%bc_w%dof%size(), this%msk(0), strm)
        end if
     end if
