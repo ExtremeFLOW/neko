@@ -240,8 +240,7 @@ contains
        call neko_error
     end if
     if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
-       write (stderr, *) 'ZWGJD: Alpha and Beta must be greater than -1'
-       call neko_error
+       call neko_error('ZWGJD: Alpha and Beta must be greater than -1')
     end if
 
     if (NP .eq. 1) then
@@ -324,8 +323,7 @@ contains
        call neko_error
     end if
     if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
-       write (stderr, *) 'ZWGLJD: Alpha and Beta must be greater than -1'
-       call neko_error
+       call neko_error('ZWGLJD: Alpha and Beta must be greater than -1')
     end if
 
     if (NM1 .gt. 0) then
@@ -498,7 +496,7 @@ contains
     real(kind=xp), intent(in) :: ALPHA, BETA
 
     integer, parameter :: KSTOP = 10
-    real(kind=rp), parameter :: EPS = 1.0e-12_rp
+    real(kind=rp), parameter :: EPS = 1.0E-12_rp
     real(kind=xp), parameter :: PI = 4.0_xp*atan(1.0_xp)
 
     real(kind=xp) :: DTH, X, X1, X2, XLAST, DELX, XMIN
@@ -629,7 +627,7 @@ contains
     real(kind=xp) :: EPS, ZI, DZ
     real(kind=xp) :: PZ, PDZ, PZI, PDZI, PM1, PDM1, PM2, PDM2
 
-    EPS = 1.0e-5_xp
+    EPS = 1.0E-5_xp
     ZI = ZGJ(II)
     DZ = Z - ZI
     if (abs(DZ) .lt. EPS) then
@@ -680,7 +678,7 @@ contains
     real(kind=xp) :: EIGVAL, CONST
     integer :: N
 
-    EPS = 1.0e-5_xp
+    EPS = 1.0E-5_xp
     ZI = ZGLJ(I)
     DZ = Z-ZI
     if (abs(DZ) .lt. EPS) then
@@ -713,8 +711,7 @@ contains
     integer :: I, J
 
     if (NZ .le. 0) then
-       write (stderr, *) 'DGJ: Minimum number of Gauss points is 1'
-       call neko_error
+       call neko_error('DGJ: Minimum number of Gauss points is 1')
     end if
     if (NZ .gt. NMAX) then
        write (stderr, *) 'Too large polynomial degree in DGJ'
@@ -723,8 +720,7 @@ contains
        call neko_error
     end if
     if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
-       write (stderr, *) 'DGJ: Alpha and Beta must be greater than -1'
-       call neko_error
+       call neko_error('DGJ: Alpha and Beta must be greater than -1')
     end if
     do I = 1, NZ
        ZD(I) = Z(I)
@@ -757,12 +753,10 @@ contains
 
 
     if (NZ .le. 1) then
-       write (stderr, *) 'DGJD: Minimum number of Gauss-Lobatto points is 2'
-       call neko_error
+       call neko_error('DGJD: Minimum number of Gauss-Lobatto points is 2')
     end if
     if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
-       write (stderr, *) 'DGJD: Alpha and Beta must be greater than -1'
-       call neko_error
+       call neko_error('DGJD: Alpha and Beta must be greater than -1')
     end if
 
     do I = 1, NZ
@@ -793,8 +787,7 @@ contains
     integer :: I, J
 
     if (NZ .le. 1) then
-       write (stderr, *) 'DGLJ: Minimum number of Gauss-Lobatto points is 2'
-       call neko_error
+       call neko_error('DGLJ: Minimum number of Gauss-Lobatto points is 2')
     end if
     if (NZ .gt. NMAX) then
        write (stderr, *) 'Too large polynomial degree in DGLJ'
@@ -803,8 +796,7 @@ contains
        call neko_error
     end if
     if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
-       write (stderr, *) 'DGLJ: Alpha and Beta must be greater than -1'
-       call neko_error
+       call neko_error('DGLJ: Alpha and Beta must be greater than -1')
     end if
     do I = 1, NZ
        ZD(I) = Z(I)
@@ -840,12 +832,10 @@ contains
     EIGVAL = -DN*(DN + ALPHA + BETA + 1.0_xp)
 
     if (NZ .le. 1) then
-       write (stderr, *) 'DGLJD: Minimum number of Gauss-Lobatto points is 2'
-       call neko_error
+       call neko_error('DGLJD: Minimum number of Gauss-Lobatto points is 2')
     end if
     if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
-       write (stderr, *) 'DGLJD: Alpha and Beta must be greater than -1'
-       call neko_error
+       call neko_error('DGLJD: Alpha and Beta must be greater than -1')
     end if
 
     do I = 1, NZ
@@ -923,7 +913,7 @@ contains
     real(kind=xp) :: ALFAN
     integer :: N
 
-    EPS = 1.0e-5_xp
+    EPS = 1.0E-5_xp
     DZ = Z - ZGLL(I)
     if (abs(DZ) .lt. EPS) then
        HGLL = 1.0_xp
@@ -944,7 +934,7 @@ contains
 
     integer :: N
 
-    EPS = 1.0e-5_xp
+    EPS = 1.0E-5_xp
     DZ = Z - ZGL(I)
     if (abs(DZ) .lt. EPS) then
        HGL = 1.0_xp
@@ -1098,8 +1088,7 @@ contains
     integer :: I, J
 
     if (NPGL .le. 1) then
-       write(6, *) 'DGLJGJ: Minimum number of Gauss-Lobatto points is 2'
-       call neko_error
+       call neko_error('DGLJGJ: Minimum number of Gauss-Lobatto points is 2')
     end if
     if (NPGL .gt. NMAX) then
        write(6, *) 'Polynomial degree too high in DGLJGJ'
@@ -1108,8 +1097,7 @@ contains
        call neko_error
     end if
     if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
-       write(6, *) 'DGLJGJ: Alpha and Beta must be greater than -1'
-       call neko_error
+       call neko_error('DGLJGJ: Alpha and Beta must be greater than -1')
     end if
 
     do I = 1, NPG
@@ -1149,15 +1137,13 @@ contains
     integer :: I, J, NGL
 
     if (NPGL .le. 1) then
-       write(6, *) 'DGLJGJD: Minimum number of Gauss-Lobatto points is 2'
-       call neko_error
+       call neko_error('DGLJGJD: Minimum number of Gauss-Lobatto points is 2')
     end if
     if ((ALPHA .le. -1.) .or. (BETA .le. -1.)) then
-       write(6, *) 'DGLJGJD: Alpha and Beta must be greater than -1'
-       call neko_error
+       call neko_error('DGLJGJD: Alpha and Beta must be greater than -1')
     end if
 
-    EPS = 1.0e-6_xp
+    EPS = 1.0E-6_xp
 
     NGL = NPGL-1
     DN = real(NGL, kind=xp)
