@@ -231,7 +231,7 @@ contains
 !--------------------------------------------------------------------
 
     integer, intent(in) :: NP
-    real(kind=xp), intent(inout) :: Z(1), W(NP)
+    real(kind=xp), intent(inout) :: Z(NP), W(NP)
     real(kind=xp), intent(in) :: ALPHA, BETA
 
     real(kind=xp) :: DN, ONE, TWO, APB
@@ -675,8 +675,8 @@ contains
 !
 !---------------------------------------------------------------------
 
-    real(kind=xp), intent(in) :: Z, ZGJ(1), ALPHA, BETA
     integer, intent(in) :: NP, II
+    real(kind=xp), intent(in) :: Z, ZGJ(NP), ALPHA, BETA
 
     real(kind=xp) :: EPS, ONE, ZI, DZ
     real(kind=xp) :: PZ, PDZ, PZI, PDZI, PM1, PDM1, PM2, PDM2
@@ -733,8 +733,8 @@ contains
 !
 !---------------------------------------------------------------------
 
-    real(kind=xp), intent(in) :: Z, ZGLJ(1), ALPHA, BETA
     integer, intent(in) :: NP, I
+    real(kind=xp), intent(in) :: Z, ZGLJ(NP), ALPHA, BETA
 
     real(kind=xp) :: EPS, ONE, ZI, DZ, DN
     real(kind=xp) :: P, PD, PI, PDI, PM1, PDM1, PM2, PDM2
@@ -878,7 +878,7 @@ contains
        write (stderr, *) 'Here NZ=', NZ
        call neko_error
     end if
-    if ((ALPHA .le. -1.) .or. (BETA .le. -1.)) then
+    if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
        write (stderr, *) 'DGLJ: Alpha and Beta must be greater than -1'
        call neko_error
     end if
@@ -999,8 +999,8 @@ contains
 !
 !---------------------------------------------------------------------
 
-    real(kind=xp), intent(in) :: ZGLL(1), Z
     integer, intent(in) :: I, NZ
+    real(kind=xp), intent(in) :: ZGLL(NZ), Z
 
     real(kind=xp) :: EPS, DZ
     real(kind=xp) :: ALFAN
@@ -1014,8 +1014,8 @@ contains
     end if
     N = NZ - 1
     ALFAN = real(N, kind=xp)*(real(N, kind=xp) + 1.0_xp)
-    HGLL = - (1.0_xp-Z*Z)*PNDLEG(Z, N)/ &
-         (ALFAN*PNLEG(ZGLL(I), N)*(Z-ZGLL(I)))
+    HGLL = -(1.0_xp - Z*Z)*PNDLEG(Z, N) / &
+         (ALFAN*PNLEG(ZGLL(I), N)*(Z - ZGLL(I)))
   end function HGLL
 
   real(kind=xp) function HGL (I, Z, ZGL, NZ)
@@ -1026,7 +1026,7 @@ contains
 !
 !---------------------------------------------------------------------
     integer, intent(in) :: I, NZ
-    real(kind=xp), intent(in) :: ZGL(1), Z
+    real(kind=xp), intent(in) :: ZGL(NZ), Z
     real(kind=xp) :: EPS, DZ
 
     integer :: N
@@ -1189,11 +1189,12 @@ contains
 !     Single precision version.
 !
 !-----------------------------------------------------------------------
-    integer, parameter :: NMAX = 84
-    integer, parameter :: NDD = NMAX
     integer, intent(in) :: NPGL, NPG, ND1, ND2
     real(kind=xp), intent(inout) :: D(ND2, ND1), DT(ND1, ND2)
     real(kind=xp), intent(in) :: ZGL(ND1), ZG(ND2), IGLG(ND2, ND1), ALPHA, BETA
+
+    integer, parameter :: NMAX = 84
+    integer, parameter :: NDD = NMAX
 
     real(kind=xp) DD(NDD, NDD), DTD(NDD, NDD)
     real(kind=xp) ZGD(NDD), ZGLD(NDD), IGLGD(NDD, NDD)
