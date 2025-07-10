@@ -1107,9 +1107,9 @@ contains
     if (NPGL .le. 1) then
        call neko_error('DGLJGJ: Minimum number of Gauss-Lobatto points is 2')
     else if (NPGL .gt. NMAX) then
-       write(6, *) 'Polynomial degree too high in DGLJGJ'
-       write(6, *) 'Maximum polynomial degree is', NMAX
-       write(6, *) 'Here NPGL=', NPGL
+       write(stderr, *) 'Polynomial degree too high in DGLJGJ'
+       write(stderr, *) 'Maximum polynomial degree is', NMAX
+       write(stderr, *) 'Here NPGL=', NPGL
        call neko_error
     else if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
        call neko_error('DGLJGJ: Alpha and Beta must be greater than -1')
@@ -1153,7 +1153,7 @@ contains
 
     if (NPGL .le. 1) then
        call neko_error('DGLJGJD: Minimum number of Gauss-Lobatto points is 2')
-    else if ((ALPHA .le. -1.) .or. (BETA .le. -1.)) then
+    else if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
        call neko_error('DGLJGJD: Alpha and Beta must be greater than -1')
     end if
 
@@ -1167,16 +1167,16 @@ contains
        do J = 1, NPGL
           DZ = abs(ZG(I)-ZGL(J))
           if (DZ .lt. EPS) then
-             D(I, J) = (ALPHA*(1.0_xp + ZG(I))-BETA*(1.0_xp-ZG(I)))/ &
-                  (2.0_xp*(1.0_xp-ZG(I)**2))
+             D(I, J) = (ALPHA*(1.0_xp + ZG(I)) - BETA*(1.0_xp - ZG(I))) / &
+                  (2.0_xp*(1.0_xp - ZG(I)**2))
           else
              call JACOBF(PI, PDI, PM1, PDM1, PM2, PDM2, NGL, ALPHA, BETA, ZG(I))
              call JACOBF(PJ, PDJ, PM1, PDM1, PM2, PDM2, NGL, ALPHA, BETA, ZGL(J))
-             FACI = ALPHA*(1.0_xp + ZG(I))-BETA*(1.0_xp-ZG(I))
-             FACJ = ALPHA*(1.0_xp + ZGL(J))-BETA*(1.0_xp-ZGL(J))
+             FACI = ALPHA*(1.0_xp + ZG(I)) - BETA*(1.0_xp - ZG(I))
+             FACJ = ALPHA*(1.0_xp + ZGL(J)) - BETA*(1.0_xp - ZGL(J))
              CONST = EIGVAL*PJ + FACJ*PDJ
              D(I, J) = ((EIGVAL*PI + FACI*PDI) * (ZG(I) - ZGL(J)) - &
-                  (1.0_xp-ZG(I)**2)*PDI) / (CONST*(ZG(I) - ZGL(J))**2)
+                  (1.0_xp - ZG(I)**2)*PDI) / (CONST*(ZG(I) - ZGL(J))**2)
           end if
           DT(J, I) = D(I, J)
        end do
@@ -1200,6 +1200,7 @@ contains
        IT12(1, 1) = 1.0_xp
        return
     end if
+
     do I = 1, NZ2
        ZI = Z2(I)
        do J = 1, NZ1
