@@ -18,6 +18,7 @@ common/distdata.lo : common/distdata.f90 adt/uset.lo adt/tuple.lo adt/stack.lo
 common/utils.lo : common/utils.f90 
 common/time_state.lo : common/time_state.f90 common/json_utils.lo common/log.lo config/num_types.lo 
 common/json_utils.lo : common/json_utils.f90 common/utils.lo config/num_types.lo 
+common/mask.lo : common/mask.f90 math/bcknd/device/device_math.lo device/device.lo config/neko_config.lo 
 common/system.lo : common/system.f90 
 common/runtime_statistics.lo : common/runtime_statistics.f90 comm/comm.lo math/matrix.lo io/file.lo common/json_utils.lo config/num_types.lo adt/tuple.lo adt/stack.lo common/log.lo 
 common/user_access_singleton.lo : common/user_access_singleton.f90 case.lo 
