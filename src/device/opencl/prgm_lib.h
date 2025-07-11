@@ -90,7 +90,7 @@ extern void *lambda2_program;
 extern void *compute_max_wave_speed_program;
 
 /** Device filter kernel */
-extern void *filter_program;
+extern void *mapping_program;
 
 
 #endif

@@ -32,7 +32,7 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "filter_kernels.h"
+#include "mapping_kernels.h"
 #include <device/device_config.h>
 #include <device/cuda/check.h>
 #include <stdio.h>
@@ -79,9 +79,9 @@ extern "C" {
       CUDA_CHECK(cudaGetLastError());
   }
 
-  /** Fortran wrapper for the permeability filter
+  /** Fortran wrapper for the permeability mapping
    *
-   * @param x array to apply the permeability filter on
+   * @param x array to apply the permeability mapping on
    * @param k_0 lower bound of the permeability
    * @param k_1 upper bound of the permeability
    * @param q parameter

@@ -30,18 +30,18 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> A module containing filter functions and subroutines. These functions
+!> A module containing mapping functions and subroutines. These functions
 !! are used to modify fields in a way that is useful for various
 !! simulations.
-module filters
+module mappings
   use field, only: field_t
   use neko_config, only: NEKO_BCKND_DEVICE
   use num_types, only: rp
   use utils, only: neko_error
 
-  use filters_cpu, only: smooth_step_cpu, permeability_cpu, &
+  use mappings_cpu, only: smooth_step_cpu, permeability_cpu, &
        step_function_cpu
-  use filters_device, only: smooth_step_device, permeability_device, &
+  use mappings_device, only: smooth_step_device, permeability_device, &
        step_function_device
 
   implicit none
@@ -118,4 +118,4 @@ contains
     end if
   end subroutine step_function_field
 
-end module filters
+end module mappings
