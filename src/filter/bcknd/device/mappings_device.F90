@@ -30,18 +30,18 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Device implementations of the filter functions.
-module filters_device
+!> Device implementations of the mapping functions.
+module mappings_device
   use num_types, only: rp, c_rp
   use device_math, only: device_pwmax, device_pwmin
   use, intrinsic :: iso_c_binding, only: c_ptr
   use utils, only: neko_error
 
-  use cuda_filters, only: &
+  use cuda_mappings, only: &
        cuda_smooth_step, cuda_step_function, cuda_permeability
-  use hip_filters, only: &
+  use hip_mappings, only: &
        hip_smooth_step, hip_step_function, hip_permeability
-  use opencl_filters, only: &
+  use opencl_mappings, only: &
        opencl_smooth_step, opencl_step_function, opencl_permeability
 
   implicit none
@@ -110,4 +110,4 @@ contains
   end subroutine permeability_device
 
 
-end module filters_device
+end module mappings_device

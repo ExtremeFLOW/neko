@@ -1,5 +1,5 @@
-#ifndef __FILTER_KERNELS__
-#define __FILTER_KERNELS__
+#ifndef __MAPPING_KERNELS__
+#define __MAPPING_KERNELS__
 /*
  Copyright (c) 2024, The Neko Authors
  All rights reserved.
@@ -100,4 +100,4 @@ __global__ void permeability_kernel(
     }
 }
 
-#endif // __FILTER_KERNELS__
+#endif // __MAPPING_KERNELS__

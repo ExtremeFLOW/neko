@@ -47,8 +47,8 @@ module filter
   !> Base abstract class for filter.
   type, abstract, public :: filter_t
      !> Coefficients for the SEM.
-     type(coef_t), pointer :: coef => null() 
- 
+     type(coef_t), pointer :: coef => null()
+
    contains
      !> Constructor for the filter_t class.
      procedure, pass(this) :: init_base => filter_init_base
@@ -92,10 +92,26 @@ module filter
      subroutine filter_apply(this, F_out, F_in)
        import filter_t, field_t
        class(filter_t), intent(inout) :: this
-       type(field_t), intent(in) ::  F_in
-       type(field_t), intent(inout) ::  F_out
+       type(field_t), intent(in) :: F_in
+       type(field_t), intent(inout) :: F_out
      end subroutine filter_apply
   end interface
+
+  interface
+     !> Filter factory. Both constructs and initializes the object.
+     !! @param object The object to be allocated.
+     !! @param type_name The name of the filter.
+     !! @param json A dictionary with parameters.
+     !! @param coef SEM coefficients.
+     module subroutine filter_factory(object, type_name, json, coef)
+       class(filter_t), allocatable, intent(inout) :: object
+       character(len=*), intent(in) :: type_name
+       type(coef_t), intent(in) :: coef
+       type(json_file), intent(inout) :: json
+     end subroutine filter_factory
+  end interface
+
+  public :: filter_factory
 
 contains
   !> Constructor for the `filter_t` (base) class.
@@ -103,10 +119,6 @@ contains
     class(filter_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(coef_t), intent(in), target :: coef
-    character(len=:), allocatable :: compute_control, output_control
-    real(kind=rp) :: compute_value, output_value
-    integer :: order
-
 
     this%coef => coef
 

@@ -30,42 +30,42 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 
-!> Hip interface binding for filters
-module hip_filters
+!> OpenCL interface binding for mappings
+module opencl_mappings
   use num_types, only: rp, c_rp
   implicit none
   private
 
-  public :: hip_smooth_step, hip_step_function, hip_permeability
+  public :: opencl_smooth_step, opencl_step_function, opencl_permeability
 
   ! Interfaces for the backend functions
   interface
-     subroutine hip_smooth_step(x, edge0, edge1, n) &
-          bind(c, name = "hip_smooth_step")
+     subroutine opencl_smooth_step(x, edge0, edge1, n) &
+          bind(c, name = "opencl_smooth_step")
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: x
        real(c_rp) :: edge0, edge1
        integer(c_int) :: n
-     end subroutine hip_smooth_step
+     end subroutine opencl_smooth_step
 
-     subroutine hip_step_function(x, edge, left, right, n) &
-          bind(c, name = "hip_step_function")
+     subroutine opencl_step_function(x, edge, left, right, n) &
+          bind(c, name = "opencl_step_function")
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: x
        real(c_rp) :: edge, left, right
        integer(c_int) :: n
-     end subroutine hip_step_function
+     end subroutine opencl_step_function
 
-     subroutine hip_permeability(x, k_0, k_1, q, n) &
-          bind(c, name = "hip_permeability")
+     subroutine opencl_permeability(x, k_0, k_1, q, n) &
+          bind(c, name = "opencl_permeability")
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: x
        real(c_rp) :: k_0, k_1, q
        integer(c_int) :: n
-     end subroutine hip_permeability
+     end subroutine opencl_permeability
   end interface
 
-end module hip_filters
+end module opencl_mappings

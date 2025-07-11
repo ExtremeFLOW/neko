@@ -331,15 +331,16 @@ neko_fortran_SOURCES = \
 	source_terms/bcknd/device/boussinesq_source_term_device.f90\
 	source_terms/source_term_fctry.f90\
 	source_terms/brinkman_source_term.f90\
-	source_terms/brinkman/filters.f90\
-	source_terms/brinkman/filter.f90\
-	source_terms/brinkman/PDE_filter.f90\
-	source_terms/brinkman/elementwise_filter.f90\
-	source_terms/bcknd/cpu/filters_cpu.f90\
-	source_terms/bcknd/device/filters_device.F90\
-	source_terms/bcknd/device/cuda/cuda_filters.f90\
-	source_terms/bcknd/device/hip/hip_filters.f90\
-	source_terms/bcknd/device/opencl/opencl_filters.f90\
+	filter/mappings.f90\
+	filter/filter.f90\
+	filter/filter_fctry.f90\
+	filter/PDE_filter.f90\
+	filter/elementwise_filter.f90\
+	filter/bcknd/cpu/mappings_cpu.f90\
+	filter/bcknd/device/mappings_device.F90\
+	filter/bcknd/device/cuda/cuda_mappings.f90\
+	filter/bcknd/device/hip/hip_mappings.f90\
+	filter/bcknd/device/opencl/opencl_mappings.f90\
 	source_terms/gradient_jump_penalty.f90\
 	source_terms/bcknd/device/device_gradient_jump_penalty.F90\
 	les/les_model.f90\
@@ -429,7 +430,7 @@ libneko_la_SOURCES += \
 	fluid/stress_formulation/bcknd/device/hip/pnpn_stress_res.hip\
 	scalar/bcknd/device/hip/scalar_residual.hip\
 	sem/bcknd/device/hip/coef.hip\
-	source_terms/bcknd/device/hip/filters.hip\
+	filter/bcknd/device/hip/mappings.hip\
 	source_terms/bcknd/device/hip/gradient_jump_penalty.hip\
 	les/bcknd/device/hip/sigma_nut.hip\
 	les/bcknd/device/hip/vreman_nut.hip\
@@ -479,7 +480,7 @@ libneko_la_SOURCES += \
 	fluid/stress_formulation/bcknd/device/cuda/pnpn_stress_res.cu\
 	scalar/bcknd/device/cuda/scalar_residual.cu\
 	sem/bcknd/device/cuda/coef.cu\
-	source_terms/bcknd/device/cuda/filters.cu\
+	filter/bcknd/device/cuda/mappings.cu\
 	source_terms/bcknd/device/cuda/gradient_jump_penalty.cu\
 	les/bcknd/device/cuda/sigma_nut.cu\
 	les/bcknd/device/cuda/vreman_nut.cu\
@@ -527,7 +528,7 @@ libneko_la_SOURCES += \
 	fluid/bcknd/device/opencl/euler_res.c\
 	scalar/bcknd/device/opencl/scalar_residual.c\
 	sem/bcknd/device/opencl/coef.c\
-	source_terms/bcknd/device/opencl/filters.c
+	filter/bcknd/device/opencl/mappings.c
 
 %.cl.h: %.cl
 	bash ./scripts/cltostring.sh $<
@@ -613,7 +614,8 @@ CLEANFILES += \
 	fluid/bcknd/device/opencl/*.cl.h\
 	scalar/bcknd/device/opencl/*.cl.h\
 	sem/bcknd/device/opencl/*.cl.h\
-	source_terms/bcknd/device/opencl/*.cl.h
+	source_terms/bcknd/device/opencl/*.cl.h\
+	filter/bcknd/device/opencl/*.cl.h
 endif
 
 if ENABLE_MAKEDEPF90
@@ -750,9 +752,9 @@ EXTRA_DIST = \
 	math/bcknd/device/device_mpi_op.h\
 	math/bcknd/device/device_nccl_reduce.h\
 	math/bcknd/device/device_nccl_op.h\
-	source_terms/bcknd/device/cuda/filter_kernels.h\
-	source_terms/bcknd/device/hip/filter_kernels.h\
-	source_terms/bcknd/device/opencl/filter_kernels.cl\
+	filter/bcknd/device/cuda/mapping_kernels.h\
+	filter/bcknd/device/hip/mapping_kernels.h\
+	filter/bcknd/device/opencl/mapping_kernels.cl\
 	source_terms/bcknd/device/cuda/gradient_jump_penalty_kernel.h\
 	source_terms/bcknd/device/hip/gradient_jump_penalty_kernel.h\
 	device/opencl/jit.h\

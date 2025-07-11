@@ -30,42 +30,42 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 
-!> Cuda interface binding for filters
-module cuda_filters
-  use num_types, only: c_rp
+!> Hip interface binding for mappings
+module hip_mappings
+  use num_types, only: rp, c_rp
   implicit none
   private
 
-  public :: cuda_smooth_step, cuda_step_function, cuda_permeability
+  public :: hip_smooth_step, hip_step_function, hip_permeability
 
   ! Interfaces for the backend functions
   interface
-     subroutine cuda_smooth_step(x, edge0, edge1, n) &
-          bind(c, name = "cuda_smooth_step")
+     subroutine hip_smooth_step(x, edge0, edge1, n) &
+          bind(c, name = "hip_smooth_step")
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: x
        real(c_rp) :: edge0, edge1
        integer(c_int) :: n
-     end subroutine cuda_smooth_step
+     end subroutine hip_smooth_step
 
-     subroutine cuda_step_function(x, edge, left, right, n) &
-          bind(c, name = "cuda_step_function")
+     subroutine hip_step_function(x, edge, left, right, n) &
+          bind(c, name = "hip_step_function")
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: x
        real(c_rp) :: edge, left, right
        integer(c_int) :: n
-     end subroutine cuda_step_function
+     end subroutine hip_step_function
 
-     subroutine cuda_permeability(x, k_0, k_1, q, n) &
-          bind(c, name = "cuda_permeability")
+     subroutine hip_permeability(x, k_0, k_1, q, n) &
+          bind(c, name = "hip_permeability")
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: x
        real(c_rp) :: k_0, k_1, q
        integer(c_int) :: n
-     end subroutine cuda_permeability
+     end subroutine hip_permeability
   end interface
 
-end module cuda_filters
+end module hip_mappings

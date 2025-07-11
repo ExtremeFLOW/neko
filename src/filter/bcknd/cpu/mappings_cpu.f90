@@ -30,8 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> CPU implementations of the filter functions.
-module filters_cpu
+!> CPU implementations of the mapping functions.
+module mappings_cpu
   use num_types, only: rp
   implicit none
   private
@@ -114,4 +114,4 @@ contains
   end function permeability_kernel
 
 
-end module filters_cpu
+end module mappings_cpu
