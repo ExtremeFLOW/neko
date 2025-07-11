@@ -106,7 +106,6 @@ jobs:
 
           - os: macos-13
             setup-env: |
-              export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
               brew install openmpi
               brew install automake
               brew install python
@@ -118,7 +117,6 @@ jobs:
 
           - os: macos-15
             setup-env: |
-              export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
               brew install openmpi
               brew install automake
               brew install libtool
