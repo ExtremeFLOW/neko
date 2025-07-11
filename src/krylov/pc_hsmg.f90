@@ -482,8 +482,8 @@ contains
        call this%interp_mid_crs%map(this%wf%x, this%w, this%msh%nelv, &
             this%grids(1)%Xh)
        !Crs solve
-       call this%grids(1)%bclst%apply_scalar(this%wf%x, &
-            this%grids(1)%dof%size())
+       call device_copy(this%w_d, this%e%x_d, this%grids(2)%dof%size())
+       call this%bclst_mg%apply_scalar(this%w, this%grids(2)%dof%size())
 
        !$omp parallel private(thrdid, nthrds)
 
