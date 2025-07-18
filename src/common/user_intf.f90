@@ -52,6 +52,7 @@ module user_intf
   private
 
   !> Abstract interface for a user start-up routine
+  !! @param params The JSON configuration of the case.
   abstract interface
      subroutine user_startup_intf(params)
        import json_file
@@ -60,43 +61,18 @@ module user_intf
   end interface
 
   !> Abstract interface for user defined initial conditions
+  !! @param scheme_name The name of the scheme calling the routine.
+  !! @fields The fields to be initialized packed in a list.
   abstract interface
-     subroutine useric(u, v, w, p, params)
-       import field_t
-       import json_file
-       type(field_t), intent(inout) :: u
-       type(field_t), intent(inout) :: v
-       type(field_t), intent(inout) :: w
-       type(field_t), intent(inout) :: p
-       type(json_file), intent(inout) :: params
-     end subroutine useric
-  end interface
-
-  !> Abstract interface for user defined initial conditions
-  abstract interface
-     subroutine useric_compressible(rho, u, v, w, p, params)
-       import field_t
-       import json_file
-       type(field_t), intent(inout) :: rho
-       type(field_t), intent(inout) :: u
-       type(field_t), intent(inout) :: v
-       type(field_t), intent(inout) :: w
-       type(field_t), intent(inout) :: p
-       type(json_file), intent(inout) :: params
-     end subroutine useric_compressible
-  end interface
-
-  !> Abstract interface for user defined scalar initial conditions
-  abstract interface
-     subroutine useric_scalar(s, params)
-       import field_t
-       import json_file
-       type(field_t), intent(inout) :: s
-       type(json_file), intent(inout) :: params
-     end subroutine useric_scalar
+     subroutine user_initial_conditions_intf(scheme_name, fields)
+       import field_list_t
+       character(len=*), intent(in) :: scheme_name
+       type(field_list_t), intent(inout) :: fields
+     end subroutine user_initial_conditions_intf
   end interface
 
   !> Abstract interface for initilialization of modules
+  !! @param time The time state.
   abstract interface
      subroutine user_initialize_intf(time)
        import time_state_t
@@ -105,16 +81,18 @@ module user_intf
   end interface
 
   !> Abstract interface for user defined mesh deformation functions
+  !! @param mesh The mesh to be modified.
+  !! @param time The time state.
   abstract interface
-     subroutine user_mesh_setup_intf(time, msh)
-       import mesh_t
-       import time_state_t
+     subroutine user_mesh_setup_intf(mesh, time)
+       import mesh_t, time_state_t
+       type(mesh_t), intent(inout) :: mesh
        type(time_state_t), intent(in) :: time
-       type(mesh_t), intent(inout) :: msh
      end subroutine user_mesh_setup_intf
   end interface
 
   !> Abstract interface for user defined check functions
+  !! @param time The time state.
   abstract interface
      subroutine user_compute_intf(time)
        import time_state_t
@@ -123,6 +101,7 @@ module user_intf
   end interface
 
   !> Abstract interface for finalizating user variables
+  !! @param time The time state.
   abstract interface
      subroutine user_finalize_intf(time)
        import json_file
@@ -132,6 +111,9 @@ module user_intf
   end interface
 
   !> Abstract interface for user defined source term
+  !! @param scheme_name The name of the scheme calling the routine.
+  !! @param rhs The right-hand fields to be computed by the user.
+  !! @param time The time state.
   abstract interface
      subroutine user_source_term_intf(scheme_name, rhs, time)
        import rp, time_state_t, field_list_t
@@ -146,7 +128,7 @@ module user_intf
   !! "fluid" or "scalar"
   !! @param properties Array of properties, defined by convention for each
   !! scheme.
-  !! @param time The time state, containing the current time and time step.
+  !! @param time The time state.
   !! @param params The JSON configuration of the scheme.
   abstract interface
      subroutine user_material_properties_intf(scheme_name, properties, time)
@@ -171,14 +153,9 @@ module user_intf
      !> Run after the entire case is initialized and restarted, but before the
      !! time loop. Good place to create auxillary fields, etc.
      procedure(user_initialize_intf), nopass, pointer :: initialize => null()
-     !> Compute user initial conditions for the incompressible fluid.
-     procedure(useric), nopass, pointer :: fluid_user_ic => null()
-     !> Compute user initial conditions for the compressible fluid.
-     procedure(useric_compressible), nopass, pointer :: &
-          fluid_compressible_user_ic => null()
-     !> Compute user initial conditions for the scalar.
-     procedure(useric_scalar), nopass, pointer :: scalar_user_ic => null()
-     !> Run right after reading the mesh and allows to manipulate it.
+     !> Compute user initial conditions.
+     procedure(user_initial_conditions_intf), nopass, pointer :: &
+          initial_conditions => null()
      procedure(user_mesh_setup_intf), nopass, pointer :: mesh_setup => null()
      !> Run at the start of each time-step in the time loop.
      procedure(user_compute_intf), nopass, pointer :: preprocess => null()
@@ -210,9 +187,9 @@ module user_intf
      procedure, pass(this) :: init => user_intf_init
   end type user_t
 
-  public :: useric, useric_scalar, useric_compressible, &
-       user_initialize_intf, user_mesh_setup_intf, &
-       dummy_user_material_properties, user_material_properties_intf, &
+  public :: user_initial_conditions_intf, user_initialize_intf, &
+       user_mesh_setup_intf, dummy_user_material_properties, &
+       user_material_properties_intf, user_finalize_intf, &
        user_startup_intf, user_source_term_intf
 contains
 
@@ -232,28 +209,12 @@ contains
        write(extensions(n), '(A)') '- Startup'
     end if
 
-    if (.not. associated(this%fluid_user_ic)) then
-       this%fluid_user_ic => dummy_user_ic
+    if (.not. associated(this%initial_conditions)) then
+       this%initial_conditions => dummy_user_initial_conditions
     else
        user_extended = .true.
        n = n + 1
-       write(extensions(n), '(A)') '- Fluid initial condition'
-    end if
-
-    if (.not. associated(this%scalar_user_ic)) then
-       this%scalar_user_ic => dummy_user_ic_scalar
-    else
-       user_extended = .true.
-       n = n + 1
-       write(extensions(n), '(A)') '- Scalar initial condition'
-    end if
-
-    if (.not. associated(this%fluid_compressible_user_ic)) then
-       this%fluid_compressible_user_ic => dummy_user_ic_compressible
-    else
-       user_extended = .true.
-       n = n + 1
-       write(extensions(n), '(A)') '- Compressible fluid initial condition'
+       write(extensions(n), '(A)') '- Initial condition'
     end if
 
     if (.not. associated(this%source_term)) then
@@ -344,41 +305,12 @@ contains
   end subroutine dummy_startup
 
   !> Dummy user initial condition
-  subroutine dummy_user_ic(u, v, w, p, params)
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    type(json_file), intent(inout) :: params
+  subroutine dummy_user_initial_conditions(scheme_name, fields)
+    character(len=*), intent(in) :: scheme_name
+    type(field_list_t), intent(inout) :: fields
+
     call neko_error('Dummy user defined initial condition set')
-  end subroutine dummy_user_ic
-
-  !> Dummy user initial condition
-  subroutine dummy_user_ic_compressible(rho, u, v, w, p, params)
-    type(field_t), intent(inout) :: rho
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    type(json_file), intent(inout) :: params
-    call neko_error('Dummy user defined initial condition set')
-  end subroutine dummy_user_ic_compressible
-
-  !> Dummy user initial condition for scalar field
-  !! @param s Scalar field.
-  !! @param params JSON parameters.
-  subroutine dummy_user_ic_scalar(s, params)
-    type(field_t), intent(inout) :: s
-    type(json_file), intent(inout) :: params
-    call neko_error('Dummy user defined scalar initial condition set')
-  end subroutine dummy_user_ic_scalar
-
-  subroutine dummy_user_ic_scalars(s, field_name, params)
-    type(field_t), intent(inout) :: s
-    character(len=*), intent(in) :: field_name
-    type(json_file), intent(inout) :: params
-    call neko_warning('Dummy multiple scalar initial condition called')
-  end subroutine dummy_user_ic_scalars
+  end subroutine dummy_user_initial_conditions
 
   !> Dummy user source_term
   subroutine dummy_user_source_term(scheme_name, rhs, time)
@@ -389,9 +321,9 @@ contains
   end subroutine dummy_user_source_term
 
   !> Dummy user mesh apply
-  subroutine dummy_user_mesh_setup(time, msh)
-    type(time_state_t), intent(in) :: time
+  subroutine dummy_user_mesh_setup(msh, time)
     type(mesh_t), intent(inout) :: msh
+    type(time_state_t), intent(in) :: time
   end subroutine dummy_user_mesh_setup
 
   !> Dummy user compute
@@ -402,10 +334,6 @@ contains
   subroutine dummy_initialize(time)
     type(time_state_t), intent(in) :: time
   end subroutine dummy_initialize
-
-  subroutine dummy_user_init_no_simcomp(params)
-    type(json_file), intent(inout) :: params
-  end subroutine dummy_user_init_no_simcomp
 
   subroutine dummy_user_finalize(time)
     type(time_state_t), intent(in) :: time
