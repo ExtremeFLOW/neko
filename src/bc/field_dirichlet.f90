@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2024, The Neko Authors
+! Copyright (c) 2020-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -122,7 +122,7 @@ contains
   !! @param[inout] json The JSON object configuring the boundary condition.
   subroutine field_dirichlet_init(this, coef, json)
     class(field_dirichlet_t), intent(inout), target :: this
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) ::json
     character(len=:), allocatable :: field_name
 
@@ -172,9 +172,13 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
-    logical :: strong_ = .true.
+    logical :: strong_
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
 
     if (strong_) then
 
@@ -192,15 +196,21 @@ contains
   !! @param x_d Device pointer to the field onto which to copy the values.
   !! @param t Time.
   !! @param tstep Time step.
-  subroutine field_dirichlet_apply_scalar_dev(this, x_d, t, tstep, strong)
+  !! @param strm Device stream
+  subroutine field_dirichlet_apply_scalar_dev(this, x_d, t, tstep, strong, strm)
     class(field_dirichlet_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
-    logical :: strong_ = .true.
+    type(c_ptr) :: strm
+    logical :: strong_
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
 
     if (strong_) then
        if (.not. this%updated) then
@@ -210,7 +220,7 @@ contains
 
        if (this%msk(0) .gt. 0) then
           call device_masked_copy(x_d, this%field_bc%x_d, this%msk_d, &
-               this%field_bc%dof%size(), this%msk(0))
+               this%field_bc%dof%size(), this%msk(0), strm)
        end if
     end if
 
@@ -244,8 +254,9 @@ contains
   !! @param z z-component of the field onto which to apply the values.
   !! @param t Time.
   !! @param tstep Time step.
+  !! @param strm Device stream
   subroutine field_dirichlet_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, &
-       strong)
+       strong, strm)
     class(field_dirichlet_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
@@ -253,7 +264,7 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
-
+    type(c_ptr) :: strm
     call neko_error("field_dirichlet cannot apply vector BCs.&
     & Use field_dirichlet_vector instead!")
 
@@ -263,7 +274,7 @@ contains
   subroutine field_dirichlet_finalize(this, only_facets)
     class(field_dirichlet_t), target, intent(inout) :: this
     logical, optional, intent(in) :: only_facets
-    logical :: only_facets_ = .false.
+    logical :: only_facets_
 
     if (present(only_facets)) then
        only_facets_ = only_facets

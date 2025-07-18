@@ -1,11 +1,10 @@
 !> Auxiliary routines for fluid solvers
 module fluid_aux
-  use logger, only : neko_log, LOG_SIZE
-  use num_types, only : rp
-  use krylov, only : ksp_monitor_t
   use, intrinsic :: ieee_arithmetic, only: ieee_is_nan
+  use krylov, only : ksp_monitor_t
+  use logger, only : neko_log, LOG_SIZE
   use utils, only : neko_error, neko_warning
-  use comm, only : pe_rank
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -15,81 +14,42 @@ contains
 
   !> Prints for prs, velx, vely, velz the following:
   !! Number of iterations, start residual, end residual
-  subroutine fluid_step_info(step, t, dt, ksp_results, &
-       full_stress_formulation, strict_convergence)
-    type(ksp_monitor_t), intent(in) :: ksp_results(4)
-    integer, intent(in) :: step
-    real(kind=rp), intent(in) :: t, dt
+  subroutine fluid_step_info(time, ksp_results, full_stress_formulation, &
+       strict_convergence)
+    type(ksp_monitor_t), dimension(:), intent(in) :: ksp_results
+    type(time_state_t), intent(in) :: time
     logical, intent(in) :: full_stress_formulation
-    logical, intent(in) :: strict_convergence
+    logical, intent(in), optional :: strict_convergence
     character(len=LOG_SIZE) :: log_buf
-    character(len=12) :: step_str
-    integer :: i
-    character(len=40) :: out_format
+    integer :: i, n
 
-    out_format = '(A12,A3,A10,1x,I6,3x,E15.9,3x,E15.9)'
-    write(step_str, '(I12)') step
-    step_str = adjustl(step_str)
+    n = size(ksp_results)
+    if (full_stress_formulation) n = 2
 
-    write(log_buf, '((A5,7x),A3,(A5,5x),1x,A6,3x,A15,3x,A15)') &
-         'Step:', ' | ', 'Field:', 'Iters:', &
-         'Start residual:', 'Final residual:'
-    call neko_log%message(log_buf)
-
-    write(log_buf, out_format) &
-         step_str, ' | ' , 'Pressure  ' , ksp_results(1)%iter, &
-         ksp_results(1)%res_start, ksp_results(1)%res_final
-    call neko_log%message(log_buf)
-
-    if (full_stress_formulation) then
-       write(log_buf, out_format) &
-            step_str, ' | ' , 'Momentum  ' , ksp_results(2)%iter, &
-            ksp_results(2)%res_start, ksp_results(2)%res_final
-       call neko_log%message(log_buf)
-    else
-       write(log_buf, out_format) &
-            step_str, ' | ' , 'X-Velocity' , ksp_results(2)%iter, &
-            ksp_results(2)%res_start, ksp_results(2)%res_final
-       call neko_log%message(log_buf)
-
-       write(log_buf, out_format) &
-            step_str, ' | ' , 'Y-Velocity' , ksp_results(3)%iter, &
-            ksp_results(3)%res_start, ksp_results(3)%res_final
-       call neko_log%message(log_buf)
-
-       write(log_buf, out_format) &
-            step_str, ' | ' , 'Z-Velocity' , ksp_results(4)%iter, &
-            ksp_results(4)%res_start, ksp_results(4)%res_final
-       call neko_log%message(log_buf)
-    end if
+    ! Do the printing
+    call ksp_results(1)%print_header()
+    do i = 1, n
+       call ksp_results(i)%print_result(time%tstep)
+    end do
 
     ! Check for convergence
-    do i = 1, 4
+    do i = 1, n
        if (ieee_is_nan(ksp_results(i)%res_final)) then
-          call neko_error("Fluid solver diverged")
+          call neko_error("Fluid solver diverged for " // &
+               trim(ksp_results(i)%name))
        end if
 
-       if ((.not. ksp_results(i)%converged) .and. (pe_rank .eq. 0)) then
-          log_buf = 'Fluid solver did not converge for'
-          select case(i)
-          case(1)
-             log_buf = trim(log_buf) // ' pressure'
-          case(2)
-             if (full_stress_formulation) then
-                log_buf = trim(log_buf) // ' momentum'
-             else
-                log_buf = trim(log_buf) // ' x-velocity'
-             end if
-          case(3)
-             log_buf = trim(log_buf) // ' y-velocity'
-          case(4)
-             log_buf = trim(log_buf) // ' z-velocity'
-          end select
+       if (present(strict_convergence)) then
 
-          if (strict_convergence) then
-             call neko_error(log_buf)
-          else
-             call neko_warning(log_buf)
+          if (.not. ksp_results(i)%converged) then
+             log_buf = 'Fluid solver did not converge for ' &
+                  // trim(ksp_results(i)%name)
+
+             if (strict_convergence) then
+                call neko_error(log_buf)
+             else
+                call neko_warning(log_buf)
+             end if
           end if
        end if
     end do

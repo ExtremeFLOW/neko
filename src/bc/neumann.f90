@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -86,7 +86,7 @@ contains
   !! @param[inout] json The JSON object configuring the boundary condition.
   subroutine neumann_init(this, coef, json)
     class(neumann_t), intent(inout), target :: this
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) :: json
     real(kind=rp) :: flux
 
@@ -121,9 +121,13 @@ contains
     integer :: i, m, k, facet
     ! Store non-linear index
     integer :: idx(4)
-    logical :: strong_ = .true.
+    logical :: strong_
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
 
     m = this%msk(0)
     if (.not. strong_) then
@@ -165,26 +169,33 @@ contains
 
   !> Boundary condition apply for a generic Neumann condition
   !! to a vector @a x (device version)
-  subroutine neumann_apply_scalar_dev(this, x_d, t, tstep, strong)
+  subroutine neumann_apply_scalar_dev(this, x_d, t, tstep, strong, strm)
     class(neumann_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
-    logical :: strong_ = .true.
+    type(c_ptr) :: strm
+    logical :: strong_
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
 
     if (.not. this%uniform_0 .and. this%msk(0) .gt. 0 .and. &
          strong .eqv. .false.) then
        call device_neumann_apply_scalar(this%msk_d, this%facet_d, x_d, &
-            this%flux_%x_d, this%coef%area_d, this%coef%Xh%lx, size(this%msk))
+            this%flux_%x_d, this%coef%area_d, this%coef%Xh%lx, &
+            size(this%msk), strm)
     end if
   end subroutine neumann_apply_scalar_dev
 
   !> Boundary condition apply for a generic Neumann condition
   !! to vectors @a x, @a y and @a z (device version)
-  subroutine neumann_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, strong)
+  subroutine neumann_apply_vector_dev(this, x_d, y_d, z_d, &
+       t, tstep, strong, strm)
     class(neumann_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
@@ -192,6 +203,7 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
+    type(c_ptr) :: strm
 
     if (.not. this%uniform_0 .and. this%msk(0) .gt. 0) then
        call neko_error("Neumann bc not implemented for vectors.")
@@ -211,8 +223,6 @@ contains
   subroutine neumann_finalize(this, only_facets)
     class(neumann_t), target, intent(inout) :: this
     logical, optional, intent(in) :: only_facets
-    logical :: only_facets_ = .false.
-
     integer :: i
 
     if (present(only_facets)) then

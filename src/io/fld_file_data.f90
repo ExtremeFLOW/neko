@@ -33,7 +33,7 @@ module fld_file_data
      integer :: n_scalars = 0 !< number of numbered scalar fields
      real(kind=rp) :: time = 0.0 !< time of sample
      integer :: glb_nelv = 0 !< global number of elements
-     integer :: nelv = 0  !< n elements on the pe
+     integer :: nelv = 0 !< n elements on the pe
      integer :: offset_el = 0 !< element offset for this pe
      integer :: lx = 0 !< N GLL points in x
      integer :: ly = 0
@@ -91,7 +91,7 @@ contains
     class(fld_file_data_t), target, intent(in) :: fld_file
     integer, intent(in) :: n
     integer :: i, j
-    
+
     if(fld_file%u%n .gt. 0) then
        call this%u%init(n)
     end if
@@ -136,7 +136,7 @@ contains
     end if
     if(n_fields .gt. 4) then
        call this%t%init(n)
-    end if 
+    end if
     if (n_fields .gt. 5) then
        this%n_scalars = n_fields-5
        allocate(this%s(this%n_scalars))
@@ -252,23 +252,24 @@ contains
   end subroutine fld_file_data_free
 
   !> Generates a global_interpolation object to interpolate the fld data.
+  !! @param global_interp Global interpolation object which will be initialized
+  !! and ready to be used for interpolation.
   !! @param to_dof Dofmap on which to interpolate.
   !! @param to_msh Mesh on which to interpolate.
   !! @param tolerance Tolerance for the newton iterations.
-  function fld_file_data_generate_interpolator(this, to_dof, &
-       to_msh, tolerance) result(global_interp)
+  subroutine fld_file_data_generate_interpolator(this, global_interp, to_dof, &
+       to_msh, tolerance)
     class(fld_file_data_t), intent(in) :: this
+    type(global_interpolation_t), intent(inout) :: global_interp
     type(dofmap_t), intent(in), target :: to_dof
     type(mesh_t), intent(in), target :: to_msh
     real(kind=rp), intent(in) :: tolerance
-
-    type(global_interpolation_t) :: global_interp
 
     ! --- variables for interpolation
     type(space_t) :: fld_Xh
     real(kind=rp), allocatable :: x_coords(:,:,:,:), y_coords(:,:,:,:), &
          z_coords(:,:,:,:)
-    real(kind=rp) :: center_x,  center_y, center_z
+    real(kind=rp) :: center_x, center_y, center_z
     integer :: e, i
     ! ---
 
@@ -279,16 +280,16 @@ contains
     if (.not. allocated(this%x%x) .or. &
          .not. allocated(this%y%x) .or. &
          .not. allocated(this%z%x)) call neko_error("Unable to retrieve &
-&mesh information from fld data.")
+    &mesh information from fld data.")
 
     ! Create a space based on the fld data
-    call fld_Xh%init(GLL, this%lx,  this%ly, this%lz)
+    call fld_Xh%init(GLL, this%lx, this%ly, this%lz)
 
     ! These are the coordinates of our current dofmap
     ! that we use for the interpolation
-    allocate(x_coords(to_Xh%lx,  to_Xh%ly, to_Xh%lz, to_msh%nelv))
-    allocate(y_coords(to_Xh%lx,  to_Xh%ly, to_Xh%lz, to_msh%nelv))
-    allocate(z_coords(to_Xh%lx,  to_Xh%ly, to_Xh%lz, to_msh%nelv))
+    allocate(x_coords(to_Xh%lx, to_Xh%ly, to_Xh%lz, to_msh%nelv))
+    allocate(y_coords(to_Xh%lx, to_Xh%ly, to_Xh%lz, to_msh%nelv))
+    allocate(z_coords(to_Xh%lx, to_Xh%ly, to_Xh%lz, to_msh%nelv))
 
     !> To ensure that each point is within an element
     !! Remedies issue with points on the boundary
@@ -327,6 +328,6 @@ contains
     deallocate(y_coords)
     deallocate(z_coords)
 
-  end function fld_file_data_generate_interpolator
+  end subroutine fld_file_data_generate_interpolator
 
 end module fld_file_data

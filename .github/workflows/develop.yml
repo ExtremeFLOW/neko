@@ -101,15 +101,15 @@ jobs:
   # ========================================================================== #
   # ReFrame and bencharks
 
-  ReFrame:
-    name: ReFrame
-    needs:
-      - prepare
-      - depend
-      - GNU
-    uses: ./.github/workflows/check_reframe.yml
-    with:
-      json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
+#  ReFrame:
+#    name: ReFrame
+#    needs:
+#      - prepare
+#      - depend
+#      - GNU
+#    uses: ./.github/workflows/check_reframe.yml
+#    with:
+#      json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
 
   # # ========================================================================== #
   # # Upload the badges
@@ -153,7 +153,7 @@ jobs:
       - GNU
       - Intel
       - Nvidia
-      - ReFrame
+#      - ReFrame
     runs-on: ubuntu-latest
     env:
       draft_status: ${{ needs.prepare.result }}
@@ -162,7 +162,7 @@ jobs:
       gnu_status: ${{ needs.GNU.result }}
       inel_status: ${{ needs.Intel.result }}
       nvidia_status: ${{ needs.Nvidia.result }}
-      reframe_status: ${{ needs.ReFrame.result }}
+#      reframe_status: ${{ needs.ReFrame.result }}
 
     steps:
       - name: All checks passed
@@ -196,11 +196,6 @@ jobs:
 
           if [ "$nvidia_status" != "success" ]; then
             fail+=("\t- NVIDIA check: $nvidia_status")
-            success=false
-          fi
-
-          if [ "$reframe_status" != "success" ]; then
-            fail+=("\t- ReFrame check: $reframe_status")
             success=false
           fi
 

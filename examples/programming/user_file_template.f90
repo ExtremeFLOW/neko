@@ -15,7 +15,6 @@ contains
     user%fluid_user_ic => fluid_user_ic
     user%fluid_compressible_user_ic => fluid_compressible_user_ic
     user%scalar_user_ic => scalar_user_ic
-    user%init_user_simcomp => init_user_simcomp
     user%user_mesh_setup => user_mesh_setup
     user%user_check => user_check
     user%user_finalize_modules => user_finalize_modules
@@ -60,11 +59,6 @@ contains
 
   end subroutine scalar_user_ic
 
-  subroutine init_user_simcomp(params)
-    type(json_file), intent(inout) :: params
-
-  end subroutine init_user_simcomp
-
   subroutine user_mesh_setup(msh)
     type(mesh_t), intent(inout) :: msh
 
@@ -98,20 +92,23 @@ contains
 
   end subroutine fluid_user_f_vector
 
-  subroutine scalar_user_f(s, j, k, l, e, t)
+  subroutine scalar_user_f(field_name, s, j, k, l, e, t)
+    character(len=*), intent(in) :: field_name
     real(kind=rp), intent(inout) :: s
     integer, intent(in) :: j, k, l, e
     real(kind=rp), intent(in) :: t
 
   end subroutine scalar_user_f
 
-  subroutine scalar_user_f_vector(f, t)
+  subroutine scalar_user_f_vector(field_name, f, t)
+    character(len=*), intent(in) :: field_name
     class(scalar_user_source_term_t), intent(inout) :: f
     real(kind=rp), intent(in) :: t
 
   end subroutine scalar_user_f_vector
 
-  subroutine scalar_user_bc(s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
+  subroutine scalar_user_bc(scalar_name, s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
+    character(len=*), intent(in) :: scalar_name
     real(kind=rp), intent(inout) :: s
     real(kind=rp), intent(in) :: x, y, z, nx, ny, nz
     integer, intent(in) :: ix, iy, iz, ie

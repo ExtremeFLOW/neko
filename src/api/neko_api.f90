@@ -215,6 +215,7 @@ contains
     integer(c_intptr_t), intent(inout) :: case_iptr
     type(case_t), pointer :: C
     type(c_ptr) :: cptr
+    type(json_file) :: dt_params
     type(time_step_controller_t), save, allocatable :: dt_controller
     real(kind=dp), save :: step_loop_start = 0.0_dp
 
@@ -224,7 +225,8 @@ contains
 
        if (.not. allocated(dt_controller)) then
           allocate(dt_controller)
-          call dt_controller%init(C%params)
+          call json_extract_object(C%params, 'case.time', dt_params)
+          call dt_controller%init(dt_params)
        end if
 
        if (C%time%tstep .eq. 0) then

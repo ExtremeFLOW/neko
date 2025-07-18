@@ -287,7 +287,7 @@ contains
     call filename_chsuffix(file_name, file_name, 'fld')
 
     call fld_data%init
-    f = file_t(trim(file_name))
+    call f%init(trim(file_name))
 
     if (interpolate) then
 
@@ -360,7 +360,8 @@ contains
        end select
 
        ! Generates an interpolator object and performs the point search
-       global_interp = fld_data%generate_interpolator(s%dof, s%msh, tolerance)
+       call fld_data%generate_interpolator(global_interp, s%dof, s%msh, &
+            tolerance)
 
        ! Evaluate scalar
        call global_interp%evaluate(s%x, fld_data%t%x)

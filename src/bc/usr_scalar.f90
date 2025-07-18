@@ -1,4 +1,4 @@
-! Copyright (c) 2023, The Neko Authors
+! Copyright (c) 2023-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -112,7 +112,7 @@ contains
   !! @param[inout] json The JSON object configuring the boundary condition.
   subroutine usr_scalar_init(this, coef, json)
     class(usr_scalar_t), intent(inout), target :: this
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: field_name_temp
 
@@ -155,9 +155,13 @@ contains
     logical, intent(in), optional :: strong
     integer :: i, m, k, idx(4), facet, tstep_
     real(kind=rp) :: t_
-    logical :: strong_ = .true.
+    logical :: strong_
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
 
     if (present(t)) then
        t_ = t
@@ -222,21 +226,27 @@ contains
   !! Applies boundary conditions in eval on x
   !! @param x The array of values to apply.
   !! @param n The size of x.
-  subroutine usr_scalar_apply_scalar_dev(this, x_d, t, tstep, strong)
+  !! @param strm Device stream
+  subroutine usr_scalar_apply_scalar_dev(this, x_d, t, tstep, strong, strm)
     class(usr_scalar_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
+    type(c_ptr) :: strm
     integer :: i, m, k, idx(4), facet, tstep_
     real(kind=rp) :: t_
     integer(c_size_t) :: s
     real(kind=rp), allocatable :: x(:)
-    logical :: strong_ = .true.
+    logical :: strong_
 
     m = this%msk(0)
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = strong
+    end if
 
     if (present(t)) then
        t_ = t
@@ -308,7 +318,7 @@ contains
 
       if (strong_) then
          call device_inhom_dirichlet_apply_scalar(this%msk_d, x_d, &
-              this%usr_x_d, m)
+              this%usr_x_d, m, strm)
       end if
     end associate
 
@@ -329,7 +339,8 @@ contains
   end subroutine usr_scalar_apply_vector
 
   !> No-op vector apply (device version)
-  subroutine usr_scalar_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, strong)
+  subroutine usr_scalar_apply_vector_dev(this, x_d, y_d, z_d, &
+       t, tstep, strong, strm)
     class(usr_scalar_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
@@ -337,6 +348,7 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
+    type(c_ptr) :: strm
 
   end subroutine usr_scalar_apply_vector_dev
 
@@ -374,7 +386,7 @@ contains
   subroutine usr_scalar_finalize(this, only_facets)
     class(usr_scalar_t), target, intent(inout) :: this
     logical, optional, intent(in) :: only_facets
-    logical :: only_facets_ = .false.
+    logical :: only_facets_
 
     if (present(only_facets)) then
        only_facets_ = only_facets

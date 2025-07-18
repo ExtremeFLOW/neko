@@ -36,6 +36,7 @@
 !! it on each call.
 module scratch_registry
   use field, only : field_t, field_ptr_t
+  use field_math, only : field_rzero
   use dofmap, only : dofmap_t
   implicit none
   private
@@ -56,30 +57,28 @@ module scratch_registry
      type(dofmap_t), pointer :: dof => null()
    contains
      procedure, private, pass(this) :: expand
-     !> destructor
+     !> Constructor
+     procedure, pass(this) :: init => scratch_registry_init
+     !> Destructor
      procedure, pass(this) :: free => scratch_registry_free
-     !> getter for nfields
+     !> Getter for nfields
      procedure, pass(this) :: get_nfields
-     !> getter for nfields_inuse
+     !> Getter for nfields_inuse
      procedure, pass(this) :: get_nfields_inuse
-     !> getter for expansion_size
+     !> Getter for expansion_size
      procedure, pass(this) :: get_expansion_size
-     !> return size of allocated fields
+     !> Return size of allocated fields
      procedure, pass(this) :: get_size
-     !> get value of inuse for a given index
+     !> Get value of inuse for a given index
      procedure, pass(this) :: get_inuse
-     !> get a new scratch field
+     !> Get a new scratch field
      procedure, pass(this) :: request_field
      procedure, pass(this) :: relinquish_field_single
      procedure, pass(this) :: relinquish_field_multiple
-     !> free a field for later reuse
+     !> Free a field for later reuse
      generic :: relinquish_field => relinquish_field_single, &
           relinquish_field_multiple
   end type scratch_registry_t
-
-  interface scratch_registry_t
-     procedure :: init
-  end interface scratch_registry_t
 
   !> Global scratch registry
   type(scratch_registry_t), public, target :: neko_scratch_registry
@@ -88,7 +87,8 @@ contains
 
   !> Constructor, optionally taking initial registry and expansion
   !! size as argument
-  type(scratch_registry_t) function init(dof, size, expansion_size) result(this)
+  subroutine scratch_registry_init(this, dof, size, expansion_size)
+    class(scratch_registry_t), intent(inout) :: this
     type(dofmap_t), target, intent(in) :: dof
     integer, optional, intent(in) :: size
     integer, optional, intent(in) :: expansion_size
@@ -118,7 +118,7 @@ contains
 
     this%nfields = 0
     this%nfields_inuse = 0
-  end function init
+  end subroutine scratch_registry_init
 
   !> Destructor
   subroutine scratch_registry_free(this)
@@ -208,15 +208,16 @@ contains
 
     associate(nfields => this%nfields, nfields_inuse => this%nfields_inuse)
 
-      do index=1,this%get_size()
+      do index = 1, this%get_size()
          if (this%inuse(index) .eqv. .false.) then
-            write (name, "(A3,I0.3)") "wrk", index
+            write(name, "(A3,I0.3)") "wrk", index
 
             if (.not. allocated(this%fields(index)%ptr%x)) then
                call this%fields(index)%ptr%init(this%dof, trim(name))
                nfields = nfields + 1
             end if
             f => this%fields(index)%ptr
+            call field_rzero(f)
             this%inuse(index) = .true.
             this%nfields_inuse = this%nfields_inuse + 1
             return

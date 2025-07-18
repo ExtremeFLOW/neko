@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2024, The Neko Authors
+! Copyright (c) 2020-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@ module bc
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use device, only : device_get_ptr, HOST_TO_DEVICE, device_memcpy, &
-       device_free, device_map, DEVICE_TO_HOST
+       device_free, device_map, DEVICE_TO_HOST, glb_cmd_queue
   use iso_c_binding, only: c_associated
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
@@ -136,7 +136,7 @@ module bc
      subroutine bc_constructor(this, coef, json)
        import :: bc_t, coef_t, json_file
        class(bc_t), intent(inout), target :: this
-       type(coef_t), intent(in) :: coef
+       type(coef_t), target, intent(in) :: coef
        type(json_file), intent(inout) :: json
      end subroutine bc_constructor
   end interface
@@ -206,7 +206,8 @@ module bc
      !! @param t The time value.
      !! @param tstep The time iteration.
      !! @param strong Whether we are setting a strong or a weak bc.
-     subroutine bc_apply_scalar_dev(this, x_d, t, tstep, strong)
+     !! @param strm Device stream
+     subroutine bc_apply_scalar_dev(this, x_d, t, tstep, strong, strm)
        import :: c_ptr
        import :: bc_t
        import :: rp
@@ -215,6 +216,7 @@ module bc
        real(kind=rp), intent(in), optional :: t
        integer, intent(in), optional :: tstep
        logical, intent(in), optional :: strong
+       type(c_ptr) :: strm
      end subroutine bc_apply_scalar_dev
   end interface
 
@@ -226,7 +228,8 @@ module bc
      !! @param t The time value.
      !! @param tstep Current time-step.
      !! @param strong Whether we are setting a strong or a weak bc.
-     subroutine bc_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, strong)
+     !! @param strm Device stream
+     subroutine bc_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, strong, strm)
        import :: c_ptr
        import :: bc_t
        import :: rp
@@ -237,6 +240,7 @@ module bc
        real(kind=rp), intent(in), optional :: t
        integer, intent(in), optional :: tstep
        logical, intent(in), optional :: strong
+       type(c_ptr) :: strm
      end subroutine bc_apply_vector_dev
   end interface
 
@@ -298,7 +302,8 @@ contains
   !! @param n The size of x, y, and z.
   !! @param t Current time.
   !! @param tstep The current time iteration.
-  subroutine bc_apply_vector_generic(this, x, y, z, n, t, tstep)
+  !! @param Device stream
+  subroutine bc_apply_vector_generic(this, x, y, z, n, t, tstep, strm)
     class(bc_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
@@ -306,24 +311,33 @@ contains
     real(kind=rp), intent(inout), dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    type(c_ptr), optional :: strm
+    type(c_ptr) :: strm_
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
     integer :: i
 
-
     if (NEKO_BCKND_DEVICE .eq. 1) then
+
+       if (present(strm)) then
+          strm_ = strm
+       else
+          strm_ = glb_cmd_queue
+       end if
+
        x_d = device_get_ptr(x)
        y_d = device_get_ptr(y)
        z_d = device_get_ptr(z)
        if (present(t) .and. present(tstep)) then
-          call this%apply_vector_dev(x_d, y_d, z_d, t = t, tstep = tstep)
+          call this%apply_vector_dev(x_d, y_d, z_d, &
+               t = t, tstep = tstep, strm = strm_)
        else if (present(t)) then
-          call this%apply_vector_dev(x_d, y_d, z_d, t = t)
+          call this%apply_vector_dev(x_d, y_d, z_d, t = t, strm = strm_)
        else if (present(tstep)) then
-          call this%apply_vector_dev(x_d, y_d, z_d, tstep = tstep)
+          call this%apply_vector_dev(x_d, y_d, z_d, tstep = tstep, strm = strm_)
        else
-          call this%apply_vector_dev(x_d, y_d, z_d)
+          call this%apply_vector_dev(x_d, y_d, z_d, strm = strm_)
        end if
     else
        if (present(t) .and. present(tstep)) then
@@ -347,26 +361,36 @@ contains
   !! @param n The size of x, y, and z.
   !! @param t Current time.
   !! @param tstep The current time iteration.
-  subroutine bc_apply_scalar_generic(this, x, n, t, tstep)
+  !! @param strm Device stream
+  subroutine bc_apply_scalar_generic(this, x, n, t, tstep, strm)
     class(bc_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    type(c_ptr), optional :: strm
+    type(c_ptr) :: strm_
     type(c_ptr) :: x_d
     integer :: i
 
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
+
+       if (present(strm)) then
+          strm_ = strm
+       else
+          strm_ = glb_cmd_queue
+       end if
+
        x_d = device_get_ptr(x)
        if (present(t) .and. present(tstep)) then
-          call this%apply_scalar_dev(x_d, t = t, tstep = tstep)
+          call this%apply_scalar_dev(x_d, t = t, tstep = tstep, strm = strm_)
        else if (present(t)) then
-          call this%apply_scalar_dev(x_d, t = t)
+          call this%apply_scalar_dev(x_d, t = t, strm = strm_)
        else if (present(tstep)) then
-          call this%apply_scalar_dev(x_d, tstep = tstep)
+          call this%apply_scalar_dev(x_d, tstep = tstep, strm = strm_)
        else
-          call this%apply_scalar_dev(x_d)
+          call this%apply_scalar_dev(x_d, strm = strm_)
        end if
     else
        if (present(t) .and. present(tstep)) then
@@ -594,7 +618,7 @@ contains
        k = this%msk(i)
        bdry_field%x(k,1,1,1) = 1.0_rp
     end do
-    dump_file = file_t(file_name)
+    call dump_file%init(file_name)
     call dump_file%write(bdry_field)
 
   end subroutine bc_debug_mask

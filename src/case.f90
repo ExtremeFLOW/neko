@@ -58,7 +58,7 @@ module case
   use scalar_scheme, only : scalar_scheme_t
   use time_state, only : time_state_t
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default, json_extract_object, json_extract_item
+  use json_utils, only : json_get, json_get_or_default, json_extract_object, json_extract_item, json_no_defaults
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   use point_zone_registry, only: neko_point_zone_registry
   use scalars, only : scalars_t
@@ -160,6 +160,11 @@ contains
     ! Run user startup routine
     call this%user%startup(this%params)
 
+    ! Check if default value fill-in is allowed
+    if (this%params%valid_path('case.no_defaults')) then
+       call json_get(this%params, 'case.no_defaults', json_no_defaults)
+    end if
+
     !
     ! Load mesh
     !
@@ -169,7 +174,7 @@ contains
        call neko_error('The mesh_file keyword could not be found in the .' // &
             'case file. Often caused by incorrectly formatted json.')
     end if
-    msh_file = file_t(string_val)
+    call msh_file%init(string_val)
 
     call msh_file%read(this%msh)
 
@@ -187,7 +192,7 @@ contains
        ! store the balanced mesh (for e.g. restarts)
        string_val = trim(string_val(1:scan(trim(string_val), &
             '.', back = .true.) - 1)) // '_lb.nmsh'
-       msh_file = file_t(string_val)
+       call msh_file%init(string_val)
        call msh_file%write(this%msh)
 
        call neko_log%end_section()
@@ -226,7 +231,7 @@ contains
     !
     ! Setup scratch registry
     !
-    neko_scratch_registry = scratch_registry_t(this%fluid%dm_Xh, 10, 10)
+    call neko_scratch_registry%init(this%fluid%dm_Xh, 10, 10)
 
     !
     ! Setup scalar scheme
@@ -321,12 +326,12 @@ contains
 
              if (trim(string_val) .ne. 'user') then
                 call set_scalar_ic(this%scalars%scalar_fields(i)%s, &
-                    this%scalars%scalar_fields(i)%c_Xh, this%scalars%scalar_fields(i)%gs_Xh, &
-                    string_val, json_subdict)
+                     this%scalars%scalar_fields(i)%c_Xh, this%scalars%scalar_fields(i)%gs_Xh, &
+                     string_val, json_subdict)
              else
                 call set_scalar_ic(this%scalars%scalar_fields(i)%name, this%scalars%scalar_fields(i)%s, &
-                    this%scalars%scalar_fields(i)%c_Xh, this%scalars%scalar_fields(i)%gs_Xh, &
-                    this%user%scalar_user_ic, this%params)
+                     this%scalars%scalar_fields(i)%c_Xh, this%scalars%scalar_fields(i)%gs_Xh, &
+                     this%user%scalar_user_ic, this%params)
              end if
           end do
        end if
@@ -375,7 +380,7 @@ contains
     if (logical_val) then
        call mesh_field_init(msh_part, this%msh, 'MPI_Rank')
        msh_part%data = pe_rank
-       part_file = file_t(trim(this%output_directory)//'partitions.vtk')
+       call part_file%init(trim(this%output_directory)//'partitions.vtk')
        call part_file%write(msh_part)
        call mesh_field_free(msh_part)
     end if
@@ -442,7 +447,7 @@ contains
             name, "fluid")
        call json_get_or_default(this%params, 'case.checkpoint_format', &
             string_val, "chkp")
-       this%chkp_out = chkp_output_t(this%chkp, name = name,&
+       call this%chkp_out%init(this%chkp, name = name,&
             path = this%output_directory, fmt = trim(string_val))
        call json_get_or_default(this%params, 'case.checkpoint_control', &
             string_val, "simulationtime")

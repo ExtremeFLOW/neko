@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -111,9 +111,13 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
-    logical :: strong_ = .true.
+    logical :: strong_
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
 
     if (strong_) then
        call this%symmetry%apply_vector(x, y, z, n, t, tstep, .true.)
@@ -127,12 +131,13 @@ contains
 
   !> Boundary condition apply for a generic shear_stress condition
   !! to a vector @a x (device version)
-  subroutine shear_stress_apply_scalar_dev(this, x_d, t, tstep, strong)
+  subroutine shear_stress_apply_scalar_dev(this, x_d, t, tstep, strong, strm)
     class(shear_stress_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
+    type(c_ptr) :: strm
 
     call neko_error("The shear stress bc is not applicable to scalar fields.")
 
@@ -141,7 +146,7 @@ contains
   !> Boundary condition apply for a generic shear_stress condition
   !! to vectors @a x, @a y and @a z (device version)
   subroutine shear_stress_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, &
-       strong)
+       strong, strm)
     class(shear_stress_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
@@ -149,16 +154,22 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
-    logical :: strong_ = .true.
+    type(c_ptr) :: strm
+    logical :: strong_
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
 
     if (strong_) then
-       call this%symmetry%apply_vector_dev(x_d, y_d, z_d, t, tstep, .true.)
+       call this%symmetry%apply_vector_dev(x_d, y_d, z_d, &
+            t, tstep, .true., strm)
     else
-       call this%neumann_x%apply_scalar_dev(x_d, t, tstep, .false.)
-       call this%neumann_y%apply_scalar_dev(y_d, t, tstep, .false.)
-       call this%neumann_z%apply_scalar_dev(z_d, t, tstep, .false.)
+       call this%neumann_x%apply_scalar_dev(x_d, t, tstep, .false., strm)
+       call this%neumann_y%apply_scalar_dev(y_d, t, tstep, .false., strm)
+       call this%neumann_z%apply_scalar_dev(z_d, t, tstep, .false., strm)
     end if
 
   end subroutine shear_stress_apply_vector_dev
@@ -168,7 +179,7 @@ contains
   !! @param[inout] json The JSON object configuring the boundary condition.
   subroutine shear_stress_init(this, coef, json)
     class(shear_stress_t), target, intent(inout) :: this
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) ::json
     real(kind=rp), allocatable :: value(:)
 
@@ -209,7 +220,7 @@ contains
   subroutine shear_stress_finalize(this, only_facets)
     class(shear_stress_t), target, intent(inout) :: this
     logical, optional, intent(in) :: only_facets
-    logical :: only_facets_ = .false.
+    logical :: only_facets_
 
     if (present(only_facets)) then
        only_facets_ = only_facets

@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ module wall_model_bc
   use utils, only : neko_error
   use json_utils, only : json_get
   use coefs, only : coef_t
-  use wall_model, only : wall_model_t, wall_model_factory
+  use wall_model, only : wall_model_t, wall_model_allocator
   use shear_stress, only : shear_stress_t
   use json_module, only : json_file
   implicit none
@@ -50,10 +50,6 @@ module wall_model_bc
   type, public, extends(shear_stress_t) :: wall_model_bc_t
      !> The wall model to compute the stress.
      class(wall_model_t), allocatable :: wall_model
-     !> The kinematic viscosity.
-     real(kind=rp) :: nu
-     !> Parameter dictionary for the wall model
-     type(json_file) params_
    contains
      !> Constructor.
      procedure, pass(this) :: init => wall_model_bc_init
@@ -102,9 +98,13 @@ contains
     logical, intent(in), optional :: strong
     integer :: i, m, k, fid
     real(kind=rp) :: magtau
-    logical :: strong_ = .true.
+    logical :: strong_
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
 
     if (.not. strong_) then
        ! Compute the wall stress using the wall model.
@@ -126,12 +126,13 @@ contains
 
   !> Boundary condition apply for a generic wall_model_bc condition
   !! to a vector @a x (device version)
-  subroutine wall_model_bc_apply_scalar_dev(this, x_d, t, tstep, strong)
+  subroutine wall_model_bc_apply_scalar_dev(this, x_d, t, tstep, strong, strm)
     class(wall_model_bc_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
+    type(c_ptr) :: strm
 
     call neko_error("The wall model bc is not applicable to scalar fields.")
 
@@ -140,7 +141,7 @@ contains
   !> Boundary condition apply for a generic wall_model_bc condition
   !! to vectors @a x, @a y and @a z (device version)
   subroutine wall_model_bc_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, &
-       strong)
+       strong, strm)
     class(wall_model_bc_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
@@ -148,9 +149,14 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
-    logical :: strong_ = .true.
+    logical :: strong_
+    type(c_ptr) :: strm
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
 
     if (.not. strong_) then
        ! Compute the wall stress using the wall model.
@@ -166,7 +172,8 @@ contains
     end if
 
     ! Either add the stress to the RHS or apply the non-penetration condition
-    call this%shear_stress_t%apply_vector_dev(x_d, y_d, z_d, t, tstep, strong_)
+    call this%shear_stress_t%apply_vector_dev(x_d, y_d, z_d, &
+         t, tstep, strong_, strm)
 
   end subroutine wall_model_bc_apply_vector_dev
 
@@ -175,14 +182,18 @@ contains
   !! @param[inout] json The JSON object configuring the boundary condition.
   subroutine wall_model_bc_init(this, coef, json)
     class(wall_model_bc_t), target, intent(inout) :: this
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) :: json
     real(kind=rp) :: value(3) = [0, 0, 0]
+    character(len=:), allocatable :: type_name
 
+    ! Initialize the shear stress base class.
     call this%shear_stress_t%init_from_components(coef, value)
-    call json_get(json, "nu", this%nu)
-    this%params_ = json
+    ! Partial initialization of the wall model by parsing the JSON.
+    call json_get(json, "model", type_name)
+    call wall_model_allocator(this%wall_model, type_name)
 
+    call this%wall_model%partial_init(coef, json)
   end subroutine wall_model_bc_init
 
   !> Destructor.
@@ -198,7 +209,6 @@ contains
   subroutine wall_model_bc_finalize(this, only_facets)
     class(wall_model_bc_t), target, intent(inout) :: this
     logical, optional, intent(in) :: only_facets
-    logical :: only_facets_ = .false.
 
     if (present(only_facets)) then
        if (only_facets .eqv. .false.) then
@@ -207,9 +217,7 @@ contains
     end if
 
     call this%shear_stress_t%finalize(.true.)
-
-    call wall_model_factory(this%wall_model, this%coef, this%msk, &
-         this%facet, this%nu, this%params_)
+    call this%wall_model%finalize(this%msk, this%facet)
   end subroutine wall_model_bc_finalize
 
 end module wall_model_bc
