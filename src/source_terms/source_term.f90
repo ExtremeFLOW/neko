@@ -36,6 +36,7 @@ module source_term
   use coefs, only : coef_t
   use field_list, only : field_list_t
   use json_module, only : json_file
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -103,11 +104,10 @@ module source_term
      !> Computes the source term and adds the result to `fields`.
      !! @param t The time value.
      !! @param tstep The current time-step.
-     subroutine source_term_compute(this, t, tstep)
-       import source_term_t, rp
+     subroutine source_term_compute(this, time)
+       import source_term_t, time_state_t
        class(source_term_t), intent(inout) :: this
-       real(kind=rp), intent(in) :: t
-       integer, intent(in) :: tstep
+       type(time_state_t), intent(in) :: time
      end subroutine source_term_compute
   end interface
 
@@ -227,15 +227,13 @@ contains
   end subroutine source_term_wrapper_free
 
   !> Executes `compute_` based on time conditions.
-  !> @param t Time value.
-  !> @param tstep Current time step.
-  subroutine source_term_compute_wrapper(this, t, tstep)
+  !> @param time Time state.
+  subroutine source_term_compute_wrapper(this, time)
     class(source_term_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
 
-    if (t .ge. this%start_time .and. t .le. this%end_time) then
-       call this%compute_(t, tstep)
+    if (time%t .ge. this%start_time .and. time%t .le. this%end_time) then
+       call this%compute_(time)
     end if
 
   end subroutine source_term_compute_wrapper

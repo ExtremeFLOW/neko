@@ -77,6 +77,7 @@ module fluid_scheme_incompressible
   use shear_stress, only : shear_stress_t
   use device, only : device_event_sync, glb_cmd_event, DEVICE_TO_HOST, &
        device_memcpy
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -333,7 +334,7 @@ contains
     this%w_e => neko_field_registry%get_field('w_e')
 
     ! Initialize the source term
-    call this%source_term%init(this%f_x, this%f_y, this%f_z, this%c_Xh, user)
+    call this%source_term%init(this%f_x, this%f_y, this%f_z, this%c_Xh, user, this%name)
     call this%source_term%add(params, 'case.fluid.source_terms')
 
 
@@ -570,14 +571,13 @@ contains
   !! if necessary.
   !! @param t Time value.
   !! @param tstep Current time step.
-  subroutine fluid_scheme_update_material_properties(this, t, tstep)
+  subroutine fluid_scheme_update_material_properties(this, time)
     class(fluid_scheme_incompressible_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     type(field_t), pointer :: nut
 
-    call this%user_material_properties(t, tstep, this%name, &
-         this%material_properties)
+    call this%user_material_properties(this%name, this%material_properties, &
+         time)
 
     if (len(trim(this%nut_field_name)) > 0) then
        nut => neko_field_registry%get_field(this%nut_field_name)
@@ -610,6 +610,7 @@ contains
     logical :: nondimensional
     real(kind=rp) :: dummy_lambda, dummy_cp
     real(kind=rp) :: const_mu, const_rho
+    type(time_state_t) :: dummy_time_state
 
 
     dummy_mp_ptr => dummy_user_material_properties
@@ -627,13 +628,13 @@ contains
 
     if (.not. associated(user%material_properties, dummy_mp_ptr)) then
 
-       write(log_buf, '(A)') "Material properties must be set in the user&
-       & file!"
+       write(log_buf, '(A)') 'Material properties must be set in the user' // &
+            ' file!'
        call neko_log%message(log_buf)
        this%user_material_properties => user%material_properties
 
-       call user%material_properties(0.0_rp, 0, this%name, &
-            this%material_properties)
+       call user%material_properties(this%name, this%material_properties, &
+            dummy_time_state)
 
     else
        this%user_material_properties => dummy_user_material_properties

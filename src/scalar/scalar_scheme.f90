@@ -471,17 +471,16 @@ contains
   !! if necessary.
   !! @param t Time value.
   !! @param tstep Current time step.
-  subroutine scalar_scheme_update_material_properties(t, tstep, this)
+  subroutine scalar_scheme_update_material_properties(this, time)
     class(scalar_scheme_t), intent(inout) :: this
-    real(kind=rp),intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     type(field_t), pointer :: nut
     integer :: index
     ! Factor to transform nu_t to lambda_t
     type(field_t), pointer :: lambda_factor
 
-    call this%user_material_properties(t, tstep, this%name, &
-         this%material_properties)
+    call this%user_material_properties(this%name, this%material_properties, &
+         time)
 
     ! factor = rho * cp / pr_turb
     if (len(trim(this%nut_field_name)) > 0) then
@@ -517,6 +516,8 @@ contains
     ! A local pointer that is needed to make Intel happy
     procedure(user_material_properties), pointer :: dummy_mp_ptr
     real(kind=rp) :: const_cp, const_lambda
+    ! Dummy time state set to 0
+    type(time_state_t) :: time
 
     dummy_mp_ptr => dummy_user_material_properties
 
@@ -539,8 +540,8 @@ contains
             "file!"
        call neko_log%message(log_buf)
        this%user_material_properties => user%material_properties
-       call user%material_properties(0.0_rp, 0, this%name, &
-            this%material_properties)
+
+       call user%material_properties(this%name, this%material_properties, time)
     else
        this%user_material_properties => dummy_user_material_properties
        if (params%valid_path('Pe') .and. &

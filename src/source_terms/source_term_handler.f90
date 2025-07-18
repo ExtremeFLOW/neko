@@ -46,6 +46,7 @@ module source_term_handler
   use field_math, only: field_rzero
   use math, only : col2
   use device_math, only : device_col2
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -93,12 +94,11 @@ module source_term_handler
 
   abstract interface
      subroutine source_term_handler_init_user_source(source_term, rhs_fields, &
-          coef, type, user, scheme_name)
+          coef, user, scheme_name)
        import :: source_term_t, field_list_t, coef_t, user_t
        class(source_term_t), allocatable, intent(inout) :: source_term
        type(field_list_t) :: rhs_fields
        type(coef_t), intent(in) :: coef
-       character(len=*) :: type
        type(user_t), intent(in) :: user
        character(len=*), intent(in) :: scheme_name
      end subroutine source_term_handler_init_user_source
@@ -143,12 +143,10 @@ contains
   end subroutine source_term_handler_free
 
   !> Add all the source term to the passed right-hand side fields.
-  !! @param t The time value.
-  !! @param tstep The current time step.
-  subroutine source_term_handler_compute(this, t, tstep)
+  !! @param time The time state.
+  subroutine source_term_handler_compute(this, time)
     class(source_term_handler_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     integer :: i
     type(field_t), pointer :: f
 
@@ -161,7 +159,7 @@ contains
     if (allocated(this%source_terms)) then
 
        do i = 1, size(this%source_terms)
-          call this%source_terms(i)%source_term%compute(t, tstep)
+          call this%source_terms(i)%source_term%compute(time)
        end do
 
        ! Multiply by mass matrix
@@ -219,8 +217,7 @@ contains
           if (trim(type) .eq. "user") then
 
              call this%init_user_source(this%source_terms(i+ i0)%source_term, &
-                  this%rhs_fields, this%coef, type, this%user, &
-                  this%scheme_name)
+                  this%rhs_fields, this%coef, this%user, this%scheme_name)
 
              call json_get_or_default(source_subdict, "start_time", &
                   this%source_terms(i + i0)%source_term%start_time, 0.0_rp)

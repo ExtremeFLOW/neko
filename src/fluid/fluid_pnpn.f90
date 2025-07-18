@@ -652,7 +652,7 @@ contains
            ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
 
       ! Compute the source terms
-      call this%source_term%compute(t, tstep)
+      call this%source_term%compute(time)
 
       ! Add Neumann bc contributions to the RHS
       call this%bcs_vel%apply_vector(f_x%x, f_y%x, f_z%x, &
@@ -707,7 +707,7 @@ contains
       call this%bc_apply_prs(t, tstep)
 
       ! Update material properties if necessary
-      call this%update_material_properties(t, tstep)
+      call this%update_material_properties(time)
 
       ! Compute pressure residual.
       call profiler_start_region('Pressure_residual', 18)

@@ -43,17 +43,14 @@ module scalar_user_source_term
   use device_math, only : device_add2
   use math, only : add2
   use dofmap, only : dofmap_t
+  use time_state, only : time_state_t
+  use user_intf, only : user_source_term
   use, intrinsic :: iso_c_binding
   implicit none
   private
 
-  public :: scalar_source_compute_pointwise, scalar_source_compute_vector
-
   !> A source-term for the scalar, with procedure pointers pointing to the
   !! actual implementation in the user file.
-  !! @details The user source term can be applied either pointiwse or acting
-  !! on the whole array in a single call, which is referred to as "vector"
-  !! application.
   !! @warning
   !! The user source term does not support init from JSON and should instead be
   !! directly initialized from components.
@@ -63,16 +60,12 @@ module scalar_user_source_term
      !> The source term.
      real(kind=rp), allocatable :: s(:, :, :, :)
      !> Field name for this scalar
-     character(len=:), allocatable :: scalar_name
+     character(len=:), allocatable :: scheme_name
 
      !> Device pointer for `s`.
      type(c_ptr) :: s_d = C_NULL_PTR
-     !> Compute the source term for a single point
-     procedure(scalar_source_compute_pointwise), nopass, pointer :: &
-          compute_pw_ => null()
      !> Compute the source term for the entire boundary
-     procedure(scalar_source_compute_vector), nopass, pointer :: &
-          compute_vector_ => null()
+     procedure(user_source_term), nopass, pointer :: compute_user_ => null()
    contains
      !> Constructor from JSON (will throw!).
      procedure, pass(this) :: init => scalar_user_source_term_init
@@ -84,38 +77,6 @@ module scalar_user_source_term
      !> Computes the source term and adds the result to `fields`.
      procedure, pass(this) :: compute_ => scalar_user_source_term_compute
   end type scalar_user_source_term_t
-
-  abstract interface
-     !> Computes the source term and adds the result to `fields`.
-     !! @param t The time value.
-     !! @param tstep The current time-step.
-     subroutine scalar_source_compute_vector(scalar_name, this, t)
-       import scalar_user_source_term_t, rp
-       character(len=*), intent(in) :: scalar_name
-       class(scalar_user_source_term_t), intent(inout) :: this
-       real(kind=rp), intent(in) :: t
-     end subroutine scalar_source_compute_vector
-  end interface
-
-  abstract interface
-     !> Computes the source term at a single point.
-     !! @param s The source value.
-     !! @param j The x-index of GLL point.
-     !! @param k The y-index of GLL point.
-     !! @param l The z-index of GLL point.
-     !! @param e The index of element.
-     !! @param t The time value.
-     subroutine scalar_source_compute_pointwise(scalar_name, s, j, k, l, e, t)
-       import rp
-       character(len=*), intent(in) :: scalar_name
-       real(kind=rp), intent(inout) :: s
-       integer, intent(in) :: j
-       integer, intent(in) :: k
-       integer, intent(in) :: l
-       integer, intent(in) :: e
-       real(kind=rp), intent(in) :: t
-     end subroutine scalar_source_compute_pointwise
-  end interface
 
 contains
 
@@ -139,25 +100,21 @@ contains
   !> Constructor from components.
   !! @param fields A list with 1 field for adding the source values.
   !! @param coef The SEM coeffs.
-  !! @param sourc_term_type The type of the user source term, "user_vector" or
-  !! "user_pointwise".
-  !! @param eval_vector The procedure to vector-compute the source term.
-  !! @param eval_pointwise The procedure to pointwise-compute the source term.
+  !! @param user_proc The procedure user procedure to compute the source term.
+  !! @param scheme_name The name of the scheme that owns this source term.
   subroutine scalar_user_source_term_init_from_components(this, fields, coef, &
-       source_term_type, eval_vector, eval_pointwise, scalar_name)
+       user_proc, scheme_name)
     class(scalar_user_source_term_t), intent(inout) :: this
     type(field_list_t), intent(in), target :: fields
     type(coef_t), intent(in) :: coef
-    character(len=*) :: source_term_type
-    procedure(scalar_source_compute_vector), optional :: eval_vector
-    procedure(scalar_source_compute_pointwise), optional :: eval_pointwise
-    character(len=*), intent(in) :: scalar_name
+    procedure(user_source_term) :: user_proc
+    character(len=*), intent(in) :: scheme_name
 
     call this%free()
     call this%init_base(fields, coef, 0.0_rp, huge(0.0_rp))
 
     this%dm => fields%dof(1)
-    this%scalar_name = trim(scalar_name)
+    this%scheme_name = trim(scheme_name)
 
     allocate(this%s(this%dm%Xh%lx, this%dm%Xh%ly, this%dm%Xh%lz, &
          this%dm%msh%nelv))
@@ -168,21 +125,7 @@ contains
        call device_map(this%s, this%s_d, this%dm%size())
     end if
 
-
-    if (trim(source_term_type) .eq. 'user_pointwise' .and. &
-         present(eval_pointwise)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call neko_error('Pointwise source terms not &
-          &supported on accelerators')
-       end if
-       this%compute_vector_ => pointwise_eval_driver
-       this%compute_pw_ => eval_pointwise
-    else if (trim(source_term_type) .eq. 'user_vector' .and. &
-         present(eval_vector)) then
-       this%compute_vector_ => eval_vector
-    else
-       call neko_error('Invalid fluid source term '//source_term_type)
-    end if
+    this%compute_user_ => user_proc
   end subroutine scalar_user_source_term_init_from_components
 
   !> Destructor.
@@ -190,28 +133,25 @@ contains
     class(scalar_user_source_term_t), intent(inout) :: this
 
     if (allocated(this%s)) deallocate(this%s)
-    if (allocated(this%scalar_name)) deallocate(this%scalar_name)
+    if (allocated(this%scheme_name)) deallocate(this%scheme_name)
 
     if (c_associated(this%s_d)) call device_free(this%s_d)
 
-    nullify(this%compute_vector_)
-    nullify(this%compute_pw_)
+    nullify(this%compute_user_)
     nullify(this%dm)
 
     call this%free_base()
   end subroutine scalar_user_source_term_free
 
   !> Computes the source term and adds the result to `fields`.
-  !! @param t The time value.
-  !! @param tstep The current time-step.
-  subroutine scalar_user_source_term_compute(this, t, tstep)
+  !! @param time The time state.
+  subroutine scalar_user_source_term_compute(this, time)
     class(scalar_user_source_term_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     integer :: n
 
-    if (t .ge. this%start_time .and. t .le. this%end_time) then
-       call this%compute_vector_(this%scalar_name, this, t)
+    if (time%t .ge. this%start_time .and. time%t .le. this%end_time) then
+       call this%compute_user_(this%scheme_name, this%fields, time)
        n = this%fields%item_size(1)
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -221,36 +161,5 @@ contains
        end if
     end if
   end subroutine scalar_user_source_term_compute
-
-  !> Driver for all pointwise source term evaluatons.
-  !! @param t The time value.
-  subroutine pointwise_eval_driver(scalar_name, this, t)
-    character(len=*), intent(in) :: scalar_name
-    class(scalar_user_source_term_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer :: j, k, l, e
-    integer :: jj, kk, ll, ee
-
-    select type (this)
-    type is (scalar_user_source_term_t)
-       do e = 1, size(this%s, 4)
-          ee = e
-          do l = 1, size(this%s, 3)
-             ll = l
-             do k = 1, size(this%s, 2)
-                kk = k
-                do j = 1, size(this%s, 1)
-                   jj = j
-                   call this%compute_pw_(scalar_name, this%s(j,k,l,e), jj, &
-                        kk, ll, ee, t)
-                end do
-             end do
-          end do
-       end do
-    class default
-       call neko_error('Incorrect source type in pointwise eval driver!')
-    end select
-
-  end subroutine pointwise_eval_driver
 
 end module scalar_user_source_term

@@ -267,11 +267,10 @@ module fluid_scheme_base
 
   !> Abstract interface to sets rho and mu
   abstract interface
-     subroutine update_material_properties(this, t, tstep)
-       import fluid_scheme_base_t, rp
+     subroutine update_material_properties(this, time)
+       import fluid_scheme_base_t, time_state_t
        class(fluid_scheme_base_t), intent(inout) :: this
-       real(kind=rp),intent(in) :: t
-       integer, intent(in) :: tstep
+       type(time_state_t), intent(in) :: time
      end subroutine update_material_properties
   end interface
 

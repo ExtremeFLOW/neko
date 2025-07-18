@@ -49,13 +49,8 @@ module fluid_user_source_term
   implicit none
   private
 
-  public :: fluid_source_compute_vector
-
   !> A source-term for the fluid, with procedure pointers pointing to the
   !! actual implementation in the user file.
-  !! @details The user source term can be applied either pointiwse or acting
-  !! on the whole array in a single call, which is referred to as "vector"
-  !! application.
   !! @warning
   !! The user source term does not support init from JSON and should instead be
   !! directly initialized from components.
@@ -78,7 +73,7 @@ module fluid_user_source_term
      !> Device pointer for `w`.
      type(c_ptr) :: w_d = C_NULL_PTR
      !> Compute the source term for the entire boundary
-     procedure(user_source_term), nopass, pointer :: compute_vector_&
+     procedure(user_source_term), nopass, pointer :: compute_user_ &
           => null()
    contains
      !> Constructor from JSON (will throw!).
@@ -113,16 +108,14 @@ contains
   !> Costructor from components.
   !! @param fields A list of 3 fields for adding the source values.
   !! @param coef The SEM coeffs.
-  !! @param sourc_termtype The type of the user source term, "user_vector" or
-  !! "user_pointwise".
-  !! @param eval_vector The procedure to vector-compute the source term.
+  !! @param user_proc The procedure user procedure to compute the source term.
+  !! @param scheme_name The name of the scheme that owns this source term.
   subroutine fluid_user_source_term_init_from_components(this, fields, coef, &
-       source_term_type, eval_vector, scheme_name)
+       user_proc, scheme_name)
     class(fluid_user_source_term_t), intent(inout) :: this
     type(field_list_t), intent(in), target :: fields
     type(coef_t), intent(in), target :: coef
-    character(len=*) :: source_term_type
-    procedure(user_source_term), optional :: eval_vector
+    procedure(user_source_term) :: user_proc
     character(len=*), intent(in) :: scheme_name
 
     call this%free()
@@ -149,12 +142,7 @@ contains
        call device_map(this%w, this%w_d, this%dm%size())
     end if
 
-    if (trim(source_term_type) .eq. 'user_vector' .and. &
-         present(eval_vector)) then
-       this%compute_vector_ => eval_vector
-    else
-       call neko_error('Invalid fluid source term '//source_term_type)
-    end if
+    this%compute_user_ => user_proc
   end subroutine fluid_user_source_term_init_from_components
 
   !> Destructor.
@@ -169,8 +157,9 @@ contains
     if (c_associated(this%v_d)) call device_free(this%v_d)
     if (c_associated(this%w_d)) call device_free(this%w_d)
 
-    nullify(this%compute_vector_)
-    nullify(this%compute_pw_)
+    if (allocated(this%scheme_name)) deallocate(this%scheme_name)
+
+    nullify(this%compute_user_)
     nullify(this%dm)
 
     call this%free_base()
@@ -183,8 +172,8 @@ contains
     type(time_state_t), intent(in) :: time
     integer :: n
 
-    if (time.t .ge. this%start_time .and. time.t .le. this%end_time) then
-       call this%compute_vector_(this%scheme_name, this%fields, time)
+    if (time%t .ge. this%start_time .and. time%t .le. this%end_time) then
+       call this%compute_user_(this%scheme_name, this%fields, time)
        n = this%fields%item_size(1)
 
        if (NEKO_BCKND_DEVICE .eq. 1) then

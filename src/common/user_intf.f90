@@ -34,10 +34,6 @@
 module user_intf
   use field, only : field_t
   use field_list, only : field_list_t
-  use fluid_user_source_term, only : fluid_user_source_term_t, &
-       fluid_source_compute_pointwise, fluid_source_compute_vector
-  use scalar_user_source_term, only : scalar_user_source_term_t, &
-       scalar_source_compute_pointwise, scalar_source_compute_vector
   use coefs, only : coef_t
   use bc_list, only : bc_list_t
   use mesh, only : mesh_t
@@ -142,7 +138,7 @@ module user_intf
        character(len=*), intent(in) :: scheme_name
        type(field_list_t), intent(inout) :: rhs
        type(time_state_t), intent(in) :: time
-     end subroutine
+     end subroutine user_source_term
   end interface
 
   !> Abstract interface for setting material properties.
@@ -196,12 +192,6 @@ module user_intf
      !> User source term interface.
      procedure(user_source_term), nopass, pointer :: &
           source_term => null()
-     !> User forcing for the fluid, field (vector) interface.
-     procedure(fluid_source_compute_vector), nopass, pointer :: &
-          fluid_user_f_vector => null()
-     !> User forcing for the scalar, field (vector) interface.
-     procedure(scalar_source_compute_vector), nopass, pointer :: &
-          scalar_user_f_vector => null()
      !> User boundary condition for the fluid or the scalar, field interface
      !! (much more powerful than pointwise in terms of what can be done).
      procedure(field_dirichlet_update), nopass, pointer :: &
@@ -265,36 +255,12 @@ contains
        write(extensions(n), '(A)') '- Compressible fluid initial condition'
     end if
 
-    if (.not. associated(this%fluid_user_f)) then
-       this%fluid_user_f => dummy_user_f
+    if (.not. associated(this%source_term)) then
+       this%source_term => dummy_user_source_term
     else
        user_extended = .true.
        n = n + 1
-       write(extensions(n), '(A)') '- Fluid source term'
-    end if
-
-    if (.not. associated(this%fluid_user_f_vector)) then
-       this%fluid_user_f_vector => dummy_user_f_vector
-    else
-       user_extended = .true.
-       n = n + 1
-       write(extensions(n), '(A)') '- Fluid source term vector'
-    end if
-
-    if (.not. associated(this%scalar_user_f)) then
-       this%scalar_user_f => dummy_scalar_user_f
-    else
-       user_extended = .true.
-       n = n + 1
-       write(extensions(n), '(A)') '- Scalar source term'
-    end if
-
-    if (.not. associated(this%scalar_user_f_vector)) then
-       this%scalar_user_f_vector => dummy_user_scalar_f_vector
-    else
-       user_extended = .true.
-       n = n + 1
-       write(extensions(n), '(A)') '- Scalar source term vector'
+       write(extensions(n), '(A)') '- Source term'
     end if
 
     if (.not. associated(this%user_dirichlet_update)) then
@@ -413,27 +379,13 @@ contains
     call neko_warning('Dummy multiple scalar initial condition called')
   end subroutine dummy_user_ic_scalars
 
-  !> Dummy user (fluid) forcing
-  subroutine dummy_user_f_vector(f, t)
-    class(fluid_user_source_term_t), intent(inout) :: f
-    real(kind=rp), intent(in) :: t
-    call neko_error('Dummy user defined vector valued forcing set')
-  end subroutine dummy_user_f_vector
-
-  !> Dummy user (scalar) forcing
-  subroutine dummy_user_scalar_f_vector(field_name, f, t)
-    character(len=*), intent(in) :: field_name
-    class(scalar_user_source_term_t), intent(inout) :: f
-    real(kind=rp), intent(in) :: t
-    call neko_error('Dummy user defined vector valued forcing set')
-  end subroutine dummy_user_scalar_f_vector
-
-  !> Dummy user forcing
-  subroutine dummy_user_source(f, time)
-    class(fluid_user_source_term_t), intent(inout) :: f
+  !> Dummy user source_term
+  subroutine dummy_user_source_term(scheme_name, rhs, time)
+    character(len=*), intent(in) :: scheme_name
+    type(field_list_t), intent(inout) :: rhs
     type(time_state_t), intent(in) :: time
-    call neko_error('Dummy user defined forcing set')
-  end subroutine dummy_user_source
+    call neko_error('Dummy user defined source term set')
+  end subroutine dummy_user_source_term
 
   !> Dummy user mesh apply
   subroutine dummy_user_mesh_setup(time, msh)
@@ -447,7 +399,7 @@ contains
   end subroutine dummy_user_compute
 
   subroutine dummy_initialize(time)
-      type(time_state_t), intent(in) :: time
+    type(time_state_t), intent(in) :: time
   end subroutine dummy_initialize
 
   subroutine dummy_user_init_no_simcomp(params)
@@ -467,11 +419,10 @@ contains
     integer, intent(in) :: tstep
   end subroutine dirichlet_do_nothing
 
-  subroutine dummy_user_material_properties(t, tstep, name, properties)
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    character(len=*), intent(in) :: name
+  subroutine dummy_user_material_properties(scheme_name, properties, time)
+    character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: properties
+    type(time_state_t), intent(in) :: time
   end subroutine dummy_user_material_properties
 
 
