@@ -152,7 +152,7 @@ contains
        do i = 1, this%fields%size()
           call this%user_fields%items(i)%ptr%init(this%dof)
           call field_add2(this%fields%items(i)%ptr, &
-                this%user_fields%items(i)%ptr)
+               this%user_fields%items(i)%ptr)
        end do
     end if
   end subroutine user_source_term_compute

@@ -64,21 +64,25 @@ contains
     type(field_list_t), intent(inout) :: fields
     real(kind=rp) :: uvw(3), x, y, z
     type(dofmap_t), pointer :: dof
+    type (field_t), pointer :: u, v, w
     integer :: i
 
     if (scheme_name .eq. 'fluid') then
-      dof => fields%dof(1)
-      do i = 1, fields%item_size(1)
-        x = dof%x(i,1,1,1)
-        y = dof%y(i,1,1,1)
-        z = dof%z(i,1,1,1)
+       dof => fields%dof(1)
+       u => fields%items(1)%ptr
+       v => fields%items(2)%ptr
+       w => fields%items(3)%ptr
+       do i = 1, fields%item_size(1)
+          x = dof%x(i,1,1,1)
+          y = dof%y(i,1,1,1)
+          z = dof%z(i,1,1,1)
 
-        uvw = channel_ic(x, y, z)
+          uvw = channel_ic(x, y, z)
 
-        fields%items(1)%ptr%x(i,1,1,1) = uvw(1)
-        fields%items(2)%ptr%x(i,1,1,1) = uvw(2)
-        fields%items(3)%ptr%x(i,1,1,1) = uvw(3)
-      end do
+          u%x(i,1,1,1) = uvw(1)
+          v%x(i,1,1,1) = uvw(2)
+          w%x(i,1,1,1) = uvw(3)
+       end do
     end if
   end subroutine initial_conditions
 
