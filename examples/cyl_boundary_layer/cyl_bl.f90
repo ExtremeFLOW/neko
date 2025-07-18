@@ -24,8 +24,8 @@ contains
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
     user%fluid_user_ic => user_ic
-    user%fluid_user_if => user_inflow_eval
-    user%user_dirichlet_update => dirichlet_update
+    !user%user_dirichlet_update => dirichlet_update
+    user%user_dirichlet_update => user_inflow_eval
   end subroutine user_setup
 
   subroutine cylinder_deform(msh)
@@ -63,72 +63,95 @@ contains
     end do
   end subroutine cylinder_gen_curve
 
-  subroutine user_inflow_eval(u, v, w, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, &
-       tstep)
-    real(kind=rp), intent(inout) :: u
-    real(kind=rp), intent(inout) :: v
-    real(kind=rp), intent(inout) :: w
-    real(kind=rp), intent(in) :: x
-    real(kind=rp), intent(in) :: y
-    real(kind=rp), intent(in) :: z
-    real(kind=rp), intent(in) :: nx
-    real(kind=rp), intent(in) :: ny
-    real(kind=rp), intent(in) :: nz
-    integer, intent(in) :: ix
-    integer, intent(in) :: iy
-    integer, intent(in) :: iz
-    integer, intent(in) :: ie
+  !> User-defined dirichlet boundary condition.
+  !! Parameters:
+  !! -----------
+  !! field_bc_list:     List of fields from which the BC conditions will be extracted.
+  !!                    Depending on what is set in the case file, contains either:
+  !!                    (u,v,w), (p) or (s) (or a list of scalars).
+  !! bc:                The BC containing the boundary mask, etc.
+  !! coef:              Coef object.
+  !! t:                 Current time.
+  !! tstep:             Current time step.
+  subroutine user_inflow_eval(dirichlet_field_list, dirichlet_bc, &
+       coef, t, tstep)
+    type(field_list_t), intent(inout) :: dirichlet_field_list
+    type(field_dirichlet_t), intent(in) :: dirichlet_bc
+    type(coef_t), intent(inout) :: coef
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+
     real(kind=rp) :: u_th, dist, th, yy
     real(kind=rp) :: arg
+    type(dofmap_t ), pointer :: dof
+    integer :: i
+    real(kind=rp) :: x, y, z
 
-!   Two different regions (inflow & cyl) have the label 'v  '
-!   Let compute the distance from the (0,0) in the x-y plane
-!   to identify the proper one
-    dist = sqrt(x**2 + z**2)
+    ! Only do this at the first time step since our BCs are constants.
+    if (tstep .ne. 1) return
 
-! --- INFLOW
-    if (dist .gt. 1.1*rad) then
-       u = ucl*y**pw
-    end if
-! ---
+    ! Grab the dofmap from the first field in the list.
+    dof => dirichlet_field_list%dof(1)
 
-    w = 0.0
-    v = 0.0
-! --- SPINNING CYLINDER
+    ! We only have the velocity solver here, so we know the contents of the
+    ! field list.
+    associate(u => dirichlet_field_bc_list%items(1)%ptr, &
+         v => dirichlet_field_bc_list%items(2)%ptr, &
+         w => dirichlet_field_bc_list%items(3)%ptr)
 
-    if (dist .lt. 1.5*rad .and. y .gt. 0.1) then
-       th = atan2(z, x)
-       u = cos(th)*u_rho - sin(th)*u_th2
-       w = sin(th)*u_rho + cos(th)*u_th2
-    end if
+      ! We use the bc mask to loop over the boundary nodes. msk(0) holds the
+      ! number of nodes in the mask, and msk(1:msk(0)) holds the indices.
+      do i = 1, dirichlet_bc%msk(0)
+         x = dof%x(bc%msk(i), 1, 1, 1)
+         y = dof%y(bc%msk(i), 1, 1, 1)
+         z = dof%z(bc%msk(i), 1, 1, 1)
 
-! ---
+         !   Two different regions (inflow & cyl) have the label 'v  '
+         !   Let compute the distance from the (0,0) in the x-y plane
+         !   to identify the proper one
+                  dist = sqrt(x**2 + z**2)
+
+         ! --- INFLOW
+         if (dist .gt. 1.1*rad) then
+            u%x(bc%msk(i),1,1,1) = ucl*y**pw
+         end if
+         ! ---
+
+         w%x(bc%msk(i),1,1,1) = 0.0
+         v%x(bc%msk(i),1,1,1) = 0.0
+
+         ! --- SPINNING CYLINDER
+         if (dist .lt. 1.5*rad .and. y .gt. 0.1) then
+            th = atan2(z, x)
+            u%x(bc%msk(i),1,1,1) = cos(th)*u_rho - sin(th)*u_th2
+            w%x(bc%msk(i),1,1,1) = sin(th)*u_rho + cos(th)*u_th2
+         end if
+
+         ! ---
 
 
-!     Smoothing function for the velocity u_th on the spinning cylinder
-!     to avoid gap in the at the bottom wall
+         !     Smoothing function for the velocity u_th on the spinning cylinder
+         !     to avoid gap in the at the bottom wall
 
-!     u_th is smoothed if z0 < z < delta
-!     u_th=1 if z >= delta
+         !     u_th is smoothed if z0 < z < delta
+         !     u_th=1 if z >= delta
+         yy = y + abs(y0) ! coordinate shift
 
+         if (dist .lt. 1.5*rad) then
+            if (yy .lt. delta) then
+               arg = yy/delta
+               u_th = u_th2/(1.0_rp+exp(1.0_rp/(arg-1.0_rp)+1.0_rp/arg))
+            else
+               u_th = u_th2
+            end if
 
-    yy = y + abs(y0) ! coordinate shift
+            th = atan2(z, x)
 
-    if (dist .lt. 1.5*rad) then
-       if (yy .lt. delta) then
-          arg = yy/delta
-          u_th = u_th2/(1.0_rp+exp(1.0_rp/(arg-1.0_rp)+1.0_rp/arg))
-       else
-          u_th = u_th2
-       end if
-
-       th = atan2(z,x)
-
-       u = cos(th)*u_rho - sin(th)*u_th
-       w = sin(th)*u_rho + cos(th)*u_th
-    end if
+            u%x(i,1,1,1) = cos(th)*u_rho - sin(th)*u_th
+            w%x(i,1,1,1) = sin(th)*u_rho + cos(th)*u_th
+         end if
+      end do
+    end associate
   end subroutine user_inflow_eval
 
   ! User defined initial condition

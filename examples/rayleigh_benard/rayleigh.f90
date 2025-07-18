@@ -11,9 +11,9 @@ contains
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
     user%scalar_user_ic => set_ic
-    user%fluid_user_f_vector => forcing
+    user%source_term => source_term
     user%scalar_user_bc => scalar_bc
-    user%user_startup => startup
+    user%startup => startup
   end subroutine user_setup
 
   subroutine startup(params)
@@ -95,28 +95,31 @@ contains
   end subroutine set_ic
 
   !> Forcing
-  subroutine forcing(f, t)
-    class(fluid_user_source_term_t), intent(inout) :: f
-    real(kind=rp), intent(in) :: t
-    integer :: i
-    type(field_t), pointer :: u, v, w, s
-    real(kind=rp) :: rapr, ta2pr
-    u => neko_field_registry%get_field('u')
-    v => neko_field_registry%get_field('v')
-    w => neko_field_registry%get_field('w')
-    s => neko_field_registry%get_field('temperature')
-    rapr = Ra*Pr
-    ta2pr = ta2*Pr
+  subroutine source_term(scheme_name, rhs, time)
+    character(len=*), intent(in) :: scheme_name
+    type(field_list_t), intent(inout) :: rhs
+    type(time_state_t), intent(in) :: time
 
-    if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
-         .or. (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_cmult2(f%u_d,v%x_d,Ta2Pr,f%dm%size())
-       call device_cmult2(f%v_d,u%x_d,Ta2Pr,f%dm%size())
-       call device_cmult2(f%w_d,s%x_d,rapr,f%dm%size())
-    else
-       call cmult2(f%u,v%x,Ta2Pr,f%dm%size())
-       call cmult2(f%v,u%x,Ta2Pr,f%dm%size())
-       call cmult2(f%w,s%x,rapr,f%dm%size())
+    integer :: i
+    type(field_t), pointer :: u, v, w, s, rhs_u, rhs_v, rhs_w
+    real(kind=rp) :: rapr, ta2pr
+
+    if (scheme_name .eq. 'fluid') then
+       u => neko_field_registry%get_field('u')
+       v => neko_field_registry%get_field('v')
+       w => neko_field_registry%get_field('w')
+       s => neko_field_registry%get_field('temperature')
+
+       rhs_u => rhs%get_by_index(1)
+       rhs_v => rhs%get_by_index(2)
+       rhs_w => rhs%get_by_index(3)
+
+       rapr = Ra*Pr
+       ta2pr = ta2*Pr
+
+       call field_cmult2(rhs_u, v, Ta2Pr)
+       call field_cmult2(rhs_v, u, Ta2Pr)
+       call field_cmult2(rhs_w, s, rapr)
     end if
-  end subroutine forcing
+  end subroutine source_term
 end module user
