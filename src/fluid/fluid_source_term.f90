@@ -99,8 +99,7 @@ contains
     select type (source_term)
     type is (fluid_user_source_term_t)
        call source_term%init_from_components(rhs_fields, coef, type, &
-            user%fluid_user_f_vector, &
-            user%fluid_user_f)
+            user%fluid_user_f_vector)
     end select
   end subroutine fluid_init_user_source
 

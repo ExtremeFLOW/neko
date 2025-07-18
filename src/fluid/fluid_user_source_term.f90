@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -43,11 +43,13 @@ module fluid_user_source_term
   use device_math, only : device_add2
   use math, only : add2
   use dofmap, only : dofmap_t
+  use user_intf, only : user_source_term
+  use time_state, only : time_state_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
 
-  public :: fluid_source_compute_pointwise, fluid_source_compute_vector
+  public :: fluid_source_compute_vector
 
   !> A source-term for the fluid, with procedure pointers pointing to the
   !! actual implementation in the user file.
@@ -58,6 +60,8 @@ module fluid_user_source_term
   !! The user source term does not support init from JSON and should instead be
   !! directly initialized from components.
   type, public, extends(source_term_t) :: fluid_user_source_term_t
+     !> The name of the scheme that owns this source term.
+     character(len=:), allocatable :: scheme_name
      !> Pointer to the dofmap of the right-hand-side fields.
      type(dofmap_t), pointer :: dm
      !> x-component of source term.
@@ -73,11 +77,8 @@ module fluid_user_source_term
      type(c_ptr) :: v_d = C_NULL_PTR
      !> Device pointer for `w`.
      type(c_ptr) :: w_d = C_NULL_PTR
-     !> Compute the source term for a single point
-     procedure(fluid_source_compute_pointwise), nopass, pointer :: compute_pw_ &
-          => null()
      !> Compute the source term for the entire boundary
-     procedure(fluid_source_compute_vector), nopass, pointer :: compute_vector_&
+     procedure(user_source_term), nopass, pointer :: compute_vector_&
           => null()
    contains
      !> Constructor from JSON (will throw!).
@@ -90,40 +91,6 @@ module fluid_user_source_term
      !> Computes the source term and adds the result to `fields`.
      procedure, pass(this) :: compute_ => fluid_user_source_term_compute
   end type fluid_user_source_term_t
-
-  abstract interface
-     !> Computes the source term and adds the result to `fields`.
-     !! @param t The time value.
-     !! @param tstep The current time-step.
-     subroutine fluid_source_compute_vector(this, t)
-       import fluid_user_source_term_t, rp
-       class(fluid_user_source_term_t), intent(inout) :: this
-       real(kind=rp), intent(in) :: t
-     end subroutine fluid_source_compute_vector
-  end interface
-
-  abstract interface
-     !> Computes the source term at a single point.
-     !! @param u The source value of the x component.
-     !! @param v The source value of the v component.
-     !! @param w The source value of the w component.
-     !! @param j The x-index of GLL point.
-     !! @param k The y-index of GLL point.
-     !! @param l The z-index of GLL point.
-     !! @param e The index of element.
-     !! @param t The time value.
-     subroutine fluid_source_compute_pointwise(u, v, w, j, k, l, e, t)
-       import rp
-       real(kind=rp), intent(inout) :: u
-       real(kind=rp), intent(inout) :: v
-       real(kind=rp), intent(inout) :: w
-       integer, intent(in) :: j
-       integer, intent(in) :: k
-       integer, intent(in) :: l
-       integer, intent(in) :: e
-       real(kind=rp), intent(in) :: t
-     end subroutine fluid_source_compute_pointwise
-  end interface
 
 contains
 
@@ -149,18 +116,19 @@ contains
   !! @param sourc_termtype The type of the user source term, "user_vector" or
   !! "user_pointwise".
   !! @param eval_vector The procedure to vector-compute the source term.
-  !! @param eval_pointwise The procedure to pointwise-compute the source term.
   subroutine fluid_user_source_term_init_from_components(this, fields, coef, &
-       source_term_type, eval_vector, eval_pointwise)
+       source_term_type, eval_vector, scheme_name)
     class(fluid_user_source_term_t), intent(inout) :: this
     type(field_list_t), intent(in), target :: fields
     type(coef_t), intent(in), target :: coef
     character(len=*) :: source_term_type
-    procedure(fluid_source_compute_vector), optional :: eval_vector
-    procedure(fluid_source_compute_pointwise), optional :: eval_pointwise
+    procedure(user_source_term), optional :: eval_vector
+    character(len=*), intent(in) :: scheme_name
 
     call this%free()
     call this%init_base(fields, coef, 0.0_rp, huge(0.0_rp))
+
+    this%scheme_name = scheme_name
 
     this%dm => fields%dof(1)
 
@@ -181,16 +149,7 @@ contains
        call device_map(this%w, this%w_d, this%dm%size())
     end if
 
-
-    if (trim(source_term_type) .eq. 'user_pointwise' .and. &
-         present(eval_pointwise)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call neko_error('Pointwise source terms &
-          &not supported on accelerators')
-       end if
-       this%compute_vector_ => pointwise_eval_driver
-       this%compute_pw_ => eval_pointwise
-    else if (trim(source_term_type) .eq. 'user_vector' .and. &
+    if (trim(source_term_type) .eq. 'user_vector' .and. &
          present(eval_vector)) then
        this%compute_vector_ => eval_vector
     else
@@ -218,16 +177,14 @@ contains
   end subroutine fluid_user_source_term_free
 
   !> Computes the source term and adds the result to `fields`.
-  !! @param t The time value.
-  !! @param tstep The current time-step.
-  subroutine fluid_user_source_term_compute(this, t, tstep)
+  !! @param time The time state.
+  subroutine fluid_user_source_term_compute(this, time)
     class(fluid_user_source_term_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     integer :: n
 
-    if (t .ge. this%start_time .and. t .le. this%end_time) then
-       call this%compute_vector_(this, t)
+    if (time.t .ge. this%start_time .and. time.t .le. this%end_time) then
+       call this%compute_vector_(this%scheme_name, this%fields, time)
        n = this%fields%item_size(1)
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -241,37 +198,5 @@ contains
        end if
     end if
   end subroutine fluid_user_source_term_compute
-
-  !> Driver for all pointwise source term evaluatons.
-  !! @param t The time value.
-  subroutine pointwise_eval_driver(this, t)
-    class(fluid_user_source_term_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer :: j, k, l, e
-    integer :: jj, kk, ll, ee
-
-    select type (this)
-    type is (fluid_user_source_term_t)
-       do e = 1, size(this%u, 4)
-          ee = e
-          do l = 1, size(this%u, 3)
-             ll = l
-             do k = 1, size(this%u, 2)
-                kk = k
-                do j = 1, size(this%u, 1)
-                   jj = j
-                   call this%compute_pw_(this%u(j,k,l,e), &
-                        this%v(j,k,l,e), &
-                        this%w(j,k,l,e), &
-                        jj, kk, ll, ee, t)
-                end do
-             end do
-          end do
-       end do
-    class default
-       call neko_error('Incorrect source type in pointwise eval driver!')
-    end select
-
-  end subroutine pointwise_eval_driver
 
 end module fluid_user_source_term

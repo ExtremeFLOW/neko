@@ -135,21 +135,29 @@ module user_intf
      end subroutine user_finalize
   end interface
 
+  !> Abstract interface for user defined source term
+  abstract interface
+     subroutine user_source_term(scheme_name, rhs, time)
+       import rp, time_state_t, field_list_t
+       character(len=*), intent(in) :: scheme_name
+       type(field_list_t), intent(inout) :: rhs
+       type(time_state_t), intent(in) :: time
+     end subroutine
+  end interface
+
   !> Abstract interface for setting material properties.
-  !! @param t Time value.
-  !! @param tstep Current time step.
-  !! @param name The name of the solver calling the routine. By default
+  !! @param scheme_name The name of the scheme calling the routine. By default
   !! "fluid" or "scalar"
   !! @param properties Array of properties, defined by convention for each
   !! scheme.
+  !! @param time The time state, containing the current time and time step.
   !! @param params The JSON configuration of the scheme.
   abstract interface
-     subroutine user_material_properties(t, tstep, name, properties)
-       import rp, field_list_t
-       real(kind=rp), intent(in) :: t
-       integer, intent(in) :: tstep
-       character(len=*), intent(in) :: name
+     subroutine user_material_properties(scheme_name, properties, time)
+       import rp, field_list_t, time_state_t
+       character(len=*), intent(in) :: scheme_name
        type(field_list_t), intent(inout) :: properties
+       type(time_state_t), intent(in) :: time
      end subroutine user_material_properties
   end interface
 
@@ -185,15 +193,12 @@ module user_intf
      !! place to run `free()` on user-allocated objects.
      procedure(user_finalize), nopass, pointer :: &
           finalize => null()
-     !> User forcing for the fluid, pointwise interface.
-     procedure(fluid_source_compute_pointwise), nopass, pointer :: &
-          fluid_user_f => null()
+     !> User source term interface.
+     procedure(user_source_term), nopass, pointer :: &
+          source_term => null()
      !> User forcing for the fluid, field (vector) interface.
      procedure(fluid_source_compute_vector), nopass, pointer :: &
           fluid_user_f_vector => null()
-     !> User forcing for the scalar, pointwise interface.
-     procedure(scalar_source_compute_pointwise), nopass, pointer :: &
-          scalar_user_f => null()
      !> User forcing for the scalar, field (vector) interface.
      procedure(scalar_source_compute_vector), nopass, pointer :: &
           scalar_user_f_vector => null()
@@ -217,7 +222,7 @@ module user_intf
 
   public :: useric, useric_scalar, useric_compressible, &
        user_initialize, user_mesh_setup, dummy_user_material_properties, &
-       user_material_properties, user_startup
+       user_material_properties, user_startup, user_source_term
 contains
 
   !> Constructor.
@@ -415,19 +420,6 @@ contains
     call neko_error('Dummy user defined vector valued forcing set')
   end subroutine dummy_user_f_vector
 
-  !> Dummy user (fluid) forcing
-  subroutine dummy_user_f(u, v, w, j, k, l, e, t)
-    real(kind=rp), intent(inout) :: u
-    real(kind=rp), intent(inout) :: v
-    real(kind=rp), intent(inout) :: w
-    integer, intent(in) :: j
-    integer, intent(in) :: k
-    integer, intent(in) :: l
-    integer, intent(in) :: e
-    real(kind=rp), intent(in) :: t
-    call neko_error('Dummy user defined forcing set')
-  end subroutine dummy_user_f
-
   !> Dummy user (scalar) forcing
   subroutine dummy_user_scalar_f_vector(field_name, f, t)
     character(len=*), intent(in) :: field_name
@@ -436,17 +428,12 @@ contains
     call neko_error('Dummy user defined vector valued forcing set')
   end subroutine dummy_user_scalar_f_vector
 
-  !> Dummy user (scalar) forcing
-  subroutine dummy_scalar_user_f(field_name, s, j, k, l, e, t)
-    character(len=*), intent(in) :: field_name
-    real(kind=rp), intent(inout) :: s
-    integer, intent(in) :: j
-    integer, intent(in) :: k
-    integer, intent(in) :: l
-    integer, intent(in) :: e
-    real(kind=rp), intent(in) :: t
+  !> Dummy user forcing
+  subroutine dummy_user_source(f, time)
+    class(fluid_user_source_term_t), intent(inout) :: f
+    type(time_state_t), intent(in) :: time
     call neko_error('Dummy user defined forcing set')
-  end subroutine dummy_scalar_user_f
+  end subroutine dummy_user_source
 
   !> Dummy user mesh apply
   subroutine dummy_user_mesh_setup(time, msh)
