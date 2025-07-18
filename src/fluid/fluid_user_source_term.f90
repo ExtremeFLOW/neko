@@ -30,8 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Implements the `fluid_user_source_term_t` type.
-module fluid_user_source_term
+!> Implements the `user_source_term_t` type.
+module user_source_term
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use utils, only : neko_error
@@ -41,7 +41,7 @@ module fluid_user_source_term
   use coefs, only : coef_t
   use device, only : device_map, device_free
   use device_math, only : device_add2
-  use math, only : add2
+  use field_math, only : field_add2
   use dofmap, only : dofmap_t
   use user_intf, only : user_source_term
   use time_state, only : time_state_t
@@ -49,43 +49,34 @@ module fluid_user_source_term
   implicit none
   private
 
-  !> A source-term for the fluid, with procedure pointers pointing to the
-  !! actual implementation in the user file.
+  !> A source term wrapping the user source term routine.
+  !! Stores fields that are passed to the user routine so tha the user routine
+  !! never touches the actual RHS fields directly.
   !! @warning
   !! The user source term does not support init from JSON and should instead be
   !! directly initialized from components.
-  type, public, extends(source_term_t) :: fluid_user_source_term_t
+  type, public, extends(source_term_t) :: user_source_term_t
      !> The name of the scheme that owns this source term.
      character(len=:), allocatable :: scheme_name
      !> Pointer to the dofmap of the right-hand-side fields.
-     type(dofmap_t), pointer :: dm
-     !> x-component of source term.
-     real(kind=rp), allocatable :: u(:, :, :, :)
-     !> y-component of source term.
-     real(kind=rp), allocatable :: v(:, :, :, :)
-     !> z-component of source term.
-     real(kind=rp), allocatable :: w(:, :, :, :)
-
-     !> Device pointer for `u`.
-     type(c_ptr) :: u_d = C_NULL_PTR
-     !> Device pointer for `v`.
-     type(c_ptr) :: v_d = C_NULL_PTR
-     !> Device pointer for `w`.
-     type(c_ptr) :: w_d = C_NULL_PTR
+     type(dofmap_t), pointer :: dof
+     !> Field list passed to the user source term routine. The values are then
+     !! added to this%fields, i.e. the actual RHS.
+     type(field_list_t) :: user_fields
      !> Compute the source term for the entire boundary
      procedure(user_source_term), nopass, pointer :: compute_user_ &
           => null()
    contains
      !> Constructor from JSON (will throw!).
-     procedure, pass(this) :: init => fluid_user_source_term_init
+     procedure, pass(this) :: init => user_source_term_init
      !> Constructor from components.
      procedure, pass(this) :: init_from_components => &
-          fluid_user_source_term_init_from_components
+          user_source_term_init_from_components
      !> Destructor.
-     procedure, pass(this) :: free => fluid_user_source_term_free
+     procedure, pass(this) :: free => user_source_term_free
      !> Computes the source term and adds the result to `fields`.
-     procedure, pass(this) :: compute_ => fluid_user_source_term_compute
-  end type fluid_user_source_term_t
+     procedure, pass(this) :: compute_ => user_source_term_compute
+  end type user_source_term_t
 
 contains
 
@@ -93,9 +84,9 @@ contains
   !! @details
   !! This will throw, as the user source term should be initialized directly
   !! from components.
-  subroutine fluid_user_source_term_init(this, json, fields, coef, &
+  subroutine user_source_term_init(this, json, fields, coef, &
        variable_name)
-    class(fluid_user_source_term_t), intent(inout) :: this
+    class(user_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_list_t), intent(in), target :: fields
     type(coef_t), intent(in), target :: coef
@@ -103,89 +94,67 @@ contains
 
     call neko_error("The user fluid source term should be init from components")
 
-  end subroutine fluid_user_source_term_init
+  end subroutine user_source_term_init
 
   !> Costructor from components.
   !! @param fields A list of 3 fields for adding the source values.
   !! @param coef The SEM coeffs.
   !! @param user_proc The procedure user procedure to compute the source term.
   !! @param scheme_name The name of the scheme that owns this source term.
-  subroutine fluid_user_source_term_init_from_components(this, fields, coef, &
+  subroutine user_source_term_init_from_components(this, fields, coef, &
        user_proc, scheme_name)
-    class(fluid_user_source_term_t), intent(inout) :: this
+    class(user_source_term_t), intent(inout) :: this
     type(field_list_t), intent(in), target :: fields
     type(coef_t), intent(in), target :: coef
     procedure(user_source_term) :: user_proc
     character(len=*), intent(in) :: scheme_name
+    integer :: i
 
     call this%free()
     call this%init_base(fields, coef, 0.0_rp, huge(0.0_rp))
 
     this%scheme_name = scheme_name
+    this%dof => fields%dof(1)
 
-    this%dm => fields%dof(1)
+    call this%user_fields%init(3)
 
-    allocate(this%u(this%dm%Xh%lx, this%dm%Xh%ly, this%dm%Xh%lz, &
-         this%dm%msh%nelv))
-    allocate(this%v(this%dm%Xh%lx, this%dm%Xh%ly, this%dm%Xh%lz, &
-         this%dm%msh%nelv))
-    allocate(this%w(this%dm%Xh%lx, this%dm%Xh%ly, this%dm%Xh%lz, &
-         this%dm%msh%nelv))
-
-    this%u = 0d0
-    this%v = 0d0
-    this%w = 0d0
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(this%u, this%u_d, this%dm%size())
-       call device_map(this%v, this%v_d, this%dm%size())
-       call device_map(this%w, this%w_d, this%dm%size())
-    end if
+    do i = 1, this%fields%size()
+       call this%user_fields%items(i)%ptr%init(this%dof)
+    end do
 
     this%compute_user_ => user_proc
-  end subroutine fluid_user_source_term_init_from_components
+  end subroutine user_source_term_init_from_components
 
   !> Destructor.
-  subroutine fluid_user_source_term_free(this)
-    class(fluid_user_source_term_t), intent(inout) :: this
+  subroutine user_source_term_free(this)
+    class(user_source_term_t), intent(inout) :: this
 
-    if (allocated(this%u)) deallocate(this%u)
-    if (allocated(this%v)) deallocate(this%v)
-    if (allocated(this%w)) deallocate(this%w)
-
-    if (c_associated(this%u_d)) call device_free(this%u_d)
-    if (c_associated(this%v_d)) call device_free(this%v_d)
-    if (c_associated(this%w_d)) call device_free(this%w_d)
+    call this%user_fields%free()
 
     if (allocated(this%scheme_name)) deallocate(this%scheme_name)
 
     nullify(this%compute_user_)
-    nullify(this%dm)
+    nullify(this%dof)
 
     call this%free_base()
-  end subroutine fluid_user_source_term_free
+  end subroutine user_source_term_free
 
   !> Computes the source term and adds the result to `fields`.
   !! @param time The time state.
-  subroutine fluid_user_source_term_compute(this, time)
-    class(fluid_user_source_term_t), intent(inout) :: this
+  subroutine user_source_term_compute(this, time)
+    class(user_source_term_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
-    integer :: n
+    integer :: i
 
     if (time%t .ge. this%start_time .and. time%t .le. this%end_time) then
        call this%compute_user_(this%scheme_name, this%fields, time)
-       n = this%fields%item_size(1)
 
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_add2(this%fields%x_d(1), this%u_d, n)
-          call device_add2(this%fields%x_d(2), this%v_d, n)
-          call device_add2(this%fields%x_d(3), this%w_d, n)
-       else
-          call add2(this%fields%items(1)%ptr%x, this%u, n)
-          call add2(this%fields%items(2)%ptr%x, this%v, n)
-          call add2(this%fields%items(3)%ptr%x, this%w, n)
-       end if
+       do i = 1, this%fields%size()
+          call this%user_fields%items(i)%ptr%init(this%dof)
+          call field_add2(this%fields%items(i)%ptr, &
+                this%user_fields%items(i)%ptr)
+       end do
     end if
-  end subroutine fluid_user_source_term_compute
+  end subroutine user_source_term_compute
 
-end module fluid_user_source_term
+end module user_source_term

@@ -248,7 +248,7 @@ neko_fortran_SOURCES = \
 	fluid/bcknd/cpu/euler_res_cpu.f90\
 	fluid/bcknd/sx/euler_res_sx.f90\
 	fluid/bcknd/device/euler_res_device.F90\
-	fluid/fluid_user_source_term.f90\
+	fluid/user_source_term.f90\
 	fluid/fluid_source_term.f90\
 	common/time_step_controller.f90\
 	simulation.f90\
@@ -303,7 +303,6 @@ neko_fortran_SOURCES = \
 	scalar/scalar_residual_fctry.f90\
 	scalar/scalar_ic.f90\
 	scalar/scalar_source_term.f90\
-	scalar/scalar_user_source_term.f90\
 	scalar/bcknd/cpu/scalar_residual_cpu.f90\
 	scalar/bcknd/sx/scalar_residual_sx.f90\
 	scalar/source_scalar.f90\

@@ -33,7 +33,7 @@
 !
 !> Implements the `scalar_source_term_t` type.
 module scalar_source_term
-  use scalar_user_source_term, only: scalar_user_source_term_t
+  use user_source_term, only: user_source_term_t
   use source_term, only: source_term_t
   use source_term_handler, only: source_term_handler_t
   use field, only: field_t
@@ -90,10 +90,10 @@ contains
     type(user_t), intent(in) :: user
     character(len=*), intent(in) :: scheme_name
 
-    allocate(scalar_user_source_term_t::source_term)
+    allocate(user_source_term_t::source_term)
 
     select type (source_term)
-    type is (scalar_user_source_term_t)
+    type is (user_source_term_t)
        call source_term%init_from_components(rhs_fields, coef, &
             user%source_term, scheme_name)
     end select
