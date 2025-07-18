@@ -48,7 +48,7 @@ module fluid_scheme_base
   use time_scheme_controller, only : time_scheme_controller_t
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   use time_step_controller, only : time_step_controller_t
-  use user_intf, only : user_t, user_material_properties
+  use user_intf, only : user_t, user_material_properties_intf
   use usr_inflow, only : usr_inflow_eval
   use utils, only : neko_error
   use bc_list, only : bc_list_t
@@ -112,7 +112,7 @@ module fluid_scheme_base
      logical :: freeze = .false.
 
      !> User material properties routine
-     procedure(user_material_properties), nopass, pointer :: &
+     procedure(user_material_properties_intf), nopass, pointer :: &
           user_material_properties => null()
 
    contains

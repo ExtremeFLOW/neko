@@ -43,7 +43,7 @@ module user_source_term
   use device_math, only : device_add2
   use field_math, only : field_add2
   use dofmap, only : dofmap_t
-  use user_intf, only : user_source_term
+  use user_intf, only : user_source_term_intf
   use time_state, only : time_state_t
   use, intrinsic :: iso_c_binding
   implicit none
@@ -64,7 +64,7 @@ module user_source_term
      !! added to this%fields, i.e. the actual RHS.
      type(field_list_t) :: user_fields
      !> Compute the source term for the entire boundary
-     procedure(user_source_term), nopass, pointer :: compute_user_ &
+     procedure(user_source_term_intf), nopass, pointer :: compute_user_ &
           => null()
    contains
      !> Constructor from JSON (will throw!).
@@ -106,7 +106,7 @@ contains
     class(user_source_term_t), intent(inout) :: this
     type(field_list_t), intent(in), target :: fields
     type(coef_t), intent(in), target :: coef
-    procedure(user_source_term) :: user_proc
+    procedure(user_source_term_intf) :: user_proc
     character(len=*), intent(in) :: scheme_name
     integer :: i
 

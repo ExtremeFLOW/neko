@@ -69,7 +69,7 @@ module fluid_scheme_incompressible
   use json_module, only : json_file, json_core, json_value
   use scratch_registry, only : scratch_registry_t
   use user_intf, only : user_t, dummy_user_material_properties, &
-       user_material_properties
+       user_material_properties_intf
   use utils, only : neko_error, neko_warning
   use field_series, only : field_series_t
   use time_step_controller, only : time_step_controller_t
@@ -606,7 +606,7 @@ contains
     type(user_t), target, intent(in) :: user
     character(len=LOG_SIZE) :: log_buf
     ! A local pointer that is needed to make Intel happy
-    procedure(user_material_properties), pointer :: dummy_mp_ptr
+    procedure(user_material_properties_intf), pointer :: dummy_mp_ptr
     logical :: nondimensional
     real(kind=rp) :: dummy_lambda, dummy_cp
     real(kind=rp) :: const_mu, const_rho

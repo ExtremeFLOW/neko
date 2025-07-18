@@ -62,7 +62,7 @@ module scalar_scheme
        json_extract_object
   use json_module, only : json_file
   use user_intf, only : user_t, dummy_user_material_properties, &
-       user_material_properties
+       user_material_properties_intf
   use utils, only : neko_error, neko_warning
   use comm, only: NEKO_COMM, MPI_INTEGER, MPI_SUM
   use scalar_source_term, only : scalar_source_term_t
@@ -137,7 +137,7 @@ module scalar_scheme
      real(kind=rp) :: pr_turb
      !> Field list with cp and lambda
      type(field_list_t) :: material_properties
-     procedure(user_material_properties), nopass, pointer :: &
+     procedure(user_material_properties_intf), nopass, pointer :: &
           user_material_properties => null()
    contains
      !> Constructor for the base type.
@@ -514,7 +514,7 @@ contains
     type(user_t), target, intent(in) :: user
     character(len=LOG_SIZE) :: log_buf
     ! A local pointer that is needed to make Intel happy
-    procedure(user_material_properties), pointer :: dummy_mp_ptr
+    procedure(user_material_properties_intf), pointer :: dummy_mp_ptr
     real(kind=rp) :: const_cp, const_lambda
     ! Dummy time state set to 0
     type(time_state_t) :: time

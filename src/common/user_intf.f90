@@ -53,10 +53,10 @@ module user_intf
 
   !> Abstract interface for a user start-up routine
   abstract interface
-     subroutine user_startup(params)
+     subroutine user_startup_intf(params)
        import json_file
        type(json_file), intent(inout) :: params
-     end subroutine user_startup
+     end subroutine user_startup_intf
   end interface
 
   !> Abstract interface for user defined initial conditions
@@ -98,47 +98,47 @@ module user_intf
 
   !> Abstract interface for initilialization of modules
   abstract interface
-     subroutine user_initialize(time)
+     subroutine user_initialize_intf(time)
        import time_state_t
        type(time_state_t), intent(in) :: time
-     end subroutine user_initialize
+     end subroutine user_initialize_intf
   end interface
 
   !> Abstract interface for user defined mesh deformation functions
   abstract interface
-     subroutine user_mesh_setup(time, msh)
+     subroutine user_mesh_setup_intf(time, msh)
        import mesh_t
        import time_state_t
        type(time_state_t), intent(in) :: time
        type(mesh_t), intent(inout) :: msh
-     end subroutine user_mesh_setup
+     end subroutine user_mesh_setup_intf
   end interface
 
   !> Abstract interface for user defined check functions
   abstract interface
-     subroutine user_compute(time)
+     subroutine user_compute_intf(time)
        import time_state_t
        type(time_state_t), intent(in) :: time
-     end subroutine user_compute
+     end subroutine user_compute_intf
   end interface
 
   !> Abstract interface for finalizating user variables
   abstract interface
-     subroutine user_finalize(time)
+     subroutine user_finalize_intf(time)
        import json_file
        import time_state_t
        type(time_state_t), intent(in) :: time
-     end subroutine user_finalize
+     end subroutine user_finalize_intf
   end interface
 
   !> Abstract interface for user defined source term
   abstract interface
-     subroutine user_source_term(scheme_name, rhs, time)
+     subroutine user_source_term_intf(scheme_name, rhs, time)
        import rp, time_state_t, field_list_t
        character(len=*), intent(in) :: scheme_name
        type(field_list_t), intent(inout) :: rhs
        type(time_state_t), intent(in) :: time
-     end subroutine user_source_term
+     end subroutine user_source_term_intf
   end interface
 
   !> Abstract interface for setting material properties.
@@ -149,12 +149,12 @@ module user_intf
   !! @param time The time state, containing the current time and time step.
   !! @param params The JSON configuration of the scheme.
   abstract interface
-     subroutine user_material_properties(scheme_name, properties, time)
+     subroutine user_material_properties_intf(scheme_name, properties, time)
        import rp, field_list_t, time_state_t
        character(len=*), intent(in) :: scheme_name
        type(field_list_t), intent(inout) :: properties
        type(time_state_t), intent(in) :: time
-     end subroutine user_material_properties
+     end subroutine user_material_properties_intf
   end interface
 
   !> A type collecting all the overridable user routines and flag to suppress
@@ -167,10 +167,10 @@ module user_intf
      logical :: suppress_type_injection = .false.
      !> Run as soon as the case file is read, with nothing else initialized.
      !! Use to manipulate the case file, and define custom parameters.
-     procedure(user_startup), nopass, pointer :: startup => null()
+     procedure(user_startup_intf), nopass, pointer :: startup => null()
      !> Run after the entire case is initialized and restarted, but before the
      !! time loop. Good place to create auxillary fields, etc.
-     procedure(user_initialize), nopass, pointer :: initialize => null()
+     procedure(user_initialize_intf), nopass, pointer :: initialize => null()
      !> Compute user initial conditions for the incompressible fluid.
      procedure(useric), nopass, pointer :: fluid_user_ic => null()
      !> Compute user initial conditions for the compressible fluid.
@@ -179,25 +179,25 @@ module user_intf
      !> Compute user initial conditions for the scalar.
      procedure(useric_scalar), nopass, pointer :: scalar_user_ic => null()
      !> Run right after reading the mesh and allows to manipulate it.
-     procedure(user_mesh_setup), nopass, pointer :: mesh_setup => null()
+     procedure(user_mesh_setup_intf), nopass, pointer :: mesh_setup => null()
      !> Run at the start of each time-step in the time loop.
-     procedure(user_compute), nopass, pointer :: preprocess => null()
+     procedure(user_compute_intf), nopass, pointer :: preprocess => null()
      !> Run at the end of each time-step in the time loop, right before field
      !! output to disk.
-     procedure(user_compute), nopass, pointer :: compute => null()
+     procedure(user_compute_intf), nopass, pointer :: compute => null()
      !> Runs in the end of the simulation, after the last output. Mean as a
      !! place to run `free()` on user-allocated objects.
-     procedure(user_finalize), nopass, pointer :: &
+     procedure(user_finalize_intf), nopass, pointer :: &
           finalize => null()
      !> User source term interface.
-     procedure(user_source_term), nopass, pointer :: &
+     procedure(user_source_term_intf), nopass, pointer :: &
           source_term => null()
      !> User boundary condition for the fluid or the scalar, field interface
      !! (much more powerful than pointwise in terms of what can be done).
      procedure(field_dirichlet_update), nopass, pointer :: &
           user_dirichlet_update => null()
      !> Routine to set material properties.
-     procedure(user_material_properties), nopass, pointer :: &
+     procedure(user_material_properties_intf), nopass, pointer :: &
           material_properties => null()
    contains
      !> Constructor that points non-associated routines to dummy ones.
@@ -211,8 +211,9 @@ module user_intf
   end type user_t
 
   public :: useric, useric_scalar, useric_compressible, &
-       user_initialize, user_mesh_setup, dummy_user_material_properties, &
-       user_material_properties, user_startup, user_source_term
+       user_initialize_intf, user_mesh_setup_intf, &
+       dummy_user_material_properties, user_material_properties_intf, &
+       user_startup_intf, user_source_term_intf
 contains
 
   !> Constructor.
