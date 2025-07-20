@@ -16,16 +16,17 @@ contains
   ! Register user-defined functions (see user_intf.f90)
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
-    user%fluid_user_ic => user_ic
-    user%user_mesh_setup => user_mesh_scale
-    user%user_check => user_calc_quantities
-    user%user_init_modules => user_initialize
-    user%user_finalize_modules => user_finalize
+    user%initial_conditions => initial_conditions
+    user%mesh_setup => user_mesh_scale
+    user%compute => user_calc_quantities
+    user%initialize => user_initialize
+    user%finalize => user_finalize
   end subroutine user_setup
 
   ! Rescale mesh
-  subroutine user_mesh_scale(msh)
+  subroutine user_mesh_scale(msh, time)
     type(mesh_t), intent(inout) :: msh
+    type(time_state_t), intent(in) :: time
     integer :: i, p, nvert
     real(kind=rp) :: d
     d = 4._rp
@@ -42,25 +43,30 @@ contains
   end subroutine user_mesh_scale
 
   ! User-defined initial condition
-  subroutine user_ic(u, v, w, p, params)
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    type(json_file), intent(inout) :: params
+  subroutine initial_conditions(scheme_name, fields)
+    character(len=*), intent(in) :: scheme_name
+    type(field_list_t), intent(inout) :: fields
     integer :: i, ntot
     real(kind=rp) :: uvw(3)
+    type(dofmap_t), pointer :: dof
+    type (field_t), pointer :: u, v, w, p
 
-    ! u%dof%size() gives the total number of collocation points per rank
-    ntot = u%dof%size()
+    dof => fields%dof(1)
+    u => fields%items(1)%ptr
+    v => fields%items(2)%ptr
+    w => fields%items(3)%ptr
+    p => fields%items(4)%ptr
+
+    ntot = dof%size()
     do i = 1, ntot
        uvw = tgv_ic(u%dof%x(i,1,1,1),u%dof%y(i,1,1,1),u%dof%z(i,1,1,1))
        u%x(i,1,1,1) = uvw(1)
        v%x(i,1,1,1) = uvw(2)
        w%x(i,1,1,1) = uvw(3)
     end do
-    p = 0._rp
-  end subroutine user_ic
+
+    call field_rzero(p)
+  end subroutine initial_conditions
 
   function tgv_ic(x, y, z) result(uvw)
     real(kind=rp) :: x, y, z
@@ -73,62 +79,54 @@ contains
   end function tgv_ic
 
   ! User-defined initialization called just before time loop starts
-  subroutine user_initialize(t, u, v, w, p, coef, params)
+  subroutine user_initialize(time)
+    type(time_state_t), intent(in) :: time
     real(kind=rp) :: t
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    type(coef_t), intent(inout) :: coef
-    type(json_file), intent(inout) :: params
+    type(field_t), pointer :: u
 
-    real(kind=rp) dt
-    integer tstep
+    u => neko_field_registry%get_field('u')
 
     ! initialize work arrays for postprocessing
     call w1%init(u%dof, 'work1')
 
     ! call usercheck also for tstep=0
-    tstep = 0
-    call user_calc_quantities(t, tstep, u, v, w, p, coef, params)
+    call user_calc_quantities(time)
 
   end subroutine user_initialize
- 
+
   ! User-defined routine called at the end of every time step
-  subroutine user_calc_quantities(t, tstep, u, v, w, p, coef, params)
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    type(coef_t), intent(inout) :: coef
-    type(json_file), intent(inout) :: params
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    type(field_t), pointer :: omega_x, omega_y, omega_z
+  subroutine user_calc_quantities(time)
+    type(time_state_t), intent(in) :: time
+
+    type(field_t), pointer :: omega_x, omega_y, omega_z, u, v, w
     integer :: ntot, i
     real(kind=rp) :: vv, sum_e1(1), e1, e2, sum_e2(1), oo, e3
+    type(coef_t), pointer :: coef
 
-    if (mod(tstep, 50) .ne. 0) return
+    if (mod(time%tstep, 50) .ne. 0) return
+
+    coef => neko_user_access%case%fluid%c_Xh
+    u => neko_field_registry%get_field('u')
+    v => neko_field_registry%get_field('v')
+    w => neko_field_registry%get_field('w')
 
     omega_x => neko_field_registry%get_field("omega_x")
     omega_y => neko_field_registry%get_field("omega_y")
     omega_z => neko_field_registry%get_field("omega_z")
 
-    ntot = u%dof%size()
-
-!    Option 1:    
+!    Option 1:
 !    sum_e1 = 0._rp
 !    sum_e2 = 0._rp
 !    do i = 1, ntot
 !       vv = u%x(i,1,1,1)**2 + v%x(i,1,1,1)**2 + w%x(i,1,1,1)**2
-!       oo = om1%x(i,1,1,1)**2 + om2%x(i,1,1,1)**2 + om3%x(i,1,1,1)**2 
-!       sum_e1 = sum_e1 + vv*coef%B(i,1,1,1) 
-!       sum_e2 = sum_e2 + oo*coef%B(i,1,1,1) 
+!       oo = om1%x(i,1,1,1)**2 + om2%x(i,1,1,1)**2 + om3%x(i,1,1,1)**2
+!       sum_e1 = sum_e1 + vv*coef%B(i,1,1,1)
+!       sum_e2 = sum_e2 + oo*coef%B(i,1,1,1)
 !    end do
 !    e1 = 0.5 * glsum(sum_e1,1) / coef%volume
 !    e2 = 0.5 * glsum(sum_e2,1) / coef%volume
 
-!    Option 2:    
+!    Option 2:
 !    do i = 1, ntot
 !       w1%x(i,1,1,1) = u%x(i,1,1,1)**2 + v%x(i,1,1,1)**2 + w%x(i,1,1,1)**2
 !       w2%x(i,1,1,1) = om1%x(i,1,1,1)**2 + om2%x(i,1,1,1)**2 + om3%x(i,1,1,1)**2
@@ -143,42 +141,37 @@ contains
 !    e2 = 0.5 * glsc2(w2%x,coef%B,ntot) / coef%volume
 
 !    Option 4:
+
+    call field_col3(w1, u, u)
+    call field_addcol3(w1, v, v)
+    call field_addcol3(w1, w, w)
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_col3(w1%x_d, u%x_d, u%x_d, ntot)
-       call device_addcol3(w1%x_d, v%x_d, v%x_d, ntot)
-       call device_addcol3(w1%x_d, w%x_d, w%x_d, ntot)
-       e1 = 0.5 * device_glsc2(w1%x_d, coef%B_d, ntot) / coef%volume
-       
-       call device_col3(w1%x_d, omega_x%x_d, omega_x%x_d, ntot)
-       call device_addcol3(w1%x_d, omega_y%x_d, omega_y%x_d, ntot)
-       call device_addcol3(w1%x_d, omega_z%x_d, omega_z%x_d, ntot)
-       e2 = 0.5 * device_glsc2(w1%x_d, coef%B_d, ntot) / coef%volume
+      e1 = 0.5 * device_glsc2(w1%x_d, coef%B_d, w1%size()) / coef%volume
     else
-       call col3(w1%x, u%x, u%x, ntot)
-       call addcol3(w1%x, v%x, v%x, ntot)
-       call addcol3(w1%x, w%x, w%x, ntot)
-       e1 = 0.5 * glsc2(w1%x, coef%B, ntot) / coef%volume
-       
-       call col3(w1%x, omega_x%x, omega_x%x, ntot)
-       call addcol3(w1%x, omega_y%x, omega_y%x, ntot)
-       call addcol3(w1%x, omega_z%x, omega_z%x, ntot)
-       e2 = 0.5 * glsc2(w1%x, coef%B, ntot) / coef%volume
+      e1 = 0.5 * glsc2(w1%x, coef%B, w1%size()) / coef%volume
     end if
-      
+    call field_col3(w1, omega_x, omega_x)
+    call field_addcol3(w1, omega_y, omega_y)
+    call field_addcol3(w1, omega_z, omega_z)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+
+      e2 = 0.5 * device_glsc2(w1%x_d, coef%B_d, w1%size()) / coef%volume
+    else
+      e2 = 0.5 * glsc2(w1%x, coef%B, w1%size()) / coef%volume
+    end if
+
     if (pe_rank .eq. 0) &
          &  write(*,'(a,e18.9,a,e18.9,a,e18.9)') &
-         &  'POST: t:', t, ' Ekin:', e1, ' enst:', e2
-    
+         &  'POST: t:', time%t, ' Ekin:', e1, ' enst:', e2
+
   end subroutine user_calc_quantities
 
   ! User-defined finalization routine called at the end of the simulation
-  subroutine user_finalize(t, params)
-    real(kind=rp) :: t
-    type(json_file), intent(inout) :: params
+  subroutine user_finalize(time)
+       type(time_state_t), intent(in) :: time
 
     ! Deallocate the fields
     call w1%free()
-
   end subroutine user_finalize
 
 end module user
