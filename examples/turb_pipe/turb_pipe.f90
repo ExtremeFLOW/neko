@@ -7,25 +7,32 @@ contains
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
-    user%fluid_user_ic => user_ic
+    user%initial_conditions => initial_conditions
   end subroutine user_setup
-  ! User defined initial condition
-  subroutine user_ic(u, v, w, p, params)
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    type(json_file), intent(inout) :: params
-    integer :: i
-    real(kind=rp) :: uvw(3)
 
-    do i = 1, u%dof%size()
-       uvw = pipe_ic(u%dof%x(i,1,1,1), u%dof%y(i,1,1,1), u%dof%z(i,1,1,1))
+  ! User defined initial condition
+  subroutine initial_conditions(scheme_name, fields)
+    character(len=*), intent(in) :: scheme_name
+    type(field_list_t), intent(inout) :: fields
+    integer :: i
+    real(kind=rp) :: uvw(3), x, y, z
+    type (field_t), pointer :: u, v, w
+
+    u => fields%items(1)%ptr
+    v => fields%items(2)%ptr
+    w => fields%items(3)%ptr
+
+    do i = 1, u%size()
+       x = u%dof%x(i,1,1,1)
+       y = u%dof%y(i,1,1,1)
+       z = u%dof%z(i,1,1,1)
+       uvw = pipe_ic(x, y, z)
+
        u%x(i,1,1,1) = uvw(1)
        v%x(i,1,1,1) = uvw(2)
        w%x(i,1,1,1) = uvw(3)
     end do
-  end subroutine user_ic
+  end subroutine initial_conditions
 
   function pipe_ic(x, y, z) result(uvw)
     real(kind=rp) :: x, y, z

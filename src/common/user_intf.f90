@@ -84,9 +84,9 @@ module user_intf
   !! @param mesh The mesh to be modified.
   !! @param time The time state.
   abstract interface
-     subroutine user_mesh_setup_intf(mesh, time)
+     subroutine user_mesh_setup_intf(msh, time)
        import mesh_t, time_state_t
-       type(mesh_t), intent(inout) :: mesh
+       type(mesh_t), intent(inout) :: msh
        type(time_state_t), intent(in) :: time
      end subroutine user_mesh_setup_intf
   end interface

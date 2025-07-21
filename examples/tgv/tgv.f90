@@ -73,9 +73,9 @@ contains
     real(kind=rp) :: ux, uy, uz
     real(kind=rp) :: uvw(3)
 
-    uvw(1)   = sin(x)*cos(y)*cos(z)
-    uvw(2)   = -cos(x)*sin(y)*cos(z)
-    uvw(3)   = 0._rp
+    uvw(1) = sin(x)*cos(y)*cos(z)
+    uvw(2) = -cos(x)*sin(y)*cos(z)
+    uvw(3) = 0._rp
   end function tgv_ic
 
   ! User-defined initialization called just before time loop starts
@@ -146,29 +146,29 @@ contains
     call field_addcol3(w1, v, v)
     call field_addcol3(w1, w, w)
     if (NEKO_BCKND_DEVICE .eq. 1) then
-      e1 = 0.5 * device_glsc2(w1%x_d, coef%B_d, w1%size()) / coef%volume
+       e1 = 0.5 * device_glsc2(w1%x_d, coef%B_d, w1%size()) / coef%volume
     else
-      e1 = 0.5 * glsc2(w1%x, coef%B, w1%size()) / coef%volume
+       e1 = 0.5 * glsc2(w1%x, coef%B, w1%size()) / coef%volume
     end if
     call field_col3(w1, omega_x, omega_x)
     call field_addcol3(w1, omega_y, omega_y)
     call field_addcol3(w1, omega_z, omega_z)
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
-      e2 = 0.5 * device_glsc2(w1%x_d, coef%B_d, w1%size()) / coef%volume
+       e2 = 0.5 * device_glsc2(w1%x_d, coef%B_d, w1%size()) / coef%volume
     else
-      e2 = 0.5 * glsc2(w1%x, coef%B, w1%size()) / coef%volume
+       e2 = 0.5 * glsc2(w1%x, coef%B, w1%size()) / coef%volume
     end if
 
     if (pe_rank .eq. 0) &
-         &  write(*,'(a,e18.9,a,e18.9,a,e18.9)') &
-         &  'POST: t:', time%t, ' Ekin:', e1, ' enst:', e2
+    & write(*,'(a,e18.9,a,e18.9,a,e18.9)') &
+    & 'POST: t:', time%t, ' Ekin:', e1, ' enst:', e2
 
   end subroutine user_calc_quantities
 
   ! User-defined finalization routine called at the end of the simulation
   subroutine user_finalize(time)
-       type(time_state_t), intent(in) :: time
+    type(time_state_t), intent(in) :: time
 
     ! Deallocate the fields
     call w1%free()
