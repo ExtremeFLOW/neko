@@ -119,6 +119,7 @@ contains
     call this%user_fields%init(3)
 
     do i = 1, this%fields%size()
+       allocate(this%user_fields%items(i)%ptr)
        call this%user_fields%items(i)%ptr%init(this%dof)
     end do
 
