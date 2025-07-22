@@ -109,7 +109,7 @@ contains
          !   Two different regions (inflow & cyl) have the label 'v  '
          !   Let compute the distance from the (0,0) in the x-y plane
          !   to identify the proper one
-                  dist = sqrt(x**2 + z**2)
+         dist = sqrt(x**2 + z**2)
 
          ! --- INFLOW
          if (dist .gt. 1.1*rad) then

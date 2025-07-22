@@ -50,6 +50,7 @@ module bc
   use utils, only : neko_error, linear_index, split_string
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   use json_module, only : json_file
+  use time_state, only : time_state_t
   implicit none
   private
 

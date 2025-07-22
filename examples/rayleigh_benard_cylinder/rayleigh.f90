@@ -14,7 +14,7 @@ contains
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
-    user%scalar_user_ic => set_initial_conditions_for_s
+    user%initial_conditions => initial_conditions
     user%scalar_user_bc => set_scalar_boundary_conditions
     user%material_properties => set_material_properties
     user%user_startup => startup
@@ -32,44 +32,42 @@ contains
   ! Used here for demonstration purposes. Since the properties are
   ! actually const, it is better to set them directly in the startup routine,
   ! by adding the appropriate entries to the user file.
-  subroutine set_material_properties(t, tstep, name, properties)
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    character(len=*), intent(in) :: name
+  subroutine set_material_properties(scheme_name, properties, time)
+    character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: properties
+    type(time_state_t), intent(in) :: time
 
-    if (name .eq. "fluid") then
+    if (scheme_name .eq. "fluid") then
        call field_cfill(properties%get_by_name("fluid_rho"), 1.0_rp)
        call field_cfill(properties%get_by_name("fluid_mu"), mu)
-    else if (name .eq. "scalar") then
+    else if (scheme_name .eq. "scalar") then
        call field_cfill(properties%get_by_name("scalar_cp"), 1.0_rp)
        call field_cfill(properties%get_by_name("scalar_lambda"), mu / Pr)
     end if
   end subroutine set_material_properties
 
 
-  subroutine set_scalar_boundary_conditions(scalar_name, s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
-    character(len=*), intent(in) :: scalar_name
-    real(kind=rp), intent(inout) :: s
-    real(kind=rp), intent(in) :: x
-    real(kind=rp), intent(in) :: y
-    real(kind=rp), intent(in) :: z
-    real(kind=rp), intent(in) :: nx
-    real(kind=rp), intent(in) :: ny
-    real(kind=rp), intent(in) :: nz
-    integer, intent(in) :: ix
-    integer, intent(in) :: iy
-    integer, intent(in) :: iz
-    integer, intent(in) :: ie
+  subroutine set_scalar_boundary_conditions(dirichlet_field_list, dirichlet_bc, &
+       coef, t, tstep)
+    type(field_list_t), intent(inout) :: dirichlet_field_list
+    type(field_dirichlet_t), intent(in) :: dirichlet_bc
+    type(coef_t), intent(inout) :: coef
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
-    !> Variables for bias
-    real(kind=rp) :: arg, bias
+    ! Only do this at the first time step since our BCs are constants.
+    if (tstep .ne. 1) return
 
-    ! This will be used on all zones without labels
-    ! e.g. the ones hardcoded to 'v', 'w', etcetc
-    s = 1.0_rp - z
+    dof => dirichlet_field_list%dof(1)
+
+    ! We know that it is the scalar calling the routine
+    associate(s => dirichlet_field_bc_list%items(1)%ptr)
+
+    ! We can set the whole field, it doesn't matter.
+    ! Under the hood only the values on the bc will be set after a masked copy.
+    s = 1.0_rp - dof%z
+
+    end associate
 
   end subroutine set_scalar_boundary_conditions
 

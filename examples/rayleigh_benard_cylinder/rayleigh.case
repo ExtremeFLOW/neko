@@ -82,7 +82,7 @@
             },
             "boundary_conditions": [
                 {
-                    "type": "user_pointwise",
+                    "type": "user",
                     "zone_indices": [ 1, 2 ]
                 },
                 {
