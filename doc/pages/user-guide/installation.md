@@ -147,14 +147,14 @@ In the above command, `[options]` refers to either optional features or packages
 
 Features are enabled and disabled by passing either `--enable-FEATURE[=arg]` or `--disable-FEATURE` to `configure`. A list of currently supported features are given in the table below.
 
-| Name                  | Description                                                                                                                           |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `--enable-real=Xp`    | Specify working precision of REAL types:<br>`sp` -- `REAL(kind=REAL32)`<br>`dp` -- `REAL(kind=REAL64)` (default)<br>`qp` -- `REAL(kind=REAL128)`<br> |
-| `--enable-contrib`    | Compile various tools                                                                                                                 |
-| `--enable-device-mpi` | Enable device aware MPI                                                                                                               |
-| `--enable-openmp`     | Enable OpenMP                                                                                                                         |
-| `--enable-shared`     | Build shared libraries (default: no)                                                                                                  |
-| `--enable-static`     | Build static libraries (default: yes)                                                                                                 |
+| Name                  | Description                                                                                                      |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `--enable-real=Xp`    | Specify working precision of REAL types:<br>`sp` -- `REAL(kind=REAL32)`<br>`dp` -- `REAL(kind=REAL64)` (default) |
+| `--enable-contrib`    | Compile various tools                                                                                            |
+| `--enable-device-mpi` | Enable device aware MPI                                                                                          |
+| `--enable-openmp`     | Enable OpenMP                                                                                                    |
+| `--enable-shared`     | Build shared libraries (default: no)                                                                             |
+| `--enable-static`     | Build static libraries (default: yes)                                                                            |
 
 Optional packages are controlled by passing either `--with-PACKAGE[=ARG]` or `--without-PACKAGE` to `configure`. A list of all supported optional packages are given in the table below.
 
