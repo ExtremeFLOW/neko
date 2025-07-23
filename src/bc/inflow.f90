@@ -39,6 +39,7 @@ module inflow
   use coefs, only : coef_t
   use json_module, only : json_file
   use json_utils, only : json_get
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -75,35 +76,32 @@ contains
   end subroutine inflow_init
 
   !> No-op scalar apply
-  subroutine inflow_apply_scalar(this, x, n, t, tstep, strong)
+  subroutine inflow_apply_scalar(this, x, n, time, strong)
     class(inflow_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
   end subroutine inflow_apply_scalar
 
   !> No-op scalar apply (device version)
-  subroutine inflow_apply_scalar_dev(this, x_d, t, tstep, strong, strm)
+  subroutine inflow_apply_scalar_dev(this, x_d, time, strong, strm)
     class(inflow_t), intent(inout), target :: this
     type(c_ptr) :: x_d
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     type(c_ptr) :: strm
   end subroutine inflow_apply_scalar_dev
 
   !> Apply inflow conditions (vector valued)
-  subroutine inflow_apply_vector(this, x, y, z, n, t, tstep, strong)
+  subroutine inflow_apply_vector(this, x, y, z, n, time, strong)
     class(inflow_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(inout), dimension(n) :: y
     real(kind=rp), intent(inout), dimension(n) :: z
-    real(kind=rp), intent(in), optional :: t
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
-    integer, intent(in), optional :: tstep
     integer :: i, m, k
     logical :: strong_
 
@@ -127,13 +125,12 @@ contains
 
   !> Apply inflow conditions (vector valued) (device version)
   subroutine inflow_apply_vector_dev(this, x_d, y_d, z_d, &
-       t, tstep, strong, strm)
+       time, strong, strm)
     class(inflow_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     type(c_ptr) :: strm
     logical :: strong_

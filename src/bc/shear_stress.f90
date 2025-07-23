@@ -43,6 +43,7 @@ module shear_stress
   use json_module, only : json_file
   use json_utils, only : json_get
   use vector, only : vector_t
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -85,12 +86,11 @@ module shear_stress
 contains
 
   !> Apply shear stress for a scalar field @a x.
-  subroutine shear_stress_apply_scalar(this, x, n, t, tstep, strong)
+  subroutine shear_stress_apply_scalar(this, x, n, time, strong)
     class(shear_stress_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     integer :: i, m, k, facet
     ! Store non-linear index
@@ -102,14 +102,13 @@ contains
 
   !> Boundary condition apply for a generic shear_stress condition
   !! to vectors @a x, @a y and @a z
-  subroutine shear_stress_apply_vector(this, x, y, z, n, t, tstep, strong)
+  subroutine shear_stress_apply_vector(this, x, y, z, n, time, strong)
     class(shear_stress_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(inout), dimension(n) :: y
     real(kind=rp), intent(inout), dimension(n) :: z
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     logical :: strong_
 
@@ -120,22 +119,21 @@ contains
     end if
 
     if (strong_) then
-       call this%symmetry%apply_vector(x, y, z, n, t, tstep, .true.)
+       call this%symmetry%apply_vector(x, y, z, n, time, .true.)
     else
-       call this%neumann_x%apply_scalar(x, n, t, tstep, .false.)
-       call this%neumann_y%apply_scalar(y, n, t, tstep, .false.)
-       call this%neumann_z%apply_scalar(z, n, t, tstep, .false.)
+       call this%neumann_x%apply_scalar(x, n, time, .false.)
+       call this%neumann_y%apply_scalar(y, n, time, .false.)
+       call this%neumann_z%apply_scalar(z, n, time, .false.)
     end if
 
   end subroutine shear_stress_apply_vector
 
   !> Boundary condition apply for a generic shear_stress condition
   !! to a vector @a x (device version)
-  subroutine shear_stress_apply_scalar_dev(this, x_d, t, tstep, strong, strm)
+  subroutine shear_stress_apply_scalar_dev(this, x_d, time, strong, strm)
     class(shear_stress_t), intent(inout), target :: this
     type(c_ptr) :: x_d
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     type(c_ptr) :: strm
 
@@ -145,14 +143,13 @@ contains
 
   !> Boundary condition apply for a generic shear_stress condition
   !! to vectors @a x, @a y and @a z (device version)
-  subroutine shear_stress_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, &
+  subroutine shear_stress_apply_vector_dev(this, x_d, y_d, z_d, time, &
        strong, strm)
     class(shear_stress_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     type(c_ptr) :: strm
     logical :: strong_
@@ -165,11 +162,11 @@ contains
 
     if (strong_) then
        call this%symmetry%apply_vector_dev(x_d, y_d, z_d, &
-            t, tstep, .true., strm)
+            time, .true., strm)
     else
-       call this%neumann_x%apply_scalar_dev(x_d, t, tstep, .false., strm)
-       call this%neumann_y%apply_scalar_dev(y_d, t, tstep, .false., strm)
-       call this%neumann_z%apply_scalar_dev(z_d, t, tstep, .false., strm)
+       call this%neumann_x%apply_scalar_dev(x_d, time, .false., strm)
+       call this%neumann_y%apply_scalar_dev(y_d, time, .false., strm)
+       call this%neumann_z%apply_scalar_dev(z_d, time, .false., strm)
     end if
 
   end subroutine shear_stress_apply_vector_dev

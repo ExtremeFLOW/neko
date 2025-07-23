@@ -48,6 +48,7 @@ module field_dirichlet_vector
   use json_module, only : json_file
   use field_list, only : field_list_t
   use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -143,14 +144,12 @@ contains
   !> No-op apply scalar.
   !! @param x Field onto which to copy the values (e.g. u,v,w,p or s).
   !! @param n Size of the array `x`.
-  !! @param t Time.
-  !! @param tstep Time step.
-  subroutine field_dirichlet_vector_apply_scalar(this, x, n, t, tstep, strong)
+  !! @param t Current time state.
+  subroutine field_dirichlet_vector_apply_scalar(this, x, n, time, strong)
     class(field_dirichlet_vector_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
 
     call neko_error("field_dirichlet_vector cannot apply scalar BCs.&
@@ -160,14 +159,12 @@ contains
 
   !> No-op apply scalar (device).
   !! @param x_d Device pointer to the field onto which to copy the values.
-  !! @param t Time.
-  !! @param tstep Time step.
-  subroutine field_dirichlet_vector_apply_scalar_dev(this, x_d, t, tstep, &
+  !! @param time The current time state.
+  subroutine field_dirichlet_vector_apply_scalar_dev(this, x_d, time, &
        strong, strm)
     class(field_dirichlet_vector_t), intent(inout), target :: this
     type(c_ptr) :: x_d
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     type(c_ptr) :: strm
 
@@ -181,17 +178,15 @@ contains
   !! @param y y-component of the field onto which to apply the values.
   !! @param z z-component of the field onto which to apply the values.
   !! @param n Size of the `x`, `y` and `z` arrays.
-  !! @param t Time.
-  !! @param tstep Time step.
-  subroutine field_dirichlet_vector_apply_vector(this, x, y, z, n, t, tstep, &
+  !! @param time The current time state.
+  subroutine field_dirichlet_vector_apply_vector(this, x, y, z, n, time, &
        strong)
     class(field_dirichlet_vector_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(inout), dimension(n) :: y
     real(kind=rp), intent(inout), dimension(n) :: z
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     logical :: strong_
 
@@ -206,7 +201,7 @@ contains
        ! We can send any of the 3 bcs we have as argument, since they are all
        ! the same boundary.
        if (.not. this%updated) then
-          call this%update(this%field_list, this%bc_u, this%coef, t, tstep)
+          call this%update(this%field_list, this%bc_u, this%coef, time)
           this%updated = .true.
        end if
 
@@ -221,17 +216,15 @@ contains
   !! @param x x-component of the field onto which to apply the values.
   !! @param y y-component of the field onto which to apply the values.
   !! @param z z-component of the field onto which to apply the values.
-  !! @param t Time.
-  !! @param tstep Time step.
+  !! @param time The current time state.
   !! @param strm Device stream
-  subroutine field_dirichlet_vector_apply_vector_dev(this, x_d, y_d, z_d, t, &
-       tstep, strong, strm)
+  subroutine field_dirichlet_vector_apply_vector_dev(this, x_d, y_d, z_d, &
+       time, strong, strm)
     class(field_dirichlet_vector_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     type(c_ptr) :: strm
     logical :: strong_
@@ -244,7 +237,7 @@ contains
 
     if (strong_) then
        if (.not. this%updated) then
-          call this%update(this%field_list, this%bc_u, this%coef, t, tstep)
+          call this%update(this%field_list, this%bc_u, this%coef, time)
           this%updated = .true.
        end if
 

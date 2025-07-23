@@ -656,7 +656,7 @@ contains
 
       ! Add Neumann bc contributions to the RHS
       call this%bcs_vel%apply_vector(f_x%x, f_y%x, f_z%x, &
-           this%dm_Xh%size(), t, tstep, strong = .false.)
+           this%dm_Xh%size(), time, strong = .false.)
 
       if (oifs) then
          ! Add the advection operators to the right-hand-side.
@@ -703,8 +703,8 @@ contains
       call vlag%update()
       call wlag%update()
 
-      call this%bc_apply_vel(t, tstep, strong = .true.)
-      call this%bc_apply_prs(t, tstep)
+      call this%bc_apply_vel(time, strong = .true.)
+      call this%bc_apply_prs(time)
 
       ! Update material properties if necessary
       call this%update_material_properties(t, tstep)
@@ -728,7 +728,7 @@ contains
       call device_event_sync(event)
 
       ! Set the residual to zero at strong pressure boundaries.
-      call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), t, tstep)
+      call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), time)
 
 
       call profiler_end_region('Pressure_residual', 18)
@@ -775,7 +775,7 @@ contains
       call device_event_sync(event)
 
       ! Set residual to zero at strong velocity boundaries.
-      call this%bclst_vel_res%apply(u_res, v_res, w_res, t, tstep)
+      call this%bclst_vel_res%apply(u_res, v_res, w_res, time)
 
 
       call profiler_end_region('Velocity_residual', 19)

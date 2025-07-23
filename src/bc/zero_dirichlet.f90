@@ -38,6 +38,7 @@ module zero_dirichlet
   use, intrinsic :: iso_c_binding, only : c_ptr
   use coefs, only : coef_t
   use json_module, only : json_file
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -87,12 +88,11 @@ contains
 
   !> Apply boundary condition to a scalar field.
   !! to a vector @a x
-  subroutine zero_dirichlet_apply_scalar(this, x, n, t, tstep, strong)
+  subroutine zero_dirichlet_apply_scalar(this, x, n, time, strong)
     class(zero_dirichlet_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     integer :: i, m, k
     logical :: strong_
@@ -115,14 +115,13 @@ contains
   end subroutine zero_dirichlet_apply_scalar
 
   !> Apply boundary condition to a vector field.
-  subroutine zero_dirichlet_apply_vector(this, x, y, z, n, t, tstep, strong)
+  subroutine zero_dirichlet_apply_vector(this, x, y, z, n, time, strong)
     class(zero_dirichlet_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(inout), dimension(n) :: y
     real(kind=rp), intent(inout), dimension(n) :: z
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     integer :: i, m, k
     logical :: strong_
@@ -146,11 +145,10 @@ contains
   end subroutine zero_dirichlet_apply_vector
 
   !> Apply boundary condition to a scalar field, device version.
-  subroutine zero_dirichlet_apply_scalar_dev(this, x_d, t, tstep, strong, strm)
+  subroutine zero_dirichlet_apply_scalar_dev(this, x_d, time, strong, strm)
     class(zero_dirichlet_t), intent(inout), target :: this
     type(c_ptr) :: x_d
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     type(c_ptr) :: strm
     logical :: strong_
@@ -169,14 +167,13 @@ contains
   end subroutine zero_dirichlet_apply_scalar_dev
 
   !> Apply boundary condition to a vector field, device version.
-  subroutine zero_dirichlet_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, &
+  subroutine zero_dirichlet_apply_vector_dev(this, x_d, y_d, z_d, time, &
        strong, strm)
     class(zero_dirichlet_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     type(c_ptr) :: strm
     logical :: strong_

@@ -41,6 +41,7 @@ module symmetry
   use json_module, only : json_file
   use zero_dirichlet, only : zero_dirichlet_t
   use, intrinsic :: iso_c_binding, only : c_ptr
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -200,15 +201,13 @@ contains
   !> No-op scalar apply
   !! @param x The field for which to apply the boundary condition.
   !! @param n The size of x.
-  !! @param t Current time.
-  !! @param tstep Current time-step.
+  !! @param time Current time state.
   !! @param strong Whether we are setting a strong or a weak bc.
-  subroutine symmetry_apply_scalar(this, x, n, t, tstep, strong)
+  subroutine symmetry_apply_scalar(this, x, n, time, strong)
     class(symmetry_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
   end subroutine symmetry_apply_scalar
 
@@ -217,17 +216,15 @@ contains
   !! @param y The y comp of the field for which to apply the bc.
   !! @param z The z comp of the field for which to apply the bc.
   !! @param n The size of x, y, and z.
-  !! @param t Current time.
-  !! @param tstep Current time-step.
+  !! @param time Current time state.
   !! @param strong Whether we are setting a strong or a weak bc.
-  subroutine symmetry_apply_vector(this, x, y, z, n, t, tstep, strong)
+  subroutine symmetry_apply_vector(this, x, y, z, n, time, strong)
     class(symmetry_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(inout), dimension(n) :: y
     real(kind=rp), intent(inout), dimension(n) :: z
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     logical :: strong_
 
@@ -247,14 +244,12 @@ contains
 
   !> No-op scalar apply (device version)
   !! @param x_d Device pointer to the field.
-  !! @param t The time value.
-  !! @param tstep The time iteration.
+  !! @param time The time state.
   !! @param strong Whether we are setting a strong or a weak bc.
-  subroutine symmetry_apply_scalar_dev(this, x_d, t, tstep, strong, strm)
+  subroutine symmetry_apply_scalar_dev(this, x_d, time, strong, strm)
     class(symmetry_t), intent(inout), target :: this
     type(c_ptr) :: x_d
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     type(c_ptr) :: strm
   end subroutine symmetry_apply_scalar_dev
@@ -263,17 +258,15 @@ contains
   !! @param x_d Device pointer to the values to be applied for the x comp.
   !! @param y_d Device pointer to the values to be applied for the y comp.
   !! @param z_d Device pointer to the values to be applied for the z comp.
-  !! @param t The time value.
-  !! @param tstep Current time-step.
+  !! @param time The time state.
   !! @param strong Whether we are setting a strong or a weak bc.
   subroutine symmetry_apply_vector_dev(this, x_d, y_d, z_d, &
-       t, tstep, strong, strm)
+       time, strong, strm)
     class(symmetry_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     type(c_ptr) :: strm
     logical :: strong_
