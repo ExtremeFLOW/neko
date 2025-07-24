@@ -268,7 +268,7 @@ contains
     type(c_ptr), intent(inout) :: z_d
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
-    type(c_ptr) :: strm
+    type(c_ptr), intent(inout) :: strm
     logical :: strong_
 
     if (present(strong)) then
