@@ -802,26 +802,26 @@ contains
        read_temp = .false.
        if (rdcode(i) .eq. 'X') then
           read_mesh = .true.
-          if (data%x%size() .ne. n) call data%x%init(n)
-          if (data%y%size() .ne. n) call data%y%init(n)
-          if (data%z%size() .ne. n) call data%z%init(n)
+          call data%x%init(n)
+          call data%y%init(n)
+          call data%z%init(n)
           i = i + 1
        end if
        if (rdcode(i) .eq. 'U') then
           read_velocity = .true.
-          if (data%u%size() .ne. n) call data%u%init(n)
-          if (data%v%size() .ne. n) call data%v%init(n)
-          if (data%w%size() .ne. n) call data%w%init(n)
+          call data%u%init(n)
+          call data%v%init(n)
+          call data%w%init(n)
           i = i + 1
        end if
        if (rdcode(i) .eq. 'P') then
           read_pressure = .true.
-          if (data%p%size() .ne. n) call data%p%init(n)
+          call data%p%init(n)
           i = i + 1
        end if
        if (rdcode(i) .eq. 'T') then
           read_temp = .true.
-          if (data%t%size() .ne. n) call data%t%init(n)
+          call data%t%init(n)
           i = i + 1
        end if
        n_scalars = 0
