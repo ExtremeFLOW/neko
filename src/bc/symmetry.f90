@@ -248,10 +248,10 @@ contains
   !! @param strong Whether we are setting a strong or a weak bc.
   subroutine symmetry_apply_scalar_dev(this, x_d, time, strong, strm)
     class(symmetry_t), intent(inout), target :: this
-    type(c_ptr) :: x_d
+    type(c_ptr), intent(inout) :: x_d
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
-    type(c_ptr) :: strm
+    type(c_ptr), intent(inout) :: strm
   end subroutine symmetry_apply_scalar_dev
 
   !> Apply symmetry conditions (axis aligned) (device version)

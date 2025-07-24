@@ -178,7 +178,6 @@ contains
     type(c_ptr) :: x_d
     integer :: i
 
-
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
        if (present(strm)) then
@@ -188,51 +187,15 @@ contains
        end if
 
        x_d = device_get_ptr(x)
-       if (present(strong)) then
-          if (present(time)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar_dev(x_d, time, &
-                     strong, strm_)
-             end do
-          else
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar_dev(x_d, strm = strm_)
-             end do
-          end if
-       else
-          if (present(time)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar_dev(x_d, time = time, &
-                     strm = strm_)
-             end do
-          else
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar_dev(x_d, strm = strm_)
-             end do
-          end if
-       end if
+       do i = 1, this%size_
+          call this%items(i)%ptr%apply_scalar_dev(x_d, time = time, &
+               strong = strong, strm = strm_)
+       end do
     else
-       if (present(strong)) then
-          if (present(time)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar(x, n, time, strong)
-             end do
-          else
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar(x, n, strong = strong)
-             end do
-          end if
-       else
-          if (present(time)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar(x, n, time= time)
-             end do
-          else
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar(x, n)
-             end do
-          end if
-       end if
+       do i = 1, this%size_
+          call this%items(i)%ptr%apply_scalar(x, n, time = time, &
+               strong = strong)
+       end do
     end if
   end subroutine bc_list_apply_scalar_array
 
@@ -272,53 +235,15 @@ contains
        y_d = device_get_ptr(y)
        z_d = device_get_ptr(z)
 
-       if (present(strong)) then
-          if (present(time)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, time, &
-                     strong = strong, strm = strm_)
-             end do
-          else
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, &
-                     strong = strong, strm = strm_)
-             end do
-          end if
-       else
-          if (present(time)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, time, &
-                     strm = strm_)
-             end do
-          else
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, &
-                     strm = strm_)
-             end do
-          end if
-       end if
+       do i = 1, this%size_
+          call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, time = time, &
+               strong = strong, strm = strm_)
+       end do
     else
-       if (present(strong)) then
-          if (present(time)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector(x, y, z, n, time, strong)
-             end do
-          else
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector(x, y, z, n, strong = strong)
-             end do
-          end if
-       else
-          if (present(time)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector(x, y, z, n, time)
-             end do
-          else
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector(x, y, z, n)
-             end do
-          end if
-       end if
+       do i = 1, this%size_
+          call this%items(i)%ptr%apply_vector(x, y, z, n, time = time, &
+               strong = strong)
+       end do
     end if
 
   end subroutine bc_list_apply_vector_array
@@ -347,30 +272,10 @@ contains
           strm_ = glb_cmd_queue
        end if
 
-       if (present(strong)) then
-          if (present(time)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar_dev(x%x_d, time, strong, &
-                     strm_)
-             end do
-          else
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar_dev(x%x_d, strong = strong,&
-                     strm = strm_)
-             end do
-          end if
-       else
-          if (present(time)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar_dev(x%x_d, time, &
-                     strm = strm_)
-             end do
-          else
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar_dev(x%x_d, strm = strm_)
-             end do
-          end if
-       end if
+       do i = 1, this%size_
+          call this%items(i)%ptr%apply_scalar_dev(x%x_d, time, strong, &
+               strm_)
+       end do
     else
        do i = 1, this%size_
           call this%items(i)%ptr%apply_scalar(x%x, n, time, strong)
@@ -415,55 +320,15 @@ contains
           strm_ = glb_cmd_queue
        end if
 
-       if (present(strong)) then
-          if (present(time)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector_dev(x%x_d, y%x_d, z%x_d, &
-                     time, strong, strm_)
-             end do
-          else
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector_dev(x%x_d, y%x_d, z%x_d, &
-                     strong = strong, strm = strm_)
-             end do
-          end if
-       else
-          if (present(time)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector_dev(x%x_d, y%x_d, z%x_d, &
-                     time, strm = strm_)
-             end do
-          else
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector_dev(x%x_d, y%x_d, z%x_d, &
-                     strm = strm_)
-             end do
-          end if
-       end if
+       do i = 1, this%size_
+          call this%items(i)%ptr%apply_vector_dev(x%x_d, y%x_d, z%x_d, &
+               time, strong, strm_)
+       end do
     else
-       if (present(strong)) then
-          if (present(time)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector(x%x, y%x, z%x, n, time, &
-                     strong)
-             end do
-          else
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector(x%x, y%x, z%x, n, &
-                     strong = strong)
-             end do
-          end if
-       else
-          if (present(time)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector(x%x, y%x, z%x, n, time)
-             end do
-          else
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector(x%x, y%x, z%x, n)
-             end do
-          end if
-       end if
+       do i = 1, this%size_
+          call this%items(i)%ptr%apply_vector(x%x, y%x, z%x, n, time, &
+               strong)
+       end do
     end if
 
   end subroutine bc_list_apply_vector_field

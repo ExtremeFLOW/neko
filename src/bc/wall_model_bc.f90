@@ -105,6 +105,10 @@ contains
        strong_ = .true.
     end if
 
+    if (present(time) .eqv. .false.) then
+       call neko_error("wall_model_bc_apply_vector: time is required.")
+    end if
+
     if (.not. strong_) then
        ! Compute the wall stress using the wall model.
        call this%wall_model%compute(time%t, time%tstep)
@@ -127,10 +131,10 @@ contains
   !! to a vector @a x (device version)
   subroutine wall_model_bc_apply_scalar_dev(this, x_d, time, strong, strm)
     class(wall_model_bc_t), intent(inout), target :: this
-    type(c_ptr) :: x_d
+    type(c_ptr), intent(inout) :: x_d
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
-    type(c_ptr) :: strm
+    type(c_ptr), intent(inout) :: strm
 
     call neko_error("The wall model bc is not applicable to scalar fields.")
 
@@ -141,13 +145,13 @@ contains
   subroutine wall_model_bc_apply_vector_dev(this, x_d, y_d, z_d, time, &
        strong, strm)
     class(wall_model_bc_t), intent(inout), target :: this
-    type(c_ptr) :: x_d
-    type(c_ptr) :: y_d
-    type(c_ptr) :: z_d
+    type(c_ptr), intent(inout) :: x_d
+    type(c_ptr), intent(inout) :: y_d
+    type(c_ptr), intent(inout) :: z_d
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     logical :: strong_
-    type(c_ptr) :: strm
+    type(c_ptr), intent(inout) :: strm
 
     if (present(strong)) then
        strong_ = strong

@@ -209,10 +209,10 @@ module bc
        import :: bc_t, time_state_t
        import :: rp
        class(bc_t), intent(inout), target :: this
-       type(c_ptr) :: x_d
+       type(c_ptr), intent(inout) :: x_d
        type(time_state_t), intent(in), optional :: time
        logical, intent(in), optional :: strong
-       type(c_ptr) :: strm
+       type(c_ptr), intent(inout) :: strm
      end subroutine bc_apply_scalar_dev
   end interface
 
@@ -228,12 +228,12 @@ module bc
        import :: c_ptr, bc_t, time_state_t
        import :: rp
        class(bc_t), intent(inout), target :: this
-       type(c_ptr) :: x_d
-       type(c_ptr) :: y_d
-       type(c_ptr) :: z_d
+       type(c_ptr), intent(inout) :: x_d
+       type(c_ptr), intent(inout) :: y_d
+       type(c_ptr), intent(inout) :: z_d
        type(time_state_t), intent(in), optional :: time
        logical, intent(in), optional :: strong
-       type(c_ptr) :: strm
+       type(c_ptr), intent(inout) :: strm
      end subroutine bc_apply_vector_dev
   end interface
 

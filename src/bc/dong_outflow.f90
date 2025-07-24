@@ -149,10 +149,10 @@ contains
   !! to a vector @a x (device version)
   subroutine dong_outflow_apply_scalar_dev(this, x_d, time, strong, strm)
     class(dong_outflow_t), intent(inout), target :: this
-    type(c_ptr) :: x_d
+    type(c_ptr), intent(inout) :: x_d
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
-    type(c_ptr) :: strm
+    type(c_ptr), intent(inout) :: strm
     logical :: strong_
 
     if (present(strong)) then
@@ -176,12 +176,12 @@ contains
   subroutine dong_outflow_apply_vector_dev(this, x_d, y_d, z_d, time, &
        strong, strm)
     class(dong_outflow_t), intent(inout), target :: this
-    type(c_ptr) :: x_d
-    type(c_ptr) :: y_d
-    type(c_ptr) :: z_d
+    type(c_ptr), intent(inout) :: x_d
+    type(c_ptr), intent(inout) :: y_d
+    type(c_ptr), intent(inout) :: z_d
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
-    type(c_ptr) :: strm
+    type(c_ptr), intent(inout) :: strm
 
     !call device_dong_outflow_apply_vector(this%msk_d, x_d, y_d, z_d, &
     !                                   this%g, size(this%msk))

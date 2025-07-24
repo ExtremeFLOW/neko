@@ -225,10 +225,10 @@ contains
   !! @param strm Device stream
   subroutine usr_scalar_apply_scalar_dev(this, x_d, time, strong, strm)
     class(usr_scalar_t), intent(inout), target :: this
-    type(c_ptr) :: x_d
+    type(c_ptr), intent(inout) :: x_d
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
-    type(c_ptr) :: strm
+    type(c_ptr),intent(inout) :: strm
     integer :: i, m, k, idx(4), facet, tstep_
     real(kind=rp) :: t_
     integer(c_size_t) :: s
@@ -332,12 +332,12 @@ contains
   subroutine usr_scalar_apply_vector_dev(this, x_d, y_d, z_d, &
        time, strong, strm)
     class(usr_scalar_t), intent(inout), target :: this
-    type(c_ptr) :: x_d
-    type(c_ptr) :: y_d
-    type(c_ptr) :: z_d
+    type(c_ptr), intent(inout) :: x_d
+    type(c_ptr), intent(inout) :: y_d
+    type(c_ptr), intent(inout) :: z_d
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
-    type(c_ptr) :: strm
+    type(c_ptr), intent(inout) :: strm
 
   end subroutine usr_scalar_apply_vector_dev
 
