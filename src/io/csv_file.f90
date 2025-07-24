@@ -121,7 +121,7 @@ contains
     class(csv_file_t), intent(inout) :: f
     type(vector_t), intent(in) :: data
     real(kind=rp), intent(in), optional :: t
-    integer :: file_unit, ierr
+    integer :: file_unit, ierr, n
 
     open(file = trim(f%fname), position = "append", iostat = ierr, &
          newunit = file_unit)
@@ -136,8 +136,9 @@ contains
     ! Add time at the beginning if specified
     if (present(t)) write (file_unit, '(g0,",")', advance = "no") t
 
-    write (file_unit, '(*(g0,","))', advance = "no") data%x(1:data%size()-1)
-    write (file_unit,'(g0)') data%x(data%size())
+    n = data%size()
+    write (file_unit, '(*(g0,","))', advance = "no") data%x(1:n-1)
+    write (file_unit,'(g0)') data%x(n)
 
     close(file_unit)
 
