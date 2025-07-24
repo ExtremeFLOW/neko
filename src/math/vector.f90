@@ -135,7 +135,6 @@ contains
     class(vector_t), intent(inout) :: a
     integer, intent(in) :: n
 
-    if (a%n .eq. n) return
     call a%free()
 
     a%n = n
