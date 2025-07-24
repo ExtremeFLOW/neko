@@ -67,15 +67,15 @@ module force_torque
   !! boundary zone.
   type, public, extends(simulation_component_t) :: force_torque_t
      !> X velocity component.
-     type(field_t), pointer :: u
+     type(field_t), pointer :: u => null()
      !> Y velocity component.
-     type(field_t), pointer :: v
+     type(field_t), pointer :: v => null()
      !> Z velocity component.
-     type(field_t), pointer :: w
+     type(field_t), pointer :: w => null()
      !> Pressure.
-     type(field_t), pointer :: p
+     type(field_t), pointer :: p => null()
      !> Total dynamic viscosity.
-     type(field_t), pointer :: mu
+     type(field_t), pointer :: mu => null()
 
      !Masked working arrays
      type(vector_t) :: n1, n2, n3
@@ -89,7 +89,7 @@ module force_torque
      real(kind=rp) :: scale
      integer :: zone_id
      character(len=20) :: zone_name
-     type(coef_t), pointer :: coef
+     type(coef_t), pointer :: coef => null()
      type(dirichlet_t) :: bc
      character(len=80) :: print_format
 
@@ -232,7 +232,7 @@ contains
   !! @param coef The SEM coefficients.
   !! @param long_print If true, use a more precise print format.
   subroutine force_torque_init_common(this, fluid_name, zone_id, &
-  & zone_name, center, scale, coef, long_print)
+       zone_name, center, scale, coef, long_print)
     class(force_torque_t), intent(inout) :: this
     real(kind=rp), intent(in) :: center(3)
     real(kind=rp), intent(in) :: scale
