@@ -283,9 +283,6 @@ contains
     this%unique_mask(0) = unique_point_idx%num_entries()
     do i = 1, this%unique_mask(0)
        this%unique_mask(i) = 0
-       this%nx%x(i) = 0.0_rp
-       this%ny%x(i) = 0.0_rp
-       this%nz%x(i) = 0.0_rp
     end do
 
 
