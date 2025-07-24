@@ -135,6 +135,7 @@ contains
     class(vector_t), intent(inout) :: a
     integer, intent(in) :: n
 
+    if (n .eq. 0) call neko_error('Vector cannot have size 0')
     call a%free()
 
     a%n = n
