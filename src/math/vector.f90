@@ -189,9 +189,7 @@ contains
     class(vector_t), intent(inout) :: v
     real(kind=rp), intent(in) :: s
 
-    if (.not. allocated(v%x)) then
-       call neko_error('Vector not allocated')
-    end if
+    if (v%n .eq. 0) call neko_error('Vector not allocated')
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cfill(v%x_d, s, v%n)
