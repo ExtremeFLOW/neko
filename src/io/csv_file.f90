@@ -43,7 +43,7 @@ module csv_file
   implicit none
 
   type, public, extends(generic_file_t) :: csv_file_t
-     character(len=1024) :: header = ""     !< Contains header of file.
+     character(len=1024) :: header = "" !< Contains header of file.
      logical :: header_is_written = .false. !< Has header already been written?
    contains
      !> Writes data to an output file.
@@ -77,22 +77,22 @@ contains
     type is (vector_t)
        if (.not. allocated(data%x)) then
           call neko_error("Vector is not allocated. Use &
-&vector%init() to associate your array &
-&with a vector_t object")
+          &vector%init() to associate your array &
+          &with a vector_t object")
        end if
        vec => data
 
     type is (matrix_t)
        if (.not. allocated(data%x)) then
           call neko_error("Matrix is not allocated. Use &
-&matrix%init() to associate your array &
-&with a matrix_t object")
+          &matrix%init() to associate your array &
+          &with a matrix_t object")
        end if
        mat => data
 
     class default
        call neko_error("Invalid data. Expected vector_t or &
-&matrix_t")
+       &matrix_t")
     end select
 
     ! Write is performed on rank 0
@@ -136,8 +136,8 @@ contains
     ! Add time at the beginning if specified
     if (present(t)) write (file_unit, '(g0,",")', advance = "no") t
 
-    write (file_unit, '(*(g0,","))', advance = "no") data%x(1:data%n-1)
-    write (file_unit,'(g0)') data%x(data%n)
+    write (file_unit, '(*(g0,","))', advance = "no") data%x(1:data%size()-1)
+    write (file_unit,'(g0)') data%x(data%size())
 
     close(file_unit)
 
@@ -164,11 +164,11 @@ contains
        f%header_is_written = .true.
     end if
 
-    do i = 1, data%nrows
+    do i = 1, data%get_nrows()
        if (present(t)) write (file_unit, '(g0,",")', advance = "no") t
        write (file_unit, '(*(g0,","))', advance = "no") &
-            data%x(i, 1:data%ncols-1)
-       write (file_unit, '(g0)') data%x(i, data%ncols)
+            data%x(i, 1:data%get_ncols()-1)
+       write (file_unit, '(g0)') data%x(i, data%get_ncols())
     end do
 
     close(file_unit)
@@ -194,22 +194,22 @@ contains
        vec => data
        if (.not. allocated(data%x)) then
           call neko_error("Vector is not allocated. Use &
-&vector%init() to associate your array &
-&with a vector_t object")
+          &vector%init() to associate your array &
+          &with a vector_t object")
        end if
 
     type is (matrix_t)
        mat => data
        if (.not. allocated(data%x)) then
           call neko_error("Matrix is not allocated. Use &
-&matrix%init() to associate your array &
-&with a matrix_t object")
+          &matrix%init() to associate your array &
+          &with a matrix_t object")
        end if
 
 
     class default
        call neko_error("Invalid data type for csv_file (expected: vector_t, &
-&matrix_t)")
+       &matrix_t)")
     end select
 
     if (pe_rank .eq. 0) then
@@ -276,12 +276,12 @@ contains
 
     ! If the number of lines is larger than the number of rows in the
     ! matrix, assume that means there is a header
-    if (n_lines .gt. mat%nrows) then
+    if (n_lines .gt. mat%get_nrows()) then
        read (file_unit, '(A)') tmp
        f%header = trim(tmp)
     end if
 
-    do i = 1, mat%nrows
+    do i = 1, mat%get_nrows()
        read (file_unit,*) mat%x(i,:)
     end do
     close(unit = file_unit)

@@ -125,27 +125,27 @@ contains
        glb_nelv = data%glb_nelv
        offset_el = data%offset_el
 
-       if (data%x%n .gt. 0) x%ptr => data%x%x
-       if (data%y%n .gt. 0) y%ptr => data%y%x
-       if (data%z%n .gt. 0) z%ptr => data%z%x
+       if (data%x%size() .gt. 0) x%ptr => data%x%x
+       if (data%y%size() .gt. 0) y%ptr => data%y%x
+       if (data%z%size() .gt. 0) z%ptr => data%z%x
        if (gdim .eq. 2) z%ptr => data%y%x
-       if (data%u%n .gt. 0) then
+       if (data%u%size() .gt. 0) then
           u%ptr => data%u%x
           write_velocity = .true.
        end if
-       if (data%v%n .gt. 0) v%ptr => data%v%x
-       if (data%w%n .gt. 0) w%ptr => data%w%x
-       if (data%p%n .gt. 0) then
+       if (data%v%size() .gt. 0) v%ptr => data%v%x
+       if (data%w%size() .gt. 0) w%ptr => data%w%x
+       if (data%p%size() .gt. 0) then
           p%ptr => data%p%x
           write_pressure = .true.
        end if
-       if (data%t%n .gt. 0) then
+       if (data%t%size() .gt. 0) then
           write_temperature = .true.
           tem%ptr => data%t%x
        end if
        ! If gdim = 2 and Z-velocity component exists,
        ! it is stored in last scalar field
-       if (gdim .eq. 2 .and. data%w%n .gt. 0) then
+       if (gdim .eq. 2 .and. data%w%size() .gt. 0) then
           n_scalar_fields = data%n_scalars + 1
           allocate(scalar_fields(n_scalar_fields))
           do i = 1, n_scalar_fields -1
@@ -802,26 +802,26 @@ contains
        read_temp = .false.
        if (rdcode(i) .eq. 'X') then
           read_mesh = .true.
-          if (data%x%n .ne. n) call data%x%init(n)
-          if (data%y%n .ne. n) call data%y%init(n)
-          if (data%z%n .ne. n) call data%z%init(n)
+          if (data%x%size() .ne. n) call data%x%init(n)
+          if (data%y%size() .ne. n) call data%y%init(n)
+          if (data%z%size() .ne. n) call data%z%init(n)
           i = i + 1
        end if
        if (rdcode(i) .eq. 'U') then
           read_velocity = .true.
-          if (data%u%n .ne. n) call data%u%init(n)
-          if (data%v%n .ne. n) call data%v%init(n)
-          if (data%w%n .ne. n) call data%w%init(n)
+          if (data%u%size() .ne. n) call data%u%init(n)
+          if (data%v%size() .ne. n) call data%v%init(n)
+          if (data%w%size() .ne. n) call data%w%init(n)
           i = i + 1
        end if
        if (rdcode(i) .eq. 'P') then
           read_pressure = .true.
-          if (data%p%n .ne. n) call data%p%init(n)
+          if (data%p%size() .ne. n) call data%p%init(n)
           i = i + 1
        end if
        if (rdcode(i) .eq. 'T') then
           read_temp = .true.
-          if (data%t%n .ne. n) call data%t%init(n)
+          if (data%t%size() .ne. n) call data%t%init(n)
           i = i + 1
        end if
        n_scalars = 0
@@ -955,7 +955,7 @@ contains
     type(MPI_Status) :: status
     integer :: n, ierr, lxyz, i
 
-    n = x%n
+    n = x%size()
     lxyz = fld_data%lx*fld_data%ly*fld_data%lz
 
     if (this%dp_precision) then
@@ -990,7 +990,7 @@ contains
     type(MPI_Status) :: status
     integer :: n, ierr, lxyz, i, j, e, nd
 
-    n = x%n
+    n = x%size()
     nd = n*fld_data%gdim
     lxyz = fld_data%lx*fld_data%ly*fld_data%lz
 

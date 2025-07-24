@@ -51,7 +51,7 @@ module vector
      !> Device pointer.
      type(c_ptr) :: x_d = C_NULL_PTR
      !> Size of vector.
-     integer :: n = 0
+     integer, private :: n = 0
    contains
      !> Initialise a vector of size `n`.
      procedure, pass(v) :: init => vector_init
@@ -122,17 +122,11 @@ contains
     class(vector_t), intent(inout) :: v
     integer, intent(in) :: n
 
-    call v%free()
-
-    allocate(v%x(n))
+    call v%alloc(n)
     v%x = 0.0_rp
-
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(v%x, v%x_d, n)
        call device_cfill(v%x_d, 0.0_rp, n)
     end if
-
-    v%n = n
 
   end subroutine vector_init
 
@@ -141,6 +135,7 @@ contains
     class(vector_t), intent(inout) :: a
     integer, intent(in) :: n
 
+    if (a%n .eq. n) return
     call a%free()
 
     a%n = n
