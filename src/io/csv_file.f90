@@ -153,7 +153,7 @@ contains
     class(csv_file_t), intent(inout) :: f
     type(matrix_t), intent(in) :: data
     real(kind=rp), intent(in), optional :: t
-    integer :: file_unit, i, ierr
+    integer :: file_unit, i, ierr, nc
 
     open(file = trim(f%fname), position = "append", iostat = ierr, &
          newunit = file_unit)
@@ -167,9 +167,10 @@ contains
 
     do i = 1, data%get_nrows()
        if (present(t)) write (file_unit, '(g0,",")', advance = "no") t
+       nc = data%get_ncols()
        write (file_unit, '(*(g0,","))', advance = "no") &
-            data%x(i, 1:data%get_ncols()-1)
-       write (file_unit, '(g0)') data%x(i, data%get_ncols())
+            data%x(i, 1:nc-1)
+       write (file_unit, '(g0)') data%x(i, nc)
     end do
 
     close(file_unit)
