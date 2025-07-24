@@ -413,10 +413,6 @@ contains
        dgtq(4) = glsum(this%force4%x, n_pts)
        dgtq(5) = glsum(this%force5%x, n_pts)
        dgtq(6) = glsum(this%force6%x, n_pts)
-       !Overwriting masked s11, s22, s33 as they are no longer needed
-       this%s11msk = 0.0_rp
-       this%s22msk = 0.0_rp
-       this%s33msk = 0.0_rp
        call vcross(this%s11msk%x, this%s22msk%x, this%s33msk%x, &
             this%r1%x, this%r2%x, this%r3%x, &
             this%force1%x, this%force2%x, this%force3%x, n_pts)
@@ -424,9 +420,6 @@ contains
        dgtq(7) = glsum(this%s11msk%x, n_pts)
        dgtq(8) = glsum(this%s22msk%x, n_pts)
        dgtq(9) = glsum(this%s33msk%x, n_pts)
-       this%s11msk = 0.0_rp
-       this%s22msk = 0.0_rp
-       this%s33msk = 0.0_rp
        call vcross(this%s11msk%x, this%s22msk%x, this%s33msk%x, &
             this%r1%x, this%r2%x, this%r3%x, &
             this%force4%x, this%force5%x, this%force6%x, n_pts)
