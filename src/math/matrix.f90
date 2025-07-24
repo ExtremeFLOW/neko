@@ -153,21 +153,21 @@ contains
   end subroutine matrix_free
 
   !> Returns the number of entries in the matrix.
-  function matrix_size(m) result(s)
+  pure function matrix_size(m) result(s)
     class(matrix_t), intent(in) :: m
     integer :: s
     s = m%n
   end function matrix_size
 
   !> Returns the number of rows in the matrix.
-  function matrix_nrows(m) result(nr)
+  pure function matrix_nrows(m) result(nr)
     class(matrix_t), intent(in) :: m
     integer :: nr
     nr = m%nrows
   end function matrix_nrows
 
   !> Returns the number of columns in the matrix.
-  function matrix_ncols(m) result(nc)
+  pure function matrix_ncols(m) result(nc)
     class(matrix_t), intent(in) :: m
     integer :: nc
     nc = m%ncols
