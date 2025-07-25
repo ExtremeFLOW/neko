@@ -16,7 +16,7 @@ combination of the compiler, version of JSON-Fortran, and the operating system.
 | `compiler`         | Yes      | The compiler to use for building JSON-Fortran. The compiler should be available in the PATH.           | `gfortran`.            |
 | `compiler-options` | Yes      | The compiler options to use for building JSON-Fortran.                                                 | `-O3`                  |
 | `build-options`    | Yes      | The build options to use for building JSON-Fortran.                                                    | `--parallel=$(nproc)`. |
-| `version`          | Yes      | The version of JSON-Fortran to build.                                                                  | `8.3.0`.               |
+| `version`          | Yes      | The version of JSON-Fortran to build.                                                                  | `9.0.3`.               |
 
 ## Outputs
 
