@@ -23,7 +23,7 @@ contains
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
-    user%fluid_user_ic => user_ic
+    user%initial_conditions => initial_conditions
     !user%user_dirichlet_update => dirichlet_update
     user%user_dirichlet_update => user_inflow_eval
   end subroutine user_setup
@@ -84,8 +84,9 @@ contains
     real(kind=rp) :: u_th, dist, th, yy
     real(kind=rp) :: arg
     type(dofmap_t ), pointer :: dof
-    integer :: i
+    integer :: i, msk_ind
     real(kind=rp) :: x, y, z
+    type(field_t), pointer :: u, v, w
 
     ! Only do this at the first time step since our BCs are constants.
     if (tstep .ne. 1) return
@@ -95,16 +96,17 @@ contains
 
     ! We only have the velocity solver here, so we know the contents of the
     ! field list.
-    associate(u => dirichlet_field_bc_list%items(1)%ptr, &
-         v => dirichlet_field_bc_list%items(2)%ptr, &
-         w => dirichlet_field_bc_list%items(3)%ptr)
+      u => dirichlet_field_list%get_by_index(1)
+      v => dirichlet_field_list%get_by_index(2)
+      w => dirichlet_field_list%get_by_index(3)
 
       ! We use the bc mask to loop over the boundary nodes. msk(0) holds the
       ! number of nodes in the mask, and msk(1:msk(0)) holds the indices.
       do i = 1, dirichlet_bc%msk(0)
-         x = dof%x(bc%msk(i), 1, 1, 1)
-         y = dof%y(bc%msk(i), 1, 1, 1)
-         z = dof%z(bc%msk(i), 1, 1, 1)
+         msk_ind = dirichlet_bc%msk(i)
+         x = dof%x(msk_ind, 1, 1, 1)
+         y = dof%y(msk_ind, 1, 1, 1)
+         z = dof%z(msk_ind, 1, 1, 1)
 
          !   Two different regions (inflow & cyl) have the label 'v  '
          !   Let compute the distance from the (0,0) in the x-y plane
@@ -113,18 +115,18 @@ contains
 
          ! --- INFLOW
          if (dist .gt. 1.1*rad) then
-            u%x(bc%msk(i),1,1,1) = ucl*y**pw
+            u%x(msk_ind,1,1,1) = ucl*y**pw
          end if
          ! ---
 
-         w%x(bc%msk(i),1,1,1) = 0.0
-         v%x(bc%msk(i),1,1,1) = 0.0
+         w%x(msk_ind,1,1,1) = 0.0
+         v%x(msk_ind,1,1,1) = 0.0
 
          ! --- SPINNING CYLINDER
          if (dist .lt. 1.5*rad .and. y .gt. 0.1) then
             th = atan2(z, x)
-            u%x(bc%msk(i),1,1,1) = cos(th)*u_rho - sin(th)*u_th2
-            w%x(bc%msk(i),1,1,1) = sin(th)*u_rho + cos(th)*u_th2
+            u%x(msk_ind,1,1,1) = cos(th)*u_rho - sin(th)*u_th2
+            w%x(msk_ind,1,1,1) = sin(th)*u_rho + cos(th)*u_th2
          end if
 
          ! ---
@@ -147,30 +149,32 @@ contains
 
             th = atan2(z, x)
 
-            u%x(i,1,1,1) = cos(th)*u_rho - sin(th)*u_th
-            w%x(i,1,1,1) = sin(th)*u_rho + cos(th)*u_th
+            u%x(msk_ind,1,1,1) = cos(th)*u_rho - sin(th)*u_th
+            w%x(msk_ind,1,1,1) = sin(th)*u_rho + cos(th)*u_th
          end if
       end do
-    end associate
   end subroutine user_inflow_eval
 
   ! User defined initial condition
-  subroutine user_ic(u, v, w, p, params)
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    type(json_file), intent(inout) :: params
+  subroutine initial_conditions(scheme_name, fields)
+    character(len=*), intent(in) :: scheme_name
+    type(field_list_t), intent(inout) :: fields
     integer :: i
     real(kind=rp) :: y
+
+    type (field_t), pointer :: u, v, w
+
+    u => fields%get_by_name("u")
+    v => fields%get_by_name("v")
+    w => fields%get_by_name("w")
 
     do i = 1, u%dof%size()
        y = u%dof%y(i,1,1,1)
        u%x(i,1,1,1) = ucl*y**pw
-       v%x(i,1,1,1) = 0.0
-       w%x(i,1,1,1) = 0.0
+       v%x(i,1,1,1) = 0.0_rp
+       w%x(i,1,1,1) = 0.0_rp
     end do
-  end subroutine user_ic
+  end subroutine initial_conditions
 
   ! Initial example of using user specified dirichlet bcs
   ! Note: This subroutine will be called two times, once in the fluid solver, and once
