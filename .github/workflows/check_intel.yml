@@ -38,7 +38,7 @@ jobs:
               pip install pytest json5
               INTEL_PATH=$(find /opt/intel/oneapi/compiler/ -name "${FC}" -type f | xargs dirname)
               export PATH=$INTEL_PATH:${PATH}
-              export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/intel/oneapi/compiler/latest/lib/
+              export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/intel/oneapi/compiler/latest/linux/compiler/lib
               printenv >> $GITHUB_ENV
               echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
 
