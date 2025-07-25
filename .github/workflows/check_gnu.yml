@@ -28,7 +28,7 @@ jobs:
         os: [ubuntu-24.04, ubuntu-24.04-arm, macos-13, macos-15]
         compiler: [gfortran-12, gfortran-13, gfortran-14, gfortran-15]
         backend: [cpu, cuda, hip, opencl]
-        precision: [sp, dp]
+        precision: [ssp, sp, dp]
         exclude:
           - os: ubuntu-24.04
             backend: opencl
@@ -78,7 +78,7 @@ jobs:
             backend: cuda
           - compiler: gfortran-15
             backend: hip
-            
+
         include:
           - os: ubuntu-24.04
             setup-env: |
