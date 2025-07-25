@@ -40,9 +40,9 @@ contains
     if (scheme_name .eq. "fluid") then
        call field_cfill(properties%get_by_name("fluid_rho"), 1.0_rp)
        call field_cfill(properties%get_by_name("fluid_mu"), mu)
-    else if (scheme_name .eq. "scalar") then
-       call field_cfill(properties%get_by_name("scalar_cp"), 1.0_rp)
-       call field_cfill(properties%get_by_name("scalar_lambda"), mu / Pr)
+    else if (scheme_name .eq. "temperature") then
+       call field_cfill(properties%get_by_name("temperature_cp"), 1.0_rp)
+       call field_cfill(properties%get_by_name("temperature_lambda"), mu / Pr)
     end if
   end subroutine set_material_properties
 

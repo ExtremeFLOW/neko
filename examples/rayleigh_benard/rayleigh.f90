@@ -12,7 +12,6 @@ contains
     type(user_t), intent(inout) :: user
     user%initial_conditions => initial_conditions
     user%source_term => source_term
-    user%user_dirichlet_update => scalar_bc
     user%startup => startup
   end subroutine user_setup
 
@@ -34,29 +33,6 @@ contains
     call params%add("case.scalar.lambda", lambda)
     call params%add("case.scalar.cp", cp)
   end subroutine startup
-
-  subroutine scalar_bc(dirichlet_field_list, dirichlet_bc, &
-       coef, t, tstep)
-    type(field_list_t), intent(inout) :: dirichlet_field_list
-    type(field_dirichlet_t), intent(in) :: dirichlet_bc
-    type(coef_t), intent(inout) :: coef
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    type(field_t), pointer :: s
-    integer :: i
-
-    ! Only do this at the first time step since our BCs are constants.
-    if (tstep .ne. 1) return
-
-    ! We know that it is the scalar calling the routine
-    s => dirichlet_field_list%items(1)%ptr
-
-    do i = 1, dirichlet_bc%msk(0)
-      s%x(dirichlet_bc%msk(i),1,1,1) = &
-        1.0_rp - s%dof%z(dirichlet_bc%msk(i),1,1,1)
-    end do
-
-  end subroutine scalar_bc
 
   !> User initial condition
   subroutine initial_conditions(scheme_name, fields)
