@@ -32,7 +32,7 @@
 !
 !> Utilities for retrieving parameters from the case files.
 module json_utils
-  use num_types, only : rp, dp, sp
+  use num_types, only : rp, dp, sp, qp
   use json_module, only : json_file, json_value, json_core
   use utils, only : neko_error
   implicit none
@@ -46,18 +46,19 @@ module json_utils
 
   !> Retrieves a parameter by name or throws an error
   interface json_get
-     module procedure json_get_real, json_get_double, json_get_integer, &
-          json_get_logical, json_get_string, json_get_real_array, &
-          json_get_double_array, json_get_integer_array, &
-          json_get_logical_array, json_get_string_array, json_get_subdict
+     module procedure json_get_real, json_get_double, json_get_quad, &
+          json_get_integer, json_get_logical, json_get_string, &
+          json_get_real_array, json_get_double_array, json_get_quad_array, &
+          json_get_integer_array, json_get_logical_array, &
+          json_get_string_array, json_get_subdict
   end interface json_get
 
   !> Retrieves a parameter by name or assigns a provided default value.
-  !! In the latter case also adds the missing paramter to the json
+  !! In the latter case also adds the missing parameter to the json
   interface json_get_or_default
      module procedure json_get_or_default_real, json_get_or_default_double, &
-          json_get_or_default_integer, json_get_or_default_string, &
-          json_get_or_default_logical
+          json_get_or_default_quad, json_get_or_default_integer, &
+          json_get_or_default_string, json_get_or_default_logical
   end interface json_get_or_default
 
   interface json_extract_item
@@ -96,6 +97,24 @@ contains
 
     call json%get(name, value)
   end subroutine json_get_double
+
+  !> Retrieves a quad precision real parameter by name or throws an error
+  !! @param[inout] json The json to retrieve the parameter from.
+  !! @param[in] name The full path to the parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter
+  subroutine json_get_quad(json, name, value)
+    type(json_file), intent(inout) :: json
+    character(len=*), intent(in) :: name
+    real(kind=qp), intent(out) :: value
+    real(kind=dp) :: tmp
+
+    if (.not. json%valid_path(name)) then
+       call neko_error("Parameter " // name // " missing from the case file")
+    end if
+
+    call json%get(name, tmp)
+    value = real(tmp, kind=qp)
+  end subroutine json_get_quad
 
   !> Retrieves an integer parameter by name or throws an error
   !! @param[inout] json The json to retrieve the parameter from.
@@ -176,6 +195,28 @@ contains
 
     call json%get(name, value)
   end subroutine json_get_double_array
+
+  !> Retrieves a real array parameter by name or throws an error
+  !! @param[inout] json The json to retrieve the parameter from.
+  !! @param[in] name The full path to the parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter
+  subroutine json_get_quad_array(json, name, value)
+    type(json_file), intent(inout) :: json
+    character(len=*), intent(in) :: name
+    real(kind=qp), allocatable, intent(out) :: value(:)
+    real(kind=dp), allocatable :: tmp(:)
+
+    if (.not. json%valid_path(name)) then
+       call neko_error("Parameter " // name // " missing from the case file")
+    end if
+
+    call json%get(name, tmp)
+    value = real(tmp, kind=qp)
+
+    if (allocated(tmp)) then
+       deallocate(tmp)
+    end if
+  end subroutine json_get_quad_array
 
   !> Retrieves a integer array parameter by name or throws an error
   !! @param[inout] json The json to retrieve the parameter from.
@@ -276,7 +317,7 @@ contains
   end subroutine json_get_subdict
 
   !> Retrieves a real parameter by name or assigns a provided default value.
-  !! In the latter case also adds the missing paramter to the json.
+  !! In the latter case also adds the missing parameter to the json.
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
   !! @param[out] value The variable to be populated with the retrieved parameter
@@ -298,7 +339,7 @@ contains
   end subroutine json_get_or_default_real
 
   !> Retrieves a real parameter by name or assigns a provided default value.
-  !! In the latter case also adds the missing paramter to the json.
+  !! In the latter case also adds the missing parameter to the json.
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
   !! @param[out] value The variable to be populated with the retrieved parameter
@@ -319,8 +360,32 @@ contains
     end if
   end subroutine json_get_or_default_double
 
+  !> Retrieves a real parameter by name or assigns a provided default value.
+  !! In the latter case also adds the missing parameter to the json.
+  !! @param[inout] json The json to retrieve the parameter from.
+  !! @param[in] name The full path to the parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter
+  subroutine json_get_or_default_quad(json, name, value, default)
+    type(json_file), intent(inout) :: json
+    character(len=*), intent(in) :: name
+    real(kind=qp), intent(out) :: value
+    real(kind=qp), intent(in) :: default
+    real(kind=dp) :: tmp
+    logical :: found
+
+    call json%get(name, tmp, found)
+
+    if ((.not. found) .and. (json_no_defaults .eqv. .false.)) then
+       tmp = real(default, kind=dp)
+       call json%add(name, tmp)
+    else if (.not. found) then
+       call neko_error("Parameter " // name // " missing from the case file")
+    end if
+    value = real(tmp, kind=qp)
+  end subroutine json_get_or_default_quad
+
   !> Retrieves an integer parameter by name or assigns a provided default value.
-  !! In the latter case also adds the missing paramter to the json.
+  !! In the latter case also adds the missing parameter to the json.
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
   !! @param[out] value The variable to be populated with the retrieved parameter
@@ -342,7 +407,7 @@ contains
   end subroutine json_get_or_default_integer
 
   !> Retrieves a logical parameter by name or assigns a provided default value.
-  !! In the latter case also adds the missing paramter to the json.
+  !! In the latter case also adds the missing parameter to the json.
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
   !! @param[out] value The variable to be populated with the retrieved parameter
@@ -364,7 +429,7 @@ contains
   end subroutine json_get_or_default_logical
 
   !> Retrieves a string parameter by name or assigns a provided default value.
-  !! In the latter case also adds the missing paramter to the json.
+  !! In the latter case also adds the missing parameter to the json.
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
   !! @param[out] value The variable to be populated with the retrieved parameter
