@@ -12,7 +12,7 @@ on:
         description: "The version of the JSON-Fortran library to use."
         type: string
         required: false
-        default: "9.0.3"
+        default: "8.4.0"
 
 jobs:
   NVIDIA:
