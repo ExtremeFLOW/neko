@@ -256,7 +256,7 @@ jobs:
           name: Integration test logs - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
           path: |
             tests/integration/logs
-            tests/integration/tests/**/*.csv
+            tests/integration/**/*.csv
           retention-days: 1
 
       - name: Dist (CPU backend)
