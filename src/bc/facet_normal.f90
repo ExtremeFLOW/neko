@@ -283,9 +283,6 @@ contains
     this%unique_mask(0) = unique_point_idx%num_entries()
     do i = 1, this%unique_mask(0)
        this%unique_mask(i) = 0
-       this%nx%x(i) = 0.0_rp
-       this%ny%x(i) = 0.0_rp
-       this%nz%x(i) = 0.0_rp
     end do
 
 
@@ -311,11 +308,11 @@ contains
        call device_memcpy(this%unique_mask, this%unique_mask_d, &
             size(this%unique_mask), HOST_TO_DEVICE, sync = .true.)
        call device_memcpy(this%nx%x, this%nx%x_d, &
-            this%nx%n, HOST_TO_DEVICE, sync = .true.)
+            this%nx%size(), HOST_TO_DEVICE, sync = .true.)
        call device_memcpy(this%ny%x, this%ny%x_d, &
-            this%ny%n, HOST_TO_DEVICE, sync = .true.)
+            this%ny%size(), HOST_TO_DEVICE, sync = .true.)
        call device_memcpy(this%nz%x, this%nz%x_d, &
-            this%nz%n, HOST_TO_DEVICE, sync = .true.)
+            this%nz%size(), HOST_TO_DEVICE, sync = .true.)
     end if
 
     call unique_point_idx%free()

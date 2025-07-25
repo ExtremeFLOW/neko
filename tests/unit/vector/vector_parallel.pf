@@ -68,13 +68,12 @@ contains
     call v%init(n)
     call v%free()
     @assertFalse(allocated(v%x))
-    @assertEqual(v%n, 0)
     @assertEqual(v%size(), 0)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        @assertFalse(c_associated(v%x_d))
     end if
-    
+
   end subroutine test_vector_free
 
   @test(npes=[1])
@@ -86,16 +85,16 @@ contains
 
     call w%init(n)
     v = w
-    @assertEqual(v%n, w%n)
+    @assertEqual(v%size(), w%size())
     @assertTrue(allocated(v%x))
 
     call w%free()
     call w%init(m)
 
     v = w
-    @assertEqual(v%n, w%n)
+    @assertEqual(v%size(), w%size())
     @assertTrue(allocated(v%x))
-       
+
   end subroutine test_vector_assign_vector
 
   @test(npes[1])
@@ -116,9 +115,9 @@ contains
     do i = 1, n
        @assertEqual(42.0_rp, v%x(i), tolerance=NEKO_EPS)
     end do
-       
+
   end subroutine test_vector_assign_scalar
-  
+
   @test(npes=[1])
   subroutine test_vector_add_vector(this)
     class (test_vector), intent(inout) :: this
@@ -144,7 +143,7 @@ contains
 
     u = v + w
 
-    @assertEqual(u%n, v%n)
+    @assertEqual(u%size(), v%size())
     @assertTrue(allocated(u%x))
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -179,7 +178,7 @@ contains
 
     u = v + s
 
-    @assertEqual(u%n, v%n)
+    @assertEqual(u%size(), v%size())
     @assertTrue(allocated(u%x))
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -217,8 +216,8 @@ contains
 
     u = v - w
 
-    @assertEqual(u%n, v%n)
-    @assertEqual(u%n, w%n)
+    @assertEqual(u%size(), v%size())
+    @assertEqual(u%size(), w%size())
     @assertTrue(allocated(u%x))
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -253,7 +252,7 @@ contains
 
     u = v - s
 
-    @assertEqual(u%n, v%n)
+    @assertEqual(u%size(), v%size())
     @assertTrue(allocated(u%x))
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -288,7 +287,7 @@ contains
 
     u = s*v
 
-    @assertEqual(u%n, v%n)
+    @assertEqual(u%size(), v%size())
     @assertTrue(allocated(u%x))
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
