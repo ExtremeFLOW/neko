@@ -25,52 +25,60 @@ contains
   ! Register user-defined functions (see user_intf.f90)
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
-    user%fluid_user_ic => user_ic
-    user%fluid_user_if => user_bc
-    user%user_check => user_calc_quantities
-    user%user_init_modules => user_initialize
-    user%user_finalize_modules => user_finalize
+    user%startup => startup
+    user%user_dirichlet_update => user_bc
+    user%compute => compute
+    user%initialize =>initialize
+    user%finalize => finalize
   end subroutine user_setup
 
+  subroutine startup(params)
+    type(json_file), intent(inout) :: params
+    character(len=50) :: mess
+
+    ! read postprocessing interval
+    call json_get(params, "case.fluid.ipostproc", ipostproc)
+    write(mess,*) "postprocessing steps : ",ipostproc
+    call neko_log%message(mess)
+  end subroutine startup
+
   ! user-defined boundary condition
-  subroutine user_bc(u, v, w, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
-    real(kind=rp), intent(inout) :: u, v,w
-    real(kind=rp), intent(in) :: x, y, z
-    real(kind=rp), intent(in) :: nx, ny, nz
-    integer, intent(in) :: ix, iy, iz, ie
+  subroutine user_bc(dirichlet_field_list, dirichlet_bc, coef, t, tstep)
+    type(field_list_t), intent(inout) :: dirichlet_field_list
+    type(field_dirichlet_t), intent(in) :: dirichlet_bc
+    type(coef_t), intent(inout) :: coef
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+    type(field_t), pointer :: u, v, w
+    integer :: i
+    real(kind=rp) :: x
 
     real(kind=rp) lsmoothing
+
+    if (tstep .ne. 1) return
+
+    u => dirichlet_field_list%get_by_name("u")
+    v => dirichlet_field_list%get_by_name("v")
+    w => dirichlet_field_list%get_by_name("w")
+
     lsmoothing = 0.1_rp ! length scale of smoothing at the edges
 
-    u = step( x/lsmoothing ) * step( (1._rp-x)/lsmoothing )
-    v = 0._rp
-    w = 0._rp
+    do i = 1, dirichlet_bc%msk(0)
+      x = u%dof%x(dirichlet_bc%msk(i), 1, 1, 1)
+      u%x(dirichlet_bc%msk(i), 1, 1, 1) = &
+           step( x/lsmoothing ) * step( (1._rp - x)/lsmoothing )
+
+      v%x(dirichlet_bc%msk(i), 1, 1, 1) = 0
+      w%x(dirichlet_bc%msk(i), 1, 1, 1) = 0
+    end do
 
   end subroutine user_bc
 
-  ! User-defined initial condition
-  subroutine user_ic(u, v, w, p, params)
-    type(field_t), intent(inout) :: u, v, w, p
-    type(json_file), intent(inout) :: params
-
-    ! set all zero velocity and pressure
-    u = 0._rp
-    v = 0._rp
-    w = 0._rp
-    p = 0._rp
-  end subroutine user_ic
-
   ! User-defined initialization called just before time loop starts
-  subroutine user_initialize(t, u, v, w, p, coef, params)
-    real(kind=rp) :: t
-    type(field_t), intent(inout) :: u, v, w, p
-    type(coef_t), intent(inout) :: coef
-    type(json_file), intent(inout) :: params
+  subroutine initialize(time)
+    type(time_state_t), intent(in) :: time
 
-    integer tstep
-    character(len=50) :: mess
+    type(field_t), pointer :: u
 
     ! Initialize the file object and create the output.csv file
     ! in the working directory
@@ -79,6 +87,7 @@ contains
     call vec_out%init(2) ! Initialize our vector with 2 elements (Ekin, enst)
 
     ! initialize work arrays for postprocessing
+    u => neko_field_registry%get_field("u")
     call w1%init(u%dof, 'work1')
     call temp1%init(u%dof)
     call temp2%init(u%dof)
@@ -86,42 +95,42 @@ contains
     call vort2%init(u%dof)
     call vort3%init(u%dof)
 
-    ! read postprocessing interval
-    call json_get(params, "case.fluid.ipostproc", ipostproc)
-    write(mess,*) "postprocessing steps : ",ipostproc
-    call neko_log%message(mess)
 
     ! call usercheck also for tstep=0
-    tstep = 0
-    call user_calc_quantities(t, tstep, u, v, w, p, coef, params)
+    call compute(time)
 
-  end subroutine user_initialize
+  end subroutine initialize
 
   ! User-defined routine called at the end of every time step
-  subroutine user_calc_quantities(t, tstep, u, v, w, p, coef, params)
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    type(coef_t), intent(inout) :: coef
-    type(json_file), intent(inout) :: params
-    type(field_t), intent(inout) :: u, v, w, p
+  subroutine compute(time)
+    type(time_state_t), intent(in) :: time
+
     integer :: ntot, i
     real(kind=rp) :: ekin, enst
+    type(field_t), pointer :: u, v, w
+    type(coef_t), pointer :: coef
+
 
     ! do the postprocessing only every 50 time steps (including step 0)
-    if (mod(tstep,ipostproc).ne.0) return
+    if (mod(time%tstep, ipostproc) .ne. 0) return
+
+    coef => neko_user_access%case%fluid%c_Xh
+    u => neko_field_registry%get_field("u")
+    v => neko_field_registry%get_field("v")
+    w => neko_field_registry%get_field("w")
 
     ntot = u%dof%size()
 
     ! compute the kinetic energy
     ! field_ routines operate on the configured backend
-    call field_col3(w1,u,u,ntot)
-    call field_addcol3(w1,v,v,ntot)
-    call field_addcol3(w1,w,w,ntot)
+    call field_col3(w1, u, u, ntot)
+    call field_addcol3(w1, v, v, ntot)
+    call field_addcol3(w1, w, w, ntot)
     ! For glsc2 we need to call the correct backend
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       ekin = 0.5_rp * device_glsc2(w1%x_d,coef%B_d,ntot) / coef%volume
+       ekin = 0.5_rp * device_glsc2(w1%x_d, coef%B_d,ntot) / coef%volume
     else
-       ekin = 0.5_rp * glsc2(w1%x,coef%B,ntot) / coef%volume
+       ekin = 0.5_rp * glsc2(w1%x, coef%B, ntot) / coef%volume
     end if
 
     ! compute enstrophy
@@ -129,34 +138,30 @@ contains
     ! follow the reference paper by the HiOCFD4 workshop, but the book
     ! by Pope for instance would not include this factor)
     call curl(vort1,vort2,vort3, u, v, w, temp1, temp2, coef)
-    call field_col3(w1,vort1,vort1,ntot)
-    call field_addcol3(w1,vort2,vort2,ntot)
-    call field_addcol3(w1,vort3,vort3,ntot)
+    call field_col3(w1, vort1, vort1, ntot)
+    call field_addcol3(w1, vort2, vort2, ntot)
+    call field_addcol3(w1, vort3, vort3, ntot)
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       enst = 0.5_rp * device_glsc2(w1%x_d,coef%B_d,ntot) / coef%volume
+       enst = 0.5_rp * device_glsc2(w1%x_d, coef%B_d, ntot) / coef%volume
     else
-       enst = 0.5_rp * glsc2(w1%x,coef%B,ntot) / coef%volume
+       enst = 0.5_rp * glsc2(w1%x, coef%B, ntot) / coef%volume
     end if
 
 
     ! output all this to file
     call neko_log%message("Writing csv file")
     vec_out%x = (/ekin, enst/)
-    call output_file%write(vec_out, t)
+    call output_file%write(vec_out, time%t)
 
     ! set the w component to zero to avoid any 3D instability
     ! in this quasi-2D flow
-    w = 0._rp
-    ! a perhaps more verbose alternative would be:
-    !   use field_math, only: field_rzero
-    !   call field_rzero(w, ntot)
+    call field_rzero(w)
 
-  end subroutine user_calc_quantities
+  end subroutine compute
 
   ! User-defined finalization routine called at the end of the simulation
-  subroutine user_finalize(t, params)
-    real(kind=rp) :: t
-    type(json_file), intent(inout) :: params
+  subroutine finalize(time)
+    type(time_state_t), intent(in) :: time
 
     ! Deallocate the fields
     call w1%free()
@@ -165,14 +170,15 @@ contains
     call file_free(output_file)
     call vec_out%free
 
-  end subroutine user_finalize
+  end subroutine finalize
 
   ! Smooth step function, with zero derivatives at 0 and 1
   function step(x)
     ! Taken from Simson code
     ! x<=0 : step(x) = 0
     ! x>=1 : step(x) = 1
-    real(kind=rp) :: step, x
+    real(kind=rp), intent(in) :: x
+    real(kind=rp) :: step
 
     if (x.le.0.02_rp) then
        step = 0.0_rp

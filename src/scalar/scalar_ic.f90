@@ -166,8 +166,7 @@ contains
 
     n = s%dof%size()
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(s%x, s%x_d, n, &
-            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(s%x, s%x_d, n, HOST_TO_DEVICE, sync = .false.)
     end if
 
     ! Ensure continuity across elements for initial conditions

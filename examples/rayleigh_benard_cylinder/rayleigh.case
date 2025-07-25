@@ -24,6 +24,7 @@
             "source_terms": [
                 {
                     "type": "boussinesq",
+                    "scalar_field": "temperature",
                     "g": [ 0, 0, 1 ],
                     "reference_value": 0,
                     "beta": 1

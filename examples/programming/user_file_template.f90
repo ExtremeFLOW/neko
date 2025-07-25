@@ -10,112 +10,55 @@ contains
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
 
-    user%user_startup => user_startup
-    user%user_init_modules => user_init_modules
-    user%fluid_user_ic => fluid_user_ic
-    user%fluid_compressible_user_ic => fluid_compressible_user_ic
-    user%scalar_user_ic => scalar_user_ic
-    user%user_mesh_setup => user_mesh_setup
-    user%user_check => user_check
-    user%user_finalize_modules => user_finalize_modules
-    user%fluid_user_f => fluid_user_f
-    user%fluid_user_f_vector => fluid_user_f_vector
-    user%scalar_user_f => scalar_user_f
-    user%scalar_user_f_vector => scalar_user_f_vector
-    user%scalar_user_bc => scalar_user_bc
+    user%startup => startup
+    user%initialize => initialize
+    user%initial_conditions => initial_conditions
+    user%mesh_setup => mesh_setup
+    user%compute => compute
+    user%finalize => finalize
+    user%source_term => source_term
     user%user_dirichlet_update => user_dirichlet_update
     user%material_properties => material_properties
 
   end subroutine user_setup
 
-  subroutine user_startup(params)
+  subroutine startup(params)
     type(json_file), intent(inout) :: params
 
-  end subroutine user_startup
+  end subroutine startup
 
-  subroutine user_init_modules(t, u, v, w, p, coef, params)
-    real(kind=rp) :: t
-    type(field_t), intent(inout) :: u, v, w, p
-    type(coef_t), intent(inout) :: coef
-    type(json_file), intent(inout) :: params
+  subroutine initialize(time)
+    type(time_state_t), intent(in) :: time
 
-  end subroutine user_init_modules
+  end subroutine initialize
 
-  subroutine fluid_user_ic(u, v, w, p, params)
-    type(field_t), intent(inout) :: u, v, w, p
-    type(json_file), intent(inout) :: params
+  subroutine initial_conditions(scheme_name, fields)
+    character(len=*), intent(in) :: scheme_name
+    type(field_list_t), intent(inout) :: fields
 
-  end subroutine fluid_user_ic
+  end subroutine initial_conditions
 
-  subroutine fluid_compressible_user_ic(rho, u, v, w, p, params)
-    type(field_t), intent(inout) :: rho, u, v, w, p
-    type(json_file), intent(inout) :: params
-
-  end subroutine fluid_compressible_user_ic
-
-  subroutine scalar_user_ic(s, params)
-    type(field_t), intent(inout) :: s
-    type(json_file), intent(inout) :: params
-
-  end subroutine scalar_user_ic
-
-  subroutine user_mesh_setup(msh)
+  subroutine mesh_setup(msh, time)
     type(mesh_t), intent(inout) :: msh
+    type(time_state_t), intent(in) :: time
 
-  end subroutine user_mesh_setup
+  end subroutine mesh_setup
 
-  subroutine user_check(t, tstep, u, v, w, p, coef, params)
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    type(field_t), intent(inout) :: u, v, w, p
-    type(coef_t), intent(inout) :: coef
-    type(json_file), intent(inout) :: params
+  subroutine compute(time)
+    type(time_state_t), intent(in) :: time
+  end subroutine compute
 
-  end subroutine user_check
+  subroutine finalize(time)
+    type(time_state_t), intent(in) :: time
 
-  subroutine user_finalize_modules(t, params)
-    real(kind=rp) :: t
-    type(json_file), intent(inout) :: params
+  end subroutine finalize
 
-  end subroutine user_finalize_modules
+  subroutine source_term(scheme_name, rhs, time)
+    character(len=*), intent(in) :: scheme_name
+    type(field_list_t), intent(inout) :: rhs
+    type(time_state_t), intent(in) :: time
 
-  subroutine fluid_user_f(u, v, w, j, k, l, e, t)
-    real(kind=rp), intent(inout) :: u, v, w
-    integer, intent(in) :: j, k, l, e
-    real(kind=rp), intent(in) :: t
-
-  end subroutine fluid_user_f
-
-  subroutine fluid_user_f_vector(f, t)
-    class(fluid_user_source_term_t), intent(inout) :: f
-    real(kind=rp), intent(in) :: t
-
-  end subroutine fluid_user_f_vector
-
-  subroutine scalar_user_f(field_name, s, j, k, l, e, t)
-    character(len=*), intent(in) :: field_name
-    real(kind=rp), intent(inout) :: s
-    integer, intent(in) :: j, k, l, e
-    real(kind=rp), intent(in) :: t
-
-  end subroutine scalar_user_f
-
-  subroutine scalar_user_f_vector(field_name, f, t)
-    character(len=*), intent(in) :: field_name
-    class(scalar_user_source_term_t), intent(inout) :: f
-    real(kind=rp), intent(in) :: t
-
-  end subroutine scalar_user_f_vector
-
-  subroutine scalar_user_bc(scalar_name, s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
-    character(len=*), intent(in) :: scalar_name
-    real(kind=rp), intent(inout) :: s
-    real(kind=rp), intent(in) :: x, y, z, nx, ny, nz
-    integer, intent(in) :: ix, iy, iz, ie
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-
-  end subroutine scalar_user_bc
+  end subroutine source_term
 
   subroutine user_dirichlet_update(dirichlet_field_list, dirichlet_bc, coef, t,&
        tstep)
@@ -127,11 +70,10 @@ contains
 
   end subroutine user_dirichlet_update
 
-  subroutine material_properties(t, tstep, name, properties)
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    character(len=*), intent(in) :: name
+  subroutine material_properties(scheme_name, properties, time)
+    character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: properties
+    type(time_state_t), intent(in) :: time
 
   end subroutine material_properties
 
