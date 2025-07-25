@@ -254,7 +254,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Integration test logs - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
-          path: tests/integration/logs
+          path: |
+            tests/integration/logs
+            tests/integration/tests/**/*.csv
           retention-days: 1
 
       - name: Dist (CPU backend)
