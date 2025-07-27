@@ -119,11 +119,11 @@ contains
     end if
 
     if (strong_) then
-       call this%symmetry%apply_vector(x, y, z, n, time, .true.)
+       call this%symmetry%apply_vector(x, y, z, n, time = time, strong = .true.)
     else
-       call this%neumann_x%apply_scalar(x, n, time, .false.)
-       call this%neumann_y%apply_scalar(y, n, time, .false.)
-       call this%neumann_z%apply_scalar(z, n, time, .false.)
+       call this%neumann_x%apply_scalar(x, n, time = time, strong = .false.)
+       call this%neumann_y%apply_scalar(y, n, time = time, strong = .false.)
+       call this%neumann_z%apply_scalar(z, n, time = time, strong = .false.)
     end if
 
   end subroutine shear_stress_apply_vector
@@ -161,12 +161,15 @@ contains
     end if
 
     if (strong_) then
-       call this%symmetry%apply_vector_dev(x_d, y_d, z_d, &
-            time, .true., strm)
+       call this%symmetry%apply_vector_dev(x_d, y_d, z_d, time = time, &
+            strong =.true., strm = strm)
     else
-       call this%neumann_x%apply_scalar_dev(x_d, time, .false., strm)
-       call this%neumann_y%apply_scalar_dev(y_d, time, .false., strm)
-       call this%neumann_z%apply_scalar_dev(z_d, time, .false., strm)
+       call this%neumann_x%apply_scalar_dev(x_d, time = time, &
+            strong = .false., strm = strm)
+       call this%neumann_y%apply_scalar_dev(y_d, time = time, &
+            strong = .false., strm = strm)
+       call this%neumann_z%apply_scalar_dev(z_d, time = time, &
+            strong = .false., strm = strm)
     end if
 
   end subroutine shear_stress_apply_vector_dev
