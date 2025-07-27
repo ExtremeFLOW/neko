@@ -164,7 +164,7 @@ contains
 
   end subroutine user_stats_free
 
-  !> Compute the vorticity field.
+  !> Update the statistics.
   !! @param t The time value.
   !! @param tstep The current time-step
   subroutine user_stats_compute(this, t, tstep)
