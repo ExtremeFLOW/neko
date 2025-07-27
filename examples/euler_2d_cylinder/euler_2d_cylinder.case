@@ -7,7 +7,9 @@
         "output_checkpoints": false,
         "time": {
             "end_time": 2,
-            "timestep": 1e-4
+            "timestep": 1e-4,
+            "variable_timestep": true,
+            "target_cfl": 0.2,
         },
 
         "numerics": {

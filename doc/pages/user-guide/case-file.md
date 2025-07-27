@@ -69,6 +69,7 @@ but also defines several parameters that pertain to the simulation as a whole.
 
 | Name                  | Description                                                                                           | Admissible values                               | Default value |
 | --------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------- | ------------- |
+| `no_defaults`         | Prevents filling in default values to case file entries.                                              | `true` or `false`                               | `false`       |
 | `mesh_file`           | The name of the mesh file.                                                                            | Strings ending with `.nmsh`                     | -             |
 | `output_boundary`     | Whether to write a `bdry0.f0000` file with boundary labels. Can be used to check boundary conditions. | `true` or `false`                               | `false`       |
 | `output_directory`    | Folder for redirecting solver output. Note that the folder has to exist!                              | Path to an existing directory                   | `.`           |

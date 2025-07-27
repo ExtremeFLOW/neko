@@ -333,6 +333,7 @@ keywords:
     following additional keyword:
     - `c_s`: The Smagorinsky constant, defaults to 0.17.
   - `dynamic_smagorinsky`: The dynamic Smagorinsky model.
+    - `test_filter`: The test filter for the dynamic Smagorinsky model
   - `vreman`: The Vreman model. Configured by the following additional keyword:
     - `c`: The model constant, defaults to 0.07.
   - `sigma`: The Sigma model. Configured by the following additional keyword:
@@ -367,6 +368,25 @@ keywords:
    "output_control" : "never"
  }
  ~~~~~~~~~~~~~~~
+
+ Please also note that for the dynamic Smagorinsky model, one needs to specify the
+ test filter in the following way for the Boyd filter as the test filter
+ (one could also use "nonBoyd" as the option):
+ ~~~~~~~~~~~~~~~{.json}
+ {
+   "type": "les_model"
+   "model": "dynamic_smagorinsky",
+   "test_filter": {
+      "filter": {
+        "type": "elementwise",
+        "elementwise_filter_type": "Boyd"
+      }
+    }
+ }
+ ~~~~~~~~~~~~~~~
+ And one could not change the default test filter's kernel through the case file.
+ If one needs to do so, he/she needs to dig into the code in
+ src/les/dynamic_smagorinksy.f90.
 
 ### Spectral error indicator {#simcomp_speri}
 

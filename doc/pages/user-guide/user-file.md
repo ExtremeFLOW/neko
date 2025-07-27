@@ -886,6 +886,68 @@ use `sync = .true.` as a starting point.
 Finally, observe that we use the flag `NEKO_BCKND_DEVICE` to check if we are
 indeed running on GPUs. In that case, `NEKO_BCKND_DEVICE` would be equal to 1.
 
+#### Custom GPU kernels {#user-file_tips_running-on-gpus-custom-kernels}
+
+When running on GPUs it is possible to call an own custom kernel. This
+could be more performant for more complex source terms or boundary
+conditions.
+
+Assume we have a custom kernel called `mydevice_kernel` in a CUDA file
+called `mykernel.cu`, to set the initial velicity field. To call the
+custom kernel, the user file must define a C interface to the routine
+(inside the `.cu` file) that launches the kernel
+
+```fortran
+interface
+  subroutine mydevice_kernel(u_d, v_d, w_d, n) &
+        bind(c, name = 'mydevice_kernel')
+    use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+    type(c_ptr), value :: u_d, v_d, w_d
+    integer(c_int) :: n
+  end subroutine mydevice_kernel
+end interface
+```
+
+Furthermore, the CUDA/HIP file must allow for C linkage, hence the
+routine `mydevice_kernel` must be inside an `extern "C"` block.
+
+```cpp
+extern "C" {
+  void mydevice_kernel(void *u, void *v, void *w, int *n) {
+    /* Launch the device kernel here */
+  }
+}
+```
+The user defined routine for initial conditions calls the kernel in
+the following way.
+
+```fortran
+
+  !> Set the advecting velocity field.
+  subroutine set_velocity(u, v, w, p, params)
+    type(field_t), intent(inout) :: u
+    type(field_t), intent(inout) :: v
+    type(field_t), intent(inout) :: w
+    type(field_t), intent(inout) :: p
+    type(json_file), intent(inout) :: params
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call mydevice_kernel(u%x_d, v%x_d, w%x_d, u%dof%size())
+    endif
+    
+  end subroutine set_velocity
+
+```
+
+Finally, compile using `makeneko` and provide both the `user.f90` and
+`mykernel.cu` file.
+
+```bash
+makeneko user.f90 mykernel.cu
+```
+
+@note `makeneko` does currently only support custom kernels written in CUDA or HIP.
+
 ### Registries {#user-file_tips_registries}
 
 Neko uses the concept of `registry` as a practical way to retrieve fields and

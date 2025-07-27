@@ -34,18 +34,22 @@ module fluid_scheme_compressible
   use dirichlet, only : dirichlet_t
   use field, only : field_t
   use field_math, only : field_cfill, field_col2, field_col3, &
-       field_cmult2, field_cmult, field_addcol3, field_add2
+       field_cmult2, field_cmult, field_addcol3, field_add2, field_add3, &
+       field_invcol2
   use field_registry, only : neko_field_registry
   use fluid_scheme_base, only : fluid_scheme_base_t
   use json_module, only : json_file
   use logger, only : LOG_SIZE
   use num_types, only : rp
   use mesh, only : mesh_t
-  use scratch_registry, only : scratch_registry_t
+  use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   use space, only : space_t, GLL
   use user_intf, only : user_t
   use usr_inflow, only : usr_inflow_eval
   use json_utils, only : json_get_or_default
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
+  use mpi_f08
+  use operators, only : cfl, cfl_compressible, compute_max_wave_speed
   implicit none
   private
 
@@ -56,6 +60,7 @@ module fluid_scheme_compressible
      type(field_t), pointer :: m_y => null() !< y-component of Momentum
      type(field_t), pointer :: m_z => null() !< z-component of Momentum
      type(field_t), pointer :: E => null() !< Total energy
+     type(field_t), pointer :: max_wave_speed => null() !< Maximum wave speed field
 
      real(kind=rp) :: gamma
 
@@ -122,8 +127,8 @@ contains
     call json_get_or_default(params, 'case.fluid.name', this%name, "fluid")
 
     ! Fill mu and rho field with the physical value
-    call neko_field_registry%add_Field(this%dm_Xh, this%name // "_mu")
-    call neko_field_registry%add_Field(this%dm_Xh, this%name // "_rho")
+    call neko_field_registry%add_field(this%dm_Xh, this%name // "_mu")
+    call neko_field_registry%add_field(this%dm_Xh, this%name // "_rho")
     this%mu => neko_field_registry%get_field(this%name // "_mu")
     this%rho => neko_field_registry%get_field(this%name // "_rho")
     call field_cfill(this%mu, 0.0_rp, this%mu%size())
@@ -143,6 +148,11 @@ contains
     call neko_field_registry%add_field(this%dm_Xh, "E")
     this%E => neko_field_registry%get_field("E")
     call this%E%init(this%dm_Xh, "E")
+
+    ! Assign maximum wave speed field
+    call neko_field_registry%add_field(this%dm_Xh, "max_wave_speed")
+    this%max_wave_speed => neko_field_registry%get_field("max_wave_speed")
+    call this%max_wave_speed%init(this%dm_Xh, "max_wave_speed")
 
     ! ! Assign velocity fields
     call neko_field_registry%add_field(this%dm_Xh, "u")
@@ -197,10 +207,15 @@ contains
        call this%E%free()
     end if
 
+    if (associated(this%max_wave_speed)) then
+       call this%max_wave_speed%free()
+    end if
+
     nullify(this%m_x)
     nullify(this%m_y)
     nullify(this%m_z)
     nullify(this%E)
+    nullify(this%max_wave_speed)
 
     nullify(this%u)
     nullify(this%v)
@@ -249,9 +264,21 @@ contains
     class(fluid_scheme_compressible_t), intent(in) :: this
     real(kind=rp), intent(in) :: dt
     real(kind=rp) :: c
+    integer :: n
 
-    c = 0.1_rp
-    !> TODO: fill here
+    associate(u => this%u, v => this%v, w => this%w, p => this%p, &
+             rho => this%rho, Xh => this%Xh, c_Xh => this%c_Xh, &
+             msh => this%msh, gamma => this%gamma, &
+             max_wave_speed => this%max_wave_speed)
+
+      n = Xh%lx * Xh%ly * Xh%lz * msh%nelv
+
+      ! Update max_wave_speed field after flow variables have been updated
+      call compute_max_wave_speed(this%max_wave_speed, u, v, w, this%gamma, p, rho)
+
+      ! Use the compressible CFL function with precomputed maximum wave speed
+      c = cfl_compressible(dt, max_wave_speed%x, Xh, c_Xh, msh%nelv, msh%gdim)
+    end associate
 
   end function fluid_scheme_compressible_compute_cfl
 

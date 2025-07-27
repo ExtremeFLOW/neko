@@ -42,7 +42,7 @@
 extern "C" {
   void hip_spalding_compute(void *u_d, void *v_d, void *w_d,
           void *ind_r_d, void *ind_s_d, void *ind_t_d, void *ind_e_d,
-          void *n_x_d, void *n_y_d, void *n_z_d, real *nu, void *h_d,
+          void *n_x_d, void *n_y_d, void *n_z_d, void *nu_d, void *h_d,
           void *tau_x_d, void *tau_y_d, void *tau_z_d,
           int *n_nodes, int *lx, real *kappa, real *B, int *tstep) {
     
@@ -55,7 +55,7 @@ extern "C" {
                                     (int *) ind_r_d, (int *) ind_s_d, 
                                     (int *) ind_t_d, (int *) ind_e_d,
                                     (real *) n_x_d, (real *) n_y_d, 
-                                    (real *) n_z_d, *nu, (real *) h_d,
+                                    (real *) n_z_d, (real *) nu_d, (real *) h_d,
                                     (real *) tau_x_d, (real *) tau_y_d, 
                                     (real *) tau_z_d,
                                     *n_nodes, *lx, *kappa, *B, *tstep);

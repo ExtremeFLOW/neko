@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2024, The Neko Authors
+! Copyright (c) 2020-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -95,9 +95,14 @@ contains
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
     integer :: i, m, k
-    logical :: strong_ = .true.
+    logical :: strong_
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
+
     m = this%msk(0)
 
     if (strong_) then
@@ -120,9 +125,13 @@ contains
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
     integer :: i, m, k
-    logical :: strong_ = .true.
+    logical :: strong_
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
 
     if (strong_) then
        m = this%msk(0)
@@ -137,25 +146,31 @@ contains
   end subroutine zero_dirichlet_apply_vector
 
   !> Apply boundary condition to a scalar field, device version.
-  subroutine zero_dirichlet_apply_scalar_dev(this, x_d, t, tstep, strong)
+  subroutine zero_dirichlet_apply_scalar_dev(this, x_d, t, tstep, strong, strm)
     class(zero_dirichlet_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
-    logical :: strong_ = .true.
+    type(c_ptr) :: strm
+    logical :: strong_
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
 
     if (strong_ .and. (this%msk(0) .gt. 0)) then
-       call device_zero_dirichlet_apply_scalar(this%msk_d, x_d, size(this%msk))
+       call device_zero_dirichlet_apply_scalar(this%msk_d, x_d, &
+            size(this%msk), strm)
     end if
 
   end subroutine zero_dirichlet_apply_scalar_dev
 
   !> Apply boundary condition to a vector field, device version.
   subroutine zero_dirichlet_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, &
-       strong)
+       strong, strm)
     class(zero_dirichlet_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
@@ -163,13 +178,18 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
-    logical :: strong_ = .true.
+    type(c_ptr) :: strm
+    logical :: strong_
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
 
     if (strong_ .and. (this%msk(0) .gt. 0)) then
        call device_zero_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
-            size(this%msk))
+            size(this%msk), strm)
     end if
 
   end subroutine zero_dirichlet_apply_vector_dev
@@ -186,7 +206,7 @@ contains
   subroutine zero_dirichlet_finalize(this, only_facets)
     class(zero_dirichlet_t), target, intent(inout) :: this
     logical, optional, intent(in) :: only_facets
-    logical :: only_facets_ = .false.
+    logical :: only_facets_
 
     if (present(only_facets)) then
        only_facets_ = only_facets

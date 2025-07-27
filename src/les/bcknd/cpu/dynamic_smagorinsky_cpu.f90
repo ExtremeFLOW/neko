@@ -119,6 +119,15 @@ contains
     call coef%gs_h%op(s23%x, s11%dof%size(), GS_OP_ADD)
 
     do concurrent (i = 1:u%dof%size())
+       s11%x(i,1,1,1) = s11%x(i,1,1,1) * coef%mult(i,1,1,1)
+       s22%x(i,1,1,1) = s22%x(i,1,1,1) * coef%mult(i,1,1,1)
+       s33%x(i,1,1,1) = s33%x(i,1,1,1) * coef%mult(i,1,1,1)
+       s12%x(i,1,1,1) = s12%x(i,1,1,1) * coef%mult(i,1,1,1)
+       s13%x(i,1,1,1) = s13%x(i,1,1,1) * coef%mult(i,1,1,1)
+       s23%x(i,1,1,1) = s23%x(i,1,1,1) * coef%mult(i,1,1,1)
+    end do
+
+    do concurrent (i = 1:u%dof%size())
        s_abs%x(i,1,1,1) = sqrt(2.0_rp * (s11%x(i,1,1,1)*s11%x(i,1,1,1) + &
             s22%x(i,1,1,1)*s22%x(i,1,1,1) + &
             s33%x(i,1,1,1)*s33%x(i,1,1,1)) + &
@@ -140,7 +149,7 @@ contains
        end if
        c_dyn%x(i,1,1,1) = max(c_dyn%x(i,1,1,1),0.0_rp)
        nut%x(i,1,1,1) = c_dyn%x(i,1,1,1) * delta%x(i,1,1,1)**2 &
-            * s_abs%x(i,1,1,1) * coef%mult(i,1,1,1)
+            * s_abs%x(i,1,1,1)
     end do
 
     call coef%gs_h%op(nut, GS_OP_ADD)

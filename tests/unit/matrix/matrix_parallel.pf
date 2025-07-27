@@ -44,11 +44,10 @@ contains
 
     call v%init(n,m)
     @assertTrue(allocated(v%x))
-    @assertEqual(v%n, n*m)
     @assertEqual(size(v%x), n*m)
     @assertEqual(v%size(), n*m)
-    @assertEqual(v%nrows, n)
-    @assertEqual(v%ncols, m)
+    @assertEqual(v%get_nrows(), n)
+    @assertEqual(v%get_ncols(), m)
     @assertEqual(maxval(v%x), 0d0)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -71,15 +70,14 @@ contains
     call v%init(n, m)
     call v%free()
     @assertFalse(allocated(v%x))
-    @assertEqual(v%n, 0)
     @assertEqual(v%size(), 0)
-    @assertEqual(v%nrows, 0)
-    @assertEqual(v%ncols, 0)
+    @assertEqual(v%get_nrows(), 0)
+    @assertEqual(v%get_ncols(), 0)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        @assertFalse(c_associated(v%x_d))
     end if
-    
+
   end subroutine test_matrix_free
 
   @test(npes=[1])
@@ -91,26 +89,26 @@ contains
 
     call w%init(n,m)
     v = w
-    @assertEqual(v%n, w%n)
-    @assertEqual(v%nrows, n)
-    @assertEqual(v%ncols, m)
-    @assertEqual(v%nrows, w%nrows)
-    @assertEqual(v%ncols, w%ncols)
-    @assertEqual(v%n, n*m)
+    @assertEqual(v%size(), w%size())
+    @assertEqual(v%get_nrows(), n)
+    @assertEqual(v%get_ncols(), m)
+    @assertEqual(v%get_nrows(), w%get_nrows())
+    @assertEqual(v%get_ncols(), w%get_ncols())
+    @assertEqual(v%size(), n*m)
     @assertTrue(allocated(v%x))
 
     call w%free()
     call w%init(m,n)
 
     v = w
-    @assertEqual(v%n, w%n)
-    @assertEqual(v%nrows, m)
-    @assertEqual(v%ncols, n)
-    @assertEqual(v%nrows, w%nrows)
-    @assertEqual(v%ncols, w%ncols)
-    @assertEqual(v%n, m*n)
+    @assertEqual(v%size(), w%size())
+    @assertEqual(v%get_nrows(), m)
+    @assertEqual(v%get_ncols(), n)
+    @assertEqual(v%get_nrows(), w%get_nrows())
+    @assertEqual(v%get_ncols(), w%get_ncols())
+    @assertEqual(v%size(), m*n)
     @assertTrue(allocated(v%x))
-       
+
   end subroutine test_matrix_assign_matrix
 
   @test(npes[1])
@@ -133,9 +131,9 @@ contains
           @assertEqual(42.0_rp, v%x(i,j), tolerance=NEKO_EPS)
        end do
     end do
-       
+
   end subroutine test_matrix_assign_scalar
-  
+
   @test(npes=[1])
   subroutine test_matrix_add_matrix(this)
     class (test_matrix), intent(inout) :: this
@@ -162,12 +160,12 @@ contains
     end do
 
     u = v + w
-    @assertEqual(u%n, v%n)
-    @assertEqual(u%n, w%n)
-    @assertEqual(u%nrows, v%nrows)
-    @assertEqual(u%nrows, w%nrows)
-    @assertEqual(u%ncols, v%ncols)
-    @assertEqual(u%ncols, w%ncols)
+    @assertEqual(u%size(), v%size())
+    @assertEqual(u%size(), w%size())
+    @assertEqual(u%get_nrows(), v%get_nrows())
+    @assertEqual(u%get_nrows(), w%get_nrows())
+    @assertEqual(u%get_ncols(), v%get_ncols())
+    @assertEqual(u%get_ncols(), w%get_ncols())
     @assertTrue(allocated(u%x))
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -205,9 +203,9 @@ contains
     end do
 
     u = v + s
-    @assertEqual(u%n, v%n)
-    @assertEqual(u%nrows, v%nrows)
-    @assertEqual(u%ncols, v%ncols)
+    @assertEqual(u%size(), v%size())
+    @assertEqual(u%get_nrows(), v%get_nrows())
+    @assertEqual(u%get_ncols(), v%get_ncols())
     @assertTrue(allocated(u%x))
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -255,12 +253,12 @@ contains
     end do
 
     u = v - w
-    @assertEqual(u%n, v%n)
-    @assertEqual(u%n, w%n)
-    @assertEqual(u%nrows, v%nrows)
-    @assertEqual(u%nrows, w%nrows)
-    @assertEqual(u%ncols, v%ncols)
-    @assertEqual(u%ncols, w%ncols)
+    @assertEqual(u%size(), v%size())
+    @assertEqual(u%size(), w%size())
+    @assertEqual(u%get_nrows(), v%get_nrows())
+    @assertEqual(u%get_nrows(), w%get_nrows())
+    @assertEqual(u%get_ncols(), v%get_ncols())
+    @assertEqual(u%get_ncols(), w%get_ncols())
     @assertTrue(allocated(u%x))
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -298,9 +296,9 @@ contains
     end do
 
     u = v - s
-    @assertEqual(u%n, v%n)
-    @assertEqual(u%nrows, v%nrows)
-    @assertEqual(u%ncols, v%ncols)
+    @assertEqual(u%size(), v%size())
+    @assertEqual(u%get_nrows(), v%get_nrows())
+    @assertEqual(u%get_ncols(), v%get_ncols())
     @assertTrue(allocated(u%x))
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -338,9 +336,9 @@ contains
     end do
 
     u = s*v
-    @assertEqual(u%n, v%n)
-    @assertEqual(u%nrows, v%nrows)
-    @assertEqual(u%ncols, v%ncols)
+    @assertEqual(u%size(), v%size())
+    @assertEqual(u%get_nrows(), v%get_nrows())
+    @assertEqual(u%get_ncols(), v%get_ncols())
     @assertTrue(allocated(u%x))
 
     if (NEKO_BCKND_DEVICE .eq. 1) then

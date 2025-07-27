@@ -12,7 +12,7 @@ on:
         description: "The version of the JSON-Fortran library to use."
         type: string
         required: false
-        default: "8.3.0"
+        default: "8.4.0"
 
 jobs:
   NVIDIA:
@@ -32,14 +32,14 @@ jobs:
               curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg
               echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list
               sudo apt-get update -y
-              sudo apt-get install -y nvhpc-25-5
+              sudo apt-get install -y nvhpc-25-7
               sudo apt-get clean
               python3 -m venv myenv
               source myenv/bin/activate
               pip install pytest json5
               NVARCH=`uname -s`_`uname -m`
               export NVARCH
-              NVVER=25.5
+              NVVER=25.7
               export NVVER
               NVCOMPILERS=/opt/nvidia/hpc_sdk
               export NVCOMPILERS
@@ -55,14 +55,14 @@ jobs:
               curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg
               echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/arm64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list
               sudo apt-get update -y
-              sudo apt-get install -y nvhpc-25-5
+              sudo apt-get install -y nvhpc-25-7
               sudo apt-get clean
               python3 -m venv myenv
               source myenv/bin/activate
               pip install pytest json5
               NVARCH=`uname -s`_`uname -m`
               export NVARCH
-              NVVER=25.5
+              NVVER=25.7
               export NVVER
               NVCOMPILERS=/opt/nvidia/hpc_sdk
               export NVCOMPILERS

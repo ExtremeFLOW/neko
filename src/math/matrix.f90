@@ -46,9 +46,9 @@ module matrix
   type, public :: matrix_t
      real(kind=rp), allocatable :: x(:,:) !< Matrix entries.
      type(c_ptr) :: x_d = C_NULL_PTR !< Device pointer.
-     integer :: nrows = 0 !< Number of matrix rows.
-     integer :: ncols = 0 !< Number of matrix columns.
-     integer :: n = 0 !< Total size nows*ncols.
+     integer, private :: nrows = 0 !< Number of matrix rows.
+     integer, private :: ncols = 0 !< Number of matrix columns.
+     integer, private :: n = 0 !< Total size nows*ncols.
    contains
      !> Initialise a matrix of size `nrows*ncols`.
      procedure, pass(m) :: init => matrix_init
@@ -56,6 +56,10 @@ module matrix
      procedure, pass(m) :: free => matrix_free
      !> Returns the number of entries in the matrix.
      procedure, pass(m) :: size => matrix_size
+     !> Returns the number of rows in the matrix.
+     procedure, pass(m) :: get_nrows => matrix_nrows
+     !> Returns the number of columns in the matrix.
+     procedure, pass(m) :: get_ncols => matrix_ncols
      !> Assignment \f$ m = w \f$
      procedure, pass(m) :: matrix_assign_matrix
      !> Assignment \f$ m = s \f$.
@@ -86,6 +90,9 @@ module matrix
      generic :: operator(-) => matrix_sub_matrix, &
           matrix_sub_scalar_left, matrix_sub_scalar_right
      generic :: operator(*) => matrix_cmult_left, matrix_cmult_right
+
+     !> Allocate a matrix of size `nrows*ncols`.
+     procedure, pass(m), private :: alloc => matrix_allocate
   end type matrix_t
 
 contains
@@ -98,20 +105,34 @@ contains
     integer, intent(in) :: nrows
     integer, intent(in) :: ncols
 
+    call m%alloc(nrows, ncols)
+    m%x = 0.0_rp
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_cfill(m%x_d, 0.0_rp, m%n)
+    end if
+
+  end subroutine matrix_init
+
+  !> Allocate a matrix of size `nrows*ncols`.
+  !! @param nrows Number of rows.
+  !! @param ncols Number of columns.
+  subroutine matrix_allocate(m, nrows, ncols)
+    class(matrix_t), intent(inout) :: m
+    integer, intent(in) :: nrows
+    integer, intent(in) :: ncols
+
     call m%free()
 
     allocate(m%x(nrows, ncols))
-    m%x = 0.0_rp
     m%nrows = nrows
     m%ncols = ncols
     m%n = nrows*ncols
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(m%x, m%x_d, m%n)
-       call device_cfill(m%x_d, 0.0_rp, m%n)
     end if
 
-  end subroutine matrix_init
+  end subroutine matrix_allocate
 
   !> Deallocate a matrix.
   subroutine matrix_free(m)
@@ -132,11 +153,25 @@ contains
   end subroutine matrix_free
 
   !> Returns the number of entries in the matrix.
-  function matrix_size(m) result(s)
+  pure function matrix_size(m) result(s)
     class(matrix_t), intent(in) :: m
     integer :: s
     s = m%n
   end function matrix_size
+
+  !> Returns the number of rows in the matrix.
+  pure function matrix_nrows(m) result(nr)
+    class(matrix_t), intent(in) :: m
+    integer :: nr
+    nr = m%nrows
+  end function matrix_nrows
+
+  !> Returns the number of columns in the matrix.
+  pure function matrix_ncols(m) result(nc)
+    class(matrix_t), intent(in) :: m
+    integer :: nc
+    nc = m%ncols
+  end function matrix_ncols
 
   !> Assignment \f$ m = w \f$
   subroutine matrix_assign_matrix(m, w)

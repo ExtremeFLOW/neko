@@ -55,7 +55,7 @@ module krylov
   !> Type for storing initial and final residuals in a Krylov solver.
   type, public :: ksp_monitor_t
      !> Name of the solver in question
-     character(len=18) :: name
+     character(len=18) :: name = ""
      !> Iteration number.
      integer :: iter
      !> Initial residual.
@@ -394,6 +394,8 @@ contains
     character(len=LOG_SIZE) :: log_buf
     character(len=12) :: step_str
     character(len=:), allocatable :: output_format
+
+    if (this%name .eq. "") call neko_error('Krylov solver name is not set')
 
     ! Define the output format
     output_format = '(A12,A3,A18,1x,I6,3x,E15.9,3x,E15.9)'

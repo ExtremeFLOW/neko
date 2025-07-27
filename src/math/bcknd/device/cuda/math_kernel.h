@@ -418,6 +418,23 @@ __global__ void invcol2_kernel(T * __restrict__ a,
 }
 
 /**
+ * Device kernel for invcol3
+ */
+template< typename T >
+__global__ void invcol3_kernel(T * __restrict__ a,
+                               const T * __restrict__ b,
+                               const T * __restrict__ c,
+                               const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = b[i] / c[i];
+  }
+}
+
+/**
  * Device kernel for col2
  */
 template< typename T >
