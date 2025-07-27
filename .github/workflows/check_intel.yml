@@ -12,7 +12,7 @@ on:
         description: "The version of the JSON-Fortran library to use."
         type: string
         required: false
-        default: "8.3.0"
+        default: "8.4.0"
 
 jobs:
   Intel:
@@ -30,7 +30,7 @@ jobs:
               wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null
               echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
               sudo apt-get update -y
-              sudo apt install -y --no-install-recommends intel-oneapi-compiler-fortran intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic
+              sudo apt install -y intel-oneapi-compiler-fortran intel-oneapi-compiler-dpcpp-cpp intel-oneapi-mpi intel-oneapi-mpi-devel 
               source /opt/intel/oneapi/setvars.sh
               sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 python3-pip ca-certificates cmake
               python3 -m venv myenv
@@ -42,7 +42,7 @@ jobs:
               echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
 
     env:
-      CC: icc
+      CC: icx
       FC: ${{ matrix.compiler }}
       RP: ${{ matrix.precision }}
       NEKO_EXEC: ${{ github.workspace }}/install/bin/neko
