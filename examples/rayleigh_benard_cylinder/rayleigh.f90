@@ -65,8 +65,8 @@ contains
     s => dirichlet_field_list%items(1)%ptr
 
     do i = 1, dirichlet_bc%msk(0)
-      s%x(dirichlet_bc%msk(i),1,1,1) = &
-        1.0_rp - s%dof%z(dirichlet_bc%msk(i),1,1,1)
+       s%x(dirichlet_bc%msk(i),1,1,1) = &
+            1.0_rp - s%dof%z(dirichlet_bc%msk(i),1,1,1)
     end do
 
   end subroutine set_scalar_boundary_conditions

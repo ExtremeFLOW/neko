@@ -52,10 +52,10 @@ contains
     type (field_t), pointer :: u, v, w, p
 
     dof => fields%dof(1)
-    u => fields%items(1)%ptr
-    v => fields%items(2)%ptr
-    w => fields%items(3)%ptr
-    p => fields%items(4)%ptr
+    u => fields%get_by_name("u")
+    v => fields%get_by_name("v")
+    w => fields%get_by_name("w")
+    p => fields%get_by_name("p")
 
     ntot = dof%size()
     do i = 1, ntot

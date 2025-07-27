@@ -64,12 +64,12 @@ contains
     lsmoothing = 0.1_rp ! length scale of smoothing at the edges
 
     do i = 1, dirichlet_bc%msk(0)
-      x = u%dof%x(dirichlet_bc%msk(i), 1, 1, 1)
-      u%x(dirichlet_bc%msk(i), 1, 1, 1) = &
-           step( x/lsmoothing ) * step( (1._rp - x)/lsmoothing )
+       x = u%dof%x(dirichlet_bc%msk(i), 1, 1, 1)
+       u%x(dirichlet_bc%msk(i), 1, 1, 1) = &
+            step( x/lsmoothing ) * step( (1._rp - x)/lsmoothing )
 
-      v%x(dirichlet_bc%msk(i), 1, 1, 1) = 0
-      w%x(dirichlet_bc%msk(i), 1, 1, 1) = 0
+       v%x(dirichlet_bc%msk(i), 1, 1, 1) = 0
+       w%x(dirichlet_bc%msk(i), 1, 1, 1) = 0
     end do
 
   end subroutine user_bc

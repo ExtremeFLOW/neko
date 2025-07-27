@@ -34,7 +34,7 @@ contains
     type(field_t), pointer :: f
     integer :: i
 
-    if (scheme_name .eq. 'fluid')  return
+    if (scheme_name .eq. 'fluid') return
 
     f => rhs%items(1)%ptr
     do i = 1, f%size()

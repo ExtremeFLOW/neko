@@ -96,63 +96,63 @@ contains
 
     ! We only have the velocity solver here, so we know the contents of the
     ! field list.
-      u => dirichlet_field_list%get_by_index(1)
-      v => dirichlet_field_list%get_by_index(2)
-      w => dirichlet_field_list%get_by_index(3)
+    u => dirichlet_field_list%get_by_index(1)
+    v => dirichlet_field_list%get_by_index(2)
+    w => dirichlet_field_list%get_by_index(3)
 
-      ! We use the bc mask to loop over the boundary nodes. msk(0) holds the
-      ! number of nodes in the mask, and msk(1:msk(0)) holds the indices.
-      do i = 1, dirichlet_bc%msk(0)
-         msk_ind = dirichlet_bc%msk(i)
-         x = dof%x(msk_ind, 1, 1, 1)
-         y = dof%y(msk_ind, 1, 1, 1)
-         z = dof%z(msk_ind, 1, 1, 1)
+    ! We use the bc mask to loop over the boundary nodes. msk(0) holds the
+    ! number of nodes in the mask, and msk(1:msk(0)) holds the indices.
+    do i = 1, dirichlet_bc%msk(0)
+       msk_ind = dirichlet_bc%msk(i)
+       x = dof%x(msk_ind, 1, 1, 1)
+       y = dof%y(msk_ind, 1, 1, 1)
+       z = dof%z(msk_ind, 1, 1, 1)
 
-         !   Two different regions (inflow & cyl) have the label 'v  '
-         !   Let compute the distance from the (0,0) in the x-y plane
-         !   to identify the proper one
-         dist = sqrt(x**2 + z**2)
+       !   Two different regions (inflow & cyl) have the label 'v  '
+       !   Let compute the distance from the (0,0) in the x-y plane
+       !   to identify the proper one
+       dist = sqrt(x**2 + z**2)
 
-         ! --- INFLOW
-         if (dist .gt. 1.1*rad) then
-            u%x(msk_ind,1,1,1) = ucl*y**pw
-         end if
-         ! ---
+       ! --- INFLOW
+       if (dist .gt. 1.1*rad) then
+          u%x(msk_ind,1,1,1) = ucl*y**pw
+       end if
+       ! ---
 
-         w%x(msk_ind,1,1,1) = 0.0
-         v%x(msk_ind,1,1,1) = 0.0
+       w%x(msk_ind,1,1,1) = 0.0
+       v%x(msk_ind,1,1,1) = 0.0
 
-         ! --- SPINNING CYLINDER
-         if (dist .lt. 1.5*rad .and. y .gt. 0.1) then
-            th = atan2(z, x)
-            u%x(msk_ind,1,1,1) = cos(th)*u_rho - sin(th)*u_th2
-            w%x(msk_ind,1,1,1) = sin(th)*u_rho + cos(th)*u_th2
-         end if
+       ! --- SPINNING CYLINDER
+       if (dist .lt. 1.5*rad .and. y .gt. 0.1) then
+          th = atan2(z, x)
+          u%x(msk_ind,1,1,1) = cos(th)*u_rho - sin(th)*u_th2
+          w%x(msk_ind,1,1,1) = sin(th)*u_rho + cos(th)*u_th2
+       end if
 
-         ! ---
+       ! ---
 
 
-         !     Smoothing function for the velocity u_th on the spinning cylinder
-         !     to avoid gap in the at the bottom wall
+       !     Smoothing function for the velocity u_th on the spinning cylinder
+       !     to avoid gap in the at the bottom wall
 
-         !     u_th is smoothed if z0 < z < delta
-         !     u_th=1 if z >= delta
-         yy = y + abs(y0) ! coordinate shift
+       !     u_th is smoothed if z0 < z < delta
+       !     u_th=1 if z >= delta
+       yy = y + abs(y0) ! coordinate shift
 
-         if (dist .lt. 1.5*rad) then
-            if (yy .lt. delta) then
-               arg = yy/delta
-               u_th = u_th2/(1.0_rp+exp(1.0_rp/(arg-1.0_rp)+1.0_rp/arg))
-            else
-               u_th = u_th2
-            end if
+       if (dist .lt. 1.5*rad) then
+          if (yy .lt. delta) then
+             arg = yy/delta
+             u_th = u_th2/(1.0_rp+exp(1.0_rp/(arg-1.0_rp)+1.0_rp/arg))
+          else
+             u_th = u_th2
+          end if
 
-            th = atan2(z, x)
+          th = atan2(z, x)
 
-            u%x(msk_ind,1,1,1) = cos(th)*u_rho - sin(th)*u_th
-            w%x(msk_ind,1,1,1) = sin(th)*u_rho + cos(th)*u_th
-         end if
-      end do
+          u%x(msk_ind,1,1,1) = cos(th)*u_rho - sin(th)*u_th
+          w%x(msk_ind,1,1,1) = sin(th)*u_rho + cos(th)*u_th
+       end if
+    end do
   end subroutine user_inflow_eval
 
   ! User defined initial condition
