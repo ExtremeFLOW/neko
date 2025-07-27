@@ -348,7 +348,7 @@ fi
 # Checks for python bindings
 found_python="no"
 if (test "x$enable_python" = xyes); then
-   AM_PATH_PYTHON([3.5])
+   AM_PATH_PYTHON([3.7])
    if ! ${HAVE_PYTHON}; then
         AC_MSG_ERROR([Python interpreter not found, pyneko cannot be installed.])
    fi

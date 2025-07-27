@@ -369,5 +369,134 @@ contains
 
   end function neko_api_field_size
 
+  !> Retrive the dofmap associated with a field
+  !! @param field_name Field registry entry
+  !! @param dof_ptr Pointer to  unique degrees of freedom
+  !! @param x_ptr Pointer to x-coordinates
+  !! @param x_ptr Pointer to y-coordinates
+  !! @param x_ptr Pointer to z-coordinates
+  subroutine neko_api_field_dofmap(field_name, dof_ptr, x_ptr, y_ptr, z_ptr) &
+       bind(c, name='neko_field_dofmap')
+    character(kind=c_char), dimension(*), intent(in) :: field_name
+    type(c_ptr), intent(inout) :: dof_ptr, x_ptr, y_ptr, z_ptr
+    character(len=8192) :: name
+    type(field_t), pointer :: field
+    integer :: len
+
+    len = 0
+    do
+       if (field_name(len+1) .eq. C_NULL_CHAR) exit
+       len = len + 1
+       name(len:len) = field_name(len)
+    end do
+
+    field => neko_field_registry%get_field(trim(name(1:len)))
+    call neko_api_wrap_dofmap(field%dof, dof_ptr, x_ptr, y_ptr, z_ptr)
+
+  end subroutine neko_api_field_dofmap
+
+  !> Retrive the dofmap associated with a case's fluid solver
+  !! @param case_iptr Opaque pointer for the Neko case
+  !! @param dof_ptr Pointer to  unique degrees of freedom
+  !! @param x_ptr Pointer to x-coordinates
+  !! @param x_ptr Pointer to y-coordinates
+  !! @param x_ptr Pointer to z-coordinates
+  !! @param size Number of dofs
+  subroutine neko_api_case_fluid_dofmap(case_iptr, dof_ptr, &
+       x_ptr, y_ptr, z_ptr, size) bind(c, name='neko_case_fluid_dofmap')
+    integer(c_intptr_t), intent(inout) :: case_iptr
+    type(case_t), pointer :: C
+    type(c_ptr) :: cptr
+    type(c_ptr), intent(inout) :: dof_ptr, x_ptr, y_ptr, z_ptr
+    integer, intent(inout) :: size
+
+    cptr = transfer(case_iptr, c_null_ptr)
+    if (c_associated(cptr)) then
+       call c_f_pointer(cptr, C)
+       call neko_api_wrap_dofmap(C%fluid%dm_Xh, dof_ptr, x_ptr, y_ptr, z_ptr)
+       size = C%fluid%dm_Xh%size()
+    else
+       call neko_error('Invalid Neko case')
+    end if
+
+  end subroutine neko_api_case_fluid_dofmap
+
+  subroutine neko_api_wrap_dofmap(dm, dof_ptr, x_ptr, y_ptr, z_ptr)
+    type(dofmap_t), target, intent(in) :: dm
+    type(c_ptr), intent(inout) :: dof_ptr, x_ptr, y_ptr, z_ptr
+
+    dof_ptr = c_loc(dm%dof)
+    x_ptr = c_loc(dm%x)
+    y_ptr = c_loc(dm%y)
+    z_ptr = c_loc(dm%z)
+
+  end subroutine neko_api_wrap_dofmap
+
+  subroutine neko_api_field_space(field_name, lx, zg, &
+       dr_inv, ds_inv, dt_inv, wx, wy, wz, dx, dy, dz) &
+       bind(c, name='neko_field_space')
+    character(kind=c_char), dimension(*), intent(in) :: field_name
+    integer, intent(inout) :: lx
+    type(c_ptr), intent(inout) :: zg, dr_inv, ds_inv, dt_inv
+    type(c_ptr), intent(inout) :: wx, wy, wz, dx, dy, dz
+    character(len=8192) :: name
+    type(field_t), pointer :: field
+    integer :: len
+
+    len = 0
+    do
+       if (field_name(len+1) .eq. C_NULL_CHAR) exit
+       len = len + 1
+       name(len:len) = field_name(len)
+    end do
+
+    field => neko_field_registry%get_field(trim(name(1:len)))
+    call neko_api_wrap_space(field%Xh, lx, zg, dr_inv, ds_inv, dt_inv, &
+         wx, wy, wz, dx, dy, dz)
+
+  end subroutine neko_api_field_space
+
+  subroutine neko_api_case_fluid_space(case_iptr, lx, zg, &
+       dr_inv, ds_inv, dt_inv, wx, wy, wz, dx, dy, dz) &
+       bind(c, name='neko_case_fluid_space')
+    integer(c_intptr_t), intent(inout) :: case_iptr
+    type(case_t), pointer :: C
+    type(c_ptr) :: cptr
+    integer, intent(inout) :: lx
+    type(c_ptr), intent(inout) :: zg, dr_inv, ds_inv, dt_inv
+    type(c_ptr), intent(inout) :: wx, wy, wz, dx, dy, dz
+
+
+    cptr = transfer(case_iptr, c_null_ptr)
+    if (c_associated(cptr)) then
+       call c_f_pointer(cptr, C)
+       call neko_api_wrap_space(C%fluid%Xh, lx, zg, dr_inv, ds_inv, dt_inv, &
+            wx, wy, wz, dx, dy, dz)
+    else
+       call neko_error('Invalid Neko case')
+    end if
+
+  end subroutine neko_api_case_fluid_space
+
+  subroutine neko_api_wrap_space(Xh, lx, zg, dr_inv, ds_inv, dt_inv, &
+       wx, wy, wz, dx, dy, dz)
+    type(space_t), target, intent(in) :: Xh
+    integer, intent(inout) :: lx
+    type(c_ptr), intent(inout) :: zg, dr_inv, ds_inv, dt_inv
+    type(c_ptr), intent(inout) :: wx, wy, wz, dx, dy, dz
+
+    lx = Xh%lx
+    zg = c_loc(Xh%zg)
+    dr_inv = c_loc(Xh%dr_inv)
+    ds_inv = c_loc(Xh%ds_inv)
+    dt_inv = c_loc(Xh%dt_inv)
+    wx = c_loc(Xh%wx)
+    wy = c_loc(Xh%wy)
+    wz = c_loc(Xh%wz)
+    dx = c_loc(Xh%dx)
+    dy = c_loc(Xh%dy)
+    dz = c_loc(Xh%dz)
+
+  end subroutine neko_api_wrap_space
 
 end module neko_api

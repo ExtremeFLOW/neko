@@ -6,12 +6,14 @@ from ctypes import (
     c_double,
     c_float,
     c_bool,
+    c_longlong,
     POINTER,
     byref,
     cast,
     addressof,
     create_string_buffer
 )
+from dataclasses import dataclass
 import json
 import numpy as np
 
@@ -54,7 +56,78 @@ libneko.neko_field_nelements.restype = c_int
 libneko.neko_field_size.argtypes = [c_char_p]
 libneko.neko_field_size.restype = c_int
 
+libneko.neko_field_dofmap.argtypes = [c_char_p,
+                                      POINTER(POINTER(c_longlong)),
+                                      POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                      POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                      POINTER(POINTER(@NEKO_PY_REAL_TYPE@))]
+libneko.neko_field_dofmap.restype = None
+
+libneko.neko_case_fluid_dofmap.argtypes = [POINTER(c_int),
+                                           POINTER(POINTER(c_longlong)),
+                                           POINTER(POINTER(c_double)),
+                                           POINTER(POINTER(c_double)),
+                                           POINTER(POINTER(c_double)),
+                                           POINTER(c_int)]
+libneko.neko_case_fluid_dofmap.restype = None
+
+libneko.neko_field_space.argtypes = [c_char_p,
+                                     POINTER(c_int),
+                                     POINTER(POINTER(c_double)),
+                                     POINTER(POINTER(c_double)),
+                                     POINTER(POINTER(c_double)),
+                                     POINTER(POINTER(c_double)),
+                                     POINTER(POINTER(c_double)),
+                                     POINTER(POINTER(c_double)),
+                                     POINTER(POINTER(c_double)),
+                                     POINTER(POINTER(c_double)),
+                                     POINTER(POINTER(c_double)),
+                                     POINTER(POINTER(c_double))]
+libneko.neko_field_space.restype = None
+
+libneko.neko_case_fluid_space.argtypes = [POINTER(c_int),
+                                          POINTER(c_int),
+                                          POINTER(POINTER(c_double)),
+                                          POINTER(POINTER(c_double)),
+                                          POINTER(POINTER(c_double)),
+                                          POINTER(POINTER(c_double)),
+                                          POINTER(POINTER(c_double)),
+                                          POINTER(POINTER(c_double)),
+                                          POINTER(POINTER(c_double)),
+                                          POINTER(POINTER(c_double)),
+                                          POINTER(POINTER(c_double)),
+                                          POINTER(POINTER(c_double))]
+libneko.neko_case_fluid_space.restype = None
+
 libneko.neko_output_ctrl_execute.argtypes = [POINTER(c_int), c_bool]
+
+@dataclass
+class neko_dofmap_t:
+    dof: np.ndarray
+    x: np.ndarray
+    y: np.ndarray
+    z: np.ndarray
+    ntot: int
+
+@dataclass
+class neko_space_t:
+    lx: int
+    zg: np.ndarray
+    dr_inv: np.ndarray
+    ds_inv: np.ndarray
+    dt_inv: np.ndarray
+    wx: np.ndarray
+    wy: np.ndarray
+    wz: np.ndarray
+    dx: np.ndarray
+    dy: np.ndarray
+    dz: np.ndarray
+
+@dataclass
+class neko_field_t:
+    x: np.ndarray
+    dm: neko_dofmap_t
+    Xh: neko_space_t
 
 def init():
     libneko.neko_init()
@@ -94,9 +167,13 @@ def step(case_descr):
     libneko.neko_step(byref(case_descr))
 
 def field(name):
-    a = np.frombuffer((@NEKO_PY_REAL_TYPE@ *
+    a = neko_field_t(
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ *
                        libneko.neko_field_size(name)).from_address(
-                           addressof(libneko.neko_field(name).contents)))
+                           addressof(libneko.neko_field(name).contents))),
+        field_dofmap(name),
+        field_space(name)
+    )
     return a
 
 def field_order(name):
@@ -111,9 +188,122 @@ def field_size(name):
     size = libneko.neko_field_size(name)
     return size
 
+def field_dofmap(name):
+    size = libneko.neko_field_size(name)
+    dof_ptr = POINTER(c_longlong)()
+    x_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    y_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    z_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    libneko.neko_field_dofmap(name, byref(dof_ptr),
+                              byref(x_ptr), byref(y_ptr), byref(z_ptr))
+
+    dofmap = wrap_dofmap(dof_ptr, x_ptr, y_ptr, z_ptr, size)
+
+    return dofmap
+
+def case_fluid_dofmap(case_descr):
+    size = c_int()
+    dof_ptr = POINTER(c_longlong)()
+    x_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    y_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    z_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    libneko.neko_case_fluid_dofmap(byref(case_descr), byref(dof_ptr),
+                                   byref(x_ptr), byref(y_ptr), byref(z_ptr),
+                                   byref(size))
+
+    dofmap = wrap_dofmap(dof_ptr, x_ptr, y_ptr, z_ptr, size.value)
+
+    return dofmap
+
+def wrap_dofmap(dof_ptr, x_ptr, y_ptr, z_ptr, size):
+    dofmap = neko_dofmap_t(
+        np.frombuffer((c_longlong * size).from_address(
+            addressof(dof_ptr.contents)), dtype=np.dtype(int)),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * size).from_address(
+            addressof(x_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * size).from_address(
+            addressof(y_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * size).from_address(
+            addressof(z_ptr.contents))),
+        size
+    )
+    return dofmap
+
+def field_space(name):
+    lx = c_int()
+    zg = POINTER(@NEKO_PY_REAL_TYPE@)()
+    dr_inv = POINTER(@NEKO_PY_REAL_TYPE@)()
+    ds_inv = POINTER(@NEKO_PY_REAL_TYPE@)()
+    dt_inv = POINTER(@NEKO_PY_REAL_TYPE@)()
+    wx = POINTER(@NEKO_PY_REAL_TYPE@)()
+    wy = POINTER(@NEKO_PY_REAL_TYPE@)()
+    wz = POINTER(@NEKO_PY_REAL_TYPE@)()
+    dx = POINTER(@NEKO_PY_REAL_TYPE@)()
+    dy = POINTER(@NEKO_PY_REAL_TYPE@)()
+    dz = POINTER(@NEKO_PY_REAL_TYPE@)()
+    libneko.neko_field_space(name, byref(lx), byref(zg),
+                             byref(dr_inv), byref(ds_inv), byref(dt_inv),
+                             byref(wx), byref(wy), byref(wz),
+                             byref(dx), byref(dy), byref(dz))
+
+    space = wrap_space(lx.value, zg,
+                       dr_inv, ds_inv, dt_inv,
+                       wx, wy, wz, dx, dy, dz)
+
+    return space
+
+def case_fluid_space(case_descr):
+    lx = c_int()
+    zg = POINTER(@NEKO_PY_REAL_TYPE@)()
+    dr_inv = POINTER(@NEKO_PY_REAL_TYPE@)()
+    ds_inv = POINTER(@NEKO_PY_REAL_TYPE@)()
+    dt_inv = POINTER(@NEKO_PY_REAL_TYPE@)()
+    wx = POINTER(@NEKO_PY_REAL_TYPE@)()
+    wy = POINTER(@NEKO_PY_REAL_TYPE@)()
+    wz = POINTER(@NEKO_PY_REAL_TYPE@)()
+    dx = POINTER(@NEKO_PY_REAL_TYPE@)()
+    dy = POINTER(@NEKO_PY_REAL_TYPE@)()
+    dz = POINTER(@NEKO_PY_REAL_TYPE@)()
+    libneko.neko_case_fluid_space(byref(case_descr), byref(lx), byref(zg),
+                                  byref(dr_inv), byref(ds_inv), byref(dt_inv),
+                                  byref(wx), byref(wy), byref(wz),
+                                  byref(dx), byref(dy), byref(dz))
+
+    space = wrap_space(lx.value, zg,
+                       dr_inv, ds_inv, dt_inv,
+                       wx, wy, wz, dx, dy, dz)
+
+    return space
+
+def wrap_space(lx, zg, dr_inv, ds_inv, dt_inv, wx, wy, wz, dx, dy, dz):
+    space = neko_space_t(
+        lx,
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * lx * 3).from_address(
+            addressof(zg.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * lx).from_address(
+            addressof(dr_inv.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * lx).from_address(
+            addressof(ds_inv.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * lx).from_address(
+            addressof(dt_inv.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * lx).from_address(
+            addressof(wx.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * lx).from_address(
+            addressof(wy.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * lx).from_address(
+            addressof(wz.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * lx * lx).from_address(
+            addressof(dx.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * lx * lx).from_address(
+            addressof(dy.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * lx * lx).from_address(
+            addressof(dz.contents)))
+    )
+
+    return space
+
 def output(case_descr, force = False):
     libneko.neko_output_ctrl_execute(byref(case_descr), force)
-
 
 #
 # https://degenerateconic.com/fortran-json-python.html

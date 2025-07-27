@@ -25,5 +25,9 @@ from pyneko.intf import (
     field_order,
     field_nelements,
     field_size,
-    output    
+    field_dofmap,
+    field_space,
+    case_fluid_dofmap,
+    case_fluid_space,
+    output
 )
