@@ -159,6 +159,10 @@ contains
        strong_ = .true.
     end if
 
+    if (present(time) .eqv. .false.) then
+       call neko_error("wall_model_bc_apply_vector_dev: time is required.")
+    end if
+
     if (.not. strong_) then
        ! Compute the wall stress using the wall model.
        call this%wall_model%compute(time%t, time%tstep)
