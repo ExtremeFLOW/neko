@@ -421,6 +421,7 @@ contains
 
   end subroutine neko_api_case_fluid_dofmap
 
+  !> Helper function to assign pointers to a dofmap's data
   subroutine neko_api_wrap_dofmap(dm, dof_ptr, x_ptr, y_ptr, z_ptr)
     type(dofmap_t), target, intent(in) :: dm
     type(c_ptr), intent(inout) :: dof_ptr, x_ptr, y_ptr, z_ptr
@@ -432,6 +433,19 @@ contains
 
   end subroutine neko_api_wrap_dofmap
 
+  !> Retrive the space associated with a field
+  !! @param field_name Field registry entry
+  !! @param lx Polynomial dimension in each direction
+  !! @param zg Pointer to quadrature points
+  !! @param dr_inv Pointer to 1/dist quadrature points
+  !! @param ds_inv Pointer to 1/dist quadrature points
+  !! @param dt_inv Pointer to 1/dist quadrature points
+  !! @param wx Pointer to quadrature weights
+  !! @param wy Pointer to quadrature weights
+  !! @param wz Pointer to quadrature weights
+  !! @param dx Pointer to derivative operator \f$ D_1 \f$
+  !! @param dy Pointer to derivative operator \f$ D_2 \f$
+  !! @param dz Pointer to derivative operator \f$ D_3 \f$
   subroutine neko_api_field_space(field_name, lx, zg, &
        dr_inv, ds_inv, dt_inv, wx, wy, wz, dx, dy, dz) &
        bind(c, name='neko_field_space')
@@ -456,6 +470,19 @@ contains
 
   end subroutine neko_api_field_space
 
+  !> Retrive the space associated with a case's fluid solver
+  !! @param case_iptr Opaque pointer for the Neko case
+  !! @param lx Polynomial dimension in each direction
+  !! @param zg Pointer to quadrature points
+  !! @param dr_inv Pointer to 1/dist quadrature points
+  !! @param ds_inv Pointer to 1/dist quadrature points
+  !! @param dt_inv Pointer to 1/dist quadrature points
+  !! @param wx Pointer to quadrature weights
+  !! @param wy Pointer to quadrature weights
+  !! @param wz Pointer to quadrature weights
+  !! @param dx Pointer to derivative operator \f$ D_1 \f$
+  !! @param dy Pointer to derivative operator \f$ D_2 \f$
+  !! @param dz Pointer to derivative operator \f$ D_3 \f$
   subroutine neko_api_case_fluid_space(case_iptr, lx, zg, &
        dr_inv, ds_inv, dt_inv, wx, wy, wz, dx, dy, dz) &
        bind(c, name='neko_case_fluid_space')
@@ -478,6 +505,7 @@ contains
 
   end subroutine neko_api_case_fluid_space
 
+  !> Helper function to assign pointers to a space's data
   subroutine neko_api_wrap_space(Xh, lx, zg, dr_inv, ds_inv, dt_inv, &
        wx, wy, wz, dx, dy, dz)
     type(space_t), target, intent(in) :: Xh
