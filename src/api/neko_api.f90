@@ -527,4 +527,64 @@ contains
 
   end subroutine neko_api_wrap_space
 
+  !> Retrive the coefficient associated with a case's fluid solver
+  !! @param case_iptr Opaque pointer for the Neko case
+  subroutine neko_api_case_fluid_coef(case_iptr, G11, G22, G33, G12, G13, G23, &
+       mult, dxdr, dydr, dzdr, dxds, dyds, dzds, dxdt, dydt, dzdt, &
+       drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+       jac, B, area, nx, ny, nz) bind(c, name='neko_case_fluid_coef')
+    integer(c_intptr_t), intent(inout) :: case_iptr
+    type(case_t), pointer :: C
+    type(c_ptr) :: cptr
+    type(c_ptr), intent(inout) :: G11, G22, G33, G12, G13, G23
+    type(c_ptr), intent(inout) :: mult
+    type(c_ptr), intent(inout) :: dxdr, dydr, dzdr
+    type(c_ptr), intent(inout) :: dxds, dyds, dzds
+    type(c_ptr), intent(inout) :: dxdt, dydt, dzdt
+    type(c_ptr), intent(inout) :: drdx, drdy, drdz
+    type(c_ptr), intent(inout) :: dsdx, dsdy, dsdz
+    type(c_ptr), intent(inout) :: dtdx, dtdy, dtdz
+    type(c_ptr), intent(inout) :: jac, B, area, nx, ny, nz
+
+
+    cptr = transfer(case_iptr, c_null_ptr)
+    if (c_associated(cptr)) then
+       call c_f_pointer(cptr, C)
+       G11 = c_loc(C%fluid%c_Xh%G11)
+       G22 = c_loc(C%fluid%c_Xh%G22)
+       G33 = c_loc(C%fluid%c_Xh%G33)
+       G12 = c_loc(C%fluid%c_Xh%G12)
+       G13 = c_loc(C%fluid%c_Xh%G13)
+       G23 = c_loc(C%fluid%c_Xh%G23)
+       mult = c_loc(C%fluid%c_Xh%mult)
+       dxdr = c_loc(C%fluid%c_Xh%dxdr)
+       dydr = c_loc(C%fluid%c_Xh%dydr)
+       dzdr = c_loc(C%fluid%c_Xh%dzdr)
+       dxds = c_loc(C%fluid%c_Xh%dxds)
+       dyds = c_loc(C%fluid%c_Xh%dyds)
+       dzds = c_loc(C%fluid%c_Xh%dzds)
+       dxdt = c_loc(C%fluid%c_Xh%dxdt)
+       dydt = c_loc(C%fluid%c_Xh%dydt)
+       dzdt = c_loc(C%fluid%c_Xh%dzdt)
+       drdx = c_loc(C%fluid%c_Xh%drdx)
+       drdy = c_loc(C%fluid%c_Xh%drdy)
+       drdz = c_loc(C%fluid%c_Xh%drdz)
+       dsdx = c_loc(C%fluid%c_Xh%dsdx)
+       dsdy = c_loc(C%fluid%c_Xh%dsdy)
+       dsdz = c_loc(C%fluid%c_Xh%dsdz)
+       dtdx = c_loc(C%fluid%c_Xh%dtdx)
+       dtdy = c_loc(C%fluid%c_Xh%dtdy)
+       dtdz = c_loc(C%fluid%c_Xh%dtdz)
+       jac = c_loc(C%fluid%c_Xh%jac)
+       B = c_loc(C%fluid%c_Xh%B)
+       area = c_loc(C%fluid%c_Xh%area)
+       nx = c_loc(C%fluid%c_Xh%nx)
+       ny = c_loc(C%fluid%c_Xh%ny)
+       nz = c_loc(C%fluid%c_Xh%nz)
+    else
+       call neko_error('Invalid Neko case')
+    end if
+
+  end subroutine neko_api_case_fluid_coef
+
 end module neko_api
