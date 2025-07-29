@@ -65,39 +65,73 @@ libneko.neko_field_dofmap.restype = None
 
 libneko.neko_case_fluid_dofmap.argtypes = [POINTER(c_int),
                                            POINTER(POINTER(c_longlong)),
-                                           POINTER(POINTER(c_double)),
-                                           POINTER(POINTER(c_double)),
-                                           POINTER(POINTER(c_double)),
+                                           POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                           POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                           POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
                                            POINTER(c_int)]
 libneko.neko_case_fluid_dofmap.restype = None
 
 libneko.neko_field_space.argtypes = [c_char_p,
                                      POINTER(c_int),
-                                     POINTER(POINTER(c_double)),
-                                     POINTER(POINTER(c_double)),
-                                     POINTER(POINTER(c_double)),
-                                     POINTER(POINTER(c_double)),
-                                     POINTER(POINTER(c_double)),
-                                     POINTER(POINTER(c_double)),
-                                     POINTER(POINTER(c_double)),
-                                     POINTER(POINTER(c_double)),
-                                     POINTER(POINTER(c_double)),
-                                     POINTER(POINTER(c_double))]
+                                     POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                     POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                     POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                     POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                     POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                     POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                     POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                     POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                     POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                     POINTER(POINTER(@NEKO_PY_REAL_TYPE@))]
 libneko.neko_field_space.restype = None
 
 libneko.neko_case_fluid_space.argtypes = [POINTER(c_int),
                                           POINTER(c_int),
-                                          POINTER(POINTER(c_double)),
-                                          POINTER(POINTER(c_double)),
-                                          POINTER(POINTER(c_double)),
-                                          POINTER(POINTER(c_double)),
-                                          POINTER(POINTER(c_double)),
-                                          POINTER(POINTER(c_double)),
-                                          POINTER(POINTER(c_double)),
-                                          POINTER(POINTER(c_double)),
-                                          POINTER(POINTER(c_double)),
-                                          POINTER(POINTER(c_double))]
+                                          POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                          POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                          POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                          POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                          POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                          POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                          POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                          POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                          POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                          POINTER(POINTER(@NEKO_PY_REAL_TYPE@))]
 libneko.neko_case_fluid_space.restype = None
+
+libneko.neko_case_fluid_coef.argtypes = [POINTER(c_int),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@)),
+                                         POINTER(POINTER(@NEKO_PY_REAL_TYPE@))]
+libneko.neko_case_fluid_coef.restype = None
 
 libneko.neko_output_ctrl_execute.argtypes = [POINTER(c_int), c_bool]
 
@@ -128,6 +162,40 @@ class neko_field_t:
     x: np.ndarray
     dm: neko_dofmap_t
     Xh: neko_space_t
+
+@dataclass
+class neko_coef_t:
+    G11: np.ndarray
+    G22: np.ndarray
+    G33: np.ndarray
+    G12: np.ndarray
+    G13: np.ndarray
+    G23: np.ndarray
+    mult: np.ndarray
+    dxdr: np.ndarray
+    dydr: np.ndarray
+    dzdr: np.ndarray
+    dxds: np.ndarray
+    dyds: np.ndarray
+    dzds: np.ndarray
+    dxdt: np.ndarray
+    dydt: np.ndarray
+    dzdt: np.ndarray
+    drdx: np.ndarray
+    drdy: np.ndarray
+    drdz: np.ndarray
+    dsdx: np.ndarray
+    dsdy: np.ndarray
+    dsdz: np.ndarray
+    dtdx: np.ndarray
+    dtdy: np.ndarray
+    dtdz: np.ndarray
+    jac: np.ndarray
+    B: np.ndarray
+    area: np.ndarray
+    nx: np.ndarray
+    ny: np.ndarray
+    nz: np.ndarray
 
 def init():
     libneko.neko_init()
@@ -301,6 +369,141 @@ def wrap_space(lx, zg, dr_inv, ds_inv, dt_inv, wx, wy, wz, dx, dy, dz):
     )
 
     return space
+
+def case_fluid_coef(case_descr):
+    G11_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    G22_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    G33_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    G12_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    G13_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    G23_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    mult_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    dxdr_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    dydr_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    dzdr_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    dxds_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    dyds_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    dzds_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    dxdt_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    dydt_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    dzdt_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    drdx_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    drdy_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    drdz_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    dsdx_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    dsdy_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    dsdz_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    dtdx_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    dtdy_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    dtdz_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    jac_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    B_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    area_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    nx_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    ny_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+    nz_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
+
+    libneko.neko_case_fluid_coef(byref(case_descr),
+                                 byref(G11_ptr),
+                                 byref(G22_ptr),
+                                 byref(G33_ptr),
+                                 byref(G12_ptr),
+                                 byref(G13_ptr),
+                                 byref(G23_ptr),
+                                 byref(mult_ptr),
+                                 byref(dxdr_ptr),
+                                 byref(dydr_ptr),
+                                 byref(dzdr_ptr),
+                                 byref(dxds_ptr),
+                                 byref(dyds_ptr),
+                                 byref(dzds_ptr),
+                                 byref(dxdt_ptr),
+                                 byref(dydt_ptr),
+                                 byref(dzdt_ptr),
+                                 byref(drdx_ptr),
+                                 byref(drdy_ptr),
+                                 byref(drdz_ptr),
+                                 byref(dsdx_ptr),
+                                 byref(dsdy_ptr),
+                                 byref(dsdz_ptr),
+                                 byref(dtdx_ptr),
+                                 byref(dtdy_ptr),
+                                 byref(dtdz_ptr),
+                                 byref(jac_ptr),
+                                 byref(B_ptr),
+                                 byref(area_ptr),
+                                 byref(nx_ptr),
+                                 byref(ny_ptr),
+                                 byref(nz_ptr))
+
+    dm = case_fluid_dofmap(case_descr)
+
+    coef = neko_coef_t(
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(G11_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(G22_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(G33_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(G12_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(G13_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(G23_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(mult_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(dxdr_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(dydr_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(dzdr_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(dxds_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(dyds_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(dzds_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(dxdt_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(dydt_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(dzdt_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(drdx_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(drdy_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(drdz_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(dsdx_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(dsdy_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(dsdz_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(dtdx_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(dtdy_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(dtdz_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(jac_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(B_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(area_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(nx_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(ny_ptr.contents))),
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ * dm.ntot).from_address(
+            addressof(nz_ptr.contents)))
+        )
+
+    return coef
 
 def output(case_descr, force = False):
     libneko.neko_output_ctrl_execute(byref(case_descr), force)

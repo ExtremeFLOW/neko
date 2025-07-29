@@ -29,5 +29,6 @@ from pyneko.intf import (
     field_space,
     case_fluid_dofmap,
     case_fluid_space,
+    case_fluid_coef,
     output
 )
