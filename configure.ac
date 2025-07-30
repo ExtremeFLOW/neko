@@ -271,7 +271,7 @@ elif test "x${have_hip}" = xyes; then
 elif test "x${have_opencl}" = xyes; then
    AC_SUBST(NEKO_BCKND, "OpenCL")
 else
-   AC_SUBST(NEKO_BCKND, "none")
+   AC_SUBST(NEKO_BCKND, "CPU")
 fi
 
 # Check if device aware MPI is requested
