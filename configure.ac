@@ -263,6 +263,17 @@ fi
 # Checks for OpenCL backend
 AX_OPENCL
 
+# Set the NEKO_BCKND variable
+if test "x${have_cuda}" = xyes; then
+   AC_SUBST(NEKO_BCKND, "CUDA")
+elif test "x${have_hip}" = xyes; then
+   AC_SUBST(NEKO_BCKND, "HIP")
+elif test "x${have_opencl}" = xyes; then
+   AC_SUBST(NEKO_BCKND, "OpenCL")
+else
+   AC_SUBST(NEKO_BCKND, "none")
+fi
+
 # Check if device aware MPI is requested
 if (test "x${have_cuda}" = xyes ||
     test "x${have_hip}" = xyes  ||
