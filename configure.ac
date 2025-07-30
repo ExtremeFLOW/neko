@@ -270,6 +270,8 @@ elif test "x${have_hip}" = xyes; then
    AC_SUBST(NEKO_BCKND, "HIP")
 elif test "x${have_opencl}" = xyes; then
    AC_SUBST(NEKO_BCKND, "OpenCL")
+elif test "x${is_sx}" = x1; then
+   AC_SUBST(NEKO_BCKND, "SX-Aurora")
 else
    AC_SUBST(NEKO_BCKND, "CPU")
 fi
