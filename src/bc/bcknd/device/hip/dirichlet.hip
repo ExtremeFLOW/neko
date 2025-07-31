@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2021-2025, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -43,13 +43,14 @@ extern "C" {
    * Fortran wrapper for device dirichlet apply scalar
    */
   void hip_dirichlet_apply_scalar(void *msk, void *x,
-				  real *g, int *m) {
+				  real *g, int *m,
+                                  hipStream_t strm) {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(dirichlet_apply_scalar_kernel<real>),
-		       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+		       nblcks, nthrds, 0, strm,
 		       (int *) msk, (real *) x, *g, *m);
     HIP_CHECK(hipGetLastError());
   }
@@ -58,13 +59,14 @@ extern "C" {
    * Fortran wrapper for device dirichlet apply vector
    */
   void hip_dirichlet_apply_vector(void *msk, void *x, void *y,
-				  void *z, real *g, int *m) {
+				  void *z, real *g, int *m,
+                                  hipStream_t strm) {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(dirichlet_apply_vector_kernel<real>),
-		       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+		       nblcks, nthrds, 0, strm,
 		       (int *) msk, (real *) x,
 		       (real *) y, (real *) z, *g, *m);
     HIP_CHECK(hipGetLastError());

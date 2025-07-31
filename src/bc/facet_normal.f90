@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ module facet_normal
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr, c_associated
   use htable, only : htable_i4_t
   use device, only : device_map, device_memcpy, device_free, &
-       HOST_TO_DEVICE, DEVICE_TO_HOST
+       HOST_TO_DEVICE, DEVICE_TO_HOST, glb_cmd_queue
   implicit none
   private
 
@@ -107,18 +107,19 @@ contains
   end subroutine facet_normal_apply_scalar
 
   !> No-op scalar apply on device
-  subroutine facet_normal_apply_scalar_dev(this, x_d, t, tstep, strong)
+  subroutine facet_normal_apply_scalar_dev(this, x_d, t, tstep, strong, strm)
     class(facet_normal_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
+    type(c_ptr) :: strm
 
   end subroutine facet_normal_apply_scalar_dev
 
   !> No-op vector apply on device
   subroutine facet_normal_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, &
-       strong)
+       strong, strm)
     class(facet_normal_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
@@ -126,6 +127,7 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
+    type(c_ptr) :: strm
 
   end subroutine facet_normal_apply_vector_dev
 
@@ -169,32 +171,40 @@ contains
 
   !> Apply in facet normal direction (vector valued, device version)
   subroutine facet_normal_apply_surfvec_dev(this, x_d, y_d, z_d, &
-       u_d, v_d, w_d, t, tstep)
+       u_d, v_d, w_d, t, tstep, strm)
     class(facet_normal_t), intent(in), target :: this
     type(c_ptr) :: x_d, y_d, z_d, u_d, v_d, w_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    type(c_ptr), optional :: strm
+    type(c_ptr) :: strm_
     integer :: n, m
 
     n = this%coef%dof%size()
     m = this%unique_mask(0)
 
+    if (present(strm)) then
+       strm_ = strm
+    else
+       strm_ = glb_cmd_queue
+    end if
+
     if (m .gt. 0) then
        call device_masked_gather_copy(this%work%x_d, u_d, this%unique_mask_d, &
-            n , m)
-       call device_col2(this%work%x_d, this%nx%x_d, m)
+            n, m, strm_)
+       call device_col2(this%work%x_d, this%nx%x_d, m, strm_)
        call device_masked_scatter_copy(x_d, this%work%x_d, &
-            this%unique_mask_d, n, m)
+            this%unique_mask_d, n, m, strm_)
        call device_masked_gather_copy(this%work%x_d, v_d, this%unique_mask_d, &
-            n , m)
-       call device_col2(this%work%x_d, this%ny%x_d, m)
+            n , m, strm_)
+       call device_col2(this%work%x_d, this%ny%x_d, m, strm_)
        call device_masked_scatter_copy(y_d, this%work%x_d, &
-            this%unique_mask_d, n, m)
+            this%unique_mask_d, n, m, strm_)
        call device_masked_gather_copy(this%work%x_d, w_d, this%unique_mask_d, &
-            n , m)
-       call device_col2(this%work%x_d, this%nz%x_d, m)
+            n, m, strm_)
+       call device_col2(this%work%x_d, this%nz%x_d, m, strm)
        call device_masked_scatter_copy(z_d, this%work%x_d, &
-            this%unique_mask_d, n, m)
+            this%unique_mask_d, n, m, strm_)
     end if
 
   end subroutine facet_normal_apply_surfvec_dev
@@ -260,18 +270,19 @@ contains
           call unique_point_idx%set(this%msk(i), j)
        end if
     end do
-    call this%nx%init(unique_point_idx%num_entries())
-    call this%ny%init(unique_point_idx%num_entries())
-    call this%nz%init(unique_point_idx%num_entries())
-    call this%work%init(unique_point_idx%num_entries())
+
+    ! Only allocate work vectors if size is non-zero
+    if (unique_point_idx%num_entries() .gt. 0 ) then
+       call this%nx%init(unique_point_idx%num_entries())
+       call this%ny%init(unique_point_idx%num_entries())
+       call this%nz%init(unique_point_idx%num_entries())
+       call this%work%init(unique_point_idx%num_entries())
+    end if
     allocate(this%unique_mask(0:unique_point_idx%num_entries()))
 
     this%unique_mask(0) = unique_point_idx%num_entries()
     do i = 1, this%unique_mask(0)
        this%unique_mask(i) = 0
-       this%nx%x(i) = 0.0_rp
-       this%ny%x(i) = 0.0_rp
-       this%nz%x(i) = 0.0_rp
     end do
 
 
@@ -290,17 +301,18 @@ contains
        this%nz%x(htable_data) = this%nz%x(htable_data) + normal(3)
     end do
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
+    if (NEKO_BCKND_DEVICE .eq. 1 .and. &
+         (unique_point_idx%num_entries() .gt. 0 )) then
        call device_map(this%unique_mask, this%unique_mask_d, &
-           size(this%unique_mask))
+            size(this%unique_mask))
        call device_memcpy(this%unique_mask, this%unique_mask_d, &
-           size(this%unique_mask), HOST_TO_DEVICE, sync = .true.)
+            size(this%unique_mask), HOST_TO_DEVICE, sync = .true.)
        call device_memcpy(this%nx%x, this%nx%x_d, &
-            this%nx%n, HOST_TO_DEVICE, sync = .true.)
+            this%nx%size(), HOST_TO_DEVICE, sync = .true.)
        call device_memcpy(this%ny%x, this%ny%x_d, &
-            this%ny%n, HOST_TO_DEVICE, sync = .true.)
+            this%ny%size(), HOST_TO_DEVICE, sync = .true.)
        call device_memcpy(this%nz%x, this%nz%x_d, &
-            this%nz%n, HOST_TO_DEVICE, sync = .true.)
+            this%nz%size(), HOST_TO_DEVICE, sync = .true.)
     end if
 
     call unique_point_idx%free()

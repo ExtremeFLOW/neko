@@ -750,7 +750,7 @@ contains
   subroutine add2s2(a, b, c1, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(inout) :: b
+    real(kind=rp), dimension(n), intent(in) :: b
     real(kind=rp), intent(in) :: c1
     integer :: i
 

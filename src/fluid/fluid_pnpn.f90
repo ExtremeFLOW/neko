@@ -642,7 +642,7 @@ contains
          vel_projection_dim => this%vel_projection_dim, &
          pr_projection_dim => this%pr_projection_dim, &
          oifs => this%oifs, &
-         rho => this%rho, mu => this%mu, &
+         rho => this%rho, mu_tot => this%mu_tot, &
          f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
          t => time%t, tstep => time%tstep, dt => time%dt, &
          ext_bdf => this%ext_bdf, event => glb_cmd_event)
@@ -719,7 +719,7 @@ contains
            c_Xh, gs_Xh, &
            this%bc_prs_surface, this%bc_sym_surface,&
            Ax_prs, ext_bdf%diffusion_coeffs(1), dt, &
-           mu, rho, event)
+           mu_tot, rho, event)
 
       ! De-mean the pressure residual when no strong pressure boundaries present
       if (.not. this%prs_dirichlet) call ortho(p_res%x, this%glb_n_points, n)
@@ -745,6 +745,7 @@ contains
       ksp_results(1) = &
            this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, &
            this%bclst_dp, gs_Xh)
+      ksp_results(1)%name = 'Pressure'
 
 
       call profiler_end_region('Pressure_solve', 3)
@@ -763,7 +764,7 @@ contains
            p, &
            f_x, f_y, f_z, &
            c_Xh, msh, Xh, &
-           mu, rho, ext_bdf%diffusion_coeffs(1), &
+           mu_tot, rho, ext_bdf%diffusion_coeffs(1), &
            dt, dm_Xh%size())
 
       call gs_Xh%op(u_res, GS_OP_ADD, event)
@@ -790,6 +791,13 @@ contains
            this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, &
            this%ksp_vel%max_iter)
       call profiler_end_region("Velocity_solve", 4)
+      if (this%full_stress_formulation) then
+         ksp_results(2)%name = 'Momentum'
+      else
+         ksp_results(2)%name = 'X-Velocity'
+         ksp_results(3)%name = 'Y-Velocity'
+         ksp_results(4)%name = 'Z-Velocity'
+      end if
 
       call this%proj_vel%post_solving(du%x, dv%x, dw%x, Ax_vel, c_Xh, &
            this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, n, tstep, &
@@ -805,14 +813,14 @@ contains
       if (this%forced_flow_rate) then
          ! Horrible mu hack?!
          call this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &
-              c_Xh, gs_Xh, ext_bdf, rho%x(1,1,1,1), mu%x(1,1,1,1), &
+              c_Xh, gs_Xh, ext_bdf, rho%x(1,1,1,1), mu_tot, &
               dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &
               this%bclst_dw, this%bclst_vel_res, Ax_vel, Ax_prs, this%ksp_prs, &
               this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_prs%max_iter, &
               this%ksp_vel%max_iter)
       end if
 
-      call fluid_step_info(tstep, t, dt, ksp_results, &
+      call fluid_step_info(time, ksp_results, &
            this%full_stress_formulation, this%strict_convergence)
 
     end associate
@@ -1013,6 +1021,11 @@ contains
              call neko_error("No boundary_conditions entry in the case file!")
           end if
        end do
+
+       ! For a pure periodic case, we still need to initilise the bc lists
+       ! to a zero size to avoid issues with apply() in step()
+       call this%bcs_vel%init()
+       call this%bcs_prs%init()
 
     end if
 

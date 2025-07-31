@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -149,12 +149,13 @@ contains
   end subroutine usr_inflow_apply_scalar
 
   !> No-op scalar apply (device version)
-  subroutine usr_inflow_apply_scalar_dev(this, x_d, t, tstep, strong)
+  subroutine usr_inflow_apply_scalar_dev(this, x_d, t, tstep, strong, strm)
     class(usr_inflow_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
+    type(c_ptr) :: strm
   end subroutine usr_inflow_apply_scalar_dev
 
   !> Apply user defined inflow conditions (vector valued)
@@ -169,9 +170,13 @@ contains
     logical, intent(in), optional :: strong
     integer :: i, m, k, idx(4), facet, tstep_
     real(kind=rp) :: t_
-    logical :: strong_ = .true.
+    logical :: strong_
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
 
     if (present(t)) then
        t_ = t
@@ -233,7 +238,8 @@ contains
 
   end subroutine usr_inflow_apply_vector
 
-  subroutine usr_inflow_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, strong)
+  subroutine usr_inflow_apply_vector_dev(this, x_d, y_d, z_d, &
+       t, tstep, strong, strm)
     class(usr_inflow_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
@@ -241,15 +247,20 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
+    type(c_ptr) :: strm
     integer :: i, m, k, idx(4), facet, tstep_
     integer(c_size_t) :: s
     real(kind=rp) :: t_
     real(kind=rp), allocatable :: x(:)
     real(kind=rp), allocatable :: y(:)
     real(kind=rp), allocatable :: z(:)
-    logical :: strong_ = .true.
+    logical :: strong_
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
 
     if (present(t)) then
        t_ = t
@@ -335,7 +346,7 @@ contains
 
       if (strong_ .and. (this%msk(0) .gt. 0)) then
          call device_inhom_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
-              usr_x_d, usr_y_d, usr_z_d, m)
+              usr_x_d, usr_y_d, usr_z_d, m, strm)
       end if
 
     end associate
@@ -376,7 +387,7 @@ contains
   subroutine usr_inflow_finalize(this, only_facets)
     class(usr_inflow_t), target, intent(inout) :: this
     logical, optional, intent(in) :: only_facets
-    logical :: only_facets_ = .false.
+    logical :: only_facets_
 
     if (present(only_facets)) then
        only_facets_ = only_facets

@@ -291,8 +291,6 @@ contains
                    do j = 1, 100
                       call gs_op_vector(gs, tmp, dofmap%size(), GS_OP_ADD)
                    end do
-                   call device_sync
-                   call MPI_Barrier(NEKO_COMM)
                    strtgy_time(i) = (MPI_Wtime() - strtgy_time(i)) / 100d0
                 end do
 

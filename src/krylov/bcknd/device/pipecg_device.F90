@@ -396,8 +396,10 @@ contains
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
-      ksp_results%converged = this%is_converged(0, rnorm)
-      if (ksp_results%converged) return
+      if(abscmp(rnorm, 0.0_rp)) then
+         ksp_results%converged = .true.
+         return
+      end if
 
       gamma1 = 0.0_rp
       tmp1 = 0.0_rp

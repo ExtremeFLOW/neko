@@ -69,6 +69,7 @@ but also defines several parameters that pertain to the simulation as a whole.
 
 | Name                  | Description                                                                                           | Admissible values                               | Default value |
 | --------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------- | ------------- |
+| `no_defaults`         | Prevents filling in default values to case file entries.                                              | `true` or `false`                               | `false`       |
 | `mesh_file`           | The name of the mesh file.                                                                            | Strings ending with `.nmsh`                     | -             |
 | `output_boundary`     | Whether to write a `bdry0.f0000` file with boundary labels. Can be used to check boundary conditions. | `true` or `false`                               | `false`       |
 | `output_directory`    | Folder for redirecting solver output. Note that the folder has to exist!                              | Path to an existing directory                   | `.`           |
@@ -320,15 +321,15 @@ A more detailed description of each boundary condition is provided below.
   ```
 * `outflow+user`. Same as `outflow`, but with user-specified
   pressure. The pressure is specified via the same interface as `user_pressure`,
-  see the 
+  see the
   [relevant section](#user-file_field-dirichlet-update) for more information.
 
 * `normal_outflow+user`. Same as `normal_outflow`, but with user-specified
-  pressure. The pressure profile is specified via the same interface as 
+  pressure. The pressure profile is specified via the same interface as
   `user_pressure`, see
   the [relevant section](#user-file_field-dirichlet-update) for more information.
   Note that, similarly to `normal_outflow`, surface-parallel velocity components
-  are taken from the initial conditions. 
+  are taken from the initial conditions.
 
 * `outflow+dong`. Same as `outflow`, but additionally applies the Dong boundary
   condition on the pressure. This is a way to prevent backflow and therefore
@@ -675,11 +676,11 @@ The following keywords are used, with the corresponding options.
   - `pipecg`, a pipelined conjugate gradient solver.
   - `bicgstab`, a bi-conjugate gradient stabilized solver.
   - `cacg`, a communication-avoiding conjugate gradient solver.
-  - `coupledcg`, a coupled conjugate gradient solver. Must be used for velocity
+  - `coupled_cg`, a coupled conjugate gradient solver. Must be used for velocity
     when viscosity varies in space.
   - `gmres`, a GMRES solver. Typically used for pressure.
-  - `fusedcg`, a conjugate gradient solver optimised for accelerators using
-  - `fusedcoupledcg`, a coupled conjugate gradient solver optimised for accelerators using
+  - `fused_cg`, a conjugate gradient solver optimised for accelerators using
+  - `fused_coupled_cg`, a coupled conjugate gradient solver optimised for accelerators using
     kernel fusion. Must be used for velocity when viscosity varies in space and
     device backened is used.
     using kernel fusion.
@@ -718,7 +719,7 @@ For `hsmg`, the following keywords are used:
 | Name                               | Description                                                                                   | Admissible values                 | Default value |
 |------------------------------------|-----------------------------------------------------------------------------------------------|-----------------------------------|---------------|
 | `coarse_grid.solver`               | Type of linear solver for the coarse grid, any of the Krylov solvers or TreeAMG  `tamg`       | A solver `type`                   | `cg`          |
-| `coarse_grid.preconditioner`       | Type of the preconditioner to use (only valid for a Krylov based `solver`)                    | A preconditioner `type`           | `jacobi       |
+| `coarse_grid.preconditioner`       | Type of the preconditioner to use (only valid for a Krylov based `solver`)                    | A preconditioner `type`           | `jacobi`      |
 | `coarse_grid.iterations`           | Number of linear solver iterations (only valid for a Krylov based `solver`)                   | An integer                        | 10            |
 | `coarse_grid.monitor`              | Monitor residuals in the coarse grid (only valid for a Krylov based `solver`)                 | `true` or `false`                 | `false`       |
 | `coarse_grid.levels`               | Number of AMG levels to construct (only valid for `solver` type `tamg`)                       | An integer                        | 3             |
@@ -730,7 +731,7 @@ For `phmg`, the following keywords are used:
 | Name                               | Description                                                                                   | Admissible values                 | Default value |
 |------------------------------------|-----------------------------------------------------------------------------------------------|-----------------------------------|---------------|
 | `smoother_iterations`              | Number of smoother iterations in the p-multigrid parts                                        | An integer                        | 10            |
-| `smoother_cheby_acc`               | Type of Chebyshev acceleration (non-accelerated semi-iterative Chebyshev method if not set)   | 'jacobi' or 'schwarz'             | -             |
+| `smoother_cheby_acc`               | Type of Chebyshev acceleration (non-accelerated semi-iterative Chebyshev method if not set)   | `jacobi` or `schwarz`             | -             |
 | `coarse_grid.levels`               | Number of AMG levels to construct (only valid for `solver` type `tamg`)                       | An integer                        | 3             |
 | `coarse_grid.iterations`           | Number of linear solver iterations for coarse grid solver                                     | An integer                        | 1             |
 | `coarse_grid.cheby_degree`         | Degree of the Chebyshev based AMG smoother                                                    | An integer                        | 5             |
