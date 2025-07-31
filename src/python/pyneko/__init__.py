@@ -30,5 +30,7 @@ from pyneko.intf import (
     case_fluid_dofmap,
     case_fluid_space,
     case_fluid_coef,
+    initial_condition,
+    fluid_inflow,
     output
 )

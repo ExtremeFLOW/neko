@@ -37,6 +37,17 @@ module neko_api
   implicit none
   private
 
+  interface
+     module subroutine neko_api_user_cb_register(user, &
+          fluid_ic_cb, fluid_ic_cns_cb, scalar_ic_cb, fluid_if_cb)
+       type(user_t), intent(inout) :: user
+       type(c_funptr), value :: fluid_ic_cb
+       type(c_funptr), value :: fluid_ic_cns_cb
+       type(c_funptr), value :: scalar_ic_cb
+       type(c_funptr), value :: fluid_if_cb
+     end subroutine neko_api_user_cb_register
+  end interface
+
 contains
 
   !> Initialise Neko
@@ -68,6 +79,20 @@ contains
 
   end subroutine neko_api_job_info
 
+  !> Allocate memory for a Neko case
+  !! @param case_iptr Opaque pointer for the created Neko case
+  subroutine neko_api_case_allocate(case_iptr) &
+       bind(c, name="neko_case_allocate")
+    integer(c_intptr_t), intent(inout) :: case_iptr
+    type(case_t), pointer :: C
+    type(c_ptr) :: cp
+
+    allocate(C)
+    cp = c_loc(C)
+    case_iptr = transfer(cp, 0_c_intptr_t)
+
+  end subroutine neko_api_case_allocate
+
   !> Initalise a Neko case
   !! @param case_json Serialised JSON object describing the case
   !! @param case_iptr Opaque pointer for the Neko case
@@ -79,6 +104,17 @@ contains
     type(json_file) :: json_case
     type(case_t), pointer :: C
     type(c_ptr) :: cp
+
+    ! Check if the case has already been allocated
+    ! e.g. if a user callback has been injected
+    cp = transfer(case_iptr, c_null_ptr)
+    if (c_associated(cp)) then
+       call c_f_pointer(cp, C)
+    else
+       allocate(C)
+       cp = c_loc(C)
+       case_iptr = transfer(cp, 0_c_intptr_t)
+    end if
 
     ! Convert passed in serialised JSON object into a Fortran
     ! character string and create a json_file object
@@ -94,8 +130,6 @@ contains
        end block
     end if
 
-    allocate(C)
-
     !
     ! Create case
     !
@@ -105,10 +139,6 @@ contains
     ! Create simulation components
     !
     call neko_simcomps%init(C)
-
-
-    cp = c_loc(C)
-    case_iptr = transfer(cp, 0_c_intptr_t)
 
   end subroutine neko_api_case_init
 
@@ -586,5 +616,32 @@ contains
     end if
 
   end subroutine neko_api_case_fluid_coef
+
+  !> Setup user-provided callbacks
+  !! @param case_iptr Opaque pointer for the Neko case
+  !! @param fluid_ic_cb Fluid initial condition callback
+  !! @param fluid_ic_cns_cb Fluid initial condition callback (compressible)
+  !! @param scalar_ic_cb Fluid initial condition callback
+  !! @param fluid_if_cb Fluid inflow callback
+  subroutine neko_api_user_setup(case_iptr, &
+       fluid_ic_cb, fluid_ic_cns_cb, scalar_ic_cb, fluid_if_cb) &
+       bind(c, name='neko_user_setup')
+    integer(c_intptr_t), intent(inout) :: case_iptr
+    type(c_funptr), value :: fluid_ic_cb, fluid_ic_cns_cb, scalar_ic_cb
+    type(c_funptr), value :: fluid_if_cb
+    type(case_t), pointer :: C
+    type(c_ptr) :: cptr
+
+    cptr = transfer(case_iptr, c_null_ptr)
+    if (c_associated(cptr)) then
+       call c_f_pointer(cptr, C)
+       call neko_api_user_cb_register(C%user, &
+            fluid_ic_cb, fluid_ic_cns_cb, scalar_ic_cb, &
+            fluid_if_cb)
+    else
+       call neko_error('Invalid Neko case')
+    end if
+
+  end subroutine neko_api_user_setup
 
 end module neko_api

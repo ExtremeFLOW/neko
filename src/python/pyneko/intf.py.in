@@ -11,17 +11,41 @@ from ctypes import (
     byref,
     cast,
     addressof,
-    create_string_buffer
+    create_string_buffer,
+    CFUNCTYPE,
 )
 from dataclasses import dataclass
 import json
 import numpy as np
+
+
+initial_condition = CFUNCTYPE(None)
+
+fluid_inflow = CFUNCTYPE(None,
+                         POINTER(@NEKO_PY_REAL_TYPE@),
+                         POINTER(@NEKO_PY_REAL_TYPE@),
+                         POINTER(@NEKO_PY_REAL_TYPE@),
+                         POINTER(@NEKO_PY_REAL_TYPE@),
+                         POINTER(@NEKO_PY_REAL_TYPE@),
+                         POINTER(@NEKO_PY_REAL_TYPE@),
+                         POINTER(@NEKO_PY_REAL_TYPE@),
+                         POINTER(@NEKO_PY_REAL_TYPE@),
+                         POINTER(@NEKO_PY_REAL_TYPE@),
+                         POINTER(c_int),
+                         POINTER(c_int),
+                         POINTER(c_int),
+                         POINTER(c_int),
+                         POINTER(@NEKO_PY_REAL_TYPE@),
+                         POINTER(c_int))
 
 libneko = CDLL(util.find_library("neko"))
 
 libneko.neko_init.resType = None
 libneko.neko_finalize.resType = None
 libneko.neko_job_info.resType = None
+
+libneko.neko_case_allocate.argtypes = [POINTER(c_int)]
+libneko.neko_case_allocate.restype = None
 
 libneko.neko_case_init.argtypes = [POINTER(c_char_p), c_int, POINTER(c_int)]
 libneko.neko_case_init.restype = c_int
@@ -135,6 +159,15 @@ libneko.neko_case_fluid_coef.restype = None
 
 libneko.neko_output_ctrl_execute.argtypes = [POINTER(c_int), c_bool]
 
+libneko.neko_user_setup.argtypes = [POINTER(c_int),
+                                    initial_condition,
+                                    initial_condition,
+                                    initial_condition,
+                                    fluid_inflow]
+libneko.neko_user_setup.restype = None
+
+
+
 @dataclass
 class neko_dofmap_t:
     dof: np.ndarray
@@ -206,9 +239,24 @@ def finalize():
 def job_info():
     libneko.neko_job_info()
 
-def case_init(case_json):
+def case_init(case_json,
+              cb_fluid_ic = initial_condition(0),
+              cb_fluid_cns_ic = initial_condition(0),
+              cb_scalar_ic = initial_condition(0),
+              cb_fluid_if = fluid_inflow(0)):
     cp = python_dict_to_fortran(case_json)
     case_descr = c_int()
+
+    if (cb_fluid_ic != initial_condition(0) or
+        cb_fluid_cns_ic != initial_condition(0) or
+        cb_scalar_ic != initial_condition(0) or
+        cb_fluid_if != fluid_inflow(0)):
+
+        libneko.neko_case_allocate(byref(case_descr))
+        user_setup(case_descr, cb_fluid_ic, cb_fluid_cns_ic, cb_scalar_ic,
+                   cb_fluid_if)
+
+
     libneko.neko_case_init(byref(cp), len(json.dumps(case_json)),
                            byref(case_descr))
     return case_descr
@@ -504,6 +552,11 @@ def case_fluid_coef(case_descr):
         )
 
     return coef
+
+def user_setup(case_descr, cb_fluid_ic, cb_fluid_cns_ic,
+               cb_scalar_ic, cb_fluid_if):
+    libneko.neko_user_setup(byref(case_descr), cb_fluid_ic,
+                            cb_fluid_cns_ic, cb_scalar_ic, cb_fluid_if)
 
 def output(case_descr, force = False):
     libneko.neko_output_ctrl_execute(byref(case_descr), force)
