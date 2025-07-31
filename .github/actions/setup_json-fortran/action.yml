@@ -34,7 +34,7 @@ inputs:
   version:
     description: "The version of the JSON-Fortran library to use."
     required: false
-    default: "8.3.0"
+    default: "8.4.0"
   arch:
     description: "The architecture to use."
     required: false

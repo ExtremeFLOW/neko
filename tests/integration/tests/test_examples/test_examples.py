@@ -142,6 +142,7 @@ def manipulate_case(example, case, tmp_path):
     case_object = case["case"]
     time_object = case_object["time"]
     timestep = time_object.get("timestep", time_object.get("max_timestep"))
+    time_object["max_timestep"] = timestep
     time_object["end_time"] = 2 * timestep
     case_object["mesh_file"] = examples[example].mesh_file
     case_object["output_directory"] = str(tmp_path)
