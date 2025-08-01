@@ -261,6 +261,8 @@ contains
     call chkpf%read(C%chkp)
 
     call case_restart_from_checkpoint(C, C%chkp)
+
+    ! Free the previous mesh
     call C%chkp%previous_mesh%free()
 
     write(log_buf, '(A,E15.7)') 'Time : ', C%time%t
@@ -276,16 +278,17 @@ contains
     character(len=LOG_SIZE) :: log_buf
     integer :: i
 
+    ! Restart the time state and BDF coefficients
     call C%time%restart(chkp)
-
-    ! Free the previous mesh, dont need it anymore
     do i = 1, size(C%time%dtlag)
        call C%fluid%ext_bdf%set_coeffs(C%time%dtlag)
     end do
 
+    ! Restart the fluid and scalars
     call C%fluid%restart(chkp)
     if (allocated(C%scalars)) call C%scalars%restart(chkp)
 
+    ! Restart the output controller
     call C%output_controller%set_counter(C%time)
 
     ! Restart the simulation components
