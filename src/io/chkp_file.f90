@@ -74,7 +74,7 @@ contains
     real(kind=dp) :: time
     character(len=5) :: id_str
     character(len=1024) :: fname
-    integer :: ierr, suffix_pos, optional_fields
+    integer :: ierr, suffix_pos, optional_fields, i, j
     type(field_t), pointer :: u, v, w, p, s
     type(field_t), pointer :: abx1,abx2
     type(field_t), pointer :: aby1,aby2
@@ -85,13 +85,13 @@ contains
     type(field_series_t), pointer :: wlag => null()
     type(field_series_t), pointer :: slag => null()
     real(kind=rp), pointer :: dtlag(:), tlag(:)
+    integer :: n_scalars_local = 1
     type(mesh_t), pointer :: msh
     type(MPI_Status) :: status
     type(MPI_File) :: fh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, byte_offset
     integer(kind=i8) :: n_glb_dofs, dof_offset
     logical :: write_lag, write_scalar, write_dtlag, write_scalarlag, write_abvel
-    integer :: i
 
     if (present(t)) then
        time = real(t,dp)
@@ -127,10 +127,14 @@ contains
           write_lag = .false.
        end if
 
+       ! Check for scalar fields
        if (associated(data%s)) then
           s => data%s
           write_scalar = .true.
           optional_fields = optional_fields + 2
+          if (data%n_scalars > 1 .and. pe_rank .eq. 0) then
+             write(*,*) 'DEBUG: Writing checkpoint with', data%n_scalars, 'scalars (legacy mode)'
+          end if
        else
           write_scalar = .false.
        end if
@@ -156,12 +160,17 @@ contains
        end if
        write_scalarlag = .false.
        if (associated(data%abs1)) then
+          ! Single scalar lag data
           slag => data%slag
           abs1 => data%abs1
           abs2 => data%abs2
           optional_fields = optional_fields + 16
           write_scalarlag = .true.
        end if
+
+       ! Store scalar count for logging
+       n_scalars_local = data%n_scalars
+
     class default
        call neko_error('Invalid data')
     end select
@@ -371,6 +380,12 @@ contains
     integer :: glb_nelv, gdim, lx, have_lag, have_scalar, nel, optional_fields, have_dtlag
     integer :: have_abvel, have_scalarlag
     logical :: read_lag, read_scalar, read_dtlag, read_abvel, read_scalarlag
+    ! Multi-scalar support
+    type(field_t), pointer :: s2 => null(), s3 => null()
+    type(field_series_t), pointer :: s2lag => null(), s3lag => null()
+    type(field_t), pointer :: abs2_1 => null(), abs2_2 => null()
+    logical :: read_multiscalar
+    integer :: n_scalars_in_chkp
     real(kind=rp) :: tol
     real(kind=rp) :: center_x, center_y, center_z
     integer :: i, e
@@ -441,6 +456,20 @@ contains
           abs1 => data%abs1
           abs2 => data%abs2
           read_scalarlag = .true.
+       end if
+
+       ! Multi-scalar support - will be determined after reading header
+       read_multiscalar = .false.
+       
+       ! Set up pointers for multi-scalar reading
+       if (data%n_scalars > 1) then
+          read_multiscalar = .true.
+          if (associated(data%s2)) s2 => data%s2
+          if (associated(data%s3)) s3 => data%s3  
+          if (associated(data%s2lag)) s2lag => data%s2lag
+          if (associated(data%s3lag)) s3lag => data%s3lag
+          if (associated(data%abs2_1)) abs2_1 => data%abs2_1
+          if (associated(data%abs2_2)) abs2_2 => data%abs2_2
        end if
 
        chkp => data
@@ -571,8 +600,7 @@ contains
     end if
 
     if (read_scalar) then
-       byte_offset = mpi_offset + &
-            dof_offset * int(MPI_REAL_PREC_SIZE, i8)
+       byte_offset = mpi_offset + dof_offset * int(MPI_REAL_PREC_SIZE, i8)
        call this%read_field(fh, byte_offset, s%x, nel)
        mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
     end if

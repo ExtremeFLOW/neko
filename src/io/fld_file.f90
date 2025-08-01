@@ -212,15 +212,16 @@ contains
           u%ptr => data%items(2)%ptr%x(:,1,1,1)
           v%ptr => data%items(3)%ptr%x(:,1,1,1)
           w%ptr => data%items(4)%ptr%x(:,1,1,1)
-          tem%ptr => data%items(5)%ptr%x(:,1,1,1)
-          n_scalar_fields = data%size() - 5
-          allocate(scalar_fields(n_scalar_fields))
-          do i = 1, n_scalar_fields
-             scalar_fields(i)%ptr => data%items(i+5)%ptr%x(:,1,1,1)
-          end do
           write_pressure = .true.
           write_velocity = .true.
-          write_temperature = .true.
+          ! For our multi-scalar case: fields are [p,u,v,w,s1,s2,...]
+          ! All fields after the first 4 are scalars (no temperature)
+          n_scalar_fields = data%size() - 4
+          allocate(scalar_fields(n_scalar_fields))
+          do i = 1, n_scalar_fields
+             scalar_fields(i)%ptr => data%items(i+4)%ptr%x(:,1,1,1)
+          end do
+          write_temperature = .false.
        case default
           call neko_error('This many fields not supported yet, fld_file')
        end select

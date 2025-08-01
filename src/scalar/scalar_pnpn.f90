@@ -177,7 +177,7 @@ contains
     type(field_series_t), target, intent(in) :: ulag, vlag, wlag
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
     type(field_t), target, intent(in) :: rho
-    integer :: i
+    integer :: i, scalar_idx
     class(bc_t), pointer :: bc_i
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
     logical :: advection
@@ -252,11 +252,22 @@ contains
          ulag, vlag, wlag, this%chkp%dtlag, &
          this%chkp%tlag, time_scheme, .not. advection, &
          this%slag)
+    
     ! Add scalar info to checkpoint
-    call this%chkp%add_scalar(this%s)
-    this%chkp%abs1 => this%abx1
-    this%chkp%abs2 => this%abx2
-    this%chkp%slag => this%slag
+    if (params%valid_path('scalar_index')) then
+       call json_get(params, 'scalar_index', scalar_idx)
+       ! Multi-scalar case
+       call this%chkp%add_scalar_multi(scalar_idx, this%s, this%slag, this%abx1, this%abx2)
+       if (pe_rank .eq. 0) then
+          write(*,*) 'DEBUG: Added scalar', scalar_idx, 'to multi-scalar checkpoint'
+       end if
+    else
+       ! Single scalar case
+       call this%chkp%add_scalar(this%s)
+       this%chkp%abs1 => this%abx1
+       this%chkp%abs2 => this%abx2
+       this%chkp%slag => this%slag
+    end if
   end subroutine scalar_pnpn_init
 
   ! Restarts the scalar from a checkpoint

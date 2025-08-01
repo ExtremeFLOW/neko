@@ -69,11 +69,50 @@ module checkpoint
      type(field_t), pointer :: abz1 => null()
      type(field_t), pointer :: abz2 => null()
 
+     ! Legacy single scalar support (for backward compatibility)
      type(field_t), pointer :: s => null()
      type(field_series_t), pointer :: slag => null()
-
      type(field_t), pointer :: abs1 => null()
      type(field_t), pointer :: abs2 => null()
+
+     ! Multi-scalar support (up to 9 extra scalars for 10 total)
+     type(field_t), pointer :: s2 => null()
+     type(field_t), pointer :: s3 => null()
+     type(field_t), pointer :: s4 => null()
+     type(field_t), pointer :: s5 => null()
+     type(field_t), pointer :: s6 => null()
+     type(field_t), pointer :: s7 => null()
+     type(field_t), pointer :: s8 => null()
+     type(field_t), pointer :: s9 => null()
+     type(field_t), pointer :: s10 => null()
+     type(field_series_t), pointer :: s2lag => null()
+     type(field_series_t), pointer :: s3lag => null()
+     type(field_series_t), pointer :: s4lag => null()
+     type(field_series_t), pointer :: s5lag => null()
+     type(field_series_t), pointer :: s6lag => null()
+     type(field_series_t), pointer :: s7lag => null()
+     type(field_series_t), pointer :: s8lag => null()
+     type(field_series_t), pointer :: s9lag => null()
+     type(field_series_t), pointer :: s10lag => null()
+     type(field_t), pointer :: abs2_1 => null()
+     type(field_t), pointer :: abs2_2 => null()
+     type(field_t), pointer :: abs3_1 => null()
+     type(field_t), pointer :: abs3_2 => null()
+     type(field_t), pointer :: abs4_1 => null()
+     type(field_t), pointer :: abs4_2 => null()
+     type(field_t), pointer :: abs5_1 => null()
+     type(field_t), pointer :: abs5_2 => null()
+     type(field_t), pointer :: abs6_1 => null()
+     type(field_t), pointer :: abs6_2 => null()
+     type(field_t), pointer :: abs7_1 => null()
+     type(field_t), pointer :: abs7_2 => null()
+     type(field_t), pointer :: abs8_1 => null()
+     type(field_t), pointer :: abs8_2 => null()
+     type(field_t), pointer :: abs9_1 => null()
+     type(field_t), pointer :: abs9_2 => null()
+     type(field_t), pointer :: abs10_1 => null()
+     type(field_t), pointer :: abs10_2 => null()
+     integer :: n_scalars = 0
 
      real(kind=dp) :: t !< Restart time (valid after load)
      type(mesh_t) :: previous_mesh
@@ -87,6 +126,9 @@ module checkpoint
      procedure, pass(this) :: add_lag => chkp_add_lag
      procedure, pass(this) :: add_scalar => chkp_add_scalar
      procedure, pass(this) :: restart_time => chkp_restart_time
+     ! Multi-scalar procedures
+     procedure, pass(this) :: init_scalars => chkp_init_scalars
+     procedure, pass(this) :: add_scalar_multi => chkp_add_scalar_multi
      final :: chkp_free
   end type chkp_t
 
@@ -133,12 +175,39 @@ contains
     nullify(this%ulag)
     nullify(this%vlag)
     nullify(this%wlag)
+    
+    ! Legacy single scalar cleanup
+    nullify(this%s)
+    nullify(this%slag)
+    nullify(this%abs1)
+    nullify(this%abs2)
+
+    ! Multi-scalar cleanup (simple approach)
+    nullify(this%s2)
+    nullify(this%s3)
+    nullify(this%s4)
+    nullify(this%s5)
+    nullify(this%s2lag)
+    nullify(this%s3lag)
+    nullify(this%s4lag)
+    nullify(this%s5lag)
+    nullify(this%abs2_1)
+    nullify(this%abs2_2)
+    nullify(this%abs3_1)
+    nullify(this%abs3_2)
+    nullify(this%abs4_1)
+    nullify(this%abs4_2)
+    nullify(this%abs5_1)
+    nullify(this%abs5_2)
+    
+    this%n_scalars = 0
 
   end subroutine chkp_free
 
   !> Synchronize checkpoint with device
   subroutine chkp_sync_host(this)
     class(chkp_t), intent(inout) :: this
+    integer :: i
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        associate(u=>this%u, v=>this%v, w=>this%w, &
@@ -182,6 +251,7 @@ contains
             call device_memcpy(this%abz2%x, this%abz2%x_d, &
                  w%dof%size(), DEVICE_TO_HOST, sync=.false.)
          end if
+         ! Legacy single scalar sync
          if (associated(this%s)) then
             call device_memcpy(this%s%x, this%s%x_d, &
                  this%s%dof%size(), DEVICE_TO_HOST, sync=.false.)
@@ -194,6 +264,41 @@ contains
             call device_memcpy(this%abs2%x, this%abs2%x_d, &
                  w%dof%size(), DEVICE_TO_HOST, sync=.false.)
          end if
+         
+         ! Multi-scalar sync
+         if (associated(this%s2)) then
+            call device_memcpy(this%s2%x, this%s2%x_d, &
+                 this%s2%dof%size(), DEVICE_TO_HOST, sync=.false.)
+            if (associated(this%s2lag)) then
+               call device_memcpy(this%s2lag%lf(1)%x, this%s2lag%lf(1)%x_d, &
+                    this%s2%dof%size(), DEVICE_TO_HOST, sync=.false.)
+               call device_memcpy(this%s2lag%lf(2)%x, this%s2lag%lf(2)%x_d, &
+                    this%s2%dof%size(), DEVICE_TO_HOST, sync=.false.)
+            end if
+            if (associated(this%abs2_1)) then
+               call device_memcpy(this%abs2_1%x, this%abs2_1%x_d, &
+                    this%s2%dof%size(), DEVICE_TO_HOST, sync=.false.)
+               call device_memcpy(this%abs2_2%x, this%abs2_2%x_d, &
+                    this%s2%dof%size(), DEVICE_TO_HOST, sync=.false.)
+            end if
+         end if
+         
+         if (associated(this%s3)) then
+            call device_memcpy(this%s3%x, this%s3%x_d, &
+                 this%s3%dof%size(), DEVICE_TO_HOST, sync=.false.)
+            if (associated(this%s3lag)) then
+               call device_memcpy(this%s3lag%lf(1)%x, this%s3lag%lf(1)%x_d, &
+                    this%s3%dof%size(), DEVICE_TO_HOST, sync=.false.)
+               call device_memcpy(this%s3lag%lf(2)%x, this%s3lag%lf(2)%x_d, &
+                    this%s3%dof%size(), DEVICE_TO_HOST, sync=.false.)
+            end if
+            if (associated(this%abs3_1)) then
+               call device_memcpy(this%abs3_1%x, this%abs3_1%x_d, &
+                    this%s3%dof%size(), DEVICE_TO_HOST, sync=.false.)
+               call device_memcpy(this%abs3_2%x, this%abs3_2%x_d, &
+                    this%s3%dof%size(), DEVICE_TO_HOST, sync=.false.)
+            end if
+         end if
        end associate
        call device_sync(glb_cmd_queue)
     end if
@@ -203,6 +308,7 @@ contains
   !> Synchronize device with checkpoint
   subroutine chkp_sync_device(this)
     class(chkp_t), intent(inout) :: this
+    integer :: i
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        associate(u=>this%u, v=>this%v, w=>this%w, &
@@ -238,6 +344,7 @@ contains
             call device_memcpy(wlag%lf(2)%x, wlag%lf(2)%x_d, w%dof%size(), &
                  HOST_TO_DEVICE, sync=.false.)
          end if
+         ! Legacy single scalar sync
          if (associated(this%s)) then
             call device_memcpy(this%s%x, this%s%x_d, this%s%dof%size(), &
                  HOST_TO_DEVICE, sync=.false.)
@@ -250,6 +357,41 @@ contains
                  w%dof%size(), HOST_TO_DEVICE, sync=.false.)
             call device_memcpy(this%abs2%x, this%abs2%x_d, &
                  w%dof%size(), HOST_TO_DEVICE, sync=.false.)
+         end if
+         
+         ! Multi-scalar sync (simple approach)
+         if (associated(this%s2)) then
+            call device_memcpy(this%s2%x, this%s2%x_d, &
+                 this%s2%dof%size(), HOST_TO_DEVICE, sync=.false.)
+            if (associated(this%s2lag)) then
+               call device_memcpy(this%s2lag%lf(1)%x, this%s2lag%lf(1)%x_d, &
+                    this%s2%dof%size(), HOST_TO_DEVICE, sync=.false.)
+               call device_memcpy(this%s2lag%lf(2)%x, this%s2lag%lf(2)%x_d, &
+                    this%s2%dof%size(), HOST_TO_DEVICE, sync=.false.)
+            end if
+            if (associated(this%abs2_1)) then
+               call device_memcpy(this%abs2_1%x, this%abs2_1%x_d, &
+                    this%s2%dof%size(), HOST_TO_DEVICE, sync=.false.)
+               call device_memcpy(this%abs2_2%x, this%abs2_2%x_d, &
+                    this%s2%dof%size(), HOST_TO_DEVICE, sync=.false.)
+            end if
+         end if
+         
+         if (associated(this%s3)) then
+            call device_memcpy(this%s3%x, this%s3%x_d, &
+                 this%s3%dof%size(), HOST_TO_DEVICE, sync=.false.)
+            if (associated(this%s3lag)) then
+               call device_memcpy(this%s3lag%lf(1)%x, this%s3lag%lf(1)%x_d, &
+                    this%s3%dof%size(), HOST_TO_DEVICE, sync=.false.)
+               call device_memcpy(this%s3lag%lf(2)%x, this%s3lag%lf(2)%x_d, &
+                    this%s3%dof%size(), HOST_TO_DEVICE, sync=.false.)
+            end if
+            if (associated(this%abs3_1)) then
+               call device_memcpy(this%abs3_1%x, this%abs3_1%x_d, &
+                    this%s3%dof%size(), HOST_TO_DEVICE, sync=.false.)
+               call device_memcpy(this%abs3_2%x, this%abs3_2%x_d, &
+                    this%s3%dof%size(), HOST_TO_DEVICE, sync=.false.)
+            end if
          end if
        end associate
     end if
@@ -278,7 +420,6 @@ contains
 
   end subroutine chkp_add_scalar
 
-
   !> Return restart time from a loaded checkpoint
   pure function chkp_restart_time(this) result(rtime)
     class(chkp_t), intent(in) :: this
@@ -286,5 +427,79 @@ contains
 
     rtime = this%t
   end function chkp_restart_time
+
+  !> Initialize multi-scalar checkpoint
+  subroutine chkp_init_scalars(this, n_scalars)
+    class(chkp_t), intent(inout) :: this
+    integer, intent(in) :: n_scalars
+
+    this%n_scalars = n_scalars
+  end subroutine chkp_init_scalars
+
+  !> Add scalar to multi-scalar checkpoint (simple approach)
+  subroutine chkp_add_scalar_multi(this, scalar_idx, s, slag, abs1, abs2)
+    class(chkp_t), intent(inout) :: this
+    integer, intent(in) :: scalar_idx
+    type(field_t), target :: s
+    type(field_series_t), target, optional :: slag
+    type(field_t), target, optional :: abs1, abs2
+
+    if (scalar_idx < 1 .or. scalar_idx > 10) then
+       call neko_error('Invalid scalar index in chkp_add_scalar_multi (max 10 scalars)')
+    end if
+
+    select case (scalar_idx)
+    case (1)
+       this%s => s
+       if (present(slag)) this%slag => slag
+       if (present(abs1)) this%abs1 => abs1
+       if (present(abs2)) this%abs2 => abs2
+    case (2)
+       this%s2 => s
+       if (present(slag)) this%s2lag => slag
+       if (present(abs1)) this%abs2_1 => abs1
+       if (present(abs2)) this%abs2_2 => abs2
+    case (3)
+       this%s3 => s
+       if (present(slag)) this%s3lag => slag
+       if (present(abs1)) this%abs3_1 => abs1
+       if (present(abs2)) this%abs3_2 => abs2
+    case (4)
+       this%s4 => s
+       if (present(slag)) this%s4lag => slag
+       if (present(abs1)) this%abs4_1 => abs1
+       if (present(abs2)) this%abs4_2 => abs2
+    case (5)
+       this%s5 => s
+       if (present(slag)) this%s5lag => slag
+       if (present(abs1)) this%abs5_1 => abs1
+       if (present(abs2)) this%abs5_2 => abs2
+    case (6)
+       this%s6 => s
+       if (present(slag)) this%s6lag => slag
+       if (present(abs1)) this%abs6_1 => abs1
+       if (present(abs2)) this%abs6_2 => abs2
+    case (7)
+       this%s7 => s
+       if (present(slag)) this%s7lag => slag
+       if (present(abs1)) this%abs7_1 => abs1
+       if (present(abs2)) this%abs7_2 => abs2
+    case (8)
+       this%s8 => s
+       if (present(slag)) this%s8lag => slag
+       if (present(abs1)) this%abs8_1 => abs1
+       if (present(abs2)) this%abs8_2 => abs2
+    case (9)
+       this%s9 => s
+       if (present(slag)) this%s9lag => slag
+       if (present(abs1)) this%abs9_1 => abs1
+       if (present(abs2)) this%abs9_2 => abs2
+    case (10)
+       this%s10 => s
+       if (present(slag)) this%s10lag => slag
+       if (present(abs1)) this%abs10_1 => abs1
+       if (present(abs2)) this%abs10_2 => abs2
+    end select
+  end subroutine chkp_add_scalar_multi
 
 end module checkpoint
