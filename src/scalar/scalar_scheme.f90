@@ -57,7 +57,6 @@ module scalar_scheme
   use time_scheme_controller, only : time_scheme_controller_t
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use field_registry, only : neko_field_registry
-  use usr_scalar, only : usr_scalar_t, usr_scalar_bc_eval
   use json_utils, only : json_get, json_get_or_default, json_extract_item, &
        json_extract_object
   use json_module, only : json_file

@@ -47,7 +47,6 @@ module fluid_scheme_incompressible
   use zero_dirichlet, only : zero_dirichlet_t
   use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER
   use coefs, only: coef_t
-  use usr_inflow, only : usr_inflow_t, usr_inflow_eval
   use dirichlet, only : dirichlet_t
   use jacobi, only : jacobi_t
   use sx_jacobi, only : sx_jacobi_t

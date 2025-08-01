@@ -37,8 +37,6 @@ module user_intf
   use coefs, only : coef_t
   use bc_list, only : bc_list_t
   use mesh, only : mesh_t
-  use usr_inflow, only : usr_inflow_t, usr_inflow_eval
-  use usr_scalar, only : usr_scalar_t, usr_scalar_bc_eval
   use field_dirichlet, only: field_dirichlet_update
   use num_types, only : rp
   use json_module, only : json_file
