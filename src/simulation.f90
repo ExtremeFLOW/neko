@@ -32,7 +32,7 @@
 !
 !> Simulation driver
 module simulation
-  use mpi_f08
+  use mpi_f08, only: MPI_Wtime
   use case, only : case_t
   use checkpoint, only : chkp_t
   use num_types, only : rp, dp
@@ -242,16 +242,16 @@ contains
     integer :: i
 
     call json_get(C%params, 'case.restart_file', restart_file)
-    call C%params%get('case.restart_mesh_file', restart_mesh_file, found)
+    call json_get_or_default(C%params, 'case.restart_mesh_file', &
+         restart_mesh_file, "")
 
-    if (found) then
+    if (restart_mesh_file .ne. "") then
        call previous_meshf%init(trim(restart_mesh_file))
        call previous_meshf%read(C%chkp%previous_mesh)
+
+       call json_get_or_default(C%params, 'case.mesh2mesh_tolerance', &
+            C%chkp%mesh2mesh_tol, 1e-6_rp)
     end if
-
-    call C%params%get('case.mesh2mesh_tolerance', tol, found)
-
-    if (found) C%chkp%mesh2mesh_tol = tol
 
     call neko_log%section('Restarting from checkpoint')
     write(log_buf, '(A,A)') 'File :   ', trim(restart_file)
