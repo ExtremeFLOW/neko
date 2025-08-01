@@ -339,13 +339,11 @@ contains
     type(time_state_t), intent(in) :: time
   end subroutine dummy_user_finalize
 
-  subroutine dirichlet_do_nothing(dirichlet_field_list, dirichlet_bc, &
-       coef, t, tstep)
-    type(field_list_t), intent(inout) :: dirichlet_field_list
-    type(field_dirichlet_t), intent(in) :: dirichlet_bc
+  subroutine dirichlet_do_nothing(fields, bc, coef, time)
+    type(field_list_t), intent(inout) :: fields
+    type(field_dirichlet_t), intent(in) :: bc
     type(coef_t), intent(inout) :: coef
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
   end subroutine dirichlet_do_nothing
 
   subroutine dummy_user_material_properties(scheme_name, properties, time)

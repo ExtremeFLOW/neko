@@ -121,7 +121,7 @@ contains
     class(csv_file_t), intent(inout) :: f
     type(vector_t), intent(in) :: data
     real(kind=rp), intent(in), optional :: t
-    integer :: file_unit, ierr
+    integer :: file_unit, ierr, n
 
     open(file = trim(f%fname), position = "append", iostat = ierr, &
          newunit = file_unit)
@@ -136,8 +136,9 @@ contains
     ! Add time at the beginning if specified
     if (present(t)) write (file_unit, '(g0,",")', advance = "no") t
 
-    write (file_unit, '(*(g0,","))', advance = "no") data%x(1:data%n-1)
-    write (file_unit,'(g0)') data%x(data%n)
+    n = data%size()
+    write (file_unit, '(*(g0,","))', advance = "no") data%x(1:n-1)
+    write (file_unit,'(g0)') data%x(n)
 
     close(file_unit)
 
@@ -152,7 +153,7 @@ contains
     class(csv_file_t), intent(inout) :: f
     type(matrix_t), intent(in) :: data
     real(kind=rp), intent(in), optional :: t
-    integer :: file_unit, i, ierr
+    integer :: file_unit, i, ierr, nc
 
     open(file = trim(f%fname), position = "append", iostat = ierr, &
          newunit = file_unit)
@@ -164,11 +165,12 @@ contains
        f%header_is_written = .true.
     end if
 
-    do i = 1, data%nrows
+    do i = 1, data%get_nrows()
        if (present(t)) write (file_unit, '(g0,",")', advance = "no") t
+       nc = data%get_ncols()
        write (file_unit, '(*(g0,","))', advance = "no") &
-            data%x(i, 1:data%ncols-1)
-       write (file_unit, '(g0)') data%x(i, data%ncols)
+            data%x(i, 1:nc-1)
+       write (file_unit, '(g0)') data%x(i, nc)
     end do
 
     close(file_unit)
@@ -276,12 +278,12 @@ contains
 
     ! If the number of lines is larger than the number of rows in the
     ! matrix, assume that means there is a header
-    if (n_lines .gt. mat%nrows) then
+    if (n_lines .gt. mat%get_nrows()) then
        read (file_unit, '(A)') tmp
        f%header = trim(tmp)
     end if
 
-    do i = 1, mat%nrows
+    do i = 1, mat%get_nrows()
        read (file_unit,*) mat%x(i,:)
     end do
     close(unit = file_unit)

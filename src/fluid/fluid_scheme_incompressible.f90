@@ -443,18 +443,16 @@ contains
   !! Here we perform additional gs operations to take care of
   !! shared points between elements that have different BCs, as done in Nek5000.
   !! @todo Why can't we call the interface here?
-  subroutine fluid_scheme_bc_apply_vel(this, t, tstep, strong)
+  subroutine fluid_scheme_bc_apply_vel(this, time, strong)
     class(fluid_scheme_incompressible_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     logical, intent(in) :: strong
-
     integer :: i
     class(bc_t), pointer :: b
     b => null()
 
     call this%bcs_vel%apply_vector(&
-         this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep, strong)
+         this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), time, strong)
     call this%gs_Xh%op(this%u, GS_OP_MIN, glb_cmd_event)
     call device_event_sync(glb_cmd_event)
     call this%gs_Xh%op(this%v, GS_OP_MIN, glb_cmd_event)
@@ -464,7 +462,7 @@ contains
 
 
     call this%bcs_vel%apply_vector(&
-         this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep, strong)
+         this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), time, strong)
     call this%gs_Xh%op(this%u, GS_OP_MAX, glb_cmd_event)
     call device_event_sync(glb_cmd_event)
     call this%gs_Xh%op(this%v, GS_OP_MAX, glb_cmd_event)
@@ -482,20 +480,19 @@ contains
 
   !> Apply all boundary conditions defined for pressure
   !! @todo Why can't we call the interface here?
-  subroutine fluid_scheme_bc_apply_prs(this, t, tstep)
+  subroutine fluid_scheme_bc_apply_prs(this, time)
     class(fluid_scheme_incompressible_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
 
     integer :: i
     class(bc_t), pointer :: b
     b => null()
 
-    call this%bcs_prs%apply(this%p, t, tstep)
+    call this%bcs_prs%apply(this%p, time)
     call this%gs_Xh%op(this%p, GS_OP_MIN, glb_cmd_event)
     call device_event_sync(glb_cmd_event)
 
-    call this%bcs_prs%apply(this%p, t, tstep)
+    call this%bcs_prs%apply(this%p, time)
     call this%gs_Xh%op(this%p, GS_OP_MAX, glb_cmd_event)
     call device_event_sync(glb_cmd_event)
 

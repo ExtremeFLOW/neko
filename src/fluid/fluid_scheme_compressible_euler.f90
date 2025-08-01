@@ -286,7 +286,7 @@ contains
            rk_scheme, dt)
 
       !> Apply density boundary conditions
-      call this%bcs_density%apply(rho, t, tstep)
+      call this%bcs_density%apply(rho, time)
 
       !> Update variables
       ! Update u, v, w
@@ -299,7 +299,7 @@ contains
 
       !> Apply velocity boundary conditions
       call this%bcs_vel%apply_vector(u%x, v%x, w%x, &
-           dm_Xh%size(), t, tstep, strong = .true.)
+           dm_Xh%size(), time, strong = .true.)
       call field_copy(m_x, u, n)
       call field_col2(m_x, rho, n)
       call field_copy(m_y, v, n)
@@ -318,7 +318,7 @@ contains
       call field_cmult(p, this%gamma - 1.0_rp, n)
 
       !> Apply pressure boundary conditions
-      call this%bcs_prs%apply(p, t, tstep)
+      call this%bcs_prs%apply(p, time)
       ! TODO: Make sure pressure is positive
       ! E = p / (gamma - 1) + 0.5 * rho * (u^2 + v^2 + w^2)
       call field_copy(E, p, n)
