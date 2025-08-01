@@ -61,15 +61,15 @@ contains
     type(dofmap_t), pointer :: dof
 
     if (scheme_name .eq. 'fluid') then
-       u => fields%items(1)%ptr
-       v => fields%items(2)%ptr
-       w => fields%items(3)%ptr
+       u => fields%get("u")
+       v => fields%get("v")
+       w => fields%get("w")
 
        call field_rone(u)
        call field_rzero(v)
        call field_rzero(w)
     else !scalar
-       s => fields%items(1)%ptr
+       s => fields%get("scalar")
        do i = 1, s%dof%size()
           x = s%dof%x(i,1,1,1)
           y = s%dof%y(i,1,1,1)

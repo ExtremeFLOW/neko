@@ -72,7 +72,7 @@ contains
        allocate(field_dirichlet_t::object)
        select type (obj => object)
        type is (field_dirichlet_t)
-          obj%update => user%user_dirichlet_update
+          obj%update => user%dirichlet_conditions
           ! Add the name of the dummy field in the bc, matching the scalar
           ! solved for.
           call json%add("field_name", scheme%s%name)

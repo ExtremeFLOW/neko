@@ -170,7 +170,7 @@ module user_intf
      !> User boundary condition for the fluid or the scalar, field interface
      !! (much more powerful than pointwise in terms of what can be done).
      procedure(field_dirichlet_update), nopass, pointer :: &
-          user_dirichlet_update => null()
+          dirichlet_conditions => null()
      !> Routine to set material properties.
      procedure(user_material_properties_intf), nopass, pointer :: &
           material_properties => null()
@@ -223,8 +223,8 @@ contains
        write(extensions(n), '(A)') '- Source term'
     end if
 
-    if (.not. associated(this%user_dirichlet_update)) then
-       this%user_dirichlet_update => dirichlet_do_nothing
+    if (.not. associated(this%dirichlet_conditions)) then
+       this%dirichlet_conditions => dirichlet_do_nothing
     else
        user_extended = .true.
        n = n + 1
@@ -337,10 +337,9 @@ contains
     type(time_state_t), intent(in) :: time
   end subroutine dummy_user_finalize
 
-  subroutine dirichlet_do_nothing(fields, bc, coef, time)
+  subroutine dirichlet_do_nothing(fields, bc, time)
     type(field_list_t), intent(inout) :: fields
     type(field_dirichlet_t), intent(in) :: bc
-    type(coef_t), intent(inout) :: coef
     type(time_state_t), intent(in) :: time
   end subroutine dirichlet_do_nothing
 

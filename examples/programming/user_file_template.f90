@@ -17,7 +17,7 @@ contains
     user%compute => compute
     user%finalize => finalize
     user%source_term => source_term
-    user%user_dirichlet_update => user_dirichlet_update
+    user%dirichlet_conditions => dirichlet_conditions
     user%material_properties => material_properties
 
   end subroutine user_setup
@@ -60,13 +60,12 @@ contains
 
   end subroutine source_term
 
-  subroutine user_dirichlet_update(fields, bc, coef, time)
+  subroutine dirichlet_conditions(fields, bc, time)
     type(field_list_t), intent(inout) :: fields
     type(field_dirichlet_t), intent(in) :: bc
-    type(coef_t), intent(inout) :: coef
     type(time_state_t), intent(in) :: time
 
-  end subroutine user_dirichlet_update
+  end subroutine dirichlet_conditions
 
   subroutine material_properties(scheme_name, properties, time)
     character(len=*), intent(in) :: scheme_name

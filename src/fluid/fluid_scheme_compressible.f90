@@ -45,7 +45,6 @@ module fluid_scheme_compressible
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   use space, only : space_t, GLL
   use user_intf, only : user_t
-  use usr_inflow, only : usr_inflow_eval
   use json_utils, only : json_get_or_default
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08

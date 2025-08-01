@@ -25,7 +25,7 @@ contains
     type(user_t), intent(inout) :: user
     user%initial_conditions => initial_conditions
     !user%user_dirichlet_update => dirichlet_update
-    user%user_dirichlet_update => user_inflow_eval
+    user%dirichlet_conditions => dirichlet_conditions
   end subroutine user_setup
 
   subroutine cylinder_deform(msh)
@@ -66,20 +66,15 @@ contains
   !> User-defined dirichlet boundary condition.
   !! Parameters:
   !! -----------
-  !! field_bc_list:     List of fields from which the BC conditions will be extracted.
+  !! fields:            List of fields from which the BC conditions will be extracted.
   !!                    Depending on what is set in the case file, contains either:
   !!                    (u,v,w), (p) or (s) (or a list of scalars).
   !! bc:                The BC containing the boundary mask, etc.
-  !! coef:              Coef object.
-  !! t:                 Current time.
-  !! tstep:             Current time step.
-  subroutine user_inflow_eval(dirichlet_field_list, dirichlet_bc, &
-       coef, t, tstep)
-    type(field_list_t), intent(inout) :: dirichlet_field_list
-    type(field_dirichlet_t), intent(in) :: dirichlet_bc
-    type(coef_t), intent(inout) :: coef
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+  !! time:              Current time state.
+  subroutine dirichlet_conditions(fields, bc, time)
+    type(field_list_t), intent(inout) :: fields
+    type(field_dirichlet_t), intent(in) :: bc
+    type(time_state_t), intent(in) :: time
 
     real(kind=rp) :: u_th, dist, th, yy
     real(kind=rp) :: arg
@@ -89,21 +84,21 @@ contains
     type(field_t), pointer :: u, v, w
 
     ! Only do this at the first time step since our BCs are constants.
-    if (tstep .ne. 1) return
+    if (time%tstep .ne. 1) return
 
     ! Grab the dofmap from the first field in the list.
-    dof => dirichlet_field_list%dof(1)
+    dof => fields%dof(1)
 
     ! We only have the velocity solver here, so we know the contents of the
-    ! field list.
-    u => dirichlet_field_list%get_by_index(1)
-    v => dirichlet_field_list%get_by_index(2)
-    w => dirichlet_field_list%get_by_index(3)
+    ! field list, i.e. that it holds u, v, w.
+    u => fields%get("u")
+    v => fields%get("v")
+    w => fields%get("w")
 
     ! We use the bc mask to loop over the boundary nodes. msk(0) holds the
     ! number of nodes in the mask, and msk(1:msk(0)) holds the indices.
-    do i = 1, dirichlet_bc%msk(0)
-       msk_ind = dirichlet_bc%msk(i)
+    do i = 1, bc%msk(0)
+       msk_ind = bc%msk(i)
        x = dof%x(msk_ind, 1, 1, 1)
        y = dof%y(msk_ind, 1, 1, 1)
        z = dof%z(msk_ind, 1, 1, 1)
@@ -153,7 +148,7 @@ contains
           w%x(msk_ind,1,1,1) = sin(th)*u_rho + cos(th)*u_th
        end if
     end do
-  end subroutine user_inflow_eval
+  end subroutine dirichlet_conditions
 
   ! User defined initial condition
   subroutine initial_conditions(scheme_name, fields)

@@ -26,7 +26,7 @@ contains
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
     user%startup => startup
-    user%user_dirichlet_update => user_bc
+    user%dirichlet_conditions => dirichlet_conditions
     user%compute => compute
     user%initialize =>initialize
     user%finalize => finalize
@@ -42,37 +42,36 @@ contains
     call neko_log%message(mess)
   end subroutine startup
 
-  ! user-defined boundary condition
-  subroutine user_bc(dirichlet_field_list, dirichlet_bc, coef, t, tstep)
-    type(field_list_t), intent(inout) :: dirichlet_field_list
-    type(field_dirichlet_t), intent(in) :: dirichlet_bc
-    type(coef_t), intent(inout) :: coef
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+  ! user-defined Dirichlet boundary condition
+  subroutine dirichlet_conditions(fields, bc, time)
+    type(field_list_t), intent(inout) :: fields
+    type(field_dirichlet_t), intent(in) :: bc
+    type(time_state_t), intent(in) :: time
+
     type(field_t), pointer :: u, v, w
     integer :: i
     real(kind=rp) :: x
 
     real(kind=rp) lsmoothing
 
-    if (tstep .ne. 1) return
+    if (time%tstep .ne. 1) return
 
-    u => dirichlet_field_list%get_by_name("u")
-    v => dirichlet_field_list%get_by_name("v")
-    w => dirichlet_field_list%get_by_name("w")
+    u => fields%get_by_name("u")
+    v => fields%get_by_name("v")
+    w => fields%get_by_name("w")
 
     lsmoothing = 0.1_rp ! length scale of smoothing at the edges
 
-    do i = 1, dirichlet_bc%msk(0)
-       x = u%dof%x(dirichlet_bc%msk(i), 1, 1, 1)
-       u%x(dirichlet_bc%msk(i), 1, 1, 1) = &
+    do i = 1, bc%msk(0)
+       x = u%dof%x(bc%msk(i), 1, 1, 1)
+       u%x(bc%msk(i), 1, 1, 1) = &
             step( x/lsmoothing ) * step( (1._rp - x)/lsmoothing )
 
-       v%x(dirichlet_bc%msk(i), 1, 1, 1) = 0
-       w%x(dirichlet_bc%msk(i), 1, 1, 1) = 0
+       v%x(bc%msk(i), 1, 1, 1) = 0
+       w%x(bc%msk(i), 1, 1, 1) = 0
     end do
 
-  end subroutine user_bc
+  end subroutine dirichlet_conditions
 
   ! User-defined initialization called just before time loop starts
   subroutine initialize(time)

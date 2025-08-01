@@ -22,9 +22,9 @@ contains
 
     dof => fields%dof(1)
     if (scheme_name .eq. 'fluid') then
-       u => fields%items(1)%ptr
-       v => fields%items(2)%ptr
-       w => fields%items(3)%ptr
+       u => fields%get("u")
+       v => fields%get("v")
+       w => fields%get("w")
 
        do i = 1, u%dof%size()
           x = u%dof%x(i,1,1,1)
@@ -36,7 +36,7 @@ contains
           w%x(i,1,1,1) = 0
        end do
     else
-       s => fields%items(1)%ptr
+       s => fields%get("scalar")
        ! Center of the cone
        mux = 1
        muy = 0
