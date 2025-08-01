@@ -38,11 +38,11 @@ contains
     type(time_state_t), intent(in) :: time
 
     if (scheme_name .eq. "fluid") then
-       call field_cfill(properties%get_by_name("fluid_rho"), 1.0_rp)
-       call field_cfill(properties%get_by_name("fluid_mu"), mu)
+       call field_cfill(properties%get("fluid_rho"), 1.0_rp)
+       call field_cfill(properties%get("fluid_mu"), mu)
     else if (scheme_name .eq. "temperature") then
-       call field_cfill(properties%get_by_name("temperature_cp"), 1.0_rp)
-       call field_cfill(properties%get_by_name("temperature_lambda"), mu / Pr)
+       call field_cfill(properties%get("temperature_cp"), 1.0_rp)
+       call field_cfill(properties%get("temperature_lambda"), mu / Pr)
     end if
   end subroutine material_properties
 

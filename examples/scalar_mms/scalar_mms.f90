@@ -69,7 +69,7 @@ contains
        call field_rzero(v)
        call field_rzero(w)
     else !scalar
-       s => fields%get("scalar")
+       s => fields%get("s")
        do i = 1, s%dof%size()
           x = s%dof%x(i,1,1,1)
           y = s%dof%y(i,1,1,1)

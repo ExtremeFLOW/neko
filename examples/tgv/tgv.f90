@@ -31,7 +31,7 @@ contains
     real(kind=rp) :: d
     d = 4._rp
 
-    ! original mesh has size 0..8 to be mapped onto -pi..pi
+    ! The original mesh has size 0..8 to be mapped onto -pi..pi
     ! will be updated later to a method giving back the vertices of the mesh
     nvert = size(msh%points)
     do i = 1, nvert

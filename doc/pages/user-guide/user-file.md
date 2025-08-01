@@ -25,10 +25,13 @@ makeneko user.f90
 If everything goes well, you should observe the following output:
 
 ```bash
-N E K O build tool, Version 0.7.99
-(build: 2024-02-13 on x86_64-pc-linux-gnu using gnu)
-
-Building user NEKO ... done!
+N E K O build tool, Version 1.99.1
+(build: 2025-08-01 on x86_64-pc-linux-gnu using gnu)
+Building user NEKO ...
+Detected the module named 'user' in user.f90
+No custom modules detected.
+No custom modules register types.
+Done!
 ```
 
 Compiling your user file with `makeneko` will create a `neko` executable, which
@@ -58,8 +61,8 @@ module user
 contains
 
   ! Register user defined functions here (see user_intf.f90)
-  subroutine user_setup(u)
-    type(user_t), intent(inout) :: u
+  subroutine user_setup(user)
+    type(user_t), intent(inout) :: user
 
 
   end subroutine user_setup
@@ -68,11 +71,11 @@ end module user
 
 ```
 
-The user file implements the `user` module. The `user` modules contains a
-subroutine named `user_setup`, which we use to interface the internal procedures
-defined in `src/common/user_intf.f90` with the subroutines that you will
-implement in your user file. Each user subroutine should be implemented under
-the `contains` statement, below `user_setup`.
+The user file implements the `user` module. This modules contains a subroutine
+named `user_setup`, which we use to interface the internal procedures defined in
+`src/common/user_intf.f90` with the subroutines that you will implement in your
+user file. Each user subroutine should be implemented under the `contains`
+statement, below `user_setup`.
 
 @note The above code snippet is the most basic code structure for the user file.
 Compiling it and running it would be equivalent to running the "vanilla" neko
@@ -83,40 +86,37 @@ executable `bin/neko` in your local neko installation folder.
 The following user functions, if defined in the user file, will always be
 executed, regardless of what is set in the case file:
 
-- [user_startup](@ref user-file_init-and-final): For early access to the case
+- [startup](@ref user-file_init-and-final): For early access to the case
   file, its manipulation or initializing simple user parameter variables.
-- [user_init_modules](@ref user-file_init-and-final): For initializing user
-  variables and objects
-- [user_finalize_modules](@ref user-file_init-and-final): For finalizing, e.g
+- [initialize](@ref user-file_init-and-final): For initializing most user
+  variables and objects.
+- [finilaze](@ref user-file_init-and-final): For finalizing, e.g
   freeing variables and terminating processes
-- [user_check](@ref user-file_user-check): Executed at the end of every time
+- [compute](@ref user-file_user-check): Executed at the end of every time
   step, for e.g. computing and/or outputting user defined quantities.
+- [preprocess](@ref user-file_user-check): Similar to `compute` but executed at
+  the beginning of the time step.
 - [material_properties](@ref user-file_mat-prop): For computing and setting
   material properties such as `rho`, `mu`, `cp` and `lambda`.
-- [user_mesh_setup](@ref user-file_user-mesh-setup): For applying a deformation
+- [mesh_setup](@ref user-file_user-mesh-setup): For applying a deformation
   to the mesh element nodes, before the simulation time loop.
-- [scalar_user_bc](@ref user-file_scalar-bc): For applying boundary conditions
-  to the scalar, on all zones that are not already specified with uniform
-  dirichlet values e.g. `d=1`. For more information on the scalar, see the
-  [relevant section of the case file](@ref case-file_scalar).
 
 ### Initializing and finalizing {#user-file_init-and-final}
 
-Three subroutines `user_startup`, `user_init_modules` and
-`user_finalize_modules` may be used to initialize/finalize any user defined
-variables, external objects, or processes.  The `user_startup` routine is called
-immediately after the case file is read in, meaning that no important objects
-are initialized yet (e.g. the mesh, fluid, etc.). The `user_init_modules` and
-`user_finalize_modules` are respectively executed right before/after the
-simulation time loop.
+Three subroutines `startup`, `initialize` and `finalize` may be used to
+initialize/finalize any user defined variables, external objects, or processes.
+The `startup` routine is called immediately after the case file is read in,
+meaning that no important objects are initialized yet (e.g. the mesh, fluid,
+etc.). The `initialize` and `finalize` are respectively executed right
+before/after the simulation time loop.
 
-In most cases, one can use `user_init_modules` routine and not the
-`user_startup`. The latter is only necessary when you want to either manipulate
-the case file programmatically before it is used in the simulation, or define
-some variables that will be used in the constructors of some of the types.
-An example of the latter is defining some material property constants that
-can be used in the user `material_properties` routine, which is run by the
-constructor of the `case%fluid` object.
+In most cases, one can use `initialize` routine and not the `startup`. The
+latter is only necessary when you want to either manipulate the case file
+programmatically before it is used in the simulation, or define some variables
+that will be used in the constructors of some of the types. An example of the
+latter is defining some material property constants that can be used in the user
+`material_properties` routine, which is run by the constructor of the
+`case%fluid` object.
 
 
 ```fortran
@@ -129,113 +129,108 @@ constructor of the `case%fluid` object.
   end subroutine startup
 
   ! Initialize user variables or external objects
-  subroutine initialize(t, u, v, w, p, coef, params)
-    real(kind=rp) :: t
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    type(coef_t), intent(inout) :: coef
-    type(json_file), intent(inout) :: params
+  subroutine initialize(time)
+    type(time_state_t), intent(in) :: time
 
     ! insert your initialization code here
 
   end subroutine initialize
 
   ! Finalize user variables or external objects
-  subroutine finalize(t, params)
-    real(kind=rp) :: t
-    type(json_file), intent(inout) :: params
+  subroutine finalize(time)
+    type(time_state_t), intent(in) :: time
 
     ! insert your code here
 
-  end subroutine initialize
+  end subroutine finalize
 ```
 
 In the example above, the subroutines `startup`, `initialize` and `finalize`
-contain the actual implementations. They must also be interfaced to the internal
-procedures `user_init_modules` and `user_finalize_modules` in `user_setup`:
+contain the actual implementations. They must also be associated to the internal
+procedures inside, inside `user_setup`:
 
 ```fortran
 
   ! Register user defined functions (see user_intf.f90)
-  subroutine user_setup(u)
-    type(user_t), intent(inout) :: u
+  subroutine user_setup(user)
+    type(user_t), intent(inout) :: user
 
-    u%user_startup => startup
-    u%user_init_modules => initialize
-    u%user_finalize_modules => finalize
+    user%startup => startup
+    user%initialize => initialize
+    user%finalize => finalize
 
   end subroutine user_setup
 
 ```
 
-@note All three routines are independent of each
-other. Using one does not require the use of the other.
+@note All three routines are independent of each other. Using one does not
+require the use of the other. Moreover, the names of the routines implemented in
+the user file can be chosen freely, as long as they implement the correct
+interface.
 
 ### Computing at every time step {#user-file_user-check}
 
-The subroutine `user_check` is executed at the end of every time step. It can be
+The subroutine `compute` is executed at the end of every time step. It can be
 used for computing and/or outputting your own variables/quantities at every time
 step.
 ```fortran
   ! This is called at the end of every time step
-  subroutine usercheck(t, tstep, u, v, w, p, coef, param)
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    type(coef_t), intent(inout) :: coef
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    type(json_file), intent(inout) :: param
+  subroutine user_check(time)
+    type(time_state_t), intent(in) :: time
 
     ! insert code below
 
-  end subroutine usercheck
+  end subroutine user_check
 
 ```
 
-In the example above, the subroutine `usercheck` contains the actual
-implementation, and needs to be registered by adding:
+In the example above, the subroutine `user_check` contains the actual
+implementation, as a homage to the Nek5000 routine, which served a similar
+purpose. As usual, the routine needs to be registered by adding:
 
 ```fortran
-u%user_check => usercheck
+user%compute => user_check
 ```
 
-to our `user_setup`.
+to our `user_setup`. The `preprocess` routine can be implemented similarly.
 
 ### Setting material properties {#user-file_mat-prop}
 
-`material_properties` allows for more complex computations and setting of
-various material properties, such as `rho`, `mu` for the fluid and `cp`,
-`lambda` for the scalar. The example below is taken from the
+The `material_properties` routine allows for more complex computations and
+setting of various material properties, such as `rho`, `mu` for the fluid and
+`cp`, `lambda` for the scalar. The example below is taken from the
 [rayleigh_benard_cylinder
 example](https://github.com/ExtremeFLOW/neko/blob/564686b127ff75a362a06126c6b23e9b4e21879e/examples/rayleigh_benard_cylinder/rayleigh.f90#L22C1-L38C41).
 
 ```fortran
-  subroutine set_material_properties(t, tstep, name, properties)
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    character(len=*), intent(in) :: name
+  subroutine material_properties(scheme_name, properties, time)
+    character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: properties
+    type(time_state_t), intent(in) :: time
 
-    if (name .eq. "fluid") then
-       call field_cfill(properties%get_by_name("rho"), 1.0_rp)
-       call field_cfill(properties%get_by_name("mu"), mu)
-    else if (name .eq. "scalar") then
-       call field_cfill(properties%get_by_name("cp"), 1.0_rp)
-       call field_cfill(properties%get_by_name("lambda"), mu / Pr)
+    if (scheme_name .eq. "fluid") then
+       call field_cfill(properties%get("fluid_rho"), 1.0_rp)
+       call field_cfill(properties%get("fluid_mu"), mu)
+    else if (scheme_name .eq. "temperature") then
+       call field_cfill(properties%get("temperature_cp"), 1.0_rp)
+       call field_cfill(properties%get("temperature_lambda"), mu / Pr)
     end if
-  end subroutine set_material_properties
+  end subroutine material_properties
 ```
 
 And of course not forgetting to register our function in `user_setup` by adding
 the following line:
 
 ```fortran
-u%material_properties => set_material_properties
+u%material_properties => material_properties
 ```
+
+Note the usage of the `scheme_name` argument. This is used in several user
+routines, to provide the information about what solver (scheme) called the
+routine. In this example, we make use of it to distinguish the fluid and scalar
+solvers. The default scheme names are `fluid` and `scalar`, but can be
+controlled by the `name` entry in the JSON configuration of the solver. Here,
+the name for the scalar was set to `temperature`.
 
 ### Runtime mesh deformation {#user-file_user-mesh-setup}
 
@@ -247,13 +242,15 @@ example](https://github.com/ExtremeFLOW/neko/blob/a0613606360240e5059e65d6d98f4a
 
 ```fortran
   ! Rescale mesh
-  subroutine user_mesh_scale(msh)
+  subroutine user_mesh_scale(msh, time)
     type(mesh_t), intent(inout) :: msh
+    type(time_state_t), intent(in) :: time
+
     integer :: i, p, nvert
     real(kind=rp) :: d
     d = 4._rp
 
-    ! original mesh has size 0..8 to be mapped onto -pi..pi
+    ! The original mesh has size 0..8 to be mapped onto -pi..pi
     ! will be updated later to a method giving back the vertices of the mesh
     nvert = size(msh%points)
     do i = 1, nvert
@@ -269,47 +266,7 @@ example](https://github.com/ExtremeFLOW/neko/blob/a0613606360240e5059e65d6d98f4a
 The registering of the above function in `user_setup` should then be done as follows:
 
 ```fortran
-    u%user_mesh_setup => user_mesh_scale
-```
-
-### Scalar boundary conditions {#user-file_scalar-bc}
-
-This user function can be used to specify the scalar boundary values, on all
-boundaries of type `user_pointwise`.
-See [relevant section of the case file](@ref case-file_scalar). The example
-below sets the scalar boundary condition values to be a linear function of the
-`z` coordinate (taken from the
-[rayleigh_benard example](https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/rayleigh_benard_cylinder/rayleigh.f90#L41-L63)).
-
-```fortran
-
-  subroutine set_scalar_boundary_conditions(s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
-    real(kind=rp), intent(inout) :: s
-    real(kind=rp), intent(in) :: x
-    real(kind=rp), intent(in) :: y
-    real(kind=rp), intent(in) :: z
-    real(kind=rp), intent(in) :: nx
-    real(kind=rp), intent(in) :: ny
-    real(kind=rp), intent(in) :: nz
-    integer, intent(in) :: ix
-    integer, intent(in) :: iy
-    integer, intent(in) :: iz
-    integer, intent(in) :: ie
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-
-    ! This will be used on all zones without labels
-    s = 1.0_rp - z
-
-  end subroutine set_scalar_boundary_conditions
-
-```
-
-This function will be called on all the points on the relevant boundaries. The
-registering of the above function in `user_setup` should be done as follows:
-
-```fortran
-    u%scalar_user_bc => set_scalar_boundary_conditions
+    u%mesh_setup => user_mesh_scale
 ```
 
 ## Case-specific user functions
@@ -318,17 +275,15 @@ As explained in the [case file](case-file.md) page, certain components of the
 simulation can be set to be user defined. These components and their associated
 user functions are:
 
-| Description                          | User function                                                   | JSON Object in the case file                                    |
-| ------------------------------------ | --------------------------------------------------------------- | --------------------------------------------------------------- |
-| Fluid initial condition              | [fluid_user_ic](@ref user-file_user-ic)                         | `case.fluid.initial_condition`                                  |
-| Scalar initial condition             | [scalar_user_ic](@ref user-file_user-ic)                        | `case.scalar.initial_condition`                                 |
-| Fluid inflow boundary condition      | [fluid_user_if](@ref user-file_fluid-user-if)                   | `case.fluid.inflow_condition`                                   |
-| Scalar boundary conditions           | [scalar_user_bc](@ref user-file_scalar-bc)                      | (user function is always called)                                |
-| Fluid source term                    | [fluid_user_f_vector or fluid_user_f](@ref user-file_user-f)    | `case.fluid.source_terms`                                       |
-| Scalar source term                   | [scalar_user_f_vector or scalar_user_f](@ref user-file_user-f)  | `case.scalar.source_terms`                                      |
-| Fluid and Scalar boundary conditions | [field_dirichlet_update](@ref user-file_field-dirichlet-update) | `case.fluid.boundary_types` and/or `case.scalar.boundary_types` |
+| Description                   | User function                                                   | JSON Object in the case file                                      |
+| ----------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------|
+| Initial conditions            | [initial_conditions](@ref user-file_user-ic)                    | `case.fluid.initial_condition` or `case.scalar.initial_condition` |
+| Source terms                  | [source_term](@ref user-file_user-f)                            | `case.fluid.source_terms` or  `case.scalar.source_terms`          |
+| Dirichlet boundary conditions | [dirichlet_conidtions](@ref user-file_field-dirichlet-update)   | `case.fluid.boundary_types` or `case.scalar.boundary_types`       |
 
-Note that `scalar_user_bc` is included for completeness but is technically not case-specific.
+@note For the sake of simplicity, we refer to the setup with one scalar, i.e.
+`case.scalar` in the JSON. For multiple scalars, the same things apply, but the
+configuration is inside each individual element of `case.scalars`.
 
 ### Fluid and Scalar initial conditions {#user-file_user-ic}
 
@@ -351,154 +306,55 @@ See the relevant sections on the [fluid](@ref case-file_fluid-ic) and
 [scalar](@ref case-file_scalar) initial conditions in the
 [case file page](@ref case-file) for more details.
 
-The associated user functions for the fluid and/or scalar initial conditions can
-then be added to the user file. An example for the fluid taken from the
-[advecting cone example](https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/advecting_cone/advecting_cone.f90#L48-L75),
+The associated user function for initial conditions must then be added to the
+user file. An example for the fluid taken from the [advecting cone
+example](https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/scalar_mms/scalar_mms.f90#L55-L79),
 is shown below.
 
 ```fortran
-
-  !> Set the advecting velocity field.
-  subroutine set_velocity(u, v, w, p, params)
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    type(json_file), intent(inout) :: params
+  subroutine initial_conditions(scheme_name, fields)
+    character(len=*), intent(in) :: scheme_name
+    type(field_list_t), intent(inout) :: fields
     integer :: i, e, k, j
     real(kind=rp) :: x, y
+    type (field_t), pointer :: u, v, w, s
+    type(dofmap_t), pointer :: dof
 
-    do i = 1, u%dof%size()
-       x = u%dof%x(i,1,1,1)
-       y = u%dof%y(i,1,1,1)
+    if (scheme_name .eq. 'fluid') then
+       u => fields%get("u")
+       v => fields%get("v")
+       w => fields%get("w")
 
-       ! Angular velocity is pi, giving a full rotation in 2 sec
-       u%x(i,1,1,1) = -y*pi
-       v%x(i,1,1,1) = x*pi
-       w%x(i,1,1,1) = 0
-    end do
-
-     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(u%x, u%x_d, u%dof%size(), &
-                          HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(v%x, v%x_d, v%dof%size(), &
-                          HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(w%x, w%x_d, w%dof%size(), &
-                          HOST_TO_DEVICE, sync=.false.)
+       call field_rone(u)
+       call field_rzero(v)
+       call field_rzero(w)
+    else !scalar
+       s => fields%get("s")
+       do i = 1, s%dof%size()
+          x = s%dof%x(i,1,1,1)
+          y = s%dof%y(i,1,1,1)
+          s%x(i,1,1,1) = sin(x)
+       end do
     end if
-
-  end subroutine set_velocity
-
-```
-
-@note Notice the use of the `NEKO_BCKND_DEVICE` flag, which will be set to 1 if
-running on GPUs, and the calls to `device_memcpy` to transfer data between the
-host and the device. See [Running on GPUs](@ref user-file_tips_running-on-gpus) for
-more information on how this works.
-
-The same can be done for the scalar, with the example below also inspired from
-the
-[advecting cone example](https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/advecting_cone/advecting_cone.f90#L14-L45):
-
-```fortran
-
-  !> User initial condition for the scalar
-  subroutine set_s_ic(field_name, s, params)
-    CHARACTER(len=*), INTENT(IN) :: field_name
-    type(field_t), intent(inout) :: s
-    type(json_file), intent(inout) :: params
-    integer :: i, e, k, j
-    real(kind=rp) :: cone_radius, mux, muy, x, y, r, theta
-
-    ! Center of the cone
-    mux = 1
-    muy = 0
-
-    cone_radius = 0.5
-
-    do i = 1, s%dof%size()
-       x = s%dof%x(i,1,1,1) - mux
-       y = s%dof%y(i,1,1,1) - muy
-
-       r = sqrt(x**2 + y**2)
-       theta = atan2(y, x)
-
-       ! Check if the point is inside the cone's base
-       if (r > cone_radius) then
-         s%x(i,1,1,1) = 0.0
-       else
-         s%x(i,1,1,1) = 1.0 - r / cone_radius
-       endif
-    end do
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(s%x, s%x_d, s%dof%size(), &
-                          HOST_TO_DEVICE, sync=.false.)
-    end if
-
-  end subroutine set_s_ic
+  end subroutine initial_conditions
 
 ```
 
-@note Notice the use of the `NEKO_BCKND_DEVICE` flag, which will be set to 1 if
-running on GPUs, and the calls to `device_memcpy` to transfer data between the
-host and the device. See [Running on GPUs](@ref user-file_tips_running-on-gpus) for
-more information on how this works.
+Not again the usage of `scheme_name` to distinguish between the fluid and the
+scalar. Depending on the scheme, the contents of the field list `fields`
+changes, and we extract individual fields via field pointers accordingly.
+The incompressible fluid solver always generates solution fields, `u`, `v` and
+`w`. For the scalar, the name of the field coinside with `scheme_name`, both
+defaulting to `s`.
 
-We should also add of the following lines in `user_setup`, registering our user
-functions `set_velocity` and `set_s_ic` to be used as the fluid and scalar
-initial conditions:
+@note Notice that the code for the scalar runs on the CPU. There is no need to
+add the transfer to GPU memory in this user routine, it will be done under the
+hood afterwards.
 
-```fortran
-u%fluid_user_ic => set_velocity
-u%scalar_user_ic => set_s_ic
-```
-
-### Fluid pointwise velocity boundary values {#user-file_fluid-user-if}
-
-This routine will be used to compute the velocity on all boundaries of type
-`user_velocity_pointwise`.
-See the [the relevant section](@ref case-file_fluid-boundary-conditions) in the
-[case file page](@ref case-file) for more details. The associated user
-function for the fluid velocity can then be added to the user file.
-An example inspired from the
-[lid-driven cavity example](https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/lid/lid.f90#L29-L53)
-is shown below.
+We should also add of the following lines in `user_setup`, as usual.
 
 ```fortran
- ! user-defined boundary condition
-  subroutine user_bc(u, v, w, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
-    real(kind=rp), intent(inout) :: u
-    real(kind=rp), intent(inout) :: v
-    real(kind=rp), intent(inout) :: w
-    real(kind=rp), intent(in) :: x
-    real(kind=rp), intent(in) :: y
-    real(kind=rp), intent(in) :: z
-    real(kind=rp), intent(in) :: nx
-    real(kind=rp), intent(in) :: ny
-    real(kind=rp), intent(in) :: nz
-    integer, intent(in) :: ix
-    integer, intent(in) :: iy
-    integer, intent(in) :: iz
-    integer, intent(in) :: ie
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-
-    real(kind=rp) lsmoothing
-    lsmoothing = 0.05_rp    ! length scale of smoothing at the edges
-
-    u = step( x/lsmoothing ) * step( (1._rp-x)/lsmoothing )
-    v = 0._rp
-    w = 0._rp
-
-  end subroutine user_bc
-```
-
-We should also add of the following line in `user_setup`, registering our user
-function `user_bc` to be used as the fluid inflow conditions:
-
-```fortran
-u%fluid_user_if => user_bc
+user%initial_condtions => initial_conditions.
 ```
 
 ### Fluid and scalar source terms {#user-file_user-f}
@@ -514,7 +370,7 @@ lists.
         "source_terms":
         [
             {
-                "type": "user_vector"
+                "type": "user"
             }
         ]
     }
@@ -522,117 +378,71 @@ lists.
 ```
 
 See the relevant sections on the [fluid](@ref case-file_fluid-source-term) and
-[scalar](@ref case-file_scalar) source terms in the [case file page](@ref case-file) for
-more details.
-
-@attention There are two variants of the source term user functions: `_user_f`
-and `_user_f_vector`. The former is called when setting `"user_pointwise"` as
-the source term type, while the latter requires the use of the `"user_vector"`
-keyword in the case file. The pointwise variant, `fluid_user_f` is not supported
-on GPUs. In general, `fluid_user_f_vector` is the prefered variant, and is the
-one which will be use in our examples below. The same applies for the scalar
-source term user functions.
+[scalar](@ref case-file_scalar) source terms in the [case file page](@ref
+case-file) for more details.
 
 The associated user functions for the fluid and/or scalar source terms can then
-be added to the user file. An example for the fluid, taken from the
-[rayleigh_benard_cylinder example](https://github.com/ExtremeFLOW/neko/blob/49925b7a04a638259db3b1ddd54349ca57f5d207/examples/rayleigh_benard_cylinder/rayleigh.f90#L101C1-L121C44),
-is shown below.
+be added to the user file. An example for the fluid, taken from the `scalar_mms`
+example, is shown below.
 
 ```fortran
-  ! Sets the z-component of the fluid forcing term = scalar
-  subroutine set_bousinesq_forcing_term(f, t)
-    class(fluid_user_source_term_t), intent(inout) :: f
-    real(kind=rp), intent(in) :: t
+  subroutine source_term(scheme_name, rhs, time)
+    character(len=*), intent(in) :: scheme_name
+    type(field_list_t), intent(inout) :: rhs
+    type(time_state_t), intent(in) :: time
 
-    ! Retrieve u,v,w,s fields from the field registry
-    type(field_t), pointer :: u, v, w, s
-    u => neko_field_registry%get_field('u')
-    v => neko_field_registry%get_field('v')
-    w => neko_field_registry%get_field('w')
-    s => neko_field_registry%get_field('s')
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_rzero(f%u_d,f%dm%size())
-       call device_rzero(f%v_d,f%dm%size())
-       call device_copy(f%w_d,s%x_d,f%dm%size())
-    else
-       call rzero(f%u,f%dm%size())
-       call rzero(f%v,f%dm%size())
-       call copy(f%w,s%x,f%dm%size())
-    end if
-  end subroutine set_bousinesq_forcing_term
-```
-
-@note Notice the use of the `neko_field_registry` to retrieve the velocity and
-scalar fields. See [Registries](@ref user-file_tips_registries) for more information
-about registries in neko. @note Notice the use of the `NEKO_BCKND_DEVICE` flag,
-which will be set to 1 if running on GPUs, and the use of `device_` functions.
-See [Running on GPUs](@ref user-file_tips_running-on-gpus) for more information on
-how this works.
-
-The same can be done for the scalar, with the example below also taken from the
-[scalar_mms example](https://github.com/ExtremeFLOW/neko/blob/49925b7a04a638259db3b1ddd54349ca57f5d207/examples/scalar_mms/scalar_mms.f90#L28-L47):
-
-```fortran
-
-  !> Set source term
-  subroutine set_source(f, t)
-    class(scalar_user_source_term_t), intent(inout) :: f
-    real(kind=rp), intent(in) :: t
-    real(kind=rp) :: x, y
+    real(kind=rp) :: x
+    type(field_t), pointer :: f
     integer :: i
 
-    do i = 1, f%dm%size()
-       x = f%dm%x(i,1,1,1)
-       y = f%dm%y(i,1,1,1)
+    if (scheme_name .eq. 'fluid') return
+
+    f => rhs%items(1)%ptr
+    do i = 1, f%size()
+       x = f%dof%x(i,1,1,1)
 
        ! 0.01 is the viscosity
-       f%s(i,1,1,1) = cos(x) - 0.01 * sin(x) - 1.0_rp
+       f%x(i,1,1,1) = cos(x) - 0.01 * sin(x) - 1.0_rp
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(f%s, f%s_d, f%dm%size(), &
-                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(f%x, f%x_d, f%size(), &
+            HOST_TO_DEVICE, sync=.false.)
     end if
 
-  end subroutine set_source
-
+  end subroutine source_term
 ```
 
 @note Notice the use of the `NEKO_BCKND_DEVICE` flag, which will be set to 1 if
-running on GPUs, and the call to `device_memcpy` to transfer data between the
-host and the device. See [Running on GPUs](@ref user-file_tips_running-on-gpus) for
-more information on how this works.
+running on GPUs, and the use of `device_` functions. See [Running on GPUs](@ref
+user-file_tips_running-on-gpus) for more information on how this works.
 
-We should also add of the following lines in `user_setup`, registering our user
-functions `set_boussinesq_forcing_term` and `set_source` to be used as the fluid
-and scalar source terms:
+As usual, we point the user routine to our implementation in `user_setup`.
 
 ```fortran
-u%fluid_user_f_vector => set_boussinesq_forcing_term
-u%scalar_user_f_vector => set_source
+user%source_term => source_term
 ```
 
-### Complex fluid and/or scalar boundary conditions {#user-file_field-dirichlet-update}
+### Dirichlet boundary conditions {#user-file_field-dirichlet-update}
 
 This user function can be used to specify Dirichlet boundary values for velocity
-components `u,v,w`, the pressure `p`, and/or the scalar `s`. This type of
-boundary condition allows for time-dependent velocity profiles (currently not
-possible with the `user_pointwise` boundary condition) or non-uniform pressure
-profiles to e.g. impose an outlet pressure computed from another simulation.
+components `u,v,w`, the pressure `p`, and/or the scalar(s). This type of
+boundary condition allows for time-dependent velocity profiles or non-uniform
+ pressure profiles to e.g. impose an outlet pressure computed from another
+simulation.
 
 The user routine is called by the `user_velocity` and `user_pressure` boundary
 conditions for the fluid, and the `user` boundary condtition for the scalar.
 Once the appropriate boundaries have been identified, the user function
-`field_dirichlet_update` should be used to compute and apply the desired values
-to our velocity/pressure/scalar field(s). The prefix "field" in
-`field_dirichlet_update` refers to the fact that a list of entire fields is
-passed down for the user to edit.
+`dirichlet_conditions` should be used to compute and apply the desired values to
+our velocity/pressure/scalar field(s).
 
-The fields that are passed down depends on the underlying boundary conditions.
-For `user_velocity`, it will be a list of 3 fields with names `u`, `v`, `w`; For
-`user_pressure`, a list with a single field `p`; For the scalar, also a single
-field with the same name as the solution field for the scalar (`s` by default).
+The structure of the interface is very similar to e.g. the initial conditions.
+One gets a list of solution fields, the contents of which depends on what scheme
+owns the boundary condition. For `user_velocity`, it will be a list of 3 fields
+with names `u`, `v`, `w`; For `user_pressure`, a list with a single field `p`;
+For the scalar, also a single field with the same name as the solution field for
+the scalar (`s` by default).
 
 It is crucial to understand that all three boundary condition will call the same
 routine! So, if one has, for example, both `user_velocity` for the fluid and
@@ -658,61 +468,45 @@ scalar on boundaries 1 and 2 (inlet and outlet).
 The header of the user function is given in the code snippet below.
 
 ```fortran
-  subroutine dirichlet_update(field_bc_list, bc, coef, t, tstep)
-    type(field_list_t), intent(inout) :: field_bc_list
+  subroutine dirichlet_update(fields, bc, time)
+    type(field_list_t), intent(inout) :: fields
     type(field_dirichlet_t), intent(inout) :: bc
-    type(coef_t), intent(inout) :: coef
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t) :: time
 ```
 
 The arguments and their purpose are as follows:
 
-* `field_bc_list` is the list of the field that can be edited. It is a list
-of `field_t` objects.
-  * The field `i` contained in `field_bc_list` is accessed using
-  `field_bc_list%%items(i)%%ptr` and will refer to a `field_t` object.
+* `fields` is the list of the fields that can be edited. It is a list of
+`field_t` objects.
+  * The field `i` contained in `fields` is accessed using
+  `fields%%items(i)%%ptr` and will refer to a `field_t` object. Alternatively,
+  one can use the `get` method to retrieve a field by name or index, as done in
+  the examples above for other routines.
 * `bc` contains a `field_dirichlet_t` object to help access the boundary indices
   through the boundary mask, `msk`.
   * The boundary mask of the `bc `object is accessed via `bc%%msk`. It contains
   the linear indices of each GLL point on the boundary facets. @note
   `msk(0)` contains the size of the array. The first boundary index is `msk(1)`.
-* `coef` is a `coef_t` object containing various numerical parameters and
-variables, such as the polynomial order `lx`, derivatives, facet normals...
-* `t`, `tstep` are self-explanatory.
+* `time`, is a simple structure that contains various info on time stepping,
+  notably, the current time iteration and time value.
 
 Links to the documentation to learn more about what the types mentioned above
-contain and how to use them: `src/field/field.f90`, `src/bc/bc.f90`,
-`src/sem/coef.f90`.
+contain and how to use them: `src/field/field.f90`, `src/bc/bc.f90`.
 
 The user function should be registered in `user_setup` with the following line:
 
 ```fortran
-u%user_dirichlet_update => dirichlet_update
+u%dirichlet_conditions => dirichlet_update
 ```
 
 A very simple example illustrating the above is shown below, which is taken from the
 [cyl_boundary_layer example](https://github.com/ExtremeFLOW/neko/blob/feature/field_bcs/examples/cyl_boundary_layer/cyl_bl.f90)
 
 ```fortran
-  ! Initial example of using user specified dirichlet bcs
-  ! Note: This subroutine will be called two times, once in the fluid solver, and once
-  ! in the scalar solver (if enabled).
-  !! Parameters:
-  !! -----------
-  !! field_bc_list:     List of fields from which the BC conditions will be extracted.
-  !!                    Depending on what is set in the case file, contains either:
-  !!                    (u,v,w), (p) or (s) (or a list of scalars).
-  !! bc:                The BC containing the boundary mask, etc.
-  !! coef:              Coef object.
-  !! t:                 Current time.
-  !! tstep:             Current time step.
-  subroutine dirichlet_update(field_bc_list, bc, coef, t, tstep)
-    type(field_list_t), intent(inout) :: field_bc_list
+  subroutine dirichlet_update(fields, bc, time)
+    type(field_list_t), intent(inout) :: fields
     type(field_dirichlet_t), intent(in) :: bc
-    type(coef_t), intent(inout) :: coef
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
 
     integer :: i
     real(kind=rp) :: y,z
@@ -721,7 +515,7 @@ A very simple example illustrating the above is shown below, which is taken from
     if (tstep .ne. 1) return
 
     ! Check that we are being called by the fluid via the name of the field
-    if (field_bc_list%items(1)%ptr%name .eq. "u") then
+    if (fields%items(1)%ptr%name .eq. "u") then
 
        associate(u => field_bc_list%items(1)%ptr, &
                  v => field_bc_list%items(2)%ptr, &
@@ -740,8 +534,8 @@ A very simple example illustrating the above is shown below, which is taken from
 
     ! Check that we are being called by the user_pressure bc via the name
     ! of the field
-    else if (field_bc_list%items(1)%ptr%name .eq. "p") then
-       associate( p => field_bc_list%items(1)%ptr)
+    else if (fields%items(1)%ptr%name .eq. "p") then
+       associate( p => fields%items(1)%ptr)
          !
          ! Perform operations on the pressure field here
          !
@@ -753,7 +547,7 @@ A very simple example illustrating the above is shown below, which is taken from
        end associate
 
     ! Check that we are being called by the scalar via the name of the field
-    else if (field_bc_list%items(1)%ptr%name .eq. "s") then
+    else if (fields%items(1)%ptr%name .eq. "s") then
 
        associate( s => field_bc_list%items(1)%ptr)
          !
@@ -781,10 +575,10 @@ of the assignement operator `=` in `field_t`. In general, a field's array should
 be accessed and modified with `u%%x`.
 
 Note that we are only applying our boundary values at the first timestep, which
-is done simply with the line `if (tstep .ne. 1) return`. This is a trick that
-can be used for time-independent boundary profiles that require some kind of
-time consuming operation like interpolation or reading from a file, which would
-add overhead if executed at every time step.
+is done simply with the line `if (time%tstep .ne. 1) return`. This is a trick
+that can be used for time-independent boundary profiles that require some kind
+of time consuming operation like interpolation or reading from a file, which
+would add overhead if executed at every time step.
 
 @attention All the rules for [Running on GPUs](@ref
 user-file_tips_running-on-gpus) apply when working on field arrays. Use
@@ -805,74 +599,47 @@ has some device math functions implemented that operate directly on device
 arrays. If you can decompose whatever operations you are performing in a user
 function into a set of instructions from the `math` module (e.g. `cadd`,
 `cfill`, `sub2`, ...), you may use the corresponding `device_math` functions to
-[offload work to the GPU](@ref accelerators_offload-work). See the
-[fluid forcing code snippet](@ref user-file_user-f) for a simple example. For
-more advanced examples, see the
-[rayleigh_benard example](https://github.com/ExtremeFLOW/neko/blob/49925b7a04a638259db3b1ddd54349ca57f5d207/examples/rayleigh_benard/rayleigh.f90#L96-119)
-or the
-[tgv example](https://github.com/ExtremeFLOW/neko/blob/49925b7a04a638259db3b1ddd54349ca57f5d207/examples/tgv/tgv.f90#L146-172).
+[offload work to the GPU](@ref accelerators_offload-work).
+Additionally, when you operate on `field_t` objects (which is very common), you
+can use routines in the `field_math` module, that will automatically run on the
+right backend. This is highly recommended and avoids `if` statements.
 
-To illustrate this, let us have a look at the
-[fluid initial condition code snippet](@ref user-file_user-ic):
+An example where manual transfer to the GPU was necessary has already been
+given for the source term. It is reiterated below.
 
 ```fortran
+  subroutine source_term(scheme_name, rhs, time)
+    character(len=*), intent(in) :: scheme_name
+    type(field_list_t), intent(inout) :: rhs
+    type(time_state_t), intent(in) :: time
 
-  !> Set the advecting velocity field.
-  subroutine set_velocity(u, v, w, p, params)
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    type(json_file), intent(inout) :: params
-    integer :: i, e, k, j
-    real(kind=rp) :: x, y
+    real(kind=rp) :: x
+    type(field_t), pointer :: f
+    integer :: i
 
-    !
-    ! 1. Set the initial condition in fields u%x, v%x, w%x
-    !
-    do i = 1, u%dof%size()
-       x = u%dof%x(i,1,1,1)
-       y = u%dof%y(i,1,1,1)
+    if (scheme_name .eq. 'fluid') return
 
-       ! Angular velocity is pi, giving a full rotation in 2 sec
-       u%x(i,1,1,1) = -y*pi
-       v%x(i,1,1,1) = x*pi
-       w%x(i,1,1,1) = 0
+    f => rhs%items(1)%ptr
+    do i = 1, f%size()
+       x = f%dof%x(i,1,1,1)
+
+       ! 0.01 is the viscosity
+       f%x(i,1,1,1) = cos(x) - 0.01 * sin(x) - 1.0_rp
     end do
 
-    !
-    ! 2. Copy the data set in u%x, v%x, w%x to the device arrays
-    ! u%x_d, v%x_d, w%x_d.
-    !
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(u%x, u%x_d, u%dof%size(), &
-                          HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(v%x, v%x_d, v%dof%size(), &
-                          HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(w%x, w%x_d, w%dof%size(), &
-                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(f%x, f%x_d, f%size(), &
+            HOST_TO_DEVICE, sync=.false.)
     end if
 
-  end subroutine set_velocity
-
+  end subroutine source_term
 ```
 
-The code above is used to set the fluid initial condition, by specifying the
-values of fields `u,v,w` (and `p`) at all points in the domain. Notice that we
-have divided the above code into two parts.
-
-In the first part, we set the velocity components `u=-y*pi*`, `v=x*pi*`, and
-`w=0`, which updates the velocity field arrays `u%%x, v%%x, w%%x` allocated on
-the **host (CPU)**. If we were to run on GPUs, these lines of code would only
-act on the velocity arrays on the host (CPU), leaving the device (GPU) arrays
-untouched.
-
-We take care of this in the second part, for all three velocity arrays. To
-update the device (GPU) arrays, we use `device_memcpy` to copy the data
-contained in a host (CPU) array to a device (GPU) array. Looking at the details
-of the `device_memcpy` calls, we note the following:
+Note that `f%%x` is the field's data on the CPU. Therefore, to populate the
+correspoding array on GPU, we need to call to `device_memcpy`.
+Looking at the detailof the `device_memcpy` call, we note the following:
 - Device arrays are refered to by appending the suffix `_d` to the host array
-  variable name (e.g. `u%%x` and `u%%x_d`). This is the standard in Neko.
+  variable name (e.g. `f%%x` and `f%%x_d`). This is the standard in Neko.
 - We specify the direction of the data movement with the flag `HOST_TO_DEVICE`.
   Other flags can also be used to move data from device to host
   (`DEVICE_TO_HOST`) or device to device (`DEVICE_TO_DEVICE`). See the
@@ -934,7 +701,7 @@ the following way.
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call mydevice_kernel(u%x_d, v%x_d, w%x_d, u%dof%size())
     endif
-    
+
   end subroutine set_velocity
 
 ```
@@ -972,3 +739,25 @@ example:
 The point zone registry, `neko_point_zone_registry`, can be used to retrieve
 pointers to `point_zone_t` objects defined in the case file. See
 [using point zones](#point-zones_using-point-zones) for detailed instructions.
+
+### User access to solver internals {#user-file_access}
+
+Neko proives a special variable called `neko_user_access` that can be used in
+the user file to access the internal state of the entire case and the underlying
+solvers.
+
+In particular the case object (`case_t`) is reached via
+`neko_user_access%%case`. There-in the `fluid` and `scalars` components refer
+to the asscociated schemes. You are encouraged to look a bit at `case.f90` to
+see the overall structure.
+
+A very common use case is to get access to various SEM-related objects, as well
+as the mesh object.
+
+* `neko_user_access%%case%%fluid%%msh` -- the mesh.
+* `neko_user_access%%case%%fluid%%dm_Xh` -- the function space used in the SEM.
+* `neko_user_access%%case%%fluid%%dm_Xh` -- the map of degrees of freedom,
+  contains the locations of the GLL nodes.
+* `neko_user_access%%case%%fluid%%c_Xh` -- the coefficients of the SEM,
+* `neko_user_access%%case%%fluid%%gs_Xh` -- the gather-scatter kernels used for
+  direct stiffness summation.

@@ -36,7 +36,7 @@ contains
           w%x(i,1,1,1) = 0
        end do
     else
-       s => fields%get("scalar")
+       s => fields%get("s")
        ! Center of the cone
        mux = 1
        muy = 0

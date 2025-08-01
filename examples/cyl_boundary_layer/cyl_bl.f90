@@ -170,7 +170,7 @@ contains
     end do
   end subroutine initial_conditions
 
-  ! Initial example of using user specified dirichlet bcs
+  ! Another example of using user specified dirichlet bcs
   ! Note: This subroutine will be called two times, once in the fluid solver, and once
   ! in the scalar solver (if enabled).
   !! Parameters:

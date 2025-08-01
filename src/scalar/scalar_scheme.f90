@@ -261,7 +261,11 @@ contains
     this%rho => rho
 
     ! Assign a name
-    call json_get_or_default(params, 'name', this%name, 'scalar')
+    call params%print()
+
+    ! Note that the keyword is added by `scalars_t`, so there is always a
+    ! default.
+    call json_get(params, 'name', this%name)
 
     call neko_log%section('Scalar')
     call json_get(params, 'solver.type', solver_type)
@@ -293,9 +297,8 @@ contains
     this%params => params
     this%msh => msh
 
-    if (.not. neko_field_registry%field_exists(this%name)) then
-       call neko_field_registry%add_field(this%dm_Xh, this%name)
-    end if
+    call neko_field_registry%add_field(this%dm_Xh, this%name, &
+         ignore_existing = .true.)
 
     this%s => neko_field_registry%get_field(this%name)
 
@@ -366,6 +369,10 @@ contains
     if (allocated(this%pc)) then
        call precon_destroy(this%pc)
        deallocate(this%pc)
+    end if
+
+    if (allocated(this%name)) then
+       deallocate(this%name)
     end if
 
     call this%source_term%free()
