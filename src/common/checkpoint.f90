@@ -75,25 +75,15 @@ module checkpoint
      type(field_t), pointer :: abs1 => null()
      type(field_t), pointer :: abs2 => null()
 
-     ! Multi-scalar support (up to 9 extra scalars for 10 total)
+     ! Multi-scalar support (up to 4 extra scalars)
      type(field_t), pointer :: s2 => null()
      type(field_t), pointer :: s3 => null()
      type(field_t), pointer :: s4 => null()
      type(field_t), pointer :: s5 => null()
-     type(field_t), pointer :: s6 => null()
-     type(field_t), pointer :: s7 => null()
-     type(field_t), pointer :: s8 => null()
-     type(field_t), pointer :: s9 => null()
-     type(field_t), pointer :: s10 => null()
      type(field_series_t), pointer :: s2lag => null()
      type(field_series_t), pointer :: s3lag => null()
      type(field_series_t), pointer :: s4lag => null()
      type(field_series_t), pointer :: s5lag => null()
-     type(field_series_t), pointer :: s6lag => null()
-     type(field_series_t), pointer :: s7lag => null()
-     type(field_series_t), pointer :: s8lag => null()
-     type(field_series_t), pointer :: s9lag => null()
-     type(field_series_t), pointer :: s10lag => null()
      type(field_t), pointer :: abs2_1 => null()
      type(field_t), pointer :: abs2_2 => null()
      type(field_t), pointer :: abs3_1 => null()
@@ -102,16 +92,6 @@ module checkpoint
      type(field_t), pointer :: abs4_2 => null()
      type(field_t), pointer :: abs5_1 => null()
      type(field_t), pointer :: abs5_2 => null()
-     type(field_t), pointer :: abs6_1 => null()
-     type(field_t), pointer :: abs6_2 => null()
-     type(field_t), pointer :: abs7_1 => null()
-     type(field_t), pointer :: abs7_2 => null()
-     type(field_t), pointer :: abs8_1 => null()
-     type(field_t), pointer :: abs8_2 => null()
-     type(field_t), pointer :: abs9_1 => null()
-     type(field_t), pointer :: abs9_2 => null()
-     type(field_t), pointer :: abs10_1 => null()
-     type(field_t), pointer :: abs10_2 => null()
      integer :: n_scalars = 0
 
      real(kind=dp) :: t !< Restart time (valid after load)
@@ -175,14 +155,14 @@ contains
     nullify(this%ulag)
     nullify(this%vlag)
     nullify(this%wlag)
-    
+
     ! Legacy single scalar cleanup
     nullify(this%s)
     nullify(this%slag)
     nullify(this%abs1)
     nullify(this%abs2)
 
-    ! Multi-scalar cleanup (simple approach)
+    ! Multi-scalar cleanup
     nullify(this%s2)
     nullify(this%s3)
     nullify(this%s4)
@@ -199,7 +179,7 @@ contains
     nullify(this%abs4_2)
     nullify(this%abs5_1)
     nullify(this%abs5_2)
-    
+
     this%n_scalars = 0
 
   end subroutine chkp_free
@@ -264,7 +244,7 @@ contains
             call device_memcpy(this%abs2%x, this%abs2%x_d, &
                  w%dof%size(), DEVICE_TO_HOST, sync=.false.)
          end if
-         
+
          ! Multi-scalar sync
          if (associated(this%s2)) then
             call device_memcpy(this%s2%x, this%s2%x_d, &
@@ -282,7 +262,7 @@ contains
                     this%s2%dof%size(), DEVICE_TO_HOST, sync=.false.)
             end if
          end if
-         
+
          if (associated(this%s3)) then
             call device_memcpy(this%s3%x, this%s3%x_d, &
                  this%s3%dof%size(), DEVICE_TO_HOST, sync=.false.)
@@ -358,8 +338,8 @@ contains
             call device_memcpy(this%abs2%x, this%abs2%x_d, &
                  w%dof%size(), HOST_TO_DEVICE, sync=.false.)
          end if
-         
-         ! Multi-scalar sync (simple approach)
+
+         ! Multi-scalar sync
          if (associated(this%s2)) then
             call device_memcpy(this%s2%x, this%s2%x_d, &
                  this%s2%dof%size(), HOST_TO_DEVICE, sync=.false.)
@@ -376,7 +356,7 @@ contains
                     this%s2%dof%size(), HOST_TO_DEVICE, sync=.false.)
             end if
          end if
-         
+
          if (associated(this%s3)) then
             call device_memcpy(this%s3%x, this%s3%x_d, &
                  this%s3%dof%size(), HOST_TO_DEVICE, sync=.false.)
@@ -436,7 +416,7 @@ contains
     this%n_scalars = n_scalars
   end subroutine chkp_init_scalars
 
-  !> Add scalar to multi-scalar checkpoint (simple approach)
+  !> Add scalar to multi-scalar checkpoint
   subroutine chkp_add_scalar_multi(this, scalar_idx, s, slag, abs1, abs2)
     class(chkp_t), intent(inout) :: this
     integer, intent(in) :: scalar_idx
@@ -444,8 +424,8 @@ contains
     type(field_series_t), target, optional :: slag
     type(field_t), target, optional :: abs1, abs2
 
-    if (scalar_idx < 1 .or. scalar_idx > 10) then
-       call neko_error('Invalid scalar index in chkp_add_scalar_multi (max 10 scalars)')
+    if (scalar_idx < 1 .or. scalar_idx > 5) then
+       call neko_error('Invalid scalar index in chkp_add_scalar_multi (max 5 scalars)')
     end if
 
     select case (scalar_idx)
@@ -474,31 +454,6 @@ contains
        if (present(slag)) this%s5lag => slag
        if (present(abs1)) this%abs5_1 => abs1
        if (present(abs2)) this%abs5_2 => abs2
-    case (6)
-       this%s6 => s
-       if (present(slag)) this%s6lag => slag
-       if (present(abs1)) this%abs6_1 => abs1
-       if (present(abs2)) this%abs6_2 => abs2
-    case (7)
-       this%s7 => s
-       if (present(slag)) this%s7lag => slag
-       if (present(abs1)) this%abs7_1 => abs1
-       if (present(abs2)) this%abs7_2 => abs2
-    case (8)
-       this%s8 => s
-       if (present(slag)) this%s8lag => slag
-       if (present(abs1)) this%abs8_1 => abs1
-       if (present(abs2)) this%abs8_2 => abs2
-    case (9)
-       this%s9 => s
-       if (present(slag)) this%s9lag => slag
-       if (present(abs1)) this%abs9_1 => abs1
-       if (present(abs2)) this%abs9_2 => abs2
-    case (10)
-       this%s10 => s
-       if (present(slag)) this%s10lag => slag
-       if (present(abs1)) this%abs10_1 => abs1
-       if (present(abs2)) this%abs10_2 => abs2
     end select
   end subroutine chkp_add_scalar_multi
 

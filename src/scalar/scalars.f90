@@ -167,7 +167,7 @@ contains
              call json_get(json_subdict, 'name', field_name)
           end if
        end if
-       
+
        call this%scalar_fields(i)%init(msh, coef, gs, json_subdict, &
             numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
     end do
@@ -223,9 +223,9 @@ contains
     class(scalars_t), intent(inout) :: this
     type(chkp_t), intent(inout) :: chkp
     integer :: i, n_scalars
-    
+
     n_scalars = size(this%scalar_fields)
-    
+
     if (n_scalars == 1) then
        ! Single scalar
        call this%scalar_fields(1)%restart(chkp)
@@ -242,50 +242,44 @@ contains
                    this%scalar_fields(i)%slag%lf(2)%x = chkp%slag%lf(2)%x
                 end if
              else if (i == 2) then
-                ! Second scalar: use s2 data if available, otherwise copy s1 (legacy)
                 if (associated(chkp%s2)) then
                    this%scalar_fields(i)%s%x = chkp%s2%x
                    if (associated(chkp%s2lag)) then
-                      this%scalar_fields(i)%slag%lf(1)%x = chkp%s2lag%lf(1)%x  
+                      this%scalar_fields(i)%slag%lf(1)%x = chkp%s2lag%lf(1)%x
                       this%scalar_fields(i)%slag%lf(2)%x = chkp%s2lag%lf(2)%x
                    end if
                 end if
              else if (i == 3) then
-                ! Third scalar: use s3 data if available, otherwise keep own IC
                 if (associated(chkp%s3)) then
                    this%scalar_fields(i)%s%x = chkp%s3%x
                    if (associated(chkp%s3lag)) then
-                      this%scalar_fields(i)%slag%lf(1)%x = chkp%s3lag%lf(1)%x  
+                      this%scalar_fields(i)%slag%lf(1)%x = chkp%s3lag%lf(1)%x
                       this%scalar_fields(i)%slag%lf(2)%x = chkp%s3lag%lf(2)%x
                    end if
                 end if
              else if (i == 4) then
-                ! Fourth scalar: use s4 data if available, otherwise keep own IC
                 if (associated(chkp%s4)) then
                    this%scalar_fields(i)%s%x = chkp%s4%x
                    if (associated(chkp%s4lag)) then
-                      this%scalar_fields(i)%slag%lf(1)%x = chkp%s4lag%lf(1)%x  
+                      this%scalar_fields(i)%slag%lf(1)%x = chkp%s4lag%lf(1)%x
                       this%scalar_fields(i)%slag%lf(2)%x = chkp%s4lag%lf(2)%x
                    end if
                 end if
              else if (i == 5) then
-                ! Fifth scalar: use s5 data if available, otherwise keep own IC
                 if (associated(chkp%s5)) then
                    this%scalar_fields(i)%s%x = chkp%s5%x
                    if (associated(chkp%s5lag)) then
-                      this%scalar_fields(i)%slag%lf(1)%x = chkp%s5lag%lf(1)%x  
+                      this%scalar_fields(i)%slag%lf(1)%x = chkp%s5lag%lf(1)%x
                       this%scalar_fields(i)%slag%lf(2)%x = chkp%s5lag%lf(2)%x
                    end if
                 end if
-             else if (i >= 6 .and. i <= 10) then
-                ! Scalars 6-10: keep own IC (no checkpoint data available in legacy files)
              else
-                ! Scalars beyond 10: error
+                ! Scalars beyond 5: error
                 if (pe_rank .eq. 0) then
-                   write(*,*) 'WARNING: Scalar', i, 'beyond supported range (max 10)'
+                   write(*,*) 'WARNING: Scalar', i, 'beyond supported range (max 5)'
                 end if
              end if
-             
+
              ! Now call the individual scalar restart to finish processing
              call this%scalar_fields(i)%restart(chkp)
           end do

@@ -381,9 +381,12 @@ contains
     integer :: have_abvel, have_scalarlag
     logical :: read_lag, read_scalar, read_dtlag, read_abvel, read_scalarlag
     ! Multi-scalar support
-    type(field_t), pointer :: s2 => null(), s3 => null()
-    type(field_series_t), pointer :: s2lag => null(), s3lag => null()
+    type(field_t), pointer :: s2 => null(), s3 => null(), s4 => null(), s5 => null()
+    type(field_series_t), pointer :: s2lag => null(), s3lag => null(), s4lag => null(), s5lag => null()
     type(field_t), pointer :: abs2_1 => null(), abs2_2 => null()
+    type(field_t), pointer :: abs3_1 => null(), abs3_2 => null()
+    type(field_t), pointer :: abs4_1 => null(), abs4_2 => null()
+    type(field_t), pointer :: abs5_1 => null(), abs5_2 => null()
     logical :: read_multiscalar
     integer :: n_scalars_in_chkp
     real(kind=rp) :: tol
@@ -460,16 +463,26 @@ contains
 
        ! Multi-scalar support - will be determined after reading header
        read_multiscalar = .false.
-       
+
        ! Set up pointers for multi-scalar reading
        if (data%n_scalars > 1) then
           read_multiscalar = .true.
           if (associated(data%s2)) s2 => data%s2
-          if (associated(data%s3)) s3 => data%s3  
+          if (associated(data%s3)) s3 => data%s3
+          if (associated(data%s4)) s4 => data%s4
+          if (associated(data%s5)) s5 => data%s5
           if (associated(data%s2lag)) s2lag => data%s2lag
           if (associated(data%s3lag)) s3lag => data%s3lag
+          if (associated(data%s4lag)) s4lag => data%s4lag
+          if (associated(data%s5lag)) s5lag => data%s5lag
           if (associated(data%abs2_1)) abs2_1 => data%abs2_1
           if (associated(data%abs2_2)) abs2_2 => data%abs2_2
+          if (associated(data%abs3_1)) abs3_1 => data%abs3_1
+          if (associated(data%abs3_2)) abs3_2 => data%abs3_2
+          if (associated(data%abs4_1)) abs4_1 => data%abs4_1
+          if (associated(data%abs4_2)) abs4_2 => data%abs4_2
+          if (associated(data%abs5_1)) abs5_1 => data%abs5_1
+          if (associated(data%abs5_2)) abs5_2 => data%abs5_2
        end if
 
        chkp => data

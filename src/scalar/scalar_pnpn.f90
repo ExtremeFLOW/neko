@@ -252,7 +252,7 @@ contains
          ulag, vlag, wlag, this%chkp%dtlag, &
          this%chkp%tlag, time_scheme, .not. advection, &
          this%slag)
-    
+
     ! Add scalar info to checkpoint
     if (params%valid_path('scalar_index')) then
        call json_get(params, 'scalar_index', scalar_idx)
