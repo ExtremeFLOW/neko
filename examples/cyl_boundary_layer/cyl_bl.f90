@@ -103,19 +103,18 @@ contains
        y = dof%y(msk_ind, 1, 1, 1)
        z = dof%z(msk_ind, 1, 1, 1)
 
-       !   Two different regions (inflow & cyl) have the label 'v  '
-       !   Let compute the distance from the (0,0) in the x-y plane
+       !   Two different bcs (inflow & cyl) have are of type 'user_velocity'
+       !   Let us compute the distance from the (0,0) in the x-y plane
        !   to identify the proper one
        dist = sqrt(x**2 + z**2)
 
        ! --- INFLOW
        if (dist .gt. 1.1*rad) then
           u%x(msk_ind,1,1,1) = ucl*y**pw
+          w%x(msk_ind,1,1,1) = 0.0
+          v%x(msk_ind,1,1,1) = 0.0
        end if
-       ! ---
 
-       w%x(msk_ind,1,1,1) = 0.0
-       v%x(msk_ind,1,1,1) = 0.0
 
        ! --- SPINNING CYLINDER
        if (dist .lt. 1.5*rad .and. y .gt. 0.1) then
