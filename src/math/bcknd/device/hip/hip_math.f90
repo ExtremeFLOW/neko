@@ -207,6 +207,24 @@ module hip_math
        integer(c_int) :: n
      end subroutine hip_add3s2
 
+     subroutine hip_add4s3(a_d, b_d, c_d, d_d, c1, c2, c3, n, strm) &
+          bind(c, name = 'hip_add4s3')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: a_d, b_d, c_d, d_d, strm
+       real(c_rp) :: c1, c2, c3
+       integer(c_int) :: n
+     end subroutine hip_add4s3
+
+     subroutine hip_add5s4(a_d, b_d, c_d, d_d, e_d, c1, c2, c3, c4, n, strm) &
+          bind(c, name = 'hip_add5s4')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: a_d, b_d, c_d, d_d, e_d, strm
+       real(c_rp) :: c1, c2, c3, c4
+       integer(c_int) :: n
+     end subroutine hip_add5s4
+
      subroutine hip_invcol1(a_d, n, strm) &
           bind(c, name = 'hip_invcol1')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
@@ -283,6 +301,15 @@ module hip_math
        type(c_ptr), value :: a_d, b_d, c_d, d_d, strm
        integer(c_int) :: n
      end subroutine hip_addcol4
+
+     subroutine hip_addcol3s2(a_d, b_d, c_d, s, n, strm) &
+          bind(c, name = 'hip_addcol3s2')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: a_d, b_d, c_d, strm
+       real(c_rp) :: s
+       integer(c_int) :: n
+     end subroutine hip_addcol3s2
 
      subroutine hip_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n, strm) &
           bind(c, name = 'hip_vdot3')

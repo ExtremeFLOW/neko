@@ -374,6 +374,41 @@ extern "C" {
   }
 
   /**
+   * Fortran wrapper for add4s3
+   * Vector addition with scalar multiplication \f$ a = c_1 b + c_2 c + c_3 d \f$
+   * (multiplication on second argument)
+   */
+  void hip_add4s3(void *a, void *b, void *c, void *d, real *c1, real *c2,
+                  real *c3, int *n, hipStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(add4s3_kernel<real>),
+                       nblcks, nthrds, 0, strm, (real *) a,
+                       (real *) b, (real *) c, (real *) d, *c1, *c2, *c3, *n);
+    HIP_CHECK(hipGetLastError());
+  }
+
+  /**
+   * Fortran wrapper for add5s4
+   * Vector addition with scalar multiplication \f$ a = a + c_1 b + c_2 c + c_3 d + c_4 e \f$
+   * (multiplication on second argument)
+   */
+  void hip_add5s4(void *a, void *b, void *c, void *d, void *e, real *c1,
+                  real *c2, real *c3, real *c4, int *n, hipStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(add5s4_kernel<real>),
+                       nblcks, nthrds, 0, strm, (real *) a,
+                       (real *) b, (real *) c, (real *) d, (real *) e,
+                       *c1, *c2, *c3, *c4, *n);
+    HIP_CHECK(hipGetLastError());
+  }
+
+  /**
    * Fortran wrapper for invcol1
    * Invert a vector \f$ a = 1 / a \f$
    */
@@ -519,6 +554,22 @@ extern "C" {
     hipLaunchKernelGGL(HIP_KERNEL_NAME(addcol4_kernel<real>),
                        nblcks, nthrds, 0, strm, (real *) a,
                        (real *) b, (real *) c, (real *) d, *n);
+    HIP_CHECK(hipGetLastError());
+  }
+
+  /**
+   * Fortran wrapper for addcol3s2
+   * \f$ a = a + s(b * c) \f$
+   */
+  void hip_addcol3s2(void *a, void *b, void *c, real *s, int *n,
+                     hipStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(addcol3s2_kernel<real>),
+                       nblcks, nthrds, 0, strm, (real *) a,
+                       (real *) b, (real *) c, *s, *n);
     HIP_CHECK(hipGetLastError());
   }
 

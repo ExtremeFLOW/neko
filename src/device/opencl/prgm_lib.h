@@ -41,6 +41,12 @@ extern void *cdtp_program;
 /** Device convective kernels */
 extern void *conv1_program;
 
+/** Device convect_scalar kernels */
+extern void *convect_scalar_program;
+
+/** Device set_convect_rst kernels */
+extern void *set_convect_rst_program;
+
 /** Device CFL kernels */
 extern void *cfl_program;
 

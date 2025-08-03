@@ -366,8 +366,8 @@ contains
 
   end subroutine opr_xsmm_conv1
 
-  subroutine opr_xsmm_convect_scalar(du, u, c, Xh_GLL, Xh_GL, coef_GLL, &
-                                     coef_GL, GLL_to_GL)
+  subroutine opr_xsmm_convect_scalar(du, u, cr, cs, ct, Xh_GLL, Xh_GL, &
+                                     coef_GLL, coef_GL, GLL_to_GL)
     type(space_t), intent(in) :: Xh_GL
     type(space_t), intent(in) :: Xh_GLL
     type(coef_t), intent(in) :: coef_GLL
@@ -376,7 +376,9 @@ contains
     real(kind=rp), intent(inout) :: du(Xh_GLL%lx, Xh_GLL%ly, Xh_GLL%lz, &
                                        coef_GL%msh%nelv)
     real(kind=rp), intent(inout) :: u(Xh_GL%lxyz, coef_GL%msh%nelv)
-    real(kind=rp), intent(inout) :: c(Xh_GL%lxyz, coef_GL%msh%nelv, 3)
+    real(kind=rp), intent(inout) :: cr(Xh_GL%lxyz, coef_GL%msh%nelv)
+    real(kind=rp), intent(inout) :: cs(Xh_GL%lxyz, coef_GL%msh%nelv)
+    real(kind=rp), intent(inout) :: ct(Xh_GL%lxyz, coef_GL%msh%nelv)
     real(kind=rp) :: ur(Xh_GL%lxyz)
     real(kind=rp) :: us(Xh_GL%lxyz)
     real(kind=rp) :: ut(Xh_GL%lxyz)
@@ -403,7 +405,7 @@ contains
     do e = 1, coef_GLL%msh%nelv
        call local_grad3_xsmm(ur, us, ut, u(1,e), N, Xh_GL%dx, Xh_GL%dxt)
        do i = 1, Xh_GL%lxyz
-          ud(i,e) = c(i,e,1) * ur(i) + c(i,e,2) * us(i) + c(i,e,3) * ut(i)
+          ud(i,e) = cr(i,e) * ur(i) + cs(i,e) * us(i) + ct(i,e) * ut(i)
        end do
     end do
 #endif
