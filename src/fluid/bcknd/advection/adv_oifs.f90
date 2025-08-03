@@ -47,7 +47,7 @@ module adv_oifs
   use field_list, only: field_list_t
   use time_scheme_controller, only: time_scheme_controller_t
   use device, only: device_map, device_free
-    use device_math, only: device_addcol3s2, device_rzero
+  use device_math, only: device_addcol3s2, device_rzero
   use, intrinsic :: iso_c_binding, only: c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
@@ -266,7 +266,7 @@ contains
 
     ! Initilize the lagged scalar field, if present.
     if (present(slag)) then
-      this%slag => slag
+       this%slag => slag
     end if
 
   end subroutine adv_oifs_init

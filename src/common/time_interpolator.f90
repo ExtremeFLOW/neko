@@ -141,10 +141,10 @@ contains
     call fd_weights_full(t, tlag, this%order - 1, 0, wt) ! interpolation weights
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-      call device_add4s3(f_interpolated%x_d, f_n%f%x_d, f_n%lf(1)%x_d, &
+       call device_add4s3(f_interpolated%x_d, f_n%f%x_d, f_n%lf(1)%x_d, &
                         f_n%lf(2)%x_d, wt(0), wt(1), wt(2), n)
     else
-      call add4s3(f_interpolated%x, f_n%f%x, f_n%lf(1)%x, f_n%lf(2)%x, &
+       call add4s3(f_interpolated%x, f_n%f%x, f_n%lf(1)%x, f_n%lf(2)%x, &
                   wt(0), wt(1), wt(2), n)
     end if
 

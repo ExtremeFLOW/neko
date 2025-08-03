@@ -980,7 +980,7 @@ contains
     n_GLL = nelv * Xh_GLL%lxyz
 
     do e = 1, nelv
-      do j = 1, lx * lx
+       do j = 1, lx * lx
           do i = 1, lx
              tmp = 0.0_rp
              do k = 1, lx

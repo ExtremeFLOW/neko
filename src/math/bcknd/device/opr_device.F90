@@ -674,9 +674,9 @@ contains
       call neko_error('No device backend configured')
 #endif
 
-    call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
-    call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
-    call device_col2(du_d, coef_GLL%Binv_d, n_GLL)
+      call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
+      call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
+      call device_col2(du_d, coef_GLL%Binv_d, n_GLL)
 
     end associate
 
@@ -902,25 +902,25 @@ contains
     cz_d = device_get_ptr(cz)
 
 #ifdef HAVE_HIP
-      call hip_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
+    call hip_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
            coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
            coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
            coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
            Xh%w3_d, coef%msh%nelv, Xh%lx)
 #elif HAVE_CUDA
-      call cuda_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
+    call cuda_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
            coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
            coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
            coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
            Xh%w3_d, coef%msh%nelv, Xh%lx)
 #elif HAVE_OPENCL
-      call opencl_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
+    call opencl_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
            coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
            coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
            coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
            Xh%w3_d, coef%msh%nelv, Xh%lx)
 #else
-      call neko_error('No device backend configured')
+    call neko_error('No device backend configured')
 #endif
 
   end subroutine opr_device_set_convect_rst

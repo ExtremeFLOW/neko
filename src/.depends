@@ -102,7 +102,7 @@ math/operators.lo : math/operators.f90 comm/comm.lo field/scratch_registry.lo ma
 math/bcknd/cpu/opr_cpu.lo : math/bcknd/cpu/opr_cpu.f90 math/mathops.lo sem/interpolation.lo gs/gather_scatter.lo field/field.lo math/math.lo sem/coef.lo sem/space.lo config/num_types.lo 
 math/bcknd/sx/opr_sx.lo : math/bcknd/sx/opr_sx.f90 math/mathops.lo field/field.lo math/math.lo sem/coef.lo sem/space.lo config/num_types.lo sem/interpolation.lo gs/gather_scatter.lo 
 math/bcknd/xsmm/opr_xsmm.lo : math/bcknd/xsmm/opr_xsmm.F90 math/mathops.lo gs/gather_scatter.lo sem/interpolation.lo field/field.lo mesh/mesh.lo math/math.lo sem/coef.lo sem/space.lo math/mxm_wrapper.lo config/num_types.lo 
-math/bcknd/device/opr_device.lo : math/bcknd/device/opr_device.F90 comm/comm.lo math/bcknd/device/device_mathops.lo math/bcknd/device/device_math.lo common/utils.lo field/field.lo sem/coef.lo sem/space.lo device/device.lo config/num_types.lo gs/gather_scatter.lo 
+math/bcknd/device/opr_device.lo : math/bcknd/device/opr_device.F90 comm/comm.lo math/bcknd/device/device_mathops.lo math/bcknd/device/device_math.lo sem/interpolation.lo common/utils.lo field/field.lo sem/coef.lo sem/space.lo device/device.lo config/num_types.lo gs/gather_scatter.lo 
 math/tensor.lo : math/tensor.f90 device/device.lo config/neko_config.lo math/mxm_wrapper.lo config/num_types.lo math/bcknd/device/tensor_device.lo math/bcknd/sx/tensor_sx.lo math/bcknd/cpu/tensor_cpu.lo math/bcknd/xsmm/tensor_xsmm.lo 
 math/bcknd/cpu/tensor_cpu.lo : math/bcknd/cpu/tensor_cpu.f90 math/mxm_wrapper.lo config/num_types.lo 
 math/bcknd/sx/tensor_sx.lo : math/bcknd/sx/tensor_sx.f90 math/mxm_wrapper.lo config/num_types.lo 

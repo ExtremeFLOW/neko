@@ -407,7 +407,7 @@ __global__ void add4s3_kernel(T * __restrict__ a,
  * Device kernel for add5s4
  */
 template< typename T >
-__global__ void add4s3_kernel(T * __restrict__ a,
+__global__ void add5s4_kernel(T * __restrict__ a,
                               const T * __restrict__ b,
                               const T * __restrict__ c,
                               const T * __restrict__ d,

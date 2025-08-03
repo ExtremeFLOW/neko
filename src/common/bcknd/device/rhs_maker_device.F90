@@ -46,7 +46,7 @@ module rhs_maker_device
      procedure, nopass :: compute_fluid => rhs_maker_sumab_device
   end type rhs_maker_sumab_device_t
 
-  type, public, extends(rhs_maker_ext_t) ::  rhs_maker_ext_device_t
+  type, public, extends(rhs_maker_ext_t) :: rhs_maker_ext_device_t
    contains
      procedure, nopass :: compute_fluid => rhs_maker_ext_device
      procedure, nopass :: compute_scalar => scalar_rhs_maker_ext_device

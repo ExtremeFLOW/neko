@@ -91,9 +91,9 @@ contains
   subroutine opr_xsmm_dudxyz(du, u, dr, ds, dt, coef)
     type(coef_t), intent(in), target :: coef
     real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
-                             coef%msh%nelv), intent(inout) ::  du
+                             coef%msh%nelv), intent(inout) :: du
     real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
-                             coef%msh%nelv), intent(in) ::  u, dr, ds, dt
+                             coef%msh%nelv), intent(in) :: u, dr, ds, dt
 #ifdef HAVE_LIBXSMM
     real(kind=rp) :: drst(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz)
     type(space_t), pointer :: Xh
@@ -106,8 +106,8 @@ contains
 
     Xh => coef%Xh
     msh => coef%msh
-    lxy  = Xh%lx*Xh%ly
-    lyz  = Xh%ly*Xh%lz
+    lxy = Xh%lx*Xh%ly
+    lyz = Xh%ly*Xh%lz
     lxyz = Xh%lx*Xh%ly*Xh%lz
 
     if (.not. dudxyz_xsmm_init) then
@@ -297,11 +297,11 @@ contains
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
-    real(kind=rp), intent(inout) ::  du(Xh%lxyz, nelv)
-    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) ::  u
-    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) ::  vx
-    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) ::  vy
-    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) ::  vz
+    real(kind=rp), intent(inout) :: du(Xh%lxyz, nelv)
+    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: u
+    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vx
+    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vy
+    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vz
 #ifdef HAVE_LIBXSMM
     !   Store the inverse jacobian to speed this operation up
     real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz) :: dudr, duds, dudt
@@ -423,7 +423,7 @@ contains
     type(field_t), intent(in) :: u3
     type(field_t), intent(inout) :: work1
     type(field_t), intent(inout) :: work2
-    type(coef_t), intent(in)  :: c_Xh
+    type(coef_t), intent(in) :: c_Xh
     integer :: gdim, n
 
     n = w1%dof%size()
