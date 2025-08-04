@@ -129,10 +129,6 @@ contains
     this%t = chkp%t
     this%dtlag = chkp%dtlag
     this%tlag = chkp%tlag
-
-    ! Compute the current timestep
-    this%tstep = int(this%t / this%dt + 0.5_rp)
-
   end subroutine time_state_restart
 
   !> Write status banner
