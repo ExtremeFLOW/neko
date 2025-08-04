@@ -369,11 +369,7 @@ contains
           call this%apply_scalar_dev(x_d, strm = strm_)
        end if
     else
-       if (present(time)) then
-          call this%apply_scalar(x, n, time = time)
-       else
-          call this%apply_scalar(x, n)
-       end if
+       call this%apply_scalar(x, n, time = time)
     end if
 
   end subroutine bc_apply_scalar_generic
