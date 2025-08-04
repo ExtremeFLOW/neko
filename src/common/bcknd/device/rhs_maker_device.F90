@@ -510,7 +510,7 @@ contains
     bf_z_d = device_get_ptr(bf_z)
 
 #ifdef HAVE_HIP
-    call rhs_maker_oif_hip(phi_x_d, phi_y_d, phi_z_d, &
+    call rhs_maker_oifs_hip(phi_x_d, phi_y_d, phi_z_d, &
                            bf_x_d, bf_y_d, bf_z_d, rho, dt, n)
 #elif HAVE_CUDA
     call rhs_maker_oifs_cuda(phi_x_d, phi_y_d, phi_z_d, &
