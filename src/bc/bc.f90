@@ -359,11 +359,7 @@ contains
        end if
 
        x_d = device_get_ptr(x)
-       if (present(time)) then
-          call this%apply_scalar_dev(x_d, time = time, strm = strm_)
-       else
-          call this%apply_scalar_dev(x_d, strm = strm_)
-       end if
+       call this%apply_scalar_dev(x_d, time = time, strm = strm_)
     else
        call this%apply_scalar(x, n, time = time)
     end if
