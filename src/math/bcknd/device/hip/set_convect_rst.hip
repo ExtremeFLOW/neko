@@ -74,7 +74,7 @@ extern "C" {
     hipLaunchKernelGGL( HIP_KERNEL_NAME(set_convect_rst_kernel_1d<real, LX, 1024> ), \
                         nblcks, nthrds_1d, 0, (hipStream_t) glb_cmd_queue,           \
                         (real *) cr, (real *) cs, (real *) ct,                       \
-                        (real *) dx, (real *) dy, (real *) dz,                       \
+                        (real *) cx, (real *) cy, (real *) cz,                       \
                         (real *) drdx, (real *) dsdx, (real *) dtdx,                 \
                         (real *) drdy, (real *) dsdy, (real *) dtdy,                 \
                         (real *) drdz, (real *) dsdz, (real *) dtdz,                 \
@@ -86,7 +86,7 @@ extern "C" {
     hipLaunchKernelGGL( HIP_KERNEL_NAME(set_convect_rst_kernel_kstep<real, LX> ),    \
                         nblcks, nthrds_kstep, 0, (hipStream_t) glb_cmd_queue,        \
                         (real *) cr, (real *) cs, (real *) ct,                       \
-                        (real *) dx, (real *) dy, (real *) dz,                       \
+                        (real *) cx, (real *) cy, (real *) cz,                       \
                         (real *) drdx, (real *) dsdx, (real *) dtdx,                 \
                         (real *) drdy, (real *) dsdy, (real *) dtdy,                 \
                         (real *) drdz, (real *) dsdz, (real *) dtdz,                 \
