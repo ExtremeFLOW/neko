@@ -533,7 +533,7 @@ contains
     bf_s_d = device_get_ptr(bf_s)
 
 #ifdef HAVE_HIP
-    call scalar_rhs_maker_oif_hip(phi_s_d, bf_s_d, rho, dt, n)
+    call scalar_rhs_maker_oifs_hip(phi_s_d, bf_s_d, rho, dt, n)
 #elif HAVE_CUDA
     call scalar_rhs_maker_oifs_cuda(phi_s_d, bf_s_d, rho, dt, n)
 #elif HAVE_OPENCL
