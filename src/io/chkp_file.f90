@@ -58,10 +58,12 @@ module chkp_file
      type(interpolator_t) :: space_interp !< Interpolation when only changing lx
      type(global_interpolation_t) :: global_interp !< Interpolation for different meshes
      logical :: mesh2mesh !< Flag if previous mesh difers from current.
+     logical, private :: overwrite = .false.
    contains
      procedure :: read => chkp_file_read
      procedure :: read_field => chkp_read_field
      procedure :: write => chkp_file_write
+     procedure :: set_overwrite => chkp_file_set_overwrite
   end type chkp_file_t
 
 contains
@@ -94,9 +96,9 @@ contains
     integer :: i
 
     if (present(t)) then
-       time = real(t,dp)
+       time = real(t, kind = dp)
     else
-       time = 0d0
+       time = 0.0_dp
     end if
 
     select type(data)
@@ -166,11 +168,13 @@ contains
        call neko_error('Invalid data')
     end select
 
-
     suffix_pos = filename_suffix_pos(this%fname)
-    write(id_str, '(i5.5)') this%counter
-    fname = trim(this%fname(1:suffix_pos-1))//id_str//'.chkp'
-
+    if (this%overwrite) then
+       fname = trim(this%fname)
+    else !< Append the counter to the filename
+       write(id_str, '(i5.5)') this%counter
+       fname = trim(this%fname(1:suffix_pos-1)) // id_str // '.chkp'
+    end if
 
     dof_offset = int(msh%offset_el, i8) * int(u%Xh%lx * u%Xh%ly * u%Xh%lz, i8)
     n_glb_dofs = int(u%Xh%lx * u%Xh%ly * u%Xh%lz, i8) * int(msh%glb_nelv, i8)
@@ -665,4 +669,9 @@ contains
     deallocate(read_array)
   end subroutine chkp_read_field
 
+  subroutine chkp_file_set_overwrite(this, overwrite)
+    class(chkp_file_t), intent(inout) :: this
+    logical, intent(in) :: overwrite
+    this%overwrite = overwrite
+  end subroutine chkp_file_set_overwrite
 end module chkp_file
