@@ -31,7 +31,10 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module generic_file
-  use num_types
+  use num_types, only: rp
+  use utils, only: neko_error
+  use comm, only: pe_rank, NEKO_COMM
+  use mpi_f08, only: MPI_Bcast, MPI_LOGICAL
   implicit none
 
   !> A generic file handler.
@@ -103,11 +106,6 @@ contains
 
   !> check if the file exists
   subroutine generic_file_check_exists(this)
-    use utils, only: neko_error
-    use comm, only: pe_rank, NEKO_COMM
-    use mpi_f08
-    implicit none
-
     class(generic_file_t), intent(in) :: this
     logical :: file_exists
     integer :: neko_mpi_ierr
@@ -116,14 +114,15 @@ contains
 
     if (pe_rank .eq. 0 .or. this%serial) then
        ! Stop if the file does not exist
-       inquire(file=this%fname, exist=file_exists)
+       inquire(file = this%fname, exist = file_exists)
     end if
+
     if (.not. this%serial) then
        call MPI_Bcast(file_exists, 1, MPI_LOGICAL, 0, NEKO_COMM, neko_mpi_ierr)
     end if
 
     if (.not. file_exists) then
-       call neko_error('File does not exist: '//trim(this%fname))
+       call neko_error('File does not exist: ' // trim(this%fname))
     end if
 
   end subroutine generic_file_check_exists
