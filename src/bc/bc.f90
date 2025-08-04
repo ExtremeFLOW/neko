@@ -326,11 +326,7 @@ contains
           call this%apply_vector_dev(x_d, y_d, z_d, strm = strm_)
        end if
     else
-       if (present(time)) then
-          call this%apply_vector(x, y, z, n, time = time)
-       else
-          call this%apply_vector(x, y, z, n)
-       end if
+       call this%apply_vector(x, y, z, n, time = time)
     end if
 
   end subroutine bc_apply_vector_generic
