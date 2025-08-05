@@ -89,7 +89,8 @@ contains
     ! initialize work arrays for postprocessing
     call w1%init(u%dof, 'work1')
 
-    ! call usercheck also for tstep=0
+    ! call usercheck and vorticity simcomp also for tstep=0
+    call neko_simcomps%simcomps(1)%simcomp%compute(time)
     call user_calc_quantities(time)
 
   end subroutine user_initialize
