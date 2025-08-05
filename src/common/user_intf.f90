@@ -51,6 +51,7 @@ module user_intf
   use logger, only : neko_log
   use bc, only : bc_t
   use field_dirichlet, only : field_dirichlet_t
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -526,13 +527,11 @@ contains
     type(json_file), intent(inout) :: params
   end subroutine dummy_user_final_no_modules
 
-  subroutine dirichlet_do_nothing(dirichlet_field_list, dirichlet_bc, &
-       coef, t, tstep)
-    type(field_list_t), intent(inout) :: dirichlet_field_list
-    type(field_dirichlet_t), intent(in) :: dirichlet_bc
+  subroutine dirichlet_do_nothing(fields, bc, coef, time)
+    type(field_list_t), intent(inout) :: fields
+    type(field_dirichlet_t), intent(in) :: bc
     type(coef_t), intent(inout) :: coef
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
   end subroutine dirichlet_do_nothing
 
   subroutine dummy_user_material_properties(t, tstep, name, properties)
