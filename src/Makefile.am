@@ -757,6 +757,7 @@ EXTRA_DIST = \
 	filter/bcknd/device/opencl/mapping_kernels.cl\
 	source_terms/bcknd/device/cuda/gradient_jump_penalty_kernel.h\
 	source_terms/bcknd/device/hip/gradient_jump_penalty_kernel.h\
+	device/device_config.h\
 	device/opencl/jit.h\
 	device/opencl/prgm_lib.h\
 	device/opencl/check.h\
