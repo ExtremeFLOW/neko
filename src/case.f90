@@ -342,8 +342,7 @@ contains
                      this%scalars%scalar_fields(i)%s, &
                      this%scalars%scalar_fields(i)%c_Xh, &
                      this%scalars%scalar_fields(i)%gs_Xh, &
-                     this%user%initial_conditions, &
-                      scalar_params)
+                     this%user%initial_conditions)
              end if
           end do
        end if
