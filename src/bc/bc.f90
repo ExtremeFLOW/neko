@@ -326,11 +326,7 @@ contains
           call this%apply_vector_dev(x_d, y_d, z_d, strm = strm_)
        end if
     else
-       if (present(time)) then
-          call this%apply_vector(x, y, z, n, time = time)
-       else
-          call this%apply_vector(x, y, z, n)
-       end if
+       call this%apply_vector(x, y, z, n, time = time)
     end if
 
   end subroutine bc_apply_vector_generic
@@ -363,17 +359,9 @@ contains
        end if
 
        x_d = device_get_ptr(x)
-       if (present(time)) then
-          call this%apply_scalar_dev(x_d, time = time, strm = strm_)
-       else
-          call this%apply_scalar_dev(x_d, strm = strm_)
-       end if
+       call this%apply_scalar_dev(x_d, time = time, strm = strm_)
     else
-       if (present(time)) then
-          call this%apply_scalar(x, n, time = time)
-       else
-          call this%apply_scalar(x, n)
-       end if
+       call this%apply_scalar(x, n, time = time)
     end if
 
   end subroutine bc_apply_scalar_generic

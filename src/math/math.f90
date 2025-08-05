@@ -111,9 +111,10 @@ module math
        vcross, vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, sub3, &
        add2s1, add2s2, addsqr2s2, cmult2, invcol2, col2, col3, subcol3, &
        add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
-       glsc3, glsc4, sort, masked_copy, cfill_mask, relcmp, glimax, glimin, &
-       swap, reord, flipv, cadd2, masked_gather_copy, absval, pwmax, pwmin, &
-       masked_scatter_copy, cdiv, cdiv2, glsubnorm
+       glsc3, glsc4, sort, masked_copy_0, cfill_mask, relcmp, glimax, glimin, &
+       swap, reord, flipv, cadd2, masked_gather_copy_0, absval, pwmax, pwmin, &
+       masked_scatter_copy_0, cdiv, cdiv2, glsubnorm, &
+       masked_copy, masked_gather_copy, masked_scatter_copy
 
 contains
 
@@ -269,11 +270,32 @@ contains
   !! the length of the mask array.
   !! @param n Size of the arrays `a` and `b`.
   !! @param n_mask Size of the mask array `mask`.
-  subroutine masked_copy(a, b, mask, n, n_mask)
+  subroutine masked_copy_0(a, b, mask, n, n_mask)
     integer, intent(in) :: n, n_mask
     real(kind=rp), dimension(n), intent(in) :: b
     real(kind=rp), dimension(n), intent(inout) :: a
     integer, dimension(0:n_mask) :: mask
+    integer :: i, j
+
+    do i = 1, n_mask
+       j = mask(i)
+       a(j) = b(j)
+    end do
+
+  end subroutine masked_copy_0
+
+  !> Copy a masked vector \f$ a(mask) = b(mask) \f$.
+  !! @param a Destination array of size `n`.
+  !! @param b Source array of size `n`.
+  !! @param mask Mask array of length n_mask + 1, where `mask(0) = n_mask`
+  !! the length of the mask array.
+  !! @param n Size of the arrays `a` and `b`.
+  !! @param n_mask Size of the mask array `mask`.
+  subroutine masked_copy(a, b, mask, n, n_mask)
+    integer, intent(in) :: n, n_mask
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), dimension(n), intent(inout) :: a
+    integer, dimension(n_mask) :: mask
     integer :: i, j
 
     do i = 1, n_mask
@@ -292,7 +314,7 @@ contains
   !! @param n Size of the array `b`.
   !! @param n_mask Size of the mask array `mask` and `a`.
   !! @note Assumes `n .ge. n_mask`.
-  subroutine masked_gather_copy(a, b, mask, n, n_mask)
+  subroutine masked_gather_copy_0(a, b, mask, n, n_mask)
     integer, intent(in) :: n, n_mask
     real(kind=rp), dimension(n), intent(in) :: b
     real(kind=rp), dimension(n_mask), intent(inout) :: a
@@ -304,8 +326,53 @@ contains
        a(i) = b(j)
     end do
 
+  end subroutine masked_gather_copy_0
+
+  !> Gather a masked vector to reduced contigous vector
+  !! \f$ a = b(mask) \f$.
+  !! @param a Destination array of size `n_mask`.
+  !! @param b Source array of size `n`.
+  !! @param mask Mask array of length n_mask + 1, where `mask(0) = n_mask`
+  !! the length of the mask array.
+  !! @param n Size of the array `b`.
+  !! @param n_mask Size of the mask array `mask` and `a`.
+  !! @note Assumes `n .ge. n_mask`.
+  subroutine masked_gather_copy(a, b, mask, n, n_mask)
+    integer, intent(in) :: n, n_mask
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), dimension(n_mask), intent(inout) :: a
+    integer, dimension(n_mask) :: mask
+    integer :: i, j
+
+    do i = 1, n_mask
+       j = mask(i)
+       a(i) = b(j)
+    end do
+
   end subroutine masked_gather_copy
 
+  !> Scatter a contigous vector to masked positions in a target array
+  !! \f$ a(mask) = b \f$.
+  !! @param a Destination array of size `n`.
+  !! @param b Source array of size `n_mask`.
+  !! @param mask Mask array of length n_mask + 1, where `mask(0) = n_mask + 1`
+  !! the length of the mask array.
+  !! @param n Size of the array `mask`and array `b`.
+  !! @param m Size of the mask array `a`.
+  !! @note Assumes `n .ge. n_mask`.
+  subroutine masked_scatter_copy_0(a, b, mask, n, n_mask)
+    integer, intent(in) :: n, n_mask
+    real(kind=rp), dimension(n_mask), intent(in) :: b
+    real(kind=rp), dimension(n), intent(inout) :: a
+    integer, dimension(0:n_mask) :: mask
+    integer :: i, j
+
+    do i = 1, n_mask
+       j = mask(i)
+       a(j) = b(i)
+    end do
+
+  end subroutine masked_scatter_copy_0
 
   !> Scatter a contigous vector to masked positions in a target array
   !! \f$ a(mask) = b \f$.
@@ -320,7 +387,7 @@ contains
     integer, intent(in) :: n, n_mask
     real(kind=rp), dimension(n_mask), intent(in) :: b
     real(kind=rp), dimension(n), intent(inout) :: a
-    integer, dimension(0:n_mask) :: mask
+    integer, dimension(n_mask) :: mask
     integer :: i, j
 
     do i = 1, n_mask

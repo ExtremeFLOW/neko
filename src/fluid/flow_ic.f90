@@ -373,9 +373,9 @@ contains
 
     zone => neko_point_zone_registry%get_point_zone(trim(zone_name))
 
-    call cfill_mask(u%x, zone_value(1), size, zone%mask, zone%size)
-    call cfill_mask(v%x, zone_value(2), size, zone%mask, zone%size)
-    call cfill_mask(w%x, zone_value(3), size, zone%mask, zone%size)
+    call cfill_mask(u%x, zone_value(1), size, zone%mask%get(), zone%size)
+    call cfill_mask(v%x, zone_value(2), size, zone%mask%get(), zone%size)
+    call cfill_mask(w%x, zone_value(3), size, zone%mask%get(), zone%size)
 
   end subroutine set_flow_ic_point_zone
 
