@@ -584,19 +584,6 @@ endif
 pkginclude_HEADERS = \
 	$(wildcard *.mod)
 
-if ENABLE_HIP
-pkginclude_HEADERS += device/hip/check.h
-endif
-
-if ENABLE_CUDA
-pkginclude_HEADERS += device/cuda/check.h
-endif
-
-if ENABLE_OPENCL
-pkginclude_HEADERS += device/opencl/check.h
-endif
-
-
 CLEANFILES = *.mod\
 	     *.smod
 
