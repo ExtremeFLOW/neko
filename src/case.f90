@@ -338,11 +338,12 @@ contains
                      this%scalars%scalar_fields(i)%gs_Xh, &
                      string_val, json_subdict)
              else
-                call set_scalar_ic(this%scalars%scalar_fields(i)%name, &
+                call set_scalar_ic(this%scalars%scalar_fields(i)%name,&
                      this%scalars%scalar_fields(i)%s, &
                      this%scalars%scalar_fields(i)%c_Xh, &
                      this%scalars%scalar_fields(i)%gs_Xh, &
-                     this%user%initial_conditions)
+                     this%user%initial_conditions, &
+                      scalar_params)
              end if
           end do
        end if
