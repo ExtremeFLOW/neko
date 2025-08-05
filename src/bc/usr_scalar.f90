@@ -41,6 +41,7 @@ module usr_scalar
   use json_module, only : json_file
   use json_utils, only : json_get
   use, intrinsic :: iso_c_binding, only : c_sizeof, c_ptr, C_NULL_PTR
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -146,12 +147,11 @@ contains
   !! Applies boundary conditions in eval on x
   !! @param x The field array to apply the boundary condition to.
   !! @param n The size of x.
-  subroutine usr_scalar_apply_scalar(this, x, n, t, tstep, strong)
+  subroutine usr_scalar_apply_scalar(this, x, n, time, strong)
     class(usr_scalar_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     integer :: i, m, k, idx(4), facet, tstep_
     real(kind=rp) :: t_
@@ -163,15 +163,11 @@ contains
        strong_ = .true.
     end if
 
-    if (present(t)) then
-       t_ = t
+    if (present(time)) then
+       t_ = time%t
+       tstep_ = time%tstep
     else
        t_ = 0.0_rp
-    end if
-
-    if (present(tstep)) then
-       tstep_ = tstep
-    else
        tstep_ = 1
     end if
 
@@ -227,13 +223,12 @@ contains
   !! @param x The array of values to apply.
   !! @param n The size of x.
   !! @param strm Device stream
-  subroutine usr_scalar_apply_scalar_dev(this, x_d, t, tstep, strong, strm)
+  subroutine usr_scalar_apply_scalar_dev(this, x_d, time, strong, strm)
     class(usr_scalar_t), intent(inout), target :: this
-    type(c_ptr) :: x_d
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(c_ptr), intent(inout) :: x_d
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
-    type(c_ptr) :: strm
+    type(c_ptr),intent(inout) :: strm
     integer :: i, m, k, idx(4), facet, tstep_
     real(kind=rp) :: t_
     integer(c_size_t) :: s
@@ -248,15 +243,11 @@ contains
        strong_ = strong
     end if
 
-    if (present(t)) then
-       t_ = t
+    if (present(time)) then
+       t_ = time%t
+       tstep_ = time%tstep
     else
        t_ = 0.0_rp
-    end if
-
-    if (present(tstep)) then
-       tstep_ = tstep
-    else
        tstep_ = 1
     end if
 
@@ -326,29 +317,27 @@ contains
   end subroutine usr_scalar_apply_scalar_dev
 
   !> No-op vector apply
-  subroutine usr_scalar_apply_vector(this, x, y, z, n, t, tstep, strong)
+  subroutine usr_scalar_apply_vector(this, x, y, z, n, time, strong)
     class(usr_scalar_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(inout), dimension(n) :: y
     real(kind=rp), intent(inout), dimension(n) :: z
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
 
   end subroutine usr_scalar_apply_vector
 
   !> No-op vector apply (device version)
   subroutine usr_scalar_apply_vector_dev(this, x_d, y_d, z_d, &
-       t, tstep, strong, strm)
+       time, strong, strm)
     class(usr_scalar_t), intent(inout), target :: this
-    type(c_ptr) :: x_d
-    type(c_ptr) :: y_d
-    type(c_ptr) :: z_d
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(c_ptr), intent(inout) :: x_d
+    type(c_ptr), intent(inout) :: y_d
+    type(c_ptr), intent(inout) :: z_d
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
-    type(c_ptr) :: strm
+    type(c_ptr), intent(inout) :: strm
 
   end subroutine usr_scalar_apply_vector_dev
 

@@ -45,6 +45,7 @@ module neumann
   use device_math, only : device_cfill, device_copy
   use device, only : device_memcpy, DEVICE_TO_HOST
   use device_neumann, only : device_neumann_apply_scalar
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -111,12 +112,11 @@ contains
 
   !> Boundary condition apply for a generic Neumann condition
   !! to a vector @a x
-  subroutine neumann_apply_scalar(this, x, n, t, tstep, strong)
+  subroutine neumann_apply_scalar(this, x, n, time, strong)
     class(neumann_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     integer :: i, m, k, facet
     ! Store non-linear index
@@ -153,15 +153,15 @@ contains
 
   !> Boundary condition apply for a generic Neumann condition
   !! to vectors @a x, @a y and @a z
-  subroutine neumann_apply_vector(this, x, y, z, n, t, tstep, strong)
+  subroutine neumann_apply_vector(this, x, y, z, n, time, strong)
     class(neumann_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(inout), dimension(n) :: y
     real(kind=rp), intent(inout), dimension(n) :: z
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
+
     if (.not. this%uniform_0 .and. this%msk(0) .gt. 0) then
        call neko_error("Neumann bc not implemented for vectors")
     end if
@@ -169,13 +169,12 @@ contains
 
   !> Boundary condition apply for a generic Neumann condition
   !! to a vector @a x (device version)
-  subroutine neumann_apply_scalar_dev(this, x_d, t, tstep, strong, strm)
+  subroutine neumann_apply_scalar_dev(this, x_d, time, strong, strm)
     class(neumann_t), intent(inout), target :: this
-    type(c_ptr) :: x_d
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(c_ptr), intent(inout) :: x_d
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
-    type(c_ptr) :: strm
+    type(c_ptr), intent(inout) :: strm
     logical :: strong_
 
     if (present(strong)) then
@@ -195,15 +194,14 @@ contains
   !> Boundary condition apply for a generic Neumann condition
   !! to vectors @a x, @a y and @a z (device version)
   subroutine neumann_apply_vector_dev(this, x_d, y_d, z_d, &
-       t, tstep, strong, strm)
+       time, strong, strm)
     class(neumann_t), intent(inout), target :: this
-    type(c_ptr) :: x_d
-    type(c_ptr) :: y_d
-    type(c_ptr) :: z_d
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(c_ptr), intent(inout) :: x_d
+    type(c_ptr), intent(inout) :: y_d
+    type(c_ptr), intent(inout) :: z_d
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
-    type(c_ptr) :: strm
+    type(c_ptr), intent(inout) :: strm
 
     if (.not. this%uniform_0 .and. this%msk(0) .gt. 0) then
        call neko_error("Neumann bc not implemented for vectors.")
