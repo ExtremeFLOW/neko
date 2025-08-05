@@ -3,7 +3,7 @@ program poisson
   use ax_poisson
   implicit none
 
-character(len=NEKO_FNAME_LEN) :: fname, lxchar, iterchar
+  character(len=NEKO_FNAME_LEN) :: fname, lxchar, iterchar
   type(mesh_t) :: msh
   type(file_t) :: nmsh_file, mf
   type(space_t) :: Xh

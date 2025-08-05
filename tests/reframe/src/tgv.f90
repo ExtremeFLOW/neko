@@ -31,7 +31,7 @@ contains
     real(kind=rp) :: d
     d = 4._rp
 
-    ! original mesh has size 0..8 to be mapped onto -pi..pi
+    ! The original mesh has size 0..8 to be mapped onto -pi..pi
     ! will be updated later to a method giving back the vertices of the mesh
     nvert = size(msh%points)
     do i = 1, nvert
@@ -52,10 +52,10 @@ contains
     type (field_t), pointer :: u, v, w, p
 
     dof => fields%dof(1)
-    u => fields%items(1)%ptr
-    v => fields%items(2)%ptr
-    w => fields%items(3)%ptr
-    p => fields%items(4)%ptr
+    u => fields%get_by_name("u")
+    v => fields%get_by_name("v")
+    w => fields%get_by_name("w")
+    p => fields%get_by_name("p")
 
     ntot = dof%size()
     do i = 1, ntot
@@ -89,7 +89,8 @@ contains
     ! initialize work arrays for postprocessing
     call w1%init(u%dof, 'work1')
 
-    ! call usercheck also for tstep=0
+    ! call usercheck and vorticity simcomp also for tstep=0
+    call neko_simcomps%simcomps(1)%simcomp%compute(time)
     call user_calc_quantities(time)
 
   end subroutine user_initialize
