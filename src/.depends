@@ -18,6 +18,7 @@ common/distdata.lo : common/distdata.f90 adt/uset.lo adt/tuple.lo adt/stack.lo
 common/utils.lo : common/utils.f90 
 common/time_state.lo : common/time_state.f90 common/json_utils.lo common/checkpoint.lo common/log.lo config/num_types.lo 
 common/json_utils.lo : common/json_utils.f90 common/utils.lo config/num_types.lo 
+common/mask.lo : common/mask.f90 common/utils.lo math/bcknd/device/device_math.lo device/device.lo config/neko_config.lo 
 common/system.lo : common/system.f90 
 common/runtime_statistics.lo : common/runtime_statistics.f90 comm/comm.lo math/matrix.lo io/file.lo common/json_utils.lo config/num_types.lo adt/tuple.lo adt/stack.lo common/log.lo 
 common/user_access_singleton.lo : common/user_access_singleton.f90 case.lo 
@@ -62,7 +63,7 @@ adt/uset.lo : adt/uset.f90 adt/htable.lo config/num_types.lo common/utils.lo
 adt/stack.lo : adt/stack.f90 adt/tuple.lo math/math.lo common/structs.lo mesh/point.lo common/utils.lo io/format/nmsh.lo config/num_types.lo 
 adt/tuple.lo : adt/tuple.f90 config/num_types.lo math/math.lo 
 mesh/facet_zone.lo : mesh/facet_zone.f90 common/utils.lo adt/stack.lo adt/tuple.lo 
-mesh/point_zone.lo : mesh/point_zone.f90 device/device.lo config/neko_config.lo sem/dofmap.lo common/utils.lo config/num_types.lo adt/stack.lo 
+mesh/point_zone.lo : mesh/point_zone.f90 device/device.lo common/mask.lo config/neko_config.lo sem/dofmap.lo common/utils.lo config/num_types.lo adt/stack.lo 
 mesh/point_zones/sphere_point_zone.lo : mesh/point_zones/sphere_point_zone.f90 math/math.lo common/json_utils.lo config/num_types.lo mesh/point_zone.lo 
 mesh/point_zones/box_point_zone.lo : mesh/point_zones/box_point_zone.f90 math/math.lo common/json_utils.lo config/num_types.lo mesh/point_zone.lo 
 mesh/point_zones/cylinder_point_zone.lo : mesh/point_zones/cylinder_point_zone.f90 common/utils.lo common/json_utils.lo config/num_types.lo mesh/point_zone.lo 

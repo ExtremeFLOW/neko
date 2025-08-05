@@ -410,7 +410,7 @@ contains
     character(len=:), allocatable :: zone_name
 
     type(field_t) :: temp_field
-    class(point_zone_t), pointer :: my_point_zone
+    class(point_zone_t), pointer :: zone
     integer :: i
 
     ! ------------------------------------------------------------------------ !
@@ -421,14 +421,14 @@ contains
     ! Compute the indicator field
     call temp_field%init(this%coef%dof)
 
-    my_point_zone => neko_point_zone_registry%get_point_zone(zone_name)
+    zone => neko_point_zone_registry%get_point_zone(zone_name)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cfill_mask(temp_field%x_d, 1.0_rp, temp_field%size(), &
-            my_point_zone%mask_d, my_point_zone%size)
+            zone%mask%get_d(), zone%size)
     else
        call cfill_mask(temp_field%x, 1.0_rp, temp_field%size(), &
-            my_point_zone%mask, my_point_zone%size)
+            zone%mask%get(), zone%size)
     end if
 
     ! Update the global indicator field by max operator

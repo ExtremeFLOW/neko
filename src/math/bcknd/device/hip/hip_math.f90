@@ -119,14 +119,14 @@ module hip_math
        integer(c_int) :: n
      end subroutine hip_cdiv2
 
-     subroutine hip_cadd(a_d, c, n, strm) &
-          bind(c, name = 'hip_cadd')
+     subroutine hip_radd(a_d, c, n, strm) &
+          bind(c, name = 'hip_radd')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a_d, strm
        real(c_rp) :: c
        integer(c_int) :: n
-     end subroutine hip_cadd
+     end subroutine hip_radd
 
      subroutine hip_cadd2(a_d, b_d, c, n, strm) &
           bind(c, name = 'hip_cadd2')
@@ -436,6 +436,22 @@ module hip_math
        real(c_rp) :: c_d
        integer(c_int) :: n
      end subroutine hip_pwmin_sca3
+
+  end interface
+
+  ! ========================================================================== !
+  ! Interfaces for integer operations.
+
+  interface
+
+     subroutine hip_iadd(a_d, c, n, strm) &
+          bind(c, name = 'hip_iadd')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: a_d, strm
+       integer(c_int) :: c
+       integer(c_int) :: n
+     end subroutine hip_iadd
 
   end interface
 end module hip_math
