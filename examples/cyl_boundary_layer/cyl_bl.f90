@@ -154,32 +154,30 @@ contains
   ! in the scalar solver (if enabled).
   !! Parameters:
   !! -----------
-  !! field_bc_list:     List of fields from which the BC conditions will be extracted.
+  !! fields:            List of fields from which the BC conditions will be extracted.
   !!                    Depending on what is set in the case file, contains either:
   !!                    (u,v,w), (p) or (s) (or a list of scalars).
   !! bc:                The BC containing the boundary mask, etc.
   !! coef:              Coef object.
-  !! t:                 Current time.
-  !! tstep:             Current time step.
-  subroutine dirichlet_update(field_bc_list, bc, coef, t, tstep)
-    type(field_list_t), intent(inout) :: field_bc_list
+  !! time:              Current time state.
+  subroutine dirichlet_update(fields, bc, coef, time)
+    type(field_list_t), intent(inout) :: fields
     type(field_dirichlet_t), intent(in) :: bc
     type(coef_t), intent(inout) :: coef
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
 
     integer :: i
     real(kind=rp) :: y,z
 
     ! Only do this at the first time step since our BCs are constants.
-    if (tstep .ne. 1) return
+    if (time%tstep .ne. 1) return
 
     ! Check that we are being called by the fluid via the name of the field
-    if (field_bc_list%items(1)%ptr%name .eq. "u") then
+    if (fields%items(1)%ptr%name .eq. "u") then
 
-       associate(u => field_bc_list%items(1)%ptr, &
-            v => field_bc_list%items(2)%ptr, &
-            w => field_bc_list%items(3)%ptr)
+       associate(u => fields%items(1)%ptr, &
+            v => fields%items(2)%ptr, &
+            w => fields%items(3)%ptr)
 
          ! Perform operations on u%x, v%x, w%x here
          ! Here we are applying very simple uniform boundaries (u,v,w) = (1,0,0)
@@ -193,8 +191,8 @@ contains
        end associate
        ! Check that we are being called by the user_pressure bc via the name
        ! of the field
-    else if (field_bc_list%items(1)%ptr%name .eq. "p") then
-       associate( p => field_bc_list%items(1)%ptr)
+    else if (fields%items(1)%ptr%name .eq. "p") then
+       associate( p => fields%items(1)%ptr)
          !
          ! Perform operations on the pressure field here
          !
@@ -206,9 +204,9 @@ contains
        end associate
 
        ! Check that we are being called by the scalar via the name of the field
-    else if (field_bc_list%items(1)%ptr%name .eq. "s") then
+    else if (fields%items(1)%ptr%name .eq. "s") then
 
-       associate( s => field_bc_list%items(1)%ptr)
+       associate( s => fields%items(1)%ptr)
          !
          ! Perform operations on the scalar field here
          !
