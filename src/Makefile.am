@@ -582,9 +582,7 @@ neko_LDADD= libneko.la
 endif
 
 pkginclude_HEADERS = \
-	$(wildcard *.mod)\
-	device/device_config.h\
-	common/neko_log.h
+	$(wildcard *.mod)
 
 if ENABLE_HIP
 pkginclude_HEADERS += device/hip/check.h
