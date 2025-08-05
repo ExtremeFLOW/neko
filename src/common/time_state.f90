@@ -34,6 +34,7 @@
 module time_state
   use num_types, only : rp
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_QUIET
+  use checkpoint, only : chkp_t
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default
   implicit none
@@ -55,6 +56,7 @@ module time_state
           time_state_init_from_components
      procedure, pass(this) :: init_from_json => time_state_init_from_json
      procedure, pass(this) :: reset => time_state_reset
+     procedure, pass(this) :: restart => time_state_restart
      procedure, pass(this) :: status => time_state_status
      procedure, pass(this) :: is_done => time_state_is_done
   end type time_state_t
@@ -118,6 +120,16 @@ contains
     this%dtlag = this%dt
 
   end subroutine time_state_reset
+
+  !> Restart time state
+  subroutine time_state_restart(this, chkp)
+    class(time_state_t), intent(inout) :: this
+    type(chkp_t), intent(in) :: chkp
+
+    this%t = chkp%t
+    this%dtlag = chkp%dtlag
+    this%tlag = chkp%tlag
+  end subroutine time_state_restart
 
   !> Write status banner
   subroutine time_state_status(this)
