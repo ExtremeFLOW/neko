@@ -36,8 +36,8 @@ module facet_normal
   use num_types, only : rp
   use neko_config, only : NEKO_BCKND_DEVICE
   use math, only: cfill_mask
-  use device_math, only : device_col2, device_masked_gather_copy, &
-       device_masked_scatter_copy
+  use device_math, only : device_col2, device_masked_gather_copy_0, &
+       device_masked_scatter_copy_0
   use vector, only : vector_t
   use coefs, only : coef_t
   use bc, only : bc_t
@@ -185,20 +185,20 @@ contains
     end if
 
     if (m .gt. 0) then
-       call device_masked_gather_copy(this%work%x_d, u_d, this%unique_mask_d, &
+       call device_masked_gather_copy_0(this%work%x_d, u_d, this%unique_mask_d, &
             n, m, strm_)
        call device_col2(this%work%x_d, this%nx%x_d, m, strm_)
-       call device_masked_scatter_copy(x_d, this%work%x_d, &
+       call device_masked_scatter_copy_0(x_d, this%work%x_d, &
             this%unique_mask_d, n, m, strm_)
-       call device_masked_gather_copy(this%work%x_d, v_d, this%unique_mask_d, &
+       call device_masked_gather_copy_0(this%work%x_d, v_d, this%unique_mask_d, &
             n , m, strm_)
        call device_col2(this%work%x_d, this%ny%x_d, m, strm_)
-       call device_masked_scatter_copy(y_d, this%work%x_d, &
+       call device_masked_scatter_copy_0(y_d, this%work%x_d, &
             this%unique_mask_d, n, m, strm_)
-       call device_masked_gather_copy(this%work%x_d, w_d, this%unique_mask_d, &
+       call device_masked_gather_copy_0(this%work%x_d, w_d, this%unique_mask_d, &
             n, m, strm_)
        call device_col2(this%work%x_d, this%nz%x_d, m, strm)
-       call device_masked_scatter_copy(z_d, this%work%x_d, &
+       call device_masked_scatter_copy_0(z_d, this%work%x_d, &
             this%unique_mask_d, n, m, strm_)
     end if
 

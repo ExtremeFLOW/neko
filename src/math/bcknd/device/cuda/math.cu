@@ -198,7 +198,7 @@ extern "C" {
   /** Fortran wrapper for cadd
    * Add a scalar to vector \f$ a_i = a_i + c \f$
    */
-  void cuda_cadd(void *a, real *c, int *n, cudaStream_t strm) {
+  void cuda_radd(void *a, real *c, int *n, cudaStream_t strm) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
@@ -910,6 +910,22 @@ extern "C" {
       pwmin_sca3_kernel<real><<<nblcks, nthrds, 0, stream>>>
         ((real *)a, (real *)b, *c, *n);
       CUDA_CHECK(cudaGetLastError());
+  }
+
+  // ======================================================================== //
+  
+  /** Fortran wrapper for iadd
+   * Add a scalar to vector \f$ a_i = a_i + c \f$
+   */
+  void cuda_iadd(void *a, int *c, int *n, cudaStream_t stream) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    cadd_kernel<int><<<nblcks, nthrds, 0, stream>>>
+      ((int *) a, *c, *n);
+    CUDA_CHECK(cudaGetLastError());
+
   }
 
 } /* extern "C" */
