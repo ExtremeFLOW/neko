@@ -57,12 +57,11 @@ module scalar_scheme
   use time_scheme_controller, only : time_scheme_controller_t
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use field_registry, only : neko_field_registry
-  use usr_scalar, only : usr_scalar_t, usr_scalar_bc_eval
   use json_utils, only : json_get, json_get_or_default, json_extract_item, &
        json_extract_object
   use json_module, only : json_file
   use user_intf, only : user_t, dummy_user_material_properties, &
-       user_material_properties
+       user_material_properties_intf
   use utils, only : neko_error, neko_warning
   use comm, only: NEKO_COMM, MPI_INTEGER, MPI_SUM
   use scalar_source_term, only : scalar_source_term_t
@@ -137,7 +136,7 @@ module scalar_scheme
      real(kind=rp) :: pr_turb
      !> Field list with cp and lambda
      type(field_list_t) :: material_properties
-     procedure(user_material_properties), nopass, pointer :: &
+     procedure(user_material_properties_intf), nopass, pointer :: &
           user_material_properties => null()
    contains
      !> Constructor for the base type.
@@ -262,7 +261,11 @@ contains
     this%rho => rho
 
     ! Assign a name
-    call json_get_or_default(params, 'name', this%name, 'scalar')
+    call params%print()
+
+    ! Note that the keyword is added by `scalars_t`, so there is always a
+    ! default.
+    call json_get(params, 'name', this%name)
 
     call neko_log%section('Scalar')
     call json_get(params, 'solver.type', solver_type)
@@ -294,9 +297,8 @@ contains
     this%params => params
     this%msh => msh
 
-    if (.not. neko_field_registry%field_exists(this%name)) then
-       call neko_field_registry%add_field(this%dm_Xh, this%name)
-    end if
+    call neko_field_registry%add_field(this%dm_Xh, this%name, &
+         ignore_existing = .true.)
 
     this%s => neko_field_registry%get_field(this%name)
 
@@ -367,6 +369,10 @@ contains
     if (allocated(this%pc)) then
        call precon_destroy(this%pc)
        deallocate(this%pc)
+    end if
+
+    if (allocated(this%name)) then
+       deallocate(this%name)
     end if
 
     call this%source_term%free()
@@ -471,17 +477,16 @@ contains
   !! if necessary.
   !! @param t Time value.
   !! @param tstep Current time step.
-  subroutine scalar_scheme_update_material_properties(t, tstep, this)
+  subroutine scalar_scheme_update_material_properties(this, time)
     class(scalar_scheme_t), intent(inout) :: this
-    real(kind=rp),intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     type(field_t), pointer :: nut
     integer :: index
     ! Factor to transform nu_t to lambda_t
     type(field_t), pointer :: lambda_factor
 
-    call this%user_material_properties(t, tstep, this%name, &
-         this%material_properties)
+    call this%user_material_properties(this%name, this%material_properties, &
+         time)
 
     ! factor = rho * cp / pr_turb
     if (len(trim(this%nut_field_name)) > 0) then
@@ -515,8 +520,10 @@ contains
     type(user_t), target, intent(in) :: user
     character(len=LOG_SIZE) :: log_buf
     ! A local pointer that is needed to make Intel happy
-    procedure(user_material_properties), pointer :: dummy_mp_ptr
+    procedure(user_material_properties_intf), pointer :: dummy_mp_ptr
     real(kind=rp) :: const_cp, const_lambda
+    ! Dummy time state set to 0
+    type(time_state_t) :: time
 
     dummy_mp_ptr => dummy_user_material_properties
 
@@ -539,8 +546,8 @@ contains
             "file!"
        call neko_log%message(log_buf)
        this%user_material_properties => user%material_properties
-       call user%material_properties(0.0_rp, 0, this%name, &
-            this%material_properties)
+
+       call user%material_properties(this%name, this%material_properties, time)
     else
        this%user_material_properties => dummy_user_material_properties
        if (params%valid_path('Pe') .and. &

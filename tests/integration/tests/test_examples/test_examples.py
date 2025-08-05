@@ -212,3 +212,25 @@ def test_example_compile(example, log_file):
     assert (
         result.returncode == 0
     ), f"makeneko process failed with exit code {result.returncode}"
+
+
+def test_example_poisson(log_file):
+    """The Poisson example is special since it needs to be compiled with make
+    and creates its own program. Here, we test compilation.
+
+    """
+
+    result = subprocess.run(
+            ["make", "-C", join(examples_dir, "poisson")],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True)
+
+    # Write the output to the log file
+    with open(log_file, "w") as f:
+        f.write(result.stdout)
+
+    # Check if the process completed successfully
+    assert (
+        result.returncode == 0
+    ), f"compiling the Poisson example failed with exit code {result.returncode}"

@@ -404,7 +404,7 @@ contains
 
     lx = dof%Xh%lx
     do i = 1, zone%size
-       idx = zone%mask(i)
+       idx = zone%mask%get(i)
 
        nlindex = nonlinear_index(idx, lx, lx, lx)
        x = dof%x(nlindex(1), nlindex(2), nlindex(3), nlindex(4))

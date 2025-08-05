@@ -48,8 +48,7 @@ module fluid_scheme_base
   use time_scheme_controller, only : time_scheme_controller_t
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   use time_step_controller, only : time_step_controller_t
-  use user_intf, only : user_t, user_material_properties
-  use usr_inflow, only : usr_inflow_eval
+  use user_intf, only : user_t, user_material_properties_intf
   use utils, only : neko_error
   use bc_list, only : bc_list_t
   use field_list, only : field_list_t
@@ -112,7 +111,7 @@ module fluid_scheme_base
      logical :: freeze = .false.
 
      !> User material properties routine
-     procedure(user_material_properties), nopass, pointer :: &
+     procedure(user_material_properties_intf), nopass, pointer :: &
           user_material_properties => null()
 
    contains
@@ -267,11 +266,10 @@ module fluid_scheme_base
 
   !> Abstract interface to sets rho and mu
   abstract interface
-     subroutine update_material_properties(this, t, tstep)
-       import fluid_scheme_base_t, rp
+     subroutine update_material_properties(this, time)
+       import fluid_scheme_base_t, time_state_t
        class(fluid_scheme_base_t), intent(inout) :: this
-       real(kind=rp),intent(in) :: t
-       integer, intent(in) :: tstep
+       type(time_state_t), intent(in) :: time
      end subroutine update_material_properties
   end interface
 

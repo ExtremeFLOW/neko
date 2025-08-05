@@ -45,8 +45,8 @@ module spalding
   use spalding_device, only : spalding_compute_device
   use field_math, only: field_invcol3
   use vector, only : vector_t
-  use math, only: masked_gather_copy
-  use device_math, only: device_masked_gather_copy
+  use math, only: masked_gather_copy_0
+  use device_math, only: device_masked_gather_copy_0
   use scratch_registry, only : neko_scratch_registry
 
   implicit none
@@ -169,10 +169,10 @@ contains
     call field_invcol3(temp, this%mu, this%rho)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_masked_gather_copy(this%nu%x_d, temp%x_d, this%msk_d, &
+       call device_masked_gather_copy_0(this%nu%x_d, temp%x_d, this%msk_d, &
             temp%size(), this%nu%size())
     else
-       call masked_gather_copy(this%nu%x, temp%x, this%msk, temp%size(), &
+       call masked_gather_copy_0(this%nu%x, temp%x, this%msk, temp%size(), &
             this%nu%size())
     end if
 

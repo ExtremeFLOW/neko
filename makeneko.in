@@ -18,7 +18,7 @@ fi
 HAVE_HIP_BCKND=@hip_bcknd@
 if [ $HAVE_HIP_BCKND -eq 1 ]; then
     HIPCC=@HIPCC@
-    HIP_HIPCC_CFLAGS='@HIP_HIPCC_CFLAGS@'
+    HIP_HIPCC_FLAGS='@HIP_HIPCC_FLAGS@'
 fi
 
 printf "\n%s\n" 'N E K O build tool, Version @PACKAGE_VERSION@'

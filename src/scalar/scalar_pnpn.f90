@@ -362,10 +362,10 @@ contains
       ! Logs extra information the log level is NEKO_LOG_DEBUG or above.
       call print_debug(this)
       ! Compute the source terms
-      call this%source_term%compute(t, tstep)
+      call this%source_term%compute(time)
 
       ! Apply weak boundary conditions, that contribute to the source terms.
-      call this%bcs%apply_scalar(this%f_Xh%x, dm_Xh%size(), t, tstep, .false.)
+      call this%bcs%apply_scalar(this%f_Xh%x, dm_Xh%size(), time, .false.)
 
       if (oifs) then
          ! Add the advection operators to the right-hans-side.
@@ -397,10 +397,10 @@ contains
       call slag%update()
 
       !> Apply strong boundary conditions.
-      call this%bcs%apply_scalar(this%s%x, this%dm_Xh%size(), t, tstep, .true.)
+      call this%bcs%apply_scalar(this%s%x, this%dm_Xh%size(), time, .true.)
 
       ! Update material properties if necessary
-      call this%update_material_properties(t, tstep)
+      call this%update_material_properties(time)
 
       ! Compute scalar residual.
       call profiler_start_region(trim(this%name) // '_residual', 20)

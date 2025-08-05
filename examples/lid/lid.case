@@ -23,14 +23,12 @@
         "fluid": {
             "scheme": "pnpn",
             "Re": 3000,
-            "inflow_condition": {
-                "type": "user"
+            "initial_condition": {
+                "type": "uniform",
+                "value": [0, 0, 0]
             },
             // frequency of postprocessing (energy and enstrophy)
             "ipostproc": 50,
-            "initial_condition": {
-                "type": "user"
-            },
             "velocity_solver": {
                 "type": "cg",
                 "preconditioner": {
@@ -57,7 +55,7 @@
                     "zone_indices": [ 1 ]
                 },
                 {
-                    "type": "user_velocity_pointwise",
+                    "type": "user_velocity",
                     "zone_indices": [ 2 ]
                 }
             ]

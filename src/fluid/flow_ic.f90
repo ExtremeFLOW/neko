@@ -45,7 +45,7 @@ module flow_ic
   use coefs, only : coef_t
   use math, only : col2, cfill, cfill_mask
   use device_math, only : device_col2, device_cfill, device_cfill_mask
-  use user_intf, only : useric, useric_compressible
+  use user_intf, only : user_initial_conditions_intf
   use json_module, only : json_file
   use json_utils, only: json_get, json_get_or_default
   use point_zone, only: point_zone_t
@@ -56,6 +56,7 @@ module flow_ic
   use global_interpolation, only: global_interpolation_t
   use interpolation, only: interpolator_t
   use space, only: space_t, GLL
+  use field_list, only: field_list_t
   implicit none
   private
 
@@ -140,19 +141,28 @@ contains
   end subroutine set_flow_ic_int
 
   !> Set intial flow condition (user defined)
-  subroutine set_flow_ic_usr(u, v, w, p, coef, gs, usr_ic, params)
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
+  subroutine set_flow_ic_usr(u, v, w, p, coef, gs, user_proc, scheme_name)
+    type(field_t), target, intent(inout) :: u
+    type(field_t), target, intent(inout) :: v
+    type(field_t), target, intent(inout) :: w
+    type(field_t), target, intent(inout) :: p
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
-    procedure(useric) :: usr_ic
-    type(json_file), intent(inout) :: params
+    procedure(user_initial_conditions_intf) :: user_proc
+    character(len=*), intent(in) :: scheme_name
+
+    type(field_list_t) :: fields
 
 
     call neko_log%message("Type: user")
-    call usr_ic(u, v, w, p, params)
+
+    call fields%init(4)
+    call fields%assign_to_field(1, u)
+    call fields%assign_to_field(2, v)
+    call fields%assign_to_field(3, w)
+    call fields%assign_to_field(4, p)
+
+    call user_proc(scheme_name, fields)
 
     call set_flow_ic_common(u, v, w, p, coef, gs)
 
@@ -161,21 +171,29 @@ contains
   !> Set intial flow condition (user defined)
   !> for compressible flows
   subroutine set_compressible_flow_ic_usr(rho, u, v, w, p, coef, gs, &
-       usr_ic_compressible, params)
-    type(field_t), intent(inout) :: rho
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
+       user_proc, scheme_name)
+    type(field_t), target, intent(inout) :: rho
+    type(field_t), target, intent(inout) :: u
+    type(field_t), target, intent(inout) :: v
+    type(field_t), target, intent(inout) :: w
+    type(field_t), target, intent(inout) :: p
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
-    procedure(useric_compressible) :: usr_ic_compressible
-    type(json_file), intent(inout) :: params
+    procedure(user_initial_conditions_intf) :: user_proc
+    character(len=*), intent(in) :: scheme_name
     integer :: n
+    type(field_list_t) :: fields
 
 
     call neko_log%message("Type: user (compressible flows)")
-    call usr_ic_compressible(rho, u, v, w, p, params)
+
+    call fields%init(5)
+    call fields%assign_to_field(1, rho)
+    call fields%assign_to_field(2, u)
+    call fields%assign_to_field(3, v)
+    call fields%assign_to_field(4, w)
+    call fields%assign_to_field(5, p)
+    call user_proc(scheme_name, fields)
 
     call set_flow_ic_common(u, v, w, p, coef, gs)
 
@@ -355,9 +373,9 @@ contains
 
     zone => neko_point_zone_registry%get_point_zone(trim(zone_name))
 
-    call cfill_mask(u%x, zone_value(1), size, zone%mask, zone%size)
-    call cfill_mask(v%x, zone_value(2), size, zone%mask, zone%size)
-    call cfill_mask(w%x, zone_value(3), size, zone%mask, zone%size)
+    call cfill_mask(u%x, zone_value(1), size, zone%mask%get(), zone%size)
+    call cfill_mask(v%x, zone_value(2), size, zone%mask%get(), zone%size)
+    call cfill_mask(w%x, zone_value(3), size, zone%mask%get(), zone%size)
 
   end subroutine set_flow_ic_point_zone
 

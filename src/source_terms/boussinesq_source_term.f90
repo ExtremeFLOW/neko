@@ -45,6 +45,7 @@ module boussinesq_source_term
   use boussinesq_source_term_device, only : &
        boussinesq_source_term_compute_device
   use field_registry, only : neko_field_registry
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -163,10 +164,9 @@ contains
   !> Computes the source term and adds the result to `fields`.
   !! @param t The time value.
   !! @param tstep The current time-step.
-  subroutine boussinesq_source_term_compute(this, t, tstep)
+  subroutine boussinesq_source_term_compute(this, time)
     class(boussinesq_source_term_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     integer :: n_fields, i, n
 
     n_fields = this%fields%size()

@@ -33,7 +33,7 @@
 !
 !> Implements the `fluid_source_term_t` type.
 module fluid_source_term
-  use fluid_user_source_term, only: fluid_user_source_term_t
+  use user_source_term, only: user_source_term_t
   use source_term, only: source_term_t
   use source_term_handler, only: source_term_handler_t
   use field, only: field_t
@@ -60,11 +60,13 @@ module fluid_source_term
 contains
 
   !> Constructor.
-  subroutine fluid_source_term_init(this, f_x, f_y, f_z, coef, user)
+  subroutine fluid_source_term_init(this, f_x, f_y, f_z, coef, user, &
+       scheme_name)
     class(fluid_source_term_t), intent(inout) :: this
     type(field_t), pointer, intent(in) :: f_x, f_y, f_z
     type(coef_t), target, intent(in) :: coef
     type(user_t), target, intent(in) :: user
+    character(len=*), intent(in) :: scheme_name
 
     type(field_list_t) :: rhs_fields
 
@@ -74,33 +76,29 @@ contains
     call rhs_fields%assign(2, f_y)
     call rhs_fields%assign(3, f_z)
 
-    call this%init_base(rhs_fields, coef, user, "fluid")
+    call this%init_base(rhs_fields, coef, user, scheme_name)
   end subroutine fluid_source_term_init
 
   !> Initialize the user source term.
   !! @param source_term The allocatable source term to be initialized to a user.
   !! @param rhs_fields The field list with the 3 right-hand-side components.
   !! @param coef The SEM coefs.
-  !! @param type The type of the user source term, "user_vector" or
-  !! "user_poinwise".
   !! @param user The user type containing the user source term routines.
-  !! @param field_name The field name (not used for fluid, but required by interface).
-  subroutine fluid_init_user_source(source_term, rhs_fields, coef, type, user, &
-                                    variable_name)
+  !! @param scheme_name The name of the fluid scheme that owns this source term.
+  subroutine fluid_init_user_source(source_term, rhs_fields, coef, user, &
+       scheme_name)
     class(source_term_t), allocatable, intent(inout) :: source_term
     type(field_list_t) :: rhs_fields
     type(coef_t), intent(in) :: coef
-    character(len=*) :: type
     type(user_t), intent(in) :: user
-    character(len=*), intent(in) :: variable_name
+    character(len=*), intent(in) :: scheme_name
 
-    allocate(fluid_user_source_term_t::source_term)
+    allocate(user_source_term_t::source_term)
 
     select type (source_term)
-    type is (fluid_user_source_term_t)
-       call source_term%init_from_components(rhs_fields, coef, type, &
-            user%fluid_user_f_vector, &
-            user%fluid_user_f)
+    type is (user_source_term_t)
+       call source_term%init_from_components(rhs_fields, coef, &
+            user%source_term, scheme_name)
     end select
   end subroutine fluid_init_user_source
 
