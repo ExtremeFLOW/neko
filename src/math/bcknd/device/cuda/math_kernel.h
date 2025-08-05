@@ -139,7 +139,7 @@ __global__ void cfill_mask_kernel(T* __restrict__ a,
     const int idx = blockIdx.x * blockDim.x + threadIdx.x;
     const int str = blockDim.x * gridDim.x;
 
-    for (int i = idx; i < mask_size; i += str) { a[mask[i]-1] = c; }
+    for (int i = idx; i < mask_size; i += str) { a[mask[i]] = c; }
 }
 
 /**

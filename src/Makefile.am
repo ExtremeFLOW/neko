@@ -21,6 +21,7 @@ neko_fortran_SOURCES = \
 	common/utils.f90\
 	common/time_state.f90\
 	common/json_utils.f90\
+	common/mask.f90\
 	common/system.f90\
 	common/runtime_statistics.f90\
 	common/user_access_singleton.f90\
@@ -771,6 +772,7 @@ EXTRA_DIST = \
 	filter/bcknd/device/opencl/mapping_kernels.cl\
 	source_terms/bcknd/device/cuda/gradient_jump_penalty_kernel.h\
 	source_terms/bcknd/device/hip/gradient_jump_penalty_kernel.h\
+	device/device_config.h\
 	device/opencl/jit.h\
 	device/opencl/prgm_lib.h\
 	device/opencl/check.h\

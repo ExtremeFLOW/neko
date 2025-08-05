@@ -118,14 +118,14 @@ module cuda_math
        integer(c_int) :: n
      end subroutine cuda_cdiv2
 
-     subroutine cuda_cadd(a_d, c, n, strm) &
-          bind(c, name = 'cuda_cadd')
+     subroutine cuda_radd(a_d, c, n, strm) &
+          bind(c, name = 'cuda_radd')
        use, intrinsic :: iso_c_binding, only: c_int, c_ptr
        import c_rp
        type(c_ptr), value :: a_d, strm
        real(c_rp) :: c
        integer(c_int) :: n
-     end subroutine cuda_cadd
+     end subroutine cuda_radd
 
      subroutine cuda_cadd2(a_d, b_d, c, n, strm) &
           bind(c, name = 'cuda_cadd2')
@@ -461,6 +461,22 @@ module cuda_math
        real(c_rp) :: c_d
        integer(c_int) :: n
      end subroutine cuda_pwmin_sca3
+
+  end interface
+
+  ! ========================================================================== !
+  ! Interfaces for integer operations.
+
+  interface
+
+     subroutine cuda_iadd(a_d, c, n, strm) &
+          bind(c, name = 'cuda_iadd')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: a_d, strm
+       integer(c_int) :: c
+       integer(c_int) :: n
+     end subroutine cuda_iadd
 
   end interface
 end module cuda_math

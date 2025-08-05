@@ -40,14 +40,15 @@ module field_dirichlet_vector
   use utils, only: split_string
   use field, only : field_t
   use field_list, only : field_list_t
-  use math, only: masked_copy
-  use device_math, only: device_masked_copy
+  use math, only: masked_copy_0
+  use device_math, only: device_masked_copy_0
   use dofmap, only : dofmap_t
   use field_dirichlet, only: field_dirichlet_t, field_dirichlet_update
   use utils, only: neko_error
   use json_module, only : json_file
   use field_list, only : field_list_t
   use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -143,14 +144,12 @@ contains
   !> No-op apply scalar.
   !! @param x Field onto which to copy the values (e.g. u,v,w,p or s).
   !! @param n Size of the array `x`.
-  !! @param t Time.
-  !! @param tstep Time step.
-  subroutine field_dirichlet_vector_apply_scalar(this, x, n, t, tstep, strong)
+  !! @param t Current time state.
+  subroutine field_dirichlet_vector_apply_scalar(this, x, n, time, strong)
     class(field_dirichlet_vector_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
 
     call neko_error("field_dirichlet_vector cannot apply scalar BCs.&
@@ -160,16 +159,14 @@ contains
 
   !> No-op apply scalar (device).
   !! @param x_d Device pointer to the field onto which to copy the values.
-  !! @param t Time.
-  !! @param tstep Time step.
-  subroutine field_dirichlet_vector_apply_scalar_dev(this, x_d, t, tstep, &
+  !! @param time The current time state.
+  subroutine field_dirichlet_vector_apply_scalar_dev(this, x_d, time, &
        strong, strm)
     class(field_dirichlet_vector_t), intent(inout), target :: this
-    type(c_ptr) :: x_d
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(c_ptr), intent(inout) :: x_d
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
-    type(c_ptr) :: strm
+    type(c_ptr), intent(inout) :: strm
 
     call neko_error("field_dirichlet_vector cannot apply scalar BCs.&
     & Use field_dirichlet instead!")
@@ -181,17 +178,15 @@ contains
   !! @param y y-component of the field onto which to apply the values.
   !! @param z z-component of the field onto which to apply the values.
   !! @param n Size of the `x`, `y` and `z` arrays.
-  !! @param t Time.
-  !! @param tstep Time step.
-  subroutine field_dirichlet_vector_apply_vector(this, x, y, z, n, t, tstep, &
+  !! @param time The current time state.
+  subroutine field_dirichlet_vector_apply_vector(this, x, y, z, n, time, &
        strong)
     class(field_dirichlet_vector_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(inout), dimension(n) :: y
     real(kind=rp), intent(inout), dimension(n) :: z
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     logical :: strong_
 
@@ -206,13 +201,13 @@ contains
        ! We can send any of the 3 bcs we have as argument, since they are all
        ! the same boundary.
        if (.not. this%updated) then
-          call this%update(this%field_list, this%bc_u, this%coef, t, tstep)
+          call this%update(this%field_list, this%bc_u, this%coef, time)
           this%updated = .true.
        end if
 
-       call masked_copy(x, this%bc_u%field_bc%x, this%msk, n, this%msk(0))
-       call masked_copy(y, this%bc_v%field_bc%x, this%msk, n, this%msk(0))
-       call masked_copy(z, this%bc_w%field_bc%x, this%msk, n, this%msk(0))
+       call masked_copy_0(x, this%bc_u%field_bc%x, this%msk, n, this%msk(0))
+       call masked_copy_0(y, this%bc_v%field_bc%x, this%msk, n, this%msk(0))
+       call masked_copy_0(z, this%bc_w%field_bc%x, this%msk, n, this%msk(0))
     end if
 
   end subroutine field_dirichlet_vector_apply_vector
@@ -221,19 +216,17 @@ contains
   !! @param x x-component of the field onto which to apply the values.
   !! @param y y-component of the field onto which to apply the values.
   !! @param z z-component of the field onto which to apply the values.
-  !! @param t Time.
-  !! @param tstep Time step.
+  !! @param time The current time state.
   !! @param strm Device stream
-  subroutine field_dirichlet_vector_apply_vector_dev(this, x_d, y_d, z_d, t, &
-       tstep, strong, strm)
+  subroutine field_dirichlet_vector_apply_vector_dev(this, x_d, y_d, z_d, &
+       time, strong, strm)
     class(field_dirichlet_vector_t), intent(inout), target :: this
-    type(c_ptr) :: x_d
-    type(c_ptr) :: y_d
-    type(c_ptr) :: z_d
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(c_ptr), intent(inout) :: x_d
+    type(c_ptr), intent(inout) :: y_d
+    type(c_ptr), intent(inout) :: z_d
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
-    type(c_ptr) :: strm
+    type(c_ptr), intent(inout) :: strm
     logical :: strong_
 
     if (present(strong)) then
@@ -244,16 +237,16 @@ contains
 
     if (strong_) then
        if (.not. this%updated) then
-          call this%update(this%field_list, this%bc_u, this%coef, t, tstep)
+          call this%update(this%field_list, this%bc_u, this%coef, time)
           this%updated = .true.
        end if
 
        if (this%msk(0) .gt. 0) then
-          call device_masked_copy(x_d, this%bc_u%field_bc%x_d, this%bc_u%msk_d,&
+          call device_masked_copy_0(x_d, this%bc_u%field_bc%x_d, this%bc_u%msk_d,&
                this%bc_u%dof%size(), this%msk(0), strm)
-          call device_masked_copy(y_d, this%bc_v%field_bc%x_d, this%bc_v%msk_d,&
+          call device_masked_copy_0(y_d, this%bc_v%field_bc%x_d, this%bc_v%msk_d,&
                this%bc_v%dof%size(), this%msk(0), strm)
-          call device_masked_copy(z_d, this%bc_w%field_bc%x_d, this%bc_w%msk_d,&
+          call device_masked_copy_0(z_d, this%bc_w%field_bc%x_d, this%bc_w%msk_d,&
                this%bc_w%dof%size(), this%msk(0), strm)
        end if
     end if

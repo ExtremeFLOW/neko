@@ -204,7 +204,7 @@ extern "C" {
   /** Fortran wrapper for cadd
    * Add a scalar to vector \f$ a = \sum a_i + s \f$
    */
-  void hip_cadd(void *a, real *c, int *n, hipStream_t strm) {
+  void hip_radd(void *a, real *c, int *n, hipStream_t strm) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
@@ -969,6 +969,22 @@ extern "C" {
                          nblcks, nthrds, 0, stream,
                          (real *)a, (real *)b, *c, *n);
       HIP_CHECK(hipGetLastError());
+  }
+
+  // ======================================================================== //
+
+  /** Fortran wrapper for cadd
+   * Add a scalar to vector \f$ a = \sum a_i + s \f$
+   */
+  void hip_iadd(void *a, int *c, int *n, hipStream_t stream) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(cadd_kernel<int>),
+                       nblcks, nthrds, 0, stream,
+                       (int *) a, *c, *n);
+    HIP_CHECK(hipGetLastError());
   }
 
 } /* extern "C" */

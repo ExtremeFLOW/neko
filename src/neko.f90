@@ -41,7 +41,7 @@ module neko
        invers2, vcross, vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, &
        sub3, add2s1, add2s2, addsqr2s2, cmult2, invcol2, col2, col3, subcol3, &
        add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
-       glsc3, glsc4, sort, masked_copy, cfill_mask, relcmp, glimax, glimin, &
+       glsc3, glsc4, sort, masked_copy_0, cfill_mask, relcmp, glimax, glimin, &
        swap, reord, flipv, cadd2, pi, absval
   use speclib
   use dofmap, only : dofmap_t
@@ -91,7 +91,7 @@ module neko
        device_subcol3, device_sub2, device_sub3, device_addcol3, &
        device_addcol4, device_vdot3, device_vlsc3, device_glsc3, &
        device_glsc3_many, device_add2s2_many, device_glsc2, device_glsum, &
-       device_masked_copy, device_cfill_mask, device_add3, device_cadd2, &
+       device_masked_copy_0, device_cfill_mask, device_add3, device_cadd2, &
        device_absval
   use map_1d, only : map_1d_t
   use map_2d, only : map_2d_t
