@@ -170,6 +170,7 @@ libneko.neko_cb_field_name_at_index.restype = c_int
 
 @dataclass
 class neko_dofmap_t:
+    """ Defines a Neko mapping of the degrees of freedom """
     dof: np.ndarray
     x: np.ndarray
     y: np.ndarray
@@ -178,6 +179,7 @@ class neko_dofmap_t:
 
 @dataclass
 class neko_space_t:
+    """ Defines a Neko space. """
     lx: int
     zg: np.ndarray
     dr_inv: np.ndarray
@@ -192,12 +194,14 @@ class neko_space_t:
 
 @dataclass
 class neko_field_t:
+    """ Defines a Neko field. """
     x: np.ndarray
     dm: neko_dofmap_t
     Xh: neko_space_t
 
 @dataclass
 class neko_coef_t:
+    """ Defines Neko coefficients. """
     G11: np.ndarray
     G22: np.ndarray
     G33: np.ndarray
@@ -231,12 +235,15 @@ class neko_coef_t:
     nz: np.ndarray
 
 def init():
+    """ Initialise Neko. """
     libneko.neko_init()
 
 def finalize():
+    """ Finalize Neko. """
     libneko.neko_finalize()
 
 def job_info():
+    """ Display job information. """
     libneko.neko_job_info()
 
 def case_init(case_json,
@@ -246,6 +253,12 @@ def case_init(case_json,
               cb_dirichlet_condition = dirichlet_condition(0),
               cb_material_properties = material_properties(0),
               cb_source_term = source_term(0)):
+    """Initialise a Neko case
+
+    A case is created based on a JSON file and a couple of (optional)
+    callback functions.
+
+    """
     cp = python_dict_to_fortran(case_json)
     case_descr = c_int()
 
@@ -266,27 +279,34 @@ def case_init(case_json,
     return case_descr
 
 def case_free(case_descr):
+    """ Destroy a Neko case. """
     libneko.neko_case_free(byref(case_descr))
 
 def time(case_descr):
+    """ Retrive the current time of a case. """
     time = libneko.neko_case_time(byref(case_descr))
     return time
 
 def end_time(case_descr):
+    """ Retrive the end time of a case. """
     end_time = libneko.neko_case_end_time(byref(case_descr))
     return end_time
 
 def tstep(case_descr):
+    """ Retrive the current  time-step of a case. """
     tstep = libneko.neko_case_tstep(byref(case_descr))
     return tstep
 
 def solve(case_descr):
+    """ Solve a Neko case. """
     libneko.neko_solve(byref(case_descr))
 
 def step(case_descr):
+    """ Compute a time-step for a Neko case. """
     libneko.neko_step(byref(case_descr))
 
 def field(name):
+    """ Retrive a Neko field as a `neko_field_t`. """
     a = neko_field_t(
         np.frombuffer((@NEKO_PY_REAL_TYPE@ *
                        libneko.neko_field_size(name)).from_address(
@@ -297,18 +317,22 @@ def field(name):
     return a
 
 def field_order(name):
+    """ Retrive the order of a Neko field. """
     order = libneko.neko_field_order(name)
     return order
 
 def field_nelements(name):
+    """ Retrive the number of elements in a Neko field. """
     nelements = libneko.neko_field_nelements(name)
     return nelements
 
 def field_size(name):
+    """ Retrive the total number of degrees of freedom of a Neko field. """
     size = libneko.neko_field_size(name)
     return size
 
 def field_dofmap(name):
+    """ Retrive a dofmap of a Neko field as a `neko_dofmap_t`. """
     size = libneko.neko_field_size(name)
     dof_ptr = POINTER(c_longlong)()
     x_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
@@ -322,6 +346,7 @@ def field_dofmap(name):
     return dofmap
 
 def case_fluid_dofmap(case_descr):
+    """ Retrive a dofmap of a Neko case's fluid solver as a `neko_dofmap_t`. """
     size = c_int()
     dof_ptr = POINTER(c_longlong)()
     x_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
@@ -350,6 +375,7 @@ def wrap_dofmap(dof_ptr, x_ptr, y_ptr, z_ptr, size):
     return dofmap
 
 def field_space(name):
+    """ Retrive a space of a Neko field as a `neko_space_t`. """
     lx = c_int()
     zg = POINTER(@NEKO_PY_REAL_TYPE@)()
     dr_inv = POINTER(@NEKO_PY_REAL_TYPE@)()
@@ -373,6 +399,7 @@ def field_space(name):
     return space
 
 def case_fluid_space(case_descr):
+    """ Retrive a space of a Neko case's fluid solver as a `neko_space_t`. """
     lx = c_int()
     zg = POINTER(@NEKO_PY_REAL_TYPE@)()
     dr_inv = POINTER(@NEKO_PY_REAL_TYPE@)()
@@ -423,6 +450,7 @@ def wrap_space(lx, zg, dr_inv, ds_inv, dt_inv, wx, wy, wz, dx, dy, dz):
     return space
 
 def case_fluid_coef(case_descr):
+    """ Retrive coefficients of a Neko case's fluid solver as a `neko_coef_t`. """
     G11_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
     G22_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
     G33_ptr = POINTER(@NEKO_PY_REAL_TYPE@)()
@@ -559,6 +587,7 @@ def case_fluid_coef(case_descr):
 
 def user_setup(case_descr, cb_initial_condition, cb_preprocess, cb_compute,
                cb_dirichlet_condition, cb_material_properties, cb_source_term):
+    """ Setup user-provided callbacks. """
     libneko.neko_user_setup(byref(case_descr),
                             cb_initial_condition,
                             cb_preprocess,
@@ -571,6 +600,7 @@ def output(case_descr, force = False):
     libneko.neko_output_ctrl_execute(byref(case_descr), force)
 
 def callback_field(name):
+    """ Retrive a callback's Neko field as a `neko_field_t`. """
     a = neko_field_t(
         np.frombuffer((@NEKO_PY_REAL_TYPE@ *
                        libneko.neko_field_size(name)).from_address(
@@ -581,6 +611,7 @@ def callback_field(name):
     return a
 
 def callback_field_name(index, name):
+    """ Check the name of a field at a certain index in the callback's field list. """
     field_index = c_int(index)
     same_field = libneko.neko_cb_field_name_at_index(byref(field_index), name)
     return same_field > 0
