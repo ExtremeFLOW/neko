@@ -1,10 +1,13 @@
 module comm
-  use mpi_f08
+  use mpi_f08, only : MPI_Init, MPI_Initialized, &
+       MPI_Comm, MPI_COMM_WORLD, MPI_Comm_rank, MPI_Comm_size, MPI_Comm_split, &
+       MPI_Init_thread, MPI_THREAD_SERIALIZED, MPI_THREAD_MULTIPLE, &
+       MPI_Datatype, MPI_DOUBLE_PRECISION
   use utils, only : neko_error
-  use neko_config
+  use neko_config, only : NEKO_BCKND_DEVICE
   !$ use omp_lib
   implicit none
-  
+
   interface
      subroutine neko_comm_wrapper_init(fcomm) &
           bind(c, name='neko_comm_wrapper_init')
@@ -25,15 +28,14 @@ module comm
      subroutine neko_comm_nccl_init() &
           bind(c, name='neko_comm_nccl_init')
      end subroutine neko_comm_nccl_init
-     
+
      subroutine neko_comm_nccl_finalize() &
           bind(c, name='neko_comm_nccl_finalize')
      end subroutine neko_comm_nccl_finalize
 #endif
-     
+
   end interface
 
-  
   !> MPI communicator
   type(MPI_Comm) :: NEKO_COMM
   type(MPI_Comm) :: NEKO_GLOBAL_COMM
@@ -46,7 +48,7 @@ module comm
   type(MPI_Datatype) :: MPI_REAL_PRECISION
   type(MPI_Datatype) :: MPI_EXTRA_PRECISION
 #endif
-  
+
   !> MPI rank
   integer :: pe_rank
 
@@ -90,13 +92,13 @@ contains
     !$ nthrds = omp_get_num_threads()
     !$omp end master
     !$omp end parallel
-    
-    if (.not.initialized) then       
+
+    if (.not.initialized) then
        if (nthrds .gt. 1) then
           call MPI_Init_thread(MPI_THREAD_MULTIPLE, provided, ierr)
           if (provided .ne. MPI_THREAD_MULTIPLE) then
              ! MPI_THREAD_MULTIPLE is required for mt. device backends
-             if (NEKO_BCKND_DEVICE .eq. 1) then 
+             if (NEKO_BCKND_DEVICE .eq. 1) then
                 call neko_error('Invalid thread support provided by MPI')
              else
                 call MPI_Init_thread(MPI_THREAD_SERIALIZED, provided, ierr)
@@ -114,13 +116,13 @@ contains
     MPI_REAL_PRECISION = @NEKO_MPI_REAL_TYPE@
     MPI_EXTRA_PRECISION = @NEKO_MPI_XREAL_TYPE@
 #endif
-    
+
 
 #ifdef HAVE_ADIOS2
     ! We split the communicator it to work asynchronously (MPMD)
     call MPI_Comm_rank(MPI_COMM_WORLD, pe_rank, ierr)
     call MPI_Comm_split(MPI_COMM_WORLD, 0, pe_rank, NEKO_GLOBAL_COMM, ierr)
-#else    
+#else
     ! Original version duplicates the communicator:
     call MPI_Comm_dup(MPI_COMM_WORLD, NEKO_GLOBAL_COMM, ierr)
 #endif

@@ -50,12 +50,14 @@ module probes
   use tensor, only: trsp
   use point_zone, only: point_zone_t
   use point_zone_registry, only: neko_point_zone_registry
-  use comm
-  use device
   use file, only : file_t, file_free
   use csv_file, only : csv_file_t
   use case, only : case_t
   use, intrinsic :: iso_c_binding
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use device, only : device_memcpy, DEVICE_TO_HOST, device_map
+  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM, MPI_DOUBLE_PRECISION
   implicit none
   private
 
@@ -201,7 +203,7 @@ contains
        end select
     end do
 
-    call mpi_allreduce(this%n_local_probes, this%n_global_probes, 1, &
+    call MPI_Allreduce(this%n_local_probes, this%n_global_probes, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
     call probes_show(this)

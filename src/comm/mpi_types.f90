@@ -33,6 +33,7 @@
 !> MPI derived types
 module neko_mpi_types
   use comm
+  use mpi_f08
   use re2, only : re2v1_xyz_t, re2v1_xy_t, re2v1_curve_t, re2v1_bc_t, &
        re2v2_xyz_t, re2v2_xy_t, re2v2_curve_t, re2v2_bc_t
   use nmsh, only : nmsh_quad_t, nmsh_hex_t, nmsh_zone_t, nmsh_curve_el_t

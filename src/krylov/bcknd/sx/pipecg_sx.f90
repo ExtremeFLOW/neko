@@ -42,6 +42,7 @@ module pipecg_sx
   use bc_list, only : bc_list_t
   use math, only : glsc3, abscmp
   use comm
+  use mpi_f08
   implicit none
   private
 
