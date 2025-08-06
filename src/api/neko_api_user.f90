@@ -64,7 +64,7 @@ submodule(neko_api) neko_api_user
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
-       character(kind=c_char), dimension(*) ::  scheme_name
+       character(kind=c_char), dimension(*) :: scheme_name
        integer(c_int), value :: scheme_name_len
        real(kind=c_rp), value :: t
        integer(c_int), value :: tstep
