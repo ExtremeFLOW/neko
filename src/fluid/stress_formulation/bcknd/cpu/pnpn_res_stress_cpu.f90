@@ -11,7 +11,7 @@ module pnpn_res_stress_cpu
   use mesh, only : mesh_t
   use num_types, only : rp
   use space, only : space_t
-  use math, only : rzero, vdot3, cmult, sub2, col2, copy, cfill, invers2, cmult2
+  use math, only : rzero, vdot3, cmult, sub2, col2, copy, invers2, cmult2
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private

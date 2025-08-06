@@ -54,6 +54,7 @@ module fld_file
   use math, only: vlmin, vlmax
   use neko_mpi_types, only: MPI_CHARACTER_SIZE, MPI_DOUBLE_PRECISION_SIZE, &
        MPI_REAL_SIZE, MPI_INTEGER_SIZE
+  use mpi_f08
   implicit none
   private
 

@@ -32,12 +32,9 @@
 !
 module euler_residual
   use gather_scatter, only : gs_t
-  use ax_product, only : ax_t
+  use ax_product, only : Ax_t
   use field, only : field_t
   use coefs, only : coef_t
-  use facet_normal, only : facet_normal_t
-  use space, only : space_t
-  use mesh, only : mesh_t
   use num_types, only : rp
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   implicit none

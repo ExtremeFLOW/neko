@@ -47,6 +47,7 @@ module mesh
   use comm
   use facet_zone, only : facet_zone_t, facet_zone_periodic_t
   use math
+  use mpi_f08
   use uset, only : uset_i8_t
   use curve, only : curve_t
   use logger, only : LOG_SIZE

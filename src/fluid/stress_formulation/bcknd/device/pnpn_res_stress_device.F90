@@ -14,8 +14,8 @@ module pnpn_res_stress_device
   use space, only : space_t
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   use device_mathops, only : device_opcolv
-  use device_math, only : device_rzero, device_vdot3, device_cmult, &
-                          device_sub2, device_col2, device_copy, device_invcol1
+  use device_math, only : device_rzero, device_cmult, &
+       device_col2, device_copy, device_invcol1
   implicit none
   private
 
@@ -266,7 +266,7 @@ contains
 
     ! The strain rate tensor
     call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, &
-                     u_e, v_e, w_e, c_Xh)
+         u_e, v_e, w_e, c_Xh)
 
 
     ! Gradient of viscosity * 2
@@ -321,7 +321,7 @@ contains
     call device_rzero(wa3%x_d, n)
 
     call bc_sym_surface%apply_surfvec_dev(wa1%x_d, wa2%x_d, wa3%x_d, &
-                                          ta1%x_d , ta2%x_d, ta3%x_d)
+         ta1%x_d , ta2%x_d, ta3%x_d)
 
     dtbd = bd / dt
     call device_rzerO(ta1%x_d, n)
@@ -329,14 +329,14 @@ contains
     call device_rzerO(ta3%x_d, n)
 
     call bc_prs_surface%apply_surfvec_dev(ta1%x_d, ta2%x_d, ta3%x_d, &
-                                          u%x_D, v%x_d, w%x_d)
+         u%x_D, v%x_d, w%x_d)
 
 #ifdef HAVE_HIP
     call pnpn_prs_stress_res_part3_hip(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
-                                        wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
+         wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
 #elif HAVE_CUDA
     call pnpn_prs_stress_res_part3_cuda(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
-                                        wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
+         wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -374,7 +374,7 @@ contains
 
     ! Viscous stresses
     call Ax%compute_vector(u_res%x, v_res%x, w_res%x, u%x, v%x, w%x, c_Xh,&
-                                msh, Xh)
+         msh, Xh)
 
     call neko_scratch_registry%request_field(ta1, temp_indices(1))
     call neko_scratch_registry%request_field(ta2, temp_indices(2))
