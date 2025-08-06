@@ -158,12 +158,13 @@ contains
 
        e2 = 0.5 * device_glsc2(w1%x_d, coef%B_d, w1%size()) / coef%volume
     else
-       e2 = 0.5_rp * glsc2(w1%x, coef%B, w1%size()) / coef%volume
+       e2 = 0.5 * glsc2(w1%x, coef%B, w1%size()) / coef%volume
     end if
 
-    if (pe_rank .eq. 0) &
-    & write(*,'(a,e18.9,a,e18.9,a,e18.9)') &
-    & 'POST: t:', time%t, ' Ekin:', e1, ' enst:', e2
+    if (pe_rank .eq. 0) then
+       write(*,'(a,e18.9,a,e18.9,a,e18.9)') &
+            'POST: t:', time%t, ' Ekin:', e1, ' enst:', e2
+    end if
 
   end subroutine user_calc_quantities
 
