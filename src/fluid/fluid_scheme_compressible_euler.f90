@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module fluid_scheme_compressible_euler
-  use comm, only : NEKO_COMM
+  use comm
   use advection, only : advection_t
   use device, only : device_memcpy, HOST_TO_DEVICE
   use field_math, only : field_add2, field_cfill, field_cmult, &
