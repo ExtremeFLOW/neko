@@ -36,7 +36,7 @@ submodule(neko_api) neko_api_user
 
   !> Abstract interface for initial condition callbacks
   abstract interface
-     subroutine api_ic_callback(scheme_name, scheme_name_len)
+     subroutine api_ic_callback(scheme_name, scheme_name_len) bind(c)
        use, intrinsic :: iso_c_binding
        implicit none
        character(kind=c_char), dimension(*) :: scheme_name
@@ -46,7 +46,7 @@ submodule(neko_api) neko_api_user
 
   !> Abstract interface for boundary condition callbacks
   abstract interface
-     subroutine api_bc_callback(msk, msk_size, t, tstep)
+     subroutine api_bc_callback(msk, msk_size, t, tstep) bind(c)
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -60,7 +60,7 @@ submodule(neko_api) neko_api_user
   !> Abstract interface for callbacks requiring a field list and time
   !! Used for material properties and source terms
   abstract interface
-     subroutine api_ft_callback(scheme_name, scheme_name_len, t, tstep)
+     subroutine api_ft_callback(scheme_name, scheme_name_len, t, tstep) bind(c)
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -74,7 +74,7 @@ submodule(neko_api) neko_api_user
   !> Abstract interface for generic callbacks requiring only time
   !! Used for preprocess and compute callbacks
   abstract interface
-     subroutine api_gn_callback(t, tstep)
+     subroutine api_gn_callback(t, tstep) bind(c)
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -116,33 +116,57 @@ contains
     type(c_funptr), value :: dirichlet_cb, material_cb, source_cb
 
     if (c_associated(initial_cb)) then
-       user%initial_conditions => neko_api_user_initial_condition
-       call c_f_procpointer(initial_cb, neko_api_user_cb%initial)
+       user%initial_conditions => neko_api_user_initial_condition       
+       block
+         procedure(api_ic_callback), pointer :: tmp
+         call c_f_procpointer(initial_cb, tmp)
+         neko_api_user_cb%initial => tmp
+       end block
     end if
 
     if (c_associated(preprocess_cb)) then
        user%preprocess => neko_api_user_preprocess
-       call c_f_procpointer(preprocess_cb, neko_api_user_cb%preprocess)
+       block
+         procedure(api_gn_callback), pointer :: tmp
+         call c_f_procpointer(preprocess_cb, tmp)
+         neko_api_user_cb%preprocess => tmp
+       end block
     end if
 
     if (c_associated(compute_cb)) then
        user%compute => neko_api_user_compute
-       call c_f_procpointer(compute_cb, neko_api_user_cb%compute)
+       block
+         procedure(api_gn_callback), pointer :: tmp
+         call c_f_procpointer(compute_cb, tmp)
+         neko_api_user_cb%compute => tmp
+       end block
     end if
 
     if (c_associated(dirichlet_cb)) then
        user%dirichlet_conditions => neko_api_user_dirichlet_condition
-       call c_f_procpointer(dirichlet_cb, neko_api_user_cb%dirichlet)
+       block
+         procedure(api_bc_callback), pointer :: tmp
+         call c_f_procpointer(dirichlet_cb, tmp)
+         neko_api_user_cb%dirichlet => tmp
+       end block
     end if
 
     if (c_associated(material_cb)) then
        user%material_properties => neko_api_user_material_properties
-       call c_f_procpointer(material_cb, neko_api_user_cb%material)
+       block
+         procedure(api_ft_callback), pointer :: tmp
+         call c_f_procpointer(material_cb, tmp)
+         neko_api_user_cb%material => tmp
+       end block
     end if
 
     if (c_associated(source_cb)) then
        user%source_term => neko_api_user_source_term
-       call c_f_procpointer(source_cb, neko_api_user_cb%source)
+       block
+         procedure(api_ft_callback), pointer :: tmp
+         call c_f_procpointer(source_cb, tmp)
+         neko_api_user_cb%source => tmp
+       end block
     end if
 
   end subroutine neko_api_user_cb_register

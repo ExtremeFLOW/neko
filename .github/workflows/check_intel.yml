@@ -89,7 +89,7 @@ jobs:
           echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${{ github.workspace }}/install/lib" >> $GITHUB_ENV
           ./regen.sh
           ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP} --prefix=${{ github.workspace }}/install
-          make FCFLAGS="-O2 -stand f18 -warn errors `pkg-config --cflags json-fortran`" -j$(nproc) install
+          make FCFLAGS="-O2 -stand f08 -warn errors `pkg-config --cflags json-fortran`" -j$(nproc) install
 
 #      - name: Integration tests
 #        run: |
