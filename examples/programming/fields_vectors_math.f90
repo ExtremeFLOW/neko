@@ -34,33 +34,32 @@ contains
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
 
-    user%user_startup => user_startup
-    user%user_init_modules => user_init_modules
-    user%user_check => user_check
-    user%user_finalize_modules => user_finalize_modules
+    user%startup => startup
+    user%initialize => initialize
+    user%compute => compute
+    user%finalize => finalize
   end subroutine user_setup
 
   ! We will use the user_startup routine to manipulate the end time.
-  subroutine user_startup(params)
+  subroutine startup(params)
     type(json_file), intent(inout) :: params
 
     call params%add("case.end_time", 0.0_rp)
-  end subroutine user_startup
+  end subroutine startup
 
   ! The user_init_modules routine is called after all the objects used to run
   ! the simulation are created. Thus, we can initialize user variables that,
   ! for example, depend on the mesh or the fluid solver.
-  subroutine user_init_modules(t, u, v, w, p, coef, params)
-    real(kind=rp) :: t
-    type(field_t), intent(inout) :: u, v, w, p
-    type(coef_t), intent(inout) :: coef
-    type(json_file), intent(inout) :: params
+  subroutine initialize(time)
+    type(time_state_t), intent(in) :: time
 
     ! Like almost all other Neko types, the field_t has an init method that is
     ! effectively a constructor. Typically, we use a dofmap_t object and a
     ! a name to call the init method. The dofmap_t is usually fetched from the
-    ! solver, like a `fluid_scheme_t`.
-    call my_field%init(coef%dof, "my_field")
+    ! solver, like a `fluid_scheme_t`. To do this, we make use of the special
+    ! neko_user_access object, which is a singleton that provides access to
+    ! various objects used in the simulation.
+    call my_field%init(neko_user_access%case%fluid%dm_Xh, "my_field")
 
     ! The actual values of the field are stored in the x array or the x_d
     ! pointer. The x_d pointer is used to access the data on the GPU. The x
@@ -78,17 +77,12 @@ contains
 
     vec = 1.0_rp
 
-  end subroutine user_init_modules
+  end subroutine initialize
 
   ! This routine is run at the end of each time step. It is mean to hold
-  ! arbitrary calculations that the user wants to do. The name user_check is
-  ! a bit misleading: it is something that got carried over from Nek5000.
-  subroutine user_check(t, tstep, u, v, w, p, coef, params)
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    type(field_t), intent(inout) :: u, v, w, p
-    type(coef_t), intent(inout) :: coef
-    type(json_file), intent(inout) :: params
+  ! arbitrary calculations that the user wants to do.
+  subroutine compute(time)
+    type(time_state_t), intent(in) :: time
     integer :: i
 
     ! Let us consider doing some simple math on our field. Here we just add 1
@@ -124,18 +118,17 @@ contains
     ! one to go for. The vector_t does overload some operators though, so use
     ! those when possible.
 
-  end subroutine user_check
+  end subroutine compute
 
   ! If you declare objects at module scope that need to be destroyed, you can
   ! do it here. In our case it is the my_field field.
-  subroutine user_finalize_modules(t, params)
-    real(kind=rp) :: t
-    type(json_file), intent(inout) :: params
+  subroutine finalize(time)
+    type(time_state_t), intent(in) :: time
 
     ! All types the allocate memory in Neko have a free method, which is a
     ! destructor.
     call my_field%free()
 
-  end subroutine user_finalize_modules
+  end subroutine finalize
 
 end module user

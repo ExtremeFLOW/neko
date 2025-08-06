@@ -6,15 +6,15 @@ contains
   !> Register user defined functions (see user_intf.f90)
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
-    user%scalar_user_ic => set_s_ic
-    user%fluid_user_ic => set_velocity
-    user%scalar_user_f_vector => set_source
-    user%user_mesh_setup => user_mesh_scale
+    user%initial_conditions => initial_conditions
+    user%source_term => source_term
+    user%mesh_setup => user_mesh_scale
   end subroutine user_setup
 
   ! Stretch bounds to 2pi
-  subroutine user_mesh_scale(msh)
+  subroutine user_mesh_scale(msh, time)
     type(mesh_t), intent(inout) :: msh
+    type(time_state_t), intent(in) :: time
     integer :: i, p, nvert
 
     nvert = size(msh%points)
@@ -25,47 +25,58 @@ contains
   end subroutine user_mesh_scale
 
   !> Set source term
-  subroutine set_source(field_name, f, t)
-    character(len=*), intent(in) :: field_name
-    class(scalar_user_source_term_t), intent(inout) :: f
-    real(kind=rp), intent(in) :: t
-    real(kind=rp) :: x, y
+  subroutine source_term(scheme_name, rhs, time)
+    character(len=*), intent(in) :: scheme_name
+    type(field_list_t), intent(inout) :: rhs
+    type(time_state_t), intent(in) :: time
+
+    real(kind=rp) :: x
+    type(field_t), pointer :: f
     integer :: i
 
-    do i = 1, f%dm%size()
-       x = f%dm%x(i,1,1,1)
-       y = f%dm%y(i,1,1,1)
+    if (scheme_name .eq. 'fluid') return
+
+    f => rhs%items(1)%ptr
+    do i = 1, f%size()
+       x = f%dof%x(i,1,1,1)
 
        ! 0.01 is the viscosity
-       f%s(i,1,1,1) = cos(x) - 0.01 * sin(x) - 1.0_rp
+       f%x(i,1,1,1) = cos(x) - 0.01 * sin(x) - 1.0_rp
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(f%s, f%s_d, f%dm%size(), &
+       call device_memcpy(f%x, f%x_d, f%size(), &
             HOST_TO_DEVICE, sync=.false.)
     end if
 
-  end subroutine set_source
+  end subroutine source_term
 
   !> User initial condition for the scalar
-  subroutine set_s_ic(s, params)
-    type(field_t), intent(inout) :: s
-    type(json_file), intent(inout) :: params
+  subroutine initial_conditions(scheme_name, fields)
+    character(len=*), intent(in) :: scheme_name
+    type(field_list_t), intent(inout) :: fields
     integer :: i, e, k, j
     real(kind=rp) :: x, y
+    type (field_t), pointer :: u, v, w, s
+    type(dofmap_t), pointer :: dof
 
-    do i = 1, s%dof%size()
-       x = s%dof%x(i,1,1,1)
-       y = s%dof%y(i,1,1,1)
+    if (scheme_name .eq. 'fluid') then
+       u => fields%get("u")
+       v => fields%get("v")
+       w => fields%get("w")
 
-       s%x(i,1,1,1) = sin(x)
-    end do
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(s%x, s%x_d, s%dof%size(), &
-            HOST_TO_DEVICE, sync=.false.)
+       call field_rone(u)
+       call field_rzero(v)
+       call field_rzero(w)
+    else !scalar
+       s => fields%get("s")
+       do i = 1, s%dof%size()
+          x = s%dof%x(i,1,1,1)
+          y = s%dof%y(i,1,1,1)
+          s%x(i,1,1,1) = sin(x)
+       end do
     end if
-  end subroutine set_s_ic
+  end subroutine initial_conditions
 
   !> Set the advecting velocity field.
   subroutine set_velocity(u, v, w, p, params)
@@ -85,14 +96,6 @@ contains
        w%x(i,1,1,1) = 0
     end do
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(u%x, u%x_d, u%dof%size(), &
-            HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(v%x, v%x_d, v%dof%size(), &
-            HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(w%x, w%x_d, w%dof%size(), &
-            HOST_TO_DEVICE, sync=.false.)
-    end if
   end subroutine set_velocity
 
 end module user

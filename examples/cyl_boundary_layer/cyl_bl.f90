@@ -23,9 +23,8 @@ contains
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
-    user%fluid_user_ic => user_ic
-    user%fluid_user_if => user_inflow_eval
-    user%user_dirichlet_update => dirichlet_update
+    user%initial_conditions => initial_conditions
+    user%dirichlet_conditions => dirichlet_conditions
   end subroutine user_setup
 
   subroutine cylinder_deform(msh)
@@ -63,93 +62,114 @@ contains
     end do
   end subroutine cylinder_gen_curve
 
-  subroutine user_inflow_eval(u, v, w, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, &
-       tstep)
-    real(kind=rp), intent(inout) :: u
-    real(kind=rp), intent(inout) :: v
-    real(kind=rp), intent(inout) :: w
-    real(kind=rp), intent(in) :: x
-    real(kind=rp), intent(in) :: y
-    real(kind=rp), intent(in) :: z
-    real(kind=rp), intent(in) :: nx
-    real(kind=rp), intent(in) :: ny
-    real(kind=rp), intent(in) :: nz
-    integer, intent(in) :: ix
-    integer, intent(in) :: iy
-    integer, intent(in) :: iz
-    integer, intent(in) :: ie
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+  !> User-defined dirichlet boundary condition.
+  !! Parameters:
+  !! -----------
+  !! fields:            List of fields from which the BC conditions will be extracted.
+  !!                    Depending on what is set in the case file, contains either:
+  !!                    (u,v,w), (p) or (s) (or a list of scalars).
+  !! bc:                The BC containing the boundary mask, etc.
+  !! time:              Current time state.
+  subroutine dirichlet_conditions(fields, bc, time)
+    type(field_list_t), intent(inout) :: fields
+    type(field_dirichlet_t), intent(in) :: bc
+    type(time_state_t), intent(in) :: time
+
     real(kind=rp) :: u_th, dist, th, yy
     real(kind=rp) :: arg
+    type(dofmap_t ), pointer :: dof
+    integer :: i, msk_ind
+    real(kind=rp) :: x, y, z
+    type(field_t), pointer :: u, v, w
 
-!   Two different regions (inflow & cyl) have the label 'v  '
-!   Let compute the distance from the (0,0) in the x-y plane
-!   to identify the proper one
-    dist = sqrt(x**2 + z**2)
+    ! Only do this at the first time step since our BCs are constants.
+    if (time%tstep .ne. 1) return
 
-! --- INFLOW
-    if (dist .gt. 1.1*rad) then
-       u = ucl*y**pw
-    end if
-! ---
+    ! Grab the dofmap from the first field in the list.
+    dof => fields%dof(1)
 
-    w = 0.0
-    v = 0.0
-! --- SPINNING CYLINDER
+    ! We only have the velocity solver here, so we know the contents of the
+    ! field list, i.e. that it holds u, v, w.
+    u => fields%get("u")
+    v => fields%get("v")
+    w => fields%get("w")
 
-    if (dist .lt. 1.5*rad .and. y .gt. 0.1) then
-       th = atan2(z, x)
-       u = cos(th)*u_rho - sin(th)*u_th2
-       w = sin(th)*u_rho + cos(th)*u_th2
-    end if
+    ! We use the bc mask to loop over the boundary nodes. msk(0) holds the
+    ! number of nodes in the mask, and msk(1:msk(0)) holds the indices.
+    do i = 1, bc%msk(0)
+       msk_ind = bc%msk(i)
+       x = dof%x(msk_ind, 1, 1, 1)
+       y = dof%y(msk_ind, 1, 1, 1)
+       z = dof%z(msk_ind, 1, 1, 1)
 
-! ---
+       !   Two different bcs (inflow & cyl) have are of type 'user_velocity'
+       !   Let us compute the distance from the (0,0) in the x-y plane
+       !   to identify the proper one
+       dist = sqrt(x**2 + z**2)
 
-
-!     Smoothing function for the velocity u_th on the spinning cylinder
-!     to avoid gap in the at the bottom wall
-
-!     u_th is smoothed if z0 < z < delta
-!     u_th=1 if z >= delta
-
-
-    yy = y + abs(y0) ! coordinate shift
-
-    if (dist .lt. 1.5*rad) then
-       if (yy .lt. delta) then
-          arg = yy/delta
-          u_th = u_th2/(1.0_rp+exp(1.0_rp/(arg-1.0_rp)+1.0_rp/arg))
-       else
-          u_th = u_th2
+       ! --- INFLOW
+       if (dist .gt. 1.1*rad) then
+          u%x(msk_ind,1,1,1) = ucl*y**pw
+          w%x(msk_ind,1,1,1) = 0.0
+          v%x(msk_ind,1,1,1) = 0.0
        end if
 
-       th = atan2(z,x)
 
-       u = cos(th)*u_rho - sin(th)*u_th
-       w = sin(th)*u_rho + cos(th)*u_th
-    end if
-  end subroutine user_inflow_eval
+       ! --- SPINNING CYLINDER
+       if (dist .lt. 1.5*rad .and. y .gt. 0.1) then
+          th = atan2(z, x)
+          u%x(msk_ind,1,1,1) = cos(th)*u_rho - sin(th)*u_th2
+          w%x(msk_ind,1,1,1) = sin(th)*u_rho + cos(th)*u_th2
+       end if
+
+       ! ---
+
+
+       !     Smoothing function for the velocity u_th on the spinning cylinder
+       !     to avoid gap in the at the bottom wall
+
+       !     u_th is smoothed if z0 < z < delta
+       !     u_th=1 if z >= delta
+       yy = y + abs(y0) ! coordinate shift
+
+       if (dist .lt. 1.5*rad) then
+          if (yy .lt. delta) then
+             arg = yy/delta
+             u_th = u_th2/(1.0_rp+exp(1.0_rp/(arg-1.0_rp)+1.0_rp/arg))
+          else
+             u_th = u_th2
+          end if
+
+          th = atan2(z, x)
+
+          u%x(msk_ind,1,1,1) = cos(th)*u_rho - sin(th)*u_th
+          w%x(msk_ind,1,1,1) = sin(th)*u_rho + cos(th)*u_th
+       end if
+    end do
+  end subroutine dirichlet_conditions
 
   ! User defined initial condition
-  subroutine user_ic(u, v, w, p, params)
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    type(json_file), intent(inout) :: params
+  subroutine initial_conditions(scheme_name, fields)
+    character(len=*), intent(in) :: scheme_name
+    type(field_list_t), intent(inout) :: fields
     integer :: i
     real(kind=rp) :: y
+
+    type (field_t), pointer :: u, v, w
+
+    u => fields%get_by_name("u")
+    v => fields%get_by_name("v")
+    w => fields%get_by_name("w")
 
     do i = 1, u%dof%size()
        y = u%dof%y(i,1,1,1)
        u%x(i,1,1,1) = ucl*y**pw
-       v%x(i,1,1,1) = 0.0
-       w%x(i,1,1,1) = 0.0
+       v%x(i,1,1,1) = 0.0_rp
+       w%x(i,1,1,1) = 0.0_rp
     end do
-  end subroutine user_ic
+  end subroutine initial_conditions
 
-  ! Initial example of using user specified dirichlet bcs
+  ! Another example of using user specified dirichlet bcs
   ! Note: This subroutine will be called two times, once in the fluid solver, and once
   ! in the scalar solver (if enabled).
   !! Parameters:

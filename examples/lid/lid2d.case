@@ -6,7 +6,7 @@
     "case":
     {
         "mesh_file": "lid2d.nmsh",
-        "output_at_end": false,
+        "output_at_end": true,
         "output_checkpoints": false,
         "time": {
             "end_time": 300,
@@ -24,13 +24,11 @@
         "fluid": {
             "scheme": "pnpn",
             "Re": 3000,
-            "inflow_condition": {
-                "type": "user"
-            },
             // frequency of postprocessing (energy and enstrophy)
             "ipostproc": 50,
             "initial_condition": {
-                "type": "user"
+                "type": "uniform",
+                "value": [0, 0, 0]
             },
             "velocity_solver": {
                 "type": "cg",
@@ -39,7 +37,7 @@
                 },
                 "absolute_tolerance": 1e-7,
                 "max_iterations": 200,
-                "projection_space_size": 8,
+                "projection_space_size": 8
             },
             "pressure_solver": {
                 "type": "gmres",
@@ -58,10 +56,10 @@
                     "zone_indices": [ 1 ]
                 },
                 {
-                    "type": "user_velocity_pointwise",
+                    "type": "user_velocity",
                     "zone_indices": [ 2 ]
                 }
             ]
-        },
+        }
     }
 }

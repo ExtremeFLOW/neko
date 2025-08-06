@@ -90,8 +90,7 @@ contains
     call neko_log%section('Preprocessing')
     call C%output_controller%execute(C%time)
 
-    call C%user%user_init_modules(C%time%t, C%fluid%u, C%fluid%v, C%fluid%w, &
-         C%fluid%p, C%fluid%c_Xh, C%params)
+    call C%user%initialize(C%time)
     call neko_log%end_section()
     call neko_log%newline()
 
@@ -112,7 +111,7 @@ contains
     end if
 
     ! Finalize the user modules
-    call C%user%user_finalize_modules(C%time%t, C%params)
+    call C%user%finalize(C%time)
 
     call neko_log%end_section('Normal end.')
 
@@ -148,6 +147,7 @@ contains
     call neko_log%message(log_buf)
 
     ! Run the preprocessing
+    call C%user%preprocess(C%time)
     call neko_simcomps%preprocess(C%time)
     call neko_log%end_section()
 
@@ -175,9 +175,8 @@ contains
     ! Execute all simulation components
     call neko_simcomps%compute(C%time)
 
-    ! Run the user checks
-    call C%user%user_check(C%time%t, C%time%tstep, C%fluid%u, C%fluid%v, &
-         C%fluid%w, C%fluid%p, C%fluid%c_Xh, C%params)
+    ! Run the user compute routine
+    call C%user%compute(C%time)
 
     ! Run any IO needed.
     call C%output_controller%execute(C%time)
@@ -194,7 +193,8 @@ contains
 
     if (present(tstep_loop_start_time)) then
        write(log_buf, '(A34,E15.7)') &
-            'Total elapsed time (s):           ', end_time - tstep_loop_start_time
+            'Total elapsed time (s):           ', &
+            end_time - tstep_loop_start_time
        call neko_log%message(log_buf)
     end if
 

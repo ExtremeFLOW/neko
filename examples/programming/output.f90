@@ -23,24 +23,22 @@ contains
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
 
-    user%user_startup => user_startup
-    user%user_init_modules => user_init_modules
-    user%user_finalize_modules => user_finalize_modules
+    user%startup => startup
+    user%initialize => initialize
+    user%finalize => finalize
 
   end subroutine user_setup
 
-  ! We will use the user_startup routine to manipulate the end time.
-  subroutine user_startup(params)
+  ! We will use the startup routine to manipulate the end time.
+  subroutine startup(params)
     type(json_file), intent(inout) :: params
 
     call params%add("case.end_time", 0.0_rp)
-  end subroutine user_startup
+  end subroutine startup
 
-  subroutine user_init_modules(t, u, v, w, p, coef, params)
-    real(kind=rp) :: t
-    type(field_t), intent(inout) :: u, v, w, p
-    type(coef_t), intent(inout) :: coef
-    type(json_file), intent(inout) :: params
+  subroutine initialize(time)
+    type(time_state_t), intent(in) :: time
+
     ! A writer for .fld files
     type(fld_file_t) :: fld_writer
     ! Storage for a list of fields, two in our case
@@ -53,8 +51,8 @@ contains
     !
 
     ! Initialize the fields and set the values to 1.0 and 2.0
-    call my_field1%init(coef%dof, "my_field1")
-    call my_field2%init(coef%dof, "my_field2")
+    call my_field1%init(neko_user_access%case%fluid%dm_Xh, "my_field1")
+    call my_field2%init(neko_user_access%case%fluid%dm_Xh, "my_field2")
     call field_cfill(my_field1, 1.0_rp)
     call field_cfill(my_field2, 2.0_rp)
 
@@ -121,16 +119,15 @@ contains
     ! to take care of that manually. Finally, note that one can also use
     ! matrix_t objects to write to CSV files, in case you have 2D data.
 
-  end subroutine user_init_modules
+  end subroutine initialize
 
-  subroutine user_finalize_modules(t, params)
-    real(kind=rp) :: t
-    type(json_file), intent(inout) :: params
+  subroutine finalize(time)
+    type(time_state_t), intent(in) :: time
 
     ! Don't forget to free the objects you initialized
     call my_field1%free()
     call my_field2%free()
     call vec%free()
-  end subroutine user_finalize_modules
+  end subroutine finalize
 
 end module user

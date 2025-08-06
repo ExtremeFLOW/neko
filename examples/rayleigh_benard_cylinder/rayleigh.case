@@ -24,6 +24,7 @@
             "source_terms": [
                 {
                     "type": "boussinesq",
+                    "scalar_field": "temperature",
                     "g": [ 0, 0, 1 ],
                     "reference_value": 0,
                     "beta": 1
@@ -82,7 +83,7 @@
             },
             "boundary_conditions": [
                 {
-                    "type": "user_pointwise",
+                    "type": "user",
                     "zone_indices": [ 1, 2 ]
                 },
                 {

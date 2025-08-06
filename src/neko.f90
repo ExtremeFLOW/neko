@@ -98,8 +98,7 @@ module neko
   use cpr, only : cpr_t, cpr_init, cpr_free
   use fluid_stats, only : fluid_stats_t
   use field_list, only : field_list_t
-  use fluid_user_source_term
-  use scalar_user_source_term
+  use user_source_term, only : user_source_term_t
   use vector, only : vector_t, vector_ptr_t
   use matrix, only : matrix_t
   use tensor

@@ -103,12 +103,10 @@ module field_dirichlet
   !! @param which_solver Indicates wether the fields provided come from "fluid"
   !! or "scalar".
   abstract interface
-     subroutine field_dirichlet_update(fields, bc, &
-          coef, time)
-       import rp, field_list_t, bc_t, coef_t, field_dirichlet_t, time_state_t
+     subroutine field_dirichlet_update(fields, bc, time)
+       import rp, field_list_t, bc_t, field_dirichlet_t, time_state_t
        type(field_list_t), intent(inout) :: fields
        type(field_dirichlet_t), intent(in) :: bc
-       type(coef_t), intent(inout) :: coef
        type(time_state_t), intent(in) :: time
      end subroutine field_dirichlet_update
   end interface
@@ -180,7 +178,7 @@ contains
     if (strong_) then
 
        if (.not. this%updated) then
-          call this%update(this%field_list, this, this%coef, time)
+          call this%update(this%field_list, this, time)
           this%updated = .true.
        end if
 
@@ -209,7 +207,7 @@ contains
 
     if (strong_) then
        if (.not. this%updated) then
-          call this%update(this%field_list, this, this%coef, time)
+          call this%update(this%field_list, this, time)
           this%updated = .true.
        end if
 

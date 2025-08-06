@@ -42,7 +42,7 @@ module scalar_ic
        neko_warning, NEKO_FNAME_LEN, extract_fld_file_index
   use coefs, only : coef_t
   use math, only : col2, cfill, cfill_mask
-  use user_intf, only : useric_scalar
+  use user_intf, only : user_initial_conditions_intf
   use json_module, only : json_file
   use json_utils, only: json_get, json_get_or_default
   use point_zone, only: point_zone_t
@@ -56,6 +56,7 @@ module scalar_ic
   use global_interpolation, only: global_interpolation_t
   use interpolation, only: interpolator_t
   use space, only: space_t, GLL
+  use field_list, only : field_list_t
   implicit none
   private
 
@@ -128,22 +129,25 @@ contains
 
   !> Set scalar intial condition (user defined)
   !! @details Set scalar initial condition using a user defined function.
+  !! @param scheme_name Name of the scheme calling the user routine.
   !! @param s Scalar field.
   !! @param coef Coefficient.
   !! @param gs Gather-Scatter object.
-  !! @param usr_ic User defined initial condition function.
-  !! @param params JSON parameters.
-  subroutine set_scalar_ic_usr(field_name, s, coef, gs, usr_ic, params)
-    character(len=*), intent(in) :: field_name
-    type(field_t), intent(inout) :: s
+  !! @param user_proc User defined initial condition function.
+  subroutine set_scalar_ic_usr(scheme_name, s, coef, gs, user_proc)
+    character(len=*), intent(in) :: scheme_name
+    type(field_t), target, intent(inout) :: s
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
-    procedure(useric_scalar) :: usr_ic
-    type(json_file), intent(inout) :: params
+    procedure(user_initial_conditions_intf) :: user_proc
+    type(field_list_t) :: fields
 
     call neko_log%message("Type: user")
-    call usr_ic(s, params)
 
+    call fields%init(1)
+    call fields%assign_to_field(1, s)
+
+    call user_proc(scheme_name, fields)
     call set_scalar_ic_common(s, coef, gs)
 
   end subroutine set_scalar_ic_usr
@@ -162,8 +166,7 @@ contains
 
     n = s%dof%size()
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(s%x, s%x_d, n, &
-            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(s%x, s%x_d, n, HOST_TO_DEVICE, sync = .false.)
     end if
 
     ! Ensure continuity across elements for initial conditions

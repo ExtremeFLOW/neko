@@ -45,11 +45,11 @@ module fluid_scheme_compressible
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   use space, only : space_t, GLL
   use user_intf, only : user_t
-  use usr_inflow, only : usr_inflow_eval
   use json_utils, only : json_get_or_default
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08
   use operators, only : cfl, cfl_compressible, compute_max_wave_speed
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -267,9 +267,9 @@ contains
     integer :: n
 
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
-             rho => this%rho, Xh => this%Xh, c_Xh => this%c_Xh, &
-             msh => this%msh, gamma => this%gamma, &
-             max_wave_speed => this%max_wave_speed)
+         rho => this%rho, Xh => this%Xh, c_Xh => this%c_Xh, &
+         msh => this%msh, gamma => this%gamma, &
+         max_wave_speed => this%max_wave_speed)
 
       n = Xh%lx * Xh%ly * Xh%lz * msh%nelv
 
@@ -284,10 +284,8 @@ contains
 
   !> Set rho and mu
   !> @param this The compressible fluid scheme object
-  subroutine fluid_scheme_compressible_update_material_properties(this, t, tstep)
+  subroutine fluid_scheme_compressible_update_material_properties(this, time)
     class(fluid_scheme_compressible_t), intent(inout) :: this
-    real(kind=rp),intent(in) :: t
-    integer, intent(in) :: tstep
-    !> TODO: fill here, may not be used?
+    type(time_state_t), intent(in) :: time
   end subroutine fluid_scheme_compressible_update_material_properties
 end module fluid_scheme_compressible
