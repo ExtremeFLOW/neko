@@ -98,11 +98,11 @@ contains
     end do
 
     if (pe_rank .eq. 0) then
-      write(error_unit,*) "Current field list contents:"
+       write(error_unit,*) "Current field list contents:"
 
-      do i=1, this%size()
+       do i=1, this%size()
           write(error_unit,*) "- ", this%name(i)
-      end do
+       end do
     end if
 
     call neko_error("No field with name " // trim(name) // " found in list")
