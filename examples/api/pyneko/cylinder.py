@@ -6,7 +6,7 @@ import ctypes
 pyneko.init()
 pyneko.job_info()
 
-# Create a Neko case from a JSON file
+
 cylinder_json = json.load(open('cylinder.case'))
 
 # Define initial conditions
@@ -23,14 +23,14 @@ def initial(name, len):
         for i in range(0, u.dm.ntot):
             u.x[i] = 1.0
 
-# Define inflow conditions            
+# Define inflow conditions
 def inflow(msk, msk_size, t, tstep):
     bc_mask = pyneko.bc_mask(msk, msk_size)
 
     # In this case this check is redudant, but if different user provied
     # boundary conditions share the same callback, one could use the content
     # of the callbacks field list to identify which condition should be applied,
-    # for example a velocity condition passes the fields (u, v, w) 
+    # for example a velocity condition passes the fields (u, v, w)
     if (pyneko.callback_field_name(1, b'u')): # Note: Fortran indices
         u = pyneko.callback_field(b'u')
         v = pyneko.callback_field(b'v')
@@ -45,6 +45,7 @@ def inflow(msk, msk_size, t, tstep):
 cb_cylinder_ic = pyneko.initial_condition(initial)
 cb_cylinder_if = pyneko.dirichlet_condition(inflow)
 
+# Create a Neko case from a JSON file and provied (optional) callbacks
 cylinder_case = pyneko.case_init(cylinder_json,
                                  cb_initial_condition = cb_cylinder_ic,
                                  cb_dirichlet_condition = cb_cylinder_if)
