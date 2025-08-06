@@ -56,16 +56,16 @@ module map_1d
      !> Destructor
      procedure, pass(this) :: free => map_1d_free
      !> Average field list along planes
-     procedure, pass(this) :: average_planes_fld_lst =>  map_1d_average_field_list
+     procedure, pass(this) :: average_planes_fld_lst => map_1d_average_field_list
 
-     procedure, pass(this) :: average_planes_vec_ptr =>  map_1d_average_vector_ptr
+     procedure, pass(this) :: average_planes_vec_ptr => map_1d_average_vector_ptr
      generic :: average_planes => average_planes_fld_lst, average_planes_vec_ptr
   end type map_1d_t
 
 
 contains
 
-  subroutine map_1d_init(this, coef,  dir, tol)
+  subroutine map_1d_init(this, coef, dir, tol)
     class(map_1d_t) :: this
     type(coef_t), intent(inout), target :: coef
     integer, intent(in) :: dir
@@ -82,7 +82,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        if (pe_rank .eq. 0) then
           call neko_warning('map_1d does not copy indices to device,'// &
-                            ' but ok if used on cpu and for io')
+               ' but ok if used on cpu and for io')
        end if
     end if
 
@@ -121,20 +121,20 @@ contains
        ! Check which one of the normalized vectors are closest to dir
        ! If we want to incorporate other directions, we should look here
        el_dim(1,:) = abs(this%msh%elements(i)%e%pts(1)%p%x - &
-                     this%msh%elements(i)%e%pts(2)%p%x)
+            this%msh%elements(i)%e%pts(2)%p%x)
        el_dim(1,:) = el_dim(1,:)/norm2(el_dim(1,:))
        el_dim(2,:) = abs(this%msh%elements(i)%e%pts(1)%p%x - &
-                     this%msh%elements(i)%e%pts(3)%p%x)
+            this%msh%elements(i)%e%pts(3)%p%x)
        el_dim(2,:) = el_dim(2,:)/norm2(el_dim(2,:))
        el_dim(3,:) = abs(this%msh%elements(i)%e%pts(1)%p%x - &
-                     this%msh%elements(i)%e%pts(5)%p%x)
+            this%msh%elements(i)%e%pts(5)%p%x)
        el_dim(3,:) = el_dim(3,:)/norm2(el_dim(3,:))
        ! Checks which directions in rst the xyz corresponds to
        ! 1 corresponds to r, 2 to s, 3 to t and are stored in dir_el
        this%dir_el(i) = maxloc(el_dim(:,this%dir),dim=1)
     end do
-    glb_min =  glmin(line,n)
-    glb_max =  glmax(line,n)
+    glb_min = glmin(line,n)
+    glb_max = glmax(line,n)
 
     i = 1
     this%el_lvl = -1
@@ -147,7 +147,7 @@ contains
           if(this%el_lvl(e) .eq. -1) this%el_lvl(e) = i
        end if
     end do
-    ! While loop where at each iteation the global maximum value 
+    ! While loop where at each iteation the global maximum value
     ! propagates down one level.
     ! When the minumum value has propagated to the highest level this stops.
     ! Only works when the bottom plate of the domain is flat.
@@ -180,13 +180,13 @@ contains
        !Make sketchy min as GS_OP_MIN is not supported with device mpi
        min_temp = min_vals
        if (NEKO_BCKND_DEVICE .eq. 1) &
-         call device_memcpy(min_vals, min_vals_d, n,&
-                            HOST_TO_DEVICE, sync=.false.)
+            call device_memcpy(min_vals, min_vals_d, n,&
+            HOST_TO_DEVICE, sync=.false.)
        !Propagates the minumum value along the element boundary.
        call coef%gs_h%op(min_vals, n, GS_OP_ADD)
        if (NEKO_BCKND_DEVICE .eq. 1) &
-          call device_memcpy(min_vals, min_vals_d, n,&
-                             DEVICE_TO_HOST, sync=.true.)
+            call device_memcpy(min_vals, min_vals_d, n,&
+            DEVICE_TO_HOST, sync=.true.)
        !Obtain average along boundary
 
        call col2(min_vals, coef%mult, n)
@@ -243,14 +243,14 @@ contains
     this%volume_per_gll_lvl =0.0_rp
     do i = 1, n
        this%volume_per_gll_lvl(this%pt_lvl(i,1,1,1)) = &
-       this%volume_per_gll_lvl(this%pt_lvl(i,1,1,1)) + coef%B(i,1,1,1)
+            this%volume_per_gll_lvl(this%pt_lvl(i,1,1,1)) + coef%B(i,1,1,1)
     end do
     call MPI_Allreduce(MPI_IN_PLACE,this%volume_per_gll_lvl, this%n_gll_lvls, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
   end subroutine map_1d_init
 
-  subroutine map_1d_init_char(this, coef,  dir, tol)
+  subroutine map_1d_init_char(this, coef, dir, tol)
     class(map_1d_t) :: this
     type(coef_t), intent(inout), target :: coef
     character(len=*), intent(in) :: dir
@@ -267,7 +267,7 @@ contains
        call neko_error('homogenous direction not supported')
     end if
 
-    call  this%init(coef,idir,tol)
+    call this%init(coef,idir,tol)
 
   end subroutine map_1d_init_char
 
@@ -309,15 +309,15 @@ contains
        if (this%dir .eq. 2) coord = this%dof%y(i,1,1,1)
        if (this%dir .eq. 3) coord = this%dof%z(i,1,1,1)
        avg_planes%x(this%pt_lvl(i,1,1,1),1) = &
-       avg_planes%x(this%pt_lvl(i,1,1,1),1) + coord*this%coef%B(i,1,1,1) &
-       /this%volume_per_gll_lvl(this%pt_lvl(i,1,1,1))
+            avg_planes%x(this%pt_lvl(i,1,1,1),1) + coord*this%coef%B(i,1,1,1) &
+            /this%volume_per_gll_lvl(this%pt_lvl(i,1,1,1))
     end do
     do j = 2, field_list%size() + 1
        do i = 1, n
           avg_planes%x(this%pt_lvl(i,1,1,1),j) = &
-          avg_planes%x(this%pt_lvl(i,1,1,1),j) + &
-          field_list%items(j-1)%ptr%x(i,1,1,1)*this%coef%B(i,1,1,1) &
-          /this%volume_per_gll_lvl(this%pt_lvl(i,1,1,1))
+               avg_planes%x(this%pt_lvl(i,1,1,1),j) + &
+               field_list%items(j-1)%ptr%x(i,1,1,1)*this%coef%B(i,1,1,1) &
+               /this%volume_per_gll_lvl(this%pt_lvl(i,1,1,1))
        end do
     end do
     if (pe_size .gt. 1) then
@@ -327,7 +327,7 @@ contains
 
 
   end subroutine map_1d_average_field_list
-  
+
   !> Computes average if vector_pt in two directions and outputs matrix
   !! with averaged values
   !! avg_planes contains coordinates in first row, avg. of fields in the rest
@@ -352,19 +352,19 @@ contains
        if (this%dir .eq. 2) coord = this%dof%y(i,1,1,1)
        if (this%dir .eq. 3) coord = this%dof%z(i,1,1,1)
        avg_planes%x(this%pt_lvl(i,1,1,1),1) = &
-       avg_planes%x(this%pt_lvl(i,1,1,1),1) + coord*this%coef%B(i,1,1,1) &
-       /this%volume_per_gll_lvl(this%pt_lvl(i,1,1,1))
+            avg_planes%x(this%pt_lvl(i,1,1,1),1) + coord*this%coef%B(i,1,1,1) &
+            /this%volume_per_gll_lvl(this%pt_lvl(i,1,1,1))
     end do
     do j = 2, size(vector_ptr)+1
        do i = 1, n
           avg_planes%x(this%pt_lvl(i,1,1,1),j) = &
-          avg_planes%x(this%pt_lvl(i,1,1,1),j) + &
-          vector_ptr(j-1)%ptr%x(i)*this%coef%B(i,1,1,1) &
-          /this%volume_per_gll_lvl(this%pt_lvl(i,1,1,1))
+               avg_planes%x(this%pt_lvl(i,1,1,1),j) + &
+               vector_ptr(j-1)%ptr%x(i)*this%coef%B(i,1,1,1) &
+               /this%volume_per_gll_lvl(this%pt_lvl(i,1,1,1))
        end do
     end do
     call MPI_Allreduce(MPI_IN_PLACE,avg_planes%x, (size(vector_ptr)+1)*this%n_gll_lvls, &
-       MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
 
   end subroutine map_1d_average_vector_ptr

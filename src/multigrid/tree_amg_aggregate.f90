@@ -36,6 +36,7 @@ module tree_amg_aggregate
   use utils, only : neko_error, linear_index
   use num_types, only : rp, dp, i8
   use comm
+  use mpi_f08
   use mesh, only : mesh_t
   use logger, only : neko_log, LOG_SIZE
   implicit none

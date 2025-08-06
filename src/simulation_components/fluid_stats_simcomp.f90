@@ -43,10 +43,11 @@ module fluid_stats_simcomp
   use fluid_stats_output, only : fluid_stats_output_t
   use case, only : case_t
   use coefs, only : coef_t
-  use comm
   use utils, only: NEKO_FNAME_LEN, filename_suffix, filename_tslash_pos
   use logger, only : LOG_SIZE, neko_log
   use json_utils, only : json_get, json_get_or_default
+  use comm, only : NEKO_COMM
+  use mpi_f08, only : MPI_WTIME, MPI_Barrier
   implicit none
   private
 

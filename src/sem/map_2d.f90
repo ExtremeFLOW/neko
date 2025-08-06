@@ -14,9 +14,10 @@ module map_2d
   use math, only: cmult, col2, copy, rzero
   use field, only : field_t
   use, intrinsic :: iso_c_binding
-  use device
-  use comm
-  use neko_mpi_types
+  use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
+  use comm, only : NEKO_COMM
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM
   use fld_file_data, only : fld_file_data_t
   implicit none
   private

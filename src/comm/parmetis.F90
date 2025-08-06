@@ -33,6 +33,7 @@
 !> Interface to ParMETIS
 module parmetis
   use comm
+  use mpi_f08
   use point, only : point_t
   use utils, only : neko_error
   use num_types, only : rp

@@ -41,6 +41,7 @@ module output_controller
   use profiler, only : profiler_start_region, profiler_end_region
   use num_types, only : rp, dp
   use time_based_controller, only : time_based_controller_t
+  use mpi_f08, only : MPI_WTIME
   implicit none
   private
 
