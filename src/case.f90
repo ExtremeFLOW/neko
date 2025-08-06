@@ -48,7 +48,6 @@ module case
   use utils, only : neko_error
   use mesh, only : mesh_t
   use math, only : NEKO_EPS
-  use comm
   use checkpoint, only: chkp_t
   use time_scheme_controller, only : time_scheme_controller_t
   use logger, only : neko_log, NEKO_LOG_QUIET
@@ -62,6 +61,9 @@ module case
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   use point_zone_registry, only: neko_point_zone_registry
   use scalars, only : scalars_t
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use mpi_f08, only : MPI_Bcast, MPI_CHARACTER, MPI_INTEGER
+
   implicit none
   private
 

@@ -40,11 +40,11 @@ module flow_ic
        blasius_quadratic, blasius_quartic, blasius_sin, blasius_tanh
   use device, only: device_memcpy, HOST_TO_DEVICE
   use field, only : field_t
-  use utils, only : neko_error, filename_suffix, filename_chsuffix, &
+  use utils, only : neko_error, filename_chsuffix, &
        neko_warning, NEKO_FNAME_LEN, extract_fld_file_index
   use coefs, only : coef_t
   use math, only : col2, cfill, cfill_mask
-  use device_math, only : device_col2, device_cfill, device_cfill_mask
+  use device_math, only : device_col2
   use user_intf, only : user_initial_conditions_intf
   use json_module, only : json_file
   use json_utils, only: json_get, json_get_or_default

@@ -145,6 +145,7 @@ module neko
        register_source_term, source_term_factory, source_term_allocator
   use user_access_singleton, only : neko_user_access
   use, intrinsic :: iso_fortran_env
+  use mpi_f08
   !$ use omp_lib
   implicit none
 

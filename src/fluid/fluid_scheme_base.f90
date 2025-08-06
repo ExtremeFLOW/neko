@@ -31,8 +31,6 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module fluid_scheme_base
-  use bc, only : bc_t
-  use checkpoint, only : chkp_t
   use coefs, only: coef_t
   use dirichlet, only : dirichlet_t
   use dofmap, only : dofmap_t
@@ -44,9 +42,8 @@ module fluid_scheme_base
   use num_types, only : rp
   use checkpoint, only : chkp_t
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBL_LEN
-  use space, only : space_t, GLL
+  use space, only : space_t
   use time_scheme_controller, only : time_scheme_controller_t
-  use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   use time_step_controller, only : time_step_controller_t
   use user_intf, only : user_t, user_material_properties_intf
   use utils, only : neko_error

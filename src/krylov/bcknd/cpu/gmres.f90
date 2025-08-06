@@ -43,6 +43,7 @@ module gmres
   use math, only : glsc3, rzero, rone, copy, sub2, cmult2, abscmp
   use neko_config, only : NEKO_BLK_SIZE
   use comm
+  use mpi_f08
   implicit none
   private
 
