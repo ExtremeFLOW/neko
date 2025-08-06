@@ -18,7 +18,7 @@ Examples that illustrate certain features and usages of Neko. May be less
 documented and up to date.
 - 2d_cylinder, Running Neko with a 2D mesh (creates a 1 element thick mesh)
 - advecting_cone, Test case to check for dissipation and other numerical aspects
-- api, Demonstratins of usng Neko APIs for other programming languages.
+- api, Demonstrations of using Neko APIs for other programming languages.
 - euler_1d_sod, 1D Euler equation solution for the classical SOD problem.
 - euler_2d_cylinder, 2D Euler equations solution for the cylinder in cross-flow.
 - euler_2d_forward_facing_step, 2D Euler equations soluton for the
