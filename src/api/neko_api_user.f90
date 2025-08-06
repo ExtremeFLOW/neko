@@ -39,7 +39,7 @@ submodule(neko_api) neko_api_user
      subroutine api_ic_callback(scheme_name, scheme_name_len)
        use, intrinsic :: iso_c_binding
        implicit none
-       character(kind=c_char), dimension(*) ::  scheme_name
+       character(kind=c_char), dimension(*) :: scheme_name
        integer(c_int), value :: scheme_name_len
      end subroutine api_ic_callback
   end interface
