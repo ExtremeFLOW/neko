@@ -14,10 +14,10 @@ contains
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
-    user%scalar_user_ic => set_initial_conditions_for_s
-    user%scalar_user_bc => set_scalar_boundary_conditions
-    user%material_properties => set_material_properties
-    user%user_startup => startup
+    user%initial_conditions => initial_conditions
+    user%dirichlet_conditions => dirichlet_conditions
+    user%material_properties => material_properties
+    user%startup => startup
   end subroutine user_setup
 
   subroutine startup(params)
@@ -32,80 +32,80 @@ contains
   ! Used here for demonstration purposes. Since the properties are
   ! actually const, it is better to set them directly in the startup routine,
   ! by adding the appropriate entries to the user file.
-  subroutine set_material_properties(t, tstep, name, properties)
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    character(len=*), intent(in) :: name
+  subroutine material_properties(scheme_name, properties, time)
+    character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: properties
+    type(time_state_t), intent(in) :: time
 
-    if (name .eq. "fluid") then
-       call field_cfill(properties%get_by_name("fluid_rho"), 1.0_rp)
-       call field_cfill(properties%get_by_name("fluid_mu"), mu)
-    else if (name .eq. "scalar") then
-       call field_cfill(properties%get_by_name("scalar_cp"), 1.0_rp)
-       call field_cfill(properties%get_by_name("scalar_lambda"), mu / Pr)
+    if (scheme_name .eq. "fluid") then
+       call field_cfill(properties%get("fluid_rho"), 1.0_rp)
+       call field_cfill(properties%get("fluid_mu"), mu)
+    else if (scheme_name .eq. "temperature") then
+       call field_cfill(properties%get("temperature_cp"), 1.0_rp)
+       call field_cfill(properties%get("temperature_lambda"), mu / Pr)
     end if
-  end subroutine set_material_properties
+  end subroutine material_properties
 
 
-  subroutine set_scalar_boundary_conditions(scalar_name, s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
-    character(len=*), intent(in) :: scalar_name
-    real(kind=rp), intent(inout) :: s
-    real(kind=rp), intent(in) :: x
-    real(kind=rp), intent(in) :: y
-    real(kind=rp), intent(in) :: z
-    real(kind=rp), intent(in) :: nx
-    real(kind=rp), intent(in) :: ny
-    real(kind=rp), intent(in) :: nz
-    integer, intent(in) :: ix
-    integer, intent(in) :: iy
-    integer, intent(in) :: iz
-    integer, intent(in) :: ie
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+  !> Sets the stratification of temperature along the cylinder walls.
+  subroutine dirichlet_conditions(fields, bc, time)
+    type(field_list_t), intent(inout) :: fields
+    type(field_dirichlet_t), intent(in) :: bc
+    type(time_state_t), intent(in) :: time
 
-    !> Variables for bias
-    real(kind=rp) :: arg, bias
+    type(field_t), pointer :: s
+    integer :: i
 
-    ! This will be used on all zones without labels
-    ! e.g. the ones hardcoded to 'v', 'w', etcetc
-    s = 1.0_rp - z
+    ! Only do this at the first time step since our BCs are constants.
+    if (time%tstep .ne. 1) return
 
-  end subroutine set_scalar_boundary_conditions
+    ! We know that it is the scalar calling the routine
+    s => fields%get("temperature")
 
-  subroutine set_initial_conditions_for_s(s, params)
-    type(field_t), intent(inout) :: s
-    type(json_file), intent(inout) :: params
+    do i = 1, bc%msk(0)
+       s%x(bc%msk(i),1,1,1) = &
+            1.0_rp - s%dof%z(bc%msk(i),1,1,1)
+    end do
+
+  end subroutine dirichlet_conditions
+
+  subroutine initial_conditions(scheme_name, fields)
+    character(len=*), intent(in) :: scheme_name
+    type(field_list_t), intent(inout) :: fields
+
     integer :: i, j, k, e
     real(kind=rp) :: rand, r,z
+    type(field_t), pointer :: s
+
+    ! See scalar.name in the case file, makes sure that we only
+    ! run this for the scalar field.
+    if (scheme_name .ne. 'temperature') return
+
+    s => fields%items(1)%ptr
 
     !> Initialize with rand perturbations on temperature
-    call rzero(s%x,s%dof%size())
     do i = 1, s%dof%size()
-       s%x(i,1,1,1) = 1-s%dof%z(i,1,1,1)
+       s%x(i,1,1,1) = 1 - s%dof%z(i,1,1,1)
     end do
+
     ! perturb not on element boundaries
     ! Maybe not necessary, but lets be safe
     do e = 1, s%msh%nelv
-       do k = 2,s%Xh%lx-1
-          do j = 2,s%Xh%lx-1
-             do i = 2,s%Xh%lx-1
+       do k = 2, s%Xh%lx - 1
+          do j = 2, s%Xh%lx - 1
+             do i = 2, s%Xh%lx - 1
 
                 !call random_number(rand)
                 !Somewhat random
-                rand = cos(real(e+s%msh%offset_el,rp)*real(i*j*k,rp))
-                r = sqrt(s%dof%x(i,j,k,e)**2+s%dof%y(i,j,k,e)**2)
+                rand = cos(real(e + s%msh%offset_el,rp) * real(i*j*k, rp))
+                r = sqrt(s%dof%x(i,j,k,e)**2 + s%dof%y(i,j,k,e)**2)
                 z = s%dof%z(i,j,k,e)
-                s%x(i,j,k,e) = 1-z + 0.0001*rand*s%dof%x(i,j,k,e)*&
-                     sin(3*pi*r/0.05_rp)*sin(10*pi*z)
+                s%x(i,j,k,e) = 1.0_rp - z + 0.0001_rp*rand*s%dof%x(i,j,k,e)* &
+                     sin(3.0_rp*pi*r/0.05_rp) * sin(10.0_rp*pi*z)
              end do
           end do
        end do
     end do
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(s%x, s%x_d, s%dof%size(), &
-            HOST_TO_DEVICE, sync=.false.)
-    end if
 
-  end subroutine set_initial_conditions_for_s
+  end subroutine initial_conditions
 end module user

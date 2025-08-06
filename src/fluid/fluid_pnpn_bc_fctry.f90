@@ -38,7 +38,6 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
   use utils, only : neko_type_error
   use field_dirichlet, only : field_dirichlet_t
   use inflow, only : inflow_t
-  use usr_inflow, only : usr_inflow_t, usr_inflow_eval
   use blasius, only : blasius_t
   use dirichlet, only : dirichlet_t
   use dong_outflow, only : dong_outflow_t
@@ -48,7 +47,7 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
   implicit none
 
   ! List of all possible types created by the boundary condition factories
-  character(len=25) :: FLUID_PNPN_KNOWN_BCS(15) = [character(len=25) :: &
+  character(len=25) :: FLUID_PNPN_KNOWN_BCS(14) = [character(len=25) :: &
        "symmetry", &
        "velocity_value", &
        "no_slip", &
@@ -62,7 +61,6 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
        "user_velocity", &
        "user_pressure", &
        "blasius_profile", &
-       "user_velocity_pointwise", &
        "wall_model"]
 
 contains
@@ -96,7 +94,7 @@ contains
        allocate(field_dirichlet_t::object)
        select type (obj => object)
        type is (field_dirichlet_t)
-          obj%update => user%user_dirichlet_update
+          obj%update => user%dirichlet_conditions
           call json%add("field_name", scheme%p%name)
        end select
 
@@ -169,14 +167,7 @@ contains
        allocate(field_dirichlet_vector_t::object)
        select type (obj => object)
        type is (field_dirichlet_vector_t)
-          obj%update => user%user_dirichlet_update
-       end select
-
-    case ("user_velocity_pointwise")
-       allocate(usr_inflow_t::object)
-       select type (obj => object)
-       type is (usr_inflow_t)
-          call obj%set_eval(user%fluid_user_if)
+          obj%update => user%dirichlet_conditions
        end select
 
     case default

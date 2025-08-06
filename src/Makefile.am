@@ -162,8 +162,6 @@ neko_fortran_SOURCES = \
 	bc/inflow.f90\
 	bc/field_dirichlet.f90\
 	bc/field_dirichlet_vector.f90\
-	bc/usr_inflow.f90\
-	bc/usr_scalar.f90\
 	bc/facet_normal.f90\
 	bc/symmetry.f90\
 	bc/non_normal.f90\
@@ -249,7 +247,6 @@ neko_fortran_SOURCES = \
 	fluid/bcknd/cpu/euler_res_cpu.f90\
 	fluid/bcknd/sx/euler_res_sx.f90\
 	fluid/bcknd/device/euler_res_device.F90\
-	fluid/fluid_user_source_term.f90\
 	fluid/fluid_source_term.f90\
 	common/time_step_controller.f90\
 	simulation.f90\
@@ -304,7 +301,6 @@ neko_fortran_SOURCES = \
 	scalar/scalar_residual_fctry.f90\
 	scalar/scalar_ic.f90\
 	scalar/scalar_source_term.f90\
-	scalar/scalar_user_source_term.f90\
 	scalar/bcknd/cpu/scalar_residual_cpu.f90\
 	scalar/bcknd/sx/scalar_residual_sx.f90\
 	scalar/source_scalar.f90\
@@ -320,6 +316,7 @@ neko_fortran_SOURCES = \
 	simulation_components/les_simcomp.f90\
 	simulation_components/simulation_component_fctry.f90\
 	source_terms/source_term.f90\
+	source_terms/user_source_term.f90\
 	source_terms/coriolis_source_term.f90\
 	source_terms/bcknd/cpu/coriolis_source_term_cpu.f90\
 	source_terms/bcknd/device/coriolis_source_term_device.f90\

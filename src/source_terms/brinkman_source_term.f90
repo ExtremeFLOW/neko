@@ -60,6 +60,7 @@ module brinkman_source_term
   use PDE_filter, only : PDE_filter_t
   use fld_file_output, only : fld_file_output_t
   use num_types, only : sp
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -239,12 +240,10 @@ contains
   end subroutine brinkman_source_term_free
 
   !> Computes the source term and adds the result to `fields`.
-  !! @param t The time value.
-  !! @param tstep The current time-step.
-  subroutine brinkman_source_term_compute(this, t, tstep)
+  !! @param time The time state.
+  subroutine brinkman_source_term_compute(this, time)
     class(brinkman_source_term_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     type(field_t), pointer :: u, v, w, fu, fv, fw
     integer :: n
 

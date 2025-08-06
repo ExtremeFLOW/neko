@@ -201,7 +201,7 @@ contains
        ! We can send any of the 3 bcs we have as argument, since they are all
        ! the same boundary.
        if (.not. this%updated) then
-          call this%update(this%field_list, this%bc_u, this%coef, time)
+          call this%update(this%field_list, this%bc_u, time)
           this%updated = .true.
        end if
 
@@ -237,7 +237,7 @@ contains
 
     if (strong_) then
        if (.not. this%updated) then
-          call this%update(this%field_list, this%bc_u, this%coef, time)
+          call this%update(this%field_list, this%bc_u, time)
           this%updated = .true.
        end if
 

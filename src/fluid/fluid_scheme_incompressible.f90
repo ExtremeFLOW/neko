@@ -47,7 +47,6 @@ module fluid_scheme_incompressible
   use zero_dirichlet, only : zero_dirichlet_t
   use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER
   use coefs, only: coef_t
-  use usr_inflow, only : usr_inflow_t, usr_inflow_eval
   use dirichlet, only : dirichlet_t
   use jacobi, only : jacobi_t
   use sx_jacobi, only : sx_jacobi_t
@@ -69,7 +68,7 @@ module fluid_scheme_incompressible
   use json_module, only : json_file, json_core, json_value
   use scratch_registry, only : scratch_registry_t
   use user_intf, only : user_t, dummy_user_material_properties, &
-       user_material_properties
+       user_material_properties_intf
   use utils, only : neko_error, neko_warning
   use field_series, only : field_series_t
   use time_step_controller, only : time_step_controller_t
@@ -334,7 +333,8 @@ contains
     this%w_e => neko_field_registry%get_field('w_e')
 
     ! Initialize the source term
-    call this%source_term%init(this%f_x, this%f_y, this%f_z, this%c_Xh, user)
+    call this%source_term%init(this%f_x, this%f_y, this%f_z, this%c_Xh, user, &
+         this%name)
     call this%source_term%add(params, 'case.fluid.source_terms')
 
 
@@ -568,14 +568,13 @@ contains
   !! if necessary.
   !! @param t Time value.
   !! @param tstep Current time step.
-  subroutine fluid_scheme_update_material_properties(this, t, tstep)
+  subroutine fluid_scheme_update_material_properties(this, time)
     class(fluid_scheme_incompressible_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     type(field_t), pointer :: nut
 
-    call this%user_material_properties(t, tstep, this%name, &
-         this%material_properties)
+    call this%user_material_properties(this%name, this%material_properties, &
+         time)
 
     if (len(trim(this%nut_field_name)) > 0) then
        nut => neko_field_registry%get_field(this%nut_field_name)
@@ -604,10 +603,11 @@ contains
     type(user_t), target, intent(in) :: user
     character(len=LOG_SIZE) :: log_buf
     ! A local pointer that is needed to make Intel happy
-    procedure(user_material_properties), pointer :: dummy_mp_ptr
+    procedure(user_material_properties_intf), pointer :: dummy_mp_ptr
     logical :: nondimensional
     real(kind=rp) :: dummy_lambda, dummy_cp
     real(kind=rp) :: const_mu, const_rho
+    type(time_state_t) :: dummy_time_state
 
 
     dummy_mp_ptr => dummy_user_material_properties
@@ -625,13 +625,13 @@ contains
 
     if (.not. associated(user%material_properties, dummy_mp_ptr)) then
 
-       write(log_buf, '(A)') "Material properties must be set in the user&
-       & file!"
+       write(log_buf, '(A)') 'Material properties must be set in the user' // &
+            ' file!'
        call neko_log%message(log_buf)
        this%user_material_properties => user%material_properties
 
-       call user%material_properties(0.0_rp, 0, this%name, &
-            this%material_properties)
+       call user%material_properties(this%name, this%material_properties, &
+            dummy_time_state)
 
     else
        this%user_material_properties => dummy_user_material_properties
