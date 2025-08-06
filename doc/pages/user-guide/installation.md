@@ -189,7 +189,7 @@ Once configured, to compile and install Neko issue `make` followed by `make inst
 For a standard CPU or SX-Aurora build of Neko, simply run the `configure` script as given above, using appropriate compilers and compiler flags, e.g:
 
 ```shell
-$ ./configure FC=gfortran FCFLAGS="-O2 -pedantic -std=f2018" --prefix=/opt/pkg/neko
+$ ./configure FC=gfortran FCFLAGS="-O2 -pedantic -std=f2008" --prefix=/opt/pkg/neko
 $ make && make install
 ```
 
