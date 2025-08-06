@@ -38,15 +38,43 @@ module neko_api
   private
 
   interface
-     module subroutine neko_api_user_cb_register(user, &
-          fluid_ic_cb, fluid_ic_cns_cb, scalar_ic_cb, fluid_if_cb)
+     !> Register callbacks
+     !! @param user User interface type
+     !! @param initial_cb Initial condition callback
+     !! @param preprocess_cb Pre timestep callback
+     !! @param compute_cb End of timestep callback
+     !! @param dirichlet_cb User boundary condition callback
+     !! @param material_cb Material properties callback
+     module subroutine neko_api_user_cb_register(user, initial_cb, &
+          preprocess_cb, compute_cb, dirichlet_cb, material_cb, source_cb)
        type(user_t), intent(inout) :: user
-       type(c_funptr), value :: fluid_ic_cb
-       type(c_funptr), value :: fluid_ic_cns_cb
-       type(c_funptr), value :: scalar_ic_cb
-       type(c_funptr), value :: fluid_if_cb
+       type(c_funptr), value :: initial_cb, preprocess_cb, compute_cb
+       type(c_funptr), value :: dirichlet_cb, material_cb, source_cb
      end subroutine neko_api_user_cb_register
   end interface
+
+  interface
+     !> Retrive a pointer to a field for the currently active callback
+     !! @param field_name Field list entry
+     module function neko_api_user_cb_get_field_by_name(field_name) result(f)
+       character(len=*), intent(in) :: field_name
+       type(field_t), pointer :: f
+     end function neko_api_user_cb_get_field_by_name
+  end interface
+
+  interface
+     !> Retrive a pointer to a field for the currently active callback
+     !! @param field_idx Field index in the field list
+     module function neko_api_user_cb_get_field_by_index(field_idx) result(f)
+       integer, intent(in) :: field_idx
+       type(field_t), pointer :: f
+     end function neko_api_user_cb_get_field_by_index
+  end interface
+
+  interface neko_api_user_cb_get_field
+     module procedure neko_api_user_cb_get_field_by_name, &
+          neko_api_user_cb_get_field_by_index
+  end interface neko_api_user_cb_get_field
 
 contains
 
@@ -619,29 +647,94 @@ contains
 
   !> Setup user-provided callbacks
   !! @param case_iptr Opaque pointer for the Neko case
-  !! @param fluid_ic_cb Fluid initial condition callback
-  !! @param fluid_ic_cns_cb Fluid initial condition callback (compressible)
-  !! @param scalar_ic_cb Fluid initial condition callback
-  !! @param fluid_if_cb Fluid inflow callback
-  subroutine neko_api_user_setup(case_iptr, &
-       fluid_ic_cb, fluid_ic_cns_cb, scalar_ic_cb, fluid_if_cb) &
+  !! @param initial_cb Initial condition callback
+  !! @param preprocess_cb Pre timestep callback
+  !! @param compute_cb End of timestep callback
+  !! @param dirichlet_cb User boundary condition callback
+  !! @param material_cb Material properties callback
+  subroutine neko_api_user_setup(case_iptr, initial_cb, preprocess_cb, &
+       compute_cb, dirichlet_cb, material_cb, source_cb) &
        bind(c, name='neko_user_setup')
     integer(c_intptr_t), intent(inout) :: case_iptr
-    type(c_funptr), value :: fluid_ic_cb, fluid_ic_cns_cb, scalar_ic_cb
-    type(c_funptr), value :: fluid_if_cb
+    type(c_funptr), value :: initial_cb, preprocess_cb, compute_cb
+    type(c_funptr), value :: dirichlet_cb, material_cb, source_cb
     type(case_t), pointer :: C
     type(c_ptr) :: cptr
 
     cptr = transfer(case_iptr, c_null_ptr)
     if (c_associated(cptr)) then
        call c_f_pointer(cptr, C)
-       call neko_api_user_cb_register(C%user, &
-            fluid_ic_cb, fluid_ic_cns_cb, scalar_ic_cb, &
-            fluid_if_cb)
+       call neko_api_user_cb_register(C%user, initial_cb, preprocess_cb, &
+            compute_cb, dirichlet_cb, material_cb, source_cb)
     else
        call neko_error('Invalid Neko case')
     end if
 
   end subroutine neko_api_user_setup
+
+  !> Retrive a pointer to a user callback field
+  !! @param field_name Field list entry
+  function neko_api_user_cb_field_by_name(field_name) result(field_ptr) &
+       bind(c, name='neko_cb_field_by_name')
+    character(kind=c_char), dimension(*), intent(in) :: field_name
+    character(len=8192) :: name
+    type(field_t), pointer :: field
+    type(c_ptr) :: field_ptr
+    integer :: len
+
+    len = 0
+    do
+       if (field_name(len+1) .eq. C_NULL_CHAR) exit
+       len = len + 1
+       name(len:len) = field_name(len)
+    end do
+
+    field => neko_api_user_cb_get_field(trim(name(1:len)))
+
+    field_ptr = c_loc(field%x)
+
+  end function neko_api_user_cb_field_by_name
+
+  !> Retrive a pointer to a user callback field
+  !! @param field_idx Field index in the field list
+  function neko_api_user_cb_field_by_index(field_idx) &
+       result(field_ptr) bind(c, name='neko_cb_field_by_index')
+    integer, intent(in) :: field_idx
+    type(field_t), pointer :: field
+    type(c_ptr) :: field_ptr
+
+    field => neko_api_user_cb_get_field(field_idx)
+
+    field_ptr = c_loc(field%x)
+
+  end function neko_api_user_cb_field_by_index
+
+  !> Check if the user callback field at a given index has a given name
+  !! @param field_idx Field index in the field list
+  !! @param field_name Field name to compare against
+  function neko_api_user_cb_field_name_at_index(field_idx, field_name) &
+       result(same_name) bind(c, name='neko_cb_field_name_at_index')
+    integer, intent(in) :: field_idx
+    character(kind=c_char), dimension(*), intent(in) :: field_name
+    character(len=8192) :: name
+    type(field_t), pointer :: f1, f2
+    type(c_ptr) :: field_ptr
+    integer :: len
+    logical(c_bool) :: same_name
+
+    len = 0
+    do
+       if (field_name(len+1) .eq. C_NULL_CHAR) exit
+       len = len + 1
+       name(len:len) = field_name(len)
+    end do
+
+    f1 => neko_api_user_cb_get_field(field_idx)
+    f2 => neko_api_user_cb_get_field(trim(name(1:len)))
+
+    same_name = trim(f1%name) .eq. trim(f2%name)
+
+  end function neko_api_user_cb_field_name_at_index
+
 
 end module neko_api

@@ -30,139 +30,260 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Neko API User driver
+!> Neko API user callbacks
 submodule(neko_api) neko_api_user
   implicit none
 
+  !> Abstract interface for initial condition callbacks
   abstract interface
-     subroutine api_ic_callback
+     subroutine api_ic_callback(scheme_name, scheme_name_len)
        use, intrinsic :: iso_c_binding
+       implicit none
+       character(kind=c_char), dimension(*) ::  scheme_name
+       integer(c_int), value :: scheme_name_len
      end subroutine api_ic_callback
   end interface
 
+  !> Abstract interface for boundary condition callbacks
   abstract interface
-     subroutine api_if_callback(u, v, w, x, y, z, nx, ny, nz, &
-          ix, iy, iz, ie, t, tstep) bind(C)
+     subroutine api_bc_callback(msk, msk_size, t, tstep) bind(C)
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
-       real(kind=c_rp) :: u
-       real(kind=c_rp) :: v
-       real(kind=c_rp) :: w
-       real(kind=c_rp) :: x
-       real(kind=c_rp) :: y
-       real(kind=c_rp) :: z
-       real(kind=c_rp) :: nx
-       real(kind=c_rp) :: ny
-       real(kind=c_rp) :: nz
-       integer(c_int) :: ix
-       integer(c_int) :: iy
-       integer(c_int) :: iz
-       integer(c_int) :: ie
-       real(kind=c_rp) :: t
-       integer(c_int) :: tstep
-     end subroutine api_if_callback
+       type(c_ptr), value :: msk
+       integer(c_int), value :: msk_size
+       real(kind=c_rp), value :: t
+       integer(c_int), value :: tstep
+     end subroutine api_bc_callback
   end interface
 
+  !> Abstract interface for callbacks requiring a field list and time
+  !! Used for material properties and source terms
+  abstract interface
+     subroutine api_ft_callback(scheme_name, scheme_name_len, t, tstep)
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       character(kind=c_char), dimension(*) ::  scheme_name
+       integer(c_int), value :: scheme_name_len
+       real(kind=c_rp), value :: t
+       integer(c_int), value :: tstep
+     end subroutine api_ft_callback
+  end interface
+
+  !> Abstract interface for generic callbacks requiring only time
+  !! Used for preprocess and compute callbacks
+  abstract interface
+     subroutine api_gn_callback(t, tstep)
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       real(kind=c_rp), value :: t
+       integer(c_int), value :: tstep
+     end subroutine api_gn_callback
+  end interface
+
+  !> Type defining all supported callbacks via the API
   type api_user_cb
-     procedure(api_ic_callback), nopass, pointer :: fluid_ic => null()
-     procedure(api_ic_callback), nopass, pointer :: fluid_cns_ic => null()
-     procedure(api_ic_callback), nopass, pointer :: scalar_ic => null()
-     procedure(api_if_callback), nopass, pointer :: fluid_if => null()
+     procedure(api_ic_callback), nopass, pointer :: initial => null()
+     procedure(api_gn_callback), nopass, pointer :: preprocess => null()
+     procedure(api_gn_callback), nopass, pointer :: compute => null()
+     procedure(api_bc_callback), nopass, pointer :: dirichlet => null()
+     procedure(api_ft_callback), nopass, pointer :: material => null()
+     procedure(api_ft_callback), nopass, pointer :: source => null()
   end type api_user_cb
 
+  !> Registered callbacks in the API
   type(api_user_cb) :: neko_api_user_cb
+
+  !> Pointer to an active field_list_t in a callback
+  type(field_list_t), pointer :: neko_api_cb_field_list => null()
 
 contains
 
-  module subroutine neko_api_user_cb_register(user, &
-       fluid_ic_cb, fluid_ic_cns_cb, scalar_ic_cb, fluid_if_cb)
+  !> Register callbacks
+  !! @param user User interface type
+  !! @param initial_cb Initial condition callback
+  !! @param preprocess_cb Pre timestep callback
+  !! @param compute_cb End of timestep callback
+  !! @param dirichlet_cb User boundary condition callback
+  !! @param material_cb Material properties callback
+  module subroutine neko_api_user_cb_register(user, initial_cb, preprocess_cb, &
+       compute_cb, dirichlet_cb, material_cb, source_cb)
     type(user_t), intent(inout) :: user
-    type(c_funptr), value :: fluid_ic_cb, fluid_ic_cns_cb, scalar_ic_cb
-    type(c_funptr), value :: fluid_if_cb
+    type(c_funptr), value :: initial_cb, preprocess_cb, compute_cb
+    type(c_funptr), value :: dirichlet_cb, material_cb, source_cb
 
-    if (c_associated(fluid_ic_cb)) then
-       user%fluid_user_ic => neko_api_user_fluid_ic
-       call c_f_procpointer(fluid_ic_cb, neko_api_user_cb%fluid_ic)
+    if (c_associated(initial_cb)) then
+       user%initial_conditions => neko_api_user_initial_condition
+       call c_f_procpointer(initial_cb, neko_api_user_cb%initial)
     end if
 
-    if (c_associated(fluid_ic_cns_cb)) then
-       user%fluid_compressible_user_ic => neko_api_user_fluid_cns_ic
-       call c_f_procpointer(fluid_ic_cns_cb, neko_api_user_cb%fluid_cns_ic)
+    if (c_associated(preprocess_cb)) then
+       user%preprocess => neko_api_user_preprocess
+       call c_f_procpointer(preprocess_cb, neko_api_user_cb%preprocess)
     end if
 
-    if (c_associated(scalar_ic_cb)) then
-       user%scalar_user_ic => neko_api_user_scalar_ic
-       call c_f_procpointer(scalar_ic_cb, neko_api_user_cb%scalar_ic)
+    if (c_associated(compute_cb)) then
+       user%compute => neko_api_user_compute
+       call c_f_procpointer(compute_cb, neko_api_user_cb%compute)
     end if
 
-    if (c_associated(fluid_if_cb)) then
-       user%fluid_user_if => neko_api_user_fluid_if
-       call c_f_procpointer(fluid_if_cb, neko_api_user_cb%fluid_if)
+    if (c_associated(dirichlet_cb)) then
+       user%dirichlet_conditions => neko_api_user_dirichlet_condition
+       call c_f_procpointer(dirichlet_cb, neko_api_user_cb%dirichlet)
+    end if
+
+    if (c_associated(material_cb)) then
+       user%material_properties => neko_api_user_material_properties
+       call c_f_procpointer(material_cb, neko_api_user_cb%material)
+    end if
+
+    if (c_associated(source_cb)) then
+       user%source_term => neko_api_user_source_term
+       call c_f_procpointer(source_cb, neko_api_user_cb%source)
     end if
 
   end subroutine neko_api_user_cb_register
 
-  subroutine neko_api_user_fluid_ic(u, v, w, p, params)
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    type(json_file), intent(inout) :: params
+  !> API user initial condition callback caller
+  subroutine neko_api_user_initial_condition(scheme_name, fields)
+    character(len=*), intent(in) :: scheme_name
+    type(field_list_t), intent(inout) :: fields
 
-    if (associated(neko_api_user_cb%fluid_ic)) then
-       call neko_api_user_cb%fluid_ic
+    if (associated(neko_api_user_cb%initial)) then
+       call neko_api_user_cb%initial(trim(scheme_name), len_trim(scheme_name))
+    else
+       call neko_error("Initial condition callback not defined")
     end if
 
-  end subroutine neko_api_user_fluid_ic
+  end subroutine neko_api_user_initial_condition
 
-  subroutine neko_api_user_fluid_cns_ic(rho, u, v, w, p, params)
-    type(field_t), intent(inout) :: rho
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    type(json_file), intent(inout) :: params
+  !> API user preprocessing callback caller
+  subroutine neko_api_user_preprocess(time)
+    type(time_state_t), intent(in) :: time
 
-    if (associated(neko_api_user_cb%fluid_cns_ic)) then
-       call neko_api_user_cb%fluid_cns_ic
+    if (associated(neko_api_user_cb%preprocess)) then
+       call neko_api_user_cb%preprocess(time%t, time%tstep)
+    else
+       call neko_error("Preprocessing callback not defined")
     end if
 
-  end subroutine neko_api_user_fluid_cns_ic
+  end subroutine neko_api_user_preprocess
 
-  subroutine neko_api_user_scalar_ic(s, params)
-    type(field_t), intent(inout) :: s
-    type(json_file), intent(inout) :: params
+  !> API user compute callback caller
+  subroutine neko_api_user_compute(time)
+    type(time_state_t), intent(in) :: time
 
-    if (associated(neko_api_user_cb%scalar_ic)) then
-       call neko_api_user_cb%scalar_ic
+    if (associated(neko_api_user_cb%compute)) then
+       call neko_api_user_cb%compute(time%t, time%tstep)
+    else
+       call neko_error("Compute callback not defined")
     end if
 
-  end subroutine neko_api_user_scalar_ic
+  end subroutine neko_api_user_compute
 
-  subroutine neko_api_user_fluid_if(u, v, w, x, y, z, nx, ny, nz, &
-       ix, iy, iz, ie, t, tstep)
-    real(kind=rp), intent(inout) :: u
-    real(kind=rp), intent(inout) :: v
-    real(kind=rp), intent(inout) :: w
-    real(kind=rp), intent(in) :: x
-    real(kind=rp), intent(in) :: y
-    real(kind=rp), intent(in) :: z
-    real(kind=rp), intent(in) :: nx
-    real(kind=rp), intent(in) :: ny
-    real(kind=rp), intent(in) :: nz
-    integer, intent(in) :: ix
-    integer, intent(in) :: iy
-    integer, intent(in) :: iz
-    integer, intent(in) :: ie
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+  !> API user dirichlet condition callback caller
+  subroutine neko_api_user_dirichlet_condition(fields, bc, time)
+    type(field_list_t), intent(inout) :: fields
+    type(field_dirichlet_t), intent(in) :: bc
+    type(time_state_t), intent(in) :: time
+    type(c_ptr) :: bc_msk
 
-    if (associated(neko_api_user_cb%fluid_if)) then
-       call neko_api_user_cb%fluid_if(u, v, w, x, y, z, &
-            nx, ny, nz, ix, iy, iz, ie, t, tstep)
+    call neko_api_set_cb_field_list(fields)
+
+    bc_msk = neko_api_user_bc_msk_ptr(bc)
+
+    if (associated(neko_api_user_cb%dirichlet)) then
+       call neko_api_user_cb%dirichlet(bc_msk, bc%msk(0), time%t, time%tstep)
+    else
+       call neko_error("Dirichlet condition callback not defined")
+    end if
+    nullify(neko_api_cb_field_list)
+
+  contains
+
+    !> Helper function to extract a pointer to the mask
+    function neko_api_user_bc_msk_ptr(bc) result(bc_ptr)
+      type(field_dirichlet_t), intent(in), target :: bc
+      type(c_ptr) :: bc_ptr
+      bc_ptr = c_loc(bc%msk(1))
+    end function neko_api_user_bc_msk_ptr
+
+  end subroutine neko_api_user_dirichlet_condition
+
+  !> API user material properties callback caller
+  subroutine neko_api_user_material_properties(scheme_name, properties, time)
+    character(len=*), intent(in) :: scheme_name
+    type(field_list_t), intent(inout) :: properties
+    type(time_state_t), intent(in) :: time
+
+    call neko_api_set_cb_field_list(properties)
+
+    if (associated(neko_api_user_cb%material)) then
+       call neko_api_user_cb%material(trim(scheme_name), &
+            len_trim(scheme_name),time%t, time%tstep)
+    else
+       call neko_error("Material properties callback not defined")
     end if
 
-  end subroutine neko_api_user_fluid_if
+    nullify(neko_api_cb_field_list)
+  end subroutine neko_api_user_material_properties
+
+  !> API user source term callback caller
+  subroutine neko_api_user_source_term(scheme_name, rhs, time)
+    character(len=*), intent(in) :: scheme_name
+    type(field_list_t), intent(inout) :: rhs
+    type(time_state_t), intent(in) :: time
+
+    call neko_api_set_cb_field_list(rhs)
+
+    if (associated(neko_api_user_cb%source)) then
+       call neko_api_user_cb%source(trim(scheme_name), &
+            len_trim(scheme_name),time%t, time%tstep)
+    else
+       call neko_error("Source term callback not defined")
+    end if
+
+    nullify(neko_api_cb_field_list)
+  end subroutine neko_api_user_source_term
+
+  !> Set the callbacks active field list
+  subroutine neko_api_set_cb_field_list(fields)
+    type(field_list_t), target, intent(inout) :: fields
+
+    if (associated(neko_api_cb_field_list)) then
+       call neko_error("Callback field list already defined")
+    end if
+    neko_api_cb_field_list => fields
+  end subroutine neko_api_set_cb_field_list
+
+  !> Retrive a pointer to a field for the currently active callback
+  !! @param field_name Field list entry
+  module function neko_api_user_cb_get_field_by_name(field_name) result(f)
+    character(len=*), intent(in) :: field_name
+    type(field_t), pointer :: f
+
+    if (.not. associated(neko_api_cb_field_list)) then
+       call neko_error("Callback field list not defined")
+    end if
+
+    f => neko_api_cb_field_list%get(trim(field_name))
+
+  end function neko_api_user_cb_get_field_by_name
+
+  !> Retrive a pointer to a field for the currently active callback
+  !! @param field_idx Field index in the field list
+  module function neko_api_user_cb_get_field_by_index(field_idx) result(f)
+    integer, intent(in) :: field_idx
+    type(field_t), pointer :: f
+
+    if (.not. associated(neko_api_cb_field_list)) then
+       call neko_error("Callback field list not defined")
+    end if
+
+    f => neko_api_cb_field_list%get(field_idx)
+
+  end function neko_api_user_cb_get_field_by_index
 
 end submodule neko_api_user
