@@ -80,7 +80,7 @@ mesh/tri_mesh.lo : mesh/tri_mesh.f90 mesh/point.lo mesh/tri.lo
 field/field_registry.lo : field/field_registry.f90 common/json_utils.lo comm/comm.lo adt/htable.lo common/utils.lo sem/dofmap.lo field/field.lo 
 field/scratch_registry.lo : field/scratch_registry.f90 sem/dofmap.lo math/field_math.lo field/field.lo 
 field/field.lo : field/field.f90 sem/dofmap.lo sem/space.lo mesh/mesh.lo math/math.lo device/device.lo config/num_types.lo math/bcknd/device/device_math.lo config/neko_config.lo 
-field/field_list.lo : field/field_list.f90 common/utils.lo mesh/mesh.lo sem/dofmap.lo sem/space.lo config/num_types.lo field/field.lo 
+field/field_list.lo : field/field_list.f90 comm/comm.lo common/utils.lo mesh/mesh.lo sem/dofmap.lo sem/space.lo config/num_types.lo field/field.lo 
 field/field_series.lo : field/field_series.f90 field/field.lo 
 field/mesh_field.lo : field/mesh_field.f90 mesh/mesh.lo 
 field/mean_field.lo : field/mean_field.f90 math/field_math.lo field/field.lo config/num_types.lo common/stats_quant.lo config/neko_config.lo 

@@ -200,15 +200,22 @@ contains
     n = u%dof%size()
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(p%x, p%x_d, n, &
-            HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(rho%x, rho%x_d, n, &
-            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(p%x, p%x_d, n, HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(rho%x, rho%x_d, n, HOST_TO_DEVICE, sync = .false.)
     end if
 
     ! Ensure continuity across elements for initial conditions
-    !call gs%op(p%x, p%dof%size(), GS_OP_ADD)
-    !call gs%op(rho%x, rho%dof%size(), GS_OP_ADD)
+    ! These variables are not treated in the common constructor
+    call gs%op(p%x, p%dof%size(), GS_OP_ADD)
+    call gs%op(rho%x, rho%dof%size(), GS_OP_ADD)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_col2(rho%x_d, coef%mult_d, rho%dof%size())
+       call device_col2(p%x_d, coef%mult_d, p%dof%size())
+    else
+       call col2(rho%x, coef%mult, rho%dof%size())
+       call col2(p%x, coef%mult, p%dof%size())
+    end if
 
   end subroutine set_compressible_flow_ic_usr
 

@@ -25,7 +25,7 @@ contains
     type (field_t), pointer :: rho, u, v, w, p
     integer :: i
 
-    rho => fields%get_by_name("rho")
+    rho => fields%get_by_name("fluid_rho")
     u => fields%get_by_name("u")
     v => fields%get_by_name("v")
     w => fields%get_by_name("w")

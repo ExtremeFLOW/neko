@@ -261,8 +261,6 @@ contains
     this%rho => rho
 
     ! Assign a name
-    call params%print()
-
     ! Note that the keyword is added by `scalars_t`, so there is always a
     ! default.
     call json_get(params, 'name', this%name)

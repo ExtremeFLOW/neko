@@ -64,9 +64,9 @@ contains
                 !Somewhat random
                 rand = cos(real(e + s%msh%offset_el, rp) * real(i*j*k, rp))
                 z = s%dof%z(i,j,k,e)
-                s%x(i,j,k,e) = 1 - z + 0.0001*rand* &
-                     sin(4*pi/4.5 * s%dof%x(i,j,k,e)) &
-                     * sin(4*pi/4.5 * s%dof%y(i,j,k,e))
+                s%x(i,j,k,e) = 1.0_rp - z + 0.0001_rp*rand* &
+                     sin(4.0_rp*pi/4.5_rp * s%dof%x(i,j,k,e)) &
+                     * sin(4.0_rp*pi/4.5_rp * s%dof%y(i,j,k,e))
 
              end do
           end do

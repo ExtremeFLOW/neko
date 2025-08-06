@@ -24,7 +24,6 @@ contains
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
     user%initial_conditions => initial_conditions
-    !user%user_dirichlet_update => dirichlet_update
     user%dirichlet_conditions => dirichlet_conditions
   end subroutine user_setup
 
