@@ -115,8 +115,11 @@ contains
     type(c_funptr), value :: initial_cb, preprocess_cb, compute_cb
     type(c_funptr), value :: dirichlet_cb, material_cb, source_cb
 
+    ! We need the block construct in the following if statements to
+    ! adhere strictly with the f2008 standard, and support compilers
+    ! not implementing TS29133 (mainly GNU Fortran with -std=f2008)
     if (c_associated(initial_cb)) then
-       user%initial_conditions => neko_api_user_initial_condition       
+       user%initial_conditions => neko_api_user_initial_condition
        block
          procedure(api_ic_callback), pointer :: tmp
          call c_f_procpointer(initial_cb, tmp)
