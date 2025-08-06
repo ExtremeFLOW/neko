@@ -52,7 +52,7 @@
                 },
                 {
                     "type": "symmetry",
-                    "zone_indices": [ 3, 4 ]
+                    "zone_indices": [ 3 ]
                 },
                 {
                     "type": "no_slip",
