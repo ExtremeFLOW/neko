@@ -32,42 +32,33 @@
 !
 module fluid_scheme_compressible_euler
   use comm
-  use, intrinsic :: iso_fortran_env, only: error_unit
-  use advection, only : advection_t, advection_factory
+  use advection, only : advection_t
   use device, only : device_memcpy, HOST_TO_DEVICE
-  use dofmap, only : dofmap_t
-  use field_math, only : field_add2, field_cfill, field_cmult, field_cadd, &
+  use field_math, only : field_add2, field_cfill, field_cmult, &
        field_copy, field_col2, field_col3, &
        field_addcol3, field_sub2, field_invcol2
-  use math, only : col2, copy, col3, addcol3, subcol3
+  use math, only : col2
   use device_math, only : device_col2
   use field, only : field_t
   use fluid_scheme_compressible, only: fluid_scheme_compressible_t
   use gs_ops, only : GS_OP_ADD
-  use gather_scatter, only : gs_t
   use num_types, only : rp
   use mesh, only : mesh_t
   use checkpoint, only : chkp_t
-  use operators, only: div, grad
   use json_module, only : json_file, json_core, json_value
   use json_utils, only : json_get, json_get_or_default, json_extract_item
   use profiler, only : profiler_start_region, profiler_end_region
   use user_intf, only : user_t
   use time_step_controller, only : time_step_controller_t
   use ax_product, only : ax_t, ax_helm_factory
-  use field_list, only : field_list_t
   use coefs, only: coef_t
-  use space, only : space_t
   use euler_residual, only: euler_rhs_t, euler_rhs_factory
   use neko_config, only : NEKO_BCKND_DEVICE
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
-  use field_dirichlet, only : field_dirichlet_t
-  use field_dirichlet_vector, only : field_dirichlet_vector_t
   use bc_list, only: bc_list_t
-  use zero_dirichlet, only : zero_dirichlet_t
   use field_math, only : field_copy
   use bc, only : bc_t
-  use utils, only : neko_error, neko_warning
+  use utils, only : neko_error
   use logger, only : LOG_SIZE
   use time_state, only : time_state_t
   implicit none
@@ -376,9 +367,9 @@ contains
                   MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
 
              if (global_zone_size .eq. 0) then
-                write(error_unit,'(A,I0,A)') "Error: Zone ", zone_indices(j), &
+                write(log_buf,'(A,I0,A)') "Error: Zone ", zone_indices(j), &
                      " has zero size"
-                error stop
+                call neko_error(log_buf)
              end if
           end do
 
