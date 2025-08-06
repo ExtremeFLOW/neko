@@ -24,7 +24,7 @@ documented and up to date.
 - euler_2d_forward_facing_step, 2D Euler equations soluton for the
 - euler_2d_smooth, 2D Euler equations for the advection of a smooth density
   wave.
-- euler_tgv, Euler equations soluton for compressible Tayler-Green vortex.
+- euler_tgv, Euler equations solution for compressible Taylor-Green vortex.
 - hemi, One of the original cases from Nek5000.
 - immersed bunny, shows usage of Brinkman source term simulate an immersed
   boundary.
