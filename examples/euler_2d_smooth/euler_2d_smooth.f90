@@ -27,7 +27,7 @@ contains
     integer :: i
     real(kind=rp) :: x, y, cone_radius, mux, muy, r, theta
 
-    rho => fields%get_by_name("rho")
+    rho => fields%get_by_name("fluid_rho")
     u => fields%get_by_name("u")
     v => fields%get_by_name("v")
     w => fields%get_by_name("w")
