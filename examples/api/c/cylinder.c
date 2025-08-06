@@ -12,7 +12,7 @@ int main(char *argc, char **argv) {
   json_error_t json_error;
   const char *case_json = json_dumps(json_load_file("cylinder.case", 0,
                                                     &json_error), JSON_COMPACT);
-  int neko_case;
+  int *neko_case = NULL;
   neko_case_init(&case_json, strlen(case_json), &neko_case);
 
   /* To solve the entire case we can call neko_solve() */
