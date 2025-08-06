@@ -21,14 +21,14 @@ documented and up to date.
 - api, Demonstrations of using Neko APIs for other programming languages.
 - euler_1d_sod, 1D Euler equation solution for the classical SOD problem.
 - euler_2d_cylinder, 2D Euler equations solution for the cylinder in cross-flow.
-- euler_2d_forward_facing_step, 2D Euler equations soluton for the
+- euler_2d_forward_facing_step, 2D Euler equations solution for the
 - euler_2d_smooth, 2D Euler equations for the advection of a smooth density
   wave.
 - euler_tgv, Euler equations solution for compressible Taylor-Green vortex.
 - hemi, One of the original cases from Nek5000.
 - immersed bunny, shows usage of Brinkman source term simulate an immersed
   boundary.
-- immersed_zones, Brinkman source term for immersed sonzes in a flow.
+- immersed_zones, Brinkman source term for immersed zones in a flow.
 - lid, A typical lid-driven cavity case.
 - poisson, shows how to use neko as a library and setup a simple Poisson solver.
 - rayleigh_benard, Rayleigh Benard convection (RBC) (temperature as additional
