@@ -100,8 +100,8 @@ contains
                 rand = cos(real(e + s%msh%offset_el,rp) * real(i*j*k, rp))
                 r = sqrt(s%dof%x(i,j,k,e)**2 + s%dof%y(i,j,k,e)**2)
                 z = s%dof%z(i,j,k,e)
-                s%x(i,j,k,e) = 1 - z + 0.0001*rand*s%dof%x(i,j,k,e)* &
-                     sin(3*pi*r/0.05_rp) * sin(10*pi*z)
+                s%x(i,j,k,e) = 1.0_rp - z + 0.0001_rp*rand*s%dof%x(i,j,k,e)* &
+                     sin(3.0_rp*pi*r/0.05_rp) * sin(10.0_rp*pi*z)
              end do
           end do
        end do
