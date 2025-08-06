@@ -42,9 +42,8 @@ module fluid_scheme_incompressible
   use comm
   use fluid_source_term, only: fluid_source_term_t
   use field, only : field_t
-  use space, only : space_t, GLL
+  use space, only : GLL
   use dofmap, only : dofmap_t
-  use zero_dirichlet, only : zero_dirichlet_t
   use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER
   use coefs, only: coef_t
   use dirichlet, only : dirichlet_t
@@ -57,23 +56,18 @@ module fluid_scheme_incompressible
   use fluid_stats, only : fluid_stats_t
   use bc, only : bc_t
   use bc_list, only : bc_list_t
-  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
-  use math, only : cfill, add2s2, glsum
-  use device_math, only : device_cfill, device_add2s2
+  use mesh, only : mesh_t
+  use math, only : glsum
   use operators, only : cfl
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use field_registry, only : neko_field_registry
-  use json_utils, only : json_get, json_get_or_default, json_extract_object, &
-       json_extract_item
-  use json_module, only : json_file, json_core, json_value
+  use json_utils, only : json_get, json_get_or_default, json_extract_object
+  use json_module, only : json_file
   use scratch_registry, only : scratch_registry_t
   use user_intf, only : user_t, dummy_user_material_properties, &
        user_material_properties_intf
-  use utils, only : neko_error, neko_warning
-  use field_series, only : field_series_t
-  use time_step_controller, only : time_step_controller_t
-  use field_math, only : field_cfill, field_add2s2, field_addcol3, field_copy
-  use shear_stress, only : shear_stress_t
+  use utils, only : neko_error
+  use field_math, only : field_cfill, field_addcol3, field_copy
   use device, only : device_event_sync, glb_cmd_event, DEVICE_TO_HOST, &
        device_memcpy
   use time_state, only : time_state_t

@@ -56,7 +56,6 @@ module fluid_scheme_compressible_euler
   use neko_config, only : NEKO_BCKND_DEVICE
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   use bc_list, only: bc_list_t
-  use field_math, only : field_copy
   use bc, only : bc_t
   use utils, only : neko_error
   use logger, only : LOG_SIZE
