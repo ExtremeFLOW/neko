@@ -158,7 +158,7 @@ contains
 
        e2 = 0.5 * device_glsc2(w1%x_d, coef%B_d, w1%size()) / coef%volume
     else
-       e2 = 0.5 * glsc2(w1%x, coef%B, w1%size()) / coef%volume
+       e2 = 0.5_rp * glsc2(w1%x, coef%B, w1%size()) / coef%volume
     end if
 
     if (pe_rank .eq. 0) &
