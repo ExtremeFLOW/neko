@@ -279,7 +279,7 @@ user functions are:
 | ----------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------|
 | Initial conditions            | [initial_conditions](@ref user-file_user-ic)                    | `case.fluid.initial_condition` or `case.scalar.initial_condition` |
 | Source terms                  | [source_term](@ref user-file_user-f)                            | `case.fluid.source_terms` or  `case.scalar.source_terms`          |
-| Dirichlet boundary conditions | [dirichlet_conidtions](@ref user-file_field-dirichlet-update)   | `case.fluid.boundary_types` or `case.scalar.boundary_types`       |
+| Dirichlet boundary conditions | [dirichlet_conditions](@ref user-file_field-dirichlet-update)   | `case.fluid.boundary_types` or `case.scalar.boundary_types`       |
 
 @note For the sake of simplicity, we refer to the setup with one scalar, i.e.
 `case.scalar` in the JSON. For multiple scalars, the same things apply, but the
