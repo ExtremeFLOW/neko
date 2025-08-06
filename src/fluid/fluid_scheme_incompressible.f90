@@ -333,7 +333,8 @@ contains
     this%w_e => neko_field_registry%get_field('w_e')
 
     ! Initialize the source term
-    call this%source_term%init(this%f_x, this%f_y, this%f_z, this%c_Xh, user, this%name)
+    call this%source_term%init(this%f_x, this%f_y, this%f_z, this%c_Xh, user, &
+         this%name)
     call this%source_term%add(params, 'case.fluid.source_terms')
 
 
