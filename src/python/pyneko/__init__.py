@@ -31,6 +31,13 @@ from pyneko.intf import (
     case_fluid_space,
     case_fluid_coef,
     initial_condition,
-    fluid_inflow,
+    preprocess,
+    compute,
+    dirichlet_condition,
+    material_properties,
+    source_term,
+    callback_field,
+    callback_field_name,
+    bc_mask,
     output
 )

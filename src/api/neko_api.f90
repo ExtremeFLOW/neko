@@ -45,6 +45,7 @@ module neko_api
      !! @param compute_cb End of timestep callback
      !! @param dirichlet_cb User boundary condition callback
      !! @param material_cb Material properties callback
+     !! @param source_cb Source term callback
      module subroutine neko_api_user_cb_register(user, initial_cb, &
           preprocess_cb, compute_cb, dirichlet_cb, material_cb, source_cb)
        type(user_t), intent(inout) :: user
@@ -652,6 +653,7 @@ contains
   !! @param compute_cb End of timestep callback
   !! @param dirichlet_cb User boundary condition callback
   !! @param material_cb Material properties callback
+  !! @param source_cb Source term callback
   subroutine neko_api_user_setup(case_iptr, initial_cb, preprocess_cb, &
        compute_cb, dirichlet_cb, material_cb, source_cb) &
        bind(c, name='neko_user_setup')

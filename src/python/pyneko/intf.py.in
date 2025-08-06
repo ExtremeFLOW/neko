@@ -18,25 +18,17 @@ from dataclasses import dataclass
 import json
 import numpy as np
 
+initial_condition = CFUNCTYPE(None, POINTER(c_char_p), c_int)
 
-initial_condition = CFUNCTYPE(None)
+preprocess = CFUNCTYPE(None, c_double, c_int)
 
-fluid_inflow = CFUNCTYPE(None,
-                         POINTER(@NEKO_PY_REAL_TYPE@),
-                         POINTER(@NEKO_PY_REAL_TYPE@),
-                         POINTER(@NEKO_PY_REAL_TYPE@),
-                         POINTER(@NEKO_PY_REAL_TYPE@),
-                         POINTER(@NEKO_PY_REAL_TYPE@),
-                         POINTER(@NEKO_PY_REAL_TYPE@),
-                         POINTER(@NEKO_PY_REAL_TYPE@),
-                         POINTER(@NEKO_PY_REAL_TYPE@),
-                         POINTER(@NEKO_PY_REAL_TYPE@),
-                         POINTER(c_int),
-                         POINTER(c_int),
-                         POINTER(c_int),
-                         POINTER(c_int),
-                         POINTER(@NEKO_PY_REAL_TYPE@),
-                         POINTER(c_int))
+compute = CFUNCTYPE(None, c_double, c_int)
+
+dirichlet_condition = CFUNCTYPE(None, POINTER(c_int), c_int, c_double, c_int)
+
+material_properties = CFUNCTYPE(None, POINTER(c_char_p), c_int, c_double, c_int)
+
+source_term = CFUNCTYPE(None, POINTER(c_char_p), c_int, c_double, c_int)
 
 libneko = CDLL(util.find_library("neko"))
 
@@ -161,10 +153,18 @@ libneko.neko_output_ctrl_execute.argtypes = [POINTER(c_int), c_bool]
 
 libneko.neko_user_setup.argtypes = [POINTER(c_int),
                                     initial_condition,
-                                    initial_condition,
-                                    initial_condition,
-                                    fluid_inflow]
+                                    preprocess,
+                                    compute,
+                                    dirichlet_condition,
+                                    material_properties,
+                                    source_term]
 libneko.neko_user_setup.restype = None
+
+libneko.neko_cb_field_by_name.argtypes = [c_char_p]
+libneko.neko_cb_field_by_name.restype = POINTER(@NEKO_PY_REAL_TYPE@)
+
+libneko.neko_cb_field_name_at_index.argtypes = [POINTER(c_int), c_char_p]
+libneko.neko_cb_field_name_at_index.restype = c_int
 
 
 
@@ -240,22 +240,26 @@ def job_info():
     libneko.neko_job_info()
 
 def case_init(case_json,
-              cb_fluid_ic = initial_condition(0),
-              cb_fluid_cns_ic = initial_condition(0),
-              cb_scalar_ic = initial_condition(0),
-              cb_fluid_if = fluid_inflow(0)):
+              cb_initial_condition = initial_condition(0),
+              cb_preprocess = preprocess(0),
+              cb_compute = compute(0),
+              cb_dirichlet_condition = dirichlet_condition(0),
+              cb_material_properties = material_properties(0),
+              cb_source_term = source_term(0)):
     cp = python_dict_to_fortran(case_json)
     case_descr = c_int()
 
-    if (cb_fluid_ic != initial_condition(0) or
-        cb_fluid_cns_ic != initial_condition(0) or
-        cb_scalar_ic != initial_condition(0) or
-        cb_fluid_if != fluid_inflow(0)):
+    if (cb_initial_condition != initial_condition(0) or
+        cb_preprocess != preprocess(0) or
+        cb_compute != compute(0) or
+        cb_dirichlet_condition != dirichlet_condition(0) or
+        cb_material_properties != material_properties(0) or
+        cb_source_term != source_term(0)):
 
         libneko.neko_case_allocate(byref(case_descr))
-        user_setup(case_descr, cb_fluid_ic, cb_fluid_cns_ic, cb_scalar_ic,
-                   cb_fluid_if)
-
+        user_setup(case_descr, cb_initial_condition, cb_preprocess,
+                   cb_compute, cb_dirichlet_condition, cb_material_properties,
+                   cb_source_term)
 
     libneko.neko_case_init(byref(cp), len(json.dumps(case_json)),
                            byref(case_descr))
@@ -553,13 +557,38 @@ def case_fluid_coef(case_descr):
 
     return coef
 
-def user_setup(case_descr, cb_fluid_ic, cb_fluid_cns_ic,
-               cb_scalar_ic, cb_fluid_if):
-    libneko.neko_user_setup(byref(case_descr), cb_fluid_ic,
-                            cb_fluid_cns_ic, cb_scalar_ic, cb_fluid_if)
+def user_setup(case_descr, cb_initial_condition, cb_preprocess, cb_compute,
+               cb_dirichlet_condition, cb_material_properties, cb_source_term):
+    libneko.neko_user_setup(byref(case_descr),
+                            cb_initial_condition,
+                            cb_preprocess,
+                            cb_compute,
+                            cb_dirichlet_condition,
+                            cb_material_properties,
+                            cb_source_term)
 
 def output(case_descr, force = False):
     libneko.neko_output_ctrl_execute(byref(case_descr), force)
+
+def callback_field(name):
+    a = neko_field_t(
+        np.frombuffer((@NEKO_PY_REAL_TYPE@ *
+                       libneko.neko_field_size(name)).from_address(
+                           addressof(libneko.neko_cb_field_by_name(name).contents))),
+        field_dofmap(name),
+        field_space(name)
+    )
+    return a
+
+def callback_field_name(index, name):
+    field_index = c_int(index)
+    same_field = libneko.neko_cb_field_name_at_index(byref(field_index), name)
+    return same_field > 0
+
+def bc_mask(msk, msk_size):
+    mask = np.frombuffer((c_int * msk_size).from_address(
+        addressof(msk.contents)), dtype=np.dtype(np.int32))
+    return mask
 
 #
 # https://degenerateconic.com/fortran-json-python.html
