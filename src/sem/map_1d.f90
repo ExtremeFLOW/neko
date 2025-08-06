@@ -1,22 +1,20 @@
 
 !> Creates a 1d GLL point map along a specified direction based on the connectivity in the mesh.
 module map_1d
-  use num_types, only : rp
-  use space, only : space_t
-  use dofmap, only : dofmap_t
+  use num_types, only: rp
+  use space, only: space_t
+  use dofmap, only: dofmap_t
   use gather_scatter
-  use mesh, only : mesh_t
+  use mesh, only: mesh_t
   use device
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use comm, only : pe_rank, pe_size, NEKO_COMM, MPI_REAL_PRECISION
-  use coefs, only : coef_t
-  use field_list, only : field_list_t
-  use matrix, only : matrix_t
-  use vector, only : vector_ptr_t
-  use utils, only : neko_error, neko_warning
-  use math, only : glmax, glmin, glimax, relcmp, cmult, add2s1, col2
-  use neko_mpi_types, only :
-  use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
+  use comm
+  use coefs, only: coef_t
+  use field_list, only: field_list_t
+  use matrix, only: matrix_t
+  use vector, only: vector_ptr_t
+  use utils, only: neko_error, neko_warning
+  use math, only: glmax, glmin, glimax, relcmp, cmult, add2s1, col2
+  use neko_mpi_types
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -83,7 +81,7 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        if (pe_rank .eq. 0) then
-          call neko_warning('map_1d does not copy indices to device,' // &
+          call neko_warning('map_1d does not copy indices to device,'// &
                ' but ok if used on cpu and for io')
        end if
     end if
