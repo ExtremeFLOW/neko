@@ -36,7 +36,7 @@ submodule(neko_api) neko_api_user
 
   !> Abstract interface for initial condition callbacks
   abstract interface
-     subroutine api_ic_callback(scheme_name, scheme_name_len)
+     subroutine api_ic_callback(scheme_name, scheme_name_len) bind(c)
        use, intrinsic :: iso_c_binding
        implicit none
        character(kind=c_char), dimension(*) :: scheme_name
@@ -60,7 +60,7 @@ submodule(neko_api) neko_api_user
   !> Abstract interface for callbacks requiring a field list and time
   !! Used for material properties and source terms
   abstract interface
-     subroutine api_ft_callback(scheme_name, scheme_name_len, t, tstep)
+     subroutine api_ft_callback(scheme_name, scheme_name_len, t, tstep) bind(c)
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -74,7 +74,7 @@ submodule(neko_api) neko_api_user
   !> Abstract interface for generic callbacks requiring only time
   !! Used for preprocess and compute callbacks
   abstract interface
-     subroutine api_gn_callback(t, tstep)
+     subroutine api_gn_callback(t, tstep) bind(c)
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
