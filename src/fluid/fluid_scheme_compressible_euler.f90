@@ -115,7 +115,7 @@ module fluid_scheme_compressible_euler
      !! @param[in] user The user interface.
      module subroutine pressure_bc_factory(object, scheme, json, coef, user)
        class(bc_t), pointer, intent(inout) :: object
-       type(fluid_scheme_compressible_euler_t), intent(in) :: scheme
+       type(fluid_scheme_compressible_euler_t), intent(inout) :: scheme
        type(json_file), intent(inout) :: json
        type(coef_t), intent(in) :: coef
        type(user_t), intent(in) :: user
