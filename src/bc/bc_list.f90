@@ -173,7 +173,7 @@ contains
     real(kind=rp), intent(inout), dimension(n) :: x
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
-    type(c_ptr), optional :: strm
+    type(c_ptr), intent(inout), optional :: strm
     type(c_ptr) :: strm_
     type(c_ptr) :: x_d
     integer :: i
@@ -216,7 +216,7 @@ contains
     real(kind=rp), intent(inout), dimension(n) :: z
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
-    type(c_ptr), optional :: strm
+    type(c_ptr), intent(inout), optional :: strm
     type(c_ptr) :: strm_
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
@@ -259,7 +259,7 @@ contains
     type(field_t), intent(inout) :: x
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
-    type(c_ptr), optional :: strm
+    type(c_ptr), intent(inout), optional :: strm
     type(c_ptr) :: strm_
     integer :: i, n
 
@@ -298,7 +298,7 @@ contains
     type(field_t), intent(inout) :: z
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
-    type(c_ptr), optional :: strm
+    type(c_ptr), intent(inout), optional :: strm
     type(c_ptr) :: strm_
     integer :: i, n
     character(len=256) :: msg
