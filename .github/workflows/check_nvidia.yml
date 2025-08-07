@@ -125,7 +125,7 @@ jobs:
           echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${{ github.workspace }}/install/lib" >> $GITHUB_ENV
           git apply patches/nvhpc_bge.patch
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --prefix=${{ github.workspace }}/install
+          ./configure FC=${FC} FCFLAGS="-O1" --enable-real=${RP} --prefix=${{ github.workspace }}/install
           make install
           #          make -j${{ steps.setup-env.outputs.nproc }} install
 
@@ -157,8 +157,9 @@ jobs:
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
           patch -u src/common/signal.f90 -i patches/nvhpc_bge.patch
-          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP}
-          make -j $(nproc)
+          ./configure FC=${FC} FCFLAGS="-O1" --enable-real=${RP}
+          make
+          #          make -j $(nproc)
 
       - name: Dist (CUDA backend)
         if: matrix.backend == 'cuda'
@@ -169,8 +170,9 @@ jobs:
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
           patch -u src/common/signal.f90 -i patches/nvhpc_bge.patch
-          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/${NVARCH}/${NVVER}/cuda/
-          make -j $(nproc)
+          ./configure FC=${FC} FCFLAGS="-O1" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/${NVARCH}/${NVVER}/cuda/
+          make
+          #          make -j $(nproc)
 
 #      - name: Archive integration test report
 #        if: matrix.backend == 'cpu' && failure()
