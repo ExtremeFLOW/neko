@@ -184,7 +184,7 @@ contains
     end if
 
     if (.not. this%uniform_0 .and. this%msk(0) .gt. 0 .and. &
-         strong .eqv. .false.) then
+        .not. strong_) then
        call device_neumann_apply_scalar(this%msk_d, this%facet_d, x_d, &
             this%flux_%x_d, this%coef%area_d, this%coef%Xh%lx, &
             size(this%msk), strm)
