@@ -329,7 +329,8 @@ contains
     integer :: i
 
     do i = 1, this%size_
-       call this%items(i)%ptr%apply_scalar_generic(x, time, strong, strm)
+       call this%items(i)%ptr%apply_scalar_generic(x, time = time, &
+            strong = strong, strm = strm)
     end do
 
   end subroutine bc_list_apply_scalar_field
@@ -353,7 +354,8 @@ contains
     integer :: i
 
     do i = 1, this%size_
-       call this%items(i)%ptr%apply_vector_generic(x, y, z, time, strong, strm)
+       call this%items(i)%ptr%apply_vector_generic(x, y, z, time = time, &
+            strong = strong, strm = strm)
     end do
 
 
