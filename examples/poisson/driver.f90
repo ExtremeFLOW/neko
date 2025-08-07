@@ -98,6 +98,7 @@ subroutine set_timer_flop_cnt(iset, nelt, nx1, niter, n, ksp_mon)
   use comm
   use krylov
   use num_types
+  use mpi_f08
   implicit none
 
   integer :: iset
