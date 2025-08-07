@@ -341,7 +341,6 @@ contains
             strong = strong, strm = strm)
     end do
 
-
   end subroutine bc_list_apply_vector_field
 
   !> Return whether the bc is strong or not.
