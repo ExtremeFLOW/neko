@@ -179,23 +179,15 @@ contains
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     type(c_ptr), intent(inout), optional :: strm
-    type(c_ptr) :: strm_
     type(c_ptr) :: x_d
     integer :: i
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
-       if (present(strm)) then
-          strm_ = strm
-       else
-          strm_ = glb_cmd_queue
-       end if
-
        x_d = device_get_ptr(x)
-       do i = 1, this%size_
-          call this%items(i)%ptr%apply_scalar_dev(x_d, time = time, &
-               strong = strong, strm = strm_)
-       end do
+
+       call this%apply_scalar_device(x_d, time = time, &
+            strong = strong, strm = strm)
     else
        do i = 1, this%size_
           call this%items(i)%ptr%apply_scalar(x, n, time = time, &
@@ -222,7 +214,6 @@ contains
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     type(c_ptr), intent(inout), optional :: strm
-    type(c_ptr) :: strm_
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
@@ -230,20 +221,12 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
-       if (present(strm)) then
-          strm_ = strm
-       else
-          strm_ = glb_cmd_queue
-       end if
-
        x_d = device_get_ptr(x)
        y_d = device_get_ptr(y)
        z_d = device_get_ptr(z)
 
-       do i = 1, this%size_
-          call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, time = time, &
-               strong = strong, strm = strm_)
-       end do
+       call this%apply_vector_device(x_d, y_d, z_d, time = time, &
+            strong = strong, strm = strm)
     else
        do i = 1, this%size_
           call this%items(i)%ptr%apply_vector(x, y, z, n, time = time, &
