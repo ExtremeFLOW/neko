@@ -78,7 +78,7 @@ jobs:
             backend: cuda
           - compiler: gfortran-15
             backend: hip
-            
+
         include:
           - os: ubuntu-24.04
             setup-env: |
@@ -246,7 +246,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Test report - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
-          path: tests/unit/test-suite\.log
+          path: tests/unit/test-suite.log
           retention-days: 2
 
       - name: Archive integration test report
@@ -254,7 +254,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Integration test logs - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
-          path: tests/integration/logs
+          path: |
+            tests/integration/logs
+            tests/integration/**/*.csv
           retention-days: 1
 
       - name: Dist (CPU backend)
