@@ -39,14 +39,18 @@ module distdata
   private
 
   type, public :: distdata_t
-     type(stack_i4t2_t) :: shared_el_facet !< Elemenets with shared facets
-
-     type(uset_i4_t) :: shared_facet    !< List of shared facets
-     type(uset_i4_t) :: shared_edge     !< List of shared edges
-     type(uset_i4_t) :: shared_point    !< List of shared points
-
-     integer, allocatable :: local_to_global_facet(:)!< Local to global (facets)
-     integer, allocatable :: local_to_global_edge(:) !< Local to global (edges)
+     !> Elemenets with shared facets
+     type(stack_i4t2_t) :: shared_el_facet
+     !> List of shared facets
+     type(uset_i4_t) :: shared_facet
+     !> List of shared edges
+     type(uset_i4_t) :: shared_edge
+     !> List of shared points
+     type(uset_i4_t) :: shared_point
+     !> Local to global (facets)
+     integer, allocatable :: local_to_global_facet(:)
+     !> Local to global (edges)
+     integer, allocatable :: local_to_global_edge(:)
 
    contains
      procedure, pass(this) :: init => distdata_init
@@ -60,7 +64,7 @@ module distdata
           distdata_set_local_to_global_facet
      procedure, pass(this) :: set_local_to_global_edge => &
           distdata_set_local_to_global_edge
-     
+
   end type distdata_t
 
 contains
@@ -103,7 +107,7 @@ contains
   subroutine distdata_set_shared_el_facet(this, element, side)
     class(distdata_t), intent(inout) :: this
     integer, intent(in), value :: element !< Element index (local numbering)
-    integer, intent(in), value :: side    !< Facet index
+    integer, intent(in), value :: side !< Facet index
     type(tuple_i4_t) :: t
 
     t%x = (/ element, side /)
@@ -114,7 +118,7 @@ contains
   !> Mark a facet as shared
   subroutine distdata_set_shared_facet(this, facet)
     class(distdata_t), intent(inout) :: this
-    integer, value :: facet     !< Facet index (local numbering)
+    integer, value :: facet !< Facet index (local numbering)
 
     call this%shared_facet%add(facet)
 
@@ -124,7 +128,7 @@ contains
   !! @attention only defined for elements where facet .ne. edges
   subroutine distdata_set_shared_edge(this, edge)
     class(distdata_t), intent(inout) :: this
-    integer, value :: edge      !< Edge index (local numbering)
+    integer, value :: edge !< Edge index (local numbering)
 
     call this%shared_edge%add(edge)
 
@@ -142,7 +146,7 @@ contains
   !> Set local to global mapping (facets)
   subroutine distdata_set_local_to_global_facet(this, local, global)
     class(distdata_t), intent(inout) :: this
-    integer, intent(in), value :: local  !< Local facet index
+    integer, intent(in), value :: local !< Local facet index
     integer, intent(in), value :: global !< Global facet index
 
     this%local_to_global_facet(local) = global
@@ -152,7 +156,7 @@ contains
   !> Set local to global mapping (edges)
   subroutine distdata_set_local_to_global_edge(this, local, global)
     class(distdata_t), intent(inout) :: this
-    integer, intent(in) , value :: local  !< Local edge index
+    integer, intent(in) , value :: local !< Local edge index
     integer, intent(in) , value :: global !< Global edge index
 
     this%local_to_global_edge(local) = global

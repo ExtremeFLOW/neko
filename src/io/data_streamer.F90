@@ -82,10 +82,10 @@ contains
     integer :: nelb, nelv, nelgv, npts, gdim
 
     !Assign the set up parameters
-    nelv  = coef%msh%nelv
-    npts  = coef%Xh%lx*coef%Xh%ly*coef%Xh%lz
+    nelv = coef%msh%nelv
+    npts = coef%Xh%lx*coef%Xh%ly*coef%Xh%lz
     nelgv = coef%msh%glb_nelv
-    nelb  = coef%msh%offset_el
+    nelb = coef%msh%offset_el
     gdim = coef%msh%gdim
 
 #ifdef HAVE_ADIOS2
@@ -111,7 +111,7 @@ contains
 #endif
 
   end subroutine data_streamer_free
-   
+
   !> streamer
   !! @param fld array of shape field%x
   subroutine data_streamer_stream(this, fld)
@@ -126,7 +126,7 @@ contains
 #endif
 
   end subroutine data_streamer_stream
-  
+
   !> reciever
   !! @param fld array of shape field%x
   subroutine data_streamer_recieve(this, fld)
@@ -199,7 +199,7 @@ contains
 
     call c_adios2_finalize()
   end subroutine fortran_adios2_finalize
-  
+
   !> Interface to adios2_stream in c++.
   !! @details This routine communicates the data to a global array that
   !! is accessed by a data processor. The operations do not write to disk.
@@ -223,7 +223,7 @@ contains
 
     call c_adios2_stream(fld)
   end subroutine fortran_adios2_stream
-  
+
   !> Interface to adios2_recieve in ci++.
   !! @details This routine communicates the data to a global array that
   !! is accessed by a data processor. The operations do not write to disk.
