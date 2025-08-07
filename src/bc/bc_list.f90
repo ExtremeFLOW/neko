@@ -73,11 +73,16 @@ module bc_list
 
      !> Apply all boundary conditions in the list.
      generic :: apply => apply_scalar, apply_vector, &
+          apply_scalar_device, apply_vector_device, &
           apply_scalar_field, apply_vector_field
      !> Apply the boundary conditions to a scalar array.
      procedure, pass(this) :: apply_scalar => bc_list_apply_scalar_array
      !> Apply the boundary conditions to a vector array.
      procedure, pass(this) :: apply_vector => bc_list_apply_vector_array
+     !> Apply the boundary conditions to a scalar device array.
+     procedure, pass(this) :: apply_scalar_device => bc_list_apply_scalar_device
+     !> Apply the boundary conditions to a vector device array.
+     procedure, pass(this) :: apply_vector_device => bc_list_apply_vector_device
      !> Apply the boundary conditions to a scalar field.
      procedure, pass(this) :: apply_scalar_field => bc_list_apply_scalar_field
      !> Apply the boundary conditions to a vector field.
@@ -247,6 +252,67 @@ contains
     end if
 
   end subroutine bc_list_apply_vector_array
+
+  !> Apply a list of boundary conditions to a scalar field on the device.
+  !! @param x_d The field to apply the boundary conditions to.
+  !! @param time Current time state.
+  !! @param strong Filter for strong or weak boundary conditions. Default is to
+  !! apply the whole list.
+  !! @param strm Device strm
+  subroutine bc_list_apply_scalar_device(this, x_d, time, strong, strm)
+    class(bc_list_t), intent(inout) :: this
+    type(c_ptr), intent(inout) :: x_d
+    type(time_state_t), intent(in), optional :: time
+    logical, intent(in), optional :: strong
+    type(c_ptr), intent(inout), optional :: strm
+    type(c_ptr) :: strm_
+    integer :: i
+
+    if (present(strm)) then
+       strm_ = strm
+    else
+       strm_ = glb_cmd_queue
+    end if
+
+    do i = 1, this%size_
+       call this%items(i)%ptr%apply_scalar_dev(x_d, time = time, &
+            strong = strong, strm = strm_)
+    end do
+
+  end subroutine bc_list_apply_scalar_device
+
+  !> Apply a list of boundary conditions to a vector field on the device.
+  !! @param x_d The x comp of the field for which to apply the bcs.
+  !! @param y_d The y comp of the field for which to apply the bcs.
+  !! @param z_d The z comp of the field for which to apply the bcs.
+  !! @param t Current time state.
+  !! @param strong Filter for strong or weak boundary conditions. Default is to
+  !! apply the whole list.
+  !! @param strm Device stream
+  subroutine bc_list_apply_vector_device(this, x_d, y_d, z_d, time, strong, &
+       strm)
+    class(bc_list_t), intent(inout) :: this
+    type(c_ptr), intent(inout) :: x_d
+    type(c_ptr), intent(inout) :: y_d
+    type(c_ptr), intent(inout) :: z_d
+    type(time_state_t), intent(in), optional :: time
+    logical, intent(in), optional :: strong
+    type(c_ptr), intent(inout), optional :: strm
+    type(c_ptr) :: strm_
+    integer :: i
+
+    if (present(strm)) then
+       strm_ = strm
+    else
+       strm_ = glb_cmd_queue
+    end if
+
+    do i = 1, this%size_
+       call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, time = time, &
+            strong = strong, strm = strm_)
+    end do
+
+  end subroutine bc_list_apply_vector_device
 
   !> Apply a list of boundary conditions to a scalar field
   !! @param x The field to apply the boundary conditions to.
