@@ -1,4 +1,3 @@
-
 ! Copyright (c) 2025, The Neko Authors
 ! All rights reserved.
 !
@@ -33,17 +32,12 @@
 !
 !
 submodule(fluid_scheme_compressible_euler) euler_bc_fctry
-  use utils, only : neko_type_error
   use field_dirichlet, only : field_dirichlet_t
   use dirichlet, only : dirichlet_t
   use inflow, only : inflow_t
   use zero_dirichlet, only : zero_dirichlet_t
-  use blasius, only : blasius_t
   use dirichlet, only : dirichlet_t
-  use dong_outflow, only : dong_outflow_t
   use symmetry, only : symmetry_t
-  use non_normal, only : non_normal_t
-  use field_dirichlet_vector, only : field_dirichlet_vector_t
   implicit none
 
   ! List of all possible types created by the boundary condition factories
