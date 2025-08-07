@@ -45,7 +45,7 @@ module bc
   use stack, only : stack_i4t2_t
   use tuple, only : tuple_i4_t
   use field, only : field_t
-  use gather_scatter, only : GS_OP_ADD
+  use gs_ops, only : GS_OP_ADD
   use math, only : relcmp
   use utils, only : neko_error, linear_index, split_string
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
