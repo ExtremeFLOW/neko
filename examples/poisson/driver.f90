@@ -1,6 +1,7 @@
 program poisson
   use neko
   use ax_poisson
+  use mpi_f08
   implicit none
 
   character(len=NEKO_FNAME_LEN) :: fname, lxchar, iterchar
