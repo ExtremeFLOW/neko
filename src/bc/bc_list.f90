@@ -326,27 +326,12 @@ contains
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     type(c_ptr), intent(inout), optional :: strm
-    type(c_ptr) :: strm_
-    integer :: i, n
+    integer :: i
 
-    n = x%size()
-    if (NEKO_BCKND_DEVICE .eq. 1) then
+    do i = 1, this%size_
+       call this%items(i)%ptr%apply_scalar_generic(x, time, strong, strm)
+    end do
 
-       if (present(strm)) then
-          strm_ = strm
-       else
-          strm_ = glb_cmd_queue
-       end if
-
-       do i = 1, this%size_
-          call this%items(i)%ptr%apply_scalar_dev(x%x_d, time, strong, &
-               strm_)
-       end do
-    else
-       do i = 1, this%size_
-          call this%items(i)%ptr%apply_scalar(x%x, n, time, strong)
-       end do
-    end if
   end subroutine bc_list_apply_scalar_field
 
   !> Apply a list of boundary conditions to a vector field.
@@ -365,37 +350,12 @@ contains
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     type(c_ptr), intent(inout), optional :: strm
-    type(c_ptr) :: strm_
-    integer :: i, n
-    character(len=256) :: msg
+    integer :: i
 
-    n = x%size()
+    do i = 1, this%size_
+       call this%items(i)%ptr%apply_vector_generic(x, y, z, time, strong, strm)
+    end do
 
-    ! Ensure all fields are the same size
-    if (y%size() .ne. n .or. z%size() .ne. n) then
-       msg = "Fields x, y, z must have the same size in " // &
-            "bc_list_apply_vector_field"
-       call neko_error(trim(msg))
-    end if
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-
-       if (present(strm)) then
-          strm_ = strm
-       else
-          strm_ = glb_cmd_queue
-       end if
-
-       do i = 1, this%size_
-          call this%items(i)%ptr%apply_vector_dev(x%x_d, y%x_d, z%x_d, &
-               time, strong, strm_)
-       end do
-    else
-       do i = 1, this%size_
-          call this%items(i)%ptr%apply_vector(x%x, y%x, z%x, n, time, &
-               strong)
-       end do
-    end if
 
   end subroutine bc_list_apply_vector_field
 
