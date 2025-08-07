@@ -45,9 +45,10 @@ module bp_file
   use fld_file_data, only : fld_file_data_t
   use utils, only : neko_error
   use datadist, only : linear_dist_t
-  use comm
+  use comm, only : pe_size, pe_rank, NEKO_COMM
 #ifdef HAVE_ADIOS2_FORTRAN
   use adios2
+  use mpi_f08, only : MPI_Bcast, MPI_CHARACTER, MPI_INTEGER
 #endif
   use buffer_1d, only : buffer_1d_t
   use buffer_4d, only : buffer_4d_t

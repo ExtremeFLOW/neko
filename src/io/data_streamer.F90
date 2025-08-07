@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -36,10 +36,8 @@ module data_streamer
   use field, only: field_t
   use coefs, only: coef_t
   use utils, only: neko_warning
-  use device
-  use comm
-  use neko_mpi_types
-  use neko_config
+  use comm, only : NEKO_COMM
+  use mpi_f08, only : MPI_COMM
   use, intrinsic :: iso_c_binding
   implicit none
   private
