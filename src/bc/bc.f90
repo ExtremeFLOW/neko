@@ -292,18 +292,30 @@ contains
   !! @param x The x comp of the field for which to apply the bc.
   !! @param y The y comp of the field for which to apply the bc.
   !! @param z The z comp of the field for which to apply the bc.
-  !! @param n The size of x, y, and z.
   !! @param time Current time state.
+  !! @param strong Whether we are setting a strong or a weak bc.
   !! @param Device stream
-  subroutine bc_apply_vector_generic(this, x, y, z, n, time, strm)
+  subroutine bc_apply_vector_generic(this, x, y, z, time, strong, strm)
     class(bc_t), intent(inout) :: this
-    integer, intent(in) :: n
     type(field_t), intent(inout) :: x
     type(field_t), intent(inout) :: y
     type(field_t), intent(inout) :: z
     type(time_state_t), intent(in), optional :: time
+    logical, intent(in), optional :: strong
     type(c_ptr), intent(inout), optional :: strm
     type(c_ptr) :: strm_
+    integer :: n
+    character(len=256) :: msg
+
+    ! Get the size of the fields
+    n = x%size()
+
+    ! Ensure all fields are the same size
+    if (y%size() .ne. n .or. z%size() .ne. n) then
+       msg = "Fields x, y, z must have the same size in " // &
+            "bc_list_apply_vector_field"
+       call neko_error(trim(msg))
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
@@ -314,9 +326,9 @@ contains
        end if
 
        call this%apply_vector_dev(x%x_d, y%x_d, z%x_d, time = time, &
-            strm = strm_)
+            strong = strong, strm = strm_)
     else
-       call this%apply_vector(x%x, y%x, z%x, n, time = time)
+       call this%apply_vector(x%x, y%x, z%x, n, time = time, strong = strong)
     end if
 
   end subroutine bc_apply_vector_generic
@@ -324,18 +336,20 @@ contains
   !> Apply the boundary condition to a scalar field. Dispatches to the CPU
   !! or the device version.
   !! @param x The x comp of the field for which to apply the bc.
-  !! @param y The y comp of the field for which to apply the bc.
-  !! @param z The z comp of the field for which to apply the bc.
-  !! @param n The size of x, y, and z.
   !! @param time Current time state.
+  !! @param strong Whether we are setting a strong or a weak bc.
   !! @param strm Device stream
-  subroutine bc_apply_scalar_generic(this, x, n, time, strm)
+  subroutine bc_apply_scalar_generic(this, x, time, strong, strm)
     class(bc_t), intent(inout) :: this
-    integer, intent(in) :: n
     type(field_t), intent(inout) :: x
     type(time_state_t), intent(in), optional :: time
+    logical, intent(in), optional :: strong
     type(c_ptr), intent(inout), optional :: strm
     type(c_ptr) :: strm_
+    integer :: n
+
+    ! Get the size of the field
+    n = x%size()
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
@@ -345,7 +359,8 @@ contains
           strm_ = glb_cmd_queue
        end if
 
-       call this%apply_scalar_dev(x%x_d, time = time, strm = strm_)
+       call this%apply_scalar_dev(x%x_d, time = time, strong = strong, &
+            strm = strm_)
     else
        call this%apply_scalar(x%x, n, time = time)
     end if
