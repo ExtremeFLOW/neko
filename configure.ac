@@ -20,7 +20,7 @@ AC_ARG_ENABLE(real,
                     ssp -- REAL(kind=4) xp -- sp
                     sp -- REAL(kind=4) xp -- dp
                     dp -- REAL(kind=8) xp -- dp (default)
-                    qp -- REAL(kind=16) xp -- qp]),
+                    ]),
             [enable_real=${enableval}], [enable_real=dp])
 
 AC_ARG_ENABLE(blk_size,
