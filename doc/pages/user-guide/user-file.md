@@ -329,12 +329,14 @@ is shown below.
        call field_rzero(v)
        call field_rzero(w)
     else !scalar
-       s => fields%get("s")
-       do i = 1, s%dof%size()
-          x = s%dof%x(i,1,1,1)
-          y = s%dof%y(i,1,1,1)
-          s%x(i,1,1,1) = sin(x)
-       end do
+       s => fields%get(scheme_name)
+       if (scheme_name .eq. 's1') then
+          do i = 1, s%dof%size()
+             x = s%dof%x(i,1,1,1)
+             y = s%dof%y(i,1,1,1)
+             s%x(i,1,1,1) = sin(x)
+          end do
+       end if
     end if
   end subroutine initial_conditions
 
@@ -344,8 +346,9 @@ Not again the usage of `scheme_name` to distinguish between the fluid and the
 scalar. Depending on the scheme, the contents of the field list `fields`
 changes, and we extract individual fields via field pointers accordingly.
 The incompressible fluid solver always generates solution fields, `u`, `v` and
-`w`. For the scalar, the name of the field coinside with `scheme_name`, both
-defaulting to `s`.
+`w`. For the scalar, the name of the field coincides with `scheme_name`. For single
+scalar cases, this defaults to `s`. For multiple scalar cases, the field name is
+set to the scalar name specified in the JSON configuration (e.g., "s1", "s2", etc.).
 
 @note Notice that the code for the scalar runs on the CPU. There is no need to
 add the transfer to GPU memory in this user routine, it will be done under the
