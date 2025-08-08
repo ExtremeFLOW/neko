@@ -1,4 +1,3 @@
-
 ! Copyright (c) 2025, The Neko Authors
 ! All rights reserved.
 !
@@ -33,10 +32,9 @@
 !
 !
 submodule(fluid_scheme_compressible_euler) euler_bc_fctry
-  use utils, only : neko_type_error
+  use dirichlet, only : dirichlet_t
   use inflow, only : inflow_t
   use zero_dirichlet, only : zero_dirichlet_t
-  use dirichlet, only : dirichlet_t
   use symmetry, only : symmetry_t
   implicit none
 
@@ -97,7 +95,7 @@ contains
   !! @param user The user interface.
   module subroutine pressure_bc_factory(object, scheme, json, coef, user)
     class(bc_t), pointer, intent(inout) :: object
-    type(fluid_scheme_compressible_euler_t), intent(in) :: scheme
+    type(fluid_scheme_compressible_euler_t), intent(inout) :: scheme
     type(json_file), intent(inout) :: json
     type(coef_t), intent(in) :: coef
     type(user_t), intent(in) :: user

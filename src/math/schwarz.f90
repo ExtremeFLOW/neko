@@ -65,7 +65,8 @@ module schwarz
   use space, only : space_t, GLL
   use dofmap, only : dofmap_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use device_schwarz
+  use device_schwarz, only : device_schwarz_extrude, device_schwarz_toext3d, &
+       device_schwarz_toreg3d
   use device_math, only : device_rzero, device_col2
   use fdm, only : fdm_t
   use device, only : device_map, device_alloc, device_memcpy, &
