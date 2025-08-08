@@ -239,7 +239,6 @@ contains
        @assertEqual(84.0_rp, v%x(i), tolerance=NEKO_EPS)
     end do
 
-    u = s*v
     call vector_cmult2(u, v, s)
 
     @assertEqual(u%size(), v%size())
