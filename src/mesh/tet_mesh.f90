@@ -45,8 +45,8 @@ module tet_mesh
 
   type, public :: tet_mesh_t
      type(tet_t), allocatable :: el(:) !< Tetrahedron elements
-     type(mesh_t), pointer :: msh      !< Hexahedron mesh
-     integer :: nelv                   !< Number of Tetrahedrons
+     type(mesh_t), pointer :: msh !< Hexahedron mesh
+     integer :: nelv !< Number of Tetrahedrons
    contains
      procedure, pass(this) :: init => tet_mesh_init
      procedure, pass(this) :: free => tet_mesh_free
