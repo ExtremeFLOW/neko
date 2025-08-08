@@ -53,9 +53,11 @@ module hdf5_file
 
   !> Interface for HDF5 files
   type, public, extends(generic_file_t) :: hdf5_file_t
+     logical :: overwrite = .false. !< Flag to overwrite existing files
    contains
      procedure :: read => hdf5_file_read
      procedure :: write => hdf5_file_write
+     procedure :: set_overwrite => hdf5_file_set_overwrite
   end type hdf5_file_t
 
 contains
@@ -83,9 +85,13 @@ contains
 
     call hdf5_file_determine_data(data, msh, dof, fp, fsp, dtlag, tlag)
 
-    suffix_pos = filename_suffix_pos(this%fname)
-    write(id_str, '(i5.5)') this%counter
-    fname = trim(this%fname(1:suffix_pos-1))//id_str//'.h5'
+    if (this%overwrite) then
+       fname = trim(this%fname)
+    else !< Append the counter to the filename
+       suffix_pos = filename_suffix_pos(this%fname)
+       write(id_str, '(i5.5)') this%counter
+       fname = trim(this%fname(1:suffix_pos-1))//id_str//'.h5'
+    end if
 
     call h5open_f(ierr)
     call h5pcreate_f(H5P_FILE_ACCESS_F, plist_id, ierr)
@@ -519,6 +525,13 @@ contains
 
   end subroutine hdf5_file_determine_data
 
+  !> Set the overwrite flag for HDF5 files
+  subroutine hdf5_file_set_overwrite(this, overwrite)
+    class(hdf5_file_t), intent(inout) :: this
+    logical, intent(in) :: overwrite
+    this%overwrite = overwrite
+  end subroutine hdf5_file_set_overwrite
+
 #else
 
   !> Write data in HDF5 format
@@ -536,6 +549,12 @@ contains
     call neko_error('Neko needs to be built with HDF5 support')
   end subroutine hdf5_file_read
 
+  !> Set the overwrite flag for HDF5 files
+  subroutine hdf5_file_set_overwrite(this, overwrite)
+    class(hdf5_file_t), intent(inout) :: this
+    logical, intent(in) :: overwrite
+    call neko_error('Neko needs to be built with HDF5 support')
+  end subroutine hdf5_file_set_overwrite
 
 #endif
 
