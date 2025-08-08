@@ -35,7 +35,8 @@ module stats
   use num_types, only : rp, dp
   use stats_quant, only : stats_quant_t
   use logger, only : LOG_SIZE, neko_log
-  use comm
+  use mpi_f08, only : MPI_Barrier, MPI_WTIME
+  use comm, only : NEKO_COMM
   implicit none
   private
 
@@ -148,7 +149,7 @@ contains
           sample_end_time = MPI_WTIME()
           sample_time = sample_end_time - sample_start_time
           write(log_buf,'(A17,1x,F10.6,A,F9.6)') 'Sampling at time:', t, &
-          ' Sampling time (s): ', sample_time
+               ' Sampling time (s): ', sample_time
           call neko_log%message(log_buf)
           call neko_log%end_section()
        end if

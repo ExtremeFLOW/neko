@@ -32,7 +32,6 @@
 !
 !> Modular version of the Classic Nek5000 Pn/Pn formulation for fluids
 module fluid_pnpn
-  use comm
   use, intrinsic :: iso_fortran_env, only: error_unit
   use coefs, only : coef_t
   use symmetry, only : symmetry_t
@@ -82,6 +81,9 @@ module fluid_pnpn
   use file, only : file_t
   use operators, only : ortho
   use time_state, only : time_state_t
+  use comm, only : NEKO_COMM
+  use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_MAX, MPI_LOR, &
+       MPI_INTEGER, MPI_LOGICAL
   implicit none
   private
 
@@ -231,7 +233,7 @@ module fluid_pnpn
      !! @param[in] user The user interface.
      module subroutine velocity_bc_factory(object, scheme, json, coef, user)
        class(bc_t), pointer, intent(inout) :: object
-       type(fluid_pnpn_t), intent(in) :: scheme
+       type(fluid_pnpn_t), intent(inout) :: scheme
        type(json_file), intent(inout) :: json
        type(coef_t), target, intent(in) :: coef
        type(user_t), intent(in) :: user
@@ -652,11 +654,11 @@ contains
            ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
 
       ! Compute the source terms
-      call this%source_term%compute(t, tstep)
+      call this%source_term%compute(time)
 
       ! Add Neumann bc contributions to the RHS
       call this%bcs_vel%apply_vector(f_x%x, f_y%x, f_z%x, &
-           this%dm_Xh%size(), t, tstep, strong = .false.)
+           this%dm_Xh%size(), time, strong = .false.)
 
       if (oifs) then
          ! Add the advection operators to the right-hand-side.
@@ -703,11 +705,11 @@ contains
       call vlag%update()
       call wlag%update()
 
-      call this%bc_apply_vel(t, tstep, strong = .true.)
-      call this%bc_apply_prs(t, tstep)
+      call this%bc_apply_vel(time, strong = .true.)
+      call this%bc_apply_prs(time)
 
       ! Update material properties if necessary
-      call this%update_material_properties(t, tstep)
+      call this%update_material_properties(time)
 
       ! Compute pressure residual.
       call profiler_start_region('Pressure_residual', 18)
@@ -728,7 +730,7 @@ contains
       call device_event_sync(event)
 
       ! Set the residual to zero at strong pressure boundaries.
-      call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), t, tstep)
+      call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), time)
 
 
       call profiler_end_region('Pressure_residual', 18)
@@ -775,7 +777,7 @@ contains
       call device_event_sync(event)
 
       ! Set residual to zero at strong velocity boundaries.
-      call this%bclst_vel_res%apply(u_res, v_res, w_res, t, tstep)
+      call this%bclst_vel_res%apply(u_res, v_res, w_res, time)
 
 
       call profiler_end_region('Velocity_residual', 19)
@@ -1057,7 +1059,6 @@ contains
     use field_dirichlet, only : field_dirichlet_t
     use blasius, only : blasius_t
     use field_dirichlet_vector, only : field_dirichlet_vector_t
-    use usr_inflow, only : usr_inflow_t
     use dong_outflow, only : dong_outflow_t
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(dirichlet_t) :: bdry_mask
@@ -1079,8 +1080,6 @@ contains
     write(log_buf, '(A)') '  outflow, normal_outflow (+dong) = 3'
     call neko_log%message(log_buf)
     write(log_buf, '(A)') '  symmetry                        = 4'
-    call neko_log%message(log_buf)
-    write(log_buf, '(A)') '  user_velocity_pointwise         = 5'
     call neko_log%message(log_buf)
     write(log_buf, '(A)') '  periodic                        = 6'
     call neko_log%message(log_buf)
@@ -1148,12 +1147,6 @@ contains
           call bdry_mask%free()
        type is (symmetry_t)
           call bdry_mask%init_from_components(this%c_Xh, 4.0_rp)
-          call bdry_mask%mark_facets(bci%marked_facet)
-          call bdry_mask%finalize()
-          call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())
-          call bdry_mask%free()
-       type is (usr_inflow_t)
-          call bdry_mask%init_from_components(this%c_Xh, 5.0_rp)
           call bdry_mask%mark_facets(bci%marked_facet)
           call bdry_mask%finalize()
           call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())

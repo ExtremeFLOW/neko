@@ -20,7 +20,7 @@ AC_ARG_ENABLE(real,
                     ssp -- REAL(kind=4) xp -- sp
                     sp -- REAL(kind=4) xp -- dp
                     dp -- REAL(kind=8) xp -- dp (default)
-                    qp -- REAL(kind=16) xp -- qp]),
+                    ]),
             [enable_real=${enableval}], [enable_real=dp])
 
 AC_ARG_ENABLE(blk_size,
@@ -361,7 +361,7 @@ fi
 # Checks for python bindings
 found_python="no"
 if (test "x$enable_python" = xyes); then
-   AM_PATH_PYTHON([3.5])
+   AM_PATH_PYTHON([3.7])
    if ! ${HAVE_PYTHON}; then
         AC_MSG_ERROR([Python interpreter not found, pyneko cannot be installed.])
    fi

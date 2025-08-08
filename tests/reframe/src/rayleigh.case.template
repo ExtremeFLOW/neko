@@ -19,7 +19,7 @@
         "source_terms":
         [
             {
-                "type": "user_vector"
+                "type": "user"
             }
         ],
         "initial_condition": {

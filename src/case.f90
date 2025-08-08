@@ -48,7 +48,6 @@ module case
   use utils, only : neko_error
   use mesh, only : mesh_t
   use math, only : NEKO_EPS
-  use comm
   use checkpoint, only: chkp_t
   use time_scheme_controller, only : time_scheme_controller_t
   use logger, only : neko_log, NEKO_LOG_QUIET
@@ -62,8 +61,12 @@ module case
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   use point_zone_registry, only: neko_point_zone_registry
   use scalars, only : scalars_t
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use mpi_f08, only : MPI_Bcast, MPI_CHARACTER, MPI_INTEGER
+
   implicit none
   private
+
   type, public :: case_t
      type(mesh_t) :: msh
      type(json_file) :: params
@@ -158,7 +161,7 @@ contains
     call this%user%init()
 
     ! Run user startup routine
-    call this%user%user_startup(this%params)
+    call this%user%startup(this%params)
 
     ! Check if default value fill-in is allowed
     if (this%params%valid_path('case.no_defaults')) then
@@ -210,7 +213,7 @@ contains
     call neko_point_zone_registry%init(this%params, this%msh)
 
     ! Run user mesh motion routine
-    call this%user%user_mesh_setup(this%msh)
+    call this%user%mesh_setup(this%msh, this%time)
 
     call json_extract_object(this%params, 'case.numerics', numerics_params)
 
@@ -289,11 +292,11 @@ contains
           call set_flow_ic(this%fluid%rho, &
                this%fluid%u, this%fluid%v, this%fluid%w, this%fluid%p, &
                this%fluid%c_Xh, this%fluid%gs_Xh, &
-               this%user%fluid_compressible_user_ic, this%params)
+               this%user%initial_conditions, this%fluid%name)
        else
           call set_flow_ic(this%fluid%u, this%fluid%v, this%fluid%w, &
                this%fluid%p, this%fluid%c_Xh, this%fluid%gs_Xh, &
-               this%user%fluid_user_ic, this%params)
+               this%user%initial_conditions, this%fluid%name)
        end if
     end if
 
@@ -304,34 +307,44 @@ contains
 
        if (this%params%valid_path('case.scalar')) then
           ! For backward compatibility with single scalar
-          call json_get(this%params, 'case.scalar.initial_condition.type', string_val)
-          call json_extract_object(this%params, 'case.scalar.initial_condition', json_subdict)
+          call json_get(this%params, 'case.scalar.initial_condition.type', &
+               string_val)
+          call json_extract_object(this%params, &
+               'case.scalar.initial_condition', json_subdict)
 
           if (trim(string_val) .ne. 'user') then
              call set_scalar_ic(this%scalars%scalar_fields(1)%s, &
-                  this%scalars%scalar_fields(1)%c_Xh, this%scalars%scalar_fields(1)%gs_Xh, &
+                  this%scalars%scalar_fields(1)%c_Xh, &
+                  this%scalars%scalar_fields(1)%gs_Xh, &
                   string_val, json_subdict)
           else
-             call set_scalar_ic(this%scalars%scalar_fields(1)%name, this%scalars%scalar_fields(1)%s, &
-                  this%scalars%scalar_fields(1)%c_Xh, this%scalars%scalar_fields(1)%gs_Xh, &
-                  this%user%scalar_user_ic, this%params)
+             call set_scalar_ic(this%scalars%scalar_fields(1)%name, &
+                  this%scalars%scalar_fields(1)%s, &
+                  this%scalars%scalar_fields(1)%c_Xh, &
+                  this%scalars%scalar_fields(1)%gs_Xh, &
+                  this%user%initial_conditions)
           end if
 
        else
           ! Handle multiple scalars
           do i = 1, n_scalars
-             call json_extract_item(this%params, 'case.scalars', i, scalar_params)
+             call json_extract_item(this%params, 'case.scalars', i, &
+                  scalar_params)
              call json_get(scalar_params, 'initial_condition.type', string_val)
-             call json_extract_object(scalar_params, 'initial_condition', json_subdict)
+             call json_extract_object(scalar_params, 'initial_condition', &
+                  json_subdict)
 
              if (trim(string_val) .ne. 'user') then
                 call set_scalar_ic(this%scalars%scalar_fields(i)%s, &
-                     this%scalars%scalar_fields(i)%c_Xh, this%scalars%scalar_fields(i)%gs_Xh, &
+                     this%scalars%scalar_fields(i)%c_Xh, &
+                     this%scalars%scalar_fields(i)%gs_Xh, &
                      string_val, json_subdict)
              else
-                call set_scalar_ic(this%scalars%scalar_fields(i)%name, this%scalars%scalar_fields(i)%s, &
-                     this%scalars%scalar_fields(i)%c_Xh, this%scalars%scalar_fields(i)%gs_Xh, &
-                     this%user%scalar_user_ic, this%params)
+                call set_scalar_ic(this%scalars%scalar_fields(i)%name,&
+                     this%scalars%scalar_fields(i)%s, &
+                     this%scalars%scalar_fields(i)%c_Xh, &
+                     this%scalars%scalar_fields(i)%gs_Xh, &
+                     this%user%initial_conditions)
              end if
           end do
        end if

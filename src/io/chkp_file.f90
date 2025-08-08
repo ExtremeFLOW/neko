@@ -48,6 +48,7 @@ module chkp_file
        MPI_DOUBLE_PRECISION_SIZE, MPI_REAL_PREC_SIZE
   use global_interpolation, only : global_interpolation_t
   use comm
+  use mpi_f08
   implicit none
   private
 
@@ -342,6 +343,10 @@ contains
 
     call MPI_File_close(fh, ierr)
 
+    if (ierr .ne. MPI_SUCCESS) then
+       call neko_error('Error writing checkpoint file ' // trim(fname))
+    end if
+
     this%counter = this%counter + 1
 
   end subroutine chkp_file_write
@@ -632,6 +637,10 @@ contains
     end if
 
     call MPI_File_close(fh, ierr)
+
+    if (ierr .ne. MPI_SUCCESS) then
+       call neko_error('Error reading checkpoint file ' // trim(this%fname))
+    end if
 
     call this%global_interp%free()
     call this%space_interp%free()

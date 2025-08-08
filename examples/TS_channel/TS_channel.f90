@@ -15,8 +15,8 @@ contains
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
 
-    user%user_mesh_setup => user_mesh_scale
-    user%fluid_user_ic => user_ic
+    user%mesh_setup => user_mesh_scale
+    user%initial_conditions => initial_conditions
 
   end subroutine user_setup
 
@@ -24,8 +24,9 @@ contains
   ! Rescale mesh
   ! Original mesh size: (2.0, 2.0, 1.0).
   ! New mesh can easily be genreated with genmeshbox.
-  subroutine user_mesh_scale(msh)
+  subroutine user_mesh_scale(msh, time)
     type(mesh_t), intent(inout) :: msh
+    type(time_state_t), intent(in) :: time
     integer :: i
 
     do i = 1, size(msh%points)
@@ -37,12 +38,9 @@ contains
   end subroutine user_mesh_scale
 
   ! User defined initial condition
-  subroutine user_ic(u, v, w, p, params)
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    type(json_file), intent(inout) :: params
+  subroutine initial_conditions(scheme_name, fields)
+    character(len=*), intent(in) :: scheme_name
+    type(field_list_t), intent(inout) :: fields
     integer :: i, j, i_y
     real(kind=rp) :: uvw(3)
 
@@ -61,6 +59,11 @@ contains
     type(map_1d_t) :: map_1d
     type(gs_t) :: gs_h
     type(coef_t) :: coef
+    type (field_t), pointer :: u, v, w
+
+    u => fields%items(1)%ptr
+    v => fields%items(2)%ptr
+    w => fields%items(3)%ptr
 
     !Init these only for the initial condition...
     call gs_h%init(u%dof)
@@ -127,7 +130,7 @@ contains
        w%x(i,1,1,1) = uvw(3)
     end do
 
-  end subroutine user_ic
+  end subroutine initial_conditions
 
   function in_array(y, y_list) result(is_in)
     logical :: is_in

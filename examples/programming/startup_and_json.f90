@@ -40,20 +40,20 @@ contains
   ! Neko. Based on the inerface defined in user_intf.f90, we can register our
   ! user-defined implementations of the various routines. You do this by
   ! assigning procedure pointers to subroutines in the user module. Here, we
-  ! register only the user_startup routine.
+  ! register only the startup routine.
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
 
-    user%user_startup => user_startup
+    user%startup => startup
 
   end subroutine user_setup
 
-  ! The user_startup routine, provides the possibility to inspect and manipulate
+  ! The startup routine, provides the possibility to inspect and manipulate
   ! the JSON parameter dictionary before the simulation starts. The routine is
   ! called very early, before any of the solvers or simulation components are
   ! initialized. This is also a good place to set up some constants that are
   ! needed in the user code.
-  subroutine user_startup(params)
+  subroutine startup(params)
     type(json_file), intent(inout) :: params
 
     ! Some auxillary variables to extract various type of parameters from the
@@ -111,7 +111,7 @@ contains
     ! We can save the params into our module-scope variable for later use.
     case_params = params
 
-  end subroutine user_startup
+  end subroutine startup
 
 
 end module user

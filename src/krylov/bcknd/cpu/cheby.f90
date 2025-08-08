@@ -45,7 +45,6 @@ module cheby
   use schwarz, only : schwarz_t
   use math, only : glsc3, rzero, rone, copy, sub2, cmult2, abscmp, glsc2, &
        add2s1, add2s2, sub3, cmult, add2
-  use comm
   implicit none
   private
 

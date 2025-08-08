@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -42,8 +42,9 @@ module hdf5_file
   use field_series, only : field_series_t, field_series_ptr_t
   use dofmap, only : dofmap_t
   use logger, only : neko_log
-  use comm
-  use mpi_f08
+  use comm, only : pe_rank, NEKO_COMM
+  use mpi_f08, only : MPI_INFO_NULL, MPI_Allreduce, MPI_IN_PLACE, &
+       MPI_INTEGER8, MPI_SUM
 #ifdef HAVE_HDF5
   use hdf5
 #endif
