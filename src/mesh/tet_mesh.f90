@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -33,10 +33,10 @@
 !> Defines a tetrahedral mesh
 !! @details Mesh dervied from an existing hexahedral mesh via bisection
 module tet_mesh
-  use mesh
-  use tet
-  use point
-  use utils
+  use mesh, only : mesh_t
+  use tet, only : tet_t
+  use point, only : point_t
+  use utils, only : neko_error
   implicit none
   private
 

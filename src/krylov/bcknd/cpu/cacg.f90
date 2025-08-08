@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2024, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -43,8 +43,8 @@ module cacg
   use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, x_update, abscmp
   use utils, only : neko_warning
-  use comm
-  use mpi_f08
+  use comm, only : pe_rank, NEKO_COMM, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_Allreduce, MPI_SUM
   use mxm_wrapper
   implicit none
   private
