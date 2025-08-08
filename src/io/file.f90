@@ -73,6 +73,8 @@ module file
      procedure :: set_precision => file_set_precision
      !> Set a file's output layout.
      procedure :: set_layout => file_set_layout
+     !> Sets the file's overwrite flag.
+     procedure, pass (this) :: set_overwrite => file_set_overwrite
      !> File operation destructor.
      final :: file_free
   end type file_t
@@ -81,12 +83,13 @@ contains
 
   !> Constructor.
   !! @param fname Filename.
-  subroutine file_init(this, fname, header, precision, layout)
+  subroutine file_init(this, fname, header, precision, layout, overwrite)
     class(file_t), intent(inout) :: this
     character(len=*), intent(in) :: fname
     character(len=*), intent(in), optional :: header
     integer, intent(in), optional :: precision
     integer, intent(in), optional :: layout
+    logical, intent(in), optional :: overwrite
     character(len=80) :: suffix
     class(generic_file_t), pointer :: q
 
@@ -134,8 +137,12 @@ contains
        call this%set_precision(precision)
     end if
 
-    if (present(layout) .and. (suffix .eq. "bp")) then
+    if (present(layout)) then
        call this%set_layout(layout)
+    end if
+
+    if (present(overwrite)) then
+       call this%set_overwrite(overwrite)
     end if
 
   end subroutine file_init
@@ -157,11 +164,7 @@ contains
     class(*), intent(inout) :: data
     real(kind=rp), intent(in), optional :: t
 
-    if (present(t)) then
-       call this%file_type%write(data, t)
-    else
-       call this%file_type%write(data)
-    end if
+    call this%file_type%write(data, t = t)
 
   end subroutine file_write
 
@@ -216,7 +219,6 @@ contains
   subroutine file_set_header(this, hd)
     class(file_t), intent(inout) :: this
     character(len=*), intent(in) :: hd
-
     character(len=80) :: suffix
 
     select type (ft => this%file_type)
@@ -234,7 +236,6 @@ contains
   subroutine file_set_precision(this, precision)
     class(file_t), intent(inout) :: this
     integer, intent(in) :: precision
-
     character(len=80) :: suffix
 
     select type (ft => this%file_type)
@@ -255,7 +256,6 @@ contains
   subroutine file_set_layout(this, layout)
     class(file_t), intent(inout) :: this
     integer, intent(in) :: layout
-
     character(len=80) :: suffix
 
     select type (ft => this%file_type)
@@ -267,5 +267,19 @@ contains
     end select
 
   end subroutine file_set_layout
+
+  !> Sets the file's overwrite flag.
+  subroutine file_set_overwrite(this, overwrite)
+    class(file_t), intent(inout) :: this
+    logical, intent(in) :: overwrite
+    character(len=80) :: suffix
+
+    select type (ft => this%file_type)
+    class default
+       call filename_suffix(this%file_type%fname, suffix)
+       call neko_warning("No set_overwrite defined for " // trim(suffix) // &
+            " yet")
+    end select
+  end subroutine file_set_overwrite
 
 end module file
