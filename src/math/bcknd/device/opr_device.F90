@@ -42,7 +42,6 @@ module opr_device
   use interpolation, only : interpolator_t
   use device_math, only : device_sub3, device_rzero, device_copy, device_col2
   use device_mathops, only : device_opcolv
-  use comm
   use, intrinsic :: iso_c_binding
   implicit none
   private

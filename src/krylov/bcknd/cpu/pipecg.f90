@@ -32,6 +32,7 @@
 !
 !> Defines a pipelined Conjugate Gradient methods
 module pipecg
+  use neko_config, only : NEKO_BLK_SIZE
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
   use precon, only : pc_t
   use ax_product, only : ax_t
@@ -42,6 +43,7 @@ module pipecg
   use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, abscmp
   use comm
+  use mpi_f08
   implicit none
   private
 

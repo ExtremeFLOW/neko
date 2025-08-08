@@ -32,7 +32,7 @@
 !
 !> Master module
 module neko
-  use num_types, only : rp, sp, dp, qp
+  use num_types, only : rp, sp, dp, qp, c_rp
   use comm
   use utils
   use logger
@@ -98,8 +98,7 @@ module neko
   use cpr, only : cpr_t, cpr_init, cpr_free
   use fluid_stats, only : fluid_stats_t
   use field_list, only : field_list_t
-  use fluid_user_source_term
-  use scalar_user_source_term
+  use user_source_term, only : user_source_term_t
   use vector, only : vector_t, vector_ptr_t
   use matrix, only : matrix_t
   use tensor
@@ -146,6 +145,7 @@ module neko
        register_source_term, source_term_factory, source_term_allocator
   use user_access_singleton, only : neko_user_access
   use, intrinsic :: iso_fortran_env
+  use mpi_f08
   !$ use omp_lib
   implicit none
 

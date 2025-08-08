@@ -33,7 +33,6 @@
 !> Contains the `scalar_pnpn_t` type.
 
 module scalar_pnpn
-  use comm
   use num_types, only: rp
   use, intrinsic :: iso_fortran_env, only: error_unit
   use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_oifs_t, &
@@ -68,6 +67,8 @@ module scalar_pnpn
   use scratch_registry, only : neko_scratch_registry
   use time_state, only : time_state_t
   use bc, only : bc_t
+  use comm, only : NEKO_COMM
+  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
   implicit none
   private
 
@@ -362,7 +363,7 @@ contains
       ! Logs extra information the log level is NEKO_LOG_DEBUG or above.
       call print_debug(this)
       ! Compute the source terms
-      call this%source_term%compute(t, tstep)
+      call this%source_term%compute(time)
 
       ! Apply weak boundary conditions, that contribute to the source terms.
       call this%bcs%apply_scalar(this%f_Xh%x, dm_Xh%size(), time, .false.)
@@ -400,7 +401,7 @@ contains
       call this%bcs%apply_scalar(this%s%x, this%dm_Xh%size(), time, .true.)
 
       ! Update material properties if necessary
-      call this%update_material_properties(t, tstep)
+      call this%update_material_properties(time)
 
       ! Compute scalar residual.
       call profiler_start_region(trim(this%name) // '_residual', 20)

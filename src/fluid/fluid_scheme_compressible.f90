@@ -31,25 +31,21 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module fluid_scheme_compressible
-  use dirichlet, only : dirichlet_t
   use field, only : field_t
   use field_math, only : field_cfill, field_col2, field_col3, &
-       field_cmult2, field_cmult, field_addcol3, field_add2, field_add3, &
-       field_invcol2
+       field_cmult2, field_cmult, field_addcol3, field_add2
   use field_registry, only : neko_field_registry
   use fluid_scheme_base, only : fluid_scheme_base_t
   use json_module, only : json_file
-  use logger, only : LOG_SIZE
   use num_types, only : rp
   use mesh, only : mesh_t
-  use scratch_registry, only : scratch_registry_t, neko_scratch_registry
-  use space, only : space_t, GLL
+  use scratch_registry, only : scratch_registry_t
+  use space, only : GLL
   use user_intf, only : user_t
-  use usr_inflow, only : usr_inflow_eval
   use json_utils, only : json_get_or_default
-  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08
-  use operators, only : cfl, cfl_compressible, compute_max_wave_speed
+  use operators, only : cfl_compressible, compute_max_wave_speed
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -267,9 +263,9 @@ contains
     integer :: n
 
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
-             rho => this%rho, Xh => this%Xh, c_Xh => this%c_Xh, &
-             msh => this%msh, gamma => this%gamma, &
-             max_wave_speed => this%max_wave_speed)
+         rho => this%rho, Xh => this%Xh, c_Xh => this%c_Xh, &
+         msh => this%msh, gamma => this%gamma, &
+         max_wave_speed => this%max_wave_speed)
 
       n = Xh%lx * Xh%ly * Xh%lz * msh%nelv
 
@@ -284,10 +280,8 @@ contains
 
   !> Set rho and mu
   !> @param this The compressible fluid scheme object
-  subroutine fluid_scheme_compressible_update_material_properties(this, t, tstep)
+  subroutine fluid_scheme_compressible_update_material_properties(this, time)
     class(fluid_scheme_compressible_t), intent(inout) :: this
-    real(kind=rp),intent(in) :: t
-    integer, intent(in) :: tstep
-    !> TODO: fill here, may not be used?
+    type(time_state_t), intent(in) :: time
   end subroutine fluid_scheme_compressible_update_material_properties
 end module fluid_scheme_compressible

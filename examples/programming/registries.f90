@@ -20,24 +20,21 @@ contains
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
 
-    user%user_startup => user_startup
-    user%user_init_modules => user_init_modules
-    user%user_check => user_check
+    user%startup => startup
+    user%initialize => initialize
+    user%compute => compute
 
   end subroutine user_setup
 
-  ! We will use the user_startup routine to manipulate the end time.
-  subroutine user_startup(params)
+  ! We will use the startup routine to manipulate the end time.
+  subroutine startup(params)
     type(json_file), intent(inout) :: params
 
     call params%add("case.end_time", 0.0_rp)
-  end subroutine user_startup
+  end subroutine startup
 
-  subroutine user_init_modules(t, u, v, w, p, coef, params)
-    real(kind=rp) :: t
-    type(field_t), intent(inout) :: u, v, w, p
-    type(coef_t), intent(inout) :: coef
-    type(json_file), intent(inout) :: params
+  subroutine initialize(time)
+    type(time_state_t), intent(in) :: time
 
     type(field_t), pointer :: my_field_ptr
 
@@ -58,19 +55,16 @@ contains
     ! then use the field_writer simcomp to output it to disk during the
     ! simulation. The field_writer looks for fields in the registry, given their
     ! names.
-    call neko_field_registry%add_field(coef%dof, "my_field")
+    call neko_field_registry%add_field(my_field_ptr%dof, "my_field")
 
-  end subroutine user_init_modules
+  end subroutine initialize
 
-  subroutine user_check(t, tstep, u, v, w, p, coef, params)
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    type(field_t), intent(inout) :: u, v, w, p
-    type(coef_t), intent(inout) :: coef
-    type(json_file), intent(inout) :: params
+  subroutine compute(time)
+    type(time_state_t), intent(in) :: time
 
     integer :: temp_index !<- For the scratch registry
     type(field_t), pointer :: temp_field_ptr !<- Will be our temporary field
+    type(field_t), pointer :: u, v
 
     ! Sometimes we need some temporary fields to perform certain calculations.
     ! Instead of declaring them inside a subroutine, Neko provides yet another
@@ -79,6 +73,9 @@ contains
 
     ! We get a temporary by using a field_t pointer and an index.
     call neko_scratch_registry%request_field(temp_field_ptr, temp_index)
+
+    u => neko_field_registry%get_field("u")
+    v => neko_field_registry%get_field("v")
 
     ! Perform some operations and use the temporary for something
     call field_cfill(temp_field_ptr, 1.0_rp)
@@ -89,6 +86,6 @@ contains
     ! This is where the integer index comes in.
     call neko_scratch_registry%relinquish_field(temp_index)
 
-  end subroutine user_check
+  end subroutine compute
 
 end module user

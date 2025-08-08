@@ -48,6 +48,7 @@ module chkp_file
        MPI_DOUBLE_PRECISION_SIZE, MPI_REAL_PREC_SIZE
   use global_interpolation, only : global_interpolation_t
   use comm
+  use mpi_f08
   implicit none
   private
 

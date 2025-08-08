@@ -2,6 +2,7 @@ lib_LTLIBRARIES = libneko.la
 libneko_la_LDFLAGS = -release ${PACKAGE_VERSION}
 neko_fortran_SOURCES = \
 	api/neko_api.f90\
+	api/neko_api_user.f90\
 	config/num_types.f90\
 	common/structs.f90\
 	io/format/nmsh.f90\
@@ -162,8 +163,6 @@ neko_fortran_SOURCES = \
 	bc/inflow.f90\
 	bc/field_dirichlet.f90\
 	bc/field_dirichlet_vector.f90\
-	bc/usr_inflow.f90\
-	bc/usr_scalar.f90\
 	bc/facet_normal.f90\
 	bc/symmetry.f90\
 	bc/non_normal.f90\
@@ -249,7 +248,6 @@ neko_fortran_SOURCES = \
 	fluid/bcknd/cpu/euler_res_cpu.f90\
 	fluid/bcknd/sx/euler_res_sx.f90\
 	fluid/bcknd/device/euler_res_device.F90\
-	fluid/fluid_user_source_term.f90\
 	fluid/fluid_source_term.f90\
 	common/time_step_controller.f90\
 	simulation.f90\
@@ -304,7 +302,6 @@ neko_fortran_SOURCES = \
 	scalar/scalar_residual_fctry.f90\
 	scalar/scalar_ic.f90\
 	scalar/scalar_source_term.f90\
-	scalar/scalar_user_source_term.f90\
 	scalar/bcknd/cpu/scalar_residual_cpu.f90\
 	scalar/bcknd/sx/scalar_residual_sx.f90\
 	scalar/source_scalar.f90\
@@ -320,6 +317,7 @@ neko_fortran_SOURCES = \
 	simulation_components/les_simcomp.f90\
 	simulation_components/simulation_component_fctry.f90\
 	source_terms/source_term.f90\
+	source_terms/user_source_term.f90\
 	source_terms/coriolis_source_term.f90\
 	source_terms/bcknd/cpu/coriolis_source_term_cpu.f90\
 	source_terms/bcknd/device/coriolis_source_term_device.f90\
@@ -588,22 +586,7 @@ neko_LDADD= libneko.la
 endif
 
 pkginclude_HEADERS = \
-	$(wildcard *.mod)\
-	device/device_config.h\
-	common/neko_log.h
-
-if ENABLE_HIP
-pkginclude_HEADERS += device/hip/check.h
-endif
-
-if ENABLE_CUDA
-pkginclude_HEADERS += device/cuda/check.h
-endif
-
-if ENABLE_OPENCL
-pkginclude_HEADERS += device/opencl/check.h
-endif
-
+	$(wildcard *.mod)
 
 CLEANFILES = *.mod\
 	     *.smod

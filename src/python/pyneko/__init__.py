@@ -25,5 +25,19 @@ from pyneko.intf import (
     field_order,
     field_nelements,
     field_size,
-    output    
+    field_dofmap,
+    field_space,
+    case_fluid_dofmap,
+    case_fluid_space,
+    case_fluid_coef,
+    initial_condition,
+    preprocess,
+    compute,
+    dirichlet_condition,
+    material_properties,
+    source_term,
+    callback_field,
+    callback_field_name,
+    bc_mask,
+    output
 )

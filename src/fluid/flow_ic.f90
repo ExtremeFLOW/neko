@@ -40,12 +40,12 @@ module flow_ic
        blasius_quadratic, blasius_quartic, blasius_sin, blasius_tanh
   use device, only: device_memcpy, HOST_TO_DEVICE
   use field, only : field_t
-  use utils, only : neko_error, filename_suffix, filename_chsuffix, &
+  use utils, only : neko_error, filename_chsuffix, &
        neko_warning, NEKO_FNAME_LEN, extract_fld_file_index
   use coefs, only : coef_t
   use math, only : col2, cfill, cfill_mask
-  use device_math, only : device_col2, device_cfill, device_cfill_mask
-  use user_intf, only : useric, useric_compressible
+  use device_math, only : device_col2
+  use user_intf, only : user_initial_conditions_intf
   use json_module, only : json_file
   use json_utils, only: json_get, json_get_or_default
   use point_zone, only: point_zone_t
@@ -56,6 +56,7 @@ module flow_ic
   use global_interpolation, only: global_interpolation_t
   use interpolation, only: interpolator_t
   use space, only: space_t, GLL
+  use field_list, only: field_list_t
   implicit none
   private
 
@@ -140,19 +141,28 @@ contains
   end subroutine set_flow_ic_int
 
   !> Set intial flow condition (user defined)
-  subroutine set_flow_ic_usr(u, v, w, p, coef, gs, usr_ic, params)
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
+  subroutine set_flow_ic_usr(u, v, w, p, coef, gs, user_proc, scheme_name)
+    type(field_t), target, intent(inout) :: u
+    type(field_t), target, intent(inout) :: v
+    type(field_t), target, intent(inout) :: w
+    type(field_t), target, intent(inout) :: p
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
-    procedure(useric) :: usr_ic
-    type(json_file), intent(inout) :: params
+    procedure(user_initial_conditions_intf) :: user_proc
+    character(len=*), intent(in) :: scheme_name
+
+    type(field_list_t) :: fields
 
 
     call neko_log%message("Type: user")
-    call usr_ic(u, v, w, p, params)
+
+    call fields%init(4)
+    call fields%assign_to_field(1, u)
+    call fields%assign_to_field(2, v)
+    call fields%assign_to_field(3, w)
+    call fields%assign_to_field(4, p)
+
+    call user_proc(scheme_name, fields)
 
     call set_flow_ic_common(u, v, w, p, coef, gs)
 
@@ -161,36 +171,51 @@ contains
   !> Set intial flow condition (user defined)
   !> for compressible flows
   subroutine set_compressible_flow_ic_usr(rho, u, v, w, p, coef, gs, &
-       usr_ic_compressible, params)
-    type(field_t), intent(inout) :: rho
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
+       user_proc, scheme_name)
+    type(field_t), target, intent(inout) :: rho
+    type(field_t), target, intent(inout) :: u
+    type(field_t), target, intent(inout) :: v
+    type(field_t), target, intent(inout) :: w
+    type(field_t), target, intent(inout) :: p
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
-    procedure(useric_compressible) :: usr_ic_compressible
-    type(json_file), intent(inout) :: params
+    procedure(user_initial_conditions_intf) :: user_proc
+    character(len=*), intent(in) :: scheme_name
     integer :: n
+    type(field_list_t) :: fields
 
 
     call neko_log%message("Type: user (compressible flows)")
-    call usr_ic_compressible(rho, u, v, w, p, params)
+
+    call fields%init(5)
+    call fields%assign_to_field(1, rho)
+    call fields%assign_to_field(2, u)
+    call fields%assign_to_field(3, v)
+    call fields%assign_to_field(4, w)
+    call fields%assign_to_field(5, p)
+    call user_proc(scheme_name, fields)
 
     call set_flow_ic_common(u, v, w, p, coef, gs)
 
     n = u%dof%size()
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(p%x, p%x_d, n, &
-            HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(rho%x, rho%x_d, n, &
-            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(p%x, p%x_d, n, HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(rho%x, rho%x_d, n, HOST_TO_DEVICE, sync = .false.)
     end if
 
     ! Ensure continuity across elements for initial conditions
-    !call gs%op(p%x, p%dof%size(), GS_OP_ADD)
-    !call gs%op(rho%x, rho%dof%size(), GS_OP_ADD)
+    ! These variables are not treated in the common constructor
+    call gs%op(p%x, p%dof%size(), GS_OP_ADD)
+    call gs%op(rho%x, rho%dof%size(), GS_OP_ADD)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_col2(rho%x_d, coef%mult_d, rho%dof%size())
+       call device_col2(p%x_d, coef%mult_d, p%dof%size())
+    else
+       call col2(rho%x, coef%mult, rho%dof%size())
+       call col2(p%x, coef%mult, p%dof%size())
+    end if
 
   end subroutine set_compressible_flow_ic_usr
 

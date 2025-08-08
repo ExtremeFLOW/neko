@@ -54,6 +54,7 @@ module fld_file
   use math, only: vlmin, vlmax
   use neko_mpi_types, only: MPI_CHARACTER_SIZE, MPI_DOUBLE_PRECISION_SIZE, &
        MPI_REAL_SIZE, MPI_INTEGER_SIZE
+  use mpi_f08
   implicit none
   private
 
@@ -212,15 +213,27 @@ contains
           u%ptr => data%items(2)%ptr%x(:,1,1,1)
           v%ptr => data%items(3)%ptr%x(:,1,1,1)
           w%ptr => data%items(4)%ptr%x(:,1,1,1)
-          tem%ptr => data%items(5)%ptr%x(:,1,1,1)
-          n_scalar_fields = data%size() - 5
-          allocate(scalar_fields(n_scalar_fields))
-          do i = 1, n_scalar_fields
-             scalar_fields(i)%ptr => data%items(i+5)%ptr%x(:,1,1,1)
-          end do
+          ! Check if position 5 is a temperature field by name
+          if (trim(data%name(5)) .eq. 'temperature') then
+             ! Position 5 is temperature, remaining fields are scalars
+             tem%ptr => data%items(5)%ptr%x(:,1,1,1)
+             n_scalar_fields = data%size() - 5
+             allocate(scalar_fields(n_scalar_fields))
+             do i = 1, n_scalar_fields
+                scalar_fields(i)%ptr => data%items(i+5)%ptr%x(:,1,1,1)
+             end do
+             write_temperature = .true.
+          else
+             ! All remaining fields are scalars (no temperature field)
+             n_scalar_fields = data%size() - 4
+             allocate(scalar_fields(n_scalar_fields))
+             do i = 1, n_scalar_fields
+                scalar_fields(i)%ptr => data%items(i+4)%ptr%x(:,1,1,1)
+             end do
+             write_temperature = .false.
+          end if
           write_pressure = .true.
           write_velocity = .true.
-          write_temperature = .true.
        case default
           call neko_error('This many fields not supported yet, fld_file')
        end select

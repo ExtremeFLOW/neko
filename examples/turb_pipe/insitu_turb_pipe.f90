@@ -5,34 +5,39 @@ module user
   ! Data streamer
   type(data_streamer_t) :: dstream
   integer :: ipostproc ! frequency of the streaming
+  type(coef_t), pointer :: coef
 
 contains
 
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
-    user%fluid_user_ic => user_ic
-    user%user_check => user_check
-    user%user_init_modules => user_initialize
-    user%user_finalize_modules => user_finalize
+    user%initial_conditions => initial_conditions
+    user%compute => compute
+    user%startup => startup
+    user%initialize => initialize
+    user%finalize => finalize
   end subroutine user_setup
 
-  ! User-defined initialization called just before time loop starts
-  subroutine user_initialize(t, u, v, w, p, coef, params)
-    real(kind=rp) :: t
-    type(field_t), intent(inout) :: u, v, w, p
-    type(coef_t), intent(inout) :: coef
+  subroutine startup(params)
     type(json_file), intent(inout) :: params
 
-    integer tstep
+    call json_get(params, "case.istream", ipostproc)
+  end subroutine startup
+
+  ! User-defined initialization called just before time loop starts
+  subroutine initialize(time)
+    type(time_state_t), intent(in) :: time
+
+    integer :: tstep
     character(len=50) :: mess
 
     ! read postprocessing interval
-    call json_get(params, "case.istream", ipostproc)
     write(mess,*) "streaming steps : ", ipostproc
     call neko_log%message(mess)
 
     ! Initialize the streamer
+    coef => neko_user_access%case%fluid%c_Xh
     call dstream%init(coef)
 
     ! Stream the mesh
@@ -40,19 +45,22 @@ contains
     call dstream%stream(coef%dof%y)
     call dstream%stream(coef%dof%z)
 
-  end subroutine user_initialize
+  end subroutine initialize
 
   ! User-defined routine called at the end of every time step
-  subroutine user_check(t, tstep, u, v, w, p, coef, params)
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    type(coef_t), intent(inout) :: coef
-    type(json_file), intent(inout) :: params
-    type(field_t), intent(inout) :: u, v, w, p
+  subroutine compute(time)
+    type(time_state_t), intent(in) :: time
+
     integer :: ntot, i, n
     real(kind=rp) :: ekin, enst
+    type(dofmap_t), pointer :: dof
+    type (field_t), pointer :: u, v, w, p
 
-    if (mod(tstep,ipostproc).ne.0) return
+    u => neko_field_registry%get_field('u')
+    v => neko_field_registry%get_field('v')
+    w => neko_field_registry%get_field('w')
+
+    if (mod(time%tstep, ipostproc) .ne. 0) return
 
     n = u%dof%size()
 
@@ -74,27 +82,28 @@ contains
     call dstream%stream(v%x)
     call dstream%stream(w%x)
 
-  end subroutine user_check
+  end subroutine compute
 
   ! User-defined finalization routine called at the end of the simulation
-  subroutine user_finalize(t, params)
-    real(kind=rp) :: t
-    type(json_file), intent(inout) :: params
+  subroutine finalize(time)
+    type(time_state_t), intent(in) :: time
 
     ! Finalize the stream
     call dstream%free()
 
-  end subroutine user_finalize
+  end subroutine finalize
 
   ! User defined initial condition
-  subroutine user_ic(u, v, w, p, params)
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    type(json_file), intent(inout) :: params
+  subroutine initial_conditions(scheme_name, fields)
+    character(len=*), intent(in) :: scheme_name
+    type(field_list_t), intent(inout) :: fields
     integer :: i
-    real(kind=rp) :: uvw(3)
+    real(kind=rp) :: uvw(3), x, y, z
+    type (field_t), pointer :: u, v, w
+
+    u => fields%get("u")
+    v => fields%get("v")
+    w => fields%get("w")
 
     do i = 1, u%dof%size()
        uvw = pipe_ic(u%dof%x(i,1,1,1), u%dof%y(i,1,1,1), u%dof%z(i,1,1,1))
@@ -102,7 +111,7 @@ contains
        v%x(i,1,1,1) = uvw(2)
        w%x(i,1,1,1) = uvw(3)
     end do
-  end subroutine user_ic
+  end subroutine initial_conditions
 
   function pipe_ic(x, y, z) result(uvw)
     real(kind=rp) :: x, y, z

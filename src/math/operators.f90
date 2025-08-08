@@ -62,7 +62,8 @@ module operators
        device_glsum, device_add3s2, device_invcol2, device_invcol3, &
        device_col2, device_add5s4
   use scratch_registry, only : neko_scratch_registry
-  use comm
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_MAX, MPI_SUM
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
