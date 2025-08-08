@@ -42,8 +42,9 @@ module pipecg
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, abscmp
-  use comm
-  use mpi_f08
+  use comm, only : MPI_REAL_PRECISION, NEKO_COMM
+  use mpi_f08, only : MPI_Iallreduce, MPI_IN_PLACE, MPI_SUM, MPI_Wait, &
+       MPI_Request, MPI_Status
   implicit none
   private
 

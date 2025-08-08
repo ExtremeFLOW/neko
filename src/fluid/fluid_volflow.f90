@@ -79,8 +79,8 @@ module fluid_volflow
   use scratch_registry, only : scratch_registry_t
   use bc_list, only : bc_list_t
   use ax_product, only : ax_t
-  use comm
-  use mpi_f08
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
   implicit none
   private
 
