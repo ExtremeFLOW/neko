@@ -32,8 +32,8 @@
 !
 !> Interface to ParMETIS
 module parmetis
-  use comm
-  use mpi_f08
+  use comm, only : pe_size, pe_rank
+  use mpi_f08, only : MPI_Allgather, MPI_INTEGER
   use point, only : point_t
   use utils, only : neko_error
   use num_types, only : rp
