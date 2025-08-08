@@ -189,6 +189,7 @@ contains
 
     call w%init(n)
     call v%init(n)
+    call u%init(n)
 
     v = 3.0_rp
     w = 1.0_rp
@@ -228,6 +229,7 @@ contains
     integer :: i
 
     call v%init(n)
+    call u%init(n)
     v = 2.0_rp
     call vector_cmult(v, s)
 
