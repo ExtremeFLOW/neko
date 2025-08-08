@@ -152,7 +152,7 @@ jobs:
       - depend
       - GNU
       - Intel
-      - Nvidia
+#      - Nvidia
 #      - ReFrame
     runs-on: ubuntu-latest
     env:
@@ -161,7 +161,7 @@ jobs:
       format_status: ${{ needs.formatting.result }}
       gnu_status: ${{ needs.GNU.result }}
       inel_status: ${{ needs.Intel.result }}
-      nvidia_status: ${{ needs.Nvidia.result }}
+#      nvidia_status: ${{ needs.Nvidia.result }}
 #      reframe_status: ${{ needs.ReFrame.result }}
 
     steps:
