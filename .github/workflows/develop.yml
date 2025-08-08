@@ -152,7 +152,7 @@ jobs:
       - depend
       - GNU
       - Intel
-#      - Nvidia
+      - Nvidia
 #      - ReFrame
     runs-on: ubuntu-latest
     env:
