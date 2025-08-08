@@ -103,9 +103,9 @@ contains
 
   !> check if the file exists
   subroutine generic_file_check_exists(this)
-    use utils, only: neko_error
-    use comm, only: pe_rank, NEKO_COMM
-    use mpi_f08
+    use utils, only : neko_error
+    use comm, only : pe_rank, NEKO_COMM
+    use mpi_f08, only : MPI_Bcast, MPI_LOGICAL
     implicit none
 
     class(generic_file_t), intent(in) :: this

@@ -36,7 +36,7 @@ module stats
   use stats_quant, only : stats_quant_t
   use logger, only : LOG_SIZE, neko_log
   use mpi_f08, only : MPI_Barrier, MPI_WTIME
-  use comm
+  use comm, only : NEKO_COMM
   implicit none
   private
 

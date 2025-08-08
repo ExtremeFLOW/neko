@@ -45,7 +45,7 @@ module bc
   use stack, only : stack_i4t2_t
   use tuple, only : tuple_i4_t
   use field, only : field_t
-  use gather_scatter
+  use gather_scatter, only : GS_OP_ADD
   use math, only : relcmp
   use utils, only : neko_error, linear_index, split_string
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
@@ -523,7 +523,7 @@ contains
                HOST_TO_DEVICE, sync=.true.)
        end if
        !Check if some point that was not zeroed was zeroed on another element
-       call this%coef%gs_h%op(test_field,GS_OP_ADD)
+       call this%coef%gs_h%op(test_field, GS_OP_ADD)
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_memcpy(test_field%x, test_field%x_d, n, &
                DEVICE_TO_HOST, sync=.true.)

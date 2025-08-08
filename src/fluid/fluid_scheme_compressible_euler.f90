@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module fluid_scheme_compressible_euler
-  use comm
+  use comm, only : NEKO_COMM
   use advection, only : advection_t
   use device, only : device_memcpy, HOST_TO_DEVICE
   use field_math, only : field_add2, field_cfill, field_cmult, &
@@ -57,7 +57,7 @@ module fluid_scheme_compressible_euler
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   use bc_list, only: bc_list_t
   use bc, only : bc_t
-  use utils, only : neko_error
+  use utils, only : neko_error, neko_type_error
   use logger, only : LOG_SIZE
   use time_state, only : time_state_t
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
@@ -115,7 +115,7 @@ module fluid_scheme_compressible_euler
      !! @param[in] user The user interface.
      module subroutine pressure_bc_factory(object, scheme, json, coef, user)
        class(bc_t), pointer, intent(inout) :: object
-       type(fluid_scheme_compressible_euler_t), intent(in) :: scheme
+       type(fluid_scheme_compressible_euler_t), intent(inout) :: scheme
        type(json_file), intent(inout) :: json
        type(coef_t), intent(in) :: coef
        type(user_t), intent(in) :: user
