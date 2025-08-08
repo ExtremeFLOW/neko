@@ -1,6 +1,7 @@
 !> Maps a 3D dofmap to a 2D spectral element grid.
 
 module map_2d
+  use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only: rp
   use dofmap, only: dofmap_t
   use map_1d, only : map_1d_t

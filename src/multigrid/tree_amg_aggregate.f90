@@ -35,8 +35,9 @@ module tree_amg_aggregate
   use tree_amg, only : tamg_lvl_init, tamg_node_init, tamg_hierarchy_t
   use utils, only : neko_error, linear_index
   use num_types, only : rp, dp, i8
-  use comm
-  use mpi_f08
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION, pe_size
+  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_INTEGER8, &
+       MPI_MIN, MPI_MAX, MPI_SUM
   use mesh, only : mesh_t
   use logger, only : neko_log, LOG_SIZE
   implicit none

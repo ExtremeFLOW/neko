@@ -135,7 +135,7 @@ contains
   !! @param user The user interface.
   module subroutine velocity_bc_factory(object, scheme, json, coef, user)
     class(bc_t), pointer, intent(inout) :: object
-    type(fluid_pnpn_t), intent(in) :: scheme
+    type(fluid_pnpn_t), intent(inout) :: scheme
     type(json_file), intent(inout) :: json
     type(coef_t), target, intent(in) :: coef
     type(user_t), intent(in) :: user
