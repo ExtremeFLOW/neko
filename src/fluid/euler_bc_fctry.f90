@@ -32,11 +32,9 @@
 !
 !
 submodule(fluid_scheme_compressible_euler) euler_bc_fctry
-  use field_dirichlet, only : field_dirichlet_t
   use dirichlet, only : dirichlet_t
   use inflow, only : inflow_t
   use zero_dirichlet, only : zero_dirichlet_t
-  use dirichlet, only : dirichlet_t
   use symmetry, only : symmetry_t
   implicit none
 
