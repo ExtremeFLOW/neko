@@ -213,11 +213,17 @@ contains
          ! Multi-scalar lag field synchronization
          if (allocated(this%scalar_lags%items) .and. this%scalar_lags%size() > 0) then
             do i = 1, this%scalar_lags%size()
-               do j = 1, this%scalar_lags%get(i)%size()
-                  call device_memcpy(this%scalar_lags%get(i)%lf(j)%x, &
-                       this%scalar_lags%get(i)%lf(j)%x_d, &
-                       this%scalar_lags%get(i)%f%dof%size(), DEVICE_TO_HOST, sync=.false.)
-               end do
+               block
+                 type(field_series_t), pointer :: slag
+                 integer :: slag_size, dof_size
+                 slag => this%scalar_lags%get(i)
+                 slag_size = slag%size()
+                 dof_size = slag%f%dof%size()
+                 do j = 1, slag_size
+                    call device_memcpy(slag%lf(j)%x, slag%lf(j)%x_d, &
+                         dof_size, DEVICE_TO_HOST, sync=.false.)
+                 end do
+               end block
             end do
          end if
        end associate
@@ -282,11 +288,17 @@ contains
          ! Multi-scalar lag field synchronization
          if (allocated(this%scalar_lags%items) .and. this%scalar_lags%size() > 0) then
             do i = 1, this%scalar_lags%size()
-               do j = 1, this%scalar_lags%get(i)%size()
-                  call device_memcpy(this%scalar_lags%get(i)%lf(j)%x, &
-                       this%scalar_lags%get(i)%lf(j)%x_d, &
-                       this%scalar_lags%get(i)%f%dof%size(), HOST_TO_DEVICE, sync=.false.)
-               end do
+               block
+                 type(field_series_t), pointer :: slag
+                 integer :: slag_size, dof_size
+                 slag => this%scalar_lags%get(i)
+                 slag_size = slag%size()
+                 dof_size = slag%f%dof%size()
+                 do j = 1, slag_size
+                    call device_memcpy(slag%lf(j)%x, slag%lf(j)%x_d, &
+                         dof_size, HOST_TO_DEVICE, sync=.false.)
+                 end do
+               end block
             end do
          end if
        end associate
