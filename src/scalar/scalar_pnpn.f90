@@ -48,6 +48,8 @@ module scalar_pnpn
   use scalar_residual, only : scalar_residual_t, scalar_residual_factory
   use ax_product, only : ax_t, ax_helm_factory
   use field_series, only: field_series_t
+  use field_registry, only: neko_field_registry
+  use math, only: copy
   use facet_normal, only : facet_normal_t
   use krylov, only : ksp_monitor_t
   use device_math, only : device_add2s2, device_col2
@@ -133,6 +135,8 @@ module scalar_pnpn
      procedure, pass(this) :: step => scalar_pnpn_step
      !> Setup the boundary conditions
      procedure, pass(this) :: setup_bcs_ => scalar_pnpn_setup_bcs_
+     !> Sync lag field data to registry for checkpointing
+     procedure, pass(this) :: sync_lag_to_registry => scalar_pnpn_sync_lag_to_registry
   end type scalar_pnpn_t
 
   interface
@@ -209,9 +213,11 @@ contains
 
       call this%s_res%init(dm_Xh, "s_res")
 
-      call this%abx1%init(dm_Xh, "s_abx1")
+      call this%abx1%init(dm_Xh, trim(this%name)//"_abx1")
+      call neko_field_registry%add_field(dm_Xh, trim(this%name)//"_abx1", ignore_existing = .true.)
 
-      call this%abx2%init(dm_Xh, "s_abx2")
+      call this%abx2%init(dm_Xh, trim(this%name)//"_abx2")
+      call neko_field_registry%add_field(dm_Xh, trim(this%name)//"_abx2", ignore_existing = .true.)
 
       call this%advs%init(dm_Xh, "advs")
 
@@ -253,7 +259,16 @@ contains
          ulag, vlag, wlag, this%chkp%dtlag, &
          this%chkp%tlag, time_scheme, .not. advection, &
          this%slag)
-    ! Add scalar info to checkpoint
+    
+    ! Register lag fields in the field registry for multi-scalar checkpoint support
+    ! Create registry fields and copy data from the actual lag fields
+    if (this%slag%size() >= 1) then
+       call neko_field_registry%add_field(this%dm_Xh, this%slag%lf(1)%name, ignore_existing = .true.)
+    end if
+    if (this%slag%size() >= 2) then
+       call neko_field_registry%add_field(this%dm_Xh, this%slag%lf(2)%name, ignore_existing = .true.)
+    end if
+    
     call this%chkp%add_scalar(this%s)
     this%chkp%abs1 => this%abx1
     this%chkp%abs2 => this%abx2
@@ -266,10 +281,21 @@ contains
     type(chkp_t), intent(inout) :: chkp
     real(kind=rp) :: dtlag(10), tlag(10)
     integer :: n
+    type(field_t), pointer :: temp_field
     dtlag = chkp%dtlag
     tlag = chkp%tlag
 
     n = this%s%dof%size()
+
+    ! Copy data from registry fields back to actual lag fields after HDF5 load
+    if (this%slag%size() >= 1 .and. neko_field_registry%field_exists(this%slag%lf(1)%name)) then
+       temp_field => neko_field_registry%get_field(this%slag%lf(1)%name)
+       call copy(this%slag%lf(1)%x, temp_field%x, n)
+    end if
+    if (this%slag%size() >= 2 .and. neko_field_registry%field_exists(this%slag%lf(2)%name)) then
+       temp_field => neko_field_registry%get_field(this%slag%lf(2)%name)
+       call copy(this%slag%lf(2)%x, temp_field%x, n)
+    end if
 
     call col2(this%s%x, this%c_Xh%mult, n)
     call col2(this%slag%lf(1)%x, this%c_Xh%mult, n)
@@ -396,6 +422,9 @@ contains
       end if
 
       call slag%update()
+      
+      ! Sync lag field data to registry for multi-scalar checkpoint support
+      call this%sync_lag_to_registry()
 
       !> Apply strong boundary conditions.
       call this%bcs%apply_scalar(this%s%x, this%dm_Xh%size(), time, .true.)
@@ -551,5 +580,24 @@ contains
 
     end if
   end subroutine scalar_pnpn_setup_bcs_
+
+  !> Sync lag field data from actual lag fields to registry fields for checkpointing
+  subroutine scalar_pnpn_sync_lag_to_registry(this)
+    class(scalar_pnpn_t), intent(inout) :: this
+    integer :: n
+    type(field_t), pointer :: temp_field
+    
+    n = this%s%dof%size()
+    
+    ! Copy data from actual lag fields to registry fields before checkpointing
+    if (this%slag%size() >= 1 .and. neko_field_registry%field_exists(this%slag%lf(1)%name)) then
+       temp_field => neko_field_registry%get_field(this%slag%lf(1)%name)
+       call copy(temp_field%x, this%slag%lf(1)%x, n)
+    end if
+    if (this%slag%size() >= 2 .and. neko_field_registry%field_exists(this%slag%lf(2)%name)) then
+       temp_field => neko_field_registry%get_field(this%slag%lf(2)%name)
+       call copy(temp_field%x, this%slag%lf(2)%x, n)
+    end if
+  end subroutine scalar_pnpn_sync_lag_to_registry
 
 end module scalar_pnpn

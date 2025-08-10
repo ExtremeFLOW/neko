@@ -46,6 +46,7 @@ module scalars
   use json_utils, only: json_get, json_get_or_default, json_extract_object, &
        json_extract_item
   use field, only: field_t
+  use field_list, only: field_list_t
   use field_series, only: field_series_t
   use field_registry, only: neko_field_registry
   use checkpoint, only: chkp_t
@@ -206,8 +207,10 @@ contains
   subroutine scalars_restart(this, chkp)
     class(scalars_t), intent(inout) :: this
     type(chkp_t), intent(inout) :: chkp
-    integer :: i
-    ! Iterate through all scalar fields
+    integer :: i, n_scalars
+    character(len=256) :: log_buf
+    
+    n_scalars = size(this%scalar_fields)
     do i = 1, size(this%scalar_fields)
        call this%scalar_fields(i)%restart(chkp)
     end do
