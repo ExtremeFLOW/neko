@@ -42,7 +42,6 @@ module checkpoint
   use field, only : field_t
   use utils, only : neko_error, filename_suffix_pos
   use mesh, only: mesh_t
-  use logger, only : neko_log, NEKO_LOG_VERBOSE
   implicit none
   private
 
@@ -71,13 +70,11 @@ module checkpoint
      type(field_t), pointer :: abz1 => null()
      type(field_t), pointer :: abz2 => null()
 
-     ! Legacy single-scalar support (for backward compatibility)
      type(field_t), pointer :: s => null()
      type(field_series_t), pointer :: slag => null()
      type(field_t), pointer :: abs1 => null()
      type(field_t), pointer :: abs2 => null()
      
-     ! Multi-scalar lag field support - arbitrary number of scalars
      type(field_series_list_t) :: scalar_lags
 
 
@@ -92,7 +89,6 @@ module checkpoint
      procedure, pass(this) :: sync_device => chkp_sync_device
      procedure, pass(this) :: add_lag => chkp_add_lag
      procedure, pass(this) :: add_scalar => chkp_add_scalar
-
      procedure, pass(this) :: restart_time => chkp_restart_time
      final :: chkp_free
   end type chkp_t

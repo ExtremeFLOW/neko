@@ -446,28 +446,26 @@ contains
 
        fp_size = 4
 
-       ! Scalar support - dynamic detection for arbitrary number of scalars
-       scalar_count = 0
-       do i = 1, 100  ! Check up to 100 scalars (reasonable limit)
-          write(scalar_name, '(A,I0)') 's', i
-          if (neko_field_registry%field_exists(scalar_name)) then
-             scalar_count = scalar_count + 1
-          else
-             exit  ! Stop at first missing scalar (assume sequential naming)
-          end if
-       end do
+       if (allocated(data%scalar_lags%items) .and. data%scalar_lags%size() > 0) then
+          scalar_count = data%scalar_lags%size()
+       else if (associated(data%s)) then
+          scalar_count = 1
+       else
+          scalar_count = 0
+       end if
        
-       if (scalar_count > 0) then
-          ! Multi-scalar support: dynamic number of scalars
+       if (scalar_count > 1) then
           fp_size = fp_size + scalar_count
           
           ! Add Adams-Bashforth fields for each scalar if they exist
           ab_count = 0
           do i = 1, scalar_count
-             write(scalar_name, '(A,I0,A)') 's', i, '_abx1'
-             if (neko_field_registry%field_exists(scalar_name)) ab_count = ab_count + 1
-             write(scalar_name, '(A,I0,A)') 's', i, '_abx2'
-             if (neko_field_registry%field_exists(scalar_name)) ab_count = ab_count + 1
+             associate(slag => data%scalar_lags%get(i))
+               write(scalar_name, '(A,A)') trim(slag%f%name), '_abx1'
+               if (neko_field_registry%field_exists(scalar_name)) ab_count = ab_count + 1
+               write(scalar_name, '(A,A)') trim(slag%f%name), '_abx2'
+               if (neko_field_registry%field_exists(scalar_name)) ab_count = ab_count + 1
+             end associate
           end do
           fp_size = fp_size + ab_count
        else if (associated(data%s)) then
@@ -489,14 +487,11 @@ contains
           fsp_size = fsp_size + 3
        end if
 
-       ! Scalar lag support - arbitrary number of scalars
        if (scalar_count > 1) then
-          ! Multi-scalar lag support: use scalar_lags list
           if (allocated(data%scalar_lags%items)) then
              fsp_size = fsp_size + data%scalar_lags%size()
           end if
        else if (associated(data%slag)) then
-          ! Single-scalar lag support (for backward compatibility)
           fsp_size = fsp_size + 1
        end if
 
@@ -514,28 +509,28 @@ contains
        fp(4)%ptr => data%p
 
        fp_cur = 5
-       
-       ! Scalar support - dynamic assignment for arbitrary number of scalars
-       if (scalar_count > 0) then
-          ! Multi-scalar support: assign dynamic number of scalars
+
+       if (scalar_count > 1) then
           do i = 1, scalar_count
-             write(scalar_name, '(A,I0)') 's', i
-             fp(fp_cur)%ptr => neko_field_registry%get_field(scalar_name)
-             fp_cur = fp_cur + 1
+             associate(slag => data%scalar_lags%get(i))
+               fp(fp_cur)%ptr => slag%f
+               fp_cur = fp_cur + 1
+             end associate
           end do
-          
-          ! Add Adams-Bashforth fields for each scalar if they exist
+
           do i = 1, scalar_count
-             write(scalar_name, '(A,I0,A)') 's', i, '_abx1'
-             if (neko_field_registry%field_exists(scalar_name)) then
-                fp(fp_cur)%ptr => neko_field_registry%get_field(scalar_name)
-                fp_cur = fp_cur + 1
-             end if
-             write(scalar_name, '(A,I0,A)') 's', i, '_abx2'
-             if (neko_field_registry%field_exists(scalar_name)) then
-                fp(fp_cur)%ptr => neko_field_registry%get_field(scalar_name)
-                fp_cur = fp_cur + 1
-             end if
+             associate(slag => data%scalar_lags%get(i))
+               write(scalar_name, '(A,A)') trim(slag%f%name), '_abx1'
+               if (neko_field_registry%field_exists(scalar_name)) then
+                  fp(fp_cur)%ptr => neko_field_registry%get_field(scalar_name)
+                  fp_cur = fp_cur + 1
+               end if
+               write(scalar_name, '(A,A)') trim(slag%f%name), '_abx2'
+               if (neko_field_registry%field_exists(scalar_name)) then
+                  fp(fp_cur)%ptr => neko_field_registry%get_field(scalar_name)
+                  fp_cur = fp_cur + 1
+               end if
+             end associate
           end do
        else if (associated(data%s)) then
           ! Single scalar support
@@ -566,9 +561,8 @@ contains
           fsp_cur = fsp_cur + 3
        end if
 
-       ! Scalar lag support - dynamic assignment for arbitrary number of scalars
+
        if (scalar_count > 1) then
-          ! Multi-scalar lag support: assign from scalar_lags list
           if (allocated(data%scalar_lags%items)) then
              do i = 1, data%scalar_lags%size()
                 fsp(fsp_cur)%ptr => data%scalar_lags%get(i)
@@ -576,7 +570,6 @@ contains
              end do
           end if
        else if (associated(data%slag)) then
-          ! Single-scalar lag support (only when no multi-scalar lags are present)
           fsp(fsp_cur)%ptr => data%slag
           fsp_cur = fsp_cur + 1
        end if
