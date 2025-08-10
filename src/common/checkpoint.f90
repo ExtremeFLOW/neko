@@ -213,12 +213,11 @@ contains
          ! Multi-scalar lag field synchronization
          if (allocated(this%scalar_lags%items) .and. this%scalar_lags%size() > 0) then
             do i = 1, this%scalar_lags%size()
-               associate(slag => this%scalar_lags%get(i))
-                 do j = 1, slag%size()
-                    call device_memcpy(slag%lf(j)%x, slag%lf(j)%x_d, &
-                         slag%lf(j)%dof%size(), DEVICE_TO_HOST, sync=.false.)
-                 end do
-               end associate
+               do j = 1, this%scalar_lags%get(i)%size()
+                  call device_memcpy(this%scalar_lags%get(i)%lf(j)%x, &
+                       this%scalar_lags%get(i)%lf(j)%x_d, &
+                       this%scalar_lags%get(i)%f%dof%size(), DEVICE_TO_HOST, sync=.false.)
+               end do
             end do
          end if
        end associate
@@ -283,12 +282,11 @@ contains
          ! Multi-scalar lag field synchronization
          if (allocated(this%scalar_lags%items) .and. this%scalar_lags%size() > 0) then
             do i = 1, this%scalar_lags%size()
-               associate(slag => this%scalar_lags%get(i))
-                 do j = 1, slag%size()
-                    call device_memcpy(slag%lf(j)%x, slag%lf(j)%x_d, &
-                         slag%lf(j)%dof%size(), HOST_TO_DEVICE, sync=.false.)
-                 end do
-               end associate
+               do j = 1, this%scalar_lags%get(i)%size()
+                  call device_memcpy(this%scalar_lags%get(i)%lf(j)%x, &
+                       this%scalar_lags%get(i)%lf(j)%x_d, &
+                       this%scalar_lags%get(i)%f%dof%size(), HOST_TO_DEVICE, sync=.false.)
+               end do
             end do
          end if
        end associate
