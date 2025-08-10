@@ -453,10 +453,10 @@ contains
        else
           scalar_count = 0
        end if
-       
+
        if (scalar_count > 1) then
           fp_size = fp_size + scalar_count
-          
+
           ! Add Adams-Bashforth fields for each scalar if they exist
           ab_count = 0
           do i = 1, scalar_count
@@ -536,7 +536,7 @@ contains
           ! Single scalar support
           fp(fp_cur)%ptr => data%s
           fp_cur = fp_cur + 1
-          
+
           if (associated(data%abs1)) then
              fp(fp_cur)%ptr => data%abs1
              fp(fp_cur+1)%ptr => data%abs2

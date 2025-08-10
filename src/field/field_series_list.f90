@@ -60,43 +60,43 @@ contains
   subroutine field_series_list_init(this, capacity)
     class(field_series_list_t), intent(inout) :: this
     integer, intent(in) :: capacity
-    
+
     if (capacity <= 0) then
        call neko_error('Field series list capacity must be positive')
     end if
-    
+
     allocate(this%items(capacity))
     this%n_items = 0
-    
+
   end subroutine field_series_list_init
 
   !> Free the field series list
   subroutine field_series_list_free(this)
     class(field_series_list_t), intent(inout) :: this
-    
+
     if (allocated(this%items)) then
        deallocate(this%items)
     end if
     this%n_items = 0
-    
+
   end subroutine field_series_list_free
 
   !> Add a field series to the list
   subroutine field_series_list_add(this, field_series)
     class(field_series_list_t), intent(inout) :: this
     type(field_series_t), target, intent(in) :: field_series
-    
+
     if (.not. allocated(this%items)) then
        call neko_error('Field series list not initialized')
     end if
-    
+
     if (this%n_items >= size(this%items)) then
        call neko_error('Field series list is full')
     end if
-    
+
     this%n_items = this%n_items + 1
     this%items(this%n_items)%ptr => field_series
-    
+
   end subroutine field_series_list_add
 
   !> Get a field series by index
@@ -104,22 +104,22 @@ contains
     class(field_series_list_t), intent(in) :: this
     integer, intent(in) :: index
     type(field_series_t), pointer :: field_series_ptr
-    
+
     if (index < 1 .or. index > this%n_items) then
        call neko_error('Field series list index out of bounds')
     end if
-    
+
     field_series_ptr => this%items(index)%ptr
-    
+
   end function field_series_list_get
 
   !> Get the number of items in the list
   pure function field_series_list_size(this) result(n)
     class(field_series_list_t), intent(in) :: this
     integer :: n
-    
+
     n = this%n_items
-    
+
   end function field_series_list_size
 
 end module field_series_list

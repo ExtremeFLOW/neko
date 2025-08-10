@@ -74,7 +74,7 @@ module checkpoint
      type(field_series_t), pointer :: slag => null()
      type(field_t), pointer :: abs1 => null()
      type(field_t), pointer :: abs2 => null()
-     
+
      type(field_series_list_t) :: scalar_lags
 
 
@@ -136,13 +136,13 @@ contains
     nullify(this%ulag)
     nullify(this%vlag)
     nullify(this%wlag)
-    
+
     ! Scalar cleanup
     nullify(this%s)
     nullify(this%slag)
     nullify(this%abs1)
     nullify(this%abs2)
-    
+
     ! Free scalar lag list if it was initialized
     if (allocated(this%scalar_lags%items)) then
        call this%scalar_lags%free()
@@ -209,14 +209,14 @@ contains
             call device_memcpy(this%abs2%x, this%abs2%x_d, &
                  w%dof%size(), DEVICE_TO_HOST, sync=.false.)
          end if
-         
+
          ! Multi-scalar lag field synchronization
          if (allocated(this%scalar_lags%items) .and. this%scalar_lags%size() > 0) then
             do i = 1, this%scalar_lags%size()
                associate(slag => this%scalar_lags%get(i))
                  do j = 1, slag%size()
                     call device_memcpy(slag%lf(j)%x, slag%lf(j)%x_d, &
-                         slag%lf(j)%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                         slag%lf(j)%dof%size(), DEVICE_TO_HOST, .false.)
                  end do
                end associate
             end do
@@ -279,14 +279,14 @@ contains
             call device_memcpy(this%abs2%x, this%abs2%x_d, &
                  w%dof%size(), HOST_TO_DEVICE, sync=.false.)
          end if
-         
+
          ! Multi-scalar lag field synchronization
          if (allocated(this%scalar_lags%items) .and. this%scalar_lags%size() > 0) then
             do i = 1, this%scalar_lags%size()
                associate(slag => this%scalar_lags%get(i))
                  do j = 1, slag%size()
                     call device_memcpy(slag%lf(j)%x, slag%lf(j)%x_d, &
-                         slag%lf(j)%dof%size(), HOST_TO_DEVICE, sync=.false.)
+                         slag%lf(j)%dof%size(), HOST_TO_DEVICE, .false.)
                  end do
                end associate
             end do
@@ -317,10 +317,10 @@ contains
     type(field_t), target, intent(in) :: s
     type(field_series_t), target, intent(in) :: slag
     type(field_t), target, intent(in), optional :: abs1, abs2
-    
+
     this%s => s
     this%slag => slag
-    
+
     if (present(abs1)) this%abs1 => abs1
     if (present(abs2)) this%abs2 => abs2
 

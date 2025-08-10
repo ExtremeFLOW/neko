@@ -158,7 +158,7 @@ contains
        call this%scalar_fields(i)%init(msh, coef, gs, json_subdict, &
             numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
     end do
-    
+
     ! Register all scalar lag fields with checkpoint using scalable approach
     if (n_scalars > 1) then
        call this%register_scalar_lags_with_checkpoint(chkp)
@@ -218,7 +218,7 @@ contains
     class(scalars_t), intent(inout) :: this
     type(chkp_t), intent(inout) :: chkp
     integer :: i, n_scalars
-    
+
     n_scalars = size(this%scalar_fields)
     do i = 1, size(this%scalar_fields)
        call this%scalar_fields(i)%restart(chkp)
@@ -255,17 +255,17 @@ contains
     class(scalars_t), intent(inout) :: this
     type(chkp_t), intent(inout) :: chkp
     integer :: i, n_scalars
-    
+
     n_scalars = size(this%scalar_fields)
-    
+
     ! Initialize the scalar lag list in checkpoint
     call chkp%scalar_lags%init(n_scalars)
-    
+
     ! Add all scalar lag fields directly to the checkpoint list
     do i = 1, n_scalars
        call chkp%scalar_lags%add(this%scalar_fields(i)%slag)
     end do
-    
+
   end subroutine register_scalar_lags_with_checkpoint
 
 end module scalars
