@@ -218,7 +218,6 @@ contains
     class(scalars_t), intent(inout) :: this
     type(chkp_t), intent(inout) :: chkp
     integer :: i, n_scalars
-    character(len=256) :: log_buf
     
     n_scalars = size(this%scalar_fields)
     do i = 1, size(this%scalar_fields)
