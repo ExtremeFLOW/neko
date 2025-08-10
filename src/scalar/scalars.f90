@@ -109,29 +109,33 @@ contains
     ! If there are more scalar_scheme_t types, add a factory function here
     allocate(scalar_pnpn_t::this%scalar_fields(n_scalars))
 
-    ! For multiple scalars, collect and validate field names
-    if (n_scalars > 1) then
-       allocate(character(len=256) :: field_names(n_scalars))
+    ! Collect and validate field names for all scalars
+    allocate(character(len=256) :: field_names(n_scalars))
 
-       do i = 1, n_scalars
-          ! Extract element i from the "scalars" array
-          call json_extract_item(params, "", i, json_subdict)
+    do i = 1, n_scalars
+       ! Extract element i from the "scalars" array
+       call json_extract_item(params, "", i, json_subdict)
 
-          ! Try to get name from JSON, generate one if not found or empty
-          if (json_subdict%valid_path('name')) then
-             call json_get(json_subdict, 'name', field_name)
+       ! Try to get name from JSON, generate one if not found or empty
+       if (json_subdict%valid_path('name')) then
+          call json_get(json_subdict, 'name', field_name)
+       else
+          field_name = ''
+       end if
+
+       ! If name is empty or not provided, generate a default one
+       if (len_trim(field_name) == 0) then
+          if (n_scalars == 1) then
+             field_name = 's'  ! Single scalar gets default name 's'
           else
-             field_name = ''
-          end if
-
-          ! If name is empty or not provided, generate a default one
-          if (len_trim(field_name) == 0) then
              write(field_name, '(A,I0)') 's_', i
           end if
+       end if
 
-          field_names(i) = trim(field_name)
+       field_names(i) = trim(field_name)
 
-          ! If there's a duplicate, append a number until unique
+       ! If there's a duplicate, append a number until unique
+       if (n_scalars > 1) then
           j = 1
           do while (j < i)
              if (trim(field_names(i)) == trim(field_names(j))) then
@@ -142,18 +146,14 @@ contains
                 j = j + 1
              end if
           end do
-       end do
-    end if
+       end if
+    end do
 
     do i = 1, n_scalars
        call json_extract_item(params, "", i, json_subdict)
 
-       ! Use the processed field names for multiple scalars
-       if (n_scalars > 1) then
-          call json_subdict%add('name', trim(field_names(i)))
-       else
-          call json_subdict%add('name', 's')
-       end if
+       ! Use the processed field names for all scalars
+       call json_subdict%add('name', trim(field_names(i)))
 
        call this%scalar_fields(i)%init(msh, coef, gs, json_subdict, &
             numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
@@ -193,6 +193,9 @@ contains
     ! Initialize it directly with the params
     call this%scalar_fields(1)%init(msh, coef, gs, params, numerics_params, &
          user, chkp, ulag, vlag, wlag, time_scheme, rho)
+    
+    ! Register single scalar with checkpoint
+    call chkp%add_scalar(this%scalar_fields(1)%s, this%scalar_fields(1)%slag)
   end subroutine scalars_init_single
 
   !> Perform a time step for all scalar fields
