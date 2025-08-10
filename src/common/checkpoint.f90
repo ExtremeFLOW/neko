@@ -35,6 +35,7 @@ module checkpoint
   use neko_config
   use num_types, only : rp, dp
   use field_series, only : field_series_t
+  use field_series_list, only : field_series_list_t
   use space, only : space_t, operator(.ne.)
   use device, only : device_memcpy, DEVICE_TO_HOST, HOST_TO_DEVICE, &
        device_sync, glb_cmd_queue
@@ -70,17 +71,14 @@ module checkpoint
      type(field_t), pointer :: abz1 => null()
      type(field_t), pointer :: abz2 => null()
 
-     ! Scalar support
+     ! Legacy single-scalar support (for backward compatibility)
      type(field_t), pointer :: s => null()
      type(field_series_t), pointer :: slag => null()
      type(field_t), pointer :: abs1 => null()
      type(field_t), pointer :: abs2 => null()
      
-     ! Multi-scalar lag field support
-     type(field_series_t), pointer :: slag1 => null()
-     type(field_series_t), pointer :: slag2 => null()
-     type(field_series_t), pointer :: slag3 => null()
-     type(field_series_t), pointer :: slag4 => null()
+     ! Multi-scalar lag field support - arbitrary number of scalars
+     type(field_series_list_t) :: scalar_lags
 
 
      real(kind=dp) :: t !< Restart time (valid after load)
@@ -92,9 +90,8 @@ module checkpoint
      procedure, pass(this) :: init => chkp_init
      procedure, pass(this) :: sync_host => chkp_sync_host
      procedure, pass(this) :: sync_device => chkp_sync_device
-          procedure, pass(this) :: add_lag => chkp_add_lag
+     procedure, pass(this) :: add_lag => chkp_add_lag
      procedure, pass(this) :: add_scalar => chkp_add_scalar
-     procedure, pass(this) :: add_scalar_lags => chkp_add_scalar_lags
 
      procedure, pass(this) :: restart_time => chkp_restart_time
      final :: chkp_free
@@ -149,12 +146,18 @@ contains
     nullify(this%slag)
     nullify(this%abs1)
     nullify(this%abs2)
+    
+    ! Free scalar lag list if it was initialized
+    if (allocated(this%scalar_lags%items)) then
+       call this%scalar_lags%free()
+    end if
 
   end subroutine chkp_free
 
   !> Synchronize checkpoint with device
   subroutine chkp_sync_host(this)
     class(chkp_t), intent(inout) :: this
+    integer :: i, j
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        associate(u=>this%u, v=>this%v, w=>this%w, &
@@ -210,6 +213,18 @@ contains
             call device_memcpy(this%abs2%x, this%abs2%x_d, &
                  w%dof%size(), DEVICE_TO_HOST, sync=.false.)
          end if
+         
+         ! Multi-scalar lag field synchronization
+         if (allocated(this%scalar_lags%items) .and. this%scalar_lags%size() > 0) then
+            do i = 1, this%scalar_lags%size()
+               associate(slag => this%scalar_lags%get(i))
+                 do j = 1, slag%size()
+                    call device_memcpy(slag%lf(j)%x, slag%lf(j)%x_d, &
+                         slag%lf(j)%dof%size(), DEVICE_TO_HOST, sync=.false.)
+                 end do
+               end associate
+            end do
+         end if
        end associate
        call device_sync(glb_cmd_queue)
     end if
@@ -219,6 +234,7 @@ contains
   !> Synchronize device with checkpoint
   subroutine chkp_sync_device(this)
     class(chkp_t), intent(inout) :: this
+    integer :: i, j
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        associate(u=>this%u, v=>this%v, w=>this%w, &
@@ -267,6 +283,18 @@ contains
             call device_memcpy(this%abs2%x, this%abs2%x_d, &
                  w%dof%size(), HOST_TO_DEVICE, sync=.false.)
          end if
+         
+         ! Multi-scalar lag field synchronization
+         if (allocated(this%scalar_lags%items) .and. this%scalar_lags%size() > 0) then
+            do i = 1, this%scalar_lags%size()
+               associate(slag => this%scalar_lags%get(i))
+                 do j = 1, slag%size()
+                    call device_memcpy(slag%lf(j)%x, slag%lf(j)%x_d, &
+                         slag%lf(j)%dof%size(), HOST_TO_DEVICE, sync=.false.)
+                 end do
+               end associate
+            end do
+         end if
        end associate
     end if
 
@@ -285,26 +313,22 @@ contains
 
   end subroutine chkp_add_lag
 
-  !> Add scalars (legacy single scalar support)
-  subroutine chkp_add_scalar(this, s)
-    class(chkp_t), intent(inout) :: this
-    type(field_t), target :: s
 
+
+  !> Add a scalar to checkpointing
+  subroutine chkp_add_scalar(this, s, slag, abs1, abs2)
+    class(chkp_t), intent(inout) :: this
+    type(field_t), target, intent(in) :: s
+    type(field_series_t), target, intent(in) :: slag
+    type(field_t), target, intent(in), optional :: abs1, abs2
+    
     this%s => s
+    this%slag => slag
+    
+    if (present(abs1)) this%abs1 => abs1
+    if (present(abs2)) this%abs2 => abs2
 
   end subroutine chkp_add_scalar
-
-  !> Add multiple scalar lag fields for multi-scalar support
-  subroutine chkp_add_scalar_lags(this, slag1, slag2, slag3, slag4)
-    class(chkp_t), intent(inout) :: this
-    type(field_series_t), target, optional :: slag1, slag2, slag3, slag4
-
-    if (present(slag1)) this%slag1 => slag1
-    if (present(slag2)) this%slag2 => slag2
-    if (present(slag3)) this%slag3 => slag3
-    if (present(slag4)) this%slag4 => slag4
-
-  end subroutine chkp_add_scalar_lags
 
 
   !> Return restart time from a loaded checkpoint

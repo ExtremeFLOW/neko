@@ -257,13 +257,6 @@ contains
          ulag, vlag, wlag, this%chkp%dtlag, &
          this%chkp%tlag, time_scheme, .not. advection, &
          this%slag)
-    
-    ! Note: Individual scalar lag fields are handled through the checkpoint's fsp mechanism
-    
-    call this%chkp%add_scalar(this%s)
-    this%chkp%abs1 => this%abx1
-    this%chkp%abs2 => this%abx2
-    this%chkp%slag => this%slag
   end subroutine scalar_pnpn_init
 
   ! Restarts the scalar from a checkpoint

@@ -82,6 +82,7 @@ field/scratch_registry.lo : field/scratch_registry.f90 sem/dofmap.lo math/field_
 field/field.lo : field/field.f90 sem/dofmap.lo sem/space.lo mesh/mesh.lo math/math.lo device/device.lo config/num_types.lo math/bcknd/device/device_math.lo config/neko_config.lo 
 field/field_list.lo : field/field_list.f90 comm/comm.lo common/utils.lo mesh/mesh.lo sem/dofmap.lo sem/space.lo config/num_types.lo field/field.lo 
 field/field_series.lo : field/field_series.f90 field/field.lo 
+field/field_series_list.lo : field/field_series_list.f90 common/utils.lo field/field_series.lo 
 field/mesh_field.lo : field/mesh_field.f90 mesh/mesh.lo 
 field/mean_field.lo : field/mean_field.f90 math/field_math.lo field/field.lo config/num_types.lo common/stats_quant.lo config/neko_config.lo 
 field/mean_sqr_field.lo : field/mean_sqr_field.f90 math/math.lo math/bcknd/device/device_math.lo field/mean_field.lo config/neko_config.lo config/num_types.lo 
@@ -123,7 +124,7 @@ multigrid/tree_amg_aggregate.lo : multigrid/tree_amg_aggregate.f90 common/log.lo
 multigrid/tree_amg_multigrid.lo : multigrid/tree_amg_multigrid.f90 config/neko_config.lo device/device.lo common/log.lo multigrid/tree_amg_smoother.lo multigrid/tree_amg_aggregate.lo multigrid/tree_amg.lo gs/gather_scatter.lo bc/bc_list.lo math/ax.lo sem/space.lo mesh/mesh.lo sem/coef.lo comm/comm.lo math/bcknd/device/device_math.lo math/math.lo common/utils.lo config/num_types.lo 
 multigrid/tree_amg_smoother.lo : multigrid/tree_amg_smoother.f90 config/neko_config.lo device/device.lo common/log.lo gs/gather_scatter.lo bc/bc_list.lo krylov/krylov.lo math/bcknd/device/device_math.lo math/math.lo config/num_types.lo multigrid/tree_amg_utils.lo multigrid/tree_amg.lo 
 multigrid/phmg.lo : multigrid/phmg.f90 common/log.lo krylov/krylov.lo config/neko_config.lo common/profiler.lo math/bcknd/device/device_math.lo device/device.lo math/math.lo common/json_utils.lo sem/interpolation.lo multigrid/tree_amg_multigrid.lo math/ax.lo math/schwarz.lo krylov/bcknd/device/pc_jacobi_device.lo krylov/bcknd/cpu/pc_jacobi.lo krylov/bcknd/device/cheby_device.lo krylov/bcknd/cpu/cheby.lo common/utils.lo bc/dirichlet.lo bc/bc_list.lo bc/bc.lo mesh/mesh.lo sem/coef.lo field/field.lo sem/dofmap.lo sem/space.lo gs/gather_scatter.lo krylov/precon.lo config/num_types.lo 
-common/checkpoint.lo : common/checkpoint.f90 common/log.lo mesh/mesh.lo common/utils.lo field/field.lo device/device.lo sem/space.lo field/field_series.lo config/num_types.lo config/neko_config.lo 
+common/checkpoint.lo : common/checkpoint.f90 common/log.lo mesh/mesh.lo common/utils.lo field/field.lo device/device.lo sem/space.lo field/field_series_list.lo field/field_series.lo config/num_types.lo config/neko_config.lo 
 io/generic_file.lo : io/generic_file.f90 comm/comm.lo common/utils.lo config/num_types.lo 
 io/map_file.lo : io/map_file.f90 io/format/map.lo comm/comm.lo common/utils.lo io/generic_file.lo config/num_types.lo 
 io/re2_file.lo : io/re2_file.f90 comm/comm.lo adt/htable.lo io/format/re2.lo common/utils.lo common/log.lo io/format/map.lo common/datadist.lo comm/mpi_types.lo mesh/point.lo mesh/mesh.lo io/map_file.lo config/num_types.lo io/generic_file.lo 
