@@ -216,7 +216,7 @@ contains
                associate(slag => this%scalar_lags%get(i))
                  do j = 1, slag%size()
                     call device_memcpy(slag%lf(j)%x, slag%lf(j)%x_d, &
-                         slag%lf(j)%dof%size(), DEVICE_TO_HOST, .false.)
+                         slag%lf(j)%dof%size(), DEVICE_TO_HOST, sync=.false.)
                  end do
                end associate
             end do
@@ -286,7 +286,7 @@ contains
                associate(slag => this%scalar_lags%get(i))
                  do j = 1, slag%size()
                     call device_memcpy(slag%lf(j)%x, slag%lf(j)%x_d, &
-                         slag%lf(j)%dof%size(), HOST_TO_DEVICE, .false.)
+                         slag%lf(j)%dof%size(), HOST_TO_DEVICE, sync=.false.)
                  end do
                end associate
             end do
