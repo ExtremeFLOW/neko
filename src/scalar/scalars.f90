@@ -126,7 +126,7 @@ contains
        ! If name is empty or not provided, generate a default one
        if (len_trim(field_name) == 0) then
           if (n_scalars == 1) then
-             field_name = 's'  ! Single scalar gets default name 's'
+             field_name = 's' ! Single scalar gets default name 's'
           else
              write(field_name, '(A,I0)') 's_', i
           end if
@@ -193,7 +193,7 @@ contains
     ! Initialize it directly with the params
     call this%scalar_fields(1)%init(msh, coef, gs, params, numerics_params, &
          user, chkp, ulag, vlag, wlag, time_scheme, rho)
-    
+
     ! Register single scalar with checkpoint
     call chkp%add_scalar(this%scalar_fields(1)%s, this%scalar_fields(1)%slag)
   end subroutine scalars_init_single
