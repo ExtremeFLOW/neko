@@ -403,8 +403,7 @@ contains
     type(field_series_ptr_t), allocatable, intent(inout) :: fsp(:)
     real(kind=rp), pointer, intent(inout) :: dtlag(:)
     real(kind=rp), pointer, intent(inout) :: tlag(:)
-    integer :: i, j, fp_size, fp_cur, fsp_size, fsp_cur, scalar_count, lag_count
-    character(len=20) :: lag_field_name
+    integer :: i, j, fp_size, fp_cur, fsp_size, fsp_cur, scalar_count
 
     select type(data)
     type is (field_t)
@@ -467,10 +466,6 @@ contains
              fp_size = fp_size + 8  ! 2 Adams-Bashforth fields per scalar * 4 scalars
           end if
           
-          ! Lag fields are disabled for now to avoid HDF5 dataset creation errors
-          ! TODO: Implement proper lag field support for multi-scalar checkpoints
-          ! lag_count = 0
-          ! fp_size = fp_size + lag_count
 
        else if (associated(data%s)) then
           ! Single scalar support
@@ -491,8 +486,16 @@ contains
           fsp_size = fsp_size + 3
        end if
 
-       ! Scalar lag support
-       if (associated(data%slag)) then
+       ! Scalar lag support - use multi-scalar approach if available, otherwise single-scalar
+       if (associated(data%slag1) .or. associated(data%slag2) .or. &
+           associated(data%slag3) .or. associated(data%slag4)) then
+          ! Multi-scalar lag support
+          if (associated(data%slag1)) fsp_size = fsp_size + 1
+          if (associated(data%slag2)) fsp_size = fsp_size + 1
+          if (associated(data%slag3)) fsp_size = fsp_size + 1
+          if (associated(data%slag4)) fsp_size = fsp_size + 1
+       else if (associated(data%slag)) then
+          ! Single-scalar lag support (only when no multi-scalar lags are present)
           fsp_size = fsp_size + 1
        end if
 
@@ -540,9 +543,6 @@ contains
              fp_cur = fp_cur + 8
           end if
           
-          ! Lag fields are disabled for now to avoid HDF5 dataset creation errors  
-          ! TODO: Implement proper lag field support for multi-scalar checkpoints
-          ! (lag field pointer assignment would go here)
           
 
        else if (associated(data%s)) then
@@ -574,8 +574,28 @@ contains
           fsp_cur = fsp_cur + 3
        end if
 
-       ! Scalar lag support
-       if (associated(data%slag)) then
+       ! Scalar lag support - use multi-scalar approach if available, otherwise single-scalar
+       if (associated(data%slag1) .or. associated(data%slag2) .or. &
+           associated(data%slag3) .or. associated(data%slag4)) then
+          ! Multi-scalar lag support
+          if (associated(data%slag1)) then
+             fsp(fsp_cur)%ptr => data%slag1
+             fsp_cur = fsp_cur + 1
+          end if
+          if (associated(data%slag2)) then
+             fsp(fsp_cur)%ptr => data%slag2
+             fsp_cur = fsp_cur + 1
+          end if
+          if (associated(data%slag3)) then
+             fsp(fsp_cur)%ptr => data%slag3
+             fsp_cur = fsp_cur + 1
+          end if
+          if (associated(data%slag4)) then
+             fsp(fsp_cur)%ptr => data%slag4
+             fsp_cur = fsp_cur + 1
+          end if
+       else if (associated(data%slag)) then
+          ! Single-scalar lag support (only when no multi-scalar lags are present)
           fsp(fsp_cur)%ptr => data%slag
           fsp_cur = fsp_cur + 1
        end if

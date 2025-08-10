@@ -78,6 +78,8 @@ module scalars
      procedure :: validate => scalars_validate
      !> Clean up all resources
      procedure :: free => scalars_free
+     !> Setup multi-scalar lag fields for checkpointing
+     procedure, private :: setup_multi_scalar_lags => scalars_setup_multi_scalar_lags
   end type scalars_t
 
 contains
@@ -156,6 +158,11 @@ contains
        call this%scalar_fields(i)%init(msh, coef, gs, json_subdict, &
             numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
     end do
+    
+    ! For multi-scalar cases, collect all lag fields for proper checkpointing
+    if (n_scalars > 1) then
+       call this%setup_multi_scalar_lags(chkp)
+    end if
   end subroutine scalars_init
 
   subroutine scalars_init_single(this, msh, coef, gs, params, numerics_params, &
@@ -240,5 +247,33 @@ contains
        deallocate(this%scalar_fields)
     end if
   end subroutine scalars_free
+
+  !> Setup multi-scalar lag fields for proper checkpointing
+  subroutine scalars_setup_multi_scalar_lags(this, chkp)
+    class(scalars_t), intent(inout) :: this
+    type(chkp_t), intent(inout) :: chkp
+    integer :: n_scalars
+    
+    n_scalars = size(this%scalar_fields)
+    
+    ! Register scalar lag fields using the checkpoint's add_scalar_lags procedure
+    select case (n_scalars)
+    case (1)
+       call chkp%add_scalar_lags(slag1=this%scalar_fields(1)%slag)
+    case (2)
+       call chkp%add_scalar_lags(slag1=this%scalar_fields(1)%slag, &
+                                 slag2=this%scalar_fields(2)%slag)
+    case (3)
+       call chkp%add_scalar_lags(slag1=this%scalar_fields(1)%slag, &
+                                 slag2=this%scalar_fields(2)%slag, &
+                                 slag3=this%scalar_fields(3)%slag)
+    case (4)
+       call chkp%add_scalar_lags(slag1=this%scalar_fields(1)%slag, &
+                                 slag2=this%scalar_fields(2)%slag, &
+                                 slag3=this%scalar_fields(3)%slag, &
+                                 slag4=this%scalar_fields(4)%slag)
+    end select
+    
+  end subroutine scalars_setup_multi_scalar_lags
 
 end module scalars

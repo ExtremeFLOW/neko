@@ -76,10 +76,11 @@ module checkpoint
      type(field_t), pointer :: abs1 => null()
      type(field_t), pointer :: abs2 => null()
      
-
-     
-
-     
+     ! Multi-scalar lag field support
+     type(field_series_t), pointer :: slag1 => null()
+     type(field_series_t), pointer :: slag2 => null()
+     type(field_series_t), pointer :: slag3 => null()
+     type(field_series_t), pointer :: slag4 => null()
 
 
      real(kind=dp) :: t !< Restart time (valid after load)
@@ -91,8 +92,9 @@ module checkpoint
      procedure, pass(this) :: init => chkp_init
      procedure, pass(this) :: sync_host => chkp_sync_host
      procedure, pass(this) :: sync_device => chkp_sync_device
-     procedure, pass(this) :: add_lag => chkp_add_lag
-            procedure, pass(this) :: add_scalar => chkp_add_scalar
+          procedure, pass(this) :: add_lag => chkp_add_lag
+     procedure, pass(this) :: add_scalar => chkp_add_scalar
+     procedure, pass(this) :: add_scalar_lags => chkp_add_scalar_lags
 
      procedure, pass(this) :: restart_time => chkp_restart_time
      final :: chkp_free
@@ -291,6 +293,18 @@ contains
     this%s => s
 
   end subroutine chkp_add_scalar
+
+  !> Add multiple scalar lag fields for multi-scalar support
+  subroutine chkp_add_scalar_lags(this, slag1, slag2, slag3, slag4)
+    class(chkp_t), intent(inout) :: this
+    type(field_series_t), target, optional :: slag1, slag2, slag3, slag4
+
+    if (present(slag1)) this%slag1 => slag1
+    if (present(slag2)) this%slag2 => slag2
+    if (present(slag3)) this%slag3 => slag3
+    if (present(slag4)) this%slag4 => slag4
+
+  end subroutine chkp_add_scalar_lags
 
 
   !> Return restart time from a loaded checkpoint
