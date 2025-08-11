@@ -63,48 +63,10 @@ module vector
      procedure, pass(v) :: vector_assign_vector
      !> Assignment \f$ v = s \f$.
      procedure, pass(v) :: vector_assign_scalar
-     !> Vector-vector addition \f$ v = a + b \f$.
-     procedure, pass(a) :: vector_add_vector
-     !> Vector-scalar addition \f$ v = a + c \f$.
-     procedure, pass(a) :: vector_add_scalar_left
-     !> Scalar-vector addition \f$ v = c + a \f$.
-     procedure, pass(a) :: vector_add_scalar_right
-     !> Vector-vector subtraction \f$ v = a - b \f$.
-     procedure, pass(a) :: vector_sub_vector
-     !> Vector-scalar subtraction \f$ v = a - c \f$.
-     procedure, pass(a) :: vector_sub_scalar_left
-     !> Scalar-vector subtraction \f$ v = c - a \f$.
-     procedure, pass(a) :: vector_sub_scalar_right
-     !> Vector-scalar multiplication \f$ v = a*c \f$.
-     procedure, pass(a) :: vector_cmult_left
-     !> Scalar-vector multiplication \f$ v = c*a \f$.
-     procedure, pass(a) :: vector_cmult_right
-     !> Pointwise vector multiplication \f$ v = a*b \f$.
-     procedure, pass(a) :: vector_pointwise_mult
-     !> Pointwise vector power \f$ v = a*b \f$.
-     procedure, pass(a) :: vector_pointwise_power
-     !> Scalar-vector division \f$ v = c / a \f$.
-     procedure, pass(a) :: vector_cdiv_left
-     !> Vector-scalar division \f$ v = a / c \f$.
-     procedure, pass(a) :: vector_cdiv_right
-     !> Pointwise vector division \f$ v = a / b \f$.
-     procedure, pass(a) :: vector_pointwise_div
-     !> Change the sign of the vector.
-     procedure, pass(a) :: vector_chsign
 
+     !> Assignments
      generic :: assignment(=) => vector_assign_vector, &
           vector_assign_scalar
-     generic :: operator(+) => vector_add_vector, &
-          vector_add_scalar_left, vector_add_scalar_right
-     generic :: operator(-) => vector_sub_vector, &
-          vector_sub_scalar_left, vector_sub_scalar_right, &
-          vector_chsign
-     generic :: operator(*) => vector_cmult_left, vector_cmult_right, &
-          vector_pointwise_mult
-     generic :: operator(/) => vector_cdiv_left, vector_cdiv_right, &
-          vector_pointwise_div
-     ! Seems to crash the cray compiler
-     !generic :: operator(**) => vector_pointwise_power
 
      ! Private interfaces
      procedure, pass(a), private :: alloc => vector_allocate
@@ -136,6 +98,8 @@ contains
     integer, intent(in) :: n
 
     if (n .eq. 0) call neko_error('Vector cannot have size 0')
+
+    if (a%n .eq. n) return
     call a%free()
 
     a%n = n
@@ -174,8 +138,7 @@ contains
     class(vector_t), intent(inout) :: v
     type(vector_t), intent(in) :: w
 
-    if (v%n .ne. w%n) call v%alloc(w%n)
-
+    call v%alloc(w%n)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_copy(v%x_d, w%x_d, v%n)
     else
@@ -198,229 +161,5 @@ contains
     end if
 
   end subroutine vector_assign_scalar
-
-  !> Vector-vector addition \f$ v = a + b \f$.
-  function vector_add_vector(a, b) result(v)
-    class(vector_t), intent(in) :: a, b
-    type(vector_t) :: v
-
-    if (a%n .ne. b%n) call neko_error("Vectors must be the same length")
-
-    call v%alloc(a%n)
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_add3(v%x_d, a%x_d, b%x_d, v%n)
-    else
-       call add3(v%x, a%x, b%x, v%n)
-    end if
-
-  end function vector_add_vector
-
-  !> Vector-scalar addition \f$ v = a + c \f$.
-  function vector_add_scalar_left(a, c) result(v)
-    class(vector_t), intent(in) :: a
-    real(kind=rp), intent(in) :: c
-    type(vector_t) :: v
-
-    call v%alloc(a%n)
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cadd2(v%x_d, a%x_d, c, v%n)
-    else
-       call cadd2(v%x, a%x, c, v%n)
-    end if
-
-  end function vector_add_scalar_left
-
-  !> Scalar-vector addition \f$ v = c + a \f$.
-  function vector_add_scalar_right(c, a) result(v)
-    real(kind=rp), intent(in) :: c
-    class(vector_t), intent(in) :: a
-    type(vector_t) :: v
-
-    v = vector_add_scalar_left(a, c)
-
-  end function vector_add_scalar_right
-
-  !> Vector-vector subtraction \f$ v = a - b \f$.
-  function vector_sub_vector(a, b) result(v)
-    class(vector_t), intent(in) :: a, b
-    type(vector_t) :: v
-
-    if (a%n .ne. b%n) call neko_error("Vectors must be the same length")
-
-    call v%alloc(a%n)
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_sub3(v%x_d, a%x_d, b%x_d, v%n)
-    else
-       call sub3(v%x, a%x, b%x, v%n)
-    end if
-
-  end function vector_sub_vector
-
-  !> Vector-scalar subtraction \f$ v = a - c \f$.
-  function vector_sub_scalar_left(a, c) result(v)
-    class(vector_t), intent(in) :: a
-    real(kind=rp), intent(in) :: c
-    type(vector_t) :: v
-
-    call v%alloc(a%n)
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cadd2(v%x_d, a%x_d, -1.0_rp*c, v%n)
-    else
-       call cadd2(v%x, a%x, -1.0_rp*c, a%n)
-    end if
-
-  end function vector_sub_scalar_left
-
-  !> Scalar-vector subtraction \f$ v = c - a \f$.
-  function vector_sub_scalar_right(c, a) result(v)
-    real(kind=rp), intent(in) :: c
-    class(vector_t), intent(in) :: a
-    type(vector_t) :: v
-
-    v = vector_sub_scalar_left(a, c)
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cmult(v%x_d, -1.0_rp, v%n)
-    else
-       v%x = -v%x
-    end if
-
-  end function vector_sub_scalar_right
-
-  !> Change the sign of the vector.
-  function vector_chsign(a) result(v)
-    class(vector_t), intent(in) :: a
-    type(vector_t) :: v
-
-    call v%alloc(a%n)
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       v = a
-       call device_cmult(v%x_d, -1.0_rp, v%n)
-    else
-       v%x = -a%x
-    end if
-
-  end function vector_chsign
-
-  !> Vector-scalar multiplication \f$ v = a*c \f$.
-  function vector_cmult_left(a, c) result(v)
-    class(vector_t), intent(in) :: a
-    real(kind=rp), intent(in) :: c
-    type(vector_t) :: v
-
-    call v%alloc(a%n)
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cmult2(v%x_d, a%x_d, c, v%n)
-    else
-       call cmult2(v%x, a%x, c, v%n)
-    end if
-
-  end function vector_cmult_left
-
-  !> Scalar-vector multiplication \f$ v = c*a \f$.
-  function vector_cmult_right(c, a) result(v)
-    real(kind=rp), intent(in) :: c
-    class(vector_t), intent(in) :: a
-    type(vector_t) :: v
-
-    v = vector_cmult_left(a, c)
-
-  end function vector_cmult_right
-
-  !> Pointwise vector multiplication \f$ v = a*b \f$.
-  function vector_pointwise_mult(a, b) result(v)
-    class(vector_t), intent(in) :: a, b
-    type(vector_t) :: v
-
-    if (a%n .ne. b%n) call neko_error("Vectors must be the same length")
-
-    call v%alloc(a%n)
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_col3(v%x_d, a%x_d, b%x_d, v%n)
-    else
-       call col3(v%x, a%x, b%x, v%n)
-    end if
-
-  end function vector_pointwise_mult
-
-  !> Pointwise power \f$ v = a^b \f$. OBS integer b
-  !! Todo: Incredibly poor performance, needs to be optimized.
-  function vector_pointwise_power(a, b) result(v)
-    class(vector_t), intent(in) :: a
-    integer, intent(in) :: b
-    type(vector_t) :: v
-    integer :: i
-
-    call v%alloc(a%n)
-    v = 1.0_rp
-    if (b .eq. 0) then
-       return
-    end if
-
-    do i = 1, b
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_col2(v%x_d, a%x_d, v%n)
-       else
-          call col2(v%x, a%x, v%n)
-       end if
-    end do
-
-  end function vector_pointwise_power
-
-  !> Scalar-vector division \f$ v = c / a \f$.
-  function vector_cdiv_left(c, a) result(v)
-    real(kind=rp), intent(in) :: c
-    class(vector_t), intent(in) :: a
-    type(vector_t) :: v
-
-    call v%alloc(a%n)
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cdiv2(v%x_d, a%x_d, c, v%n)
-    else
-       call cdiv2(v%x, a%x, c, v%n)
-    end if
-
-  end function vector_cdiv_left
-
-  !> Vector-scalar division \f$ v = a / c \f$.
-  function vector_cdiv_right(a, c) result(v)
-    class(vector_t), intent(in) :: a
-    real(kind=rp), intent(in) :: c
-    type(vector_t) :: v
-
-    call v%alloc(a%n)
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cmult2(v%x_d, a%x_d, 1.0_rp / c, v%n)
-    else
-       call cmult2(v%x, a%x, 1.0_rp / c, v%n)
-    end if
-
-  end function vector_cdiv_right
-
-  !> Pointwise vector division \f$ v = a / b \f$.
-  function vector_pointwise_div(a, b) result(v)
-    class(vector_t), intent(in) :: a, b
-    type(vector_t) :: v
-
-    if (a%n .ne. b%n) call neko_error("Vectors must be the same length")
-
-    call v%alloc(a%n)
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_invcol3(v%x_d, a%x_d, b%x_d, v%n)
-    else
-       call invcol3(v%x, a%x, b%x, v%n)
-    end if
-
-  end function vector_pointwise_div
 
 end module vector
