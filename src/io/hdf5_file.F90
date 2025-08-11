@@ -454,20 +454,11 @@ contains
           scalar_count = 0
        end if
 
-       if (scalar_count > 1) then
+       if (scalar_count .gt. 1) then
           fp_size = fp_size + scalar_count
 
-          ! Add Adams-Bashforth fields for each scalar if they exist
-          ab_count = 0
-          do i = 1, scalar_count
-             associate(slag => data%scalar_lags%get(i))
-               write(scalar_name, '(A,A)') trim(slag%f%name), '_abx1'
-               if (neko_field_registry%field_exists(scalar_name)) ab_count = ab_count + 1
-               write(scalar_name, '(A,A)') trim(slag%f%name), '_abx2'
-               if (neko_field_registry%field_exists(scalar_name)) ab_count = ab_count + 1
-             end associate
-          end do
-          fp_size = fp_size + ab_count
+          ! Add abx1 and abx2 fields for each scalar
+          fp_size = fp_size + (scalar_count * 2)
        else if (associated(data%s)) then
           ! Single scalar support
           fp_size = fp_size + 1
@@ -487,7 +478,7 @@ contains
           fsp_size = fsp_size + 3
        end if
 
-       if (scalar_count > 1) then
+       if (scalar_count .gt. 1) then
           if (allocated(data%scalar_lags%items)) then
              fsp_size = fsp_size + data%scalar_lags%size()
           end if
@@ -510,7 +501,7 @@ contains
 
        fp_cur = 5
 
-       if (scalar_count > 1) then
+       if (scalar_count .gt. 1) then
           do i = 1, scalar_count
              associate(slag => data%scalar_lags%get(i))
                fp(fp_cur)%ptr => slag%f
@@ -521,15 +512,11 @@ contains
           do i = 1, scalar_count
              associate(slag => data%scalar_lags%get(i))
                write(scalar_name, '(A,A)') trim(slag%f%name), '_abx1'
-               if (neko_field_registry%field_exists(scalar_name)) then
-                  fp(fp_cur)%ptr => neko_field_registry%get_field(scalar_name)
-                  fp_cur = fp_cur + 1
-               end if
+               fp(fp_cur)%ptr => neko_field_registry%get_field(scalar_name)
+               fp_cur = fp_cur + 1
                write(scalar_name, '(A,A)') trim(slag%f%name), '_abx2'
-               if (neko_field_registry%field_exists(scalar_name)) then
-                  fp(fp_cur)%ptr => neko_field_registry%get_field(scalar_name)
-                  fp_cur = fp_cur + 1
-               end if
+               fp(fp_cur)%ptr => neko_field_registry%get_field(scalar_name)
+               fp_cur = fp_cur + 1
              end associate
           end do
        else if (associated(data%s)) then
@@ -562,10 +549,10 @@ contains
        end if
 
 
-       if (scalar_count > 1) then
+       if (scalar_count .gt. 1) then
           if (allocated(data%scalar_lags%items)) then
-             do i = 1, data%scalar_lags%size()
-                fsp(fsp_cur)%ptr => data%scalar_lags%get(i)
+             do j = 1, data%scalar_lags%size()
+                fsp(fsp_cur)%ptr => data%scalar_lags%get(j)
                 fsp_cur = fsp_cur + 1
              end do
           end if

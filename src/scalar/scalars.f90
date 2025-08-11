@@ -79,7 +79,7 @@ module scalars
      !> Clean up all resources
      procedure :: free => scalars_free
      !> Register scalar lag fields with checkpoint
-     procedure, private :: register_scalar_lags_with_checkpoint
+     procedure, private :: register_lags_with_checkpoint
   end type scalars_t
 
 contains
@@ -161,7 +161,7 @@ contains
 
     ! Register all scalar lag fields with checkpoint using scalable approach
     if (n_scalars > 1) then
-       call this%register_scalar_lags_with_checkpoint(chkp)
+       call this%register_lags_with_checkpoint(chkp)
     else
        ! For single scalar, use legacy interface
        call chkp%add_scalar(this%scalar_fields(1)%s, this%scalar_fields(1)%slag)
@@ -254,21 +254,18 @@ contains
   end subroutine scalars_free
 
   !> Register scalar lag fields with checkpoint
-  subroutine register_scalar_lags_with_checkpoint(this, chkp)
+  subroutine register_lags_with_checkpoint(this, chkp)
     class(scalars_t), intent(inout) :: this
     type(chkp_t), intent(inout) :: chkp
     integer :: i, n_scalars
 
     n_scalars = size(this%scalar_fields)
 
-    ! Initialize the scalar lag list in checkpoint
-    call chkp%scalar_lags%init(n_scalars)
-
-    ! Add all scalar lag fields directly to the checkpoint list
+    ! Add all scalar lag fields to the checkpoint list
     do i = 1, n_scalars
-       call chkp%scalar_lags%add(this%scalar_fields(i)%slag)
+       call chkp%scalar_lags%append(this%scalar_fields(i)%slag)
     end do
 
-  end subroutine register_scalar_lags_with_checkpoint
+  end subroutine register_lags_with_checkpoint
 
 end module scalars

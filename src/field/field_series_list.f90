@@ -47,7 +47,7 @@ module field_series_list
      !> Destructor.
      procedure, pass(this) :: free => field_series_list_free
      !> Add a field series to the list.
-     procedure, pass(this) :: add => field_series_list_add
+     procedure, pass(this) :: append => field_series_list_append
      !> Get a field series by index.
      procedure, pass(this) :: get => field_series_list_get
      !> Get the number of items in the list.
@@ -82,22 +82,28 @@ contains
   end subroutine field_series_list_free
 
   !> Add a field series to the list
-  subroutine field_series_list_add(this, field_series)
+  subroutine field_series_list_append(this, fld_series)
     class(field_series_list_t), intent(inout) :: this
-    type(field_series_t), target, intent(in) :: field_series
+    type(field_series_t), target, intent(in) :: fld_series
+    type(field_series_ptr_t), allocatable :: tmp(:)
+    integer :: len
 
     if (.not. allocated(this%items)) then
-       call neko_error('Field series list not initialized')
+       allocate(this%items(1))
+       this%n_items = 0
     end if
 
     if (this%n_items >= size(this%items)) then
-       call neko_error('Field series list is full')
+       len = size(this%items)
+       allocate(tmp(len + 1))
+       tmp(1:len) = this%items
+       call move_alloc(tmp, this%items)
     end if
 
     this%n_items = this%n_items + 1
-    this%items(this%n_items)%ptr => field_series
+    this%items(this%n_items)%ptr => fld_series
 
-  end subroutine field_series_list_add
+  end subroutine field_series_list_append
 
   !> Get a field series by index
   function field_series_list_get(this, index) result(field_series_ptr)
