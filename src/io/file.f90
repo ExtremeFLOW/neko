@@ -137,7 +137,7 @@ contains
        call this%set_precision(precision)
     end if
 
-    if (present(layout)) then
+    if (present(layout).and. (suffix .eq. "bp")) then
        call this%set_layout(layout)
     end if
 
