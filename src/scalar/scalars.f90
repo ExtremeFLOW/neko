@@ -62,7 +62,7 @@ module scalars
   !> Type to manage multiple scalar transport equations
   type, public :: scalars_t
      !> The scalar fields
-     class(scalar_scheme_t), allocatable :: scalar_fields(:)
+     class(scalar_scheme_t), allocatable, target :: scalar_fields(:)
      !> Shared KSP solver for all scalar fields
      class(ksp_t), allocatable :: shared_ksp
    contains
@@ -272,13 +272,8 @@ contains
        ! Cast to scalar_pnpn_t to access ABX fields
        select type(scalar_field => this%scalar_fields(i))
        type is(scalar_pnpn_t)
-          block
-             type(field_t), pointer :: abx1_ptr, abx2_ptr
-             abx1_ptr => scalar_field%abx1
-             abx2_ptr => scalar_field%abx2
-             chkp%scalar_abx1(i)%ptr => abx1_ptr
-             chkp%scalar_abx2(i)%ptr => abx2_ptr
-          end block
+          chkp%scalar_abx1(i)%ptr => scalar_field%abx1
+          chkp%scalar_abx2(i)%ptr => scalar_field%abx2
        end select
     end do
 
