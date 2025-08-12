@@ -250,9 +250,12 @@ contains
     integer :: temp_indices(1)
     ! number of degrees of freedom
     integer :: n
+    integer :: i
+    class(bc_t), pointer :: b
 
     n = this%dm_Xh%size()
     call this%scratch%request_field(temp, temp_indices(1))
+    b => null()
 
     call profiler_start_region('Fluid compressible', 1)
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
@@ -319,6 +322,22 @@ contains
 
       ! Hack: If m_z is always zero, use it to visualize rho
       ! call field_copy(w, rho, n)
+
+      do i = 1, this%bcs_vel%size()
+         b => this%bcs_vel%get(i)
+         b%updated = .false.
+      end do
+
+      do i = 1, this%bcs_prs%size()
+         b => this%bcs_prs%get(i)
+         b%updated = .false.
+      end do
+
+      do i = 1, this%bcs_density%size()
+         b => this%bcs_density%get(i)
+         b%updated = .false.
+      end do
+      nullify(b)
 
     end associate
     call profiler_end_region('Fluid compressible', 1)
