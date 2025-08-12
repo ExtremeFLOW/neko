@@ -39,8 +39,7 @@ module adv_oifs
   use coefs, only: coef_t
   use math, only: copy, rzero
   use operators, only: runge_kutta, set_convect_rst
-  use neko_config, only: NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_XSMM, &
-    NEKO_BCKND_OPENCL, NEKO_BCKND_CUDA, NEKO_BCKND_HIP
+  use neko_config, only: NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_XSMM
   use interpolation, only: interpolator_t
   use time_interpolator, only: time_interpolator_t
   use field_series, only: field_series_t
@@ -91,9 +90,9 @@ module adv_oifs
      type(field_t), pointer:: cr_k4, cs_k4, ct_k4
      !> The field_list containing the time interpolated convecting field
      type(field_list_t) :: conv_k1, conv_k23, conv_k4
-     !> The convecting velocity field in GLL space
+     !> The convecting velocity field in GL space
      real(kind=rp), allocatable :: cx(:), cy(:), cz(:)
-     !> Device pointers for `cx, cy, cz`
+     !> Device pointers for cx, cy, cz
      type(c_ptr) :: cx_d = C_NULL_PTR, cy_d = C_NULL_PTR, cz_d = C_NULL_PTR
 
    contains
@@ -233,7 +232,7 @@ contains
     call this%GLL_to_GL%map(this%cz, this%wlag%f%x, nel, this%Xh_GL)
 
     ! Set the convecting field in the rst format
-    call set_convect_rst(this%cr_GL%x, this%cs_GL%x, this%ct_GL%x, &
+    call set_convect_rst(this%cr_GL, this%cs_GL, this%ct_GL, &
                          this%cx, this%cy, this%cz, this%Xh_GL, this%coef_GL)
 
     ! Set the convecting field series
@@ -246,7 +245,7 @@ contains
     call this%GLL_to_GL%map(this%cy, this%vlag%lf(1)%x, nel, this%Xh_GL)
     call this%GLL_to_GL%map(this%cz, this%wlag%lf(1)%x, nel, this%Xh_GL)
 
-    call set_convect_rst(this%cr_GL%x, this%cs_GL%x, this%ct_GL%x, &
+    call set_convect_rst(this%cr_GL, this%cs_GL, this%ct_GL, &
                          this%cx, this%cy, this%cz, this%Xh_GL, this%coef_GL)
 
     this%convr_GL%lf(1) = this%cr_GL
@@ -257,7 +256,7 @@ contains
     call this%GLL_to_GL%map(this%cy, this%vlag%lf(2)%x, nel, this%Xh_GL)
     call this%GLL_to_GL%map(this%cz, this%wlag%lf(2)%x, nel, this%Xh_GL)
 
-    call set_convect_rst(this%cr_GL%x, this%cs_GL%x, this%ct_GL%x, &
+    call set_convect_rst(this%cr_GL, this%cs_GL, this%ct_GL, &
                          this%cx, this%cy, this%cz, this%Xh_GL, this%coef_GL)
 
     this%convr_GL%lf(2) = this%cr_GL
@@ -359,7 +358,7 @@ contains
     call this%GLL_to_GL%map(this%cy, v%x, nel, this%Xh_GL)
     call this%GLL_to_GL%map(this%cz, w%x, nel, this%Xh_GL)
 
-    call set_convect_rst(this%cr_GL%x, this%cs_GL%x, this%ct_GL%x, &
+    call set_convect_rst(this%cr_GL, this%cs_GL, this%ct_GL, &
                          this%cx, this%cy, this%cz, this%Xh_GL, this%coef_GL)
 
     this%convr_GL%f = this%cr_GL
@@ -392,7 +391,6 @@ contains
     real(kind=rp), intent(in), optional :: dt
     real(kind=rp) :: tau, tau1, th, dtau
     integer :: i, ilag, itau, nel, n_GL
-    real(kind=rp), parameter :: eps = 1e-10
 
     nel = coef%msh%nelv
     n_GL = nel * this%Xh_GL%lxyz
@@ -414,13 +412,18 @@ contains
 
       call this%set_conv_velocity_fst(vx, vy, vz)
 
-
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_rzero(fx%x_d,n)
          call device_rzero(fy%x_d,n)
          call device_rzero(fz%x_d,n)
+      else
+         call rzero(fx%x,n)
+         call rzero(fy%x,n)
+         call rzero(fz%x,n)
+      end if
 
-         do ilag = oifs_scheme%ndiff, 1, -1
+      do ilag = oifs_scheme%ndiff, 1, -1
+         if (NEKO_BCKND_DEVICE .eq. 1) then
             if (ilag .eq. 1) then
                call device_addcol3s2(fx%x_d, vx%x_d, coef%B_d, &
                                      oifs_scheme%diffusion_coeffs(2), n)
@@ -436,55 +439,18 @@ contains
                call device_addcol3s2(fz%x_d, wlag%lf(ilag-1)%x_d, coef%B_d, &
                                      oifs_scheme%diffusion_coeffs(ilag+1), n)
             end if
-
-            if (dctlag(ilag) .lt. eps) then
-               dtau = dt/real(ntaubd)
-            else
-               dtau = dctlag(ilag)/real(ntaubd)
-            end if
-            do itau = 1, ntaubd
-               th = tau + dtau/2.
-               tau1 = tau + dtau
-               call dtime%interpolate_scalar(tau, cr_k1, convr_GL, ctlag, n_GL)
-               call dtime%interpolate_scalar(tau, cs_k1, convs_GL, ctlag, n_GL)
-               call dtime%interpolate_scalar(tau, ct_k1, convt_GL, ctlag, n_GL)
-               call dtime%interpolate_scalar(th, cr_k23, convr_GL, ctlag, n_GL)
-               call dtime%interpolate_scalar(th, cs_k23, convs_GL, ctlag, n_GL)
-               call dtime%interpolate_scalar(th, ct_k23, convt_GL, ctlag, n_GL)
-               call dtime%interpolate_scalar(tau1, cr_k4, convr_GL, ctlag, &
-                                             n_GL)
-               call dtime%interpolate_scalar(tau1, cs_k4, convs_GL, ctlag, &
-                                             n_GL)
-               call dtime%interpolate_scalar(tau1, ct_k4, convt_GL, ctlag, &
-                                             n_GL)
-               call runge_kutta(fx%x, conv_k1, conv_k23, conv_k4, Xh, Xh_GL, &
-                                coef, coef_GL, GLL_to_GL, tau, dtau, &
-                                n, nel, n_GL)
-               call runge_kutta(fy%x, conv_k1, conv_k23, conv_k4, Xh, Xh_GL, &
-                                coef, coef_GL, GLL_to_GL, tau, dtau, &
-                                n, nel, n_GL)
-               call runge_kutta(fz%x, conv_k1, conv_k23, conv_k4, Xh, Xh_GL, &
-                                coef, coef_GL, GLL_to_GL, tau, dtau, &
-                                n, nel, n_GL)
-               tau = tau1
-            end do
-         end do
-      else
-         call rzero(fx%x,n)
-         call rzero(fy%x,n)
-         call rzero(fz%x,n)
-         do ilag = oifs_scheme%ndiff, 1, -1
+         else
             if (ilag .eq. 1) then
                do i = 1, n
                   fx%x(i,1,1,1) = fx%x(i,1,1,1) + &
-                                     oifs_scheme%diffusion_coeffs(2) &
-                                     * vx%x(i,1,1,1) * coef%B(i,1,1,1)
+                                  oifs_scheme%diffusion_coeffs(2) &
+                                  * vx%x(i,1,1,1) * coef%B(i,1,1,1)
                   fy%x(i,1,1,1) = fy%x(i,1,1,1) + &
-                                     oifs_scheme%diffusion_coeffs(2) &
-                                     * vy%x(i,1,1,1) * coef%B(i,1,1,1)
+                                  oifs_scheme%diffusion_coeffs(2) &
+                                  * vy%x(i,1,1,1) * coef%B(i,1,1,1)
                   fz%x(i,1,1,1) = fz%x(i,1,1,1) + &
-                                     oifs_scheme%diffusion_coeffs(2) &
-                                     * vz%x(i,1,1,1) * coef%B(i,1,1,1)
+                                  oifs_scheme%diffusion_coeffs(2) &
+                                  * vz%x(i,1,1,1) * coef%B(i,1,1,1)
                end do
             else
                do i = 1, n
@@ -502,39 +468,32 @@ contains
                                   * coef%B(i,1,1,1)
                end do
             end if
-            if (dctlag(ilag) .lt. eps) then
-               dtau = dt/real(ntaubd)
-            else
-               dtau = dctlag(ilag)/real(ntaubd)
-            end if
-            do itau = 1, ntaubd
-               th = tau + dtau/2.
-               tau1 = tau + dtau
-               call dtime%interpolate_scalar(tau, cr_k1, convr_GL, ctlag, n_GL)
-               call dtime%interpolate_scalar(tau, cs_k1, convs_GL, ctlag, n_GL)
-               call dtime%interpolate_scalar(tau, ct_k1, convt_GL, ctlag, n_GL)
-               call dtime%interpolate_scalar(th, cr_k23, convr_GL, ctlag, n_GL)
-               call dtime%interpolate_scalar(th, cs_k23, convs_GL, ctlag, n_GL)
-               call dtime%interpolate_scalar(th, ct_k23, convt_GL, ctlag, n_GL)
-               call dtime%interpolate_scalar(tau1, cr_k4, convr_GL, ctlag, &
-                                             n_GL)
-               call dtime%interpolate_scalar(tau1, cs_k4, convs_GL, ctlag, &
-                                             n_GL)
-               call dtime%interpolate_scalar(tau1, ct_k4, convt_GL, ctlag, &
-                                             n_GL)
-               call runge_kutta(fx%x, conv_k1, conv_k23, conv_k4, Xh, Xh_GL, &
-                                coef, coef_GL, GLL_to_GL, tau, dtau, &
-                                n, nel, n_GL)
-               call runge_kutta(fy%x, conv_k1, conv_k23, conv_k4, Xh, Xh_GL, &
-                                coef, coef_GL, GLL_to_GL, tau, dtau, &
-                                n, nel, n_GL)
-               call runge_kutta(fz%x, conv_k1, conv_k23, conv_k4, Xh, Xh_GL, &
-                                coef, coef_GL, GLL_to_GL, tau, dtau, &
-                                n, nel, n_GL)
-               tau = tau1
-            end do
+         end if
+         dtau = dctlag(ilag)/real(ntaubd)
+         do itau = 1, ntaubd
+            th = tau + dtau/2.
+            tau1 = tau + dtau
+            call dtime%interpolate_scalar(tau, cr_k1, convr_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(tau, cs_k1, convs_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(tau, ct_k1, convt_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(th, cr_k23, convr_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(th, cs_k23, convs_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(th, ct_k23, convt_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(tau1, cr_k4, convr_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(tau1, cs_k4, convs_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(tau1, ct_k4, convt_GL, ctlag, n_GL)
+            call runge_kutta(fx, conv_k1, conv_k23, conv_k4, Xh, Xh_GL, &
+                             coef, coef_GL, GLL_to_GL, tau, dtau, &
+                             n, nel, n_GL)
+            call runge_kutta(fy, conv_k1, conv_k23, conv_k4, Xh, Xh_GL, &
+                             coef, coef_GL, GLL_to_GL, tau, dtau, &
+                             n, nel, n_GL)
+            call runge_kutta(fz, conv_k1, conv_k23, conv_k4, Xh, Xh_GL, &
+                             coef, coef_GL, GLL_to_GL, tau, dtau, &
+                             n, nel, n_GL)
+            tau = tau1
          end do
-      end if
+      end do
 
     end associate
 
@@ -563,7 +522,6 @@ contains
     real(kind=rp), intent(in), optional :: dt
     real(kind=rp) :: tau, tau1, th, dtau
     integer :: i, ilag, itau, nel, n_GL
-    real(kind=rp), parameter :: eps = 1e-10
     nel = coef%msh%nelv
     n_GL = nel * this%Xh_GL%lxyz
 
@@ -586,8 +544,12 @@ contains
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_rzero(fs%x_d,n)
+      else
+         call rzero(fs%x,n)
+      end if
 
-         do ilag = oifs_scheme%ndiff, 1, -1
+      do ilag = oifs_scheme%ndiff, 1, -1
+         if (NEKO_BCKND_DEVICE .eq. 1) then
             if (ilag .eq. 1) then
                call device_addcol3s2(fs%x_d, s%x_d, coef%B_d, &
                                      oifs_scheme%diffusion_coeffs(2), n)
@@ -595,37 +557,7 @@ contains
                call device_addcol3s2(fs%x_d, slag%lf(ilag-1)%x_d, coef%B_d, &
                                      oifs_scheme%diffusion_coeffs(ilag+1), n)
             end if
-
-            if (dctlag(ilag) .lt. eps) then
-               dtau = dt/real(ntaubd)
-            else
-               dtau = dctlag(ilag)/real(ntaubd)
-            end if
-            do itau = 1, ntaubd
-               th = tau + dtau/2.
-               tau1 = tau + dtau
-               call dtime%interpolate_scalar(tau, cr_k1, convr_GL, ctlag, n_GL)
-               call dtime%interpolate_scalar(tau, cs_k1, convs_GL, ctlag, n_GL)
-               call dtime%interpolate_scalar(tau, ct_k1, convt_GL, ctlag, n_GL)
-               call dtime%interpolate_scalar(th, cr_k23, convr_GL, ctlag, n_GL)
-               call dtime%interpolate_scalar(th, cs_k23, convs_GL, ctlag, n_GL)
-               call dtime%interpolate_scalar(th, ct_k23, convt_GL, ctlag, n_GL)
-               call dtime%interpolate_scalar(tau1, cr_k4, convr_GL, ctlag, &
-                                             n_GL)
-               call dtime%interpolate_scalar(tau1, cs_k4, convs_GL, ctlag, &
-                                             n_GL)
-               call dtime%interpolate_scalar(tau1, ct_k4, convt_GL, ctlag, &
-                                             n_GL)
-               call runge_kutta(fs%x, conv_k1, conv_k23, conv_k4, Xh, Xh_GL, &
-                                coef, coef_GL, GLL_to_GL, tau, dtau, &
-                                n, nel, n_GL)
-               tau = tau1
-            end do
-         end do
-      else
-         call rzero(fs%x,n)
-
-         do ilag = oifs_scheme%ndiff, 1, -1
+         else
             if (ilag .eq. 1) then
                do i = 1, n
                   fs%x(i,1,1,1) = fs%x(i,1,1,1) + &
@@ -639,33 +571,26 @@ contains
                                * slag%lf(ilag-1)%x(i,1,1,1) * coef%B(i,1,1,1)
                end do
             end if
-            if (dctlag(ilag) .lt. eps) then
-               dtau = dt/real(ntaubd)
-            else
-               dtau = dctlag(ilag)/real(ntaubd)
-            end if
-            do itau = 1, ntaubd
-               th = tau + dtau/2.
-               tau1 = tau + dtau
-               call dtime%interpolate_scalar(tau, cr_k1, convr_GL, ctlag, n_GL)
-               call dtime%interpolate_scalar(tau, cs_k1, convs_GL, ctlag, n_GL)
-               call dtime%interpolate_scalar(tau, ct_k1, convt_GL, ctlag, n_GL)
-               call dtime%interpolate_scalar(th, cr_k23, convr_GL, ctlag, n_GL)
-               call dtime%interpolate_scalar(th, cs_k23, convs_GL, ctlag, n_GL)
-               call dtime%interpolate_scalar(th, ct_k23, convt_GL, ctlag, n_GL)
-               call dtime%interpolate_scalar(tau1, cr_k4, convr_GL, ctlag, &
-                                             n_GL)
-               call dtime%interpolate_scalar(tau1, cs_k4, convs_GL, ctlag, &
-                                             n_GL)
-               call dtime%interpolate_scalar(tau1, ct_k4, convt_GL, ctlag, &
-                                             n_GL)
-               call runge_kutta(fs%x, conv_k1, conv_k23, conv_k4, Xh, Xh_GL, &
-                                coef, coef_GL, GLL_to_GL, tau, dtau, &
-                                n, nel, n_GL)
-               tau = tau1
-            end do
+         end if
+         dtau = dctlag(ilag)/real(ntaubd)
+         do itau = 1, ntaubd
+            th = tau + dtau/2.
+            tau1 = tau + dtau
+            call dtime%interpolate_scalar(tau, cr_k1, convr_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(tau, cs_k1, convs_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(tau, ct_k1, convt_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(th, cr_k23, convr_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(th, cs_k23, convs_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(th, ct_k23, convt_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(tau1, cr_k4, convr_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(tau1, cs_k4, convs_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(tau1, ct_k4, convt_GL, ctlag, n_GL)
+            call runge_kutta(fs, conv_k1, conv_k23, conv_k4, Xh, Xh_GL, &
+                             coef, coef_GL, GLL_to_GL, tau, dtau, &
+                             n, nel, n_GL)
+            tau = tau1
          end do
-      end if
+      end do
 
     end associate
 

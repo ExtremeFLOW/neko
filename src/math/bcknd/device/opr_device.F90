@@ -34,7 +34,7 @@
 module opr_device
   use gather_scatter, only : GS_OP_ADD
   use num_types, only : rp, c_rp
-  use device, only : device_get_ptr, device_event_sync
+  use device, only : device_get_ptr, device_event_sync, device_map, device_free
   use space, only : space_t
   use coefs, only : coef_t
   use field, only : field_t
@@ -630,8 +630,8 @@ contains
 
   end subroutine opr_device_conv1
 
-  subroutine opr_device_convect_scalar(du, u, cr, cs, ct, Xh_GLL, Xh_GL, &
-            coef_GLL, coef_GL, GLL_to_GL)
+  subroutine opr_device_convect_scalar(du, u_d, cr_d, cs_d, ct_d, &
+            Xh_GLL, Xh_GL, coef_GLL, coef_GL, GLL_to_GL)
     type(space_t), intent(in) :: Xh_GL
     type(space_t), intent(in) :: Xh_GLL
     type(coef_t), intent(in) :: coef_GLL
@@ -639,25 +639,17 @@ contains
     type(interpolator_t), intent(inout) :: GLL_to_GL
     real(kind=rp), intent(inout) :: &
                    du(Xh_GLL%lx, Xh_GLL%ly, Xh_GLL%lz, coef_GL%msh%nelv)
-    real(kind=rp), intent(inout) :: &
-                   u(Xh_GL%lx, Xh_GL%lx, Xh_GL%lx, coef_GL%msh%nelv)
-    real(kind=rp), intent(inout) :: cr(Xh_GL%lxyz, coef_GL%msh%nelv)
-    real(kind=rp), intent(inout) :: cs(Xh_GL%lxyz, coef_GL%msh%nelv)
-    real(kind=rp), intent(inout) :: ct(Xh_GL%lxyz, coef_GL%msh%nelv)
+    type(c_ptr) :: cr_d, cs_d, ct_d, u_d
     real(kind=rp) :: ud(Xh_GL%lx*Xh_GL%lx*Xh_GL%lx)
-    type(c_ptr) :: du_d, ud_d, u_d, cr_d, cs_d, ct_d, dx_d, dy_d, dz_d
-    integer :: n_GLL
+    type(c_ptr) :: du_d, ud_d
+    integer :: n_GL, n_GLL
 
+    n_GLL = coef_GL%msh%nelv * Xh_GL%lxyz
     n_GLL = coef_GL%msh%nelv * Xh_GLL%lxyz
 
+    call device_map(ud, ud_d, n_GL)
+
     du_d = device_get_ptr(du)
-    ud_d = device_get_ptr(ud)
-    u_d = device_get_ptr(u)
-
-    cr_d = device_get_ptr(cr)
-    cs_d = device_get_ptr(cs)
-    ct_d = device_get_ptr(ct)
-
 
     associate(Xh => Xh_GL, nelv => coef_GL%msh%nelv, lx => Xh_GL%lx)
 #ifdef HAVE_HIP
@@ -678,6 +670,8 @@ contains
       call device_col2(du_d, coef_GLL%Binv_d, n_GLL)
 
     end associate
+
+    call device_free(ud_d)
 
   end subroutine opr_device_convect_scalar
 
@@ -883,22 +877,11 @@ contains
 #endif
   end function opr_device_cfl
 
-  subroutine opr_device_set_convect_rst(cr, cs, ct, cx, cy, cz, Xh, coef)
+  subroutine opr_device_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
+            Xh, coef)
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
-    real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), &
-         intent(inout) :: cr, cs, ct
-    real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), &
-         intent(in) :: cx, cy, cz
     type(c_ptr) :: cr_d, cs_d, ct_d, cx_d, cy_d, cz_d
-
-    cr_d = device_get_ptr(cr)
-    cs_d = device_get_ptr(cs)
-    ct_d = device_get_ptr(ct)
-
-    cx_d = device_get_ptr(cx)
-    cy_d = device_get_ptr(cy)
-    cz_d = device_get_ptr(cz)
 
 #ifdef HAVE_HIP
     call hip_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
