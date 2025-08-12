@@ -283,7 +283,7 @@ contains
     type(chkp_t), intent(inout) :: chkp
     integer, intent(in) :: index
     type(scalar_pnpn_t), target, intent(in) :: scalar_field
-    
+
     chkp%scalar_abx1(index)%ptr => scalar_field%abx1
     chkp%scalar_abx2(index)%ptr => scalar_field%abx2
   end subroutine associate_scalar_abx_fields
