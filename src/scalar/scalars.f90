@@ -62,7 +62,7 @@ module scalars
   !> Type to manage multiple scalar transport equations
   type, public :: scalars_t
      !> The scalar fields
-     class(scalar_scheme_t), allocatable, target :: scalar_fields(:)
+     class(scalar_scheme_t), allocatable :: scalar_fields(:)
      !> Shared KSP solver for all scalar fields
      class(ksp_t), allocatable :: shared_ksp
    contains
@@ -272,11 +272,20 @@ contains
        ! Cast to scalar_pnpn_t to access ABX fields
        select type(scalar_field => this%scalar_fields(i))
        type is(scalar_pnpn_t)
-          chkp%scalar_abx1(i)%ptr => scalar_field%abx1
-          chkp%scalar_abx2(i)%ptr => scalar_field%abx2
+          call associate_scalar_abx_fields(chkp, i, scalar_field)
        end select
     end do
 
   end subroutine register_lags_with_checkpoint
+
+  !> Helper subroutine to associate ABX field pointers with proper TARGET attribute
+  subroutine associate_scalar_abx_fields(chkp, index, scalar_field)
+    type(chkp_t), intent(inout) :: chkp
+    integer, intent(in) :: index
+    type(scalar_pnpn_t), target, intent(in) :: scalar_field
+    
+    chkp%scalar_abx1(index)%ptr => scalar_field%abx1
+    chkp%scalar_abx2(index)%ptr => scalar_field%abx2
+  end subroutine associate_scalar_abx_fields
 
 end module scalars
