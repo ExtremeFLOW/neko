@@ -271,9 +271,6 @@ contains
          ext_bdf => this%ext_bdf, &
          c_avisc_low => this%c_avisc_low, rk_scheme => this%rk_scheme)
 
-      ! Hack: If m_z is always zero, use it to visualize rho
-      ! call field_cfill(m_z, 0.0_rp, n)
-
       call euler_rhs%step(rho, m_x, m_y, m_z, E, &
            p, u, v, w, Ax, &
            c_Xh, gs_Xh, h, c_avisc_low, &
@@ -319,9 +316,6 @@ contains
       call field_cmult(E, 1.0_rp / (this%gamma - 1.0_rp), n)
       ! temp = 0.5 * rho * (u^2 + v^2 + w^2)
       call field_add2(E, temp, n)
-
-      ! Hack: If m_z is always zero, use it to visualize rho
-      ! call field_copy(w, rho, n)
 
       do i = 1, this%bcs_vel%size()
          b => this%bcs_vel%get(i)
