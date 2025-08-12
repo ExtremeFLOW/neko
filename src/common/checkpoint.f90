@@ -78,8 +78,8 @@ module checkpoint
      type(field_series_list_t) :: scalar_lags
 
      !> Multi-scalar ABX fields
-     type(field_ptr_t), allocatable :: scalar_abx1(:)  !< ABX1 fields for each scalar
-     type(field_ptr_t), allocatable :: scalar_abx2(:)  !< ABX2 fields for each scalar
+     type(field_ptr_t), allocatable :: scalar_abx1(:) !< ABX1 fields for each scalar
+     type(field_ptr_t), allocatable :: scalar_abx2(:) !< ABX2 fields for each scalar
 
      real(kind=dp) :: t !< Restart time (valid after load)
      type(mesh_t) :: previous_mesh

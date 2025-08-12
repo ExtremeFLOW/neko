@@ -268,7 +268,7 @@ contains
     ! Add all scalar lag fields to the checkpoint list and populate ABX fields
     do i = 1, n_scalars
        call chkp%scalar_lags%append(this%scalar_fields(i)%slag)
-       
+
        ! Cast to scalar_pnpn_t to access ABX fields
        select type(scalar_field => this%scalar_fields(i))
        type is(scalar_pnpn_t)
