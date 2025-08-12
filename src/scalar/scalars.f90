@@ -272,8 +272,13 @@ contains
        ! Cast to scalar_pnpn_t to access ABX fields
        select type(scalar_field => this%scalar_fields(i))
        type is(scalar_pnpn_t)
-          chkp%scalar_abx1(i)%ptr => scalar_field%abx1
-          chkp%scalar_abx2(i)%ptr => scalar_field%abx2
+          block
+             type(field_t), pointer :: abx1_ptr, abx2_ptr
+             abx1_ptr => scalar_field%abx1
+             abx2_ptr => scalar_field%abx2
+             chkp%scalar_abx1(i)%ptr => abx1_ptr
+             chkp%scalar_abx2(i)%ptr => abx2_ptr
+          end block
        end select
     end do
 
