@@ -74,7 +74,7 @@ mesh/point_zone_registry.lo : mesh/point_zone_registry.f90 common/json_utils.lo 
 mesh/mesh.lo : mesh/mesh.f90 common/log.lo mesh/curve.lo adt/uset.lo math/math.lo mesh/facet_zone.lo comm/comm.lo common/distdata.lo common/datadist.lo adt/htable.lo adt/tuple.lo adt/stack.lo common/utils.lo mesh/quad.lo mesh/hex.lo mesh/element.lo mesh/point.lo config/num_types.lo 
 mesh/octree.lo : mesh/octree.f90 common/utils.lo mesh/point.lo config/num_types.lo 
 mesh/search_tree/aabb.lo : mesh/search_tree/aabb.f90 common/utils.lo mesh/tet_mesh.lo mesh/tri_mesh.lo mesh/mesh.lo mesh/hex.lo mesh/tet.lo mesh/quad.lo mesh/tri.lo mesh/point.lo mesh/element.lo config/num_types.lo 
-mesh/aabb_tree.lo : mesh/aabb_tree.f90 adt/stack.lo common/utils.lo config/num_types.lo mesh/tri.lo mesh/search_tree/aabb.lo 
+mesh/aabb_tree.lo : mesh/aabb_tree.f90 common/utils.lo adt/stack.lo config/num_types.lo mesh/tri.lo mesh/search_tree/aabb.lo 
 mesh/tet_mesh.lo : mesh/tet_mesh.f90 common/utils.lo mesh/point.lo mesh/tet.lo mesh/mesh.lo 
 mesh/tri_mesh.lo : mesh/tri_mesh.f90 mesh/point.lo mesh/tri.lo 
 field/field_registry.lo : field/field_registry.f90 common/json_utils.lo comm/comm.lo adt/htable.lo common/utils.lo sem/dofmap.lo field/field.lo 
@@ -115,6 +115,7 @@ math/bcknd/sx/fdm_sx.lo : math/bcknd/sx/fdm_sx.f90 math/bcknd/sx/tensor_sx.lo co
 math/bcknd/xsmm/fdm_xsmm.lo : math/bcknd/xsmm/fdm_xsmm.f90 math/bcknd/xsmm/tensor_xsmm.lo config/num_types.lo 
 math/schwarz.lo : math/schwarz.f90 bc/bc_list.lo config/neko_config.lo device/device.lo math/fdm.lo math/bcknd/device/device_math.lo math/bcknd/device/device_schwarz.lo gs/gather_scatter.lo sem/dofmap.lo sem/space.lo mesh/mesh.lo math/math.lo config/num_types.lo 
 math/vector.lo : math/vector.f90 common/utils.lo math/bcknd/device/device_math.lo device/device.lo config/num_types.lo math/math.lo config/neko_config.lo 
+math/vector_math.lo : math/vector_math.f90 math/bcknd/device/device_math.lo math/math.lo device/device.lo math/vector.lo config/num_types.lo config/neko_config.lo 
 math/matrix.lo : math/matrix.f90 common/utils.lo math/bcknd/device/device_math.lo device/device.lo config/num_types.lo math/math.lo config/neko_config.lo 
 math/signed_distance.lo : math/signed_distance.f90 adt/stack.lo mesh/search_tree/aabb.lo mesh/point.lo common/utils.lo config/neko_config.lo device/device.lo mesh/aabb_tree.lo mesh/tri_mesh.lo mesh/tri.lo field/field.lo config/num_types.lo 
 multigrid/tree_amg.lo : multigrid/tree_amg.f90 config/neko_config.lo device/device.lo gs/gather_scatter.lo bc/bc_list.lo math/ax.lo sem/space.lo mesh/mesh.lo sem/coef.lo math/bcknd/device/device_math.lo math/math.lo common/utils.lo config/num_types.lo 
