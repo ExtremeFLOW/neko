@@ -510,14 +510,10 @@ contains
           end do
 
           do i = 1, scalar_count
-             associate(slag => data%scalar_lags%get(i))
-               write(scalar_name, '(A,A)') trim(slag%f%name), '_abx1'
-               fp(fp_cur)%ptr => neko_field_registry%get_field(scalar_name)
-               fp_cur = fp_cur + 1
-               write(scalar_name, '(A,A)') trim(slag%f%name), '_abx2'
-               fp(fp_cur)%ptr => neko_field_registry%get_field(scalar_name)
-               fp_cur = fp_cur + 1
-             end associate
+             fp(fp_cur)%ptr => data%scalar_abx1(i)%ptr
+             fp_cur = fp_cur + 1
+             fp(fp_cur)%ptr => data%scalar_abx2(i)%ptr
+             fp_cur = fp_cur + 1
           end do
        else if (associated(data%s)) then
           ! Single scalar support

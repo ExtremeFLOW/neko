@@ -39,7 +39,7 @@ module checkpoint
   use space, only : space_t, operator(.ne.)
   use device, only : device_memcpy, DEVICE_TO_HOST, HOST_TO_DEVICE, &
        device_sync, glb_cmd_queue
-  use field, only : field_t
+  use field, only : field_t, field_ptr_t
   use utils, only : neko_error, filename_suffix_pos
   use mesh, only: mesh_t
   implicit none
@@ -77,6 +77,9 @@ module checkpoint
 
      type(field_series_list_t) :: scalar_lags
 
+     !> Multi-scalar ABX fields
+     type(field_ptr_t), allocatable :: scalar_abx1(:)  !< ABX1 fields for each scalar
+     type(field_ptr_t), allocatable :: scalar_abx2(:)  !< ABX2 fields for each scalar
 
      real(kind=dp) :: t !< Restart time (valid after load)
      type(mesh_t) :: previous_mesh
@@ -146,6 +149,14 @@ contains
     ! Free scalar lag list if it was initialized
     if (allocated(this%scalar_lags%items)) then
        call this%scalar_lags%free()
+    end if
+
+    ! Free multi-scalar ABX field arrays
+    if (allocated(this%scalar_abx1)) then
+       deallocate(this%scalar_abx1)
+    end if
+    if (allocated(this%scalar_abx2)) then
+       deallocate(this%scalar_abx2)
     end if
 
   end subroutine chkp_free
@@ -226,6 +237,16 @@ contains
                end block
             end do
          end if
+
+         ! Multi-scalar ABX field synchronization
+         if (allocated(this%scalar_abx1) .and. allocated(this%scalar_abx2)) then
+            do i = 1, size(this%scalar_abx1)
+               call device_memcpy(this%scalar_abx1(i)%ptr%x, this%scalar_abx1(i)%ptr%x_d, &
+                    this%scalar_abx1(i)%ptr%dof%size(), DEVICE_TO_HOST, sync=.false.)
+               call device_memcpy(this%scalar_abx2(i)%ptr%x, this%scalar_abx2(i)%ptr%x_d, &
+                    this%scalar_abx2(i)%ptr%dof%size(), DEVICE_TO_HOST, sync=.false.)
+            end do
+         end if
        end associate
        call device_sync(glb_cmd_queue)
     end if
@@ -299,6 +320,16 @@ contains
                          dof_size, HOST_TO_DEVICE, sync=.false.)
                  end do
                end block
+            end do
+         end if
+
+         ! Multi-scalar ABX field synchronization
+         if (allocated(this%scalar_abx1) .and. allocated(this%scalar_abx2)) then
+            do i = 1, size(this%scalar_abx1)
+               call device_memcpy(this%scalar_abx1(i)%ptr%x, this%scalar_abx1(i)%ptr%x_d, &
+                    this%scalar_abx1(i)%ptr%dof%size(), HOST_TO_DEVICE, sync=.false.)
+               call device_memcpy(this%scalar_abx2(i)%ptr%x, this%scalar_abx2(i)%ptr%x_d, &
+                    this%scalar_abx2(i)%ptr%dof%size(), HOST_TO_DEVICE, sync=.false.)
             end do
          end if
        end associate

@@ -261,9 +261,20 @@ contains
 
     n_scalars = size(this%scalar_fields)
 
-    ! Add all scalar lag fields to the checkpoint list
+    ! Allocate ABX field arrays
+    allocate(chkp%scalar_abx1(n_scalars))
+    allocate(chkp%scalar_abx2(n_scalars))
+
+    ! Add all scalar lag fields to the checkpoint list and populate ABX fields
     do i = 1, n_scalars
        call chkp%scalar_lags%append(this%scalar_fields(i)%slag)
+       
+       ! Cast to scalar_pnpn_t to access ABX fields
+       select type(scalar_field => this%scalar_fields(i))
+       type is(scalar_pnpn_t)
+          chkp%scalar_abx1(i)%ptr => scalar_field%abx1
+          chkp%scalar_abx2(i)%ptr => scalar_field%abx2
+       end select
     end do
 
   end subroutine register_lags_with_checkpoint
