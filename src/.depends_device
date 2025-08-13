@@ -106,6 +106,8 @@ bc/bcknd/device/opencl/dong_outflow.lo : bc/bcknd/device/opencl/dong_outflow.c b
 common/bcknd/device/opencl/rhs_maker.lo : common/bcknd/device/opencl/rhs_maker.c common/bcknd/device/opencl/rhs_maker_kernel.cl.h
 fluid/bcknd/device/opencl/pnpn_res.lo : fluid/bcknd/device/opencl/pnpn_res.c fluid/bcknd/device/opencl/pnpn_res_kernel.cl.h
 fluid/bcknd/device/opencl/euler_res.lo : fluid/bcknd/device/opencl/euler_res.c fluid/bcknd/device/opencl/euler_res_kernel.cl.h
+fluid/bcknd/device/opencl/compressible_ops_compute_max_wave_speed.lo : fluid/bcknd/device/opencl/compressible_ops_compute_max_wave_speed.c fluid/bcknd/device/opencl/compressible_ops_compute_max_wave_speed_kernel.cl.h
+fluid/bcknd/device/opencl/compressible_ops_compute_entropy.lo : fluid/bcknd/device/opencl/compressible_ops_compute_entropy.c fluid/bcknd/device/opencl/compressible_ops_compute_entropy_kernel.cl.h
 scalar/bcknd/device/opencl/scalar_residual.lo : scalar/bcknd/device/opencl/scalar_residual.c scalar/bcknd/device/opencl/scalar_residual_kernel.cl.h
 sem/bcknd/device/opencl/coef.lo : sem/bcknd/device/opencl/coef.c sem/bcknd/device/opencl/coef_kernel.cl.h
 filter/bcknd/device/cuda/mappings.lo : filter/bcknd/device/cuda/mappings.cu filter/bcknd/device/cuda/mapping_kernels.h
