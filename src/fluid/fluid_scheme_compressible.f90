@@ -313,16 +313,16 @@ contains
   subroutine fluid_scheme_compressible_compute_entropy(this)
     class(fluid_scheme_compressible_t), intent(inout) :: this
     integer :: n
-    
+
     n = this%S%dof%size()
-    
+
     !> TODO: Add support for SX
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call compressible_ops_device_compute_entropy(this%S, this%p, this%rho, this%gamma, n)
     else
        call compressible_ops_cpu_compute_entropy(this%S%x, this%p%x, this%rho%x, this%gamma, n)
     end if
-    
+
   end subroutine fluid_scheme_compressible_compute_entropy
 
   !> Compute maximum wave speed for compressible flows
