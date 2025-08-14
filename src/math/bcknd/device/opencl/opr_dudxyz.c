@@ -96,6 +96,11 @@ void opencl_dudxyz(void *du, void *u,
     CASE(9);
     CASE(10);
     CASE(11);
-   }
+  default:
+    {
+      fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+      exit(1);
+    }
+  }
 } 
 

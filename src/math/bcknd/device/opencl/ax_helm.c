@@ -105,5 +105,10 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
     CASE(10);
     CASE(11);
     CASE(12);
+  default:
+    {
+      fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+      exit(1);
+    }
   }
 }

@@ -98,5 +98,10 @@ void opencl_cdtp(void *dtx, void *x,
     CASE(11);
     CASE(12);
     CASE(13);
+  default:
+    {
+      fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+      exit(1);
+    }
   }
 }

@@ -108,6 +108,11 @@ void opencl_lambda2(void *lambda2, void *u, void *v, void *w,
     CASE(10);
     CASE(11);
     CASE(12);
+  default:
+    {
+      fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+      exit(1);
+    } 
   }
 }
 

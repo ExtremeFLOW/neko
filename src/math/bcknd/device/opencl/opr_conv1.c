@@ -108,10 +108,10 @@ void opencl_conv1(void *du, void *u,
     CASE(9);
     CASE(10);
     CASE(11);
-    CASE(12);
-    CASE(13);
-    CASE(14);
-    CASE(15);
-    CASE(16);
+  default:
+    {
+      fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+      exit(1);
+    }
   }
 } 
