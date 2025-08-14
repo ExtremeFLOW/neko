@@ -38,6 +38,7 @@
 #include <CL/cl.h>
 #endif
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <device/device_config.h>
 #include <device/opencl/jit.h>
