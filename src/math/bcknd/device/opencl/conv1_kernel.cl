@@ -126,7 +126,7 @@ __kernel void conv1_kernel_lx##LX(__global real * __restrict__ du,             \
                         + dtdz[ijk + ele] * ttmp));                            \
     }                                                                          \
   }                                                                            \
-}                                                                              
+}
 
 DEFINE_CONV1_KERNEL(2, 256)
 DEFINE_CONV1_KERNEL(3, 256)
