@@ -654,6 +654,7 @@ EXTRA_DIST = \
 	fluid/bcknd/device/cuda/prs_res_kernel.h\
 	fluid/bcknd/device/cuda/vel_res_update_kernel.h\
 	fluid/bcknd/device/cuda/euler_res_kernel.h\
+	fluid/bcknd/device/cuda/compressible_ops_kernel.h\
 	fluid/stress_formulation/bcknd/device/cuda/prs_stress_res_kernel.h\
 	scalar/bcknd/device/cuda/scalar_residual_update_kernel.h\
 	sem/bcknd/device/cuda/coef_kernel.h\
@@ -694,6 +695,7 @@ EXTRA_DIST = \
 	fluid/bcknd/device/hip/prs_res_kernel.h\
 	fluid/bcknd/device/hip/vel_res_update_kernel.h\
 	fluid/bcknd/device/hip/euler_res_kernel.h\
+	fluid/bcknd/device/hip/compressible_ops_kernel.h\
 	fluid/stress_formulation/bcknd/device/hip/prs_stress_res_kernel.h\
 	scalar/bcknd/device/hip/scalar_residual_update_kernel.h\
 	krylov/bcknd/device/cuda/pipecg_kernel.h\
