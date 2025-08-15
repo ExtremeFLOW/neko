@@ -317,6 +317,12 @@ contains
       ! temp = 0.5 * rho * (u^2 + v^2 + w^2)
       call field_add2(E, temp, n)
 
+      !> Compute entropy S = 1/(gamma-1) * rho * (log(p) - gamma * log(rho))
+      call this%compute_entropy()
+
+      !> Update maximum wave speed for CFL computation
+      call this%compute_max_wave_speed()
+
       do i = 1, this%bcs_vel%size()
          b => this%bcs_vel%get(i)
          b%updated = .false.

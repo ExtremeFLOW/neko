@@ -37,8 +37,7 @@ module operators
   use num_types, only : rp, i8
   use opr_cpu, only : opr_cpu_cfl, opr_cpu_curl, opr_cpu_opgrad, &
        opr_cpu_conv1, opr_cpu_convect_scalar, opr_cpu_cdtp, &
-       opr_cpu_dudxyz, opr_cpu_lambda2, opr_cpu_set_convect_rst, &
-       opr_cpu_compute_max_wave_speed
+       opr_cpu_dudxyz, opr_cpu_lambda2, opr_cpu_set_convect_rst
   use opr_sx, only : opr_sx_cfl, opr_sx_curl, opr_sx_opgrad, &
        opr_sx_conv1, opr_sx_convect_scalar, opr_sx_cdtp, &
        opr_sx_dudxyz, opr_sx_lambda2, opr_sx_set_convect_rst
@@ -47,7 +46,7 @@ module operators
        opr_xsmm_convect_scalar, opr_xsmm_set_convect_rst
   use opr_device, only : opr_device_cdtp, opr_device_cfl, opr_device_curl, &
        opr_device_conv1, opr_device_dudxyz, &
-       opr_device_lambda2, opr_device_opgrad, opr_device_compute_max_wave_speed
+       opr_device_lambda2, opr_device_opgrad
   use space, only : space_t
   use coefs, only : coef_t
   use field, only : field_t
@@ -66,8 +65,7 @@ module operators
   private
 
   public :: dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl, cfl_compressible, &
-       lambda2op, strain_rate, div, grad, set_convect_rst, runge_kutta, &
-       compute_max_wave_speed
+       lambda2op, strain_rate, div, grad, set_convect_rst, runge_kutta
 
 contains
 
@@ -669,29 +667,6 @@ contains
 
   end subroutine runge_kutta
 
-  !> Compute the maximum wave speed for compressible flows
-  !! @param max_wave_speed The computed maximum wave speed field.
-  !! @param u The x component of velocity field.
-  !! @param v The y component of velocity field.
-  !! @param w The z component of velocity field.
-  !! @param gamma The ratio of specific heats.
-  !! @param p The pressure field.
-  !! @param rho The density field.
-  subroutine compute_max_wave_speed(max_wave_speed, u, v, w, gamma, p, rho)
-    real(kind=rp), intent(in) :: gamma
-    type(field_t), intent(inout) :: max_wave_speed
-    type(field_t), intent(in) :: u, v, w, p, rho
-    integer :: n
 
-    n = u%dof%size()
-
-    !> TODO: Add support for SX
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call opr_device_compute_max_wave_speed(max_wave_speed, u, v, w, gamma, p, rho, n)
-    else
-       call opr_cpu_compute_max_wave_speed(max_wave_speed%x, u%x, v%x, w%x, gamma, p%x, rho%x, n)
-    end if
-
-  end subroutine compute_max_wave_speed
 
 end module operators
