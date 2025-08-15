@@ -317,8 +317,27 @@ contains
       ! temp = 0.5 * rho * (u^2 + v^2 + w^2)
       call field_add2(E, temp, n)
 
-      ! Hack: If m_z is always zero, use it to visualize rho
-      ! call field_copy(w, rho, n)
+      !> Compute entropy S = 1/(gamma-1) * rho * (log(p) - gamma * log(rho))
+      call this%compute_entropy()
+
+      !> Update maximum wave speed for CFL computation
+      call this%compute_max_wave_speed()
+
+      do i = 1, this%bcs_vel%size()
+         b => this%bcs_vel%get(i)
+         b%updated = .false.
+      end do
+
+      do i = 1, this%bcs_prs%size()
+         b => this%bcs_prs%get(i)
+         b%updated = .false.
+      end do
+
+      do i = 1, this%bcs_density%size()
+         b => this%bcs_density%get(i)
+         b%updated = .false.
+      end do
+      nullify(b)
 
     end associate
     call profiler_end_region('Fluid compressible', 1)
