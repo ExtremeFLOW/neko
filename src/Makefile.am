@@ -85,6 +85,7 @@ neko_fortran_SOURCES = \
 	field/field.f90\
 	field/field_list.f90\
 	field/field_series.f90\
+	field/field_series_list.f90\
 	field/mesh_field.f90\
 	field/mean_field.f90\
 	field/mean_sqr_field.f90\

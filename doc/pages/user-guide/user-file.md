@@ -283,7 +283,9 @@ user functions are:
 
 @note For the sake of simplicity, we refer to the setup with one scalar, i.e.
 `case.scalar` in the JSON. For multiple scalars, the same things apply, but the
-configuration is inside each individual element of `case.scalars`.
+configuration is inside each individual element of `case.scalars`. In the case of
+multiple scalars, users should use `"checkpoint_format": "hdf5"` when enabling
+checkpointing.
 
 ### Fluid and Scalar initial conditions {#user-file_user-ic}
 
