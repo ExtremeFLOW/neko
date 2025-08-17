@@ -85,6 +85,7 @@ neko_fortran_SOURCES = \
 	field/field.f90\
 	field/field_list.f90\
 	field/field_series.f90\
+	field/field_series_list.f90\
 	field/mesh_field.f90\
 	field/mean_field.f90\
 	field/mean_sqr_field.f90\
@@ -249,6 +250,8 @@ neko_fortran_SOURCES = \
 	fluid/bcknd/cpu/euler_res_cpu.f90\
 	fluid/bcknd/sx/euler_res_sx.f90\
 	fluid/bcknd/device/euler_res_device.F90\
+	fluid/bcknd/cpu/compressible_ops_cpu.f90\
+	fluid/bcknd/device/compressible_ops_device.F90\
 	fluid/fluid_source_term.f90\
 	common/time_step_controller.f90\
 	simulation.f90\
@@ -429,6 +432,8 @@ libneko_la_SOURCES += \
 	common/bcknd/device/hip/projection.hip\
 	fluid/bcknd/device/hip/pnpn_res.hip\
 	fluid/bcknd/device/hip/euler_res.hip\
+	fluid/bcknd/device/hip/compressible_ops_compute_max_wave_speed.hip\
+	fluid/bcknd/device/hip/compressible_ops_compute_entropy.hip\
 	fluid/stress_formulation/bcknd/device/hip/pnpn_stress_res.hip\
 	scalar/bcknd/device/hip/scalar_residual.hip\
 	sem/bcknd/device/hip/coef.hip\
@@ -481,6 +486,8 @@ libneko_la_SOURCES += \
 	common/bcknd/device/cuda/projection.cu\
 	fluid/bcknd/device/cuda/pnpn_res.cu\
 	fluid/bcknd/device/cuda/euler_res.cu\
+	fluid/bcknd/device/cuda/compressible_ops_compute_max_wave_speed.cu\
+	fluid/bcknd/device/cuda/compressible_ops_compute_entropy.cu\
 	fluid/stress_formulation/bcknd/device/cuda/pnpn_stress_res.cu\
 	scalar/bcknd/device/cuda/scalar_residual.cu\
 	sem/bcknd/device/cuda/coef.cu\
@@ -532,6 +539,8 @@ libneko_la_SOURCES += \
 	common/bcknd/device/opencl/rhs_maker.c\
 	fluid/bcknd/device/opencl/pnpn_res.c\
 	fluid/bcknd/device/opencl/euler_res.c\
+	fluid/bcknd/device/opencl/compressible_ops_compute_max_wave_speed.c\
+	fluid/bcknd/device/opencl/compressible_ops_compute_entropy.c\
 	scalar/bcknd/device/opencl/scalar_residual.c\
 	sem/bcknd/device/opencl/coef.c\
 	filter/bcknd/device/opencl/mappings.c
@@ -655,6 +664,7 @@ EXTRA_DIST = \
 	fluid/bcknd/device/cuda/prs_res_kernel.h\
 	fluid/bcknd/device/cuda/vel_res_update_kernel.h\
 	fluid/bcknd/device/cuda/euler_res_kernel.h\
+	fluid/bcknd/device/cuda/compressible_ops_kernel.h\
 	fluid/stress_formulation/bcknd/device/cuda/prs_stress_res_kernel.h\
 	scalar/bcknd/device/cuda/scalar_residual_update_kernel.h\
 	sem/bcknd/device/cuda/coef_kernel.h\
@@ -698,6 +708,7 @@ EXTRA_DIST = \
 	fluid/bcknd/device/hip/prs_res_kernel.h\
 	fluid/bcknd/device/hip/vel_res_update_kernel.h\
 	fluid/bcknd/device/hip/euler_res_kernel.h\
+	fluid/bcknd/device/hip/compressible_ops_kernel.h\
 	fluid/stress_formulation/bcknd/device/hip/prs_stress_res_kernel.h\
 	scalar/bcknd/device/hip/scalar_residual_update_kernel.h\
 	krylov/bcknd/device/cuda/pipecg_kernel.h\
@@ -743,6 +754,8 @@ EXTRA_DIST = \
 	common/bcknd/device/opencl/rhs_maker_kernel.cl\
 	fluid/bcknd/device/opencl/pnpn_res_kernel.cl\
 	fluid/bcknd/device/opencl/euler_res_kernel.cl\
+	fluid/bcknd/device/opencl/compressible_ops_compute_max_wave_speed_kernel.cl\
+	fluid/bcknd/device/opencl/compressible_ops_compute_entropy_kernel.cl\
 	scalar/bcknd/device/opencl/scalar_residual_kernel.cl\
 	gs/bcknd/device/opencl/gs_kernels.cl\
 	krylov/bcknd/device/opencl/jacobi_kernel.cl\

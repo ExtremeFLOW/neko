@@ -250,9 +250,12 @@ contains
     integer :: temp_indices(1)
     ! number of degrees of freedom
     integer :: n
+    integer :: i
+    class(bc_t), pointer :: b
 
     n = this%dm_Xh%size()
     call this%scratch%request_field(temp, temp_indices(1))
+    b => null()
 
     call profiler_start_region('Fluid compressible', 1)
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
@@ -267,9 +270,6 @@ contains
          t => time%t, tstep => time%tstep, dt => time%dt, &
          ext_bdf => this%ext_bdf, &
          c_avisc_low => this%c_avisc_low, rk_scheme => this%rk_scheme)
-
-      ! Hack: If m_z is always zero, use it to visualize rho
-      ! call field_cfill(m_z, 0.0_rp, n)
 
       call euler_rhs%step(rho, m_x, m_y, m_z, E, &
            p, u, v, w, Ax, &
@@ -317,8 +317,27 @@ contains
       ! temp = 0.5 * rho * (u^2 + v^2 + w^2)
       call field_add2(E, temp, n)
 
-      ! Hack: If m_z is always zero, use it to visualize rho
-      ! call field_copy(w, rho, n)
+      !> Compute entropy S = 1/(gamma-1) * rho * (log(p) - gamma * log(rho))
+      call this%compute_entropy()
+
+      !> Update maximum wave speed for CFL computation
+      call this%compute_max_wave_speed()
+
+      do i = 1, this%bcs_vel%size()
+         b => this%bcs_vel%get(i)
+         b%updated = .false.
+      end do
+
+      do i = 1, this%bcs_prs%size()
+         b => this%bcs_prs%get(i)
+         b%updated = .false.
+      end do
+
+      do i = 1, this%bcs_density%size()
+         b => this%bcs_density%get(i)
+         b%updated = .false.
+      end do
+      nullify(b)
 
     end associate
     call profiler_end_region('Fluid compressible', 1)

@@ -40,6 +40,7 @@ module hdf5_file
   use field, only : field_t, field_ptr_t
   use field_list, only : field_list_t
   use field_series, only : field_series_t, field_series_ptr_t
+  use field_registry, only : neko_field_registry
   use dofmap, only : dofmap_t
   use logger, only : neko_log
   use comm, only : pe_rank, NEKO_COMM
@@ -402,7 +403,8 @@ contains
     type(field_series_ptr_t), allocatable, intent(inout) :: fsp(:)
     real(kind=rp), pointer, intent(inout) :: dtlag(:)
     real(kind=rp), pointer, intent(inout) :: tlag(:)
-    integer :: i, j, fp_size, fp_cur, fsp_size, fsp_cur
+    integer :: i, j, fp_size, fp_cur, fsp_size, fsp_cur, scalar_count, ab_count
+    character(len=32) :: scalar_name
 
     select type(data)
     type is (field_t)
@@ -444,16 +446,29 @@ contains
 
        fp_size = 4
 
-       if (associated(data%s)) then
+       if (allocated(data%scalar_lags%items) .and. data%scalar_lags%size() > 0) then
+          scalar_count = data%scalar_lags%size()
+       else if (associated(data%s)) then
+          scalar_count = 1
+       else
+          scalar_count = 0
+       end if
+
+       if (scalar_count .gt. 1) then
+          fp_size = fp_size + scalar_count
+
+          ! Add abx1 and abx2 fields for each scalar
+          fp_size = fp_size + (scalar_count * 2)
+       else if (associated(data%s)) then
+          ! Single scalar support
           fp_size = fp_size + 1
+          if (associated(data%abs1)) then
+             fp_size = fp_size + 2
+          end if
        end if
 
        if (associated(data%abx1)) then
           fp_size = fp_size + 6
-       end if
-
-       if (associated(data%abs1)) then
-          fp_size = fp_size + 2
        end if
 
        allocate(fp(fp_size))
@@ -463,7 +478,11 @@ contains
           fsp_size = fsp_size + 3
        end if
 
-       if (associated(data%slag)) then
+       if (scalar_count .gt. 1) then
+          if (allocated(data%scalar_lags%items)) then
+             fsp_size = fsp_size + data%scalar_lags%size()
+          end if
+       else if (associated(data%slag)) then
           fsp_size = fsp_size + 1
        end if
 
@@ -481,9 +500,31 @@ contains
        fp(4)%ptr => data%p
 
        fp_cur = 5
-       if (associated(data%s)) then
+
+       if (scalar_count .gt. 1) then
+          do i = 1, scalar_count
+             associate(slag => data%scalar_lags%get(i))
+               fp(fp_cur)%ptr => slag%f
+               fp_cur = fp_cur + 1
+             end associate
+          end do
+
+          do i = 1, scalar_count
+             fp(fp_cur)%ptr => data%scalar_abx1(i)%ptr
+             fp_cur = fp_cur + 1
+             fp(fp_cur)%ptr => data%scalar_abx2(i)%ptr
+             fp_cur = fp_cur + 1
+          end do
+       else if (associated(data%s)) then
+          ! Single scalar support
           fp(fp_cur)%ptr => data%s
           fp_cur = fp_cur + 1
+
+          if (associated(data%abs1)) then
+             fp(fp_cur)%ptr => data%abs1
+             fp(fp_cur+1)%ptr => data%abs2
+             fp_cur = fp_cur + 2
+          end if
        end if
 
        if (associated(data%abx1)) then
@@ -496,12 +537,6 @@ contains
           fp_cur = fp_cur + 6
        end if
 
-       if (associated(data%abs1)) then
-          fp(fp_cur)%ptr => data%abs1
-          fp(fp_cur+1)%ptr => data%abs2
-          fp_cur = fp_cur + 2
-       end if
-
        if (associated(data%ulag)) then
           fsp(fsp_cur)%ptr => data%ulag
           fsp(fsp_cur+1)%ptr => data%vlag
@@ -509,7 +544,15 @@ contains
           fsp_cur = fsp_cur + 3
        end if
 
-       if (associated(data%slag)) then
+
+       if (scalar_count .gt. 1) then
+          if (allocated(data%scalar_lags%items)) then
+             do j = 1, data%scalar_lags%size()
+                fsp(fsp_cur)%ptr => data%scalar_lags%get(j)
+                fsp_cur = fsp_cur + 1
+             end do
+          end if
+       else if (associated(data%slag)) then
           fsp(fsp_cur)%ptr => data%slag
           fsp_cur = fsp_cur + 1
        end if

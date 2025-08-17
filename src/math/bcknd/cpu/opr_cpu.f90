@@ -45,8 +45,7 @@ module opr_cpu
 
   public :: opr_cpu_dudxyz, opr_cpu_opgrad, opr_cpu_cdtp, &
        opr_cpu_conv1, opr_cpu_curl, opr_cpu_cfl, opr_cpu_lambda2, &
-       opr_cpu_convect_scalar, opr_cpu_set_convect_rst, &
-       opr_cpu_compute_max_wave_speed
+       opr_cpu_convect_scalar, opr_cpu_set_convect_rst
 
   interface
      module subroutine opr_cpu_dudxyz(du, u, dr, ds, dt, coef)
@@ -307,22 +306,6 @@ contains
 
   end subroutine opr_cpu_lambda2
 
-  !> Compute maximum wave speed for compressible flows on CPU
-  subroutine opr_cpu_compute_max_wave_speed(max_wave_speed, u, v, w, gamma, p, rho, n)
-    integer, intent(in) :: n
-    real(kind=rp), intent(in) :: gamma
-    real(kind=rp), dimension(n), intent(in) :: u, v, w, p, rho
-    real(kind=rp), dimension(n), intent(inout) :: max_wave_speed
-    integer :: i
-    real(kind=rp) :: vel_mag, sound_speed
 
-    ! Compute maximum wave speed: |u| + c = sqrt(u^2 + v^2 + w^2) + sqrt(gamma * p / rho)
-    do concurrent (i = 1:n)
-       vel_mag = sqrt(u(i)*u(i) + v(i)*v(i) + w(i)*w(i))
-       sound_speed = sqrt(gamma * p(i) / rho(i))
-       max_wave_speed(i) = vel_mag + sound_speed
-    end do
-
-  end subroutine opr_cpu_compute_max_wave_speed
 
 end module opr_cpu
