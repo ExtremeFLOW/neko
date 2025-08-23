@@ -14,8 +14,8 @@ module pnpn_res_stress_device
   use space, only : space_t
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   use device_mathops, only : device_opcolv
-  use device_math, only : device_rzero, device_vdot3, device_cmult, &
-                          device_sub2, device_col2, device_copy, device_invcol1
+  use device_math, only : device_rzero, device_cmult, &
+       device_col2, device_copy, device_invcol1
   implicit none
   private
 
@@ -203,7 +203,7 @@ contains
 
   subroutine pnpn_prs_res_stress_device_compute(p, p_res, u, v, w, u_e, v_e,&
        w_e, f_x, f_y, f_z, c_Xh, gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd,&
-       dt, mu, rho)
+       dt, mu, rho, event)
     type(field_t), intent(inout) :: p, u, v, w
     type(field_t), intent(in) :: u_e, v_e, w_e
     type(field_t), intent(inout) :: p_res
@@ -217,6 +217,7 @@ contains
     real(kind=rp), intent(in) :: dt
     type(field_t), intent(in) :: mu
     type(field_t), intent(in) :: rho
+    type(c_ptr), intent(inout) :: event
     real(kind=rp) :: dtbd
     integer :: n, nelv, lxyz, gdim
     integer :: i, e
@@ -236,7 +237,7 @@ contains
     call neko_scratch_registry%request_field(work2, temp_indices(8))
     call neko_scratch_registry%request_field(work3, temp_indices(9))
 
-   ! Stress tensor
+    ! Stress tensor
     call neko_scratch_registry%request_field(s11, temp_indices(10))
     call neko_scratch_registry%request_field(s22, temp_indices(11))
     call neko_scratch_registry%request_field(s33, temp_indices(12))
@@ -255,8 +256,8 @@ contains
     c_Xh%ifh2 = .false.
 
     ! mu times the double curl of the velocity
-    call curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
-    call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
+    call curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh, event)
+    call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh, event)
 
     call device_col2(wa1%x_d, mu%x_d, n)
     call device_col2(wa2%x_d, mu%x_d, n)
@@ -265,7 +266,7 @@ contains
 
     ! The strain rate tensor
     call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, &
-                     u_e, v_e, w_e, c_Xh)
+         u_e, v_e, w_e, c_Xh)
 
 
     ! Gradient of viscosity * 2
@@ -320,7 +321,7 @@ contains
     call device_rzero(wa3%x_d, n)
 
     call bc_sym_surface%apply_surfvec_dev(wa1%x_d, wa2%x_d, wa3%x_d, &
-                                          ta1%x_d , ta2%x_d, ta3%x_d)
+         ta1%x_d , ta2%x_d, ta3%x_d)
 
     dtbd = bd / dt
     call device_rzerO(ta1%x_d, n)
@@ -328,14 +329,14 @@ contains
     call device_rzerO(ta3%x_d, n)
 
     call bc_prs_surface%apply_surfvec_dev(ta1%x_d, ta2%x_d, ta3%x_d, &
-                                          u%x_D, v%x_d, w%x_d)
+         u%x_D, v%x_d, w%x_d)
 
 #ifdef HAVE_HIP
     call pnpn_prs_stress_res_part3_hip(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
-                                        wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
+         wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
 #elif HAVE_CUDA
     call pnpn_prs_stress_res_part3_cuda(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
-                                        wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
+         wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -373,7 +374,7 @@ contains
 
     ! Viscous stresses
     call Ax%compute_vector(u_res%x, v_res%x, w_res%x, u%x, v%x, w%x, c_Xh,&
-                                msh, Xh)
+         msh, Xh)
 
     call neko_scratch_registry%request_field(ta1, temp_indices(1))
     call neko_scratch_registry%request_field(ta2, temp_indices(2))

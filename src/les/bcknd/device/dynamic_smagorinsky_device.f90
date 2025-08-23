@@ -43,8 +43,8 @@ module dynamic_smagorinsky_device
   use gs_ops, only : GS_OP_ADD
   use device_math, only : device_col2
   use device_dynamic_smagorinsky_nut, only : device_s_abs_compute, &
-            device_lij_compute_part1, device_lij_compute_part2, &
-            device_mij_compute_part1, device_mij_nut_compute_part2
+       device_lij_compute_part1, device_lij_compute_part2, &
+       device_mij_compute_part1, device_mij_nut_compute_part2
   implicit none
   private
 
@@ -53,6 +53,7 @@ module dynamic_smagorinsky_device
 contains
 
   !> Compute eddy viscosity on the device.
+  !! @param if_ext If extrapolate the velocity field to evaluate
   !! @param t The time value.
   !! @param tstep The current time-step.
   !! @param coef SEM coefficients.
@@ -64,9 +65,9 @@ contains
   !! @param lij The Germano identity.
   !! @param num The numerator in the expression of c_dyn, i.e. <mij*lij>
   !! @param den The denominator in the expression of c_dyn, i.e. <mij*mij>
-  subroutine dynamic_smagorinsky_compute_device(t, tstep, coef, nut, delta, &
-                                             c_dyn, test_filter, mij, lij, &
-                                             num, den)
+  subroutine dynamic_smagorinsky_compute_device(if_ext, t, tstep, coef, nut, &
+       delta, c_dyn, test_filter, mij, lij, num, den)
+    logical, intent(in) :: if_ext
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
@@ -91,9 +92,15 @@ contains
        alpha = 0.9_rp
     end if
 
-    u => neko_field_registry%get_field_by_name("u")
-    v => neko_field_registry%get_field_by_name("v")
-    w => neko_field_registry%get_field_by_name("w")
+    if (if_ext .eqv. .true.) then
+       u => neko_field_registry%get_field_by_name("u_e")
+       v => neko_field_registry%get_field_by_name("v_e")
+       w => neko_field_registry%get_field_by_name("w_e")
+    else
+       u => neko_field_registry%get_field_by_name("u")
+       v => neko_field_registry%get_field_by_name("v")
+       w => neko_field_registry%get_field_by_name("w")
+    end if
 
     call neko_scratch_registry%request_field(s11, temp_indices(1))
     call neko_scratch_registry%request_field(s22, temp_indices(2))
@@ -113,15 +120,22 @@ contains
     call coef%gs_h%op(s13%x, s11%dof%size(), GS_OP_ADD)
     call coef%gs_h%op(s23%x, s11%dof%size(), GS_OP_ADD)
 
+    call device_col2(s11%x_d, coef%mult_d, s11%dof%size())
+    call device_col2(s22%x_d, coef%mult_d, s22%dof%size())
+    call device_col2(s33%x_d, coef%mult_d, s33%dof%size())
+    call device_col2(s12%x_d, coef%mult_d, s12%dof%size())
+    call device_col2(s13%x_d, coef%mult_d, s13%dof%size())
+    call device_col2(s23%x_d, coef%mult_d, s23%dof%size())
+
     call device_s_abs_compute(s_abs%x_d, s11%x_d, s22%x_d, s33%x_d, &
-                                         s12%x_d, s13%x_d, s23%x_d, &
-                                         coef%mult_d, s11%dof%size())
+         s12%x_d, s13%x_d, s23%x_d, &
+         s11%dof%size())
 
     call compute_lij_device(lij, u, v, w, test_filter, u%dof%size())
     call compute_nut_device(nut, c_dyn, num, den, lij, mij, &
-                            s11, s22, s33, s12, s13, s23, &
-                            s_abs, test_filter, delta, alpha, &
-                            u%dof%size())
+         s11, s22, s33, s12, s13, s23, &
+         s_abs, test_filter, delta, alpha, &
+         coef, u%dof%size())
 
     call coef%gs_h%op(nut, GS_OP_ADD)
     call device_col2(nut%x_d, coef%mult_d, nut%dof%size())
@@ -165,11 +179,11 @@ contains
     !!         ___ ___
     !! Compute u_i*u_j and u_i*u_j
     call device_lij_compute_part1(lij(1)%x_d, lij(2)%x_d, lij(3)%x_d, &
-                                  lij(4)%x_d, lij(5)%x_d, lij(6)%x_d, &
-                                  u%x_d, v%x_d, w%x_d, &
-                                  fu%x_d, fv%x_d, fw%x_d, &
-                                  fuu%x_d, fvv%x_d, fww%x_d, &
-                                  fuv%x_d, fuw%x_d, fvw%x_d, n)
+         lij(4)%x_d, lij(5)%x_d, lij(6)%x_d, &
+         u%x_d, v%x_d, w%x_d, &
+         fu%x_d, fv%x_d, fw%x_d, &
+         fuu%x_d, fvv%x_d, fww%x_d, &
+         fuv%x_d, fuw%x_d, fvw%x_d, n)
 
     !! Filter u_i*u_j by the test filter
     call test_filter%apply(fuu, fuu)
@@ -178,17 +192,17 @@ contains
     call test_filter%apply(fuv, fuv)
     call test_filter%apply(fuw, fuw)
     call test_filter%apply(fvw, fvw)
-    
+
     !! Assember the final form
     !!        ___ ___   _______
     !! L_ij = u_i*u_j - u_i*u_j
     call device_lij_compute_part2(lij(1)%x_d, lij(2)%x_d, lij(3)%x_d, &
-                                  lij(4)%x_d, lij(5)%x_d, lij(6)%x_d, &
-                                  fuu%x_d, fvv%x_d, fww%x_d, &
-                                  fuv%x_d, fuw%x_d, fvw%x_d, n)
+         lij(4)%x_d, lij(5)%x_d, lij(6)%x_d, &
+         fuu%x_d, fvv%x_d, fww%x_d, &
+         fuv%x_d, fuw%x_d, fvw%x_d, n)
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine compute_lij_device
-  
+
   !> Compute M_ij and nut on the device.
   !!                              _____ ____   __________
   !! M_ij = ((delta_test/delta)^2 s_abs*s_ij - s_abs*s_ij)*(delta^2)
@@ -210,9 +224,9 @@ contains
   !! @param alpha The moving average coefficient
   !! @param n The number of points
   subroutine compute_nut_device(nut, c_dyn, num, den, lij, mij, &
-                            s11, s22, s33, s12, s13, s23, &
-                            s_abs, test_filter, delta, alpha, &
-                            n)
+       s11, s22, s33, s12, s13, s23, &
+       s_abs, test_filter, delta, alpha, &
+       coef, n)
     type(field_t), intent(inout) :: nut, c_dyn
     type(field_t), intent(inout) :: num, den
     type(field_t), intent(in) :: lij(6)
@@ -221,13 +235,14 @@ contains
     type(elementwise_filter_t), intent(inout) :: test_filter
     type(field_t), intent(in) :: delta
     real(kind=rp), intent(in) :: alpha
+    type(coef_t), intent(in) :: coef
     integer, intent(in) :: n
 
     real(kind=rp) :: delta_ratio2
     integer :: temp_indices(13)
     type(field_t), pointer :: fs11, fs22, fs33, fs12, fs13, fs23, fs_abs, &
-                              fsabss11, fsabss22, fsabss33, &
-                              fsabss12, fsabss13, fsabss23
+         fsabss11, fsabss22, fsabss33, &
+         fsabss12, fsabss13, fsabss23
 
     delta_ratio2 = ((test_filter%nx-1.0_rp)/(test_filter%nt-1.0_rp))**2
 
@@ -244,7 +259,7 @@ contains
     call neko_scratch_registry%request_field(fsabss13, temp_indices(11))
     call neko_scratch_registry%request_field(fsabss23, temp_indices(12))
     call neko_scratch_registry%request_field(fs_abs, temp_indices(13))
-    
+
     !! Compute M_ij
     !!         _____     ____
     !! Compute s_abs and s_ij
@@ -255,18 +270,18 @@ contains
     call test_filter%apply(fs12, s12)
     call test_filter%apply(fs13, s13)
     call test_filter%apply(fs23, s23)
-    
+
     !!                              _____ ____
     !! Compute (delta_test/delta)^2 s_abs*s_ij and s_abs*s_ij
     call device_mij_compute_part1(mij(1)%x_d, mij(2)%x_d, mij(3)%x_d, &
-                                  mij(4)%x_d, mij(5)%x_d, mij(6)%x_d, &
-                                  s_abs%x_d, s11%x_d, s22%x_d, s33%x_d, &
-                                  s12%x_d, s13%x_d, s23%x_d, &
-                                  fs_abs%x_d, fs11%x_d, fs22%x_d, fs33%x_d, &
-                                  fs12%x_d, fs13%x_d, fs23%x_d, &
-                                  fsabss11%x_d, fsabss22%x_d, fsabss33%x_d, &
-                                  fsabss12%x_d, fsabss13%x_d, fsabss23%x_d, &
-                                  delta_ratio2, n)
+         mij(4)%x_d, mij(5)%x_d, mij(6)%x_d, &
+         s_abs%x_d, s11%x_d, s22%x_d, s33%x_d, &
+         s12%x_d, s13%x_d, s23%x_d, &
+         fs_abs%x_d, fs11%x_d, fs22%x_d, fs33%x_d, &
+         fs12%x_d, fs13%x_d, fs23%x_d, &
+         fsabss11%x_d, fsabss22%x_d, fsabss33%x_d, &
+         fsabss12%x_d, fsabss13%x_d, fsabss23%x_d, &
+         delta_ratio2, n)
 
     !! Filter s_abs*s_ij by the test filter
     call test_filter%apply(fsabss11, fsabss11)
@@ -278,13 +293,13 @@ contains
 
     !! Finalise the compute of Mij and nut
     call device_mij_nut_compute_part2(mij(1)%x_d, mij(2)%x_d, mij(3)%x_d, &
-                                  mij(4)%x_d, mij(5)%x_d, mij(6)%x_d, &
-                                  lij(1)%x_d, lij(2)%x_d, lij(3)%x_d, &
-                                  lij(4)%x_d, lij(5)%x_d, lij(6)%x_d, &
-                                  fsabss11%x_d, fsabss22%x_d, fsabss33%x_d, &
-                                  fsabss12%x_d, fsabss13%x_d, fsabss23%x_d, &
-                                  num%x_d, den%x_d, c_dyn%x_d, delta%x_d, &
-                                  s_abs%x_d, nut%x_d, alpha, n)
+         mij(4)%x_d, mij(5)%x_d, mij(6)%x_d, &
+         lij(1)%x_d, lij(2)%x_d, lij(3)%x_d, &
+         lij(4)%x_d, lij(5)%x_d, lij(6)%x_d, &
+         fsabss11%x_d, fsabss22%x_d, fsabss33%x_d, &
+         fsabss12%x_d, fsabss13%x_d, fsabss23%x_d, &
+         num%x_d, den%x_d, c_dyn%x_d, delta%x_d, &
+         s_abs%x_d, nut%x_d, alpha, n)
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine compute_nut_device
 

@@ -33,23 +33,25 @@
 !> Defines a vector
 module vector
   use neko_config, only: NEKO_BCKND_DEVICE
-  use math, only: sub3, add3, cmult2, cadd2, cfill
+  use math, only: sub3, chsign, add3, cmult2, cadd2, cfill, copy, col3, cdiv2, &
+       col2, invcol3
   use num_types, only: rp
-  use device, only: device_map, device_free, c_ptr, C_NULL_PTR
+  use device, only: device_map, device_free
   use device_math, only: device_copy, device_cfill, device_cmult, &
-       device_sub3, device_cmult2, device_add3, device_cadd2
+       device_sub3, device_cmult2, device_add3, device_cadd2, device_col3, &
+       device_col2, device_invcol3, device_cdiv2
   use utils, only: neko_error
   use, intrinsic :: iso_c_binding
   implicit none
   private
 
-  type, public ::  vector_t
+  type, public :: vector_t
      !> Vector entries.
      real(kind=rp), allocatable :: x(:)
      !> Device pointer.
      type(c_ptr) :: x_d = C_NULL_PTR
      !> Size of vector.
-     integer :: n  = 0
+     integer, private :: n = 0
    contains
      !> Initialise a vector of size `n`.
      procedure, pass(v) :: init => vector_init
@@ -61,30 +63,14 @@ module vector
      procedure, pass(v) :: vector_assign_vector
      !> Assignment \f$ v = s \f$.
      procedure, pass(v) :: vector_assign_scalar
-     !> Vector-vector addition \f$ v = a + b \f$.
-     procedure, pass(a) :: vector_add_vector
-     !> Vector-scalar addition \f$ v = a + c \f$.
-     procedure, pass(a) :: vector_add_scalar_left
-     !> Scalar-vector addition \f$ v = c + a \f$.
-     procedure, pass(a) :: vector_add_scalar_right
-     !> Vector-vector subtraction \f$ v = a - b \f$.
-     procedure, pass(a) :: vector_sub_vector
-     !> Vector-scalar subtraction \f$ v = a - c \f$.
-     procedure, pass(a) :: vector_sub_scalar_left
-     !> Scalar-vector subtraction \f$ v = c - a \f$.
-     procedure, pass(a) :: vector_sub_scalar_right
-     !> Vector-scalar multiplication \f$ v = a*c \f$.
-     procedure, pass(a) :: vector_cmult_left
-     !> Scalar-vector multiplication \f$ v = c*a \f$.
-     procedure, pass(a) :: vector_cmult_right
 
+     !> Assignments
      generic :: assignment(=) => vector_assign_vector, &
           vector_assign_scalar
-     generic :: operator(+) => vector_add_vector, &
-          vector_add_scalar_left, vector_add_scalar_right
-     generic :: operator(-) => vector_sub_vector, &
-          vector_sub_scalar_left, vector_sub_scalar_right
-     generic :: operator(*) => vector_cmult_left, vector_cmult_right
+
+     ! Private interfaces
+     procedure, pass(a), private :: alloc => vector_allocate
+
   end type vector_t
 
   type, public :: vector_ptr_t
@@ -98,19 +84,31 @@ contains
     class(vector_t), intent(inout) :: v
     integer, intent(in) :: n
 
-    call v%free()
-
-    allocate(v%x(n))
+    call v%alloc(n)
     v%x = 0.0_rp
-
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(v%x, v%x_d, n)
        call device_cfill(v%x_d, 0.0_rp, n)
     end if
 
-    v%n = n
-
   end subroutine vector_init
+
+  !> Vector allocation without initialisation.
+  subroutine vector_allocate(a, n)
+    class(vector_t), intent(inout) :: a
+    integer, intent(in) :: n
+
+    if (n .eq. 0) call neko_error('Vector cannot have size 0')
+
+    if (a%n .eq. n) return
+    call a%free()
+
+    a%n = n
+    allocate(a%x(n))
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(a%x, a%x_d, n)
+    end if
+
+  end subroutine vector_allocate
 
   !> Deallocate a vector.
   subroutine vector_free(v)
@@ -129,8 +127,8 @@ contains
   end subroutine vector_free
 
   !> Return the number of entries in the vector.
-  function vector_size(v) result(s)
-    class(vector_t), intent(inout) :: v
+  pure function vector_size(v) result(s)
+    class(vector_t), intent(in) :: v
     integer :: s
     s = v%n
   end function vector_size
@@ -140,21 +138,7 @@ contains
     class(vector_t), intent(inout) :: v
     type(vector_t), intent(in) :: w
 
-    if (allocated(v%x)) then
-       call v%free()
-    end if
-
-    if (.not. allocated(v%x)) then
-
-       v%n = w%n
-       allocate(v%x(v%n))
-
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_map(v%x, v%x_d, v%n)
-       end if
-
-    end if
-
+    call v%alloc(w%n)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_copy(v%x_d, w%x_d, v%n)
     else
@@ -168,9 +152,7 @@ contains
     class(vector_t), intent(inout) :: v
     real(kind=rp), intent(in) :: s
 
-    if (.not. allocated(v%x)) then
-       call neko_error('Vector not allocated')
-    end if
+    if (v%n .eq. 0) call neko_error('Vector not allocated')
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cfill(v%x_d, s, v%n)
@@ -179,148 +161,5 @@ contains
     end if
 
   end subroutine vector_assign_scalar
-
-  !> Vector-vector addition \f$ v = a + b \f$.
-  function vector_add_vector(a, b) result(v)
-    class(vector_t), intent(in) :: a, b
-    type(vector_t) :: v
-
-    if (a%n .ne. b%n) call neko_error("Vectors must be the same length!")
-
-    v%n = a%n
-    allocate(v%x(v%n))
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(v%x, v%x_d, v%n)
-    end if
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_add3(v%x_d, a%x_d, b%x_d, v%n)
-    else
-       call add3(v%x, a%x, b%x, v%n)
-    end if
-
-  end function vector_add_vector
-
-  !> Vector-scalar addition \f$ v = a + c \f$.
-  function vector_add_scalar_left(a, c) result(v)
-    class(vector_t), intent(in) :: a
-    real(kind=rp), intent(in) :: c
-    type(vector_t) :: v
-
-    v%n = a%n
-    allocate(v%x(v%n))
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(v%x, v%x_d, v%n)
-    end if
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cadd2(v%x_d, a%x_d, c, v%n)
-    else
-       call cadd2(v%x, a%x, c, v%n)
-    end if
-
-  end function vector_add_scalar_left
-
-  !> Scalar-vector addition \f$ v = c + a \f$.
-  function vector_add_scalar_right(c, a) result(v)
-    real(kind=rp), intent(in) :: c
-    class(vector_t), intent(in) :: a
-    type(vector_t) :: v
-
-    v = vector_add_scalar_left(a, c)
-
-  end function vector_add_scalar_right
-
-  !> Vector-vector subtraction \f$ v = a - b \f$.
-  function vector_sub_vector(a, b) result(v)
-    class(vector_t), intent(in) :: a, b
-    type(vector_t) :: v
-
-    if (a%n .ne. b%n) call neko_error("Vectors must be the same length!")
-
-    v%n = a%n
-    allocate(v%x(v%n))
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(v%x, v%x_d, v%n)
-    end if
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_sub3(v%x_d, a%x_d, b%x_d, v%n)
-    else
-       call sub3(v%x, a%x, b%x, v%n)
-    end if
-
-  end function vector_sub_vector
-
-  !> Vector-scalar subtraction \f$ v = a - c \f$.
-  function vector_sub_scalar_left(a, c) result(v)
-    class(vector_t), intent(in) :: a
-    real(kind=rp), intent(in) :: c
-    type(vector_t) :: v
-
-    v%n = a%n
-    allocate(v%x(v%n))
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(v%x, v%x_d, v%n)
-    end if
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cadd2(v%x_d, a%x_d, -1.0_rp*c, v%n)
-    else
-       call cadd2(v%x, a%x, -1.0_rp*c, a%n)
-    end if
-
-  end function vector_sub_scalar_left
-
-  !> Scalar-vector subtraction \f$ v = c - a \f$.
-  function vector_sub_scalar_right(c, a) result(v)
-    real(kind=rp), intent(in) :: c
-    class(vector_t), intent(in) :: a
-    type(vector_t) :: v
-
-    v = vector_sub_scalar_left(a, c)
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cmult(v%x_d, -1.0_rp, v%n)
-    else
-       v%x = -v%x
-    end if
-
-  end function vector_sub_scalar_right
-
-  !> Vector-scalar multiplication \f$ v = a*c \f$.
-  function vector_cmult_left(a, c) result(v)
-    class(vector_t), intent(in) :: a
-    real(kind=rp), intent(in) :: c
-    type(vector_t) :: v
-
-    v%n = a%n
-    allocate(v%x(v%n))
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(v%x, v%x_d, v%n)
-    end if
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cmult2(v%x_d, a%x_d, c, v%n)
-    else
-       call cmult2(v%x, a%x, c, v%n)
-    end if
-
-  end function vector_cmult_left
-
-  !> Scalar-vector multiplication \f$ v = c*a \f$.
-  function vector_cmult_right(c, a) result(v)
-    real(kind=rp), intent(in) :: c
-    class(vector_t), intent(in) :: a
-    type(vector_t) :: v
-
-    v = vector_cmult_left(a, c)
-
-  end function vector_cmult_right
 
 end module vector

@@ -41,13 +41,14 @@ module gmres_sx
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, rone, copy, cmult2, col2, col3, add2s2, abscmp
-  use comm
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
+  use mpi_f08
   implicit none
   private
 
   !> Standard preconditioned generalized minimal residual method (SX version)
   type, public, extends(ksp_t) :: sx_gmres_t
-     integer :: lgmres
+     integer :: lgmres = 30
      real(kind=rp), allocatable :: w(:)
      real(kind=rp), allocatable :: c(:)
      real(kind=rp), allocatable :: r(:)
@@ -70,23 +71,14 @@ module gmres_sx
 contains
 
   !> Initialise a standard GMRES solver
-  subroutine sx_gmres_init(this, n, max_iter, M, lgmres, &
-       rel_tol, abs_tol, monitor)
-    class(sx_gmres_t), intent(inout) :: this
+  subroutine sx_gmres_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
+    class(sx_gmres_t), target, intent(inout) :: this
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
     class(pc_t), optional, intent(in), target :: M
-    integer, optional, intent(in) :: lgmres
     real(kind=rp), optional, intent(in) :: rel_tol
     real(kind=rp), optional, intent(in) :: abs_tol
     logical, optional, intent(in) :: monitor
-
-    if (present(lgmres)) then
-       this%lgmres = lgmres
-    else
-       this%lgmres = 30
-    end if
-
 
     call this%free()
 
@@ -207,6 +199,7 @@ contains
 
     conv = .false.
     iter = 0
+    rnorm = 0.0_rp
     glb_n = n / x%msh%nelv * x%msh%glb_nelv
 
     if (present(niter)) then
@@ -245,7 +238,7 @@ contains
           ksp_results%res_start = div0
        endif
 
-       if (abscmp(this%gam(1), 0.0_rp)) return
+       if (abscmp(this%gam(1), 0.0_rp)) exit
 
        rnorm = 0.0_rp
        temp = one / this%gam(1)

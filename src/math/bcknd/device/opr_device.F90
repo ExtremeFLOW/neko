@@ -34,14 +34,13 @@
 module opr_device
   use gather_scatter, only : GS_OP_ADD
   use num_types, only : rp, c_rp
-  use device, only : device_get_ptr
+  use device, only : device_get_ptr, device_event_sync
   use space, only : space_t
   use coefs, only : coef_t
   use field, only : field_t
   use utils, only : neko_error
   use device_math, only : device_sub3, device_rzero, device_copy
   use device_mathops, only : device_opcolv
-  use comm
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -138,6 +137,10 @@ module opr_device
        integer(c_int) :: nel, lx
      end function hip_cfl
   end interface
+
+
+
+
 #elif HAVE_CUDA
   interface
      subroutine cuda_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, &
@@ -212,7 +215,6 @@ module opr_device
      end subroutine cuda_lambda2
   end interface
 
-
   interface
      real(c_rp) function cuda_cfl(dt, u_d, v_d, w_d, &
           drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, &
@@ -228,6 +230,10 @@ module opr_device
        integer(c_int) :: nel, lx
      end function cuda_cfl
   end interface
+
+
+
+
 #elif HAVE_OPENCL
   interface
      subroutine opencl_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, &
@@ -317,6 +323,8 @@ module opr_device
        integer(c_int) :: nel, lx
      end subroutine opencl_lambda2
   end interface
+
+
 #endif
 
 contains
@@ -511,7 +519,7 @@ contains
 
   end subroutine opr_device_conv1
 
-  subroutine opr_device_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
+  subroutine opr_device_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh, event)
     type(field_t), intent(inout) :: w1
     type(field_t), intent(inout) :: w2
     type(field_t), intent(inout) :: w3
@@ -521,6 +529,7 @@ contains
     type(field_t), intent(inout) :: work1
     type(field_t), intent(inout) :: work2
     type(coef_t), intent(in) :: c_Xh
+    type(c_ptr), optional, intent(inout) :: event
     integer :: gdim, n, nelv
 
     n = w1%dof%size()
@@ -650,9 +659,20 @@ contains
     !!    BC dependent, Needs to change if cyclic
 
     call device_opcolv(w1%x_d, w2%x_d, w3%x_d, c_Xh%B_d, gdim, n)
-    call c_Xh%gs_h%op(w1, GS_OP_ADD)
-    call c_Xh%gs_h%op(w2, GS_OP_ADD)
-    call c_Xh%gs_h%op(w3, GS_OP_ADD)
+
+    if (present(event)) then
+       call c_Xh%gs_h%op(w1, GS_OP_ADD, event)
+       call device_event_sync(event)
+       call c_Xh%gs_h%op(w2, GS_OP_ADD, event)
+       call device_event_sync(event)
+       call c_Xh%gs_h%op(w3, GS_OP_ADD, event)
+       call device_event_sync(event)
+    else
+       call c_Xh%gs_h%op(w1, GS_OP_ADD)
+       call c_Xh%gs_h%op(w2, GS_OP_ADD)
+       call c_Xh%gs_h%op(w3, GS_OP_ADD)
+    end if
+
     call device_opcolv(w1%x_d, w2%x_d, w3%x_d, c_Xh%Binv_d, gdim, n)
 
 #else
@@ -700,5 +720,7 @@ contains
     call neko_error('No device backend configured')
 #endif
   end function opr_device_cfl
+
+
 
 end module opr_device

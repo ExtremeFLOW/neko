@@ -107,11 +107,11 @@ program genmeshbox
         if (.not. file_exists) then
 
            open(unit=10, file=trim(log_fname), status = 'new', action = 'write')
-           write (10, '(A,2(F10.6," "),I4,L2)') "xmin, xmax, Nel, periodic:", &
+           write (10, '(A,2(F12.6," "),I4,L2)') "xmin, xmax, Nel, periodic:", &
                 x0, x1, nelx, period_x
-           write (10, '(A,2(F10.6," "),I4,L2)') "ymin, ymax, Nel, periodic:", &
+           write (10, '(A,2(F12.6," "),I4,L2)') "ymin, ymax, Nel, periodic:", &
                 y0, y1, nely, period_y
-           write (10, '(A,2(F10.6," "),I4,L2)') "zmin, zmax, Nel, periodic:", &
+           write (10, '(A,2(F12.6," "),I4,L2)') "zmin, zmax, Nel, periodic:", &
                 z0, z1, nelz, period_z
            close(10)
            exit
@@ -143,7 +143,7 @@ program genmeshbox
   if (trim(dist_x_fname) .eq. 'uniform') then
      el_len_x(:) = (x1 - x0)/nelx
   else
-     dist_x_file = file_t(trim(dist_x_fname))
+     call dist_x_file%init(trim(dist_x_fname))
      call dist_x%init(nelx+1)
      call dist_x_file%read(dist_x)
      do i = 1, nelx
@@ -156,7 +156,7 @@ program genmeshbox
   if (trim(dist_y_fname) .eq. 'uniform') then
      el_len_y(:) = (y1 - y0)/nely
   else
-     dist_y_file = file_t(trim(dist_y_fname))
+     call dist_y_file%init(trim(dist_y_fname))
      call dist_y%init(nely+1)
      call dist_y_file%read(dist_y)
      do i = 1, nely
@@ -169,7 +169,7 @@ program genmeshbox
   if (trim(dist_z_fname) .eq. 'uniform') then
      el_len_z(:) = (z1 - z0)/nelz
   else
-     dist_z_file = file_t(trim(dist_z_fname))
+     call dist_z_file%init(trim(dist_z_fname))
      call dist_z%init(nelz+1)
      call dist_z_file%read(dist_z)
      do i = 1, nelz
@@ -348,7 +348,7 @@ program genmeshbox
   call msh%finalize()
 
 
-  nmsh_file = file_t(fname)
+  call nmsh_file%init(fname)
 
   call nmsh_file%write(msh)
 

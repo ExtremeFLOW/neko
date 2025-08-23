@@ -46,7 +46,7 @@ extern "C" {
 extern "C" {
   void cuda_s_abs_compute(void *s_abs, void *s11, void *s22, void *s33,
                          void *s12, void *s13, void *s23,
-                         void *mult, int * n){
+                         int * n){
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
@@ -56,7 +56,7 @@ extern "C" {
     <<<nblcks, nthrds, 0, stream>>>((real *) s_abs,
                                     (real *) s11, (real *) s22, (real *) s33,
                                     (real *) s12, (real *) s13, (real *) s23,
-                                    (real *) mult, * n);
+                                    * n);
     CUDA_CHECK(cudaGetLastError());
   }
   

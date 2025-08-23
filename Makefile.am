@@ -4,12 +4,14 @@ pkgconfig_DATA = neko.pc
 
 SUBDIRS = src
 
+if !ENABLE_NVSHMEM
 if ENABLE_CONTRIB
 SUBDIRS += contrib
 endif
 
 if ENABLE_PFUNIT
 SUBDIRS += tests/unit
+endif
 endif
 
 if ENABLE_DOXYGEN
@@ -50,7 +52,6 @@ EXTRA_DIST = \
 	examples/hemi/hemi.case\
 	examples/lid/lid.f90\
 	examples/lid/lid2d.nmsh\
-	examples/lid/lid2d.f90\
 	examples/lid/lid.nmsh\
 	examples/lid/README.md\
 	examples/lid/lid2d.box\
@@ -97,6 +98,14 @@ EXTRA_DIST = \
 	examples/rayleigh_benard_cylinder/rayleigh.geo\
 	examples/rayleigh_benard_cylinder/rayleigh.case\
 	examples/rayleigh_benard_cylinder/postprocess_probes.py\
+	examples/api/pyneko/README.md\
+	examples/api/pyneko/cylinder.case\
+	examples/api/pyneko/cylinder.py\
+	examples/api/pyneko/cylinder.nmsh\
+	examples/api/c/README.md\
+	examples/api/c/cylinder.case\
+	examples/api/c/cylinder.c\
+	examples/api/c/cylinder.nmsh\
 	tests/reframe/checks.py\
 	tests/reframe/settings.py\
 	tests/reframe/README.md\
@@ -107,16 +116,20 @@ EXTRA_DIST = \
 	tests/reframe/src/rocm_select_gpu_device.sh\
 	tests/reframe/src/tgv.case.template\
 	tests/reframe/src/tgv.f90\
-	tests/regression/README.md\
-	tests/regression/cylinder/cylinder_part1.case\
-	tests/regression/cylinder/cylinder_part2.case\
-	tests/regression/cylinder/ref1_dp.log\
-	tests/regression/cylinder/ref1_sp.log\
-	tests/regression/cylinder/ref2_dp.log\
-	tests/regression/cylinder/ref2_sp.log\
-	tests/regression/cylinder/small_test_cyl.nmsh\
-	tests/regression/cylinder/test_easy.sh\
-	tests/regression/cylinder/test.sh\
+	tests/integration/default_cpu_launcher.sh\
+	tests/integration/default_cuda_launcher.sh\
+	tests/integration/conftest.py\
+	tests/integration/testlib.py\
+	tests/integration/pytest.ini\
+	tests/integration/meshes/small_test_cyl.nmsh\
+	tests/integration/tests/test_demo/test_suite.py\
+	tests/integration/tests/test_examples/test_examples.py\
+	tests/integration/tests/test_cylinder/test_cylinder.py\
+	tests/integration/tests/test_cylinder/cylinder_part1.case\
+	tests/integration/tests/test_cylinder/reflog1_dp.csv\
+	tests/integration/tests/test_cylinder/reflog1_sp.csv\
+	tests/integration/tests/test_cylinder/reflog2_dp.csv\
+	tests/integration/tests/test_cylinder/reflog2_sp.csv\
 	patches/nvhpc_bge.patch\
 	patches/json-fortran71.patch
 

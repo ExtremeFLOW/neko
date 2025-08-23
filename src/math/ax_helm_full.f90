@@ -58,14 +58,17 @@ contains
   !! @param msh Mesh.
   !! @param Xh Function space \f$ X_h \f$.
   subroutine ax_helm_full_compute(w, u, coef, msh, Xh)
-    type(mesh_t), intent(inout) :: msh
-    type(space_t), intent(inout) :: Xh
-    type(coef_t), intent(inout) :: coef
+    type(mesh_t), intent(in) :: msh
+    type(space_t), intent(in) :: Xh
+    type(coef_t), intent(in) :: coef
     real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(in) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
-    call neko_error("The full Helmholtz operators cannot be applied to a &
-                   &single field")
+    call neko_error("The full Helmholtz operators cannot be applied to a " // &
+         "single field. This error is common when turbulence modelling " // &
+         "or variable material properties are on, but a velocity solver " // &
+         "not supporting a coupled solve is selected. Fixed by setting " // &
+         "the solver type to e.g. coupledcg.")
   end subroutine ax_helm_full_compute
 
 end module ax_helm_full

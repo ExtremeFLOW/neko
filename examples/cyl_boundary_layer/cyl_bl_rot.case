@@ -1,48 +1,81 @@
 {
-"version": 1.0,
-"case": {
-    "mesh_file": "cyl.nmsh",
-    "output_at_end": true,
-    "output_boundary": true,
-    "output_checkpoints": false,
-    "output_directory": "results_rot",
-    "end_time": 100,
-    "timestep": 5e-4,
-    "numerics": {
-        "time_order": 3,
-        "polynomial_order": 5,
-        "dealias": true
-    },
-    "fluid": {
-        "scheme": "pnpn",
-        "Re": 500,
-        "initial_condition": {
-            "type": "user",
+    "version": 1.0,
+    "case": {
+        "mesh_file": "cyl.nmsh",
+        "output_at_end": true,
+        "output_boundary": true,
+        "output_checkpoints": false,
+        "output_directory": "results_rot",
+        "time": {
+            "end_time": 100,
+            "timestep": 5e-4
         },
-        "inflow_condition": {
-            "type": "user",
+        "numerics": {
+            "time_order": 3,
+            "polynomial_order": 5,
+            "dealias": true
         },
-        "outflow_condition": {
-            "delta": 0.01,
-            "velocity_scale": 1.0
-        },
-        "velocity_solver": {
-            "type": "cg",
-            "preconditioner": "jacobi",
-            "projection_space_size": 3,
-            "absolute_tolerance": 1e-8,
-            "max_iterations": 800
-        },
-        "pressure_solver": {
-            "type": "gmres",
-            "preconditioner": "hsmg",
-            "projection_space_size": 20,
-            "absolute_tolerance": 1e-5,
-            "max_iterations": 800
-        },
-        "boundary_types": ["v", "o+dong", "sym", "w", "on", "on+dong", "v"],
-        "output_control": "nsamples",
-        "output_value": 400
+        "fluid": {
+            "scheme": "pnpn",
+            "Re": 500,
+            "initial_condition": {
+                "type": "user",
+            },
+            "outflow_condition": {
+                "delta": 0.01,
+                "velocity_scale": 1.0
+            },
+            "velocity_solver": {
+                "type": "cg",
+                "preconditioner": {
+                    "type": "jacobi"
+                },
+                "projection_space_size": 3,
+                "absolute_tolerance": 1e-8,
+                "max_iterations": 800
+            },
+            "pressure_solver": {
+                "type": "gmres",
+                "preconditioner": {
+                    "type": "hsmg"
+                },
+                "projection_space_size": 20,
+                "absolute_tolerance": 1e-5,
+                "max_iterations": 800
+            },
+            "boundary_conditions":
+            [
+                {
+                    "type": "user_velocity",
+                    "zone_indices": [ 1 ]
+                },
+                {
+                    "type": "outflow+dong",
+                    "zone_indices": [ 2 ]
+                },
+                {
+                    "type": "symmetry",
+                    "zone_indices": [ 3 ]
+                },
+                {
+                    "type": "no_slip",
+                    "zone_indices": [ 4 ]
+                },
+                {
+                    "type": "normal_outflow",
+                    "zone_indices": [ 5 ]
+                },
+                {
+                    "type": "normal_outflow+dong",
+                    "zone_indices": [ 6 ]
+                },
+                {
+                    "type": "user_velocity",
+                    "zone_indices": [ 7 ]
+                }
+            ],
+            "output_control": "nsamples",
+            "output_value": 400
+        }
     }
-}
 }

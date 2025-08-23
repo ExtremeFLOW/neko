@@ -12,7 +12,7 @@ on:
         description: "The version of the JSON-Fortran library to use."
         type: string
         required: false
-        default: "8.3.0"
+        default: "8.4.0"
 
 jobs:
   NVIDIA:
@@ -20,47 +20,79 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-20.04]
+        os: [ubuntu-24.04, ubuntu-24.04-arm]
         compiler: [nvfortran]
         backend: [cpu, cuda]
         precision: [dp]
         include:
-          - os: ubuntu-20.04
+          - os: ubuntu-24.04
             setup-env: |
               sudo apt-get update
-              sudo apt-get install -y autoconf automake autotools-dev make git m4 libopenblas-dev
+              sudo apt-get install -y autoconf automake autotools-dev make git m4 libopenblas-dev python3 python3-pip
               curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg
               echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list
               sudo apt-get update -y
-              sudo apt-get install -y nvhpc-24-11
+              sudo apt-get install -y nvhpc-25-7
+              sudo apt-get clean
+              python3 -m venv myenv
+              source myenv/bin/activate
+              pip install pytest json5
               NVARCH=`uname -s`_`uname -m`
               export NVARCH
+              NVVER=25.7
+              export NVVER
               NVCOMPILERS=/opt/nvidia/hpc_sdk
               export NVCOMPILERS
-              PATH=$NVCOMPILERS/$NVARCH/24.11/compilers/bin:$PATH; export PATH
-              export PATH=$NVCOMPILERS/$NVARCH/24.11/comm_libs/mpi/bin:$PATH
+              PATH=$NVCOMPILERS/$NVARCH/$NVVER/compilers/bin:$PATH; export PATH
+              export PATH=$NVCOMPILERS/$NVARCH/$NVVER/comm_libs/mpi/bin:$PATH
+              printenv >> $GITHUB_ENV
+              echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
+
+          - os: ubuntu-24.04-arm
+            setup-env: |
+              sudo apt-get update
+              sudo apt-get install -y autoconf automake autotools-dev make git m4 libopenblas-dev python3 python3-pip
+              curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg
+              echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/arm64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list
+              sudo apt-get update -y
+              sudo apt-get install -y nvhpc-25-7
+              sudo apt-get clean
+              python3 -m venv myenv
+              source myenv/bin/activate
+              pip install pytest json5
+              NVARCH=`uname -s`_`uname -m`
+              export NVARCH
+              NVVER=25.7
+              export NVVER
+              NVCOMPILERS=/opt/nvidia/hpc_sdk
+              export NVCOMPILERS
+              PATH=$NVCOMPILERS/$NVARCH/$NVVER/compilers/bin:$PATH; export PATH
+              export PATH=$NVCOMPILERS/$NVARCH/$NVVER/comm_libs/mpi/bin:$PATH
               printenv >> $GITHUB_ENV
               echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
 
     env:
-      CC: gcc
+      CC: nvc
       FC: ${{ matrix.compiler }}
       OMPI_FC: ${{ matrix.compiler }}
-      OMPI_CC: gcc
+      OMPI_CC: nvc
       OMPI_ALLOW_RUN_AS_ROOT: 1
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none
       RP: ${{ matrix.precision }}
+      NEKO_EXEC: ${{ github.workspace }}/install/bin/neko
+      MAKENEKO_EXEC: ${{ github.workspace }}/install/bin/makeneko
     name: ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
     steps:
-      - name: Setup env.
-        id: setup-env
-        run: ${{ matrix.setup-env }}
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+
+      - name: Setup env.
+        id: setup-env
+        run: ${{ matrix.setup-env }}
+
 
       - name: Setup dependencies
         id: setup-deps
@@ -88,18 +120,31 @@ jobs:
       - name: Build (CPU backend)
         if: matrix.backend == 'cpu'
         run: |
+          mkdir ${{ github.workspace }}/install
+          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${{ github.workspace }}/install/lib/pkgconfig" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${{ github.workspace }}/install/lib" >> $GITHUB_ENV
           git apply patches/nvhpc_bge.patch
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP}
-          make
+          ./configure FC=${FC} CC=${CC} FCFLAGS="-O3" --enable-real=${RP} --prefix=${{ github.workspace }}/install
+          make -j${{ steps.setup-env.outputs.nproc }} install
+
 
       - name: Build (CUDA backend)
         if: matrix.backend == 'cuda'
         run: |
           git apply patches/nvhpc_bge.patch
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/24.11/cuda/
-          make
+          ./configure FC=${FC} CC=${CC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/${NVARCH}/${NVVER}/cuda/
+          make -j${{ steps.setup-env.outputs.nproc }}
+
+#      - name: Integration tests
+#        if: matrix.backend == 'cpu' && matrix.os == 'ubuntu-24.04'
+#        run: |
+#           source myenv/bin/activate
+#           chmod +x $MAKENEKO_EXEC
+#           cd tests/integration
+#           pytest --max_nprocs=2
+#           cd ../..
 
       - name: Dist (CPU backend)
         if: matrix.backend == 'cpu'
@@ -110,7 +155,7 @@ jobs:
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
           patch -u src/common/signal.f90 -i patches/nvhpc_bge.patch
-          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP}
+          ./configure FC=${FC} CC=${CC} FCFLAGS="-O3" --enable-real=${RP}
           make -j $(nproc)
 
       - name: Dist (CUDA backend)
@@ -122,5 +167,13 @@ jobs:
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
           patch -u src/common/signal.f90 -i patches/nvhpc_bge.patch
-          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/24.11/cuda/
+          ./configure FC=${FC} CC=${CC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/${NVARCH}/${NVVER}/cuda/
           make -j $(nproc)
+
+#      - name: Archive integration test report
+#        if: matrix.backend == 'cpu' && failure()
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: Nvidia Integration test logs - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
+#          path: tests/integration/logs
+#          retention-days: 1

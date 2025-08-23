@@ -48,12 +48,14 @@ module krylov
   implicit none
   private
 
-  integer, public, parameter :: KSP_MAX_ITER = 1e3       !< Maximum number of iters.
+  integer, public, parameter :: KSP_MAX_ITER = 1e3 !< Maximum number of iters.
   real(kind=rp), public, parameter :: KSP_ABS_TOL = 1d-9 !< Absolut tolerance
   real(kind=rp), public, parameter :: KSP_REL_TOL = 1d-9 !< Relative tolerance
 
   !> Type for storing initial and final residuals in a Krylov solver.
   type, public :: ksp_monitor_t
+     !> Name of the solver in question
+     character(len=18) :: name = ""
      !> Iteration number.
      integer :: iter
      !> Initial residual.
@@ -62,17 +64,22 @@ module krylov
      real(kind=rp) :: res_final
      !> Status
      logical :: converged = .false.
+   contains
+     procedure, pass(this) :: print_header => krylov_monitor_print_header
+     procedure, pass(this) :: print_result => krylov_monitor_print_result
   end type ksp_monitor_t
 
   !> Base abstract type for a canonical Krylov method, solving \f$ Ax = f \f$.
   type, public, abstract :: ksp_t
      class(pc_t), pointer :: M => null() !< Preconditioner
-     real(kind=rp) :: rel_tol            !< Relative tolerance
-     real(kind=rp) :: abs_tol            !< Absolute tolerance
-     integer :: max_iter                 !< Maximum number of iterations
+     real(kind=rp) :: rel_tol !< Relative tolerance
+     real(kind=rp) :: abs_tol !< Absolute tolerance
+     integer :: max_iter !< Maximum number of iterations
      class(pc_t), allocatable :: M_ident !< Internal preconditioner (Identity)
-     logical :: monitor                  !< Turn on/off monitoring
+     logical :: monitor !< Turn on/off monitoring
    contains
+     !> Constructor.
+     procedure(ksp_init_intrf), deferred, pass(this) :: init
      !> Base type constructor.
      procedure, pass(this) :: ksp_init => krylov_init
      !> Base type destructor.
@@ -95,6 +102,26 @@ module krylov
      procedure(ksp_t_free), pass(this), deferred :: free
   end type ksp_t
 
+  !> Abstract interface for a Krylov method's constructor.
+  !! @param n Size of work arrays.
+  !! @param max_iter Max number of iterations.
+  !! @param M The preconditioner (optional).
+  !! @param rel_tol Relative tolerance (optional).
+  !! @param abs_tol Absolute tolerance (optional).
+  !! @param monitor Whether to log the iteration count and residuals (optional).
+  abstract interface
+     subroutine ksp_init_intrf(this, n, max_iter, M, rel_tol, abs_tol, monitor)
+       import :: pc_t, ksp_t, rp
+       implicit none
+       class(ksp_t), target, intent(inout) :: this
+       integer, intent(in) :: max_iter
+       class(pc_t), optional, intent(in), target :: M
+       integer, intent(in) :: n
+       real(kind=rp), optional, intent(in) :: rel_tol
+       real(kind=rp), optional, intent(in) :: abs_tol
+       logical, optional, intent(in) :: monitor
+     end subroutine ksp_init_intrf
+  end interface
 
   !> Abstract interface for a Krylov method's solve routine
   !!
@@ -140,7 +167,7 @@ module krylov
   !! @param fz right hand side
   !! @param n integer, size of vectors
   !! @param coef Coefficients
-  !! @param blst list of  boundary conditions
+  !! @param blst list of boundary conditions
   !! @param gs_h Gather-scatter handle
   !! @param niter iteration trip count
   abstract interface
@@ -202,13 +229,9 @@ module krylov
        logical, optional, intent(in) :: monitor
      end subroutine krylov_solver_factory
 
-     !> Destroy an iterative Krylov type_name
-     module subroutine krylov_solver_destroy(object)
-       class(ksp_t), allocatable, intent(inout) :: object
-     end subroutine krylov_solver_destroy
   end interface
 
-  public :: krylov_solver_factory, krylov_solver_destroy
+  public :: krylov_solver_factory
 contains
 
   !> Constructor for the base type.
@@ -293,15 +316,15 @@ contains
     class(ksp_t), intent(in) :: this
     character(len=*) :: name
     character(len=LOG_SIZE) :: log_buf
-    
+
     if (this%monitor) then
        write(log_buf, '(A)') 'Krylov monitor (' // trim(name) // ')'
        call neko_log%section(trim(log_buf))
        call neko_log%newline()
        call neko_log%begin()
-       write(log_buf, '(A)') ' Iter.       Residual'
+       write(log_buf, '(A)') ' Iter.          Residual'
        call neko_log%message(log_buf)
-       write(log_buf, '(A)') '---------------------'
+       write(log_buf, '(A)') '-------------------------'
        call neko_log%message(log_buf)
     end if
   end subroutine krylov_monitor_start
@@ -317,7 +340,7 @@ contains
     end if
   end subroutine krylov_monitor_stop
 
-  
+
   !> Monitor iteration
   subroutine krylov_monitor_iter(this, iter, rnorm)
     class(ksp_t), intent(in) :: this
@@ -326,10 +349,10 @@ contains
     character(len=LOG_SIZE) :: log_buf
 
     if (this%monitor) then
-       write(log_buf, '(I6,E15.7)') iter, rnorm
+       write(log_buf, '(I6,E18.9)') iter, rnorm
        call neko_log%message(log_buf)
     end if
-    
+
   end subroutine krylov_monitor_iter
 
   !> Check for convergence
@@ -351,5 +374,39 @@ contains
     if (residual .gt. this%abs_tol) converged = .false.
 
   end function krylov_is_converged
+
+  !> Print the Krylov solver's result header.
+  subroutine krylov_monitor_print_header(this)
+    class(ksp_monitor_t), intent(in) :: this
+    character(len=LOG_SIZE) :: log_buf
+
+    write(log_buf, '((A5,7x),A3,(A5,13x),1x,A6,3x,A15,3x,A15)') &
+         'Step:', ' | ', 'Field:', 'Iters:', &
+         'Start residual:', 'Final residual:'
+    call neko_log%message(log_buf)
+
+  end subroutine krylov_monitor_print_header
+
+  !> Print the Krylov solver's result.
+  subroutine krylov_monitor_print_result(this, step)
+    class(ksp_monitor_t), intent(in) :: this
+    integer, intent(in) :: step
+    character(len=LOG_SIZE) :: log_buf
+    character(len=12) :: step_str
+    character(len=:), allocatable :: output_format
+
+    if (this%name .eq. "") call neko_error('Krylov solver name is not set')
+
+    ! Define the output format
+    output_format = '(A12,A3,A18,1x,I6,3x,E15.9,3x,E15.9)'
+    write(step_str, '(I12)') step
+    step_str = adjustl(step_str)
+
+    write(log_buf, output_format) &
+         step_str, ' | ' , adjustl(this%name), this%iter, &
+         this%res_start, this%res_final
+    call neko_log%message(log_buf)
+
+  end subroutine krylov_monitor_print_result
 
 end module krylov

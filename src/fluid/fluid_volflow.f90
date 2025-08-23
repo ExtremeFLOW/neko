@@ -1,4 +1,5 @@
 ! Copyright (c) 2008-2020, UCHICAGO ARGONNE, LLC.
+! Copyright (c) 2025, The Neko Authors
 !
 ! The UChicago Argonne, LLC as Operator of Argonne National
 ! Laboratory holds copyright in the Software. The copyright holder
@@ -68,7 +69,6 @@ module fluid_volflow
   use coefs, only : coef_t
   use time_scheme_controller, only : time_scheme_controller_t
   use math, only : copy, glsc2, glmin, glmax, add2
-  use comm
   use neko_config, only : NEKO_BCKND_DEVICE
   use device_math, only : device_cfill, device_rzero, device_copy, &
        device_add2, device_add2s2, device_glsc2
@@ -79,6 +79,8 @@ module fluid_volflow
   use scratch_registry, only : scratch_registry_t
   use bc_list, only : bc_list_t
   use ax_product, only : ax_t
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
   implicit none
   private
 
@@ -116,7 +118,7 @@ contains
     call json_get(params, 'case.fluid.flow_rate_force.direction', direction)
     call json_get(params, 'case.fluid.flow_rate_force.value', rate)
     call json_get(params, 'case.fluid.flow_rate_force.use_averaged_flow',&
-                  average)
+         average)
 
     this%flow_dir = direction
     this%avflow = average
@@ -129,7 +131,7 @@ contains
        call this%p_vol%init(dm_Xh, 'p_vol')
     end if
 
-    this%scratch = scratch_registry_t(dm_Xh, 3, 1)
+    call this%scratch%init(dm_Xh, 3, 1)
 
   end subroutine fluid_vol_flow_init
 
@@ -164,7 +166,8 @@ contains
     class(ksp_t), intent(inout) :: ksp_prs, ksp_vel
     class(pc_t), intent(inout) :: pc_prs, pc_vel
     real(kind=rp), intent(in) :: bd
-    real(kind=rp), intent(in) :: rho, mu, dt
+    real(kind=rp), intent(in) :: rho, dt
+    type(field_t) :: mu
     integer, intent(in) :: vel_max_iter, prs_max_iter
     integer :: n, i
     real(kind=rp) :: xlmin, xlmax
@@ -185,9 +188,9 @@ contains
       n = c_Xh%dof%size()
       xlmin = glmin(c_Xh%dof%x, n)
       xlmax = glmax(c_Xh%dof%x, n)
-      ylmin = glmin(c_Xh%dof%y, n)          !  for Y!
+      ylmin = glmin(c_Xh%dof%y, n) !  for Y!
       ylmax = glmax(c_Xh%dof%y, n)
-      zlmin = glmin(c_Xh%dof%z, n)          !  for Z!
+      zlmin = glmin(c_Xh%dof%z, n) !  for Z!
       zlmax = glmax(c_Xh%dof%z, n)
       if (this%flow_dir .eq. 1) then
          this%domain_length = xlmax - xlmin
@@ -234,8 +237,7 @@ contains
 
       call opgrad(u_res%x, v_res%x, w_res%x, p_vol%x, c_Xh)
 
-      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-           (NEKO_BCKND_OPENCL .eq. 1)) then
+      if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_opchsign(u_res%x_d, v_res%x_d, w_res%x_d, msh%gdim, n)
          call device_copy(ta1%x_d, c_Xh%B_d, n)
          call device_copy(ta2%x_d, c_Xh%B_d, n)
@@ -269,13 +271,11 @@ contains
       end if
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
-         call device_cfill(c_Xh%h1_d, mu, n)
+         call device_copy(c_Xh%h1_d, mu%x_d, n)
          call device_cfill(c_Xh%h2_d, rho * (bd / dt), n)
       else
-         do i = 1, n
-            c_Xh%h1(i,1,1,1) = mu
-            c_Xh%h2(i,1,1,1) = rho * (bd / dt)
-         end do
+         call copy(c_Xh%h1, mu%x, n)
+         c_Xh%h2 = rho * (bd / dt)
       end if
       c_Xh%ifh2 = .true.
 
@@ -287,7 +287,7 @@ contains
       call pc_vel%update()
 
       ksp_results(2:4) = ksp_vel%solve_coupled(Ax_vel, &
-           u_vol, v_vol, w_vol,  &
+           u_vol, v_vol, w_vol, &
            u_res%x, v_res%x, w_res%x, &
            n, c_Xh, &
            bclst_du, bclst_dv, bclst_dw, &
@@ -346,7 +346,8 @@ contains
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
     type(time_scheme_controller_t), intent(in) :: ext_bdf
-    real(kind=rp), intent(in) :: rho, mu, dt
+    real(kind=rp), intent(in) :: rho, dt
+    type(field_t) :: mu
     type(bc_list_t), intent(inout) :: bclst_dp, bclst_du, bclst_dv, bclst_dw
     type(bc_list_t), intent(inout) :: bclst_vel_res
     class(ax_t), intent(in) :: Ax_vel
@@ -390,21 +391,21 @@ contains
       if (NEKO_BCKND_DEVICE .eq. 1) then
          if (this%flow_dir .eq. 1) then
             current_flow = &
-                 device_glsc2(u%x_d, c_Xh%B_d, n) / this%domain_length  ! for X
+                 device_glsc2(u%x_d, c_Xh%B_d, n) / this%domain_length ! for X
          else if (this%flow_dir .eq. 2) then
             current_flow = &
-                 device_glsc2(v%x_d, c_Xh%B_d, n) / this%domain_length  ! for Y
+                 device_glsc2(v%x_d, c_Xh%B_d, n) / this%domain_length ! for Y
          else if (this%flow_dir .eq. 3) then
             current_flow = &
-                 device_glsc2(w%x_d, c_Xh%B_d, n) / this%domain_length  ! for Z
+                 device_glsc2(w%x_d, c_Xh%B_d, n) / this%domain_length ! for Z
          end if
       else
          if (this%flow_dir .eq. 1) then
-            current_flow = glsc2(u%x, c_Xh%B, n) / this%domain_length  ! for X
+            current_flow = glsc2(u%x, c_Xh%B, n) / this%domain_length ! for X
          else if (this%flow_dir .eq. 2) then
-            current_flow = glsc2(v%x, c_Xh%B, n) / this%domain_length  ! for Y
+            current_flow = glsc2(v%x, c_Xh%B, n) / this%domain_length ! for Y
          else if (this%flow_dir .eq. 3) then
-            current_flow = glsc2(w%x, c_Xh%B, n) / this%domain_length  ! for Z
+            current_flow = glsc2(w%x, c_Xh%B, n) / this%domain_length ! for Z
          end if
       end if
 

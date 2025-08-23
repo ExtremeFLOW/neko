@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2024, The Neko Authors
+! Copyright (c) 2020-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,16 +32,18 @@
 !
 !> Defines various Conjugate Gradient methods
 module cg
+  use neko_config, only : NEKO_BLK_SIZE
   use num_types, only: rp, xp
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
-  use precon,  only : pc_t
+  use precon, only : pc_t
   use ax_product, only : ax_t
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, abscmp
-  use comm
+  use comm, only : MPI_EXTRA_PRECISION, NEKO_COMM
+  use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
   implicit none
   private
 
@@ -170,9 +172,13 @@ contains
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
+      if(abscmp(rnorm, 0.0_rp)) then
+         ksp_results%converged = .true.
+         return
+      end if
+
       p_prev = CG_P_SPACE
       p_cur = 1
-      if(abscmp(rnorm, 0.0_rp)) return
       call this%monitor_start('CG')
       do iter = 1, max_iter
          call this%M%solve(z, r, n)
@@ -197,7 +203,7 @@ contains
          call this%monitor_iter(iter, rnorm)
 
          if ((p_cur .eq. CG_P_SPACE) .or. &
-             (rnorm .lt. this%abs_tol) .or. iter .eq. max_iter) then
+              (rnorm .lt. this%abs_tol) .or. iter .eq. max_iter) then
             do i = 0, n, NEKO_BLK_SIZE
                if (i + NEKO_BLK_SIZE .le. n) then
                   do k = 1, NEKO_BLK_SIZE
@@ -274,9 +280,9 @@ contains
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
 
-    ksp_results(1) =  this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) =  this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
 
   end function cg_solve_coupled
 

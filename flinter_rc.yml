@@ -142,6 +142,12 @@ regexp-rules:
     replacement: null
     active: true
 
+  not-recommended-equivalent-post:
+    message: Equivalent boolean comparison to true/false are not recommended
+    regexp: (\.eqv\.\s*(\.true\.|\.false\.))|((\.true\.|\.false\.)\s*\.eqv\.)
+    replacement: null
+    active: true
+
   # -------------------------------------------------------------------------- #
   # Formatting and code style rules
 
@@ -198,14 +204,20 @@ regexp-rules:
 
   missing-spaces-before-=:
     message: Missing spaces before "="
-    regexp: ([^ \=\n]+)(?<!(kind|.len|..\'d|..\'n))((?<![\/=<>])=(?![>=]))
+    regexp: ([^ \=\n]+)(?<!(kind|.len|..\'d|..\'n|...\())((?<![\/=<>])=(?![>=]))
     replacement: ' = \2'
     active: true
 
   missing-spaces-after-=:
     message: Missing spaces after "="
-    regexp: (?<!(kind|.len|..\'d|..\'n))((?<![=<>\/])=(?![>=]))([^ ]\S*)
+    regexp: (?<!(kind|.len|..\'d|..\'n))((?<![=<>\/])=(?![>=]))([^ \)]\S*)
     replacement: ' = \2'
+    active: true
+
+  missing-spaces-after-only:
+    message: Missing spaces after "only"
+    regexp: ((only):)
+    replacement: '\1 : '
     active: true
 
   # -------------------------------------------------------------------------- #

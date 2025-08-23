@@ -32,8 +32,9 @@
 !
 !> Defines a pipelined Conjugate Gradient methods
 module pipecg
+  use neko_config, only : NEKO_BLK_SIZE
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
-  use precon,  only : pc_t
+  use precon, only : pc_t
   use ax_product, only : ax_t
   use num_types, only: rp
   use field, only : field_t
@@ -41,7 +42,9 @@ module pipecg
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, abscmp
-  use comm
+  use comm, only : MPI_REAL_PRECISION, NEKO_COMM
+  use mpi_f08, only : MPI_Iallreduce, MPI_IN_PLACE, MPI_SUM, MPI_Wait, &
+       MPI_Request, MPI_Status
   implicit none
   private
 
@@ -73,7 +76,7 @@ contains
 
   !> Initialise a pipelined PCG solver
   subroutine pipecg_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
-    class(pipecg_t), intent(inout) :: this
+    class(pipecg_t), target, intent(inout) :: this
     integer, intent(in) :: max_iter
     class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
@@ -204,7 +207,11 @@ contains
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
-      if(abscmp(rnorm, 0.0_rp)) return
+
+      if(abscmp(rnorm, 0.0_rp)) then
+         ksp_results%converged = .true.
+         return
+      end if
 
       gamma1 = 0.0_rp
       tmp1 = 0.0_rp
@@ -256,9 +263,9 @@ contains
                   z(i+k) = beta(p_cur) * z(i+k) + ni(i+k)
                   q(i+k) = beta(p_cur) * q(i+k) + mi(i+k)
                   s(i+k) = beta(p_cur) * s(i+k) + w(i+k)
-                  r(i+k) =  r(i+k) - alpha(p_cur) * s(i+k)
-                  u(i+k,p_cur) =  u(i+k,u_prev) - alpha(p_cur) * q(i+k)
-                  w(i+k) =  w(i+k) - alpha(p_cur) * z(i+k)
+                  r(i+k) = r(i+k) - alpha(p_cur) * s(i+k)
+                  u(i+k,p_cur) = u(i+k,u_prev) - alpha(p_cur) * q(i+k)
+                  w(i+k) = w(i+k) - alpha(p_cur) * z(i+k)
                   tmp1 = tmp1 + r(i+k) * coef%mult(i+k,1,1,1) * u(i+k,p_cur)
                   tmp2 = tmp2 + w(i+k) * coef%mult(i+k,1,1,1) * u(i+k,p_cur)
                   tmp3 = tmp3 + r(i+k) * coef%mult(i+k,1,1,1) * r(i+k)
@@ -268,9 +275,9 @@ contains
                   z(i+k) = beta(p_cur) * z(i+k) + ni(i+k)
                   q(i+k) = beta(p_cur) * q(i+k) + mi(i+k)
                   s(i+k) = beta(p_cur) * s(i+k) + w(i+k)
-                  r(i+k) =  r(i+k) - alpha(p_cur) * s(i+k)
-                  u(i+k,p_cur) =  u(i+k,u_prev) - alpha(p_cur) * q(i+k)
-                  w(i+k) =  w(i+k) - alpha(p_cur) * z(i+k)
+                  r(i+k) = r(i+k) - alpha(p_cur) * s(i+k)
+                  u(i+k,p_cur) = u(i+k,u_prev) - alpha(p_cur) * q(i+k)
+                  w(i+k) = w(i+k) - alpha(p_cur) * z(i+k)
                   tmp1 = tmp1 + r(i+k) * coef%mult(i+k,1,1,1) * u(i+k,p_cur)
                   tmp2 = tmp2 + w(i+k) * coef%mult(i+k,1,1,1) * u(i+k,p_cur)
                   tmp3 = tmp3 + r(i+k) * coef%mult(i+k,1,1,1) * r(i+k)
@@ -370,7 +377,7 @@ contains
 
   !> Pipelined PCG coupled solve
   function pipecg_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, blstx, blsty, blstz,  gs_h, niter) result(ksp_results)
+       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
     class(pipecg_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -388,9 +395,9 @@ contains
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
 
-    ksp_results(1) =  this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) =  this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
 
   end function pipecg_solve_coupled
 

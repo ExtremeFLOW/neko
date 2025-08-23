@@ -1,0 +1,54 @@
+{
+    "version": 1.0,
+    "case":
+    {
+        "mesh_file": "step.nmsh",
+        "output_at_end": true,
+        "output_checkpoints": false,
+        "time": {
+            "end_time": 3,
+            "timestep": 1e-4,
+            "variable_timestep": true,
+            "target_cfl": 0.4
+        },
+
+        "numerics": {
+            "time_order": 3,
+            "polynomial_order": 5
+        },
+
+        "fluid": {
+            "scheme": "compressible",
+            "gamma": 1.4,
+
+            "initial_condition": {
+                "type": "user"
+            },
+
+            "boundary_conditions": [
+                {
+                    "type": "velocity_value",
+                    "zone_indices": [ 1 ],
+                    "value": [ 3, 0, 0 ]
+                },
+                {
+                    "type": "density_value",
+                    "zone_indices": [ 1 ],
+                    "value": 1.4
+                },
+                {
+                    "type": "pressure_value",
+                    "zone_indices": [ 1 ],
+                    "value": 1
+                },
+                {
+                    "type": "symmetry",
+                    "zone_indices": [ 3, 4 ]
+                },
+            ],
+
+            "output_control": "nsamples",
+            "output_value": 20
+        }
+    }
+}

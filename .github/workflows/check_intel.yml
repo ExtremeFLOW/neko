@@ -12,7 +12,7 @@ on:
         description: "The version of the JSON-Fortran library to use."
         type: string
         required: false
-        default: "8.3.0"
+        default: "8.4.0"
 
 jobs:
   Intel:
@@ -20,38 +20,43 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04]
+        os: [ubuntu-24.04]
         compiler: [ifx]
         precision: [sp, dp]
         backend: [cpu]
         include:
-          - os: ubuntu-20.04
+          - os: ubuntu-24.04
             setup-env: |
               wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null
               echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
               sudo apt-get update -y
-              sudo apt install -y --no-install-recommends intel-oneapi-compiler-fortran intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic
+              sudo apt install -y intel-oneapi-compiler-fortran intel-oneapi-compiler-dpcpp-cpp intel-oneapi-mpi intel-oneapi-mpi-devel 
               source /opt/intel/oneapi/setvars.sh
-              sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates cmake
+              sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 python3-pip ca-certificates cmake
+              python3 -m venv myenv
+              source myenv/bin/activate
+              pip install pytest json5
               INTEL_PATH=$(find /opt/intel/oneapi/compiler/ -name "${FC}" -type f | xargs dirname)
               export PATH=$INTEL_PATH:${PATH}
               printenv >> $GITHUB_ENV
               echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
 
     env:
-      CC: icc
+      CC: icx
       FC: ${{ matrix.compiler }}
       RP: ${{ matrix.precision }}
+      NEKO_EXEC: ${{ github.workspace }}/install/bin/neko
+      MAKENEKO_EXEC: ${{ github.workspace }}/install/bin/makeneko
     name: ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
     steps:
-      - name: Setup env.
-        id: setup-env
-        run: ${{ matrix.setup-env }}
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+
+      - name: Setup env.
+        id: setup-env
+        run: ${{ matrix.setup-env }}
 
       - name: Setup dependencies
         id: setup-deps
@@ -79,7 +84,25 @@ jobs:
 
       - name: Build
         run: |
+          mkdir ${{ github.workspace }}/install
+          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${{ github.workspace }}/install/lib/pkgconfig" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${{ github.workspace }}/install/lib" >> $GITHUB_ENV
           ./regen.sh
-          ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP}
-          make FCFLAGS="-O2 -stand f08 -warn errors `pkg-config --cflags json-fortran`" -j$(nproc)
+          ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP} --prefix=${{ github.workspace }}/install
+          make FCFLAGS="-O2 -stand f08 -warn errors `pkg-config --cflags json-fortran`" -j$(nproc) install
 
+#      - name: Integration tests
+#        run: |
+#           source myenv/bin/activate
+#           chmod +x $MAKENEKO_EXEC
+#           cd tests/integration
+#           pytest --max_nprocs=2
+#           cd ../..
+
+#      - name: Archive integration test report
+#        if: failure()
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: Intel Integration test logs - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
+#          path: tests/integration/logs
+#          retention-days: 1

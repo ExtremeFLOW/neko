@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2021-2025, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,8 @@
  */
 void opencl_symmetry_apply_vector(void *xmsk, void *ymsk, void *zmsk,
                                   void *x, void *y, void *z,
-                                  int *m, int *n, int *l) {
+                                  int *m, int *n, int *l,
+                                  cl_command_queue cmd_queue) {
 
   cl_int err;
    
@@ -79,7 +80,7 @@ void opencl_symmetry_apply_vector(void *xmsk, void *ymsk, void *zmsk,
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
 
-  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
-                                  NULL, &global_item_size, &local_item_size,
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
+                                  &global_item_size, &local_item_size,
                                   0, NULL, NULL));
 }

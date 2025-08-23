@@ -1,4 +1,5 @@
 module field_list
+  use, intrinsic :: iso_fortran_env, only: error_unit
   use field, only : field_ptr_t, field_t
   use iso_c_binding, only : c_ptr
   use num_types, only : rp
@@ -6,6 +7,7 @@ module field_list
   use dofmap, only : dofmap_t
   use mesh, only : mesh_t
   use utils, only : neko_error
+  use comm, only : pe_rank
   implicit none
   private
 
@@ -86,12 +88,22 @@ contains
     character(len=*), intent(in) :: name
     integer :: i
 
+    nullify(f)
+
     do i=1, this%size()
-      if (this%name(i) .eq. trim(name)) then
-         f => this%items(i)%ptr
-         return
-      end if
+       if (this%name(i) .eq. trim(name)) then
+          f => this%items(i)%ptr
+          return
+       end if
     end do
+
+    if (pe_rank .eq. 0) then
+       write(error_unit,*) "Current field list contents:"
+
+       do i=1, this%size()
+          write(error_unit,*) "- ", this%name(i)
+       end do
+    end if
 
     call neko_error("No field with name " // trim(name) // " found in list")
   end function field_list_get_by_name

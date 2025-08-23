@@ -59,20 +59,24 @@
 !
 !> Overlapping schwarz solves
 module schwarz
-  use num_types
-  use math
-  use mesh
-  use space
+  use num_types, only : rp, i8
+  use math, only : rzero, rone
+  use mesh, only : mesh_t
+  use space, only : space_t, GLL
   use dofmap, only : dofmap_t
-  use bc
-  use gather_scatter
-  use device_schwarz
-  use device_math
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use device_schwarz, only : device_schwarz_extrude, device_schwarz_toext3d, &
+       device_schwarz_toreg3d
+  use device_math, only : device_rzero, device_col2
   use fdm, only : fdm_t
-  use device
-  use neko_config
+  use device, only : device_map, device_alloc, device_memcpy, &
+       device_event_create, HOST_TO_DEVICE, DEVICE_TO_HOST, &
+       device_get_ptr, glb_cmd_queue, aux_cmd_queue, &
+       device_event_record, device_event_sync, device_stream_wait_event
+  use neko_config, only : NEKO_BCKND_DEVICE
   use bc_list, only : bc_list_t
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only : c_sizeof, c_ptr, C_NULL_PTR
+  !$ use omp_lib
   implicit none
   private
 
@@ -93,6 +97,7 @@ module schwarz
      type(gs_t), pointer :: gs_h
      type(mesh_t), pointer :: msh
      type(c_ptr) :: event
+     logical :: local_gs = .false.
    contains
      procedure, pass(this) :: init => schwarz_init
      procedure, pass(this) :: free => schwarz_free
@@ -108,6 +113,7 @@ contains
     type(gs_t), target, intent(inout) :: gs_h
     type(mesh_t), target, intent(inout) :: msh
     type(bc_list_t), target, intent(inout):: bclst
+    integer :: nthrds
 
     call this%free()
 
@@ -126,20 +132,36 @@ contains
     this%Xh => Xh
     this%bclst => bclst
     this%dof => dof
-    this%gs_h => gs_h
+
+    nthrds = 1
+    !$omp parallel
+    !$ nthrds = omp_get_num_threads()
+    !$omp end parallel
+
+    ! If we are running multithreaded, we need a local gs object,
+    ! otherwise we can reuse the external one
+    if (nthrds .gt. 1) then
+       allocate(this%gs_h)
+       call this%gs_h%init(this%dof)
+       this%local_gs = .true.
+    else
+       this%gs_h => gs_h
+       this%local_gs = .false.
+    end if
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(this%work1, this%work1_d,this%dm_schwarz%size())
        call device_map(this%work2, this%work2_d,this%dm_schwarz%size())
     end if
 
-
     call schwarz_setup_wt(this)
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_alloc(this%wt_d,int(this%dof%size()*rp, i8))
+       call device_alloc(this%wt_d, &
+            int(this%dof%size() * c_sizeof(this%work1(1)), i8))
        call rone(this%work1, this%dof%size())
        call schwarz_wt3d(this%work1, this%wt, Xh%lx, msh%nelv)
        call device_memcpy(this%work1, this%wt_d, this%dof%size(), &
-                          HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync=.false.)
        call device_event_create(this%event, 2)
     end if
   end subroutine schwarz_init
@@ -160,8 +182,14 @@ contains
     nullify(this%Xh)
     nullify(this%bclst)
     nullify(this%dof)
+    if (this%local_gs) then
+       call this%gs_h%free()
+       deallocate(this%gs_h)
+    end if
     nullify(this%gs_h)
     nullify(this%msh)
+
+    this%local_gs = .false.
   end subroutine schwarz_free
   !> setup weights
   subroutine schwarz_setup_wt(this)
@@ -172,7 +200,7 @@ contains
     associate(work1 => this%work1, work2 => this%work2, msh => this%msh, &
          Xh => this%Xh, Xh_schwarz => this%Xh_schwarz)
 
-      n  = this%dof%size()
+      n = this%dof%size()
 
       enx = Xh_schwarz%lx
       eny = Xh_schwarz%ly
@@ -188,10 +216,10 @@ contains
       call schwarz_extrude(work1, 0, zero, work2, 0, one , enx, eny, enz, msh%nelv)
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_memcpy(work2, this%work2_d, ns, &
-                            HOST_TO_DEVICE, sync=.false.)
+              HOST_TO_DEVICE, sync=.false.)
          call this%gs_schwarz%op(work2, ns, GS_OP_ADD)
          call device_memcpy(work2, this%work2_d, ns, &
-                            DEVICE_TO_HOST, sync=.false.)
+              DEVICE_TO_HOST, sync=.true.)
       else
          call this%gs_schwarz%op(work2, ns, GS_OP_ADD)
       end if
@@ -206,10 +234,10 @@ contains
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_memcpy(work1, this%work1_d, n, &
-                            HOST_TO_DEVICE, sync=.false.)
+              HOST_TO_DEVICE, sync=.false.)
          call this%gs_h%op(work1, n, GS_OP_ADD)
          call device_memcpy(work1, this%work1_d, n, &
-                            DEVICE_TO_HOST, sync=.true.)
+              DEVICE_TO_HOST, sync=.true.)
       else
          call this%gs_h%op(work1, n, GS_OP_ADD)
       end if
@@ -335,15 +363,15 @@ contains
        do ie = 1, nelv
           do j = i0, i1
              arr1(l1+1 ,j,1,ie) = f1*arr1(l1+1 ,j,1,ie) &
-                                 +f2*arr2(l2+1 ,j,1,ie)
+                  +f2*arr2(l2+1 ,j,1,ie)
              arr1(nx-l1,j,1,ie) = f1*arr1(nx-l1,j,1,ie) &
-                                 +f2*arr2(nx-l2,j,1,ie)
+                  +f2*arr2(nx-l2,j,1,ie)
           end do
           do i = i0, i1
              arr1(i,l1+1 ,1,ie) = f1*arr1(i,l1+1 ,1,ie) &
-                                 +f2*arr2(i,l2+1 ,1,ie)
+                  +f2*arr2(i,l2+1 ,1,ie)
              arr1(i,ny-l1,1,ie) = f1*arr1(i,ny-l1,1,ie) &
-                                 +f2*arr2(i,nx-l2,1,ie)
+                  +f2*arr2(i,nx-l2,1,ie)
           end do
        end do
     else
@@ -351,25 +379,25 @@ contains
           do k = i0, i1
              do j = i0, i1
                 arr1(l1+1 ,j,k,ie) = f1*arr1(l1+1 ,j,k,ie) &
-                                    +f2*arr2(l2+1 ,j,k,ie)
+                     +f2*arr2(l2+1 ,j,k,ie)
                 arr1(nx-l1,j,k,ie) = f1*arr1(nx-l1,j,k,ie) &
-                                    +f2*arr2(nx-l2,j,k,ie)
+                     +f2*arr2(nx-l2,j,k,ie)
              end do
           end do
           do k = i0, i1
              do i = i0, i1
                 arr1(i,l1+1 ,k,ie) = f1*arr1(i,l1+1 ,k,ie) &
-                                    +f2*arr2(i,l2+1 ,k,ie)
+                     +f2*arr2(i,l2+1 ,k,ie)
                 arr1(i,nx-l1,k,ie) = f1*arr1(i,nx-l1,k,ie) &
-                                    +f2*arr2(i,nx-l2,k,ie)
+                     +f2*arr2(i,nx-l2,k,ie)
              end do
           end do
           do j = i0, i1
              do i = i0, i1
                 arr1(i,j,l1+1 ,ie) = f1*arr1(i,j,l1+1 ,ie) &
-                                    +f2*arr2(i,j,l2+1 ,ie)
+                     +f2*arr2(i,j,l2+1 ,ie)
                 arr1(i,j,nx-l1,ie) = f1*arr1(i,j,nx-l1,ie) &
-                                    +f2*arr2(i,j,nx-l2,ie)
+                     +f2*arr2(i,j,nx-l2,ie)
              end do
           end do
        end do
@@ -384,9 +412,9 @@ contains
     real(kind=rp), parameter :: one = 1.0_rp
     type(c_ptr) :: e_d, r_d
     associate(work1 => this%work1, work1_d => this%work1_d,&
-              work2 => this%work2, work2_d => this%work2_d)
+         work2 => this%work2, work2_d => this%work2_d)
 
-      n  = this%dof%size()
+      n = this%dof%size()
       enx=this%Xh_schwarz%lx
       eny=this%Xh_schwarz%ly
       enz=this%Xh_schwarz%lz
@@ -398,58 +426,62 @@ contains
          call device_event_record(this%event, glb_cmd_queue)
          call device_stream_wait_event(aux_cmd_queue, this%event, 0)
          call device_schwarz_toext3d(work1_d, r_d, this%Xh%lx, &
-                                   this%msh%nelv, aux_cmd_queue)
+              this%msh%nelv, aux_cmd_queue)
          call device_schwarz_extrude(work1_d, 0, zero, work1_d, 2, one, &
-                                   enx,eny,enz, this%msh%nelv,aux_cmd_queue)
+              enx,eny,enz, this%msh%nelv,aux_cmd_queue)
 
          this%gs_schwarz%bcknd%gs_stream = aux_cmd_queue
          call this%gs_schwarz%op(work1, ns, GS_OP_ADD,this%event)
          call device_event_sync(this%event)
          call device_schwarz_extrude(work1_d, 0, one, work1_d, 2, -one, &
-                                   enx, eny, enz, this%msh%nelv, aux_cmd_queue)
+              enx, eny, enz, this%msh%nelv, aux_cmd_queue)
 
          call this%fdm%compute(work2, work1,aux_cmd_queue) ! do local solves
 
          call device_schwarz_extrude(work1_d, 0, zero, work2_d, 0, one, &
-                                   enx, eny, enz, this%msh%nelv, aux_cmd_queue)
+              enx, eny, enz, this%msh%nelv, aux_cmd_queue)
          call this%gs_schwarz%op(work2, ns, GS_OP_ADD,this%event)
          call device_event_sync(this%event)
 
          call device_schwarz_extrude(work2_d, 0, one, work1_d, 0, -one, &
-                                   enx, eny, enz, this%msh%nelv, aux_cmd_queue)
+              enx, eny, enz, this%msh%nelv, aux_cmd_queue)
          call device_schwarz_extrude(work2_d, 2, one, work2_d, 0, one, &
-                                   enx, eny, enz, this%msh%nelv, aux_cmd_queue)
+              enx, eny, enz, this%msh%nelv, aux_cmd_queue)
          call device_schwarz_toreg3d(e_d, work2_d, this%Xh%lx, &
-                                   this%msh%nelv, aux_cmd_queue)
+              this%msh%nelv, aux_cmd_queue)
 
-         call device_event_record(this%event,aux_cmd_queue)
-         call device_event_sync(this%event)
-
+         this%gs_h%bcknd%gs_stream = aux_cmd_queue
          call this%gs_h%op(e, n, GS_OP_ADD, this%event)
-         call this%bclst%apply_scalar(e, n)
-         call device_col2(e_d,this%wt_d, n)
-         call device_stream_wait_event(aux_cmd_queue, this%event, 0)
+
+         call this%bclst%apply_scalar(e, n, strm = aux_cmd_queue)
+         call device_col2(e_d,this%wt_d, n, aux_cmd_queue)
+
+         ! switch back to the default stream on the shared gs
+         if (.not. this%local_gs) then
+            call device_event_sync(this%event)
+            this%gs_h%bcknd%gs_stream = glb_cmd_queue
+         end if
       else
          call this%bclst%apply_scalar(r, n)
          call schwarz_toext3d(work1, r, this%Xh%lx, this%msh%nelv)
 
          !  exchange interior nodes
          call schwarz_extrude(work1, 0, zero, work1, 2, one, &
-                            enx, eny, enz, this%msh%nelv)
+              enx, eny, enz, this%msh%nelv)
          call this%gs_schwarz%op(work1, ns, GS_OP_ADD)
          call schwarz_extrude(work1, 0, one, work1, 2, -one, &
-                            enx, eny, enz, this%msh%nelv)
+              enx, eny, enz, this%msh%nelv)
 
          call this%fdm%compute(work2, work1) ! do local solves
 
          !   Sum overlap region (border excluded)
          call schwarz_extrude(work1, 0, zero, work2, 0, one, &
-                            enx, eny, enz, this%msh%nelv)
+              enx, eny, enz, this%msh%nelv)
          call this%gs_schwarz%op(work2, ns, GS_OP_ADD)
          call schwarz_extrude(work2, 0, one, work1, 0, -one, &
-                            enx, eny, enz, this%msh%nelv)
+              enx, eny, enz, this%msh%nelv)
          call schwarz_extrude(work2, 2, one, work2, 0, one, &
-                            enx, eny, enz, this%msh%nelv)
+              enx, eny, enz, this%msh%nelv)
 
          call schwarz_toreg3d(e, work2, this%Xh%lx, this%msh%nelv)
 
@@ -466,32 +498,32 @@ contains
   subroutine schwarz_wt3d(e,wt,n, nelv)
     integer, intent(in) :: n, nelv
     real(kind=rp), intent(inout) :: e(n,n,n,nelv)
-    real(kind=rp), intent(inout) ::  wt(n,n,4,3,nelv)
+    real(kind=rp), intent(inout) :: wt(n,n,4,3,nelv)
     integer :: ie, i, j, k
 
     do ie = 1, nelv
        do k = 1, n
           do j = 1, n
-             e(1  ,j,k,ie) = e(1  ,j,k,ie) * wt(j,k,1,1,ie)
-             e(2  ,j,k,ie) = e(2  ,j,k,ie) * wt(j,k,2,1,ie)
+             e(1,j,k,ie) = e(1,j,k,ie) * wt(j,k,1,1,ie)
+             e(2,j,k,ie) = e(2,j,k,ie) * wt(j,k,2,1,ie)
              e(n-1,j,k,ie) = e(n-1,j,k,ie) * wt(j,k,3,1,ie)
-             e(n  ,j,k,ie) = e(n  ,j,k,ie) * wt(j,k,4,1,ie)
+             e(n,j,k,ie) = e(n,j,k,ie) * wt(j,k,4,1,ie)
           end do
        end do
        do k = 1, n
           do i = 3, n-2
-             e(i,1  ,k,ie) = e(i,1  ,k,ie) * wt(i,k,1,2,ie)
-             e(i,2  ,k,ie) = e(i,2  ,k,ie) * wt(i,k,2,2,ie)
+             e(i,1,k,ie) = e(i,1,k,ie) * wt(i,k,1,2,ie)
+             e(i,2,k,ie) = e(i,2,k,ie) * wt(i,k,2,2,ie)
              e(i,n-1,k,ie) = e(i,n-1,k,ie) * wt(i,k,3,2,ie)
-             e(i,n  ,k,ie) = e(i,n  ,k,ie) * wt(i,k,4,2,ie)
+             e(i,n,k,ie) = e(i,n,k,ie) * wt(i,k,4,2,ie)
           end do
        end do
        do j = 3, n-2
           do i = 3, n-2
-             e(i,j,1  ,ie) = e(i,j,1  ,ie) * wt(i,j,1,3,ie)
-             e(i,j,2  ,ie) = e(i,j,2  ,ie) * wt(i,j,2,3,ie)
+             e(i,j,1,ie) = e(i,j,1,ie) * wt(i,j,1,3,ie)
+             e(i,j,2,ie) = e(i,j,2,ie) * wt(i,j,2,3,ie)
              e(i,j,n-1,ie) = e(i,j,n-1,ie) * wt(i,j,3,3,ie)
-             e(i,j,n  ,ie) = e(i,j,n  ,ie) * wt(i,j,4,3,ie)
+             e(i,j,n,ie) = e(i,j,n,ie) * wt(i,j,4,3,ie)
           end do
        end do
     end do

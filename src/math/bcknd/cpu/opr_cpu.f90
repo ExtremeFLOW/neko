@@ -94,28 +94,28 @@ module opr_cpu
 
      module subroutine opr_cpu_convect_scalar(du, u, c, Xh_GLL, Xh_GL, &
                                               coef_GLL, coef_GL, GLL_to_GL)
-        type(space_t), intent(in) :: Xh_GL
-        type(space_t), intent(in) :: Xh_GLL
-        type(coef_t), intent(in) :: coef_GLL
-        type(coef_t), intent(in) :: coef_GL
-        type(interpolator_t), intent(inout) :: GLL_to_GL
-        real(kind=rp), intent(inout) :: &
+       type(space_t), intent(in) :: Xh_GL
+       type(space_t), intent(in) :: Xh_GLL
+       type(coef_t), intent(in) :: coef_GLL
+       type(coef_t), intent(in) :: coef_GL
+       type(interpolator_t), intent(inout) :: GLL_to_GL
+       real(kind=rp), intent(inout) :: &
                    du(Xh_GLL%lx, Xh_GLL%ly, Xh_GLL%lz, coef_GL%msh%nelv)
-        real(kind=rp), intent(inout) :: &
+       real(kind=rp), intent(inout) :: &
                    u(Xh_GL%lx, Xh_GL%lx, Xh_GL%lx, coef_GL%msh%nelv)
-        real(kind=rp), intent(inout) :: c(Xh_GL%lxyz, coef_GL%msh%nelv, 3)
+       real(kind=rp), intent(inout) :: c(Xh_GL%lxyz, coef_GL%msh%nelv, 3)
 
-      end subroutine opr_cpu_convect_scalar
+     end subroutine opr_cpu_convect_scalar
 
-      module subroutine opr_cpu_set_convect_rst(cr, cs, ct, cx, cy, cz, &
+     module subroutine opr_cpu_set_convect_rst(cr, cs, ct, cx, cy, cz, &
                                                 Xh, coef)
-         type(space_t), intent(inout) :: Xh
-         type(coef_t), intent(inout) :: coef
-         real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), &
+       type(space_t), intent(inout) :: Xh
+       type(coef_t), intent(inout) :: coef
+       real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), &
                         intent(inout) :: cr, cs, ct
-         real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), &
+       real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), &
                         intent(in) :: cx, cy, cz
-       end subroutine opr_cpu_set_convect_rst
+     end subroutine opr_cpu_set_convect_rst
   end interface
 
 contains
@@ -303,5 +303,7 @@ contains
     end do
 
   end subroutine opr_cpu_lambda2
+
+
 
 end module opr_cpu
