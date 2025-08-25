@@ -23,13 +23,12 @@ module euler_res_sx
 
 contains
   subroutine advance_primitive_variables_sx(rho_field, m_x, m_y, m_z, E, p, u, v, w, Ax, &
-       coef, gs, h, c_avisc_low, rk_scheme, dt)
+       coef, gs, h, effective_visc, rk_scheme, dt)
     type(field_t), intent(inout) :: rho_field, m_x, m_y, m_z, E
-    type(field_t), intent(in) :: p, u, v, w, h
+    type(field_t), intent(in) :: p, u, v, w, h, effective_visc
     class(Ax_t), intent(inout) :: Ax
     type(coef_t), intent(inout) :: coef
     type(gs_t), intent(inout) :: gs
-    real(kind=rp) :: c_avisc_low
     class(runge_kutta_time_scheme_t), intent(in) :: rk_scheme
     real(kind=rp), intent(in) :: dt
     integer :: n, s, i, j, k
@@ -126,7 +125,7 @@ contains
             k_E%items(i)%ptr, &
             temp_rho, temp_m_x, temp_m_y, temp_m_z, temp_E, &
             p, u, v, w, Ax, &
-            coef, gs, h, c_avisc_low)
+            coef, gs, h, effective_visc)
     end do
 
     ! Update the solution
@@ -150,16 +149,16 @@ contains
 
   subroutine evaluate_rhs_sx(rhs_rho_field, rhs_m_x, rhs_m_y, rhs_m_z, rhs_E, &
        rho_field, m_x, m_y, m_z, E, p, u, v, w, Ax, &
-       coef, gs, h, c_avisc_low)
+       coef, gs, h, effective_visc)
     type(field_t), intent(inout) :: rhs_rho_field, rhs_m_x, &
          rhs_m_y, rhs_m_z, rhs_E
     type(field_t), intent(inout) :: rho_field, m_x, m_y, m_z, E
-    type(field_t), intent(in) :: p, u, v, w, h
+    type(field_t), intent(in) :: p, u, v, w, h, effective_visc
     class(Ax_t), intent(inout) :: Ax
     type(coef_t), intent(inout) :: coef
     type(gs_t), intent(inout) :: gs
-    real(kind=rp) :: c_avisc_low
     integer :: i, n
+    real(kind=rp) :: visc_coeff
     type(field_t), pointer :: temp, f_x, f_y, f_z, &
          visc_rho, visc_m_x, visc_m_y, visc_m_z, visc_E
     integer :: temp_indices(9)
@@ -244,17 +243,20 @@ contains
     call gs%op(visc_E, GS_OP_ADD)
 
     ! Move div to the rhs and apply the artificial viscosity
+    ! Apply effective artificial viscosity (min of first-order and entropy viscosity)
     do concurrent (i = 1:n)
+       visc_coeff = effective_visc%x(i,1,1,1)
+       
        rhs_rho_field%x(i,1,1,1) = -rhs_rho_field%x(i,1,1,1) &
-            - c_avisc_low * h%x(i,1,1,1) * coef%Binv(i,1,1,1) * visc_rho%x(i,1,1,1)
+            - visc_coeff * coef%Binv(i,1,1,1) * visc_rho%x(i,1,1,1)
        rhs_m_x%x(i,1,1,1) = -rhs_m_x%x(i,1,1,1) &
-            - c_avisc_low * h%x(i,1,1,1) * coef%Binv(i,1,1,1) * visc_m_x%x(i,1,1,1)
+            - visc_coeff * coef%Binv(i,1,1,1) * visc_m_x%x(i,1,1,1)
        rhs_m_y%x(i,1,1,1) = -rhs_m_y%x(i,1,1,1) &
-            - c_avisc_low * h%x(i,1,1,1) * coef%Binv(i,1,1,1) * visc_m_y%x(i,1,1,1)
+            - visc_coeff * coef%Binv(i,1,1,1) * visc_m_y%x(i,1,1,1)
        rhs_m_z%x(i,1,1,1) = -rhs_m_z%x(i,1,1,1) &
-            - c_avisc_low * h%x(i,1,1,1) * coef%Binv(i,1,1,1) * visc_m_z%x(i,1,1,1)
+            - visc_coeff * coef%Binv(i,1,1,1) * visc_m_z%x(i,1,1,1)
        rhs_E%x(i,1,1,1) = -rhs_E%x(i,1,1,1) &
-            - c_avisc_low * h%x(i,1,1,1) * coef%Binv(i,1,1,1) * visc_E%x(i,1,1,1)
+            - visc_coeff * coef%Binv(i,1,1,1) * visc_E%x(i,1,1,1)
     end do
 
     call neko_scratch_registry%relinquish_field(temp_indices)

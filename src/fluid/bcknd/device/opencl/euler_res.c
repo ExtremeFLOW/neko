@@ -42,7 +42,7 @@
 #include "euler_res_kernel.cl.h"
 
 void euler_res_part_visc_opencl(void *rhs_u, void *Binv, void *lap_sol,
-                                void *h, real *c_avisc, int *n) {
+                                void *effective_visc, int *n) {
   cl_int err;
   
   if (euler_res_program == NULL)
@@ -55,9 +55,8 @@ void euler_res_part_visc_opencl(void *rhs_u, void *Binv, void *lap_sol,
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &rhs_u));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &Binv));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &lap_sol));
-  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &h));
-  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(real), c_avisc));
-  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(int), n));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &effective_visc));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), n));
   
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;

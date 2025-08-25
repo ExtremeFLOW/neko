@@ -13,8 +13,9 @@
         },
         "numerics": {
             "time_order": 4,
-            "polynomial_order": 3,
-            "c_avisc_low": 1.0
+            "polynomial_order": 1,
+            "c_avisc_low": 1.0,
+            "c_entropy": 10.0
         },
         "fluid": {
             "scheme": "compressible",
@@ -29,7 +30,7 @@
         "simulation_components": [
             {
                 "type": "field_writer",
-                "fields": ["S"],
+                "fields": ["S", "effective_visc"],
                 "output_control": "nsamples",
                 "output_value": 100
             }

@@ -37,11 +37,15 @@ module fluid_scheme_compressible_euler
   use field_math, only : field_add2, field_cfill, field_cmult, &
        field_copy, field_col2, field_col3, &
        field_addcol3, field_sub2, field_invcol2
+  use operators, only : div
+  use field_series, only : field_series_t
+  use bdf_time_scheme, only : bdf_time_scheme_t
   use math, only : col2
   use device_math, only : device_col2
   use field, only : field_t
   use fluid_scheme_compressible, only: fluid_scheme_compressible_t
   use gs_ops, only : GS_OP_ADD
+  use gather_scatter, only : gs_t
   use num_types, only : rp
   use mesh, only : mesh_t
   use checkpoint, only : chkp_t
@@ -75,6 +79,11 @@ module fluid_scheme_compressible_euler
      class(euler_rhs_t), allocatable :: euler_rhs
      type(runge_kutta_time_scheme_t) :: rk_scheme
 
+     ! Entropy viscosity fields
+     type(field_t) :: entropy_residual, entropy_visc_coeff
+     type(field_series_t) :: S_lag
+     real(kind=rp) :: c_entropy
+
      ! List of boundary conditions for velocity
      type(bc_list_t) :: bcs_density
    contains
@@ -86,6 +95,9 @@ module fluid_scheme_compressible_euler
      procedure, pass(this) :: setup_bcs &
           => fluid_scheme_compressible_euler_setup_bcs
      procedure, pass(this) :: compute_h
+     !> Private entropy viscosity procedures
+     procedure, pass(this) :: compute_entropy_residual
+     procedure, pass(this) :: compute_entropy_viscosity
   end type fluid_scheme_compressible_euler_t
 
   interface
@@ -175,12 +187,18 @@ contains
       call this%dE%init(dm_Xh, 'dE')
       call this%h%init(dm_Xh, 'h')
 
+      ! Initialize entropy viscosity fields
+      call this%entropy_residual%init(dm_Xh, 'entropy_residual')
+      call this%entropy_visc_coeff%init(dm_Xh, 'entropy_visc_coeff')
+      call this%S_lag%init(this%S, 3)
+
     end associate
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        associate(p => this%p, rho => this%rho, &
             u => this%u, v => this%v, w => this%w, &
-            m_x => this%m_x, m_y => this%m_y, m_z => this%m_z)
+            m_x => this%m_x, m_y => this%m_y, m_z => this%m_z, &
+            effective_visc => this%effective_visc)
          call device_memcpy(p%x, p%x_d, p%dof%size(), &
               HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(rho%x, rho%x_d, rho%dof%size(), &
@@ -197,6 +215,8 @@ contains
               HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(m_z%x, m_z%x_d, m_z%dof%size(), &
               HOST_TO_DEVICE, sync = .false.)
+         call device_memcpy(effective_visc%x, effective_visc%x_d, effective_visc%dof%size(), &
+              HOST_TO_DEVICE, sync = .false.)
        end associate
     end if
 
@@ -207,6 +227,8 @@ contains
     call this%compute_h()
     call json_get_or_default(params, 'case.numerics.c_avisc_low', &
          this%c_avisc_low, 0.5_rp)
+    call json_get_or_default(params, 'case.numerics.c_entropy', &
+         this%c_entropy, 0.5_rp)
 
     ! Initialize Runge-Kutta scheme
     call json_get_or_default(params, 'case.numerics.time_order', rk_order, 4)
@@ -233,6 +255,11 @@ contains
     call this%dm_y%free()
     call this%dm_z%free()
     call this%dE%free()
+
+    ! Free entropy viscosity fields
+    call this%entropy_residual%free()
+    call this%entropy_visc_coeff%free()
+    call this%S_lag%free()
 
     ! call this%scheme_free()
   end subroutine fluid_scheme_compressible_euler_free
@@ -271,9 +298,24 @@ contains
          ext_bdf => this%ext_bdf, &
          c_avisc_low => this%c_avisc_low, rk_scheme => this%rk_scheme)
 
+      ! Compute entropy viscosity when enabled
+      if (tstep > 1 .and. this%c_entropy > 0.0_rp) then
+         call this%compute_entropy_residual(dt, time%dtlag, 3)  ! Use BDF-3
+         call this%compute_entropy_viscosity()
+      else
+         call field_cfill(this%entropy_visc_coeff, 0.0_rp, n)
+      end if
+
+      ! Compute effective viscosity = min(first_order_visc, entropy_visc)
+      do i = 1, n
+         this%effective_visc%x(i,1,1,1) = min(c_avisc_low * h%x(i,1,1,1), &
+                                              this%entropy_visc_coeff%x(i,1,1,1))
+      end do
+
+      ! Execute RHS step with effective viscosity field
       call euler_rhs%step(rho, m_x, m_y, m_z, E, &
            p, u, v, w, Ax, &
-           c_Xh, gs_Xh, h, c_avisc_low, &
+           c_Xh, gs_Xh, h, this%effective_visc, &
            rk_scheme, dt)
 
       !> Apply density boundary conditions
@@ -319,6 +361,12 @@ contains
 
       !> Compute entropy S = 1/(gamma-1) * rho * (log(p) - gamma * log(rho))
       call this%compute_entropy()
+
+      if (tstep > 1) then
+         call this%S_lag%update()
+      end if
+
+      ! Effective viscosity is now applied directly in the RHS computation
 
       !> Update maximum wave speed for CFL computation
       call this%compute_max_wave_speed()
@@ -533,5 +581,99 @@ contains
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
     type(chkp_t), intent(inout) :: chkp
   end subroutine fluid_scheme_compressible_euler_restart
+
+  !> Compute entropy residual R_S = dS/dt + u·∇S for entropy viscosity
+  !! @param this The fluid scheme object  
+  !! @param dt Current timestep size
+  !! @param dt_lag Array of previous timestep sizes
+  !! @param bdf_order Desired BDF order for time derivative
+  subroutine compute_entropy_residual(this, dt, dt_lag, bdf_order)
+    class(fluid_scheme_compressible_euler_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: dt
+    real(kind=rp), intent(in) :: dt_lag(10)
+    integer, intent(in) :: bdf_order
+    real(kind=rp) :: bdf_coeffs(4)
+    integer :: i, j, n
+    type(bdf_time_scheme_t) :: bdf_scheme
+    type(field_t), pointer :: us_field, vs_field, ws_field, div_field
+    integer :: temp_indices(4)
+
+    n = this%dm_Xh%size()
+
+    ! Zero out entropy residual
+    call field_cfill(this%entropy_residual, 0.0_rp, n)
+    
+    ! Check if we have enough lag fields for the desired BDF order
+    if (this%S_lag%size() .lt. bdf_order) then
+       ! Not enough lag fields, skip computation (entropy residual remains zero)
+       return
+    end if
+
+    ! Get BDF coefficients for time derivative
+    call bdf_scheme%compute_coeffs(bdf_coeffs, dt_lag, bdf_order)
+
+    ! Compute time derivative dS/dt using BDF
+    do i = 1, n
+       ! Start with current time step contribution
+       this%entropy_residual%x(i,1,1,1) = bdf_coeffs(1) * this%S%x(i,1,1,1)
+       
+       ! Add contributions from lag fields
+       do j = 1, bdf_order
+          this%entropy_residual%x(i,1,1,1) = this%entropy_residual%x(i,1,1,1) + &
+                                             bdf_coeffs(j+1) * this%S_lag%lf(j)%x(i,1,1,1)
+       end do
+    end do
+
+    ! Compute advection term ∇·(uS) using divergence operator
+    ! Request scratch fields for divergence computation
+    call this%scratch%request_field(us_field, temp_indices(1))
+    call this%scratch%request_field(vs_field, temp_indices(2))
+    call this%scratch%request_field(ws_field, temp_indices(3))
+    call this%scratch%request_field(div_field, temp_indices(4))
+
+    ! Compute advection terms: u*S, v*S, w*S
+    do i = 1, n
+       us_field%x(i,1,1,1) = this%u%x(i,1,1,1) * this%S%x(i,1,1,1)
+       vs_field%x(i,1,1,1) = this%v%x(i,1,1,1) * this%S%x(i,1,1,1)  
+       ws_field%x(i,1,1,1) = this%w%x(i,1,1,1) * this%S%x(i,1,1,1)
+    end do
+
+    ! Compute divergence of (uS, vS, wS) using the div operator
+    call div(div_field%x, us_field%x, vs_field%x, ws_field%x, this%c_Xh)
+
+    ! Add divergence term to time derivative to get complete entropy residual
+    ! R_S = ∂S/∂t + ∇·(uS)
+    do i = 1, n
+       this%entropy_residual%x(i,1,1,1) = this%entropy_residual%x(i,1,1,1) + div_field%x(i,1,1,1)
+    end do
+
+    ! Take absolute value: R_S = |∂S/∂t + ∇·(uS)|  
+    do i = 1, n
+       this%entropy_residual%x(i,1,1,1) = abs(this%entropy_residual%x(i,1,1,1))
+    end do
+
+    ! Relinquish scratch fields
+    call this%scratch%relinquish_field(temp_indices)
+
+  end subroutine compute_entropy_residual
+
+  !> Compute entropy viscosity coefficient ν_E = c_entropy * h² * R_S
+  !! where R_S = |∂S/∂t + ∇·(uS)| is the absolute entropy residual
+  !! @param this The fluid scheme object
+  subroutine compute_entropy_viscosity(this)
+    class(fluid_scheme_compressible_euler_t), intent(inout) :: this
+    integer :: i, n
+    real(kind=rp) :: visc_coeff
+
+    n = this%dm_Xh%size()
+    
+    do i = 1, n
+       ! Compute entropy viscosity: ν_E = c_entropy * h² * R_S, R_S > 0
+       visc_coeff = this%c_entropy * this%h%x(i,1,1,1)**2 * this%entropy_residual%x(i,1,1,1)
+       
+       this%entropy_visc_coeff%x(i,1,1,1) = visc_coeff
+    end do
+
+  end subroutine compute_entropy_viscosity
 
 end module fluid_scheme_compressible_euler
