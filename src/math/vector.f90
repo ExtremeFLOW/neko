@@ -97,7 +97,6 @@ contains
     class(vector_t), intent(inout) :: a
     integer, intent(in) :: n
 
-    if (n .eq. 0) call neko_error('Vector cannot have size 0')
 
     if (a%n .eq. n) return
     call a%free()
