@@ -85,16 +85,16 @@ submodule(neko_api) neko_api_user
 
   !> Type defining all supported callbacks via the API
   type api_user_cb
-     procedure(api_ic_callback), nopass, pointer :: initial => null()
-     procedure(api_gn_callback), nopass, pointer :: preprocess => null()
-     procedure(api_gn_callback), nopass, pointer :: compute => null()
-     procedure(api_bc_callback), nopass, pointer :: dirichlet => null()
-     procedure(api_ft_callback), nopass, pointer :: material => null()
-     procedure(api_ft_callback), nopass, pointer :: source => null()
+     procedure(api_ic_callback), nopass, pointer :: initial
+     procedure(api_gn_callback), nopass, pointer :: preprocess
+     procedure(api_gn_callback), nopass, pointer :: compute
+     procedure(api_bc_callback), nopass, pointer :: dirichlet
+     procedure(api_ft_callback), nopass, pointer :: material
+     procedure(api_ft_callback), nopass, pointer :: source
   end type api_user_cb
 
   !> Registered callbacks in the API
-  type(api_user_cb) :: neko_api_user_cb
+  type(api_user_cb), allocatable :: neko_api_user_cb
 
   !> Pointer to an active field_list_t in a callback
   type(field_list_t), pointer :: neko_api_cb_field_list => null()
@@ -114,6 +114,19 @@ contains
     type(user_t), intent(inout) :: user
     type(c_funptr), value :: initial_cb, preprocess_cb, compute_cb
     type(c_funptr), value :: dirichlet_cb, material_cb, source_cb
+
+    ! Keeping neko_api_user_cb as an alloctable is a work around for
+    ! NAG which throws an incompatbile function pointer warning for
+    ! single precision
+    if (.not. allocated(neko_api_user_cb)) then
+       allocate(neko_api_user_cb)
+       neko_api_user_cb%initial => null()
+       neko_api_user_cb%preprocess => null()
+       neko_api_user_cb%compute => null()
+       neko_api_user_cb%dirichlet => null()
+       neko_api_user_cb%material => null()
+       neko_api_user_cb%source => null()
+    end if
 
     ! We need the block construct in the following if statements to
     ! adhere strictly with the f2008 standard, and support compilers
