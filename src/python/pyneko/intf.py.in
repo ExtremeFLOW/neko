@@ -12,7 +12,7 @@ from ctypes import (
     cast,
     addressof,
     create_string_buffer,
-    CFUNCTYPE,
+    CFUNCTYPE
 )
 from dataclasses import dataclass
 import json
@@ -20,15 +20,15 @@ import numpy as np
 
 initial_condition = CFUNCTYPE(None, POINTER(c_char_p), c_int)
 
-preprocess = CFUNCTYPE(None, c_double, c_int)
+preprocess = CFUNCTYPE(None, @NEKO_PY_REAL_TYPE@, c_int)
 
-compute = CFUNCTYPE(None, c_double, c_int)
+compute = CFUNCTYPE(None, @NEKO_PY_REAL_TYPE@, c_int)
 
-dirichlet_condition = CFUNCTYPE(None, POINTER(c_int), c_int, c_double, c_int)
+dirichlet_condition = CFUNCTYPE(None, POINTER(c_int), c_int, @NEKO_PY_REAL_TYPE@, c_int)
 
-material_properties = CFUNCTYPE(None, POINTER(c_char_p), c_int, c_double, c_int)
+material_properties = CFUNCTYPE(None, POINTER(c_char_p), c_int, @NEKO_PY_REAL_TYPE@, c_int)
 
-source_term = CFUNCTYPE(None, POINTER(c_char_p), c_int, c_double, c_int)
+source_term = CFUNCTYPE(None, POINTER(c_char_p), c_int, @NEKO_PY_REAL_TYPE@, c_int)
 
 libneko = CDLL(util.find_library("neko"))
 
@@ -310,7 +310,8 @@ def field(name):
     a = neko_field_t(
         np.frombuffer((@NEKO_PY_REAL_TYPE@ *
                        libneko.neko_field_size(name)).from_address(
-                           addressof(libneko.neko_field(name).contents))),
+                           addressof(libneko.neko_field(name).contents)),
+                      dtype=np.dtype(@NEKO_PY_REAL_TYPE@)),
         field_dofmap(name),
         field_space(name)
     )
@@ -365,11 +366,11 @@ def wrap_dofmap(dof_ptr, x_ptr, y_ptr, z_ptr, size):
         np.frombuffer((c_longlong * size).from_address(
             addressof(dof_ptr.contents)), dtype=np.dtype(int)),
         np.frombuffer((@NEKO_PY_REAL_TYPE@ * size).from_address(
-            addressof(x_ptr.contents))),
+            addressof(x_ptr.contents)), dtype=np.dtype(@NEKO_PY_REAL_TYPE@)),
         np.frombuffer((@NEKO_PY_REAL_TYPE@ * size).from_address(
-            addressof(y_ptr.contents))),
+            addressof(y_ptr.contents)), dtype=np.dtype(@NEKO_PY_REAL_TYPE@)),
         np.frombuffer((@NEKO_PY_REAL_TYPE@ * size).from_address(
-            addressof(z_ptr.contents))),
+            addressof(z_ptr.contents)), dtype=np.dtype(@NEKO_PY_REAL_TYPE@)),
         size
     )
     return dofmap
@@ -604,7 +605,8 @@ def callback_field(name):
     a = neko_field_t(
         np.frombuffer((@NEKO_PY_REAL_TYPE@ *
                        libneko.neko_field_size(name)).from_address(
-                           addressof(libneko.neko_cb_field_by_name(name).contents))),
+                           addressof(libneko.neko_cb_field_by_name(name).contents)),
+                      dtype=np.dtype(@NEKO_PY_REAL_TYPE@)),
         field_dofmap(name),
         field_space(name)
     )
