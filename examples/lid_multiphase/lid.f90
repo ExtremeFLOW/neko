@@ -20,6 +20,9 @@ module user
   type(vector_t) :: vec_out ! will store our output data
   integer :: ipostproc ! frequency of the output
 
+  real(kind=rp) :: eps
+  real(kind=rp) :: gamma, u_max
+
 contains
 
   ! Register user-defined functions (see user_intf.f90)
@@ -31,6 +34,8 @@ contains
     user%initialize =>initialize
     user%finalize => finalize
     user%source_term => source_term
+    user%material_properties => material_properties
+    user%initial_conditions => initial_conditions
   end subroutine user_setup
 
   subroutine startup(params)
@@ -41,6 +46,10 @@ contains
     call json_get(params, "case.fluid.ipostproc", ipostproc)
     write(mess,*) "postprocessing steps : ",ipostproc
     call neko_log%message(mess)
+
+    call json_get(params, "case.scalar.epsilon",eps)
+    call json_get(params, "case.scalar.gamma", gamma)
+    u_max = 1.0_rp
   end subroutine startup
 
   ! user-defined Dirichlet boundary condition
@@ -121,11 +130,19 @@ contains
 
     ntot = u%dof%size()
 
-    ! compute the kinetic energy
-    ! field_ routines operate on the configured backend
+    ! compute the velocity magnitude in w1 (u^2 + v^2 + w^2)
     call field_col3(w1, u, u, ntot)
     call field_addcol3(w1, v, v, ntot)
     call field_addcol3(w1, w, w, ntot)
+    
+    ! compute maximum velocity magnitude over the domain
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(w1%x, w1%x_d, w1%size(), &
+            DEVICE_TO_HOST, sync=.true.)
+    end if
+    u_max = sqrt(glmax(w1%x, ntot))
+
+    ! compute the kinetic energy (reuse w1 which already has velocity magnitude squared)
     ! For glsc2 we need to call the correct backend
     if (NEKO_BCKND_DEVICE .eq. 1) then
        ekin = 0.5_rp * device_glsc2(w1%x_d, coef%B_d,ntot) / coef%volume
@@ -179,37 +196,130 @@ contains
     type(time_state_t), intent(in) :: time
 
     integer :: i
-    type(field_t), pointer :: rhs_s
-    real(kind=rp) :: x, y, force_magnitude
+    type(field_t), pointer :: rhs_s, s
+    real(kind=rp) :: absgrad
+    integer :: ind(4)
+    type(field_t), pointer :: work1, work2, work3, work4
+    type(coef_t), pointer :: coef
 
-    ! Only apply forcing to the scalar equation (temperature)
+    ! Only apply forcing to the scalar equation (phase)
     if (scheme_name .ne. 'phase') return
 
     ! Get the right-hand side field for the scalar
     rhs_s => rhs%get_by_index(1)  ! scalar field
+    
+    ! Get the scalar field and coefficients
+    s => neko_field_registry%get_field('phase')
+    coef => neko_user_access%case%fluid%c_Xh
 
-    ! Define forcing magnitude (can be adjusted)
-    force_magnitude = 1.0_rp
+    ! Request scratch fields
+    call neko_scratch_registry%request_field(work1, ind(1))
+    call neko_scratch_registry%request_field(work2, ind(2))
+    call neko_scratch_registry%request_field(work3, ind(3))
+    call neko_scratch_registry%request_field(work4, ind(4))
+      
+    ! Compute gradient of scalar field
+    call grad(work1%x, work2%x, work3%x, s%x, coef)
+    
+    ! Apply gather-scatter and multiplicity
+    call coef%gs_h%op(work1, GS_OP_ADD)
+    call coef%gs_h%op(work2, GS_OP_ADD)
+    call coef%gs_h%op(work3, GS_OP_ADD)
+    call col2(work1%x, coef%mult, work4%size())
+    call col2(work2%x, coef%mult, work4%size())
+    call col2(work3%x, coef%mult, work4%size())
 
-    ! Apply a simple source term to the scalar
-    do i = 1, rhs_s%size()
-       x = rhs_s%dof%x(i,1,1,1)
-       y = rhs_s%dof%y(i,1,1,1)
-       
-       ! Example: constant source term
-       rhs_s%x(i,1,1,1) = rhs_s%x(i,1,1,1) + force_magnitude
-       
-       ! Example: spatially varying source (uncomment to use instead)
-       ! rhs_s%x(i,1,1,1) = rhs_s%x(i,1,1,1) + force_magnitude * sin(2.0_rp * pi * x) * cos(2.0_rp * pi * y)
+    ! Compute normalized gradient and apply phase field forcing
+    do i = 1, work4%size()
+       absgrad = sqrt(work1%x(i,1,1,1)**2+work2%x(i,1,1,1)**2+work3%x(i,1,1,1)**2)
+       if (absgrad == 0.0_rp) then 
+          print *, 'warning, absgrad==', absgrad
+          absgrad = 1e21_rp
+       end if
+          
+       work1%x(i,1,1,1) = - s%x(i,1,1,1)*(1.0_rp-s%x(i,1,1,1))*(work1%x(i,1,1,1)/absgrad)
+       work2%x(i,1,1,1) = - s%x(i,1,1,1)*(1.0_rp-s%x(i,1,1,1))*(work2%x(i,1,1,1)/absgrad)
+       work3%x(i,1,1,1) = - s%x(i,1,1,1)*(1.0_rp-s%x(i,1,1,1))*(work3%x(i,1,1,1)/absgrad)
     end do
 
-    ! Copy to device if using GPU backend
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(rhs_s%x, rhs_s%x_d, rhs_s%size(), &
-            HOST_TO_DEVICE, sync=.false.)
-    end if
+    ! Compute divergence of the normalized gradient
+    call dudxyz(work4%x, work1%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+    call copy(rhs_s%x, work4%x, work4%size())
+    call dudxyz(work4%x, work2%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+    call add2(rhs_s%x, work4%x, work4%size())
+    call dudxyz(work4%x, work3%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    call add2(rhs_s%x, work4%x, work4%size())
+    
+    ! Scale by gamma * u_max
+    absgrad = gamma * u_max
+    call cmult(rhs_s%x, absgrad, work4%size())
+
+    ! Release scratch fields
+    call neko_scratch_registry%relinquish_field(ind)
 
   end subroutine source_term
+
+  ! User-defined material properties
+  subroutine material_properties(scheme_name, properties, time)
+    character(len=*), intent(in) :: scheme_name
+    type(field_list_t), intent(inout) :: properties
+    type(time_state_t), intent(in) :: time
+    real(kind=rp) :: delta, lambda_val, mu_val
+
+    if (scheme_name .eq. "fluid") then
+      call field_cfill(properties%get("fluid_rho"), 1.0_rp)
+      mu_val = 1.0_rp / 3000.0_rp  ! 1/Re
+      call field_cfill(properties%get("fluid_mu"), mu_val)
+    else if (scheme_name .eq. "phase") then
+      delta = u_max * gamma
+      call field_cfill(properties%get('phase_cp'), 1.0_rp)
+      call field_cfill(properties%get('phase_lambda'), eps*delta)
+    end if
+
+  end subroutine material_properties
+
+  ! User-defined initial conditions for phase field
+  subroutine initial_conditions(scheme_name, fields)
+    character(len=*), intent(in) :: scheme_name
+    type(field_list_t), intent(inout) :: fields
+    
+    type(field_t), pointer :: phase
+    integer :: i, j, k, e
+    real(kind=rp) :: x, y, d_x
+    real(kind=rp) :: x_interface
+    
+    ! Only apply to phase field
+    if (scheme_name .ne. 'phase') return
+    
+    phase => fields%items(1)%ptr
+    
+    ! Interface location (horizontal interface at y = 0.5)
+    x_interface = 0.5_rp
+    
+    ! Initialize phase field using signed distance function
+    ! φ(x,0) = 1/2 [1 - tanh(d(x)/(2ε))]
+    ! where d(x) is the signed distance to the interface
+    do e = 1, phase%msh%nelv
+      do k = 1, phase%Xh%lx
+        do j = 1, phase%Xh%lx
+          do i = 1, phase%Xh%lx
+            x = phase%dof%x(i,j,k,e)
+            y = phase%dof%y(i,j,k,e)
+            
+            ! Signed distance to horizontal interface at y = x_interface
+            ! Positive above interface (fluid 1), negative below (fluid 0)
+            d_x = y - x_interface
+            
+            ! Phase field initial condition: φ(x,0) = 1/2 [1 - tanh(d(x)/(2ε))]
+            ! ε is the nominal half-thickness of the diffuse interface
+            phase%x(i,j,k,e) = 0.5_rp * (1.0_rp - tanh(d_x / (2.0_rp * eps)))
+            
+          end do
+        end do
+      end do
+    end do
+    
+  end subroutine initial_conditions
 
   ! Smooth step function, with zero derivatives at 0 and 1
   function step(x)

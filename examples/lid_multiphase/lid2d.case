@@ -24,6 +24,7 @@
         "fluid": {
             "scheme": "pnpn",
             "Re": 3000,
+            "variable_material_properties": false,
             // frequency of postprocessing (energy and enstrophy)
             "ipostproc": 50,
             "initial_condition": {
@@ -64,10 +65,10 @@
         "scalar": {
             "enabled": true,
             "name": "phase",
-            "Pe": 1000,
+            "epsilon": 0.1,
+            "gamma": 0.001,
             "initial_condition": {
-                "type": "uniform",
-                "value": 0.1
+                "type": "user"
             },
             "solver": {
                 "type": "cg",
@@ -77,11 +78,16 @@
                 "absolute_tolerance": 1e-7,
                 "max_iterations": 200
             },
+            "source_terms": [
+                {
+                    "type": "user"
+                }
+            ],
             "boundary_conditions": [
                 {
-                    "type": "dirichlet",
-                    "zone_indices": [ 1, 2, 3, 4 ],
-                    "value": 0.0
+                    "type": "neumann",
+                    "flux": 0.0,
+                    "zone_indices": [ 1, 2, 3, 4 ]
                 }
             ]
         }
