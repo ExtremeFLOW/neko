@@ -471,7 +471,7 @@ contains
        call neko_error('Invalid data')
     end select
 
-    call MPI_File_open(NEKO_COMM, trim(this%fname), &
+    call MPI_File_open(NEKO_COMM, trim(fname), &
          MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
     call MPI_File_read_all(fh, glb_nelv, 1, MPI_INTEGER, status, ierr)
     call MPI_File_read_all(fh, gdim, 1, MPI_INTEGER, status, ierr)
