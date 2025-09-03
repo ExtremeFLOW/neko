@@ -384,8 +384,21 @@ contains
     real(kind=rp) :: center_x, center_y, center_z
     integer :: i, e
     type(dofmap_t) :: dof
+    logical :: file_exists
 
-    call this%check_exists()
+    ! If the raw file does not exist, then use the counter and check again
+    inquire(file = this%fname, exist = file_exists)
+    if (file_exists) then
+       fname = trim(this%fname)
+    else
+       suffix_pos = filename_suffix_pos(this%fname)
+       write(id_str, '(i5.5)') this%counter
+       fname = trim(this%fname(1:suffix_pos-1)) // id_str // '.chkp'
+       inquire(file = fname, exist = file_exists)
+       if (.not. file_exists) fname = trim(this%fname)
+    end if
+
+    call this%check_exists(fname)
 
     select type(data)
     type is (chkp_t)
@@ -457,8 +470,6 @@ contains
     class default
        call neko_error('Invalid data')
     end select
-
-
 
     call MPI_File_open(NEKO_COMM, trim(this%fname), &
          MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
