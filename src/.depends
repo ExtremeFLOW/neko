@@ -137,14 +137,14 @@ io/fld_file_data.lo : io/fld_file_data.f90 mesh/mesh.lo common/utils.lo common/g
 io/vtk_file.lo : io/vtk_file.f90 comm/comm.lo common/log.lo mesh/tri_mesh.lo mesh/tet_mesh.lo field/mesh_field.lo sem/dofmap.lo field/field.lo mesh/mesh.lo common/utils.lo io/generic_file.lo config/num_types.lo 
 io/stl_file.lo : io/stl_file.f90 io/format/stl.lo comm/comm.lo common/utils.lo comm/mpi_types.lo mesh/point.lo common/log.lo mesh/tri_mesh.lo io/generic_file.lo config/num_types.lo 
 io/nmsh_file.lo : io/nmsh_file.f90 common/log.lo comm/mpi_types.lo common/datadist.lo mesh/element.lo io/format/nmsh.lo adt/tuple.lo mesh/point.lo common/utils.lo mesh/mesh.lo config/num_types.lo comm/comm.lo io/generic_file.lo 
-io/chkp_file.lo : io/chkp_file.f90 comm/comm.lo common/global_interpolation.lo comm/mpi_types.lo sem/interpolation.lo math/math.lo mesh/mesh.lo sem/space.lo common/utils.lo sem/dofmap.lo field/field.lo config/num_types.lo common/checkpoint.lo field/field_series.lo io/generic_file.lo 
+io/chkp_file.lo : io/chkp_file.f90 comm/comm.lo common/log.lo common/global_interpolation.lo comm/mpi_types.lo sem/interpolation.lo math/math.lo mesh/mesh.lo sem/space.lo common/utils.lo sem/dofmap.lo field/field.lo config/num_types.lo common/checkpoint.lo field/field_series.lo io/generic_file.lo 
 io/csv_file.lo : io/csv_file.f90 comm/comm.lo common/log.lo config/num_types.lo common/utils.lo io/generic_file.lo math/matrix.lo math/vector.lo 
 io/hdf5_file.lo : io/hdf5_file.F90 comm/comm.lo common/log.lo sem/dofmap.lo field/field_registry.lo field/field_series.lo field/field_list.lo field/field.lo mesh/mesh.lo common/utils.lo common/checkpoint.lo io/generic_file.lo config/num_types.lo 
 io/file.lo : io/file.f90 io/hdf5_file.lo io/csv_file.lo io/stl_file.lo io/vtk_file.lo io/fld_file_data.lo io/fld_file.lo io/bp_file.lo io/re2_file.lo io/rea_file.lo io/map_file.lo io/chkp_file.lo io/nmsh_file.lo io/generic_file.lo config/num_types.lo common/utils.lo 
 io/output.lo : io/output.f90 io/file.lo config/num_types.lo 
 io/fluid_output.lo : io/fluid_output.f90 field/field.lo field/field_registry.lo scalar/scalars.lo io/output.lo device/device.lo config/neko_config.lo field/field_list.lo scalar/scalar_scheme.lo fluid/fluid_scheme_base.lo fluid/fluid_scheme_incompressible.lo config/num_types.lo 
 io/fld_file_output.lo : io/fld_file_output.f90 io/output.lo device/device.lo config/neko_config.lo field/field_list.lo config/num_types.lo 
-io/chkp_output.lo : io/chkp_output.f90 config/num_types.lo io/output.lo common/checkpoint.lo 
+io/chkp_output.lo : io/chkp_output.f90 common/utils.lo config/num_types.lo io/output.lo common/checkpoint.lo 
 io/mean_flow_output.lo : io/mean_flow_output.f90 io/output.lo device/device.lo config/num_types.lo fluid/mean_flow.lo 
 io/fluid_stats_output.lo : io/fluid_stats_output.f90 math/matrix.lo io/output.lo device/device.lo io/fld_file_data.lo sem/map_2d.lo sem/map_1d.lo config/num_types.lo config/neko_config.lo fluid/fluid_stats.lo 
 io/mean_sqr_flow_output.lo : io/mean_sqr_flow_output.f90 io/output.lo config/num_types.lo fluid/mean_sqr_flow.lo 

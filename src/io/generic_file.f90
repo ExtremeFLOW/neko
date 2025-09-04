@@ -105,16 +105,24 @@ contains
   end subroutine generic_file_set_start_counter
 
   !> check if the file exists
-  subroutine generic_file_check_exists(this)
+  subroutine generic_file_check_exists(this, fname)
     class(generic_file_t), intent(in) :: this
+    character(len=*), intent(in), optional :: fname
     logical :: file_exists
     integer :: neko_mpi_ierr
+    character(len=1024) :: fname_tmp
+
+    if (present(fname)) then
+       fname_tmp = trim(fname)
+    else
+       fname_tmp = trim(this%fname)
+    end if
 
     file_exists = .false.
 
     if (pe_rank .eq. 0 .or. this%serial) then
        ! Stop if the file does not exist
-       inquire(file = this%fname, exist = file_exists)
+       inquire(file = fname_tmp, exist = file_exists)
     end if
 
     if (.not. this%serial) then
@@ -122,7 +130,7 @@ contains
     end if
 
     if (.not. file_exists) then
-       call neko_error('File does not exist: ' // trim(this%fname))
+       call neko_error('File does not exist: ' // trim(fname_tmp))
     end if
 
   end subroutine generic_file_check_exists
