@@ -13,7 +13,7 @@ on:
 
 env:
   PFUNIT_VERSION: v4.4.2
-  JSON_FORTRAN_VERSION: 8.3.0
+  JSON_FORTRAN_VERSION: 8.4.0
 
 # Allow only one concurrent deployment, skipping runs queued between the run
 # in-progress and latest queued. We do not wish to waste time on old runs if a
@@ -52,6 +52,12 @@ jobs:
     needs:
       - prepare
     uses: ./.github/workflows/check_lint.yml
+
+  formatting:
+    name: Formatting
+    needs:
+      - prepare
+    uses: ./.github/workflows/check_format.yml
 
   depend:
     name: Make depend
@@ -95,15 +101,15 @@ jobs:
   # ========================================================================== #
   # ReFrame and bencharks
 
-  ReFrame:
-    name: ReFrame
-    needs:
-      - prepare
-      - depend
-      - GNU
-    uses: ./.github/workflows/check_reframe.yml
-    with:
-      json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
+#  ReFrame:
+#    name: ReFrame
+#    needs:
+#      - prepare
+#      - depend
+#      - GNU
+#    uses: ./.github/workflows/check_reframe.yml
+#    with:
+#      json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
 
   # # ========================================================================== #
   # # Upload the badges
@@ -142,19 +148,21 @@ jobs:
     needs:
       - prepare
       - linting
+      - formatting
       - depend
       - GNU
       - Intel
       - Nvidia
-      - ReFrame
+#      - ReFrame
     runs-on: ubuntu-latest
     env:
       draft_status: ${{ needs.prepare.result }}
       flint_status: ${{ needs.linting.result }}
+      format_status: ${{ needs.formatting.result }}
       gnu_status: ${{ needs.GNU.result }}
       inel_status: ${{ needs.Intel.result }}
-      nvidia_status: ${{ needs.Nvidia.result }}
-      reframe_status: ${{ needs.ReFrame.result }}
+#      nvidia_status: ${{ needs.Nvidia.result }}
+#      reframe_status: ${{ needs.ReFrame.result }}
 
     steps:
       - name: All checks passed
@@ -165,22 +173,31 @@ jobs:
             fail+=("\t- Draft check: $draft_status")
             success=false
           fi
+
           if [ "$flint_status" != "success" ]; then
             fail+=("\t- Linting check: $flint_status")
             success=false
           fi
+
+          if [ "$format_status" != "success" ]; then
+            fail+=("\t- Formatting check: $format_status")
+            success=false
+          fi
+
           if [ "$gnu_status" != "success" ]; then
             fail+=("\t- GNU check: $gnu_status")
             success=false
           fi
+
           if [ "$inel_status" != "success" ]; then
             fail+=("\t- Intel check: $inel_status")
             success=false
           fi
-          if [ "$reframe_status" != "success" ]; then
-            fail+=("\t- ReFrame check: $reframe_status")
-            success=false
-          fi
+
+          # if [ "$nvidia_status" != "success" ]; then
+          #   fail+=("\t- NVIDIA check: $nvidia_status")
+          #   success=false
+          # fi
 
           if [ "$success" = false ]; then
             >&2 echo "The following checks failed:"

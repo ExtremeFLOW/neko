@@ -68,10 +68,11 @@
 !! The purpose of this is to accelerate a Signed Distance Function and other
 !! spatial computations.
 module aabb_tree
-  use aabb
-  use tri, only: tri_t
-  use num_types, only: rp, dp
-
+  use aabb, only : aabb_t, get_aabb, merge
+  use tri, only : tri_t
+  use num_types, only : rp, dp
+  use stack, only : stack_i4_t
+  use utils, only : neko_error
   implicit none
   private
 
@@ -253,7 +254,7 @@ contains
     real(kind=dp) :: distance
 
     distance = 0.5_rp * this%aabb%get_diameter() &
-      - norm2(this%aabb%get_center() - p)
+         - norm2(this%aabb%get_center() - p)
   end function aabb_node_min_distance
 
   ! -------------------------------------------------------------------------- !
@@ -265,7 +266,7 @@ contains
     logical :: res
 
     res = this%left_node_index == AABB_NULL_NODE .and. &
-      this%right_node_index == AABB_NULL_NODE
+         this%right_node_index == AABB_NULL_NODE
   end function aabb_node_is_leaf
 
   !> @brief Returns true if the node is a valid node.
@@ -275,14 +276,14 @@ contains
 
     if (this%is_leaf()) then
        valid = &
-         & this%left_node_index .eq. AABB_NULL_NODE .and. &
-         & this%right_node_index .eq. AABB_NULL_NODE .and. &
-         & this%object_index .gt. 0
+       & this%left_node_index .eq. AABB_NULL_NODE .and. &
+       & this%right_node_index .eq. AABB_NULL_NODE .and. &
+       & this%object_index .gt. 0
     else
        valid = &
-         & this%left_node_index .ne. AABB_NULL_NODE .and. &
-         & this%right_node_index .ne. AABB_NULL_NODE .and. &
-         & this%object_index .eq. -1
+       & this%left_node_index .ne. AABB_NULL_NODE .and. &
+       & this%right_node_index .ne. AABB_NULL_NODE .and. &
+       & this%object_index .eq. -1
     end if
 
   end function aabb_node_is_valid
@@ -338,9 +339,6 @@ contains
 
   !> @brief Builds the tree.
   subroutine aabb_tree_build_tree(this, objects)
-    use utils, only: neko_error
-    implicit none
-
     class(aabb_tree_t), intent(inout) :: this
     class(*), dimension(:), intent(in) :: objects
 
@@ -363,7 +361,7 @@ contains
     do i_obj = 1, size(objects)
        box_list(i_obj) = get_aabb(objects(i_obj))
     end do
-    sorted_indices = sort(box_list)
+    call sort(box_list, sorted_indices)
 
     do i = 1, size(sorted_indices)
        i_obj = sorted_indices(i)
@@ -422,9 +420,10 @@ contains
 
   end subroutine aabb_tree_build_tree
 
-  function sort(array) result(indices)
+  !> Return a list of sorted indices of the aabb nodes.
+  subroutine sort(array, indices)
     type(aabb_t), dimension(:), intent(in) :: array
-    integer, dimension(:), allocatable :: indices
+    integer, intent(inout), dimension(:), allocatable :: indices
     logical, dimension(:), allocatable :: visited
 
     integer :: i, imin
@@ -439,23 +438,22 @@ contains
        minidx = -1
        do imin = 1, size(array)
           if (.not. visited(imin) .and. minidx .eq. -1) minidx = imin
-
-          if (visited(imin) .and. array(imin) .lt. array(minidx)) minidx = imin
+          if (minidx .gt. -1) then
+             if (visited(imin) .and. array(imin) .lt. array(minidx)) minidx = imin
+          end if
        end do
 
        indices(i) = minidx
        visited(minidx) = .true.
     end do
 
-  end function sort
+  end subroutine sort
 
   ! -------------------------------------------------------------------------- !
   ! Getters
 
   !> @brief Returns the size of the tree, in number of leaves.
   function aabb_tree_get_size(this) result(size)
-    use stack, only: stack_i4_t
-    use utils, only: neko_error
     class(aabb_tree_t), intent(in) :: this
     integer :: size
 
@@ -602,20 +600,19 @@ contains
 
   !> @brief Queries the tree for overlapping objects.
   subroutine aabb_tree_query_overlaps(this, object, object_index, overlaps)
-    use stack, only: stack_i4_t
-    implicit none
-
     class(aabb_tree_t), intent(in) :: this
     class(*), intent(in) :: object
     integer, intent(in) :: object_index
-    integer, intent(out) :: overlaps(:)
+    integer, intent(inout), allocatable :: overlaps(:)
 
     type(stack_i4_t) :: simple_stack
     type(aabb_t) :: object_box
 
     integer :: root_index, left_index, right_index
-
     integer :: node_index
+
+    if (allocated(overlaps)) deallocate(overlaps)
+    allocate(overlaps(0))
 
     object_box = get_aabb(object)
     root_index = this%get_root_index()
@@ -641,6 +638,7 @@ contains
           end if
        end if
     end do
+    call simple_stack%free()
   end subroutine aabb_tree_query_overlaps
 
   ! -------------------------------------------------------------------------- !
@@ -737,9 +735,9 @@ contains
 
        new_parent_node_cost = 2.0_rp * combined_aabb%get_surface_area()
        minimum_push_down_cost = 2.0_rp * ( &
-         & combined_aabb%get_surface_area() &
-         & - tree_node%aabb%get_surface_area()&
-         & )
+       & combined_aabb%get_surface_area() &
+       & - tree_node%aabb%get_surface_area()&
+       & )
 
        ! use the costs to figure out whether to create a new parent here or
        ! descend
@@ -749,9 +747,9 @@ contains
        else
           new_left_aabb = merge(leaf_node%aabb, left_node%get_aabb())
           cost_left = ( &
-            & new_left_aabb%get_surface_area() &
-            & - left_node%aabb%get_surface_area()&
-            & ) + minimum_push_down_cost
+          & new_left_aabb%get_surface_area() &
+          & - left_node%aabb%get_surface_area()&
+          & ) + minimum_push_down_cost
        end if
 
        if (right_node%is_leaf()) then
@@ -761,9 +759,9 @@ contains
        else
           new_right_aabb = merge(leaf_node%aabb, right_node%aabb)
           cost_right = ( &
-            & new_right_aabb%get_surface_area() &
-            & - right_node%aabb%get_surface_area() &
-            & ) + minimum_push_down_cost
+          & new_right_aabb%get_surface_area() &
+          & - right_node%aabb%get_surface_area() &
+          & ) + minimum_push_down_cost
        end if
 
        ! if the cost of creating a new parent node here is less than descending
@@ -835,9 +833,6 @@ contains
 
   !> @brief Validates the tree.
   function aabb_tree_valid_tree(this) result(valid)
-    use stack, only: stack_i4_t
-    implicit none
-
     class(aabb_tree_t), intent(in) :: this
     logical :: valid
 
@@ -895,7 +890,6 @@ contains
 
   !> @brief Prints the tree.
   subroutine aabb_tree_print(this)
-    use stack, only: stack_i4_t
     class(aabb_tree_t), intent(inout) :: this
     type(stack_i4_t) :: simple_stack
 

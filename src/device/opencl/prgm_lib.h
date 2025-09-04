@@ -17,14 +17,17 @@ extern void *dirichlet_program;
 /** Device Inflow kernels */
 extern void *inflow_program;
 
-/** Device No-slip wall kernels */
-extern void *no_slip_wall_program;
+/** Device zero dirichlet kernels */
+extern void *zero_dirichlet_program;
 
 /** Device Symmetry kernels */
 extern void *symmetry_program;
 
 /** Device Facet normal kernels */
 extern void *facet_normal_program;
+
+/** Device Neumann kernels */
+extern void *neumann_program;
 
 /** Device Blasius profile kernel */
 extern void *inhom_dirichlet_program;
@@ -59,6 +62,13 @@ extern void *rhs_maker_program;
 /** Device pnpn residual kernels */
 extern void *pnpn_res_program;
 
+/** Device euler residual kernels */
+extern void *euler_res_program;
+
+/** Device compressible ops kernels */
+extern void *compressible_ops_compute_max_wave_speed_program;
+extern void *compressible_ops_compute_entropy_program;
+
 /** Device fdm kernels */
 extern void *fdm_program;
 
@@ -80,6 +90,11 @@ extern void *scalar_residual_program;
 /** Device lambda2 kernel */
 extern void *lambda2_program;
 
+/** Device compute_max_wave_speed kernel */
+extern void *compute_max_wave_speed_program;
+
+/** Device filter kernel */
+extern void *mapping_program;
 
 
 #endif

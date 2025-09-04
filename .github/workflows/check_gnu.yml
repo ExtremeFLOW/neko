@@ -12,7 +12,7 @@ on:
         description: "The version of the JSON-Fortran library to use."
         type: string
         required: false
-        default: "8.3.0"
+        default: "8.4.0"
       pfunit-version:
         description: "The version of the pFUnit library to use."
         type: string
@@ -25,41 +25,104 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, macos-13]
-        compiler: [gfortran-10, gfortran-11, gfortran-12]
+        os: [ubuntu-24.04, ubuntu-24.04-arm, macos-13, macos-15]
+        compiler: [gfortran-12, gfortran-13, gfortran-14, gfortran-15]
         backend: [cpu, cuda, hip, opencl]
         precision: [sp, dp]
         exclude:
-          - os: ubuntu-20.04
-            compiler: gfortran-11
-          - os: ubuntu-20.04
-            compiler: gfortran-12
-          - os: ubuntu-20.04
+          - os: ubuntu-24.04
             backend: opencl
+          - os: ubuntu-24.04-arm
+            backend: cuda
+          - os: ubuntu-24.04-arm
+            backend: hip
+          - os: ubuntu-24.04-arm
+            backend: opencl
+          - os: ubuntu-24.04-arm
+            compiler: gfortran-12
+          - os: ubuntu-24.04-arm
+            compiler: gfortran-13
+          - os: ubuntu-24.04-arm
+            compiler: gfortran-15
+          - os: ubuntu-24.04
+            compiler: gfortran-15
           - os: macos-13
-            compiler: gfortran-10
+            compiler: gfortran-12
+          - os: macos-13
+            compiler: gfortran-13
+          - os: macos-13
+            compiler: gfortran-14
           - os: macos-13
             backend: cuda
           - os: macos-13
             backend: hip
+          - os: macos-15
+            compiler: gfortran-12
+          - os: macos-15
+            compiler: gfortran-13
+          - os: macos-15
+            compiler: gfortran-14
+          - os: macos-15
+            backend: cuda
+          - os: macos-15
+            backend: hip
+          - compiler: gfortran-12
+            backend: cuda
+          - compiler: gfortran-12
+            backend: hip
+          - compiler: gfortran-13
+            backend: cuda
+          - compiler: gfortran-13
+            backend: hip
+          - compiler: gfortran-15
+            backend: cuda
+          - compiler: gfortran-15
+            backend: hip
 
         include:
-          - os: ubuntu-20.04
+          - os: ubuntu-24.04
             setup-env: |
               sudo apt-get update
               sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf \
                 automake autotools-dev libopenblas-dev make git m4 python3 \
-                cmake-curses-gui
+                python3-pip cmake-curses-gui
+              python3 -m venv myenv
+              source myenv/bin/activate
+              pip install pytest json5 numpy
+              echo "nproc=$(nproc)" >> $GITHUB_OUTPUT
+              echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
+
+          - os: ubuntu-24.04-arm
+            setup-env: |
+              sudo apt-get update
+              sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf \
+                automake autotools-dev libopenblas-dev make git m4 python3 \
+                python3-pip cmake-curses-gui
+              python3 -m venv myenv
+              source myenv/bin/activate
+              pip install pytest json5 numpy
               echo "nproc=$(nproc)" >> $GITHUB_OUTPUT
               echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
 
           - os: macos-13
             setup-env: |
-              export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
               brew install openmpi
               brew install automake
-              brew install gcc@11
-              brew install gcc@12
+              brew install python
+              python3 -m venv myenv
+              source myenv/bin/activate
+              pip install pytest json5 numpy
+              echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
+              echo "os-version=$(sw_vers -productName)-$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
+
+          - os: macos-15
+            setup-env: |
+              brew install openmpi
+              brew install automake
+              brew install libtool
+              python3 -m venv myenv
+              source myenv/bin/activate
+              pip install pytest json5 numpy
               echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
               echo "os-version=$(sw_vers -productName)-$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
 
@@ -71,6 +134,8 @@ jobs:
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none
       RP: ${{ matrix.precision }}
+      NEKO_EXEC: ${{ github.workspace }}/src/neko
+      MAKENEKO_EXEC: ${{ github.workspace }}/makeneko
 
     steps:
       - name: Checkout
@@ -123,9 +188,12 @@ jobs:
         env:
           PFUNIT_DIR: ${{ steps.get-pfunit.outputs.install-dir }}
         run: |
+          mkdir ${{ github.workspace }}/install
+          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${{ github.workspace }}/install/lib/pkgconfig" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${{ github.workspace }}/install/lib" >> $GITHUB_ENV
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" --with-pfunit=$PFUNIT_DIR --enable-real=${RP}
-          make -j${{ steps.setup-env.outputs.nproc }}
+          ./configure FC=${FC} FCFLAGS="-g -O2 -pedantic -std=f2008 -w" --with-pfunit=$PFUNIT_DIR --enable-real=${RP} --prefix=${{ github.workspace }}/install
+          make -j${{ steps.setup-env.outputs.nproc }} install
 
       - name: Build (CUDA backend)
         if: matrix.backend == 'cuda'
@@ -140,7 +208,7 @@ jobs:
         run: |
           # Following the instructions from https://rocm.docs.amd.com/projects/install-on-linux/en/latest/install/quick-start.html
 
-          wget -r -np -nd -A 'amdgpu*.deb' https://repo.radeon.com/amdgpu-install/latest/ubuntu/focal/
+          wget -r -np -nd -A 'amdgpu*.deb' https://repo.radeon.com/amdgpu-install/latest/ubuntu/noble/
           sudo apt install ./amdgpu-install_*.deb
 
           sudo apt-get update && sudo apt-get install -y amdgpu-dkms rocm-dev
@@ -159,20 +227,14 @@ jobs:
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" --enable-real=${RP} --with-opencl
           make -j ${{ steps.setup-env.outputs.nproc }}
 
-      - name: Regression test FP32
-        if: matrix.backend == 'cpu' && matrix.precision == 'sp'
+      - name: Integration tests
+        if: matrix.backend == 'cpu'
         run: |
-           cd reg_test/cylinder
-           ./test_easy.sh 1 sp
+           source myenv/bin/activate
+           chmod +x $MAKENEKO_EXEC
+           cd tests/integration
+           pytest --max_nprocs=2 --real_precision=${RP}
            cd ../..
-
-      - name: Regression test FP64
-        if: matrix.backend == 'cpu' && matrix.precision == 'dp'
-        run: |
-           cd reg_test/cylinder
-           ./test.sh 1 dp
-           cd ../..
-
 
       - name: Check
         if: matrix.backend == 'cpu'
@@ -184,8 +246,18 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Test report - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
-          path: tests/test-suite.log
+          path: tests/unit/test-suite.log
           retention-days: 2
+
+      - name: Archive integration test report
+        if: matrix.backend == 'cpu' && failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Integration test logs - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
+          path: |
+            tests/integration/logs
+            tests/integration/**/*.csv
+          retention-days: 1
 
       - name: Dist (CPU backend)
         if: matrix.backend == 'cpu'

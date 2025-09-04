@@ -32,17 +32,35 @@
 !
 !> Implements the `brinkman_source_term_t` type.
 module brinkman_source_term
-  use num_types, only: rp, dp
-  use field, only: field_t
-  use field_list, only: field_list_t
-  use json_module, only: json_file
-  use json_utils, only: json_get, json_get_or_default, json_extract_item
-  use field_registry, only: neko_field_registry
-  use source_term, only: source_term_t
-  use coefs, only: coef_t
-  use neko_config, only: NEKO_BCKND_DEVICE
-  use utils, only: neko_error
-  use field_math, only: field_subcol3
+  use aabb, only : aabb_t, get_aabb
+  use coefs, only : coef_t
+  use device, only : device_memcpy, HOST_TO_DEVICE
+  use device_math, only : device_pwmax, device_cfill_mask
+  use field, only : field_t
+  use field_list, only : field_list_t
+  use field_math, only : field_subcol3, field_copy
+  use field_registry, only : neko_field_registry
+  use mappings, only : smooth_step_field, step_function_field, &
+       permeability_field
+  use file, only : file_t
+  use json_module, only : json_file, json_core, json_value
+  use json_utils, only : json_get, json_get_or_default, json_extract_item
+  use logger, only : neko_log, LOG_SIZE
+  use math, only : pwmax, cfill_mask
+  use tri_mesh, only : tri_mesh_t
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use num_types, only : rp, dp
+  use point_zone, only : point_zone_t
+  use point_zone_registry, only : neko_point_zone_registry
+  use profiler, only : profiler_start_region, profiler_end_region
+  use signed_distance, only : signed_distance_field
+  use source_term, only : source_term_t
+  use utils, only : neko_error
+  use filter, only : filter_t
+  use PDE_filter, only : PDE_filter_t
+  use fld_file_output, only : fld_file_output_t
+  use num_types, only : sp
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -52,10 +70,14 @@ module brinkman_source_term
   type, public, extends(source_term_t) :: brinkman_source_term_t
      private
 
+     !> The unfiltered indicator field
+     type(field_t) :: indicator_unfiltered
      !> The value of the source term.
      type(field_t) :: indicator
      !> Brinkman permeability field.
      type(field_t) :: brinkman
+     !> Filter
+     class(filter_t), allocatable :: filter
    contains
      !> The common constructor using a JSON object.
      procedure, public, pass(this) :: init => &
@@ -69,6 +91,7 @@ module brinkman_source_term
      ! Private methods
      procedure, pass(this) :: init_boundary_mesh
      procedure, pass(this) :: init_point_zone
+
   end type brinkman_source_term_t
 
 contains
@@ -80,24 +103,18 @@ contains
   !! @param json The JSON object for the source.
   !! @param fields A list of fields for adding the source values.
   !! @param coef The SEM coeffs.
-  subroutine brinkman_source_term_init_from_json(this, json, fields, coef)
-    use file, only: file_t
-    use tri_mesh, only: tri_mesh_t
-    use device, only: device_memcpy, HOST_TO_DEVICE
-    use filters, only: smooth_step_field, step_function_field, &
-         permeability_field
-    use signed_distance, only: signed_distance_field
-    use profiler, only: profiler_start_region, profiler_end_region
-    use json_module, only: json_core, json_value
-    implicit none
-
+  !! @param variable_name The name of the variable where the source term acts.
+  subroutine brinkman_source_term_init_from_json(this, json, fields, coef, &
+       variable_name)
     class(brinkman_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    type(field_list_t), intent(inout), target :: fields
-    type(coef_t), intent(inout), target :: coef
+    type(field_list_t), intent(in), target :: fields
+    type(coef_t), intent(in), target :: coef
+    character(len=*), intent(in) :: variable_name
     real(kind=rp) :: start_time, end_time
 
     character(len=:), allocatable :: filter_type
+    real(kind=rp) :: filter_radius
     real(kind=rp), dimension(:), allocatable :: brinkman_limits
     real(kind=rp) :: brinkman_penalty
 
@@ -108,6 +125,8 @@ contains
     type(json_file) :: object_settings
     integer :: n_regions
     integer :: i
+    type(fld_file_output_t) :: output
+
 
     ! Mandatory fields for the general source term
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
@@ -147,41 +166,66 @@ contains
        call json_get_or_default(object_settings, 'type', object_type, 'none')
 
        select case (object_type)
-         case ('boundary_mesh')
+       case ('boundary_mesh')
           call this%init_boundary_mesh(object_settings)
-         case ('point_zone')
+       case ('point_zone')
           call this%init_point_zone(object_settings)
 
-         case ('none')
+       case ('none')
           call object_settings%print()
           call neko_error('Brinkman source term objects require a region type')
-         case default
+       case default
           call neko_error('Brinkman source term unknown region type')
        end select
 
     end do
 
-    ! Run filter on the full indicator field to smooth it out.
-    call json_get_or_default(json, 'filter.type', filter_type, 'none')
+    ! ------------------------------------------------------------------------ !
+    ! Filter the indicator field
 
+    call json_get_or_default(json, 'filter.type', filter_type, 'none')
     select case (filter_type)
-      case ('none')
-       ! Do nothing
-      case default
+    case ('PDE')
+       ! Initialize the unfiltered design field
+       call this%indicator_unfiltered%init(coef%dof)
+
+       ! Allocate a PDE filter
+       allocate(PDE_filter_t::this%filter)
+
+       ! Initialize the filter
+       call this%filter%init(json, coef)
+
+       ! Copy the current indicator to unfiltered (essentially a rename)
+       call field_copy(this%indicator_unfiltered, this%indicator)
+
+       ! Apply the filter
+       call this%filter%apply(this%indicator, this%indicator_unfiltered)
+
+       ! Set up sampler to include the unfiltered and filtered fields
+       call output%init(sp, 'brinkman', 3)
+       call output%fields%assign_to_field(1, this%indicator_unfiltered)
+       call output%fields%assign_to_field(2, this%indicator)
+       call output%fields%assign_to_field(3, this%brinkman)
+
+    case ('none')
+       ! Set up sampler to include the unfiltered field
+       call output%init(sp, 'brinkman', 2)
+       call output%fields%assign_to_field(1, this%indicator)
+       call output%fields%assign_to_field(2, this%brinkman)
+
+    case default
        call neko_error('Brinkman source term unknown filter type')
     end select
 
     ! ------------------------------------------------------------------------ !
     ! Compute the permeability field
 
-    call permeability_field(this%brinkman, this%indicator, &
-         & brinkman_limits(1), brinkman_limits(2), brinkman_penalty)
+    this%brinkman = this%indicator
+    call permeability_field(this%brinkman, &
+         brinkman_limits(1), brinkman_limits(2), brinkman_penalty)
 
-    ! Copy the permeability field to the device
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%brinkman%x, this%brinkman%x_d, &
-            this%brinkman%dof%size(), HOST_TO_DEVICE, .true.)
-    end if
+    ! Sample the Brinkman field
+    call output%sample(0.0_rp)
 
   end subroutine brinkman_source_term_init_from_json
 
@@ -192,15 +236,14 @@ contains
     call this%indicator%free()
     call this%brinkman%free()
     call this%free_base()
+
   end subroutine brinkman_source_term_free
 
   !> Computes the source term and adds the result to `fields`.
-  !! @param t The time value.
-  !! @param tstep The current time-step.
-  subroutine brinkman_source_term_compute(this, t, tstep)
+  !! @param time The time state.
+  subroutine brinkman_source_term_compute(this, time)
     class(brinkman_source_term_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     type(field_t), pointer :: u, v, w, fu, fv, fw
     integer :: n
 
@@ -225,16 +268,6 @@ contains
 
   !> Initializes the source term from a boundary mesh.
   subroutine init_boundary_mesh(this, json)
-    use file, only: file_t
-    use tri_mesh, only: tri_mesh_t
-    use device, only: device_memcpy, HOST_TO_DEVICE
-    use filters, only: smooth_step_field, step_function_field, &
-         permeability_field
-    use signed_distance, only: signed_distance_field
-    use profiler, only: profiler_start_region, profiler_end_region
-    use aabb, only : aabb_t, get_aabb
-    implicit none
-
     class(brinkman_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
 
@@ -258,6 +291,7 @@ contains
     type(field_t) :: temp_field
     type(aabb_t) :: mesh_box, target_box
     integer :: idx_p
+    character(len=LOG_SIZE) :: log_msg
 
     ! ------------------------------------------------------------------------ !
     ! Read the options for the boundary mesh
@@ -270,7 +304,7 @@ contains
     ! ------------------------------------------------------------------------ !
     ! Load the immersed boundary mesh
 
-    mesh_file = file_t(mesh_file_name)
+    call mesh_file%init(mesh_file_name)
     call mesh_file%read(boundary_mesh)
 
     if (boundary_mesh%nelv .eq. 0) then
@@ -284,9 +318,9 @@ contains
          mesh_transform, 'none')
 
     select case (mesh_transform)
-      case ('none')
+    case ('none')
        ! Do nothing
-      case ('bounding_box')
+    case ('bounding_box')
        call json_get(json, 'mesh_transform.box_min', box_min)
        call json_get(json, 'mesh_transform.box_max', box_max)
        call json_get_or_default(json, 'mesh_transform.keep_aspect_ratio', &
@@ -294,7 +328,7 @@ contains
 
        if (size(box_min) .ne. 3 .or. size(box_max) .ne. 3) then
           call neko_error('Case file: mesh_transform. &
-               &box_min and box_max must be 3 element arrays of reals')
+          &box_min and box_max must be 3 element arrays of reals')
        end if
 
        call target_box%init(box_min, box_max)
@@ -313,7 +347,15 @@ contains
                scaling * boundary_mesh%points(idx_p)%x + translation
        end do
 
-      case default
+       ! Report the transformation applied
+       write(log_msg, '(A)') "The following transformation was applied:"
+       call neko_log%message(log_msg)
+       write(log_msg, '(A, 3F12.6)') "Scaling: ", scaling
+       call neko_log%message(log_msg)
+       write(log_msg, '(A, 3F12.6)') "Translation: ", translation
+       call neko_log%message(log_msg)
+
+    case default
        call neko_error('Unknown mesh transform')
     end select
 
@@ -325,93 +367,76 @@ contains
     ! compute the signed distance function. This should be replaced with a
     ! more efficient method, such as a tree search.
 
-    call temp_field%init(this%indicator%dof)
+    call temp_field%init(this%coef%dof)
 
     ! Select how to transform the distance field to a design field
     select case (distance_transform)
-      case ('smooth_step')
+    case ('smooth_step')
        call json_get(json, 'distance_transform.value', scalar_d)
        scalar_r = real(scalar_d, kind=rp)
 
        call signed_distance_field(temp_field, boundary_mesh, scalar_d)
        call smooth_step_field(temp_field, scalar_r, 0.0_rp)
 
-      case ('step')
+    case ('step')
 
        call json_get(json, 'distance_transform.value', scalar_d)
+       scalar_r = real(scalar_d, kind=rp)
 
        call signed_distance_field(temp_field, boundary_mesh, scalar_d)
        call step_function_field(temp_field, scalar_r, 1.0_rp, 0.0_rp)
 
-      case default
+    case default
        call neko_error('Unknown distance transform')
     end select
 
-    ! ------------------------------------------------------------------------ !
-    ! Run filter on the temporary indicator field to smooth it out.
-    call json_get_or_default(json, 'filter.type', filter_type, 'none')
-
-    select case (filter_type)
-      case ('none')
-       ! Do nothing
-      case default
-       call neko_error('Unknown filter type')
-    end select
-
     ! Update the global indicator field by max operator
-    this%indicator%x = max(this%indicator%x, temp_field%x)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_pwmax(this%indicator%x_d, temp_field%x_d, &
+            this%indicator%size())
+    else
+       this%indicator%x = max(this%indicator%x, temp_field%x)
+    end if
 
   end subroutine init_boundary_mesh
 
   !> Initializes the source term from a point zone.
   subroutine init_point_zone(this, json)
-    use filters, only: smooth_step_field, step_function_field, &
-         permeability_field
-    use signed_distance, only: signed_distance_field
-    use profiler, only: profiler_start_region, profiler_end_region
-    use point_zone, only: point_zone_t
-    use device, only: device_memcpy, HOST_TO_DEVICE
-    use point_zone_registry, only: neko_point_zone_registry
-    implicit none
-
     class(brinkman_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
 
     ! Options
     character(len=:), allocatable :: zone_name
-    character(len=:), allocatable :: filter_type
 
     type(field_t) :: temp_field
-    class(point_zone_t), pointer :: my_point_zone
+    class(point_zone_t), pointer :: zone
     integer :: i
 
     ! ------------------------------------------------------------------------ !
     ! Read the options for the point zone
 
     call json_get(json, 'name', zone_name)
-    call json_get_or_default(json, 'filter.type', filter_type, 'none')
 
     ! Compute the indicator field
+    call temp_field%init(this%coef%dof)
 
-    call temp_field%init(this%indicator%dof)
+    zone => neko_point_zone_registry%get_point_zone(zone_name)
 
-    my_point_zone => neko_point_zone_registry%get_point_zone(zone_name)
-
-    do i = 1, my_point_zone%size
-       temp_field%x(my_point_zone%mask(i), 1, 1, 1) = 1.0_rp
-    end do
-
-    ! Run filter on the temporary indicator field to smooth it out.
-
-    select case (filter_type)
-      case ('none')
-       ! Do nothing
-      case default
-       call neko_error('Unknown filter type')
-    end select
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_cfill_mask(temp_field%x_d, 1.0_rp, temp_field%size(), &
+            zone%mask%get_d(), zone%size)
+    else
+       call cfill_mask(temp_field%x, 1.0_rp, temp_field%size(), &
+            zone%mask%get(), zone%size)
+    end if
 
     ! Update the global indicator field by max operator
-    this%indicator%x = max(this%indicator%x, temp_field%x)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_pwmax(this%indicator%x_d, temp_field%x_d, &
+            this%indicator%size())
+    else
+       this%indicator%x = max(this%indicator%x, temp_field%x)
+    end if
 
   end subroutine init_point_zone
 

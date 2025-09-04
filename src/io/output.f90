@@ -47,6 +47,11 @@ module output
      procedure(output_sample), pass(this), deferred :: sample
   end type output_t
 
+  !> Wrapper around an `output_t` pointer.
+  type, public :: output_ptr_t
+     class(output_t), pointer :: ptr => null()
+  end type output_ptr_t
+
   !> Abstract interface for sampling an output type at time @a t
   abstract interface
      subroutine output_sample(this, t)
@@ -62,16 +67,15 @@ contains
   !> Output constructor.
   !! @param fname Name of the output file.
   !! @param precision Output precision (sp or dp).
-  subroutine output_init(this, fname, precision)
+  subroutine output_init(this, fname, precision, layout, overwrite)
     class(output_t), intent(inout) :: this
     character(len=*), intent(inout) :: fname
     integer, intent(in), optional :: precision
+    integer, intent(in), optional :: layout
+    logical, intent(in), optional :: overwrite
 
-    if (present(precision)) then
-       this%file_ = file_t(fname, precision=precision)
-    else
-       this%file_ = file_t(fname)
-    end if
+    call this%file_%init(fname, precision = precision, layout = layout, &
+         overwrite = overwrite)
 
   end subroutine output_init
 

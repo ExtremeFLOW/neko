@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2022, The Neko Authors
+! Copyright (c) 2019-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -33,17 +33,17 @@
 !> Legacy VTK file format
 !! @details This module defines interface to read/write legacy VTK file
 module vtk_file
-  use num_types
-  use generic_file
-  use utils
-  use mesh
-  use field
-  use dofmap
-  use mesh_field
-  use tet_mesh
-  use tri_mesh
-  use logger
-  use comm
+  use num_types, only : rp, dp
+  use generic_file, only : generic_file_t
+  use utils, only : neko_error, filename_suffix_pos
+  use mesh, only : mesh_t
+  use field, only : field_t
+  use dofmap, only : dofmap_t
+  use mesh_field, only : mesh_fld_t
+  use tet_mesh, only : tet_mesh_t
+  use tri_mesh, only : tri_mesh_t
+  use logger, only : neko_log
+  use comm, only : pe_size, pe_rank
   implicit none
   private
 
@@ -68,7 +68,7 @@ contains
     type(tet_mesh_t), pointer :: tet_msh => null()
     type(tri_mesh_t), pointer :: tri_msh => null()
     character(len=10) :: id_str
-    integer:: suffix_pos
+    integer:: suffix_pos, file_unit
 
     select type(data)
     type is (mesh_t)
@@ -92,18 +92,18 @@ contains
     if (pe_size .gt. 1) then
        write(id_str,'(i10.10)') pe_rank
        suffix_pos = filename_suffix_pos(this%fname)
-       open(unit=9, file=trim(this%fname(1:suffix_pos-1))//id_str//'.vtk')
+       open(newunit=file_unit, file=trim(this%fname(1:suffix_pos-1))//id_str//'.vtk')
     else
-       open(unit=9, file=trim(this%fname))
+       open(newunit=file_unit, file=trim(this%fname))
     end if
 
     ! Write legacy header
-    write(9, fmt='(A)') '# vtk DataFile Version 2.0'
-    write(9, fmt='(A)') 'Neko'
-    write(9, fmt='(A)') 'ASCII'
+    write(file_unit, fmt='(A)') '# vtk DataFile Version 2.0'
+    write(file_unit, fmt='(A)') 'Neko'
+    write(file_unit, fmt='(A)') 'ASCII'
 
     if (associated(msh)) then
-       write(9, fmt='(A)') 'DATASET UNSTRUCTURED_GRID'
+       write(file_unit, fmt='(A)') 'DATASET UNSTRUCTURED_GRID'
 
        call vtk_file_write_mesh(9, msh)
 
@@ -113,22 +113,22 @@ contains
           call vtk_file_write_point_data(9, fld)
        end if
     else if (associated(dm)) then
-       write(9, fmt='(A)') 'DATASET POLYDATA'
+       write(file_unit, fmt='(A)') 'DATASET POLYDATA'
 
        call vtk_file_write_dofmap_coordinates(9, dm)
 
        call vtk_file_write_dofmap_data(9, dm)
     else if (associated(tet_msh)) then
-       write(9, fmt='(A)') 'DATASET UNSTRUCTURED_GRID'
+       write(file_unit, fmt='(A)') 'DATASET UNSTRUCTURED_GRID'
        call vtk_file_write_tet_mesh(9, tet_msh)
     else if (associated(tri_msh)) then
-       write(9, fmt='(A)') 'DATASET UNSTRUCTURED_GRID'
+       write(file_unit, fmt='(A)') 'DATASET UNSTRUCTURED_GRID'
        call vtk_file_write_tri_mesh(9, tri_msh)
     else
        call neko_error('Invalid data')
     end if
 
-    close(9)
+    close(file_unit)
   end subroutine vtk_file_write
 
   subroutine vtk_file_read(this, data)
@@ -143,8 +143,8 @@ contains
     integer :: unit
     type(mesh_t), intent(inout) :: msh
     integer :: i, j, vtk_type
-    integer,  dimension(8), parameter :: vcyc_to_sym = (/1, 2, 4, 3, &
-                                                         5, 6, 8, 7/)
+    integer, dimension(8), parameter :: vcyc_to_sym = (/1, 2, 4, 3, &
+         5, 6, 8, 7/)
     ! Dump coordinates
     write(unit, fmt='(A,I8,A)') 'POINTS', msh%mpts,' double'
     do i = 1, msh%mpts
@@ -152,7 +152,7 @@ contains
     end do
 
     ! Dump cells
-    write(unit, fmt='(A,I8,I8)')  'CELLS', msh%nelv, msh%nelv*(msh%npts+1)
+    write(unit, fmt='(A,I8,I8)') 'CELLS', msh%nelv, msh%nelv*(msh%npts+1)
     j = 0
     do i = 1, msh%nelv
        write(unit, fmt='(I8,8I8)') msh%npts, &
@@ -317,7 +317,7 @@ contains
     end do
 
     ! Dump cells
-    write(unit, fmt='(A,I8,I8)')  'CELLS', tet_msh%nelv, tet_msh%nelv*(npts+1)
+    write(unit, fmt='(A,I8,I8)') 'CELLS', tet_msh%nelv, tet_msh%nelv*(npts+1)
     j = 0
     do i = 1, tet_msh%nelv
        write(unit, fmt='(I8,8I8)') npts, &
@@ -348,7 +348,7 @@ contains
     end do
 
     ! Dump cells
-    write(unit, fmt='(A,I8,I8)')  'CELLS', tri_msh%nelv, tri_msh%nelv*(npts+1)
+    write(unit, fmt='(A,I8,I8)') 'CELLS', tri_msh%nelv, tri_msh%nelv*(npts+1)
     j = 0
     do i = 1, tri_msh%nelv
        write(unit, fmt='(I8,8I8)') npts, &

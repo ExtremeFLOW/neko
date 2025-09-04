@@ -40,6 +40,7 @@ module pnpn_residual
   use space, only : space_t
   use mesh, only : mesh_t
   use num_types, only : rp
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 
@@ -57,27 +58,29 @@ module pnpn_residual
 
   abstract interface
      subroutine prs_res(p, p_res, u, v, w, u_e, v_e, w_e, f_x, f_y, f_z, c_xh,&
-          gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt, mu, rho)
+          gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt, mu, rho, event)
        import field_t
        import Ax_t
        import gs_t
        import facet_normal_t
        import coef_t
        import rp
+       import c_ptr
        type(field_t), intent(inout) :: p, u, v, w
-       type(field_t), intent(inout) :: u_e, v_e, w_e !< time-extrapolated velocity
+       type(field_t), intent(in) :: u_e, v_e, w_e !< time-extrapolated velocity
        type(field_t), intent(inout) :: p_res
        !> Momentum source terms
-       type(field_t), intent(inout) :: f_x, f_y, f_z
+       type(field_t), intent(in) :: f_x, f_y, f_z
        type(coef_t), intent(inout) :: c_Xh
        type(gs_t), intent(inout) :: gs_Xh
-       type(facet_normal_t), intent(inout) :: bc_prs_surface
-       type(facet_normal_t), intent(inout) :: bc_sym_surface
+       type(facet_normal_t), intent(in) :: bc_prs_surface
+       type(facet_normal_t), intent(in) :: bc_sym_surface
        class(Ax_t), intent(inout) :: Ax
-       real(kind=rp), intent(inout) :: bd
+       real(kind=rp), intent(in) :: bd
        real(kind=rp), intent(in) :: dt
        type(field_t), intent(in) :: mu
        type(field_t), intent(in) :: rho
+       type(c_ptr), intent(inout) :: event
      end subroutine prs_res
   end interface
 
@@ -97,7 +100,7 @@ module pnpn_residual
        type(space_t), intent(inout) :: Xh
        type(field_t), intent(inout) :: p, u, v, w
        type(field_t), intent(inout) :: u_res, v_res, w_res
-       type(field_t), intent(inout) :: f_x, f_y, f_z
+       type(field_t), intent(in) :: f_x, f_y, f_z
        type(coef_t), intent(inout) :: c_Xh
        type(field_t), intent(in) :: mu
        type(field_t), intent(in) :: rho
@@ -141,10 +144,10 @@ module pnpn_residual
      module subroutine pnpn_vel_res_stress_factory(object)
        class(pnpn_vel_res_t), allocatable, intent(inout) :: object
      end subroutine pnpn_vel_res_stress_factory
-     
+
   end interface
 
   public :: pnpn_prs_res_factory, pnpn_vel_res_factory, &
        pnpn_prs_res_stress_factory, pnpn_vel_res_stress_factory
-  
+
 end module pnpn_residual

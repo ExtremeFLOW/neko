@@ -1,0 +1,38 @@
+{
+    "version": 1.0,
+    "case": {
+        "mesh_file": "box.nmsh",
+        "output_at_end": true,
+        "output_boundary": false,
+        "output_checkpoints": false,
+        "time": {
+            "end_time": 0.2,
+            "timestep": 0.0001,
+            "variable_timestep": true,
+            "target_cfl": 0.2
+        },
+        "numerics": {
+            "time_order": 4,
+            "polynomial_order": 3,
+            "c_avisc_low": 1.0
+        },
+        "fluid": {
+            "scheme": "compressible",
+            "gamma": 1.4,
+            "initial_condition": {
+                "type": "user"
+            },
+            "boundary_conditions": [],
+            "output_control": "nsamples",
+            "output_value": 100
+        },
+        "simulation_components": [
+            {
+                "type": "field_writer",
+                "fields": ["S"],
+                "output_control": "nsamples",
+                "output_value": 100
+            }
+        ]
+    }
+}

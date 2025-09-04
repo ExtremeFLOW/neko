@@ -33,19 +33,19 @@
 !> NEKTON session data reader
 !! @details This module is used to read NEKTON session data in ascii
 module rea_file
-  use generic_file
-  use num_types
-  use utils
-  use mesh
-  use point
-  use map
-  use rea
+  use generic_file, only : generic_file_t
+  use num_types, only : rp, dp
+  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS
+  use point, only :point_t
+  use map, only : map_t
+  use rea, only : rea_t, rea_free
   use re2_file, only: re2_file_t
-  use map_file
+  use map_file, only : map_file_t
   use comm
-  use datadist
-  use htable
-  use logger
+  use datadist, only : linear_dist_t
+  use htable, only : htable_pt_t
+  use logger, only : LOG_SIZE, neko_log, NEKO_LOG_DEBUG
+  use utils, only : neko_error, filename_chsuffix
   implicit none
   private
 
@@ -96,6 +96,7 @@ contains
     integer, parameter, dimension(6) :: facet_map = (/3, 2, 4, 1, 5, 6/)
     logical :: curve_skip = .false.
     character(len=LOG_SIZE) :: log_buf
+    integer :: file_unit
     ! ---- Offsets for conversion from internal zones to labeled zones
     integer :: user_labeled_zones(NEKO_MSH_MAX_ZLBLS)
     integer :: labeled_zone_offsets(NEKO_MSH_MAX_ZLBLS)
@@ -127,42 +128,42 @@ contains
     end if
 
 
-    open(unit=9,file=trim(this%fname), status='old', iostat=ierr)
+    open(newunit=file_unit,file=trim(this%fname), status='old', iostat=ierr)
     call neko_log%message('Reading NEKTON file ' // this%fname)
 
-    read(9, *)
-    read(9, *)
-    read(9, *) ndim
-    read(9, *) nparam
+    read(file_unit, *)
+    read(file_unit, *)
+    read(file_unit, *) ndim
+    read(file_unit, *) nparam
 
     if (.not. read_param) then
        ! Skip parameters
        do i = 1, nparam
-          read(9, *)
+          read(file_unit, *)
        end do
     else
        allocate(params(nparam))
        do i = 1, nparam
-          read(9, *) params(i)
+          read(file_unit, *) params(i)
        end do
     end if
 
     ! Skip passive scalars
-    read(9, *) nskip
+    read(file_unit, *) nskip
     do i = 1, nskip
-       read(9, *)
+       read(file_unit, *)
     end do
 
     ! Skip logic switches
-    read(9, *) nlogic
+    read(file_unit, *) nlogic
     do i = 1, nlogic
-       read(9, *)
+       read(file_unit, *)
     end do
 
     ! Read mesh info
-    read(9, *)
-    read(9, *)
-    read(9, *) nelgs,ndim, nelgv
+    read(file_unit, *)
+    read(file_unit, *)
+    read(file_unit, *) nelgs,ndim, nelgv
     if (nelgs .lt. 0) then
        re2_fname = trim(this%fname(1:scan(trim(this%fname), &
             '.', back=.true.)))//'re2'
@@ -176,7 +177,7 @@ contains
        call filename_chsuffix(this%fname, map_fname, 'map')
        inquire(file=map_fname, exist=read_map)
        if (read_map) then
-          call map_init(nm, nelgv, 2**ndim)
+          call nm%init(nelgv, 2**ndim)
           call map_file%init(map_fname)
           call map_file%read(nm)
        else
@@ -196,32 +197,32 @@ contains
        el_idx = 1
        pt_idx = 0
        do i = 1, nelgv
-          read(9, *)
+          read(file_unit, *)
           if (ndim .eq. 2) then
-             read(9, *) (xc(j),j=1,4)
-             read(9, *) (yc(j),j=1,4)
+             read(file_unit, *) (xc(j),j=1,4)
+             read(file_unit, *) (yc(j),j=1,4)
              if (i .ge. start_el .and. i .le. end_el) then
                 do j = 1, 4
                    p(j) = point_t(real(xc(j),dp), real(yc(j),dp),real(0d0,dp))
                    call rea_file_add_point(htp, p(j), pt_idx)
                 end do
                 ! swap vertices to keep symmetric vertex numbering in neko
-                call msh%add_element(el_idx, p(1), p(2), p(4), p(3))
+                call msh%add_element(el_idx, el_idx, p(1), p(2), p(4), p(3))
              end if
           else if (ndim .eq. 3) then
-             read(9, *) (xc(j),j=1,4)
-             read(9, *) (yc(j),j=1,4)
-             read(9, *) (zc(j),j=1,4)
-             read(9, *) (xc(j),j=5,8)
-             read(9, *) (yc(j),j=5,8)
-             read(9, *) (zc(j),j=5,8)
+             read(file_unit, *) (xc(j),j=1,4)
+             read(file_unit, *) (yc(j),j=1,4)
+             read(file_unit, *) (zc(j),j=1,4)
+             read(file_unit, *) (xc(j),j=5,8)
+             read(file_unit, *) (yc(j),j=5,8)
+             read(file_unit, *) (zc(j),j=5,8)
              if (i .ge. start_el .and. i .le. end_el) then
                 do j = 1, 8
                    p(j) = point_t(real(xc(j),dp), real(yc(j),dp), real(zc(j),dp))
                    call rea_file_add_point(htp, p(j), pt_idx)
                 end do
                 ! swap vertices to keep symmetric vertex numbering in neko
-                call msh%add_element(el_idx, &
+                call msh%add_element(el_idx, el_idx, &
                      p(1), p(2), p(4), p(3), p(5), p(6), p(8), p(7))
              end if
           end if
@@ -232,8 +233,8 @@ contains
 
        call htp%free()
 
-       read(9, *)
-       read(9, *) ncurve
+       read(file_unit, *)
+       read(file_unit, *) ncurve
        allocate(curve_data(5,8,nelgv))
        allocate(curve_element(nelgv))
        allocate(curve_type(8,nelgv))
@@ -247,7 +248,7 @@ contains
           end do
        end do
        do i = 1, ncurve
-          read(9, *) edge, el_idx, (curve(j),j=1,5), chtemp
+          read(file_unit, *) edge, el_idx, (curve(j),j=1,5), chtemp
           do j = 1, 5
              curve_data(j,edge,el_idx) = curve(j)
           end do
@@ -280,10 +281,10 @@ contains
        deallocate(curve_type)
 
        ! Read fluid boundary conditions
-       read(9,*)
-       read(9,*)
+       read(file_unit,*)
+       read(file_unit,*)
        if (.not. read_bcs) then ! Mark zones in the mesh
-          call neko_log%message("Reading boundary conditions", neko_log_debug)
+          call neko_log%message("Reading boundary conditions", NEKO_LOG_DEBUG)
           allocate(cbc(6,nelgv))
           allocate(bc_data(6,2*ndim,nelgv))
           off = 0
@@ -293,7 +294,7 @@ contains
              if (i .ge. start_el .and. i .le. end_el) then
                 el_idx = i - start_el + 1
                 do j = 1, 2*ndim
-                   read(9, *) cbc(j, i), (bc_data(l,j,i),l=1,6)
+                   read(file_unit, *) cbc(j, i), (bc_data(l,j,i),l=1,6)
                    sym_facet = facet_map(j)
 
                    select case(trim(cbc(j,i)))
@@ -428,11 +429,11 @@ contains
           end do
           deallocate(cbc)
           deallocate(bc_data)
-       else  ! Store bcs in a NEKTON session structure
+       else ! Store bcs in a NEKTON session structure
           allocate(cbc(6,nelgv))
           do i = 1, nelgv
              do j = 1, 2*ndim
-                read(9,'(a1, a3)') chtemp, cbc(j, i)
+                read(file_unit,'(a1, a3)') chtemp, cbc(j, i)
              end do
           end do
        end if
@@ -440,7 +441,7 @@ contains
        call msh%finalize()
 
        call neko_log%message('Done')
-       close(9)
+       close(file_unit)
     endif
 
   end subroutine rea_file_read
@@ -493,10 +494,10 @@ contains
 
     if (mark_label .lt. 1 .or. mark_label .gt. NEKO_MSH_MAX_ZLBLS) then
        call neko_error("You have reached the maximum amount of allowed labeled&
-& zones (max allowed: 20). This happened when converting re2 internal labels&
-& like e.g. 'w', 'V' or 'o' to labeled zones. Please reduce the number of&
-& labeled zones that you have defined or make sure that they are labeled&
-& from [1,...,20].")
+       & zones (max allowed: 20). This happened when converting re2 internal labels&
+       & like e.g. 'w', 'V' or 'o' to labeled zones. Please reduce the number of&
+       & labeled zones that you have defined or make sure that they are labeled&
+       & from [1,...,20].")
     end if
 
     if (print_info) then

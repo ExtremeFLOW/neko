@@ -33,12 +33,17 @@
 !> Defines an output for a fluid
 module fluid_output
   use num_types, only : rp
-  use fluid_scheme, only : fluid_scheme_t
+  use fluid_scheme_incompressible, only : fluid_scheme_incompressible_t
+  use fluid_scheme_compressible, only : fluid_scheme_compressible_t
+  use fluid_scheme_base, only : fluid_scheme_base_t
   use scalar_scheme, only : scalar_scheme_t
   use field_list, only : field_list_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use device
   use output, only : output_t
+  use scalars, only : scalars_t
+  use field_registry, only : neko_field_registry
+  use field, only : field_t
   implicit none
   private
 
@@ -46,52 +51,123 @@ module fluid_output
   type, public, extends(output_t) :: fluid_output_t
      type(field_list_t) :: fluid
    contains
+     procedure, pass(this) :: init => fluid_output_init
      procedure, pass(this) :: sample => fluid_output_sample
+     procedure, pass(this) :: free => fluid_output_free
   end type fluid_output_t
-
-  interface fluid_output_t
-     module procedure fluid_output_init
-  end interface fluid_output_t
 
 contains
 
-  function fluid_output_init(precision, fluid, scalar, name, path) result(this)
+  subroutine fluid_output_init(this, precision, fluid, scalar_fields, name, path, &
+       fmt, layout)
+    class(fluid_output_t), intent(inout) :: this
     integer, intent(inout) :: precision
-    class(fluid_scheme_t), intent(in), target :: fluid
-    class(scalar_scheme_t), intent(in), optional, target :: scalar
+    class(fluid_scheme_base_t), intent(in), target :: fluid
+    class(scalars_t), intent(in), optional, target :: scalar_fields
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path
-    type(fluid_output_t) :: this
+    character(len=*), intent(in), optional :: fmt
+    integer, intent(in), optional :: layout
     character(len=1024) :: fname
+    integer :: i, j, n_scalars
+    character(len=10) :: suffix
+    logical :: has_max_wave_speed, has_density
+    type(field_t), pointer :: max_wave_speed_field
+
+    suffix = '.fld'
+    if (present(fmt)) then
+       if (fmt .eq. 'adios2') then
+          suffix = '.bp'
+       end if
+    end if
 
     if (present(name) .and. present(path)) then
-       fname = trim(path) // trim(name) // '.fld'
+       fname = trim(path) // trim(name) // trim(suffix)
     else if (present(name)) then
-       fname = trim(name) // '.fld'
+       fname = trim(name) // trim(suffix)
     else if (present(path)) then
-       fname = trim(path) // 'field.fld'
+       fname = trim(path) // 'field' // trim(suffix)
     else
-       fname = 'field.fld'
+       fname = 'field' // trim(suffix)
     end if
 
-    call this%init_base(fname, precision)
-
-    if (present(scalar)) then
-       call this%fluid%init(5)
+    if (present(layout)) then
+       call this%init_base(fname, precision, layout)
     else
-       call this%fluid%init(4)
+       call this%init_base(fname, precision)
     end if
+
+    ! Calculate total number of fields
+    n_scalars = 0
+    if (present(scalar_fields)) then
+       n_scalars = size(scalar_fields%scalar_fields)
+    end if
+
+    ! Check if max_wave_speed field exists (for compressible flows)
+    has_max_wave_speed = neko_field_registry%field_exists("max_wave_speed")
+
+    ! Check if density field exists (for compressible flows)
+    ! We need to check the solver type here since the incompressible
+    ! solver also has a rho field due to the material properties
+    select type (fluid)
+    class is (fluid_scheme_compressible_t)
+       has_density = associated(fluid%rho)
+    class default
+       has_density = .false.
+    end select
+
+    ! Initialize field list with appropriate size
+    ! Standard fields: p, u, v, w (4)
+    ! Scalar fields: n_scalars
+    ! Compressible fields: density + max_wave_speed (2 additional)
+    i = 4
+
+    if (has_density) then
+       i = i + 1
+    end if
+
+    if (has_max_wave_speed) then
+       i = i + 1
+    end if
+
+    call this%fluid%init(i + n_scalars)
 
     call this%fluid%assign(1, fluid%p)
     call this%fluid%assign(2, fluid%u)
     call this%fluid%assign(3, fluid%v)
     call this%fluid%assign(4, fluid%w)
 
-    if (present(scalar)) then
-       call this%fluid%assign(5, scalar%s)
+    ! Assign all scalar fields first
+    i = 4
+    if (present(scalar_fields)) then
+       do j = 1, n_scalars
+          i = i + 1
+          call this%fluid%assign(i, scalar_fields%scalar_fields(j)%s)
+       end do
     end if
 
-  end function fluid_output_init
+    ! Add density field if it exists (for compressible flows)
+    if (has_density) then
+       i = i + 1
+       call this%fluid%assign(i, fluid%rho)
+    end if
+
+    ! Add max_wave_speed field if it exists (for compressible flows)
+    if (has_max_wave_speed) then
+       i = i + 1
+       max_wave_speed_field => neko_field_registry%get_field("max_wave_speed")
+       call this%fluid%assign(i, max_wave_speed_field)
+    end if
+
+  end subroutine fluid_output_init
+
+  !> Destroy a fluid output list
+  subroutine fluid_output_free(this)
+    class(fluid_output_t), intent(inout) :: this
+
+    call this%fluid%free()
+
+  end subroutine fluid_output_free
 
   !> Sample a fluid solution at time @a t
   subroutine fluid_output_sample(this, t)
@@ -105,7 +181,7 @@ contains
          do i = 1, size(fields)
             call device_memcpy(fields(i)%ptr%x, fields(i)%ptr%x_d, &
                  fields(i)%ptr%dof%size(), DEVICE_TO_HOST, &
-                 sync=(i .eq. size(fields))) ! Sync on the last field
+                 sync = (i .eq. size(fields))) ! Sync on the last field
          end do
        end associate
 

@@ -33,36 +33,38 @@
 !> MPI derived types
 module neko_mpi_types
   use comm
-  use re2
-  use nmsh
-  use stl
+  use mpi_f08
+  use re2, only : re2v1_xyz_t, re2v1_xy_t, re2v1_curve_t, re2v1_bc_t, &
+       re2v2_xyz_t, re2v2_xy_t, re2v2_curve_t, re2v2_bc_t
+  use nmsh, only : nmsh_quad_t, nmsh_hex_t, nmsh_zone_t, nmsh_curve_el_t
+  use stl, only : stl_hdr_t, stl_triangle_t
   implicit none
   private
 
-  type(MPI_Datatype) :: MPI_NMSH_HEX    !< MPI derived type for 3D Neko nmsh data
-  type(MPI_Datatype) :: MPI_NMSH_QUAD   !< MPI derived type for 2D Neko nmsh data
-  type(MPI_Datatype) :: MPI_NMSH_ZONE   !< MPI derived type for Neko nmsh zone data
-  type(MPI_Datatype) :: MPI_NMSH_CURVE   !< MPI derived type for Neko nmsh curved elements
+  type(MPI_Datatype) :: MPI_NMSH_HEX !< MPI derived type for 3D Neko nmsh data
+  type(MPI_Datatype) :: MPI_NMSH_QUAD !< MPI derived type for 2D Neko nmsh data
+  type(MPI_Datatype) :: MPI_NMSH_ZONE !< MPI derived type for Neko nmsh zone data
+  type(MPI_Datatype) :: MPI_NMSH_CURVE !< MPI derived type for Neko nmsh curved elements
 
   type(MPI_Datatype) :: MPI_RE2V1_DATA_XYZ !< MPI derived type for 3D NEKTON re2 data
-  type(MPI_Datatype) :: MPI_RE2V1_DATA_XY  !< MPI derived type for 2D NEKTON re2 data
-  type(MPI_Datatype) :: MPI_RE2V1_DATA_CV  !< MPI derived type for NEKTON re2 cv data
-  type(MPI_Datatype) :: MPI_RE2V1_DATA_BC  !< MPI derived type for NEKTON re2 bc data
+  type(MPI_Datatype) :: MPI_RE2V1_DATA_XY !< MPI derived type for 2D NEKTON re2 data
+  type(MPI_Datatype) :: MPI_RE2V1_DATA_CV !< MPI derived type for NEKTON re2 cv data
+  type(MPI_Datatype) :: MPI_RE2V1_DATA_BC !< MPI derived type for NEKTON re2 bc data
 
   type(MPI_Datatype) :: MPI_RE2V2_DATA_XYZ !< MPI derived type for 3D NEKTON re2 data
-  type(MPI_Datatype) :: MPI_RE2V2_DATA_XY  !< MPI derived type for 2D NEKTON re2 data
-  type(MPI_Datatype) :: MPI_RE2V2_DATA_CV  !< MPI derived type for NEKTON re2 cv data
-  type(MPI_Datatype) :: MPI_RE2V2_DATA_BC  !< MPI derived type for NEKTON re2 bc data
+  type(MPI_Datatype) :: MPI_RE2V2_DATA_XY !< MPI derived type for 2D NEKTON re2 data
+  type(MPI_Datatype) :: MPI_RE2V2_DATA_CV !< MPI derived type for NEKTON re2 cv data
+  type(MPI_Datatype) :: MPI_RE2V2_DATA_BC !< MPI derived type for NEKTON re2 bc data
 
-  type(MPI_Datatype) :: MPI_STL_HEADER     !< MPI Derived type for a STL header
-  type(MPI_Datatype) :: MPI_STL_TRIANGLE   !< MPI derived type for a STL triangle
+  type(MPI_Datatype) :: MPI_STL_HEADER !< MPI Derived type for a STL header
+  type(MPI_Datatype) :: MPI_STL_TRIANGLE !< MPI derived type for a STL triangle
 
-  integer :: MPI_REAL_SIZE             !< Size of MPI type real
+  integer :: MPI_REAL_SIZE !< Size of MPI type real
   integer :: MPI_DOUBLE_PRECISION_SIZE !< Size of MPI type double precision
-  integer :: MPI_CHARACTER_SIZE        !< Size of MPI type character
-  integer :: MPI_INTEGER_SIZE          !< Size of MPI type integer
-  integer :: MPI_LOGICAL_SIZE          !< Size of MPI type logical
-  integer :: MPI_REAL_PREC_SIZE        !< Size of working precision REAL types
+  integer :: MPI_CHARACTER_SIZE !< Size of MPI type character
+  integer :: MPI_INTEGER_SIZE !< Size of MPI type integer
+  integer :: MPI_LOGICAL_SIZE !< Size of MPI type logical
+  integer :: MPI_REAL_PREC_SIZE !< Size of working precision REAL types
 
   ! Public derived types and size definitions
   public :: MPI_NMSH_HEX, MPI_NMSH_QUAD, MPI_NMSH_ZONE, &

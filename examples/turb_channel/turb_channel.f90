@@ -7,10 +7,10 @@ module user
 contains
 
   ! Register user defined functions (see user_intf.f90)
-  subroutine user_setup(u)
-    type(user_t), intent(inout) :: u
-    u%fluid_user_ic => user_ic
-    u%user_mesh_setup => user_mesh_scale
+  subroutine user_setup(user)
+    type(user_t), intent(inout) :: user
+    user%initial_conditions => initial_conditions
+    user%mesh_setup => user_mesh_scale
   end subroutine user_setup
 
   ! Rescale mesh, we create a mesh with some refinement close to the wall.
@@ -19,8 +19,9 @@ contains
   ! New mesh can easily be genreated with genmeshbox
   ! OBS refinement is not smooth and the constant values are a bit ad hoc.
   ! Stats converge close to reference DNS
-  subroutine user_mesh_scale(msh)
+  subroutine user_mesh_scale(msh, time)
     type(mesh_t), intent(inout) :: msh
+    type(time_state_t), intent(in) :: time
     integer :: i, p, nvert
 
     real(kind=rp) :: d, y, viscous_layer, visc_el_h, el_h
@@ -58,23 +59,31 @@ contains
   end subroutine user_mesh_scale
 
   ! User defined initial condition
-  subroutine user_ic(u, v, w, p, params)
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    type(json_file), intent(inout) :: params
+  subroutine initial_conditions(scheme_name, fields)
+    character(len=*), intent(in) :: scheme_name
+    type(field_list_t), intent(inout) :: fields
+    real(kind=rp) :: uvw(3), x, y, z
+    type (field_t), pointer :: u, v, w
     integer :: i
 
-    real(kind=rp) :: uvw(3)
+    if (scheme_name .eq. 'fluid') then
+       u => fields%get("u")
+       v => fields%get("v")
+       w => fields%get("w")
 
-    do i = 1, u%dof%size()
-       uvw = channel_ic(u%dof%x(i,1,1,1),u%dof%y(i,1,1,1),u%dof%z(i,1,1,1))
-       u%x(i,1,1,1) = uvw(1)
-       v%x(i,1,1,1) = uvw(2)
-       w%x(i,1,1,1) = uvw(3)
-    end do
-  end subroutine user_ic
+       do i = 1, u%size()
+          x = u%dof%x(i,1,1,1)
+          y = u%dof%y(i,1,1,1)
+          z = u%dof%z(i,1,1,1)
+
+          uvw = channel_ic(x, y, z)
+
+          u%x(i,1,1,1) = uvw(1)
+          v%x(i,1,1,1) = uvw(2)
+          w%x(i,1,1,1) = uvw(3)
+       end do
+    end if
+  end subroutine initial_conditions
 
   ! Kind of brute force with rather large initial disturbances
   function channel_ic(x, y, z) result(uvw)
@@ -89,52 +98,52 @@ contains
     llz = 4./3.*pi
 
     Re_tau = 180
-    C      = 5.17
-    k      = 0.41
-    Re_b   = 2800
+    C = 5.17
+    k = 0.41
+    Re_b = 2800
 
     yp = (1-y)*Re_tau
     if (y .lt. 0) yp = (1+y)*Re_tau
 
     ! Reichardt function
-    ux  = 1/k*log(1.0+k*yp) + (C - (1.0/k)*log(k)) * &
+    ux = 1/k*log(1.0+k*yp) + (C - (1.0/k)*log(k)) * &
          (1.0 - exp(-yp/11.0) - yp/11*exp(-yp/3.0))
-    ux  = ux * Re_tau/Re_b
+    ux = ux * Re_tau/Re_b
 
     ! actually, sometimes one may not use the turbulent profile, but
     ! rather the parabolic lamianr one
     ! ux = 1.5*(1-y**2)
-    
+
     ! add perturbations to trigger turbulence
     ! base flow
-    uvw(1)  = ux
-    uvw(2)  = 0
-    uvw(3)  = 0
+    uvw(1) = ux
+    uvw(2) = 0
+    uvw(3) = 0
 
     ! first, large scale perturbation
     eps = 0.05
-    kx  = 3
-    kz  = 4
+    kx = 3
+    kz = 4
     alpha = kx * 2*PI/llx
-    beta  = kz * 2*PI/llz
-    uvw(1)  = uvw(1) + eps*beta  * sin(alpha*x)*cos(beta*z)
-    uvw(2)  = uvw(2) + eps       * sin(alpha*x)*sin(beta*z)
-    uvw(3)  = uvw(3) -eps*alpha * cos(alpha*x)*sin(beta*z)
+    beta = kz * 2*PI/llz
+    uvw(1) = uvw(1) + eps*beta * sin(alpha*x)*cos(beta*z)
+    uvw(2) = uvw(2) + eps * sin(alpha*x)*sin(beta*z)
+    uvw(3) = uvw(3) -eps*alpha * cos(alpha*x)*sin(beta*z)
 
     ! second, small scale perturbation
     eps = 0.005
-    kx  = 17
-    kz  = 13
+    kx = 17
+    kz = 13
     alpha = kx * 2*PI/llx
-    beta  = kz * 2*PI/llz
-    uvw(1)  = uvw(1) + eps*beta  * sin(alpha*x)*cos(beta*z)
-    uvw(2)  = uvw(2) + eps       * sin(alpha*x)*sin(beta*z)
-    uvw(3)  = uvw(3) -eps*alpha * cos(alpha*x)*sin(beta*z)
+    beta = kz * 2*PI/llz
+    uvw(1) = uvw(1) + eps*beta * sin(alpha*x)*cos(beta*z)
+    uvw(2) = uvw(2) + eps * sin(alpha*x)*sin(beta*z)
+    uvw(3) = uvw(3) -eps*alpha * cos(alpha*x)*sin(beta*z)
 
     ! finally, random perturbations only in y
     eps1 = 0.001
     ran = sin(-20*x*z+y**3*tan(x*z**2)+100*z*y-20*sin(x*y*z)**5)
-    uvw(2)  = uvw(2) + eps1*ran
+    uvw(2) = uvw(2) + eps1*ran
 
   end function channel_ic
 

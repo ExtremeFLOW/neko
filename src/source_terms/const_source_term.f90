@@ -42,6 +42,7 @@ module const_source_term
   use utils, only : neko_error
   use const_source_term_cpu, only : const_source_term_compute_cpu
   use const_source_term_device, only : const_source_term_compute_device
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -56,7 +57,7 @@ module const_source_term
      procedure, pass(this) :: init => const_source_term_init_from_json
      !> The constructor from type components.
      procedure, pass(this) :: init_from_compenents => &
-       const_source_term_init_from_components
+          const_source_term_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => const_source_term_free
      !> Computes the source term and adds the result to `fields`.
@@ -68,11 +69,14 @@ contains
   !! @param json The JSON object for the source.
   !! @param fields A list of fields for adding the source values.
   !! @param coef The SEM coeffs.
-  subroutine const_source_term_init_from_json(this, json, fields, coef)
+  !! @param variable_name The name of the variable for this source term.
+  subroutine const_source_term_init_from_json(this, json, fields, coef, &
+       variable_name)
     class(const_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    type(field_list_t), intent(inout), target :: fields
-    type(coef_t), intent(inout), target :: coef
+    type(field_list_t), intent(in), target :: fields
+    type(coef_t), intent(in), target :: coef
+    character(len=*), intent(in) :: variable_name
     real(kind=rp), allocatable :: values(:)
     real(kind=rp) :: start_time, end_time
 
@@ -82,7 +86,7 @@ contains
 
 
     call const_source_term_init_from_components(this, fields, values, coef, &
-                                                start_time, end_time)
+         start_time, end_time)
 
   end subroutine const_source_term_init_from_json
 
@@ -93,9 +97,9 @@ contains
   !! @param start_time When to start adding the source term.
   !! @param end_time When to stop adding the source term.
   subroutine const_source_term_init_from_components(this, fields, values, &
-                                                    coef, start_time, end_time)
+       coef, start_time, end_time)
     class(const_source_term_t), intent(inout) :: this
-    class(field_list_t), intent(inout), target :: fields
+    class(field_list_t), intent(in), target :: fields
     real(kind=rp), intent(in) :: values(:)
     type(coef_t) :: coef
     real(kind=rp), intent(in) :: start_time
@@ -119,12 +123,10 @@ contains
   end subroutine const_source_term_free
 
   !> Computes the source term and adds the result to `fields`.
-  !! @param t The time value.
-  !! @param tstep The current time-step.
-  subroutine const_source_term_compute(this, t, tstep)
+  !! @param time The time state.
+  subroutine const_source_term_compute(this, time)
     class(const_source_term_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     integer :: n_fields, i, n
 
     n_fields = this%fields%size()

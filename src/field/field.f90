@@ -1,4 +1,4 @@
-! Copyright (c) 2018-2023, The Neko Authors
+! Copyright (c) 2018-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -34,24 +34,25 @@
 module field
   use neko_config, only : NEKO_BCKND_DEVICE
   use device_math
-  use num_types, only : rp
-  use device
+  use num_types, only : rp, c_rp
+  use device, only : device_map, device_free, device_memset
   use math, only : add2, copy, cadd
   use mesh, only : mesh_t
   use space, only : space_t, operator(.ne.)
   use dofmap, only : dofmap_t
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 
   type, public :: field_t
      real(kind=rp), allocatable :: x(:,:,:,:) !< Field data
 
-     type(space_t), pointer :: Xh   !< Function space \f$ X_h \f$
-     type(mesh_t), pointer :: msh   !< Mesh
+     type(space_t), pointer :: Xh !< Function space \f$ X_h \f$
+     type(mesh_t), pointer :: msh !< Mesh
      type(dofmap_t), pointer :: dof !< Dofmap
 
      logical :: internal_dofmap = .false. !< Does the field have an own dofmap
-     character(len=80) :: name            !< Name of the field
+     character(len=80) :: name !< Name of the field
      type(c_ptr) :: x_d = C_NULL_PTR
    contains
      procedure, private, pass(this) :: init_common => field_init_common
@@ -77,7 +78,7 @@ module field
   end type field_t
 
   !> field_ptr_t, To easily obtain a pointer to a field
-  type, public ::  field_ptr_t
+  type, public :: field_ptr_t
      type(field_t), pointer :: ptr => null()
   end type field_ptr_t
 
@@ -85,10 +86,10 @@ contains
 
   !> Initialize a field @a this on the mesh @a msh using an internal dofmap
   subroutine field_init_internal_dof(this, msh, space, fld_name)
-    class(field_t), intent(inout) :: this      !< Field to be initialized
-    type(mesh_t), target, intent(in) :: msh    !< underlying mesh of the field
+    class(field_t), intent(inout) :: this !< Field to be initialized
+    type(mesh_t), target, intent(in) :: msh !< underlying mesh of the field
     type(space_t), target, intent(in) :: space !< Function space for the field
-    character(len=*), optional :: fld_name     !< Name of the field
+    character(len=*), optional :: fld_name !< Name of the field
 
     call this%free()
 
@@ -109,9 +110,9 @@ contains
 
   !> Initialize a field @a this on the mesh @a msh using an internal dofmap
   subroutine field_init_external_dof(this, dof, fld_name)
-    class(field_t), intent(inout) :: this      !< Field to be initialized
-    type(dofmap_t), target, intent(in) :: dof  !< External dofmap for the field
-    character(len=*), optional :: fld_name     !< Name of the field
+    class(field_t), intent(inout) :: this !< Field to be initialized
+    type(dofmap_t), target, intent(in) :: dof !< External dofmap for the field
+    character(len=*), optional :: fld_name !< Name of the field
 
     call this%free()
 
@@ -129,7 +130,7 @@ contains
 
   !> Initialize a field @a this
   subroutine field_init_common(this, fld_name)
-    class(field_t), intent(inout) :: this  !< Field to be initialized
+    class(field_t), intent(inout) :: this !< Field to be initialized
     character(len=*), optional :: fld_name !< Name of the field
     integer :: ierr
     integer :: n
@@ -139,7 +140,7 @@ contains
 
       if (.not. allocated(this%x)) then
          allocate(this%x(lx, ly, lz, nelv), stat = ierr)
-         this%x = 0d0
+         this%x = 0.0_rp
       end if
 
       if (present(fld_name)) then
@@ -151,6 +152,12 @@ contains
       if (NEKO_BCKND_DEVICE .eq. 1) then
          n = lx * ly * lz * nelv
          call device_map(this%x, this%x_d, n)
+         block
+           real(c_rp) :: rp_dummy
+           integer(c_size_t) :: s
+           s = c_sizeof(rp_dummy) * n
+           call device_memset(this%x_d, 0, s, sync = .true.)
+         end block
       end if
     end associate
 
@@ -280,4 +287,3 @@ contains
   end function field_size
 
 end module field
-

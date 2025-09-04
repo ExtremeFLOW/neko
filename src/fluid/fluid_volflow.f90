@@ -1,4 +1,5 @@
 ! Copyright (c) 2008-2020, UCHICAGO ARGONNE, LLC.
+! Copyright (c) 2025, The Neko Authors
 !
 ! The UChicago Argonne, LLC as Operator of Argonne National
 ! Laboratory holds copyright in the Software. The copyright holder
@@ -67,8 +68,7 @@ module fluid_volflow
   use field, only : field_t
   use coefs, only : coef_t
   use time_scheme_controller, only : time_scheme_controller_t
-  use math, only : copy, glsc2, glmin, glmax, add2, add2s2
-  use comm
+  use math, only : copy, glsc2, glmin, glmax, add2
   use neko_config, only : NEKO_BCKND_DEVICE
   use device_math, only : device_cfill, device_rzero, device_copy, &
        device_add2, device_add2s2, device_glsc2
@@ -77,8 +77,10 @@ module fluid_volflow
   use json_module, only : json_file
   use json_utils, only: json_get
   use scratch_registry, only : scratch_registry_t
-  use bc, only : bc_list_t, bc_list_apply_vector, bc_list_apply_scalar
+  use bc_list, only : bc_list_t
   use ax_product, only : ax_t
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
   implicit none
   private
 
@@ -104,7 +106,7 @@ contains
 
   subroutine fluid_vol_flow_init(this, dm_Xh, params)
     class(fluid_volflow_t), intent(inout) :: this
-    type(dofmap_t), target, intent(inout) :: dm_Xh
+    type(dofmap_t), target, intent(in) :: dm_Xh
     type(json_file), intent(inout) :: params
     logical average
     integer :: direction
@@ -116,7 +118,7 @@ contains
     call json_get(params, 'case.fluid.flow_rate_force.direction', direction)
     call json_get(params, 'case.fluid.flow_rate_force.value', rate)
     call json_get(params, 'case.fluid.flow_rate_force.use_averaged_flow',&
-                  average)
+         average)
 
     this%flow_dir = direction
     this%avflow = average
@@ -129,7 +131,7 @@ contains
        call this%p_vol%init(dm_Xh, 'p_vol')
     end if
 
-    this%scratch = scratch_registry_t(dm_Xh, 3, 1)
+    call this%scratch%init(dm_Xh, 3, 1)
 
   end subroutine fluid_vol_flow_init
 
@@ -151,25 +153,27 @@ contains
   subroutine fluid_vol_flow_compute(this, u_res, v_res, w_res, p_res, &
        ext_bdf, gs_Xh, c_Xh, rho, mu, bd, dt, &
        bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
-       Ax, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
+       Ax_vel, Ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
     class(fluid_volflow_t), intent(inout) :: this
     type(field_t), intent(inout) :: u_res, v_res, w_res, p_res
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
-    type(time_scheme_controller_t), intent(inout) :: ext_bdf
+    type(time_scheme_controller_t), intent(in) :: ext_bdf
     type(bc_list_t), intent(inout) :: bclst_dp, bclst_du, bclst_dv, bclst_dw
     type(bc_list_t), intent(inout) :: bclst_vel_res
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax_vel
+    class(ax_t), intent(in) :: Ax_prs
     class(ksp_t), intent(inout) :: ksp_prs, ksp_vel
     class(pc_t), intent(inout) :: pc_prs, pc_vel
-    real(kind=rp), intent(inout) :: bd
-    real(kind=rp), intent(in) :: rho, mu, dt
+    real(kind=rp), intent(in) :: bd
+    real(kind=rp), intent(in) :: rho, dt
+    type(field_t) :: mu
     integer, intent(in) :: vel_max_iter, prs_max_iter
     integer :: n, i
     real(kind=rp) :: xlmin, xlmax
     real(kind=rp) :: ylmin, ylmax
     real(kind=rp) :: zlmin, zlmax
-    type(ksp_monitor_t) :: ksp_result
+    type(ksp_monitor_t) :: ksp_results(4)
     type(field_t), pointer :: ta1, ta2, ta3
     integer :: temp_indices(3)
 
@@ -184,9 +188,9 @@ contains
       n = c_Xh%dof%size()
       xlmin = glmin(c_Xh%dof%x, n)
       xlmax = glmax(c_Xh%dof%x, n)
-      ylmin = glmin(c_Xh%dof%y, n)          !  for Y!
+      ylmin = glmin(c_Xh%dof%y, n) !  for Y!
       ylmax = glmax(c_Xh%dof%y, n)
-      zlmin = glmin(c_Xh%dof%z, n)          !  for Z!
+      zlmin = glmin(c_Xh%dof%z, n) !  for Z!
       zlmax = glmax(c_Xh%dof%z, n)
       if (this%flow_dir .eq. 1) then
          this%domain_length = xlmax - xlmin
@@ -224,17 +228,16 @@ contains
       end if
 
       call gs_Xh%op(p_res, GS_OP_ADD)
-      call bc_list_apply_scalar(bclst_dp, p_res%x, n)
+      call bclst_dp%apply_scalar(p_res%x, n)
       call pc_prs%update()
-      ksp_result = ksp_prs%solve(Ax, p_vol, p_res%x, n, &
+      ksp_results(1) = ksp_prs%solve(Ax_prs, p_vol, p_res%x, n, &
            c_Xh, bclst_dp, gs_Xh, prs_max_iter)
 
       !   Compute velocity
 
       call opgrad(u_res%x, v_res%x, w_res%x, p_vol%x, c_Xh)
 
-      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-           (NEKO_BCKND_OPENCL .eq. 1)) then
+      if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_opchsign(u_res%x_d, v_res%x_d, w_res%x_d, msh%gdim, n)
          call device_copy(ta1%x_d, c_Xh%B_d, n)
          call device_copy(ta2%x_d, c_Xh%B_d, n)
@@ -245,8 +248,7 @@ contains
          call copy(ta2%x, c_Xh%B, n)
          call copy(ta3%x, c_Xh%B, n)
       end if
-      call bc_list_apply_vector(bclst_vel_res,&
-           ta1%x, ta2%x, ta3%x, n)
+      call bclst_vel_res%apply_vector(ta1%x, ta2%x, ta3%x, n)
 
       ! add forcing
 
@@ -269,13 +271,11 @@ contains
       end if
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
-         call device_cfill(c_Xh%h1_d, mu, n)
+         call device_copy(c_Xh%h1_d, mu%x_d, n)
          call device_cfill(c_Xh%h2_d, rho * (bd / dt), n)
       else
-         do i = 1, n
-            c_Xh%h1(i,1,1,1) = mu
-            c_Xh%h2(i,1,1,1) = rho * (bd / dt)
-         end do
+         call copy(c_Xh%h1, mu%x, n)
+         c_Xh%h2 = rho * (bd / dt)
       end if
       c_Xh%ifh2 = .true.
 
@@ -283,16 +283,15 @@ contains
       call gs_Xh%op(v_res, GS_OP_ADD)
       call gs_Xh%op(w_res, GS_OP_ADD)
 
-      call bc_list_apply_vector(bclst_vel_res,&
-            u_res%x, v_res%x, w_res%x, n)
+      call bclst_vel_res%apply_vector(u_res%x, v_res%x, w_res%x, n)
       call pc_vel%update()
 
-      ksp_result = ksp_vel%solve(Ax, u_vol, u_res%x, n, &
-            c_Xh, bclst_du, gs_Xh, vel_max_iter)
-      ksp_result = ksp_vel%solve(Ax, v_vol, v_res%x, n, &
-            c_Xh, bclst_dv, gs_Xh, vel_max_iter)
-      ksp_result = ksp_vel%solve(Ax, w_vol, w_res%x, n, &
-            c_Xh, bclst_dw, gs_Xh, vel_max_iter)
+      ksp_results(2:4) = ksp_vel%solve_coupled(Ax_vel, &
+           u_vol, v_vol, w_vol, &
+           u_res%x, v_res%x, w_res%x, &
+           n, c_Xh, &
+           bclst_du, bclst_dv, bclst_dw, &
+           gs_Xh, vel_max_iter)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          if (this%flow_dir .eq. 1) then
@@ -339,25 +338,26 @@ contains
   subroutine fluid_vol_flow(this, u, v, w, p, u_res, v_res, w_res, p_res, &
        c_Xh, gs_Xh, ext_bdf, rho, mu, dt, &
        bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
-       Ax, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
+       Ax_vel, Ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
 
     class(fluid_volflow_t), intent(inout) :: this
     type(field_t), intent(inout) :: u, v, w, p
     type(field_t), intent(inout) :: u_res, v_res, w_res, p_res
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
-    type(time_scheme_controller_t), intent(inout) :: ext_bdf
-    real(kind=rp), intent(in) :: rho, mu, dt
+    type(time_scheme_controller_t), intent(in) :: ext_bdf
+    real(kind=rp), intent(in) :: rho, dt
+    type(field_t) :: mu
     type(bc_list_t), intent(inout) :: bclst_dp, bclst_du, bclst_dv, bclst_dw
     type(bc_list_t), intent(inout) :: bclst_vel_res
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax_vel
+    class(ax_t), intent(in) :: Ax_prs
     class(ksp_t), intent(inout) :: ksp_prs, ksp_vel
     class(pc_t), intent(inout) :: pc_prs, pc_vel
     integer, intent(in) :: prs_max_iter, vel_max_iter
     real(kind=rp) :: ifcomp, flow_rate, xsec
     real(kind=rp) :: current_flow, delta_flow, scale
     integer :: n, ierr, i
-    type(field_t), pointer :: ta1, ta2, ta3
 
     associate(u_vol => this%u_vol, v_vol => this%v_vol, &
          w_vol => this%w_vol, p_vol => this%p_vol)
@@ -384,27 +384,28 @@ contains
          call this%compute(u_res, v_res, w_res, p_res, &
               ext_bdf, gs_Xh, c_Xh, rho, mu, ext_bdf%diffusion_coeffs(1), dt, &
               bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
-              Ax, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
+              Ax_vel, Ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, &
+              vel_max_iter)
       end if
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          if (this%flow_dir .eq. 1) then
             current_flow = &
-                 device_glsc2(u%x_d, c_Xh%B_d, n) / this%domain_length  ! for X
+                 device_glsc2(u%x_d, c_Xh%B_d, n) / this%domain_length ! for X
          else if (this%flow_dir .eq. 2) then
             current_flow = &
-                 device_glsc2(v%x_d, c_Xh%B_d, n) / this%domain_length  ! for Y
+                 device_glsc2(v%x_d, c_Xh%B_d, n) / this%domain_length ! for Y
          else if (this%flow_dir .eq. 3) then
             current_flow = &
-                 device_glsc2(w%x_d, c_Xh%B_d, n) / this%domain_length  ! for Z
+                 device_glsc2(w%x_d, c_Xh%B_d, n) / this%domain_length ! for Z
          end if
       else
          if (this%flow_dir .eq. 1) then
-            current_flow = glsc2(u%x, c_Xh%B, n) / this%domain_length  ! for X
+            current_flow = glsc2(u%x, c_Xh%B, n) / this%domain_length ! for X
          else if (this%flow_dir .eq. 2) then
-            current_flow = glsc2(v%x, c_Xh%B, n) / this%domain_length  ! for Y
+            current_flow = glsc2(v%x, c_Xh%B, n) / this%domain_length ! for Y
          else if (this%flow_dir .eq. 3) then
-            current_flow = glsc2(w%x, c_Xh%B, n) / this%domain_length  ! for Z
+            current_flow = glsc2(w%x, c_Xh%B, n) / this%domain_length ! for Z
          end if
       end if
 

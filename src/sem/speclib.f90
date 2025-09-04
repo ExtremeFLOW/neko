@@ -147,1126 +147,1149 @@
 !==============================================================================
 module speclib
   use num_types, only : rp, xp
-  use utils, only: neko_error
-
+  use math, only: abscmp
+  use utils, only : neko_error
+  use, intrinsic :: iso_fortran_env, only : stderr => error_unit
+  implicit none
 
 contains
+
   !> Generate `NP` Gauss Legendre points `Z` and weights `W`
   !! associated with Jacobi polynomial \f$ P(N)(\alpha=0, \beta=0) \f$.
   !! The polynomial degree `N = NP-1`.
   !! @param Z Quadrature points.
   !! @param W Quadrature weights.
   !! @param NP Number of quadrature points.
-  SUBROUTINE ZWGL (Z,W,NP)
-    REAL(KIND=RP) Z(1),W(1), ALPHA, BETA
-    ALPHA = 0.
-    BETA  = 0.
-    CALL ZWGJ (Z,W,NP,ALPHA,BETA)
-    RETURN
+  subroutine ZWGL(Z, W, NP)
+    integer, intent(in) :: NP
+    real(kind=rp), intent(inout) :: Z(NP), W(NP)
+    real(kind=rp) ALPHA, BETA
+    ALPHA = 0.0_rp
+    BETA = 0.0_rp
+    call ZWGJ(Z, W, NP, ALPHA, BETA)
   end subroutine ZWGL
 
-  SUBROUTINE ZWGLL (Z,W,NP)
-!--------------------------------------------------------------------
-!
-!     Generate NP Gauss-Lobatto Legendre points (Z) and weights (W)
-!     associated with Jacobi polynomial P(N)(alpha=0,beta=0).
-!     The polynomial degree N=NP-1.
-!     Z and W are in single precision, but all the arithmetic
-!     operations are done in double precision.
-!
-!--------------------------------------------------------------------
-    REAL(KIND=RP) Z(1),W(1), ALPHA, BETA
-    ALPHA = 0.
-    BETA  = 0.
-    CALL ZWGLJ (Z,W,NP,ALPHA,BETA)
-    RETURN
+
+  !> Generate NP Gauss-Lobatto Legendre points (Z) and weights (W)
+  !! associated with Jacobi polynomial P(N)(alpha=0,beta=0).
+  !! The polynomial degree N=NP-1.
+  !! Z and W are in single precision, but all the arithmetic
+  !! operations are done in double precision.
+  subroutine ZWGLL(Z, W, NP)
+    integer, intent(in) :: NP
+    real(kind=rp), intent(inout) :: Z(NP), W(NP)
+    real(kind=rp) ALPHA, BETA
+    ALPHA = 0.0_rp
+    BETA = 0.0_rp
+    call ZWGLJ(Z, W, NP, ALPHA, BETA)
   end subroutine ZWGLL
 
-  SUBROUTINE ZWGJ (Z,W,NP,ALPHA,BETA)
-!--------------------------------------------------------------------
-!
-!     Generate NP GAUSS JACOBI points (Z) and weights (W)
-!     associated with Jacobi polynomial P(N)(alpha>-1,beta>-1).
-!     The polynomial degree N=NP-1.
-!     Single precision version.
-!
-!--------------------------------------------------------------------
-    PARAMETER (NMAX=84)
-    PARAMETER (NZD = NMAX)
-    REAL(KIND=XP)  ZD(NZD),WD(NZD),ALPHAD,BETAD
-    REAL(KIND=RP) Z(1),W(1),ALPHA,BETA
+  !> Generate NP GAUSS JACOBI points (Z) and weights (W)
+  !! associated with Jacobi polynomial P(N)(alpha>-1,beta>-1).
+  !! The polynomial degree N=NP-1.
+  !! Single precision version.
+  subroutine ZWGJ(Z, W, NP, ALPHA, BETA)
+    integer, intent(in) :: NP
+    real(kind=rp), intent(inout) :: Z(NP), W(NP)
+    real(kind=rp), intent(in) :: ALPHA, BETA
+
+    integer, parameter :: NMAX = 84
+    integer, parameter :: NZD = NMAX
+
+    real(kind=xp) ZD(NZD), WD(NZD), ALPHAD, BETAD
+    integer :: I, NPMAX
 
     NPMAX = NZD
-    IF (NP.GT.NPMAX) THEN
-       WRITE (6,*) 'Too large polynomial degree in ZWGJ'
-       WRITE (6,*) 'Maximum polynomial degree is',NMAX
-       WRITE (6,*) 'Here NP=',NP
+    if (NP .gt. NPMAX) then
+       write (stderr, *) 'Too large polynomial degree in ZWGJ'
+       write (stderr, *) 'Maximum polynomial degree is', NMAX
+       write (stderr, *) 'Here NP=', NP
        call neko_error
-    ENDIF
-    ALPHAD = ALPHA
-    BETAD  = BETA
-    CALL ZWGJD (ZD,WD,NP,ALPHAD,BETAD)
-    DO 100 I=1,NP
-       Z(I) = ZD(I)
-       W(I) = WD(I)
-100 CONTINUE
-    RETURN
+    end if
+
+    ALPHAD = real(ALPHA, kind=xp)
+    BETAD = real(BETA, kind=xp)
+    call ZWGJD(ZD, WD, NP, ALPHAD, BETAD)
+    do I = 1, NP
+       Z(I) = real(ZD(I), kind=rp)
+       W(I) = real(WD(I), kind=rp)
+    end do
   end subroutine ZWGJ
 
-  SUBROUTINE ZWGJD (Z,W,NP,ALPHA,BETA)
-!--------------------------------------------------------------------
-!
-!     Generate NP GAUSS JACOBI points (Z) and weights (W)
-!     associated with Jacobi polynomial P(N)(alpha>-1,beta>-1).
-!     The polynomial degree N=NP-1.
-!     Double precision version.
-!
-!--------------------------------------------------------------------
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
-    REAL(KIND=XP)  Z(1),W(1),ALPHA,BETA
+  !> Generate NP GAUSS JACOBI points (Z) and weights (W)
+  !! associated with Jacobi polynomial P(N)(alpha>-1,beta>-1).
+  !! The polynomial degree N=NP-1.
+  !! Double precision version.
+  subroutine ZWGJD(Z, W, NP, ALPHA, BETA)
+    integer, intent(in) :: NP
+    real(kind=xp), intent(inout) :: Z(NP), W(NP)
+    real(kind=xp), intent(in) :: ALPHA, BETA
 
-    N     = NP-1
-    DN    = ((N))
-    ONE   = 1.
-    TWO   = 2.
-    APB   = ALPHA+BETA
+    real(kind=xp) :: DN, APB
+    real(kind=xp) :: FAC1, FAC2, FAC3, FNORM
+    real(kind=xp) :: RCOEF, P, PD, PM1, PDM1, PM2, PDM2
+    real(kind=xp) :: DNP1, DNP2
+    integer :: N, NP1, NP2, I
 
-    IF (NP.LE.0) THEN
-       WRITE (6,*) 'ZWGJD: Minimum number of Gauss points is 1',np
+    N = NP - 1
+    DN = real(N, kind=xp)
+
+    APB = ALPHA + BETA
+
+    if (NP .le. 0) then
+       write (stderr, *) 'ZWGJD: Minimum number of Gauss points is 1', np
        call neko_error
-    ENDIF
-    IF ((ALPHA.LE.-ONE).OR.(BETA.LE.-ONE)) THEN
-       WRITE (6,*) 'ZWGJD: Alpha and Beta must be greater than -1'
-       call neko_error
-    ENDIF
+    else if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
+       call neko_error('ZWGJD: Alpha and Beta must be greater than -1')
+    end if
 
-    IF (NP.EQ.1) THEN
-       Z(1) = (BETA-ALPHA)/(APB+TWO)
-       W(1) = GAMMAF(ALPHA+ONE)*GAMMAF(BETA+ONE)/GAMMAF(APB+TWO) &
-              * TWO**(APB+ONE)
-       RETURN
-    ENDIF
+    if (NP .eq. 1) then
+       Z(1) = (BETA - ALPHA) / (APB + 2.0_xp)
+       W(1) = GAMMAF(ALPHA + 1.0_xp) * GAMMAF(BETA + 1.0_xp) / &
+            GAMMAF(APB + 2.0_xp) * 2.0_xp**(APB + 1.0_xp)
+       return
+    end if
 
-    CALL JACG (Z,NP,ALPHA,BETA)
+    call JACG(Z, NP, ALPHA, BETA)
 
-    NP1   = N+1
-    NP2   = N+2
-    DNP1  = ((NP1))
-    DNP2  = ((NP2))
-    FAC1  = DNP1+ALPHA+BETA+ONE
-    FAC2  = FAC1+DNP1
-    FAC3  = FAC2+ONE
-    FNORM = PNORMJ(NP1,ALPHA,BETA)
-    RCOEF = (FNORM*FAC2*FAC3)/(TWO*FAC1*DNP2)
-    DO 100 I=1,NP
-       CALL JACOBF (P,PD,PM1,PDM1,PM2,PDM2,NP2,ALPHA,BETA,Z(I))
+    NP1 = N + 1
+    NP2 = N + 2
+    DNP1 = real(NP1, kind=xp)
+    DNP2 = real(NP2, kind=xp)
+    FAC1 = DNP1 + ALPHA + BETA + 1.0_xp
+    FAC2 = FAC1 + DNP1
+    FAC3 = FAC2 + 1.0_xp
+    FNORM = PNORMJ(NP1, ALPHA, BETA)
+    RCOEF = (FNORM*FAC2*FAC3) / (2.0_xp*FAC1*DNP2)
+    do I = 1, NP
+       call JACOBF(P, PD, PM1, PDM1, PM2, PDM2, NP2, ALPHA, BETA, Z(I))
        W(I) = -RCOEF/(P*PDM1)
-100 CONTINUE
-    RETURN
+    end do
   end subroutine ZWGJD
 
-  SUBROUTINE ZWGLJ (Z,W,NP,ALPHA,BETA)
-!--------------------------------------------------------------------
-!
-!     Generate NP GAUSS LOBATTO JACOBI points (Z) and weights (W)
-!     associated with Jacobi polynomial P(N)(alpha>-1,beta>-1).
-!     The polynomial degree N=NP-1.
-!     Single precision version.
-!
-!--------------------------------------------------------------------
-    PARAMETER (NMAX=84)
-    PARAMETER (NZD = NMAX)
-    REAL(KIND=XP)  ZD(NZD),WD(NZD),ALPHAD,BETAD
-    REAL(KIND=RP) Z(1),W(1),ALPHA,BETA
+  !> Generate NP GAUSS LOBATTO JACOBI points (Z) and weights (W)
+  !! associated with Jacobi polynomial P(N)(alpha>-1,beta>-1).
+  !! The polynomial degree N=NP-1.
+  !! Single precision version.
+  subroutine ZWGLJ(Z, W, NP, ALPHA, BETA)
+    integer, intent(in) :: NP
+    real(kind=rp), intent(inout) :: Z(NP), W(NP)
+    real(kind=rp), intent(in) :: ALPHA, BETA
+
+    integer, parameter :: NMAX = 84
+    integer, parameter :: NZD = NMAX
+
+    real(kind=xp) ZD(NZD), WD(NZD), ALPHAD, BETAD
+    integer :: I, NPMAX
 
     NPMAX = NZD
-    IF (NP.GT.NPMAX) THEN
-       WRITE (6,*) 'Too large polynomial degree in ZWGLJ'
-       WRITE (6,*) 'Maximum polynomial degree is',NMAX
-       WRITE (6,*) 'Here NP=',NP
+    if (NP .gt. NPMAX) then
+       write (stderr, *) 'Too large polynomial degree in ZWGLJ'
+       write (stderr, *) 'Maximum polynomial degree is', NMAX
+       write (stderr, *) 'Here NP=', NP
        call neko_error
-    ENDIF
-    ALPHAD = ALPHA
-    BETAD  = BETA
-    CALL ZWGLJD (ZD,WD,NP,ALPHAD,BETAD)
-    DO 100 I=1,NP
-       Z(I) = ZD(I)
-       W(I) = WD(I)
-100 CONTINUE
-    RETURN
+    end if
+    ALPHAD = real(ALPHA, kind=xp)
+    BETAD = real(BETA, kind=xp)
+    call ZWGLJD(ZD, WD, NP, ALPHAD, BETAD)
+    do I = 1, NP
+       Z(I) = real(ZD(I), kind=rp)
+       W(I) = real(WD(I), kind=rp)
+    end do
   end subroutine ZWGLJ
 
-  SUBROUTINE ZWGLJD (Z,W,NP,ALPHA,BETA)
-!--------------------------------------------------------------------
-!
-!     Generate NP GAUSS LOBATTO JACOBI points (Z) and weights (W)
-!     associated with Jacobi polynomial P(N)(alpha>-1,beta>-1).
-!     The polynomial degree N=NP-1.
-!     Double precision version.
-!
-!--------------------------------------------------------------------
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
-    REAL(KIND=XP)  Z(NP),W(NP),ALPHA,BETA
 
-    N     = NP-1
-    NM1   = N-1
-    ONE   = 1.
-    TWO   = 2.
+  !> Generate NP GAUSS LOBATTO JACOBI points (Z) and weights (W)
+  !! associated with Jacobi polynomial P(N)(alpha>-1,beta>-1).
+  !! The polynomial degree N=NP-1.
+  !! Double precision version.
+  subroutine ZWGLJD(Z, W, NP, ALPHA, BETA)
 
-    IF (NP.LE.1) THEN
-       WRITE (6,*) 'ZWGLJD: Minimum number of Gauss-Lobatto points is 2'
-       WRITE (6,*) 'ZWGLJD: alpha,beta:',alpha,beta,np
+    integer, intent(in) :: NP
+    real(kind=xp), intent(inout) :: Z(NP), W(NP)
+    real(kind=xp), intent(in) :: ALPHA, BETA
+
+    real(kind=xp) :: ALPG, BETG
+    real(kind=xp) :: P, PD, PM1, PDM1, PM2, PDM2
+    integer :: N, NM1, I
+
+    N = NP - 1
+    NM1 = N - 1
+
+    if (NP .le. 1) then
+       write (stderr, *) 'ZWGLJD: Minimum number of Gauss-Lobatto points is 2'
+       write (stderr, *) 'ZWGLJD: alpha, beta:', alpha, beta, np
        call neko_error
-    ENDIF
-    IF ((ALPHA.LE.-ONE).OR.(BETA.LE.-ONE)) THEN
-       WRITE (6,*) 'ZWGLJD: Alpha and Beta must be greater than -1'
-       call neko_error
-    ENDIF
+    else if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
+       call neko_error('ZWGLJD: Alpha and Beta must be greater than -1')
+    end if
 
-    IF (NM1.GT.0) THEN
-       ALPG  = ALPHA+ONE
-       BETG  = BETA+ONE
-       CALL ZWGJD (Z(2),W(2),NM1,ALPG,BETG)
-    ENDIF
-    Z(1)  = -ONE
-    Z(NP) =  ONE
-    DO 100  I=2,NP-1
-       W(I) = W(I)/(ONE-Z(I)**2)
-100 CONTINUE
-    CALL JACOBF (P,PD,PM1,PDM1,PM2,PDM2,N,ALPHA,BETA,Z(1))
-    W(1)  = ENDW1 (N,ALPHA,BETA)/(TWO*PD)
-    CALL JACOBF (P,PD,PM1,PDM1,PM2,PDM2,N,ALPHA,BETA,Z(NP))
-    W(NP) = ENDW2 (N,ALPHA,BETA)/(TWO*PD)
+    if (NM1 .gt. 0) then
+       ALPG = ALPHA + 1.0_xp
+       BETG = BETA + 1.0_xp
+       call ZWGJD(Z(2), W(2), NM1, ALPG, BETG)
+    end if
 
-!      RETURN
+    Z(1) = -1.0_xp
+    Z(NP) = 1.0_xp
+    do I = 2, NP - 1
+       W(I) = W(I) / (1.0_xp-Z(I)**2)
+    end do
+    call JACOBF(P, PD, PM1, PDM1, PM2, PDM2, N, ALPHA, BETA, Z(1))
+    W(1) = ENDW1(N, ALPHA, BETA) / (2.0_xp*PD)
+    call JACOBF(P, PD, PM1, PDM1, PM2, PDM2, N, ALPHA, BETA, Z(NP))
+    W(NP) = ENDW2(N, ALPHA, BETA) / (2.0_xp*PD)
+
   end subroutine ZWGLJD
 
-  REAL(KIND=XP)  FUNCTION ENDW1 (N,ALPHA,BETA)
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
-    REAL(KIND=XP)  ALPHA,BETA
-    ZERO  = 0.
-    ONE   = 1.
-    TWO   = 2.
-    THREE = 3.
-    FOUR  = 4.
-    APB   = ALPHA+BETA
-    IF (N.EQ.0) THEN
-       ENDW1 = ZERO
-       RETURN
-    ENDIF
-    F1   = GAMMAF(ALPHA+TWO)*GAMMAF(BETA+ONE)/GAMMAF(APB+THREE)
-    F1   = F1*(APB+TWO)*TWO**(APB+TWO)/TWO
-    IF (N.EQ.1) THEN
+  !> @todo document ENDW1
+  real(kind=xp) function ENDW1(N, ALPHA, BETA)
+
+    real(kind=xp), intent(in) :: ALPHA, BETA
+    integer, intent(in) :: N
+
+    real(kind=xp) :: APB
+    real(kind=xp) :: F1, F2, F3, FINT1, FINT2
+    real(kind=xp) :: A1, A2, A3, DI, ABN, ABNN
+    integer :: I
+
+    if (N .eq. 0) then
+       ENDW1 = 0.0_xp
+       return
+    end if
+
+    APB = ALPHA + BETA
+    F1 = GAMMAF(ALPHA + 2.0_xp)*GAMMAF(BETA + 1.0_xp) / GAMMAF(APB + 3.0_xp)
+    F1 = F1*(APB + 2.0_xp)*2.0_xp**(APB + 2.0_xp)/2.0_xp
+    if (N .eq. 1) then
        ENDW1 = F1
-       RETURN
-    ENDIF
-    FINT1 = GAMMAF(ALPHA+TWO)*GAMMAF(BETA+ONE)/GAMMAF(APB+THREE)
-    FINT1 = FINT1*TWO**(APB+TWO)
-    FINT2 = GAMMAF(ALPHA+TWO)*GAMMAF(BETA+TWO)/GAMMAF(APB+FOUR)
-    FINT2 = FINT2*TWO**(APB+THREE)
-    F2    = (-TWO*(BETA+TWO)*FINT1 + (APB+FOUR)*FINT2) &
-           * (APB+THREE)/FOUR
-    IF (N.EQ.2) THEN
+       return
+    end if
+
+    FINT1 = GAMMAF(ALPHA + 2.0_xp)*GAMMAF(BETA + 1.0_xp) / GAMMAF(APB + 3.0_xp)
+    FINT1 = FINT1*2.0_xp**(APB + 2.0_xp)
+    FINT2 = GAMMAF(ALPHA + 2.0_xp)*GAMMAF(BETA + 2.0_xp) / GAMMAF(APB + 4.0_xp)
+    FINT2 = FINT2*2.0_xp**(APB + 3.0_xp)
+    F2 = (-2.0_xp*(BETA + 2.0_xp)*FINT1 + (APB + 4.0_xp)*FINT2) * &
+         (APB + 3.0_xp) / 4.0_xp
+    if (N .eq. 2) then
        ENDW1 = F2
-       RETURN
-    ENDIF
-    DO 100 I=3,N
-       DI   = ((I-1))
-       ABN  = ALPHA+BETA+DI
-       ABNN = ABN+DI
-       A1   = -(TWO*(DI+ALPHA)*(DI+BETA))/(ABN*ABNN*(ABNN+ONE))
-       A2   =  (TWO*(ALPHA-BETA))/(ABNN*(ABNN+TWO))
-       A3   =  (TWO*(ABN+ONE))/((ABNN+TWO)*(ABNN+ONE))
-       F3   =  -(A2*F2+A1*F1)/A3
-       F1   = F2
-       F2   = F3
-100 CONTINUE
-    ENDW1  = F3
-    RETURN
+       return
+    end if
+
+    do I = 3, N
+       DI = real(I - 1, kind=xp)
+       ABN = ALPHA + BETA + DI
+       ABNN = ABN + DI
+       A1 = -(2.0_xp*(DI + ALPHA) * (DI + BETA)) / (ABN*ABNN*(ABNN + 1.0_xp))
+       A2 = (2.0_xp*(ALPHA - BETA)) / (ABNN*(ABNN + 2.0_xp))
+       A3 = (2.0_xp*(ABN + 1.0_xp)) / ((ABNN + 2.0_xp) * (ABNN + 1.0_xp))
+       F3 = -(A2*F2 + A1*F1) / A3
+       F1 = F2
+       F2 = F3
+    end do
+    ENDW1 = F3
   end function ENDW1
 
-  REAL(KIND=XP)  FUNCTION ENDW2 (N,ALPHA,BETA)
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
-    REAL(KIND=XP)  ALPHA,BETA
-    ZERO  = 0.
-    ONE   = 1.
-    TWO   = 2.
-    THREE = 3.
-    FOUR  = 4.
-    APB   = ALPHA+BETA
-    IF (N.EQ.0) THEN
-       ENDW2 = ZERO
-       RETURN
-    ENDIF
-    F1   = GAMMAF(ALPHA+ONE)*GAMMAF(BETA+TWO)/GAMMAF(APB+THREE)
-    F1   = F1*(APB+TWO)*TWO**(APB+TWO)/TWO
-    IF (N.EQ.1) THEN
+  !> @todo document ENDW2
+  real(kind=xp) function ENDW2(N, ALPHA, BETA)
+
+    real(kind=xp), intent(in) :: ALPHA, BETA
+    integer, intent(in) :: N
+
+    real(kind=xp) :: APB
+    real(kind=xp) :: F1, F2, F3, FINT1, FINT2
+    real(kind=xp) :: A1, A2, A3, DI, ABN, ABNN
+    integer :: I
+
+
+    if (N .eq. 0) then
+       ENDW2 = 0.0_xp
+       return
+    end if
+
+    APB = ALPHA + BETA
+    F1 = GAMMAF(ALPHA + 1.0_xp)*GAMMAF(BETA + 2.0_xp) / GAMMAF(APB + 3.0_xp)
+    F1 = F1*(APB + 2.0_xp)*2.0_xp**(APB + 2.0_xp)/2.0_xp
+    if (N .eq. 1) then
        ENDW2 = F1
-       RETURN
-    ENDIF
-    FINT1 = GAMMAF(ALPHA+ONE)*GAMMAF(BETA+TWO)/GAMMAF(APB+THREE)
-    FINT1 = FINT1*TWO**(APB+TWO)
-    FINT2 = GAMMAF(ALPHA+TWO)*GAMMAF(BETA+TWO)/GAMMAF(APB+FOUR)
-    FINT2 = FINT2*TWO**(APB+THREE)
-    F2    = (TWO*(ALPHA+TWO)*FINT1 - (APB+FOUR)*FINT2) &
-           * (APB+THREE)/FOUR
-    IF (N.EQ.2) THEN
+       return
+    end if
+
+    FINT1 = GAMMAF(ALPHA + 1.0_xp)*GAMMAF(BETA + 2.0_xp) / GAMMAF(APB + 3.0_xp)
+    FINT1 = FINT1*2.0_xp**(APB + 2.0_xp)
+    FINT2 = GAMMAF(ALPHA + 2.0_xp)*GAMMAF(BETA + 2.0_xp) / GAMMAF(APB + 4.0_xp)
+    FINT2 = FINT2*2.0_xp**(APB + 3.0_xp)
+    F2 = (2.0_xp*(ALPHA + 2.0_xp)*FINT1 - (APB + 4.0_xp)*FINT2) * &
+         (APB + 3.0_xp) / 4.0_xp
+    if (N .eq. 2) then
        ENDW2 = F2
-       RETURN
-    ENDIF
-    DO 100 I=3,N
-       DI   = ((I-1))
-       ABN  = ALPHA+BETA+DI
-       ABNN = ABN+DI
-       A1   =  -(TWO*(DI+ALPHA)*(DI+BETA))/(ABN*ABNN*(ABNN+ONE))
-       A2   =  (TWO*(ALPHA-BETA))/(ABNN*(ABNN+TWO))
-       A3   =  (TWO*(ABN+ONE))/((ABNN+TWO)*(ABNN+ONE))
-       F3   =  -(A2*F2+A1*F1)/A3
-       F1   = F2
-       F2   = F3
-100 CONTINUE
-    ENDW2  = F3
-    RETURN
+       return
+    end if
+
+    do I = 3, N
+       DI = ((I-1))
+       ABN = ALPHA + BETA + DI
+       ABNN = ABN + DI
+       A1 = -(2.0_xp*(DI + ALPHA) * (DI + BETA)) / (ABN*ABNN*(ABNN + 1.0_xp))
+       A2 = (2.0_xp*(ALPHA - BETA)) / (ABNN*(ABNN + 2.0_xp))
+       A3 = (2.0_xp*(ABN + 1.0_xp)) / ((ABNN + 2.0_xp) * (ABNN + 1.0_xp))
+       F3 = -(A2*F2 + A1*F1)/A3
+       F1 = F2
+       F2 = F3
+    end do
+    ENDW2 = F3
   end function ENDW2
 
-  REAL(KIND=XP)  FUNCTION GAMMAF (X)
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
-    REAL(KIND=XP)  X
-    ZERO = 0.0
-    HALF = 0.5
-    ONE  = 1.0
-    TWO  = 2.0
-    FOUR = 4.0
-    PI   = FOUR*ATAN(ONE)
-    GAMMAF = ONE
-    IF (X.EQ.-HALF) GAMMAF = -TWO*SQRT(PI)
-    IF (X.EQ. HALF) GAMMAF =  SQRT(PI)
-    IF (X.EQ. ONE ) GAMMAF =  ONE
-    IF (X.EQ. TWO ) GAMMAF =  ONE
-    IF (X.EQ. 1.5  ) GAMMAF =  SQRT(PI)/2.
-    IF (X.EQ. 2.5) GAMMAF =  1.5*SQRT(PI)/2.
-    IF (X.EQ. 3.5) GAMMAF =  0.5*(2.5*(1.5*SQRT(PI)))
-    IF (X.EQ. 3. ) GAMMAF =  2.
-    IF (X.EQ. 4. ) GAMMAF = 6.
-    IF (X.EQ. 5. ) GAMMAF = 24.
-    IF (X.EQ. 6. ) GAMMAF = 120.
-    RETURN
+  !> @todo document GAMMAF
+  real(kind=xp) function GAMMAF(X)
+    real(kind=xp), intent(in) :: X
+    real(kind=xp), parameter :: PI = 4.0_xp*atan(1.0_xp)
+
+    GAMMAF = 1.0_xp
+    if (abscmp(X, -0.5_xp)) GAMMAF = -2.0_xp*sqrt(PI)
+    if (abscmp(X, 0.5_xp)) GAMMAF = sqrt(PI)
+    if (abscmp(X, 1.0_xp)) GAMMAF = 1.0_xp
+    if (abscmp(X, 2.0_xp)) GAMMAF = 1.0_xp
+    if (abscmp(X, 1.5_xp)) GAMMAF = sqrt(PI) / 2.0_xp
+    if (abscmp(X, 2.5_xp)) GAMMAF = 1.5_xp * sqrt(PI) / 2.0_xp
+    if (abscmp(X, 3.5_xp)) GAMMAF = 0.5_xp * (2.5_xp * (1.5_xp * sqrt(PI)))
+    if (abscmp(X, 3.0_xp)) GAMMAF = 2.0_xp
+    if (abscmp(X, 4.0_xp)) GAMMAF = 6.0_xp
+    if (abscmp(X, 5.0_xp)) GAMMAF = 24.0_xp
+    if (abscmp(X, 6.0_xp)) GAMMAF = 120.0_xp
   end function GAMMAF
 
-  REAL(KIND=XP)  FUNCTION PNORMJ (N,ALPHA,BETA)
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
-    REAL(KIND=XP)  ALPHA,BETA
-    ONE   = 1.
-    TWO   = 2.
-    DN    = ((N))
-    CONST = ALPHA+BETA+ONE
-    IF (N.LE.1) THEN
-       PROD   = GAMMAF(DN+ALPHA)*GAMMAF(DN+BETA)
-       PROD   = PROD/(GAMMAF(DN)*GAMMAF(DN+ALPHA+BETA))
-       PNORMJ = PROD * TWO**CONST/(TWO*DN+CONST)
-       RETURN
-    ENDIF
-    PROD  = GAMMAF(ALPHA+ONE)*GAMMAF(BETA+ONE)
-    PROD  = PROD/(TWO*(ONE+CONST)*GAMMAF(CONST+ONE))
-    PROD  = PROD*(ONE+ALPHA)*(TWO+ALPHA)
-    PROD  = PROD*(ONE+BETA)*(TWO+BETA)
-    DO 100 I=3,N
-       DINDX = ((I))
-       FRAC  = (DINDX+ALPHA)*(DINDX+BETA)/(DINDX*(DINDX+ALPHA+BETA))
-       PROD  = PROD*FRAC
-100 CONTINUE
-    PNORMJ = PROD * TWO**CONST/(TWO*DN+CONST)
-    RETURN
+  !> @todo document PNORMJ
+  real(kind=xp) function PNORMJ(N, ALPHA, BETA)
+    real(kind=xp), intent(in) :: ALPHA, BETA
+    integer, intent(in) :: N
+
+    real(kind=xp) :: DN, DINDX
+    real(kind=xp) :: CONST, PROD, FRAC
+    integer :: I
+
+    DN = real(N, kind=xp)
+    CONST = ALPHA + BETA + 1.0_xp
+    if (N .le. 1) then
+       PROD = GAMMAF(DN + ALPHA)*GAMMAF(DN + BETA)
+       PROD = PROD / (GAMMAF(DN)*GAMMAF(DN + ALPHA + BETA))
+       PNORMJ = PROD * 2.0_xp**CONST / (2.0_xp*DN + CONST)
+       return
+    end if
+
+    PROD = GAMMAF(ALPHA + 1.0_xp)*GAMMAF(BETA + 1.0_xp)
+    PROD = PROD/(2.0_xp*(1.0_xp + CONST)*GAMMAF(CONST + 1.0_xp))
+    PROD = PROD*(1.0_xp + ALPHA) * (2.0_xp + ALPHA)
+    PROD = PROD*(1.0_xp + BETA) * (2.0_xp + BETA)
+    do I = 3, N
+       DINDX = real(I, kind=xp)
+       FRAC = (DINDX + ALPHA) * (DINDX + BETA) / (DINDX*(DINDX + ALPHA + BETA))
+       PROD = PROD*FRAC
+    end do
+    PNORMJ = PROD*2.0_xp**CONST / (2.0_xp*DN + CONST)
   end function PNORMJ
 
-  SUBROUTINE JACG (XJAC,NP,ALPHA,BETA)
-!--------------------------------------------------------------------
-!
-!     Compute NP Gauss points XJAC, which are the zeros of the
-!     Jacobi polynomial J(NP) with parameters ALPHA and BETA.
-!     ALPHA and BETA determines the specific type of Gauss points.
-!     Examples:
-!     ALPHA = BETA =  0.0  ->  Legendre points
-!     ALPHA = BETA = -0.5  ->  Chebyshev points
-!
-!--------------------------------------------------------------------
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
-    REAL(KIND=XP)  XJAC(1)
-    DATA KSTOP /10/
-    DATA EPS/1.0e-12_RP/
-    N   = NP-1
-    one = 1.
-    DTH = 4.*ATAN(one)/(2.*((N))+2.)
-    DO 40 J=1,NP
-       IF (J.EQ.1) THEN
-          X = COS((2.*(((J))-1.)+1.)*DTH)
-       ELSE
-          X1 = COS((2.*(((J))-1.)+1.)*DTH)
+  !> Compute NP Gauss points XJAC, which are the zeros of the
+  !! Jacobi polynomial J(NP) with parameters ALPHA and BETA.
+  !! ALPHA and BETA determines the specific type of Gauss points.
+  !! Examples:
+  !! ALPHA = BETA =  0.0  ->  Legendre points
+  !! ALPHA = BETA = -0.5  ->  Chebyshev points
+  subroutine JACG(XJAC, NP, ALPHA, BETA)
+    integer, intent(in) :: NP
+    real(kind=xp), intent(inout) :: XJAC(NP)
+    real(kind=xp), intent(in) :: ALPHA, BETA
+
+    integer, parameter :: KSTOP = 10
+    real(kind=rp), parameter :: EPS = 1.0E-12_rp
+    real(kind=xp), parameter :: PI = 4.0_xp*atan(1.0_xp)
+
+    real(kind=xp) :: DTH, X, X1, X2, XLAST, DELX, XMIN
+    real(kind=xp) :: P, PD, PM1, PDM1, PM2, PDM2
+    real(kind=xp) :: RECSUM, SWAP
+    integer :: I, J, K, N, JM, JMIN
+
+    N = NP - 1
+    DTH = PI / (2.0_xp*real(N, kind=xp) + 2.0_xp)
+    do J = 1, NP
+       if (J .eq. 1) then
+          X = cos((2.0_xp*(real(J, kind=xp) - 1.0_xp) + 1.0_xp)*DTH)
+       else
+          X1 = cos((2.0_xp*(real(J, kind=xp) - 1.0_xp) + 1.0_xp)*DTH)
           X2 = XLAST
-          X  = (X1+X2)/2.
-       ENDIF
-       DO 30 K=1,KSTOP
-          CALL JACOBF (P,PD,PM1,PDM1,PM2,PDM2,NP,ALPHA,BETA,X)
-          RECSUM = 0.
-          JM = J-1
-          DO 29 I=1,JM
-             RECSUM = RECSUM+1./(X-XJAC(NP-I+1))
-29        CONTINUE
-          DELX = -P/(PD-RECSUM*P)
-          X    = X+DELX
-          IF (ABS(DELX) .LT. EPS) GOTO 31
-30     CONTINUE
-31     CONTINUE
-       XJAC(NP-J+1) = X
-       XLAST        = X
-40  CONTINUE
-    DO 200 I=1,NP
+          X = (X1 + X2) / 2.0_xp
+       end if
+
+       do K = 1, KSTOP
+          call JACOBF(P, PD, PM1, PDM1, PM2, PDM2, NP, ALPHA, BETA, X)
+          RECSUM = 0.0_xp
+          JM = J - 1
+          do I = 1, JM
+             RECSUM = RECSUM + 1.0_xp / (X-XJAC(NP - I + 1))
+          end do
+          DELX = -P / (PD - RECSUM*P)
+          X = X + DELX
+          if (abs(DELX) .lt. EPS) exit
+       end do
+
+       XJAC(NP-J + 1) = X
+       XLAST = X
+    end do
+
+    do I = 1, NP
        XMIN = 2.
-       DO 100 J=I,NP
-          IF (XJAC(J).LT.XMIN) THEN
+       do J = I, NP
+          if (XJAC(J) .lt. XMIN) then
              XMIN = XJAC(J)
              JMIN = J
-          ENDIF
-100    CONTINUE
-       IF (JMIN.NE.I) THEN
+          end if
+       end do
+       if (JMIN .ne. I) then
           SWAP = XJAC(I)
           XJAC(I) = XJAC(JMIN)
           XJAC(JMIN) = SWAP
-       ENDIF
-200 CONTINUE
-    RETURN
+       end if
+    end do
   end subroutine JACG
 
-  SUBROUTINE JACOBF (POLY,PDER,POLYM1,PDERM1,POLYM2,PDERM2,N,ALP,BET,X)
-!--------------------------------------------------------------------
-!
-!     Computes the Jacobi polynomial (POLY) and its derivative (PDER)
-!     of degree N at X.
-!
-!--------------------------------------------------------------------
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
-    APB  = ALP+BET
-    POLY = 1.
-    PDER = 0.
-    IF (N .EQ. 0) RETURN
+  !> Computes the Jacobi polynomial (POLY) and its derivative (PDER)
+  !! of degree N at X.
+  subroutine JACOBF(POLY, PDER, POLYM1, PDERM1, POLYM2, PDERM2, N, ALP, BET, X)
+
+    real(kind=xp), intent(inout) :: POLY, PDER, POLYM1, PDERM1, POLYM2, PDERM2
+    real(kind=xp), intent(in) :: ALP, BET, X
+    integer, intent(in) :: N
+
+    real(kind=xp) :: APB, POLYL, PDERL, POLYN, PDERN
+    real(kind=xp) :: PSAVE, PDSAVE
+    real(kind=xp) :: A1, A2, A3, A4, B3
+    real(kind=xp) :: DK
+    integer :: K
+
+    APB = ALP + BET
+    POLY = 1.0_xp
+    PDER = 0.0_xp
+    if (N .eq. 0) return
+
     POLYL = POLY
     PDERL = PDER
-    POLY  = (ALP-BET+(APB+2.)*X)/2.
-    PDER  = (APB+2.)/2.
-    IF (N .EQ. 1) RETURN
-    DO 20 K=2,N
-       DK = ((K))
-       A1 = 2.*DK*(DK+APB)*(2.*DK+APB-2.)
-       A2 = (2.*DK+APB-1.)*(ALP**2-BET**2)
-       B3 = (2.*DK+APB-2.)
-       A3 = B3*(B3+1.)*(B3+2.)
-       A4 = 2.*(DK+ALP-1.)*(DK+BET-1.)*(2.*DK+APB)
-       POLYN  = ((A2+A3*X)*POLY-A4*POLYL)/A1
-       PDERN  = ((A2+A3*X)*PDER-A4*PDERL+A3*POLY)/A1
-       PSAVE  = POLYL
+    POLY = (ALP - BET + (APB + 2.0_xp)*X) / 2.0_xp
+    PDER = (APB + 2.0_xp) / 2.0_xp
+    if (N .eq. 1) return
+
+    do K = 2, N
+       DK = real(K, kind=xp)
+       A1 = 2.0_xp*DK*(DK + APB) * (2.0_xp*DK + APB - 2.0_xp)
+       A2 = (2.0_xp*DK + APB - 1.0_xp) * (ALP**2 - BET**2)
+       B3 = (2.0_xp*DK + APB - 2.0_xp)
+       A3 = B3*(B3 + 1.0_xp) * (B3 + 2.0_xp)
+       A4 = 2.0_xp*(DK + ALP - 1.0_xp) * (DK + BET - 1.0_xp) * (2.0_xp*DK + APB)
+       POLYN = ((A2 + A3*X)*POLY - A4*POLYL) / A1
+       PDERN = ((A2 + A3*X)*PDER - A4*PDERL + A3*POLY) / A1
+       PSAVE = POLYL
        PDSAVE = PDERL
-       POLYL  = POLY
-       POLY   = POLYN
-       PDERL  = PDER
-       PDER   = PDERN
-20  CONTINUE
+       POLYL = POLY
+       POLY = POLYN
+       PDERL = PDER
+       PDER = PDERN
+    end do
     POLYM1 = POLYL
     PDERM1 = PDERL
     POLYM2 = PSAVE
     PDERM2 = PDSAVE
-    RETURN
   end subroutine JACOBF
 
-  REAL(KIND=XP) FUNCTION HGJ (II,Z,ZGJ,NP,ALPHA,BETA)
-!---------------------------------------------------------------------
-!
-!     Compute the value of the Lagrangian interpolant HGJ through
-!     the NP Gauss Jacobi points ZGJ at the point Z.
-!     Single precision version.
-!
-!---------------------------------------------------------------------
-    PARAMETER (NMAX=84)
-    PARAMETER (NZD = NMAX)
-    REAL(KIND=XP)  ZD,ZGJD(NZD),ALPHAD,BETAD
-    REAL(KIND=XP)  Z,ZGJ(1),ALPHA,BETA
+  !> Compute the value of the Lagrangian interpolant HGJ through
+  !! the NP Gauss Jacobi points ZGJ at the point Z.
+  !! Single precision version.
+  real(kind=xp) function HGJ(II, Z, ZGJ, NP, ALPHA, BETA)
+    integer, intent(in) :: NP, II
+    real(kind=xp), intent(in) :: Z, ZGJ(NP), ALPHA, BETA
+
+    integer, parameter :: NMAX = 84
+    integer, parameter :: NZD = NMAX
+
+    real(kind=xp) ZD, ZGJD(NZD)
+    integer :: I, NPMAX
+
     NPMAX = NZD
-    IF (NP.GT.NPMAX) THEN
-       WRITE (6,*) 'Too large polynomial degree in HGJ'
-       WRITE (6,*) 'Maximum polynomial degree is',NMAX
-       WRITE (6,*) 'Here NP=',NP
+    if (NP .gt. NPMAX) then
+       write (stderr, *) 'Too large polynomial degree in HGJ'
+       write (stderr, *) 'Maximum polynomial degree is', NMAX
+       write (stderr, *) 'Here NP=', NP
        call neko_error
-    ENDIF
+    end if
+
     ZD = Z
-    DO 100 I=1,NP
+    do I = 1, NP
        ZGJD(I) = ZGJ(I)
-100 CONTINUE
-    ALPHAD = ALPHA
-    BETAD  = BETA
-    HGJ    = HGJD (II,ZD,ZGJD,NP,ALPHAD,BETAD)
-    RETURN
+    end do
+    HGJ = HGJD(II, ZD, ZGJD, NP, ALPHA, BETA)
   end function HGJ
 
-  REAL(KIND=XP)  FUNCTION HGJD (II,Z,ZGJ,NP,ALPHA,BETA)
-!---------------------------------------------------------------------
-!
-!     Compute the value of the Lagrangian interpolant HGJD through
-!     the NZ Gauss-Lobatto Jacobi points ZGJ at the point Z.
-!     Double precision version.
-!
-!---------------------------------------------------------------------
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
-    REAL(KIND=XP)  Z,ZGJ(1),ALPHA,BETA
-    EPS = 1.e-5
-    ONE = 1.
-    ZI  = ZGJ(II)
-    DZ  = Z-ZI
-    IF (ABS(DZ).LT.EPS) THEN
-       HGJD = ONE
-       RETURN
-    ENDIF
-    CALL JACOBF (PZI,PDZI,PM1,PDM1,PM2,PDM2,NP,ALPHA,BETA,ZI)
-    CALL JACOBF (PZ,PDZ,PM1,PDM1,PM2,PDM2,NP,ALPHA,BETA,Z)
-    HGJD  = PZ/(PDZI*(Z-ZI))
-    RETURN
+  !> Compute the value of the Lagrangian interpolant HGJD through
+  !! the NZ Gauss-Lobatto Jacobi points ZGJ at the point Z.
+  !! Double precision version.
+  real(kind=xp) function HGJD(II, Z, ZGJ, NP, ALPHA, BETA)
+    integer, intent(in) :: NP, II
+    real(kind=xp), intent(in) :: Z, ZGJ(NP), ALPHA, BETA
+
+    real(kind=xp) :: EPS, ZI, DZ
+    real(kind=xp) :: PZ, PDZ, PZI, PDZI, PM1, PDM1, PM2, PDM2
+
+    EPS = 1.0E-5_xp
+    ZI = ZGJ(II)
+    DZ = Z - ZI
+    if (abs(DZ) .lt. EPS) then
+       HGJD = 1.0_xp
+       return
+    end if
+    call JACOBF(PZI, PDZI, PM1, PDM1, PM2, PDM2, NP, ALPHA, BETA, ZI)
+    call JACOBF(PZ, PDZ, PM1, PDM1, PM2, PDM2, NP, ALPHA, BETA, Z)
+    HGJD = PZ / (PDZI*(Z-ZI))
   end function HGJD
 
-  REAL(KIND=XP) FUNCTION HGLJ (II,Z,ZGLJ,NP,ALPHA,BETA)
-!---------------------------------------------------------------------
-!
-!     Compute the value of the Lagrangian interpolant HGLJ through
-!     the NZ Gauss-Lobatto Jacobi points ZGLJ at the point Z.
-!     Single precision version.
-!
-!---------------------------------------------------------------------
-    PARAMETER (NMAX=84)
-    PARAMETER (NZD = NMAX)
-    REAL(KIND=XP)  ZD,ZGLJD(NZD),ALPHAD,BETAD
-    REAL(KIND=XP)  Z,ZGLJ(1),ALPHA,BETA
+  !> Compute the value of the Lagrangian interpolant HGLJ through
+  !! the NZ Gauss-Lobatto Jacobi points ZGLJ at the point Z.
+  !! Single precision version.
+  real(kind=xp) function HGLJ(II, Z, ZGLJ, NP, ALPHA, BETA)
+    integer, intent(in) :: NP, II
+    real(kind=xp), intent(in) :: Z, ZGLJ(NP), ALPHA, BETA
+
+    integer, parameter :: NMAX = 84
+    integer, parameter :: NZD = NMAX
+
+    real(kind=xp) ZD, ZGLJD(NZD)
+    integer :: I, NPMAX
+
     NPMAX = NZD
-    IF (NP.GT.NPMAX) THEN
-       WRITE (6,*) 'Too large polynomial degree in HGLJ'
-       WRITE (6,*) 'Maximum polynomial degree is',NMAX
-       WRITE (6,*) 'Here NP=',NP
+    if (NP .gt. NPMAX) then
+       write (stderr, *) 'Too large polynomial degree in HGLJ'
+       write (stderr, *) 'Maximum polynomial degree is', NMAX
+       write (stderr, *) 'Here NP=', NP
        call neko_error
-    ENDIF
+    end if
     ZD = Z
-    DO 100 I=1,NP
+    do I = 1, NP
        ZGLJD(I) = ZGLJ(I)
-100 CONTINUE
-    ALPHAD = ALPHA
-    BETAD  = BETA
-    HGLJ   = HGLJD (II,ZD,ZGLJD,NP,ALPHAD,BETAD)
-    RETURN
+    end do
+    HGLJ = HGLJD(II, ZD, ZGLJD, NP, ALPHA, BETA)
   end function HGLJ
 
-  REAL(KIND=XP)  FUNCTION HGLJD (I,Z,ZGLJ,NP,ALPHA,BETA)
-!---------------------------------------------------------------------
-!
-!     Compute the value of the Lagrangian interpolant HGLJD through
-!     the NZ Gauss-Lobatto Jacobi points ZJACL at the point Z.
-!     Double precision version.
-!
-!---------------------------------------------------------------------
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
-    REAL(KIND=XP)  Z,ZGLJ(1),ALPHA,BETA
-    EPS = 1.e-5
-    ONE = 1.
-    ZI  = ZGLJ(I)
-    DZ  = Z-ZI
-    IF (ABS(DZ).LT.EPS) THEN
-       HGLJD = ONE
-       RETURN
-    ENDIF
-    N      = NP-1
-    DN     = ((N))
-    EIGVAL = -DN*(DN+ALPHA+BETA+ONE)
-    CALL JACOBF (PI,PDI,PM1,PDM1,PM2,PDM2,N,ALPHA,BETA,ZI)
-    CONST  = EIGVAL*PI+ALPHA*(ONE+ZI)*PDI-BETA*(ONE-ZI)*PDI
-    CALL JACOBF (P,PD,PM1,PDM1,PM2,PDM2,N,ALPHA,BETA,Z)
-    HGLJD  = (ONE-Z**2)*PD/(CONST*(Z-ZI))
-    RETURN
+  !> Compute the value of the Lagrangian interpolant HGLJD through
+  !! the NZ Gauss-Lobatto Jacobi points ZJACL at the point Z.
+  !! Double precision version.
+  real(kind=xp) function HGLJD(I, Z, ZGLJ, NP, ALPHA, BETA)
+    integer, intent(in) :: NP, I
+    real(kind=xp), intent(in) :: Z, ZGLJ(NP), ALPHA, BETA
+
+    real(kind=xp) :: EPS, ZI, DZ, DN
+    real(kind=xp) :: P, PD, PI, PDI, PM1, PDM1, PM2, PDM2
+    real(kind=xp) :: EIGVAL, CONST
+    integer :: N
+
+    EPS = 1.0E-5_xp
+    ZI = ZGLJ(I)
+    DZ = Z-ZI
+    if (abs(DZ) .lt. EPS) then
+       HGLJD = 1.0_xp
+       return
+    end if
+
+    N = NP - 1
+    DN = real(N, kind=xp)
+    EIGVAL = -DN*(DN + ALPHA + BETA + 1.0_xp)
+    call JACOBF(PI, PDI, PM1, PDM1, PM2, PDM2, N, ALPHA, BETA, ZI)
+    CONST = EIGVAL*PI + ALPHA*(1.0_xp + ZI)*PDI - BETA*(1.0_xp - ZI)*PDI
+    call JACOBF(P, PD, PM1, PDM1, PM2, PDM2, N, ALPHA, BETA, Z)
+    HGLJD = (1.0_xp - Z**2)*PD / (CONST*(Z - ZI))
   end function HGLJD
 
-  SUBROUTINE DGJ (D,DT,Z,NZ,NZD,ALPHA,BETA)
-!-----------------------------------------------------------------
-!
-!     Compute the derivative matrix D and its transpose DT
-!     associated with the Nth order Lagrangian interpolants
-!     through the NZ Gauss Jacobi points Z.
-!     Note: D and DT are square matrices.
-!     Single precision version.
-!
-!-----------------------------------------------------------------
-    PARAMETER (NMAX=84)
-    PARAMETER (NZDD = NMAX)
-    REAL(KIND=XP)  DD(NZDD,NZDD),DTD(NZDD,NZDD),ZD(NZDD),ALPHAD,BETAD
-    REAL(KIND=XP) D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
+  !> Compute the derivative matrix D and its transpose DT
+  !! associated with the Nth order Lagrangian interpolants
+  !! through the NZ Gauss Jacobi points Z.
+  !! Note: D and DT are square matrices.
+  !! Single precision version.
+  subroutine DGJ(D, DT, Z, NZ, NZD, ALPHA, BETA)
+    integer, intent(in) :: NZ, NZD
+    real(kind=xp), intent(inout) :: D(NZD, NZD), DT(NZD, NZD)
+    real(kind=xp), intent(in) :: Z(NZ), ALPHA, BETA
 
-    IF (NZ.LE.0) THEN
-       WRITE (6,*) 'DGJ: Minimum number of Gauss points is 1'
+    integer, parameter :: NMAX = 84
+    integer, parameter :: NZDD = NMAX
+
+    real(kind=xp) :: DD(NZDD, NZDD), DTD(NZDD, NZDD), ZD(NZDD)
+    integer :: I, J
+
+    if (NZ .le. 0) then
+       call neko_error('DGJ: Minimum number of Gauss points is 1')
+    else if (NZ .gt. NMAX) then
+       write (stderr, *) 'Too large polynomial degree in DGJ'
+       write (stderr, *) 'Maximum polynomial degree is', NMAX
+       write (stderr, *) 'Here Nz=', Nz
        call neko_error
-    ENDIF
-    IF (NZ .GT. NMAX) THEN
-       WRITE (6,*) 'Too large polynomial degree in DGJ'
-       WRITE (6,*) 'Maximum polynomial degree is',NMAX
-       WRITE (6,*) 'Here Nz=',Nz
-       call neko_error
-    ENDIF
-    IF ((ALPHA.LE.-1.).OR.(BETA.LE.-1.)) THEN
-       WRITE (6,*) 'DGJ: Alpha and Beta must be greater than -1'
-       call neko_error
-    ENDIF
-    ALPHAD = ALPHA
-    BETAD  = BETA
-    DO 100 I=1,NZ
+    else if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
+       call neko_error('DGJ: Alpha and Beta must be greater than -1')
+    end if
+
+    do I = 1, NZ
        ZD(I) = Z(I)
-100 CONTINUE
-    CALL DGJD (DD,DTD,ZD,NZ,NZDD,ALPHAD,BETAD)
-    DO I=1,NZ
-       DO J=1,NZ
-          D(I,J)  = DD(I,J)
-          DT(I,J) = DTD(I,J)
-       END DO
-    END DO
-    RETURN
+    end do
+    call DGJD(DD, DTD, ZD, NZ, NZDD, ALPHA, BETA)
+    do I = 1, NZ
+       do J = 1, NZ
+          D(I, J) = DD(I, J)
+          DT(I, J) = DTD(I, J)
+       end do
+    end do
   end subroutine DGJ
 
-  SUBROUTINE DGJD (D,DT,Z,NZ,NZD,ALPHA,BETA)
-!-----------------------------------------------------------------
-!
-!     Compute the derivative matrix D and its transpose DT
-!     associated with the Nth order Lagrangian interpolants
-!     through the NZ Gauss Jacobi points Z.
-!     Note: D and DT are square matrices.
-!     Double precision version.
-!
-!-----------------------------------------------------------------
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
-    REAL(KIND=XP)  D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
-    N    = NZ-1
-    DN   = ((N))
-    ONE  = 1.
-    TWO  = 2.
+  !> Compute the derivative matrix D and its transpose DT
+  !! associated with the Nth order Lagrangian interpolants
+  !! through the NZ Gauss Jacobi points Z.
+  !! Note: D and DT are square matrices.
+  !! Double precision version.
+  subroutine DGJD(D, DT, Z, NZ, NZD, ALPHA, BETA)
+    integer, intent(in) :: NZ, NZD
+    real(kind=xp), intent(inout) :: D(NZD, NZD), DT(NZD, NZD)
+    real(kind=xp), intent(in) :: Z(NZ), ALPHA, BETA
 
-    IF (NZ.LE.1) THEN
-       WRITE (6,*) 'DGJD: Minimum number of Gauss-Lobatto points is 2'
-       call neko_error
-    ENDIF
-    IF ((ALPHA.LE.-ONE).OR.(BETA.LE.-ONE)) THEN
-       WRITE (6,*) 'DGJD: Alpha and Beta must be greater than -1'
-       call neko_error
-    ENDIF
+    real(kind=xp) :: DN
+    real(kind=xp) :: PDI, PDJ, PI, PJ, PM1, PDM1, PM2, PDM2
+    integer :: I, J, N
 
-    DO I=1,NZ
-       DO J=1,NZ
-          CALL JACOBF (PI,PDI,PM1,PDM1,PM2,PDM2,NZ,ALPHA,BETA,Z(I))
-          CALL JACOBF (PJ,PDJ,PM1,PDM1,PM2,PDM2,NZ,ALPHA,BETA,Z(J))
-          IF (I.NE.J) D(I,J) = PDI/(PDJ*(Z(I)-Z(J)))
-          IF (I.EQ.J) D(I,J) = ((ALPHA+BETA+TWO)*Z(I)+ALPHA-BETA)/ &
-              (TWO*(ONE-Z(I)**2))
-          DT(J,I) = D(I,J)
-       END DO
-    END DO
-    RETURN
+    N = NZ - 1
+    DN = real(N, kind=xp)
+
+
+    if (NZ .le. 1) then
+       call neko_error('DGJD: Minimum number of Gauss-Lobatto points is 2')
+    else if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
+       call neko_error('DGJD: Alpha and Beta must be greater than -1')
+    end if
+
+    do I = 1, NZ
+       do J = 1, NZ
+          call JACOBF(PI, PDI, PM1, PDM1, PM2, PDM2, NZ, ALPHA, BETA, Z(I))
+          call JACOBF(PJ, PDJ, PM1, PDM1, PM2, PDM2, NZ, ALPHA, BETA, Z(J))
+          if (I .ne. J) then
+             D(I, J) = PDI / (PDJ*(Z(I) - Z(J)))
+          else
+             D(I, J) = ((ALPHA + BETA + 2.0_xp)*Z(I) + ALPHA - BETA) / &
+                  (2.0_xp*(1.0_xp - Z(I)**2))
+          end if
+          DT(J, I) = D(I, J)
+       end do
+    end do
   end subroutine DGJD
 
-  SUBROUTINE DGLJ (D,DT,Z,NZ,NZD,ALPHA,BETA)
-!-----------------------------------------------------------------
-!
-!     Compute the derivative matrix D and its transpose DT
-!     associated with the Nth order Lagrangian interpolants
-!     through the NZ Gauss-Lobatto Jacobi points Z.
-!     Note: D and DT are square matrices.
-!     Single precision version.
-!
-!-----------------------------------------------------------------
-    PARAMETER (NMAX=84)
-    PARAMETER (NZDD = NMAX)
-    REAL(KIND=XP)  DD(NZDD,NZDD),DTD(NZDD,NZDD),ZD(NZDD),ALPHAD,BETAD
-    REAL(KIND=XP) D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
+  !> Compute the derivative matrix D and its transpose DT
+  !! associated with the Nth order Lagrangian interpolants
+  !! through the NZ Gauss-Lobatto Jacobi points Z.
+  !! Note: D and DT are square matrices.
+  !! Single precision version.
+  subroutine DGLJ(D, DT, Z, NZ, NZD, ALPHA, BETA)
+    integer, parameter :: NMAX = 84
+    integer, parameter :: NZDD = NMAX
+    integer, intent(in) :: NZ, NZD
+    real(kind=xp), intent(inout) :: D(NZD, NZD), DT(NZD, NZD)
+    real(kind=xp), intent(in) :: Z(NZ), ALPHA, BETA
 
-    IF (NZ.LE.1) THEN
-       WRITE (6,*) 'DGLJ: Minimum number of Gauss-Lobatto points is 2'
+    real(kind=xp) :: DD(NZDD, NZDD), DTD(NZDD, NZDD), ZD(NZDD)
+    integer :: I, J
+
+    if (NZ .le. 1) then
+       call neko_error('DGLJ: Minimum number of Gauss-Lobatto points is 2')
+    else if (NZ .gt. NMAX) then
+       write (stderr, *) 'Too large polynomial degree in DGLJ'
+       write (stderr, *) 'Maximum polynomial degree is', NMAX
+       write (stderr, *) 'Here NZ=', NZ
        call neko_error
-    ENDIF
-    IF (NZ .GT. NMAX) THEN
-       WRITE (6,*) 'Too large polynomial degree in DGLJ'
-       WRITE (6,*) 'Maximum polynomial degree is',NMAX
-       WRITE (6,*) 'Here NZ=',NZ
-       call neko_error
-    ENDIF
-    IF ((ALPHA.LE.-1.).OR.(BETA.LE.-1.)) THEN
-       WRITE (6,*) 'DGLJ: Alpha and Beta must be greater than -1'
-       call neko_error
-    ENDIF
-    ALPHAD = ALPHA
-    BETAD  = BETA
-    DO 100 I=1,NZ
+    else if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
+       call neko_error('DGLJ: Alpha and Beta must be greater than -1')
+    end if
+
+    do I = 1, NZ
        ZD(I) = Z(I)
-100 CONTINUE
-    CALL DGLJD (DD,DTD,ZD,NZ,NZDD,ALPHAD,BETAD)
-    DO I=1,NZ
-       DO J=1,NZ
-          D(I,J)  = DD(I,J)
-          DT(I,J) = DTD(I,J)
-       END DO
-    END DO
-    RETURN
+    end do
+    call DGLJD(DD, DTD, ZD, NZ, NZDD, ALPHA, BETA)
+    do I = 1, NZ
+       do J = 1, NZ
+          D(I, J) = DD(I, J)
+          DT(I, J) = DTD(I, J)
+       end do
+    end do
   end subroutine DGLJ
 
-  SUBROUTINE DGLJD (D,DT,Z,NZ,NZD,ALPHA,BETA)
-!-----------------------------------------------------------------
-!
-!     Compute the derivative matrix D and its transpose DT
-!     associated with the Nth order Lagrangian interpolants
-!     through the NZ Gauss-Lobatto Jacobi points Z.
-!     Note: D and DT are square matrices.
-!     Double precision version.
-!
-!-----------------------------------------------------------------
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
-    REAL(KIND=XP)  D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
-    N    = NZ-1
-    DN   = ((N))
-    ONE  = 1.
-    TWO  = 2.
-    EIGVAL = -DN*(DN+ALPHA+BETA+ONE)
 
-    IF (NZ.LE.1) THEN
-       WRITE (6,*) 'DGLJD: Minimum number of Gauss-Lobatto points is 2'
-       call neko_error
-    ENDIF
-    IF ((ALPHA.LE.-ONE).OR.(BETA.LE.-ONE)) THEN
-       WRITE (6,*) 'DGLJD: Alpha and Beta must be greater than -1'
-       call neko_error
-    ENDIF
+  !> Compute the derivative matrix D and its transpose DT
+  !! associated with the Nth order Lagrangian interpolants
+  !! through the NZ Gauss-Lobatto Jacobi points Z.
+  !! Note: D and DT are square matrices.
+  !! Double precision version.
+  subroutine DGLJD(D, DT, Z, NZ, NZD, ALPHA, BETA)
+    integer, intent(in) :: NZ, NZD
+    real(kind=xp), intent(inout) :: D(NZD, NZD), DT(NZD, NZD)
+    real(kind=xp), intent(in) :: Z(NZ), ALPHA, BETA
 
-    DO I=1,NZ
-       DO J=1,NZ
-          CALL JACOBF (PI,PDI,PM1,PDM1,PM2,PDM2,N,ALPHA,BETA,Z(I))
-          CALL JACOBF (PJ,PDJ,PM1,PDM1,PM2,PDM2,N,ALPHA,BETA,Z(J))
-          CI = EIGVAL*PI-(BETA*(ONE-Z(I))-ALPHA*(ONE+Z(I)))*PDI
-          CJ = EIGVAL*PJ-(BETA*(ONE-Z(J))-ALPHA*(ONE+Z(J)))*PDJ
-          IF (I.NE.J) D(I,J) = CI/(CJ*(Z(I)-Z(J)))
-          IF ((I.EQ.J).AND.(I.NE.1).AND.(I.NE.NZ)) &
-              D(I,J) = (ALPHA*(ONE+Z(I))-BETA*(ONE-Z(I)))/ &
-              (TWO*(ONE-Z(I)**2))
-          IF ((I.EQ.J).AND.(I.EQ.1)) &
-              D(I,J) =  (EIGVAL+ALPHA)/(TWO*(BETA+TWO))
-          IF ((I.EQ.J).AND.(I.EQ.NZ)) &
-              D(I,J) = -(EIGVAL+BETA)/(TWO*(ALPHA+TWO))
-          DT(J,I) = D(I,J)
-       END DO
-    END DO
-    RETURN
+    real(kind=xp) :: DN, EIGVAL
+    real(kind=xp) :: PDI, PDJ, PI, PJ, PM1, PDM1, PM2, PDM2
+    real(kind=xp) :: CI, CJ
+    integer :: I, J, N
+
+    N = NZ - 1
+    DN = real(N, kind=xp)
+
+    EIGVAL = -DN*(DN + ALPHA + BETA + 1.0_xp)
+
+    if (NZ .le. 1) then
+       call neko_error('DGLJD: Minimum number of Gauss-Lobatto points is 2')
+    else if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
+       call neko_error('DGLJD: Alpha and Beta must be greater than -1')
+    end if
+
+    do I = 1, NZ
+       do J = 1, NZ
+          call JACOBF(PI, PDI, PM1, PDM1, PM2, PDM2, N, ALPHA, BETA, Z(I))
+          call JACOBF(PJ, PDJ, PM1, PDM1, PM2, PDM2, N, ALPHA, BETA, Z(J))
+          CI = EIGVAL*PI - (BETA*(1.0_xp - Z(I)) - ALPHA*(1.0_xp + Z(I)))*PDI
+          CJ = EIGVAL*PJ - (BETA*(1.0_xp - Z(J)) - ALPHA*(1.0_xp + Z(J)))*PDJ
+
+          ! Todo: This should have some elses in there
+          if (I .ne. J) then
+             D(I, J) = CI / (CJ*(Z(I) - Z(J)))
+          else if (I .eq. 1) then
+             D(I, J) = (EIGVAL + ALPHA) / (2.0_xp*(BETA + 2.0_xp))
+          else if (I .eq. NZ) then
+             D(I, J) = -(EIGVAL + BETA) / (2.0_xp*(ALPHA + 2.0_xp))
+          else
+             D(I, J) = (ALPHA*(1.0_xp + Z(I)) - BETA*(1.0_xp - Z(I))) / &
+                  (2.0_xp*(1.0_xp - Z(I)**2))
+          end if
+          DT(J, I) = D(I, J)
+       end do
+    end do
   end subroutine DGLJD
 
-  SUBROUTINE DGLL (D,DT,Z,NZ,NZD)
-!-----------------------------------------------------------------
-!
-!     Compute the derivative matrix D and its transpose DT
-!     associated with the Nth order Lagrangian interpolants
-!     through the NZ Gauss-Lobatto Legendre points Z.
-!     Note: D and DT are square matrices.
-!
-!-----------------------------------------------------------------
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
-    PARAMETER (NMAX=84)
-    REAL(KIND=RP) D(NZD,NZD),DT(NZD,NZD),Z(1)
-    N  = NZ-1
-    IF (NZ .GT. NMAX) THEN
-       WRITE (6,*) 'Subroutine DGLL'
-       WRITE (6,*) 'Maximum polynomial degree =',NMAX
-       WRITE (6,*) 'Polynomial degree         =',NZ
-    ENDIF
-    IF (NZ .EQ. 1) THEN
-       D(1,1) = 0.
-       RETURN
-    ENDIF
-    FN = (N)
-    d0 = FN*(FN+1.)/4.
-    DO I=1,NZ
-       DO J=1,NZ
-          D(I,J) = 0.
-          IF  (I.NE.J) D(I,J) = PNLEG(real(Z(I),xp),N)/ &
-                             (PNLEG(real(Z(J),xp),N)*(Z(I)-Z(J)))
-          IF ((I.EQ.J).AND.(I.EQ.1))  D(I,J) = -d0
-          IF ((I.EQ.J).AND.(I.EQ.NZ)) D(I,J) =  d0
-          DT(J,I) = D(I,J)
-       END DO
-    END DO
-    RETURN
+  !> Compute the derivative matrix D and its transpose DT
+  !! associated with the Nth order Lagrangian interpolants
+  !! through the NZ Gauss-Lobatto Legendre points Z.
+  !! Note: D and DT are square matrices.
+  subroutine DGLL(D, DT, Z, NZ, NZD)
+
+    integer, intent(in) :: NZ, NZD
+    real(kind=rp), intent(inout) :: D(NZD, NZD), DT(NZD, NZD)
+    real(kind=rp), intent(in) :: Z(NZ)
+
+    integer, parameter :: NMAX = 84
+
+    real(kind=xp) :: d0, FN
+    integer :: I, J, N
+
+    N = NZ - 1
+    if (NZ .gt. NMAX) then
+       write (stderr, *) 'Subroutine DGLL'
+       write (stderr, *) 'Maximum polynomial degree =', NMAX
+       write (stderr, *) 'Polynomial degree         =', NZ
+       call neko_error
+    else if (NZ .eq. 1) then
+       D(1, 1) = 0.0_rp
+       return
+    end if
+
+    FN = real(N, kind=xp)
+    d0 = FN*(FN + 1.0_xp)/4.0_xp
+    do I = 1, NZ
+       do J = 1, NZ
+          if (I .ne. J) then
+             D(I, J) = PNLEG(real(Z(I), xp), N)/ &
+                  (PNLEG(real(Z(J), xp), N) * (Z(I) - Z(J)))
+          else if (I .eq. 1) then
+             D(I, J) = -d0
+          else if (I .eq. NZ) then
+             D(I, J) = d0
+          else
+             D(I, J) = 0.0_rp
+          end if
+          DT(J, I) = D(I, J)
+       end do
+    end do
   end subroutine DGLL
 
-  REAL(KIND=XP) FUNCTION HGLL (I,Z,ZGLL,NZ)
-!---------------------------------------------------------------------
-!
-!     Compute the value of the Lagrangian interpolant L through
-!     the NZ Gauss-Lobatto Legendre points ZGLL at the point Z.
-!
-!---------------------------------------------------------------------
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
-    REAL(KIND=XP) ZGLL(1), EPS, DZ, Z
-    EPS = 1.E-5
+  !> Compute the value of the Lagrangian interpolant L through
+  !! the NZ Gauss-Lobatto Legendre points ZGLL at the point Z.
+  real(kind=xp) function HGLL(I, Z, ZGLL, NZ)
+    integer, intent(in) :: I, NZ
+    real(kind=xp), intent(in) :: ZGLL(NZ), Z
+
+    real(kind=xp) :: EPS, DZ
+    real(kind=xp) :: ALFAN
+    integer :: N
+
+    EPS = 1.0E-5_xp
     DZ = Z - ZGLL(I)
-    IF (ABS(DZ) .LT. EPS) THEN
-       HGLL = 1.
-       RETURN
-    ENDIF
+    if (abs(DZ) .lt. EPS) then
+       HGLL = 1.0_xp
+       return
+    end if
+
     N = NZ - 1
-    ALFAN = (N)*((N)+1.)
-    HGLL = - (1.-Z*Z)*PNDLEG(Z,N)/ &
-           (ALFAN*PNLEG(ZGLL(I),N)*(Z-ZGLL(I)))
-    RETURN
+    ALFAN = real(N, kind=xp) * (real(N, kind=xp) + 1.0_xp)
+    HGLL = -(1.0_xp - Z*Z)*PNDLEG(Z, N) / (ALFAN*PNLEG(ZGLL(I), N) * &
+         (Z - ZGLL(I)))
   end function HGLL
 
-  REAL(KIND=XP) FUNCTION HGL (I,Z,ZGL,NZ)
-!---------------------------------------------------------------------
-!
-!     Compute the value of the Lagrangian interpolant HGL through
-!     the NZ Gauss Legendre points ZGL at the point Z.
-!
-!---------------------------------------------------------------------
-    REAL(KIND=XP) ZGL(1), Z, EPS, DZ
-    EPS = 1.E-5
+  !> Compute the value of the Lagrangian interpolant HGL through
+  !! the NZ Gauss Legendre points ZGL at the point Z.
+  real(kind=xp) function HGL (I, Z, ZGL, NZ)
+    integer, intent(in) :: I, NZ
+    real(kind=xp), intent(in) :: ZGL(NZ), Z
+    real(kind=xp) :: EPS, DZ
+
+    integer :: N
+
+    EPS = 1.0E-5_xp
     DZ = Z - ZGL(I)
-    IF (ABS(DZ) .LT. EPS) THEN
-       HGL = 1.
-       RETURN
-    ENDIF
-    N = NZ-1
-    HGL = PNLEG(Z,NZ)/(PNDLEG(ZGL(I),NZ)*(Z-ZGL(I)))
-    RETURN
+    if (abs(DZ) .lt. EPS) then
+       HGL = 1.0_xp
+       return
+    end if
+
+    N = NZ - 1
+    HGL = PNLEG(Z, NZ) / (PNDLEG(ZGL(I), NZ) * (Z - ZGL(I)))
   end function HGL
 
-  REAL(KIND=XP) FUNCTION PNLEG (Z,N)
-!---------------------------------------------------------------------
-!
-!     Compute the value of the Nth order Legendre polynomial at Z.
-!     (Simpler than JACOBF)
-!     Based on the recursion formula for the Legendre polynomials.
-!
+  !> Compute the value of the Nth order Legendre polynomial at Z.
+  !! (Simpler than JACOBF)
+  !! Based on the recursion formula for the Legendre polynomials.
+  real(kind=xp) function PNLEG(Z, N)
+
 !---------------------------------------------------------------------
 !
 !     This next statement is to overcome the underflow bug in the i860.
 !     It can be removed at a later date.  11 Aug 1990   pff.
 !
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
-    REAL(KIND=XP) Z, P1, P2, P3
-    IF(ABS(Z) .LT. 1.0E-25) Z = 0.0
 
+    real(kind=xp), intent(in) :: Z
+    integer, intent(in) :: N
 
-    P1   = 1.
-    IF (N.EQ.0) THEN
+    real(kind=xp) :: P1, P2, P3, FK
+    integer :: K
+
+    P1 = 1.0_xp
+    if (N .eq. 0) then
        PNLEG = P1
-       RETURN
-    ENDIF
-    P2   = Z
-    P3   = P2
-    DO 10 K = 1, N-1
-       FK  = (K)
-       P3  = ((2.*FK+1.)*Z*P2 - FK*P1)/(FK+1.)
-       P1  = P2
-       P2  = P3
-10  CONTINUE
+       return
+    end if
+
+    P2 = Z
+    P3 = P2
+    do K = 1, N-1
+       FK = real(K, kind=xp)
+       P3 = ((2.0_xp*FK + 1.0_xp)*Z*P2 - FK*P1) / (FK + 1.0_xp)
+       P1 = P2
+       P2 = P3
+    end do
     PNLEG = P3
-    if (n.eq.0) pnleg = 1.
-    RETURN
   end function PNLEG
-  
+
+  !> Evaluate Legendre polynomials of degrees 0-N at point x
+  !! and store in array L
   subroutine legendre_poly(L, x, N)
-    ! Evaluate Legendre polynomials of degrees 0-N at point x
-    real(kind=rp), intent(inout):: L(1:N+1)
-    real(kind=rp) :: x
-    integer :: N, j
+    integer, intent(in) :: N
+    real(kind=rp), intent(inout) :: L(0:N)
+    real(kind=rp), intent(in) :: x
 
-    L(1) = 1.0_rp
-    L(2) = x
+    real(kind=rp) :: DJ
+    integer :: j
 
-    do j=3, N+1
-       L(j) = ( (2*j-1) * x * L(j-1) - (j-1) * L(j-2) ) / j 
+    L(0) = 1.0_rp
+    if (N .eq. 0) return
+    L(1) = x
+
+    do j = 1, N-1
+       DJ = real(j, kind=rp)
+       L(j + 1) = ((2.0_rp*DJ + 1.0_rp)*x*L(j) - DJ*L(j-1)) / (DJ + 1.0_rp)
     end do
   end subroutine legendre_poly
 
-  REAL(KIND=XP) FUNCTION PNDLEG (Z,N)
-!----------------------------------------------------------------------
-!
-!     Compute the derivative of the Nth order Legendre polynomial at Z.
-!     (Simpler than JACOBF)
-!     Based on the recursion formula for the Legendre polynomials.
-!
-!----------------------------------------------------------------------
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
-    REAL(KIND=XP) P1, P2, P1D, P2D, P3D, Z
-    P1   = 1.
-    P2   = Z
-    P1D  = 0.
-    P2D  = 1.
-    P3D  = 1.
-    DO 10 K = 1, N-1
-       FK  = (K)
-       P3  = ((2.*FK+1.)*Z*P2 - FK*P1)/(FK+1.)
-       P3D = ((2.*FK+1.)*P2 + (2.*FK+1.)*Z*P2D - FK*P1D)/(FK+1.)
-       P1  = P2
-       P2  = P3
+  !> Compute the derivative of the Nth order Legendre polynomial at Z.
+  !! (Simpler than JACOBF)
+  !! Based on the recursion formula for the Legendre polynomials.
+  real(kind=xp) function PNDLEG(Z, N)
+    real(kind=xp), intent(in) :: Z
+    integer, intent(in) :: N
+
+    real(kind=xp) :: P1, P2, P3, P1D, P2D, P3D, FK
+    integer :: K
+
+    if (N .eq. 0) then
+       PNDLEG = 0.0_xp
+       return
+    end if
+
+    P1 = 1.0_xp
+    P2 = Z
+    P1D = 0.0_xp
+    P2D = 1.0_xp
+    P3D = 1.0_xp
+    do K = 1, N-1
+       FK = real(K, kind=xp)
+       P3 = ((2.0_xp*FK + 1.0_xp)*Z*P2 - FK*P1) / (FK + 1.0_xp)
+       P3D = ((2.0_xp*FK + 1.0_xp)*P2 + (2.0_xp*FK + 1.0_xp)*Z*P2D - FK*P1D) / &
+            (FK + 1.0_xp)
+       P1 = P2
+       P2 = P3
        P1D = P2D
        P2D = P3D
-10  CONTINUE
+    end do
     PNDLEG = P3D
-    IF (N.eq.0) pndleg = 0.
-    RETURN
   end function PNDLEG
 
-  SUBROUTINE DGLLGL (D,DT,ZM1,ZM2,IM12,NZM1,NZM2,ND1,ND2)
-!-----------------------------------------------------------------------
-!
-!     Compute the (one-dimensional) derivative matrix D and its
-!     transpose DT associated with taking the derivative of a variable
-!     expanded on a Gauss-Lobatto Legendre mesh (M1), and evaluate its
-!     derivative on a Guass Legendre mesh (M2).
-!     Need the one-dimensional interpolation operator IM12
-!     (see subroutine IGLLGL).
-!     Note: D and DT are rectangular matrices.
-!
-!-----------------------------------------------------------------------
-    REAL(KIND=XP) D(ND2,ND1), DT(ND1,ND2), ZM1(ND1), ZM2(ND2), IM12(ND2,ND1)
-    REAL(KIND=XP) EPS, ZP, ZQ
-    IF (NZM1.EQ.1) THEN
-       D (1,1) = 0.
-       DT(1,1) = 0.
-       RETURN
-    ENDIF
-    EPS = 1.E-6
-    NM1 = NZM1-1
-    DO IP = 1, NZM2
-       DO JQ = 1, NZM1
+  !> Compute the (one-dimensional) derivative matrix D and its
+  !! transpose DT associated with taking the derivative of a variable
+  !! expanded on a Gauss-Lobatto Legendre mesh (M1), and evaluate its
+  !! derivative on a Guass Legendre mesh (M2).
+  !! Need the one-dimensional interpolation operator IM12
+  !! (see subroutine IGLLGL).
+  !! Note: D and DT are rectangular matrices.
+  subroutine DGLLGL(D, DT, ZM1, ZM2, IM12, NZM1, NZM2, ND1, ND2)
+    integer, intent(in) :: NZM1, NZM2, ND1, ND2
+    real(kind=xp), intent(inout) :: D(ND2, ND1), DT(ND1, ND2)
+    real(kind=xp), intent(in) :: ZM1(ND1), ZM2(ND2), IM12(ND2, ND1)
+
+    real(kind=xp) EPS, ZP, ZQ
+    integer :: IP, JQ, NM1
+
+    if (NZM1 .eq. 1) then
+       D (1, 1) = 0.0_xp
+       DT(1, 1) = 0.0_xp
+       return
+    end if
+    EPS = 1.0E-6_xp
+    NM1 = NZM1 - 1
+    do IP = 1, NZM2
+       do JQ = 1, NZM1
           ZP = ZM2(IP)
           ZQ = ZM1(JQ)
-          IF ((ABS(ZP) .LT. EPS).AND.(ABS(ZQ) .LT. EPS)) THEN
-             D(IP,JQ) = 0.
-          ELSE
-             D(IP,JQ) = (PNLEG(ZP,NM1)/PNLEG(ZQ,NM1) &
-                     -IM12(IP,JQ))/(ZP-ZQ)
-          ENDIF
-          DT(JQ,IP) = D(IP,JQ)
-       END DO
-    END DO
-    RETURN
+          if ((abs(ZP) .lt. EPS) .and. (abs(ZQ) .lt. EPS)) then
+             D(IP, JQ) = 0.0_xp
+          else
+             D(IP, JQ) = (PNLEG(ZP, NM1) / PNLEG(ZQ, NM1) - IM12(IP, JQ)) / &
+                  (ZP - ZQ)
+          end if
+          DT(JQ, IP) = D(IP, JQ)
+       end do
+    end do
   end subroutine DGLLGL
 
-  SUBROUTINE DGLJGJ (D,DT,ZGL,ZG,IGLG,NPGL,NPG,ND1,ND2,ALPHA,BETA)
-!-----------------------------------------------------------------------
-!
-!     Compute the (one-dimensional) derivative matrix D and its
-!     transpose DT associated with taking the derivative of a variable
-!     expanded on a Gauss-Lobatto Jacobi mesh (M1), and evaluate its
-!     derivative on a Guass Jacobi mesh (M2).
-!     Need the one-dimensional interpolation operator IM12
-!     (see subroutine IGLJGJ).
-!     Note: D and DT are rectangular matrices.
-!     Single precision version.
-!
-!-----------------------------------------------------------------------
-    REAL(KIND=XP) D(ND2,ND1), DT(ND1,ND2), ZGL(ND1), ZG(ND2), IGLG(ND2,ND1)
-    PARAMETER (NMAX=84)
-    PARAMETER (NDD = NMAX)
-    REAL(KIND=XP)  DD(NDD,NDD), DTD(NDD,NDD)
-    REAL(KIND=XP)  ZGD(NDD), ZGLD(NDD), IGLGD(NDD,NDD)
-    REAL(KIND=XP)  ALPHAD, BETAD
+  !> Compute the (one-dimensional) derivative matrix D and its
+  !! transpose DT associated with taking the derivative of a variable
+  !! expanded on a Gauss-Lobatto Jacobi mesh (M1), and evaluate its
+  !! derivative on a Guass Jacobi mesh (M2).
+  !! Need the one-dimensional interpolation operator IM12
+  !! (see subroutine IGLJGJ).
+  !! Note: D and DT are rectangular matrices.
+  !! Single precision version.
+  subroutine DGLJGJ(D, DT, ZGL, ZG, IGLG, NPGL, NPG, ND1, ND2, ALPHA, BETA)
+    integer, intent(in) :: NPGL, NPG, ND1, ND2
+    real(kind=xp), intent(inout) :: D(ND2, ND1), DT(ND1, ND2)
+    real(kind=xp), intent(in) :: ZGL(ND1), ZG(ND2), IGLG(ND2, ND1), ALPHA, BETA
 
-    IF (NPGL.LE.1) THEN
-       WRITE(6,*) 'DGLJGJ: Minimum number of Gauss-Lobatto points is 2'
-       call neko_error
-    ENDIF
-    IF (NPGL.GT.NMAX) THEN
-       WRITE(6,*) 'Polynomial degree too high in DGLJGJ'
-       WRITE(6,*) 'Maximum polynomial degree is',NMAX
-       WRITE(6,*) 'Here NPGL=',NPGL
-       call neko_error
-    ENDIF
-    IF ((ALPHA.LE.-1.).OR.(BETA.LE.-1.)) THEN
-       WRITE(6,*) 'DGLJGJ: Alpha and Beta must be greater than -1'
-       call neko_error
-    ENDIF
+    integer, parameter :: NMAX = 84
+    integer, parameter :: NDD = NMAX
 
-    ALPHAD = ALPHA
-    BETAD  = BETA
-    DO I=1,NPG
+    real(kind=xp) DD(NDD, NDD), DTD(NDD, NDD)
+    real(kind=xp) ZGD(NDD), ZGLD(NDD), IGLGD(NDD, NDD)
+    integer :: I, J
+
+    if (NPGL .le. 1) then
+       call neko_error('DGLJGJ: Minimum number of Gauss-Lobatto points is 2')
+    else if (NPGL .gt. NMAX) then
+       write(stderr, *) 'Polynomial degree too high in DGLJGJ'
+       write(stderr, *) 'Maximum polynomial degree is', NMAX
+       write(stderr, *) 'Here NPGL=', NPGL
+       call neko_error
+    else if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
+       call neko_error('DGLJGJ: Alpha and Beta must be greater than -1')
+    end if
+
+    do I = 1, NPG
        ZGD(I) = ZG(I)
-       DO J=1,NPGL
-          IGLGD(I,J) = IGLG(I,J)
-       END DO
-    END DO
-    DO 200 I=1,NPGL
+       do J = 1, NPGL
+          IGLGD(I, J) = IGLG(I, J)
+       end do
+    end do
+    do I = 1, NPGL
        ZGLD(I) = ZGL(I)
-200 CONTINUE
-    CALL DGLJGJD (DD,DTD,ZGLD,ZGD,IGLGD,NPGL,NPG,NDD,NDD,ALPHAD,BETAD)
-    DO I=1,NPG
-       DO J=1,NPGL
-          D(I,J)  = DD(I,J)
-          DT(J,I) = DTD(J,I)
-       END DO
-    END DO
-    RETURN
+    end do
+    call DGLJGJD(DD, DTD, ZGLD, ZGD, IGLGD, NPGL, NPG, NDD, NDD, ALPHA, BETA)
+    do I = 1, NPG
+       do J = 1, NPGL
+          D(I, J) = DD(I, J)
+          DT(J, I) = DTD(J, I)
+       end do
+    end do
   end subroutine DGLJGJ
 
-  SUBROUTINE DGLJGJD (D,DT,ZGL,ZG,IGLG,NPGL,NPG,ND1,ND2,ALPHA,BETA)
-!-----------------------------------------------------------------------
-!
-!     Compute the (one-dimensional) derivative matrix D and its
-!     transpose DT associated with taking the derivative of a variable
-!     expanded on a Gauss-Lobatto Jacobi mesh (M1), and evaluate its
-!     derivative on a Guass Jacobi mesh (M2).
-!     Need the one-dimensional interpolation operator IM12
-!     (see subroutine IGLJGJ).
-!     Note: D and DT are rectangular matrices.
-!     Double precision version.
-!
-!-----------------------------------------------------------------------
-    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
-    REAL(KIND=XP)  D(ND2,ND1), DT(ND1,ND2), ZGL(ND1), ZG(ND2)
-    REAL(KIND=XP)  IGLG(ND2,ND1), ALPHA, BETA
+  !> Compute the (one-dimensional) derivative matrix D and its
+  !! transpose DT associated with taking the derivative of a variable
+  !! expanded on a Gauss-Lobatto Jacobi mesh (M1), and evaluate its
+  !! derivative on a Guass Jacobi mesh (M2).
+  !! Need the one-dimensional interpolation operator IM12
+  !! (see subroutine IGLJGJ).
+  !! Note: D and DT are rectangular matrices.
+  !! Double precision version.
+  subroutine DGLJGJD(D, DT, ZGL, ZG, IGLG, NPGL, NPG, ND1, ND2, ALPHA, BETA)
+    integer, intent(in) :: NPGL, NPG, ND1, ND2
+    real(kind=xp), intent(inout) :: D(ND2, ND1), DT(ND1, ND2)
+    real(kind=xp), intent(in) :: ZGL(ND1), ZG(ND2), IGLG(ND2, ND1), ALPHA, BETA
 
-    IF (NPGL.LE.1) THEN
-       WRITE(6,*) 'DGLJGJD: Minimum number of Gauss-Lobatto points is 2'
-       call neko_error
-    ENDIF
-    IF ((ALPHA.LE.-1.).OR.(BETA.LE.-1.)) THEN
-       WRITE(6,*) 'DGLJGJD: Alpha and Beta must be greater than -1'
-       call neko_error
-    ENDIF
+    real(kind=xp) :: EPS, EIGVAL, DN
+    real(kind=xp) :: PDI, PDJ, PI, PJ, PM1, PDM1, PM2, PDM2
+    real(kind=xp) :: DZ, FACI, FACJ, CONST
+    integer :: I, J, NGL
 
-    EPS    = 1.e-6
-    ONE    = 1.
-    TWO    = 2.
-    NGL    = NPGL-1
-    DN     = ((NGL))
-    EIGVAL = -DN*(DN+ALPHA+BETA+ONE)
+    if (NPGL .le. 1) then
+       call neko_error('DGLJGJD: Minimum number of Gauss-Lobatto points is 2')
+    else if ((ALPHA .le. -1.0_xp) .or. (BETA .le. -1.0_xp)) then
+       call neko_error('DGLJGJD: Alpha and Beta must be greater than -1')
+    end if
 
-    DO I=1,NPG
-       DO J=1,NPGL
-          DZ = ABS(ZG(I)-ZGL(J))
-          IF (DZ.LT.EPS) THEN
-             D(I,J) = (ALPHA*(ONE+ZG(I))-BETA*(ONE-ZG(I)))/ &
-                 (TWO*(ONE-ZG(I)**2))
-          ELSE
-             CALL JACOBF (PI,PDI,PM1,PDM1,PM2,PDM2,NGL,ALPHA,BETA,ZG(I))
-             CALL JACOBF (PJ,PDJ,PM1,PDM1,PM2,PDM2,NGL,ALPHA,BETA,ZGL(J))
-             FACI   = ALPHA*(ONE+ZG(I))-BETA*(ONE-ZG(I))
-             FACJ   = ALPHA*(ONE+ZGL(J))-BETA*(ONE-ZGL(J))
-             CONST  = EIGVAL*PJ+FACJ*PDJ
-             D(I,J) = ((EIGVAL*PI+FACI*PDI)*(ZG(I)-ZGL(J)) &
-                 -(ONE-ZG(I)**2)*PDI)/(CONST*(ZG(I)-ZGL(J))**2)
-          ENDIF
-          DT(J,I) = D(I,J)
-       END DO
-    END DO
-    RETURN
+    EPS = 1.0E-6_xp
+
+    NGL = NPGL-1
+    DN = real(NGL, kind=xp)
+    EIGVAL = -DN*(DN + ALPHA + BETA + 1.0_xp)
+
+    do I = 1, NPG
+       do J = 1, NPGL
+          DZ = abs(ZG(I)-ZGL(J))
+          if (DZ .lt. EPS) then
+             D(I, J) = (ALPHA*(1.0_xp + ZG(I)) - BETA*(1.0_xp - ZG(I))) / &
+                  (2.0_xp*(1.0_xp - ZG(I)**2))
+          else
+             call JACOBF(PI, PDI, PM1, PDM1, PM2, PDM2, NGL, ALPHA, BETA, ZG(I))
+             call JACOBF(PJ, PDJ, PM1, PDM1, PM2, PDM2, NGL, ALPHA, BETA, ZGL(J))
+             FACI = ALPHA*(1.0_xp + ZG(I)) - BETA*(1.0_xp - ZG(I))
+             FACJ = ALPHA*(1.0_xp + ZGL(J)) - BETA*(1.0_xp - ZGL(J))
+             CONST = EIGVAL*PJ + FACJ*PDJ
+             D(I, J) = ((EIGVAL*PI + FACI*PDI) * (ZG(I) - ZGL(J)) - &
+                  (1.0_xp - ZG(I)**2)*PDI) / (CONST*(ZG(I) - ZGL(J))**2)
+          end if
+          DT(J, I) = D(I, J)
+       end do
+    end do
   end subroutine DGLJGJD
 
-  SUBROUTINE IGLM (I12,IT12,Z1,Z2,NZ1,NZ2,ND1,ND2)
-!----------------------------------------------------------------------
-!
-!     Compute the one-dimensional interpolation operator (matrix) I12
-!     ands its transpose IT12 for interpolating a variable from a
-!     Gauss Legendre mesh (1) to a another mesh M (2).
-!     Z1 : NZ1 Gauss Legendre points.
-!     Z2 : NZ2 points on mesh M.
-!
-!--------------------------------------------------------------------
-    REAL(KIND=XP) I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2), ZI
-    IF (NZ1 .EQ. 1) THEN
-       I12 (1,1) = 1.
-       IT12(1,1) = 1.
-       RETURN
-    ENDIF
-    DO I=1,NZ2
+  !> Compute the one-dimensional interpolation operator (matrix) I12
+  !! ands its transpose IT12 for interpolating a variable from a
+  !! Gauss Legendre mesh (1) to a another mesh M (2).
+  !! Z1 : NZ1 Gauss Legendre points.
+  !! Z2 : NZ2 points on mesh M.
+  subroutine IGLM(I12, IT12, Z1, Z2, NZ1, NZ2, ND1, ND2)
+    integer, intent(in) :: NZ1, NZ2, ND1, ND2
+    real(kind=xp), intent(inout) :: I12(ND2, ND1), IT12(ND1, ND2)
+    real(kind=xp), intent(in) :: Z1(ND1), Z2(ND2)
+    real(kind=xp) :: ZI
+    integer :: I, J
+
+    if (NZ1 .eq. 1) then
+       I12 (1, 1) = 1.0_xp
+       IT12(1, 1) = 1.0_xp
+       return
+    end if
+
+    do I = 1, NZ2
        ZI = Z2(I)
-       DO J=1,NZ1
-          I12 (I,J) = HGL(J,ZI,Z1,NZ1)
-          IT12(J,I) = I12(I,J)
-       END DO
-    END DO
-    RETURN
+       do J = 1, NZ1
+          I12 (I, J) = HGL(J, ZI, Z1, NZ1)
+          IT12(J, I) = I12(I, J)
+       end do
+    end do
   end subroutine IGLM
 
-  SUBROUTINE IGLLM (I12,IT12,Z1,Z2,NZ1,NZ2,ND1,ND2)
-!----------------------------------------------------------------------
-!
-!     Compute the one-dimensional interpolation operator (matrix) I12
-!     ands its transpose IT12 for interpolating a variable from a
-!     Gauss-Lobatto Legendre mesh (1) to a another mesh M (2).
-!     Z1 : NZ1 Gauss-Lobatto Legendre points.
-!     Z2 : NZ2 points on mesh M.
-!
-!--------------------------------------------------------------------
-    REAL(KIND=XP) I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2),ZI
-    IF (NZ1 .EQ. 1) THEN
-       I12 (1,1) = 1.
-       IT12(1,1) = 1.
-       RETURN
-    ENDIF
-    DO I=1,NZ2
+  !> Compute the one-dimensional interpolation operator (matrix) I12
+  !! ands its transpose IT12 for interpolating a variable from a
+  !! Gauss-Lobatto Legendre mesh (1) to a another mesh M (2).
+  !! Z1 : NZ1 Gauss-Lobatto Legendre points.
+  !! Z2 : NZ2 points on mesh M.
+  subroutine IGLLM(I12, IT12, Z1, Z2, NZ1, NZ2, ND1, ND2)
+    integer, intent(in) :: NZ1, NZ2, ND1, ND2
+    real(kind=xp), intent(inout) :: I12(ND2, ND1), IT12(ND1, ND2)
+    real(kind=xp), intent(in) :: Z1(ND1), Z2(ND2)
+    real(kind=xp) :: ZI
+    integer :: I, J
+
+    if (NZ1 .eq. 1) then
+       I12 (1, 1) = 1.0_xp
+       IT12(1, 1) = 1.0_xp
+       return
+    end if
+
+    do I = 1, NZ2
        ZI = Z2(I)
-       DO J=1,NZ1
-          I12 (I,J) = HGLL(J,ZI,Z1,NZ1)
-          IT12(J,I) = I12(I,J)
-       END DO
-    END DO
-    RETURN
+       do J = 1, NZ1
+          I12 (I, J) = HGLL(J, ZI, Z1, NZ1)
+          IT12(J, I) = I12(I, J)
+       end do
+    end do
   end subroutine IGLLM
 
-  SUBROUTINE IGJM (I12,IT12,Z1,Z2,NZ1,NZ2,ND1,ND2,ALPHA,BETA)
-!----------------------------------------------------------------------
-!
-!     Compute the one-dimensional interpolation operator (matrix) I12
-!     ands its transpose IT12 for interpolating a variable from a
-!     Gauss Jacobi mesh (1) to a another mesh M (2).
-!     Z1 : NZ1 Gauss Jacobi points.
-!     Z2 : NZ2 points on mesh M.
-!     Single precision version.
-!
-!--------------------------------------------------------------------
-    REAL(KIND=XP) I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2),ZI,ALPHA,BETA
-    IF (NZ1 .EQ. 1) THEN
-       I12 (1,1) = 1.
-       IT12(1,1) = 1.
-       RETURN
-    ENDIF
-    DO I=1,NZ2
+  !> Compute the one-dimensional interpolation operator (matrix) I12
+  !! ands its transpose IT12 for interpolating a variable from a
+  !! Gauss Jacobi mesh (1) to a another mesh M (2).
+  !! Z1 : NZ1 Gauss Jacobi points.
+  !! Z2 : NZ2 points on mesh M.
+  !! Single precision version.
+  subroutine IGJM(I12, IT12, Z1, Z2, NZ1, NZ2, ND1, ND2, ALPHA, BETA)
+    integer, intent(in) :: NZ1, NZ2, ND1, ND2
+    real(kind=xp), intent(inout) :: I12(ND2, ND1), IT12(ND1, ND2)
+    real(kind=xp), intent(in) :: Z1(ND1), Z2(ND2), ALPHA, BETA
+    real(kind=xp) :: ZI
+    integer :: I, J
+
+    if (NZ1 .eq. 1) then
+       I12 (1, 1) = 1.0_xp
+       IT12(1, 1) = 1.0_xp
+       return
+    end if
+
+    do I = 1, NZ2
        ZI = Z2(I)
-       DO J=1,NZ1
-          I12 (I,J) = HGJ(J,ZI,Z1,NZ1,ALPHA,BETA)
-          IT12(J,I) = I12(I,J)
-       END DO
-    END DO
-    RETURN
+       do J = 1, NZ1
+          I12 (I, J) = HGJ(J, ZI, Z1, NZ1, ALPHA, BETA)
+          IT12(J, I) = I12(I, J)
+       end do
+    end do
   end subroutine IGJM
 
-  SUBROUTINE IGLJM (I12,IT12,Z1,Z2,NZ1,NZ2,ND1,ND2,ALPHA,BETA)
-!----------------------------------------------------------------------
-!
-!     Compute the one-dimensional interpolation operator (matrix) I12
-!     ands its transpose IT12 for interpolating a variable from a
-!     Gauss-Lobatto Jacobi mesh (1) to a another mesh M (2).
-!     Z1 : NZ1 Gauss-Lobatto Jacobi points.
-!     Z2 : NZ2 points on mesh M.
-!     Single precision version.
-!
-!--------------------------------------------------------------------
-    REAL(KIND=XP) I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2),ZI,ALPHA,BETA
-    IF (NZ1 .EQ. 1) THEN
-       I12 (1,1) = 1.
-       IT12(1,1) = 1.
-       RETURN
-    ENDIF
-    DO I=1,NZ2
+  !> Compute the one-dimensional interpolation operator (matrix) I12
+  !! ands its transpose IT12 for interpolating a variable from a
+  !! Gauss-Lobatto Jacobi mesh (1) to a another mesh M (2).
+  !! Z1 : NZ1 Gauss-Lobatto Jacobi points.
+  !! Z2 : NZ2 points on mesh M.
+  !! Single precision version.
+  subroutine IGLJM(I12, IT12, Z1, Z2, NZ1, NZ2, ND1, ND2, ALPHA, BETA)
+    integer, intent(in) :: NZ1, NZ2, ND1, ND2
+    real(kind=xp), intent(inout) :: I12(ND2, ND1), IT12(ND1, ND2)
+    real(kind=xp), intent(in) :: Z1(ND1), Z2(ND2), ALPHA, BETA
+    real(kind=xp) :: ZI
+    integer :: I, J
+
+    if (NZ1 .eq. 1) then
+       I12 (1, 1) = 1.0_xp
+       IT12(1, 1) = 1.0_xp
+       return
+    end if
+
+    do I = 1, NZ2
        ZI = Z2(I)
-       DO J=1,NZ1
-          I12 (I,J) = HGLJ(J,ZI,Z1,NZ1,ALPHA,BETA)
-          IT12(J,I) = I12(I,J)
-       END DO
-    END DO
-    RETURN
+       do J = 1, NZ1
+          I12 (I, J) = HGLJ(J, ZI, Z1, NZ1, ALPHA, BETA)
+          IT12(J, I) = I12(I, J)
+       end do
+    end do
   end subroutine IGLJM
 end module speclib

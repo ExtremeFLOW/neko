@@ -32,7 +32,7 @@
 !
 !> Operators CPU backend
 module opr_cpu
-  use num_types, only : rp
+  use num_types, only : rp, dp, xp
   use space, only : space_t
   use coefs, only : coef_t
   use math, only : sub3, copy, rzero, PI
@@ -94,28 +94,28 @@ module opr_cpu
 
      module subroutine opr_cpu_convect_scalar(du, u, c, Xh_GLL, Xh_GL, &
                                               coef_GLL, coef_GL, GLL_to_GL)
-        type(space_t), intent(in) :: Xh_GL
-        type(space_t), intent(in) :: Xh_GLL
-        type(coef_t), intent(in) :: coef_GLL
-        type(coef_t), intent(in) :: coef_GL
-        type(interpolator_t), intent(inout) :: GLL_to_GL
-        real(kind=rp), intent(inout) :: &
+       type(space_t), intent(in) :: Xh_GL
+       type(space_t), intent(in) :: Xh_GLL
+       type(coef_t), intent(in) :: coef_GLL
+       type(coef_t), intent(in) :: coef_GL
+       type(interpolator_t), intent(inout) :: GLL_to_GL
+       real(kind=rp), intent(inout) :: &
                    du(Xh_GLL%lx, Xh_GLL%ly, Xh_GLL%lz, coef_GL%msh%nelv)
-        real(kind=rp), intent(inout) :: &
+       real(kind=rp), intent(inout) :: &
                    u(Xh_GL%lx, Xh_GL%lx, Xh_GL%lx, coef_GL%msh%nelv)
-        real(kind=rp), intent(inout) :: c(Xh_GL%lxyz, coef_GL%msh%nelv, 3)
+       real(kind=rp), intent(inout) :: c(Xh_GL%lxyz, coef_GL%msh%nelv, 3)
 
-      end subroutine opr_cpu_convect_scalar
+     end subroutine opr_cpu_convect_scalar
 
-      module subroutine opr_cpu_set_convect_rst(cr, cs, ct, cx, cy, cz, &
+     module subroutine opr_cpu_set_convect_rst(cr, cs, ct, cx, cy, cz, &
                                                 Xh, coef)
-         type(space_t), intent(inout) :: Xh
-         type(coef_t), intent(inout) :: coef
-         real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), &
+       type(space_t), intent(inout) :: Xh
+       type(coef_t), intent(inout) :: coef
+       real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), &
                         intent(inout) :: cr, cs, ct
-         real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), &
+       real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), &
                         intent(in) :: cx, cy, cz
-       end subroutine opr_cpu_set_convect_rst
+     end subroutine opr_cpu_set_convect_rst
   end interface
 
 contains
@@ -124,9 +124,9 @@ contains
     type(field_t), intent(inout) :: w1
     type(field_t), intent(inout) :: w2
     type(field_t), intent(inout) :: w3
-    type(field_t), intent(inout) :: u1
-    type(field_t), intent(inout) :: u2
-    type(field_t), intent(inout) :: u3
+    type(field_t), intent(in) :: u1
+    type(field_t), intent(in) :: u2
+    type(field_t), intent(in) :: u3
     type(field_t), intent(inout) :: work1
     type(field_t), intent(inout) :: work2
     type(coef_t), intent(in) :: c_Xh
@@ -237,10 +237,10 @@ contains
     type(field_t), intent(in) :: u, v, w
     real(kind=rp) :: grad(coef%Xh%lxyz,3,3)
     integer :: e, i
-    real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
-    real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
-    real(kind=rp) :: a11, a22, a33, a12, a13, a23
-    real(kind=rp) :: msk1, msk2, msk3
+    real(kind=xp) :: eigen(3), B, C, D, q, r, theta, l2
+    real(kind=xp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
+    real(kind=xp) :: a11, a22, a33, a12, a13, a23
+    real(kind=xp) :: msk1, msk2, msk3
 
     do e = 1, coef%msh%nelv
        call opr_cpu_opgrad(grad(1,1,1), grad(1,1,2), grad(1,1,3), &
@@ -256,13 +256,13 @@ contains
           s33 = grad(i,3,3)
 
 
-          s12 = 0.5*(grad(i,1,2) + grad(i,2,1))
-          s13 = 0.5*(grad(i,1,3) + grad(i,3,1))
-          s23 = 0.5*(grad(i,2,3) + grad(i,3,2))
+          s12 = 0.5_xp*(grad(i,1,2) + grad(i,2,1))
+          s13 = 0.5_xp*(grad(i,1,3) + grad(i,3,1))
+          s23 = 0.5_xp*(grad(i,2,3) + grad(i,3,2))
 
-          o12 = 0.5*(grad(i,1,2) - grad(i,2,1))
-          o13 = 0.5*(grad(i,1,3) - grad(i,3,1))
-          o23 = 0.5*(grad(i,2,3) - grad(i,3,2))
+          o12 = 0.5_xp*(grad(i,1,2) - grad(i,2,1))
+          o13 = 0.5_xp*(grad(i,1,3) - grad(i,3,1))
+          o23 = 0.5_xp*(grad(i,2,3) - grad(i,3,2))
 
           a11 = s11*s11 + s12*s12 + s13*s13 - o12*o12 - o13*o13
           a12 = s11 * s12 + s12 * s22 + s13 * s23 - o13 * o23
@@ -276,18 +276,17 @@ contains
           B = -(a11 + a22 + a33)
           C = -(a12*a12 + a13*a13 + a23*a23 &
                - a11 * a22 - a11 * a33 - a22 * a33)
-          D = -(2.0 * a12 * a13 * a23 - a11 * a23*a23 &
+          D = -(2.0_xp * a12 * a13 * a23 - a11 * a23*a23 &
                - a22 * a13*a13 - a33 * a12*a12 + a11 * a22 * a33)
 
 
-          q = (3.0 * C - B*B) / 9.0
-          r = (9.0 * C * B - 27.0 * D - 2.0 * B*B*B) / 54.0
+          q = (3.0_xp * C - B*B) / 9.0_xp
+          r = (9.0_xp * C * B - 27.0_xp * D - 2.0_xp * B*B*B) / 54.0_xp
           theta = acos( r / sqrt(-q*q*q) )
 
-          eigen(1) = 2.0 * sqrt(-q) * cos(theta / 3.0) - B / 3.0
-          eigen(2) = 2.0 * sqrt(-q) * cos((theta + 2.0 * pi) / 3.0) - B / 3.0
-          eigen(3) = 2.0 * sqrt(-q) * cos((theta + 4.0 * pi) / 3.0) - B / 3.0
-
+          eigen(1) = 2.0_xp * sqrt(-q) * cos(theta / 3.0_xp) - B / 3.0_xp
+          eigen(2) = 2.0_xp * sqrt(-q) * cos((theta + 2.0_xp * pi) / 3.0_xp) - B / 3.0_xp
+          eigen(3) = 2.0_xp * sqrt(-q) * cos((theta + 4.0_xp * pi) / 3.0_xp) - B / 3.0_xp
           msk1 = merge(1.0_rp, 0.0_rp, eigen(2) .le. eigen(1) &
                .and. eigen(1) .le. eigen(3) .or. eigen(3) &
                .le. eigen(1) .and. eigen(1) .le. eigen(2) )
@@ -299,11 +298,12 @@ contains
                .le. eigen(3) .and. eigen(3) .le. eigen(1))
 
           l2 = msk1 * eigen(1) + msk2 * eigen(2) + msk3 * eigen(3)
-
-          lambda2%x(i,1,1,e) = l2/(coef%B(i,1,1,e)**2)
+          lambda2%x(i,1,1,e) = l2/(real(coef%B(i,1,1,e)**2,xp))
        end do
     end do
 
   end subroutine opr_cpu_lambda2
+
+
 
 end module opr_cpu

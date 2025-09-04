@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -34,24 +34,28 @@
 module gs_device_mpi
   use num_types, only : rp, c_rp
   use gs_comm, only : gs_comm_t
-  use gs_ops
   use stack, only : stack_i4_t
   use comm, only : pe_size, pe_rank
   use htable, only : htable_i4_t
-  use device
+  use device, only : device_memcpy, device_alloc, device_event_create, &
+       device_event_destroy, device_stream_create_with_priority, device_sync, &
+       device_stream_wait_event, device_get_ptr, device_event_record, &
+       device_stream_destroy, device_free, device_memset, &
+       STRM_HIGH_PRIO, HOST_TO_DEVICE
   use utils, only : neko_error
-  use, intrinsic :: iso_c_binding, only : c_sizeof, c_int32_t
+  use, intrinsic :: iso_c_binding, only : c_sizeof, c_int32_t, &
+       c_ptr, C_NULL_PTR, c_size_t, c_associated
   implicit none
   private
 
   !> Buffers for non-blocking communication and packing/unpacking
   type, private :: gs_device_mpi_buf_t
-     integer, allocatable :: ndofs(:)           !< Number of dofs
-     integer, allocatable :: offset(:)          !< Offset into buf
-     integer :: total                           !< Total number of dofs
-     type(c_ptr) :: reqs = C_NULL_PTR           !< MPI request array in C
-     type(c_ptr) :: buf_d = C_NULL_PTR          !< Device buffer
-     type(c_ptr) :: dof_d = C_NULL_PTR          !< Dof mapping for pack/unpack
+     integer, allocatable :: ndofs(:) !< Number of dofs
+     integer, allocatable :: offset(:) !< Offset into buf
+     integer :: total !< Total number of dofs
+     type(c_ptr) :: reqs = C_NULL_PTR !< MPI request array in C
+     type(c_ptr) :: buf_d = C_NULL_PTR !< Device buffer
+     type(c_ptr) :: dof_d = C_NULL_PTR !< Dof mapping for pack/unpack
    contains
      procedure, pass(this) :: init => gs_device_mpi_buf_init
      procedure, pass(this) :: free => gs_device_mpi_buf_free
@@ -217,6 +221,7 @@ contains
 
     sz = c_sizeof(rp_dummy) * total
     call device_alloc(this%buf_d, sz)
+    call device_memset(this%buf_d, 0, sz, sync=.true.)
 
     sz = c_sizeof(i4_dummy) * total
     call device_alloc(this%dof_d, sz)
@@ -250,8 +255,10 @@ contains
           end do
        end select
     end do
-
-    call device_memcpy(dofs, this%dof_d, total, HOST_TO_DEVICE, sync=.false.)
+    call device_memcpy(dofs, this%dof_d, total, HOST_TO_DEVICE, sync=.true.)
+    ! Syncing here prevents the memory in dofs to accidently be corrupted
+    ! while this memcpy is happening.
+    ! This might be happening in many other places as well. Karp 4/6-25
 
     deallocate(dofs)
     call doftable%free()
@@ -329,7 +336,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: u
     type(c_ptr), intent(inout) :: deps
     type(c_ptr), intent(inout) :: strm
-    integer ::  i
+    integer :: i
     type(c_ptr) :: u_d
 
     u_d = device_get_ptr(u)
@@ -338,16 +345,16 @@ contains
 
 #ifdef HAVE_HIP
        call hip_gs_pack(u_d, &
-                        this%send_buf%buf_d, &
-                        this%send_buf%dof_d, &
-                        0, this%send_buf%total, &
-                        strm)
+            this%send_buf%buf_d, &
+            this%send_buf%dof_d, &
+            0, this%send_buf%total, &
+            strm)
 #elif HAVE_CUDA
        call cuda_gs_pack(u_d, &
-                         this%send_buf%buf_d, &
-                         this%send_buf%dof_d, &
-                         0, this%send_buf%total, &
-                         strm)
+            this%send_buf%buf_d, &
+            this%send_buf%dof_d, &
+            0, this%send_buf%total, &
+            strm)
 #else
        call neko_error('gs_device_mpi: no backend')
 #endif
@@ -356,9 +363,9 @@ contains
 
        do i = 1, size(this%send_pe)
           call device_mpi_isend(this%send_buf%buf_d, &
-                                rp*this%send_buf%offset(i), &
-                                rp*this%send_buf%ndofs(i), this%send_pe(i), &
-                                this%send_buf%reqs, i)
+               rp*this%send_buf%offset(i), &
+               rp*this%send_buf%ndofs(i), this%send_pe(i), &
+               this%send_buf%reqs, i)
        end do
 
     else
@@ -367,18 +374,18 @@ contains
           call device_stream_wait_event(this%stream(i), deps, 0)
 #ifdef HAVE_HIP
           call hip_gs_pack(u_d, &
-                           this%send_buf%buf_d, &
-                           this%send_buf%dof_d, &
-                           this%send_buf%offset(i), &
-                           this%send_buf%ndofs(i), &
-                           this%stream(i))
+               this%send_buf%buf_d, &
+               this%send_buf%dof_d, &
+               this%send_buf%offset(i), &
+               this%send_buf%ndofs(i), &
+               this%stream(i))
 #elif HAVE_CUDA
           call cuda_gs_pack(u_d, &
-                            this%send_buf%buf_d, &
-                            this%send_buf%dof_d, &
-                            this%send_buf%offset(i), &
-                            this%send_buf%ndofs(i), &
-                            this%stream(i))
+               this%send_buf%buf_d, &
+               this%send_buf%dof_d, &
+               this%send_buf%offset(i), &
+               this%send_buf%ndofs(i), &
+               this%stream(i))
 #else
           call neko_error('gs_device_mpi: no backend')
 #endif
@@ -388,9 +395,9 @@ contains
        do i = 1, size(this%send_pe)
           call device_sync(this%stream(i))
           call device_mpi_isend(this%send_buf%buf_d, &
-                                rp*this%send_buf%offset(i), &
-                                rp*this%send_buf%ndofs(i), this%send_pe(i), &
-                                this%send_buf%reqs, i)
+               rp*this%send_buf%offset(i), &
+               rp*this%send_buf%ndofs(i), this%send_pe(i), &
+               this%send_buf%reqs, i)
        end do
     end if
 
@@ -403,8 +410,8 @@ contains
 
     do i = 1, size(this%recv_pe)
        call device_mpi_irecv(this%recv_buf%buf_d, rp*this%recv_buf%offset(i), &
-                             rp*this%recv_buf%ndofs(i), this%recv_pe(i), &
-                             this%recv_buf%reqs, i)
+            rp*this%recv_buf%ndofs(i), this%recv_pe(i), &
+            this%recv_buf%reqs, i)
     end do
 
   end subroutine gs_device_mpi_nbrecv
@@ -425,16 +432,16 @@ contains
 
 #ifdef HAVE_HIP
        call hip_gs_unpack(u_d, op, &
-                          this%recv_buf%buf_d, &
-                          this%recv_buf%dof_d, &
-                          0, this%recv_buf%total, &
-                          strm)
+            this%recv_buf%buf_d, &
+            this%recv_buf%dof_d, &
+            0, this%recv_buf%total, &
+            strm)
 #elif HAVE_CUDA
        call cuda_gs_unpack(u_d, op, &
-                           this%recv_buf%buf_d, &
-                           this%recv_buf%dof_d, &
-                           0, this%recv_buf%total, &
-                           strm)
+            this%recv_buf%buf_d, &
+            this%recv_buf%dof_d, &
+            0, this%recv_buf%total, &
+            strm)
 #else
        call neko_error('gs_device_mpi: no backend')
 #endif
@@ -447,22 +454,22 @@ contains
     else
 
        do while(device_mpi_waitany(size(this%recv_pe), &
-                                  this%recv_buf%reqs, done_req) .ne. 0)
+            this%recv_buf%reqs, done_req) .ne. 0)
 
 #ifdef HAVE_HIP
           call hip_gs_unpack(u_d, op, &
-                             this%recv_buf%buf_d, &
-                             this%recv_buf%dof_d, &
-                             this%recv_buf%offset(done_req), &
-                             this%recv_buf%ndofs(done_req), &
-                             this%stream(done_req))
+               this%recv_buf%buf_d, &
+               this%recv_buf%dof_d, &
+               this%recv_buf%offset(done_req), &
+               this%recv_buf%ndofs(done_req), &
+               this%stream(done_req))
 #elif HAVE_CUDA
           call cuda_gs_unpack(u_d, op, &
-                              this%recv_buf%buf_d, &
-                              this%recv_buf%dof_d, &
-                              this%recv_buf%offset(done_req), &
-                              this%recv_buf%ndofs(done_req), &
-                              this%stream(done_req))
+               this%recv_buf%buf_d, &
+               this%recv_buf%dof_d, &
+               this%recv_buf%offset(done_req), &
+               this%recv_buf%ndofs(done_req), &
+               this%stream(done_req))
 #else
           call neko_error('gs_device_mpi: no backend')
 #endif

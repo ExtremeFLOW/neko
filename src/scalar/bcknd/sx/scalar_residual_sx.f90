@@ -30,7 +30,7 @@ contains
     type(space_t), intent(inout) :: Xh
     type(field_t), intent(inout) :: s
     type(field_t), intent(inout) :: s_res
-    type(field_t), intent(inout) :: f_Xh
+    type(field_t), intent(in) :: f_Xh
     type(coef_t), intent(inout) :: c_Xh
     type(field_t), intent(in) :: lambda
     real(kind=rp), intent(in) :: rhocp
