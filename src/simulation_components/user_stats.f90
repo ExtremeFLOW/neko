@@ -44,19 +44,23 @@ module user_stats
   use json_utils, only : json_get, json_get_or_default
   use mean_field, only : mean_field_t
   use coefs, only : coef_t
+  use time_state, only : time_state_t
   implicit none
   private
 
   !> A simulation component that computes the averages of fields in the registry.
   type, public, extends(simulation_component_t) :: user_stats_t
 
-     !> Variables
-     real(kind=rp) :: start_time !<When to start average
-     real(kind=rp) :: time !< current time
-     type(mean_field_t), allocatable :: mean_fields(:) !<mean fields
-     integer :: n_avg_fields = 0 !< NUmber of fields to average
-     character(len=20), allocatable :: field_names(:) !< field names
-
+     !> When to start averaging.
+     real(kind=rp) :: start_time
+     !> Current time.
+     real(kind=rp) :: time
+     !> The averaged fields.
+     type(mean_field_t), allocatable :: mean_fields(:)
+     !> Number of fields to average.
+     integer :: n_avg_fields = 0
+     !> The names of the fields to average.
+     character(len=20), allocatable :: field_names(:)
      !> Output writer.
      type(mean_field_output_t), private :: output
 
@@ -77,7 +81,7 @@ contains
 
   !> Constructor from json.
   subroutine user_stats_init_from_json(this, json, case)
-    class(user_stats_t), intent(inout) :: this
+    class(user_stats_t), intent(inout), target :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: filename
@@ -88,33 +92,19 @@ contains
     !> Get the number of stat fields and their names
     call json%info('fields', n_children=this%n_avg_fields)
     call json_get(json, 'fields', this%field_names)
-    call json_get_or_default(json, 'start_time', &
-         this%start_time, 0.0_rp)
-    call json_get_or_default(json, 'avg_direction', &
-         avg_dir, 'none')
+    call json_get_or_default(json, 'start_time', this%start_time, 0.0_rp)
+    call json_get_or_default(json, 'avg_direction', avg_dir, 'none')
+    call json_get_or_default(json, 'output_file', filename, 'user_stats')
     this%time = this%start_time
-    call user_stats_init_from_attributes(this,this%start_time, case%fluid%c_Xh, avg_dir,filename="user_stats")
-    ! if (json%valid_path("output_filename")) then
-    !    call json_get_or_default(json, "output_filename", filename,'user_stats')
-    !    if (json%valid_path("output_precision")) then
-    !        call json_get_or_default(json, "output_precision", precision,"single")
-    !        if (precision == "double") then
-    !           call user_stats_init_from_attributes(this, filename, dp)
-    !        else
-    !           call user_stats_init_from_attributes(this, filename, sp)
-    !        end if
-    !    else
-    !        call user_stats_init_from_attributes(this, filename)
-    !    end if
-    ! else
-    !    call user_stats_init_from_attributes(this)
-    ! end if
+    call user_stats_init_from_attributes(this,this%start_time, &
+         case%fluid%c_Xh, avg_dir, filename = filename)
   end subroutine user_stats_init_from_json
 
-  subroutine user_stats_restart(this, t)
+  subroutine user_stats_restart(this, time)
     class(user_stats_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    if(t .gt. this%time) this%time = t
+    type(time_state_t), intent(in) :: time
+
+    if(time%t .gt. this%time) this%time = time%t
   end subroutine user_stats_restart
 
 
@@ -131,17 +121,18 @@ contains
 
     this%start_time = start_time
     this%time = start_time
+
     !> Allocate and initialize the mean fields
     allocate(this%mean_fields(this%n_avg_fields))
     do i = 1, this%n_avg_fields
-       field_to_avg => neko_field_registry%get_field(&
-            trim(this%field_names(i)))
+       field_to_avg => neko_field_registry%get_field(trim(this%field_names(i)))
        call this%mean_fields(i)%init(field_to_avg)
     end do
 
     call this%output%init(this%mean_fields, this%n_avg_fields, &
          this%start_time, coef, avg_dir, name=filename)
-    call this%case%s%add(this%output, this%output_controller%control_value, &
+    call this%case%output_controller%add(this%output, &
+         this%output_controller%control_value, &
          this%output_controller%control_mode)
 
 
@@ -151,13 +142,16 @@ contains
   subroutine user_stats_free(this)
     class(user_stats_t), intent(inout) :: this
     integer :: i
+
     call this%free_base()
+
     if (allocated(this%mean_fields)) then
        do i = 1, this%n_avg_fields
           call this%mean_fields(i)%free()
        end do
        deallocate(this%mean_fields)
     end if
+
     if (allocated(this%field_names)) then
        deallocate(this%field_names)
     end if
@@ -167,18 +161,17 @@ contains
   !> Update the statistics.
   !! @param t The time value.
   !! @param tstep The current time-step
-  subroutine user_stats_compute(this, t, tstep)
+  subroutine user_stats_compute(this, time)
     class(user_stats_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     integer :: i
 
     !> Update the running average of the fields
-    if (t .ge. this%start_time) then
+    if (time%t .ge. this%start_time) then
        do i = 1, this%n_avg_fields
-          call this%mean_fields(i)%update(t-this%time)
+          call this%mean_fields(i)%update(time%t - this%time)
        end do
-       this%time= t
+       this%time = time%t
     end if
 
   end subroutine user_stats_compute
