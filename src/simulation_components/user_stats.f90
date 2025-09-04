@@ -55,7 +55,7 @@ module user_stats
      real(kind=rp) :: time !< current time
      type(mean_field_t), allocatable :: mean_fields(:) !<mean fields
      integer :: n_avg_fields = 0 !< NUmber of fields to average
-     character(len=20), allocatable  :: field_names(:) !< field names
+     character(len=20), allocatable :: field_names(:) !< field names
 
      !> Output writer.
      type(mean_field_output_t), private :: output
@@ -65,7 +65,7 @@ module user_stats
      procedure, pass(this) :: init => user_stats_init_from_json
      !> Actual constructor.
      procedure, pass(this) :: init_from_attributes => &
-        user_stats_init_from_attributes
+          user_stats_init_from_attributes
      !> Destructor.
      procedure, pass(this) :: free => user_stats_free
      !> Compute the means
@@ -94,21 +94,21 @@ contains
          avg_dir, 'none')
     this%time = this%start_time
     call user_stats_init_from_attributes(this,this%start_time, case%fluid%c_Xh, avg_dir,filename="user_stats")
-   ! if (json%valid_path("output_filename")) then
-   !    call json_get_or_default(json, "output_filename", filename,'user_stats')
-   !    if (json%valid_path("output_precision")) then
-   !        call json_get_or_default(json, "output_precision", precision,"single")
-   !        if (precision == "double") then
-   !           call user_stats_init_from_attributes(this, filename, dp)
-   !        else
-   !           call user_stats_init_from_attributes(this, filename, sp)
-   !        end if
-   !    else
-   !        call user_stats_init_from_attributes(this, filename)
-   !    end if
-   ! else
-   !    call user_stats_init_from_attributes(this)
-   ! end if
+    ! if (json%valid_path("output_filename")) then
+    !    call json_get_or_default(json, "output_filename", filename,'user_stats')
+    !    if (json%valid_path("output_precision")) then
+    !        call json_get_or_default(json, "output_precision", precision,"single")
+    !        if (precision == "double") then
+    !           call user_stats_init_from_attributes(this, filename, dp)
+    !        else
+    !           call user_stats_init_from_attributes(this, filename, sp)
+    !        end if
+    !    else
+    !        call user_stats_init_from_attributes(this, filename)
+    !    end if
+    ! else
+    !    call user_stats_init_from_attributes(this)
+    ! end if
   end subroutine user_stats_init_from_json
 
   subroutine user_stats_restart(this, t)
@@ -135,14 +135,14 @@ contains
     allocate(this%mean_fields(this%n_avg_fields))
     do i = 1, this%n_avg_fields
        field_to_avg => neko_field_registry%get_field(&
-                                     trim(this%field_names(i)))
+            trim(this%field_names(i)))
        call this%mean_fields(i)%init(field_to_avg)
     end do
 
     call this%output%init(this%mean_fields, this%n_avg_fields, &
-                          this%start_time, coef, avg_dir,  name=filename)
+         this%start_time, coef, avg_dir, name=filename)
     call this%case%s%add(this%output, this%output_controller%control_value, &
-                         this%output_controller%control_mode)
+         this%output_controller%control_mode)
 
 
   end subroutine user_stats_init_from_attributes
@@ -172,11 +172,11 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     integer :: i
- 
+
     !> Update the running average of the fields
     if (t .ge. this%start_time) then
        do i = 1, this%n_avg_fields
-          call this%mean_fields(i)%update(t-this%time) 
+          call this%mean_fields(i)%update(t-this%time)
        end do
        this%time= t
     end if

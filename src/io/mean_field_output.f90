@@ -49,7 +49,7 @@ module mean_field_output
   !> Output for a list of mean fields
   type, public, extends(output_t) :: mean_field_output_t
      !> list of mean fields
-     type(mean_field_t), pointer :: mean_fields(:) 
+     type(mean_field_t), pointer :: mean_fields(:)
      type(field_list_t) :: fields
      real(kind=rp) :: start_time !> Time to start output
      integer :: n_fields !> Number of fields
@@ -66,7 +66,7 @@ module mean_field_output
 
 contains
 
-  subroutine mean_field_output_init(this,mean_fields, n_fields, start_time, coef, avg_dir, name, path) 
+  subroutine mean_field_output_init(this,mean_fields, n_fields, start_time, coef, avg_dir, name, path)
     class(mean_field_output_t), intent(inout):: this
     integer, intent(in) :: n_fields
     class(mean_field_t), intent(inout), target :: mean_fields(n_fields)
@@ -77,12 +77,12 @@ contains
     real(kind=rp), intent(in) :: start_time
     character(len=1024) :: fname
     integer :: i
- 
+
     if (trim(avg_dir) .eq. 'none' .or. &
-        trim(avg_dir) .eq. 'x' .or.&
-        trim(avg_dir) .eq. 'y' .or.&
-        trim(avg_dir) .eq. 'z'&
-       ) then
+         trim(avg_dir) .eq. 'x' .or.&
+         trim(avg_dir) .eq. 'y' .or.&
+         trim(avg_dir) .eq. 'z'&
+         ) then
        if (present(name) .and. present(path)) then
           fname = trim(path) // trim(name) // '.fld'
        else if (present(name)) then
@@ -96,8 +96,8 @@ contains
        this%output_dim = 3
 
        if (trim(avg_dir) .eq. 'x' .or.&
-           trim(avg_dir) .eq. 'y' .or.&
-           trim(avg_dir) .eq. 'z' ) then
+            trim(avg_dir) .eq. 'y' .or.&
+            trim(avg_dir) .eq. 'z' ) then
           call this%map_2d%init_char(coef, avg_dir, 1e-7_rp)
           this%output_dim = 2
        end if
@@ -125,7 +125,7 @@ contains
     do i = 1, n_fields
        this%fields%items(i)%ptr => this%mean_fields(i)%mf
     end do
-    
+
   end subroutine mean_field_output_init
 
   !> Sample the mean solution at time @a t and reset
@@ -176,14 +176,14 @@ contains
             !   output_2d%v%x(i) = v
             !   output_2d%w%x(i) = w
             !end do
-            
+
             call this%file_%write(output_2d, t)
          else
             call this%file_%write(this%fields, t)
          end if
-    do i = 1, this%n_fields
-       call this%mean_fields(i)%reset()
-    end do
+         do i = 1, this%n_fields
+            call this%mean_fields(i)%reset()
+         end do
       end if
     end associate
 
