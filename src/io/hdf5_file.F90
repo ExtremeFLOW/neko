@@ -54,7 +54,6 @@ module hdf5_file
 
   !> Interface for HDF5 files
   type, public, extends(generic_file_t) :: hdf5_file_t
-     logical :: overwrite = .false. !< Flag to overwrite existing files
    contains
      procedure :: read => hdf5_file_read
      procedure :: write => hdf5_file_write

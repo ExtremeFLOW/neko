@@ -45,7 +45,6 @@ module csv_file
   type, public, extends(generic_file_t) :: csv_file_t
      character(len=1024) :: header = "" !< Contains header of file.
      logical :: header_is_written = .false. !< Has header already been written?
-     logical :: overwrite = .false. !< Should the file be overwritten?
    contains
      !> Writes data to an output file.
      procedure :: write => csv_file_write

@@ -32,7 +32,8 @@
 !
 module generic_file
   use num_types, only: rp
-  use utils, only: neko_error, filename_suffix_pos
+  use utils, only: neko_warning, neko_error, &
+       filename_suffix_pos, filename_suffix
   use comm, only: pe_rank, NEKO_COMM
   use mpi_f08, only: MPI_Bcast, MPI_LOGICAL
   implicit none
@@ -44,6 +45,7 @@ module generic_file
      integer, private :: start_counter = 0
      !> File format is serial
      logical :: serial = .false.
+     logical :: overwrite = .false.
    contains
      !> Generic file constructor.
      procedure :: init => generic_file_init
@@ -67,6 +69,8 @@ module generic_file
      procedure :: increment_counter => generic_file_increment_counter
      !> Ensure the file exists
      procedure :: check_exists => generic_file_check_exists
+     !> Set overwrite mode
+     procedure :: set_overwrite => generic_file_set_overwrite
   end type generic_file_t
 
   abstract interface
@@ -192,5 +196,13 @@ contains
 
   end subroutine generic_file_check_exists
 
+  !> Set overwrite mode
+  subroutine generic_file_set_overwrite(this, overwrite)
+    class(generic_file_t), intent(inout) :: this
+    logical, intent(in) :: overwrite
+    character(len=80) :: suffix
 
+    call filename_suffix(this%get_fname(), suffix)
+    call neko_warning("No set_overwrite defined for " // trim(suffix) // " yet")
+  end subroutine generic_file_set_overwrite
 end module generic_file

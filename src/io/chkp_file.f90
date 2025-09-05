@@ -64,7 +64,6 @@ module chkp_file
      type(interpolator_t) :: space_interp !< Interpolation when only changing lx
      type(global_interpolation_t) :: global_interp !< Interpolation for different meshes
      logical :: mesh2mesh !< Flag if previous mesh difers from current.
-     logical, private :: overwrite = .false.
    contains
      procedure :: read => chkp_file_read
      procedure :: read_field => chkp_read_field
