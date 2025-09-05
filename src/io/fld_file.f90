@@ -132,6 +132,10 @@ contains
        if (gdim .eq. 2) z%ptr => data%y%x
        if (data%u%size() .gt. 0) then
           u%ptr => data%u%x
+          ! In case only u is actually allocated, point the other comps to u
+          ! so that we don't die on trying to write them
+          if (data%v%size() .le. 0) v%ptr => data%u%x
+          if (data%w%size() .le. 0) w%ptr => data%u%x
           write_velocity = .true.
        end if
        if (data%v%size() .gt. 0) v%ptr => data%v%x
