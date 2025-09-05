@@ -1,7 +1,7 @@
 {
   "version": 1.0,
   "case": {
-    "mesh_file": "box.nmsh",
+    "mesh_file": "tests/test_user_stats/box.nmsh",
     "output_at_end": false,
     "output_boundary": false,
     "output_checkpoints": false,
@@ -65,7 +65,7 @@
         "fields": [
           "s"
         ],
-        "avg_direction": "x",
+        "avg_direction": "xy",
         "compute_control": "tsteps",
         "compute_value": 1,
         "output_control": "tsteps",
