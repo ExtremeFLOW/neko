@@ -173,7 +173,6 @@ contains
     character(len=1024) :: fname
     logical :: file_exists
     integer :: neko_mpi_ierr
-    character(len=1024) :: fname_tmp
 
     fname = this%get_fname()
     file_exists = .false.

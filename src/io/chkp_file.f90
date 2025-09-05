@@ -383,28 +383,8 @@ contains
     real(kind=rp) :: center_x, center_y, center_z
     integer :: i, e
     type(dofmap_t) :: dof
-    logical :: file_exists
 
-    ! If the raw file does not exist, then use the counter and check again
-    file_exists = .false.
-    if (pe_rank .eq. 0) inquire(file = this%fname, exist = file_exists)
-    call MPI_Bcast(file_exists, 1, MPI_LOGICAL, 0, NEKO_COMM, ierr)
-
-    if (file_exists) then
-       fname = trim(this%fname)
-    else
-       suffix_pos = filename_suffix_pos(this%fname)
-       write(id_str, '(i5.5)') this%counter
-       fname = trim(this%fname(1:suffix_pos-1)) // id_str // '.chkp'
-
-       file_exists = .false.
-       if (pe_rank .eq. 0) inquire(file = fname, exist = file_exists)
-       call MPI_Bcast(file_exists, 1, MPI_LOGICAL, 0, NEKO_COMM, ierr)
-
-       if (.not. file_exists) fname = trim(this%fname)
-    end if
-
-    call this%check_exists(fname)
+    call this%check_exists()
 
     select type(data)
     type is (chkp_t)
