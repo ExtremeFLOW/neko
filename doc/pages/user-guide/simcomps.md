@@ -404,6 +404,11 @@ keywords:
   statistics-guide) for further details regarding how statistics are computed in
   Neko.
 
+  Keep in mind that simcomps execute before `user%compute`, so if you update
+  some custom averaged field in that routine, it will not affect the average
+  until the next time step. You can consider using `user%preprocess` instead,
+  which runs at the beginning of the time step.
+
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "user_stats",
