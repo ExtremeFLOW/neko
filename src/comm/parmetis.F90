@@ -32,12 +32,12 @@
 !
 !> Interface to ParMETIS
 module parmetis
-  use comm, only : pe_size, pe_rank
+  use comm, only : pe_size, pe_rank, NEKO_COMM
   use mpi_f08, only : MPI_Allgather, MPI_INTEGER
   use point, only : point_t
   use utils, only : neko_error
   use num_types, only : rp
-  use mesh_field, only : mesh_fld_t
+  use mesh_field, only : mesh_fld_t, mesh_field_init
   use mesh, only : mesh_t
   use, intrinsic :: iso_c_binding
   implicit none
