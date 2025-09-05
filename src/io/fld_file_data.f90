@@ -115,7 +115,7 @@ contains
 
   end subroutine fld_file_data_init_same
 
-  !> Genereate same fields as in another fld_file
+  !> Generate same fields as in another fld_file
   subroutine fld_file_data_init_n_fields(this, n_fields, n)
     class(fld_file_data_t), target, intent(inout) :: this
     integer, intent(in) :: n, n_fields

@@ -38,6 +38,7 @@ in Neko. The list will be updated as new simcomps are added.
 - User defined components \ref user-file_simcomps
 - Fluid statistics simcomp, "fluid_stats", for more details see the 
   [statistics guide](@ref statistics-guide)
+- User statistics simcomp, "user_stats" \ref user_stats 
 - Computation of the spectral error indicator \ref simcomp_speri
 
 ## Controling execution and file output
@@ -175,7 +176,8 @@ generated in a variety of ways, but the most common is to use the `csv` type.
 
 Mandatory fields for this simcomp are:
 - `fields`: a list of fields to probe. Should be a list of field names that exist in the registry. Example: `"fields": ["u", "v", "p", "s"]`.
-- `output_file`: Name of the file in which to output the probed fields. Must be `.csv`.
+- `output_file`: Name of the file in which to output the probed fields. Must be
+  `.csv`.
 
 It is also possible to set a `start_time` before which the probes will not be 
 executed (same behavior as the statistics).
@@ -384,9 +386,32 @@ keywords:
     }
  }
  ~~~~~~~~~~~~~~~
- And one could not change the default test filter's kernel through the case file.
- If one needs to do so, he/she needs to dig into the code in
+ And one could not change the default test filter's kernel through the case
+ file. If one needs to do so, he/she needs to dig into the code in
  src/les/dynamic_smagorinksy.f90.
+
+ ### User statistics {#user_stats}
+
+ Allows to compute the time-average of an arbitrary collection of fields form
+ the field registry. Just like the `fluid_stats` simcomp, it supports spatial
+ averaging across homogeneous directions, both 1D and 2D.  The fields to average
+ are prescribed via the `fields` keyword, and the optional averaging
+ direction(s) via the `avg_direction`, which can be `x`, `y`, `z`, `xy`, `xz` or
+  `yz`. Averaging across two directions will lead to the average being saved as
+  a .csv, whereas a 2D .fld file will be produced when averaging across only one
+  axis. The filename is controlled  by the `output_file` keyword and default to
+  `user_stats`. We encourage reading the [statistics guide](@ref
+  statistics-guide) for further details regarding how statistics are computed in
+  Neko.
+
+ ~~~~~~~~~~~~~~~{.json}
+ {
+   "type": "user_stats",
+   "fields": ["s"],
+   "avg_direction": "xz",
+   "output_file": "s_average"
+ }
+ ~~~~~~~~~~~~~~~
 
 ### Spectral error indicator {#simcomp_speri}
 
