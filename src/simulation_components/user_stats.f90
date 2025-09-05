@@ -90,6 +90,8 @@ module user_stats
 contains
 
   !> Constructor from json.
+  !! @param json The json paramter dictionary.
+  !! @param case The neko case object.
   subroutine user_stats_init_from_json(this, json, case)
     class(user_stats_t), intent(inout), target :: this
     type(json_file), intent(inout) :: json
@@ -100,7 +102,7 @@ contains
     call this%init_base(json, case)
 
     !> Get the number of stat fields and their names
-    call json%info('fields', n_children=this%n_avg_fields)
+    call json%info('fields', n_children = this%n_avg_fields)
     call json_get(json, 'fields', this%field_names)
     call json_get_or_default(json, 'start_time', this%start_time, 0.0_rp)
     call json_get_or_default(json, 'avg_direction', avg_dir, 'none')
@@ -114,7 +116,7 @@ contains
     class(user_stats_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
-    if(time%t .gt. this%time) this%time = time%t
+    if (time%t .gt. this%time) this%time = time%t
   end subroutine user_stats_restart
 
   !> Constructor from components, passing controllers.
@@ -224,8 +226,6 @@ contains
     call this%case%output_controller%add(this%output, &
          this%output_controller%control_value, &
          this%output_controller%control_mode)
-
-
   end subroutine user_stats_init_common
 
   !> Destructor.

@@ -7,14 +7,14 @@
 !! Martin Karp 1/2-2023
 module fld_file_data
   use num_types, only : rp
-  use math, only: cmult, add2
+  use math, only : cmult, add2
   use vector, only : vector_t, vector_ptr_t
-  use field, only: field_t
-  use dofmap, only: dofmap_t
-  use space, only: space_t, GLL
-  use global_interpolation, only: global_interpolation_t
-  use utils, only: neko_error
-  use mesh, only: mesh_t
+  use field, only : field_t
+  use dofmap, only : dofmap_t
+  use space, only : space_t, GLL
+  use global_interpolation, only : global_interpolation_t
+  use utils, only : neko_error
+  use mesh, only : mesh_t
   implicit none
   private
 
@@ -92,19 +92,19 @@ contains
     integer, intent(in) :: n
     integer :: i, j
 
-    if(fld_file%u%size() .gt. 0) then
+    if (fld_file%u%size() .gt. 0) then
        call this%u%init(n)
     end if
-    if(fld_file%v%size() .gt. 0) then
+    if (fld_file%v%size() .gt. 0) then
        call this%v%init(n)
     end if
-    if(fld_file%w%size() .gt. 0) then
+    if (fld_file%w%size() .gt. 0) then
        call this%w%init(n)
     end if
-    if(fld_file%p%size() .gt. 0) then
+    if (fld_file%p%size() .gt. 0) then
        call this%p%init(n)
     end if
-    if(fld_file%t%size() .gt. 0) then
+    if (fld_file%t%size() .gt. 0) then
        call this%t%init(n)
     end if
     this%n_scalars = fld_file%n_scalars
@@ -122,19 +122,19 @@ contains
     integer :: i, j
 
 
-    if(n_fields .gt. 0) then
+    if (n_fields .gt. 0) then
        call this%u%init(n)
     end if
-    if(n_fields .gt. 1) then
+    if (n_fields .gt. 1) then
        call this%v%init(n)
     end if
-    if(n_fields .gt. 2) then
+    if (n_fields .gt. 2) then
        call this%w%init(n)
     end if
-    if(n_fields .gt. 3) then
+    if (n_fields .gt. 3) then
        call this%p%init(n)
     end if
-    if(n_fields .gt. 4) then
+    if (n_fields .gt. 4) then
        call this%t%init(n)
     end if
     if (n_fields .gt. 5) then
@@ -202,19 +202,19 @@ contains
   end subroutine fld_file_data_scale
 
   !> Add the values in another fld file to this
-  subroutine fld_file_data_add(this, fld_data_add)
+  subroutine fld_file_data_add(this, other)
     class(fld_file_data_t), intent(inout) :: this
-    class(fld_file_data_t), intent(in) :: fld_data_add
-    integer :: i
+    class(fld_file_data_t), intent(in) :: other
+    integer :: i, n
 
-    if (this%u%size() .gt. 0) call add2(this%u%x, fld_data_add%u%x, this%u%size())
-    if (this%v%size() .gt. 0) call add2(this%v%x, fld_data_add%v%x, this%v%size())
-    if (this%w%size() .gt. 0) call add2(this%w%x, fld_data_add%w%x, this%w%size())
-    if (this%p%size() .gt. 0) call add2(this%p%x, fld_data_add%p%x, this%p%size())
-    if (this%t%size() .gt. 0) call add2(this%t%x, fld_data_add%t%x, this%t%size())
+    if (this%u%size() .gt. 0) call add2(this%u%x, other%u%x, this%u%size())
+    if (this%v%size() .gt. 0) call add2(this%v%x, other%v%x, this%v%size())
+    if (this%w%size() .gt. 0) call add2(this%w%x, other%w%x, this%w%size())
+    if (this%p%size() .gt. 0) call add2(this%p%x, other%p%x, this%p%size())
+    if (this%t%size() .gt. 0) call add2(this%t%x, other%t%x, this%t%size())
 
     do i = 1, this%n_scalars
-       if (this%s(i)%size() .gt. 0) call add2(this%s(i)%x, fld_data_add%s(i)%x, &
+       if (this%s(i)%size() .gt. 0) call add2(this%s(i)%x, other%s(i)%x, &
             this%s(i)%size())
     end do
   end subroutine fld_file_data_add
