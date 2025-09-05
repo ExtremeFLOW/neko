@@ -1,7 +1,7 @@
 {
   "version": 1.0,
   "case": {
-    "mesh_file": "tests/test_user_stats/box.nmsh",
+    "mesh_file": "box.nmsh",
     "output_at_end": false,
     "output_boundary": false,
     "output_checkpoints": false,
