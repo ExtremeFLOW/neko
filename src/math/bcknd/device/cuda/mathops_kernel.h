@@ -194,28 +194,5 @@ __global__ void opadd2col_kernel(T * __restrict__ a1,
 
 }
 
-/**
- * Device kernel for compute_max_wave_speed
- */
-template< typename T>
-__global__ void compute_max_wave_speed_kernel(T * __restrict__ max_wave_speed,
-                                              const T * __restrict__ u,
-                                              const T * __restrict__ v,
-                                              const T * __restrict__ w,
-                                              const T gamma,
-                                              const T * __restrict__ p,
-                                              const T * __restrict__ rho,
-                                              const int n) {
-
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
-
-  for (int i = idx; i < n; i += str) {
-    T vel_mag = sqrt(u[i]*u[i] + v[i]*v[i] + w[i]*w[i]);
-    T sound_speed = sqrt(gamma * p[i] / rho[i]);
-    max_wave_speed[i] = vel_mag + sound_speed;
-  }
-
-}
 
 #endif // __MATH_MATHOPS_KERNEL_H__

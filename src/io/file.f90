@@ -275,6 +275,8 @@ contains
     character(len=80) :: suffix
 
     select type (ft => this%file_type)
+    type is (csv_file_t)
+       call ft%set_overwrite(overwrite)
     class default
        call filename_suffix(this%file_type%fname, suffix)
        call neko_warning("No set_overwrite defined for " // trim(suffix) // &

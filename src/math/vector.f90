@@ -33,13 +33,10 @@
 !> Defines a vector
 module vector
   use neko_config, only: NEKO_BCKND_DEVICE
-  use math, only: sub3, chsign, add3, cmult2, cadd2, cfill, copy, col3, cdiv2, &
-       col2, invcol3
   use num_types, only: rp
   use device, only: device_map, device_free
-  use device_math, only: device_copy, device_cfill, device_cmult, &
-       device_sub3, device_cmult2, device_add3, device_cadd2, device_col3, &
-       device_col2, device_invcol3, device_cdiv2
+  use math, only: cfill, copy
+  use device_math, only: device_copy, device_cfill
   use utils, only: neko_error
   use, intrinsic :: iso_c_binding
   implicit none
@@ -85,7 +82,7 @@ contains
     integer, intent(in) :: n
 
     call v%alloc(n)
-    v%x = 0.0_rp
+    call cfill(v%x, 0.0_rp, n)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cfill(v%x_d, 0.0_rp, n)
     end if
@@ -97,7 +94,6 @@ contains
     class(vector_t), intent(inout) :: a
     integer, intent(in) :: n
 
-    if (n .eq. 0) call neko_error('Vector cannot have size 0')
 
     if (a%n .eq. n) return
     call a%free()
@@ -142,7 +138,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_copy(v%x_d, w%x_d, v%n)
     else
-       v%x = w%x
+       call copy(v%x, w%x, v%n)
     end if
 
   end subroutine vector_assign_vector
@@ -151,8 +147,6 @@ contains
   subroutine vector_assign_scalar(v, s)
     class(vector_t), intent(inout) :: v
     real(kind=rp), intent(in) :: s
-
-    if (v%n .eq. 0) call neko_error('Vector not allocated')
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cfill(v%x_d, s, v%n)
