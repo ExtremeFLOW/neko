@@ -7,7 +7,7 @@ contains
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
     user%initial_conditions => initial_conditions
-    user%compute =>  compute
+    user%compute => compute
   end subroutine user_setup
 
   !> User initial condition for the scalar
