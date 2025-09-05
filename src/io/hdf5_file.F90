@@ -241,8 +241,6 @@ contains
 
     call h5close_f(ierr)
 
-    this%counter = this%counter + 1
-
   end subroutine hdf5_file_write
 
   !> Read data in HDF5 format
