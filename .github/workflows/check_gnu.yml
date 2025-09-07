@@ -191,6 +191,7 @@ jobs:
           mkdir ${{ github.workspace }}/install
           echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${{ github.workspace }}/install/lib/pkgconfig" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${{ github.workspace }}/install/lib" >> $GITHUB_ENV
+          echo "${{ github.workspace }}/install/bin" >> $GITHUB_PATH
           ./regen.sh
           ./configure FC=${FC} FCFLAGS="-g -O2 -pedantic -std=f2008 -w" --with-pfunit=$PFUNIT_DIR --enable-real=${RP} --prefix=${{ github.workspace }}/install
           make -j${{ steps.setup-env.outputs.nproc }} install
