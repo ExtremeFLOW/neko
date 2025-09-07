@@ -158,9 +158,8 @@ contains
 
   end subroutine user_stats_free
 
-  !> Update the statistics.
-  !! @param t The time value.
-  !! @param tstep The current time-step
+  !> Update the running averages.
+  !! @param time The current time state.
   subroutine user_stats_compute(this, time)
     class(user_stats_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
