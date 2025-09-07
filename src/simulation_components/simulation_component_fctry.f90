@@ -46,7 +46,7 @@ submodule (simulation_component) simulation_component_fctry
   use gradient_simcomp, only : gradient_t
   use divergence_simcomp, only : divergence_t
   use derivative_simcomp, only : derivative_t
-  use spectral_error, only: spectral_error_t
+  use spectral_error, only : spectral_error_t
   use utils, only : neko_type_error, neko_type_registration_error
   implicit none
 

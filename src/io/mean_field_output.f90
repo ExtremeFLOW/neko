@@ -39,7 +39,7 @@ module mean_field_output
   use map_2d, only : map_2d_t
   use map_1d, only : map_1d_t
   use coefs, only : coef_t
-  use device
+  use device, only : DEVICE_TO_HOST, device_memcpy
   use mean_field, only : mean_field_t
   use output, only : output_t
   use matrix, only : matrix_t
