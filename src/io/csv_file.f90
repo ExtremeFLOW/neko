@@ -45,6 +45,7 @@ module csv_file
   type, public, extends(generic_file_t) :: csv_file_t
      character(len=1024) :: header = "" !< Contains header of file.
      logical :: header_is_written = .false. !< Has header already been written?
+     logical :: overwrite = .false. !< Should the file be overwritten?
    contains
      !> Writes data to an output file.
      procedure :: write => csv_file_write
@@ -52,6 +53,8 @@ module csv_file
      procedure :: read => csv_file_read
      !> Sets the header for a csv file.
      procedure :: set_header => csv_file_set_header
+     !> Sets the overwrite flag for a csv file.
+     procedure :: set_overwrite => csv_file_set_overwrite
      !> Count the number of lines in a file
      procedure :: count_lines => csv_file_count_lines
   end type csv_file_t
@@ -123,6 +126,12 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer :: file_unit, ierr, n
 
+    ! Delete file if overwrite is enabled and header hasn't been written yet
+    if (f%overwrite .and. .not. f%header_is_written) then
+       open(unit=999, file=trim(f%fname), status="old", iostat=ierr)
+       if (ierr == 0) close(999, status="delete")
+    end if
+
     open(file = trim(f%fname), position = "append", iostat = ierr, &
          newunit = file_unit)
     if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
@@ -154,6 +163,12 @@ contains
     type(matrix_t), intent(in) :: data
     real(kind=rp), intent(in), optional :: t
     integer :: file_unit, i, ierr, nc
+
+    ! Delete file if overwrite is enabled and header hasn't been written yet
+    if (f%overwrite .and. .not. f%header_is_written) then
+       open(unit=999, file=trim(f%fname), status="old", iostat=ierr)
+       if (ierr == 0) close(999, status="delete")
+    end if
 
     open(file = trim(f%fname), position = "append", iostat = ierr, &
          newunit = file_unit)
@@ -330,5 +345,15 @@ contains
 
   end function csv_file_count_lines
 
+  !> Sets the overwrite flag for a csv file.
+  !! @param this csv file.
+  !! @param overwrite Overwrite flag.
+  subroutine csv_file_set_overwrite(this, overwrite)
+    class(csv_file_t), intent(inout) :: this
+    logical, intent(in) :: overwrite
+
+    this%overwrite = overwrite
+
+  end subroutine csv_file_set_overwrite
 
 end module csv_file

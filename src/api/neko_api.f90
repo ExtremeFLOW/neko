@@ -195,7 +195,7 @@ contains
   function neko_api_case_time(case_iptr) result(time) &
        bind(c, name="neko_case_time")
     integer(c_intptr_t), intent(inout) :: case_iptr
-    real(kind=c_double) :: time
+    real(kind=c_rp) :: time
     type(case_t), pointer :: C
     type(c_ptr) :: cptr
 
@@ -215,7 +215,7 @@ contains
   function neko_api_case_end_time(case_iptr) result(end_time) &
        bind(c, name="neko_case_end_time")
     integer(c_intptr_t), intent(inout) :: case_iptr
-    real(kind=c_double) :: end_time
+    real(kind=c_rp) :: end_time
     type(case_t), pointer :: C
     type(c_ptr) :: cptr
 

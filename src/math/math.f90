@@ -774,7 +774,7 @@ contains
   subroutine sub2(a, b, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(inout) :: b
+    real(kind=rp), dimension(n), intent(in) :: b
     integer :: i
 
     do i = 1, n
@@ -803,7 +803,7 @@ contains
   subroutine add2s1(a, b, c1, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(inout) :: b
+    real(kind=rp), dimension(n), intent(in) :: b
     real(kind=rp), intent(in) :: c1
     integer :: i
 

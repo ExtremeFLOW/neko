@@ -75,7 +75,7 @@ void neko_case_fluid_space(int **case_iptr, int *lx, neko_real **zg,
 
 /* Retrive the coefficient associated with a case's fluid solver */
 void neko_case_fluid_coef(int **case_iptr, neko_real **G11, neko_real **G22,
-                          neko_real **G33, eko_real **G12, neko_real **G13,
+                          neko_real **G33, neko_real **G12, neko_real **G13,
                           neko_real **G23, neko_real **mult, neko_real **dxdr,
                           neko_real **dydr, neko_real **dzdr, neko_real **dxds,
                           neko_real **dyds, neko_real **dzds, neko_real **dxdt,

@@ -2,7 +2,7 @@
 #include <jansson.h>
 #include <neko.h>
 
-int main(char *argc, char **argv) {
+int main(int argc, char **argv) {
 
   /* Initialise Neko */
   neko_init();
