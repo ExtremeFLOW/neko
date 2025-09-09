@@ -144,7 +144,7 @@ io/file.lo : io/file.f90 io/hdf5_file.lo io/csv_file.lo io/stl_file.lo io/vtk_fi
 io/output.lo : io/output.f90 io/file.lo config/num_types.lo 
 io/fluid_output.lo : io/fluid_output.f90 field/field.lo field/field_registry.lo scalar/scalars.lo io/output.lo device/device.lo config/neko_config.lo field/field_list.lo scalar/scalar_scheme.lo fluid/fluid_scheme_base.lo fluid/fluid_scheme_incompressible.lo config/num_types.lo 
 io/fld_file_output.lo : io/fld_file_output.f90 io/output.lo device/device.lo config/neko_config.lo field/field_list.lo config/num_types.lo 
-io/chkp_output.lo : io/chkp_output.f90 common/utils.lo config/num_types.lo io/output.lo common/checkpoint.lo 
+io/chkp_output.lo : io/chkp_output.f90 config/num_types.lo io/output.lo common/checkpoint.lo 
 io/mean_flow_output.lo : io/mean_flow_output.f90 io/output.lo device/device.lo config/num_types.lo fluid/mean_flow.lo 
 io/fluid_stats_output.lo : io/fluid_stats_output.f90 math/matrix.lo io/output.lo device/device.lo io/fld_file_data.lo sem/map_2d.lo sem/map_1d.lo config/num_types.lo config/neko_config.lo fluid/fluid_stats.lo 
 io/mean_sqr_flow_output.lo : io/mean_sqr_flow_output.f90 io/output.lo config/num_types.lo fluid/mean_sqr_flow.lo 
