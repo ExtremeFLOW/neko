@@ -85,10 +85,11 @@ jobs:
               sudo apt-get update
               sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf \
                 automake autotools-dev libopenblas-dev make git m4 python3 \
-                python3-pip cmake-curses-gui
+                python3-pip cmake-curses-gui libparmetis-dev
               python3 -m venv myenv
               source myenv/bin/activate
               pip install pytest json5 numpy
+              export NEKO_OPTIONAL_PKGS=" --with-parmetis=/usr/local"
               echo "nproc=$(nproc)" >> $GITHUB_OUTPUT
               echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
 
@@ -97,10 +98,11 @@ jobs:
               sudo apt-get update
               sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf \
                 automake autotools-dev libopenblas-dev make git m4 python3 \
-                python3-pip cmake-curses-gui
+                python3-pip cmake-curses-gui libparmetis-dev
               python3 -m venv myenv
               source myenv/bin/activate
               pip install pytest json5 numpy
+              export NEKO_OPTIONAL_PKGS=" --with-parmetis=/usr/local"
               echo "nproc=$(nproc)" >> $GITHUB_OUTPUT
               echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
 
@@ -112,6 +114,7 @@ jobs:
               python3 -m venv myenv
               source myenv/bin/activate
               pip install pytest json5 numpy
+              export NEKO_OPTIONAL_PKGS=""
               echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
               echo "os-version=$(sw_vers -productName)-$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
 
@@ -123,6 +126,7 @@ jobs:
               python3 -m venv myenv
               source myenv/bin/activate
               pip install pytest json5 numpy
+              export NEKO_OPTIONAL_PKGS=""
               echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
               echo "os-version=$(sw_vers -productName)-$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
 
@@ -192,7 +196,7 @@ jobs:
           echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${{ github.workspace }}/install/lib/pkgconfig" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${{ github.workspace }}/install/lib" >> $GITHUB_ENV
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-g -O2 -pedantic -std=f2008 -w" --with-pfunit=$PFUNIT_DIR --enable-real=${RP} --prefix=${{ github.workspace }}/install
+          ./configure FC=${FC} FCFLAGS="-g -O2 -pedantic -std=f2008 -w" ${NEKO_OPTIONAL_PKGS} --with-pfunit=$PFUNIT_DIR --enable-real=${RP} --prefix=${{ github.workspace }}/install
           make -j${{ steps.setup-env.outputs.nproc }} install
 
       - name: Build (CUDA backend)
@@ -200,7 +204,7 @@ jobs:
         run: |
           sudo apt-get install -y nvidia-cuda-toolkit
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" --enable-real=${RP} --with-cuda=/usr
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" ${NEKO_OPTIONAL_PKGS} --enable-real=${RP} --with-cuda=/usr
           make -j${{ steps.setup-env.outputs.nproc }}
 
       - name: Build (HIP backend)
@@ -217,14 +221,14 @@ jobs:
           ROCM_DIR=$(ls -d /opt/rocm-*)
 
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" HIP_HIPCC_FLAGS="-O2 -fPIE" --enable-real=${RP} --with-hip=$ROCM_DIR
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" HIP_HIPCC_FLAGS="-O2 -fPIE" ${NEKO_OPTIONAL_PKGS} --enable-real=${RP} --with-hip=$ROCM_DIR
           make -j ${{ steps.setup-env.outputs.nproc }}
 
       - name: Build (OpenCL backend)
         if: matrix.backend == 'opencl'
         run: |
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" --enable-real=${RP} --with-opencl
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" ${NEKO_OPTIONAL_PKGS} --enable-real=${RP} --with-opencl
           make -j ${{ steps.setup-env.outputs.nproc }}
 
       - name: Integration tests
@@ -266,7 +270,7 @@ jobs:
           mkdir releng
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
-          ./configure FC=${FC} --enable-real=${RP}
+          ./configure FC=${FC} ${NEKO_OPTIONAL_PKGS} --enable-real=${RP}
           make -j ${{ steps.setup-env.outputs.nproc }}
 
       - name: Dist (CUDA backend)
@@ -276,7 +280,7 @@ jobs:
           mkdir releng
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
-          ./configure FC=${FC} --enable-real=${RP} --with-cuda=/usr
+          ./configure FC=${FC} ${NEKO_OPTIONAL_PKGS} --enable-real=${RP} --with-cuda=/usr
           make -j ${{ steps.setup-env.outputs.nproc }}
 
       - name: Dist (HIP backend)
@@ -287,7 +291,7 @@ jobs:
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
           ROCM_DIR=$(ls -d /opt/rocm-*)
-          ./configure FC=${FC} FCFLAGS="-fPIE" --enable-real=${RP} HIP_HIPCC_FLAGS="-O2 -fPIE" --with-hip=$ROCM_DIR
+          ./configure FC=${FC} FCFLAGS="-fPIE" ${NEKO_OPTIONAL_PKGS} --enable-real=${RP} HIP_HIPCC_FLAGS="-O2 -fPIE" --with-hip=$ROCM_DIR
           make -j ${{ steps.setup-env.outputs.nproc }}
 
       - name: Dist (OpenCL backend)
@@ -297,5 +301,5 @@ jobs:
           mkdir releng
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
-          ./configure FC=${FC} --enable-real=${RP} --with-opencl
+          ./configure FC=${FC} ${NEKO_OPTIONAL_PKGS} --enable-real=${RP} --with-opencl
           make -j ${{ steps.setup-env.outputs.nproc }}
