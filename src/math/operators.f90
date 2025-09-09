@@ -45,18 +45,20 @@ module operators
        opr_xsmm_dudxyz, opr_xsmm_opgrad, &
        opr_xsmm_convect_scalar, opr_xsmm_set_convect_rst
   use opr_device, only : opr_device_cdtp, opr_device_cfl, opr_device_curl, &
-       opr_device_conv1, opr_device_dudxyz, &
-       opr_device_lambda2, opr_device_opgrad
+       opr_device_conv1, opr_device_convect_scalar, opr_device_dudxyz, &
+       opr_device_lambda2, opr_device_opgrad, opr_device_set_convect_rst
   use space, only : space_t
   use coefs, only : coef_t
   use field, only : field_t
+  use field_list, only : field_list_t
   use field_math, only : field_rzero
   use interpolation, only : interpolator_t
   use math, only : glsum, cmult, add2, add3s2, cadd, copy, col2, invcol2, &
-       invcol3, rzero
-  use device, only : device_get_ptr
-  use device_math, only : device_add2, device_cmult, device_copy, device_glsum, &
-       device_cadd
+       invcol3, rzero, add5s4
+  use device, only : device_get_ptr, device_map, device_free
+  use device_math, only : device_add2, device_cmult, device_copy, device_cadd, &
+       device_glsum, device_add3s2, device_invcol2, device_invcol3, &
+       device_col2, device_add5s4
   use scratch_registry, only : neko_scratch_registry
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_MAX, MPI_SUM
@@ -319,7 +321,9 @@ contains
 
   !> Apply the convecting velocity c to the to the scalar field u, used in the OIFS scheme.
   !! @param du Holds the result
-  !! @param c The convecting velocity
+  !! @param cr The r-component of convecting velocity
+  !! @param cs The s-component of convecting velocity
+  !! @param ct The t-component of convecting velocity
   !! @param u The convected scalar field
   !! @param Xh_GLL The GLL space used in simulation
   !! @param Xh_GL The GL space used for dealiasing
@@ -332,7 +336,7 @@ contains
   !! calculated in the rst format and the GL grid. Then converted back to the GLL grid,
   !! going through an ADD gatter scatter operation at the element boundaries,
   !! before being multiplied by inverse of mass matrix.
-  subroutine convect_scalar(du, u, c, Xh_GLL, Xh_GL, coef_GLL, &
+  subroutine convect_scalar(du, u, cr, cs, ct, Xh_GLL, Xh_GL, coef_GLL, &
        coef_GL, GLL_to_GL)
     type(space_t), intent(in) :: Xh_GL
     type(space_t), intent(in) :: Xh_GLL
@@ -343,17 +347,22 @@ contains
          du(Xh_GLL%lx, Xh_GLL%ly, Xh_GLL%lz, coef_GL%msh%nelv)
     real(kind=rp), intent(inout) :: &
          u(Xh_GL%lx, Xh_GL%lx, Xh_GL%lx, coef_GL%msh%nelv)
-    real(kind=rp), intent(inout) :: c(Xh_GL%lxyz, coef_GL%msh%nelv, 3)
+    type(field_t), intent(inout) :: cr, cs, ct
+    type(c_ptr) :: u_d
 
     if (NEKO_BCKND_SX .eq. 1) then
-       call opr_sx_convect_scalar(du, u, c, Xh_GLL, Xh_GL, &
-            coef_GLL, coef_GL, GLL_to_GL)
+       call opr_sx_convect_scalar(du, u, cr%x, cs%x, ct%x, &
+            Xh_GLL, Xh_GL, coef_GLL, coef_GL, GLL_to_GL)
     else if (NEKO_BCKND_XSMM .eq. 1) then
-       call opr_xsmm_convect_scalar(du, u, c, Xh_GLL, Xh_GL, &
-            coef_GLL, coef_GL, GLL_to_GL)
+       call opr_xsmm_convect_scalar(du, u, cr%x, cs%x, ct%x, &
+            Xh_GLL, Xh_GL, coef_GLL, coef_GL, GLL_to_GL)
+    else if (NEKO_BCKND_DEVICE .eq. 1) then
+       u_d = device_get_ptr(u)
+       call opr_device_convect_scalar(du, u_d, cr%x_d, cs%x_d, ct%x_d, &
+            Xh_GLL, Xh_GL, coef_GLL, coef_GL, GLL_to_GL)
     else
-       call opr_cpu_convect_scalar(du, u, c, Xh_GLL, Xh_GL, &
-            coef_GLL, coef_GL, GLL_to_GL)
+       call opr_cpu_convect_scalar(du, u, cr%x, cs%x, ct%x, &
+            Xh_GLL, Xh_GL, coef_GLL, coef_GL, GLL_to_GL)
     end if
 
   end subroutine convect_scalar
@@ -577,26 +586,32 @@ contains
   subroutine set_convect_rst(cr, cs, ct, cx, cy, cz, Xh, coef)
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
-    real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), &
-         intent(inout) :: cr, cs, ct
+    type(field_t), intent(inout) :: cr, cs, ct
     real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), &
          intent(in) :: cx, cy, cz
+    type(c_ptr) :: cx_d, cy_d, cz_d
 
     if (NEKO_BCKND_SX .eq. 1) then
-       call opr_sx_set_convect_rst(cr, cs, ct, cx, cy, cz, Xh, coef)
+       call opr_sx_set_convect_rst(cr%x, cs%x, ct%x, cx, cy, cz, Xh, coef)
     else if (NEKO_BCKND_XSMM .eq. 1) then
-       call opr_xsmm_set_convect_rst(cr, cs, ct, cx, cy, cz, Xh, coef)
+       call opr_xsmm_set_convect_rst(cr%x, cs%x, ct%x, cx, cy, cz, Xh, coef)
+    else if (NEKO_BCKND_DEVICE .eq. 1) then
+       cx_d = device_get_ptr(cx)
+       cy_d = device_get_ptr(cy)
+       cz_d = device_get_ptr(cz)
+       call opr_device_set_convect_rst(cr%x_d, cs%x_d, ct%x_d, &
+       cx_d, cy_d, cz_d, Xh, coef)
     else
-       call opr_cpu_set_convect_rst(cr, cs, ct, cx, cy, cz, Xh, coef)
+       call opr_cpu_set_convect_rst(cr%x, cs%x, ct%x, cx, cy, cz, Xh, coef)
     end if
 
   end subroutine set_convect_rst
 
   !> Compute one step of Runge Kutta time interpolation for OIFS scheme
   !! @param phi The iterpolated field
-  !! @param c_r1 The covecting velocity for the first stage
-  !! @param c_r23 The convecting velocity for the second and third stage
-  !! @param c_r4 The convecting velocity for the fourth stage
+  !! @param conv_k1 The covecting velocity for the first stage
+  !! @param conv_k23 The convecting velocity for the second and third stage
+  !! @param conv_k4 The convecting velocity for the fourth stage
   !! @param Xh_GLL The GLL space used in simulation
   !! @param Xh_GL The GL space used for dealiasing
   !! @param coef The coefficients of the original space in simulation
@@ -607,8 +622,8 @@ contains
   !! @param n size of phi
   !! @param nel Total number of elements
   !! @param n_GL the size in the GL space
-  subroutine runge_kutta(phi, c_r1, c_r23, c_r4, Xh_GLL, Xh_GL, coef, &
-       coef_GL, GLL_to_GL, tau, dtau, n, nel, n_GL)
+  subroutine runge_kutta(phi, conv_k1, conv_k23, conv_k4, Xh_GLL, Xh_GL, &
+       coef, coef_GL, GLL_to_GL, tau, dtau, n, nel, n_GL)
     type(space_t), intent(in) :: Xh_GLL
     type(space_t), intent(inout) :: Xh_GL
     type(coef_t), intent(in) :: coef
@@ -616,57 +631,114 @@ contains
     type(interpolator_t) :: GLL_to_GL
     real(kind=rp), intent(inout) :: tau, dtau
     integer, intent(in) :: n, nel, n_GL
-    real(kind=rp), dimension(n), intent(inout) :: phi
-    real(kind=rp), dimension(3 * n_GL), intent(inout) :: c_r1, c_r23, c_r4
+    type(field_t), intent(inout) :: phi
+    type(field_list_t) :: conv_k1, conv_k23, conv_k4
     real(kind=rp) :: c1, c2, c3
-    ! Work Arrays
-    real(kind=rp), dimension(n) :: u1, r1, r2, r3, r4
+    type(field_t), pointer :: u1, k1, k2, k3, k4
     real(kind=rp), dimension(n_GL) :: u1_GL
-    integer :: i, e
+    integer :: ind(5), i, e
+    type(c_ptr) :: u1_GL_d
 
-    c1 = 1.
+    call neko_scratch_registry%request_field(u1, ind(1))
+    call neko_scratch_registry%request_field(k1, ind(2))
+    call neko_scratch_registry%request_field(k2, ind(3))
+    call neko_scratch_registry%request_field(k3, ind(4))
+    call neko_scratch_registry%request_field(k4, ind(5))
+
+    c1 = 1.0_rp
     c2 = -dtau/2.
     c3 = -dtau
 
-    ! Stage 1:
-    call invcol3 (u1, phi, coef%B, n)
-    call GLL_to_GL%map(u1_GL, u1, nel, Xh_GL)
-    call convect_scalar(r1, u1_GL, c_r1, Xh_GLL, Xh_GL, coef, &
-         coef_GL, GLL_to_GL)
-    call col2(r1, coef%B, n)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(u1_GL, u1_GL_d, n_GL)
 
-    ! Stage 2:
-    call add3s2 (u1, phi, r1, c1, c2, n)
-    call invcol2 (u1, coef%B, n)
-    call GLL_to_GL%map(u1_GL, u1, nel, Xh_GL)
-    call convect_scalar(r2, u1_GL, c_r23, Xh_GLL, Xh_GL, coef, &
-         coef_GL, GLL_to_GL)
-    call col2(r2, coef%B, n)
+       ! Stage 1:
+       call device_invcol3(u1%x_d, phi%x_d, coef%B_d, n)
+       call GLL_to_GL%map(u1_GL, u1%x, nel, Xh_GL)
+       call convect_scalar(k1%x, u1_GL, conv_k1%items(1)%ptr, &
+                           conv_k1%items(2)%ptr, conv_k1%items(3)%ptr, &
+                           Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
+       call device_col2(k1%x_d, coef%B_d, n)
 
-    ! Stage 3:
-    call add3s2 (u1, phi, r2, c1, c2, n)
-    call invcol2 (u1, coef%B, n)
-    call GLL_to_GL%map(u1_GL, u1, nel, Xh_GL)
-    call convect_scalar(r3, u1_GL, c_r23, Xh_GLL, Xh_GL, coef, &
-         coef_GL, GLL_to_GL)
-    call col2(r3, coef%B, n)
+       ! Stage 2:
+       call device_add3s2(u1%x_d, phi%x_d, k1%x_d, c1, c2, n)
+       call device_invcol2(u1%x_d, coef%B_d, n)
+       call GLL_to_GL%map(u1_GL, u1%x, nel, Xh_GL)
+       call convect_scalar(k2%x, u1_GL, conv_k23%items(1)%ptr, &
+                           conv_k23%items(2)%ptr, conv_k23%items(3)%ptr, &
+                           Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
+       call device_col2(k2%x_d, coef%B_d, n)
 
-    ! Stage 4:
-    call add3s2 (u1, phi, r3, c1, c3, n)
-    call invcol2 (u1, coef%B, n)
-    call GLL_to_GL%map(u1_GL, u1, nel, Xh_GL)
-    call convect_scalar(r4, u1_GL, c_r4, Xh_GLL, Xh_GL, coef, &
-         coef_GL, GLL_to_GL)
-    call col2(r4, coef%B, n)
+       ! Stage 3:
+       call device_add3s2(u1%x_d, phi%x_d, k2%x_d, c1, c2, n)
+       call device_invcol2(u1%x_d, coef%B_d, n)
+       call GLL_to_GL%map(u1_GL, u1%x, nel, Xh_GL)
+       call convect_scalar(k3%x, u1_GL, conv_k23%items(1)%ptr, &
+                           conv_k23%items(2)%ptr, conv_k23%items(3)%ptr, &
+                           Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
+       call device_col2(k3%x_d, coef%B_d, n)
 
-    c1 = -dtau/6.
-    c2 = -dtau/3.
-    do i = 1, n
-       phi(i) = phi(i) + c1 * (r1(i) + r4(i)) + c2 * (r2(i) + r3(i))
-    end do
+       ! Stage 4:
+       call device_add3s2(u1%x_d, phi%x_d, k3%x_d, c1, c3, n)
+       call device_invcol2(u1%x_d, coef%B_d, n)
+       call GLL_to_GL%map(u1_GL, u1%x, nel, Xh_GL)
+       call convect_scalar(k4%x, u1_GL, conv_k4%items(1)%ptr, &
+                           conv_k4%items(2)%ptr, conv_k4%items(3)%ptr, &
+                           Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
+       call device_col2(k4%x_d, coef%B_d, n)
+
+       c1 = -dtau/6.
+       c2 = -dtau/3.
+
+       call device_add5s4(phi%x_d, k1%x_d, k2%x_d, k3%x_d, k4%x_d, &
+                          c1, c2, c2, c1, n)
+
+       call device_free(u1_GL_d)
+
+    else
+
+       ! Stage 1:
+       call invcol3(u1%x, phi%x, coef%B, n)
+       call GLL_to_GL%map(u1_GL, u1%x, nel, Xh_GL)
+       call convect_scalar(k1%x, u1_GL, conv_k1%items(1)%ptr, &
+                           conv_k1%items(2)%ptr, conv_k1%items(3)%ptr, &
+                           Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
+       call col2(k1%x, coef%B, n)
+
+       ! Stage 2:
+       call add3s2(u1%x, phi%x, k1%x, c1, c2, n)
+       call invcol2(u1%x, coef%B, n)
+       call GLL_to_GL%map(u1_GL, u1%x, nel, Xh_GL)
+       call convect_scalar(k2%x, u1_GL, conv_k23%items(1)%ptr, &
+                           conv_k23%items(2)%ptr, conv_k23%items(3)%ptr, &
+                           Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
+       call col2(k2%x, coef%B, n)
+
+       ! Stage 3:
+       call add3s2(u1%x, phi%x, k2%x, c1, c2, n)
+       call invcol2(u1%x, coef%B, n)
+       call GLL_to_GL%map(u1_GL, u1%x, nel, Xh_GL)
+       call convect_scalar(k3%x, u1_GL, conv_k23%items(1)%ptr, &
+                           conv_k23%items(2)%ptr, conv_k23%items(3)%ptr, &
+                           Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
+       call col2(k3%x, coef%B, n)
+
+       ! Stage 4:
+       call add3s2(u1%x, phi%x, k3%x, c1, c3, n)
+       call invcol2(u1%x, coef%B, n)
+       call GLL_to_GL%map(u1_GL, u1%x, nel, Xh_GL)
+       call convect_scalar(k4%x, u1_GL, conv_k4%items(1)%ptr, &
+                           conv_k4%items(2)%ptr, conv_k4%items(3)%ptr, &
+                           Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
+       call col2(k4%x, coef%B, n)
+
+       c1 = -dtau/6.
+       c2 = -dtau/3.
+       call add5s4(phi%x, k1%x, k2%x, k3%x, k4%x, c1, c2, c2, c1, n)
+    end if
+
+    call neko_scratch_registry%relinquish_field(ind)
 
   end subroutine runge_kutta
-
-
 
 end module operators

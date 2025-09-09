@@ -407,6 +407,8 @@ libneko_la_SOURCES += \
 	math/bcknd/device/hip/opr_dudxyz.hip\
 	math/bcknd/device/hip/opr_cdtp.hip\
 	math/bcknd/device/hip/opr_conv1.hip\
+	math/bcknd/device/hip/opr_convect_scalar.hip\
+	math/bcknd/device/hip/set_convect_rst.hip\
 	math/bcknd/device/hip/opr_opgrad.hip\
 	math/bcknd/device/hip/opr_lambda2.hip\
 	math/bcknd/device/hip/opr_cfl.hip\
@@ -457,6 +459,8 @@ libneko_la_SOURCES += \
 	math/bcknd/device/cuda/opr_dudxyz.cu\
 	math/bcknd/device/cuda/opr_cdtp.cu\
 	math/bcknd/device/cuda/opr_conv1.cu\
+	math/bcknd/device/cuda/opr_convect_scalar.cu\
+	math/bcknd/device/cuda/set_convect_rst.cu\
 	math/bcknd/device/cuda/opr_opgrad.cu\
 	math/bcknd/device/cuda/opr_lambda2.cu\
 	math/bcknd/device/cuda/opr_cfl.cu\
@@ -514,6 +518,8 @@ libneko_la_SOURCES += \
 	math/bcknd/device/opencl/opr_dudxyz.c\
 	math/bcknd/device/opencl/opr_cdtp.c\
 	math/bcknd/device/opencl/opr_conv1.c\
+	math/bcknd/device/opencl/opr_convect_scalar.c\
+	math/bcknd/device/opencl/set_convect_rst.c\
 	math/bcknd/device/opencl/opr_opgrad.c\
 	math/bcknd/device/opencl/opr_lambda2.c\
 	math/bcknd/device/opencl/opr_cfl.c\
@@ -641,6 +647,8 @@ EXTRA_DIST = \
 	math/bcknd/device/cuda/dudxyz_kernel.h\
 	math/bcknd/device/cuda/cdtp_kernel.h\
 	math/bcknd/device/cuda/conv1_kernel.h\
+	math/bcknd/device/cuda/convect_scalar_kernel.h\
+	math/bcknd/device/cuda/set_convect_rst_kernel.h\
 	math/bcknd/device/cuda/opgrad_kernel.h\
 	math/bcknd/device/cuda/lambda2_kernel.h\
 	math/bcknd/device/cuda/cfl_kernel.h\
@@ -649,6 +657,7 @@ EXTRA_DIST = \
 	common/bcknd/device/cuda/sumab_kernel.h\
 	common/bcknd/device/cuda/makeext_kernel.h\
 	common/bcknd/device/cuda/makebdf_kernel.h\
+	common/bcknd/device/cuda/makeoifs_kernel.h\
 	common/bcknd/device/cuda/projection_kernel.h\
 	fluid/bcknd/device/cuda/prs_res_kernel.h\
 	fluid/bcknd/device/cuda/vel_res_update_kernel.h\
@@ -682,6 +691,8 @@ EXTRA_DIST = \
 	math/bcknd/device/hip/dudxyz_kernel.h\
 	math/bcknd/device/hip/cdtp_kernel.h\
 	math/bcknd/device/hip/conv1_kernel.h\
+	math/bcknd/device/hip/convect_scalar_kernel.h\
+	math/bcknd/device/hip/set_convect_rst_kernel.h\
 	math/bcknd/device/hip/opgrad_kernel.h\
 	math/bcknd/device/hip/lambda2_kernel.h\
 	math/bcknd/device/hip/cfl_kernel.h\
@@ -690,6 +701,7 @@ EXTRA_DIST = \
 	common/bcknd/device/hip/sumab_kernel.h\
 	common/bcknd/device/hip/makeext_kernel.h\
 	common/bcknd/device/hip/makebdf_kernel.h\
+	common/bcknd/device/hip/makeoifs_kernel.h\
 	common/bcknd/device/hip/projection_kernel.h\
 	fluid/bcknd/device/hip/prs_res_kernel.h\
 	fluid/bcknd/device/hip/vel_res_update_kernel.h\
@@ -732,6 +744,8 @@ EXTRA_DIST = \
 	math/bcknd/device/opencl/cdtp_kernel.cl\
 	math/bcknd/device/opencl/opgrad_kernel.cl\
 	math/bcknd/device/opencl/conv1_kernel.cl\
+	math/bcknd/device/opencl/convect_scalar_kernel.cl\
+	math/bcknd/device/opencl/set_convect_rst_kernel.cl\
 	math/bcknd/device/opencl/lambda2_kernel.cl\
 	math/bcknd/device/opencl/cfl_kernel.cl\
 	common/bcknd/device/opencl/rhs_maker_kernel.cl\
