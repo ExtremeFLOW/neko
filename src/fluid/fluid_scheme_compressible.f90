@@ -205,11 +205,11 @@ contains
 
     ! Compressible parameters
     call json_get_or_default(params, 'case.fluid.gamma', this%gamma, 1.4_rp)
-    
+
     ! Calculate global points for logging
     this%glb_n_points = int(this%msh%glb_nelv, i8)*int(this%Xh%lxyz, i8)
     this%glb_unique_points = int(glsum(this%c_Xh%mult, this%dm_Xh%size()), i8)
-    
+
     !
     ! Log solver information
     !
