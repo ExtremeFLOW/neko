@@ -93,7 +93,7 @@ contains
     character(len=132) :: hdr
     character :: rdcode(10)
     character(len=8) :: id_str
-    character(len=1024) :: fname
+    character(len=1024) :: fname, base_fname
     character(len=1024) :: start_field
     integer :: i, j, ierr, n, suffix_pos, tslash_pos
     integer :: lx, ly, lz, lxyz, gdim, glb_nelv, nelv, offset_el
@@ -321,9 +321,10 @@ contains
     ! Adapt filename with counter
     !> @todo write into single file with multiple steps
     !> @todo write into function because of code duplication
-    suffix_pos = filename_suffix_pos(this%fname)
+    base_fname = this%get_base_fname()
+    suffix_pos = filename_suffix_pos(base_fname)
     write(id_str, '(i5.5,a)') this%counter, '.bp'
-    fname = trim(this%fname(1:suffix_pos-1)) // "0." // id_str
+    fname = trim(base_fname(1:suffix_pos-1)) // "0." // id_str
 
     if (.not. adios%valid) then
        !> @todo enable parsing XML filename
@@ -430,13 +431,13 @@ contains
 
     ! Write metadata file
     if (pe_rank .eq. 0) then
-       tslash_pos = filename_tslash_pos(this%fname)
+       tslash_pos = filename_tslash_pos(base_fname)
        write(start_field, "(I5,A7)") this%start_counter, '.adios2'
        open(unit = newunit(file_unit), &
-            file = trim(this%fname(1:suffix_pos - 1)) &
+            file = trim(base_fname(1:suffix_pos - 1)) &
             // trim(adjustl(start_field)), status='replace')
        write(file_unit, fmt = '(A,A,A)') 'filetemplate:         ', &
-            this%fname(tslash_pos+1:suffix_pos-1),'%01d.%05d.bp'
+            base_fname(tslash_pos+1:suffix_pos-1),'%01d.%05d.bp'
        write(file_unit, fmt = '(A,i5)') 'firsttimestep: ', this%start_counter
        write(file_unit, fmt = '(A,i5)') 'numtimesteps: ', &
             (this%counter + 1) - this%start_counter
@@ -456,7 +457,7 @@ contains
     class(*), target, intent(inout) :: data
     character(len=132) :: hdr
     integer :: ierr, suffix_pos, i, j
-    character(len=1024) :: fname, meta_fname, string
+    character(len=1024) :: fname, meta_fname, string, base_fname
     logical :: meta_file, read_mesh, read_velocity, read_pressure
     logical :: read_temp
     character(len=8) :: id_str
@@ -474,8 +475,9 @@ contains
 
     select type (data)
     type is (fld_file_data_t)
-       suffix_pos = filename_suffix_pos(this%fname)
-       meta_fname = trim(this%fname(1:suffix_pos-1))
+       base_fname = this%get_base_fname()
+       suffix_pos = filename_suffix_pos(base_fname)
+       meta_fname = trim(base_fname(1:suffix_pos-1))
        call filename_chsuffix(meta_fname, meta_fname,'adios2')
 
        !> @ todo debug and check if correct strings and filenames are extracted
@@ -516,10 +518,10 @@ contains
           end if
        else
           ! @todo write into function because of code duplication
-          !suffix_pos = filename_suffix_pos(this%fname)
+          !suffix_pos = filename_suffix_pos(base_fname)
           !write(id_str, '(i5.5,a)') this%counter, '.bp'
-          !fname = trim(this%fname(1:suffix_pos-1))//'.'//id_str
-          fname = this%fname
+          !fname = trim(base_fname(1:suffix_pos-1))//'.'//id_str
+          fname = base_fname
        end if
 
        if (.not.adios%valid) then

@@ -54,7 +54,6 @@ module hdf5_file
 
   !> Interface for HDF5 files
   type, public, extends(generic_file_t) :: hdf5_file_t
-     logical :: overwrite = .false. !< Flag to overwrite existing files
    contains
      procedure :: read => hdf5_file_read
      procedure :: write => hdf5_file_write
@@ -86,13 +85,8 @@ contains
 
     call hdf5_file_determine_data(data, msh, dof, fp, fsp, dtlag, tlag)
 
-    if (this%overwrite) then
-       fname = trim(this%fname)
-    else !< Append the counter to the filename
-       suffix_pos = filename_suffix_pos(this%fname)
-       write(id_str, '(i5.5)') this%counter
-       fname = trim(this%fname(1:suffix_pos-1))//id_str//'.h5'
-    end if
+    if (.not. this%overwrite) call this%increment_counter()
+    fname = trim(this%get_fname())
 
     call h5open_f(ierr)
     call h5pcreate_f(H5P_FILE_ACCESS_F, plist_id, ierr)
@@ -246,8 +240,6 @@ contains
 
     call h5close_f(ierr)
 
-    this%counter = this%counter + 1
-
   end subroutine hdf5_file_write
 
   !> Read data in HDF5 format
@@ -265,6 +257,9 @@ contains
     real(kind=rp), pointer :: dtlag(:)
     real(kind=rp), pointer :: tlag(:)
     real(kind=rp) :: t
+    character(len=1024) :: fname
+
+    fname = trim(this%get_fname())
 
     call hdf5_file_determine_data(data, msh, dof, fp, fsp, dtlag, tlag)
 
@@ -273,7 +268,7 @@ contains
     info = MPI_INFO_NULL%mpi_val
     call h5pset_fapl_mpio_f(plist_id, NEKO_COMM%mpi_val, info, ierr)
 
-    call h5fopen_f(trim(this%fname), H5F_ACC_RDONLY_F, &
+    call h5fopen_f(fname, H5F_ACC_RDONLY_F, &
          file_id, ierr, access_prp = plist_id)
 
     call h5pcreate_f(H5P_DATASET_XFER_F, plist_id, ierr)

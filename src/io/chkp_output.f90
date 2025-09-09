@@ -35,7 +35,6 @@ module chkp_output
   use checkpoint, only : chkp_t
   use output
   use num_types, only : rp
-  use utils, only : filename_suffix_pos
   implicit none
   private
 
@@ -57,7 +56,6 @@ contains
     logical, intent(in), optional :: overwrite
     character(len=1024) :: fname
     character(len=10) :: suffix
-    integer :: suffix_pos
 
     suffix = '.chkp'
     if (present(fmt)) then
@@ -69,10 +67,7 @@ contains
     fname = 'fluid'
     if (present(name)) fname = trim(name)
     if (present(path)) fname = trim(path) // trim(fname)
-
-    ! Add suffix if not present
-    suffix_pos = filename_suffix_pos(fname)
-    if (suffix_pos .eq. 0) fname = trim(fname) // trim(suffix)
+    fname = trim(fname) // trim(suffix)
 
     call this%init_base(fname, overwrite = overwrite)
     this%chkp => chkp
