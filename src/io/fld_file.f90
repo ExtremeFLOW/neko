@@ -33,25 +33,25 @@
 !> NEKTON fld file format
 !! @details this module defines interface to write NEKTON's fld fields
 module fld_file
-  use num_types, only: rp, dp, sp, i8
-  use generic_file, only: generic_file_t
-  use field, only: field_t
-  use field_list, only: field_list_t
-  use dofmap, only: dofmap_t
-  use space, only: space_t
-  use structs, only: array_ptr_t
-  use vector, only: vector_t
-  use fld_file_data, only: fld_file_data_t
-  use mean_flow, only: mean_flow_t
+  use num_types, only : rp, dp, sp, i8
+  use generic_file, only : generic_file_t
+  use field, only : field_t
+  use field_list, only : field_list_t
+  use dofmap, only : dofmap_t
+  use space, only : space_t
+  use structs, only : array_ptr_t
+  use vector, only : vector_t
+  use fld_file_data, only : fld_file_data_t
+  use mean_flow, only : mean_flow_t
   use vector, only : vector_t
   use space, only : space_t
   use mesh, only : mesh_t
   use utils, only: filename_suffix_pos, filename_chsuffix, filename_name, &
        filename_path, neko_error
   use comm
-  use datadist, only: linear_dist_t
-  use math, only: vlmin, vlmax
-  use neko_mpi_types, only: MPI_CHARACTER_SIZE, MPI_DOUBLE_PRECISION_SIZE, &
+  use datadist, only : linear_dist_t
+  use math, only : vlmin, vlmax
+  use neko_mpi_types, only : MPI_CHARACTER_SIZE, MPI_DOUBLE_PRECISION_SIZE, &
        MPI_REAL_SIZE, MPI_INTEGER_SIZE
   use mpi_f08
   implicit none
@@ -743,7 +743,8 @@ contains
           call filename_path(this%get_base_fname(), path)
           write(suffix, '(a,i5.5)') 'f', this%get_counter()
           fname = trim(path) // trim(data%fld_series_fname) // '.' // suffix
-          if (this%get_counter() .ge. data%meta_nsamples+data%meta_start_counter) then
+          if (this%get_counter() .ge. &
+               data%meta_nsamples+data%meta_start_counter) then
              call neko_error('Trying to read more fld files than exist')
           end if
        else
