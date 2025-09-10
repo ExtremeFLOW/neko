@@ -34,7 +34,6 @@
 module fluid_scheme_incompressible
   use fluid_scheme_base, only : fluid_scheme_base_t
   use gather_scatter, only : gs_t, GS_OP_MIN, GS_OP_MAX
-  use mean_sqr_flow, only : mean_sqr_flow_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use checkpoint, only : chkp_t
   use mean_flow, only : mean_flow_t
@@ -93,7 +92,6 @@ module fluid_scheme_incompressible
 
      type(mean_flow_t) :: mean !< Mean flow field
      type(fluid_stats_t) :: stats !< Fluid statistics
-     type(mean_sqr_flow_t) :: mean_sqr !< Mean squared flow field
      logical :: forced_flow_rate = .false. !< Is the flow rate forced?
 
      !> The turbulent kinematic viscosity field name

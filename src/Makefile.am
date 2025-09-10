@@ -88,7 +88,6 @@ neko_fortran_SOURCES = \
 	field/field_series_list.f90\
 	field/mesh_field.f90\
 	field/mean_field.f90\
-	field/mean_sqr_field.f90\
 	io/format/rea.f90\
 	math/bcknd/cpu/cpu_cdtp.f90\
 	math/bcknd/cpu/cpu_conv1.f90\
@@ -150,7 +149,6 @@ neko_fortran_SOURCES = \
 	io/chkp_output.f90\
 	io/mean_flow_output.f90\
 	io/fluid_stats_output.f90\
-	io/mean_sqr_flow_output.f90\
 	io/data_streamer.F90\
 	io/output_controller.f90\
 	common/global_interpolation.F90\
@@ -236,7 +234,6 @@ neko_fortran_SOURCES = \
 	fluid/euler_res_fctry.f90\
 	fluid/mean_flow.f90\
 	fluid/fluid_stats.f90\
-	fluid/mean_sqr_flow.f90\
 	fluid/flow_profile.f90\
 	fluid/flow_ic.f90\
 	fluid/advection.f90\
