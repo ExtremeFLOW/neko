@@ -43,7 +43,6 @@ module fld_file
   use vector, only: vector_t
   use fld_file_data, only: fld_file_data_t
   use mean_flow, only: mean_flow_t
-  use mean_sqr_flow, only: mean_sqr_flow_t
   use vector, only : vector_t
   use space, only : space_t
   use mesh, only : mesh_t
@@ -247,14 +246,6 @@ contains
        w%ptr => data%w%mf%x(:,1,1,1)
        p%ptr => data%p%mf%x(:,1,1,1)
        dof => data%u%mf%dof
-       write_pressure = .true.
-       write_velocity = .true.
-    type is (mean_sqr_flow_t)
-       u%ptr => data%uu%mf%x(:,1,1,1)
-       v%ptr => data%vv%mf%x(:,1,1,1)
-       w%ptr => data%ww%mf%x(:,1,1,1)
-       p%ptr => data%pp%mf%x(:,1,1,1)
-       dof => data%pp%mf%dof
        write_pressure = .true.
        write_velocity = .true.
     class default
