@@ -313,8 +313,8 @@ contains
     do i = 1, this%n
        if (this%controllers(i)%nsteps .eq. 0) then
           call this%controllers(i)%set_counter(time)
-          nexecutions =this%controllers(i)%nexecutions
-          call this%output_list(i)%ptr%set_counter(nexecutions)
+          nexecutions = this%controllers(i)%nexecutions
+          call this%output_list(i)%ptr%set_counter(-1)
           call this%output_list(i)%ptr%set_start_counter(nexecutions)
        end if
     end do
