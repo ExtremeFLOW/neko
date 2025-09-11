@@ -42,7 +42,6 @@ module fld_file
   use structs, only : array_ptr_t
   use vector, only : vector_t
   use fld_file_data, only : fld_file_data_t
-  use mean_flow, only : mean_flow_t
   use vector, only : vector_t
   use space, only : space_t
   use mesh, only : mesh_t
@@ -239,15 +238,6 @@ contains
           call neko_error('This many fields not supported yet, fld_file')
        end select
        dof => data%dof(1)
-
-    type is (mean_flow_t)
-       u%ptr => data%u%mf%x(:,1,1,1)
-       v%ptr => data%v%mf%x(:,1,1,1)
-       w%ptr => data%w%mf%x(:,1,1,1)
-       p%ptr => data%p%mf%x(:,1,1,1)
-       dof => data%u%mf%dof
-       write_pressure = .true.
-       write_velocity = .true.
     class default
        call neko_error('Invalid data')
     end select
