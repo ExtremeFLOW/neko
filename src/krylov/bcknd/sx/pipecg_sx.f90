@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2024, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,9 @@ module pipecg_sx
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
   use math, only : glsc3, abscmp
-  use comm
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_Iallreduce, MPI_IN_PLACE, MPI_SUM, MPI_Wait, &
+       MPI_Request, MPI_status
   implicit none
   private
 

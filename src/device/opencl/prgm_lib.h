@@ -41,6 +41,12 @@ extern void *cdtp_program;
 /** Device convective kernels */
 extern void *conv1_program;
 
+/** Device convect_scalar kernels */
+extern void *convect_scalar_program;
+
+/** Device set_convect_rst kernels */
+extern void *set_convect_rst_program;
+
 /** Device CFL kernels */
 extern void *cfl_program;
 
@@ -64,6 +70,10 @@ extern void *pnpn_res_program;
 
 /** Device euler residual kernels */
 extern void *euler_res_program;
+
+/** Device compressible ops kernels */
+extern void *compressible_ops_compute_max_wave_speed_program;
+extern void *compressible_ops_compute_entropy_program;
 
 /** Device fdm kernels */
 extern void *fdm_program;

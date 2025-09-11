@@ -32,32 +32,30 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <cuda.h>
-#include <cuda_runtime.h>
-#include <cublas.h>
-#include <device/device_config.h>
-#include <device/cuda/check.h>
-#include <math/bcknd/device/cuda/mathops_kernel.h>
+#ifndef __OPENCL_COMPRESSIBLE_OPS_COMPUTE_ENTROPY_KERNEL__
+#define __OPENCL_COMPRESSIBLE_OPS_COMPUTE_ENTROPY_KERNEL__
 
-extern "C" {
+/**
+ * Device kernel for compute_entropy
+ */
+__kernel void compute_entropy_kernel(__global real * S,
+                                     __global const real * p,
+                                     __global const real * rho,
+                                     const real gamma,
+                                     const int n) {
 
-void cuda_compute_max_wave_speed(void *max_wave_speed_d, 
-                                 void *u_d, void *v_d, void *w_d,
-                                 real *gamma, void *p_d, void *rho_d, 
-                                 int *n) {
-  
-  const dim3 nthrds(1024, 1, 1);
-  const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
-  const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
-  
-  compute_max_wave_speed_kernel<real>
-    <<<nblcks, nthrds, 0, stream>>>((real *) max_wave_speed_d, 
-                                     (real *) u_d, (real *) v_d, (real *) w_d, 
-                                     *gamma, (real *) p_d, (real *) rho_d, *n);
-  CUDA_CHECK(cudaGetLastError());
-  
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) {
+    if (i < n) {
+      // S = 1/(gamma-1) * rho * (log(p) - gamma * log(rho))
+      real log_p = log(p[i]);
+      real log_rho = log(rho[i]);
+      S[i] = (1.0 / (gamma - 1.0)) * rho[i] * (log_p - gamma * log_rho);
+    }
+  }
+
 }
 
-} 
+#endif // __OPENCL_COMPRESSIBLE_OPS_COMPUTE_ENTROPY_KERNEL__ 

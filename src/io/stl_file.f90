@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2022-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -38,9 +38,11 @@ module stl_file
   use logger, only : neko_log
   use point, only : point_t
   use neko_mpi_types, only : MPI_STL_HEADER, MPI_STL_TRIANGLE
-  use mpi_f08
-  use utils, only: neko_error
-  use comm
+  use mpi_f08, only : MPI_MODE_RDONLY, MPI_INFO_NULL, &
+       MPI_File_open, MPI_File_read_all, MPI_File, MPI_Status, &
+       MPI_File_close
+  use utils, only : neko_error
+  use comm, only : NEKO_COMM
   use stl, only : stl_hdr_t, stl_triangle_t
   implicit none
   private
@@ -81,7 +83,7 @@ contains
        call neko_log%error('Invalid data')
     end select
 
-    call MPI_File_open(NEKO_COMM, trim(this%fname), &
+    call MPI_File_open(NEKO_COMM, trim(this%get_fname()), &
          MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
     call MPI_File_read_all(fh, stl_hdr, 1, MPI_STL_HEADER, status, ierr)
 

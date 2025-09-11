@@ -47,12 +47,13 @@ module chkp_output
 
 contains
 
-  subroutine chkp_output_init(this, chkp, name, path, fmt)
+  subroutine chkp_output_init(this, chkp, name, path, fmt, overwrite)
     class(chkp_output_t), intent(inout) :: this
     type(chkp_t), intent(in), target :: chkp
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path
     character(len=*), intent(in), optional :: fmt
+    logical, intent(in), optional :: overwrite
     character(len=1024) :: fname
     character(len=10) :: suffix
 
@@ -63,17 +64,12 @@ contains
        end if
     end if
 
-    if (present(name) .and. present(path)) then
-       fname = trim(path) // trim(name) // trim(suffix)
-    else if (present(name)) then
-       fname = trim(name) // trim(suffix)
-    else if (present(path)) then
-       fname = trim(path) // 'fluid' // trim(suffix)
-    else
-       fname= 'fluid' // trim(suffix)
-    end if
+    fname = 'fluid'
+    if (present(name)) fname = trim(name)
+    if (present(path)) fname = trim(path) // trim(fname)
+    fname = trim(fname) // trim(suffix)
 
-    call this%init_base(fname)
+    call this%init_base(fname, overwrite = overwrite)
     this%chkp => chkp
   end subroutine chkp_output_init
 

@@ -112,7 +112,7 @@ program postprocess_fluid_stats
   p => neko_field_registry%get_field('p')
 
   call fld_stats%init(coef,u,v,w,p)
-  n = stats_data%u%n
+  n = stats_data%u%size()
 
   call copy(fld_stats%stat_fields%items(1)%ptr%x, stats_data%p%x,n)
   call copy(fld_stats%stat_fields%items(2)%ptr%x, stats_data%u%x,n)

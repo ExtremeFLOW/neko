@@ -32,26 +32,29 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#ifdef __APPLE__
+#include <OpenCL/cl.h>
+#else
+#include <CL/cl.h>
+#endif
 
+#include <stdio.h>
 #include <device/device_config.h>
 #include <device/opencl/jit.h>
 #include <device/opencl/prgm_lib.h>
 #include <device/opencl/check.h>
 
-#include "compute_max_wave_speed_kernel.cl.h"
+#include "compressible_ops_compute_max_wave_speed_kernel.cl.h"
 
 void opencl_compute_max_wave_speed(void *max_wave_speed, void *u, void *v, void *w,
                                    real gamma, void *p, void *rho, int n) {
 
   cl_int err;
 
-  if (compute_max_wave_speed_program == NULL)
-    opencl_kernel_jit(compute_max_wave_speed_kernel, (cl_program *) &compute_max_wave_speed_program);
+  if (compressible_ops_compute_max_wave_speed_program == NULL)
+    opencl_kernel_jit(compressible_ops_compute_max_wave_speed_kernel, (cl_program *) &compressible_ops_compute_max_wave_speed_program);
 
-  cl_kernel kernel = clCreateKernel((cl_program) compute_max_wave_speed_program, 
+  cl_kernel kernel = clCreateKernel((cl_program) compressible_ops_compute_max_wave_speed_program, 
                                     "compute_max_wave_speed_kernel", &err);
   CL_CHECK(err);
 
@@ -59,10 +62,10 @@ void opencl_compute_max_wave_speed(void *max_wave_speed, void *u, void *v, void 
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &u));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &v));
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &w));
-  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(real), (void *) &gamma));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(real), &gamma));
   CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &p));
   CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &rho));
-  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(int), (void *) &n));
+  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(int), &n));
 
   const int nb = (n + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;

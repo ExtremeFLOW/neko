@@ -110,10 +110,12 @@ module math
        glsum, glmax, glmin, chsign, vlmax, vlmin, invcol1, invcol3, invers2, &
        vcross, vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, sub3, &
        add2s1, add2s2, addsqr2s2, cmult2, invcol2, col2, col3, subcol3, &
-       add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
-       glsc3, glsc4, sort, masked_copy, cfill_mask, relcmp, glimax, glimin, &
-       swap, reord, flipv, cadd2, masked_gather_copy, absval, pwmax, pwmin, &
-       masked_scatter_copy, cdiv, cdiv2, glsubnorm
+       add3s2, add4s3, add5s4, subcol4, addcol3, addcol4, addcol3s2, ascol5, &
+       p_update, x_update, glsc2, glsc3, glsc4, sort, masked_copy_0, &
+       cfill_mask, relcmp, glimax, glimin, swap, reord, flipv, cadd2, &
+       masked_gather_copy_0, absval, pwmax, pwmin, &
+       masked_scatter_copy_0, cdiv, cdiv2, glsubnorm, &
+       masked_copy, masked_gather_copy, masked_scatter_copy
 
 contains
 
@@ -269,11 +271,32 @@ contains
   !! the length of the mask array.
   !! @param n Size of the arrays `a` and `b`.
   !! @param n_mask Size of the mask array `mask`.
-  subroutine masked_copy(a, b, mask, n, n_mask)
+  subroutine masked_copy_0(a, b, mask, n, n_mask)
     integer, intent(in) :: n, n_mask
     real(kind=rp), dimension(n), intent(in) :: b
     real(kind=rp), dimension(n), intent(inout) :: a
     integer, dimension(0:n_mask) :: mask
+    integer :: i, j
+
+    do i = 1, n_mask
+       j = mask(i)
+       a(j) = b(j)
+    end do
+
+  end subroutine masked_copy_0
+
+  !> Copy a masked vector \f$ a(mask) = b(mask) \f$.
+  !! @param a Destination array of size `n`.
+  !! @param b Source array of size `n`.
+  !! @param mask Mask array of length n_mask + 1, where `mask(0) = n_mask`
+  !! the length of the mask array.
+  !! @param n Size of the arrays `a` and `b`.
+  !! @param n_mask Size of the mask array `mask`.
+  subroutine masked_copy(a, b, mask, n, n_mask)
+    integer, intent(in) :: n, n_mask
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), dimension(n), intent(inout) :: a
+    integer, dimension(n_mask) :: mask
     integer :: i, j
 
     do i = 1, n_mask
@@ -292,7 +315,7 @@ contains
   !! @param n Size of the array `b`.
   !! @param n_mask Size of the mask array `mask` and `a`.
   !! @note Assumes `n .ge. n_mask`.
-  subroutine masked_gather_copy(a, b, mask, n, n_mask)
+  subroutine masked_gather_copy_0(a, b, mask, n, n_mask)
     integer, intent(in) :: n, n_mask
     real(kind=rp), dimension(n), intent(in) :: b
     real(kind=rp), dimension(n_mask), intent(inout) :: a
@@ -304,8 +327,53 @@ contains
        a(i) = b(j)
     end do
 
+  end subroutine masked_gather_copy_0
+
+  !> Gather a masked vector to reduced contigous vector
+  !! \f$ a = b(mask) \f$.
+  !! @param a Destination array of size `n_mask`.
+  !! @param b Source array of size `n`.
+  !! @param mask Mask array of length n_mask + 1, where `mask(0) = n_mask`
+  !! the length of the mask array.
+  !! @param n Size of the array `b`.
+  !! @param n_mask Size of the mask array `mask` and `a`.
+  !! @note Assumes `n .ge. n_mask`.
+  subroutine masked_gather_copy(a, b, mask, n, n_mask)
+    integer, intent(in) :: n, n_mask
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), dimension(n_mask), intent(inout) :: a
+    integer, dimension(n_mask) :: mask
+    integer :: i, j
+
+    do i = 1, n_mask
+       j = mask(i)
+       a(i) = b(j)
+    end do
+
   end subroutine masked_gather_copy
 
+  !> Scatter a contigous vector to masked positions in a target array
+  !! \f$ a(mask) = b \f$.
+  !! @param a Destination array of size `n`.
+  !! @param b Source array of size `n_mask`.
+  !! @param mask Mask array of length n_mask + 1, where `mask(0) = n_mask + 1`
+  !! the length of the mask array.
+  !! @param n Size of the array `mask`and array `b`.
+  !! @param m Size of the mask array `a`.
+  !! @note Assumes `n .ge. n_mask`.
+  subroutine masked_scatter_copy_0(a, b, mask, n, n_mask)
+    integer, intent(in) :: n, n_mask
+    real(kind=rp), dimension(n_mask), intent(in) :: b
+    real(kind=rp), dimension(n), intent(inout) :: a
+    integer, dimension(0:n_mask) :: mask
+    integer :: i, j
+
+    do i = 1, n_mask
+       j = mask(i)
+       a(j) = b(i)
+    end do
+
+  end subroutine masked_scatter_copy_0
 
   !> Scatter a contigous vector to masked positions in a target array
   !! \f$ a(mask) = b \f$.
@@ -320,7 +388,7 @@ contains
     integer, intent(in) :: n, n_mask
     real(kind=rp), dimension(n_mask), intent(in) :: b
     real(kind=rp), dimension(n), intent(inout) :: a
-    integer, dimension(0:n_mask) :: mask
+    integer, dimension(n_mask) :: mask
     integer :: i, j
 
     do i = 1, n_mask
@@ -706,7 +774,7 @@ contains
   subroutine sub2(a, b, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(inout) :: b
+    real(kind=rp), dimension(n), intent(in) :: b
     integer :: i
 
     do i = 1, n
@@ -735,7 +803,7 @@ contains
   subroutine add2s1(a, b, c1, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(inout) :: b
+    real(kind=rp), dimension(n), intent(in) :: b
     real(kind=rp), intent(in) :: c1
     integer :: i
 
@@ -844,6 +912,38 @@ contains
 
   end subroutine add3s2
 
+  !> Returns \f$ a = c1 * b + c2 * c + c3 * d \f$
+  subroutine add4s3(a, b, c, d, c1, c2, c3, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), dimension(n), intent(in) :: c
+    real(kind=rp), dimension(n), intent(in) :: d
+    real(kind=rp), intent(in) :: c1, c2, c3
+    integer :: i
+
+    do i = 1,n
+       a(i) = c1 * b(i) + c2 * c(i) + c3 * d(i)
+    end do
+
+  end subroutine add4s3
+
+  !> Returns \f$ a = a + c1 * b + c2 * c + c3 * d + c4 * e\f$
+  subroutine add5s4(a, b, c, d, e, c1, c2, c3, c4, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), dimension(n), intent(in) :: c
+    real(kind=rp), dimension(n), intent(in) :: d
+    real(kind=rp), dimension(n), intent(in) :: e
+    real(kind=rp), intent(in) :: c1, c2, c3, c4
+    integer :: i
+
+    do i = 1,n
+       a(i) = a(i) + c1 * b(i) + c2 * c(i) + c3 * d(i) + c4 * e(i)
+    end do
+
+  end subroutine add5s4
 
   !> Returns \f$ a = a - b*c*d \f$
   subroutine subcol4(a, b, c, d, n)
@@ -888,6 +988,21 @@ contains
     end do
 
   end subroutine addcol4
+
+  !> Returns \f$ a = a + s(b*c) \f$
+  subroutine addcol3s2(a, b, c, s, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), dimension(n), intent(in) :: c
+    real(kind=rp), intent(in) :: s
+    integer :: i
+
+    do i = 1,n
+       a(i) = a(i) + s * b(i) * c(i)
+    end do
+
+  end subroutine addcol3s2
 
   !> Returns \f$ a = b \dot c - d \cdot e \f$
   subroutine ascol5(a, b, c, d, e, n)

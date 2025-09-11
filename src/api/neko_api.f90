@@ -37,6 +37,46 @@ module neko_api
   implicit none
   private
 
+  interface
+     !> Register callbacks
+     !! @param user User interface type
+     !! @param initial_cb Initial condition callback
+     !! @param preprocess_cb Pre timestep callback
+     !! @param compute_cb End of timestep callback
+     !! @param dirichlet_cb User boundary condition callback
+     !! @param material_cb Material properties callback
+     !! @param source_cb Source term callback
+     module subroutine neko_api_user_cb_register(user, initial_cb, &
+          preprocess_cb, compute_cb, dirichlet_cb, material_cb, source_cb)
+       type(user_t), intent(inout) :: user
+       type(c_funptr), value :: initial_cb, preprocess_cb, compute_cb
+       type(c_funptr), value :: dirichlet_cb, material_cb, source_cb
+     end subroutine neko_api_user_cb_register
+  end interface
+
+  interface
+     !> Retrive a pointer to a field for the currently active callback
+     !! @param field_name Field list entry
+     module function neko_api_user_cb_get_field_by_name(field_name) result(f)
+       character(len=*), intent(in) :: field_name
+       type(field_t), pointer :: f
+     end function neko_api_user_cb_get_field_by_name
+  end interface
+
+  interface
+     !> Retrive a pointer to a field for the currently active callback
+     !! @param field_idx Field index in the field list
+     module function neko_api_user_cb_get_field_by_index(field_idx) result(f)
+       integer, intent(in) :: field_idx
+       type(field_t), pointer :: f
+     end function neko_api_user_cb_get_field_by_index
+  end interface
+
+  interface neko_api_user_cb_get_field
+     module procedure neko_api_user_cb_get_field_by_name, &
+          neko_api_user_cb_get_field_by_index
+  end interface neko_api_user_cb_get_field
+
 contains
 
   !> Initialise Neko
@@ -68,6 +108,20 @@ contains
 
   end subroutine neko_api_job_info
 
+  !> Allocate memory for a Neko case
+  !! @param case_iptr Opaque pointer for the created Neko case
+  subroutine neko_api_case_allocate(case_iptr) &
+       bind(c, name="neko_case_allocate")
+    integer(c_intptr_t), intent(inout) :: case_iptr
+    type(case_t), pointer :: C
+    type(c_ptr) :: cp
+
+    allocate(C)
+    cp = c_loc(C)
+    case_iptr = transfer(cp, 0_c_intptr_t)
+
+  end subroutine neko_api_case_allocate
+
   !> Initalise a Neko case
   !! @param case_json Serialised JSON object describing the case
   !! @param case_iptr Opaque pointer for the Neko case
@@ -79,6 +133,17 @@ contains
     type(json_file) :: json_case
     type(case_t), pointer :: C
     type(c_ptr) :: cp
+
+    ! Check if the case has already been allocated
+    ! e.g. if a user callback has been injected
+    cp = transfer(case_iptr, c_null_ptr)
+    if (c_associated(cp)) then
+       call c_f_pointer(cp, C)
+    else
+       allocate(C)
+       cp = c_loc(C)
+       case_iptr = transfer(cp, 0_c_intptr_t)
+    end if
 
     ! Convert passed in serialised JSON object into a Fortran
     ! character string and create a json_file object
@@ -94,8 +159,6 @@ contains
        end block
     end if
 
-    allocate(C)
-
     !
     ! Create case
     !
@@ -105,10 +168,6 @@ contains
     ! Create simulation components
     !
     call neko_simcomps%init(C)
-
-
-    cp = c_loc(C)
-    case_iptr = transfer(cp, 0_c_intptr_t)
 
   end subroutine neko_api_case_init
 
@@ -136,7 +195,7 @@ contains
   function neko_api_case_time(case_iptr) result(time) &
        bind(c, name="neko_case_time")
     integer(c_intptr_t), intent(inout) :: case_iptr
-    real(kind=c_double) :: time
+    real(kind=c_rp) :: time
     type(case_t), pointer :: C
     type(c_ptr) :: cptr
 
@@ -156,7 +215,7 @@ contains
   function neko_api_case_end_time(case_iptr) result(end_time) &
        bind(c, name="neko_case_end_time")
     integer(c_intptr_t), intent(inout) :: case_iptr
-    real(kind=c_double) :: end_time
+    real(kind=c_rp) :: end_time
     type(case_t), pointer :: C
     type(c_ptr) :: cptr
 
@@ -368,6 +427,316 @@ contains
     field_size = field%dof%size()
 
   end function neko_api_field_size
+
+  !> Retrive the dofmap associated with a field
+  !! @param field_name Field registry entry
+  !! @param dof_ptr Pointer to  unique degrees of freedom
+  !! @param x_ptr Pointer to x-coordinates
+  !! @param x_ptr Pointer to y-coordinates
+  !! @param x_ptr Pointer to z-coordinates
+  subroutine neko_api_field_dofmap(field_name, dof_ptr, x_ptr, y_ptr, z_ptr) &
+       bind(c, name='neko_field_dofmap')
+    character(kind=c_char), dimension(*), intent(in) :: field_name
+    type(c_ptr), intent(inout) :: dof_ptr, x_ptr, y_ptr, z_ptr
+    character(len=8192) :: name
+    type(field_t), pointer :: field
+    integer :: len
+
+    len = 0
+    do
+       if (field_name(len+1) .eq. C_NULL_CHAR) exit
+       len = len + 1
+       name(len:len) = field_name(len)
+    end do
+
+    field => neko_field_registry%get_field(trim(name(1:len)))
+    call neko_api_wrap_dofmap(field%dof, dof_ptr, x_ptr, y_ptr, z_ptr)
+
+  end subroutine neko_api_field_dofmap
+
+  !> Retrive the dofmap associated with a case's fluid solver
+  !! @param case_iptr Opaque pointer for the Neko case
+  !! @param dof_ptr Pointer to  unique degrees of freedom
+  !! @param x_ptr Pointer to x-coordinates
+  !! @param x_ptr Pointer to y-coordinates
+  !! @param x_ptr Pointer to z-coordinates
+  !! @param size Number of dofs
+  subroutine neko_api_case_fluid_dofmap(case_iptr, dof_ptr, &
+       x_ptr, y_ptr, z_ptr, size) bind(c, name='neko_case_fluid_dofmap')
+    integer(c_intptr_t), intent(inout) :: case_iptr
+    type(case_t), pointer :: C
+    type(c_ptr) :: cptr
+    type(c_ptr), intent(inout) :: dof_ptr, x_ptr, y_ptr, z_ptr
+    integer, intent(inout) :: size
+
+    cptr = transfer(case_iptr, c_null_ptr)
+    if (c_associated(cptr)) then
+       call c_f_pointer(cptr, C)
+       call neko_api_wrap_dofmap(C%fluid%dm_Xh, dof_ptr, x_ptr, y_ptr, z_ptr)
+       size = C%fluid%dm_Xh%size()
+    else
+       call neko_error('Invalid Neko case')
+    end if
+
+  end subroutine neko_api_case_fluid_dofmap
+
+  !> Helper function to assign pointers to a dofmap's data
+  subroutine neko_api_wrap_dofmap(dm, dof_ptr, x_ptr, y_ptr, z_ptr)
+    type(dofmap_t), target, intent(in) :: dm
+    type(c_ptr), intent(inout) :: dof_ptr, x_ptr, y_ptr, z_ptr
+
+    dof_ptr = c_loc(dm%dof)
+    x_ptr = c_loc(dm%x)
+    y_ptr = c_loc(dm%y)
+    z_ptr = c_loc(dm%z)
+
+  end subroutine neko_api_wrap_dofmap
+
+  !> Retrive the space associated with a field
+  !! @param field_name Field registry entry
+  !! @param lx Polynomial dimension in each direction
+  !! @param zg Pointer to quadrature points
+  !! @param dr_inv Pointer to 1/dist quadrature points
+  !! @param ds_inv Pointer to 1/dist quadrature points
+  !! @param dt_inv Pointer to 1/dist quadrature points
+  !! @param wx Pointer to quadrature weights
+  !! @param wy Pointer to quadrature weights
+  !! @param wz Pointer to quadrature weights
+  !! @param dx Pointer to derivative operator \f$ D_1 \f$
+  !! @param dy Pointer to derivative operator \f$ D_2 \f$
+  !! @param dz Pointer to derivative operator \f$ D_3 \f$
+  subroutine neko_api_field_space(field_name, lx, zg, &
+       dr_inv, ds_inv, dt_inv, wx, wy, wz, dx, dy, dz) &
+       bind(c, name='neko_field_space')
+    character(kind=c_char), dimension(*), intent(in) :: field_name
+    integer, intent(inout) :: lx
+    type(c_ptr), intent(inout) :: zg, dr_inv, ds_inv, dt_inv
+    type(c_ptr), intent(inout) :: wx, wy, wz, dx, dy, dz
+    character(len=8192) :: name
+    type(field_t), pointer :: field
+    integer :: len
+
+    len = 0
+    do
+       if (field_name(len+1) .eq. C_NULL_CHAR) exit
+       len = len + 1
+       name(len:len) = field_name(len)
+    end do
+
+    field => neko_field_registry%get_field(trim(name(1:len)))
+    call neko_api_wrap_space(field%Xh, lx, zg, dr_inv, ds_inv, dt_inv, &
+         wx, wy, wz, dx, dy, dz)
+
+  end subroutine neko_api_field_space
+
+  !> Retrive the space associated with a case's fluid solver
+  !! @param case_iptr Opaque pointer for the Neko case
+  !! @param lx Polynomial dimension in each direction
+  !! @param zg Pointer to quadrature points
+  !! @param dr_inv Pointer to 1/dist quadrature points
+  !! @param ds_inv Pointer to 1/dist quadrature points
+  !! @param dt_inv Pointer to 1/dist quadrature points
+  !! @param wx Pointer to quadrature weights
+  !! @param wy Pointer to quadrature weights
+  !! @param wz Pointer to quadrature weights
+  !! @param dx Pointer to derivative operator \f$ D_1 \f$
+  !! @param dy Pointer to derivative operator \f$ D_2 \f$
+  !! @param dz Pointer to derivative operator \f$ D_3 \f$
+  subroutine neko_api_case_fluid_space(case_iptr, lx, zg, &
+       dr_inv, ds_inv, dt_inv, wx, wy, wz, dx, dy, dz) &
+       bind(c, name='neko_case_fluid_space')
+    integer(c_intptr_t), intent(inout) :: case_iptr
+    type(case_t), pointer :: C
+    type(c_ptr) :: cptr
+    integer, intent(inout) :: lx
+    type(c_ptr), intent(inout) :: zg, dr_inv, ds_inv, dt_inv
+    type(c_ptr), intent(inout) :: wx, wy, wz, dx, dy, dz
+
+
+    cptr = transfer(case_iptr, c_null_ptr)
+    if (c_associated(cptr)) then
+       call c_f_pointer(cptr, C)
+       call neko_api_wrap_space(C%fluid%Xh, lx, zg, dr_inv, ds_inv, dt_inv, &
+            wx, wy, wz, dx, dy, dz)
+    else
+       call neko_error('Invalid Neko case')
+    end if
+
+  end subroutine neko_api_case_fluid_space
+
+  !> Helper function to assign pointers to a space's data
+  subroutine neko_api_wrap_space(Xh, lx, zg, dr_inv, ds_inv, dt_inv, &
+       wx, wy, wz, dx, dy, dz)
+    type(space_t), target, intent(in) :: Xh
+    integer, intent(inout) :: lx
+    type(c_ptr), intent(inout) :: zg, dr_inv, ds_inv, dt_inv
+    type(c_ptr), intent(inout) :: wx, wy, wz, dx, dy, dz
+
+    lx = Xh%lx
+    zg = c_loc(Xh%zg)
+    dr_inv = c_loc(Xh%dr_inv)
+    ds_inv = c_loc(Xh%ds_inv)
+    dt_inv = c_loc(Xh%dt_inv)
+    wx = c_loc(Xh%wx)
+    wy = c_loc(Xh%wy)
+    wz = c_loc(Xh%wz)
+    dx = c_loc(Xh%dx)
+    dy = c_loc(Xh%dy)
+    dz = c_loc(Xh%dz)
+
+  end subroutine neko_api_wrap_space
+
+  !> Retrive the coefficient associated with a case's fluid solver
+  !! @param case_iptr Opaque pointer for the Neko case
+  subroutine neko_api_case_fluid_coef(case_iptr, G11, G22, G33, G12, G13, G23, &
+       mult, dxdr, dydr, dzdr, dxds, dyds, dzds, dxdt, dydt, dzdt, &
+       drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+       jac, B, area, nx, ny, nz) bind(c, name='neko_case_fluid_coef')
+    integer(c_intptr_t), intent(inout) :: case_iptr
+    type(case_t), pointer :: C
+    type(c_ptr) :: cptr
+    type(c_ptr), intent(inout) :: G11, G22, G33, G12, G13, G23
+    type(c_ptr), intent(inout) :: mult
+    type(c_ptr), intent(inout) :: dxdr, dydr, dzdr
+    type(c_ptr), intent(inout) :: dxds, dyds, dzds
+    type(c_ptr), intent(inout) :: dxdt, dydt, dzdt
+    type(c_ptr), intent(inout) :: drdx, drdy, drdz
+    type(c_ptr), intent(inout) :: dsdx, dsdy, dsdz
+    type(c_ptr), intent(inout) :: dtdx, dtdy, dtdz
+    type(c_ptr), intent(inout) :: jac, B, area, nx, ny, nz
+
+
+    cptr = transfer(case_iptr, c_null_ptr)
+    if (c_associated(cptr)) then
+       call c_f_pointer(cptr, C)
+       G11 = c_loc(C%fluid%c_Xh%G11)
+       G22 = c_loc(C%fluid%c_Xh%G22)
+       G33 = c_loc(C%fluid%c_Xh%G33)
+       G12 = c_loc(C%fluid%c_Xh%G12)
+       G13 = c_loc(C%fluid%c_Xh%G13)
+       G23 = c_loc(C%fluid%c_Xh%G23)
+       mult = c_loc(C%fluid%c_Xh%mult)
+       dxdr = c_loc(C%fluid%c_Xh%dxdr)
+       dydr = c_loc(C%fluid%c_Xh%dydr)
+       dzdr = c_loc(C%fluid%c_Xh%dzdr)
+       dxds = c_loc(C%fluid%c_Xh%dxds)
+       dyds = c_loc(C%fluid%c_Xh%dyds)
+       dzds = c_loc(C%fluid%c_Xh%dzds)
+       dxdt = c_loc(C%fluid%c_Xh%dxdt)
+       dydt = c_loc(C%fluid%c_Xh%dydt)
+       dzdt = c_loc(C%fluid%c_Xh%dzdt)
+       drdx = c_loc(C%fluid%c_Xh%drdx)
+       drdy = c_loc(C%fluid%c_Xh%drdy)
+       drdz = c_loc(C%fluid%c_Xh%drdz)
+       dsdx = c_loc(C%fluid%c_Xh%dsdx)
+       dsdy = c_loc(C%fluid%c_Xh%dsdy)
+       dsdz = c_loc(C%fluid%c_Xh%dsdz)
+       dtdx = c_loc(C%fluid%c_Xh%dtdx)
+       dtdy = c_loc(C%fluid%c_Xh%dtdy)
+       dtdz = c_loc(C%fluid%c_Xh%dtdz)
+       jac = c_loc(C%fluid%c_Xh%jac)
+       B = c_loc(C%fluid%c_Xh%B)
+       area = c_loc(C%fluid%c_Xh%area)
+       nx = c_loc(C%fluid%c_Xh%nx)
+       ny = c_loc(C%fluid%c_Xh%ny)
+       nz = c_loc(C%fluid%c_Xh%nz)
+    else
+       call neko_error('Invalid Neko case')
+    end if
+
+  end subroutine neko_api_case_fluid_coef
+
+  !> Setup user-provided callbacks
+  !! @param case_iptr Opaque pointer for the Neko case
+  !! @param initial_cb Initial condition callback
+  !! @param preprocess_cb Pre timestep callback
+  !! @param compute_cb End of timestep callback
+  !! @param dirichlet_cb User boundary condition callback
+  !! @param material_cb Material properties callback
+  !! @param source_cb Source term callback
+  subroutine neko_api_user_setup(case_iptr, initial_cb, preprocess_cb, &
+       compute_cb, dirichlet_cb, material_cb, source_cb) &
+       bind(c, name='neko_user_setup')
+    integer(c_intptr_t), intent(inout) :: case_iptr
+    type(c_funptr), value :: initial_cb, preprocess_cb, compute_cb
+    type(c_funptr), value :: dirichlet_cb, material_cb, source_cb
+    type(case_t), pointer :: C
+    type(c_ptr) :: cptr
+
+    cptr = transfer(case_iptr, c_null_ptr)
+    if (c_associated(cptr)) then
+       call c_f_pointer(cptr, C)
+       call neko_api_user_cb_register(C%user, initial_cb, preprocess_cb, &
+            compute_cb, dirichlet_cb, material_cb, source_cb)
+    else
+       call neko_error('Invalid Neko case')
+    end if
+
+  end subroutine neko_api_user_setup
+
+  !> Retrive a pointer to a user callback field
+  !! @param field_name Field list entry
+  function neko_api_user_cb_field_by_name(field_name) result(field_ptr) &
+       bind(c, name='neko_cb_field_by_name')
+    character(kind=c_char), dimension(*), intent(in) :: field_name
+    character(len=8192) :: name
+    type(field_t), pointer :: field
+    type(c_ptr) :: field_ptr
+    integer :: len
+
+    len = 0
+    do
+       if (field_name(len+1) .eq. C_NULL_CHAR) exit
+       len = len + 1
+       name(len:len) = field_name(len)
+    end do
+
+    field => neko_api_user_cb_get_field(trim(name(1:len)))
+
+    field_ptr = c_loc(field%x)
+
+  end function neko_api_user_cb_field_by_name
+
+  !> Retrive a pointer to a user callback field
+  !! @param field_idx Field index in the field list
+  function neko_api_user_cb_field_by_index(field_idx) &
+       result(field_ptr) bind(c, name='neko_cb_field_by_index')
+    integer, intent(in) :: field_idx
+    type(field_t), pointer :: field
+    type(c_ptr) :: field_ptr
+
+    field => neko_api_user_cb_get_field(field_idx)
+
+    field_ptr = c_loc(field%x)
+
+  end function neko_api_user_cb_field_by_index
+
+  !> Check if the user callback field at a given index has a given name
+  !! @param field_idx Field index in the field list
+  !! @param field_name Field name to compare against
+  function neko_api_user_cb_field_name_at_index(field_idx, field_name) &
+       result(same_name) bind(c, name='neko_cb_field_name_at_index')
+    integer, intent(in) :: field_idx
+    character(kind=c_char), dimension(*), intent(in) :: field_name
+    character(len=8192) :: name
+    type(field_t), pointer :: f1, f2
+    type(c_ptr) :: field_ptr
+    integer :: len
+    logical(c_bool) :: same_name
+
+    len = 0
+    do
+       if (field_name(len+1) .eq. C_NULL_CHAR) exit
+       len = len + 1
+       name(len:len) = field_name(len)
+    end do
+
+    f1 => neko_api_user_cb_get_field(field_idx)
+    f2 => neko_api_user_cb_get_field(trim(name(1:len)))
+
+    same_name = trim(f1%name) .eq. trim(f2%name)
+
+  end function neko_api_user_cb_field_name_at_index
 
 
 end module neko_api

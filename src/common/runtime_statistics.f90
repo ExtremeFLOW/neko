@@ -40,8 +40,10 @@ module runtime_stats
   use json_module, only : json_file
   use file, only : file_t
   use matrix, only : matrix_t
-  use comm
-  use mpi_f08
+  use utils, only : neko_error
+  use comm, only : pe_rank, pe_size, NEKO_COMM
+  use mpi_f08, only : MPI_Wtime, MPI_Allreduce, MPI_IN_PLACE, &
+       MPI_DOUBLE_PRECISION, MPI_SUM
   implicit none
   private
 

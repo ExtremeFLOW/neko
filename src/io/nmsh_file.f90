@@ -97,17 +97,17 @@ contains
 
 
     call neko_log%section("Mesh")
-    call neko_log%message('Reading a binary Neko file ' // this%fname)
+    call neko_log%message('Reading a binary Neko file ' // this%get_fname())
 
     call MPI_Type_size(MPI_NMSH_HEX, nmsh_hex_size, ierr)
     call MPI_Type_size(MPI_NMSH_QUAD, nmsh_quad_size, ierr)
     call MPI_Type_size(MPI_NMSH_ZONE, nmsh_zone_size, ierr)
 
-    call MPI_File_open(NEKO_COMM, trim(this%fname), &
+    call MPI_File_open(NEKO_COMM, trim(this%get_fname()), &
          MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
 
     if (ierr > 0) then
-       call neko_error('Could not open the mesh file ' // this%fname // &
+       call neko_error('Could not open the mesh file ' // this%get_fname() // &
             'for reading!')
     end if
     call MPI_File_read_all(fh, nelv, 1, MPI_INTEGER, status, ierr)
@@ -286,7 +286,7 @@ contains
     call MPI_Type_size(MPI_NMSH_QUAD, nmsh_quad_size, ierr)
     call MPI_Type_size(MPI_NMSH_ZONE, nmsh_zone_size, ierr)
 
-    call MPI_File_open(NEKO_COMM, trim(this%fname), &
+    call MPI_File_open(NEKO_COMM, trim(this%get_fname()), &
          MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
     call MPI_File_read_all(fh, nelv, 1, MPI_INTEGER, status, ierr)
     call MPI_File_read_all(fh, gdim, 1, MPI_INTEGER, status, ierr)
@@ -472,9 +472,9 @@ contains
     call MPI_Type_size(MPI_NMSH_ZONE, nmsh_zone_size, ierr)
     call MPI_Type_size(MPI_NMSH_CURVE, nmsh_curve_size, ierr)
 
-    call neko_log%message('Writing data as a binary Neko file ' // this%fname)
+    call neko_log%message('Writing data as a binary Neko file ' // this%get_fname())
 
-    call MPI_File_open(NEKO_COMM, trim(this%fname), &
+    call MPI_File_open(NEKO_COMM, trim(this%get_fname()), &
          MPI_MODE_WRONLY + MPI_MODE_CREATE, MPI_INFO_NULL, fh, ierr)
 
     call MPI_File_write_all(fh, msh%glb_nelv, 1, MPI_INTEGER, status, ierr)

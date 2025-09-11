@@ -32,7 +32,7 @@
 !
 !> Master module
 module neko
-  use num_types, only : rp, sp, dp, qp
+  use num_types, only : rp, sp, dp, qp, c_rp
   use comm
   use utils
   use logger
@@ -41,7 +41,7 @@ module neko
        invers2, vcross, vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, &
        sub3, add2s1, add2s2, addsqr2s2, cmult2, invcol2, col2, col3, subcol3, &
        add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
-       glsc3, glsc4, sort, masked_copy, cfill_mask, relcmp, glimax, glimin, &
+       glsc3, glsc4, sort, masked_copy_0, cfill_mask, relcmp, glimax, glimin, &
        swap, reord, flipv, cadd2, pi, absval
   use speclib
   use dofmap, only : dofmap_t
@@ -91,15 +91,14 @@ module neko
        device_subcol3, device_sub2, device_sub3, device_addcol3, &
        device_addcol4, device_vdot3, device_vlsc3, device_glsc3, &
        device_glsc3_many, device_add2s2_many, device_glsc2, device_glsum, &
-       device_masked_copy, device_cfill_mask, device_add3, device_cadd2, &
+       device_masked_copy_0, device_cfill_mask, device_add3, device_cadd2, &
        device_absval
   use map_1d, only : map_1d_t
   use map_2d, only : map_2d_t
   use cpr, only : cpr_t, cpr_init, cpr_free
   use fluid_stats, only : fluid_stats_t
   use field_list, only : field_list_t
-  use fluid_user_source_term
-  use scalar_user_source_term
+  use user_source_term, only : user_source_term_t
   use vector, only : vector_t, vector_ptr_t
   use matrix, only : matrix_t
   use tensor
@@ -146,6 +145,7 @@ module neko
        register_source_term, source_term_factory, source_term_allocator
   use user_access_singleton, only : neko_user_access
   use, intrinsic :: iso_fortran_env
+  use mpi_f08
   !$ use omp_lib
   implicit none
 

@@ -37,7 +37,7 @@
 #include <hip/hip_runtime.h>
 #include <device/device_config.h>
 #include <device/hip/check.h>
-#include <math/bcknd/device/hip/mathops_kernel.h>
+#include <fluid/bcknd/device/hip/compressible_ops_kernel.h>
 
 extern "C" {
 

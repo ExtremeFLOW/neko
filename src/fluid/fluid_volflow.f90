@@ -69,7 +69,6 @@ module fluid_volflow
   use coefs, only : coef_t
   use time_scheme_controller, only : time_scheme_controller_t
   use math, only : copy, glsc2, glmin, glmax, add2
-  use comm
   use neko_config, only : NEKO_BCKND_DEVICE
   use device_math, only : device_cfill, device_rzero, device_copy, &
        device_add2, device_add2s2, device_glsc2
@@ -80,6 +79,8 @@ module fluid_volflow
   use scratch_registry, only : scratch_registry_t
   use bc_list, only : bc_list_t
   use ax_product, only : ax_t
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
   implicit none
   private
 
@@ -236,8 +237,7 @@ contains
 
       call opgrad(u_res%x, v_res%x, w_res%x, p_vol%x, c_Xh)
 
-      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-           (NEKO_BCKND_OPENCL .eq. 1)) then
+      if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_opchsign(u_res%x_d, v_res%x_d, w_res%x_d, msh%gdim, n)
          call device_copy(ta1%x_d, c_Xh%B_d, n)
          call device_copy(ta2%x_d, c_Xh%B_d, n)

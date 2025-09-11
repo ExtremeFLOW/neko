@@ -1,6 +1,7 @@
 program poisson
   use neko
   use ax_poisson
+  use mpi_f08
   implicit none
 
   character(len=NEKO_FNAME_LEN) :: fname, lxchar, iterchar
@@ -97,6 +98,7 @@ subroutine set_timer_flop_cnt(iset, nelt, nx1, niter, n, ksp_mon)
   use comm
   use krylov
   use num_types
+  use mpi_f08
   implicit none
 
   integer :: iset

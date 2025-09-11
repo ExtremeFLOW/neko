@@ -38,6 +38,7 @@
 #include <CL/cl.h>
 #endif
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <device/device_config.h>
 #include <device/opencl/jit.h>
@@ -96,6 +97,11 @@ void opencl_dudxyz(void *du, void *u,
     CASE(9);
     CASE(10);
     CASE(11);
-   }
+  default:
+    {
+      fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+      exit(1);
+    }
+  }
 } 
 

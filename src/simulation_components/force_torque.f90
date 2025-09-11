@@ -53,8 +53,8 @@ module force_torque
        setup_normals
   use logger, only : LOG_SIZE, neko_log
   use neko_config, only : NEKO_BCKND_DEVICE
-  use math, only : masked_gather_copy, cadd, glsum, vcross
-  use device_math, only : device_masked_gather_copy, device_cadd, &
+  use math, only : masked_gather_copy_0, cadd, glsum, vcross
+  use device_math, only : device_masked_gather_copy_0, device_cadd, &
        device_glsum, device_vcross
   use mpi_f08, only : MPI_INTEGER, MPI_SUM
   use comm, only : NEKO_COMM
@@ -67,15 +67,15 @@ module force_torque
   !! boundary zone.
   type, public, extends(simulation_component_t) :: force_torque_t
      !> X velocity component.
-     type(field_t), pointer :: u
+     type(field_t), pointer :: u => null()
      !> Y velocity component.
-     type(field_t), pointer :: v
+     type(field_t), pointer :: v => null()
      !> Z velocity component.
-     type(field_t), pointer :: w
+     type(field_t), pointer :: w => null()
      !> Pressure.
-     type(field_t), pointer :: p
+     type(field_t), pointer :: p => null()
      !> Total dynamic viscosity.
-     type(field_t), pointer :: mu
+     type(field_t), pointer :: mu => null()
 
      !Masked working arrays
      type(vector_t) :: n1, n2, n3
@@ -89,7 +89,7 @@ module force_torque
      real(kind=rp) :: scale
      integer :: zone_id
      character(len=20) :: zone_name
-     type(coef_t), pointer :: coef
+     type(coef_t), pointer :: coef => null()
      type(dirichlet_t) :: bc
      character(len=80) :: print_format
 
@@ -232,7 +232,7 @@ contains
   !! @param coef The SEM coefficients.
   !! @param long_print If true, use a more precise print format.
   subroutine force_torque_init_common(this, fluid_name, zone_id, &
-  & zone_name, center, scale, coef, long_print)
+       zone_name, center, scale, coef, long_print)
     class(force_torque_t), intent(inout) :: this
     real(kind=rp), intent(in) :: center(3)
     real(kind=rp), intent(in) :: scale
@@ -267,34 +267,36 @@ contains
     call this%bc%mark_zone(this%case%msh%labeled_zones(this%zone_id))
     call this%bc%finalize()
     n_pts = this%bc%msk(0)
-    call this%n1%init(n_pts)
-    call this%n2%init(n_pts)
-    call this%n3%init(n_pts)
-    call this%r1%init(n_pts)
-    call this%r2%init(n_pts)
-    call this%r3%init(n_pts)
-    call this%force1%init(n_pts)
-    call this%force2%init(n_pts)
-    call this%force3%init(n_pts)
-    call this%force4%init(n_pts)
-    call this%force5%init(n_pts)
-    call this%force6%init(n_pts)
-    call this%s11msk%init(n_pts)
-    call this%s22msk%init(n_pts)
-    call this%s33msk%init(n_pts)
-    call this%s12msk%init(n_pts)
-    call this%s13msk%init(n_pts)
-    call this%s23msk%init(n_pts)
-    call this%pmsk%init(n_pts)
-    call this%mu_msk%init(n_pts)
+    if (n_pts .gt. 0) then
+       call this%n1%init(n_pts)
+       call this%n2%init(n_pts)
+       call this%n3%init(n_pts)
+       call this%r1%init(n_pts)
+       call this%r2%init(n_pts)
+       call this%r3%init(n_pts)
+       call this%force1%init(n_pts)
+       call this%force2%init(n_pts)
+       call this%force3%init(n_pts)
+       call this%force4%init(n_pts)
+       call this%force5%init(n_pts)
+       call this%force6%init(n_pts)
+       call this%s11msk%init(n_pts)
+       call this%s22msk%init(n_pts)
+       call this%s33msk%init(n_pts)
+       call this%s12msk%init(n_pts)
+       call this%s13msk%init(n_pts)
+       call this%s23msk%init(n_pts)
+       call this%pmsk%init(n_pts)
+       call this%mu_msk%init(n_pts)
+    end if
 
     call setup_normals(this%coef, this%bc%msk, this%bc%facet, &
          this%n1%x, this%n2%x, this%n3%x, n_pts)
-    call masked_gather_copy(this%r1%x, this%coef%dof%x, this%bc%msk, &
+    call masked_gather_copy_0(this%r1%x, this%coef%dof%x, this%bc%msk, &
          this%u%size(), n_pts)
-    call masked_gather_copy(this%r2%x, this%coef%dof%y, this%bc%msk, &
+    call masked_gather_copy_0(this%r2%x, this%coef%dof%y, this%bc%msk, &
          this%u%size(), n_pts)
-    call masked_gather_copy(this%r3%x, this%coef%dof%z, this%bc%msk, &
+    call masked_gather_copy_0(this%r3%x, this%coef%dof%z, this%bc%msk, &
          this%u%size(), n_pts)
 
     call MPI_Allreduce(n_pts, glb_n_pts, 1, &
@@ -375,21 +377,21 @@ contains
 
     ! On the CPU we can actually just use the original subroutines...
     if (NEKO_BCKND_DEVICE .eq. 0) then
-       call masked_gather_copy(this%s11msk%x, s11%x, this%bc%msk, &
+       call masked_gather_copy_0(this%s11msk%x, s11%x, this%bc%msk, &
             this%u%size(), n_pts)
-       call masked_gather_copy(this%s22msk%x, s22%x, this%bc%msk, &
+       call masked_gather_copy_0(this%s22msk%x, s22%x, this%bc%msk, &
             this%u%size(), n_pts)
-       call masked_gather_copy(this%s33msk%x, s33%x, this%bc%msk, &
+       call masked_gather_copy_0(this%s33msk%x, s33%x, this%bc%msk, &
             this%u%size(), n_pts)
-       call masked_gather_copy(this%s12msk%x, s12%x, this%bc%msk, &
+       call masked_gather_copy_0(this%s12msk%x, s12%x, this%bc%msk, &
             this%u%size(), n_pts)
-       call masked_gather_copy(this%s13msk%x, s13%x, this%bc%msk, &
+       call masked_gather_copy_0(this%s13msk%x, s13%x, this%bc%msk, &
             this%u%size(), n_pts)
-       call masked_gather_copy(this%s23msk%x, s23%x, this%bc%msk, &
+       call masked_gather_copy_0(this%s23msk%x, s23%x, this%bc%msk, &
             this%u%size(), n_pts)
-       call masked_gather_copy(this%pmsk%x, this%p%x, this%bc%msk, &
+       call masked_gather_copy_0(this%pmsk%x, this%p%x, this%bc%msk, &
             this%u%size(), n_pts)
-       call masked_gather_copy(this%mu_msk%x, this%mu%x, this%bc%msk, &
+       call masked_gather_copy_0(this%mu_msk%x, this%mu%x, this%bc%msk, &
             this%u%size(), n_pts)
        call calc_force_array(this%force1%x, this%force2%x, this%force3%x, &
             this%force4%x, this%force5%x, this%force6%x, &
@@ -411,10 +413,6 @@ contains
        dgtq(4) = glsum(this%force4%x, n_pts)
        dgtq(5) = glsum(this%force5%x, n_pts)
        dgtq(6) = glsum(this%force6%x, n_pts)
-       !Overwriting masked s11, s22, s33 as they are no longer needed
-       this%s11msk = 0.0_rp
-       this%s22msk = 0.0_rp
-       this%s33msk = 0.0_rp
        call vcross(this%s11msk%x, this%s22msk%x, this%s33msk%x, &
             this%r1%x, this%r2%x, this%r3%x, &
             this%force1%x, this%force2%x, this%force3%x, n_pts)
@@ -422,9 +420,6 @@ contains
        dgtq(7) = glsum(this%s11msk%x, n_pts)
        dgtq(8) = glsum(this%s22msk%x, n_pts)
        dgtq(9) = glsum(this%s33msk%x, n_pts)
-       this%s11msk = 0.0_rp
-       this%s22msk = 0.0_rp
-       this%s33msk = 0.0_rp
        call vcross(this%s11msk%x, this%s22msk%x, this%s33msk%x, &
             this%r1%x, this%r2%x, this%r3%x, &
             this%force4%x, this%force5%x, this%force6%x, n_pts)
@@ -433,21 +428,21 @@ contains
        dgtq(12) = glsum(this%s33msk%x, n_pts)
     else
        if (n_pts .gt. 0) then
-          call device_masked_gather_copy(this%s11msk%x_d, s11%x_d, &
+          call device_masked_gather_copy_0(this%s11msk%x_d, s11%x_d, &
                this%bc%msk_d, this%u%size(), n_pts)
-          call device_masked_gather_copy(this%s22msk%x_d, s22%x_d, &
+          call device_masked_gather_copy_0(this%s22msk%x_d, s22%x_d, &
                this%bc%msk_d, this%u%size(), n_pts)
-          call device_masked_gather_copy(this%s33msk%x_d, s33%x_d, &
+          call device_masked_gather_copy_0(this%s33msk%x_d, s33%x_d, &
                this%bc%msk_d, this%u%size(), n_pts)
-          call device_masked_gather_copy(this%s12msk%x_d, s12%x_d, &
+          call device_masked_gather_copy_0(this%s12msk%x_d, s12%x_d, &
                this%bc%msk_d, this%u%size(), n_pts)
-          call device_masked_gather_copy(this%s13msk%x_d, s13%x_d, &
+          call device_masked_gather_copy_0(this%s13msk%x_d, s13%x_d, &
                this%bc%msk_d, this%u%size(), n_pts)
-          call device_masked_gather_copy(this%s23msk%x_d, s23%x_d, &
+          call device_masked_gather_copy_0(this%s23msk%x_d, s23%x_d, &
                this%bc%msk_d, this%u%size(), n_pts)
-          call device_masked_gather_copy(this%pmsk%x_d, this%p%x_d, &
+          call device_masked_gather_copy_0(this%pmsk%x_d, this%p%x_d, &
                this%bc%msk_d, this%u%size(), n_pts)
-          call device_masked_gather_copy(this%mu_msk%x_d, this%mu%x_d, &
+          call device_masked_gather_copy_0(this%mu_msk%x_d, this%mu%x_d, &
                this%bc%msk_d, this%u%size(), n_pts)
 
           call device_calc_force_array(this%force1%x_d, this%force2%x_d, &

@@ -34,9 +34,10 @@
 module time_interpolator
   use num_types, only : rp
   use field, only : field_t
+  use field_series, only : field_series_t
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device_math, only : device_add3s2
-  use math, only : add3s2, rzero
+  use device_math, only : device_add3s2, device_add4s3
+  use math, only : add3s2, add4s3
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding
   use fast3d, only : fd_weights_full
@@ -120,36 +121,31 @@ contains
   !> Interpolate a scalar field at time t from known scalar fields at different time steps.
   !! @param t time to get interpolated field
   !! @param f_interpolated the interpolated field
-  !! @param f_n an array of known fields
-  !! @param tlag an array of the time steps corresponding to f_n.
+  !! @param f_n the field_series containing three known fields
+  !! @param tlag an array of the time steps corresponding to f_n
   !! @param n size of the array
   !! @note This subroutine is similar to the int_vel subroutine of NEK5000
   subroutine time_interpolator_scalar(this, t, f_interpolated, f_n, tlag, n)
     class(time_interpolator_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: n
-    real(kind=rp), dimension(n, 0:this%order - 1), intent(in) :: f_n
-    real(kind=rp), dimension(n), intent(inout) :: f_interpolated
+    type(field_series_t), intent(inout) :: f_n
+    type(field_t), intent(inout) :: f_interpolated
     real(kind=rp), dimension(0:this%order), intent(in) :: tlag
-    integer :: no, i, l
+    type(c_ptr) :: f_interpolated_d
+    integer :: i, l
 
-
-    real(kind=rp), dimension(0:this%order + 1) :: wt
+    real(kind=rp), dimension(0:this%order - 1) :: wt
     wt = 0
 
-
-    no = this%order - 1
-    call fd_weights_full(t, tlag, no, 0, wt) ! interpolation weights
+    call fd_weights_full(t, tlag, this%order - 1, 0, wt) ! interpolation weights
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call neko_error('no device backend configured')
+       call device_add4s3(f_interpolated%x_d, f_n%f%x_d, f_n%lf(1)%x_d, &
+                        f_n%lf(2)%x_d, wt(0), wt(1), wt(2), n)
     else
-       do concurrent (i = 1:n)
-          f_interpolated(i) = wt(0) * f_n(i, 0)
-          do l = 1, no
-             f_interpolated(i) = f_interpolated(i) + wt(l) * f_n(i, l)
-          end do
-       end do
+       call add4s3(f_interpolated%x, f_n%f%x, f_n%lf(1)%x, f_n%lf(2)%x, &
+                  wt(0), wt(1), wt(2), n)
     end if
 
   end subroutine time_interpolator_scalar

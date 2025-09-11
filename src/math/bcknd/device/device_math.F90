@@ -57,17 +57,22 @@ module device_math
           device_pwmin_sca2, device_pwmin_sca3
   end interface device_pwmin
 
+  interface device_cadd
+     module procedure device_radd, device_iadd
+  end interface device_cadd
+
   public :: device_copy, device_rzero, device_rone, device_cmult, &
        device_cmult2, device_cadd, device_cadd2, device_cfill, device_add2, &
        device_add3, device_add4, device_add2s1, device_add2s2, &
-       device_addsqr2s2, device_add3s2, device_invcol1, device_invcol2, &
-       device_col2, device_col3, device_subcol3, device_sub2, device_sub3, &
-       device_addcol3, device_addcol4, device_vdot3, device_vlsc3, &
+       device_addsqr2s2, device_add3s2, device_add4s3, device_add5s4, &
+       device_invcol1, device_invcol2, device_col2, device_col3, &
+       device_subcol3, device_sub2, device_sub3, device_addcol3, &
+       device_addcol4, device_addcol3s2, device_vdot3, device_vlsc3, &
        device_glsc3, device_glsc3_many, device_add2s2_many, device_glsc2, &
-       device_glsum, device_masked_copy, device_cfill_mask, &
-       device_vcross, device_absval, device_masked_atomic_reduction, &
-       device_pwmax, device_pwmin, device_masked_gather_copy, &
-       device_masked_scatter_copy, device_invcol3, device_cdiv, device_cdiv2, &
+       device_glsum, device_masked_copy_0, device_cfill_mask, &
+       device_vcross, device_absval, device_masked_atomic_reduction_0, &
+       device_pwmax, device_pwmin, device_masked_gather_copy_0, &
+       device_masked_scatter_copy_0, device_invcol3, device_cdiv, device_cdiv2, &
        device_glsubnorm
 
 contains
@@ -99,7 +104,7 @@ contains
   end subroutine device_copy
 
   !> Copy a masked vector \f$ a(mask) = b(mask) \f$.
-  subroutine device_masked_copy(a_d, b_d, mask_d, n, n_mask, strm)
+  subroutine device_masked_copy_0(a_d, b_d, mask_d, n, n_mask, strm)
     type(c_ptr) :: a_d, b_d, mask_d
     integer :: n, n_mask
     type(c_ptr), optional :: strm
@@ -122,10 +127,10 @@ contains
 #else
     call neko_error('no device backend configured')
 #endif
-  end subroutine device_masked_copy
+  end subroutine device_masked_copy_0
 
   !> Gather a masked vector \f$ a(i) = b(mask(i)) \f$.
-  subroutine device_masked_gather_copy(a_d, b_d, mask_d, n, n_mask, strm)
+  subroutine device_masked_gather_copy_0(a_d, b_d, mask_d, n, n_mask, strm)
     type(c_ptr) :: a_d, b_d, mask_d
     integer :: n, n_mask
     type(c_ptr), optional :: strm
@@ -148,10 +153,10 @@ contains
 #else
     call neko_error('no device backend configured')
 #endif
-  end subroutine device_masked_gather_copy
+  end subroutine device_masked_gather_copy_0
 
   !> Scatter a masked vector \f$ a((mask(i)) = b(i) \f$.
-  subroutine device_masked_scatter_copy(a_d, b_d, mask_d, n, n_mask, strm)
+  subroutine device_masked_scatter_copy_0(a_d, b_d, mask_d, n, n_mask, strm)
     type(c_ptr) :: a_d, b_d, mask_d
     integer :: n, n_mask
     type(c_ptr), optional :: strm
@@ -174,9 +179,9 @@ contains
 #else
     call neko_error('no device backend configured')
 #endif
-  end subroutine device_masked_scatter_copy
+  end subroutine device_masked_scatter_copy_0
 
-  subroutine device_masked_atomic_reduction(a_d, b_d, mask_d, n, n_mask, strm)
+  subroutine device_masked_atomic_reduction_0(a_d, b_d, mask_d, n, n_mask, strm)
     type(c_ptr) :: a_d, b_d, mask_d
     integer :: n, n_mask
     type(c_ptr), optional :: strm
@@ -199,7 +204,7 @@ contains
 #else
     call neko_error('no device backend configured')
 #endif
-  end subroutine device_masked_atomic_reduction
+  end subroutine device_masked_atomic_reduction_0
 
   !> @brief Fill a constant to a masked vector.
   !! \f$ a_i = c, for i in mask \f$
@@ -385,7 +390,7 @@ contains
   end subroutine device_cdiv2
 
   !> Add a scalar to vector \f$ a = a + s \f$
-  subroutine device_cadd(a_d, c, n, strm)
+  subroutine device_radd(a_d, c, n, strm)
     type(c_ptr) :: a_d
     real(kind=rp), intent(in) :: c
     integer :: n
@@ -401,15 +406,15 @@ contains
     end if
 
 #if HAVE_HIP
-    call hip_cadd(a_d, c, n, strm_)
+    call hip_radd(a_d, c, n, strm_)
 #elif HAVE_CUDA
-    call cuda_cadd(a_d, c, n, strm_)
+    call cuda_radd(a_d, c, n, strm_)
 #elif HAVE_OPENCL
-    call opencl_cadd(a_d, c, n, strm_)
+    call opencl_radd(a_d, c, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
-  end subroutine device_cadd
+  end subroutine device_radd
 
   !> Add a scalar to vector \f$ a = b + s \f$
   subroutine device_cadd2(a_d, b_d, c, n, strm)
@@ -650,6 +655,60 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_add3s2
+
+  !> Returns \f$ a = c1 * b + c2 * c + c3 * d\f$
+  subroutine device_add4s3(a_d, b_d, c_d, d_d, c1, c2 , c3, n, strm)
+    type(c_ptr) :: a_d, b_d, c_d, d_d
+    real(kind=rp) :: c1, c2, c3
+    integer :: n
+    type(c_ptr), optional :: strm
+    type(c_ptr) :: strm_
+
+    if (n .lt. 1) return
+
+    if (present(strm)) then
+       strm_ = strm
+    else
+       strm_ = glb_cmd_queue
+    end if
+
+#if HAVE_HIP
+    call hip_add4s3(a_d, b_d, c_d, d_d, c1, c2, c3, n, strm_)
+#elif HAVE_CUDA
+    call cuda_add4s3(a_d, b_d, c_d, d_d, c1, c2, c3, n, strm_)
+#elif HAVE_OPENCL
+    call opencl_add4s3(a_d, b_d, c_d, d_d, c1, c2, c3, n, strm_)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_add4s3
+
+  !> Returns \f$ a = a + c1 * b + c2 * c + c3 * d + c4 * e\f$
+  subroutine device_add5s4(a_d, b_d, c_d, d_d, e_d, c1, c2 , c3, c4, n, strm)
+    type(c_ptr) :: a_d, b_d, c_d, d_d, e_d
+    real(kind=rp) :: c1, c2, c3, c4
+    integer :: n
+    type(c_ptr), optional :: strm
+    type(c_ptr) :: strm_
+
+    if (n .lt. 1) return
+
+    if (present(strm)) then
+       strm_ = strm
+    else
+       strm_ = glb_cmd_queue
+    end if
+
+#if HAVE_HIP
+    call hip_add5s4(a_d, b_d, c_d, d_d, e_d, c1, c2, c3, c4, n, strm_)
+#elif HAVE_CUDA
+    call cuda_add5s4(a_d, b_d, c_d, d_d, e_d, c1, c2, c3, c4, n, strm_)
+#elif HAVE_OPENCL
+    call opencl_add5s4(a_d, b_d, c_d, d_d, e_d, c1, c2, c3, c4, n, strm_)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_add5s4
 
   !> Invert a vector \f$ a = 1 / a \f$
   subroutine device_invcol1(a_d, n, strm)
@@ -908,6 +967,33 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_addcol4
+
+  !> Returns \f$ a = a + s(b*c) \f$
+  subroutine device_addcol3s2(a_d, b_d, c_d, s, n, strm)
+    type(c_ptr) :: a_d, b_d, c_d
+    real(kind=rp) :: s
+    integer :: n
+    type(c_ptr), optional :: strm
+    type(c_ptr) :: strm_
+
+    if (n .lt. 1) return
+
+    if (present(strm)) then
+       strm_ = strm
+    else
+       strm_ = glb_cmd_queue
+    end if
+
+#if HAVE_HIP
+    call hip_addcol3s2(a_d, b_d, c_d, s, n, strm_)
+#elif HAVE_CUDA
+    call cuda_addcol3s2(a_d, b_d, c_d, s, n, strm_)
+#elif HAVE_OPENCL
+    call opencl_addcol3s2(a_d, b_d, c_d, s, n, strm_)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_addcol3s2
 
   !> Compute a dot product \f$ dot = u \cdot v \f$ (3-d version)
   !! assuming vector components \f$ u = (u_1, u_2, u_3) \f$ etc.
@@ -1450,5 +1536,35 @@ contains
 #endif
 
   end subroutine device_pwmin_sca3
+
+  ! ========================================================================== !
+  ! Integer operations
+
+  !> Add an integer scalar to vector \f$ a = a + s \f$
+  subroutine device_iadd(a_d, c, n, strm)
+    type(c_ptr), intent(inout) :: a_d
+    integer, intent(in) :: c
+    integer, intent(in) :: n
+    type(c_ptr), optional :: strm
+    type(c_ptr) :: strm_
+    if (n .lt. 1) return
+
+    if (present(strm)) then
+       strm_ = strm
+    else
+       strm_ = glb_cmd_queue
+    end if
+
+#if HAVE_HIP
+    call hip_iadd(a_d, c, n, strm_)
+#elif HAVE_CUDA
+    call cuda_iadd(a_d, c, n, strm_)
+#elif HAVE_OPENCL
+    call opencl_iadd(a_d, c, n, strm_)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_iadd
+
 
 end module device_math

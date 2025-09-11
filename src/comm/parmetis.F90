@@ -32,11 +32,12 @@
 !
 !> Interface to ParMETIS
 module parmetis
-  use comm
+  use comm, only : pe_size, pe_rank, NEKO_COMM
+  use mpi_f08, only : MPI_Allgather, MPI_INTEGER
   use point, only : point_t
   use utils, only : neko_error
-  use num_types, only : rp
-  use mesh_field, only : mesh_fld_t
+  use num_types, only : rp, dp, sp, i8, i4
+  use mesh_field, only : mesh_fld_t, mesh_field_init
   use mesh, only : mesh_t
   use, intrinsic :: iso_c_binding
   implicit none
@@ -86,15 +87,15 @@ module parmetis
 #ifdef HAVE_PARMETIS
 #ifdef HAVE_PARMETIS_REAL64
 #define M_REAL c_double
-#define parmetis_real(i) real((i), i8)
+#define parmetis_real(i) real((i), dp)
 #else
 #define M_REAL c_float
-#define parmetis_real(i) real((i), 4)
+#define parmetis_real(i) real((i), sp)
 #endif
 #ifdef HAVE_PARMETIS_INT64
 #define M_INT c_int64_t
 #define parmetis_idx(i) int((i), i8)
-#define neko_idx(i) int((i), 4)
+#define neko_idx(i) int((i), i4)
 #else
 #define M_INT c_int32_t
 #define parmetis_idx(i) (i)

@@ -12,7 +12,7 @@ on:
         description: "The version of the JSON-Fortran library to use."
         type: string
         required: false
-        default: "8.3.0"
+        default: "8.4.0"
       pfunit-version:
         description: "The version of the pFUnit library to use."
         type: string
@@ -78,7 +78,7 @@ jobs:
             backend: cuda
           - compiler: gfortran-15
             backend: hip
-            
+
         include:
           - os: ubuntu-24.04
             setup-env: |
@@ -192,7 +192,7 @@ jobs:
           echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${{ github.workspace }}/install/lib/pkgconfig" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${{ github.workspace }}/install/lib" >> $GITHUB_ENV
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" --with-pfunit=$PFUNIT_DIR --enable-real=${RP} --prefix=${{ github.workspace }}/install
+          ./configure FC=${FC} FCFLAGS="-g -O2 -pedantic -std=f2008 -w" --with-pfunit=$PFUNIT_DIR --enable-real=${RP} --prefix=${{ github.workspace }}/install
           make -j${{ steps.setup-env.outputs.nproc }} install
 
       - name: Build (CUDA backend)
@@ -246,7 +246,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Test report - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
-          path: tests/unit/test-suite\.log
+          path: tests/unit/test-suite.log
           retention-days: 2
 
       - name: Archive integration test report
@@ -254,7 +254,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Integration test logs - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
-          path: tests/integration/logs
+          path: |
+            tests/integration/logs
+            tests/integration/**/*.csv
           retention-days: 1
 
       - name: Dist (CPU backend)

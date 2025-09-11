@@ -1,4 +1,3 @@
-
 ! Copyright (c) 2025, The Neko Authors
 ! All rights reserved.
 !
@@ -33,18 +32,10 @@
 !
 !
 submodule(fluid_scheme_compressible_euler) euler_bc_fctry
-  use user_intf, only : user_t
-  use utils, only : neko_type_error
-  use field_dirichlet, only : field_dirichlet_t
   use dirichlet, only : dirichlet_t
   use inflow, only : inflow_t
-  use usr_inflow, only : usr_inflow_t, usr_inflow_eval
-  use blasius, only : blasius_t
-  use dirichlet, only : dirichlet_t
-  use dong_outflow, only : dong_outflow_t
+  use zero_dirichlet, only : zero_dirichlet_t
   use symmetry, only : symmetry_t
-  use non_normal, only : non_normal_t
-  use field_dirichlet_vector, only : field_dirichlet_vector_t
   implicit none
 
   ! List of all possible types created by the boundary condition factories
@@ -104,7 +95,7 @@ contains
   !! @param user The user interface.
   module subroutine pressure_bc_factory(object, scheme, json, coef, user)
     class(bc_t), pointer, intent(inout) :: object
-    type(fluid_scheme_compressible_euler_t), intent(in) :: scheme
+    type(fluid_scheme_compressible_euler_t), intent(inout) :: scheme
     type(json_file), intent(inout) :: json
     type(coef_t), intent(in) :: coef
     type(user_t), intent(in) :: user
