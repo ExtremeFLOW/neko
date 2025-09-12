@@ -299,22 +299,26 @@ jobs:
       - name: Dist - Configure (CPU backend)
         if: matrix.backend == 'cpu'
         run: |
+          cd releng/neko-*
           ./configure FC=${FC} --enable-real=${RP}
 
       - name: Dist - Configure (CUDA backend)
         if: matrix.backend == 'cuda'
         run: |
+          cd releng/neko-*
           ./configure FC=${FC} --enable-real=${RP} --with-cuda=/usr
 
       - name: Dist - Configure (HIP backend)
         if: matrix.backend == 'hip'
         run: |
           ROCM_DIR=$(ls -d /opt/rocm-*)
+          cd releng/neko-*
           ./configure FC=${FC} FCFLAGS="-fPIE" --enable-real=${RP} HIP_HIPCC_FLAGS="-O2 -fPIE" --with-hip=$ROCM_DIR
 
       - name: Dist - Configure (OpenCL backend)
         if: matrix.backend == 'opencl'
         run: |
+          cd releng/neko-*
           ./configure FC=${FC} --enable-real=${RP} --with-opencl
 
       - name: Dist - Build
