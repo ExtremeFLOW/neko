@@ -120,24 +120,24 @@ jobs:
       # System level setup
       # ---------------------------------------------------------------------- #
 
-      - name: Checkout
+      - name: Setup - Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
       # Setup python environment
-      - name: Setup Python environment
+      - name: Setup - Python environment
         uses: actions/setup-python@v6
         with:
           python-version: '3.x'
           cache: 'pip'
           cache-dependency-path: "**/requirements-tests.txt"
 
-      - name: Install Python dependencies
+      - name: Setup - Install Python dependencies
         run: pip install -r .github/workflows/extra/requirements-tests.txt
 
       # Setup compiler and other system dependencies
-      - name: Setup system dependencies (Cache)
+      - name: Setup - System dependencies (Cache)
         if: matrix.os == 'ubuntu-24.04' || matrix.os == 'ubuntu-24.04-arm'
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
@@ -145,7 +145,7 @@ jobs:
           version: apt-cache-1.0
           execute_install_scripts: true
 
-      - name: Setup matrix environment
+      - name: Setup - Matrix environment
         id: setup-env
         run: ${{ matrix.setup-env }}
 
@@ -178,7 +178,7 @@ jobs:
       # Dependencies setup
       # ---------------------------------------------------------------------- #
 
-      - name: Setup dependencies
+      - name: Dependencies - Setup
         id: setup-deps
         env:
           PFUNIT_VERSION: ${{ inputs.pfunit-version }}
@@ -190,7 +190,7 @@ jobs:
           echo "pfunit-version=$PFUNIT_VERSION" >> $GITHUB_OUTPUT
           echo "json-fortran-version=$JSON_FORTRAN_VERSION" >> $GITHUB_OUTPUT
 
-      - name: Get pFunit
+      - name: Dependencies - Get pFunit
         id: get-pfunit
         if: matrix.backend == 'cpu'
         uses: ./.github/actions/setup_pfunit
@@ -199,7 +199,7 @@ jobs:
           os: ${{ steps.setup-env.outputs.os-version }}
           compiler: ${{ matrix.compiler }}
 
-      - name: Get json-fortran
+      - name: Dependencies - Get json-fortran
         id: get-json-fortran
         uses: ./.github/actions/setup_json-fortran
         with:
@@ -207,7 +207,7 @@ jobs:
           os: ${{ steps.setup-env.outputs.os-version }}
           compiler: ${{ matrix.compiler }}
 
-      - name: Add JSON-Fortran to environment
+      - name: Dependencies - Add JSON-Fortran to environment
         env:
           JSON_FORTRAN_DIR: ${{ steps.get-json-fortran.outputs.install-dir }}
         run: |
@@ -218,10 +218,10 @@ jobs:
       # Build Neko
       # ---------------------------------------------------------------------- #
 
-      - name: Regenerate build system
+      - name: Build - Regenerate build system
         run: ./regen.sh
 
-      - name: Configure (CPU backend)
+      - name: Build - Configure (CPU backend)
         if: matrix.backend == 'cpu'
         env:
           PFUNIT_DIR: ${{ steps.get-pfunit.outputs.install-dir }}
@@ -231,27 +231,27 @@ jobs:
           echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${{ github.workspace }}/install/lib" >> $GITHUB_ENV
           ./configure FC=${FC} FCFLAGS="-g -O2 -pedantic -std=f2008 -w" --with-pfunit=$PFUNIT_DIR --enable-real=${RP} --prefix=${{ github.workspace }}/install
 
-      - name: Configure (CUDA backend)
+      - name: Build - Configure (CUDA backend)
         if: matrix.backend == 'cuda'
         run: |
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" --enable-real=${RP} --with-cuda=/usr
 
-      - name: Configure (HIP backend)
+      - name: Build - Configure (HIP backend)
         if: matrix.backend == 'HIP'
         run: |
           # Lets not hardcode the version
           ROCM_DIR=$(ls -d /opt/rocm-*)
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" HIP_HIPCC_FLAGS="-O2 -fPIE" --enable-real=${RP} --with-hip=$ROCM_DIR
 
-      - name: Configure (OpenCL backend)
+      - name: Build - Configure (OpenCL backend)
         if: matrix.backend == 'opencl'
         run: |
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" --enable-real=${RP} --with-opencl
 
-      - name: Build Neko
+      - name: Build - Build Neko
         run: make -j ${{ steps.setup-env.outputs.nproc }}
 
-      - name: Install Neko
+      - name: Build - Install Neko
         if: matrix.backend == 'cpu'
         run: make -j ${{ steps.setup-env.outputs.nproc }} install
 
@@ -259,7 +259,7 @@ jobs:
       # Testing
       # ---------------------------------------------------------------------- #
 
-      - name: Integration tests
+      - name: Test - Integration tests
         if: matrix.backend == 'cpu'
         run: |
            chmod +x $MAKENEKO_EXEC
@@ -267,12 +267,12 @@ jobs:
            pytest --max_nprocs=2 --real_precision=${RP}
            cd ../..
 
-      - name: Check
+      - name: Test - Check
         if: matrix.backend == 'cpu'
         run: |
           make -j ${{ steps.setup-env.outputs.nproc }} check > tests/test-suite.log
 
-      - name: Archive test report
+      - name: Test - Archive test report
         if: matrix.backend == 'cpu' && failure()
         uses: actions/upload-artifact@v4
         with:
@@ -281,7 +281,7 @@ jobs:
           retention-days: 2
           if-no-files-found: ignore
 
-      - name: Archive integration test report
+      - name: Test - Archive integration test report
         if: matrix.backend == 'cpu' && failure()
         uses: actions/upload-artifact@v4
         with:
@@ -296,43 +296,34 @@ jobs:
       # Distribution build
       # ---------------------------------------------------------------------- #
 
-      - name: Dist (CPU backend)
+      - name: Dist - Setup
+        run: |
+          make dist
+          mkdir releng
+          tar xf neko-*.tar.gz -C releng
+          cd releng/neko-*
+
+      - name: Dist - Configure (CPU backend)
         if: matrix.backend == 'cpu'
         run: |
-          make dist
-          mkdir releng
-          tar xf neko-*.tar.gz -C releng
-          cd releng/neko-*
           ./configure FC=${FC} --enable-real=${RP}
-          make -j ${{ steps.setup-env.outputs.nproc }}
 
-      - name: Dist (CUDA backend)
+      - name: Dist - Configure (CUDA backend)
         if: matrix.backend == 'cuda'
         run: |
-          make dist
-          mkdir releng
-          tar xf neko-*.tar.gz -C releng
-          cd releng/neko-*
           ./configure FC=${FC} --enable-real=${RP} --with-cuda=/usr
-          make -j ${{ steps.setup-env.outputs.nproc }}
 
-      - name: Dist (HIP backend)
+      - name: Dist - Configure (HIP backend)
         if: matrix.backend == 'hip'
         run: |
-          make dist
-          mkdir releng
-          tar xf neko-*.tar.gz -C releng
-          cd releng/neko-*
           ROCM_DIR=$(ls -d /opt/rocm-*)
           ./configure FC=${FC} FCFLAGS="-fPIE" --enable-real=${RP} HIP_HIPCC_FLAGS="-O2 -fPIE" --with-hip=$ROCM_DIR
-          make -j ${{ steps.setup-env.outputs.nproc }}
 
-      - name: Dist (OpenCL backend)
+      - name: Dist - Configure (OpenCL backend)
         if: matrix.backend == 'opencl'
         run: |
-          make dist
-          mkdir releng
-          tar xf neko-*.tar.gz -C releng
-          cd releng/neko-*
           ./configure FC=${FC} --enable-real=${RP} --with-opencl
+
+      - name: Dist - Build
+        run: |
           make -j ${{ steps.setup-env.outputs.nproc }}
