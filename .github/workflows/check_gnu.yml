@@ -27,7 +27,9 @@ jobs:
       fail-fast: false
       matrix:
         # os: [ubuntu-24.04, ubuntu-24.04-arm, macos-13, macos-15]
-        os: [ubuntu-24.04, ubuntu-24.04-arm]
+        # os: [ubuntu-24.04, ubuntu-24.04-arm]
+        os: [macos-13, macos-15]
+
         compiler: [gfortran-12, gfortran-13, gfortran-14, gfortran-15]
         backend: [cpu, cuda, hip, opencl]
         precision: [sp, dp]
@@ -81,41 +83,33 @@ jobs:
           - compiler: gfortran-15
             backend: hip
 
-
         include:
-          - os: ubuntu-24.04
-            setup-env: |
-              sudo apt install libopenmpi-dev libopenblas-dev
-              echo "nproc=$(nproc)" >> $GITHUB_OUTPUT
-              echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
-
-          - os: ubuntu-24.04-arm
-            setup-env: |
-              sudo apt install libopenmpi-dev libopenblas-dev
-              echo "nproc=$(nproc)" >> $GITHUB_OUTPUT
-              echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
-
-          # - os: macos-13
+          # - os: ubuntu-24.04
           #   setup-env: |
-          #     brew install openmpi
-          #     brew install automake
-          #     brew install python
-          #     python3 -m venv myenv
-          #     source myenv/bin/activate
-          #     pip install pytest json5 numpy
-          #     echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
-          #     echo "os-version=$(sw_vers -productName)-$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
+          #     sudo apt install libopenmpi-dev libopenblas-dev
+          #     echo "nproc=$(nproc)" >> $GITHUB_OUTPUT
+          #     echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
 
-          # - os: macos-15
+          # - os: ubuntu-24.04-arm
           #   setup-env: |
-          #     brew install openmpi
-          #     brew install automake
-          #     brew install libtool
-          #     python3 -m venv myenv
-          #     source myenv/bin/activate
-          #     pip install pytest json5 numpy
-          #     echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
-          #     echo "os-version=$(sw_vers -productName)-$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
+          #     sudo apt install libopenmpi-dev libopenblas-dev
+          #     echo "nproc=$(nproc)" >> $GITHUB_OUTPUT
+          #     echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
+
+          - os: macos-13
+            setup-env: |
+              brew install openmpi
+              brew install automake
+              echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
+              echo "os-version=$(sw_vers -productName)-$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
+
+          - os: macos-15
+            setup-env: |
+              brew install openmpi
+              brew install automake
+              brew install libtool
+              echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
+              echo "os-version=$(sw_vers -productName)-$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
 
     name: ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
     env:
@@ -132,6 +126,7 @@ jobs:
       # ---------------------------------------------------------------------- #
       # System level setup
       # ---------------------------------------------------------------------- #
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -188,6 +183,7 @@ jobs:
       # ---------------------------------------------------------------------- #
       # Dependencies setup
       # ---------------------------------------------------------------------- #
+
       - name: Setup dependencies
         id: setup-deps
         env:
@@ -265,7 +261,7 @@ jobs:
           make -j ${{ steps.setup-env.outputs.nproc }}
 
       # ---------------------------------------------------------------------- #
-      # Testing and packaging
+      # Testing
       # ---------------------------------------------------------------------- #
 
       - name: Integration tests
@@ -300,6 +296,10 @@ jobs:
             tests/integration/**/*.csv
           retention-days: 1
           if-no-files-found: ignore
+
+      # ---------------------------------------------------------------------- #
+      # Distribution build
+      # ---------------------------------------------------------------------- #
 
       - name: Dist (CPU backend)
         if: matrix.backend == 'cpu'
