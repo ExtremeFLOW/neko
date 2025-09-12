@@ -156,7 +156,7 @@ jobs:
           packages: nvidia-cuda-toolkit
           version: cuda-cache-1.0
 
-      - name: Build (HIP backend) - install rocm-dev
+      - name: Setup Device (HIP) - install rocm-dev
         if: matrix.backend == 'HIP'
         run: |
           # Following the instructions from https://rocm.docs.amd.com/projects/install-on-linux/en/latest/install/quick-start.html
@@ -166,7 +166,7 @@ jobs:
           sudo apt update
           sudo apt install -y rocm-dev
 
-      - name: Build (HIP backend) - install amdgpu-dkms
+      - name: Setup Device (HIP) - install amdgpu-dkms
         if: matrix.backend == 'HIP'
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
