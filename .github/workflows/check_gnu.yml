@@ -84,7 +84,7 @@ jobs:
         include:
           - os: ubuntu-24.04
             setup-env: |
-              sudo apt install openmpi-bin
+              sudo apt install libopenmpi-dev
               python3 -m venv myenv
               source myenv/bin/activate
               pip install pytest json5 numpy
@@ -93,7 +93,7 @@ jobs:
 
           - os: ubuntu-24.04-arm
             setup-env: |
-              sudo apt install openmpi-bin
+              sudo apt install libopenmpi-dev
               python3 -m venv myenv
               source myenv/bin/activate
               pip install pytest json5 numpy
@@ -144,7 +144,7 @@ jobs:
         id: system-deps
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: libopenmpi-dev autoconf \
+          packages: openmpi-bin autoconf \
                 automake autotools-dev libopenblas-dev make git m4 python3 \
                 python3-pip cmake-curses-gui
           version: 0.0.2
@@ -209,7 +209,7 @@ jobs:
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" --enable-real=${RP} --with-cuda=/usr
           make -j${{ steps.setup-env.outputs.nproc }}
 
-      - name: Build (HIP backend)
+      - name: Build (HIP backend) - install amdgpu
         if: matrix.backend == 'HIP'
         run: |
           # Following the instructions from https://rocm.docs.amd.com/projects/install-on-linux/en/latest/install/quick-start.html
@@ -217,8 +217,14 @@ jobs:
           wget -r -np -nd -A 'amdgpu*.deb' https://repo.radeon.com/amdgpu-install/latest/ubuntu/noble/
           sudo apt install ./amdgpu-install_*.deb
 
+      - name: Build (HIP backend) - install ROCm
+        if: matrix.backend == 'HIP'
+        run: |
           sudo apt-get update && sudo apt-get install -y amdgpu-dkms rocm-dev
 
+      - name: Build (HIP backend) - install Neko
+        if: matrix.backend == 'HIP'
+        run: |
           # Lets not hardcode the version
           ROCM_DIR=$(ls -d /opt/rocm-*)
 
