@@ -135,6 +135,9 @@ jobs:
       MAKENEKO_EXEC: ${{ github.workspace }}/makeneko
 
     steps:
+      # ---------------------------------------------------------------------- #
+      # System level setup
+      # ---------------------------------------------------------------------- #
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -142,7 +145,6 @@ jobs:
 
       - name: Setup system dependencies (Cache)
         if: matrix.os == 'ubuntu-24.04' || matrix.os == 'ubuntu-24.04-arm'
-        id: system-deps
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: openmpi-bin autoconf \
@@ -151,10 +153,36 @@ jobs:
           version: 0.0.5
           execute_install_scripts: true
 
-      - name: Setup env.
+      - name: Setup matrix environment
         id: setup-env
         run: ${{ matrix.setup-env }}
 
+      - name: Setup Device (CUDA)
+        if: matrix.backend == 'cuda'
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: nvidia-cuda-toolkit
+          version: 0.0.1
+
+      - name: Build (HIP backend) - install amdgpu
+        if: matrix.backend == 'HIP'
+        run: |
+          # Following the instructions from https://rocm.docs.amd.com/projects/install-on-linux/en/latest/install/quick-start.html
+
+          wget -r -np -nd -A 'amdgpu*.deb' https://repo.radeon.com/amdgpu-install/latest/ubuntu/noble/
+          sudo apt install ./amdgpu-install_*.deb
+          sudo apt update
+
+      - name: Build (HIP backend) - install ROCm
+        if: matrix.backend == 'HIP'
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: amdgpu-dkms rocm-dev
+          version: 0.0.1
+
+      # ---------------------------------------------------------------------- #
+      # Dependencies setup
+      # ---------------------------------------------------------------------- #
       - name: Setup dependencies
         id: setup-deps
         env:
@@ -191,6 +219,10 @@ jobs:
           echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:$JSON_FORTRAN_DIR/lib/pkgconfig/" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$JSON_FORTRAN_DIR/lib/" >> $GITHUB_ENV
 
+      # ---------------------------------------------------------------------- #
+      # Build Neko
+      # ---------------------------------------------------------------------- #
+
       - name: Build (CPU backend)
         if: matrix.backend == 'cpu'
         env:
@@ -206,23 +238,9 @@ jobs:
       - name: Build (CUDA backend)
         if: matrix.backend == 'cuda'
         run: |
-          sudo apt-get install -y nvidia-cuda-toolkit
           ./regen.sh
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" --enable-real=${RP} --with-cuda=/usr
           make -j${{ steps.setup-env.outputs.nproc }}
-
-      - name: Build (HIP backend) - install amdgpu
-        if: matrix.backend == 'HIP'
-        run: |
-          # Following the instructions from https://rocm.docs.amd.com/projects/install-on-linux/en/latest/install/quick-start.html
-
-          wget -r -np -nd -A 'amdgpu*.deb' https://repo.radeon.com/amdgpu-install/latest/ubuntu/noble/
-          sudo apt install ./amdgpu-install_*.deb
-
-      - name: Build (HIP backend) - install ROCm
-        if: matrix.backend == 'HIP'
-        run: |
-          sudo apt-get update && sudo apt-get install -y amdgpu-dkms rocm-dev
 
       - name: Build (HIP backend) - install Neko
         if: matrix.backend == 'HIP'
@@ -240,6 +258,10 @@ jobs:
           ./regen.sh
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" --enable-real=${RP} --with-opencl
           make -j ${{ steps.setup-env.outputs.nproc }}
+
+      # ---------------------------------------------------------------------- #
+      # Testing and packaging
+      # ---------------------------------------------------------------------- #
 
       - name: Integration tests
         if: matrix.backend == 'cpu'
