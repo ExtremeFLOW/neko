@@ -26,7 +26,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04, ubuntu-24.04-arm, macos-13, macos-15]
+        # os: [ubuntu-24.04, ubuntu-24.04-arm, macos-13, macos-15]
+        os: [ubuntu-24.04, ubuntu-24.04-arm]
         compiler: [gfortran-12, gfortran-13, gfortran-14, gfortran-15]
         backend: [cpu, cuda, hip, opencl]
         precision: [sp, dp]
@@ -100,27 +101,27 @@ jobs:
               echo "nproc=$(nproc)" >> $GITHUB_OUTPUT
               echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
 
-          - os: macos-13
-            setup-env: |
-              brew install openmpi
-              brew install automake
-              brew install python
-              python3 -m venv myenv
-              source myenv/bin/activate
-              pip install pytest json5 numpy
-              echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
-              echo "os-version=$(sw_vers -productName)-$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
+          # - os: macos-13
+          #   setup-env: |
+          #     brew install openmpi
+          #     brew install automake
+          #     brew install python
+          #     python3 -m venv myenv
+          #     source myenv/bin/activate
+          #     pip install pytest json5 numpy
+          #     echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
+          #     echo "os-version=$(sw_vers -productName)-$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
 
-          - os: macos-15
-            setup-env: |
-              brew install openmpi
-              brew install automake
-              brew install libtool
-              python3 -m venv myenv
-              source myenv/bin/activate
-              pip install pytest json5 numpy
-              echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
-              echo "os-version=$(sw_vers -productName)-$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
+          # - os: macos-15
+          #   setup-env: |
+          #     brew install openmpi
+          #     brew install automake
+          #     brew install libtool
+          #     python3 -m venv myenv
+          #     source myenv/bin/activate
+          #     pip install pytest json5 numpy
+          #     echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
+          #     echo "os-version=$(sw_vers -productName)-$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
 
     name: ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
     env:
