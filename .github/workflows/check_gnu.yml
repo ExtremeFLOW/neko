@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - develop
-      - ci/cache
 
   workflow_call:
     inputs:
@@ -26,9 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # os: [ubuntu-24.04, ubuntu-24.04-arm, macos-13, macos-15]
-        # os: [ubuntu-24.04, ubuntu-24.04-arm]
-        os: [macos-13, macos-15]
+        os: [ubuntu-24.04, ubuntu-24.04-arm, macos-13, macos-15]
 
         compiler: [gfortran-12, gfortran-13, gfortran-14, gfortran-15]
         backend: [cpu, cuda, hip, opencl]
@@ -84,17 +81,17 @@ jobs:
             backend: hip
 
         include:
-          # - os: ubuntu-24.04
-          #   setup-env: |
-          #     sudo apt install libopenmpi-dev libopenblas-dev
-          #     echo "nproc=$(nproc)" >> $GITHUB_OUTPUT
-          #     echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
+          - os: ubuntu-24.04
+            setup-env: |
+              sudo apt install libopenmpi-dev libopenblas-dev
+              echo "nproc=$(nproc)" >> $GITHUB_OUTPUT
+              echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
 
-          # - os: ubuntu-24.04-arm
-          #   setup-env: |
-          #     sudo apt install libopenmpi-dev libopenblas-dev
-          #     echo "nproc=$(nproc)" >> $GITHUB_OUTPUT
-          #     echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
+          - os: ubuntu-24.04-arm
+            setup-env: |
+              sudo apt install libopenmpi-dev libopenblas-dev
+              echo "nproc=$(nproc)" >> $GITHUB_OUTPUT
+              echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
 
           - os: macos-13
             setup-env: |
@@ -135,7 +132,7 @@ jobs:
         with:
           packages: openmpi-bin autoconf \
                 automake autotools-dev make git m4 cmake-curses-gui
-          version: default-0.0.5
+          version: apt-cache-1.0
           execute_install_scripts: true
 
       - name: Setup Python environment
@@ -158,7 +155,7 @@ jobs:
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: nvidia-cuda-toolkit
-          version: cuda-cache-0.0.1
+          version: cuda-cache-1.0
 
       - name: Build (HIP backend) - install rocm-dev
         if: matrix.backend == 'HIP'
@@ -175,7 +172,7 @@ jobs:
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: amdgpu-dkms
-          version: hip-cache-0.0.1
+          version: hip-cache-1.0
 
       # ---------------------------------------------------------------------- #
       # Dependencies setup
