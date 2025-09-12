@@ -99,12 +99,14 @@ jobs:
           - os: macos-13
             setup-env: |
               brew install openmpi automake cmake
+              cmake --version
               echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
               echo "os-version=$(sw_vers -productName)-$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
 
           - os: macos-15
             setup-env: |
               brew install openmpi automake cmake libtool
+              cmake --version
               echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
               echo "os-version=$(sw_vers -productName)-$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
 
