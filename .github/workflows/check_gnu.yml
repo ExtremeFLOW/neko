@@ -148,7 +148,7 @@ jobs:
           packages: openmpi-bin autoconf \
                 automake autotools-dev libopenblas-dev make git m4 python3 \
                 python3-pip cmake-curses-gui
-          version: 0.0.2
+          version: 0.0.3
 
       - name: Setup env.
         id: setup-env
