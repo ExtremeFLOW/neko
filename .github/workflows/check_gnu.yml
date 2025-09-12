@@ -85,7 +85,7 @@ jobs:
         include:
           - os: ubuntu-24.04
             setup-env: |
-              sudo apt install libopenmpi-dev
+              sudo apt install libopenmpi-dev libopenblas-dev
               python3 -m venv myenv
               source myenv/bin/activate
               pip install pytest json5 numpy
@@ -94,7 +94,7 @@ jobs:
 
           - os: ubuntu-24.04-arm
             setup-env: |
-              sudo apt install libopenmpi-dev
+              sudo apt install libopenmpi-dev libopenblas-dev
               python3 -m venv myenv
               source myenv/bin/activate
               pip install pytest json5 numpy
@@ -146,9 +146,9 @@ jobs:
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: openmpi-bin autoconf \
-                automake autotools-dev libopenblas-dev make git m4 python3 \
+                automake autotools-dev make git m4 python3 \
                 python3-pip cmake-curses-gui
-          version: 0.0.4
+          version: 0.0.5
           execute_install_scripts: true
 
       - name: Setup env.
