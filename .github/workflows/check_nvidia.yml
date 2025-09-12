@@ -50,27 +50,43 @@ jobs:
       MAKENEKO_EXEC: ${{ github.workspace }}/install/bin/makeneko
     name: ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
     steps:
+      # ---------------------------------------------------------------------- #
+      # System level setup
+      # ---------------------------------------------------------------------- #
 
-      - name: Checkout
+      - name: Setup - Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      - name: Setup Keyring
-        run: ${{ matrix.setup-keyring }}
+      # Setup python environment
+      - name: Setup - Python environment
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+          cache: 'pip'
+          cache-dependency-path: "**/requirements-tests.txt"
 
-      - name: Setup system dependencies (Cache)
+      - name: Setup - Install Python dependencies
+        run: pip install -r .github/workflows/extra/requirements-tests.txt
+
+      # Setup compiler and other system dependencies
+      - name: Setup - Install system dependencies (Cache)
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: openmpi-bin autoconf automake autotools-dev make git m4 cmake-curses-gui
           version: apt-cache-1.0
           execute_install_scripts: true
 
-      - name: Install system dependencies
+      # Setup compiler and environment
+      - name: Setup - Keyring
+        run: ${{ matrix.setup-keyring }}
+
+      - name: Setup - Install system dependencies
         run: |
           sudo apt-get install -y libopenblas-dev nvhpc-25-7
 
-      - name: Setup env.
+      - name: Setup - Environment
         id: setup-env
         run: |
           export NVARCH=`uname -s`_`uname -m`
@@ -81,18 +97,11 @@ jobs:
           printenv >> $GITHUB_ENV
           echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
 
-      # Setup python environment
-      - name: Setup Python environment
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.x'
-          cache: 'pip'
-          cache-dependency-path: "**/requirements-tests.txt"
+      # ---------------------------------------------------------------------- #
+      # Dependencies setup
+      # ---------------------------------------------------------------------- #
 
-      - name: Install Python dependencies
-        run: pip install -r .github/workflows/extra/requirements-tests.txt
-
-      - name: Setup dependencies
+      - name: Dependencies - Setup
         id: setup-deps
         env:
           JSON_FORTRAN_VERSION: ${{ inputs.json-fortran-version }}
@@ -100,7 +109,7 @@ jobs:
           if [ -z "$JSON_FORTRAN_VERSION" ]; then JSON_FORTRAN_VERSION="8.3.0"; fi
           echo "json-fortran-version=$JSON_FORTRAN_VERSION" >> $GITHUB_OUTPUT
 
-      - name: Get JSON-Fortran
+      - name: Dependencies - Get JSON-Fortran
         id: get-json-fortran
         uses: ./.github/actions/setup_json-fortran
         with:
@@ -108,69 +117,87 @@ jobs:
           os: ${{ steps.setup-env.outputs.os-version }}
           compiler: ${{ matrix.compiler }}
 
-      - name: Add JSON-Fortran to environment
+      - name: Dependencies - Add JSON-Fortran to environment
         env:
           JSON_FORTRAN_DIR: ${{ steps.get-json-fortran.outputs.install-dir }}
         run: |
           echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:$JSON_FORTRAN_DIR/lib/pkgconfig/" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$JSON_FORTRAN_DIR/lib/" >> $GITHUB_ENV
 
-      - name: Build (CPU backend)
+      # ---------------------------------------------------------------------- #
+      # Build Neko
+      # ---------------------------------------------------------------------- #
+
+      - name: Build - Apply patches
+        run: |
+          git apply patches/nvhpc_bge.patch
+
+      - name: Build - Regenerate build system
+        run: ./regen.sh
+
+      - name: Build - Configure (CPU backend)
         if: matrix.backend == 'cpu'
         run: |
           mkdir ${{ github.workspace }}/install
           echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${{ github.workspace }}/install/lib/pkgconfig" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${{ github.workspace }}/install/lib" >> $GITHUB_ENV
-          git apply patches/nvhpc_bge.patch
-          ./regen.sh
           ./configure FC=${FC} CC=${CC} FCFLAGS="-O3" --enable-real=${RP} --prefix=${{ github.workspace }}/install
-          make -j${{ steps.setup-env.outputs.nproc }} install
 
-
-      - name: Build (CUDA backend)
+      - name: Build - Configure (CUDA backend)
         if: matrix.backend == 'cuda'
         run: |
-          git apply patches/nvhpc_bge.patch
-          ./regen.sh
           ./configure FC=${FC} CC=${CC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/${NVARCH}/${NVVER}/cuda/
-          make -j${{ steps.setup-env.outputs.nproc }}
 
-#      - name: Integration tests
+      - name: Build - Build Neko
+        run: make -j ${{ steps.setup-env.outputs.nproc }}
+
+      - name: Build - Install Neko
+        if: matrix.backend == 'cpu'
+        run: make -j ${{ steps.setup-env.outputs.nproc }} install
+
+      # ---------------------------------------------------------------------- #
+      # Testing
+      # ---------------------------------------------------------------------- #
+
+#      - name: Tests - Integration tests
 #        if: matrix.backend == 'cpu' && matrix.os == 'ubuntu-24.04'
 #        run: |
 #           chmod +x $MAKENEKO_EXEC
 #           cd tests/integration
 #           pytest --max_nprocs=2
 #           cd ../..
-
-      - name: Dist (CPU backend)
-        if: matrix.backend == 'cpu'
-        run: |
-          git stash
-          make dist
-          mkdir releng
-          tar xf neko-*.tar.gz -C releng
-          cd releng/neko-*
-          patch -u src/common/signal.f90 -i patches/nvhpc_bge.patch
-          ./configure FC=${FC} CC=${CC} FCFLAGS="-O3" --enable-real=${RP}
-          make -j $(nproc)
-
-      - name: Dist (CUDA backend)
-        if: matrix.backend == 'cuda'
-        run: |
-          git stash
-          make dist
-          mkdir releng
-          tar xf neko-*.tar.gz -C releng
-          cd releng/neko-*
-          patch -u src/common/signal.f90 -i patches/nvhpc_bge.patch
-          ./configure FC=${FC} CC=${CC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/${NVARCH}/${NVVER}/cuda/
-          make -j $(nproc)
-
-#      - name: Archive integration test report
+#
+#      - name: Tests - Archive integration test report
 #        if: matrix.backend == 'cpu' && failure()
 #        uses: actions/upload-artifact@v4
 #        with:
 #          name: Nvidia Integration test logs - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
 #          path: tests/integration/logs
 #          retention-days: 1
+
+      # ---------------------------------------------------------------------- #
+      # Distribution build
+      # ---------------------------------------------------------------------- #
+
+      - name: Dist - Setup
+        run: |
+          git stash
+          make dist
+          mkdir releng
+          tar xf neko-*.tar.gz -C releng
+          cd releng/neko-*
+          patch -u src/common/signal.f90 -i patches/nvhpc_bge.patch
+
+      - name: Dist - Configure (CPU backend)
+        if: matrix.backend == 'cpu'
+        run: |
+          ./configure FC=${FC} CC=${CC} FCFLAGS="-O3" --enable-real=${RP}
+
+      - name: Dist - Configure (CUDA backend)
+        if: matrix.backend == 'cuda'
+        run: |
+          ./configure FC=${FC} CC=${CC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/${NVARCH}/${NVVER}/cuda/
+
+      - name: Dist - Build
+        run: |
+          make -j $(nproc)
