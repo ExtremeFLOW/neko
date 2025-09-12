@@ -42,13 +42,6 @@ jobs:
         os: ${{ steps.setup-env.outputs.os-version }}
         compiler: gfortran
 
-    - name: Add JSON-Fortran to environment
-      env:
-        JSON_FORTRAN_DIR: ${{ steps.get-json-fortran.outputs.install-dir }}
-      run: |
-        echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:$JSON_FORTRAN_DIR/lib/pkgconfig/" >> $GITHUB_ENV
-        echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$JSON_FORTRAN_DIR/lib/" >> $GITHUB_ENV
-
     - name: Run makedependf90
       run: |
         ./regen.sh

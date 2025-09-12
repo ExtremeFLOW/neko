@@ -117,13 +117,6 @@ jobs:
           os: ${{ steps.setup-env.outputs.os-version }}
           compiler: ${{ matrix.compiler }}
 
-      - name: Dependencies - Add JSON-Fortran to environment
-        env:
-          JSON_FORTRAN_DIR: ${{ steps.get-json-fortran.outputs.install-dir }}
-        run: |
-          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:$JSON_FORTRAN_DIR/lib/pkgconfig/" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$JSON_FORTRAN_DIR/lib/" >> $GITHUB_ENV
-
       # ---------------------------------------------------------------------- #
       # Build Neko
       # ---------------------------------------------------------------------- #
@@ -179,7 +172,8 @@ jobs:
       # Distribution build
       # ---------------------------------------------------------------------- #
 
-      - name: Dist - Setup
+      - name: Dist (CPU backend)
+        if: matrix.backend == 'cpu'
         run: |
           git stash
           make dist
@@ -187,17 +181,17 @@ jobs:
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
           patch -u src/common/signal.f90 -i patches/nvhpc_bge.patch
-
-      - name: Dist - Configure (CPU backend)
-        if: matrix.backend == 'cpu'
-        run: |
           ./configure FC=${FC} CC=${CC} FCFLAGS="-O3" --enable-real=${RP}
+          make -j $(nproc)
 
-      - name: Dist - Configure (CUDA backend)
+      - name: Dist (CUDA backend)
         if: matrix.backend == 'cuda'
         run: |
+          git stash
+          make dist
+          mkdir releng
+          tar xf neko-*.tar.gz -C releng
+          cd releng/neko-*
+          patch -u src/common/signal.f90 -i patches/nvhpc_bge.patch
           ./configure FC=${FC} CC=${CC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/${NVARCH}/${NVVER}/cuda/
-
-      - name: Dist - Build
-        run: |
           make -j $(nproc)
