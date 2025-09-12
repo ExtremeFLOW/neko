@@ -15,18 +15,25 @@ jobs:
     name: "Dependencies (make depend)"
     runs-on: ubuntu-24.04
     steps:
-    - name: Setup env.
-      id: setup-env
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf \
-            automake autotools-dev libopenblas-dev make makedepf90 git gfortran
-        echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
-
     - name: Checkout
       uses: actions/checkout@v4
       with:
         fetch-depth: 1
+
+    - name: Setup system dependencies (Cache)
+      uses: awalsh128/cache-apt-pkgs-action@latest
+      with:
+        packages: openmpi-bin autoconf \
+              automake autotools-dev make git m4 cmake-curses-gui
+        version: apt-cache-1.0
+        execute_install_scripts: true
+
+    - name: Setup env.
+      id: setup-env
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libopenmpi-dev libopenblas-dev makedepf90
+        echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
 
     - name: Get json-fortran
       id: get-json-fortran
