@@ -63,13 +63,13 @@ jobs:
         if: matrix.os == 'ubuntu-24.04' || matrix.os == 'ubuntu-24.04-arm'
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: autoconf automake autotools-dev make git m4 nvhpc-25-7
+          packages: autoconf automake autotools-dev make git m4
           version: apt-cache-1.0
           execute_install_scripts: true
 
       - name: Install system dependencies
         run: |
-          sudo apt-get install -y libopenblas-dev
+          sudo apt-get install -y libopenblas-dev nvhpc-25-7
 
       - name: Setup env.
         id: setup-env
