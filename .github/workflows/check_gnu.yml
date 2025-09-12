@@ -125,6 +125,18 @@ jobs:
         with:
           fetch-depth: 1
 
+      # Setup python environment
+      - name: Setup Python environment
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+          cache: 'pip'
+          cache-dependency-path: "**/requirements-tests.txt"
+
+      - name: Install Python dependencies
+        run: pip install -r .github/workflows/extra/requirements-tests.txt
+
+      # Setup compiler and other system dependencies
       - name: Setup system dependencies (Cache)
         if: matrix.os == 'ubuntu-24.04' || matrix.os == 'ubuntu-24.04-arm'
         uses: awalsh128/cache-apt-pkgs-action@latest
@@ -134,21 +146,11 @@ jobs:
           version: apt-cache-1.0
           execute_install_scripts: true
 
-      - name: Setup Python environment
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.x'
-          cache: 'pip'
-          cache-dependency-path: "**/requirements-tests.txt"
-
-      - name: Install Python dependencies
-        run: |
-          pip install -r .github/workflows/extra/requirements-tests.txt
-
       - name: Setup matrix environment
         id: setup-env
         run: ${{ matrix.setup-env }}
 
+      # Setup device specific dependencies
       - name: Setup Device (CUDA)
         if: matrix.backend == 'cuda'
         uses: awalsh128/cache-apt-pkgs-action@latest
@@ -217,7 +219,10 @@ jobs:
       # Build Neko
       # ---------------------------------------------------------------------- #
 
-      - name: Build (CPU backend)
+      - name: Regenerate build system
+        run: ./regen.sh
+
+      - name: Configure (CPU backend)
         if: matrix.backend == 'cpu'
         env:
           PFUNIT_DIR: ${{ steps.get-pfunit.outputs.install-dir }}
@@ -225,33 +230,31 @@ jobs:
           mkdir ${{ github.workspace }}/install
           echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${{ github.workspace }}/install/lib/pkgconfig" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${{ github.workspace }}/install/lib" >> $GITHUB_ENV
-          ./regen.sh
           ./configure FC=${FC} FCFLAGS="-g -O2 -pedantic -std=f2008 -w" --with-pfunit=$PFUNIT_DIR --enable-real=${RP} --prefix=${{ github.workspace }}/install
-          make -j${{ steps.setup-env.outputs.nproc }} install
 
-      - name: Build (CUDA backend)
+      - name: Configure (CUDA backend)
         if: matrix.backend == 'cuda'
         run: |
-          ./regen.sh
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" --enable-real=${RP} --with-cuda=/usr
-          make -j${{ steps.setup-env.outputs.nproc }}
 
-      - name: Build (HIP backend)
+      - name: Configure (HIP backend)
         if: matrix.backend == 'HIP'
         run: |
           # Lets not hardcode the version
           ROCM_DIR=$(ls -d /opt/rocm-*)
-
-          ./regen.sh
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" HIP_HIPCC_FLAGS="-O2 -fPIE" --enable-real=${RP} --with-hip=$ROCM_DIR
-          make -j ${{ steps.setup-env.outputs.nproc }}
 
-      - name: Build (OpenCL backend)
+      - name: Configure (OpenCL backend)
         if: matrix.backend == 'opencl'
         run: |
-          ./regen.sh
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" --enable-real=${RP} --with-opencl
-          make -j ${{ steps.setup-env.outputs.nproc }}
+
+      - name: Build Neko
+        run: make -j ${{ steps.setup-env.outputs.nproc }}
+
+      - name: Install Neko
+        if: matrix.backend == 'cpu'
+        run: make -j ${{ steps.setup-env.outputs.nproc }} install
 
       # ---------------------------------------------------------------------- #
       # Testing
