@@ -23,8 +23,7 @@ jobs:
     - name: Setup system dependencies (Cache)
       uses: awalsh128/cache-apt-pkgs-action@latest
       with:
-        packages: openmpi-bin autoconf \
-              automake autotools-dev make git m4 cmake-curses-gui
+        packages: openmpi-bin autoconf automake autotools-dev make git m4 cmake-curses-gui
         version: apt-cache-1.0
         execute_install_scripts: true
 

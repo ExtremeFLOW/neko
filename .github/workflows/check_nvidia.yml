@@ -29,13 +29,13 @@ jobs:
             setup-keyring: |
               echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list
               curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg
-              sudo apt-get update -y
+              sudo apt-get update
 
           - os: ubuntu-24.04-arm
             setup-keyring: |
               echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/arm64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list
               curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg
-              sudo apt-get update -y
+              sudo apt-get update
 
     env:
       CC: nvc
@@ -60,10 +60,9 @@ jobs:
         run: ${{ matrix.setup-keyring }}
 
       - name: Setup system dependencies (Cache)
-        if: matrix.os == 'ubuntu-24.04' || matrix.os == 'ubuntu-24.04-arm'
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: autoconf automake autotools-dev make git m4
+          packages: openmpi-bin autoconf automake autotools-dev make git m4 cmake-curses-gui
           version: apt-cache-1.0
           execute_install_scripts: true
 
