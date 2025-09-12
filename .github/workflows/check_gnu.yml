@@ -323,4 +323,5 @@ jobs:
 
       - name: Dist - Build
         run: |
+          cd releng/neko-*
           make -j ${{ steps.setup-env.outputs.nproc }}
