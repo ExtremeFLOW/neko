@@ -172,13 +172,14 @@ jobs:
           wget -r -np -nd -A 'amdgpu*.deb' https://repo.radeon.com/amdgpu-install/latest/ubuntu/noble/
           sudo apt install ./amdgpu-install_*.deb
           sudo apt update
+          sudo apt install -y rocm-dev
 
       - name: Build (HIP backend) - install ROCm
         if: matrix.backend == 'HIP'
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: amdgpu-dkms rocm-dev
-          version: 0.0.1
+          packages: amdgpu-dkms
+          version: hip-cache-0.0.1
 
       # ---------------------------------------------------------------------- #
       # Dependencies setup
