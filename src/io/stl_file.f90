@@ -83,7 +83,7 @@ contains
        call neko_log%error('Invalid data')
     end select
 
-    call MPI_File_open(NEKO_COMM, trim(this%fname), &
+    call MPI_File_open(NEKO_COMM, trim(this%get_fname()), &
          MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
     call MPI_File_read_all(fh, stl_hdr, 1, MPI_STL_HEADER, status, ierr)
 

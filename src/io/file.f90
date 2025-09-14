@@ -61,6 +61,10 @@ module file
      procedure :: write => file_write
      !> Read @a data from a file.
      procedure :: read => file_read
+     !> Get a file's name.
+     procedure :: get_fname => file_get_fname
+     !> Get a file's base name.
+     procedure :: get_base_fname => file_get_base_fname
      !> Get a file's counter.
      procedure :: get_counter => file_get_counter
      !> Set a file's counter.
@@ -178,6 +182,34 @@ contains
 
   end subroutine file_read
 
+  !> Get a file's name.
+  function file_get_fname(this) result(fname)
+    class(file_t), intent(in) :: this
+    character(len=1024) :: fname
+
+    fname = ""
+
+    select type (ft => this%file_type)
+    class is (generic_file_t)
+       fname = ft%get_fname()
+    end select
+
+  end function file_get_fname
+
+  !> Get a file's base name.
+  function file_get_base_fname(this) result(fname)
+    class(file_t), intent(in) :: this
+    character(len=1024) :: fname
+
+    fname = ""
+
+    select type (ft => this%file_type)
+    class is (generic_file_t)
+       fname = ft%get_base_fname()
+    end select
+
+  end function file_get_base_fname
+
   !> Get a file's counter.
   function file_get_counter(this) result(n)
     class(file_t), intent(inout) :: this
@@ -186,7 +218,7 @@ contains
 
     select type (ft => this%file_type)
     class is (generic_file_t)
-       n = ft%counter
+       n = ft%get_counter()
     end select
 
   end function file_get_counter
@@ -225,7 +257,7 @@ contains
     class is (csv_file_t)
        call ft%set_header(hd)
     class default
-       call filename_suffix(this%file_type%fname, suffix)
+       call filename_suffix(this%file_type%get_fname(), suffix)
        call neko_warning("No set_header defined for " // trim(suffix) // " yet")
     end select
 
@@ -244,7 +276,7 @@ contains
     type is (bp_file_t)
        call ft%set_precision(precision)
     class default
-       call filename_suffix(this%file_type%fname, suffix)
+       call filename_suffix(this%file_type%get_fname(), suffix)
        call neko_warning("No precision strategy defined for " // trim(suffix) &
             // " files")
     end select
@@ -262,7 +294,7 @@ contains
     type is (bp_file_t)
        call ft%set_layout(layout)
     class default
-       call filename_suffix(this%file_type%fname, suffix)
+       call filename_suffix(this%file_type%get_fname(), suffix)
        call neko_warning("No set_layout defined for " // trim(suffix) // " yet")
     end select
 
@@ -275,10 +307,8 @@ contains
     character(len=80) :: suffix
 
     select type (ft => this%file_type)
-    class default
-       call filename_suffix(this%file_type%fname, suffix)
-       call neko_warning("No set_overwrite defined for " // trim(suffix) // &
-            " yet")
+    class is (generic_file_t)
+       call ft%set_overwrite(overwrite)
     end select
   end subroutine file_set_overwrite
 

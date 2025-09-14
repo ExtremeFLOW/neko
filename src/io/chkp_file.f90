@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Neko checkpoint file format
-!! @details this module defines interface to read/write Neko's ceckpoint files
+!! @details this module defines interface to read/write Neko's checkpoint files
 module chkp_file
   use generic_file, only : generic_file_t
   use field_series, only : field_series_t
@@ -47,8 +47,13 @@ module chkp_file
   use neko_mpi_types, only : MPI_REAL_PREC_SIZE, MPI_INTEGER_SIZE, &
        MPI_DOUBLE_PRECISION_SIZE, MPI_REAL_PREC_SIZE
   use global_interpolation, only : global_interpolation_t
-  use comm
-  use mpi_f08
+  use logger, only : neko_log, NEKO_LOG_VERBOSE
+  use comm, only : NEKO_COMM, pe_rank, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_File, MPI_Status, MPI_OFFSET_KIND, MPI_MODE_CREATE, &
+       MPI_MODE_RDONLY, MPI_MODE_WRONLY, MPI_INFO_NULL, MPI_INTEGER, &
+       MPI_DOUBLE_PRECISION, MPI_LOGICAL, MPI_SUCCESS, &
+       MPI_File_open, MPI_File_close, MPI_File_read_all, MPI_File_write_all, &
+       MPI_File_read_at_all, MPI_File_write_at_all, MPI_Bcast
   implicit none
   private
 
@@ -59,7 +64,6 @@ module chkp_file
      type(interpolator_t) :: space_interp !< Interpolation when only changing lx
      type(global_interpolation_t) :: global_interp !< Interpolation for different meshes
      logical :: mesh2mesh !< Flag if previous mesh difers from current.
-     logical, private :: overwrite = .false.
    contains
      procedure :: read => chkp_file_read
      procedure :: read_field => chkp_read_field
@@ -169,16 +173,12 @@ contains
        call neko_error('Invalid data')
     end select
 
-    suffix_pos = filename_suffix_pos(this%fname)
-    if (this%overwrite) then
-       fname = trim(this%fname)
-    else !< Append the counter to the filename
-       write(id_str, '(i5.5)') this%counter
-       fname = trim(this%fname(1:suffix_pos-1)) // id_str // '.chkp'
-    end if
-
     dof_offset = int(msh%offset_el, i8) * int(u%Xh%lx * u%Xh%ly * u%Xh%lz, i8)
     n_glb_dofs = int(u%Xh%lx * u%Xh%ly * u%Xh%lz, i8) * int(msh%glb_nelv, i8)
+
+    ! Retrieve the filename and increment the counter if we are not overwriting
+    if (.not. this%overwrite) call this%increment_counter()
+    fname = trim(this%get_fname())
 
     call MPI_File_open(NEKO_COMM, trim(fname), &
          MPI_MODE_WRONLY + MPI_MODE_CREATE, MPI_INFO_NULL, fh, ierr)
@@ -347,8 +347,6 @@ contains
        call neko_error('Error writing checkpoint file ' // trim(fname))
     end if
 
-    this%counter = this%counter + 1
-
   end subroutine chkp_file_write
 
   !> Load a checkpoint from file
@@ -458,9 +456,10 @@ contains
        call neko_error('Invalid data')
     end select
 
-
-
-    call MPI_File_open(NEKO_COMM, trim(this%fname), &
+    fname = trim(this%get_fname())
+    call neko_log%message("Reading checkpoint from file: " // trim(fname), &
+         NEKO_LOG_VERBOSE)
+    call MPI_File_open(NEKO_COMM, trim(fname), &
          MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
     call MPI_File_read_all(fh, glb_nelv, 1, MPI_INTEGER, status, ierr)
     call MPI_File_read_all(fh, gdim, 1, MPI_INTEGER, status, ierr)
@@ -639,7 +638,7 @@ contains
     call MPI_File_close(fh, ierr)
 
     if (ierr .ne. MPI_SUCCESS) then
-       call neko_error('Error reading checkpoint file ' // trim(this%fname))
+       call neko_error('Error reading checkpoint file ' // trim(fname))
     end if
 
     call this%global_interp%free()

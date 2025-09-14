@@ -41,8 +41,14 @@ module opencl_prgm_lib
   !> Device \f$ D^T X \f$ kernels
   type(c_ptr), public, bind(c) :: cdtp_program = C_NULL_PTR
 
-  !> Device onvective kernels
+  !> Device convective kernels
   type(c_ptr), public, bind(c) :: conv1_program = C_NULL_PTR
+
+  !> Device convective kernels for oifs
+  type(c_ptr), public, bind(c) :: convect_scalar_program = C_NULL_PTR
+
+  !> Device convect_rst kernels
+  type(c_ptr), public, bind(c) :: set_convect_rst_program = C_NULL_PTR
 
   !> Device CFL kernels
   type(c_ptr), public, bind(c) :: cfl_program = C_NULL_PTR
