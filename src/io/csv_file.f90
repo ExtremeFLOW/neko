@@ -45,7 +45,6 @@ module csv_file
   type, public, extends(generic_file_t) :: csv_file_t
      character(len=1024) :: header = "" !< Contains header of file.
      logical :: header_is_written = .false. !< Has header already been written?
-     logical :: overwrite = .false. !< Should the file be overwritten?
    contains
      !> Writes data to an output file.
      procedure :: write => csv_file_write
@@ -101,7 +100,7 @@ contains
     ! Write is performed on rank 0
     if (pe_rank .eq. 0) then
 
-       call neko_log%message("Writing to " // trim(this%fname))
+       call neko_log%message("Writing to " // trim(this%get_fname()))
        if (associated(vec)) then
           call csv_file_write_vector(this, vec, t)
        else if (associated(mat)) then
@@ -128,13 +127,15 @@ contains
 
     ! Delete file if overwrite is enabled and header hasn't been written yet
     if (f%overwrite .and. .not. f%header_is_written) then
-       open(unit=999, file=trim(f%fname), status="old", iostat=ierr)
+       open(unit=999, file=trim(f%get_fname()), status="old", iostat=ierr)
        if (ierr == 0) close(999, status="delete")
     end if
 
-    open(file = trim(f%fname), position = "append", iostat = ierr, &
+    open(file = trim(f%get_fname()), position = "append", iostat = ierr, &
          newunit = file_unit)
-    if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
+    if (ierr .ne. 0) then
+       call neko_error("Error while opening " // trim(f%get_fname()))
+    end if
 
     ! write header if not empty and if not already written
     if (f%header .ne. "" .and. .not. f%header_is_written) then
@@ -166,13 +167,15 @@ contains
 
     ! Delete file if overwrite is enabled and header hasn't been written yet
     if (f%overwrite .and. .not. f%header_is_written) then
-       open(unit=999, file=trim(f%fname), status="old", iostat=ierr)
+       open(unit=999, file=trim(f%get_fname()), status="old", iostat=ierr)
        if (ierr == 0) close(999, status="delete")
     end if
 
-    open(file = trim(f%fname), position = "append", iostat = ierr, &
+    open(file = trim(f%get_fname()), position = "append", iostat = ierr, &
          newunit = file_unit)
-    if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
+    if (ierr .ne. 0) then
+       call neko_error("Error while opening " // trim(f%get_fname()))
+    end if
 
     ! write header if not empty and if not already written
     if (f%header .ne. "" .and. .not. f%header_is_written) then
@@ -232,7 +235,7 @@ contains
     if (pe_rank .eq. 0) then
 
        call neko_log%newline()
-       call neko_log%message("Reading csv file " // trim(this%fname))
+       call neko_log%message("Reading csv file " // trim(this%get_fname()))
        if (associated(vec)) then
           call csv_file_read_vector(this, vec)
        else if (associated(mat)) then
@@ -258,9 +261,11 @@ contains
 
     n_lines = f%count_lines()
 
-    open(file = trim(f%fname), status = 'old', newunit = file_unit, &
+    open(file = trim(f%get_fname()), status = 'old', newunit = file_unit, &
          iostat = ierr)
-    if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
+    if (ierr .ne. 0) then
+       call neko_error("Error while opening " // trim(f%get_fname()))
+    end if
 
     ! If there is more than 1 line, assume that means there is a header
     if (n_lines .gt. 1) then
@@ -287,9 +292,11 @@ contains
 
     n_lines = f%count_lines()
 
-    open(file = trim(f%fname), status = 'old', newunit = file_unit, &
+    open(file = trim(f%get_fname()), status = 'old', newunit = file_unit, &
          iostat = ierr)
-    if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
+    if (ierr .ne. 0) then
+       call neko_error("Error while opening " // trim(f%get_fname()))
+    end if
 
     ! If the number of lines is larger than the number of rows in the
     ! matrix, assume that means there is a header
@@ -327,9 +334,11 @@ contains
 
     call this%check_exists()
 
-    open(file = trim(this%fname), status = 'old', newunit = file_unit, &
+    open(file = trim(this%get_fname()), status = 'old', newunit = file_unit, &
          iostat = ierr)
-    if (ierr .ne. 0) call neko_error("Error while opening " // trim(this%fname))
+    if (ierr .ne. 0) then
+       call neko_error("Error while opening " // trim(this%get_fname()))
+    end if
     rewind(file_unit)
 
     n = 0

@@ -34,10 +34,8 @@
 module fluid_scheme_incompressible
   use fluid_scheme_base, only : fluid_scheme_base_t
   use gather_scatter, only : gs_t, GS_OP_MIN, GS_OP_MAX
-  use mean_sqr_flow, only : mean_sqr_flow_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use checkpoint, only : chkp_t
-  use mean_flow, only : mean_flow_t
   use num_types, only : rp, i8
   use fluid_source_term, only: fluid_source_term_t
   use field, only : field_t
@@ -91,9 +89,7 @@ module fluid_scheme_incompressible
      type(field_t), pointer :: v_e => null() !< Extrapolated y-Velocity
      type(field_t), pointer :: w_e => null() !< Extrapolated z-Velocity
 
-     type(mean_flow_t) :: mean !< Mean flow field
      type(fluid_stats_t) :: stats !< Fluid statistics
-     type(mean_sqr_flow_t) :: mean_sqr !< Mean squared flow field
      logical :: forced_flow_rate = .false. !< Is the flow rate forced?
 
      !> The turbulent kinematic viscosity field name

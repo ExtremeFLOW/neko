@@ -282,7 +282,10 @@ contains
 
     call neko_log%section("Fluid initial condition ")
 
-    if (trim(string_val) .ne. 'user') then
+    if (this%params%valid_path('case.restart_file')) then
+       call neko_log%message("Restart file specified, " // &
+            "initial conditions ignored")
+    else if (trim(string_val) .ne. 'user') then
        call set_flow_ic(this%fluid%u, this%fluid%v, this%fluid%w, &
             this%fluid%p, this%fluid%c_Xh, this%fluid%gs_Xh, string_val, &
             json_subdict)
@@ -305,7 +308,10 @@ contains
     if (scalar) then
        call neko_log%section("Scalar initial condition ")
 
-       if (this%params%valid_path('case.scalar')) then
+       if (this%params%valid_path('case.restart_file')) then
+          call neko_log%message("Restart file specified, " // &
+                "initial conditions ignored")
+       else if (this%params%valid_path('case.scalar')) then
           ! For backward compatibility with single scalar
           call json_get(this%params, 'case.scalar.initial_condition.type', &
                string_val)
