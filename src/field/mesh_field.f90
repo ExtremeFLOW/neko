@@ -38,9 +38,9 @@ module mesh_field
   private
 
   !> @todo Add support for different data types
-  type, public ::  mesh_fld_t
+  type, public :: mesh_fld_t
      integer, allocatable :: data(:) !< Data
-     type(mesh_t), pointer :: msh    !< Mesh
+     type(mesh_t), pointer :: msh !< Mesh
      character(len=80) :: name
    contains
      procedure, pass(fld) :: init => mesh_field_init
