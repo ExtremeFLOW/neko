@@ -99,6 +99,7 @@ module fluid_scheme_compressible_euler
      !> Private entropy viscosity procedures
      procedure, pass(this) :: compute_entropy_residual
      procedure, pass(this) :: compute_entropy_viscosity
+     procedure, pass(this) :: smooth_entropy_viscosity_neighbor_max
   end type fluid_scheme_compressible_euler_t
 
   interface
@@ -638,19 +639,93 @@ contains
 
   end subroutine compute_entropy_residual
 
-  !> Compute entropy viscosity coefficient nu_E = c_entropy * h^2 * R_S
+  !> Compute entropy viscosity coefficient nu_E = c_entropy * h^2 * R_S / n(S)
   !! @param this The fluid scheme object
   subroutine compute_entropy_viscosity(this)
+    use field_math, only: field_glsum, field_cadd, field_copy, field_cfill
+    use math, only: glmax, absval
+    use comm, only: pe_rank
     class(fluid_scheme_compressible_euler_t), intent(inout) :: this
-    integer :: i, n
+    integer :: i, n, temp_indices(1)
+    real(kind=rp) :: S_mean, n_S
+    type(field_t), pointer :: temp_field
 
     n = this%dm_Xh%size()
     
+    ! Get temporary field for computations
+    call this%scratch%request_field(temp_field, temp_indices(1))
+    
+    ! Compute global mean of entropy function S
+    ! Create a temporary field filled with 1.0 to count total DOFs
+    call field_cfill(temp_field, 1.0_rp, n)
+    S_mean = field_glsum(this%S, n) / field_glsum(temp_field, n)
+    
+    ! Compute S - mean(S) in temporary field: copy S, then subtract mean
+    call field_copy(temp_field, this%S, n)
+    call field_cadd(temp_field, -S_mean, n)
+    
+    ! Take absolute value: |S - mean(S)|
+    call absval(temp_field%x, n)
+    
+    ! Find global maximum of |S - mean(S)|
+    n_S = glmax(temp_field%x, n)
+    
+    ! Release temporary field
+    call this%scratch%relinquish_field(temp_indices)
+    
+    ! Avoid division by zero
+    if (n_S < 1.0e-12_rp) then
+       n_S = 1.0_rp
+    end if
+    
+    ! Print normalization value for monitoring
+    if (pe_rank .eq. 0) then
+       write(*,'(A,ES12.5)') 'Entropy viscosity normalization n(S) = ', n_S
+    end if
+    
+    ! Compute entropy viscosity with normalization: nu_E = c_entropy * h^2 * R_S / n(S)
     do i = 1, n
        this%entropy_visc_coeff%x(i,1,1,1) = this%c_entropy * this%h%x(i,1,1,1)**2 * &
-                                            this%entropy_residual%x(i,1,1,1)
+                                            this%entropy_residual%x(i,1,1,1) / n_S
     end do
 
+    ! Apply neighbor maximum smoothing to reduce jumpiness
+    call this%smooth_entropy_viscosity_neighbor_max()
+
   end subroutine compute_entropy_viscosity
+
+  !> Smooth entropy viscosity using element-local maximum to reduce jumpiness
+  !! @param this The fluid scheme object
+  subroutine smooth_entropy_viscosity_neighbor_max(this)
+    class(fluid_scheme_compressible_euler_t), intent(inout) :: this
+    integer :: i, j, k, el, lx
+    real(kind=rp) :: max_visc_el
+
+    lx = this%dm_Xh%Xh%lx
+    
+    ! For each element, find maximum viscosity and apply to all points
+    do el = 1, this%msh%nelv
+       max_visc_el = 0.0_rp
+       
+       ! Find maximum viscosity in this element
+       do k = 1, lx
+          do j = 1, lx
+             do i = 1, lx
+                max_visc_el = max(max_visc_el, this%entropy_visc_coeff%x(i,j,k,el))
+             end do
+          end do
+       end do
+       
+       ! Apply maximum to all points in element
+       do k = 1, lx
+          do j = 1, lx
+             do i = 1, lx
+                this%entropy_visc_coeff%x(i,j,k,el) = max_visc_el
+             end do
+          end do
+       end do
+    end do
+
+  end subroutine smooth_entropy_viscosity_neighbor_max
 
 end module fluid_scheme_compressible_euler
