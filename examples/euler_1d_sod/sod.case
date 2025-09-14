@@ -15,7 +15,7 @@
             "time_order": 4,
             "polynomial_order": 1,
             "c_avisc_low": 1.0,
-            "c_entropy": 5000.0
+            "c_entropy": 1000.0
         },
         "fluid": {
             "scheme": "compressible",
