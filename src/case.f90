@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ module case
   use fluid_scheme_base, only: fluid_scheme_base_t, fluid_scheme_base_factory
   use fluid_output, only : fluid_output_t
   use chkp_output, only : chkp_output_t
-  use mesh_field, only : mesh_fld_t, mesh_field_init, mesh_field_free
+  use mesh_field, only : mesh_fld_t
   use parmetis, only : parmetis_partmeshkway
   use redist, only : redist_mesh
   use output_controller, only : output_controller_t
@@ -397,11 +397,11 @@ contains
     call json_get_or_default(this%params, 'case.output_partitions',&
          logical_val, .false.)
     if (logical_val) then
-       call mesh_field_init(msh_part, this%msh, 'MPI_Rank')
+       call msh_part%init(this%msh, 'MPI_Rank')
        msh_part%data = pe_rank
        call part_file%init(trim(this%output_directory)//'partitions.vtk')
        call part_file%write(msh_part)
-       call mesh_field_free(msh_part)
+       call msh_part%free()
     end if
 
     !
