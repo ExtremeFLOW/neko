@@ -47,22 +47,13 @@ jobs:
           echo "pfunit-version=$PFUNIT_VERSION" >> $GITHUB_OUTPUT
           echo "json-fortran-version=$JSON_FORTRAN_VERSION" >> $GITHUB_OUTPUT
 
-  linting:
-    name: Linting
+  code-style:
+    name: Code Style
     needs: prepare
-    uses: ./.github/workflows/check_lint.yml
-
-  formatting:
-    name: Formatting
-    needs: prepare
-    uses: ./.github/workflows/check_format.yml
-
-  depend:
-    name: Check .depend file
-    needs: prepare
-    uses: ./.github/workflows/check_depend.yml
+    uses: ./.github/workflows/check_code_style.yml
     with:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
+
 
   # ========================================================================== #
   # Compilation checks
@@ -71,7 +62,7 @@ jobs:
     name: GNU
     needs:
       - prepare
-      - depend
+      - code-style
     uses: ./.github/workflows/check_gnu.yml
     with:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
@@ -81,7 +72,7 @@ jobs:
     name: Intel
     needs:
       - prepare
-      - depend
+      - code-style
     uses: ./.github/workflows/check_intel.yml
     with:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
@@ -90,7 +81,7 @@ jobs:
     name: Nvidia
     needs:
       - prepare
-      - depend
+      - code-style
     uses: ./.github/workflows/check_nvidia.yml
     with:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
@@ -102,7 +93,7 @@ jobs:
 #    name: ReFrame
 #    needs:
 #      - prepare
-#      - depend
+#      - code-style
 #      - GNU
 #    uses: ./.github/workflows/check_reframe.yml
 #    with:
@@ -144,9 +135,7 @@ jobs:
     if: ${{ always() }}
     needs:
       - prepare
-      - linting
-      - formatting
-      - depend
+      - code-style
       - GNU
       - Intel
       - Nvidia
@@ -154,8 +143,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       draft_status: ${{ needs.prepare.result }}
-      flint_status: ${{ needs.linting.result }}
-      format_status: ${{ needs.formatting.result }}
+      code_style_status: ${{ needs.code-style.result }}
       gnu_status: ${{ needs.GNU.result }}
       inel_status: ${{ needs.Intel.result }}
 #      nvidia_status: ${{ needs.Nvidia.result }}
@@ -171,13 +159,8 @@ jobs:
             success=false
           fi
 
-          if [ "$flint_status" != "success" ]; then
-            fail+=("\t- Linting check: $flint_status")
-            success=false
-          fi
-
-          if [ "$format_status" != "success" ]; then
-            fail+=("\t- Formatting check: $format_status")
+          if [ "$code_style_status" != "success" ]; then
+            fail+=("\t- Code Style check: $code_style_status")
             success=false
           fi
 
