@@ -30,7 +30,7 @@ inputs:
   version:
     description: "The version of the pFUnit library to use."
     required: false
-    default: "v4.8.0"
+    default: "v4.12.0"
   arch:
     description: "The architecture to use."
     required: false
@@ -120,14 +120,14 @@ runs:
       env:
         WORKING_DIR: ${{ steps.setup-env.outputs.working-dir }}
       run: |
-        if [ ${{ inputs.version }} != "v4.4.2" ]; then
+        if [ ${{ inputs.version }} != "v4.12.0" ]; then
           exit 0
         fi
         cur=$(pwd)
         cd $WORKING_DIR
         cat >> pfunit_error_stop.patch << _ACEOF
         diff --git a/src/funit/FUnit.F90 b/src/funit/FUnit.F90
-        index 7df7b65..4f7dbf5 100644
+        index 7df7b65..c45a017 100644
         --- a/src/funit/FUnit.F90
         +++ b/src/funit/FUnit.F90
         @@ -168,7 +168,7 @@ contains
