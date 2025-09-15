@@ -60,7 +60,7 @@ jobs:
   depend:
     name: Check .depend file
     needs: prepare
-    uses: ./.github/actions/check_depend
+    uses: ./.github/actions/check_depend.yml
     with:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
 
