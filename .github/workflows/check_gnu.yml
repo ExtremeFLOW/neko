@@ -163,7 +163,7 @@ jobs:
           version: cuda-cache-1.0
 
       - name: Setup Device (HIP) - install rocm-dev
-        if: matrix.backend == 'HIP'
+        if: matrix.backend == 'hip'
         run: |
           # Following the instructions from https://rocm.docs.amd.com/projects/install-on-linux/en/latest/install/quick-start.html
 
@@ -173,7 +173,7 @@ jobs:
           sudo apt install -y rocm-dev
 
       - name: Setup Device (HIP) - install amdgpu-dkms
-        if: matrix.backend == 'HIP'
+        if: matrix.backend == 'hip'
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: amdgpu-dkms
@@ -222,31 +222,32 @@ jobs:
       - name: Build - Configure
         env:
           PFUNIT_DIR: ${{ steps.get-pfunit.outputs.install-dir }}
+          BACKEND: ${{ matrix.backend }}
         run: |
-          if [ ${{ matrix.backend }} == 'cpu' ]; then
+          if [ "$BACKEND" == 'cpu' ]; then
 
             mkdir ${{ github.workspace }}/install
             echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${{ github.workspace }}/install/lib/pkgconfig" >> $GITHUB_ENV
             echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${{ github.workspace }}/install/lib" >> $GITHUB_ENV
             ./configure FC=${FC} FCFLAGS="-g -O2 -pedantic -std=f2008 -w" --with-pfunit=$PFUNIT_DIR --enable-real=${RP} --prefix=${{ github.workspace }}/install
 
-          elif [ ${{ matrix.backend }} == 'cuda' ]; then
+          elif [ "$BACKEND" == 'cuda' ]; then
 
             ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" --enable-real=${RP} --with-cuda=/usr
 
-          elif [ ${{ matrix.backend }} == 'HIP' ]; then
+          elif [ "$BACKEND" == 'hip' ]; then
 
             # Lets not hardcode the version
             ROCM_DIR=$(ls -d /opt/rocm-*)
             ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" HIP_HIPCC_FLAGS="-O2 -fPIE" --enable-real=${RP} --with-hip=$ROCM_DIR
 
-          elif [ ${{ matrix.backend }} == 'opencl' ]; then
+          elif [ "$BACKEND" == 'opencl' ]; then
 
             ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" --enable-real=${RP} --with-opencl
 
           else
 
-            echo "Unknown backend ${{ matrix.backend }}"
+            echo "Unknown backend '$BACKEND'"
             exit 1
 
           fi
