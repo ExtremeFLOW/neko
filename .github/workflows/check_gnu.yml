@@ -271,24 +271,16 @@ jobs:
           make -j ${{ steps.setup-env.outputs.nproc }} check > tests/test-suite.log
 
       - name: Test - Archive test report
-        if: matrix.backend == 'cpu' && failure()
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: Test report - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
-          path: tests/unit/test-suite.log
           retention-days: 2
           if-no-files-found: ignore
-
-      - name: Test - Archive integration test report
-        if: matrix.backend == 'cpu' && failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Integration test logs - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
           path: |
+            tests/unit/test-suite.log
             tests/integration/logs
             tests/integration/**/*.csv
-          retention-days: 1
-          if-no-files-found: ignore
 
       # ---------------------------------------------------------------------- #
       # Distribution build
