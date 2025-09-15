@@ -48,14 +48,17 @@ jobs:
           echo "json-fortran-version=$JSON_FORTRAN_VERSION" >> $GITHUB_OUTPUT
 
   linting:
+    name: Linting
     needs: prepare
     uses: ./.github/workflows/check_lint.yml
 
   formatting:
+    name: Formatting
     needs: prepare
     uses: ./.github/workflows/check_format.yml
 
   depend:
+    name: Check .depend file
     needs: prepare
     uses: ./.github/workflows/check_depend.yml
     with:
@@ -68,6 +71,7 @@ jobs:
     name: GNU
     needs:
       - prepare
+      - depend
     uses: ./.github/workflows/check_gnu.yml
     with:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
@@ -77,6 +81,7 @@ jobs:
     name: Intel
     needs:
       - prepare
+      - depend
     uses: ./.github/workflows/check_intel.yml
     with:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
@@ -85,6 +90,7 @@ jobs:
     name: Nvidia
     needs:
       - prepare
+      - depend
     uses: ./.github/workflows/check_nvidia.yml
     with:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
