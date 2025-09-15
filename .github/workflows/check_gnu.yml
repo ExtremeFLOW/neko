@@ -219,7 +219,7 @@ jobs:
       - name: Build - Regenerate build system
         run: ./regen.sh
 
-      - name: Build - Configure
+      - name: Build - Configure Neko
         env:
           PFUNIT_DIR: ${{ steps.get-pfunit.outputs.install-dir }}
           BACKEND: ${{ matrix.backend }}

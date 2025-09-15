@@ -133,18 +133,21 @@ jobs:
       - name: Build - Regenerate build system
         run: ./regen.sh
 
-      - name: Build - Configure (CPU backend)
-        if: matrix.backend == 'cpu'
+      - name: Build - Configure Neko
+        env:
+          BACKEND: ${{ matrix.backend }}
         run: |
-          mkdir ${{ github.workspace }}/install
-          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${{ github.workspace }}/install/lib/pkgconfig" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${{ github.workspace }}/install/lib" >> $GITHUB_ENV
-          ./configure FC=${FC} CC=${CC} FCFLAGS="-O3" --enable-real=${RP} --prefix=${{ github.workspace }}/install
-
-      - name: Build - Configure (CUDA backend)
-        if: matrix.backend == 'cuda'
-        run: |
-          ./configure FC=${FC} CC=${CC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/${NVARCH}/${NVVER}/cuda/
+          if [ "$BACKEND" == "cpu" ]; then
+            mkdir ${{ github.workspace }}/install
+            echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${{ github.workspace }}/install/lib/pkgconfig" >> $GITHUB_ENV
+            echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${{ github.workspace }}/install/lib" >> $GITHUB_ENV
+            ./configure FC=${FC} CC=${CC} FCFLAGS="-O3" --enable-real=${RP} --prefix=${{ github.workspace }}/install
+          elif [ "$BACKEND" == "cuda" ]; then
+            ./configure FC=${FC} CC=${CC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/${NVARCH}/${NVVER}/cuda/
+          else
+            echo "Unknown backend: $BACKEND"
+            exit 1
+          fi
 
       - name: Build - Build Neko
         run: make -j ${{ steps.setup-env.outputs.nproc }}
@@ -186,17 +189,19 @@ jobs:
           cd releng/neko-*
           patch -u src/common/signal.f90 -i patches/nvhpc_bge.patch
 
-      - name: Dist - Configure (CPU backend)
-        if: matrix.backend == 'cpu'
+      - name: Dist - Configure
+        env:
+          BACKEND: ${{ matrix.backend }}
         run: |
           cd releng/neko-*
-          ./configure FC=${FC} CC=${CC} FCFLAGS="-O3" --enable-real=${RP}
-
-      - name: Dist - Configure (CUDA backend)
-        if: matrix.backend == 'cuda'
-        run: |
-          cd releng/neko-*
-          ./configure FC=${FC} CC=${CC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/${NVARCH}/${NVVER}/cuda/
+          if [ "$BACKEND" == "cpu" ]; then
+            ./configure FC=${FC} CC=${CC} FCFLAGS="-O3" --enable-real=${RP}
+          elif [ "$BACKEND" == "cuda" ]; then
+            ./configure FC=${FC} CC=${CC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/${NVARCH}/${NVVER}/cuda/
+          else
+            echo "Unknown backend: $BACKEND"
+            exit 1
+          fi
 
       - name: Dist - Build
         run: |
