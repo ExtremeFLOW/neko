@@ -1,24 +1,16 @@
 name: Check .depend file (make depend)
 
 # Controls when the action will run.
-on:
-  workflow_call:
-    inputs:
-      json-fortran-version:
-        description: "The version of the JSON-Fortran library to use."
-        type: string
-        required: false
-        default: "8.3.0"
+inputs:
+  json-fortran-version:
+    description: "The version of the JSON-Fortran library to use."
+    type: string
+    required: false
+    default: "8.3.0"
 
-jobs:
-  check_depend:
-    name: "Check .depend file (make depend)"
-    runs-on: ubuntu-24.04
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 1
+runs:
+  using: composite
+  steps:
 
     # Setup compiler and other system dependencies
     - name: Setup - System dependencies (Cache)
