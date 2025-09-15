@@ -32,7 +32,7 @@
 !
 !> Redistribution routines
 module redist
-  use mesh_field, only : mesh_fld_t, mesh_field_init, mesh_field_free
+  use mesh_field, only : mesh_fld_t
   use neko_mpi_types, only : MPI_NMSH_ZONE, MPI_NMSH_HEX, &
        MPI_NMSH_CURVE
   use mpi_f08, only : MPI_Status, MPI_Allreduce, MPI_Sendrecv, &
@@ -126,7 +126,7 @@ contains
        end do
        call new_mesh_dist(parts%data(i))%push(el)
     end do
-
+    nullify(ep)
 
     gdim = msh%gdim
     call msh%free()
