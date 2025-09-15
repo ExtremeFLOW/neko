@@ -165,7 +165,7 @@ contains
 
       ! Dissipation term
       dissipation(i,1,1,e) = -(0.19_rp + 0.74_rp / delta%x(i,1,1,e)) &
-                           * TKE%x(i,1,1,e)**(3/2)
+                           * TKE%x(i,1,1,e)**(3.0_rp/2.0_rp)
     end do
 
     call neko_scratch_registry%relinquish_field(temp_indices)
