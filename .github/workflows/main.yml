@@ -9,7 +9,7 @@ on:
 env:
   FLINT_GLOBAL_MINIMUM: 9.0
   FLINT_CHANGED_FILES_MINIMUM: 10.0
-  PFUNIT_VERSION: v4.4.2
+  PFUNIT_VERSION: v4.12.0
   JSON_FORTRAN_VERSION: 8.4.0
 
 # Allow only one concurrent deployment, skipping runs queued between the run
