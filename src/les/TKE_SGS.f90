@@ -79,13 +79,15 @@ contains
     class(TKE_SGS_t), intent(inout) :: this
     class(fluid_scheme_base_t), intent(inout), target :: fluid
     type(json_file), intent(inout) :: json
-    character(len=:), allocatable :: nut_name
+    character(len=:), allocatable :: nut_name, nutheta_name, nue_name
     character(len=:), allocatable :: vertical_dir
     character(len=:), allocatable :: delta_type
     logical :: if_ext
     character(len=LOG_SIZE) :: log_buf
 
     call json_get_or_default(json, "nut_field", nut_name, "nut")
+    call json_get_or_default(json, "nutheta_field", nutheta_name, "nutheta")
+    call json_get_or_default(json, "nue_field", nue_name, "nue")
     call json_get_or_default(json, "delta_type", delta_type, "pointwise")
     call json_get_or_default(json, "c_k", this%c_k, 0.10_rp)
     call json_get(json, "T0", this%T0)
