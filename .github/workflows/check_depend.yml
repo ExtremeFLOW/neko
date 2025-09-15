@@ -20,26 +20,26 @@ jobs:
       with:
         fetch-depth: 1
 
-    - name: Setup system dependencies (Cache)
+    # Setup compiler and other system dependencies
+    - name: Setup - System dependencies (Cache)
       uses: awalsh128/cache-apt-pkgs-action@latest
       with:
-        packages: openmpi-bin autoconf automake autotools-dev make git m4 cmake-curses-gui
+        packages: openmpi-bin autoconf automake autotools-dev make m4
         version: apt-cache-1.0
         execute_install_scripts: true
 
-    - name: Setup env.
+    - name: Setup - System dependencies (Non-Cacheable)
       id: setup-env
       run: |
-        sudo apt-get update
         sudo apt-get install -y libopenmpi-dev libopenblas-dev makedepf90
         echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
 
-    - name: Get json-fortran
+    - name: Dependencies - Get json-fortran
       id: get-json-fortran
       uses: ./.github/actions/setup_json-fortran
       with:
         version: ${{ inputs.json-fortran-version }}
-        os: ${{ steps.setup-env.outputs.os-version }}
+        os: ${{ runner.os }}
         compiler: gfortran
 
     - name: Run makedependf90

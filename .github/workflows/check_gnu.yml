@@ -82,13 +82,11 @@ jobs:
         include:
           - os: ubuntu-24.04
             setup-env: |
-              sudo apt install libopenmpi-dev libopenblas-dev
               echo "nproc=$(nproc)" >> $GITHUB_OUTPUT
               echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
 
           - os: ubuntu-24.04-arm
             setup-env: |
-              sudo apt install libopenmpi-dev libopenblas-dev
               echo "nproc=$(nproc)" >> $GITHUB_OUTPUT
               echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
 
@@ -125,6 +123,21 @@ jobs:
         with:
           fetch-depth: 1
 
+      # Setup compiler and other system dependencies
+      - name: Setup - System dependencies (Cache)
+        if: matrix.os == 'ubuntu-24.04' || matrix.os == 'ubuntu-24.04-arm'
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: openmpi-bin autoconf automake autotools-dev make m4
+          version: apt-cache-1.0
+          execute_install_scripts: true
+
+      # Install Non-Cacheable dependencies
+      - name: Setup - System dependencies (Non-Cacheable)
+        if: matrix.os == 'ubuntu-24.04' || matrix.os == 'ubuntu-24.04-arm'
+        run: |
+          sudo apt install -y libopenmpi-dev libopenblas-dev
+
       # Setup python environment
       - name: Setup - Python environment
         uses: actions/setup-python@v6
@@ -136,15 +149,7 @@ jobs:
       - name: Setup - Install Python dependencies
         run: pip install -r .github/workflows/extra/requirements-tests.txt
 
-      # Setup compiler and other system dependencies
-      - name: Setup - System dependencies (Cache)
-        if: matrix.os == 'ubuntu-24.04' || matrix.os == 'ubuntu-24.04-arm'
-        uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          packages: openmpi-bin autoconf automake autotools-dev make git m4 cmake-curses-gui
-          version: apt-cache-1.0
-          execute_install_scripts: true
-
+      # Setup matrix environment
       - name: Setup - Matrix environment
         id: setup-env
         run: ${{ matrix.setup-env }}
@@ -184,7 +189,7 @@ jobs:
           PFUNIT_VERSION: ${{ inputs.pfunit-version }}
           JSON_FORTRAN_VERSION: ${{ inputs.json-fortran-version }}
         run: |
-          if [ -z "$PFUNIT_VERSION" ]; then PFUNIT_VERSION="v4.4.2"; fi
+          if [ -z "$PFUNIT_VERSION" ]; then PFUNIT_VERSION="v4.12.0"; fi
           if [ -z "$JSON_FORTRAN_VERSION" ]; then JSON_FORTRAN_VERSION="8.3.0"; fi
 
           echo "pfunit-version=$PFUNIT_VERSION" >> $GITHUB_OUTPUT

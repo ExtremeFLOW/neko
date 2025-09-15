@@ -59,6 +59,19 @@ jobs:
         with:
           fetch-depth: 1
 
+      # Setup compiler and other system dependencies
+      - name: Setup - System dependencies (Cache)
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: openmpi-bin autoconf automake autotools-dev make m4
+          version: apt-cache-1.0
+          execute_install_scripts: true
+
+      # Install Non-Cacheable dependencies
+      - name: Setup - System dependencies (Non-Cacheable)
+        run: |
+          sudo apt install -y libopenmpi-dev libopenblas-dev
+
       # Setup python environment
       - name: Setup - Python environment
         uses: actions/setup-python@v6
@@ -70,21 +83,13 @@ jobs:
       - name: Setup - Install Python dependencies
         run: pip install -r .github/workflows/extra/requirements-tests.txt
 
-      # Setup compiler and other system dependencies
-      - name: Setup - Install system dependencies (Cache)
-        uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          packages: openmpi-bin autoconf automake autotools-dev make git m4 cmake-curses-gui
-          version: apt-cache-1.0
-          execute_install_scripts: true
-
       # Setup compiler and environment
       - name: Setup - Keyring
         run: ${{ matrix.setup-keyring }}
 
-      - name: Setup - Install system dependencies
+      - name: Setup - Install NVIDIA HPC SDK
         run: |
-          sudo apt-get install -y libopenblas-dev nvhpc-25-7
+          sudo apt-get install -y nvhpc-25-7
 
       - name: Setup - Environment
         id: setup-env
