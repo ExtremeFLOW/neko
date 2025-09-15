@@ -48,21 +48,15 @@ jobs:
           echo "json-fortran-version=$JSON_FORTRAN_VERSION" >> $GITHUB_OUTPUT
 
   linting:
-    name: Flint
-    needs:
-      - prepare
+    needs: prepare
     uses: ./.github/workflows/check_lint.yml
 
   formatting:
-    name: Formatting
-    needs:
-      - prepare
+    needs: prepare
     uses: ./.github/workflows/check_format.yml
 
   depend:
-    name: Make depend
-    needs:
-      - prepare
+    needs: prepare
     uses: ./.github/workflows/check_depend.yml
     with:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}

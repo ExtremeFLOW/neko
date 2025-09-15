@@ -1,4 +1,4 @@
-name: Check depend file
+name: Check .depend file (make depend)
 
 # Controls when the action will run.
 on:
@@ -12,7 +12,7 @@ on:
 
 jobs:
   check_depend:
-    name: "Dependencies (make depend)"
+    name: "Check .depend file (make depend)"
     runs-on: ubuntu-24.04
     steps:
     - name: Checkout
