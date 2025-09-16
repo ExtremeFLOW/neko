@@ -36,7 +36,7 @@ module runtime_stats
   use stack, only : stack_r8_t, stack_i4r8t2_t
   use tuple, only : tuple_i4r8_t
   use num_types, only : dp
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get_or_default
   use json_module, only : json_file
   use file, only : file_t
   use matrix, only : matrix_t
