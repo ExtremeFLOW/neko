@@ -98,14 +98,6 @@ module math
      module procedure srelcmp, drelcmp, qrelcmp
   end interface relcmp
 
-  interface pwmax
-     module procedure pwmax_vec2, pwmax_vec3, pwmax_scal2, pwmax_scal3
-  end interface pwmax
-
-  interface pwmin
-     module procedure pwmin_vec2, pwmin_vec3, pwmin_sca2, pwmin_sca3
-  end interface pwmin
-
   public :: abscmp, rzero, izero, row_zero, rone, copy, cmult, cadd, cfill, &
        glsum, glmax, glmin, chsign, vlmax, vlmin, invcol1, invcol3, invers2, &
        vcross, vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, sub3, &
@@ -113,7 +105,8 @@ module math
        add3s2, add4s3, add5s4, subcol4, addcol3, addcol4, addcol3s2, ascol5, &
        p_update, x_update, glsc2, glsc3, glsc4, sort, masked_copy_0, &
        cfill_mask, relcmp, glimax, glimin, swap, reord, flipv, cadd2, &
-       masked_gather_copy_0, absval, pwmax, pwmin, &
+       masked_gather_copy_0, absval, &
+       pwmax2, pwmax3, cpwmax2, cpwmax3, pwmin2, pwmin3, cpwmin2, cpwmin3, &
        masked_scatter_copy_0, cdiv, cdiv2, glsubnorm, &
        masked_copy, masked_gather_copy, masked_scatter_copy
 
@@ -1388,7 +1381,7 @@ contains
   ! Point-wise operations
 
   !> Point-wise maximum of two vectors \f$ a = \max(a, b) \f$
-  subroutine pwmax_vec2(a, b, n)
+  subroutine pwmax2(a, b, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -1397,10 +1390,10 @@ contains
     do i = 1, n
        a(i) = max(a(i), b(i))
     end do
-  end subroutine pwmax_vec2
+  end subroutine pwmax2
 
   !> Point-wise maximum of two vectors \f$ a = \max(b, c) \f$
-  subroutine pwmax_vec3(a, b, c, n)
+  subroutine pwmax3(a, b, c, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b, c
@@ -1409,10 +1402,10 @@ contains
     do i = 1, n
        a(i) = max(b(i), c(i))
     end do
-  end subroutine pwmax_vec3
+  end subroutine pwmax3
 
   !> Point-wise maximum of scalar and vector \f$ a = \max(a, b) \f$
-  subroutine pwmax_scal2(a, b, n)
+  subroutine cpwmax2(a, b, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), intent(in) :: b
@@ -1421,10 +1414,10 @@ contains
     do i = 1, n
        a(i) = max(a(i), b)
     end do
-  end subroutine pwmax_scal2
+  end subroutine cpwmax2
 
   !> Point-wise maximum of scalar and vector \f$ a = \max(b, c) \f$
-  subroutine pwmax_scal3(a, b, c, n)
+  subroutine cpwmax3(a, b, c, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -1434,10 +1427,10 @@ contains
     do i = 1, n
        a(i) = max(b(i), c)
     end do
-  end subroutine pwmax_scal3
+  end subroutine cpwmax3
 
   !> Point-wise minimum of two vectors \f$ a = \min(a, b) \f$
-  subroutine pwmin_vec2(a, b, n)
+  subroutine pwmin2(a, b, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -1446,10 +1439,10 @@ contains
     do i = 1, n
        a(i) = min(a(i), b(i))
     end do
-  end subroutine pwmin_vec2
+  end subroutine pwmin2
 
   !> Point-wise minimum of two vectors \f$ a = \min(b, c) \f$
-  subroutine pwmin_vec3(a, b, c, n)
+  subroutine pwmin3(a, b, c, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b, c
@@ -1458,10 +1451,10 @@ contains
     do i = 1, n
        a(i) = min(b(i), c(i))
     end do
-  end subroutine pwmin_vec3
+  end subroutine pwmin3
 
   !> Point-wise minimum of scalar and vector \f$ a = \min(a, b) \f$
-  subroutine pwmin_sca2(a, b, n)
+  subroutine cpwmin2(a, b, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), intent(in) :: b
@@ -1470,10 +1463,10 @@ contains
     do i = 1, n
        a(i) = min(a(i), b)
     end do
-  end subroutine pwmin_sca2
+  end subroutine cpwmin2
 
   !> Point-wise minimum of scalar and vector \f$ a = \min(b, c) \f$
-  subroutine pwmin_sca3(a, b, c, n)
+  subroutine cpwmin3(a, b, c, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -1483,6 +1476,6 @@ contains
     do i = 1, n
        a(i) = min(b(i), c)
     end do
-  end subroutine pwmin_sca3
+  end subroutine cpwmin3
 
 end module math
