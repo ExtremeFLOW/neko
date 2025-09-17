@@ -33,7 +33,6 @@
 !> Device implementations of the mapping functions.
 module mappings_device
   use num_types, only: rp, c_rp
-  use device_math, only: device_pwmax, device_pwmin
   use, intrinsic :: iso_c_binding, only: c_ptr
   use utils, only: neko_error
 
