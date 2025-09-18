@@ -553,7 +553,16 @@ types are currently implemented.
 1. `boundary_mesh`, the indicator function for a boundary mesh is computed in
    two steps. First, the signed distance function is computed for the boundary
    mesh. Then, the indicator function is computed using the distance transform
-   function specified in the case file.
+   function specified in the case file. This is currently not very well
+   optimized, it will scale by `O(log(M)*N)`, where `M` is the number of triangles in the
+   boundary mesh and `N` is the number of grid points in the simulation.
+   To avoid recomputing the distance field for multiple simulations with the
+   same boundary mesh and numerical discretization, the distance field can be
+   cached to a file. This is controlled by the `cache` keyword. If set to
+   `true`, the distance field will be saved to a file specified by the
+   `cache_file` keyword. If the file already exists, it will be loaded instead
+   of recomputing it. The distance field is stored in the Nek5000 `.fld` file
+   format.
 2. `point_zone`, the indicator function is defined as 1 inside the point zone
    and 0 outside.
 
@@ -615,6 +624,8 @@ the boundary mesh is computed using a step function with a cut-off distance of
                "type": "step",
                "value": 0.1
             },
+            "cache": true,
+            "cache_file": "some_mesh_cache"
          },
          {
             "type": "point_zone",
