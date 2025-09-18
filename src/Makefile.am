@@ -150,6 +150,7 @@ neko_fortran_SOURCES = \
 	io/fluid_stats_output.f90\
 	io/data_streamer.F90\
 	io/output_controller.f90\
+	io/mean_field_output.f90\
 	common/global_interpolation.F90\
 	common/profiler.F90\
 	common/craypat.F90\
