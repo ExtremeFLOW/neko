@@ -34,7 +34,8 @@
 module vector
   use neko_config, only: NEKO_BCKND_DEVICE
   use num_types, only: rp
-  use device, only: device_map, device_free, device_deassociate
+  use device, only: device_map, device_free, device_deassociate, &
+       device_memcpy, device_sync
   use math, only: cfill, copy
   use device_math, only: device_copy, device_cfill
   use utils, only: neko_error
