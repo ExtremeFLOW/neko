@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,18 +32,21 @@
 !
 !> Redistribution routines
 module redist
-  use mesh_field, only : mesh_fld_t, mesh_field_init, mesh_field_free
-  use neko_mpi_types
-  use mpi_f08
+  use mesh_field, only : mesh_fld_t
+  use neko_mpi_types, only : MPI_NMSH_ZONE, MPI_NMSH_HEX, &
+       MPI_NMSH_CURVE
+  use mpi_f08, only : MPI_Status, MPI_Allreduce, MPI_Sendrecv, &
+       MPI_Get_count, MPI_INTEGER, MPI_MAX, MPI_IN_PLACE
   use htable, only : htable_i4_t
   use point, only : point_t
   use stack, only : stack_i4_t, stack_nh_t, stack_nc_t, stack_nz_t
   use curve, only : curve_t
-  use comm
+  use comm, only : pe_size, pe_rank, NEKO_COMM
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS
   use nmsh, only : nmsh_hex_t, nmsh_zone_t, nmsh_curve_el_t
   use facet_zone, only : facet_zone_t, facet_zone_periodic_t
   use element, only : element_t
+  use utils, only : neko_error
   implicit none
   private
 
@@ -123,7 +126,7 @@ contains
        end do
        call new_mesh_dist(parts%data(i))%push(el)
     end do
-
+    nullify(ep)
 
     gdim = msh%gdim
     call msh%free()

@@ -46,6 +46,7 @@ module source_term_handler
   use field_math, only: field_rzero
   use math, only : col2
   use device_math, only : device_col2
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -68,8 +69,8 @@ module source_term_handler
      type(coef_t), pointer :: coef
      !> The user object.
      type(user_t), pointer :: user
-     !> Field name for this handler
-     character(len=:), allocatable :: variable_name
+     !> The name of the scheme that owns this source term handler.
+     character(len=:), allocatable :: scheme_name
 
    contains
      !> Constructor.
@@ -93,14 +94,13 @@ module source_term_handler
 
   abstract interface
      subroutine source_term_handler_init_user_source(source_term, rhs_fields, &
-          coef, type, user, variable_name)
+          coef, user, scheme_name)
        import :: source_term_t, field_list_t, coef_t, user_t
        class(source_term_t), allocatable, intent(inout) :: source_term
        type(field_list_t) :: rhs_fields
        type(coef_t), intent(in) :: coef
-       character(len=*) :: type
        type(user_t), intent(in) :: user
-       character(len=*), intent(in) :: variable_name
+       character(len=*), intent(in) :: scheme_name
      end subroutine source_term_handler_init_user_source
   end interface
 
@@ -108,12 +108,12 @@ contains
 
   !> Constructor.
   subroutine source_term_handler_init_base(this, rhs_fields, coef, user, &
-       variable_name)
+       scheme_name)
     class(source_term_handler_t), intent(inout) :: this
     type(field_list_t), intent(in) :: rhs_fields
     type(coef_t), target, intent(in) :: coef
     type(user_t), target, intent(in) :: user
-    character(len=*), intent(in) :: variable_name
+    character(len=*), intent(in) :: scheme_name
 
     call this%free()
 
@@ -121,7 +121,7 @@ contains
     this%rhs_fields = rhs_fields
     this%coef => coef
     this%user => user
-    this%variable_name = trim(variable_name)
+    this%scheme_name = trim(scheme_name)
 
   end subroutine source_term_handler_init_base
 
@@ -143,12 +143,10 @@ contains
   end subroutine source_term_handler_free
 
   !> Add all the source term to the passed right-hand side fields.
-  !! @param t The time value.
-  !! @param tstep The current time step.
-  subroutine source_term_handler_compute(this, t, tstep)
+  !! @param time The time state.
+  subroutine source_term_handler_compute(this, time)
     class(source_term_handler_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     integer :: i
     type(field_t), pointer :: f
 
@@ -161,7 +159,7 @@ contains
     if (allocated(this%source_terms)) then
 
        do i = 1, size(this%source_terms)
-          call this%source_terms(i)%source_term%compute(t, tstep)
+          call this%source_terms(i)%source_term%compute(time)
        end do
 
        ! Multiply by mass matrix
@@ -216,22 +214,19 @@ contains
           call json_get(source_subdict, "type", type)
 
           ! The user source is treated separately
-          if ((trim(type) .eq. "user_vector") .or. &
-               (trim(type) .eq. "user_pointwise")) then
+          if (trim(type) .eq. "user") then
 
              call this%init_user_source(this%source_terms(i+ i0)%source_term, &
-                  this%rhs_fields, this%coef, type, this%user, &
-                  this%variable_name)
+                  this%rhs_fields, this%coef, this%user, this%scheme_name)
 
              call json_get_or_default(source_subdict, "start_time", &
                   this%source_terms(i + i0)%source_term%start_time, 0.0_rp)
              call json_get_or_default(source_subdict, "end_time", &
                   this%source_terms(i + i0)%source_term%end_time, huge(0.0_rp))
           else
-
              call source_term_factory(this%source_terms(i + i0)%source_term, &
                   source_subdict, this%rhs_fields, this%coef, &
-                  this%variable_name)
+                  this%scheme_name)
           end if
        end do
     end if

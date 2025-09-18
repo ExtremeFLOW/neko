@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,10 +32,11 @@
 !
 !> Interface to ParMETIS
 module parmetis
-  use comm
+  use comm, only : pe_size, pe_rank, NEKO_COMM
+  use mpi_f08, only : MPI_Allgather, MPI_INTEGER
   use point, only : point_t
   use utils, only : neko_error
-  use num_types, only : rp
+  use num_types, only : rp, dp, sp, i8, i4
   use mesh_field, only : mesh_fld_t
   use mesh, only : mesh_t
   use, intrinsic :: iso_c_binding
@@ -86,15 +87,15 @@ module parmetis
 #ifdef HAVE_PARMETIS
 #ifdef HAVE_PARMETIS_REAL64
 #define M_REAL c_double
-#define parmetis_real(i) real((i), i8)
+#define parmetis_real(i) real((i), dp)
 #else
 #define M_REAL c_float
-#define parmetis_real(i) real((i), 4)
+#define parmetis_real(i) real((i), sp)
 #endif
 #ifdef HAVE_PARMETIS_INT64
 #define M_INT c_int64_t
 #define parmetis_idx(i) int((i), i8)
-#define neko_idx(i) int((i), 4)
+#define neko_idx(i) int((i), i4)
 #else
 #define M_INT c_int32_t
 #define parmetis_idx(i) (i)
@@ -108,7 +109,7 @@ contains
 
   !> Compute a k-way partitioning of a mesh @a msh
   subroutine parmetis_partmeshkway(msh, parts, weights, nprts)
-    type(mesh_t), intent(inout) :: msh !< Mesh
+    type(mesh_t), target, intent(inout) :: msh !< Mesh
     type(mesh_fld_t), intent(inout) :: parts !< Partitions
     type(mesh_fld_t), intent(in), optional :: weights !< Weights
     integer, intent(in), optional :: nprts !< Number of partitions
@@ -179,7 +180,7 @@ contains
   !> Compute a k-way partitioning of a mesh @a msh using
   !! a coordinated-based space-filing curves method
   subroutine parmetis_partgeom(msh, parts)
-    type(mesh_t), intent(inout) :: msh !< Mesh
+    type(mesh_t), target, intent(inout) :: msh !< Mesh
     type(mesh_fld_t), intent(inout) :: parts !< Partitions
     integer(kind=M_INT), target :: ndims
     real(kind=M_REAL), allocatable, target, dimension(:) :: xyz
@@ -219,11 +220,11 @@ contains
   !> Fill mesh field according to new partitions
   subroutine parmetis_mark_parts(parts, msh, part)
     type(mesh_fld_t), intent(inout) :: parts
-    type(mesh_t), intent(in) :: msh
+    type(mesh_t), target, intent(in) :: msh
     integer(kind=M_INT), allocatable, intent(in) :: part(:)
     integer :: i
 
-    call mesh_field_init(parts, msh, 'partitions')
+    call parts%init(msh, 'partitions')
 
     do i = 1, msh%nelv
        parts%data(i) = neko_idx(part(i))

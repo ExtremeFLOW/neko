@@ -86,7 +86,7 @@ contains
     type(point_t) :: p(8)
     type(re2_file_t) :: re2_file
     type(map_file_t) :: map_file
-    character(len=1024) :: re2_fname, map_fname
+    character(len=1024) :: re2_fname, map_fname, fname
     integer :: start_el, end_el, nel, edge
     type(linear_dist_t) :: dist
     type(map_t) :: nm
@@ -127,9 +127,9 @@ contains
        call neko_error('Reading NEKTON session data only implemented in serial')
     end if
 
-
-    open(newunit=file_unit,file=trim(this%fname), status='old', iostat=ierr)
-    call neko_log%message('Reading NEKTON file ' // this%fname)
+    fname = this%get_fname()
+    open(newunit=file_unit,file=trim(fname), status='old', iostat=ierr)
+    call neko_log%message('Reading NEKTON file ' // fname)
 
     read(file_unit, *)
     read(file_unit, *)
@@ -165,7 +165,7 @@ contains
     read(file_unit, *)
     read(file_unit, *) nelgs,ndim, nelgv
     if (nelgs .lt. 0) then
-       re2_fname = trim(this%fname(1:scan(trim(this%fname), &
+       re2_fname = trim(fname(1:scan(trim(fname), &
             '.', back=.true.)))//'re2'
        call re2_file%init(re2_fname)
        call re2_file%read(msh)
@@ -174,7 +174,7 @@ contains
 1      format('gdim = ', i1, ', nelements =', i7)
        call neko_log%message(log_Buf)
 
-       call filename_chsuffix(this%fname, map_fname, 'map')
+       call filename_chsuffix(fname, map_fname, 'map')
        inquire(file=map_fname, exist=read_map)
        if (read_map) then
           call nm%init(nelgv, 2**ndim)

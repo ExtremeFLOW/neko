@@ -9,8 +9,8 @@ contains
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
-    user%fluid_user_ic => user_ic
-    user%user_mesh_setup => user_mesh_scale
+    user%initial_conditions => initial_conditions
+    user%mesh_setup => user_mesh_scale
   end subroutine user_setup
 
   ! Rescale mesh, we create a mesh with some refinement close to the wall.
@@ -19,8 +19,9 @@ contains
   ! New mesh can easily be genreated with genmeshbox
   ! OBS refinement is not smooth and the constant values are a bit ad hoc.
   ! Stats converge close to reference DNS
-  subroutine user_mesh_scale(msh)
+  subroutine user_mesh_scale(msh, time)
     type(mesh_t), intent(inout) :: msh
+    type(time_state_t), intent(in) :: time
     integer :: i, p, nvert
 
     real(kind=rp) :: d, y, viscous_layer, visc_el_h, el_h
@@ -58,23 +59,31 @@ contains
   end subroutine user_mesh_scale
 
   ! User defined initial condition
-  subroutine user_ic(u, v, w, p, params)
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    type(json_file), intent(inout) :: params
+  subroutine initial_conditions(scheme_name, fields)
+    character(len=*), intent(in) :: scheme_name
+    type(field_list_t), intent(inout) :: fields
+    real(kind=rp) :: uvw(3), x, y, z
+    type (field_t), pointer :: u, v, w
     integer :: i
 
-    real(kind=rp) :: uvw(3)
+    if (scheme_name .eq. 'fluid') then
+       u => fields%get("u")
+       v => fields%get("v")
+       w => fields%get("w")
 
-    do i = 1, u%dof%size()
-       uvw = channel_ic(u%dof%x(i,1,1,1),u%dof%y(i,1,1,1),u%dof%z(i,1,1,1))
-       u%x(i,1,1,1) = uvw(1)
-       v%x(i,1,1,1) = uvw(2)
-       w%x(i,1,1,1) = uvw(3)
-    end do
-  end subroutine user_ic
+       do i = 1, u%size()
+          x = u%dof%x(i,1,1,1)
+          y = u%dof%y(i,1,1,1)
+          z = u%dof%z(i,1,1,1)
+
+          uvw = channel_ic(x, y, z)
+
+          u%x(i,1,1,1) = uvw(1)
+          v%x(i,1,1,1) = uvw(2)
+          w%x(i,1,1,1) = uvw(3)
+       end do
+    end if
+  end subroutine initial_conditions
 
   ! Kind of brute force with rather large initial disturbances
   function channel_ic(x, y, z) result(uvw)

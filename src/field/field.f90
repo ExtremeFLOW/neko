@@ -1,4 +1,4 @@
-! Copyright (c) 2018-2023, The Neko Authors
+! Copyright (c) 2018-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,8 @@
 module field
   use neko_config, only : NEKO_BCKND_DEVICE
   use device_math
-  use num_types, only : rp
-  use device
+  use num_types, only : rp, c_rp
+  use device, only : device_map, device_free, device_memset
   use math, only : add2, copy, cadd
   use mesh, only : mesh_t
   use space, only : space_t, operator(.ne.)
@@ -153,6 +153,12 @@ contains
       if (NEKO_BCKND_DEVICE .eq. 1) then
          n = lx * ly * lz * nelv
          call device_map(this%x, this%x_d, n)
+         block
+           real(c_rp) :: rp_dummy
+           integer(c_size_t) :: s
+           s = c_sizeof(rp_dummy) * n
+           call device_memset(this%x_d, 0, s, sync = .true.)
+         end block
       end if
     end associate
 
@@ -299,4 +305,3 @@ contains
   end function field_size
 
 end module field
-

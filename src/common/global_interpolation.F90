@@ -45,8 +45,9 @@ module global_interpolation
   use utils, only : neko_error, neko_warning
   use local_interpolation, only : local_interpolator_t
   use device
-  use comm, only : NEKO_COMM, pe_size, pe_rank, MPI_Gather, &
-       MPI_DOUBLE_PRECISION, MPI_INTEGER, MPI_SUM, MPI_Reduce, MPI_Gatherv
+  use comm, only : NEKO_COMM, pe_size, pe_rank
+  use mpi_f08, only : MPI_Gather, MPI_DOUBLE_PRECISION, MPI_INTEGER, MPI_SUM, &
+       MPI_Reduce, MPI_Gatherv
   use math, only : copy
   use neko_mpi_types
   use structs, only : array_ptr_t
@@ -106,7 +107,7 @@ module global_interpolation
      !> Destructor for arrays related to evaluation points
      procedure, pass(this) :: free_points => global_interpolation_free_points
      procedure, pass(this) :: find_points_and_redist => &
-                              global_interpolation_find_and_redist
+          global_interpolation_find_and_redist
      !> Finds the process owner, global element number,
      !! and local rst coordinates for each point.
      !! Sets up correct values to be able to evalute the points
@@ -270,23 +271,23 @@ contains
        if (this%error_code(i) .eq. 1) then
           if (this%dist2(i) .gt. this%tol) then
              write(*,*) 'Point with coords: ',&
-                this%xyz(1,i),&
-                this%xyz(2,i),&
-                this%xyz(3,i),&
-                'Did not converge to tol. Absolute differences squared: ',&
-                this%dist2(i), 'PE rank', pe_rank
+                  this%xyz(1,i),&
+                  this%xyz(2,i),&
+                  this%xyz(3,i),&
+                  'Did not converge to tol. Absolute differences squared: ',&
+                  this%dist2(i), 'PE rank', pe_rank
           end if
        end if
 
        if (this%error_code(i) .eq. 2) &
-             write(*,*) 'Point with coords: ',&
-                this%xyz(1,i), this%xyz(2,i), this%xyz(3,i),&
-                'Outside the mesh!',&
-                ' Interpolation on these points will return 0.0. dist2: ', &
-                this%dist2(i),&
-                'el_owner, rst coords, pe: ',&
-                this%el_owner(i), this%rst(1,i), this%rst(2,i), &
-                this%rst(3,i), pe_rank
+            write(*,*) 'Point with coords: ',&
+            this%xyz(1,i), this%xyz(2,i), this%xyz(3,i),&
+            'Outside the mesh!',&
+            ' Interpolation on these points will return 0.0. dist2: ', &
+            this%dist2(i),&
+            'el_owner, rst coords, pe: ',&
+            this%el_owner(i), this%rst(1,i), this%rst(2,i), &
+            this%rst(3,i), pe_rank
 
     end do
 
@@ -295,22 +296,22 @@ contains
     allocate(z_check(this%n_points))
 
     call fgslib_findpts_eval(this%gs_handle, x_check, &
-                             1, this%error_code, 1, &
-                             this%proc_owner, 1, this%el_owner, 1, &
-                             this%rst, this%gdim, &
-                             this%n_points, this%x%ptr)
+         1, this%error_code, 1, &
+         this%proc_owner, 1, this%el_owner, 1, &
+         this%rst, this%gdim, &
+         this%n_points, this%x%ptr)
 
     call fgslib_findpts_eval(this%gs_handle, y_check, &
-                             1, this%error_code, 1, &
-                             this%proc_owner, 1, this%el_owner, 1, &
-                             this%rst, this%gdim, &
-                             this%n_points, this%y%ptr)
+         1, this%error_code, 1, &
+         this%proc_owner, 1, this%el_owner, 1, &
+         this%rst, this%gdim, &
+         this%n_points, this%y%ptr)
 
     call fgslib_findpts_eval(this%gs_handle, z_check, &
-                             1, this%error_code, 1, &
-                             this%proc_owner, 1, this%el_owner, 1, &
-                             this%rst, this%gdim, &
-                             this%n_points, this%z%ptr)
+         1, this%error_code, 1, &
+         this%proc_owner, 1, this%el_owner, 1, &
+         this%rst, this%gdim, &
+         this%n_points, this%z%ptr)
 
     do i = 1 , this%n_points
 
@@ -327,11 +328,11 @@ contains
 
        if (isdiff) then
           write(*,*) 'Points with coords: ', &
-                this%xyz(1, i), this%xyz(2, i), this%xyz(3, i), &
-                'Differ from interpolated coords: ', &
-                x_check(i), y_check(i), z_check(i), &
-                'Distance squared: ', &
-                xdiff, ydiff, zdiff
+               this%xyz(1, i), this%xyz(2, i), this%xyz(3, i), &
+               'Differ from interpolated coords: ', &
+               x_check(i), y_check(i), z_check(i), &
+               'Distance squared: ', &
+               xdiff, ydiff, zdiff
        end if
 
     end do
@@ -399,7 +400,7 @@ contains
     allocate(this%error_code(this%n_points))
 
     if (NEKO_BCKND_DEVICE .eq. 1) &
-       call device_map(this%el_owner, this%el_owner_d, this%n_points)
+         call device_map(this%el_owner, this%el_owner_d, this%n_points)
 
   end subroutine global_interpolation_init_point_arrays
 
@@ -468,8 +469,8 @@ contains
     do i = 1, this%n_points
        if (this%proc_owner(i) .ne. pe_rank) then
           write(*,*) 'Redistribution failed on rank: ', pe_rank, &
-                     'for point with coord: ', &
-                     this%xyz(1, i), this%xyz(2, i), this%xyz(3, i)
+               'for point with coord: ', &
+               this%xyz(1, i), this%xyz(2, i), this%xyz(3, i)
           exit
        end if
     end do
@@ -482,7 +483,7 @@ contains
     call copy(xyz, this%xyz, 3*n_points)
 
     call this%local_interp%init(this%Xh, this%rst(1,:),&
-                                this%rst(2,:), this%rst(3,:), n_points)
+         this%rst(2,:), this%rst(3,:), n_points)
     this%all_points_local = .true.
 
 
@@ -514,14 +515,14 @@ contains
        call MPI_Reduce(n_points_per_pe(i), n_new_points, 1, MPI_INTEGER, &
             MPI_SUM, i, NEKO_COMM, ierr)
        call MPI_Gather(n_points_per_pe(i), 1, MPI_INTEGER,&
-                      n_points_from_pe, 1, MPI_INTEGER, i, NEKO_COMM, ierr)
+            n_points_from_pe, 1, MPI_INTEGER, i, NEKO_COMM, ierr)
     end do
 
     allocate(n_point_offset_from_pe(0:(pe_size-1)))
     n_point_offset_from_pe(0) = 0
     do i = 1, (pe_size - 1)
        n_point_offset_from_pe(i) = n_points_from_pe(i-1)&
-                                 + n_point_offset_from_pe(i-1)
+            + n_point_offset_from_pe(i-1)
     end do
 
     allocate(new_xyz(3, n_new_points))
@@ -538,14 +539,14 @@ contains
        end do
        if (k .ne. n_points_per_pe(i)) then
           write(*,*) 'PE: ', pe_rank, ' has k= ', k, &
-                     'points for PE:', i,' but should have: ', &
-                     n_points_per_pe(i)
+               'points for PE:', i,' but should have: ', &
+               n_points_per_pe(i)
           call neko_error('Error in redistribution of points')
        end if
        call MPI_Gatherv(xyz_send_to_pe,3*n_points_per_pe(i), &
-                        MPI_DOUBLE_PRECISION, new_xyz,3*n_points_from_pe, &
-                        3*n_point_offset_from_pe, &
-                        MPI_DOUBLE_PRECISION, i, NEKO_COMM, ierr)
+            MPI_DOUBLE_PRECISION, new_xyz,3*n_points_from_pe, &
+            3*n_point_offset_from_pe, &
+            MPI_DOUBLE_PRECISION, i, NEKO_COMM, ierr)
 
     end do
 
@@ -576,14 +577,14 @@ contains
 #ifdef HAVE_GSLIB
     if (.not. this%all_points_local) then
        call fgslib_findpts_eval(this%gs_handle, interp_values, &
-                                1, this%error_code, 1, &
-                                this%proc_owner, 1, this%el_owner, 1, &
-                                this%rst, this%gdim, &
-                                this%n_points, field)
+            1, this%error_code, 1, &
+            this%proc_owner, 1, this%el_owner, 1, &
+            this%rst, this%gdim, &
+            this%n_points, field)
     else
        if (this%n_points .gt. 0) &
-          call this%local_interp%evaluate(interp_values, this%el_owner, &
-                                          field, this%nelv)
+            call this%local_interp%evaluate(interp_values, this%el_owner, &
+            field, this%nelv)
     end if
 #else
     call neko_error('Neko needs to be built with GSLIB support')

@@ -39,6 +39,7 @@ module gs_device_shmem
   use htable, only : htable_i4_t
   use device
   use comm
+  use mpi_f08
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_sizeof, c_int32_t, &
        c_ptr, C_NULL_PTR, c_size_t, c_associated
@@ -100,9 +101,9 @@ module gs_device_shmem
 
   interface
      subroutine cuda_gs_pack_and_push(u_d, buf_d, dof_d, offset, n, stream, &
-                                      srank, rbuf_d, roffset, remote_offset, &
-                                      rrank, nvshmem_counter, notifyDone, &
-                                      notifyReady, iter) &
+          srank, rbuf_d, roffset, remote_offset, &
+          rrank, nvshmem_counter, notifyDone, &
+          notifyReady, iter) &
           bind(c, name='cuda_gs_pack_and_push')
        use, intrinsic :: iso_c_binding
        implicit none
@@ -318,11 +319,10 @@ contains
   end subroutine gs_device_shmem_nbrecv
 
   !> Wait for non-blocking operations
-  subroutine gs_device_shmem_nbwait(this, u, n, op, deps, strm)
+  subroutine gs_device_shmem_nbwait(this, u, n, op, strm)
     class(gs_device_shmem_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: u
-    type(c_ptr), intent(inout) :: deps
     type(c_ptr), intent(inout) :: strm
     integer :: op, done_req, i
     type(c_ptr) :: u_d

@@ -41,8 +41,14 @@ module opencl_prgm_lib
   !> Device \f$ D^T X \f$ kernels
   type(c_ptr), public, bind(c) :: cdtp_program = C_NULL_PTR
 
-  !> Device onvective kernels
+  !> Device convective kernels
   type(c_ptr), public, bind(c) :: conv1_program = C_NULL_PTR
+
+  !> Device convective kernels for oifs
+  type(c_ptr), public, bind(c) :: convect_scalar_program = C_NULL_PTR
+
+  !> Device convect_rst kernels
+  type(c_ptr), public, bind(c) :: set_convect_rst_program = C_NULL_PTR
 
   !> Device CFL kernels
   type(c_ptr), public, bind(c) :: cfl_program = C_NULL_PTR
@@ -67,6 +73,10 @@ module opencl_prgm_lib
 
   !> Device euler residual kernels
   type(c_ptr), public, bind(c) :: euler_res_program = C_NULL_PTR
+
+  !> Device compressible ops kernels
+  type(c_ptr), public, bind(c) :: compressible_ops_compute_max_wave_speed_program = C_NULL_PTR
+  type(c_ptr), public, bind(c) :: compressible_ops_compute_entropy_program = C_NULL_PTR
 
   !> Device fdm kernels
   type(c_ptr), public, bind(c) :: fdm_program = C_NULL_PTR
@@ -93,7 +103,7 @@ module opencl_prgm_lib
   type(c_ptr), public, bind(c) :: compute_max_wave_speed_program = C_NULL_PTR
 
   !> Device filter kernels
-  type(c_ptr), public, bind(c) :: filter_program = C_NULL_PTR
+  type(c_ptr), public, bind(c) :: mapping_program = C_NULL_PTR
 
   public :: opencl_prgm_lib_release
 
@@ -234,6 +244,20 @@ contains
        euler_res_program = C_NULL_PTR
     end if
 
+    if (c_associated(compressible_ops_compute_max_wave_speed_program)) then
+       if(clReleaseProgram(compressible_ops_compute_max_wave_speed_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       compressible_ops_compute_max_wave_speed_program = C_NULL_PTR
+    end if
+
+    if (c_associated(compressible_ops_compute_entropy_program)) then
+       if(clReleaseProgram(compressible_ops_compute_entropy_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       compressible_ops_compute_entropy_program = C_NULL_PTR
+    end if
+
     if (c_associated(fdm_program)) then
        if(clReleaseProgram(fdm_program) .ne. CL_SUCCESS) then
           call neko_error('Failed to release program')
@@ -290,11 +314,11 @@ contains
        compute_max_wave_speed_program = C_NULL_PTR
     end if
 
-    if (c_associated(filter_program)) then
-       if(clReleaseProgram(filter_program) .ne. CL_SUCCESS) then
+    if (c_associated(mapping_program)) then
+       if(clReleaseProgram(mapping_program) .ne. CL_SUCCESS) then
           call neko_error('Failed to release program')
        end if
-       filter_program = C_NULL_PTR
+       mapping_program = C_NULL_PTR
     end if
 
   end subroutine opencl_prgm_lib_release

@@ -20,7 +20,7 @@ AC_ARG_ENABLE(real,
                     ssp -- REAL(kind=4) xp -- sp
                     sp -- REAL(kind=4) xp -- dp
                     dp -- REAL(kind=8) xp -- dp (default)
-                    qp -- REAL(kind=16) xp -- qp]),
+                    ]),
             [enable_real=${enableval}], [enable_real=dp])
 
 AC_ARG_ENABLE(blk_size,
@@ -263,6 +263,19 @@ fi
 # Checks for OpenCL backend
 AX_OPENCL
 
+# Set the NEKO_BCKND variable
+if test "x${have_cuda}" = xyes; then
+   AC_SUBST(NEKO_BCKND, "CUDA")
+elif test "x${have_hip}" = xyes; then
+   AC_SUBST(NEKO_BCKND, "HIP")
+elif test "x${have_opencl}" = xyes; then
+   AC_SUBST(NEKO_BCKND, "OpenCL")
+elif test "x${is_sx}" = x1; then
+   AC_SUBST(NEKO_BCKND, "SX-Aurora")
+else
+   AC_SUBST(NEKO_BCKND, "CPU")
+fi
+
 # Check if device aware MPI is requested
 if (test "x${have_cuda}" = xyes ||
     test "x${have_hip}" = xyes  ||
@@ -348,7 +361,7 @@ fi
 # Checks for python bindings
 found_python="no"
 if (test "x$enable_python" = xyes); then
-   AM_PATH_PYTHON([3.5])
+   AM_PATH_PYTHON([3.7])
    if ! ${HAVE_PYTHON}; then
         AC_MSG_ERROR([Python interpreter not found, pyneko cannot be installed.])
    fi
@@ -390,7 +403,6 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/dofmap/Makefile\
         tests/unit/field/Makefile\
         tests/unit/mean_field/Makefile\
-        tests/unit/mean_sqr_field/Makefile\
         tests/unit/gather_scatter/Makefile\
         tests/unit/krylov/Makefile\
         tests/unit/bc/Makefile\

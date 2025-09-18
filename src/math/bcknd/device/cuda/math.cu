@@ -198,7 +198,7 @@ extern "C" {
   /** Fortran wrapper for cadd
    * Add a scalar to vector \f$ a_i = a_i + c \f$
    */
-  void cuda_cadd(void *a, real *c, int *n, cudaStream_t strm) {
+  void cuda_radd(void *a, real *c, int *n, cudaStream_t strm) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
@@ -366,6 +366,41 @@ extern "C" {
   }
 
   /**
+   * Fortran wrapper for add4s3
+   * Vector addition with scalar multiplication \f$ a = c_1 b + c_2 c + c_3 d\f$
+   * (multiplication on second argument)
+   */
+  void cuda_add4s3(void *a, void *b, void *c, void *d, real *c1, real *c2,
+                   real *c3, int *n, cudaStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    add4s3_kernel<real><<<nblcks, nthrds, 0, strm>>>
+      ((real *) a, (real *) b, (real *) c, (real *) d, *c1, *c2, *c3, *n);
+    CUDA_CHECK(cudaGetLastError());
+
+  }
+
+  /**
+   * Fortran wrapper for add5s4
+   * Vector addition with scalar multiplication \f$ a = a + c_1 b + c_2 c + c_3 d + c_4 e\f$
+   * (multiplication on second argument)
+   */
+  void cuda_add5s4(void *a, void *b, void *c, void *d, void *e, real *c1,
+                   real *c2, real *c3, real *c4, int *n, cudaStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    add5s4_kernel<real><<<nblcks, nthrds, 0, strm>>>
+      ((real *) a, (real *) b, (real *) c, (real *) d, (real *) e,
+       *c1, *c2, *c3, *c4, *n);
+    CUDA_CHECK(cudaGetLastError());
+
+  }
+
+  /**
    * Fortran wrapper for invcol1
    * Invert a vector \f$ a = 1 / a \f$
    */
@@ -502,6 +537,21 @@ extern "C" {
 
     addcol4_kernel<real><<<nblcks, nthrds, 0, strm>>>
       ((real *) a, (real *) b, (real *) c, (real *) d, *n);
+    CUDA_CHECK(cudaGetLastError());
+  }
+
+  /**
+   * Fortran wrapper for addcol3s2
+   * \f$ a = a + s(b * c) \f$
+   */
+  void cuda_addcol3s2(void *a, void *b, void *c, real *s, int *n,
+                      cudaStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    addcol3s2_kernel<real><<<nblcks, nthrds, 0, strm>>>
+      ((real *) a, (real *) b, (real *) c, *s, *n);
     CUDA_CHECK(cudaGetLastError());
   }
 
@@ -910,6 +960,22 @@ extern "C" {
       pwmin_sca3_kernel<real><<<nblcks, nthrds, 0, stream>>>
         ((real *)a, (real *)b, *c, *n);
       CUDA_CHECK(cudaGetLastError());
+  }
+
+  // ======================================================================== //
+  
+  /** Fortran wrapper for iadd
+   * Add a scalar to vector \f$ a_i = a_i + c \f$
+   */
+  void cuda_iadd(void *a, int *c, int *n, cudaStream_t stream) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    cadd_kernel<int><<<nblcks, nthrds, 0, stream>>>
+      ((int *) a, *c, *n);
+    CUDA_CHECK(cudaGetLastError());
+
   }
 
 } /* extern "C" */

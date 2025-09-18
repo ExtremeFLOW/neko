@@ -33,7 +33,6 @@
 !> Contains the `scalar_pnpn_t` type.
 
 module scalar_pnpn
-  use comm
   use num_types, only: rp
   use, intrinsic :: iso_fortran_env, only: error_unit
   use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_oifs_t, &
@@ -49,6 +48,7 @@ module scalar_pnpn
   use scalar_residual, only : scalar_residual_t, scalar_residual_factory
   use ax_product, only : ax_t, ax_helm_factory
   use field_series, only: field_series_t
+  use field_registry, only: neko_field_registry
   use facet_normal, only : facet_normal_t
   use krylov, only : ksp_monitor_t
   use device_math, only : device_add2s2, device_col2
@@ -68,6 +68,8 @@ module scalar_pnpn
   use scratch_registry, only : neko_scratch_registry
   use time_state, only : time_state_t
   use bc, only : bc_t
+  use comm, only : NEKO_COMM
+  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
   implicit none
   private
 
@@ -132,6 +134,7 @@ module scalar_pnpn
      procedure, pass(this) :: step => scalar_pnpn_step
      !> Setup the boundary conditions
      procedure, pass(this) :: setup_bcs_ => scalar_pnpn_setup_bcs_
+     !> Sync lag field data to registry for checkpointing
   end type scalar_pnpn_t
 
   interface
@@ -208,9 +211,11 @@ contains
 
       call this%s_res%init(dm_Xh, "s_res")
 
-      call this%abx1%init(dm_Xh, "s_abx1")
+      call this%abx1%init(dm_Xh, trim(this%name)//"_abx1")
+      call neko_field_registry%add_field(dm_Xh, trim(this%name)//"_abx1", ignore_existing = .true.)
 
-      call this%abx2%init(dm_Xh, "s_abx2")
+      call this%abx2%init(dm_Xh, trim(this%name)//"_abx2")
+      call neko_field_registry%add_field(dm_Xh, trim(this%name)//"_abx2", ignore_existing = .true.)
 
       call this%advs%init(dm_Xh, "advs")
 
@@ -252,11 +257,6 @@ contains
          ulag, vlag, wlag, this%chkp%dtlag, &
          this%chkp%tlag, time_scheme, .not. advection, &
          this%slag)
-    ! Add scalar info to checkpoint
-    call this%chkp%add_scalar(this%s)
-    this%chkp%abs1 => this%abx1
-    this%chkp%abs2 => this%abx2
-    this%chkp%slag => this%slag
   end subroutine scalar_pnpn_init
 
   ! Restarts the scalar from a checkpoint
@@ -265,10 +265,13 @@ contains
     type(chkp_t), intent(inout) :: chkp
     real(kind=rp) :: dtlag(10), tlag(10)
     integer :: n
+    type(field_t), pointer :: temp_field
     dtlag = chkp%dtlag
     tlag = chkp%tlag
 
     n = this%s%dof%size()
+
+    ! Lag fields are restored through the checkpoint's fsp mechanism
 
     call col2(this%s%x, this%c_Xh%mult, n)
     call col2(this%slag%lf(1)%x, this%c_Xh%mult, n)
@@ -362,10 +365,10 @@ contains
       ! Logs extra information the log level is NEKO_LOG_DEBUG or above.
       call print_debug(this)
       ! Compute the source terms
-      call this%source_term%compute(t, tstep)
+      call this%source_term%compute(time)
 
       ! Apply weak boundary conditions, that contribute to the source terms.
-      call this%bcs%apply_scalar(this%f_Xh%x, dm_Xh%size(), t, tstep, .false.)
+      call this%bcs%apply_scalar(this%f_Xh%x, dm_Xh%size(), time, .false.)
 
       if (oifs) then
          ! Add the advection operators to the right-hans-side.
@@ -397,10 +400,10 @@ contains
       call slag%update()
 
       !> Apply strong boundary conditions.
-      call this%bcs%apply_scalar(this%s%x, this%dm_Xh%size(), t, tstep, .true.)
+      call this%bcs%apply_scalar(this%s%x, this%dm_Xh%size(), time, .true.)
 
       ! Update material properties if necessary
-      call this%update_material_properties(t, tstep)
+      call this%update_material_properties(time)
 
       ! Compute scalar residual.
       call profiler_start_region(trim(this%name) // '_residual', 20)
@@ -550,5 +553,6 @@ contains
 
     end if
   end subroutine scalar_pnpn_setup_bcs_
+
 
 end module scalar_pnpn

@@ -184,7 +184,7 @@ contains
     type(vector_t), intent(inout) :: x
     integer :: n, i
 
-    n = x%n
+    n = x%size()
 
     if (this%dp_precision) then
        do i = 1, n

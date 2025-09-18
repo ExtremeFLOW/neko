@@ -38,6 +38,7 @@
 #include "sumab_kernel.h"
 #include "makeext_kernel.h"
 #include "makebdf_kernel.h"
+#include "makeoifs_kernel.h"
 
 extern "C" {
   void rhs_maker_sumab_cuda(void *u, void *v, void *w,
@@ -59,7 +60,7 @@ extern "C" {
     CUDA_CHECK(cudaGetLastError());
   }
 
-  void rhs_maker_ext_cuda(void *abx1, void *aby1, void *abz1, 
+  void rhs_maker_ext_cuda(void *abx1, void *aby1, void *abz1,
                           void *abx2, void *aby2, void *abz2,
                           void *bfx, void *bfy, void *bfz,
                           real *rho, real *ab1, real *ab2, real *ab3, int *n) {
@@ -67,7 +68,7 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
-    
+
     makeext_kernel<real>
       <<<nblcks, nthrds, 0, stream>>>((real *) abx1, (real *) aby1,
                                       (real *) abz1, (real *) abx2,
@@ -85,19 +86,19 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
-        
+
     scalar_makeext_kernel<real>
       <<<nblcks, nthrds, 0, stream>>>((real *) fs_lag,
                                       (real *) fs_laglag,
                                       (real *) fs,
-                                      *rho, *ext1, *ext2, *ext3, *n);      
+                                      *rho, *ext1, *ext2, *ext3, *n);
       CUDA_CHECK(cudaGetLastError());
   }
-  
+
   void rhs_maker_bdf_cuda(void *ulag1, void *ulag2, void *vlag1,
-                          void *vlag2, void *wlag1, void *wlag2, 
+                          void *vlag2, void *wlag1, void *wlag2,
                           void *bfx, void *bfy, void *bfz,
-                          void *u, void *v, void *w, void *B, 
+                          void *u, void *v, void *w, void *B,
                           real *rho, real *dt, real *bd2,
                           real *bd3, real *bd4, int *nbd, int *n) {
 
@@ -108,7 +109,7 @@ extern "C" {
     makebdf_kernel<real>
       <<<nblcks, nthrds, 0, stream>>>((real *) ulag1, (real *) ulag2,
                                       (real *) vlag1, (real *) vlag2,
-                                      (real *) wlag1, (real *) wlag2, 
+                                      (real *) wlag1, (real *) wlag2,
                                       (real *) bfx, (real *) bfy, (real *) bfz,
                                       (real *) u, (real *) v, (real *) w,
                                       (real *) B, *rho, *dt,
@@ -118,7 +119,7 @@ extern "C" {
 
   void scalar_rhs_maker_bdf_cuda(void *s_lag, void *s_laglag,
                           void *fs,
-                          void *s, void *B, 
+                          void *s, void *B,
                           real *rho, real *dt, real *bd2,
                           real *bd3, real *bd4, int *nbd, int *n) {
 
@@ -127,13 +128,44 @@ extern "C" {
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
     scalar_makebdf_kernel<real>
-      <<<nblcks, nthrds, 0, stream>>>((real *) s_lag, 
+      <<<nblcks, nthrds, 0, stream>>>((real *) s_lag,
                                       (real *) s_laglag,
                                       (real *) fs,
                                       (real *) s,
-                                      (real *) B, 
+                                      (real *) B,
                                       *rho, *dt, *bd2, *bd3, *bd4, *nbd,  *n);
     CUDA_CHECK(cudaGetLastError());
+  }
+
+  void rhs_maker_oifs_cuda(void *phi_x, void *phi_y, void *phi_z,
+                           void *bf_x, void *bf_y, void *bf_z,
+                           real *rho, real *dt, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+    makeoifs_kernel<real>
+      <<<nblcks, nthrds, 0, stream>>>((real *) phi_x, (real *) phi_y,
+                                      (real *) phi_z, (real *) bf_x,
+                                      (real *) bf_y, (real *) bf_z,
+                                      *rho, *dt, *n);
+    CUDA_CHECK(cudaGetLastError());
+
+  }
+
+  void scalar_rhs_maker_oifs_cuda(void *phi_s, void *bf_s,
+                                  real *rho, real *dt, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+    scalar_makeoifs_kernel<real>
+      <<<nblcks, nthrds, 0, stream>>>((real *) phi_s, (real *) bf_s,
+                                      *rho, *dt, *n);
+    CUDA_CHECK(cudaGetLastError());
+
   }
 }
 

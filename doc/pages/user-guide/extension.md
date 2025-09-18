@@ -101,7 +101,7 @@ end interface
 Furthermore, the CUDA/HIP file must allow for C linkage, hence the routine
 `device_kernel` must be inside an `extern "C"` block.
 
-```C++
+```cpp
 extern "C" {
   void device_kernel(void *a, int *n) {
     /* Launch device kernel here */

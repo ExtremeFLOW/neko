@@ -36,7 +36,9 @@ module gs_mpi
   use gs_comm, only : gs_comm_t, GS_COMM_MPI, GS_COMM_MPIGPU
   use gs_ops, only : GS_OP_ADD, GS_OP_MAX, GS_OP_MIN, GS_OP_MUL
   use stack, only : stack_i4_t
-  use comm
+  use mpi_f08, only : MPI_Test, MPI_STATUS_IGNORE, MPI_Status, &
+       MPI_Request, MPI_Isend, MPI_IRecv
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
   use, intrinsic :: iso_c_binding
   !$ use omp_lib
   implicit none
@@ -185,11 +187,10 @@ contains
   end subroutine gs_nbrecv_mpi
 
   !> Wait for non-blocking operations
-  subroutine gs_nbwait_mpi(this, u, n, op, deps, strm)
+  subroutine gs_nbwait_mpi(this, u, n, op, strm)
     class(gs_mpi_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: u
-    type(c_ptr), intent(inout) :: deps
     type(c_ptr), intent(inout) :: strm
     integer :: i, j, src, ierr
     integer :: op

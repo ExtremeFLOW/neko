@@ -31,45 +31,36 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module fluid_scheme_compressible_euler
-  use comm
-  use, intrinsic :: iso_fortran_env, only: error_unit
-  use advection, only : advection_t, advection_factory
+  use comm, only : NEKO_COMM
+  use advection, only : advection_t
   use device, only : device_memcpy, HOST_TO_DEVICE
-  use dofmap, only : dofmap_t
-  use field_math, only : field_add2, field_cfill, field_cmult, field_cadd, &
+  use field_math, only : field_add2, field_cfill, field_cmult, &
        field_copy, field_col2, field_col3, &
        field_addcol3, field_sub2, field_invcol2
-  use math, only : col2, copy, col3, addcol3, subcol3
+  use math, only : col2
   use device_math, only : device_col2
   use field, only : field_t
   use fluid_scheme_compressible, only: fluid_scheme_compressible_t
   use gs_ops, only : GS_OP_ADD
-  use gather_scatter, only : gs_t
   use num_types, only : rp
   use mesh, only : mesh_t
   use checkpoint, only : chkp_t
-  use operators, only: div, grad
   use json_module, only : json_file, json_core, json_value
   use json_utils, only : json_get, json_get_or_default, json_extract_item
   use profiler, only : profiler_start_region, profiler_end_region
   use user_intf, only : user_t
   use time_step_controller, only : time_step_controller_t
   use ax_product, only : ax_t, ax_helm_factory
-  use field_list, only : field_list_t
   use coefs, only: coef_t
-  use space, only : space_t
   use euler_residual, only: euler_rhs_t, euler_rhs_factory
   use neko_config, only : NEKO_BCKND_DEVICE
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
-  use field_dirichlet, only : field_dirichlet_t
-  use field_dirichlet_vector, only : field_dirichlet_vector_t
   use bc_list, only: bc_list_t
-  use zero_dirichlet, only : zero_dirichlet_t
-  use field_math, only : field_copy
   use bc, only : bc_t
-  use utils, only : neko_error, neko_warning
+  use utils, only : neko_error, neko_type_error
   use logger, only : LOG_SIZE
   use time_state, only : time_state_t
+  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
   implicit none
   private
 
@@ -124,7 +115,7 @@ module fluid_scheme_compressible_euler
      !! @param[in] user The user interface.
      module subroutine pressure_bc_factory(object, scheme, json, coef, user)
        class(bc_t), pointer, intent(inout) :: object
-       type(fluid_scheme_compressible_euler_t), intent(in) :: scheme
+       type(fluid_scheme_compressible_euler_t), intent(inout) :: scheme
        type(json_file), intent(inout) :: json
        type(coef_t), intent(in) :: coef
        type(user_t), intent(in) :: user
@@ -259,9 +250,12 @@ contains
     integer :: temp_indices(1)
     ! number of degrees of freedom
     integer :: n
+    integer :: i
+    class(bc_t), pointer :: b
 
     n = this%dm_Xh%size()
     call this%scratch%request_field(temp, temp_indices(1))
+    b => null()
 
     call profiler_start_region('Fluid compressible', 1)
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
@@ -277,16 +271,13 @@ contains
          ext_bdf => this%ext_bdf, &
          c_avisc_low => this%c_avisc_low, rk_scheme => this%rk_scheme)
 
-      ! Hack: If m_z is always zero, use it to visualize rho
-      ! call field_cfill(m_z, 0.0_rp, n)
-
       call euler_rhs%step(rho, m_x, m_y, m_z, E, &
            p, u, v, w, Ax, &
            c_Xh, gs_Xh, h, c_avisc_low, &
            rk_scheme, dt)
 
       !> Apply density boundary conditions
-      call this%bcs_density%apply(rho, t, tstep)
+      call this%bcs_density%apply(rho, time)
 
       !> Update variables
       ! Update u, v, w
@@ -299,7 +290,7 @@ contains
 
       !> Apply velocity boundary conditions
       call this%bcs_vel%apply_vector(u%x, v%x, w%x, &
-           dm_Xh%size(), t, tstep, strong = .true.)
+           dm_Xh%size(), time, strong = .true.)
       call field_copy(m_x, u, n)
       call field_col2(m_x, rho, n)
       call field_copy(m_y, v, n)
@@ -318,7 +309,7 @@ contains
       call field_cmult(p, this%gamma - 1.0_rp, n)
 
       !> Apply pressure boundary conditions
-      call this%bcs_prs%apply(p, t, tstep)
+      call this%bcs_prs%apply(p, time)
       ! TODO: Make sure pressure is positive
       ! E = p / (gamma - 1) + 0.5 * rho * (u^2 + v^2 + w^2)
       call field_copy(E, p, n)
@@ -326,8 +317,27 @@ contains
       ! temp = 0.5 * rho * (u^2 + v^2 + w^2)
       call field_add2(E, temp, n)
 
-      ! Hack: If m_z is always zero, use it to visualize rho
-      ! call field_copy(w, rho, n)
+      !> Compute entropy S = 1/(gamma-1) * rho * (log(p) - gamma * log(rho))
+      call this%compute_entropy()
+
+      !> Update maximum wave speed for CFL computation
+      call this%compute_max_wave_speed()
+
+      do i = 1, this%bcs_vel%size()
+         b => this%bcs_vel%get(i)
+         b%updated = .false.
+      end do
+
+      do i = 1, this%bcs_prs%size()
+         b => this%bcs_prs%get(i)
+         b%updated = .false.
+      end do
+
+      do i = 1, this%bcs_density%size()
+         b => this%bcs_density%get(i)
+         b%updated = .false.
+      end do
+      nullify(b)
 
     end associate
     call profiler_end_region('Fluid compressible', 1)
@@ -376,9 +386,9 @@ contains
                   MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
 
              if (global_zone_size .eq. 0) then
-                write(error_unit,'(A,I0,A)') "Error: Zone ", zone_indices(j), &
+                write(log_buf,'(A,I0,A)') "Error: Zone ", zone_indices(j), &
                      " has zero size"
-                error stop
+                call neko_error(log_buf)
              end if
           end do
 

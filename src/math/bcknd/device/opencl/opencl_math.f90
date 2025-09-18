@@ -112,14 +112,23 @@ module opencl_math
        integer(c_int) :: n
      end subroutine opencl_cdiv2
 
-     subroutine opencl_cadd(a_d, c, n, strm) &
-          bind(c, name = 'opencl_cadd')
+     subroutine opencl_radd(a_d, c, n, strm) &
+          bind(c, name = 'opencl_radd')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a_d, strm
        real(c_rp) :: c
        integer(c_int) :: n
-     end subroutine opencl_cadd
+     end subroutine opencl_radd
+
+     subroutine opencl_iadd(a_d, c, n, strm) &
+          bind(c, name = 'opencl_iadd')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: a_d, strm
+       integer(c_int) :: c
+       integer(c_int) :: n
+     end subroutine opencl_iadd
 
      subroutine opencl_cadd2(a_d, b_d, c, n, strm) &
           bind(c, name = 'opencl_cadd2')
@@ -221,6 +230,27 @@ module opencl_math
        integer(c_int) :: n
      end subroutine opencl_add3s2
 
+     subroutine opencl_add4s3(a_d, b_d, c_d, d_d, c1, c2, c3, n, strm) &
+          bind(c, name = 'opencl_add4s3')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d, d_d, strm
+       real(c_rp) :: c1, c2, c3
+       integer(c_int) :: n
+     end subroutine opencl_add4s3
+
+     subroutine opencl_add5s4(a_d, b_d, c_d, d_d, e_d, &
+          c1, c2, c3, c4, n, strm) &
+          bind(c, name = 'opencl_add5s4')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d, d_d, e_d, strm
+       real(c_rp) :: c1, c2, c3, c4
+       integer(c_int) :: n
+     end subroutine opencl_add5s4
+
      subroutine opencl_invcol1(a_d, n, strm) &
           bind(c, name = 'opencl_invcol1')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
@@ -300,6 +330,15 @@ module opencl_math
        type(c_ptr), value :: a_d, b_d, c_d, d_d, strm
        integer(c_int) :: n
      end subroutine opencl_addcol4
+
+     subroutine opencl_addcol3s2(a_d, b_d, c_d, s, n, strm) &
+          bind(c, name = 'opencl_addcol3s2')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: a_d, b_d, c_d, strm
+       real(c_rp) :: s
+       integer(c_int) :: n
+     end subroutine opencl_addcol3s2
 
      subroutine opencl_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, &
           n, strm) &
