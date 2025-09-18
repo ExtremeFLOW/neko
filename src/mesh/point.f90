@@ -43,6 +43,9 @@ module point
   type, extends(entity_t), public :: point_t
      real(kind=dp), dimension(3) :: x
    contains
+     generic :: init => point_init_array, point_init_xyz
+     procedure, pass(this) :: point_init_array
+     procedure, pass(this) :: point_init_xyz
      procedure :: point_eq
      procedure :: point_ne
      procedure :: point_lt
@@ -53,7 +56,6 @@ module point
      procedure :: point_scalar_mult
      procedure, pass(p1) :: dist => point_euclid_dist
      procedure, pass(x) :: point_mat_mult
-     procedure, pass(this) :: init => point_init_from_array
      generic :: operator(.eq.) => point_eq
      generic :: operator(.ne.) => point_ne
      generic :: operator(.lt.) => point_lt
@@ -69,16 +71,10 @@ module point
      type(point_t), pointer :: p
   end type point_ptr
 
-  interface point_t
-     module procedure point_init, point_init_xyz
-  end interface point_t
-
 contains
 
   !> Initialize a point from an array @a x of \f$ (x,y,z) \f$ coordinates.
-  !! @param x coords
-  !! @id point id
-  subroutine point_init_from_array(this, x, id)
+  subroutine point_init_array(this, x, id)
     class(point_t), intent(inout) :: this
     real(kind=dp), dimension(3), intent(in) :: x
     integer, optional, intent(in) :: id
@@ -91,31 +87,15 @@ contains
 
     this%x = x
 
-  end subroutine point_init_from_array
-
-  !> Initialize a point from an array @a x of \f$ (x,y,z) \f$ coordinates.
-  function point_init(x, id) result(this)
-    real(kind=dp), dimension(3), intent(in) :: x
-    integer, optional, intent(inout) :: id
-    type(point_t) :: this
-
-    if (present(id)) then
-       call this%set_id(id)
-    else
-       call this%set_id(-1)
-    end if
-
-    this%x = x
-
-  end function point_init
+  end subroutine point_init_array
 
   !> Initialize a point from \f$ (x,y,z) \f$ coordinates.
-  function point_init_xyz(x, y, z, id) result(this)
+  subroutine point_init_xyz(this, x, y, z, id)
+    class(point_t), intent(inout) :: this
     real(kind=dp), intent(in) :: x
     real(kind=dp), intent(in) :: y
     real(kind=dp), intent(in) :: z
-    integer, optional, intent(inout) :: id
-    type(point_t) :: this
+    integer, optional, intent(in) :: id
 
     if (present(id)) then
        call this%set_id(id)
@@ -127,7 +107,7 @@ contains
     this%x(2) = y
     this%x(3) = z
 
-  end function point_init_xyz
+  end subroutine point_init_xyz
 
   !> Assigns coordinates @a x to a point.
   subroutine point_assign(this, x)
