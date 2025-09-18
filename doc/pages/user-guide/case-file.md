@@ -129,7 +129,7 @@ final time will be written as to avoid losing progress as far as possible.
 @attention For simulations requiring restarts, it is recommended to run each
 restart in a different output directory as a precaution to avoid potential overwritings of files.
 
-### Boundary type numbering in the `output_boundary` field
+### Boundary type numbering in the "output_boundary" field
 
 When the `output_boundary` setting is set to `true`, and additional `.fld` file
 will be stored in the beginning of the simulation, where the recognized boundary
@@ -860,18 +860,21 @@ Four types of conditions are available for the scalar:
     "flux": 1,
     "zone_indices": [1, 2]
   }
+  ```
 * `user_pointwise`. Sets the scalar in the pointwise user interface routine.
   ```json
   {
     "type": "user_poinwise",
     "zone_indices": [1, 2]
   }
+  ```
 * `user`. User boundary condition, see [further documentation](#user-file_field-dirichlet-update).
   ```json
   {
     "type": "user",
     "zone_indices": [1, 2]
   }
+  ```
 
 ### Initial conditions
 
