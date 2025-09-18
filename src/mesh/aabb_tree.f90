@@ -481,7 +481,7 @@ contains
     do i_obj = 1, size(objects)
        box_list(i_obj) = get_aabb(objects(i_obj), aabb_padding)
     end do
-    sorted_indices = sort(box_list)
+    call sort(box_list, sorted_indices)
 
     do i = 1, size(sorted_indices)
        i_obj = sorted_indices(i)
@@ -730,9 +730,6 @@ contains
 
     integer :: root_index, left_index, right_index
     integer :: node_index, tmp_index
-
-    if (allocated(overlaps)) deallocate(overlaps)
-    allocate(overlaps(0))
 
     object_box = get_aabb(object)
     root_index = this%get_root_index()

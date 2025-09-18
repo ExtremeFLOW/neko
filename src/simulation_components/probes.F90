@@ -54,7 +54,7 @@ module probes
   use csv_file, only : csv_file_t
   use case, only : case_t
   use, intrinsic :: iso_c_binding
-  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use comm, only : NEKO_COMM, pe_rank, pe_size, MPI_REAL_PRECISION
   use neko_config, only : NEKO_BCKND_DEVICE
   use device, only : device_memcpy, DEVICE_TO_HOST, device_map
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM, MPI_DOUBLE_PRECISION
