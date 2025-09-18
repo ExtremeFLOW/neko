@@ -52,6 +52,9 @@ module fluid_scheme_compressible
        compressible_ops_device_compute_entropy
   use neko_config, only : NEKO_BCKND_DEVICE
   use time_state, only : time_state_t
+  use logger, only : neko_log, LOG_SIZE
+  use math, only : glsum
+  use num_types, only : i8
   implicit none
   private
 
@@ -66,6 +69,11 @@ module fluid_scheme_compressible
      type(field_t), pointer :: S => null() !< Entropy field
 
      real(kind=rp) :: gamma
+
+     !> Global number of GLL points for the fluid (not unique)
+     integer(kind=i8) :: glb_n_points
+     !> Global number of GLL points for the fluid (unique)
+     integer(kind=i8) :: glb_unique_points
 
      type(scratch_registry_t) :: scratch !< Manager for temporary fields
 
@@ -89,6 +97,9 @@ module fluid_scheme_compressible
      !> Compute maximum wave speed
      procedure, pass(this) :: compute_max_wave_speed => &
           fluid_scheme_compressible_compute_max_wave_speed
+     !> Log solver information
+     procedure, pass(this) :: log_solver_info => &
+          fluid_scheme_compressible_log_solver_info
 
   end type fluid_scheme_compressible_t
 
@@ -194,6 +205,15 @@ contains
 
     ! Compressible parameters
     call json_get_or_default(params, 'case.fluid.gamma', this%gamma, 1.4_rp)
+
+    ! Calculate global points for logging
+    this%glb_n_points = int(this%msh%glb_nelv, i8)*int(this%Xh%lxyz, i8)
+    this%glb_unique_points = int(glsum(this%c_Xh%mult, this%dm_Xh%size()), i8)
+
+    !
+    ! Log solver information
+    !
+    call this%log_solver_info(params, scheme, lx)
   end subroutine fluid_scheme_compressible_init
 
   !> Free allocated memory and cleanup resources
@@ -343,4 +363,57 @@ contains
     end if
 
   end subroutine fluid_scheme_compressible_compute_max_wave_speed
+
+  !> Log comprehensive solver information
+  !> @param this The compressible fluid scheme object
+  !> @param params JSON configuration parameters
+  !> @param scheme Name of the numerical scheme
+  !> @param lx Polynomial order in x-direction
+  subroutine fluid_scheme_compressible_log_solver_info(this, params, scheme, lx)
+    class(fluid_scheme_compressible_t), intent(inout) :: this
+    type(json_file), intent(inout) :: params
+    character(len=*), intent(in) :: scheme
+    integer, intent(in) :: lx
+    character(len=LOG_SIZE) :: log_buf
+    logical :: logical_val
+    real(kind=rp) :: real_val
+    integer :: integer_val
+
+    call neko_log%section('Fluid')
+    write(log_buf, '(A, A)') 'Type       : ', trim(scheme)
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, A)') 'Name       : ', trim(this%name)
+    call neko_log%message(log_buf)
+
+    ! Polynomial order
+    if (lx .lt. 10) then
+       write(log_buf, '(A, I1)') 'Poly order : ', lx-1
+    else if (lx .ge. 10) then
+       write(log_buf, '(A, I2)') 'Poly order : ', lx-1
+    else
+       write(log_buf, '(A, I3)') 'Poly order : ', lx-1
+    end if
+    call neko_log%message(log_buf)
+
+    ! Global points information
+    write(log_buf, '(A, I0)') 'GLL points : ', this%glb_n_points
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, I0)') 'Unique pts.: ', this%glb_unique_points
+    call neko_log%message(log_buf)
+
+    ! Material properties
+    write(log_buf, '(A,ES13.6)') 'gamma      :', this%gamma
+    call neko_log%message(log_buf)
+
+    ! Compressible-specific parameters
+    call json_get_or_default(params, 'case.numerics.c_avisc_low', real_val, 0.5_rp)
+    write(log_buf, '(A,ES13.6)') 'c_avisc_low:', real_val
+    call neko_log%message(log_buf)
+
+    call json_get_or_default(params, 'case.numerics.time_order', integer_val, 4)
+    write(log_buf, '(A, I0)') 'RK order   : ', integer_val
+    call neko_log%message(log_buf)
+
+  end subroutine fluid_scheme_compressible_log_solver_info
+
 end module fluid_scheme_compressible

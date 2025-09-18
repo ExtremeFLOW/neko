@@ -13,7 +13,6 @@ SUBDIRS = tuple\
 	  dofmap\
 	  field\
 	  mean_field\
-	  mean_sqr_field\
 	  gather_scatter\
 	  krylov\
 	  bc\
@@ -51,7 +50,6 @@ TESTS = device/device_test\
 	dofmap/dofmap_test\
 	field/field_test\
 	mean_field/mean_field_test\
-	mean_sqr_field/mean_sqr_field_test\
 	gather_scatter/gather_scatter_test\
 	krylov/krylov_test\
 	bc/bc_test\
@@ -90,7 +88,6 @@ EXTRA_DIST = \
 	dofmap/dofmap_parallel.pf\
 	field/field_parallel.pf\
 	mean_field/mean_field_parallel.pf\
-	mean_sqr_field/mean_sqr_field_parallel.pf\
 	device/device.pf\
 	uset/uset_i4.pf\
 	uset/uset_r8.pf\
@@ -122,7 +119,6 @@ EXTRA_DIST = \
 	math/math_test\
 	field/field_test\
 	mean_field/mean_field_test\
-	mean_sqr_field/mean_sqr_field_test\
 	device_math/device_math_test\
 	octree/octree.pf\
 	vector/vector_parallel.pf\

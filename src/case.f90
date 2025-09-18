@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ module case
   use fluid_scheme_base, only: fluid_scheme_base_t, fluid_scheme_base_factory
   use fluid_output, only : fluid_output_t
   use chkp_output, only : chkp_output_t
-  use mesh_field, only : mesh_fld_t, mesh_field_init, mesh_field_free
+  use mesh_field, only : mesh_fld_t
   use parmetis, only : parmetis_partmeshkway
   use redist, only : redist_mesh
   use output_controller, only : output_controller_t
@@ -282,7 +282,10 @@ contains
 
     call neko_log%section("Fluid initial condition ")
 
-    if (trim(string_val) .ne. 'user') then
+    if (this%params%valid_path('case.restart_file')) then
+       call neko_log%message("Restart file specified, " // &
+            "initial conditions ignored")
+    else if (trim(string_val) .ne. 'user') then
        call set_flow_ic(this%fluid%u, this%fluid%v, this%fluid%w, &
             this%fluid%p, this%fluid%c_Xh, this%fluid%gs_Xh, string_val, &
             json_subdict)
@@ -305,7 +308,10 @@ contains
     if (scalar) then
        call neko_log%section("Scalar initial condition ")
 
-       if (this%params%valid_path('case.scalar')) then
+       if (this%params%valid_path('case.restart_file')) then
+          call neko_log%message("Restart file specified, " // &
+                "initial conditions ignored")
+       else if (this%params%valid_path('case.scalar')) then
           ! For backward compatibility with single scalar
           call json_get(this%params, 'case.scalar.initial_condition.type', &
                string_val)
@@ -391,11 +397,11 @@ contains
     call json_get_or_default(this%params, 'case.output_partitions',&
          logical_val, .false.)
     if (logical_val) then
-       call mesh_field_init(msh_part, this%msh, 'MPI_Rank')
+       call msh_part%init(this%msh, 'MPI_Rank')
        msh_part%data = pe_rank
        call part_file%init(trim(this%output_directory)//'partitions.vtk')
        call part_file%write(msh_part)
-       call mesh_field_free(msh_part)
+       call msh_part%free()
     end if
 
     !

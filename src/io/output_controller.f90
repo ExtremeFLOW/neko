@@ -179,7 +179,7 @@ contains
     ! The code below only prints to console
     call neko_log%section('Adding write output')
     call neko_log%message('File name        : '// &
-         trim(this%output_list(this%n)%ptr%file_%file_type%fname))
+         trim(this%output_list(this%n)%ptr%file_%file_type%get_fname()))
     call neko_log%message('Write control    : '//trim(write_control))
 
     ! Show the output precision if we are outputting an fld file
@@ -274,7 +274,7 @@ contains
        do i = 1, this%n
           if (this%controllers(i)%check(time, force)) then
              call neko_log%message('File name     : '// &
-                  trim(samp%output_list(i)%ptr%file_%file_type%fname))
+                  trim(samp%output_list(i)%ptr%file_%file_type%get_fname()))
 
              write(log_buf, '(A,I6)') 'Output number :', &
                   int(this%controllers(i)%nexecutions)
@@ -313,8 +313,8 @@ contains
     do i = 1, this%n
        if (this%controllers(i)%nsteps .eq. 0) then
           call this%controllers(i)%set_counter(time)
-          nexecutions =this%controllers(i)%nexecutions
-          call this%output_list(i)%ptr%set_counter(nexecutions)
+          nexecutions = this%controllers(i)%nexecutions
+          call this%output_list(i)%ptr%set_counter(-1)
           call this%output_list(i)%ptr%set_start_counter(nexecutions)
        end if
     end do
