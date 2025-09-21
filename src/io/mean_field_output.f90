@@ -84,7 +84,7 @@ contains
        coef, avg_dir, name, path)
     class(mean_field_output_t), intent(inout):: this
     integer, intent(in) :: n_fields
-    class(mean_field_t), intent(inout), target :: mean_fields(n_fields)
+    type(mean_field_t), intent(inout), target :: mean_fields(n_fields)
     type(coef_t), intent(inout) :: coef
     character(len=*), intent(in) :: avg_dir
     character(len=*), intent(in), optional :: name
