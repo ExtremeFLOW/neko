@@ -109,7 +109,7 @@ module opencl_intf
   integer(c_int64_t), parameter :: CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE = 1
   integer(c_int64_t), parameter :: CL_QUEUE_PROFILING_ENABLE = 2
 
-   interface
+  interface
      integer(c_int) function clGetPlatformIDs(num_entries, platforms, &
           num_platforms) bind(c, name = 'clGetPlatformIDs')
        use, intrinsic :: iso_c_binding
