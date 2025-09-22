@@ -198,21 +198,42 @@ void opencl_dudxyz(void *du, void *u,
       }                                                                         \
       break
 
-  switch(*lx) {
-    CASE(2);
-    CASE(3);
-    CASE(4);
-    CASE(5);
-    CASE(6);
-    CASE(7);
-    CASE(8);
-    CASE(9);
-    CASE(10);
-    CASE(11);
-  default:
-    {
-      fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
-      exit(1);
+#define CASE_LARGE(LX)                                                          \
+    case LX:                                                                    \
+      CASE_KSTEP(LX, glb_cmd_queue, NULL);                                      \
+      break
+
+  if ((*lx) < 12) {
+    switch(*lx) {
+      CASE(2);
+      CASE(3);
+      CASE(4);
+      CASE(5);
+      CASE(6);
+      CASE(7);
+      CASE(8);
+      CASE(9);
+      CASE(10);
+      CASE(11);
+      default:
+        {
+          fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+          exit(1);
+        }
+    }
+  }
+  else {
+    switch(*lx) {
+      CASE_LARGE(12);
+      CASE_LARGE(13);
+      CASE_LARGE(14);
+      CASE_LARGE(15);
+      CASE_LARGE(16);
+    default:
+      {
+        fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+        exit(1);
+      }
     }
   }
 }

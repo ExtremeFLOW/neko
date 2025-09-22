@@ -51,7 +51,7 @@
 
 int *autotune_conv1 = NULL;
 
-/** 
+/**
  * Fortran wrapper for device OpenCL convective terms
  */
 void opencl_conv1(void *du, void *u,
@@ -62,10 +62,10 @@ void opencl_conv1(void *du, void *u,
                   void *drdz, void *dsdz, void *dtdz,
                   void *jacinv, int *nel, int *gdim, int *lx) {
   cl_int err;
-  
+
   if (conv1_program == NULL)
     opencl_kernel_jit(conv1_kernel, (cl_program *) &conv1_program);
-  
+
   const size_t global_item_size = 256 * (*nel);
   const size_t local_item_size = 256;
 
@@ -79,7 +79,7 @@ void opencl_conv1(void *du, void *u,
   if (autotune_conv1 == NULL) {
     autotune_conv1 = malloc(17 * sizeof(int));
     memset(autotune_conv1, 0, 17 * sizeof(int));
-  }  
+  }
 
 #define STR(X) #X
 #define CASE_1D(LX, QUEUE, EVENT)                                               \
@@ -110,7 +110,7 @@ void opencl_conv1(void *du, void *u,
       CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) QUEUE,                 \
                                       kernel, 1, NULL, &global_item_size,       \
                                       &local_item_size, 0, NULL, EVENT));       \
-    }                                                                           
+    }
 
 #define CASE_KSTEP(LX, QUEUE, EVENT)                                            \
     {                                                                           \
@@ -140,8 +140,8 @@ void opencl_conv1(void *du, void *u,
       CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) QUEUE,                 \
                                       kernel, 2, NULL, global_kstep,            \
                                       local_kstep, 0, NULL, EVENT));            \
-    }                                                                           
-  
+    }
+
 
 #define CASE(LX)                                                                \
   case LX:                                                                      \
@@ -220,22 +220,44 @@ void opencl_conv1(void *du, void *u,
       }                                                                         \
       break
 
+#define CASE_LARGE(LX)                                                          \
+    case LX:                                                                    \
+      CASE_KSTEP(LX, glb_cmd_queue, NULL);                                      \
+      break
+
   
-  switch(*lx) {
-    CASE(2);
-    CASE(3);
-    CASE(4);
-    CASE(5);
-    CASE(6);
-    CASE(7);
-    CASE(8);
-    CASE(9);
-    CASE(10);
-    CASE(11);
-  default:
-    {
-      fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
-      exit(1);
+  if ((*lx) < 12) {
+    switch(*lx) {
+      CASE(2);
+      CASE(3);
+      CASE(4);
+      CASE(5);
+      CASE(6);
+      CASE(7);
+      CASE(8);
+      CASE(9);
+      CASE(10);
+      CASE(11);
+    default:
+      {
+        fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+        exit(1);
+      }
     }
   }
-} 
+  else {
+    switch(*lx) {
+      CASE_LARGE(12);
+      CASE_LARGE(13);
+      CASE_LARGE(14);
+      CASE_LARGE(15);
+      CASE_LARGE(16);
+    default:
+      {
+        fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+        exit(1);
+      }
+    }
+  }
+}
+
