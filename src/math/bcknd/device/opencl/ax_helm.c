@@ -31,7 +31,7 @@
  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 */
-
+#define CL_SILENCE_DEPRECATION
 #ifdef __APPLE__
 #include <OpenCL/cl.h>
 #else
@@ -80,7 +80,7 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
   }
 
 #define STR(X) #X
-#define CASE_1D(LX)                                                             \
+#define CASE_1D(LX, QUEUE, EVENT)                                               \
     {                                                                           \
       cl_kernel kernel = clCreateKernel(ax_helm_program,                        \
                                         STR(ax_helm_kernel_lx##LX), &err);      \
@@ -102,14 +102,14 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
       CL_CHECK(clSetKernelArg(kernel, 13, sizeof(cl_mem), (void *) &g13));      \
       CL_CHECK(clSetKernelArg(kernel, 14, sizeof(cl_mem), (void *) &g23));      \
                                                                                 \
-     CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue,          \
+      CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) QUEUE,                 \
                                      kernel, 1, NULL, &global_item_size,        \
-                                     &local_item_size, 0, NULL, NULL));         \
+                                     &local_item_size, 0, NULL, EVENT));        \
                                                                                 \
     }
 
 
-#define CASE_KSTEP(LX)                                                          \
+#define CASE_KSTEP(LX, QUEUE, EVENT)                                            \
     {                                                                           \
       cl_kernel kernel = clCreateKernel(ax_helm_program,                        \
                                         STR(ax_helm_kernel_kstep_lx##LX), &err);\
@@ -128,9 +128,9 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
       CL_CHECK(clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *) &g13));      \
       CL_CHECK(clSetKernelArg(kernel, 11, sizeof(cl_mem), (void *) &g23));      \
                                                                                 \
-     CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue,          \
+     CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) QUEUE,                  \
                                      kernel, 2, NULL, global_kstep,             \
-                                     local_kstep, 0, NULL, NULL));              \
+                                     local_kstep, 0, NULL, EVENT));             \
                                                                                 \
     }
 
@@ -146,12 +146,12 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
         log_section(neko_log_buf);                                              \
         if(env_value) {                                                         \
           if( !strcmp(env_value,"1D") ) {                                       \
-            CASE_1D(LX);                                                        \
+            CASE_1D(LX, glb_cmd_queue, NULL);                                   \
             sprintf(neko_log_buf,"Set by env : 1 (1D)");                        \
             log_message(neko_log_buf);                                          \
             autotune_ax_helm[LX] = 1;                                           \
           } else if( !strcmp(env_value,"KSTEP") ) {                             \
-            CASE_KSTEP(LX);                                                     \
+            CASE_KSTEP(LX, glb_cmd_queue, NULL);                                \
             sprintf(neko_log_buf,"Set by env : 2 (KSTEP)");                     \
             log_message(neko_log_buf);                                          \
             autotune_ax_helm[LX] = 2;                                           \
@@ -160,11 +160,59 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
             log_error(neko_log_buf);                                            \
           }                                                                     \
         }                                                                       \
+        else {                                                                  \
+          CL_CHECK(clFinish(glb_cmd_queue));                                    \
+          cl_event perf_event, sync_event;                                      \
+          CL_CHECK(clEnqueueMarker(glb_cmd_queue, &sync_event));                \
+          CL_CHECK(clEnqueueBarrier(prf_cmd_queue));                            \
+          CL_CHECK(clEnqueueWaitForEvents(prf_cmd_queue, 1, &sync_event));      \
+                                                                                \
+          double elapsed1 = 0.0;                                                \
+          for(int i = 0; i < 100; i++) {                                        \
+            cl_ulong start = 0;                                                 \
+            cl_ulong end = 0;                                                   \
+            CASE_1D(LX, prf_cmd_queue, &perf_event);                            \
+            CL_CHECK(clWaitForEvents(1, &perf_event));                          \
+            CL_CHECK(clGetEventProfilingInfo(perf_event,                        \
+                                             CL_PROFILING_COMMAND_START,        \
+                                             sizeof(cl_ulong), &start, NULL));  \
+            CL_CHECK(clGetEventProfilingInfo(perf_event,                        \
+                                             CL_PROFILING_COMMAND_END,          \
+                                             sizeof(cl_ulong), &end, NULL));    \
+            elapsed1 += (end - start)*1.0e-6;                                   \
+          }                                                                     \
+          printf("Took: %g\n", elapsed1);                                       \
+          CL_CHECK(clFinish(prf_cmd_queue));                                    \
+          double elapsed2 = 0.0;                                                \
+          for(int i = 0; i < 0; i++) {                                          \
+            cl_ulong start = 0;                                                 \
+            cl_ulong end = 0;                                                   \
+            CASE_KSTEP(LX, prf_cmd_queue, &perf_event);                         \
+            CL_CHECK(clWaitForEvents(1, &perf_event));                          \
+            CL_CHECK(clGetEventProfilingInfo(perf_event,                        \
+                                             CL_PROFILING_COMMAND_START,        \
+                                             sizeof(cl_ulong), &start, NULL));  \
+            CL_CHECK(clGetEventProfilingInfo(perf_event,                        \
+                                             CL_PROFILING_COMMAND_END,          \
+                                             sizeof(cl_ulong), &end, NULL));    \
+            elapsed2 += (end - start)*1.0e-6;                                   \
+          }                                                                     \
+          printf("Took: %g\n", elapsed2);                                       \
+          CL_CHECK(clFinish(prf_cmd_queue));                                    \
+          CL_CHECK(clEnqueueMarker(prf_cmd_queue, &sync_event));                \
+          int krnl_strtgy = (elapsed1 < elapsed2 ? 1 : 2);                      \
+          sprintf(neko_log_buf, "Chose      : %d (%s)", krnl_strtgy,            \
+                  (krnl_strtgy > 1 ? "KSTEP" : "1D"));                          \
+          autotune_ax_helm[LX] = krnl_strtgy;                                   \
+          log_message(neko_log_buf);                                            \
+          clEnqueueBarrier(glb_cmd_queue);                                      \
+          clEnqueueWaitForEvents(glb_cmd_queue, 1, &sync_event) ;               \
+        }                                                                       \
         log_end_section();                                                      \
       } else if (autotune_ax_helm[LX] == 1 ) {                                  \
-          CASE_1D(LX);                                                          \
+        CASE_1D(LX, glb_cmd_queue, NULL);                                       \
       } else if (autotune_ax_helm[LX] == 2 ) {                                  \
-          CASE_KSTEP(LX);                                                       \
+        CASE_KSTEP(LX, glb_cmd_queue, NULL);                                    \
       }                                                                         \
       break
 

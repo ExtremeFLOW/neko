@@ -105,7 +105,11 @@ module opencl_intf
   integer(c_int64_t), parameter :: CL_DEVICE_TYPE_CUSTOM = 16
   integer(c_int64_t), parameter :: CL_DEVICE_TYPE_ALL = int(Z'FFFFFFFF', i8)
 
-  interface
+  !> Queue properties
+  integer(c_int64_t), parameter :: CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE = 1
+  integer(c_int64_t), parameter :: CL_QUEUE_PROFILING_ENABLE = 2
+
+   interface
      integer(c_int) function clGetPlatformIDs(num_entries, platforms, &
           num_platforms) bind(c, name = 'clGetPlatformIDs')
        use, intrinsic :: iso_c_binding
@@ -401,9 +405,10 @@ module opencl_intf
 
 contains
 
-  subroutine opencl_init(glb_cmd_queue, aux_cmd_queue)
+  subroutine opencl_init(glb_cmd_queue, aux_cmd_queue, prf_cmd_queue)
     type(c_ptr), intent(inout) :: glb_cmd_queue
     type(c_ptr), intent(inout) :: aux_cmd_queue
+    type(c_ptr), intent(inout) :: prf_cmd_queue
     type(c_ptr), target :: platform_id
     integer(c_int) :: num_platforms, num_devices, ierr
     integer(c_intptr_t) :: ctx_prop(3)
@@ -451,11 +456,18 @@ contains
        call neko_error('Failed to create a command queue')
     end if
 
+    prf_cmd_queue = clCreateCommandQueue(glb_ctx, glb_device_id, &
+                                         CL_QUEUE_PROFILING_ENABLE, ierr)
+    if (ierr .ne. CL_SUCCESS) then
+       call neko_error('Failed to create a command queue')
+    end if
+
   end subroutine opencl_init
 
-  subroutine opencl_finalize(glb_cmd_queue, aux_cmd_queue)
+  subroutine opencl_finalize(glb_cmd_queue, aux_cmd_queue, prf_cmd_queue)
     type(c_ptr), intent(inout) :: glb_cmd_queue
     type(c_ptr), intent(inout) :: aux_cmd_queue
+    type(c_ptr), intent(inout) :: prf_cmd_queue
 
     if (c_associated(glb_ctx)) then
        if (clReleaseContext(glb_ctx) .ne. CL_SUCCESS) then
@@ -476,6 +488,13 @@ contains
           call neko_error('Failed to release command queue')
        end if
        aux_cmd_queue = C_NULL_PTR
+    end if
+
+    if (c_associated(prf_cmd_queue)) then
+       if (clReleaseCommandQueue(prf_cmd_queue) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release command queue')
+       end if
+       prf_cmd_queue = C_NULL_PTR
     end if
 
     if (c_associated(glb_device_id)) then
