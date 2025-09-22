@@ -182,9 +182,8 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
             elapsed1 += (end - start)*1.0e-6;                                   \
           }                                                                     \
           printf("Took: %g\n", elapsed1);                                       \
-          CL_CHECK(clFinish(prf_cmd_queue));                                    \
           double elapsed2 = 0.0;                                                \
-          for(int i = 0; i < 0; i++) {                                          \
+          for(int i = 0; i < 100; i++) {                                        \
             cl_ulong start = 0;                                                 \
             cl_ulong end = 0;                                                   \
             CASE_KSTEP(LX, prf_cmd_queue, &perf_event);                         \
