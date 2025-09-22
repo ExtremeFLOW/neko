@@ -210,13 +210,13 @@ void conv1_kernel_kstep_lx##LX(__global real * __restrict__ du,                \
     }                                                                          \
                                                                                \
     du[ijk + ele] = rjacinv[k] *                                               \
-	(rvx[k] * (drdx[ijk + ele] * rtmp                                      \
+	(rvx[k] * (drdx[ijk + ele] * rtmp                                            \
                    + dsdx[ijk + ele] * stmp                                    \
                    + dtdx[ijk + ele] * ttmp)                                   \
-	 + rvy[k] * (drdy[ijk + ele] * rtmp                                    \
+	 + rvy[k] * (drdy[ijk + ele] * rtmp                                          \
                      + dsdy[ijk + ele] * stmp                                  \
                      + dtdy[ijk + ele] * ttmp)                                 \
-	 + rvz[k] * (drdz[ijk + ele] * rtmp                                    \
+	 + rvz[k] * (drdz[ijk + ele] * rtmp                                          \
                      + dsdz[ijk + ele] * stmp                                  \
                      + dtdz[ijk + ele] * ttmp));                               \
     barrier(CLK_LOCAL_MEM_FENCE);                                              \
