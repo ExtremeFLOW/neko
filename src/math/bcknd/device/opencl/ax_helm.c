@@ -163,14 +163,13 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
         else {                                                                  \
           CL_CHECK(clFinish(glb_cmd_queue));                                    \
           cl_event perf_event, sync_event;                                      \
+          cl_ulong start, end;                                                  \
           CL_CHECK(clEnqueueMarker(glb_cmd_queue, &sync_event));                \
           CL_CHECK(clEnqueueBarrier(prf_cmd_queue));                            \
           CL_CHECK(clEnqueueWaitForEvents(prf_cmd_queue, 1, &sync_event));      \
                                                                                 \
           double elapsed1 = 0.0;                                                \
           for(int i = 0; i < 100; i++) {                                        \
-            cl_ulong start = 0;                                                 \
-            cl_ulong end = 0;                                                   \
             CASE_1D(LX, prf_cmd_queue, &perf_event);                            \
             CL_CHECK(clWaitForEvents(1, &perf_event));                          \
             CL_CHECK(clGetEventProfilingInfo(perf_event,                        \
@@ -181,11 +180,9 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
                                              sizeof(cl_ulong), &end, NULL));    \
             elapsed1 += (end - start)*1.0e-6;                                   \
           }                                                                     \
-          printf("Took: %g\n", elapsed1);                                       \
+                                                                                \
           double elapsed2 = 0.0;                                                \
           for(int i = 0; i < 100; i++) {                                        \
-            cl_ulong start = 0;                                                 \
-            cl_ulong end = 0;                                                   \
             CASE_KSTEP(LX, prf_cmd_queue, &perf_event);                         \
             CL_CHECK(clWaitForEvents(1, &perf_event));                          \
             CL_CHECK(clGetEventProfilingInfo(perf_event,                        \
@@ -196,7 +193,7 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
                                              sizeof(cl_ulong), &end, NULL));    \
             elapsed2 += (end - start)*1.0e-6;                                   \
           }                                                                     \
-          printf("Took: %g\n", elapsed2);                                       \
+                                                                                \
           CL_CHECK(clFinish(prf_cmd_queue));                                    \
           CL_CHECK(clEnqueueMarker(prf_cmd_queue, &sync_event));                \
           int krnl_strtgy = (elapsed1 < elapsed2 ? 1 : 2);                      \
