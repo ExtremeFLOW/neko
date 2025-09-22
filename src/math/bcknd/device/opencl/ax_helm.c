@@ -31,7 +31,7 @@
  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 */
-#define CL_SILENCE_DEPRECATION
+
 #ifdef __APPLE__
 #include <OpenCL/cl.h>
 #else
@@ -230,7 +230,6 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
       exit(1);
     }
   }
-
 }
 
 /**
