@@ -254,7 +254,7 @@ else
 fi
 
 # Checks for CUDA backend
-if test "x${is_cray}" = xyes; then
+if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then
   AX_CRAY_CUDATOOLKIT
 else
   AX_CUDA
