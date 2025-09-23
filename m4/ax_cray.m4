@@ -172,8 +172,12 @@ AC_DEFUN([AX_CRAY_CUDATOOLKIT],[
 	    cuda_bcknd="1"
 	  else
 	    AC_MSG_RESULT([no])
-            AC_MSG_ERROR([Cray CUDA Toolkit not found])
-	    have_cuda="no"
+            if test "${CUDA_HOME}"; then
+              AX_CUDA
+            else
+              AC_MSG_ERROR([Cray CUDA Toolkit not found])
+	      have_cuda="no"
+            fi
 	  fi
 	fi
 	AC_SUBST(cuda_bcknd)
