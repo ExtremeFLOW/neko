@@ -8,14 +8,11 @@
         "output_boundary": true,
         "output_checkpoints": false,
         "output_at_end": true,
-        "load_balance": false,
-        "job_timelimit": "00:00:00",
         "time": {
             "end_time": 5,
             "variable_timestep": true,
             "max_timestep": 0.25e-2,
             "target_cfl": 0.3
-            //"timestep": 1e-3
         },
         "numerics": {
             "time_order": 3,
