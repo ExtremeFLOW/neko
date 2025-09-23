@@ -34,7 +34,8 @@
 module vector
   use neko_config, only: NEKO_BCKND_DEVICE
   use num_types, only: rp
-  use device, only: device_map, device_free
+  use device, only: device_map, device_free, device_deassociate, &
+       device_memcpy, device_sync
   use math, only: cfill, copy
   use device_math, only: device_copy, device_cfill
   use utils, only: neko_error
@@ -54,6 +55,8 @@ module vector
      procedure, pass(v) :: init => vector_init
      !> Deallocate a vector.
      procedure, pass(v) :: free => vector_free
+     !> Copy data between host and device
+     procedure, pass(v) :: copy_from => vector_copy_from
      !> Returns the number of entries in the vector.
      procedure, pass(v) :: size => vector_size
      !> Assignment \f$ v = w \f$
@@ -85,6 +88,7 @@ contains
     call cfill(v%x, 0.0_rp, n)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cfill(v%x_d, 0.0_rp, n)
+       call device_sync()
     end if
 
   end subroutine vector_init
@@ -115,6 +119,7 @@ contains
     end if
 
     if (c_associated(v%x_d)) then
+       call device_deassociate(v%x)
        call device_free(v%x_d)
     end if
 
@@ -128,6 +133,22 @@ contains
     integer :: s
     s = v%n
   end function vector_size
+
+  !> Easy way to copy between host and device.
+  !! @param v vector to copy to/from device/host
+  !! @memdir direction to copy (HOST_TO_DEVICE or DEVICE_TO_HOST)
+  !! @sync whether the memcopy to be blocking or not
+  subroutine vector_copy_from(v, memdir, sync)
+    class(vector_t), intent(inout) :: v
+    integer, intent(in) :: memdir
+    logical, intent(in) :: sync
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(v%x, v%x_d, v%n, memdir, sync)
+    end if
+
+  end subroutine vector_copy_from
+
 
   !> Assignment \f$ v = w \f$.
   subroutine vector_assign_vector(v, w)

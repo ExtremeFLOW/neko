@@ -40,9 +40,12 @@ module point
   private
 
   !> A point in \f$ \mathbb{R}^d \f$ with coordinates \f$ (x,y,z)\f$.
-  type, extends(entity_t), public ::  point_t
+  type, extends(entity_t), public :: point_t
      real(kind=dp), dimension(3) :: x
    contains
+     generic :: init => point_init_array, point_init_xyz
+     procedure, pass(this) :: point_init_array
+     procedure, pass(this) :: point_init_xyz
      procedure :: point_eq
      procedure :: point_ne
      procedure :: point_lt
@@ -64,21 +67,17 @@ module point
   end type point_t
 
   !> Defines a pointer to a point type.
-  type, public ::  point_ptr
+  type, public :: point_ptr
      type(point_t), pointer :: p
   end type point_ptr
-
-  interface point_t
-     module procedure point_init, point_init_xyz
-  end interface point_t
 
 contains
 
   !> Initialize a point from an array @a x of \f$ (x,y,z) \f$ coordinates.
-  function point_init(x, id) result(this)
+  subroutine point_init_array(this, x, id)
+    class(point_t), intent(inout) :: this
     real(kind=dp), dimension(3), intent(in) :: x
-    integer, optional, intent(inout) :: id
-    type(point_t) :: this
+    integer, optional, intent(in) :: id
 
     if (present(id)) then
        call this%set_id(id)
@@ -88,15 +87,15 @@ contains
 
     this%x = x
 
-  end function point_init
+  end subroutine point_init_array
 
   !> Initialize a point from \f$ (x,y,z) \f$ coordinates.
-  function point_init_xyz(x, y, z, id) result(this)
+  subroutine point_init_xyz(this, x, y, z, id)
+    class(point_t), intent(inout) :: this
     real(kind=dp), intent(in) :: x
     real(kind=dp), intent(in) :: y
     real(kind=dp), intent(in) :: z
-    integer, optional, intent(inout) :: id
-    type(point_t) :: this
+    integer, optional, intent(in) :: id
 
     if (present(id)) then
        call this%set_id(id)
@@ -108,7 +107,7 @@ contains
     this%x(2) = y
     this%x(3) = z
 
-  end function point_init_xyz
+  end subroutine point_init_xyz
 
   !> Assigns coordinates @a x to a point.
   subroutine point_assign(this, x)
@@ -228,9 +227,9 @@ contains
     type(point_t), intent(in) :: p2
     real(kind=rp) :: res
 
-    res = sqrt(  (p1%x(1) - p2%x(1))**2 &
-               + (p1%x(2) - p2%x(2))**2 &
-               + (p1%x(3) - p2%x(3))**2 )
+    res = sqrt( (p1%x(1) - p2%x(1))**2 &
+         + (p1%x(2) - p2%x(2))**2 &
+         + (p1%x(3) - p2%x(3))**2 )
   end function point_euclid_dist
 
   !> Computes matrix-vector product in \f$ \mathbb{R}^3 \f$: \f$ b = Ax \f$.
