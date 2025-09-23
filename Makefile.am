@@ -72,8 +72,10 @@ EXTRA_DIST = \
 	examples/poisson/data/512.nmsh\
 	examples/poisson/data/1024.nmsh\
 	examples/poisson/driver.f90\
-	examples/2d_cylinder/ext_cyl.nmsh\
+	examples/2d_cylinder/2d_cylinder.nmsh\
 	examples/2d_cylinder/2d_cylinder.case\
+	examples/2d_cylinder/2d_cylinder.f90\
+	examples/2d_cylinder/2d_cylinder.geo\
 	examples/2d_cylinder/README.md\
 	examples/cyl_boundary_layer/cyl_bl_rot.case\
 	examples/cyl_boundary_layer/cyl_bl.f90\
