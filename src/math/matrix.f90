@@ -34,8 +34,9 @@
 module matrix
   use neko_config, only: NEKO_BCKND_DEVICE
   use math, only: sub3, chsign, add3, cmult2, cadd2
-  use num_types, only: rp
-  use device, only: device_map, device_free
+  use num_types, only: rp, xp
+  use device, only: device_map, device_free, device_memcpy, &
+       device_deassociate, device_sync
   use device_math, only: device_copy, device_cfill, device_cmult, &
        device_sub3, device_cmult2, device_add3, device_cadd2
   use utils, only: neko_error
@@ -56,6 +57,8 @@ module matrix
      procedure, pass(m) :: free => matrix_free
      !> Returns the number of entries in the matrix.
      procedure, pass(m) :: size => matrix_size
+     !> Copy between host and device
+     procedure, pass(m) :: copy_from => matrix_copy_from
      !> Returns the number of rows in the matrix.
      procedure, pass(m) :: get_nrows => matrix_nrows
      !> Returns the number of columns in the matrix.
@@ -66,6 +69,7 @@ module matrix
      procedure, pass(m) :: matrix_assign_scalar
      !> Inverse a matrix.
      procedure, pass(m) :: inverse => matrix_bcknd_inverse
+     procedure, pass(m) :: inverse_on_host => cpu_matrix_inverse
 
      generic :: assignment(=) => matrix_assign_matrix, &
           matrix_assign_scalar
@@ -109,6 +113,8 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(m%x, m%x_d, m%n)
+       call device_cfill(m%x_d, 0.0_rp, m%n)
+       call device_sync()
     end if
 
   end subroutine matrix_allocate
@@ -122,6 +128,7 @@ contains
     end if
 
     if (c_associated(m%x_d)) then
+       call device_deassociate(m%x)
        call device_free(m%x_d)
     end if
 
@@ -137,6 +144,22 @@ contains
     integer :: s
     s = m%n
   end function matrix_size
+
+
+  !> Easy way to copy between host and device.
+  !! @param m matrix to copy to/from device/host
+  !! @memdir direction to copy (HOST_TO_DEVICE or DEVICE_TO_HOST)
+  !! @sync whether the memcopy to be blocking or not
+  subroutine matrix_copy_from(m, memdir, sync)
+    class(matrix_t), intent(inout) :: m
+    integer, intent(in) :: memdir
+    logical, intent(in) :: sync
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(m%x, m%x_d, m%n, memdir, sync)
+    end if
+
+  end subroutine matrix_copy_from
 
   !> Returns the number of rows in the matrix.
   pure function matrix_nrows(m) result(nr)
@@ -220,7 +243,7 @@ contains
     ! rmult is m  work array of length nrows = ncols
     class(matrix_t), intent(inout) :: m
     integer :: indr(m%nrows), indc(m%ncols), ipiv(m%ncols)
-    real(kind=rp) :: rmult(m%nrows), amx, tmp, piv, eps
+    real(kind=xp) :: rmult(m%nrows), amx, tmp, piv, eps
     integer :: i, j, k, ir, jc
 
     if (.not. (m%ncols .eq. m%nrows)) then
@@ -264,8 +287,8 @@ contains
        if (abs(m%x(jc, jc)) .lt. eps) then
           call neko_error("matrix_inverse error: small Gauss Jordan Piv")
        end if
-       piv = 1.0_rp/m%x(jc, jc)
-       m%x(jc, jc) = 1.0_rp
+       piv = 1.0_xp/m%x(jc, jc)
+       m%x(jc, jc) = 1.0_xp
        do j = 1, m%ncols
           m%x(jc, j) = m%x(jc, j)*piv
        end do

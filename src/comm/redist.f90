@@ -216,7 +216,7 @@ contains
     type is (nmsh_hex_t)
        do i = 1, new_mesh_dist(pe_rank)%size()
           do j = 1, 8
-             p(j) = point_t(np(i)%v(j)%v_xyz, np(i)%v(j)%v_idx)
+             call p(j)%init(np(i)%v(j)%v_xyz, np(i)%v(j)%v_idx)
           end do
           call msh%add_element(i, np(i)%el_idx, &
                p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))

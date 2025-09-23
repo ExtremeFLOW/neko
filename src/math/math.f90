@@ -105,7 +105,7 @@ module math
        add3s2, add4s3, add5s4, subcol4, addcol3, addcol4, addcol3s2, ascol5, &
        p_update, x_update, glsc2, glsc3, glsc4, sort, masked_copy_0, &
        cfill_mask, relcmp, glimax, glimin, swap, reord, flipv, cadd2, &
-       masked_gather_copy_0, absval, &
+       masked_gather_copy_0, absval, matinv3, matinv39, &
        pwmax2, pwmax3, cpwmax2, cpwmax3, pwmin2, pwmin3, cpwmin2, cpwmin3, &
        masked_scatter_copy_0, cdiv, cdiv2, glsubnorm, &
        masked_copy, masked_gather_copy, masked_scatter_copy
@@ -1477,5 +1477,53 @@ contains
        a(i) = min(b(i), c)
     end do
   end subroutine cpwmin3
+
+  ! M33INV and M44INV by David G. Simpson pure function version from
+  ! https://fortranwiki.org/fortran/show/Matrix+inversion
+  ! Invert 3x3 matrix
+  function matinv39(a11, a12, a13, a21, a22, a23, a31, a32, a33) &
+       result(B)
+    real(kind=rp), intent(in) :: a11, a12, a13, a21, a22, a23, a31, a32, a33
+    real(xp) :: A(3,3) !! Matrix
+    real(rp) :: B(3,3) !! Inverse matrix
+    A(1,1) = a11
+    A(1,2) = a12
+    A(1,3) = a13
+    A(2,1) = a21
+    A(2,2) = a22
+    A(2,3) = a23
+    A(3,1) = a31
+    A(3,2) = a32
+    A(3,3) = a33
+    B = matinv3(A)
+  end function matinv39
+
+  !> Performs a direct calculation of the inverse of a 3×3 matrix.
+  !! M33INV and M44INV by David G. Simpson pure function version from
+  !! https://fortranwiki.org/fortran/show/Matrix+inversion
+  !! Invert 3x3 matrix
+  function matinv3(A) result(B)
+    !! Performs a direct calculation of the inverse of a 3×3 matrix.
+    real(kind=xp), intent(in) :: A(3,3) !! Matrix
+    real(kind=xp) :: B(3,3) !! Inverse matrix
+    real(kind=xp) :: detinv
+
+    ! Calculate the inverse determinant of the matrix
+    ! first index x,y,z, second r, s, t
+    detinv = 1.0_xp/real(A(1,1)*A(2,2)*A(3,3) - A(1,1)*A(2,3)*A(3,2)&
+         - A(1,2)*A(2,1)*A(3,3) + A(1,2)*A(2,3)*A(3,1)&
+         + A(1,3)*A(2,1)*A(3,2) - A(1,3)*A(2,2)*A(3,1),xp)
+    ! Calculate the inverse of the matrix
+    ! first index r, s, t, second x, y, z
+    B(1,1) = +detinv * (A(2,2)*A(3,3) - A(2,3)*A(3,2))
+    B(2,1) = -detinv * (A(2,1)*A(3,3) - A(2,3)*A(3,1))
+    B(3,1) = +detinv * (A(2,1)*A(3,2) - A(2,2)*A(3,1))
+    B(1,2) = -detinv * (A(1,2)*A(3,3) - A(1,3)*A(3,2))
+    B(2,2) = +detinv * (A(1,1)*A(3,3) - A(1,3)*A(3,1))
+    B(3,2) = -detinv * (A(1,1)*A(3,2) - A(1,2)*A(3,1))
+    B(1,3) = +detinv * (A(1,2)*A(2,3) - A(1,3)*A(2,2))
+    B(2,3) = -detinv * (A(1,1)*A(2,3) - A(1,3)*A(2,1))
+    B(3,3) = +detinv * (A(1,1)*A(2,2) - A(1,2)*A(2,1))
+  end function matinv3
 
 end module math
