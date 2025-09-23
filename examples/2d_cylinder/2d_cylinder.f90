@@ -1,8 +1,5 @@
 ! Two-dimensional flow past circular cylinder cavity
 !
-! Time-integration of the lid-driven cavity with smoothened
-! belt velocity to fulfil the continuity equation in the corners.
-!
 ! Note that the domain is actually 3D with width one element. In order
 ! to prevent any instability in the z direction, the w velocity is
 ! set to zero at every step. This is needed for higher Reynolds numbers.
