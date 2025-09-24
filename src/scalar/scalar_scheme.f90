@@ -57,8 +57,7 @@ module scalar_scheme
   use time_scheme_controller, only : time_scheme_controller_t
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use field_registry, only : neko_field_registry
-  use json_utils, only : json_get, json_get_or_default, json_extract_item, &
-       json_extract_object
+  use json_utils, only : json_get, json_get_or_default, json_extract_item
   use json_module, only : json_file
   use user_intf, only : user_t, dummy_user_material_properties, &
        user_material_properties_intf
@@ -270,7 +269,7 @@ contains
     call json_get(params, 'solver.type', solver_type)
     call json_get(params, 'solver.preconditioner.type', &
          solver_precon)
-    call json_extract_object(params, 'solver.preconditioner', precon_params)
+    call json_get(params, 'solver.preconditioner', precon_params)
     call json_get(params, 'solver.absolute_tolerance', &
          solver_abstol)
 
