@@ -67,6 +67,11 @@ contains
             1.0_rp - s%dof%z(bc%msk(i),1,1,1)
     end do
 
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(s%x, s%x_d, s%size(), &
+            HOST_TO_DEVICE, sync=.false.)
+    end if
+
   end subroutine dirichlet_conditions
 
   subroutine initial_conditions(scheme_name, fields)
