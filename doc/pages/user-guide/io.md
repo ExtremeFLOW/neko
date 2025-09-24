@@ -31,15 +31,15 @@ periodic boundaries are directly encoded into the mesh file, and this will
 remain so in the future.
 
 ## Three-dimensional field output
-Neko stores the 3D fields with results in the `.fld` format, which is the same
+Neko stores the 3D fields with results in the `.f#####` format, which is the same
 as in Nek5000. The advantage of adopting this format, is that there is a reader
 in Paraview and VisIt, which can be used to visualize them. Note that the latest
-version of Paraview actually has two reader for `.fld`. For now, Neko has only
+version of Paraview actually has two readers for `.f#####`. For now, Neko has only
 been tested with the older reader, which uses VisIt under the hood.  A file with
 the `.nek5000` extension is used as the entry point for the readers and stores
 some metadata. Users may also find the Python package `pysemtools` useful for
-working with `.fld`s. Note that only the first output `.fld` file stores the
-mesh.
+working with `.f#####`s. Note that only the first output `.f#####` file stores the
+mesh. Detailded description of the file format can be found in [Nek5000 documentation](https://nek5000.github.io/NekDoc/problem_setup/case_files.html#restart-output-files-f).
 
 ### Compression of field output
 Neko supports compression of the 3D field data when writing through the ADIOS2.
