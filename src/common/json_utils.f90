@@ -39,7 +39,7 @@ module json_utils
   private
 
   public :: json_get, json_get_or_default, json_extract_item, &
-       json_extract_object, json_no_defaults
+       json_no_defaults
 
   !> If true, the json_get_or_default routines will not add missing parameters
   logical :: json_no_defaults = .false.
@@ -434,31 +434,5 @@ contains
     call item%load_from_string(buffer)
 
   end subroutine json_extract_item_from_name
-
-  !> Extract object as a separate  JSON dictionary.
-  !! @param[inout] json The JSON with the object to be extracted.
-  !! @param[in] name The name of the object to extract.
-  !! @param[inout] object The extracted JSON object.
-  subroutine json_extract_object(json, name, object)
-    type(json_file), intent(inout) :: json
-    character(len=*), intent(in) :: name
-    type(json_file), intent(inout) :: object
-
-    type(json_value), pointer :: ptr
-    type(json_core) :: core
-    logical :: found
-    character(len=:), allocatable :: buffer
-
-    call json%get_core(core)
-    call json%get(name, ptr, found)
-
-    if (.not. found) then
-       call neko_error("Object " // name // " missing from the case file")
-    end if
-
-    call core%print_to_string(ptr, buffer)
-    call object%load_from_string(buffer)
-
-  end subroutine json_extract_object
 
 end module json_utils
