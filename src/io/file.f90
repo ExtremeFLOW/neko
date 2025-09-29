@@ -80,7 +80,7 @@ module file
      !> Sets the file's overwrite flag.
      procedure, pass (this) :: set_overwrite => file_set_overwrite
      !> File operation destructor.
-     final :: file_free
+     procedure, pass(this) :: free => file_free
   end type file_t
 
 contains
@@ -153,7 +153,7 @@ contains
 
   !> File operation destructor.
   subroutine file_free(this)
-    type(file_t), intent(inout) :: this
+    class(file_t), intent(inout) :: this
 
     if (allocated(this%file_type)) then
        deallocate(this%file_type)

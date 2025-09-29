@@ -7,7 +7,7 @@
 ! - Using the `user_startup` routine to inspect and manipulate the JSON
 !   parameter dictionary before the simulation starts.
 ! - Extracting parameters from the JSON file using `json_get` and
-!   `json_get_or_default`, and `json_extract_object`.
+!   `json_get_or_default`.
 ! - Printing JSON objects using the `print` method.
 ! - Adding or modifying parameters in the JSON file using the `add` method.
 ! - Saving the JSON parameter dictionary for later use in the module.
@@ -84,7 +84,7 @@ contains
     call json_get_or_default(params, "case.fluid.Re", some_real, 100.0_rp)
 
     ! Extract the object with the velocity initial conditions.
-    call json_extract_object(params, "case.fluid.initial_condition", &
+    call json_get(params, "case.fluid.initial_condition", &
          some_json_object)
 
     ! We can print the contents to the console.
@@ -100,7 +100,7 @@ contains
     call params%add("case.end_time", 0.0_rp)
 
     ! Show the updated part of the JSON file.
-    call json_extract_object(params, "case.fluid.initial_condition", &
+    call json_get(params, "case.fluid.initial_condition", &
          some_json_object)
     call some_json_object%print()
 

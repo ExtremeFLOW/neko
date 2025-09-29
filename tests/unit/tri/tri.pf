@@ -14,14 +14,14 @@ subroutine test_tri_init
   integer :: i, id
 
   id = 1
-  p1 = point_t(c1, id)
+  call p1%init(c1, id)
 
   id = 2
-  p2 = point_t(c2, id)
+  call p2%init(c2, id)
 
   id = 3
-  p3 = point_t(c3, id)
-  
+  call p3%init(c3, id)
+
 
   id = 42
   call t%init(id, p1, p2, p3)
@@ -52,14 +52,14 @@ subroutine test_tri_free
   integer :: i, id
 
   id = 1
-  p1 = point_t(c1, id)
+  call p1%init(c1, id)
 
   id = 2
-  p2 = point_t(c2, id)
+  call p2%init(c2, id)
 
   id = 3
-  p3 = point_t(c3, id)
-  
+  call p3%init(c3, id)
+
   id = 42
   call t%init(id, p1, p2, p3)
   call t%free()
@@ -83,9 +83,9 @@ subroutine test_tri_centroid
   type(point_t) :: centroid
   integer :: i, id
 
-  p1 = point_t(c1)
-  p2 = point_t(c2)
-  p3 = point_t(c3)
+  call p1%init(c1)
+  call p2%init(c2)
+  call p3%init(c3)
   id = 42
   call t%init(id, p1, p2, p3)
 
@@ -111,14 +111,14 @@ subroutine test_tri_diameter
   type(tri_t) :: t
   integer :: i, id
 
-  p1 = point_t(c1)
-  p2 = point_t(c2)
-  p3 = point_t(c3)
+  call p1%init(c1)
+  call p2%init(c2)
+  call p3%init(c3)
   id = 42
   call t%init(id, p1, p2, p3)
 
   @assertEqual(t%diameter(), 1.414213562373095d0, tolerance=1d-14)
-  
+
 end subroutine test_tri_diameter
 
 @test
@@ -139,9 +139,9 @@ subroutine test_tri_equal
   type(tri_t) :: t1, t2, t3
   integer :: i, id
 
-  p1 = point_t(c1)
-  p2 = point_t(c2)
-  p3 = point_t(c3)
+  call p1%init(c1)
+  call p2%init(c2)
+  call p3%init(c3)
   id = 42
   call t1%init(id, p1, p2, p3)
 
@@ -151,18 +151,18 @@ subroutine test_tri_equal
   @assertTrue(t1 .eq. t2)
   @assertFalse(t1%id() .eq. t2%id())
 
-  p5 = point_t(d1)
-  p6 = point_t(d2)
-  p7 = point_t(d3)
+  call p5%init(d1)
+  call p6%init(d2)
+  call p7%init(d3)
   id = 44
   call t3%init(id, p5, p6, p7)
   @assertFalse(t1 .eq. t3)
 
-  p5 = point_t(c1)
-  p6 = point_t(c2)
-  p7 = point_t(c3)
+  call p5%init(c1)
+  call p6%init(c2)
+  call p7%init(c3)
   @assertTrue(t1 .eq. t3)
-  
+
 end subroutine test_tri_equal
 
 @test
@@ -183,14 +183,14 @@ subroutine test_tri_facet_id
   type(tuple_i4_t) :: t
 
   id = 1
-  p1 = point_t(c1, id)
+  call p1%init(c1, id)
 
   id = 2
-  p2 = point_t(c2, id)
+  call p2%init(c2, id)
 
   id = 3
-  p3 = point_t(c3, id)
-  
+  call p3%init(c3, id)
+
   id = 42
   call tr%init(id, p1, p2, p3)
 
@@ -205,5 +205,5 @@ subroutine test_tri_facet_id
   call tr%facet_id(t, 3)
   @assertEqual(t%x(1), p1%id())
   @assertEqual(t%x(2), p2%id())
-    
+
 end subroutine test_tri_facet_id

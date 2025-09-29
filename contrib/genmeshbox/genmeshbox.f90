@@ -206,7 +206,7 @@ program genmeshbox
                     coord(3) = cumm_z(e_z + 1 + iz)
                     pt_idx = 1 + (ix + e_x) + (iy + e_y)*(nelx + 1) + &
                          (iz + e_z)*(nelx + 1)*(nely + 1)
-                    p(ix+1, iy+1, iz+1) = point_t(coord, pt_idx)
+                    call p(ix+1, iy+1, iz+1)%init(coord, pt_idx)
                  end do
               end do
            end do

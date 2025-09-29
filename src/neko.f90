@@ -126,8 +126,7 @@ module neko
   use field_dirichlet_vector, only : field_dirichlet_vector_t
   use runtime_stats, only : neko_rt_stats
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default, json_extract_item, &
-       json_extract_object
+  use json_utils, only : json_get, json_get_or_default, json_extract_item
   use bc_list, only : bc_list_t
   use les_model, only : les_model_t, les_model_allocate, register_les_model, &
        les_model_factory, les_model_allocator
@@ -234,7 +233,7 @@ contains
     type(json_file) :: dt_params
     real(kind=dp) :: tstep_loop_start_time
 
-    call json_extract_object(C%params, 'case.time', dt_params)
+    call json_get(C%params, 'case.time', dt_params)
     call dt_controller%init(dt_params)
 
     call C%time%reset()

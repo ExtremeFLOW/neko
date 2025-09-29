@@ -150,6 +150,7 @@ neko_fortran_SOURCES = \
 	io/fluid_stats_output.f90\
 	io/data_streamer.F90\
 	io/output_controller.f90\
+	io/mean_field_output.f90\
 	common/global_interpolation.F90\
 	common/profiler.F90\
 	common/craypat.F90\
@@ -207,6 +208,7 @@ neko_fortran_SOURCES = \
 	simulation_components/probes.F90\
 	simulation_components/force_torque.f90\
 	simulation_components/fluid_stats_simcomp.f90\
+	simulation_components/user_stats.f90\
 	simulation_components/field_writer.f90\
 	common/bcknd/cpu/rhs_maker_cpu.f90\
 	common/bcknd/sx/rhs_maker_sx.f90\

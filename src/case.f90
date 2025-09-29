@@ -57,7 +57,7 @@ module case
   use scalar_scheme, only : scalar_scheme_t
   use time_state, only : time_state_t
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default, json_extract_object, json_extract_item, json_no_defaults
+  use json_utils, only : json_get, json_get_or_default, json_extract_item, json_no_defaults
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   use point_zone_registry, only: neko_point_zone_registry
   use scalars, only : scalars_t
@@ -204,7 +204,7 @@ contains
     !
     ! Time control
     !
-    call json_extract_object(this%params, 'case.time', json_subdict)
+    call json_get(this%params, 'case.time', json_subdict)
     call this%time%init(json_subdict)
 
     !
@@ -215,7 +215,7 @@ contains
     ! Run user mesh motion routine
     call this%user%mesh_setup(this%msh, this%time)
 
-    call json_extract_object(this%params, 'case.numerics', numerics_params)
+    call json_get(this%params, 'case.numerics', numerics_params)
 
     !
     ! Setup fluid scheme
@@ -257,14 +257,14 @@ contains
        allocate(this%scalars)
        if (this%params%valid_path('case.scalar')) then
           ! For backward compatibility
-          call json_extract_object(this%params, 'case.scalar', scalar_params)
+          call json_get(this%params, 'case.scalar', scalar_params)
           call this%scalars%init(this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
                scalar_params, numerics_params, this%user, this%chkp, this%fluid%ulag, &
                this%fluid%vlag, this%fluid%wlag, this%fluid%ext_bdf, &
                this%fluid%rho)
        else
           ! Multiple scalars
-          call json_extract_object(this%params, 'case.scalars', json_subdict)
+          call json_get(this%params, 'case.scalars', json_subdict)
           call this%scalars%init(n_scalars, this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
                json_subdict, numerics_params, this%user, this%chkp, this%fluid%ulag, &
                this%fluid%vlag, this%fluid%wlag, this%fluid%ext_bdf, &
@@ -277,7 +277,7 @@ contains
     !
     call json_get(this%params, 'case.fluid.initial_condition.type', &
          string_val)
-    call json_extract_object(this%params, 'case.fluid.initial_condition', &
+    call json_get(this%params, 'case.fluid.initial_condition', &
          json_subdict)
 
     call neko_log%section("Fluid initial condition ")
@@ -310,12 +310,12 @@ contains
 
        if (this%params%valid_path('case.restart_file')) then
           call neko_log%message("Restart file specified, " // &
-                "initial conditions ignored")
+               "initial conditions ignored")
        else if (this%params%valid_path('case.scalar')) then
           ! For backward compatibility with single scalar
           call json_get(this%params, 'case.scalar.initial_condition.type', &
                string_val)
-          call json_extract_object(this%params, &
+          call json_get(this%params, &
                'case.scalar.initial_condition', json_subdict)
 
           if (trim(string_val) .ne. 'user') then
@@ -337,7 +337,7 @@ contains
              call json_extract_item(this%params, 'case.scalars', i, &
                   scalar_params)
              call json_get(scalar_params, 'initial_condition.type', string_val)
-             call json_extract_object(scalar_params, 'initial_condition', &
+             call json_get(scalar_params, 'initial_condition', &
                   json_subdict)
 
              if (trim(string_val) .ne. 'user') then

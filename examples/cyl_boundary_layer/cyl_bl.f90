@@ -146,6 +146,12 @@ contains
           w%x(msk_ind,1,1,1) = sin(th)*u_rho + cos(th)*u_th
        end if
     end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(u%x, u%x_d, u%size(), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(v%x, v%x_d, v%size(), HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(w%x, w%x_d, w%size(), HOST_TO_DEVICE, sync=.false.)
+    end if
   end subroutine dirichlet_conditions
 
   ! User defined initial condition

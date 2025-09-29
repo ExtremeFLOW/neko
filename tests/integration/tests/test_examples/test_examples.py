@@ -23,7 +23,8 @@ examples_dir = join(neko_dir, "examples")
 examples = {
     "2d_cylinder": NekoTestCase(
         case_file=join(examples_dir, "2d_cylinder", "2d_cylinder.case"),
-        mesh_file=join(examples_dir, "2d_cylinder", "ext_cyl.nmsh")
+        user_file=join(examples_dir, "2d_cylinder", "2d_cylinder.f90"),
+        mesh_file=join(examples_dir, "2d_cylinder", "2d_cylinder.nmsh")
     ),
     "TS_channel": NekoTestCase(
         case_file=join(examples_dir, "TS_channel", "TS_channel.case"),
