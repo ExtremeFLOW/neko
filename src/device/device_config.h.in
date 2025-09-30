@@ -16,4 +16,11 @@ extern void *glb_ctx;
 extern void *glb_cmd_queue;
 extern void *glb_device_id;
 
+#ifdef HAVE_OPENCL
+/** 
+ * OpenCL queue with profiling enabled
+ */
+extern void *prf_cmd_queue;
+#endif
+
 #endif // __DEVICE_DEVICE_CONFIG__

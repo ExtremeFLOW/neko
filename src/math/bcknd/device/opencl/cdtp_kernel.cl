@@ -1,7 +1,7 @@
 #ifndef __MATH_CDTP_KERNEL_CL__
 #define __MATH_CDTP_KERNEL_CL__
 /*
- Copyright (c) 2021-2024, The Neko Authors
+ Copyright (c) 2021-2025, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -103,7 +103,7 @@ __kernel void cdtp_kernel_lx##LX(__global real * __restrict__ dtx,             \
                                                                                \
     }                                                                          \
   }                                                                            \
-}                                                                              
+}
 
 DEFINE_CDTP_KERNEL(2, 256)
 DEFINE_CDTP_KERNEL(3, 256)
@@ -118,7 +118,86 @@ DEFINE_CDTP_KERNEL(11, 256)
 DEFINE_CDTP_KERNEL(12, 256)
 DEFINE_CDTP_KERNEL(13, 256)
 
+#define DEFINE_CDTP_KERNEL_KSTEP(LX)                                           \
+__kernel void cdtp_kernel_kstep_lx##LX(__global real * __restrict__ dtx,       \
+                                       __global const real * __restrict__ x,   \
+                                       __global const real * __restrict__ dr,  \
+                                       __global const real * __restrict__ ds,  \
+                                       __global const real * __restrict__ dt,  \
+                                       __global const real * __restrict__ dxt, \
+                                       __global const real * __restrict__ dyt, \
+                                       __global const real * __restrict__ dzt, \
+                                       __global const real * __restrict__ w3) {\
+                                                                               \
+  __local real shdxt[LX * LX];                                                 \
+  __local real shdyt[LX * LX];                                                 \
+  __local real shdzt[LX * LX];                                                 \
+                                                                               \
+  __local real shtar[LX * LX];                                                 \
+  __local real shtas[LX * LX];                                                 \
+                                                                               \
+  real rtar[LX];                                                               \
+  real rtas[LX];                                                               \
+  real rtat[LX];                                                               \
+                                                                               \
+  const int e = get_group_id(0);                                               \
+  const int j = get_local_id(1);                                               \
+  const int i = get_local_id(0);                                               \
+  const int ij = i + j * LX;                                                   \
+  const int ele = e*LX*LX*LX;                                                  \
+                                                                               \
+  shdxt[ij] = dxt[ij];                                                         \
+  shdyt[ij] = dyt[ij];                                                         \
+  shdzt[ij] = dzt[ij];                                                         \
+                                                                               \
+  for (int k = 0; k < LX; ++k) {                                               \
+    real wx = x[ij + k*LX*LX + ele] * w3[ij + k*LX*LX];                        \
+                                                                               \
+    rtar[k] = wx *dr[ij + k*LX*LX + ele];                                      \
+    rtas[k] = wx *ds[ij + k*LX*LX + ele];                                      \
+    rtat[k] = wx *dt[ij + k*LX*LX + ele];                                      \
+  }                                                                            \
+                                                                               \
+  barrier(CLK_LOCAL_MEM_FENCE);                                                \
+                                                                               \
+  for (int k = 0; k < LX; ++k) {                                               \
+    const int ijk = ij + k*LX*LX;                                              \
+    real ttmp = 0.0;                                                           \
+    shtar[ij] = rtar[k];                                                       \
+    shtas[ij] = rtas[k];                                                       \
+    for (int l = 0; l < LX; l++) {                                             \
+      ttmp += shdzt[k+l*LX] * rtat[l];                                         \
+    }                                                                          \
+    barrier(CLK_LOCAL_MEM_FENCE);                                              \
+                                                                               \
+    real rtmp = 0.0;                                                           \
+    real stmp = 0.0;                                                           \
+                                                                               \
+    for (int l = 0; l < LX; l++) {                                             \
+      rtmp += shdxt[i+l*LX] * shtar[l+j*LX];                                   \
+      stmp += shdyt[j+l*LX] * shtas[i+l*LX];                                   \
+    }                                                                          \
+                                                                               \
+    dtx[ijk + ele] = ( rtmp + stmp + ttmp );                                   \
+                                                                               \
+    barrier(CLK_LOCAL_MEM_FENCE);                                              \
+  }                                                                            \
+}
 
-
+DEFINE_CDTP_KERNEL_KSTEP(2)
+DEFINE_CDTP_KERNEL_KSTEP(3)
+DEFINE_CDTP_KERNEL_KSTEP(4)
+DEFINE_CDTP_KERNEL_KSTEP(5)
+DEFINE_CDTP_KERNEL_KSTEP(6)
+DEFINE_CDTP_KERNEL_KSTEP(7)
+DEFINE_CDTP_KERNEL_KSTEP(8)
+DEFINE_CDTP_KERNEL_KSTEP(9)
+DEFINE_CDTP_KERNEL_KSTEP(10)
+DEFINE_CDTP_KERNEL_KSTEP(11)
+DEFINE_CDTP_KERNEL_KSTEP(12)
+DEFINE_CDTP_KERNEL_KSTEP(13)
+DEFINE_CDTP_KERNEL_KSTEP(14)
+DEFINE_CDTP_KERNEL_KSTEP(15)
+DEFINE_CDTP_KERNEL_KSTEP(16)
 
 #endif // __MATH_CDTP_KERNEL_CL__
