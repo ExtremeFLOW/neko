@@ -284,7 +284,7 @@ contains
 
        if (.not. allocated(dt_controller)) then
           allocate(dt_controller)
-          call json_extract_object(C%params, 'case.time', dt_params)
+          call json_get(C%params, 'case.time', dt_params)
           call dt_controller%init(dt_params)
        end if
 
