@@ -163,7 +163,10 @@ contains
        call this%register_lags_with_checkpoint(chkp)
     else
        ! For single scalar, use legacy interface
-       call chkp%add_scalar(this%scalar_fields(1)%s, this%scalar_fields(1)%slag)
+       select type(scalar => this%scalar_fields(1))
+       type is (scalar_pnpn_t)
+          call chkp%add_scalar(scalar%s, scalar%slag, scalar%abx1, scalar%abx2)
+       end select
     end if
   end subroutine scalars_init
 
@@ -194,7 +197,10 @@ contains
          user, chkp, ulag, vlag, wlag, time_scheme, rho)
 
     ! Register single scalar with checkpoint
-    call chkp%add_scalar(this%scalar_fields(1)%s, this%scalar_fields(1)%slag)
+    select type(scalar => this%scalar_fields(1))
+    type is (scalar_pnpn_t)
+       call chkp%add_scalar(scalar%s, scalar%slag, scalar%abx1, scalar%abx2)
+    end select
   end subroutine scalars_init_single
 
   !> Perform a time step for all scalar fields
