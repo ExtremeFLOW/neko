@@ -527,14 +527,15 @@ The following types are currently implemented.
    are set via the `geostrophic_wind` keyword.
 4. `centrifugal`, a source term introducing a centrifugal force, defined as \f$ -
    \Omega \times (\Omega \times r) \f$. Here, \f$ \Omega \f$ is the rotation
-   vector and \f$ r \f$ is the position relative to any point lying on the
-   rotation axis. To define forcing one has to provide \f$ \Omega \f$ and
-   a point lying on the rotation axis. This is provided via the following
+   vector and \f$ r \f$ is the position relative to the reference point, which
+   is any point lying on the rotation axis. To define forcing one has to provide
+   \f$ \Omega \f$ and the reference point. This is provided via the following
    keywords.
 
    - `rotation_vector`: Array with 3 values. Directly assigns \f$ \Omega \f$ to
      the provided vector.
-   - `rotation_point`: Array with 3 values. Difines any point on the rotaion axis.
+   - `reference_point`: Array with 3 values. Deifines any point on the rotaion
+   axis.
 
 5. `user_pointwise`, the values are set inside the compiled user file, using the
    pointwise user file subroutine. Only works on CPUs!
