@@ -89,7 +89,7 @@ jobs:
 
       - name: Setup - Install NVIDIA HPC SDK
         run: |
-          sudo apt-get install -y nvhpc-25-9
+          sudo apt-get install -y nvhpc-25-9 nvidia-cuda-toolkit
 
       - name: Setup - Environment
         id: setup-env
@@ -143,7 +143,7 @@ jobs:
             echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${{ github.workspace }}/install/lib" >> $GITHUB_ENV
             ./configure FC=${FC} CC=${CC} FCFLAGS="-O3" --enable-real=${RP} --prefix=${{ github.workspace }}/install
           elif [ "$BACKEND" == "cuda" ]; then
-            ./configure FC=${FC} CC=${CC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/${NVARCH}/${NVVER}/cuda/
+            ./configure FC=${FC} CC=${CC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/usr
           else
             echo "Unknown backend: $BACKEND"
             exit 1
@@ -197,7 +197,7 @@ jobs:
           if [ "$BACKEND" == "cpu" ]; then
             ./configure FC=${FC} CC=${CC} FCFLAGS="-O3" --enable-real=${RP}
           elif [ "$BACKEND" == "cuda" ]; then
-            ./configure FC=${FC} CC=${CC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/${NVARCH}/${NVVER}/cuda/
+            ./configure FC=${FC} CC=${CC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/usr
           else
             echo "Unknown backend: $BACKEND"
             exit 1
