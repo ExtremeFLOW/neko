@@ -44,6 +44,7 @@ module fld_file
   use fld_file_data, only : fld_file_data_t
   use vector, only : vector_t
   use space, only : space_t
+  use logger, only: neko_log, LOG_SIZE
   use mesh, only : mesh_t
   use utils, only: filename_suffix_pos, filename_chsuffix, filename_name, &
        filename_path, neko_error
@@ -699,6 +700,7 @@ contains
     type(linear_dist_t) :: dist
     real(kind=sp), parameter :: test_pattern = 6.54321
     character :: rdcode(10), temp_str(4)
+    character(len=LOG_SIZE) :: log_buf
 
     select type (data)
     type is (fld_file_data_t)
@@ -711,19 +713,26 @@ contains
              read(file_unit, fmt = '(A)') string
              read(string(14:), fmt = '(A)') string
              string = trim(string)
+
              data%fld_series_fname = string(:scan(trim(string), '%')-1)
              data%fld_series_fname = adjustl(data%fld_series_fname)
              data%fld_series_fname = trim(data%fld_series_fname)//'0'
+
              read(file_unit, fmt = '(A)') string
              read(string(scan(string, ':')+1:), *) data%meta_start_counter
              read(file_unit, fmt = '(A)') string
              read(string(scan(string, ':')+1:), *) data%meta_nsamples
-
              close(file_unit)
-             write(*,*) 'Reading meta file for fld series'
-             write(*,*) 'Name: ', trim(data%fld_series_fname)
-             write(*,*) 'Start counter: ', data%meta_start_counter, &
-                  'Nsamples: ', data%meta_nsamples
+
+             write(log_buf,*) 'Reading meta file for fld series'
+             call neko_log%message(log_buf)
+             write(log_buf,*) 'Name: ', trim(data%fld_series_fname)
+             call neko_log%message(log_buf)
+             write(log_buf,*) 'Start counter: ', data%meta_start_counter
+             call neko_log%message(log_buf)
+             write(log_buf,*) 'Nsamples: ', data%meta_nsamples
+             call neko_log%message(log_buf)
+
           end if
           call MPI_Bcast(data%fld_series_fname, 1024, MPI_CHARACTER, 0, &
                NEKO_COMM, ierr)
@@ -742,7 +751,6 @@ contains
           call filename_path(this%get_base_fname(), path)
           write(suffix, '(a,i5.5)') 'f', this%get_counter()
           fname = trim(path) // trim(data%fld_series_fname) // '.' // suffix
-          if (pe_rank .eq. 0) print *, "Reading", trim(fname)
           if (this%get_counter() .ge. &
                data%meta_nsamples+data%meta_start_counter) then
              call neko_error('Trying to read more fld files than exist')
@@ -755,6 +763,8 @@ contains
             MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
 
        if (ierr .ne. 0) call neko_error("Could not read "//trim(fname))
+
+       call neko_log%message('Reading fld file ' // trim(fname))
 
        call MPI_File_read_all(fh, hdr, 132, MPI_CHARACTER, status, ierr)
        ! This read can prorbably be done wihtout the temp variables,

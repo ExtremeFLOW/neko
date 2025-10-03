@@ -40,7 +40,7 @@ program average_fields_in_time
   call fld_data_avg%init()
 
   call fld_file%read(fld_data_avg)
- 
+
   write (log_buf, '(A, g0)') "dt: ", fld_data_avg%time - start_time
   call neko_log%message(log_buf)
 
