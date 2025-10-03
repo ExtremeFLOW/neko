@@ -740,7 +740,7 @@ contains
                NEKO_COMM, ierr)
           call MPI_Bcast(data%meta_nsamples, 1, MPI_INTEGER, 0, &
                NEKO_COMM, ierr)
-          
+
           if (this%get_counter() .eq. -1) then
              call this%set_start_counter(data%meta_start_counter)
              call this%set_counter(data%meta_start_counter)
@@ -946,9 +946,9 @@ contains
                (int(lxyz, i8) * &
                int(FLD_DATA_SIZE, i8))
        end do
- 
+
        call this%increment_counter()
-       
+
        if (allocated(tmp_dp)) deallocate(tmp_dp)
        if (allocated(tmp_sp)) deallocate(tmp_sp)
     class default
