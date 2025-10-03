@@ -64,7 +64,8 @@ void opencl_ax_helm_stress_vector(void *au, void *av, void *aw,
   cl_int err;
 
   if (ax_helm_full_program == NULL)
-    opencl_kernel_jit(ax_helm_full_kernel, (cl_program *) &ax_helm_full_program);
+    opencl_kernel_jit(ax_helm_full_kernel,
+                      (cl_program *) &ax_helm_full_program);
 
   size_t global_kstep[2];
   size_t local_kstep[2];
@@ -132,4 +133,41 @@ void opencl_ax_helm_stress_vector(void *au, void *av, void *aw,
         exit(1);
       }
   }
+}
+
+  /**
+   * Fortran wrapper for device OpenCL Ax helm full version part2
+   */
+void opencl_ax_helm_stress_vector_part2(void *au, void *av, void *aw,
+                                        void *u, void *v, void *w,
+                                        void *h2, void *B, int *n) {
+
+  cl_int err;
+
+  if (ax_helm_full_program == NULL)
+    opencl_kernel_jit(ax_helm_full_kernel,
+                      (cl_program *) &ax_helm_full_program);
+
+  cl_kernel kernel = clCreateKernel(ax_helm_full_program,
+                                    "ax_helm_stress_kernel_vector_part2", &err);
+  CL_CHECK(err);
+  
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &au));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &av));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &aw));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &u));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &v));
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &w));
+  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &h2));
+  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &B));
+  CL_CHECK(clSetKernelArg(kernel, 8, sizeof(int), n));
+
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel(glb_cmd_queue, kernel, 1, NULL,
+                                  &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+ 
 }
