@@ -57,7 +57,8 @@ module probes
   use comm, only : NEKO_COMM, pe_rank, pe_size, MPI_REAL_PRECISION
   use neko_config, only : NEKO_BCKND_DEVICE
   use device, only : device_memcpy, DEVICE_TO_HOST, device_map
-  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM, MPI_DOUBLE_PRECISION
+  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM, MPI_DOUBLE_PRECISION, &
+       MPI_Gatherv, MPI_Gather, MPI_Exscan
   implicit none
   private
 
