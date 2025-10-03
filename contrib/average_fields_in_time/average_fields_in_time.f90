@@ -53,7 +53,7 @@ program average_fields_in_time
 
      write (log_buf, '(A, g0)') "dt: ", fld_data%time - fld_data_avg%time
      call neko_log%message(log_buf)
-     
+
      fld_data_avg%time = fld_data%time
   end do
   call fld_data_avg%scale(1.0_rp/(fld_data_avg%time-start_time))
