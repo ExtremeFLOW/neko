@@ -50,7 +50,7 @@ module gather_scatter
   use mpi_f08, only : MPI_Reduce, MPI_Allreduce, MPI_Barrier, MPI_IN_PLACE, &
        MPI_Wait, MPI_Irecv, MPI_Isend, MPI_Wtime, MPI_SUM, MPI_MAX, &
        MPI_INTEGER, MPI_INTEGER2, MPI_INTEGER8, MPI_Request, MPI_Status, &
-       MPI_STATUS_IGNORE
+       MPI_STATUS_IGNORE, MPI_Get_Count
   use dofmap, only : dofmap_t
   use field, only : field_t
   use num_types, only : rp, dp, i2, i8
