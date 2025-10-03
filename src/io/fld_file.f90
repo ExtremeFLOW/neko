@@ -731,12 +731,18 @@ contains
                NEKO_COMM, ierr)
           call MPI_Bcast(data%meta_nsamples, 1, MPI_INTEGER, 0, &
                NEKO_COMM, ierr)
+          
+          if (this%get_counter() .eq. -1) then
+             call this%set_start_counter(data%meta_start_counter)
+             call this%set_counter(data%meta_start_counter)
+          end if
        end if
 
        if (meta_file) then
           call filename_path(this%get_base_fname(), path)
           write(suffix, '(a,i5.5)') 'f', this%get_counter()
           fname = trim(path) // trim(data%fld_series_fname) // '.' // suffix
+          if (pe_rank .eq. 0) print *, "Reading", trim(fname)
           if (this%get_counter() .ge. &
                data%meta_nsamples+data%meta_start_counter) then
              call neko_error('Trying to read more fld files than exist')
@@ -930,7 +936,9 @@ contains
                (int(lxyz, i8) * &
                int(FLD_DATA_SIZE, i8))
        end do
-
+ 
+       call this%increment_counter()
+       
        if (allocated(tmp_dp)) deallocate(tmp_dp)
        if (allocated(tmp_sp)) deallocate(tmp_sp)
     class default
