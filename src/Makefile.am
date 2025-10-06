@@ -742,6 +742,7 @@ EXTRA_DIST = \
 	math/bcknd/device/opencl/mathops_kernel.cl\
 	math/bcknd/device/opencl/dudxyz_kernel.cl\
 	math/bcknd/device/opencl/ax_helm_kernel.cl\
+	math/bcknd/device/opencl/ax_helm_full_kernel.cl\
 	math/bcknd/device/opencl/cdtp_kernel.cl\
 	math/bcknd/device/opencl/opgrad_kernel.cl\
 	math/bcknd/device/opencl/conv1_kernel.cl\
