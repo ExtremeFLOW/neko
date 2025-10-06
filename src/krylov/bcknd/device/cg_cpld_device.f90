@@ -383,7 +383,7 @@ contains
          call device_add2s1(p1_d, z1_d, beta, n)
          call device_add2s1(p2_d, z2_d, beta, n)
          call device_add2s1(p3_d, z3_d, beta, n)
-         
+
          call Ax%compute_vector(this%w1, this%w2, this%w3, &
               this%p1, this%p2, this%p3, coef, x%msh, x%Xh)
          call gs_h%op(this%w1, n, GS_OP_ADD, this%gs_event)
@@ -396,7 +396,7 @@ contains
          call blstx%apply(this%w1, n)
          call blsty%apply(this%w2, n)
          call blstz%apply(this%w3, n)
-         
+
          call device_vdot3(tmp_d, w1_d, w2_d, w3_d, p1_d, p2_d, p3_d, n)
 
          pap = device_glsc2(tmp_d, coef%mult_d, n)
@@ -408,7 +408,7 @@ contains
          call device_opadd2cm(r1_d, r2_d, r3_d, &
               w1_d, w2_d, w3_d, alphm, n, gdim)
          call device_vdot3(tmp_d, r1_d, r2_d, r3_d, r1_d, r2_d, r3_d, n)
-         
+
          rtr = device_glsc3(tmp_d, coef%mult_d, coef%binv_d, n)
          if (iter .eq. 1) rtr0 = rtr
          rnorm = sqrt(rtr) * norm_fac

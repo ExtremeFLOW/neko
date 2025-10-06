@@ -223,7 +223,7 @@ contains
     end if
 
     if (c_associated(ax_helm_full_program)) then
-           if(clReleaseProgram(ax_helm_full_program) .ne. CL_SUCCESS) then
+       if(clReleaseProgram(ax_helm_full_program) .ne. CL_SUCCESS) then
           call neko_error('Failed to release program')
        end if
        ax_helm_full_program = C_NULL_PTR
@@ -248,6 +248,13 @@ contains
           call neko_error('Failed to release program')
        end if
        pnpn_res_program = C_NULL_PTR
+    end if
+
+    if (c_associated(pnpn_stress_res_program)) then
+       if(clReleaseProgram(pnpn_stress_res_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       pnpn_stress_res_program = C_NULL_PTR
     end if
 
     if (c_associated(euler_res_program)) then
