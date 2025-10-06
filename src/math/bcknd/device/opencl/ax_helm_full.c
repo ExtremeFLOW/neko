@@ -78,8 +78,9 @@ void opencl_ax_helm_stress_vector(void *au, void *av, void *aw,
 #define CASE(LX)                                                               \
   case LX:                                                                     \
     {                                                                          \
-      cl_kernel kernel = clCreateKernel(ax_helm_full_program,                  \
-                                        STR(ax_helm_full_kernel_lx##LX), &err);\
+      cl_kernel kernel =                                                       \
+        clCreateKernel(ax_helm_full_program,                                   \
+                       STR(ax_helm_stress_kernel_full_lx##LX), &err);          \
       CL_CHECK(err);                                                           \
                                                                                \
       CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &au));       \

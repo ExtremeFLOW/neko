@@ -309,8 +309,8 @@ void ax_helm_stress_kernel_vector_part2(__global real * __restrict__ au,
                                         __global const real * __restrict__ B,
                                         const int n) {
   
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
   
   for (int i = idx; i < n; i += str) {
     au[i] = au[i] + h2[i] * B[i] * u[i];

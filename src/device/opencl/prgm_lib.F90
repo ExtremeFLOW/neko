@@ -74,6 +74,9 @@ module opencl_prgm_lib
   !> Device pnpn residual kernels
   type(c_ptr), public, bind(c) :: pnpn_res_program = C_NULL_PTR
 
+  !> Device pnpn residual kernels (stress formulation)
+  type(c_ptr), public, bind(c) :: pnpn_stress_res_program = C_NULL_PTR
+
   !> Device euler residual kernels
   type(c_ptr), public, bind(c) :: euler_res_program = C_NULL_PTR
 

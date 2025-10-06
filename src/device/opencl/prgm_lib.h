@@ -71,6 +71,9 @@ extern void *rhs_maker_program;
 /** Device pnpn residual kernels */
 extern void *pnpn_res_program;
 
+/** Device pnpn residual kernels (stress formulation) */
+extern void *pnpn_stress_res_program;
+
 /** Device euler residual kernels */
 extern void *euler_res_program;
 

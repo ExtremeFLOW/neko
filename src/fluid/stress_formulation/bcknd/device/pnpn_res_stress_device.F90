@@ -145,20 +145,21 @@ module pnpn_res_stress_device
   end interface
 #elif HAVE_OPENCL
   interface
-     subroutine pnpn_prs_res_part1_opencl(ta1_d, ta2_d, ta3_d, &
-          wa1_d, wa2_d, wa3_d, f_u_d, f_v_d, f_w_d, &
-          B_d, h1_d, mu, rho, n) &
-          bind(c, name = 'pnpn_prs_res_part1_opencl')
+     subroutine pnpn_prs_stress_res_part1_opencl(ta1_d, ta2_d, ta3_d, &
+          wa1_d, wa2_d, wa3_d, s11_d, s22_d, s33_d, &
+          s12_d, s13_d, s23_d, f_u_d, f_v_d, f_w_d, &
+          B_d, h1_d, rho_d, n) &
+          bind(c, name = 'pnpn_prs_stress_res_part1_opencl')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
        type(c_ptr), value :: ta1_d, ta2_d, ta3_d
        type(c_ptr), value :: wa1_d, wa2_d, wa3_d
+       type(c_ptr), value :: s11_d, s22_d, s33_d, s12_d, s13_d, s23_d
        type(c_ptr), value :: f_u_d, f_v_d, f_w_d
-       type(c_ptr), value :: B_d, h1_d
-       real(c_rp) :: mu, rho
+       type(c_ptr), value :: B_d, h1_d, rho_d
        integer(c_int) :: n
-     end subroutine pnpn_prs_res_part1_opencl
+     end subroutine pnpn_prs_stress_res_part1_opencl
   end interface
 
   interface
@@ -172,9 +173,9 @@ module pnpn_res_stress_device
   end interface
 
   interface
-     subroutine pnpn_prs_res_part3_opencl(p_res_d, ta1_d, ta2_d, ta3_d, &
+     subroutine pnpn_prs_stress_res_part3_opencl(p_res_d, ta1_d, ta2_d, ta3_d, &
           wa1_d, wa2_d, wa3_d, dtbd, n) &
-          bind(c, name = 'pnpn_prs_res_part3_opencl')
+          bind(c, name = 'pnpn_prs_stress_res_part3_opencl')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -182,8 +183,9 @@ module pnpn_res_stress_device
        type(c_ptr), value :: wa1_d, wa2_d, wa3_d
        real(c_rp) :: dtbd
        integer(c_int) :: n
-     end subroutine pnpn_prs_res_part3_opencl
+     end subroutine pnpn_prs_stress_res_part3_opencl
   end interface
+
 
   interface
      subroutine pnpn_vel_res_update_opencl(u_res_d, v_res_d, w_res_d, &
@@ -288,7 +290,11 @@ contains
          f_x%x_d, f_y%x_d, f_z%x_d, &
          c_Xh%B_d, c_Xh%h1_d, rho%x_d, n)
 #else
-    call neko_error('No device backend configured')
+    call pnpn_prs_stress_res_part1_opencl(ta1%x_d, ta2%x_d, ta3%x_d, &
+         wa1%x_d, wa2%x_d, wa3%x_d, &
+         s11%x_d, s22%x_d, s33%x_d, s12%x_d, s13%x_d, s23%x_d, &
+         f_x%x_d, f_y%x_d, f_z%x_d, &
+         c_Xh%B_d, c_Xh%h1_d, rho%x_d, n)
 #endif
 
     call gs_Xh%op(ta1, GS_OP_ADD)
@@ -338,7 +344,8 @@ contains
     call pnpn_prs_stress_res_part3_cuda(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
          wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
 #else
-    call neko_error('No device backend configured')
+    call pnpn_prs_stress_res_part3_opencl(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
+         wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
 #endif
 
     call neko_scratch_registry%relinquish_field(temp_indices)
