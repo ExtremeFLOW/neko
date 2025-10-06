@@ -17,7 +17,7 @@ module map_2d
   use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
   use comm, only : NEKO_COMM
   use neko_config, only : NEKO_BCKND_DEVICE
-  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM
+  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM, MPI_Exscan
   use fld_file_data, only : fld_file_data_t
   implicit none
   private
