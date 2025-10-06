@@ -146,10 +146,8 @@ contains
     if (id .gt. 0 .and. id .le. RT_STATS_MAX_REGIONS) then
        if (len_trim(this%rt_stats_id(id)) .eq. 0) then
           this%rt_stats_id(id) = trim(name)
-       else
-          if (trim(this%rt_stats_id(id)) .ne. trim(name)) then
-             call neko_error('Profile region renamed')
-          end if
+       else if (trim(this%rt_stats_id(id)) .ne. trim(name)) then
+          call neko_error('Profile region renamed')
        end if
        region_data%x = id
        region_data%y = MPI_Wtime()
@@ -185,9 +183,12 @@ contains
     end if
     region_data = this%region_timestamp%pop()
 
-    if (region_data%x .gt. 0) then
+    if (region_data%x .eq. id) then
        elapsed_time = end_time - region_data%y
-       call this%elapsed_time(region_data%x)%push(elapsed_time)
+       call this%elapsed_time(id)%push(elapsed_time)
+    else
+       call neko_error('Error occurred while closing profiler region, ' // &
+            'stack mismatch')
     end if
 
   end subroutine runtime_stats_end_region
@@ -214,7 +215,7 @@ contains
     ncols = 0
     nrows = 0
     hdr = ''
-    do i = 1, size(this%elapsed_time)
+    do i = 1, RT_STATS_MAX_REGIONS
        if (len_trim(this%rt_stats_id(i)) .gt. 0) then
           nsamples = this%elapsed_time(i)%size()
           ncols = ncols + 1
@@ -287,11 +288,21 @@ contains
     integer :: i
 
     region_id = -1
+
+    ! Look for the region name first
     do i = RT_STATS_RESERVED_REGIONS + 1, RT_STATS_MAX_REGIONS
-       if (len_trim(this%rt_stats_id(i)) .eq. 0) then
+       if (trim(this%rt_stats_id(i)) .eq. trim(name)) then
           region_id = i
           exit
-       else if (trim(this%rt_stats_id(i)) .eq. trim(name)) then
+       end if
+    end do
+
+    ! If found, return
+    if (region_id .ne. -1) return
+
+    ! Otherwise, look for an empty slot
+    do i = RT_STATS_RESERVED_REGIONS + 1, RT_STATS_MAX_REGIONS
+       if (len_trim(this%rt_stats_id(i)) .eq. 0) then
           region_id = i
           exit
        end if
