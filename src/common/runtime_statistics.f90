@@ -159,37 +159,50 @@ contains
   end subroutine runtime_stats_start_region
 
   !> Compute elapsed time for the current region
+  !! @param name Optional name of the region to close.
+  !! @param region_id Optional id of the region to close.
   subroutine runtime_stats_end_region(this, name, region_id)
     class(runtime_stats_t), intent(inout) :: this
-    character(len=*), intent(in) :: name
+    character(len=*), optional, intent(in) :: name
     integer, optional, intent(in) :: region_id
     real(kind=dp) :: end_time, elapsed_time
     type(tuple_i4r8_t) :: region_data
+    character(len=1024) :: error_msg
     integer :: id
 
     if (.not. this%enabled) return
 
-    if (present(region_id)) then
-       id = region_id
-    else
-       call this%find_region_id(name, id)
-    end if
-
     end_time = MPI_Wtime()
-
-    if (trim(this%rt_stats_id(id)) .ne. trim(name)) then
-       call neko_error('Invalid profiler region closed (' // name // &
-            ', expected: ' // trim(this%rt_stats_id(id)) // ')')
-    end if
     region_data = this%region_timestamp%pop()
 
-    if (region_data%x .eq. id) then
-       elapsed_time = end_time - region_data%y
-       call this%elapsed_time(id)%push(elapsed_time)
-    else
-       call neko_error('Error occurred while closing profiler region, ' // &
-            'stack mismatch')
+    if (region_data%x .le. 0) then
+       call neko_error('Invalid profiling region closed')
     end if
+
+    ! If we are given a name, check it matches the id
+    if (present(name)) then
+       if (present(region_id)) then
+          id = region_id
+       else
+          call this%find_region_id(name, id)
+       end if
+
+       if (trim(this%rt_stats_id(id)) .ne. trim(name)) then
+          write(error_msg, '(A,I0,A,A,A)') 'Invalid profiler region closed (', &
+               id, ', expected: ', trim(this%rt_stats_id(id)), ')'
+          call neko_error(trim(error_msg))
+
+       else if (region_data%x .ne. id) then
+
+          write(error_msg, '(A,A,A,A,A)') 'Invalid profiler region closed (', &
+               trim(this%rt_stats_id(region_data%x)), ', expected: ', &
+               trim(this%rt_stats_id(id)), ')'
+          call neko_error(trim(error_msg))
+       end if
+    end if
+
+    elapsed_time = end_time - region_data%y
+    call this%elapsed_time(region_data%x)%push(elapsed_time)
 
   end subroutine runtime_stats_end_region
 
