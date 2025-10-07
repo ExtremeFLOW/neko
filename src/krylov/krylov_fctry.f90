@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2024, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,7 @@ submodule (krylov) krylov_fctry
   use cg_sx, only : sx_cg_t
   use cg_cpld, only : cg_cpld_t
   use cg_device, only : cg_device_t
+  use cg_cpld_device, only : cg_cpld_device_t
   use cacg, only : cacg_t
   use pipecg, only : pipecg_t
   use pipecg_sx, only : sx_pipecg_t
@@ -101,9 +102,10 @@ contains
        end if
 
     case ('coupled_cg')
-       allocate(cg_cpld_t::object)
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call neko_error('Coupled CG only supported for CPU')
+          allocate(cg_cpld_device_t::object)
+       else
+          allocate(cg_cpld_t::object)
        end if
 
     case ('pipecg')
@@ -169,4 +171,3 @@ contains
   end subroutine krylov_solver_factory
 
 end submodule krylov_fctry
-
