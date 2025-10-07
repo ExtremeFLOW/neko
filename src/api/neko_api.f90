@@ -108,6 +108,20 @@ contains
 
   end subroutine neko_api_job_info
 
+  !> Initialise a Neko field registry
+  subroutine neko_api_field_registry_init() bind(c, name="neko_field_registry_init")
+
+    call neko_field_registry%init()
+
+  end subroutine neko_api_field_registry_init
+
+  !> Destroy a Neko field registry
+  subroutine neko_api_field_registry_free() bind(c, name="neko_field_registry_free")
+
+    call neko_field_registry%free()
+
+  end subroutine neko_api_field_registry_free
+
   !> Allocate memory for a Neko case
   !! @param case_iptr Opaque pointer for the created Neko case
   subroutine neko_api_case_allocate(case_iptr) &

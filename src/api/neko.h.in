@@ -17,6 +17,12 @@ void neko_finalize();
 /* Display job information */
 void neko_job_info();
 
+/* Initialise a Neko field registry */
+void neko_field_registry_init();
+
+/* Destroy a Neko field registry */
+void neko_field_registry_free();
+
 /* Allocate memory for a Neko case */
 void neko_case_allocate(int **case_iptr);
 
