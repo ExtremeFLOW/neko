@@ -59,6 +59,9 @@ extern void *gs_program;
 /** Device Ax helm kernels */
 extern void *ax_helm_program;
 
+/** Device Ax helm full kernels */
+extern void *ax_helm_full_program;
+
 /** Device jacobi kernels */
 extern void *jacobi_program;
 
@@ -67,6 +70,9 @@ extern void *rhs_maker_program;
 
 /** Device pnpn residual kernels */
 extern void *pnpn_res_program;
+
+/** Device pnpn residual kernels (stress formulation) */
+extern void *pnpn_stress_res_program;
 
 /** Device euler residual kernels */
 extern void *euler_res_program;
