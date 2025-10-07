@@ -10,6 +10,8 @@ program average_fields_in_time
   type(fld_file_data_t) :: fld_data, fld_data_avg
   integer :: argc, i
 
+  character(len=LOG_SIZE) :: log_buf
+
   argc = command_argument_count()
 
   if ((argc .lt. 3) .or. (argc .gt. 3)) then
@@ -39,27 +41,28 @@ program average_fields_in_time
 
   call fld_file%read(fld_data_avg)
 
+  write (log_buf, '(A, g0)') "dt: ", fld_data_avg%time - start_time
+  call neko_log%message(log_buf)
+
   call fld_data_avg%scale(fld_data_avg%time-start_time)
-  if (pe_rank .eq. 0) write(*,*) fld_data_avg%nelv, fld_data_avg%n_scalars
 
   do i = 1, fld_data_avg%meta_nsamples-1
-     if (pe_rank .eq. 0) write(*,*) 'Reading file:', i+1
      call fld_file%read(fld_data)
      call fld_data%scale(fld_data%time-fld_data_avg%time)
      call fld_data_avg%add(fld_data)
 
-     if (pe_rank .eq. 0) write(*,*) 'dt', fld_data%time - fld_data_avg%time
+     write (log_buf, '(A, g0)') "dt: ", fld_data%time - fld_data_avg%time
+     call neko_log%message(log_buf)
+
      fld_data_avg%time = fld_data%time
   end do
   call fld_data_avg%scale(1.0_rp/(fld_data_avg%time-start_time))
 
   call output_file%init(trim(output_fname))
 
-
-
-  if (pe_rank .eq. 0) write(*,*) 'Writing file: ', trim(output_fname)
+  call neko_log%message('Writing file: ' // trim(output_fname))
   call output_file%write(fld_data_avg, fld_data_avg%time)
-  if (pe_rank .eq. 0) write(*,*) 'Done'
+  call neko_log%message('Done')
 
   call neko_finalize
 
