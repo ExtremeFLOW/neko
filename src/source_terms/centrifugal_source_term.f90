@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -52,6 +52,13 @@ module centrifugal_source_term
   private
 
   !> This source term adds the centrifugal force.
+  !! @details This forcing can be used to perform simulation in a rotating
+  !! reference frame and adds a source term in the form
+  !! \f$ - \Omega \times (\Omega \times r) \f$, where \f$ \Omega \f$ is the
+  !! rotation vector and \f$ r \f$ is the position relative to the reference
+  !! point, which is any point lying on the rotation axis. To perform simulation
+  !! in the rotating reference frame one needs to use Coriolis source term as
+  !! well, taking care of a consistent definition of \f$ \Omega \f$.
   type, public, extends(source_term_t) :: centrifugal_source_term_t
      !> The rotation vector.
      real(kind=rp) :: omega(3)
@@ -82,7 +89,7 @@ contains
     type(field_list_t), intent(in), target :: fields
     type(coef_t), intent(in), target :: coef
     character(len=*), intent(in) :: variable_name
-    ! Rotation vector and geostrophic wind
+    ! Rotation vector and reference point
     real(kind=rp), allocatable :: rotation_vec(:), ref_point(:)
     real(kind=rp) :: start_time, end_time
 
