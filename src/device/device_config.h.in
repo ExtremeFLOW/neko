@@ -10,10 +10,17 @@
  * @note Set to the same C/C++ equivalent type as @a rp
  */
 typedef @NEKO_DEV_REAL_TYPE@ real;
-typedef @NEKO_DEV_XREAL_TYPE@ xreal;
+typedef @NEKO_DEV_XREAL_TYPE@ real_xp;
 
 extern void *glb_ctx;
 extern void *glb_cmd_queue;
 extern void *glb_device_id;
+
+#ifdef HAVE_OPENCL
+/** 
+ * OpenCL queue with profiling enabled
+ */
+extern void *prf_cmd_queue;
+#endif
 
 #endif // __DEVICE_DEVICE_CONFIG__

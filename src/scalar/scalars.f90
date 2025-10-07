@@ -43,9 +43,9 @@ module scalars
   use time_scheme_controller, only: time_scheme_controller_t
   use time_step_controller, only: time_step_controller_t
   use json_module, only: json_file
-  use json_utils, only: json_get, json_get_or_default, json_extract_object, &
-       json_extract_item
+  use json_utils, only: json_get, json_get_or_default, json_extract_item
   use field, only: field_t
+  use field_list, only: field_list_t
   use field_series, only: field_series_t
   use field_registry, only: neko_field_registry
   use checkpoint, only: chkp_t
@@ -77,6 +77,8 @@ module scalars
      procedure :: validate => scalars_validate
      !> Clean up all resources
      procedure :: free => scalars_free
+     !> Register scalar lag fields with checkpoint
+     procedure, private :: register_lags_with_checkpoint
   end type scalars_t
 
 contains
@@ -106,29 +108,33 @@ contains
     ! If there are more scalar_scheme_t types, add a factory function here
     allocate(scalar_pnpn_t::this%scalar_fields(n_scalars))
 
-    ! For multiple scalars, collect and validate field names
-    if (n_scalars > 1) then
-       allocate(character(len=256) :: field_names(n_scalars))
+    ! Collect and validate field names for all scalars
+    allocate(character(len=256) :: field_names(n_scalars))
 
-       do i = 1, n_scalars
-          ! Extract element i from the "scalars" array
-          call json_extract_item(params, "", i, json_subdict)
+    do i = 1, n_scalars
+       ! Extract element i from the "scalars" array
+       call json_extract_item(params, "", i, json_subdict)
 
-          ! Try to get name from JSON, generate one if not found or empty
-          if (json_subdict%valid_path('name')) then
-             call json_get(json_subdict, 'name', field_name)
+       ! Try to get name from JSON, generate one if not found or empty
+       if (json_subdict%valid_path('name')) then
+          call json_get(json_subdict, 'name', field_name)
+       else
+          field_name = ''
+       end if
+
+       ! If name is empty or not provided, generate a default one
+       if (len_trim(field_name) == 0) then
+          if (n_scalars == 1) then
+             field_name = 's' ! Single scalar gets default name 's'
           else
-             field_name = ''
-          end if
-
-          ! If name is empty or not provided, generate a default one
-          if (len_trim(field_name) == 0) then
              write(field_name, '(A,I0)') 's_', i
           end if
+       end if
 
-          field_names(i) = trim(field_name)
+       field_names(i) = trim(field_name)
 
-          ! If there's a duplicate, append a number until unique
+       ! If there's a duplicate, append a number until unique
+       if (n_scalars > 1) then
           j = 1
           do while (j < i)
              if (trim(field_names(i)) == trim(field_names(j))) then
@@ -139,22 +145,29 @@ contains
                 j = j + 1
              end if
           end do
-       end do
-    end if
+       end if
+    end do
 
     do i = 1, n_scalars
        call json_extract_item(params, "", i, json_subdict)
 
-       ! Use the processed field names for multiple scalars
-       if (n_scalars > 1) then
-          call json_subdict%add('name', trim(field_names(i)))
-       else
-          call json_subdict%add('name', 's')
-       end if
+       ! Use the processed field names for all scalars
+       call json_subdict%add('name', trim(field_names(i)))
 
        call this%scalar_fields(i)%init(msh, coef, gs, json_subdict, &
             numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
     end do
+
+    ! Register all scalar lag fields with checkpoint using scalable approach
+    if (n_scalars > 1) then
+       call this%register_lags_with_checkpoint(chkp)
+    else
+       ! For single scalar, use legacy interface
+       select type(scalar => this%scalar_fields(1))
+       type is (scalar_pnpn_t)
+          call chkp%add_scalar(scalar%s, scalar%slag, scalar%abx1, scalar%abx2)
+       end select
+    end if
   end subroutine scalars_init
 
   subroutine scalars_init_single(this, msh, coef, gs, params, numerics_params, &
@@ -182,6 +195,12 @@ contains
     ! Initialize it directly with the params
     call this%scalar_fields(1)%init(msh, coef, gs, params, numerics_params, &
          user, chkp, ulag, vlag, wlag, time_scheme, rho)
+
+    ! Register single scalar with checkpoint
+    select type(scalar => this%scalar_fields(1))
+    type is (scalar_pnpn_t)
+       call chkp%add_scalar(scalar%s, scalar%slag, scalar%abx1, scalar%abx2)
+    end select
   end subroutine scalars_init_single
 
   !> Perform a time step for all scalar fields
@@ -206,8 +225,9 @@ contains
   subroutine scalars_restart(this, chkp)
     class(scalars_t), intent(inout) :: this
     type(chkp_t), intent(inout) :: chkp
-    integer :: i
-    ! Iterate through all scalar fields
+    integer :: i, n_scalars
+
+    n_scalars = size(this%scalar_fields)
     do i = 1, size(this%scalar_fields)
        call this%scalar_fields(i)%restart(chkp)
     end do
@@ -237,5 +257,40 @@ contains
        deallocate(this%scalar_fields)
     end if
   end subroutine scalars_free
+
+  !> Register scalar lag fields with checkpoint
+  subroutine register_lags_with_checkpoint(this, chkp)
+    class(scalars_t), intent(inout) :: this
+    type(chkp_t), intent(inout) :: chkp
+    integer :: i, n_scalars
+
+    n_scalars = size(this%scalar_fields)
+
+    ! Allocate ABX field arrays
+    allocate(chkp%scalar_abx1(n_scalars))
+    allocate(chkp%scalar_abx2(n_scalars))
+
+    ! Add all scalar lag fields to the checkpoint list and populate ABX fields
+    do i = 1, n_scalars
+       call chkp%scalar_lags%append(this%scalar_fields(i)%slag)
+
+       ! Cast to scalar_pnpn_t to access ABX fields
+       select type(scalar_field => this%scalar_fields(i))
+       type is(scalar_pnpn_t)
+          call associate_scalar_abx_fields(chkp, i, scalar_field)
+       end select
+    end do
+
+  end subroutine register_lags_with_checkpoint
+
+  !> Helper subroutine to associate ABX field pointers with proper TARGET attribute
+  subroutine associate_scalar_abx_fields(chkp, index, scalar_field)
+    type(chkp_t), intent(inout) :: chkp
+    integer, intent(in) :: index
+    type(scalar_pnpn_t), target, intent(in) :: scalar_field
+
+    chkp%scalar_abx1(index)%ptr => scalar_field%abx1
+    chkp%scalar_abx2(index)%ptr => scalar_field%abx2
+  end subroutine associate_scalar_abx_fields
 
 end module scalars

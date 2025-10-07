@@ -46,7 +46,6 @@ module gradient_jump_penalty
   use element, only : element_t
   use hex, only : hex_t
   use quad, only : quad_t
-  use operators, only : dudxyz
   use gs_ops, only : GS_OP_ADD
   use space, only : space_t, GLL
   use gather_scatter, only : gs_t
@@ -58,6 +57,8 @@ module gradient_jump_penalty
   use source_term, only : source_term_t
   use field_list, only : field_list_t
   use field_registry, only : neko_field_registry
+  use time_state, only : time_state_t
+  use operators, only : dudxyz
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
 
   implicit none
@@ -824,12 +825,10 @@ contains
   end subroutine gradient_jump_penalty_compute_single
 
   !> Assign the gradient jump penalty term.
-  !! @param t The time value.
-  !! @param tstep The current time-step.
-  subroutine gradient_jump_penalty_compute(this, t, tstep)
+  !! @param time The time state.
+  subroutine gradient_jump_penalty_compute(this, time)
     class(gradient_jump_penalty_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     integer :: i, n_fields, n
 
     n_fields = this%fields%size()

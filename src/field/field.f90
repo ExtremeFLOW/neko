@@ -1,4 +1,4 @@
-! Copyright (c) 2018-2023, The Neko Authors
+! Copyright (c) 2018-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -33,9 +33,9 @@
 !> Defines a field
 module field
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device_math
-  use num_types, only : rp
-  use device
+  use device_math, only : device_add2, device_cadd, device_cfill, device_copy
+  use num_types, only : rp, c_rp
+  use device, only : device_map, device_free, device_memset, device_memcpy
   use math, only : add2, copy, cadd
   use mesh, only : mesh_t
   use space, only : space_t, operator(.ne.)
@@ -64,7 +64,7 @@ module field
      procedure, private, pass(this) :: assign_scalar => field_assign_scalar
      procedure, private, pass(this) :: add_field => field_add_field
      procedure, private, pass(this) :: add_scalar => field_add_scalar
-     procedure, pass(this) :: copyto => field_copyto
+     procedure, pass(this) :: copy_from => field_copy_from
      procedure, pass(this) :: free => field_free
      !> Return the size of the field.
      procedure, pass(this) :: size => field_size
@@ -153,6 +153,12 @@ contains
       if (NEKO_BCKND_DEVICE .eq. 1) then
          n = lx * ly * lz * nelv
          call device_map(this%x, this%x_d, n)
+         block
+           real(c_rp) :: rp_dummy
+           integer(c_size_t) :: s
+           s = c_sizeof(rp_dummy) * n
+           call device_memset(this%x_d, 0, s, sync = .true.)
+         end block
       end if
     end associate
 
@@ -185,17 +191,16 @@ contains
   !! @param this field to copy to/from device/host
   !! @memdir direction to copy (HOST_TO_DEVICE or DEVICE_TO_HOST)
   !! @sync whether the memcopy to be blocking or not
-  subroutine field_copyto(this, memdir, sync)
+  subroutine field_copy_from(this, memdir, sync)
     class(field_t), intent(inout) :: this
     integer, intent(in) :: memdir
     logical, intent(in) :: sync
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%x, this%x_d, this%size(), &
-            memdir, sync)
+       call device_memcpy(this%x, this%x_d, this%size(), memdir, sync)
     end if
 
-  end subroutine field_copyto
+  end subroutine field_copy_from
 
 
   !> Assignment \f$ this = G \f$
@@ -299,4 +304,3 @@ contains
   end function field_size
 
 end module field
-

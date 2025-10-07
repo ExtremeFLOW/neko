@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -43,6 +43,7 @@ module blasius
   use bc, only : bc_t
   use json_module, only : json_file
   use json_utils, only : json_get
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -158,38 +159,40 @@ contains
   end subroutine blasius_free
 
   !> No-op scalar apply
-  subroutine blasius_apply_scalar(this, x, n, t, tstep, strong)
+  subroutine blasius_apply_scalar(this, x, n, time, strong)
     class(blasius_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
   end subroutine blasius_apply_scalar
 
   !> No-op scalar apply (device version)
-  subroutine blasius_apply_scalar_dev(this, x_d, t, tstep, strong)
+  subroutine blasius_apply_scalar_dev(this, x_d, time, strong, strm)
     class(blasius_t), intent(inout), target :: this
-    type(c_ptr) :: x_d
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(c_ptr), intent(inout) :: x_d
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
+    type(c_ptr), intent(inout) :: strm
   end subroutine blasius_apply_scalar_dev
 
   !> Apply blasius conditions (vector valued)
-  subroutine blasius_apply_vector(this, x, y, z, n, t, tstep, strong)
+  subroutine blasius_apply_vector(this, x, y, z, n, time, strong)
     class(blasius_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(inout), dimension(n) :: y
     real(kind=rp), intent(inout), dimension(n) :: z
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     integer :: i, m, k, idx(4), facet
-    logical :: strong_ = .true.
+    logical :: strong_
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
 
     associate(xc => this%coef%dof%x, yc => this%coef%dof%y, &
          zc => this%coef%dof%z, nx => this%coef%nx, ny => this%coef%ny, &
@@ -223,20 +226,24 @@ contains
   end subroutine blasius_apply_vector
 
   !> Apply blasius conditions (vector valued) (device version)
-  subroutine blasius_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, strong)
+  subroutine blasius_apply_vector_dev(this, x_d, y_d, z_d, time, strong, strm)
     class(blasius_t), intent(inout), target :: this
-    type(c_ptr) :: x_d
-    type(c_ptr) :: y_d
-    type(c_ptr) :: z_d
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(c_ptr), intent(inout) :: x_d
+    type(c_ptr), intent(inout) :: y_d
+    type(c_ptr), intent(inout) :: z_d
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     integer :: i, m, k, idx(4), facet
     integer(c_size_t) :: s
     real(kind=rp), allocatable :: bla_x(:), bla_y(:), bla_z(:)
-    logical :: strong_ = .true.
+    logical :: strong_
+    type(c_ptr), intent(inout) :: strm
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
 
     associate(xc => this%coef%dof%x, yc => this%coef%dof%y, &
          zc => this%coef%dof%z, nx => this%coef%nx, ny => this%coef%ny, &
@@ -293,7 +300,7 @@ contains
 
       if (strong_ .and. this%msk(0) .gt. 0) then
          call device_inhom_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
-              blax_d, blay_d, blaz_d, m)
+              blax_d, blay_d, blaz_d, m, strm)
       end if
 
     end associate
@@ -331,7 +338,7 @@ contains
   subroutine blasius_finalize(this, only_facets)
     class(blasius_t), target, intent(inout) :: this
     logical, optional, intent(in) :: only_facets
-    logical :: only_facets_ = .false.
+    logical :: only_facets_
 
     if (present(only_facets)) then
        only_facets_ = only_facets

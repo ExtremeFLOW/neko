@@ -41,8 +41,14 @@ module opencl_prgm_lib
   !> Device \f$ D^T X \f$ kernels
   type(c_ptr), public, bind(c) :: cdtp_program = C_NULL_PTR
 
-  !> Device onvective kernels
+  !> Device convective kernels
   type(c_ptr), public, bind(c) :: conv1_program = C_NULL_PTR
+
+  !> Device convective kernels for oifs
+  type(c_ptr), public, bind(c) :: convect_scalar_program = C_NULL_PTR
+
+  !> Device convect_rst kernels
+  type(c_ptr), public, bind(c) :: set_convect_rst_program = C_NULL_PTR
 
   !> Device CFL kernels
   type(c_ptr), public, bind(c) :: cfl_program = C_NULL_PTR
@@ -56,6 +62,9 @@ module opencl_prgm_lib
   !> Device Ax helm kernels
   type(c_ptr), public, bind(c) :: ax_helm_program = C_NULL_PTR
 
+  !> Device Ax helm full kernels
+  type(c_ptr), public, bind(c) :: ax_helm_full_program = C_NULL_PTR
+
   !> Device jacobi kernels
   type(c_ptr), public, bind(c) :: jacobi_program = C_NULL_PTR
 
@@ -65,8 +74,15 @@ module opencl_prgm_lib
   !> Device pnpn residual kernels
   type(c_ptr), public, bind(c) :: pnpn_res_program = C_NULL_PTR
 
+  !> Device pnpn residual kernels (stress formulation)
+  type(c_ptr), public, bind(c) :: pnpn_stress_res_program = C_NULL_PTR
+
   !> Device euler residual kernels
   type(c_ptr), public, bind(c) :: euler_res_program = C_NULL_PTR
+
+  !> Device compressible ops kernels
+  type(c_ptr), public, bind(c) :: compressible_ops_compute_max_wave_speed_program = C_NULL_PTR
+  type(c_ptr), public, bind(c) :: compressible_ops_compute_entropy_program = C_NULL_PTR
 
   !> Device fdm kernels
   type(c_ptr), public, bind(c) :: fdm_program = C_NULL_PTR
@@ -93,7 +109,7 @@ module opencl_prgm_lib
   type(c_ptr), public, bind(c) :: compute_max_wave_speed_program = C_NULL_PTR
 
   !> Device filter kernels
-  type(c_ptr), public, bind(c) :: filter_program = C_NULL_PTR
+  type(c_ptr), public, bind(c) :: mapping_program = C_NULL_PTR
 
   public :: opencl_prgm_lib_release
 
@@ -206,6 +222,13 @@ contains
        ax_helm_program = C_NULL_PTR
     end if
 
+    if (c_associated(ax_helm_full_program)) then
+       if(clReleaseProgram(ax_helm_full_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       ax_helm_full_program = C_NULL_PTR
+    end if
+
     if (c_associated(jacobi_program)) then
        if(clReleaseProgram(jacobi_program) .ne. CL_SUCCESS) then
           call neko_error('Failed to release program')
@@ -227,11 +250,32 @@ contains
        pnpn_res_program = C_NULL_PTR
     end if
 
+    if (c_associated(pnpn_stress_res_program)) then
+       if(clReleaseProgram(pnpn_stress_res_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       pnpn_stress_res_program = C_NULL_PTR
+    end if
+
     if (c_associated(euler_res_program)) then
        if(clReleaseProgram(euler_res_program) .ne. CL_SUCCESS) then
           call neko_error('Failed to release program')
        end if
        euler_res_program = C_NULL_PTR
+    end if
+
+    if (c_associated(compressible_ops_compute_max_wave_speed_program)) then
+       if(clReleaseProgram(compressible_ops_compute_max_wave_speed_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       compressible_ops_compute_max_wave_speed_program = C_NULL_PTR
+    end if
+
+    if (c_associated(compressible_ops_compute_entropy_program)) then
+       if(clReleaseProgram(compressible_ops_compute_entropy_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       compressible_ops_compute_entropy_program = C_NULL_PTR
     end if
 
     if (c_associated(fdm_program)) then
@@ -290,11 +334,11 @@ contains
        compute_max_wave_speed_program = C_NULL_PTR
     end if
 
-    if (c_associated(filter_program)) then
-       if(clReleaseProgram(filter_program) .ne. CL_SUCCESS) then
+    if (c_associated(mapping_program)) then
+       if(clReleaseProgram(mapping_program) .ne. CL_SUCCESS) then
           call neko_error('Failed to release program')
        end if
-       filter_program = C_NULL_PTR
+       mapping_program = C_NULL_PTR
     end if
 
   end subroutine opencl_prgm_lib_release

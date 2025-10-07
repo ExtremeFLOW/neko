@@ -61,6 +61,10 @@ module file
      procedure :: write => file_write
      !> Read @a data from a file.
      procedure :: read => file_read
+     !> Get a file's name.
+     procedure :: get_fname => file_get_fname
+     !> Get a file's base name.
+     procedure :: get_base_fname => file_get_base_fname
      !> Get a file's counter.
      procedure :: get_counter => file_get_counter
      !> Set a file's counter.
@@ -73,20 +77,23 @@ module file
      procedure :: set_precision => file_set_precision
      !> Set a file's output layout.
      procedure :: set_layout => file_set_layout
+     !> Sets the file's overwrite flag.
+     procedure, pass (this) :: set_overwrite => file_set_overwrite
      !> File operation destructor.
-     final :: file_free
+     procedure, pass(this) :: free => file_free
   end type file_t
 
 contains
 
   !> Constructor.
   !! @param fname Filename.
-  subroutine file_init(this, fname, header, precision, layout)
+  subroutine file_init(this, fname, header, precision, layout, overwrite)
     class(file_t), intent(inout) :: this
     character(len=*), intent(in) :: fname
     character(len=*), intent(in), optional :: header
     integer, intent(in), optional :: precision
     integer, intent(in), optional :: layout
+    logical, intent(in), optional :: overwrite
     character(len=80) :: suffix
     class(generic_file_t), pointer :: q
 
@@ -134,15 +141,19 @@ contains
        call this%set_precision(precision)
     end if
 
-    if (present(layout) .and. (suffix .eq. "bp")) then
+    if (present(layout).and. (suffix .eq. "bp")) then
        call this%set_layout(layout)
+    end if
+
+    if (present(overwrite)) then
+       call this%set_overwrite(overwrite)
     end if
 
   end subroutine file_init
 
   !> File operation destructor.
   subroutine file_free(this)
-    type(file_t), intent(inout) :: this
+    class(file_t), intent(inout) :: this
 
     if (allocated(this%file_type)) then
        deallocate(this%file_type)
@@ -157,11 +168,7 @@ contains
     class(*), intent(inout) :: data
     real(kind=rp), intent(in), optional :: t
 
-    if (present(t)) then
-       call this%file_type%write(data, t)
-    else
-       call this%file_type%write(data)
-    end if
+    call this%file_type%write(data, t = t)
 
   end subroutine file_write
 
@@ -175,6 +182,34 @@ contains
 
   end subroutine file_read
 
+  !> Get a file's name.
+  function file_get_fname(this) result(fname)
+    class(file_t), intent(in) :: this
+    character(len=1024) :: fname
+
+    fname = ""
+
+    select type (ft => this%file_type)
+    class is (generic_file_t)
+       fname = ft%get_fname()
+    end select
+
+  end function file_get_fname
+
+  !> Get a file's base name.
+  function file_get_base_fname(this) result(fname)
+    class(file_t), intent(in) :: this
+    character(len=1024) :: fname
+
+    fname = ""
+
+    select type (ft => this%file_type)
+    class is (generic_file_t)
+       fname = ft%get_base_fname()
+    end select
+
+  end function file_get_base_fname
+
   !> Get a file's counter.
   function file_get_counter(this) result(n)
     class(file_t), intent(inout) :: this
@@ -183,7 +218,7 @@ contains
 
     select type (ft => this%file_type)
     class is (generic_file_t)
-       n = ft%counter
+       n = ft%get_counter()
     end select
 
   end function file_get_counter
@@ -216,14 +251,13 @@ contains
   subroutine file_set_header(this, hd)
     class(file_t), intent(inout) :: this
     character(len=*), intent(in) :: hd
-
     character(len=80) :: suffix
 
     select type (ft => this%file_type)
     class is (csv_file_t)
        call ft%set_header(hd)
     class default
-       call filename_suffix(this%file_type%fname, suffix)
+       call filename_suffix(this%file_type%get_fname(), suffix)
        call neko_warning("No set_header defined for " // trim(suffix) // " yet")
     end select
 
@@ -234,7 +268,6 @@ contains
   subroutine file_set_precision(this, precision)
     class(file_t), intent(inout) :: this
     integer, intent(in) :: precision
-
     character(len=80) :: suffix
 
     select type (ft => this%file_type)
@@ -243,7 +276,7 @@ contains
     type is (bp_file_t)
        call ft%set_precision(precision)
     class default
-       call filename_suffix(this%file_type%fname, suffix)
+       call filename_suffix(this%file_type%get_fname(), suffix)
        call neko_warning("No precision strategy defined for " // trim(suffix) &
             // " files")
     end select
@@ -255,17 +288,28 @@ contains
   subroutine file_set_layout(this, layout)
     class(file_t), intent(inout) :: this
     integer, intent(in) :: layout
-
     character(len=80) :: suffix
 
     select type (ft => this%file_type)
     type is (bp_file_t)
        call ft%set_layout(layout)
     class default
-       call filename_suffix(this%file_type%fname, suffix)
+       call filename_suffix(this%file_type%get_fname(), suffix)
        call neko_warning("No set_layout defined for " // trim(suffix) // " yet")
     end select
 
   end subroutine file_set_layout
+
+  !> Sets the file's overwrite flag.
+  subroutine file_set_overwrite(this, overwrite)
+    class(file_t), intent(inout) :: this
+    logical, intent(in) :: overwrite
+    character(len=80) :: suffix
+
+    select type (ft => this%file_type)
+    class is (generic_file_t)
+       call ft%set_overwrite(overwrite)
+    end select
+  end subroutine file_set_overwrite
 
 end module file

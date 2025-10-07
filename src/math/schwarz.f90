@@ -65,7 +65,8 @@ module schwarz
   use space, only : space_t, GLL
   use dofmap, only : dofmap_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use device_schwarz
+  use device_schwarz, only : device_schwarz_extrude, device_schwarz_toext3d, &
+       device_schwarz_toreg3d
   use device_math, only : device_rzero, device_col2
   use fdm, only : fdm_t
   use device, only : device_map, device_alloc, device_memcpy, &
@@ -75,6 +76,7 @@ module schwarz
   use neko_config, only : NEKO_BCKND_DEVICE
   use bc_list, only : bc_list_t
   use, intrinsic :: iso_c_binding, only : c_sizeof, c_ptr, C_NULL_PTR
+  !$ use omp_lib
   implicit none
   private
 
@@ -95,6 +97,7 @@ module schwarz
      type(gs_t), pointer :: gs_h
      type(mesh_t), pointer :: msh
      type(c_ptr) :: event
+     logical :: local_gs = .false.
    contains
      procedure, pass(this) :: init => schwarz_init
      procedure, pass(this) :: free => schwarz_free
@@ -110,6 +113,7 @@ contains
     type(gs_t), target, intent(inout) :: gs_h
     type(mesh_t), target, intent(inout) :: msh
     type(bc_list_t), target, intent(inout):: bclst
+    integer :: nthrds
 
     call this%free()
 
@@ -128,12 +132,27 @@ contains
     this%Xh => Xh
     this%bclst => bclst
     this%dof => dof
-    this%gs_h => gs_h
+
+    nthrds = 1
+    !$omp parallel
+    !$ nthrds = omp_get_num_threads()
+    !$omp end parallel
+
+    ! If we are running multithreaded, we need a local gs object,
+    ! otherwise we can reuse the external one
+    if (nthrds .gt. 1) then
+       allocate(this%gs_h)
+       call this%gs_h%init(this%dof)
+       this%local_gs = .true.
+    else
+       this%gs_h => gs_h
+       this%local_gs = .false.
+    end if
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(this%work1, this%work1_d,this%dm_schwarz%size())
        call device_map(this%work2, this%work2_d,this%dm_schwarz%size())
     end if
-
 
     call schwarz_setup_wt(this)
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -163,8 +182,14 @@ contains
     nullify(this%Xh)
     nullify(this%bclst)
     nullify(this%dof)
+    if (this%local_gs) then
+       call this%gs_h%free()
+       deallocate(this%gs_h)
+    end if
     nullify(this%gs_h)
     nullify(this%msh)
+
+    this%local_gs = .false.
   end subroutine schwarz_free
   !> setup weights
   subroutine schwarz_setup_wt(this)
@@ -425,14 +450,17 @@ contains
          call device_schwarz_toreg3d(e_d, work2_d, this%Xh%lx, &
               this%msh%nelv, aux_cmd_queue)
 
-         call device_event_record(this%event,aux_cmd_queue)
-         call device_event_sync(this%event)
-
+         this%gs_h%bcknd%gs_stream = aux_cmd_queue
          call this%gs_h%op(e, n, GS_OP_ADD, this%event)
-         call device_event_sync(this%event)
-         call this%bclst%apply_scalar(e, n)
-         call device_col2(e_d,this%wt_d, n)
-         call device_stream_wait_event(aux_cmd_queue, this%event, 0)
+
+         call this%bclst%apply_scalar(e, n, strm = aux_cmd_queue)
+         call device_col2(e_d,this%wt_d, n, aux_cmd_queue)
+
+         ! switch back to the default stream on the shared gs
+         if (.not. this%local_gs) then
+            call device_event_sync(this%event)
+            this%gs_h%bcknd%gs_stream = glb_cmd_queue
+         end if
       else
          call this%bclst%apply_scalar(r, n)
          call schwarz_toext3d(work1, r, this%Xh%lx, this%msh%nelv)

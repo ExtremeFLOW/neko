@@ -36,7 +36,9 @@ module gs_mpi
   use gs_comm, only : gs_comm_t, GS_COMM_MPI, GS_COMM_MPIGPU
   use gs_ops, only : GS_OP_ADD, GS_OP_MAX, GS_OP_MIN, GS_OP_MUL, GS_OP_SET
   use stack, only : stack_i4_t
-  use comm
+  use mpi_f08, only : MPI_Test, MPI_STATUS_IGNORE, MPI_Status, &
+       MPI_Request, MPI_Isend, MPI_IRecv, MPI_Comm
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
   use, intrinsic :: iso_c_binding
   use utils, only : neko_error
   !$ use omp_lib

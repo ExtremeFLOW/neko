@@ -276,11 +276,11 @@ contains
     call this%y%init(n)
     call this%z%init(n)
     call copy(this%x%x, x, n)
-    call this%x%copyto(HOST_TO_DEVICE,.false.)
+    call this%x%copy_from(HOST_TO_DEVICE,.false.)
     call copy(this%y%x, y, n)
-    call this%y%copyto(HOST_TO_DEVICE,.false.)
+    call this%y%copy_from(HOST_TO_DEVICE,.false.)
     call copy(this%z%x, z, n)
-    call this%z%copyto(HOST_TO_DEVICE,.false.)
+    call this%z%copy_from(HOST_TO_DEVICE,.false.)
     call this%Xh%init(Xh%t, lx, ly, lz)
 
 
@@ -603,11 +603,11 @@ contains
     time1 = MPI_Wtime()
     el_cands => all_el_candidates%array()
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call x_t%copyto(HOST_TO_DEVICE,.false.)
+       call x_t%copy_from(HOST_TO_DEVICE,.false.)
 
-       call y_t%copyto(HOST_TO_DEVICE,.false.)
+       call y_t%copy_from(HOST_TO_DEVICE,.false.)
 
-       call z_t%copyto(HOST_TO_DEVICE,.false.)
+       call z_t%copy_from(HOST_TO_DEVICE,.false.)
        call device_map(el_cands, el_cands_d,n_point_cand)
        call device_memcpy(el_cands, el_cands_d,n_point_cand, &
             HOST_TO_DEVICE, .true.)
@@ -618,10 +618,10 @@ contains
          el_cands, n_point_cand, &
          resx, resy, resz)
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call rst_local_cand%copyto(DEVICE_TO_HOST,.false.)
-       call resx%copyto(DEVICE_TO_HOST,.false.)
-       call resy%copyto(DEVICE_TO_HOST,.false.)
-       call resz%copyto(DEVICE_TO_HOST,.true.)
+       call rst_local_cand%copy_from(DEVICE_TO_HOST,.false.)
+       call resx%copy_from(DEVICE_TO_HOST,.false.)
+       call resy%copy_from(DEVICE_TO_HOST,.false.)
+       call resz%copy_from(DEVICE_TO_HOST,.true.)
        call device_deassociate(el_cands)
        call device_free(el_cands_d)
     end if

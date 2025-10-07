@@ -18,7 +18,7 @@ fi
 HAVE_HIP_BCKND=@hip_bcknd@
 if [ $HAVE_HIP_BCKND -eq 1 ]; then
     HIPCC=@HIPCC@
-    HIP_HIPCC_CFLAGS='@HIP_HIPCC_CFLAGS@'
+    HIP_HIPCC_FLAGS='@HIP_HIPCC_FLAGS@'
 fi
 
 printf "\n%s\n" 'N E K O build tool, Version @PACKAGE_VERSION@'
@@ -183,7 +183,7 @@ _ACEOF
 
 # Compile backend files
 USER_BCKND_OBJ=''
-if [[ ! -z "$USER_BCKND_FILES" ]]; then
+if [ ! -z "$USER_BCKND_FILES" ]; then
     for file in $USER_BCKND_FILES; do
         if [ $HAVE_CUDA_BCKND -eq 1 ]; then
             $NVCC -c $CUDA_ARCH $CUDA_CFLAGS -I$includedir_pkg -I./ "$file" -o "${file%.cu}.o"

@@ -2,7 +2,7 @@
 module fluid_aux
   use, intrinsic :: ieee_arithmetic, only: ieee_is_nan
   use krylov, only : ksp_monitor_t
-  use logger, only : neko_log, LOG_SIZE
+  use logger, only : LOG_SIZE
   use utils, only : neko_error, neko_warning
   use time_state, only : time_state_t
   implicit none

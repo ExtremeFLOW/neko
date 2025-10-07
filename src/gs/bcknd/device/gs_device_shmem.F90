@@ -39,6 +39,7 @@ module gs_device_shmem
   use htable, only : htable_i4_t
   use device
   use comm
+  use mpi_f08
   use utils, only : neko_error
   use mpi_f08, only : MPI_Comm
   use, intrinsic :: iso_c_binding, only : c_sizeof, c_int32_t, &

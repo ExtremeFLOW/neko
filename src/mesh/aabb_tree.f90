@@ -68,8 +68,10 @@
 !! The purpose of this is to accelerate a Signed Distance Function and other
 !! spatial computations.
 module aabb_tree
-  use aabb
-  use num_types, only: rp, dp
+  use aabb, only : aabb_t, get_aabb, merge
+  use tri, only : tri_t
+  use num_types, only : rp, dp
+  use stack, only : stack_i4_t
   use utils, only : neko_error
   implicit none
   private
@@ -380,7 +382,7 @@ contains
     do i_obj = 1, size(objects)
        box_list(i_obj) = get_aabb(objects(i_obj), aabb_padding)
     end do
-    sorted_indices = sort(box_list)
+    call sort(box_list, sorted_indices)
 
     do i = 1, size(sorted_indices)
        i_obj = sorted_indices(i)
@@ -479,7 +481,7 @@ contains
     do i_obj = 1, size(objects)
        box_list(i_obj) = get_aabb(objects(i_obj), aabb_padding)
     end do
-    sorted_indices = sort(box_list)
+    call sort(box_list, sorted_indices)
 
     do i = 1, size(sorted_indices)
        i_obj = sorted_indices(i)
@@ -538,9 +540,10 @@ contains
 
   end subroutine aabb_tree_build_tree
 
-  function sort(array) result(indices)
+  !> Return a list of sorted indices of the aabb nodes.
+  subroutine sort(array, indices)
     type(aabb_t), dimension(:), intent(in) :: array
-    integer, dimension(:), allocatable :: indices
+    integer, intent(inout), dimension(:), allocatable :: indices
     logical, dimension(:), allocatable :: visited
 
     integer :: i, imin
@@ -564,15 +567,13 @@ contains
        visited(minidx) = .true.
     end do
 
-  end function sort
+  end subroutine sort
 
   ! -------------------------------------------------------------------------- !
   ! Getters
 
   !> @brief Returns the size of the tree, in number of leaves.
   function aabb_tree_get_size(this) result(size)
-    use stack, only: stack_i4_t
-    use utils, only: neko_error
     class(aabb_tree_t), intent(in) :: this
     integer :: size
 
@@ -719,9 +720,6 @@ contains
 
   !> @brief Queries the tree for overlapping objects.
   subroutine aabb_tree_query_overlaps(this, object, object_index, overlaps)
-    use stack, only: stack_i4_t
-    implicit none
-
     class(aabb_tree_t), intent(in) :: this
     class(*), intent(in) :: object
     integer, intent(in) :: object_index
@@ -731,7 +729,6 @@ contains
     type(aabb_t) :: object_box
 
     integer :: root_index, left_index, right_index
-
     integer :: node_index, tmp_index
 
     object_box = get_aabb(object)
@@ -958,9 +955,6 @@ contains
 
   !> @brief Validates the tree.
   function aabb_tree_valid_tree(this) result(valid)
-    use stack, only: stack_i4_t
-    implicit none
-
     class(aabb_tree_t), intent(in) :: this
     logical :: valid
 
@@ -1018,7 +1012,6 @@ contains
 
   !> @brief Prints the tree.
   subroutine aabb_tree_print(this)
-    use stack, only: stack_i4_t
     class(aabb_tree_t), intent(inout) :: this
     type(stack_i4_t) :: simple_stack
 

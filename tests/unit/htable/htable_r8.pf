@@ -31,7 +31,7 @@ subroutine test_htable_init_r8
 
   call h%init(4, data_pt)
   @assertEqual(h%num_entries(), 0)
-  
+
 end subroutine test_htable_init_r8
 
 @test
@@ -65,7 +65,7 @@ subroutine test_htable_add_r8
      data_r8 = dble(-i)
      data_ti4 = (/-i, i/)
      data_t4i4 = (/-i, i, -i , i/)
-     data_pt = point_t(dble(i), dble(-i), dble(i*i))
+     call data_pt%init(dble(i), dble(-i), dble(i*i))
 
      call h1%set(key, data_i4)
      call h2%set(key, data_i8)
@@ -89,7 +89,7 @@ subroutine test_htable_add_r8
      data_r8 = dble(-i)
      data_ti4 = (/-i, i/)
      data_t4i4 = (/-i, i, -i , i/)
-     data_pt = point_t(dble(i), dble(-i), dble(i*i))
+     call data_pt%init(dble(i), dble(-i), dble(i*i))
 
      call h1%set(key, data_i4)
      call h2%set(key, data_i8)
@@ -105,7 +105,7 @@ subroutine test_htable_add_r8
   @assertEqual(h4%num_entries(), 8)
   @assertEqual(h5%num_entries(), 8)
   @assertEqual(h6%num_entries(), 8)
-  
+
 end subroutine test_htable_add_r8
 
 @test
@@ -128,7 +128,7 @@ subroutine test_htable_clear_r8
   @assertEqual(h%num_entries(), 42)
   call h%clear()
   @assertEqual(h%num_entries(), 0)
-  
+
 end subroutine test_htable_clear_r8
 
 @test
@@ -151,7 +151,7 @@ subroutine test_htable_free_r8
   @assertEqual(h%num_entries(), 42)
   call h%free()
   @assertEqual(h%num_entries(), 0)
-  
+
 end subroutine test_htable_free_r8
 
 
@@ -186,7 +186,7 @@ subroutine test_htable_get_r8
      data_r8 = dble(-i)
      data_ti4 = (/-i, i/)
      data_t4i4 = (/-i, i, -i , i/)
-     data_pt = point_t(dble(i), dble(-i), dble(i*i))
+     call data_pt%init(dble(i), dble(-i), dble(i*i))
 
      call h1%set(key, data_i4)
      call h2%set(key, data_i8)
@@ -207,8 +207,8 @@ subroutine test_htable_get_r8
 
      ti4 = (/-i, i/)
      t4i4 = (/-i, i, -i, i/)
-     pt = point_t(dble(i), dble(-i), dble(i*i))
-     
+     call pt%init(dble(i), dble(-i), dble(i*i))
+
      @assertEqual(data_i4, -i)
      @assertEqual(data_i8, int(-i, i8))
      @assertEqual(data_r8, dble(-i))
@@ -228,8 +228,8 @@ subroutine test_htable_get_r8
 
      ti4 = (/-i, i/)
      t4i4 = (/-i, i, -i, i/)
-     pt = point_t(dble(i), dble(-i), dble(i*i))
-     
+     call pt%init(dble(i), dble(-i), dble(i*i))
+
      @assertEqual(data_i4, -i)
      @assertEqual(data_i8, int(-i, i8))
      @assertEqual(data_r8, dble(-i))
@@ -237,7 +237,7 @@ subroutine test_htable_get_r8
      @assertTrue(data_t4i4 .eq. t4i4)
      @assertTrue(data_pt .eq. pt)
   end do
-  
+
   do i = 1, 42, 2
      key = dble(i)
      @assertEqual(h1%get(key, data_i4), 0)
@@ -249,8 +249,8 @@ subroutine test_htable_get_r8
 
      ti4 = (/-i, i/)
      t4i4 = (/-i, i, -i, i/)
-     pt = point_t(dble(i), dble(-i), dble(i*i))
-     
+     call pt%init(dble(i), dble(-i), dble(i*i))
+
      @assertEqual(data_i4, -i)
      @assertEqual(data_i8, int(-i, i8))
      @assertEqual(data_r8, dble(-i))
@@ -258,7 +258,7 @@ subroutine test_htable_get_r8
      @assertTrue(data_t4i4 .eq. t4i4)
      @assertTrue(data_pt .eq. pt)
   end do
-  
+
 end subroutine test_htable_get_r8
 
 
@@ -293,7 +293,7 @@ subroutine test_htable_remove_r8
      data_r8 = dble(-i)
      data_ti4 = (/-i, i/)
      data_t4i4 = (/-i, i, -i , i/)
-     data_pt = point_t(dble(i), dble(-i), dble(i*i))
+     call data_pt%init(dble(i), dble(-i), dble(i*i))
 
      call h1%set(key, data_i4)
      call h2%set(key, data_i8)
@@ -330,8 +330,8 @@ subroutine test_htable_remove_r8
 
      ti4 = (/-i, i/)
      t4i4 = (/-i, i, -i, i/)
-     pt = point_t(dble(i), dble(-i), dble(i*i))
-     
+     call pt%init(dble(i), dble(-i), dble(i*i))
+
      @assertEqual(data_i4, -i)
      @assertEqual(data_i8, int(-i, i8))
      @assertEqual(data_r8, dble(-i))
@@ -350,7 +350,7 @@ subroutine test_htable_remove_r8
      @assertEqual(h5%get(key, data_t4i4), 1)
      @assertEqual(h6%get(key, data_pt), 1)
   end do
-  
+
 end subroutine test_htable_remove_r8
 
 @test
@@ -366,19 +366,19 @@ subroutine test_htable_iter_r8
   real(kind=dp), pointer :: kp, dr8p
 
   call h%init(4, data=data_r8)
-  
+
   do i = 1, 42
-     key = dble(i) 
+     key = dble(i)
      data_r8 = dble(-i)
      call h%set(key, data_r8)
   end do
 
   call it%init(h)
-  
+
   i = 0
   do while(it%next())
      kp => it%key()
-     dr8p=> it%value()     
+     dr8p=> it%value()
      data_r8 = -kp
      @assertEqual(data_r8, dr8p)
 
@@ -388,5 +388,5 @@ subroutine test_htable_iter_r8
      if (rcode .eq. 0) i = i + 1
   end do
   @assertEqual(i, 42)
-  
+
 end subroutine test_htable_iter_r8

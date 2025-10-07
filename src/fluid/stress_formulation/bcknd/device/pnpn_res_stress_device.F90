@@ -14,8 +14,8 @@ module pnpn_res_stress_device
   use space, only : space_t
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   use device_mathops, only : device_opcolv
-  use device_math, only : device_rzero, device_vdot3, device_cmult, &
-                          device_sub2, device_col2, device_copy, device_invcol1
+  use device_math, only : device_rzero, device_cmult, &
+       device_col2, device_copy, device_invcol1
   implicit none
   private
 
@@ -145,20 +145,21 @@ module pnpn_res_stress_device
   end interface
 #elif HAVE_OPENCL
   interface
-     subroutine pnpn_prs_res_part1_opencl(ta1_d, ta2_d, ta3_d, &
-          wa1_d, wa2_d, wa3_d, f_u_d, f_v_d, f_w_d, &
-          B_d, h1_d, mu, rho, n) &
-          bind(c, name = 'pnpn_prs_res_part1_opencl')
+     subroutine pnpn_prs_stress_res_part1_opencl(ta1_d, ta2_d, ta3_d, &
+          wa1_d, wa2_d, wa3_d, s11_d, s22_d, s33_d, &
+          s12_d, s13_d, s23_d, f_u_d, f_v_d, f_w_d, &
+          B_d, h1_d, rho_d, n) &
+          bind(c, name = 'pnpn_prs_stress_res_part1_opencl')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
        type(c_ptr), value :: ta1_d, ta2_d, ta3_d
        type(c_ptr), value :: wa1_d, wa2_d, wa3_d
+       type(c_ptr), value :: s11_d, s22_d, s33_d, s12_d, s13_d, s23_d
        type(c_ptr), value :: f_u_d, f_v_d, f_w_d
-       type(c_ptr), value :: B_d, h1_d
-       real(c_rp) :: mu, rho
+       type(c_ptr), value :: B_d, h1_d, rho_d
        integer(c_int) :: n
-     end subroutine pnpn_prs_res_part1_opencl
+     end subroutine pnpn_prs_stress_res_part1_opencl
   end interface
 
   interface
@@ -172,9 +173,9 @@ module pnpn_res_stress_device
   end interface
 
   interface
-     subroutine pnpn_prs_res_part3_opencl(p_res_d, ta1_d, ta2_d, ta3_d, &
+     subroutine pnpn_prs_stress_res_part3_opencl(p_res_d, ta1_d, ta2_d, ta3_d, &
           wa1_d, wa2_d, wa3_d, dtbd, n) &
-          bind(c, name = 'pnpn_prs_res_part3_opencl')
+          bind(c, name = 'pnpn_prs_stress_res_part3_opencl')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -182,8 +183,9 @@ module pnpn_res_stress_device
        type(c_ptr), value :: wa1_d, wa2_d, wa3_d
        real(c_rp) :: dtbd
        integer(c_int) :: n
-     end subroutine pnpn_prs_res_part3_opencl
+     end subroutine pnpn_prs_stress_res_part3_opencl
   end interface
+
 
   interface
      subroutine pnpn_vel_res_update_opencl(u_res_d, v_res_d, w_res_d, &
@@ -266,7 +268,7 @@ contains
 
     ! The strain rate tensor
     call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, &
-                     u_e, v_e, w_e, c_Xh)
+         u_e, v_e, w_e, c_Xh)
 
 
     ! Gradient of viscosity * 2
@@ -288,7 +290,11 @@ contains
          f_x%x_d, f_y%x_d, f_z%x_d, &
          c_Xh%B_d, c_Xh%h1_d, rho%x_d, n)
 #else
-    call neko_error('No device backend configured')
+    call pnpn_prs_stress_res_part1_opencl(ta1%x_d, ta2%x_d, ta3%x_d, &
+         wa1%x_d, wa2%x_d, wa3%x_d, &
+         s11%x_d, s22%x_d, s33%x_d, s12%x_d, s13%x_d, s23%x_d, &
+         f_x%x_d, f_y%x_d, f_z%x_d, &
+         c_Xh%B_d, c_Xh%h1_d, rho%x_d, n)
 #endif
 
     call gs_Xh%op(ta1, GS_OP_ADD)
@@ -321,7 +327,7 @@ contains
     call device_rzero(wa3%x_d, n)
 
     call bc_sym_surface%apply_surfvec_dev(wa1%x_d, wa2%x_d, wa3%x_d, &
-                                          ta1%x_d , ta2%x_d, ta3%x_d)
+         ta1%x_d , ta2%x_d, ta3%x_d)
 
     dtbd = bd / dt
     call device_rzerO(ta1%x_d, n)
@@ -329,16 +335,17 @@ contains
     call device_rzerO(ta3%x_d, n)
 
     call bc_prs_surface%apply_surfvec_dev(ta1%x_d, ta2%x_d, ta3%x_d, &
-                                          u%x_D, v%x_d, w%x_d)
+         u%x_D, v%x_d, w%x_d)
 
 #ifdef HAVE_HIP
     call pnpn_prs_stress_res_part3_hip(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
-                                        wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
+         wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
 #elif HAVE_CUDA
     call pnpn_prs_stress_res_part3_cuda(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
-                                        wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
+         wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
 #else
-    call neko_error('No device backend configured')
+    call pnpn_prs_stress_res_part3_opencl(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
+         wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
 #endif
 
     call neko_scratch_registry%relinquish_field(temp_indices)
@@ -374,7 +381,7 @@ contains
 
     ! Viscous stresses
     call Ax%compute_vector(u_res%x, v_res%x, w_res%x, u%x, v%x, w%x, c_Xh,&
-                                msh, Xh)
+         msh, Xh)
 
     call neko_scratch_registry%request_field(ta1, temp_indices(1))
     call neko_scratch_registry%request_field(ta2, temp_indices(2))

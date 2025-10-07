@@ -14,7 +14,6 @@ SUBDIRS = tuple\
 	  field\
 	  global_interpolation\
 	  mean_field\
-	  mean_sqr_field\
 	  gather_scatter\
 	  krylov\
 	  bc\
@@ -53,7 +52,6 @@ TESTS = device/device_test\
 	field/field_test\
 	global_interpolation/global_interpolation_test\
 	mean_field/mean_field_test\
-	mean_sqr_field/mean_sqr_field_test\
 	gather_scatter/gather_scatter_test\
 	krylov/krylov_test\
 	bc/bc_test\
@@ -93,7 +91,6 @@ EXTRA_DIST = \
 	field/field_parallel.pf\
 	global_interpolation/glob_interp_par.pf\
 	mean_field/mean_field_parallel.pf\
-	mean_sqr_field/mean_sqr_field_parallel.pf\
 	device/device.pf\
 	uset/uset_i4.pf\
 	uset/uset_r8.pf\
@@ -126,7 +123,6 @@ EXTRA_DIST = \
 	field/field_test\
 	global_interpolation/global_interpolation_test\
 	mean_field/mean_field_test\
-	mean_sqr_field/mean_sqr_field_test\
 	device_math/device_math_test\
 	octree/octree.pf\
 	vector/vector_parallel.pf\

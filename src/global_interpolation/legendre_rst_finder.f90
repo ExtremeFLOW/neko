@@ -113,9 +113,9 @@ contains
          Xh%vinvt, Xh%vinvt, nelv)
 
     !> Copy the data to the device (if device exists)
-    call this%x_hat%copyto(HOST_TO_DEVICE,.false.)
-    call this%y_hat%copyto(HOST_TO_DEVICE,.false.)
-    call this%z_hat%copyto(HOST_TO_DEVICE,.false.)
+    call this%x_hat%copy_from(HOST_TO_DEVICE,.false.)
+    call this%y_hat%copy_from(HOST_TO_DEVICE,.false.)
+    call this%z_hat%copy_from(HOST_TO_DEVICE,.false.)
 
   end subroutine legendre_rst_finder_init
 

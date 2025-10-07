@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2022-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -47,6 +47,7 @@ module dong_outflow
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default
   use utils, only : neko_error
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -95,18 +96,22 @@ contains
 
   !> Boundary condition apply for a generic Dirichlet condition
   !! to a vector @a x
-  subroutine dong_outflow_apply_scalar(this, x, n, t, tstep, strong)
+  subroutine dong_outflow_apply_scalar(this, x, n, time, strong)
     class(dong_outflow_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     integer :: i, m, k, facet, idx(4)
     real(kind=rp) :: vn, S0, ux, uy, uz, normal_xyz(3)
-    logical :: strong_ = .true.
+    logical :: strong_
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
+
     !Im actually not sure what to do if one has two dong that share a corner.
     if (strong_) then
        m = this%msk(0)
@@ -129,51 +134,54 @@ contains
 
   !> Boundary condition apply for a generic Dirichlet condition
   !! to vectors @a x, @a y and @a z
-  subroutine dong_outflow_apply_vector(this, x, y, z, n, t, tstep, strong)
+  subroutine dong_outflow_apply_vector(this, x, y, z, n, time, strong)
     class(dong_outflow_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(inout), dimension(n) :: y
     real(kind=rp), intent(inout), dimension(n) :: z
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
 
   end subroutine dong_outflow_apply_vector
 
   !> Boundary condition apply for a generic Dirichlet condition
   !! to a vector @a x (device version)
-  subroutine dong_outflow_apply_scalar_dev(this, x_d, t, tstep, strong)
+  subroutine dong_outflow_apply_scalar_dev(this, x_d, time, strong, strm)
     class(dong_outflow_t), intent(inout), target :: this
-    type(c_ptr) :: x_d
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(c_ptr), intent(inout) :: x_d
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
-    logical :: strong_ = .true.
+    type(c_ptr), intent(inout) :: strm
+    logical :: strong_
 
-    if (present(strong)) strong_ = strong
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
 
     if (strong_ .and. this%msk(0) .gt. 0) then
        call device_dong_outflow_apply_scalar(this%msk_d, x_d, &
             this%normal_x_d, this%normal_y_d, this%normal_z_d, &
             this%u%x_d, this%v%x_d, this%w%x_d, &
             this%uinf, this%delta, &
-            this%msk(0))
+            this%msk(0), strm)
     end if
 
   end subroutine dong_outflow_apply_scalar_dev
 
   !> Boundary condition apply for a generic Dirichlet condition
   !! to vectors @a x, @a y and @a z (device version)
-  subroutine dong_outflow_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, &
-       strong)
+  subroutine dong_outflow_apply_vector_dev(this, x_d, y_d, z_d, time, &
+       strong, strm)
     class(dong_outflow_t), intent(inout), target :: this
-    type(c_ptr) :: x_d
-    type(c_ptr) :: y_d
-    type(c_ptr) :: z_d
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(c_ptr), intent(inout) :: x_d
+    type(c_ptr), intent(inout) :: y_d
+    type(c_ptr), intent(inout) :: z_d
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
+    type(c_ptr), intent(inout) :: strm
 
     !call device_dong_outflow_apply_vector(this%msk_d, x_d, y_d, z_d, &
     !                                   this%g, size(this%msk))
@@ -192,7 +200,6 @@ contains
   subroutine dong_outflow_finalize(this, only_facets)
     class(dong_outflow_t), target, intent(inout) :: this
     logical, optional, intent(in) :: only_facets
-    logical :: only_facets_ = .false.
     real(kind=rp), allocatable :: temp_x(:)
     real(kind=rp), allocatable :: temp_y(:)
     real(kind=rp), allocatable :: temp_z(:)

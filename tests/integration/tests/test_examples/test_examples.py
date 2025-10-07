@@ -23,7 +23,8 @@ examples_dir = join(neko_dir, "examples")
 examples = {
     "2d_cylinder": NekoTestCase(
         case_file=join(examples_dir, "2d_cylinder", "2d_cylinder.case"),
-        mesh_file=join(examples_dir, "2d_cylinder", "ext_cyl.nmsh")
+        user_file=join(examples_dir, "2d_cylinder", "2d_cylinder.f90"),
+        mesh_file=join(examples_dir, "2d_cylinder", "2d_cylinder.nmsh")
     ),
     "TS_channel": NekoTestCase(
         case_file=join(examples_dir, "TS_channel", "TS_channel.case"),
@@ -102,7 +103,25 @@ examples = {
         case_file=join(examples_dir, "turb_pipe", "turb_pipe.case"),
         mesh_file=join(examples_dir, "turb_pipe", "turb_pipe.nmsh"),
         user_file=join(examples_dir, "turb_pipe", "turb_pipe.f90")
-    )
+    ),
+    "programming_custom_types": NekoTestCase(
+        user_file=join(examples_dir, "programming", "custom_types.f90")
+    ),
+    "programming_fields_vectors_math": NekoTestCase(
+        user_file=join(examples_dir, "programming", "fields_vectors_math.f90")
+    ),
+    "programming_output": NekoTestCase(
+        user_file=join(examples_dir, "programming", "output.f90")
+    ),
+    "programming_registries": NekoTestCase(
+        user_file=join(examples_dir, "programming", "registries.f90")
+    ),
+    "programming_startup_json": NekoTestCase(
+        user_file=join(examples_dir, "programming", "startup_and_json.f90")
+    ),
+    "programming_user_file_template": NekoTestCase(
+        user_file=join(examples_dir, "programming", "user_file_template.f90")
+    ),
 }
 
 
@@ -124,6 +143,7 @@ def manipulate_case(example, case, tmp_path):
     case_object = case["case"]
     time_object = case_object["time"]
     timestep = time_object.get("timestep", time_object.get("max_timestep"))
+    time_object["max_timestep"] = timestep
     time_object["end_time"] = 2 * timestep
     case_object["mesh_file"] = examples[example].mesh_file
     case_object["output_directory"] = str(tmp_path)
@@ -193,3 +213,25 @@ def test_example_compile(example, log_file):
     assert (
         result.returncode == 0
     ), f"makeneko process failed with exit code {result.returncode}"
+
+
+def test_example_poisson(log_file):
+    """The Poisson example is special since it needs to be compiled with make
+    and creates its own program. Here, we test compilation.
+
+    """
+
+    result = subprocess.run(
+            ["make", "-C", join(examples_dir, "poisson")],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True)
+
+    # Write the output to the log file
+    with open(log_file, "w") as f:
+        f.write(result.stdout)
+
+    # Check if the process completed successfully
+    assert (
+        result.returncode == 0
+    ), f"compiling the Poisson example failed with exit code {result.returncode}"

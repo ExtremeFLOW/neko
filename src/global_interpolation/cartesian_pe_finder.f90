@@ -64,7 +64,7 @@ module cartesian_pe_finder
      !! Set to true when operation has succeeded
      logical :: flag
      !> Buffer with data to send/recieve
-     real(kind=i8), allocatable :: data(:)
+     real(kind=dp), allocatable :: data(:)
      integer :: size = 0
   end type i8_mpi_t
 

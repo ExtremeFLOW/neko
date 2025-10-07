@@ -41,7 +41,7 @@ module scalar_ic
        neko_warning, NEKO_FNAME_LEN, extract_fld_file_index
   use coefs, only : coef_t
   use math, only : col2, cfill, cfill_mask
-  use user_intf, only : useric_scalar
+  use user_intf, only : user_initial_conditions_intf
   use json_module, only : json_file
   use json_utils, only: json_get, json_get_or_default
   use point_zone, only: point_zone_t
@@ -55,6 +55,7 @@ module scalar_ic
   use global_interpolation, only: global_interpolation_t
   use interpolation, only: interpolator_t
   use space, only: space_t, GLL
+  use field_list, only : field_list_t
   implicit none
   private
 
@@ -77,12 +78,14 @@ contains
   !! @param gs Gather-Scatter object.
   !! @param type Type of initial condition.
   !! @param params JSON parameters.
-  subroutine set_scalar_ic_int(s, coef, gs, type, params)
+  !! @param i Index of the scalar field.
+  subroutine set_scalar_ic_int(s, coef, gs, type, params, i)
     type(field_t), intent(inout) :: s
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
     character(len=*) :: type
     type(json_file), intent(inout) :: params
+    integer, intent(in) :: i
 
     ! Variables for retrieving JSON parameters
     real(kind=rp) :: ic_value
@@ -115,7 +118,7 @@ contains
             "none")
        mesh_fname = trim(read_str)
 
-       call set_scalar_ic_fld(s, fname, interpolate, tol, mesh_fname)
+       call set_scalar_ic_fld(s, fname, interpolate, tol, mesh_fname, i)
 
     else
        call neko_error('Invalid initial condition')
@@ -127,22 +130,25 @@ contains
 
   !> Set scalar intial condition (user defined)
   !! @details Set scalar initial condition using a user defined function.
+  !! @param scheme_name Name of the scheme calling the user routine.
   !! @param s Scalar field.
   !! @param coef Coefficient.
   !! @param gs Gather-Scatter object.
-  !! @param usr_ic User defined initial condition function.
-  !! @param params JSON parameters.
-  subroutine set_scalar_ic_usr(field_name, s, coef, gs, usr_ic, params)
-    character(len=*), intent(in) :: field_name
-    type(field_t), intent(inout) :: s
+  !! @param user_proc User defined initial condition function.
+  subroutine set_scalar_ic_usr(scheme_name, s, coef, gs, user_proc)
+    character(len=*), intent(in) :: scheme_name
+    type(field_t), target, intent(inout) :: s
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
-    procedure(useric_scalar) :: usr_ic
-    type(json_file), intent(inout) :: params
+    procedure(user_initial_conditions_intf) :: user_proc
+    type(field_list_t) :: fields
 
     call neko_log%message("Type: user")
-    call usr_ic(s, params)
 
+    call fields%init(1)
+    call fields%assign_to_field(1, s)
+
+    call user_proc(scheme_name, fields)
     call set_scalar_ic_common(s, coef, gs)
 
   end subroutine set_scalar_ic_usr
@@ -161,8 +167,7 @@ contains
 
     n = s%dof%size()
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(s%x, s%x_d, n, &
-            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(s%x, s%x_d, n, HOST_TO_DEVICE, sync = .false.)
     end if
 
     ! Ensure continuity across elements for initial conditions
@@ -227,7 +232,7 @@ contains
     zone => neko_point_zone_registry%get_point_zone(trim(zone_name))
 
     call set_scalar_ic_uniform(s, base_value)
-    call cfill_mask(s%x, zone_value, size, zone%mask, zone%size)
+    call cfill_mask(s%x, zone_value, size, zone%mask%get(), zone%size)
 
   end subroutine set_scalar_ic_point_zone
 
@@ -243,15 +248,17 @@ contains
   !! values onto the current mesh.
   !! @param tolerance If interpolation is enabled, tolerance for finding the
   !! points in the mesh.
-  !! @param sample_mesh_idx If interpolation is enabled, index of the field
-  !! file where the mesh coordinates are located.
+  !! @param mesh_file_name If interpolation is enabled, name of the field
+  !! file series where the mesh coordinates are located.
+  !! @param i Index of the scalar field.
   subroutine set_scalar_ic_fld(s, file_name, &
-       interpolate, tolerance, mesh_file_name)
+       interpolate, tolerance, mesh_file_name, i)
     type(field_t), intent(inout) :: s
     character(len=*), intent(in) :: file_name
     logical, intent(in) :: interpolate
     real(kind=rp), intent(in) :: tolerance
     character(len=*), intent(inout) :: mesh_file_name
+    integer, intent(in) :: i
 
     character(len=LOG_SIZE) :: log_buf
     integer :: sample_idx, sample_mesh_idx
@@ -359,21 +366,28 @@ contains
        end select
 
        ! Copy all fld data to device since the reader loads everything on the host
-       call fld_data%x%copyto(HOST_TO_DEVICE, .false.)
-       call fld_data%y%copyto(HOST_TO_DEVICE, .false.)
-       call fld_data%z%copyto(HOST_TO_DEVICE, .false.)
-       call fld_data%t%copyto(HOST_TO_DEVICE, .true.)
+       call fld_data%x%copy_from(HOST_TO_DEVICE, .false.)
+       call fld_data%y%copy_from(HOST_TO_DEVICE, .false.)
+       call fld_data%z%copy_from(HOST_TO_DEVICE, .false.)
+       call fld_data%t%copy_from(HOST_TO_DEVICE, .true.)
 
        ! Generates an interpolator object and performs the point search
        call fld_data%generate_interpolator(global_interp, s%dof, s%msh, &
             tolerance)
 
        ! Evaluate scalar
-       call global_interp%evaluate(s%x, fld_data%t%x, .false.)
+
+       ! i == 0 means it's the temperature field
+       if (i .ne. 0) then
+          call global_interp%evaluate(s%x, fld_data%s(i)%x, .false.)
+       else
+          call global_interp%evaluate(s%x, fld_data%t%x, .false.)
+       end if
+
        call global_interp%free
 
        ! Copy back to the host for set_scalar_ic_common
-       call fld_data%t%copyto(DEVICE_TO_HOST, .true.)
+       call fld_data%t%copy_from(DEVICE_TO_HOST, .true.)
 
     else ! No interpolation, just potentially from different spaces
 
@@ -382,7 +396,12 @@ contains
        call space_interp%init(s%Xh, prev_Xh)
 
        ! Do the space-to-space interpolation
-       call space_interp%map_host(s%x, fld_data%t%x, fld_data%nelv, s%Xh)
+       ! i == 0 means it's the temperature field
+       if (i .ne. 0) then
+          call space_interp%map_host(s%x, fld_data%s(i)%x, fld_data%nelv, s%Xh)
+       else
+          call space_interp%map_host(s%x, fld_data%t%x, fld_data%nelv, s%Xh)
+       end if
 
        call space_interp%free
 

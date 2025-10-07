@@ -103,7 +103,7 @@ contains
     real(kind=rp) :: yp, up, utau
     real(kind=rp) :: error, f, df, old
     integer :: niter, k, maxiter
-    character(len=LOG_SIZE), allocatable :: log_msg
+    character(len=LOG_SIZE) :: log_msg
 
     utau = guess
 
