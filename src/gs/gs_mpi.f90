@@ -159,7 +159,7 @@ contains
        ! Gather data from u into buffers according to indices in send_dof
        ! We want to send contigous data to each process in send_pe
        sp => this%send_dof(dst)%array()
-       do j = 1,this%send_dof(dst)%size()
+       do concurrent (j = 1:this%send_dof(dst)%size())
           this%send_buf(i)%data(j) = u(sp(j))
        end do
        ! We should not need this extra associate block, ant it works
