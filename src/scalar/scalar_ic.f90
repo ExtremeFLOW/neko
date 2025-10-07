@@ -79,12 +79,14 @@ contains
   !! @param gs Gather-Scatter object.
   !! @param type Type of initial condition.
   !! @param params JSON parameters.
-  subroutine set_scalar_ic_int(s, coef, gs, type, params)
+  !! @param i Index of the scalar field.
+  subroutine set_scalar_ic_int(s, coef, gs, type, params, i)
     type(field_t), intent(inout) :: s
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
     character(len=*) :: type
     type(json_file), intent(inout) :: params
+    integer, intent(in) :: i
 
     ! Variables for retrieving JSON parameters
     real(kind=rp) :: ic_value
@@ -117,7 +119,7 @@ contains
             "none")
        mesh_fname = trim(read_str)
 
-       call set_scalar_ic_fld(s, fname, interpolate, tol, mesh_fname)
+       call set_scalar_ic_fld(s, fname, interpolate, tol, mesh_fname, i)
 
     else
        call neko_error('Invalid initial condition')
@@ -247,15 +249,17 @@ contains
   !! values onto the current mesh.
   !! @param tolerance If interpolation is enabled, tolerance for finding the
   !! points in the mesh.
-  !! @param sample_mesh_idx If interpolation is enabled, index of the field
-  !! file where the mesh coordinates are located.
+  !! @param mesh_file_name If interpolation is enabled, name of the field
+  !! file series where the mesh coordinates are located.
+  !! @param i Index of the scalar field.
   subroutine set_scalar_ic_fld(s, file_name, &
-       interpolate, tolerance, mesh_file_name)
+       interpolate, tolerance, mesh_file_name, i)
     type(field_t), intent(inout) :: s
     character(len=*), intent(in) :: file_name
     logical, intent(in) :: interpolate
     real(kind=rp), intent(in) :: tolerance
     character(len=*), intent(inout) :: mesh_file_name
+    integer, intent(in) :: i
 
     character(len=LOG_SIZE) :: log_buf
     integer :: sample_idx, sample_mesh_idx
@@ -367,7 +371,12 @@ contains
             tolerance)
 
        ! Evaluate scalar
-       call global_interp%evaluate(s%x, fld_data%t%x)
+       ! i == 0 means it's the temperature field
+       if (i .ne. 0) then
+          call global_interp%evaluate(s%x, fld_data%s(i)%x)
+       else
+          call global_interp%evaluate(s%x, fld_data%t%x)
+       end if
        call global_interp%free
 
     else ! No interpolation, just potentially from different spaces
@@ -377,7 +386,12 @@ contains
        call space_interp%init(s%Xh, prev_Xh)
 
        ! Do the space-to-space interpolation
-       call space_interp%map_host(s%x, fld_data%t%x, fld_data%nelv, s%Xh)
+       ! i == 0 means it's the temperature field
+       if (i .ne. 0) then
+          call space_interp%map_host(s%x, fld_data%s(i)%x, fld_data%nelv, s%Xh)
+       else
+          call space_interp%map_host(s%x, fld_data%t%x, fld_data%nelv, s%Xh)
+       end if
 
        call space_interp%free
 
