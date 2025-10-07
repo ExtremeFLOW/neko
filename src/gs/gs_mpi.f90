@@ -286,7 +286,7 @@ contains
                 select case(op)
                 case (GS_OP_ADD)
                    !NEC$ IVDEP
-                   do j = 1, this%recv_dof(src)%size()
+                   do concurrent (j = 1:this%recv_dof(src)%size())
                       u(sp(j)) = u(sp(j)) + this%recv_buf(i)%data(j)
                    end do
                 case (GS_OP_MUL)
