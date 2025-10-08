@@ -62,7 +62,7 @@ module global_interpolation
   use matrix, only: matrix_t
   use math, only: copy, NEKO_EPS
   use structs, only : array_ptr_t
-  use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr, c_associated
+  use, intrinsic :: iso_c_binding, only: c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
 
@@ -104,12 +104,12 @@ module global_interpolation
      !> List of owning elements.
      !! Note this is 0 indexed
      integer, allocatable :: el_owner0(:)
-     type(c_ptr) :: el_owner0_d = c_null_ptr
+     type(c_ptr) :: el_owner0_d = C_NULL_PTR
 
      !> Local points (points in this ranks domain)
      integer :: n_points_local
      integer, allocatable :: el_owner0_local(:)
-     type(c_ptr) :: el_owner0_local_d = c_null_ptr
+     type(c_ptr) :: el_owner0_local_d = C_NULL_PTR
      real(kind=rp), allocatable :: rst_local(:,:)
      real(kind=rp), allocatable :: xyz_local(:,:)
      !> Interpolator for local points.
@@ -455,15 +455,12 @@ contains
     type(vector_t) :: resx
     type(vector_t) :: resy
     type(vector_t) :: resz
-    type(c_ptr) :: el_cands_d = c_null_ptr
+    type(c_ptr) :: el_cands_d
     type(matrix_t) :: res
     integer :: i, j, stupid_intent
     type(stack_i4_t), target :: all_el_candidates
     integer, allocatable :: n_el_cands(:)
-    integer, pointer :: pe_cands(:) => Null()
-    integer, pointer :: el_cands(:) => Null()
-    integer, pointer :: point_ids(:) => NUll()
-    integer, pointer :: send_recv(:) => NUll()
+    integer, contiguous, pointer :: el_cands(:), point_ids(:), send_recv(:)
     real(kind=rp), allocatable :: res_results(:,:)
     real(kind=rp), allocatable :: rst_results(:,:)
     integer, allocatable :: el_owner_results(:)
@@ -474,7 +471,8 @@ contains
     type(gs_mpi_t) :: gs_find, gs_find_back
     type(stack_i4_t) :: send_pe_find, recv_pe_find
 
-
+    el_cands_d = C_NULL_PTR
+    
     call gs_find%init_dofs(this%pe_size)
     call send_pe_find%init()
     call recv_pe_find%init()
@@ -870,9 +868,6 @@ contains
     call resz%free()
     call res%free()
     call all_el_candidates%free()
-    if (associated(pe_cands)) pe_cands => Null()
-    if (associated(el_cands)) pe_cands => Null()
-    if (associated(point_ids)) point_ids => Null()
 
     if (allocated(n_el_cands)) deallocate(n_el_cands)
     if (allocated(rst_results)) deallocate(rst_results)
