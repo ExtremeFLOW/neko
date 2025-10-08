@@ -204,7 +204,7 @@ contains
 #elif HAVE_CUDA
        call cuda_ax_helm_stress_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
             coef%h2_d, coef%B_d, coef%dof%size())
-#else
+#elif HAVE_OPENCL
        call opencl_ax_helm_stress_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
             coef%h2_d, coef%B_d, coef%dof%size())
 #endif
