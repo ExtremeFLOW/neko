@@ -39,7 +39,6 @@ module gs_device_nccl
   use comm, only : pe_size, pe_rank
   use htable, only : htable_i4_t
   use device
-  use mpi_f08, only : MPI_Comm
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_sizeof, c_int32_t, &
        c_ptr, C_NULL_PTR, c_size_t, c_associated, c_int
@@ -211,11 +210,10 @@ contains
   end subroutine gs_device_nccl_buf_free
 
   !> Initialise NCCL based communication method
-  subroutine gs_device_nccl_init(this, send_pe, recv_pe, comm)
+  subroutine gs_device_nccl_init(this, send_pe, recv_pe)
     class(gs_device_nccl_t), intent(inout) :: this
     type(stack_i4_t), intent(inout) :: send_pe
     type(stack_i4_t), intent(inout) :: recv_pe
-    type(MPI_Comm), intent(inout), optional :: comm
     integer :: i
 
     call this%init_order(send_pe, recv_pe)
