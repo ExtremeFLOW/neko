@@ -36,6 +36,9 @@ libneko.neko_init.resType = None
 libneko.neko_finalize.resType = None
 libneko.neko_job_info.resType = None
 
+libneko.neko_device_init.restype = None
+libneko.neko_device_finalize.restype = None
+
 libneko.neko_field_registry_init.restype = None
 libneko.neko_field_registry_free.restype = None
 
@@ -245,6 +248,14 @@ def init():
 def finalize():
     """ Finalize Neko. """
     libneko.neko_finalize()
+
+def device_init():
+    """ Initialise Neko device layer. """
+    libneko.neko_device_init()
+
+def device_finalize():
+    """ Finalize Neko device lyaer. """
+    libneko.neko_device_finalize()
 
 def job_info():
     """ Display job information. """

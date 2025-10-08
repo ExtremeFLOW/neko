@@ -93,6 +93,20 @@ contains
 
   end subroutine neko_api_finalize
 
+  !> Initialise Neko device layer
+  subroutine neko_api_device_init() bind(c, name="neko_device_init")
+
+    call device_init
+
+  end subroutine neko_api_device_init
+
+  !> Finalize Neko device layer
+  subroutine neko_api_device_finalize() bind(c, name="neko_device_finalize")
+
+    call device_finalize
+
+  end subroutine neko_api_device_finalize
+
   !> Display job information
   subroutine neko_api_job_info() bind(c, name="neko_job_info")
     logical :: initialized
