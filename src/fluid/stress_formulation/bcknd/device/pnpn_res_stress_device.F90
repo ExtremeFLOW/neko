@@ -289,7 +289,7 @@ contains
          s11%x_d, s22%x_d, s33%x_d, s12%x_d, s13%x_d, s23%x_d, &
          f_x%x_d, f_y%x_d, f_z%x_d, &
          c_Xh%B_d, c_Xh%h1_d, rho%x_d, n)
-#else
+#elif HAVE_OPENCL
     call pnpn_prs_stress_res_part1_opencl(ta1%x_d, ta2%x_d, ta3%x_d, &
          wa1%x_d, wa2%x_d, wa3%x_d, &
          s11%x_d, s22%x_d, s33%x_d, s12%x_d, s13%x_d, s23%x_d, &
@@ -343,7 +343,7 @@ contains
 #elif HAVE_CUDA
     call pnpn_prs_stress_res_part3_cuda(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
          wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
-#else
+#elif HAVE_OPENCL
     call pnpn_prs_stress_res_part3_opencl(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
          wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
 #endif
