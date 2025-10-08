@@ -37,7 +37,6 @@ module gs_device_mpi
   use stack, only : stack_i4_t
   use comm, only : pe_size, pe_rank
   use htable, only : htable_i4_t
-  use mpi_f08, only : MPI_Comm
   use device, only : device_memcpy, device_alloc, device_event_create, &
        device_event_destroy, device_stream_create_with_priority, device_sync, &
        device_stream_wait_event, device_get_ptr, device_event_record, &
@@ -220,11 +219,11 @@ contains
 
     this%total = total
 
-    sz = int(c_sizeof(rp_dummy),c_size_t) * int(total, c_size_t)
+    sz = c_sizeof(rp_dummy) * total
     call device_alloc(this%buf_d, sz)
     call device_memset(this%buf_d, 0, sz, sync=.true.)
 
-    sz = int(c_sizeof(i4_dummy),c_size_t) * int(total, c_size_t)
+    sz = c_sizeof(i4_dummy) * total
     call device_alloc(this%dof_d, sz)
 
     if (mark_dupes) call doftable%init(2*total)
@@ -279,11 +278,10 @@ contains
   end subroutine gs_device_mpi_buf_free
 
   !> Initialise MPI based communication method
-  subroutine gs_device_mpi_init(this, send_pe, recv_pe, comm)
+  subroutine gs_device_mpi_init(this, send_pe, recv_pe)
     class(gs_device_mpi_t), intent(inout) :: this
     type(stack_i4_t), intent(inout) :: send_pe
     type(stack_i4_t), intent(inout) :: recv_pe
-    type(MPI_Comm), intent(inout), optional :: comm
     integer :: i
 
     call this%init_order(send_pe, recv_pe)
