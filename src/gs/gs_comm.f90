@@ -36,7 +36,6 @@ module gs_comm
   use comm, only : pe_size
   use stack, only : stack_i4_t
   use, intrinsic :: iso_c_binding
-  use mpi_f08, only : MPI_COMM
   implicit none
   private
 
@@ -50,8 +49,6 @@ module gs_comm
      !> recv_dof(rank_i) is a stack of dof indices local to this process to
      !! receive from rank_i. size(recv_dof) == pe_size
      type(stack_i4_t), allocatable :: recv_dof(:)
-     !> Size of communicator
-     integer :: pe_size
      !> Array of ranks that this process should send to
      !! @note: this will usually be fewer than the total number of ranks
      !! size(send_pe) <= pe_size
@@ -74,14 +71,12 @@ module gs_comm
   !! @param send_pe, stack of ranks this process will send messages to
   !! @param recv_pe, stack of ranks this process will receive messages from
   abstract interface
-     subroutine gs_comm_init(this, send_pe, recv_pe, comm)
+     subroutine gs_comm_init(this, send_pe, recv_pe)
        import gs_comm_t
        import stack_i4_t
-       import MPI_COMM
        class(gs_comm_t), intent(inout) :: this
        type(stack_i4_t), intent(inout) :: send_pe
        type(stack_i4_t), intent(inout) :: recv_pe
-       type(MPI_Comm), intent(inout), optional :: comm
      end subroutine gs_comm_init
   end interface
 
@@ -148,23 +143,16 @@ module gs_comm
   public :: gs_comm_init, gs_comm_free, gs_nbsend, gs_nbrecv, gs_nbwait
 contains
   !Initalize stacks for each rank of dof indices to send/recv
-  subroutine init_dofs(this, comm_size)
+  subroutine init_dofs(this)
     class(gs_comm_t), intent(inout) :: this
-    integer, optional, intent(in) :: comm_size
     integer :: i
-
-    if (present(comm_size)) then
-       this%pe_size = comm_size
-    else
-       this%pe_size = pe_size
-    end if
 
     call this%free_dofs()
 
-    allocate(this%send_dof(0:this%pe_size-1))
-    allocate(this%recv_dof(0:this%pe_size-1))
+    allocate(this%send_dof(0:pe_size-1))
+    allocate(this%recv_dof(0:pe_size-1))
 
-    do i = 0, this%pe_size -1
+    do i = 0, pe_size -1
        call this%send_dof(i)%init()
        call this%recv_dof(i)%init()
     end do
@@ -176,14 +164,14 @@ contains
     integer :: i
 
     if (allocated(this%send_dof)) then
-       do i = 0, this%pe_size - 1
+       do i = 0, pe_size - 1
           call this%send_dof(i)%free()
        end do
        deallocate(this%send_dof)
     end if
 
     if (allocated(this%recv_dof)) then
-       do i = 0, this%pe_size - 1
+       do i = 0, pe_size - 1
           call this%recv_dof(i)%free()
        end do
        deallocate(this%recv_dof)
