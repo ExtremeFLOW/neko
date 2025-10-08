@@ -34,10 +34,10 @@
 module gs_mpi
   use num_types, only : rp
   use gs_comm, only : gs_comm_t, GS_COMM_MPI, GS_COMM_MPIGPU
-  use gs_ops, only : GS_OP_ADD, GS_OP_MAX, GS_OP_MIN, GS_OP_MUL, GS_OP_SET
+  use gs_ops, only : GS_OP_ADD, GS_OP_MAX, GS_OP_MIN, GS_OP_MUL
   use stack, only : stack_i4_t
   use mpi_f08, only : MPI_Test, MPI_STATUS_IGNORE, MPI_Status, &
-       MPI_Request, MPI_Isend, MPI_IRecv, MPI_Comm
+       MPI_Request, MPI_Isend, MPI_IRecv
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION
   use, intrinsic :: iso_c_binding
   use utils, only : neko_error
@@ -64,8 +64,6 @@ module gs_mpi
      type(gs_comm_mpi_t), allocatable :: send_buf(:)
      !> Comm. buffers for recv operations
      type(gs_comm_mpi_t), allocatable :: recv_buf(:)
-     !> Communicator
-     type(MPI_Comm) :: comm
    contains
      procedure, pass(this) :: init => gs_mpi_init
      procedure, pass(this) :: free => gs_mpi_free
@@ -73,26 +71,18 @@ module gs_mpi
      procedure, pass(this) :: nbsend => gs_nbsend_mpi
      procedure, pass(this) :: nbrecv => gs_nbrecv_mpi
      procedure, pass(this) :: nbwait => gs_nbwait_mpi
-     procedure, pass(this) :: nbwait_no_op => gs_nbwait_no_op_mpi
-     procedure, pass(this) :: sendrecv => gs_sendrecv_mpi
   end type gs_mpi_t
 
 contains
 
   !> Initialise MPI based communication method
   !! See gs_comm.f90 for details
-  subroutine gs_mpi_init(this, send_pe, recv_pe, comm)
+  subroutine gs_mpi_init(this, send_pe, recv_pe)
     class(gs_mpi_t), intent(inout) :: this
     type(stack_i4_t), intent(inout) :: send_pe
     type(stack_i4_t), intent(inout) :: recv_pe
-    type(MPI_Comm), intent(inout), optional :: comm
     integer, pointer :: sp(:), rp(:)
     integer :: i
-    if (present(comm)) then
-       this%comm = comm
-    else
-       this%comm = NEKO_COMM
-    end if
 
     call this%init_order(send_pe, recv_pe)
 
@@ -165,9 +155,9 @@ contains
        ! great without it for GNU, Intel, NEC and Cray, but throws an
        ! ICE with NAG.
        associate(send_data => this%send_buf(i)%data)
-         call MPI_Isend(send_data, this%send_dof(dst)%size(), &
+         call MPI_Isend(send_data, size(send_data), &
               MPI_REAL_PRECISION, this%send_pe(i), thrdid, &
-              this%comm, this%send_buf(i)%request, ierr)
+              NEKO_COMM, this%send_buf(i)%request, ierr)
        end associate
        this%send_buf(i)%flag = .false.
     end do
@@ -190,70 +180,12 @@ contains
        associate(recv_data => this%recv_buf(i)%data)
          call MPI_IRecv(recv_data, size(recv_data), &
               MPI_REAL_PRECISION, this%recv_pe(i), thrdid, &
-              this%comm, this%recv_buf(i)%request, ierr)
+              NEKO_COMM, this%recv_buf(i)%request, ierr)
        end associate
        this%recv_buf(i)%flag = .false.
     end do
 
   end subroutine gs_nbrecv_mpi
-
-  !> Wait for non-blocking operations
-  subroutine gs_sendrecv_mpi(this, send, recv, n_send, n_recv, op)
-    class(gs_mpi_t), intent(inout) :: this
-    integer, intent(in) :: n_send, n_recv
-    real(kind=rp), dimension(n_send), intent(inout) :: send
-    real(kind=rp), dimension(n_recv), intent(inout) :: recv
-    integer, intent(in) :: op
-    type(c_ptr) :: null_ptr = c_null_ptr
-
-    call this%nbrecv()
-    call this%nbsend(send, n_send, null_ptr, null_ptr)
-    call this%nbwait(recv, n_recv, op, null_ptr)
-
-  end subroutine gs_sendrecv_mpi
-
-
-  !> Wait for non-blocking operations
-  subroutine gs_nbwait_no_op_mpi(this)
-    class(gs_mpi_t), intent(inout) :: this
-    integer :: i, j, src, ierr
-    integer , pointer :: sp(:)
-    integer :: nreqs
-
-    nreqs = size(this%recv_pe)
-
-    do while (nreqs .gt. 0)
-       do i = 1, size(this%recv_pe)
-          if (.not. this%recv_buf(i)%flag) then
-             ! Check if we have recieved the data we want
-             call MPI_Test(this%recv_buf(i)%request, this%recv_buf(i)%flag, &
-                  this%recv_buf(i)%status, ierr)
-             ! If it has been received
-             if (this%recv_buf(i)%flag) then
-                ! One more request has been succesful
-                nreqs = nreqs - 1
-             end if
-          end if
-       end do
-    end do
-    ! Finally, check that the non-blocking sends this rank have issued have also
-    ! completed successfully
-
-    nreqs = size(this%send_pe)
-    do while (nreqs .gt. 0)
-       do i = 1, size(this%send_pe)
-          if (.not. this%send_buf(i)%flag) then
-             call MPI_Test(this%send_buf(i)%request, this%send_buf(i)%flag, &
-                  MPI_STATUS_IGNORE, ierr)
-             if (this%send_buf(i)%flag) nreqs = nreqs - 1
-          end if
-       end do
-    end do
-
-  end subroutine gs_nbwait_no_op_mpi
-
-
-
 
   !> Wait for non-blocking operations
   subroutine gs_nbwait_mpi(this, u, n, op, strm)
@@ -303,22 +235,15 @@ contains
                    do concurrent (j = 1:this%recv_dof(src)%size())
                       u(sp(j)) = max(u(sp(j)), this%recv_buf(i)%data(j))
                    end do
-                case (GS_OP_SET)
-                   !NEC$ IVDEP
-                   do concurrent (j = 1:this%recv_dof(src)%size())
-                      u(sp(j)) = this%recv_buf(i)%data(j)
-                   end do
                 case default
                    call neko_error("Unknown operation in gs_nbwait_mpi")
                 end select
-
              end if
           end if
        end do
     end do
     ! Finally, check that the non-blocking sends this rank have issued have also
     ! completed successfully
-
     nreqs = size(this%send_pe)
     do while (nreqs .gt. 0)
        do i = 1, size(this%send_pe)
