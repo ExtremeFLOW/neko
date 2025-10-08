@@ -153,6 +153,7 @@ neko_fortran_SOURCES = \
 	io/data_streamer.F90\
 	io/output_controller.f90\
 	global_interpolation/global_interpolation.f90\
+	global_interpolation/global_interpolation_comm.f90\
 	global_interpolation/aabb_pe_finder.f90\
 	global_interpolation/aabb_el_finder.f90\
 	global_interpolation/cartesian_el_finder.f90\
