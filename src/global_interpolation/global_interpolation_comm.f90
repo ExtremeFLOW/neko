@@ -42,7 +42,7 @@ module glb_intrp_comm
   implicit none
   private
 
-  
+
   !> MPI buffer for non-blocking operations
   type, private :: glb_intrp_comm_mpi_t
      !> status of this operation
@@ -55,7 +55,7 @@ module glb_intrp_comm
      !> Buffer with data to send/recieve
      real(kind=rp), allocatable :: data(:)
   end type glb_intrp_comm_mpi_t
-  
+
   !> Global interpolation communication method
   type, public :: glb_intrp_comm_t
      !> A list of stacks of dof indices local to this process to send to rank_i
@@ -233,7 +233,7 @@ contains
 
   end subroutine glb_intrp_comm_free_order
 
-  !> Non-blocking sendrecv 
+  !> Non-blocking sendrecv
   subroutine glb_intrp_comm_sendrecv(this, send, recv, n_send, n_recv)
     class(glb_intrp_comm_t), intent(inout) :: this
     integer, intent(in) :: n_send, n_recv
@@ -246,9 +246,9 @@ contains
 
     thrdid = 0
     !$ thrdid = omp_get_thread_num()
-    
+
     !
-    ! Issue non-blocking receives 
+    ! Issue non-blocking receives
     !
     do i = 1, size(this%recv_pe)
        ! We should not need this extra associate block, ant it works
@@ -289,7 +289,7 @@ contains
     !
     ! Wait for non-blocking operations
     !
-    
+
     nreqs = size(this%recv_pe)
 
     do while (nreqs .gt. 0)
@@ -326,7 +326,7 @@ contains
           end if
        end do
     end do
-    
+
   end subroutine glb_intrp_comm_sendrecv
 
   !> Wait for non-blocking operations
@@ -367,6 +367,6 @@ contains
     end do
 
   end subroutine glb_intrp_comm_nbwait_no_op
-  
-  
+
+
 end module glb_intrp_comm

@@ -471,7 +471,7 @@ contains
     type(stack_i4_t) :: send_pe_find, recv_pe_find
 
     el_cands_d = C_NULL_PTR
-    
+
     call glb_intrp_find%init_dofs(this%pe_size)
     call send_pe_find%init()
     call recv_pe_find%init()
@@ -553,7 +553,7 @@ contains
 
     if (allocated(this%xyz_local)) then
        deallocate(this%xyz_local)
-    end if    
+    end if
     allocate(this%xyz_local(3, this%n_points_local))
     call glb_intrp_find%sendrecv(this%xyz, this%xyz_local, this%n_points*3, &
          this%n_points_local*3)
@@ -569,7 +569,7 @@ contains
     if (allocated(n_el_cands)) then
        deallocate(n_el_cands)
     end if
-    
+
     allocate(n_el_cands(this%n_points_local))
     !> Find element candidates at this rank
     call this%el_finder%find_batch(this%xyz_local, this%n_points_local, &
