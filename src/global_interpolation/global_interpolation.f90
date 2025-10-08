@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -493,15 +493,17 @@ contains
     write(log_buf, '(A,E15.7)') &
          'Found PE candidates time since start of findpts (s):', time1-time_start
     call neko_log%message(log_buf)
+
     !Send number of points I want to candidates
     ! n_points_local -> how many points might be at this rank
     ! n_points_pe_local -> how many points local on this rank that other pes might want
     this%n_points_pe_local = 0
     this%n_points_local = 0
-    call MPI_Reduce_scatter_block(this%n_points_pe, this%n_points_local, 1, MPI_INTEGER, &
-         MPI_SUM, this%comm, ierr)
+    call MPI_Reduce_scatter_block(this%n_points_pe, this%n_points_local, &
+         1, MPI_INTEGER, MPI_SUM, this%comm, ierr)
     call MPI_Alltoall(this%n_points_pe, 1, MPI_INTEGER,&
          this%n_points_pe_local, 1, MPI_INTEGER, this%comm, ierr)
+
     !Set up offset arrays
     this%n_points_offset_pe_local(0) = 0
     this%n_points_offset_pe(0) = 0
@@ -723,9 +725,9 @@ contains
        end do
     end do
 
-    !OK, now I know the correct rst values
-    !of the points I want
-    !We now send the correct rsts to the correct rank (so a point only belongs to one rank)
+    !OK, now I know the correct rst values of the points I want We now
+    !send the correct rsts to the correct rank (so a point only
+    !belongs to one rank)
     do i = 0, this%pe_size-1
        call this%points_at_pe(i)%clear()
        this%n_points_pe(i) = 0
@@ -1130,9 +1132,11 @@ contains
   end subroutine global_interpolation_evaluate
 
 
-  !> Compares two sets of rst coordinates and checks whether rst2 is better than rst1 given a tolerance
-  !! res1 and res2 are the distances to the interpolated xyz coordinate and true xyz coord for point 1 and 2
-  !! tol specifies the range for the rst coordinate to be within: (r,s,t) in (-1+tol,1+tol)^3.
+  !> Compares two sets of rst coordinates and checks whether rst2 is
+  !! better than rst1 given a tolerance res1 and res2 are the
+  !! distances to the interpolated xyz coordinate and true xyz coord
+  !! for point 1 and 2 tol specifies the range for the rst coordinate
+  !! to be within: (r,s,t) in (-1+tol,1+tol)^3.
   !! @param rst1 local coordinates for point 1
   !! @param rst2 local coordinates for point 2
   !! @param rst1 distance between xyz(rst1) and the true xyz coordinate
