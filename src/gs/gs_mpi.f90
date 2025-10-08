@@ -56,7 +56,6 @@ module gs_mpi
      logical :: flag
      !> Buffer with data to send/recieve
      real(kind=rp), allocatable :: data(:)
-
   end type gs_comm_mpi_t
 
   !> Gather-scatter communication using MPI
