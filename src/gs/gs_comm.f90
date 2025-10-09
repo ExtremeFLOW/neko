@@ -186,7 +186,7 @@ contains
     class(gs_comm_t), intent(inout) :: this
     type(stack_i4_t), intent(inout) :: send_pe
     type(stack_i4_t), intent(inout) :: recv_pe
-    integer, pointer :: sp(:), rp(:)
+    integer, pointer :: sp(:)
     integer :: i
 
     allocate(this%send_pe(send_pe%size()))
@@ -198,9 +198,9 @@ contains
 
     allocate(this%recv_pe(recv_pe%size()))
 
-    rp => recv_pe%array()
+    sp => recv_pe%array()
     do i = 1, recv_pe%size()
-       this%recv_pe(i) = rp(i)
+       this%recv_pe(i) = sp(i)
     end do
 
   end subroutine init_order
