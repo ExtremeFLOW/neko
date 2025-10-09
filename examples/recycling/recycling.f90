@@ -16,23 +16,25 @@ contains
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(u)
     type(user_t), intent(inout) :: u
-    u%fluid_user_ic => user_ic
-    u%user_mesh_setup => user_mesh_scale
-    u%user_dirichlet_update => dirichlet_update
+    u%initial_conditions => user_ic
+    u%mesh_setup => user_mesh_scale
+    u%dirichlet_conditions => dirichlet_update
   end subroutine user_setup
 
-  !Observe this might be called multiple times per time step by different solvers
-  subroutine dirichlet_update(field_bc_list, bc, coef, t, tstep)
+  !Observe this might be called multiple times per time step by different solvers  
+  subroutine dirichlet_update(field_bc_list, bc, time)
     type(field_list_t), intent(inout) :: field_bc_list
     type(field_dirichlet_t), intent(in) :: bc
-    type(coef_t), intent(inout) :: coef
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     integer :: i, pt, msk_idx
     real(kind=rp) :: y, z, scale
+    type(coef_t), pointer :: coef
     type(field_t), pointer :: field
+
+    coef => neko_user_access%case%fluid%c_Xh
+    
     ! Only do this at the first time step since our BCs are constants.
-    if (tstep .eq. 1 .and. .not. init) then
+    if (time%tstep .eq. 1 .and. .not. init) then
        n_pts = bc%msk(0)
 
        call xyz%init(3,n_pts)
@@ -48,8 +50,8 @@ contains
           B%x(i) = coef%B(msk_idx,1,1,1)
        end do
        vol = glsum(B%x,n_pts)
-       call xyz%copyto(HOST_TO_DEVICE,.false.)
-       call B%copyto(HOST_TO_DEVICE,.false.)
+       call xyz%copy_from(HOST_TO_DEVICE,.false.)
+       call B%copy_from(HOST_TO_DEVICE,.false.)
        !Initialize interpolator
        call interpolate%init(coef%dof)
        ! Find the the points we want to interpolate on the inflow
@@ -80,15 +82,15 @@ contains
             call cmult(res%x,scale, n_pts)
          end if
          ! scatter the values in res into the correct spots in u
-         call field_masked_scatter_copy(u, res%x, bc%msk, u%size(), n_pts)
+         call field_masked_scatter_copy_0(u, res%x, bc%msk, u%size(), n_pts)
          ! repeat for v and w
          field => neko_field_registry%get_field('v')
          call interpolate%evaluate(res%x, field%x, .false.)
-         call field_masked_scatter_copy(v, res%x, bc%msk, u%size(), n_pts)
+         call field_masked_scatter_copy_0(v, res%x, bc%msk, u%size(), n_pts)
 
          field => neko_field_registry%get_field('w')
          call interpolate%evaluate(res%x, field%x, .false.)
-         call field_masked_scatter_copy(w, res%x, bc%msk, u%size(), n_pts)
+         call field_masked_scatter_copy_0(w, res%x, bc%msk, u%size(), n_pts)
 
        end associate
     end if
@@ -102,8 +104,9 @@ contains
   ! New mesh can easily be genreated with genmeshbox
   ! OBS refinement is not smooth and the constant values are a bit ad hoc.
   ! OBS only moves element vertices
-  subroutine user_mesh_scale(msh)
+  subroutine user_mesh_scale(msh, time)
     type(mesh_t), intent(inout) :: msh
+    type(time_state_t), intent(in) :: time
     integer :: i, p, nvert
 
     real(kind=rp) :: d, y, viscous_layer, visc_el_h, el_h
@@ -141,16 +144,20 @@ contains
   end subroutine user_mesh_scale
 
   ! User defined initial condition
-  subroutine user_ic(u, v, w, p, params)
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    type(json_file), intent(inout) :: params
+  subroutine user_ic(scheme_name, fields)
+    character(len=*), intent(in) :: scheme_name
+    type(field_list_t), intent(inout) :: fields
+    type(dofmap_t), pointer :: dof
+    type (field_t), pointer :: u, v, w, p
+    real(kind=rp) :: uvw(3)
     integer :: i
 
-    real(kind=rp) :: uvw(3)
-
+    dof => fields%dof(1)
+    u => fields%get_by_name("u")
+    v => fields%get_by_name("v")
+    w => fields%get_by_name("w")
+    p => fields%get_by_name("p")
+  
     do i = 1, u%dof%size()
        uvw = channel_ic(u%dof%x(i,1,1,1),u%dof%y(i,1,1,1),u%dof%z(i,1,1,1))
        u%x(i,1,1,1) = uvw(1)
