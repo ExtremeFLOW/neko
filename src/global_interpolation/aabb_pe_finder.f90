@@ -125,9 +125,6 @@ contains
     ! Create a local tree for each element at this rank
     call local_aabb_tree%init(nelv)
 
-    if (allocated(local_aabb)) then
-       deallocate(local_aabb)
-    end if
     allocate(local_aabb(nelv))
 
     do i = 1, nelv
@@ -141,50 +138,34 @@ contains
             maxval(z(id1:id2))/), dp))
        call local_aabb_tree%insert_object(local_aabb(i), i)
     end do
-    
+
     this%pe_box_num = min(GLOB_MAP_SIZE/this%pe_size, nelv)
     this%pe_box_num = &
          max(1, ishft(1, ceiling(log(real(this%pe_box_num, rp)) / NEKO_M_LN2)))
 
     call MPI_Allreduce(MPI_IN_PLACE, this%pe_box_num, 1, MPI_INTEGER, &
          MPI_MIN, this%comm, ierr)
-    
+
     this%pe_box_num = max(this%pe_box_num,2) !> At least 2 boxes
     this%glob_map_size = this%pe_box_num*this%pe_size
-    
+
     if (pe_rank .eq. 0) then
        print *, this%pe_box_num, this%glob_map_size
     end if
-    
-    if (allocated(rank_xyz_max)) then
-       deallocate(rank_xyz_max)
-    end if
-    
-    if (allocated(rank_xyz_min)) then
-       deallocate(rank_xyz_min)
-    end if
-    
-    if (allocated(max_xyz)) then
-       deallocate(max_xyz)
-    end if
-    
-    if (allocated(min_xyz)) then
-       deallocate(min_xyz)
-    end if
-    
+
     allocate(rank_xyz_max(3,this%glob_map_size))
     allocate(rank_xyz_min(3,this%glob_map_size))
     allocate(min_xyz(3,this%pe_box_num))
     allocate(max_xyz(3,this%pe_box_num))
-    
+
     i = 1
     id_lvl = (/local_aabb_tree%get_root_index(), 0/)
     call traverse_stack%init()
     call traverse_stack%push(id_lvl)
-    
+
     lvl = 0
     !> Traverse the local tree and find ther top boxes
-    do while (traverse_stack%size() > 0)
+    do while (traverse_stack%size() .gt. 0)
        id_lvl = traverse_stack%pop()
        lvl = id_lvl%x(2)
        node = local_aabb_tree%get_node(id_lvl%x(1))
@@ -233,6 +214,10 @@ contains
     end do
     call this%global_aabb_tree%build_from_aabb(this%global_aabb,padding)
     deallocate(local_aabb)
+    deallocate(rank_xyz_max)
+    deallocate(rank_xyz_min)
+    deallocate(min_xyz)
+    deallocate(max_xyz)
   end subroutine aabb_pe_finder_init
 
 
@@ -307,7 +292,7 @@ contains
              call marked_rank%set(pe_id, htable_data)
           end if
        end do
-       
+
        if (pe_candidates%size() .lt. 1) then
           write (*,*) 'Point', points(:,i), &
                'found to be outside domain, try increasing the padding to find rank candidates.'
@@ -319,4 +304,3 @@ contains
   end subroutine aabb_pe_finder_find_candidates_batch
 
 end module aabb_pe_finder
-

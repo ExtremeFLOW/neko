@@ -463,11 +463,11 @@ contains
     type(stack_i8_t), allocatable :: work_pe_ids(:), work_pt_ids(:)
     type(stack_i8_t), allocatable :: temp_pe_ids(:), temp_pt_ids(:)
     integer, allocatable :: n_work_ids(:), n_temp_ids(:)
-    integer(i8), pointer :: ids(:) => Null()
-    integer(i8), pointer :: pt_id(:) => Null()
-    integer, pointer :: pe_cands(:) => Null()
-    integer(i8), pointer :: pe_cands8(:) => Null()
-    integer(i8), pointer :: pt_ids(:) => Null()
+    integer(i8), pointer :: ids(:)
+    integer(i8), pointer :: pt_id(:)
+    integer, pointer :: pe_cands(:)
+    integer(i8), pointer :: pe_cands8(:)
+    integer(i8), pointer :: pt_ids(:)
     integer :: ierr
 
     allocate(work_pe_ids(0:this%pe_size-1))
