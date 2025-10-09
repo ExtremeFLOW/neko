@@ -32,15 +32,15 @@
 !
 
 module aabb_el_finder
-  use num_types, only: rp, dp, xp
+  use num_types, only : rp, dp, xp
   use neko_config, only : NEKO_BCKND_DEVICE
-  use el_finder, only: el_finder_t
-  use space, only: space_t
-  use stack, only: stack_i4_t
-  use tuple, only: tuple_i4_t
-  use point, only: point_t
-  use aabb, only: aabb_t
-  use aabb_tree, only: aabb_tree_t, aabb_node_t, AABB_NULL_NODE
+  use el_finder, only : el_finder_t
+  use space, only : space_t
+  use stack, only : stack_i4_t
+  use tuple, only : tuple_i4_t
+  use point, only : point_t
+  use aabb, only : aabb_t
+  use aabb_tree, only : aabb_tree_t, aabb_node_t, AABB_NULL_NODE
   implicit none
   private
 
@@ -82,10 +82,10 @@ contains
        id2 = lx*ly*lz*(i)
        call this%local_aabb(i)%init( real((/minval(x(id1:id2)), &
             minval(y(id1:id2)), &
-            minval(z(id1:id2))/),dp), &
+            minval(z(id1:id2))/), dp), &
             real((/maxval(x(id1:id2)), &
             maxval(y(id1:id2)), &
-            maxval(z(id1:id2))/),dp))
+            maxval(z(id1:id2))/), dp))
     end do
     call this%local_aabb_tree%build_from_aabb(this%local_aabb, padding)
   end subroutine aabb_el_finder_init
@@ -114,10 +114,11 @@ contains
 
   ! Might be better to organize this slightly differently
   ! In order to get more cache hits
-  subroutine aabb_el_finder_find_candidates_batch(this, points, n_points, all_el_candidates, n_el_cands)
+  subroutine aabb_el_finder_find_candidates_batch(this, points, n_points, &
+       all_el_candidates, n_el_cands)
     class(aabb_el_finder_t), intent(inout) :: this
     integer, intent(in) :: n_points
-    real(kind=rp), intent(in) :: points(3,n_points)
+    real(kind=rp), intent(in) :: points(3, n_points)
     type(stack_i4_t), intent(inout) :: all_el_candidates
     integer, intent(inout) :: n_el_cands(n_points)
     type(stack_i4_t) :: el_candidates
@@ -132,7 +133,7 @@ contains
     n_el_cands = 0
 
     do i = 1, n_points
-       pt_xyz = (/ points(1,i),points(2,i),points(3,i) /)
+       pt_xyz = (/ points(1,i), points(2,i), points(3,i) /)
        call my_point%init(pt_xyz)
        call el_candidates%clear()
        call this%find(my_point, el_candidates)

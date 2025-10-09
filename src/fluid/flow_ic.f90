@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -33,12 +33,12 @@
 !> Initial flow condition
 module flow_ic
   use num_types, only : rp
-  use logger, only: neko_log, LOG_SIZE
+  use logger, only : neko_log, LOG_SIZE
   use gather_scatter, only : gs_t, GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use flow_profile, only : blasius_profile, blasius_linear, blasius_cubic, &
        blasius_quadratic, blasius_quartic, blasius_sin, blasius_tanh
-  use device, only: device_memcpy, HOST_TO_DEVICE, device_to_host, device_sync
+  use device, only : device_memcpy, HOST_TO_DEVICE, device_to_host, device_sync
   use field, only : field_t
   use utils, only : neko_error, filename_chsuffix, &
        neko_warning, NEKO_FNAME_LEN, extract_fld_file_index
@@ -47,16 +47,16 @@ module flow_ic
   use device_math, only : device_col2
   use user_intf, only : user_initial_conditions_intf
   use json_module, only : json_file
-  use json_utils, only: json_get, json_get_or_default
-  use point_zone, only: point_zone_t
-  use point_zone_registry, only: neko_point_zone_registry
-  use fld_file_data, only: fld_file_data_t
-  use fld_file, only: fld_file_t
-  use file, only: file_t
-  use global_interpolation, only: global_interpolation_t
-  use interpolation, only: interpolator_t
-  use space, only: space_t, GLL
-  use field_list, only: field_list_t
+  use json_utils, only : json_get, json_get_or_default
+  use point_zone, only : point_zone_t
+  use point_zone_registry, only : neko_point_zone_registry
+  use fld_file_data, only : fld_file_data_t
+  use fld_file, only : fld_file_t
+  use file, only : file_t
+  use global_interpolation, only : global_interpolation_t
+  use interpolation, only : interpolator_t
+  use space, only : space_t, GLL
+  use field_list, only : field_list_t
   implicit none
   private
 

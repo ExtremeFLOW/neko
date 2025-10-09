@@ -33,23 +33,23 @@
 !> Implements aabb_pe_finder given a dofmap.
 !!
 module aabb_pe_finder
-  use num_types, only: rp, dp, xp
+  use num_types, only : rp, dp, xp
   use neko_config, only : NEKO_BCKND_DEVICE
-  use space, only: space_t
-  use pe_finder, only: pe_finder_t
-  use stack, only: stack_i4_t, stack_i4t2_t
-  use utils, only: neko_error, neko_warning
-  use tuple, only: tuple_i4_t
-  use htable, only: htable_i4_t
-  use point, only: point_t
-  use comm, only: NEKO_COMM, MPI_REAL_PRECISION, pe_rank, pe_size
-  use mpi_f08, only: MPI_SUM, MPI_Reduce, MPI_COMM, MPI_Comm_rank, &
+  use space, only : space_t
+  use pe_finder, only : pe_finder_t
+  use stack, only : stack_i4_t, stack_i4t2_t
+  use utils, only : neko_error, neko_warning
+  use tuple, only : tuple_i4_t
+  use htable, only : htable_i4_t
+  use point, only : point_t
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION, pe_rank, pe_size
+  use mpi_f08, only : MPI_SUM, MPI_Reduce, MPI_COMM, MPI_Comm_rank, &
        MPI_Comm_size, MPI_Wtime, MPI_INTEGER, MPI_IN_PLACE, &
        MPI_MIN, MPI_Allgather, MPI_Barrier, MPI_DOUBLE_PRECISION
-  use aabb, only: aabb_t
-  use aabb_tree, only: aabb_tree_t, aabb_node_t, AABB_NULL_NODE
-  use math, only: NEKO_M_LN2, NEKO_EPS
-  use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr, c_associated, &
+  use aabb, only : aabb_t
+  use aabb_tree, only : aabb_tree_t, aabb_node_t, AABB_NULL_NODE
+  use math, only : NEKO_M_LN2, NEKO_EPS
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr, c_associated, &
        c_sizeof, c_bool, c_loc
   implicit none
   private
@@ -98,7 +98,8 @@ contains
     type(space_t), intent(in), target :: Xh
     real(kind=dp), intent(in) :: padding
     integer :: lx, ly, lz, max_pts_per_iter, ierr, i, id1, id2, n, j
-    real(kind=dp), allocatable :: rank_xyz_max(:,:), rank_xyz_min(:,:), max_xyz(:,:), min_xyz(:,:)
+    real(kind=dp), allocatable :: rank_xyz_max(:,:), rank_xyz_min(:,:)
+    real(kind=dp), allocatable :: max_xyz(:,:), min_xyz(:,:)
     type(stack_i4t2_t) :: traverse_stack
     type(aabb_tree_t) :: local_aabb_tree
     type(aabb_t), allocatable :: local_aabb(:)
@@ -121,9 +122,12 @@ contains
     ly = Xh%ly
     lz = Xh%lz
     n = nelv * lx*ly*lz
-    !> Create a local tree for each element at this rank
+    ! Create a local tree for each element at this rank
     call local_aabb_tree%init(nelv)
-    if (allocated(local_aabb)) deallocate(local_aabb)
+
+    if (allocated(local_aabb)) then
+       deallocate(local_aabb)
+    end if
     allocate(local_aabb(nelv))
 
     do i = 1, nelv
@@ -131,57 +135,76 @@ contains
        id2 = lx*ly*lz*(i)
        call local_aabb(i)%init( real((/minval(x(id1:id2)), &
             minval(y(id1:id2)), &
-            minval(z(id1:id2))/),dp), &
+            minval(z(id1:id2))/), dp), &
             real((/maxval(x(id1:id2)), &
             maxval(y(id1:id2)), &
-            maxval(z(id1:id2))/),dp))
-       call local_aabb_tree%insert_object(local_aabb(i),i)
+            maxval(z(id1:id2))/), dp))
+       call local_aabb_tree%insert_object(local_aabb(i), i)
     end do
-
-
-
-
+    
     this%pe_box_num = min(GLOB_MAP_SIZE/this%pe_size, nelv)
-    this%pe_box_num = max(1,ishft(1, ceiling(log(real(this%pe_box_num, rp)) / NEKO_M_LN2)))
+    this%pe_box_num = &
+         max(1, ishft(1, ceiling(log(real(this%pe_box_num, rp)) / NEKO_M_LN2)))
+
     call MPI_Allreduce(MPI_IN_PLACE, this%pe_box_num, 1, MPI_INTEGER, &
          MPI_MIN, this%comm, ierr)
+    
     this%pe_box_num = max(this%pe_box_num,2) !> At least 2 boxes
     this%glob_map_size = this%pe_box_num*this%pe_size
-    if (pe_rank .eq. 0) print *, this%pe_box_num, this%glob_map_size
-    if (allocated(rank_xyz_max)) deallocate(rank_xyz_max)
-    if (allocated(rank_xyz_min)) deallocate(rank_xyz_min)
-    if (allocated(max_xyz)) deallocate(max_xyz)
-    if (allocated(min_xyz)) deallocate(min_xyz)
+    
+    if (pe_rank .eq. 0) then
+       print *, this%pe_box_num, this%glob_map_size
+    end if
+    
+    if (allocated(rank_xyz_max)) then
+       deallocate(rank_xyz_max)
+    end if
+    
+    if (allocated(rank_xyz_min)) then
+       deallocate(rank_xyz_min)
+    end if
+    
+    if (allocated(max_xyz)) then
+       deallocate(max_xyz)
+    end if
+    
+    if (allocated(min_xyz)) then
+       deallocate(min_xyz)
+    end if
+    
     allocate(rank_xyz_max(3,this%glob_map_size))
     allocate(rank_xyz_min(3,this%glob_map_size))
     allocate(min_xyz(3,this%pe_box_num))
     allocate(max_xyz(3,this%pe_box_num))
+    
     i = 1
-    id_lvl = (/local_aabb_tree%get_root_index(),0/)
+    id_lvl = (/local_aabb_tree%get_root_index(), 0/)
     call traverse_stack%init()
     call traverse_stack%push(id_lvl)
+    
     lvl = 0
     !> Traverse the local tree and find ther top boxes
     do while (traverse_stack%size() > 0)
        id_lvl = traverse_stack%pop()
        lvl = id_lvl%x(2)
        node = local_aabb_tree%get_node(id_lvl%x(1))
-       if (2**lvl == this%pe_box_num .or. node%is_leaf()) then
+       if (2**lvl .eq. this%pe_box_num .or. node%is_leaf()) then
           min_xyz(:,i) = node%aabb%get_min()
           max_xyz(:,i) = node%aabb%get_max()
           i = i + 1
        else if (2**lvl < this%pe_box_num) then
           if (node%get_left_index() .ne. AABB_NULL_NODE) then
-             temp_id_lvl = (/node%get_left_index(),lvl+1/)
+             temp_id_lvl = (/node%get_left_index(), lvl+1/)
              call traverse_stack%push(temp_id_lvl)
           end if
           if (node%get_right_index() .ne. AABB_NULL_NODE) then
-             temp_id_lvl = (/node%get_right_index(),lvl+1/)
+             temp_id_lvl = (/node%get_right_index(), lvl+1/)
              call traverse_stack%push(temp_id_lvl)
           end if
        end if
     end do
     call traverse_stack%free()
+
     !If somehow we dont need all boxes we just put a point here
     if (nelv .eq. 0) then
        !> Set the boxes to be empty
@@ -217,7 +240,9 @@ contains
   subroutine aabb_pe_finder_free(this)
     class(aabb_pe_finder_t), intent(inout) :: this
 
-    if (allocated(this%global_aabb)) deallocate(this%global_aabb)
+    if (allocated(this%global_aabb)) then
+       deallocate(this%global_aabb)
+    end if
 
   end subroutine aabb_pe_finder_free
 
@@ -228,18 +253,19 @@ contains
     class(aabb_pe_finder_t), intent(inout) :: this
     type(point_t), intent(in) :: my_point
     type(stack_i4_t), intent(inout) :: pe_candidates
-    integer, pointer :: pe_cands(:) => Null()
+    integer, pointer :: pe_cands(:)
     integer :: i
 
     call this%global_aabb_tree%query_overlaps(my_point, -1, pe_candidates)
     pe_cands => pe_candidates%array()
     do i = 1, pe_candidates%size()
-       pe_cands(i) = (pe_cands(i)-1)/this%pe_box_num
+       pe_cands(i) = (pe_cands(i)-1) / this%pe_box_num
     end do
 
   end subroutine aabb_pe_finder_find_candidates
 
-  subroutine aabb_pe_finder_find_candidates_batch(this, points, n_points, points_at_pe, n_points_pe)
+  subroutine aabb_pe_finder_find_candidates_batch(this, points, &
+       n_points, points_at_pe, n_points_pe)
     class(aabb_pe_finder_t), intent(inout) :: this
     integer, intent(in) :: n_points
     real(kind=rp), intent(in) :: points(3,n_points)
@@ -249,7 +275,7 @@ contains
     type(point_t) :: my_point
     integer :: i, j, temp_intent, pe_id, htable_data
     real(kind=dp) :: pt_xyz(3)
-    integer, pointer :: pe_cands(:) => Null()
+    integer, pointer :: pe_cands(:)
     type(htable_i4_t) :: marked_rank
 
     do i = 0, this%pe_size-1
@@ -257,21 +283,22 @@ contains
        n_points_pe(i) = 0
     end do
 
-    call marked_rank%init(32,htable_data)
+    call marked_rank%init(32, htable_data)
     call pe_candidates%init()
 
     !> Check which ranks might have this point
     do i = 1, n_points
        call marked_rank%clear()
-       pt_xyz = (/ points(1,i),points(2,i),points(3,i) /)
+       pt_xyz = (/ points(1,i), points(2,i), points(3,i) /)
        call my_point%init(pt_xyz)
        call pe_candidates%clear()
        call this%find(my_point, pe_candidates)
+
        pe_cands => pe_candidates%array()
        do j = 1, pe_candidates%size()
           pe_id = pe_cands(j)
           ! Check if this rank has already been marked
-          if (marked_rank%get(pe_id,htable_data) .ne. 0) then
+          if (marked_rank%get(pe_id, htable_data) .ne. 0) then
              n_points_pe(pe_id) = n_points_pe(pe_id) + 1
              temp_intent = i
              call points_at_pe(pe_id)%push(temp_intent)
@@ -280,6 +307,7 @@ contains
              call marked_rank%set(pe_id, htable_data)
           end if
        end do
+       
        if (pe_candidates%size() .lt. 1) then
           write (*,*) 'Point', points(:,i), &
                'found to be outside domain, try increasing the padding to find rank candidates.'
