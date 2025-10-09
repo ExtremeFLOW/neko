@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2022, The Neko Authors
+ Copyright (c) 2022-2025, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@ __global__ void find_rst_legendre_kernel(T * __restrict__ rst,
                                          const int n_pt,
                                          T tol,
                                          T * __restrict__ conv_pts){
-				
+
   const int pt = blockIdx.x;
   if (conv_pts[pt] < 0.5) return;
   const int e = el_ids[pt];
@@ -62,8 +62,8 @@ __global__ void find_rst_legendre_kernel(T * __restrict__ rst,
   const int str = blockDim.y;
   const int idx = threadIdx.y;
 
-  xT one = 1.0;
-  xT two = 2.0;
+  const xT one = 1.0;
+  const xT two = 2.0;
   __shared__ xT dxdr, dydr, dzdr;
   __shared__ xT dxds, dyds, dzds;
   __shared__ xT newx, newy, newz;
@@ -81,7 +81,7 @@ __global__ void find_rst_legendre_kernel(T * __restrict__ rst,
   __shared__ xT xwork2[LX];
   __shared__ xT ywork2[LX];
   __shared__ xT zwork2[LX];
-  
+
   r_leg[0] = 1.0;
   s_leg[0] = 1.0;
   t_leg[0] = 1.0;
@@ -96,7 +96,7 @@ __global__ void find_rst_legendre_kernel(T * __restrict__ rst,
   dt_leg[1] = 1.0;
 
   for (int ii = 1; ii<LX-1; ii += 1) {
-    xT ir = ii; 
+    xT ir = ii;
     r_leg[ii+1] = ((two*ir+one) * rst[3*pt] * r_leg[ii] - ir * r_leg[ii-1] ) / (ir+one);
     s_leg[ii+1] = ((two*ir+one) * rst[3*pt+1] * s_leg[ii] - ir * s_leg[ii-1] ) / (ir+one);
     t_leg[ii+1] = ((two*ir+one) * rst[3*pt+2] * t_leg[ii] - ir * t_leg[ii-1] ) / (ir+one);
@@ -120,9 +120,9 @@ __global__ void find_rst_legendre_kernel(T * __restrict__ rst,
     ywork[ii] = ytmp;
     zwork[ii] = ztmp;
   }
-  
+
   __syncthreads();
-  
+
   for (int ijk = idx; ijk< LX; ijk += str) {
     const int jk = ijk;
     const int i = ijk - jk;
@@ -131,7 +131,7 @@ __global__ void find_rst_legendre_kernel(T * __restrict__ rst,
     xT xtmp = 0.0;
     xT ytmp = 0.0;
     xT ztmp = 0.0;
-    const int ik2 = i + k*LX; 
+    const int ik2 = i + k*LX;
     for( int l = 0; l < LX; l++){
       xtmp += s_leg[l+j*LX]*xwork[l+ik2];
       ytmp += s_leg[l+j*LX]*ywork[l+ik2];
@@ -141,14 +141,14 @@ __global__ void find_rst_legendre_kernel(T * __restrict__ rst,
     ywork2[ijk] = ytmp;
     zwork2[ijk] = ztmp;
   }
-  
+
   if(idx==0){
     const int ijk = idx;
     const int jk = ijk;
     const int i = ijk - jk;
     const int k = jk ;
     const int j = jk - k;
-    const int ij2 = i + j; 
+    const int ij2 = i + j;
     xT xtmp = 0.0;
     xT ytmp = 0.0;
     xT ztmp = 0.0;
@@ -180,7 +180,7 @@ __global__ void find_rst_legendre_kernel(T * __restrict__ rst,
   }
 
   __syncthreads();
-  
+
   for (int ijk = idx; ijk< LX; ijk += str) {
     const int jk = ijk;
     const int i = ijk - jk;
@@ -189,7 +189,7 @@ __global__ void find_rst_legendre_kernel(T * __restrict__ rst,
     xT xtmp = 0.0;
     xT ytmp = 0.0;
     xT ztmp = 0.0;
-    const int ik2 = i + k*LX; 
+    const int ik2 = i + k*LX;
     for( int l = 0; l < LX; l++){
       xtmp += s_leg[l+j*LX]*xwork[l+ik2];
       ytmp += s_leg[l+j*LX]*ywork[l+ik2];
@@ -199,8 +199,8 @@ __global__ void find_rst_legendre_kernel(T * __restrict__ rst,
     ywork2[ijk] = ytmp;
     zwork2[ijk] = ztmp;
   }
-  
-  
+
+
   if (idx == 0) {
     const int ijk = idx;
     const int jk = ijk;
@@ -210,7 +210,7 @@ __global__ void find_rst_legendre_kernel(T * __restrict__ rst,
     xT xtmp = 0.0;
     xT ytmp = 0.0;
     xT ztmp = 0.0;
-    const int ij2 = i + j; 
+    const int ij2 = i + j;
     for( int l = 0; l < LX; l++){
       xtmp += t_leg[l+k*LX]*xwork2[ij2 + l];
       ytmp += t_leg[l+k*LX]*ywork2[ij2 + l];
@@ -239,7 +239,7 @@ __global__ void find_rst_legendre_kernel(T * __restrict__ rst,
   }
 
   __syncthreads();
-  
+
   for (int ijk = idx; ijk< LX; ijk += str) {
     const int jk = ijk;
     const int i = ijk - jk;
@@ -248,7 +248,7 @@ __global__ void find_rst_legendre_kernel(T * __restrict__ rst,
     xT xtmp = 0.0;
     xT ytmp = 0.0;
     xT ztmp = 0.0;
-    const int ik2 = i + k*LX; 
+    const int ik2 = i + k*LX;
     for( int l = 0; l < LX; l++){
       xtmp += ds_leg[l+j*LX]*xwork[l+ik2];
       ytmp += ds_leg[l+j*LX]*ywork[l+ik2];
@@ -258,8 +258,8 @@ __global__ void find_rst_legendre_kernel(T * __restrict__ rst,
     ywork2[ijk] = ytmp;
     zwork2[ijk] = ztmp;
   }
-  
-  
+
+
   if (idx == 0) {
     const int ijk = idx;
     const int jk = ijk;
@@ -269,7 +269,7 @@ __global__ void find_rst_legendre_kernel(T * __restrict__ rst,
     xT xtmp = 0.0;
     xT ytmp = 0.0;
     xT ztmp = 0.0;
-    const int ij2 = i + j; 
+    const int ij2 = i + j;
     for( int l = 0; l < LX; l++){
       xtmp += t_leg[l+k*LX]*xwork2[ij2 + l];
       ytmp += t_leg[l+k*LX]*ywork2[ij2 + l];
@@ -298,7 +298,7 @@ __global__ void find_rst_legendre_kernel(T * __restrict__ rst,
   }
 
   __syncthreads();
-  
+
   for (int ijk = idx; ijk< LX; ijk += str) {
     const int jk = ijk;
     const int i = ijk - jk;
@@ -307,7 +307,7 @@ __global__ void find_rst_legendre_kernel(T * __restrict__ rst,
     xT xtmp = 0.0;
     xT ytmp = 0.0;
     xT ztmp = 0.0;
-    const int ik2 = i + k*LX; 
+    const int ik2 = i + k*LX;
     for( int l = 0; l < LX; l++){
       xtmp += s_leg[l+j*LX]*xwork[l+ik2];
       ytmp += s_leg[l+j*LX]*ywork[l+ik2];
@@ -317,9 +317,9 @@ __global__ void find_rst_legendre_kernel(T * __restrict__ rst,
     ywork2[ijk] = ytmp;
     zwork2[ijk] = ztmp;
   }
-  
+
   __syncthreads();
-  
+
   if( idx == 0){
     xT xtmp = 0.0;
     xT ytmp = 0.0;
@@ -352,7 +352,7 @@ __global__ void find_rst_legendre_kernel(T * __restrict__ rst,
            - (dxds * dydr * dzdt)
            - (dxdt * dyds * dzdr);
 
-    jacdetinv = one / jacdet;    
+    jacdetinv = one / jacdet;
    //check legendre polynoimial, rst, and xhat
 
     drdx =(dyds*dzdt - dydt*dzds);
@@ -364,15 +364,15 @@ __global__ void find_rst_legendre_kernel(T * __restrict__ rst,
     dtdx =(dydr*dzds - dyds*dzdr);
     dtdy =(dxds*dzdr - dxdr*dzds);
     dtdz =(dxdr*dyds - dxds*dydr);
-    //printf("newx gpu %lf \n",newx); 
-    resx[pt] = pt_x[pt]-newx;  
-    resy[pt] = pt_y[pt]-newy;  
+    //printf("newx gpu %lf \n",newx);
+    resx[pt] = pt_x[pt]-newx;
+    resy[pt] = pt_y[pt]-newy;
     resz[pt] = pt_z[pt]-newz;
-    
+
     rstd[0] = jacdetinv*(drdx*resx[pt]+drdy*resy[pt]+drdz*resz[pt]);
     rstd[1] = jacdetinv*(dsdx*resx[pt]+dsdy*resy[pt]+dsdz*resz[pt]);
     rstd[2] = jacdetinv*(dtdx*resx[pt]+dtdy*resy[pt]+dtdz*resz[pt]);
- 
+
     rst[3*pt]     += rstd[0];
     rst[3*pt + 1] += rstd[1];
     rst[3*pt + 2] += rstd[2];
@@ -391,31 +391,32 @@ __global__ void find_rst_legendre_kernel(T * __restrict__ rst,
 
 
 extern "C" {
-  
-  /** 
+
+  /**
    * Fortran wrapper for generating geometric factors
    */
-  void cuda_find_rst_legendre(void *rst, 
+  void cuda_find_rst_legendre(void *rst,
                               void *pt_x, void* pt_y, void* pt_z,
-                              void *x_hat, void *y_hat, void *z_hat, 
-                              void *resx, void *resy, void *resz, 
-                              int *lx, void *el_ids, int *n_pt, real *tol, void *conv_pts) {
-    
+                              void *x_hat, void *y_hat, void *z_hat,
+                              void *resx, void *resy, void *resz,
+                              int *lx, void *el_ids, int *n_pt, real *tol,
+                              void *conv_pts) {
+
     const dim3 nthrds(1, 128, 1);
     const dim3 nblcks((*n_pt), 1, 1);
-    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;      
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
 #define RST_CASE(LX)                                                            \
     case LX:                                                                    \
-      find_rst_legendre_kernel<real,xreal, LX, 128>                                  \
+      find_rst_legendre_kernel<real,real_xp, LX, 128>                           \
         <<<nblcks, nthrds, 0, stream>>>                                         \
-        ((real *) rst,(real *) pt_x, (real *) pt_y, (real *) pt_z,                              \
-         (real *) x_hat, (real *) y_hat, (real *) z_hat,                              \
-         (real *) resx, (real *) resy, (real *) resz, (int *) el_ids,                           \
-         *n_pt, *tol, (real *) conv_pts);                                  \
+        ((real *) rst,(real *) pt_x, (real *) pt_y, (real *) pt_z,              \
+         (real *) x_hat, (real *) y_hat, (real *) z_hat,                        \
+         (real *) resx, (real *) resy, (real *) resz, (int *) el_ids,           \
+         *n_pt, *tol, (real *) conv_pts);                                       \
       CUDA_CHECK(cudaGetLastError());                                           \
       break
-    
+
     switch(*lx) {
       RST_CASE(2);
       RST_CASE(3);
