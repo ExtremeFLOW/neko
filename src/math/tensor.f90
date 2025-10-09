@@ -156,7 +156,7 @@ contains
   subroutine tnsr2d_el(v, nv, u, nu, A, Bt)
     integer, intent(in) :: nv, nu
     real(kind=rp), intent(inout) :: v(nv*nv), u(nu*nu)
-    real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu,nv)
+    real(kind=rp), intent(inout) :: A(nv, nu), Bt(nu, nv)
 
     if (NEKO_BCKND_SX .eq. 1) then
        call tnsr2d_el_sx(v, nv, u, nu, A, Bt)
@@ -189,8 +189,10 @@ contains
   !! performed on a subset of the  elements.
   subroutine tnsr3d_el_list(v, nv, u, nu, A, Bt, Ct, el_list, n_pt, on_host)
     integer, intent(in) :: nv, nu, n_pt, el_list(n_pt)
-    real(kind=rp), intent(inout) :: v(nv*nv*nv, n_pt), u(nu*nu*nu,1)
-    real(kind=rp), intent(inout) :: A(nv,nu,n_pt),Bt(nu, nv,n_pt),Ct(nu,nv,n_pt)
+    real(kind=rp), intent(inout) :: v(nv*nv*nv, n_pt), u(nu*nu*nu, 1)
+    real(kind=rp), intent(inout) :: A(nv, nu, n_pt)
+    real(kind=rp), intent(inout) :: Bt(nu, nv, n_pt)
+    real(kind=rp), intent(inout) :: Ct(nu, nv, n_pt)
     logical, intent(in) :: on_host
     type(c_ptr) :: v_d, u_d, A_d, Bt_d, Ct_d, el_list_d
     integer :: i
@@ -199,11 +201,13 @@ contains
 
     if (NEKO_BCKND_SX .eq. 1) then
        do i = 1, n_pt
-          call tnsr3d_el_sx(v(1,i), nv, u(1,el_list(i)), nu, A(1,1,i), Bt(1,1,i), Ct(1,1,i))
+          call tnsr3d_el_sx(v(1,i), nv, u(1,el_list(i)), &
+               nu, A(1,1,i), Bt(1,1,i), Ct(1,1,i))
        end do
     else if (NEKO_BCKND_XSMM .eq. 1) then
        do i = 1, n_pt
-          call tnsr3d_el_xsmm(v(1,i), nv, u(1,el_list(i)), nu, A(1,1,i), Bt(1,1,i), Ct(1,1,i))
+          call tnsr3d_el_xsmm(v(1,i), nv, u(1,el_list(i)), &
+               nu, A(1,1,i), Bt(1,1,i), Ct(1,1,i))
        end do
     else if (NEKO_BCKND_DEVICE .eq. 1 .and. .not. on_host) then
        v_d = device_get_ptr(v)
@@ -212,16 +216,17 @@ contains
        Bt_d = device_get_ptr(Bt)
        Ct_d = device_get_ptr(Ct)
        el_list_d = device_get_ptr(el_list)
-       call tnsr3d_el_list_device(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, el_list_d, n_pt)
+       call tnsr3d_el_list_device(v_d, nv, u_d, nu, &
+            A_d, Bt_d, Ct_d, el_list_d, n_pt)
     else
        do i = 1, n_pt
-          !       Note the use of el_list(i) + 1, because of the gslib C interface
-          call tnsr3d_el_cpu(v(1,i), nv, u(1,el_list(i)+1), nu, A(1,1,i), Bt(1,1,i), Ct(1,1,i))
+          ! Note the use of el_list(i) + 1, because of the gslib C interface
+          call tnsr3d_el_cpu(v(1,i), nv, u(1,el_list(i)+1), &
+               nu, A(1,1,i), Bt(1,1,i), Ct(1,1,i))
        end do
     end if
 
   end subroutine tnsr3d_el_list
-
 
   !> Tensor product \f$ v =(C \otimes B \otimes A) u \f$ performed on
   !!`nelv` elements.
@@ -307,7 +312,7 @@ contains
   subroutine triple_tensor_product_scalar(v, u, nu, Hr, Hs, Ht)
     real(kind=rp), intent(inout) :: v
     integer, intent(in) :: nu
-    real(kind=rp), intent(inout) :: u(nu,nu,nu)
+    real(kind=rp), intent(inout) :: u(nu, nu, nu)
     real(kind=rp), intent(inout) :: Hr(nu)
     real(kind=rp), intent(inout) :: Hs(nu)
     real(kind=rp), intent(inout) :: Ht(nu)
@@ -317,7 +322,7 @@ contains
     real(kind=rp) :: vv(1)
     ! vv(1) = v
 
-    call tnsr3d_el(vv,1,u,nu,Hr,Hs,Ht)
+    call tnsr3d_el(vv, 1, u, nu, Hr, Hs, Ht)
 
     v = vv(1)
 
@@ -343,9 +348,9 @@ contains
   subroutine triple_tensor_product_vector(v, u1, u2, u3, nu, Hr, Hs, Ht)
     real(kind=rp), intent(inout) :: v(3)
     integer, intent(in) :: nu
-    real(kind=rp), intent(inout) :: u1(nu,nu,nu)
-    real(kind=rp), intent(inout) :: u2(nu,nu,nu)
-    real(kind=rp), intent(inout) :: u3(nu,nu,nu)
+    real(kind=rp), intent(inout) :: u1(nu, nu, nu)
+    real(kind=rp), intent(inout) :: u2(nu, nu, nu)
+    real(kind=rp), intent(inout) :: u3(nu, nu, nu)
     real(kind=rp), intent(inout) :: Hr(nu)
     real(kind=rp), intent(inout) :: Hs(nu)
     real(kind=rp), intent(inout) :: Ht(nu)
