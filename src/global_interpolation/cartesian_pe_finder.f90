@@ -48,7 +48,7 @@ module cartesian_pe_finder
        MPI_Comm_size, MPI_Wtime, MPI_INTEGER, MPI_INTEGER8, &
        MPI_MIN, MPI_SUM, MPI_Irecv, MPI_Isend, MPI_Wait, &
        MPI_Exscan, MPI_Request, MPI_Status, &
-       MPI_Alltoall, MPI_IN_PLACE
+       MPI_Alltoall, MPI_IN_PLACE, MPI_Barrier
   implicit none
   private
 

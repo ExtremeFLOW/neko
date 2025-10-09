@@ -45,7 +45,8 @@ module aabb_pe_finder
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION, pe_rank, pe_size
   use mpi_f08, only : MPI_SUM, MPI_Reduce, MPI_COMM, MPI_Comm_rank, &
        MPI_Comm_size, MPI_Wtime, MPI_INTEGER, MPI_IN_PLACE, &
-       MPI_MIN, MPI_Allgather, MPI_Barrier, MPI_DOUBLE_PRECISION
+       MPI_MIN, MPI_Allgather, MPI_Barrier, MPI_DOUBLE_PRECISION, &
+       MPI_Allreduce
   use aabb, only : aabb_t
   use aabb_tree, only : aabb_tree_t, aabb_node_t, AABB_NULL_NODE
   use math, only : NEKO_M_LN2, NEKO_EPS
