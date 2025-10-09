@@ -36,6 +36,13 @@ libneko.neko_init.resType = None
 libneko.neko_finalize.resType = None
 libneko.neko_job_info.resType = None
 
+libneko.neko_device_init.restype = None
+libneko.neko_device_finalize.restype = None
+
+libneko.neko_field_registry_init.restype = None
+libneko.neko_field_registry_free.restype = None
+
+
 libneko.neko_case_allocate.argtypes = [POINTER(c_int)]
 libneko.neko_case_allocate.restype = None
 
@@ -242,9 +249,25 @@ def finalize():
     """ Finalize Neko. """
     libneko.neko_finalize()
 
+def device_init():
+    """ Initialise Neko device layer. """
+    libneko.neko_device_init()
+
+def device_finalize():
+    """ Finalize Neko device lyaer. """
+    libneko.neko_device_finalize()
+
 def job_info():
     """ Display job information. """
     libneko.neko_job_info()
+
+def field_registry_init():
+    """ Initialise a field registry. """
+    libneko.neko_field_registry_init()
+
+def field_registry_free():
+    """ Destroy a field registry. """
+    libneko.neko_field_registry_free()
 
 def case_init(case_json,
               cb_initial_condition = initial_condition(0),

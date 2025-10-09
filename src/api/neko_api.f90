@@ -93,6 +93,20 @@ contains
 
   end subroutine neko_api_finalize
 
+  !> Initialise Neko device layer
+  subroutine neko_api_device_init() bind(c, name="neko_device_init")
+
+    call device_init
+
+  end subroutine neko_api_device_init
+
+  !> Finalize Neko device layer
+  subroutine neko_api_device_finalize() bind(c, name="neko_device_finalize")
+
+    call device_finalize
+
+  end subroutine neko_api_device_finalize
+
   !> Display job information
   subroutine neko_api_job_info() bind(c, name="neko_job_info")
     logical :: initialized
@@ -107,6 +121,20 @@ contains
     end if
 
   end subroutine neko_api_job_info
+
+  !> Initialise a Neko field registry
+  subroutine neko_api_field_registry_init() bind(c, name="neko_field_registry_init")
+
+    call neko_field_registry%init()
+
+  end subroutine neko_api_field_registry_init
+
+  !> Destroy a Neko field registry
+  subroutine neko_api_field_registry_free() bind(c, name="neko_field_registry_free")
+
+    call neko_field_registry%free()
+
+  end subroutine neko_api_field_registry_free
 
   !> Allocate memory for a Neko case
   !! @param case_iptr Opaque pointer for the created Neko case
