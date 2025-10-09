@@ -385,7 +385,7 @@ contains
     real(kind=rp), pointer :: dtlag(:), tlag(:)
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, byte_offset
     integer(kind=i8) :: n_glb_dofs, dof_offset
-    integer :: glb_nelv, gdim, lx, have_lag, have_scalar, nel,
+    integer :: glb_nelv, gdim, lx, have_lag, have_scalar, nel
     integer :: optional_fields, have_dtlag
     integer :: have_abvel, have_scalarlag
     logical :: read_lag, read_scalar, read_dtlag, read_abvel, read_scalarlag
