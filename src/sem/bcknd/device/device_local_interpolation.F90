@@ -79,6 +79,24 @@ module device_local_interpolation
      end subroutine cuda_find_rst_legendre
   end interface
 #elif HAVE_OPENCL
+    interface
+     subroutine opencl_find_rst_legendre(rst, pt_x, pt_y, pt_z, &
+          x_hat, y_hat, z_hat, &
+          resx, resy, resz, &
+          lx, el_ids, n_pt, tol, conv_pts) &
+          bind(c, name='opencl_find_rst_legendre')
+       use, intrinsic :: iso_c_binding
+       use num_types
+       implicit none
+       type(c_ptr), value :: rst
+       type(c_ptr), value :: pt_x, pt_y, pt_z
+       type(c_ptr), value :: x_hat, y_hat, z_hat
+       type(c_ptr), value :: resx, resy, resz
+       type(c_ptr), value :: el_ids, conv_pts
+       integer(c_int) :: lx, n_pt
+       real(c_rp) :: tol
+     end subroutine opencl_find_rst_legendre
+  end interface
 #endif
 
 contains
@@ -105,7 +123,10 @@ contains
          resx_d, resy_d, resz_d, &
          lx, el_ids_d, n_pts, tol, conv_pts_d)
 #elif HAVE_OPENCL
-    call neko_error('OpenCL not supported yet for finding rst')
+    call opencl_find_rst_legendre(rst_d, pt_x_d, pt_y_d, pt_z_d, &
+         x_hat_d, y_hat_d, z_hat_d, &
+         resx_d, resy_d, resz_d, &
+         lx, el_ids_d, n_pts, tol, conv_pts_d)
 #else
     call neko_error('No device backend configured')
 #endif

@@ -111,6 +111,9 @@ module opencl_prgm_lib
   !> Device filter kernels
   type(c_ptr), public, bind(c) :: mapping_program = C_NULL_PTR
 
+  !> Device find rest kernels
+  type(c_ptr), public, bind(c) :: find_rst_legendre_program = C_NULL_PTR
+
   public :: opencl_prgm_lib_release
 
 contains
@@ -339,6 +342,13 @@ contains
           call neko_error('Failed to release program')
        end if
        mapping_program = C_NULL_PTR
+    end if
+
+    if (c_associated(find_rst_legendre_program)) then
+       if(clReleaseProgram(find_rst_legendre_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       find_rst_legendre_program = C_NULL_PTR
     end if
 
   end subroutine opencl_prgm_lib_release

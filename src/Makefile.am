@@ -553,6 +553,7 @@ libneko_la_SOURCES += \
 	fluid/bcknd/device/opencl/compressible_ops_compute_entropy.c\
 	scalar/bcknd/device/opencl/scalar_residual.c\
 	sem/bcknd/device/opencl/coef.c\
+	sem/bcknd/device/opencl/local_interpolation.c\
 	filter/bcknd/device/opencl/mappings.c
 
 %.cl.h: %.cl
@@ -772,6 +773,7 @@ EXTRA_DIST = \
 	gs/bcknd/device/opencl/gs_kernels.cl\
 	krylov/bcknd/device/opencl/jacobi_kernel.cl\
 	sem/bcknd/device/opencl/coef_kernel.cl\
+	sem/bcknd/device/opencl/local_interpolation_kernel.cl\
 	math/bcknd/device/device_mpi_reduce.h\
 	math/bcknd/device/device_mpi_op.h\
 	math/bcknd/device/device_nccl_reduce.h\
