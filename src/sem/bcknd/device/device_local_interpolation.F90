@@ -1,4 +1,4 @@
-! Copyright (c) 2022-2024, The Neko Authors
+! Copyright (c) 2022-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -79,7 +79,7 @@ module device_local_interpolation
      end subroutine cuda_find_rst_legendre
   end interface
 #elif HAVE_OPENCL
-    interface
+  interface
      subroutine opencl_find_rst_legendre(rst, pt_x, pt_y, pt_z, &
           x_hat, y_hat, z_hat, &
           resx, resy, resz, &
