@@ -59,14 +59,17 @@
 !
 !> Tensor operations.
 module tensor
-  use tensor_xsmm
-  use tensor_cpu
-  use tensor_sx
-  use tensor_device
+  use tensor_xsmm, only : tnsr3d_xsmm, tnsr1_3d_xsmm, &
+       tnsr2d_el_xsmm, tnsr3d_el_xsmm
+  use tensor_cpu, only : tnsr3d_cpu, tnsr1_3d_cpu, &
+       tnsr2d_el_cpu, tnsr3d_el_cpu
+  use tensor_sx, only : tnsr3d_sx, tnsr1_3d_sx, &
+       tnsr2d_el_sx, tnsr3d_el_sx
+  use tensor_device, only : tnsr3d_device, tnsr3d_el_list_device
   use num_types, only : rp
-  use mxm_wrapper
-  use neko_config
-  use device
+  use mxm_wrapper, only : mxm
+  use neko_config, only : NEKO_BCKND_SX, NEKO_BCKND_XSMM, NEKO_BCKND_DEVICE
+  use device, only : device_get_ptr
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
