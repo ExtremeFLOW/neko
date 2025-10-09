@@ -21,7 +21,8 @@ contains
     u%dirichlet_conditions => dirichlet_update
   end subroutine user_setup
 
-  !Observe this might be called multiple times per time step by different solvers  
+  !Observe this might be called multiple times per time step by
+  !different solvers
   subroutine dirichlet_update(field_bc_list, bc, time)
     type(field_list_t), intent(inout) :: field_bc_list
     type(field_dirichlet_t), intent(in) :: bc
@@ -32,7 +33,7 @@ contains
     type(field_t), pointer :: field
 
     coef => neko_user_access%case%fluid%c_Xh
-    
+
     ! Only do this at the first time step since our BCs are constants.
     if (time%tstep .eq. 1 .and. .not. init) then
        n_pts = bc%msk(0)
@@ -157,7 +158,7 @@ contains
     v => fields%get_by_name("v")
     w => fields%get_by_name("w")
     p => fields%get_by_name("p")
-  
+
     do i = 1, u%dof%size()
        uvw = channel_ic(u%dof%x(i,1,1,1),u%dof%y(i,1,1,1),u%dof%z(i,1,1,1))
        u%x(i,1,1,1) = uvw(1)
