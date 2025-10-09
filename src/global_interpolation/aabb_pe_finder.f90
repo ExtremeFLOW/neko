@@ -215,8 +215,8 @@ contains
     else
        !Needs to be something in the domain
        do j = i, this%pe_box_num
-          min_xyz(:,j) =[x(1), y(1), z(1)]
-          max_xyz(:,j) =[x(1), y(1), z(1)]
+          min_xyz(:,j) = [x(1), y(1), z(1)]
+          max_xyz(:,j) = [x(1), y(1), z(1)]
        end do
     end if
     !> Get boxes from all ranks
