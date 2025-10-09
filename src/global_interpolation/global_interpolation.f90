@@ -283,6 +283,7 @@ contains
     call this%Xh%init(Xh%t, lx, ly, lz)
 
 
+    call neko_log%section('Global Interpolation')
 
     call neko_log%message('Initializing global interpolation')
     call get_environment_variable("NEKO_GLOBAL_INTERP_EL_FINDER", &
@@ -357,6 +358,7 @@ contains
     write(log_buf, '(A,E15.7)') &
          'Global interpolation initialized (s):', time1-time_start
     call neko_log%message(log_buf)
+    call neko_log%end_section()
   end subroutine global_interpolation_init_xyz
 
 
@@ -471,7 +473,7 @@ contains
     type(stack_i4_t) :: send_pe_find, recv_pe_find
 
     el_cands_d = C_NULL_PTR
-
+    call neko_log%section('Global Interpolation')
     call glb_intrp_find%init_dofs(this%pe_size)
     call send_pe_find%init()
     call recv_pe_find%init()
@@ -884,7 +886,8 @@ contains
     write(log_buf, '(A,E15.7)') 'Global interpolation find points done, time (s):', &
          time2-time_start
     call neko_log%message(log_buf)
-
+    call neko_log%end_section()
+    call neko_log%newline()
   end subroutine global_interpolation_find_common
 
   !> Check the points for validity
