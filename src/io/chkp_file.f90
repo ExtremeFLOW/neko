@@ -38,7 +38,7 @@ module chkp_file
   use checkpoint, only : chkp_t
   use num_types, only : rp, dp, i8
   use field, only : field_t
-  use dofmap, only: dofmap_t
+  use dofmap, only : dofmap_t
   use utils, only : neko_error, filename_suffix_pos
   use space, only : space_t, GLL
   use mesh, only : mesh_t
@@ -59,11 +59,16 @@ module chkp_file
 
   !> Interface for Neko checkpoint files
   type, public, extends(generic_file_t) :: chkp_file_t
-     type(space_t), pointer :: chkp_Xh !< Function space in the loaded checkpoint file
-     type(space_t), pointer :: sim_Xh !< Function space used in the simulation
-     type(interpolator_t) :: space_interp !< Interpolation when only changing lx
-     type(global_interpolation_t) :: global_interp !< Interpolation for different meshes
-     logical :: mesh2mesh !< Flag if previous mesh difers from current.
+     !> Function space in the loaded checkpoint file
+     type(space_t), pointer :: chkp_Xh
+     !> Function space used in the simulation
+     type(space_t), pointer :: sim_Xh
+     !> Interpolation when only changing lx
+     type(interpolator_t) :: space_interp
+     !> Interpolation for different meshes
+     type(global_interpolation_t) :: global_interp
+     !> Flag if previous mesh difers from current.
+     logical :: mesh2mesh
    contains
      procedure :: read => chkp_file_read
      procedure :: read_field => chkp_read_field
@@ -83,10 +88,10 @@ contains
     character(len=1024) :: fname
     integer :: ierr, suffix_pos, optional_fields
     type(field_t), pointer :: u, v, w, p, s
-    type(field_t), pointer :: abx1,abx2
-    type(field_t), pointer :: aby1,aby2
-    type(field_t), pointer :: abz1,abz2
-    type(field_t), pointer :: abs1,abs2
+    type(field_t), pointer :: abx1, abx2
+    type(field_t), pointer :: aby1, aby2
+    type(field_t), pointer :: abz1, abz2
+    type(field_t), pointer :: abs1, abs2
     type(field_series_t), pointer :: ulag => null()
     type(field_series_t), pointer :: vlag => null()
     type(field_series_t), pointer :: wlag => null()
@@ -97,7 +102,8 @@ contains
     type(MPI_File) :: fh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, byte_offset
     integer(kind=i8) :: n_glb_dofs, dof_offset
-    logical :: write_lag, write_scalar, write_dtlag, write_scalarlag, write_abvel
+    logical :: write_lag, write_scalar, write_dtlag
+    logical :: write_scalarlag, write_abvel
     integer :: i
 
     if (present(t)) then
@@ -106,7 +112,7 @@ contains
        time = 0.0_dp
     end if
 
-    select type(data)
+    select type (data)
     type is (chkp_t)
 
        if ( .not. associated(data%u) .or. &
@@ -193,12 +199,14 @@ contains
     ! Dump mandatory checkpoint data
     !
 
-    byte_offset = 4_i8 * int(MPI_INTEGER_SIZE,i8) + int(MPI_DOUBLE_PRECISION_SIZE,i8)
+    byte_offset = 4_i8 * int(MPI_INTEGER_SIZE, i8) + &
+         int(MPI_DOUBLE_PRECISION_SIZE, i8)
     byte_offset = byte_offset + &
          dof_offset * int(MPI_REAL_PREC_SIZE, i8)
     call MPI_File_write_at_all(fh, byte_offset,u%x, u%dof%size(), &
          MPI_REAL_PRECISION, status, ierr)
-    mpi_offset = 4_i8 * int(MPI_INTEGER_SIZE,i8) + int(MPI_DOUBLE_PRECISION_SIZE,i8)
+    mpi_offset = 4_i8 * int(MPI_INTEGER_SIZE, i8) + &
+         int(MPI_DOUBLE_PRECISION_SIZE, i8)
     mpi_offset = mpi_offset +&
          n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
 
@@ -276,9 +284,11 @@ contains
     end if
 
     if (write_dtlag) then
-       call MPI_File_write_at_all(fh, mpi_offset, tlag, 10, MPI_REAL_PRECISION, status, ierr)
+       call MPI_File_write_at_all(fh, mpi_offset, tlag, 10, &
+            MPI_REAL_PRECISION, status, ierr)
        mpi_offset = mpi_offset + 10_i8 * int(MPI_REAL_PREC_SIZE, i8)
-       call MPI_File_write_at_all(fh, mpi_offset, dtlag, 10, MPI_REAL_PRECISION, status, ierr)
+       call MPI_File_write_at_all(fh, mpi_offset, dtlag, 10, &
+            MPI_REAL_PRECISION, status, ierr)
        mpi_offset = mpi_offset + 10_i8 * int(MPI_REAL_PREC_SIZE, i8)
     end if
 
@@ -375,7 +385,8 @@ contains
     real(kind=rp), pointer :: dtlag(:), tlag(:)
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, byte_offset
     integer(kind=i8) :: n_glb_dofs, dof_offset
-    integer :: glb_nelv, gdim, lx, have_lag, have_scalar, nel, optional_fields, have_dtlag
+    integer :: glb_nelv, gdim, lx, have_lag, have_scalar, nel,
+    integer :: optional_fields, have_dtlag
     integer :: have_abvel, have_scalarlag
     logical :: read_lag, read_scalar, read_dtlag, read_abvel, read_scalarlag
     real(kind=rp) :: tol
@@ -385,7 +396,7 @@ contains
 
     call this%check_exists()
 
-    select type(data)
+    select type (data)
     type is (chkp_t)
 
        if ( .not. associated(data%u) .or. &
@@ -501,11 +512,13 @@ contains
     ! Read mandatory checkpoint data
     !
 
-    byte_offset = 4_i8 * int(MPI_INTEGER_SIZE,i8) + int(MPI_DOUBLE_PRECISION_SIZE,i8)
+    byte_offset = 4_i8 * int(MPI_INTEGER_SIZE, i8) + &
+         int(MPI_DOUBLE_PRECISION_SIZE, i8)
     byte_offset = byte_offset + &
          dof_offset * int(MPI_REAL_PREC_SIZE, i8)
     call this%read_field(fh, byte_offset, u%x, nel)
-    mpi_offset = 4_i8 * int(MPI_INTEGER_SIZE,i8) + int(MPI_DOUBLE_PRECISION_SIZE,i8)
+    mpi_offset = 4_i8 * int(MPI_INTEGER_SIZE, i8) + &
+         int(MPI_DOUBLE_PRECISION_SIZE, i8)
     mpi_offset = mpi_offset +&
          n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
 
@@ -559,9 +572,11 @@ contains
     end if
 
     if (read_dtlag .and. have_dtlag .eq. 1) then
-       call MPI_File_read_at_all(fh, mpi_offset, tlag, 10, MPI_REAL_PRECISION, status, ierr)
+       call MPI_File_read_at_all(fh, mpi_offset, tlag, 10, &
+            MPI_REAL_PRECISION, status, ierr)
        mpi_offset = mpi_offset + 10_i8 * int(MPI_REAL_PREC_SIZE, i8)
-       call MPI_File_read_at_all(fh, mpi_offset, dtlag, 10, MPI_REAL_PRECISION, status, ierr)
+       call MPI_File_read_at_all(fh, mpi_offset, dtlag, 10, &
+            MPI_REAL_PRECISION, status, ierr)
        mpi_offset = mpi_offset + 10_i8 * int(MPI_REAL_PREC_SIZE, i8)
     end if
 
