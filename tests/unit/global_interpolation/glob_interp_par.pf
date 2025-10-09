@@ -46,7 +46,7 @@ contains
   subroutine test_glob_interp_gen_msh(msh)
     type(mesh_t), intent(inout) :: msh
     type(file_t) :: mesh_file
-    mesh_file%init("global_interpolation/cylinder.nmsh")
+    call mesh_file%init("global_interpolation/cylinder.nmsh")
     call mesh_file%read(msh)
   
   end subroutine test_glob_interp_gen_msh
