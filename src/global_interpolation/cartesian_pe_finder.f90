@@ -248,7 +248,7 @@ contains
        !move it to do scaling
        lx2 = Xh%lx/2
        if (mod(Xh%lx,2) .eq. 0) then
-          lin_idx = linear_index(lx2,lx2,lx2, e, Xh%lx, Xh%lx, Xh%lx)
+          lin_idx = linear_index(lx2, lx2, lx2, e, Xh%lx, Xh%lx, Xh%lx)
           center_x = x(lin_idx)
           center_y = y(lin_idx)
           center_z = z(lin_idx)
@@ -259,7 +259,7 @@ contains
           do i = lx2, lx2+1
              do j = lx2, lx2 + 1
                 do k = lx2, lx2 + 1
-                   lin_idx = linear_index(i,j,k,e, Xh%lx, Xh%lx, Xh%lx)
+                   lin_idx = linear_index(i, j, k, e, Xh%lx, Xh%lx, Xh%lx)
                    center_x = center_x + x(lin_idx)
                    center_y = center_y + y(lin_idx)
                    center_z = center_z + z(lin_idx)
@@ -285,7 +285,7 @@ contains
        do i = 1, Xh%lx - 1
           do j = 1, Xh%ly - 1
              do k = 1, Xh%lz - 1
-                lin_idx = linear_index(i,j,k, 1, Xh%lx, Xh%lx, Xh%lx)
+                lin_idx = linear_index(i, j, k, 1, Xh%lx, Xh%lx, Xh%lx)
                 max_bb_x = el_x(lin_idx)
                 min_bb_x = el_x(lin_idx)
                 max_bb_y = el_y(lin_idx)
@@ -405,9 +405,9 @@ contains
     n_boxes = this%n_boxes
 
 
-    global_box_id(1) = int((x - this%min_x_global)/this%res_x,i8)
-    global_box_id(2) = int((y - this%min_y_global)/this%res_y,i8)
-    global_box_id(3) = int((z - this%min_z_global)/this%res_z,i8)
+    global_box_id(1) = int((x - this%min_x_global) / this%res_x, i8)
+    global_box_id(2) = int((y - this%min_y_global) / this%res_y, i8)
+    global_box_id(3) = int((z - this%min_z_global) / this%res_z, i8)
   end function get_global_idx
 
   function get_pe_idx(this, global_idx) result(pe_id)
@@ -415,7 +415,7 @@ contains
     integer(kind=i8), intent(in) :: global_idx
     integer :: pe_id
     !Get x id and then divide by the number of x boxes per rank to get the correct pe id
-    pe_id = global_idx/int(this%n_boxes_per_pe,i8)
+    pe_id = global_idx / int(this%n_boxes_per_pe, i8)
   end function get_pe_idx
 
 
@@ -426,13 +426,17 @@ contains
 
     if (allocated(this%send_buf)) then
        do i = 0, this%pe_size-1
-          if (allocated(this%send_buf(i)%data)) deallocate(this%send_buf(i)%data)
+          if (allocated(this%send_buf(i)%data)) then
+             deallocate(this%send_buf(i)%data)
+          end if
        end do
        deallocate(this%send_buf)
     end if
     if (allocated(this%recv_buf)) then
        do i = 0, this%pe_size-1
-          if (allocated(this%recv_buf(i)%data)) deallocate(this%recv_buf(i)%data)
+          if (allocated(this%recv_buf(i)%data)) then
+             deallocate(this%recv_buf(i)%data)
+          end if
        end do
        deallocate(this%recv_buf)
     end if
@@ -465,39 +469,14 @@ contains
     integer(i8), pointer :: pe_cands8(:) => Null()
     integer(i8), pointer :: pt_ids(:) => Null()
     integer :: ierr
-    if (allocated(work_pe_ids)) then
-       do i = 0, this%pe_size-1
-          call work_pe_ids(i)%free()
-       end do
-       deallocate(work_pe_ids)
-    end if
-    if (allocated(temp_pe_ids)) then
-       do i = 0, this%pe_size-1
-          call temp_pe_ids(i)%free()
-       end do
-       deallocate(temp_pe_ids)
-    end if
-    if (allocated(temp_pt_ids)) then
-       do i = 0, this%pe_size-1
-          call temp_pt_ids(i)%free()
-       end do
-       deallocate(temp_pt_ids)
-    end if
-    if (allocated(work_pt_ids)) then
-       do i = 0, this%pe_size-1
-          call work_pt_ids(i)%free()
-       end do
-       deallocate(work_pt_ids)
-    end if
-    if (allocated(n_work_ids)) deallocate(n_work_ids)
-    if (allocated(n_temp_ids)) deallocate(n_temp_ids)
-    !Should dellocate properly I think
+
     allocate(work_pe_ids(0:this%pe_size-1))
     allocate(work_pt_ids(0:this%pe_size-1))
     allocate(temp_pe_ids(0:this%pe_size-1))
     allocate(temp_pt_ids(0:this%pe_size-1))
     allocate(n_temp_ids(0:this%pe_size-1))
     allocate(n_work_ids(0:this%pe_size-1))
+
     do i = 0, this%pe_size-1
        n_work_ids(i) = 0
        n_temp_ids(i) = 0
@@ -511,6 +490,7 @@ contains
        call points_at_pe(i)%clear()
        n_points_pe(i) = 0
     end do
+
     ! Compute global ids for the points
     ! and the pe id for each point
     n_work_ids = 0
@@ -564,7 +544,8 @@ contains
                 n_work_ids(i) = n_work_ids(i) + 1
              end do
              if (this%pe_map(int(loc_id))%size() .lt. 1) then
-                print *, 'No PE candidates found for point:', points(1,pt_ids(j)), &
+                print *, 'No PE candidates found for point:', &
+                     points(1,pt_ids(j)), &
                      points(2,pt_ids(j)), points(3,pt_ids(j))
              end if
           end do
@@ -614,12 +595,19 @@ contains
        end do
        deallocate(work_pt_ids)
     end if
-    if (allocated(n_work_ids)) deallocate(n_work_ids)
-    if (allocated(n_temp_ids)) deallocate(n_temp_ids)
+
+    if (allocated(n_work_ids)) then
+       deallocate(n_work_ids)
+    end if
+
+    if (allocated(n_temp_ids)) then
+       deallocate(n_temp_ids)
+    end if
   end subroutine cartesian_pe_finder_find_batch
 
 
-  subroutine send_recv_data(this, recv_values, n_recv_values, send_values, n_send_values)
+  subroutine send_recv_data(this, recv_values, n_recv_values, &
+       send_values, n_send_values)
     class(cartesian_pe_finder_t), intent(inout) :: this
     type(stack_i8_t), intent(inout) :: recv_values(0:this%pe_size-1)
     type(stack_i8_t), intent(inout) :: send_values(0:this%pe_size-1)
@@ -660,6 +648,7 @@ contains
                i, 0, this%comm, this%send_buf(i)%request, ierr)
        end if
     end do
+
     do i = 0, this%pe_size-1
        call recv_values(i)%clear()
     end do
@@ -682,4 +671,3 @@ contains
 
   end subroutine send_recv_data
 end module cartesian_pe_finder
-
