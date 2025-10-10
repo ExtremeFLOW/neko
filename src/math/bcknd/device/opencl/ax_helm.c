@@ -320,6 +320,10 @@ void opencl_ax_helm_vector(void *au, void *av, void *aw,
     CASE_VECTOR(10);
     CASE_VECTOR(11);
     CASE_VECTOR(12);
+    CASE_VECTOR(13);
+    CASE_VECTOR(14);
+    CASE_VECTOR(15);
+    CASE_VECTOR(16);
   default:
     {
       fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);

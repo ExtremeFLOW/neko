@@ -143,6 +143,32 @@ module ax_helm_device
        integer(c_int) :: nelv, lx
      end subroutine opencl_ax_helm
   end interface
+
+  interface
+     subroutine opencl_ax_helm_vector(au_d, av_d, aw_d, u_d, v_d, w_d, &
+          dx_d, dy_d, dz_d, dxt_d, dyt_d, dzt_d,&
+          h1_d, g11_d, g22_d, g33_d, g12_d, g13_d, g23_d, nelv, lx) &
+          bind(c, name='opencl_ax_helm_vector')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: au_d, av_d, aw_d
+       type(c_ptr), value :: u_d, v_d, w_d
+       type(c_ptr), value :: dx_d, dy_d, dz_d
+       type(c_ptr), value :: dxt_d, dyt_d, dzt_d
+       type(c_ptr), value :: h1_d, g11_d, g22_d, g33_d, g12_d, g13_d, g23_d
+       integer(c_int) :: nelv, lx
+     end subroutine opencl_ax_helm_vector
+  end interface
+
+  interface
+     subroutine opencl_ax_helm_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
+          h2_d, B_d, n) bind(c, name='opencl_ax_helm_vector_part2')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: au_d, av_d, aw_d
+       type(c_ptr), value :: u_d, v_d, w_d
+       type(c_ptr), value :: h2_d, B_d
+       integer(c_int) :: n
+     end subroutine opencl_ax_helm_vector_part2
+  end interface  
 #endif
 
 contains
@@ -220,18 +246,8 @@ contains
          coef%G12_d, coef%G13_d, coef%G23_d, &
          msh%nelv, Xh%lx)
 #elif HAVE_OPENCL
-    call opencl_ax_helm(au_d, u_d, Xh%dx_d, Xh%dy_d, Xh%dz_d, &
-         Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, coef%h1_d, &
-         coef%G11_d, coef%G22_d, coef%G33_d, &
-         coef%G12_d, coef%G13_d, coef%G23_d, &
-         msh%nelv, Xh%lx)
-    call opencl_ax_helm(av_d, v_d, Xh%dx_d, Xh%dy_d, Xh%dz_d, &
-         Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, coef%h1_d, &
-         coef%G11_d, coef%G22_d, coef%G33_d, &
-         coef%G12_d, coef%G13_d, coef%G23_d, &
-         msh%nelv, Xh%lx)
-    call opencl_ax_helm(aw_d, w_d, Xh%dx_d, Xh%dy_d, Xh%dz_d, &
-         Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, coef%h1_d, &
+    call opencl_ax_helm_vector(au_d, av_d, aw_d, u_d, v_d, w_d, &
+         Xh%dx_d, Xh%dy_d, Xh%dz_d, Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, coef%h1_d, &
          coef%G11_d, coef%G22_d, coef%G33_d, &
          coef%G12_d, coef%G13_d, coef%G23_d, &
          msh%nelv, Xh%lx)
