@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@ module scalar_ic
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use device_math, only : device_col2
-  use device, only : device_memcpy, HOST_TO_DEVICE
+  use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
   use field, only : field_t
   use utils, only : neko_error, filename_chsuffix, filename_suffix, &
        neko_warning, NEKO_FNAME_LEN, extract_fld_file_index
@@ -366,18 +366,29 @@ contains
        class default
        end select
 
+       ! Copy all fld data to device since the reader loads everything on the host
+       call fld_data%x%copy_from(HOST_TO_DEVICE, .false.)
+       call fld_data%y%copy_from(HOST_TO_DEVICE, .false.)
+       call fld_data%z%copy_from(HOST_TO_DEVICE, .false.)
+       call fld_data%t%copy_from(HOST_TO_DEVICE, .true.)
+
        ! Generates an interpolator object and performs the point search
        call fld_data%generate_interpolator(global_interp, s%dof, s%msh, &
             tolerance)
 
        ! Evaluate scalar
+
        ! i == 0 means it's the temperature field
        if (i .ne. 0) then
-          call global_interp%evaluate(s%x, fld_data%s(i)%x)
+          call global_interp%evaluate(s%x, fld_data%s(i)%x, .false.)
        else
-          call global_interp%evaluate(s%x, fld_data%t%x)
+          call global_interp%evaluate(s%x, fld_data%t%x, .false.)
        end if
+
        call global_interp%free
+
+       ! Copy back to the host for set_scalar_ic_common
+       call fld_data%t%copy_from(DEVICE_TO_HOST, .true.)
 
     else ! No interpolation, just potentially from different spaces
 
