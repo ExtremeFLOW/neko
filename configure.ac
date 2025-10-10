@@ -185,7 +185,7 @@ AX_ADIOS2
 AX_ADIOS2_FORTRAN
 
 # Checks for gslib
-AX_GSLIB
+##AX_GSLIB
 
 # Select Working precision of REAL
 if test "x$enable_real" = xssp; then

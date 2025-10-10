@@ -29,7 +29,7 @@ Follow the steps below to install the less common dependencies (e.g. JSON-Fortra
 Download and compile, at least version 0.7.1 of JSON Fortran from the main repository.
 @note Neko requires JSON Fortran to be configured with `USE_GNU_INSTALL_CONVENTION`.
 
-``` shell
+```shell
 git clone --depth=1 https://github.com/jacobwilliams/json-fortran.git
 cd json-fortran && mkdir b && cd b
 cmake -DCMAKE_INSTALL_PREFIX=/path/to/installation -DUSE_GNU_INSTALL_CONVENTION=ON ..
@@ -38,7 +38,7 @@ make install
 Now ad the installation path to `PKG_CONFIG_PATH` (and if needed `LD_LIBRARY_PATH`).
 @note On certain systems `lib` should be substituted with `lib64`
 
-``` bash
+```bash
 export PKG_CONFIG_PATH=/path/to/installation/lib/pkgconfig:$PKG_CONFIG_PATH
 export LD_LIBRARY_PATH=/path/to/installation/lib:$LD_LIBRARY_PATH
 ```
@@ -68,7 +68,7 @@ inspecting the log in the `build` directory with `cat CMakeCache.txt | grep
 FORTRAN` to identify issues.
 
 Similar to `json-fortran`, populate relevant environmental variables.
-``` bash
+```bash
 export PATH=:/path/to/installation/bin:$PATH
 export PKG_CONFIG_PATH=/path/to/installation/lib/pkgconfig:$PKG_CONFIG_PATH
 export LD_LIBRARY_PATH=/path/to/installation/lib:$LD_LIBRARY_PATH
@@ -76,18 +76,18 @@ export LD_LIBRARY_PATH=/path/to/installation/lib:$LD_LIBRARY_PATH
 
 
 
-
+!!!
 #### Building gslib (optional)
 
 If you have a Nek5000 installation, use:
 
-``` bash
+```bash
 export GSLIB=/path/to/Nek5000/3rd_party/gslib/gslib/src
 ```
 
 If not, you should download and compile `gslib`. In a folder outside of Neko:
 
-``` shell
+```shell
 git clone https://github.com/Nek5000/gslib.git
 cd gslib
 make
@@ -95,29 +95,29 @@ make
 
 Check that `libgs.a` has been created:
 
-``` shell
+```shell
 $ ls build/lib
 libgs.a
 ```
 
 Now add the path to gslib to an environment variable `GSLIB`
 
-``` shell
+```shell
 export GSLIB=$(pwd)/build
 ```
 
 Later, when configuring Neko, add the following option to enable gslib
 
-``` shell
+```shell
  --with-gslib=${GSLIB}
 ```
 
 Make sure you see the following message during the configuration:
 
-``` shell
+```shell
 checking for fgslib_gs_setup in -lgs... yes
 ```
-
+!!!
 #### Building ParMETIS (optional)
 
 The following steps is an example on how to build and install ParMETIS
