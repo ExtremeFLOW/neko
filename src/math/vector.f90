@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2022-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,9 @@ module vector
   use device, only: device_map, device_free, device_deassociate, &
        device_memcpy, device_sync
   use math, only: cfill, copy
-  use device_math, only: device_copy, device_cfill
+  use device_math, only: device_copy, device_cfill, device_cmult, &
+       device_sub3, device_cmult2, device_add3, device_cadd2, device_col3, &
+       device_col2, device_invcol3, device_cdiv2
   use utils, only: neko_error
   use, intrinsic :: iso_c_binding
   implicit none

@@ -108,5 +108,7 @@ extern void *compute_max_wave_speed_program;
 /** Device filter kernel */
 extern void *mapping_program;
 
+/** Device find rst kernel */
+extern void *find_rst_legendre_program;
 
 #endif

@@ -117,6 +117,7 @@ fluid/bcknd/device/opencl/compressible_ops_compute_max_wave_speed.lo : fluid/bck
 fluid/bcknd/device/opencl/compressible_ops_compute_entropy.lo : fluid/bcknd/device/opencl/compressible_ops_compute_entropy.c fluid/bcknd/device/opencl/compressible_ops_compute_entropy_kernel.cl.h
 scalar/bcknd/device/opencl/scalar_residual.lo : scalar/bcknd/device/opencl/scalar_residual.c scalar/bcknd/device/opencl/scalar_residual_kernel.cl.h
 sem/bcknd/device/opencl/coef.lo : sem/bcknd/device/opencl/coef.c sem/bcknd/device/opencl/coef_kernel.cl.h
+sem/bcknd/device/opencl/local_interpolation.lo : sem/bcknd/device/opencl/local_interpolation.c sem/bcknd/device/opencl/local_interpolation_kernel.cl.h
 filter/bcknd/device/cuda/mappings.lo : filter/bcknd/device/cuda/mappings.cu filter/bcknd/device/cuda/mapping_kernels.h
 filter/bcknd/device/hip/mappings.lo : filter/bcknd/device/hip/mappings.hip filter/bcknd/device/hip/mapping_kernels.h
 filter/bcknd/device/opencl/mappings.lo : filter/bcknd/device/opencl/mappings.c filter/bcknd/device/opencl/mapping_kernels.cl.h

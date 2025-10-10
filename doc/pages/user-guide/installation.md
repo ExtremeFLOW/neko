@@ -18,7 +18,7 @@ guidelines.
 
 ## Building from source
 
-To build Neko, you will need a Fortran compiler supporting the Fortran-08 standard, autotools, libtool, pkg-config, a working MPI installation supporting the Fortran 2008 bindings (`mpi_f08`), BLAS/LAPACK and JSON-Fortran. Optional dependencies are PFunit, gslib, HDF5 and ParMETIS.
+To build Neko, you will need a Fortran compiler supporting the Fortran-08 standard, autotools, libtool, pkg-config, a working MPI installation supporting the Fortran 2008 bindings (`mpi_f08`), BLAS/LAPACK and JSON-Fortran. Optional dependencies are PFunit, HDF5 and ParMETIS.
 
 Follow the steps below to install the less common dependencies (e.g. JSON-Fortran).
 
@@ -29,7 +29,7 @@ Follow the steps below to install the less common dependencies (e.g. JSON-Fortra
 Download and compile, at least version 0.7.1 of JSON Fortran from the main repository.
 @note Neko requires JSON Fortran to be configured with `USE_GNU_INSTALL_CONVENTION`.
 
-``` shell
+```shell
 git clone --depth=1 https://github.com/jacobwilliams/json-fortran.git
 cd json-fortran && mkdir b && cd b
 cmake -DCMAKE_INSTALL_PREFIX=/path/to/installation -DUSE_GNU_INSTALL_CONVENTION=ON ..
@@ -38,7 +38,7 @@ make install
 Now ad the installation path to `PKG_CONFIG_PATH` (and if needed `LD_LIBRARY_PATH`).
 @note On certain systems `lib` should be substituted with `lib64`
 
-``` bash
+```bash
 export PKG_CONFIG_PATH=/path/to/installation/lib/pkgconfig:$PKG_CONFIG_PATH
 export LD_LIBRARY_PATH=/path/to/installation/lib:$LD_LIBRARY_PATH
 ```
@@ -68,54 +68,10 @@ inspecting the log in the `build` directory with `cat CMakeCache.txt | grep
 FORTRAN` to identify issues.
 
 Similar to `json-fortran`, populate relevant environmental variables.
-``` bash
+```bash
 export PATH=:/path/to/installation/bin:$PATH
 export PKG_CONFIG_PATH=/path/to/installation/lib/pkgconfig:$PKG_CONFIG_PATH
 export LD_LIBRARY_PATH=/path/to/installation/lib:$LD_LIBRARY_PATH
-```
-
-
-
-
-#### Building gslib (optional)
-
-If you have a Nek5000 installation, use:
-
-``` bash
-export GSLIB=/path/to/Nek5000/3rd_party/gslib/gslib/src
-```
-
-If not, you should download and compile `gslib`. In a folder outside of Neko:
-
-``` shell
-git clone https://github.com/Nek5000/gslib.git
-cd gslib
-make
-```
-
-Check that `libgs.a` has been created:
-
-``` shell
-$ ls build/lib
-libgs.a
-```
-
-Now add the path to gslib to an environment variable `GSLIB`
-
-``` shell
-export GSLIB=$(pwd)/build
-```
-
-Later, when configuring Neko, add the following option to enable gslib
-
-``` shell
- --with-gslib=${GSLIB}
-```
-
-Make sure you see the following message during the configuration:
-
-``` shell
-checking for fgslib_gs_setup in -lgs... yes
 ```
 
 #### Building ParMETIS (optional)
@@ -170,8 +126,7 @@ Optional packages are controlled by passing either `--with-PACKAGE[=ARG]` or `--
 | `--with-parmetis=DIR`           | Compile with support for parmetis library     |
 | `--with-parmetis-libdir=LIBDIR` | Directory for parmetis library (if different) |
 | `--with-adios2=DIR`             | Compile with support for ADIOS2               |
-| `--with-adios2-fortran=DIR`     | Compile with support for ADIOS2 with Fortran  |
-| `--with-gslib=DIR`              | Compile with support for gslib                |
+| `--with-adios2-fortran=DIR`     | Compile with support for ADIOS2 with Fortran  |              |
 | `--with-libxsmm`                | Compile with support for libxsmm              |
 | `--with-hip=DIR`                | Compile with HIP backend                      |
 | `--with-cuda=DIR`               | Compile with CUDA backend                     |
@@ -271,7 +226,7 @@ pixi run install-neko-cpu
 ```
 
 This will give you a double-precision CPU build charged with all optional
-dependencies: hdf5, gslib, and parmetis. For now, this is the only configuration
+dependencies: hdf5, and parmetis. For now, this is the only configuration
 that can be installed automatically with pixi.
 
 To use Neko, you need to drop into a shell, where the pixi environment will be
