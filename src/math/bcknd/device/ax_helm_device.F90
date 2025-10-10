@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -168,7 +168,7 @@ module ax_helm_device
        type(c_ptr), value :: h2_d, B_d
        integer(c_int) :: n
      end subroutine opencl_ax_helm_vector_part2
-  end interface  
+  end interface
 #endif
 
 contains
