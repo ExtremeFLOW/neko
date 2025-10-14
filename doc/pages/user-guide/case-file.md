@@ -527,12 +527,27 @@ The following types are currently implemented.
 
    The geostrophic wind is set to 0 for all components by default. Other values
    are set via the `geostrophic_wind` keyword.
-4. `user_pointwise`, the values are set inside the compiled user file, using the
+4. `centrifugal`, a source term introducing a centrifugal force, defined as \f$ -
+   \Omega \times (\Omega \times r) \f$. Here, \f$ \Omega \f$ is the rotation
+   vector and \f$ r \f$ is the position relative to the reference point, which
+   is any point lying on the rotation axis. To define forcing one has to provide
+   \f$ \Omega \f$ and the reference point. This is provided via the following
+   keywords.
+
+   - `rotation_vector`: Array with 3 values. Directly assigns \f$ \Omega \f$ to
+     the provided vector.
+   - `reference_point`: Array with 3 values. Deifines any point on the rotaion
+   axis.
+
+5. `user_pointwise`, the values are set inside the compiled user file, using the
    pointwise user file subroutine. Only works on CPUs!
-5. `user_vector`, the values are set inside the compiled user file, using the
+6. `user_vector`, the values are set inside the compiled user file, using the
    non-pointwise user file subroutine. Should be used when running on the GPU.
-6. `brinkman`, Brinkman permeability forcing inside a pre-defined region.
-7. `gradient_jump_penalty`, perform gradient_jump_penalisation.
+7. `brinkman`, Brinkman permeability forcing inside a pre-defined region.
+8. `gradient_jump_penalty`, perform gradient_jump_penalisation.
+
+@note Notice that to perform simulation in a rotating reference frame one has to
+define both `coriolis` and `centrifugal` source terms in a consistent way.
 
 #### Brinkman
 The Brinkman source term introduces regions of resistance in the fluid domain.
