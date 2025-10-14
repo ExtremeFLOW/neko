@@ -970,6 +970,9 @@ contains
 !     This next statement is to overcome the underflow bug in the i860.
 !     It can be removed at a later date.  11 Aug 1990   pff.
 !
+!    IMPLICIT REAL(KIND=XP) (A-H,O-Z)
+!    REAL(KIND=XP) Z, P1, P2, P3
+!    !IF(ABS(Z) .LT. 1.0E-25) Z = 0.0
 
     real(kind=xp), intent(in) :: Z
     integer, intent(in) :: N

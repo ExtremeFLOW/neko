@@ -123,9 +123,7 @@ contains
     end if
 #endif
 
-    if (present(name)) then
-       call neko_rt_stats%end_region(name, region_id)
-    end if
+    call neko_rt_stats%end_region(name, region_id)
 
   end subroutine profiler_end_region
 

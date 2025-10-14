@@ -162,6 +162,8 @@ Used to define the properties of the numerical discretization.
 | `time_order`                 | The order of the time integration scheme. Refer to the `time_scheme_controller` type documentation for details. | 1, 2, 3                    | -                               |
 | `dealias`                    | Whether to apply dealiasing to advection terms.                                                                 | `true` or `false`          | `false`                         |
 | `dealiased_polynomial order` | The polynomial order in the higher-order space used in the dealising.                                           | Integer                    | `3/2(polynomial_order + 1) - 1` |
+| `oifs`                       | Whether to apply the Operator-Integration-Factor-Splitting (OIFS).                                              | `true` or `false`          | `false`                         |
+| `oifs_target_cfl`            | The desired OIFS-CFL number. Requires variable_timestep = true in the time control object.                      | Positive real              | `1.9`                           |
 
 ## Fluid
 

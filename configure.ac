@@ -185,7 +185,7 @@ AX_ADIOS2
 AX_ADIOS2_FORTRAN
 
 # Checks for gslib
-AX_GSLIB
+##AX_GSLIB
 
 # Select Working precision of REAL
 if test "x$enable_real" = xssp; then
@@ -402,6 +402,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/space/Makefile\
         tests/unit/dofmap/Makefile\
         tests/unit/field/Makefile\
+        tests/unit/global_interpolation/Makefile\
         tests/unit/mean_field/Makefile\
         tests/unit/gather_scatter/Makefile\
         tests/unit/krylov/Makefile\

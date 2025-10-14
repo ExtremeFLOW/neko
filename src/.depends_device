@@ -97,6 +97,7 @@ math/bcknd/device/opencl/opr_opgrad.lo : math/bcknd/device/opencl/opr_opgrad.c m
 math/bcknd/device/opencl/opr_lambda2.lo : math/bcknd/device/opencl/opr_lambda2.c math/bcknd/device/opencl/lambda2_kernel.cl.h
 math/bcknd/device/opencl/opr_cfl.lo : math/bcknd/device/opencl/opr_cfl.c math/bcknd/device/opencl/cfl_kernel.cl.h
 math/bcknd/device/opencl/ax_helm.lo : math/bcknd/device/opencl/ax_helm.c math/bcknd/device/opencl/ax_helm_kernel.cl.h
+math/bcknd/device/opencl/ax_helm_full.lo : math/bcknd/device/opencl/ax_helm_full.c math/bcknd/device/opencl/ax_helm_full_kernel.cl.h
 krylov/bcknd/device/opencl/pc_jacobi.lo : krylov/bcknd/device/opencl/pc_jacobi.c krylov/bcknd/device/opencl/jacobi_kernel.cl.h
 gs/bcknd/device/opencl/gs.lo : gs/bcknd/device/opencl/gs.c gs/bcknd/device/opencl/gs_kernels.cl.h
 bc/bcknd/device/opencl/dirichlet.lo : bc/bcknd/device/opencl/dirichlet.c bc/bcknd/device/opencl/dirichlet_kernel.cl.h
@@ -110,11 +111,13 @@ bc/bcknd/device/opencl/inhom_dirichlet.lo : bc/bcknd/device/opencl/inhom_dirichl
 bc/bcknd/device/opencl/dong_outflow.lo : bc/bcknd/device/opencl/dong_outflow.c bc/bcknd/device/opencl/dong_outflow_kernel.cl.h
 common/bcknd/device/opencl/rhs_maker.lo : common/bcknd/device/opencl/rhs_maker.c common/bcknd/device/opencl/rhs_maker_kernel.cl.h
 fluid/bcknd/device/opencl/pnpn_res.lo : fluid/bcknd/device/opencl/pnpn_res.c fluid/bcknd/device/opencl/pnpn_res_kernel.cl.h
+fluid/stress_formulation/bcknd/device/opencl/pnpn_stress_res.lo : fluid/stress_formulation/bcknd/device/opencl/pnpn_stress_res.c fluid/stress_formulation/bcknd/device/opencl/prs_stress_res_kernel.cl.h
 fluid/bcknd/device/opencl/euler_res.lo : fluid/bcknd/device/opencl/euler_res.c fluid/bcknd/device/opencl/euler_res_kernel.cl.h
 fluid/bcknd/device/opencl/compressible_ops_compute_max_wave_speed.lo : fluid/bcknd/device/opencl/compressible_ops_compute_max_wave_speed.c fluid/bcknd/device/opencl/compressible_ops_compute_max_wave_speed_kernel.cl.h
 fluid/bcknd/device/opencl/compressible_ops_compute_entropy.lo : fluid/bcknd/device/opencl/compressible_ops_compute_entropy.c fluid/bcknd/device/opencl/compressible_ops_compute_entropy_kernel.cl.h
 scalar/bcknd/device/opencl/scalar_residual.lo : scalar/bcknd/device/opencl/scalar_residual.c scalar/bcknd/device/opencl/scalar_residual_kernel.cl.h
 sem/bcknd/device/opencl/coef.lo : sem/bcknd/device/opencl/coef.c sem/bcknd/device/opencl/coef_kernel.cl.h
+sem/bcknd/device/opencl/local_interpolation.lo : sem/bcknd/device/opencl/local_interpolation.c sem/bcknd/device/opencl/local_interpolation_kernel.cl.h
 filter/bcknd/device/cuda/mappings.lo : filter/bcknd/device/cuda/mappings.cu filter/bcknd/device/cuda/mapping_kernels.h
 filter/bcknd/device/hip/mappings.lo : filter/bcknd/device/hip/mappings.hip filter/bcknd/device/hip/mapping_kernels.h
 filter/bcknd/device/opencl/mappings.lo : filter/bcknd/device/opencl/mappings.c filter/bcknd/device/opencl/mapping_kernels.cl.h
