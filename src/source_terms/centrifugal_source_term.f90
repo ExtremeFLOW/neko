@@ -100,7 +100,7 @@ contains
        call json_get(json, "rotation_vector", rotation_vec)
     else
        call neko_error("Specify rotation_vector &
-       & for the centrifugal source term.")
+       &for the centrifugal source term.")
     end if
 
     if (json%valid_path("reference_point")) then
