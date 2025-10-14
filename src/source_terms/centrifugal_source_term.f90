@@ -107,7 +107,7 @@ contains
        call json_get(json, "reference_point", ref_point)
     else
        call neko_error("Specify reference_point &
-       & for the centrifugal source term.")
+       &for the centrifugal source term.")
     end if
 
     call centrifugal_source_term_init_from_components(this, fields, &
