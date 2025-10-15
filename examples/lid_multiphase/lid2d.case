@@ -67,6 +67,7 @@
             "name": "phase",
             "epsilon": 0.1,
             "gamma": 0.001,
+            "sigma": 0.01,
             "initial_condition": {
                 "type": "user"
             },

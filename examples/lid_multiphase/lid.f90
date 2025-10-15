@@ -21,7 +21,7 @@ module user
   integer :: ipostproc ! frequency of the output
 
   real(kind=rp) :: eps
-  real(kind=rp) :: gamma, u_max
+  real(kind=rp) :: gamma, u_max, sigma
 
 contains
 
@@ -49,6 +49,7 @@ contains
 
     call json_get(params, "case.scalar.epsilon",eps)
     call json_get(params, "case.scalar.gamma", gamma)
+    call json_get(params, "case.scalar.sigma", sigma)
     u_max = 1.0_rp
   end subroutine startup
 
@@ -197,66 +198,146 @@ contains
 
     integer :: i
     type(field_t), pointer :: rhs_s, s
+
+    type(field_t), pointer :: u, v, w, rhs_u, rhs_v, rhs_w
+    type(field_t), pointer :: temp1, temp2, temp3, temp4, temp5, temp6, temp7
+
     real(kind=rp) :: absgrad
-    integer :: ind(4)
+    integer :: ind(7)
     type(field_t), pointer :: work1, work2, work3, work4
     type(coef_t), pointer :: coef
 
     ! Only apply forcing to the scalar equation (phase)
-    if (scheme_name .ne. 'phase') return
+    if (scheme_name .eq. 'phase') then
 
-    ! Get the right-hand side field for the scalar
-    rhs_s => rhs%get_by_index(1)  ! scalar field
-    
-    ! Get the scalar field and coefficients
-    s => neko_field_registry%get_field('phase')
-    coef => neko_user_access%case%fluid%c_Xh
-
-    ! Request scratch fields
-    call neko_scratch_registry%request_field(work1, ind(1))
-    call neko_scratch_registry%request_field(work2, ind(2))
-    call neko_scratch_registry%request_field(work3, ind(3))
-    call neko_scratch_registry%request_field(work4, ind(4))
+      ! Get the right-hand side field for the scalar
+      rhs_s => rhs%get_by_index(1)  ! scalar field
       
-    ! Compute gradient of scalar field
-    call grad(work1%x, work2%x, work3%x, s%x, coef)
-    
-    ! Apply gather-scatter and multiplicity
-    call coef%gs_h%op(work1, GS_OP_ADD)
-    call coef%gs_h%op(work2, GS_OP_ADD)
-    call coef%gs_h%op(work3, GS_OP_ADD)
-    call col2(work1%x, coef%mult, work4%size())
-    call col2(work2%x, coef%mult, work4%size())
-    call col2(work3%x, coef%mult, work4%size())
+      ! Get the scalar field and coefficients
+      s => neko_field_registry%get_field('phase')
+      coef => neko_user_access%case%fluid%c_Xh
 
-    ! Compute normalized gradient and apply phase field forcing
-    do i = 1, work4%size()
-       absgrad = sqrt(work1%x(i,1,1,1)**2+work2%x(i,1,1,1)**2+work3%x(i,1,1,1)**2)
-       if (absgrad == 0.0_rp) then 
-          print *, 'warning, absgrad==', absgrad
-          absgrad = 1e21_rp
-       end if
-          
-       work1%x(i,1,1,1) = - s%x(i,1,1,1)*(1.0_rp-s%x(i,1,1,1))*(work1%x(i,1,1,1)/absgrad)
-       work2%x(i,1,1,1) = - s%x(i,1,1,1)*(1.0_rp-s%x(i,1,1,1))*(work2%x(i,1,1,1)/absgrad)
-       work3%x(i,1,1,1) = - s%x(i,1,1,1)*(1.0_rp-s%x(i,1,1,1))*(work3%x(i,1,1,1)/absgrad)
-    end do
+      ! Request scratch fields
+      call neko_scratch_registry%request_field(work1, ind(1))
+      call neko_scratch_registry%request_field(work2, ind(2))
+      call neko_scratch_registry%request_field(work3, ind(3))
+      call neko_scratch_registry%request_field(work4, ind(4))
+        
+      ! Compute gradient of scalar field
+      call grad(work1%x, work2%x, work3%x, s%x, coef)
+      
+      ! Apply gather-scatter and multiplicity
+      call coef%gs_h%op(work1, GS_OP_ADD)
+      call coef%gs_h%op(work2, GS_OP_ADD)
+      call coef%gs_h%op(work3, GS_OP_ADD)
+      call col2(work1%x, coef%mult, work4%size())
+      call col2(work2%x, coef%mult, work4%size())
+      call col2(work3%x, coef%mult, work4%size())
 
-    ! Compute divergence of the normalized gradient
-    call dudxyz(work4%x, work1%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    call copy(rhs_s%x, work4%x, work4%size())
-    call dudxyz(work4%x, work2%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    call add2(rhs_s%x, work4%x, work4%size())
-    call dudxyz(work4%x, work3%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
-    call add2(rhs_s%x, work4%x, work4%size())
-    
-    ! Scale by gamma * u_max
-    absgrad = gamma * u_max
-    call cmult(rhs_s%x, absgrad, work4%size())
+      ! Compute normalized gradient and apply phase field forcing
+      do i = 1, work4%size()
+        absgrad = sqrt(work1%x(i,1,1,1)**2+work2%x(i,1,1,1)**2+work3%x(i,1,1,1)**2)
+        if (absgrad == 0.0_rp) then 
+            print *, 'warning, absgrad==', absgrad
+            absgrad = 1e21_rp
+        end if
+            
+        work1%x(i,1,1,1) = - s%x(i,1,1,1)*(1.0_rp-s%x(i,1,1,1))*(work1%x(i,1,1,1)/absgrad)
+        work2%x(i,1,1,1) = - s%x(i,1,1,1)*(1.0_rp-s%x(i,1,1,1))*(work2%x(i,1,1,1)/absgrad)
+        work3%x(i,1,1,1) = - s%x(i,1,1,1)*(1.0_rp-s%x(i,1,1,1))*(work3%x(i,1,1,1)/absgrad)
+      end do
 
-    ! Release scratch fields
-    call neko_scratch_registry%relinquish_field(ind)
+      ! Compute divergence of the normalized gradient
+      call dudxyz(work4%x, work1%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+      call copy(rhs_s%x, work4%x, work4%size())
+      call dudxyz(work4%x, work2%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+      call add2(rhs_s%x, work4%x, work4%size())
+      call dudxyz(work4%x, work3%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+      call add2(rhs_s%x, work4%x, work4%size())
+      
+      ! Scale by gamma * u_max
+      absgrad = gamma * u_max
+      call cmult(rhs_s%x, absgrad, work4%size())
 
+      ! Release scratch fields
+      call neko_scratch_registry%relinquish_field(ind)
+
+    ! Only apply forcing to the momentum equation (fluid)
+    else if (scheme_name .eq. 'fluid') then
+
+      ! Get fields
+      s => neko_field_registry%get_field('phase')
+      coef => neko_user_access%case%fluid%c_Xh
+
+      rhs_u => rhs%get_by_index(1)
+      rhs_v => rhs%get_by_index(2)
+      rhs_w => rhs%get_by_index(3)
+
+      ! Request scratch fields
+      call neko_scratch_registry%request_field(temp1, ind(1))
+      call neko_scratch_registry%request_field(temp2, ind(2))
+      call neko_scratch_registry%request_field(temp3, ind(3))
+      call neko_scratch_registry%request_field(temp4, ind(4))
+      call neko_scratch_registry%request_field(temp5, ind(5))
+      call neko_scratch_registry%request_field(temp6, ind(6))
+      call neko_scratch_registry%request_field(temp7, ind(7))
+
+      ! Compute gradient of phase field ∇φ
+      call grad(temp1%x, temp2%x, temp3%x, s%x, coef)
+
+      ! Apply gather-scatter and multiplicity for continuity
+      call coef%gs_h%op(temp1, GS_OP_ADD)
+      call coef%gs_h%op(temp2, GS_OP_ADD)
+      call coef%gs_h%op(temp3, GS_OP_ADD)
+      call col2(temp1%x, coef%mult, temp4%size())
+      call col2(temp2%x, coef%mult, temp4%size())
+      call col2(temp3%x, coef%mult, temp4%size())
+
+      ! Store ∇φ for later (we need it at the end)
+      call copy(temp5%x, temp1%x, temp4%size())  ! temp5 = ∂φ/∂x
+      call copy(temp6%x, temp2%x, temp4%size())  ! temp6 = ∂φ/∂y
+      call copy(temp7%x, temp3%x, temp4%size())  ! temp6 = ∂φ/∂z
+
+      ! Compute normalized gradient n = ∇φ/|∇φ|
+      do i = 1, temp4%size()
+        absgrad = sqrt(temp1%x(i,1,1,1)**2 + temp2%x(i,1,1,1)**2 + temp3%x(i,1,1,1)**2)
+        if (absgrad < 1.0e-12_rp) then 
+            ! Avoid division by zero in bulk phases
+            temp1%x(i,1,1,1) = 0.0_rp
+            temp2%x(i,1,1,1) = 0.0_rp
+            temp3%x(i,1,1,1) = 0.0_rp
+        else
+            temp1%x(i,1,1,1) = temp1%x(i,1,1,1) / absgrad  ! nx
+            temp2%x(i,1,1,1) = temp2%x(i,1,1,1) / absgrad  ! ny
+            temp3%x(i,1,1,1) = temp3%x(i,1,1,1) / absgrad  ! nz
+        end if
+      end do
+
+      ! Compute curvature κ = ∇·n
+      call div(temp4%x,temp1%x, temp2%x,temp2%x,coef)
+      ! call dudxyz(temp4%x, temp1%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+
+      call copy(temp1%x, temp4%x, temp4%size())
+      ! ! Store it temporarily before we accumulate
+
+      ! Now temp1 contains κ = ∇·n (curvature)
+
+      ! Compute surface tension force F_ST = σ κ ∇φ
+      ! Multiply curvature by each gradient component and sigma
+      do i = 1, temp4%size()
+        temp5%x(i,1,1,1) = sigma * temp1%x(i,1,1,1) * temp5%x(i,1,1,1)  ! σκ(∂φ/∂x)
+        temp6%x(i,1,1,1) = sigma * temp1%x(i,1,1,1) * temp6%x(i,1,1,1)  ! σκ(∂φ/∂y)
+        temp7%x(i,1,1,1) = sigma * temp1%x(i,1,1,1) * temp7%x(i,1,1,1)  ! σκ(∂φ/∂z)
+      end do
+
+      ! Add surface tension force to momentum equations
+      call add2(rhs_u%x, temp5%x, temp4%size())
+      call add2(rhs_v%x, temp6%x, temp4%size())
+      call add2(rhs_w%x, temp7%x, temp4%size())
+
+      ! Release scratch fields
+      call neko_scratch_registry%relinquish_field(ind)
+    end if
   end subroutine source_term
 
   ! User-defined material properties
