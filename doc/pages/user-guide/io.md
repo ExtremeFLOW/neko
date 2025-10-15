@@ -43,6 +43,10 @@ some metadata. Users may also find the Python package
 working with `.f#####`s. Note that only the first output `.f#####` file stores the
 mesh. Detailded description of the file format can be found in
 [Nek5000 documentation](https://nek5000.github.io/NekDoc/problem_setup/case_files.html#restart-output-files-f).
+Notice, for brievity in this manual we often call `.f#####` file format an `.fld` one
+and in some cases Neko even outputs files with `.fld` extension. However, in all cases
+we refer to the binary `.f#####` format and not to the Nek5000 text file format with
+the same extension.
 
 ### Compression of field output
 Neko supports compression of the 3D field data when writing through the ADIOS2.
