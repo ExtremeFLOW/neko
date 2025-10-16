@@ -134,7 +134,7 @@ contains
     ! Shuffle rand_order using Fisher-Yates algorithm
     do i = n_elements, 2, -1
        call random_number(r)
-       j = int(r * real(i,kind=rp)) + 1
+       j = int(r * real(i, kind=rp)) + 1
        tmp = rand_order(i)
        rand_order(i) = rand_order(j)
        rand_order(j) = tmp
@@ -614,9 +614,9 @@ contains
              is_aggregated(nhbr_id) = naggs
              aggregate_size(naggs) = 2
           else! singleton, in theory we want to avoid
-            naggs = naggs + 1
-            is_aggregated(i) = naggs
-            aggregate_size(naggs) = 1
+             naggs = naggs + 1
+             is_aggregated(i) = naggs
+             aggregate_size(naggs) = 1
           endif
        end if! is_aggregated(i)
     end do
