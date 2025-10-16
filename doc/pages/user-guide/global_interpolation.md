@@ -1,4 +1,4 @@
-# Documentation: `global_interpolation` Module {#global-interpolation}
+# Global Interpolation {#global-interpolation}
 
 ## Overview
 
