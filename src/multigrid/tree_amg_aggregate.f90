@@ -129,15 +129,15 @@ contains
     ! Initialize a random permutation
     allocate( rand_order( n_elements ) )
     do i = 1, n_elements
-      rand_order(i) = i
+       rand_order(i) = i
     end do
     ! Shuffle rand_order using Fisher-Yates algorithm
     do i = n_elements, 2, -1
-      call random_number(r)
-      j = int(r * real(i,kind=rp)) + 1
-      tmp = rand_order(i)
-      rand_order(i) = rand_order(j)
-      rand_order(j) = tmp
+       call random_number(r)
+       j = int(r * real(i,kind=rp)) + 1
+       tmp = rand_order(i)
+       rand_order(i) = rand_order(j)
+       rand_order(j) = tmp
     end do
 
 !-----!    do while (naggs .le. max_aggs)
@@ -576,49 +576,49 @@ contains
     ! Initialize a random permutation
     allocate( rand_order( n_elements ) )
     do i = 1, n_elements
-      rand_order(i) = i
+       rand_order(i) = i
     end do
     ! Shuffle rand_order using Fisher-Yates algorithm
     do i = n_elements, 2, -1
-      call random_number(r)
-      j = int(r * real(i,kind=rp)) + 1
-      tmp = rand_order(i)
-      rand_order(i) = rand_order(j)
-      rand_order(j) = tmp
+       call random_number(r)
+       j = int(r * real(i,kind=rp)) + 1
+       tmp = rand_order(i)
+       rand_order(i) = rand_order(j)
+       rand_order(j) = tmp
     end do
 
     naggs = 0
     ! first pass of pair agg
     do tmp = 1, n_elements
-      i = rand_order(tmp)
-      if (is_aggregated(i) .eq. -1) then
-        nhbr_id = -1
-        nhbr_msr = -1.0_rp
-        nhbr_tst = -1.0_rp
-        do side = 1, n_facet
-          nhbr = facet_neigh(side, i) - offset_el
-          if ((nhbr .gt. 0).and.(nhbr .le. n_elements)) then ! nhbr exists
-            if (is_aggregated(nhbr) .eq. -1) then
-              nhbr_tst = 1.0_rp! insert desired metric here
-              if (nhbr_tst .gt. nhbr_msr) then! if nhbr has goodest metric
-                nhbr_id = nhbr
-                nhbr_msr = nhbr_tst
-              end if
-            end if! is_aggregated(nhbr)
-          end if! nhbr exists
-        end do! side
+       i = rand_order(tmp)
+       if (is_aggregated(i) .eq. -1) then
+          nhbr_id = -1
+          nhbr_msr = -1.0_rp
+          nhbr_tst = -1.0_rp
+          do side = 1, n_facet
+             nhbr = facet_neigh(side, i) - offset_el
+             if ((nhbr .gt. 0).and.(nhbr .le. n_elements)) then ! nhbr exists
+                if (is_aggregated(nhbr) .eq. -1) then
+                   nhbr_tst = 1.0_rp! insert desired metric here
+                   if (nhbr_tst .gt. nhbr_msr) then! if nhbr has goodest metric
+                      nhbr_id = nhbr
+                      nhbr_msr = nhbr_tst
+                   end if
+                end if! is_aggregated(nhbr)
+             end if! nhbr exists
+          end do! side
 
-        if (nhbr_id .ne. -1) then
-          naggs = naggs + 1
-          is_aggregated(i) = naggs
-          is_aggregated(nhbr_id) = naggs
-          aggregate_size(naggs) = 2
-        else! singleton, in theory we want to avoid
-          naggs = naggs + 1
-          is_aggregated(i) = naggs
-          aggregate_size(naggs) = 1
-        endif
-      end if! is_aggregated(i)
+          if (nhbr_id .ne. -1) then
+             naggs = naggs + 1
+             is_aggregated(i) = naggs
+             is_aggregated(nhbr_id) = naggs
+             aggregate_size(naggs) = 2
+          else! singleton, in theory we want to avoid
+            naggs = naggs + 1
+            is_aggregated(i) = naggs
+            aggregate_size(naggs) = 1
+          endif
+       end if! is_aggregated(i)
     end do
     call agg_fill_nhbr_info( agg_nhbr, n_agg_nhbr, n_elements, &
          facet_neigh, offset_el, n_facet, is_aggregated, aggregate_size)
