@@ -131,7 +131,7 @@ contains
     call neko_log%message(log_buf)
 
     call json_get_or_default(json, "padding", aabb_padding, 0.125_rp)
-    write(log_buf, '(A,f5.2)') 'Padding    : ', this%rmax
+    write(log_buf, '(A,f5.2)') 'Padding    : ', aabb_padding
     call neko_log%message(log_buf)
     
     call json_get_or_default(json, "power_parameter", this%pwr_param, 0.5_rp)
