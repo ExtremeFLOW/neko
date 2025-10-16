@@ -1,0 +1,12 @@
+#!/bin/sh
+if which mpirun >/dev/null; then
+    mpirun -np 2 ./global_interpolation/global_interpolation_suite
+    export GLOB_INTERP_PE_FINDER="unsafe"
+    export GLOB_INTERP_EL_FINDER="unsafe"
+    mpirun -np 2 ./global_interpolation/global_interpolation_suite
+else
+    mpiexec -np 2 ./global_interpolation/global_interpolation_suite
+    export GLOB_INTERP_PE_FINDER="unsafe"
+    export GLOB_INTERP_EL_FINDER="unsafe"
+    mpiexec -np 2 ./global_interpolation/global_interpolation_suite
+fi

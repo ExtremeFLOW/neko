@@ -67,9 +67,9 @@ __kernel void sumab_kernel(__global real * __restrict__ u,
       u[i] = u[i] + ab3 * ulag2[i];
       v[i] = v[i] + ab3 * vlag2[i];
       w[i] = w[i] + ab3 * wlag2[i];
-    } 
+    }
   }
-  
+
 }
 
 __kernel void makeext_kernel(__global real * __restrict__ abx1,
@@ -86,7 +86,7 @@ __kernel void makeext_kernel(__global real * __restrict__ abx1,
                              const real ab2,
                              const real ab3,
                              const int n) {
-  
+
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
 
@@ -106,7 +106,7 @@ __kernel void makeext_kernel(__global real * __restrict__ abx1,
     bfy[i] = (ab1 * bfy[i] + ta2_val) * rho;
     bfz[i] = (ab1 * bfz[i] + ta3_val) * rho;
   }
-    
+
 }
 
 __kernel void scalar_makeext_kernel(__global real * __restrict__ fs_lag,
@@ -117,7 +117,7 @@ __kernel void scalar_makeext_kernel(__global real * __restrict__ fs_lag,
                                     const real ext2,
                                     const real ext3,
                                     const int n) {
-  
+
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
 
@@ -129,7 +129,7 @@ __kernel void scalar_makeext_kernel(__global real * __restrict__ fs_lag,
 
     fs[i] = (ext1 * fs[i] + ta1_val) * rho;
   }
-    
+
 }
 
 __kernel void makebdf_kernel(__global const real * __restrict__ ulag1,
@@ -174,12 +174,12 @@ __kernel void makebdf_kernel(__global const real * __restrict__ ulag1,
       tb2_val += vlag2[i] * B[i] * bd4;
       tb3_val += wlag2[i] * B[i] * bd4;
     }
-    
+
     bfx[i] = bfx[i] + tb1_val * (rho / dt);
     bfy[i] = bfy[i] + tb2_val * (rho / dt);
     bfz[i] = bfz[i] + tb3_val * (rho / dt);
   }
-  
+
 }
 
 __kernel void scalar_makebdf_kernel(__global const real * __restrict__ s_lag,
@@ -208,10 +208,48 @@ __kernel void scalar_makebdf_kernel(__global const real * __restrict__ s_lag,
     if (nbd == 3) {
       tb1_val += s_laglag[i] * B[i] * bd4;
     }
-    
+
     fs[i] = fs[i] + tb1_val * (rho / dt);
   }
-  
+
+}
+
+__kernel void makeoifs_kernel(__global const real * __restrict__ phi_x,
+                             __global const real * __restrict__ phi_y,
+                             __global const real * __restrict__ phi_z,
+                             __global real * __restrict__ bf_x,
+                             __global real * __restrict__ bf_y,
+                             __global real * __restrict__ bf_z,
+                             const real rho,
+                             const real dt,
+                             const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) {
+
+    bf_x[i] = bf_x[i] + phi_x[i] * (rho / dt);
+    bf_y[i] = bf_y[i] + phi_y[i] * (rho / dt);
+    bf_z[i] = bf_z[i] + phi_z[i] * (rho / dt);
+  }
+
+}
+
+__kernel void scalar_makeoifs_kernel(__global const real * __restrict__ phi_s,
+                                    __global real * __restrict__ bf_s,
+                                    const real rho,
+                                    const real dt,
+                                    const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) {
+
+    bf_s[i] = bf_s[i] + phi_s[i] * (rho / dt);
+  }
+
 }
 
 

@@ -42,7 +42,8 @@ module gmres
   use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, rone, copy, sub2, cmult2, abscmp
   use neko_config, only : NEKO_BLK_SIZE
-  use comm
+  use comm, only : NEKO_COMM, MPI_EXTRA_PRECISION
+  use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
   implicit none
   private
 
@@ -180,6 +181,7 @@ contains
 
     conv = .false.
     iter = 0
+    rnorm = 0.0_rp
 
     if (present(niter)) then
        max_iter = niter
@@ -214,7 +216,7 @@ contains
             ksp_results%res_start = gam(1) * norm_fac
          end if
 
-         if (abscmp(gam(1), 0.0_xp)) return
+         if (abscmp(gam(1), 0.0_xp)) exit
 
          rnorm = 0.0_rp
          temp = 1.0_rp / gam(1)

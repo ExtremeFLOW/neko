@@ -139,7 +139,7 @@ __global__ void cfill_mask_kernel(T* __restrict__ a,
     const int idx = blockIdx.x * blockDim.x + threadIdx.x;
     const int str = blockDim.x * gridDim.x;
 
-    for (int i = idx; i < mask_size; i += str) { a[mask[i]-1] = c; }
+    for (int i = idx; i < mask_size; i += str) { a[mask[i]] = c; }
 }
 
 /**
@@ -180,7 +180,7 @@ __global__ void cdiv_kernel(T * __restrict__ a,
  */
 template< typename T >
 __global__ void cdiv2_kernel(T * __restrict__ a,
-                 T * __restrict__ b, 
+                 T * __restrict__ b,
                              const T c,
                              const int n) {
 
@@ -386,6 +386,50 @@ __global__ void add3s2_kernel(T * __restrict__ a,
 }
 
 /**
+ * Device kernel for add4s3
+ */
+template< typename T >
+__global__ void add4s3_kernel(T * __restrict__ a,
+                              const T * __restrict__ b,
+                              const T * __restrict__ c,
+                              const T * __restrict__ d,
+                              const T c1,
+                              const T c2,
+                              const T c3,
+                              const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = c1 * b[i] + c2 * c[i] + c3 * d[i];
+  }
+}
+
+/**
+ * Device kernel for add5s4
+ */
+template< typename T >
+__global__ void add5s4_kernel(T * __restrict__ a,
+                              const T * __restrict__ b,
+                              const T * __restrict__ c,
+                              const T * __restrict__ d,
+                              const T * __restrict__ e,
+                              const T c1,
+                              const T c2,
+                              const T c3,
+                              const T c4,
+                              const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = a[i] + c1 * b[i] + c2 * c[i] + c3 * d[i] + c4 * e[i];
+  }
+}
+
+/**
  * Device kernel for invcol1
  */
 template< typename T >
@@ -414,6 +458,23 @@ __global__ void invcol2_kernel(T * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = a[i] / b[i];
+  }
+}
+
+/**
+ * Device kernel for invcol3
+ */
+template< typename T >
+__global__ void invcol3_kernel(T * __restrict__ a,
+                               const T * __restrict__ b,
+                               const T * __restrict__ c,
+                               const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = b[i] / c[i];
   }
 }
 
@@ -533,6 +594,25 @@ __global__ void addcol4_kernel(T * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = a[i] + b[i] * c[i] * d[i];
+  }
+
+}
+
+/**
+ * Device kernel for addcol3s2
+ */
+template< typename T >
+__global__ void addcol3s2_kernel(T * __restrict__ a,
+                               const T * __restrict__ b,
+                               const T * __restrict__ c,
+                               const T s,
+                               const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = a[i] + s * b[i] * c[i];
   }
 
 }
@@ -762,6 +842,41 @@ __global__ void glsc2_kernel(const T * a,
   T sum = 0.0;
   for (int i = idx; i < n; i+= str) {
     sum += a[i] * b[i];
+  }
+
+  sum = reduce_warp<T>(sum);
+  if (lane == 0)
+    shared[wid] = sum;
+  __syncthreads();
+
+  sum = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
+  if (wid == 0)
+    sum = reduce_warp<T>(sum);
+
+  if (threadIdx.x == 0)
+    buf_h[blockIdx.x] = sum;
+
+}
+
+/**
+ * Device kernel for glsubnorm2
+ */
+template< typename T >
+__global__ void glsubnorm2_kernel(const T * a,
+                             const T * b,
+                             T * buf_h,
+                             const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  const unsigned int lane = threadIdx.x % warpSize;
+  const unsigned int wid = threadIdx.x / warpSize;
+
+  __shared__ T shared[32];
+  T sum = 0.0;
+  for (int i = idx; i < n; i+= str) {
+    sum += pow(a[i] - b[i], 2.0);
   }
 
   sum = reduce_warp<T>(sum);

@@ -37,7 +37,8 @@ submodule (rhs_maker) rhs_maker_fctry
   use rhs_maker_sx, only : rhs_maker_bdf_sx_t, rhs_maker_ext_sx_t, &
                            rhs_maker_sumab_sx_t, rhs_maker_oifs_sx_t
   use rhs_maker_device, only : rhs_maker_bdf_device_t, &
-       rhs_maker_ext_device_t, rhs_maker_sumab_device_t
+       rhs_maker_ext_device_t, rhs_maker_sumab_device_t, &
+       rhs_maker_oifs_device_t
   use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX
 
 contains
@@ -115,6 +116,8 @@ contains
 
     if (NEKO_BCKND_SX .eq. 1) then
        allocate(rhs_maker_oifs_sx_t::object)
+    else if (NEKO_BCKND_DEVICE .eq. 1) then
+       allocate(rhs_maker_oifs_device_t::object)
     else
        allocate(rhs_maker_oifs_cpu_t::object)
     end if

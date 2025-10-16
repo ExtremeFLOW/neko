@@ -1,7 +1,7 @@
 !> Fast Diagonalization
 module fdm_cpu
   use num_types, only : rp
-  use tensor_cpu
+  use tensor_cpu, only : tnsr2d_el_cpu, tnsr3d_el_cpu
   implicit none
   private
 
@@ -15,7 +15,7 @@ contains
     real(kind=rp), intent(inout) :: r(nl**ldim, nelv)
     real(kind=rp), intent(inout) :: s(nl*nl,2,ldim, nelv)
     real(kind=rp), intent(inout) :: d(nl**ldim, nelv)
-    integer ::  ie, nn, i
+    integer :: ie, nn, i
 
     nn = nl**ldim
     if(.not. ldim .eq. 3) then

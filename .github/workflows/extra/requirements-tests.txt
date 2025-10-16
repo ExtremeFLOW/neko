@@ -1,0 +1,3 @@
+pytest
+json5
+numpy

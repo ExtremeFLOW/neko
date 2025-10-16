@@ -4,10 +4,14 @@ libdir=@libdir@
 includedir=${prefix}/include
 includedir_pkg=${prefix}/include/neko
 compiler=@FC@
- 
+
+# A couple of custom variables to communicate with consumers of the package
+precision=@NEKO_REAL_TYPE@
+backend=@NEKO_BCKND@
+
 Name: NEKO
 Version: @PACKAGE_VERSION@
 Description:
-Requires: 
+Requires:
 Libs: -L${libdir} -lneko @LDFLAGS@ @LIBS@
-Cflags: @FCFLAGS@ -I${includedir} -I${includedir_pkg} 
+Cflags: @NEKO_PKG_FCFLAGS@ -I${includedir} -I${includedir_pkg}

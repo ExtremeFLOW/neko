@@ -96,11 +96,11 @@ contains
   !! @param coef Finest level coeff thing
   !! @param msh Finest level mesh information
   !! @param gs_h Finest level gather scatter operator
-  !! @param nlvls_in Number of levels for the TreeAMG hierarchy
+  !! @param nlvls Number of levels for the TreeAMG hierarchy
   !! @param blst Finest level BC list
   !! @param max_iter Number of AMG iterations
-  subroutine tamg_mg_init(this, ax, Xh, coef, msh, gs_h, nlvls_in, blst, &
-       max_iter)
+  subroutine tamg_mg_init(this, ax, Xh, coef, msh, gs_h, nlvls, blst, &
+       max_iter, cheby_degree)
     class(tamg_solver_t), intent(inout), target :: this
     class(ax_t), target, intent(in) :: ax
     type(space_t), target, intent(in) :: Xh
@@ -108,24 +108,14 @@ contains
     type(mesh_t), target, intent(in) :: msh
     type(gs_t), target, intent(in) :: gs_h
     type(bc_list_t), target, intent(in) :: blst
-    integer, intent(in) :: nlvls_in
+    integer, intent(in) :: nlvls
     integer, intent(in) :: max_iter
-    integer :: nlvls, lvl, n, cheby_degree, env_len, mlvl, target_num_aggs
+    integer, intent(in) :: cheby_degree
+    integer :: lvl, n, mlvl, target_num_aggs
     integer, allocatable :: agg_nhbr(:,:), asdf(:,:)
-    character(len=255) :: env_cheby_degree, env_mlvl
     character(len=LOG_SIZE) :: log_buf
 
     call neko_log%section('AMG')
-
-    call get_environment_variable("NEKO_TAMG_MAX_LVL", &
-         env_mlvl, env_len)
-    if (env_len .eq. 0) then
-       !yeah...
-       nlvls = nlvls_in
-    else
-       read(env_mlvl(1:env_len), *) mlvl
-       nlvls = mlvl
-    end if
 
     write(log_buf, '(A28,I2,A8)') 'Creating AMG hierarchy with', &
          nlvls, 'levels.'
@@ -162,14 +152,6 @@ contains
        call neko_error( &
             "Requested number multigrid levels &
        & is greater than the initialized AMG levels")
-    end if
-
-    call get_environment_variable("NEKO_TAMG_CHEBY_DEGREE", &
-         env_cheby_degree, env_len)
-    if (env_len .eq. 0) then
-       cheby_degree = 10
-    else
-       read(env_cheby_degree(1:env_len), *) cheby_degree
     end if
 
     allocate(this%smoo(0:(nlvls)))
@@ -217,6 +199,7 @@ contains
     type(c_ptr) :: z_d
     type(c_ptr) :: r_d
     integer :: iter, max_iter
+    logical :: zero_initial_guess
 
     max_iter = this%max_iter
 
@@ -225,16 +208,22 @@ contains
        r_d = device_get_ptr(r)
        ! Zero out the initial guess becuase we do not handle null spaces very well...
        call device_rzero(z_d, n)
+       zero_initial_guess = .true.
        ! Call the amg cycle
        do iter = 1, max_iter
-          call tamg_mg_cycle_d(z, r, z_d, r_d, n, 0, this%amg, this)
+          call tamg_mg_cycle_d(z, r, z_d, r_d, n, 0, this%amg, this, &
+             zero_initial_guess)
+          zero_initial_guess = .false.
        end do
     else
        ! Zero out the initial guess becuase we do not handle null spaces very well...
        call rzero(z, n)
+       zero_initial_guess = .true.
        ! Call the amg cycle
        do iter = 1, max_iter
-          call tamg_mg_cycle(z, r, n, 0, this%amg, this)
+          call tamg_mg_cycle(z, r, n, 0, this%amg, this, &
+             zero_initial_guess)
+          zero_initial_guess = .false.
        end do
     end if
   end subroutine tamg_mg_solve
@@ -247,12 +236,14 @@ contains
   !! @param lvl Current level of the cycle
   !! @param amg The TreeAMG object
   !! @param mgstuff The Solver object. TODO: rename this
-  recursive subroutine tamg_mg_cycle(x, b, n, lvl, amg, mgstuff)
+  recursive subroutine tamg_mg_cycle(x, b, n, lvl, amg, mgstuff, &
+       zero_initial_guess)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: x(n)
     real(kind=rp), intent(inout) :: b(n)
     type(tamg_hierarchy_t), intent(inout) :: amg
     type(tamg_solver_t), intent(inout) :: mgstuff
+    logical, intent(in) :: zero_initial_guess
     integer, intent(in) :: lvl
     real(kind=rp) :: r(n)
     real(kind=rp) :: rc(n)
@@ -264,7 +255,8 @@ contains
     !>----------<!
     !> SMOOTH   <!
     !>----------<!
-    call mgstuff%smoo(lvl)%solve(x, b, n, amg, .true.)
+    call mgstuff%smoo(lvl)%solve(x, b, n, amg, &
+       zero_initial_guess)
     if (lvl .eq. max_lvl) then !> Is coarsest grid.
        return
     end if
@@ -280,7 +272,8 @@ contains
     !> Call Coarse solve <!
     !>-------------------<!
     call rzero(tmp, n)
-    call tamg_mg_cycle(tmp, rc, amg%lvl(lvl+1)%nnodes, lvl+1, amg, mgstuff)
+    call tamg_mg_cycle(tmp, rc, amg%lvl(lvl+1)%nnodes, lvl+1, amg, mgstuff, &
+       .true.)
     !>----------<!
     !> Project  <!
     !>----------<!
@@ -302,7 +295,8 @@ contains
   !! @param lvl Current level of the cycle
   !! @param amg The TreeAMG object
   !! @param mgstuff The Solver object. TODO: rename this
-  recursive subroutine tamg_mg_cycle_d(x, b, x_d, b_d, n, lvl, amg, mgstuff)
+  recursive subroutine tamg_mg_cycle_d(x, b, x_d, b_d, n, lvl, amg, mgstuff, &
+       zero_initial_guess)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: x(n)
     real(kind=rp), intent(inout) :: b(n)
@@ -310,6 +304,7 @@ contains
     type(c_ptr) :: b_d
     type(tamg_hierarchy_t), intent(inout) :: amg
     type(tamg_solver_t), intent(inout) :: mgstuff
+    logical, intent(in) :: zero_initial_guess
     integer, intent(in) :: lvl
     integer :: iter, num_iter
     integer :: max_lvl
@@ -318,7 +313,8 @@ contains
     !>----------<!
     !> SMOOTH   <!
     !>----------<!
-    call mgstuff%smoo(lvl)%device_solve(x, b, x_d, b_d, n, amg, .true.)
+    call mgstuff%smoo(lvl)%device_solve(x, b, x_d, b_d, n, amg, &
+       zero_initial_guess)
     if (lvl .eq. max_lvl) then !> Is coarsest grid.
        return
     end if
@@ -339,7 +335,7 @@ contains
       !>-------------------<!
       call device_rzero(tmp_d, n)
       call tamg_mg_cycle_d(tmp, rc, tmp_d, rc_d, &
-           amg%lvl(lvl+1)%nnodes, lvl+1, amg, mgstuff)
+           amg%lvl(lvl+1)%nnodes, lvl+1, amg, mgstuff, .true.)
       !>----------<!
       !> Project  <!
       !>----------<!

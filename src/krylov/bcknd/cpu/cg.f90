@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2024, The Neko Authors
+! Copyright (c) 2020-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 !
 !> Defines various Conjugate Gradient methods
 module cg
+  use neko_config, only : NEKO_BLK_SIZE
   use num_types, only: rp, xp
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
   use precon, only : pc_t
@@ -41,7 +42,8 @@ module cg
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, abscmp
-  use comm
+  use comm, only : MPI_EXTRA_PRECISION, NEKO_COMM
+  use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
   implicit none
   private
 
@@ -170,9 +172,13 @@ contains
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
+      if(abscmp(rnorm, 0.0_rp)) then
+         ksp_results%converged = .true.
+         return
+      end if
+
       p_prev = CG_P_SPACE
       p_cur = 1
-      if(abscmp(rnorm, 0.0_rp)) return
       call this%monitor_start('CG')
       do iter = 1, max_iter
          call this%M%solve(z, r, n)

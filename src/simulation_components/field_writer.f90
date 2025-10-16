@@ -78,7 +78,7 @@ contains
   !> @param json JSON object with the parameters.
   !! @param case The case object.
   subroutine field_writer_init_from_json(this, json, case)
-    class(field_writer_t), intent(inout) :: this
+    class(field_writer_t), intent(inout), target :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: filename

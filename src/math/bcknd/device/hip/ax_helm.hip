@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2021-2025, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -137,23 +137,48 @@ extern "C" {
       }                                                                         \
       break
 
+#define CASE_LARGE(LX)                                                          \
+    case LX:                                                                    \
+      CASE_KSTEP(LX);                                                           \
+      break
 
-    switch(*lx) {
-      CASE(2);
-      CASE(3);
-      CASE(4);
-      CASE(5);
-      CASE(6);
-      CASE(7);
-      CASE_PADDED(8);
-      CASE(9);
-      CASE(10);
-      CASE(11);
-      CASE(12);
-    default:
-      {
-        fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
-        exit(1);
+#define CASE_LARGE_PADDED(LX)                                                   \
+    case LX:                                                                    \
+      CASE_KSTEP_PADDED(LX);                                                    \
+      break
+
+    if ((*lx) < 13) {
+      switch(*lx) {
+        CASE(2);
+        CASE(3);
+        CASE(4);
+        CASE(5);
+        CASE(6);
+        CASE(7);
+        CASE_PADDED(8);
+        CASE(9);
+        CASE(10);
+        CASE(11);
+        CASE(12);
+      default:
+        {
+          fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+          exit(1);
+        }
+      }
+    }
+    else {
+      switch(*lx) {
+        CASE_LARGE(12);
+        CASE_LARGE(13);
+        CASE_LARGE(14);
+        CASE_LARGE(15);
+        CASE_LARGE_PADDED(16);
+      default:
+        {
+          fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+          exit(1);
+        }
       }
     }
   }

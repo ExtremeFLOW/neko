@@ -116,6 +116,11 @@ real opencl_cfl(real *dt, void *u, void *v, void *w,
     CASE(10);
     CASE(11);
     CASE(12);
+  default:
+    {
+      fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+      exit(1);
+    }
   }
 
   CL_CHECK(clEnqueueReadBuffer((cl_command_queue) glb_cmd_queue,

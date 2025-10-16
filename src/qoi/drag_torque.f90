@@ -1,4 +1,5 @@
 ! Copyright (c) 2008-2020, UCHICAGO ARGONNE, LLC.
+! Copyright (c) 2025, The Neko Authors
 !
 ! The UChicago Argonne, LLC as Operator of Argonne National
 ! Laboratory holds copyright in the Software. The copyright holder
@@ -62,14 +63,17 @@ module drag_torque
   use field, only : field_t
   use coefs, only : coef_t
   use facet_zone, only : facet_zone_t
-  use comm
-  use math, only : rzero, col3, vdot3, cmult
+  use math, only : rzero, col3, vdot3, col2
   use space, only : space_t
   use num_types, only : rp
   use utils, only : nonlinear_index
-  use device
-  use device_math, only : device_cmult, &
+  use iso_c_binding, only : c_ptr
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use device_math, only : device_cmult, device_col2, &
        device_col3, device_vdot3, device_rzero
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_ALLREDUCE, MPI_IN_PLACE, MPI_SUM
+  use utils, only : neko_error
   implicit none
   private
   !> Some functions to calculate the lift/drag and torque
@@ -88,17 +92,23 @@ contains
   !! @param p, the pressure
   !! @param coef, coefficents
   !! @param visc, the viscosity
-  subroutine drag_torque_zone(dgtq, tstep, zone, center, s11, s22, s33, s12, s13, s23,&
-       p, coef, visc)
+  subroutine drag_torque_zone(dgtq, tstep, zone, center, s11, s22, s33, s12, &
+       s13, s23, p, coef, visc)
     integer, intent(in) :: tstep
     type(facet_zone_t) :: zone
     type(coef_t), intent(inout) :: coef
-    real(kind=rp), intent(inout) :: s11(coef%Xh%lx,coef%Xh%lx,coef%Xh%lz,coef%msh%nelv)
-    real(kind=rp), intent(inout) :: s22(coef%Xh%lx,coef%Xh%lx,coef%Xh%lz,coef%msh%nelv)
-    real(kind=rp), intent(inout) :: s33(coef%Xh%lx,coef%Xh%lx,coef%Xh%lz,coef%msh%nelv)
-    real(kind=rp), intent(inout) :: s12(coef%Xh%lx,coef%Xh%lx,coef%Xh%lz,coef%msh%nelv)
-    real(kind=rp), intent(inout) :: s13(coef%Xh%lx,coef%Xh%lx,coef%Xh%lz,coef%msh%nelv)
-    real(kind=rp), intent(inout) :: s23(coef%Xh%lx,coef%Xh%lx,coef%Xh%lz,coef%msh%nelv)
+    real(kind=rp), intent(inout) :: s11(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
+         coef%msh%nelv)
+    real(kind=rp), intent(inout) :: s22(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
+         coef%msh%nelv)
+    real(kind=rp), intent(inout) :: s33(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
+         coef%msh%nelv)
+    real(kind=rp), intent(inout) :: s12(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
+         coef%msh%nelv)
+    real(kind=rp), intent(inout) :: s13(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
+         coef%msh%nelv)
+    real(kind=rp), intent(inout) :: s23(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
+         coef%msh%nelv)
     type(field_t), intent(inout) :: p
     real(kind=rp), intent(in) :: visc, center(3)
     real(kind=rp) :: dgtq(3,4)
@@ -132,10 +142,10 @@ contains
     do mem = 1,zone%size
        ie = zone%facet_el(mem)%x(2)
        ifc = zone%facet_el(mem)%x(1)
-       call drag_torque_facet(dgtq,coef%dof%x,coef%dof%y,coef%dof%z,&
+       call drag_torque_facet(dgtq, coef%dof%x, coef%dof%y, coef%dof%z,&
             center,&
             s11, s22, s33, s12, s13, s23,&
-            p%x,visc,ifc,ie, coef, coef%Xh)
+            p%x, visc, ifc, ie, coef, coef%Xh)
 
        dragpx = dragpx + dgtq(1,1) ! pressure
        dragpy = dragpy + dgtq(2,1)
@@ -211,7 +221,7 @@ contains
   !! @param p, the pressure
   !! @param coef, coefficents
   !! @param visc, the viscosity
-  subroutine drag_torque_facet(dgtq,xm0,ym0,zm0, center,&
+  subroutine drag_torque_facet(dgtq, xm0, ym0, zm0, center,&
        s11, s22, s33, s12, s13, s23,&
        pm1,visc,f,e, coef, Xh)
     type(coef_t), intent(in) :: coef
@@ -245,47 +255,47 @@ contains
     NX = Xh%lx
     NY = Xh%ly
     NZ = Xh%lz
-    SKPDAT(1,1)=1
-    SKPDAT(2,1)=NX*(NY-1)+1
-    SKPDAT(3,1)=NX
-    SKPDAT(4,1)=1
-    SKPDAT(5,1)=NY*(NZ-1)+1
-    SKPDAT(6,1)=NY
+    SKPDAT(1,1) = 1
+    SKPDAT(2,1) = NX*(NY-1) + 1
+    SKPDAT(3,1) = NX
+    SKPDAT(4,1) = 1
+    SKPDAT(5,1) = NY*(NZ-1) + 1
+    SKPDAT(6,1) = NY
 
-    SKPDAT(1,2)=1 + (NX-1)
-    SKPDAT(2,2)=NX*(NY-1)+1 + (NX-1)
-    SKPDAT(3,2)=NX
-    SKPDAT(4,2)=1
-    SKPDAT(5,2)=NY*(NZ-1)+1
-    SKPDAT(6,2)=NY
+    SKPDAT(1,2) = 1 + (NX-1)
+    SKPDAT(2,2) = NX*(NY-1)+1 + (NX-1)
+    SKPDAT(3,2) = NX
+    SKPDAT(4,2) = 1
+    SKPDAT(5,2) = NY*(NZ-1)+1
+    SKPDAT(6,2) = NY
 
-    SKPDAT(1,3)=1
-    SKPDAT(2,3)=NX
-    SKPDAT(3,3)=1
-    SKPDAT(4,3)=1
-    SKPDAT(5,3)=NY*(NZ-1)+1
-    SKPDAT(6,3)=NY
+    SKPDAT(1,3) = 1
+    SKPDAT(2,3) = NX
+    SKPDAT(3,3) = 1
+    SKPDAT(4,3) = 1
+    SKPDAT(5,3) = NY*(NZ-1)+1
+    SKPDAT(6,3) = NY
 
-    SKPDAT(1,4)=1 + NX*(NY-1)
-    SKPDAT(2,4)=NX + NX*(NY-1)
-    SKPDAT(3,4)=1
-    SKPDAT(4,4)=1
-    SKPDAT(5,4)=NY*(NZ-1)+1
-    SKPDAT(6,4)=NY
+    SKPDAT(1,4) = 1 + NX*(NY-1)
+    SKPDAT(2,4) = NX + NX*(NY-1)
+    SKPDAT(3,4) = 1
+    SKPDAT(4,4) = 1
+    SKPDAT(5,4) = NY*(NZ-1)+1
+    SKPDAT(6,4) = NY
 
-    SKPDAT(1,5)=1
-    SKPDAT(2,5)=NX
-    SKPDAT(3,5)=1
-    SKPDAT(4,5)=1
-    SKPDAT(5,5)=NY
-    SKPDAT(6,5)=1
+    SKPDAT(1,5) = 1
+    SKPDAT(2,5) = NX
+    SKPDAT(3,5) = 1
+    SKPDAT(4,5) = 1
+    SKPDAT(5,5) = NY
+    SKPDAT(6,5) = 1
 
-    SKPDAT(1,6)=1 + NX*NY*(NZ-1)
-    SKPDAT(2,6)=NX + NX*NY*(NZ-1)
-    SKPDAT(3,6)=1
-    SKPDAT(4,6)=1
-    SKPDAT(5,6)=NY
-    SKPDAT(6,6)=1
+    SKPDAT(1,6) = 1 + NX*NY*(NZ-1)
+    SKPDAT(2,6) = NX + NX*NY*(NZ-1)
+    SKPDAT(3,6) = 1
+    SKPDAT(4,6) = 1
+    SKPDAT(5,6) = NY
+    SKPDAT(6,6) = 1
     pf = f
     js1 = skpdat(1,pf)
     jf1 = skpdat(2,pf)
@@ -296,23 +306,24 @@ contains
     call rzero(dgtq,12)
     i = 0
     a = 0
-    do j2=js2,jf2,jskip2
-       do j1=js1,jf1,jskip1
+    do j2 = js2, jf2, jskip2
+       do j1 = js1, jf1, jskip1
           i = i+1
           n1 = coef%nx(i,1,f,e)*coef%area(i,1,f,e)
           n2 = coef%ny(i,1,f,e)*coef%area(i,1,f,e)
           n3 = coef%nz(i,1,f,e)*coef%area(i,1,f,e)
           a = a + coef%area(i,1,f,e)
           v = visc
-          s11_ = s11(j1,j2,1,e)
-          s12_ = s12(j1,j2,1,e)
-          s22_ = s22(j1,j2,1,e)
-          s13_ = s13(j1,j2,1,e)
-          s23_ = s23(j1,j2,1,e)
-          s33_ = s33(j1,j2,1,e)
-          call drag_torque_pt(dgtq_i,xm0(j1,j2,1,e), ym0(j1,j2,1,e),zm0(j1,j2,1,e), center,&
+          s11_ = s11(j1, j2, 1, e)
+          s12_ = s12(j1, j2, 1, e)
+          s22_ = s22(j1, j2, 1, e)
+          s13_ = s13(j1, j2, 1, e)
+          s23_ = s23(j1, j2, 1, e)
+          s33_ = s33(j1, j2, 1, e)
+          call drag_torque_pt(dgtq_i,xm0(j1, j2, 1, e), ym0(j1, j2, 1, e), &
+               zm0(j1, j2, 1, e), center,&
                s11_, s22_, s33_, s12_, s13_, s23_,&
-               pm1(j1,j2,1,e), n1, n2, n3, v)
+               pm1(j1, j2, 1, e), n1, n2, n3, v)
           dgtq = dgtq + dgtq_i
        end do
     end do
@@ -332,7 +343,7 @@ contains
   !! @param v, the viscosity
   subroutine drag_torque_pt(dgtq, x, y, z, center, s11, s22, s33, s12, s13, s23,&
        p, n1, n2, n3, v)
-    real(kind=rp), intent(inout) :: dgtq(3,4)
+    real(kind=rp), intent(inout) :: dgtq(3, 4)
     real(kind=rp), intent(in) :: x
     real(kind=rp), intent(in) :: y
     real(kind=rp), intent(in) :: z
@@ -341,7 +352,8 @@ contains
     real(kind=rp), intent(in) :: n1, n2, n3, center(3)
     real(kind=rp), intent(in) :: s11, s12, s22, s13, s23, s33
     real(kind=rp) :: s21, s31, s32, r1, r2, r3
-    call rzero(dgtq,12)
+
+    call rzero(dgtq, 12)
     s21 = s12
     s32 = s23
     s31 = s13
@@ -353,17 +365,17 @@ contains
     dgtq(1,2) = -2*v*(s11*n1 + s12*n2 + s13*n3)
     dgtq(2,2) = -2*v*(s21*n1 + s22*n2 + s23*n3)
     dgtq(3,2) = -2*v*(s31*n1 + s32*n2 + s33*n3)
-    r1 = x-center(1)
-    r2 = y-center(2)
-    r3 = z-center(3)
+    r1 = x - center(1)
+    r2 = y - center(2)
+    r3 = z - center(3)
     !pressure torque
-    dgtq(1,3) = (r2*dgtq(3,1)-r3*dgtq(2,1))
-    dgtq(2,3) = (r3*dgtq(1,1)-r1*dgtq(3,1))
-    dgtq(3,3) = (r1*dgtq(2,1)-r2*dgtq(1,1))
+    dgtq(1,3) = r2*dgtq(3,1) - r3*dgtq(2,1)
+    dgtq(2,3) = r3*dgtq(1,1) - r1*dgtq(3,1)
+    dgtq(3,3) = r1*dgtq(2,1) - r2*dgtq(1,1)
     !viscous torque
-    dgtq(1,4) = (r2*dgtq(3,2)-r3*dgtq(2,2))
-    dgtq(2,4) = (r3*dgtq(1,2)-r1*dgtq(3,2))
-    dgtq(3,4) = (r1*dgtq(2,2)-r2*dgtq(1,2))
+    dgtq(1,4) = r2*dgtq(3,2) - r3*dgtq(2,2)
+    dgtq(2,4) = r3*dgtq(1,2) - r1*dgtq(3,2)
+    dgtq(3,4) = r1*dgtq(2,2) - r2*dgtq(1,2)
   end subroutine drag_torque_pt
 
   !> Calculate drag and torque from array of points
@@ -373,35 +385,36 @@ contains
   !! @param n1, normal vector x
   !! @param n2, normal vector y
   !! @param n3, normal vector z
-  !! @param v, the viscosity
+  !! @param mu, the viscosity
   !! @param n_pts, the number of points
   subroutine calc_force_array(force1, force2, force3, force4, force5, force6,&
        s11, s22, s33, s12, s13, s23,&
-       p, n1, n2, n3, v, n_pts)
+       p, n1, n2, n3, mu, n_pts)
     integer :: n_pts
     real(kind=rp), intent(inout),dimension(n_pts) :: force1, force2, force3
     real(kind=rp), intent(inout),dimension(n_pts) :: force4, force5, force6
     real(kind=rp), intent(in) :: p(n_pts)
-    real(kind=rp), intent(in) :: v
+    real(kind=rp), intent(in) :: mu(n_pts)
     real(kind=rp), intent(in) :: n1(n_pts), n2(n_pts), n3(n_pts)
     real(kind=rp), intent(in), dimension(n_pts) :: s11, s12, s22, s13, s23, s33
-    real(kind=rp) :: v2
-    call rzero(force4,n_pts)
-    call rzero(force5,n_pts)
-    call rzero(force6,n_pts)
+    real(kind=rp) :: v2(n_pts)
+    call rzero(force4, n_pts)
+    call rzero(force5, n_pts)
+    call rzero(force6, n_pts)
     !pressure force
-    call col3(force1,p,n1,n_pts)
-    call col3(force2,p,n2,n_pts)
-    call col3(force3,p,n3,n_pts)
+    call col3(force1, p, n1, n_pts)
+    call col3(force2, p, n2, n_pts)
+    call col3(force3, p, n3, n_pts)
     ! viscous force
-    v2 = -2.0_rp*v
-    call vdot3(force4,s11,s12,s13,n1,n2,n3,n_pts)
-    call vdot3(force5,s12,s22,s23,n1,n2,n3,n_pts)
-    call vdot3(force6,s13,s23,s33,n1,n2,n3,n_pts)
-    call cmult(force4,v2,n_pts)
-    call cmult(force5,v2,n_pts)
-    call cmult(force6,v2,n_pts)
+    v2 = -2.0_rp*mu
+    call vdot3(force4, s11, s12, s13, n1, n2, n3, n_pts)
+    call vdot3(force5, s12, s22, s23, n1, n2, n3, n_pts)
+    call vdot3(force6, s13, s23, s33, n1, n2, n3, n_pts)
+    call col2(force4, v2, n_pts)
+    call col2(force5, v2, n_pts)
+    call col2(force6, v2, n_pts)
   end subroutine calc_force_array
+
   !> Calculate drag and torque from array of points
   !! @param force, the computed force
   !! @param s11-s23, the strain rate tensor
@@ -409,42 +422,52 @@ contains
   !! @param n1, normal vector x
   !! @param n2, normal vector y
   !! @param n3, normal vector z
-  !! @param v, the viscosity
+  !! @param mu, the viscosity
   !! @param n_pts, the number of points
   subroutine device_calc_force_array(force1, force2, force3,&
        force4, force5, force6,&
        s11, s22, s33, s12, s13, s23,&
-       p, n1, n2, n3, v, n_pts)
+       p, n1, n2, n3, mu, n_pts)
     integer :: n_pts
     type(c_ptr) :: force1, force2, force3
     type(c_ptr) :: force4, force5, force6
     type(c_ptr) :: p, n1, n2, n3
     type(c_ptr) :: s11, s12, s22, s13, s23, s33
-    real(kind=rp) :: v
-    real(kind=rp) :: v2
+    type(c_ptr) :: mu
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_rzero(force4,n_pts)
-       call device_rzero(force5,n_pts)
-       call device_rzero(force6,n_pts)
+       call device_rzero(force4, n_pts)
+       call device_rzero(force5, n_pts)
+       call device_rzero(force6, n_pts)
        !pressure force
-       call device_col3(force1,p,n1,n_pts)
-       call device_col3(force2,p,n2,n_pts)
-       call device_col3(force3,p,n3,n_pts)
-       ! viscous force
-       v2 = -2.0_rp*v
-       call device_vdot3(force4,s11,s12,s13,n1,n2,n3,n_pts)
-       call device_vdot3(force5,s12,s22,s23,n1,n2,n3,n_pts)
-       call device_vdot3(force6,s13,s23,s33,n1,n2,n3,n_pts)
-       call device_cmult(force4,v2,n_pts)
-       call device_cmult(force5,v2,n_pts)
-       call device_cmult(force6,v2,n_pts)
+       call device_col3(force1, p, n1, n_pts)
+       call device_col3(force2, p, n2, n_pts)
+       call device_col3(force3, p, n3, n_pts)
+
+       call device_vdot3(force4, s11, s12, s13, n1, n2, n3, n_pts)
+       call device_vdot3(force5, s12, s22, s23, n1, n2, n3, n_pts)
+       call device_vdot3(force6, s13, s23, s33, n1, n2, n3, n_pts)
+       call device_cmult(force4, -2.0_rp, n_pts)
+       call device_cmult(force5, -2.0_rp, n_pts)
+       call device_cmult(force6, -2.0_rp, n_pts)
+       call device_col2(force4, mu, n_pts)
+       call device_col2(force5, mu, n_pts)
+       call device_col2(force6, mu, n_pts)
     else
        call neko_error('error in drag_torque, no device bcklnd configured')
     end if
   end subroutine device_calc_force_array
 
 
-  subroutine setup_normals(coef,mask,facets,n1,n2,n3,n_pts)
+  !> Computes the normals for a given set of boundary points accessed by the
+  !! mask.
+  !! @param coef The SEM coefficients.
+  !! @param msk The mask of the points, as their linear indices.
+  !! @param facets For each point, the corresponding facet index in the element.
+  !! @param n1 the x component of the normals.
+  !! @param n2 the y component of the normals.
+  !! @param n3 the z component of the normals.
+  !! @param n_pts The number of points.
+  subroutine setup_normals(coef, mask, facets, n1, n2, n3, n_pts)
     type(coef_t) :: coef
     integer :: n_pts
     real(kind=rp), dimension(n_pts) :: n1, n2, n3
@@ -454,16 +477,13 @@ contains
 
     do i = 1, n_pts
        fid = facets(i)
-       idx = nonlinear_index(mask(i), coef%Xh%lx, coef%Xh%lx,&
-            coef%Xh%lx)
+       idx = nonlinear_index(mask(i), coef%Xh%lx, coef%Xh%lx, coef%Xh%lx)
        normal = coef%get_normal(idx(1), idx(2), idx(3), idx(4), fid)
        area = coef%get_area(idx(1), idx(2), idx(3), idx(4), fid)
        n1(i) = normal(1)*area(1)
        n2(i) = normal(2)*area(2)
        n3(i) = normal(3)*area(3)
-
     end do
-
   end subroutine setup_normals
 
 end module drag_torque

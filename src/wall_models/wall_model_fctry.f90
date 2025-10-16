@@ -35,7 +35,6 @@ submodule (wall_model) wall_model_fctry
   use spalding, only : spalding_t
   use rough_log_law, only : rough_log_law_t
   use utils, only : neko_type_error
-  use json_utils, only : json_get
   use utils, only : neko_type_registration_error
   implicit none
 
@@ -48,32 +47,31 @@ contains
 
   !> Wall model factory. Both constructs and initializes the object.
   !! @param object The object to be allocated.
+  !! @param scheme_name The name of the scheme for which the wall model is used.
   !! @param coef SEM coefficients.
   !! @param msk The boundary mask.
   !! @param facet The boundary facets.
-  !! @param nu The molecular kinematic viscosity.
   !! @param h_index The off-wall index of the sampling cell.
   !! @param json A dictionary with parameters.
-  module subroutine wall_model_factory(object, coef, msk, facet, nu, &
+  module subroutine wall_model_factory(object, scheme_name, coef, msk, facet, &
        json)
     class(wall_model_t), allocatable, intent(inout) :: object
+    character(len=*), intent(in) :: scheme_name
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
-    real(kind=rp), intent(in) :: nu
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: type_name
     character(len=:), allocatable :: type_string
     integer :: h_index
 
-    call json_get(json, "model", type_name)
-
     call wall_model_allocator(object, type_name)
 
+    call json_get(json, "model", type_name)
     call json_get(json, "h_index", h_index)
 
     ! Initialize
-    call object%init(coef, msk, facet, nu, h_index, json)
+    call object%init(scheme_name, coef, msk, facet, h_index, json)
 
   end subroutine wall_model_factory
 
@@ -82,7 +80,7 @@ contains
   !! @param type_name The name of the type to allocate.
   module subroutine wall_model_allocator(object, type_name)
     class(wall_model_t), allocatable, intent(inout) :: object
-    character(len=:), allocatable, intent(in) :: type_name
+    character(len=*), intent(in) :: type_name
     integer :: i
 
     select case (trim(type_name) )

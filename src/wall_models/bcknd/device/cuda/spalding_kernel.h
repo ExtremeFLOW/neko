@@ -57,7 +57,7 @@ __global__ void spalding_compute(const T * __restrict__ u_d,
                                  const T * __restrict__ n_x_d,
                                  const T * __restrict__ n_y_d,
                                  const T * __restrict__ n_z_d,
-                                 const T nu,
+                                 const T * __restrict__ nu_d,
                                  const T * __restrict__ h_d,
                                  T * __restrict__ tau_x_d,
                                  T * __restrict__ tau_y_d,
@@ -99,7 +99,7 @@ __global__ void spalding_compute(const T * __restrict__ u_d,
         // Get initial guess for Newton solver
         T guess;
         if (tstep == 1) {
-            guess = sqrt(magu * nu / h);
+            guess = sqrt(magu * nu_d[i] / h);
         } else {
             guess = tau_x_d[i] * tau_x_d[i] +
                     tau_y_d[i] * tau_y_d[i] +
@@ -108,7 +108,7 @@ __global__ void spalding_compute(const T * __restrict__ u_d,
         }
 
         // Solve for utau using Newton's method
-        T utau = solve(magu, h, guess, nu, kappa, B);
+        T utau = solve(magu, h, guess, nu_d[i], kappa, B);
 
         // Distribute according to the velocity vector
         tau_x_d[i] = -utau * utau * ui / magu;

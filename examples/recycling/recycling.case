@@ -1,0 +1,98 @@
+{
+    "version": 1.0,
+    "case": {
+        "mesh_file": "box.nmsh",
+        "output_at_end": true,
+        "output_boundary": true,
+        "output_checkpoints": true,
+        "checkpoint_control": "simulationtime",
+        "checkpoint_value": 50,
+        "time": {
+            "end_time": 2000.0,
+            "variable_timestep": true,
+            "target_cfl": 0.5,
+            "max_timestep": 1e-1
+        },
+        "numerics": {
+            "time_order": 3,
+            "polynomial_order": 5,
+            "dealias": true
+        },
+        "fluid": {
+            "scheme": "pnpn",
+            "Re": 2800,
+            "initial_condition": {
+                "type": "user"
+            },
+            "velocity_solver": {
+                "type": "cg",
+                "preconditioner":
+                {
+                    "type": "jacobi"
+                },
+                "projection_space_size": 0,
+                "absolute_tolerance": 1e-4,
+                "max_iterations": 800
+            },
+            "pressure_solver": {
+                "type": "gmres",
+                "preconditioner":
+                {
+                    "type": "hsmg"
+                },
+                "projection_space_size": 0,
+                "absolute_tolerance": 1e-3,
+                "max_iterations": 800
+            },
+            "boundary_conditions":
+            [
+                {
+                    "type": "user_velocity",
+                    "zone_indices": [ 1 ]
+                },
+                {
+                    "type": "outflow",
+                    "zone_indices": [ 2 ]
+                },
+                {
+                    "type": "no_slip",
+                    "zone_indices": [ 3, 4 ]
+                }
+            ],
+            "output_control": "simulationtime",
+            "output_value": 1.0
+        },
+        "simulation_components":
+        [
+            {
+                "type": "lambda2" // stored in the temperature field, check docs for more details on sim_comps
+            },
+            {
+                "type": "force_torque",
+                "compute_control": "tsteps",
+                "compute_value": 10,
+                "zone_id": 3,
+                "zone_name": "Bottom wall",
+                "center": [ 0, 0, 0 ]
+            },
+            {
+                "type": "force_torque",
+                "compute_control": "tsteps",
+                "compute_value": 10,
+                "zone_id": 4,
+                "zone_name": "Top wall",
+                "center": [ 0, 0, 0 ]
+            },
+            {
+                "type": "fluid_stats",
+                "output_control": "simulationtime",
+                "output_value": 5, // For example purposes we output relatively often, usually we do larger batches.
+                "start_time": 0.0,
+                "compute_control": "tsteps",
+                "compute_value": 50,
+                "avg_direction": "z", // Computes average in homogenous directions xz.
+                "set_of_stats": "basic"
+            }
+        ]
+    }
+}

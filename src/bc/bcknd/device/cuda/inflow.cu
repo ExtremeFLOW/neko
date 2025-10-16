@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2021-2025, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,8 @@ extern "C" {
    * Fortran wrapper for device inflow apply vector
    */
   void cuda_inflow_apply_vector(void *msk, void *x, void *y,
-                                void *z, void *g, int *m) {
+                                void *z, void *g, int *m,
+                                cudaStream_t strm) {
 
     const real gx = ((real *)g)[0];
     const real gy = ((real *)g)[1];
@@ -52,11 +53,11 @@ extern "C" {
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
     inflow_apply_vector_kernel<real>
-      <<<nblcks, nthrds, 0, (cudaStream_t) glb_cmd_queue>>>((int *) msk,
-                                                            (real *) x,
-                                                            (real *) y,
-                                                            (real *) z,
-                                                            gx, gy, gz, *m);
+      <<<nblcks, nthrds, 0, strm>>>((int *) msk,
+                                    (real *) x,
+                                    (real *) y,
+                                    (real *) z,
+                                    gx, gy, gz, *m);
     CUDA_CHECK(cudaGetLastError());
   }
  

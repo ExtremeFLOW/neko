@@ -40,6 +40,7 @@ module file
   use map_file, only : map_file_t
   use rea_file, only : rea_file_t
   use re2_file, only : re2_file_t
+  use bp_file, only : bp_file_t
   use fld_file, only : fld_file_t
   use fld_file_data, only : fld_file_data_t
   use vtk_file, only : vtk_file_t
@@ -54,10 +55,16 @@ module file
   type file_t
      class(generic_file_t), allocatable :: file_type
    contains
+     !> Constructor
+     procedure, pass (this) :: init => file_init
      !> Writes data to a file.
      procedure :: write => file_write
      !> Read @a data from a file.
      procedure :: read => file_read
+     !> Get a file's name.
+     procedure :: get_fname => file_get_fname
+     !> Get a file's base name.
+     procedure :: get_base_fname => file_get_base_fname
      !> Get a file's counter.
      procedure :: get_counter => file_get_counter
      !> Set a file's counter.
@@ -68,23 +75,25 @@ module file
      procedure :: set_header => file_set_header
      !> Set a file's output precision.
      procedure :: set_precision => file_set_precision
+     !> Set a file's output layout.
+     procedure :: set_layout => file_set_layout
+     !> Sets the file's overwrite flag.
+     procedure, pass (this) :: set_overwrite => file_set_overwrite
      !> File operation destructor.
-     final :: file_free
+     procedure, pass(this) :: free => file_free
   end type file_t
-
-  interface file_t
-     module procedure file_init
-  end interface file_t
 
 contains
 
-  !> File reader/writer constructor.
+  !> Constructor.
   !! @param fname Filename.
-  function file_init(fname, header, precision) result(this)
-    character(len=*) :: fname
-    character(len=*), optional :: header
-    integer, optional :: precision
-    type(file_t), target :: this
+  subroutine file_init(this, fname, header, precision, layout, overwrite)
+    class(file_t), intent(inout) :: this
+    character(len=*), intent(in) :: fname
+    character(len=*), intent(in), optional :: header
+    integer, intent(in), optional :: precision
+    integer, intent(in), optional :: layout
+    logical, intent(in), optional :: overwrite
     character(len=80) :: suffix
     class(generic_file_t), pointer :: q
 
@@ -105,6 +114,8 @@ contains
        allocate(vtk_file_t::this%file_type)
     case ("nmsh")
        allocate(nmsh_file_t::this%file_type)
+    case ("bp")
+       allocate(bp_file_t::this%file_type)
     case ("fld")
        allocate(fld_file_t::this%file_type)
     case ("chkp")
@@ -130,11 +141,19 @@ contains
        call this%set_precision(precision)
     end if
 
-  end function file_init
+    if (present(layout).and. (suffix .eq. "bp")) then
+       call this%set_layout(layout)
+    end if
+
+    if (present(overwrite)) then
+       call this%set_overwrite(overwrite)
+    end if
+
+  end subroutine file_init
 
   !> File operation destructor.
   subroutine file_free(this)
-    type(file_t), intent(inout) :: this
+    class(file_t), intent(inout) :: this
 
     if (allocated(this%file_type)) then
        deallocate(this%file_type)
@@ -149,11 +168,7 @@ contains
     class(*), intent(inout) :: data
     real(kind=rp), intent(in), optional :: t
 
-    if (present(t)) then
-       call this%file_type%write(data, t)
-    else
-       call this%file_type%write(data)
-    end if
+    call this%file_type%write(data, t = t)
 
   end subroutine file_write
 
@@ -167,15 +182,43 @@ contains
 
   end subroutine file_read
 
+  !> Get a file's name.
+  function file_get_fname(this) result(fname)
+    class(file_t), intent(in) :: this
+    character(len=1024) :: fname
+
+    fname = ""
+
+    select type (ft => this%file_type)
+    class is (generic_file_t)
+       fname = ft%get_fname()
+    end select
+
+  end function file_get_fname
+
+  !> Get a file's base name.
+  function file_get_base_fname(this) result(fname)
+    class(file_t), intent(in) :: this
+    character(len=1024) :: fname
+
+    fname = ""
+
+    select type (ft => this%file_type)
+    class is (generic_file_t)
+       fname = ft%get_base_fname()
+    end select
+
+  end function file_get_base_fname
+
   !> Get a file's counter.
   function file_get_counter(this) result(n)
     class(file_t), intent(inout) :: this
     integer :: n
     n = 0
 
-    select type(ft => this%file_type)
+    select type (ft => this%file_type)
     class is (generic_file_t)
-       n = ft%counter
+       n = ft%get_counter()
     end select
 
   end function file_get_counter
@@ -185,7 +228,7 @@ contains
     class(file_t), intent(inout) :: this
     integer, intent(in) :: n
 
-    select type(ft => this%file_type)
+    select type (ft => this%file_type)
     class is (generic_file_t)
        call ft%set_counter(n)
     end select
@@ -197,7 +240,7 @@ contains
     class(file_t), intent(inout) :: this
     integer, intent(in) :: n
 
-    select type(ft => this%file_type)
+    select type (ft => this%file_type)
     class is (generic_file_t)
        call ft%set_start_counter(n)
     end select
@@ -208,15 +251,14 @@ contains
   subroutine file_set_header(this, hd)
     class(file_t), intent(inout) :: this
     character(len=*), intent(in) :: hd
-
     character(len=80) :: suffix
 
-    select type(ft => this%file_type)
+    select type (ft => this%file_type)
     class is (csv_file_t)
        call ft%set_header(hd)
     class default
-       call filename_suffix(this%file_type%fname, suffix)
-       call neko_warning("No set_header defined for " // trim(suffix) // " yet!")
+       call filename_suffix(this%file_type%get_fname(), suffix)
+       call neko_warning("No set_header defined for " // trim(suffix) // " yet")
     end select
 
   end subroutine file_set_header
@@ -226,18 +268,48 @@ contains
   subroutine file_set_precision(this, precision)
     class(file_t), intent(inout) :: this
     integer, intent(in) :: precision
-
     character(len=80) :: suffix
 
-    select type(ft => this%file_type)
+    select type (ft => this%file_type)
     type is (fld_file_t)
        call ft%set_precision(precision)
+    type is (bp_file_t)
+       call ft%set_precision(precision)
     class default
-       call filename_suffix(this%file_type%fname, suffix)
-       call neko_warning("No precision strategy defined for " // trim(suffix) //&
-            " files!")
+       call filename_suffix(this%file_type%get_fname(), suffix)
+       call neko_warning("No precision strategy defined for " // trim(suffix) &
+            // " files")
     end select
 
   end subroutine file_set_precision
+
+  !> Set a file's output layout.
+  !! @param layout The data layout as defined in bp_file.f90 and src/io/buffer/.
+  subroutine file_set_layout(this, layout)
+    class(file_t), intent(inout) :: this
+    integer, intent(in) :: layout
+    character(len=80) :: suffix
+
+    select type (ft => this%file_type)
+    type is (bp_file_t)
+       call ft%set_layout(layout)
+    class default
+       call filename_suffix(this%file_type%get_fname(), suffix)
+       call neko_warning("No set_layout defined for " // trim(suffix) // " yet")
+    end select
+
+  end subroutine file_set_layout
+
+  !> Sets the file's overwrite flag.
+  subroutine file_set_overwrite(this, overwrite)
+    class(file_t), intent(inout) :: this
+    logical, intent(in) :: overwrite
+    character(len=80) :: suffix
+
+    select type (ft => this%file_type)
+    class is (generic_file_t)
+       call ft%set_overwrite(overwrite)
+    end select
+  end subroutine file_set_overwrite
 
 end module file

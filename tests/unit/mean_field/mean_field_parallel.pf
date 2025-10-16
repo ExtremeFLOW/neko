@@ -30,53 +30,53 @@ contains
        call device_init
     end if
   end subroutine setUp
-  
+
   subroutine tearDown(this)
     class(test_mean_field), intent(inout) :: this
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_finalize
     end if
   end subroutine tearDown
- 
+
   subroutine test_mean_field_gen_msh(msh)
     type(mesh_t), intent(inout) :: msh
     type(point_t) :: p(12)
 
-    p(1) = point_t(0d0, 0d0, 0d0)
+    call p(1)%init(0d0, 0d0, 0d0)
     call p(1)%set_id(1)
-    p(2) = point_t(1d0, 0d0, 0d0)
+    call p(2)%init(1d0, 0d0, 0d0)
     call p(2)%set_id(2)
-    p(3) = point_t(0d0, 1d0, 0d0)
+    call p(3)%init(0d0, 1d0, 0d0)
     call p(3)%set_id(4)
-    p(4) = point_t(1d0, 1d0, 0d0)
+    call p(4)%init(1d0, 1d0, 0d0)
     call p(4)%set_id(3)
-    p(5) = point_t(2d0, 0d0, 0d0)
+    call p(5)%init(2d0, 0d0, 0d0)
     call p(5)%set_id(5)
-    p(6) = point_t(2d0, 1d0, 0d0)
+    call p(6)%init(2d0, 1d0, 0d0)
     call p(6)%set_id(6)
-    p(7) = point_t(0d0, 0d0, 1d0)
+    call p(7)%init(0d0, 0d0, 1d0)
     call p(7)%set_id(7)
-    p(8) = point_t(1d0, 0d0, 1d0)
+    call p(8)%init(1d0, 0d0, 1d0)
     call p(8)%set_id(8)
-    p(9) = point_t(1d0, 1d0, 1d0)
+    call p(9)%init(1d0, 1d0, 1d0)
     call p(9)%set_id(9)
-    p(10) = point_t(0d0, 1d0, 1d0)
+    call p(10)%init(0d0, 1d0, 1d0)
     call p(10)%set_id(10)
-    p(11) = point_t(2d0, 0d0, 1d0)
+    call p(11)%init(2d0, 0d0, 1d0)
     call p(11)%set_id(11)
-    p(12) = point_t(2d0, 1d0, 1d0)
+    call p(12)%init(2d0, 1d0, 1d0)
     call p(12)%set_id(12)
-  
+
     call msh%init(3, 2)
     call msh%add_element(1, 1, p(1), p(2), p(4), p(3), &
          p(7), p(8), p(9), p(10))
-    
+
     call msh%add_element(2, 2, p(2), p(5), p(6), p(4), &
          p(8), p(11), p(12), p(9))
     call msh%generate_conn()
-    
+
   end subroutine test_mean_field_gen_msh
-  
+
   @test(npes=[1])
   subroutine test_mean_field_init(this)
     class (test_mean_field), intent(inout) :: this
@@ -93,9 +93,9 @@ contains
 
     call test_mean_field_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
-    
+
     call f%init(msh, Xh, 'test')
-    
+
     call mf%init(f)
     @assertTrue(associated(mf%f))
     @assertTrue(allocated(mf%mf%x))
@@ -117,7 +117,7 @@ contains
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     call test_mean_field_gen_msh(msh)
-    call Xh%init(GLL, lx, lx, lx)    
+    call Xh%init(GLL, lx, lx, lx)
     call f%init(msh, Xh, 'test')
 
     f = 42.0_rp
@@ -126,12 +126,12 @@ contains
     do i = 1, 10
        call mf%update(1.0_rp)
     end do
-    
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(mf%mf%x, mf%mf%x_d, size(mf%mf%x), &
-                          DEVICE_TO_HOST, sync=.true.)
+            DEVICE_TO_HOST, sync=.true.)
     end if
-    
+
     @assertEqual(maxval(mf%mf%x), 42.0_rp)
     @assertEqual(mf%time, 10.0_rp)
 
@@ -144,7 +144,7 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(mf2%mf%x, mf2%mf%x_d, size(mf2%mf%x), &
-                          DEVICE_TO_HOST, sync=.true.)
+            DEVICE_TO_HOST, sync=.true.)
     end if
 
 

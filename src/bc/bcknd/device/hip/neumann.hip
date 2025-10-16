@@ -44,13 +44,14 @@ extern "C" {
    */
   void hip_neumann_apply_scalar(void *msk, void *facet,
                                 void *x, void *flux,
-                                void *area, int *lx, int *m) {
+                                void *area, int *lx, int *m,
+                                hipStream_t strm) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m) + 1024 - 1)/ 1024, 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(neumann_apply_scalar_kernel<real>),
-                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       nblcks, nthrds, 0, strm,
                        (int *) msk, (int *) facet,
                        (real *) x, (real *) flux,
                        (real *) area, *lx, *m);

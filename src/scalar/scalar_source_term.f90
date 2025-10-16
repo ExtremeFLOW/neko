@@ -33,7 +33,7 @@
 !
 !> Implements the `scalar_source_term_t` type.
 module scalar_source_term
-  use scalar_user_source_term, only: scalar_user_source_term_t
+  use user_source_term, only: user_source_term_t
   use source_term, only: source_term_t
   use source_term_handler, only: source_term_handler_t
   use field, only: field_t
@@ -60,42 +60,42 @@ module scalar_source_term
 contains
 
   !> Constructor.
-  subroutine scalar_source_term_init(this, f, coef, user)
+  subroutine scalar_source_term_init(this, f, coef, user, scheme_name)
     class(scalar_source_term_t), intent(inout) :: this
     type(field_t), pointer, intent(in) :: f
     type(coef_t), target, intent(in) :: coef
     type(user_t), target, intent(in) :: user
-
+    character(len=*), intent(in) :: scheme_name
     type(field_list_t) :: rhs_fields
 
     ! We package the fields for the source term to operate on in a field list.
     call rhs_fields%init(1)
     call rhs_fields%assign(1, f)
 
-    call this%init_base(rhs_fields, coef, user)
+    call this%init_base(rhs_fields, coef, user, scheme_name)
   end subroutine scalar_source_term_init
 
   !> Initialize the user source term.
   !! @param source_term The allocatable source term to be initialized to a user.
   !! @param rhs_fields The field list with the right-hand-side.
   !! @param coef The SEM coefs.
-  !! @param type The type of the user source term, "user_vector" or
   !! "user_poinwise".
   !! @param user The user type containing the user source term routines.
-  subroutine scalar_init_user_source(source_term, rhs_fields, coef, type, user)
+  !! @param scheme_name The name of the scalar scheme that owns this source term.
+  subroutine scalar_init_user_source(source_term, rhs_fields, coef, user, &
+       scheme_name)
     class(source_term_t), allocatable, intent(inout) :: source_term
     type(field_list_t) :: rhs_fields
     type(coef_t), intent(in) :: coef
-    character(len=*) :: type
     type(user_t), intent(in) :: user
+    character(len=*), intent(in) :: scheme_name
 
-    allocate(scalar_user_source_term_t::source_term)
+    allocate(user_source_term_t::source_term)
 
     select type (source_term)
-      type is (scalar_user_source_term_t)
-       call source_term%init_from_components(rhs_fields, coef, type, &
-            user%scalar_user_f_vector, &
-            user%scalar_user_f)
+    type is (user_source_term_t)
+       call source_term%init_from_components(rhs_fields, coef, &
+            user%source_term, scheme_name)
     end select
   end subroutine scalar_init_user_source
 

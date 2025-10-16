@@ -1,0 +1,150 @@
+module test_field_registry
+  use pfunit
+  use field
+  use point
+  use space
+  use mesh
+  use dofmap
+  use math
+  use field_registry
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use num_types
+  implicit none
+
+contains
+
+  subroutine test_field_registry_gen_msh(msh)
+    type(mesh_t), intent(inout) :: msh
+    type(point_t) :: p(12)
+
+    call p(1)%init(0d0, 0d0, 0d0)
+    call p(1)%set_id(1)
+    call p(2)%init(1d0, 0d0, 0d0)
+    call p(2)%set_id(2)
+    call p(3)%init(0d0, 1d0, 0d0)
+    call p(3)%set_id(4)
+    call p(4)%init(1d0, 1d0, 0d0)
+    call p(4)%set_id(3)
+    call p(5)%init(2d0, 0d0, 0d0)
+    call p(5)%set_id(5)
+    call p(6)%init(2d0, 1d0, 0d0)
+    call p(6)%set_id(6)
+    call p(7)%init(0d0, 0d0, 1d0)
+    call p(7)%set_id(7)
+    call p(8)%init(1d0, 0d0, 1d0)
+    call p(8)%set_id(8)
+    call p(9)%init(1d0, 1d0, 1d0)
+    call p(9)%set_id(9)
+    call p(10)%init(0d0, 1d0, 1d0)
+    call p(10)%set_id(10)
+    call p(11)%init(2d0, 0d0, 1d0)
+    call p(11)%set_id(11)
+    call p(12)%init(2d0, 1d0, 1d0)
+    call p(12)%set_id(12)
+
+    call msh%init(3, 1)
+    call msh%add_element(1, 1, p(1), p(2), p(4), p(3), &
+         p(7), p(8), p(9), p(10))
+    pe_rank = 1
+    pe_size = 1
+    call msh%generate_conn()
+
+  end subroutine test_field_registry_gen_msh
+
+  @test
+  subroutine test_field_registry_init()
+    type(field_registry_t) :: registry
+
+    call registry%init()
+
+    @assertEqual(registry%n_fields(), 0)
+    @assertEqual(registry%n_aliases(), 0)
+    @assertEqual(registry%get_expansion_size(), 50)
+
+    call registry%init(5, 10)
+    @assertEqual(registry%n_fields(), 0)
+    @assertEqual(registry%n_aliases(), 0)
+    @assertEqual(registry%get_expansion_size(), 10)
+  end subroutine test_field_registry_init
+
+  @test
+  subroutine test_field_registry_add_field()
+    type(space_t) :: Xh
+    type(mesh_t) :: msh
+    type(dofmap_t) :: dm
+    integer, parameter :: lx = 4
+    type(field_registry_t) :: registry
+    type(field_t), pointer :: field_ptr
+
+    call test_field_registry_gen_msh(msh)
+
+    call Xh%init(GLL, lx, lx, lx)
+    call dm%init(msh, Xh)
+
+    call registry%init()
+
+    call registry%add_field(dm , 'test_field')
+
+    @assertEqual(registry%n_fields(), 1)
+
+    field_ptr => registry%get_field('test_field')
+
+    @assertEqual(field_ptr%name, 'test_field')
+
+    call registry%add_field(dm , 'test_field', ignore_existing=.true.)
+    @assertEqual(registry%n_fields(), 1)
+  end subroutine test_field_registry_add_field
+
+  @test
+  subroutine test_field_registry_add_alias()
+    type(space_t) :: Xh
+    type(mesh_t) :: msh
+    type(dofmap_t) :: dm
+    integer, parameter :: lx = 4
+    type(field_registry_t) :: registry
+    type(field_t), pointer :: field_ptr
+
+    call test_field_registry_gen_msh(msh)
+
+    call Xh%init(GLL, lx, lx, lx)
+    call dm%init(msh, Xh)
+
+    call registry%init()
+
+    call registry%add_field(dm , 'test_field')
+    call registry%add_alias('test_alias', 'test_field')
+    call registry%add_alias('test_alias2', 'test_field')
+
+    @assertEqual(registry%n_aliases(), 2)
+
+    field_ptr => registry%get_field('test_alias')
+    @assertEqual(field_ptr%name, 'test_field')
+
+    field_ptr => registry%get_field('test_alias2')
+    @assertEqual(field_ptr%name, 'test_field')
+  end subroutine test_field_registry_add_alias
+
+  @test
+  subroutine test_field_registry_expand()
+    type(space_t) :: Xh
+    type(mesh_t) :: msh
+    type(dofmap_t) :: dm
+    integer, parameter :: lx = 4
+    type(field_registry_t) :: registry
+    type(field_t), pointer :: field_ptr
+
+    call test_field_registry_gen_msh(msh)
+
+    call Xh%init(GLL, lx, lx, lx)
+    call dm%init(msh, Xh)
+
+    call registry%init(1, 1)
+
+    call registry%add_field(dm , 'test_field1')
+    call registry%add_field(dm , 'test_field2')
+
+    @assertEqual(registry%n_fields(), 2)
+  end subroutine test_field_registry_expand
+
+
+end module test_field_registry

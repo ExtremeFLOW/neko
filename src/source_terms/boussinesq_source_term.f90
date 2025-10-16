@@ -45,6 +45,7 @@ module boussinesq_source_term
   use boussinesq_source_term_device, only : &
        boussinesq_source_term_compute_device
   use field_registry, only : neko_field_registry
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -82,11 +83,14 @@ contains
   !! @param json The JSON object for the source.
   !! @param fields A list of fields for adding the source values.
   !! @param coef The SEM coeffs.
-  subroutine boussinesq_source_term_init_from_json(this, json, fields, coef)
+  !! @param variable_name The name of the variable where the source term acts.
+  subroutine boussinesq_source_term_init_from_json(this, json, fields, coef, &
+       variable_name)
     class(boussinesq_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_list_t), intent(in), target :: fields
     type(coef_t), intent(in), target :: coef
+    character(len=*), intent(in) :: variable_name
     real(kind=rp), allocatable :: values(:)
     real(kind=rp) :: start_time, end_time, ref_value
     character(len=:), allocatable :: scalar_name
@@ -100,7 +104,7 @@ contains
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
     call json_get_or_default(json, "end_time", end_time, huge(0.0_rp))
 
-    call json_get_or_default(json, "scalar_field", scalar_name, "s")
+    call json_get_or_default(json, "scalar_field", scalar_name, "temperature")
     call json_get(json, "g", g)
 
     if (.not. size(g) == 3) then
@@ -140,9 +144,9 @@ contains
     call this%init_base(fields, coef, start_time, end_time)
 
     if (.not. neko_field_registry%field_exists(scalar_name)) then
-       call neko_field_registry%add_field(this%fields%dof(1), "s")
+       call neko_field_registry%add_field(this%fields%dof(1), scalar_name)
     end if
-    this%s => neko_field_registry%get_field("s")
+    this%s => neko_field_registry%get_field(scalar_name)
 
     this%ref_value = ref_value
     this%g = g
@@ -160,10 +164,9 @@ contains
   !> Computes the source term and adds the result to `fields`.
   !! @param t The time value.
   !! @param tstep The current time-step.
-  subroutine boussinesq_source_term_compute(this, t, tstep)
+  subroutine boussinesq_source_term_compute(this, time)
     class(boussinesq_source_term_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     integer :: n_fields, i, n
 
     n_fields = this%fields%size()

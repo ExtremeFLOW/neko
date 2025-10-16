@@ -1,4 +1,4 @@
-! Copyright (c) 2022-2024, The Neko Authors
+! Copyright (c) 2022-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ module scalar_scheme
   use field_list, only: field_list_t
   use space, only : space_t
   use dofmap, only : dofmap_t
-  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER
+  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER, ksp_monitor_t
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
   use neumann, only : neumann_t
@@ -57,18 +57,18 @@ module scalar_scheme
   use time_scheme_controller, only : time_scheme_controller_t
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use field_registry, only : neko_field_registry
-  use usr_scalar, only : usr_scalar_t, usr_scalar_bc_eval
-  use json_utils, only : json_get, json_get_or_default, json_extract_item, &
-       json_extract_object
+  use json_utils, only : json_get, json_get_or_default, json_extract_item
   use json_module, only : json_file
   use user_intf, only : user_t, dummy_user_material_properties, &
-       user_material_properties
+       user_material_properties_intf
   use utils, only : neko_error, neko_warning
-  use comm, only: NEKO_COMM, MPI_INTEGER, MPI_SUM
+  use comm, only: NEKO_COMM
+  use mpi_f08, only : MPI_INTEGER, MPI_SUM
   use scalar_source_term, only : scalar_source_term_t
   use field_series, only : field_series_t
   use math, only : cfill, add2s2
-  use field_math, only : field_cmult2, field_col3, field_cfill, field_add2
+  use field_math, only : field_cmult2, field_col3, field_cfill, field_add3, &
+       field_copy
   use device_math, only : device_cfill, device_add2s2
   use neko_config, only : NEKO_BCKND_DEVICE
   use field_series, only : field_series_t
@@ -127,16 +127,16 @@ module scalar_scheme
      !> Density.
      type(field_t), pointer :: rho => null()
      !> Thermal diffusivity.
-     type(field_t) :: lambda
+     type(field_t), pointer :: lambda => null()
      !> Specific heat capacity.
-     type(field_t) :: cp
+     type(field_t), pointer :: cp => null()
+     !> Total diffusivity.
+     type(field_t), pointer :: lambda_tot => null()
      !> Turbulent Prandtl number.
      real(kind=rp) :: pr_turb
      !> Field list with cp and lambda
      type(field_list_t) :: material_properties
-     !> Is lambda varying in time? Currently only due to LES models.
-     logical :: variable_material_properties = .false.
-     procedure(user_material_properties), nopass, pointer :: &
+     procedure(user_material_properties_intf), nopass, pointer :: &
           user_material_properties => null()
    contains
      !> Constructor for the base type.
@@ -210,15 +210,18 @@ module scalar_scheme
 
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine scalar_scheme_step_intrf(this, time, ext_bdf, dt_controller)
+     subroutine scalar_scheme_step_intrf(this, time, ext_bdf, dt_controller, &
+          ksp_results)
        import scalar_scheme_t
        import time_state_t
        import time_scheme_controller_t
        import time_step_controller_t
+       import ksp_monitor_t
        class(scalar_scheme_t), intent(inout) :: this
        type(time_state_t), intent(in) :: time
        type(time_scheme_controller_t), intent(in) :: ext_bdf
        type(time_step_controller_t), intent(in) :: dt_controller
+       type(ksp_monitor_t), intent(inout) :: ksp_results
      end subroutine scalar_scheme_step_intrf
   end interface
 
@@ -248,7 +251,7 @@ contains
     logical :: logical_val
     real(kind=rp) :: real_val, solver_abstol
     integer :: integer_val, ierr
-    character(len=:), allocatable :: solver_type, solver_precon, field_name
+    character(len=:), allocatable :: solver_type, solver_precon
     type(json_file) :: precon_params
     real(kind=rp) :: GJP_param_a, GJP_param_b
 
@@ -258,13 +261,15 @@ contains
     this%rho => rho
 
     ! Assign a name
-    call json_get_or_default(params, 'name', this%name, 'scalar')
+    ! Note that the keyword is added by `scalars_t`, so there is always a
+    ! default.
+    call json_get(params, 'name', this%name)
 
     call neko_log%section('Scalar')
     call json_get(params, 'solver.type', solver_type)
     call json_get(params, 'solver.preconditioner.type', &
          solver_precon)
-    call json_extract_object(params, 'solver.preconditioner', precon_params)
+    call json_get(params, 'solver.preconditioner', precon_params)
     call json_get(params, 'solver.absolute_tolerance', &
          solver_abstol)
 
@@ -290,13 +295,10 @@ contains
     this%params => params
     this%msh => msh
 
-    call json_get_or_default(params, 'field_name', field_name, 's')
+    call neko_field_registry%add_field(this%dm_Xh, this%name, &
+         ignore_existing = .true.)
 
-    if (.not. neko_field_registry%field_exists(field_name)) then
-       call neko_field_registry%add_field(this%dm_Xh, field_name)
-    end if
-
-    this%s => neko_field_registry%get_field(field_name)
+    this%s => neko_field_registry%get_field(this%name)
 
     call this%slag%init(this%s, 2)
 
@@ -310,39 +312,14 @@ contains
 
 
     !
-    ! Turbulence modelling and variable material properties
+    ! Turbulence modelling
     !
-    if (params%valid_path('variable_material_properties')) then
-       call json_get(params, 'variable_material_properties', &
-            this%variable_material_properties)
-
-       ! Warn, no variable properties, but nut_field
-       if ((params%valid_path('nut_field')) .and. &
-            (this%variable_material_properties .eqv. .false.)) then
-          call neko_warning("You set variable_material properties to " // &
-               "false, the nut_field setting will have no effect.")
-       end if
-
-       ! Warn, no variable properties, but user routine associated
-       if ((.not. associated(user%material_properties, &
-            dummy_user_material_properties)) .and. &
-            (this%variable_material_properties .eqv. .false.)) then
-          call neko_warning("You set variable_material properties to " // &
-               "false, you can only vary rho and mu in time in the user file.")
-       end if
-    else if (params%valid_path('nut_field')) then
+    if (params%valid_path('nut_field')) then
        call json_get(params, 'Pr_t', this%pr_turb)
        call json_get(params, 'nut_field', this%nut_field_name)
-       this%variable_material_properties = .true.
-    else if (.not. associated(user%material_properties, &
-         dummy_user_material_properties)) then
+    else
        this%nut_field_name = ""
-       this%variable_material_properties = .true.
     end if
-
-    write(log_buf, '(A,L1)') 'LES        : ', this%variable_material_properties
-    call neko_log%message(log_buf)
-
 
     !
     ! Setup right-hand side field.
@@ -351,7 +328,7 @@ contains
     call this%f_Xh%init(this%dm_Xh, fld_name = "scalar_rhs")
 
     ! Initialize the source term
-    call this%source_term%init(this%f_Xh, this%c_Xh, user)
+    call this%source_term%init(this%f_Xh, this%c_Xh, user, this%name)
     call this%source_term%add(params, 'source_terms')
 
     ! todo parameter file ksp tol should be added
@@ -392,13 +369,18 @@ contains
        deallocate(this%pc)
     end if
 
+    if (allocated(this%name)) then
+       deallocate(this%name)
+    end if
+
     call this%source_term%free()
 
     call this%bcs%free()
-
-    call this%cp%free()
-    call this%lambda%free()
     call this%slag%free()
+
+    nullify(this%cp)
+    nullify(this%lambda)
+    nullify(this%lambda_tot)
 
   end subroutine scalar_scheme_free
 
@@ -493,29 +475,26 @@ contains
   !! if necessary.
   !! @param t Time value.
   !! @param tstep Current time step.
-  subroutine scalar_scheme_update_material_properties(t, tstep, this)
+  subroutine scalar_scheme_update_material_properties(this, time)
     class(scalar_scheme_t), intent(inout) :: this
-    real(kind=rp),intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     type(field_t), pointer :: nut
     integer :: index
     ! Factor to transform nu_t to lambda_t
     type(field_t), pointer :: lambda_factor
 
-    call this%user_material_properties(t, tstep, this%name, &
-         this%material_properties)
+    call this%user_material_properties(this%name, this%material_properties, &
+         time)
 
     ! factor = rho * cp / pr_turb
-    if (this%variable_material_properties .and. &
-         len(trim(this%nut_field_name)) > 0) then
+    if (len(trim(this%nut_field_name)) > 0) then
        nut => neko_field_registry%get_field(this%nut_field_name)
 
-       ! lambda = lambda + rho * cp * nut / pr_turb
+       ! lambda_tot = lambda + rho * cp * nut / pr_turb
        call neko_scratch_registry%request_field(lambda_factor, index)
-
        call field_col3(lambda_factor, this%cp, this%rho)
        call field_cmult2(lambda_factor, nut, 1.0_rp / this%pr_turb)
-       call field_add2(this%lambda, lambda_factor)
+       call field_add3(this%lambda_tot, this%lambda, lambda_factor)
        call neko_scratch_registry%relinquish_field(index)
     end if
 
@@ -539,18 +518,25 @@ contains
     type(user_t), target, intent(in) :: user
     character(len=LOG_SIZE) :: log_buf
     ! A local pointer that is needed to make Intel happy
-    procedure(user_material_properties), pointer :: dummy_mp_ptr
+    procedure(user_material_properties_intf), pointer :: dummy_mp_ptr
     real(kind=rp) :: const_cp, const_lambda
+    ! Dummy time state set to 0
+    type(time_state_t) :: time
 
     dummy_mp_ptr => dummy_user_material_properties
 
     ! Fill lambda field with the physical value
-    call this%lambda%init(this%dm_Xh, "lambda")
-    call this%cp%init(this%dm_Xh, "cp")
+
+    call neko_field_registry%add_field(this%dm_Xh, this%name // "_lambda")
+    call neko_field_registry%add_field(this%dm_Xh, this%name // "_lambda_tot")
+    call neko_field_registry%add_field(this%dm_Xh, this%name // "_cp")
+    this%lambda => neko_field_registry%get_field(this%name // "_lambda")
+    this%lambda_tot => neko_field_registry%get_field(this%name // "_lambda_tot")
+    this%cp => neko_field_registry%get_field(this%name // "_cp")
 
     call this%material_properties%init(2)
-    call this%material_properties%assign_to_field(1, this%cp)
-    call this%material_properties%assign_to_field(2, this%lambda)
+    call this%material_properties%assign(1, this%cp)
+    call this%material_properties%assign(2, this%lambda)
 
     if (.not. associated(user%material_properties, dummy_mp_ptr)) then
 
@@ -558,8 +544,8 @@ contains
             "file!"
        call neko_log%message(log_buf)
        this%user_material_properties => user%material_properties
-       call user%material_properties(0.0_rp, 0, this%name, &
-            this%material_properties)
+
+       call user%material_properties(this%name, this%material_properties, time)
     else
        this%user_material_properties => dummy_user_material_properties
        if (params%valid_path('Pe') .and. &
@@ -604,6 +590,9 @@ contains
        write(log_buf, '(A,ES13.6)') 'cp         :', const_cp
        call neko_log%message(log_buf)
     end if
+
+    ! Copy over material property to the total one
+    call field_copy(this%lambda_tot, this%lambda)
 
     ! Since cp is a field and we use the %x(1,1,1,1) of the
     ! host array data to pass constant material properties

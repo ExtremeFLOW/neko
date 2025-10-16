@@ -8,9 +8,9 @@ subroutine test_point_init
   integer :: point_id
   real(kind=dp), parameter :: coords(3) = (/1d0, 2d0, 3d0/)
   integer :: i
-  
-  p1 = point_t(1d0, 2d0, 3d0)
-  p2 = point_t(coords)
+
+  call p1%init(1d0, 2d0, 3d0)
+  call p2%init(coords)
 
   do i = 1, 3
      @assertEqual(p1%x(i), p2%x(i))
@@ -23,12 +23,12 @@ subroutine test_point_init
   @assertEqual(p1%id(), point_id)
   @assertFalse(p1%id() .eq. p2%id())
 
-  p2 = point_t(1d0, 2d0, 3d0, point_id)
+  call p2%init(1d0, 2d0, 3d0, point_id)
   do i = 1, 3
      @assertEqual(p1%x(i), p2%x(i))
   end do
 
-  p3 = point_t(coords, point_id)
+  call p3%init(coords, point_id)
   do i = 1, 3
      @assertEqual(p3%x(i), p1%x(i))
   end do
@@ -47,10 +47,10 @@ subroutine test_point_assign
   real(kind=dp), parameter :: c2(3) = (/4d0, 5d0, 6d0/)
   integer :: i
 
-  p1 = point_t(c1)
-  
+  call p1%init(c1)
+
   point_id = 42
-  p2 = point_t(c1, point_id)
+  call p2%init(c1, point_id)
   @assertFalse(p1%id() .eq. p2%id())
   do i = 1, 3
      @assertEqual(p1%x(i), p2%x(i))
@@ -62,7 +62,7 @@ subroutine test_point_assign
      @assertEqual(p1%x(i), p2%x(i))
   end do
 
-  p2 = point_t(c2, point_id)
+  call p2%init(c2, point_id)
   @assertTrue(p1%id() .eq. p2%id())
   do i = 1, 3
      @assertNotEqual(p1%x(i), p2%x(i))
@@ -73,7 +73,7 @@ subroutine test_point_assign
   do i = 1, 3
      @assertEqual(p1%x(i), p2%x(i))
   end do
-    
+
 end subroutine test_point_assign
 
 @test
@@ -86,12 +86,12 @@ subroutine test_point_eqne
   real(kind=dp), parameter :: c1(3) = (/1d0, 2d0, 3d0/)
   real(kind=dp), parameter :: c2(3) = (/4d0, 5d0, 6d0/)
 
-  p1 = point_t(c1)
-  p2 = point_t(c2)
+  call p1%init(c1)
+  call p2%init(c2)
 
   @assertFalse(p1 .eq. p2)
   @assertTrue(p1 .ne. p2)
-  
+
 end subroutine test_point_eqne
 
 @test
@@ -106,16 +106,16 @@ subroutine test_point_ltgt
   real(kind=dp), parameter :: c3(3) = (/-2d0, -2d0, -2d0/)
   real(kind=dp), parameter :: c4(3) = (/2d0, 2d0, 2d0/)
 
-  p1 = point_t(c1)
-  p2 = point_t(c2)
+  call p1%init(c1)
+  call p2%init(c2)
   @assertTrue(p1 .lt. p2)
   @assertFalse(p1 .gt. p2)
   @assertTrue(p2 .gt. p1)
-  
-  p1 = point_t(c3)
-  p2 = point_t(c4)
+
+  call p1%init(c3)
+  call p2%init(c4)
   @assertTrue(p1 .lt. p2)
   @assertFalse(p1 .gt. p2)
   @assertTrue(p2 .gt. p1)
-  
+
 end subroutine test_point_ltgt

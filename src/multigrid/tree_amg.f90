@@ -35,8 +35,8 @@ module tree_amg
   use num_types, only : rp
   use utils, only : neko_error
   use math, only : rzero, col2
-  use device_math , only : device_rzero, device_col2, device_masked_atomic_reduction, &
-       device_masked_gather_copy, device_cfill
+  use device_math , only : device_rzero, device_col2, device_masked_atomic_reduction_0, &
+       device_masked_gather_copy_0, device_cfill
   use coefs, only : coef_t
   use mesh, only : mesh_t
   use space, only : space_t
@@ -413,7 +413,7 @@ contains
 
        associate( wrk_in_d => this%lvl(1)%wrk_in_d, wrk_out_d => this%lvl(1)%wrk_out_d)
          !> Map input level to finest level
-         call device_masked_gather_copy(wrk_in_d, vec_in_d, this%lvl(lvl)%map_finest2lvl_d, this%lvl(lvl)%nnodes, n)
+         call device_masked_gather_copy_0(wrk_in_d, vec_in_d, this%lvl(lvl)%map_finest2lvl_d, this%lvl(lvl)%nnodes, n)
          !> Average on overlapping dofs
          call this%gs_h%op(this%lvl(1)%wrk_in, n, GS_OP_ADD, glb_cmd_event)
          call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
@@ -429,7 +429,7 @@ contains
 
          !> Map finest level matvec back to output level
          call device_rzero(vec_out_d, this%lvl(lvl)%nnodes)
-         call device_masked_atomic_reduction(vec_out_d, wrk_out_d, this%lvl(lvl)%map_finest2lvl_d, this%lvl(lvl)%nnodes, n)
+         call device_masked_atomic_reduction_0(vec_out_d, wrk_out_d, this%lvl(lvl)%map_finest2lvl_d, this%lvl(lvl)%nnodes, n)
        end associate
 
     end if
@@ -447,7 +447,7 @@ contains
        call device_col2(vec_in_d, this%coef%mult_d, m)
     end if
     call device_rzero(vec_out_d, n)
-    call device_masked_atomic_reduction(vec_out_d, vec_in_d, this%lvl(lvl)%map_f2c_d, n, m)
+    call device_masked_atomic_reduction_0(vec_out_d, vec_in_d, this%lvl(lvl)%map_f2c_d, n, m)
   end subroutine tamg_device_restriction_operator
 
   subroutine tamg_device_prolongation_operator(this, vec_out_d, vec_in_d, lvl, vec_out)
@@ -459,7 +459,7 @@ contains
     integer :: i, n, m
     n = this%lvl(lvl)%nnodes
     m = this%lvl(lvl)%fine_lvl_dofs
-    call device_masked_gather_copy(vec_out_d, vec_in_d, this%lvl(lvl)%map_f2c_d, n, m)
+    call device_masked_gather_copy_0(vec_out_d, vec_in_d, this%lvl(lvl)%map_f2c_d, n, m)
     if (lvl-1 .eq. 0) then
        call this%gs_h%op(vec_out, m, GS_OP_ADD, glb_cmd_event)
        call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)

@@ -52,6 +52,7 @@ module idw_source_term
   use point, only : point_t
   use math, only : NEKO_EPS
   use aabb, only : aabb_t, get_aabb
+  use time_state, only : time_state_t
   use gather_scatter
   use mpi_f08
   use logger
@@ -85,7 +86,6 @@ module idw_source_term
      type(field_t) :: tmp
      type(gs_t) :: gs
      logical :: one_sided
-     real(kind=rp) :: t_old
    contains
      !> The common constructor using a JSON object.
      procedure, pass(this) :: init => idw_source_term_init_from_json
@@ -99,12 +99,13 @@ module idw_source_term
 
 contains
 
-  subroutine idw_source_term_init_from_json(this, json, fields, coef)
+  subroutine idw_source_term_init_from_json(this, json, fields, &
+       coef, variable_name)
     class(idw_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_list_t), intent(in), target :: fields
     type(coef_t), target, intent(in) :: coef
-    real(kind=rp) :: start_time, end_time
+    character(len=*), intent(in) :: variable_name
     type(json_value), pointer :: json_object_list
     type(json_core) :: core
     type(json_file) :: object_settings
@@ -115,11 +116,11 @@ contains
     type(stack_i4_t) :: overlaps
     type(stack_pt_t) :: lagrangian_points
     type(stack_pt_t) :: lagrangian_normals
+    real(kind=rp) :: start_time, end_time
 
     ! Mandatory fields for the general source term
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
     call json_get_or_default(json, "end_time", end_time, huge(0.0_rp))
-    this%t_old = start_time
 
     call this%free()
     call this%init_base(fields, coef, start_time, end_time)
@@ -366,7 +367,7 @@ contains
        end do
     end select
 
-    call this%global_interp%init(coef%dof, 1d-10)
+    call this%global_interp%init(coef%dof, NEKO_COMM)
 
     n_lags = lagrangian_points%size()
     call this%global_interp%find_points_and_redist(this%xyz, n_lags)
@@ -489,11 +490,9 @@ contains
 
   end subroutine idw_source_term_free
 
-  subroutine idw_source_term_compute(this, t, tstep)
+  subroutine idw_source_term_compute(this, time)
     class(idw_source_term_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    real(kind=rp) :: dt
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     type(field_t), pointer :: u, v, w, fu, fv, fw
     integer :: i, j, k, l, e, ee, n
     real(kind=rp) :: r, idw
@@ -507,11 +506,6 @@ contains
     fu => this%fields%get(1)
     fv => this%fields%get(2)
     fw => this%fields%get(3)
-
-    !> @todo Change this once we have variable time-stepping
-!    dt = t / tstep
-    dt = t - this%t_old
-    this%t_old = t
 
     associate(global_interp => this%global_interp, &
          fu_ib => this%fu_ib, fv_ib => this%fv_ib, fw_ib => this%fw_ib, &
@@ -534,32 +528,32 @@ contains
          do i = 1, n
             tmp%x(i,1,1,1) = u%x(i,1,1,1) * this%pmsk%x(i,1,1,1)
          end do
-         call global_interp%evaluate(fu_ib, tmp%x)
+         call global_interp%evaluate(fu_ib, tmp%x, .false.)
 
          do i = 1, n
             tmp%x(i,1,1,1) = v%x(i,1,1,1) * this%pmsk%x(i,1,1,1)
          end do
-         call global_interp%evaluate(fv_ib, tmp%x)
+         call global_interp%evaluate(fv_ib, tmp%x, .false.)
 
          do i = 1, n
             tmp%x(i,1,1,1) = w%x(i,1,1,1) * this%pmsk%x(i,1,1,1)
          end do
-         call global_interp%evaluate(fw_ib, tmp%x)
+         call global_interp%evaluate(fw_ib, tmp%x, .false.)
 
          do i = 1, n
             tmp%x(i,1,1,1) = u%x(i,1,1,1) * this%mmsk%x(i,1,1,1)
          end do
-         call global_interp%evaluate(fum_ib, tmp%x)
+         call global_interp%evaluate(fum_ib, tmp%x, .false.)
 
          do i = 1, n
             tmp%x(i,1,1,1) = v%x(i,1,1,1) * this%mmsk%x(i,1,1,1)
          end do
-         call global_interp%evaluate(fvm_ib, tmp%x)
+         call global_interp%evaluate(fvm_ib, tmp%x, .false.)
 
          do i = 1, n
             tmp%x(i,1,1,1) = w%x(i,1,1,1) * this%mmsk%x(i,1,1,1)
          end do
-         call global_interp%evaluate(fwm_ib, tmp%x)
+         call global_interp%evaluate(fwm_ib, tmp%x, .false.)
 
          do i = 1, size(this%lag_pts)
             select type (el => this%lag_el(i)%data)
@@ -578,24 +572,30 @@ contains
                            if (this%pmsk%x(j,k,l,e) .gt. 0) then
                               if (abs(this%w%x(j,k,l,e)) .gt. 1e-8_rp) then
                                  fu%x(j,k,l,e) = fu%x(j,k,l,e) &
-                                      + (-fu_ib(i) * idw) / (this%w%x(j,k,l,e) * dt)
+                                      + (-fu_ib(i) * idw) / (this%w%x(j,k,l,e) &
+                                      * time%dt)
 
                                  fv%x(j,k,l,e) = fv%x(j,k,l,e) &
-                                      + (-fv_ib(i) * idw) / (this%w%x(j,k,l,e) * dt)
+                                      + (-fv_ib(i) * idw) / (this%w%x(j,k,l,e) &
+                                      * time%dt)
 
                                  fw%x(j,k,l,e) = fw%x(j,k,l,e) &
-                                      + (-fw_ib(i) * idw) / (this%w%x(j,k,l,e) * dt)
+                                      + (-fw_ib(i) * idw) / (this%w%x(j,k,l,e) &
+                                      * time%dt)
                               end if
                            else
                               if (abs(this%wm%x(j,k,l,e)) .gt. 1e-8_rp) then
                                  fu%x(j,k,l,e) = fu%x(j,k,l,e) &
-                                      + (-fum_ib(i) * idw) / (this%wm%x(j,k,l,e) * dt)
+                                      + (-fum_ib(i) * idw) / (this%wm%x(j,k,l,e) &
+                                      * time%dt)
 
                                  fv%x(j,k,l,e) = fv%x(j,k,l,e) &
-                                      + (-fvm_ib(i) * idw) / (this%wm%x(j,k,l,e) * dt)
+                                      + (-fvm_ib(i) * idw) / (this%wm%x(j,k,l,e) &
+                                      * time%dt)
 
                                  fw%x(j,k,l,e) = fw%x(j,k,l,e) &
-                                      + (-fwm_ib(i) * idw) / (this%wm%x(j,k,l,e) * dt)
+                                      + (-fwm_ib(i) * idw) / (this%wm%x(j,k,l,e) &
+                                      * time%dt)
                               end if
                            end if
                         end do
@@ -606,9 +606,9 @@ contains
          end do
       else
 
-         call global_interp%evaluate(fu_ib, u%x)
-         call global_interp%evaluate(fv_ib, v%x)
-         call global_interp%evaluate(fw_ib, w%x)
+         call global_interp%evaluate(fu_ib, u%x, .false.)
+         call global_interp%evaluate(fv_ib, v%x, .false.)
+         call global_interp%evaluate(fw_ib, w%x, .false.)
 
 
          do i = 1, size(this%lag_pts)
@@ -625,15 +625,18 @@ contains
                                    + (z(j,k,l,e) - lag_pts(i)%x(3))**2)
                               r = r / ds(j,k,l,e)
                               idw = inv_dist_weight(r, this%rmax, this%pwr_param)
-
+                              
                               fu%x(j,k,l,e) = fu%x(j,k,l,e) &
-                                   + (-fu_ib(i) * idw) / (this%w%x(j,k,l,e) * dt)
+                                   + (-fu_ib(i) * idw) / (this%w%x(j,k,l,e) &
+                                   * time%dt)
 
                               fv%x(j,k,l,e) = fv%x(j,k,l,e) &
-                                   + (-fv_ib(i) * idw) / (this%w%x(j,k,l,e) * dt)
+                                   + (-fv_ib(i) * idw) / (this%w%x(j,k,l,e) &
+                                   * time%dt)
 
                               fw%x(j,k,l,e) = fw%x(j,k,l,e) &
-                                   + (-fw_ib(i) * idw) / (this%w%x(j,k,l,e) * dt)
+                                   + (-fw_ib(i) * idw) / (this%w%x(j,k,l,e) &
+                                   * time%dt)
                            end if
                         end do
                      end do
@@ -679,7 +682,7 @@ contains
 
 
     call json_get(json, 'name', mesh_file_name)
-    mesh_file = file_t(mesh_file_name)
+    call mesh_file%init(mesh_file_name)
     call neko_log%message('Filename   : '// trim(mesh_file_name))
     call mesh_file%read(boundary_mesh)
     if (boundary_mesh%mpts .lt. 1e1) then

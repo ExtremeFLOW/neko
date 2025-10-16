@@ -41,7 +41,8 @@ module gmres_sx
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, rone, copy, cmult2, col2, col3, add2s2, abscmp
-  use comm
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
+  use mpi_f08
   implicit none
   private
 
@@ -198,6 +199,7 @@ contains
 
     conv = .false.
     iter = 0
+    rnorm = 0.0_rp
     glb_n = n / x%msh%nelv * x%msh%glb_nelv
 
     if (present(niter)) then
@@ -236,7 +238,7 @@ contains
           ksp_results%res_start = div0
        endif
 
-       if (abscmp(this%gam(1), 0.0_rp)) return
+       if (abscmp(this%gam(1), 0.0_rp)) exit
 
        rnorm = 0.0_rp
        temp = one / this%gam(1)

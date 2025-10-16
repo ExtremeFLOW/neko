@@ -66,7 +66,7 @@ contains
     this%msh => msh
 
     call this%search_tree%init(msh%nelv)
-    
+
     !> @todo Rework this part once the new mesh structure is in place
     allocate(elements(msh%nelv))
     do i = 1, msh%nelv
@@ -85,7 +85,7 @@ contains
     end if
 
     deallocate(elements)
-    
+
     if (this%search_tree%get_size() .ne. (msh%nelv)) then
        call neko_error("Error building the search tree.")
     end if
@@ -101,7 +101,7 @@ contains
     end if
 
     !> @todo cleanup the aabb tree
-    
+
   end subroutine intersect_detector_free
 
   !> Computes the overlap between elements and a given point @a p
@@ -110,8 +110,8 @@ contains
     type(point_t), intent(in) :: p
     type(stack_i4_t), intent(inout) :: overlaps
 
-    call this%search_tree%query_overlaps(p, -1, overlaps)      
-    
+    call this%search_tree%query_overlaps(p, -1, overlaps)
+
   end subroutine intersect_detector_overlap
-  
-end module intersection_detector  
+
+end module intersection_detector

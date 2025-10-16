@@ -46,6 +46,7 @@ module coriolis_source_term
   use coriolis_source_term_device, only : coriolis_source_term_compute_device
   use field, only : field_t
   use field_registry, only : neko_field_registry
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -72,11 +73,14 @@ contains
   !! @param json The JSON object for the source.
   !! @param fields A list of fields for adding the source values.
   !! @param coef The SEM coeffs.
-  subroutine coriolis_source_term_init_from_json(this, json, fields, coef)
+  !! @param variable_name The name of the variable for this source term.
+  subroutine coriolis_source_term_init_from_json(this, json, fields, coef, &
+       variable_name)
     class(coriolis_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_list_t), intent(in), target :: fields
     type(coef_t), intent(in), target :: coef
+    character(len=*), intent(in) :: variable_name
     ! Rotation vector and geostrophic wind
     real(kind=rp), allocatable :: rotation_vec(:), u_geo(:)
     ! Alternative parameters to set the rotation vector
@@ -159,12 +163,10 @@ contains
   end subroutine coriolis_source_term_free
 
   !> Computes the source term and adds the result to `fields`.
-  !! @param t The time value.
-  !! @param tstep The current time-step.
-  subroutine coriolis_source_term_compute(this, t, tstep)
+  !! @param time The time state.
+  subroutine coriolis_source_term_compute(this, time)
     class(coriolis_source_term_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     type(field_t), pointer :: u, v, w
 
     u => neko_field_registry%get_field("u")

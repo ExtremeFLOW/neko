@@ -1,0 +1,27 @@
+USEMPI=YES
+ifneq ("$(wildcard @PFUNIT_DIR@/include/PFUNIT.mk)", "")
+include @PFUNIT_DIR@/include/PFUNIT.mk
+endif
+FFLAGS += $(PFUNIT_EXTRA_FFLAGS) -I@top_builddir@/src
+FC = @FC@
+
+%.o : %.F90
+	$(FC) -c $(FFLAGS) $<
+
+
+check: field_registry_test
+
+field_registry_test_TESTS := test_field_registry.pf
+field_registry_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko @LDFLAGS@ @LIBS@
+$(eval $(call make_pfunit_test,field_registry_test))
+
+distclean:
+clean:
+	$(RM) *.o *.mod *.a  *.inc *.F90  field_registry_test
+
+
+
+all:
+html:
+install:
+distdir:

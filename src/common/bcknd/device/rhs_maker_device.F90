@@ -46,7 +46,7 @@ module rhs_maker_device
      procedure, nopass :: compute_fluid => rhs_maker_sumab_device
   end type rhs_maker_sumab_device_t
 
-  type, public, extends(rhs_maker_ext_t) ::  rhs_maker_ext_device_t
+  type, public, extends(rhs_maker_ext_t) :: rhs_maker_ext_device_t
    contains
      procedure, nopass :: compute_fluid => rhs_maker_ext_device
      procedure, nopass :: compute_scalar => scalar_rhs_maker_ext_device
@@ -57,6 +57,12 @@ module rhs_maker_device
      procedure, nopass :: compute_fluid => rhs_maker_bdf_device
      procedure, nopass :: compute_scalar => scalar_rhs_maker_bdf_device
   end type rhs_maker_bdf_device_t
+
+  type, public, extends(rhs_maker_oifs_t) :: rhs_maker_oifs_device_t
+   contains
+     procedure, nopass :: compute_fluid => rhs_maker_oifs_device
+     procedure, nopass :: compute_scalar => scalar_rhs_maker_oifs_device
+  end type rhs_maker_oifs_device_t
 
 #ifdef HAVE_HIP
   interface
@@ -126,6 +132,30 @@ module rhs_maker_device
        integer(c_int) :: nbd, n
      end subroutine scalar_rhs_maker_bdf_hip
   end interface
+
+  interface
+     subroutine rhs_maker_oifs_hip(phi_x_d, phi_y_d, phi_z_d, bf_x_d, &
+          bf_y_d, bf_z_d, rho, dt, n) bind(c, name = 'rhs_maker_oifs_hip')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: bf_x_d, bf_y_d, bf_z_d
+       type(c_ptr), value :: phi_x_d, phi_y_d, phi_z_d
+       reaL(c_rp) :: rho, dt
+       integer(c_int) :: n
+     end subroutine rhs_maker_oifs_hip
+  end interface
+
+  interface
+     subroutine scalar_rhs_maker_oifs_hip(phi_s_d, bf_s_d, rho, dt, n) &
+          bind(c, name = 'scalar_rhs_maker_oifs_hip')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: bf_s_d
+       type(c_ptr), value :: phi_s_d
+       reaL(c_rp) :: rho, dt
+       integer(c_int) :: n
+     end subroutine scalar_rhs_maker_oifs_hip
+  end interface
 #elif HAVE_CUDA
   interface
      subroutine rhs_maker_sumab_cuda(u_d, v_d, w_d, uu_d, vv_d, ww_d, &
@@ -194,6 +224,30 @@ module rhs_maker_device
        integer(c_int) :: nbd, n
      end subroutine scalar_rhs_maker_bdf_cuda
   end interface
+
+  interface
+     subroutine rhs_maker_oifs_cuda(phi_x_d, phi_y_d, phi_z_d, bf_x_d, &
+          bf_y_d, bf_z_d, rho, dt, n) bind(c, name = 'rhs_maker_oifs_cuda')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: bf_x_d, bf_y_d, bf_z_d
+       type(c_ptr), value :: phi_x_d, phi_y_d, phi_z_d
+       reaL(c_rp) :: rho, dt
+       integer(c_int) :: n
+     end subroutine rhs_maker_oifs_cuda
+  end interface
+
+  interface
+     subroutine scalar_rhs_maker_oifs_cuda(phi_s_d, bf_s_d, rho, dt, n) &
+          bind(c, name = 'scalar_rhs_maker_oifs_cuda')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: bf_s_d
+       type(c_ptr), value :: phi_s_d
+       reaL(c_rp) :: rho, dt
+       integer(c_int) :: n
+     end subroutine scalar_rhs_maker_oifs_cuda
+  end interface
 #elif HAVE_OPENCL
   interface
      subroutine rhs_maker_sumab_opencl(u_d, v_d, w_d, uu_d, vv_d, ww_d, &
@@ -261,6 +315,30 @@ module rhs_maker_device
        reaL(c_rp) :: rho, dt, bd2, bd3, bd4
        integer(c_int) :: nbd, n
      end subroutine scalar_rhs_maker_bdf_opencl
+  end interface
+
+  interface
+     subroutine rhs_maker_oifs_opencl(phi_x_d, phi_y_d, phi_z_d, bf_x_d, &
+          bf_y_d, bf_z_d, rho, dt, n) bind(c, name = 'rhs_maker_oifs_opencl')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: bf_x_d, bf_y_d, bf_z_d
+       type(c_ptr), value :: phi_x_d, phi_y_d, phi_z_d
+       reaL(c_rp) :: rho, dt
+       integer(c_int) :: n
+     end subroutine rhs_maker_oifs_opencl
+  end interface
+
+  interface
+     subroutine scalar_rhs_maker_oifs_opencl(phi_s_d, bf_s_d, rho, dt, n) &
+          bind(c, name = 'scalar_rhs_maker_oifs_opencl')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: bf_s_d
+       type(c_ptr), value :: phi_s_d
+       reaL(c_rp) :: rho, dt
+       integer(c_int) :: n
+     end subroutine scalar_rhs_maker_oifs_opencl
   end interface
 #endif
 
@@ -414,5 +492,54 @@ contains
 #endif
 
   end subroutine scalar_rhs_maker_bdf_device
+
+  subroutine rhs_maker_oifs_device(phi_x, phi_y, phi_z, bf_x, bf_y, bf_z, &
+                                rho, dt, n)
+    real(kind=rp), intent(in) :: rho, dt
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: bf_x(n), bf_y(n), bf_z(n)
+    real(kind=rp), intent(inout) :: phi_x(n), phi_y(n), phi_z(n)
+
+    type(c_ptr) :: phi_x_d, phi_y_d, phi_z_d, bf_x_d, bf_y_d, bf_z_d
+
+    phi_x_d = device_get_ptr(phi_x)
+    phi_y_d = device_get_ptr(phi_y)
+    phi_z_d = device_get_ptr(phi_z)
+    bf_x_d = device_get_ptr(bf_x)
+    bf_y_d = device_get_ptr(bf_y)
+    bf_z_d = device_get_ptr(bf_z)
+
+#ifdef HAVE_HIP
+    call rhs_maker_oifs_hip(phi_x_d, phi_y_d, phi_z_d, &
+                           bf_x_d, bf_y_d, bf_z_d, rho, dt, n)
+#elif HAVE_CUDA
+    call rhs_maker_oifs_cuda(phi_x_d, phi_y_d, phi_z_d, &
+                             bf_x_d, bf_y_d, bf_z_d, rho, dt, n)
+#elif HAVE_OPENCL
+    call rhs_maker_oifs_opencl(phi_x_d, phi_y_d, phi_z_d, &
+                               bf_x_d, bf_y_d, bf_z_d, rho, dt, n)
+#endif
+
+  end subroutine rhs_maker_oifs_device
+
+  subroutine scalar_rhs_maker_oifs_device(phi_s,bf_s, rho, dt, n)
+    real(kind=rp), intent(in) :: rho, dt
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: bf_s(n)
+    real(kind=rp), intent(inout) :: phi_s(n)
+    type(c_ptr) :: phi_s_d, bf_s_d
+
+    phi_s_d = device_get_ptr(phi_s)
+    bf_s_d = device_get_ptr(bf_s)
+
+#ifdef HAVE_HIP
+    call scalar_rhs_maker_oifs_hip(phi_s_d, bf_s_d, rho, dt, n)
+#elif HAVE_CUDA
+    call scalar_rhs_maker_oifs_cuda(phi_s_d, bf_s_d, rho, dt, n)
+#elif HAVE_OPENCL
+    call scalar_rhs_maker_oifs_opencl(phi_s_d, bf_s_d, rho, dt, n)
+#endif
+
+  end subroutine scalar_rhs_maker_oifs_device
 
 end module rhs_maker_device

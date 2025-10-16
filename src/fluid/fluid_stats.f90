@@ -44,7 +44,7 @@ module fluid_stats
   use field, only : field_t
   use field_list, only : field_list_t
   use stats_quant, only : stats_quant_t
-  use device
+  use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
   use neko_config, only : NEKO_BCKND_DEVICE
   use utils, only : neko_warning
   implicit none
@@ -137,11 +137,11 @@ module fluid_stats
      character(5) :: stat_set
      !> A list of size n_stats, whith entries pointing to the fields that will
      !! be output (the field components above.) Used to write the output.
-     type(field_list_t)  :: stat_fields
+     type(field_list_t) :: stat_fields
    contains
      !> Constructor.
      procedure, pass(this) :: init => fluid_stats_init
-     !> Destructor. 
+     !> Destructor.
      procedure, pass(this) :: free => fluid_stats_free
      !> Update all the mean value fields with a new sample.
      procedure, pass(this) :: update => fluid_stats_update
@@ -149,7 +149,7 @@ module fluid_stats
      procedure, pass(this) :: reset => fluid_stats_reset
      ! Convert computed weak gradients to strong.
      procedure, pass(this) :: make_strong_grad => fluid_stats_make_strong_grad
-     !> Compute certain physical statistical quantities based on existing mean 
+     !> Compute certain physical statistical quantities based on existing mean
      !! fields.
      procedure, pass(this) :: post_process => fluid_stats_post_process
   end type fluid_stats_t
@@ -161,8 +161,8 @@ contains
   !! @param u The x component of velocity.
   !! @param v The y component of velocity.
   !! @param w The z component of velocity.
-  !! @param p The pressure. 
-  !! @param set Specifies the subset of the statistics to be collected. 
+  !! @param p The pressure.
+  !! @param set Specifies the subset of the statistics to be collected.
   !! Optional. Either `basic` or `full`, defaults to `full`.
   subroutine fluid_stats_init(this, coef, u, v, w, p, set)
     class(fluid_stats_t), intent(inout), target:: this
@@ -178,8 +178,8 @@ contains
     this%w => w
     this%p => p
 
-    if (present(set)) then 
-       this%stat_set  = trim(set)
+    if (present(set)) then
+       this%stat_set = trim(set)
        if (this%stat_set .eq. 'basic') then
           this%n_stats = 11
        end if
@@ -187,7 +187,7 @@ contains
        this%stat_set = 'full'
        this%n_stats = 44
     end if
-     
+
     call this%stats_work%init(this%u%dof, 'stats')
     call this%stats_u%init(this%u%dof, 'u temp')
     call this%stats_v%init(this%u%dof, 'v temp')
@@ -204,7 +204,7 @@ contains
     call this%uw%init(this%stats_work, 'uw')
     call this%vw%init(this%stats_work, 'vw')
     call this%pp%init(this%stats_p, 'pp')
- 
+
     if (this%n_stats .eq. 44) then
        call this%dudx%init(this%u%dof, 'dudx')
        call this%dudy%init(this%u%dof, 'dudy')
@@ -316,8 +316,8 @@ contains
     integer :: n
 
     associate(stats_work => this%stats_work, stats_u => this%stats_u, &
-              stats_v => this%stats_v, stats_w => this%stats_w, &
-              stats_p => this%stats_p)
+         stats_v => this%stats_v, stats_w => this%stats_w, &
+         stats_p => this%stats_p)
       n = stats_work%dof%size()
 
       !> U%f is u and U%mf is <u>
@@ -485,9 +485,9 @@ contains
               this%dudz%x_d, n)
          call this%e11%update(k)
          call device_col3(this%stats_work%x_d, this%dvdx%x_d, this%dvdx%x_d, n)
-         call device_addcol3(this%stats_work%x_d, this%dvdy%x_d, & 
+         call device_addcol3(this%stats_work%x_d, this%dvdy%x_d, &
               this%dvdy%x_d, n)
-         call device_addcol3(this%stats_work%x_d, this%dvdz%x_d, & 
+         call device_addcol3(this%stats_work%x_d, this%dvdz%x_d, &
               this%dvdz%x_d, n)
          call this%e22%update(k)
          call device_col3(this%stats_work%x_d, this%dwdx%x_d, this%dwdx%x_d, n)
@@ -662,11 +662,11 @@ contains
   subroutine fluid_stats_make_strong_grad(this)
     class(fluid_stats_t) :: this
     integer :: n
- 
+
     if (this%n_stats .eq. 11) return
- 
+
     n = size(this%coef%B)
- 
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cfill(this%stats_work%x_d, 1.0_rp, n)
        call device_invcol2(this%stats_work%x_d, this%coef%B_d, n)
@@ -713,7 +713,7 @@ contains
 
   end subroutine fluid_stats_make_strong_grad
 
-  !> Compute certain physical statistical quantities based on existing mean 
+  !> Compute certain physical statistical quantities based on existing mean
   !! fields.
   subroutine fluid_stats_post_process(this, mean, reynolds, pressure_flatness,&
        pressure_skewness, skewness_tensor, mean_vel_grad, dissipation_tensor)
@@ -768,19 +768,19 @@ contains
     if (present(pressure_skewness)) then
 
        call neko_warning('Presssure skewness stat not implemented'// &
-                         ' in fluid_stats, process stats in python instead')
+            ' in fluid_stats, process stats in python instead')
 
     end if
 
     if (present(pressure_flatness)) then
        call neko_warning('Presssure flatness stat not implemented'// &
-                         ' in fluid_stats, process stats in python instead')
+            ' in fluid_stats, process stats in python instead')
 
     end if
 
     if (present(skewness_tensor)) then
        call neko_warning('Skewness tensor stat not implemented'// &
-                         ' in fluid_stats, process stats in python instead')
+            ' in fluid_stats, process stats in python instead')
     end if
 
     if (present(mean_vel_grad)) then
@@ -788,68 +788,68 @@ contains
        n = mean_vel_grad%item_size(1)
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_memcpy(this%u_mean%mf%x, this%u_mean%mf%x_d, n, &
-                             HOST_TO_DEVICE, sync = .false.)
+               HOST_TO_DEVICE, sync = .false.)
           call device_memcpy(this%v_mean%mf%x, this%v_mean%mf%x_d, n, &
-                             HOST_TO_DEVICE, sync = .false.)
+               HOST_TO_DEVICE, sync = .false.)
           call device_memcpy(this%w_mean%mf%x, this%w_mean%mf%x_d, n, &
-                             HOST_TO_DEVICE, sync = .false.)
+               HOST_TO_DEVICE, sync = .false.)
           call opgrad(this%dudx%x, this%dudy%x, this%dudz%x, &
-                      this%u_mean%mf%x, this%coef)
+               this%u_mean%mf%x, this%coef)
           call opgrad(this%dvdx%x, this%dvdy%x, this%dvdz%x, &
-                      this%v_mean%mf%x, this%coef)
+               this%v_mean%mf%x, this%coef)
           call opgrad(this%dwdx%x, this%dwdy%x, this%dwdz%x, &
-                      this%w_mean%mf%x, this%coef)
+               this%w_mean%mf%x, this%coef)
           call device_memcpy(this%dudx%x, this%dudx%x_d, n, &
-                             DEVICE_TO_HOST, sync = .false.)
+               DEVICE_TO_HOST, sync = .false.)
           call device_memcpy(this%dvdx%x, this%dvdx%x_d, n, &
-                             DEVICE_TO_HOST, sync = .false.)
+               DEVICE_TO_HOST, sync = .false.)
           call device_memcpy(this%dwdx%x, this%dwdx%x_d, n, &
-                             DEVICE_TO_HOST, sync = .false.)
+               DEVICE_TO_HOST, sync = .false.)
           call device_memcpy(this%dudy%x, this%dudy%x_d, n, &
-                             DEVICE_TO_HOST, sync = .false.)
+               DEVICE_TO_HOST, sync = .false.)
           call device_memcpy(this%dvdy%x, this%dvdy%x_d, n, &
-                             DEVICE_TO_HOST, sync = .false.)
+               DEVICE_TO_HOST, sync = .false.)
           call device_memcpy(this%dwdy%x, this%dwdy%x_d, n, &
-                             DEVICE_TO_HOST, sync = .false.)
+               DEVICE_TO_HOST, sync = .false.)
           call device_memcpy(this%dudz%x, this%dudz%x_d, n, &
-                             DEVICE_TO_HOST, sync = .false.)
+               DEVICE_TO_HOST, sync = .false.)
           call device_memcpy(this%dvdz%x, this%dvdz%x_d, n, &
-                             DEVICE_TO_HOST, sync = .false.)
+               DEVICE_TO_HOST, sync = .false.)
           call device_memcpy(this%dwdz%x, this%dwdz%x_d, n, &
-                             DEVICE_TO_HOST, sync = .true.)
+               DEVICE_TO_HOST, sync = .true.)
        else
           call opgrad(this%dudx%x, this%dudy%x, this%dudz%x, &
-                      this%u_mean%mf%x, this%coef)
+               this%u_mean%mf%x, this%coef)
           call opgrad(this%dvdx%x, this%dvdy%x, this%dvdz%x, &
-                      this%v_mean%mf%x, this%coef)
-          call opgrad(this%dwdx%x, this%dwdy%x, this%dwdz%x, & 
-                      this%w_mean%mf%x, this%coef)
+               this%v_mean%mf%x, this%coef)
+          call opgrad(this%dwdx%x, this%dwdy%x, this%dwdz%x, &
+               this%w_mean%mf%x, this%coef)
        end if
        call invers2(this%stats_work%x, this%coef%B,n)
-       call col3(mean_vel_grad%items(1)%ptr%x, this%dudx%x, & 
-                 this%stats_work%x, n)
+       call col3(mean_vel_grad%items(1)%ptr%x, this%dudx%x, &
+            this%stats_work%x, n)
        call col3(mean_vel_grad%items(2)%ptr%x, this%dudy%x, &
-                 this%stats_work%x, n)
+            this%stats_work%x, n)
        call col3(mean_vel_grad%items(3)%ptr%x, this%dudz%x, &
-                 this%stats_work%x, n)
+            this%stats_work%x, n)
        call col3(mean_vel_grad%items(4)%ptr%x, this%dvdx%x, &
-                 this%stats_work%x, n)
+            this%stats_work%x, n)
        call col3(mean_vel_grad%items(5)%ptr%x, this%dvdy%x, &
-                 this%stats_work%x, n)
+            this%stats_work%x, n)
        call col3(mean_vel_grad%items(6)%ptr%x, this%dvdz%x, &
-                 this%stats_work%x, n)
+            this%stats_work%x, n)
        call col3(mean_vel_grad%items(7)%ptr%x, this%dwdx%x, &
-                 this%stats_work%x, n)
+            this%stats_work%x, n)
        call col3(mean_vel_grad%items(8)%ptr%x, this%dwdy%x, &
-                 this%stats_work%x, n)
+            this%stats_work%x, n)
        call col3(mean_vel_grad%items(9)%ptr%x, this%dwdz%x, &
-                 this%stats_work%x, n)
+            this%stats_work%x, n)
 
     end if
 
     if (present(dissipation_tensor)) then
        call neko_warning('Dissipation tensor stat not implemented'// &
-                         ' in fluid_stats, process stats in python instead')
+            ' in fluid_stats, process stats in python instead')
     end if
 
   end subroutine fluid_stats_post_process

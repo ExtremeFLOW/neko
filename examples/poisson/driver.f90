@@ -1,6 +1,7 @@
 program poisson
   use neko
   use ax_poisson
+  use mpi_f08
   implicit none
 
   character(len=NEKO_FNAME_LEN) :: fname, lxchar, iterchar
@@ -40,7 +41,7 @@ program poisson
   read(lxchar, *) lx
   read(iterchar, *) niter
 
-  nmsh_file = file_t(fname)
+  call nmsh_file%init(fname)
   call nmsh_file%read(msh)
 
   call Xh%init(GLL, lx, lx, lx)
@@ -80,7 +81,7 @@ program poisson
   call set_timer_flop_cnt(1, msh%glb_nelv, x%Xh%lx, niter, n_glb, ksp_mon)
 
   fname = 'out.fld'
-  mf =  file_t(fname)
+  call mf%init(fname)
   call mf%write(x)
   deallocate(f)
   call solver%free()
@@ -97,6 +98,7 @@ subroutine set_timer_flop_cnt(iset, nelt, nx1, niter, n, ksp_mon)
   use comm
   use krylov
   use num_types
+  use mpi_f08
   implicit none
 
   integer :: iset

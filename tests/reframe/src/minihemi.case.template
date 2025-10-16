@@ -5,8 +5,10 @@
     "output_at_end": true,
     "output_boundary": true,
     "output_checkpoints": false,
-    "end_time": 2e-3,
-    "timestep": 0.001,
+    "time": {
+        "end_time": 2e-3,
+        "timestep": 0.001
+    },
     "nsamples": 100,
     "numerics": {
         "time_order": 3,

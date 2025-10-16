@@ -1,4 +1,4 @@
-name: Check depend file
+name: Check .depend file (make depend)
 
 # Controls when the action will run.
 on:
@@ -12,36 +12,35 @@ on:
 
 jobs:
   check_depend:
-    name: "Dependencies (make depend)"
+    name: "Check .depend file (make depend)"
     runs-on: ubuntu-24.04
     steps:
-    - name: Setup env.
-      id: setup-env
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf \
-            automake autotools-dev libopenblas-dev make makedepf90 git gfortran
-        echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
-
     - name: Checkout
       uses: actions/checkout@v4
       with:
         fetch-depth: 1
 
-    - name: Get json-fortran
+    # Setup compiler and other system dependencies
+    - name: Setup - System dependencies (Cache)
+      uses: awalsh128/cache-apt-pkgs-action@latest
+      with:
+        packages: openmpi-bin autoconf automake autotools-dev make m4
+        version: apt-cache-1.0
+        execute_install_scripts: true
+
+    - name: Setup - System dependencies (Non-Cacheable)
+      id: setup-env
+      run: |
+        sudo apt-get install -y libopenmpi-dev libopenblas-dev makedepf90
+        echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
+
+    - name: Dependencies - Get json-fortran
       id: get-json-fortran
       uses: ./.github/actions/setup_json-fortran
       with:
         version: ${{ inputs.json-fortran-version }}
-        os: ${{ steps.setup-env.outputs.os-version }}
+        os: ${{ runner.os }}
         compiler: gfortran
-
-    - name: Add JSON-Fortran to environment
-      env:
-        JSON_FORTRAN_DIR: ${{ steps.get-json-fortran.outputs.install-dir }}
-      run: |
-        echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:$JSON_FORTRAN_DIR/lib/pkgconfig/" >> $GITHUB_ENV
-        echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$JSON_FORTRAN_DIR/lib/" >> $GITHUB_ENV
 
     - name: Run makedependf90
       run: |

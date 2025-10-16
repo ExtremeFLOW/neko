@@ -1,7 +1,7 @@
 #ifndef __MATH_OPGRAD_KERNEL_CL__
 #define __MATH_OPGRAD_KERNEL_CL__
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2021-2025, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -116,8 +116,12 @@ __kernel void opgrad_kernel_lx##LX(__global real * __restrict__ ux,            \
                                                                                \
     }                                                                          \
   }                                                                            \
-}                                                                              
+}
 
+DEFINE_OPGRAD_KERNEL(16, 256)
+DEFINE_OPGRAD_KERNEL(15, 256)
+DEFINE_OPGRAD_KERNEL(14, 256)
+DEFINE_OPGRAD_KERNEL(13, 256)
 DEFINE_OPGRAD_KERNEL(12, 256)
 DEFINE_OPGRAD_KERNEL(11, 256)
 DEFINE_OPGRAD_KERNEL(10, 256)
@@ -129,5 +133,98 @@ DEFINE_OPGRAD_KERNEL(5, 256)
 DEFINE_OPGRAD_KERNEL(4, 256)
 DEFINE_OPGRAD_KERNEL(3, 256)
 DEFINE_OPGRAD_KERNEL(2, 256)
+
+#define DEFINE_OPGRAD_KERNEL_KSTEP(LX)                                         \
+__kernel                                                                       \
+void opgrad_kernel_kstep_lx##LX(__global real * __restrict__ ux,               \
+                                __global real * __restrict__ uy,               \
+                                __global real * __restrict__ uz,               \
+                                __global const real * __restrict__ u,          \
+                                __global const real * __restrict__ dx,         \
+                                __global const real * __restrict__ dy,         \
+                                __global const real * __restrict__ dz,         \
+                                __global const real * __restrict__ drdx,       \
+                                __global const real * __restrict__ dsdx,       \
+                                __global const real * __restrict__ dtdx,       \
+                                __global const real * __restrict__ drdy,       \
+                                __global const real * __restrict__ dsdy,       \
+                                __global const real * __restrict__ dtdy,       \
+                                __global const real * __restrict__ drdz,       \
+                                __global const real * __restrict__ dsdz,       \
+                                __global const real * __restrict__ dtdz,       \
+                                __global const real * __restrict__ w3) {       \
+                                                                               \
+  __local real shu[LX * LX];                                                   \
+                                                                               \
+  __local real shdx[LX * LX];                                                  \
+  __local real shdy[LX * LX];                                                  \
+  __local real shdz[LX * LX];                                                  \
+                                                                               \
+  const int e = get_group_id(0);                                               \
+  const int j = get_local_id(1);                                               \
+  const int i = get_local_id(0);                                               \
+  const int ij = i + j * LX;                                                   \
+  const int ele = e*LX*LX*LX;                                                  \
+                                                                               \
+  shdx[ij] = dx[ij];                                                           \
+  shdy[ij] = dy[ij];                                                           \
+  shdz[ij] = dz[ij];                                                           \
+                                                                               \
+  real ru[LX];                                                                 \
+                                                                               \
+  for (int k = 0; k < LX; ++k) {                                               \
+    ru[k] = u[ij + k*LX*LX + ele];                                             \
+  }                                                                            \
+                                                                               \
+  barrier(CLK_LOCAL_MEM_FENCE);                                                \
+                                                                               \
+  for (int k = 0; k < LX; ++k) {                                               \
+    const int ijk = ij + k*LX*LX;                                              \
+    const real W3 = w3[ijk];                                                   \
+    real ttmp = 0.0;                                                           \
+    shu[ij] = ru[k];                                                           \
+    for (int l = 0; l < LX; l++) {                                             \
+      ttmp += shdz[k+l*LX] * ru[l];                                            \
+    }                                                                          \
+    barrier(CLK_LOCAL_MEM_FENCE);                                              \
+                                                                               \
+    real rtmp = 0.0;                                                           \
+    real stmp = 0.0;                                                           \
+                                                                               \
+    for (int l = 0; l < LX; l++) {                                             \
+      rtmp += shdx[i+l*LX] * shu[l+j*LX];                                      \
+      stmp += shdy[j+l*LX] * shu[i+l*LX];                                      \
+    }                                                                          \
+                                                                               \
+    ux[ijk + ele] = W3 * (drdx[ijk + ele] * rtmp                               \
+                          + dsdx[ijk + ele] * stmp                             \
+                          + dtdx[ijk + ele] * ttmp);                           \
+                                                                               \
+    uy[ijk + ele] = W3 * (drdy[ijk + ele] * rtmp                               \
+                          + dsdy[ijk + ele] * stmp                             \
+                          + dtdy[ijk + ele] * ttmp);                           \
+                                                                               \
+    uz[ijk + ele] = W3 * (drdz[ijk + ele] * rtmp                               \
+                          + dsdz[ijk + ele] * stmp                             \
+                          + dtdz[ijk + ele] * ttmp);                           \
+    barrier(CLK_LOCAL_MEM_FENCE);                                              \
+  }                                                                            \
+}
+
+DEFINE_OPGRAD_KERNEL_KSTEP(16)
+DEFINE_OPGRAD_KERNEL_KSTEP(15)
+DEFINE_OPGRAD_KERNEL_KSTEP(14)
+DEFINE_OPGRAD_KERNEL_KSTEP(13)
+DEFINE_OPGRAD_KERNEL_KSTEP(12)
+DEFINE_OPGRAD_KERNEL_KSTEP(11)
+DEFINE_OPGRAD_KERNEL_KSTEP(10)
+DEFINE_OPGRAD_KERNEL_KSTEP(9)
+DEFINE_OPGRAD_KERNEL_KSTEP(8)
+DEFINE_OPGRAD_KERNEL_KSTEP(7)
+DEFINE_OPGRAD_KERNEL_KSTEP(6)
+DEFINE_OPGRAD_KERNEL_KSTEP(5)
+DEFINE_OPGRAD_KERNEL_KSTEP(4)
+DEFINE_OPGRAD_KERNEL_KSTEP(3)
+DEFINE_OPGRAD_KERNEL_KSTEP(2)
 
 #endif // __MATH_OPGRAD_KERNEL_CL__

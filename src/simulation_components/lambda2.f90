@@ -92,7 +92,7 @@ contains
 
   !> Constructor from json.
   subroutine lambda2_init_from_json(this, json, case)
-    class(lambda2_t), intent(inout) :: this
+    class(lambda2_t), intent(inout), target :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target ::case
     character(len=20) :: fields(1)

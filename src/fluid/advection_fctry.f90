@@ -93,7 +93,7 @@ contains
     call json_get_or_default(json, 'dealiased_polynomial_order', &
          lxd, ( 3 * (order + 1) ) / 2)
 
-    call json_get_or_default(json, 'target_cfl', ctarget, 1.9_rp)
+    call json_get_or_default(json, 'oifs_target_cfl', ctarget, 1.9_rp)
 
 
     if (oifs) then

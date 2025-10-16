@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -36,10 +36,8 @@ module data_streamer
   use field, only: field_t
   use coefs, only: coef_t
   use utils, only: neko_warning
-  use device
-  use comm
-  use neko_mpi_types
-  use neko_config
+  use comm, only : NEKO_COMM
+  use mpi_f08, only : MPI_COMM
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -84,10 +82,10 @@ contains
     integer :: nelb, nelv, nelgv, npts, gdim
 
     !Assign the set up parameters
-    nelv  = coef%msh%nelv
-    npts  = coef%Xh%lx*coef%Xh%ly*coef%Xh%lz
+    nelv = coef%msh%nelv
+    npts = coef%Xh%lx*coef%Xh%ly*coef%Xh%lz
     nelgv = coef%msh%glb_nelv
-    nelb  = coef%msh%offset_el
+    nelb = coef%msh%offset_el
     gdim = coef%msh%gdim
 
 #ifdef HAVE_ADIOS2
@@ -113,7 +111,7 @@ contains
 #endif
 
   end subroutine data_streamer_free
-   
+
   !> streamer
   !! @param fld array of shape field%x
   subroutine data_streamer_stream(this, fld)
@@ -128,7 +126,7 @@ contains
 #endif
 
   end subroutine data_streamer_stream
-  
+
   !> reciever
   !! @param fld array of shape field%x
   subroutine data_streamer_recieve(this, fld)
@@ -201,7 +199,7 @@ contains
 
     call c_adios2_finalize()
   end subroutine fortran_adios2_finalize
-  
+
   !> Interface to adios2_stream in c++.
   !! @details This routine communicates the data to a global array that
   !! is accessed by a data processor. The operations do not write to disk.
@@ -225,7 +223,7 @@ contains
 
     call c_adios2_stream(fld)
   end subroutine fortran_adios2_stream
-  
+
   !> Interface to adios2_recieve in ci++.
   !! @details This routine communicates the data to a global array that
   !! is accessed by a data processor. The operations do not write to disk.

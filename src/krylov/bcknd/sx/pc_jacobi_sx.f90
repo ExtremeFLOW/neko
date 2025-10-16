@@ -32,12 +32,12 @@
 !
 !> Jacobi preconditioner SX-Aurora backend
 module sx_jacobi
-  use math
-  use precon
-  use coefs
-  use dofmap
-  use num_types
-  use gather_scatter
+  use math, only : col2, col3, addcol3, invcol1
+  use precon, only : pc_t
+  use coefs, only : coef_t
+  use dofmap, only : dofmap_t
+  use num_types, only : rp
+  use gather_scatter, only : gs_t, GS_OP_ADD
   implicit none
   private
 

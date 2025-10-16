@@ -38,17 +38,17 @@ module fluid_stats_output
   use map_1d, only : map_1d_t
   use map_2d, only : map_2d_t
   use fld_file_data, only : fld_file_data_t
-  use device
+  use device, only : device_memcpy, DEVICE_TO_HOST
   use output, only : output_t
   use matrix, only : matrix_t
   implicit none
   private
 
-  !> Defines an output for the fluid statistics computed using the 
+  !> Defines an output for the fluid statistics computed using the
   !! `fluid_stats_t` object.
   type, public, extends(output_t) :: fluid_stats_output_t
      !> Pointer to the object computing the statistics.
-     type(fluid_stats_t), pointer :: stats
+     type(fluid_stats_t), pointer :: stats => null()
      !> Space averaging object for 2 homogeneous directions.
      type(map_1d_t) :: map_1d
      !> Space averaging object for 1 homogeneous direction.
@@ -68,12 +68,12 @@ contains
 
   !> Constructor.
   subroutine fluid_stats_output_init(this, stats, T_begin, hom_dir, name, path)
+    class(fluid_stats_output_t), intent(inout) :: this
     type(fluid_stats_t), intent(inout), target :: stats
     real(kind=rp), intent(in) :: T_begin
     character(len=*), intent(in) :: hom_dir
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path
-    class(fluid_stats_output_t), intent(inout) :: this
     character(len=1024) :: fname
 
     if (trim(hom_dir) .eq. 'none' .or. &
@@ -154,7 +154,7 @@ contains
                output_2d%v%x(i) = v
                output_2d%w%x(i) = w
             end do
-            
+
             call this%file_%write(output_2d, t)
          else
             call this%file_%write(this%stats%stat_fields, t)
@@ -165,5 +165,3 @@ contains
   end subroutine fluid_stats_output_sample
 
 end module fluid_stats_output
-
-

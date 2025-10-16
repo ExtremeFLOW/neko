@@ -34,8 +34,9 @@
 module jobctrl
   use num_types, only : rp, dp
   use signal, only : signal_timeout, signal_usr, signal_trap_usr, &
-                     signal_set_timeout, signal_trap_cpulimit
+       signal_set_timeout, signal_trap_cpulimit
   use utils, onlY : neko_error
+  use mpi_f08, only : MPI_Bcast, MPI_LOGICAL, MPI_WTIME
   use comm
   use logger
   implicit none

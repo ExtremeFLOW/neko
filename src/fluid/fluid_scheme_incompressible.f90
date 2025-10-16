@@ -34,20 +34,15 @@
 module fluid_scheme_incompressible
   use fluid_scheme_base, only : fluid_scheme_base_t
   use gather_scatter, only : gs_t, GS_OP_MIN, GS_OP_MAX
-  use mean_sqr_flow, only : mean_sqr_flow_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use checkpoint, only : chkp_t
-  use mean_flow, only : mean_flow_t
   use num_types, only : rp, i8
-  use comm
   use fluid_source_term, only: fluid_source_term_t
   use field, only : field_t
-  use space, only : space_t, GLL
+  use space, only : GLL
   use dofmap, only : dofmap_t
-  use zero_dirichlet, only : zero_dirichlet_t
   use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER
   use coefs, only: coef_t
-  use usr_inflow, only : usr_inflow_t, usr_inflow_eval
   use dirichlet, only : dirichlet_t
   use jacobi, only : jacobi_t
   use sx_jacobi, only : sx_jacobi_t
@@ -58,25 +53,21 @@ module fluid_scheme_incompressible
   use fluid_stats, only : fluid_stats_t
   use bc, only : bc_t
   use bc_list, only : bc_list_t
-  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
-  use math, only : cfill, add2s2, glsum
-  use device_math, only : device_cfill, device_add2s2
+  use mesh, only : mesh_t
+  use math, only : glsum
   use operators, only : cfl
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use field_registry, only : neko_field_registry
-  use json_utils, only : json_get, json_get_or_default, json_extract_object, &
-       json_extract_item
-  use json_module, only : json_file, json_core, json_value
+  use json_utils, only : json_get, json_get_or_default
+  use json_module, only : json_file
   use scratch_registry, only : scratch_registry_t
   use user_intf, only : user_t, dummy_user_material_properties, &
-       user_material_properties
-  use utils, only : neko_error, neko_warning
-  use field_series, only : field_series_t
-  use time_step_controller, only : time_step_controller_t
-  use field_math, only : field_cfill, field_add2s2, field_addcol3
-  use shear_stress, only : shear_stress_t
+       user_material_properties_intf
+  use utils, only : neko_error
+  use field_math, only : field_cfill, field_addcol3, field_copy
   use device, only : device_event_sync, glb_cmd_event, DEVICE_TO_HOST, &
        device_memcpy
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -98,13 +89,14 @@ module fluid_scheme_incompressible
      type(field_t), pointer :: v_e => null() !< Extrapolated y-Velocity
      type(field_t), pointer :: w_e => null() !< Extrapolated z-Velocity
 
-     type(mean_flow_t) :: mean !< Mean flow field
      type(fluid_stats_t) :: stats !< Fluid statistics
-     type(mean_sqr_flow_t) :: mean_sqr !< Mean squared flow field
      logical :: forced_flow_rate = .false. !< Is the flow rate forced?
 
      !> The turbulent kinematic viscosity field name
      character(len=:), allocatable :: nut_field_name
+
+     ! The total viscosity field
+     type(field_t), pointer :: mu_tot => null()
 
      !> Global number of GLL points for the fluid (not unique)
      integer(kind=i8) :: glb_n_points
@@ -189,7 +181,7 @@ contains
     call this%c_Xh%init(this%gs_Xh)
 
     ! Local scratch registry
-    this%scratch = scratch_registry_t(this%dm_Xh, 10, 2)
+    call this%scratch%init(this%dm_Xh, 10, 2)
 
     ! Assign a name
     call json_get_or_default(params, 'case.fluid.name', this%name, "fluid")
@@ -291,7 +283,7 @@ contains
        call json_get(params, 'case.fluid.velocity_solver.type', string_val1)
        call json_get(params, 'case.fluid.velocity_solver.preconditioner.type', &
             string_val2)
-       call json_extract_object(params, &
+       call json_get(params, &
             'case.fluid.velocity_solver.preconditioner', json_subdict)
        call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance', &
             real_val)
@@ -330,9 +322,11 @@ contains
     this%w_e => neko_field_registry%get_field('w_e')
 
     ! Initialize the source term
-    call this%source_term%init(this%f_x, this%f_y, this%f_z, this%c_Xh, user)
+    call neko_log%section('Fluid Source term')
+    call this%source_term%init(this%f_x, this%f_y, this%f_z, this%c_Xh, user, &
+         this%name)
     call this%source_term%add(params, 'case.fluid.source_terms')
-
+    call neko_log%end_section()
 
   end subroutine fluid_scheme_init_base
 
@@ -398,9 +392,9 @@ contains
     nullify(this%f_x)
     nullify(this%f_y)
     nullify(this%f_z)
-
-    call this%rho%free()
-    call this%mu%free()
+    nullify(this%rho)
+    nullify(this%mu)
+    nullify(this%mu_tot)
 
   end subroutine fluid_scheme_free
 
@@ -439,18 +433,16 @@ contains
   !! Here we perform additional gs operations to take care of
   !! shared points between elements that have different BCs, as done in Nek5000.
   !! @todo Why can't we call the interface here?
-  subroutine fluid_scheme_bc_apply_vel(this, t, tstep, strong)
+  subroutine fluid_scheme_bc_apply_vel(this, time, strong)
     class(fluid_scheme_incompressible_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     logical, intent(in) :: strong
-
     integer :: i
     class(bc_t), pointer :: b
     b => null()
 
     call this%bcs_vel%apply_vector(&
-         this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep, strong)
+         this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), time, strong)
     call this%gs_Xh%op(this%u, GS_OP_MIN, glb_cmd_event)
     call device_event_sync(glb_cmd_event)
     call this%gs_Xh%op(this%v, GS_OP_MIN, glb_cmd_event)
@@ -460,7 +452,7 @@ contains
 
 
     call this%bcs_vel%apply_vector(&
-         this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep, strong)
+         this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), time, strong)
     call this%gs_Xh%op(this%u, GS_OP_MAX, glb_cmd_event)
     call device_event_sync(glb_cmd_event)
     call this%gs_Xh%op(this%v, GS_OP_MAX, glb_cmd_event)
@@ -478,20 +470,19 @@ contains
 
   !> Apply all boundary conditions defined for pressure
   !! @todo Why can't we call the interface here?
-  subroutine fluid_scheme_bc_apply_prs(this, t, tstep)
+  subroutine fluid_scheme_bc_apply_prs(this, time)
     class(fluid_scheme_incompressible_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
 
     integer :: i
     class(bc_t), pointer :: b
     b => null()
 
-    call this%bcs_prs%apply(this%p, t, tstep)
+    call this%bcs_prs%apply(this%p, time)
     call this%gs_Xh%op(this%p, GS_OP_MIN, glb_cmd_event)
     call device_event_sync(glb_cmd_event)
 
-    call this%bcs_prs%apply(this%p, t, tstep)
+    call this%bcs_prs%apply(this%p, time)
     call this%gs_Xh%op(this%p, GS_OP_MAX, glb_cmd_event)
     call device_event_sync(glb_cmd_event)
 
@@ -544,7 +535,7 @@ contains
     type is (hsmg_t)
        call pcp%init(coef, bclst, pcparams)
     type is (phmg_t)
-       call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst)
+       call pcp%init(coef, bclst, pcparams)
     end select
 
     call ksp%set_pc(pc)
@@ -567,18 +558,20 @@ contains
   !! if necessary.
   !! @param t Time value.
   !! @param tstep Current time step.
-  subroutine fluid_scheme_update_material_properties(this, t, tstep)
+  subroutine fluid_scheme_update_material_properties(this, time)
     class(fluid_scheme_incompressible_t), intent(inout) :: this
-    real(kind=rp),intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     type(field_t), pointer :: nut
 
-    call this%user_material_properties(t, tstep, this%name, &
-         this%material_properties)
+    call this%user_material_properties(this%name, this%material_properties, &
+         time)
 
     if (len(trim(this%nut_field_name)) > 0) then
        nut => neko_field_registry%get_field(this%nut_field_name)
-       call field_addcol3(this%mu, nut, this%rho)
+       ! Copy material property
+       call field_copy(this%mu_tot, this%mu)
+       ! Add turbulent contribution
+       call field_addcol3(this%mu_tot, nut, this%rho)
     end if
 
     ! Since mu, rho is a field_t, and we use the %x(1,1,1,1)
@@ -588,8 +581,6 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%rho%x, this%rho%x_d, this%rho%size(), &
             DEVICE_TO_HOST, sync=.false.)
-       call device_memcpy(this%mu%x, this%mu%x_d, this%mu%size(), &
-            DEVICE_TO_HOST, sync=.false.)
     end if
   end subroutine fluid_scheme_update_material_properties
 
@@ -597,34 +588,40 @@ contains
   !! @param params The case paramter file.
   !! @param user The user interface.
   subroutine fluid_scheme_set_material_properties(this, params, user)
-    class(fluid_scheme_incompressible_t), intent(inout) :: this
+    class(fluid_scheme_incompressible_t), target, intent(inout) :: this
     type(json_file), intent(inout) :: params
     type(user_t), target, intent(in) :: user
     character(len=LOG_SIZE) :: log_buf
     ! A local pointer that is needed to make Intel happy
-    procedure(user_material_properties), pointer :: dummy_mp_ptr
+    procedure(user_material_properties_intf), pointer :: dummy_mp_ptr
     logical :: nondimensional
     real(kind=rp) :: dummy_lambda, dummy_cp
     real(kind=rp) :: const_mu, const_rho
+    type(time_state_t) :: dummy_time_state
 
 
     dummy_mp_ptr => dummy_user_material_properties
 
-    call this%mu%init(this%dm_Xh, "mu")
-    call this%rho%init(this%dm_Xh, "rho")
+    call neko_field_registry%add_field(this%dm_Xh, this%name // "_mu")
+    call neko_field_registry%add_field(this%dm_Xh, this%name // "_mu_tot")
+    call neko_field_registry%add_field(this%dm_Xh, this%name // "_rho")
+    this%mu => neko_field_registry%get_field(this%name // "_mu")
+    this%mu_tot => neko_field_registry%get_field(this%name // "_mu_tot")
+    this%rho => neko_field_registry%get_field(this%name // "_rho")
+
     call this%material_properties%init(2)
-    call this%material_properties%assign_to_field(1, this%rho)
-    call this%material_properties%assign_to_field(2, this%mu)
+    call this%material_properties%assign(1, this%rho)
+    call this%material_properties%assign(2, this%mu)
 
     if (.not. associated(user%material_properties, dummy_mp_ptr)) then
 
-       write(log_buf, '(A)') "Material properties must be set in the user&
-       & file!"
+       write(log_buf, '(A)') 'Material properties must be set in the user' // &
+            ' file!'
        call neko_log%message(log_buf)
        this%user_material_properties => user%material_properties
 
-       call user%material_properties(0.0_rp, 0, this%name, &
-            this%material_properties)
+       call user%material_properties(this%name, this%material_properties, &
+            dummy_time_state)
 
     else
        this%user_material_properties => dummy_user_material_properties
@@ -667,6 +664,7 @@ contains
     if (associated(user%material_properties, dummy_mp_ptr)) then
        ! Fill mu and rho field with the physical value
        call field_cfill(this%mu, const_mu)
+       call field_cfill(this%mu_tot, const_mu)
        call field_cfill(this%rho, const_rho)
 
 
@@ -676,15 +674,20 @@ contains
        call neko_log%message(log_buf)
     end if
 
+    ! Copy over material property to the total one
+    call field_copy(this%mu_tot, this%mu)
+
     ! Since mu, rho is a field_t, and we use the %x(1,1,1,1)
     ! host array data to pass constant density and viscosity
     ! to some routines, we need to make sure that the host
     ! values are also filled
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%rho%x, this%rho%x_d, this%rho%size(), &
-            DEVICE_TO_HOST, sync=.false.)
+            DEVICE_TO_HOST, sync = .false.)
        call device_memcpy(this%mu%x, this%mu%x_d, this%mu%size(), &
-            DEVICE_TO_HOST, sync=.false.)
+            DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(this%mu_tot%x, this%mu_tot%x_d, this%mu%size(), &
+            DEVICE_TO_HOST, sync = .false.)
     end if
   end subroutine fluid_scheme_set_material_properties
 

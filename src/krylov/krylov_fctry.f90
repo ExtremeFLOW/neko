@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2024, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,7 @@ submodule (krylov) krylov_fctry
   use cg_sx, only : sx_cg_t
   use cg_cpld, only : cg_cpld_t
   use cg_device, only : cg_device_t
+  use cg_cpld_device, only : cg_cpld_device_t
   use cacg, only : cacg_t
   use pipecg, only : pipecg_t
   use pipecg_sx, only : sx_pipecg_t
@@ -57,13 +58,13 @@ submodule (krylov) krylov_fctry
   character(len=20) :: KSP_KNOWN_TYPES(9) = [character(len=20) :: &
        "cg", &
        "pipecg", &
-       "fusedcg", &
+       "fused_cg", &
        "cacg", &
        "gmres", &
        "cheby", &
        "bicgstab", &
-       "fusedcoupledcg", &
-       "coupledcg"]
+       "fused_coupled_cg", &
+       "coupled_cg"]
 
 contains
 
@@ -100,10 +101,11 @@ contains
           allocate(cg_t::object)
        end if
 
-    case ('coupledcg')
-       allocate(cg_cpld_t::object)
+    case ('coupled_cg')
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call neko_error('Coupled CG only supported for CPU')
+          allocate(cg_cpld_device_t::object)
+       else
+          allocate(cg_cpld_t::object)
        end if
 
     case ('pipecg')
@@ -118,7 +120,7 @@ contains
           allocate(pipecg_t::object)
        end if
 
-    case ('fusedcg')
+    case ('fused_cg')
        if (NEKO_BCKND_DEVICE .eq. 1) then
           if (NEKO_BCKND_OPENCL .eq. 1) then
              call neko_error('FusedCG not supported for OpenCL')
@@ -128,7 +130,7 @@ contains
           call neko_error('FusedCG only supported for CUDA/HIP')
        end if
 
-    case ('fusedcoupledcg')
+    case ('fused_coupled_cg')
        if (NEKO_BCKND_DEVICE .eq. 1) then
           if (NEKO_BCKND_OPENCL .eq. 1) then
              call neko_error('Coupled FusedCG not supported for OpenCL')
@@ -169,4 +171,3 @@ contains
   end subroutine krylov_solver_factory
 
 end submodule krylov_fctry
-

@@ -49,8 +49,8 @@ module gmres_device
        device_sub2
   use device
   use utils, only : neko_error
-  use comm, only : NEKO_COMM, MPI_IN_PLACE, MPI_SUM, MPI_REAL_PRECISION, &
-       MPI_Allreduce, pe_size
+  use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_IN_PLACE, MPI_SUM, MPI_Allreduce
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_loc, &
        c_associated, c_int, c_size_t, c_sizeof
   implicit none
@@ -331,6 +331,7 @@ contains
 
     conv = .false.
     iter = 0
+    rnorm = 0.0_rp
 
     if (present(niter)) then
        max_iter = niter
@@ -378,7 +379,7 @@ contains
             ksp_results%res_start = gam(1) * norm_fac
          end if
 
-         if (abscmp(gam(1), 0.0_rp)) return
+         if (abscmp(gam(1), 0.0_rp)) exit
 
          rnorm = 0.0_rp
          temp = 1.0_rp / gam(1)

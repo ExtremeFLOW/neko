@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -39,36 +39,36 @@ module device_inflow
 #ifdef HAVE_HIP
 
   interface
-     subroutine hip_inflow_apply_vector(msk, x, y, z, g, m) &
+     subroutine hip_inflow_apply_vector(msk, x, y, z, g, m, strm) &
           bind(c, name='hip_inflow_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m
-       type(c_ptr), value :: msk, x, y, z, g
+       type(c_ptr), value :: msk, x, y, z, g, strm
      end subroutine hip_inflow_apply_vector
   end interface
 
 #elif HAVE_CUDA
 
   interface
-     subroutine cuda_inflow_apply_vector(msk, x, y, z, g, m) &
+     subroutine cuda_inflow_apply_vector(msk, x, y, z, g, m, strm) &
           bind(c, name='cuda_inflow_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m
-       type(c_ptr), value :: msk, x, y, z, g
+       type(c_ptr), value :: msk, x, y, z, g, strm
      end subroutine cuda_inflow_apply_vector
   end interface
 
 #elif HAVE_OPENCL
 
   interface
-     subroutine opencl_inflow_apply_vector(msk, x, y, z, g, m) &
+     subroutine opencl_inflow_apply_vector(msk, x, y, z, g, m, strm) &
           bind(c, name='opencl_inflow_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m
-       type(c_ptr), value :: msk, x, y, z, g
+       type(c_ptr), value :: msk, x, y, z, g, strm
      end subroutine opencl_inflow_apply_vector
   end interface
 
@@ -78,16 +78,16 @@ module device_inflow
 
 contains
 
-  subroutine device_inflow_apply_vector(msk, x, y, z, g, m)
+  subroutine device_inflow_apply_vector(msk, x, y, z, g, m, strm)
     integer, intent(in) :: m
-    type(c_ptr) :: msk, x, y, z, g
+    type(c_ptr) :: msk, x, y, z, g, strm
 
 #ifdef HAVE_HIP
-    call hip_inflow_apply_vector(msk, x, y, z, g, m)
+    call hip_inflow_apply_vector(msk, x, y, z, g, m, strm)
 #elif HAVE_CUDA
-    call cuda_inflow_apply_vector(msk, x, y, z, g, m)
+    call cuda_inflow_apply_vector(msk, x, y, z, g, m, strm)
 #elif HAVE_OPENCL
-    call opencl_inflow_apply_vector(msk, x, y, z, g, m)
+    call opencl_inflow_apply_vector(msk, x, y, z, g, m, strm)
 #else
     call neko_error('No device backend configured')
 #endif

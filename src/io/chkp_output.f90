@@ -41,21 +41,19 @@ module chkp_output
   type, public, extends(output_t) :: chkp_output_t
      type(chkp_t), pointer :: chkp
    contains
+     procedure, pass(this) :: init => chkp_output_init
      procedure, pass(this) :: sample => chkp_output_sample
   end type chkp_output_t
 
-  interface chkp_output_t
-     module procedure chkp_output_init
-  end interface chkp_output_t
-
 contains
 
-  function chkp_output_init(chkp, name, path, fmt) result(this)
+  subroutine chkp_output_init(this, chkp, name, path, fmt, overwrite)
+    class(chkp_output_t), intent(inout) :: this
     type(chkp_t), intent(in), target :: chkp
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path
     character(len=*), intent(in), optional :: fmt
-    type(chkp_output_t) :: this
+    logical, intent(in), optional :: overwrite
     character(len=1024) :: fname
     character(len=10) :: suffix
 
@@ -66,19 +64,14 @@ contains
        end if
     end if
 
-    if (present(name) .and. present(path)) then
-       fname = trim(path) // trim(name) // trim(suffix)
-    else if (present(name)) then
-       fname = trim(name) // trim(suffix)
-    else if (present(path)) then
-       fname = trim(path) // 'fluid' // trim(suffix)
-    else
-       fname= 'fluid' // trim(suffix)
-    end if
+    fname = 'fluid'
+    if (present(name)) fname = trim(name)
+    if (present(path)) fname = trim(path) // trim(fname)
+    fname = trim(fname) // trim(suffix)
 
-    call this%init_base(fname)
+    call this%init_base(fname, overwrite = overwrite)
     this%chkp => chkp
-  end function chkp_output_init
+  end subroutine chkp_output_init
 
   !> Sample a checkpoint at time @a t
   subroutine chkp_output_sample(this, t)

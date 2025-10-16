@@ -225,7 +225,6 @@ __global__ void mij_nut_compute_part2(const T * __restrict__ m11,
                                       const T * __restrict__ s_abs,
                                       T * __restrict__ nut,
                                       const T alpha,
-                                      const T * __restrict__ mult,
                                       const int n){
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -273,7 +272,7 @@ __global__ void mij_nut_compute_part2(const T * __restrict__ m11,
 
     c_dyn_r = max(c_dyn_r, 0.0);
     c_dyn[i] = c_dyn_r;
-    nut[i] = c_dyn_r * delta2 * s_abs[i] * mult[i];;
+    nut[i] = c_dyn_r * delta2 * s_abs[i];
 
   }
 }

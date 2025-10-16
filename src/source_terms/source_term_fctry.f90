@@ -37,6 +37,7 @@ submodule (source_term) source_term_fctry
   use boussinesq_source_term, only : boussinesq_source_term_t
   use coriolis_source_term, only : coriolis_source_term_t
   use brinkman_source_term, only : brinkman_source_term_t
+  use centrifugal_source_term, only : centrifugal_source_term_t
   use idw_source_term, only : idw_source_term_t
   use gradient_jump_penalty, only : gradient_jump_penalty_t
   use json_utils, only : json_get
@@ -44,11 +45,11 @@ submodule (source_term) source_term_fctry
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20), parameter :: SOURCE_KNOWN_TYPES(6) = &
-       [character(len=20) :: &
+  character(len=20) :: SOURCE_KNOWN_TYPES(7) = [character(len=20) :: &
        "constant", &
        "boussinesq", &
        "coriolis", &
+       "centrifugal", &
        "gradient_jump_penalty", &
        "brinkman", &
        "idw"]
@@ -59,11 +60,13 @@ contains
   !! @param json JSON object initializing the source term.
   !! @param fields The list of fields updated by the source term.
   !! @param coef The SEM coefficients.
-  module subroutine source_term_factory(object, json, fields, coef)
+  module subroutine source_term_factory(object, json, fields, coef, &
+       variable_name)
     class(source_term_t), allocatable, intent(inout) :: object
     type(json_file), intent(inout) :: json
     type(field_list_t), intent(inout) :: fields
     type(coef_t), intent(inout) :: coef
+    character(len=*), intent(in) :: variable_name
     character(len=:), allocatable :: type_name
     character(len=:), allocatable :: type_string
 
@@ -73,7 +76,7 @@ contains
     call source_term_allocator(object, type_name)
 
     ! Initialize
-    call object%init(json, fields, coef)
+    call object%init(json, fields, coef, variable_name)
 
   end subroutine source_term_factory
 
@@ -92,6 +95,8 @@ contains
        allocate(boussinesq_source_term_t::object)
     case ("coriolis")
        allocate(coriolis_source_term_t::object)
+    case ("centrifugal")
+       allocate(centrifugal_source_term_t::object)
     case ("brinkman")
        allocate(brinkman_source_term_t::object)
     case ("gradient_jump_penalty")

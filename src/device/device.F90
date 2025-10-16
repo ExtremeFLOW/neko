@@ -53,6 +53,11 @@ module device
   !> Aux command queue
   type(c_ptr), public, bind(c) :: aux_cmd_queue = C_NULL_PTR
 
+#ifdef HAVE_OPENCL
+  !> Profiling command queue
+  type(c_ptr), public, bind(c) :: prf_cmd_queue = C_NULL_PTR
+#endif
+
   !> Event for the global command queue
   type(c_ptr), public, bind(c) :: glb_cmd_event
 
@@ -112,7 +117,7 @@ module device
        device_profiler_start, device_profiler_stop, device_alloc, &
        device_init, device_name, device_event_create, device_event_destroy, &
        device_event_record, device_event_sync, device_finalize, &
-       device_stream_wait_event, device_count, &
+       device_stream_wait_event, device_count, device_memset, &
        device_stream_create_with_priority
 
   private :: device_memcpy_common
@@ -128,7 +133,7 @@ contains
 #elif HAVE_CUDA
     call cuda_init(glb_cmd_queue, aux_cmd_queue, STRM_HIGH_PRIO, STRM_LOW_PRIO)
 #elif HAVE_OPENCL
-    call opencl_init(glb_cmd_queue, aux_cmd_queue)
+    call opencl_init(glb_cmd_queue, aux_cmd_queue, prf_cmd_queue)
 #endif
     call device_event_create(glb_cmd_event, 2)
 #endif
@@ -151,7 +156,7 @@ contains
     call cuda_finalize(glb_cmd_queue, aux_cmd_queue)
 #elif HAVE_OPENCL
     call opencl_prgm_lib_release
-    call opencl_finalize(glb_cmd_queue, aux_cmd_queue)
+    call opencl_finalize(glb_cmd_queue, aux_cmd_queue, prf_cmd_queue)
 #endif
     call device_event_destroy(glb_cmd_event)
 #endif
@@ -187,6 +192,12 @@ contains
     type(c_ptr), intent(inout) :: x_d
     integer(c_size_t) :: s
     integer :: ierr
+
+    if (s .eq. 0) then
+       call device_sync()
+       x_d = c_null_ptr
+       return
+    end if
 #ifdef HAVE_HIP
     if (hipMalloc(x_d, s) .ne. hipSuccess) then
        call neko_error('Memory allocation on device failed')
@@ -221,6 +232,49 @@ contains
 #endif
     x_d = C_NULL_PTR
   end subroutine device_free
+
+  !> Set memory on the device to a value
+  subroutine device_memset(x_d, v, s, sync, strm)
+    type(c_ptr), intent(inout) :: x_d
+    integer(c_int), target, value :: v
+    integer(c_size_t), intent(in) :: s
+    logical, optional :: sync
+    type(c_ptr), optional :: strm
+    type(c_ptr) :: stream
+    logical :: sync_device
+
+    if (present(sync)) then
+       sync_device = sync
+    else
+       sync_device = .false.
+    end if
+
+    if (present(strm)) then
+       stream = strm
+    else
+       stream = glb_cmd_queue
+    end if
+
+#ifdef HAVE_HIP
+    if (hipMemsetAsync(x_d, v, s, stream) .ne. hipSuccess) then
+       call neko_error('Device memset async failed')
+    end if
+#elif HAVE_CUDA
+    if (cudaMemsetAsync(x_d, v, s, stream) .ne. cudaSuccess) then
+       call neko_error('Device memset async failed')
+    end if
+#elif HAVE_OPENCL
+    if (clEnqueueFillBuffer(stream, x_d, c_loc(v), c_sizeof(v), 0_i8, &
+         s, 0, C_NULL_PTR, C_NULL_PTR) .ne. CL_SUCCESS) then
+       call neko_error('Device memset async failed')
+    end if
+#endif
+
+    if (sync_device) then
+       call device_sync_stream(stream)
+    end if
+
+  end subroutine device_memset
 
   !> Copy data between host and device (rank 1 arrays)
   subroutine device_memcpy_r1(x, x_d, n, dir, sync, strm)
@@ -413,6 +467,14 @@ contains
     integer, intent(in), value :: dir
     logical, intent(in) :: sync_device
     type(c_ptr), intent(inout) :: stream
+
+    if (s .eq. 0) then
+       if (sync_device) then
+          call device_sync_stream(stream)
+       end if
+       return
+    end if
+
 #ifdef HAVE_HIP
     if (dir .eq. HOST_TO_DEVICE) then
        if (hipMemcpyAsync(x_d, ptr_h, s, &

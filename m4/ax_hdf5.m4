@@ -12,13 +12,13 @@ AC_DEFUN([AX_HDF5],[
 		    AS_HELP_STRING([--with-hdf5],
 		    [Compile with support for HDF5]),
 		    [with_hdf5=${withval}], [with_hdf5=no])
-                    
+
         if test "x${with_hdf5}" != xno; then
            PKG_CHECK_MODULES([HDF5_Fortran],[hdf5_fortran >= 1.14.0],
                              have_hdf5=yes, have_hdf5=no)
-	   if test "x${have_hdf5}" = xyes; then 	
+	   if test "x${have_hdf5}" = xyes; then
               LIBS="$HDF5_Fortran_LIBS $LIBS"
-              FCFLAGS="$HDF5_Fortran_CFLAGS $FCFLAGS"
+              NEKO_PKG_FCFLAGS="$HDF5_Fortran_CFLAGS $NEKO_PKG_FCFLAGS"
               AC_DEFINE(HAVE_HDF5,[1],
                      [Define if you have the HDF5 library.])
            fi

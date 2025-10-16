@@ -43,10 +43,11 @@ module fluid_stats_simcomp
   use fluid_stats_output, only : fluid_stats_output_t
   use case, only : case_t
   use coefs, only : coef_t
-  use comm
   use utils, only: NEKO_FNAME_LEN, filename_suffix, filename_tslash_pos
   use logger, only : LOG_SIZE, neko_log
   use json_utils, only : json_get, json_get_or_default
+  use comm, only : NEKO_COMM
+  use mpi_f08, only : MPI_WTIME, MPI_Barrier
   implicit none
   private
 
@@ -92,7 +93,7 @@ contains
   !> @param json JSON object with the parameters.
   !! @param case The case object.
   subroutine fluid_stats_simcomp_init_from_json(this, json, case)
-    class(fluid_stats_simcomp_t), intent(inout) :: this
+    class(fluid_stats_simcomp_t), target, intent(inout) :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: filename
@@ -139,12 +140,12 @@ contains
   !! @param stat_set Set of statistics to compute (basic/full)
   subroutine fluid_stats_simcomp_init_from_components(this, u, v, w, p, coef, &
        start_time, hom_dir, stat_set, fname)
-    class(fluid_stats_simcomp_t), intent(inout) :: this
+    class(fluid_stats_simcomp_t), target, intent(inout) :: this
     character(len=*), intent(in) :: hom_dir
     character(len=*), intent(in) :: stat_set
     real(kind=rp), intent(in) :: start_time
-    type(field_t), intent(in) :: u, v, w, p
-    type(coef_t), intent(in) :: coef
+    type(field_t), intent(in), target :: u, v, w, p
+    type(coef_t), intent(in), target :: coef
     character(len=*), intent(in), optional :: fname
     character(len=NEKO_FNAME_LEN) :: stats_fname
     character(len=LOG_SIZE) :: log_buf
@@ -200,13 +201,14 @@ contains
     t = time%t
     if (t .gt. this%time) this%time = t
     if (this%default_fname) then
+       fname = this%stats_output%file_%get_base_fname()
        write (prefix, '(I5)') this%stats_output%file_%get_counter()
-       call filename_suffix(this%stats_output%file_%file_type%fname,suffix)
+       call filename_suffix(fname,suffix)
        last_slash_pos = &
-            filename_tslash_pos(this%stats_output%file_%file_type%fname)
+            filename_tslash_pos(fname)
        if (last_slash_pos .ne. 0) then
           fname = &
-               trim(this%stats_output%file_%file_type%fname(1:last_slash_pos))// &
+               trim(fname(1:last_slash_pos))// &
                "fluid_stats"//trim(adjustl(prefix))//"."//suffix
        else
           fname = "fluid_stats"// &
@@ -226,6 +228,21 @@ contains
     real(kind=rp) :: sample_start_time, sample_time
     character(len=LOG_SIZE) :: log_buf
     integer :: ierr
+
+    if (time%start_time .gt. this%start_time) then
+       write(log_buf, '(A)') 'Simulation start time is later than the ' &
+            // 'fluid stats start time.'
+       call neko_log%warning(log_buf)
+       write(log_buf, '(A,E15.7)') 'Simulation start time:', time%start_time
+       call neko_log%warning(log_buf)
+       write(log_buf, '(A,E15.7)') 'Fluid stats start time:', this%start_time
+       call neko_log%warning(log_buf)
+       write(log_buf, '(A)') 'Assigning the statistics start time to ' &
+            // 'the simulation start time.'
+       call neko_log%warning(log_buf)
+       this%start_time = time%start_time
+       this%time = time%start_time
+    end if
 
     t = time%t
 
