@@ -698,11 +698,13 @@ uses the following parameters:
 
 The sponge source term adds a term to each of the momentum equations of the form
 
-\f$ \lambda_i f(\mathbf{x}) ( u_i^{bf} - u_i) \f$, where
+\f$ \lambda_i f(\mathbf{x_i}) ( u_i^{bf} - u_i) \f$
+
+where:
 
 - \f$ \lambda_i \f$ is the amplitude of the sponge forcing in each Cartesian direction,
 - \f$ u_i^{\text{bf}} \f$ is a reference (baseflow) velocity field,
-- \f$ f(\mathbf{x}) \f$ is a user-defined sponge mask field, with values in 
+- \f$ f(\mathbf{x_i}) \f$ is a user-defined sponge mask field, with values in 
   \f$ [0, 1] \f$, defining where the sponge is active.
  
 Amplitudes are specified using the `amplitudes` keyword with an array of
