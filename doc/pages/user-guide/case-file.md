@@ -758,6 +758,7 @@ For `phmg`, the following keywords are used:
 
 | Name                       | Description                                                                                 | Admissible values     | Default value |
 | -------------------------- | ------------------------------------------------------------------------------------------- | --------------------- | ------------- |
+| `pcoarsening_schedule`     | P-multigrid coarsening schedule (polynomial order, high to low)                             | Array of integers     | `[3, 1]`      |
 | `smoother_iterations`      | Number of smoother iterations in the p-multigrid parts                                      | An integer            | 10            |
 | `smoother_cheby_acc`       | Type of Chebyshev acceleration (non-accelerated semi-iterative Chebyshev method if not set) | `jacobi` or `schwarz` | -             |
 | `coarse_grid.levels`       | Number of AMG levels to construct (only valid for `solver` type `tamg`)                     | An integer            | 3             |
