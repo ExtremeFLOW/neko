@@ -37,10 +37,11 @@ module sponge_source_term
   use json_module, only : json_file
   use field_registry, only : neko_field_registry
   use field, only : field_t
-  use json_utils, only : json_get, json_get_or_default, json_extract_object
+  use json_utils, only : json_get, json_get_or_default, json_get
   use utils, only: neko_error
   use device, only: device_memcpy, HOST_TO_DEVICE
   use device_math, only: device_sub3, device_col2, device_add2s2
+  use time_state, only: time_state_t
   use math, only: sub3, col2, add2s2
   use logger, only: neko_log, NEKO_LOG_DEBUG
   use neko_config, only: NEKO_BCKND_DEVICE
@@ -147,7 +148,7 @@ contains
     call json_get_or_default(json, "end_time", end_time, huge(0.0_rp))
 
 
-    call json_extract_object(json, 'baseflow', &
+    call json_get(json, 'baseflow', &
          baseflow_subdict)
     call json_get(baseflow_subdict, "method", baseflow_method)
 
@@ -376,10 +377,9 @@ contains
   !! to get rid of that but it should take some effort.
   !! @param t The time value.
   !! @param tstep The current time-step
-  subroutine sponge_compute(this, t, tstep)
+  subroutine sponge_compute(this, time)
     class(sponge_source_term_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
 
     integer :: i, nfields
     type(field_t), pointer :: fu, fv, fw
@@ -401,29 +401,27 @@ contains
        ! Here we recreate what is in the initial condition part of case.f90
        call json_get(case%params, 'case.fluid.initial_condition.type', &
             string_val)
-       call json_extract_object(case%params, 'case.fluid.initial_condition', &
+       call json_get(case%params, 'case.fluid.initial_condition', &
             json_subdict)
 
        call neko_log%section("Fluid initial condition ")
 
        if (trim(string_val) .ne. 'user') then
-          !! NOTE: this%fringe is used instead of pressure as a work array
-          call set_flow_ic(this%u_bf, this%v_bf, this%w_bf, this%wk, &
-               case%fluid%c_Xh, case%fluid%gs_Xh, string_val, &
+          call set_flow_ic(this%u_bf, this%v_bf, this%w_bf, &
+               this%wk, case%fluid%c_Xh, case%fluid%gs_Xh, string_val, &
                json_subdict)
        else
           call json_get(case%params, 'case.fluid.scheme', string_val)
           if (trim(string_val) .eq. 'compressible') then
-             !! NOTE: this%fringe is used instead of pressure as a work array
              call set_flow_ic(case%fluid%rho, &
                   this%u_bf, this%v_bf, this%w_bf, this%wk, &
                   case%fluid%c_Xh, case%fluid%gs_Xh, &
-                  case%user%fluid_compressible_user_ic, case%params)
+                  case%user%initial_conditions, case%fluid%name)
           else
              !! NOTE: this%fringe is used instead of pressure as a work array
              call set_flow_ic(this%u_bf, this%v_bf, this%w_bf, &
                   this%wk, case%fluid%c_Xh, case%fluid%gs_Xh, &
-                  case%user%fluid_user_ic, case%params)
+                  case%user%initial_conditions, case%fluid%name)
           end if
        end if
        this%baseflow_set = .true.
@@ -431,13 +429,13 @@ contains
     end if
 
     ! Do some checks at the first timestep
-    if (tstep .eq. 1) then
+    if (time%tstep .eq. 1) then
        if (.not. this%baseflow_set) call neko_error("SPONGE: No baseflow set")
 
        ! Check if the user has added the fringe field in the registry
        if (.not. &
             neko_field_registry%field_exists(trim(this%fringe_registry_name))) &
-            call neko_error("SPONGE: No fringe set (" // &
+            call neko_error("SPONGE: No fringe field set (" // &
                 this%fringe_registry_name // " not found)")
 
        ! This will throw an error if the user hasn't added 'sponge_fringe'
@@ -454,7 +452,7 @@ contains
           call fout%fields%assign_to_field(2, this%u_bf)
           call fout%fields%assign_to_field(3, this%v_bf)
           call fout%fields%assign_to_field(4, this%w_bf)
-          call fout%sample(0.0_rp)
+          call fout%sample(time%t)
        end if
     end if
 

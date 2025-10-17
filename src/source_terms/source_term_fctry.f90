@@ -45,7 +45,7 @@ submodule (source_term) source_term_fctry
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: SOURCE_KNOWN_TYPES(6) = [character(len=20) :: &
+  character(len=20) :: SOURCE_KNOWN_TYPES(7) = [character(len=20) :: &
        "constant", &
        "boussinesq", &
        "coriolis", &
