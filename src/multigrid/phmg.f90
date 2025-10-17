@@ -136,6 +136,10 @@ contains
 
     if (phmg_params%valid_path('pcoarsening_schedule')) then
        call json_get(phmg_params, 'pcoarsening_schedule', pcrs_sched)
+    else
+       allocate(pcrs_sched(0:2))
+       pcrs_sched(1) = 3
+       pcrs_sched(2) = 1       
     end if
 
 
@@ -166,16 +170,9 @@ contains
 
     this%msh => coef%msh
 
-    if (allocated(pcrs_sched)) then
-       this%nlvls = size(pcrs_sched) + 1
-       allocate(lx_lvls(0:this%nlvls - 1))
-       lx_lvls = pcrs_sched
-    else
-       this%nlvls = 3
-       allocate(lx_lvls(0:this%nlvls - 1))
-       lx_lvls(1) = 4
-       lx_lvls(2) = 2
-    end if
+    this%nlvls = size(pcrs_sched) + 1
+    allocate(lx_lvls(0:this%nlvls - 1))
+    lx_lvls = pcrs_sched + 1
 
     allocate(this%phmg_hrchy%lvl(0:this%nlvls - 1))
 
