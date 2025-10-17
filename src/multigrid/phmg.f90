@@ -139,7 +139,7 @@ contains
     else
        allocate(pcrs_sched(0:2))
        pcrs_sched(1) = 3
-       pcrs_sched(2) = 1       
+       pcrs_sched(2) = 1
     end if
 
 
