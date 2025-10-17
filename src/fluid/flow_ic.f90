@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -33,29 +33,30 @@
 !> Initial flow condition
 module flow_ic
   use num_types, only : rp
-  use logger, only: neko_log, LOG_SIZE
+  use logger, only : neko_log, LOG_SIZE
   use gather_scatter, only : gs_t, GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use flow_profile, only : blasius_profile, blasius_linear, blasius_cubic, &
        blasius_quadratic, blasius_quartic, blasius_sin, blasius_tanh
-  use device, only: device_memcpy, HOST_TO_DEVICE
+  use device, only : device_memcpy, HOST_TO_DEVICE, device_to_host, device_sync
   use field, only : field_t
-  use utils, only : neko_error, filename_suffix, filename_chsuffix, &
+  use utils, only : neko_error, filename_chsuffix, &
        neko_warning, NEKO_FNAME_LEN, extract_fld_file_index
   use coefs, only : coef_t
   use math, only : col2, cfill, cfill_mask
-  use device_math, only : device_col2, device_cfill, device_cfill_mask
-  use user_intf, only : useric, useric_compressible
+  use device_math, only : device_col2
+  use user_intf, only : user_initial_conditions_intf
   use json_module, only : json_file
-  use json_utils, only: json_get, json_get_or_default
-  use point_zone, only: point_zone_t
-  use point_zone_registry, only: neko_point_zone_registry
-  use fld_file_data, only: fld_file_data_t
-  use fld_file, only: fld_file_t
-  use file, only: file_t
-  use global_interpolation, only: global_interpolation_t
-  use interpolation, only: interpolator_t
-  use space, only: space_t, GLL
+  use json_utils, only : json_get, json_get_or_default
+  use point_zone, only : point_zone_t
+  use point_zone_registry, only : neko_point_zone_registry
+  use fld_file_data, only : fld_file_data_t
+  use fld_file, only : fld_file_t
+  use file, only : file_t
+  use global_interpolation, only : global_interpolation_t
+  use interpolation, only : interpolator_t
+  use space, only : space_t, GLL
+  use field_list, only : field_list_t
   implicit none
   private
 
@@ -140,19 +141,28 @@ contains
   end subroutine set_flow_ic_int
 
   !> Set intial flow condition (user defined)
-  subroutine set_flow_ic_usr(u, v, w, p, coef, gs, usr_ic, params)
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
+  subroutine set_flow_ic_usr(u, v, w, p, coef, gs, user_proc, scheme_name)
+    type(field_t), target, intent(inout) :: u
+    type(field_t), target, intent(inout) :: v
+    type(field_t), target, intent(inout) :: w
+    type(field_t), target, intent(inout) :: p
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
-    procedure(useric) :: usr_ic
-    type(json_file), intent(inout) :: params
+    procedure(user_initial_conditions_intf) :: user_proc
+    character(len=*), intent(in) :: scheme_name
+
+    type(field_list_t) :: fields
 
 
     call neko_log%message("Type: user")
-    call usr_ic(u, v, w, p, params)
+
+    call fields%init(4)
+    call fields%assign_to_field(1, u)
+    call fields%assign_to_field(2, v)
+    call fields%assign_to_field(3, w)
+    call fields%assign_to_field(4, p)
+
+    call user_proc(scheme_name, fields)
 
     call set_flow_ic_common(u, v, w, p, coef, gs)
 
@@ -161,36 +171,51 @@ contains
   !> Set intial flow condition (user defined)
   !> for compressible flows
   subroutine set_compressible_flow_ic_usr(rho, u, v, w, p, coef, gs, &
-       usr_ic_compressible, params)
-    type(field_t), intent(inout) :: rho
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
+       user_proc, scheme_name)
+    type(field_t), target, intent(inout) :: rho
+    type(field_t), target, intent(inout) :: u
+    type(field_t), target, intent(inout) :: v
+    type(field_t), target, intent(inout) :: w
+    type(field_t), target, intent(inout) :: p
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
-    procedure(useric_compressible) :: usr_ic_compressible
-    type(json_file), intent(inout) :: params
+    procedure(user_initial_conditions_intf) :: user_proc
+    character(len=*), intent(in) :: scheme_name
     integer :: n
+    type(field_list_t) :: fields
 
 
     call neko_log%message("Type: user (compressible flows)")
-    call usr_ic_compressible(rho, u, v, w, p, params)
+
+    call fields%init(5)
+    call fields%assign_to_field(1, rho)
+    call fields%assign_to_field(2, u)
+    call fields%assign_to_field(3, v)
+    call fields%assign_to_field(4, w)
+    call fields%assign_to_field(5, p)
+    call user_proc(scheme_name, fields)
 
     call set_flow_ic_common(u, v, w, p, coef, gs)
 
     n = u%dof%size()
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(p%x, p%x_d, n, &
-            HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(rho%x, rho%x_d, n, &
-            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(p%x, p%x_d, n, HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(rho%x, rho%x_d, n, HOST_TO_DEVICE, sync = .false.)
     end if
 
     ! Ensure continuity across elements for initial conditions
-    !call gs%op(p%x, p%dof%size(), GS_OP_ADD)
-    !call gs%op(rho%x, rho%dof%size(), GS_OP_ADD)
+    ! These variables are not treated in the common constructor
+    call gs%op(p%x, p%dof%size(), GS_OP_ADD)
+    call gs%op(rho%x, rho%dof%size(), GS_OP_ADD)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_col2(rho%x_d, coef%mult_d, rho%dof%size())
+       call device_col2(p%x_d, coef%mult_d, p%dof%size())
+    else
+       call col2(rho%x, coef%mult, rho%dof%size())
+       call col2(p%x, coef%mult, p%dof%size())
+    end if
 
   end subroutine set_compressible_flow_ic_usr
 
@@ -355,9 +380,9 @@ contains
 
     zone => neko_point_zone_registry%get_point_zone(trim(zone_name))
 
-    call cfill_mask(u%x, zone_value(1), size, zone%mask, zone%size)
-    call cfill_mask(v%x, zone_value(2), size, zone%mask, zone%size)
-    call cfill_mask(w%x, zone_value(3), size, zone%mask, zone%size)
+    call cfill_mask(u%x, zone_value(1), size, zone%mask%get(), zone%size)
+    call cfill_mask(v%x, zone_value(2), size, zone%mask%get(), zone%size)
+    call cfill_mask(w%x, zone_value(3), size, zone%mask%get(), zone%size)
 
   end subroutine set_flow_ic_point_zone
 
@@ -495,15 +520,33 @@ contains
        class default
        end select
 
+       ! Sync coordinates to device for the interpolation
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_memcpy(fld_data%x%x, fld_data%x%x_d, fld_data%x%size(),&
+               HOST_TO_DEVICE, sync=.false.)
+          call device_memcpy(fld_data%y%x, fld_data%y%x_d, fld_data%y%size(),&
+               HOST_TO_DEVICE, sync=.false.)
+          call device_memcpy(fld_data%z%x, fld_data%z%x_d, fld_data%z%size(),&
+               HOST_TO_DEVICE, sync=.true.)
+       end if
+
        ! Generates an interpolator object and performs the point search
        call fld_data%generate_interpolator(global_interp, u%dof, u%msh, &
             tolerance)
-
+       call fld_data%u%copy_from(host_to_device, .true.)
+       call fld_data%v%copy_from(host_to_device, .true.)
+       call fld_data%w%copy_from(host_to_device, .true.)
+       call fld_data%p%copy_from(host_to_device, .true.)
        ! Evaluate velocities and pressure
-       call global_interp%evaluate(u%x, fld_data%u%x)
-       call global_interp%evaluate(v%x, fld_data%v%x)
-       call global_interp%evaluate(w%x, fld_data%w%x)
-       call global_interp%evaluate(p%x, fld_data%p%x)
+
+       call global_interp%evaluate(u%x(:,1,1,1), fld_data%u%x, .false.)
+       call global_interp%evaluate(v%x(:,1,1,1), fld_data%v%x, .false.)
+       call global_interp%evaluate(w%x(:,1,1,1), fld_data%w%x, .false.)
+       call global_interp%evaluate(p%x(:,1,1,1), fld_data%p%x, .false.)
+       call u%copy_from(device_to_host, .true.)
+       call v%copy_from(device_to_host, .true.)
+       call w%copy_from(device_to_host, .true.)
+       call p%copy_from(device_to_host, .true.)
 
        call global_interp%free
 

@@ -107,6 +107,7 @@ contains
     real(kind=rp), intent(in) :: x(0:n)
     real(kind=rp), intent(out) :: c(0:n,0:m)
     real(kind=rp), intent(in) :: xi
+    real(kind=xp) :: cx(0:n,0:m)
     real(kind=xp) :: c1, c2, c3, c4, c5
     integer :: i, j, k, mn
 
@@ -115,11 +116,11 @@ contains
 
     do k = 0, m
        do j = 0, n
-          c(j,k) = 0d0
+          cx(j,k) = 0.0_xp
        end do
     end do
 
-    c(0,0) = 1d0
+    cx(0,0) = 1d0
 
     do i = 1, n
        mn = min(i,m)
@@ -130,40 +131,40 @@ contains
           c3 = x(i) - x(j)
           c2 = c2 * c3
           do k = mn, 1, -1
-             c(i,k) = c1 * (k * c(i-1,k-1) - c5 * c(i-1,k)) / c2
+             cx(i,k) = c1 * (k * cx(i-1,k-1) - c5 * cx(i-1,k)) / c2
           end do
-          c(i,0) = -c1 * c5 * c(i-1,0) / c2
+          cx(i,0) = -c1 * c5 * cx(i-1,0) / c2
           do k = mn, 1, -1
-             c(j,k) = (c4 * c(j,k) - k * c(j,k-1)) / c3
+             cx(j,k) = (c4 * cx(j,k) - k * cx(j,k-1)) / c3
           end do
-          c(j,0) = c4 * c(j,0) / c3
+          cx(j,0) = c4 * cx(j,0) / c3
        end do
        c1 = c2
     end do
-
+    c = real(cx, kind=rp)
   end subroutine fd_weights_full
 
 
-!>  Generate matrices for single element, 1D operators:
-!!        a    = Laplacian
-!!        b    = diagonal mass matrix
-!!        c    = convection operator b*d
-!!        d    = derivative matrix
-!!        dgll = derivative matrix,    mapping from pressure nodes to velocity
-!!        jgll = interpolation matrix, mapping from pressure nodes to velocity
-!!        z    = GLL points
-!!
-!!        zgl  = GL points
-!!        bgl  = diagonal mass matrix on GL
-!!        dgl  = derivative matrix,    mapping from velocity nodes to pressure
-!!        jgl  = interpolation matrix, mapping from velocity nodes to pressure
-!!
-!!        n    = polynomial degree (velocity space)
-!!        w    = work array of size 2*n+2
-!!
-!!     Currently, this is set up for pressure nodes on the interior GLL pts.
-!!
-!!
+  !>  Generate matrices for single element, 1D operators:
+  !!        a    = Laplacian
+  !!        b    = diagonal mass matrix
+  !!        c    = convection operator b*d
+  !!        d    = derivative matrix
+  !!        dgll = derivative matrix,    mapping from pressure nodes to velocity
+  !!        jgll = interpolation matrix, mapping from pressure nodes to velocity
+  !!        z    = GLL points
+  !!
+  !!        zgl  = GL points
+  !!        bgl  = diagonal mass matrix on GL
+  !!        dgl  = derivative matrix,    mapping from velocity nodes to pressure
+  !!        jgl  = interpolation matrix, mapping from velocity nodes to pressure
+  !!
+  !!        n    = polynomial degree (velocity space)
+  !!        w    = work array of size 2*n+2
+  !!
+  !!     Currently, this is set up for pressure nodes on the interior GLL pts.
+  !!
+  !!
   subroutine semhat(a, b, c, d, z, dgll, jgll, bgl, zgl, dgl, jgl, n, w)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: a(0:n,0:n)
@@ -185,17 +186,17 @@ contains
     do i = 0,n
        call fd_weights_full(z(i), z, n, 1, w)
        do j = 0,n
-          d(i,j) = w(j+np)                   !  Derivative matrix
+          d(i,j) = w(j+np) !  Derivative matrix
        end do
     end do
 
-    if (n.eq.1) return                       !  No interpolation for n=1
+    if (n.eq.1) return !  No interpolation for n=1
 
     do i = 0,n
        call fd_weights_full(z(i), z(1), n2, 1, w(1))
        do j = 1,nm
-          jgll(i,j) = w(j   )                  !  Interpolation matrix
-          dgll(i,j) = w(j+nm)                  !  Derivative    matrix
+          jgll(i,j) = w(j) ! Interpolation matrix
+          dgll(i,j) = w(j + nm) ! Derivative matrix
        end do
     end do
     call rzero(a, np*np)
@@ -211,8 +212,8 @@ contains
     do i = 1,n-1
        call fd_weights_full(zgl(i), z, n, 1, w)
        do j = 0,n
-          jgl(i,j) = w(j   )                  !  Interpolation matrix
-          dgl(i,j) = w(j+np)                  !  Derivative    matrix
+          jgl(i,j) = w(j ) !  Interpolation matrix
+          dgl(i,j) = w(j+np) !  Derivative    matrix
        end do
     end do
   end subroutine semhat
@@ -243,8 +244,8 @@ contains
     implicit none
     integer, intent(in) :: n_to, n_from, derivative
     real(kind=rp), intent(inout) :: jh(n_to, n_from), jht(n_from, n_to)
-    real(kind=rp), intent(inout) :: z_to(n_to), z_from(n_from)
-    real(kind=rp) ::  w(n_from, 0:derivative)
+    real(kind=rp), intent(in) :: z_to(n_to), z_from(n_from)
+    real(kind=rp) :: w(n_from, 0:derivative)
     integer :: i, j
     do i = 1, n_to
        ! This will assign w the weights for interpolating to point

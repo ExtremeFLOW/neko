@@ -49,6 +49,7 @@ module custom_types
   use json_module, only : json_file
   use json_utils, only: json_get, json_get_or_default
   use field_list, only : field_list_t
+  use time_state, only : time_state_t
 
   ! These imports are needed for registering our new type with Neko
   use source_term, only : source_term_t, register_source_term, &
@@ -111,12 +112,10 @@ contains
   end subroutine my_source_term_free
 
   !> Will just bring our greeting to the console.
-  !! @param t The time value.
-  !! @param tstep The current time-step.
-  subroutine my_source_term_compute(this, t, tstep)
+  !! @param time The time state.
+  subroutine my_source_term_compute(this, time)
     class(my_source_term_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
 
     write(*,*) this%greeting
 

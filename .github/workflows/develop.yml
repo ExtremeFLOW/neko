@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 env:
-  PFUNIT_VERSION: v4.4.2
+  PFUNIT_VERSION: v4.12.0
   JSON_FORTRAN_VERSION: 8.4.0
 
 # Allow only one concurrent deployment, skipping runs queued between the run
@@ -48,21 +48,18 @@ jobs:
           echo "json-fortran-version=$JSON_FORTRAN_VERSION" >> $GITHUB_OUTPUT
 
   linting:
-    name: Flint
-    needs:
-      - prepare
+    name: Linting
+    needs: prepare
     uses: ./.github/workflows/check_lint.yml
 
   formatting:
     name: Formatting
-    needs:
-      - prepare
+    needs: prepare
     uses: ./.github/workflows/check_format.yml
 
   depend:
-    name: Make depend
-    needs:
-      - prepare
+    name: Check .depend file
+    needs: prepare
     uses: ./.github/workflows/check_depend.yml
     with:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
@@ -161,7 +158,7 @@ jobs:
       format_status: ${{ needs.formatting.result }}
       gnu_status: ${{ needs.GNU.result }}
       inel_status: ${{ needs.Intel.result }}
-      nvidia_status: ${{ needs.Nvidia.result }}
+#      nvidia_status: ${{ needs.Nvidia.result }}
 #      reframe_status: ${{ needs.ReFrame.result }}
 
     steps:
@@ -194,10 +191,10 @@ jobs:
             success=false
           fi
 
-          if [ "$nvidia_status" != "success" ]; then
-            fail+=("\t- NVIDIA check: $nvidia_status")
-            success=false
-          fi
+          # if [ "$nvidia_status" != "success" ]; then
+          #   fail+=("\t- NVIDIA check: $nvidia_status")
+          #   success=false
+          # fi
 
           if [ "$success" = false ]; then
             >&2 echo "The following checks failed:"

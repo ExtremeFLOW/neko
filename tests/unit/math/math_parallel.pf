@@ -425,7 +425,7 @@ contains
 
   !> Test the point-wise maximum operation
   @test
-  subroutine test_math_pwmax
+  subroutine test_math_pwmax2
 
     integer, parameter :: n = 4711
     real(kind=rp), dimension(n) :: a, b, c
@@ -437,7 +437,7 @@ contains
        b(i) = real(n - i, rp)
     end do
 
-    call pwmax(a, b, n)
+    call pwmax2(a, b, n)
 
     do i = 1, n
        c(i) = max(a(i), b(i))
@@ -447,11 +447,38 @@ contains
        @assertEqual(c(i), a(i))
     end do
 
-  end subroutine test_math_pwmax
+  end subroutine test_math_pwmax2
+
+  !> Test the point-wise maximum operation
+  @test
+  subroutine test_math_pwmax3
+
+    integer, parameter :: n = 4711
+    real(kind=rp), dimension(n) :: a, b, c, d
+
+    integer :: i
+
+    do i = 1, n
+       a(i) = real(i, rp)
+       b(i) = real(n - i, rp)
+       c(i) = real(n - abs(n / 2 - i), rp)
+    end do
+
+    call pwmax3(a, b, c, n)
+
+    do i = 1, n
+       d(i) = max(b(i), c(i))
+    end do
+
+    do i = 1, n
+       @assertEqual(d(i), a(i))
+    end do
+
+  end subroutine test_math_pwmax3
 
   !> Test the point-wise minimum operation
   @test
-  subroutine test_math_pwmin
+  subroutine test_math_pwmin2
 
     integer, parameter :: n = 4711
     real(kind=rp), dimension(n) :: a, b, c
@@ -463,7 +490,7 @@ contains
        b(i) = real(n - i, rp)
     end do
 
-    call pwmin(a, b, n)
+    call pwmin2(a, b, n)
 
     do i = 1, n
        c(i) = min(a(i), b(i))
@@ -473,7 +500,34 @@ contains
        @assertEqual(c(i), a(i))
     end do
 
-  end subroutine test_math_pwmin
+  end subroutine test_math_pwmin2
+
+  !> Test the point-wise minimum operation
+  @test
+  subroutine test_math_pwmin3
+
+    integer, parameter :: n = 4711
+    real(kind=rp), dimension(n) :: a, b, c, d
+
+    integer :: i
+
+    do i = 1, n
+       a(i) = real(i, rp)
+       b(i) = real(n - i, rp)
+       c(i) = real(abs(n / 2 - i), rp)
+    end do
+
+    call pwmin3(a, b, c, n)
+
+    do i = 1, n
+       d(i) = min(b(i), c(i))
+    end do
+
+    do i = 1, n
+       @assertEqual(d(i), a(i))
+    end do
+
+  end subroutine test_math_pwmin3
 
 
 end module math_parallel

@@ -34,8 +34,9 @@
 module matrix
   use neko_config, only: NEKO_BCKND_DEVICE
   use math, only: sub3, chsign, add3, cmult2, cadd2
-  use num_types, only: rp
-  use device, only: device_map, device_free
+  use num_types, only: rp, xp
+  use device, only: device_map, device_free, device_memcpy, &
+       device_deassociate, device_sync
   use device_math, only: device_copy, device_cfill, device_cmult, &
        device_sub3, device_cmult2, device_add3, device_cadd2
   use utils, only: neko_error
@@ -56,6 +57,8 @@ module matrix
      procedure, pass(m) :: free => matrix_free
      !> Returns the number of entries in the matrix.
      procedure, pass(m) :: size => matrix_size
+     !> Copy between host and device
+     procedure, pass(m) :: copy_from => matrix_copy_from
      !> Returns the number of rows in the matrix.
      procedure, pass(m) :: get_nrows => matrix_nrows
      !> Returns the number of columns in the matrix.
@@ -64,32 +67,12 @@ module matrix
      procedure, pass(m) :: matrix_assign_matrix
      !> Assignment \f$ m = s \f$.
      procedure, pass(m) :: matrix_assign_scalar
-     !> Matrix-matrix addition \f$ v = m + b \f$.
-     procedure, pass(m) :: matrix_add_matrix
-     !> Matrix-scalar addition \f$ v = m + c \f$.
-     procedure, pass(m) :: matrix_add_scalar_left
-     !> Scalar-matrix addition \f$ v = c + m \f$.
-     procedure, pass(m) :: matrix_add_scalar_right
-     !> Matrix-matrix subtraction \f$ v = m - b \f$.
-     procedure, pass(m) :: matrix_sub_matrix
-     !> Matrix-scalar subtraction \f$ v = m - c \f$.
-     procedure, pass(m) :: matrix_sub_scalar_left
-     !> Scalar-matrix subtraction \f$ v = c - m \f$.
-     procedure, pass(m) :: matrix_sub_scalar_right
-     !> Matrix-scalar multiplication \f$ v = m*c \f$.
-     procedure, pass(m) :: matrix_cmult_left
-     !> Scalar-matrix multiplication \f$ v = c*m \f$.
-     procedure, pass(m) :: matrix_cmult_right
      !> Inverse a matrix.
      procedure, pass(m) :: inverse => matrix_bcknd_inverse
+     procedure, pass(m) :: inverse_on_host => cpu_matrix_inverse
 
      generic :: assignment(=) => matrix_assign_matrix, &
           matrix_assign_scalar
-     generic :: operator(+) => matrix_add_matrix, &
-          matrix_add_scalar_left, matrix_add_scalar_right
-     generic :: operator(-) => matrix_sub_matrix, &
-          matrix_sub_scalar_left, matrix_sub_scalar_right
-     generic :: operator(*) => matrix_cmult_left, matrix_cmult_right
 
      !> Allocate a matrix of size `nrows*ncols`.
      procedure, pass(m), private :: alloc => matrix_allocate
@@ -130,6 +113,8 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(m%x, m%x_d, m%n)
+       call device_cfill(m%x_d, 0.0_rp, m%n)
+       call device_sync()
     end if
 
   end subroutine matrix_allocate
@@ -143,6 +128,7 @@ contains
     end if
 
     if (c_associated(m%x_d)) then
+       call device_deassociate(m%x)
        call device_free(m%x_d)
     end if
 
@@ -158,6 +144,22 @@ contains
     integer :: s
     s = m%n
   end function matrix_size
+
+
+  !> Easy way to copy between host and device.
+  !! @param m matrix to copy to/from device/host
+  !! @memdir direction to copy (HOST_TO_DEVICE or DEVICE_TO_HOST)
+  !! @sync whether the memcopy to be blocking or not
+  subroutine matrix_copy_from(m, memdir, sync)
+    class(matrix_t), intent(inout) :: m
+    integer, intent(in) :: memdir
+    logical, intent(in) :: sync
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(m%x, m%x_d, m%n, memdir, sync)
+    end if
+
+  end subroutine matrix_copy_from
 
   !> Returns the number of rows in the matrix.
   pure function matrix_nrows(m) result(nr)
@@ -220,161 +222,6 @@ contains
 
   end subroutine matrix_assign_scalar
 
-  !> Matrix-matrix addition \f$ v = m + b \f$.
-  function matrix_add_matrix(m, b) result(v)
-    class(matrix_t), intent(in) :: m, b
-    type(matrix_t) :: v
-
-    if (m%nrows .ne. b%nrows .or. m%ncols .ne. b%ncols) &
-         call neko_error("Matrices must be the same size!")
-
-    v%n = m%n
-    v%nrows = m%nrows
-    v%ncols = m%ncols
-    allocate(v%x(v%nrows, v%ncols))
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(v%x, v%x_d, v%n)
-    end if
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_add3(v%x_d, m%x_d, b%x_d, v%n)
-    else
-       call add3(v%x, m%x, b%x, v%n)
-    end if
-
-  end function matrix_add_matrix
-
-  !> Matrix-scalar addition \f$ v = m + c \f$.
-  function matrix_add_scalar_left(m, c) result(v)
-    class(matrix_t), intent(in) :: m
-    real(kind=rp), intent(in) :: c
-    type(matrix_t) :: v
-
-    v%n = m%n
-    v%nrows = m%nrows
-    v%ncols = m%ncols
-    allocate(v%x(v%nrows, v%ncols))
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(v%x, v%x_d, v%n)
-    end if
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cadd2(v%x_d, m%x_d, c, v%n)
-    else
-       call cadd2(v%x, m%x, c, v%n)
-    end if
-
-  end function matrix_add_scalar_left
-
-  !> Scalar-matrix addition \f$ v = c + m \f$.
-  function matrix_add_scalar_right(c, m) result(v)
-    real(kind=rp), intent(in) :: c
-    class(matrix_t), intent(in) :: m
-    type(matrix_t) :: v
-
-    v = matrix_add_scalar_left(m, c)
-
-  end function matrix_add_scalar_right
-
-  !> Matrix-matrix subtraction \f$ v = m - b \f$.
-  function matrix_sub_matrix(m, b) result(v)
-    class(matrix_t), intent(in) :: m, b
-    type(matrix_t) :: v
-
-    if (m%nrows .ne. b%nrows .or. m%ncols .ne. b%ncols) &
-         call neko_error("Matrices must be the same size!")
-
-    v%n = m%n
-    v%nrows = m%nrows
-    v%ncols = m%ncols
-    allocate(v%x(v%nrows, v%ncols))
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(v%x, v%x_d, v%n)
-    end if
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_sub3(v%x_d, m%x_d, b%x_d, v%n)
-    else
-       call sub3(v%x, m%x, b%x, v%n)
-    end if
-
-  end function matrix_sub_matrix
-
-  !> Matrix-scalar subtraction \f$ v = m - c \f$.
-  function matrix_sub_scalar_left(m, c) result(v)
-    class(matrix_t), intent(in) :: m
-    real(kind=rp), intent(in) :: c
-    type(matrix_t) :: v
-
-    v%n = m%n
-    v%nrows = m%nrows
-    v%ncols = m%ncols
-    allocate(v%x(v%nrows, v%ncols))
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(v%x, v%x_d, v%n)
-    end if
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cadd2(v%x_d, m%x_d, -1.0_rp*c, v%n)
-    else
-       call cadd2(v%x, m%x, -1.0_rp*c, m%n)
-    end if
-
-  end function matrix_sub_scalar_left
-
-  !> Scalar-matrix subtraction \f$ v = c - m \f$.
-  function matrix_sub_scalar_right(c, m) result(v)
-    real(kind=rp), intent(in) :: c
-    class(matrix_t), intent(in) :: m
-    type(matrix_t) :: v
-
-    v = matrix_sub_scalar_left(m, c)
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cmult(v%x_d, -1.0_rp, v%n)
-    else
-       call chsign(v%x, v%n)
-    end if
-
-  end function matrix_sub_scalar_right
-
-  !> Matrix-scalar multiplication \f$ v = m*c \f$.
-  function matrix_cmult_left(m, c) result(v)
-    class(matrix_t), intent(in) :: m
-    real(kind=rp), intent(in) :: c
-    type(matrix_t) :: v
-
-    v%n = m%n
-    v%nrows = m%nrows
-    v%ncols = m%ncols
-    allocate(v%x(v%nrows, v%ncols))
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(v%x, v%x_d, v%n)
-    end if
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cmult2(v%x_d, m%x_d, c, v%n)
-    else
-       call cmult2(v%x, m%x, c, v%n)
-    end if
-
-  end function matrix_cmult_left
-
-  !> Scalar-matrix multiplication \f$ v = c*m \f$.
-  function matrix_cmult_right(c, m) result(v)
-    real(kind=rp), intent(in) :: c
-    class(matrix_t), intent(in) :: m
-    type(matrix_t) :: v
-
-    v = matrix_cmult_left(m, c)
-
-  end function matrix_cmult_right
-
   subroutine matrix_bcknd_inverse(m, bcknd)
     class(matrix_t), intent(inout) :: m
     integer, optional :: bcknd
@@ -396,7 +243,7 @@ contains
     ! rmult is m  work array of length nrows = ncols
     class(matrix_t), intent(inout) :: m
     integer :: indr(m%nrows), indc(m%ncols), ipiv(m%ncols)
-    real(kind=rp) :: rmult(m%nrows), amx, tmp, piv, eps
+    real(kind=xp) :: rmult(m%nrows), amx, tmp, piv, eps
     integer :: i, j, k, ir, jc
 
     if (.not. (m%ncols .eq. m%nrows)) then
@@ -440,8 +287,8 @@ contains
        if (abs(m%x(jc, jc)) .lt. eps) then
           call neko_error("matrix_inverse error: small Gauss Jordan Piv")
        end if
-       piv = 1.0_rp/m%x(jc, jc)
-       m%x(jc, jc) = 1.0_rp
+       piv = 1.0_xp/m%x(jc, jc)
+       m%x(jc, jc) = 1.0_xp
        do j = 1, m%ncols
           m%x(jc, j) = m%x(jc, j)*piv
        end do

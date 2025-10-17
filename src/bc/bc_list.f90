@@ -39,6 +39,7 @@ module bc_list
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr
   use bc, only : bc_t, bc_ptr_t
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -72,11 +73,16 @@ module bc_list
 
      !> Apply all boundary conditions in the list.
      generic :: apply => apply_scalar, apply_vector, &
+          apply_scalar_device, apply_vector_device, &
           apply_scalar_field, apply_vector_field
      !> Apply the boundary conditions to a scalar array.
      procedure, pass(this) :: apply_scalar => bc_list_apply_scalar_array
      !> Apply the boundary conditions to a vector array.
      procedure, pass(this) :: apply_vector => bc_list_apply_vector_array
+     !> Apply the boundary conditions to a scalar device array.
+     procedure, pass(this) :: apply_scalar_device => bc_list_apply_scalar_device
+     !> Apply the boundary conditions to a vector device array.
+     procedure, pass(this) :: apply_vector_device => bc_list_apply_vector_device
      !> Apply the boundary conditions to a scalar field.
      procedure, pass(this) :: apply_scalar_field => bc_list_apply_scalar_field
      !> Apply the boundary conditions to a vector field.
@@ -162,115 +168,31 @@ contains
   !> Apply a list of boundary conditions to a scalar field
   !! @param x The field to apply the boundary conditions to.
   !! @param n The size of x.
-  !! @param t Current time.
-  !! @param tstep Current time-step.
+  !! @param time Current time state.
   !! @param strong Filter for strong or weak boundary conditions. Default is to
   !! apply the whole list.
   !! @param strm Device strm
-  subroutine bc_list_apply_scalar_array(this, x, n, t, tstep, strong, strm)
+  subroutine bc_list_apply_scalar_array(this, x, n, time, strong, strm)
     class(bc_list_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
-    type(c_ptr), optional :: strm
-    type(c_ptr) :: strm_
+    type(c_ptr), intent(inout), optional :: strm
     type(c_ptr) :: x_d
     integer :: i
 
-
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
-       if (present(strm)) then
-          strm_ = strm
-       else
-          strm_ = glb_cmd_queue
-       end if
-
        x_d = device_get_ptr(x)
-       if (present(strong)) then
-          if (present(t) .and. present(tstep)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar_dev(x_d, t, &
-                     tstep, strong, strm_)
-             end do
-          else if (present(t)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar_dev(x_d, t = t, &
-                     strong = strong, strm = strm_)
-             end do
-          else if (present(tstep)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar_dev(x_d, tstep = tstep, &
-                     strong = strong, strm = strm_)
-             end do
-          else
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar_dev(x_d, strm = strm_)
-             end do
-          end if
-       else
-          if (present(t) .and. present(tstep)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar_dev(x_d, t = t, &
-                     tstep = tstep, strm = strm_)
-             end do
-          else if (present(t)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar_dev(x_d, t = t,&
-                     strm = strm_)
-             end do
-          else if (present(tstep)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar_dev(x_d, tstep = tstep, &
-                     strm = strm_)
-             end do
-          else
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar_dev(x_d, strm = strm_)
-             end do
-          end if
-       end if
+
+       call this%apply_scalar_device(x_d, time = time, &
+            strong = strong, strm = strm)
     else
-       if (present(strong)) then
-          if (present(t) .and. present(tstep)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar(x, n, t, tstep, strong)
-             end do
-          else if (present(t)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar(x, n, t = t, strong = strong)
-             end do
-          else if (present(tstep)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar(x, n, tstep = tstep, &
-                     strong = strong)
-             end do
-          else
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar(x, n, strong = strong)
-             end do
-          end if
-       else
-          if (present(t) .and. present(tstep)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar(x, n, t = t, tstep = tstep)
-             end do
-          else if (present(t)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar(x, n, t = t)
-             end do
-          else if (present(tstep)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar(x, n, tstep = tstep)
-             end do
-          else
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar(x, n)
-             end do
-          end if
-       end if
+       do i = 1, this%size_
+          call this%items(i)%ptr%apply_scalar(x, n, time = time, &
+               strong = strong)
+       end do
     end if
   end subroutine bc_list_apply_scalar_array
 
@@ -279,22 +201,19 @@ contains
   !! @param y The y comp of the field for which to apply the bcs.
   !! @param z The z comp of the field for which to apply the bcs.
   !! @param n The size of x, y, z.
-  !! @param t Current time.
-  !! @param tstep Current time-step.
+  !! @param t Current time state.
   !! @param strong Filter for strong or weak boundary conditions. Default is to
   !! apply the whole list.
   !! @param strm Device stream
-  subroutine bc_list_apply_vector_array(this, x, y, z, n, t, tstep, strong, strm)
+  subroutine bc_list_apply_vector_array(this, x, y, z, n, time, strong, strm)
     class(bc_list_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(inout), dimension(n) :: y
     real(kind=rp), intent(inout), dimension(n) :: z
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
-    type(c_ptr), optional :: strm
-    type(c_ptr) :: strm_
+    type(c_ptr), intent(inout), optional :: strm
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
@@ -302,312 +221,125 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
-       if (present(strm)) then
-          strm_ = strm
-       else
-          strm_ = glb_cmd_queue
-       end if
-
        x_d = device_get_ptr(x)
        y_d = device_get_ptr(y)
        z_d = device_get_ptr(z)
 
-       if (present(strong)) then
-          if (present(t) .and. present(tstep)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, t, &
-                     tstep, strong, strm_)
-             end do
-          else if (present(t)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, t = t, &
-                     strong = strong, strm = strm_)
-             end do
-          else if (present(tstep)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, &
-                     tstep = tstep, strong = strong, strm = strm_)
-             end do
-          else
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, &
-                     strong = strong, strm = strm_)
-             end do
-          end if
-       else
-          if (present(t) .and. present(tstep)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, t, &
-                     tstep, strm = strm_)
-             end do
-          else if (present(t)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, &
-                     t = t, strm = strm_)
-             end do
-          else if (present(tstep)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, &
-                     tstep = tstep, strm = strm_)
-             end do
-          else
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, &
-                     strm = strm_)
-             end do
-          end if
-       end if
+       call this%apply_vector_device(x_d, y_d, z_d, time = time, &
+            strong = strong, strm = strm)
     else
-       if (present(strong)) then
-          if (present(t) .and. present(tstep)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector(x, y, z, n, t, tstep, strong)
-             end do
-          else if (present(t)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector(x, y, z, n, t = t, &
-                     strong = strong)
-             end do
-          else if (present(tstep)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector(x, y, z, n, &
-                     tstep = tstep, strong = strong)
-             end do
-          else
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector(x, y, z, n, strong = strong)
-             end do
-          end if
-       else
-          if (present(t) .and. present(tstep)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector(x, y, z, n, t, tstep)
-             end do
-          else if (present(t)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector(x, y, z, n, t = t)
-             end do
-          else if (present(tstep)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector(x, y, z, n, tstep = tstep)
-             end do
-          else
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector(x, y, z, n)
-             end do
-          end if
-       end if
+       do i = 1, this%size_
+          call this%items(i)%ptr%apply_vector(x, y, z, n, time = time, &
+               strong = strong)
+       end do
     end if
 
   end subroutine bc_list_apply_vector_array
 
-  !> Apply a list of boundary conditions to a scalar field
-  !! @param x The field to apply the boundary conditions to.
-  !! @param t Current time.
-  !! @param tstep Current time-step.
+  !> Apply a list of boundary conditions to a scalar field on the device.
+  !! @param x_d The field to apply the boundary conditions to.
+  !! @param time Current time state.
+  !! @param strong Filter for strong or weak boundary conditions. Default is to
+  !! apply the whole list.
+  !! @param strm Device strm
+  subroutine bc_list_apply_scalar_device(this, x_d, time, strong, strm)
+    class(bc_list_t), intent(inout) :: this
+    type(c_ptr), intent(inout) :: x_d
+    type(time_state_t), intent(in), optional :: time
+    logical, intent(in), optional :: strong
+    type(c_ptr), intent(inout), optional :: strm
+    type(c_ptr) :: strm_
+    integer :: i
+
+    if (present(strm)) then
+       strm_ = strm
+    else
+       strm_ = glb_cmd_queue
+    end if
+
+    do i = 1, this%size_
+       call this%items(i)%ptr%apply_scalar_dev(x_d, time = time, &
+            strong = strong, strm = strm_)
+    end do
+
+  end subroutine bc_list_apply_scalar_device
+
+  !> Apply a list of boundary conditions to a vector field on the device.
+  !! @param x_d The x comp of the field for which to apply the bcs.
+  !! @param y_d The y comp of the field for which to apply the bcs.
+  !! @param z_d The z comp of the field for which to apply the bcs.
+  !! @param t Current time state.
   !! @param strong Filter for strong or weak boundary conditions. Default is to
   !! apply the whole list.
   !! @param strm Device stream
-  subroutine bc_list_apply_scalar_field(this, x, t, tstep, strong, strm)
+  subroutine bc_list_apply_vector_device(this, x_d, y_d, z_d, time, strong, &
+       strm)
+    class(bc_list_t), intent(inout) :: this
+    type(c_ptr), intent(inout) :: x_d
+    type(c_ptr), intent(inout) :: y_d
+    type(c_ptr), intent(inout) :: z_d
+    type(time_state_t), intent(in), optional :: time
+    logical, intent(in), optional :: strong
+    type(c_ptr), intent(inout), optional :: strm
+    type(c_ptr) :: strm_
+    integer :: i
+
+    if (present(strm)) then
+       strm_ = strm
+    else
+       strm_ = glb_cmd_queue
+    end if
+
+    do i = 1, this%size_
+       call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, time = time, &
+            strong = strong, strm = strm_)
+    end do
+
+  end subroutine bc_list_apply_vector_device
+
+  !> Apply a list of boundary conditions to a scalar field
+  !! @param x The field to apply the boundary conditions to.
+  !! @param time Current time state.
+  !! @param strong Filter for strong or weak boundary conditions. Default is to
+  !! apply the whole list.
+  !! @param strm Device stream
+  subroutine bc_list_apply_scalar_field(this, x, time, strong, strm)
     class(bc_list_t), intent(inout) :: this
     type(field_t), intent(inout) :: x
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
-    type(c_ptr), optional :: strm
-    type(c_ptr) :: strm_
-    integer :: i, n
+    type(c_ptr), intent(inout), optional :: strm
+    integer :: i
 
-    n = x%size()
-    if (NEKO_BCKND_DEVICE .eq. 1) then
+    do i = 1, this%size_
+       call this%items(i)%ptr%apply_scalar_generic(x, time = time, &
+            strong = strong, strm = strm)
+    end do
 
-       if (present(strm)) then
-          strm_ = strm
-       else
-          strm_ = glb_cmd_queue
-       end if
-
-       if (present(strong)) then
-          if (present(t) .and. present(tstep)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar_dev(x%x_d, &
-                     t, tstep, strong, strm_)
-             end do
-          else if (present(t)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar_dev(x%x_d, t = t, &
-                     strong = strong, strm = strm_)
-             end do
-          else if (present(tstep)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar_dev(x%x_d, tstep = tstep, &
-                     strong = strong, strm = strm_)
-             end do
-          else
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar_dev(x%x_d, strong = strong, &
-                     strm = strm_)
-             end do
-          end if
-       else
-          if (present(t) .and. present(tstep)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar_dev(x%x_d, t, tstep, &
-                     strm = strm_)
-             end do
-          else if (present(t)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar_dev(x%x_d, t = t, &
-                     strm = strm_)
-             end do
-          else if (present(tstep)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar_dev(x%x_d, tstep = tstep, &
-                     strm = strm_)
-             end do
-          else
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_scalar_dev(x%x_d, strm = strm_)
-             end do
-          end if
-       end if
-    else
-       do i = 1, this%size_
-          call this%items(i)%ptr%apply_scalar(x%x, n, t, tstep, strong)
-       end do
-    end if
   end subroutine bc_list_apply_scalar_field
 
   !> Apply a list of boundary conditions to a vector field.
   !! @param x The x comp of the field for which to apply the bcs.
   !! @param y The y comp of the field for which to apply the bcs.
   !! @param z The z comp of the field for which to apply the bcs.
-  !! @param t Current time.
-  !! @param tstep Current time-step.
+  !! @param time Current time state.
   !! @param strong Filter for strong or weak boundary conditions. Default is to
   !! apply the whole list.
   !! @param strm Device stream
-  subroutine bc_list_apply_vector_field(this, x, y, z, t, tstep, strong, strm)
+  subroutine bc_list_apply_vector_field(this, x, y, z, time, strong, strm)
     class(bc_list_t), intent(inout) :: this
     type(field_t), intent(inout) :: x
     type(field_t), intent(inout) :: y
     type(field_t), intent(inout) :: z
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
-    type(c_ptr), optional :: strm
-    type(c_ptr) :: strm_
-    integer :: i, n
-    character(len=256) :: msg
+    type(c_ptr), intent(inout), optional :: strm
+    integer :: i
 
-    n = x%size()
-
-    ! Ensure all fields are the same size
-    if (y%size() .ne. n .or. z%size() .ne. n) then
-       msg = "Fields x, y, z must have the same size in " // &
-            "bc_list_apply_vector_field"
-       call neko_error(trim(msg))
-    end if
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-
-       if (present(strm)) then
-          strm_ = strm
-       else
-          strm_ = glb_cmd_queue
-       end if
-
-       if (present(strong)) then
-          if (present(t) .and. present(tstep)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector_dev(x%x_d, y%x_d, z%x_d, &
-                     t, tstep, strong, strm_)
-             end do
-          else if (present(t)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector_dev(x%x_d, y%x_d, z%x_d, &
-                     t = t, strong = strong, strm = strm_)
-             end do
-          else if (present(tstep)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector_dev(x%x_d, y%x_d, z%x_d, &
-                     tstep = tstep, strong = strong, strm = strm_)
-             end do
-          else
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector_dev(x%x_d, y%x_d, z%x_d, &
-                     strong = strong, strm = strm_)
-             end do
-          end if
-       else
-          if (present(t) .and. present(tstep)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector_dev(x%x_d, y%x_d, z%x_d, &
-                     t, tstep, strm = strm_)
-             end do
-          else if (present(t)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector_dev(x%x_d, y%x_d, z%x_d, &
-                     t = t, strm = strm_)
-             end do
-          else if (present(tstep)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector_dev(x%x_d, y%x_d, z%x_d, &
-                     tstep = tstep, strm = strm_)
-             end do
-          else
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector_dev(x%x_d, y%x_d, z%x_d, &
-                     strm = strm_)
-             end do
-          end if
-       end if
-    else
-       if (present(strong)) then
-          if (present(t) .and. present(tstep)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector(x%x, y%x, z%x, n, t, &
-                     tstep, strong)
-             end do
-          else if (present(t)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector(x%x, y%x, z%x, n, &
-                     t = t, strong = strong)
-             end do
-          else if (present(tstep)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector(x%x, y%x, z%x, n, &
-                     tstep = tstep, strong = strong)
-             end do
-          else
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector(x%x, y%x, z%x, n, &
-                     strong = strong)
-             end do
-          end if
-       else
-          if (present(t) .and. present(tstep)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector(x%x, y%x, z%x, n, t, &
-                     tstep)
-             end do
-          else if (present(t)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector(x%x, y%x, z%x, n, &
-                     t = t)
-             end do
-          else if (present(tstep)) then
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector(x%x, y%x, z%x, n, &
-                     tstep = tstep)
-             end do
-          else
-             do i = 1, this%size_
-                call this%items(i)%ptr%apply_vector(x%x, y%x, z%x, n)
-             end do
-          end if
-       end if
-    end if
+    do i = 1, this%size_
+       call this%items(i)%ptr%apply_vector_generic(x, y, z, time = time, &
+            strong = strong, strm = strm)
+    end do
 
   end subroutine bc_list_apply_vector_field
 

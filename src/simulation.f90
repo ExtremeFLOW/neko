@@ -32,8 +32,9 @@
 !
 !> Simulation driver
 module simulation
-  use mpi_f08
+  use mpi_f08, only: MPI_Wtime
   use case, only : case_t
+  use checkpoint, only : chkp_t
   use num_types, only : rp, dp
   use time_scheme_controller, only : time_scheme_controller_t
   use file, only : file_t
@@ -42,13 +43,19 @@ module simulation
   use profiler, only : profiler_start, profiler_stop, &
        profiler_start_region, profiler_end_region
   use simcomp_executor, only : neko_simcomps
-  use json_utils, only : json_get_or_default
+  use json_utils, only : json_get, json_get_or_default
   use time_state, only : time_state_t
   use time_step_controller, only : time_step_controller_t
   implicit none
   private
 
-  public :: simulation_init, simulation_step, simulation_finalize
+  interface simulation_restart
+     module procedure case_restart_from_parameters, &
+          case_restart_from_checkpoint
+  end interface simulation_restart
+
+  public :: simulation_init, simulation_step, simulation_finalize, &
+       simulation_restart
 
 contains
 
@@ -64,10 +71,7 @@ contains
     call C%params%get('case.restart_file', restart_file, found)
     if (found .and. len_trim(restart_file) .gt. 0) then
        ! Restart the case
-       call case_restart(C)
-
-       ! Restart the simulation components
-       call neko_simcomps%restart(C%time)
+       call simulation_restart(C)
     end if
 
     ! Write the initial logging message
@@ -86,8 +90,7 @@ contains
     call neko_log%section('Preprocessing')
     call C%output_controller%execute(C%time)
 
-    call C%user%user_init_modules(C%time%t, C%fluid%u, C%fluid%v, C%fluid%w, &
-         C%fluid%p, C%fluid%c_Xh, C%params)
+    call C%user%initialize(C%time)
     call neko_log%end_section()
     call neko_log%newline()
 
@@ -108,7 +111,7 @@ contains
     end if
 
     ! Finalize the user modules
-    call C%user%user_finalize_modules(C%time%t, C%params)
+    call C%user%finalize(C%time)
 
     call neko_log%end_section('Normal end.')
 
@@ -144,6 +147,7 @@ contains
     call neko_log%message(log_buf)
 
     ! Run the preprocessing
+    call C%user%preprocess(C%time)
     call neko_simcomps%preprocess(C%time)
     call neko_log%end_section()
 
@@ -171,9 +175,8 @@ contains
     ! Execute all simulation components
     call neko_simcomps%compute(C%time)
 
-    ! Run the user checks
-    call C%user%user_check(C%time%t, C%time%tstep, C%fluid%u, C%fluid%v, &
-         C%fluid%w, C%fluid%p, C%fluid%c_Xh, C%params)
+    ! Run the user compute routine
+    call C%user%compute(C%time)
 
     ! Run any IO needed.
     call C%output_controller%execute(C%time)
@@ -190,7 +193,8 @@ contains
 
     if (present(tstep_loop_start_time)) then
        write(log_buf, '(A34,E15.7)') &
-            'Total elapsed time (s):           ', end_time - tstep_loop_start_time
+            'Total elapsed time (s):           ', &
+            end_time - tstep_loop_start_time
        call neko_log%message(log_buf)
     end if
 
@@ -227,53 +231,70 @@ contains
   end subroutine simulation_settime
 
   !> Restart a case @a C from a given checkpoint
-  subroutine case_restart(C)
-    implicit none
+  subroutine case_restart_from_parameters(C)
     type(case_t), intent(inout) :: C
-    integer :: i
     type(file_t) :: chkpf, previous_meshf
     character(len=LOG_SIZE) :: log_buf
     character(len=:), allocatable :: restart_file
     character(len=:), allocatable :: restart_mesh_file
     real(kind=rp) :: tol
     logical :: found, check_cont
+    integer :: i
 
-    call C%params%get('case.restart_file', restart_file, found)
-    call C%params%get('case.restart_mesh_file', restart_mesh_file, found)
+    call json_get(C%params, 'case.restart_file', restart_file)
+    call json_get_or_default(C%params, 'case.restart_mesh_file', &
+         restart_mesh_file, "")
 
-    if (found) then
+    if (restart_mesh_file .ne. "") then
        call previous_meshf%init(trim(restart_mesh_file))
        call previous_meshf%read(C%chkp%previous_mesh)
+
+       call json_get_or_default(C%params, 'case.mesh2mesh_tolerance', &
+            C%chkp%mesh2mesh_tol, 1e-6_rp)
     end if
 
-    call C%params%get('case.mesh2mesh_tolerance', tol, found)
-
-    if (found) C%chkp%mesh2mesh_tol = tol
-
-    call chkpf%init(trim(restart_file))
-    call chkpf%read(C%chkp)
-    C%time%dtlag = C%chkp%dtlag
-    C%time%tlag = C%chkp%tlag
-
-    ! Free the previous mesh, dont need it anymore
-    do i = 1, size(C%time%dtlag)
-       call C%fluid%ext_bdf%set_coeffs(C%time%dtlag)
-    end do
-
-    call C%fluid%restart(C%chkp)
-    call C%chkp%previous_mesh%free()
-    if (allocated(C%scalars)) call C%scalars%restart(C%chkp)
-
-    C%time%t = C%chkp%restart_time()
     call neko_log%section('Restarting from checkpoint')
     write(log_buf, '(A,A)') 'File :   ', trim(restart_file)
     call neko_log%message(log_buf)
+
+    call chkpf%init(trim(restart_file))
+    call chkpf%read(C%chkp)
+
+    call case_restart_from_checkpoint(C, C%chkp)
+
+    ! Free the previous mesh
+    call C%chkp%previous_mesh%free()
+
     write(log_buf, '(A,E15.7)') 'Time : ', C%time%t
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
+  end subroutine case_restart_from_parameters
+
+  !> Restart a case @a C from a given checkpoint
+  subroutine case_restart_from_checkpoint(C, chkp)
+    type(case_t), intent(inout) :: C
+    type(chkp_t), intent(inout) :: chkp
+    character(len=LOG_SIZE) :: log_buf
+    integer :: i
+
+    ! Restart the time state and BDF coefficients
+    call C%time%restart(chkp)
+    do i = 1, size(C%time%dtlag)
+       call C%fluid%ext_bdf%set_coeffs(C%time%dtlag)
+    end do
+
+    ! Restart the fluid and scalars
+    call C%fluid%restart(chkp)
+    if (allocated(C%scalars)) call C%scalars%restart(chkp)
+
+    ! Restart the output controller
     call C%output_controller%set_counter(C%time)
-  end subroutine case_restart
+
+    ! Restart the simulation components
+    call neko_simcomps%restart(C%time)
+
+  end subroutine case_restart_from_checkpoint
 
   !> Write a checkpoint at joblimit
   subroutine simulation_joblimit_chkp(C, t)
@@ -285,13 +306,13 @@ contains
     character(len=10) :: format_str
     logical :: found
 
-    call C%params%get('case.checkpoint_format', chkp_format, found)
+    call json_get_or_default(C%params, 'case.checkpoint_format', chkp_format, &
+         'default')
     call C%chkp%sync_host()
-    format_str = '.chkp'
-    if (found) then
-       if (chkp_format .eq. 'hdf5') then
-          format_str = '.h5'
-       end if
+    if (chkp_format .eq. 'hdf5') then
+       format_str = '.h5'
+    else
+       format_str = '.chkp'
     end if
     call chkpf%init(C%output_directory // 'joblimit'//trim(format_str))
     call chkpf%write(C%chkp, t)

@@ -33,27 +33,27 @@
 !> NEKTON fld file format
 !! @details this module defines interface to write NEKTON's fld fields
 module fld_file
-  use num_types, only: rp, dp, sp, i8
-  use generic_file, only: generic_file_t
-  use field, only: field_t
-  use field_list, only: field_list_t
-  use dofmap, only: dofmap_t
-  use space, only: space_t
-  use structs, only: array_ptr_t
-  use vector, only: vector_t
-  use fld_file_data, only: fld_file_data_t
-  use mean_flow, only: mean_flow_t
-  use mean_sqr_flow, only: mean_sqr_flow_t
+  use num_types, only : rp, dp, sp, i8
+  use generic_file, only : generic_file_t
+  use field, only : field_t
+  use field_list, only : field_list_t
+  use dofmap, only : dofmap_t
+  use space, only : space_t
+  use structs, only : array_ptr_t
+  use vector, only : vector_t
+  use fld_file_data, only : fld_file_data_t
   use vector, only : vector_t
   use space, only : space_t
+  use logger, only: neko_log, LOG_SIZE
   use mesh, only : mesh_t
-  use utils, only: filename_suffix_pos, filename_tslash_pos, filename_chsuffix
-  use utils, only: neko_error
+  use utils, only: filename_suffix_pos, filename_chsuffix, filename_name, &
+       filename_path, neko_error
   use comm
-  use datadist, only: linear_dist_t
-  use math, only: vlmin, vlmax
-  use neko_mpi_types, only: MPI_CHARACTER_SIZE, MPI_DOUBLE_PRECISION_SIZE, &
+  use datadist, only : linear_dist_t
+  use math, only : vlmin, vlmax
+  use neko_mpi_types, only : MPI_CHARACTER_SIZE, MPI_DOUBLE_PRECISION_SIZE, &
        MPI_REAL_SIZE, MPI_INTEGER_SIZE
+  use mpi_f08
   implicit none
   private
 
@@ -67,6 +67,8 @@ module fld_file
      procedure :: read => fld_file_read
      procedure :: write => fld_file_write
      procedure :: set_precision => fld_file_set_precision
+     procedure :: get_fld_fname => fld_file_get_fld_fname
+     procedure :: get_meta_fname => fld_file_get_meta_fname
   end type fld_file_t
 
 
@@ -88,7 +90,7 @@ contains
     character :: rdcode(10)
     character(len=6) :: id_str
     character(len= 1024) :: fname
-    character(len= 1024) :: start_field
+    character(len= 1024) :: name
     integer :: file_unit
     integer :: i, ierr, n, suffix_pos, tslash_pos
     integer :: lx, ly, lz, lxyz, gdim, glb_nelv, nelv, offset_el
@@ -131,6 +133,10 @@ contains
        if (gdim .eq. 2) z%ptr => data%y%x
        if (data%u%size() .gt. 0) then
           u%ptr => data%u%x
+          ! In case only u is actually allocated, point the other comps to u
+          ! so that we don't die on trying to write them
+          if (data%v%size() .le. 0) v%ptr => data%u%x
+          if (data%w%size() .le. 0) w%ptr => data%u%x
           write_velocity = .true.
        end if
        if (data%v%size() .gt. 0) v%ptr => data%v%x
@@ -212,36 +218,31 @@ contains
           u%ptr => data%items(2)%ptr%x(:,1,1,1)
           v%ptr => data%items(3)%ptr%x(:,1,1,1)
           w%ptr => data%items(4)%ptr%x(:,1,1,1)
-          tem%ptr => data%items(5)%ptr%x(:,1,1,1)
-          n_scalar_fields = data%size() - 5
-          allocate(scalar_fields(n_scalar_fields))
-          do i = 1, n_scalar_fields
-             scalar_fields(i)%ptr => data%items(i+5)%ptr%x(:,1,1,1)
-          end do
+          ! Check if position 5 is a temperature field by name
+          if (trim(data%name(5)) .eq. 'temperature') then
+             ! Position 5 is temperature, remaining fields are scalars
+             tem%ptr => data%items(5)%ptr%x(:,1,1,1)
+             n_scalar_fields = data%size() - 5
+             allocate(scalar_fields(n_scalar_fields))
+             do i = 1, n_scalar_fields
+                scalar_fields(i)%ptr => data%items(i+5)%ptr%x(:,1,1,1)
+             end do
+             write_temperature = .true.
+          else
+             ! All remaining fields are scalars (no temperature field)
+             n_scalar_fields = data%size() - 4
+             allocate(scalar_fields(n_scalar_fields))
+             do i = 1, n_scalar_fields
+                scalar_fields(i)%ptr => data%items(i+4)%ptr%x(:,1,1,1)
+             end do
+             write_temperature = .false.
+          end if
           write_pressure = .true.
           write_velocity = .true.
-          write_temperature = .true.
        case default
           call neko_error('This many fields not supported yet, fld_file')
        end select
        dof => data%dof(1)
-
-    type is (mean_flow_t)
-       u%ptr => data%u%mf%x(:,1,1,1)
-       v%ptr => data%v%mf%x(:,1,1,1)
-       w%ptr => data%w%mf%x(:,1,1,1)
-       p%ptr => data%p%mf%x(:,1,1,1)
-       dof => data%u%mf%dof
-       write_pressure = .true.
-       write_velocity = .true.
-    type is (mean_sqr_flow_t)
-       u%ptr => data%uu%mf%x(:,1,1,1)
-       v%ptr => data%vv%mf%x(:,1,1,1)
-       w%ptr => data%ww%mf%x(:,1,1,1)
-       p%ptr => data%pp%mf%x(:,1,1,1)
-       dof => data%pp%mf%dof
-       write_pressure = .true.
-       write_velocity = .true.
     class default
        call neko_error('Invalid data')
     end select
@@ -291,7 +292,8 @@ contains
     ! Create fld header for NEKTON's multifile output
     !
 
-    write_mesh = (this%counter .eq. this%start_counter)
+    call this%increment_counter()
+    write_mesh = (this%get_counter() .eq. this%get_start_counter())
     call MPI_Allreduce(MPI_IN_PLACE, write_mesh, 1, &
          MPI_LOGICAL, MPI_LOR, NEKO_COMM)
     call MPI_Allreduce(MPI_IN_PLACE, write_velocity, 1, &
@@ -334,14 +336,12 @@ contains
 
     !> @todo fix support for single precision output?
     write(hdr, 1) FLD_DATA_SIZE, lx, ly, lz, glb_nelv, glb_nelv,&
-         time, this%counter, 1, 1, (rdcode(i),i = 1, 10)
+         time, this%get_counter(), 1, 1, (rdcode(i), i = 1, 10)
 1   format('#std', 1x, i1, 1x, i2, 1x, i2, 1x, i2, 1x, i10, 1x, i10, &
          1x, e20.13, 1x, i9, 1x, i6, 1x, i6, 1x, 10a)
 
     ! Change to NEKTON's fld file format
-    suffix_pos = filename_suffix_pos(this%fname)
-    write(id_str, '(a,i5.5)') 'f', this%counter
-    fname = trim(this%fname(1:suffix_pos-1))//'0.'//id_str
+    fname = this%get_fld_fname()
 
     call MPI_File_open(NEKO_COMM, trim(fname), &
          MPI_MODE_WRONLY + MPI_MODE_CREATE, MPI_INFO_NULL, fh, &
@@ -516,11 +516,10 @@ contains
     call MPI_File_close(fh, ierr)
     ! Write metadata file
     if (pe_rank .eq. 0) then
-       tslash_pos = filename_tslash_pos(this%fname)
-       write(start_field, "(I5,A8)") this%start_counter, '.nek5000'
+       call filename_name(this%get_base_fname(), name)
+
        open(newunit = file_unit, &
-            file = trim(this%fname(1:suffix_pos-1)) // &
-            trim(adjustl(start_field)), status = 'replace')
+            file = this%get_meta_fname(), status = 'replace')
        ! The following string will specify that the files in the file series
        ! are defined by the filename followed by a 0.
        ! This 0 is necessary as it specifies the index of number of files
@@ -528,14 +527,13 @@ contains
        ! In the past, many .f files were generated for each write.
        ! To be consistent with this the trailing 0 is still necessary today.
        write(file_unit, fmt = '(A,A,A)') 'filetemplate:         ', &
-            this%fname(tslash_pos+1:suffix_pos-1), '%01d.f%05d'
-       write(file_unit, fmt = '(A,i5)') 'firsttimestep: ', this%start_counter
+            trim(name), '%01d.f%05d'
+       write(file_unit, fmt = '(A,i5)') 'firsttimestep: ', &
+            this%get_start_counter()
        write(file_unit, fmt = '(A,i5)') 'numtimesteps: ', &
-            (this%counter + 1) - this%start_counter
+            (this%get_counter() + 1) - this%get_start_counter()
        close(file_unit)
     end if
-
-    this%counter = this%counter + 1
 
     if (allocated(tmp_dp)) deallocate(tmp_dp)
     if (allocated(tmp_sp)) deallocate(tmp_sp)
@@ -689,10 +687,10 @@ contains
     integer :: ierr, suffix_pos, i, j
     type(MPI_File) :: fh
     type(MPI_Status) :: status
-    character(len= 1024) :: fname, meta_fname, string, path
+    character(len= 1024) :: fname, base_fname, meta_fname, string, path
     logical :: meta_file, read_mesh, read_velocity, read_pressure
     logical :: read_temp
-    character(len=6) :: id_str
+    character(len=6) :: suffix
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, byte_offset
     integer :: lx, ly, lz, glb_nelv, counter, lxyz
     integer :: FLD_DATA_SIZE, n_scalars, n
@@ -702,10 +700,11 @@ contains
     type(linear_dist_t) :: dist
     real(kind=sp), parameter :: test_pattern = 6.54321
     character :: rdcode(10), temp_str(4)
+    character(len=LOG_SIZE) :: log_buf
 
     select type (data)
     type is (fld_file_data_t)
-       call filename_chsuffix(this%fname, meta_fname, 'nek5000')
+       call filename_chsuffix(this%get_base_fname(), meta_fname, 'nek5000')
 
        inquire(file = trim(meta_fname), exist = meta_file)
        if (meta_file .and. data%meta_nsamples .eq. 0) then
@@ -714,19 +713,26 @@ contains
              read(file_unit, fmt = '(A)') string
              read(string(14:), fmt = '(A)') string
              string = trim(string)
+
              data%fld_series_fname = string(:scan(trim(string), '%')-1)
              data%fld_series_fname = adjustl(data%fld_series_fname)
              data%fld_series_fname = trim(data%fld_series_fname)//'0'
+
              read(file_unit, fmt = '(A)') string
              read(string(scan(string, ':')+1:), *) data%meta_start_counter
              read(file_unit, fmt = '(A)') string
              read(string(scan(string, ':')+1:), *) data%meta_nsamples
-
              close(file_unit)
-             write(*,*) 'Reading meta file for fld series'
-             write(*,*) 'Name: ', trim(data%fld_series_fname)
-             write(*,*) 'Start counter: ', data%meta_start_counter, &
-                  'Nsamples: ', data%meta_nsamples
+
+             write(log_buf,*) 'Reading meta file for fld series'
+             call neko_log%message(log_buf)
+             write(log_buf,*) 'Name: ', trim(data%fld_series_fname)
+             call neko_log%message(log_buf)
+             write(log_buf,*) 'Start counter: ', data%meta_start_counter
+             call neko_log%message(log_buf)
+             write(log_buf,*) 'Nsamples: ', data%meta_nsamples
+             call neko_log%message(log_buf)
+
           end if
           call MPI_Bcast(data%fld_series_fname, 1024, MPI_CHARACTER, 0, &
                NEKO_COMM, ierr)
@@ -734,25 +740,31 @@ contains
                NEKO_COMM, ierr)
           call MPI_Bcast(data%meta_nsamples, 1, MPI_INTEGER, 0, &
                NEKO_COMM, ierr)
-          if (this%counter .eq. 0) this%counter = data%meta_start_counter
+
+          if (this%get_counter() .eq. -1) then
+             call this%set_start_counter(data%meta_start_counter)
+             call this%set_counter(data%meta_start_counter)
+          end if
        end if
 
        if (meta_file) then
-          write(id_str, '(a,i5.5)') 'f', this%counter
-          path = trim(meta_fname(1:scan(meta_fname, '/', .true. )))
-          fname = trim(path)//trim(data%fld_series_fname)//'.'//id_str
-          if (this%counter .ge. data%meta_nsamples+data%meta_start_counter) then
+          call filename_path(this%get_base_fname(), path)
+          write(suffix, '(a,i5.5)') 'f', this%get_counter()
+          fname = trim(path) // trim(data%fld_series_fname) // '.' // suffix
+          if (this%get_counter() .ge. &
+               data%meta_nsamples+data%meta_start_counter) then
              call neko_error('Trying to read more fld files than exist')
           end if
        else
-          suffix_pos = filename_suffix_pos(this%fname)
-          write(id_str, '(a,i5.5)') 'f', this%counter
-          fname = trim(this%fname(1:suffix_pos-1))//'.'//id_str
+          write(suffix, '(a,i5.5)') 'f', this%get_counter()
+          call filename_chsuffix(trim(this%get_base_fname()), fname, suffix)
        end if
        call MPI_File_open(NEKO_COMM, trim(fname), &
             MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
 
        if (ierr .ne. 0) call neko_error("Could not read "//trim(fname))
+
+       call neko_log%message('Reading fld file ' // trim(fname))
 
        call MPI_File_read_all(fh, hdr, 132, MPI_CHARACTER, status, ierr)
        ! This read can prorbably be done wihtout the temp variables,
@@ -935,7 +947,7 @@ contains
                int(FLD_DATA_SIZE, i8))
        end do
 
-       this%counter = this%counter + 1
+       call this%increment_counter()
 
        if (allocated(tmp_dp)) deallocate(tmp_dp)
        if (allocated(tmp_sp)) deallocate(tmp_sp)
@@ -1057,5 +1069,31 @@ contains
 
   end subroutine fld_file_set_precision
 
+  function fld_file_get_fld_fname(this) result(fname)
+    class(fld_file_t), intent(in) :: this
+    character(len=1024) :: fname
+    character(len=1024) :: path, name, id_str
+    integer :: suffix_pos
+
+    call filename_path(this%get_base_fname(), path)
+    call filename_name(this%get_base_fname(), name)
+
+    write(fname, '(a,a,a,i5.5)') trim(path), trim(name), &
+         '0.f', this%get_counter()
+
+  end function fld_file_get_fld_fname
+
+  function fld_file_get_meta_fname(this) result(fname)
+    class(fld_file_t), intent(in) :: this
+    character(len=1024) :: fname
+    character(len=1024) :: path, name, id_str
+
+    call filename_path(this%get_base_fname(), path)
+    call filename_name(this%get_base_fname(), name)
+
+    write(id_str, '(i5,a)') this%get_start_counter(), '.nek5000'
+    write(fname, '(a,a,a)') trim(path), trim(name), trim(adjustl(id_str))
+
+  end function fld_file_get_meta_fname
 
 end module fld_file

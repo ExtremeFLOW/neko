@@ -37,6 +37,7 @@ submodule (source_term) source_term_fctry
   use boussinesq_source_term, only : boussinesq_source_term_t
   use brinkman_source_term, only: brinkman_source_term_t
   use coriolis_source_term, only : coriolis_source_term_t
+  use centrifugal_source_term, only : centrifugal_source_term_t
   use gradient_jump_penalty, only : gradient_jump_penalty_t
   use sponge_source_term, only: sponge_source_term_t
   use json_utils, only : json_get
@@ -48,6 +49,7 @@ submodule (source_term) source_term_fctry
        "constant", &
        "boussinesq", &
        "coriolis", &
+       "centrifugal", &
        "gradient_jump_penalty", &
        "brinkman", &
        "sponge"]
@@ -93,6 +95,8 @@ contains
        allocate(boussinesq_source_term_t::object)
     case ("coriolis")
        allocate(coriolis_source_term_t::object)
+    case ("centrifugal")
+       allocate(centrifugal_source_term_t::object)
     case ("brinkman")
        allocate(brinkman_source_term_t::object)
     case ("sponge")

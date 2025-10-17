@@ -34,21 +34,21 @@
 module opr_device
   use gather_scatter, only : GS_OP_ADD
   use num_types, only : rp, c_rp
-  use device, only : device_get_ptr, device_event_sync
+  use device, only : device_get_ptr, device_event_sync, device_map, device_free
   use space, only : space_t
   use coefs, only : coef_t
   use field, only : field_t
   use utils, only : neko_error
-  use device_math, only : device_sub3, device_rzero, device_copy
+  use interpolation, only : interpolator_t
+  use device_math, only : device_sub3, device_rzero, device_copy, device_col2
   use device_mathops, only : device_opcolv
-  use comm
   use, intrinsic :: iso_c_binding
   implicit none
   private
 
   public :: opr_device_dudxyz, opr_device_opgrad, opr_device_cdtp, &
-       opr_device_conv1, opr_device_curl, opr_device_cfl, opr_device_lambda2, &
-       opr_device_compute_max_wave_speed
+       opr_device_conv1, opr_device_convect_scalar, opr_device_curl, &
+       opr_device_cfl, opr_device_lambda2, opr_device_set_convect_rst
 
 #ifdef HAVE_HIP
   interface
@@ -86,6 +86,17 @@ module opr_device
        type(c_ptr), value :: jacinv_d
        integer(c_int) :: nel, gdim, lx
      end subroutine hip_conv1
+  end interface
+
+  interface
+     subroutine hip_convect_scalar(du_d, u_d, cr_d, cs_d, ct_d, &
+          dx_d, dy_d, dz_d, nel, lx) bind(c, name = 'hip_convect_scalar')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: du_d, u_d
+       type(c_ptr), value :: cr_d, cs_d, ct_d
+       type(c_ptr), value :: dx_d, dy_d, dz_d
+       integer(c_int) :: nel, lx
+     end subroutine hip_convect_scalar
   end interface
 
   interface
@@ -141,17 +152,19 @@ module opr_device
   end interface
 
   interface
-     subroutine hip_compute_max_wave_speed(max_wave_speed_d, u_d, v_d, w_d, &
-          gamma, p_d, rho_d, n) &
-          bind(c, name = 'hip_compute_max_wave_speed')
+     subroutine hip_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
+          drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, drdz_d, dsdz_d, &
+          dtdz_d, w3_d, nel, lx) bind(c, name = 'hip_set_convect_rst')
        use, intrinsic :: iso_c_binding
-       import c_rp
-       type(c_ptr), value :: max_wave_speed_d, u_d, v_d, w_d, p_d, rho_d
-       real(c_rp) :: gamma
-       integer(c_int) :: n
-     end subroutine hip_compute_max_wave_speed
+       type(c_ptr), value :: cr_d, cs_d, ct_d
+       type(c_ptr), value :: cx_d, cy_d, cz_d
+       type(c_ptr), value :: drdx_d, dsdx_d, dtdx_d
+       type(c_ptr), value :: drdy_d, dsdy_d, dtdy_d
+       type(c_ptr), value :: drdz_d, dsdz_d, dtdz_d
+       type(c_ptr), value :: w3_d
+       integer(c_int) :: nel, lx
+     end subroutine hip_set_convect_rst
   end interface
-
 
 #elif HAVE_CUDA
   interface
@@ -189,6 +202,17 @@ module opr_device
        type(c_ptr), value :: jacinv_d
        integer(c_int) :: nel, gdim, lx
      end subroutine cuda_conv1
+  end interface
+
+  interface
+     subroutine cuda_convect_scalar(du_d, u_d, cr_d, cs_d, ct_d, &
+          dx_d, dy_d, dz_d, nel, lx) bind(c, name = 'cuda_convect_scalar')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: du_d, u_d
+       type(c_ptr), value :: cr_d, cs_d, ct_d
+       type(c_ptr), value :: dx_d, dy_d, dz_d
+       integer(c_int) :: nel, lx
+     end subroutine cuda_convect_scalar
   end interface
 
   interface
@@ -244,17 +268,19 @@ module opr_device
   end interface
 
   interface
-     subroutine cuda_compute_max_wave_speed(max_wave_speed_d, u_d, v_d, w_d, &
-          gamma, p_d, rho_d, n) &
-          bind(c, name = 'cuda_compute_max_wave_speed')
+     subroutine cuda_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
+          drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, drdz_d, dsdz_d, &
+          dtdz_d, w3_d, nel, lx) bind(c, name = 'cuda_set_convect_rst')
        use, intrinsic :: iso_c_binding
-       import c_rp
-       type(c_ptr), value :: max_wave_speed_d, u_d, v_d, w_d, p_d, rho_d
-       real(c_rp) :: gamma
-       integer(c_int) :: n
-     end subroutine cuda_compute_max_wave_speed
+       type(c_ptr), value :: cr_d, cs_d, ct_d
+       type(c_ptr), value :: cx_d, cy_d, cz_d
+       type(c_ptr), value :: drdx_d, dsdx_d, dtdx_d
+       type(c_ptr), value :: drdy_d, dsdy_d, dtdy_d
+       type(c_ptr), value :: drdz_d, dsdz_d, dtdz_d
+       type(c_ptr), value :: w3_d
+       integer(c_int) :: nel, lx
+     end subroutine cuda_set_convect_rst
   end interface
-
 
 #elif HAVE_OPENCL
   interface
@@ -292,6 +318,17 @@ module opr_device
        type(c_ptr), value :: jacinv_d
        integer(c_int) :: nel, gdim, lx
      end subroutine opencl_conv1
+  end interface
+
+  interface
+     subroutine opencl_convect_scalar(du_d, u_d, cr_d, cs_d, ct_d, &
+          dx_d, dy_d, dz_d, nel, lx) bind(c, name = 'opencl_convect_scalar')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: du_d, u_d
+       type(c_ptr), value :: cr_d, cs_d, ct_d
+       type(c_ptr), value :: dx_d, dy_d, dz_d
+       integer(c_int) :: nel, lx
+     end subroutine opencl_convect_scalar
   end interface
 
   interface
@@ -347,16 +384,20 @@ module opr_device
   end interface
 
   interface
-     subroutine opencl_compute_max_wave_speed(max_wave_speed_d, u_d, v_d, w_d, &
-          gamma, p_d, rho_d, n) &
-          bind(c, name = 'opencl_compute_max_wave_speed')
+     subroutine opencl_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
+          drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, drdz_d, dsdz_d, &
+          dtdz_d, w3_d, nel, lx) bind(c, name = 'opencl_set_convect_rst')
        use, intrinsic :: iso_c_binding
-       import c_rp
-       type(c_ptr), value :: max_wave_speed_d, u_d, v_d, w_d, p_d, rho_d
-       real(c_rp), value :: gamma
-       integer(c_int), value :: n
-     end subroutine opencl_compute_max_wave_speed
+       type(c_ptr), value :: cr_d, cs_d, ct_d
+       type(c_ptr), value :: cx_d, cy_d, cz_d
+       type(c_ptr), value :: drdx_d, dsdx_d, dtdx_d
+       type(c_ptr), value :: drdy_d, dsdy_d, dtdy_d
+       type(c_ptr), value :: drdz_d, dsdz_d, dtdz_d
+       type(c_ptr), value :: w3_d
+       integer(c_int) :: nel, lx
+     end subroutine opencl_set_convect_rst
   end interface
+
 #endif
 
 contains
@@ -550,6 +591,51 @@ contains
     end associate
 
   end subroutine opr_device_conv1
+
+  subroutine opr_device_convect_scalar(du, u_d, cr_d, cs_d, ct_d, &
+            Xh_GLL, Xh_GL, coef_GLL, coef_GL, GLL_to_GL)
+    type(space_t), intent(in) :: Xh_GL
+    type(space_t), intent(in) :: Xh_GLL
+    type(coef_t), intent(in) :: coef_GLL
+    type(coef_t), intent(in) :: coef_GL
+    type(interpolator_t), intent(inout) :: GLL_to_GL
+    real(kind=rp), intent(inout) :: &
+                   du(Xh_GLL%lx, Xh_GLL%ly, Xh_GLL%lz, coef_GL%msh%nelv)
+    type(c_ptr) :: cr_d, cs_d, ct_d, u_d
+    real(kind=rp) :: ud(Xh_GL%lx*Xh_GL%lx*Xh_GL%lx)
+    type(c_ptr) :: du_d, ud_d
+    integer :: n_GL, n_GLL
+
+    n_GLL = coef_GL%msh%nelv * Xh_GL%lxyz
+    n_GLL = coef_GL%msh%nelv * Xh_GLL%lxyz
+
+    call device_map(ud, ud_d, n_GL)
+
+    du_d = device_get_ptr(du)
+
+    associate(Xh => Xh_GL, nelv => coef_GL%msh%nelv, lx => Xh_GL%lx)
+#ifdef HAVE_HIP
+      call hip_convect_scalar(ud_d, u_d, cr_d, cs_d, ct_d, &
+           Xh%dx_d, Xh%dy_d, Xh%dz_d, nelv, lx)
+#elif HAVE_CUDA
+      call cuda_convect_scalar(ud_d, u_d, cr_d, cs_d, ct_d, &
+           Xh%dx_d, Xh%dy_d, Xh%dz_d, nelv, lx)
+#elif HAVE_OPENCL
+      call opencl_convect_scalar(ud_d, u_d, cr_d, cs_d, ct_d, &
+           Xh%dx_d, Xh%dy_d, Xh%dz_d, nelv, lx)
+#else
+      call neko_error('No device backend configured')
+#endif
+
+      call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
+      call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
+      call device_col2(du_d, coef_GLL%Binv_d, n_GLL)
+
+    end associate
+
+    call device_free(ud_d)
+
+  end subroutine opr_device_convect_scalar
 
   subroutine opr_device_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh, event)
     type(field_t), intent(inout) :: w1
@@ -753,22 +839,34 @@ contains
 #endif
   end function opr_device_cfl
 
-  !> Compute maximum wave speed for compressible flows on device
-  subroutine opr_device_compute_max_wave_speed(max_wave_speed, u, v, w, gamma, p, rho, n)
-    integer, intent(in) :: n
-    real(kind=rp), intent(in) :: gamma
-    type(field_t), intent(inout) :: max_wave_speed
-    type(field_t), intent(in) :: u, v, w, p, rho
+  subroutine opr_device_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
+            Xh, coef)
+    type(space_t), intent(inout) :: Xh
+    type(coef_t), intent(inout) :: coef
+    type(c_ptr) :: cr_d, cs_d, ct_d, cx_d, cy_d, cz_d
 
 #ifdef HAVE_HIP
-    call hip_compute_max_wave_speed(max_wave_speed%x_d, u%x_d, v%x_d, w%x_d, gamma, p%x_d, rho%x_d, n)
+    call hip_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
+           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+           Xh%w3_d, coef%msh%nelv, Xh%lx)
 #elif HAVE_CUDA
-    call cuda_compute_max_wave_speed(max_wave_speed%x_d, u%x_d, v%x_d, w%x_d, gamma, p%x_d, rho%x_d, n)
+    call cuda_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
+           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+           Xh%w3_d, coef%msh%nelv, Xh%lx)
 #elif HAVE_OPENCL
-    call opencl_compute_max_wave_speed(max_wave_speed%x_d, u%x_d, v%x_d, w%x_d, gamma, p%x_d, rho%x_d, n)
+    call opencl_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
+           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+           Xh%w3_d, coef%msh%nelv, Xh%lx)
 #else
     call neko_error('No device backend configured')
 #endif
-  end subroutine opr_device_compute_max_wave_speed
+
+  end subroutine opr_device_set_convect_rst
 
 end module opr_device

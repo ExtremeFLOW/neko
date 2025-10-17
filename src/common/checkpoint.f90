@@ -35,12 +35,14 @@ module checkpoint
   use neko_config
   use num_types, only : rp, dp
   use field_series, only : field_series_t
+  use field_series_list, only : field_series_list_t
   use space, only : space_t, operator(.ne.)
   use device, only : device_memcpy, DEVICE_TO_HOST, HOST_TO_DEVICE, &
        device_sync, glb_cmd_queue
-  use field, only : field_t
+  use field, only : field_t, field_ptr_t
   use utils, only : neko_error, filename_suffix_pos
   use mesh, only: mesh_t
+  use math, only : NEKO_EPS
   implicit none
   private
 
@@ -71,14 +73,19 @@ module checkpoint
 
      type(field_t), pointer :: s => null()
      type(field_series_t), pointer :: slag => null()
-
      type(field_t), pointer :: abs1 => null()
      type(field_t), pointer :: abs2 => null()
+
+     type(field_series_list_t) :: scalar_lags
+
+     !> Multi-scalar ABX fields
+     type(field_ptr_t), allocatable :: scalar_abx1(:) !< ABX1 fields for each scalar
+     type(field_ptr_t), allocatable :: scalar_abx2(:) !< ABX2 fields for each scalar
 
      real(kind=dp) :: t !< Restart time (valid after load)
      type(mesh_t) :: previous_mesh
      type(space_t) :: previous_Xh
-     real(kind=rp) :: mesh2mesh_tol = 1d-6
+     real(kind=rp) :: mesh2mesh_tol = NEKO_EPS*1e3_rp
 
    contains
      procedure, pass(this) :: init => chkp_init
@@ -134,11 +141,31 @@ contains
     nullify(this%vlag)
     nullify(this%wlag)
 
+    ! Scalar cleanup
+    nullify(this%s)
+    nullify(this%slag)
+    nullify(this%abs1)
+    nullify(this%abs2)
+
+    ! Free scalar lag list if it was initialized
+    if (allocated(this%scalar_lags%items)) then
+       call this%scalar_lags%free()
+    end if
+
+    ! Free multi-scalar ABX field arrays
+    if (allocated(this%scalar_abx1)) then
+       deallocate(this%scalar_abx1)
+    end if
+    if (allocated(this%scalar_abx2)) then
+       deallocate(this%scalar_abx2)
+    end if
+
   end subroutine chkp_free
 
   !> Synchronize checkpoint with device
   subroutine chkp_sync_host(this)
     class(chkp_t), intent(inout) :: this
+    integer :: i, j
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        associate(u=>this%u, v=>this%v, w=>this%w, &
@@ -194,6 +221,33 @@ contains
             call device_memcpy(this%abs2%x, this%abs2%x_d, &
                  w%dof%size(), DEVICE_TO_HOST, sync=.false.)
          end if
+
+         ! Multi-scalar lag field synchronization
+         if (allocated(this%scalar_lags%items) .and. this%scalar_lags%size() > 0) then
+            do i = 1, this%scalar_lags%size()
+               block
+                 type(field_series_t), pointer :: slag
+                 integer :: slag_size, dof_size
+                 slag => this%scalar_lags%get(i)
+                 slag_size = slag%size()
+                 dof_size = slag%f%dof%size()
+                 do j = 1, slag_size
+                    call device_memcpy(slag%lf(j)%x, slag%lf(j)%x_d, &
+                         dof_size, DEVICE_TO_HOST, sync=.false.)
+                 end do
+               end block
+            end do
+         end if
+
+         ! Multi-scalar ABX field synchronization
+         if (allocated(this%scalar_abx1) .and. allocated(this%scalar_abx2)) then
+            do i = 1, size(this%scalar_abx1)
+               call device_memcpy(this%scalar_abx1(i)%ptr%x, this%scalar_abx1(i)%ptr%x_d, &
+                    this%scalar_abx1(i)%ptr%dof%size(), DEVICE_TO_HOST, sync=.false.)
+               call device_memcpy(this%scalar_abx2(i)%ptr%x, this%scalar_abx2(i)%ptr%x_d, &
+                    this%scalar_abx2(i)%ptr%dof%size(), DEVICE_TO_HOST, sync=.false.)
+            end do
+         end if
        end associate
        call device_sync(glb_cmd_queue)
     end if
@@ -203,6 +257,7 @@ contains
   !> Synchronize device with checkpoint
   subroutine chkp_sync_device(this)
     class(chkp_t), intent(inout) :: this
+    integer :: i, j
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        associate(u=>this%u, v=>this%v, w=>this%w, &
@@ -251,6 +306,33 @@ contains
             call device_memcpy(this%abs2%x, this%abs2%x_d, &
                  w%dof%size(), HOST_TO_DEVICE, sync=.false.)
          end if
+
+         ! Multi-scalar lag field synchronization
+         if (allocated(this%scalar_lags%items) .and. this%scalar_lags%size() > 0) then
+            do i = 1, this%scalar_lags%size()
+               block
+                 type(field_series_t), pointer :: slag
+                 integer :: slag_size, dof_size
+                 slag => this%scalar_lags%get(i)
+                 slag_size = slag%size()
+                 dof_size = slag%f%dof%size()
+                 do j = 1, slag_size
+                    call device_memcpy(slag%lf(j)%x, slag%lf(j)%x_d, &
+                         dof_size, HOST_TO_DEVICE, sync=.false.)
+                 end do
+               end block
+            end do
+         end if
+
+         ! Multi-scalar ABX field synchronization
+         if (allocated(this%scalar_abx1) .and. allocated(this%scalar_abx2)) then
+            do i = 1, size(this%scalar_abx1)
+               call device_memcpy(this%scalar_abx1(i)%ptr%x, this%scalar_abx1(i)%ptr%x_d, &
+                    this%scalar_abx1(i)%ptr%dof%size(), HOST_TO_DEVICE, sync=.false.)
+               call device_memcpy(this%scalar_abx2(i)%ptr%x, this%scalar_abx2(i)%ptr%x_d, &
+                    this%scalar_abx2(i)%ptr%dof%size(), HOST_TO_DEVICE, sync=.false.)
+            end do
+         end if
        end associate
     end if
 
@@ -269,12 +351,20 @@ contains
 
   end subroutine chkp_add_lag
 
-  !> Add scalars
-  subroutine chkp_add_scalar(this, s)
+
+
+  !> Add a scalar to checkpointing
+  subroutine chkp_add_scalar(this, s, slag, abs1, abs2)
     class(chkp_t), intent(inout) :: this
-    type(field_t), target :: s
+    type(field_t), target, intent(in) :: s
+    type(field_series_t), target, intent(in) :: slag
+    type(field_t), target, intent(in), optional :: abs1, abs2
 
     this%s => s
+    this%slag => slag
+
+    if (present(abs1)) this%abs1 => abs1
+    if (present(abs2)) this%abs2 => abs2
 
   end subroutine chkp_add_scalar
 

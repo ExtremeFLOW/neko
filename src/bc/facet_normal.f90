@@ -36,8 +36,8 @@ module facet_normal
   use num_types, only : rp
   use neko_config, only : NEKO_BCKND_DEVICE
   use math, only: cfill_mask
-  use device_math, only : device_col2, device_masked_gather_copy, &
-       device_masked_scatter_copy
+  use device_math, only : device_col2, device_masked_gather_copy_0, &
+       device_masked_scatter_copy_0
   use vector, only : vector_t
   use coefs, only : coef_t
   use bc, only : bc_t
@@ -47,6 +47,7 @@ module facet_normal
   use htable, only : htable_i4_t
   use device, only : device_map, device_memcpy, device_free, &
        HOST_TO_DEVICE, DEVICE_TO_HOST, glb_cmd_queue
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -97,54 +98,50 @@ contains
   end subroutine facet_normal_init_from_components
 
   !> No-op scalar apply
-  subroutine facet_normal_apply_scalar(this, x, n, t, tstep, strong)
+  subroutine facet_normal_apply_scalar(this, x, n, time, strong)
     class(facet_normal_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
   end subroutine facet_normal_apply_scalar
 
   !> No-op scalar apply on device
-  subroutine facet_normal_apply_scalar_dev(this, x_d, t, tstep, strong, strm)
+  subroutine facet_normal_apply_scalar_dev(this, x_d, time, strong, strm)
     class(facet_normal_t), intent(inout), target :: this
-    type(c_ptr) :: x_d
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(c_ptr),intent(inout) :: x_d
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
-    type(c_ptr) :: strm
+    type(c_ptr), intent(inout) :: strm
 
   end subroutine facet_normal_apply_scalar_dev
 
   !> No-op vector apply on device
-  subroutine facet_normal_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, &
+  subroutine facet_normal_apply_vector_dev(this, x_d, y_d, z_d, time, &
        strong, strm)
     class(facet_normal_t), intent(inout), target :: this
-    type(c_ptr) :: x_d
-    type(c_ptr) :: y_d
-    type(c_ptr) :: z_d
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(c_ptr), intent(inout) :: x_d
+    type(c_ptr), intent(inout) :: y_d
+    type(c_ptr), intent(inout) :: z_d
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
-    type(c_ptr) :: strm
+    type(c_ptr), intent(inout) :: strm
 
   end subroutine facet_normal_apply_vector_dev
 
   !> No-op vector apply
-  subroutine facet_normal_apply_vector(this, x, y, z, n, t, tstep, strong)
+  subroutine facet_normal_apply_vector(this, x, y, z, n, time, strong)
     class(facet_normal_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(inout), dimension(n) :: y
     real(kind=rp), intent(inout), dimension(n) :: z
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
   end subroutine facet_normal_apply_vector
 
   !> Apply in facet normal direction (vector valued)
-  subroutine facet_normal_apply_surfvec(this, x, y, z, u, v, w, n, t, tstep)
+  subroutine facet_normal_apply_surfvec(this, x, y, z, u, v, w, n, time)
     class(facet_normal_t), intent(in) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
@@ -153,8 +150,7 @@ contains
     real(kind=rp), intent(inout), dimension(n) :: u
     real(kind=rp), intent(inout), dimension(n) :: v
     real(kind=rp), intent(inout), dimension(n) :: w
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     integer :: i, m, k, idx(4), facet
     real(kind=rp) :: normal(3), area
 
@@ -171,11 +167,10 @@ contains
 
   !> Apply in facet normal direction (vector valued, device version)
   subroutine facet_normal_apply_surfvec_dev(this, x_d, y_d, z_d, &
-       u_d, v_d, w_d, t, tstep, strm)
+       u_d, v_d, w_d, time, strm)
     class(facet_normal_t), intent(in), target :: this
     type(c_ptr) :: x_d, y_d, z_d, u_d, v_d, w_d
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    type(time_state_t), intent(in), optional :: time
     type(c_ptr), optional :: strm
     type(c_ptr) :: strm_
     integer :: n, m
@@ -190,20 +185,20 @@ contains
     end if
 
     if (m .gt. 0) then
-       call device_masked_gather_copy(this%work%x_d, u_d, this%unique_mask_d, &
+       call device_masked_gather_copy_0(this%work%x_d, u_d, this%unique_mask_d, &
             n, m, strm_)
        call device_col2(this%work%x_d, this%nx%x_d, m, strm_)
-       call device_masked_scatter_copy(x_d, this%work%x_d, &
+       call device_masked_scatter_copy_0(x_d, this%work%x_d, &
             this%unique_mask_d, n, m, strm_)
-       call device_masked_gather_copy(this%work%x_d, v_d, this%unique_mask_d, &
+       call device_masked_gather_copy_0(this%work%x_d, v_d, this%unique_mask_d, &
             n , m, strm_)
        call device_col2(this%work%x_d, this%ny%x_d, m, strm_)
-       call device_masked_scatter_copy(y_d, this%work%x_d, &
+       call device_masked_scatter_copy_0(y_d, this%work%x_d, &
             this%unique_mask_d, n, m, strm_)
-       call device_masked_gather_copy(this%work%x_d, w_d, this%unique_mask_d, &
+       call device_masked_gather_copy_0(this%work%x_d, w_d, this%unique_mask_d, &
             n, m, strm_)
        call device_col2(this%work%x_d, this%nz%x_d, m, strm)
-       call device_masked_scatter_copy(z_d, this%work%x_d, &
+       call device_masked_scatter_copy_0(z_d, this%work%x_d, &
             this%unique_mask_d, n, m, strm_)
     end if
 

@@ -44,7 +44,8 @@ module utils
   end interface neko_error
 
   public :: neko_error, neko_warning, nonlinear_index, filename_chsuffix, &
-       filename_suffix, filename_suffix_pos, filename_tslash_pos, &
+       filename_path, filename_name, filename_suffix, &
+       filename_suffix_pos, filename_tslash_pos, &
        linear_index, split_string, NEKO_FNAME_LEN, index_is_on_facet, &
        concat_string_array, extract_fld_file_index, neko_type_error, &
        neko_type_registration_error
@@ -66,12 +67,73 @@ contains
     tslash_pos = scan(trim(fname), '/', back = .true.)
   end function filename_tslash_pos
 
+  !> Extract the path to a file
+  subroutine filename_path(fname, path)
+    character(len=*), intent(in) :: fname
+    character(len=*), intent(out) :: path
+    integer :: tslash_pos
+
+    tslash_pos = filename_tslash_pos(fname)
+    if (tslash_pos .gt. 0) then
+       path = trim(fname(1:tslash_pos))
+    else
+       path = './'
+    end if
+
+  end subroutine filename_path
+
+  !> Extract the base name of a file (without path and suffix)
+  subroutine filename_name(fname, name)
+    character(len=*), intent(in) :: fname
+    character(len=*), intent(out) :: name
+    integer :: tslash_pos, suffix_pos, start, end
+
+    tslash_pos = filename_tslash_pos(fname)
+    suffix_pos = filename_suffix_pos(fname)
+    if (tslash_pos .eq. 0) then
+       start = 1
+    else
+       start = tslash_pos + 1
+    end if
+    if (suffix_pos .eq. 0) then
+       end = len_trim(fname)
+    else
+       end = suffix_pos - 1
+    end if
+    name = trim(fname(start:end))
+  end subroutine filename_name
+
   !> Extract a filename's suffix
   subroutine filename_suffix(fname, suffix)
     character(len=*) :: fname
     character(len=*) :: suffix
     suffix = trim(fname(filename_suffix_pos(fname) + 1:len_trim(fname)))
   end subroutine filename_suffix
+
+  !> Extract file name components
+  subroutine filename_split(fname, path, name, suffix)
+    character(len=*), intent(in) :: fname
+    character(len=*), intent(out) :: path, name, suffix
+    integer :: tslash_pos, suffix_pos
+
+    tslash_pos = filename_tslash_pos(fname)
+    suffix_pos = filename_suffix_pos(fname)
+
+    if (tslash_pos .gt. 0) then
+       path = trim(fname(1:tslash_pos))
+    else
+       path = './'
+    end if
+
+    if (suffix_pos .gt. 0) then
+       name = trim(fname(tslash_pos + 1:suffix_pos - 1))
+       suffix = trim(fname(suffix_pos:len_trim(fname)))
+    else
+       name = trim(fname(tslash_pos + 1:len_trim(fname)))
+       suffix = ''
+    end if
+
+  end subroutine filename_split
 
   !> Change a filename's suffix
   subroutine filename_chsuffix(fname, new_fname, new_suffix)

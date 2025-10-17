@@ -42,6 +42,7 @@ module const_source_term
   use utils, only : neko_error
   use const_source_term_cpu, only : const_source_term_compute_cpu
   use const_source_term_device, only : const_source_term_compute_device
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -122,12 +123,10 @@ contains
   end subroutine const_source_term_free
 
   !> Computes the source term and adds the result to `fields`.
-  !! @param t The time value.
-  !! @param tstep The current time-step.
-  subroutine const_source_term_compute(this, t, tstep)
+  !! @param time The time state.
+  subroutine const_source_term_compute(this, time)
     class(const_source_term_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     integer :: n_fields, i, n
 
     n_fields = this%fields%size()

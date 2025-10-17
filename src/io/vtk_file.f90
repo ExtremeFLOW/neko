@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2022, The Neko Authors
+! Copyright (c) 2019-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ module vtk_file
   use tet_mesh, only : tet_mesh_t
   use tri_mesh, only : tri_mesh_t
   use logger, only : neko_log
-  use comm
+  use comm, only : pe_size, pe_rank
   implicit none
   private
 
@@ -69,6 +69,7 @@ contains
     type(tri_mesh_t), pointer :: tri_msh => null()
     character(len=10) :: id_str
     integer:: suffix_pos, file_unit
+    character(len=1024) :: fname
 
     select type(data)
     type is (mesh_t)
@@ -89,12 +90,13 @@ contains
        call neko_log%error('Invalid data')
     end select
 
+    fname = trim(this%get_base_fname())
     if (pe_size .gt. 1) then
        write(id_str,'(i10.10)') pe_rank
-       suffix_pos = filename_suffix_pos(this%fname)
-       open(newunit=file_unit, file=trim(this%fname(1:suffix_pos-1))//id_str//'.vtk')
+       suffix_pos = filename_suffix_pos(fname)
+       open(newunit=file_unit, file=trim(fname(1:suffix_pos-1))//id_str//'.vtk')
     else
-       open(newunit=file_unit, file=trim(this%fname))
+       open(newunit=file_unit, file=trim(fname))
     end if
 
     ! Write legacy header

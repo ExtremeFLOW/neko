@@ -6,7 +6,6 @@
 !! Martin Karp 17/01-24
 program calc_lift_from_field
   use neko
-  use mean_flow
   use matrix
   implicit none
 

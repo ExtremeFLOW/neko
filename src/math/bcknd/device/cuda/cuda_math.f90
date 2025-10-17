@@ -118,14 +118,14 @@ module cuda_math
        integer(c_int) :: n
      end subroutine cuda_cdiv2
 
-     subroutine cuda_cadd(a_d, c, n, strm) &
-          bind(c, name = 'cuda_cadd')
+     subroutine cuda_radd(a_d, c, n, strm) &
+          bind(c, name = 'cuda_radd')
        use, intrinsic :: iso_c_binding, only: c_int, c_ptr
        import c_rp
        type(c_ptr), value :: a_d, strm
        real(c_rp) :: c
        integer(c_int) :: n
-     end subroutine cuda_cadd
+     end subroutine cuda_radd
 
      subroutine cuda_cadd2(a_d, b_d, c, n, strm) &
           bind(c, name = 'cuda_cadd2')
@@ -206,6 +206,24 @@ module cuda_math
        integer(c_int) :: n
      end subroutine cuda_add3s2
 
+     subroutine cuda_add4s3(a_d, b_d, c_d, d_d, c1, c2, c3, n, strm) &
+          bind(c, name = 'cuda_add4s3')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: a_d, b_d, c_d, d_d, strm
+       real(c_rp) :: c1, c2, c3
+       integer(c_int) :: n
+     end subroutine cuda_add4s3
+
+     subroutine cuda_add5s4(a_d, b_d, c_d, d_d, e_d, c1, c2, c3, c4, n, strm) &
+          bind(c, name = 'cuda_add5s4')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: a_d, b_d, c_d, d_d, e_d, strm
+       real(c_rp) :: c1, c2, c3, c4
+       integer(c_int) :: n
+     end subroutine cuda_add5s4
+
      subroutine cuda_invcol1(a_d, n, strm) &
           bind(c, name = 'cuda_invcol1')
        use, intrinsic :: iso_c_binding, only: c_int, c_ptr
@@ -282,6 +300,15 @@ module cuda_math
        type(c_ptr), value :: a_d, b_d, c_d, d_d, strm
        integer(c_int) :: n
      end subroutine cuda_addcol4
+
+     subroutine cuda_addcol3s2(a_d, b_d, c_d, s, n, strm) &
+          bind(c, name = 'cuda_addcol3s2')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: a_d, b_d, c_d, strm
+       real(c_rp) :: s
+       integer(c_int) :: n
+     end subroutine cuda_addcol3s2
 
      subroutine cuda_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n, strm) &
           bind(c, name = 'cuda_vdot3')
@@ -434,6 +461,22 @@ module cuda_math
        real(c_rp) :: c_d
        integer(c_int) :: n
      end subroutine cuda_pwmin_sca3
+
+  end interface
+
+  ! ========================================================================== !
+  ! Interfaces for integer operations.
+
+  interface
+
+     subroutine cuda_iadd(a_d, c, n, strm) &
+          bind(c, name = 'cuda_iadd')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: a_d, strm
+       integer(c_int) :: c
+       integer(c_int) :: n
+     end subroutine cuda_iadd
 
   end interface
 end module cuda_math

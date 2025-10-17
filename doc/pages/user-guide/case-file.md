@@ -129,7 +129,7 @@ final time will be written as to avoid losing progress as far as possible.
 @attention For simulations requiring restarts, it is recommended to run each
 restart in a different output directory as a precaution to avoid potential overwritings of files.
 
-### Boundary type numbering in the `output_boundary` field
+### Boundary type numbering in the "output_boundary" field
 
 When the `output_boundary` setting is set to `true`, and additional `.fld` file
 will be stored in the beginning of the simulation, where the recognized boundary
@@ -162,6 +162,8 @@ Used to define the properties of the numerical discretization.
 | `time_order`                 | The order of the time integration scheme. Refer to the `time_scheme_controller` type documentation for details. | 1, 2, 3                    | -                               |
 | `dealias`                    | Whether to apply dealiasing to advection terms.                                                                 | `true` or `false`          | `false`                         |
 | `dealiased_polynomial order` | The polynomial order in the higher-order space used in the dealising.                                           | Integer                    | `3/2(polynomial_order + 1) - 1` |
+| `oifs`                       | Whether to apply the Operator-Integration-Factor-Splitting (OIFS).                                              | `true` or `false`          | `false`                         |
+| `oifs_target_cfl`            | The desired OIFS-CFL number. Requires variable_timestep = true in the time control object.                      | Positive real              | `1.9`                           |
 
 ## Fluid
 
@@ -524,13 +526,28 @@ The following types are currently implemented.
 
    The geostrophic wind is set to 0 for all components by default. Other values
    are set via the `geostrophic_wind` keyword.
-4. `user_pointwise`, the values are set inside the compiled user file, using the
+4. `centrifugal`, a source term introducing a centrifugal force, defined as \f$ -
+   \Omega \times (\Omega \times r) \f$. Here, \f$ \Omega \f$ is the rotation
+   vector and \f$ r \f$ is the position relative to the reference point, which
+   is any point lying on the rotation axis. To define forcing one has to provide
+   \f$ \Omega \f$ and the reference point. This is provided via the following
+   keywords.
+
+   - `rotation_vector`: Array with 3 values. Directly assigns \f$ \Omega \f$ to
+     the provided vector.
+   - `reference_point`: Array with 3 values. Deifines any point on the rotaion
+   axis.
+
+@note Notice that to perform simulation in a rotating reference frame one has to
+define both `coriolis` and `centrifugal` source terms in a consistent way.
+
+5. `user_pointwise`, the values are set inside the compiled user file, using the
    pointwise user file subroutine. Only works on CPUs!
-5. `user_vector`, the values are set inside the compiled user file, using the
+6. `user_vector`, the values are set inside the compiled user file, using the
    non-pointwise user file subroutine. Should be used when running on the GPU.
-6. `brinkman`, Brinkman permeability forcing inside a pre-defined region.
-7. `gradient_jump_penalty`, perform gradient_jump_penalisation.
-8. `sponge`, adds a sponge term based on a reference velocity field, which is 
+7. `brinkman`, Brinkman permeability forcing inside a pre-defined region.
+8. `gradient_jump_penalty`, perform gradient_jump_penalisation.
+9. `sponge`, adds a sponge term based on a reference velocity field, which is 
    applied in a user-specified region of the domain.
 
 #### Brinkman
@@ -554,7 +571,16 @@ types are currently implemented.
 1. `boundary_mesh`, the indicator function for a boundary mesh is computed in
    two steps. First, the signed distance function is computed for the boundary
    mesh. Then, the indicator function is computed using the distance transform
-   function specified in the case file.
+   function specified in the case file. This is currently not very well
+   optimized, it will scale by `O(log(M)*N)`, where `M` is the number of triangles in the
+   boundary mesh and `N` is the number of grid points in the simulation.
+   To avoid recomputing the distance field for multiple simulations with the
+   same boundary mesh and numerical discretization, the distance field can be
+   cached to a file. This is controlled by the `cache` keyword. If set to
+   `true`, the distance field will be saved to a file specified by the
+   `cache_file` keyword. If the file already exists, it will be loaded instead
+   of recomputing it. The distance field is stored in the Nek5000 `.fld` file
+   format.
 2. `point_zone`, the indicator function is defined as 1 inside the point zone
    and 0 outside.
 
@@ -616,6 +642,8 @@ the boundary mesh is computed using a step function with a cut-off distance of
                "type": "step",
                "value": 0.1
             },
+            "cache": true,
+            "cache_file": "some_mesh_cache"
          },
          {
             "type": "point_zone",
@@ -886,25 +914,26 @@ under `preconditioner`.
 
 For `hsmg`, the following keywords are used:
 
-| Name                               | Description                                                                                   | Admissible values                 | Default value |
-|------------------------------------|-----------------------------------------------------------------------------------------------|-----------------------------------|---------------|
-| `coarse_grid.solver`               | Type of linear solver for the coarse grid, any of the Krylov solvers or TreeAMG  `tamg`       | A solver `type`                   | `cg`          |
-| `coarse_grid.preconditioner`       | Type of the preconditioner to use (only valid for a Krylov based `solver`)                    | A preconditioner `type`           | `jacobi`      |
-| `coarse_grid.iterations`           | Number of linear solver iterations (only valid for a Krylov based `solver`)                   | An integer                        | 10            |
-| `coarse_grid.monitor`              | Monitor residuals in the coarse grid (only valid for a Krylov based `solver`)                 | `true` or `false`                 | `false`       |
-| `coarse_grid.levels`               | Number of AMG levels to construct (only valid for `solver` type `tamg`)                       | An integer                        | 3             |
-| `coarse_grid.iterations`           | Number of AMG iterations (only valid for `solver` type `tamg`)                                | An integer                        | 1             |
-| `coarse_grid.cheby_degree`         | Degree of the Chebyshev based AMG smoother                                                    | An integer                        | 5             |
+| Name                         | Description                                                                             | Admissible values       | Default value |
+| ---------------------------- | --------------------------------------------------------------------------------------- | ----------------------- | ------------- |
+| `coarse_grid.solver`         | Type of linear solver for the coarse grid, any of the Krylov solvers or TreeAMG  `tamg` | A solver `type`         | `cg`          |
+| `coarse_grid.preconditioner` | Type of the preconditioner to use (only valid for a Krylov based `solver`)              | A preconditioner `type` | `jacobi`      |
+| `coarse_grid.iterations`     | Number of linear solver iterations (only valid for a Krylov based `solver`)             | An integer              | 10            |
+| `coarse_grid.monitor`        | Monitor residuals in the coarse grid (only valid for a Krylov based `solver`)           | `true` or `false`       | `false`       |
+| `coarse_grid.levels`         | Number of AMG levels to construct (only valid for `solver` type `tamg`)                 | An integer              | 3             |
+| `coarse_grid.iterations`     | Number of AMG iterations (only valid for `solver` type `tamg`)                          | An integer              | 1             |
+| `coarse_grid.cheby_degree`   | Degree of the Chebyshev based AMG smoother                                              | An integer              | 5             |
 
 For `phmg`, the following keywords are used:
 
-| Name                               | Description                                                                                   | Admissible values                 | Default value |
-|------------------------------------|-----------------------------------------------------------------------------------------------|-----------------------------------|---------------|
-| `smoother_iterations`              | Number of smoother iterations in the p-multigrid parts                                        | An integer                        | 10            |
-| `smoother_cheby_acc`               | Type of Chebyshev acceleration (non-accelerated semi-iterative Chebyshev method if not set)   | `jacobi` or `schwarz`             | -             |
-| `coarse_grid.levels`               | Number of AMG levels to construct (only valid for `solver` type `tamg`)                       | An integer                        | 3             |
-| `coarse_grid.iterations`           | Number of linear solver iterations for coarse grid solver                                     | An integer                        | 1             |
-| `coarse_grid.cheby_degree`         | Degree of the Chebyshev based AMG smoother                                                    | An integer                        | 5             |
+| Name                       | Description                                                                                 | Admissible values     | Default value |
+| -------------------------- | ------------------------------------------------------------------------------------------- | --------------------- | ------------- |
+| `pcoarsening_schedule`     | P-multigrid coarsening schedule (polynomial order, high to low)                             | Array of integers     | `[3, 1]`      |
+| `smoother_iterations`      | Number of smoother iterations in the p-multigrid parts                                      | An integer            | 10            |
+| `smoother_cheby_acc`       | Type of Chebyshev acceleration (non-accelerated semi-iterative Chebyshev method if not set) | `jacobi` or `schwarz` | -             |
+| `coarse_grid.levels`       | Number of AMG levels to construct (only valid for `solver` type `tamg`)                     | An integer            | 3             |
+| `coarse_grid.iterations`   | Number of linear solver iterations for coarse grid solver                                   | An integer            | 1             |
+| `coarse_grid.cheby_degree` | Degree of the Chebyshev based AMG smoother                                                  | An integer            | 5             |
 
 
 ### Flow rate forcing
@@ -1019,18 +1048,21 @@ Four types of conditions are available for the scalar:
     "flux": 1,
     "zone_indices": [1, 2]
   }
+  ```
 * `user_pointwise`. Sets the scalar in the pointwise user interface routine.
   ```json
   {
     "type": "user_poinwise",
     "zone_indices": [1, 2]
   }
+  ```
 * `user`. User boundary condition, see [further documentation](#user-file_field-dirichlet-update).
   ```json
   {
     "type": "user",
     "zone_indices": [1, 2]
   }
+  ```
 
 ### Initial conditions
 
