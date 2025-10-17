@@ -33,9 +33,9 @@ contains
 
     !
     ! 2. Set the function f(x,y,z) from 0 to 1.
-    ! 
-  
-    ! Bottom boundary 
+    !
+
+    ! Bottom boundary
     xmin1 = 3.0_rp
     delta_rise1 = 3.0_rp
 
@@ -45,18 +45,18 @@ contains
 
     fringe = 0.0_rp
     do i = 1, fringe%size()
-        x = fringe%dof%x(i,1,1,1)
-        y = fringe%dof%y(i,1,1,1)
-        
-        ! Bottom boundary
-        if ( (y .lt. 0.0_rp) .and. (x .gt. xmin1)) then
-           fringe%x(i,1,1,1) = S( (x - xmin1)/delta_rise1 )
-        
-        ! Top boundary
-        else if ( (y .gt. 0.0_rp) .and. (x .gt. xmin2)) then
-           fringe%x(i,1,1,1) = S( (x - xmin2)/delta_rise2 )
-        
-        end if
+       x = fringe%dof%x(i,1,1,1)
+       y = fringe%dof%y(i,1,1,1)
+
+       ! Bottom boundary
+       if ( (y .lt. 0.0_rp) .and. (x .gt. xmin1)) then
+          fringe%x(i,1,1,1) = S( (x - xmin1)/delta_rise1 )
+
+          ! Top boundary
+       else if ( (y .gt. 0.0_rp) .and. (x .gt. xmin2)) then
+          fringe%x(i,1,1,1) = S( (x - xmin2)/delta_rise2 )
+
+       end if
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -75,7 +75,7 @@ contains
   ! Smooth step function, 0 if x <= 0, 1 if x >= 1, 1/exp(1/(x-1) + 1/x) between 0 and 1
   function S(x) result(y)
     real(kind=rp), intent(in) :: x
-    real(kind=rp)             :: y
+    real(kind=rp) :: y
 
     if ( x.le.0._rp ) then
        y = 0._rp
