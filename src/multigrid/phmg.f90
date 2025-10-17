@@ -323,7 +323,6 @@ contains
               this%nlvls -1, mglvl, this%intrp, this%msh, this%Ax, &
               this%amg_solver)
 
-         call mglvl(0)%bclst%apply_scalar(mglvl(0)%z%x, n)
          call device_copy(z_d, mglvl(0)%z%x_d, n)
       else
          !We should not work with the input
@@ -336,7 +335,6 @@ contains
               this%nlvls -1, mglvl, this%intrp, this%msh, this%Ax, &
               this%amg_solver)
 
-         call mglvl(0)%bclst%apply_scalar(mglvl(0)%z%x, n)
          call copy(z, mglvl(0)%z%x, n)
       end if
     end associate
@@ -509,7 +507,7 @@ contains
     integer, intent(in) :: n, lvl
     integer :: i, iblk, ni, niblk
 
-    ni = 6
+    ni = mg%smoother_itrs
     if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, ni
           call Ax%compute(w%x, z%x, mg%coef, msh, mg%Xh)
