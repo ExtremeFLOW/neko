@@ -794,51 +794,91 @@ contains
   ! Register user-defined functions (see user_intf.f90)
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
-    user%user_init_modules => user_initialize
+    user%initialize => user_initialize
   end subroutine user_setup
 
   ! User-defined initialization called just before time loop starts
-  subroutine user_initialize(t, u, v, w, p, coef, params)
-    real(kind=rp) :: t
-    type(field_t), intent(inout) :: u, v, w, p
-    type(coef_t), intent(inout) :: coef
-    type(json_file), intent(inout) :: params
+  subroutine user_initialize(t)
+    type(time_state_t), intent(in) :: t
 
-    class(point_zone_t), pointer :: pz
-    type(field_t), pointer :: fringe
-
+    type(field_t), pointer :: u, fringe
+    real(kind=rp) :: x, y, xmin1, delta_rise1, xmin2, delta_rise2
     integer :: i, imask
 
-    pz => null()
     fringe => null()
+    u => null()
 
-    ! 
-    ! 1. Add the "sponge_field" to the field registry.
-    !    NOTE: The name of the fringe field in the registry 
-    !    can be changed with the parameter `fringe_registry_name`.
-    !    
     !
-    call neko_field_registry%add_field(u%dof,"sponge_fringe") 
+    ! 1. Add the "sponge_field" to the field registry.
+    !    NOTE: The name of the fringe field in the registry
+    !    can be changed with the parameter `fringe_registry_name`.
+    !
+    !
+    u => neko_field_registry%get_field("u")
+    call neko_field_registry%add_field(u%dof,"sponge_fringe")
     fringe => neko_field_registry%get_field("sponge_fringe")
 
     !
-    ! 2. Set the function f(x,y,z) from 0 to 1. Here we do it
-    ! according to a poing zone we have set in the case file
-    ! called "myzone"
+    ! 2. Set the function f(x,y,z) from 0 to 1. in two zones of the mesh,
+    !    a top region in x \in [xmin1, +\infty[, y \in [0, +\infty[
+    !  and a bottom region x \in [xmin2, +\infty[, y \in ]-\infty, 0[
     !
-    pz => neko_point_zone_registry%get_point_zone("myzone")
-    do i = 1, pz%size
-       imask = pz%mask(i)
-       fringe%x(imask,1,1,1) = 1.0_rp
+    !    A smoothing function S(x) is applied at the beginning of each zone,
+    !    with a rising distance of delta_rise1 and delta_rise2
+    ! 
+  
+    ! Bottom boundary 
+    xmin1 = 3.0_rp
+    delta_rise1 = 3.0_rp
+
+    ! Top boundary
+    xmin2 = 20.0_rp
+    delta_rise2 = 7.0_rp
+
+    fringe = 0.0_rp
+    do i = 1, fringe%size()
+        x = fringe%dof%x(i,1,1,1)
+        y = fringe%dof%y(i,1,1,1)
+        
+        ! Bottom boundary
+        if ( (y .lt. 0.0_rp) .and. (x .gt. xmin1)) then
+           fringe%x(i,1,1,1) = S( (x - xmin1)/delta_rise1 )
+        
+        ! Top boundary
+        else if ( (y .gt. 0.0_rp) .and. (x .gt. xmin2)) then
+           fringe%x(i,1,1,1) = S( (x - xmin2)/delta_rise2 )
+        
+        end if
     end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(fringe%x, fringe%x_d, fringe%size(), &
+            HOST_TO_DEVICE, .false.)
+    end if
 
     ! NOTE: You can dump the fringe field to file using the `dump_fields`
     ! parameter. The fringe field will be stored under `pressure`.
 
     nullify(fringe)
-    nullify(pz)
+    nullify(u)
 
   end subroutine user_initialize
+
+  ! Smooth step function, 0 if x <= 0, 1 if x >= 1, 1/erp(1/(x-1) + 1/x) between 0 and 1
+  function S(x) result(y)
+    real(kind=rp), intent(in) :: x
+    real(kind=rp)             :: y
+
+    if ( x.le.0._rp ) then
+       y = 0._rp
+    else if ( x.ge.1._rp ) then
+       y = 1._rp
+    else
+       y = 1._rp / (1._rp + exp( 1._rp/(x-1._rp) + 1._rp/x))
+    end if
+
+  end function S
+
 end module user
 ```
 </details>
