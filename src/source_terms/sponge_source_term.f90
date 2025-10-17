@@ -154,9 +154,9 @@ contains
 
     select case (trim(baseflow_method))
 
-    ! Import the base flow from an fld file. The same parameters as field
-    ! initial condition apply since we use the same subroutine to read adn
-    ! potentially interpolate from a field file.
+       ! Import the base flow from an fld file. The same parameters as field
+       ! initial condition apply since we use the same subroutine to read adn
+       ! potentially interpolate from a field file.
     case ("field")
 
        ! The lines below are just copy pasted from set_flow_ic_int, because we
@@ -177,7 +177,7 @@ contains
             fringe_registry_name, dump_fields, dump_fname, fname, interpolate, &
             tolerance, mesh_fname)
 
-    ! Constant base flow
+       ! Constant base flow
     case ("constant")
 
        call json_get(baseflow_subdict, "value", constant_value)
@@ -188,7 +188,7 @@ contains
             amplitudes, fringe_registry_name, dump_fields, dump_fname, &
             constant_value)
 
-   ! Apply the initial condition as base flow.
+       ! Apply the initial condition as base flow.
     case ("initial_condition")
 
        call this%init_ic(fields, coef, start_time, end_time, amplitudes, &
@@ -492,6 +492,6 @@ contains
        call add2s2(fw%x, this%wk%x, this%amplitudes(3), fw%dof%size())
     end if
 
-    end subroutine sponge_compute
+  end subroutine sponge_compute
 
 end module sponge_source_term
