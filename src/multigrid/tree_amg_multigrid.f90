@@ -43,11 +43,12 @@
 !>
 module tree_amg_multigrid
   use num_types, only: rp
-  use utils, only : neko_error
+  use utils, only : neko_error, neko_warning
   use math, only : add2, rzero, glsc2, sub3, col2
   use device_math, only : device_rzero, device_col2, device_add2, device_sub3, &
        device_glsc2
   use comm
+  use mpi_f08, only: MPI_Allreduce, MPI_MIN, MPI_IN_PLACE, MPI_INTEGER
   use coefs, only : coef_t
   use mesh, only : mesh_t
   use space, only : space_t
@@ -114,6 +115,8 @@ contains
     integer :: lvl, n, mlvl, target_num_aggs
     integer, allocatable :: agg_nhbr(:,:), nhbr_tmp(:,:)
     character(len=LOG_SIZE) :: log_buf
+    integer :: glb_min_target_aggs
+    logical :: use_greedy_agg
 
     call neko_log%section('AMG')
 
@@ -125,36 +128,45 @@ contains
     call this%amg%init(ax, Xh, coef, msh, gs_h, nlvls, blst)
 
     ! Aggregation
+    use_greedy_agg = .true.
     ! Create level 1 (neko elements are level 0)
     call aggregate_finest_level(this%amg, Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
     ! Create the remaining levels
     allocate( agg_nhbr, SOURCE = msh%facet_neigh )
     do mlvl = 2, nlvls-1
-       if (.true.) then
+       ! estimate number of aggregates
+       if (use_greedy_agg) then
           target_num_aggs = this%amg%lvl(mlvl-1)%nnodes / 8
-          call print_preagg_info( mlvl, target_num_aggs, 1)
-          if ( target_num_aggs .lt. 4 ) then
-             call neko_error( &
-                  "TAMG: Too many levels. Not enough DOFs for coarsest grid.")
-          end if
-          call aggregate_greedy( this%amg, mlvl, target_num_aggs, agg_nhbr, nhbr_tmp)
        else
           target_num_aggs = this%amg%lvl(mlvl-1)%nnodes / 2
-          call print_preagg_info( mlvl, target_num_aggs, 2)
-          if ( target_num_aggs .lt. 4 ) then
-             call neko_error( &
-                  "TAMG: Too many levels. Not enough DOFs for coarsest grid.")
-          end if
+       end if
+
+       glb_min_target_aggs = target_num_aggs
+       call MPI_Allreduce(MPI_IN_PLACE, glb_min_target_aggs, 1, &
+            MPI_INTEGER, MPI_MIN, NEKO_COMM)
+       if (glb_min_target_aggs .lt. 4 ) then
+          call neko_warning( &
+               "TAMG: Too many levels. Not enough DOFs for coarsest grid.")
+          this%amg%nlvls = mlvl
+          exit
+       end if
+
+       if (use_greedy_agg) then
+          call print_preagg_info( mlvl, glb_min_target_aggs, 1)
+          call aggregate_greedy( this%amg, mlvl, target_num_aggs, agg_nhbr, nhbr_tmp)
+       else
+          call print_preagg_info( mlvl, glb_min_target_aggs, 2)
           call aggregate_pairs( this%amg, mlvl, target_num_aggs, agg_nhbr, nhbr_tmp)
        end if
+
        agg_nhbr = nhbr_tmp
        deallocate( nhbr_tmp )
     end do
     deallocate( agg_nhbr )
 
     ! Create the end point
-    call aggregate_end(this%amg, nlvls)
+    call aggregate_end(this%amg, this%amg%nlvls)
 
     this%max_iter = max_iter
 
@@ -166,15 +178,15 @@ contains
     end if
 
     ! Initialize relaxation methods
-    allocate(this%smoo(0:(nlvls)))
-    do lvl = 0, nlvls-1
+    allocate(this%smoo(0:(this%amg%nlvls)))
+    do lvl = 0, this%amg%nlvls-1
        n = this%amg%lvl(lvl+1)%fine_lvl_dofs
        call this%smoo(lvl)%init(n, lvl, cheby_degree)
     end do
 
     ! Allocate work space on each level
-    allocate(this%wrk(nlvls))
-    do lvl = 1, nlvls
+    allocate(this%wrk(this%amg%nlvls))
+    do lvl = 1, this%amg%nlvls
        n = this%amg%lvl(lvl)%fine_lvl_dofs
        allocate( this%wrk(lvl)%r(n) )
        allocate( this%wrk(lvl)%rc(n) )
@@ -186,8 +198,8 @@ contains
        end if
     end do
 
-    !allocate(this%jsmoo(0:(nlvls)))
-    !do lvl = 0, nlvls-1
+    !allocate(this%jsmoo(0:(this%amg%nlvls)))
+    !do lvl = 0, this%amg%nlvls-1
     !  n = this%amg%lvl(lvl+1)%fine_lvl_dofs
     !  call this%jsmoo(lvl)%init(n ,lvl, cheby_degree)
     !end do
