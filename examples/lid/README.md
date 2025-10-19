@@ -9,5 +9,7 @@ and for the 3D
 ```
 genmeshbox 0 1 0 1 0 3 6 6 3 .false. .false. .true. elem_dist.csv elem_dist.csv uniform`
 ```
+These commands generate a `box.nmsh`, which you can rename to `lid.nmsh` or `lid2d.nmsh`
+depending on the targetted case.
 
 The cavity flow is stable (steady) up to a Reynolds number of about 8000. The mesh size may be changed in the box file. There is also a short postprocessing script to show how to plot the simulation data.
