@@ -72,7 +72,8 @@ module schwarz
   use device, only : device_map, device_alloc, device_memcpy, &
        device_event_create, HOST_TO_DEVICE, DEVICE_TO_HOST, &
        device_get_ptr, glb_cmd_queue, aux_cmd_queue, &
-       device_event_record, device_event_sync, device_stream_wait_event
+       device_event_record, device_event_sync, device_stream_wait_event, &
+       device_event_destroy, device_free
   use neko_config, only : NEKO_BCKND_DEVICE
   use bc_list, only : bc_list_t
   use, intrinsic :: iso_c_binding, only : c_sizeof, c_ptr, C_NULL_PTR
@@ -172,11 +173,24 @@ contains
     if(allocated(this%work1)) deallocate(this%work1)
     if(allocated(this%work2)) deallocate(this%work2)
     if(allocated(this%wt)) deallocate(this%wt)
+    
+    if (c_associated(this%work1_d)) then
+       call device_free(this%work1_d)
+    end if
+    
+    if (c_associated(this%work2_d)) then
+       call device_free(this%work2_d)
+    end if
+    
+    if (c_associated(this%wt_d)) then
+       call device_free(this%wt_d)
+    end if
 
     call this%Xh_schwarz%free()
     call this%gs_schwarz%free()
     !why cant I do this?
     !call dofmap_free(this%dm_schwarz)
+    call this%dm_schwarz%free()
     call this%fdm%free()
 
     nullify(this%Xh)
@@ -190,6 +204,9 @@ contains
     nullify(this%msh)
 
     this%local_gs = .false.
+    if (c_associated(this%event)) then
+       call device_event_destroy(this%event)
+    end if
   end subroutine schwarz_free
   !> setup weights
   subroutine schwarz_setup_wt(this)

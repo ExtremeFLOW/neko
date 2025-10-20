@@ -331,7 +331,7 @@ contains
        call device_free(this%cy_d)
     end if
     if (c_associated(this%cz_d)) then
-       call device_free(this%cy_d)
+       call device_free(this%cz_d)
     end if
 
   end subroutine adv_oifs_free

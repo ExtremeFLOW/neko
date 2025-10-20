@@ -185,6 +185,9 @@ contains
 
     end if
 
+    call Xh%free()
+    call dof%free()
+
   end subroutine point_zone_registry_init
 
   !> Constructs a combine_point_zone_t object.

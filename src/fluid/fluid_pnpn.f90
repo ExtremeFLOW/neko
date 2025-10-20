@@ -535,6 +535,17 @@ contains
     !Deallocate velocity and pressure fields
     call this%scheme_free()
 
+    if (allocated(this%ext_bdf)) then
+       call this%ext_bdf%free()
+       deallocate(this%ext_bdf)
+    end if
+    
+    call this%bc_vel_res%free()
+    call this%bc_du%free()
+    call this%bc_dv%free()
+    call this%bc_dw%free()
+    call this%bc_dp%free()
+
     call this%bc_prs_surface%free()
     call this%bc_sym_surface%free()
     call this%bclst_vel_res%free()
@@ -563,6 +574,11 @@ contains
     call this%advx%free()
     call this%advy%free()
     call this%advz%free()
+    
+    if (allocated(this%adv)) then
+       call this%adv%free()
+       deallocate(this%adv)
+    end if
 
     if (allocated(this%Ax_vel)) then
        deallocate(this%Ax_vel)
