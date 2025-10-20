@@ -76,7 +76,7 @@ module schwarz
        device_event_destroy, device_free
   use neko_config, only : NEKO_BCKND_DEVICE
   use bc_list, only : bc_list_t
-  use, intrinsic :: iso_c_binding, only : c_sizeof, c_ptr, C_NULL_PTR
+  use, intrinsic :: iso_c_binding, only : c_sizeof, c_ptr, C_NULL_PTR, c_associated
   !$ use omp_lib
   implicit none
   private
