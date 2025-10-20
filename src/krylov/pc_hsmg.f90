@@ -456,7 +456,7 @@ contains
     if (allocated(this%pc_crs)) then
        call precon_destroy(this%pc_crs)
     end if
-    
+
     if (c_associated(this%hsmg_event)) then
        call device_event_destroy(this%hsmg_event)
     end if

@@ -619,7 +619,7 @@ contains
     nullify(this%dof)
     nullify(this%gs_h)
     nullify(this%msh)
-    
+
     if (c_associated(this%s_d)) then
        call device_free(this%s_d)
     end if

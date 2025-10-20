@@ -173,15 +173,15 @@ contains
     if(allocated(this%work1)) deallocate(this%work1)
     if(allocated(this%work2)) deallocate(this%work2)
     if(allocated(this%wt)) deallocate(this%wt)
-    
+
     if (c_associated(this%work1_d)) then
        call device_free(this%work1_d)
     end if
-    
+
     if (c_associated(this%work2_d)) then
        call device_free(this%work2_d)
     end if
-    
+
     if (c_associated(this%wt_d)) then
        call device_free(this%wt_d)
     end if

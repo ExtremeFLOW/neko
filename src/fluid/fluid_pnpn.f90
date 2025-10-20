@@ -539,7 +539,7 @@ contains
        call this%ext_bdf%free()
        deallocate(this%ext_bdf)
     end if
-    
+
     call this%bc_vel_res%free()
     call this%bc_du%free()
     call this%bc_dv%free()
@@ -574,7 +574,7 @@ contains
     call this%advx%free()
     call this%advy%free()
     call this%advz%free()
-    
+
     if (allocated(this%adv)) then
        call this%adv%free()
        deallocate(this%adv)

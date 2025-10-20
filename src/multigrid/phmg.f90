@@ -254,7 +254,7 @@ contains
              st = 0
              if (trim(cheby_acc) .eq. "schwarz") then
                 this%phmg_hrchy%lvl(i)%cheby_device%schwarz => &
-                   this%phmg_hrchy%lvl(i)%schwarz
+                     this%phmg_hrchy%lvl(i)%schwarz
                 st = 2
              end if
           end if
@@ -270,7 +270,7 @@ contains
              st = 0
              if (trim(cheby_acc) .eq. "schwarz") then
                 this%phmg_hrchy%lvl(i)%cheby%schwarz => &
-                   this%phmg_hrchy%lvl(i)%schwarz
+                     this%phmg_hrchy%lvl(i)%schwarz
                 st = 2
              end if
           end if
@@ -591,7 +591,7 @@ contains
     clvl = nlvls - 1
     do i = 0, nlvls-1
        write(log_buf, '(A8,I2,A8,I2)') &
-             '-- level', i, '-- lx:', phmg%lvl(i)%Xh%lx
+            '-- level', i, '-- lx:', phmg%lvl(i)%Xh%lx
        call neko_log%message(log_buf)
 
        if (i .eq. clvl) then
