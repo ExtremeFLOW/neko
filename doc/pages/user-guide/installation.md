@@ -18,7 +18,7 @@ guidelines.
 
 ## Building from source
 
-To build Neko, you will need a Fortran compiler supporting the Fortran-08 standard, autotools, libtool, pkg-config, a working MPI installation supporting the Fortran 2008 bindings (`mpi_f08`), BLAS/LAPACK and JSON-Fortran. Optional dependencies are PFunit, HDF5 and ParMETIS.
+To build Neko, you will need a Fortran compiler supporting the Fortran-08 standard, autotools, libtool, pkg-config, a working MPI installation supporting the Fortran 2008 bindings (`mpi_f08`), BLAS/LAPACK and JSON-Fortran. Optional dependencies are PFunit, HDF5, ParMETIS and p4est.
 
 Follow the steps below to install the less common dependencies (e.g. JSON-Fortran).
 
@@ -83,6 +83,19 @@ $ export PARMETIS_INSTALL=/usr/local/parmetis
 $ wget https://github.com/mfem/tpls/raw/refs/heads/gh-pages/parmetis-4.0.3.tar.gz
 $ tar xzf parmetis-4.0.3.tar.gz && cd parmetis-4.0.3 && make config prefix=${PARMETIS_INSTALL} && make install
 $ cd metis && make config prefix=${PARMETIS_INSTALL} && make install && cd ../..
+```
+
+#### Building p4est (optional)
+
+The following steps is an example on how to build and install p4est
+
+```shell
+wget http://p4est.github.io/release/p4est-2.8.7.tar.gz
+tar xvf p4est-2.8.7.tar.gz
+cd ./p4est-2.8.7
+./configure FC=mpifort CC=mpicc CXX=mpic++ --prefix=/path/to/installation --enable-mpi 
+make -j4
+make install
 ```
 
 #### Bulding PFunit (optional)
