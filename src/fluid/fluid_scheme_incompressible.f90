@@ -58,7 +58,7 @@ module fluid_scheme_incompressible
   use operators, only : cfl
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use field_registry, only : neko_field_registry
-  use json_utils, only : json_get, json_get_or_default, json_extract_object
+  use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file
   use scratch_registry, only : scratch_registry_t
   use user_intf, only : user_t, dummy_user_material_properties, &
@@ -283,7 +283,7 @@ contains
        call json_get(params, 'case.fluid.velocity_solver.type', string_val1)
        call json_get(params, 'case.fluid.velocity_solver.preconditioner.type', &
             string_val2)
-       call json_extract_object(params, &
+       call json_get(params, &
             'case.fluid.velocity_solver.preconditioner', json_subdict)
        call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance', &
             real_val)
@@ -322,10 +322,11 @@ contains
     this%w_e => neko_field_registry%get_field('w_e')
 
     ! Initialize the source term
+    call neko_log%section('Fluid Source term')
     call this%source_term%init(this%f_x, this%f_y, this%f_z, this%c_Xh, user, &
          this%name)
     call this%source_term%add(params, 'case.fluid.source_terms')
-
+    call neko_log%end_section()
 
   end subroutine fluid_scheme_init_base
 

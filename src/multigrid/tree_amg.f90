@@ -226,8 +226,8 @@ contains
     real(kind=rp), intent(inout) :: vec_in(:)
     integer, intent(in) :: lvl_out
     integer :: i, n, e
-    call this%matvec_impl(vec_out, vec_in, this%nlvls, lvl_out)
-    !call tamg_matvec_flat_impl(this, vec_out, vec_in, this%nlvls, lvl_out)
+    !call this%matvec_impl(vec_out, vec_in, this%nlvls, lvl_out)
+    call tamg_matvec_flat_impl(this, vec_out, vec_in, this%nlvls, lvl_out)
   end subroutine tamg_matvec
 
   !> Matrix vector product using the TreeAMG hierarchy structure
@@ -323,6 +323,7 @@ contains
          !> Average on overlapping dofs
          call this%gs_h%op(wrk_in, n, GS_OP_ADD)
          call col2( wrk_in, this%coef%mult, n)
+         call this%blst%apply(wrk_in, n)
 
          !> Finest level matvec (Call local finite element assembly)
          call this%ax%compute(wrk_out, wrk_in, this%coef, this%msh, this%Xh)
@@ -389,6 +390,7 @@ contains
     if (lvl-1 .eq. 0) then
        call this%gs_h%op(vec_out, this%lvl(lvl)%fine_lvl_dofs, GS_OP_ADD)
        call col2(vec_out, this%coef%mult, this%lvl(lvl)%fine_lvl_dofs)
+       call this%blst%apply(vec_out, n)
     end if
   end subroutine tamg_prolongation_operator
 
@@ -418,6 +420,7 @@ contains
          call this%gs_h%op(this%lvl(1)%wrk_in, n, GS_OP_ADD, glb_cmd_event)
          call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
          call device_col2( wrk_in_d, this%coef%mult_d, n)
+         call this%blst%apply(this%lvl(1)%wrk_in, n)
 
          !> Finest level matvec (Call local finite element assembly)
          call this%ax%compute(this%lvl(1)%wrk_out, this%lvl(1)%wrk_in, this%coef, this%msh, this%Xh)
@@ -464,6 +467,7 @@ contains
        call this%gs_h%op(vec_out, m, GS_OP_ADD, glb_cmd_event)
        call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
        call device_col2( vec_out_d, this%coef%mult_d, m)
+       call this%blst%apply( vec_out, n)
     end if
   end subroutine tamg_device_prolongation_operator
 

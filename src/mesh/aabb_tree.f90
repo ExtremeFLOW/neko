@@ -140,9 +140,11 @@ module aabb_tree
 
      ! Initializers
      procedure, pass(this), public :: init => aabb_tree_init
-     procedure, pass(this), public :: build => aabb_tree_build_tree
+     procedure, pass(this), public :: build_generic => aabb_tree_build_tree
+     procedure, pass(this), public :: build_from_aabb => aabb_tree_build_tree_aabb
      procedure, pass(this), public :: insert_object => &
           aabb_tree_insert_object
+     generic :: build => build_generic
 
      ! Getters
      procedure, pass(this), public :: get_size => aabb_tree_get_size
@@ -319,54 +321,172 @@ contains
   subroutine aabb_tree_init(this, initial_capacity)
     class(aabb_tree_t), intent(inout) :: this
     integer, intent(in) :: initial_capacity
+    integer :: i, nonzero_capacity
 
-    integer :: i
+    if (initial_capacity < 1) then
+       nonzero_capacity = 1
+    else
+       nonzero_capacity = initial_capacity
+    end if
 
     this%root_node_index = AABB_NULL_NODE
     this%allocated_node_count = 0
     this%next_free_node_index = 1
-    this%node_capacity = initial_capacity
-    this%growth_size = initial_capacity
+    this%node_capacity = nonzero_capacity
+    this%growth_size = nonzero_capacity
 
     if (allocated(this%nodes)) deallocate(this%nodes)
-    allocate(this%nodes(initial_capacity))
+    allocate(this%nodes(nonzero_capacity))
 
-    do i = 1, initial_capacity
+    do i = 1, nonzero_capacity
        this%nodes(i)%next_node_index = i + 1
     end do
-    this%nodes(initial_capacity)%next_node_index = AABB_NULL_NODE
+    this%nodes(nonzero_capacity)%next_node_index = AABB_NULL_NODE
   end subroutine aabb_tree_init
 
   !> @brief Builds the tree.
-  subroutine aabb_tree_build_tree(this, objects)
+  subroutine aabb_tree_build_tree_aabb(this, objects, padding)
     class(aabb_tree_t), intent(inout) :: this
-    class(*), dimension(:), intent(in) :: objects
+    type(aabb_t), intent(in) :: objects(:)
+    real(kind=dp), optional, intent(in) :: padding
 
     integer :: i_obj, i_node, i
     logical :: done
 
     integer :: start_layer, end_layer
 
-    type(aabb_t), dimension(:), allocatable :: box_list
+    type(aabb_t), allocatable :: box_list(:)
     integer, dimension(:), allocatable :: sorted_indices
 
+    real(kind=dp) :: aabb_padding
+
+    if (allocated(box_list)) deallocate(box_list)
+    allocate(box_list(size(objects)))
+
     call this%init(size(objects) * 2)
+    if (size(objects) .eq. 0) then
+       return
+    end if
 
     ! ------------------------------------------------------------------------ !
     ! Start by sorting the list of objects, then build a balanced binary tree
     ! from the sorted list
 
-    allocate(box_list(size(objects)))
+
+    if (present(padding)) then
+       aabb_padding = padding
+    else
+       aabb_padding = 0.0_dp
+    end if
 
     do i_obj = 1, size(objects)
-       box_list(i_obj) = get_aabb(objects(i_obj))
+       box_list(i_obj) = get_aabb(objects(i_obj), aabb_padding)
     end do
     call sort(box_list, sorted_indices)
 
     do i = 1, size(sorted_indices)
        i_obj = sorted_indices(i)
        i_node = this%allocate_node()
-       this%nodes(i_node)%aabb = get_aabb(objects(i_obj))
+       this%nodes(i_node)%aabb = box_list(i_obj)
+       this%nodes(i_node)%object_index = i_obj
+    end do
+
+
+    start_layer = 1
+    end_layer = size(objects)
+    done = .false.
+    do while (.not. done)
+
+       ! build the next layer
+       do i = start_layer, end_layer - 1, 2
+          i_node = this%allocate_node()
+
+          this%nodes(i_node)%aabb = merge(this%nodes(i)%aabb, &
+               this%nodes(i + 1)%aabb)
+
+          this%nodes(i_node)%left_node_index = i
+          this%nodes(i_node)%right_node_index = i + 1
+
+          this%nodes(i)%parent_node_index = i_node
+          this%nodes(i + 1)%parent_node_index = i_node
+       end do
+
+       ! if the number of nodes is odd, we need to create a new node to hold the
+       ! last node
+       if (mod(end_layer - start_layer, 2) .eq. 0) then
+          i_node = this%allocate_node()
+          this%nodes(i_node)%aabb = this%nodes(end_layer)%aabb
+          this%nodes(i_node)%left_node_index = end_layer
+          this%nodes(i_node)%right_node_index = AABB_NULL_NODE
+
+          this%nodes(end_layer)%parent_node_index = i_node
+       end if
+
+       ! move to the next layer
+       start_layer = end_layer + 1
+       end_layer = this%allocated_node_count
+
+       ! If there is only one node left, we are done
+       done = start_layer .eq. end_layer
+    end do
+
+    ! The last node allocated is the root node
+    this%root_node_index = this%allocated_node_count
+
+    if (this%get_size() .ne. size(objects)) then
+       print *, "this%get_size() = ", this%get_size()
+       print *, "size(objects) = ", size(objects)
+       call neko_error("Invalid tree size")
+    end if
+
+  end subroutine aabb_tree_build_tree_aabb
+
+
+
+  !> @brief Builds the tree.
+  subroutine aabb_tree_build_tree(this, objects, padding)
+    class(aabb_tree_t), intent(inout) :: this
+    class(*), target, intent(in) :: objects(:)
+    real(kind=dp), optional, intent(in) :: padding
+
+    integer :: i_obj, i_node, i
+    logical :: done
+
+    integer :: start_layer, end_layer
+
+    type(aabb_t), allocatable :: box_list(:)
+    integer, dimension(:), allocatable :: sorted_indices
+
+    real(kind=dp) :: aabb_padding
+
+    if (allocated(box_list)) deallocate(box_list)
+    allocate(box_list(size(objects)))
+
+    call this%init(size(objects) * 2)
+    if (size(objects) .eq. 0) then
+       return
+    end if
+
+    ! ------------------------------------------------------------------------ !
+    ! Start by sorting the list of objects, then build a balanced binary tree
+    ! from the sorted list
+
+
+    if (present(padding)) then
+       aabb_padding = padding
+    else
+       aabb_padding = 0.0_dp
+    end if
+
+    do i_obj = 1, size(objects)
+       box_list(i_obj) = get_aabb(objects(i_obj), aabb_padding)
+    end do
+    call sort(box_list, sorted_indices)
+
+    do i = 1, size(sorted_indices)
+       i_obj = sorted_indices(i)
+       i_node = this%allocate_node()
+       this%nodes(i_node)%aabb = box_list(i_obj)
        this%nodes(i_node)%object_index = i_obj
     end do
 
@@ -603,16 +723,13 @@ contains
     class(aabb_tree_t), intent(in) :: this
     class(*), intent(in) :: object
     integer, intent(in) :: object_index
-    integer, intent(inout), allocatable :: overlaps(:)
+    type(stack_i4_t), intent(inout) :: overlaps
 
     type(stack_i4_t) :: simple_stack
     type(aabb_t) :: object_box
 
     integer :: root_index, left_index, right_index
-    integer :: node_index
-
-    if (allocated(overlaps)) deallocate(overlaps)
-    allocate(overlaps(0))
+    integer :: node_index, tmp_index
 
     object_box = get_aabb(object)
     root_index = this%get_root_index()
@@ -628,13 +745,18 @@ contains
        if (this%nodes(node_index)%aabb%overlaps(object_box)) then
           if (this%nodes(node_index)%is_leaf()) then
              if (this%nodes(node_index)%object_index .ne. object_index) then
-                overlaps = [this%nodes(node_index)%object_index, overlaps]
+                tmp_index = this%nodes(node_index)%object_index
+                call overlaps%push(tmp_index)
              end if
           else
              left_index = this%get_left_index(node_index)
-             call simple_stack%push(left_index)
+             if (left_index .ne. AABB_NULL_NODE) then
+                call simple_stack%push(left_index)
+             end if
              right_index = this%get_right_index(node_index)
-             call simple_stack%push(right_index)
+             if (right_index .ne. AABB_NULL_NODE) then
+                call simple_stack%push(right_index)
+             end if
           end if
        end if
     end do

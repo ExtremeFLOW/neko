@@ -36,7 +36,7 @@ module runtime_stats
   use stack, only : stack_r8_t, stack_i4r8t2_t
   use tuple, only : tuple_i4r8_t
   use num_types, only : dp
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get_or_default
   use json_module, only : json_file
   use file, only : file_t
   use matrix, only : matrix_t
@@ -47,23 +47,28 @@ module runtime_stats
   implicit none
   private
 
-  integer :: RT_STATS_MAX_REGIONS = 50
+  integer, parameter :: RT_STATS_MAX_REGIONS = 50
+  integer, parameter :: RT_STATS_RESERVED_REGIONS = 25
+  integer, parameter :: RT_STATS_MAX_NAME_LEN = 25
 
   type :: runtime_stats_t
+     private
      !> Name of measured region
-     character(len=19), allocatable :: rt_stats_id(:)
+     character(len=RT_STATS_MAX_NAME_LEN), allocatable :: rt_stats_id(:)
      !> Elapsed time for each measured region
-     type(stack_r8_t), allocatable :: elapsed_time_(:)
+     type(stack_r8_t), allocatable :: elapsed_time(:)
      !> Stack to hold current active region timestamps
-     type(stack_i4r8t2_t) :: region_timestamp_
-     logical :: enabled_
-     logical :: output_profile_
+     type(stack_i4r8t2_t) :: region_timestamp
+     logical :: enabled = .false.
+     logical :: output_profile = .false.
    contains
-     procedure, pass(this) :: init => runtime_stats_init
-     procedure, pass(this) :: free => runtime_stats_free
-     procedure, pass(this) :: start_region => runtime_stats_start_region
-     procedure, pass(this) :: end_region => runtime_stats_end_region
-     procedure, pass(this) :: report => runtime_stats_report
+     procedure, public, pass(this) :: init => runtime_stats_init
+     procedure, public, pass(this) :: free => runtime_stats_free
+     procedure, public, pass(this) :: start_region => runtime_stats_start_region
+     procedure, public, pass(this) :: end_region => runtime_stats_end_region
+     procedure, public, pass(this) :: report => runtime_stats_report
+
+     procedure, pass(this) :: find_region_id => runtime_stats_find_region_id
   end type runtime_stats_t
 
   type(runtime_stats_t), public :: neko_rt_stats
@@ -79,23 +84,23 @@ contains
     call this%free()
 
     call json_get_or_default(params, 'case.runtime_statistics.enabled', &
-         this%enabled_, .false.)
+         this%enabled, .false.)
     call json_get_or_default(params, &
          'case.runtime_statistics.output_profile', &
-         this%output_profile_, .false.)
+         this%output_profile, .false.)
 
-    if (this%enabled_) then
+    if (this%enabled) then
 
        allocate(this%rt_stats_id(RT_STATS_MAX_REGIONS))
 
        this%rt_stats_id = ''
 
-       allocate(this%elapsed_time_(RT_STATS_MAX_REGIONS))
+       allocate(this%elapsed_time(RT_STATS_MAX_REGIONS))
        do i = 1, RT_STATS_MAX_REGIONS
-          call this%elapsed_time_(i)%init()
+          call this%elapsed_time(i)%init()
        end do
 
-       call this%region_timestamp_%init(100)
+       call this%region_timestamp%init(100)
 
     end if
 
@@ -110,14 +115,14 @@ contains
        deallocate(this%rt_stats_id)
     end if
 
-    if (allocated(this%elapsed_time_)) then
-       do i = 1, size(this%elapsed_time_)
-          call this%elapsed_time_(i)%free()
+    if (allocated(this%elapsed_time)) then
+       do i = 1, size(this%elapsed_time)
+          call this%elapsed_time(i)%free()
        end do
-       deallocate(this%elapsed_time_)
+       deallocate(this%elapsed_time)
     end if
 
-    call this%region_timestamp_%free()
+    call this%region_timestamp%free()
 
   end subroutine runtime_stats_free
 
@@ -125,25 +130,28 @@ contains
   !! named @a name with id @a region_id
   subroutine runtime_stats_start_region(this, name, region_id)
     class(runtime_stats_t), intent(inout) :: this
-    character(len=*) :: name
-    integer, intent(in) :: region_id
+    character(len=*), intent(in) :: name
+    integer, optional, intent(in) :: region_id
     type(tuple_i4r8_t) :: region_data
+    integer :: id
 
-    if (.not. this%enabled_) then
-       return
+    if (.not. this%enabled) return
+
+    if (present(region_id)) then
+       id = region_id
+    else
+       call this%find_region_id(name, id)
     end if
 
-    if (region_id .gt. 0 .and. region_id .le. RT_STATS_MAX_REGIONS) then
-       if (len_trim(this%rt_stats_id(region_id)) .eq. 0) then
-          this%rt_stats_id(region_id) = trim(name)
-       else
-          if (trim(this%rt_stats_id(region_id)) .ne. trim(name)) then
-             call neko_error('Profile region renamed')
-          end if
+    if (id .gt. 0 .and. id .le. RT_STATS_MAX_REGIONS) then
+       if (len_trim(this%rt_stats_id(id)) .eq. 0) then
+          this%rt_stats_id(id) = trim(name)
+       else if (trim(this%rt_stats_id(id)) .ne. trim(name)) then
+          call neko_error('Profile region renamed')
        end if
-       region_data%x = region_id
+       region_data%x = id
        region_data%y = MPI_Wtime()
-       call this%region_timestamp_%push(region_data)
+       call this%region_timestamp%push(region_data)
     else
        call neko_error('Invalid profiling region id')
     end if
@@ -151,65 +159,83 @@ contains
   end subroutine runtime_stats_start_region
 
   !> Compute elapsed time for the current region
+  !! @param name Optional name of the region to close.
+  !! @param region_id Optional id of the region to close.
   subroutine runtime_stats_end_region(this, name, region_id)
     class(runtime_stats_t), intent(inout) :: this
-    character(len=*) :: name
-    integer, intent(in) :: region_id
+    character(len=*), optional, intent(in) :: name
+    integer, optional, intent(in) :: region_id
     real(kind=dp) :: end_time, elapsed_time
     type(tuple_i4r8_t) :: region_data
+    character(len=1024) :: error_msg
+    integer :: id
 
-    if (.not. this%enabled_) then
-       return
-    end if
+    if (.not. this%enabled) return
 
     end_time = MPI_Wtime()
+    region_data = this%region_timestamp%pop()
 
-    if (trim(this%rt_stats_id(region_id)) .ne. trim(name)) then
-       call neko_error('Invalid profiler region closed (' // name // ', &
-       &expected: ' // trim(this%rt_stats_id(region_id)) // ')')
+    if (region_data%x .le. 0) then
+       call neko_error('Invalid profiling region closed')
     end if
-    region_data = this%region_timestamp_%pop()
 
-    if (region_data%x .gt. 0) then
-       elapsed_time = end_time - region_data%y
-       call this%elapsed_time_(region_data%x)%push(elapsed_time)
+    ! If we are given a name, check it matches the id
+    if (present(name)) then
+       if (present(region_id)) then
+          id = region_id
+       else
+          call this%find_region_id(name, id)
+       end if
+
+       if (trim(this%rt_stats_id(id)) .ne. trim(name)) then
+          write(error_msg, '(A,I0,A,A,A)') 'Invalid profiler region closed (', &
+               id, ', expected: ', trim(this%rt_stats_id(id)), ')'
+          call neko_error(trim(error_msg))
+
+       else if (region_data%x .ne. id) then
+
+          write(error_msg, '(A,A,A,A,A)') 'Invalid profiler region closed (', &
+               trim(this%rt_stats_id(region_data%x)), ', expected: ', &
+               trim(this%rt_stats_id(id)), ')'
+          call neko_error(trim(error_msg))
+       end if
     end if
+
+    elapsed_time = end_time - region_data%y
+    call this%elapsed_time(region_data%x)%push(elapsed_time)
 
   end subroutine runtime_stats_end_region
 
   !> Report runtime statistics for all recorded regions
   subroutine runtime_stats_report(this)
     class(runtime_stats_t), intent(inout) :: this
-    character(len=LOG_SIZE) :: log_buf
+    character(len=LOG_SIZE) :: log_buf, fmt
     character(len=1250) :: hdr
     real(kind=dp) :: avg, std, sem, total
     integer :: i, nsamples, ncols, nrows, col_idx
     type(matrix_t) :: profile_data
 
-    if (.not. this%enabled_) then
-       return
-    end if
+    if (.not. this%enabled) return
 
     call neko_log%section('Runtime statistics')
     call neko_log%newline()
-    write(log_buf, '(A,A,1x,A,1x,A)') '                  ',&
-         '      Total time  ','     Avg. time ','     Range  +/-'
+    write(fmt, '(A,I0,A)') '(', RT_STATS_MAX_NAME_LEN, 'x,1x,A15,2x,A15,2x,A15)'
+    write(log_buf, fmt) 'Total time', 'Avg. time', 'Range +/-'
     call neko_log%message(log_buf)
-    write(log_buf, '(A)') &
-         '--------------------------------------------------------------------'
+    write(log_buf, '(A)') repeat('-', RT_STATS_MAX_NAME_LEN + 50)
     call neko_log%message(log_buf)
 
     ncols = 0
     nrows = 0
     hdr = ''
-    do i = 1, size(this%elapsed_time_)
+    do i = 1, RT_STATS_MAX_REGIONS
        if (len_trim(this%rt_stats_id(i)) .gt. 0) then
-          nsamples = this%elapsed_time_(i)%size()
+          nsamples = this%elapsed_time(i)%size()
           ncols = ncols + 1
           hdr = trim(hdr) // trim(this%rt_stats_id(i)) // ', '
           nrows = max(nrows, nsamples)
           if (nsamples .gt. 0) then
-             select type (region_sample => this%elapsed_time_(i)%data)
+             select type (region_sample => this%elapsed_time(i)%data)
              type is (double precision)
                 total = sum(region_sample(1:nsamples))
                 call MPI_Allreduce(MPI_IN_PLACE, total, 1, &
@@ -219,8 +245,10 @@ contains
                 std = (total - avg)**2 / nsamples
                 sem = std /sqrt(real(nsamples, dp))
              end select
-             write(log_buf, '(A, E15.7,1x,1x,E15.7,1x,1x,E15.7)') &
-                  this%rt_stats_id(i), total, avg, 2.5758_dp * sem
+             write(fmt, '(A,I0,A)') '(A', RT_STATS_MAX_NAME_LEN, &
+                  ',1x,E15.7,2x,E15.7,2x,E15.7)'
+             write(log_buf, fmt) this%rt_stats_id(i), total, avg, &
+                  2.5758_dp * sem
              call neko_log%message(log_buf)
           end if
        end if
@@ -228,15 +256,15 @@ contains
 
     call neko_log%newline()
 
-    if (this%output_profile_) then
+    if (this%output_profile) then
        col_idx = 0
        call profile_data%init(nrows, ncols)
-       do i = 1, size(this%elapsed_time_)
+       do i = 1, size(this%elapsed_time)
           if (len_trim(this%rt_stats_id(i)) .gt. 0) then
-             nsamples = this%elapsed_time_(i)%size()
+             nsamples = this%elapsed_time(i)%size()
              col_idx = col_idx + 1
              if (nsamples .gt. 0) then
-                select type (region_sample => this%elapsed_time_(i)%data)
+                select type (region_sample => this%elapsed_time(i)%data)
                 type is (double precision)
                    profile_data%x(1:nsamples,col_idx) = &
                         region_sample(1:nsamples)
@@ -264,5 +292,39 @@ contains
     call profile_data%free()
 
   end subroutine runtime_stats_report
+
+  !> Find or allocate a region id for the named region @a name
+  subroutine runtime_stats_find_region_id(this, name, region_id)
+    class(runtime_stats_t), intent(inout) :: this
+    character(len=*), intent(in) :: name
+    integer, intent(out) :: region_id
+    integer :: i
+
+    region_id = -1
+
+    ! Look for the region name first
+    do i = RT_STATS_RESERVED_REGIONS + 1, RT_STATS_MAX_REGIONS
+       if (trim(this%rt_stats_id(i)) .eq. trim(name)) then
+          region_id = i
+          exit
+       end if
+    end do
+
+    ! If found, return
+    if (region_id .ne. -1) return
+
+    ! Otherwise, look for an empty slot
+    do i = RT_STATS_RESERVED_REGIONS + 1, RT_STATS_MAX_REGIONS
+       if (len_trim(this%rt_stats_id(i)) .eq. 0) then
+          region_id = i
+          exit
+       end if
+    end do
+
+    if (region_id .eq. -1) then
+       call neko_error('Not enough profiling regions available')
+    end if
+
+  end subroutine runtime_stats_find_region_id
 
 end module runtime_stats

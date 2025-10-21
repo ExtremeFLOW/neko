@@ -138,7 +138,7 @@ contains
                nmsh_quad, msh%nelv, MPI_NMSH_QUAD, status, ierr)
           do i = 1, nelv
              do j = 1, 4
-                p(j) = point_t(nmsh_quad(i)%v(j)%v_xyz, nmsh_quad(i)%v(j)%v_idx)
+                call p(j)%init(nmsh_quad(i)%v(j)%v_xyz, nmsh_quad(i)%v(j)%v_idx)
              end do
              ! swap vertices to keep symmetric vertex numbering in neko
              call msh%add_element(i, nmsh_quad(i)%el_idx, &
@@ -155,7 +155,7 @@ contains
                nmsh_hex, msh%nelv, MPI_NMSH_HEX, status, ierr)
           do i = 1, nelv
              do j = 1, 8
-                p(j) = point_t(nmsh_hex(i)%v(j)%v_xyz, nmsh_hex(i)%v(j)%v_idx)
+                call p(j)%init(nmsh_hex(i)%v(j)%v_xyz, nmsh_hex(i)%v(j)%v_idx)
              end do
              ! swap vertices to keep symmetric vertex numbering in neko
              call msh%add_element(i, nmsh_hex(i)%el_idx, &
@@ -311,13 +311,13 @@ contains
        do j = 1, 4
           coord = nmsh_quad(i)%v(j)%v_xyz
           coord(3) = 0_rp
-          p(j) = point_t(coord, nmsh_quad(i)%v(j)%v_idx)
+          call p(j)%init(coord, nmsh_quad(i)%v(j)%v_idx)
        end do
        do j = 1, 4
           coord = nmsh_quad(i)%v(j)%v_xyz
           coord(3) = depth
           id = nmsh_quad(i)%v(j)%v_idx+msh%glb_nelv*8
-          p(j+4) = point_t(coord, id)
+          call p(j+4)%init(coord, id)
        end do
        ! swap vertices to keep symmetric vertex numbering in neko
        call msh%add_element(i, nmsh_quad(i)%el_idx, &

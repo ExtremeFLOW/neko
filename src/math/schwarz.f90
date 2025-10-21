@@ -157,7 +157,7 @@ contains
     call schwarz_setup_wt(this)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_alloc(this%wt_d, &
-            int(this%dof%size() * c_sizeof(this%work1(1)), i8))
+            int(this%dof%size(), i8) * int(c_sizeof(this%work1(1)), i8))
        call rone(this%work1, this%dof%size())
        call schwarz_wt3d(this%work1, this%wt, Xh%lx, msh%nelv)
        call device_memcpy(this%work1, this%wt_d, this%dof%size(), &

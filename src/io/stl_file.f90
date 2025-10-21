@@ -100,11 +100,11 @@ contains
     p_idx = 0
     do i = 1, stl_hdr%ntri
        p_idx = p_idx + 1
-       p1 = point_t(dble(stl_tri(i)%v1), p_idx)
+       call p1%init(dble(stl_tri(i)%v1), p_idx)
        p_idx = p_idx + 1
-       p2 = point_t(dble(stl_tri(i)%v2), p_idx)
+       call p2%init(dble(stl_tri(i)%v2), p_idx)
        p_idx = p_idx + 1
-       p3 = point_t(dble(stl_tri(i)%v3), p_idx)
+       call p3%init(dble(stl_tri(i)%v3), p_idx)
        call tri_msh%add_element(p1, p2, p3)
     end do
 

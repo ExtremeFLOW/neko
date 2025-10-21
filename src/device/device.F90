@@ -53,6 +53,11 @@ module device
   !> Aux command queue
   type(c_ptr), public, bind(c) :: aux_cmd_queue = C_NULL_PTR
 
+#ifdef HAVE_OPENCL
+  !> Profiling command queue
+  type(c_ptr), public, bind(c) :: prf_cmd_queue = C_NULL_PTR
+#endif
+
   !> Event for the global command queue
   type(c_ptr), public, bind(c) :: glb_cmd_event
 
@@ -128,7 +133,7 @@ contains
 #elif HAVE_CUDA
     call cuda_init(glb_cmd_queue, aux_cmd_queue, STRM_HIGH_PRIO, STRM_LOW_PRIO)
 #elif HAVE_OPENCL
-    call opencl_init(glb_cmd_queue, aux_cmd_queue)
+    call opencl_init(glb_cmd_queue, aux_cmd_queue, prf_cmd_queue)
 #endif
     call device_event_create(glb_cmd_event, 2)
 #endif
@@ -151,7 +156,7 @@ contains
     call cuda_finalize(glb_cmd_queue, aux_cmd_queue)
 #elif HAVE_OPENCL
     call opencl_prgm_lib_release
-    call opencl_finalize(glb_cmd_queue, aux_cmd_queue)
+    call opencl_finalize(glb_cmd_queue, aux_cmd_queue, prf_cmd_queue)
 #endif
     call device_event_destroy(glb_cmd_event)
 #endif

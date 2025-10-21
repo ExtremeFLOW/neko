@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ module case
   use fluid_scheme_base, only: fluid_scheme_base_t, fluid_scheme_base_factory
   use fluid_output, only : fluid_output_t
   use chkp_output, only : chkp_output_t
-  use mesh_field, only : mesh_fld_t, mesh_field_init, mesh_field_free
+  use mesh_field, only : mesh_fld_t
   use parmetis, only : parmetis_partmeshkway
   use redist, only : redist_mesh
   use output_controller, only : output_controller_t
@@ -57,7 +57,7 @@ module case
   use scalar_scheme, only : scalar_scheme_t
   use time_state, only : time_state_t
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default, json_extract_object, json_extract_item, json_no_defaults
+  use json_utils, only : json_get, json_get_or_default, json_extract_item, json_no_defaults
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   use point_zone_registry, only: neko_point_zone_registry
   use scalars, only : scalars_t
@@ -146,6 +146,7 @@ contains
     type(file_t) :: msh_file, bdry_file, part_file
     type(mesh_fld_t) :: msh_part, parts
     logical :: found, logical_val
+    logical :: temperature_found = .false.
     integer :: integer_val
     real(kind=rp) :: real_val
     character(len = :), allocatable :: string_val, name, file_format
@@ -204,7 +205,7 @@ contains
     !
     ! Time control
     !
-    call json_extract_object(this%params, 'case.time', json_subdict)
+    call json_get(this%params, 'case.time', json_subdict)
     call this%time%init(json_subdict)
 
     !
@@ -215,7 +216,7 @@ contains
     ! Run user mesh motion routine
     call this%user%mesh_setup(this%msh, this%time)
 
-    call json_extract_object(this%params, 'case.numerics', numerics_params)
+    call json_get(this%params, 'case.numerics', numerics_params)
 
     !
     ! Setup fluid scheme
@@ -257,14 +258,14 @@ contains
        allocate(this%scalars)
        if (this%params%valid_path('case.scalar')) then
           ! For backward compatibility
-          call json_extract_object(this%params, 'case.scalar', scalar_params)
+          call json_get(this%params, 'case.scalar', scalar_params)
           call this%scalars%init(this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
                scalar_params, numerics_params, this%user, this%chkp, this%fluid%ulag, &
                this%fluid%vlag, this%fluid%wlag, this%fluid%ext_bdf, &
                this%fluid%rho)
        else
           ! Multiple scalars
-          call json_extract_object(this%params, 'case.scalars', json_subdict)
+          call json_get(this%params, 'case.scalars', json_subdict)
           call this%scalars%init(n_scalars, this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
                json_subdict, numerics_params, this%user, this%chkp, this%fluid%ulag, &
                this%fluid%vlag, this%fluid%wlag, this%fluid%ext_bdf, &
@@ -277,7 +278,7 @@ contains
     !
     call json_get(this%params, 'case.fluid.initial_condition.type', &
          string_val)
-    call json_extract_object(this%params, 'case.fluid.initial_condition', &
+    call json_get(this%params, 'case.fluid.initial_condition', &
          json_subdict)
 
     call neko_log%section("Fluid initial condition ")
@@ -310,19 +311,26 @@ contains
 
        if (this%params%valid_path('case.restart_file')) then
           call neko_log%message("Restart file specified, " // &
-                "initial conditions ignored")
+               "initial conditions ignored")
        else if (this%params%valid_path('case.scalar')) then
           ! For backward compatibility with single scalar
           call json_get(this%params, 'case.scalar.initial_condition.type', &
                string_val)
-          call json_extract_object(this%params, &
+          call json_get(this%params, &
                'case.scalar.initial_condition', json_subdict)
 
           if (trim(string_val) .ne. 'user') then
-             call set_scalar_ic(this%scalars%scalar_fields(1)%s, &
-                  this%scalars%scalar_fields(1)%c_Xh, &
-                  this%scalars%scalar_fields(1)%gs_Xh, &
-                  string_val, json_subdict)
+             if (trim(this%scalars%scalar_fields(1)%name) .eq. 'temperature') then
+                call set_scalar_ic(this%scalars%scalar_fields(1)%s, &
+                     this%scalars%scalar_fields(1)%c_Xh, &
+                     this%scalars%scalar_fields(1)%gs_Xh, &
+                     string_val, json_subdict, 0)
+             else
+                call set_scalar_ic(this%scalars%scalar_fields(1)%s, &
+                     this%scalars%scalar_fields(1)%c_Xh, &
+                     this%scalars%scalar_fields(1)%gs_Xh, &
+                     string_val, json_subdict, 1)
+             end if
           else
              call set_scalar_ic(this%scalars%scalar_fields(1)%name, &
                   this%scalars%scalar_fields(1)%s, &
@@ -337,14 +345,31 @@ contains
              call json_extract_item(this%params, 'case.scalars', i, &
                   scalar_params)
              call json_get(scalar_params, 'initial_condition.type', string_val)
-             call json_extract_object(scalar_params, 'initial_condition', &
+             call json_get(scalar_params, 'initial_condition', &
                   json_subdict)
 
              if (trim(string_val) .ne. 'user') then
-                call set_scalar_ic(this%scalars%scalar_fields(i)%s, &
-                     this%scalars%scalar_fields(i)%c_Xh, &
-                     this%scalars%scalar_fields(i)%gs_Xh, &
-                     string_val, json_subdict)
+                if (trim(this%scalars%scalar_fields(i)%name) .eq. 'temperature') then
+                   call set_scalar_ic(this%scalars%scalar_fields(i)%s, &
+                        this%scalars%scalar_fields(i)%c_Xh, &
+                        this%scalars%scalar_fields(i)%gs_Xh, &
+                        string_val, json_subdict, 0)
+                   temperature_found = .true.
+                else
+                   if (temperature_found) then
+                      ! if temperature is found, other scalars start from index 1
+                      call set_scalar_ic(this%scalars%scalar_fields(i)%s, &
+                           this%scalars%scalar_fields(i)%c_Xh, &
+                           this%scalars%scalar_fields(i)%gs_Xh, &
+                           string_val, json_subdict, i - 1)
+                   else
+                      ! if temperature is not found, other scalars start from index 0
+                      call set_scalar_ic(this%scalars%scalar_fields(i)%s, &
+                           this%scalars%scalar_fields(i)%c_Xh, &
+                           this%scalars%scalar_fields(i)%gs_Xh, &
+                           string_val, json_subdict, i)
+                   end if
+                end if
              else
                 call set_scalar_ic(this%scalars%scalar_fields(i)%name,&
                      this%scalars%scalar_fields(i)%s, &
@@ -397,11 +422,11 @@ contains
     call json_get_or_default(this%params, 'case.output_partitions',&
          logical_val, .false.)
     if (logical_val) then
-       call mesh_field_init(msh_part, this%msh, 'MPI_Rank')
+       call msh_part%init(this%msh, 'MPI_Rank')
        msh_part%data = pe_rank
        call part_file%init(trim(this%output_directory)//'partitions.vtk')
        call part_file%write(msh_part)
-       call mesh_field_free(msh_part)
+       call msh_part%free()
     end if
 
     !

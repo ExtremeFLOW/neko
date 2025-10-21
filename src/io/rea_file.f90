@@ -203,7 +203,7 @@ contains
              read(file_unit, *) (yc(j),j=1,4)
              if (i .ge. start_el .and. i .le. end_el) then
                 do j = 1, 4
-                   p(j) = point_t(real(xc(j),dp), real(yc(j),dp),real(0d0,dp))
+                   call p(j)%init(real(xc(j),dp), real(yc(j),dp),real(0d0,dp))
                    call rea_file_add_point(htp, p(j), pt_idx)
                 end do
                 ! swap vertices to keep symmetric vertex numbering in neko
@@ -218,7 +218,7 @@ contains
              read(file_unit, *) (zc(j),j=5,8)
              if (i .ge. start_el .and. i .le. end_el) then
                 do j = 1, 8
-                   p(j) = point_t(real(xc(j),dp), real(yc(j),dp), real(zc(j),dp))
+                   call p(j)%init(real(xc(j),dp), real(yc(j),dp), real(zc(j),dp))
                    call rea_file_add_point(htp, p(j), pt_idx)
                 end do
                 ! swap vertices to keep symmetric vertex numbering in neko
