@@ -754,9 +754,11 @@ The reference velocity field, or `baseflow` can be set from three methods:
    ```
    </details>
 
-3. `initial_condition`, where the velocity field is set according to what 
-   is defined in `case.fluid.initial_condition`. Useful for setting 
-   velocity fields manually, especially for the `user` type initial condition.
+3. `user`, where the velocity field is set according to what 
+   is defined in the user file. Useful for setting 
+   velocity fields manually. In this case, the base flow fields must be
+   created and added to the `neko_field_registry` (see fortran code snippet
+   below).
    <details>
    <summary><b><u>Example code snippet</u></b></summary>
    ```json
@@ -765,7 +767,7 @@ The reference velocity field, or `baseflow` can be set from three methods:
          "type": "sponge",
          "amplitudes": [1.0, 1.0, 1.0],
          "baseflow": {
-             "method": "initial_condition"
+             "method": "user"
          }
       }
    ]
@@ -782,6 +784,11 @@ under a specific name that can be retrieved internally. By default, Neko will
 search for the field `"sponge_fringe"` in the registry, but this can be changed
 by setting the parameter `fringe_registry_name`, which is important when using
 more than one sponge source term.
+
+The same principle applies for the base flow fields (if `"method": "user"`).
+By default, neko will search for the base flow fields in the registry using
+the prefix `"sponge_bf_"`, meaning that `u` will be in `sponge_bf_u`, etc. 
+This prefix can be changed by setting the parameter `bf_registry_prefix`.
 
 <details>
 <summary><b><u>Example using `user_init_modules`</u></b></summary> 
@@ -802,11 +809,12 @@ contains
   subroutine user_initialize(t)
     type(time_state_t), intent(in) :: t
 
-    type(field_t), pointer :: u, fringe
+    type(field_t), pointer :: u, fringe, ubf, vbf, wbf
     real(kind=rp) :: x, y, xmin1, delta_rise1, xmin2, delta_rise2
     integer :: i, imask
 
-    fringe => null()
+    fringe => null(`, meaning that `u` will be in `sponge_bf_u`, etc. 
+This prefix can be changed by setting the parameter `bf_registry_prefix`.)
     u => null()
 
     !
@@ -819,6 +827,14 @@ contains
     call neko_field_registry%add_field(u%dof,"sponge_fringe")
     fringe => neko_field_registry%get_field("sponge_fringe")
 
+    ! Initialize the base flows
+    call neko_field_registry%add_field(u%dof,"sponge_bf_u")
+    ubf => neko_field_registry%get_field("sponge_bf_u")
+    call neko_field_registry%add_field(u%dof,"sponge_bf_v")
+    vbf => neko_field_registry%get_field("sponge_bf_v")
+    call neko_field_registry%add_field(u%dof,"sponge_bf_w")
+    wbf => neko_field_registry%get_field("sponge_bf_w")
+    
     !
     ! 2. Set the function f(x,y,z) from 0 to 1. in two zones of the mesh,
     !    a top region in x \in [xmin1, +\infty[, y \in [0, +\infty[
@@ -847,12 +863,21 @@ contains
         
         ! Top boundary
         else if ( (y .gt. 0.0_rp) .and. (x .gt. xmin2)) then
-           fringe%x(i,1,1,1) = S( (x - xmin2)/delta_rise2 )
-        
+           fringe%x(i,1,1,1) = S( (x - xmin2)/delta_rise2 ) 
         end if
+       
+       ! Set ubf,vbf to something random
+       ubf%x(i,1,1,1) = sin(3.1415926_rp*2.0_rp/10.0_rp * x)
+       vbf%x(i,1,1,1) = cos(3.1415926_rp*2.0_rp/10.0_rp * y)
+    
     end do
 
+    wbf = 0.0_rp
     if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(ubf%x, ubf%x_d, ubf%size(), &
+            HOST_TO_DEVICE, .false.)
+       call device_memcpy(vbf%x, vbf%x_d, vbf%size(), &
+            HOST_TO_DEVICE, .false.)
        call device_memcpy(fringe%x, fringe%x_d, fringe%size(), &
             HOST_TO_DEVICE, .false.)
     end if
