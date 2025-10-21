@@ -81,7 +81,7 @@ module device_wale_nut
 
 contains
 
-  !> Compute the eddy viscosity field for the Sigma model indevice
+  !> Compute the eddy viscosity field for the WALE model on the device
   subroutine device_wale_nut_compute(g11_d, g12_d, g13_d, &
        g21_d, g22_d, g23_d, &
        g31_d, g32_d, g33_d, &
