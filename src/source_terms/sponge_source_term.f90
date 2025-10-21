@@ -452,7 +452,7 @@ contains
                neko_field_registry%field_exists(trim(w_name))
 
        if (.not. this%baseflow_set) call neko_error("SPONGE: No baseflow set &
-(searching for " // trim(this%bf_rgstry_pref) // "_u)")
+       &(searching for " // trim(this%bf_rgstry_pref) // "_u)")
 
        ! Check if the user has added the fringe field in the registry
        if (.not. &
