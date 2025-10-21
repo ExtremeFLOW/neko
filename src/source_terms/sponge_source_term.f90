@@ -281,7 +281,8 @@ contains
     ! Common constructor
     !
     call sponge_init_common(this, fields, coef, start_time, end_time, &
-         amplitudes, fringe_registry_name, bf_registry_pref, dump_fields, dump_fname)
+         amplitudes, fringe_registry_name, bf_registry_pref, dump_fields, &
+         dump_fname)
 
     !
     ! Create the base flow fields in the registry
@@ -353,7 +354,8 @@ contains
 
   !> Common constructor.
   subroutine sponge_init_common(this, fields, coef, start_time, end_time, &
-       amplitudes, fringe_registry_name, bf_registry_pref, dump_fields, dump_fname)
+       amplitudes, fringe_registry_name, bf_registry_pref, dump_fields, &
+       dump_fname)
     class(sponge_source_term_t), intent(inout) :: this
     type(field_list_t), intent(in), target :: fields
     type(coef_t), intent(in), target :: coef
@@ -447,8 +449,8 @@ contains
        w_name = trim(this%bf_rgstry_pref) // "_w"
 
        ! Check if all the base flow fields exist in the registry
-       this%baseflow_set = neko_field_registry%field_exists(trim(u_name)) .and. &
-               neko_field_registry%field_exists(trim(v_name)) .and. &
+       this%baseflow_set = neko_field_registry%field_exists(trim(u_name)) &
+               .and. neko_field_registry%field_exists(trim(v_name)) .and. &
                neko_field_registry%field_exists(trim(w_name))
 
        if (.not. this%baseflow_set) call neko_error("SPONGE: No baseflow set &
