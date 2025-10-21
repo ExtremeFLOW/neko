@@ -155,7 +155,7 @@ contains
     select case (trim(baseflow_method))
 
        ! Import the base flow from an fld file. The same parameters as field
-       ! initial condition apply since we use the same subroutine to read adn
+       ! initial condition apply since we use the same subroutine to read and
        ! potentially interpolate from a field file.
     case ("field")
 
