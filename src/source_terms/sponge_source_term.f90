@@ -38,24 +38,24 @@ module sponge_source_term
   use field_registry, only : neko_field_registry
   use field, only : field_t
   use json_utils, only : json_get, json_get_or_default, json_get
-  use utils, only: neko_error
-  use device, only: device_memcpy, HOST_TO_DEVICE
-  use device_math, only: device_sub3, device_col2, device_add2s2
-  use time_state, only: time_state_t
-  use math, only: sub3, col2, add2s2
-  use logger, only: neko_log, NEKO_LOG_DEBUG
-  use neko_config, only: NEKO_BCKND_DEVICE
-  use source_term, only: source_term_t
-  use case, only: case_t
-  use simcomp_executor, only: neko_simcomps
-  use flow_ic, only: set_flow_ic_fld, set_flow_ic
-  use field_list, only: field_list_t
-  use coefs, only: coef_t
-  use utils, only: NEKO_FNAME_LEN
-  use file, only: file_t
+  use utils, only : neko_error
+  use device, only : device_memcpy, HOST_TO_DEVICE
+  use device_math, only : device_sub3, device_col2, device_add2s2
+  use time_state, only : time_state_t
+  use math, only : sub3, col2, add2s2
+  use logger, only : neko_log, NEKO_LOG_DEBUG
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use source_term, only : source_term_t
+  use case, only : case_t
+  use simcomp_executor, only : neko_simcomps
+  use flow_ic, only : set_flow_ic_fld, set_flow_ic
+  use field_list, only : field_list_t
+  use coefs, only : coef_t
+  use utils, only : NEKO_FNAME_LEN
+  use file, only : file_t
   use scratch_registry, only : neko_scratch_registry
-  use comm, only: pe_rank
-  use fld_file_output, only: fld_file_output_t
+  use comm, only : pe_rank
+  use fld_file_output, only : fld_file_output_t
   implicit none
   private
 
@@ -132,9 +132,9 @@ contains
     integer :: nzones
 
     type(json_file) :: baseflow_subdict
-    integer :: i,izone
+    integer :: i, izone
 
-    call neko_log%section("SPONGE SOURCE TERM", LVL=NEKO_LOG_DEBUG)
+    call neko_log%section("SPONGE SOURCE TERM", LVL = NEKO_LOG_DEBUG)
 
     call json_get_or_default(json, "dump_fields", dump_fields, .false.)
     call json_get_or_default(json, "dump_file_name", dump_fname, &
@@ -204,7 +204,7 @@ contains
             " is not a valid method")
     end select
 
-    call neko_log%end_section(lvl=NEKO_LOG_DEBUG)
+    call neko_log%end_section(lvl = NEKO_LOG_DEBUG)
 
   end subroutine sponge_init_from_json
 
