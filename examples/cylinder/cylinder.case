@@ -3,13 +3,12 @@
     "case": {
         "mesh_file": "cylinder.nmsh",
         "output_at_end": true,
-	"output_directory": "spng",
         "output_boundary": true,
         "output_checkpoints": true,
         "checkpoint_control": "simulationtime",
         "checkpoint_value": 50,
         "time": {
-            "end_time": 80.0,
+            "end_time": 200.0,
             "variable_timestep": true,
             "target_cfl": 0.5,
             "max_timestep": 1e-1
@@ -26,20 +25,6 @@
                 "type": "uniform",
                 "value": [ 1.0, 0.0, 0.0 ]
             },
-	"source_terms": [
-	   {
-	      "type": "sponge",
-	      "dump_fields": true,
-	      "amplitudes": [1.0, 1.0, 1.0],
-	      "baseflow": {
-	          "method": "initial_condition",
-	          "file_name": "fluid_stats00.f00015",
-	          "mesh_file_name": "fluid_stats00.f00000",
-	          "interpolate": false,
-	          "tolerance": 1e-6
-	      }
-	   }
-	],	    
             "velocity_solver": {
                 "type": "cg",
                 "preconditioner": {
