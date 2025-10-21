@@ -36,23 +36,23 @@ module device_wale_nut
   use utils, only: neko_error
   use comm, only: NEKO_COMM, pe_size, MPI_REAL_PRECISION
   use mpi_f08, only: MPI_SUM, MPI_IN_PLACE, MPI_Allreduce
-  
+
   implicit none
   private
 
 #ifdef HAVE_HIP
   interface
      subroutine hip_wale_nut_compute(g11_d, g12_d, g13_d, &
-                                      g21_d, g22_d, g23_d, &
-                                      g31_d, g32_d, g33_d, &
-                                      delta_d, nut_d, mult_d, c, eps, n) &
+          g21_d, g22_d, g23_d, &
+          g31_d, g32_d, g33_d, &
+          delta_d, nut_d, mult_d, c, eps, n) &
           bind(c, name = 'hip_wale_nut_compute')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: g11_d, g12_d, g13_d, &
-                             g21_d, g22_d, g23_d, &
-                             g31_d, g32_d, g33_d, &
-                             delta_d, nut_d, mult_d
+            g21_d, g22_d, g23_d, &
+            g31_d, g32_d, g33_d, &
+            delta_d, nut_d, mult_d
        integer(c_int) :: n
        real(c_rp) :: c, eps
      end subroutine hip_wale_nut_compute
@@ -60,16 +60,16 @@ module device_wale_nut
 #elif HAVE_CUDA
   interface
      subroutine cuda_wale_nut_compute(g11_d, g12_d, g13_d, &
-                                      g21_d, g22_d, g23_d, &
-                                      g31_d, g32_d, g33_d, &
-                                      delta_d, nut_d, mult_d, c, eps, n) &
+          g21_d, g22_d, g23_d, &
+          g31_d, g32_d, g33_d, &
+          delta_d, nut_d, mult_d, c, eps, n) &
           bind(c, name = 'cuda_wale_nut_compute')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: g11_d, g12_d, g13_d, &
-                             g21_d, g22_d, g23_d, &
-                             g31_d, g32_d, g33_d, &
-                             delta_d, nut_d, mult_d
+            g21_d, g22_d, g23_d, &
+            g31_d, g32_d, g33_d, &
+            delta_d, nut_d, mult_d
        integer(c_int) :: n
        real(c_rp) :: c, eps
      end subroutine cuda_wale_nut_compute
@@ -83,25 +83,25 @@ contains
 
   !> Compute the eddy viscosity field for the Sigma model indevice
   subroutine device_wale_nut_compute(g11_d, g12_d, g13_d, &
-                              g21_d, g22_d, g23_d, &
-                              g31_d, g32_d, g33_d, &
-                              delta_d, nut_d, mult_d, c, eps, n)
+       g21_d, g22_d, g23_d, &
+       g31_d, g32_d, g33_d, &
+       delta_d, nut_d, mult_d, c, eps, n)
     type(c_ptr) :: g11_d, g12_d, g13_d, &
-                   g21_d, g22_d, g23_d, &
-                   g31_d, g32_d, g33_d, &
-                   delta_d, nut_d, mult_d
+         g21_d, g22_d, g23_d, &
+         g31_d, g32_d, g33_d, &
+         delta_d, nut_d, mult_d
     integer :: n
     real(kind=rp) :: c, eps
 #if HAVE_HIP
     call hip_wale_nut_compute(g11_d, g12_d, g13_d, &
-                              g21_d, g22_d, g23_d, &
-                              g31_d, g32_d, g33_d, &
-                              delta_d, nut_d, mult_d, c, eps, n)
+         g21_d, g22_d, g23_d, &
+         g31_d, g32_d, g33_d, &
+         delta_d, nut_d, mult_d, c, eps, n)
 #elif HAVE_CUDA
     call cuda_wale_nut_compute(g11_d, g12_d, g13_d, &
-                              g21_d, g22_d, g23_d, &
-                              g31_d, g32_d, g33_d, &
-                              delta_d, nut_d, mult_d, c, eps, n)
+         g21_d, g22_d, g23_d, &
+         g31_d, g32_d, g33_d, &
+         delta_d, nut_d, mult_d, c, eps, n)
 #elif HAVE_OPENCL
     call neko_error('opencl backend is not supported for device_wale_nut')
 #else
@@ -109,5 +109,5 @@ contains
 #endif
   end subroutine device_wale_nut_compute
 
-  
+
 end module device_wale_nut
