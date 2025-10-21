@@ -443,8 +443,8 @@ file documentation.
 4. `point_zone`, the values are set to a constant base value, supplied under the
    `base_value` keyword, and then assigned a zone value inside a point zone. The
    point zone is specified by the `name` keyword, and should be defined in the
-   `case.point_zones` object. See more about point zones @ref point-zones.md.
-5. `field`, where the initial condition is retrieved from a field file. 
+   `case.point_zones` object. See more about [point zones](@ref point-zones).
+5. `field`, where the initial condition is retrieved from a field file.
    The following keywords can be used:
    | Name             | Description                                                                                        | Admissible values            | Default value |
    |------------------|----------------------------------------------------------------------------------------------------|------------------------------|---------------|
@@ -1144,7 +1144,7 @@ file documentation.
 3. `point_zone`, the values are set to a constant base value, supplied under the
    `base_value` keyword, and then assigned a zone value inside a point zone. The
    point zone is specified by the `name` keyword, and should be defined in the
-   `case.point_zones` object. See more about point zones @ref point-zones.md.
+   `case.point_zones` object. See more about [point zones](@ref point-zones).
 4. `field`, where the initial condition is retrieved from a field file. Works
    in the same way as for the fluid. See the
    [fluid section](@ref case-file_fluid-ic) for detailed explanations.
@@ -1192,7 +1192,7 @@ which are not strictly necessary to run the solver. An example could be
 computing and output of additional fields, e.g. vorticity.
 
 A more detailed description as well as a  full list of available components and
- their setup is provided in a [separate page of the manual](simcomps.md).
+ their setup is provided in a [separate page of the manual](@ref simcomps).
 
 ## Point zones
 Point zones enable the user to select GLL points in the computational domain
@@ -1206,7 +1206,7 @@ point zones can also be added manually to the point zone registry from the user
 file.
 
 A more detailed description as well as a  full list of available components and
- their setup is provided in a [separate page of the manual](point-zones.md).
+ their setup is provided in a [separate page of the manual](@ref point-zones).
 
 ## Runtime statistics
 
