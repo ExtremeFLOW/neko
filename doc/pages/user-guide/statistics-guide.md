@@ -139,3 +139,4 @@ There is some rudimentary postprocessing to compute the spatial averages of fld 
 To further postprocess the statistics it is suggested to look into PyNekTools which introduces convenient functions for postprocessing, largely based on the PyMech library with the addition of an expanding set of tools for interpolation, computing derivatives and more advanced functionality.  PyNekTools is entirely parallelized in MPI and can also handle large data sets for postprocessing.
 
 
+# Scalar Statistics
