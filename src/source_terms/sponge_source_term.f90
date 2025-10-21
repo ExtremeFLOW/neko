@@ -227,7 +227,7 @@ contains
     !
     call sponge_init_common(this, fields, coef, start_time, end_time, &
          amplitudes, fringe_registry_name, bf_registry_pref, dump_fields, &
-         dump_fname) 
+         dump_fname)
 
     !
     ! Create the base flow fields in the registry
@@ -245,7 +245,7 @@ contains
     this%u_bf => neko_field_registry%get_field(trim(bf_registry_pref) // "_u")
     this%v_bf => neko_field_registry%get_field(trim(bf_registry_pref) // "_v")
     this%w_bf => neko_field_registry%get_field(trim(bf_registry_pref) // "_w")
-    
+
     !
     ! Assign constant values
     !
@@ -299,11 +299,11 @@ contains
     this%u_bf => neko_field_registry%get_field(trim(bf_registry_pref) // "_u")
     this%v_bf => neko_field_registry%get_field(trim(bf_registry_pref) // "_v")
     this%w_bf => neko_field_registry%get_field(trim(bf_registry_pref) // "_w")
-   
+
     !
     ! Use the initial condition field subroutine to set a field as baseflow
     !
-    
+
     ! TODO
     ! This is a bit awkward, because the init for the source terms occurs
     ! before the init of the scratch registry.
@@ -449,7 +449,7 @@ contains
        ! Check if all the base flow fields exist in the registry
        this%baseflow_set = neko_field_registry%field_exists(trim(u_name)) .and. &
                neko_field_registry%field_exists(trim(v_name)) .and. &
-               neko_field_registry%field_exists(trim(w_name)) 
+               neko_field_registry%field_exists(trim(w_name))
 
        if (.not. this%baseflow_set) call neko_error("SPONGE: No baseflow set &
 (searching for " // trim(this%bf_rgstry_pref) // "_u)")
@@ -469,7 +469,7 @@ contains
        ! to the registry.
        this%u_bf => neko_field_registry%get_field(trim(u_name))
        this%v_bf => neko_field_registry%get_field(trim(v_name))
-       this%w_bf => neko_field_registry%get_field(trim(w_name)) 
+       this%w_bf => neko_field_registry%get_field(trim(w_name))
 
        !
        ! Dump the fringe and/or baseflow fields for visualization
