@@ -147,7 +147,7 @@ Optional packages are controlled by passing either `--with-PACKAGE[=ARG]` or `--
 | `--with-parmetis-libdir=LIBDIR` | Directory for parmetis library (if different) |
 | `--with-p4est`                  | Compile with support for p4est                |
 | `--with-adios2=DIR`             | Compile with support for ADIOS2               |
-| `--with-adios2-fortran=DIR`     | Compile with support for ADIOS2 with Fortran  |              |
+| `--with-adios2-fortran=DIR`     | Compile with support for ADIOS2 with Fortran  |              
 | `--with-libxsmm`                | Compile with support for libxsmm              |
 | `--with-hip=DIR`                | Compile with HIP backend                      |
 | `--with-cuda=DIR`               | Compile with CUDA backend                     |
