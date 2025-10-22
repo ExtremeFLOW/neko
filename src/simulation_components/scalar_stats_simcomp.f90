@@ -113,7 +113,7 @@ contains
     call json_get_or_default(json, 'name', &
          sname, 's')
 
-    s => neko_field_registry%get_field_by_name(trim(sname))
+    s => neko_field_registry%get_field_by_name(sname)
     u => neko_field_registry%get_field("u")
     v => neko_field_registry%get_field("v")
     w => neko_field_registry%get_field("w")
@@ -123,10 +123,10 @@ contains
     if (json%valid_path("output_filename")) then
        call json_get(json, "output_filename", filename)
        call scalar_stats_simcomp_init_from_components(this, s, u, v, w, p, coef, &
-            start_time, hom_dir, stat_set, sname, filename)
+            start_time, hom_dir, stat_set, filename)
     else
        call scalar_stats_simcomp_init_from_components(this, s, u, v, w, p, coef, &
-            start_time, hom_dir, stat_se, sname)
+            start_time, hom_dir, stat_set)
     end if
 
   end subroutine scalar_stats_simcomp_init_from_json
@@ -154,6 +154,8 @@ contains
     character(len=5) :: prefix
 
     call neko_log%section('Scalar stats')
+    write(log_buf, '(A,A)') 'Scalar field: ', trim(s%name)
+    call neko_log%message(log_buf)
     write(log_buf, '(A,E15.7)') 'Start time: ', start_time
     call neko_log%message(log_buf)
     write(log_buf, '(A,A)') 'Set of statistics: ', trim(stat_set)
@@ -168,9 +170,9 @@ contains
     this%time = start_time
     if (present(fname)) then
        this%default_fname = .false.
-       stats_fname = fname//trim(s%name)
+       stats_fname = fname
     else
-       stats_fname = "scalar_stats_"//trim(s%name)
+       stats_fname = "scalar_stats0"
        this%default_fname = .true.
     end if
 
