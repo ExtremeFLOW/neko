@@ -920,13 +920,14 @@ The parameters for the sponge source term are summarized in the table below:
 | Name                     | Description                                                                 | Admissible values                     | Default value       |
 |--------------------------|-----------------------------------------------------------------------------|---------------------------------------|---------------------|
 | `amplitudes`             | Sponge forcing strength in each Cartesian direction                         | Array of 3 reals                      | -                   |
-| `baseflow.method`        | Method to define the reference (baseflow) velocity                          | `"constant"`, `"field"`, `"initial_condition"` | -          |
+| `baseflow.method`        | Method to define the reference (baseflow) velocity                          | `"constant"`, `"field"`, `"user"` | -          |
 | `baseflow.value`        | Velocity vector for constant baseflow                                       | Array of 3 reals                      | -                   |
 | `baseflow.file_name`     | File containing baseflow velocity field                                     | String                                | -                   |
 | `baseflow.mesh_file_name`| Mesh file corresponding to the baseflow field                               | String                                | -                   |
 | `baseflow.interpolate`   | Whether to interpolate field values to current mesh                         | Boolean                               | `false`             |
 | `baseflow.tolerance`     | Tolerance for interpolation convergence                                     | Real                                  | -                   |
 | `fringe_registry_name`   | Name of the fringe mask field in `neko_field_registry`                      | String                                | `"sponge_fringe"`   |
+| `baseflow_registry_prefix`   | Prefix of the base flow fields in `neko_field_registry`                      | String                                | `"sponge_bf"`   |
 | `dump_fields`            | If `true`, dumps the fringe and baseflow fields for visualization           | Boolean                               | `false`             |
 | `dump_file_name`         | Name of the `fld` file in which to dump the base flow and fringe fields     | String ending with `fld`              | `spng_fields.fld`   |
 
