@@ -64,14 +64,15 @@ module scalar_stats
      type(field_t), pointer :: p !< p
 
      type(mean_field_t) :: s_mean !< <s>
-     type(mean_field_t) :: ss !< <ss>
-     type(mean_field_t) :: sss !< <sss>
-     type(mean_field_t) :: ssss !< <ssss>
-     
+
      type(mean_field_t) :: us !< <us>
      type(mean_field_t) :: vs !< <vs>
      type(mean_field_t) :: ws !< <ws>
 
+     type(mean_field_t) :: ss !< <ss>
+     type(mean_field_t) :: sss !< <sss>
+     type(mean_field_t) :: ssss !< <ssss>
+     
      type(mean_field_t) :: uss !< <uss>
      type(mean_field_t) :: vss !< <vss>
      type(mean_field_t) :: wss !< <wss>
@@ -180,7 +181,7 @@ contains
     if (present(set)) then
        this%stat_set = trim(set)
        if (this%stat_set .eq. 'basic') then
-          this%n_stats = 7
+          this%n_stats = 5
        end if
     else
        this%stat_set = 'full'
@@ -193,14 +194,14 @@ contains
 
     ! Initialize mean fields
     call this%s_mean%init(this%s)
-    call this%ss%init(this%stats_ss, 'ss')
-    call this%sss%init(this%stats_work, 'sss')
-    call this%sss%init(this%stats_work, 'ssss')
     
     call this%vv%init(this%stats_work, 'us')
     call this%vv%init(this%stats_work, 'vs')
     call this%vv%init(this%stats_work, 'ws')
 
+    call this%ss%init(this%stats_ss, 'ss')
+    call this%sss%init(this%stats_work, 'sss')
+    call this%sss%init(this%stats_work, 'ssss')
 
     if (this%n_stats .eq. 42) then
        ! Initialize req. work fields
@@ -268,13 +269,14 @@ contains
     allocate(this%stat_fields%items(this%n_stats))
 
     call this%stat_fields%assign_to_field(1, this%s_mean%mf)
-    call this%stat_fields%assign_to_field(2, this%ss%mf)
-    call this%stat_fields%assign_to_field(3, this%sss%mf)
-    call this%stat_fields%assign_to_field(4, this%ssss%mf)
-    call this%stat_fields%assign_to_field(5, this%us%mf)
-    call this%stat_fields%assign_to_field(6, this%vs%mf)
-    call this%stat_fields%assign_to_field(7, this%ws%mf)
 
+    call this%stat_fields%assign_to_field(2, this%us%mf)
+    call this%stat_fields%assign_to_field(3, this%vs%mf)
+    call this%stat_fields%assign_to_field(4, this%ws%mf)
+
+    call this%stat_fields%assign_to_field(5, this%ss%mf)
+    call this%stat_fields%assign_to_field(6, this%sss%mf)
+    call this%stat_fields%assign_to_field(7, this%ssss%mf)
 
     if (this%n_stats .eq. 42) then
        call this%stat_fields%assign_to_field(8,  this%uss%mf)
@@ -331,15 +333,6 @@ contains
 
          call this%s_mean%update(k)
 
-         call device_col3(stats_ss%x_d, this%s%x_d, this%s%x_d, n)
-
-         call this%ss%update(k)
-
-         call device_col3(stats_work%x_d, this%stats_ss%x_d, this%s%x_d, n)
-         call this%sss%update(k)
-         call device_col3(stats_work%x_d, this%stats_ss%x_d, this%stats_ss%x_d, n)
-         call this%ssss%update(k)
-
          call device_col3(stats_work%x_d, this%u%x_d, this%s%x_d, n)
          call this%us%update(k)
          call device_col3(stats_work%x_d, this%v%x_d, this%s%x_d, n)
@@ -347,7 +340,15 @@ contains
          call device_col3(stats_work%x_d, this%w%x_d, this%s%x_d, n)
          call this%ws%update(k)
 
-         if (this%n_stats .eq. 7) return 
+         call device_col3(stats_ss%x_d, this%s%x_d, this%s%x_d, n)
+         call this%ss%update(k)
+
+         call device_col3(stats_work%x_d, this%stats_ss%x_d, this%s%x_d, n)
+         call this%sss%update(k)
+         call device_col3(stats_work%x_d, this%stats_ss%x_d, this%stats_ss%x_d, n)
+         call this%ssss%update(k)
+
+         if (this%n_stats .eq. 5) return 
 
          call device_col3(stats_work%x_d, this%u%x_d, this%stats_ss%x_d, n)
          call this%uss%update(k)
@@ -382,15 +383,6 @@ contains
 
          call this%s_mean%update(k)
 
-         call col3(stats_ss%x, this%s%x, this%s%x, n)
-
-         call this%ss%update(k)
-
-         call col3(stats_work%x, this%stats_ss%x, this%s%x, n)
-         call this%sss%update(k)
-         call col3(stats_work%x, this%stats_ss%x, this%stats_ss%x, n)
-         call this%ssss%update(k)
-
          call col3(stats_work%x, this%u%x, this%s%x, n)
          call this%us%update(k)
          call col3(stats_work%x, this%v%x, this%s%x, n)
@@ -398,7 +390,15 @@ contains
          call col3(stats_work%x, this%w%x, this%s%x, n)
          call this%ws%update(k)
 
-         if (this%n_stats .eq. 7) return 
+         call col3(stats_ss%x, this%s%x, this%s%x, n)
+         call this%ss%update(k)
+
+         call col3(stats_work%x, this%stats_ss%x, this%s%x, n)
+         call this%sss%update(k)
+         call col3(stats_work%x, this%stats_ss%x, this%stats_ss%x, n)
+         call this%ssss%update(k)
+
+         if (this%n_stats .eq. 5) return 
 
          call col3(stats_work%x, this%u%x, this%stats_ss%x, n)
          call this%uss%update(k)
@@ -616,13 +616,14 @@ contains
     call this%stats_uiuj%free()
 
     call this%s_mean%free()
-    call this%ss%free()
-    call this%sss%free() 
-    call this%ssss%free()
 
     call this%us%free()
     call this%vs%free()
     call this%ws%free()
+
+    call this%ss%free()
+    call this%sss%free() 
+    call this%ssss%free()
 
     if (this%n_stats .eq. 42) then
        call this%uss%free()
@@ -688,13 +689,14 @@ contains
     class(scalar_stats_t), intent(inout), target:: this
 
     call this%s_mean%reset()
-    call this%ss%reset()
-    call this%sss%reset() 
-    call this%ssss%reset()
 
     call this%us%reset()
     call this%vs%reset()
     call this%ws%reset()
+
+    call this%ss%reset()
+    call this%sss%reset() 
+    call this%ssss%reset()
 
     if (this%n_stats .eq. 42) then
        call this%uss%reset()
@@ -760,7 +762,7 @@ contains
     class(scalar_stats_t) :: this
     integer :: n
 
-    if (this%n_stats .eq. 7) return
+    if (this%n_stats .eq. 5) return
 
     n = size(this%coef%B)
 
