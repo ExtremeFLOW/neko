@@ -51,14 +51,12 @@ module scalar_stats_simcomp
   implicit none
   private
 
-  !> A simulation component that computes the velocity and pressure statistics
-  !! up to 4th order. Can be used to reconstruct the term budget of transport
-  !! equations for, e.g. the Reynolds stresses and the turbulent kinetic energy.
-  !!
-  !! Similar in functionality to the satistics module in the KTH Framework for
-  !! Nek5000: https://github.com/KTH-Nek5000/KTH_Framework
-  !! See Turbulence Statistics in a Spectral-Element Code: A Toolbox for
-  !! High-Fidelity Simulations or the origin KTH Nek5000 framework for details.
+  !> A simulation component that computes the scalar statistics for the
+  !! skewness, kurtosis, and the Reynolds-averaged mean scalar transport equation, 
+  !! scalar variance budget, and scalar flux budgets. 
+  !! 
+  !! The statistics are stored assuming that the relevant fluid statistics
+  !! have already been computed using the `fluid_stats` simcomp.
   !!
   !! For further details see the Neko documentation.
   type, public, extends(simulation_component_t) :: scalar_stats_simcomp_t
@@ -100,8 +98,9 @@ contains
     character(len=20), allocatable :: fields(:)
     character(len=:), allocatable :: hom_dir
     character(len=:), allocatable :: stat_set
+    character(len=:), allocatable :: sname
     real(kind=rp) :: start_time
-    type(field_t), pointer :: u, v, w, p
+    type(field_t), pointer :: s, u, v, w, p
     type(coef_t), pointer :: coef
 
     call this%init_base(json, case)
@@ -111,8 +110,10 @@ contains
          start_time, 0.0_rp)
     call json_get_or_default(json, 'set_of_stats', &
          stat_set, 'full')
+    call json_get_or_default(json, 'name', &
+         sname, 's')
 
-
+    s => neko_field_registry%get_field_by_name(trim(sname))
     u => neko_field_registry%get_field("u")
     v => neko_field_registry%get_field("v")
     w => neko_field_registry%get_field("w")
@@ -121,16 +122,17 @@ contains
 
     if (json%valid_path("output_filename")) then
        call json_get(json, "output_filename", filename)
-       call scalar_stats_simcomp_init_from_components(this, u, v, w, p, coef, &
-            start_time, hom_dir, stat_set,filename)
+       call scalar_stats_simcomp_init_from_components(this, s, u, v, w, p, coef, &
+            start_time, hom_dir, stat_set, sname, filename)
     else
-       call scalar_stats_simcomp_init_from_components(this, u, v, w, p, coef, &
-            start_time, hom_dir, stat_set)
+       call scalar_stats_simcomp_init_from_components(this, s, u, v, w, p, coef, &
+            start_time, hom_dir, stat_se, sname)
     end if
 
   end subroutine scalar_stats_simcomp_init_from_json
 
   !> Actual constructor.
+  !! @param s scalar
   !! @param u x-velocity
   !! @param v x-velocity
   !! @param w x-velocity
@@ -138,13 +140,13 @@ contains
   !! @param start_time time to start sampling stats
   !! @param hom_dir directions to average in
   !! @param stat_set Set of statistics to compute (basic/full)
-  subroutine scalar_stats_simcomp_init_from_components(this, u, v, w, p, coef, &
+  subroutine scalar_stats_simcomp_init_from_components(this, s, u, v, w, p, coef, &
        start_time, hom_dir, stat_set, fname)
     class(scalar_stats_simcomp_t), target, intent(inout) :: this
     character(len=*), intent(in) :: hom_dir
     character(len=*), intent(in) :: stat_set
     real(kind=rp), intent(in) :: start_time
-    type(field_t), intent(in), target :: u, v, w, p
+    type(field_t), intent(in), target :: s, u, v, w, p
     type(coef_t), intent(in), target :: coef
     character(len=*), intent(in), optional :: fname
     character(len=NEKO_FNAME_LEN) :: stats_fname
@@ -160,15 +162,15 @@ contains
     call neko_log%message(log_buf)
 
 
-    call this%stats%init(coef, u, v, w, p, stat_set)
+    call this%stats%init(coef, s, u, v, w, p, stat_set)
 
     this%start_time = start_time
     this%time = start_time
     if (present(fname)) then
        this%default_fname = .false.
-       stats_fname = fname
+       stats_fname = fname//trim(s%name)
     else
-       stats_fname = "scalar_stats0"
+       stats_fname = "scalar_stats_"//trim(s%name)
        this%default_fname = .true.
     end if
 
