@@ -97,6 +97,13 @@ cd ./p4est-2.8.7
 make -j4
 make install
 ```
+Finally ad the installation path to `PKG_CONFIG_PATH` (and if needed `LD_LIBRARY_PATH`).
+@note On certain systems `lib` should be substituted with `lib64`
+
+```bash
+export PKG_CONFIG_PATH=/path/to/installation/lib/pkgconfig:$PKG_CONFIG_PATH
+export LD_LIBRARY_PATH=/path/to/installation/lib:$LD_LIBRARY_PATH
+```
 
 #### Bulding PFunit (optional)
 
@@ -138,6 +145,7 @@ Optional packages are controlled by passing either `--with-PACKAGE[=ARG]` or `--
 | `--with-metis-libdir=LIBDIR`    | Directory for metis library (if different)    |
 | `--with-parmetis=DIR`           | Compile with support for parmetis library     |
 | `--with-parmetis-libdir=LIBDIR` | Directory for parmetis library (if different) |
+| `--with-p4est`                  | Compile with support for p4est                |
 | `--with-adios2=DIR`             | Compile with support for ADIOS2               |
 | `--with-adios2-fortran=DIR`     | Compile with support for ADIOS2 with Fortran  |              |
 | `--with-libxsmm`                | Compile with support for libxsmm              |

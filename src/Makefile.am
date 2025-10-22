@@ -407,6 +407,12 @@ if ENABLE_PARMETIS
 libneko_la_SOURCES += comm/parmetis_wrapper.c
 endif
 
+if ENABLE_P4EST
+#neko_fortran_SOURCES += mesh/mesh_manager/p4est.F90
+libneko_la_SOURCES += mesh/mesh_manager/p4est.F90
+libneko_la_SOURCES += mesh/mesh_manager/p4est_wrapper.c
+endif
+
 if ENABLE_HIP
 libneko_la_SOURCES += \
 	device/hip/check.hip\
@@ -796,6 +802,10 @@ EXTRA_DIST = \
 	comm/comm.h\
 	common/neko_log.h
 
+
+if ENABLE_P4EST
+EXTRA_DIST += mesh/mesh_manager/p4est_wrapper.h
+endif
 
 # Expose the listed headers in the package
 nobase_pkginclude_HEADERS = ${EXTRA_DIST}
