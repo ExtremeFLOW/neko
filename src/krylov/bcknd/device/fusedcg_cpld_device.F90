@@ -498,6 +498,18 @@ contains
        end do
     end if
 
+    if (c_associated(this%p1_d_d)) then
+       call device_free(this%p1_d_d)
+    end if
+
+    if (c_associated(this%p2_d_d)) then
+       call device_free(this%p2_d_d)
+    end if
+
+    if (c_associated(this%p3_d_d)) then
+       call device_free(this%p3_d_d)
+    end if
+
     nullify(this%M)
 
     if (c_associated(this%gs_event1)) then
