@@ -133,7 +133,7 @@ module scalar_stats
      type(coef_t), pointer :: coef
      !> Number of statistical fields to be computed.
      integer :: n_stats = 42
-     !> Specifies a subset of the statistics to be collected. All 43 fields by
+     !> Specifies a subset of the statistics to be collected. All 42 fields by
      !! default.
      character(5) :: stat_set
      !> A list of size n_stats, whith entries pointing to the fields that will
@@ -200,8 +200,6 @@ contains
     call this%ws%init(this%stats_work, 'ws')
 
     call this%ss%init(this%stats_ss, 'ss')
-    call this%sss%init(this%stats_work, 'sss')
-    call this%sss%init(this%stats_work, 'ssss')
 
     if (this%n_stats .eq. 42) then
        ! Initialize req. work fields
@@ -223,6 +221,9 @@ contains
        call this%dwdz%init(this%u%dof, 'dwdz')
 
        ! Initialize req. mean fields
+       call this%sss%init(this%stats_work, 'sss')
+       call this%ssss%init(this%stats_work, 'ssss')
+
        call this%uss%init(this%stats_work, 'uss')
        call this%vss%init(this%stats_work, 'vss')
        call this%wss%init(this%stats_work, 'wss')
@@ -275,10 +276,11 @@ contains
     call this%stat_fields%assign_to_field(4, this%ws%mf)
 
     call this%stat_fields%assign_to_field(5, this%ss%mf)
-    call this%stat_fields%assign_to_field(6, this%sss%mf)
-    call this%stat_fields%assign_to_field(7, this%ssss%mf)
 
     if (this%n_stats .eq. 42) then
+       call this%stat_fields%assign_to_field(6, this%sss%mf)
+       call this%stat_fields%assign_to_field(7, this%ssss%mf)
+
        call this%stat_fields%assign_to_field(8,  this%uss%mf)
        call this%stat_fields%assign_to_field(9,  this%vss%mf)
        call this%stat_fields%assign_to_field(10, this%wss%mf)
@@ -288,10 +290,13 @@ contains
        call this%stat_fields%assign_to_field(14, this%uvs%mf)
        call this%stat_fields%assign_to_field(15, this%uws%mf)
        call this%stat_fields%assign_to_field(16, this%vws%mf)
+
        call this%stat_fields%assign_to_field(17, this%ps%mf)
+
        call this%stat_fields%assign_to_field(18, this%pdsdx%mf)
        call this%stat_fields%assign_to_field(19, this%pdsdy%mf)
        call this%stat_fields%assign_to_field(20, this%pdsdz%mf)
+
        call this%stat_fields%assign_to_field(21, this%udsdx%mf)
        call this%stat_fields%assign_to_field(22, this%udsdy%mf)
        call this%stat_fields%assign_to_field(23, this%udsdz%mf)
@@ -301,6 +306,7 @@ contains
        call this%stat_fields%assign_to_field(27, this%wdsdx%mf)
        call this%stat_fields%assign_to_field(28, this%wdsdy%mf)
        call this%stat_fields%assign_to_field(29, this%wdsdz%mf)
+
        call this%stat_fields%assign_to_field(30, this%sdudx%mf)
        call this%stat_fields%assign_to_field(31, this%sdudy%mf)
        call this%stat_fields%assign_to_field(32, this%sdudz%mf)
@@ -310,6 +316,7 @@ contains
        call this%stat_fields%assign_to_field(36, this%sdwdx%mf)
        call this%stat_fields%assign_to_field(37, this%sdwdy%mf)
        call this%stat_fields%assign_to_field(38, this%sdwdz%mf)
+
        call this%stat_fields%assign_to_field(39, this%ess%mf)
        call this%stat_fields%assign_to_field(40, this%eus%mf)
        call this%stat_fields%assign_to_field(41, this%evs%mf)
@@ -344,12 +351,12 @@ contains
          call device_col3(stats_ss%x_d, this%s%x_d, this%s%x_d, n)
          call this%ss%update(k)
 
+         if (this%n_stats .eq. 5) return 
+
          call device_col3(stats_work%x_d, this%stats_ss%x_d, this%s%x_d, n)
          call this%sss%update(k)
          call device_col3(stats_work%x_d, this%stats_ss%x_d, this%stats_ss%x_d, n)
          call this%ssss%update(k)
-
-         if (this%n_stats .eq. 5) return 
 
          call device_col3(stats_work%x_d, this%u%x_d, this%stats_ss%x_d, n)
          call this%uss%update(k)
@@ -394,12 +401,12 @@ contains
          call col3(stats_ss%x, this%s%x, this%s%x, n)
          call this%ss%update(k)
 
+         if (this%n_stats .eq. 5) return 
+
          call col3(stats_work%x, this%stats_ss%x, this%s%x, n)
          call this%sss%update(k)
          call col3(stats_work%x, this%stats_ss%x, this%stats_ss%x, n)
          call this%ssss%update(k)
-
-         if (this%n_stats .eq. 5) return 
 
          call col3(stats_work%x, this%u%x, this%stats_ss%x, n)
          call this%uss%update(k)
@@ -623,10 +630,11 @@ contains
     call this%ws%free()
 
     call this%ss%free()
-    call this%sss%free() 
-    call this%ssss%free()
 
     if (this%n_stats .eq. 42) then
+       call this%sss%free() 
+       call this%ssss%free()
+
        call this%uss%free()
        call this%vss%free()
        call this%wss%free()
@@ -696,10 +704,11 @@ contains
     call this%ws%reset()
 
     call this%ss%reset()
-    call this%sss%reset() 
-    call this%ssss%reset()
 
     if (this%n_stats .eq. 42) then
+       call this%sss%reset() 
+       call this%ssss%reset()
+
        call this%uss%reset()
        call this%vss%reset()
        call this%wss%reset()
