@@ -79,46 +79,46 @@ When only the basic set of stats is enabled, only stats 1-11 are computed. When 
 | 2 | \f$ \langle u \rangle \f$ | X-Velocity|
 | 3 | \f$ \langle v \rangle \f$ | Y-Velocity|
 | 4 | \f$ \langle w \rangle \f$ | Z-Velocity |
-| 5 | \f$ \langle pp \rangle \f$ | Temperature|
-| 6 | \f$ \langle uu \rangle \f$ | Scalar 1 (s1)|
-| 7 | \f$ \langle vv \rangle \f$ | Scalar 2 (s2)|
-| 8 | \f$ \langle ww \rangle \f$ | s3|
-| 9 | \f$ \langle uv \rangle \f$ | s4|
-|10 | \f$ \langle uw \rangle \f$ | s5|
-| 11 | \f$ \langle vw \rangle \f$ | s6|
-| 12| \f$ \langle uuu \rangle \f$ | s7|
-| 13| \f$ \langle vvv \rangle \f$ | s8|
-| 14 | \f$ \langle www \rangle \f$ | s9|
-| 15 | \f$ \langle  uuv   \rangle \f$ | s10 |
-| 16 | \f$ \langle  uuw   \rangle \f$ | s11 |
-| 17 | \f$ \langle  uvv   \rangle \f$ | s12 |
-| 18 | \f$ \langle  uvw   \rangle \f$ | s13 |
-| 19 | \f$ \langle  vvw   \rangle \f$ | s14 |
-| 20 | \f$ \langle  uww   \rangle \f$ | s15 |
-| 21 | \f$ \langle  vww   \rangle \f$ | s16 |
-| 22 | \f$ \langle  uuuu  \rangle \f$ | s17 |
-| 23 | \f$ \langle  vvvv  \rangle \f$ | s18 |
-| 24 | \f$ \langle wwww   \rangle \f$ | s19 |
-| 25 | \f$ \langle  ppp   \rangle \f$ | s20 |
-| 26 | \f$ \langle  pppp  \rangle \f$ | s21 |
-| 27 | \f$ \langle  pu    \rangle \f$ | s22 |
-| 28 | \f$ \langle  pv    \rangle \f$ | s23 |
-| 29 | \f$ \langle  pw    \rangle \f$ | s24 |
-| 30 | \f$ \langle  p \frac{\partial u} {\partial x} \rangle \f$ | s25 |
-| 31 | \f$ \langle  p \frac{\partial u} {\partial y}\rangle \f$ | s26 |
-| 32 | \f$ \langle  p \frac{\partial u} {\partial z}\rangle \f$ | s27 |
-| 33 | \f$ \langle  p \frac{\partial v} {\partial x}\rangle \f$ | s28 |
-| 34 | \f$ \langle  p \frac{\partial v} {\partial y}\rangle \f$ | s29 |
-| 35 | \f$ \langle  p \frac{\partial v} {\partial z}\rangle \f$ | s30 |
-| 36 | \f$ \langle  p \frac{\partial w} {\partial x}\rangle \f$ | s31 |
-| 37 | \f$ \langle  p \frac{\partial w} {\partial y}\rangle \f$ | s32 |
-| 38 | \f$ \langle  p \frac{\partial w} {\partial z}\rangle \f$ | s33 |
-| 39 | \f$ \langle  e11   \rangle \f$ | s34 |
-| 40 | \f$ \langle  e22   \rangle \f$ | s35 |
-| 41 | \f$ \langle  e33   \rangle \f$ | s36 |
-| 42 | \f$ \langle  e12   \rangle \f$ | s37 |
-| 43 | \f$ \langle  e13   \rangle \f$ | s38 |
-| 44 | \f$ \langle  e23   \rangle \f$ | s39 |
+| 5 | \f$ \langle pp \rangle \f$ | Scalar 1 (s1)|
+| 6 | \f$ \langle uu \rangle \f$ | Scalar 2 (s2)|
+| 7 | \f$ \langle vv \rangle \f$ | s3|
+| 8 | \f$ \langle ww \rangle \f$ | s4|
+| 9 | \f$ \langle uv \rangle \f$ | s5|
+|10 | \f$ \langle uw \rangle \f$ | s6|
+| 11 | \f$ \langle vw \rangle \f$ | s7|
+| 12| \f$ \langle uuu \rangle \f$ | s8|
+| 13| \f$ \langle vvv \rangle \f$ | s9|
+| 14 | \f$ \langle www \rangle \f$ | s10|
+| 15 | \f$ \langle  uuv   \rangle \f$ | s11 |
+| 16 | \f$ \langle  uuw   \rangle \f$ | s12 |
+| 17 | \f$ \langle  uvv   \rangle \f$ | s13 |
+| 18 | \f$ \langle  uvw   \rangle \f$ | s14 |
+| 19 | \f$ \langle  vvw   \rangle \f$ | s15 |
+| 20 | \f$ \langle  uww   \rangle \f$ | s16 |
+| 21 | \f$ \langle  vww   \rangle \f$ | s17 |
+| 22 | \f$ \langle  uuuu  \rangle \f$ | s18 |
+| 23 | \f$ \langle  vvvv  \rangle \f$ | s19 |
+| 24 | \f$ \langle wwww   \rangle \f$ | s20 |
+| 25 | \f$ \langle  ppp   \rangle \f$ | s21 |
+| 26 | \f$ \langle  pppp  \rangle \f$ | s22 |
+| 27 | \f$ \langle  pu    \rangle \f$ | s23 |
+| 28 | \f$ \langle  pv    \rangle \f$ | s24 |
+| 29 | \f$ \langle  pw    \rangle \f$ | s25 |
+| 30 | \f$ \langle  p \frac{\partial u} {\partial x} \rangle \f$ | s26 |
+| 31 | \f$ \langle  p \frac{\partial u} {\partial y}\rangle \f$ | s27 |
+| 32 | \f$ \langle  p \frac{\partial u} {\partial z}\rangle \f$ | s28 |
+| 33 | \f$ \langle  p \frac{\partial v} {\partial x}\rangle \f$ | s29 |
+| 34 | \f$ \langle  p \frac{\partial v} {\partial y}\rangle \f$ | s30 |
+| 35 | \f$ \langle  p \frac{\partial v} {\partial z}\rangle \f$ | s31 |
+| 36 | \f$ \langle  p \frac{\partial w} {\partial x}\rangle \f$ | s32 |
+| 37 | \f$ \langle  p \frac{\partial w} {\partial y}\rangle \f$ | s33 |
+| 38 | \f$ \langle  p \frac{\partial w} {\partial z}\rangle \f$ | s34 |
+| 39 | \f$ \langle  e11   \rangle \f$ | s35 |
+| 40 | \f$ \langle  e22   \rangle \f$ | s36 |
+| 41 | \f$ \langle  e33   \rangle \f$ | s37 |
+| 42 | \f$ \langle  e12   \rangle \f$ | s38 |
+| 43 | \f$ \langle  e13   \rangle \f$ | s39 |
+| 44 | \f$ \langle  e23   \rangle \f$ | s40 |
 
 where \f$e11,e22...\f$ is computed as:
 $$
@@ -193,44 +193,44 @@ When only the basic set of stats is enabled, only stats 1-5 are computed.
 | 2 | \f$ \langle us \rangle \f$ | X-Velocity|
 | 3 | \f$ \langle vs \rangle \f$ | Y-Velocity|
 | 4 | \f$ \langle ws \rangle \f$ | Z-Velocity |
-| 5 | \f$ \langle ss \rangle \f$ | Temperature|
-| 6 | \f$ \langle sss \rangle \f$ | Scalar 1 (s1)|
-| 7 | \f$ \langle ssss \rangle \f$ | Scalar 2 (s2)|
-| 8 | \f$ \langle uss \rangle \f$ | s3|
-| 9 | \f$ \langle vss \rangle \f$ | s4|
-|10 | \f$ \langle wss \rangle \f$ | s5|
-| 11 | \f$ \langle uus \rangle \f$ | s6|
-| 12| \f$ \langle vvs \rangle \f$ | s7|
-| 13| \f$ \langle wws \rangle \f$ | s8|
-| 14 | \f$ \langle uvs \rangle \f$ | s9|
-| 15 | \f$ \langle  uws   \rangle \f$ | s10 |
-| 16 | \f$ \langle  vws   \rangle \f$ | s11 |
-| 17 | \f$ \langle  ps   \rangle \f$ | s12 |
-| 18 | \f$ \langle  p \frac{\partial s}{\partial x}  \rangle \f$ | s13 |
-| 19 | \f$ \langle  p \frac{\partial s}{\partial y}  \rangle \f$ | s14 |
-| 20 | \f$ \langle  p \frac{\partial s}{\partial z}  \rangle \f$ | s15 |
-| 21 | \f$ \langle  u \frac{\partial s}{\partial x}  \rangle \f$ | s16 |
-| 22 | \f$ \langle  u \frac{\partial s}{\partial y}  \rangle \f$ | s17 |
-| 23 | \f$ \langle  u \frac{\partial s}{\partial z}  \rangle \f$ | s18 |
-| 24 | \f$ \langle  v \frac{\partial s}{\partial x}  \rangle \f$ | s19 |
-| 25 | \f$ \langle  v \frac{\partial s}{\partial y}  \rangle \f$ | s20 |
-| 26 | \f$ \langle  v \frac{\partial s}{\partial z}  \rangle \f$ | s21 |
-| 27 | \f$ \langle  w \frac{\partial s}{\partial x}  \rangle \f$ | s22 |
-| 28 | \f$ \langle  w \frac{\partial s}{\partial y}  \rangle \f$ | s23 |
-| 29 | \f$ \langle  w \frac{\partial s}{\partial z}  \rangle \f$ | s24 |
-| 30 | \f$ \langle  s \frac{\partial u}{\partial x} \rangle \f$ | s25 |
-| 31 | \f$ \langle  s \frac{\partial u}{\partial y} \rangle \f$ | s26 |
-| 32 | \f$ \langle  s \frac{\partial u}{\partial z} \rangle \f$ | s27 |
-| 33 | \f$ \langle  s \frac{\partial v}{\partial x} \rangle \f$ | s28 |
-| 34 | \f$ \langle  s \frac{\partial v}{\partial x} \rangle \f$ | s29 |
-| 35 | \f$ \langle  s \frac{\partial v}{\partial x} \rangle \f$ | s30 |
-| 36 | \f$ \langle  s \frac{\partial w}{\partial x} \rangle \f$ | s31 |
-| 37 | \f$ \langle  s \frac{\partial w}{\partial x} \rangle \f$ | s32 |
-| 38 | \f$ \langle  s \frac{\partial w}{\partial x} \rangle \f$ | s33 |
-| 39 | \f$ \langle  e_{ss}   \rangle \f$ | s34 |
-| 40 | \f$ \langle  e_{us}   \rangle \f$ | s35 |
-| 41 | \f$ \langle  e_{vs}   \rangle \f$ | s36 |
-| 42 | \f$ \langle  e_{ws}   \rangle \f$ | s37 |
+| 5 | \f$ \langle ss \rangle \f$ | Scalar 1 (s1)|
+| 6 | \f$ \langle sss \rangle \f$ | Scalar 2 (s2)|
+| 7 | \f$ \langle ssss \rangle \f$ | s3|
+| 8 | \f$ \langle uss \rangle \f$ | s4|
+| 9 | \f$ \langle vss \rangle \f$ | s5|
+|10 | \f$ \langle wss \rangle \f$ | s6|
+| 11 | \f$ \langle uus \rangle \f$ | s7|
+| 12| \f$ \langle vvs \rangle \f$ | s8|
+| 13| \f$ \langle wws \rangle \f$ | s9|
+| 14 | \f$ \langle uvs \rangle \f$ | s10|
+| 15 | \f$ \langle  uws   \rangle \f$ | s11 |
+| 16 | \f$ \langle  vws   \rangle \f$ | s12 |
+| 17 | \f$ \langle  ps   \rangle \f$ | s13 |
+| 18 | \f$ \langle  p \frac{\partial s}{\partial x}  \rangle \f$ | s14 |
+| 19 | \f$ \langle  p \frac{\partial s}{\partial y}  \rangle \f$ | s15 |
+| 20 | \f$ \langle  p \frac{\partial s}{\partial z}  \rangle \f$ | s16 |
+| 21 | \f$ \langle  u \frac{\partial s}{\partial x}  \rangle \f$ | s17 |
+| 22 | \f$ \langle  u \frac{\partial s}{\partial y}  \rangle \f$ | s18 |
+| 23 | \f$ \langle  u \frac{\partial s}{\partial z}  \rangle \f$ | s19 |
+| 24 | \f$ \langle  v \frac{\partial s}{\partial x}  \rangle \f$ | s20 |
+| 25 | \f$ \langle  v \frac{\partial s}{\partial y}  \rangle \f$ | s21 |
+| 26 | \f$ \langle  v \frac{\partial s}{\partial z}  \rangle \f$ | s22 |
+| 27 | \f$ \langle  w \frac{\partial s}{\partial x}  \rangle \f$ | s23 |
+| 28 | \f$ \langle  w \frac{\partial s}{\partial y}  \rangle \f$ | s24 |
+| 29 | \f$ \langle  w \frac{\partial s}{\partial z}  \rangle \f$ | s25 |
+| 30 | \f$ \langle  s \frac{\partial u}{\partial x} \rangle \f$ | s26 |
+| 31 | \f$ \langle  s \frac{\partial u}{\partial y} \rangle \f$ | s27 |
+| 32 | \f$ \langle  s \frac{\partial u}{\partial z} \rangle \f$ | s28 |
+| 33 | \f$ \langle  s \frac{\partial v}{\partial x} \rangle \f$ | s29 |
+| 34 | \f$ \langle  s \frac{\partial v}{\partial x} \rangle \f$ | s30 |
+| 35 | \f$ \langle  s \frac{\partial v}{\partial x} \rangle \f$ | s31 |
+| 36 | \f$ \langle  s \frac{\partial w}{\partial x} \rangle \f$ | s32 |
+| 37 | \f$ \langle  s \frac{\partial w}{\partial x} \rangle \f$ | s33 |
+| 38 | \f$ \langle  s \frac{\partial w}{\partial x} \rangle \f$ | s34 |
+| 39 | \f$ \langle  e_{ss}   \rangle \f$ | s35 |
+| 40 | \f$ \langle  e_{us}   \rangle \f$ | s36 |
+| 41 | \f$ \langle  e_{vs}   \rangle \f$ | s37 |
+| 42 | \f$ \langle  e_{ws}   \rangle \f$ | s38 |
 
 where \f$e_{ss}, e_{us}, e_{vs}, e_{ws}\f$ are computed as:
 $$
