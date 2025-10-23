@@ -813,10 +813,6 @@ contains
     real(kind=rp) :: x, y, xmin1, delta_rise1, xmin2, delta_rise2
     integer :: i, imask
 
-    fringe => null(`, meaning that `u` will be in `sponge_bf_u`, etc. 
-This prefix can be changed by setting the parameter `bf_registry_prefix`.)
-    u => null()
-
     !
     ! 1. Add the "sponge_field" to the field registry.
     !    NOTE: The name of the fringe field in the registry
@@ -887,6 +883,9 @@ This prefix can be changed by setting the parameter `bf_registry_prefix`.)
 
     nullify(fringe)
     nullify(u)
+    nullify(ubf)
+    nullify(vbf)
+    nullify(wbf)
 
   end subroutine user_initialize
 
