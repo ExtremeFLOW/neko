@@ -195,9 +195,9 @@ contains
     ! Initialize mean fields
     call this%s_mean%init(this%s)
     
-    call this%vv%init(this%stats_work, 'us')
-    call this%vv%init(this%stats_work, 'vs')
-    call this%vv%init(this%stats_work, 'ws')
+    call this%us%init(this%stats_work, 'us')
+    call this%vs%init(this%stats_work, 'vs')
+    call this%ws%init(this%stats_work, 'ws')
 
     call this%ss%init(this%stats_ss, 'ss')
     call this%sss%init(this%stats_work, 'sss')
@@ -325,7 +325,8 @@ contains
     real(kind=rp), intent(in) :: k
     integer :: n
 
-    associate(stats_work => this%stats_work, stats_s => this%stats_s)
+    associate(stats_work => this%stats_work, stats_ss => this%stats_ss, &
+              stats_uiuj => this%stats_uiuj)
       n = stats_work%dof%size()
 
       !> U%f is u and U%mf is <u>
@@ -740,19 +741,6 @@ contains
        call this%eus%reset()
        call this%evs%reset()
        call this%ews%reset()
-
-       call this%dsdx%reset()
-       call this%dsdy%reset()
-       call this%dsdz%reset()
-       call this%dudx%reset()
-       call this%dudy%reset()
-       call this%dudz%reset()
-       call this%dvdx%reset()
-       call this%dvdy%reset()
-       call this%dvdz%reset()
-       call this%dwdx%reset()
-       call this%dwdy%reset()
-       call this%dwdz%reset()
     end if
 
   end subroutine scalar_stats_reset
