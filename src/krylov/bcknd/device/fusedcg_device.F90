@@ -313,6 +313,10 @@ contains
        end do
     end if
 
+    if (c_associated(this%p_d_d)) then
+       call device_free(this%p_d_d)
+    end if
+
     nullify(this%M)
 
     if (c_associated(this%gs_event)) then
