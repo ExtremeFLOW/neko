@@ -110,7 +110,7 @@ contains
          start_time, 0.0_rp)
     call json_get_or_default(json, 'set_of_stats', &
          stat_set, 'full')
-    call json_get_or_default(json, 'name', &
+    call json_get_or_default(json, 'field', &
          sname, 's')
 
     s => neko_field_registry%get_field_by_name(sname)

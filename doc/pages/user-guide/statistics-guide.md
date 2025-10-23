@@ -147,11 +147,11 @@ To further postprocess the statistics it is suggested to look into PyNekTools wh
 In the scalar statistics in Neko, various averages of a given scalar and the different velocity components, derivatives and pressure are computed, in a similar fashion to the fluid statistics. In total, 42 "raw statistics" are computed that are required to compute the mean scalar transport equation, skewness and kurtosis, as well as the scalar variance budget, and turbulent scalar flux budgets.
 
 ## Using statistics
-Similar to fluid statistics, scalar statistics are enabled in the case file as a simcomp with an additional argument `name` for the name of the scalar field to be averaged:
+Similar to fluid statistics, scalar statistics are enabled in the case file as a simcomp with an additional argument `field` for the name of the scalar field to be averaged:
 
 | Name                | Description                                                          | Admissible values | Default value |
 | ------------------- | -------------------------------------------------------------------- | ----------------- | ------------- |
-| `name`        | Name of the scalar field to be averaged                       | String  |  `s`        |
+| `field`        | Name of the scalar field to be averaged                       | String  |  `s`        |
 | `start_time`        | Time at which to start gathering statistics.                        | Positive real     | 0             |
 | `avg_direction`        | Directions to compute spatial average.                         | x,y,z,xy,xz,yz  |  No spatial average           |
 | `set_of_stats`        | What set of stats to compute.                         | basic, full  |  full         |
@@ -169,7 +169,7 @@ In addition, one can specify the usual controls for the output, in the same mann
   [
     {
       "type": "scalar_stats",
-      "name": "s",
+      "field": "s",
       "compute_control": "tsteps",
       "compute_value": 4,
       "output_control": "simulationtime",
