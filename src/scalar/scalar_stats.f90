@@ -172,7 +172,7 @@ contains
     call this%free()
     this%coef => coef
 
-    this%s => u
+    this%s => s
     this%u => u
     this%v => v
     this%w => w
