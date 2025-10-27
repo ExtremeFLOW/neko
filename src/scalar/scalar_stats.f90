@@ -494,35 +494,35 @@ contains
          call device_col3(stats_work%x_d, this%dwdz%x_d, this%s%x_d, n)
          call this%sdwdz%update(k)
 
-         call device_col3(this%stats_work%x_d, this%dsdx%x_d, &
+         call device_col3(stats_work%x_d, this%dsdx%x_d, &
               this%dsdx%x_d, n)
-         call device_addcol3(this%stats_work%x_d, this%dsdy%x_d, &
+         call device_addcol3(stats_work%x_d, this%dsdy%x_d, &
               this%dsdy%x_d, n)
-         call device_addcol3(this%stats_work%x_d, this%dsdz%x_d, &
+         call device_addcol3(stats_work%x_d, this%dsdz%x_d, &
               this%dsdz%x_d, n)
          call this%ess%update(k)
 
-         call device_col3(this%stats_work%x_d, this%dudx%x_d, &
+         call device_col3(stats_work%x_d, this%dudx%x_d, &
               this%dsdx%x_d, n)
-         call device_addcol3(this%stats_work%x_d, this%dudy%x_d, &
+         call device_addcol3(stats_work%x_d, this%dudy%x_d, &
               this%dsdy%x_d, n)
-         call device_addcol3(this%stats_work%x_d, this%dudz%x_d, &
+         call device_addcol3(stats_work%x_d, this%dudz%x_d, &
               this%dsdz%x_d, n)
          call this%eus%update(k)
 
-         call device_col3(this%stats_work%x_d, this%dvdx%x_d, &
+         call device_col3(stats_work%x_d, this%dvdx%x_d, &
               this%dsdx%x_d, n)
-         call device_addcol3(this%stats_work%x_d, this%dvdy%x_d, &
+         call device_addcol3(stats_work%x_d, this%dvdy%x_d, &
               this%dsdy%x_d, n)
-         call device_addcol3(this%stats_work%x_d, this%dvdz%x_d, &
+         call device_addcol3(stats_work%x_d, this%dvdz%x_d, &
               this%dsdz%x_d, n)
          call this%evs%update(k)
 
-         call device_col3(this%stats_work%x_d, this%dwdx%x_d, &
+         call device_col3(stats_work%x_d, this%dwdx%x_d, &
               this%dsdx%x_d, n)
-         call device_addcol3(this%stats_work%x_d, this%dwdy%x_d, &
+         call device_addcol3(stats_work%x_d, this%dwdy%x_d, &
               this%dsdy%x_d, n)
-         call device_addcol3(this%stats_work%x_d, this%dwdz%x_d, &
+         call device_addcol3(stats_work%x_d, this%dwdz%x_d, &
               this%dsdz%x_d, n)
          call this%ews%update(k)
 
@@ -577,35 +577,35 @@ contains
          call col3(stats_work%x, this%dwdz%x, this%s%x, n)
          call this%sdwdz%update(k)
 
-         call col3(this%stats_work%x, this%dsdx%x, &
+         call col3(stats_work%x, this%dsdx%x, &
               this%dsdx%x, n)
-         call addcol3(this%stats_work%x, this%dsdy%x, &
+         call addcol3(stats_work%x, this%dsdy%x, &
               this%dsdy%x, n)
-         call addcol3(this%stats_work%x, this%dsdz%x, &
+         call addcol3(stats_work%x, this%dsdz%x, &
               this%dsdz%x, n)
          call this%ess%update(k)
 
-         call col3(this%stats_work%x, this%dudx%x, &
+         call col3(stats_work%x, this%dudx%x, &
               this%dsdx%x, n)
-         call addcol3(this%stats_work%x, this%dudy%x, &
+         call addcol3(stats_work%x, this%dudy%x, &
               this%dsdy%x, n)
-         call addcol3(this%stats_work%x, this%dudz%x, &
+         call addcol3(stats_work%x, this%dudz%x, &
               this%dsdz%x, n)
          call this%eus%update(k)
 
-         call col3(this%stats_work%x, this%dvdx%x, &
+         call col3(stats_work%x, this%dvdx%x, &
               this%dsdx%x, n)
-         call addcol3(this%stats_work%x, this%dvdy%x, &
+         call addcol3(stats_work%x, this%dvdy%x, &
               this%dsdy%x, n)
-         call addcol3(this%stats_work%x, this%dvdz%x, &
+         call addcol3(stats_work%x, this%dvdz%x, &
               this%dsdz%x, n)
          call this%evs%update(k)
 
-         call col3(this%stats_work%x, this%dwdx%x, &
+         call col3(stats_work%x, this%dwdx%x, &
               this%dsdx%x, n)
-         call addcol3(this%stats_work%x, this%dwdy%x, &
+         call addcol3(stats_work%x, this%dwdy%x, &
               this%dsdy%x, n)
-         call addcol3(this%stats_work%x, this%dwdz%x, &
+         call addcol3(stats_work%x, this%dwdz%x, &
               this%dsdz%x, n)
          call this%ews%update(k)
 
