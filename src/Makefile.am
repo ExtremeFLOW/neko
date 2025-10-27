@@ -804,7 +804,8 @@ EXTRA_DIST = \
 
 
 if ENABLE_P4EST
-EXTRA_DIST += mesh/mesh_manager/p4est_wrapper.h
+EXTRA_DIST += mesh/mesh_manager/p4est_wrapper.h\
+	mesh/mesh_manager/amr.h
 endif
 
 # Expose the listed headers in the package

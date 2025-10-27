@@ -16,21 +16,16 @@
 #error "p4est_wrapper.h requires p4est.h or p8est.h"
 #endif
 
-/* Numbers designating the type and action for refinement  */
-#define AMR_RM_NONE    0  /* No refinement action */
-#define AMR_RM_H_REF   1  /* Refine by splitting element */
-#define AMR_RM_H_CRS  -1  /* Coarsen by merging element */
-#define AMR_RM_P_REF   2  /* Refine by rising polynomial order in element */
-#define AMR_RM_P_CRS  -2  /* Coarsen by lowering polynomial order in element */
-
 /** Data type for user variables; required by p4est */
 typedef struct user_data_s {
+  /* Mesh data initialised with p4est */
   int imsh; /**< velocity (0) and temperature (1) mesh indicator */
   int igrp; /**< element group */
   int crv[P4EST_FACES]; /**< curvature data; concerns external faces; requred
 			   by face projection */
   int bc[P4EST_FACES]; /**< boundary condition data; 0 internal, -1 periodic,
 			  otherwise external */
+  /* Data needed for refinement */
   int ref_mark; /**< integer to store refinement mark; definition should be
 		   given in .h */
   // to keep track of changes of Neko global element numbering and element
@@ -88,19 +83,16 @@ void wp4est_tree_valid(int * is_valid)
 
 /** Save tree to the file
  *
- * @param[in] save_data      if non zero save user data
  * @param[in] filename       file name
  */
-void wp4est_tree_save(int save_data, char filename[])
+void wp4est_tree_save(char filename[])
 ;
 
 /** Load tree from a file
  *
- * @param[in] fmpicomm            MPI communicator
- * @param[in] load_data           if non zero read user data
  * @param[in] filename            file name
  */
-void wp4est_tree_load(MPI_Fint fmpicomm, int load_data, char filename[])
+void wp4est_tree_load(char filename[])
 ;
 
 /** Build ghost layer */
@@ -138,16 +130,23 @@ void wp4est_lnodes_new(int degree)
 void wp4est_lnodes_del()
 ;
 
-/** Forest partitioning for p4est
- *
- * @param partforcoarsen   partitioning strategy:
- * 0 - equal element count
- * 1 - octants families prepared for coarsening
- */
-void wp4est_part(int partforcoarsen)
+/** Forest partitioning for p4est */
+void wp4est_part()
 ;
 
-/** Check boundary conditions for V- and T-type mesh
+/** Initialise p4est block with Neko mesh data
+ *
+ * @param[in] gidx   gobal element index
+ * @param[in] imsh   element mesh type
+ * @param[in] igrp   element group
+ * @param[in] crv    element face curvature flag
+ * @param[in] bc     element face boundary condition flag
+ */
+void wp4est_elm_ini_dat(int64_t * gidx, int * imsh, int * igrp, int * crv,
+		      int * bc)
+;
+
+/** Check consistency of boundary conditions for V- and T-type mesh
  */
 void wp4est_bc_check()
 ;
@@ -221,7 +220,7 @@ void wp4est_nds_get_vmap(int * vmap)
  * @details It includes approximate (linear elements) physical coordinates of
  *          the p4est block vertices
  *
- * @param[in]  gidx  gobal element index
+ * @param[out] gidx  gobal element index
  * @param[out] level element level
  * @param[out] igrp  element group
  * @param[out] crv   face projection flag

@@ -49,7 +49,8 @@
 #include <p8est_iterate.h>
 #endif
 
-#include "./p4est_wrapper.h"
+#include "mesh/mesh_manager/p4est_wrapper.h"
+#include "mesh/mesh_manager/amr.h"
 
 /* Global variables
  *  notice I use tree_neko->user_pointer to store ghost quadrants data
@@ -62,13 +63,14 @@ static p4est_nodes_t *nodes_neko = NULL; /**< vertex numbering structure */
 static p4est_lnodes_t *lnodes_neko = NULL; /**< GLL node numbering structure */
 static p4est_t *tree_neko_compare = NULL; /**< tree structure to perform
 					     comparison */
+/* MPI communicator*/
+static MPI_Comm mpicomm;
 
 /* Wrappers */
 /* initialise/finalise */
 void wp4est_init(MPI_Fint fmpicomm, int catch_signals, int print_backtrace,
 		 int log_threshold)
 {
-  MPI_Comm mpicomm;
   mpicomm = MPI_Comm_f2c(fmpicomm);
   sc_init (mpicomm, catch_signals, print_backtrace, NULL, log_threshold);
   p4est_init(NULL, log_threshold);
@@ -100,14 +102,14 @@ void wp4est_tree_valid(int * is_valid) {
   *is_valid = p4est_is_valid(tree_neko);
 }
 
-void wp4est_tree_save(int save_data, char filename[]) {
-  p4est_save_ext(filename, tree_neko, save_data,0);
+void wp4est_tree_save(char filename[]) {
+  p4est_save_ext(filename, tree_neko, 0, 0);
 }
 
-void wp4est_tree_load(MPI_Fint fmpicomm, int load_data, char filename[]) {
-  MPI_Comm mpicomm;
-  mpicomm = MPI_Comm_f2c(fmpicomm);
-  tree_neko = p4est_load_ext(filename, mpicomm, sizeof(user_data_t), load_data,
+void wp4est_tree_load(char filename[]) {
+  if (tree_neko) p4est_destroy(tree_neko);
+  if (connect_neko) p4est_connectivity_destroy(connect_neko);
+  tree_neko = p4est_load_ext(filename, mpicomm, sizeof(user_data_t), 0,
 			     1, 0, NULL, &connect_neko);
   tree_neko->user_pointer = NULL;
 }
@@ -162,12 +164,90 @@ void wp4est_lnodes_del() {
   lnodes_neko = NULL;
 }
 
-/* p4est internal load balance */
-void wp4est_part(int partforcoarsen) {
-  p4est_partition(tree_neko, partforcoarsen, NULL);
+/* p4est internal load balance*/
+/* quadrant families should not be split between ranks */
+void wp4est_part() {
+  p4est_partition(tree_neko, 1, NULL);
 }
 
-/** @brief Iterate over faces to correct Neko boundary conditions
+/* Routines to initialise p4est with specific mesh data.
+ * As p4est restart file does not include user mesh data, this has to be
+ * initialised before any refinement action would be performed. This is
+ * related to element, boundary condition and curvature type. The rest
+ * (refinement related data) will be filled in later.
+ */
+
+/* data type for initialisation of p4est mesh data */
+typedef struct initialise_data_s {
+  int64_t *gidx; /**< pointer to global element index array */
+  int *imsh; /**< pointer to element mesh gtype array */
+  int *igrp; /**< pointer to element group array */
+  int *crv; /**< pointer to face projection array */
+  int *bc; /**< pointer to boundary condition array */
+} initialise_data_t;
+
+/** @brief Iterate over element volumes to initialise p4est block data
+ *
+ * @details Required by wp4est_elm_ini_dat
+ *
+ * @param info
+ * @param user_data
+ */
+void iter_initv(p4est_iter_volume_info_t * info, void *user_data) {
+  user_data_t *data = (user_data_t *) info->quad->p.user_data;
+  initialise_data_t *init_data = (initialise_data_t *) user_data;
+
+  // which quad (local and global element number)
+  p4est_tree_t *tree;
+  p4est_locidx_t iwl;
+  p4est_gloidx_t iwg;
+  int iwli, il;
+
+  // get quad number
+  tree = p4est_tree_array_index(info->p4est->trees, info->treeid);
+  // local quad number
+  iwl = info->quadid + tree->quadrants_offset;
+  iwli = (int) iwl;
+  // global quad number
+  iwg = (p4est_gloidx_t)
+    info->p4est->global_first_quadrant[info->p4est->mpirank] + iwl;
+
+  // sanity check
+  if (init_data->gidx[iwli] != iwg + 1){
+    SC_ABORT("Wrong global element number; aborting: iter_initv\n");
+  }
+
+  // element type and group mark
+  data->imsh = init_data->imsh[iwli];
+  data->igrp = init_data->igrp[iwli];
+
+  // curvature and boundary data
+  for (il = 0; il < P4EST_FACES; il++) {
+    data->crv[il] = init_data->crv[iwli * P4EST_FACES + il];
+    data->bc[il] = init_data->bc[iwli * P4EST_FACES + il];
+  }
+}
+
+/* initialise element information */
+void wp4est_elm_ini_dat(int64_t * gidx, int * imsh, int * igrp, int * crv,
+		      int * bc) {
+  initialise_data_t initialise_data;
+
+  initialise_data.gidx = gidx;
+  initialise_data.imsh = imsh;
+  initialise_data.igrp = igrp;
+  initialise_data.crv = crv;
+  initialise_data.bc = bc;
+#ifdef P4_TO_P8
+  p4est_iterate(tree_neko, ghost_neko, (void *) & initialise_data, iter_initv,
+		NULL, NULL, NULL);
+#else
+  p4est_iterate(tree_neko, ghost_neko, (void *) & initialise_data, iter_initv,
+		NULL, NULL);
+#endif
+}
+
+/** @brief Iterate over faces to check Neko boundary conditions
  *
  * @details Required by wp4est_bc_check
  *
@@ -374,7 +454,7 @@ void iter_bc_chk(p4est_iter_face_info_t * info, void *user_data) {
 
 }
 
-/* Check boundary conditions */
+/* Check consistency of boundary conditions */
 void wp4est_bc_check() {
 #ifdef P4_TO_P8
   p4est_iterate(tree_neko, ghost_neko, NULL, NULL, iter_bc_chk, NULL, NULL);
@@ -424,10 +504,10 @@ void wp4est_msh_get_size(int * mdim, int64_t * nelgt, int64_t * nelgto,
   lmax[1] = 0;
 
 #ifdef P4_TO_P8
-  p4est_iterate(tree_neko, ghost_neko,(void *) &lmax, count_mshv,
+  p4est_iterate(tree_neko, ghost_neko, (void *) &lmax, count_mshv,
 		NULL, NULL, NULL);
 #else
-  p4est_iterate(tree_neko, ghost_neko,(void *) &lmax, count_mshv,
+  p4est_iterate(tree_neko, ghost_neko, (void *) &lmax, count_mshv,
 		NULL, NULL);
 #endif
 
@@ -469,13 +549,13 @@ void wp4est_nds_get_ind(int64_t * nglid, int * nown, double * ncoord) {
     // independent node offset
     const int oi = (int) nodes_neko->offset_owned_indeps;
     // loop over nodes owned by other mpi rank
-    for(il=0;il<oi;++il){
+    for(il = 0; il < oi; ++il){
       // extract node
-      node = (p4est_indep_t *) sc_array_index (indep_nodes,il);
+      node = (p4est_indep_t *) sc_array_index (indep_nodes, il);
       // get global id
       // conversion to fortran numbering
       id = (int64_t) node->p.piggy3.local_num + 1;
-      for(jl=0;jl<nodes_neko->nonlocal_ranks[il];++jl) {
+      for(jl = 0; jl < nodes_neko->nonlocal_ranks[il]; ++jl) {
 	id += (int64_t) nodes_neko->global_owned_indeps[jl];
       }
       nglid[il] = id;
@@ -489,19 +569,19 @@ void wp4est_nds_get_ind(int64_t * nglid, int * nown, double * ncoord) {
 #endif
 			      vxyz);
       // copy coordinates
-      for(jl=0;jl<N_DIM;++jl){
-	ncoord[il*N_DIM+jl] = vxyz[jl];
+      for(jl = 0; jl < N_DIM; ++jl){
+	ncoord[il * N_DIM + jl] = vxyz[jl];
       }
     }
     // loop over nodes owned by this mpi rank
     // local id offset
     id = (int64_t) 1; // conversion to fortran numbering
-    for(jl=0;jl<tree_neko->mpirank;++jl) {
+    for(jl = 0; jl < tree_neko->mpirank; ++jl) {
       id += (int64_t) nodes_neko->global_owned_indeps[jl];
     }
-    for(il=oi;il<ni;++il){
+    for(il = oi; il < ni; ++il){
       // extract node
-      node = (p4est_indep_t *) sc_array_index (indep_nodes,il);
+      node = (p4est_indep_t *) sc_array_index (indep_nodes, il);
       // get global id
       nglid[il] = id + (int64_t) node->p.piggy3.local_num;
       // node owner
@@ -514,8 +594,8 @@ void wp4est_nds_get_ind(int64_t * nglid, int * nown, double * ncoord) {
 #endif
 			      vxyz);
       // copy coordinates
-      for(jl=0;jl<N_DIM;++jl){
-	ncoord[il*N_DIM+jl] = vxyz[jl];
+      for(jl = 0; jl < N_DIM; ++jl){
+	ncoord[il * N_DIM + jl] = vxyz[jl];
       }
     }
   } else {
@@ -540,28 +620,28 @@ void wp4est_nds_get_hfc(int * depend, double * ncoord) {
     // numbers of local face hanging nodes
     const int ni = (int) nodes_neko->face_hangings.elem_count;
     // loop over nodes
-    for(il=0;il<ni;++il){
+    for(il = 0; il < ni; ++il){
       // extract node
 #ifdef P4_TO_P8
-      node = (p8est_hang4_t *) sc_array_index (nodes,il);
+      node = (p8est_hang4_t *) sc_array_index (nodes, il);
 #else
-      node = (p4est_hang2_t *) sc_array_index (nodes,il);
+      node = (p4est_hang2_t *) sc_array_index (nodes, il);
 #endif
       // get independent nodes mapping
       // conversion to fortran numbering
-      for(jl=0;jl<ndep;++jl){
-        depend[il*ndep+jl] = (int) node->p.piggy.depends[jl] +1;
+      for(jl = 0; jl < ndep; ++jl){
+	depend[il * ndep + jl] = (int) node->p.piggy.depends[jl] +1;
       }
       // get physical coordinates
       p4est_qcoord_to_vertex (connect_neko, node->p.piggy.which_tree,
-                              node->x, node->y,
+			      node->x, node->y,
 #ifdef P4_TO_P8
-                              node->z,
+			      node->z,
 #endif
-                              vxyz);
+			      vxyz);
       // copy coordinates
-      for(jl=0;jl<N_DIM;++jl){
-        ncoord[il*N_DIM+jl] = vxyz[jl];
+      for(jl = 0; jl < N_DIM; ++jl){
+	ncoord[il * N_DIM + jl] = vxyz[jl];
       }
     }
   }else {
@@ -583,20 +663,20 @@ void wp4est_nds_get_hed(int * depend, double * ncoord) {
     // numbers of local face hanging nodes
     const int ni = (int) nodes_neko->edge_hangings.elem_count;
     // loop over nodes
-    for(il=0;il<ni;++il){
+    for(il = 0; il < ni; ++il){
       // extract node
-      node = (p8est_hang2_t *) sc_array_index (nodes,il);
+      node = (p8est_hang2_t *) sc_array_index (nodes, il);
       // get independent nodes mapping
       // conversion to fortran numbering
-      for(jl=0;jl<ndep;++jl){
-        depend[il*ndep+jl] = (int) node->p.piggy.depends[jl] + 1;
+      for(jl = 0; jl < ndep; ++jl){
+	depend[il * ndep + jl] = (int) node->p.piggy.depends[jl] + 1;
       }
       // get physical coordinates
       p4est_qcoord_to_vertex (connect_neko, node->p.piggy.which_tree,
-                              node->x, node->y, node->z, vxyz);
+			      node->x, node->y, node->z, vxyz);
       // copy coordinates
-      for(jl=0;jl<N_DIM;++jl){
-        ncoord[il*N_DIM+jl] = vxyz[jl];
+      for(jl = 0; jl < N_DIM; ++jl){
+	ncoord[il * N_DIM + jl] = vxyz[jl];
       }
     }
   }else {
@@ -677,8 +757,8 @@ void iter_datav(p4est_iter_volume_info_t * info, void *user_data) {
 
   // curvature and boundary data
   for (il = 0; il < P4EST_FACES; il++) {
-    trans_data->crv[iwli*P4EST_FACES+il] = data->crv[il];
-    trans_data->bc[iwli*P4EST_FACES+il] = data->bc[il];
+    trans_data->crv[iwli * P4EST_FACES + il] = data->crv[il];
+    trans_data->bc[iwli * P4EST_FACES + il] = data->bc[il];
   }
 
   // get corner coordinates
@@ -691,8 +771,8 @@ void iter_datav(p4est_iter_volume_info_t * info, void *user_data) {
 #endif
 			    vxyz);
     // copy coordinates
-    for(jl=0;jl<N_DIM;++jl){
-      trans_data->coord[(iwli*P4EST_CHILDREN+il)*N_DIM+jl] = vxyz[jl];
+    for(jl= 0 ; jl < N_DIM; ++jl){
+      trans_data->coord[(iwli * P4EST_CHILDREN + il) * N_DIM + jl] = vxyz[jl];
     }
   }
 }
@@ -732,19 +812,19 @@ void iter_algf(p4est_iter_face_info_t * info, void *user_data) {
     iref = nside +1;
   } else {
     /* 2 sides; find permutation set */
-    if (face[0]<face[1]) {
+    if (face[0] < face[1]) {
       iref = 0;
 #ifdef P4_TO_P8
-      pref = p8est_face_permutation_refs[face[0]][face[1]];
-      pset = p8est_face_permutation_sets[pref][orient];
+      pref = p8est_face_permutation_refs[face[0]] [face[1]];
+      pset = p8est_face_permutation_sets[pref] [orient];
 #else
       pset = orient;
 #endif
     } else {
       iref = 1;
 #ifdef P4_TO_P8
-      pref = p8est_face_permutation_refs[face[1]][face[0]];
-      pset = p8est_face_permutation_sets[pref][orient];
+      pref = p8est_face_permutation_refs[face[1]] [face[0]];
+      pset = p8est_face_permutation_sets[pref] [orient];
 #else
       pset = orient;
 #endif
@@ -767,7 +847,7 @@ void iter_algf(p4est_iter_face_info_t * info, void *user_data) {
 	  // local quad number
 	  iwl =  side->is.hanging.quadid[jl] + tree->quadrants_offset;
 	  iwlt = (int) iwl;
-	  iwlt = iwlt*P4EST_FACES + (int) side->face;
+	  iwlt = iwlt * P4EST_FACES + (int) side->face;
 	  trans_data->falg[iwlt] = orient;
 	}
       }
@@ -778,7 +858,7 @@ void iter_algf(p4est_iter_face_info_t * info, void *user_data) {
 	// local quad number
 	iwl =  side->is.full.quadid + tree->quadrants_offset;
 	iwlt = (int) iwl;
-	iwlt = iwlt*P4EST_FACES + (int) side->face;
+	iwlt = iwlt * P4EST_FACES + (int) side->face;
 	trans_data->falg[iwlt] = orient;
       }
     }
@@ -820,7 +900,7 @@ void wp4est_elm_get_lnode(int * lnnum, int * lnown, int64_t * lnoff,
     *lnown = (int) owned;
     *lnoff = (int64_t) offset;
     // conversion to fortran numbering
-    for (il = 0; il < lnodes_neko->num_local_elements*vnd; ++il) {
+    for (il = 0; il < lnodes_neko->num_local_elements * vnd; ++il) {
       lnodes[il] = (int) lnodes_neko->element_nodes[il] + 1;
     }
   } else {
@@ -838,8 +918,8 @@ void wp4est_sharers_get_size(int * nrank, int * nshare) {
     sc_array_t  *sharers = lnodes_neko->sharers;
     jl = 0;
     // loop over mpi rank sharing the node
-    for(il=0;il < lnodes_neko->sharers->elem_count;++il){
-      lnode = (p4est_lnodes_rank_t *) sc_array_index (sharers,il);
+    for(il = 0; il < lnodes_neko->sharers->elem_count; ++il){
+      lnode = (p4est_lnodes_rank_t *) sc_array_index (sharers, il);
       // number of nodes shared with given rank
       jl += (int) lnode->shared_nodes.elem_count;
       /*      printf("Sharers: %i %i %i %i %i %i %i %i\n",
@@ -872,20 +952,21 @@ void wp4est_sharers_get_ind(int64_t * nglid, int * lrank, int * loff,
     // local not owned
     // conversion to fortran numbering
     for (il = owned; il < local ; ++il) {
-      nglid[il] = (p4est_gloidx_t) 1 + lnodes_neko->nonlocal_nodes[il-owned];
+      nglid[il] = (p4est_gloidx_t) 1 + lnodes_neko->nonlocal_nodes[il - owned];
     }
     // get node sharing info
     sc_array_t  *sharers = lnodes_neko->sharers;
-    // loop over mpi rankssharing the node
+    // loop over mpi ranks sharing the node
     loff[0] = 1;
-    for(il=0;il < lnodes_neko->sharers->elem_count;++il){
-      lnode = (p4est_lnodes_rank_t *) sc_array_index (sharers,il);
+    for(il = 0; il < lnodes_neko->sharers->elem_count; ++il){
+      lnode = (p4est_lnodes_rank_t *) sc_array_index (sharers, il);
       lrank[il] = (int) lnode->rank;
       loff[il+1] = loff[il] + (int) lnode->shared_nodes.elem_count;
       sc_array_t  *node_list = &(lnode->shared_nodes);
-      for(jl=0;jl < lnode->shared_nodes.elem_count;++jl){
-	snode = (p4est_locidx_t *) sc_array_index(node_list,jl);
-	lshare[loff[il]-1+jl] = 1 + *snode; // conversion to fortran numbering
+      for(jl = 0; jl < lnode->shared_nodes.elem_count; ++jl){
+	snode = (p4est_locidx_t *) sc_array_index(node_list, jl);
+	// conversion to fortran numbering
+	lshare[loff[il] - 1 + jl] = 1 + *snode;
       }
     }
   } else {
@@ -922,8 +1003,8 @@ void wp4est_hang_get_info(int * hang_elm, int * hang_fsc, int * hang_edg) {
 #else
       hang_elm[il] = p4est_lnodes_decode(lnodes_neko->face_code[il],
 					 hanging_face);
-      for (jl=0;jl<P4EST_FACES;++jl) {
-	hang_fsc[il*P4EST_FACES +jl] = hanging_face[jl];
+      for (jl = 0; jl < P4EST_FACES; ++jl) {
+	hang_fsc[il * P4EST_FACES + jl] = hanging_face[jl];
       }
 #endif
     }
@@ -1029,7 +1110,7 @@ int crs_mark_f (p4est_t * p4est, p4est_topidx_t which_tree,
 
   /* check if all the children are coarsened */
   iwt = 1;
-  for(id=0;id<P4EST_CHILDREN;++id){
+  for(id = 0; id < P4EST_CHILDREN; ++id){
     /* get refinement mark */
     data = (user_data_t *) quadrants[id]->p.user_data;
     if (data->ref_mark != AMR_RM_H_CRS) {
@@ -1067,14 +1148,14 @@ void  quad_replace (p4est_t * p4est, p4est_topidx_t which_tree,
     /* this is coarsening; I assume coarsening is not performed at balancing
      * stage and there are no recursive coarsening */
     /* get child id */
-    for(id=0;id<P4EST_CHILDREN;id++){
+    for(id = 0; id < P4EST_CHILDREN; id++){
       id_ch[id] = p4est_quadrant_child_id (outgoing[id]);
     }
 
     /* check consistency of refinement history; no previous actions on
        children*/
     ic = 0;
-    for(id=0;id<P4EST_CHILDREN;id++){
+    for(id = 0; id < P4EST_CHILDREN; id++){
       child = (user_data_t *) outgoing[id]->p.user_data;
       if (child->parent_gln != -1 || child->el_gln == -1) ic = 1;
     }
@@ -1103,21 +1184,21 @@ void  quad_replace (p4est_t * p4est, p4est_topidx_t which_tree,
     /* reset refine mark */
     parent->ref_mark = AMR_RM_NONE;
 
-    for(id=0;id<P4EST_CHILDREN;id++){
+    for(id = 0; id < P4EST_CHILDREN; id++){
       child = (user_data_t *) outgoing[id]->p.user_data;
       if (id_ch[id] == 0) {
 	/* first element; copy element type data */
 	parent->imsh = child->imsh;
 	parent->igrp = child->igrp;
 	/* copy faces 0, 2 and 4 */
-	for(il=0;il<P4EST_FACES;il=il+2){
+	for(il = 0; il < P4EST_FACES; il = il + 2){
 	  /* curvature and boundary flag */
 	  parent->crv[il] = child->crv[il];
 	  parent->bc[il] = child->bc[il];
 	}
-      } else if(id_ch[id] == (P4EST_CHILDREN-1)) {
+      } else if(id_ch[id] == (P4EST_CHILDREN - 1)) {
 	/* last element; copy faces 1, 3 and 5 */
-	for(il=1;il<P4EST_FACES;il=il+2){
+	for(il = 1; il < P4EST_FACES; il = il + 2){
 	  /* curvature and boundary flag */
 	  parent->crv[il] = child->crv[il];
 	  parent->bc[il] = child->bc[il];
@@ -1132,13 +1213,13 @@ void  quad_replace (p4est_t * p4est, p4est_topidx_t which_tree,
 #ifdef DEBUG
     /* for testing */
     user_data_t * child0, * child1;
-    for(id=0;id<P4EST_CHILDREN;++id){
+    for(id = 0; id < P4EST_CHILDREN; ++id){
       child = (user_data_t *) outgoing[id]->p.user_data;
       printf("crs chidlren %i %i %i\n",parent->children_gln[id_ch[id]],
-	     parent->children_ln[id_ch[id]],parent->children_nid[id_ch[id]]);
+	     parent->children_ln[id_ch[id]], parent->children_nid[id_ch[id]]);
       if (id_ch[id] == 0)
 	child0 = (user_data_t *) outgoing[id]->p.user_data;
-      if (id_ch[id] == (P4EST_CHILDREN-1))
+      if (id_ch[id] == (P4EST_CHILDREN - 1))
 	child1 = (user_data_t *) outgoing[id]->p.user_data;
     }
     printf("crs parent gln %i %i %i %i\n", parent->children_gln[0],
@@ -1150,11 +1231,11 @@ void  quad_replace (p4est_t * p4est, p4est_topidx_t which_tree,
     printf("crs parent nid %i %i %i %i\n", parent->children_nid[0],
 	   parent->children_nid[1], parent->children_nid[2],
 	   parent->children_nid[3]);
-    for(il=0;il<P4EST_FACES;++il){
+    for(il = 0; il < P4EST_FACES; ++il){
       printf("crs CRV BC %i %i %i %i %i %i %i \n",il,
-	     parent->crv[il],parent->bc[il],
-	     child0->crv[il],child0->bc[il],
-	     child1->crv[il],child1->bc[il]);
+	     parent->crv[il], parent->bc[il],
+	     child0->crv[il], child0->bc[il],
+	     child1->crv[il], child1->bc[il]);
     }
 #endif
 
@@ -1164,7 +1245,7 @@ void  quad_replace (p4est_t * p4est, p4est_topidx_t which_tree,
      * possibility of refining the previously coarsened element and I have to
      * keep track of refinement history */
     /* get child id */
-    for(id=0;id<P4EST_CHILDREN;id++){
+    for(id = 0; id < P4EST_CHILDREN; id++){
       id_ch[id] = p4est_quadrant_child_id (incoming[id]);
     }
 
@@ -1175,11 +1256,11 @@ void  quad_replace (p4est_t * p4est, p4est_topidx_t which_tree,
       SC_ABORT("Recursive refinement; aborting: quad_replace; refine\n");
     }
     ic = -1;
-    for (il=0; il < P4EST_CHILDREN; il++) {
+    for (il = 0; il < P4EST_CHILDREN; il++) {
       if(parent->children_gln[il] != -1) ic = 1;
     }
 
-    for (id=0;id<P4EST_CHILDREN;++id){
+    for (id = 0; id < P4EST_CHILDREN; ++id){
       child = (user_data_t *) incoming[id]->p.user_data;
       /* copy data from the parent (filled in refine_fn) */
       child->imsh = parent->imsh;
@@ -1206,7 +1287,7 @@ void  quad_replace (p4est_t * p4est, p4est_topidx_t which_tree,
 	child->el_nid = -1;
 
 	/* reset coarsening data */
-	for(il=0;il<P4EST_CHILDREN;++il){
+	for(il = 0; il < P4EST_CHILDREN; ++il){
 	  child->children_gln[il] = -1;
 	  child->children_ln[il] = -1;
 	  child->children_nid[il] = -1;
@@ -1225,7 +1306,7 @@ void  quad_replace (p4est_t * p4est, p4est_topidx_t which_tree,
 	child->el_nid = parent->children_nid[id_ch[id]];
 
 	/* reset children data */
-	for(il=0;il<P4EST_CHILDREN;++il){
+	for(il = 0; il < P4EST_CHILDREN; ++il){
 	  child->children_gln[il] = -1;
 	  child->children_ln[il] = -1;
 	  child->children_nid[il] = -1;
@@ -1236,7 +1317,7 @@ void  quad_replace (p4est_t * p4est, p4est_topidx_t which_tree,
       }
 
       /* go across all faces */
-      for(il=0;il<P4EST_FACES;++il){
+      for(il = 0; il < P4EST_FACES; ++il){
 	/* test if the face is an external one
 	 * (with respect to tree, not the mesh)
 	 * find face neighbour
@@ -1258,10 +1339,10 @@ void  quad_replace (p4est_t * p4est, p4est_topidx_t which_tree,
       }
 #ifdef DEBUG
       /*for testing */
-      printf("ref %i %i\n",child->el_gln,child->parent_gln);
-      for(il=0;il<P4EST_FACES;++il){
-	printf("BC %i %i %i %i %i \n",il,child->crv[il],child->bc[il],
-	       parent->crv[il],parent->bc[il]);
+      printf("ref %i %i\n", child->el_gln, child->parent_gln);
+      for(il = 0; il < P4EST_FACES; ++il){
+	printf("BC %i %i %i %i %i \n", il, child->crv[il], child->bc[il],
+	       parent->crv[il], parent->bc[il]);
       }
 #endif
     }
@@ -1343,10 +1424,10 @@ void iter_refm(p4est_iter_volume_info_t * info, void *user_data) {
 /* fill ref_mark in p4est block */
 void wp4est_refm_put(int * ref_mark) {
 #ifdef P4_TO_P8
-  p4est_iterate(tree_neko, ghost_neko,(void *) ref_mark, iter_refm,
+  p4est_iterate(tree_neko, ghost_neko, (void *) ref_mark, iter_refm,
 		NULL, NULL, NULL);
 #else
-  p4est_iterate(tree_neko, ghost_neko,(void *) ref_mark, iter_refm,
+  p4est_iterate(tree_neko, ghost_neko, (void *) ref_mark, iter_refm,
 		NULL, NULL);
 #endif
 }
@@ -1409,10 +1490,10 @@ void wp4est_egmap_put(int * el_gnum,int * el_lnum,int * el_nid) {
   el_map.lnum = el_lnum;
   el_map.nid = el_nid;
 #ifdef P4_TO_P8
-  p4est_iterate(tree_neko, ghost_neko,(void *) &el_map, iter_emap,
+  p4est_iterate(tree_neko, ghost_neko, (void *) &el_map, iter_emap,
 		NULL, NULL, NULL);
 #else
-  p4est_iterate(tree_neko, ghost_neko,(void *) &el_map, iter_emap,
+  p4est_iterate(tree_neko, ghost_neko, (void *) &el_map, iter_emap,
 		NULL, NULL);
 #endif
 }
@@ -1456,7 +1537,7 @@ void iter_msh_hst(p4est_iter_volume_info_t * info, void *user_data) {
 
   // check refinement status
   ic = -1;
-  for (il=0; il < P4EST_CHILDREN; il++) {
+  for (il = 0; il < P4EST_CHILDREN; il++) {
     if(data->children_gln[il] != -1) ic = 1;
   }
 
@@ -1465,48 +1546,48 @@ void iter_msh_hst(p4est_iter_volume_info_t * info, void *user_data) {
     // count elements
     trans_data->map_nr = trans_data->map_nr + 1;
     // set old element position
-    trans_data->elgl_map[3*iwlt] = data->el_gln + 1;
-    trans_data->elgl_map[3*iwlt+1] = data->el_ln;
-    trans_data->elgl_map[3*iwlt+2] = data->el_nid;
+    trans_data->elgl_map[3 * iwlt] = data->el_gln + 1;
+    trans_data->elgl_map[3 * iwlt + 1] = data->el_ln;
+    trans_data->elgl_map[3 * iwlt + 2] = data->el_nid;
   } else if (data->parent_gln != -1) {
     // refinement
     // count elements
     trans_data->rfn_nr = trans_data->rfn_nr + 1;
     // set dummy element map
-    trans_data->elgl_map[3*iwlt] = 0;
-    trans_data->elgl_map[3*iwlt+1] = 0;
-    trans_data->elgl_map[3*iwlt+2] = 0;
-    ic = (trans_data->rfn_nr-1)*5;
+    trans_data->elgl_map[3 * iwlt] = 0;
+    trans_data->elgl_map[3 * iwlt + 1] = 0;
+    trans_data->elgl_map[3 * iwlt + 2] = 0;
+    ic = (trans_data->rfn_nr - 1) * 5;
     // current global element number
     trans_data->elgl_rfn[ic] = iwg + 1;
     // old parent element position
-    trans_data->elgl_rfn[ic +1] = data->parent_gln + 1;
-    trans_data->elgl_rfn[ic +2] = data->parent_ln;
-    trans_data->elgl_rfn[ic +3] = data->parent_nid;
+    trans_data->elgl_rfn[ic + 1] = data->parent_gln + 1;
+    trans_data->elgl_rfn[ic + 2] = data->parent_ln;
+    trans_data->elgl_rfn[ic + 3] = data->parent_nid;
     // child position; numbered 0,..,P4EST_CHILDREN-1
-    trans_data->elgl_rfn[ic +4] = data->el_gln;
+    trans_data->elgl_rfn[ic + 4] = data->el_gln;
   } else {
     // coarsening
     // count elements
     trans_data->crs_nr = trans_data->crs_nr + 1;
     // set dummy element map
-    trans_data->elgl_map[3*iwlt] = 0;
-    trans_data->elgl_map[3*iwlt+1] = 0;
-    trans_data->elgl_map[3*iwlt+2] = 0;
+    trans_data->elgl_map[3 * iwlt] = 0;
+    trans_data->elgl_map[3 * iwlt + 1] = 0;
+    trans_data->elgl_map[3 * iwlt + 2] = 0;
     // new global position
-    ic =(trans_data->crs_nr - 1)*4*P4EST_CHILDREN;
+    ic =(trans_data->crs_nr - 1) * 4 * P4EST_CHILDREN;
     trans_data->elgl_crs[ic] = iwg + 1;
     // old global position
-    trans_data->elgl_crs[ic+1] = data->children_gln[0] + 1;
-    trans_data->elgl_crs[ic+2] = data->children_ln[0];
-    trans_data->elgl_crs[ic+3] = data->children_nid[0];
+    trans_data->elgl_crs[ic + 1] = data->children_gln[0] + 1;
+    trans_data->elgl_crs[ic + 2] = data->children_ln[0];
+    trans_data->elgl_crs[ic + 3] = data->children_nid[0];
     for (il = 1; il < P4EST_CHILDREN; il++) {
       // new dummy global position
-      trans_data->elgl_crs[ic+il*4] = 0;
+      trans_data->elgl_crs[ic + il * 4] = 0;
       // old global position
-      trans_data->elgl_crs[ic+il*4+1] = data->children_gln[il] + 1;
-      trans_data->elgl_crs[ic+il*4+2] = data->children_ln[il];
-      trans_data->elgl_crs[ic+il*4+3] = data->children_nid[il];
+      trans_data->elgl_crs[ic + il * 4 + 1] = data->children_gln[il] + 1;
+      trans_data->elgl_crs[ic + il * 4 + 2] = data->children_ln[il];
+      trans_data->elgl_crs[ic + il * 4 + 3] = data->children_nid[il];
     }
   }
 }
@@ -1522,10 +1603,10 @@ void wp4est_msh_get_hst(int * map_nr, int * rfn_nr, int * crs_nr, int *elgl_map,
   transfer_data.elgl_rfn = elgl_rfn;
   transfer_data.elgl_crs = elgl_crs;
 #ifdef P4_TO_P8
-  p4est_iterate(tree_neko, ghost_neko,(void *) &transfer_data, iter_msh_hst,
+  p4est_iterate(tree_neko, ghost_neko, (void *) &transfer_data, iter_msh_hst,
 		NULL, NULL, NULL);
 #else
-  p4est_iterate(tree_neko, ghost_neko,(void *) &transfer_data, iter_msh_hst,
+  p4est_iterate(tree_neko, ghost_neko, (void *) &transfer_data, iter_msh_hst,
 		NULL, NULL);
 #endif
   *map_nr = transfer_data.map_nr;
