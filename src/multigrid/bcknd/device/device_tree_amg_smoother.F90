@@ -35,6 +35,7 @@ module device_tree_amg_smoother
   use num_types, only : rp, c_rp
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int, c_bool
   use device, only : glb_cmd_queue
+  use utils, only : neko_error
   implicit none
   private
 
