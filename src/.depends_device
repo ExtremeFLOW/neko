@@ -39,6 +39,7 @@ les/bcknd/device/hip/smagorinsky_nut.lo : les/bcknd/device/hip/smagorinsky_nut.h
 les/bcknd/device/hip/vreman_nut.lo : les/bcknd/device/hip/vreman_nut.hip les/bcknd/device/hip/vreman_nut_kernel.h
 les/bcknd/device/hip/sigma_nut.lo : les/bcknd/device/hip/sigma_nut.hip les/bcknd/device/hip/sigma_nut_kernel.h
 les/bcknd/device/hip/wale_nut.lo : les/bcknd/device/hip/wale_nut.hip les/bcknd/device/hip/wale_nut_kernel.h
+multigrid/bcknd/device/hip/amg_cheby.lo : multigrid/bcknd/device/hip/amg_cheby.hip
 comm/bcknd/device/cuda/nvshmem.lo : comm/bcknd/device/cuda/nvshmem.cu comm/comm.h
 device/cuda/check.lo : device/cuda/check.cu device/cuda/check.h
 math/bcknd/device/cuda/math.lo : math/bcknd/device/cuda/math.cu math/bcknd/device/cuda/math_kernel.h

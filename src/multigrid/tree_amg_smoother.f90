@@ -45,6 +45,7 @@ module tree_amg_smoother
   use gather_scatter, only : gs_t, GS_OP_ADD
   use logger, only : neko_log, LOG_SIZE
   use device, only: device_map, device_free, device_memcpy, HOST_TO_DEVICE
+  use device_tree_amg_smoother, only : amg_device_cheby_solve_part2
   use neko_config, only: NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding
   implicit none
@@ -341,15 +342,14 @@ contains
       ! Rest of iterations
       do iter = 2, max_iter
          call amg%device_matvec(this%w, this%d, w_d, d_d, this%lvl)
-         call device_sub2(r_d, w_d, n)
 
          rhokp1 = 1.0_rp / (2.0_rp * s1 - rhok)
          tmp1 = rhokp1 * rhok
          tmp2 = 2.0_rp * rhokp1 / delt
          rhok = rhokp1
 
-         call device_add3s2(d_d, d_d, r_d, tmp1, tmp2, n)
-         call device_add2(x_d, d_d, n)
+         call amg_device_cheby_solve_part2(r_d, w_d, d_d, x_d, tmp1, tmp2, n)
+
       end do
     end associate
   end subroutine amg_device_cheby_solve

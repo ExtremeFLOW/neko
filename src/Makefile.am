@@ -129,6 +129,7 @@ neko_fortran_SOURCES = \
 	multigrid/tree_amg_aggregate.f90\
 	multigrid/tree_amg_multigrid.f90\
 	multigrid/tree_amg_smoother.f90\
+	multigrid/bcknd/device/device_tree_amg_smoother.F90\
 	multigrid/phmg.f90\
 	common/checkpoint.f90\
 	io/generic_file.f90\
@@ -457,10 +458,11 @@ libneko_la_SOURCES += \
 	les/bcknd/device/hip/vreman_nut.hip\
 	les/bcknd/device/hip/smagorinsky_nut.hip\
 	les/bcknd/device/hip/dynamic_smagorinsky_nut.hip\
-  les/bcknd/device/hip/wale_nut.hip\
+	les/bcknd/device/hip/wale_nut.hip\
 	wall_models/bcknd/device/hip/wall_model.hip\
 	wall_models/bcknd/device/hip/spalding.hip\
-	wall_models/bcknd/device/hip/rough_log_law.hip
+	wall_models/bcknd/device/hip/rough_log_law.hip\
+	multigrid/bcknd/device/hip/amg_cheby.hip
 endif
 
 if ENABLE_CUDA
