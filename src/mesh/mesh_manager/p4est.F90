@@ -38,6 +38,16 @@ module p4est
 
   private
 
+  ! Neko is 3D only
+#define N_DIM 3
+#if N_DIM == 2
+#undef P4_TO_P8
+#else
+#define P4_TO_P8
+#endif
+  ! refinement flag definition
+#include "mesh/mesh_manager/amr.h"
+
   ! connectivity parameter arrays
   ! face vertices
   integer, parameter, dimension(4,6) :: p4_vface = reshape(&
@@ -97,6 +107,30 @@ module p4est
        integer(c_int), value :: log_priority
      end subroutine wp4est_finalize
 
+#ifdef P4_TO_P8
+     subroutine wp4est_cnn_new(num_vertices, num_trees, num_edges, num_corners,&
+          vertices, tree_to_vertex, tree_to_tree, tree_to_face, tree_to_edge,&
+          ett_offset, edge_to_tree, edge_to_edge, tree_to_corner, ctt_offset,&
+          corner_to_tree, corner_to_corner) bind(c, name = 'wp4est_cnn_new')
+       USE, INTRINSIC :: ISO_C_BINDING
+       integer(c_int) :: num_vertices, num_trees, num_edges, num_corners
+       type(c_ptr), value :: vertices, tree_to_vertex, tree_to_tree, &
+            tree_to_face, tree_to_edge, ett_offset, edge_to_tree, edge_to_edge,&
+            tree_to_corner, ctt_offset, corner_to_tree, corner_to_corner
+     end subroutine wp4est_cnn_new
+#else
+     subroutine wp4est_cnn_new(num_vertices, num_trees, num_corners,&
+          vertices, tree_to_vertex, tree_to_tree, tree_to_face, tree_to_corner,&
+          ctt_offset,  corner_to_tree, corner_to_corner) &
+          bind(c, name = 'wp4est_cnn_new')
+       USE, INTRINSIC :: ISO_C_BINDING
+       integer(c_int) :: num_vertices, num_trees, num_corners
+       type(c_ptr), value :: vertices, tree_to_vertex, tree_to_tree, &
+            tree_to_face, tree_to_corner, ctt_offset, corner_to_tree,&
+            corner_to_corner
+     end subroutine wp4est_cnn_new
+#endif
+
      subroutine wp4est_cnn_del() bind(c, name = 'wp4est_cnn_del')
        USE, INTRINSIC :: ISO_C_BINDING
      end subroutine wp4est_cnn_del
@@ -105,6 +139,32 @@ module p4est
        USE, INTRINSIC :: ISO_C_BINDING
        integer(c_int) :: is_valid
      end subroutine wp4est_cnn_valid
+
+     subroutine wp4est_cnn_attr(enable_tree_attr) &
+          bind(c, name = 'wp4est_cnn_attr')
+       USE, INTRINSIC :: ISO_C_BINDING
+       integer(c_int) :: enable_tree_attr
+     end subroutine wp4est_cnn_attr
+
+     subroutine wp4est_cnn_complete() bind(c, name = 'wp4est_cnn_complete')
+       USE, INTRINSIC :: ISO_C_BINDING
+     end subroutine wp4est_cnn_complete
+
+     subroutine wp4est_cnn_save(filename) &
+          bind(c, name = 'wp4est_cnn_save')
+       USE, INTRINSIC :: ISO_C_BINDING
+       character(kind=c_char), dimension(*) :: filename
+     end subroutine wp4est_cnn_save
+
+     subroutine wp4est_cnn_load(filename) &
+          bind(c, name = 'wp4est_cnn_load')
+       USE, INTRINSIC :: ISO_C_BINDING
+       character(kind=c_char), dimension(*) :: filename
+     end subroutine wp4est_cnn_load
+
+     subroutine wp4est_tree_new() bind(c, name = 'wp4est_tree_new')
+       USE, INTRINSIC :: ISO_C_BINDING
+     end subroutine wp4est_tree_new
 
      subroutine wp4est_tree_del() bind(c, name = 'wp4est_tree_del')
        USE, INTRINSIC :: ISO_C_BINDING
@@ -299,6 +359,12 @@ module p4est
        integer(c_int) :: map_nr, rfn_nr, crs_nr
        type(c_ptr), value :: elgl_map, elgl_rfn, elgl_crs
      end subroutine wp4est_msh_get_hst
+
+     subroutine wp4est_vtk_write(filename) &
+          bind(c, name = 'wp4est_vtk_write')
+       USE, INTRINSIC :: ISO_C_BINDING
+       character(kind=c_char), dimension(*) :: filename
+     end subroutine wp4est_vtk_write
 
   end interface
 

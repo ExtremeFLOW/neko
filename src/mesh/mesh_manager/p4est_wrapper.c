@@ -2,7 +2,7 @@
  * p4est_wrapper.c
  * Wrapper for p4est and sc libraries.
  *
- *  Created on: Aug 19, 2022
+ *  Created on: October 20, 2025
  *  Author: Adam Peplinski
  */
 
@@ -49,8 +49,8 @@
 #include <p8est_iterate.h>
 #endif
 
-#include "mesh/mesh_manager/p4est_wrapper.h"
 #include "mesh/mesh_manager/amr.h"
+#include "mesh/mesh_manager/p4est_wrapper.h"
 
 /* Global variables
  *  notice I use tree_neko->user_pointer to store ghost quadrants data
@@ -82,7 +82,42 @@ void wp4est_finalize(int log_priority)
   sc_finalize ();
 }
 
-/* Connectivity; only required routines */
+/* Connectivity */
+#ifdef P4_TO_P8
+void wp4est_cnn_new(int * num_vertices, int * num_trees, int * num_edges,
+		    int * num_corners, double *vertices, int * tree_to_vertex,
+		    int * tree_to_tree, int8_t * tree_to_face,
+		    int * tree_to_edge, int * ett_offset, int * edge_to_tree,
+		    int8_t * edge_to_edge, int * tree_to_corner,
+		    int * ctt_offset, int * corner_to_tree,
+		    int8_t * corner_to_corner)
+#else
+void wp4est_cnn_new(int * num_vertices, int * num_trees, int * num_corners,
+		    double *vertices, int * tree_to_vertex, int * tree_to_tree,
+		    int8_t * tree_to_face, int * tree_to_corner,
+		    int * ctt_offset, int * corner_to_tree,
+		    int8_t * corner_to_corner)
+#endif
+{
+#ifdef P4_TO_P8
+  connect_neko = p4est_connectivity_new_copy(*num_vertices, *num_trees,
+					     *num_edges, *num_corners,
+					     vertices, tree_to_vertex,
+					     tree_to_tree, tree_to_face,
+					     tree_to_edge, ett_offset,
+					     edge_to_tree, edge_to_edge,
+					     tree_to_corner, ctt_offset,
+					     corner_to_tree, corner_to_corner);
+#else
+  connect_neko = p4est_connectivity_new_copy(*num_vertices, *num_trees,
+					     *num_corners, vertices,
+					     tree_to_vertex, tree_to_tree,
+					     tree_to_face, tree_to_corner,
+					     ctt_offset, corner_to_tree,
+					     corner_to_corner);
+#endif
+}
+
 void wp4est_cnn_del() {
   if (connect_neko) p4est_connectivity_destroy(connect_neko);
   connect_neko =  NULL;
@@ -92,7 +127,75 @@ void wp4est_cnn_valid(int * is_valid) {
   *is_valid = p4est_connectivity_is_valid(connect_neko);
 }
 
+void wp4est_cnn_attr(int * enable_tree_attr) {
+  p4est_connectivity_set_attr(connect_neko, *enable_tree_attr);
+}
+
+void wp4est_cnn_complete() {
+  p4est_connectivity_complete(connect_neko);
+}
+
+void wp4est_cnn_save(char filename[]) {
+  p4est_connectivity_save(filename, connect_neko);
+}
+
+void wp4est_cnn_load(char filename[]) {
+  if (connect_neko) p4est_connectivity_destroy(connect_neko);
+  connect_neko = p4est_connectivity_load(filename, NULL);
+}
+
 /* tree_ management */
+/** @brief Initialize element data for 0 level tree
+ *
+ * @details This is dummy routine required by wp4est_tree_new.
+ * I do not initialize tree data here, as there are special routines dedicated
+ * to transfer data between Neko and p4est, however it could be used if
+ * one would like to generate connectivity and tree directly in Neko
+ *
+ * @param p4est
+ * @param which_tree
+ * @param quadrant
+ */
+void init_msh_dat(p4est_t * p4est, p4est_topidx_t which_tree,
+		  p4est_quadrant_t * quadrant) {
+  user_data_t *data = (user_data_t *) quadrant->p.user_data;
+  int iwt, il;
+
+  data->imsh = -1;
+  data->igrp = -1;
+  for(il = 0; il < P4EST_FACES; ++il){
+    data->crv[il] = 0;
+    data->bc[il] = 0;
+  }
+
+  // this for future consideration
+  //extern void nekp4est_init_msh_dat(int * iwt, int * imsh, int * igrp,
+  //				    int (*)[P4EST_FACES], int (*)[P4EST_FACES]);
+  //iwt = (int) which_tree;
+  //nekp4est_init_msh_dat(&iwt, &data->imsh,&data->igrp,&data->bc,&data->crv);
+
+  // reset refinement mark, neko elemnt distribution information and
+  //refinement history
+  data->ref_mark = 0;
+  data->el_gln = -1;
+  data->el_ln = -1;
+  data->el_nid = -1;
+  data->parent_gln = -1;
+  data->parent_ln = -1;
+  data->parent_nid = -1;
+  for(il = 0; il < P4EST_CHILDREN; ++il){
+    data->children_gln[il] = -1;
+    data->children_ln[il] = -1;
+    data->children_nid[il] = -1;
+  }
+}
+
+void wp4est_tree_new() {
+  if (tree_neko) p4est_destroy(tree_neko);
+  tree_neko = p4est_new_ext(mpicomm, connect_neko, 0, 0, 1,
+			   sizeof(user_data_t), init_msh_dat, NULL);
+}
+
 void wp4est_tree_del() {
   if (tree_neko) p4est_destroy(tree_neko);
   tree_neko = NULL;
@@ -1592,7 +1695,7 @@ void iter_msh_hst(p4est_iter_volume_info_t * info, void *user_data) {
   }
 }
 
-// get refinement history data to Neko
+/* get refinement history data to Neko */
 void wp4est_msh_get_hst(int * map_nr, int * rfn_nr, int * crs_nr, int *elgl_map,
 			int * elgl_rfn, int * elgl_crs) {
   transfer_hst_t transfer_data;
@@ -1614,3 +1717,7 @@ void wp4est_msh_get_hst(int * map_nr, int * rfn_nr, int * crs_nr, int *elgl_map,
   *crs_nr = transfer_data.crs_nr;
 }
 
+/* I/O VTK to check tree structure */
+void wp4est_vtk_write(char filename[]) {
+  p4est_vtk_write_file(tree_neko, NULL, filename);
+}

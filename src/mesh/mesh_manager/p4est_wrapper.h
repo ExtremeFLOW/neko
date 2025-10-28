@@ -16,6 +16,10 @@
 #error "p4est_wrapper.h requires p4est.h or p8est.h"
 #endif
 
+#if !defined(NEKO_AMR_H_)
+#error "p4est_wrapper.h requires amr.h"
+#endif
+
 /** Data type for user variables; required by p4est */
 typedef struct user_data_s {
   /* Mesh data initialised with p4est */
@@ -59,6 +63,43 @@ void wp4est_init(MPI_Fint fmpicomm, int catch_signals,
  */
 void wp4est_finalize(int log_priority);
 
+/** Initialize elements connectivity
+ *
+ * @param num_vertices
+ * @param num_trees
+ * @param num_edges
+ * @param num_corners
+ * @param vertices
+ * @param tree_to_vertex
+ * @param tree_to_tree
+ * @param tree_to_face
+ * @param tree_to_edge
+ * @param ett_offset
+ * @param edge_to_tree
+ * @param edge_to_edge
+ * @param tree_to_corner
+ * @param ctt_offset
+ * @param corner_to_tree
+ * @param corner_to_corner
+ */
+#ifdef P4_TO_P8
+void wp4est_cnn_new(int * num_vertices, int * num_trees, int * num_edges,
+		    int * num_corners, double *vertices, int * tree_to_vertex,
+		    int * tree_to_tree, int8_t * tree_to_face,
+		    int * tree_to_edge, int * ett_offset, int * edge_to_tree,
+		    int8_t * edge_to_edge, int * tree_to_corner,
+		    int * ctt_offset, int * corner_to_tree,
+		    int8_t * corner_to_corner)
+;
+#else
+void wp4est_cnn_new(int * num_vertices, int * num_trees, int * num_corners,
+		    double *vertices, int * tree_to_vertex, int * tree_to_tree,
+		    int8_t * tree_to_face, int * tree_to_corner,
+		    int * ctt_offset, int * corner_to_tree,
+		    int8_t * corner_to_corner)
+;
+#endif
+
 /** Destroy mesh connectivity */
 void wp4est_cnn_del()
 ;
@@ -68,6 +109,37 @@ void wp4est_cnn_del()
  * @param[out] is_valid   non zero for correct connectivity
  */
 void wp4est_cnn_valid(int * is_valid)
+;
+
+/** Allocate or free the attribute fields in a connectivity
+ *
+ * @param enable_tree_attr
+ */
+void wp4est_cnn_attr(int * enable_tree_attr)
+;
+
+/** Internally connect a connectivity based on tree_to_vertex information.
+ * Only internal connectivity; nor mesh periodicity
+ */
+void wp4est_cnn_complete();
+
+/** Save connectivity in a file
+ *
+ * @param filename       file name
+ */
+void wp4est_cnn_save(char filename[])
+;
+
+/** Load a connectivity structure from a file
+ *
+ * @param filename       file name
+ */
+void wp4est_cnn_load(char filename[])
+;
+
+/** Generate forest
+ */
+void wp4est_tree_new()
 ;
 
 /** Destroy tree */
@@ -336,9 +408,15 @@ void wp4est_egmap_put(int * el_gnum, int * el_lnum, int * el_nid)
  * @param elgl_rfn   element mapping info for refined elements
  * @param elgl_crs   element mapping info for coarsened elements
  */
-void wp4est_msh_get_hst(int * map_nr, int * rfn_nr, int * crs_nr, int *elgl_map,
-			int * elgl_rfn, int * elgl_crs)
+void wp4est_msh_get_hst(int * map_nr, int * rfn_nr, int * crs_nr,
+			int * elgl_map, int * elgl_rfn, int * elgl_crs)
 ;
 
+/** Write tree structure to VTK file
+ *
+ * @param filename
+ */
+void wp4est_vtk_write(char filename[])
+;
 
 #endif /* NEKO_P4EST_FWRAP_H_ */
