@@ -50,7 +50,7 @@ module device_tree_amg_smoother
        logical(c_bool) :: zero_initial
      end subroutine hip_amg_cheby_solve_part1
   end interface
-       
+
   interface
      subroutine hip_amg_cheby_solve_part2(r_d, w_d, d_d, x_d, &
           tmp1, tmp2, n, strm) bind(c, name='hip_amg_cheby_solve_part2')
@@ -73,7 +73,7 @@ module device_tree_amg_smoother
        logical(c_bool) :: zero_initial
      end subroutine cuda_amg_cheby_solve_part1
   end interface
-       
+
   interface
      subroutine cuda_amg_cheby_solve_part2(r_d, w_d, d_d, x_d, &
           tmp1, tmp2, n, strm) bind(c, name='cuda_amg_cheby_solve_part2')
@@ -83,7 +83,7 @@ module device_tree_amg_smoother
        real(c_rp) :: tmp1, tmp2
        integer(c_int) :: n
      end subroutine cuda_amg_cheby_solve_part2
-  end interface  
+  end interface
 #elif HAVE_OPENCL
 #endif
 
@@ -100,7 +100,7 @@ contains
     logical(c_bool) :: zinit
 
     zinit = zero_initial
-    
+
 #ifdef HAVE_HIP
     call hip_amg_cheby_solve_part1(r_d, f_d, w_d, x_d, d_d, &
          inv_thet, n, zinit, glb_cmd_queue)
@@ -111,7 +111,7 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine amg_device_cheby_solve_part1
-  
+
   subroutine amg_device_cheby_solve_part2(r_d, w_d, d_d, x_d, tmp1, tmp2, n)
     type(c_ptr), intent(inout) :: r_d, w_d, d_d, x_d
     real(kind=rp), intent(in) :: tmp1, tmp2
