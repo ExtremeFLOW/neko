@@ -39,6 +39,7 @@ les/bcknd/device/hip/smagorinsky_nut.lo : les/bcknd/device/hip/smagorinsky_nut.h
 les/bcknd/device/hip/vreman_nut.lo : les/bcknd/device/hip/vreman_nut.hip les/bcknd/device/hip/vreman_nut_kernel.h
 les/bcknd/device/hip/sigma_nut.lo : les/bcknd/device/hip/sigma_nut.hip les/bcknd/device/hip/sigma_nut_kernel.h
 les/bcknd/device/hip/wale_nut.lo : les/bcknd/device/hip/wale_nut.hip les/bcknd/device/hip/wale_nut_kernel.h
+multigrid/bcknd/device/hip/amg_cheby.lo : multigrid/bcknd/device/hip/amg_cheby.hip
 comm/bcknd/device/cuda/nvshmem.lo : comm/bcknd/device/cuda/nvshmem.cu comm/comm.h
 device/cuda/check.lo : device/cuda/check.cu device/cuda/check.h
 math/bcknd/device/cuda/math.lo : math/bcknd/device/cuda/math.cu math/bcknd/device/cuda/math_kernel.h
@@ -129,3 +130,4 @@ wall_models/bcknd/device/cuda/rough_log_law.lo : wall_models/bcknd/device/cuda/r
 wall_models/bcknd/device/hip/wall_models.lo : wall_models/bcknd/device/hip/wall_models.hip wall_models/bcknd/device/hip/wall_model_kernels.h
 wall_models/bcknd/device/hip/spalding.lo : wall_models/bcknd/device/hip/spalding.hip wall_models/bcknd/device/hip/spalding_kernel.h
 wall_models/bcknd/device/hip/rough_log_law.lo : wall_models/bcknd/device/hip/rough_log_law.hip wall_models/bcknd/device/hip/rough_log_law_kernel.h
+multigrid/bcknd/device/cuda/amg_cheby.lo : multigrid/bcknd/device/cuda/amg_cheby.cu
