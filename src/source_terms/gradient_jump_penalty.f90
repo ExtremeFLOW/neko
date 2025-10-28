@@ -791,6 +791,7 @@ contains
 
     call this%Xh_GJP%free()
     call this%gs_GJP%free()
+    call this%dm_GJP%free()
 
   end subroutine gradient_jump_penalty_free
 
