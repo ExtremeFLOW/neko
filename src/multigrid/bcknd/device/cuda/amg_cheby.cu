@@ -32,9 +32,8 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <hip/hip_runtime.h>
 #include <device/device_config.h>
-#include <device/hip/check.h>
+#include <device/cuda/check.h>
 
 template< typename T >
 __global__ void amg_cheby_solve_part1(T * __restrict__ r,
@@ -83,33 +82,31 @@ extern "C" {
   /**
    * Fortran wrapper for part1 of cheby solve
    */
-  void hip_amg_cheby_solve_part1(void *r, void *f, void *w, void *x, void *d,
+  void cuda_amg_cheby_solve_part1(void *r, void *f, void *w, void *x, void *d,
                                  real *inv_thet, int *n, bool *zero_initial,
-                                 hipStream_t strm) {
+                                 cudaStream_t strm) {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(amg_cheby_solve_part1<real>),
-                       nblcks, nthrds, 0, strm, (real *) r, (real *) f,
-                       (real *) w, (real *) x, (real *) d,
-                       *inv_thet, *zero_initial, *n);
-    HIP_CHECK(hipGetLastError());
+    amg_cheby_solve_part1<real><<<nblcks, nthrds, 0, strm>>>
+      ((real *) r, (real *) f, (real *) w, (real *) x, (real *) d,
+       *inv_thet, *zero_initial, *n);
+    CUDA_CHECK(cudaGetLastError());
   }
 
   /**
    * Fortran wrapper for part2 of cheby solve
    */
-  void hip_amg_cheby_solve_part2(void *r, void *w, void *d, void *x,
+  void cuda_amg_cheby_solve_part2(void *r, void *w, void *d, void *x,
                                  real *tmp1, real *tmp2, int *n,
-                                 hipStream_t strm) {
+                                 cudaStream_t strm) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(amg_cheby_solve_part2<real>),
-                       nblcks, nthrds, 0, strm, (real *) r,
-                       (real *) w, (real *) d, (real *) x, *tmp1, *tmp2, *n);
-    HIP_CHECK(hipGetLastError());
+    amg_cheby_solve_part2<real><<<nblcks, nthrds, 0, strm>>>
+      ( (real *) r, (real *) w, (real *) d, (real *) x, *tmp1, *tmp2, *n);
+    CUDA_CHECK(cudaGetLastError());
   }
 
 }

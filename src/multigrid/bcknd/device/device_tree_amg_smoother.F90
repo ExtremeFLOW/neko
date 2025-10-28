@@ -33,16 +33,28 @@
 !> Implements device kernels for use with TreeAMG smoothers
 module device_tree_amg_smoother
   use num_types, only : rp, c_rp
-  use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_int, c_bool
   use device, only : glb_cmd_queue
   implicit none
   private
 
 #ifdef HAVE_HIP
   interface
+     subroutine hip_amg_cheby_solve_part1(r_d, f_d, w_d, x_d, d_d, &
+          inv_thet, n, zero_initial, strm) &
+          bind(c, name='hip_amg_cheby_solve_part1')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int, c_bool
+       import c_rp
+       type(c_ptr), value :: r_d, f_d, w_d, x_d, d_d, strm
+       real(c_rp) :: inv_thet
+       logical(c_bool) :: zero_initial
+     end subroutine hip_amg_cheby_solve_part1
+  end interface
+       
+  interface
      subroutine hip_amg_cheby_solve_part2(r_d, w_d, d_d, x_d, &
           tmp1, tmp2, n, strm) bind(c, name='hip_amg_cheby_solve_part2')
-       use, intrinsic ::iso_c_binding, only : c_ptr, c_int
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: r_d, w_d, d_d, x_d, strm
        real(c_rp) :: tmp1, tmp2
@@ -50,23 +62,66 @@ module device_tree_amg_smoother
      end subroutine hip_amg_cheby_solve_part2
   end interface
 #elif HAVE_CUDA
+  interface
+     subroutine cuda_amg_cheby_solve_part1(r_d, f_d, w_d, x_d, d_d, &
+          inv_thet, n, zero_initial, strm) &
+          bind(c, name='cuda_amg_cheby_solve_part1')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int, c_bool
+       import c_rp
+       type(c_ptr), value :: r_d, f_d, w_d, x_d, d_d, strm
+       real(c_rp) :: inv_thet
+       logical(c_bool) :: zero_initial
+     end subroutine cuda_amg_cheby_solve_part1
+  end interface
+       
+  interface
+     subroutine cuda_amg_cheby_solve_part2(r_d, w_d, d_d, x_d, &
+          tmp1, tmp2, n, strm) bind(c, name='cuda_amg_cheby_solve_part2')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: r_d, w_d, d_d, x_d, strm
+       real(c_rp) :: tmp1, tmp2
+       integer(c_int) :: n
+     end subroutine cuda_amg_cheby_solve_part2
+  end interface  
 #elif HAVE_OPENCL
 #endif
 
-  public :: amg_device_cheby_solve_part2
+  public :: amg_device_cheby_solve_part1, amg_device_cheby_solve_part2
 
 contains
 
+  subroutine amg_device_cheby_solve_part1(r_d, f_d, w_d, x_d, d_d, &
+       inv_thet, n, zero_initial)
+    type(c_ptr), intent(inout) :: r_d, f_d, w_d, d_d, x_d
+    real(kind=rp), intent(in) :: inv_thet
+    integer, intent(in) :: n
+    logical, intent(in) :: zero_initial
+    logical(c_bool) :: zinit
+
+    zinit = zero_initial
+    
+#ifdef HAVE_HIP
+    call hip_amg_cheby_solve_part1(r_d, f_d, w_d, x_d, d_d, &
+         inv_thet, n, zinit, glb_cmd_queue)
+#elif HAVE_CUDA
+    call cuda_amg_cheby_solve_part1(r_d, f_d, w_d, x_d, d_d, &
+         inv_thet, n, zinit, glb_cmd_queue)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine amg_device_cheby_solve_part1
+  
   subroutine amg_device_cheby_solve_part2(r_d, w_d, d_d, x_d, tmp1, tmp2, n)
     type(c_ptr), intent(inout) :: r_d, w_d, d_d, x_d
     real(kind=rp), intent(in) :: tmp1, tmp2
     integer, intent(in) :: n
 #ifdef HAVE_HIP
-    call ip_cheby_solve_part2(r_d, w_d, d_d, x_d, tmp1, tmp2, n, glb_cmd_queue)
+    call hip_amg_cheby_solve_part2(r_d, w_d, d_d, x_d, &
+         tmp1, tmp2, n, glb_cmd_queue)
 #elif HAVE_CUDA
-
-#elif HAVE_OPENCL
-
+    call cuda_amg_cheby_solve_part2(r_d, w_d, d_d, x_d, &
+         tmp1, tmp2, n, glb_cmd_queue)
 #else
     call neko_error('No device backend configured')
 #endif
