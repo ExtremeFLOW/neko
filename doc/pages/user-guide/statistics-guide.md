@@ -155,7 +155,7 @@ Similar to fluid statistics, scalar statistics are enabled in the case file as a
 | `start_time`        | Time at which to start gathering statistics.                        | Positive real     | 0             |
 | `avg_direction`        | Directions to compute spatial average.                         | x,y,z,xy,xz,yz  |  No spatial average           |
 | `set_of_stats`        | What set of stats to compute.                         | basic, full  |  full         |
-| `compute_value` | Interval, in timesteps or simulationtime, depending on compute\_control, for sampling the flow fields for statistics. | Positive real or int  | Not set (but recommended with every 50 timesteps or so  |
+| `compute_value` | Interval, in timesteps or simulationtime, depending on compute\_control, for sampling the flow fields for statistics. | Positive real or int  | Not set (but recommended with every 50 timesteps or so)  |
 | `output_filename`        | User-specified filename to store output in.                       | filename  |  fluid_statsX*        |
 
 
