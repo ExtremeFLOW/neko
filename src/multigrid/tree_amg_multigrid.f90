@@ -237,7 +237,7 @@ contains
        ! Call the amg cycle
        do iter = 1, max_iter
           call tamg_mg_cycle_d(z, r, z_d, r_d, n, 0, this%amg, this, &
-             zero_initial_guess)
+               zero_initial_guess)
           zero_initial_guess = .false.
        end do
     else
@@ -247,7 +247,7 @@ contains
        ! Call the amg cycle
        do iter = 1, max_iter
           call tamg_mg_cycle(z, r, n, 0, this%amg, this, &
-             zero_initial_guess)
+               zero_initial_guess)
           zero_initial_guess = .false.
        end do
     end if
@@ -281,7 +281,7 @@ contains
     !! SMOOTH   !!
     !!----------!!
     call mgstuff%smoo(lvl)%solve(x, b, n, amg, &
-       zero_initial_guess)
+         zero_initial_guess)
     if (lvl .eq. max_lvl) then !> Is coarsest grid.
        return
     end if
@@ -298,7 +298,7 @@ contains
     !!-------------------!!
     call rzero(tmp, n)
     call tamg_mg_cycle(tmp, rc, amg%lvl(lvl+1)%nnodes, lvl+1, amg, mgstuff, &
-       .true.)
+         .true.)
     !!----------!!
     !! Project  !!
     !!----------!!
@@ -339,7 +339,7 @@ contains
     !! SMOOTH   !!
     !!----------!!
     call mgstuff%smoo(lvl)%device_solve(x, b, x_d, b_d, n, amg, &
-       zero_initial_guess)
+         zero_initial_guess)
     if (lvl .eq. max_lvl) then !> Is coarsest grid.
        return
     end if

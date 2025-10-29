@@ -43,7 +43,7 @@ program genmeshbox
           '1 and with 8 elements in each spatial direction and periodic ', &
           'boundaries in x-y.'
      write(*,*) 'BCs for face 5,6 (z zones) can then be set by setting ', &
-          'bc_labels(5), bc_labels(6) in the parameter file'
+          'boundary_conditions in the parameter file'
      write(*,*) 'If you want a specific distribution of vertices in the ', &
           'directions, give the filename where it is stored'
      write(*,*) 'Example command: ./genmeshbox 0 1 0 1 0 1 8 8 8 ', &

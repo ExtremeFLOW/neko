@@ -108,7 +108,7 @@ module math
        masked_gather_copy_0, absval, matinv3, matinv39, &
        pwmax2, pwmax3, cpwmax2, cpwmax3, pwmin2, pwmin3, cpwmin2, cpwmin3, &
        masked_scatter_copy_0, cdiv, cdiv2, glsubnorm, &
-       masked_copy, masked_gather_copy, masked_scatter_copy
+       masked_copy, masked_gather_copy, masked_scatter_copy, sabscmp, dabscmp
 
 contains
 

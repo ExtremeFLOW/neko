@@ -261,21 +261,44 @@ contains
   !! @param offset_el Offset for facet_neigh
   !! @param n_facet Max number of adjecnt dofs (ex. 6 if element is a cube)
   !! @param is_aggregated Array containing aggregate info. Maps from dof id to agg id
-  !! @param aggregate_size Array containing the size of each aggregate
   subroutine agg_fill_nhbr_info(agg_nhbr, n_agg_nhbr, n_elements, &
-       facet_neigh, offset_el, n_facet, is_aggregated, aggregate_size)
-    integer, intent(inout) :: agg_nhbr(:,:)
+       facet_neigh, offset_el, n_facet, is_aggregated)
+    integer, allocatable, intent(inout) :: agg_nhbr(:,:)
     integer, intent(inout) :: n_agg_nhbr
     integer, intent(in) :: n_elements
     integer, intent(in) :: facet_neigh(:,:)
     integer, intent(in) :: offset_el, n_facet
     integer, intent(inout) :: is_aggregated(:)
-    integer, intent(inout) :: aggregate_size(:)
-    integer :: i, j, side, nhbr, tst_agg, tnt_agg
+    integer :: i, j, side, nhbr, tst_agg, tnt_agg, n_nhbr_loc
     logical :: agg_added
+    integer, allocatable :: agg_nhbr_counter(:)
 
     n_agg_nhbr = 0
+    n_nhbr_loc = 0
 
+    allocate(agg_nhbr_counter( maxval(is_aggregated)), source=0)
+
+    ! Count max possible neighbors to an aggregate
+    do i = 1, n_elements!TODO: this is the lazy expensive way...
+       tnt_agg = is_aggregated(i)
+       n_nhbr_loc = 0
+       do side = 1, n_facet
+          nhbr = facet_neigh(side,i) - offset_el
+          if ((nhbr .gt. 0).and.(nhbr .le. n_elements)) then! if nhbr exists
+             tst_agg = is_aggregated(nhbr)
+             if (tst_agg .le. 0) call neko_error("Unaggregated element detected. We do not want to handle that here...")
+             if (tst_agg .ne. tnt_agg) then
+                agg_nhbr_counter(tnt_agg) = agg_nhbr_counter(tnt_agg) + 1
+             end if
+          end if
+       end do
+       n_agg_nhbr = max(n_agg_nhbr, agg_nhbr_counter(tnt_agg))
+    end do
+
+    ! Allocate for neighbor info
+    allocate(agg_nhbr(n_agg_nhbr, maxval(is_aggregated)), source=-1)
+
+    ! fill neighbor info
     do i = 1, n_elements!TODO: this is the lazy expensive way...
        tnt_agg = is_aggregated(i)
        do side = 1, n_facet
@@ -285,7 +308,7 @@ contains
              if (tst_agg .le. 0) call neko_error("Unaggregated element detected. We do not want to handle that here...")
              if (tst_agg .ne. tnt_agg) then
                 agg_added = .false.
-                do j = 1, 50!TODO: this hard-coded value
+                do j = 1, n_agg_nhbr
                    if ((agg_nhbr(j,tnt_agg) .eq. tst_agg)) then
                       agg_added = .true.
                    else if ((agg_nhbr(j,tnt_agg).eq.-1).and.(.not.agg_added)) then
@@ -324,7 +347,7 @@ contains
        n_facet = 6 ! NEKO elements are hexes, thus have 6 face neighbors
        offset_el = tamg%msh%offset_el
     else
-       n_facet = 50!TODO: this hard-coded value. how many neighbors can there be?
+       n_facet = size(facet_neigh, 1)
        offset_el = 0
     end if
 
@@ -354,11 +377,8 @@ contains
     call aggregation_monitor_phase2(lvl_id, n_elements, naggs, is_aggregated)
 
     if (.true.) then! if needed on next level...
-       allocate( agg_nhbr(50, max_aggs*2) )!TODO: this hard-coded n_facet value (20)...
-       agg_nhbr = -1
        call agg_fill_nhbr_info(agg_nhbr, n_agg_facet, n_elements, &
-            facet_neigh, offset_el, n_facet, &
-            is_aggregated, aggregate_size)
+            facet_neigh, offset_el, n_facet, is_aggregated)
     end if
 
     ! count things
@@ -557,7 +577,7 @@ contains
        n_facet = 6 !> NEKO elements are hexes, thus have 6 face neighbors
        offset_el = tamg%msh%offset_el
     else
-       n_facet = 50!TODO: this hard-coded value. how many neighbors can there be?
+       n_facet = size(facet_neigh, 1)
        offset_el = 0
     end if
 
@@ -569,9 +589,6 @@ contains
     is_aggregated = -1
     ! fill with large number
     aggregate_size = huge(i)
-
-    allocate( agg_nhbr(50, n_elements) )
-    agg_nhbr = -1
 
     ! Initialize a random permutation
     allocate( rand_order( n_elements ) )
@@ -621,7 +638,7 @@ contains
        end if! is_aggregated(i)
     end do
     call agg_fill_nhbr_info( agg_nhbr, n_agg_nhbr, n_elements, &
-         facet_neigh, offset_el, n_facet, is_aggregated, aggregate_size)
+         facet_neigh, offset_el, n_facet, is_aggregated)
 
     ! count things
     ntot = n_elements

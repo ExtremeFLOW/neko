@@ -43,7 +43,7 @@ module flow_ic
   use utils, only : neko_error, filename_chsuffix, &
        neko_warning, NEKO_FNAME_LEN, extract_fld_file_index
   use coefs, only : coef_t
-  use math, only : col2, cfill, cfill_mask
+  use math, only : col2, cfill, cfill_mask, abscmp
   use device_math, only : device_col2
   use user_intf, only : user_initial_conditions_intf
   use json_module, only : json_file
@@ -320,21 +320,21 @@ contains
        call neko_error('Invalid Blasius approximation')
     end select
 
-    if ((uinf(1) .gt. 0.0_rp) .and. (uinf(2) .eq. 0.0_rp) &
-         .and. (uinf(3) .eq. 0.0_rp)) then
+    if ((uinf(1) .gt. 0.0_rp) .and. abscmp(uinf(2), 0.0_rp) &
+         .and. abscmp(uinf(3), 0.0_rp)) then
        do i = 1, u%dof%size()
           u%x(i,1,1,1) = bla(u%dof%z(i,1,1,1), delta, uinf(1))
           v%x(i,1,1,1) = 0.0_rp
           w%x(i,1,1,1) = 0.0_rp
        end do
-    else if ((uinf(1) .eq. 0.0_rp) .and. (uinf(2) .gt. 0.0_rp) &
-         .and. (uinf(3) .eq. 0.0_rp)) then
+    else if (abscmp(uinf(1), 0.0_rp) .and. (uinf(2) .gt. 0.0_rp) &
+         .and. abscmp(uinf(3), 0.0_rp)) then
        do i = 1, u%dof%size()
           u%x(i,1,1,1) = 0.0_rp
           v%x(i,1,1,1) = bla(u%dof%x(i,1,1,1), delta, uinf(2))
           w%x(i,1,1,1) = 0.0_rp
        end do
-    else if ((uinf(1) .eq. 0.0_rp) .and. (uinf(2) .eq. 0.0_rp) &
+    else if (abscmp(uinf(1), 0.0_rp) .and. abscmp(uinf(2), 0.0_rp) &
          .and. (uinf(3) .gt. 0.0_rp)) then
        do i = 1, u%dof%size()
           u%x(i,1,1,1) = 0.0_rp
@@ -572,6 +572,7 @@ contains
          HOST_TO_DEVICE, sync = .false.)
 
     call fld_data%free
+    call prev_Xh%free()
 
   end subroutine set_flow_ic_fld
 

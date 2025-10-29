@@ -417,6 +417,14 @@ contains
        deallocate(this%r)
     end if
 
+    if (c_associated(this%w_d)) then
+       call device_free(this%w_d)
+    end if
+
+    if (c_associated(this%r_d)) then
+       call device_free(this%r_d)
+    end if
+
     call this%schwarz%free()
     call this%schwarz_mg%free()
 
@@ -425,11 +433,20 @@ contains
     call this%e%free()
     call this%e_mg%free()
     call this%e_crs%free()
+    call this%wf%free()
 
     call this%gs_crs%free()
     call this%gs_mg%free()
     call this%interp_mid_crs%free()
     call this%interp_fine_mid%free()
+
+    call this%bc_crs%free()
+    call this%bc_mg%free()
+    call this%bc_reg%free()
+
+    call this%bclst_reg%free()
+    call this%bclst_crs%free()
+    call this%bclst_mg%free()
 
     if (allocated(this%crs_solver)) then
        call this%crs_solver%free()
@@ -439,6 +456,18 @@ contains
     if (allocated(this%pc_crs)) then
        call precon_destroy(this%pc_crs)
     end if
+
+    if (c_associated(this%hsmg_event)) then
+       call device_event_destroy(this%hsmg_event)
+    end if
+    if (c_associated(this%gs_event)) then
+       call device_event_destroy(this%gs_event)
+    end if
+
+    call this%dm_crs%free()
+    call this%dm_mg%free()
+    call this%Xh_crs%free()
+    call this%Xh_mg%free()
 
   end subroutine hsmg_free
 
