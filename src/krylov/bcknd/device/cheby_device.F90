@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -76,7 +76,7 @@ module cheby_device
 #ifdef HAVE_HIP
   interface
      subroutine hip_cheby_device_part1(d_d, x_d, inv_tha, n, strm) &
-          bind(c, name='hip_cheby_part1')
+          bind(c, name = 'hip_cheby_part1')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -88,7 +88,7 @@ module cheby_device
 
   interface
      subroutine hip_cheby_device_part2(d_d, w_d, x_d, tmp1, tmp2, n, strm) &
-          bind(c, name='hip_cheby_part2')
+          bind(c, name = 'hip_cheby_part2')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -100,7 +100,7 @@ module cheby_device
 #elif HAVE_CUDA
   interface
      subroutine cuda_cheby_device_part1(d_d, x_d, inv_tha, n, strm) &
-          bind(c, name='cuda_cheby_part1')
+          bind(c, name = 'cuda_cheby_part1')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -112,7 +112,7 @@ module cheby_device
 
   interface
      subroutine cuda_cheby_device_part2(d_d, w_d, x_d, tmp1, tmp2, n, strm) &
-          bind(c, name='cuda_cheby_part2')
+          bind(c, name = 'cuda_cheby_part2')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -133,7 +133,7 @@ contains
 #elif HAVE_CUDA
     call cuda_cheby_device_part1(d_d, x_d, inv_tha, n, glb_cmd_queue)
 #else !Fallback to device_math for missing device kernels
-    call device_cmult( d_d, (1.0_rp / this%tha), n)
+    call device_cmult( d_d, inv_tha, n)
     call device_add2( x_d, d_d, n)
 #endif
   end subroutine cheby_device_part1
