@@ -98,7 +98,7 @@ module cheby_device
      end subroutine hip_cheby_device_part2
   end interface
 #elif HAVE_CUDA
-    interface
+  interface
      subroutine cuda_cheby_device_part1(d_d, x_d, inv_tha, n, strm) &
           bind(c, name='cuda_cheby_part1')
        use, intrinsic :: iso_c_binding
