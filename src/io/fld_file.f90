@@ -870,7 +870,7 @@ contains
        mpi_offset = 132 * MPI_CHARACTER_SIZE
        call MPI_File_read_at_all(fh, mpi_offset, temp, 1, &
             MPI_REAL, status, ierr)
-       if (.not. abscmp(temp, test_pattern)) then
+       if (.not. abscmp(temp, test_pattern, epsilon(1.0_sp))) then
           call neko_error('Incorrect format for fld file, &
           &test pattern does not match.')
        end if
