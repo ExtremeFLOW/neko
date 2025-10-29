@@ -64,6 +64,7 @@ static p4est_mesh_t *mesh_neko = NULL; /**< mesh structure */
 static p4est_ghost_t *ghost_neko = NULL; /**< ghost zone structure */
 static p4est_nodes_t *nodes_neko = NULL; /**< vertex numbering structure */
 static p4est_lnodes_t *lnodes_neko = NULL; /**< GLL node numbering structure */
+static p4est_geometry_t   *geom_neko = NULL; /**< Geometry definition */
 static p4est_t *tree_neko_compare = NULL; /**< tree structure to perform
 					     comparison */
 /* MPI communicator*/
@@ -121,8 +122,35 @@ void wp4est_cnn_new(int * num_vertices, int * num_trees, int * num_corners,
 #endif
 }
 
+/* testing connectivity */
+void wp4est_cnn_brick() {
+  int nx, ny, nz;
+  nx = ny = nz = 4;
+  if (connect_neko != NULL) p4est_connectivity_destroy(connect_neko);
+  if (geom_neko != NULL) p4est_geometry_destroy(geom_neko);
+  connect_neko = p8est_connectivity_new_brick (nx, ny, nz, 0, 0, 0);
+}
+
+void wp4est_cnn_unit_cube() {
+  if (connect_neko != NULL) p4est_connectivity_destroy(connect_neko);
+  if (geom_neko != NULL) p4est_geometry_destroy(geom_neko);
+  connect_neko = p8est_connectivity_new_unitcube ();
+}
+
+void wp4est_cnn_unit_cube_periodic() {
+  if (connect_neko != NULL) p4est_connectivity_destroy(connect_neko);
+  if (geom_neko != NULL) p4est_geometry_destroy(geom_neko);
+  connect_neko = p8est_connectivity_new_periodic ();
+}
+
+void wp4est_cnn_rot_cubes() {
+  if (connect_neko != NULL) p4est_connectivity_destroy(connect_neko);
+  if (geom_neko != NULL) p4est_geometry_destroy(geom_neko);
+  connect_neko = p8est_connectivity_new_rotcubes ();
+}
+
 void wp4est_cnn_del() {
-  if (connect_neko) p4est_connectivity_destroy(connect_neko);
+  if (connect_neko != NULL) p4est_connectivity_destroy(connect_neko);
   connect_neko =  NULL;
 }
 
@@ -143,8 +171,14 @@ void wp4est_cnn_save(char filename[]) {
 }
 
 void wp4est_cnn_load(char filename[]) {
-  if (connect_neko) p4est_connectivity_destroy(connect_neko);
+  if (connect_neko != NULL) p4est_connectivity_destroy(connect_neko);
   connect_neko = p4est_connectivity_load(filename, NULL);
+}
+
+/* geometry_ management */
+void wp4est_geom_del() {
+  if (geom_neko != NULL) p4est_geometry_destroy(geom_neko);
+  connect_neko =  NULL;
 }
 
 /* tree_ management */
@@ -194,13 +228,13 @@ void init_msh_dat(p4est_t * p4est, p4est_topidx_t which_tree,
 }
 
 void wp4est_tree_new() {
-  if (tree_neko) p4est_destroy(tree_neko);
+  if (tree_neko != NULL) p4est_destroy(tree_neko);
   tree_neko = p4est_new_ext(mpicomm, connect_neko, 0, 0, 1,
 			   sizeof(user_data_t), init_msh_dat, NULL);
 }
 
 void wp4est_tree_del() {
-  if (tree_neko) p4est_destroy(tree_neko);
+  if (tree_neko != NULL) p4est_destroy(tree_neko);
   tree_neko = NULL;
 }
 
@@ -213,8 +247,8 @@ void wp4est_tree_save(char filename[]) {
 }
 
 void wp4est_tree_load(char filename[]) {
-  if (tree_neko) p4est_destroy(tree_neko);
-  if (connect_neko) p4est_connectivity_destroy(connect_neko);
+  if (tree_neko != NULL) p4est_destroy(tree_neko);
+  if (connect_neko != NULL) p4est_connectivity_destroy(connect_neko);
   tree_neko = p4est_load_ext(filename, mpicomm, sizeof(user_data_t), 0,
 			     1, 0, NULL, &connect_neko);
   tree_neko->user_pointer = NULL;
@@ -222,10 +256,10 @@ void wp4est_tree_load(char filename[]) {
 
 /* tree and grid info */
 void wp4est_ghost_new() {
-  if (ghost_neko) p4est_ghost_destroy(ghost_neko);
+  if (ghost_neko != NULL) p4est_ghost_destroy(ghost_neko);
   ghost_neko = p4est_ghost_new(tree_neko, P4EST_CONNECT_FULL);
   /* ghost data */
-  if (tree_neko->user_pointer) P4EST_FREE(tree_neko->user_pointer);
+  if (tree_neko->user_pointer != NULL) P4EST_FREE(tree_neko->user_pointer);
   tree_neko->user_pointer =
     (void *) P4EST_ALLOC (user_data_t, ghost_neko->ghosts.elem_count);
   p4est_ghost_exchange_data (tree_neko, ghost_neko,
@@ -233,41 +267,41 @@ void wp4est_ghost_new() {
 }
 
 void wp4est_ghost_del() {
-  if (ghost_neko) p4est_ghost_destroy(ghost_neko);
+  if (ghost_neko != NULL) p4est_ghost_destroy(ghost_neko);
   ghost_neko = NULL;
   /* ghost data */
-  if (tree_neko->user_pointer) P4EST_FREE(tree_neko->user_pointer);
+  if (tree_neko->user_pointer != NULL) P4EST_FREE(tree_neko->user_pointer);
   tree_neko->user_pointer = NULL;
 }
 
 void wp4est_mesh_new() {
-  if (mesh_neko) p4est_mesh_destroy(mesh_neko);
+  if (mesh_neko != NULL) p4est_mesh_destroy(mesh_neko);
   mesh_neko = p4est_mesh_new(tree_neko, ghost_neko, P4EST_CONNECT_FULL);
 }
 
 void wp4est_mesh_del() {
-  if (mesh_neko) p4est_mesh_destroy(mesh_neko);
+  if (mesh_neko != NULL) p4est_mesh_destroy(mesh_neko);
   mesh_neko = NULL;
 }
 
 void wp4est_nodes_new() {
-  if (nodes_neko) p4est_nodes_destroy(nodes_neko);
+  if (nodes_neko != NULL) p4est_nodes_destroy(nodes_neko);
   nodes_neko = p4est_nodes_new(tree_neko, ghost_neko);
 }
 
 void wp4est_nodes_del() {
-  if (nodes_neko) p4est_nodes_destroy(nodes_neko);
+  if (nodes_neko != NULL) p4est_nodes_destroy(nodes_neko);
   nodes_neko = NULL;
 }
 
 void wp4est_lnodes_new(int degree) {
-  if (lnodes_neko) p4est_lnodes_destroy(lnodes_neko);
+  if (lnodes_neko != NULL) p4est_lnodes_destroy(lnodes_neko);
   lnodes_neko = p4est_lnodes_new(tree_neko, ghost_neko, degree);
 }
 
 void wp4est_lnodes_edge() {
 #ifdef P4_TO_P8
-  if (lnodes_neko) p4est_lnodes_destroy(lnodes_neko);
+  if (lnodes_neko != NULL) p4est_lnodes_destroy(lnodes_neko);
   lnodes_neko = p8est_lnodes_edge(tree_neko, ghost_neko);
 #else
   wp4est_lnodes_del();
@@ -275,7 +309,7 @@ void wp4est_lnodes_edge() {
 }
 
 void wp4est_lnodes_del() {
-  if (lnodes_neko) p4est_lnodes_destroy(lnodes_neko);
+  if (lnodes_neko != NULL) p4est_lnodes_destroy(lnodes_neko);
   lnodes_neko = NULL;
 }
 
@@ -633,7 +667,7 @@ void wp4est_msh_get_size(int * mdim, int64_t * nelgt, int64_t * nelgto,
 /* get node list size */
 void wp4est_nds_get_size(int * nowin, int * nowsh, int * oowin,
 			 int * nin, int * nhf, int * nhe) {
-  if (nodes_neko) {
+  if (nodes_neko != NULL) {
     // number of owned independent nodes
     *nowin = (int) nodes_neko->num_owned_indeps;
     // number of owned shared
@@ -657,7 +691,7 @@ void wp4est_nds_get_ind(int64_t * nglid, int * nown, double * ncoord) {
   int64_t id;
   p4est_indep_t *node;
   double vxyz[3];
-  if (nodes_neko) {
+  if (nodes_neko != NULL) {
     sc_array_t  *indep_nodes = &(nodes_neko->indep_nodes);
     // numbers of local independent nodes
     const int ni = (int) nodes_neko->indep_nodes.elem_count;
@@ -730,7 +764,7 @@ void wp4est_nds_get_hfc(int * depend, double * ncoord) {
 #endif
   double vxyz[3];
 
-  if (nodes_neko) {
+  if (nodes_neko != NULL) {
     sc_array_t  *nodes = &(nodes_neko->face_hangings);
     // numbers of local face hanging nodes
     const int ni = (int) nodes_neko->face_hangings.elem_count;
@@ -773,7 +807,7 @@ void wp4est_nds_get_hed(int * depend, double * ncoord) {
   p8est_hang2_t *node;
   double vxyz[3];
 
-  if (nodes_neko) {
+  if (nodes_neko != NULL) {
     sc_array_t  *nodes = &(nodes_neko->edge_hangings);
     // numbers of local face hanging nodes
     const int ni = (int) nodes_neko->edge_hangings.elem_count;
@@ -804,7 +838,7 @@ void wp4est_nds_get_hed(int * depend, double * ncoord) {
 void wp4est_nds_get_vmap(int * vmap) {
   int il, jl;
 
-  if (nodes_neko) {
+  if (nodes_neko != NULL) {
     // number of local elements
     const int vi = (int) nodes_neko->num_local_quadrants;
     // quad to vertex local map
@@ -1006,7 +1040,7 @@ void wp4est_elm_get_lnode(int * lnnum, int * lnown, int64_t * lnoff,
 			  int * lnodes) {
 
   int il, jl, kl;
-  if (lnodes_neko) {
+  if (lnodes_neko != NULL) {
     const int vnd = (int) lnodes_neko->vnodes;
     const int owned = (int) lnodes_neko->owned_count;
     const int local = (int) lnodes_neko->num_local_nodes;
@@ -1027,7 +1061,7 @@ void wp4est_elm_get_lnode(int * lnnum, int * lnown, int64_t * lnoff,
 void wp4est_sharers_get_size(int * nrank, int * nshare) {
   int il, jl;
   p4est_lnodes_rank_t *lnode;
-  if (lnodes_neko) {
+  if (lnodes_neko != NULL) {
     // number of ranks in a sharers array
     *nrank = (int) lnodes_neko->sharers->elem_count;
     sc_array_t  *sharers = lnodes_neko->sharers;
@@ -1055,7 +1089,7 @@ void wp4est_sharers_get_ind(int64_t * nglid, int * lrank, int * loff,
   int il, jl;
   p4est_lnodes_rank_t *lnode;
   p4est_locidx_t *snode;
-  if (lnodes_neko) {
+  if (lnodes_neko != NULL) {
     const int owned = (int) lnodes_neko->owned_count;
     const int local = (int) lnodes_neko->num_local_nodes;
     const p4est_gloidx_t offset = lnodes_neko->global_offset;
@@ -1098,7 +1132,7 @@ void wp4est_hang_get_info(int * hang_elm, int * hang_fsc, int * hang_edg) {
 #ifdef P4_TO_P8
   int hanging_edge[P8EST_EDGES];
 #endif
-  if (lnodes_neko) {
+  if (lnodes_neko != NULL) {
     for (il = 0; il < lnodes_neko->num_local_elements; ++il) {
       for (jl = 0; jl < P4EST_FACES; ++jl) {
 	hanging_face[jl] = -1;
@@ -1494,13 +1528,13 @@ void wp4est_balance()
 
 /* Make tree copy for later comparison */
 void wp4est_tree_copy(int quad_data) {
-  if (tree_neko_compare) p4est_destroy (tree_neko_compare);
+  if (tree_neko_compare != NULL) p4est_destroy (tree_neko_compare);
   tree_neko_compare = p4est_copy (tree_neko, quad_data);
 }
 
 /* Check if three was modified */
 void wp4est_tree_check(int * check, int quad_data) {
-  if (tree_neko_compare) {
+  if (tree_neko_compare != NULL) {
     *check = p4est_is_equal(tree_neko, tree_neko_compare, quad_data);
     p4est_destroy (tree_neko_compare);
     tree_neko_compare = NULL;

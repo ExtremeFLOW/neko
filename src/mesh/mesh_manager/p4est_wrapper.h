@@ -100,6 +100,22 @@ void wp4est_cnn_new(int * num_vertices, int * num_trees, int * num_corners,
 ;
 #endif
 
+/** Create brick connectivity */
+void wp4est_cnn_brick()
+;
+
+/** Create unit cube connectivity */
+void wp4est_cnn_unit_cube()
+;
+
+/** Create unit cube connectivity ll-periodic boundary conditions */
+void wp4est_cnn_unit_cube_periodic()
+;
+
+/** Create six connected rotated cubes connectivity */
+void wp4est_cnn_rot_cubes()
+;
+
 /** Destroy mesh connectivity */
 void wp4est_cnn_del()
 ;
@@ -135,6 +151,10 @@ void wp4est_cnn_save(char filename[])
  * @param filename       file name
  */
 void wp4est_cnn_load(char filename[])
+;
+
+/** Destroy mesh geometry */
+void wp4est_geom_del()
 ;
 
 /** Generate forest

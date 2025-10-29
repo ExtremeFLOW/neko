@@ -132,6 +132,23 @@ module p4est
      end subroutine wp4est_cnn_new
 #endif
 
+     subroutine wp4est_cnn_brick() bind(c, name = 'wp4est_cnn_brick')
+       USE, INTRINSIC :: ISO_C_BINDING
+     end subroutine wp4est_cnn_brick
+
+     subroutine wp4est_cnn_unit_cube() bind(c, name = 'wp4est_cnn_unit_cube')
+       USE, INTRINSIC :: ISO_C_BINDING
+     end subroutine wp4est_cnn_unit_cube
+
+     subroutine wp4est_cnn_unit_cube_periodic() &
+          bind(c, name = 'wp4est_cnn_unit_cube_periodic')
+       USE, INTRINSIC :: ISO_C_BINDING
+     end subroutine wp4est_cnn_unit_cube_periodic
+
+     subroutine wp4est_cnn_rot_cubes() bind(c, name = 'wp4est_cnn_rot_cubes')
+       USE, INTRINSIC :: ISO_C_BINDING
+     end subroutine wp4est_cnn_rot_cubes
+
      subroutine wp4est_cnn_del() bind(c, name = 'wp4est_cnn_del')
        USE, INTRINSIC :: ISO_C_BINDING
      end subroutine wp4est_cnn_del
@@ -162,6 +179,10 @@ module p4est
        USE, INTRINSIC :: ISO_C_BINDING
        character(kind=c_char), dimension(*) :: filename
      end subroutine wp4est_cnn_load
+
+     subroutine wp4est_geom_del() bind(c, name = 'wp4est_geom_del')
+       USE, INTRINSIC :: ISO_C_BINDING
+     end subroutine wp4est_geom_del
 
      subroutine wp4est_tree_new() bind(c, name = 'wp4est_tree_new')
        USE, INTRINSIC :: ISO_C_BINDING
