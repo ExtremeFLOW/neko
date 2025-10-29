@@ -50,7 +50,7 @@ module fld_file
        filename_path, neko_error
   use comm
   use datadist, only : linear_dist_t
-  use math, only : vlmin, vlmax, sabscmp
+  use math, only : vlmin, vlmax, abscmp
   use neko_mpi_types, only : MPI_CHARACTER_SIZE, MPI_DOUBLE_PRECISION_SIZE, &
        MPI_REAL_SIZE, MPI_INTEGER_SIZE
   use mpi_f08
@@ -870,7 +870,7 @@ contains
        mpi_offset = 132 * MPI_CHARACTER_SIZE
        call MPI_File_read_at_all(fh, mpi_offset, temp, 1, &
             MPI_REAL, status, ierr)
-       if (.not. sabscmp(temp, test_pattern, epsilon(1.0_sp))) then
+       if (.not. abscmp(temp, test_pattern, epsilon(1.0_sp))) then
           call neko_error('Incorrect format for fld file, &
           &test pattern does not match.')
        end if
