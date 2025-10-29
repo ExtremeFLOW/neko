@@ -198,6 +198,10 @@ void wp4est_nodes_del()
 void wp4est_lnodes_new(int degree)
 ;
 
+/** Generate new global edge numbering */
+void wp4est_lnodes_edge()
+;
+
 /** Destroy global node numbering */
 void wp4est_lnodes_del()
 ;
@@ -282,7 +286,7 @@ void wp4est_nds_get_hed(int * depend, double * ncoord)
 
 /** Get mapping of element vertices to nodes
  *
- * @param[out] vmap    vertex mapping to nodes (local numberring)
+ * @param[out] vmap    vertex mapping to nodes (local numbering)
  */
 void wp4est_nds_get_vmap(int * vmap)
 ;
@@ -305,7 +309,7 @@ void wp4est_elm_get_dat(int64_t * gidx, int * level, int * igrp, int * crv,
 ;
 
 
-/** Get global numberring of degrees of freedom in element
+/** Get global numbering of degrees of freedom in element
  *
  * @param[out] lnnum      number of local nodes
  * @param[out] lnown      number of owned nodes

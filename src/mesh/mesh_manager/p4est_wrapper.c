@@ -30,6 +30,7 @@
 #ifndef P4_TO_P8
 #include <p4est_algorithms.h>
 #include <p4est_bits.h>
+#include <p4est_communication.h>
 #include <p4est_extended.h>
 #include <p4est_ghost.h>
 #include <p4est_nodes.h>
@@ -40,6 +41,7 @@
 #else
 #include <p8est_algorithms.h>
 #include <p8est_bits.h>
+#include <p8est_communication.h>
 #include <p8est_extended.h>
 #include <p8est_ghost.h>
 #include <p8est_nodes.h>
@@ -47,6 +49,7 @@
 #include <p8est_lnodes.h>
 #include <p8est_mesh.h>
 #include <p8est_iterate.h>
+#include "mesh/mesh_manager/p8est_lnodes_edge.h"
 #endif
 
 #include "mesh/mesh_manager/amr.h"
@@ -260,6 +263,15 @@ void wp4est_nodes_del() {
 void wp4est_lnodes_new(int degree) {
   if (lnodes_neko) p4est_lnodes_destroy(lnodes_neko);
   lnodes_neko = p4est_lnodes_new(tree_neko, ghost_neko, degree);
+}
+
+void wp4est_lnodes_edge() {
+#ifdef P4_TO_P8
+  if (lnodes_neko) p4est_lnodes_destroy(lnodes_neko);
+  lnodes_neko = p8est_lnodes_edge(tree_neko, ghost_neko);
+#else
+  wp4est_lnodes_del();
+#endif
 }
 
 void wp4est_lnodes_del() {

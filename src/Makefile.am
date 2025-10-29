@@ -410,9 +410,11 @@ libneko_la_SOURCES += comm/parmetis_wrapper.c
 endif
 
 if ENABLE_P4EST
-#neko_fortran_SOURCES += mesh/mesh_manager/p4est.F90
+neko_fortran_SOURCES += mesh/mesh_manager/p4est.F90
 libneko_la_SOURCES += mesh/mesh_manager/p4est.F90
-libneko_la_SOURCES += mesh/mesh_manager/p4est_wrapper.c
+libneko_la_SOURCES += \
+	mesh/mesh_manager/p4est_wrapper.c\
+	mesh/mesh_manager/p8est_lnodes_edge.c
 endif
 
 if ENABLE_HIP
@@ -810,7 +812,9 @@ EXTRA_DIST = \
 
 
 if ENABLE_P4EST
-EXTRA_DIST += mesh/mesh_manager/p4est_wrapper.h\
+EXTRA_DIST += \
+	mesh/mesh_manager/p4est_wrapper.h\
+	mesh/mesh_manager/p8est_lnodes_edge.h\
 	mesh/mesh_manager/amr.h
 endif
 

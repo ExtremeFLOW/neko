@@ -33,6 +33,7 @@
 !> Main interface for data exchange and manipulation between p4est and neko
 module p4est
   use mpi_f08
+  use comm, only : NEKO_COMM
 
   implicit none
 
@@ -215,6 +216,10 @@ module p4est
        USE, INTRINSIC :: ISO_C_BINDING
        integer(c_int), value :: degree
      end subroutine wp4est_lnodes_new
+
+     subroutine wp4est_lnodes_edge() bind(c, name = 'wp4est_lnodes_edge')
+       USE, INTRINSIC :: ISO_C_BINDING
+     end subroutine wp4est_lnodes_edge
 
      subroutine wp4est_lnodes_del() bind(c, name = 'wp4est_lnodes_del')
        USE, INTRINSIC :: ISO_C_BINDING
