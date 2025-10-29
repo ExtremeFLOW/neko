@@ -231,7 +231,7 @@ module wall_model
      !! @param type_name The name of the type to allocate.
      module subroutine wall_model_allocator(object, type_name)
        class(wall_model_t), allocatable, intent(inout) :: object
-       character(len=*), intent(in) :: type_name
+       character(len=:), allocatable, intent(in) :: type_name
      end subroutine wall_model_allocator
   end interface
 

@@ -212,7 +212,7 @@ contains
       call neko_field_registry%add_field(dofmap, "les_delta", .true.)
       this%nut => neko_field_registry%get_field(trim(nut_name))
       this%delta => neko_field_registry%get_field("les_delta")
-      this%coef => coef
+      this%coef => fluid%c_Xh
       this%delta_type = delta_type
       this%if_ext = if_ext
 
