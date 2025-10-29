@@ -50,7 +50,8 @@ module mesh
   use math, only : abscmp
   use mpi_f08, only : MPI_INTEGER, MPI_MAX, MPI_SUM, MPI_IN_PLACE, &
        MPI_Allreduce, MPI_Exscan, MPI_Request, MPI_Status, MPI_Wait, &
-       MPI_Isend, MPI_Irecv, MPI_STATUS_IGNORE, MPI_Integer8
+       MPI_Isend, MPI_Irecv, MPI_STATUS_IGNORE, MPI_Integer8, &
+       MPI_Get_count, MPI_Sendrecv
   use uset, only : uset_i8_t
   use curve, only : curve_t
   use logger, only : LOG_SIZE
