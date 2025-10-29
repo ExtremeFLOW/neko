@@ -462,7 +462,8 @@ libneko_la_SOURCES += \
 	wall_models/bcknd/device/hip/wall_model.hip\
 	wall_models/bcknd/device/hip/spalding.hip\
 	wall_models/bcknd/device/hip/rough_log_law.hip\
-	multigrid/bcknd/device/hip/amg_cheby.hip
+	multigrid/bcknd/device/hip/amg_cheby.hip\
+	krylov/bcknd/device/hip/cheby_aux.hip
 endif
 
 if ENABLE_CUDA
@@ -519,7 +520,8 @@ libneko_la_SOURCES += \
 	wall_models/bcknd/device/cuda/wall_model.cu\
 	wall_models/bcknd/device/cuda/spalding.cu\
 	wall_models/bcknd/device/cuda/rough_log_law.cu\
-	multigrid/bcknd/device/cuda/amg_cheby.cu
+	multigrid/bcknd/device/cuda/amg_cheby.cu\
+	krylov/bcknd/device/cuda/cheby_aux.cu
 
 BUILT_SOURCES = libtool_cuda
 
