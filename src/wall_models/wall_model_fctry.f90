@@ -65,10 +65,10 @@ contains
     character(len=:), allocatable :: type_string
     integer :: h_index
 
-    call wall_model_allocator(object, type_name)
-
     call json_get(json, "model", type_name)
     call json_get(json, "h_index", h_index)
+
+    call wall_model_allocator(object, type_name)
 
     ! Initialize
     call object%init(scheme_name, coef, msk, facet, h_index, json)
@@ -80,7 +80,7 @@ contains
   !! @param type_name The name of the type to allocate.
   module subroutine wall_model_allocator(object, type_name)
     class(wall_model_t), allocatable, intent(inout) :: object
-    character(len=*), intent(in) :: type_name
+    character(len=:), allocatable, intent(in) :: type_name
     integer :: i
 
     select case (trim(type_name) )
