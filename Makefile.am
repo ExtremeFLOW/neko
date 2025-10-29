@@ -54,10 +54,10 @@ EXTRA_DIST = \
 	examples/lid/lid2d.nmsh\
 	examples/lid/lid.nmsh\
 	examples/lid/README.md\
-	examples/lid/lid2d.box\
 	examples/lid/lid2d.case\
 	examples/lid/lid.case\
-	examples/lid/lid.box\
+	examples/lid/elem_dist.csv\
+	examples/lid/plot_stat.py\
 	examples/poisson/ax_poisson.f90\
 	examples/poisson/setup.f90\
 	examples/poisson/Makefile\

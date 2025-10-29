@@ -299,6 +299,15 @@ contains
     if (c_associated(this%s_d)) then
        call device_free(this%s_d)
     end if
+    if (c_associated(this%z_d_d)) then
+       call device_free(this%z_d_d)
+    end if
+    if (c_associated(this%v_d_d)) then
+       call device_free(this%v_d_d)
+    end if
+    if (c_associated(this%h_d_d)) then
+       call device_free(this%h_d_d)
+    end if
 
     nullify(this%M)
 

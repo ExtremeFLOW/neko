@@ -42,6 +42,7 @@ module wale
   use utils, only : neko_error
   use neko_config, only : NEKO_BCKND_DEVICE
   use wale_cpu, only : wale_compute_cpu
+  use wale_device, only : wale_compute_device
   use field_registry, only : neko_field_registry
   use logger, only : LOG_SIZE, neko_log
   implicit none
@@ -158,7 +159,8 @@ contains
 
     ! Compute the eddy viscosity field
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call neko_error("Wale model not implemented on accelarators yet.")
+       call wale_compute_device(this%if_ext, t, tstep, this%coef, &
+            this%nut, this%delta, this%c_w)
     else
        call wale_compute_cpu(this%if_ext, t, tstep, this%coef, &
             this%nut, this%delta, this%c_w)

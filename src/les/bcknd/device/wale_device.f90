@@ -1,4 +1,4 @@
-! Copyright (c) 2023-2024, The Neko Authors
+! Copyright (c) 2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,8 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Implements the device kernel for the `vreman_t` type.
-module vreman_device
+!> Implements the device kernel for the `wale_t` type.
+module wale_device
   use num_types, only : rp
   use math, only : NEKO_EPS
   use scratch_registry, only : neko_scratch_registry
@@ -41,11 +41,11 @@ module vreman_device
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
   use device_math, only : device_col2
-  use device_vreman_nut, only : device_vreman_nut_compute
+  use device_wale_nut, only : device_wale_nut_compute
   implicit none
   private
 
-  public :: vreman_compute_device
+  public :: wale_compute_device
 
 contains
 
@@ -57,7 +57,7 @@ contains
   !! @param nut The SGS viscosity array.
   !! @param delta The LES lengthscale.
   !! @param c The Vreman model constant
-  subroutine vreman_compute_device(if_ext, t, tstep, coef, nut, delta, c)
+  subroutine wale_compute_device(if_ext, t, tstep, coef, nut, delta, c)
     logical, intent(in) :: if_ext
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
@@ -66,17 +66,9 @@ contains
     type(field_t), intent(in) :: delta
     real(kind=rp), intent(in) :: c
     ! This is the alpha tensor in the paper
-    type(field_t), pointer :: a11, a12, a13, a21, a22, a23, a31, a32, a33
+    type(field_t), pointer :: g11, g12, g13, g21, g22, g23, g31, g32, g33
     type(field_t), pointer :: u, v, w
 
-    type(field_t), pointer :: beta11
-    type(field_t), pointer :: beta12
-    type(field_t), pointer :: beta13
-    type(field_t), pointer :: beta22
-    type(field_t), pointer :: beta23
-    type(field_t), pointer :: beta33
-    type(field_t), pointer :: b_beta
-    type(field_t), pointer :: aijaij
     integer :: temp_indices(9)
     integer :: e, i
 
@@ -90,50 +82,51 @@ contains
        w => neko_field_registry%get_field_by_name("w")
     end if
 
-    call neko_scratch_registry%request_field(a11, temp_indices(1))
-    call neko_scratch_registry%request_field(a12, temp_indices(2))
-    call neko_scratch_registry%request_field(a13, temp_indices(3))
-    call neko_scratch_registry%request_field(a21, temp_indices(4))
-    call neko_scratch_registry%request_field(a22, temp_indices(5))
-    call neko_scratch_registry%request_field(a23, temp_indices(6))
-    call neko_scratch_registry%request_field(a31, temp_indices(7))
-    call neko_scratch_registry%request_field(a32, temp_indices(8))
-    call neko_scratch_registry%request_field(a33, temp_indices(9))
+    call neko_scratch_registry%request_field(g11, temp_indices(1))
+    call neko_scratch_registry%request_field(g12, temp_indices(2))
+    call neko_scratch_registry%request_field(g13, temp_indices(3))
+    call neko_scratch_registry%request_field(g21, temp_indices(4))
+    call neko_scratch_registry%request_field(g22, temp_indices(5))
+    call neko_scratch_registry%request_field(g23, temp_indices(6))
+    call neko_scratch_registry%request_field(g31, temp_indices(7))
+    call neko_scratch_registry%request_field(g32, temp_indices(8))
+    call neko_scratch_registry%request_field(g33, temp_indices(9))
+
 
     ! Compute the derivatives of the velocity (the alpha tensor)
-    call dudxyz (a11%x, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    call dudxyz (a12%x, u%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    call dudxyz (a13%x, u%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    call dudxyz (g11%x, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+    call dudxyz (g12%x, u%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+    call dudxyz (g13%x, u%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
 
-    call dudxyz (a21%x, v%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    call dudxyz (a22%x, v%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    call dudxyz (a23%x, v%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    call dudxyz (g21%x, v%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+    call dudxyz (g22%x, v%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+    call dudxyz (g23%x, v%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
 
-    call dudxyz (a31%x, w%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    call dudxyz (a32%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    call dudxyz (a33%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    call dudxyz (g31%x, w%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+    call dudxyz (g32%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+    call dudxyz (g33%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
 
-    call coef%gs_h%op(a11, GS_OP_ADD)
-    call coef%gs_h%op(a12, GS_OP_ADD)
-    call coef%gs_h%op(a13, GS_OP_ADD)
-    call coef%gs_h%op(a21, GS_OP_ADD)
-    call coef%gs_h%op(a22, GS_OP_ADD)
-    call coef%gs_h%op(a23, GS_OP_ADD)
-    call coef%gs_h%op(a31, GS_OP_ADD)
-    call coef%gs_h%op(a32, GS_OP_ADD)
-    call coef%gs_h%op(a33, GS_OP_ADD)
+    call coef%gs_h%op(g11, GS_OP_ADD)
+    call coef%gs_h%op(g12, GS_OP_ADD)
+    call coef%gs_h%op(g13, GS_OP_ADD)
+    call coef%gs_h%op(g21, GS_OP_ADD)
+    call coef%gs_h%op(g22, GS_OP_ADD)
+    call coef%gs_h%op(g23, GS_OP_ADD)
+    call coef%gs_h%op(g31, GS_OP_ADD)
+    call coef%gs_h%op(g32, GS_OP_ADD)
+    call coef%gs_h%op(g33, GS_OP_ADD)
 
-    call device_vreman_nut_compute(a11%x_d, a12%x_d, a13%x_d, &
-         a21%x_d, a22%x_d, a23%x_d, &
-         a31%x_d, a32%x_d, a33%x_d, &
+    call device_wale_nut_compute(g11%x_d, g12%x_d, g13%x_d, &
+         g21%x_d, g22%x_d, g23%x_d, &
+         g31%x_d, g32%x_d, g33%x_d, &
          delta%x_d, nut%x_d, coef%mult_d, &
-         c, NEKO_EPS, a11%dof%size())
+         c, NEKO_EPS, g11%dof%size())
 
     call coef%gs_h%op(nut, GS_OP_ADD)
     call device_col2(nut%x_d, coef%mult_d, nut%dof%size())
 
     call neko_scratch_registry%relinquish_field(temp_indices)
-  end subroutine vreman_compute_device
+  end subroutine wale_compute_device
 
-end module vreman_device
+end module wale_device
 
