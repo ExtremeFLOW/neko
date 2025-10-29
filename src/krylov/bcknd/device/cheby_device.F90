@@ -85,7 +85,7 @@ module cheby_device
        integer(c_int) :: n
      end subroutine hip_cheby_device_part1
   end interface
-  
+
   interface
      subroutine hip_cheby_device_part2(d_d, w_d, x_d, tmp1, tmp2, n, strm) &
           bind(c, name='hip_cheby_part2')
@@ -109,7 +109,7 @@ module cheby_device
        integer(c_int) :: n
      end subroutine cuda_cheby_device_part1
   end interface
-  
+
   interface
      subroutine cuda_cheby_device_part2(d_d, w_d, x_d, tmp1, tmp2, n, strm) &
           bind(c, name='cuda_cheby_part2')
@@ -138,8 +138,8 @@ contains
 #endif
   end subroutine cheby_device_part1
 
-      
-  
+
+
   subroutine cheby_device_part2(d_d, w_d, x_d, tmp1, tmp2, n)
     type(c_ptr) :: d_d, w_d, x_d
     real(c_rp) :: tmp1, tmp2
@@ -469,7 +469,7 @@ contains
          end if
 
          call cheby_device_part2(d_d, w_d, x%x_d, tmp1, tmp2, n)
-         
+
       end do
 
     end associate
