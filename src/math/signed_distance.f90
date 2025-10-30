@@ -198,7 +198,7 @@ contains
     implicit none
 
     class(aabb_tree_t), intent(in) :: tree
-    class(tri_t), dimension(:), intent(in) :: object_list
+    class(tri_t), contiguous, dimension(:), intent(in) :: object_list
     real(kind=dp), dimension(3), intent(in) :: p
     real(kind=dp), intent(in) :: max_distance
 
