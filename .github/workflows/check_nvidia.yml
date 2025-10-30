@@ -150,7 +150,7 @@ jobs:
           fi
 
       - name: Build - Build Neko
-        run: make -j ${{ steps.setup-env.outputs.nproc }}
+        run: make -j ${{ steps.setup-env.outputs.nproc }} && make && make && make && make && make
 
       - name: Build - Install Neko
         if: matrix.backend == 'cpu'
