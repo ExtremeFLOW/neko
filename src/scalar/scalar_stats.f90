@@ -72,7 +72,7 @@ module scalar_stats
      type(mean_field_t) :: ss !< <ss>
      type(mean_field_t) :: sss !< <sss>
      type(mean_field_t) :: ssss !< <ssss>
-     
+
      type(mean_field_t) :: uss !< <uss>
      type(mean_field_t) :: vss !< <vss>
      type(mean_field_t) :: wss !< <wss>
@@ -194,7 +194,7 @@ contains
 
     ! Initialize mean fields
     call this%s_mean%init(this%s)
-    
+
     call this%us%init(this%stats_work, 'us')
     call this%vs%init(this%stats_work, 'vs')
     call this%ws%init(this%stats_work, 'ws')
@@ -351,7 +351,7 @@ contains
          call device_col3(stats_ss%x_d, this%s%x_d, this%s%x_d, n)
          call this%ss%update(k)
 
-         if (this%n_stats .eq. 5) return 
+         if (this%n_stats .eq. 5) return
 
          call device_col3(stats_work%x_d, this%stats_ss%x_d, this%s%x_d, n)
          call this%sss%update(k)
@@ -401,7 +401,7 @@ contains
          call col3(stats_ss%x, this%s%x, this%s%x, n)
          call this%ss%update(k)
 
-         if (this%n_stats .eq. 5) return 
+         if (this%n_stats .eq. 5) return
 
          call col3(stats_work%x, this%stats_ss%x, this%s%x, n)
          call this%sss%update(k)
@@ -632,7 +632,7 @@ contains
     call this%ss%free()
 
     if (this%n_stats .eq. 42) then
-       call this%sss%free() 
+       call this%sss%free()
        call this%ssss%free()
 
        call this%uss%free()
@@ -706,7 +706,7 @@ contains
     call this%ss%reset()
 
     if (this%n_stats .eq. 42) then
-       call this%sss%reset() 
+       call this%sss%reset()
        call this%ssss%reset()
 
        call this%uss%reset()
