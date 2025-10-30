@@ -110,7 +110,7 @@ contains
 
     if (search_tree%get_size() .ne. mesh%nelv) then
        call neko_error("signed_distance_field_tri_mesh: &
-            & Error building the search tree.")
+       & Error building the search tree.")
     end if
 
     do id = 1, total_size
@@ -125,7 +125,7 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call neko_warning("signed_distance_field_tri_mesh:&
-            & Device version not implemented.")
+       & Device version not implemented.")
        call device_memcpy(field_data%x, field_data%x_d, field_data%size(), &
             HOST_TO_DEVICE, sync = .false.)
     end if
