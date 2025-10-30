@@ -281,8 +281,8 @@ contains
        call this%stat_fields%assign_to_field(6, this%sss%mf)
        call this%stat_fields%assign_to_field(7, this%ssss%mf)
 
-       call this%stat_fields%assign_to_field(8,  this%uss%mf)
-       call this%stat_fields%assign_to_field(9,  this%vss%mf)
+       call this%stat_fields%assign_to_field(8, this%uss%mf)
+       call this%stat_fields%assign_to_field(9, this%vss%mf)
        call this%stat_fields%assign_to_field(10, this%wss%mf)
        call this%stat_fields%assign_to_field(11, this%uus%mf)
        call this%stat_fields%assign_to_field(12, this%vvs%mf)
