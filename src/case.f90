@@ -47,6 +47,7 @@ module case
   use file, only : file_t
   use utils, only : neko_error
   use mesh, only : mesh_t
+  use mesh_manager, only : mesh_manager_t, mesh_manager_factory
   use math, only : NEKO_EPS
   use checkpoint, only: chkp_t
   use time_scheme_controller, only : time_scheme_controller_t
@@ -69,6 +70,7 @@ module case
 
   type, public :: case_t
      type(mesh_t) :: msh
+     class(mesh_manager_t), allocatable :: mesh_manager
      type(json_file) :: params
      character(len=:), allocatable :: output_directory
      type(output_controller_t) :: output_controller
@@ -152,7 +154,7 @@ contains
     character(len = :), allocatable :: string_val, name, file_format
     integer :: output_dir_len
     integer :: precision, layout
-    type(json_file) :: scalar_params, numerics_params
+    type(json_file) :: scalar_params, numerics_params, meshmng_params
     type(json_file) :: json_subdict
     integer :: n_scalars, i
 
@@ -179,6 +181,11 @@ contains
             'case file. Often caused by incorrectly formatted json.')
     end if
     call msh_file%init(string_val)
+    ! Check if there is defined mesh manager
+    if (this%params%valid_path('case.mesh_manager')) then
+       call json_get(this%params, 'case.mesh_manager', meshmng_params)
+       call mesh_manager_factory(this%mesh_manager, meshmng_params)
+    end if
 
     call msh_file%read(this%msh)
 
@@ -525,6 +532,11 @@ contains
     if (allocated(this%scalars)) then
        call this%scalars%free()
        deallocate(this%scalars)
+    end if
+
+    if (allocated(this%mesh_manager)) then
+       call this%mesh_manager%free()
+       deallocate(this%mesh_manager)
     end if
 
     call this%msh%free()

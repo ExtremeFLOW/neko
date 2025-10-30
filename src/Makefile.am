@@ -82,6 +82,9 @@ neko_fortran_SOURCES = \
 	mesh/tet_mesh.f90\
 	mesh/tri_mesh.f90\
 	mesh/intersection_detector.f90\
+	mesh/mesh_manager/mesh_manager.f90\
+	mesh/mesh_manager/mesh_manager_fctry.f90\
+	mesh/mesh_manager/p4est.F90\
 	field/field_registry.f90\
 	field/scratch_registry.f90\
 	field/field.f90\
@@ -411,8 +414,6 @@ libneko_la_SOURCES += comm/parmetis_wrapper.c
 endif
 
 if ENABLE_P4EST
-neko_fortran_SOURCES += mesh/mesh_manager/p4est.F90
-libneko_la_SOURCES += mesh/mesh_manager/p4est.F90
 libneko_la_SOURCES += \
 	mesh/mesh_manager/p4est_wrapper.c\
 	mesh/mesh_manager/p8est_lnodes_edge.c

@@ -32,8 +32,11 @@
 !
 !> Main interface for data exchange and manipulation between p4est and neko
 module p4est
-  use mpi_f08
+!  use mpi_f08
+  use num_types, only : i4, i8, rp, dp
   use comm, only : NEKO_COMM
+  use json_module, only : json_file
+  use mesh_manager, only : mesh_manager_t
 
   implicit none
 
@@ -48,6 +51,23 @@ module p4est
 #endif
   ! refinement flag definition
 #include "mesh/mesh_manager/amr.h"
+
+  !> p4est mesh manager
+  type, public, extends(mesh_manager_t) :: p4est_mesh_manager_t
+     !> The rotation vector.
+     real(kind=rp) :: omega(3)
+     !> The geostrophic wind.
+     real(kind=rp) :: u_geo(3) = 0
+   contains
+     !> The common constructor using a JSON object.
+     procedure, pass(this) :: init => p4est_init_from_json
+     !> The costrucructor from type components.
+     procedure, pass(this) :: init_from_component => &
+          p4est_init_from_components
+     !> Destructor.
+     procedure, pass(this) :: free => p4est_free
+  end type p4est_mesh_manager_t
+
 
   ! connectivity parameter arrays
   ! face vertices
@@ -395,6 +415,43 @@ module p4est
   end interface
 
 contains
+
+  !> The common constructor using a JSON object.
+  !! @param json The JSON object.
+  subroutine p4est_init_from_json(this, json)
+    class(p4est_mesh_manager_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+    character(len=:), allocatable :: filename
+
+    call p4est_init_from_components(this, filename)
+
+  end subroutine p4est_init_from_json
+
+  !> The constructor from type components.
+  subroutine p4est_init_from_components(this, filename)
+    class(p4est_mesh_manager_t), intent(inout) :: this
+    character(len=:), allocatable, intent(in) :: filename
+    integer(i4) :: catch_signals, print_backtrace, log_threshold
+
+    catch_signals = 0
+    print_backtrace = 0
+    log_threshold = 0
+
+    call wp4est_init(NEKO_COMM%mpi_val, catch_signals, print_backtrace, &
+          log_threshold)
+
+  end subroutine p4est_init_from_components
+
+  !> Destructor.
+  subroutine p4est_free(this)
+    class(p4est_mesh_manager_t), intent(inout) :: this
+    integer(i4) :: log_priority
+
+    log_priority = 0
+
+    call wp4est_finalize(log_priority)
+    call this%free_base()
+  end subroutine p4est_free
 
 
 end module p4est

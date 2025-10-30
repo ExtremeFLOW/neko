@@ -1,0 +1,83 @@
+! Copyright (c) 2019-2025, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
+!> Defines a factory subroutine for mesh manager.
+submodule (mesh_manager) mesh_manager_fctry
+  use p4est, only : p4est_mesh_manager_t
+  use json_utils, only : json_get
+  use utils, only : neko_type_error
+
+  implicit none
+
+  ! List of all possible types created by the factory routine
+  character(len=20) :: MESHMNG_KNOWN_TYPES(1) = [character(len=20) :: &
+       "p4est"]
+contains
+
+  !> Mesh manager factory. Both constructs and initializes the object.
+  !! @param json JSON object initialising the mesh manager.
+  module subroutine mesh_manager_factory(object, json)
+    class(mesh_manager_t), allocatable, intent(inout) :: object
+    type(json_file), intent(inout) :: json
+    character(len=:), allocatable :: type_name
+
+    if (allocated(object)) then
+       deallocate(object)
+    end if
+
+    call json_get(json, "type", type_name)
+
+    ! Allocate
+    call mesh_manager_allocator(object, type_name)
+
+    ! Initialise
+    call object%init(json)
+
+  end subroutine mesh_manager_factory
+
+  !> mesh manager allocator.
+  !! @param object The object to be allocated.
+  !! @param type_name The name of the type to allocate.
+  module subroutine mesh_manager_allocator(object, type_name)
+    class(mesh_manager_t), allocatable, intent(inout) :: object
+    character(len=:), allocatable, intent(in) :: type_name
+    integer :: i
+
+    select case (trim(type_name))
+    case ("p4est")
+       allocate(p4est_mesh_manager_t::object)
+    case default
+       call neko_type_error("mesh manager", type_name, MESHMNG_KNOWN_TYPES)
+    end select
+  end subroutine mesh_manager_allocator
+
+end submodule mesh_manager_fctry
