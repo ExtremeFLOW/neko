@@ -38,6 +38,8 @@ in Neko. The list will be updated as new simcomps are added.
 - User defined components \ref user-file_simcomps
 - Fluid statistics simcomp, "fluid_stats", for more details see the 
   [statistics guide](@ref statistics-guide)
+- Scalar statistics simcomp, "scalar_stats", for more details see the 
+  [statistics guide](@ref statistics-guide)
 - User statistics simcomp, "user_stats" \ref user_stats 
 - Computation of the spectral error indicator \ref simcomp_speri
 
