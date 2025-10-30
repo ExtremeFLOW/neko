@@ -57,11 +57,11 @@ module derivative_simcomp
      !> The derivative field
      type(field_t), pointer :: du
      !> Derivatives of r with respect to the direction of derivation.
-     real(kind=rp), pointer :: dr(:,:,:,:)
+     real(kind=rp), pointer, contiguous :: dr(:,:,:,:)
      !> Derivatives of s with respect to the direction of derivation.
-     real(kind=rp), pointer :: ds(:,:,:,:)
+     real(kind=rp), pointer, contiguous :: ds(:,:,:,:)
      !> Derivatives of t with respect to the direction of derivation.
-     real(kind=rp), pointer :: dt(:,:,:,:)
+     real(kind=rp), pointer, contiguous :: dt(:,:,:,:)
      !> Output writer.
      type(field_writer_t) :: writer
 
