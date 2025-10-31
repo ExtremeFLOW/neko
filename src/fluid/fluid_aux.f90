@@ -8,7 +8,7 @@ module fluid_aux
   implicit none
   private
 
-  public :: fluid_step_info
+  public :: fluid_step_info, fluid_step_info_reset_stabilized
 
   !> To track if the solver is stabilized
   logical :: stabilized = .false.
@@ -23,12 +23,18 @@ contains
     type(time_state_t), intent(in) :: time
     logical, intent(in) :: full_stress_formulation
     logical, intent(in), optional :: strict_convergence
-    logical :: converged
+    logical :: converged, strict_conv
     character(len=LOG_SIZE) :: log_buf
     integer :: i, n
 
     n = size(ksp_results)
     if (full_stress_formulation) n = 2
+
+    if (present(strict_convergence)) then
+       strict_conv = strict_convergence
+    else
+       strict_conv = .false.
+    end if
 
     ! Do the printing
     call ksp_results(1)%print_header()
@@ -44,26 +50,29 @@ contains
                trim(ksp_results(i)%name))
        end if
 
-       if (present(strict_convergence)) then
+       if (.not. ksp_results(i)%converged) then
+          converged = .false.
+          log_buf = 'Fluid solver did not converge for ' &
+               // trim(ksp_results(i)%name)
 
-          if (.not. ksp_results(i)%converged) then
-             converged = .false.
-             log_buf = 'Fluid solver did not converge for ' &
-                  // trim(ksp_results(i)%name)
-
-             if (.not. stabilized)then
-                continue
-             else if (strict_convergence) then
-                call neko_error(log_buf)
-             else
-                call neko_warning(log_buf)
-             end if
+          if (.not. stabilized) then
+             continue
+          else if (strict_conv) then
+             call neko_error(log_buf)
+          else
+             call neko_warning(log_buf)
           end if
        end if
     end do
 
+    ! Update stabilized status
     if (.not. stabilized) stabilized = converged
 
   end subroutine fluid_step_info
+
+  !> Resets the stabilized flag to false
+  subroutine fluid_step_info_reset_stabilized()
+    stabilized = .false.
+  end subroutine fluid_step_info_reset_stabilized
 
 end module fluid_aux
