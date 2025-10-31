@@ -35,9 +35,6 @@
 module vector_registry
   use, intrinsic :: iso_fortran_env, only: error_unit
   use vector, only : vector_t
-  use dofmap, only : dofmap_t
-  use utils, only : neko_error
-  use htable, only : h_cptr_t
   use utils, only: neko_error
   use comm, only : pe_rank
   use json_module, only : json_file
