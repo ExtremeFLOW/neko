@@ -6,6 +6,12 @@ module scalar_aux
   use utils, only : neko_error, neko_warning
   use, intrinsic :: ieee_arithmetic, only: ieee_is_nan
   implicit none
+  private
+
+  public :: scalar_step_info
+
+  !> To track if the solver is stabilized
+  logical :: stabilized = .false.
 
 contains
 
@@ -15,6 +21,7 @@ contains
     type(ksp_monitor_t), dimension(:), intent(in) :: ksp_results
     type(time_state_t), intent(in) :: time
     logical, intent(in), optional :: strict_convergence
+    logical :: converged
     character(len=LOG_SIZE) :: log_buf
     integer :: i
 
@@ -25,6 +32,7 @@ contains
     end do
 
     ! Check for convergence
+    converged = .true.
     do i = 1, size(ksp_results)
        if (ieee_is_nan(ksp_results(i)%res_final)) then
           call neko_error("Scalar solver diverged for " // &
@@ -33,10 +41,13 @@ contains
 
        if (present(strict_convergence)) then
           if (.not. ksp_results(i)%converged) then
+             converged = .false.
              log_buf = 'Scalar solver did not converge for ' &
                   // trim(ksp_results(i)%name)
 
-             if (strict_convergence) then
+             if (.not. stabilized)then
+                continue
+             else if (strict_convergence) then
                 call neko_error(log_buf)
              else
                 call neko_warning(log_buf)
@@ -44,6 +55,8 @@ contains
           end if
        end if
     end do
+
+    if (.not. stabilized) stabilized = converged
 
   end subroutine scalar_step_info
 end module scalar_aux

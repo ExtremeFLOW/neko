@@ -10,6 +10,9 @@ module fluid_aux
 
   public :: fluid_step_info
 
+  !> To track if the solver is stabilized
+  logical :: stabilized = .false.
+
 contains
 
   !> Prints for prs, velx, vely, velz the following:
@@ -20,6 +23,7 @@ contains
     type(time_state_t), intent(in) :: time
     logical, intent(in) :: full_stress_formulation
     logical, intent(in), optional :: strict_convergence
+    logical :: converged
     character(len=LOG_SIZE) :: log_buf
     integer :: i, n
 
@@ -33,6 +37,7 @@ contains
     end do
 
     ! Check for convergence
+    converged = .true.
     do i = 1, n
        if (ieee_is_nan(ksp_results(i)%res_final)) then
           call neko_error("Fluid solver diverged for " // &
@@ -42,10 +47,13 @@ contains
        if (present(strict_convergence)) then
 
           if (.not. ksp_results(i)%converged) then
+             converged = .false.
              log_buf = 'Fluid solver did not converge for ' &
                   // trim(ksp_results(i)%name)
 
-             if (strict_convergence) then
+             if (.not. stabilized)then
+                continue
+             else if (strict_convergence) then
                 call neko_error(log_buf)
              else
                 call neko_warning(log_buf)
@@ -53,6 +61,8 @@ contains
           end if
        end if
     end do
+
+    if (.not. stabilized) stabilized = converged
 
   end subroutine fluid_step_info
 
