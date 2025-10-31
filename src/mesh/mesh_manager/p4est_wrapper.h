@@ -58,10 +58,8 @@ void wp4est_init(MPI_Fint fmpicomm, int catch_signals,
 		int print_backtrace, int log_threshold);
 
 /** Finalise sc printing package summary
- *
- * @param[in] log_priority       Logging priority
  */
-void wp4est_finalize(int log_priority);
+void wp4est_finalize();
 
 /** Initialize elements connectivity
  *
@@ -100,8 +98,11 @@ void wp4est_cnn_new(int * num_vertices, int * num_trees, int * num_corners,
 ;
 #endif
 
-/** Create brick connectivity */
-void wp4est_cnn_brick()
+/** Create brick connectivity
+*
+* @param[in] nx, ny, nz       number of trees in x, y, z direction
+*/
+void wp4est_cnn_brick(int nx, int ny, int nz)
 ;
 
 /** Create unit cube connectivity */
@@ -396,7 +397,11 @@ void wp4est_balance()
  *
  * @param quad_data   do we test quadrant data
  */
-void wp4est_tree_copy(int quad_data)
+void wp4est_tree_compare_copy(int quad_data)
+;
+
+/** Destroy tree */
+void wp4est_tree_compare_del()
 ;
 
 /** Check if tree was modified
@@ -404,7 +409,7 @@ void wp4est_tree_copy(int quad_data)
  * @param check       tree modification marker
  * @param quad_data   do we test quadrant data
  */
-void wp4est_tree_check(int * check, int quad_data)
+void wp4est_tree_compare_check(int * check, int quad_data)
 ;
 
 /** Fill ref_mark in p4est block

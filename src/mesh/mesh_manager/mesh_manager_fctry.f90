@@ -50,27 +50,22 @@ contains
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: type_name
 
-    if (allocated(object)) then
-       deallocate(object)
-    end if
-
+    if (allocated(object)) deallocate(object)
     call json_get(json, "type", type_name)
-
     ! Allocate
     call mesh_manager_allocator(object, type_name)
-
     ! Initialise
-    call object%init(json)
+    call object%init(json, type_name)
+    deallocate(type_name)
 
   end subroutine mesh_manager_factory
 
-  !> mesh manager allocator.
+  !> Mesh manager allocator.
   !! @param object The object to be allocated.
   !! @param type_name The name of the type to allocate.
   module subroutine mesh_manager_allocator(object, type_name)
     class(mesh_manager_t), allocatable, intent(inout) :: object
-    character(len=:), allocatable, intent(in) :: type_name
-    integer :: i
+    character(len=*), intent(in) :: type_name
 
     select case (trim(type_name))
     case ("p4est")

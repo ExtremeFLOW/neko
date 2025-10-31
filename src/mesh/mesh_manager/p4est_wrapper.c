@@ -80,9 +80,8 @@ void wp4est_init(MPI_Fint fmpicomm, int catch_signals, int print_backtrace,
   p4est_init(NULL, log_threshold);
 }
 
-void wp4est_finalize(int log_priority)
+void wp4est_finalize()
 {
-  sc_package_print_summary (log_priority);
   sc_finalize ();
 }
 
@@ -123,9 +122,7 @@ void wp4est_cnn_new(int * num_vertices, int * num_trees, int * num_corners,
 }
 
 /* testing connectivity */
-void wp4est_cnn_brick() {
-  int nx, ny, nz;
-  nx = ny = nz = 4;
+void wp4est_cnn_brick(int nx, int ny, int nz) {
   if (connect_neko != NULL) p4est_connectivity_destroy(connect_neko);
   if (geom_neko != NULL) p4est_geometry_destroy(geom_neko);
   connect_neko = p8est_connectivity_new_brick (nx, ny, nz, 0, 0, 0);
@@ -270,8 +267,10 @@ void wp4est_ghost_del() {
   if (ghost_neko != NULL) p4est_ghost_destroy(ghost_neko);
   ghost_neko = NULL;
   /* ghost data */
-  if (tree_neko->user_pointer != NULL) P4EST_FREE(tree_neko->user_pointer);
-  tree_neko->user_pointer = NULL;
+  if (tree_neko != NULL) {
+    if (tree_neko->user_pointer != NULL) P4EST_FREE(tree_neko->user_pointer);
+    tree_neko->user_pointer = NULL;
+  }
 }
 
 void wp4est_mesh_new() {
@@ -1527,13 +1526,18 @@ void wp4est_balance()
 }
 
 /* Make tree copy for later comparison */
-void wp4est_tree_copy(int quad_data) {
+void wp4est_tree_compare_copy(int quad_data) {
   if (tree_neko_compare != NULL) p4est_destroy (tree_neko_compare);
   tree_neko_compare = p4est_copy (tree_neko, quad_data);
 }
 
+void wp4est_tree_compare_del() {
+  if (tree_neko_compare != NULL) p4est_destroy(tree_neko_compare);
+  tree_neko_compare = NULL;
+}
+
 /* Check if three was modified */
-void wp4est_tree_check(int * check, int quad_data) {
+void wp4est_tree_compare_check(int * check, int quad_data) {
   if (tree_neko_compare != NULL) {
     *check = p4est_is_equal(tree_neko, tree_neko_compare, quad_data);
     p4est_destroy (tree_neko_compare);

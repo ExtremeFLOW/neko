@@ -32,10 +32,14 @@
 !
 !> Main interface for data exchange and manipulation between p4est and neko
 module p4est
-!  use mpi_f08
+  use mpi_f08
   use num_types, only : i4, i8, rp, dp
-  use comm, only : NEKO_COMM
+  use comm, only : NEKO_COMM, pe_rank
+  use logger, only : neko_log, NEKO_LOG_QUIET, NEKO_LOG_INFO, &
+       NEKO_LOG_VERBOSE, NEKO_LOG_DEBUG, LOG_SIZE
+  use utils, only : neko_error, neko_warning
   use json_module, only : json_file
+  use json_utils, only : json_get, json_get_or_default
   use mesh_manager, only : mesh_manager_t
 
   implicit none
@@ -54,20 +58,26 @@ module p4est
 
   !> p4est mesh manager
   type, public, extends(mesh_manager_t) :: p4est_mesh_manager_t
-     !> The rotation vector.
-     real(kind=rp) :: omega(3)
-     !> The geostrophic wind.
-     real(kind=rp) :: u_geo(3) = 0
+     !> Tree file
+     character(len=:), allocatable :: tree_file
+     !> Max refinement level
+     integer :: ref_level_max
+     !> Log level for P4est
+     integer :: log_level
    contains
      !> The common constructor using a JSON object.
      procedure, pass(this) :: init => p4est_init_from_json
+     !> Destructor.
+     procedure, pass(this) :: free => p4est_free
+#ifdef HAVE_P4EST
      !> The costrucructor from type components.
      procedure, pass(this) :: init_from_component => &
           p4est_init_from_components
-     !> Destructor.
-     procedure, pass(this) :: free => p4est_free
+     !> Import data from p4est to Neko
+     procedure, pass(this) :: import_data => &
+          p4est_import_data
+#endif
   end type p4est_mesh_manager_t
-
 
   ! connectivity parameter arrays
   ! face vertices
@@ -111,9 +121,7 @@ module p4est
        (/ 1,2,3,4 , 1,3,2,4 , 2,1,4,3 , 2,4,1,3 , 3,1,4,2 , 3,4,1,2 &
        , 4,2,3,1 , 4,3,2,1 /),shape(p4_pt))
 
-  ! default log threshold - production; for more info see sc.h
-  integer, parameter :: p4_lp_production = 6
-
+#ifdef HAVE_P4EST
   ! set of interfaces to call p4est functions
   interface
      subroutine wp4est_init(fmpicomm, catch_signals, print_backtrace, &
@@ -123,9 +131,8 @@ module p4est
             print_backtrace, log_threshold
      end subroutine wp4est_init
 
-     subroutine wp4est_finalize(log_priority) bind(c, name = 'wp4est_finalize')
+     subroutine wp4est_finalize() bind(c, name = 'wp4est_finalize')
        USE, INTRINSIC :: ISO_C_BINDING
-       integer(c_int), value :: log_priority
      end subroutine wp4est_finalize
 
 #ifdef P4_TO_P8
@@ -152,8 +159,9 @@ module p4est
      end subroutine wp4est_cnn_new
 #endif
 
-     subroutine wp4est_cnn_brick() bind(c, name = 'wp4est_cnn_brick')
+     subroutine wp4est_cnn_brick(nx, ny, nz) bind(c, name = 'wp4est_cnn_brick')
        USE, INTRINSIC :: ISO_C_BINDING
+       integer(c_int), value :: nx, ny, nz
      end subroutine wp4est_cnn_brick
 
      subroutine wp4est_cnn_unit_cube() bind(c, name = 'wp4est_cnn_unit_cube')
@@ -373,18 +381,23 @@ module p4est
        USE, INTRINSIC :: ISO_C_BINDING
      end subroutine wp4est_balance
 
-     subroutine wp4est_tree_copy(quad_data) &
-          bind(c, name = 'wp4est_tree_copy')
+     subroutine wp4est_tree_compare_copy(quad_data) &
+          bind(c, name = 'wp4est_tree_compare_copy')
        USE, INTRINSIC :: ISO_C_BINDING
        integer(c_int), value :: quad_data
-     end subroutine wp4est_tree_copy
+     end subroutine wp4est_tree_compare_copy
 
-     subroutine wp4est_tree_check(check, quad_data) &
-          bind(c, name = 'wp4est_tree_check')
+     subroutine wp4est_tree_compare_del() &
+          bind(c, name = 'wp4est_tree_compare_del')
+       USE, INTRINSIC :: ISO_C_BINDING
+     end subroutine wp4est_tree_compare_del
+
+     subroutine wp4est_tree_compare_check(check, quad_data) &
+          bind(c, name = 'wp4est_tree_compare_check')
        USE, INTRINSIC :: ISO_C_BINDING
        integer(c_int) :: check
        integer(c_int), value :: quad_data
-     end subroutine wp4est_tree_check
+     end subroutine wp4est_tree_compare_check
 
      subroutine wp4est_refm_put(ref_mark) &
           bind(c, name = 'wp4est_refm_put')
@@ -413,45 +426,191 @@ module p4est
      end subroutine wp4est_vtk_write
 
   end interface
+#endif
 
 contains
 
   !> The common constructor using a JSON object.
-  !! @param json The JSON object.
-  subroutine p4est_init_from_json(this, json)
+  !! @param json       The JSON object.
+  !! @param type_name  Manager type name
+  subroutine p4est_init_from_json(this, json, type_name)
     class(p4est_mesh_manager_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    character(len=:), allocatable :: filename
+    character(len=*), intent(in) :: type_name
+    character(len=:), allocatable :: tree_file
+    integer :: ref_level_max, log_level
 
-    call p4est_init_from_components(this, filename)
+#ifdef HAVE_P4EST
+    call this%init_base(type_name)
 
+    ! Extract runtime parameters
+    ! tree_file is mandatory
+    call json_get_or_default(json, 'tree_file', tree_file, 'no tree')
+    if (trim(tree_file) .eq. 'no tree') then
+       call neko_error('The tree_file keyword could not be found in the .' // &
+            'case file. Often caused by incorrectly formatted json.')
+    end if
+    ! p4est supports AMR; get maximum allowed refinement level
+    ! Notice, p4est has internal max refinement level (P8EST_QMAXLEVEL
+    ! defined in p8est.h) that cannot be exceeded. Moreover, negative
+    ! value of ref_level_max will automatically set the restriction to
+    ! P8EST_QMAXLEVEL. By default we set no refinement.
+    call json_get_or_default(json, "ref_level_max", ref_level_max, 0)
+    ! p4est has internal logging system with the following levels
+    ! DEFAULT   (-1)   Selects the SC default threshold.
+    ! ALWAYS      0    Log absolutely everything.
+    ! TRACE       1    Prefix file and line number.
+    ! DEBUG       2    Any information on the internal state.
+    ! VERBOSE     3    Information on conditions, decisions.
+    ! INFO        4    Most relevant things a function is doing.
+    ! STATISTICS  5    Important for consistency/performance.
+    ! PRODUCTION  6    A few lines at most for a major api function.
+    ! ESSENTIAL   7    Log a few lines max (version info) per program.
+    ! ERROR       8    Log errors only.  This is suggested over SILENT.
+    ! SILENT      9    Never log anything.  Instead suggesting ERROR.
+    call json_get_or_default(json, 'log_level', log_level, 8)
+
+    call p4est_init_from_components(this, tree_file, ref_level_max, log_level)
+
+    deallocate(tree_file)
+#else
+    call neko_error('p4est mesh manager must be compiled with p4est support.')
+#endif
   end subroutine p4est_init_from_json
-
-  !> The constructor from type components.
-  subroutine p4est_init_from_components(this, filename)
-    class(p4est_mesh_manager_t), intent(inout) :: this
-    character(len=:), allocatable, intent(in) :: filename
-    integer(i4) :: catch_signals, print_backtrace, log_threshold
-
-    catch_signals = 0
-    print_backtrace = 0
-    log_threshold = 0
-
-    call wp4est_init(NEKO_COMM%mpi_val, catch_signals, print_backtrace, &
-          log_threshold)
-
-  end subroutine p4est_init_from_components
 
   !> Destructor.
   subroutine p4est_free(this)
     class(p4est_mesh_manager_t), intent(inout) :: this
-    integer(i4) :: log_priority
+#ifdef HAVE_P4EST
+    character(len=LOG_SIZE) :: log_buf
 
-    log_priority = 0
+    write(log_buf, '(a)') 'Finalising p4est.'
+    call neko_log%message(log_buf, NEKO_LOG_INFO)
 
-    call wp4est_finalize(log_priority)
+    ! clean the memory
+    call wp4est_lnodes_del()
+    call wp4est_nodes_del()
+    call wp4est_mesh_del()
+    call wp4est_ghost_del()
+    call wp4est_tree_compare_del()
+    call wp4est_tree_del()
+    call wp4est_geom_del()
+    call wp4est_cnn_del()
+
+    ! stop p4est
+    ! There is some memory issue here, so I comment it for now.
+    ! As it is one of the last operations in the code I leave the investigation
+    ! for the future.
+    !call wp4est_finalize()
+
+    if (allocated(this%tree_file)) deallocate(this%tree_file)
+    this%ref_level_max = 0
+    this%log_level = 0
+
     call this%free_base()
+#else
+    call neko_error('p4est mesh manager must be compiled with p4est support.')
+#endif
   end subroutine p4est_free
 
+#ifdef HAVE_P4EST
+  !> The constructor from type components.
+  subroutine p4est_init_from_components(this, tree_file, ref_level_max, &
+       log_level)
+    class(p4est_mesh_manager_t), intent(inout) :: this
+    character(len=*), intent(in) :: tree_file
+    integer, intent(in) :: ref_level_max, log_level
+    integer(i4) :: catch_signals, print_backtrace, is_valid
+    character(len=LOG_SIZE) :: log_buf
+
+    call neko_log%section("Mesh manager")
+    write(log_buf, '(a)') 'Initialising p4est.'
+    call neko_log%message(log_buf, NEKO_LOG_INFO)
+
+    catch_signals = 0
+    print_backtrace = 0
+
+    this%tree_file = trim(tree_file)
+    this%ref_level_max = ref_level_max
+    if ((log_level >= 0) .and. (log_level <= 9)) then
+       this%log_level = log_level
+    else
+       call neko_warning('The p4est log level out of bounds [0..9] ' // &
+            'with 0 beeing the most verbose. ' // &
+            'Resetting to 8 (error only).')
+       this%log_level = 8
+    end if
+
+    ! start p4est
+    call wp4est_init(NEKO_COMM%mpi_val, catch_signals, print_backtrace, &
+         this%log_level)
+
+    write(log_buf, '(a)') 'Reading p4est tree.'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+!!$    ! read the tree file
+!!$    call wp4est_tree_load(this%tree_file)
+!!$    call wp4est_tree_valid(is_valid)
+!!$    if (is_valid == 0) call neko_error('Invalid p4est tree')
+!!$    call wp4est_cnn_valid(is_valid)
+!!$    if (is_valid == 0) call neko_error('Invalid p4est connectivity')
+!!$    ! perform partitioning on p4est side
+!!$    call wp4est_part()
+
+    ! for testing
+    call wp4est_cnn_brick(2, 2, 2)
+    call wp4est_tree_new()
+    call wp4est_vtk_write('test')
+
+    ! import data from p4est
+    call this%import_data()
+
+    call neko_log%end_section()
+    !write(*,*) 'TEST', is_valid
+  end subroutine p4est_init_from_components
+
+  !> Import data from p4est
+  subroutine p4est_import_data(this)
+    class(p4est_mesh_manager_t), intent(inout) :: this
+    character(len=LOG_SIZE) :: log_buf
+    character(len=*), parameter ::&
+         & frmt="('gdim = ', i1, ', nelements =', i9,', max ref. lev. = ',i2)"
+    integer(i4) :: ierr, gdim, nelt, nelv, maxl, maxg
+    integer(i8) :: nelgt, nelgto
+    integer(i4) :: lown, lshr, loff, lnum_in, lnum_fh, lnum_eh
+
+    write(log_buf, '(a)') 'Importing p4est data'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+
+    ! clean the base data
+    call this%free_base_data
+
+    ! create p4est ghost zones, mesh and nodes
+    call wp4est_ghost_new()
+    call wp4est_mesh_new()
+    call wp4est_nodes_new()
+
+    ! get mesh size and distribution information
+    call wp4est_msh_get_size(gdim, nelgt, nelgto, nelt, nelv, maxl)
+    ! get max refinement level across all ranks
+    call MPI_Allreduce(maxl, maxg, 1, MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
+
+    write(log_buf, frmt) gdim, nelgt, maxg
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+    write(*,*) 'TEST0 ', pe_rank, nelv, nelt
+
+    if (nelt > 0) then
+       ! get nodes and their coordinates
+       call wp4est_nds_get_size(lown, lshr, loff, lnum_in, lnum_fh, lnum_eh)
+       write(*,*) 'TEST1 ', pe_rank, lown, lshr, loff, lnum_in, lnum_fh, lnum_eh
+
+    end if
+
+    ! destroy p4est nodes, mesh and ghost cells
+    call wp4est_nodes_del()
+    call wp4est_mesh_del()
+    call wp4est_ghost_del()
+
+  end subroutine p4est_import_data
+#endif
 
 end module p4est

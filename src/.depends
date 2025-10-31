@@ -81,7 +81,7 @@ mesh/tri_mesh.lo : mesh/tri_mesh.f90 mesh/point.lo mesh/tri.lo
 mesh/intersection_detector.lo : mesh/intersection_detector.f90 mesh/search_tree/aabb.lo adt/stack.lo common/utils.lo mesh/point.lo mesh/hex.lo mesh/mesh.lo mesh/aabb_tree.lo config/num_types.lo 
 mesh/mesh_manager/mesh_manager.lo : mesh/mesh_manager/mesh_manager.f90 config/num_types.lo 
 mesh/mesh_manager/mesh_manager_fctry.lo : mesh/mesh_manager/mesh_manager_fctry.f90 common/utils.lo common/json_utils.lo mesh/mesh_manager/p4est.lo mesh/mesh_manager/mesh_manager.lo 
-mesh/mesh_manager/p4est.lo : mesh/mesh_manager/p4est.F90 mesh/mesh_manager/amr.h mesh/mesh_manager/mesh_manager.lo comm/comm.lo config/num_types.lo 
+mesh/mesh_manager/p4est.lo : mesh/mesh_manager/p4est.F90 mesh/mesh_manager/amr.h mesh/mesh_manager/mesh_manager.lo common/json_utils.lo common/utils.lo common/log.lo comm/comm.lo config/num_types.lo 
 field/field_registry.lo : field/field_registry.f90 common/json_utils.lo comm/comm.lo adt/htable.lo common/utils.lo sem/dofmap.lo field/field.lo 
 field/scratch_registry.lo : field/scratch_registry.f90 sem/dofmap.lo math/field_math.lo field/field.lo 
 field/field.lo : field/field.f90 sem/dofmap.lo sem/space.lo mesh/mesh.lo math/math.lo device/device.lo config/num_types.lo math/bcknd/device/device_math.lo config/neko_config.lo 

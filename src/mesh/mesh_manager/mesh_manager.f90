@@ -42,16 +42,16 @@ module mesh_manager
   !! @details Geometrical independent nodes are globally unique nodes not
   !! sharing physical coordinates and global id and not located on the
   !! nonconforming interfaces. It is a minimal set of points needed to build
-  !! a conforming, consistent element mesh. This type does not include full
-  !! connectivity information, as periodicity and nonconforming interfaces are
-  !! omitted.
+  !! a conforming, consistent element mesh based on verices only (no curvature
+  !! information). This type does not include full connectivity information, as
+  !! periodicity and nonconforming interfaces are omitted.
   type, public :: mesh_geom_node_ind_t
-     integer(i4) :: lown ! number of owned independent nodes
-     integer(i4) :: lshr ! number of independent owned shared nodes
-     integer(i4) :: loff ! local offset of owned independent nodes
-     integer(i4) :: lnum ! local number of independent nodes
-     integer(i8), allocatable, dimension(:) :: gidx ! global indexing of
-                                                    ! unique nodes
+     integer(i4) :: lown ! number of owned nodes
+     integer(i4) :: lshr ! number of owned shared nodes
+     integer(i4) :: loff ! local offset of owned nodes
+     integer(i4) :: lnum ! local number of nodes
+      ! global indexing of unique nodes
+     integer(i8), allocatable, dimension(:) :: gidx
      integer(i4), allocatable, dimension(:) :: ndown ! node owner (mpi rank)
      ! physical node coordinates
      real(kind=dp), allocatable, dimension(:,:) :: coord
@@ -68,8 +68,8 @@ module mesh_manager
   !! There are two types of hanging nodes h2 (dependent on 2 independent nodes;
   !! 2D face and 3D edge) and h4 (dependent on 4 independent nodes; 3D face).
   type, public, extends(mesh_geom_node_ind_t) :: mesh_geom_node_hng_t
-     integer(i4), allocatable, dimension(:,:) :: lmap ! local hanging to
-                                                      ! independent node mapping
+     ! local hanging to independent node mapping
+     integer(i4), allocatable, dimension(:,:) :: lmap
    contains
      procedure, public, pass(this) :: init_hng => mesh_geom_node_hng_init
      procedure, public, pass(this) :: free_hng => mesh_geom_node_hng_free
@@ -79,18 +79,18 @@ module mesh_manager
   !! @details It contains both object global numbering and communication
   !! information
   type, public :: mesh_conn_obj_t
-     integer(i4) :: lnum, lown ! number of local and owned objects
+     integer(i4) :: lnum ! number of local objects
+     integer(i4) :: lown ! number of owned objects
      integer(i8) :: goff ! global object offset
      integer(i8) :: gnum ! global number of objects
-     integer(i4), allocatable, dimension(:,:) :: lmap ! element
-                                                      ! vertices/faces/edges
-                                                      ! to object mapping
-     integer(i4) :: nrank, nshare ! number of MPI ranks sharing objects and
-                                  ! number of shared objects
-     integer(i8), allocatable, dimension(:) :: lgidx ! global indexing of unique
-                                                     ! objects of given type
-     integer(i4), allocatable, dimension(:) :: lrank ! list of ranks sharing
-                                                     ! objects
+     ! element vertices/faces/edges to object mapping
+     integer(i4), allocatable, dimension(:,:) :: lmap
+     integer(i4) :: nrank ! number of MPI ranks sharing objects and
+     integer(i4) :: nshare ! number of shared objects
+     ! global indexing of unique objects of given type
+     integer(i8), allocatable, dimension(:) :: lgidx
+     ! list of ranks sharing objects
+     integer(i4), allocatable, dimension(:) :: lrank
      integer(i4), allocatable, dimension(:) :: lshare ! list of shared objects
      integer(i4), allocatable, dimension(:) :: loff ! offset in the lshare list
    contains
@@ -100,6 +100,8 @@ module mesh_manager
 
   !> Base abstract type for mesh manager.
   type, abstract, public :: mesh_manager_t
+     !> Manager type name
+     character(len=:), allocatable :: type_name
      !> Geometrical independent nodes
      type(mesh_geom_node_ind_t) :: geom_ind
      !> Geometrical h2-type hanging nodes
@@ -113,6 +115,8 @@ module mesh_manager
      procedure, pass(this) :: init_base => mesh_manager_init_base
      !> Destructor for the mesh_manager_t (base) type.
      procedure, pass(this) :: free_base => mesh_manager_free_base
+     !> Destructor for the data in the mesh_manager_t type.
+     procedure, pass(this) :: free_base_data => mesh_manager_free_base_data
      !> The common constructor using a JSON object.
      procedure(mesh_manager_init), pass(this), deferred :: init
      !> Destructor.
@@ -121,11 +125,13 @@ module mesh_manager
 
   abstract interface
      !> The common constructor using a JSON object.
-     !! @param json The JSON object for the mesh manager.
-     subroutine mesh_manager_init(this, json)
+     !! @param json       The JSON object for the mesh manager.
+     !! @param type_name  Manager type name
+     subroutine mesh_manager_init(this, json, type_name)
        import mesh_manager_t, json_file
        class(mesh_manager_t), intent(inout) :: this
        type(json_file), intent(inout) :: json
+       character(len=*), intent(in) :: type_name
      end subroutine mesh_manager_init
   end interface
 
@@ -153,7 +159,7 @@ module mesh_manager
      !! @param type_name The name of the type to allocate.
      module subroutine mesh_manager_allocator(object, type_name)
        class(mesh_manager_t), allocatable, intent(inout) :: object
-       character(len=:), allocatable, intent(in) :: type_name
+       character(len=*), intent(in) :: type_name
      end subroutine mesh_manager_allocator
   end interface
 
@@ -180,6 +186,7 @@ contains
     this%lnum = lnum
 
     allocate(this%gidx(lnum), this%ndown(lnum), this%coord(lnum, ndim))
+
   end subroutine mesh_geom_node_ind_init
 
   !> Free independent nodes type
@@ -196,6 +203,7 @@ contains
     this%lshr = 0
     this%loff = 0
     this%lnum = 0
+
   end subroutine mesh_geom_node_ind_free
 
   !> Initialise hanging nodes type
@@ -214,6 +222,7 @@ contains
 
     call this%init_ind(lown, lshr, loff, lnum, ndim)
     allocate(this%lmap(lnum, ndep))
+
   end subroutine mesh_geom_node_hng_init
 
   !> Free hanging nodes type
@@ -223,6 +232,7 @@ contains
 
     call this%free_ind()
     if (allocated(this%lmap)) deallocate(this%lmap)
+
   end subroutine mesh_geom_node_hng_free
 
   !> Initialise connectivity object type
@@ -251,6 +261,7 @@ contains
 
 !    allocate(this%lmap(lnum,), this%lgidx(lnum), this%lrank(lnum), &
 !         this%lshare(), this%loff())
+
   end subroutine mesh_conn_obj_init
 
   !> Free connectivity object type
@@ -271,16 +282,29 @@ contains
     this%gnum = 0
     this%nrank = 0
     this%nshare = 0
+
   end subroutine mesh_conn_obj_free
 
   !> Constructor for the `mesh_manager_t` (base) type.
-  subroutine mesh_manager_init_base(this)
+  subroutine mesh_manager_init_base(this, type_name)
     class(mesh_manager_t), intent(inout) :: this
+    character(len=*), intent(in) :: type_name
+
+    this%type_name = type_name
 
   end subroutine mesh_manager_init_base
 
   !> Destructor for the `mesh_manager_t` (base) type.
   subroutine mesh_manager_free_base(this)
+    class(mesh_manager_t), intent(inout) :: this
+
+    call this%free_base_data
+    if (allocated(this%type_name)) deallocate(this%type_name)
+
+  end subroutine mesh_manager_free_base
+
+  !> Destructor for the data in `mesh_manager_t` (base) type.
+  subroutine mesh_manager_free_base_data(this)
     class(mesh_manager_t), intent(inout) :: this
 
     call this%geom_ind%free_ind()
@@ -290,6 +314,6 @@ contains
     call this%conn_edg%free()
     call this%conn_fcs%free()
 
-  end subroutine mesh_manager_free_base
+  end subroutine mesh_manager_free_base_data
 
 end module mesh_manager

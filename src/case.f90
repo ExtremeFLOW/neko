@@ -58,7 +58,8 @@ module case
   use scalar_scheme, only : scalar_scheme_t
   use time_state, only : time_state_t
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default, json_extract_item, json_no_defaults
+  use json_utils, only : json_get, json_get_or_default, json_extract_item, &
+       json_no_defaults
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   use point_zone_registry, only: neko_point_zone_registry
   use scalars, only : scalars_t
@@ -172,7 +173,7 @@ contains
     end if
 
     !
-    ! Load mesh
+    ! Load mesh and start mesh manager
     !
     call json_get_or_default(this%params, 'case.mesh_file', string_val, &
          'no mesh')
@@ -181,7 +182,8 @@ contains
             'case file. Often caused by incorrectly formatted json.')
     end if
     call msh_file%init(string_val)
-    ! Check if there is defined mesh manager
+
+    ! Check if there is a specified mesh manager
     if (this%params%valid_path('case.mesh_manager')) then
        call json_get(this%params, 'case.mesh_manager', meshmng_params)
        call mesh_manager_factory(this%mesh_manager, meshmng_params)
@@ -267,16 +269,16 @@ contains
           ! For backward compatibility
           call json_get(this%params, 'case.scalar', scalar_params)
           call this%scalars%init(this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
-               scalar_params, numerics_params, this%user, this%chkp, this%fluid%ulag, &
-               this%fluid%vlag, this%fluid%wlag, this%fluid%ext_bdf, &
-               this%fluid%rho)
+               scalar_params, numerics_params, this%user, this%chkp, &
+               this%fluid%ulag, this%fluid%vlag, this%fluid%wlag, &
+               this%fluid%ext_bdf, this%fluid%rho)
        else
           ! Multiple scalars
           call json_get(this%params, 'case.scalars', json_subdict)
-          call this%scalars%init(n_scalars, this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
-               json_subdict, numerics_params, this%user, this%chkp, this%fluid%ulag, &
-               this%fluid%vlag, this%fluid%wlag, this%fluid%ext_bdf, &
-               this%fluid%rho)
+          call this%scalars%init(n_scalars, this%msh, this%fluid%c_Xh, &
+               this%fluid%gs_Xh, json_subdict, numerics_params, this%user, &
+               this%chkp, this%fluid%ulag, this%fluid%vlag, this%fluid%wlag, &
+               this%fluid%ext_bdf, this%fluid%rho)
        end if
     end if
 
@@ -327,7 +329,8 @@ contains
                'case.scalar.initial_condition', json_subdict)
 
           if (trim(string_val) .ne. 'user') then
-             if (trim(this%scalars%scalar_fields(1)%name) .eq. 'temperature') then
+             if (trim(this%scalars%scalar_fields(1)%name) .eq. &
+                  'temperature') then
                 call set_scalar_ic(this%scalars%scalar_fields(1)%s, &
                      this%scalars%scalar_fields(1)%c_Xh, &
                      this%scalars%scalar_fields(1)%gs_Xh, &
@@ -356,7 +359,8 @@ contains
                   json_subdict)
 
              if (trim(string_val) .ne. 'user') then
-                if (trim(this%scalars%scalar_fields(i)%name) .eq. 'temperature') then
+                if (trim(this%scalars%scalar_fields(i)%name) .eq. &
+                     'temperature') then
                    call set_scalar_ic(this%scalars%scalar_fields(i)%s, &
                         this%scalars%scalar_fields(i)%c_Xh, &
                         this%scalars%scalar_fields(i)%gs_Xh, &
