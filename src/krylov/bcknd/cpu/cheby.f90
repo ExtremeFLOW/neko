@@ -273,7 +273,7 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
-    integer :: iter, max_iter
+    integer :: iter, max_iter, i
     real(kind=rp) :: a, b, rtr, rnorm, norm_fac
     real(kind=rp) :: rhok, rhokp1, sig1, tmp1, tmp2
 
@@ -306,8 +306,11 @@ contains
       else
          call this%M%solve(d, r, n)
       end if
-      call cmult( d, (1.0_rp / this%tha), n)
-      call add2( x%x, d, n)
+
+      do concurrent (i = 1:n)
+         d(i) = 1.0_rp/this%tha * d(i)
+         x%x(i,1,1,1) = x%x(i,1,1,1) + d(i)
+      end do
 
       sig1 = this%tha / this%dlt
       rhok = 1.0_rp / sig1
@@ -329,9 +332,10 @@ contains
          else
             call this%M%solve(w, r, n)
          end if
-         call cmult( d, tmp1, n)
-         call add2s2( d, w, tmp2, n)
-         call add2( x%x, d, n)
+         do concurrent (i = 1:n)
+            d(i) = tmp1 * d(i) + tmp2 * w(i)
+            x%x(i,1,1,1) = x%x(i,1,1,1) + d(i)
+         end do
       end do
 
     end associate
@@ -364,5 +368,3 @@ contains
   end function cheby_solve_coupled
 
 end module cheby
-
-
