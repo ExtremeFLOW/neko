@@ -140,6 +140,13 @@ contains
        deallocate(this%source_terms)
     end if
 
+    nullify(this%coef)
+    nullify(this%user)
+
+    if (alllocated(this%scheme_name)) then
+       deallocate(this%scheme_name)
+    end if
+
   end subroutine source_term_handler_free
 
   !> Add all the source term to the passed right-hand side fields.

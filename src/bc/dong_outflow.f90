@@ -193,6 +193,9 @@ contains
     class(dong_outflow_t), target, intent(inout) :: this
 
     call this%free_base
+    nullify(this%u)
+    nullify(this%v)
+    nullify(this%w)
 
   end subroutine dong_outflow_free
 

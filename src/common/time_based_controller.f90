@@ -69,6 +69,8 @@ module time_based_controller
    contains
      !> Constructor.
      procedure, pass(this) :: init => time_based_controller_init
+     !> Destructor.
+     procedure, pass(this) :: free => time_based_controller_free
      !> Check if the execution should be performed.
      procedure, pass(this) :: check => time_based_controller_check
      !> Increment `nexectutions`.
@@ -127,6 +129,15 @@ contains
        & tsteps, or never, but received "//trim(control_mode))
     end if
   end subroutine time_based_controller_init
+
+  !> Destructor.
+  subroutine time_based_controller_free(this)
+    class(time_based_controller_t), intent(inout) :: this
+
+    if (allocated(this%control_mode)) then
+       deallocate(this%control_mode)
+    end if
+  end subroutine time_based_controller_free
 
   !> Check if the execution should be performed.
   !! @param t Time value.
