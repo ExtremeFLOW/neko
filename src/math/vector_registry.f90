@@ -118,15 +118,15 @@ contains
     call this%vector%init(n)
   end subroutine named_vector_init
 
-   !> Destructor
-   subroutine named_vector_free(this)
-     class(named_vector_t), intent(inout) :: this
+  !> Destructor
+  subroutine named_vector_free(this)
+    class(named_vector_t), intent(inout) :: this
 
-     call this%vector%free()
-     if (allocated(this%name)) then
-         deallocate(this%name)
-     end if
-   end subroutine named_vector_free
+    call this%vector%free()
+    if (allocated(this%name)) then
+       deallocate(this%name)
+    end if
+  end subroutine named_vector_free
 
   !> Constructor
   !! @param size The allocation size of `vectors` on init.
