@@ -173,7 +173,7 @@ contains
     class(map_2d_t), intent(inout) :: this
     type(fld_file_data_t), intent(inout) :: fld_data2D
     type(field_list_t), intent(inout) :: fld_data3D
-    real(kind=rp), pointer, dimension(:,:,:,:) :: x_ptr, y_ptr
+    real(kind=rp), pointer, contiguous, dimension(:,:,:,:) :: x_ptr, y_ptr
 
     type(vector_ptr_t), allocatable :: fields2d(:)
     integer :: n_2d, n

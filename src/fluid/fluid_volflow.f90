@@ -68,7 +68,7 @@ module fluid_volflow
   use field, only : field_t
   use coefs, only : coef_t
   use time_scheme_controller, only : time_scheme_controller_t
-  use math, only : copy, glsc2, glmin, glmax, add2
+  use math, only : copy, glsc2, glmin, glmax, add2, abscmp
   use neko_config, only : NEKO_BCKND_DEVICE
   use device_math, only : device_cfill, device_rzero, device_copy, &
        device_add2, device_add2s2, device_glsc2
@@ -369,8 +369,8 @@ contains
 
       ifcomp = 0.0_rp
 
-      if (dt .ne. this%dtlag .or. &
-           ext_bdf%diffusion_coeffs(1) .ne. this%bdlag) then
+      if ((.not. abscmp(dt, this%dtlag)) .or. &
+          (.not. abscmp(ext_bdf%diffusion_coeffs(1), this%bdlag))) then
          ifcomp = 1.0_rp
       end if
 

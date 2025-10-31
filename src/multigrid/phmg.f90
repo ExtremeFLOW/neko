@@ -53,7 +53,7 @@ module phmg
   use tree_amg_multigrid, only : tamg_solver_t
   use interpolation, only : interpolator_t
   use json_module, only : json_file
-  use json_utils, only : json_get_or_default
+  use json_utils, only : json_get_or_default, json_get
   use math, only : copy, col2, add2, sub3, add2s2
   use device, only : device_get_ptr, device_stream_wait_event, glb_cmd_queue, &
        glb_cmd_event
@@ -117,11 +117,12 @@ contains
     integer :: crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree
     integer :: smoother_itrs
     character(len=:), allocatable :: cheby_acc
+    integer, allocatable :: pcrs_sched(:)
 
-    call json_get_or_Default(phmg_params, 'smoother_iterations', &
+    call json_get_or_default(phmg_params, 'smoother_iterations', &
          smoother_itrs, 10)
 
-    call json_get_or_Default(phmg_params, 'smoother_cheby_acc', &
+    call json_get_or_default(phmg_params, 'smoother_cheby_acc', &
          cheby_acc, "jacobi")
 
     call json_get_or_default(phmg_params, 'coarse_grid.levels', &
@@ -133,15 +134,24 @@ contains
     call json_get_or_default(phmg_params, 'coarse_grid.cheby_degree', &
          crs_tamg_cheby_degree, 5)
 
+    if (phmg_params%valid_path('pcoarsening_schedule')) then
+       call json_get(phmg_params, 'pcoarsening_schedule', pcrs_sched)
+    else
+       allocate(pcrs_sched(2))
+       pcrs_sched(1) = 3
+       pcrs_sched(2) = 1
+    end if
+
+
     call this%init_from_components(coef, bclst, smoother_itrs, &
-         cheby_acc, &
-         crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree)
+         cheby_acc, crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree,&
+         pcrs_sched)
 
   end subroutine phmg_init
 
   subroutine phmg_init_from_components(this, coef, bclst, smoother_itrs, &
-       cheby_acc, &
-       crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree)
+       cheby_acc, crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree, &
+       pcrs_sched)
     class(phmg_t), intent(inout), target :: this
     type(coef_t), intent(in), target :: coef
     type(bc_list_t), intent(inout), target :: bclst
@@ -149,6 +159,7 @@ contains
     character(len=:), allocatable :: cheby_acc
     integer, intent(in) :: crs_tamg_lvls, crs_tamg_itrs
     integer, intent(in) :: crs_tamg_cheby_degree
+    integer, intent(in), allocatable :: pcrs_sched(:)
     integer :: lx_crs, lx_mid
     integer, allocatable :: lx_lvls(:)
     integer :: n, i, j, st
@@ -159,17 +170,9 @@ contains
 
     this%msh => coef%msh
 
-    !TODO: hard coding the levels for now. (note: these levels match hsmg).
-    !this%nlvls = Xh%lx - 1
-    this%nlvls = 3
-
+    this%nlvls = size(pcrs_sched) + 1
     allocate(lx_lvls(0:this%nlvls - 1))
-    !do i = 1, this%nlvls -1
-    !   lx_lvls(i) = Xh%lx - i
-    !end do
-    !lx_lvls(1) = 6
-    lx_lvls(1) = 4
-    lx_lvls(2) = 2
+    lx_lvls(1:) = pcrs_sched + 1
 
     allocate(this%phmg_hrchy%lvl(0:this%nlvls - 1))
 
@@ -251,7 +254,7 @@ contains
              st = 0
              if (trim(cheby_acc) .eq. "schwarz") then
                 this%phmg_hrchy%lvl(i)%cheby_device%schwarz => &
-                   this%phmg_hrchy%lvl(i)%schwarz
+                     this%phmg_hrchy%lvl(i)%schwarz
                 st = 2
              end if
           end if
@@ -267,7 +270,7 @@ contains
              st = 0
              if (trim(cheby_acc) .eq. "schwarz") then
                 this%phmg_hrchy%lvl(i)%cheby%schwarz => &
-                   this%phmg_hrchy%lvl(i)%schwarz
+                     this%phmg_hrchy%lvl(i)%schwarz
                 st = 2
              end if
           end if
@@ -320,7 +323,6 @@ contains
               this%nlvls -1, mglvl, this%intrp, this%msh, this%Ax, &
               this%amg_solver)
 
-         call mglvl(0)%bclst%apply_scalar(mglvl(0)%z%x, n)
          call device_copy(z_d, mglvl(0)%z%x_d, n)
       else
          !We should not work with the input
@@ -333,7 +335,6 @@ contains
               this%nlvls -1, mglvl, this%intrp, this%msh, this%Ax, &
               this%amg_solver)
 
-         call mglvl(0)%bclst%apply_scalar(mglvl(0)%z%x, n)
          call copy(z, mglvl(0)%z%x, n)
       end if
     end associate
@@ -506,7 +507,7 @@ contains
     integer, intent(in) :: n, lvl
     integer :: i, iblk, ni, niblk
 
-    ni = 6
+    ni = mg%smoother_itrs
     if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, ni
           call Ax%compute(w%x, z%x, mg%coef, msh, mg%Xh)
@@ -590,7 +591,7 @@ contains
     clvl = nlvls - 1
     do i = 0, nlvls-1
        write(log_buf, '(A8,I2,A8,I2)') &
-             '-- level', i, '-- lx:', phmg%lvl(i)%Xh%lx
+            '-- level', i, '-- lx:', phmg%lvl(i)%Xh%lx
        call neko_log%message(log_buf)
 
        if (i .eq. clvl) then

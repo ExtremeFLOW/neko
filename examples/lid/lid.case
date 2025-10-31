@@ -52,13 +52,13 @@
             "boundary_conditions": [
                 {
                     "type": "no_slip",
-                    "zone_indices": [ 1 ]
+                    "zone_indices": [ 1, 2, 3 ]
                 },
                 {
                     "type": "user_velocity",
-                    "zone_indices": [ 2 ]
+                    "zone_indices": [ 4 ]
                 }
             ]
-        },
+        }
     }
 }

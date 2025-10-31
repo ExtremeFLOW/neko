@@ -443,7 +443,7 @@ file documentation.
 4. `point_zone`, the values are set to a constant base value, supplied under the
    `base_value` keyword, and then assigned a zone value inside a point zone. The
    point zone is specified by the `name` keyword, and should be defined in the
-   `case.point_zones` object. See more about point zones @ref point-zones.md.
+   `case.point_zones` object. See more about [point zones](@ref point-zones).
 5. `field`, where the initial condition is retrieved from a field file.
    The following keywords can be used:
 
@@ -527,12 +527,27 @@ The following types are currently implemented.
 
    The geostrophic wind is set to 0 for all components by default. Other values
    are set via the `geostrophic_wind` keyword.
-4. `user_pointwise`, the values are set inside the compiled user file, using the
+4. `centrifugal`, a source term introducing a centrifugal force, defined as \f$ -
+   \Omega \times (\Omega \times r) \f$. Here, \f$ \Omega \f$ is the rotation
+   vector and \f$ r \f$ is the position relative to the reference point, which
+   is any point lying on the rotation axis. To define forcing one has to provide
+   \f$ \Omega \f$ and the reference point. This is provided via the following
+   keywords.
+
+   - `rotation_vector`: Array with 3 values. Directly assigns \f$ \Omega \f$ to
+     the provided vector.
+   - `reference_point`: Array with 3 values. Deifines any point on the rotaion
+   axis.
+
+5. `user_pointwise`, the values are set inside the compiled user file, using the
    pointwise user file subroutine. Only works on CPUs!
-5. `user_vector`, the values are set inside the compiled user file, using the
+6. `user_vector`, the values are set inside the compiled user file, using the
    non-pointwise user file subroutine. Should be used when running on the GPU.
-6. `brinkman`, Brinkman permeability forcing inside a pre-defined region.
-7. `gradient_jump_penalty`, perform gradient_jump_penalisation.
+7. `brinkman`, Brinkman permeability forcing inside a pre-defined region.
+8. `gradient_jump_penalty`, perform gradient_jump_penalisation.
+
+@note Notice that to perform simulation in a rotating reference frame one has to
+define both `coriolis` and `centrifugal` source terms in a consistent way.
 
 #### Brinkman
 The Brinkman source term introduces regions of resistance in the fluid domain.
@@ -743,6 +758,7 @@ For `phmg`, the following keywords are used:
 
 | Name                       | Description                                                                                 | Admissible values     | Default value |
 | -------------------------- | ------------------------------------------------------------------------------------------- | --------------------- | ------------- |
+| `pcoarsening_schedule`     | P-multigrid coarsening schedule (polynomial order, high to low)                             | Array of integers     | `[3, 1]`      |
 | `smoother_iterations`      | Number of smoother iterations in the p-multigrid parts                                      | An integer            | 10            |
 | `smoother_cheby_acc`       | Type of Chebyshev acceleration (non-accelerated semi-iterative Chebyshev method if not set) | `jacobi` or `schwarz` | -             |
 | `coarse_grid.levels`       | Number of AMG levels to construct (only valid for `solver` type `tamg`)                     | An integer            | 3             |
@@ -892,7 +908,7 @@ file documentation.
 3. `point_zone`, the values are set to a constant base value, supplied under the
    `base_value` keyword, and then assigned a zone value inside a point zone. The
    point zone is specified by the `name` keyword, and should be defined in the
-   `case.point_zones` object. See more about point zones @ref point-zones.md.
+   `case.point_zones` object. See more about [point zones](@ref point-zones).
 4. `field`, where the initial condition is retrieved from a field file. Works
    in the same way as for the fluid. See the
    [fluid section](@ref case-file_fluid-ic) for detailed explanations.
@@ -940,7 +956,7 @@ which are not strictly necessary to run the solver. An example could be
 computing and output of additional fields, e.g. vorticity.
 
 A more detailed description as well as a  full list of available components and
- their setup is provided in a [separate page of the manual](simcomps.md).
+ their setup is provided in a [separate page of the manual](@ref simcomps).
 
 ## Point zones
 Point zones enable the user to select GLL points in the computational domain
@@ -954,7 +970,7 @@ point zones can also be added manually to the point zone registry from the user
 file.
 
 A more detailed description as well as a  full list of available components and
- their setup is provided in a [separate page of the manual](point-zones.md).
+ their setup is provided in a [separate page of the manual](@ref point-zones).
 
 ## Runtime statistics
 

@@ -396,6 +396,9 @@ contains
     nullify(this%mu)
     nullify(this%mu_tot)
 
+    call this%dm_Xh%free()
+    call this%Xh%free()
+
   end subroutine fluid_scheme_free
 
   !> Validate that all fields, solvers etc necessary for

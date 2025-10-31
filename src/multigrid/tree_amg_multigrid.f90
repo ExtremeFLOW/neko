@@ -43,11 +43,12 @@
 !>
 module tree_amg_multigrid
   use num_types, only: rp
-  use utils, only : neko_error
+  use utils, only : neko_error, neko_warning
   use math, only : add2, rzero, glsc2, sub3, col2
   use device_math, only : device_rzero, device_col2, device_add2, device_sub3, &
        device_glsc2
   use comm
+  use mpi_f08, only: MPI_Allreduce, MPI_MIN, MPI_IN_PLACE, MPI_INTEGER
   use coefs, only : coef_t
   use mesh, only : mesh_t
   use space, only : space_t
@@ -56,7 +57,7 @@ module tree_amg_multigrid
   use gather_scatter, only : gs_t, GS_OP_ADD
   use tree_amg, only : tamg_hierarchy_t, tamg_lvl_init, tamg_node_init
   use tree_amg_aggregate, only : aggregate_finest_level, aggregate_greedy, &
-       aggregate_end
+       aggregate_end, aggregate_pairs
   use tree_amg_smoother, only : amg_cheby_t
   use logger, only : neko_log, LOG_SIZE
   use device, only: device_map, device_free, device_memcpy, HOST_TO_DEVICE, &
@@ -112,8 +113,10 @@ contains
     integer, intent(in) :: max_iter
     integer, intent(in) :: cheby_degree
     integer :: lvl, n, mlvl, target_num_aggs
-    integer, allocatable :: agg_nhbr(:,:), asdf(:,:)
+    integer, allocatable :: agg_nhbr(:,:), nhbr_tmp(:,:)
     character(len=LOG_SIZE) :: log_buf
+    integer :: glb_min_target_aggs
+    logical :: use_greedy_agg
 
     call neko_log%section('AMG')
 
@@ -124,45 +127,66 @@ contains
     allocate( this%amg )
     call this%amg%init(ax, Xh, coef, msh, gs_h, nlvls, blst)
 
-    !> Create level 1 (neko elements are level 0)
+    ! Aggregation
+    use_greedy_agg = .true.
+    ! Create level 1 (neko elements are level 0)
     call aggregate_finest_level(this%amg, Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
-    !> Create the remaining levels
+    ! Create the remaining levels
     allocate( agg_nhbr, SOURCE = msh%facet_neigh )
     do mlvl = 2, nlvls-1
-       target_num_aggs = this%amg%lvl(mlvl-1)%nnodes / 8
-       call print_preagg_info( mlvl, target_num_aggs)
-       if ( target_num_aggs .lt. 4 ) then
-          call neko_error( &
-               "TAMG: Too many levels. Not enough DOFs for coarsest grid.")
+       ! estimate number of aggregates
+       if (use_greedy_agg) then
+          target_num_aggs = this%amg%lvl(mlvl-1)%nnodes / 8
+       else
+          target_num_aggs = this%amg%lvl(mlvl-1)%nnodes / 2
        end if
-       call aggregate_greedy( this%amg, mlvl, target_num_aggs, agg_nhbr, asdf)
-       agg_nhbr = asdf
-       deallocate( asdf )
+
+       glb_min_target_aggs = target_num_aggs
+       call MPI_Allreduce(MPI_IN_PLACE, glb_min_target_aggs, 1, &
+            MPI_INTEGER, MPI_MIN, NEKO_COMM)
+       if (glb_min_target_aggs .lt. 4 ) then
+          call neko_warning( &
+               "TAMG: Too many levels. Not enough DOFs for coarsest grid.")
+          this%amg%nlvls = mlvl
+          exit
+       end if
+
+       if (use_greedy_agg) then
+          call print_preagg_info( mlvl, glb_min_target_aggs, 1)
+          call aggregate_greedy( this%amg, mlvl, target_num_aggs, agg_nhbr, nhbr_tmp)
+       else
+          call print_preagg_info( mlvl, glb_min_target_aggs, 2)
+          call aggregate_pairs( this%amg, mlvl, target_num_aggs, agg_nhbr, nhbr_tmp)
+       end if
+
+       agg_nhbr = nhbr_tmp
+       deallocate( nhbr_tmp )
     end do
     deallocate( agg_nhbr )
 
-    !> Create the end point
-    call aggregate_end(this%amg, nlvls)
+    ! Create the end point
+    call aggregate_end(this%amg, this%amg%nlvls)
 
     this%max_iter = max_iter
 
-    this%nlvls = this%amg%nlvls!TODO: read from parameter
+    this%nlvls = this%amg%nlvls
     if (this%nlvls .gt. this%amg%nlvls) then
        call neko_error( &
             "Requested number multigrid levels &
        & is greater than the initialized AMG levels")
     end if
 
-    allocate(this%smoo(0:(nlvls)))
-    do lvl = 0, nlvls-1
+    ! Initialize relaxation methods
+    allocate(this%smoo(0:(this%amg%nlvls)))
+    do lvl = 0, this%amg%nlvls-1
        n = this%amg%lvl(lvl+1)%fine_lvl_dofs
        call this%smoo(lvl)%init(n, lvl, cheby_degree)
     end do
 
-    !> Allocate work space on each level
-    allocate(this%wrk(nlvls))
-    do lvl = 1, nlvls
+    ! Allocate work space on each level
+    allocate(this%wrk(this%amg%nlvls))
+    do lvl = 1, this%amg%nlvls
        n = this%amg%lvl(lvl)%fine_lvl_dofs
        allocate( this%wrk(lvl)%r(n) )
        allocate( this%wrk(lvl)%rc(n) )
@@ -174,12 +198,13 @@ contains
        end if
     end do
 
-    !allocate(this%jsmoo(0:(nlvls)))
-    !do lvl = 0, nlvls-1
+    !allocate(this%jsmoo(0:(this%amg%nlvls)))
+    !do lvl = 0, this%amg%nlvls-1
     !  n = this%amg%lvl(lvl+1)%fine_lvl_dofs
     !  call this%jsmoo(lvl)%init(n ,lvl, cheby_degree)
     !end do
 
+    ! Create index mapping between levels
     call fill_lvl_map(this%amg)
 
     call neko_log%end_section()
@@ -212,7 +237,7 @@ contains
        ! Call the amg cycle
        do iter = 1, max_iter
           call tamg_mg_cycle_d(z, r, z_d, r_d, n, 0, this%amg, this, &
-             zero_initial_guess)
+               zero_initial_guess)
           zero_initial_guess = .false.
        end do
     else
@@ -222,7 +247,7 @@ contains
        ! Call the amg cycle
        do iter = 1, max_iter
           call tamg_mg_cycle(z, r, n, 0, this%amg, this, &
-             zero_initial_guess)
+               zero_initial_guess)
           zero_initial_guess = .false.
        end do
     end if
@@ -252,39 +277,39 @@ contains
     integer :: max_lvl
     integer :: i, cyt
     max_lvl = mgstuff%nlvls-1
-    !>----------<!
-    !> SMOOTH   <!
-    !>----------<!
+    !!----------!!
+    !! SMOOTH   !!
+    !!----------!!
     call mgstuff%smoo(lvl)%solve(x, b, n, amg, &
-       zero_initial_guess)
+         zero_initial_guess)
     if (lvl .eq. max_lvl) then !> Is coarsest grid.
        return
     end if
-    !>----------<!
-    !> Residual <!
-    !>----------<!
+    !!----------!!
+    !! Residual !!
+    !!----------!!
     call calc_resid(r, x, b, amg, lvl, n)
-    !>----------<!
-    !> Restrict <!
-    !>----------<!
+    !!----------!!
+    !! Restrict !!
+    !!----------!!
     call amg%interp_f2c(rc, r, lvl+1)
-    !>-------------------<!
-    !> Call Coarse solve <!
-    !>-------------------<!
+    !!-------------------!!
+    !! Call Coarse solve !!
+    !!-------------------!!
     call rzero(tmp, n)
     call tamg_mg_cycle(tmp, rc, amg%lvl(lvl+1)%nnodes, lvl+1, amg, mgstuff, &
-       .true.)
-    !>----------<!
-    !> Project  <!
-    !>----------<!
+         .true.)
+    !!----------!!
+    !! Project  !!
+    !!----------!!
     call amg%interp_c2f(r, tmp, lvl+1)
-    !>----------<!
-    !> Correct  <!
-    !>----------<!
+    !!----------!!
+    !! Correct  !!
+    !!----------!!
     call add2(x, r, n)
-    !>----------<!
-    !> SMOOTH   <!
-    !>----------<!
+    !!----------!!
+    !! SMOOTH   !!
+    !!----------!!
     call mgstuff%smoo(lvl)%solve(x,b, n, amg)
   end subroutine tamg_mg_cycle
 
@@ -310,43 +335,43 @@ contains
     integer :: max_lvl
     integer :: i, cyt
     max_lvl = mgstuff%nlvls-1
-    !>----------<!
-    !> SMOOTH   <!
-    !>----------<!
+    !!----------!!
+    !! SMOOTH   !!
+    !!----------!!
     call mgstuff%smoo(lvl)%device_solve(x, b, x_d, b_d, n, amg, &
-       zero_initial_guess)
+         zero_initial_guess)
     if (lvl .eq. max_lvl) then !> Is coarsest grid.
        return
     end if
     associate( r => mgstuff%wrk(lvl+1)%r, r_d => mgstuff%wrk(lvl+1)%r_d, &
          rc => mgstuff%wrk(lvl+1)%rc, rc_d => mgstuff%wrk(lvl+1)%rc_d, &
          tmp => mgstuff%wrk(lvl+1)%tmp, tmp_d => mgstuff%wrk(lvl+1)%tmp_d )
-      !>----------<!
-      !> Residual <!
-      !>----------<!
+      !!----------!!
+      !! Residual !!
+      !!----------!!
       call amg%device_matvec(r, x, r_d, x_d, lvl)
       call device_sub3(r_d, b_d, r_d, n)
-      !>----------<!
-      !> Restrict <!
-      !>----------<!
+      !!----------!!
+      !! Restrict !!
+      !!----------!!
       call amg%interp_f2c_d(rc_d, r_d, lvl+1)
-      !>-------------------<!
-      !> Call Coarse solve <!
-      !>-------------------<!
+      !!-------------------!!
+      !! Call Coarse solve !!
+      !!-------------------!!
       call device_rzero(tmp_d, n)
       call tamg_mg_cycle_d(tmp, rc, tmp_d, rc_d, &
            amg%lvl(lvl+1)%nnodes, lvl+1, amg, mgstuff, .true.)
-      !>----------<!
-      !> Project  <!
-      !>----------<!
+      !!----------!!
+      !! Project  !!
+      !!----------!!
       call amg%interp_c2f_d(r_d, tmp_d, lvl+1, r)
-      !>----------<!
-      !> Correct  <!
-      !>----------<!
+      !!----------!!
+      !! Correct  !!
+      !!----------!!
       call device_add2(x_d, r_d, n)
-      !>----------<!
-      !> SMOOTH   <!
-      !>----------<!
+      !!----------!!
+      !! SMOOTH   !!
+      !!----------!!
       call mgstuff%smoo(lvl)%device_solve(x, b, x_d, b_d, n, amg)
     end associate
   end subroutine tamg_mg_cycle_d
@@ -372,12 +397,20 @@ contains
   end subroutine calc_resid
 
 
-  subroutine print_preagg_info(lvl, nagg)
-    integer, intent(in) :: lvl, nagg
+  subroutine print_preagg_info(lvl, nagg, agg_type)
+    integer, intent(in) :: lvl, nagg, agg_type
     character(len=LOG_SIZE) :: log_buf
     !TODO: calculate min and max agg size
-    write(log_buf, '(A8,I2,A31)') '-- level', lvl, &
-         '-- Calling Greedy Aggregation'
+    if (agg_type .eq. 1) then
+       write(log_buf, '(A8,I2,A31)') '-- level', lvl, &
+            '-- Calling Greedy Aggregation'
+    else if (agg_type .eq. 2) then
+       write(log_buf, '(A8,I2,A33)') '-- level', lvl, &
+            '-- Calling Pairwise Aggregation'
+    else
+       write(log_buf, '(A8,I2,A31)') '-- level', lvl, &
+            '-- UNKNOWN Aggregation'
+    end if
     call neko_log%message(log_buf)
     write(log_buf, '(A33,I6)') 'Target Aggregates:', nagg
     call neko_log%message(log_buf)
@@ -403,6 +436,8 @@ contains
     call neko_log%message(log_buf)
   end subroutine print_resid_info
 
+  !> Create index mapping between levels and directly to finest level
+  !! @param amg The tamg hierarchy
   subroutine fill_lvl_map(amg)
     type(tamg_hierarchy_t), intent(inout) :: amg
     integer :: i, j, k, l, nid, n

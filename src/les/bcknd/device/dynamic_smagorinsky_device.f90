@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Implements the device kernel for the `smagorinsky_t` type.
+!> Implements the device kernel for the `dynamic_smagorinsky_t` type.
 module dynamic_smagorinsky_device
   use num_types, only : rp
   use field_list, only : field_list_t
@@ -151,6 +151,7 @@ contains
   !! @param v y-velocity resolved (only filtered once)
   !! @param w z-velocity resolved (only filtered once)
   !! @param test_filter
+  !! @param n
   subroutine compute_lij_device(lij, u, v, w, test_filter, n)
     type(field_t), intent(inout) :: lij(6)
     type(field_t), pointer, intent(in) :: u, v, w
@@ -222,7 +223,7 @@ contains
   !! @param test_filter
   !! @param delta The filter size
   !! @param alpha The moving average coefficient
-  !! @param n The number of points
+  !! @param n
   subroutine compute_nut_device(nut, c_dyn, num, den, lij, mij, &
        s11, s22, s33, s12, s13, s23, &
        s_abs, test_filter, delta, alpha, &
