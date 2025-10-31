@@ -397,6 +397,9 @@ contains
     if (allocated(this%ind_t)) then
        deallocate(this%ind_t)
     end if
+    if (allocated(this%ind_e)) then
+       deallocate(this%ind_e)
+    end if
 
     if (c_associated(this%msk_d)) then
        call device_free(this%msk_d)
@@ -414,10 +417,17 @@ contains
        call device_free(this%ind_e_d)
     end if
 
+    if (allocated(this%scheme_name)) then
+       deallocate(this%scheme_name)
+    end if
+
+
     call this%h%free()
     call this%n_x%free()
     call this%n_y%free()
     call this%n_z%free()
+
+    nullify(this%dof)
   end subroutine wall_model_free_base
 
   !> Find sampling points based on the requested index.
