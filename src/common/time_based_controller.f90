@@ -137,6 +137,14 @@ contains
     if (allocated(this%control_mode)) then
        deallocate(this%control_mode)
     end if
+
+    this%frequency = 0.0_rp
+    this%time_interval = 0.0_rp
+    this%nsteps = 0
+    this%start_time = 0.0_rp
+    this%end_time = 0.0_rp
+    this%nexecutions = 0
+    this%never = .false.
   end subroutine time_based_controller_free
 
   !> Check if the execution should be performed.
