@@ -577,6 +577,7 @@ contains
     end if
 
     call this%global_interp%free()
+    call this%mat_out%free()
 
   end subroutine probes_free
 

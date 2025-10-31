@@ -213,6 +213,7 @@ contains
     end if
 
     call this%wk%free()
+    call this%speri_l%free()
 
     nullify(this%u)
     nullify(this%v)

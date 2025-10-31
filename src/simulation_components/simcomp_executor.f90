@@ -190,6 +190,7 @@ contains
     end if
 
     nullify(this%case)
+    this%finalized = .false.
   end subroutine simcomp_executor_free
 
   !> Appending a new simcomp to the executor.
