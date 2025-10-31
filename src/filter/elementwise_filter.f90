@@ -141,6 +141,10 @@ contains
   subroutine elementwise_filter_free(this)
     class(elementwise_filter_t), intent(inout) :: this
 
+    if (allocated(this%filter_type)) then
+       deallocate(this%filter_type)
+    end if
+
     if (allocated(this%fh)) then
        deallocate(this%fh)
     end if

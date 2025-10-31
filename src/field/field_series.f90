@@ -94,6 +94,10 @@ contains
        nullify(this%f)
     end if
 
+    if (allocated(this%lf)) then
+       deallocate(this%lf)
+    end if
+
     do i = 1, this%len
        call this%lf(i)%free()
     end do

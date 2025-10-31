@@ -143,7 +143,7 @@ contains
     nullify(this%coef)
     nullify(this%user)
 
-    if (alllocated(this%scheme_name)) then
+    if (allocated(this%scheme_name)) then
        deallocate(this%scheme_name)
     end if
 
