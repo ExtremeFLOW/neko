@@ -191,7 +191,7 @@ contains
     class(tamg_hierarchy_t), intent(inout) :: amg
     type(ksp_monitor_t) :: ksp_results
     logical, optional, intent(in) :: zero_init
-    integer :: iter, max_iter
+    integer :: iter, max_iter, i
     real(kind=rp) :: rtr, rnorm
     real(kind=rp) :: rhok, rhokp1, s1, thet, delt, tmp1, tmp2
     logical :: zero_initial_guess
@@ -219,21 +219,26 @@ contains
       rhok = 1.0_rp / s1
 
       ! First iteration
-      call cmult2(d, r, 1.0_rp/thet, n)
-      call add2(x, d, n)
+      do concurrent (i = 1:n)
+         d(i) = 1.0_rp/thet * r(i)
+         x(i) = x(i) + d(i)
+      end do
 
       ! Rest of iterations
       do iter = 2, max_iter
          call amg%matvec(w, d, this%lvl)
-         call sub2(r, w, n)
 
          rhokp1 = 1.0_rp / (2.0_rp * s1 - rhok)
          tmp1 = rhokp1 * rhok
          tmp2 = 2.0_rp * rhokp1 / delt
          rhok = rhokp1
 
-         call add3s2(d, d, r, tmp1, tmp2, n)
-         call add2(x, d, n)
+         do concurrent (i = 1:n)
+            r(i) = r(i) - w(i)
+            d(i) = tmp1 * d(i) + tmp2 * r(i)
+            x(i) = x(i) + d(i)
+         end do
+
       end do
     end associate
   end subroutine amg_cheby_solve
