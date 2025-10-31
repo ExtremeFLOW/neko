@@ -218,7 +218,7 @@ contains
     if (.not. this%enabled) return
 
     call neko_log%section('Runtime statistics', NEKO_LOG_QUIET)
-    call neko_log%newline()
+    call neko_log%newline(NEKO_LOG_QUIET)
     write(fmt, '(A,I0,A)') '(', RT_STATS_MAX_NAME_LEN, 'x,1x,A15,2x,A15,2x,A15)'
     write(log_buf, fmt) 'Total time', 'Avg. time', 'Range +/-'
     call neko_log%message(log_buf, NEKO_LOG_QUIET)
@@ -243,7 +243,7 @@ contains
                 total = total / pe_size
                 avg = total / nsamples
                 std = (total - avg)**2 / nsamples
-                sem = std /sqrt(real(nsamples, dp))
+                sem = std / sqrt(real(nsamples, dp))
              end select
              write(fmt, '(A,I0,A)') '(A', RT_STATS_MAX_NAME_LEN, &
                   ',1x,E15.7,2x,E15.7,2x,E15.7)'
