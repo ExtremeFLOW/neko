@@ -97,7 +97,7 @@ module schwarz
      type(dofmap_t), pointer :: dof
      type(gs_t), pointer :: gs_h
      type(mesh_t), pointer :: msh
-     type(c_ptr) :: event
+     type(c_ptr) :: event = C_NULL_PTR
      logical :: local_gs = .false.
    contains
      procedure, pass(this) :: init => schwarz_init
