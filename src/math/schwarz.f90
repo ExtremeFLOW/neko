@@ -92,11 +92,11 @@ module schwarz
      type(gs_t) :: gs_schwarz !< We are only interested in the gather-scatter!
      type(dofmap_t) :: dm_schwarz !< needed to init gs
      type(fdm_t) :: fdm
-     type(space_t), pointer :: Xh
-     type(bc_list_t), pointer :: bclst
-     type(dofmap_t), pointer :: dof
-     type(gs_t), pointer :: gs_h
-     type(mesh_t), pointer :: msh
+     type(space_t), pointer :: Xh => null()
+     type(bc_list_t), pointer :: bclst => null()
+     type(dofmap_t), pointer :: dof => null()
+     type(gs_t), pointer :: gs_h => null()
+     type(mesh_t), pointer :: msh => null()
      type(c_ptr) :: event = C_NULL_PTR
      logical :: local_gs = .false.
      type(gs_t), allocatable :: gs_h_local
