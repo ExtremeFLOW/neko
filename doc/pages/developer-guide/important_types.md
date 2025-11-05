@@ -57,7 +57,10 @@ and all have their name starting with `neko_`.
   object used to access the fields of unknowns for any place in the code.
 - [scratch_registry_t](#scratch_registry::scratch_registry_t): Provides a
   mechanism to get a temporary [field_t](#field::field_t) for doing some work.
-  Use this instead of creating temporary fields inside a subroutine. 
+  Use this instead of creating temporary fields inside a subroutine.
+- [vector_scratch_registry_t](#scratch_registry::vector_scratch_registry_t):
+  Provides a mechanism to get a temporary [vector_t](#field::vector_t) for doing
+  some work. Use this instead of creating temporary vectors inside a subroutine.
 - [simcomp_executor_t](#simcomp_executor::simcomp_executor_t): Driver for
   simulation components. The object is called `neko_simcomps`.
 - [log_t](#logger::log_t): Used to write to the simulation log.
