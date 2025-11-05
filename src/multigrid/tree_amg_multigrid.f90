@@ -87,6 +87,7 @@ module tree_amg_multigrid
    contains
      procedure, pass(this) :: init => tamg_mg_init
      procedure, pass(this) :: solve => tamg_mg_solve
+     procedure, pass(this) :: free =>tamg_mg_free
   end type tamg_solver_t
 
 contains
@@ -210,6 +211,34 @@ contains
     call neko_log%end_section()
 
   end subroutine tamg_mg_init
+
+  !> free tree amg solver object
+  subroutine tamg_mg_free(this)
+    class(tamg_solver_t), intent(inout), target :: this
+    integer :: i
+    if (allocated(this%amg)) then
+       call this%amg%free()
+       deallocate(this%amg)
+    end if
+    if (allocated(this%smoo)) then
+       do i = 1, size(this%smoo)
+          call this%smoo(i)%free()
+       end do
+       deallocate(this%smoo)
+    end if
+    if (allocated(this%wrk)) then
+       do i = 1, size(this%wrk)
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             call device_free(this%wrk(i)%r_d)
+             call device_free(this%wrk(i)%rc_d)
+             call device_free(this%wrk(i)%tmp_d)
+          end if
+          if (allocated(this%wrk(i)%r)) deallocate(this%wrk(i)%r)
+          if (allocated(this%wrk(i)%rc)) deallocate(this%wrk(i)%rc)
+          if (allocated(this%wrk(i)%tmp)) deallocate(this%wrk(i)%tmp)
+       end do
+    end if
+  end subroutine tamg_mg_free
 
 
   !> Solver function for the TreeAMG solver object
