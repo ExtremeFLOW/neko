@@ -271,13 +271,13 @@ contains
     class(tamg_node_t), intent(inout) :: this
 
     if (allocated(this%dofs)) then
-      deallocate(this%dofs)
+       deallocate(this%dofs)
     end if
     if (allocated(this%interp_r)) then
-      deallocate(this%interp_r)
+       deallocate(this%interp_r)
     end if
     if (allocated(this%interp_p)) then
-      deallocate(this%interp_p)
+       deallocate(this%interp_p)
     end if
   end subroutine
 

@@ -126,9 +126,9 @@ contains
   subroutine amg_cheby_free(this)
     class(amg_cheby_t), intent(inout), target :: this
     if (NEKO_BCKND_DEVICE .eq. 1) then
-      call device_deassociate(this%d)
-      call device_deassociate(this%w)
-      call device_deassociate(this%r)
+       call device_deassociate(this%d)
+       call device_deassociate(this%w)
+       call device_deassociate(this%r)
     end if
     if (allocated(this%d)) then
        deallocate(this%d)
@@ -140,9 +140,9 @@ contains
        deallocate(this%r)
     end if
     if (NEKO_BCKND_DEVICE .eq. 1) then
-      call device_free(this%d_d)
-      call device_free(this%w_d)
-      call device_free(this%r_d)
+       call device_free(this%d_d)
+       call device_free(this%w_d)
+       call device_free(this%r_d)
     end if
   end subroutine amg_cheby_free
 
