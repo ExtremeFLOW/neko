@@ -198,6 +198,11 @@ contains
   subroutine lambda2_free(this)
     class(lambda2_t), intent(inout) :: this
     call this%free_base()
+
+    nullify(this%u)
+    nullify(this%v)
+    nullify(this%w)
+    nullify(this%lambda2)
   end subroutine lambda2_free
 
   !> Compute the lambda2 field.

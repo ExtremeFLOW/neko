@@ -120,6 +120,10 @@ contains
     class(const_source_term_t), intent(inout) :: this
 
     call this%free_base()
+
+    if (allocated(this%values)) then
+       deallocate(this%values)
+    end if
   end subroutine const_source_term_free
 
   !> Computes the source term and adds the result to `fields`.

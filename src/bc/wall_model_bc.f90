@@ -208,6 +208,10 @@ contains
     call this%shear_stress_t%free()
     call this%wall_model%free()
 
+    if (allocated(this%wall_model)) then
+       deallocate(this%wall_model)
+    end if
+
   end subroutine wall_model_bc_free
 
   !> Finalize by building mask arrays and init'ing the wall model.

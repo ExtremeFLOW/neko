@@ -333,7 +333,7 @@ contains
     integer :: n
 
     associate(stats_work => this%stats_work, stats_ss => this%stats_ss, &
-              stats_uiuj => this%stats_uiuj)
+         stats_uiuj => this%stats_uiuj)
       n = stats_work%dof%size()
 
       !> U%f is u and U%mf is <u>
@@ -690,6 +690,13 @@ contains
        call this%dwdy%free()
        call this%dwdz%free()
     end if
+
+    nullify(this%coef)
+    nullify(this%s)
+    nullify(this%u)
+    nullify(this%v)
+    nullify(this%w)
+    nullify(this%p)
 
   end subroutine scalar_stats_free
 

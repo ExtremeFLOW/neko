@@ -204,8 +204,8 @@ contains
        deallocate(this%sig_u)
     end if
 
-    if(allocated(this%sig_w)) then
-       deallocate(this%sig_w)
+    if(allocated(this%sig_v)) then
+       deallocate(this%sig_v)
     end if
 
     if(allocated(this%sig_w)) then
@@ -213,6 +213,7 @@ contains
     end if
 
     call this%wk%free()
+    call this%speri_l%free()
 
     nullify(this%u)
     nullify(this%v)
