@@ -1,7 +1,7 @@
 module test_vector_scratch_registry
   use pfunit
   use vector
-  use math
+  use vector_math
   use vector_scratch_registry
   use comm, only : NEKO_COMM, pe_rank, pe_size
   use num_types
@@ -20,7 +20,6 @@ contains
     @assertEqual(scratch%get_expansion_size(), 10)
     @assertEqual(scratch%get_size(), 10)
     @assertEqual(scratch%get_nvectors_inuse(), 0)
-
 
   end subroutine test_vector_scratch_registry_init_default
 
@@ -59,9 +58,9 @@ contains
     @assertEqual(scratch%get_nvectors_inuse(), 3)
 
     ! do something with the vector
-    call cfill(v1%x, 1.0_rp, v1%size())
-    call cfill(v2%x, 2.0_rp, v2%size())
-    call cfill(v3%x, 3.0_rp, v3%size())
+    call vector_cfill(v1, 1.0_rp)
+    call vector_cfill(v2, 2.0_rp)
+    call vector_cfill(v3, 3.0_rp)
     @assertEqual(v1%x(1), 1.0_rp)
     @assertEqual(v2%x(1), 2.0_rp)
     @assertEqual(v3%x(1), 3.0_rp)
@@ -93,14 +92,14 @@ contains
     call scratch%init(1, 1)
 
     call scratch%request_vector(42, v1, index1)
-    call cfill(v1%x, 1.0_rp, v1%size())
+    call vector_cfill(v1, 1.0_rp)
     @assertEqual(v1%x(1), 1.0_rp)
 
     ! add new vector, trigging expand
     call scratch%request_vector(84, v2, index2)
 
     ! try to use the second vector
-    call cfill(v2%x, 2.0_rp, v2%size())
+    call vector_cfill(v2, 2.0_rp)
 
     ! make sure values in v1 preserved after expansion
     @assertEqual(v1%x(1), 1.0_rp)
@@ -128,8 +127,8 @@ contains
     ! add 2 vectors, no expansion
     call scratch%request_vector(42, v1, index1)
     call scratch%request_vector(42, v2, index2)
-    call cfill(v1%x, 1.0_rp, v1%size())
-    call cfill(v2%x, 2.0_rp, v2%size())
+    call vector_cfill(v1, 1.0_rp)
+    call vector_cfill(v2, 2.0_rp)
 
     @assertEqual(index1, 1)
     @assertEqual(index2, 2)
@@ -149,7 +148,7 @@ contains
 
     ! get a new vector, should get index 1
     call scratch%request_vector(42, v1, index1)
-    call cfill(v1%x, 1.5_rp, v1%size())
+    call vector_cfill(v1, 1.5_rp)
     @assertEqual(index1, 1)
     @assertEqual(scratch%get_inuse(index1), .true.)
     @assertEqual(scratch%get_inuse(index2), .true.)
@@ -163,7 +162,7 @@ contains
 
     ! get a another vector, should get index 3 and triger expand
     call scratch%request_vector(42, v3, index3)
-    call cfill(v3%x, 3.0_rp, v3%size())
+    call vector_cfill(v3, 3.0_rp)
     @assertEqual(index3, 3)
     @assertEqual(scratch%get_inuse(index1), .true.)
     @assertEqual(scratch%get_inuse(index2), .true.)
@@ -199,9 +198,9 @@ contains
     @assertEqual(indices(2), 2)
     @assertEqual(indices(3), 3)
 
-    call cfill(v1%x, 1.0_rp, v1%size())
-    call cfill(v2%x, 2.0_rp, v2%size())
-    call cfill(v3%x, 2.0_rp, v2%size())
+    call vector_cfill(v1, 1.0_rp)
+    call vector_cfill(v2, 2.0_rp)
+    call vector_cfill(v3, 2.0_rp)
 
     ! get rid of the vectors
     call scratch%relinquish_vector(indices)
@@ -213,7 +212,7 @@ contains
 
     ! get a new vector, should get index 1
     call scratch%request_vector(42, v1, indices(1))
-    call cfill(v1%x, 1.5_rp, v1%size())
+    call vector_cfill(v1, 1.5_rp)
     @assertEqual(indices(1), 1)
     @assertEqual(scratch%get_inuse(indices(1)), .true.)
     @assertEqual(scratch%get_nvectors(), 3)
