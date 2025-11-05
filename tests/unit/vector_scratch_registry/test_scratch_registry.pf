@@ -97,7 +97,7 @@ contains
     @assertEqual(v1%x(1), 1.0_rp)
 
     ! add new vector, trigging expand
-    call scratch%request_vector(42, v2, index2)
+    call scratch%request_vector(84, v2, index2)
 
     ! try to use the second vector
     call cfill(v2%x, 2.0_rp, v2%size())
@@ -105,6 +105,8 @@ contains
     ! make sure values in v1 preserved after expansion
     @assertEqual(v1%x(1), 1.0_rp)
     @assertEqual(v2%x(1), 2.0_rp)
+    @assertEqual(v1%size(), 42)
+    @assertEqual(v2%size(), 84)
     @assertEqual(index1, 1)
     @assertEqual(index2, 2)
     @assertEqual(scratch%get_inuse(index1), .true.)
