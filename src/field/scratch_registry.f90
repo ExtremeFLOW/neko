@@ -92,22 +92,21 @@ contains
     type(dofmap_t), target, intent(in) :: dof
     integer, optional, intent(in) :: size
     integer, optional, intent(in) :: expansion_size
-    integer :: i
+    integer :: i, s
 
     call this%free()
 
     this%dof => dof
 
-    if (present(size)) then
-       allocate (this%fields(size))
-       do i= 1, size
-          allocate(this%fields(i)%ptr)
-       end do
-       allocate (this%inuse(size))
-    else
-       allocate (this%fields(10))
-       allocate (this%inuse(10))
-    end if
+    s = 10
+    if (present(size)) s = size
+
+    allocate (this%fields(s))
+    do i = 1, s
+       allocate(this%fields(i)%ptr)
+    end do
+    allocate (this%inuse(s))
+
 
     this%inuse(:) = .false.
     if (present(expansion_size)) then
@@ -126,7 +125,7 @@ contains
     integer :: i
 
     if (allocated(this%fields)) then
-       do i=1, this%nfields
+       do i = 1, this%nfields
           call this%fields(i)%ptr%free()
           deallocate(this%fields(i)%ptr)
        end do
@@ -155,7 +154,7 @@ contains
     integer :: n, i
 
     n = 0
-    do i=1,this%get_size()
+    do i = 1,this%get_size()
        if (this%inuse(i)) n = n + 1
     end do
   end function get_nfields_inuse
@@ -185,7 +184,7 @@ contains
     allocate(temp(this%get_size() + this%expansion_size))
     temp(1:this%nfields) = this%fields(1:this%nfields)
 
-    do i=this%nfields +1, size(temp)
+    do i = this%nfields + 1, size(temp)
        allocate(temp(i)%ptr)
     enddo
 
@@ -209,7 +208,7 @@ contains
     associate(nfields => this%nfields, nfields_inuse => this%nfields_inuse)
 
       do index = 1, this%get_size()
-         if (this%inuse(index) .eqv. .false.) then
+         if (.not. this%inuse(index)) then
             write(name, "(A3,I0.3)") "wrk", index
 
             if (.not. allocated(this%fields(index)%ptr%x)) then
@@ -224,7 +223,7 @@ contains
          end if
       end do
       ! all existing fields in use, we need to expand to add a new one
-      index = nfields +1
+      index = nfields + 1
       call this%expand()
       nfields = nfields + 1
       nfields_inuse = nfields_inuse + 1
@@ -250,7 +249,7 @@ contains
     integer, intent(inout) :: indices(:) !< The indices of the field to free
     integer :: i
 
-    do i=1, size(indices)
+    do i = 1, size(indices)
        this%inuse(indices(i)) = .false.
     end do
     this%nfields_inuse = this%nfields_inuse - size(indices)
