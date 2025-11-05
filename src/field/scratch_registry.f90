@@ -106,14 +106,10 @@ contains
        allocate(this%fields(i)%ptr)
     end do
     allocate (this%inuse(s))
-
-
     this%inuse(:) = .false.
-    if (present(expansion_size)) then
-       this%expansion_size = expansion_size
-    else
-       this%expansion_size = 10
-    end if
+
+    this%expansion_size = 10
+    if (present(expansion_size)) this%expansion_size = expansion_size
 
     this%nfields = 0
     this%nfields_inuse = 0
