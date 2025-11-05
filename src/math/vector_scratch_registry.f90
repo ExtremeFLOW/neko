@@ -1,4 +1,4 @@
-! Copyright (c) 2018-2023, The Neko Authors
+! Copyright (c) 2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,82 +30,79 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Defines a registry for storing and requesting temporary fields
+!> Defines a registry for storing and requesting temporary vectors
 !! This can be used when you have a function that will be called
-!! often and you don't want to create temporary fields (work arrays) inside
+!! often and you don't want to create temporary vectors (work arrays) inside
 !! it on each call.
-module scratch_registry
-  use field, only : field_t, field_ptr_t
-  use field_math, only : field_rzero
-  use dofmap, only : dofmap_t
+module vector_scratch_registry
+  use vector, only : vector_t, vector_ptr_t
+  use vector_math, only : vector_rzero
   implicit none
   private
 
-
-  type, public :: scratch_registry_t
-     !> list of scratch fields
-     type(field_ptr_t), private, allocatable :: fields(:)
-     !> Tracks which fields are used
+  type, public :: vector_scratch_registry_t
+     !> list of scratch vectors
+     type(vector_ptr_t), private, allocatable :: vectors(:)
+     !> Tracks which vectors are used
      logical, private, allocatable :: inuse(:)
-     !> number of registered fields
-     integer, private :: nfields
-     !> number of fields in use
-     integer, private :: nfields_inuse
-     !> the size the fields array is increased by upon reallocation
+     !> number of registered vectors
+     integer, private :: nvectors
+     !> number of vectors in use
+     integer, private :: nvectors_inuse
+     !> the size the vectors array is increased by upon reallocation
      integer, private :: expansion_size
-     !> Dofmap
-     type(dofmap_t), pointer :: dof => null()
    contains
      procedure, private, pass(this) :: expand
      !> Constructor
      procedure, pass(this) :: init => scratch_registry_init
      !> Destructor
      procedure, pass(this) :: free => scratch_registry_free
-     !> Getter for nfields
-     procedure, pass(this) :: get_nfields
-     !> Getter for nfields_inuse
-     procedure, pass(this) :: get_nfields_inuse
+     !> Getter for nvectors
+     procedure, pass(this) :: get_nvectors
+     !> Getter for nvectors_inuse
+     procedure, pass(this) :: get_nvectors_inuse
      !> Getter for expansion_size
      procedure, pass(this) :: get_expansion_size
-     !> Return size of allocated fields
+     !> Return size of allocated vectors
      procedure, pass(this) :: get_size
      !> Get value of inuse for a given index
      procedure, pass(this) :: get_inuse
-     !> Get a new scratch field
-     procedure, pass(this) :: request_field
-     procedure, pass(this) :: relinquish_field_single
-     procedure, pass(this) :: relinquish_field_multiple
-     !> Free a field for later reuse
-     generic :: relinquish_field => relinquish_field_single, &
-          relinquish_field_multiple
-  end type scratch_registry_t
+     !> Get a new scratch vector
+     procedure, pass(this) :: request_vector
+     procedure, pass(this) :: relinquish_vector_single
+     procedure, pass(this) :: relinquish_vector_multiple
+     !> Free a vector for later reuse
+     generic :: relinquish_vector => relinquish_vector_single, &
+          relinquish_vector_multiple
+  end type vector_scratch_registry_t
 
   !> Global scratch registry
-  type(scratch_registry_t), public, target :: neko_scratch_registry
+  type(vector_scratch_registry_t), public, target :: &
+       neko_vector_scratch_registry
 
 contains
 
   !> Constructor, optionally taking initial registry and expansion
   !! size as argument
-  subroutine scratch_registry_init(this, dof, size, expansion_size)
-    class(scratch_registry_t), intent(inout) :: this
-    type(dofmap_t), target, intent(in) :: dof
+  subroutine scratch_registry_init(this, size, expansion_size)
+    class(vector_scratch_registry_t), intent(inout) :: this
     integer, optional, intent(in) :: size
     integer, optional, intent(in) :: expansion_size
     integer :: i
 
     call this%free()
 
-    this%dof => dof
-
     if (present(size)) then
-       allocate (this%fields(size))
-       do i= 1, size
-          allocate(this%fields(i)%ptr)
+       allocate (this%vectors(size))
+       do i = 1, size
+          allocate(this%vectors(i)%ptr)
        end do
        allocate (this%inuse(size))
     else
-       allocate (this%fields(10))
+       allocate (this%vectors(10))
+       do i = 1, 10
+          allocate(this%vectors(i)%ptr)
+       end do
        allocate (this%inuse(10))
     end if
 
@@ -116,151 +113,147 @@ contains
        this%expansion_size = 10
     end if
 
-    this%nfields = 0
-    this%nfields_inuse = 0
+    this%nvectors = 0
+    this%nvectors_inuse = 0
   end subroutine scratch_registry_init
 
   !> Destructor
   subroutine scratch_registry_free(this)
-    class(scratch_registry_t), intent(inout):: this
+    class(vector_scratch_registry_t), intent(inout):: this
     integer :: i
 
-    if (allocated(this%fields)) then
-       do i=1, this%nfields
-          call this%fields(i)%ptr%free()
-          deallocate(this%fields(i)%ptr)
+    if (allocated(this%vectors)) then
+       do i = 1, this%nvectors
+          call this%vectors(i)%ptr%free()
+          deallocate(this%vectors(i)%ptr)
        end do
 
-       deallocate(this%fields)
+       deallocate(this%vectors)
        deallocate(this%inuse)
-    end if
-
-    if (associated(this%dof)) then
-       nullify(this%dof)
     end if
 
   end subroutine scratch_registry_free
 
 
-  !> Get the number of fields stored in the registry
-  pure function get_nfields(this) result(n)
-    class(scratch_registry_t), intent(in) :: this
+  !> Get the number of vectors stored in the registry
+  pure function get_nvectors(this) result(n)
+    class(vector_scratch_registry_t), intent(in) :: this
     integer :: n
 
-    n = this%nfields
-  end function get_nfields
+    n = this%nvectors
+  end function get_nvectors
 
-  pure function get_nfields_inuse(this) result(n)
-    class(scratch_registry_t), intent(in) :: this
+  pure function get_nvectors_inuse(this) result(n)
+    class(vector_scratch_registry_t), intent(in) :: this
     integer :: n, i
 
     n = 0
-    do i=1,this%get_size()
+    do i = 1,this%get_size()
        if (this%inuse(i)) n = n + 1
     end do
-  end function get_nfields_inuse
+  end function get_nvectors_inuse
 
-  !> Get the size of the fields array
+  !> Get the size of the vectors array
   pure function get_size(this) result(n)
-    class(scratch_registry_t), intent(in) :: this
+    class(vector_scratch_registry_t), intent(in) :: this
     integer :: n
 
-    n = size(this%fields)
+    n = size(this%vectors)
   end function get_size
 
   !> Get the expansion size
   pure function get_expansion_size(this) result(n)
-    class(scratch_registry_t), intent(in) :: this
+    class(vector_scratch_registry_t), intent(in) :: this
     integer :: n
 
     n = this%expansion_size
   end function get_expansion_size
 
   subroutine expand(this)
-    class(scratch_registry_t), intent(inout) :: this
-    type(field_ptr_t), allocatable :: temp(:)
+    class(vector_scratch_registry_t), intent(inout) :: this
+    type(vector_ptr_t), allocatable :: temp(:)
     logical, allocatable :: temp2(:)
     integer :: i
 
     allocate(temp(this%get_size() + this%expansion_size))
-    temp(1:this%nfields) = this%fields(1:this%nfields)
+    temp(1:this%nvectors) = this%vectors(1:this%nvectors)
 
-    do i=this%nfields +1, size(temp)
+    do i = this%nvectors + 1, size(temp)
        allocate(temp(i)%ptr)
     enddo
 
-    call move_alloc(temp, this%fields)
+    call move_alloc(temp, this%vectors)
 
     allocate(temp2(this%get_size() + this%expansion_size))
-    temp2(1:this%nfields) = this%inuse(1:this%nfields)
-    temp2(this%nfields+1:) = .false.
+    temp2(1:this%nvectors) = this%inuse(1:this%nvectors)
+    temp2(this%nvectors+1:) = .false.
     this%inuse = temp2
   end subroutine expand
 
 
-  !> Get a field from the registry by assigning it to a pointer
-  subroutine request_field(this, f, index)
-    class(scratch_registry_t), target, intent(inout) :: this
-    type(field_t), pointer, intent(inout) :: f
-    integer, intent(inout) :: index !< The index of the field in the inuse array
-    character(len=10) :: name
+  !> Get a vector from the registry by assigning it to a pointer
+  subroutine request_vector(this, n, v, index)
+    class(vector_scratch_registry_t), target, intent(inout) :: this
+    integer, intent(in) :: n !< The size of the vector to request
+    type(vector_t), pointer, intent(inout) :: v
+    integer, intent(inout) :: index !< The index of the vector in the inuse array
 
-
-    associate(nfields => this%nfields, nfields_inuse => this%nfields_inuse)
+    associate(nvectors => this%nvectors, nvectors_inuse => this%nvectors_inuse)
 
       do index = 1, this%get_size()
-         if (this%inuse(index) .eqv. .false.) then
-            write(name, "(A3,I0.3)") "wrk", index
+         if (.not. this%inuse(index)) then
 
-            if (.not. allocated(this%fields(index)%ptr%x)) then
-               call this%fields(index)%ptr%init(this%dof, trim(name))
-               nfields = nfields + 1
+            if (.not. allocated(this%vectors(index)%ptr%x)) then
+               call this%vectors(index)%ptr%init(n)
+               nvectors = nvectors + 1
+            else if (this%vectors(index)%ptr%size() .ne. n) then
+               cycle
             end if
-            f => this%fields(index)%ptr
-            call field_rzero(f)
+
+            v => this%vectors(index)%ptr
+            call vector_rzero(v)
             this%inuse(index) = .true.
-            this%nfields_inuse = this%nfields_inuse + 1
+            this%nvectors_inuse = this%nvectors_inuse + 1
             return
          end if
       end do
-      ! all existing fields in use, we need to expand to add a new one
-      index = nfields +1
+      ! all existing vectors in use, we need to expand to add a new one
+      index = nvectors + 1
       call this%expand()
-      nfields = nfields + 1
-      nfields_inuse = nfields_inuse + 1
-      this%inuse(nfields) = .true.
-      write (name, "(A3,I0.3)") "wrk", index
-      call this%fields(nfields)%ptr%init(this%dof, trim(name))
-      f => this%fields(nfields)%ptr
+      nvectors = nvectors + 1
+      nvectors_inuse = nvectors_inuse + 1
+      this%inuse(nvectors) = .true.
+      call this%vectors(nvectors)%ptr%init(n)
+      v => this%vectors(nvectors)%ptr
 
     end associate
-  end subroutine request_field
+  end subroutine request_vector
 
-  !> Relinquish the use of a field in the registry
-  subroutine relinquish_field_single(this, index)
-    class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: index !< The index of the field to free
+  !> Relinquish the use of a vector in the registry
+  subroutine relinquish_vector_single(this, index)
+    class(vector_scratch_registry_t), target, intent(inout) :: this
+    integer, intent(inout) :: index !< The index of the vector to free
 
     this%inuse(index) = .false.
-    this%nfields_inuse = this%nfields_inuse - 1
-  end subroutine relinquish_field_single
+    this%nvectors_inuse = this%nvectors_inuse - 1
+  end subroutine relinquish_vector_single
 
-  subroutine relinquish_field_multiple(this, indices)
-    class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: indices(:) !< The indices of the field to free
+  subroutine relinquish_vector_multiple(this, indices)
+    class(vector_scratch_registry_t), target, intent(inout) :: this
+    integer, intent(inout) :: indices(:) !< The indices of the vector to free
     integer :: i
 
-    do i=1, size(indices)
+    do i = 1, size(indices)
        this%inuse(indices(i)) = .false.
     end do
-    this%nfields_inuse = this%nfields_inuse - size(indices)
-  end subroutine relinquish_field_multiple
+    this%nvectors_inuse = this%nvectors_inuse - size(indices)
+  end subroutine relinquish_vector_multiple
 
   logical function get_inuse(this, index)
-    class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: index !< The index of the field to check
+    class(vector_scratch_registry_t), target, intent(inout) :: this
+    integer, intent(inout) :: index !< The index of the vector to check
 
     get_inuse = this%inuse(index)
   end function get_inuse
 
-end module scratch_registry
+end module vector_scratch_registry
