@@ -279,7 +279,7 @@ contains
     if (allocated(this%interp_p)) then
        deallocate(this%interp_p)
     end if
-  end subroutine
+  end subroutine node_free
 
   !> Wrapper for matrix vector product using the TreeAMG hierarchy structure
   !> b=Ax done as vec_out = A * vec_in
