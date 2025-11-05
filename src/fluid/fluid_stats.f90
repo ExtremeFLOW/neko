@@ -600,6 +600,12 @@ contains
     call this%dWdy%free()
     call this%dWdz%free()
 
+    nullify(this%u)
+    nullify(this%v)
+    nullify(this%w)
+    nullify(this%p)
+    nullify(this%coef)
+
   end subroutine fluid_stats_free
 
   !> Resets all the computed means values and sampling times to zero.

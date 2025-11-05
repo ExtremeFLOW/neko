@@ -56,9 +56,9 @@ module probes
   use, intrinsic :: iso_c_binding
   use comm, only : NEKO_COMM, pe_rank, pe_size, MPI_REAL_PRECISION
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device, only : device_memcpy, DEVICE_TO_HOST, device_map
-  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM, MPI_DOUBLE_PRECISION, &
-       MPI_Gatherv, MPI_Gather, MPI_Exscan
+  use device, only : device_memcpy, DEVICE_TO_HOST, device_map, device_free
+  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM, &
+       MPI_DOUBLE_PRECISION, MPI_Gatherv, MPI_Gather, MPI_Exscan
   implicit none
   private
 
@@ -535,6 +535,7 @@ contains
   !> Destructor
   subroutine probes_free(this)
     class(probes_t), intent(inout) :: this
+    integer :: i
 
     if (allocated(this%xyz)) then
        deallocate(this%xyz)
@@ -562,7 +563,21 @@ contains
        deallocate(this%global_output_values)
     end if
 
+    if (allocated(this%which_fields)) then
+       deallocate(this%which_fields)
+    end if
+
+    if (allocated(this%out_values_d)) then
+       do i = 1, size(this%out_values_d)
+          if (c_associated(this%out_values_d(i))) then
+             call device_free(this%out_values_d(i))
+          end if
+       end do
+       deallocate(this%out_values_d)
+    end if
+
     call this%global_interp%free()
+    call this%mat_out%free()
 
   end subroutine probes_free
 
