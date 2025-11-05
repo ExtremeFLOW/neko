@@ -124,7 +124,7 @@ contains
        call device_memcpy(this%Yh_to_Xh, this%Yh_Xh_d, Yh%lx*Xh%lx, &
             HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(this%Yh_to_XhT, this%Yh_XhT_d, Yh%lx*Xh%lx, &
-            HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync=.true.)
     end if
 
   end subroutine interpolator_init
