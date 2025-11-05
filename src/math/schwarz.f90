@@ -92,13 +92,14 @@ module schwarz
      type(gs_t) :: gs_schwarz !< We are only interested in the gather-scatter!
      type(dofmap_t) :: dm_schwarz !< needed to init gs
      type(fdm_t) :: fdm
-     type(space_t), pointer :: Xh
-     type(bc_list_t), pointer :: bclst
-     type(dofmap_t), pointer :: dof
-     type(gs_t), pointer :: gs_h
-     type(mesh_t), pointer :: msh
-     type(c_ptr) :: event
+     type(space_t), pointer :: Xh => null()
+     type(bc_list_t), pointer :: bclst => null()
+     type(dofmap_t), pointer :: dof => null()
+     type(gs_t), pointer :: gs_h => null()
+     type(mesh_t), pointer :: msh => null()
+     type(c_ptr) :: event = C_NULL_PTR
      logical :: local_gs = .false.
+     type(gs_t), allocatable :: gs_h_local
    contains
      procedure, pass(this) :: init => schwarz_init
      procedure, pass(this) :: free => schwarz_free
@@ -142,8 +143,9 @@ contains
     ! If we are running multithreaded, we need a local gs object,
     ! otherwise we can reuse the external one
     if (nthrds .gt. 1) then
-       allocate(this%gs_h)
-       call this%gs_h%init(this%dof)
+       allocate(this%gs_h_local)
+       call this%gs_h_local%init(this%dof)
+       this%gs_h => this%gs_h_local
        this%local_gs = .true.
     else
        this%gs_h => gs_h
@@ -196,9 +198,9 @@ contains
     nullify(this%Xh)
     nullify(this%bclst)
     nullify(this%dof)
-    if (this%local_gs) then
-       call this%gs_h%free()
-       deallocate(this%gs_h)
+    if (allocated(this%gs_h_local)) then
+       call this%gs_h_local%free()
+       deallocate(this%gs_h_local)
     end if
     nullify(this%gs_h)
     nullify(this%msh)

@@ -96,17 +96,17 @@ module hsmg
 
   !Struct to arrange our multigridlevels
   type, private :: multigrid_t
-     type(dofmap_t), pointer :: dof
-     type(gs_t), pointer :: gs_h
-     type(space_t), pointer :: Xh
-     type(coef_t), pointer :: coef
-     type(bc_list_t), pointer :: bclst
-     type(schwarz_t), pointer :: schwarz
-     type(field_t), pointer :: e
+     type(dofmap_t), pointer :: dof => null()
+     type(gs_t), pointer :: gs_h => null()
+     type(space_t), pointer :: Xh => null()
+     type(coef_t), pointer :: coef => null()
+     type(bc_list_t), pointer :: bclst => null()
+     type(schwarz_t), pointer :: schwarz => null()
+     type(field_t), pointer :: e => null()
   end type multigrid_t
 
   type, public, extends(pc_t) :: hsmg_t
-     type(mesh_t), pointer :: msh
+     type(mesh_t), pointer :: msh => null()
      integer :: nlvls !< Number of levels in the multigrid
      type(multigrid_t), allocatable :: grids(:) !< array for multigrids
      type(gs_t) :: gs_crs, gs_mg !< gather scatter for lower levels
@@ -129,8 +129,8 @@ module hsmg
      real(kind=rp), allocatable :: w(:) !< work array
      type(c_ptr) :: w_d = C_NULL_PTR
      type(c_ptr) :: r_d = C_NULL_PTR
-     type(c_ptr) :: hsmg_event
-     type(c_ptr) :: gs_event
+     type(c_ptr) :: hsmg_event = C_NULL_PTR
+     type(c_ptr) :: gs_event = C_NULL_PTR
    contains
      procedure, pass(this) :: init => hsmg_init
      procedure, pass(this) :: init_from_components => &
