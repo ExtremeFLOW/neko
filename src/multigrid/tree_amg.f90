@@ -43,7 +43,8 @@ module tree_amg
   use ax_product, only: ax_t
   use bc_list, only: bc_list_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use device, only: device_map, device_free, device_stream_wait_event, glb_cmd_queue, glb_cmd_event
+  use device, only: device_map, device_free, device_deassociate, &
+       device_stream_wait_event, glb_cmd_queue, glb_cmd_event
   use neko_config, only: NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding
   implicit none
@@ -59,6 +60,8 @@ module tree_amg
      real(kind=rp) :: xyz(3) !< Coordinates of the node
      real(kind=rp), allocatable :: interp_r(:) !< Resriciton factors from dofs to node gid
      real(kind=rp), allocatable :: interp_p(:) !< Prolongation factors from node gid to dofs
+   contains
+     procedure, pass(this) :: free => node_free
   end type tamg_node_t
 
   !> Type for storing TreeAMG level information
@@ -74,20 +77,10 @@ module tree_amg
      integer, allocatable :: map_finest2lvl(:)
      type(c_ptr) :: map_finest2lvl_d = C_NULL_PTR
      !--!
-     integer, allocatable :: nodes_ptr(:)
-     type(c_ptr) :: nodes_ptr_d = C_NULL_PTR
-     integer, allocatable :: nodes_gid(:)
-     type(c_ptr) :: nodes_gid_d = C_NULL_PTR
-     integer, allocatable :: nodes_dofs(:)
-     type(c_ptr) :: nodes_dofs_d = C_NULL_PTR
      integer, allocatable :: map_f2c(:)
      type(c_ptr) :: map_f2c_d = C_NULL_PTR
-     ! could make another array of the same size of nodes_dofs
-     ! that stores the parent node gid information
-     ! (similar to nodes_gid that stores the gid of each node)
-     ! then some loops can be simplified to a single loop
-     ! of len(nodes_dofs) instead of going through each node
-     ! and looping through nodes_ptr(i) to nodes_ptr(i+1)-1
+   contains
+     procedure, pass(this) :: free => lvl_free
   end type tamg_lvl_t
 
   !> Type for a TreeAMG hierarchy
@@ -107,6 +100,7 @@ module tree_amg
 
    contains
      procedure, pass(this) :: init => tamg_init
+     procedure, pass(this) :: free => tamg_free
      procedure, pass(this) :: matvec => tamg_matvec
      procedure, pass(this) :: matvec_impl => tamg_matvec_impl
      procedure, pass(this) :: interp_f2c => tamg_restriction_operator
@@ -162,6 +156,27 @@ contains
 
   end subroutine tamg_init
 
+  !> deallocate tamg hierarchy
+  subroutine tamg_free(this)
+    class(tamg_hierarchy_t), intent(inout) :: this
+    integer :: i
+    if (allocated(this%lvl)) then
+       ! using size() instead of this%nlvls since
+       ! this%nlvls may be less than the allocated number of levels due to early
+       ! termination of aggregation
+       do i = 1, size(this%lvl)
+          call this%lvl(i)%free()
+       end do
+       deallocate(this%lvl)
+    end if
+    nullify(this%ax)
+    nullify(this%msh)
+    nullify(this%Xh)
+    nullify(this%coef)
+    nullify(this%gs_h)
+    nullify(this%blst)
+  end subroutine tamg_free
+
   !> Initialization of a TreeAMG level
   !! @param tamg_lvl The TreeAMG level
   !! @param lvl The level id
@@ -176,9 +191,6 @@ contains
     tamg_lvl%lvl = lvl
     tamg_lvl%nnodes = nnodes
     allocate( tamg_lvl%nodes(tamg_lvl%nnodes) )
-    allocate( tamg_lvl%nodes_ptr(tamg_lvl%nnodes+1) )
-    allocate( tamg_lvl%nodes_gid(tamg_lvl%nnodes) )
-    allocate( tamg_lvl%nodes_dofs(ndofs) )
     allocate( tamg_lvl%map_f2c(0:ndofs) )
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(tamg_lvl%map_f2c, tamg_lvl%map_f2c_d, ndofs+1)
@@ -194,6 +206,46 @@ contains
        call device_cfill(tamg_lvl%wrk_out_d, 0.0_rp, ndofs)
     end if
   end subroutine tamg_lvl_init
+
+  !> deallocate tamg level
+  subroutine lvl_free(this)
+    class(tamg_lvl_t), intent(inout) :: this
+    integer :: i
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_deassociate(this%wrk_in)
+       call device_deassociate(this%wrk_out)
+       call device_deassociate(this%map_f2c)
+       call device_deassociate(this%map_finest2lvl)
+    end if
+    if (allocated(this%nodes)) then
+       do i = 1, this%nnodes
+          call this%nodes(i)%free()
+       end do
+       deallocate(this%nodes)
+    end if
+    if (allocated(this%wrk_in)) then
+       deallocate(this%wrk_in)
+    end if
+    if (allocated(this%wrk_out)) then
+       deallocate(this%wrk_out)
+    end if
+    if (allocated(this%map_f2c)) then
+       deallocate(this%map_f2c)
+    end if
+    if (allocated(this%map_finest2lvl)) then
+       deallocate(this%map_finest2lvl)
+    end if
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_free(this%wrk_in_d)
+       call device_free(this%wrk_out_d)
+       call device_free(this%map_f2c_d)
+       call device_free(this%map_finest2lvl_d)
+    end if
+    this%nnodes = 0
+    this%lvl = -1
+    this%fine_lvl_dofs = 0
+  end subroutine lvl_free
 
   !> Initialization of a TreeAMG tree node
   !! @param node The TreeAMG tree node
@@ -213,6 +265,21 @@ contains
     node%interp_r = 1.0_rp
     node%interp_p = 1.0_rp
   end subroutine tamg_node_init
+
+  !> deallocate tamg tree node
+  subroutine node_free(this)
+    class(tamg_node_t), intent(inout) :: this
+
+    if (allocated(this%dofs)) then
+      deallocate(this%dofs)
+    end if
+    if (allocated(this%interp_r)) then
+      deallocate(this%interp_r)
+    end if
+    if (allocated(this%interp_p)) then
+      deallocate(this%interp_p)
+    end if
+  end subroutine
 
   !> Wrapper for matrix vector product using the TreeAMG hierarchy structure
   !> b=Ax done as vec_out = A * vec_in

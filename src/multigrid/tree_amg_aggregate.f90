@@ -77,8 +77,6 @@ contains
     call tamg_lvl_init(tamg%lvl(lvl_id), lvl_id, ne, nt)
     gid_ptr = 1
     do l = 1, ne
-       tamg%lvl(lvl_id)%nodes_ptr(l) = gid_ptr
-       tamg%lvl(lvl_id)%nodes_gid(l) = l
        call tamg_node_init( tamg%lvl(lvl_id)%nodes(l), l, nl)
        ! Fill the nodes
        lid = 0
@@ -89,15 +87,12 @@ contains
                 tamg%lvl(lvl_id)%nodes(l)%dofs(lid) = linear_index(i, j, k, l, &
                      lx, ly, lz)
 
-                tamg%lvl(lvl_id)%nodes_dofs(gid_ptr) = linear_index(i,j,k,l,lx,ly,lz)
-                !tamg%lvl(lvl_id)%nodes_gids(gid_ptr) = l
                 tamg%lvl(lvl_id)%map_f2c(linear_index(i,j,k,l,lx,ly,lz)) = l
                 gid_ptr = gid_ptr + 1
              end do
           end do
        end do
     end do
-    tamg%lvl(lvl_id)%nodes_ptr(ne+1) = gid_ptr
 
     call aggregation_monitor_finest(lvl_id,nt,ne)
 
@@ -391,8 +386,6 @@ contains
     ntot = 0
     gid_ptr = 1
     do l = 1, naggs
-       tamg%lvl(lvl_id)%nodes_ptr(l) = gid_ptr
-       tamg%lvl(lvl_id)%nodes_gid(l) = l
        call tamg_node_init( tamg%lvl(lvl_id)%nodes(l), l, aggregate_size(l))
        j = 0
        do i = 1, n_elements!TODO: this is the lazy expensive way...
@@ -400,8 +393,6 @@ contains
              j = j+1
              tamg%lvl(lvl_id)%nodes(l)%dofs(j) = i
 
-             tamg%lvl(lvl_id)%nodes_dofs(gid_ptr) = i
-             !tamg%lvl(lvl_id)%nodes_gids(gid_ptr) = l
              tamg%lvl(lvl_id)%map_f2c(i) = l
              gid_ptr = gid_ptr + 1
           end if
@@ -411,7 +402,6 @@ contains
        end if
        ntot = ntot + aggregate_size(l)
     end do
-    tamg%lvl(lvl_id)%nodes_ptr(naggs+1) = gid_ptr
 
     call aggregation_monitor_final(lvl_id,ntot,naggs)
 
@@ -437,13 +427,9 @@ contains
     do i = 1, tamg%lvl(lvl_id-1)%nnodes
        tamg%lvl(lvl_id)%nodes(1)%dofs(i) = tamg%lvl(lvl_id-1)%nodes(i)%gid
 
-       tamg%lvl(lvl_id)%nodes_dofs(i) = tamg%lvl(lvl_id-1)%nodes(i)%gid
        tamg%lvl(lvl_id)%map_f2c(i) = 1
     end do
 
-    tamg%lvl(lvl_id)%nodes_ptr(1) = 1
-    tamg%lvl(lvl_id)%nodes_ptr(2) = 2
-    tamg%lvl(lvl_id)%nodes_gid(1) = 1
   end subroutine aggregate_end
 
   subroutine aggregation_monitor_finest(lvl,ndof,nagg)
@@ -647,8 +633,6 @@ contains
     ntot = 0
     gid_ptr = 1
     do l = 1, naggs
-       tamg%lvl(lvl_id)%nodes_ptr(l) = gid_ptr
-       tamg%lvl(lvl_id)%nodes_gid(l) = l
        call tamg_node_init( tamg%lvl(lvl_id)%nodes(l), l, aggregate_size(l))
        j = 0
        do i = 1, n_elements!TODO: this is the lazy expensive way...
@@ -656,8 +640,6 @@ contains
              j = j+1
              tamg%lvl(lvl_id)%nodes(l)%dofs(j) = i
 
-             tamg%lvl(lvl_id)%nodes_dofs(gid_ptr) = i
-             !tamg%lvl(lvl_id)%nodes_gids(gid_ptr) = l
              tamg%lvl(lvl_id)%map_f2c(i) = l
              gid_ptr = gid_ptr + 1
           end if
@@ -667,7 +649,6 @@ contains
        end if
        ntot = ntot + aggregate_size(l)
     end do
-    tamg%lvl(lvl_id)%nodes_ptr(naggs+1) = gid_ptr
     call aggregation_monitor_final(lvl_id,ntot,naggs)
     deallocate( is_aggregated )
     deallocate( aggregate_size )
