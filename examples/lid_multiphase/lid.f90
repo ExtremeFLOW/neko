@@ -13,7 +13,7 @@ module user
 
   ! Global user variables
   type(field_t) :: w1
-  type(field_t) :: temp1,temp2
+  type(field_t) :: temp8,temp9
   type(field_t) :: vort1,vort2,vort3
 
   type(file_t) output_file ! output file
@@ -99,8 +99,8 @@ contains
     ! initialize work arrays for postprocessing
     u => neko_field_registry%get_field("u")
     call w1%init(u%dof, 'work1')
-    call temp1%init(u%dof)
-    call temp2%init(u%dof)
+    call temp8%init(u%dof)
+    call temp9%init(u%dof)
     call vort1%init(u%dof)
     call vort2%init(u%dof)
     call vort3%init(u%dof)
@@ -155,7 +155,7 @@ contains
     ! (the factor of 0.5 depends on the definition of enstrophy. We
     ! follow the reference paper by the HiOCFD4 workshop, but the book
     ! by Pope for instance would not include this factor)
-    call curl(vort1,vort2,vort3, u, v, w, temp1, temp2, coef)
+    call curl(vort1,vort2,vort3, u, v, w, temp8, temp9, coef)
     call field_col3(w1, vort1, vort1, ntot)
     call field_addcol3(w1, vort2, vort2, ntot)
     call field_addcol3(w1, vort3, vort3, ntot)
@@ -203,7 +203,7 @@ contains
     type(field_t), pointer :: temp1, temp2, temp3, temp4, temp5, temp6, temp7
 
     real(kind=rp) :: absgrad
-    integer :: ind(7)
+    integer :: ind(7), ind_work(4)
     type(field_t), pointer :: work1, work2, work3, work4
     type(coef_t), pointer :: coef
 
@@ -218,10 +218,10 @@ contains
       coef => neko_user_access%case%fluid%c_Xh
 
       ! Request scratch fields
-      call neko_scratch_registry%request_field(work1, ind(1))
-      call neko_scratch_registry%request_field(work2, ind(2))
-      call neko_scratch_registry%request_field(work3, ind(3))
-      call neko_scratch_registry%request_field(work4, ind(4))
+      call neko_scratch_registry%request_field(work1, ind_work(1))
+      call neko_scratch_registry%request_field(work2, ind_work(2))
+      call neko_scratch_registry%request_field(work3, ind_work(3))
+      call neko_scratch_registry%request_field(work4, ind_work(4))
         
       ! Compute gradient of scalar field
       call grad(work1%x, work2%x, work3%x, s%x, coef)
@@ -260,7 +260,7 @@ contains
       call cmult(rhs_s%x, absgrad, work4%size())
 
       ! Release scratch fields
-      call neko_scratch_registry%relinquish_field(ind)
+      call neko_scratch_registry%relinquish_field(ind_work)
 
     ! Only apply forcing to the momentum equation (fluid)
     else if (scheme_name .eq. 'fluid') then
@@ -314,7 +314,7 @@ contains
       end do
 
       ! Compute curvature κ = ∇·n
-      call div(temp4%x,temp1%x, temp2%x,temp2%x,coef)
+      call div(temp4%x,temp1%x, temp2%x,temp3%x,coef)
       ! call dudxyz(temp4%x, temp1%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
 
       call copy(temp1%x, temp4%x, temp4%size())
