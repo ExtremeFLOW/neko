@@ -73,8 +73,12 @@ contains
   !> Free the field series list
   subroutine field_series_list_free(this)
     class(field_series_list_t), intent(inout) :: this
+    integer :: i
 
     if (allocated(this%items)) then
+       do i = 1, size(this%items)
+          call this%items(i)%free()
+       end do
        deallocate(this%items)
     end if
     this%n_items = 0
