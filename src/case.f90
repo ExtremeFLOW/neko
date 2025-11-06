@@ -158,6 +158,7 @@ contains
     type(json_file) :: scalar_params, numerics_params, meshmng_params
     type(json_file) :: json_subdict
     integer :: n_scalars, i
+    class(mesh_manager_t), allocatable :: mesh_new
 
     !
     ! Setup user defined functions
@@ -186,7 +187,18 @@ contains
     ! Check if there is a specified mesh manager
     if (this%params%valid_path('case.mesh_manager')) then
        call json_get(this%params, 'case.mesh_manager', meshmng_params)
+       call neko_log%section("Mesh manager")
+       ! allocate mesh manager
        call mesh_manager_factory(this%mesh_manager, meshmng_params)
+       ! start 3rd-party code
+       call this%mesh_manager%start(meshmng_params, i)
+       ! initialise type
+       call this%mesh_manager%init(meshmng_params)
+       ! initial reading of mesh data; it may be not complete, so get it here
+       call this%mesh_manager%import_new(mesh_new)
+       call mesh_new%free_base()
+       deallocate(mesh_new)
+       call neko_log%end_section()
     end if
 
     call msh_file%read(this%msh)
@@ -540,6 +552,7 @@ contains
 
     if (allocated(this%mesh_manager)) then
        call this%mesh_manager%free()
+       call this%mesh_manager%stop()
        deallocate(this%mesh_manager)
     end if
 

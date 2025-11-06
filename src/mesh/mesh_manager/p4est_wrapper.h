@@ -23,8 +23,12 @@
 /** Data type for user variables; required by p4est */
 typedef struct user_data_s {
   /* Mesh data initialised with p4est */
-  int imsh; /**< velocity (0) and temperature (1) mesh indicator */
-  int igrp; /**< element group */
+  /* Mesh indicator is needed, as temperature and velocity meshes may have
+     different boundary condition positions. This is not finalised yet, as I
+     do not support separate BC for different fields.
+     velocity (0) and temperature (1) */
+  int imsh; /**< mesh type indicator */
+  int igrp; /**< element group flag */
   int crv[P4EST_FACES]; /**< curvature data; concerns external faces; requred
 			   by face projection */
   int bc[P4EST_FACES]; /**< boundary condition data; 0 internal, -1 periodic,
@@ -57,9 +61,14 @@ typedef struct user_data_s {
 void wp4est_init(MPI_Fint fmpicomm, int catch_signals,
 		int print_backtrace, int log_threshold);
 
-/** Finalise sc printing package summary
+/** Finalise sc
  */
 void wp4est_finalize();
+
+/** Check is p4est is initialised
+ * @param is_init   initialisation flag
+ */
+void wp4est_is_initialized(int * is_init);
 
 /** Initialize elements connectivity
  *
@@ -128,6 +137,13 @@ void wp4est_cnn_del()
 void wp4est_cnn_valid(int * is_valid)
 ;
 
+/** Check non-periodic connectivity consistency
+ *
+ * @param[out] is_valid   non zero for correct connectivity
+ */
+void wp4est_cnn_np_valid(int * is_valid)
+;
+
 /** Allocate or free the attribute fields in a connectivity
  *
  * @param enable_tree_attr
@@ -152,6 +168,13 @@ void wp4est_cnn_save(char filename[])
  * @param filename       file name
  */
 void wp4est_cnn_load(char filename[])
+;
+
+/** Load a non-periodic connectivity structure from a file
+ *
+ * @param filename       file name
+ */
+void wp4est_cnn_np_load(char filename[])
 ;
 
 /** Destroy mesh geometry */
@@ -186,6 +209,16 @@ void wp4est_tree_save(char filename[])
  * @param[in] filename            file name
  */
 void wp4est_tree_load(char filename[])
+;
+
+/** Swap connectivity with non-periodic one
+ */
+void wp4est_tree_cnn_swap()
+;
+
+/** Swap connectivity back
+ */
+void wp4est_tree_cnn_swap_back()
 ;
 
 /** Build ghost layer */
@@ -251,14 +284,15 @@ void wp4est_bc_check()
 /** Get mesh size information to Neko
  *
  * @param[out] mdim    mesh dimension
- * @param[out] nelgt   global element number
+ * @param[out] nelgt   global element number for all mesh and group
  * @param[out] nelgto  element offset (number of elements on lower nid's)
- * @param[out] nelt    number of T-type elements
- * @param[out] nelv    number of V-type elements
+ * @param[out] nelt    total number of local elements (both V- and T-type)
+ * @param[out] nelv    number of local velocity elements
+ * @param[out] ngrp    number of various groups
  * @param[out] maxl    current max level
  */
 void wp4est_msh_get_size(int * mdim, int64_t * nelgt, int64_t * nelgto,
-			 int32_t * nelt, int * nelv, int * maxl)
+			 int32_t * nelt, int * nelv, int* ngrp, int * maxl)
 ;
 
 /** Get node list size information to Neko
@@ -337,7 +371,7 @@ void wp4est_elm_get_dat(int64_t * gidx, int * level, int * igrp, int * crv,
  * @param[out] lnoff      global node offset
  * @param[out] lnodes     node mapping list for elements
  */
-void wp4est_elem_get_lnode(int * lnnum, int * lnown, int64_t * lnoff,
+void wp4est_elm_get_lnode(int * lnnum, int * lnown, int64_t * lnoff,
 			   int * lnodes);
 
 /** Get sharers list size information to Neko
@@ -361,16 +395,16 @@ void wp4est_sharers_get_ind(int64_t * nglid, int * lrank, int * loff,
 
 /** Get hanging objects information
  *
- * @param[out hang_elm   is any of eement's faces/edges hanging
- * @param[out hang_fsc   hanging face list
- * @param[out hang_edg   hanging edge list; 3D mesh only
+ * @param[out] hang_elm   is any of element's faces/edges hanging
+ * @param[out] hang_fsc   hanging face list
+ * @param[out] hang_edg   hanging edge list; 3D mesh only
  */
 void wp4est_hang_get_info(int * hang_elm, int * hang_fsc, int * hang_edg)
 ;
 
 /** Provide information about element families
  *
- * @param[out family array containing global element numbers in the family
+ * @param[out] family array containing global element numbers in the family
  * @param[out] nelf   number of entrances in family array
  */
 void wp4est_fml_get_info(int64_t * family, int * nelf)

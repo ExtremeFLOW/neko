@@ -56,15 +56,19 @@
 #include "mesh/mesh_manager/p4est_wrapper.h"
 
 /* Global variables
- *  notice I use tree_neko->user_pointer to store ghost quadrants data
+ *  Notice. I use tree_neko->user_pointer to store ghost quadrants data.
+ *  Moreover, to get a proper list of independent nodes in geometrical
+ *  context for periodic domains I use proper non-periodic connectivity.
+ *  This is just a hack, but it works.
  */
 static p4est_connectivity_t *connect_neko = NULL; /**< connectivity structure */
+static p4est_connectivity_t *conn_np_neko = NULL; /**< non-periodic connect. */
 static p4est_t *tree_neko = NULL; /**< tree structure */
 static p4est_mesh_t *mesh_neko = NULL; /**< mesh structure */
 static p4est_ghost_t *ghost_neko = NULL; /**< ghost zone structure */
 static p4est_nodes_t *nodes_neko = NULL; /**< vertex numbering structure */
 static p4est_lnodes_t *lnodes_neko = NULL; /**< GLL node numbering structure */
-static p4est_geometry_t   *geom_neko = NULL; /**< Geometry definition */
+static p4est_geometry_t *geom_neko = NULL; /**< Geometry definition */
 static p4est_t *tree_neko_compare = NULL; /**< tree structure to perform
 					     comparison */
 /* MPI communicator*/
@@ -83,6 +87,10 @@ void wp4est_init(MPI_Fint fmpicomm, int catch_signals, int print_backtrace,
 void wp4est_finalize()
 {
   sc_finalize ();
+}
+
+void wp4est_is_initialized(int * is_init) {
+  *is_init = p4est_is_initialized ();
 }
 
 /* Connectivity */
@@ -149,10 +157,16 @@ void wp4est_cnn_rot_cubes() {
 void wp4est_cnn_del() {
   if (connect_neko != NULL) p4est_connectivity_destroy(connect_neko);
   connect_neko =  NULL;
+  if (conn_np_neko != NULL) p4est_connectivity_destroy(conn_np_neko);
+  conn_np_neko =  NULL;
 }
 
 void wp4est_cnn_valid(int * is_valid) {
   *is_valid = p4est_connectivity_is_valid(connect_neko);
+}
+
+void wp4est_cnn_np_valid(int * is_valid) {
+  *is_valid = p4est_connectivity_is_valid(conn_np_neko);
 }
 
 void wp4est_cnn_attr(int * enable_tree_attr) {
@@ -170,6 +184,11 @@ void wp4est_cnn_save(char filename[]) {
 void wp4est_cnn_load(char filename[]) {
   if (connect_neko != NULL) p4est_connectivity_destroy(connect_neko);
   connect_neko = p4est_connectivity_load(filename, NULL);
+}
+
+void wp4est_cnn_np_load(char filename[]) {
+  if (conn_np_neko != NULL) p4est_connectivity_destroy(conn_np_neko);
+  conn_np_neko = p4est_connectivity_load(filename, NULL);
 }
 
 /* geometry_ management */
@@ -195,8 +214,8 @@ void init_msh_dat(p4est_t * p4est, p4est_topidx_t which_tree,
   user_data_t *data = (user_data_t *) quadrant->p.user_data;
   int iwt, il;
 
-  data->imsh = -1;
-  data->igrp = -1;
+  data->imsh = 0; // mark everything velocity
+  data->igrp = 0;
   for(il = 0; il < P4EST_FACES; ++il){
     data->crv[il] = 0;
     data->bc[il] = 0;
@@ -210,7 +229,7 @@ void init_msh_dat(p4est_t * p4est, p4est_topidx_t which_tree,
 
   // reset refinement mark, neko elemnt distribution information and
   //refinement history
-  data->ref_mark = 0;
+  data->ref_mark = AMR_RM_NONE;
   data->el_gln = -1;
   data->el_ln = -1;
   data->el_nid = -1;
@@ -247,8 +266,18 @@ void wp4est_tree_load(char filename[]) {
   if (tree_neko != NULL) p4est_destroy(tree_neko);
   if (connect_neko != NULL) p4est_connectivity_destroy(connect_neko);
   tree_neko = p4est_load_ext(filename, mpicomm, sizeof(user_data_t), 0,
-			     1, 0, NULL, &connect_neko);
-  tree_neko->user_pointer = NULL;
+			     1, 1, NULL, &connect_neko);
+  // As the quad data is not loaded from the file, one has to reset memory
+  p4est_reset_data (tree_neko, sizeof(user_data_t), init_msh_dat, NULL);
+}
+
+/* to get rid of periodic bc for independent node operation*/
+void wp4est_tree_cnn_swap(){
+  tree_neko->connectivity = conn_np_neko;
+}
+
+void wp4est_tree_cnn_swap_back(){
+  tree_neko->connectivity = connect_neko;
 }
 
 /* tree and grid info */
@@ -612,7 +641,8 @@ void wp4est_bc_check() {
 }
 
 /* routines for data exchange between Neko and p4est */
-
+#define MIN( a, b ) ( ( a > b) ? b : a )
+#define MAX( a, b ) ( ( a < b) ? b : a )
 /** @brief Iterate over elements to count V-mesh elements
  *
  * @details Required by wp4est_msh_get_size
@@ -621,23 +651,25 @@ void wp4est_bc_check() {
  * @param user_data
  */
 void count_mshv(p4est_iter_volume_info_t * info, void *user_data) {
-  int loc_level;
   user_data_t *data = (user_data_t *) info->quad->p.user_data;
   int *lmax = (int *) user_data;
 
-  // coult V-type elements
+  // count V-type elements
   if (data->imsh == 0) {
     lmax[0] = lmax[0] + 1;
   }
-  // find max local level
-  loc_level = (int) info->quad->level;
-  lmax[1] = (loc_level > lmax[1] ? loc_level : lmax[1]);
+  // find max and min value for group flag
+  lmax[1] = MIN(data->igrp, lmax[1]);
+  lmax[2] = MAX(data->igrp, lmax[2]);
+
+  // find max local refinement level
+  lmax[3] = MAX((int) info->quad->level, lmax[3]);
 }
 
 /* get mesh size */
 void wp4est_msh_get_size(int * mdim, int64_t * nelgt, int64_t * nelgto,
-			 int32_t * nelt, int * nelv, int * maxl) {
-  int lmax[2];
+			 int32_t * nelt, int * nelv, int* ngrp, int * maxl) {
+  int lmax[4];
   // mesh dimension
   *mdim = (int) P4EST_DIM;
   // get global number of quadrants
@@ -648,8 +680,7 @@ void wp4est_msh_get_size(int * mdim, int64_t * nelgt, int64_t * nelgto,
   *nelt = tree_neko->local_num_quadrants;
 
   // count number of V-mesh elements and find current max level
-  lmax[0] = 0;
-  lmax[1] = 0;
+  lmax[0] = lmax[1] = lmax[2] = lmax[3] = 0;
 
 #ifdef P4_TO_P8
   p4est_iterate(tree_neko, ghost_neko, (void *) &lmax, count_mshv,
@@ -660,7 +691,8 @@ void wp4est_msh_get_size(int * mdim, int64_t * nelgt, int64_t * nelgto,
 #endif
 
   *nelv = lmax[0];
-  *maxl = lmax[1];
+  *ngrp = lmax[2] - lmax[1];
+  *maxl = lmax[3];
 }
 
 /* get node list size */
@@ -1052,7 +1084,7 @@ void wp4est_elm_get_lnode(int * lnnum, int * lnown, int64_t * lnoff,
       lnodes[il] = (int) lnodes_neko->element_nodes[il] + 1;
     }
   } else {
-    SC_ABORT("lnodes_nek not allocated; aborting: wp4est_elem_get_lnode\n");
+    SC_ABORT("lnodes_nek not allocated; aborting: wp4est_elm_get_lnode\n");
   }
 }
 
@@ -1660,8 +1692,6 @@ typedef struct transfer_hst_s {
   int *elgl_rfn; /**< element global mapping info for refined elements */
   int *elgl_crs; /**< element global mapping info for coarsened elements */
 } transfer_hst_t;
-
-#define MIN( a, b ) ( ( a > b) ? b : a )
 
 /** @brief Iterate over element volumes to transfer refinement history data
  *

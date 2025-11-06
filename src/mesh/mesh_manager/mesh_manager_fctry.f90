@@ -54,8 +54,9 @@ contains
     call json_get(json, "type", type_name)
     ! Allocate
     call mesh_manager_allocator(object, type_name)
-    ! Initialise
-    call object%init(json, type_name)
+
+    ! Initialise base type
+    call object%init_base(type_name)
     deallocate(type_name)
 
   end subroutine mesh_manager_factory
