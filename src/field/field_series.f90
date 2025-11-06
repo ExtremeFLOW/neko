@@ -94,9 +94,14 @@ contains
        nullify(this%f)
     end if
 
-    do i = 1, this%len
-       call this%lf(i)%free()
-    end do
+
+    if (allocated(this%lf)) then
+       do i = 1, this%len
+          call this%lf(i)%free()
+       end do
+
+       deallocate(this%lf)
+    end if
 
   end subroutine field_series_free
 
