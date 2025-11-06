@@ -57,9 +57,6 @@ module field_series
   !> A wrapper for a pointer to a `field_series_t`.
   type, public :: field_series_ptr_t
      type(field_series_t), pointer :: ptr => null()
-   contains
-     !> Destructor.
-     procedure, pass(this) :: free => field_series_ptr_free
   end type field_series_ptr_t
 
 contains
@@ -107,16 +104,6 @@ contains
     end if
 
   end subroutine field_series_free
-
-  !> Free a field series pointer
-  subroutine field_series_ptr_free(this)
-    class(field_series_ptr_t), intent(inout) :: this
-
-    if (associated(this%ptr)) then
-       call this%ptr%free()
-    end if
-    nullify(this%ptr)
-  end subroutine field_series_ptr_free
 
   !> Return the size of the field series
   function field_series_size(this) result(len)
