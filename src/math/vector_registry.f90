@@ -111,7 +111,7 @@ contains
   !> Constructor
   subroutine named_vector_init(this, name, n)
     class(named_vector_t), intent(inout) :: this
-    character(len=*), optional, intent(in) :: name
+    character(len=*), intent(in) :: name
     integer, intent(in) :: n
 
     this%name = name
