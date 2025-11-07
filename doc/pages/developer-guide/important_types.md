@@ -17,7 +17,7 @@ explore the descendants.
 - [dofmap_t](#dofmap::dofmap_t): Map of degrees of freedom. Most importantly, it
   holds all the GLL nodes locations.
 - [coef_t](#coefs::coef_t): Stores coefficients for transformation to and from
-  the reference element, along with some other auxillary data.
+  the reference element, along with some other auxiliary data.
 - [gs_t](#gather_scatter::gs_t): Gather-scatter kernels used to make the
   solution continuous, i.e. perform direct stiffness summation.
 - [field_t](#field::field_t): The main type for storing the unknowns, and
