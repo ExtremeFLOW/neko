@@ -32,7 +32,7 @@
 !
 !> Defines a factory subroutine for mesh manager.
 submodule (mesh_manager) mesh_manager_fctry
-  use p4est, only : p4est_mesh_manager_t
+  use mesh_manager_p4est, only : mesh_manager_p4est_t
   use json_utils, only : json_get
   use utils, only : neko_type_error
 
@@ -70,7 +70,7 @@ contains
 
     select case (trim(type_name))
     case ("p4est")
-       allocate(p4est_mesh_manager_t::object)
+       allocate(mesh_manager_p4est_t::object)
     case default
        call neko_type_error("mesh manager", type_name, MESHMNG_KNOWN_TYPES)
     end select

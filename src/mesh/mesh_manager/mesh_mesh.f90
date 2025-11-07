@@ -39,135 +39,131 @@ module mesh_mesh
   implicit none
   private
 
-  type, public :: mesh_mesh_t
+  type, abstract, public :: mesh_mesh_t
      !> Topological mesh dimension
      integer(i4) :: tdim
      !> total number of local element (both V- and T-type)
      integer(i4) :: nelt
-     !> number of local V-type elements
-     integer(i4) :: nelv
      !> global element number
      integer(i8) :: gnelt
      !> global element offset
      integer(i8) :: gnelto
-     !> max refinement level across the whole mesh
-     integer(i4) :: level_max
      !> global element index
      integer(i8), allocatable, dimension(:) :: gidx
-     !> element refinement level
-     integer(i4), allocatable, dimension(:) :: level
-     !> element group, (not used right now)
-     integer(i4), allocatable, dimension(:) :: igrp
      !> Number of faces per element
      integer(i4) :: nfcs
-     !> face curvature flag (not used right now)
-     integer(i4), allocatable, dimension(:,:) :: crv
-     !> face boundary condition: -1- periodic, 0-internal, 0< user specified
-     integer(i4), allocatable, dimension(:,:) :: bc
      !> Geometrical information
-     type(mesh_geom_t) :: geom
+     class(mesh_geom_t), allocatable :: geom
      !> Connectivity information
-     type(mesh_conn_t) :: conn
+     class(mesh_conn_t), allocatable :: conn
    contains
      !> Constructor for the mesh data
-     procedure, pass(this) :: init_data => mesh_mesh_init_data
+     procedure, pass(this) :: init_data_base => mesh_mesh_init_data_base
      !> Constructor for the mesh data based on the other mesh type
-     procedure, pass(this) :: init_type => mesh_mesh_init_type
-     !> Destructor for the mesh data
-     procedure, pass(this) :: free => mesh_mesh_free
+     procedure, pass(this) :: init_type_base => mesh_mesh_init_type_base
+     !> Free mesh data
+     procedure, pass(this) :: free_data_base => mesh_mesh_free_data_base
+     !> Free mesh type
+     procedure, pass(this) :: free_base => mesh_mesh_free_base
+     !> Allocate types
+     procedure(mesh_mesh_init), pass(this), deferred :: init
+     !> Initialise data from type
+     procedure(mesh_mesh_init_type), pass(this), deferred :: init_type
+     !> Free type_data
+     procedure(mesh_mesh_init), pass(this), deferred :: free_data
+     !> Free type
+     procedure(mesh_mesh_init), pass(this), deferred :: free
   end type mesh_mesh_t
+
+  abstract interface
+     subroutine mesh_mesh_init(this)
+       import mesh_mesh_t
+       class(mesh_mesh_t), intent(inout) :: this
+     end subroutine mesh_mesh_init
+
+     subroutine mesh_mesh_init_type(this, mesh)
+       import mesh_mesh_t
+       class(mesh_mesh_t), intent(inout) :: this
+       class(mesh_mesh_t), intent(inout) :: mesh
+     end subroutine mesh_mesh_init_type
+  end interface
 
 contains
 
   !>  Initialise mesh data
   !! @param[in]    nelt       total number of local elements
-  !! @param[in]    nelv       number of V-type elements
   !! @param[in]    gnelt      global number of all the elements
   !! @param[in]    gnelto     global element offset
-  !! @param[in]    level_max  max refinement level across the mesh
   !! @param[in]    tdim       topological mesh dimension
   !! @param[inout] gidx       global element number
-  !! @param[inout] level      element refinement level
-  !! @param[inout] igrp       element group
-  !! @param[inout] crv        face curvature data
-  !! @param[inout] bc         face boundary condition
-  subroutine mesh_mesh_init_data(this, nelt, nelv, gnelt, gnelto, &
-       level_max, tdim, gidx, level, igrp, crv, bc)
+  subroutine mesh_mesh_init_data_base(this, nelt, gnelt, gnelto, tdim, gidx)
     class(mesh_mesh_t), intent(inout) :: this
-    integer(i4), intent(in) :: nelt, nelv, level_max, tdim
+    integer(i4), intent(in) :: nelt, tdim
     integer(i8), intent(in) :: gnelt, gnelto
     integer(i8), allocatable, dimension(:), intent(inout)  :: gidx
-    integer(i4), allocatable, dimension(:), intent(inout) :: level, igrp
-    integer(i4), allocatable, dimension(:,:), intent(inout) :: crv, bc
 
-    call this%free()
+    call this%free_data_base()
 
     this%tdim = tdim
     this%nelt = nelt
-    this%nelv = nelv
     this%gnelt = gnelt
     this%gnelto = gnelto
-    this%level_max  = level_max
     ! we work with hex/quad only and there is no difference between
     ! topology and geometrical dimensions
     this%nfcs = 2 * tdim
 
     if (allocated(gidx)) call move_alloc(gidx, this%gidx)
-    if (allocated(level)) call move_alloc(level, this%level)
-    if (allocated(igrp)) call move_alloc(igrp, this%igrp)
-    if (allocated(crv)) call move_alloc(crv, this%crv)
-    if (allocated(bc)) call move_alloc(bc, this%bc)
 
-  end subroutine mesh_mesh_init_data
+  end subroutine mesh_mesh_init_data_base
 
   !>  Initialise mesh data based on another mesh type
   !! @param[inout] mesh   mesh data
-  subroutine mesh_mesh_init_type(this, mesh)
+  subroutine mesh_mesh_init_type_base(this, mesh)
     class(mesh_mesh_t), intent(inout) :: this
-    type(mesh_mesh_t), intent(inout) :: mesh
+    class(mesh_mesh_t), intent(inout) :: mesh
 
-    call this%free()
+    call this%free_data_base()
 
-    call this%geom%init_type(mesh%geom)
-    call this%conn%init_type(mesh%conn)
+    if (allocated(this%geom) .and. allocated(mesh%geom)) &
+         call this%geom%init_type(mesh%geom)
+    if (allocated(this%conn) .and. allocated(mesh%conn)) &
+         call this%conn%init_type(mesh%conn)
 
     this%tdim = mesh%tdim
     this%nelt = mesh%nelt
-    this%nelv = mesh%nelv
     this%gnelt = mesh%gnelt
     this%gnelto = mesh%gnelto
-    this%level_max = mesh%level_max
     this%nfcs = mesh%nfcs
 
     if (allocated(mesh%gidx)) call move_alloc(mesh%gidx, this%gidx)
-    if (allocated(mesh%level)) call move_alloc(mesh%level, this%level)
-    if (allocated(mesh%igrp)) call move_alloc(mesh%igrp, this%igrp)
-    if (allocated(mesh%crv)) call move_alloc(mesh%crv, this%crv)
-    if (allocated(mesh%bc)) call move_alloc(mesh%bc, this%bc)
 
-  end subroutine mesh_mesh_init_type
+  end subroutine mesh_mesh_init_type_base
 
   !> Destructor for the data in `mesh_manager_t` (base) type.
-  subroutine mesh_mesh_free(this)
+  subroutine mesh_mesh_free_data_base(this)
     class(mesh_mesh_t), intent(inout) :: this
 
-    call this%geom%free()
-    call this%conn%free()
+    if (allocated(this%geom)) call this%geom%free_data()
+    if (allocated(this%conn)) call this%conn%free_data()
 
     this%tdim = 0
     this%nelt = 0
-    this%nelv = 0
     this%gnelt = 0
     this%gnelto = 0
-    this%level_max = 0
     this%nfcs = 0
 
     if (allocated(this%gidx)) deallocate(this%gidx)
-    if (allocated(this%level)) deallocate(this%level)
-    if (allocated(this%igrp)) deallocate(this%igrp)
-    if (allocated(this%crv)) deallocate(this%crv)
-    if (allocated(this%bc)) deallocate(this%bc)
 
-  end subroutine mesh_mesh_free
+  end subroutine mesh_mesh_free_data_base
+
+  !> Destructor for the data in `mesh_manager_t` (base) type.
+  subroutine mesh_mesh_free_base(this)
+    class(mesh_mesh_t), intent(inout) :: this
+
+    call this%free_data_base()
+    if (allocated(this%geom)) deallocate(this%geom)
+    if (allocated(this%conn)) deallocate(this%conn)
+
+  end subroutine mesh_mesh_free_base
 
 end module mesh_mesh

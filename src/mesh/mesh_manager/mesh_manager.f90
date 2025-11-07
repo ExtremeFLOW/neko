@@ -46,11 +46,13 @@ module mesh_manager
      !> 3rd-party software activation flag
      logical :: ifstarted
      !> mesh information
-     type(mesh_mesh_t) :: mesh
+     class(mesh_mesh_t), allocatable :: mesh
    contains
      !> Constructor for the mesh_manager_t (base) type.
      procedure, pass(this) :: init_base => mesh_manager_init_base
-     !> Destructor for the mesh_manager_t (base) type.
+     !> Free mesh manager data
+     procedure, pass(this) :: free_data_base => mesh_manager_free_data_base
+     !> Free mesh manager type.
      procedure, pass(this) :: free_base => mesh_manager_free_base
      !> Start 3rd-party software (if needed)
      procedure(mesh_manager_start), pass(this), deferred :: start
@@ -134,15 +136,24 @@ contains
 
   end subroutine mesh_manager_init_base
 
-  !> Destructor for the `mesh_manager_t` (base) type.
-  subroutine mesh_manager_free_base(this)
+  !> Free mesh manager data
+  subroutine mesh_manager_free_data_base(this)
     class(mesh_manager_t), intent(inout) :: this
 
-    call this%mesh%free()
+    if (allocated(this%mesh)) call this%mesh%free()
 
     this%ifstarted = .false.
 
     if (allocated(this%type_name)) deallocate(this%type_name)
+
+  end subroutine mesh_manager_free_data_base
+
+  !> Free mesh manager type
+  subroutine mesh_manager_free_base(this)
+    class(mesh_manager_t), intent(inout) :: this
+
+    call this%free_data_base()
+    if (allocated(this%mesh)) deallocate(this%mesh)
 
   end subroutine mesh_manager_free_base
 

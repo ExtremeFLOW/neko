@@ -87,7 +87,10 @@ neko_fortran_SOURCES = \
 	mesh/mesh_manager/mesh_mesh.f90\
 	mesh/mesh_manager/mesh_manager.f90\
 	mesh/mesh_manager/mesh_manager_fctry.f90\
-	mesh/mesh_manager/p4est.F90\
+	mesh/mesh_manager/mesh_geom_p4est.f90\
+	mesh/mesh_manager/mesh_conn_p4est.f90\
+	mesh/mesh_manager/mesh_mesh_p4est.f90\
+	mesh/mesh_manager/mesh_manager_p4est.F90\
 	field/field_registry.f90\
 	field/scratch_registry.f90\
 	field/field.f90\

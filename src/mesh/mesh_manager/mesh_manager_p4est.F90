@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Main interface for data exchange and manipulation between p4est and neko
-module p4est
+module mesh_manager_p4est
   use mpi_f08
   use num_types, only : i4, i8, rp, dp
   use comm, only : NEKO_COMM, pe_rank
@@ -40,6 +40,7 @@ module p4est
   use utils, only : neko_error, neko_warning
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default
+  use mesh_mesh_p4est, only : mesh_mesh_p4est_t
   use mesh_manager, only : mesh_manager_t
 
   implicit none
@@ -57,7 +58,7 @@ module p4est
 #include "mesh/mesh_manager/amr.h"
 
   !> p4est mesh manager
-  type, public, extends(mesh_manager_t) :: p4est_mesh_manager_t
+  type, public, extends(mesh_manager_t) :: mesh_manager_p4est_t
      !> Tree file
      character(len=:), allocatable :: tree_file
      !> Non-periodic connectivity file
@@ -94,7 +95,7 @@ module p4est
      procedure, pass(this) :: init_from_component => &
           p4est_init_from_components
 #endif
-  end type p4est_mesh_manager_t
+  end type mesh_manager_p4est_t
 
   ! connectivity parameter arrays
   ! face vertices
@@ -477,7 +478,7 @@ contains
   !> Start p4est
   !! @param[out]  ierr  error flag
   subroutine p4est_start(this, json, ierr)
-    class(p4est_mesh_manager_t), intent(inout) :: this
+    class(mesh_manager_p4est_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     integer, intent(out) :: ierr
     integer :: catch_signals, print_backtrace, log_level
@@ -539,7 +540,7 @@ contains
   !> Stop p4est
   !! @param[out]  ierr  error flag
   subroutine p4est_stop(this)
-    class(p4est_mesh_manager_t), intent(inout) :: this
+    class(mesh_manager_p4est_t), intent(inout) :: this
 #ifdef HAVE_P4EST
     ! stop p4est
     ! There is some memory issue here, so I comment it for now.
@@ -556,7 +557,7 @@ contains
   !! @param json       The JSON object.
   !! @param type_name  Manager type name
   subroutine p4est_init_from_json(this, json)
-    class(p4est_mesh_manager_t), intent(inout) :: this
+    class(mesh_manager_p4est_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: tree_file, cnn_file
     integer :: ref_level_max
@@ -591,7 +592,7 @@ contains
 
   !> Destructor.
   subroutine p4est_free(this)
-    class(p4est_mesh_manager_t), intent(inout) :: this
+    class(mesh_manager_p4est_t), intent(inout) :: this
 #ifdef HAVE_P4EST
     character(len=LOG_SIZE) :: log_buf
 
@@ -625,9 +626,9 @@ contains
 
   !> Import mesh data
   subroutine p4est_import(this)
-    class(p4est_mesh_manager_t), intent(inout) :: this
+    class(mesh_manager_p4est_t), intent(inout) :: this
 #ifdef HAVE_P4EST
-    type(p4est_mesh_manager_t) :: mesh_new
+    type(mesh_manager_p4est_t) :: mesh_new
 
     ! import data from p4est
     call p4est_import_data(mesh_new, this%is_periodic)
@@ -645,7 +646,7 @@ contains
 
   !> Import mesh data
   subroutine p4est_import_new(this, mesh_new)
-    class(p4est_mesh_manager_t), intent(inout) :: this
+    class(mesh_manager_p4est_t), intent(inout) :: this
     class(mesh_manager_t), allocatable, intent(inout) :: mesh_new
 #ifdef HAVE_P4EST
     if (allocated(mesh_new)) then
@@ -653,11 +654,11 @@ contains
        deallocate(mesh_new)
     end if
 
-    allocate(p4est_mesh_manager_t::mesh_new)
+    allocate(mesh_manager_p4est_t::mesh_new)
 
     ! import data from p4est
     select type(mesh_new)
-    type is (p4est_mesh_manager_t)
+    type is (mesh_manager_p4est_t)
        call p4est_import_data(mesh_new, this%is_periodic)
     end select
 #else
@@ -669,12 +670,19 @@ contains
   !> The constructor from type components.
   subroutine p4est_init_from_components(this, tree_file, cnn_file, &
        ref_level_max)
-    class(p4est_mesh_manager_t), intent(inout) :: this
+    class(mesh_manager_p4est_t), intent(inout) :: this
     character(len=*), intent(in) :: tree_file, cnn_file
     integer, intent(in) :: ref_level_max
     integer(i4) :: is_valid
     character(len=LOG_SIZE) :: log_buf
-    type(p4est_mesh_manager_t) :: mesh_new
+    type(mesh_manager_p4est_t) :: mesh_new
+
+    ! allocate mesh type
+    if (allocated(this%mesh))then
+       call this%mesh%free()
+       deallocate(this%mesh)
+    end if
+    allocate(mesh_mesh_p4est_t::this%mesh)
 
     ! is p4est started?
     if (.not.this%ifstarted) call neko_error('p4est not started')
@@ -728,7 +736,7 @@ contains
 
   !> Import data from p4est
   subroutine p4est_import_data(mesh_new, is_periodic)
-    type(p4est_mesh_manager_t), intent(inout) :: mesh_new
+    type(mesh_manager_p4est_t), intent(inout) :: mesh_new
     logical, intent(in) :: is_periodic
     character(len=LOG_SIZE) :: log_buf
     character(len=*), parameter :: frmt1="('p4est mesh: gdim = ', i1, ', &
@@ -788,8 +796,8 @@ contains
             itmp4v1(ierr), rtmpv1(:,ierr)
     end do
        
-    call mesh_new%mesh%geom%geom_ind%init_data(lown, lshr, loff, lnum_in, &
-         gdim, itmp8v1, itmp4v1, rtmpv1)
+!!!    call mesh_new%mesh%geom%geom_ind%init_data(lown, lshr, loff, lnum_in, &
+!!         gdim, itmp8v1, itmp4v1, rtmpv1)
 
     ! face hanging nodes
     ndep = 4
@@ -798,8 +806,8 @@ contains
     call wp4est_nds_get_hfc(c_loc(itmp4v21), c_loc(rtmpv1))
     ! get global numbering of hanging nodes
        
-    call mesh_new%mesh%geom%geom_hng_fcs%init_data(lnum_fh, gdim, ndep, &
-         itmp8v1, itmp4v21, rtmpv1)
+!!!!    call mesh_new%mesh%geom%geom_hng_fcs%init_data(lnum_fh, gdim, ndep, &
+!!         itmp8v1, itmp4v21, rtmpv1)
 
     ! edge hanging nodes
     ndep = 2
@@ -808,8 +816,8 @@ contains
     call wp4est_nds_get_hed(c_loc(itmp4v21), c_loc(rtmpv1))
     ! get global numbering of hanging nodes
        
-    call mesh_new%mesh%geom%geom_hng_edg%init_data(lnum_fh, gdim, ndep, &
-         itmp8v1, itmp4v21, rtmpv1)
+!!!    call mesh_new%mesh%geom%geom_hng_edg%init_data(lnum_fh, gdim, ndep, &
+!!         itmp8v1, itmp4v21, rtmpv1)
 
     ! get element vertex mapping to nodes
     allocate(itmp4v21(nvert, nelt))
@@ -820,7 +828,7 @@ contains
     end do
        
     ! geometry type
-    call mesh_new%mesh%geom%init_data(gdim, nelt, itmp4v21)
+!!!    call mesh_new%mesh%geom%init_data(gdim, nelt, itmp4v21)
 
     call wp4est_nodes_del()
 
@@ -852,8 +860,8 @@ contains
          c_loc(itmp4v2), c_loc(itmp4v3))
     itmp8 = lown
     call MPI_Allreduce(itmp8, gnum, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, ierr)
-    call mesh_new%mesh%conn%conn_vrt%init_data(lnum_in, lown, goff, gnum, &
-         nrank, nshare, itmp8v1, itmp4v1, itmp4v3, itmp4v2)
+!!!    call mesh_new%mesh%conn%conn_vrt%init_data(lnum_in, lown, goff, gnum, &
+!!!         nrank, nshare, itmp8v1, itmp4v1, itmp4v3, itmp4v2)
 
     write(*,*) 'TESTcvrt', lnum_in, lown, goff, gnum, nrank, nshare
 
@@ -872,8 +880,8 @@ contains
          c_loc(itmp4v2), c_loc(itmp4v3))
     itmp8 = lown
     call MPI_Allreduce(itmp8, gnum, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, ierr)
-    call mesh_new%mesh%conn%conn_fcs%init_data(lnum_in, lown, goff, gnum, &
-         nrank, nshare, itmp8v1, itmp4v1, itmp4v3, itmp4v2)
+!!!    call mesh_new%mesh%conn%conn_fcs%init_data(lnum_in, lown, goff, gnum, &
+!!!         nrank, nshare, itmp8v1, itmp4v1, itmp4v3, itmp4v2)
 
     write(*,*) 'TESTcfcs', lnum_in, lown, goff, gnum, nrank, nshare
 
@@ -894,8 +902,8 @@ contains
          c_loc(itmp4v2), c_loc(itmp4v3))
     itmp8 = lown
     call MPI_Allreduce(itmp8, gnum, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, ierr)
-    call mesh_new%mesh%conn%conn_edg%init_data(lnum_in, lown, goff, gnum, &
-         nrank, nshare, itmp8v1, itmp4v1, itmp4v3, itmp4v2)
+!!!    call mesh_new%mesh%conn%conn_edg%init_data(lnum_in, lown, goff, gnum, &
+!!!         nrank, nshare, itmp8v1, itmp4v1, itmp4v3, itmp4v2)
 
     write(*,*) 'TESTedg', lnum_in, lown, goff, gnum, nrank, nshare
 
@@ -906,8 +914,8 @@ contains
     
 
     ! connectivity type
-    call mesh_new%mesh%conn%init_data(gdim, nelt, vmap, fmap, itmp4v21, emap, &
-         itmp4v22, hngel, hngfc, hnged)
+!!!    call mesh_new%mesh%conn%init_data(gdim, nelt, vmap, fmap, itmp4v21, emap, &
+!!         itmp4v22, hngel, hngfc, hnged)
 
     ! get element data
 !       allocate(itmp8v1(nelt), itmp4v1(nelt), itmp4v2(nelt), &
@@ -955,4 +963,4 @@ contains
   end subroutine p4est_import_data
 #endif
 
-end module p4est
+end module mesh_manager_p4est
