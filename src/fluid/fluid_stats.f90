@@ -58,7 +58,7 @@ module fluid_stats
      type(field_t) :: stats_p
      type(field_t) :: stats_work
 
-     !> Pointers to the instantenious quantities.
+     !> Pointers to the instantaneous quantities.
      type(field_t), pointer :: u !< u
      type(field_t), pointer :: v !< v
      type(field_t), pointer :: w !< w
@@ -135,7 +135,7 @@ module fluid_stats
      !> Specifies a subset of the statistics to be collected. All 44 fields by
      !! default.
      character(5) :: stat_set
-     !> A list of size n_stats, whith entries pointing to the fields that will
+     !> A list of size n_stats, with entries pointing to the fields that will
      !! be output (the field components above.) Used to write the output.
      type(field_list_t) :: stat_fields
    contains
@@ -255,7 +255,7 @@ contains
        call this%e23%init(this%stats_work, 'e23')
     end if
 
-    allocate(this%stat_fields%items(this%n_stats))
+    call this%stat_fields%init(this%n_stats)
 
     call this%stat_fields%assign_to_field(1, this%p_mean%mf)
     call this%stat_fields%assign_to_field(2, this%u_mean%mf)
@@ -572,10 +572,11 @@ contains
   subroutine fluid_stats_free(this)
     class(fluid_stats_t), intent(inout) :: this
 
-    call this%stats_work%free()
     call this%stats_u%free()
     call this%stats_v%free()
     call this%stats_w%free()
+    call this%stats_p%free()
+    call this%stats_work%free()
 
     call this%u_mean%free()
     call this%v_mean%free()
@@ -588,23 +589,64 @@ contains
     call this%uv%free()
     call this%uw%free()
     call this%vw%free()
-    call this%pp%free()
 
-    call this%dUdx%free()
-    call this%dUdy%free()
-    call this%dUdz%free()
-    call this%dVdx%free()
-    call this%dVdy%free()
-    call this%dVdz%free()
-    call this%dWdx%free()
-    call this%dWdy%free()
-    call this%dWdz%free()
+    call this%uuu%free()
+    call this%vvv%free()
+    call this%www%free()
+    call this%uuv%free()
+    call this%uuw%free()
+    call this%uvv%free()
+    call this%uvw%free()
+    call this%vvw%free()
+    call this%uww%free()
+    call this%vww%free()
+
+    call this%uuuu%free()
+    call this%vvvv%free()
+    call this%wwww%free()
+
+    call this%pp%free()
+    call this%ppp%free()
+    call this%pppp%free()
+
+    call this%pu%free()
+    call this%pv%free()
+    call this%pw%free()
+
+    call this%pdudx%free()
+    call this%pdudy%free()
+    call this%pdudz%free()
+    call this%pdvdx%free()
+    call this%pdvdy%free()
+    call this%pdvdz%free()
+    call this%pdwdx%free()
+    call this%pdwdy%free()
+    call this%pdwdz%free()
+
+    call this%e11%free()
+    call this%e22%free()
+    call this%e33%free()
+    call this%e12%free()
+    call this%e13%free()
+    call this%e23%free()
+
+    call this%dudx%free()
+    call this%dudy%free()
+    call this%dudz%free()
+    call this%dvdx%free()
+    call this%dvdy%free()
+    call this%dvdz%free()
+    call this%dwdx%free()
+    call this%dwdy%free()
+    call this%dwdz%free()
 
     nullify(this%u)
     nullify(this%v)
     nullify(this%w)
     nullify(this%p)
     nullify(this%coef)
+
+    call this%stat_fields%free()
 
   end subroutine fluid_stats_free
 

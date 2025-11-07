@@ -538,6 +538,8 @@ contains
        call neko_error("Invalid tree size")
     end if
 
+    if (allocated(box_list)) deallocate(box_list)
+    if (allocated(sorted_indices)) deallocate(sorted_indices)
   end subroutine aabb_tree_build_tree
 
   !> Return a list of sorted indices of the aabb nodes.
@@ -567,6 +569,7 @@ contains
        visited(minidx) = .true.
     end do
 
+    if (allocated(visited)) deallocate(visited)
   end subroutine sort
 
   ! -------------------------------------------------------------------------- !
@@ -601,6 +604,7 @@ contains
        end if
     end do
 
+    call simple_stack%free()
   end function aabb_tree_get_size
 
   ! -------------------------------------------------------------------------- !
