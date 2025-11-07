@@ -77,9 +77,15 @@ contains
     class(fluid_scheme_base_t), intent(inout), target :: fluid
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: nut_name
+<<<<<<< HEAD
     real(kind=rp) :: c, ri_c, theta0
     character(len=:), allocatable :: delta_type
     real(kind=rp), allocatable :: g(:)
+=======
+    real(kind=rp) :: c, ri_c, theta0, g
+    character(len=:), allocatable :: delta_type
+    character(len=:), allocatable :: vertical_dir
+>>>>>>> 73190c7caa (First implementation of stability correction)
     logical :: if_ext, if_corr
     character(len=LOG_SIZE) :: log_buf
 
@@ -88,6 +94,7 @@ contains
     ! Based on the Smagorinsky Cs = 0.17.
     call json_get_or_default(json, "c", c, 0.07_rp)
     call json_get_or_default(json, "extrapolation", if_ext, .false.)
+<<<<<<< HEAD
     call json_get_or_default(json, "buoyancy_correction", if_corr, .false.)
     call json_get_or_default(json, "ri_c", ri_c, 0.25_rp)
     call json_get_or_default(json, "theta0", theta0, 293.0_rp)
@@ -99,6 +106,13 @@ contains
     else
       g = [0.0, 0.0, 0.0] ! This value is not used
     end if
+=======
+    call json_get_or_default(json, "stability_correction", if_corr, .false.)
+    call json_get_or_default(json, "vertical_direction", vertical_dir, "z")
+    call json_get_or_default(json, "ri_c", ri_c, 0.25_rp)
+    call json_get_or_default(json, "theta0", theta0, 293.0_rp)
+    call json_get_or_default(json, "g", g, 9.81_rp)
+>>>>>>> 73190c7caa (First implementation of stability correction)
 
     call neko_log%section('LES model')
     write(log_buf, '(A)') 'Model : Vreman'
@@ -109,12 +123,20 @@ contains
     call neko_log%message(log_buf)
     write(log_buf, '(A, L1)') 'extrapolation : ', if_ext
     call neko_log%message(log_buf)
+<<<<<<< HEAD
     write(log_buf, '(A, L1)') 'buoyancy correction : ', if_corr
+=======
+    write(log_buf, '(A, L1)') 'stability correction : ', if_corr
+>>>>>>> 73190c7caa (First implementation of stability correction)
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
     call vreman_init_from_components(this, fluid, c, nut_name, &
+<<<<<<< HEAD
          delta_type, if_ext, if_corr, ri_c, theta0, g)
+=======
+         delta_type, if_ext, if_corr, vertical_dir, ri_c, theta0, g)
+>>>>>>> 73190c7caa (First implementation of stability correction)
   end subroutine vreman_init
 
   !> Constructor from components.
@@ -124,6 +146,7 @@ contains
   !! @param delta_type The type of filter size.
   !! @param if_ext Whether trapolate the velocity.
   subroutine vreman_init_from_components(this, fluid, c, nut_name, &
+<<<<<<< HEAD
        delta_type, if_ext, if_corr, ri_c, theta0, g)
     class(vreman_t), intent(inout) :: this
     class(fluid_scheme_base_t), intent(inout), target :: fluid
@@ -131,6 +154,15 @@ contains
     real(kind=rp), allocatable :: g(:)
     character(len=*), intent(in) :: nut_name
     character(len=*), intent(in) :: delta_type
+=======
+       delta_type, if_ext, if_corr, vertical_dir, ri_c, theta0, g)
+    class(vreman_t), intent(inout) :: this
+    class(fluid_scheme_base_t), intent(inout), target :: fluid
+    real(kind=rp) :: c, ri_c, theta0, g
+    character(len=*), intent(in) :: nut_name
+    character(len=*), intent(in) :: delta_type
+    character(len=*), intent(in) :: vertical_dir
+>>>>>>> 73190c7caa (First implementation of stability correction)
     logical, intent(in) :: if_ext, if_corr
 
     call this%free()
@@ -138,6 +170,10 @@ contains
     call this%init_base(fluid, nut_name, delta_type, if_ext)
     this%c = c
     this%if_corr = if_corr
+<<<<<<< HEAD
+=======
+    this%vertical_dir = trim(vertical_dir)
+>>>>>>> 73190c7caa (First implementation of stability correction)
     this%ri_c = ri_c
     this%theta0 = theta0
     this%g = g
@@ -190,7 +226,11 @@ contains
     else
        call vreman_compute_cpu(this%if_ext, t, tstep, this%coef, &
             this%nut, this%delta, this%c, this%if_corr, &
+<<<<<<< HEAD
             this%ri_c, this%theta0, this%g)
+=======
+            this%vertical_dir, this%ri_c, this%theta0, this%g)
+>>>>>>> 73190c7caa (First implementation of stability correction)
     end if
 
   end subroutine vreman_compute
