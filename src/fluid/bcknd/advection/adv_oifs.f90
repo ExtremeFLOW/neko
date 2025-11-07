@@ -85,9 +85,9 @@ module adv_oifs
      !> The convecting field series in GL space and rst format
      type(field_series_t) :: convr_GL, convs_GL, convt_GL
      !> The time interpolated convecting field used in Runge_Kutta method
-     type(field_t), pointer:: cr_k1, cs_k1, ct_k1
-     type(field_t), pointer:: cr_k23, cs_k23, ct_k23
-     type(field_t), pointer:: cr_k4, cs_k4, ct_k4
+     type(field_t), pointer :: cr_k1, cs_k1, ct_k1
+     type(field_t), pointer :: cr_k23, cs_k23, ct_k23
+     type(field_t), pointer :: cr_k4, cs_k4, ct_k4
      !> The field_list containing the time interpolated convecting field
      type(field_list_t) :: conv_k1, conv_k23, conv_k4
      !> The convecting velocity field in GL space
@@ -297,6 +297,34 @@ contains
     call this%conv_k1%free()
     call this%conv_k23%free()
     call this%conv_k4%free()
+
+    if (associated(this%cr_k1)) then
+       deallocate(this%cr_k1)
+    end if
+    if (associated(this%cs_k1)) then
+       deallocate(this%cs_k1)
+    end if
+    if (associated(this%ct_k1)) then
+       deallocate(this%ct_k1)
+    end if
+    if (associated(this%cr_k23)) then
+       deallocate(this%cr_k23)
+    end if
+    if (associated(this%cs_k23)) then
+       deallocate(this%cs_k23)
+    end if
+    if (associated(this%ct_k23)) then
+       deallocate(this%ct_k23)
+    end if
+    if (associated(this%cr_k4)) then
+       deallocate(this%cr_k4)
+    end if
+    if (associated(this%cs_k4)) then
+       deallocate(this%cs_k4)
+    end if
+    if (associated(this%ct_k4)) then
+       deallocate(this%ct_k4)
+    end if
 
     nullify(this%ulag)
     nullify(this%vlag)
