@@ -161,21 +161,6 @@ contains
        end do
     end do
     if (if_corr .eqv. .true.) then
-<<<<<<< HEAD
-<<<<<<< HEAD
-          theta => neko_registry%get_field_by_name("temperature")
-          call neko_scratch_registry%request_field(dTdx, temp_indices_buoy(1), .false.)
-          call neko_scratch_registry%request_field(dTdy, temp_indices_buoy(2), .false.)
-          call neko_scratch_registry%request_field(dTdz, temp_indices_buoy(3), .false.)
-
-          ! Calculate Richardson number
-          gmag = sqrt(vlsc2(g, g, 3))
-          if (gmag > NEKO_EPS) then
-               n = g / gmag
-          else
-               call neko_error("The gravity vector must have at least one nonzero component")
-          endif
-=======
           theta => neko_field_registry%get_field_by_name("temperature")
           call neko_scratch_registry%request_field(dTdx, temp_indices(1))
           call neko_scratch_registry%request_field(dTdy, temp_indices(1))
@@ -184,7 +169,7 @@ contains
           ! Calculate Richardson number
           gmag = sqrt(vlsc2(g, g, 3))
           n = g / gmag
->>>>>>> 6c6f3df678 (Rewrite for arbitrary vertical direction)
+
           call grad(dTdx%x, dTdy%x, dTdz%x, theta%x, coef)
           do concurrent (e = 1:coef%msh%nelv)
                do concurrent (i = 1:coef%Xh%lxyz)
@@ -196,15 +181,6 @@ contains
 
                     ! Shear component (denominator in Ri definition)
                     ! Directional derivative of velocity
-<<<<<<< HEAD
-                    du_n(1) = a11%x(i,1,1,e)*n(1) + a12%x(i,1,1,e)*n(2) +&
-                            a13%x(i,1,1,e)*n(3)
-                    du_n(2) = a21%x(i,1,1,e)*n(1) + a22%x(i,1,1,e)*n(2) +&
-                            a23%x(i,1,1,e)*n(3)
-                    du_n(3) = a31%x(i,1,1,e)*n(1) + a32%x(i,1,1,e)*n(2) +&
-                            a33%x(i,1,1,e)*n(3)
-
-=======
                     du_n(1) = a11%x(i,1,1,e)*n(1) + a21%x(i,1,1,e)*n(2) +&
                             a31%x(i,1,1,e)*n(3)
                     du_n(2) = a12%x(i,1,1,e)*n(1) + a22%x(i,1,1,e)*n(2) +&
@@ -212,11 +188,6 @@ contains
                     du_n(3) = a13%x(i,1,1,e)*n(1) + a23%x(i,1,1,e)*n(2) +&
                             a33%x(i,1,1,e)*n(3)
 
-                    ! Todo:
-                    ! - check if anything should be rewritten using math functions
-                    ! - define all variables
-
->>>>>>> 6c6f3df678 (Rewrite for arbitrary vertical direction)
                     ! Component parallel to n
                     du_parallel = du_n(1)*n(1) + du_n(2)*n(2) + du_n(3)*n(3)
 
@@ -231,11 +202,6 @@ contains
                     ! Richardson number
                     ri = buoyancy / (shear_sq + NEKO_EPS)
 
-<<<<<<< HEAD
-=======
-                    correction = (1 - ri/ri_c)**0.5
->>>>>>> 6c6f3df678 (Rewrite for arbitrary vertical direction)
-
                     if (ri .le. ri_c) then
                          correction = (1 - ri/ri_c)**0.5
                          nut%x(i,1,1,e) = correction * nut%x(i,1,1,e)
@@ -244,46 +210,8 @@ contains
                     end if
                end do
           end do
-          call neko_scratch_registry%relinquish_field(temp_indices_buoy)
-=======
-          theta => neko_field_registry%get_field_by_name("temperature")
-          ! Calculate Richardson number
-          select case (vert_dir)
-          case ("x")
-               ! call dudxyz(dTdz%x, theta%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-               dudz => a21
-               dvdz => a31
-          case ("y")
-               ! call dudxyz(dTdz%x, theta%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-               dudz => a12
-               dvdz => a32
-          case ("z")
-               ! call dudxyz(dTdz%x, theta%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
-               dudz => a13
-               dvdz => a23
-          case default
-               call neko_error("Invalid specified vertical direction.")
-          end select
-
-<<<<<<< HEAD
-          do concurrent (i = 1:coef%dof%size())
-               ri = g / theta0 * dTdz%x(i,1,1,1) / &
-                    (dudz%x(i,1,1,1)**2 + dvdz%x(i,1,1,1)**2)
-               correction = (1 - ri/ri_c)**0.5
-               nut%x(i,1,1,1) = correction * nut%x(i,1,1,1)
-          end do
->>>>>>> 73190c7caa (First implementation of stability correction)
-=======
-          ! do concurrent (e = 1:coef%msh%nelv)
-          !      do concurrent (i = 1:coef%Xh%lxyz)
-          !           ri = g / theta0 * dTdz%x(i,1,1,e) / &
-          !                (dudz%x(i,1,1,e)**2 + dvdz%x(i,1,1,e)**2)
-          !           correction = (1 - ri/ri_c)**0.5
-          !           nut%x(i,1,1,e) = correction * nut%x(i,1,1,e)
-          !      end do
-          ! end do
->>>>>>> ccf5bd026f (Fix issue with allocation of gradient fields)
-     end if
+          call neko_scratch_registry%relinquish_field(temp_indices)
+    end if
 
     call coef%gs_h%op(nut, GS_OP_ADD)
     call col2(nut%x, coef%mult, nut%dof%size())
