@@ -159,32 +159,37 @@ contains
     end do
     if (if_corr .eqv. .true.) then
           theta => neko_field_registry%get_field_by_name("temperature")
+          call neko_scratch_registry%request_field(dTdz, temp_indices(12))
           ! Calculate Richardson number
           select case (vert_dir)
           case ("x")
-               ! call dudxyz(dTdz%x, theta%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+               call dudxyz(dTdz%x, theta%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
                dudz => a21
                dvdz => a31
           case ("y")
-               ! call dudxyz(dTdz%x, theta%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+               call dudxyz(dTdz%x, theta%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
                dudz => a12
                dvdz => a32
           case ("z")
-               ! call dudxyz(dTdz%x, theta%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+               call dudxyz(dTdz%x, theta%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
                dudz => a13
                dvdz => a23
           case default
                call neko_error("Invalid specified vertical direction.")
           end select
 
-          ! do concurrent (e = 1:coef%msh%nelv)
-          !      do concurrent (i = 1:coef%Xh%lxyz)
-          !           ri = g / theta0 * dTdz%x(i,1,1,e) / &
-          !                (dudz%x(i,1,1,e)**2 + dvdz%x(i,1,1,e)**2)
-          !           correction = (1 - ri/ri_c)**0.5
-          !           nut%x(i,1,1,e) = correction * nut%x(i,1,1,e)
-          !      end do
-          ! end do
+          do concurrent (e = 1:coef%msh%nelv)
+               do concurrent (i = 1:coef%Xh%lxyz)
+                    ri = g / theta0 * dTdz%x(i,1,1,e) / &
+                         (dudz%x(i,1,1,e)**2 + dvdz%x(i,1,1,e)**2 + NEKO_EPS)
+                    correction = (1 - ri/ri_c)**0.5
+                    if (ri .le. ri_c) then
+                         nut%x(i,1,1,e) = correction * nut%x(i,1,1,e)
+                    else
+                         nut%x(i,1,1,e) = NEKO_EPS
+                    end if
+               end do
+          end do
      end if
 
     call coef%gs_h%op(nut, GS_OP_ADD)
