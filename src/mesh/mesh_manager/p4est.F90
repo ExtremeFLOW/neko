@@ -788,8 +788,8 @@ contains
             itmp4v1(ierr), rtmpv1(:,ierr)
     end do
        
-    call mesh_new%mesh%geom%geom_ind%init(lown, lshr, loff, lnum_in, gdim, &
-         itmp8v1, itmp4v1, rtmpv1)
+    call mesh_new%mesh%geom%geom_ind%init_data(lown, lshr, loff, lnum_in, &
+         gdim, itmp8v1, itmp4v1, rtmpv1)
 
     ! face hanging nodes
     ndep = 4
@@ -798,8 +798,8 @@ contains
     call wp4est_nds_get_hfc(c_loc(itmp4v21), c_loc(rtmpv1))
     ! get global numbering of hanging nodes
        
-    call mesh_new%mesh%geom%geom_hng_fcs%init(lnum_fh, gdim, ndep, itmp8v1, &
-         itmp4v21, rtmpv1)
+    call mesh_new%mesh%geom%geom_hng_fcs%init_data(lnum_fh, gdim, ndep, &
+         itmp8v1, itmp4v21, rtmpv1)
 
     ! edge hanging nodes
     ndep = 2
@@ -808,8 +808,8 @@ contains
     call wp4est_nds_get_hed(c_loc(itmp4v21), c_loc(rtmpv1))
     ! get global numbering of hanging nodes
        
-    call mesh_new%mesh%geom%geom_hng_edg%init(lnum_fh, gdim, ndep, itmp8v1, &
-         itmp4v21, rtmpv1)
+    call mesh_new%mesh%geom%geom_hng_edg%init_data(lnum_fh, gdim, ndep, &
+         itmp8v1, itmp4v21, rtmpv1)
 
     ! get element vertex mapping to nodes
     allocate(itmp4v21(nvert, nelt))
@@ -820,7 +820,7 @@ contains
     end do
        
     ! geometry type
-    call mesh_new%mesh%geom%init(gdim, nelt, itmp4v21)
+    call mesh_new%mesh%geom%init_data(gdim, nelt, itmp4v21)
 
     call wp4est_nodes_del()
 
@@ -852,8 +852,8 @@ contains
          c_loc(itmp4v2), c_loc(itmp4v3))
     itmp8 = lown
     call MPI_Allreduce(itmp8, gnum, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, ierr)
-    call mesh_new%mesh%conn%conn_vrt%init(lnum_in, lown, goff, gnum, nrank, &
-         nshare, itmp8v1, itmp4v1, itmp4v3, itmp4v2)
+    call mesh_new%mesh%conn%conn_vrt%init_data(lnum_in, lown, goff, gnum, &
+         nrank, nshare, itmp8v1, itmp4v1, itmp4v3, itmp4v2)
 
     write(*,*) 'TESTcvrt', lnum_in, lown, goff, gnum, nrank, nshare
 
@@ -872,8 +872,8 @@ contains
          c_loc(itmp4v2), c_loc(itmp4v3))
     itmp8 = lown
     call MPI_Allreduce(itmp8, gnum, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, ierr)
-    call mesh_new%mesh%conn%conn_fcs%init(lnum_in, lown, goff, gnum, nrank, &
-         nshare, itmp8v1, itmp4v1, itmp4v3, itmp4v2)
+    call mesh_new%mesh%conn%conn_fcs%init_data(lnum_in, lown, goff, gnum, &
+         nrank, nshare, itmp8v1, itmp4v1, itmp4v3, itmp4v2)
 
     write(*,*) 'TESTcfcs', lnum_in, lown, goff, gnum, nrank, nshare
 
@@ -894,8 +894,8 @@ contains
          c_loc(itmp4v2), c_loc(itmp4v3))
     itmp8 = lown
     call MPI_Allreduce(itmp8, gnum, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, ierr)
-    call mesh_new%mesh%conn%conn_edg%init(lnum_in, lown, goff, gnum, nrank, &
-         nshare, itmp8v1, itmp4v1, itmp4v3, itmp4v2)
+    call mesh_new%mesh%conn%conn_edg%init_data(lnum_in, lown, goff, gnum, &
+         nrank, nshare, itmp8v1, itmp4v1, itmp4v3, itmp4v2)
 
     write(*,*) 'TESTedg', lnum_in, lown, goff, gnum, nrank, nshare
 
@@ -906,7 +906,7 @@ contains
     
 
     ! connectivity type
-    call mesh_new%mesh%conn%init(gdim, nelt, vmap, fmap, itmp4v21, emap, &
+    call mesh_new%mesh%conn%init_data(gdim, nelt, vmap, fmap, itmp4v21, emap, &
          itmp4v22, hngel, hngfc, hnged)
 
     ! get element data
@@ -916,7 +916,7 @@ contains
 !       call wp4est_elm_get_dat(c_loc(itmp8v1), c_loc(itmp4v1), &
 !            & c_loc(itmp4v2), c_loc(itmp4v21), c_loc(itmp4v22), &
 !            & c_loc(rtmpv2), c_loc(itmp4v23)
-!       call mesh_new%mesh%init(nelt, nelv, gnelt, gnelto, maxg, gdim)
+!       call mesh_new%mesh%init_data(nelt, nelv, gnelt, gnelto, maxg, gdim)
 
 
 

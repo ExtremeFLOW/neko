@@ -82,6 +82,9 @@ neko_fortran_SOURCES = \
 	mesh/tet_mesh.f90\
 	mesh/tri_mesh.f90\
 	mesh/intersection_detector.f90\
+	mesh/mesh_manager/mesh_geom.f90\
+	mesh/mesh_manager/mesh_conn.f90\
+	mesh/mesh_manager/mesh_mesh.f90\
 	mesh/mesh_manager/mesh_manager.f90\
 	mesh/mesh_manager/mesh_manager_fctry.f90\
 	mesh/mesh_manager/p4est.F90\

@@ -79,7 +79,10 @@ mesh/aabb_tree.lo : mesh/aabb_tree.f90 common/utils.lo adt/stack.lo config/num_t
 mesh/tet_mesh.lo : mesh/tet_mesh.f90 common/utils.lo mesh/point.lo mesh/tet.lo mesh/mesh.lo 
 mesh/tri_mesh.lo : mesh/tri_mesh.f90 mesh/point.lo mesh/tri.lo 
 mesh/intersection_detector.lo : mesh/intersection_detector.f90 mesh/search_tree/aabb.lo adt/stack.lo common/utils.lo mesh/point.lo mesh/hex.lo mesh/mesh.lo mesh/aabb_tree.lo config/num_types.lo 
-mesh/mesh_manager/mesh_manager.lo : mesh/mesh_manager/mesh_manager.f90 config/num_types.lo 
+mesh/mesh_manager/mesh_geom.lo : mesh/mesh_manager/mesh_geom.f90 config/num_types.lo 
+mesh/mesh_manager/mesh_conn.lo : mesh/mesh_manager/mesh_conn.f90 config/num_types.lo 
+mesh/mesh_manager/mesh_mesh.lo : mesh/mesh_manager/mesh_mesh.f90 mesh/mesh_manager/mesh_conn.lo mesh/mesh_manager/mesh_geom.lo config/num_types.lo 
+mesh/mesh_manager/mesh_manager.lo : mesh/mesh_manager/mesh_manager.f90 mesh/mesh_manager/mesh_mesh.lo config/num_types.lo 
 mesh/mesh_manager/mesh_manager_fctry.lo : mesh/mesh_manager/mesh_manager_fctry.f90 common/utils.lo common/json_utils.lo mesh/mesh_manager/p4est.lo mesh/mesh_manager/mesh_manager.lo 
 mesh/mesh_manager/p4est.lo : mesh/mesh_manager/p4est.F90 mesh/mesh_manager/amr.h mesh/mesh_manager/mesh_manager.lo common/json_utils.lo common/utils.lo common/log.lo comm/comm.lo config/num_types.lo 
 field/field_registry.lo : field/field_registry.f90 common/json_utils.lo comm/comm.lo adt/htable.lo common/utils.lo sem/dofmap.lo field/field.lo 
