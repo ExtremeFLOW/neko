@@ -71,9 +71,9 @@ module vector_registry
      !> The size the vectors array is increased by upon reallocation.
      integer, private :: expansion_size
    contains
-     !> Expand the vectors array so as to accomodate more vectors.
+     !> Expand the vectors array so as to accommodate more vectors.
      procedure, private, pass(this) :: expand => vector_registry_expand
-     !> Expand the aliases array so as to accomodate more aliases.
+     !> Expand the aliases array so as to accommodate more aliases.
      procedure, private, pass(this) :: expand_aliases => &
           vector_registry_expand_aliases
      !> Constructor.
@@ -177,7 +177,7 @@ contains
     this%expansion_size = 0
   end subroutine vector_registry_free
 
-  !> Expand the vectors array so as to accomodate more vectors.
+  !> Expand the vectors array so as to accommodate more vectors.
   subroutine vector_registry_expand(this)
     class(vector_registry_t), intent(inout) :: this
     type(named_vector_t), allocatable :: temp(:)
@@ -187,7 +187,7 @@ contains
     call move_alloc(temp, this%vectors)
   end subroutine vector_registry_expand
 
-  !> Expand the aliases array so as to accomodate more aliases.
+  !> Expand the aliases array so as to accommodate more aliases.
   subroutine vector_registry_expand_aliases(this)
     class(vector_registry_t), intent(inout) :: this
     type(json_file), allocatable :: temp(:)
@@ -298,7 +298,7 @@ contains
     if (i < 1) then
        call neko_error("Vector index must be > 1")
     else if (i > this%n_vectors()) then
-       call neko_error("Vector index exceeds number of stored fields")
+       call neko_error("Vector index exceeds number of stored vectors")
     endif
 
     f => this%vectors(i)%vector
