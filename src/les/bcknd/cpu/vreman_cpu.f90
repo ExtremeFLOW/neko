@@ -81,16 +81,11 @@ contains
     real(kind=rp) :: b_beta
     real(kind=rp) :: aijaij
     integer :: temp_indices(9)
-<<<<<<< HEAD
     integer :: temp_indices_buoy(3)
     integer :: e, i, j
     real(kind=rp) ::  gmag, ri, correction, buoyancy, shear_sq
     real(kind=rp) :: n(3), du_n(3), sh(3)
     real(kind=rp) :: du_parallel
-=======
-    integer :: e, i
-    real(kind=rp) ::  ri, correction
->>>>>>> 73190c7caa (First implementation of stability correction)
 
     if (if_ext .eqv. .true.) then
        u => neko_registry%get_field_by_name("u_e")
@@ -255,21 +250,22 @@ contains
           ! Calculate Richardson number
           select case (vert_dir)
           case ("x")
-               call dudxyz(dTdz%x, theta%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-               dudz%x = a21%x
-               dvdz%x = a31%x
+               ! call dudxyz(dTdz%x, theta%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+               dudz => a21
+               dvdz => a31
           case ("y")
-               call dudxyz(dTdz%x, theta%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-               dudz%x = a12%x
-               dvdz%x = a32%x
+               ! call dudxyz(dTdz%x, theta%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+               dudz => a12
+               dvdz => a32
           case ("z")
-               call dudxyz(dTdz%x, theta%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
-               dudz%x = a13%x
-               dvdz%x = a23%x
+               ! call dudxyz(dTdz%x, theta%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+               dudz => a13
+               dvdz => a23
           case default
                call neko_error("Invalid specified vertical direction.")
           end select
 
+<<<<<<< HEAD
           do concurrent (i = 1:coef%dof%size())
                ri = g / theta0 * dTdz%x(i,1,1,1) / &
                     (dudz%x(i,1,1,1)**2 + dvdz%x(i,1,1,1)**2)
@@ -277,6 +273,16 @@ contains
                nut%x(i,1,1,1) = correction * nut%x(i,1,1,1)
           end do
 >>>>>>> 73190c7caa (First implementation of stability correction)
+=======
+          ! do concurrent (e = 1:coef%msh%nelv)
+          !      do concurrent (i = 1:coef%Xh%lxyz)
+          !           ri = g / theta0 * dTdz%x(i,1,1,e) / &
+          !                (dudz%x(i,1,1,e)**2 + dvdz%x(i,1,1,e)**2)
+          !           correction = (1 - ri/ri_c)**0.5
+          !           nut%x(i,1,1,e) = correction * nut%x(i,1,1,e)
+          !      end do
+          ! end do
+>>>>>>> ccf5bd026f (Fix issue with allocation of gradient fields)
      end if
 
     call coef%gs_h%op(nut, GS_OP_ADD)
