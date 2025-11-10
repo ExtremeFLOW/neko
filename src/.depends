@@ -79,15 +79,15 @@ mesh/aabb_tree.lo : mesh/aabb_tree.f90 common/utils.lo adt/stack.lo config/num_t
 mesh/tet_mesh.lo : mesh/tet_mesh.f90 common/utils.lo mesh/point.lo mesh/tet.lo mesh/mesh.lo 
 mesh/tri_mesh.lo : mesh/tri_mesh.f90 mesh/point.lo mesh/tri.lo 
 mesh/intersection_detector.lo : mesh/intersection_detector.f90 mesh/search_tree/aabb.lo adt/stack.lo common/utils.lo mesh/point.lo mesh/hex.lo mesh/mesh.lo mesh/aabb_tree.lo config/num_types.lo 
-mesh/mesh_manager/mesh_geom.lo : mesh/mesh_manager/mesh_geom.f90 config/num_types.lo 
-mesh/mesh_manager/mesh_conn.lo : mesh/mesh_manager/mesh_conn.f90 config/num_types.lo 
-mesh/mesh_manager/mesh_mesh.lo : mesh/mesh_manager/mesh_mesh.f90 mesh/mesh_manager/mesh_conn.lo mesh/mesh_manager/mesh_geom.lo config/num_types.lo 
-mesh/mesh_manager/mesh_manager.lo : mesh/mesh_manager/mesh_manager.f90 mesh/mesh_manager/mesh_mesh.lo config/num_types.lo 
+mesh/mesh_manager/manager_geom.lo : mesh/mesh_manager/manager_geom.f90 config/num_types.lo 
+mesh/mesh_manager/manager_conn.lo : mesh/mesh_manager/manager_conn.f90 config/num_types.lo 
+mesh/mesh_manager/manager_mesh.lo : mesh/mesh_manager/manager_mesh.f90 mesh/mesh_manager/manager_conn.lo mesh/mesh_manager/manager_geom.lo config/num_types.lo 
+mesh/mesh_manager/mesh_manager.lo : mesh/mesh_manager/mesh_manager.f90 mesh/mesh_manager/manager_mesh.lo config/num_types.lo 
 mesh/mesh_manager/mesh_manager_fctry.lo : mesh/mesh_manager/mesh_manager_fctry.f90 common/utils.lo common/json_utils.lo mesh/mesh_manager/mesh_manager_p4est.lo mesh/mesh_manager/mesh_manager.lo 
-mesh/mesh_manager/mesh_geom_p4est.lo : mesh/mesh_manager/mesh_geom_p4est.f90 mesh/mesh_manager/mesh_geom.lo config/num_types.lo 
-mesh/mesh_manager/mesh_conn_p4est.lo : mesh/mesh_manager/mesh_conn_p4est.f90 mesh/mesh_manager/mesh_conn.lo config/num_types.lo 
-mesh/mesh_manager/mesh_mesh_p4est.lo : mesh/mesh_manager/mesh_mesh_p4est.f90 mesh/mesh_manager/mesh_mesh.lo mesh/mesh_manager/mesh_conn_p4est.lo mesh/mesh_manager/mesh_geom_p4est.lo mesh/mesh_manager/mesh_conn.lo mesh/mesh_manager/mesh_geom.lo config/num_types.lo 
-mesh/mesh_manager/mesh_manager_p4est.lo : mesh/mesh_manager/mesh_manager_p4est.F90 mesh/mesh_manager/amr.h mesh/mesh_manager/mesh_manager.lo mesh/mesh_manager/mesh_mesh_p4est.lo common/json_utils.lo common/utils.lo common/log.lo comm/comm.lo config/num_types.lo 
+mesh/mesh_manager/manager_geom_p4est.lo : mesh/mesh_manager/manager_geom_p4est.f90 mesh/mesh_manager/manager_geom.lo config/num_types.lo 
+mesh/mesh_manager/manager_conn_p4est.lo : mesh/mesh_manager/manager_conn_p4est.f90 mesh/mesh_manager/manager_conn.lo config/num_types.lo 
+mesh/mesh_manager/manager_mesh_p4est.lo : mesh/mesh_manager/manager_mesh_p4est.f90 mesh/mesh_manager/manager_mesh.lo mesh/mesh_manager/manager_conn_p4est.lo mesh/mesh_manager/manager_geom_p4est.lo mesh/mesh_manager/manager_conn.lo mesh/mesh_manager/manager_geom.lo config/num_types.lo 
+mesh/mesh_manager/mesh_manager_p4est.lo : mesh/mesh_manager/mesh_manager_p4est.F90 mesh/mesh_manager/amr.h mesh/mesh_manager/mesh_manager.lo mesh/mesh_manager/manager_mesh_p4est.lo mesh/mesh_manager/manager_mesh.lo common/json_utils.lo common/utils.lo common/log.lo comm/comm.lo config/num_types.lo 
 field/field_registry.lo : field/field_registry.f90 common/json_utils.lo comm/comm.lo adt/htable.lo common/utils.lo sem/dofmap.lo field/field.lo 
 field/scratch_registry.lo : field/scratch_registry.f90 sem/dofmap.lo math/field_math.lo field/field.lo 
 field/field.lo : field/field.f90 sem/dofmap.lo sem/space.lo mesh/mesh.lo math/math.lo device/device.lo config/num_types.lo math/bcknd/device/device_math.lo config/neko_config.lo 
@@ -234,7 +234,7 @@ common/bcknd/cpu/rhs_maker_cpu.lo : common/bcknd/cpu/rhs_maker_cpu.f90 field/scr
 common/bcknd/sx/rhs_maker_sx.lo : common/bcknd/sx/rhs_maker_sx.f90 field/scratch_registry.lo config/num_types.lo field/field.lo field/field_series.lo common/rhs_maker.lo 
 common/bcknd/device/rhs_maker_device.lo : common/bcknd/device/rhs_maker_device.F90 config/num_types.lo field/field.lo field/field_series.lo common/utils.lo device/device.lo common/rhs_maker.lo 
 config/neko_config.lo : config/neko_config.f90 
-case.lo : case.f90 comm/comm.lo scalar/scalars.lo mesh/point_zone_registry.lo field/scratch_registry.lo common/json_utils.lo common/time_state.lo scalar/scalar_scheme.lo scalar/scalar_pnpn.lo common/user_intf.lo common/jobctrl.lo common/log.lo time_schemes/time_scheme_controller.lo common/checkpoint.lo math/math.lo mesh/mesh_manager/mesh_manager.lo mesh/mesh.lo common/utils.lo io/file.lo scalar/scalar_ic.lo fluid/flow_ic.lo io/output_controller.lo comm/redist.lo comm/parmetis.lo field/mesh_field.lo io/chkp_output.lo io/fluid_output.lo fluid/fluid_scheme_base.lo fluid/fluid_scheme_incompressible.lo fluid/fluid_pnpn.lo config/num_types.lo 
+case.lo : case.f90 comm/comm.lo scalar/scalars.lo mesh/point_zone_registry.lo field/scratch_registry.lo common/json_utils.lo common/time_state.lo scalar/scalar_scheme.lo scalar/scalar_pnpn.lo common/user_intf.lo common/jobctrl.lo common/log.lo time_schemes/time_scheme_controller.lo common/checkpoint.lo math/math.lo mesh/mesh_manager/mesh_manager.lo mesh/mesh_manager/manager_mesh.lo mesh/mesh.lo common/utils.lo io/file.lo scalar/scalar_ic.lo fluid/flow_ic.lo io/output_controller.lo comm/redist.lo comm/parmetis.lo field/mesh_field.lo io/chkp_output.lo io/fluid_output.lo fluid/fluid_scheme_base.lo fluid/fluid_scheme_incompressible.lo fluid/fluid_pnpn.lo config/num_types.lo 
 common/user_intf.lo : common/user_intf.f90 common/time_state.lo bc/bc.lo common/log.lo common/utils.lo common/json_utils.lo config/num_types.lo bc/field_dirichlet.lo mesh/mesh.lo bc/bc_list.lo sem/coef.lo field/field_list.lo field/field.lo 
 fluid/stress_formulation/pnpn_res_stress_fctry.lo : fluid/stress_formulation/pnpn_res_stress_fctry.f90 fluid/stress_formulation/bcknd/device/pnpn_res_stress_device.lo fluid/stress_formulation/bcknd/cpu/pnpn_res_stress_cpu.lo config/neko_config.lo fluid/pnpn_res.lo 
 fluid/stress_formulation/bcknd/cpu/pnpn_res_stress_cpu.lo : fluid/stress_formulation/bcknd/cpu/pnpn_res_stress_cpu.f90 math/math.lo sem/space.lo config/num_types.lo mesh/mesh.lo field/scratch_registry.lo fluid/pnpn_res.lo bc/facet_normal.lo sem/coef.lo math/ax.lo field/field.lo math/operators.lo gs/gather_scatter.lo 

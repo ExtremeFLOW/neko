@@ -47,6 +47,7 @@ module case
   use file, only : file_t
   use utils, only : neko_error
   use mesh, only : mesh_t
+  use manager_mesh, only : manager_mesh_t
   use mesh_manager, only : mesh_manager_t, mesh_manager_factory
   use math, only : NEKO_EPS
   use checkpoint, only: chkp_t
@@ -158,7 +159,7 @@ contains
     type(json_file) :: scalar_params, numerics_params, meshmng_params
     type(json_file) :: json_subdict
     integer :: n_scalars, i
-    class(mesh_manager_t), allocatable :: mesh_new
+    class(manager_mesh_t), allocatable :: mesh_new
 
     !
     ! Setup user defined functions
@@ -196,7 +197,7 @@ contains
        call this%mesh_manager%init(meshmng_params)
        ! initial reading of mesh data; it may be not complete, so get it here
        call this%mesh_manager%import_new(mesh_new)
-       call mesh_new%free_base()
+       call mesh_new%free()
        deallocate(mesh_new)
        call neko_log%end_section()
     end if

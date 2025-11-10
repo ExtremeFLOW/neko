@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implementation of the mesh geometry type for mesh manager
-module mesh_geom
+module manager_geom
   use num_types, only : i4, i8, rp, dp
 
   implicit none
@@ -47,7 +47,7 @@ module mesh_geom
   !! as well as a base type for the hanging nodes.  Hanging nodes are not
   !! independent ones. They are located at the centre of the nonconforming
   !! face or edge (have unique physical coordinates).
-  type, abstract, public :: mesh_geom_node_t
+  type, abstract, public :: manager_geom_node_t
      !> Local number of nodes
      integer(i4) :: lnum
      !> Global indexing of unique nodes
@@ -57,25 +57,25 @@ module mesh_geom
      !> Physical node coordinates
      real(kind=dp), allocatable, dimension(:,:) :: coord
    contains
-     procedure, pass(this) :: init_data_base => mesh_geom_node_init_data_base
-     procedure, pass(this) :: init_type_base => mesh_geom_node_init_type_base
-     procedure, pass(this) :: free_base => mesh_geom_node_free_base
+     procedure, pass(this) :: init_data_base => manager_geom_node_init_data_base
+     procedure, pass(this) :: init_type_base => manager_geom_node_init_type_base
+     procedure, pass(this) :: free_base => manager_geom_node_free_base
      !> Initialise data from type
      procedure(mesh_node_init_type), pass(this), deferred :: init_type
      !> Free type
      procedure(mesh_node_free), pass(this), deferred :: free
-  end type mesh_geom_node_t
+  end type manager_geom_node_t
 
   abstract interface
      subroutine mesh_node_init_type(this, node)
-       import mesh_geom_node_t
-       class(mesh_geom_node_t), intent(inout) :: this
-       class(mesh_geom_node_t), intent(inout) :: node
+       import manager_geom_node_t
+       class(manager_geom_node_t), intent(inout) :: this
+       class(manager_geom_node_t), intent(inout) :: node
      end subroutine mesh_node_init_type
 
      subroutine mesh_node_free(this)
-       import mesh_geom_node_t
-       class(mesh_geom_node_t), intent(inout) :: this
+       import manager_geom_node_t
+       class(manager_geom_node_t), intent(inout) :: this
      end subroutine mesh_node_free
   end interface
 
@@ -83,11 +83,11 @@ module mesh_geom
   !! @details This type collects all the geometrical information including
   !! independent nodes lists and combines it with element vertices for node
   !! mapping.
-  type, abstract, public :: mesh_geom_t
+  type, abstract, public :: manager_geom_t
      !> Topological mesh dimension
      integer(i4) :: tdim
      !> Geometrical independent nodes
-     class(mesh_geom_node_t), allocatable :: geom_ind
+     class(manager_geom_node_t), allocatable :: geom_ind
      !> local number of elements
      integer(i4) :: nel
      !> Number of vertices per element
@@ -108,10 +108,10 @@ module mesh_geom
      !> Local mapping of element vertices to the nodes
      integer(i4), allocatable, dimension(:,:) :: vmap
    contains
-     procedure, pass(this) :: init_data_base => mesh_geom_init_data_base
-     procedure, pass(this) :: init_type_base => mesh_geom_init_type_base
-     procedure, pass(this) :: free_data_base => mesh_geom_free_data_base
-     procedure, pass(this) :: free_base => mesh_geom_free_base
+     procedure, pass(this) :: init_data_base => manager_geom_init_data_base
+     procedure, pass(this) :: init_type_base => manager_geom_init_type_base
+     procedure, pass(this) :: free_data_base => manager_geom_free_data_base
+     procedure, pass(this) :: free_base => manager_geom_free_base
      !> Allocate types
      procedure(mesh_geom_init), pass(this), deferred :: init
      !> Initialise data from type
@@ -120,18 +120,18 @@ module mesh_geom
      procedure(mesh_geom_init), pass(this), deferred :: free_data
      !> Free type
      procedure(mesh_geom_init), pass(this), deferred :: free
-  end type mesh_geom_t
+  end type manager_geom_t
 
   abstract interface
      subroutine mesh_geom_init(this)
-       import mesh_geom_t
-       class(mesh_geom_t), intent(inout) :: this
+       import manager_geom_t
+       class(manager_geom_t), intent(inout) :: this
      end subroutine mesh_geom_init
 
      subroutine mesh_geom_init_type(this, geom)
-       import mesh_geom_t
-       class(mesh_geom_t), intent(inout) :: this
-       class(mesh_geom_t), intent(inout) :: geom
+       import manager_geom_t
+       class(manager_geom_t), intent(inout) :: this
+       class(manager_geom_t), intent(inout) :: geom
      end subroutine mesh_geom_init_type
   end interface
 
@@ -142,9 +142,9 @@ contains
   !! @param[in]    gdim    geometrical dimension
   !! @param[inout] gidx    global node index
   !! @param[inout] coord   node coordinates
-  subroutine mesh_geom_node_init_data_base(this, lnum, gdim, gidx, coord)
+  subroutine manager_geom_node_init_data_base(this, lnum, gdim, gidx, coord)
     ! argument list
-    class(mesh_geom_node_t), intent(inout) :: this
+    class(manager_geom_node_t), intent(inout) :: this
     integer(i4), intent(in) :: lnum, gdim
     integer(i8), allocatable, dimension(:), intent(inout) :: gidx
     real(kind=dp), allocatable, dimension(:,:), intent(inout) :: coord
@@ -157,13 +157,13 @@ contains
     if (allocated(gidx)) call move_alloc(gidx, this%gidx)
     if (allocated(coord)) call move_alloc(coord, this%coord)
 
-  end subroutine mesh_geom_node_init_data_base
+  end subroutine manager_geom_node_init_data_base
 
   !> Initialise nodes type based on another node type
   !! @param[inout] node   node data
-  subroutine mesh_geom_node_init_type_base(this, node)
+  subroutine manager_geom_node_init_type_base(this, node)
     ! argument list
-    class(mesh_geom_node_t), intent(inout) :: this, node
+    class(manager_geom_node_t), intent(inout) :: this, node
 
     call this%free_base()
 
@@ -173,12 +173,12 @@ contains
     if (allocated(node%gidx)) call move_alloc(node%gidx, this%gidx)
     if (allocated(node%coord)) call move_alloc(node%coord, this%coord)
 
-  end subroutine mesh_geom_node_init_type_base
+  end subroutine manager_geom_node_init_type_base
 
   !> Free node type
-  subroutine mesh_geom_node_free_base(this)
+  subroutine manager_geom_node_free_base(this)
     ! argument list
-    class(mesh_geom_node_t), intent(inout) :: this
+    class(manager_geom_node_t), intent(inout) :: this
 
     this%lnum = 0
     this%gdim = 0
@@ -186,14 +186,14 @@ contains
     if (allocated(this%gidx)) deallocate(this%gidx)
     if (allocated(this%coord)) deallocate(this%coord)
 
-  end subroutine mesh_geom_node_free_base
+  end subroutine manager_geom_node_free_base
 
   !> Initialise geometry type
   !! @param[in]    tdim    topological mesh dimension
   !! @param[in]    nel     local element number
   !! @param[inout] vmap    element vertices to node mapping
-  subroutine mesh_geom_init_data_base(this, tdim, nel, vmap)
-    class(mesh_geom_t), intent(inout) :: this
+  subroutine manager_geom_init_data_base(this, tdim, nel, vmap)
+    class(manager_geom_t), intent(inout) :: this
     integer(i4), intent(in) :: tdim, nel
     integer(i4), allocatable, dimension(:,:), intent(inout) :: vmap
 
@@ -207,13 +207,13 @@ contains
 
     if (allocated(vmap)) call move_alloc(vmap, this%vmap)
 
-  end subroutine mesh_geom_init_data_base
+  end subroutine manager_geom_init_data_base
 
   !> Initialise geometry type based on another geometry type
   !! @param[inout] geom   geometry data
-  subroutine mesh_geom_init_type_base(this, geom)
+  subroutine manager_geom_init_type_base(this, geom)
     ! argument list
-    class(mesh_geom_t), intent(inout) :: this, geom
+    class(manager_geom_t), intent(inout) :: this, geom
 
     call this%free_data_base()
 
@@ -226,11 +226,11 @@ contains
 
     if (allocated(geom%vmap)) call move_alloc(geom%vmap, this%vmap)
 
-  end subroutine mesh_geom_init_type_base
+  end subroutine manager_geom_init_type_base
 
   !> Free geometry data
-  subroutine mesh_geom_free_data_base(this)
-    class(mesh_geom_t), intent(inout) :: this
+  subroutine manager_geom_free_data_base(this)
+    class(manager_geom_t), intent(inout) :: this
 
     if (allocated(this%geom_ind)) call this%geom_ind%free()
 
@@ -240,15 +240,15 @@ contains
 
     if (allocated(this%vmap)) deallocate(this%vmap)
 
-  end subroutine mesh_geom_free_data_base
+  end subroutine manager_geom_free_data_base
 
   !> Free geometry type
-  subroutine mesh_geom_free_base(this)
-    class(mesh_geom_t), intent(inout) :: this
+  subroutine manager_geom_free_base(this)
+    class(manager_geom_t), intent(inout) :: this
 
     call this%free_data_base()
     if (allocated(this%geom_ind)) deallocate(this%geom_ind)
 
-  end subroutine mesh_geom_free_base
+  end subroutine manager_geom_free_base
 
-end module mesh_geom
+end module manager_geom

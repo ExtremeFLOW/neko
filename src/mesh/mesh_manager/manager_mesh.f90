@@ -31,15 +31,15 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implementation of the mesh type for mesh manager
-module mesh_mesh
+module manager_mesh
   use num_types, only : i4, i8, rp, dp
-  use mesh_geom, only :  mesh_geom_t
-  use mesh_conn, only :  mesh_conn_t
+  use manager_geom, only :  manager_geom_t
+  use manager_conn, only :  manager_conn_t
 
   implicit none
   private
 
-  type, abstract, public :: mesh_mesh_t
+  type, abstract, public :: manager_mesh_t
      !> Topological mesh dimension
      integer(i4) :: tdim
      !> total number of local element (both V- and T-type)
@@ -53,39 +53,39 @@ module mesh_mesh
      !> Number of faces per element
      integer(i4) :: nfcs
      !> Geometrical information
-     class(mesh_geom_t), allocatable :: geom
+     class(manager_geom_t), allocatable :: geom
      !> Connectivity information
-     class(mesh_conn_t), allocatable :: conn
+     class(manager_conn_t), allocatable :: conn
    contains
      !> Constructor for the mesh data
-     procedure, pass(this) :: init_data_base => mesh_mesh_init_data_base
+     procedure, pass(this) :: init_data_base => manager_mesh_init_data_base
      !> Constructor for the mesh data based on the other mesh type
-     procedure, pass(this) :: init_type_base => mesh_mesh_init_type_base
+     procedure, pass(this) :: init_type_base => manager_mesh_init_type_base
      !> Free mesh data
-     procedure, pass(this) :: free_data_base => mesh_mesh_free_data_base
+     procedure, pass(this) :: free_data_base => manager_mesh_free_data_base
      !> Free mesh type
-     procedure, pass(this) :: free_base => mesh_mesh_free_base
+     procedure, pass(this) :: free_base => manager_mesh_free_base
      !> Allocate types
-     procedure(mesh_mesh_init), pass(this), deferred :: init
+     procedure(mesh_init), pass(this), deferred :: init
      !> Initialise data from type
-     procedure(mesh_mesh_init_type), pass(this), deferred :: init_type
+     procedure(mesh_init_type), pass(this), deferred :: init_type
      !> Free type_data
-     procedure(mesh_mesh_init), pass(this), deferred :: free_data
+     procedure(mesh_init), pass(this), deferred :: free_data
      !> Free type
-     procedure(mesh_mesh_init), pass(this), deferred :: free
-  end type mesh_mesh_t
+     procedure(mesh_init), pass(this), deferred :: free
+  end type manager_mesh_t
 
   abstract interface
-     subroutine mesh_mesh_init(this)
-       import mesh_mesh_t
-       class(mesh_mesh_t), intent(inout) :: this
-     end subroutine mesh_mesh_init
+     subroutine mesh_init(this)
+       import manager_mesh_t
+       class(manager_mesh_t), intent(inout) :: this
+     end subroutine mesh_init
 
-     subroutine mesh_mesh_init_type(this, mesh)
-       import mesh_mesh_t
-       class(mesh_mesh_t), intent(inout) :: this
-       class(mesh_mesh_t), intent(inout) :: mesh
-     end subroutine mesh_mesh_init_type
+     subroutine mesh_init_type(this, mesh)
+       import manager_mesh_t
+       class(manager_mesh_t), intent(inout) :: this
+       class(manager_mesh_t), intent(inout) :: mesh
+     end subroutine mesh_init_type
   end interface
 
 contains
@@ -96,8 +96,8 @@ contains
   !! @param[in]    gnelto     global element offset
   !! @param[in]    tdim       topological mesh dimension
   !! @param[inout] gidx       global element number
-  subroutine mesh_mesh_init_data_base(this, nelt, gnelt, gnelto, tdim, gidx)
-    class(mesh_mesh_t), intent(inout) :: this
+  subroutine manager_mesh_init_data_base(this, nelt, gnelt, gnelto, tdim, gidx)
+    class(manager_mesh_t), intent(inout) :: this
     integer(i4), intent(in) :: nelt, tdim
     integer(i8), intent(in) :: gnelt, gnelto
     integer(i8), allocatable, dimension(:), intent(inout)  :: gidx
@@ -114,13 +114,13 @@ contains
 
     if (allocated(gidx)) call move_alloc(gidx, this%gidx)
 
-  end subroutine mesh_mesh_init_data_base
+  end subroutine manager_mesh_init_data_base
 
   !>  Initialise mesh data based on another mesh type
   !! @param[inout] mesh   mesh data
-  subroutine mesh_mesh_init_type_base(this, mesh)
-    class(mesh_mesh_t), intent(inout) :: this
-    class(mesh_mesh_t), intent(inout) :: mesh
+  subroutine manager_mesh_init_type_base(this, mesh)
+    class(manager_mesh_t), intent(inout) :: this
+    class(manager_mesh_t), intent(inout) :: mesh
 
     call this%free_data_base()
 
@@ -137,11 +137,11 @@ contains
 
     if (allocated(mesh%gidx)) call move_alloc(mesh%gidx, this%gidx)
 
-  end subroutine mesh_mesh_init_type_base
+  end subroutine manager_mesh_init_type_base
 
   !> Destructor for the data in `mesh_manager_t` (base) type.
-  subroutine mesh_mesh_free_data_base(this)
-    class(mesh_mesh_t), intent(inout) :: this
+  subroutine manager_mesh_free_data_base(this)
+    class(manager_mesh_t), intent(inout) :: this
 
     if (allocated(this%geom)) call this%geom%free_data()
     if (allocated(this%conn)) call this%conn%free_data()
@@ -154,16 +154,16 @@ contains
 
     if (allocated(this%gidx)) deallocate(this%gidx)
 
-  end subroutine mesh_mesh_free_data_base
+  end subroutine manager_mesh_free_data_base
 
   !> Destructor for the data in `mesh_manager_t` (base) type.
-  subroutine mesh_mesh_free_base(this)
-    class(mesh_mesh_t), intent(inout) :: this
+  subroutine manager_mesh_free_base(this)
+    class(manager_mesh_t), intent(inout) :: this
 
     call this%free_data_base()
     if (allocated(this%geom)) deallocate(this%geom)
     if (allocated(this%conn)) deallocate(this%conn)
 
-  end subroutine mesh_mesh_free_base
+  end subroutine manager_mesh_free_base
 
-end module mesh_mesh
+end module manager_mesh

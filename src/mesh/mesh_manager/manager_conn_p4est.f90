@@ -31,9 +31,9 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implementation of the mesh connectivity type for p4est mesh manager
-module mesh_conn_p4est
+module manager_conn_p4est
   use num_types, only : i4, i8, rp, dp
-  use mesh_conn, only : mesh_conn_obj_t, mesh_conn_t
+  use manager_conn, only : manager_conn_obj_t, manager_conn_t
 
   implicit none
   private
@@ -41,7 +41,7 @@ module mesh_conn_p4est
   !> Extended type for connectivity information regarding vertices, faces and
   !! edges.
   !! @details It adds sharing information for communication
-  type, extends(mesh_conn_obj_t), public :: mesh_conn_obj_p4est_t
+  type, extends(manager_conn_obj_t), public :: manager_conn_obj_p4est_t
      !> Number of MPI ranks sharing objects
      integer(i4) :: nrank
      !> Number of shared objects
@@ -53,13 +53,13 @@ module mesh_conn_p4est
      !> Offset in the share list
      integer(i4), allocatable, dimension(:) :: off
    contains
-     procedure, pass(this) :: init_data => mesh_conn_obj_init_data_p4est
-     procedure, pass(this) :: init_type => mesh_conn_obj_init_type_p4est
-     procedure, pass(this) :: free => mesh_conn_obj_free_p4est
-  end type mesh_conn_obj_p4est_t
+     procedure, pass(this) :: init_data => manager_conn_obj_init_data_p4est
+     procedure, pass(this) :: init_type => manager_conn_obj_init_type_p4est
+     procedure, pass(this) :: free => manager_conn_obj_free_p4est
+  end type manager_conn_obj_p4est_t
 
   !> Type for element connectivity information
-  type, extends(mesh_conn_t), public :: mesh_conn_p4est_t
+  type, extends(manager_conn_t), public :: manager_conn_p4est_t
      ! Face orientation.
      ! In 2D case permutation array takes 2 values
      !          0 => no permutations
@@ -143,12 +143,12 @@ module mesh_conn_p4est
      integer(i4), allocatable, dimension(:,:) :: hnged
 
    contains
-     procedure, pass(this) :: init => mesh_conn_init_p4est
-     procedure, pass(this) :: init_data => mesh_conn_init_data_p4est
-     procedure, pass(this) :: init_type => mesh_conn_init_type_p4est
-     procedure, pass(this) :: free_data => mesh_conn_free_data_p4est
-     procedure, pass(this) :: free => mesh_conn_free_p4est
-  end type mesh_conn_p4est_t
+     procedure, pass(this) :: init => manager_conn_init_p4est
+     procedure, pass(this) :: init_data => manager_conn_init_data_p4est
+     procedure, pass(this) :: init_type => manager_conn_init_type_p4est
+     procedure, pass(this) :: free_data => manager_conn_free_data_p4est
+     procedure, pass(this) :: free => manager_conn_free_p4est
+  end type manager_conn_p4est_t
 
 contains
 
@@ -163,10 +163,10 @@ contains
   !! @param[inout] rank    list of ranks sharing object
   !! @param[inout] share   list of shared objects
   !! @param[inout] off     offset in share list
-  subroutine mesh_conn_obj_init_data_p4est(this, lnum, lown, goff, gnum, &
+  subroutine manager_conn_obj_init_data_p4est(this, lnum, lown, goff, gnum, &
        nrank, nshare, gidx, rank, share, off)
     ! argument list
-    class(mesh_conn_obj_p4est_t), intent(inout) :: this
+    class(manager_conn_obj_p4est_t), intent(inout) :: this
     integer(i4), intent(in) :: lnum, lown, nrank, nshare
     integer(i8), intent(in) :: goff, gnum
     integer(i8), allocatable, dimension(:), intent(inout) :: gidx
@@ -182,20 +182,20 @@ contains
     if (allocated(share)) call move_alloc(share, this%share)
     if (allocated(off)) call move_alloc(off, this%off)
 
-  end subroutine mesh_conn_obj_init_data_p4est
+  end subroutine manager_conn_obj_init_data_p4est
 
   !> Initialise connectivity object type based on another connectivity type
   !! @param[inout] conn   connectivity object data
-  subroutine mesh_conn_obj_init_type_p4est(this, conn)
+  subroutine manager_conn_obj_init_type_p4est(this, conn)
     ! argument list
-    class(mesh_conn_obj_p4est_t), intent(inout) :: this
-    class(mesh_conn_obj_t), intent(inout) :: conn
+    class(manager_conn_obj_p4est_t), intent(inout) :: this
+    class(manager_conn_obj_t), intent(inout) :: conn
 
     call this%free()
     call this%init_type_base(conn)
 
     select type (conn)
-    type is(mesh_conn_obj_p4est_t)
+    type is(manager_conn_obj_p4est_t)
        this%nrank = conn%nrank
        this%nshare = conn%nshare
 
@@ -204,12 +204,12 @@ contains
        if (allocated(conn%off)) call move_alloc(conn%off, this%off)
     end select
 
-  end subroutine mesh_conn_obj_init_type_p4est
+  end subroutine manager_conn_obj_init_type_p4est
 
   !> Free connectivity object type
-  subroutine mesh_conn_obj_free_p4est(this)
+  subroutine manager_conn_obj_free_p4est(this)
     ! argument list
-    class(mesh_conn_obj_p4est_t), intent(inout) :: this
+    class(manager_conn_obj_p4est_t), intent(inout) :: this
 
     call this%free_base()
 
@@ -220,31 +220,31 @@ contains
     if (allocated(this%share)) deallocate(this%share)
     if (allocated(this%off)) deallocate(this%off)
 
-  end subroutine mesh_conn_obj_free_p4est
+  end subroutine manager_conn_obj_free_p4est
 
   !> Allocate types
-  subroutine mesh_conn_init_p4est(this)
-    class(mesh_conn_p4est_t), intent(inout) :: this
+  subroutine manager_conn_init_p4est(this)
+    class(manager_conn_p4est_t), intent(inout) :: this
 
     if (allocated(this%conn_vrt))then
        call this%conn_vrt%free()
        deallocate(this%conn_vrt)
     end if
-    allocate(mesh_conn_obj_p4est_t::this%conn_vrt)
+    allocate(manager_conn_obj_p4est_t::this%conn_vrt)
 
     if (allocated(this%conn_fcs))then
        call this%conn_fcs%free()
        deallocate(this%conn_fcs)
     end if
-    allocate(mesh_conn_obj_p4est_t::this%conn_fcs)
+    allocate(manager_conn_obj_p4est_t::this%conn_fcs)
 
     if (allocated(this%conn_edg))then
        call this%conn_edg%free()
        deallocate(this%conn_edg)
     end if
-    allocate(mesh_conn_obj_p4est_t::this%conn_edg)
+    allocate(manager_conn_obj_p4est_t::this%conn_edg)
 
-  end subroutine mesh_conn_init_p4est
+  end subroutine manager_conn_init_p4est
 
   !> Initialise connectivity information
   !! @param[in]    tdim    topological dimension
@@ -257,10 +257,10 @@ contains
   !! @param[inout] hngel   element hanging flag
   !! @param[inout] hngfc   element face hanging flag
   !! @param[inout] hnged   element edge hanging flag
-  subroutine mesh_conn_init_data_p4est(this, tdim, nel, vmap, fmap, falgn, &
+  subroutine manager_conn_init_data_p4est(this, tdim, nel, vmap, fmap, falgn, &
        emap, ealgn, hngel, hngfc, hnged)
     ! argument list
-    class(mesh_conn_p4est_t), intent(inout) :: this
+    class(manager_conn_p4est_t), intent(inout) :: this
     integer(i4), intent(in) :: tdim, nel
     integer(i4), allocatable, dimension(:), intent(inout) :: hngel
     integer(i4), allocatable, dimension(:,:), intent(inout) :: vmap, fmap, &
@@ -275,21 +275,21 @@ contains
     if (allocated(hngfc)) call move_alloc(hngfc, this%hngfc)
     if (allocated(hnged)) call move_alloc(hnged, this%hnged)
 
-  end subroutine mesh_conn_init_data_p4est
+  end subroutine manager_conn_init_data_p4est
 
   !> Initialise connectivity type based on another connectivity type
   !! @param[inout] conn   connectivity data
-  subroutine mesh_conn_init_type_p4est(this, conn)
+  subroutine manager_conn_init_type_p4est(this, conn)
     ! argument list
-    class(mesh_conn_p4est_t), intent(inout) :: this
-    class(mesh_conn_t), intent(inout) :: conn
+    class(manager_conn_p4est_t), intent(inout) :: this
+    class(manager_conn_t), intent(inout) :: conn
 
     call this%free_data()
 
     call this%init_type_base(conn)
 
     select type (conn)
-    type is(mesh_conn_p4est_t)
+    type is(manager_conn_p4est_t)
        if (allocated(conn%falgn)) call move_alloc(conn%falgn, this%falgn)
        if (allocated(conn%ealgn)) call move_alloc(conn%ealgn, this%ealgn)
        if (allocated(conn%hngel)) call move_alloc(conn%hngel, this%hngel)
@@ -297,12 +297,12 @@ contains
        if (allocated(conn%hnged)) call move_alloc(conn%hnged, this%hnged)
     end select
 
-  end subroutine mesh_conn_init_type_p4est
+  end subroutine manager_conn_init_type_p4est
 
   !> Free connectivity information
-  subroutine mesh_conn_free_data_p4est(this)
+  subroutine manager_conn_free_data_p4est(this)
     ! argument list
-    class(mesh_conn_p4est_t), intent(inout) :: this
+    class(manager_conn_p4est_t), intent(inout) :: this
 
     call this%free_data_base()
 
@@ -312,12 +312,12 @@ contains
     if (allocated(this%hngfc)) deallocate(this%hngfc)
     if (allocated(this%hnged)) deallocate(this%hnged)
 
-  end subroutine mesh_conn_free_data_p4est
+  end subroutine manager_conn_free_data_p4est
 
   !> Free connectivity information
-  subroutine mesh_conn_free_p4est(this)
+  subroutine manager_conn_free_p4est(this)
     ! argument list
-    class(mesh_conn_p4est_t), intent(inout) :: this
+    class(manager_conn_p4est_t), intent(inout) :: this
 
     call this%free_base()
 
@@ -327,6 +327,6 @@ contains
     if (allocated(this%hngfc)) deallocate(this%hngfc)
     if (allocated(this%hnged)) deallocate(this%hnged)
 
-  end subroutine mesh_conn_free_p4est
+  end subroutine manager_conn_free_p4est
 
-end module mesh_conn_p4est
+end module manager_conn_p4est

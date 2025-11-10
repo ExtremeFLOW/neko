@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implementation of the mesh connectivity type for mesh manager
-module mesh_conn
+module manager_conn
   use num_types, only : i4, i8, rp, dp
 
   implicit none
@@ -41,7 +41,7 @@ module mesh_conn
   !! faces and edges.
   !! @details It contains global numbering of objects
   !! information
-  type, abstract, public :: mesh_conn_obj_t
+  type, abstract, public :: manager_conn_obj_t
      !> Number of local objects
      integer(i4) :: lnum
      !> Number of owned objects
@@ -53,34 +53,34 @@ module mesh_conn
      !> Global indexing of unique objects of given type
      integer(i8), allocatable, dimension(:) :: gidx
    contains
-     procedure, pass(this) :: init_data_base => mesh_conn_obj_init_data_base
-     procedure, pass(this) :: init_type_base => mesh_conn_obj_init_type_base
-     procedure, pass(this) :: free_base => mesh_conn_obj_free_base
+     procedure, pass(this) :: init_data_base => manager_conn_obj_init_data_base
+     procedure, pass(this) :: init_type_base => manager_conn_obj_init_type_base
+     procedure, pass(this) :: free_base => manager_conn_obj_free_base
      !> Initialise data from type
      procedure(mesh_obj_init_type), pass(this), deferred :: init_type
      !> Free type
      procedure(mesh_obj_free), pass(this), deferred :: free
-  end type mesh_conn_obj_t
+  end type manager_conn_obj_t
 
   abstract interface
      subroutine mesh_obj_init_type(this, conn)
-       import mesh_conn_obj_t
-       class(mesh_conn_obj_t), intent(inout) :: this
-       class(mesh_conn_obj_t), intent(inout) :: conn
+       import manager_conn_obj_t
+       class(manager_conn_obj_t), intent(inout) :: this
+       class(manager_conn_obj_t), intent(inout) :: conn
      end subroutine mesh_obj_init_type
 
      subroutine mesh_obj_free(this)
-       import mesh_conn_obj_t
-       class(mesh_conn_obj_t), intent(inout) :: this
+       import manager_conn_obj_t
+       class(manager_conn_obj_t), intent(inout) :: this
      end subroutine mesh_obj_free
   end interface
 
   !> Type for element connectivity information
-  type, abstract, public :: mesh_conn_t
+  type, abstract, public :: manager_conn_t
      !> Topological mesh dimension
      integer(i4) :: tdim
      !> Connectivity information for vertices, edges and faces
-     class(mesh_conn_obj_t), allocatable :: conn_vrt, conn_fcs, conn_edg
+     class(manager_conn_obj_t), allocatable :: conn_vrt, conn_fcs, conn_edg
      !> local number of elements
      integer(i4) :: nel
      !> Number of vertices per element
@@ -137,10 +137,10 @@ module mesh_conn
      integer(i4), allocatable, dimension(:,:) :: emap
 
    contains
-     procedure, pass(this) :: init_data_base => mesh_conn_init_data_base
-     procedure, pass(this) :: init_type_base => mesh_conn_init_type_base
-     procedure, pass(this) :: free_data_base => mesh_conn_free_data_base
-     procedure, pass(this) :: free_base => mesh_conn_free_base
+     procedure, pass(this) :: init_data_base => manager_conn_init_data_base
+     procedure, pass(this) :: init_type_base => manager_conn_init_type_base
+     procedure, pass(this) :: free_data_base => manager_conn_free_data_base
+     procedure, pass(this) :: free_base => manager_conn_free_base
      !> Allocate types
      procedure(mesh_conn_init), pass(this), deferred :: init
      !> Initialise data from type
@@ -149,18 +149,18 @@ module mesh_conn
      procedure(mesh_conn_init), pass(this), deferred :: free_data
      !> Free type
      procedure(mesh_conn_init), pass(this), deferred :: free
-  end type mesh_conn_t
+  end type manager_conn_t
 
   abstract interface
      subroutine mesh_conn_init(this)
-       import mesh_conn_t
-       class(mesh_conn_t), intent(inout) :: this
+       import manager_conn_t
+       class(manager_conn_t), intent(inout) :: this
      end subroutine mesh_conn_init
 
      subroutine mesh_conn_init_type(this, conn)
-       import mesh_conn_t
-       class(mesh_conn_t), intent(inout) :: this
-       class(mesh_conn_t), intent(inout) :: conn
+       import manager_conn_t
+       class(manager_conn_t), intent(inout) :: this
+       class(manager_conn_t), intent(inout) :: conn
      end subroutine mesh_conn_init_type
   end interface
 
@@ -172,9 +172,9 @@ contains
   !! @param[in]    goff    global object offset
   !! @param[in]    gnum    global number of objects
   !! @param[inout] gidx    global object index
-  subroutine mesh_conn_obj_init_data_base(this, lnum, lown, goff, gnum, gidx)
+  subroutine manager_conn_obj_init_data_base(this, lnum, lown, goff, gnum, gidx)
     ! argument list
-    class(mesh_conn_obj_t), intent(inout) :: this
+    class(manager_conn_obj_t), intent(inout) :: this
     integer(i4), intent(in) :: lnum, lown
     integer(i8), intent(in) :: goff, gnum
     integer(i8), allocatable, dimension(:), intent(inout) :: gidx
@@ -188,14 +188,14 @@ contains
 
     if (allocated(gidx)) call move_alloc(gidx, this%gidx)
 
-  end subroutine mesh_conn_obj_init_data_base
+  end subroutine manager_conn_obj_init_data_base
 
   !> Initialise connectivity object type based on another connectivity type
   !! @param[inout] conn   connectivity object data
-  subroutine mesh_conn_obj_init_type_base(this, conn)
+  subroutine manager_conn_obj_init_type_base(this, conn)
     ! argument list
-    class(mesh_conn_obj_t), intent(inout) :: this
-    class(mesh_conn_obj_t), intent(inout) :: conn
+    class(manager_conn_obj_t), intent(inout) :: this
+    class(manager_conn_obj_t), intent(inout) :: conn
 
     call this%free_base()
 
@@ -206,12 +206,12 @@ contains
 
     if (allocated(conn%gidx)) call move_alloc(conn%gidx, this%gidx)
 
-  end subroutine mesh_conn_obj_init_type_base
+  end subroutine manager_conn_obj_init_type_base
 
   !> Free connectivity object type
-  subroutine mesh_conn_obj_free_base(this)
+  subroutine manager_conn_obj_free_base(this)
     ! argument list
-    class(mesh_conn_obj_t), intent(inout) :: this
+    class(manager_conn_obj_t), intent(inout) :: this
 
     this%lnum = 0
     this%lown = 0
@@ -220,7 +220,7 @@ contains
 
     if (allocated(this%gidx)) deallocate(this%gidx)
 
-  end subroutine mesh_conn_obj_free_base
+  end subroutine manager_conn_obj_free_base
 
   !> Initialise connectivity information
   !! @param[in]    tdim    topological dimension
@@ -228,9 +228,9 @@ contains
   !! @param[inout] vmap    element vertex mapping
   !! @param[inout] fmap    element face mapping
   !! @param[inout] emap    element edge mapping
-  subroutine mesh_conn_init_data_base(this, tdim, nel, vmap, fmap, emap)
+  subroutine manager_conn_init_data_base(this, tdim, nel, vmap, fmap, emap)
     ! argument list
-    class(mesh_conn_t), intent(inout) :: this
+    class(manager_conn_t), intent(inout) :: this
     integer(i4), intent(in) :: tdim, nel
     integer(i4), allocatable, dimension(:,:), intent(inout) :: vmap, fmap, emap
 
@@ -248,14 +248,14 @@ contains
     if (allocated(fmap)) call move_alloc(fmap, this%fmap)
     if (allocated(emap)) call move_alloc(emap, this%emap)
 
-  end subroutine mesh_conn_init_data_base
+  end subroutine manager_conn_init_data_base
 
   !> Initialise connectivity type based on another connectivity type
   !! @param[inout] conn   connectivity data
-  subroutine mesh_conn_init_type_base(this, conn)
+  subroutine manager_conn_init_type_base(this, conn)
     ! argument list
-    class(mesh_conn_t), intent(inout) :: this
-    class(mesh_conn_t), intent(inout) :: conn
+    class(manager_conn_t), intent(inout) :: this
+    class(manager_conn_t), intent(inout) :: conn
 
     call this%free_data_base()
 
@@ -276,12 +276,12 @@ contains
     if (allocated(conn%fmap)) call move_alloc(conn%fmap, this%fmap)
     if (allocated(conn%emap)) call move_alloc(conn%emap, this%emap)
 
-  end subroutine mesh_conn_init_type_base
+  end subroutine manager_conn_init_type_base
 
   !> Free connectivity data
-  subroutine mesh_conn_free_data_base(this)
+  subroutine manager_conn_free_data_base(this)
     ! argument list
-    class(mesh_conn_t), intent(inout) :: this
+    class(manager_conn_t), intent(inout) :: this
 
     if (allocated(this%conn_vrt)) call this%conn_vrt%free()
     if (allocated(this%conn_fcs)) call this%conn_fcs%free()
@@ -297,18 +297,18 @@ contains
     if (allocated(this%fmap)) deallocate(this%fmap)
     if (allocated(this%emap)) deallocate(this%emap)
 
-  end subroutine mesh_conn_free_data_base
+  end subroutine manager_conn_free_data_base
 
   !> Free connectivity type
-  subroutine mesh_conn_free_base(this)
+  subroutine manager_conn_free_base(this)
     ! argument list
-    class(mesh_conn_t), intent(inout) :: this
+    class(manager_conn_t), intent(inout) :: this
 
     call this%free_data_base()
     if (allocated(this%conn_vrt)) deallocate(this%conn_vrt)
     if (allocated(this%conn_fcs)) deallocate(this%conn_fcs)
     if (allocated(this%conn_edg)) deallocate(this%conn_edg)
 
-  end subroutine mesh_conn_free_base
+  end subroutine manager_conn_free_base
 
-end module mesh_conn
+end module manager_conn

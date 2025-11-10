@@ -40,7 +40,8 @@ module mesh_manager_p4est
   use utils, only : neko_error, neko_warning
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default
-  use mesh_mesh_p4est, only : mesh_mesh_p4est_t
+  use manager_mesh, only : manager_mesh_t
+  use manager_mesh_p4est, only : manager_mesh_p4est_t
   use mesh_manager, only : mesh_manager_t
 
   implicit none
@@ -69,14 +70,6 @@ module mesh_manager_p4est
      integer :: ref_level_max
      !> Log level for p4est
      integer :: log_level
-     ! Flag elements that can be coarsened and share the same parent
-     ! family(1, lelt) - mark of a parent (not a real element number as parents
-     ! do not exist on neko side)
-     !                         0 - element that cannot be coarsened
-     !                        >0 - family mark
-     ! family(2, lelt) - vertex number shared by all the family members
-     !> Family flag
-     integer(i8), allocatable, dimension(:,:) :: family
    contains
      !> Start p4est
      procedure, pass(this) :: start => p4est_start
@@ -617,7 +610,6 @@ contains
 
     if (allocated(this%tree_file)) deallocate(this%tree_file)
     if (allocated(this%cnn_np_file)) deallocate(this%cnn_np_file)
-    if (allocated(this%family)) deallocate(this%family)
 
 #else
     call neko_error('p4est mesh manager must be compiled with p4est support.')
@@ -628,17 +620,14 @@ contains
   subroutine p4est_import(this)
     class(mesh_manager_p4est_t), intent(inout) :: this
 #ifdef HAVE_P4EST
-    type(mesh_manager_p4est_t) :: mesh_new
+    type(manager_mesh_p4est_t) :: mesh_new
 
     ! import data from p4est
     call p4est_import_data(mesh_new, this%is_periodic)
 
     ! fill mesh information
-    call this%mesh%init_type(mesh_new%mesh)
-
-    ! get local info
-    if (allocated(mesh_new%family)) &
-         call move_alloc(mesh_new%family, this%family)
+    call this%mesh%init_type(mesh_new)
+    call mesh_new%free()
 #else
     call neko_error('p4est mesh manager must be compiled with p4est support.')
 #endif
@@ -647,18 +636,18 @@ contains
   !> Import mesh data
   subroutine p4est_import_new(this, mesh_new)
     class(mesh_manager_p4est_t), intent(inout) :: this
-    class(mesh_manager_t), allocatable, intent(inout) :: mesh_new
+    class(manager_mesh_t), allocatable, intent(inout) :: mesh_new
 #ifdef HAVE_P4EST
     if (allocated(mesh_new)) then
-       call mesh_new%free_base()
+       call mesh_new%free()
        deallocate(mesh_new)
     end if
 
-    allocate(mesh_manager_p4est_t::mesh_new)
+    allocate(manager_mesh_p4est_t::mesh_new)
 
     ! import data from p4est
     select type(mesh_new)
-    type is (mesh_manager_p4est_t)
+    type is (manager_mesh_p4est_t)
        call p4est_import_data(mesh_new, this%is_periodic)
     end select
 #else
@@ -675,14 +664,14 @@ contains
     integer, intent(in) :: ref_level_max
     integer(i4) :: is_valid
     character(len=LOG_SIZE) :: log_buf
-    type(mesh_manager_p4est_t) :: mesh_new
+    type(manager_mesh_p4est_t) :: mesh_new
 
     ! allocate mesh type
     if (allocated(this%mesh))then
        call this%mesh%free()
        deallocate(this%mesh)
     end if
-    allocate(mesh_mesh_p4est_t::this%mesh)
+    allocate(manager_mesh_p4est_t::this%mesh)
 
     ! is p4est started?
     if (.not.this%ifstarted) call neko_error('p4est not started')
@@ -736,7 +725,7 @@ contains
 
   !> Import data from p4est
   subroutine p4est_import_data(mesh_new, is_periodic)
-    type(mesh_manager_p4est_t), intent(inout) :: mesh_new
+    type(manager_mesh_p4est_t), intent(inout) :: mesh_new
     logical, intent(in) :: is_periodic
     character(len=LOG_SIZE) :: log_buf
     character(len=*), parameter :: frmt1="('p4est mesh: gdim = ', i1, ', &

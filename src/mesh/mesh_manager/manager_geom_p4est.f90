@@ -31,16 +31,16 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implementation of the mesh geometry type for p4est mesh manager
-module mesh_geom_p4est
+module manager_geom_p4est
   use num_types, only : i4, i8, rp, dp
-  use mesh_geom, only : mesh_geom_node_t, mesh_geom_t
+  use manager_geom, only : manager_geom_node_t, manager_geom_t
 
   implicit none
   private
 
   !> p4est type extension for geometrical independent nodes.
   !! @details It adds ownership information
-  type, extends(mesh_geom_node_t), public :: mesh_geom_node_ind_p4est_t
+  type, extends(manager_geom_node_t), public :: manager_geom_node_ind_p4est_t
      !> Number of owned nodes
      integer(i4) :: lown
      !> Number of owned shared nodes
@@ -50,34 +50,34 @@ module mesh_geom_p4est
      !> Node owner (MPI rank)
      integer(i4), allocatable, dimension(:) :: ndown
    contains
-     procedure, pass(this) :: init_data => mesh_geom_node_ind_init_data_p4est
-     procedure, pass(this) :: init_type => mesh_geom_node_ind_init_type_p4est
-     procedure, pass(this) :: free => mesh_geom_node_ind_free_p4est
-  end type mesh_geom_node_ind_p4est_t
+     procedure, pass(this) :: init_data => manager_geom_node_ind_init_data_p4est
+     procedure, pass(this) :: init_type => manager_geom_node_ind_init_type_p4est
+     procedure, pass(this) :: free => manager_geom_node_ind_free_p4est
+  end type manager_geom_node_ind_p4est_t
 
   !> p4est type extension for geometrical hanging nodes
   !! @details p4est adds mapping to the independent face/edge vertices. This
   !! mapping is not unique and will depend on the element position in a tree.
   !! There are two types of hanging nodes h2 (dependent on 2 independent nodes;
   !! 2D face and 3D edge) and h4 (dependent on 4 independent nodes; 3D face).
-  type, extends(mesh_geom_node_t), public :: mesh_geom_node_hng_p4est_t
+  type, extends(manager_geom_node_t), public :: manager_geom_node_hng_p4est_t
      !> Number of independent nodes in the dependency list
      integer(i4) :: ndep
      !> Local hanging to independent node mapping
      integer(i4), allocatable, dimension(:,:) :: lmap
    contains
-     procedure, pass(this) :: init_data => mesh_geom_node_hng_init_data_p4est
-     procedure, pass(this) :: init_type => mesh_geom_node_hng_init_type_p4est
-     procedure, pass(this) :: free => mesh_geom_node_hng_free_p4est
-  end type mesh_geom_node_hng_p4est_t
+     procedure, pass(this) :: init_data => manager_geom_node_hng_init_data_p4est
+     procedure, pass(this) :: init_type => manager_geom_node_hng_init_type_p4est
+     procedure, pass(this) :: free => manager_geom_node_hng_free_p4est
+  end type manager_geom_node_hng_p4est_t
 
   !> Type for element geometry information
   !! @details This type extends a base type with hanging nodes.
-  type, extends(mesh_geom_t), public :: mesh_geom_p4est_t
+  type, extends(manager_geom_t), public :: manager_geom_p4est_t
      !> Geometrical h2-type hanging nodes
-     type(mesh_geom_node_hng_p4est_t) :: geom_hng_edg
+     type(manager_geom_node_hng_p4est_t) :: geom_hng_edg
      !> Geometrical h4-type hanging nodes
-     type(mesh_geom_node_hng_p4est_t) :: geom_hng_fcs
+     type(manager_geom_node_hng_p4est_t) :: geom_hng_fcs
      ! Mapping including hanging nodes:
      ! 1<= vnmap(iv,iel) <= nin - independent node
      ! nin < vnmap(iv,iel) <= nin + nhf - face hanging node
@@ -98,12 +98,12 @@ module mesh_geom_p4est
      !          |        |/     /
      !         5+--------+6    t
    contains
-     procedure, pass(this) :: init => mesh_geom_init_p4est
-     procedure, pass(this) :: init_data => mesh_geom_init_data_p4est
-     procedure, pass(this) :: init_type => mesh_geom_init_type_p4est
-     procedure, pass(this) :: free_data => mesh_geom_free_data_p4est
-     procedure, pass(this) :: free => mesh_geom_free_p4est
-  end type mesh_geom_p4est_t
+     procedure, pass(this) :: init => manager_geom_init_p4est
+     procedure, pass(this) :: init_data => manager_geom_init_data_p4est
+     procedure, pass(this) :: init_type => manager_geom_init_type_p4est
+     procedure, pass(this) :: free_data => manager_geom_free_data_p4est
+     procedure, pass(this) :: free => manager_geom_free_p4est
+  end type manager_geom_p4est_t
 
 contains
 
@@ -116,10 +116,10 @@ contains
   !! @param[inout] gidx    global node index
   !! @param[inout] ndown   node owner (MPI rank)
   !! @param[inout] coord   node coordinates
-  subroutine mesh_geom_node_ind_init_data_p4est(this, lown, lshr, loff, lnum, &
-       gdim, gidx, ndown, coord)
+  subroutine manager_geom_node_ind_init_data_p4est(this, lown, lshr, loff, &
+       lnum, gdim, gidx, ndown, coord)
     ! argument list
-    class(mesh_geom_node_ind_p4est_t), intent(inout) :: this
+    class(manager_geom_node_ind_p4est_t), intent(inout) :: this
     integer(i4), intent(in) :: lown, lshr, loff, lnum, gdim
     integer(i8), allocatable, dimension(:), intent(inout) :: gidx
     integer(i4), allocatable, dimension(:), intent(inout) :: ndown
@@ -134,20 +134,20 @@ contains
 
     if (allocated(ndown)) call move_alloc(ndown, this%ndown)
 
-  end subroutine mesh_geom_node_ind_init_data_p4est
+  end subroutine manager_geom_node_ind_init_data_p4est
 
   !> Initialise independent nodes type based on another node type
   !! @param[inout] node   node data
-  subroutine mesh_geom_node_ind_init_type_p4est(this, node)
+  subroutine manager_geom_node_ind_init_type_p4est(this, node)
     ! argument list
-    class(mesh_geom_node_ind_p4est_t), intent(inout) :: this
-    class(mesh_geom_node_t), intent(inout) :: node
+    class(manager_geom_node_ind_p4est_t), intent(inout) :: this
+    class(manager_geom_node_t), intent(inout) :: node
 
     call this%free()
     call this%init_type_base(node)
 
     select type (node)
-    type is(mesh_geom_node_ind_p4est_t)
+    type is(manager_geom_node_ind_p4est_t)
        this%lown = node%lown
        this%lshr = node%lshr
        this%loff = node%loff
@@ -156,12 +156,12 @@ contains
 
     end select
 
-  end subroutine mesh_geom_node_ind_init_type_p4est
+  end subroutine manager_geom_node_ind_init_type_p4est
 
   !> Free independent nodes type
-  subroutine mesh_geom_node_ind_free_p4est(this)
+  subroutine manager_geom_node_ind_free_p4est(this)
     ! argument list
-    class(mesh_geom_node_ind_p4est_t), intent(inout) :: this
+    class(manager_geom_node_ind_p4est_t), intent(inout) :: this
 
     call this%free_base()
 
@@ -171,7 +171,7 @@ contains
 
     if (allocated(this%ndown)) deallocate(this%ndown)
 
-  end subroutine mesh_geom_node_ind_free_p4est
+  end subroutine manager_geom_node_ind_free_p4est
 
   !> Initialise hanging nodes type
   !! @param[in]    lnum    local number of nodes
@@ -180,10 +180,10 @@ contains
   !! @param[inout] gidx    global node index
   !! @param[inout] lmap    node mapping to independent node
   !! @param[inout] coord   node coordinates
-  subroutine mesh_geom_node_hng_init_data_p4est(this, lnum, gdim, ndep, gidx, &
-       lmap, coord)
+  subroutine manager_geom_node_hng_init_data_p4est(this, lnum, gdim, ndep, &
+       gidx, lmap, coord)
     ! argument list
-    class(mesh_geom_node_hng_p4est_t), intent(inout) :: this
+    class(manager_geom_node_hng_p4est_t), intent(inout) :: this
     integer(i4), intent(in) :: lnum, gdim, ndep
     integer(i8), allocatable, dimension(:), intent(inout) :: gidx
     integer(i4), allocatable, dimension(:, :), intent(inout) :: lmap
@@ -196,31 +196,31 @@ contains
 
     if (allocated(lmap)) call move_alloc(lmap, this%lmap)
 
-  end subroutine mesh_geom_node_hng_init_data_p4est
+  end subroutine manager_geom_node_hng_init_data_p4est
 
   !> Initialise hanging nodes type based on another node type
   !! @param[inout] node   node data
-  subroutine mesh_geom_node_hng_init_type_p4est(this, node)
+  subroutine manager_geom_node_hng_init_type_p4est(this, node)
     ! argument list
-    class(mesh_geom_node_hng_p4est_t), intent(inout) :: this
-    class(mesh_geom_node_t), intent(inout) :: node
+    class(manager_geom_node_hng_p4est_t), intent(inout) :: this
+    class(manager_geom_node_t), intent(inout) :: node
 
     call this%free()
     call this%init_type_base(node)
 
     select type (node)
-    type is(mesh_geom_node_hng_p4est_t)
+    type is(manager_geom_node_hng_p4est_t)
        this%ndep = node%ndep
 
        if (allocated(node%lmap)) call move_alloc(node%lmap, this%lmap)
     end select
 
-  end subroutine mesh_geom_node_hng_init_type_p4est
+  end subroutine manager_geom_node_hng_init_type_p4est
 
   !> Free hanging nodes type
-  subroutine mesh_geom_node_hng_free_p4est(this)
+  subroutine manager_geom_node_hng_free_p4est(this)
     ! argument list
-    class(mesh_geom_node_hng_p4est_t), intent(inout) :: this
+    class(manager_geom_node_hng_p4est_t), intent(inout) :: this
 
     call this%free_base()
 
@@ -228,26 +228,26 @@ contains
 
     if (allocated(this%lmap)) deallocate(this%lmap)
 
-  end subroutine mesh_geom_node_hng_free_p4est
+  end subroutine manager_geom_node_hng_free_p4est
 
   !> Allocate types
-  subroutine mesh_geom_init_p4est(this)
-    class(mesh_geom_p4est_t), intent(inout) :: this
+  subroutine manager_geom_init_p4est(this)
+    class(manager_geom_p4est_t), intent(inout) :: this
 
     if (allocated(this%geom_ind))then
        call this%geom_ind%free()
        deallocate(this%geom_ind)
     end if
-    allocate(mesh_geom_node_ind_p4est_t::this%geom_ind)
+    allocate(manager_geom_node_ind_p4est_t::this%geom_ind)
 
-  end subroutine mesh_geom_init_p4est
+  end subroutine manager_geom_init_p4est
 
   !> Initialise geometry type
   !! @param[in]    tdim    topological mesh dimension
   !! @param[in]    nel     local element number
   !! @param[inout] vmap    element vertices to node mapping
-  subroutine mesh_geom_init_data_p4est(this, tdim, nel, vmap)
-    class(mesh_geom_p4est_t), intent(inout) :: this
+  subroutine manager_geom_init_data_p4est(this, tdim, nel, vmap)
+    class(manager_geom_p4est_t), intent(inout) :: this
     integer(i4), intent(in) :: tdim, nel
     integer(i4), allocatable, dimension(:,:), intent(inout) :: vmap
 
@@ -255,44 +255,44 @@ contains
 
     call this%init_data_base(tdim, nel, vmap)
 
-  end subroutine mesh_geom_init_data_p4est
+  end subroutine manager_geom_init_data_p4est
 
   !> Initialise geometry type based on another geometry type
   !! @param[inout] geom   geometry data
-  subroutine mesh_geom_init_type_p4est(this, geom)
+  subroutine manager_geom_init_type_p4est(this, geom)
     ! argument list
-    class(mesh_geom_p4est_t), intent(inout) :: this
-    class(mesh_geom_t), intent(inout) :: geom
+    class(manager_geom_p4est_t), intent(inout) :: this
+    class(manager_geom_t), intent(inout) :: geom
 
     call this%free_data()
 
     call this%init_type_base(geom)
     select type (geom)
-    type is(mesh_geom_p4est_t)
+    type is(manager_geom_p4est_t)
        call this%geom_hng_edg%init_type(geom%geom_hng_edg)
        call this%geom_hng_fcs%init_type(geom%geom_hng_fcs)
     end select
 
-  end subroutine mesh_geom_init_type_p4est
+  end subroutine manager_geom_init_type_p4est
 
   !> Free geometry data
-  subroutine mesh_geom_free_data_p4est(this)
-    class(mesh_geom_p4est_t), intent(inout) :: this
+  subroutine manager_geom_free_data_p4est(this)
+    class(manager_geom_p4est_t), intent(inout) :: this
 
     call this%free_data_base()
     call this%geom_hng_edg%free()
     call this%geom_hng_fcs%free()
 
-  end subroutine mesh_geom_free_data_p4est
+  end subroutine manager_geom_free_data_p4est
 
   !> Free geometry
-  subroutine mesh_geom_free_p4est(this)
-    class(mesh_geom_p4est_t), intent(inout) :: this
+  subroutine manager_geom_free_p4est(this)
+    class(manager_geom_p4est_t), intent(inout) :: this
 
     call this%free_base()
     call this%geom_hng_edg%free()
     call this%geom_hng_fcs%free()
 
-  end subroutine mesh_geom_free_p4est
+  end subroutine manager_geom_free_p4est
 
-end module mesh_geom_p4est
+end module manager_geom_p4est

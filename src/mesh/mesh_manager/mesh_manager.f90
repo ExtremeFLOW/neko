@@ -34,7 +34,7 @@
 module mesh_manager
   use num_types, only : i4, i8, rp, dp
   use json_module, only : json_file
-  use mesh_mesh, only : mesh_mesh_t
+  use manager_mesh, only : manager_mesh_t
 
   implicit none
   private
@@ -46,7 +46,7 @@ module mesh_manager
      !> 3rd-party software activation flag
      logical :: ifstarted
      !> mesh information
-     class(mesh_mesh_t), allocatable :: mesh
+     class(manager_mesh_t), allocatable :: mesh
    contains
      !> Constructor for the mesh_manager_t (base) type.
      procedure, pass(this) :: init_base => mesh_manager_init_base
@@ -96,9 +96,9 @@ module mesh_manager
      !> Import mesh data creating a new variable
      !! @param  mesh_new   new mesh data
      subroutine mesh_manager_import_new(this, mesh_new)
-       import mesh_manager_t
+       import mesh_manager_t, manager_mesh_t
        class(mesh_manager_t), intent(inout) :: this
-       class(mesh_manager_t), allocatable, intent(inout) :: mesh_new
+       class(manager_mesh_t), allocatable, intent(inout) :: mesh_new
      end subroutine mesh_manager_import_new
   end interface
 
