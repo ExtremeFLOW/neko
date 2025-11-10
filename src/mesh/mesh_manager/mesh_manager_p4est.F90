@@ -41,6 +41,9 @@ module mesh_manager_p4est
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default
   use manager_mesh, only : manager_mesh_t
+  use manager_geom_p4est, only : manager_geom_node_ind_p4est_t, &
+       manager_geom_p4est_t
+  use manager_conn_p4est, only : manager_conn_obj_p4est_t, manager_conn_p4est_t
   use manager_mesh_p4est, only : manager_mesh_p4est_t
   use mesh_manager, only : mesh_manager_t
 
@@ -89,48 +92,6 @@ module mesh_manager_p4est
           p4est_init_from_components
 #endif
   end type mesh_manager_p4est_t
-
-  ! connectivity parameter arrays
-  ! face vertices
-  integer, parameter, dimension(4,6) :: p4_vface = reshape(&
-       (/ 1,3,5,7 , 2,4,6,8 , 1,2,5,6 , 3,4,7,8 , 1,2,3,4 , 5,6,7,8 /),&
-       shape(p4_vface))
-
-  ! edge vertices
-  integer, parameter, dimension(2,12) :: p4_vedge  = reshape(&
-       (/ 1,2 , 3,4 , 5,6 , 7,8 , 1,3 , 2,4 , 5,7 , 6,8 , 1,5 , 2,6 , 3,7&
-       , 4,8 /),shape(p4_vedge))
-
-  ! edge related faces
-  integer, parameter, dimension(2,12) :: p4_eface  = reshape(&
-       (/ 3,5 , 4,5 , 3,6 , 4,6 , 1,5 , 2,5 , 1,6 , 2,6 , 1,3 , 2,3 , 1,4&
-       , 2,4 /),shape(p4_eface))
-
-  ! corner related faces
-  integer, parameter, dimension(3,8) :: p4_cface = reshape(&
-       (/ 1,3,5 , 2,3,5 , 1,4,5 , 2,4,5 , 1,3,6 , 2,3,6 , 1,4,6 , 2,4,6 /),&
-       shape(p4_cface))
-
-  ! corner related edges
-  integer, parameter, dimension(3,8) :: p4_cedge = reshape(&
-       (/ 1,5,9 , 1,6,10 , 2,5,11 , 2,6,12 , 3,7,9 , 3,8,10 , 4,7,11 ,&
-        4,8,12 /),shape(p4_cedge))
-
-  ! corner to face corner
-  integer, parameter, dimension(6,8) :: p4_cfcrn = reshape(&
-       (/ 1,-1, 1,-1, 1,-1 , -1, 1, 2,-1, 2,-1 ,  2,-1,-1, 1, 3,-1 &
-       , -1, 2,-1, 2, 4,-1 ,  3,-1, 3,-1,-1, 1 , -1, 3, 4,-1,-1, 2 &
-       ,  4,-1,-1, 3,-1, 3 , -1, 4,-1, 4,-1, 4 /),shape(p4_cfcrn))
-
-  ! to calculate neighbour face corner
-  integer, parameter, dimension(6,6) :: p4_rt =reshape( &
-       (/ 1,2,2,1,1,2 , 3,1,1,2,2,1 , 3,1,1,2,2,1 , 1,3,3,1,1,2 &
-       , 1,3,3,1,1,2 , 3,1,1,3,3,1 /),shape(p4_rt))
-  integer, parameter, dimension(4,3) :: p4_qt = reshape(&
-       (/ 2,3,6,7 , 1,4,5,8 , 1,5,4,8 /),shape(p4_qt))
-  integer, parameter, dimension(4,8) :: p4_pt = reshape(&
-       (/ 1,2,3,4 , 1,3,2,4 , 2,1,4,3 , 2,4,1,3 , 3,1,4,2 , 3,4,1,2 &
-       , 4,2,3,1 , 4,3,2,1 /),shape(p4_pt))
 
 #ifdef HAVE_P4EST
   ! set of interfaces to call p4est functions
@@ -364,10 +325,10 @@ module mesh_manager_p4est
        type(c_ptr), value :: vmap
      end subroutine wp4est_nds_get_vmap
 
-     subroutine wp4est_elm_get_dat(gidx, level, igrp, crv, bc, coord, falg) &
+     subroutine wp4est_elm_get_dat(gidx, level, igrp, crv, bc, falg) &
           bind(c, name = 'wp4est_elm_get_dat')
        USE, INTRINSIC :: ISO_C_BINDING
-       type(c_ptr), value :: gidx, level, igrp, crv, bc, coord, falg
+       type(c_ptr), value :: gidx, level, igrp, crv, bc, falg
      end subroutine wp4est_elm_get_dat
 
      subroutine wp4est_elm_get_lnode(lnnum, lnown, lnoff, lnodes) &
@@ -622,7 +583,8 @@ contains
 #ifdef HAVE_P4EST
     type(manager_mesh_p4est_t) :: mesh_new
 
-    ! import data from p4est
+    ! allocate types and import data from p4est
+    call mesh_new%init()
     call p4est_import_data(mesh_new, this%is_periodic)
 
     ! fill mesh information
@@ -643,7 +605,9 @@ contains
        deallocate(mesh_new)
     end if
 
+    ! allocate types
     allocate(manager_mesh_p4est_t::mesh_new)
+    call mesh_new%init()
 
     ! import data from p4est
     select type(mesh_new)
@@ -666,12 +630,13 @@ contains
     character(len=LOG_SIZE) :: log_buf
     type(manager_mesh_p4est_t) :: mesh_new
 
-    ! allocate mesh type
+    ! allocate mesh types
     if (allocated(this%mesh))then
        call this%mesh%free()
        deallocate(this%mesh)
     end if
     allocate(manager_mesh_p4est_t::this%mesh)
+    call this%mesh%init()
 
     ! is p4est started?
     if (.not.this%ifstarted) call neko_error('p4est not started')
@@ -734,11 +699,12 @@ contains
          maxg, ndep, lown, lshr, loff, lnum_in, lnum_fh, lnum_eh, nrank, nshare
     integer(i8) :: itmp8, gnelt, gnelto, goff, gnum
     integer(i8), allocatable, target, dimension(:) :: itmp8v1
+    integer(i8), allocatable, target, dimension(:, :) :: itmp8v21
     integer(i4), allocatable, target, dimension(:) :: itmp4v1, itmp4v2, &
          itmp4v3, hngel
-    integer(i4), allocatable, target, dimension(:,:) :: itmp4v21, itmp4v22, &
-         hngfc, hnged, vmap, fmap, emap
-    real(dp), allocatable, target, dimension(:,:) :: rtmpv1
+    integer(i4), allocatable, target, dimension(:, :) :: itmp4v21, itmp4v22, &
+         itmp4v23, hngfc, hnged, vmap, fmap, emap, ealgn
+    real(dp), allocatable, target, dimension(:, :) :: rtmpv1
 
     write(log_buf, '(a)') 'Importing p4est data'
     call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
@@ -754,6 +720,7 @@ contains
     ! get mesh size and distribution information
     call wp4est_msh_get_size(gdim, gnelt, gnelto, nelt, nelv, ngrp, maxl)
 
+    ! object number
     nvert = 2**gdim
     nface = 2 * gdim
     nedge = 12 * (gdim - 2)
@@ -769,55 +736,61 @@ contains
 !    end if
 
     ! get geometry info
+    select type (geom => mesh_new%geom)
+    type is (manager_geom_p4est_t)
 
-    ! get nodes and their coordinates
-    call wp4est_nds_get_size(lown, lshr, loff, lnum_in, lnum_fh, lnum_eh)
+       ! get nodes and their coordinates
+       call wp4est_nds_get_size(lown, lshr, loff, lnum_in, lnum_fh, lnum_eh)
        
-    write(*,*) 'TEST0 ', pe_rank, nelv, ngrp, nelt
-    write(*,*) 'TEST1 ', pe_rank, lown, lshr, loff, lnum_in, lnum_fh, lnum_eh
+       write(*,*) 'TEST0 ', pe_rank, nelv, ngrp, nelt
+       write(*,*) 'TEST1 ', pe_rank, lown, lshr, loff, lnum_in, lnum_fh, lnum_eh
        
-    ! independent nodes
-    allocate(itmp8v1(lnum_in), itmp4v1(lnum_in), rtmpv1(gdim, lnum_in))
-    call wp4est_nds_get_ind(c_loc(itmp8v1), c_loc(itmp4v1),c_loc(rtmpv1))
+       ! independent nodes
+       allocate(itmp8v1(lnum_in), itmp4v1(lnum_in), rtmpv1(gdim, lnum_in))
+       call wp4est_nds_get_ind(c_loc(itmp8v1), c_loc(itmp4v1),c_loc(rtmpv1))
        
-    do ierr = 1, lnum_in
-       write(*,*) 'TESTind ', pe_rank, ierr, itmp8v1(ierr), &
-            itmp4v1(ierr), rtmpv1(:,ierr)
-    end do
-       
-!!!    call mesh_new%mesh%geom%geom_ind%init_data(lown, lshr, loff, lnum_in, &
-!!         gdim, itmp8v1, itmp4v1, rtmpv1)
+       do ierr = 1, lnum_in
+          write(*,*) 'TESTind ', pe_rank, ierr, itmp8v1(ierr), &
+               itmp4v1(ierr), rtmpv1(:,ierr)
+       end do
+    
+       select type (geom_ind => geom%geom_ind)
+       type is(manager_geom_node_ind_p4est_t)
+          call geom_ind%init_data(lown, lshr, loff, lnum_in, gdim, &
+               itmp8v1, itmp4v1, rtmpv1)
+       end select
 
-    ! face hanging nodes
-    ndep = 4
-    allocate(itmp8v1(lnum_fh), itmp4v21(ndep, lnum_fh), &
-         rtmpv1(gdim, lnum_fh))
-    call wp4est_nds_get_hfc(c_loc(itmp4v21), c_loc(rtmpv1))
-    ! get global numbering of hanging nodes
+       ! face hanging nodes
+       ndep = 4
+       allocate(itmp8v1(lnum_fh), itmp4v21(ndep, lnum_fh), &
+            rtmpv1(gdim, lnum_fh))
+       call wp4est_nds_get_hfc(c_loc(itmp4v21), c_loc(rtmpv1))
+       ! get global numbering of hanging nodes
        
-!!!!    call mesh_new%mesh%geom%geom_hng_fcs%init_data(lnum_fh, gdim, ndep, &
-!!         itmp8v1, itmp4v21, rtmpv1)
+       call geom%geom_hng_fcs%init_data(lnum_fh, gdim, ndep, &
+            itmp8v1, itmp4v21, rtmpv1)
 
-    ! edge hanging nodes
-    ndep = 2
-    allocate(itmp8v1(lnum_fh), itmp4v21(ndep, lnum_fh), &
-         rtmpv1(gdim, lnum_fh))
-    call wp4est_nds_get_hed(c_loc(itmp4v21), c_loc(rtmpv1))
-    ! get global numbering of hanging nodes
+       ! edge hanging nodes
+       ndep = 2
+       allocate(itmp8v1(lnum_fh), itmp4v21(ndep, lnum_fh), &
+            rtmpv1(gdim, lnum_fh))
+       call wp4est_nds_get_hed(c_loc(itmp4v21), c_loc(rtmpv1))
+       ! get global numbering of hanging nodes
        
-!!!    call mesh_new%mesh%geom%geom_hng_edg%init_data(lnum_fh, gdim, ndep, &
-!!         itmp8v1, itmp4v21, rtmpv1)
+       call geom%geom_hng_edg%init_data(lnum_fh, gdim, ndep, &
+            itmp8v1, itmp4v21, rtmpv1)
 
-    ! get element vertex mapping to nodes
-    allocate(itmp4v21(nvert, nelt))
-    call wp4est_nds_get_vmap(c_loc(itmp4v21))
+       ! get element vertex mapping to nodes
+       allocate(itmp4v21(nvert, nelt))
+       call wp4est_nds_get_vmap(c_loc(itmp4v21))
        
-    do ierr = 1, nelt
-       write(*,*) 'TESTvmap ', pe_rank, ierr, itmp4v21(:, ierr)
-    end do
+       do ierr = 1, nelt
+          write(*,*) 'TESTvmap ', pe_rank, ierr, itmp4v21(:, ierr)
+       end do
        
-    ! geometry type
-!!!    call mesh_new%mesh%geom%init_data(gdim, nelt, itmp4v21)
+       ! geometry type
+       call geom%init_data(gdim, nelt, itmp4v21)
+    end select
 
     call wp4est_nodes_del()
 
@@ -832,124 +805,157 @@ contains
     end if
 
     ! get connectivity info
-    ! vertices
-    call wp4est_lnodes_new(1)
+    select type (conn => mesh_new%conn)
+    type is (manager_conn_p4est_t)
 
-    ! get hanging object info; based on lnode information
-    allocate(hngel(nelt), hngfc(nface, nelt), hnged(nedge, nelt))
-    call wp4est_hang_get_info(c_loc(hngel), c_loc(hngfc), c_loc(hnged))
+       ! vertices
+       call wp4est_lnodes_new(1)
 
-    ! vertex connectivity
-    allocate(vmap(nvert, nelt))
-    call wp4est_elm_get_lnode(lnum_in, lown, goff, c_loc(vmap))
-    call wp4est_sharers_get_size(nrank, nshare)
-    allocate(itmp8v1(lnum_in), itmp4v1(nrank), itmp4v2(nrank+1), &
-         itmp4v3(nshare))
-    call wp4est_sharers_get_ind(c_loc(itmp8v1), c_loc(itmp4v1), &
-         c_loc(itmp4v2), c_loc(itmp4v3))
-    itmp8 = lown
-    call MPI_Allreduce(itmp8, gnum, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, ierr)
-!!!    call mesh_new%mesh%conn%conn_vrt%init_data(lnum_in, lown, goff, gnum, &
-!!!         nrank, nshare, itmp8v1, itmp4v1, itmp4v3, itmp4v2)
+       ! get hanging object info; based on lnode information
+       allocate(hngel(nelt), hngfc(nface, nelt), hnged(nedge, nelt))
+       call wp4est_hang_get_info(c_loc(hngel), c_loc(hngfc), c_loc(hnged))
 
-    write(*,*) 'TESTcvrt', lnum_in, lown, goff, gnum, nrank, nshare
+       ! vertex connectivity
+       allocate(vmap(nvert, nelt))
+       call wp4est_elm_get_lnode(lnum_in, lown, goff, c_loc(vmap))
+       call wp4est_sharers_get_size(nrank, nshare)
+       allocate(itmp8v1(lnum_in), itmp4v1(nrank), itmp4v2(nrank+1), &
+            itmp4v3(nshare))
+       call wp4est_sharers_get_ind(c_loc(itmp8v1), c_loc(itmp4v1), &
+            c_loc(itmp4v2), c_loc(itmp4v3))
+       itmp8 = lown
+       call MPI_Allreduce(itmp8, gnum, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, &
+            ierr)
+       select type (conn_vrt => conn%conn_vrt)
+       type is (manager_conn_obj_p4est_t)
+          call conn_vrt%init_data(lnum_in, lown, goff, gnum, nrank, nshare, &
+               itmp8v1, itmp4v1, itmp4v3, itmp4v2)
+       end select
+       
+       write(*,*) 'TESTcvrt', lnum_in, lown, goff, gnum, nrank, nshare
+       
+       call wp4est_lnodes_del()
 
-    call wp4est_lnodes_del()
+       ! faces
+       call wp4est_lnodes_new(-1)
 
-    ! faces
-    call wp4est_lnodes_new(-1)
+       ! face connectivity
+       allocate(fmap(nface, nelt))
+       call wp4est_elm_get_lnode(lnum_in, lown, goff, c_loc(fmap))
+       call wp4est_sharers_get_size(nrank, nshare)
+       allocate(itmp8v1(lnum_in), itmp4v1(nrank), itmp4v2(nrank+1), &
+            itmp4v3(nshare))
+       call wp4est_sharers_get_ind(c_loc(itmp8v1), c_loc(itmp4v1), &
+            c_loc(itmp4v2), c_loc(itmp4v3))
+       itmp8 = lown
+       call MPI_Allreduce(itmp8, gnum, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, &
+            ierr)
+       select type (conn_fcs => conn%conn_fcs)
+       type is (manager_conn_obj_p4est_t)
+          call conn_fcs%init_data(lnum_in, lown, goff, gnum, &
+               nrank, nshare, itmp8v1, itmp4v1, itmp4v3, itmp4v2)
+       end select
+          
+       write(*,*) 'TESTcfcs', lnum_in, lown, goff, gnum, nrank, nshare
+          
+       call wp4est_lnodes_del()
 
-    ! face connectivity
-    allocate(fmap(nface, nelt))
-    call wp4est_elm_get_lnode(lnum_in, lown, goff, c_loc(fmap))
-    call wp4est_sharers_get_size(nrank, nshare)
-    allocate(itmp8v1(lnum_in), itmp4v1(nrank), itmp4v2(nrank+1), &
-         itmp4v3(nshare))
-    call wp4est_sharers_get_ind(c_loc(itmp8v1), c_loc(itmp4v1), &
-         c_loc(itmp4v2), c_loc(itmp4v3))
-    itmp8 = lown
-    call MPI_Allreduce(itmp8, gnum, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, ierr)
-!!!    call mesh_new%mesh%conn%conn_fcs%init_data(lnum_in, lown, goff, gnum, &
-!!!         nrank, nshare, itmp8v1, itmp4v1, itmp4v3, itmp4v2)
+       ! edges
+       call wp4est_lnodes_edge()
 
-    write(*,*) 'TESTcfcs', lnum_in, lown, goff, gnum, nrank, nshare
+       ! edge connectivity
+       allocate(emap(nedge, nelt))
+       call wp4est_elm_get_lnode(lnum_in, lown, goff, c_loc(emap))
+       call wp4est_sharers_get_size(nrank, nshare)
+       allocate(itmp8v1(lnum_in), itmp4v1(nrank), itmp4v2(nrank+1), &
+            itmp4v3(nshare))
+       call wp4est_sharers_get_ind(c_loc(itmp8v1), c_loc(itmp4v1), &
+            c_loc(itmp4v2), c_loc(itmp4v3))
+       itmp8 = lown
+       call MPI_Allreduce(itmp8, gnum, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, &
+            ierr)
+       select type (conn_edg => conn%conn_edg)
+       type is (manager_conn_obj_p4est_t)
+          call conn_edg%init_data(lnum_in, lown, goff, gnum, &
+               nrank, nshare, itmp8v1, itmp4v1, itmp4v3, itmp4v2)
+       end select
+       
+       write(*,*) 'TESTedg', lnum_in, lown, goff, gnum, nrank, nshare
+       
+       call wp4est_lnodes_del()
 
-    call wp4est_lnodes_del()
+       ! get element data
+       allocate(itmp8v1(nelt), itmp4v1(nelt), itmp4v2(nelt), &
+            & itmp4v21(nface, nelt), itmp4v22(nface, nelt), &
+            & itmp4v23(nface, nelt))
+       call wp4est_elm_get_dat(c_loc(itmp8v1), c_loc(itmp4v1), &
+            & c_loc(itmp4v2), c_loc(itmp4v21), c_loc(itmp4v22), &
+            & c_loc(itmp4v23))
+       
+       allocate(ealgn(nedge, nelt))
+       
+       ! element connectivity mappings
+       call conn%init_data(gdim, nelt, vmap, fmap, itmp4v23, emap, ealgn, &
+            hngel, hngfc, hnged)
 
-    write(*,*) 'TEST face done'
+    end select
 
-    ! edges
-    call wp4est_lnodes_edge()
+    ! element family
+    call p4est_family_get(itmp8v21, nelt, nvert, gnelto)
 
-    ! edge connectivity
-    allocate(emap(nedge, nelt))
-    call wp4est_elm_get_lnode(lnum_in, lown, goff, c_loc(emap))
-    call wp4est_sharers_get_size(nrank, nshare)
-    allocate(itmp8v1(lnum_in), itmp4v1(nrank), itmp4v2(nrank+1), &
-         itmp4v3(nshare))
-    call wp4est_sharers_get_ind(c_loc(itmp8v1), c_loc(itmp4v1), &
-         c_loc(itmp4v2), c_loc(itmp4v3))
-    itmp8 = lown
-    call MPI_Allreduce(itmp8, gnum, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, ierr)
-!!!    call mesh_new%mesh%conn%conn_edg%init_data(lnum_in, lown, goff, gnum, &
-!!!         nrank, nshare, itmp8v1, itmp4v1, itmp4v3, itmp4v2)
-
-    write(*,*) 'TESTedg', lnum_in, lown, goff, gnum, nrank, nshare
-
-    call wp4est_lnodes_del()
-
-    ! face and edge alignment
-    allocate(itmp4v21(nface, nelt), itmp4v22(nedge, nelt))
-    
-
-    ! connectivity type
-!!!    call mesh_new%mesh%conn%init_data(gdim, nelt, vmap, fmap, itmp4v21, emap, &
-!!         itmp4v22, hngel, hngfc, hnged)
-
-    ! get element data
-!       allocate(itmp8v1(nelt), itmp4v1(nelt), itmp4v2(nelt), &
-!            & itmp4v21(nface, nelt), itmp4v22(nface, nelt), &
-!            & rtmpv2(gdim, nvert, nelt), itmp4v23(nface, nelt))
-!       call wp4est_elm_get_dat(c_loc(itmp8v1), c_loc(itmp4v1), &
-!            & c_loc(itmp4v2), c_loc(itmp4v21), c_loc(itmp4v22), &
-!            & c_loc(rtmpv2), c_loc(itmp4v23)
-!       call mesh_new%mesh%init_data(nelt, nelv, gnelt, gnelto, maxg, gdim)
-
-
+    ! import element general information
+    call mesh_new%init_data(nelt, nelv, gnelt, gnelto, maxg, gdim, itmp8v1, &
+            itmp4v1, itmp4v2, itmp4v21, itmp4v22, itmp8v21)
 
     ! destroy p4est nodes and ghost cells
     call wp4est_ghost_del()
 
-    return
-
-!    call wp4est_tree_cnn_swap_back()
-
-    ! create p4est ghost zones, mesh and nodes
-    call wp4est_ghost_new()
-!    call wp4est_mesh_new()
-    call wp4est_nodes_new()
-
-    
- 
-    write(*,*) 'TEST0 ', pe_rank, nelv, ngrp, nelt
-
-!    associate(=>p4%dim, nelv=>p4%elem%nelv)
-
-!    end associate
-
-    if (nelt > 0) then
-       ! get nodes and their coordinates
-       call wp4est_nds_get_size(lown, lshr, loff, lnum_in, lnum_fh, lnum_eh)
-       write(*,*) 'TEST1 ', pe_rank, lown, lshr, loff, lnum_in, lnum_fh, lnum_eh
-
-    end if
-
-    ! destroy p4est nodes, mesh and ghost cells
-    call wp4est_nodes_del()
-!    call wp4est_mesh_del()
-    call wp4est_ghost_del()
-
   end subroutine p4est_import_data
+
+  !> Extract family information
+  !! @details This routine provides information about sets of elements that
+  !! share the same parent and could be destroyed togeter during coarsening
+  !! step.
+  subroutine p4est_family_get(family, nelt, nvert, gnelto)
+    integer(i8), allocatable, dimension(:, :), intent(inout) :: family
+    integer(i4), intent(in) :: nelt, nvert
+    integer(i8), intent(in) :: gnelto
+    integer(i4) :: ierr, il, jl
+    integer(i8) :: itmp8
+    integer(i4) :: nlfam ! local number of families
+    integer(i8) :: nlfam_off ! global family nuimber offset
+    integer(i8), allocatable, target, dimension(:) :: itmp4v1
+
+    ! import family mark
+    allocate(itmp4v1(nelt))
+    call wp4est_fml_get_info(c_loc(itmp4v1), nlfam)
+
+    ! test number of families; it must be multiply of number of vertices
+    if ((nlfam > nelt).or.(mod(nlfam, nvert) /= 0)) &
+         call neko_error('Invalid number of families.')
+
+    ! get global family offset
+    nlfam = nlfam/nvert
+    itmp8 = nlfam
+    call MPI_Scan(itmp8, nlfam_off, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, ierr)
+    nlfam_off = nlfam_off - itmp8
+
+    ! mark all local families
+    allocate(family(2, nelt))
+    family(:, :) = 0
+    do il=1, nlfam
+       nlfam_off = nlfam_off + 1
+       do jl = 1, nvert
+          itmp8 = itmp4v1(jl + (il-1)*nvert) - gnelto
+          ! one could test if 0<itmp8<=nelt
+          family(1, int(itmp8,i4)) = nlfam_off
+          family(2, int(itmp8,i4)) = nvert + 1 - jl
+       end do
+    end do
+
+    deallocate(itmp4v1)
+
+  end subroutine p4est_family_get
 #endif
 
 end module mesh_manager_p4est

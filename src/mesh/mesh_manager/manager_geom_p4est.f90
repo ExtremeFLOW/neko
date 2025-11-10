@@ -33,6 +33,7 @@
 !> Implementation of the mesh geometry type for p4est mesh manager
 module manager_geom_p4est
   use num_types, only : i4, i8, rp, dp
+  use utils, only : neko_error
   use manager_geom, only : manager_geom_node_t, manager_geom_t
 
   implicit none
@@ -125,6 +126,11 @@ contains
     integer(i4), allocatable, dimension(:), intent(inout) :: ndown
     real(kind=dp), allocatable, dimension(:,:), intent(inout) :: coord
 
+    ! sanity check
+    if ((lnum .ne. size(gidx)) .or. (lnum .ne. size(ndown)) .or. &
+         (gdim .ne. size(coord, 1)) .or. (lnum .ne. size(coord, 2))) &
+         call neko_error('Inconsistent array sizes; p4est%geom_ind')
+
     call this%free()
     call this%init_data_base(lnum, gdim, gidx, coord)
 
@@ -189,6 +195,12 @@ contains
     integer(i4), allocatable, dimension(:, :), intent(inout) :: lmap
     real(kind=dp), allocatable, dimension(:,:), intent(inout) :: coord
 
+    ! sanity check
+    if ((lnum .ne. size(gidx)) .or. &
+         (ndep .ne. size(lmap, 1)) .or. (lnum .ne. size(lmap, 2)) .or. &
+         (gdim .ne. size(coord, 1)) .or. (lnum .ne. size(coord, 2))) &
+         call neko_error('Inconsistent array sizes; p4est%geom_hng')
+
     call this%free()
     call this%init_data_base(lnum, gdim, gidx, coord)
 
@@ -250,6 +262,10 @@ contains
     class(manager_geom_p4est_t), intent(inout) :: this
     integer(i4), intent(in) :: tdim, nel
     integer(i4), allocatable, dimension(:,:), intent(inout) :: vmap
+
+    ! sanity check
+    if ((2**tdim .ne. size(vmap, 1)) .or. (nel .ne. size(vmap, 2))) &
+         call neko_error('Inconsistent array sizes p4est%geom')
 
     call this%free_data()
 

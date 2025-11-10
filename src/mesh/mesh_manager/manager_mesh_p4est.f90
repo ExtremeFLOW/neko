@@ -33,6 +33,7 @@
 !> Implementation of the mesh type for p4est mesh manager
 module manager_mesh_p4est
   use num_types, only : i4, i8, rp, dp
+  use utils, only : neko_error
   use manager_geom, only :  manager_geom_t
   use manager_conn, only :  manager_conn_t
   use manager_geom_p4est, only :  manager_geom_p4est_t
@@ -76,6 +77,48 @@ module manager_mesh_p4est
      procedure, pass(this) :: free => manager_mesh_free_p4est
   end type manager_mesh_p4est_t
 
+  ! connectivity parameter arrays
+  ! face vertices
+  integer, public, parameter, dimension(4,6) :: p4_vface = reshape(&
+       (/ 1,3,5,7 , 2,4,6,8 , 1,2,5,6 , 3,4,7,8 , 1,2,3,4 , 5,6,7,8 /),&
+       shape(p4_vface))
+
+  ! edge vertices
+  integer, public, parameter, dimension(2,12) :: p4_vedge  = reshape(&
+       (/ 1,2 , 3,4 , 5,6 , 7,8 , 1,3 , 2,4 , 5,7 , 6,8 , 1,5 , 2,6 , 3,7&
+       , 4,8 /),shape(p4_vedge))
+
+  ! edge related faces
+  integer, public, parameter, dimension(2,12) :: p4_eface  = reshape(&
+       (/ 3,5 , 4,5 , 3,6 , 4,6 , 1,5 , 2,5 , 1,6 , 2,6 , 1,3 , 2,3 , 1,4&
+       , 2,4 /),shape(p4_eface))
+
+  ! corner related faces
+  integer, public, parameter, dimension(3,8) :: p4_cface = reshape(&
+       (/ 1,3,5 , 2,3,5 , 1,4,5 , 2,4,5 , 1,3,6 , 2,3,6 , 1,4,6 , 2,4,6 /),&
+       shape(p4_cface))
+
+  ! corner related edges
+  integer, public, parameter, dimension(3,8) :: p4_cedge = reshape(&
+       (/ 1,5,9 , 1,6,10 , 2,5,11 , 2,6,12 , 3,7,9 , 3,8,10 , 4,7,11 ,&
+        4,8,12 /),shape(p4_cedge))
+
+  ! corner to face corner
+  integer, public, parameter, dimension(6,8) :: p4_cfcrn = reshape(&
+       (/ 1,-1, 1,-1, 1,-1 , -1, 1, 2,-1, 2,-1 ,  2,-1,-1, 1, 3,-1 &
+       , -1, 2,-1, 2, 4,-1 ,  3,-1, 3,-1,-1, 1 , -1, 3, 4,-1,-1, 2 &
+       ,  4,-1,-1, 3,-1, 3 , -1, 4,-1, 4,-1, 4 /),shape(p4_cfcrn))
+
+  ! to calculate neighbour face corner
+  integer, public, parameter, dimension(6,6) :: p4_rt =reshape( &
+       (/ 1,2,2,1,1,2 , 3,1,1,2,2,1 , 3,1,1,2,2,1 , 1,3,3,1,1,2 &
+       , 1,3,3,1,1,2 , 3,1,1,3,3,1 /),shape(p4_rt))
+  integer, public, parameter, dimension(4,3) :: p4_qt = reshape(&
+       (/ 2,3,6,7 , 1,4,5,8 , 1,5,4,8 /),shape(p4_qt))
+  integer, public, parameter, dimension(4,8) :: p4_pt = reshape(&
+       (/ 1,2,3,4 , 1,3,2,4 , 2,1,4,3 , 2,4,1,3 , 3,1,4,2 , 3,4,1,2 &
+       , 4,2,3,1 , 4,3,2,1 /),shape(p4_pt))
+
 contains
 
   !> Allocate types
@@ -87,12 +130,14 @@ contains
        deallocate(this%geom)
     end if
     allocate(manager_geom_p4est_t::this%geom)
+    call this%geom%init()
 
     if (allocated(this%conn))then
        call this%conn%free()
        deallocate(this%conn)
     end if
     allocate(manager_conn_p4est_t::this%conn)
+     call this%conn%init()
 
   end subroutine manager_mesh_init_p4est
 
@@ -118,6 +163,19 @@ contains
     integer(i4), allocatable, dimension(:), intent(inout) :: level, igrp
     integer(i4), allocatable, dimension(:,:), intent(inout) :: crv, bc
     integer(i8), allocatable, dimension(:,:), intent(inout) :: family
+    integer(i4) :: nvert, nface, nedge
+
+    nvert = 2**tdim
+    nface = 2 * tdim
+    nedge = 12 * (tdim - 2)
+
+    ! sanity check
+    if ((nelt .ne. size(gidx)) .or. (nelt .ne. size(level)) .or. &
+         (nelt .ne. size(igrp)) .or. &
+         (nface .ne. size(crv, 1)) .or. (nelt .ne. size(crv, 2)) .or. &
+         (nface .ne. size(bc, 1)) .or. (nelt .ne. size(bc, 2)) .or. &
+         (2 .ne. size(family, 1)) .or. (nelt .ne. size(family, 2))) &
+         call neko_error('Inconsistent array sizes; p4est%mesh')
 
     call this%free_data()
 

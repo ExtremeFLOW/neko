@@ -33,6 +33,7 @@
 !> Implementation of the mesh connectivity type for p4est mesh manager
 module manager_conn_p4est
   use num_types, only : i4, i8, rp, dp
+  use utils, only : neko_error
   use manager_conn, only : manager_conn_obj_t, manager_conn_t
 
   implicit none
@@ -172,6 +173,11 @@ contains
     integer(i8), allocatable, dimension(:), intent(inout) :: gidx
     integer(i4), allocatable, dimension(:), intent(inout) :: rank, share, off
 
+    ! sanity check
+    if ((lnum .ne. size(gidx)) .or. (nrank .ne. size(rank)) .or. &
+         (nshare .ne. size(share)) .or. (nrank + 1 .ne. size(off))) &
+         call neko_error('Inconsistent array sizes; p4est%conn_obj')
+
     call this%free()
     call this%init_data_base(lnum, lown, goff, gnum, gidx)
 
@@ -259,12 +265,27 @@ contains
   !! @param[inout] hnged   element edge hanging flag
   subroutine manager_conn_init_data_p4est(this, tdim, nel, vmap, fmap, falgn, &
        emap, ealgn, hngel, hngfc, hnged)
-    ! argument list
     class(manager_conn_p4est_t), intent(inout) :: this
     integer(i4), intent(in) :: tdim, nel
     integer(i4), allocatable, dimension(:), intent(inout) :: hngel
     integer(i4), allocatable, dimension(:,:), intent(inout) :: vmap, fmap, &
          falgn, emap, ealgn, hngfc, hnged
+    integer(i4) :: nvert, nface, nedge
+
+    nvert = 2**tdim
+    nface = 2 * tdim
+    nedge = 12 * (tdim - 2)
+
+    ! sanity check
+    if ((nvert .ne. size(vmap, 1)) .or. (nel .ne. size(vmap, 2)) .or. &
+         (nface .ne. size(fmap, 1)) .or. (nel .ne. size(fmap, 2)) .or. &
+         (nface .ne. size(falgn, 1)) .or. (nel .ne. size(falgn, 2)) .or. &
+         (nedge .ne. size(emap, 1)) .or. (nel .ne. size(emap, 2)) .or. &
+         (nedge .ne. size(ealgn, 1)) .or. (nel .ne. size(ealgn, 2)) .or. &
+         (nel .ne. size(hngel)) .or. &
+         (nface .ne. size(hngfc, 1)) .or. (nel .ne. size(hngfc, 2)) .or. &
+         (nedge .ne. size(hnged, 1)) .or. (nel .ne. size(hnged, 2))) &
+         call neko_error('Inconsistent array sizes; p4est%conn')
 
     call this%free()
     call this%init_data_base(tdim, nel, vmap, fmap, emap)

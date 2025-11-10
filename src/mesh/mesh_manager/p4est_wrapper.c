@@ -893,7 +893,6 @@ typedef struct transfer_data_s {
   int *igrp; /**< pointer to element group array */
   int *crv; /**< pointer to face projection array */
   int *bc; /**< pointer to boundary condition array */
-  double *coord; /**< pointer to approximate vertex coordinates array */
   int *falg; /**< face alignment */
 } transfer_data_t;
 
@@ -939,21 +938,6 @@ void iter_datav(p4est_iter_volume_info_t * info, void *user_data) {
   for (il = 0; il < P4EST_FACES; il++) {
     trans_data->crv[iwli * P4EST_FACES + il] = data->crv[il];
     trans_data->bc[iwli * P4EST_FACES + il] = data->bc[il];
-  }
-
-  // get corner coordinates
-  for (il=0;il < P4EST_CHILDREN; ++il){
-    p4est_quadrant_corner_node (info->quad, il, &node);
-    p4est_qcoord_to_vertex (info->p4est->connectivity, info->treeid,
-			    node.x, node.y,
-#ifdef P4_TO_P8
-			    node.z,
-#endif
-			    vxyz);
-    // copy coordinates
-    for(jl= 0 ; jl < N_DIM; ++jl){
-      trans_data->coord[(iwli * P4EST_CHILDREN + il) * N_DIM + jl] = vxyz[jl];
-    }
   }
 }
 
@@ -1047,7 +1031,7 @@ void iter_algf(p4est_iter_face_info_t * info, void *user_data) {
 
 /* get element info */
 void wp4est_elm_get_dat(int64_t * gidx, int * level, int * igrp, int * crv,
-			int * bc,double * coord, int * falg) {
+			int * bc, int * falg) {
   transfer_data_t transfer_data;
 
   transfer_data.gidx = gidx;
@@ -1055,7 +1039,6 @@ void wp4est_elm_get_dat(int64_t * gidx, int * level, int * igrp, int * crv,
   transfer_data.level = level;
   transfer_data.crv = crv;
   transfer_data.bc = bc;
-  transfer_data.coord = coord;
   transfer_data.falg = falg;
 #ifdef P4_TO_P8
   p4est_iterate(tree_neko, ghost_neko,(void *) &transfer_data, iter_datav,

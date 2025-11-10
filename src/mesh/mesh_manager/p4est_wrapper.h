@@ -356,11 +356,10 @@ void wp4est_nds_get_vmap(int * vmap)
  * @param[out] igrp  element group
  * @param[out] crv   face projection flag
  * @param[out] bc    boundary surface flag
- * @param[out] coord physical coordinates
  * @param[out] falg  face alignment
  */
 void wp4est_elm_get_dat(int64_t * gidx, int * level, int * igrp, int * crv,
-			int * bc, double * coord, int * falg)
+			int * bc, int * falg)
 ;
 
 
