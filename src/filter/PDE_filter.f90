@@ -179,6 +179,14 @@ contains
        deallocate(this%pc_filt)
     end if
 
+    if (allocated(this%ksp_solver)) then
+       deallocate(this%ksp_solver)
+    end if
+
+    if (allocated(this%precon_type_filt)) then
+       deallocate(this%precon_type_filt)
+    end if
+
     call this%bclst_filt%free()
 
     call this%free_base()

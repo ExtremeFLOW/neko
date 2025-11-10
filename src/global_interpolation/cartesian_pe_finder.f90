@@ -66,8 +66,9 @@ module cartesian_pe_finder
      !> Buffer with data to send/recieve
      real(kind=dp), allocatable :: data(:)
      integer :: size = 0
+   contains
+     procedure, pass(this) :: free => i8_mpi_free
   end type i8_mpi_t
-
 
 
   !> Implements global interpolation for arbitrary points in the domain.
@@ -100,6 +101,16 @@ module cartesian_pe_finder
   end type cartesian_pe_finder_t
 
 contains
+
+  !> Destructor for i8_mpi_t.
+  subroutine i8_mpi_free(this)
+    class(i8_mpi_t), intent(inout) :: this
+
+    if (allocated(this%data)) then
+       deallocate(this%data)
+    end if
+
+  end subroutine i8_mpi_free
 
   !> Initialize the global interpolation object on a set of coordinates.
   !! @param x x-coordinates.
@@ -426,17 +437,13 @@ contains
 
     if (allocated(this%send_buf)) then
        do i = 0, this%pe_size-1
-          if (allocated(this%send_buf(i)%data)) then
-             deallocate(this%send_buf(i)%data)
-          end if
+          call this%send_buf(i)%free()
        end do
        deallocate(this%send_buf)
     end if
     if (allocated(this%recv_buf)) then
        do i = 0, this%pe_size-1
-          if (allocated(this%recv_buf(i)%data)) then
-             deallocate(this%recv_buf(i)%data)
-          end if
+          call this%recv_buf(i)%free()
        end do
        deallocate(this%recv_buf)
     end if

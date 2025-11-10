@@ -255,6 +255,25 @@ contains
        call this%S%free()
     end if
 
+    if (associated(this%f_x)) then
+       call this%f_x%free()
+       deallocate(this%f_x)
+    end if
+
+    if (associated(this%f_y)) then
+       call this%f_y%free()
+       deallocate(this%f_y)
+    end if
+
+    if (associated(this%f_z)) then
+       call this%f_z%free()
+       deallocate(this%f_z)
+    end if
+
+    nullify(this%f_x)
+    nullify(this%f_y)
+    nullify(this%f_z)
+
     nullify(this%m_x)
     nullify(this%m_y)
     nullify(this%m_z)

@@ -514,6 +514,7 @@ contains
     nullify(this%msh)
     nullify(this%Xh)
     nullify(this%dof)
+    nullify(this%gs_h)
 
     !
     ! Cleanup the device (if present)
@@ -1000,8 +1001,8 @@ contains
     class(coef_t), intent(in) :: this
     integer, intent(in) :: i, j, k, e, facet
     real(kind=rp) :: area
-      
-    select case (facet)               
+
+    select case (facet)
       case(1,2)
         area = this%area(j, k, facet, e)
       case(3,4)
