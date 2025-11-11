@@ -40,6 +40,7 @@ module mesh_manager_p4est
   use utils, only : neko_error, neko_warning
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default
+  use profiler, only : profiler_start_region, profiler_end_region
   use manager_mesh, only : manager_mesh_t
   use manager_geom_p4est, only : manager_geom_node_ind_p4est_t, &
        manager_geom_p4est_t

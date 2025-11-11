@@ -34,6 +34,7 @@
 module mesh_manager
   use num_types, only : i4, i8, rp, dp
   use json_module, only : json_file
+  use nmsh, only: nmsh_mesh_t
   use manager_mesh, only : manager_mesh_t
 
   implicit none
@@ -47,6 +48,8 @@ module mesh_manager
      logical :: ifstarted
      !> mesh information
      class(manager_mesh_t), allocatable :: mesh
+     !> raw mesh data from the nmsh file
+     type(nmsh_mesh_t) :: nmsh_mesh
    contains
      !> Constructor for the mesh_manager_t (base) type.
      procedure, pass(this) :: init_base => mesh_manager_init_base
@@ -141,6 +144,7 @@ contains
     class(mesh_manager_t), intent(inout) :: this
 
     if (allocated(this%mesh)) call this%mesh%free()
+    call this%nmsh_mesh%free()
 
     this%ifstarted = .false.
 

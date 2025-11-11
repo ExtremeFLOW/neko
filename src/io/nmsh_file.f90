@@ -39,7 +39,8 @@ module nmsh_file
   use utils, only: neko_error
   use point, only: point_t
   use tuple, only: tuple4_i4_t
-  use nmsh, only: nmsh_hex_t, nmsh_quad_t, nmsh_zone_t, nmsh_curve_el_t
+  use nmsh, only: nmsh_hex_t, nmsh_quad_t, nmsh_zone_t, nmsh_curve_el_t, &
+       nmsh_mesh_t
   use element, only: element_t
   use datadist, only: linear_dist_t
   use neko_mpi_types, only: MPI_NMSH_HEX, MPI_NMSH_QUAD, MPI_NMSH_ZONE, &
@@ -53,8 +54,9 @@ module nmsh_file
   implicit none
 
   private
-  !> Specifices the maximum number of elements any rank is allowed to write (for nmsh).
-  !! Needed in order to generate large meshes where an individual write might exceed 2GB.
+  !> Specifices the maximum number of elements any rank is allowed to write
+  !! (for nmsh). Needed in order to generate large meshes where an individual
+  !! write might exceed 2GB.
   integer, parameter :: max_write_nel = 8000000
   !> Interface for Neko nmsh files
   type, public, extends(generic_file_t) :: nmsh_file_t
@@ -91,6 +93,9 @@ contains
     select type (data)
     type is (mesh_t)
        msh => data
+    type is (nmsh_mesh_t)
+       call nmsh_file_read_raw(this, data)
+       return
     class default
        call neko_error('Invalid output data')
     end select
@@ -258,6 +263,13 @@ contains
     end if
 
   end subroutine nmsh_file_read
+
+  !> Load raw nmsh data for mesh manager
+  subroutine nmsh_file_read_raw(file, data)
+    type(nmsh_file_t), intent(inout) :: file
+    type(nmsh_mesh_t), intent(inout) :: data
+
+  end subroutine nmsh_file_read_raw
 
   !> Load a mesh from a binary Neko nmsh file
   subroutine nmsh_file_read_2d(this, msh)
