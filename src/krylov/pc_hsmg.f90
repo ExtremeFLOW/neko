@@ -96,17 +96,17 @@ module hsmg
 
   !Struct to arrange our multigridlevels
   type, private :: multigrid_t
-     type(dofmap_t), pointer :: dof
-     type(gs_t), pointer :: gs_h
-     type(space_t), pointer :: Xh
-     type(coef_t), pointer :: coef
-     type(bc_list_t), pointer :: bclst
-     type(schwarz_t), pointer :: schwarz
-     type(field_t), pointer :: e
+     type(dofmap_t), pointer :: dof => null()
+     type(gs_t), pointer :: gs_h => null()
+     type(space_t), pointer :: Xh => null()
+     type(coef_t), pointer :: coef => null()
+     type(bc_list_t), pointer :: bclst => null()
+     type(schwarz_t), pointer :: schwarz => null()
+     type(field_t), pointer :: e => null()
   end type multigrid_t
 
   type, public, extends(pc_t) :: hsmg_t
-     type(mesh_t), pointer :: msh
+     type(mesh_t), pointer :: msh => null()
      integer :: nlvls !< Number of levels in the multigrid
      type(multigrid_t), allocatable :: grids(:) !< array for multigrids
      type(gs_t) :: gs_crs, gs_mg !< gather scatter for lower levels
@@ -129,8 +129,8 @@ module hsmg
      real(kind=rp), allocatable :: w(:) !< work array
      type(c_ptr) :: w_d = C_NULL_PTR
      type(c_ptr) :: r_d = C_NULL_PTR
-     type(c_ptr) :: hsmg_event
-     type(c_ptr) :: gs_event
+     type(c_ptr) :: hsmg_event = C_NULL_PTR
+     type(c_ptr) :: gs_event = C_NULL_PTR
    contains
      procedure, pass(this) :: init => hsmg_init
      procedure, pass(this) :: init_from_components => &
@@ -417,6 +417,14 @@ contains
        deallocate(this%r)
     end if
 
+    if (c_associated(this%w_d)) then
+       call device_free(this%w_d)
+    end if
+
+    if (c_associated(this%r_d)) then
+       call device_free(this%r_d)
+    end if
+
     call this%schwarz%free()
     call this%schwarz_mg%free()
 
@@ -425,11 +433,20 @@ contains
     call this%e%free()
     call this%e_mg%free()
     call this%e_crs%free()
+    call this%wf%free()
 
     call this%gs_crs%free()
     call this%gs_mg%free()
     call this%interp_mid_crs%free()
     call this%interp_fine_mid%free()
+
+    call this%bc_crs%free()
+    call this%bc_mg%free()
+    call this%bc_reg%free()
+
+    call this%bclst_reg%free()
+    call this%bclst_crs%free()
+    call this%bclst_mg%free()
 
     if (allocated(this%crs_solver)) then
        call this%crs_solver%free()
@@ -439,6 +456,18 @@ contains
     if (allocated(this%pc_crs)) then
        call precon_destroy(this%pc_crs)
     end if
+
+    if (c_associated(this%hsmg_event)) then
+       call device_event_destroy(this%hsmg_event)
+    end if
+    if (c_associated(this%gs_event)) then
+       call device_event_destroy(this%gs_event)
+    end if
+
+    call this%dm_crs%free()
+    call this%dm_mg%free()
+    call this%Xh_crs%free()
+    call this%Xh_mg%free()
 
   end subroutine hsmg_free
 

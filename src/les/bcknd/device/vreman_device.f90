@@ -77,7 +77,7 @@ contains
     type(field_t), pointer :: beta33
     type(field_t), pointer :: b_beta
     type(field_t), pointer :: aijaij
-    integer :: temp_indices(17)
+    integer :: temp_indices(9)
     integer :: e, i
 
     if (if_ext .eqv. .true.) then
@@ -99,15 +99,6 @@ contains
     call neko_scratch_registry%request_field(a31, temp_indices(7))
     call neko_scratch_registry%request_field(a32, temp_indices(8))
     call neko_scratch_registry%request_field(a33, temp_indices(9))
-    call neko_scratch_registry%request_field(beta11, temp_indices(10))
-    call neko_scratch_registry%request_field(beta12, temp_indices(11))
-    call neko_scratch_registry%request_field(beta13, temp_indices(12))
-    call neko_scratch_registry%request_field(beta22, temp_indices(13))
-    call neko_scratch_registry%request_field(beta23, temp_indices(14))
-    call neko_scratch_registry%request_field(beta33, temp_indices(15))
-    call neko_scratch_registry%request_field(b_beta, temp_indices(16))
-    call neko_scratch_registry%request_field(aijaij, temp_indices(17))
-
 
     ! Compute the derivatives of the velocity (the alpha tensor)
     call dudxyz (a11%x, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)

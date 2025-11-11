@@ -379,14 +379,17 @@ contains
 
     if (associated(this%f_x)) then
        call this%f_x%free()
+       deallocate(this%f_x)
     end if
 
     if (associated(this%f_y)) then
        call this%f_y%free()
+       deallocate(this%f_y)
     end if
 
     if (associated(this%f_z)) then
        call this%f_z%free()
+       deallocate(this%f_z)
     end if
 
     nullify(this%f_x)
@@ -395,6 +398,10 @@ contains
     nullify(this%rho)
     nullify(this%mu)
     nullify(this%mu_tot)
+
+    call this%dm_Xh%free()
+    call this%Xh%free()
+    nullify(this%msh)
 
   end subroutine fluid_scheme_free
 

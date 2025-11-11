@@ -87,6 +87,7 @@ module tree_amg_multigrid
    contains
      procedure, pass(this) :: init => tamg_mg_init
      procedure, pass(this) :: solve => tamg_mg_solve
+     procedure, pass(this) :: free =>tamg_mg_free
   end type tamg_solver_t
 
 contains
@@ -211,6 +212,34 @@ contains
 
   end subroutine tamg_mg_init
 
+  !> free tree amg solver object
+  subroutine tamg_mg_free(this)
+    class(tamg_solver_t), intent(inout), target :: this
+    integer :: i
+    if (allocated(this%amg)) then
+       call this%amg%free()
+       deallocate(this%amg)
+    end if
+    if (allocated(this%smoo)) then
+       do i = 1, size(this%smoo)
+          call this%smoo(i)%free()
+       end do
+       deallocate(this%smoo)
+    end if
+    if (allocated(this%wrk)) then
+       do i = 1, size(this%wrk)
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             call device_free(this%wrk(i)%r_d)
+             call device_free(this%wrk(i)%rc_d)
+             call device_free(this%wrk(i)%tmp_d)
+          end if
+          if (allocated(this%wrk(i)%r)) deallocate(this%wrk(i)%r)
+          if (allocated(this%wrk(i)%rc)) deallocate(this%wrk(i)%rc)
+          if (allocated(this%wrk(i)%tmp)) deallocate(this%wrk(i)%tmp)
+       end do
+    end if
+  end subroutine tamg_mg_free
+
 
   !> Solver function for the TreeAMG solver object
   !! @param z The solution to be returned
@@ -237,7 +266,7 @@ contains
        ! Call the amg cycle
        do iter = 1, max_iter
           call tamg_mg_cycle_d(z, r, z_d, r_d, n, 0, this%amg, this, &
-             zero_initial_guess)
+               zero_initial_guess)
           zero_initial_guess = .false.
        end do
     else
@@ -247,7 +276,7 @@ contains
        ! Call the amg cycle
        do iter = 1, max_iter
           call tamg_mg_cycle(z, r, n, 0, this%amg, this, &
-             zero_initial_guess)
+               zero_initial_guess)
           zero_initial_guess = .false.
        end do
     end if
@@ -281,7 +310,7 @@ contains
     !! SMOOTH   !!
     !!----------!!
     call mgstuff%smoo(lvl)%solve(x, b, n, amg, &
-       zero_initial_guess)
+         zero_initial_guess)
     if (lvl .eq. max_lvl) then !> Is coarsest grid.
        return
     end if
@@ -298,7 +327,7 @@ contains
     !!-------------------!!
     call rzero(tmp, n)
     call tamg_mg_cycle(tmp, rc, amg%lvl(lvl+1)%nnodes, lvl+1, amg, mgstuff, &
-       .true.)
+         .true.)
     !!----------!!
     !! Project  !!
     !!----------!!
@@ -339,7 +368,7 @@ contains
     !! SMOOTH   !!
     !!----------!!
     call mgstuff%smoo(lvl)%device_solve(x, b, x_d, b_d, n, amg, &
-       zero_initial_guess)
+         zero_initial_guess)
     if (lvl .eq. max_lvl) then !> Is coarsest grid.
        return
     end if

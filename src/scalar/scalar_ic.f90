@@ -409,6 +409,7 @@ contains
     end if
 
     call fld_data%free
+    call prev_Xh%free
 
   end subroutine set_scalar_ic_fld
 

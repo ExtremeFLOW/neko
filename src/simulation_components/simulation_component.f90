@@ -327,6 +327,10 @@ contains
     class(simulation_component_t), intent(inout) :: this
 
     nullify(this%case)
+
+    call this%preprocess_controller%free()
+    call this%compute_controller%free()
+    call this%output_controller%free()
   end subroutine simulation_component_free_base
 
   !> Wrapper for calling `preprocess_` based on the `preprocess_controller`.

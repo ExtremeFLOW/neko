@@ -327,6 +327,7 @@ contains
     deallocate(x_coords)
     deallocate(y_coords)
     deallocate(z_coords)
+    call fld_Xh%free()
 
   end subroutine fld_file_data_generate_interpolator
 
