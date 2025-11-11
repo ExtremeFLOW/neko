@@ -166,7 +166,6 @@ contains
   !! @param[inout] off     offset in share list
   subroutine manager_conn_obj_init_data_p4est(this, lnum, lown, goff, gnum, &
        nrank, nshare, gidx, rank, share, off)
-    ! argument list
     class(manager_conn_obj_p4est_t), intent(inout) :: this
     integer(i4), intent(in) :: lnum, lown, nrank, nshare
     integer(i8), intent(in) :: goff, gnum
@@ -193,7 +192,6 @@ contains
   !> Initialise connectivity object type based on another connectivity type
   !! @param[inout] conn   connectivity object data
   subroutine manager_conn_obj_init_type_p4est(this, conn)
-    ! argument list
     class(manager_conn_obj_p4est_t), intent(inout) :: this
     class(manager_conn_obj_t), intent(inout) :: conn
 
@@ -214,7 +212,6 @@ contains
 
   !> Free connectivity object type
   subroutine manager_conn_obj_free_p4est(this)
-    ! argument list
     class(manager_conn_obj_p4est_t), intent(inout) :: this
 
     call this%free_base()
@@ -301,7 +298,6 @@ contains
   !> Initialise connectivity type based on another connectivity type
   !! @param[inout] conn   connectivity data
   subroutine manager_conn_init_type_p4est(this, conn)
-    ! argument list
     class(manager_conn_p4est_t), intent(inout) :: this
     class(manager_conn_t), intent(inout) :: conn
 
@@ -322,7 +318,6 @@ contains
 
   !> Free connectivity information
   subroutine manager_conn_free_data_p4est(this)
-    ! argument list
     class(manager_conn_p4est_t), intent(inout) :: this
 
     call this%free_data_base()
@@ -337,7 +332,6 @@ contains
 
   !> Free connectivity information
   subroutine manager_conn_free_p4est(this)
-    ! argument list
     class(manager_conn_p4est_t), intent(inout) :: this
 
     call this%free_base()

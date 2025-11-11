@@ -119,7 +119,6 @@ contains
   !! @param[inout] coord   node coordinates
   subroutine manager_geom_node_ind_init_data_p4est(this, lown, lshr, loff, &
        lnum, gdim, gidx, ndown, coord)
-    ! argument list
     class(manager_geom_node_ind_p4est_t), intent(inout) :: this
     integer(i4), intent(in) :: lown, lshr, loff, lnum, gdim
     integer(i8), allocatable, dimension(:), intent(inout) :: gidx
@@ -145,7 +144,6 @@ contains
   !> Initialise independent nodes type based on another node type
   !! @param[inout] node   node data
   subroutine manager_geom_node_ind_init_type_p4est(this, node)
-    ! argument list
     class(manager_geom_node_ind_p4est_t), intent(inout) :: this
     class(manager_geom_node_t), intent(inout) :: node
 
@@ -166,7 +164,6 @@ contains
 
   !> Free independent nodes type
   subroutine manager_geom_node_ind_free_p4est(this)
-    ! argument list
     class(manager_geom_node_ind_p4est_t), intent(inout) :: this
 
     call this%free_base()
@@ -188,7 +185,6 @@ contains
   !! @param[inout] coord   node coordinates
   subroutine manager_geom_node_hng_init_data_p4est(this, lnum, gdim, ndep, &
        gidx, lmap, coord)
-    ! argument list
     class(manager_geom_node_hng_p4est_t), intent(inout) :: this
     integer(i4), intent(in) :: lnum, gdim, ndep
     integer(i8), allocatable, dimension(:), intent(inout) :: gidx
@@ -213,7 +209,6 @@ contains
   !> Initialise hanging nodes type based on another node type
   !! @param[inout] node   node data
   subroutine manager_geom_node_hng_init_type_p4est(this, node)
-    ! argument list
     class(manager_geom_node_hng_p4est_t), intent(inout) :: this
     class(manager_geom_node_t), intent(inout) :: node
 
@@ -231,7 +226,6 @@ contains
 
   !> Free hanging nodes type
   subroutine manager_geom_node_hng_free_p4est(this)
-    ! argument list
     class(manager_geom_node_hng_p4est_t), intent(inout) :: this
 
     call this%free_base()
@@ -276,7 +270,6 @@ contains
   !> Initialise geometry type based on another geometry type
   !! @param[inout] geom   geometry data
   subroutine manager_geom_init_type_p4est(this, geom)
-    ! argument list
     class(manager_geom_p4est_t), intent(inout) :: this
     class(manager_geom_t), intent(inout) :: geom
 

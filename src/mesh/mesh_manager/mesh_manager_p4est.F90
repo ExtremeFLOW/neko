@@ -265,8 +265,9 @@ module mesh_manager_p4est
        integer(c_int), value :: degree
      end subroutine wp4est_lnodes_new
 
-     subroutine wp4est_lnodes_edge() bind(c, name = 'wp4est_lnodes_edge')
+     subroutine wp4est_lnodes_edge(npts) bind(c, name = 'wp4est_lnodes_edge')
        USE, INTRINSIC :: ISO_C_BINDING
+       integer(c_int), value :: npts
      end subroutine wp4est_lnodes_edge
 
      subroutine wp4est_lnodes_del() bind(c, name = 'wp4est_lnodes_del')
@@ -429,6 +430,7 @@ module mesh_manager_p4est
 
 contains
 
+#ifdef HAVE_P4EST
   !> Start p4est
   !! @param[out]  ierr  error flag
   subroutine p4est_start(this, json, ierr)
@@ -438,7 +440,6 @@ contains
     integer :: catch_signals, print_backtrace, log_level
     character(len=LOG_SIZE) :: log_buf
 
-#ifdef HAVE_P4EST
     write(log_buf, '(a)') 'Starting p4est.'
     call neko_log%message(log_buf, NEKO_LOG_INFO)
 
@@ -486,25 +487,20 @@ contains
        ierr = 0
     end if
 
-#else
-    call neko_error('p4est mesh manager must be compiled with p4est support.')
-#endif
   end subroutine p4est_start
 
   !> Stop p4est
   !! @param[out]  ierr  error flag
   subroutine p4est_stop(this)
     class(mesh_manager_p4est_t), intent(inout) :: this
-#ifdef HAVE_P4EST
+
     ! stop p4est
     ! There is some memory issue here, so I comment it for now.
     ! As it is one of the last operations in the code I leave the investigation
     ! for the future.
     !call wp4est_finalize()
     this%ifstarted = .false.
-#else
-    call neko_error('p4est mesh manager must be compiled with p4est support.')
-#endif
+
   end subroutine p4est_stop
 
   !> The common constructor using a JSON object.
@@ -516,7 +512,6 @@ contains
     character(len=:), allocatable :: tree_file, cnn_file
     integer :: ref_level_max
 
-#ifdef HAVE_P4EST
     ! Extract runtime parameters
     ! tree_file is mandatory
     call json_get_or_default(json, 'tree_file', tree_file, 'no tree')
@@ -539,15 +534,13 @@ contains
 
     if (allocated(tree_file)) deallocate(tree_file)
     if (allocated(cnn_file)) deallocate(cnn_file)
-#else
-    call neko_error('p4est mesh manager must be compiled with p4est support.')
-#endif
+
   end subroutine p4est_init_from_json
 
   !> Destructor.
   subroutine p4est_free(this)
     class(mesh_manager_p4est_t), intent(inout) :: this
-#ifdef HAVE_P4EST
+
     character(len=LOG_SIZE) :: log_buf
 
     write(log_buf, '(a)') 'Finalising p4est.'
@@ -572,15 +565,11 @@ contains
     if (allocated(this%tree_file)) deallocate(this%tree_file)
     if (allocated(this%cnn_np_file)) deallocate(this%cnn_np_file)
 
-#else
-    call neko_error('p4est mesh manager must be compiled with p4est support.')
-#endif
   end subroutine p4est_free
 
   !> Import mesh data
   subroutine p4est_import(this)
     class(mesh_manager_p4est_t), intent(inout) :: this
-#ifdef HAVE_P4EST
     type(manager_mesh_p4est_t) :: mesh_new
 
     ! allocate types and import data from p4est
@@ -590,16 +579,14 @@ contains
     ! fill mesh information
     call this%mesh%init_type(mesh_new)
     call mesh_new%free()
-#else
-    call neko_error('p4est mesh manager must be compiled with p4est support.')
-#endif
+
   end subroutine p4est_import
 
   !> Import mesh data
   subroutine p4est_import_new(this, mesh_new)
     class(mesh_manager_p4est_t), intent(inout) :: this
     class(manager_mesh_t), allocatable, intent(inout) :: mesh_new
-#ifdef HAVE_P4EST
+
     if (allocated(mesh_new)) then
        call mesh_new%free()
        deallocate(mesh_new)
@@ -614,12 +601,9 @@ contains
     type is (manager_mesh_p4est_t)
        call p4est_import_data(mesh_new, this%is_periodic)
     end select
-#else
-    call neko_error('p4est mesh manager must be compiled with p4est support.')
-#endif
+
   end subroutine p4est_import_new
 
-#ifdef HAVE_P4EST
   !> The constructor from type components.
   subroutine p4est_init_from_components(this, tree_file, cnn_file, &
        ref_level_max)
@@ -644,7 +628,7 @@ contains
     this%tree_file = trim(tree_file)
 
     ! If domain is periodic special treatment of independent nodes is needed
-    if (trim(tree_file) .eq. 'no cnn') then
+    if (trim(cnn_file) .eq. 'no cnn') then
        this%is_periodic = .false.
     else
        this%cnn_np_file = trim(cnn_file)
@@ -653,6 +637,27 @@ contains
 
     ! AMR related stuff
     this%ref_level_max = ref_level_max
+
+    ! for testing
+!    call wp4est_cnn_rot_cubes()
+!    call wp4est_cnn_save('rot_cubes.cnn')
+!    call wp4est_tree_new()
+!    call wp4est_tree_save('rot_cubes.tree')
+!    call wp4est_cnn_brick(2, 2, 2)
+!    call wp4est_cnn_unit_cube_periodic()
+!    call wp4est_cnn_save('test.cnn')
+!    call wp4est_cnn_load('unit_cube_periodic.cnn')
+!    call wp4est_cnn_valid(is_valid)
+!    write(*,*) 'TESTcnn', is_valid
+!    call wp4est_cnn_np_load('unit_cube.cnn')
+!    call wp4est_cnn_np_valid(is_valid)
+!    write(*,*) 'TESTcnn_np', is_valid
+!    call wp4est_tree_new()
+!    call wp4est_tree_save('unit_cube_periodic.tree')
+!    call wp4est_tree_load('512.tree')
+!    call wp4est_vtk_write('test')
+!    call wp4est_tree_del()
+!    call wp4est_cnn_del()
 
     write(log_buf, '(a)') 'Reading p4est tree/connectivity data.'
     call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
@@ -671,20 +676,8 @@ contains
     ! perform partitioning on p4est side
     call wp4est_part()
 
-    ! for testing
-!    call wp4est_cnn_brick(2, 2, 2)
-!    call wp4est_cnn_unit_cube_periodic()
 !    call wp4est_cnn_save('test.cnn')
-!    call wp4est_cnn_load('unit_cube_periodic.cnn')
-!    call wp4est_cnn_valid(is_valid)
-!    write(*,*) 'TESTcnn', is_valid
-!    call wp4est_cnn_np_load('unit_cube.cnn')
-!    call wp4est_cnn_np_valid(is_valid)
-!    write(*,*) 'TESTcnn_np', is_valid
-!    call wp4est_tree_new()
-!    call wp4est_tree_save('unit_cube_periodic.tree')
-!    call wp4est_tree_load('512.tree')
-!    call wp4est_vtk_write('test')
+!    call wp4est_tree_save('test.tree')
 
   end subroutine p4est_init_from_components
 
@@ -693,11 +686,16 @@ contains
     type(manager_mesh_p4est_t), intent(inout) :: mesh_new
     logical, intent(in) :: is_periodic
     character(len=LOG_SIZE) :: log_buf
-    character(len=*), parameter :: frmt1="('p4est mesh: gdim = ', i1, ', &
-         &nelements =', i9,', max ref. lev. = ',i2)"
+    character(len=*), parameter :: frmt1="('mesh: element number =', i6,&
+         &', max ref. lev. = ',i2)"
+    character(len=*), parameter :: frmt2="('geometry: dim = ', i1, ';&
+         & independent node number=', i6)"
+    character(len=*), parameter :: frmt3="('connectivity: dim = ', i1, ';&
+         & number of: vrt = ', i6, ', fcs = ', i6, ', edg = ', i6)"
     integer(i4) :: nvert, nface, nedge, ierr, gdim, nelt, nelv, ngrp, maxl, &
          maxg, ndep, lown, lshr, loff, lnum_in, lnum_fh, lnum_eh, nrank, nshare
     integer(i8) :: itmp8, gnelt, gnelto, goff, gnum
+    integer(i8), dimension(3) :: itmp8lv
     integer(i8), allocatable, target, dimension(:) :: itmp8v1
     integer(i8), allocatable, target, dimension(:, :) :: itmp8v21
     integer(i4), allocatable, target, dimension(:) :: itmp4v1, itmp4v2, &
@@ -705,6 +703,7 @@ contains
     integer(i4), allocatable, target, dimension(:, :) :: itmp4v21, itmp4v22, &
          itmp4v23, hngfc, hnged, vmap, fmap, emap, ealgn
     real(dp), allocatable, target, dimension(:, :) :: rtmpv1
+!!$    integer(i4) :: il, jl
 
     write(log_buf, '(a)') 'Importing p4est data'
     call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
@@ -729,7 +728,7 @@ contains
     call MPI_Allreduce(maxl, maxg, 1, MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
     ! group information not used for now
 
-    write(log_buf, frmt1) gdim, gnelt, maxg
+    write(log_buf, frmt1) gnelt, maxg
     call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
 !    if (nelt == 0) then
@@ -741,53 +740,70 @@ contains
 
        ! get nodes and their coordinates
        call wp4est_nds_get_size(lown, lshr, loff, lnum_in, lnum_fh, lnum_eh)
-       
-       write(*,*) 'TEST0 ', pe_rank, nelv, ngrp, nelt
-       write(*,*) 'TEST1 ', pe_rank, lown, lshr, loff, lnum_in, lnum_fh, lnum_eh
-       
+
+       itmp8 = lown
+       call MPI_Allreduce(itmp8, gnum, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, &
+            ierr)
+       write(log_buf, frmt2) gdim, gnum
+       call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+
+!!$       write(*,*) 'TESTsize ', pe_rank, nelv, ngrp, nelt
+!!$       write(*,*) 'TESTsizen ', pe_rank, lown, lshr, loff, lnum_in, &
+!!$            lnum_fh, lnum_eh
+
        ! independent nodes
        allocate(itmp8v1(lnum_in), itmp4v1(lnum_in), rtmpv1(gdim, lnum_in))
        call wp4est_nds_get_ind(c_loc(itmp8v1), c_loc(itmp4v1),c_loc(rtmpv1))
-       
-       do ierr = 1, lnum_in
-          write(*,*) 'TESTind ', pe_rank, ierr, itmp8v1(ierr), &
-               itmp4v1(ierr), rtmpv1(:,ierr)
-       end do
-    
+
+!!$       do il = 1, lnum_in
+!!$          write(*,*) 'TESTind ', pe_rank, il, itmp8v1(il), &
+!!$               itmp4v1(il), rtmpv1(:,il)
+!!$       end do
+
        select type (geom_ind => geom%geom_ind)
        type is(manager_geom_node_ind_p4est_t)
           call geom_ind%init_data(lown, lshr, loff, lnum_in, gdim, &
                itmp8v1, itmp4v1, rtmpv1)
+
+          if (lnum_fh > 0) then
+             ! face hanging nodes
+             ndep = 4
+             allocate(itmp4v21(ndep, lnum_fh), rtmpv1(gdim, lnum_fh))
+             call wp4est_nds_get_hfc(c_loc(itmp4v21), c_loc(rtmpv1))
+
+             ! get global numbering of hanging nodes
+             call p4est_hng_node_gnum_get(itmp8v1, itmp4v21, lnum_fh, ndep, &
+                  geom_ind%gidx, geom_ind%ndown, geom_ind%lnum)
+
+             call geom%geom_hng_fcs%init_data(lnum_fh, gdim, ndep, &
+                  itmp8v1, itmp4v21, rtmpv1)
+          end if
+
+          if (lnum_eh > 0) then
+             ! edge hanging nodes
+             ndep = 2
+             allocate(itmp4v21(ndep, lnum_eh), rtmpv1(gdim, lnum_eh))
+             call wp4est_nds_get_hed(c_loc(itmp4v21), c_loc(rtmpv1))
+
+             ! get global numbering of hanging nodes
+             call p4est_hng_node_gnum_get(itmp8v1, itmp4v21, lnum_eh, ndep, &
+                  geom_ind%gidx, geom_ind%ndown, geom_ind%lnum)
+
+             call geom%geom_hng_edg%init_data(lnum_eh, gdim, ndep, &
+                  itmp8v1, itmp4v21, rtmpv1)
+          end if
        end select
-
-       ! face hanging nodes
-       ndep = 4
-       allocate(itmp8v1(lnum_fh), itmp4v21(ndep, lnum_fh), &
-            rtmpv1(gdim, lnum_fh))
-       call wp4est_nds_get_hfc(c_loc(itmp4v21), c_loc(rtmpv1))
-       ! get global numbering of hanging nodes
-       
-       call geom%geom_hng_fcs%init_data(lnum_fh, gdim, ndep, &
-            itmp8v1, itmp4v21, rtmpv1)
-
-       ! edge hanging nodes
-       ndep = 2
-       allocate(itmp8v1(lnum_fh), itmp4v21(ndep, lnum_fh), &
-            rtmpv1(gdim, lnum_fh))
-       call wp4est_nds_get_hed(c_loc(itmp4v21), c_loc(rtmpv1))
-       ! get global numbering of hanging nodes
-       
-       call geom%geom_hng_edg%init_data(lnum_fh, gdim, ndep, &
-            itmp8v1, itmp4v21, rtmpv1)
 
        ! get element vertex mapping to nodes
        allocate(itmp4v21(nvert, nelt))
        call wp4est_nds_get_vmap(c_loc(itmp4v21))
-       
-       do ierr = 1, nelt
-          write(*,*) 'TESTvmap ', pe_rank, ierr, itmp4v21(:, ierr)
-       end do
-       
+
+!!$       do il = 1, nelt
+!!$          do jl = 1, nvert
+!!$             write(*,*) 'TESTvmap ', pe_rank, il, jl, itmp4v21(jl, il)
+!!$          end do
+!!$       end do
+
        ! geometry type
        call geom%init_data(gdim, nelt, itmp4v21)
     end select
@@ -826,14 +842,15 @@ contains
        itmp8 = lown
        call MPI_Allreduce(itmp8, gnum, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, &
             ierr)
+       itmp8lv(1) = gnum ! for stamping log
        select type (conn_vrt => conn%conn_vrt)
        type is (manager_conn_obj_p4est_t)
           call conn_vrt%init_data(lnum_in, lown, goff, gnum, nrank, nshare, &
                itmp8v1, itmp4v1, itmp4v3, itmp4v2)
        end select
-       
-       write(*,*) 'TESTcvrt', lnum_in, lown, goff, gnum, nrank, nshare
-       
+
+!!$       write(*,*) 'TESTcvrt', lnum_in, lown, goff, gnum, nrank, nshare
+
        call wp4est_lnodes_del()
 
        ! faces
@@ -850,18 +867,19 @@ contains
        itmp8 = lown
        call MPI_Allreduce(itmp8, gnum, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, &
             ierr)
+       itmp8lv(2) = gnum ! for stamping log
        select type (conn_fcs => conn%conn_fcs)
        type is (manager_conn_obj_p4est_t)
           call conn_fcs%init_data(lnum_in, lown, goff, gnum, &
                nrank, nshare, itmp8v1, itmp4v1, itmp4v3, itmp4v2)
        end select
-          
-       write(*,*) 'TESTcfcs', lnum_in, lown, goff, gnum, nrank, nshare
-          
+
+!!$       write(*,*) 'TESTcfcs', lnum_in, lown, goff, gnum, nrank, nshare
+
        call wp4est_lnodes_del()
 
        ! edges
-       call wp4est_lnodes_edge()
+       call wp4est_lnodes_edge(1)
 
        ! edge connectivity
        allocate(emap(nedge, nelt))
@@ -874,14 +892,18 @@ contains
        itmp8 = lown
        call MPI_Allreduce(itmp8, gnum, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, &
             ierr)
+       itmp8lv(3) = gnum ! for stamping log
        select type (conn_edg => conn%conn_edg)
        type is (manager_conn_obj_p4est_t)
           call conn_edg%init_data(lnum_in, lown, goff, gnum, &
                nrank, nshare, itmp8v1, itmp4v1, itmp4v3, itmp4v2)
        end select
-       
-       write(*,*) 'TESTedg', lnum_in, lown, goff, gnum, nrank, nshare
-       
+
+       write(log_buf, frmt3) gdim, itmp8lv
+       call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+
+!!$       write(*,*) 'TESTcedg', lnum_in, lown, goff, gnum, nrank, nshare
+
        call wp4est_lnodes_del()
 
        ! get element data
@@ -891,9 +913,29 @@ contains
        call wp4est_elm_get_dat(c_loc(itmp8v1), c_loc(itmp4v1), &
             & c_loc(itmp4v2), c_loc(itmp4v21), c_loc(itmp4v22), &
             & c_loc(itmp4v23))
-       
-       allocate(ealgn(nedge, nelt))
-       
+
+       ! get edge alignment
+       call p4est_edge_alignment_get(ealgn, nelt, nedge)
+
+!!$       write(*,*) 'TESTvrt'
+!!$       do il = 1, nelt
+!!$          do jl = 1, nvert
+!!$             write(*,*) 'TESTvmap', il, jl, vmap(jl, il)
+!!$          end do
+!!$       end do
+!!$       write(*,*) 'TESTfcs'
+!!$       do il = 1, nelt
+!!$          do jl = 1, nface
+!!$             write(*,*) 'TESTfmap', il, jl, fmap(jl, il), itmp4v23(jl, il)
+!!$          end do
+!!$       end do
+!!$       write(*,*) 'TESTedg'
+!!$       do il = 1, nelt
+!!$          do jl = 1, nedge
+!!$             write(*,*) 'TESTemap', il, jl, emap(jl, il), ealgn(jl, il)
+!!$          end do
+!!$       end do
+
        ! element connectivity mappings
        call conn%init_data(gdim, nelt, vmap, fmap, itmp4v23, emap, ealgn, &
             hngel, hngfc, hnged)
@@ -912,10 +954,69 @@ contains
 
   end subroutine p4est_import_data
 
+  !> Get global numbering of hanging nodes
+  !! @details p4est is a connectivity code, so it does not care about global
+  !! numbering of hanging nodes just mapping them to independent nodes
+  subroutine p4est_hng_node_gnum_get(gidx, map, lnum, ndep, ingidx, inown, &
+       inlnum)
+    integer(i8), allocatable, dimension(:), intent(inout) :: gidx
+    integer(i4), dimension(:, :), intent(in) :: map
+    integer(i4), intent(in) :: lnum, ndep
+    integer(i8), dimension(:), intent(in) :: ingidx
+    integer(i4), dimension(:), intent(in) :: inown
+    integer(i4), intent(in) :: inlnum
+
+    allocate(gidx(lnum))
+
+    ! This is not finished yet
+
+  end subroutine p4est_hng_node_gnum_get
+
+  !> Extract edge orientation
+  !! @detail Unfortunately p4est does not keep global edge orientation, as
+  !! it distinguishes between face edge and true edge keeping relative
+  !! orientation of the lat category (in pairs) only. To get it I use a tric
+  !! related to the lnodes position.
+  !! @param[inout]  ealgn    edge alignment
+  !! @param[in]     nelt     number of elements
+  !! @param[in]     nedge    number of edges
+  subroutine p4est_edge_alignment_get(ealgn, nelt, nedge)
+    integer(i4), allocatable, dimension(:, :), intent(inout) :: ealgn
+    integer(i4), intent(in) :: nelt, nedge
+    integer(i4) :: lnum, lown, il, jl
+    integer(i8) :: goff
+    integer(i4), allocatable, target, dimension(:, :, :) :: emap
+
+    allocate(ealgn(nedge, nelt), emap(2, nedge, nelt))
+    ! edge lnodes
+    call wp4est_lnodes_edge(2)
+    call wp4est_elm_get_lnode(lnum, lown, goff, c_loc(emap))
+
+    ! get alignment
+    do  il = 1, nelt
+       do jl = 1, nedge
+          if (emap(1, jl, il) < emap(2, jl, il)) then
+             ealgn(jl, il) = 0
+          else
+             ealgn(jl, il) = 1
+          end if
+       end do
+    end do
+
+    call wp4est_lnodes_del()
+
+    deallocate(emap)
+
+  end subroutine p4est_edge_alignment_get
+
   !> Extract family information
   !! @details This routine provides information about sets of elements that
   !! share the same parent and could be destroyed togeter during coarsening
   !! step.
+  !! @param[inout]  family   family flag
+  !! @param[in]     nelt     number of elements
+  !! @param[in]     nvert    number of vertices
+  !! @param[in]     gnelto   global element offset
   subroutine p4est_family_get(family, nelt, nvert, gnelto)
     integer(i8), allocatable, dimension(:, :), intent(inout) :: family
     integer(i4), intent(in) :: nelt, nvert
@@ -956,6 +1057,64 @@ contains
     deallocate(itmp4v1)
 
   end subroutine p4est_family_get
+
+#else
+
+  !> Start p4est
+  !! @param[out]  ierr  error flag
+  subroutine p4est_start(this, json, ierr)
+    class(mesh_manager_p4est_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+    integer, intent(out) :: ierr
+
+    call neko_error('p4est mesh manager must be compiled with p4est support.')
+
+  end subroutine p4est_start
+
+  !> Stop p4est
+  !! @param[out]  ierr  error flag
+  subroutine p4est_stop(this)
+    class(mesh_manager_p4est_t), intent(inout) :: this
+
+    call neko_error('p4est mesh manager must be compiled with p4est support.')
+
+  end subroutine p4est_stop
+
+  !> The common constructor using a JSON object.
+  !! @param json       The JSON object.
+  !! @param type_name  Manager type name
+  subroutine p4est_init_from_json(this, json)
+    class(mesh_manager_p4est_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+
+    call neko_error('p4est mesh manager must be compiled with p4est support.')
+
+  end subroutine p4est_init_from_json
+
+  !> Destructor.
+  subroutine p4est_free(this)
+    class(mesh_manager_p4est_t), intent(inout) :: this
+
+    call neko_error('p4est mesh manager must be compiled with p4est support.')
+
+  end subroutine p4est_free
+
+  !> Import mesh data
+  subroutine p4est_import(this)
+    class(mesh_manager_p4est_t), intent(inout) :: this
+
+    call neko_error('p4est mesh manager must be compiled with p4est support.')
+
+  end subroutine p4est_import
+
+  !> Import mesh data
+  subroutine p4est_import_new(this, mesh_new)
+    class(mesh_manager_p4est_t), intent(inout) :: this
+    class(manager_mesh_t), allocatable, intent(inout) :: mesh_new
+
+    call neko_error('p4est mesh manager must be compiled with p4est support.')
+
+  end subroutine p4est_import_new
 #endif
 
 end module mesh_manager_p4est

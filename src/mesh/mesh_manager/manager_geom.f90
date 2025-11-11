@@ -143,7 +143,6 @@ contains
   !! @param[inout] gidx    global node index
   !! @param[inout] coord   node coordinates
   subroutine manager_geom_node_init_data_base(this, lnum, gdim, gidx, coord)
-    ! argument list
     class(manager_geom_node_t), intent(inout) :: this
     integer(i4), intent(in) :: lnum, gdim
     integer(i8), allocatable, dimension(:), intent(inout) :: gidx
@@ -162,7 +161,6 @@ contains
   !> Initialise nodes type based on another node type
   !! @param[inout] node   node data
   subroutine manager_geom_node_init_type_base(this, node)
-    ! argument list
     class(manager_geom_node_t), intent(inout) :: this, node
 
     call this%free_base()
@@ -177,7 +175,6 @@ contains
 
   !> Free node type
   subroutine manager_geom_node_free_base(this)
-    ! argument list
     class(manager_geom_node_t), intent(inout) :: this
 
     this%lnum = 0
@@ -212,7 +209,6 @@ contains
   !> Initialise geometry type based on another geometry type
   !! @param[inout] geom   geometry data
   subroutine manager_geom_init_type_base(this, geom)
-    ! argument list
     class(manager_geom_t), intent(inout) :: this, geom
 
     call this%free_data_base()

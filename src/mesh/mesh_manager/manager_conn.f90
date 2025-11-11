@@ -173,7 +173,6 @@ contains
   !! @param[in]    gnum    global number of objects
   !! @param[inout] gidx    global object index
   subroutine manager_conn_obj_init_data_base(this, lnum, lown, goff, gnum, gidx)
-    ! argument list
     class(manager_conn_obj_t), intent(inout) :: this
     integer(i4), intent(in) :: lnum, lown
     integer(i8), intent(in) :: goff, gnum
@@ -193,7 +192,6 @@ contains
   !> Initialise connectivity object type based on another connectivity type
   !! @param[inout] conn   connectivity object data
   subroutine manager_conn_obj_init_type_base(this, conn)
-    ! argument list
     class(manager_conn_obj_t), intent(inout) :: this
     class(manager_conn_obj_t), intent(inout) :: conn
 
@@ -210,7 +208,6 @@ contains
 
   !> Free connectivity object type
   subroutine manager_conn_obj_free_base(this)
-    ! argument list
     class(manager_conn_obj_t), intent(inout) :: this
 
     this%lnum = 0
@@ -229,7 +226,6 @@ contains
   !! @param[inout] fmap    element face mapping
   !! @param[inout] emap    element edge mapping
   subroutine manager_conn_init_data_base(this, tdim, nel, vmap, fmap, emap)
-    ! argument list
     class(manager_conn_t), intent(inout) :: this
     integer(i4), intent(in) :: tdim, nel
     integer(i4), allocatable, dimension(:,:), intent(inout) :: vmap, fmap, emap
@@ -253,7 +249,6 @@ contains
   !> Initialise connectivity type based on another connectivity type
   !! @param[inout] conn   connectivity data
   subroutine manager_conn_init_type_base(this, conn)
-    ! argument list
     class(manager_conn_t), intent(inout) :: this
     class(manager_conn_t), intent(inout) :: conn
 
@@ -280,7 +275,6 @@ contains
 
   !> Free connectivity data
   subroutine manager_conn_free_data_base(this)
-    ! argument list
     class(manager_conn_t), intent(inout) :: this
 
     if (allocated(this%conn_vrt)) call this%conn_vrt%free()
@@ -301,7 +295,6 @@ contains
 
   !> Free connectivity type
   subroutine manager_conn_free_base(this)
-    ! argument list
     class(manager_conn_t), intent(inout) :: this
 
     call this%free_data_base()

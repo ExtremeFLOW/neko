@@ -816,7 +816,7 @@ p8est_lnodes_edge_callback (p8est_iter_edge_info_t * info, void *Data)
 }
 
 static void
-p4est_lnodes_init_data (p4est_lnodes_data_t * data, p4est_t * p4est,
+p4est_lnodes_init_data (p4est_lnodes_data_t * data, int npts, p4est_t * p4est,
 			p4est_ghost_t * ghost_layer, p4est_lnodes_t * lnodes)
 {
   int                 i, j, n;
@@ -831,8 +831,8 @@ p4est_lnodes_init_data (p4est_lnodes_data_t * data, p4est_t * p4est,
   p4est_locidx_t      ngdep = ngq;
   int                 mpisize = p4est->mpisize;
 
-  data->nodes_per_elem = P8EST_EDGES;
-  npe = data->nodes_per_edge = 1;
+  data->nodes_per_elem = npts * P8EST_EDGES;
+  npe = data->nodes_per_edge = npts;
 
   ecount[0] = ecount[1] = ecount[2] = ecount[3] = ecount[4] = ecount[5] = 0;
   ecount[6] = ecount[7] = ecount[8] = ecount[9] = ecount[10] = ecount[11] = 0;
@@ -1390,7 +1390,7 @@ p4est_lnodes_global_and_sharers (p4est_lnodes_data_t * data,
 }
 
 p8est_lnodes_t     *
-p8est_lnodes_edge (p8est_t * p8est, p8est_ghost_t * ghost_layer)
+p8est_lnodes_edge (p8est_t * p8est, p8est_ghost_t * ghost_layer, int npts)
 {
   p4est_lnodes_data_t data;
   p4est_locidx_t      nel;
@@ -1401,17 +1401,19 @@ p8est_lnodes_edge (p8est_t * p8est, p8est_ghost_t * ghost_layer)
   P4EST_GLOBAL_PRODUCTION ("Into " P8EST_STRING "_lnodes_edge\n");
   p4est_log_indent_push ();
 
+  P4EST_ASSERT (npts >= 1);
+
   lnodes->mpicomm = p8est->mpicomm;
-  lnodes->degree = -4;
+  lnodes->degree = npts;
   lnodes->num_local_elements = nel = p8est->local_num_quadrants;
-  lnodes->vnodes = P8EST_EDGES;
+  lnodes->vnodes = npts * P8EST_EDGES;
 
   lnodes->face_code = P4EST_ALLOC_ZERO (p4est_lnodes_code_t, nel);
   nlen = nel * lnodes->vnodes;
   lnodes->element_nodes = P4EST_ALLOC (p4est_locidx_t, nlen);
   memset (lnodes->element_nodes, -1, nlen * sizeof (p4est_locidx_t));
 
-  p4est_lnodes_init_data (&data, p8est, ghost_layer, lnodes);
+  p4est_lnodes_init_data (&data, npts, p8est, ghost_layer, lnodes);
 
   p4est_iterate_ext (p8est, ghost_layer, &data, NULL,
 		     p4est_lnodes_face_simple_callback,

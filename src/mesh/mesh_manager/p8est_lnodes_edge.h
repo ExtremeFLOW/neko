@@ -16,9 +16,10 @@
  * \param [in] ghost_layer      Valid full ghost layer, i. e. constructed
  *                              by \ref p8est_ghost_new with the same forest
  *                              and argument \ref P8EST_CONNECT_FULL.
+ * \param [in] npts             number of points along the edge
  * \return                      Fully initialized nodes structure.
  */
 p8est_lnodes_t     *p8est_lnodes_edge (p8est_t * p8est,
-				      p8est_ghost_t * ghost_layer);
+				       p8est_ghost_t * ghost_layer, int npts);
 
 #endif

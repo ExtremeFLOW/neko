@@ -327,10 +327,10 @@ void wp4est_lnodes_new(int degree) {
   lnodes_neko = p4est_lnodes_new(tree_neko, ghost_neko, degree);
 }
 
-void wp4est_lnodes_edge() {
+void wp4est_lnodes_edge(int npts) {
 #ifdef P4_TO_P8
   if (lnodes_neko != NULL) p4est_lnodes_destroy(lnodes_neko);
-  lnodes_neko = p8est_lnodes_edge(tree_neko, ghost_neko);
+  lnodes_neko = p8est_lnodes_edge(tree_neko, ghost_neko, npts);
 #else
   wp4est_lnodes_del();
 #endif

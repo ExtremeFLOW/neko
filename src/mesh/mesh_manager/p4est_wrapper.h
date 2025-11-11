@@ -252,8 +252,11 @@ void wp4est_nodes_del()
 void wp4est_lnodes_new(int degree)
 ;
 
-/** Generate new global edge numbering */
-void wp4est_lnodes_edge()
+/** Generate new global edge numbering
+*
+* @param[in] npts   number of points along the edge
+*/
+void wp4est_lnodes_edge(int npts)
 ;
 
 /** Destroy global node numbering */
