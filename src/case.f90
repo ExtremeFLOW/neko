@@ -47,7 +47,6 @@ module case
   use file, only : file_t
   use utils, only : neko_error
   use mesh, only : mesh_t
-  use manager_mesh, only : manager_mesh_t
   use mesh_manager, only : mesh_manager_t, mesh_manager_factory
   use math, only : NEKO_EPS
   use checkpoint, only: chkp_t
@@ -159,7 +158,6 @@ contains
     type(json_file) :: scalar_params, numerics_params, meshmng_params
     type(json_file) :: json_subdict
     integer :: n_scalars, i
-    class(manager_mesh_t), allocatable :: mesh_new
 
     !
     ! Setup user defined functions
@@ -195,10 +193,13 @@ contains
        call this%mesh_manager%start(meshmng_params, i)
        ! initialise type
        call this%mesh_manager%init(meshmng_params)
-       ! initial reading of mesh data; it may be not complete, so get it here
-       call this%mesh_manager%import_new(mesh_new)
-       call mesh_new%free()
-       deallocate(mesh_new)
+       ! initial importing of mesh data; it may be not complete
+       call this%mesh_manager%import()
+       ! Get raw data from the mesh file sticking to element distribution
+       ! from mesh manager. This would work if element ordering in mesh manager
+       ! and mesh file are the same.
+       call this%mesh_manager%elm_dst_copy()
+       call msh_file%read(this%mesh_manager%nmsh_mesh)
        call neko_log%end_section()
     end if
 

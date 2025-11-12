@@ -50,7 +50,8 @@ module nmsh_file
        MPI_File_open, MPI_File_close, MPI_File_read_all, MPI_File_write_all, &
        MPI_File_write_at_all, MPI_File_read_at_all, MPI_INTEGER, MPI_SUM, &
        MPI_Exscan, MPI_Barrier, MPI_Type_size, MPI_Allreduce, MPI_File_sync
-  use logger, only: neko_log, LOG_SIZE
+  use logger, only: neko_log, NEKO_LOG_QUIET, NEKO_LOG_INFO, &
+       NEKO_LOG_VERBOSE, NEKO_LOG_DEBUG, LOG_SIZE
   implicit none
 
   private
@@ -268,6 +269,178 @@ contains
   subroutine nmsh_file_read_raw(file, data)
     type(nmsh_file_t), intent(inout) :: file
     type(nmsh_mesh_t), intent(inout) :: data
+    type(nmsh_zone_t), allocatable :: nmsh_zone(:)
+    type(nmsh_curve_el_t), allocatable :: nmsh_curve(:)
+    type(MPI_Status) :: status
+    type(MPI_File) :: fh
+    integer (kind=MPI_OFFSET_KIND) :: mpi_offset, mpi_el_offset
+    integer :: nmsh_quad_size, nmsh_hex_size, nmsh_zone_size
+    integer :: ierr, itmp, nlocal, il
+    integer :: element_offset4, nelv, gdim, nzones, ncurves
+    integer(i8) :: element_offset
+    character(len=LOG_SIZE) :: log_buf
+
+    call neko_log%message('Reading a binary Neko file ' // file%get_fname(), &
+         NEKO_LOG_INFO)
+
+    call MPI_Type_size(MPI_NMSH_HEX, nmsh_hex_size, ierr)
+    call MPI_Type_size(MPI_NMSH_QUAD, nmsh_quad_size, ierr)
+    call MPI_Type_size(MPI_NMSH_ZONE, nmsh_zone_size, ierr)
+
+    call MPI_File_open(NEKO_COMM, trim(file%get_fname()), &
+         MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
+
+    if (ierr > 0) then
+       call neko_error('Could not open the mesh file ' // file%get_fname() // &
+            'for reading!')
+    end if
+
+    call MPI_File_read_all(fh, nelv, 1, MPI_INTEGER, status, ierr)
+    call MPI_File_read_all(fh, gdim, 1, MPI_INTEGER, status, ierr)
+
+    if (gdim .ne. data%gdim) &
+         call neko_error('Inconsistent mesh dimension')
+
+    if (int(nelv, i8) .ne. data%gnelt) &
+         call neko_error('Inconsistent global element count')
+
+    nelv = data%nelt
+    element_offset = data%offset_el
+    element_offset4 = int(element_offset, i4)
+
+    call neko_log%message('Reading elements', NEKO_LOG_VERBOSE)
+
+    write(log_buf,10) gdim, nelv
+10  format('nmsh file: gdim = ', i1, ', nelements = ', i9)
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+
+    if (gdim .eq. 2) then
+       allocate(data%quad(nelv))
+       mpi_offset = int(2 * MPI_INTEGER_SIZE, i8) + &
+               element_offset * int(nmsh_quad_size, i8)
+       call MPI_File_read_at_all(fh, mpi_offset, data%quad, nelv, &
+            MPI_NMSH_QUAD, status, ierr)
+       ! check is all the elements are within the mesh manager bounds
+       ! and check here if the elements are properly ordered
+       do il = 1, nelv
+          if (data%quad(il)%el_idx .ne. element_offset4 + il) &
+               call neko_error('Inconsistent global element numbering')
+       end do
+       mpi_el_offset = int(2 * MPI_INTEGER_SIZE, i8) + &
+               data%gnelt * int(nmsh_quad_size, i8)
+    else if (gdim .eq. 3) then
+       allocate(data%hex(nelv))
+       mpi_offset = int(2 * MPI_INTEGER_SIZE, i8) + &
+               element_offset * int(nmsh_hex_size, i8)
+       call MPI_File_read_at_all(fh, mpi_offset, data%hex, nelv, &
+            MPI_NMSH_HEX, status, ierr)
+       ! check is all the elements are within the mesh manager bounds
+       ! and check here if the elements are properly ordered
+       do il = 1, nelv
+          if (data%hex(il)%el_idx .ne. element_offset4 + il) &
+               call neko_error('Inconsistent global element numbering')
+       end do
+       mpi_el_offset = int(2 * MPI_INTEGER_SIZE, i8) + &
+               data%gnelt * int(nmsh_hex_size, i8)
+    else
+       if (pe_rank .eq. 0) call neko_error('Invalid dimension of mesh')
+    end if
+
+    call neko_log%message('Reading BC/zone data', NEKO_LOG_VERBOSE)
+
+    mpi_offset = mpi_el_offset
+    call MPI_File_read_at_all(fh, mpi_offset, nzones, 1, MPI_INTEGER, &
+         status, ierr)
+
+    write(log_buf,20) nzones
+20  format('nmsh file: nzones = ', i9)
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+
+    if (nzones .gt. 0) then
+       allocate(nmsh_zone(nzones))
+
+       !>
+       !!@todo Fix the parallel reading in this part, let each rank read
+       !!a piece and pass the pieces around, filtering out matching zones
+       !!in the local mesh.
+       !!
+       mpi_offset = mpi_el_offset + int(MPI_INTEGER_SIZE, i8)
+       call MPI_File_read_at_all(fh, mpi_offset, &
+            nmsh_zone, nzones, MPI_NMSH_ZONE, status, ierr)
+       ! count local number of zones
+       nlocal = 0
+       itmp = element_offset4 + nelv
+       do il = 1, nzones
+          if (nmsh_zone(il)%e .gt. element_offset4 .and. &
+               nmsh_zone(il)%e .le. itmp) nlocal = nlocal  + 1
+       end do
+       data%nzone = nlocal
+       if (nlocal .gt. 0) then
+          allocate(data%zone(nlocal))
+          nlocal = 0
+          do il = 1, nzones
+             if (nmsh_zone(il)%e .gt. element_offset4 .and. &
+                  nmsh_zone(il)%e .le. itmp) then
+                nlocal = nlocal + 1
+                data%zone(nlocal) = nmsh_zone(il)
+             end if
+          end do
+       end if
+
+       deallocate(nmsh_zone)
+    else
+       data%nzone = 0
+    end if
+
+    call neko_log%message('Reading deformation data', NEKO_LOG_VERBOSE)
+
+    mpi_offset = mpi_el_offset + int(MPI_INTEGER_SIZE, i8) + &
+         int(nzones, i8) * int(nmsh_zone_size, i8)
+    call MPI_File_read_at_all(fh, mpi_offset, ncurves, 1, MPI_INTEGER, &
+         status, ierr)
+
+    write(log_buf,30) ncurves
+30  format('nmsh file: ncurves = ', i9)
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+
+    if (ncurves .gt. 0) then
+       allocate(nmsh_curve(ncurves))
+
+       !>
+       !!@todo Fix the parallel reading in this part, let each rank read
+       !!a piece and pass the pieces around, filtering out matching curves
+       !!in the local mesh.
+       !!
+       mpi_offset = mpi_el_offset + int(2 * MPI_INTEGER_SIZE, i8) + &
+            int(nzones, i8) * int(nmsh_zone_size, i8)
+       call MPI_File_read_at_all(fh, mpi_offset, &
+            nmsh_curve, ncurves, MPI_NMSH_CURVE, status, ierr)
+       ! count local number of zones
+       nlocal = 0
+       itmp = element_offset4 + nelv
+       do il = 1, ncurves
+          if (nmsh_curve(il)%e .gt. element_offset4 .and. &
+               nmsh_curve(il)%e .le. itmp) nlocal = nlocal  + 1
+       end do
+       data%ncurve = nlocal
+       if (nlocal .gt. 0) then
+          allocate(data%curve(nlocal))
+          nlocal = 0
+          do il = 1, ncurves
+             if (nmsh_curve(il)%e .gt. element_offset4 .and. &
+                  nmsh_curve(il)%e .le. itmp) then
+                nlocal = nlocal + 1
+                data%curve(nlocal) = nmsh_curve(il)
+             end if
+          end do
+       end if
+
+       deallocate(nmsh_curve)
+    else
+       data%ncurve = 0
+    end if
+
+    call MPI_File_close(fh, ierr)
 
   end subroutine nmsh_file_read_raw
 

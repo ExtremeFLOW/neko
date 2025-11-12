@@ -57,6 +57,8 @@ module mesh_manager
      procedure, pass(this) :: free_data_base => mesh_manager_free_data_base
      !> Free mesh manager type.
      procedure, pass(this) :: free_base => mesh_manager_free_base
+     !> Get element distribution to mesh file reader
+     procedure, pass(this) :: elm_dst_copy => mesh_manager_elm_dst_copy
      !> Start 3rd-party software (if needed)
      procedure(mesh_manager_start), pass(this), deferred :: start
      !> Stop 3rd-party software (if needed)
@@ -160,5 +162,16 @@ contains
     if (allocated(this%mesh)) deallocate(this%mesh)
 
   end subroutine mesh_manager_free_base
+
+  !> Get element distribution to mesh file reader
+  subroutine mesh_manager_elm_dst_copy(this)
+    class(mesh_manager_t), intent(inout) :: this
+
+    this%nmsh_mesh%gdim = this%mesh%tdim
+    this%nmsh_mesh%nelt = this%mesh%nelt
+    this%nmsh_mesh%gnelt = this%mesh%gnelt
+    this%nmsh_mesh%offset_el = this%mesh%gnelto
+
+  end subroutine mesh_manager_elm_dst_copy
 
 end module mesh_manager

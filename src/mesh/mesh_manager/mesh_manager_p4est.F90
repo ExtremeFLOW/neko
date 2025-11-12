@@ -513,6 +513,8 @@ contains
     character(len=:), allocatable :: tree_file, cnn_file
     integer :: ref_level_max
 
+    call profiler_start_region("p4est initialisation", 30)
+
     ! Extract runtime parameters
     ! tree_file is mandatory
     call json_get_or_default(json, 'tree_file', tree_file, 'no tree')
@@ -535,6 +537,8 @@ contains
 
     if (allocated(tree_file)) deallocate(tree_file)
     if (allocated(cnn_file)) deallocate(cnn_file)
+
+    call profiler_end_region("p4est initialisation", 30)
 
   end subroutine p4est_init_from_json
 
@@ -663,7 +667,7 @@ contains
     write(log_buf, '(a)') 'Reading p4est tree/connectivity data.'
     call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
     ! read the tree file
-    call wp4est_tree_load(this%tree_file)
+    call wp4est_tree_load(trim(this%tree_file))
     call wp4est_tree_valid(is_valid)
     if (is_valid == 0) call neko_error('Invalid p4est tree')
     call wp4est_cnn_valid(is_valid)
@@ -705,6 +709,8 @@ contains
          itmp4v23, hngfc, hnged, vmap, fmap, emap, ealgn
     real(dp), allocatable, target, dimension(:, :) :: rtmpv1
 !!$    integer(i4) :: il, jl
+
+    call profiler_start_region("p4est import", 31)
 
     write(log_buf, '(a)') 'Importing p4est data'
     call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
@@ -952,6 +958,8 @@ contains
 
     ! destroy p4est nodes and ghost cells
     call wp4est_ghost_del()
+
+    call profiler_end_region("p4est import", 31)
 
   end subroutine p4est_import_data
 
