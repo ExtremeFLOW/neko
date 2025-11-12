@@ -310,7 +310,7 @@ contains
 
     call neko_log%message('Reading elements', NEKO_LOG_VERBOSE)
 
-    write(log_buf,10) gdim, nelv
+    write(log_buf,10) gdim, data%gnelt
 10  format('nmsh file: gdim = ', i1, ', nelements = ', i9)
     call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
