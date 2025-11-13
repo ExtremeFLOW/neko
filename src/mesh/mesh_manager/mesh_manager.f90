@@ -73,6 +73,8 @@ module mesh_manager
      procedure(mesh_manager_import_new), pass(this), deferred :: import_new
      !> Apply data read from mesh file to mesh manager structures
      procedure(mesh_manager_free), pass(this), deferred :: mesh_file_apply
+     !> Perform refinement/coarsening on the mesh manager side
+     procedure(mesh_manager_refine), pass(this), deferred :: refine
   end type mesh_manager_t
 
   abstract interface
@@ -107,6 +109,16 @@ module mesh_manager
        class(mesh_manager_t), intent(inout) :: this
        class(manager_mesh_t), allocatable, intent(inout) :: mesh_new
      end subroutine mesh_manager_import_new
+
+     !> Perform refinement/coarsening on the mesh manager side
+     !! @param[in]   ref_mark     refinement flag
+     !! @param[out]  ifmod        mesh modification flag
+     subroutine mesh_manager_refine(this, ref_mark, ifmod)
+       import mesh_manager_t, manager_mesh_t, i4
+       class(mesh_manager_t), intent(inout) :: this
+       integer(i4), dimension(:), intent(in) :: ref_mark
+       logical, intent(out) :: ifmod
+     end subroutine mesh_manager_refine
   end interface
 
   interface

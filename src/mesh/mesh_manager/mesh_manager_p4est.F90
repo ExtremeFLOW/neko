@@ -89,6 +89,8 @@ module mesh_manager_p4est
      procedure, pass(this) :: import_new => p4est_import_new
      !> Apply data from nmsh file to mesh manager structures
      procedure, pass(this) :: mesh_file_apply => p4est_mesh_file_apply
+     !> Perform refinement/coarsening on the mesh manager side
+     procedure, pass(this) :: refine => p4est_refine
 #ifdef HAVE_P4EST
      !> The costrucructor from type components.
      procedure, pass(this) :: init_from_component => &
@@ -958,8 +960,8 @@ contains
     call mesh_new%init_data(nelt, nelv, gnelt, gnelto, maxg, gdim, itmp8v1, &
             itmp4v1, itmp4v2, itmp4v21, itmp4v22, itmp8v21)
 
-    ! destroy p4est nodes and ghost cells
-    call wp4est_ghost_del()
+    ! do not destroy p4est ghost cells here, as they could be needed
+!    call wp4est_ghost_del()
 
     call profiler_end_region("p4est import", 31)
 
@@ -1109,9 +1111,11 @@ contains
             c_loc(mesh%igrp), c_loc(mesh%crv), c_loc(mesh%bc))
 
        ! check if applied boundary conditions are consistent with tree structure
-       call wp4est_ghost_new()
+       ! the ghost mesh was not destroyed at the end of data import, so no need
+       ! to set it here
+!       call wp4est_ghost_new()
        call wp4est_bc_check()
-       call wp4est_ghost_del()
+!       call wp4est_ghost_del()
 
        deallocate(imsh)
     end select
@@ -1147,6 +1151,111 @@ contains
     end select
 
   end subroutine p4est_mesh_file_apply
+
+  !> Perform refinement/coarsening on the mesh manager side
+  !! @param  ref_mark     refinement flag
+  !! @param[out]  ifmod        mesh modification flag
+  subroutine p4est_refine(this, ref_mark, ifmod)
+    class(mesh_manager_p4est_t), intent(inout) :: this
+    integer(i4), dimension(:), intent(in) :: ref_mark
+    character(len=LOG_SIZE) :: log_buf
+    logical, intent(out) :: ifmod
+    integer(i4), target, allocatable, dimension(:) :: pref_mark, pel_gnum, &
+         pel_lnum, pel_nid
+    integer(i4), parameter :: p4est_compare = 0
+    integer(i4) :: il, itmp
+    ! element restructure data
+    integer(i4) :: map_nr, rfn_nr, crs_nr
+    integer(i4), target, allocatable, dimension(:, :) :: elgl_map, elgl_rfn
+    integer(i4), target, allocatable, dimension(:, :, :) :: elgl_crs
+
+    call profiler_start_region("p4est refine", 32)
+
+    write(log_buf, '(a)') 'p4est refinement/coarsening start'
+    call neko_log%message(log_buf, NEKO_LOG_INFO)
+
+    ifmod = .false.
+
+    ! check ref_mark size
+    !if (size(ref_mark) .ne. ##) call neko_error('Inconsistent array size')
+
+    ! place for communication step in case of different distributions for
+    ! neko and p4est
+
+    ! set refinement mark in p4est
+    allocate(pref_mark(this%mesh%nelt))
+    ! PLACE FOR DATA DISTRIBUTION (NEKO => P4EST) using
+    ! mesh_manager_transfer_t
+    ! in general itmp can be different than this%elem%nelv, but for now
+    ! they are the same
+    pref_mark(:) = ref_mark(:)
+    ! PLACE FOR LOCAL CONSISTENCY CHECKS
+    call wp4est_refm_put(c_loc(pref_mark))
+
+    ! set element distribution info in p4est
+    allocate(pel_gnum(this%mesh%nelt), pel_lnum(this%mesh%nelt),&
+         & pel_nid(this%mesh%nelt))
+    ! THIS JUST FOR TESTING
+    do il = 1, this%mesh%nelt
+       pel_gnum(il) = this%mesh%gidx(il)
+       pel_lnum(il) = il
+    end do
+    pel_nid(:) = pe_rank
+    ! PLACE FOR DATA DISTRIBUTION (NEKO=> P4EST) using
+    ! mesh_manager_transfer_t
+    ! in general itmp can be different than this%elem%nelv, but for now
+    ! they are the same
+    ! this possibly could be reconstructed from mesh_manager_transfer_t,
+    ! so no communication would be necessary
+    call wp4est_egmap_put(c_loc(pel_gnum), c_loc(pel_lnum), c_loc(pel_nid))
+
+    ! destroy p4est ghost cells
+    call wp4est_ghost_del()
+
+    ! perform local refine/coarsen/balance on p4est side
+    call wp4est_tree_compare_copy(p4est_compare)
+    call wp4est_refine(this%ref_level_max)
+    call wp4est_coarsen()
+    call wp4est_balance()
+    ! perform partitioning on p4est side
+    call wp4est_part()
+    call wp4est_tree_compare_check(itmp, p4est_compare)
+
+    if (itmp == 0 ) then
+       ! set refinement flag
+       ifmod = .true.
+
+       write(log_buf, '(a)') 'p4est refinement; mesh changed'
+       call neko_log%message(log_buf, NEKO_LOG_INFO)
+
+       ! import new data
+       call this%import()
+
+       ! get data to refine fields
+       ! number of children is equal to number of vertices
+       itmp = 2**this%mesh%tdim
+       allocate(elgl_map(3, this%mesh%nelt), elgl_rfn(5, this%mesh%nelt), &
+            elgl_crs(4, itmp, this%mesh%nelt))
+       call wp4est_msh_get_hst(map_nr, rfn_nr, crs_nr, c_loc(elgl_map), &
+            c_loc(elgl_rfn), c_loc(elgl_crs))
+       ! pace to move data
+       write(*,*) 'TESTrrr', pe_rank, map_nr, rfn_nr, crs_nr, itmp, &
+            this%mesh%nelt
+    else
+       ! regenerate the ghost layer
+       call wp4est_ghost_new()
+       write(log_buf, '(a)') 'p4est refinement; mesh not changed'
+       call neko_log%message(log_buf, NEKO_LOG_INFO)
+    end if
+
+    deallocate(pref_mark, pel_gnum, pel_lnum, pel_nid)
+
+    write(log_buf, '(a)') 'p4est refinement/coarsening end'
+    call neko_log%message(log_buf, NEKO_LOG_INFO)
+
+    call profiler_end_region("p4est refine", 32)
+
+  end subroutine p4est_refine
 
 #else
 
@@ -1213,6 +1322,18 @@ contains
     call neko_error('p4est mesh manager must be compiled with p4est support.')
 
   end subroutine p4est_mesh_file_apply
+
+  !> Perform refinement/coarsening on the mesh manager side
+  !! @param  ref_mark     refinement flag
+  !! @param[out]  ifmod        mesh modification flag
+  subroutine p4est_refine(this, ref_mark, ifmod)
+    class(mesh_manager_p4est_t), intent(inout) :: this
+    integer(i4), dimension(:), intent(in) :: ref_mark
+    logical, intent(out) :: ifmod
+
+    call neko_error('p4est mesh manager must be compiled with p4est support.')
+
+  end subroutine p4est_refine
 #endif
 
 end module mesh_manager_p4est
