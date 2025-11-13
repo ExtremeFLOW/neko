@@ -181,9 +181,6 @@ contains
     call msh_file%init(string_val)
     call msh_file%read(this%msh)
 
-    ! Run user mesh motion routine
-    call this%user%mesh_setup(this%msh, this%time)
-
     !
     ! Load Balancing
     !
@@ -203,6 +200,9 @@ contains
 
        call neko_log%end_section()
     end if
+
+    ! Run user mesh motion routine
+    call this%user%mesh_setup(this%msh, this%time)
 
     !
     ! Time control
