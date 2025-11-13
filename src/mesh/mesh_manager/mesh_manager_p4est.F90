@@ -87,6 +87,8 @@ module mesh_manager_p4est
      procedure, pass(this) :: import => p4est_import
      !> Import mesh data creating a new variable
      procedure, pass(this) :: import_new => p4est_import_new
+     !> Apply data from nmsh file to mesh manager structures
+     procedure, pass(this) :: mesh_file_apply => p4est_mesh_file_apply
 #ifdef HAVE_P4EST
      !> The costrucructor from type components.
      procedure, pass(this) :: init_from_component => &
@@ -767,9 +769,9 @@ contains
 !!$               itmp4v1(il), rtmpv1(:,il)
 !!$       end do
 
-       select type (geom_ind => geom%geom_ind)
+       select type (ind => geom%ind)
        type is(manager_geom_node_ind_p4est_t)
-          call geom_ind%init_data(lown, lshr, loff, lnum_in, gdim, &
+          call ind%init_data(lown, lshr, loff, lnum_in, gdim, &
                itmp8v1, itmp4v1, rtmpv1)
 
           if (lnum_fh > 0) then
@@ -780,9 +782,9 @@ contains
 
              ! get global numbering of hanging nodes
              call p4est_hng_node_gnum_get(itmp8v1, itmp4v21, lnum_fh, ndep, &
-                  geom_ind%gidx, geom_ind%ndown, geom_ind%lnum)
+                  ind%gidx, ind%ndown, ind%lnum)
 
-             call geom%geom_hng_fcs%init_data(lnum_fh, gdim, ndep, &
+             call geom%hng_fcs%init_data(lnum_fh, gdim, ndep, &
                   itmp8v1, itmp4v21, rtmpv1)
           end if
 
@@ -794,9 +796,9 @@ contains
 
              ! get global numbering of hanging nodes
              call p4est_hng_node_gnum_get(itmp8v1, itmp4v21, lnum_eh, ndep, &
-                  geom_ind%gidx, geom_ind%ndown, geom_ind%lnum)
+                  ind%gidx, ind%ndown, ind%lnum)
 
-             call geom%geom_hng_edg%init_data(lnum_eh, gdim, ndep, &
+             call geom%hng_edg%init_data(lnum_eh, gdim, ndep, &
                   itmp8v1, itmp4v21, rtmpv1)
           end if
        end select
@@ -1067,6 +1069,85 @@ contains
 
   end subroutine p4est_family_get
 
+  !> Apply data read from mesh file to mesh manager structures
+  subroutine p4est_mesh_file_apply(this)
+    class(mesh_manager_p4est_t), intent(inout) :: this
+    integer(i4) :: il, iel, ifc, ibc, nin, nhf, nhe
+    integer(i8) :: itmp8
+    integer(i4), target, allocatable, dimension(:) :: imsh
+
+    select type(mesh => this%mesh)
+    type is (manager_mesh_p4est_t)
+
+       ! Fill all the information that may be not properly initialised
+       ! neko supports just V-type elements
+       allocate(imsh(mesh%nelt))
+       imsh(:) = 0
+       !> group flag is not used for now
+       mesh%igrp(:) = 0
+       ! face curvature data is not used for now; projection will be based on bc
+       mesh%crv(:, :) = 0
+       ! fill in boundary condition
+       ! start with marking everything internal
+       mesh%bc(:, :) = 0
+       do il = 1, this%nmsh_mesh%nzone
+          itmp8 = int(this%nmsh_mesh%zone(il)%e, i8)
+          iel =  int(itmp8 - this%nmsh_mesh%offset_el, i4)
+          if (itmp8 .ne. mesh%gidx(iel)) &
+               call neko_error('Inconsistent global element number')
+          select case(this%nmsh_mesh%zone(il)%type)
+          case (5)
+             ibc = -1
+          case (7)
+             ibc = this%nmsh_mesh%zone(il)%p_f
+          end select
+          mesh%bc(this%nmsh_mesh%zone(il)%f, iel) = ibc
+       end do
+
+       ! transfer data to p4est
+       call wp4est_elm_ini_dat(c_loc(mesh%gidx), c_loc(imsh), &
+            c_loc(mesh%igrp), c_loc(mesh%crv), c_loc(mesh%bc))
+
+       ! check if applied boundary conditions are consistent with tree structure
+       call wp4est_ghost_new()
+       call wp4est_bc_check()
+       call wp4est_ghost_del()
+
+       deallocate(imsh)
+    end select
+
+    ! correct vertex information in the mesh manager geometry
+    !>
+    !! @todo This is just a hack and should be done better in the future
+    ! For now just local copy of vertices coordinates; it does not mater if the
+    ! mesh file is fine, but in case of corrupted file could be important
+    select type(geom => this%mesh%geom)
+    type is (manager_geom_p4est_t)
+       ! get limits for different node types
+       nin = geom%ind%lnum
+       nhf = nin + geom%hng_fcs%lnum
+       nhe = nhf + geom%hng_edg%lnum
+       do il = 1, geom%nel
+          do ifc = 1, geom%nvrt
+             ibc = geom%vmap(ifc, il)
+             if (ibc .le. nin) then
+                geom%ind%coord(:, ibc) = this%nmsh_mesh%hex(il)%v(ifc)%v_xyz(:)
+             else if (ibc .le. nhf) then
+                geom%hng_fcs%coord(:, ibc - nin) = &
+                     this%nmsh_mesh%hex(il)%v(ifc)%v_xyz(:)
+             else if (ibc .le. nhe) then
+                geom%hng_edg%coord(:, ibc - nhf) = &
+                     this%nmsh_mesh%hex(il)%v(ifc)%v_xyz(:)
+             else
+                call neko_error('Inconsistent vertex to node mapping')
+             end if
+          end do
+       end do
+
+    end select
+
+  end subroutine p4est_mesh_file_apply
+
 #else
 
   !> Start p4est
@@ -1124,6 +1205,14 @@ contains
     call neko_error('p4est mesh manager must be compiled with p4est support.')
 
   end subroutine p4est_import_new
+
+  !> Apply data read from mesh file to mesh manager structures
+  subroutine p4est_mesh_file_apply(this)
+    class(mesh_manager_p4est_t), intent(inout) :: this
+
+    call neko_error('p4est mesh manager must be compiled with p4est support.')
+
+  end subroutine p4est_mesh_file_apply
 #endif
 
 end module mesh_manager_p4est

@@ -71,6 +71,8 @@ module mesh_manager
      procedure(mesh_manager_free), pass(this), deferred :: import
      !> Import mesh data creating a new variable
      procedure(mesh_manager_import_new), pass(this), deferred :: import_new
+     !> Apply data read from mesh file to mesh manager structures
+     procedure(mesh_manager_free), pass(this), deferred :: mesh_file_apply
   end type mesh_manager_t
 
   abstract interface

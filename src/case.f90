@@ -200,6 +200,8 @@ contains
        ! and mesh file are the same.
        call this%mesh_manager%elm_dst_copy()
        call msh_file%read(this%mesh_manager%nmsh_mesh)
+       ! apply data read from the mesh file to mesh manager structures
+       call this%mesh_manager%mesh_file_apply()
        call neko_log%end_section()
     end if
 

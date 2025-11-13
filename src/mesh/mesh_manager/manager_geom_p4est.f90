@@ -76,9 +76,9 @@ module manager_geom_p4est
   !! @details This type extends a base type with hanging nodes.
   type, extends(manager_geom_t), public :: manager_geom_p4est_t
      !> Geometrical h2-type hanging nodes
-     type(manager_geom_node_hng_p4est_t) :: geom_hng_edg
+     type(manager_geom_node_hng_p4est_t) :: hng_edg
      !> Geometrical h4-type hanging nodes
-     type(manager_geom_node_hng_p4est_t) :: geom_hng_fcs
+     type(manager_geom_node_hng_p4est_t) :: hng_fcs
      ! Mapping including hanging nodes:
      ! 1<= vnmap(iv,iel) <= nin - independent node
      ! nin < vnmap(iv,iel) <= nin + nhf - face hanging node
@@ -240,11 +240,11 @@ contains
   subroutine manager_geom_init_p4est(this)
     class(manager_geom_p4est_t), intent(inout) :: this
 
-    if (allocated(this%geom_ind))then
-       call this%geom_ind%free()
-       deallocate(this%geom_ind)
+    if (allocated(this%ind))then
+       call this%ind%free()
+       deallocate(this%ind)
     end if
-    allocate(manager_geom_node_ind_p4est_t::this%geom_ind)
+    allocate(manager_geom_node_ind_p4est_t::this%ind)
 
   end subroutine manager_geom_init_p4est
 
@@ -278,8 +278,8 @@ contains
     call this%init_type_base(geom)
     select type (geom)
     type is(manager_geom_p4est_t)
-       call this%geom_hng_edg%init_type(geom%geom_hng_edg)
-       call this%geom_hng_fcs%init_type(geom%geom_hng_fcs)
+       call this%hng_edg%init_type(geom%hng_edg)
+       call this%hng_fcs%init_type(geom%hng_fcs)
     end select
 
   end subroutine manager_geom_init_type_p4est
@@ -289,8 +289,8 @@ contains
     class(manager_geom_p4est_t), intent(inout) :: this
 
     call this%free_data_base()
-    call this%geom_hng_edg%free()
-    call this%geom_hng_fcs%free()
+    call this%hng_edg%free()
+    call this%hng_fcs%free()
 
   end subroutine manager_geom_free_data_p4est
 
@@ -299,8 +299,8 @@ contains
     class(manager_geom_p4est_t), intent(inout) :: this
 
     call this%free_base()
-    call this%geom_hng_edg%free()
-    call this%geom_hng_fcs%free()
+    call this%hng_edg%free()
+    call this%hng_fcs%free()
 
   end subroutine manager_geom_free_p4est
 

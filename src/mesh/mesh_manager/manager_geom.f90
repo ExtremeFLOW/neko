@@ -87,7 +87,7 @@ module manager_geom
      !> Topological mesh dimension
      integer(i4) :: tdim
      !> Geometrical independent nodes
-     class(manager_geom_node_t), allocatable :: geom_ind
+     class(manager_geom_node_t), allocatable :: ind
      !> local number of elements
      integer(i4) :: nel
      !> Number of vertices per element
@@ -213,8 +213,8 @@ contains
 
     call this%free_data_base()
 
-    if (allocated(this%geom_ind) .and. allocated(geom%geom_ind)) &
-            call this%geom_ind%init_type(geom%geom_ind)
+    if (allocated(this%ind) .and. allocated(geom%ind)) &
+            call this%ind%init_type(geom%ind)
 
     this%tdim = geom%tdim
     this%nel = geom%nel
@@ -228,7 +228,7 @@ contains
   subroutine manager_geom_free_data_base(this)
     class(manager_geom_t), intent(inout) :: this
 
-    if (allocated(this%geom_ind)) call this%geom_ind%free()
+    if (allocated(this%ind)) call this%ind%free()
 
     this%tdim = 0
     this%nel = 0
@@ -243,7 +243,7 @@ contains
     class(manager_geom_t), intent(inout) :: this
 
     call this%free_data_base()
-    if (allocated(this%geom_ind)) deallocate(this%geom_ind)
+    if (allocated(this%ind)) deallocate(this%ind)
 
   end subroutine manager_geom_free_base
 
