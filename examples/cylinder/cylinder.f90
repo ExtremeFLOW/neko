@@ -61,7 +61,7 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(fringe%x, fringe%x_d, fringe%size(), &
-            HOST_TO_DEVICE, .false.)
+            HOST_TO_DEVICE, .true.)
     end if
 
     ! NOTE: You can dump the fringe field to file using the `dump_fields`
@@ -77,12 +77,12 @@ contains
     real(kind=rp), intent(in) :: x
     real(kind=rp) :: y
 
-    if ( x.le.0._rp ) then
-       y = 0._rp
-    else if ( x.ge.1._rp ) then
-       y = 1._rp
+    if ( x .le. 0.0_rp ) then
+       y = 0.0_rp
+    else if ( x .ge. 1.0_rp ) then
+       y = 1.0_rp
     else
-       y = 1._rp / (1._rp + exp( 1._rp/(x-1._rp) + 1._rp/x))
+       y = 1.0_rp / (1.0_rp + exp( 1.0_rp / (x - 1.0_rp) + 1.0_rp / x))
     end if
   end function S
 

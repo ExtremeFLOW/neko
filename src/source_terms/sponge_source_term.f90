@@ -323,7 +323,7 @@ contains
        call device_memcpy(this%v_bf%x, this%v_bf%x_d, this%v_bf%size(), &
             HOST_TO_DEVICE, .false.)
        call device_memcpy(this%w_bf%x, this%w_bf%x_d, this%w_bf%size(), &
-            HOST_TO_DEVICE, .false.)
+            HOST_TO_DEVICE, .true.)
     end if
 
     this%baseflow_set = .true.
@@ -453,14 +453,17 @@ contains
                .and. neko_field_registry%field_exists(trim(v_name)) .and. &
                neko_field_registry%field_exists(trim(w_name))
 
-       if (.not. this%baseflow_set) call neko_error("SPONGE: No baseflow set &
-       &(searching for " // trim(this%bf_rgstry_pref) // "_u)")
+       if (.not. this%baseflow_set) then
+          call neko_error("SPONGE: No baseflow set (searching for " // &
+               trim(this%bf_rgstry_pref) // "_u)")
+       end if
 
        ! Check if the user has added the fringe field in the registry
-       if (.not. &
-            neko_field_registry%field_exists(trim(this%fringe_registry_name))) &
-            call neko_error("SPONGE: No fringe field set (" // &
-                this%fringe_registry_name // " not found)")
+       if (.not. neko_field_registry%field_exists( &
+            trim(this%fringe_registry_name))) then
+          call neko_error("SPONGE: No fringe field set (" // &
+               this%fringe_registry_name // " not found)")
+       end if
 
        ! This will throw an error if the user hasn't added 'sponge_fringe'
        ! to the registry.
