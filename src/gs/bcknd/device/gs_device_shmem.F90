@@ -38,8 +38,9 @@ module gs_device_shmem
   use stack, only : stack_i4_t
   use htable, only : htable_i4_t
   use device
-  use comm
-  use mpi_f08
+  use comm, only : pe_size, pe_rank, NEKO_COMM
+  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, &
+       MPI_MAX, MPI_Sendrecv, MPI_STATUS_IGNORE
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_sizeof, c_int32_t, &
        c_ptr, C_NULL_PTR, c_size_t, c_associated
