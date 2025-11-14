@@ -120,9 +120,7 @@ contains
     character(len=*), intent(in) :: variable_name
 
     real(kind=rp), allocatable :: amplitudes(:)
-    real(kind=rp), allocatable :: ramp(:), pad(:)
-
-    character(len=:), allocatable :: baseflow_file, baseflow_method
+    character(len=:), allocatable :: baseflow_method
     character(len=:), allocatable :: read_str, fringe_registry_name, &
             bf_registry_pref, dump_fname
     character(len=NEKO_FNAME_LEN) :: fname, mesh_fname
@@ -143,8 +141,9 @@ contains
          fringe_registry_name, "sponge_fringe")
 
     call json_get(json, "amplitudes", amplitudes)
-    if (size(amplitudes) .ne. 3) &
+    if (size(amplitudes) .ne. 3) then
          call neko_error("(SPONGE) Expected 3 elements for 'amplitudes'")
+    end if
 
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
     call json_get_or_default(json, "end_time", end_time, huge(0.0_rp))
@@ -186,8 +185,9 @@ contains
     case ("constant")
 
        call json_get(baseflow_subdict, "value", constant_value)
-       if (size(constant_value) .lt. 3) &
+       if (size(constant_value) .lt. 3) then
             call neko_error("(SPONGE) Expected 3 elements for 'value'")
+       end if
 
        call this%init_constant(fields, coef, start_time, end_time, &
             amplitudes, fringe_registry_name, bf_registry_pref, dump_fields, &
@@ -435,9 +435,7 @@ contains
     character(len=1024) :: u_name, v_name, w_name
     type(fld_file_output_t) :: fout
     integer :: tmp_index
-    class(case_t), pointer :: case
     type(field_t), pointer :: wk
-    case => null()
 
     !
     ! Do some checks at the first timestep
