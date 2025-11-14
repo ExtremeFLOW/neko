@@ -72,8 +72,8 @@ module operators
        lambda2op, strain_rate, div, grad, set_convect_rst, runge_kutta, rotate_cyc
 
   interface rotate_cyc
-    module procedure rotate_cyc_r4
     module procedure rotate_cyc_r1
+    module procedure rotate_cyc_r4
   end interface
 
 contains
@@ -760,7 +760,6 @@ contains
             !>@todo rotate_cyc for xsmm
             write(*, *) "rotate is not available in XSMM yet"
          else if (NEKO_BCKND_DEVICE .eq. 1) then
-             !>@todo rotate_cyc for CUDA
             call opr_device_rotate_cyc_r1(vx, vy, vz, idir, coef)
          else
             call opr_cpu_rotate_cyc_r1(vx, vy, vz, idir, coef)
@@ -780,7 +779,6 @@ contains
             !>@todo rotate_cyc for xsmm
             write(*, *) "rotate is not available in XSMM yet"
          else if (NEKO_BCKND_DEVICE .eq. 1) then
-            !>@todo rotate_cyc for CUDA
             call opr_device_rotate_cyc_r4(vx, vy, vz, idir, coef)
          else
             call opr_cpu_rotate_cyc_r4(vx, vy, vz, idir, coef)

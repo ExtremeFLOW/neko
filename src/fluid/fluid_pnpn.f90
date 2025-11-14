@@ -517,6 +517,7 @@ contains
 
     if (allocated(chkp%previous_mesh%elements) &
          .or. chkp%previous_Xh%lx .ne. this%Xh%lx) then
+
        call rotate_cyc(this%u%x, this%v%x, this%w%x, 1, this%c_Xh)
        call this%gs_Xh%op(this%u, GS_OP_ADD)
        call this%gs_Xh%op(this%v, GS_OP_ADD)
@@ -789,6 +790,7 @@ contains
            c_Xh, msh, Xh, &
            mu_tot, rho, ext_bdf%diffusion_coeffs(1), &
            dt, dm_Xh%size())
+            
       call rotate_cyc(u_res%x, v_res%x, w_res%x, 1, c_Xh)
       call gs_Xh%op(u_res, GS_OP_ADD, event)
       call device_event_sync(event)
