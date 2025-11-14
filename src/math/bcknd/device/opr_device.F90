@@ -870,6 +870,7 @@ contains
     ncyc = coef%cyc_msk(0)
 
 #ifdef HAVE_HIP
+    !>@todo opr_device_rotate_cyc_r1 for HIP
     call neko_error('No device backend configured for rotate_cyc')
 #elif HAVE_CUDA
     call cuda_rotate_cyc(vx_d, vy_d, vz_d, &
@@ -877,6 +878,7 @@ contains
           coef%cyc_msk_d,  coef%R11_d,  coef%R12_d, &
           ncyc, idir)
 #elif HAVE_OPENCL
+    !>@todo opr_device_rotate_cyc_r1 for OPENCL
     call neko_error('No device backend configured for rotate_cyc')
 #else
     call neko_error('No device backend configured for rotate_cyc')
@@ -896,6 +898,7 @@ contains
     ncyc = coef%cyc_msk(0)
 
 #ifdef HAVE_HIP
+    !>@todo opr_device_rotate_cyc_r4 for HIP
     call neko_error('No device backend configured for rotate_cyc')
 #elif HAVE_CUDA
     call cuda_rotate_cyc(vx_d, vy_d, vz_d, &
@@ -903,6 +906,7 @@ contains
           coef%cyc_msk_d,  coef%R11_d,  coef%R12_d, &
           ncyc, idir)
 #elif HAVE_OPENCL
+    !>@todo opr_device_rotate_cyc_r4 for OPENCL
     call neko_error('No device backend configured for rotate_cyc')
 #else
     call neko_error('No device backend configured for rotate_cyc')
