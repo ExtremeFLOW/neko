@@ -59,7 +59,7 @@
 ! not be used for advertising or product endorsement purposes.
 !
 module fluid_volflow
-  use operators, only : opgrad, cdtp
+  use operators, only : opgrad, cdtp, rotate_cyc
   use num_types, only : rp
   use mathops, only : opchsign
   use krylov, only : ksp_t, ksp_monitor_t
@@ -279,9 +279,11 @@ contains
       end if
       c_Xh%ifh2 = .true.
 
+      call rotate_cyc(u_res%x, v_res%x, w_res%x, 1, c_Xh)
       call gs_Xh%op(u_res, GS_OP_ADD)
       call gs_Xh%op(v_res, GS_OP_ADD)
       call gs_Xh%op(w_res, GS_OP_ADD)
+      call rotate_cyc(u_res%x, v_res%x, w_res%x, 1, c_Xh)
 
       call bclst_vel_res%apply_vector(u_res%x, v_res%x, w_res%x, n)
       call pc_vel%update()

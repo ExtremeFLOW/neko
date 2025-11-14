@@ -46,6 +46,7 @@ module coefs
        device_coef_generate_dxydrst
   use mxm_wrapper, only : mxm
   use device
+  use utils, only : index_is_on_facet, linear_index
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -94,6 +95,10 @@ module coefs
      real(kind=rp), allocatable :: nx(:,:,:,:)   !< x-direction of facet normal
      real(kind=rp), allocatable :: ny(:,:,:,:)   !< y-direction of facet normal
      real(kind=rp), allocatable :: nz(:,:,:,:)   !< z-direction of facet normal
+     logical :: cyclic = .false.
+     integer, allocatable :: cyc_msk(:) 
+     real(kind=rp), allocatable :: R11(:) !< entry of 2D rotation matrix at index (1,1)
+     real(kind=rp), allocatable :: R12(:) !< entry of 2D rotation matrix at index (1,2)
      !> Pointers to main fields
 
      real(kind=rp) :: volume
@@ -142,6 +147,10 @@ module coefs
      type(c_ptr) :: nx_d = C_NULL_PTR
      type(c_ptr) :: ny_d = C_NULL_PTR
      type(c_ptr) :: nz_d = C_NULL_PTR
+     type(c_ptr) :: cyc_msk_d = C_NULL_PTR
+     type(c_ptr) :: R11_d = C_NULL_PTR
+     type(c_ptr) :: R12_d = C_NULL_PTR
+
 
 
    contains
@@ -205,7 +214,7 @@ contains
   subroutine coef_init_all(this, gs_h)
     class(coef_t), intent(inout) :: this
     type(gs_t), intent(inout), target :: gs_h
-    integer :: n, m
+    integer :: n, m, ncyc
     call this%free()
 
     this%msh => gs_h%dofmap%msh
@@ -364,6 +373,16 @@ contains
        call invcol1(this%mult, n)
     end if
 
+    ncyc = this%msh%periodic%size * this%Xh%lx * this%Xh%lx
+    allocate(this%cyc_msk(0:ncyc))
+    allocate(this%R11(ncyc))
+    allocate(this%R12(ncyc))
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(this%cyc_msk, this%cyc_msk_d, ncyc+1)
+       call device_map(this%R11, this%R11_d, ncyc)
+       call device_map(this%R12, this%R12_d, ncyc)
+    end if
+    call coef_generate_cyclic_bc(this)
   end subroutine coef_init_all
 
   !> Deallocate coefficients
@@ -508,6 +527,18 @@ contains
 
     if (allocated(this%nz)) then
        deallocate(this%nz)
+    end if
+
+    if (allocated(this%cyc_msk)) then
+       deallocate(this%cyc_msk)
+    end if
+
+    if (allocated(this%R11)) then
+       deallocate(this%R11)
+    end if
+
+    if (allocated(this%R12)) then
+       deallocate(this%R12)
     end if
 
 
@@ -658,6 +689,18 @@ contains
 
     if (c_associated(this%nz_d)) then
        call device_Free(this%nz_d)
+    end if
+
+    if (c_associated(this%cyc_msk_d)) then
+       call device_free(this%cyc_msk_d)
+    end if
+
+    if (c_associated(this%R11_d)) then
+       call device_free(this%R11_d)
+    end if
+   
+    if (c_associated(this%R12_d)) then
+       call device_free(this%R12_d)
     end if
 
 
@@ -1161,6 +1204,53 @@ contains
     end if
 
   end subroutine coef_generate_area_and_normal
+
+
+  subroutine coef_generate_cyclic_bc(coef)
+    type(coef_t), intent(inout) :: coef
+    real(kind=rp) :: un(3), len, d
+    integer :: lx, ly, lz, ntot, np
+    integer :: i, j, k, pf, pe, n, nc, ncyc
+
+    ntot = coef%dof%size()
+    np = coef%msh%periodic%size
+    lx = coef%Xh%lx
+    ly = coef%Xh%ly
+    lz = coef%Xh%lz
+    ncyc = coef%msh%periodic%size * coef%Xh%lx * coef%Xh%lx
+    nc = 1
+    coef%cyc_msk(0) = ncyc + 1
+
+    do n = 1, np 
+      pf = coef%msh%periodic%facet_el(n)%x(1)
+      pe = coef%msh%periodic%facet_el(n)%x(2)
+      do k = 1, lz
+         do j = 1, ly
+            do i = 1, lx
+               if (index_is_on_facet(i, j, k, lx, ly, lz, pf)) then
+                  un = coef%get_normal(i, j, k, pe, pf)
+                  len = sqrt(un(1) * un(1) + un(2) * un(2))
+                  d = coef%dof%y(i, j, k, pe) * un(1) - coef%dof%x(i, j, k, pe) * un(2)
+
+                  coef%cyc_msk(nc) = linear_index(i, j, k, pe, lx, ly, lz)
+                  coef%R11(nc) = un(1)/len * sign(1.0_rp, d)
+                  coef%R12(nc) = un(2)/len * sign(1.0_rp, d)
+                  !write(*, *) "mask ", nc, coef%cyc_msk(nc)
+
+                  nc = nc + 1
+               end if
+            end do
+         end do
+         end do
+    end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+      call device_memcpy(coef%cyc_msk, coef%cyc_msk_d, ncyc+1,     HOST_TO_DEVICE, sync=.false.)
+      call device_memcpy(coef%R11,     coef%R11_d,     ncyc, HOST_TO_DEVICE, sync=.false.)
+      call device_memcpy(coef%R12,     coef%R12_d,     ncyc, HOST_TO_DEVICE, sync=.false.)
+    end if
+
+   end subroutine coef_generate_cyclic_bc
 
 
 end module coefs

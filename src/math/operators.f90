@@ -37,7 +37,8 @@ module operators
   use num_types, only : rp, i8
   use opr_cpu, only : opr_cpu_cfl, opr_cpu_curl, opr_cpu_opgrad, &
        opr_cpu_conv1, opr_cpu_convect_scalar, opr_cpu_cdtp, &
-       opr_cpu_dudxyz, opr_cpu_lambda2, opr_cpu_set_convect_rst
+       opr_cpu_dudxyz, opr_cpu_lambda2, opr_cpu_set_convect_rst, &
+       opr_cpu_rotate_cyc_r1, opr_cpu_rotate_cyc_r4
   use opr_sx, only : opr_sx_cfl, opr_sx_curl, opr_sx_opgrad, &
        opr_sx_conv1, opr_sx_convect_scalar, opr_sx_cdtp, &
        opr_sx_dudxyz, opr_sx_lambda2, opr_sx_set_convect_rst
@@ -46,7 +47,8 @@ module operators
        opr_xsmm_convect_scalar, opr_xsmm_set_convect_rst
   use opr_device, only : opr_device_cdtp, opr_device_cfl, opr_device_curl, &
        opr_device_conv1, opr_device_convect_scalar, opr_device_dudxyz, &
-       opr_device_lambda2, opr_device_opgrad, opr_device_set_convect_rst
+       opr_device_lambda2, opr_device_opgrad, opr_device_set_convect_rst, &
+       opr_device_rotate_cyc_r1, opr_device_rotate_cyc_r4
   use space, only : space_t
   use coefs, only : coef_t
   use field, only : field_t
@@ -67,7 +69,12 @@ module operators
   private
 
   public :: dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl, cfl_compressible, &
-       lambda2op, strain_rate, div, grad, set_convect_rst, runge_kutta
+       lambda2op, strain_rate, div, grad, set_convect_rst, runge_kutta, rotate_cyc
+
+  interface rotate_cyc
+    module procedure rotate_cyc_r4
+    module procedure rotate_cyc_r1
+  end interface
 
 contains
 
@@ -740,5 +747,46 @@ contains
     call neko_scratch_registry%relinquish_field(ind)
 
   end subroutine runge_kutta
+
+  subroutine rotate_cyc_r1(vx, vy, vz, idir, coef)
+      real(kind=rp), dimension(:), intent(inout) :: vx, vy, vz
+      integer, intent(in) :: idir
+      type(coef_t),  intent(in) :: coef
+      if (coef%cyclic) then
+         if (NEKO_BCKND_SX .eq. 1) then
+            !>@todo rotate_cyc for sx
+            write(*, *) "rotate is not available in SX yet"
+         else if (NEKO_BCKND_XSMM .eq. 1) then
+            !>@todo rotate_cyc for xsmm
+            write(*, *) "rotate is not available in XSMM yet"
+         else if (NEKO_BCKND_DEVICE .eq. 1) then
+             !>@todo rotate_cyc for CUDA
+            call opr_device_rotate_cyc_r1(vx, vy, vz, idir, coef)
+         else
+            call opr_cpu_rotate_cyc_r1(vx, vy, vz, idir, coef)
+         end if
+      end if
+  end subroutine rotate_cyc_r1
+
+  subroutine rotate_cyc_r4(vx, vy, vz, idir, coef)
+      real(kind=rp), dimension(:,:,:,:), intent(inout) :: vx, vy, vz
+      integer, intent(in) :: idir
+      type(coef_t),  intent(in) :: coef
+      if (coef%cyclic) then
+         if (NEKO_BCKND_SX .eq. 1) then
+            !>@todo rotate_cyc for sx
+            write(*, *) "rotate is not available in SX yet"
+         else if (NEKO_BCKND_XSMM .eq. 1) then
+            !>@todo rotate_cyc for xsmm
+            write(*, *) "rotate is not available in XSMM yet"
+         else if (NEKO_BCKND_DEVICE .eq. 1) then
+            !>@todo rotate_cyc for CUDA
+            call opr_device_rotate_cyc_r4(vx, vy, vz, idir, coef)
+         else
+            call opr_cpu_rotate_cyc_r4(vx, vy, vz, idir, coef)
+         end if
+      end if
+  end subroutine rotate_cyc_r4
+
 
 end module operators
