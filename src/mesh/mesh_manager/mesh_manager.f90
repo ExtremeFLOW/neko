@@ -36,7 +36,7 @@ module mesh_manager
   use json_module, only : json_file
   use nmsh, only: nmsh_mesh_t
   use manager_mesh, only : manager_mesh_t
-  use mesh_manager_redist, only : mesh_manager_redist_t
+  use mesh_manager_transfer, only : mesh_manager_transfer_t
 
   implicit none
   private
@@ -52,7 +52,7 @@ module mesh_manager
      !> raw mesh data from the nmsh file
      type(nmsh_mesh_t) :: nmsh_mesh
      !> data redistribution routines
-     class(mesh_manager_redist_t), allocatable :: redist
+     class(mesh_manager_transfer_t), allocatable :: transfer
    contains
      !> Constructor for the mesh_manager_t (base) type.
      procedure, pass(this) :: init_base => mesh_manager_init_base
@@ -72,8 +72,6 @@ module mesh_manager
      procedure(mesh_manager_free), pass(this), deferred :: free
      !> Import mesh data into current type
      procedure(mesh_manager_free), pass(this), deferred :: import
-     !> Import mesh data creating a new variable
-     procedure(mesh_manager_import_new), pass(this), deferred :: import_new
      !> Apply data read from mesh file to mesh manager structures
      procedure(mesh_manager_free), pass(this), deferred :: mesh_file_apply
      !> Perform refinement/coarsening on the mesh manager side
@@ -105,14 +103,6 @@ module mesh_manager
        class(mesh_manager_t), intent(inout) :: this
      end subroutine mesh_manager_free
 
-     !> Import mesh data creating a new variable
-     !! @param  mesh_new   new mesh data
-     subroutine mesh_manager_import_new(this, mesh_new)
-       import mesh_manager_t, manager_mesh_t
-       class(mesh_manager_t), intent(inout) :: this
-       class(manager_mesh_t), allocatable, intent(inout) :: mesh_new
-     end subroutine mesh_manager_import_new
-
      !> Perform refinement/coarsening on the mesh manager side
      !! @param[in]   ref_mark     refinement flag
      !! @param[out]  ifmod        mesh modification flag
@@ -126,18 +116,20 @@ module mesh_manager
 
   interface
      !> Mesh manager factory. Both constructs and initializes the object.
-     !! @param object The object to be initialised.
-     !! @param json JSON object initialising the mesh manager.
-     module subroutine mesh_manager_factory(object, json)
+     !! @param[inout]  object         The object to be initialised.
+     !! @param[inout]  json           JSON object initialising the mesh manager.
+     !! @param[in]     ifpartition    partitioning flag
+     module subroutine mesh_manager_factory(object, json, ifpartition)
        class(mesh_manager_t), allocatable, intent(inout) :: object
        type(json_file), intent(inout) :: json
+       logical, intent(in) :: ifpartition
      end subroutine mesh_manager_factory
   end interface
 
   interface
      !> Mesh manager allocator.
-     !! @param object The object to be allocated.
-     !! @param type_name The name of the type to allocate.
+     !! @param[inout]  object      The object to be allocated.
+     !! @param[in]     type_name   The name of the type to allocate.
      module subroutine mesh_manager_allocator(object, type_name)
        class(mesh_manager_t), allocatable, intent(inout) :: object
        character(len=*), intent(in) :: type_name
@@ -164,6 +156,7 @@ contains
 
     if (allocated(this%mesh)) call this%mesh%free()
     call this%nmsh_mesh%free()
+    if (allocated(this%transfer)) call this%transfer%free()
 
     this%ifstarted = .false.
 
@@ -177,6 +170,7 @@ contains
 
     call this%free_data_base()
     if (allocated(this%mesh)) deallocate(this%mesh)
+    if (allocated(this%transfer)) deallocate(this%transfer)
 
   end subroutine mesh_manager_free_base
 

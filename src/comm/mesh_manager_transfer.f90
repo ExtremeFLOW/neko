@@ -31,25 +31,70 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Abstract types for mesh manager data redistribution
-module mesh_manager_redist
+module mesh_manager_transfer
   use mpi_f08
   use num_types, only : i4, i8, rp, dp
   use comm, only : NEKO_COMM, pe_rank
   use logger, only : neko_log, NEKO_LOG_QUIET, NEKO_LOG_INFO, &
        NEKO_LOG_VERBOSE, NEKO_LOG_DEBUG, LOG_SIZE
   use utils, only : neko_error, neko_warning
+  use manager_mesh, only : manager_mesh_t
 
   implicit none
 
   private
 
   !> Base abstract type for mesh manager data redistribution
-  type, abstract, public :: mesh_manager_redist_t
+  type, abstract, public :: mesh_manager_transfer_t
      !> Mesh partitioning flag
      logical :: ifpartition
+   contains
+     !> Initialise the base type.
+     procedure, pass(this) :: init_base => mesh_manager_init_base
+     !> Free the base type.
+     procedure, pass(this) :: free_base => mesh_manager_free_base
+     !> Destructor.
+     procedure(mesh_manager_free), pass(this), deferred :: free
+     !> Get new element distribution
+     procedure(mesh_manager_element_dist), pass(this), deferred :: elem_dist_get
+  end type mesh_manager_transfer_t
 
-  end type mesh_manager_redist_t
+  abstract interface
+     !> Destructor
+     subroutine mesh_manager_free(this)
+       import mesh_manager_transfer_t
+       class(mesh_manager_transfer_t), intent(inout) :: this
+     end subroutine mesh_manager_free
+
+     !> Get element distribution
+     !! @param[in]   mesh     mesh manager mesh
+     subroutine mesh_manager_element_dist(this, mesh)
+       import mesh_manager_transfer_t, manager_mesh_t
+       class(mesh_manager_transfer_t), intent(inout) :: this
+       class(manager_mesh_t), intent(in) :: mesh
+     end subroutine mesh_manager_element_dist
+  end interface
 
 contains
 
-end module mesh_manager_redist
+  !> Initialise the base type.
+  !! @param[in]   ifpartition     partitioning flag
+  subroutine mesh_manager_init_base(this, ifpartition)
+    class(mesh_manager_transfer_t), intent(inout) :: this
+    logical, intent(in) :: ifpartition
+
+    call this%free_base()
+
+    this%ifpartition = ifpartition
+
+  end subroutine mesh_manager_init_base
+
+  !> Free the base type.
+  subroutine mesh_manager_free_base(this)
+    class(mesh_manager_transfer_t), intent(inout) :: this
+
+    this%ifpartition = .false.
+
+  end subroutine mesh_manager_free_base
+
+end module mesh_manager_transfer

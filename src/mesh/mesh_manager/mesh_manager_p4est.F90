@@ -47,7 +47,7 @@ module mesh_manager_p4est
   use manager_conn_p4est, only : manager_conn_obj_p4est_t, manager_conn_p4est_t
   use manager_mesh_p4est, only : manager_mesh_p4est_t
   use mesh_manager, only : mesh_manager_t
-  use mesh_manager_redist_p4est, only : mesh_manager_redist_p4est_t
+  use mesh_manager_transfer_p4est, only : mesh_manager_transfer_p4est_t
 
   implicit none
 
@@ -86,8 +86,6 @@ module mesh_manager_p4est
      procedure, pass(this) :: free => p4est_free
      !> Import mesh data into current type
      procedure, pass(this) :: import => p4est_import
-     !> Import mesh data creating a new variable
-     procedure, pass(this) :: import_new => p4est_import_new
      !> Apply data from nmsh file to mesh manager structures
      procedure, pass(this) :: mesh_file_apply => p4est_mesh_file_apply
      !> Perform refinement/coarsening on the mesh manager side
@@ -590,29 +588,10 @@ contains
     call this%mesh%init_type(mesh_new)
     call mesh_new%free()
 
+    ! get new element distribution; get partitioning
+    call this%transfer%elem_dist_get(this%mesh)
+
   end subroutine p4est_import
-
-  !> Import mesh data
-  subroutine p4est_import_new(this, mesh_new)
-    class(mesh_manager_p4est_t), intent(inout) :: this
-    class(manager_mesh_t), allocatable, intent(inout) :: mesh_new
-
-    if (allocated(mesh_new)) then
-       call mesh_new%free()
-       deallocate(mesh_new)
-    end if
-
-    ! allocate types
-    allocate(manager_mesh_p4est_t::mesh_new)
-    call mesh_new%init()
-
-    ! import data from p4est
-    select type(mesh_new)
-    type is (manager_mesh_p4est_t)
-       call p4est_import_data(mesh_new, this%is_periodic)
-    end select
-
-  end subroutine p4est_import_new
 
   !> The constructor from type components.
   subroutine p4est_init_from_components(this, tree_file, cnn_file, &
@@ -1177,78 +1156,84 @@ contains
 
     ifmod = .false.
 
-    ! check ref_mark size
-    !if (size(ref_mark) .ne. ##) call neko_error('Inconsistent array size')
+    select type(transfer => this%transfer)
+    type is (mesh_manager_transfer_p4est_t)
+       ! check ref_mark size
+       if (size(ref_mark) .ne. transfer%nelt_neko) &
+            call neko_error('Inconsistent ref_mark array size')
 
-    ! place for communication step in case of different distributions for
-    ! neko and p4est
+       ! place for communication step in case of different distributions for
+       ! neko and p4est
 
-    ! set refinement mark in p4est
-    allocate(pref_mark(this%mesh%nelt))
-    ! PLACE FOR DATA DISTRIBUTION (NEKO => P4EST) using
-    ! mesh_manager_transfer_t
-    ! in general itmp can be different than this%elem%nelv, but for now
-    ! they are the same
-    pref_mark(:) = ref_mark(:)
-    ! PLACE FOR LOCAL CONSISTENCY CHECKS
-    call wp4est_refm_put(c_loc(pref_mark))
+       ! set refinement mark in p4est
+       allocate(pref_mark(this%mesh%nelt))
+       ! PLACE FOR DATA DISTRIBUTION (NEKO => P4EST) using
+       ! mesh_manager_transfer_t
+       ! in general itmp can be different than this%elem%nelv, but for now
+       ! they are the same
+       pref_mark(:) = ref_mark(:)
+       ! PLACE FOR LOCAL CONSISTENCY CHECKS
+       call wp4est_refm_put(c_loc(pref_mark))
 
-    ! set element distribution info in p4est
-    allocate(pel_gnum(this%mesh%nelt), pel_lnum(this%mesh%nelt),&
-         & pel_nid(this%mesh%nelt))
-    ! THIS JUST FOR TESTING
-    do il = 1, this%mesh%nelt
-       pel_gnum(il) = this%mesh%gidx(il)
-       pel_lnum(il) = il
-    end do
-    pel_nid(:) = pe_rank
-    ! PLACE FOR DATA DISTRIBUTION (NEKO=> P4EST) using
-    ! mesh_manager_transfer_t
-    ! in general itmp can be different than this%elem%nelv, but for now
-    ! they are the same
-    ! this possibly could be reconstructed from mesh_manager_transfer_t,
-    ! so no communication would be necessary
-    call wp4est_egmap_put(c_loc(pel_gnum), c_loc(pel_lnum), c_loc(pel_nid))
+       ! set element distribution info in p4est
+       allocate(pel_gnum(this%mesh%nelt), pel_lnum(this%mesh%nelt),&
+            & pel_nid(this%mesh%nelt))
+       ! THIS JUST FOR TESTING
+       do il = 1, this%mesh%nelt
+          pel_gnum(il) = this%mesh%gidx(il)
+          pel_lnum(il) = il
+       end do
+       pel_nid(:) = pe_rank
+       ! PLACE FOR DATA DISTRIBUTION (NEKO=> P4EST) using
+       ! mesh_manager_transfer_t
+       ! in general itmp can be different than this%elem%nelv, but for now
+       ! they are the same
+       ! this possibly could be reconstructed from mesh_manager_transfer_t,
+       ! so no communication would be necessary
+       call wp4est_egmap_put(c_loc(pel_gnum), c_loc(pel_lnum), c_loc(pel_nid))
 
-    ! destroy p4est ghost cells
-    call wp4est_ghost_del()
+       ! destroy p4est ghost cells
+       call wp4est_ghost_del()
 
-    ! perform local refine/coarsen/balance on p4est side
-    call wp4est_tree_compare_copy(p4est_compare)
-    call wp4est_refine(this%ref_level_max)
-    call wp4est_coarsen()
-    call wp4est_balance()
-    ! perform partitioning on p4est side
-    call wp4est_part()
-    call wp4est_tree_compare_check(itmp, p4est_compare)
+       ! perform local refine/coarsen/balance on p4est side
+       call wp4est_tree_compare_copy(p4est_compare)
+       call wp4est_refine(this%ref_level_max)
+       call wp4est_coarsen()
+       call wp4est_balance()
+       ! perform partitioning on p4est side
+       call wp4est_part()
+       call wp4est_tree_compare_check(itmp, p4est_compare)
 
-    if (itmp == 0 ) then
-       ! set refinement flag
-       ifmod = .true.
+       if (itmp == 0 ) then
+          ! set refinement flag
+          ifmod = .true.
 
-       write(log_buf, '(a)') 'p4est refinement; mesh changed'
-       call neko_log%message(log_buf, NEKO_LOG_INFO)
+          write(log_buf, '(a)') 'p4est refinement; mesh changed'
+          call neko_log%message(log_buf, NEKO_LOG_INFO)
 
-       ! import new data
-       call this%import()
+          ! import new data
+          call this%import()
 
-       ! get data to refine fields
-       ! number of children is equal to number of vertices
-       itmp = 2**this%mesh%tdim
-       allocate(elgl_map(3, this%mesh%nelt), elgl_rfn(5, this%mesh%nelt), &
-            elgl_crs(4, itmp, this%mesh%nelt))
-       call wp4est_msh_get_hst(map_nr, rfn_nr, crs_nr, c_loc(elgl_map), &
-            c_loc(elgl_rfn), c_loc(elgl_crs))
-       ! pace to move data
+          ! get data to refine fields
+          ! number of children is equal to number of vertices
+          itmp = 2**this%mesh%tdim
+          allocate(elgl_map(3, this%mesh%nelt), elgl_rfn(5, this%mesh%nelt), &
+               elgl_crs(4, itmp, this%mesh%nelt))
+          call wp4est_msh_get_hst(map_nr, rfn_nr, crs_nr, c_loc(elgl_map), &
+               c_loc(elgl_rfn), c_loc(elgl_crs))
+          ! pace to move data
        
-    else
-       ! regenerate the ghost layer
-       call wp4est_ghost_new()
-       write(log_buf, '(a)') 'p4est refinement; mesh not changed'
-       call neko_log%message(log_buf, NEKO_LOG_INFO)
-    end if
+       else
+          ! regenerate the ghost layer
+          call wp4est_ghost_new()
+          write(log_buf, '(a)') 'p4est refinement; mesh not changed'
+          call neko_log%message(log_buf, NEKO_LOG_INFO)
+       end if
 
-    deallocate(pref_mark, pel_gnum, pel_lnum, pel_nid)
+       deallocate(pref_mark, pel_gnum, pel_lnum, pel_nid)
+    class default
+       call neko_error('Wrong data redistribution type')
+    end select
 
     write(log_buf, '(a)') 'p4est refinement/coarsening end'
     call neko_log%message(log_buf, NEKO_LOG_INFO)
@@ -1305,15 +1290,6 @@ contains
     call neko_error('p4est mesh manager must be compiled with p4est support.')
 
   end subroutine p4est_import
-
-  !> Import mesh data
-  subroutine p4est_import_new(this, mesh_new)
-    class(mesh_manager_p4est_t), intent(inout) :: this
-    class(manager_mesh_t), allocatable, intent(inout) :: mesh_new
-
-    call neko_error('p4est mesh manager must be compiled with p4est support.')
-
-  end subroutine p4est_import_new
 
   !> Apply data read from mesh file to mesh manager structures
   subroutine p4est_mesh_file_apply(this)

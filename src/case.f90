@@ -187,8 +187,11 @@ contains
     if (this%params%valid_path('case.mesh_manager')) then
        call json_get(this%params, 'case.mesh_manager', meshmng_params)
        call neko_log%section("Mesh manager")
+       ! Check load balancing flag
+       call json_get_or_default(this%params, 'case.load_balancing', &
+            logical_val, .false.)
        ! allocate mesh manager
-       call mesh_manager_factory(this%mesh_manager, meshmng_params)
+       call mesh_manager_factory(this%mesh_manager, meshmng_params, logical_val)
        ! start 3rd-party code
        call this%mesh_manager%start(meshmng_params, i)
        ! initialise type

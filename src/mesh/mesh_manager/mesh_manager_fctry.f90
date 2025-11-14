@@ -35,7 +35,7 @@ submodule (mesh_manager) mesh_manager_fctry
   use utils, only : neko_type_error
   use json_utils, only : json_get
   use mesh_manager_p4est, only : mesh_manager_p4est_t
-  use mesh_manager_redist_p4est, only : mesh_manager_redist_p4est_t
+  use mesh_manager_transfer_p4est, only : mesh_manager_transfer_p4est_t
 
   implicit none
 
@@ -45,10 +45,13 @@ submodule (mesh_manager) mesh_manager_fctry
 contains
 
   !> Mesh manager factory. Both constructs and initializes the object.
-  !! @param json JSON object initialising the mesh manager.
-  module subroutine mesh_manager_factory(object, json)
+  !! @param[inout]  object          The object to be initialised.
+  !! @param[inout]  json            JSON object initialising the mesh manager.
+  !! @param[in]     ifpartition     partitioning flag
+  module subroutine mesh_manager_factory(object, json, ifpartition)
     class(mesh_manager_t), allocatable, intent(inout) :: object
     type(json_file), intent(inout) :: json
+    logical, intent(in) :: ifpartition
     character(len=:), allocatable :: type_name
 
     if (allocated(object)) then
@@ -59,15 +62,18 @@ contains
     ! Allocate
     call mesh_manager_allocator(object, type_name)
 
-    ! Initialise base type
+    ! Initialise base types
     call object%init_base(type_name)
     deallocate(type_name)
+
+    ! data redistribution
+    call object%transfer%init_base(ifpartition)
 
   end subroutine mesh_manager_factory
 
   !> Mesh manager allocator.
-  !! @param object The object to be allocated.
-  !! @param type_name The name of the type to allocate.
+  !! @param[inout]  object      The object to be allocated.
+  !! @param[in]     type_name   The name of the type to allocate.
   module subroutine mesh_manager_allocator(object, type_name)
     class(mesh_manager_t), allocatable, intent(inout) :: object
     character(len=*), intent(in) :: type_name
@@ -77,7 +83,7 @@ contains
        ! allocate type itself
        allocate(mesh_manager_p4est_t::object)
        ! allocate redistribution type
-       allocate(mesh_manager_redist_p4est_t::object%redist)
+       allocate(mesh_manager_transfer_p4est_t::object%transfer)
     case default
        call neko_type_error("mesh manager", type_name, MESHMNG_KNOWN_TYPES)
     end select
