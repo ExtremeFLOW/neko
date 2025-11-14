@@ -82,12 +82,12 @@ mesh/intersection_detector.lo : mesh/intersection_detector.f90 mesh/search_tree/
 mesh/mesh_manager/manager_geom.lo : mesh/mesh_manager/manager_geom.f90 config/num_types.lo 
 mesh/mesh_manager/manager_conn.lo : mesh/mesh_manager/manager_conn.f90 config/num_types.lo 
 mesh/mesh_manager/manager_mesh.lo : mesh/mesh_manager/manager_mesh.f90 mesh/mesh_manager/manager_conn.lo mesh/mesh_manager/manager_geom.lo config/num_types.lo 
-mesh/mesh_manager/mesh_manager.lo : mesh/mesh_manager/mesh_manager.f90 mesh/mesh_manager/manager_mesh.lo io/format/nmsh.lo config/num_types.lo 
-mesh/mesh_manager/mesh_manager_fctry.lo : mesh/mesh_manager/mesh_manager_fctry.f90 common/utils.lo common/json_utils.lo mesh/mesh_manager/mesh_manager_p4est.lo mesh/mesh_manager/mesh_manager.lo 
+mesh/mesh_manager/mesh_manager.lo : mesh/mesh_manager/mesh_manager.f90 comm/mesh_manager_redist.lo mesh/mesh_manager/manager_mesh.lo io/format/nmsh.lo config/num_types.lo 
+mesh/mesh_manager/mesh_manager_fctry.lo : mesh/mesh_manager/mesh_manager_fctry.f90 comm/mesh_manager_redist_p4est.lo mesh/mesh_manager/mesh_manager_p4est.lo common/json_utils.lo common/utils.lo mesh/mesh_manager/mesh_manager.lo 
 mesh/mesh_manager/manager_geom_p4est.lo : mesh/mesh_manager/manager_geom_p4est.f90 mesh/mesh_manager/manager_geom.lo common/utils.lo config/num_types.lo 
 mesh/mesh_manager/manager_conn_p4est.lo : mesh/mesh_manager/manager_conn_p4est.f90 mesh/mesh_manager/manager_conn.lo common/utils.lo config/num_types.lo 
 mesh/mesh_manager/manager_mesh_p4est.lo : mesh/mesh_manager/manager_mesh_p4est.f90 mesh/mesh_manager/manager_mesh.lo mesh/mesh_manager/manager_conn_p4est.lo mesh/mesh_manager/manager_geom_p4est.lo mesh/mesh_manager/manager_conn.lo mesh/mesh_manager/manager_geom.lo common/utils.lo config/num_types.lo 
-mesh/mesh_manager/mesh_manager_p4est.lo : mesh/mesh_manager/mesh_manager_p4est.F90 mesh/mesh_manager/amr.h mesh/mesh_manager/mesh_manager.lo mesh/mesh_manager/manager_mesh_p4est.lo mesh/mesh_manager/manager_conn_p4est.lo mesh/mesh_manager/manager_geom_p4est.lo mesh/mesh_manager/manager_mesh.lo common/profiler.lo common/json_utils.lo common/utils.lo common/log.lo comm/comm.lo config/num_types.lo 
+mesh/mesh_manager/mesh_manager_p4est.lo : mesh/mesh_manager/mesh_manager_p4est.F90 mesh/mesh_manager/amr.h comm/mesh_manager_redist_p4est.lo mesh/mesh_manager/mesh_manager.lo mesh/mesh_manager/manager_mesh_p4est.lo mesh/mesh_manager/manager_conn_p4est.lo mesh/mesh_manager/manager_geom_p4est.lo mesh/mesh_manager/manager_mesh.lo common/profiler.lo common/json_utils.lo common/utils.lo common/log.lo comm/comm.lo config/num_types.lo 
 field/field_registry.lo : field/field_registry.f90 common/json_utils.lo comm/comm.lo adt/htable.lo common/utils.lo sem/dofmap.lo field/field.lo 
 field/scratch_registry.lo : field/scratch_registry.f90 sem/dofmap.lo math/field_math.lo field/field.lo 
 field/field.lo : field/field.f90 sem/dofmap.lo sem/space.lo mesh/mesh.lo math/math.lo device/device.lo config/num_types.lo math/bcknd/device/device_math.lo config/neko_config.lo 
@@ -287,6 +287,8 @@ common/projection_vel.lo : common/projection_vel.f90 common/projection.lo common
 common/bcknd/device/device_projection.lo : common/bcknd/device/device_projection.F90 common/utils.lo config/num_types.lo 
 comm/parmetis.lo : comm/parmetis.F90 mesh/mesh.lo field/mesh_field.lo config/num_types.lo common/utils.lo mesh/point.lo comm/comm.lo 
 comm/redist.lo : comm/redist.f90 common/utils.lo mesh/element.lo mesh/facet_zone.lo io/format/nmsh.lo mesh/mesh.lo comm/comm.lo mesh/curve.lo adt/stack.lo mesh/point.lo adt/htable.lo comm/mpi_types.lo field/mesh_field.lo 
+comm/mesh_manager_redist.lo : comm/mesh_manager_redist.f90 common/utils.lo common/log.lo comm/comm.lo config/num_types.lo 
+comm/mesh_manager_redist_p4est.lo : comm/mesh_manager_redist_p4est.f90 comm/mesh_manager_redist.lo common/profiler.lo common/utils.lo common/log.lo comm/comm.lo config/num_types.lo 
 krylov/pc_hsmg.lo : krylov/pc_hsmg.f90 common/log.lo bc/zero_dirichlet.lo multigrid/tree_amg_multigrid.lo krylov/krylov.lo common/json_utils.lo mesh/mesh.lo sem/coef.lo field/field.lo sem/dofmap.lo sem/space.lo common/profiler.lo math/bcknd/device/device_math.lo device/device.lo krylov/bcknd/device/pc_jacobi_device.lo krylov/bcknd/sx/pc_jacobi_sx.lo krylov/bcknd/cpu/pc_jacobi.lo math/schwarz.lo bc/dirichlet.lo bc/bc_list.lo bc/bc.lo sem/interpolation.lo gs/gather_scatter.lo math/ax.lo krylov/precon.lo common/utils.lo math/math.lo config/num_types.lo config/neko_config.lo 
 common/signal.lo : common/signal.f90 common/utils.lo 
 common/jobctrl.lo : common/jobctrl.f90 common/log.lo comm/comm.lo common/utils.lo common/signal.lo config/num_types.lo 

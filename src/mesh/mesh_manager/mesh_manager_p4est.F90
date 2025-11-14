@@ -47,6 +47,7 @@ module mesh_manager_p4est
   use manager_conn_p4est, only : manager_conn_obj_p4est_t, manager_conn_p4est_t
   use manager_mesh_p4est, only : manager_mesh_p4est_t
   use mesh_manager, only : mesh_manager_t
+  use mesh_manager_redist_p4est, only : mesh_manager_redist_p4est_t
 
   implicit none
 
@@ -1239,8 +1240,7 @@ contains
        call wp4est_msh_get_hst(map_nr, rfn_nr, crs_nr, c_loc(elgl_map), &
             c_loc(elgl_rfn), c_loc(elgl_crs))
        ! pace to move data
-       write(*,*) 'TESTrrr', pe_rank, map_nr, rfn_nr, crs_nr, itmp, &
-            this%mesh%nelt
+       
     else
        ! regenerate the ghost layer
        call wp4est_ghost_new()

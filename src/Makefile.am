@@ -290,6 +290,8 @@ neko_fortran_SOURCES = \
 	common/bcknd/device/device_projection.F90\
 	comm/parmetis.F90\
 	comm/redist.f90\
+	comm/mesh_manager_redist.f90\
+	comm/mesh_manager_redist_p4est.f90\
 	krylov/pc_hsmg.f90\
 	common/signal.f90\
 	common/jobctrl.f90\

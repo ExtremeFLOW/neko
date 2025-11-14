@@ -36,6 +36,7 @@ module mesh_manager
   use json_module, only : json_file
   use nmsh, only: nmsh_mesh_t
   use manager_mesh, only : manager_mesh_t
+  use mesh_manager_redist, only : mesh_manager_redist_t
 
   implicit none
   private
@@ -50,6 +51,8 @@ module mesh_manager
      class(manager_mesh_t), allocatable :: mesh
      !> raw mesh data from the nmsh file
      type(nmsh_mesh_t) :: nmsh_mesh
+     !> data redistribution routines
+     class(mesh_manager_redist_t), allocatable :: redist
    contains
      !> Constructor for the mesh_manager_t (base) type.
      procedure, pass(this) :: init_base => mesh_manager_init_base

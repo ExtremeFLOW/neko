@@ -32,9 +32,10 @@
 !
 !> Defines a factory subroutine for mesh manager.
 submodule (mesh_manager) mesh_manager_fctry
-  use mesh_manager_p4est, only : mesh_manager_p4est_t
-  use json_utils, only : json_get
   use utils, only : neko_type_error
+  use json_utils, only : json_get
+  use mesh_manager_p4est, only : mesh_manager_p4est_t
+  use mesh_manager_redist_p4est, only : mesh_manager_redist_p4est_t
 
   implicit none
 
@@ -50,7 +51,10 @@ contains
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: type_name
 
-    if (allocated(object)) deallocate(object)
+    if (allocated(object)) then
+       call object%free()
+       deallocate(object)
+    end if
     call json_get(json, "type", type_name)
     ! Allocate
     call mesh_manager_allocator(object, type_name)
@@ -70,7 +74,10 @@ contains
 
     select case (trim(type_name))
     case ("p4est")
+       ! allocate type itself
        allocate(mesh_manager_p4est_t::object)
+       ! allocate redistribution type
+       allocate(mesh_manager_redist_p4est_t::object%redist)
     case default
        call neko_type_error("mesh manager", type_name, MESHMNG_KNOWN_TYPES)
     end select
