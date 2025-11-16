@@ -29,8 +29,8 @@ module pnpn_res_cpu
 contains
 
   subroutine pnpn_prs_res_cpu_compute(p, p_res, u, v, w, u_e, v_e, w_e, f_x, &
-       f_y, f_z, c_Xh, gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt, mu, &
-       rho, event)
+       f_y, f_z, c_Xh, gs_Xh, bc_prs_surface, bc_sym_surface, bc_curl_curl, &
+       Ax, bd, dt, mu, rho, event)
     type(field_t), intent(inout) :: p, u, v, w
     type(field_t), intent(in) :: u_e, v_e, w_e
     type(field_t), intent(inout) :: p_res
@@ -39,6 +39,7 @@ contains
     type(gs_t), intent(inout) :: gs_Xh
     type(facet_normal_t), intent(in) :: bc_prs_surface
     type(facet_normal_t), intent(in) :: bc_sym_surface
+    type(facet_normal_t), intent(in) :: bc_curl_curl
     class(ax_t), intent(inout) :: Ax
     real(kind=rp), intent(in) :: bd
     real(kind=rp), intent(in) :: dt
@@ -71,17 +72,11 @@ contains
     end do
     c_Xh%ifh2 = .false.
 
-    call curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
-    call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
-
     ! ta = f / rho - wa * mu / rho * B
     do concurrent (i = 1:n)
-       ta1%x(i,1,1,1) = f_x%x(i,1,1,1) / rho_val &
-            - ((wa1%x(i,1,1,1) * (mu_val / rho_val)) * c_Xh%B(i,1,1,1))
-       ta2%x(i,1,1,1) = f_y%x(i,1,1,1) / rho_val &
-            - ((wa2%x(i,1,1,1) * (mu_val / rho_val)) * c_Xh%B(i,1,1,1))
-       ta3%x(i,1,1,1) = f_z%x(i,1,1,1) / rho_val &
-            - ((wa3%x(i,1,1,1) * (mu_val / rho_val)) * c_Xh%B(i,1,1,1))
+       ta1%x(i,1,1,1) = f_x%x(i,1,1,1) / rho_val
+       ta2%x(i,1,1,1) = f_y%x(i,1,1,1) / rho_val
+       ta3%x(i,1,1,1) = f_z%x(i,1,1,1) / rho_val
     end do
 
     call gs_Xh%op(ta1, GS_OP_ADD)
@@ -131,6 +126,26 @@ contains
             - (dtbd * (ta1%x(i,1,1,1) + ta2%x(i,1,1,1) + ta3%x(i,1,1,1)))&
             - (wa1%x(i,1,1,1) + wa2%x(i,1,1,1) + wa3%x(i,1,1,1))
     end do
+
+    ! Curl curl on all boundaries
+    call curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
+    call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
+    do concurrent (i = 1:n)
+       wa1%x(i,1,1,1) = wa1%x(i,1,1,1) * (mu_val / rho_val)
+       wa2%x(i,1,1,1) = wa2%x(i,1,1,1) * (mu_val / rho_val)
+       wa3%x(i,1,1,1) = wa3%x(i,1,1,1) * (mu_val / rho_val)
+       ta1%x(i,1,1,1) = 0.0_rp
+    end do
+
+    ! I believe this is weighted with the area (ie, 2D mass matrix)
+    call bc_curl_curl%apply_n_dot(ta1%x, wa1%x, wa2%x, wa3%x, n)
+
+    call gs_Xh%op(ta1, GS_OP_ADD)
+    do concurrent (i = 1:n)
+       ! p_res%x(i,1,1,1) = p_res%x(i,1,1,1) + ta1%x(i,1,1,1) * c_Xh%mult(i,1,1,1)
+       p_res%x(i,1,1,1) = p_res%x(i,1,1,1) + ta1%x(i,1,1,1)
+    end do
+
 
     call neko_scratch_registry%relinquish_field(temp_indices)
 

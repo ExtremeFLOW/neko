@@ -124,6 +124,9 @@ module fluid_pnpn
      !> Surface term in pressure rhs. Masks symmetry bcs.
      type(facet_normal_t) :: bc_sym_surface
 
+     !> Surface term in curl curl pressure rhs. Masks ALL bcs.
+     type(facet_normal_t) :: bc_curl_curl
+
      !
      ! Boundary conditions and  lists for residuals and solution increments
      !
@@ -718,7 +721,7 @@ contains
            u_e, v_e, w_e, &
            f_x, f_y, f_z, &
            c_Xh, gs_Xh, &
-           this%bc_prs_surface, this%bc_sym_surface,&
+           this%bc_prs_surface, this%bc_sym_surface, this%bc_curl_curl, &
            Ax_prs, ext_bdf%diffusion_coeffs(1), dt, &
            mu_tot, rho, event)
 
@@ -860,6 +863,7 @@ contains
     ! Special PnPn boundary conditions for pressure
     call this%bc_prs_surface%init_from_components(this%c_Xh)
     call this%bc_sym_surface%init_from_components(this%c_Xh)
+    call this%bc_curl_curl%init_from_components(this%c_Xh)
 
     ! Populate bcs_vel and bcs_prs based on the case file
     if (params%valid_path('case.fluid.boundary_conditions')) then
@@ -917,7 +921,6 @@ contains
           ! Not all bcs require an allocation for velocity in particular,
           ! so we check.
           if (associated(bc_i)) then
-
              ! We need to treat mixed bcs separately because they are by
              ! convention marked weak and currently contain nested
              ! bcs, some of which are strong.
@@ -976,6 +979,9 @@ contains
                    call this%bc_prs_surface%mark_facets(bc_i%marked_facet)
                 end if
 
+                ! Add ALL BCs to the curl curl bc
+                call this%bc_curl_curl%mark_facets(bc_i%marked_facet)
+
                 call this%bcs_vel%append(bc_i)
              end select
           end if
@@ -1032,6 +1038,7 @@ contains
 
     call this%bc_prs_surface%finalize()
     call this%bc_sym_surface%finalize()
+    call this%bc_curl_curl%finalize()
 
     call this%bc_vel_res%finalize()
     call this%bc_du%finalize()

@@ -64,6 +64,7 @@ module facet_normal
      procedure, pass(this) :: apply_surfvec => facet_normal_apply_surfvec
      procedure, pass(this) :: apply_surfvec_dev => &
           facet_normal_apply_surfvec_dev
+     procedure, pass(this) :: apply_n_dot => facet_normal_apply_n_dot
      !> Constructor.
      procedure, pass(this) :: init => facet_normal_init
      !> Constructor from components.
@@ -203,6 +204,29 @@ contains
     end if
 
   end subroutine facet_normal_apply_surfvec_dev
+
+  !> Apply the dot product of a vector field with facet normal.
+  subroutine facet_normal_apply_n_dot(this, f, u, v, w, n, time)
+    class(facet_normal_t), intent(in) :: this
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout), dimension(n) :: f
+    real(kind=rp), intent(inout), dimension(n) :: u
+    real(kind=rp), intent(inout), dimension(n) :: v
+    real(kind=rp), intent(inout), dimension(n) :: w
+    type(time_state_t), intent(in), optional :: time
+    integer :: i, m, k, idx(4), facet
+    real(kind=rp) :: normal(3), area
+
+    m = this%unique_mask(0)
+
+    ! This should be implemented n dot u weighted by the 2D mass matrix, which
+    ! I believe is the area, and it appears that n is weighted by the area.
+    do i = 1, m
+       k = this%unique_mask(i)
+       f(k) = u(k) * this%nx%x(i) + v(k) * this%ny%x(i) + w(k) * this%nz%x(i)
+    end do
+
+  end subroutine facet_normal_apply_n_dot
 
   !> Destructor
   subroutine facet_normal_free(this)

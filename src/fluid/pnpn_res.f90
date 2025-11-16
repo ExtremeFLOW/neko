@@ -58,7 +58,8 @@ module pnpn_residual
 
   abstract interface
      subroutine prs_res(p, p_res, u, v, w, u_e, v_e, w_e, f_x, f_y, f_z, c_xh,&
-          gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt, mu, rho, event)
+          gs_Xh, bc_prs_surface, bc_sym_surface, bc_curl_curl, Ax, bd, dt, &
+          mu, rho, event)
        import field_t
        import Ax_t
        import gs_t
@@ -75,6 +76,7 @@ module pnpn_residual
        type(gs_t), intent(inout) :: gs_Xh
        type(facet_normal_t), intent(in) :: bc_prs_surface
        type(facet_normal_t), intent(in) :: bc_sym_surface
+       type(facet_normal_t), intent(in) :: bc_curl_curl
        class(Ax_t), intent(inout) :: Ax
        real(kind=rp), intent(in) :: bd
        real(kind=rp), intent(in) :: dt
