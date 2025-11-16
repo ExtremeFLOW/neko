@@ -142,8 +142,8 @@ contains
 
     call gs_Xh%op(ta1, GS_OP_ADD)
     do concurrent (i = 1:n)
-       ! p_res%x(i,1,1,1) = p_res%x(i,1,1,1) + ta1%x(i,1,1,1) * c_Xh%mult(i,1,1,1)
-       p_res%x(i,1,1,1) = p_res%x(i,1,1,1) + ta1%x(i,1,1,1)
+       p_res%x(i,1,1,1) = p_res%x(i,1,1,1) - ta1%x(i,1,1,1) * c_Xh%mult(i,1,1,1)
+       ! p_res%x(i,1,1,1) = p_res%x(i,1,1,1) + ta1%x(i,1,1,1)
     end do
 
 
