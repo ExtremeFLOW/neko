@@ -106,12 +106,12 @@ contains
     end if
 
     ! Initial allocation
-    allocate (this%vectors(size))
-    do i = 1, size
+    allocate (this%vectors(size_))
+    do i = 1, size_
        allocate(this%vectors(i)%ptr)
     end do
-    allocate (this%inuse(size))
-    this%nvectors = size
+    allocate (this%inuse(size_))
+    this%nvectors = size_
 
     this%inuse(:) = .false.
 
