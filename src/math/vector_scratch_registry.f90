@@ -111,8 +111,6 @@ contains
        allocate(this%vectors(i)%ptr)
     end do
     allocate (this%inuse(size_))
-    this%nvectors = size_
-
     this%inuse(:) = .false.
 
   end subroutine scratch_registry_init
