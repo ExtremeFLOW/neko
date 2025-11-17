@@ -46,11 +46,11 @@ module vector_scratch_registry
      !> Tracks which vectors are used
      logical, private, allocatable :: inuse(:)
      !> number of registered vectors
-     integer, private :: nvectors
+     integer, private :: nvectors = 0
      !> number of vectors in use
-     integer, private :: nvectors_inuse
+     integer, private :: nvectors_inuse = 0
      !> the size the vectors array is increased by upon reallocation
-     integer, private :: expansion_size
+     integer, private :: expansion_size = 10
    contains
      procedure, private, pass(this) :: expand
      !> Constructor
@@ -98,12 +98,14 @@ contains
           allocate(this%vectors(i)%ptr)
        end do
        allocate (this%inuse(size))
+       this%nvectors = size
     else
        allocate (this%vectors(10))
        do i = 1, 10
           allocate(this%vectors(i)%ptr)
        end do
        allocate (this%inuse(10))
+       this%nvectors = 10
     end if
 
     this%inuse(:) = .false.
@@ -113,8 +115,6 @@ contains
        this%expansion_size = 10
     end if
 
-    this%nvectors = 0
-    this%nvectors_inuse = 0
   end subroutine scratch_registry_init
 
   !> Destructor
@@ -132,6 +132,9 @@ contains
        deallocate(this%inuse)
     end if
 
+    this%nvectors = 0
+    this%nvectors_inuse = 0
+    this%expansion_size = 10
   end subroutine scratch_registry_free
 
 
