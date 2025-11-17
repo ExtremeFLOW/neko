@@ -88,30 +88,32 @@ contains
     class(matrix_scratch_registry_t), intent(inout) :: this
     integer, optional, intent(in) :: size
     integer, optional, intent(in) :: expansion_size
-    integer :: i
+    integer :: i, size_
 
     call this%free()
 
+    ! Set sizes
     if (present(size)) then
-       allocate (this%matrices(size))
-       do i = 1, size
-          allocate(this%matrices(i)%ptr)
-       end do
-       allocate (this%inuse(size))
+       size_ = size
     else
-       allocate (this%matrices(10))
-       do i = 1, 10
-          allocate(this%matrices(i)%ptr)
-       end do
-       allocate (this%inuse(10))
+       size_ = 10
     end if
 
-    this%inuse(:) = .false.
     if (present(expansion_size)) then
        this%expansion_size = expansion_size
     else
        this%expansion_size = 10
     end if
+
+    ! Initial allocation
+    allocate (this%matrices(size_))
+    do i = 1, size_
+       allocate(this%matrices(i)%ptr)
+    end do
+    allocate (this%inuse(size_))
+    this%nmatrices = size_
+
+    this%inuse(:) = .false.
 
   end subroutine scratch_registry_init
 
