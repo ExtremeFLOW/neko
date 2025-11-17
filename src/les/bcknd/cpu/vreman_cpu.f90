@@ -41,6 +41,7 @@ module vreman_cpu
   use operators, only : dudxyz
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
+  use utils, only : neko_error
   implicit none
   private
 
@@ -56,17 +57,20 @@ contains
   !! @param nut The SGS viscosity array.
   !! @param delta The LES lengthscale.
   !! @param c The Vreman model constant
-  subroutine vreman_compute_cpu(if_ext, t, tstep, coef, nut, delta, c)
-    logical, intent(in) :: if_ext
+  subroutine vreman_compute_cpu(if_ext, t, tstep, coef, nut, delta, c, &
+                                if_corr, vert_dir, ri_c, theta0, g)
+    logical, intent(in) :: if_ext, if_corr
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
     type(field_t), intent(inout) :: nut
     type(field_t), intent(in) :: delta
-    real(kind=rp), intent(in) :: c
+    real(kind=rp), intent(in) :: c, ri_c, theta0, g
     ! This is the alpha tensor in the paper
     type(field_t), pointer :: a11, a12, a13, a21, a22, a23, a31, a32, a33
     type(field_t), pointer :: u, v, w
+    type(field_t), pointer :: theta, dTdz, dudz, dvdz
+    character(len=:), allocatable :: vert_dir
 
     real(kind=rp) :: beta11
     real(kind=rp) :: beta12
@@ -78,6 +82,7 @@ contains
     real(kind=rp) :: aijaij
     integer :: temp_indices(9)
     integer :: e, i
+    real(kind=rp) ::  ri, correction
 
     if (if_ext .eqv. .true.) then
        u => neko_field_registry%get_field_by_name("u_e")
@@ -152,6 +157,40 @@ contains
                * coef%mult(i,1,1,e)
        end do
     end do
+    if (if_corr .eqv. .true.) then
+          theta => neko_field_registry%get_field_by_name("temperature")
+          call neko_scratch_registry%request_field(dTdz, temp_indices(12))
+          ! Calculate Richardson number
+          select case (vert_dir)
+          case ("x")
+               call dudxyz(dTdz%x, theta%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+               dudz => a21
+               dvdz => a31
+          case ("y")
+               call dudxyz(dTdz%x, theta%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+               dudz => a12
+               dvdz => a32
+          case ("z")
+               call dudxyz(dTdz%x, theta%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+               dudz => a13
+               dvdz => a23
+          case default
+               call neko_error("Invalid specified vertical direction.")
+          end select
+
+          do concurrent (e = 1:coef%msh%nelv)
+               do concurrent (i = 1:coef%Xh%lxyz)
+                    ri = g / theta0 * dTdz%x(i,1,1,e) / &
+                         (dudz%x(i,1,1,e)**2 + dvdz%x(i,1,1,e)**2 + NEKO_EPS)
+                    correction = (1 - ri/ri_c)**0.5
+                    if (ri .le. ri_c) then
+                         nut%x(i,1,1,e) = correction * nut%x(i,1,1,e)
+                    else
+                         nut%x(i,1,1,e) = NEKO_EPS
+                    end if
+               end do
+          end do
+     end if
 
     call coef%gs_h%op(nut, GS_OP_ADD)
     call col2(nut%x, coef%mult, nut%dof%size())
@@ -160,4 +199,3 @@ contains
   end subroutine vreman_compute_cpu
 
 end module vreman_cpu
-
