@@ -32,9 +32,7 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include <hip/hip_runtime.h>
 #include <device/device_config.h>
 #include <device/hip/check.h>
 #include "rough_log_law_kernel.h"
@@ -45,18 +43,17 @@ extern "C" {
           void *n_x_d, void *n_y_d, void *n_z_d, void *h_d,
           void *tau_x_d, void *tau_y_d, void *tau_z_d,
           int *n_nodes, int *lx, real *kappa, real *B, real *z0, int *tstep) {
-    
+
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n_nodes) + 1024 - 1) / 1024, 1, 1);
-    const hipStream_t stream = (hipStream_t) glb_cmd_queue;
-
-    rough_log_law_compute<real>
-    <<<nblcks, nthrds, 0, stream>>>((real *) u_d, (real *) v_d, (real *) w_d,
-                                    (int *) ind_r_d, (int *) ind_s_d, 
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(rough_log_law_compute<real>),
+                                    nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                                    (real *) u_d, (real *) v_d, (real *) w_d,
+                                    (int *) ind_r_d, (int *) ind_s_d,
                                     (int *) ind_t_d, (int *) ind_e_d,
-                                    (real *) n_x_d, (real *) n_y_d, 
+                                    (real *) n_x_d, (real *) n_y_d,
                                     (real *) n_z_d, (real *) h_d,
-                                    (real *) tau_x_d, (real *) tau_y_d, 
+                                    (real *) tau_x_d, (real *) tau_y_d,
                                     (real *) tau_z_d,
                                     *n_nodes, *lx, *kappa, *B, *z0);
     HIP_CHECK(hipGetLastError());
