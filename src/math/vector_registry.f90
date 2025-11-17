@@ -210,8 +210,8 @@ contains
     logical :: ignore_existing_
 
     ignore_existing_ = .false.
-    if (present(ignore_existing_)) then
-         ignore_existing_ = ignore_existing
+    if (present(ignore_existing)) then
+       ignore_existing_ = ignore_existing
     end if
 
     if (this%vector_exists(name)) then
