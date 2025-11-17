@@ -322,7 +322,6 @@ neko_fortran_SOURCES = \
 	scalar/scalar_stats.f90\
 	scalar/bcknd/cpu/scalar_residual_cpu.f90\
 	scalar/bcknd/sx/scalar_residual_sx.f90\
-	scalar/source_scalar.f90\
 	simulation_components/simulation_component.f90\
 	simulation_components/simcomp_executor.f90\
 	simulation_components/spectral_error.f90\
