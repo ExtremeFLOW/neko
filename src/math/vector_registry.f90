@@ -207,9 +207,15 @@ contains
     integer, intent(in) :: n
     character(len=*), target, intent(in) :: name
     logical, optional, intent(in) :: ignore_existing
+    logical :: ignore_existing_
+
+    ignore_existing_ = .false.
+    if (present(ignore_existing_)) then
+         ignore_existing_ = ignore_existing
+    end if
 
     if (this%vector_exists(name)) then
-       if (present(ignore_existing) .and. ignore_existing .eqv. .true.) then
+       if (ignore_existing_) then
           return
        else
           call neko_error("Vector with name " // name // &

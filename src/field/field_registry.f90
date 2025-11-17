@@ -172,9 +172,15 @@ contains
     type(dofmap_t), target, intent(in) :: dof
     character(len=*), target, intent(in) :: fld_name
     logical, optional, intent(in) :: ignore_existing
+    logical :: ignore_existing_
+
+    ignore_existing_ = .false.
+    if (present(ignore_existing_)) then
+         ignore_existing_ = ignore_existing
+    end if
 
     if (this%field_exists(fld_name)) then
-       if (present(ignore_existing) .and. ignore_existing .eqv. .true.) then
+       if (ignore_existing_) then
           return
        else
           call neko_error("Field with name " // fld_name // &
