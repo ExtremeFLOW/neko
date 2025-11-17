@@ -87,7 +87,7 @@ contains
     ! Based on the Smagorinsky Cs = 0.17.
     call json_get_or_default(json, "c", c, 0.07_rp)
     call json_get_or_default(json, "extrapolation", if_ext, .false.)
-    call json_get_or_default(json, "stability_correction", if_corr, .false.)
+    call json_get_or_default(json, "buoyancy_correction", if_corr, .false.)
     call json_get_or_default(json, "vertical_direction", vertical_dir, "z")
     call json_get_or_default(json, "ri_c", ri_c, 0.25_rp)
     call json_get_or_default(json, "theta0", theta0, 293.0_rp)
@@ -102,7 +102,7 @@ contains
     call neko_log%message(log_buf)
     write(log_buf, '(A, L1)') 'extrapolation : ', if_ext
     call neko_log%message(log_buf)
-    write(log_buf, '(A, L1)') 'stability correction : ', if_corr
+    write(log_buf, '(A, L1)') 'buoyancy correction : ', if_corr
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
