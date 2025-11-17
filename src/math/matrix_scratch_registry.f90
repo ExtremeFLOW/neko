@@ -111,7 +111,6 @@ contains
        allocate(this%matrices(i)%ptr)
     end do
     allocate (this%inuse(size_))
-    this%nmatrices = size_
 
     this%inuse(:) = .false.
 
