@@ -387,7 +387,7 @@ contains
 
          call Ax%compute_vector(this%w1, this%w2, this%w3, &
               this%p1, this%p2, this%p3, coef, x%msh, x%Xh)
-               
+
          call rotate_cyc(this%w1, this%w2, this%w3, 1, coef)
          call gs_h%op(this%w1, n, GS_OP_ADD, this%gs_event)
          call device_event_sync(this%gs_event)

@@ -50,7 +50,7 @@ __global__ void rotate_cyc_kernel(
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
-  for (int i = idx; i < ncyc-1; i += str) {
+  for (int i = idx; i < ncyc; i += str) {
     const int j  = cyc_msk[i+1]-1;
     const T vxj  = vx[j];
     const T vyj  = vy[j];

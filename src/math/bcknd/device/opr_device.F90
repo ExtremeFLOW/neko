@@ -269,7 +269,7 @@ module opr_device
   end interface
 
   interface
-     subroutine cuda_rotate_cyc(vx_d, vy_d, vz_d, & 
+     subroutine cuda_rotate_cyc(vx_d, vy_d, vz_d, &
           x_d, y_d, z_d, &
           cyc_msk_d, R11_d, R12_d, ncyc, idir) &
           bind(c, name = 'cuda_rotate_cyc')
@@ -867,7 +867,7 @@ contains
     vx_d = device_get_ptr(vx)
     vy_d = device_get_ptr(vy)
     vz_d = device_get_ptr(vz)
-    ncyc = coef%cyc_msk(0)
+    ncyc = coef%cyc_msk(0) - 1
 
 #ifdef HAVE_HIP
     !>@todo opr_device_rotate_cyc_r1 for HIP
@@ -875,7 +875,7 @@ contains
 #elif HAVE_CUDA
     call cuda_rotate_cyc(vx_d, vy_d, vz_d, &
           coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
-          coef%cyc_msk_d,  coef%R11_d,  coef%R12_d, &
+          coef%cyc_msk_d, coef%R11_d, coef%R12_d, &
           ncyc, idir)
 #elif HAVE_OPENCL
     !>@todo opr_device_rotate_cyc_r1 for OPENCL
@@ -895,7 +895,7 @@ contains
     vx_d = device_get_ptr(vx)
     vy_d = device_get_ptr(vy)
     vz_d = device_get_ptr(vz)
-    ncyc = coef%cyc_msk(0)
+    ncyc = coef%cyc_msk(0) - 1
 
 #ifdef HAVE_HIP
     !>@todo opr_device_rotate_cyc_r4 for HIP
@@ -903,7 +903,7 @@ contains
 #elif HAVE_CUDA
     call cuda_rotate_cyc(vx_d, vy_d, vz_d, &
           coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
-          coef%cyc_msk_d,  coef%R11_d,  coef%R12_d, &
+          coef%cyc_msk_d, coef%R11_d, coef%R12_d, &
           ncyc, idir)
 #elif HAVE_OPENCL
     !>@todo opr_device_rotate_cyc_r4 for OPENCL

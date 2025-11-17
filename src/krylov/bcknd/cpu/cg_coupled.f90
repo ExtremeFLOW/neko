@@ -294,7 +294,7 @@ contains
          call gs_h%op(w2, n, GS_OP_ADD)
          call gs_h%op(w3, n, GS_OP_ADD)
          call rotate_cyc(w1, w2, w3, 0, coef)
-            
+
          call blstx%apply_scalar(w1, n)
          call blsty%apply_scalar(w2, n)
          call blstz%apply_scalar(w3, n)

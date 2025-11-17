@@ -621,7 +621,7 @@ contains
 
          call Ax%compute_vector(w1, w2, w3, &
               p1(1, p_cur), p2(1, p_cur), p3(1, p_cur), coef, x%msh, x%Xh)
-               
+
          call rotate_cyc(w1, w2, w3, 1, coef)
          call gs_h%op(w1, n, GS_OP_ADD, this%gs_event1)
          call device_event_sync(this%gs_event1)

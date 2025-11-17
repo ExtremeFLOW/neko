@@ -46,7 +46,7 @@ module opr_cpu
   public :: opr_cpu_dudxyz, opr_cpu_opgrad, opr_cpu_cdtp, &
        opr_cpu_conv1, opr_cpu_curl, opr_cpu_cfl, opr_cpu_lambda2, &
        opr_cpu_convect_scalar, opr_cpu_set_convect_rst, &
-       opr_cpu_rotate_cyc_r1, opr_cpu_rotate_cyc_r4 
+       opr_cpu_rotate_cyc_r1, opr_cpu_rotate_cyc_r4
 
 
   interface
@@ -313,26 +313,26 @@ contains
   subroutine opr_cpu_rotate_cyc_r1(vx, vy, vz, idir, coef)
     use iso_c_binding
     real(kind=rp), dimension(:), intent(inout) :: vx, vy, vz
-    integer, intent(in) ::  idir
+    integer, intent(in) :: idir
     type(coef_t), intent(in) :: coef
     integer :: i, j, ncyc
     real(kind=rp) :: vnor, vtan
 
-    ncyc = coef%cyc_msk(0) - 1 
+    ncyc = coef%cyc_msk(0) - 1
 
     do i = 1, ncyc
-          j = coef%cyc_msk(i)
+       j = coef%cyc_msk(i)
 
-          if (idir.eq.1) then
-               vnor =  vx(j) * coef%R11(i) + vy(j) * coef%R12(i)
-               vtan = -vx(j) * coef%R12(i) + vy(j) * coef%R11(i)
-          else if(idir.eq.0) then
-               vnor =  vx(j) * coef%R11(i) - vy(j) * coef%R12(i)
-               vtan =  vx(j) * coef%R12(i) + vy(j) * coef%R11(i)
-          end if
-          
-          vx(j) = vnor 
-          vy(j) = vtan 
+       if (idir.eq.1) then
+          vnor = vx(j) * coef%R11(i) + vy(j) * coef%R12(i)
+          vtan = -vx(j) * coef%R12(i) + vy(j) * coef%R11(i)
+       else if(idir.eq.0) then
+          vnor = vx(j) * coef%R11(i) - vy(j) * coef%R12(i)
+          vtan = vx(j) * coef%R12(i) + vy(j) * coef%R11(i)
+       end if
+
+       vx(j) = vnor
+       vy(j) = vtan
 
     end do
   end subroutine opr_cpu_rotate_cyc_r1
@@ -341,26 +341,26 @@ contains
   subroutine opr_cpu_rotate_cyc_r4(vx, vy, vz, idir, coef)
     use iso_c_binding
     real(kind=rp), dimension(:,:,:,:), intent(inout) :: vx, vy, vz
-    integer, intent(in) ::  idir
+    integer, intent(in) :: idir
     type(coef_t), intent(in) :: coef
     integer :: i, j, ncyc
     real(kind=rp) :: vnor, vtan
 
     ncyc = coef%cyc_msk(0) - 1
-    
+
     do i = 1, ncyc
-          j = coef%cyc_msk(i)
+       j = coef%cyc_msk(i)
 
-          if (idir.eq.1) then
-               vnor = vx(j, 1, 1, 1) * coef%R11(i) + vy(j, 1, 1, 1) * coef%R12(i)
-               vtan =-vx(j, 1, 1, 1) * coef%R12(i) + vy(j, 1, 1, 1) * coef%R11(i)
-          else if(idir.eq.0) then
-               vnor = vx(j, 1, 1, 1) * coef%R11(i) - vy(j, 1, 1, 1) * coef%R12(i)
-               vtan = vx(j, 1, 1, 1) * coef%R12(i) + vy(j, 1, 1, 1) * coef%R11(i)
-          end if
+       if (idir.eq.1) then
+          vnor = vx(j, 1, 1, 1) * coef%R11(i) + vy(j, 1, 1, 1) * coef%R12(i)
+          vtan =-vx(j, 1, 1, 1) * coef%R12(i) + vy(j, 1, 1, 1) * coef%R11(i)
+       else if(idir.eq.0) then
+          vnor = vx(j, 1, 1, 1) * coef%R11(i) - vy(j, 1, 1, 1) * coef%R12(i)
+          vtan = vx(j, 1, 1, 1) * coef%R12(i) + vy(j, 1, 1, 1) * coef%R11(i)
+       end if
 
-          vx(j, 1, 1, 1) = vnor 
-          vy(j, 1, 1, 1) = vtan
+       vx(j, 1, 1, 1) = vnor
+       vy(j, 1, 1, 1) = vtan
 
     end do
 
