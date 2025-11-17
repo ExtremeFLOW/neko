@@ -172,6 +172,7 @@ contains
     n = this%expansion_size
   end function get_expansion_size
 
+  !> Expand the registry by the expansion size
   subroutine expand(this)
     class(vector_scratch_registry_t), intent(inout) :: this
     type(vector_ptr_t), allocatable :: temp(:)
@@ -193,13 +194,15 @@ contains
     this%inuse = temp2
   end subroutine expand
 
-
-  !> Get a vector from the registry by assigning it to a pointer
+  !> Get a vector from the registry by assigning it to a pointer.
+  !! @param n Size of the requested vector.
+  !! @param v Pointer to the requested vector.
+  !! @param index Index of the vector in the registry (for relinquishing later).
   subroutine request_vector(this, n, v, index)
     class(vector_scratch_registry_t), target, intent(inout) :: this
-    integer, intent(in) :: n !< The size of the vector to request
+    integer, intent(in) :: n
     type(vector_t), pointer, intent(inout) :: v
-    integer, intent(inout) :: index !< The index of the vector in the inuse array
+    integer, intent(inout) :: index
 
     associate(nvectors => this%nvectors, nvectors_inuse => this%nvectors_inuse)
 
@@ -220,6 +223,7 @@ contains
             return
          end if
       end do
+
       ! all existing vectors in use, we need to expand to add a new one
       index = nvectors + 1
       call this%expand()
@@ -252,9 +256,10 @@ contains
     this%nvectors_inuse = this%nvectors_inuse - size(indices)
   end subroutine relinquish_vector_multiple
 
-  logical function get_inuse(this, index)
-    class(vector_scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: index !< The index of the vector to check
+  !> Get whether a vector is in use
+  pure logical function get_inuse(this, index)
+    class(vector_scratch_registry_t), intent(in) :: this
+    integer, intent(in) :: index
 
     get_inuse = this%inuse(index)
   end function get_inuse
