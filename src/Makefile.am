@@ -39,6 +39,8 @@ neko_fortran_SOURCES = \
 	sem/dofmap.f90\
 	sem/coef.f90\
 	sem/cpr.f90\
+	sem/amr_reconstruct.f90\
+	sem/amr.f90\
 	common/time_interpolator.f90\
 	sem/interpolation.f90\
 	sem/point_interpolator.f90\
