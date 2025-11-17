@@ -17,7 +17,7 @@ explore the descendants.
 - [dofmap_t](#dofmap::dofmap_t): Map of degrees of freedom. Most importantly, it
   holds all the GLL nodes locations.
 - [coef_t](#coefs::coef_t): Stores coefficients for transformation to and from
-  the reference element, along with some other auxillary data.
+  the reference element, along with some other auxiliary data.
 - [gs_t](#gather_scatter::gs_t): Gather-scatter kernels used to make the
   solution continuous, i.e. perform direct stiffness summation.
 - [field_t](#field::field_t): The main type for storing the unknowns, and
@@ -56,8 +56,8 @@ and all have their name starting with `neko_`.
 - [field_registry_t](#field_registry::field_registry_t): A registry of
   [field_t](#field::field_t), retrievable by name or index. This is the main
   object used to access the fields of unknowns for any place in the code.
-- [vector_registry_t](#vector_registry::vector_registry_t): The same as the fiel
-  registry, but for [vector_t](#vector::vector_t).
+- [vector_registry_t](#vector_registry::vector_registry_t): The same as the
+  field registry, but for [vector_t](#vector::vector_t).
 - [scratch_registry_t](#scratch_registry::scratch_registry_t): Provides a
   mechanism to get a temporary [field_t](#field::field_t) for doing some work.
   Use this instead of creating temporary fields inside a subroutine.
