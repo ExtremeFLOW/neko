@@ -62,11 +62,35 @@ module mesh_manager_transfer_p4est
      integer(i4), allocatable, dimension(:, :) :: fwd_cmm
      !> Backward communication (mm<-neko); local element number and MPI rank
      integer(i4), allocatable, dimension(:, :) :: bwd_cmm
+     ! element reconstruction data
+     !> Number of untouched elements
+     integer(i4) :: same_nr
+     !> Mapping of untouched elements
+     ! 1 - global id; 2 - local id; 3 - MPI rank
+     integer(i4), allocatable, dimension(:, :) :: same
+     !> Number of refined elements
+     integer(i4) :: refine_nr
+     !> Mapping of refined elements
+     ! 1 - current global id; 2 - old parent global id; 3 - old parent local id
+     ! 4 - old parent MPI rank; 5 - child position
+     integer(i4), allocatable, dimension(:, :) :: refine
+     !> Number of coarsened elements
+     integer(i4) :: coarsen_nr
+     !> Mapping of coarsened elements
+     ! 1 - new global id; 2 - old child global id; 3 - old child local id
+     ! 4 - old child MPI rank
+     integer(i4), allocatable, dimension(:, :, :) :: coarsen
    contains
      !> Destructor.
      procedure, pass(this) :: free => p4est_free
      !> Get element distribution
      procedure, pass(this) :: elem_dist_get => p4est_elem_dist_get
+     !> Backward communication for element refinement flag
+     procedure, pass(this) :: ref_mark_transfer => p4est_ref_mark_transfer
+     !> Provide neko element distribution to p4est
+     procedure, pass(this) :: neko_elm_dist => p4est_neko_elem_dist
+     !> Get element distribution for field reconstruction
+     procedure, pass(this) :: reconstruct_data_get => p4est_reconstruct_data_get
   end type mesh_manager_transfer_p4est_t
 
 contains
@@ -79,11 +103,17 @@ contains
 
     this%nelt_mm = 0
     this%nelt_neko = 0
+    this%same_nr = 0
+    this%refine_nr = 0
+    this%coarsen_nr = 0
 
     if (allocated(this%gidx_mm)) deallocate(this%gidx_mm)
     if (allocated(this%gidx_neko)) deallocate(this%gidx_neko)
     if (allocated(this%fwd_cmm)) deallocate(this%fwd_cmm)
     if (allocated(this%bwd_cmm)) deallocate(this%bwd_cmm)
+    if (allocated(this%same)) deallocate(this%same)
+    if (allocated(this%refine)) deallocate(this%refine)
+    if (allocated(this%coarsen)) deallocate(this%coarsen)
 
   end subroutine p4est_free
 
@@ -131,5 +161,69 @@ contains
     end select
 
   end subroutine p4est_elem_dist_get
+
+  !> Backward communication for element refinement flag
+  !! @parameter[in]   ref_mark    element refinement flag; neko distribution
+  !! @parameter[out]  pref_mark   element refinement flag; p4est distribution
+  subroutine p4est_ref_mark_transfer(this, ref_mark, pref_mark)
+    class(mesh_manager_transfer_p4est_t), intent(inout) :: this
+    integer(i4), dimension(:), intent(in) :: ref_mark
+    integer(i4), target, allocatable, dimension(:), intent(out) :: pref_mark
+
+    ! check size on neko side
+    if (size(ref_mark) .ne. this%nelt_neko) &
+         call neko_error('Inconsistent ref_mark array size')
+
+    ! p4est distribution
+    allocate(pref_mark(this%nelt_mm))
+
+    ! partitioned mesh
+    if (this%ifpartition) then
+       ! backward communication
+
+       call neko_error('Nothing done yet')
+    else
+       ! the same distribution
+       pref_mark(:) = ref_mark(:)
+    end if
+
+  end subroutine p4est_ref_mark_transfer
+
+  !> Provide neko element distribution to p4est
+  !! @parameter[out]  pel_gnum       element global number
+  !! @parameter[out]  pel_lnum       element local number on neko side
+  !! @parameter[out]  pel_nid        element owner id on neko side
+  subroutine p4est_neko_elem_dist(this, pel_gnum, pel_lnum, pel_nid)
+    class(mesh_manager_transfer_p4est_t), intent(inout) :: this
+    integer(i4), target, allocatable, dimension(:), intent(out) :: pel_gnum, &
+         pel_lnum, pel_nid
+
+    ! NOTICE; ELEMENT GLOBAL NUMBER IS NOT INT8!!!!!!
+    allocate(pel_gnum(this%nelt_mm), pel_lnum(this%nelt_mm), &
+         pel_nid(this%nelt_mm))
+    pel_gnum(:) = this%gidx_mm(:)
+    pel_lnum(:) = this%fwd_cmm(1,:)
+    pel_nid(:) = this%fwd_cmm(2,:)
+
+  end subroutine p4est_neko_elem_dist
+
+  !> Get element distribution for field reconstruction
+  subroutine p4est_reconstruct_data_get(this, same_nr, same, refine_nr, &
+       refine, coarsen_nr, coarsen)
+    class(mesh_manager_transfer_p4est_t), intent(inout) :: this
+    integer(i4), intent(in) :: same_nr, refine_nr, coarsen_nr
+    integer(i4), allocatable, dimension(:, :), intent(inout) :: same, refine
+    integer(i4), allocatable, dimension(:, :, :), intent(inout) :: coarsen
+
+    this%same_nr = same_nr
+    this%refine_nr = refine_nr
+    this%coarsen_nr = coarsen_nr
+
+    ! NOTICE; ELEMENT GLOBAL NUMBER IS NOT INT8!!!!!!
+    call move_alloc(same, this%same)
+    call move_alloc(refine, this%refine)
+    call move_alloc(coarsen, this%coarsen)
+
+  end subroutine p4est_reconstruct_data_get
 
 end module mesh_manager_transfer_p4est

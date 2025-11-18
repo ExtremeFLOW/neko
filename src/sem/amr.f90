@@ -33,7 +33,11 @@
 !> Implementation of the adaptive mesh refinement workflow
 module amr
   use num_types, only : i4, i8, rp, dp
+  use logger, only : neko_log, NEKO_LOG_QUIET, NEKO_LOG_INFO, &
+       NEKO_LOG_VERBOSE, NEKO_LOG_DEBUG, LOG_SIZE
   use utils, only : neko_error, neko_warning
+  use time_state, only : time_state_t
+  use user_intf, only : user_t
   use mesh_manager_transfer, only : mesh_manager_transfer_t
   use mesh_manager_transfer_p4est, only : mesh_manager_transfer_p4est_t
   use mesh_manager, only : mesh_manager_t
@@ -62,12 +66,12 @@ module amr
   abstract interface
      !> Restart the component
      !! @param[in]  reconstruct   data reconstruction type
-     !! @param[in]  count         restart count
-     subroutine amr_restart_comp(this, reconstruct, count)
+     !! @param[in]  counter       restart counter
+     subroutine amr_restart_comp(this, reconstruct, counter)
        import amr_restart_component_t, amr_reconstruct_t
        class(amr_restart_component_t), intent(inout) :: this
        type(amr_reconstruct_t), intent(in) :: reconstruct
-       integer, intent(in) :: count
+       integer, intent(in) :: counter
      end subroutine amr_restart_comp
   end interface
 
@@ -197,26 +201,28 @@ contains
     class(amr_component_pointer_t), allocatable, dimension(:) :: tmp
     integer :: il, itmp
 
-    if (allocated(this%components)) then
-       if (component%lst_pos .lt. this%ncomponents) then
-          this%components(component%lst_pos)%cmp => NULL()
-       else if (component%lst_pos .eq. this%ncomponents) then
-          this%ncomponents = this%ncomponents - 1
-          if (this%ncomponents .eq. 0) then
-             deallocate(this%components)
+    if (component%listed) then
+       if (allocated(this%components)) then
+          if (component%lst_pos .lt. this%ncomponents) then
+             this%components(component%lst_pos)%cmp => NULL()
+          else if (component%lst_pos .eq. this%ncomponents) then
+             this%ncomponents = this%ncomponents - 1
+             if (this%ncomponents .eq. 0) then
+                deallocate(this%components)
+             else
+                allocate(tmp(this%ncomponents))
+                do il = 1, this%ncomponents
+                   tmp(il)%cmp => this%components(il)%cmp
+                end do
+                deallocate(this%components)
+                call MOVE_ALLOC(tmp, this%components)
+             end if
           else
-             allocate(tmp(this%ncomponents))
-             do il = 1, this%ncomponents
-                tmp(il)%cmp => this%components(il)%cmp
-             end do
-             deallocate(this%components)
-             call MOVE_ALLOC(tmp, this%components)
+             call neko_warning('Restart component not listed')
           end if
        else
           call neko_warning('Restart component not listed')
        end if
-    else
-       call neko_warning('Restart component not listed')
     end if
     component%listed = .false.
     component%lst_pos = 0
@@ -224,8 +230,10 @@ contains
   end subroutine amr_component_remove
 
   !> Restart components
-  subroutine amr_restart(this)
+  !! @param[in]      user          user interface
+  subroutine amr_restart(this, user)
     class(amr_t), intent(inout) :: this
+    type(user_t), intent(in) :: user
     integer :: il
 
     ! update restart counter
@@ -240,25 +248,59 @@ contains
        end do
     end if
 
+    ! let user reconstruct fields
+    call user%amr_reconstruct(this%reconstruct, this%counter)
+
   end subroutine amr_restart
 
   !> Refine/coarsen mesh
-  !! @param[inout]   mesh_mng      mesh manager
-  subroutine amr_refine(this, mesh_manager)
+  !! @param[inout]   mesh_manager  mesh manager
+  !! @param[in]      user          user interface
+  !! @param[in]      time          time state
+  subroutine amr_refine(this, mesh_manager, user, time)
     class(amr_t), intent(inout) :: this
     class(mesh_manager_t), intent(inout) :: mesh_manager
+    type(user_t), intent(in) :: user
+    type(time_state_t), intent(in) :: time
     integer, allocatable, dimension(:) :: ref_mark
-    logical :: ifmod
+    logical :: ifrefine, ifmod
     integer :: nelt
+    character(len=LOG_SIZE) :: log_buf
 
-    select type(transfer => mesh_manager%transfer)
+    select type(transfer => this%reconstruct%transfer)
     type is (mesh_manager_transfer_p4est_t)
        nelt = transfer%nelt_neko
     end select
 
+    ! get refinement information
     allocate(ref_mark(nelt))
+    call user%amr_refine_flag(time, ref_mark, ifrefine)
 
-    call mesh_manager%refine(ref_mark, ifmod)
+    if (ifrefine) then
+       call neko_log%section("Mesh refinement")
+
+       call profiler_start_region("Mesh refinement", 30)
+
+       ! Perform p4est refinement/coarsening
+       call mesh_manager%refine(ref_mark, ifmod)
+
+       if (ifmod) then
+          write(log_buf, '(a)') 'Mesh modified; restarting solver'
+          call neko_log%message(log_buf, NEKO_LOG_INFO)
+
+          ! restart solver
+          call this%restart(user)
+       else
+          write(log_buf, '(a)') 'Mesh not changed'
+          call neko_log%message(log_buf, NEKO_LOG_INFO)
+       end if
+
+       call profiler_end_region("Mesh refinement", 30)
+
+       call neko_log%end_section()
+    end if
+
+    deallocate(ref_mark)
 
   end subroutine amr_refine
 

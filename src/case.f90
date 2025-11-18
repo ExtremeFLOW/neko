@@ -207,28 +207,13 @@ contains
        call msh_file%read(this%mesh_manager%nmsh_mesh)
        ! apply data read from the mesh file to mesh manager structures
        call this%mesh_manager%mesh_file_apply()
+
        ! initialise adaptive mesh refinement
        call this%amr%init(this%mesh_manager%transfer)
        call neko_log%end_section()
 
        testing_refine : block
-         integer, allocatable, dimension(:) :: ref_mark
-         logical :: ifmod
-         allocate(ref_mark(this%mesh_manager%mesh%nelt))
-         ref_mark(:) = 1
-         call this%mesh_manager%refine(ref_mark, ifmod)
-         write(*,*) 'TEST refine all', ifmod
-         deallocate(ref_mark)
-         allocate(ref_mark(this%mesh_manager%mesh%nelt))
-         ref_mark(:) = 0
-         call this%mesh_manager%refine(ref_mark, ifmod)
-         write(*,*) 'TEST refine nothing', ifmod
-         deallocate(ref_mark)
-         allocate(ref_mark(this%mesh_manager%mesh%nelt))
-         ref_mark(:) = -1
-         call this%mesh_manager%refine(ref_mark, ifmod)
-         write(*,*) 'TEST corsen all', ifmod
-         deallocate(ref_mark)
+         call this%amr%refine(this%mesh_manager, this%user, this%time)
        end block testing_refine
     end if
 

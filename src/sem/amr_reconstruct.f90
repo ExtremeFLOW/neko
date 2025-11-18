@@ -61,7 +61,7 @@ contains
 
     call this%free()
 
-    ! data transfer
+    ! mesh manager data transfer
     this%transfer => transfer
   end subroutine amr_reconstruct_init
 

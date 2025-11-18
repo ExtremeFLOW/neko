@@ -516,8 +516,6 @@ contains
     character(len=:), allocatable :: tree_file, cnn_file
     integer :: ref_level_max
 
-    call profiler_start_region("p4est initialisation", 30)
-
     ! Extract runtime parameters
     ! tree_file is mandatory
     call json_get_or_default(json, 'tree_file', tree_file, 'no tree')
@@ -540,8 +538,6 @@ contains
 
     if (allocated(tree_file)) deallocate(tree_file)
     if (allocated(cnn_file)) deallocate(cnn_file)
-
-    call profiler_end_region("p4est initialisation", 30)
 
   end subroutine p4est_init_from_json
 
@@ -694,7 +690,7 @@ contains
     real(dp), allocatable, target, dimension(:, :) :: rtmpv1
 !!$    integer(i4) :: il, jl
 
-    call profiler_start_region("p4est import", 31)
+    call profiler_start_region("p4est import", 32)
 
     write(log_buf, '(a)') 'Importing p4est data'
     call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
@@ -943,7 +939,7 @@ contains
     ! do not destroy p4est ghost cells here, as they could be needed
 !    call wp4est_ghost_del()
 
-    call profiler_end_region("p4est import", 31)
+    call profiler_end_region("p4est import", 32)
 
   end subroutine p4est_import_data
 
@@ -1146,10 +1142,10 @@ contains
     integer(i4) :: il, itmp
     ! element restructure data
     integer(i4) :: map_nr, rfn_nr, crs_nr
-    integer(i4), target, allocatable, dimension(:, :) :: elgl_map, elgl_rfn
-    integer(i4), target, allocatable, dimension(:, :, :) :: elgl_crs
+    integer(i4), target, allocatable, dimension(:, :) :: map, rfn
+    integer(i4), target, allocatable, dimension(:, :, :) :: crs
 
-    call profiler_start_region("p4est refine", 32)
+    call profiler_start_region("p4est refine", 31)
 
     write(log_buf, '(a)') 'p4est refinement/coarsening start'
     call neko_log%message(log_buf, NEKO_LOG_INFO)
@@ -1162,34 +1158,17 @@ contains
        if (size(ref_mark) .ne. transfer%nelt_neko) &
             call neko_error('Inconsistent ref_mark array size')
 
-       ! place for communication step in case of different distributions for
-       ! neko and p4est
+       ! transfer refinement flag between neko and p4est distributions
+       call transfer%ref_mark_transfer(ref_mark, pref_mark)
 
-       ! set refinement mark in p4est
-       allocate(pref_mark(this%mesh%nelt))
-       ! PLACE FOR DATA DISTRIBUTION (NEKO => P4EST) using
-       ! mesh_manager_transfer_t
-       ! in general itmp can be different than this%elem%nelv, but for now
-       ! they are the same
-       pref_mark(:) = ref_mark(:)
        ! PLACE FOR LOCAL CONSISTENCY CHECKS
+
+       ! feed p4est with refinement data
        call wp4est_refm_put(c_loc(pref_mark))
 
        ! set element distribution info in p4est
-       allocate(pel_gnum(this%mesh%nelt), pel_lnum(this%mesh%nelt),&
-            & pel_nid(this%mesh%nelt))
-       ! THIS JUST FOR TESTING
-       do il = 1, this%mesh%nelt
-          pel_gnum(il) = this%mesh%gidx(il)
-          pel_lnum(il) = il
-       end do
-       pel_nid(:) = pe_rank
-       ! PLACE FOR DATA DISTRIBUTION (NEKO=> P4EST) using
-       ! mesh_manager_transfer_t
-       ! in general itmp can be different than this%elem%nelv, but for now
-       ! they are the same
-       ! this possibly could be reconstructed from mesh_manager_transfer_t,
-       ! so no communication would be necessary
+       ! NOTICE; ELEMENT GLOBAL NUMBER IS NOT INT8!!!!!!
+       call transfer%neko_elm_dist(pel_gnum, pel_lnum, pel_nid)
        call wp4est_egmap_put(c_loc(pel_gnum), c_loc(pel_lnum), c_loc(pel_nid))
 
        ! destroy p4est ghost cells
@@ -1215,14 +1194,16 @@ contains
           call this%import()
 
           ! get data to refine fields
+          ! NOTICE; ELEMENT GLOBAL NUMBER IS NOT INT8!!!!!!
           ! number of children is equal to number of vertices
           itmp = 2**this%mesh%tdim
-          allocate(elgl_map(3, this%mesh%nelt), elgl_rfn(5, this%mesh%nelt), &
-               elgl_crs(4, itmp, this%mesh%nelt))
-          call wp4est_msh_get_hst(map_nr, rfn_nr, crs_nr, c_loc(elgl_map), &
-               c_loc(elgl_rfn), c_loc(elgl_crs))
-          ! pace to move data
-       
+          allocate(map(3, this%mesh%nelt), rfn(5, this%mesh%nelt), &
+               crs(4, itmp, this%mesh%nelt))
+          call wp4est_msh_get_hst(map_nr, rfn_nr, crs_nr, c_loc(map), &
+               c_loc(rfn), c_loc(crs))
+          ! store data in the type
+          call transfer%reconstruct_data_get(map_nr, map, rfn_nr, rfn, crs_nr, &
+               crs)
        else
           ! regenerate the ghost layer
           call wp4est_ghost_new()
@@ -1238,7 +1219,7 @@ contains
     write(log_buf, '(a)') 'p4est refinement/coarsening end'
     call neko_log%message(log_buf, NEKO_LOG_INFO)
 
-    call profiler_end_region("p4est refine", 32)
+    call profiler_end_region("p4est refine", 31)
 
   end subroutine p4est_refine
 
