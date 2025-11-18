@@ -36,6 +36,7 @@ module amr
   use logger, only : neko_log, NEKO_LOG_QUIET, NEKO_LOG_INFO, &
        NEKO_LOG_VERBOSE, NEKO_LOG_DEBUG, LOG_SIZE
   use utils, only : neko_error, neko_warning
+  use profiler, only : profiler_start_region, profiler_end_region
   use time_state, only : time_state_t
   use user_intf, only : user_t
   use mesh_manager_transfer, only : mesh_manager_transfer_t
