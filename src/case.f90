@@ -48,6 +48,7 @@ module case
   use utils, only : neko_error
   use mesh, only : mesh_t
   use mesh_manager, only : mesh_manager_t, mesh_manager_factory
+  use amr, only : amr_t
   use math, only : NEKO_EPS
   use checkpoint, only: chkp_t
   use time_scheme_controller, only : time_scheme_controller_t
@@ -72,6 +73,7 @@ module case
   type, public :: case_t
      type(mesh_t) :: msh
      class(mesh_manager_t), allocatable :: mesh_manager
+     type(amr_t) :: amr
      type(json_file) :: params
      character(len=:), allocatable :: output_directory
      type(output_controller_t) :: output_controller
@@ -205,6 +207,8 @@ contains
        call msh_file%read(this%mesh_manager%nmsh_mesh)
        ! apply data read from the mesh file to mesh manager structures
        call this%mesh_manager%mesh_file_apply()
+       ! initialise adaptive mesh refinement
+       call this%amr%init(this%mesh_manager%transfer)
        call neko_log%end_section()
 
        testing_refine : block
@@ -577,6 +581,7 @@ contains
        deallocate(this%scalars)
     end if
 
+    call this%amr%free()
     if (allocated(this%mesh_manager)) then
        call this%mesh_manager%free()
        call this%mesh_manager%stop()

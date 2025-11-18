@@ -33,48 +33,48 @@
 !> Implementation of the adaptive mesh refinement workflow
 module amr
   use num_types, only : i4, i8, rp, dp
+  use utils, only : neko_error, neko_warning
   use mesh_manager_transfer, only : mesh_manager_transfer_t
+  use mesh_manager_transfer_p4est, only : mesh_manager_transfer_p4est_t
   use mesh_manager, only : mesh_manager_t
   use amr_reconstruct, only : amr_reconstruct_t
 
   implicit none
   private
 
-  !> basic type for component restart
-  type, abstract, public :: amr_restart_t
+  !> basic type for AMR restart component
+  type, abstract, public :: amr_restart_component_t
+     !> Is a component listed in amr type
+     logical :: listed = .false.
+     !> Position in the component list
+     integer :: lst_pos
      !> Restart counter
      integer :: counter
    contains
+     !> Initialise base type
+     procedure, pass(this) :: init_base => amr_restart_init_base
      !> Free base type
      procedure, pass(this) :: free_base => amr_restart_free_base
      !> Restart the component
-     procedure(amr_restart_type), pass(this), deferred :: restart
-     !> Free type
-     procedure(amr_restart_free), pass(this), deferred :: free
-  end type amr_restart_t
+     procedure(amr_restart_comp), pass(this), deferred :: restart
+  end type amr_restart_component_t
 
   abstract interface
      !> Restart the component
      !! @param[in]  reconstruct   data reconstruction type
      !! @param[in]  count         restart count
-     subroutine amr_restart_type(this, reconstruct, count)
-       import amr_restart_t, amr_reconstruct_t
-       class(amr_restart_t), intent(inout) :: this
+     subroutine amr_restart_comp(this, reconstruct, count)
+       import amr_restart_component_t, amr_reconstruct_t
+       class(amr_restart_component_t), intent(inout) :: this
        type(amr_reconstruct_t), intent(in) :: reconstruct
        integer, intent(in) :: count
-     end subroutine amr_restart_type
-
-     !> Free type
-     subroutine amr_restart_free(this)
-       import amr_restart_t
-       class(amr_restart_t), intent(inout) :: this
-     end subroutine amr_restart_free
+     end subroutine amr_restart_comp
   end interface
 
   !> Component entrance
-  type, public :: amr_component_t
-     class(amr_restart_t), allocatable :: cmp
-  end type amr_component_t
+  type, public :: amr_component_pointer_t
+     class(amr_restart_component_t), pointer :: cmp
+  end type amr_component_pointer_t
 
   !> Main AMR type
   type, public :: amr_t
@@ -83,7 +83,7 @@ module amr
      !> Number of components
      integer :: ncomponents
      !> Components list
-     class(amr_component_t), allocatable, dimension(:) :: components
+     class(amr_component_pointer_t), allocatable, dimension(:) :: components
      !> Restart counter
      integer :: counter
    contains
@@ -91,19 +91,38 @@ module amr
      procedure, pass(this) :: init => amr_init
      !> Free type
      procedure, pass(this) :: free => amr_free
+     !> Add restart component
+     procedure, pass(this) :: comp_add => amr_component_add
+     !> Remove restart component
+     procedure, pass(this) :: comp_remove => amr_component_remove
      !> Restart components
      procedure, pass(this) :: restart => amr_restart
-     !> Add restart component
-     procedure, pass(this) :: component_add => amr_component_add
+     !> Refine/coarsen
+     procedure, pass(this) :: refine => amr_refine
   end type amr_t
 
 
 contains
 
-  !> Free base restart type
-  subroutine amr_restart_free_base(this)
-    class(amr_restart_t), intent(inout) :: this
+  !> Initialise base restart component type
+  !> @param[in]  lst_pos   position in the component list
+  subroutine amr_restart_init_base(this, lst_pos)
+    class(amr_restart_component_t), intent(inout) :: this
+    integer, intent(in) :: lst_pos
 
+    call this%free_base()
+
+    this%listed = .true.
+    this%lst_pos = lst_pos
+
+  end subroutine amr_restart_init_base
+
+  !> Free base restart component type
+  subroutine amr_restart_free_base(this)
+    class(amr_restart_component_t), intent(inout) :: this
+
+    this%listed = .false.
+    this%lst_pos = 0
     this%counter = 0
   end subroutine amr_restart_free_base
 
@@ -125,18 +144,84 @@ contains
     integer :: il
 
     call this%reconstruct%free()
-    if (allocated(this%components)) then
-       do il = 1, size(this%components)
-          if (allocated(this%components(il)%cmp)) then
-             call this%components(il)%cmp%free()
-             deallocate(this%components(il)%cmp)
-          end if
-       end do
-       deallocate(this%components)
-    end if
+    if (allocated(this%components)) deallocate(this%components)
     this%ncomponents = 0
     this%counter = 0
   end subroutine amr_free
+
+  !> Add restart component
+  !! @param[inout]  component     component to be added
+  subroutine amr_component_add(this, component)
+    class(amr_t), intent(inout) :: this
+    class(amr_restart_component_t), target, intent(inout) :: component
+    class(amr_component_pointer_t), allocatable, dimension(:) :: tmp
+    integer :: il, itmp
+
+    if (.not. allocated(this%components)) then
+       this%ncomponents = 1
+       allocate(this%components(1))
+       this%components(il)%cmp => component
+       call component%init_base(this%ncomponents)
+    else
+       ! check if there is an empty slot
+       itmp = 0
+       do il = 1, this%ncomponents
+          if (.not. associated(this%components(il)%cmp)) then
+             itmp = il
+             exit
+          end if
+       end do
+       if (itmp .ne. 0) then
+          this%components(itmp)%cmp => component
+          call component%init_base(itmp)
+       else
+          allocate(tmp(this%ncomponents + 1))
+          do il = 1, this%ncomponents
+             tmp(il)%cmp => this%components(il)%cmp
+          end do
+          this%ncomponents = this%ncomponents + 1
+          tmp(this%ncomponents)%cmp => component
+          call component%init_base(this%ncomponents)
+          deallocate(this%components)
+          call MOVE_ALLOC(tmp, this%components)
+       end if
+    end if
+
+  end subroutine amr_component_add
+
+  !> Remove restart component
+  !! @param[inout]  component     component to be removed
+  subroutine amr_component_remove(this, component)
+    class(amr_t), intent(inout) :: this
+    class(amr_restart_component_t), target, intent(inout) :: component
+    class(amr_component_pointer_t), allocatable, dimension(:) :: tmp
+    integer :: il, itmp
+
+    if (allocated(this%components)) then
+       if (component%lst_pos .lt. this%ncomponents) then
+          this%components(component%lst_pos)%cmp => NULL()
+       else if (component%lst_pos .eq. this%ncomponents) then
+          this%ncomponents = this%ncomponents - 1
+          if (this%ncomponents .eq. 0) then
+             deallocate(this%components)
+          else
+             allocate(tmp(this%ncomponents))
+             do il = 1, this%ncomponents
+                tmp(il)%cmp => this%components(il)%cmp
+             end do
+             deallocate(this%components)
+             call MOVE_ALLOC(tmp, this%components)
+          end if
+       else
+          call neko_warning('Restart component not listed')
+       end if
+    else
+       call neko_warning('Restart component not listed')
+    end if
+    component%listed = .false.
+    component%lst_pos = 0
+
+  end subroutine amr_component_remove
 
   !> Restart components
   subroutine amr_restart(this)
@@ -147,31 +232,34 @@ contains
     this%counter = this%counter + 1
 
     ! restart components
-    do il = 1, this%ncomponents
-       call this%components(il)%cmp%restart(this%reconstruct, this%counter)
-    end do
+    if (allocated(this%components)) then
+       do il = 1, this%ncomponents
+          if (associated(this%components(il)%cmp)) &
+               call this%components(il)%cmp%restart(this%reconstruct, &
+               this%counter)
+       end do
+    end if
 
   end subroutine amr_restart
 
-  !> Add restart component
-  !! @param[inout]  component     component to be restarted
-  subroutine amr_component_add(this, component)
+  !> Refine/coarsen mesh
+  !! @param[inout]   mesh_mng      mesh manager
+  subroutine amr_refine(this, mesh_manager)
     class(amr_t), intent(inout) :: this
-    class(amr_restart_t), allocatable, intent(inout) :: component
-    class(amr_component_t), allocatable, dimension(:) :: tmp
-    integer :: il
+    class(mesh_manager_t), intent(inout) :: mesh_manager
+    integer, allocatable, dimension(:) :: ref_mark
+    logical :: ifmod
+    integer :: nelt
 
-    if (allocated(component)) then
-       allocate(tmp(this%ncomponents + 1))
-       do il = 1, this%ncomponents
-          call MOVE_ALLOC(this%components(il)%cmp, tmp(il)%cmp)
-       end do
-       this%ncomponents = this%ncomponents + 1
-       call MOVE_ALLOC(component, tmp(this%ncomponents)%cmp)
-       deallocate(this%components)
-       call MOVE_ALLOC(tmp, this%components)
-    end if
+    select type(transfer => mesh_manager%transfer)
+    type is (mesh_manager_transfer_p4est_t)
+       nelt = transfer%nelt_neko
+    end select
 
-  end subroutine amr_component_add
+    allocate(ref_mark(nelt))
+
+    call mesh_manager%refine(ref_mark, ifmod)
+
+  end subroutine amr_refine
 
 end module amr
