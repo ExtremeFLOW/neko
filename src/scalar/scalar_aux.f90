@@ -34,7 +34,7 @@
 module scalar_aux
   use, intrinsic :: ieee_arithmetic, only: ieee_is_nan
   use krylov, only : ksp_monitor_t
-  use logger, only : LOG_SIZE
+  use logger, only : neko_log, LOG_SIZE
   use utils, only : neko_error, neko_warning
   use time_state, only : time_state_t
   implicit none
@@ -87,7 +87,7 @@ contains
           else if (strict_conv) then
              call neko_error(log_buf)
           else
-             call neko_warning(log_buf)
+             call neko_log%message(log_buf)
           end if
        end if
     end do
