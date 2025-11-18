@@ -179,7 +179,6 @@ contains
             'case file. Often caused by incorrectly formatted json.')
     end if
     call msh_file%init(string_val)
-
     call msh_file%read(this%msh)
 
     !
@@ -202,6 +201,9 @@ contains
        call neko_log%end_section()
     end if
 
+    ! Run user mesh motion routine
+    call this%user%mesh_setup(this%msh, this%time)
+
     !
     ! Time control
     !
@@ -212,11 +214,6 @@ contains
     ! Initialize point_zones registry
     !
     call neko_point_zone_registry%init(this%params, this%msh)
-
-    ! Run user mesh motion routine
-    call this%user%mesh_setup(this%msh, this%time)
-
-    call json_get(this%params, 'case.numerics', numerics_params)
 
     !
     ! Setup fluid scheme
@@ -256,6 +253,7 @@ contains
 
     if (scalar) then
        allocate(this%scalars)
+       call json_get(this%params, 'case.numerics', numerics_params)
        if (this%params%valid_path('case.scalar')) then
           ! For backward compatibility
           call json_get(this%params, 'case.scalar', scalar_params)
