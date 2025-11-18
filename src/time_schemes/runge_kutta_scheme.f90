@@ -173,6 +173,16 @@ contains
     if (c_associated(this%coeffs_c_d)) then
        call device_free(this%coeffs_c_d)
     end if
+
+    if (allocated(this%coeffs_A)) then
+       deallocate(this%coeffs_A)
+    end if
+    if (allocated(this%coeffs_b)) then
+       deallocate(this%coeffs_b)
+    end if
+    if (allocated(this%coeffs_c)) then
+       deallocate(this%coeffs_c)
+    end if
   end subroutine runge_kutta_scheme_coeffs_free
 
 end module runge_kutta_time_scheme

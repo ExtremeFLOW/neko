@@ -122,6 +122,7 @@ neko_fortran_SOURCES = \
 	math/vector.f90\
 	math/vector_math.f90\
 	math/vector_scratch_registry.f90\
+	math/matrix_scratch_registry.f90\
 	math/matrix.f90\
 	math/matrix_math.f90\
 	math/signed_distance.f90\
@@ -322,7 +323,6 @@ neko_fortran_SOURCES = \
 	scalar/scalar_stats.f90\
 	scalar/bcknd/cpu/scalar_residual_cpu.f90\
 	scalar/bcknd/sx/scalar_residual_sx.f90\
-	scalar/source_scalar.f90\
 	simulation_components/simulation_component.f90\
 	simulation_components/simcomp_executor.f90\
 	simulation_components/spectral_error.f90\

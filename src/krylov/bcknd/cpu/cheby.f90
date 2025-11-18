@@ -111,6 +111,14 @@ contains
     if (allocated(this%d)) then
        deallocate(this%d)
     end if
+
+    if (allocated(this%w)) then
+       deallocate(this%w)
+    end if
+
+    if (allocated(this%r)) then
+       deallocate(this%r)
+    end if
   end subroutine cheby_free
 
   subroutine cheby_power(this, Ax, x, n, coef, blst, gs_h)

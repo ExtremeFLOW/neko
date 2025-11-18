@@ -235,6 +235,9 @@ contains
        end do
     end select
     call new_mesh_dist(pe_rank)%free()
+    if (allocated(new_mesh_dist)) then
+       deallocate(new_mesh_dist)
+    end if
 
 
     !
@@ -335,6 +338,9 @@ contains
        end do
     end select
     call new_zone_dist(pe_rank)%free()
+    if (allocated(new_zone_dist)) then
+       deallocate(new_zone_dist)
+    end if
 
 
     !
@@ -350,6 +356,9 @@ contains
        end do
     end select
     call new_curve_dist(pe_rank)%free()
+    if (allocated(new_curve_dist)) then
+       deallocate(new_curve_dist)
+    end if
 
 
     call msh%finalize()

@@ -350,6 +350,7 @@ contains
     nullify(this%w)
     nullify(this%p)
     nullify(this%coef)
+    nullify(this%mu)
   end subroutine force_torque_free
 
   !> Compute the force_torque field.
