@@ -76,10 +76,6 @@ module matrix_scratch_registry
           relinquish_matrix_multiple
   end type matrix_scratch_registry_t
 
-  !> Global scratch registry
-  type(matrix_scratch_registry_t), public, target :: &
-       neko_matrix_scratch_registry
-
 contains
 
   !> Constructor, optionally taking initial registry and expansion

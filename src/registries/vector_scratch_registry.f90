@@ -76,10 +76,6 @@ module vector_scratch_registry
           relinquish_vector_multiple
   end type vector_scratch_registry_t
 
-  !> Global scratch registry
-  type(vector_scratch_registry_t), public, target :: &
-       neko_vector_scratch_registry
-
 contains
 
   !> Constructor, optionally taking initial registry and expansion

@@ -35,7 +35,10 @@
 !! often and you don't want to create temporary fields (work arrays) inside
 !! it on each call.
 module scratch_registry
-  use field, only : field_t, field_ptr_t
+  use field, only : field_t
+  use vector, only : vector_t
+  use matrix, only : matrix_t
+
   use field_math, only : field_rzero
   use dofmap, only : dofmap_t
   use utils, only : neko_error
@@ -45,7 +48,10 @@ module scratch_registry
   type :: register_t
      character(len=32) :: type = ''
      logical :: allocated = .false.
+
      type(field_t), pointer :: field_ptr => null()
+     type(vector_t), pointer :: vector_ptr => null()
+     type(matrix_t), pointer :: matrix_ptr => null()
 
    contains
      procedure, pass(this) :: init => init_register_field
@@ -58,9 +64,9 @@ module scratch_registry
      !> Tracks which fields are used
      logical, private, allocatable :: inuse(:)
      !> number of registered fields
-     integer, private :: nfields = 0
+     integer, private :: n_available = 0
      !> number of fields in use
-     integer, private :: nfields_inuse = 0
+     integer, private :: n_inuse = 0
      !> the size the fields array is increased by upon reallocation
      integer, private :: expansion_size = 10
      !> Dofmap
@@ -73,10 +79,10 @@ module scratch_registry
      procedure, pass(this) :: free => scratch_registry_free
      !> Assign a dofmap to the scratch registry
      procedure, pass(this) :: set_dofmap => scratch_registry_set_dofmap
-     !> Getter for nfields
-     procedure, pass(this) :: get_nfields
-     !> Getter for nfields_inuse
-     procedure, pass(this) :: get_nfields_inuse
+     !> Getter for n_available
+     procedure, pass(this) :: get_n_available
+     !> Getter for n_inuse
+     procedure, pass(this) :: get_n_inuse
      !> Getter for expansion_size
      procedure, pass(this) :: get_expansion_size
      !> Return size of allocated fields
@@ -99,11 +105,11 @@ contains
 
   !> Constructor, optionally taking initial registry and expansion
   !! size as argument
-  subroutine scratch_registry_init(this, dof, size, expansion_size)
+  subroutine scratch_registry_init(this, size, expansion_size, dof)
     class(scratch_registry_t), intent(inout) :: this
-    type(dofmap_t), target, intent(in), optional :: dof
     integer, optional, intent(in) :: size
     integer, optional, intent(in) :: expansion_size
+    type(dofmap_t), target, intent(in), optional :: dof
     integer :: i, s
 
     call this%free()
@@ -119,8 +125,8 @@ contains
     this%expansion_size = 10
     if (present(expansion_size)) this%expansion_size = expansion_size
 
-    this%nfields = 0
-    this%nfields_inuse = 0
+    this%n_available = 0
+    this%n_inuse = 0
   end subroutine scratch_registry_init
 
   !> Destructor
@@ -129,7 +135,7 @@ contains
     integer :: i
 
     if (allocated(this%registry)) then
-       do i = 1, this%nfields
+       do i = 1, this%n_available
           call this%registry(i)%free()
        end do
 
@@ -140,8 +146,8 @@ contains
     if (associated(this%dof)) nullify(this%dof)
 
     ! Reset to default values
-    this%nfields = 0
-    this%nfields_inuse = 0
+    this%n_available = 0
+    this%n_inuse = 0
     this%expansion_size = 10
 
   end subroutine scratch_registry_free
@@ -151,26 +157,30 @@ contains
     class(scratch_registry_t), intent(inout) :: this
     type(dofmap_t), target, intent(in) :: dof
 
+    if (associated(this%dof)) then
+       call neko_error("scratch_registry::set_dofmap: "&
+            // "Dofmap is already assigned to scratch registry.")
+    end if
     this%dof => dof
   end subroutine scratch_registry_set_dofmap
 
   !> Get the number of fields stored in the registry
-  pure function get_nfields(this) result(n)
+  pure function get_n_available(this) result(n)
     class(scratch_registry_t), intent(in) :: this
     integer :: n
 
-    n = this%nfields
-  end function get_nfields
+    n = this%n_available
+  end function get_n_available
 
-  pure function get_nfields_inuse(this) result(n)
+  pure function get_n_inuse(this) result(n)
     class(scratch_registry_t), intent(in) :: this
     integer :: n, i
 
     n = 0
-    do i = 1,this%get_size()
+    do i = 1 ,this%get_size()
        if (this%inuse(i)) n = n + 1
     end do
-  end function get_nfields_inuse
+  end function get_n_inuse
 
   !> Get the size of the fields array
   pure function get_size(this) result(n)
@@ -195,13 +205,13 @@ contains
     integer :: i
 
     allocate(temp(this%get_size() + this%expansion_size))
-    temp(1:this%nfields) = this%registry(1:this%nfields)
+    temp(1:this%n_available) = this%registry(1:this%n_available)
 
     call move_alloc(temp, this%registry)
 
     allocate(temp2(this%get_size() + this%expansion_size))
-    temp2(1:this%nfields) = this%inuse(1:this%nfields)
-    temp2(this%nfields+1:) = .false.
+    temp2(1:this%n_available) = this%inuse(1:this%n_available)
+    temp2(this%n_available+1:) = .false.
     this%inuse = temp2
   end subroutine expand
 
@@ -212,7 +222,12 @@ contains
     integer, intent(inout) :: index !< The index of the field in the inuse array
     character(len=10) :: name
 
-    associate(nfields => this%nfields, nfields_inuse => this%nfields_inuse)
+    if (.not. associated(this%dof)) then
+       call neko_error("scratch_registry::request_field: "&
+            // "No dofmap assigned to scratch registry.")
+    end if
+
+    associate(n_available => this%n_available, n_inuse => this%n_inuse)
 
       do index = 1, this%get_size()
          if (.not. this%inuse(index)) then
@@ -220,7 +235,7 @@ contains
             if (.not. this%registry(index)%allocated) then
                write(name, "(A3,I0.3)") "wrk", index
                call this%registry(index)%init('field', this%dof, trim(name))
-               nfields = nfields + 1
+               n_available = n_available + 1
             else if (this%registry(index)%type .ne. 'field') then
                continue
             end if
@@ -228,20 +243,20 @@ contains
             f => this%registry(index)%field_ptr
             call field_rzero(f)
             this%inuse(index) = .true.
-            this%nfields_inuse = this%nfields_inuse + 1
+            this%n_inuse = this%n_inuse + 1
             return
          end if
       end do
 
       ! all existing fields in use, we need to expand to add a new one
-      index = nfields + 1
+      index = n_available + 1
       call this%expand()
-      nfields = nfields + 1
-      nfields_inuse = nfields_inuse + 1
-      this%inuse(nfields) = .true.
+      n_available = n_available + 1
+      n_inuse = n_inuse + 1
+      this%inuse(n_available) = .true.
       write (name, "(A3,I0.3)") "wrk", index
-      call this%registry(nfields)%init('field', this%dof, trim(name))
-      f => this%registry(nfields)%field_ptr
+      call this%registry(n_available)%init('field', this%dof, trim(name))
+      f => this%registry(n_available)%field_ptr
 
     end associate
   end subroutine request_field
@@ -251,8 +266,13 @@ contains
     class(scratch_registry_t), target, intent(inout) :: this
     integer, intent(inout) :: index !< The index of the field to free
 
+    if (trim(this%registry(index)%type) .ne. 'field') then
+       call neko_error("scratch_registry::relinquish_field_single: " &
+            // "Register entry is not a field.")
+    end if
+
     this%inuse(index) = .false.
-    this%nfields_inuse = this%nfields_inuse - 1
+    this%n_inuse = this%n_inuse - 1
   end subroutine relinquish_field_single
 
   subroutine relinquish_field_multiple(this, indices)
@@ -261,9 +281,14 @@ contains
     integer :: i
 
     do i = 1, size(indices)
+       if (trim(this%registry(indices(i))%type) .ne. 'field') then
+          call neko_error("scratch_registry::relinquish_field_single: " &
+               // "Register entry is not a field.")
+       end if
+
        this%inuse(indices(i)) = .false.
     end do
-    this%nfields_inuse = this%nfields_inuse - size(indices)
+    this%n_inuse = this%n_inuse - size(indices)
   end subroutine relinquish_field_multiple
 
   logical function get_inuse(this, index)
@@ -284,22 +309,76 @@ contains
     character(len=*), intent(in) :: name
     character(len=:), allocatable :: err_msg
 
-    call this%free()
-
-    select case (trim(type))
-    case ('field')
-       allocate(this%field_ptr)
-       call this%field_ptr%init(dof, trim(name))
-    case default
+    if (this%allocated) then
+       call neko_error("scratch_registry::init_register_field: "&
+            // "Register entry is already allocated.")
+    else if (trim(type) .ne. 'field') then
        write(err_msg, '(A,A,A)') 'scratch_registry::init_register_field: ', &
             'Unknown register type: ', trim(type)
        call neko_error(err_msg)
-    end select
+    end if
+
+    call this%free()
+
+    allocate(this%field_ptr)
+    call this%field_ptr%init(dof, trim(name))
 
     this%type = trim(type)
     this%allocated = .true.
 
   end subroutine init_register_field
+
+  !> Initialize a register entry
+  subroutine init_register_vector(this, type, n)
+    class(register_t), intent(inout) :: this
+    character(len=*), intent(in) :: type
+    integer, intent(in) :: n
+    character(len=:), allocatable :: err_msg
+
+    if (this%allocated) then
+       call neko_error("scratch_registry::init_register_vector: "&
+            // "Register entry is already allocated.")
+    else if (trim(type) .ne. 'vector') then
+       write(err_msg, '(A,A,A)') 'scratch_registry::init_register_vector: ', &
+            'Unknown register type: ', trim(type)
+       call neko_error(err_msg)
+    end if
+
+    call this%free()
+
+    allocate(this%vector_ptr)
+    call this%vector_ptr%init(n)
+
+    this%type = trim(type)
+    this%allocated = .true.
+
+  end subroutine init_register_vector
+
+  !> Initialize a register entry
+  subroutine init_register_matrix(this, type, nrows, ncols)
+    class(register_t), intent(inout) :: this
+    character(len=*), intent(in) :: type
+    integer, intent(in) :: nrows, ncols
+    character(len=:), allocatable :: err_msg
+
+    if (this%allocated) then
+       call neko_error("scratch_registry::init_register_matrix: "&
+            // "Register entry is already allocated.")
+    else if (trim(type) .ne. 'matrix') then
+       write(err_msg, '(A,A,A)') 'scratch_registry::init_register_matrix: ', &
+            'Unknown register type: ', trim(type)
+       call neko_error(err_msg)
+    end if
+
+    call this%free()
+
+    allocate(this%matrix_ptr)
+    call this%matrix_ptr%init(nrows, ncols)
+
+    this%type = trim(type)
+    this%allocated = .true.
+
+  end subroutine init_register_matrix
 
   !> Free a register entry
   subroutine free_register(this)
@@ -309,6 +388,17 @@ contains
        call this%field_ptr%free()
        deallocate(this%field_ptr)
     end if
+
+    if (associated(this%vector_ptr)) then
+       call this%vector_ptr%free()
+       deallocate(this%vector_ptr)
+    end if
+
+    if (associated(this%matrix_ptr)) then
+       call this%matrix_ptr%free()
+       deallocate(this%matrix_ptr)
+    end if
+
     this%allocated = .false.
     this%type = ''
   end subroutine free_register
