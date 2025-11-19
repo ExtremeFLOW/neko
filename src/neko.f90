@@ -100,6 +100,7 @@ module neko
   use field_list, only : field_list_t
   use user_source_term, only : user_source_term_t
   use vector, only : vector_t, vector_ptr_t
+  use vector_registry, only : neko_vector_registry, vector_registry_t
   use matrix, only : matrix_t
   use tensor
   use simulation_component, only : simulation_component_t, &
@@ -112,10 +113,12 @@ module neko
        profiler_start_region, profiler_end_region
   use system, only : system_cpu_name, system_cpuid
   use drag_torque, only : drag_torque_zone, drag_torque_facet, drag_torque_pt
-  use field_registry, only : neko_field_registry
-  use scratch_registry, only : neko_scratch_registry
-  use vector_scratch_registry, only : neko_vector_scratch_registry
-  use matrix_scratch_registry, only : neko_matrix_scratch_registry
+  use field_registry, only : neko_field_registry, field_registry_t
+  use scratch_registry, only : neko_scratch_registry, scratch_registry_t
+  use vector_scratch_registry, only : neko_vector_scratch_registry, &
+       vector_scratch_registry_t
+  use matrix_scratch_registry, only : neko_matrix_scratch_registry, &
+       matrix_scratch_registry_t
   use simcomp_executor, only : neko_simcomps
   use data_streamer, only : data_streamer_t
   use time_interpolator, only : time_interpolator_t
@@ -171,6 +174,7 @@ contains
 
     call neko_log%init()
     call neko_field_registry%init()
+    call neko_vector_registry%init()
     call neko_vector_scratch_registry%init()
     call neko_matrix_scratch_registry%init()
 
