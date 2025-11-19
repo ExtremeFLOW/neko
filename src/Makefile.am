@@ -121,6 +121,7 @@ neko_fortran_SOURCES = \
 	math/vector.f90\
 	math/vector_math.f90\
 	registries/scratch_registry.f90\
+	registries/scratch_entry.f90\
 	registries/field_scratch_registry.f90\
 	registries/vector_scratch_registry.f90\
 	registries/matrix_scratch_registry.f90\

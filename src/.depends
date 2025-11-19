@@ -117,7 +117,8 @@ math/bcknd/xsmm/fdm_xsmm.lo : math/bcknd/xsmm/fdm_xsmm.f90 math/bcknd/xsmm/tenso
 math/schwarz.lo : math/schwarz.f90 bc/bc_list.lo config/neko_config.lo device/device.lo math/fdm.lo math/bcknd/device/device_math.lo math/bcknd/device/device_schwarz.lo gs/gather_scatter.lo sem/dofmap.lo sem/space.lo mesh/mesh.lo math/math.lo config/num_types.lo 
 math/vector.lo : math/vector.f90 common/utils.lo math/bcknd/device/device_math.lo math/math.lo device/device.lo config/num_types.lo config/neko_config.lo 
 math/vector_math.lo : math/vector_math.f90 math/bcknd/device/device_math.lo math/math.lo device/device.lo math/vector.lo config/num_types.lo config/neko_config.lo 
-registries/scratch_registry.lo : registries/scratch_registry.f90 common/utils.lo sem/dofmap.lo math/field_math.lo math/matrix.lo math/vector.lo field/field.lo 
+registries/scratch_registry.lo : registries/scratch_registry.f90 common/utils.lo sem/dofmap.lo math/matrix_math.lo math/vector_math.lo math/field_math.lo math/matrix.lo math/vector.lo field/field.lo registries/scratch_entry.lo 
+registries/scratch_entry.lo : registries/scratch_entry.f90 common/utils.lo sem/dofmap.lo math/matrix.lo math/vector.lo field/field.lo 
 registries/field_scratch_registry.lo : registries/field_scratch_registry.f90 sem/dofmap.lo math/field_math.lo field/field.lo 
 registries/vector_scratch_registry.lo : registries/vector_scratch_registry.f90 math/vector_math.lo math/vector.lo 
 registries/matrix_scratch_registry.lo : registries/matrix_scratch_registry.f90 math/matrix_math.lo math/matrix.lo 
