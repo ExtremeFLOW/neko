@@ -38,7 +38,7 @@
 module sigma_cpu
   use num_types, only : rp
   use field_list, only : field_list_t
-  use scratch_registry, only : neko_scratch_registry
+  use field_scratch_registry, only : neko_scratch_registry
   use field_registry, only : neko_field_registry
   use field, only : field_t
   use operators, only : dudxyz

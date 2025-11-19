@@ -39,7 +39,7 @@ module force_torque
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
-  use scratch_registry, only : neko_scratch_registry
+  use field_scratch_registry, only : neko_scratch_registry
   use time_state, only : time_state_t
   use field, only : field_t
   use operators, only : curl

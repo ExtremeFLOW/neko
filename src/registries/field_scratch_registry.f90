@@ -34,7 +34,7 @@
 !! This can be used when you have a function that will be called
 !! often and you don't want to create temporary fields (work arrays) inside
 !! it on each call.
-module scratch_registry
+module field_scratch_registry
   use field, only : field_t, field_ptr_t
   use field_math, only : field_rzero
   use dofmap, only : dofmap_t
@@ -42,7 +42,7 @@ module scratch_registry
   private
 
 
-  type, public :: scratch_registry_t
+  type, public :: field_scratch_registry_t
      !> list of scratch fields
      type(field_ptr_t), private, allocatable :: fields(:)
      !> Tracks which fields are used
@@ -78,17 +78,17 @@ module scratch_registry
      !> Free a field for later reuse
      generic :: relinquish_field => relinquish_field_single, &
           relinquish_field_multiple
-  end type scratch_registry_t
+  end type field_scratch_registry_t
 
   !> Global scratch registry
-  type(scratch_registry_t), public, target :: neko_scratch_registry
+  type(field_scratch_registry_t), public, target :: neko_scratch_registry
 
 contains
 
   !> Constructor, optionally taking initial registry and expansion
   !! size as argument
   subroutine scratch_registry_init(this, dof, size, expansion_size)
-    class(scratch_registry_t), intent(inout) :: this
+    class(field_scratch_registry_t), intent(inout) :: this
     type(dofmap_t), target, intent(in) :: dof
     integer, optional, intent(in) :: size
     integer, optional, intent(in) :: expansion_size
@@ -117,7 +117,7 @@ contains
 
   !> Destructor
   subroutine scratch_registry_free(this)
-    class(scratch_registry_t), intent(inout):: this
+    class(field_scratch_registry_t), intent(inout):: this
     integer :: i
 
     if (allocated(this%fields)) then
@@ -139,14 +139,14 @@ contains
 
   !> Get the number of fields stored in the registry
   pure function get_nfields(this) result(n)
-    class(scratch_registry_t), intent(in) :: this
+    class(field_scratch_registry_t), intent(in) :: this
     integer :: n
 
     n = this%nfields
   end function get_nfields
 
   pure function get_nfields_inuse(this) result(n)
-    class(scratch_registry_t), intent(in) :: this
+    class(field_scratch_registry_t), intent(in) :: this
     integer :: n, i
 
     n = 0
@@ -157,7 +157,7 @@ contains
 
   !> Get the size of the fields array
   pure function get_size(this) result(n)
-    class(scratch_registry_t), intent(in) :: this
+    class(field_scratch_registry_t), intent(in) :: this
     integer :: n
 
     n = size(this%fields)
@@ -165,14 +165,14 @@ contains
 
   !> Get the expansion size
   pure function get_expansion_size(this) result(n)
-    class(scratch_registry_t), intent(in) :: this
+    class(field_scratch_registry_t), intent(in) :: this
     integer :: n
 
     n = this%expansion_size
   end function get_expansion_size
 
   subroutine expand(this)
-    class(scratch_registry_t), intent(inout) :: this
+    class(field_scratch_registry_t), intent(inout) :: this
     type(field_ptr_t), allocatable :: temp(:)
     logical, allocatable :: temp2(:)
     integer :: i
@@ -195,7 +195,7 @@ contains
 
   !> Get a field from the registry by assigning it to a pointer
   subroutine request_field(this, f, index)
-    class(scratch_registry_t), target, intent(inout) :: this
+    class(field_scratch_registry_t), target, intent(inout) :: this
     type(field_t), pointer, intent(inout) :: f
     integer, intent(inout) :: index !< The index of the field in the inuse array
     character(len=10) :: name
@@ -233,7 +233,7 @@ contains
 
   !> Relinquish the use of a field in the registry
   subroutine relinquish_field_single(this, index)
-    class(scratch_registry_t), target, intent(inout) :: this
+    class(field_scratch_registry_t), target, intent(inout) :: this
     integer, intent(inout) :: index !< The index of the field to free
 
     this%inuse(index) = .false.
@@ -241,7 +241,7 @@ contains
   end subroutine relinquish_field_single
 
   subroutine relinquish_field_multiple(this, indices)
-    class(scratch_registry_t), target, intent(inout) :: this
+    class(field_scratch_registry_t), target, intent(inout) :: this
     integer, intent(inout) :: indices(:) !< The indices of the field to free
     integer :: i
 
@@ -252,10 +252,10 @@ contains
   end subroutine relinquish_field_multiple
 
   logical function get_inuse(this, index)
-    class(scratch_registry_t), target, intent(inout) :: this
+    class(field_scratch_registry_t), target, intent(inout) :: this
     integer, intent(inout) :: index !< The index of the field to check
 
     get_inuse = this%inuse(index)
   end function get_inuse
 
-end module scratch_registry
+end module field_scratch_registry

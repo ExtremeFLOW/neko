@@ -46,7 +46,7 @@ module curl_simcomp
   use json_utils, only : json_get, json_get_or_default
   use field_writer, only : field_writer_t
   use device, only : glb_cmd_event
-  use scratch_registry, only : neko_scratch_registry
+  use field_scratch_registry, only : neko_scratch_registry
   use time_based_controller, only : time_based_controller_t
   use utils, only : neko_error
   implicit none

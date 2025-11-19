@@ -45,7 +45,7 @@ module pnpn_res_device
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
   use device, only : device_event_sync
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-  use scratch_registry, only : neko_scratch_registry
+  use field_scratch_registry, only : neko_scratch_registry
   implicit none
   private
 
@@ -312,7 +312,7 @@ contains
     dtbd = 1.0_rp
 
     call bc_sym_surface%apply_surfvec_dev(wa1%x_d, wa2%x_d, wa3%x_d, ta1%x_d, &
-          ta2%x_d, ta3%x_d)
+         ta2%x_d, ta3%x_d)
 
 #ifdef HAVE_HIP
     call pnpn_prs_res_part3_hip(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
@@ -320,7 +320,7 @@ contains
     call pnpn_prs_res_part3_cuda(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
 #elif HAVE_OPENCL
     call pnpn_prs_res_part3_opencl(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, dtbd, &
-          n)
+         n)
 #endif
     !
     dtbd = bd / dt
@@ -338,7 +338,7 @@ contains
     call pnpn_prs_res_part3_cuda(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, dtbd, n)
 #elif HAVE_OPENCL
     call pnpn_prs_res_part3_opencl(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, dtbd,&
-          n)
+         n)
 #endif
 
     call neko_scratch_registry%relinquish_field(temp_indices)
@@ -372,7 +372,7 @@ contains
     c_Xh%ifh2 = .true.
 
     call Ax%compute_vector(u_res%x, v_res%x, w_res%x, &
-                           u%x, v%x, w%x, c_Xh, msh, Xh)
+         u%x, v%x, w%x, c_Xh, msh, Xh)
 
     call neko_scratch_registry%request_field(ta1, temp_indices(1))
     call neko_scratch_registry%request_field(ta2, temp_indices(2))

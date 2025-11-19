@@ -7,7 +7,7 @@ module pnpn_res_cpu
   use coefs, only : coef_t
   use facet_normal, only : facet_normal_t
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
-  use scratch_registry, only: neko_scratch_registry
+  use field_scratch_registry, only: neko_scratch_registry
   use mesh, only : mesh_t
   use num_types, only : rp
   use space, only : space_t
@@ -115,7 +115,7 @@ contains
     end do
 
     call bc_sym_surface%apply_surfvec(wa1%x, wa2%x, wa3%x, ta1%x, ta2%x, ta3%x,&
-                                      n)
+         n)
 
     dtbd = bd / dt
     do concurrent (i = 1:n)

@@ -37,7 +37,7 @@ module euler_res_device
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use num_types, only : rp, c_rp
-  use scratch_registry, only: neko_scratch_registry
+  use field_scratch_registry, only: neko_scratch_registry
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   use operators, only : div

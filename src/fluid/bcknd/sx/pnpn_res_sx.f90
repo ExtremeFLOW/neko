@@ -7,7 +7,7 @@ module pnpn_res_sx
   use coefs, only : coef_t
   use facet_normal, only : facet_normal_t
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
-  use scratch_registry, only: neko_scratch_registry
+  use field_scratch_registry, only: neko_scratch_registry
   use mesh, only : mesh_t
   use num_types, only : rp
   use space, only : space_t

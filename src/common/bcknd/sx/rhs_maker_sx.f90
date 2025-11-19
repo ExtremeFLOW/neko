@@ -1,10 +1,10 @@
 module rhs_maker_sx
   use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_sumab_t, &
-                        rhs_maker_oifs_t
+       rhs_maker_oifs_t
   use field_series, only : field_series_t
   use field, only : field_t
   use num_types, only : rp, c_rp
-  use scratch_registry, only : neko_scratch_registry
+  use field_scratch_registry, only : neko_scratch_registry
   implicit none
   private
 
@@ -13,7 +13,7 @@ module rhs_maker_sx
      procedure, nopass :: compute_fluid => rhs_maker_sumab_sx
   end type rhs_maker_sumab_sx_t
 
-  type, public, extends(rhs_maker_ext_t) ::  rhs_maker_ext_sx_t
+  type, public, extends(rhs_maker_ext_t) :: rhs_maker_ext_sx_t
    contains
      procedure, nopass :: compute_fluid => rhs_maker_ext_sx
      procedure, nopass :: compute_scalar => scalar_rhs_maker_ext_sx
@@ -34,7 +34,7 @@ module rhs_maker_sx
 contains
 
   subroutine rhs_maker_sumab_sx(u, v, w, uu, vv, ww, uulag, vvlag, wwlag, &
-                                ab, nab)
+       ab, nab)
     type(field_t), intent(inout) :: u,v, w
     type(field_t), intent(inout) :: uu, vv, ww
     type(field_series_t), intent(inout) :: uulag, vvlag, wwlag
@@ -61,8 +61,8 @@ contains
   end subroutine rhs_maker_sumab_sx
 
   subroutine rhs_maker_ext_sx(fx_lag, fy_lag, fz_lag, &
-                             fx_laglag, fy_laglag, fz_laglag, fx, fy, fz, &
-                             rho, ext_coeffs, n)
+       fx_laglag, fy_laglag, fz_laglag, fx, fy, fz, &
+       rho, ext_coeffs, n)
     type(field_t), intent(inout) :: fx_lag, fy_lag, fz_lag
     type(field_t), intent(inout) :: fx_laglag, fy_laglag, fz_laglag
     real(kind=rp), intent(in) :: rho, ext_coeffs(4)
@@ -78,11 +78,11 @@ contains
 
     do i = 1, n
        temp1%x(i,1,1,1) = ext_coeffs(2) * fx_lag%x(i,1,1,1) + &
-                          ext_coeffs(3) * fx_laglag%x(i,1,1,1)
+            ext_coeffs(3) * fx_laglag%x(i,1,1,1)
        temp2%x(i,1,1,1) = ext_coeffs(2) * fy_lag%x(i,1,1,1) + &
-                          ext_coeffs(3) * fy_laglag%x(i,1,1,1)
+            ext_coeffs(3) * fy_laglag%x(i,1,1,1)
        temp3%x(i,1,1,1) = ext_coeffs(2) * fz_lag%x(i,1,1,1) + &
-                          ext_coeffs(3) * fz_laglag%x(i,1,1,1)
+            ext_coeffs(3) * fz_laglag%x(i,1,1,1)
     end do
 
     do i = 1, n
@@ -105,7 +105,7 @@ contains
   end subroutine rhs_maker_ext_sx
 
   subroutine scalar_rhs_maker_ext_sx(fs_lag, fs_laglag, fs, rho, &
-                                     ext_coeffs, n)
+       ext_coeffs, n)
     type(field_t), intent(inout) :: fs_lag
     type(field_t), intent(inout) :: fs_laglag
     real(kind=rp), intent(in) :: rho, ext_coeffs(4)
@@ -119,7 +119,7 @@ contains
 
     do i = 1, n
        temp1%x(i,1,1,1) = ext_coeffs(2) * fs_lag%x(i,1,1,1) + &
-                          ext_coeffs(3) * fs_laglag%x(i,1,1,1)
+            ext_coeffs(3) * fs_laglag%x(i,1,1,1)
     end do
 
     do i = 1, n
@@ -135,7 +135,7 @@ contains
   end subroutine scalar_rhs_maker_ext_sx
 
   subroutine rhs_maker_bdf_sx(ulag, vlag, wlag, bfx, bfy, bfz, &
-                              u, v, w, B, rho, dt, bd, nbd, n)
+       u, v, w, B, rho, dt, bd, nbd, n)
     integer, intent(in) :: n, nbd
     type(field_t), intent(in) :: u, v, w
     type(field_series_t), intent(in) :: ulag, vlag, wlag
@@ -220,7 +220,7 @@ contains
   end subroutine scalar_rhs_maker_bdf_sx
 
   subroutine rhs_maker_oifs_sx(phi_x, phi_y, phi_z, bf_x, bf_y, bf_z, &
-                               rho, dt, n)
+       rho, dt, n)
     real(kind=rp), intent(in) :: rho, dt
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: bf_x(n), bf_y(n), bf_z(n)

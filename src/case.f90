@@ -58,7 +58,7 @@ module case
   use time_state, only : time_state_t
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default, json_extract_item, json_no_defaults
-  use scratch_registry, only : scratch_registry_t, neko_scratch_registry
+  use field_scratch_registry, only : neko_scratch_registry
   use point_zone_registry, only: neko_point_zone_registry
   use scalars, only : scalars_t
   use comm, only : NEKO_COMM, pe_rank, pe_size
