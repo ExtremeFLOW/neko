@@ -27,6 +27,8 @@ SUBDIRS = tuple\
 	  vector\
 	  matrix\
 	  scratch_registry\
+	  vector_scratch_registry\
+	  matrix_scratch_registry\
 	  field_registry\
 	  vector_registry\
 	  fast3d\
@@ -65,6 +67,8 @@ TESTS = device/device_test\
 	vector/vector_test\
 	matrix/matrix_test\
 	scratch_registry/scratch_registry_test\
+	vector_scratch_registry/vector_scratch_registry_test\
+	matrix_scratch_registry/matrix_scratch_registry_test\
 	field_registry/field_registry_test\
 	vector_registry/vector_registry_test\
 	fast3d/fast3d_test\
@@ -130,6 +134,8 @@ EXTRA_DIST = \
 	vector/vector_parallel.pf\
 	matrix/matrix_parallel.pf\
 	scratch_registry/test_scratch_registry.pf\
+	vector_scratch_registry/test_vector_scratch_registry.pf\
+	matrix_scratch_registry/test_matrix_scratch_registry.pf\
 	field_registry/test_field_registry.pf\
 	vector_registry/test_vector_registry.pf\
 	fast3d/test_fd_weights_full.pf\

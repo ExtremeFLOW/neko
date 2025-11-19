@@ -122,6 +122,8 @@ neko_fortran_SOURCES = \
 	math/vector.f90\
 	math/vector_registry.f90\
 	math/vector_math.f90\
+	math/vector_scratch_registry.f90\
+	math/matrix_scratch_registry.f90\
 	math/matrix.f90\
 	math/matrix_math.f90\
 	math/signed_distance.f90\

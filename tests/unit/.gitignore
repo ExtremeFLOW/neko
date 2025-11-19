@@ -54,6 +54,8 @@ mesh/mesh_suite
 gather_scatter/gather_scatter_suite
 jobctrl/jobctrl_suite
 scratch_registry/scratch_registry_test
+vector_scratch_registry/vector_scratch_registry_test
+matrix_scratch_registry/matrix_scratch_registry_test
 fast3d/fast3d_test
 time_scheme/time_scheme_test
 time_scheme_controller/time_scheme_controller_test
