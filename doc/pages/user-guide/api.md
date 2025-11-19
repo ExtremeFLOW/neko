@@ -30,6 +30,6 @@ packge using:
 (@v1.11) pkg> add https://gitlab.com/ExtremeFLOW/Neko.jl
 ```
 
-Finally, set library paths (e.g., `LD_LIBRARY_PATH`) to the correct paths under the installation prefix. On some systems, you might needto preload (e.g., `LD_PRELOAD`) the MPI library to avoid missing symbols.
+Finally, set library paths (e.g., `LD_LIBRARY_PATH`) to the correct paths under the installation prefix. On some systems, you might need to preload (e.g., `LD_PRELOAD`) the MPI library to avoid missing symbols.
 
 An example on how to use the Julia interface is shown in [examples/api/Neko.jl/cylinder.jl](@ref examples/api/Neko.jl/cylinder.jl).
