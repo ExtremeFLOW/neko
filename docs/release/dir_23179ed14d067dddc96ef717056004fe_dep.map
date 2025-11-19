@@ -1,0 +1,22 @@
+<map id="/home/runner/work/neko/neko/src/math/bcknd/device" name="/home/runner/work/neko/neko/src/math/bcknd/device">
+<area shape="rect" id="node6" href="dir_d0537398ec3fe72d8d4f5c6709d28acc.html" title="comm" alt="" coords="39,136,102,161"/>
+<area shape="poly" id="edge1" href="dir_000052_000018.html" alt="" coords="73,88,73,122,68,122,68,88"/>
+<area shape="rect" id="edge1-headlabel" href="dir_000052_000018.html" title="1" alt="" coords="74,110,84,125"/>
+<area shape="rect" id="node2" href="dir_4c3596ec6e7f8d381657f6ce7bbe76a2.html" title="cuda" alt="" coords="284,63,337,88"/>
+<area shape="rect" id="node5" href="dir_16dc92632bab467dc50b01bd02b3341a.html" title="device" alt="" coords="182,136,247,161"/>
+<area shape="poly" id="edge2" href="dir_000039_000046.html" alt="" coords="299,90,274,111,246,131,243,126,270,107,296,86"/>
+<area shape="rect" id="edge2-headlabel" href="dir_000039_000046.html" title="26" alt="" coords="244,126,262,140"/>
+<area shape="rect" id="node7" href="dir_fdedb0aba14d44ce9d99bc100e026e6a.html" title="common" alt="" coords="271,136,350,161"/>
+<area shape="poly" id="edge3" href="dir_000039_000019.html" alt="" coords="313,88,313,122,308,122,308,88"/>
+<area shape="rect" id="edge3-headlabel" href="dir_000039_000019.html" title="7" alt="" coords="314,110,324,125"/>
+<area shape="rect" id="node3" href="dir_f48359d827d7566deae6b1b647b520e2.html" title="hip" alt="" coords="217,63,260,88"/>
+<area shape="poly" id="edge4" href="dir_000069_000046.html" alt="" coords="237,89,225,124,220,122,232,87"/>
+<area shape="rect" id="edge4-headlabel" href="dir_000069_000046.html" title="26" alt="" coords="224,114,241,129"/>
+<area shape="poly" id="edge5" href="dir_000069_000019.html" alt="" coords="252,86,291,124,287,128,249,90"/>
+<area shape="rect" id="edge5-headlabel" href="dir_000069_000019.html" title="7" alt="" coords="287,110,297,124"/>
+<area shape="rect" id="node4" href="dir_a753435b69305af25b1972a8c16b18f4.html" title="opencl" alt="" coords="127,63,193,88"/>
+<area shape="poly" id="edge6" href="dir_000084_000046.html" alt="" coords="171,87,200,124,195,127,167,90"/>
+<area shape="rect" id="edge6-headlabel" href="dir_000084_000046.html" title="48" alt="" coords="193,109,210,124"/>
+<area shape="rect" id="clust2" href="dir_23179ed14d067dddc96ef717056004fe.html" alt="" coords="27,52,348,99"/>
+<area shape="rect" id="clust1" href="dir_50770e26e3ba115102e9374c0e502830.html" title="bcknd" alt="" coords="16,16,359,109"/>
+</map>

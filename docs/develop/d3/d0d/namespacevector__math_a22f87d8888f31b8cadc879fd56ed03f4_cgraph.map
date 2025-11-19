@@ -1,0 +1,8 @@
+<map id="vector_math::vector_glsc3" name="vector_math::vector_glsc3">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,47,159,87"/>
+<area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#abb89ff66f95f255dc98c0fe714d8ddbf" title="Weighted inner product ." alt="" coords="207,5,364,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="159,48,193,41,194,47,160,54"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#a22f2f98aad6feae117b800fa20fa43ed" title="Weighted inner product ." alt="" coords="236,94,335,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="160,79,223,92,222,97,159,84"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="252,96,245,86,249,76,262,70,285,67,314,71,325,80,321,84,311,76,285,73,264,75,252,79,250,85,256,92"/>
+</map>

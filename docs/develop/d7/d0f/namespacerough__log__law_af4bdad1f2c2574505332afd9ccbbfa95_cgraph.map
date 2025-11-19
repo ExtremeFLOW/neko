@@ -1,0 +1,12 @@
+<map id="rough_log_law::rough_log_law_compute" name="rough_log_law::rough_log_law_compute">
+<area shape="rect" id="Node000001" title="Compute the wall shear stress." alt="" coords="5,41,165,81"/>
+<area shape="rect" id="Node000002" href="$dc/d1f/namespacerough__log__law__cpu.html#a6b904f0bafef8f8c6c1efbddcc94d644" title="Compute the wall shear stress on CPU using the rough log&#45;law model." alt="" coords="213,5,424,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="165,46,200,41,200,46,166,52"/>
+<area shape="rect" id="Node000003" href="$db/d78/namespacerough__log__law__device.html#a5e85ba6f46adfba24d7fbeff47785893" title="Compute the wall shear stress on device using the rough log&#45;law model." alt="" coords="225,70,413,125"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="166,71,212,78,211,83,165,76"/>
+<area shape="rect" id="Node000004" href="$d1/dc9/rough__log__law_8cu.html#ab517533c65763e148ba99991eefc94a0" title=" " alt="" coords="472,77,627,117"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="413,95,458,95,458,100,413,100"/>
+<area shape="rect" id="Node000005" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="675,77,839,117"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="627,95,661,95,661,100,627,100"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="718,78,716,68,722,59,736,53,757,51,781,54,794,61,791,66,779,59,757,56,737,58,725,63,721,69,723,76"/>
+</map>

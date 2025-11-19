@@ -1,0 +1,8 @@
+<map id="vector::vector_sub_scalar_left" name="vector::vector_sub_scalar_left">
+<area shape="rect" id="Node000001" title="Vector&#45;scalar subtraction ." alt="" coords="431,5,573,45"/>
+<area shape="rect" id="Node000002" href="$d3/d5b/structvector_1_1vector__t.html#a296b0de5bb9330f27c30e2cc09b35987" title="Vector&#45;vector subtraction ." alt="" coords="5,13,192,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="417,25,383,24,240,24,192,25,192,20,240,19,383,19,417,19"/>
+<area shape="rect" id="Node000003" href="$d7/d34/namespacevector.html#aa6bde052fe14043dc6f77bd247648469" title="Scalar&#45;vector subtraction ." alt="" coords="240,33,383,73"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="418,40,383,46,382,40,417,35"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="226,45,192,40,193,35,226,40"/>
+</map>

@@ -1,0 +1,32 @@
+<map id="coefs::coef_generate_dxyzdrst" name="coefs::coef_generate_dxyzdrst">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,211,164,251"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#a9ae93ef16c85e8de722f56c281f444e6" title="Returns ." alt="" coords="244,5,359,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="91,210,108,174,133,127,168,80,210,40,229,29,232,34,214,44,172,84,138,130,113,176,96,212"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#aa1412314da40d2e416830c43f18dd504" title="Change sign of vector ." alt="" coords="248,55,355,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="96,210,142,150,174,117,211,89,234,78,236,83,213,94,177,121,146,153,101,213"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="254,104,349,129"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="107,209,154,174,211,140,240,128,242,133,213,144,157,178,111,213"/>
+<area shape="rect" id="Node000005" href="$df/d80/namespacedevice__coef.html#a6bf9ddbe771387016c5f4cd71fe51256" title=" " alt="" coords="212,154,391,194"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="160,209,212,195,213,200,162,214"/>
+<area shape="rect" id="Node000010" href="$dd/d47/namespacemath.html#a3789b839284889e98200fa663a5e040f" title="Compute inverted vector ." alt="" coords="245,219,357,244"/>
+<area shape="poly" id="edge12_Node000001_Node000010" title=" " alt="" coords="164,229,231,229,231,234,164,234"/>
+<area shape="rect" id="Node000011" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="222,268,381,293"/>
+<area shape="poly" id="edge13_Node000001_Node000011" title=" " alt="" coords="165,247,233,262,231,268,164,252"/>
+<area shape="rect" id="Node000012" href="$dd/d47/namespacemath.html#a6a2786eeaf4fa795dab048bb6c8d56c4" title="Set all elements to one." alt="" coords="255,317,348,343"/>
+<area shape="poly" id="edge14_Node000001_Node000012" title=" " alt="" coords="116,249,161,277,213,304,242,314,241,319,211,308,158,282,113,254"/>
+<area shape="rect" id="Node000013" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="253,367,350,392"/>
+<area shape="poly" id="edge15_Node000001_Node000013" title=" " alt="" coords="103,250,149,302,180,330,213,353,241,365,239,370,211,358,176,334,145,306,99,253"/>
+<area shape="rect" id="Node000014" href="$dd/d47/namespacemath.html#a690b20ca46eb975541f8e6787f04043f" title="Returns ." alt="" coords="244,416,359,441"/>
+<area shape="poly" id="edge16_Node000001_Node000014" title=" " alt="" coords="97,250,115,284,140,325,173,367,214,402,232,412,230,417,210,407,170,371,136,328,110,286,93,253"/>
+<area shape="rect" id="Node000006" href="$d4/d95/coef_8cu.html#ae353b24ed06280c0189697af736a6b7d" title=" " alt="" coords="652,126,805,166"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="391,166,638,149,638,155,391,171"/>
+<area shape="rect" id="Node000008" href="$d6/da9/coef_8c.html#aafbd283d930483605855d2397a10ab8d" title=" " alt="" coords="439,183,604,223"/>
+<area shape="poly" id="edge8_Node000005_Node000008" title=" " alt="" coords="391,183,425,188,424,193,391,189"/>
+<area shape="rect" id="Node000007" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="853,183,1017,223"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="802,163,850,177,849,182,801,169"/>
+<area shape="poly" id="edge7_Node000007_Node000007" title=" " alt="" coords="897,184,894,174,901,165,914,159,935,157,959,160,973,167,970,172,958,165,935,162,916,164,904,169,900,175,902,182"/>
+<area shape="poly" id="edge9_Node000008_Node000007" title=" " alt="" coords="604,201,840,201,840,206,604,206"/>
+<area shape="rect" id="Node000009" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="663,241,795,267"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="604,221,663,235,662,241,603,226"/>
+<area shape="poly" id="edge11_Node000009_Node000007" title=" " alt="" coords="781,239,839,224,841,229,782,244"/>
+</map>

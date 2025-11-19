@@ -1,0 +1,7 @@
+<map id="neko_job_info" name="neko_job_info">
+<area shape="rect" id="Node000001" title=" " alt="" coords="200,42,312,67"/>
+<area shape="rect" id="Node000002" href="$d5/dd3/namespaceneko__api.html#a4400b3d8102e65c6cb49de4b8de929f3" title="Display job information." alt="" coords="5,5,152,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,46,152,40,153,35,187,41"/>
+<area shape="rect" id="Node000003" href="$dd/d62/namespaceneko.html#a647e539d6b0950b6569c6752b8f007ff" title="Initialise Neko." alt="" coords="19,70,139,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="187,68,139,76,138,71,186,63"/>
+</map>

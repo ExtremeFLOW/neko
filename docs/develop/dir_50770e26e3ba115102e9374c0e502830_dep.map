@@ -1,0 +1,17 @@
+<map id="/home/runner/work/neko/neko/src/math/bcknd" name="/home/runner/work/neko/neko/src/math/bcknd">
+<area shape="rect" id="node2" href="dir_a1c99f91a79f7bf548f96fca73db34ee.html" title="cpu" alt="" coords="277,63,323,88"/>
+<area shape="rect" id="node3" href="dir_23179ed14d067dddc96ef717056004fe.html" title="device" alt="" coords="187,63,253,88"/>
+<area shape="rect" id="node6" href="dir_16dc92632bab467dc50b01bd02b3341a.html" title="device" alt="" coords="91,136,157,161"/>
+<area shape="poly" id="edge1" href="dir_000065_000058.html" alt="" coords="206,90,152,130,149,125,203,86"/>
+<area shape="rect" id="edge1-headlabel" href="dir_000065_000058.html" title="120" alt="" coords="147,125,172,139"/>
+<area shape="rect" id="node7" href="dir_fdedb0aba14d44ce9d99bc100e026e6a.html" title="common" alt="" coords="181,136,259,161"/>
+<area shape="poly" id="edge3" href="dir_000065_000024.html" alt="" coords="223,88,223,122,217,122,217,88"/>
+<area shape="rect" id="edge3-headlabel" href="dir_000065_000024.html" title="24" alt="" coords="220,110,237,125"/>
+<area shape="rect" id="node8" href="dir_d0537398ec3fe72d8d4f5c6709d28acc.html" title="comm" alt="" coords="283,136,346,161"/>
+<area shape="poly" id="edge2" href="dir_000065_000023.html" alt="" coords="237,86,290,125,287,130,234,90"/>
+<area shape="rect" id="edge2-headlabel" href="dir_000065_000023.html" title="2" alt="" coords="285,111,294,125"/>
+<area shape="rect" id="node4" href="dir_a37eab83353f81cec631cb1cae63e167.html" title="sx" alt="" coords="125,63,163,88"/>
+<area shape="rect" id="node5" href="dir_26325635ce1980a50826396f97882f13.html" title="xsmm" alt="" coords="38,63,101,88"/>
+<area shape="rect" id="clust2" href="dir_50770e26e3ba115102e9374c0e502830.html" alt="" coords="27,52,419,99"/>
+<area shape="rect" id="clust1" href="dir_ae9a93452e2a84339148a16bcf2eb561.html" title="math" alt="" coords="16,16,429,109"/>
+</map>

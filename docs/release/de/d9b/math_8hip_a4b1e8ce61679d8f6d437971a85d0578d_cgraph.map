@@ -1,0 +1,9 @@
+<map id="hip_glsc2" name="hip_glsc2">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,88,62"/>
+<area shape="rect" id="Node000002" href="$d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="136,11,300,37"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="88,41,122,36,123,41,89,46"/>
+<area shape="rect" id="Node000003" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="348,29,512,69"/>
+<area shape="poly" id="edge4_Node000001_Node000003" title=" " alt="" coords="88,47,334,47,334,52,88,52"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="301,31,335,35,334,41,300,36"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="390,30,388,20,394,10,409,5,430,3,455,6,468,13,466,18,453,11,430,8,410,10,398,15,393,21,396,28"/>
+</map>

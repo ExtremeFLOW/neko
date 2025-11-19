@@ -1,0 +1,9 @@
+<map id="map_2d::perform_local_summation" name="map_2d::perform_local_summation">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,47,177,87"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#a0a627ff3e9d8b5a4fdffb489df69adb1" title="Multiplication by constant c ." alt="" coords="225,5,327,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,45,214,32,215,37,167,50"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="231,55,321,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="178,65,217,65,217,70,178,70"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="227,104,325,129"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="167,85,215,98,214,103,166,90"/>
+</map>

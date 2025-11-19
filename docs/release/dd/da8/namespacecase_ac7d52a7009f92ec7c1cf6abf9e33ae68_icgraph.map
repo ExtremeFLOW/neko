@@ -1,0 +1,7 @@
+<map id="case::case_init_common" name="case::case_init_common">
+<area shape="rect" id="Node000001" title="Initialize a case from its (loaded) params object." alt="" coords="209,45,392,70"/>
+<area shape="rect" id="Node000002" href="$d8/d36/interfacecase_1_1case__init.html#acd7b02470b540d948eb556eecfc40e81" title="Initialize a case from an input file case_file." alt="" coords="5,5,161,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,45,161,39,162,34,201,40"/>
+<area shape="rect" id="Node000003" href="$d8/d36/interfacecase_1_1case__init.html#a685c8e7a3bb9754492dbb77fcc05efc6" title="Initialize a case from a JSON object describing a case." alt="" coords="5,69,161,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="201,75,162,81,161,75,200,69"/>
+</map>

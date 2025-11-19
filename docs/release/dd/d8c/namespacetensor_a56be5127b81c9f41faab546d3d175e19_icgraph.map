@@ -1,0 +1,11 @@
+<map id="tensor::trsp1" name="tensor::trsp1">
+<area shape="rect" id="Node000001" title="In&#45;place transpose of a square tensor." alt="" coords="435,42,539,67"/>
+<area shape="rect" id="Node000002" href="$d2/d80/namespacecpr.html#ae689f520261060721e9a32eee074c3d7" title="Generate spectral tranform matrices." alt="" coords="188,13,387,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="420,48,373,41,374,35,421,42"/>
+<area shape="rect" id="Node000004" href="$d5/d0d/namespacespace.html#af5f26a3966b9af7712f57271e972a34b" title="Generate spectral tranform matrices." alt="" coords="192,63,383,103"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="421,66,383,72,383,67,420,61"/>
+<area shape="rect" id="Node000003" href="$d0/d6c/interfacecpr_1_1cpr__init.html#a13d7775a54aa77d22ca967b13c0fbe64" title="Initialize cpr." alt="" coords="9,5,136,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="174,28,136,28,136,23,174,23"/>
+<area shape="rect" id="Node000005" href="$d5/d0d/namespacespace.html#aea7cdf9a8933056da79e3b73f4e0ed49" title="Initialize a function space s with given polynomial dimensions." alt="" coords="5,70,140,95"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="178,85,141,85,141,80,178,80"/>
+</map>

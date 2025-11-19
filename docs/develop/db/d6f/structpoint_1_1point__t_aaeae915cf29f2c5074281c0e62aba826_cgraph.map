@@ -1,0 +1,7 @@
+<map id="point::point_t::init" name="point::point_t::init">
+<area shape="rect" id="Node000001" title="Initialize a point from an array x of &#160;coordinates." alt="" coords="5,31,143,56"/>
+<area shape="rect" id="Node000002" href="$d8/dbc/namespacepoint.html#a0dcbb679d0c03c8beb087944c8bf8e46" title="Initialize a point from an array x of &#160;coordinates." alt="" coords="191,5,356,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="143,32,177,28,177,33,143,37"/>
+<area shape="rect" id="Node000003" href="$d8/dbc/namespacepoint.html#a43b3c9fc896b0133cf8646c9aff34a28" title="Initialize a point from &#160;coordinates." alt="" coords="196,55,351,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="143,49,182,54,182,59,143,54"/>
+</map>

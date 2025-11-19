@@ -1,0 +1,25 @@
+<map id="pipecg_device::pipecg_device_solve" name="pipecg_device::pipecg_device_solve">
+<area shape="rect" id="Node000001" title="Pipelined PCG solve." alt="" coords="5,169,172,209"/>
+<area shape="rect" id="Node000002" href="$da/d46/namespacepipecg__device.html#aa3ab1356e5bada6530054c707c710072" title=" " alt="" coords="235,5,402,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,167,150,112,183,81,219,55,230,49,232,54,221,60,186,86,154,116,107,171"/>
+<area shape="rect" id="Node000005" href="$d2/d73/namespacedevice__math.html#addb4596de81a7518fcafd9e40aa7ed57" title="Copy a vector ." alt="" coords="221,70,416,95"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="114,167,162,135,219,104,239,97,241,102,221,109,164,139,117,171"/>
+<area shape="rect" id="Node000006" href="$d0/dbe/namespacedevice.html#a08e073f459027c6c1b067ff777f0bbf9" title="Synchronize an event." alt="" coords="220,119,417,145"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="169,167,253,145,254,151,170,172"/>
+<area shape="rect" id="Node000007" href="$d2/d73/namespacedevice__math.html#ac80b69645b556fc4dc3022739f00bbd1" title="Weighted inner product ." alt="" coords="240,169,397,209"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="172,187,226,187,226,192,172,192"/>
+<area shape="rect" id="Node000008" href="$da/d46/namespacepipecg__device.html#a20e5112bf3c11f03f58a2bd09e8f27a0" title=" " alt="" coords="235,233,402,273"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="162,207,234,227,233,232,161,212"/>
+<area shape="rect" id="Node000010" href="$d2/d73/namespacedevice__math.html#a2b8132d3d15d4b553af3a1b55d6f8d87" title="Zero a real vector." alt="" coords="240,297,397,337"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="114,207,162,245,221,283,236,290,233,295,219,288,159,250,111,212"/>
+<area shape="rect" id="Node000011" href="$d2/d73/namespacedevice__math.html#a384b19e4831cef680a3f660edcccb98b" title="Compute multiplication sum ." alt="" coords="240,361,397,401"/>
+<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="103,208,149,276,183,314,222,347,231,353,228,357,218,351,179,318,145,280,99,211"/>
+<area shape="rect" id="Node000003" href="$da/d9a/pipecg__aux_8hip.html#a4ac59ecc540cb19e2ceca9beeaae179b" title=" " alt="" coords="469,58,607,83"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="403,40,463,53,462,58,402,45"/>
+<area shape="rect" id="Node000004" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="659,120,823,160"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="577,81,670,113,668,118,575,86"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="702,120,700,110,706,101,720,95,741,93,764,96,777,104,775,108,763,101,741,99,721,101,710,105,705,111,708,119"/>
+<area shape="rect" id="Node000009" href="$da/d9a/pipecg__aux_8hip.html#a5a0e60ff01db773d2d0f0737b5982a6a" title=" " alt="" coords="465,151,611,177"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="384,231,416,219,499,181,501,185,418,224,386,236"/>
+<area shape="poly" id="edge10_Node000009_Node000004" title=" " alt="" coords="611,153,645,149,645,154,611,158"/>
+</map>

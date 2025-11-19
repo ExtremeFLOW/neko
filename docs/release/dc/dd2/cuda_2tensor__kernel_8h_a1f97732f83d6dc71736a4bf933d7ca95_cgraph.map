@@ -1,0 +1,8 @@
+<map id="tnsr3d_kernel" name="tnsr3d_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,47,116,72"/>
+<area shape="rect" id="Node000002" href="$d0/d7e/cuda_2ax__helm__full__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="189,5,303,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="116,44,175,31,176,36,117,50"/>
+<area shape="rect" id="Node000003" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="164,79,328,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="117,69,151,76,150,81,116,74"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="211,80,209,70,215,61,227,55,246,53,268,56,280,63,277,67,266,61,246,58,229,60,218,65,214,71,216,78"/>
+</map>

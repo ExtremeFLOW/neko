@@ -1,0 +1,6 @@
+<map id="scalar_rhs_maker_oifs_cuda" name="scalar_rhs_maker_oifs_cuda">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,211,62"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="259,29,423,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="211,47,245,47,245,52,211,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="297,30,295,20,302,10,317,5,341,3,368,6,382,13,380,18,366,11,341,8,318,10,305,15,300,21,302,28"/>
+</map>

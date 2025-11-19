@@ -1,0 +1,9 @@
+<map id="matrix_scratch_registry::request_matrix" name="matrix_scratch_registry::request_matrix">
+<area shape="rect" id="Node000001" title="Get a matrix from the registry by assigning it to a pointer." alt="" coords="5,35,181,75"/>
+<area shape="rect" id="Node000002" href="$dc/d12/namespacematrix__math.html#ab3066e0abca1896f3366afebe892206e" title="Zero a real matrix ." alt="" coords="229,35,387,75"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="182,52,216,52,216,57,182,57"/>
+<area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="435,5,592,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="387,41,421,36,422,41,387,46"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="465,70,562,95"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="387,63,452,72,451,77,387,68"/>
+</map>

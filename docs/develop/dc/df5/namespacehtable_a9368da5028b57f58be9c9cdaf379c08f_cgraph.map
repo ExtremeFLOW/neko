@@ -1,0 +1,7 @@
+<map id="htable::htable_r8_remove" name="htable::htable_r8_remove">
+<area shape="rect" id="Node000001" title="Remove a double precision key key from the hash table." alt="" coords="5,5,195,31"/>
+<area shape="rect" id="Node000002" href="$dc/df5/namespacehtable.html#a7fb79f0bfa89ea18c0e963dfd1898db4" title="Remove a key from the hash table." alt="" coords="243,5,412,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,15,229,15,229,21,195,21"/>
+<area shape="rect" id="Node000003" href="$dc/df5/namespacehtable.html#aaf0eaa6f045b8177f467c12a9fd33f23" title="Compare key at idx to key." alt="" coords="460,5,625,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="412,15,447,15,447,21,412,21"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="cpr::cpr_generate_specmat" name="cpr::cpr_generate_specmat">
+<area shape="rect" id="Node000001" title="Generate spectral tranform matrices." alt="" coords="5,55,204,80"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="284,5,379,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="163,52,270,28,271,34,164,57"/>
+<area shape="rect" id="Node000003" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="252,55,411,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="204,65,238,65,238,70,204,70"/>
+<area shape="rect" id="Node000004" href="$dd/d8c/namespacetensor.html#a56be5127b81c9f41faab546d3d175e19" title="In&#45;place transpose of a square tensor." alt="" coords="279,104,383,129"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="164,77,266,100,265,105,163,83"/>
+</map>

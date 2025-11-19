@@ -1,0 +1,6 @@
+<map id="masked_atomic_reduction_kernel" name="masked_atomic_reduction_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,199,69"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="247,29,411,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="199,47,233,47,233,52,199,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="286,30,284,20,291,10,306,5,329,3,355,6,370,13,367,18,354,11,329,8,307,10,294,15,289,21,291,28"/>
+</map>

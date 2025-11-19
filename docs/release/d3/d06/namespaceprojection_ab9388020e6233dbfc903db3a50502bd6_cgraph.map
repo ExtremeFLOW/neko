@@ -1,0 +1,16 @@
+<map id="projection::bcknd_project_on" name="projection::bcknd_project_on">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,143,215,168"/>
+<area shape="rect" id="Node000002" href="$d3/d06/namespaceprojection.html#ac63a40c6adff939561cd8b6b8432d1e4" title=" " alt="" coords="263,53,456,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="137,140,194,115,262,89,291,80,292,85,264,94,196,120,139,145"/>
+<area shape="rect" id="Node000005" href="$d3/d06/namespaceprojection.html#a0e69123af0e0009083f2da33c8771fb8" title=" " alt="" coords="290,103,429,143"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="209,140,276,131,276,137,210,145"/>
+<area shape="rect" id="Node000006" href="$dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5" title="End the most recently started profiler region." alt="" coords="298,167,421,207"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="210,165,285,175,284,180,209,171"/>
+<area shape="rect" id="Node000007" href="$dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101" title="Started a named (name) profiler region." alt="" coords="298,231,421,271"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="141,166,264,217,286,225,284,230,262,222,138,170"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#a22f2f98aad6feae117b800fa20fa43ed" title="Weighted inner product ." alt="" coords="504,29,603,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="456,51,490,47,491,52,457,57"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="505,79,602,104"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="457,76,491,81,490,86,456,81"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="522,31,515,21,518,11,532,5,553,3,580,6,591,15,587,19,578,11,553,8,533,10,522,15,520,20,526,28"/>
+</map>

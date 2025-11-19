@@ -1,0 +1,61 @@
+<map id="device::device_free" name="device::device_free">
+<area shape="rect" id="Node000001" title="Deallocate memory on the device." alt="" coords="487,740,636,765"/>
+<area shape="rect" id="Node000002" href="$d0/dc0/namespacebc.html#a316d14014f07ae85ac25bbcc01bd2b79" title="Destructor for the base type, bc_t." alt="" coords="262,5,393,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="557,726,550,584,531,378,516,273,495,176,469,97,454,66,437,44,416,30,392,22,393,17,419,25,441,40,458,64,474,95,500,174,521,272,536,378,555,584,562,726"/>
+<area shape="rect" id="Node000003" href="$de/da4/namespaceblasius.html#ad870c19602eeb17380eeba2452eaca92" title=" " alt="" coords="250,55,405,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="556,727,548,594,528,403,512,305,492,215,467,142,453,114,437,93,422,82,404,74,406,69,425,77,441,89,457,111,472,140,497,214,518,304,533,402,553,593,562,726"/>
+<area shape="rect" id="Node000004" href="$d6/d60/namespacecg__device.html#aabcb47b12d07f0931e0b9e6d7bb66023" title="Deallocate a device based PCG solver." alt="" coords="231,104,424,129"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="556,727,546,603,525,427,509,337,489,255,465,188,451,163,437,144,420,132,423,127,441,140,456,160,470,186,494,254,514,336,530,426,551,602,561,726"/>
+<area shape="rect" id="Node000005" href="$d4/dc5/namespacecheby__device.html#aa0ac1e13e350c208f5b20a9c674b8c4a" title=" " alt="" coords="248,154,407,194"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="555,727,543,615,519,459,503,379,484,307,462,248,437,208,422,196,406,188,408,183,425,192,441,204,467,245,489,305,508,378,525,458,548,614,560,726"/>
+<area shape="rect" id="Node000006" href="$d6/dbe/namespacecoefs.html#a20a95815e8ab1a9d5e513b959db5c3e7" title="Deallocate coefficients." alt="" coords="264,219,391,244"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="555,727,541,624,517,482,501,411,482,346,461,294,437,259,415,244,390,236,392,231,418,239,441,255,465,291,487,345,506,410,522,481,546,623,560,726"/>
+<area shape="rect" id="Node000007" href="$d2/da7/namespacedevice__jacobi.html#a0449982992f4fcbd66b8e69699672ab7" title=" " alt="" coords="246,269,409,309"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="558,726,556,648,550,596,540,539,525,481,504,423,475,370,437,323,408,304,411,299,440,319,479,367,509,421,530,479,546,538,555,595,561,647,563,726"/>
+<area shape="rect" id="Node000008" href="$dd/dd2/namespacedofmap.html#a9f777e0d88d98b54f9b982f68089ed8e" title="Destructor." alt="" coords="246,333,409,359"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="557,726,553,655,536,560,520,509,500,459,472,413,437,373,407,356,410,352,440,369,476,410,504,457,525,507,541,559,558,655,563,726"/>
+<area shape="rect" id="Node000009" href="$d9/d33/namespacefluid__user__source__term.html#acc43030d76c9495cc0e2b4c8c6eec321" title="Destructor." alt="" coords="220,383,435,423"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="555,727,546,667,526,589,510,548,491,507,466,470,437,437,421,426,424,421,440,433,471,467,495,505,515,546,531,587,551,666,560,726"/>
+<area shape="rect" id="Node000010" href="$d9/de3/namespaceadv__no__dealias.html#a696a0eb6bcd6e438234508ffa3ed8efe" title="Destructor." alt="" coords="249,447,406,487"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="552,727,540,679,517,618,484,555,462,526,437,501,405,483,408,479,440,497,466,523,488,552,522,616,545,677,558,726"/>
+<area shape="rect" id="Node000011" href="$d3/dbc/namespacefusedcg__cpld__device.html#a57396f2309510cfbef357ad61c695ae2" title="Deallocate a pipelined PCG solver." alt="" coords="228,511,427,551"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="548,728,532,692,508,648,476,603,437,565,418,554,420,549,440,561,480,600,512,645,537,689,553,726"/>
+<area shape="rect" id="Node000012" href="$d8/dcd/namespacegs__device.html#acb55cb0b9872ab64f6a6465b793176df" title="Dummy backend deallocation." alt="" coords="231,576,424,601"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="543,730,501,672,471,642,437,616,410,604,412,599,440,612,475,638,505,668,548,727"/>
+<area shape="rect" id="Node000013" href="$d9/dfa/namespacegs__device__mpi.html#abb045b3b7a92b5de7ffeed36d4da2a26" title=" " alt="" coords="231,626,423,666"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="530,734,487,707,438,680,406,668,408,664,440,676,490,702,533,730"/>
+<area shape="rect" id="Node000014" href="$d0/d78/namespacegather__scatter.html#a6abafa7eaef0e406c6d411d8554b8bee" title="Initialize a gather&#45;scatter kernel." alt="" coords="244,691,411,716"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="487,740,388,719,389,713,488,735"/>
+<area shape="rect" id="Node000015" href="$d9/da0/namespaceinterpolation.html#aebaa148b8bd583b1be14fb012ffe0bcb" title=" " alt="" coords="216,740,439,765"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="472,755,439,755,439,750,472,750"/>
+<area shape="rect" id="Node000016" href="$da/d80/namespacelocal__interpolation.html#a5031df031d8e98513957186ec0e21870" title="Free pointers." alt="" coords="239,790,416,830"/>
+<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="496,771,410,793,409,787,495,766"/>
+<area shape="rect" id="Node000017" href="$d8/d8b/namespacemap__1d.html#a0de5072eebc7b008f2127668b3460649" title=" " alt="" coords="246,855,409,880"/>
+<area shape="poly" id="edge16_Node000001_Node000017" title=" " alt="" coords="538,777,494,812,440,844,404,857,402,852,438,840,491,807,535,773"/>
+<area shape="rect" id="Node000018" href="$d0/de4/namespacematrix.html#a04dddb8ae0f27e3ad7f38aa3022109de" title="Deallocate a matrix." alt="" coords="253,904,402,929"/>
+<area shape="poly" id="edge17_Node000001_Node000018" title=" " alt="" coords="548,779,505,837,475,868,440,894,403,909,401,904,437,889,471,864,501,833,543,775"/>
+<area shape="rect" id="Node000019" href="$da/d46/namespacepipecg__device.html#aeac2e2e47dadc8df22ea517657edae34" title="Deallocate a pipelined PCG solver." alt="" coords="244,954,411,994"/>
+<area shape="poly" id="edge18_Node000001_Node000019" title=" " alt="" coords="553,779,536,816,512,860,480,904,440,943,412,958,410,954,437,939,476,901,508,857,532,813,548,777"/>
+<area shape="rect" id="Node000020" href="$dc/d5f/namespacepoint__zone.html#a05bf36dcccbd83cbef9c36d017579093" title="Destructor for the point_zone_t base type." alt="" coords="241,1018,413,1058"/>
+<area shape="poly" id="edge19_Node000001_Node000020" title=" " alt="" coords="558,779,545,828,522,890,488,953,466,982,440,1008,415,1024,412,1019,437,1004,462,979,484,950,517,887,540,826,552,778"/>
+<area shape="rect" id="Node000021" href="$d3/d06/namespaceprojection.html#a1b1f6be35bcc16036da6a95e6e5bd3eb" title=" " alt="" coords="231,1083,424,1108"/>
+<area shape="poly" id="edge20_Node000001_Node000021" title=" " alt="" coords="561,780,552,840,532,919,517,961,496,1002,471,1039,440,1072,420,1085,417,1080,437,1068,467,1036,492,999,512,959,527,918,547,839,555,779"/>
+<area shape="rect" id="Node000022" href="$d0/d19/namespacescalar__user__source__term.html#ab9464cf2c26193060f07b8cc4f45b496" title="Destructor." alt="" coords="231,1132,423,1187"/>
+<area shape="poly" id="edge21_Node000001_Node000022" title=" " alt="" coords="562,779,554,846,536,938,520,987,500,1035,473,1081,441,1121,425,1134,422,1130,437,1117,469,1078,495,1033,515,985,531,936,549,846,556,778"/>
+<area shape="rect" id="Node000023" href="$de/dcb/namespacesource__scalar.html#a6b4bf569b1eae353428fae0a54bc89be" title="Deallocate a source_scalar term f." alt="" coords="246,1211,409,1251"/>
+<area shape="poly" id="edge22_Node000001_Node000023" title=" " alt="" coords="564,779,562,860,557,913,547,972,532,1033,510,1093,480,1150,440,1200,410,1220,407,1216,437,1196,475,1147,505,1091,527,1032,542,971,551,913,556,859,558,779"/>
+<area shape="rect" id="Node000025" href="$d5/d0d/namespacespace.html#ae0b8a6c7d8cb34ac618be6d7564460d4" title="Deallocate a space s." alt="" coords="258,1276,397,1301"/>
+<area shape="poly" id="edge24_Node000001_Node000025" title=" " alt="" coords="560,780,547,885,523,1031,507,1105,488,1172,466,1228,441,1265,421,1279,398,1288,396,1283,418,1275,437,1261,461,1225,483,1171,502,1104,518,1030,542,885,555,779"/>
+<area shape="rect" id="Node000027" href="$dc/dfb/namespacetime__scheme__controller.html#a2effcc174c3daa14ef6ae6035f475c72" title="Destructor." alt="" coords="217,1326,437,1366"/>
+<area shape="poly" id="edge26_Node000001_Node000027" title=" " alt="" coords="560,779,549,894,526,1055,509,1137,490,1212,467,1273,441,1316,426,1328,423,1324,437,1312,462,1271,485,1210,504,1135,520,1054,543,893,555,779"/>
+<area shape="rect" id="Node000028" href="$dc/d45/namespaceusr__inflow.html#ad596c94305154667eaeb02e8bb0243a9" title=" " alt="" coords="230,1391,425,1416"/>
+<area shape="poly" id="edge27_Node000001_Node000028" title=" " alt="" coords="561,780,552,906,531,1087,515,1179,495,1263,470,1333,456,1359,441,1380,423,1393,420,1388,437,1376,452,1357,466,1330,490,1262,510,1178,525,1086,547,906,556,779"/>
+<area shape="rect" id="Node000029" href="$dd/d87/namespaceusr__scalar.html#ad5d1c69ea73c5fb83d2ed3f63f41bd71" title=" " alt="" coords="230,1440,425,1465"/>
+<area shape="poly" id="edge28_Node000001_Node000029" title=" " alt="" coords="562,779,554,915,534,1111,519,1211,498,1303,473,1379,457,1408,441,1431,426,1442,423,1438,437,1427,453,1405,468,1377,493,1302,513,1210,529,1110,549,915,556,779"/>
+<area shape="rect" id="Node000030" href="$d7/d34/namespacevector.html#a71d35851a8d8d31c51daab97d50273a1" title="Deallocate a vector." alt="" coords="255,1489,400,1515"/>
+<area shape="poly" id="edge29_Node000001_Node000030" title=" " alt="" coords="562,779,556,924,537,1134,522,1243,501,1342,474,1424,459,1456,441,1480,422,1493,401,1502,399,1497,420,1489,437,1476,454,1453,470,1422,496,1341,517,1242,532,1134,550,923,557,779"/>
+<area shape="rect" id="Node000024" href="$de/dcb/namespacesource__scalar.html#a6b6772c08418b69489322be4cff05fcc" title="Initialize a source_scalar term f." alt="" coords="5,1211,168,1251"/>
+<area shape="poly" id="edge23_Node000023_Node000024" title=" " alt="" coords="232,1234,168,1234,168,1229,232,1229"/>
+<area shape="rect" id="Node000026" href="$d5/d0d/namespacespace.html#aea7cdf9a8933056da79e3b73f4e0ed49" title="Initialize a function space s with given polynomial dimensions." alt="" coords="19,1276,154,1301"/>
+<area shape="poly" id="edge25_Node000025_Node000026" title=" " alt="" coords="244,1291,154,1291,154,1286,244,1286"/>
+</map>

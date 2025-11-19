@@ -1,0 +1,10 @@
+<map id="fdm_xsmm::fdm_do_fast_xsmm" name="fdm_xsmm::fdm_do_fast_xsmm">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,45,239,70"/>
+<area shape="rect" id="Node000002" href="$dd/d89/namespacetensor__xsmm.html#ab2fc4092fde9a9041871a0d027db9a64" title=" " alt="" coords="287,5,447,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="219,42,273,35,274,40,220,47"/>
+<area shape="rect" id="Node000004" href="$dd/d89/namespacetensor__xsmm.html#a0672db2340d2fcd63a9acb16e3de3243" title=" " alt="" coords="287,69,447,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="220,67,274,75,273,80,219,73"/>
+<area shape="rect" id="Node000003" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="495,45,653,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="448,35,482,40,481,46,447,40"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="447,74,481,69,482,74,448,80"/>
+</map>

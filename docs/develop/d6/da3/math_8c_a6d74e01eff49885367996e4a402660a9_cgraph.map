@@ -1,0 +1,9 @@
+<map id="opencl_glsum" name="opencl_glsum">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,117,62"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="345,29,509,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="117,47,331,47,331,52,117,52"/>
+<area shape="rect" id="Node000003" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="165,62,297,87"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="118,55,152,60,151,65,117,60"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="391,30,388,20,394,11,407,5,427,3,450,6,463,13,460,17,449,11,427,8,409,10,398,15,394,21,396,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="297,64,331,59,332,64,298,69"/>
+</map>

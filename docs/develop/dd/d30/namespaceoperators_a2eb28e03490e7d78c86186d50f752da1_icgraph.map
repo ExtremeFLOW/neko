@@ -1,0 +1,11 @@
+<map id="operators::cfl" name="operators::cfl">
+<area shape="rect" id="Node000001" title=" " alt="" coords="527,59,633,84"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="617,49,607,41,580,37,558,39,546,44,544,50,550,57,546,60,539,50,542,40,557,34,580,32,609,36,620,45"/>
+<area shape="rect" id="Node000002" href="$dd/d30/namespaceoperators.html#a6bb5297cbf4fdd8e3d7c3dde97af76a6" title=" " alt="" coords="271,29,472,55"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="513,65,462,57,462,52,513,59"/>
+<area shape="rect" id="Node000004" href="$d7/dff/namespacefluid__scheme__incompressible.html#a3377cd153775705381af50cd05928b36" title="Compute CFL." alt="" coords="264,79,479,119"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="513,83,479,88,478,82,512,78"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="408,20,398,11,371,8,349,10,337,15,335,20,341,28,337,31,330,21,334,11,348,5,371,3,400,6,412,15"/>
+<area shape="rect" id="Node000003" href="$d3/d66/namespacefluid__scheme__compressible.html#ada4acb292b99e433897dc8566af8713c" title="Compute CFL number." alt="" coords="5,15,216,69"/>
+<area shape="poly" id="edge4_Node000002_Node000003" title=" " alt="" coords="257,45,216,45,216,39,257,39"/>
+</map>

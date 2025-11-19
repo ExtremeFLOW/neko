@@ -1,0 +1,6 @@
+<map id="hip_sigma_nut_compute" name="hip_sigma_nut_compute">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,187,62"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="235,29,399,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="187,47,221,47,221,52,187,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="276,30,273,20,280,10,294,5,317,3,342,6,356,13,354,18,341,11,317,8,296,10,283,15,278,21,281,28"/>
+</map>

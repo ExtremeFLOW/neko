@@ -1,0 +1,21 @@
+<map id="bc::bc_list_add" name="bc::bc_list_add">
+<area shape="rect" id="Node000001" title="Add a condition to a list of boundary conditions." alt="" coords="472,184,591,209"/>
+<area shape="rect" id="Node000002" href="$dc/da3/namespacefluid__pnpn.html#a3f62aa249f709f34b5eec9c34a2614de" title=" " alt="" coords="232,5,424,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="517,172,481,108,454,74,422,46,398,33,401,28,426,41,458,71,485,105,522,170"/>
+<area shape="rect" id="Node000003" href="$d8/d09/namespacefluid__scheme.html#a394523005f7e024eff53a66eed66fd5a" title="Initialize all components of the current scheme." alt="" coords="256,55,400,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="507,176,469,142,423,110,398,98,400,93,425,105,473,138,510,172"/>
+<area shape="rect" id="Node000005" href="$d8/d09/namespacefluid__scheme.html#a954fd0e94a3e06097351d3ca34709ad4" title="Initialise a fluid scheme." alt="" coords="242,119,414,159"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="472,183,399,162,400,157,473,178"/>
+<area shape="rect" id="Node000006" href="$dd/dd1/namespacehsmg.html#a419a2d9052dd2c5b986dded4a13e76c2" title=" " alt="" coords="263,184,393,209"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="458,199,394,199,394,194,458,194"/>
+<area shape="rect" id="Node000007" href="$db/d56/namespacescalar__pnpn.html#a7798b78c597dcaca586191d419a72512" title="Constructor." alt="" coords="255,234,401,274"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="473,216,400,237,399,231,472,211"/>
+<area shape="rect" id="Node000008" href="$da/de3/namespacescalar__scheme.html#a52d0bdcd6d81c223bb1e543b0d504bfc" title="Initialize boundary conditions." alt="" coords="245,298,411,338"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="510,221,473,255,425,288,400,300,398,295,423,284,469,251,507,217"/>
+<area shape="rect" id="Node000009" href="$da/de3/namespacescalar__scheme.html#a2babd40d9acd6b4f4ca8dabfbe2e37e9" title="Initialize all related components of the current scheme." alt="" coords="11,326,178,366"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="523,224,509,255,489,291,461,326,425,352,394,366,361,375,294,382,228,378,170,369,170,363,228,373,293,376,360,369,392,361,423,348,457,322,484,288,505,253,519,221"/>
+<area shape="rect" id="Node000004" href="$da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a367dbe8934b9990a7608ec43744312fd" title="Constructor for the base type." alt="" coords="5,87,184,127"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="242,90,185,98,184,92,242,84"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="228,128,184,122,185,117,229,123"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="231,332,178,339,178,333,230,327"/>
+</map>

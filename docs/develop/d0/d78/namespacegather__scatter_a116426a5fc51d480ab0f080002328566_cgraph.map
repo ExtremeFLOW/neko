@@ -1,0 +1,12 @@
+<map id="gather_scatter::gs_init_mapping" name="gather_scatter::gs_init_mapping">
+<area shape="rect" id="Node000001" title="Setup mapping of dofs to gather&#45;scatter operations." alt="" coords="5,85,144,125"/>
+<area shape="rect" id="Node000002" href="$d5/d7e/gather__scatter_8f90.html#a0df0f0f94eb369fc80627b7721fad2c3" title="Find blocks sharing dofs in non&#45;facet data." alt="" coords="221,5,323,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="108,82,191,40,210,32,212,37,193,44,110,87"/>
+<area shape="rect" id="Node000003" href="$d5/d7e/gather__scatter_8f90.html#af8cc5f86931d4ca4f75ac2ddc0b311d8" title="Register a unique dof Takes the unique id dof and checks if it is in the htable map_ If it is we retu..." alt="" coords="192,55,352,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="144,89,190,80,191,85,145,94"/>
+<area shape="rect" id="Node000004" href="$d5/d7e/gather__scatter_8f90.html#a762680d00a8b9d4de7498ece71c4092b" title="Sort the dof lists based on the dof to gather&#45;scatter list." alt="" coords="205,128,339,153"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="145,115,191,123,190,129,144,120"/>
+<area shape="rect" id="Node000005" href="$d6/d84/namespaceutils.html#a4c8e13ce7a50b4ecdbc01c590018bea7" title="Compute the address of a (i,j,k,l) array with sizes (1:lx, 1:ly, 1:lz, :)" alt="" coords="203,177,341,203"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="113,122,193,162,215,170,213,175,191,167,110,127"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="239,129,233,120,236,110,250,104,272,101,299,105,310,114,307,118,297,110,272,107,251,109,240,113,238,119,244,126"/>
+</map>

@@ -1,0 +1,12 @@
+<map id="wall_model::wall_model_find_points" name="wall_model::wall_model_find_points">
+<area shape="rect" id="Node000001" title="Find sampling points based on the requested index." alt="" coords="5,59,185,99"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#aee45fd2307691bcc94e2986af286775e" title="Min of a vector of length n." alt="" coords="246,29,347,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,60,232,51,233,56,186,65"/>
+<area shape="rect" id="Node000003" href="$d2/d57/cuda_2facet__normal__kernel_8h.html#a255d8d741e1fc6cd080ba11e14dc7148" title=" " alt="" coords="233,103,360,128"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="186,93,220,99,219,104,185,98"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="265,31,258,21,262,11,275,5,297,3,323,6,334,15,331,19,321,11,297,8,276,10,266,15,263,20,269,28"/>
+<area shape="poly" id="edge6_Node000003_Node000003" title=" " alt="" coords="265,104,258,94,262,84,275,78,297,76,323,80,334,88,331,92,321,84,297,81,276,83,266,88,263,94,269,101"/>
+<area shape="rect" id="Node000004" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="408,95,572,135"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="360,113,394,113,394,118,360,118"/>
+<area shape="poly" id="edge5_Node000004_Node000004" title=" " alt="" coords="454,96,452,86,457,77,470,71,490,69,513,72,525,79,522,83,511,77,490,74,472,76,461,81,457,87,459,94"/>
+</map>

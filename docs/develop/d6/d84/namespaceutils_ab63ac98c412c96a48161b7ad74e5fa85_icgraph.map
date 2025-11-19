@@ -1,0 +1,29 @@
+<map id="utils::filename_suffix" name="utils::filename_suffix">
+<area shape="rect" id="Node000001" title="Extract a filename&#39;s suffix." alt="" coords="651,250,809,275"/>
+<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#a0962746ef1c8f4a3a6e83aae5ef2d7a0" title="Extracts the index of a field file. For example, &quot;myfield.f00045&quot; will return 45. If the suffix of th..." alt="" coords="452,37,579,77"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="714,239,670,167,638,128,601,93,578,79,580,74,604,89,642,124,675,164,719,237"/>
+<area shape="rect" id="Node000007" href="$da/d16/namespacefile.html#ab9074b1dd93018d51b11431e355046c5" title="Constructor." alt="" coords="466,102,565,127"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="709,241,663,191,634,165,601,142,564,127,566,122,604,138,637,161,667,187,713,237"/>
+<area shape="rect" id="Node000008" href="$da/d16/namespacefile.html#a0167c68d0b7fa85eed2bb23f5a1cd6d2" title="Set a file&#39;s header." alt="" coords="441,151,590,177"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="697,245,653,218,602,192,567,179,568,174,604,187,655,213,700,240"/>
+<area shape="rect" id="Node000009" href="$da/d16/namespacefile.html#a20347acf22c138e1cb0adfd16c4242e7" title="Set a file&#39;s output layout." alt="" coords="443,201,588,226"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="660,249,571,229,572,223,661,244"/>
+<area shape="rect" id="Node000010" href="$da/d16/namespacefile.html#a43c32373b7c245beb1260418ecfbb597" title="Set a file&#39;s output precision." alt="" coords="434,250,597,275"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="637,265,597,265,597,260,637,260"/>
+<area shape="rect" id="Node000011" href="$dd/dc6/namespacefluid__stats__simcomp.html#a33393df992beab0f7b3d777c40c13ed6" title=" " alt="" coords="433,299,597,354"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="674,282,598,305,597,300,672,277"/>
+<area shape="rect" id="Node000012" href="$dc/d92/namespacegeneric__file.html#af55ff7e8a18a8a854c5a8f2f81b541e3" title="Set overwrite mode." alt="" coords="439,379,592,419"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="708,287,662,328,604,369,580,381,577,376,601,364,659,324,705,283"/>
+<area shape="rect" id="Node000013" href="$dd/d62/namespaceneko.html#a647e539d6b0950b6569c6752b8f007ff" title="Initialise Neko." alt="" coords="455,443,575,469"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="719,289,675,360,643,399,604,433,577,447,574,442,601,428,639,396,671,357,714,286"/>
+<area shape="rect" id="Node000014" href="$d5/df8/namespacescalar__stats__simcomp.html#a2b3aef6d8abf2a19f442e73c8ef5a7fb" title=" " alt="" coords="428,493,603,547"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="722,290,706,331,680,382,647,436,604,483,590,495,586,490,601,479,642,433,676,380,701,329,717,288"/>
+<area shape="rect" id="Node000003" href="$d2/d13/namespaceflow__ic.html#a425835656c9daae13895696a4943dd5f" title="Set the initial condition of the flow based on a field. @detail The fields are read from an fld file...." alt="" coords="209,15,380,41"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="438,50,380,42,380,37,439,44"/>
+<area shape="rect" id="Node000005" href="$d8/ddf/namespacescalar__ic.html#a492923019d125aeb21a4f9371c1b36ac" title="Set the initial condition of the scalar based on a field. @detail The field is read from an fld file...." alt="" coords="218,67,371,107"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="438,70,372,79,371,74,437,65"/>
+<area shape="rect" id="Node000004" href="$d5/d04/interfaceflow__ic_1_1set__flow__ic.html#aa5c900e30a45a6ed61c876b4ce368b50" title="Set initial flow condition (builtin)" alt="" coords="10,5,157,45"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="196,29,157,29,157,24,196,24"/>
+<area shape="rect" id="Node000006" href="$df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#aff3db0c152fe4232bd1493c8d5614c97" title="Set scalar initial condition (builtin)" alt="" coords="5,69,161,109"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="205,90,162,91,162,86,204,85"/>
+</map>

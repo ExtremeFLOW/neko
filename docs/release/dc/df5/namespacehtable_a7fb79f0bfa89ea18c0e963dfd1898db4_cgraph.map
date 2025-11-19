@@ -1,0 +1,5 @@
+<map id="htable::htable_remove" name="htable::htable_remove">
+<area shape="rect" id="Node000001" title="Remove a key from the hash table." alt="" coords="5,5,175,31"/>
+<area shape="rect" id="Node000002" href="$dc/df5/namespacehtable.html#aaf0eaa6f045b8177f467c12a9fd33f23" title="Compare key at idx to key." alt="" coords="223,5,388,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="175,15,209,15,209,21,175,21"/>
+</map>

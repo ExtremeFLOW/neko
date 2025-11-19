@@ -1,0 +1,5 @@
+<map id="mappings_cpu::permeability_cpu" name="mappings_cpu::permeability_cpu">
+<area shape="rect" id="Node000001" title="Apply a permeability function to a scalar." alt="" coords="5,13,243,38"/>
+<area shape="rect" id="Node000002" href="$dc/d9e/namespacemappings__cpu.html#aac25ebae10683e25332e0ccd84c76b81" title="Apply a permeability function to a scalar." alt="" coords="291,5,497,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="243,23,277,23,277,28,243,28"/>
+</map>

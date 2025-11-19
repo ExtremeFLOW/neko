@@ -1,0 +1,13 @@
+<map id="tensor::tnsr2d_el" name="tensor::tnsr2d_el">
+<area shape="rect" id="Node000001" title="Computes ." alt="" coords="5,70,136,95"/>
+<area shape="rect" id="Node000002" href="$d4/d59/namespacetensor__cpu.html#acc19954200ae575492692c19bba2a7c3" title=" " alt="" coords="200,5,343,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="115,67,187,47,189,52,117,73"/>
+<area shape="rect" id="Node000004" href="$db/de7/namespacetensor__sx.html#ae40bc41ded753e9b7c41a6ca576a6cfd" title=" " alt="" coords="184,70,359,95"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="136,80,170,80,170,85,136,85"/>
+<area shape="rect" id="Node000005" href="$dd/d89/namespacetensor__xsmm.html#ab2fc4092fde9a9041871a0d027db9a64" title=" " alt="" coords="191,120,351,160"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="117,93,189,114,187,119,115,98"/>
+<area shape="rect" id="Node000003" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="407,70,565,95"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="343,42,425,64,424,69,342,47"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="359,80,393,80,393,85,359,85"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="346,117,424,96,425,102,348,123"/>
+</map>

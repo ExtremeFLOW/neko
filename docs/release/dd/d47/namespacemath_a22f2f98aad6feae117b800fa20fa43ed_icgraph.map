@@ -1,0 +1,32 @@
+<map id="math::glsc3" name="math::glsc3">
+<area shape="rect" id="Node000001" title="Weighted inner product ." alt="" coords="504,293,603,318"/>
+<area shape="poly" id="edge10_Node000001_Node000001" title=" " alt="" coords="587,282,578,274,553,271,533,273,522,278,520,284,526,291,522,294,515,284,518,274,532,268,553,266,580,270,591,278"/>
+<area shape="rect" id="Node000002" href="$dd/d2f/namespacebicgstab.html#af95e1c5813a5792173b519b09fea8270" title="Bi&#45;Conjugate Gradient Stabilized method solve." alt="" coords="289,5,429,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="547,279,538,232,522,173,494,112,476,84,454,59,428,42,431,38,458,55,480,81,499,110,527,171,543,231,552,278"/>
+<area shape="rect" id="Node000003" href="$d2/d10/namespacecacg.html#a2b9a6da5ee5dab7e10d72d97392d731c" title="S&#45;step CA PCG solve." alt="" coords="293,70,425,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="544,280,534,241,516,195,490,148,473,127,454,109,425,93,427,89,458,105,477,123,494,145,521,193,539,240,549,278"/>
+<area shape="rect" id="Node000004" href="$da/d8d/namespacecg__cpld.html#a6620ea1ef9c5e5cdf24655995607434a" title="Coupled PCG solve." alt="" coords="274,119,445,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="540,281,508,219,484,186,454,158,434,147,436,142,458,154,488,182,513,216,545,279"/>
+<area shape="rect" id="Node000005" href="$d9/df6/namespacecg.html#afe68d7c999414cfcf6cac0282e91a18c" title="Standard PCG solve." alt="" coords="308,169,411,194"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="533,283,500,244,478,224,455,208,433,198,410,191,411,186,435,193,457,203,482,220,504,240,537,280"/>
+<area shape="rect" id="Node000006" href="$d8/dec/namespacecheby.html#ab40c8151b9adc5d370afba6bc0ef9b65" title=" " alt="" coords="282,218,437,243"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="518,288,455,258,416,246,418,241,457,254,520,284"/>
+<area shape="rect" id="Node000008" href="$d3/d06/namespaceprojection.html#ac63a40c6adff939561cd8b6b8432d1e4" title=" " alt="" coords="263,267,456,293"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="490,300,456,295,457,290,491,295"/>
+<area shape="rect" id="Node000010" href="$d5/de6/namespacefield__math.html#ad4771a764f05b8b745e4de4a5b9573ab" title=" " alt="" coords="275,317,443,342"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="491,316,444,322,443,316,490,310"/>
+<area shape="rect" id="Node000011" href="$dc/d48/namespacegmres.html#a3ad50be018611153f4c6184821724c96" title="Standard GMRES solve." alt="" coords="282,366,437,391"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="520,327,457,357,421,368,420,363,455,352,518,322"/>
+<area shape="rect" id="Node000012" href="$de/d49/namespacepipecg.html#a7cf83f02e364f94f5b2738684b52629b" title="Pipelined PCG solve." alt="" coords="280,415,439,441"/>
+<area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="537,331,503,370,481,390,457,406,432,418,430,413,455,402,478,385,499,366,533,328"/>
+<area shape="rect" id="Node000013" href="$d4/d31/namespacecg__sx.html#ada3bbb4d099941e6c59f24443f628d35" title="Standard PCG solve." alt="" coords="286,465,433,490"/>
+<area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="545,332,513,394,488,428,458,456,434,468,432,463,454,451,484,424,508,392,540,330"/>
+<area shape="rect" id="Node000014" href="$d5/d6a/namespacegmres__sx.html#ac7e8d806ad2a0c1b84f6ec357d1238ef" title="Standard PCG solve." alt="" coords="281,515,437,555"/>
+<area shape="poly" id="edge14_Node000001_Node000014" title=" " alt="" coords="549,332,538,370,519,417,493,464,458,505,439,517,436,513,454,501,489,461,515,414,533,369,544,331"/>
+<area shape="rect" id="Node000015" href="$df/d53/namespacepipecg__sx.html#ab459493f959c81eade61fbd4812f237c" title="Pipelined PCG solve." alt="" coords="279,579,439,619"/>
+<area shape="poly" id="edge15_Node000001_Node000015" title=" " alt="" coords="552,332,545,382,529,445,501,511,481,541,458,569,441,581,438,577,454,565,477,538,496,508,523,443,539,381,547,331"/>
+<area shape="rect" id="Node000007" href="$d8/dec/namespacecheby.html#af7979c0181a627e385c8bd107d603e84" title="A chebyshev preconditioner." alt="" coords="35,218,185,243"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="268,233,185,233,185,228,268,228"/>
+<area shape="rect" id="Node000009" href="$d3/d06/namespaceprojection.html#ab9388020e6233dbfc903db3a50502bd6" title=" " alt="" coords="5,267,215,293"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="249,283,215,283,215,277,249,277"/>
+</map>

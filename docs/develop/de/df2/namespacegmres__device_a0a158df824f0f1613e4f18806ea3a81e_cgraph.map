@@ -1,0 +1,14 @@
+<map id="gmres_device::device_gmres_part2" name="gmres_device::device_gmres_part2">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,49,169,89"/>
+<area shape="rect" id="Node000002" href="$d6/d29/gmres__aux_8cu.html#a3952e21e8b02d7069a6d91b3708cffca" title=" " alt="" coords="217,56,360,81"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="169,66,203,66,203,71,169,71"/>
+<area shape="rect" id="Node000003" href="$d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="409,5,573,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="340,53,426,31,427,37,341,58"/>
+<area shape="rect" id="Node000004" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="621,49,785,89"/>
+<area shape="poly" id="edge7_Node000002_Node000004" title=" " alt="" coords="360,66,607,66,607,71,360,71"/>
+<area shape="rect" id="Node000005" href="$d3/dd2/device__nccl__reduce_8c.html#a371589d8f587766faf29bea073bd3e34" title=" " alt="" coords="408,107,573,132"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="341,79,427,101,426,106,340,84"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="546,28,609,43,607,49,544,33"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="664,49,661,39,668,30,682,24,703,22,728,25,741,32,739,37,726,30,703,27,683,29,671,34,667,40,669,48"/>
+<area shape="poly" id="edge6_Node000005_Node000004" title=" " alt="" coords="544,104,607,89,609,94,546,109"/>
+</map>

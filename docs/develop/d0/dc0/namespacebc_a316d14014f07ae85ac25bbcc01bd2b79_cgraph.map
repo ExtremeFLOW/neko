@@ -1,0 +1,5 @@
+<map id="bc::bc_free_base" name="bc::bc_free_base">
+<area shape="rect" id="Node000001" title="Destructor for the base type, bc_t." alt="" coords="5,5,136,31"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="184,5,333,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="136,15,170,15,170,21,136,21"/>
+</map>

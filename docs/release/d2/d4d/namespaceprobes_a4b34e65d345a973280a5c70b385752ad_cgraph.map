@@ -1,0 +1,5 @@
+<map id="probes::read_probe_locations" name="probes::read_probe_locations">
+<area shape="rect" id="Node000001" title="Initialize the physical coordinates from a csv input file." alt="" coords="5,5,152,45"/>
+<area shape="rect" id="Node000002" href="$d2/d4d/namespaceprobes.html#af7a450bd62c2b6a1ed7175e31c4edd67" title="Read and initialize the number of probes from a csv input file." alt="" coords="200,13,400,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,23,186,23,186,28,152,28"/>
+</map>

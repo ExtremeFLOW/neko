@@ -1,0 +1,7 @@
+<map id="hip_pipecg_vecops" name="hip_pipecg_vecops">
+<area shape="rect" id="Node000001" title=" " alt="" coords="435,13,580,38"/>
+<area shape="rect" id="Node000002" href="$da/d46/namespacepipecg__device.html#a20e5112bf3c11f03f58a2bd09e8f27a0" title=" " alt="" coords="220,5,387,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="421,28,387,28,387,23,421,23"/>
+<area shape="rect" id="Node000003" href="$da/d46/namespacepipecg__device.html#af8b348213f1bde50d210f885ae0dd66a" title="Pipelined PCG solve." alt="" coords="5,5,172,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
+</map>

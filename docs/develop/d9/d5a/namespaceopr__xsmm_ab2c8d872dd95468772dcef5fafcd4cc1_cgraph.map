@@ -1,0 +1,19 @@
+<map id="opr_xsmm::opr_xsmm_curl" name="opr_xsmm::opr_xsmm_curl">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,112,204,137"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="289,5,383,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="124,110,180,76,251,40,274,31,276,36,253,44,182,80,126,114"/>
+<area shape="rect" id="Node000003" href="$d2/dd4/namespacemathops.html#a2f4fd77e04e2fdec101dae9afe9caa58" title=" " alt="" coords="271,55,401,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="156,109,270,81,271,86,157,115"/>
+<area shape="rect" id="Node000004" href="$d9/d5a/namespaceopr__xsmm.html#abd01047726757dd7140713007f5a5ff6" title=" " alt="" coords="252,105,420,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="204,122,238,122,238,127,204,127"/>
+<area shape="rect" id="Node000008" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="287,169,385,195"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="157,135,275,164,274,169,156,140"/>
+<area shape="rect" id="Node000009" href="$dd/d47/namespacemath.html#a797f1134edbf7948a9f9c040fd5061d0" title="Vector subtraction ." alt="" coords="289,219,383,244"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="126,135,182,169,253,205,276,213,274,218,251,210,180,174,124,140"/>
+<area shape="rect" id="Node000005" href="$dd/d47/namespacemath.html#a9ae93ef16c85e8de722f56c281f444e6" title="Returns ." alt="" coords="490,63,605,88"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="420,102,478,89,479,94,421,108"/>
+<area shape="rect" id="Node000006" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="502,112,593,137"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="420,122,488,122,488,127,420,127"/>
+<area shape="rect" id="Node000007" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="468,161,627,187"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="421,142,479,156,478,161,420,147"/>
+</map>

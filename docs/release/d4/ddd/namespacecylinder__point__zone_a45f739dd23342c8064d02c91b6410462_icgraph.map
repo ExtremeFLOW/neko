@@ -1,0 +1,5 @@
+<map id="cylinder_point_zone::cylinder_point_zone_init_common" name="cylinder_point_zone::cylinder_point_zone_init_common">
+<area shape="rect" id="Node000001" title="Initializes a cylinder point zone from its endpoint coordinates and radius." alt="" coords="213,5,373,60"/>
+<area shape="rect" id="Node000002" href="$d4/ddd/namespacecylinder__point__zone.html#afe726982f79ffc3ce1a8d2026df89da4" title="Constructor from json object file." alt="" coords="5,5,165,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,35,166,35,166,30,200,30"/>
+</map>

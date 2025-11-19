@@ -1,0 +1,15 @@
+<map id="glb_intrp_comm::glb_intrp_comm_t" name="glb_intrp_comm::glb_intrp_comm_t">
+<area shape="rect" id="Node000001" title="Global interpolation communication method." alt="" coords="160,211,315,251"/>
+<area shape="rect" id="Node000002" href="$d2/d45/structstack_1_1stack__i4__t.html" title="Integer based stack." alt="" coords="5,101,136,126"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="98,132,172,184,209,208,206,213,169,189,95,136"/>
+<area shape="rect" id="Node000003" href="$d2/dbd/structstack_1_1stack__t.html" title="Base type for a stack." alt="" coords="15,5,127,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="73,44,73,101,68,101,68,44"/>
+<area shape="rect" id="Node000004" href="$dc/d33/structglb__intrp__comm_1_1glb__intrp__comm__mpi__t.html" title="MPI buffer for non&#45;blocking operations." alt="" coords="160,93,315,133"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="240,147,240,210,235,210,235,147"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="170,5,265,31"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="225,43,236,93,231,94,220,44"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="289,5,391,31"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="319,42,260,95,256,91,316,38"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="339,101,434,126"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="366,138,306,189,270,213,267,208,302,185,362,134"/>
+</map>

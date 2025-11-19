@@ -1,0 +1,21 @@
+<map id="facet_zone::facet_zone_periodic_t" name="facet_zone::facet_zone_periodic_t">
+<area shape="rect" id="Node000001" title=" " alt="" coords="736,140,908,180"/>
+<area shape="rect" id="Node000002" href="$d2/d94/structfacet__zone_1_1facet__zone__t.html" title=" " alt="" coords="503,147,687,173"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="700,157,736,157,736,163,700,163"/>
+<area shape="rect" id="Node000003" href="$d5/d16/structtuple_1_1tuple__i4__t.html" title="Integer based 2&#45;tuple." alt="" coords="175,81,302,106"/>
+<area shape="poly" id="edge6_Node000001_Node000003" title=" " alt="" coords="316,95,486,109,687,132,736,140,735,146,686,137,486,114,316,100"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="285,108,335,124,421,140,502,150,502,156,420,145,334,129,283,113"/>
+<area shape="rect" id="Node000004" href="$d1/d3b/structtuple_1_1tuple__t.html" title="Base type for an n&#45;tuple." alt="" coords="7,47,115,73"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="130,70,175,79,174,84,129,75"/>
+<area shape="rect" id="Node000007" href="$dd/de4/structtuple_1_1tuple4__i4__t.html" title="Integer based 4&#45;tuple." alt="" coords="339,22,474,47"/>
+<area shape="poly" id="edge9_Node000007_Node000004" title=" " alt="" coords="129,52,339,37,339,42,129,58"/>
+<area shape="rect" id="Node000005" href="$d1/d93/structstack_1_1stack__i4t2__t.html" title="Integer 2&#45;tuple based stack." alt="" coords="167,205,311,230"/>
+<area shape="poly" id="edge7_Node000001_Node000005" title=" " alt="" coords="324,217,492,215,590,208,686,196,762,177,763,183,687,201,590,213,493,220,324,222"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="324,201,515,170,515,175,325,206"/>
+<area shape="rect" id="Node000006" href="$d2/dbd/structstack_1_1stack__t.html" title="Base type for a stack." alt="" coords="5,237,117,262"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="130,234,167,227,168,233,131,239"/>
+<area shape="rect" id="Node000008" href="$df/d1c/structstack_1_1stack__i4t4__t.html" title="Integer 4&#45;tuple based stack." alt="" coords="335,275,479,301"/>
+<area shape="poly" id="edge11_Node000008_Node000006" title=" " alt="" coords="131,254,334,277,334,283,130,260"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="488,31,597,41,656,53,713,72,740,86,764,103,803,138,800,142,761,107,737,91,711,77,655,58,596,46,487,36"/>
+<area shape="poly" id="edge10_Node000001_Node000008" title=" " alt="" coords="492,296,538,297,587,295,638,288,686,274,722,254,755,229,803,178,807,182,758,233,725,259,688,278,639,293,588,301,538,303,492,301"/>
+</map>

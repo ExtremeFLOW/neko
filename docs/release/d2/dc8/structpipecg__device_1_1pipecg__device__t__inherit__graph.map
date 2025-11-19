@@ -1,0 +1,5 @@
+<map id="pipecg_device::pipecg_device_t" name="pipecg_device::pipecg_device_t">
+<area shape="rect" id="Node000001" title="Pipelined preconditioned conjugate gradient method." alt="" coords="5,79,172,119"/>
+<area shape="rect" id="Node000002" href="$d0/d3b/structkrylov_1_1ksp__t.html" title="Base abstract type for a canonical Krylov method, solving ." alt="" coords="36,5,141,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="91,44,91,79,86,79,86,44"/>
+</map>

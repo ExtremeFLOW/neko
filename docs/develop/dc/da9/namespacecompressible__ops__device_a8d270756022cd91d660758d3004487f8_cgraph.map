@@ -1,0 +1,14 @@
+<map id="compressible_ops_device::compressible_ops_device_compute_max_wave_speed" name="compressible_ops_device::compressible_ops_device_compute_max_wave_speed">
+<area shape="rect" id="Node000001" title="Compute maximum wave speed for compressible flows on device." alt="" coords="5,27,216,82"/>
+<area shape="rect" id="Node000002" href="$d7/dec/compressible__ops__compute__max__wave__speed_8cu.html#a2ad3835641db8219575f54a302250164" title=" " alt="" coords="477,5,672,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="216,45,463,30,464,35,216,51"/>
+<area shape="rect" id="Node000004" href="$d1/d76/compressible__ops__compute__max__wave__speed_8c.html#a42af91d5ed66a9711b0f274876646061" title=" " alt="" coords="264,63,429,103"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="216,65,251,69,250,74,216,70"/>
+<area shape="rect" id="Node000003" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="720,63,884,103"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="655,43,710,57,708,62,654,48"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="760,63,757,53,764,44,779,38,802,36,828,39,843,46,840,51,827,44,802,41,780,43,767,48,762,54,765,62"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="429,80,706,80,706,85,429,85"/>
+<area shape="rect" id="Node000005" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="509,121,641,146"/>
+<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="430,98,504,115,503,120,429,104"/>
+<area shape="poly" id="edge7_Node000005_Node000003" title=" " alt="" coords="632,118,706,101,707,106,633,123"/>
+</map>

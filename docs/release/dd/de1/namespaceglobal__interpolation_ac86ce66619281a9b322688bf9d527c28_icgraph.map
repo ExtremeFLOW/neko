@@ -1,0 +1,9 @@
+<map id="global_interpolation::global_interpolation_find_common" name="global_interpolation::global_interpolation_find_common">
+<area shape="rect" id="Node000001" title="Common routine for finding the points." alt="" coords="213,84,373,139"/>
+<area shape="rect" id="Node000002" href="$dd/de1/namespaceglobal__interpolation.html#ac1d7dd757c992a82f1a201d671ce637d" title="Finds the corresponding r,s,t coordinates and redistributes the points to the owning rank in the corr..." alt="" coords="5,5,165,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="206,81,157,63,159,58,208,76"/>
+<area shape="rect" id="Node000003" href="$dd/de1/namespaceglobal__interpolation.html#a5dfe3afc61fac845acfadaef21e3465c" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="5,84,165,139"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="200,114,166,114,166,109,200,109"/>
+<area shape="rect" id="Node000004" href="$dd/de1/namespaceglobal__interpolation.html#aad8a5b77756f4c2b1b6efb26f7b0163a" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="5,163,165,217"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="208,146,159,165,157,160,206,141"/>
+</map>

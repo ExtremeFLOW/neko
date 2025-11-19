@@ -1,0 +1,9 @@
+<map id="hip_project_ortho" name="hip_project_ortho">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,42,140,67"/>
+<area shape="rect" id="Node000002" href="$d1/da7/device__mpi__reduce_8c.html#a9742e0b5ee4886d19d49dcc99a39b2ab" title=" " alt="" coords="188,5,352,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="140,42,174,37,175,42,141,47"/>
+<area shape="rect" id="Node000003" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="400,35,564,75"/>
+<area shape="poly" id="edge4_Node000001_Node000003" title=" " alt="" coords="140,54,188,55,352,55,386,54,386,60,352,60,188,60,140,59"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="353,34,387,39,386,44,352,39"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="442,35,440,25,446,16,461,10,482,8,507,11,520,18,518,23,505,16,482,13,462,15,450,20,445,26,448,34"/>
+</map>

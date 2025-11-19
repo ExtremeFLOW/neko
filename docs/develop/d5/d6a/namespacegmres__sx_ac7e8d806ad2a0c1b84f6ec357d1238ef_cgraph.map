@@ -1,0 +1,20 @@
+<map id="gmres_sx::sx_gmres_solve" name="gmres_sx::sx_gmres_solve">
+<area shape="rect" id="Node000001" title="Standard PCG solve." alt="" coords="5,171,161,211"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#aec2e1cbc631a4cb73db0d17b89e9e596" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="209,5,320,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="95,169,140,107,172,72,208,40,215,35,218,40,211,44,176,75,144,110,99,172"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#a0aa2bdfb2fdb9eae6679d958a82fd200" title="Multiplication by constant c ." alt="" coords="210,55,319,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="105,169,151,130,208,89,217,84,220,89,211,94,154,134,108,173"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="219,104,310,129"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="132,169,219,132,221,137,134,174"/>
+<area shape="rect" id="Node000005" href="$dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c" title="Vector multiplication with 3 vectors ." alt="" coords="219,153,310,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="161,178,205,172,206,177,162,183"/>
+<area shape="rect" id="Node000006" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="217,203,312,228"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="162,199,204,205,203,210,161,204"/>
+<area shape="rect" id="Node000007" href="$dd/d47/namespacemath.html#a22f2f98aad6feae117b800fa20fa43ed" title="Weighted inner product ." alt="" coords="215,276,314,301"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="123,209,229,267,227,272,120,214"/>
+<area shape="rect" id="Node000008" href="$dd/d47/namespacemath.html#a6a2786eeaf4fa795dab048bb6c8d56c4" title="Set all elements to one." alt="" coords="218,325,311,351"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="103,210,150,259,211,311,221,317,218,321,208,315,146,263,100,213"/>
+<area shape="rect" id="Node000009" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="216,375,313,400"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="97,210,141,282,174,323,211,360,219,365,215,370,208,364,170,327,137,285,93,213"/>
+<area shape="poly" id="edge7_Node000007_Node000007" title=" " alt="" coords="235,277,228,268,232,258,244,252,265,249,290,253,300,262,297,266,287,258,265,255,246,257,236,261,233,267,239,274"/>
+</map>

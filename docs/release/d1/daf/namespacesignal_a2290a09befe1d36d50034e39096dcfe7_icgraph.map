@@ -1,0 +1,7 @@
+<map id="signal::signal_usr" name="signal::signal_usr">
+<area shape="rect" id="Node000001" title="Check if a user signal has been raised." alt="" coords="423,13,557,38"/>
+<area shape="rect" id="Node000002" href="$d7/d06/namespacejobctrl.html#a668d576b7980c2488dece4c06fcbb41b" title="Check if the job&#39;s time limit has been reached." alt="" coords="225,5,375,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="409,28,375,28,375,23,409,23"/>
+<area shape="rect" id="Node000003" href="$d1/d2d/namespacesimulation.html#a2279224e80a4202a630ebfaa2d686588" title="Main driver to solve a case C." alt="" coords="5,13,177,38"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="211,28,178,28,178,23,211,23"/>
+</map>

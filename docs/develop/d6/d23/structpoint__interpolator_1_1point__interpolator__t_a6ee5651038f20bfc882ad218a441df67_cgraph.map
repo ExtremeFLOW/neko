@@ -1,0 +1,10 @@
+<map id="point_interpolator::point_interpolator_t::jacobian" name="point_interpolator::point_interpolator_t::jacobian">
+<area shape="rect" id="Node000001" title="Constructs the Jacobian for a point ." alt="" coords="5,45,152,100"/>
+<area shape="rect" id="Node000002" href="$df/d77/namespacepoint__interpolator.html#a64e971149142558d588444108afeadd7" title="Constructs the Jacobian, returns a 3&#45;by&#45;3 array where ." alt="" coords="224,5,387,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,57,210,47,211,52,153,62"/>
+<area shape="rect" id="Node000004" href="$df/d77/namespacepoint__interpolator.html#a68f8d5c9b43d725b529982d525e4f51d" title="Interpolates a vector field &#160;and constructs the Jacobian at a point . Returns a vector ." alt="" coords="200,84,411,139"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="153,82,187,88,186,94,152,88"/>
+<area shape="rect" id="Node000003" href="$dc/d5b/namespacefast3d.html#a8cf69d1d964e71a541204bd6c2fc41c4" title="Compute finite&#45;difference stencil weights for evaluating derivatives up to order &#160;at a point." alt="" coords="459,60,629,85"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="388,44,455,55,454,60,387,49"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="410,92,452,85,452,90,411,97"/>
+</map>

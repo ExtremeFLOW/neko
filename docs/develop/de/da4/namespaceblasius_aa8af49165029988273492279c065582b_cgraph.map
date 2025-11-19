@@ -1,0 +1,6 @@
+<map id="blasius::blasius_apply_vector" name="blasius::blasius_apply_vector">
+<area shape="rect" id="Node000001" title="Apply blasius conditions (vector valued)" alt="" coords="5,22,171,62"/>
+<area shape="rect" id="Node000002" href="$d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d" title=" " alt="" coords="219,29,345,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="171,39,205,39,205,45,171,45"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="250,31,244,21,247,11,260,5,282,3,308,6,319,15,316,19,306,11,282,8,262,10,251,15,249,20,255,28"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="filters_cpu::step_function_kernel" name="filters_cpu::step_function_kernel">
+<area shape="rect" id="Node000001" title="Apply a step function to a scalar." alt="" coords="699,85,884,125"/>
+<area shape="rect" id="Node000002" href="$d9/d3d/namespacefilters__cpu.html#ab8c53b4bcc83ce1930097411d92eea0f" title="Apply a step function to a scalar." alt="" coords="436,92,651,117"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="685,107,651,107,651,102,685,102"/>
+<area shape="rect" id="Node000003" href="$d8/d6b/namespacefilters.html#af6e962701459bb68ecca5653c7ac1884" title="Apply a step function to a field." alt="" coords="233,85,388,125"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="422,107,388,107,388,102,422,102"/>
+<area shape="rect" id="Node000004" href="$d0/d7b/namespacebrinkman__source__term.html#afe8b8690187e910e3bc2a27eecfa6ae6" title="The common constructor using a JSON object." alt="" coords="5,5,185,60"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="236,83,177,63,178,57,238,78"/>
+<area shape="rect" id="Node000005" href="$d0/d7b/namespacebrinkman__source__term.html#a35bde13a18b619fc56d9856fcdb60ecb" title="Initializes the source term from a boundary mesh." alt="" coords="9,85,181,125"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="220,107,182,107,182,102,220,102"/>
+<area shape="rect" id="Node000006" href="$d0/d7b/namespacebrinkman__source__term.html#a34a09d4f75fd09e6858941e79f0229ae" title="Initializes the source term from a point zone." alt="" coords="9,149,181,189"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="230,131,164,151,162,146,229,126"/>
+</map>

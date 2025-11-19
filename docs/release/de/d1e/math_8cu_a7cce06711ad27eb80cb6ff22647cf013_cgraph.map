@@ -1,0 +1,9 @@
+<map id="cuda_glsum" name="cuda_glsum">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,105,62"/>
+<area shape="rect" id="Node000002" href="$d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="153,11,317,37"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="105,40,139,35,140,40,106,45"/>
+<area shape="rect" id="Node000003" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="365,29,529,69"/>
+<area shape="poly" id="edge4_Node000001_Node000003" title=" " alt="" coords="106,47,351,47,351,52,106,52"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="318,31,352,35,352,41,317,36"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="408,30,405,20,412,10,426,5,447,3,472,6,485,13,483,18,470,11,447,8,427,10,415,15,411,21,413,28"/>
+</map>

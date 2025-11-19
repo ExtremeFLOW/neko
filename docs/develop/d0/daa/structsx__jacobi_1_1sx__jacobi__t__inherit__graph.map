@@ -1,0 +1,5 @@
+<map id="sx_jacobi::sx_jacobi_t" name="sx_jacobi::sx_jacobi_t">
+<area shape="rect" id="Node000001" title="Defines a jacobi preconditioner for SX&#45;Aurora." alt="" coords="5,79,169,104"/>
+<area shape="rect" id="Node000002" href="$d7/d3a/structprecon_1_1pc__t.html" title="Defines a canonical Krylov preconditioner." alt="" coords="37,5,138,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="90,44,90,79,85,79,85,44"/>
+</map>

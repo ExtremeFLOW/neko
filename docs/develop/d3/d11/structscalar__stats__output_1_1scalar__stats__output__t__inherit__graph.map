@@ -1,0 +1,5 @@
+<map id="scalar_stats_output::scalar_stats_output_t" name="scalar_stats_output::scalar_stats_output_t">
+<area shape="rect" id="Node000001" title="Defines an output for the scalar statistics computed using the scalar_stats_t object." alt="" coords="5,79,175,119"/>
+<area shape="rect" id="Node000002" href="$dd/d5f/structoutput_1_1output__t.html" title="Abstract type defining an output type." alt="" coords="27,5,153,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="93,44,93,79,87,79,87,44"/>
+</map>

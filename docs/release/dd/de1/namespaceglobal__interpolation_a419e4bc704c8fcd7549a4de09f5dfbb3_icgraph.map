@@ -1,0 +1,12 @@
+<map id="global_interpolation::global_interpolation_init_point_arrays" name="global_interpolation::global_interpolation_init_point_arrays">
+<area shape="rect" id="Node000001" title=" " alt="" coords="421,73,581,128"/>
+<area shape="rect" id="Node000002" href="$dd/de1/namespaceglobal__interpolation.html#ac1d7dd757c992a82f1a201d671ce637d" title="Finds the corresponding r,s,t coordinates and redistributes the points to the owning rank in the corr..." alt="" coords="5,80,165,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="456,67,417,42,372,23,329,12,293,8,258,12,214,23,187,34,161,49,117,82,114,78,158,45,185,30,212,18,257,6,293,3,330,7,374,18,419,37,459,63"/>
+<area shape="rect" id="Node000003" href="$dd/de1/namespaceglobal__interpolation.html#a5dfe3afc61fac845acfadaef21e3465c" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="213,33,373,88"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="407,85,373,79,374,73,408,80"/>
+<area shape="rect" id="Node000004" href="$dd/de1/namespaceglobal__interpolation.html#aad8a5b77756f4c2b1b6efb26f7b0163a" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="213,112,373,167"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="408,121,374,127,373,122,407,115"/>
+<area shape="rect" id="Node000005" href="$dd/de1/namespaceglobal__interpolation.html#ae67a17085d264b5f5d490d1047042ee2" title=" " alt="" coords="213,191,373,245"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="446,138,375,180,351,193,349,188,372,176,443,133"/>
+<area shape="poly" id="edge5_Node000005_Node000002" title=" " alt="" coords="224,187,212,180,134,137,136,133,215,176,226,182"/>
+</map>

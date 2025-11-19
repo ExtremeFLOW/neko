@@ -1,0 +1,14 @@
+<map id="math::glsum" name="math::glsum">
+<area shape="rect" id="Node000001" title="Sum a vector of length n." alt="" coords="479,95,583,120"/>
+<area shape="poly" id="edge5_Node000001_Node000001" title=" " alt="" coords="567,85,557,77,531,73,509,75,498,80,495,86,502,93,497,96,490,86,494,76,508,70,531,68,559,72,570,81"/>
+<area shape="rect" id="Node000002" href="$d5/de6/namespacefield__math.html#a695417ff1e9677f8de61d1d44c79d9c5" title=" " alt="" coords="240,5,415,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="501,89,468,66,430,46,393,33,395,28,432,41,470,62,504,84"/>
+<area shape="rect" id="Node000003" href="$d6/daa/namespaceforce__torque.html#ab407c7b9763b091d7165c5d7d19044de" title="Compute the force_torque field." alt="" coords="255,55,400,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="465,100,400,89,401,84,465,94"/>
+<area shape="rect" id="Node000004" href="$d6/daa/namespaceforce__torque.html#a0f667e648d5b3ccd99421fa1be4aaf89" title="Actual constructor." alt="" coords="224,119,431,159"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="465,120,431,126,430,120,464,115"/>
+<area shape="rect" id="Node000006" href="$dd/d30/namespaceoperators.html#acb1a9324befa61399e2b6267cfc070f5" title="Othogonalize with regard to vector (1,1,1,1,1,1...,1)^T." alt="" coords="264,184,391,209"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="504,131,470,153,432,174,392,187,390,182,430,169,468,149,501,126"/>
+<area shape="rect" id="Node000005" href="$d6/daa/namespaceforce__torque.html#af95812899d029c8c2c15b3742965583b" title="Constructor from json." alt="" coords="5,119,176,159"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="210,142,176,142,176,137,210,137"/>
+</map>

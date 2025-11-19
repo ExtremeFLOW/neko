@@ -1,0 +1,5 @@
+<map id="gs_device_shmem::gs_device_shmem_nbsend" name="gs_device_shmem::gs_device_shmem_nbsend">
+<area shape="rect" id="Node000001" title="Post non&#45;blocking send operations." alt="" coords="5,5,188,45"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#a9babfe5a64741741d01b3f08b6e5a405" title="Synchronize a device stream with an event." alt="" coords="236,5,405,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,23,222,23,222,28,188,28"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="scalar_ic::set_scalar_ic_uniform" name="scalar_ic::set_scalar_ic_uniform">
+<area shape="rect" id="Node000001" title="Uniform initial condition." alt="" coords="411,5,564,45"/>
+<area shape="rect" id="Node000002" href="$df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#aff3db0c152fe4232bd1493c8d5614c97" title="Set scalar initial condition (builtin)" alt="" coords="5,5,161,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="397,25,363,24,209,24,162,25,162,20,209,19,363,19,397,19"/>
+<area shape="rect" id="Node000003" href="$d8/ddf/namespacescalar__ic.html#a1c59efdb48873bad7bf1521a344c1a67" title="Point zone initial condition." alt="" coords="209,33,363,73"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="397,41,363,45,362,40,397,35"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="195,44,161,39,162,33,196,38"/>
+</map>

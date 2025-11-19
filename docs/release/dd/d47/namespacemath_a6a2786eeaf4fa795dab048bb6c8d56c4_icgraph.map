@@ -1,0 +1,27 @@
+<map id="math::rone" name="math::rone">
+<area shape="rect" id="Node000001" title="Set all elements to one." alt="" coords="948,207,1041,233"/>
+<area shape="rect" id="Node000002" href="$d6/dbe/namespacecoefs.html#a7109166ad05f1f18a62a9b96be52900e" title=" " alt="" coords="719,5,878,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="982,195,951,131,927,96,898,66,869,48,871,43,902,62,931,93,955,128,987,193"/>
+<area shape="rect" id="Node000003" href="$d6/dbe/namespacecoefs.html#ab2b9f8dad2fece2b466e7459e04111f8" title="Initialize coefficients." alt="" coords="495,42,639,67"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="978,197,946,151,924,129,899,110,852,94,785,80,639,63,640,58,785,75,854,89,901,106,927,125,950,148,982,194"/>
+<area shape="rect" id="Node000004" href="$dd/dd2/namespacedofmap.html#a8b040ad6ebca0a063e5819590862ea8d" title=" " alt="" coords="723,121,875,146"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="965,201,934,180,899,161,863,149,864,143,901,156,937,175,968,197"/>
+<area shape="rect" id="Node000008" href="$dd/d52/namespaceelementwise__filter.html#afc157f604fa569f1cba6c8c96e2e4b99" title="Constructor." alt="" coords="709,171,888,211"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="934,214,888,207,889,201,935,208"/>
+<area shape="rect" id="Node000009" href="$d5/de6/namespacefield__math.html#a7b40c8c5bbf9d100cf0a8588a047ebf9" title="Set all elements to one." alt="" coords="717,235,880,261"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="935,231,881,239,880,234,934,226"/>
+<area shape="rect" id="Node000010" href="$d2/d37/namespaceschwarz.html#acee8bbc3c000f7cf1e31b4cfc36d01c6" title=" " alt="" coords="485,311,649,337"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="965,242,935,260,901,275,836,293,770,307,650,322,649,317,769,301,835,288,899,269,932,255,962,238"/>
+<area shape="rect" id="Node000011" href="$d2/d37/namespaceschwarz.html#a5226a484ae3c95e55535e3b33e4fc15c" title="setup weights" alt="" coords="697,337,900,362"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="978,245,945,283,901,320,858,339,856,334,899,315,942,280,974,242"/>
+<area shape="rect" id="Node000012" href="$d5/d6a/namespacegmres__sx.html#ac7e8d806ad2a0c1b84f6ec357d1238ef" title="Standard PCG solve." alt="" coords="721,387,877,427"/>
+<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="987,247,956,311,932,347,902,377,879,391,876,386,898,373,928,343,951,309,982,244"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="706,40,640,48,639,43,705,34"/>
+<area shape="rect" id="Node000005" href="$dd/dd2/namespacedofmap.html#a89e7d07f185fa31411b5466d5caa2e7b" title=" " alt="" coords="490,121,645,146"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="709,136,645,136,645,131,709,131"/>
+<area shape="rect" id="Node000006" href="$dd/dd2/namespacedofmap.html#a5d369623e2bb954910d6741afd4e93a8" title="Generate x,y,z&#45;coordinates for all dofs." alt="" coords="212,121,437,146"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="476,136,438,136,438,131,476,131"/>
+<area shape="rect" id="Node000007" href="$dd/dd2/namespacedofmap.html#ab00433635f8523e38ff52650bdbe62c0" title="Constructor." alt="" coords="5,121,164,146"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="198,136,164,136,164,131,198,131"/>
+<area shape="poly" id="edge12_Node000011_Node000010" title=" " alt="" coords="683,339,649,336,650,330,684,334"/>
+</map>

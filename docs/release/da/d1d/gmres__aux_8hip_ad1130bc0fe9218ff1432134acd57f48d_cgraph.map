@@ -1,0 +1,9 @@
+<map id="hip_gmres_part2" name="hip_gmres_part2">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,136,62"/>
+<area shape="rect" id="Node000002" href="$d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="184,11,348,37"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="136,38,170,34,171,39,137,44"/>
+<area shape="rect" id="Node000003" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="396,29,560,69"/>
+<area shape="poly" id="edge4_Node000001_Node000003" title=" " alt="" coords="136,47,382,47,382,52,136,52"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="349,31,383,35,382,41,348,36"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="438,30,436,20,442,10,457,5,478,3,503,6,516,13,514,18,501,11,478,8,458,10,446,15,441,21,444,28"/>
+</map>

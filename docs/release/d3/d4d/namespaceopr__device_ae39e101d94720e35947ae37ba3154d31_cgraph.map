@@ -1,0 +1,14 @@
+<map id="opr_device::opr_device_lambda2" name="opr_device::opr_device_lambda2">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,23,177,63"/>
+<area shape="rect" id="Node000002" href="$df/d96/opr__lambda2_8cu.html#adca706be9173831403afbce6a677ddfd" title=" " alt="" coords="410,5,527,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="178,35,396,20,397,25,178,40"/>
+<area shape="rect" id="Node000004" href="$d9/d48/opr__lambda2_8c.html#aaa9807618cf70ed8ca827b7654650765" title=" " alt="" coords="225,56,355,81"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="178,52,212,56,211,61,177,57"/>
+<area shape="rect" id="Node000003" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="583,49,747,89"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="519,28,574,43,573,48,518,33"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="628,49,626,39,632,30,645,24,665,22,688,25,700,32,697,37,686,30,665,27,646,29,635,34,631,40,633,48"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="355,66,569,66,569,71,355,71"/>
+<area shape="rect" id="Node000005" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="403,107,535,132"/>
+<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="336,79,411,100,409,105,335,84"/>
+<area shape="poly" id="edge7_Node000005_Node000003" title=" " alt="" coords="518,104,573,90,574,95,519,109"/>
+</map>

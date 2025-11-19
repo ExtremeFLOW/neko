@@ -1,0 +1,9 @@
+<map id="schwarz::schwarz_extrude" name="schwarz::schwarz_extrude">
+<area shape="rect" id="Node000001" title="Sum values along rows l1, l2 with weights f1, f2 and store along row l1. Helps us avoid complicated c..." alt="" coords="468,31,661,56"/>
+<area shape="rect" id="Node000002" href="$d2/d37/namespaceschwarz.html#aaaec764e6ff1c0db41b6575074b8d416" title=" " alt="" coords="219,5,419,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="454,35,419,31,419,26,455,29"/>
+<area shape="rect" id="Node000003" href="$d2/d37/namespaceschwarz.html#a5226a484ae3c95e55535e3b33e4fc15c" title="setup weights" alt="" coords="217,55,420,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="455,57,420,60,420,55,454,51"/>
+<area shape="rect" id="Node000004" href="$d2/d37/namespaceschwarz.html#acee8bbc3c000f7cf1e31b4cfc36d01c6" title=" " alt="" coords="5,55,169,80"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="204,70,170,70,170,65,204,65"/>
+</map>

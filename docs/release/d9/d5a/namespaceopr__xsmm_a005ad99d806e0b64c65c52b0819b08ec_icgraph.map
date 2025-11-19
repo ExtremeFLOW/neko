@@ -1,0 +1,27 @@
+<map id="opr_xsmm::local_grad3_xsmm" name="opr_xsmm::local_grad3_xsmm">
+<area shape="rect" id="Node000001" title=" " alt="" coords="645,237,868,262"/>
+<area shape="rect" id="Node000002" href="$d9/d5a/namespaceopr__xsmm.html#af800873cbb72d01ba03b4baf5b747b35" title=" " alt="" coords="429,197,597,237"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="646,237,597,231,598,226,647,232"/>
+<area shape="rect" id="Node000003" href="$d9/d5a/namespaceopr__xsmm.html#ac368e7ac69182681cdbea4a3f378bc50" title=" " alt="" coords="429,261,597,301"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="647,266,598,273,597,268,646,261"/>
+<area shape="rect" id="Node000004" href="$dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84" title="Compute the weak gradient of a scalar field, i.e. the gradient multiplied by the mass matrix." alt="" coords="244,269,381,294"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="416,284,381,284,381,279,416,279"/>
+<area shape="rect" id="Node000005" href="$d9/df7/namespaceadv__dealias.html#a4ad2c5d9b00cd1275c1786415a359ab9" title="Add the advection term for the fluid, i.e. , to the RHS." alt="" coords="18,5,183,45"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="302,256,289,214,267,161,236,106,216,81,194,59,177,48,180,43,198,55,220,78,240,103,272,158,294,212,307,255"/>
+<area shape="rect" id="Node000006" href="$d9/d7d/namespacefluid__stats.html#a4f4f6b67d4aaee16ce1a646a3d23e844" title="Updates all fields with a new sample." alt="" coords="38,69,163,109"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="297,257,257,191,228,155,194,124,162,106,165,102,198,119,232,151,262,188,302,255"/>
+<area shape="rect" id="Node000007" href="$d6/d21/namespacefluid__volflow.html#aa98b3664b63c5f327790b496a51c20f5" title="Compute flow adjustment." alt="" coords="27,133,174,173"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="288,261,246,224,195,188,169,176,172,171,197,183,250,219,291,257"/>
+<area shape="rect" id="Node000008" href="$d2/de4/namespacepnpn__res__cpu.html#a43bf48bf3b10c70759c96eb91cd2b452" title=" " alt="" coords="15,197,186,237"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="256,267,167,240,168,235,257,262"/>
+<area shape="rect" id="Node000009" href="$d8/dea/namespacepnpn__res__device.html#a7634678695c23385c494115658ff88cd" title=" " alt="" coords="5,261,196,301"/>
+<area shape="poly" id="edge8_Node000004_Node000009" title=" " alt="" coords="231,284,196,284,196,279,231,279"/>
+<area shape="rect" id="Node000010" href="$de/d0d/namespacepnpn__res__stress__cpu.html#a986698f8eee1fe0a1178677cd9f304ed" title=" " alt="" coords="19,326,182,381"/>
+<area shape="poly" id="edge9_Node000004_Node000010" title=" " alt="" coords="263,301,182,329,181,323,261,296"/>
+<area shape="rect" id="Node000011" href="$dd/d1f/namespacepnpn__res__stress__device.html#a62cedb09bbf5da8ce1c248095b493b39" title=" " alt="" coords="12,405,189,459"/>
+<area shape="poly" id="edge10_Node000004_Node000011" title=" " alt="" coords="294,306,252,350,198,394,176,407,173,402,194,390,248,346,290,302"/>
+<area shape="rect" id="Node000012" href="$d4/da3/namespacepnpn__res__sx.html#ad2586259b3e34e72aebb30cd0a05fb69" title=" " alt="" coords="15,484,186,524"/>
+<area shape="poly" id="edge11_Node000004_Node000012" title=" " alt="" coords="305,308,289,345,266,389,236,434,198,473,176,486,174,482,194,469,232,430,262,386,284,342,300,306"/>
+<area shape="rect" id="Node000013" href="$de/d32/namespaceweak__grad.html#a84e25f3dbf1e49a44a3333a0ce7ed1d3" title="Compute the weak_grad field." alt="" coords="15,548,187,588"/>
+<area shape="poly" id="edge12_Node000004_Node000013" title=" " alt="" coords="309,308,297,356,276,418,244,482,222,512,198,538,180,550,177,546,194,534,218,508,239,479,271,416,292,355,304,307"/>
+</map>

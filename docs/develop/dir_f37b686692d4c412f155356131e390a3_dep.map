@@ -1,0 +1,14 @@
+<map id="/home/runner/work/neko/neko/src/filter/bcknd/device" name="/home/runner/work/neko/neko/src/filter/bcknd/device">
+<area shape="rect" id="node2" href="dir_253ee523a1801dbc2df2740a0b927fb3.html" title="cuda" alt="" coords="195,63,248,88"/>
+<area shape="rect" id="node5" href="dir_16dc92632bab467dc50b01bd02b3341a.html" title="device" alt="" coords="117,136,182,161"/>
+<area shape="poly" id="edge1" href="dir_000042_000058.html" alt="" coords="211,90,173,128,169,124,208,86"/>
+<area shape="rect" id="edge1-headlabel" href="dir_000042_000058.html" title="2" alt="" coords="175,122,185,137"/>
+<area shape="rect" id="node3" href="dir_44c81b5386f7353aee3c6b4b2d73595d.html" title="hip" alt="" coords="128,63,171,88"/>
+<area shape="poly" id="edge2" href="dir_000082_000058.html" alt="" coords="152,88,152,122,147,122,147,88"/>
+<area shape="rect" id="edge2-headlabel" href="dir_000082_000058.html" title="2" alt="" coords="153,110,162,125"/>
+<area shape="rect" id="node4" href="dir_cb23463e89e6c13fb97d602a6844fe6c.html" title="opencl" alt="" coords="38,63,103,88"/>
+<area shape="poly" id="edge3" href="dir_000103_000058.html" alt="" coords="85,86,128,125,125,129,82,90"/>
+<area shape="rect" id="edge3-headlabel" href="dir_000103_000058.html" title="4" alt="" coords="124,110,133,125"/>
+<area shape="rect" id="clust2" href="dir_f37b686692d4c412f155356131e390a3.html" alt="" coords="27,52,349,99"/>
+<area shape="rect" id="clust1" href="dir_24cc091df5f986eaf3d5ee6f4869c76e.html" title="bcknd" alt="" coords="16,16,360,109"/>
+</map>

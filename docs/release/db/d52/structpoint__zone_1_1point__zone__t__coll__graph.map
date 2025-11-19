@@ -1,0 +1,9 @@
+<map id="point_zone::point_zone_t" name="point_zone::point_zone_t">
+<area shape="rect" id="Node000001" title="Base abstract type for point zones." alt="" coords="5,168,189,193"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="27,80,82,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="63,118,73,143,89,166,85,169,68,145,58,120"/>
+<area shape="rect" id="Node000003" href="$d2/d45/structstack_1_1stack__i4__t.html" title="Integer based stack." alt="" coords="107,80,237,105"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="155,118,110,169,106,166,151,114"/>
+<area shape="rect" id="Node000004" href="$d2/dbd/structstack_1_1stack__t.html" title="Base type for a stack." alt="" coords="116,5,228,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="175,45,175,80,169,80,169,45"/>
+</map>

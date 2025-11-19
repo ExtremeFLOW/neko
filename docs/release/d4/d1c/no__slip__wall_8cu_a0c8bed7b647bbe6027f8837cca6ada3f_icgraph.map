@@ -1,0 +1,9 @@
+<map id="cuda_no_slip_wall_apply_scalar" name="cuda_no_slip_wall_apply_scalar">
+<area shape="rect" id="Node000001" title=" " alt="" coords="481,49,664,89"/>
+<area shape="rect" id="Node000002" href="$d0/d29/namespacedevice__wall.html#aeac8ad3a7a4b2e7b8123dc2b4094cf6f" title=" " alt="" coords="281,41,433,96"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="468,71,434,71,434,66,468,66"/>
+<area shape="rect" id="Node000003" href="$d0/df8/interfacedevice__wall_1_1hip__no__slip__wall__apply__vector.html#ace801224233fcf9d8a3cdaad5e065934" title=" " alt="" coords="5,5,233,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="267,58,233,53,234,47,268,53"/>
+<area shape="rect" id="Node000004" href="$da/dd2/namespacewall.html#a92a559c9cda228fd4f4b5669c94c1913" title="Boundary condition apply for a no&#45;slip wall condition to a vector x (device version)" alt="" coords="48,85,191,125"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="268,85,191,97,191,91,267,80"/>
+</map>

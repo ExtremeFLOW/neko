@@ -1,0 +1,5 @@
+<map id="boussinesq_source_term_device::boussinesq_source_term_compute_device" name="boussinesq_source_term_device::boussinesq_source_term_compute_device">
+<area shape="rect" id="Node000001" title="Computes the Boussinesq source term on the device." alt="" coords="5,5,208,60"/>
+<area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#a1bd061bc66a9917394de645ffd09e1f0" title="Vector addition with scalar multiplication &#160;(multiplication on first argument)" alt="" coords="256,13,413,53"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,30,242,30,242,35,208,35"/>
+</map>

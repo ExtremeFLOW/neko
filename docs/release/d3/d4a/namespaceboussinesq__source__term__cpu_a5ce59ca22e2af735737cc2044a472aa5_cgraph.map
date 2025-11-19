@@ -1,0 +1,7 @@
+<map id="boussinesq_source_term_cpu::boussinesq_source_term_compute_cpu" name="boussinesq_source_term_cpu::boussinesq_source_term_compute_cpu">
+<area shape="rect" id="Node000001" title="Computes the Boussinesq source term on the cpu." alt="" coords="5,16,188,71"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#aec2e1cbc631a4cb73db0d17b89e9e596" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="236,5,347,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,29,222,24,222,30,189,34"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#a439630d12cb3027eb78f58e0519b8bc6" title="Add a scalar to vector ." alt="" coords="244,55,339,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="189,52,231,57,230,63,188,57"/>
+</map>

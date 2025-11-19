@@ -1,0 +1,9 @@
+<map id="dofmap::gh_face_extend_2d" name="dofmap::gh_face_extend_2d">
+<area shape="rect" id="Node000001" title="Extend 2D faces into interior via gordon hall gh_type: 1 &#45; vertex only 2 &#45; vertex and faces." alt="" coords="725,5,932,31"/>
+<area shape="rect" id="Node000002" href="$dd/dd2/namespacedofmap.html#adb78d2dd3cc039858605775479de13ca" title=" " alt="" coords="485,5,677,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="712,21,678,21,678,15,712,15"/>
+<area shape="rect" id="Node000003" href="$dd/dd2/namespacedofmap.html#a5d369623e2bb954910d6741afd4e93a8" title="Generate x,y,z&#45;coordinates for all dofs." alt="" coords="212,5,437,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="471,21,438,21,438,15,471,15"/>
+<area shape="rect" id="Node000004" href="$dd/dd2/namespacedofmap.html#ab00433635f8523e38ff52650bdbe62c0" title="Constructor." alt="" coords="5,5,164,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="198,21,164,21,164,15,198,15"/>
+</map>

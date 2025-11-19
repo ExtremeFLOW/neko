@@ -1,0 +1,35 @@
+<map id="fdm_sx::fdm_do_fast_sx" name="fdm_sx::fdm_do_fast_sx">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,461,187,486"/>
+<area shape="rect" id="Node000002" href="$d3/d45/namespacefdm__sx.html#acf223c60b65d0102baad622bfa727216" title=" " alt="" coords="243,5,401,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="95,460,101,391,120,283,138,223,162,163,193,106,233,56,237,52,240,56,237,59,197,109,166,165,143,225,126,284,106,391,100,461"/>
+<area shape="rect" id="Node000003" href="$d3/d45/namespacefdm__sx.html#a6d3796af970e10824e518b93b6ccd35c" title=" " alt="" coords="243,69,401,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="96,460,105,400,128,309,145,259,168,209,197,161,233,119,237,115,241,119,237,123,202,164,173,211,150,261,133,311,110,401,101,461"/>
+<area shape="rect" id="Node000004" href="$d3/d45/namespacefdm__sx.html#a19551804eec3617a0a4fe8b67b5b77b7" title=" " alt="" coords="243,133,401,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="97,460,110,409,135,335,153,295,175,255,202,217,233,183,238,179,242,183,237,187,206,220,180,257,158,297,140,337,115,411,102,461"/>
+<area shape="rect" id="Node000005" href="$d3/d45/namespacefdm__sx.html#acd79987c3985ca01ef372e86e205ffaf" title=" " alt="" coords="243,197,401,237"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="99,459,116,419,143,362,183,301,206,272,233,247,240,242,243,247,236,251,210,276,187,304,148,365,120,421,104,461"/>
+<area shape="rect" id="Node000006" href="$d3/d45/namespacefdm__sx.html#aa652492857e98aef96b22a0df33fc9b7" title=" " alt="" coords="243,261,401,301"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="103,459,152,390,190,348,233,311,242,306,245,310,236,315,193,352,156,393,107,462"/>
+<area shape="rect" id="Node000007" href="$d3/d45/namespacefdm__sx.html#aa71a7941f0ba12918fb17480f302e615" title=" " alt="" coords="243,325,401,365"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="111,458,164,418,233,375,247,368,249,373,236,380,167,423,115,463"/>
+<area shape="rect" id="Node000008" href="$d3/d45/namespacefdm__sx.html#a80b20d11236babdafd8b2c3d2f7ba4c3" title=" " alt="" coords="243,389,401,429"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="141,458,237,431,238,436,143,463"/>
+<area shape="rect" id="Node000009" href="$d3/d45/namespacefdm__sx.html#ad92e23f2ac3f7080f4ff0441969c91b1" title=" " alt="" coords="243,453,401,493"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="187,471,229,471,229,476,187,476"/>
+<area shape="rect" id="Node000010" href="$d3/d45/namespacefdm__sx.html#a6c5a06d5b800628e609cf2dd571d4f91" title=" " alt="" coords="243,517,401,557"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="143,484,238,511,237,516,141,489"/>
+<area shape="rect" id="Node000011" href="$d3/d45/namespacefdm__sx.html#ad97034c095467cdbf65aaefd9b66ad89" title=" " alt="" coords="243,581,401,621"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="115,484,167,524,236,567,249,574,247,578,233,572,164,528,111,488"/>
+<area shape="rect" id="Node000012" href="$d3/d45/namespacefdm__sx.html#a6f2e73fed903b882a7795139ccdb5f42" title=" " alt="" coords="243,645,401,685"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="107,484,156,553,193,595,236,631,245,637,242,641,233,635,190,599,152,557,103,488"/>
+<area shape="rect" id="Node000013" href="$d3/d45/namespacefdm__sx.html#aef49f44265963c36dfeaea6e5da83206" title=" " alt="" coords="243,709,401,749"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="104,486,120,526,148,582,187,643,210,671,236,695,243,700,240,704,233,699,206,674,183,646,143,585,116,528,99,488"/>
+<area shape="rect" id="Node000014" href="$d3/d45/namespacefdm__sx.html#a22504991e2456349a1f7a8f9c34b8efd" title=" " alt="" coords="243,773,401,813"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="102,486,115,536,140,609,158,649,180,689,206,726,237,759,242,764,238,768,233,763,202,730,175,692,153,652,135,611,110,538,97,487"/>
+<area shape="rect" id="Node000015" href="$d3/d45/namespacefdm__sx.html#a1c6ffe038bf22af3f15a05f2dd422d49" title=" " alt="" coords="243,837,401,877"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="101,486,110,546,133,636,150,686,173,736,202,782,237,823,241,827,237,831,233,827,197,785,168,738,145,688,128,638,105,547,96,487"/>
+<area shape="rect" id="Node000016" href="$db/de7/namespacetensor__sx.html#ae40bc41ded753e9b7c41a6ca576a6cfd" title=" " alt="" coords="235,902,409,927"/>
+<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="100,486,105,556,123,664,141,724,164,783,196,839,237,887,243,893,240,897,233,891,192,842,160,785,135,725,118,665,100,556,95,486"/>
+<area shape="rect" id="Node000017" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="457,902,616,927"/>
+<area shape="poly" id="edge16_Node000016_Node000017" title=" " alt="" coords="410,912,443,912,443,917,410,917"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="advection::advection_t" name="advection::advection_t">
+<area shape="rect" id="Node000001" title="Base abstract type for computing the advection operator." alt="" coords="219,5,390,31"/>
+<area shape="rect" id="Node000002" href="$db/dde/structadv__dealias_1_1adv__dealias__t.html" title="Type encapsulating advection routines with dealiasing." alt="" coords="5,86,204,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="264,38,135,88,133,83,262,33"/>
+<area shape="rect" id="Node000003" href="$d9/dd0/structadv__no__dealias_1_1adv__no__dealias__t.html" title="Type encapsulating advection routines with no dealiasing applied." alt="" coords="227,79,382,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="307,44,307,79,302,79,302,44"/>
+<area shape="rect" id="Node000004" href="$d0/d27/structadv__oifs_1_1adv__oifs__t.html" title=" " alt="" coords="406,86,558,111"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="344,34,457,84,455,88,342,39"/>
+</map>

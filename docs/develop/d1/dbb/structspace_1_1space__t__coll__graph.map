@@ -1,0 +1,5 @@
+<map id="space::space_t" name="space::space_t">
+<area shape="rect" id="Node000001" title="The function space for the SEM solution fields." alt="" coords="5,240,124,265"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="37,5,92,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="67,45,67,240,62,240,62,45"/>
+</map>

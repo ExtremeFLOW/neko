@@ -1,0 +1,43 @@
+<map id="tensor::triple_tensor_product::triple_tensor_product_scalar" name="tensor::triple_tensor_product::triple_tensor_product_scalar">
+<area shape="rect" id="Node000001" title="Computes the tensor product . This operation is usually performed for spectral interpolation of a sca..." alt="" coords="5,617,173,671"/>
+<area shape="rect" id="Node000002" href="$dd/d8c/namespacetensor.html#a4fd5961937350ece05c54764f4dbd7d0" title="Tensor product &#160;performed on a single element." alt="" coords="221,631,352,657"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="174,641,208,641,208,647,174,647"/>
+<area shape="rect" id="Node000003" href="$d4/d59/namespacetensor__cpu.html#ad676f5ad81cd24008b8e0433bb237361" title=" " alt="" coords="416,485,559,525"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="305,629,444,531,448,536,308,633"/>
+<area shape="rect" id="Node000019" href="$db/de7/namespacetensor__sx.html#aff6eaa06af11a386546929a50a5495c5" title=" " alt="" coords="400,631,575,657"/>
+<area shape="poly" id="edge18_Node000002_Node000019" title=" " alt="" coords="352,641,386,641,386,647,352,647"/>
+<area shape="rect" id="Node000020" href="$dd/d89/namespacetensor__xsmm.html#a0672db2340d2fcd63a9acb16e3de3243" title=" " alt="" coords="407,844,567,884"/>
+<area shape="poly" id="edge19_Node000002_Node000020" title=" " alt="" coords="302,655,461,832,457,836,298,659"/>
+<area shape="rect" id="Node000004" href="$d4/d59/namespacetensor__cpu.html#ae77f9f382e817bbca7f543e4200a89ad" title=" " alt="" coords="631,5,773,45"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="486,485,491,407,510,293,527,231,550,168,581,109,621,56,624,52,628,56,625,59,586,112,555,170,532,232,515,294,497,408,492,485"/>
+<area shape="rect" id="Node000005" href="$d4/d59/namespacetensor__cpu.html#a6ee3afd547cd3b31d340815b515f9768" title=" " alt="" coords="631,69,773,109"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="487,485,496,417,517,320,534,267,557,214,585,164,621,120,625,116,628,120,625,123,590,167,562,217,539,269,522,321,501,418,493,486"/>
+<area shape="rect" id="Node000006" href="$d4/d59/namespacetensor__cpu.html#aaa1ff29408272d8433eb0e7c34b16d5a" title=" " alt="" coords="631,133,773,173"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="489,485,501,427,525,347,542,303,564,260,590,220,621,183,625,179,629,183,625,187,594,223,568,263,547,305,530,348,506,428,494,486"/>
+<area shape="rect" id="Node000007" href="$d4/d59/namespacetensor__cpu.html#a44277389ebdf9ab51550824ea349f47d" title=" " alt="" coords="631,197,773,237"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="492,484,507,437,533,374,571,307,594,275,621,247,626,243,630,247,624,251,598,279,575,310,538,376,512,439,497,486"/>
+<area shape="rect" id="Node000008" href="$d4/d59/namespacetensor__cpu.html#ae748e019e3cc44176bff6507a2aba05d" title=" " alt="" coords="631,261,773,301"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="496,484,514,448,542,402,578,354,621,311,628,306,631,311,624,315,582,357,546,405,519,450,500,486"/>
+<area shape="rect" id="Node000009" href="$d4/d59/namespacetensor__cpu.html#aa7d61c1bdd9c277de9033425e25dfff5" title=" " alt="" coords="631,325,773,365"/>
+<area shape="poly" id="edge8_Node000003_Node000009" title=" " alt="" coords="503,483,553,431,586,401,621,375,631,369,634,374,624,380,589,405,557,434,507,487"/>
+<area shape="rect" id="Node000010" href="$d4/d59/namespacetensor__cpu.html#a5656651b5ce73aa77a20cac5fdf541a7" title=" " alt="" coords="631,389,773,429"/>
+<area shape="poly" id="edge9_Node000003_Node000010" title=" " alt="" coords="528,483,622,439,637,432,639,437,624,444,531,488"/>
+<area shape="rect" id="Node000011" href="$d4/d59/namespacetensor__cpu.html#ab4945eadb44a72d32c111d364eae6b8b" title=" " alt="" coords="631,453,773,493"/>
+<area shape="poly" id="edge10_Node000003_Node000011" title=" " alt="" coords="558,492,617,483,618,489,559,497"/>
+<area shape="rect" id="Node000012" href="$d4/d59/namespacetensor__cpu.html#a1988aacf2efb9c8d811fa4db12e6385e" title=" " alt="" coords="631,517,773,557"/>
+<area shape="poly" id="edge11_Node000003_Node000012" title=" " alt="" coords="559,513,618,522,617,527,558,519"/>
+<area shape="rect" id="Node000013" href="$d4/d59/namespacetensor__cpu.html#aa17ce182a82dec3113b4281d1faffc57" title=" " alt="" coords="631,581,773,621"/>
+<area shape="poly" id="edge12_Node000003_Node000013" title=" " alt="" coords="531,523,624,567,639,574,637,579,622,572,528,528"/>
+<area shape="rect" id="Node000014" href="$d4/d59/namespacetensor__cpu.html#a6ec00a49f043f4b60c336ce63e77809c" title=" " alt="" coords="631,645,773,685"/>
+<area shape="poly" id="edge13_Node000003_Node000014" title=" " alt="" coords="507,524,557,576,589,605,624,631,634,637,631,641,621,636,586,609,553,580,503,527"/>
+<area shape="rect" id="Node000015" href="$d4/d59/namespacetensor__cpu.html#afe5d871bd675d7737bfc26b84192fa62" title=" " alt="" coords="631,709,773,749"/>
+<area shape="poly" id="edge14_Node000003_Node000015" title=" " alt="" coords="507,524,577,617,590,640,598,660,607,677,624,695,631,700,627,704,621,699,603,680,593,662,585,643,572,620,503,527"/>
+<area shape="rect" id="Node000016" href="$d4/d59/namespacetensor__cpu.html#aa02177bbe1b001870fd0e1b41c19944a" title=" " alt="" coords="631,773,773,813"/>
+<area shape="poly" id="edge15_Node000003_Node000016" title=" " alt="" coords="509,524,543,565,577,617,592,658,596,693,603,726,611,742,625,760,628,763,625,767,621,763,607,745,598,728,591,694,586,660,572,620,539,569,505,527"/>
+<area shape="rect" id="Node000017" href="$d4/d59/namespacetensor__cpu.html#ad97f3d6179a480e00c0bab11ef16afd8" title=" " alt="" coords="631,837,773,877"/>
+<area shape="poly" id="edge16_Node000003_Node000017" title=" " alt="" coords="510,524,545,565,577,618,588,648,593,677,593,727,594,751,598,774,607,798,625,824,628,827,624,830,621,827,602,801,592,775,589,751,588,727,588,677,583,650,572,620,540,568,506,527"/>
+<area shape="rect" id="Node000018" href="$d4/d59/namespacetensor__cpu.html#ae4744f0b8f4479debd1a4ccbc5174e50" title=" " alt="" coords="631,901,773,941"/>
+<area shape="poly" id="edge17_Node000003_Node000018" title=" " alt="" coords="511,524,545,565,577,618,590,658,595,695,591,760,589,791,592,822,603,854,625,888,627,890,623,894,621,891,598,856,587,823,584,791,586,760,589,695,585,659,572,620,541,568,507,527"/>
+<area shape="rect" id="Node000021" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="623,966,781,991"/>
+<area shape="poly" id="edge20_Node000020_Node000021" title=" " alt="" coords="516,882,564,917,624,951,643,959,641,964,621,956,562,921,513,886"/>
+</map>

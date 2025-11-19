@@ -1,0 +1,13 @@
+<map id="octree::octree_oct" name="octree::octree_oct">
+<area shape="rect" id="Node000001" title="Return the octant for a given point." alt="" coords="428,71,567,96"/>
+<area shape="rect" id="Node000002" href="$d8/d38/namespaceoctree.html#ab120b3f2b99884c38d35855b3bed2410" title="Find the octant containing a point p." alt="" coords="209,29,380,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="420,70,357,57,358,52,421,65"/>
+<area shape="rect" id="Node000004" href="$d8/d38/namespaceoctree.html#a650d2adb187faa4ebc524ddd6b723e65" title="Insert a point p into the octree rooted at o." alt="" coords="225,103,364,143"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="419,101,365,112,364,107,418,96"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="331,20,321,11,295,8,273,10,262,15,259,20,266,28,261,31,254,21,258,11,272,5,295,3,323,6,334,16"/>
+<area shape="rect" id="Node000003" href="$d8/d38/namespaceoctree.html#a94d784c902224f7b0d658de9d76ce81b" title="Find a point p in an octree." alt="" coords="12,29,155,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="196,45,155,45,155,39,196,39"/>
+<area shape="poly" id="edge6_Node000004_Node000004" title=" " alt="" coords="329,92,317,85,295,82,275,84,264,89,259,95,262,102,256,104,254,94,260,85,274,79,295,77,318,80,331,87"/>
+<area shape="rect" id="Node000005" href="$d8/d38/namespaceoctree.html#a383206829a5f341a76123fe5b41cc844" title="Insert a point p into the octree." alt="" coords="5,111,161,136"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="211,126,161,126,161,121,211,121"/>
+</map>

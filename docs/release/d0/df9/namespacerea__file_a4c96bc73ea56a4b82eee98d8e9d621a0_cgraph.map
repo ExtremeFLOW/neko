@@ -1,0 +1,13 @@
+<map id="rea_file::rea_file_read" name="rea_file::rea_file_read">
+<area shape="rect" id="Node000001" title="Load NEKTON session data from an ascii file." alt="" coords="5,95,168,120"/>
+<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#a94a1b10b4fd0d52a2bbd0bdfbac01692" title="Change a filename&#39;s suffix." alt="" coords="216,5,389,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="109,92,157,67,215,41,239,32,241,37,217,46,160,72,112,97"/>
+<area shape="rect" id="Node000004" href="$d0/df9/namespacerea__file.html#a8757f8bd3353e70448913579aa905ae5" title=" " alt="" coords="239,55,366,95"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="168,93,225,84,226,89,168,98"/>
+<area shape="rect" id="Node000005" href="$d0/df9/namespacerea__file.html#ad0cd761d57fe23c91fc477b2f7a4fe6a" title="Mark a labeled zone based on an offset." alt="" coords="233,119,373,159"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="168,117,220,124,219,130,168,122"/>
+<area shape="rect" id="Node000006" href="$d7/d1d/namespacerea.html#a018ed1e7f3e68aa933a552b30b16b2c0" title="Free a NEKTON session data." alt="" coords="250,184,355,209"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="112,118,160,143,217,169,241,177,239,182,215,174,157,148,109,122"/>
+<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#ae2d9d80ae0bcff7643db09d1c1860542" title="Find position (in the string) of a filename&#39;s suffix." alt="" coords="437,5,625,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="389,15,424,15,424,21,389,21"/>
+</map>

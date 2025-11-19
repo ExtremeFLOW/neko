@@ -1,0 +1,5 @@
+<map id="fluid_scheme::fluid_scheme_bc_apply_vel" name="fluid_scheme::fluid_scheme_bc_apply_vel">
+<area shape="rect" id="Node000001" title="Apply all boundary conditions defined for velocity Here we perform additional gs operations to take c..." alt="" coords="5,5,177,45"/>
+<area shape="rect" id="Node000002" href="$d0/dc0/namespacebc.html#a1f087abac946e8ecf412faf1e715dd42" title="Apply a list of boundary conditions to a vector field." alt="" coords="225,13,404,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="177,23,212,23,212,28,177,28"/>
+</map>

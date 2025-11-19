@@ -1,0 +1,17 @@
+<map id="opr_device::opr_device_cdtp" name="opr_device::opr_device_cdtp">
+<area shape="rect" id="Node000001" title=" " alt="" coords="412,177,619,202"/>
+<area shape="rect" id="Node000002" href="$dd/d30/namespaceoperators.html#ae0083f86c7db2d6aaee644b4cdcc02f6" title="Apply D^T to a scalar field, where D is the derivative matrix." alt="" coords="244,177,364,202"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="398,192,364,192,364,187,398,187"/>
+<area shape="rect" id="Node000003" href="$d6/d21/namespacefluid__volflow.html#aa98b3664b63c5f327790b496a51c20f5" title="Compute flow adjustment." alt="" coords="27,5,174,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="287,166,249,112,224,84,194,60,173,48,176,43,198,55,227,80,253,109,291,163"/>
+<area shape="rect" id="Node000004" href="$d2/de4/namespacepnpn__res__cpu.html#a4ac756a5d738cc2007d3c1a638ce3a7c" title=" " alt="" coords="15,69,186,109"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="273,171,236,147,195,124,167,112,169,107,197,119,239,142,276,166"/>
+<area shape="rect" id="Node000005" href="$d8/dea/namespacepnpn__res__device.html#a3e57cd69551328b4f51766b33d4b4d3d" title=" " alt="" coords="5,133,196,173"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="230,179,196,173,197,168,231,174"/>
+<area shape="rect" id="Node000006" href="$de/d0d/namespacepnpn__res__stress__cpu.html#a31cf6435d89a64e387d00dd2d42e019f" title=" " alt="" coords="19,198,182,253"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="231,205,183,214,182,208,230,200"/>
+<area shape="rect" id="Node000007" href="$dd/d1f/namespacepnpn__res__stress__device.html#a9c09a9089caa70d30de4f4b7b087d19e" title=" " alt="" coords="12,277,189,331"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="278,212,240,239,197,266,172,279,170,274,195,262,237,235,275,208"/>
+<area shape="rect" id="Node000008" href="$d4/da3/namespacepnpn__res__sx.html#aef62882f6b94db68f970070af4cba651" title=" " alt="" coords="15,356,186,396"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="294,216,257,280,230,314,198,345,175,358,172,354,194,341,226,311,252,277,289,213"/>
+</map>

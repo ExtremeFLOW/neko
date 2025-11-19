@@ -1,0 +1,7 @@
+<map id="gradient_jump_penalty::gradient_jump_penalty_finalize_hex" name="gradient_jump_penalty::gradient_jump_penalty_finalize_hex">
+<area shape="rect" id="Node000001" title="Finalizinge the gradient jump penalty term for hexahedral elements. &lt;tau * h^2 * absvolflux * G * phi..." alt="" coords="461,5,641,60"/>
+<area shape="rect" id="Node000002" href="$d6/def/namespacegradient__jump__penalty.html#a0d84b1b365fd1c178cf3e0230ded6de0" title="Interface of finalizing the gradient jump penalty term. &lt;tau * h^2 * absvolflux * G * phij * phik * d..." alt="" coords="233,5,413,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="447,35,413,35,413,30,447,30"/>
+<area shape="rect" id="Node000003" href="$d6/def/namespacegradient__jump__penalty.html#a0734914600660d530280d0e77899d744" title="Compute the gradient jump penalty term." alt="" coords="5,5,185,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="219,35,185,35,185,30,219,30"/>
+</map>

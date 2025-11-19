@@ -1,0 +1,5 @@
+<map id="dofmap::dofmap_number_faces" name="dofmap::dofmap_number_faces">
+<area shape="rect" id="Node000001" title="Assign numbers to dofs on faces." alt="" coords="212,5,399,45"/>
+<area shape="rect" id="Node000002" href="$dd/dd2/namespacedofmap.html#ab00433635f8523e38ff52650bdbe62c0" title="Constructor." alt="" coords="5,13,164,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="198,28,164,28,164,23,198,23"/>
+</map>

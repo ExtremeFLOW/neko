@@ -1,0 +1,14 @@
+<map id="gradient_jump_penalty::gradient_jump_penalty_compute_single" name="gradient_jump_penalty::gradient_jump_penalty_compute_single">
+<area shape="rect" id="Node000001" title="Compute the gradient jump penalty term for a single field." alt="" coords="5,62,185,117"/>
+<area shape="rect" id="Node000002" href="$d6/def/namespacegradient__jump__penalty.html#a2b8c031f9224640b2c4108710bc00ffb" title="Compute the average of the volumetric flux over facets." alt="" coords="237,5,409,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,61,238,47,239,52,186,67"/>
+<area shape="rect" id="Node000004" href="$d6/def/namespacegradient__jump__penalty.html#a7823cfe996241912364520378aceafbf" title="Compute the average of the flux over facets." alt="" coords="237,69,409,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="186,87,224,87,224,92,186,92"/>
+<area shape="rect" id="Node000005" href="$d6/def/namespacegradient__jump__penalty.html#a0d84b1b365fd1c178cf3e0230ded6de0" title="Interface of finalizing the gradient jump penalty term. &lt;tau * h^2 * absvolflux * G * phij * phik * d..." alt="" coords="233,134,413,189"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="183,114,224,127,223,132,182,119"/>
+<area shape="rect" id="Node000003" href="$d6/def/namespacegradient__jump__penalty.html#ac7f5cc4d7cf69c8b34827bdb838e0858" title="Pick facet values of a field." alt="" coords="465,37,637,77"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="410,35,452,41,451,46,409,40"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="409,75,451,69,452,74,410,80"/>
+<area shape="rect" id="Node000006" href="$d6/def/namespacegradient__jump__penalty.html#a06dd9e1fb40b3c25715428ed24ef11f4" title="Finalizinge the gradient jump penalty term for hexahedral elements. &lt;tau * h^2 * absvolflux * G * phi..." alt="" coords="461,134,641,189"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="414,159,448,159,448,164,414,164"/>
+</map>

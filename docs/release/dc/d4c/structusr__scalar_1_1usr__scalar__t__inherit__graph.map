@@ -1,0 +1,5 @@
+<map id="usr_scalar::usr_scalar_t" name="usr_scalar::usr_scalar_t">
+<area shape="rect" id="Node000001" title="User defined dirichlet condition for scalars." alt="" coords="5,79,180,104"/>
+<area shape="rect" id="Node000002" href="$d6/db3/structbc_1_1bc__t.html" title="Base type for a boundary condition." alt="" coords="57,5,129,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="95,44,95,79,90,79,90,44"/>
+</map>

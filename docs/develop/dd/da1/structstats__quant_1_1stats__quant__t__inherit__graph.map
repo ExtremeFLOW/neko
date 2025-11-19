@@ -1,0 +1,9 @@
+<map id="stats_quant::stats_quant_t" name="stats_quant::stats_quant_t">
+<area shape="rect" id="Node000001" title="Abstract type defining a statistical quantity." alt="" coords="179,5,317,45"/>
+<area shape="rect" id="Node000002" href="$da/d8a/structfluid__stats_1_1fluid__stats__t.html" title=" " alt="" coords="5,93,131,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="198,54,109,96,106,91,195,49"/>
+<area shape="rect" id="Node000003" href="$dc/d4a/structmean__field_1_1mean__field__t.html" title="Computes the temporal mean of a field." alt="" coords="155,101,341,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="251,59,251,100,245,100,245,59"/>
+<area shape="rect" id="Node000004" href="$dd/dad/structscalar__stats_1_1scalar__stats__t.html" title=" " alt="" coords="365,93,512,133"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="303,49,398,91,396,96,301,53"/>
+</map>

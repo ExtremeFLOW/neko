@@ -1,0 +1,9 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$d4/d2a/structadvection_1_1advection__t.html" title="Base abstract type for computing the advection operator." alt="" coords="5,63,176,88"/>
+<area shape="rect" id="Node000001" href="$db/dde/structadv__dealias_1_1adv__dealias__t.html" title="Type encapsulating advection routines with dealiasing." alt="" coords="224,5,423,31"/>
+<area shape="poly" id="edge1_Node000000_Node000001" title=" " alt="" coords="155,57,270,28,272,33,157,62"/>
+<area shape="rect" id="Node000002" href="$d9/dd0/structadv__no__dealias_1_1adv__no__dealias__t.html" title="Type encapsulating advection routines with no dealiasing applied." alt="" coords="246,55,401,95"/>
+<area shape="poly" id="edge2_Node000000_Node000002" title=" " alt="" coords="190,73,246,73,246,78,190,78"/>
+<area shape="rect" id="Node000003" href="$d0/d27/structadv__oifs_1_1adv__oifs__t.html" title=" " alt="" coords="247,120,399,145"/>
+<area shape="poly" id="edge3_Node000000_Node000003" title=" " alt="" coords="157,89,272,117,270,123,155,94"/>
+</map>

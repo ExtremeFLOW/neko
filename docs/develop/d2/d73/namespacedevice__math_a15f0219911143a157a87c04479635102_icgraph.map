@@ -1,0 +1,14 @@
+<map id="device_math::device_sub3" name="device_math::device_sub3">
+<area shape="rect" id="Node000001" title="Vector subtraction ." alt="" coords="447,96,641,121"/>
+<area shape="rect" id="Node000002" href="$d5/de6/namespacefield__math.html#a47d7caed4f55ae603840a7aec66cbc7a" title="Vector subtraction ." alt="" coords="219,5,384,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="505,92,455,68,398,45,360,33,362,28,400,39,457,63,508,87"/>
+<area shape="rect" id="Node000003" href="$dc/d12/namespacematrix__math.html#af2525db7542aac3a007f5e432b970806" title="Vector subtraction ." alt="" coords="204,55,399,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="455,96,376,83,377,77,456,91"/>
+<area shape="rect" id="Node000004" href="$d5/d1b/namespacetree__amg__multigrid.html#aa05c674514ae6f8c5569c4b9afec19a5" title="Recrsive multigrid cycle for the TreeAMG solver object on device." alt="" coords="226,129,377,169"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="453,126,377,139,376,134,452,121"/>
+<area shape="rect" id="Node000006" href="$d3/d0d/namespacevector__math.html#a40da5cd57b058d7e69b8890f04115fb4" title="Vector subtraction ." alt="" coords="206,193,397,219"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="510,130,459,157,400,183,359,196,358,191,398,178,457,152,508,126"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="338,117,325,110,301,107,280,109,268,114,263,120,265,128,260,129,258,119,264,110,279,104,301,102,327,105,341,112"/>
+<area shape="rect" id="Node000005" href="$d5/d1b/namespacetree__amg__multigrid.html#aceff3d75610ff13856f0687a6c1c8343" title="Solver function for the TreeAMG solver object." alt="" coords="5,129,156,169"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="212,151,156,151,156,146,212,146"/>
+</map>

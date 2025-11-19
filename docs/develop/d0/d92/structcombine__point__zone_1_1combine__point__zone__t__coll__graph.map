@@ -1,0 +1,17 @@
+<map id="combine_point_zone::combine_point_zone_t" name="combine_point_zone::combine_point_zone_t">
+<area shape="rect" id="Node000001" title="A point zone that combines different point zones." alt="" coords="784,81,960,121"/>
+<area shape="rect" id="Node000002" href="$d6/d13/structpoint__zone_1_1point__zone__t.html" title="Base abstract type for point zones." alt="" coords="452,31,636,57"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="633,56,760,79,784,83,783,88,760,84,632,62"/>
+<area shape="rect" id="Node000003" href="$d2/df5/structmask_1_1mask__t.html" title="Type for consistently handling masks in Neko. This type encapsulates the mask array and its associate..." alt="" coords="229,7,344,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="358,24,452,33,452,38,358,29"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="34,7,89,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="103,17,229,17,229,23,103,23"/>
+<area shape="rect" id="Node000005" href="$d2/d45/structstack_1_1stack__i4__t.html" title="Integer based stack." alt="" coords="221,57,352,82"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="365,59,452,50,452,56,366,64"/>
+<area shape="rect" id="Node000006" href="$d2/dbd/structstack_1_1stack__t.html" title="Base type for a stack." alt="" coords="5,57,117,82"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="131,67,221,67,221,72,131,72"/>
+<area shape="rect" id="Node000007" href="$dd/dae/structpoint__zone_1_1point__zone__pointer__t.html" title="A helper type to build a list of pointers to point_zones." alt="" coords="458,81,630,121"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="644,99,784,99,784,104,644,104"/>
+<area shape="rect" id="Node000008" href="$dc/d31/structpoint__zone_1_1point__zone__wrapper__t.html" title="A helper type to build a list of polymorphic point_zones." alt="" coords="458,145,630,185"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="643,143,783,116,784,121,644,149"/>
+</map>

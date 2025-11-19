@@ -1,0 +1,5 @@
+<map id="rough_log_law::rough_log_law_t" name="rough_log_law::rough_log_law_t">
+<area shape="rect" id="Node000001" title="Wall model based on the log&#45;law for a rough wall. The formula defining the law is ...." alt="" coords="21,79,181,119"/>
+<area shape="rect" id="Node000002" href="$d4/d70/structwall__model_1_1wall__model__t.html" title="Base abstract type for wall&#45;stress models for wall&#45;modelled LES." alt="" coords="5,5,197,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="104,44,104,79,99,79,99,44"/>
+</map>

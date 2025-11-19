@@ -1,0 +1,8 @@
+<map id="vector_math::vector_glsum" name="vector_math::vector_glsum">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,47,159,87"/>
+<area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#a2bfbeed670b2e6b704a1a2c4e5bc03c4" title="Sum a vector of length n." alt="" coords="207,5,364,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="159,48,193,41,194,47,160,54"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#a79605e1f64791cdd50be86db3e5bec75" title="Sum a vector of length n." alt="" coords="233,94,337,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="160,79,220,91,219,96,159,84"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="252,96,245,86,249,76,262,70,285,67,314,71,325,80,321,84,311,76,285,73,264,75,252,79,250,85,256,92"/>
+</map>

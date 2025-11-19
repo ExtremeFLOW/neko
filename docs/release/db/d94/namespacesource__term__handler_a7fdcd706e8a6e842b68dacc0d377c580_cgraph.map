@@ -1,0 +1,13 @@
+<map id="source_term_handler::source_term_handler_compute" name="source_term_handler::source_term_handler_compute">
+<area shape="rect" id="Node000001" title="Add all the source term to the passed right&#45;hand side fields." alt="" coords="5,40,172,95"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="270,5,361,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,47,256,28,257,33,173,52"/>
+<area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#a14206e58118cce6865c6ce1bb6454061" title="Vector multiplication ." alt="" coords="220,55,411,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="172,65,206,65,206,70,172,70"/>
+<area shape="rect" id="Node000004" href="$d5/de6/namespacefield__math.html#a6d9ee36a5c455ef8e5d73ebe6424f4f6" title="Zero a real vector." alt="" coords="232,104,399,129"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="173,83,243,98,242,104,172,88"/>
+<area shape="rect" id="Node000005" href="$d2/d73/namespacedevice__math.html#a2b8132d3d15d4b553af3a1b55d6f8d87" title="Zero a real vector." alt="" coords="459,67,616,107"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="399,103,445,97,445,102,399,108"/>
+<area shape="rect" id="Node000006" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="489,132,586,157"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="399,125,475,134,475,140,399,130"/>
+</map>

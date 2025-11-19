@@ -1,0 +1,49 @@
+<map id="coefs::coef_init_all" name="coefs::coef_init_all">
+<area shape="rect" id="Node000001" title="Initialize coefficients." alt="" coords="5,376,149,401"/>
+<area shape="rect" id="Node000002" href="$d6/dbe/namespacecoefs.html#aa8326a68db87fc07727e473a8e2dc484" title="Generate facet area and surface normals." alt="" coords="218,171,377,211"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="82,375,98,344,122,302,155,259,196,221,204,215,207,220,199,225,159,262,127,305,102,346,87,377"/>
+<area shape="rect" id="Node000003" href="$d6/dbe/namespacecoefs.html#a7109166ad05f1f18a62a9b96be52900e" title=" " alt="" coords="218,235,377,275"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="90,374,135,334,196,292,223,278,225,283,199,296,138,339,94,378"/>
+<area shape="rect" id="Node000014" href="$dd/d47/namespacemath.html#a6a2786eeaf4fa795dab048bb6c8d56c4" title="Set all elements to one." alt="" coords="488,416,581,441"/>
+<area shape="poly" id="edge25_Node000001_Node000014" title=" " alt="" coords="101,373,156,348,232,325,274,317,317,316,359,321,399,336,416,351,425,368,432,385,447,401,476,415,474,420,444,405,428,388,420,370,412,354,396,340,357,326,316,321,274,323,233,330,158,353,103,378"/>
+<area shape="rect" id="Node000017" href="$d6/dbe/namespacecoefs.html#a1b615b359ab35faee3c6522857bdac33" title="Generate geometric data for the given mesh." alt="" coords="203,351,392,376"/>
+<area shape="poly" id="edge19_Node000001_Node000017" title=" " alt="" coords="150,378,189,373,190,378,150,383"/>
+<area shape="rect" id="Node000018" href="$d6/dbe/namespacecoefs.html#af4bc052c7d759da9d20f84872216f462" title="Generate mass matrix B for the given mesh and space." alt="" coords="197,400,397,425"/>
+<area shape="poly" id="edge20_Node000001_Node000018" title=" " alt="" coords="150,394,184,398,183,403,150,399"/>
+<area shape="rect" id="Node000019" href="$d2/d73/namespacedevice__math.html#a46a957f0ada862da2400fb93b64b4cd9" title="Invert a vector ." alt="" coords="219,450,376,490"/>
+<area shape="poly" id="edge21_Node000001_Node000019" title=" " alt="" coords="110,399,198,434,223,443,221,448,196,439,108,404"/>
+<area shape="rect" id="Node000020" href="$d2/d73/namespacedevice__math.html#a3b08a6d3bd4244c6750bbbb6f7f27ca3" title="Set all elements to one." alt="" coords="201,515,394,540"/>
+<area shape="poly" id="edge22_Node000001_Node000020" title=" " alt="" coords="90,400,134,449,164,476,199,500,216,508,214,513,196,504,161,480,130,452,86,403"/>
+<area shape="rect" id="Node000022" href="$dd/d47/namespacemath.html#a9f8d1d3598c97b83bfc4fa14bed440e6" title="Invert a vector ." alt="" coords="242,564,353,589"/>
+<area shape="poly" id="edge24_Node000001_Node000022" title=" " alt="" coords="87,401,102,432,126,473,159,515,199,550,230,565,228,570,196,555,155,519,122,476,97,434,82,403"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#a9ae93ef16c85e8de722f56c281f444e6" title="Returns ." alt="" coords="477,5,592,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="375,236,395,221,411,199,418,177,418,132,417,109,419,86,426,63,443,40,463,27,466,31,447,44,431,66,424,87,422,109,423,132,423,178,416,202,399,225,379,241"/>
+<area shape="rect" id="Node000005" href="$dd/d47/namespacemath.html#aa1412314da40d2e416830c43f18dd504" title="Change sign of vector ." alt="" coords="481,55,588,80"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="375,235,396,221,408,206,415,190,418,157,422,123,430,106,444,89,467,75,470,79,447,93,434,109,427,124,424,157,420,191,413,208,399,225,378,240"/>
+<area shape="rect" id="Node000006" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="487,104,582,129"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="375,234,396,221,412,202,419,182,426,161,444,140,473,125,475,129,447,144,431,163,424,183,416,204,399,225,378,238"/>
+<area shape="rect" id="Node000007" href="$df/d80/namespacedevice__coef.html#a6bf9ddbe771387016c5f4cd71fe51256" title=" " alt="" coords="445,154,624,194"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="361,233,396,221,465,196,466,201,398,226,363,238"/>
+<area shape="rect" id="Node000012" href="$dd/d47/namespacemath.html#a3789b839284889e98200fa663a5e040f" title="Compute inverted vector ." alt="" coords="479,219,591,244"/>
+<area shape="poly" id="edge14_Node000003_Node000012" title=" " alt="" coords="377,245,465,236,465,241,377,250"/>
+<area shape="rect" id="Node000013" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="455,268,614,293"/>
+<area shape="poly" id="edge15_Node000003_Node000013" title=" " alt="" coords="377,261,442,268,441,273,377,266"/>
+<area shape="poly" id="edge16_Node000003_Node000014" title=" " alt="" coords="372,273,399,292,411,306,418,321,423,349,429,376,436,389,447,401,476,417,473,422,444,405,431,392,424,378,418,350,413,323,406,309,396,296,369,278"/>
+<area shape="rect" id="Node000015" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="486,317,583,343"/>
+<area shape="poly" id="edge17_Node000003_Node000015" title=" " alt="" coords="357,273,446,302,475,311,474,316,445,307,355,278"/>
+<area shape="rect" id="Node000016" href="$dd/d47/namespacemath.html#a690b20ca46eb975541f8e6787f04043f" title="Returns ." alt="" coords="477,367,592,392"/>
+<area shape="poly" id="edge18_Node000003_Node000016" title=" " alt="" coords="366,273,399,292,415,308,423,323,432,338,447,352,465,362,463,366,444,356,428,341,419,326,410,311,396,296,363,278"/>
+<area shape="rect" id="Node000008" href="$d4/d95/coef_8cu.html#ae353b24ed06280c0189697af736a6b7d" title=" " alt="" coords="885,126,1039,166"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="624,166,871,149,872,155,625,171"/>
+<area shape="rect" id="Node000010" href="$d6/da9/coef_8c.html#aafbd283d930483605855d2397a10ab8d" title=" " alt="" coords="672,183,837,223"/>
+<area shape="poly" id="edge10_Node000007_Node000010" title=" " alt="" coords="625,183,658,188,658,193,624,189"/>
+<area shape="rect" id="Node000009" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="1087,183,1251,223"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="1035,163,1083,177,1082,182,1034,169"/>
+<area shape="poly" id="edge9_Node000009_Node000009" title=" " alt="" coords="1130,184,1128,174,1134,165,1148,159,1169,157,1193,160,1206,167,1203,172,1191,165,1169,162,1149,164,1137,169,1133,175,1135,182"/>
+<area shape="poly" id="edge11_Node000010_Node000009" title=" " alt="" coords="838,201,1073,201,1073,206,838,206"/>
+<area shape="rect" id="Node000011" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="896,241,1028,267"/>
+<area shape="poly" id="edge12_Node000010_Node000011" title=" " alt="" coords="838,221,897,235,895,241,836,226"/>
+<area shape="poly" id="edge13_Node000011_Node000009" title=" " alt="" coords="1014,239,1073,224,1074,229,1015,244"/>
+<area shape="rect" id="Node000021" href="$d2/d73/namespacedevice__math.html#aead3fc7e68e8d685332f0305dcc1d612" title="Set all elements to a constant c ." alt="" coords="456,507,613,547"/>
+<area shape="poly" id="edge23_Node000020_Node000021" title=" " alt="" coords="394,525,442,525,442,530,394,530"/>
+</map>

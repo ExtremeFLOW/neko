@@ -1,0 +1,40 @@
+<map id="elementwise_filter::build_1d_cpu" name="elementwise_filter::build_1d_cpu">
+<area shape="rect" id="Node000001" title="Build the 1d filter for an element on the CPU. Suppose field x is filtered into x_hat by x_hat = fh*x..." alt="" coords="5,97,148,137"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="233,5,327,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,94,145,66,195,40,218,31,220,36,197,44,148,71,106,99"/>
+<area shape="rect" id="Node000003" href="$dd/df0/namespacespeclib.html#abff0bed325bbf553ee8ff1fb2d5b70c9" title="Evaluate Legendre polynomials of degrees 0&#45;N at point x and store in array L." alt="" coords="196,55,364,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="148,97,213,81,214,86,149,102"/>
+<area shape="rect" id="Node000004" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="201,104,359,129"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="148,114,187,114,187,119,148,119"/>
+<area shape="rect" id="Node000005" href="$dd/d8c/namespacetensor.html#a8947209d2430fc2471fbf9d2984485da" title="Transpose of a rectangular tensor ." alt="" coords="232,153,328,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="149,131,219,149,218,154,148,137"/>
+<area shape="rect" id="Node000006" href="$dd/df0/namespacespeclib.html#a35488656016cc28e6422a81377ee7434" title="Generate NP Gauss&#45;Lobatto Legendre points (Z) and weights (W) associated with Jacobi polynomial P(N)(..." alt="" coords="225,203,335,228"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="107,135,149,162,197,188,218,196,216,201,195,192,146,166,104,139"/>
+<area shape="rect" id="Node000007" href="$dd/df0/namespacespeclib.html#a5b864c5653986341347795cb5ac75c92" title="Generate NP GAUSS LOBATTO JACOBI points (Z) and weights (W) associated with Jacobi polynomial P(N)(al..." alt="" coords="412,203,523,228"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="336,213,398,213,398,218,336,218"/>
+<area shape="rect" id="Node000008" href="$dd/df0/namespacespeclib.html#a47a06503ffdba7aebba5ae4f41661c04" title="Generate NP GAUSS LOBATTO JACOBI points (Z) and weights (W) associated with Jacobi polynomial P(N)(al..." alt="" coords="571,203,689,228"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="523,213,557,213,557,218,523,218"/>
+<area shape="rect" id="Node000009" href="$dd/df0/namespacespeclib.html#ac3838666020ca4150da3b691fe5f9c93" title=" " alt="" coords="906,104,1025,129"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="673,200,907,131,909,136,675,205"/>
+<area shape="rect" id="Node000011" href="$dd/df0/namespacespeclib.html#ae4d2f7c4f8ec88a4c0b11d7fb67b87ad" title=" " alt="" coords="737,60,856,85"/>
+<area shape="poly" id="edge12_Node000008_Node000011" title=" " alt="" coords="645,200,769,92,772,96,648,204"/>
+<area shape="rect" id="Node000012" href="$dd/df0/namespacespeclib.html#a7b6b7a991f7a4deaff63144237f6b161" title="Computes the Jacobi polynomial (POLY) and its derivative (PDER) of degree N at X." alt="" coords="1082,329,1198,355"/>
+<area shape="poly" id="edge15_Node000008_Node000012" title=" " alt="" coords="649,226,691,257,752,297,825,336,905,365,952,372,1000,371,1046,365,1086,356,1087,361,1047,370,1000,376,952,377,903,370,823,341,749,301,688,261,646,230"/>
+<area shape="rect" id="Node000013" href="$dd/df0/namespacespeclib.html#a80692f5a33b00328a2600d1d409035f7" title="Generate NP GAUSS JACOBI points (Z) and weights (W) associated with Jacobi polynomial P(N)(alpha&gt;&#45;1,..." alt="" coords="739,228,854,253"/>
+<area shape="poly" id="edge16_Node000008_Node000013" title=" " alt="" coords="690,222,726,227,725,233,689,227"/>
+<area shape="poly" id="edge9_Node000009_Node000009" title=" " alt="" coords="937,105,931,96,934,86,946,80,965,77,988,81,998,89,995,93,986,86,965,83,948,85,939,89,937,95,942,102"/>
+<area shape="rect" id="Node000010" href="$dd/df0/namespacespeclib.html#a4048cd0103898d95f6f8064c13fe5294" title=" " alt="" coords="1075,141,1205,167"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="1025,127,1067,136,1066,141,1024,132"/>
+<area shape="poly" id="edge11_Node000010_Node000010" title=" " alt="" coords="1111,143,1105,133,1108,123,1120,117,1140,115,1164,118,1174,127,1170,131,1162,123,1140,120,1122,122,1112,127,1110,132,1116,140"/>
+<area shape="poly" id="edge14_Node000011_Node000010" title=" " alt="" coords="856,58,938,51,984,55,1028,65,1055,77,1080,94,1119,129,1116,133,1076,98,1052,82,1026,70,983,60,938,57,856,63"/>
+<area shape="poly" id="edge13_Node000011_Node000011" title=" " alt="" coords="769,61,763,52,766,42,778,36,797,33,819,37,829,45,826,49,817,42,797,39,779,41,770,45,768,51,773,58"/>
+<area shape="poly" id="edge17_Node000013_Node000010" title=" " alt="" coords="854,237,936,230,982,223,1026,211,1069,193,1107,172,1110,177,1072,198,1028,217,983,228,937,236,854,243"/>
+<area shape="poly" id="edge20_Node000013_Node000012" title=" " alt="" coords="842,251,1084,323,1082,328,840,256"/>
+<area shape="rect" id="Node000014" href="$dd/df0/namespacespeclib.html#a42f3304560e837ccc11d02fac0d17598" title="Compute NP Gauss points XJAC, which are the zeros of the Jacobi polynomial J(NP) with parameters ALPH..." alt="" coords="914,329,1017,355"/>
+<area shape="poly" id="edge18_Node000013_Node000014" title=" " alt="" coords="818,251,905,308,928,320,925,325,903,312,815,256"/>
+<area shape="rect" id="Node000015" href="$dd/df0/namespacespeclib.html#a3d3ffb215920d3ac2599832211842480" title=" " alt="" coords="904,177,1027,203"/>
+<area shape="poly" id="edge21_Node000013_Node000015" title=" " alt="" coords="839,225,908,204,910,209,841,230"/>
+<area shape="poly" id="edge19_Node000014_Node000012" title=" " alt="" coords="1017,339,1068,339,1068,345,1017,345"/>
+<area shape="poly" id="edge22_Node000015_Node000010" title=" " alt="" coords="1026,175,1064,167,1065,172,1027,180"/>
+<area shape="poly" id="edge23_Node000015_Node000015" title=" " alt="" coords="937,179,931,169,934,159,946,153,965,151,988,154,998,163,995,167,986,159,965,156,948,158,939,163,937,168,942,176"/>
+</map>

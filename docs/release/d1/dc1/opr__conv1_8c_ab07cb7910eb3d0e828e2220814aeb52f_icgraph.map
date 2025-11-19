@@ -1,0 +1,11 @@
+<map id="opencl_conv1" name="opencl_conv1">
+<area shape="rect" id="Node000001" title=" " alt="" coords="668,45,779,70"/>
+<area shape="rect" id="Node000002" href="$d3/d4d/namespaceopr__device.html#ae04611fe66a4b513beb0157ac526838b" title=" " alt="" coords="448,37,620,77"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="654,60,620,60,620,55,654,55"/>
+<area shape="rect" id="Node000003" href="$dd/d30/namespaceoperators.html#a72021f4e313d1dac8010fbab0b3f19d7" title="Compute the advection term." alt="" coords="269,45,400,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="434,60,400,60,400,55,434,55"/>
+<area shape="rect" id="Node000004" href="$d9/de3/namespaceadv__no__dealias.html#acc7206a9cea50114cfc4864cb2385984" title="Add the advection term for the fluid, i.e. &#160;to the RHS." alt="" coords="19,5,207,45"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="255,49,207,42,208,36,256,43"/>
+<area shape="rect" id="Node000005" href="$d9/de3/namespaceadv__no__dealias.html#ab4cd807b7ab3b310c44c834e3dd0f16a" title="Add the advection term for a scalar, i.e. , to the RHS." alt="" coords="5,69,221,109"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="256,71,222,76,221,71,255,66"/>
+</map>

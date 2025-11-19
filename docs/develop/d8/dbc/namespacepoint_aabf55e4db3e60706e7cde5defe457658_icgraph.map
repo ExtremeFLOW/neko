@@ -1,0 +1,8 @@
+<map id="point::point_lt" name="point::point_lt">
+<area shape="rect" id="Node000001" title="Check if ." alt="" coords="388,5,500,31"/>
+<area shape="rect" id="Node000002" href="$db/d6f/structpoint_1_1point__t.html#a00fdb89db566531477dc984dec61a7d5" title="Check if ." alt="" coords="5,5,176,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="374,21,176,21,176,15,374,15"/>
+<area shape="rect" id="Node000003" href="$d8/dbc/namespacepoint.html#a389ad2e35b45a106ddc0d845956e1797" title="Check if ." alt="" coords="224,31,340,56"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="375,31,341,37,340,32,374,26"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="210,37,176,32,176,27,211,31"/>
+</map>

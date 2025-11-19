@@ -1,0 +1,60 @@
+<map id="space::space_init" name="space::space_init">
+<area shape="rect" id="Node000001" title="Initialize a function space s with given polynomial dimensions." alt="" coords="5,177,140,203"/>
+<area shape="rect" id="Node000002" href="$dd/df0/namespacespeclib.html#a05661077bac4533389e8ad59f95a6c9d" title=" " alt="" coords="239,29,339,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="80,176,121,121,151,90,187,64,224,49,226,53,189,68,155,94,125,125,84,179"/>
+<area shape="rect" id="Node000004" href="$dc/d5b/namespacefast3d.html#aaf25d1aac3262e9adea18d25b10b2ddc" title="Compute interpolation weights for points z_to using values at points z_from." alt="" coords="219,79,358,104"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="88,175,131,144,187,113,207,106,209,111,189,118,134,148,91,179"/>
+<area shape="rect" id="Node000006" href="$d5/d0d/namespacespace.html#abf1624ea96d6d74c2ad4d96272959544" title=" " alt="" coords="188,128,389,153"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="128,175,219,154,220,159,130,180"/>
+<area shape="rect" id="Node000007" href="$d5/d0d/namespacespace.html#ae0b8a6c7d8cb34ac618be6d7564460d4" title="Deallocate a space s." alt="" coords="219,177,358,203"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="140,187,205,187,205,193,140,193"/>
+<area shape="rect" id="Node000009" href="$d5/d0d/namespacespace.html#af5f26a3966b9af7712f57271e972a34b" title="Generate spectral tranform matrices." alt="" coords="193,227,384,267"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="122,200,201,221,199,226,121,205"/>
+<area shape="rect" id="Node000013" href="$dd/df0/namespacespeclib.html#acf61de5c4c6c150e008f2f7981ca10db" title="Generate NP Gauss Legendre points Z and weights W associated with Jacobi polynomial ...." alt="" coords="235,360,342,385"/>
+<area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="82,202,97,232,120,272,151,312,189,346,223,361,221,366,187,351,147,316,115,275,92,235,77,204"/>
+<area shape="rect" id="Node000020" href="$dd/df0/namespacespeclib.html#a35488656016cc28e6422a81377ee7434" title=" " alt="" coords="233,311,344,336"/>
+<area shape="poly" id="edge24_Node000001_Node000020" title=" " alt="" coords="90,201,133,237,189,277,242,303,239,308,187,282,130,241,86,205"/>
+<area shape="rect" id="Node000003" href="$dd/df0/namespacespeclib.html#a9cd5b9e4223625494d9a0acd3be8f85e" title=" " alt="" coords="467,29,579,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="339,39,453,39,453,45,339,45"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="491,31,484,21,488,11,501,5,523,3,549,6,560,15,557,19,547,11,523,8,502,10,492,15,489,20,495,28"/>
+<area shape="rect" id="Node000005" href="$dc/d5b/namespacefast3d.html#a8cf69d1d964e71a541204bd6c2fc41c4" title="Compute finite&#45;difference stencil weights for evaluating derivatives up to order &#160;at a point." alt="" coords="437,79,608,104"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="358,89,424,89,424,94,358,94"/>
+<area shape="rect" id="Node000008" href="$d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="448,132,597,157"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="355,175,443,157,444,163,356,180"/>
+<area shape="rect" id="Node000010" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="475,231,570,256"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="384,243,461,242,462,247,384,248"/>
+<area shape="rect" id="Node000011" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="443,280,602,305"/>
+<area shape="poly" id="edge11_Node000009_Node000011" title=" " alt="" coords="385,263,443,275,442,280,384,268"/>
+<area shape="rect" id="Node000012" href="$dd/d8c/namespacetensor.html#a56be5127b81c9f41faab546d3d175e19" title="In&#45;place transpose of a square tensor." alt="" coords="471,181,575,207"/>
+<area shape="poly" id="edge12_Node000009_Node000012" title=" " alt="" coords="376,225,457,206,458,211,377,230"/>
+<area shape="rect" id="Node000014" href="$dd/df0/namespacespeclib.html#a5c35429298522dea2bd177d45c7efc2c" title=" " alt="" coords="662,380,769,405"/>
+<area shape="poly" id="edge14_Node000013_Node000014" title=" " alt="" coords="343,372,648,387,648,392,342,378"/>
+<area shape="rect" id="Node000015" href="$dd/df0/namespacespeclib.html#a80692f5a33b00328a2600d1d409035f7" title=" " alt="" coords="825,380,939,405"/>
+<area shape="poly" id="edge15_Node000014_Node000015" title=" " alt="" coords="769,390,811,390,811,395,769,395"/>
+<area shape="rect" id="Node000016" href="$dd/df0/namespacespeclib.html#a4048cd0103898d95f6f8064c13fe5294" title=" " alt="" coords="1160,280,1291,305"/>
+<area shape="poly" id="edge16_Node000015_Node000016" title=" " alt="" coords="907,377,988,342,1069,319,1146,303,1147,308,1070,325,990,347,909,382"/>
+<area shape="rect" id="Node000017" href="$dd/df0/namespacespeclib.html#a42f3304560e837ccc11d02fac0d17598" title=" " alt="" coords="999,481,1102,507"/>
+<area shape="poly" id="edge18_Node000015_Node000017" title=" " alt="" coords="903,403,991,460,1013,472,1010,477,988,464,900,408"/>
+<area shape="rect" id="Node000018" href="$dd/df0/namespacespeclib.html#a7b6b7a991f7a4deaff63144237f6b161" title=" " alt="" coords="1167,481,1283,507"/>
+<area shape="poly" id="edge20_Node000015_Node000018" title=" " alt="" coords="927,403,1169,475,1167,480,925,408"/>
+<area shape="rect" id="Node000019" href="$dd/df0/namespacespeclib.html#a3d3ffb215920d3ac2599832211842480" title=" " alt="" coords="989,380,1112,405"/>
+<area shape="poly" id="edge21_Node000015_Node000019" title=" " alt="" coords="940,390,976,390,976,395,940,395"/>
+<area shape="poly" id="edge17_Node000016_Node000016" title=" " alt="" coords="1196,281,1190,272,1194,262,1206,256,1225,253,1249,257,1259,266,1256,270,1247,262,1225,259,1207,261,1198,265,1196,271,1201,278"/>
+<area shape="poly" id="edge19_Node000017_Node000018" title=" " alt="" coords="1102,491,1153,491,1153,497,1102,497"/>
+<area shape="poly" id="edge22_Node000019_Node000016" title=" " alt="" coords="1073,377,1189,310,1192,315,1075,382"/>
+<area shape="poly" id="edge23_Node000019_Node000019" title=" " alt="" coords="1023,381,1017,372,1020,362,1031,356,1051,353,1074,357,1084,365,1080,369,1071,362,1051,359,1033,361,1024,365,1022,371,1027,378"/>
+<area shape="rect" id="Node000021" href="$dd/df0/namespacespeclib.html#a5b864c5653986341347795cb5ac75c92" title=" " alt="" coords="467,329,578,355"/>
+<area shape="poly" id="edge25_Node000020_Node000021" title=" " alt="" coords="344,325,454,334,453,339,344,330"/>
+<area shape="rect" id="Node000022" href="$dd/df0/namespacespeclib.html#a47a06503ffdba7aebba5ae4f41661c04" title=" " alt="" coords="656,329,775,355"/>
+<area shape="poly" id="edge26_Node000021_Node000022" title=" " alt="" coords="578,339,642,339,642,345,578,345"/>
+<area shape="poly" id="edge34_Node000022_Node000015" title=" " alt="" coords="759,352,827,373,825,378,757,357"/>
+<area shape="poly" id="edge33_Node000022_Node000018" title=" " alt="" coords="752,353,776,367,801,391,824,416,902,478,939,499,990,517,1037,524,1086,524,1132,517,1172,508,1174,513,1133,522,1086,529,1037,530,989,522,937,504,899,482,821,420,797,395,773,371,749,357"/>
+<area shape="rect" id="Node000023" href="$dd/df0/namespacespeclib.html#ac3838666020ca4150da3b691fe5f9c93" title=" " alt="" coords="991,255,1110,280"/>
+<area shape="poly" id="edge27_Node000022_Node000023" title=" " alt="" coords="773,327,979,280,980,286,774,332"/>
+<area shape="rect" id="Node000024" href="$dd/df0/namespacespeclib.html#ae4d2f7c4f8ec88a4c0b11d7fb67b87ad" title=" " alt="" coords="823,211,941,236"/>
+<area shape="poly" id="edge30_Node000022_Node000024" title=" " alt="" coords="733,327,850,242,853,246,736,331"/>
+<area shape="poly" id="edge29_Node000023_Node000016" title=" " alt="" coords="1111,273,1147,279,1146,284,1110,279"/>
+<area shape="poly" id="edge28_Node000023_Node000023" title=" " alt="" coords="1023,256,1017,246,1020,237,1031,230,1051,228,1074,231,1084,240,1080,244,1071,236,1051,233,1033,235,1024,240,1022,246,1027,253"/>
+<area shape="poly" id="edge32_Node000024_Node000016" title=" " alt="" coords="941,209,1023,204,1069,206,1113,215,1162,239,1201,268,1198,272,1159,243,1111,221,1068,212,1023,209,942,215"/>
+<area shape="poly" id="edge31_Node000024_Node000024" title=" " alt="" coords="854,212,848,202,852,193,863,186,882,184,905,187,914,196,911,200,902,192,882,189,865,191,856,196,854,202,859,209"/>
+</map>

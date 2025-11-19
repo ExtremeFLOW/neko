@@ -1,0 +1,6 @@
+<map id="euler_res_part_mz_flux_cuda" name="euler_res_part_mz_flux_cuda">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,216,62"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="264,29,428,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="216,47,250,47,250,52,216,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="302,30,300,20,307,10,322,5,346,3,373,6,388,13,386,18,372,11,346,8,323,10,310,15,305,21,307,28"/>
+</map>

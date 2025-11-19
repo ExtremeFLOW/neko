@@ -1,0 +1,21 @@
+<map id="distdata::distdata_t" name="distdata::distdata_t">
+<area shape="rect" id="Node000001" title=" " alt="" coords="82,373,230,399"/>
+<area shape="rect" id="Node000002" href="$d1/d93/structstack_1_1stack__i4t2__t.html" title="Integer 2&#45;tuple based stack." alt="" coords="7,256,151,281"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="87,294,96,321,111,348,138,371,134,375,107,351,92,323,82,296"/>
+<area shape="rect" id="Node000003" href="$d2/dbd/structstack_1_1stack__t.html" title="Base type for a stack." alt="" coords="5,168,117,193"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="69,206,79,255,74,256,64,207"/>
+<area shape="rect" id="Node000004" href="$d6/db2/structuset_1_1uset__i4__t.html" title="Integer based unordered set." alt="" coords="209,256,327,281"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="259,295,242,323,219,351,184,375,181,371,216,347,238,320,255,292"/>
+<area shape="rect" id="Node000005" href="$d8/d9e/structuset_1_1uset__t.html" title="Base type for an unordered set." alt="" coords="141,168,240,193"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="212,202,259,254,255,257,208,206"/>
+<area shape="rect" id="Node000006" href="$db/d4d/structhtable_1_1htable__i4__t.html" title="Integer based hash table." alt="" coords="265,168,407,193"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="320,206,280,257,275,254,316,203"/>
+<area shape="rect" id="Node000007" href="$d0/d2e/structhtable_1_1htable__t.html" title="Base type for a hash table." alt="" coords="274,93,398,119"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="339,133,339,168,333,168,333,133"/>
+<area shape="rect" id="Node000008" href="$d8/d5b/structhtable_1_1h__tuple__t.html" title="Hash table entry, tuple (key, data)" alt="" coords="271,5,401,31"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="339,45,339,93,333,93,333,45"/>
+<area shape="rect" id="Node000009" href="$dc/d23/structhtable_1_1htable__iter__i4__t.html" title="Iterator for an integer based hash table." alt="" coords="431,168,603,193"/>
+<area shape="poly" id="edge8_Node000004_Node000009" title=" " alt="" coords="471,201,302,258,301,253,470,195"/>
+<area shape="rect" id="Node000010" href="$d1/dec/structhtable_1_1htable__iter__t.html" title="Base type for a hash table iterator." alt="" coords="441,93,594,119"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="520,133,520,168,515,168,515,133"/>
+</map>

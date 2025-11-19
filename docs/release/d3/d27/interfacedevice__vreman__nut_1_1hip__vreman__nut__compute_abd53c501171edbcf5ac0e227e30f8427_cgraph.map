@@ -1,0 +1,10 @@
+<map id="device_vreman_nut::hip_vreman_nut_compute::hip_vreman_nut_compute" name="device_vreman_nut::hip_vreman_nut_compute::hip_vreman_nut_compute">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,22,204,77"/>
+<area shape="rect" id="Node000002" href="$db/d3c/namespacedevice__vreman__nut.html#ac53720ad8de120f63fdfe365beb039b1" title="Compute the eddy viscosity field for the Sigma model indevice." alt="" coords="252,29,467,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="204,47,238,47,238,52,204,52"/>
+<area shape="rect" id="Node000003" href="$d7/dff/vreman__nut_8cu.html#a122418b267f58b58a53de723ad8e1f48" title=" " alt="" coords="515,37,717,62"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="467,47,501,47,501,52,467,52"/>
+<area shape="rect" id="Node000004" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="765,29,929,69"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="718,47,752,47,752,52,718,52"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="804,30,802,20,809,10,824,5,847,3,874,6,889,13,886,18,873,11,847,8,825,10,812,15,807,21,810,28"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="mappings::step_function_field" name="mappings::step_function_field">
+<area shape="rect" id="Node000001" title="Apply a step function to a field." alt="" coords="225,5,408,45"/>
+<area shape="rect" id="Node000002" href="$d0/d7b/namespacebrinkman__source__term.html#a35bde13a18b619fc56d9856fcdb60ecb" title="Initializes the source term from a boundary mesh." alt="" coords="5,5,177,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="211,28,177,28,177,23,211,23"/>
+</map>

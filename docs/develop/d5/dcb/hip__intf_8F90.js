@@ -1,0 +1,27 @@
+var hip__intf_8F90 =
+[
+    [ "hip_intf::hipmalloc", "dd/de4/interfacehip__intf_1_1hipmalloc.html", "dd/de4/interfacehip__intf_1_1hipmalloc" ],
+    [ "hip_intf::hipfree", "d0/d5c/interfacehip__intf_1_1hipfree.html", "d0/d5c/interfacehip__intf_1_1hipfree" ],
+    [ "hip_intf::hipmemcpy", "d0/de9/interfacehip__intf_1_1hipmemcpy.html", "d0/de9/interfacehip__intf_1_1hipmemcpy" ],
+    [ "hip_intf::hipmemcpyasync", "d3/d39/interfacehip__intf_1_1hipmemcpyasync.html", "d3/d39/interfacehip__intf_1_1hipmemcpyasync" ],
+    [ "hip_intf::hipmemsetasync", "d0/dac/interfacehip__intf_1_1hipmemsetasync.html", "d0/dac/interfacehip__intf_1_1hipmemsetasync" ],
+    [ "hip_intf::hipdevicesynchronize", "d1/da0/interfacehip__intf_1_1hipdevicesynchronize.html", "d1/da0/interfacehip__intf_1_1hipdevicesynchronize" ],
+    [ "hip_intf::hipdevicegetname", "d1/d41/interfacehip__intf_1_1hipdevicegetname.html", "d1/d41/interfacehip__intf_1_1hipdevicegetname" ],
+    [ "hip_intf::hipgetdevicecount", "db/d7a/interfacehip__intf_1_1hipgetdevicecount.html", "db/d7a/interfacehip__intf_1_1hipgetdevicecount" ],
+    [ "hip_intf::hipstreamcreate", "da/da9/interfacehip__intf_1_1hipstreamcreate.html", "da/da9/interfacehip__intf_1_1hipstreamcreate" ],
+    [ "hip_intf::hipstreamcreatewithflags", "da/dee/interfacehip__intf_1_1hipstreamcreatewithflags.html", "da/dee/interfacehip__intf_1_1hipstreamcreatewithflags" ],
+    [ "hip_intf::hipstreamcreatewithpriority", "d6/dc0/interfacehip__intf_1_1hipstreamcreatewithpriority.html", "d6/dc0/interfacehip__intf_1_1hipstreamcreatewithpriority" ],
+    [ "hip_intf::hipstreamdestroy", "d4/dbf/interfacehip__intf_1_1hipstreamdestroy.html", "d4/dbf/interfacehip__intf_1_1hipstreamdestroy" ],
+    [ "hip_intf::hipstreamsynchronize", "d3/df5/interfacehip__intf_1_1hipstreamsynchronize.html", "d3/df5/interfacehip__intf_1_1hipstreamsynchronize" ],
+    [ "hip_intf::hipstreamwaitevent", "d7/ddb/interfacehip__intf_1_1hipstreamwaitevent.html", "d7/ddb/interfacehip__intf_1_1hipstreamwaitevent" ],
+    [ "hip_intf::hipdevicegetstreampriorityrange", "d2/da1/interfacehip__intf_1_1hipdevicegetstreampriorityrange.html", "d2/da1/interfacehip__intf_1_1hipdevicegetstreampriorityrange" ],
+    [ "hip_intf::hipeventcreate", "d7/d1a/interfacehip__intf_1_1hipeventcreate.html", "d7/d1a/interfacehip__intf_1_1hipeventcreate" ],
+    [ "hip_intf::hipeventdestroy", "d2/dd7/interfacehip__intf_1_1hipeventdestroy.html", "d2/dd7/interfacehip__intf_1_1hipeventdestroy" ],
+    [ "hip_intf::hipeventcreatewithflags", "d9/dcb/interfacehip__intf_1_1hipeventcreatewithflags.html", "d9/dcb/interfacehip__intf_1_1hipeventcreatewithflags" ],
+    [ "hip_intf::hipeventrecord", "db/d71/interfacehip__intf_1_1hipeventrecord.html", "db/d71/interfacehip__intf_1_1hipeventrecord" ],
+    [ "hip_intf::hipeventsynchronize", "d9/d67/interfacehip__intf_1_1hipeventsynchronize.html", "d9/d67/interfacehip__intf_1_1hipeventsynchronize" ],
+    [ "hip_device_count", "d5/dcb/hip__intf_8F90.html#ae76e470dcd046e7ef62b0273edd6c56d", null ],
+    [ "hip_device_name", "d5/dcb/hip__intf_8F90.html#a1c8e3cf5e89ffe1b50253b6b38e45a93", null ],
+    [ "hip_finalize", "d5/dcb/hip__intf_8F90.html#a89de67459398a401efed275ac5c3dc07", null ],
+    [ "hip_init", "d5/dcb/hip__intf_8F90.html#a71cf325d479bbed01658a08561e54a48", null ]
+];

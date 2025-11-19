@@ -1,0 +1,6 @@
+<map id="point_zone::point_zone_map" name="point_zone::point_zone_map">
+<area shape="rect" id="Node000001" title="Maps the GLL points that verify a point_zone&#39;s criterion by adding them to the stack." alt="" coords="5,29,213,55"/>
+<area shape="rect" id="Node000002" href="$d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d" title=" " alt="" coords="261,29,388,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="214,39,247,39,247,45,214,45"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="290,31,282,21,286,11,301,5,325,3,354,6,366,15,363,20,352,11,325,8,302,10,290,15,287,20,294,28"/>
+</map>

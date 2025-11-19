@@ -1,0 +1,23 @@
+<map id="mesh::mesh_generate_conn" name="mesh::mesh_generate_conn">
+<area shape="rect" id="Node000001" title="Generate element&#45;to&#45;element connectivity." alt="" coords="5,237,211,262"/>
+<area shape="rect" id="Node000002" href="$db/dfc/namespacemesh.html#a35d97ddb7d486cd79f3c1e4ee4ea2cfc" title="Generate element&#45;element connectivity via edges both between internal and between PEs." alt="" coords="259,69,425,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="126,234,299,115,302,119,129,239"/>
+<area shape="rect" id="Node000005" href="$db/dfc/namespacemesh.html#ac54b7d89e17024d5105cf449551a5335" title="Generate element&#45;element connectivity via facets between PEs." alt="" coords="259,197,425,237"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="201,234,245,228,245,233,202,239"/>
+<area shape="rect" id="Node000008" href="$db/dfc/namespacemesh.html#aadcee020052d3a876ded460252b3a42a" title="Generate element&#45;element connectivity via points between PEs." alt="" coords="259,261,425,301"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="202,259,245,265,245,271,201,265"/>
+<area shape="rect" id="Node000010" href="$db/dfc/namespacemesh.html#a18664cc50a3043167f74ea0da7291237" title="Generate a unique facet numbering." alt="" coords="259,325,425,365"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="139,260,260,311,277,318,275,323,258,316,137,265"/>
+<area shape="rect" id="Node000003" href="$dc/d48/namespacedistdata.html#a66e2d8156519bf42e00ef85a2dd9d696" title="Set local to global mapping (edges)" alt="" coords="474,5,667,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="413,67,485,46,487,52,415,72"/>
+<area shape="rect" id="Node000004" href="$dc/d48/namespacedistdata.html#ab553d9210e3f859553e82c8be368db33" title="Mark an element&#39;s edge as shared." alt="" coords="501,69,640,109"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="426,87,488,87,488,92,426,92"/>
+<area shape="rect" id="Node000006" href="$dc/d48/namespacedistdata.html#a13af2d2fa32c3733dbf1688e579951ec" title="Mark an element&#39;s facet as shared." alt="" coords="491,133,650,173"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="413,195,485,174,487,180,415,200"/>
+<area shape="rect" id="Node000007" href="$dc/d48/namespacedistdata.html#a7aa5fbd5e4916c9f7eca2e0005716486" title="Mark a facet as shared." alt="" coords="501,197,641,237"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="426,215,487,215,487,220,426,220"/>
+<area shape="rect" id="Node000009" href="$dc/d48/namespacedistdata.html#a104a6fac60956fc167df8bb063632973" title="Mark a point as shared." alt="" coords="501,261,641,301"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="426,279,487,279,487,284,426,284"/>
+<area shape="rect" id="Node000011" href="$dc/d48/namespacedistdata.html#a21b01a3e652f6cd332611cce8b4f46b9" title="Set local to global mapping (facets)" alt="" coords="473,325,668,365"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="426,343,460,343,460,348,426,348"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="math::chsign" name="math::chsign">
+<area shape="rect" id="Node000001" title="Change sign of vector ." alt="" coords="451,45,557,70"/>
+<area shape="rect" id="Node000002" href="$d6/dbe/namespacecoefs.html#a7109166ad05f1f18a62a9b96be52900e" title=" " alt="" coords="244,5,403,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="437,48,403,42,404,37,438,43"/>
+<area shape="rect" id="Node000004" href="$d0/de4/namespacematrix.html#a436de793d5619d19a03a21a71173639a" title="Scalar&#45;matrix subtraction ." alt="" coords="250,69,397,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="437,72,398,79,397,74,437,67"/>
+<area shape="rect" id="Node000003" href="$d6/dbe/namespacecoefs.html#ab2b9f8dad2fece2b466e7459e04111f8" title="Initialize coefficients." alt="" coords="29,13,173,38"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="230,28,173,28,173,23,230,23"/>
+<area shape="rect" id="Node000005" href="$da/d95/structmatrix_1_1matrix__t.html#a8cf4b090a9fdc6e43eadcdfc3cee02ad" title="Matrix&#45;matrix subtraction ." alt="" coords="5,77,196,102"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="236,92,196,92,196,87,236,87"/>
+</map>

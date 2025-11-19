@@ -1,0 +1,5 @@
+<map id="nmsh::nmsh_hex_t" name="nmsh::nmsh_hex_t">
+<area shape="rect" id="Node000001" title="Neko hex element data." alt="" coords="5,79,151,104"/>
+<area shape="rect" id="Node000002" href="$dc/d5a/structnmsh_1_1nmsh__t.html" title="Neko binary mesh element data." alt="" coords="21,5,135,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="81,44,81,79,75,79,75,44"/>
+</map>

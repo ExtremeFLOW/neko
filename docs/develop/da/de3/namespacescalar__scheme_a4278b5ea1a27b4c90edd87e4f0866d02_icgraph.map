@@ -1,0 +1,5 @@
+<map id="scalar_scheme::scalar_scheme_precon_factory" name="scalar_scheme::scalar_scheme_precon_factory">
+<area shape="rect" id="Node000001" title="Initialize a Krylov preconditioner." alt="" coords="220,5,404,45"/>
+<area shape="rect" id="Node000002" href="$da/de3/namespacescalar__scheme.html#a2babd40d9acd6b4f4ca8dabfbe2e37e9" title="Initialize all related components of the current scheme." alt="" coords="5,5,172,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
+</map>

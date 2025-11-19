@@ -1,0 +1,5 @@
+<map id="tree_amg_aggregate::aggregate_end" name="tree_amg_aggregate::aggregate_end">
+<area shape="rect" id="Node000001" title="Aggregate all dofs to a single point to form a tree&#45;like structure." alt="" coords="204,5,361,45"/>
+<area shape="rect" id="Node000002" href="$d5/d1b/namespacetree__amg__multigrid.html#afdfe654db71422a5240a588dd522768d" title="Initialization of the TreeAMG multigrid solver." alt="" coords="5,5,156,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="190,28,156,28,156,23,190,23"/>
+</map>

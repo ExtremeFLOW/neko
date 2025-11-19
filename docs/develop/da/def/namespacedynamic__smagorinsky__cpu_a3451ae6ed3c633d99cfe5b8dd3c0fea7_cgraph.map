@@ -1,0 +1,9 @@
+<map id="dynamic_smagorinsky_cpu::compute_mij_cpu" name="dynamic_smagorinsky_cpu::compute_mij_cpu">
+<area shape="rect" id="Node000001" title="Compute M_ij on the CPU." alt="" coords="5,47,180,87"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#a0a627ff3e9d8b5a4fdffb489df69adb1" title="Multiplication by constant c ." alt="" coords="228,5,329,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,45,216,32,218,37,169,50"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c" title="Vector multiplication with 3 vectors ." alt="" coords="233,55,324,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="180,65,219,65,219,70,180,70"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe" title="Vector substraction ." alt="" coords="231,104,326,129"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="169,85,219,98,218,103,168,90"/>
+</map>

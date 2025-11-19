@@ -1,0 +1,5 @@
+<map id="scalar_source_term::scalar_source_term_t" name="scalar_source_term::scalar_source_term_t">
+<area shape="rect" id="Node000001" title="Wrapper contaning and executing the scalar source terms." alt="" coords="10,93,179,133"/>
+<area shape="rect" id="Node000002" href="$dc/d80/structsource__term__handler_1_1source__term__handler__t.html" title="Abstract class for handling source terms." alt="" coords="5,5,184,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="97,59,97,93,92,93,92,59"/>
+</map>

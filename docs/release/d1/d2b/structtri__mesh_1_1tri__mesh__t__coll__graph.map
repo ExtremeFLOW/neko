@@ -1,0 +1,15 @@
+<map id="tri_mesh::tri_mesh_t" name="tri_mesh::tri_mesh_t">
+<area shape="rect" id="Node000001" title=" " alt="" coords="131,419,287,444"/>
+<area shape="rect" id="Node000002" href="$d6/d51/structtri_1_1tri__t.html" title="Triangular element." alt="" coords="125,331,195,356"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="176,367,205,417,200,419,171,369"/>
+<area shape="rect" id="Node000003" href="$d7/dd6/structelement_1_1element__t.html" title="Base type for an element." alt="" coords="46,256,197,281"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="137,293,156,329,151,332,132,295"/>
+<area shape="rect" id="Node000004" href="$da/d8b/structentity_1_1entity__t.html" title="Base type for an entity." alt="" coords="5,5,123,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="64,44,63,113,67,153,76,192,93,227,113,254,109,257,89,230,71,194,61,154,57,113,59,44"/>
+<area shape="rect" id="Node000006" href="$db/d6f/structpoint_1_1point__t.html" title="A point in &#160;with coordinates ." alt="" coords="93,80,201,105"/>
+<area shape="poly" id="edge6_Node000006_Node000004" title=" " alt="" coords="89,38,135,78,131,82,86,42"/>
+<area shape="rect" id="Node000005" href="$d7/d33/structpoint_1_1point__ptr.html" title="Defines a pointer to a point type." alt="" coords="86,168,207,193"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="142,207,127,256,122,255,137,206"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="191,109,211,121,229,137,243,156,248,179,248,345,245,367,238,387,220,420,215,417,233,385,240,365,243,344,243,180,238,158,225,141,208,126,188,114"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="149,119,149,167,144,167,144,119"/>
+</map>

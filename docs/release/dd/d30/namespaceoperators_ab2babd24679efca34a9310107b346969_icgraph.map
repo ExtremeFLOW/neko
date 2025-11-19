@@ -1,0 +1,17 @@
+<map id="operators::strain_rate" name="operators::strain_rate">
+<area shape="rect" id="Node000001" title="Compute the strain rate tensor, i.e 0.5 * du_i/dx_j + du_j/dx_i." alt="" coords="523,164,685,189"/>
+<area shape="rect" id="Node000002" href="$da/def/namespacedynamic__smagorinsky__cpu.html#afc315d593e38cf654ffdc958baa9a5c6" title="Compute eddy viscosity on the CPU." alt="" coords="258,5,465,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="578,156,532,115,473,75,448,63,450,58,476,70,535,111,582,152"/>
+<area shape="rect" id="Node000004" href="$d6/daa/namespaceforce__torque.html#ab407c7b9763b091d7165c5d7d19044de" title="Compute the force_torque field." alt="" coords="289,85,434,125"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="549,162,474,139,433,127,435,122,475,134,551,157"/>
+<area shape="rect" id="Node000005" href="$de/d0d/namespacepnpn__res__stress__cpu.html#aaf1c75297d8ffd5bb6e15bfa4e629d46" title=" " alt="" coords="280,149,443,204"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="509,179,443,179,443,174,509,174"/>
+<area shape="rect" id="Node000006" href="$dd/d1f/namespacepnpn__res__stress__device.html#aa01b9675011a43985690c2e8b9558f94" title=" " alt="" coords="273,228,450,283"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="552,196,447,230,446,225,550,191"/>
+<area shape="rect" id="Node000007" href="$dd/d73/namespacesmagorinsky__cpu.html#a4c7509e1ca11400eb45a26eaa7ce4de8" title="Compute eddy viscosity on the CPU." alt="" coords="248,307,475,347"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="586,202,539,250,509,276,476,298,450,310,448,305,473,293,506,271,535,246,582,198"/>
+<area shape="rect" id="Node000003" href="$d4/d9c/namespacedynamic__smagorinsky.html#ad9e829fe19717511484cca0fe4524c52" title="Compute eddy viscosity." alt="" coords="15,5,191,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="244,35,191,35,191,30,244,30"/>
+<area shape="rect" id="Node000008" href="$d9/d9a/namespacesmagorinsky.html#a7e50d1b4992ed399dae8d96bed4a0d5b" title="Compute eddy viscosity." alt="" coords="5,307,200,347"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="234,330,200,330,200,325,234,325"/>
+</map>

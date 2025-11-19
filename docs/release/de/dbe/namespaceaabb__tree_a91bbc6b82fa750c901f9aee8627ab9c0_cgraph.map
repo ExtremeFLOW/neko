@@ -1,0 +1,16 @@
+<map id="aabb_tree::aabb_tree_query_overlaps" name="aabb_tree::aabb_tree_query_overlaps">
+<area shape="rect" id="Node000001" title="Queries the tree for overlapping objects." alt="" coords="5,97,165,137"/>
+<area shape="rect" id="Node000002" href="$d5/de2/namespaceaabb.html#a9a79814aa9d37785cb4d53a4aef2beb8" title="Construct the aabb of a predefined object." alt="" coords="213,104,336,129"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,114,200,114,200,119,166,119"/>
+<area shape="rect" id="Node000003" href="$d5/de2/namespaceaabb.html#ab9198807cc6826776f8b94a84cd9f999" title="Get the aabb of an arbitrary element." alt="" coords="388,5,571,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="289,102,330,71,383,40,401,32,403,37,385,44,333,75,292,106"/>
+<area shape="rect" id="Node000004" href="$d5/de2/namespaceaabb.html#a7b35ee1d1158d03311f46930ee69b2de" title="Get the aabb of a mesh." alt="" coords="397,55,562,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="335,108,438,82,439,87,337,113"/>
+<area shape="rect" id="Node000005" href="$d5/de2/namespaceaabb.html#abd0ecde4cac4aba5d3646a3319cb32e6" title="Get the aabb of a tetrahedral mesh." alt="" coords="384,104,575,129"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="336,122,370,123,370,128,336,128"/>
+<area shape="rect" id="Node000006" href="$d5/de2/namespaceaabb.html#a6a76082373d4b84a0fb3f820a3203954" title="Get the aabb of a triangular mesh." alt="" coords="386,153,573,179"/>
+<area shape="poly" id="edge7_Node000002_Node000006" title=" " alt="" coords="303,127,377,148,376,153,302,132"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="397,81,316,102,314,97,396,76"/>
+<area shape="poly" id="edge6_Node000005_Node000002" title=" " alt="" coords="384,110,349,111,349,105,384,105"/>
+<area shape="poly" id="edge8_Node000006_Node000002" title=" " alt="" coords="451,156,349,128,350,123,452,151"/>
+</map>

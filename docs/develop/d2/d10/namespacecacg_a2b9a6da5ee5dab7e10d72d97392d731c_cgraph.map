@@ -1,0 +1,14 @@
+<map id="cacg::cacg_solve" name="cacg::cacg_solve">
+<area shape="rect" id="Node000001" title="S&#45;step CA PCG solve." alt="" coords="5,143,137,169"/>
+<area shape="rect" id="Node000002" href="$d2/d10/namespacecacg.html#a68728019f64124e4707b1e88bc7221ac" title="Monomial matrix constuction, not sparse." alt="" coords="185,5,347,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="83,141,125,100,184,55,195,49,197,54,187,60,129,104,87,145"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="219,70,313,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="98,141,184,104,205,97,207,102,186,109,100,146"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#a22f2f98aad6feae117b800fa20fa43ed" title="Weighted inner product ." alt="" coords="217,143,315,169"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="138,153,202,153,202,159,138,159"/>
+<area shape="rect" id="Node000005" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="187,193,345,218"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="123,166,202,187,201,192,121,171"/>
+<area shape="rect" id="Node000006" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="217,242,315,267"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="91,166,133,196,187,227,206,235,204,240,184,232,130,201,87,171"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="234,145,227,135,231,125,244,119,266,117,293,120,304,129,301,133,291,125,266,122,245,124,234,129,232,134,238,142"/>
+</map>

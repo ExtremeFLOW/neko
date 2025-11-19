@@ -1,0 +1,8 @@
+<map id="cfl_reduce_kernel" name="cfl_reduce_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,47,140,72"/>
+<area shape="rect" id="Node000002" href="$d0/d7e/cuda_2ax__helm__full__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="213,5,327,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="133,44,198,30,199,35,135,49"/>
+<area shape="rect" id="Node000003" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="188,79,352,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="137,69,175,77,174,83,136,75"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="233,80,231,70,236,61,250,55,270,53,293,56,306,63,303,68,292,61,270,58,251,60,240,65,236,71,238,78"/>
+</map>

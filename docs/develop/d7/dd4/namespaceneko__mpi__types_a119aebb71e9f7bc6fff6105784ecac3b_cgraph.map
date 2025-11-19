@@ -1,0 +1,23 @@
+<map id="neko_mpi_types::neko_mpi_types_init" name="neko_mpi_types::neko_mpi_types_init">
+<area shape="rect" id="Node000001" title="Define all MPI derived types." alt="" coords="5,293,172,333"/>
+<area shape="rect" id="Node000002" href="$d7/dd4/namespaceneko__mpi__types.html#a19e534d22e0873bb1fc4e4255ee5dd14" title="Define a MPI derived type for a nmsh curved element." alt="" coords="220,5,392,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="92,293,107,245,131,182,168,115,192,83,218,55,224,51,227,55,222,59,196,87,173,117,136,184,112,247,97,294"/>
+<area shape="rect" id="Node000003" href="$d7/dd4/namespaceneko__mpi__types.html#a493d894ba2476b7133f84584baf6ee39" title="Define a MPI derived type for a 3d nmsh hex." alt="" coords="225,69,387,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="96,292,114,255,141,209,176,161,218,119,226,114,229,118,222,123,180,165,145,212,119,258,101,294"/>
+<area shape="rect" id="Node000004" href="$d7/dd4/namespaceneko__mpi__types.html#a08d4bce14d80ce9956cf3b8555324bd6" title="Define a MPI derived type for a 2d nmsh quad." alt="" coords="222,133,390,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="104,291,152,238,184,209,219,183,229,177,231,182,221,188,187,213,156,242,108,295"/>
+<area shape="rect" id="Node000005" href="$d7/dd4/namespaceneko__mpi__types.html#a3aa0dcbfe591954955a65ac8cabfd832" title="Define a MPI derived type for a nmsh zone." alt="" coords="223,197,389,237"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="127,291,219,247,236,240,238,245,221,252,129,296"/>
+<area shape="rect" id="Node000006" href="$d7/dd4/namespaceneko__mpi__types.html#a9b0a9d3c3e4cf3a2c654d16638c129dc" title="Define a MPI derived type for re2 bc data." alt="" coords="225,261,387,301"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="172,298,211,293,212,298,173,304"/>
+<area shape="rect" id="Node000007" href="$d7/dd4/namespaceneko__mpi__types.html#a6db42947561a610ff314927baf3518d8" title="Define a MPI derived type for re2 cv data." alt="" coords="225,325,387,365"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="173,323,212,329,211,334,172,328"/>
+<area shape="rect" id="Node000008" href="$d7/dd4/namespaceneko__mpi__types.html#abdd7089722ec1da503ebc0bf3fd5b666" title="Define a MPI derived type for a 2d re2 data." alt="" coords="225,389,387,429"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="129,331,221,375,238,382,236,387,219,380,127,336"/>
+<area shape="rect" id="Node000009" href="$d7/dd4/namespaceneko__mpi__types.html#ac4a4ed902f6de403063346d52120f97c" title="Define a MPI derived type for a 3d re2 data." alt="" coords="225,453,387,493"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="108,332,156,385,187,414,221,439,231,445,229,450,219,444,184,418,152,388,104,336"/>
+<area shape="rect" id="Node000010" href="$d7/dd4/namespaceneko__mpi__types.html#a145a40499bcab0b08fb996f110328d30" title="Define a MPI dervied type for a STL header." alt="" coords="225,517,387,557"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="101,333,119,369,145,415,180,462,222,503,229,508,226,513,218,507,176,465,141,417,114,371,96,335"/>
+<area shape="rect" id="Node000011" href="$d7/dd4/namespaceneko__mpi__types.html#a42574c77310686e48827dfff24bd55c0" title="Define a MPI derived type for a STL triangle." alt="" coords="223,581,389,621"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="97,333,112,380,136,443,173,509,196,540,222,567,227,572,224,576,218,571,192,544,168,512,131,445,107,382,92,334"/>
+</map>

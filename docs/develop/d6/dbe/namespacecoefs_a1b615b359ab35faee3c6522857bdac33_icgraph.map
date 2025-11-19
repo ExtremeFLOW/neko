@@ -1,0 +1,5 @@
+<map id="coefs::coef_generate_geo" name="coefs::coef_generate_geo">
+<area shape="rect" id="Node000001" title="Generate geometric data for the given mesh." alt="" coords="197,5,387,31"/>
+<area shape="rect" id="Node000002" href="$d6/dbe/namespacecoefs.html#ab2b9f8dad2fece2b466e7459e04111f8" title="Initialize coefficients." alt="" coords="5,5,149,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="184,21,149,21,149,15,184,15"/>
+</map>

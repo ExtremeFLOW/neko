@@ -1,0 +1,5 @@
+<map id="point_zone_registry::build_combine_point_zone" name="point_zone_registry::build_combine_point_zone">
+<area shape="rect" id="Node000001" title="Constructs a combine_point_zone_t object." alt="" coords="240,5,443,45"/>
+<area shape="rect" id="Node000002" href="$d9/dac/namespacepoint__zone__registry.html#a5dd04944419ba6b206c8f633e70e5ab7" title="Constructor, reading from json point zones." alt="" coords="5,5,192,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="227,28,192,28,192,23,227,23"/>
+</map>

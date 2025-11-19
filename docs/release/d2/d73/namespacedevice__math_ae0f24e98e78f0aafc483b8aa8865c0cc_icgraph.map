@@ -1,0 +1,11 @@
+<map id="device_math::device_subcol3" name="device_math::device_subcol3">
+<area shape="rect" id="Node000001" title="Returns ." alt="" coords="497,69,655,109"/>
+<area shape="rect" id="Node000002" href="$d9/de3/namespaceadv__no__dealias.html#acc7206a9cea50114cfc4864cb2385984" title="Add the advection term for the fluid, i.e. &#160;to the RHS." alt="" coords="247,5,435,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="488,68,414,48,416,43,490,63"/>
+<area shape="rect" id="Node000003" href="$d9/de3/namespaceadv__no__dealias.html#ab4cd807b7ab3b310c44c834e3dd0f16a" title="Add the advection term for a scalar, i.e. , to the RHS." alt="" coords="233,69,449,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="483,92,450,92,450,87,483,87"/>
+<area shape="rect" id="Node000004" href="$d5/de6/namespacefield__math.html#aa8a83165a055588be30d198cc8701605" title="Returns ." alt="" coords="249,134,433,159"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="485,115,450,124,398,137,396,131,449,119,483,110"/>
+<area shape="rect" id="Node000005" href="$d0/d7b/namespacebrinkman__source__term.html#a720d472803e4fe61add63e18da4bd69a" title="Computes the source term and adds the result to fields." alt="" coords="5,119,185,174"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="235,149,185,149,185,144,235,144"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="coefs::coef_free" name="coefs::coef_free">
+<area shape="rect" id="Node000001" title="Deallocate coefficients." alt="" coords="5,5,132,31"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="180,5,329,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="132,15,166,15,166,21,132,21"/>
+</map>

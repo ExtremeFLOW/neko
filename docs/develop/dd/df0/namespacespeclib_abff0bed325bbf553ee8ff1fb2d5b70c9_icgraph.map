@@ -1,0 +1,11 @@
+<map id="speclib::legendre_poly" name="speclib::legendre_poly">
+<area shape="rect" id="Node000001" title="Evaluate Legendre polynomials of degrees 0&#45;N at point x and store in array L." alt="" coords="435,45,603,70"/>
+<area shape="rect" id="Node000002" href="$dd/d52/namespaceelementwise__filter.html#a106ce51f62e266dfa441bde829ddff19" title="Build the 1d filter for an element on the CPU. Suppose field x is filtered into x_hat by x_hat = fh*x..." alt="" coords="220,5,363,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="421,46,362,38,363,33,421,41"/>
+<area shape="rect" id="Node000004" href="$d5/d0d/namespacespace.html#af5f26a3966b9af7712f57271e972a34b" title="Generate spectral tranform matrices." alt="" coords="196,69,387,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="421,74,387,79,386,73,421,68"/>
+<area shape="rect" id="Node000003" href="$dd/d52/namespaceelementwise__filter.html#ac2f5a8a0a33529944fc5302eee1e04f5" title="Build the 1d filter for an element." alt="" coords="5,5,148,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="206,28,148,28,148,23,206,23"/>
+<area shape="rect" id="Node000005" href="$d5/d0d/namespacespace.html#aea7cdf9a8933056da79e3b73f4e0ed49" title="Initialize a function space s with given polynomial dimensions." alt="" coords="9,77,144,102"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="182,92,145,92,145,87,182,87"/>
+</map>

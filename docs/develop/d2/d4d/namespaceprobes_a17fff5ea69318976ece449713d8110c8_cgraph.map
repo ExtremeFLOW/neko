@@ -1,0 +1,6 @@
+<map id="probes::read_point_zone" name="probes::read_point_zone">
+<area shape="rect" id="Node000001" title="Construct a list of points from a point zone." alt="" coords="5,29,187,55"/>
+<area shape="rect" id="Node000002" href="$d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d" title=" " alt="" coords="235,29,361,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="187,39,221,39,221,45,187,45"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="265,31,258,21,262,11,275,5,298,3,326,6,337,16,334,20,324,11,298,8,277,10,266,15,263,20,269,28"/>
+</map>

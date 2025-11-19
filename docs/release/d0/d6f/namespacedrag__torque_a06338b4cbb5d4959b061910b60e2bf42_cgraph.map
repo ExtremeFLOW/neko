@@ -1,0 +1,10 @@
+<map id="drag_torque::drag_torque_zone" name="drag_torque::drag_torque_zone">
+<area shape="rect" id="Node000001" title="Some functions to calculate the lift/drag and torque Calculation can be done on a zone,..." alt="" coords="5,31,229,56"/>
+<area shape="rect" id="Node000002" href="$d0/d6f/namespacedrag__torque.html#a4b33e188d75f2f7f1e723291c1c069fd" title="Calculate drag and torque over a facet." alt="" coords="277,23,464,63"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="229,41,264,41,264,46,229,46"/>
+<area shape="rect" id="Node000003" href="$d0/d6f/namespacedrag__torque.html#aa0aaba6013da47ebecf4ef3c36e0708c" title="Calculate drag and torque from one point." alt="" coords="512,5,719,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="464,31,498,27,499,33,464,36"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="767,31,864,56"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="464,41,752,41,752,46,464,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="716,28,753,33,753,38,716,33"/>
+</map>

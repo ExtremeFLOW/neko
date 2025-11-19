@@ -1,0 +1,11 @@
+<map id="fusedcg_device::device_fusedcg_part2" name="fusedcg_device::device_fusedcg_part2">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,180,69"/>
+<area shape="rect" id="Node000002" href="$db/df7/fusedcg__aux_8hip.html#a115cf98ddf6ab441ca3e3806db6d1945" title=" " alt="" coords="228,37,369,62"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,47,214,47,214,52,180,52"/>
+<area shape="rect" id="Node000003" href="$d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="417,11,581,37"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="369,38,404,33,404,39,370,43"/>
+<area shape="rect" id="Node000004" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="629,29,793,69"/>
+<area shape="poly" id="edge5_Node000002_Node000004" title=" " alt="" coords="370,47,616,47,616,52,370,52"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="582,31,616,35,616,41,581,36"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="672,30,669,20,676,10,690,5,711,3,736,6,749,13,747,18,734,11,711,8,691,10,679,15,675,21,677,28"/>
+</map>

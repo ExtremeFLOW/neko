@@ -1,0 +1,7 @@
+<map id="mesh::mesh_generate_edge_conn" name="mesh::mesh_generate_edge_conn">
+<area shape="rect" id="Node000001" title="Generate element&#45;element connectivity via edges both between internal and between PEs." alt="" coords="5,37,172,77"/>
+<area shape="rect" id="Node000002" href="$dc/d48/namespacedistdata.html#a66e2d8156519bf42e00ef85a2dd9d696" title="Set local to global mapping (edges)" alt="" coords="220,5,413,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,43,206,38,207,43,173,48"/>
+<area shape="rect" id="Node000003" href="$dc/d48/namespacedistdata.html#ab553d9210e3f859553e82c8be368db33" title="Mark an element&#39;s edge as shared." alt="" coords="247,69,386,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="173,66,234,75,233,80,172,72"/>
+</map>

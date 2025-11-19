@@ -1,0 +1,16 @@
+<map id="bicgstab::bicgstab_solve" name="bicgstab::bicgstab_solve">
+<area shape="rect" id="Node000001" title="Bi&#45;Conjugate Gradient Stabilized method solve." alt="" coords="5,146,145,186"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#aec2e1cbc631a4cb73db0d17b89e9e596" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="200,5,311,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="89,144,132,93,160,65,192,40,201,34,204,39,195,44,164,69,136,97,93,148"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="208,55,303,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="104,143,145,116,192,89,204,83,207,88,195,94,147,121,106,148"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#a22f2f98aad6feae117b800fa20fa43ed" title="Weighted inner product ." alt="" coords="206,128,305,153"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="145,153,192,147,193,152,146,159"/>
+<area shape="rect" id="Node000005" href="$dd/d47/namespacemath.html#afa191599ec08553ac175650544c1e901" title="Returns ." alt="" coords="193,177,317,203"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="146,173,180,177,179,183,145,178"/>
+<area shape="rect" id="Node000006" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="207,227,304,252"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="126,184,211,219,209,224,124,189"/>
+<area shape="rect" id="Node000007" href="$dd/d47/namespacemath.html#a705aede90b9b2421ab4111ebdcfc18eb" title="Returns ." alt="" coords="193,276,317,301"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="99,184,141,222,195,261,207,268,205,273,192,266,138,227,95,188"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="226,129,219,120,223,110,235,104,255,101,280,105,290,114,287,118,278,110,255,107,236,109,227,113,225,119,230,126"/>
+</map>

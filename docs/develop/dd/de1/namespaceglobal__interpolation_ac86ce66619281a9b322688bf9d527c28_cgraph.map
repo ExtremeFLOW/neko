@@ -1,0 +1,7 @@
+<map id="global_interpolation::global_interpolation_find_common" name="global_interpolation::global_interpolation_find_common">
+<area shape="rect" id="Node000001" title="Common routine for finding the points." alt="" coords="5,20,165,75"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="215,5,364,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="165,33,201,28,202,33,166,38"/>
+<area shape="rect" id="Node000003" href="$dd/de1/namespaceglobal__interpolation.html#a829324239907e3b2115c45ac52ab3d51" title="Compares two sets of rst coordinates and checks whether rst2 is better than rst1 given a tolerance re..." alt="" coords="213,55,365,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="166,56,200,60,200,66,165,61"/>
+</map>

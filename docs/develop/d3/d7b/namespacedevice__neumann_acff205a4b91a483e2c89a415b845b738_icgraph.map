@@ -1,0 +1,7 @@
+<map id="device_neumann::device_neumann_apply_scalar" name="device_neumann::device_neumann_apply_scalar">
+<area shape="rect" id="Node000001" title=" " alt="" coords="260,49,444,89"/>
+<area shape="rect" id="Node000002" href="$d9/da6/interfacedevice__neumann_1_1hip__neumann__apply__scalar.html#a9b972872a7e255a2fac69632492aa67b" title=" " alt="" coords="5,5,212,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="246,56,212,51,213,45,247,50"/>
+<area shape="rect" id="Node000003" href="$d9/d75/namespaceneumann.html#aef749aa6c3a3c677f99639e00905eb15" title="Boundary condition apply for a generic Neumann condition to a vector x (device version)" alt="" coords="11,85,206,125"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="247,87,207,93,206,88,246,82"/>
+</map>

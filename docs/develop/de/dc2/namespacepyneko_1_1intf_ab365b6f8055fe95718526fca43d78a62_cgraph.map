@@ -1,0 +1,9 @@
+<map id="pyneko.intf.case_fluid_dofmap" name="pyneko.intf.case_fluid_dofmap">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,168,69"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="451,29,615,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,47,437,47,437,52,168,52"/>
+<area shape="rect" id="Node000003" href="$de/dc2/namespacepyneko_1_1intf.html#a3b943a4935b4276d64c0263d8fb2ed87" title=" " alt="" coords="216,62,403,87"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="168,56,203,60,202,65,168,61"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="491,30,489,20,495,10,510,5,533,3,559,6,573,13,570,18,557,11,533,8,511,10,499,15,494,21,496,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="403,61,437,58,437,63,403,67"/>
+</map>

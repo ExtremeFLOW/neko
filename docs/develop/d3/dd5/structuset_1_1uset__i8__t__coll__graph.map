@@ -1,0 +1,15 @@
+<map id="uset::uset_i8_t" name="uset::uset_i8_t">
+<area shape="rect" id="Node000001" title="Integer*8 based unordered set." alt="" coords="141,256,259,281"/>
+<area shape="rect" id="Node000002" href="$d8/d9e/structuset_1_1uset__t.html" title="Base type for an unordered set." alt="" coords="5,168,104,193"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="87,198,182,253,179,258,85,203"/>
+<area shape="rect" id="Node000003" href="$df/da3/structhtable_1_1htable__i8__t.html" title="Integer*8 based hash table." alt="" coords="129,168,271,193"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="203,207,203,255,197,255,197,207"/>
+<area shape="rect" id="Node000004" href="$d0/d2e/structhtable_1_1htable__t.html" title="Base type for a hash table." alt="" coords="138,93,262,119"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="203,133,203,168,197,168,197,133"/>
+<area shape="rect" id="Node000005" href="$d8/d5b/structhtable_1_1h__tuple__t.html" title="Hash table entry, tuple (key, data)" alt="" coords="135,5,265,31"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="203,45,203,93,197,93,197,45"/>
+<area shape="rect" id="Node000006" href="$d1/da0/structhtable_1_1htable__iter__i8__t.html" title="Iterator for an integer*8 based hash table." alt="" coords="295,168,467,193"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="346,202,226,258,224,253,343,197"/>
+<area shape="rect" id="Node000007" href="$d1/dec/structhtable_1_1htable__iter__t.html" title="Base type for a hash table iterator." alt="" coords="305,93,458,119"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="384,133,384,168,379,168,379,133"/>
+</map>

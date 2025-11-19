@@ -1,0 +1,24 @@
+<map id="operators::cdtp" name="operators::cdtp">
+<area shape="rect" id="Node000001" title="Apply D^T to a scalar field, where D is the derivative matrix." alt="" coords="5,105,125,131"/>
+<area shape="rect" id="Node000002" href="$d3/d4d/namespaceopr__device.html#a5976c035ccc91cc8b346fc866e476775" title=" " alt="" coords="173,56,380,81"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="120,103,208,82,209,87,121,108"/>
+<area shape="rect" id="Node000007" href="$d9/d5a/namespaceopr__xsmm.html#a57bf41f6f4190d4e8f728bd37db80ec9" title=" " alt="" coords="175,129,378,155"/>
+<area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="126,122,162,126,161,132,125,127"/>
+<area shape="rect" id="Node000003" href="$df/d14/opr__cdtp_8cu.html#a78cd94c87103aee0b72822173bc9aeb0" title=" " alt="" coords="609,5,697,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="348,53,428,41,595,21,595,26,428,46,349,59"/>
+<area shape="rect" id="Node000005" href="$d6/d10/opr__cdtp_8c.html#a22e607c77c807be3825904a78e958962" title=" " alt="" coords="433,56,533,81"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="381,66,419,66,419,71,381,71"/>
+<area shape="rect" id="Node000004" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="767,49,931,89"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="698,27,758,43,757,48,696,32"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="812,49,810,39,816,30,829,24,849,22,872,25,884,32,881,37,870,30,849,27,830,29,819,34,815,40,817,48"/>
+<area shape="poly" id="edge6_Node000005_Node000004" title=" " alt="" coords="534,66,753,66,753,71,534,71"/>
+<area shape="rect" id="Node000006" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="587,107,719,132"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="527,79,597,100,596,105,526,84"/>
+<area shape="poly" id="edge8_Node000006_Node000004" title=" " alt="" coords="702,104,757,90,758,95,703,109"/>
+<area shape="rect" id="Node000008" href="$dd/d47/namespacemath.html#a7bd6ecfc03be3f80d20e06e85af6b791" title="Vector addition ." alt="" coords="435,105,531,131"/>
+<area shape="poly" id="edge10_Node000007_Node000008" title=" " alt="" coords="378,128,422,122,422,128,379,133"/>
+<area shape="rect" id="Node000009" href="$dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c" title="Vector multiplication with 3 vectors ." alt="" coords="438,155,529,180"/>
+<area shape="poly" id="edge11_Node000007_Node000009" title=" " alt="" coords="379,152,425,158,424,163,378,157"/>
+<area shape="rect" id="Node000010" href="$dd/d47/namespacemath.html#a1164b01f82dfbc02272aecd16afec842" title="Vector division ." alt="" coords="428,204,539,229"/>
+<area shape="poly" id="edge12_Node000007_Node000010" title=" " alt="" coords="314,152,435,197,433,202,312,157"/>
+</map>

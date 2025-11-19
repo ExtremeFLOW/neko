@@ -1,0 +1,8 @@
+<map id="cg_sx::sx_cg_solve" name="cg_sx::sx_cg_solve">
+<area shape="rect" id="Node000001" title="Standard PCG solve." alt="" coords="5,43,152,68"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#a60f5dff321be727d37884a696c2ffc96" title="Vector addition with scalar multiplication &#160;(multiplication on first argument)" alt="" coords="200,5,311,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="139,40,186,30,187,35,140,45"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#a22f2f98aad6feae117b800fa20fa43ed" title="Weighted inner product ." alt="" coords="206,79,305,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="142,65,193,76,192,81,141,71"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="226,80,220,70,223,61,235,54,255,52,280,56,290,64,286,68,277,60,255,57,237,59,227,64,225,70,230,77"/>
+</map>

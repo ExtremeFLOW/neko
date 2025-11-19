@@ -1,0 +1,7 @@
+<map id="gs_mpi::gs_comm_mpi_t" name="gs_mpi::gs_comm_mpi_t">
+<area shape="rect" id="Node000001" title="MPI buffer for non&#45;blocking operations." alt="" coords="22,93,206,119"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,5,100,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="71,41,108,91,103,94,67,44"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="124,5,227,31"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="161,44,125,94,120,91,157,41"/>
+</map>

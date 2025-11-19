@@ -1,0 +1,15 @@
+<map id="device_mpi_allreduce_inplace" name="device_mpi_allreduce_inplace">
+<area shape="rect" id="Node000001" title=" " alt="" coords="407,91,571,131"/>
+<area shape="rect" id="Node000002" href="$d9/dab/projection_8cu.html#ad72e240b0f6d781c9b9d4a0e229e4822" title=" " alt="" coords="221,19,349,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="423,88,358,62,319,47,321,42,360,58,425,83"/>
+<area shape="rect" id="Node000004" href="$d9/dab/projection_8cu.html#a63794abd66ff5f2611aa96a8280f0ba2" title=" " alt="" coords="212,73,359,98"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="393,101,359,97,359,92,393,96"/>
+<area shape="rect" id="Node000006" href="$d9/d09/projection_8hip.html#a520b26405c8b712cc5329f49033acfa8" title=" " alt="" coords="227,122,344,147"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="393,125,345,130,344,125,392,119"/>
+<area shape="rect" id="Node000007" href="$d9/d09/projection_8hip.html#a42860edd1d4001a5cd1275feeda44795" title=" " alt="" coords="218,171,353,197"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="422,138,360,161,324,174,322,169,358,156,420,133"/>
+<area shape="rect" id="Node000003" href="$de/dc5/namespacedevice__projection.html#a0bb3b31f91395343dec55bc5880dbbe2" title=" " alt="" coords="12,5,157,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="207,32,157,30,158,25,207,27"/>
+<area shape="rect" id="Node000005" href="$de/dc5/namespacedevice__projection.html#ab7758606931232b4bf341124a5fcca6b" title=" " alt="" coords="5,69,164,109"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="199,90,164,90,164,85,199,84"/>
+</map>

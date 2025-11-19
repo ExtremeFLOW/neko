@@ -1,0 +1,20 @@
+<map id="math::sub2" name="math::sub2">
+<area shape="rect" id="Node000001" title="Vector substraction ." alt="" coords="707,170,801,195"/>
+<area shape="rect" id="Node000002" href="$d9/df7/namespaceadv__dealias.html#a4ad2c5d9b00cd1275c1786415a359ab9" title="Add the advection term for the fluid, i.e. , to the RHS." alt="" coords="489,5,654,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="738,159,705,109,683,82,657,59,638,48,640,43,660,55,686,79,709,106,742,156"/>
+<area shape="rect" id="Node000003" href="$da/def/namespacedynamic__smagorinsky__cpu.html#af19ec537058567406004669f74bc8a78" title="Compute Germano Identity on the CPU." alt="" coords="487,69,655,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="723,164,657,124,631,112,633,107,660,119,726,160"/>
+<area shape="rect" id="Node000006" href="$da/def/namespacedynamic__smagorinsky__cpu.html#adbc178a64f50cacd8d279bb6748d9376" title="Compute M_ij on the CPU." alt="" coords="484,133,659,173"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="692,176,658,170,659,165,693,170"/>
+<area shape="rect" id="Node000007" href="$d5/de6/namespacefield__math.html#a3cbc556471d67156c30b2c918a4f8b20" title="Vector substraction ." alt="" coords="489,198,654,223"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="693,195,655,201,654,195,692,189"/>
+<area shape="rect" id="Node000008" href="$dc/d48/namespacegmres.html#a3ad50be018611153f4c6184821724c96" title="Standard GMRES solve." alt="" coords="494,247,649,273"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="723,205,660,237,624,250,622,245,658,232,720,200"/>
+<area shape="rect" id="Node000009" href="$de/d0d/namespacepnpn__res__stress__cpu.html#aaf1c75297d8ffd5bb6e15bfa4e629d46" title=" " alt="" coords="490,297,653,351"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="737,208,704,247,660,286,640,299,637,294,657,282,700,243,733,205"/>
+<area shape="rect" id="Node000004" href="$da/def/namespacedynamic__smagorinsky__cpu.html#afc315d593e38cf654ffdc958baa9a5c6" title="Compute eddy viscosity on the CPU." alt="" coords="229,94,436,149"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="474,105,437,110,436,105,473,100"/>
+<area shape="rect" id="Node000005" href="$d4/d9c/namespacedynamic__smagorinsky.html#ad9e829fe19717511484cca0fe4524c52" title="Compute eddy viscosity." alt="" coords="5,94,181,149"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="216,124,182,124,182,119,216,119"/>
+<area shape="poly" id="edge6_Node000006_Node000004" title=" " alt="" coords="470,142,436,138,437,133,471,137"/>
+</map>

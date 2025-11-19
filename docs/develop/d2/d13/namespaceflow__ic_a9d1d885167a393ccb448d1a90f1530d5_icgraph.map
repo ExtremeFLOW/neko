@@ -1,0 +1,9 @@
+<map id="flow_ic::set_flow_ic_common" name="flow_ic::set_flow_ic_common">
+<area shape="rect" id="Node000001" title=" " alt="" coords="232,85,379,125"/>
+<area shape="rect" id="Node000002" href="$d5/d04/interfaceflow__ic_1_1set__flow__ic.html#ae6bfdcf866e2e550dd48ae1e4b29d7fd" title="Set intial flow condition (user defined) for compressible flows." alt="" coords="5,5,184,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="232,83,174,63,176,57,234,78"/>
+<area shape="rect" id="Node000003" href="$d5/d04/interfaceflow__ic_1_1set__flow__ic.html#aa5c900e30a45a6ed61c876b4ce368b50" title="Set initial flow condition (builtin)" alt="" coords="21,85,168,125"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="218,107,168,107,168,102,218,102"/>
+<area shape="rect" id="Node000004" href="$d5/d04/interfaceflow__ic_1_1set__flow__ic.html#a3ae0362448781bf4610527ffa9d6e081" title="Set intial flow condition (user defined)" alt="" coords="21,149,168,189"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="226,131,162,151,160,146,225,126"/>
+</map>

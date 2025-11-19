@@ -1,0 +1,7 @@
+<map id="gmres_device::gmres_device_t" name="gmres_device::gmres_device_t">
+<area shape="rect" id="Node000001" title="Standard preconditioned generalized minimal residual method." alt="" coords="29,240,191,280"/>
+<area shape="rect" id="Node000002" href="$d0/d3b/structkrylov_1_1ksp__t.html" title="Base abstract type for a canonical Krylov method, solving ." alt="" coords="5,5,111,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="66,44,108,239,103,240,61,45"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="135,5,189,31"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="159,45,117,240,112,239,154,44"/>
+</map>

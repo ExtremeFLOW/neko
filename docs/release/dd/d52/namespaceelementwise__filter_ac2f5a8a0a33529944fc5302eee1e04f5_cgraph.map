@@ -1,0 +1,42 @@
+<map id="elementwise_filter::build_1d" name="elementwise_filter::build_1d">
+<area shape="rect" id="Node000001" title="Build the 1d filter for an element." alt="" coords="5,97,148,137"/>
+<area shape="rect" id="Node000002" href="$dd/d26/namespaceelementwise__filter__cpu.html#aafca1eafd7fe7847fb28b285189ca02f" title="Build the 1d filter for an element on the CPU. Suppose field x is filtered into x_hat by x_hat = fh*x..." alt="" coords="196,97,341,137"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="149,114,182,114,182,119,149,119"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="426,5,521,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="296,94,338,66,388,40,412,31,413,36,390,44,341,71,299,99"/>
+<area shape="rect" id="Node000004" href="$dd/df0/namespacespeclib.html#abff0bed325bbf553ee8ff1fb2d5b70c9" title="Evaluate Legendre polynomials of degrees 0&#45;N at point x and store in array L." alt="" coords="389,55,557,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="341,97,406,81,407,86,342,102"/>
+<area shape="rect" id="Node000005" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="394,104,553,129"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="342,114,381,114,381,119,342,119"/>
+<area shape="rect" id="Node000006" href="$dd/d8c/namespacetensor.html#a8947209d2430fc2471fbf9d2984485da" title="Transpose of a rectangular tensor ." alt="" coords="425,153,521,179"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="342,132,412,149,411,154,341,137"/>
+<area shape="rect" id="Node000007" href="$dd/df0/namespacespeclib.html#a35488656016cc28e6422a81377ee7434" title=" " alt="" coords="418,203,529,228"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="300,135,342,162,390,188,411,196,409,201,388,192,339,166,297,139"/>
+<area shape="rect" id="Node000008" href="$dd/df0/namespacespeclib.html#a5b864c5653986341347795cb5ac75c92" title=" " alt="" coords="605,203,716,228"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="529,213,591,213,591,218,529,218"/>
+<area shape="rect" id="Node000009" href="$dd/df0/namespacespeclib.html#a47a06503ffdba7aebba5ae4f41661c04" title=" " alt="" coords="764,203,883,228"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="716,213,750,213,750,218,716,218"/>
+<area shape="rect" id="Node000010" href="$dd/df0/namespacespeclib.html#ac3838666020ca4150da3b691fe5f9c93" title=" " alt="" coords="1099,104,1218,129"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="867,200,1100,131,1102,136,868,205"/>
+<area shape="rect" id="Node000012" href="$dd/df0/namespacespeclib.html#ae4d2f7c4f8ec88a4c0b11d7fb67b87ad" title=" " alt="" coords="931,60,1049,85"/>
+<area shape="poly" id="edge13_Node000009_Node000012" title=" " alt="" coords="838,200,962,92,966,96,842,204"/>
+<area shape="rect" id="Node000013" href="$dd/df0/namespacespeclib.html#a7b6b7a991f7a4deaff63144237f6b161" title=" " alt="" coords="1275,329,1391,355"/>
+<area shape="poly" id="edge16_Node000009_Node000013" title=" " alt="" coords="842,226,884,257,945,297,1019,336,1098,365,1145,372,1193,371,1239,365,1279,356,1280,361,1240,370,1194,376,1145,377,1097,370,1017,341,943,301,881,261,839,230"/>
+<area shape="rect" id="Node000014" href="$dd/df0/namespacespeclib.html#a80692f5a33b00328a2600d1d409035f7" title=" " alt="" coords="933,228,1047,253"/>
+<area shape="poly" id="edge17_Node000009_Node000014" title=" " alt="" coords="883,222,919,227,918,233,883,227"/>
+<area shape="poly" id="edge10_Node000010_Node000010" title=" " alt="" coords="1131,105,1125,96,1128,86,1139,80,1159,77,1182,81,1192,89,1188,93,1179,86,1159,83,1141,85,1132,89,1130,95,1135,102"/>
+<area shape="rect" id="Node000011" href="$dd/df0/namespacespeclib.html#a4048cd0103898d95f6f8064c13fe5294" title=" " alt="" coords="1268,141,1399,167"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="1219,127,1261,136,1260,141,1218,132"/>
+<area shape="poly" id="edge12_Node000011_Node000011" title=" " alt="" coords="1304,143,1298,133,1302,123,1314,117,1333,115,1357,118,1367,127,1364,131,1355,123,1333,120,1315,122,1306,127,1304,132,1309,140"/>
+<area shape="poly" id="edge15_Node000012_Node000011" title=" " alt="" coords="1049,58,1132,51,1177,55,1221,65,1248,77,1273,94,1313,129,1309,133,1270,98,1245,82,1219,70,1176,60,1132,57,1050,63"/>
+<area shape="poly" id="edge14_Node000012_Node000012" title=" " alt="" coords="962,61,956,52,960,42,971,36,990,33,1013,37,1022,45,1019,49,1010,42,990,39,973,41,964,45,962,51,967,58"/>
+<area shape="poly" id="edge18_Node000014_Node000011" title=" " alt="" coords="1047,237,1130,230,1175,223,1219,211,1263,193,1301,172,1303,177,1265,198,1221,217,1176,228,1130,236,1048,243"/>
+<area shape="poly" id="edge21_Node000014_Node000013" title=" " alt="" coords="1035,251,1277,323,1275,328,1033,256"/>
+<area shape="rect" id="Node000015" href="$dd/df0/namespacespeclib.html#a42f3304560e837ccc11d02fac0d17598" title=" " alt="" coords="1107,329,1210,355"/>
+<area shape="poly" id="edge19_Node000014_Node000015" title=" " alt="" coords="1011,251,1099,308,1121,320,1118,325,1096,312,1008,256"/>
+<area shape="rect" id="Node000016" href="$dd/df0/namespacespeclib.html#a3d3ffb215920d3ac2599832211842480" title=" " alt="" coords="1097,177,1220,203"/>
+<area shape="poly" id="edge22_Node000014_Node000016" title=" " alt="" coords="1032,225,1102,204,1103,209,1034,230"/>
+<area shape="poly" id="edge20_Node000015_Node000013" title=" " alt="" coords="1210,339,1261,339,1261,345,1210,345"/>
+<area shape="poly" id="edge23_Node000016_Node000011" title=" " alt="" coords="1220,175,1257,167,1258,172,1221,180"/>
+<area shape="poly" id="edge24_Node000016_Node000016" title=" " alt="" coords="1131,179,1125,169,1128,159,1139,153,1159,151,1182,154,1192,163,1188,167,1179,159,1159,156,1141,158,1132,163,1130,168,1135,176"/>
+</map>

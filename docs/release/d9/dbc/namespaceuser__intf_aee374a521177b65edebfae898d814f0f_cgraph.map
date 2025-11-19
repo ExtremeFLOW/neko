@@ -1,0 +1,5 @@
+<map id="user_intf::dummy_scalar_user_bc" name="user_intf::dummy_scalar_user_bc">
+<area shape="rect" id="Node000001" title="Dummy user boundary condition for scalar." alt="" coords="5,5,188,45"/>
+<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="236,13,384,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="189,23,222,23,222,28,189,28"/>
+</map>

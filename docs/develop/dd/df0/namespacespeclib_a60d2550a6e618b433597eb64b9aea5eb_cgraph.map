@@ -1,0 +1,12 @@
+<map id="speclib::iglm" name="speclib::iglm">
+<area shape="rect" id="Node000001" title="Compute the one&#45;dimensional interpolation operator (matrix) I12 ands its transpose IT12 for interpola..." alt="" coords="5,67,111,92"/>
+<area shape="rect" id="Node000002" href="$dd/df0/namespacespeclib.html#a9e4bfc19ce726daca140f06543c860bc" title="Compute the value of the Lagrangian interpolant HGL through the NZ Gauss Legendre points ZGL at the p..." alt="" coords="159,67,255,92"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="111,77,145,77,145,82,111,82"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="182,68,177,58,179,49,190,42,207,40,227,44,236,52,232,56,224,48,207,45,191,47,184,52,182,58,186,65"/>
+<area shape="rect" id="Node000003" href="$dd/df0/namespacespeclib.html#a03b98455850ad60cc17dc2993efd4dce" title="Compute the derivative of the Nth order Legendre polynomial at Z. (Simpler than JACOBF) Based on the ..." alt="" coords="303,29,423,55"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="254,65,295,55,297,61,255,71"/>
+<area shape="rect" id="Node000004" href="$dd/df0/namespacespeclib.html#a9cd5b9e4223625494d9a0acd3be8f85e" title="Compute the value of the Nth order Legendre polynomial at Z. (Simpler than JACOBF) Based on the recur..." alt="" coords="307,103,419,128"/>
+<area shape="poly" id="edge5_Node000002_Node000004" title=" " alt="" coords="255,88,295,97,294,102,254,93"/>
+<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="337,31,331,21,334,11,345,5,363,3,384,6,393,15,389,19,382,11,363,8,347,10,338,15,336,20,341,28"/>
+<area shape="poly" id="edge6_Node000004_Node000004" title=" " alt="" coords="337,104,331,94,334,85,345,78,363,76,384,79,393,88,389,92,382,84,363,81,347,83,338,88,336,94,341,101"/>
+</map>

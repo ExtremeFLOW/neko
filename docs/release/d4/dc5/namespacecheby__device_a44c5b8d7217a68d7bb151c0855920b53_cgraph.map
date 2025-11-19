@@ -1,0 +1,5 @@
+<map id="cheby_device::cheby_device_init" name="cheby_device::cheby_device_init">
+<area shape="rect" id="Node000001" title="Initialise a standard solver." alt="" coords="5,5,164,45"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#aaaa5631ad87c768e466be4f943c5c479" title="Create a device event queue." alt="" coords="212,5,372,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="165,23,198,23,198,28,165,28"/>
+</map>

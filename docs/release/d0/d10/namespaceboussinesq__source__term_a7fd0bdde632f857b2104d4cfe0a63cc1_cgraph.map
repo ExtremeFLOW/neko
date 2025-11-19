@@ -1,0 +1,15 @@
+<map id="boussinesq_source_term::boussinesq_source_term_compute" name="boussinesq_source_term::boussinesq_source_term_compute">
+<area shape="rect" id="Node000001" title="Computes the source term and adds the result to fields." alt="" coords="5,75,196,129"/>
+<area shape="rect" id="Node000002" href="$d3/d4a/namespaceboussinesq__source__term__cpu.html#a5ce59ca22e2af735737cc2044a472aa5" title="Computes the Boussinesq source term on the cpu." alt="" coords="254,35,437,89"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="196,84,240,76,241,82,197,89"/>
+<area shape="rect" id="Node000005" href="$dc/d0b/namespaceboussinesq__source__term__device.html#ab119b3913528cc79e3a5f7a3d2874ac1" title="Computes the Boussinesq source term on the device." alt="" coords="244,113,447,168"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="197,114,231,120,230,125,196,120"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#aec2e1cbc631a4cb73db0d17b89e9e596" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="537,5,647,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="436,43,523,27,524,33,437,48"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#a439630d12cb3027eb78f58e0519b8bc6" title="Add a scalar to vector ." alt="" coords="545,55,639,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="437,61,531,63,531,69,437,67"/>
+<area shape="rect" id="Node000006" href="$d2/d73/namespacedevice__math.html#a3b9c190380a831ba86fa3fe155dae8f7" title="Vector addition with scalar multiplication &#160;(multiplication on first argument)" alt="" coords="513,115,671,155"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="447,136,500,135,500,140,447,141"/>
+<area shape="rect" id="Node000007" href="$d2/d73/namespacedevice__math.html#a57a55eb4b4133985ea76f49b3e620e62" title="Add a scalar to vector ." alt="" coords="495,180,689,205"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="448,159,518,174,517,180,446,165"/>
+</map>

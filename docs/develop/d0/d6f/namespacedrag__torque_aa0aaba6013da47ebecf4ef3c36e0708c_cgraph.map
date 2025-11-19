@@ -1,0 +1,5 @@
+<map id="drag_torque::drag_torque_pt" name="drag_torque::drag_torque_pt">
+<area shape="rect" id="Node000001" title="Calculate drag and torque from one point." alt="" coords="5,5,212,31"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="260,5,357,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="212,15,246,15,246,21,212,21"/>
+</map>

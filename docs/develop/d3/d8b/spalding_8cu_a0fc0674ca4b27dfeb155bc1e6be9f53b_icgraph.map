@@ -1,0 +1,9 @@
+<map id="cuda_spalding_compute" name="cuda_spalding_compute">
+<area shape="rect" id="Node000001" title=" " alt="" coords="468,56,647,81"/>
+<area shape="rect" id="Node000002" href="$d2/d9a/namespacespalding__device.html#ac149667d03538653fd32c48f973e2766" title="Compute the wall shear stress on device using Spalding&#39;s model." alt="" coords="229,49,420,89"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="454,71,420,71,420,66,454,66"/>
+<area shape="rect" id="Node000003" href="$d0/d82/interfacespalding__device_1_1hip__spalding__compute.html#a0dfabb9ddc61bcadd8f5578b83bde1a2" title=" " alt="" coords="5,5,181,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="215,54,181,49,182,44,216,49"/>
+<area shape="rect" id="Node000004" href="$d5/d90/namespacespalding.html#a83c835e2b4c317e67d37e19821f62c7f" title="Compute the wall shear stress." alt="" coords="23,85,163,125"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="216,88,164,96,163,91,215,83"/>
+</map>

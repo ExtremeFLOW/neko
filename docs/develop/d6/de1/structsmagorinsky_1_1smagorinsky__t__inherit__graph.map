@@ -1,0 +1,5 @@
+<map id="smagorinsky::smagorinsky_t" name="smagorinsky::smagorinsky_t">
+<area shape="rect" id="Node000001" title="Implements the smagorinsky LES model." alt="" coords="5,79,212,104"/>
+<area shape="rect" id="Node000002" href="$df/d6c/structles__model_1_1les__model__t.html" title="Base abstract type for LES models based on the Boussinesq approximation." alt="" coords="21,5,197,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="111,44,111,79,106,79,106,44"/>
+</map>

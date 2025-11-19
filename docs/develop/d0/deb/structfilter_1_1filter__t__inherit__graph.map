@@ -1,0 +1,7 @@
+<map id="filter::filter_t" name="filter::filter_t">
+<area shape="rect" id="Node000001" title="Base abstract class for filter." alt="" coords="129,5,231,31"/>
+<area shape="rect" id="Node000002" href="$d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html" title="Implements the elementwise filter for SEM." alt="" coords="5,79,168,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="157,42,111,81,107,76,154,38"/>
+<area shape="rect" id="Node000003" href="$dc/d26/structpde__filter_1_1pde__filter__t.html" title="A PDE based filter mapping $\rho \mapsto \tilde{\rho}$, see Lazarov &amp; O. Sigmund 2010,..." alt="" coords="193,86,357,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="206,38,262,84,259,88,203,42"/>
+</map>

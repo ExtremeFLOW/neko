@@ -1,0 +1,25 @@
+<map id="speclib::zwgjd" name="speclib::zwgjd">
+<area shape="rect" id="Node000001" title="Generate NP GAUSS JACOBI points (Z) and weights (W) associated with Jacobi polynomial P(N)(alpha&gt;&#45;1,..." alt="" coords="871,31,985,56"/>
+<area shape="rect" id="Node000002" href="$dd/df0/namespacespeclib.html#a5c35429298522dea2bd177d45c7efc2c" title="Generate NP GAUSS JACOBI points (Z) and weights (W) associated with Jacobi polynomial P(N)(alpha&gt;&#45;1,..." alt="" coords="710,5,817,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="857,35,817,29,817,24,858,30"/>
+<area shape="rect" id="Node000007" href="$dd/df0/namespacespeclib.html#a47a06503ffdba7aebba5ae4f41661c04" title="Generate NP GAUSS LOBATTO JACOBI points (Z) and weights (W) associated with Jacobi polynomial P(N)(al..." alt="" coords="704,55,823,80"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="858,56,823,61,823,56,857,51"/>
+<area shape="rect" id="Node000003" href="$dd/df0/namespacespeclib.html#acf61de5c4c6c150e008f2f7981ca10db" title="Generate NP Gauss Legendre points Z and weights W associated with Jacobi polynomial ...." alt="" coords="389,5,495,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="696,21,496,21,496,15,696,15"/>
+<area shape="rect" id="Node000004" href="$dc/d5b/namespacefast3d.html#a71d142b2e4b813e2a446dc2cae7d47a4" title="Generate matrices for single element, 1D operators: a = Laplacian b = diagonal mass matrix c = convec..." alt="" coords="207,55,327,80"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="384,37,314,57,313,52,383,32"/>
+<area shape="rect" id="Node000006" href="$d5/d0d/namespacespace.html#aea7cdf9a8933056da79e3b73f4e0ed49" title="Initialize a function space s with given polynomial dimensions." alt="" coords="200,5,335,31"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="375,21,335,21,335,15,375,15"/>
+<area shape="rect" id="Node000005" href="$d3/d4c/namespacefdm.html#a4e4c35e30cb7a09ac9f75e02ca5c6acb" title=" " alt="" coords="21,55,132,80"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="193,70,132,70,132,65,193,65"/>
+<area shape="rect" id="Node000008" href="$dd/df0/namespacespeclib.html#a5b864c5653986341347795cb5ac75c92" title="Generate NP GAUSS LOBATTO JACOBI points (Z) and weights (W) associated with Jacobi polynomial P(N)(al..." alt="" coords="545,55,656,80"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="690,70,656,70,656,65,690,65"/>
+<area shape="rect" id="Node000009" href="$dd/df0/namespacespeclib.html#a35488656016cc28e6422a81377ee7434" title="Generate NP Gauss&#45;Lobatto Legendre points (Z) and weights (W) associated with Jacobi polynomial P(N)(..." alt="" coords="387,55,497,80"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="532,70,497,70,497,65,532,65"/>
+<area shape="poly" id="edge11_Node000009_Node000004" title=" " alt="" coords="373,70,327,70,327,65,373,65"/>
+<area shape="poly" id="edge12_Node000009_Node000006" title=" " alt="" coords="383,53,313,33,314,28,384,48"/>
+<area shape="rect" id="Node000010" href="$dd/d52/namespaceelementwise__filter.html#a106ce51f62e266dfa441bde829ddff19" title="Build the 1d filter for an element on the CPU. Suppose field x is filtered into x_hat by x_hat = fh*x..." alt="" coords="196,105,339,145"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="391,87,330,107,328,102,389,82"/>
+<area shape="rect" id="Node000011" href="$dd/d52/namespaceelementwise__filter.html#ac2f5a8a0a33529944fc5302eee1e04f5" title="Build the 1d filter for an element." alt="" coords="5,105,148,145"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="183,127,148,127,148,122,183,122"/>
+</map>

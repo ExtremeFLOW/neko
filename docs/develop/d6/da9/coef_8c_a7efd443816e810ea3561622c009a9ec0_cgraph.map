@@ -1,0 +1,9 @@
+<map id="opencl_coef_generate_geo" name="opencl_coef_generate_geo">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,201,62"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="429,29,593,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,47,415,47,415,52,202,52"/>
+<area shape="rect" id="Node000003" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="249,62,381,87"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="202,58,236,63,235,68,201,64"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="475,30,472,20,478,11,491,5,511,3,534,6,547,13,544,17,533,11,511,8,493,10,482,15,478,21,480,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="381,64,415,59,416,64,382,69"/>
+</map>

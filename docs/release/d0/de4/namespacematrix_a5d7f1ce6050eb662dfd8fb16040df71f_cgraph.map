@@ -1,0 +1,7 @@
+<map id="matrix::matrix_add_matrix" name="matrix::matrix_add_matrix">
+<area shape="rect" id="Node000001" title="Matrix&#45;matrix addition ." alt="" coords="5,23,152,63"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#a79189c047ee36fa194f43257bda3c8d8" title="Vector addition ." alt="" coords="250,5,346,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,32,236,22,236,28,152,38"/>
+<area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#ac8b7865ff9ffc5288df93cb9eb480478" title="Vector addition ." alt="" coords="200,55,396,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="152,49,187,52,186,58,152,54"/>
+</map>

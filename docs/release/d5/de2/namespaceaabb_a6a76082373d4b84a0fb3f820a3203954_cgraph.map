@@ -1,0 +1,14 @@
+<map id="aabb::get_aabb_tri_mesh" name="aabb::get_aabb_tri_mesh">
+<area shape="rect" id="Node000001" title="Get the aabb of a triangular mesh." alt="" coords="5,55,192,80"/>
+<area shape="rect" id="Node000002" href="$d5/de2/namespaceaabb.html#a9a79814aa9d37785cb4d53a4aef2beb8" title="Construct the aabb of a predefined object." alt="" coords="240,55,363,80"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="192,74,226,73,226,79,192,79"/>
+<area shape="poly" id="edge7_Node000002_Node000001" title=" " alt="" coords="240,62,206,61,206,56,240,56"/>
+<area shape="rect" id="Node000003" href="$d5/de2/namespaceaabb.html#ab9198807cc6826776f8b94a84cd9f999" title="Get the aabb of an arbitrary element." alt="" coords="415,5,597,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="354,52,439,31,440,37,355,57"/>
+<area shape="rect" id="Node000004" href="$d5/de2/namespaceaabb.html#a7b35ee1d1158d03311f46930ee69b2de" title="Get the aabb of a mesh." alt="" coords="423,55,589,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="363,73,410,74,410,79,363,78"/>
+<area shape="rect" id="Node000005" href="$d5/de2/namespaceaabb.html#abd0ecde4cac4aba5d3646a3319cb32e6" title="Get the aabb of a tetrahedral mesh." alt="" coords="411,104,601,129"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="330,78,404,98,402,103,328,83"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="423,61,376,61,376,56,423,56"/>
+<area shape="poly" id="edge6_Node000005_Node000002" title=" " alt="" coords="477,106,375,79,377,74,479,101"/>
+</map>

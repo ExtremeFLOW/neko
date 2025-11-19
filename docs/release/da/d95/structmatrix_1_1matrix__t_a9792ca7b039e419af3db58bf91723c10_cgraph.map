@@ -1,0 +1,11 @@
+<map id="matrix::matrix_t::assignment" name="matrix::matrix_t::assignment">
+<area shape="rect" id="Node000001" title="Assignment ." alt="" coords="5,45,217,70"/>
+<area shape="rect" id="Node000002" href="$d0/de4/namespacematrix.html#a36163990dadbd00ca417c0ef70c015be" title="Assignment ." alt="" coords="265,5,431,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="205,42,252,36,252,41,206,47"/>
+<area shape="rect" id="Node000004" href="$d0/de4/namespacematrix.html#af9c0fe0434823ffbdc86e5fedb934867" title="Assignment ." alt="" coords="265,69,431,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="206,67,252,74,252,79,205,73"/>
+<area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#addb4596de81a7518fcafd9e40aa7ed57" title="Copy a vector ." alt="" coords="479,13,673,38"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="431,23,465,23,465,28,431,28"/>
+<area shape="rect" id="Node000005" href="$d2/d73/namespacedevice__math.html#aead3fc7e68e8d685332f0305dcc1d612" title="Set all elements to a constant c ." alt="" coords="497,69,655,109"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="431,87,483,87,483,92,431,92"/>
+</map>

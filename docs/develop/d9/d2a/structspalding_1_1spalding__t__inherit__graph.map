@@ -1,0 +1,5 @@
+<map id="spalding::spalding_t" name="spalding::spalding_t">
+<area shape="rect" id="Node000001" title="Wall model based on Spalding&#39;s law of the wall. Reference: http://dx.doi.org/10.1115/1...." alt="" coords="25,79,177,104"/>
+<area shape="rect" id="Node000002" href="$d4/d70/structwall__model_1_1wall__model__t.html" title="Base abstract type for wall&#45;stress models for wall&#45;modelled LES." alt="" coords="5,5,197,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="104,44,104,79,99,79,99,44"/>
+</map>

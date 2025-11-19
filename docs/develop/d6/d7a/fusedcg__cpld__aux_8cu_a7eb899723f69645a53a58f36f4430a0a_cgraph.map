@@ -1,0 +1,9 @@
+<map id="cuda_fusedcg_cpld_part2" name="cuda_fusedcg_cpld_part2">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,192,62"/>
+<area shape="rect" id="Node000002" href="$d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="240,11,404,37"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="192,36,226,32,227,37,193,41"/>
+<area shape="rect" id="Node000003" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="452,29,616,69"/>
+<area shape="poly" id="edge4_Node000001_Node000003" title=" " alt="" coords="192,47,438,47,438,52,192,52"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="405,31,439,35,438,41,404,36"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="494,30,492,20,498,10,513,5,534,3,559,6,572,13,570,18,557,11,534,8,514,10,502,15,497,21,500,28"/>
+</map>

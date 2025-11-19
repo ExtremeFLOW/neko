@@ -1,0 +1,7 @@
+<map id="hip_fusedcg_part2" name="hip_fusedcg_part2">
+<area shape="rect" id="Node000001" title=" " alt="" coords="459,13,600,38"/>
+<area shape="rect" id="Node000002" href="$dd/d04/namespacefusedcg__device.html#a37d7ee87c969306b6428c008592d4646" title=" " alt="" coords="236,5,411,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="445,28,411,28,411,23,445,23"/>
+<area shape="rect" id="Node000003" href="$dd/d04/namespacefusedcg__device.html#abfce590eb7c6404bf4f2f3f7422cf080" title="Pipelined PCG solve." alt="" coords="5,5,188,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="222,28,188,28,188,23,222,23"/>
+</map>

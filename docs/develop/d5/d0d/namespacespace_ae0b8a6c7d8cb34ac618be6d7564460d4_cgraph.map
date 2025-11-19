@@ -1,0 +1,5 @@
+<map id="space::space_free" name="space::space_free">
+<area shape="rect" id="Node000001" title="Deallocate a space s." alt="" coords="5,5,144,31"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="192,5,341,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="144,15,179,15,179,21,144,21"/>
+</map>

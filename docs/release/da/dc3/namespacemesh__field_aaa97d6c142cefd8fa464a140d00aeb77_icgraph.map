@@ -1,0 +1,16 @@
+<map id="mesh_field::mesh_field_init" name="mesh_field::mesh_field_init">
+<area shape="rect" id="Node000001" title=" " alt="" coords="829,13,1029,38"/>
+<area shape="rect" id="Node000002" href="$dd/da8/namespacecase.html#ac7d52a7009f92ec7c1cf6abf9e33ae68" title="Initialize a case from its (loaded) params object." alt="" coords="209,45,392,70"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="815,18,638,13,539,15,440,24,388,34,341,47,339,42,387,29,440,19,538,10,638,7,815,13"/>
+<area shape="rect" id="Node000005" href="$d1/dd7/namespaceparmetis.html#a167b3313549fa07a2cd414118bd40489" title="Fill mesh field according to new partitions." alt="" coords="635,33,781,73"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="816,42,782,47,782,41,815,37"/>
+<area shape="rect" id="Node000003" href="$d8/d36/interfacecase_1_1case__init.html#acd7b02470b540d948eb556eecfc40e81" title="Initialize a case from an input file case_file." alt="" coords="5,5,161,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="200,45,161,39,162,34,201,40"/>
+<area shape="rect" id="Node000004" href="$d8/d36/interfacecase_1_1case__init.html#a685c8e7a3bb9754492dbb77fcc05efc6" title="Initialize a case from a JSON object describing a case." alt="" coords="5,69,161,109"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="201,75,162,81,161,75,200,69"/>
+<area shape="rect" id="Node000006" href="$d1/dd7/namespaceparmetis.html#afc65e966bf7728f9211082aa10b19989" title="Compute a k&#45;way partitioning of a mesh msh using a coordinated&#45;based space&#45;filing curves method." alt="" coords="440,33,587,73"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="621,56,587,56,587,51,621,51"/>
+<area shape="rect" id="Node000007" href="$d1/dd7/namespaceparmetis.html#a7015f5a8d7bb32005378d0df25fc45e7" title="Compute a k&#45;way partitioning of a mesh msh." alt="" coords="440,97,587,137"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="634,80,576,100,574,95,632,75"/>
+<area shape="poly" id="edge7_Node000007_Node000002" title=" " alt="" coords="428,96,346,73,347,67,429,91"/>
+</map>

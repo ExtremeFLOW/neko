@@ -1,0 +1,11 @@
+<map id="device_jacobi::device_jacobi_init" name="device_jacobi::device_jacobi_init">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,168,103"/>
+<area shape="rect" id="Node000002" href="$d2/da7/namespacedevice__jacobi.html#abcae239f5ab6ef4a8a597e7cca1d804b" title=" " alt="" coords="216,63,379,103"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,80,202,80,202,85,168,85"/>
+<area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#a07d4f69bef8f8e5cd58ca113e8651314" title="Returns ." alt="" coords="443,5,601,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="376,60,429,46,430,51,377,65"/>
+<area shape="rect" id="Node000004" href="$d2/d73/namespacedevice__math.html#a14206e58118cce6865c6ce1bb6454061" title="Vector multiplication ." alt="" coords="427,70,617,95"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="379,80,413,80,413,85,379,85"/>
+<area shape="rect" id="Node000005" href="$d2/d73/namespacedevice__math.html#a46a957f0ada862da2400fb93b64b4cd9" title="Invert a vector ." alt="" coords="443,120,601,160"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="377,100,430,114,429,119,376,105"/>
+</map>

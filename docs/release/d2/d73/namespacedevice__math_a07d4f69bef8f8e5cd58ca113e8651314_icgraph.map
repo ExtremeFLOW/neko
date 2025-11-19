@@ -1,0 +1,11 @@
+<map id="device_math::device_addcol3" name="device_math::device_addcol3">
+<area shape="rect" id="Node000001" title="Returns ." alt="" coords="449,63,607,103"/>
+<area shape="rect" id="Node000002" href="$d2/da7/namespacedevice__jacobi.html#abcae239f5ab6ef4a8a597e7cca1d804b" title=" " alt="" coords="227,5,390,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="437,62,385,48,386,43,439,57"/>
+<area shape="rect" id="Node000004" href="$d5/de6/namespacefield__math.html#a70f4682c62a21733532dd123b317b8ba" title="Returns ." alt="" coords="216,70,401,95"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="435,85,401,85,401,80,435,80"/>
+<area shape="rect" id="Node000005" href="$d9/d7d/namespacefluid__stats.html#a4f4f6b67d4aaee16ce1a646a3d23e844" title="Updates all fields with a new sample." alt="" coords="246,120,371,160"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="439,109,372,126,371,121,437,104"/>
+<area shape="rect" id="Node000003" href="$d2/da7/namespacedevice__jacobi.html#a08dd6669e156ff25024b500bf81a5106" title=" " alt="" coords="5,5,168,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="213,28,168,28,168,23,213,23"/>
+</map>

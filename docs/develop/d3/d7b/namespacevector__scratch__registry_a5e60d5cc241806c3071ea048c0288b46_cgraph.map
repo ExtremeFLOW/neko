@@ -1,0 +1,9 @@
+<map id="vector_scratch_registry::request_vector" name="vector_scratch_registry::request_vector">
+<area shape="rect" id="Node000001" title="Get a vector from the registry by assigning it to a pointer." alt="" coords="5,35,180,75"/>
+<area shape="rect" id="Node000002" href="$d3/d0d/namespacevector__math.html#ae61cdbb3bb145783d9387cee0ecf1c59" title="Zero a real vector." alt="" coords="228,35,381,75"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,52,214,52,214,57,180,57"/>
+<area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="429,5,587,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="381,41,415,36,416,41,382,46"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="459,70,557,95"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="382,63,446,72,445,77,381,68"/>
+</map>

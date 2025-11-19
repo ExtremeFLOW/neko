@@ -1,0 +1,9 @@
+<map id="speclib::dgll" name="speclib::dgll">
+<area shape="rect" id="Node000001" title="Compute the derivative matrix D and its transpose DT associated with the Nth order Lagrangian interpo..." alt="" coords="347,31,447,56"/>
+<area shape="rect" id="Node000002" href="$dc/d5b/namespacefast3d.html#a71d142b2e4b813e2a446dc2cae7d47a4" title="Generate matrices for single element, 1D operators: a = Laplacian b = diagonal mass matrix c = convec..." alt="" coords="171,5,291,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="333,36,291,30,292,25,334,31"/>
+<area shape="rect" id="Node000004" href="$d5/d0d/namespacespace.html#aea7cdf9a8933056da79e3b73f4e0ed49" title="Initialize a function space s with given polynomial dimensions." alt="" coords="164,55,299,80"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="334,55,299,60,298,55,333,50"/>
+<area shape="rect" id="Node000003" href="$d3/d4c/namespacefdm.html#a4e4c35e30cb7a09ac9f75e02ca5c6acb" title=" " alt="" coords="5,5,116,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="158,21,117,21,117,15,158,15"/>
+</map>

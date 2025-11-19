@@ -1,0 +1,7 @@
+<map id="map_2d::perform_local_summation" name="map_2d::perform_local_summation">
+<area shape="rect" id="Node000001" title=" " alt="" coords="248,27,420,67"/>
+<area shape="rect" id="Node000002" href="$d1/d99/namespacemap__2d.html#aed0fbf197cedeb057b48268a451b2640" title="Computes average if field list in one direction and outputs 2D field with averaged values." alt="" coords="5,5,200,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,37,200,33,201,28,234,32"/>
+<area shape="rect" id="Node000003" href="$d1/d99/namespacemap__2d.html#aaa22d03617c59612fa2c690b2dc807aa" title="Computes average if field list in one direction and outputs 2D field with averaged values." alt="" coords="5,55,200,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="234,62,201,66,200,61,234,57"/>
+</map>

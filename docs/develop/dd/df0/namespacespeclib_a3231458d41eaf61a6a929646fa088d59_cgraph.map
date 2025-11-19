@@ -1,0 +1,6 @@
+<map id="speclib::dgllgl" name="speclib::dgllgl">
+<area shape="rect" id="Node000001" title="Compute the (one&#45;dimensional) derivative matrix D and its transpose DT associated with taking the der..." alt="" coords="5,29,117,55"/>
+<area shape="rect" id="Node000002" href="$dd/df0/namespacespeclib.html#a9cd5b9e4223625494d9a0acd3be8f85e" title="Compute the value of the Nth order Legendre polynomial at Z. (Simpler than JACOBF) Based on the recur..." alt="" coords="165,29,277,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="118,39,152,39,152,45,118,45"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="195,31,189,21,192,11,203,5,221,3,243,6,252,15,249,19,241,11,221,8,205,10,196,15,195,20,199,28"/>
+</map>

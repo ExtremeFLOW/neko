@@ -1,0 +1,15 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$d7/d3a/structprecon_1_1pc__t.html" title="Defines a canonical Krylov preconditioner." alt="" coords="5,159,107,185"/>
+<area shape="rect" id="Node000001" href="$dd/ddc/structdevice__identity_1_1device__ident__t.html" title="Defines a canonical Krylov preconditioner for accelerators." alt="" coords="155,5,327,45"/>
+<area shape="poly" id="edge108_Node000000_Node000001" title=" " alt="" coords="70,146,105,101,128,76,153,55,174,43,177,48,156,60,131,80,109,104,75,149"/>
+<area shape="rect" id="Node000002" href="$d8/dca/structdevice__jacobi_1_1device__jacobi__t.html" title="Defines a jacobi preconditioner." alt="" coords="159,69,322,109"/>
+<area shape="poly" id="edge109_Node000000_Node000002" title=" " alt="" coords="91,150,154,119,182,107,184,112,156,124,93,155"/>
+<area shape="rect" id="Node000003" href="$dd/d81/structhsmg_1_1hsmg__t.html" title=" " alt="" coords="183,134,298,159"/>
+<area shape="poly" id="edge110_Node000000_Node000003" title=" " alt="" coords="120,161,183,152,184,157,121,166"/>
+<area shape="rect" id="Node000004" href="$d7/d69/structidentity_1_1ident__t.html" title="Defines a canonical Krylov preconditioner." alt="" coords="179,183,303,209"/>
+<area shape="poly" id="edge111_Node000000_Node000004" title=" " alt="" coords="121,178,179,185,178,191,120,183"/>
+<area shape="rect" id="Node000005" href="$da/d72/structjacobi_1_1jacobi__t.html" title="Defines a jacobi preconditioner." alt="" coords="181,233,301,258"/>
+<area shape="poly" id="edge112_Node000000_Node000005" title=" " alt="" coords="93,189,156,218,193,230,191,235,154,222,91,193"/>
+<area shape="rect" id="Node000006" href="$d4/d41/structsx__jacobi_1_1sx__jacobi__t.html" title="Defines a jacobi preconditioner for SX&#45;Aurora." alt="" coords="159,282,323,307"/>
+<area shape="poly" id="edge113_Node000000_Node000006" title=" " alt="" coords="77,194,111,232,156,267,184,280,181,284,153,272,108,236,73,198"/>
+</map>

@@ -1,0 +1,19 @@
+<map id="system::system_cpu_name" name="system::system_cpu_name">
+<area shape="rect" id="Node000001" title="Retrieve the system&#39;s CPU name (type)" alt="" coords="444,159,644,184"/>
+<area shape="rect" id="Node000002" href="$dd/d62/namespaceneko.html#a647e539d6b0950b6569c6752b8f007ff" title=" " alt="" coords="252,129,372,155"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="430,160,372,152,373,147,430,154"/>
+<area shape="rect" id="Node000009" href="$d7/d90/interfacesystem_1_1system__cpuid.html#a0436c489fe2d6d9911e3ef7b7e084010" title=" " alt="" coords="228,179,396,219"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="431,188,396,192,396,187,430,182"/>
+<area shape="rect" id="Node000003" href="$d9/dd1/average__field__in__space_8f90.html#a37dc68f9f9805d99614ae0ca36d971a3" title="Program to sum up a field in space in a homogenous direction Martin Karp 17/02&#45;23." alt="" coords="5,5,180,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="286,122,239,83,179,44,151,33,153,28,181,40,242,78,290,118"/>
+<area shape="rect" id="Node000004" href="$d3/dc7/average__fields__in__time_8f90.html#ac6905300ca74b33833aa210ef56e2bb7" title="Program to sum up averaged fields computed for statistics and mean field Martin Karp 27/01&#45;23." alt="" coords="6,55,179,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="267,127,179,94,142,83,144,78,181,89,269,122"/>
+<area shape="rect" id="Node000005" href="$dc/da2/genmeshbox_8f90.html#ac2c2abdf1b6ab8a11de24035862245d5" title="Simple program to generate a mesh for a box Gives some insight into how one can use built in function..." alt="" coords="39,104,146,129"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="238,136,146,125,146,120,238,131"/>
+<area shape="rect" id="Node000006" href="$d1/dd9/postprocess__fluid__stats_8f90.html#a54f8c504cff2703e12c6c4fce128f532" title="Somewhat preliminary program to sum up averaged fields computed for statistics and mean field Martin ..." alt="" coords="5,153,180,179"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="238,153,181,159,180,154,237,147"/>
+<area shape="rect" id="Node000007" href="$d7/d64/rea2nbin_8f90.html#ab8d17097ee23bae0a0911d8d65590e5e" title=" " alt="" coords="53,203,132,228"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="252,162,229,170,181,192,133,208,131,203,179,188,227,165,251,156"/>
+<area shape="rect" id="Node000008" href="$d0/dd9/driver_8f90.html#a30d609876f05bf02c9ca79b0448dc937" title="Main driver for TurboNeko." alt="" coords="49,252,136,277"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="241,162,230,169,214,187,207,205,199,224,182,243,160,255,137,262,135,257,158,250,178,239,194,221,202,203,210,184,226,165,238,158"/>
+</map>

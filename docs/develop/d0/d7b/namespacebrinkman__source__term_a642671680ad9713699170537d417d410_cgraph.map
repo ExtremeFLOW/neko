@@ -1,0 +1,17 @@
+<map id="brinkman_source_term::brinkman_source_term_init_from_json" name="brinkman_source_term::brinkman_source_term_init_from_json">
+<area shape="rect" id="Node000001" title="The common constructor using a JSON object." alt="" coords="5,68,185,123"/>
+<area shape="rect" id="Node000002" href="$d5/de6/namespacefield__math.html#aa5845ed239a9f547eade8d05338cfbad" title="Copy a vector ." alt="" coords="239,53,405,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,81,225,76,226,81,186,86"/>
+<area shape="rect" id="Node000005" href="$dc/da0/namespacemappings.html#a10451470ba86ab5de9a717cfbe9ea20b" title="Apply a permeability function to a field." alt="" coords="233,103,411,143"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="186,104,220,108,220,113,186,109"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="530,5,625,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="390,51,516,27,517,32,391,56"/>
+<area shape="rect" id="Node000004" href="$d2/d73/namespacedevice__math.html#a855e85405a5eb63227e1970691aa2a5a" title="Copy a vector ." alt="" coords="480,55,675,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="405,64,466,64,466,69,405,69"/>
+<area shape="rect" id="Node000006" href="$dc/d9e/namespacemappings__cpu.html#a88bf9ccba4a039355ab0f8ee5b923bec" title="Apply a permeability function to a scalar." alt="" coords="459,108,696,133"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="411,120,445,119,445,125,411,125"/>
+<area shape="rect" id="Node000008" href="$da/d74/namespacemappings__device.html#a2a8e49e88404d1d1a98407c6d0c5f4b4" title="Apply a permeability function to a scalar." alt="" coords="464,158,691,198"/>
+<area shape="poly" id="edge7_Node000005_Node000008" title=" " alt="" coords="412,140,470,152,469,158,410,145"/>
+<area shape="rect" id="Node000007" href="$dc/d9e/namespacemappings__cpu.html#aac25ebae10683e25332e0ccd84c76b81" title="Apply a permeability function to a scalar." alt="" coords="744,101,951,141"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="696,118,730,118,730,123,696,123"/>
+</map>

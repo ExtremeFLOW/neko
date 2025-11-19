@@ -1,0 +1,17 @@
+<map id="device_math::device_add2s2" name="device_math::device_add2s2">
+<area shape="rect" id="Node000001" title="Vector addition with scalar multiplication &#160;(multiplication on first argument)" alt="" coords="495,142,652,182"/>
+<area shape="rect" id="Node000002" href="$dc/d0b/namespaceboussinesq__source__term__device.html#ab119b3913528cc79e3a5f7a3d2874ac1" title="Computes the Boussinesq source term on the device." alt="" coords="244,5,447,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="535,135,493,104,445,75,420,63,422,58,448,70,496,100,538,131"/>
+<area shape="rect" id="Node000004" href="$d6/d60/namespacecg__device.html#a0e61c9447cf557811c5f8d566bc6ce5d" title="Standard PCG solve." alt="" coords="265,85,425,125"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="481,141,425,127,426,122,482,136"/>
+<area shape="rect" id="Node000005" href="$d5/de6/namespacefield__math.html#a65da9611ed2cfe6c591ada458d0b8bfd" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="255,149,436,175"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="481,165,436,165,436,159,481,159"/>
+<area shape="rect" id="Node000007" href="$d8/d09/namespacefluid__scheme.html#a17447dcd8f1416c9e71540d16be95a6b" title="Update the values of mu_field if necessary." alt="" coords="248,199,443,253"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="489,188,443,201,442,196,488,183"/>
+<area shape="rect" id="Node000008" href="$da/de3/namespacescalar__scheme.html#a6efc05586b621fca40333f4f6b2d76a2" title="Update the values of lambda_field if necessary." alt="" coords="248,277,443,332"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="543,194,500,232,448,268,426,280,424,275,445,264,497,228,540,190"/>
+<area shape="rect" id="Node000003" href="$d0/d10/namespaceboussinesq__source__term.html#a7fd0bdde632f857b2104d4cfe0a63cc1" title="Computes the source term and adds the result to fields." alt="" coords="5,5,196,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="230,35,196,35,196,30,230,30"/>
+<area shape="rect" id="Node000006" href="$d1/d26/namespacemean__field.html#a93a16c515f8dae835a404ebdd95f75d3" title="Update the mean field with a new sample." alt="" coords="13,142,188,182"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="241,165,188,165,188,159,241,159"/>
+</map>

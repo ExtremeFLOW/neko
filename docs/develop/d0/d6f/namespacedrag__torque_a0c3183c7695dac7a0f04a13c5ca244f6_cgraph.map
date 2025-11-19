@@ -1,0 +1,6 @@
+<map id="drag_torque::setup_normals" name="drag_torque::setup_normals">
+<area shape="rect" id="Node000001" title="Computes the normals for a given set of boundary points accessed by the mask." alt="" coords="5,22,149,62"/>
+<area shape="rect" id="Node000002" href="$d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d" title=" " alt="" coords="197,29,324,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,39,183,39,183,45,150,45"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="231,31,224,21,228,11,240,5,261,3,286,6,296,15,293,19,283,11,261,8,242,10,232,15,229,20,235,28"/>
+</map>

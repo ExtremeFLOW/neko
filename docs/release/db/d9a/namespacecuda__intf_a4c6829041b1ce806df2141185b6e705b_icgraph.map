@@ -1,0 +1,21 @@
+<map id="cuda_intf::cuda_device_count" name="cuda_intf::cuda_device_count">
+<area shape="rect" id="Node000001" title="Return the number of avaialble CUDA devices." alt="" coords="603,122,773,162"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="724,110,711,103,688,101,668,103,656,107,651,113,654,121,648,122,646,112,652,103,667,97,688,95,713,98,726,106"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#ab8f226110e5c9f9abb99deee30d81335" title="Return the number of available devices." alt="" coords="396,129,555,155"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="589,145,555,145,555,139,589,139"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="508,119,499,111,475,108,456,110,445,115,443,120,449,128,444,131,438,121,441,111,454,105,475,103,501,106,512,115"/>
+<area shape="rect" id="Node000003" href="$dd/d62/namespaceneko.html#a647e539d6b0950b6569c6752b8f007ff" title=" " alt="" coords="228,129,348,155"/>
+<area shape="poly" id="edge4_Node000002_Node000003" title=" " alt="" coords="382,145,348,145,348,139,382,139"/>
+<area shape="rect" id="Node000004" href="$d9/dd1/average__field__in__space_8f90.html#a37dc68f9f9805d99614ae0ca36d971a3" title="Program to sum up a field in space in a homogenous direction Martin Karp 17/02&#45;23." alt="" coords="5,5,180,31"/>
+<area shape="poly" id="edge5_Node000003_Node000004" title=" " alt="" coords="266,120,228,81,179,44,153,33,155,28,181,40,231,77,269,117"/>
+<area shape="rect" id="Node000005" href="$d3/dc7/average__fields__in__time_8f90.html#ac6905300ca74b33833aa210ef56e2bb7" title="Program to sum up averaged fields computed for statistics and mean field Martin Karp 27/01&#45;23." alt="" coords="6,55,179,80"/>
+<area shape="poly" id="edge6_Node000003_Node000005" title=" " alt="" coords="250,126,179,94,145,83,146,78,181,89,252,121"/>
+<area shape="rect" id="Node000006" href="$dc/da2/genmeshbox_8f90.html#ac2c2abdf1b6ab8a11de24035862245d5" title="Simple program to generate a mesh for a box Gives some insight into how one can use built in function..." alt="" coords="39,104,146,129"/>
+<area shape="poly" id="edge7_Node000003_Node000006" title=" " alt="" coords="214,135,146,126,147,121,214,130"/>
+<area shape="rect" id="Node000007" href="$d1/dd9/postprocess__fluid__stats_8f90.html#a54f8c504cff2703e12c6c4fce128f532" title="Somewhat preliminary program to sum up averaged fields computed for statistics and mean field Martin ..." alt="" coords="5,153,180,179"/>
+<area shape="poly" id="edge8_Node000003_Node000007" title=" " alt="" coords="215,154,180,158,180,153,214,148"/>
+<area shape="rect" id="Node000008" href="$d7/d64/rea2nbin_8f90.html#ab8d17097ee23bae0a0911d8d65590e5e" title=" " alt="" coords="53,203,132,228"/>
+<area shape="poly" id="edge9_Node000003_Node000008" title=" " alt="" coords="249,163,181,192,133,208,131,203,179,188,247,158"/>
+<area shape="rect" id="Node000009" href="$d0/dd9/driver_8f90.html#a30d609876f05bf02c9ca79b0448dc937" title="Main driver for TurboNeko." alt="" coords="49,252,136,277"/>
+<area shape="poly" id="edge10_Node000003_Node000009" title=" " alt="" coords="269,167,231,205,181,242,137,259,135,254,179,237,227,201,265,163"/>
+</map>

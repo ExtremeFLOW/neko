@@ -1,0 +1,5 @@
+<map id="tensor::tnsr3d_el" name="tensor::tnsr3d_el">
+<area shape="rect" id="Node000001" title="Tensor product &#160;performed on a single element." alt="" coords="221,20,352,45"/>
+<area shape="rect" id="Node000002" href="$dc/d32/interfacetensor_1_1triple__tensor__product.html#abb65a678c3512912b2606c6bce7d78c2" title="Computes the tensor product . This operation is usually performed for spectral interpolation of a sca..." alt="" coords="5,5,173,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,35,174,35,174,30,208,30"/>
+</map>

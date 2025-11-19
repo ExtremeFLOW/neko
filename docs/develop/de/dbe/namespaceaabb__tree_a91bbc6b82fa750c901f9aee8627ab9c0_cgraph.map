@@ -1,0 +1,18 @@
+<map id="aabb_tree::aabb_tree_query_overlaps" name="aabb_tree::aabb_tree_query_overlaps">
+<area shape="rect" id="Node000001" title="Queries the tree for overlapping objects." alt="" coords="5,122,165,162"/>
+<area shape="rect" id="Node000002" href="$d5/de2/namespaceaabb.html#a9a79814aa9d37785cb4d53a4aef2beb8" title="Construct the aabb of a predefined object." alt="" coords="213,129,336,155"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,139,200,139,200,145,166,145"/>
+<area shape="rect" id="Node000003" href="$d5/de2/namespaceaabb.html#ab9198807cc6826776f8b94a84cd9f999" title="Get the aabb of an arbitrary element." alt="" coords="388,5,571,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="284,127,324,84,352,60,383,40,397,33,399,38,385,44,355,64,328,88,288,131"/>
+<area shape="rect" id="Node000004" href="$d5/de2/namespaceaabb.html#a7b35ee1d1158d03311f46930ee69b2de" title="Get the aabb of a mesh." alt="" coords="397,55,562,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="321,127,383,101,446,82,447,87,385,106,323,132"/>
+<area shape="rect" id="Node000005" href="$d5/de2/namespaceaabb.html#a644f82ae94024c3e7a49a6237de57258" title="Get the aabb of a point." alt="" coords="398,104,561,129"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="336,132,384,126,385,131,336,137"/>
+<area shape="rect" id="Node000006" href="$d5/de2/namespaceaabb.html#abd0ecde4cac4aba5d3646a3319cb32e6" title="Get the aabb of a tetrahedral mesh." alt="" coords="384,153,575,179"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="320,152,370,160,370,165,319,157"/>
+<area shape="rect" id="Node000007" href="$d5/de2/namespaceaabb.html#a6a76082373d4b84a0fb3f820a3203954" title="Get the aabb of a triangular mesh." alt="" coords="386,203,573,228"/>
+<area shape="poly" id="edge8_Node000002_Node000007" title=" " alt="" coords="288,153,325,174,374,196,372,200,323,179,286,157"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="397,78,385,82,338,102,299,124,296,119,336,97,383,77,395,73"/>
+<area shape="poly" id="edge7_Node000006_Node000002" title=" " alt="" coords="434,156,349,145,350,139,435,151"/>
+<area shape="poly" id="edge9_Node000007_Node000002" title=" " alt="" coords="460,205,383,181,338,163,340,158,385,175,461,200"/>
+</map>

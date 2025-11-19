@@ -1,0 +1,10 @@
+<map id="flow_profile::blasius_sin" name="flow_profile::blasius_sin">
+<area shape="rect" id="Node000001" title="Sinusoidal approximate Blasius Profile ." alt="" coords="420,45,597,70"/>
+<area shape="poly" id="edge2_Node000001_Node000001" title=" " alt="" coords="548,35,537,27,509,23,485,25,472,30,470,36,477,43,473,46,465,36,469,26,484,20,509,18,539,22,552,31"/>
+<area shape="rect" id="Node000002" href="$dd/d19/interfaceflow__profile_1_1blasius__profile.html#a9af816754a48a7d524073b2d89de56a6" title=" " alt="" coords="200,5,372,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="406,45,372,40,372,35,407,40"/>
+<area shape="rect" id="Node000003" href="$d2/d13/namespaceflow__ic.html#aff7567086e0593009521c74afc760ff4" title="Set a Blasius profile as initial condition." alt="" coords="213,69,359,109"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="407,75,360,81,359,76,406,69"/>
+<area shape="rect" id="Node000004" href="$d5/d04/interfaceflow__ic_1_1set__flow__ic.html#aa5c900e30a45a6ed61c876b4ce368b50" title="Set initial flow condition (builtin)" alt="" coords="5,69,152,109"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="199,92,152,92,152,87,199,87"/>
+</map>

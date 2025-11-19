@@ -1,0 +1,5 @@
+<map id="tree_amg_smoother::amg_cheby_t" name="tree_amg_smoother::amg_cheby_t">
+<area shape="rect" id="Node000001" title="Type for Chebyshev iteration using TreeAMG matvec." alt="" coords="5,123,167,163"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="59,5,113,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="89,44,89,122,83,122,83,44"/>
+</map>

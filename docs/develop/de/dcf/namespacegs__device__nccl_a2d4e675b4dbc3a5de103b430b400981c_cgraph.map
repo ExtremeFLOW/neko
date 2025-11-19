@@ -1,0 +1,7 @@
+<map id="gs_device_nccl::gs_device_nccl_init" name="gs_device_nccl::gs_device_nccl_init">
+<area shape="rect" id="Node000001" title="Initialise NCCL based communication method." alt="" coords="5,37,148,77"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#aaaa5631ad87c768e466be4f943c5c479" title="Create a device event queue." alt="" coords="201,5,361,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,44,187,37,187,43,149,49"/>
+<area shape="rect" id="Node000003" href="$d0/dbe/namespacedevice.html#a8a368377fe79c171672f18be71638f3b" title="Create a device stream/command queue with priority." alt="" coords="196,69,365,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="149,66,183,71,182,77,148,71"/>
+</map>

@@ -1,0 +1,19 @@
+<map id="tensor::tnsr1_3d" name="tensor::tnsr1_3d">
+<area shape="rect" id="Node000001" title="In place tensor product ." alt="" coords="5,173,132,198"/>
+<area shape="rect" id="Node000002" href="$d4/d59/namespacetensor__cpu.html#ace78d203bf069bcfaedb39494a8b56fb" title=" " alt="" coords="180,77,367,102"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="96,170,232,106,234,110,98,175"/>
+<area shape="rect" id="Node000005" href="$db/de7/namespacetensor__sx.html#a226fd7fe40b068b0b08262e32adcd7b1" title=" " alt="" coords="188,173,359,198"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="132,183,174,183,174,188,132,188"/>
+<area shape="rect" id="Node000008" href="$dd/d89/namespacetensor__xsmm.html#acfea35f957e36091ce920190aa5ae848" title=" " alt="" coords="197,239,349,279"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="106,196,205,231,203,236,104,201"/>
+<area shape="rect" id="Node000003" href="$d4/d59/namespacetensor__cpu.html#ac6aeef2f9450326a8269a715f37ed371" title=" " alt="" coords="415,5,573,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="318,74,411,47,412,52,319,79"/>
+<area shape="rect" id="Node000004" href="$d4/d59/namespacetensor__cpu.html#a28d7d796a731eb0ef8058a96f0e9f945" title=" " alt="" coords="415,69,573,109"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="367,87,402,87,402,92,367,92"/>
+<area shape="rect" id="Node000006" href="$db/de7/namespacetensor__sx.html#a765ff223cdedc93c773bc3e63c0cdcba" title=" " alt="" coords="419,133,569,173"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="359,170,405,163,406,169,359,176"/>
+<area shape="rect" id="Node000007" href="$db/de7/namespacetensor__sx.html#af6cded84f8b6468ff3d1bdaedcb58add" title=" " alt="" coords="419,197,569,237"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="359,195,406,202,405,207,359,200"/>
+<area shape="rect" id="Node000009" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="415,262,573,287"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="350,262,401,265,401,271,349,267"/>
+</map>

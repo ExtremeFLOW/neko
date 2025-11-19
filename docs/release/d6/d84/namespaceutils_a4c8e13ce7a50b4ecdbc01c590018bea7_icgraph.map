@@ -1,0 +1,13 @@
+<map id="utils::linear_index" name="utils::linear_index">
+<area shape="rect" id="Node000001" title="Compute the address of a (i,j,k,l) array with sizes (1:lx, 1:ly, 1:lz, :)" alt="" coords="431,92,569,117"/>
+<area shape="rect" id="Node000002" href="$d0/dc0/namespacebc.html#a204e045362bcbf89e2f26eba6c91980d" title="Finalize the construction of the bc by populting the msk and facet arrays." alt="" coords="244,5,359,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="464,88,382,46,347,33,349,28,384,41,467,83"/>
+<area shape="rect" id="Node000003" href="$d0/d78/namespacegather__scatter.html#a116426a5fc51d480ab0f080002328566" title="Setup mapping of dofs to gather&#45;scatter operations." alt="" coords="232,55,371,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="417,95,371,88,372,83,418,90"/>
+<area shape="rect" id="Node000005" href="$d1/d99/namespacemap__2d.html#a8fee1d1cfda3a0841ff70ec0db2ff1d7" title=" " alt="" coords="220,120,383,145"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="418,119,383,124,382,119,417,114"/>
+<area shape="rect" id="Node000006" href="$d6/d84/namespaceutils.html#acd2a2375ca2ed5c299af5a955f53389b" title="Compute (i,j,k,l) array given linear index with sizes (1:lx, 1:ly, 1:lz, :)" alt="" coords="220,169,383,195"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="461,126,384,159,347,172,345,167,382,154,459,121"/>
+<area shape="rect" id="Node000004" href="$d0/d78/namespacegather__scatter.html#a6abafa7eaef0e406c6d411d8554b8bee" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,63,172,88"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="218,78,172,78,172,73,218,73"/>
+</map>

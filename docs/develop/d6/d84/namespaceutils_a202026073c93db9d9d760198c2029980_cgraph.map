@@ -1,0 +1,7 @@
+<map id="utils::filename_name" name="utils::filename_name">
+<area shape="rect" id="Node000001" title="Extract the base name of a file (without path and suffix)" alt="" coords="5,31,164,56"/>
+<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#ae2d9d80ae0bcff7643db09d1c1860542" title="Find position (in the string) of a filename&#39;s suffix." alt="" coords="213,5,401,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="164,32,199,28,200,33,164,37"/>
+<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#ad9815de9718b5cfbff1bc1da8ea997e4" title="Find position (in the string) of a filename&#39;s trailing slash." alt="" coords="212,55,403,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="164,49,199,53,198,58,164,55"/>
+</map>

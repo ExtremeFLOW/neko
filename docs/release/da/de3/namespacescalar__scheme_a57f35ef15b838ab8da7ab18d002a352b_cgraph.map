@@ -1,0 +1,5 @@
+<map id="scalar_scheme::scalar_scheme_free" name="scalar_scheme::scalar_scheme_free">
+<area shape="rect" id="Node000001" title="Deallocate a scalar formulation." alt="" coords="5,5,172,45"/>
+<area shape="rect" id="Node000002" href="$d0/dc0/namespacebc.html#a70aeff826889ae0f54bd98cfacb0decb" title="Destructor for a list of boundary conditions." alt="" coords="220,13,340,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,23,207,23,207,28,172,28"/>
+</map>

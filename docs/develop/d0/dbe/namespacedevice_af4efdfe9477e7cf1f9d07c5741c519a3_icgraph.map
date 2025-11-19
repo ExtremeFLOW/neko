@@ -1,0 +1,9 @@
+<map id="device::device_memset" name="device::device_memset">
+<area shape="rect" id="Node000001" title="Set memory on the device to a value." alt="" coords="245,63,423,88"/>
+<area shape="rect" id="Node000002" href="$dc/da9/namespacefield.html#aad94f1e7da7dffa4efa92328d949d4a2" title="Initialize a field this." alt="" coords="12,5,191,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="268,62,153,33,154,28,269,57"/>
+<area shape="rect" id="Node000003" href="$d9/dfa/namespacegs__device__mpi.html#a1ffb2ff8429c63efe7920436e7fd21d6" title=" " alt="" coords="5,55,197,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="231,78,198,78,198,73,231,73"/>
+<area shape="rect" id="Node000004" href="$d8/dcd/namespacegs__device.html#a0dc20023a2019b907a4362fd93c2bd24" title="Gather kernel." alt="" coords="22,119,181,159"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="274,94,176,122,174,117,273,89"/>
+</map>

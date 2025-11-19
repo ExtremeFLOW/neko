@@ -1,0 +1,13 @@
+<map id="/home/runner/work/neko/neko/src/comm/comm.h" name="/home/runner/work/neko/neko/src/comm/comm.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="511,5,693,45"/>
+<area shape="rect" id="Node000002" href="$d9/da5/comm__nccl_8c.html" title=" " alt="" coords="5,101,220,141"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="497,47,233,96,198,103,197,98,232,91,496,42"/>
+<area shape="rect" id="Node000003" href="$d4/de4/comm__wrapper_8c.html" title=" " alt="" coords="245,101,485,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="542,53,414,103,412,98,540,48"/>
+<area shape="rect" id="Node000004" href="$d6/ded/parmetis__wrapper_8c.html" title=" " alt="" coords="509,93,695,148"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="605,59,605,93,599,93,599,59"/>
+<area shape="rect" id="Node000005" href="$dc/d84/device__mpi_8c.html" title=" " alt="" coords="719,93,909,148"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="658,48,755,91,753,96,656,53"/>
+<area shape="rect" id="Node000006" href="$d1/da7/device__mpi__reduce_8c.html" title=" " alt="" coords="933,93,1141,148"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="707,46,921,91,933,93,932,98,920,96,706,51"/>
+</map>

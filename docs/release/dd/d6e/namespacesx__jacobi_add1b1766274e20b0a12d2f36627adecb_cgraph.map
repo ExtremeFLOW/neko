@@ -1,0 +1,33 @@
+<map id="sx_jacobi::sx_jacobi_update" name="sx_jacobi::sx_jacobi_update">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,343,157,383"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#a9ae93ef16c85e8de722f56c281f444e6" title="Returns ." alt="" coords="245,5,359,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="81,343,90,283,109,202,125,158,145,115,171,75,204,40,230,25,233,29,207,44,176,78,150,117,130,160,114,203,95,284,87,344"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="257,55,347,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="83,342,94,291,116,223,132,186,151,151,175,118,204,89,222,78,242,71,244,76,224,83,207,93,179,121,156,154,136,189,121,225,99,293,88,344"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#a9f8d1d3598c97b83bfc4fa14bed440e6" title="Invert a vector ." alt="" coords="247,104,357,129"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="85,342,99,300,123,244,157,187,179,161,204,138,232,124,235,129,207,143,183,165,162,190,128,247,104,301,90,344"/>
+<area shape="rect" id="Node000005" href="$dd/d6e/namespacesx__jacobi.html#ab7089db918359c18283b9cdac485342e" title=" " alt="" coords="213,153,391,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="89,342,105,308,130,266,163,224,204,188,213,182,216,187,207,192,167,227,135,269,110,311,94,344"/>
+<area shape="rect" id="Node000006" href="$dd/d6e/namespacesx__jacobi.html#afee928d7b6e332e367896fd817d3a321" title=" " alt="" coords="205,203,399,228"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="95,342,139,289,170,261,204,237,218,230,220,235,207,242,173,265,143,293,99,345"/>
+<area shape="rect" id="Node000007" href="$dd/d6e/namespacesx__jacobi.html#a5e47b27566a6db4c6b1b4b0ed26e53da" title=" " alt="" coords="205,252,399,277"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="109,341,152,313,204,286,225,279,226,284,206,291,155,317,112,346"/>
+<area shape="rect" id="Node000008" href="$dd/d6e/namespacesx__jacobi.html#a5cf58d64e06e7b31d63dd79ba7a961af" title=" " alt="" coords="205,301,399,327"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="157,344,230,327,232,332,158,349"/>
+<area shape="rect" id="Node000009" href="$dd/d6e/namespacesx__jacobi.html#a9207921c6134603222ad6f01172f7c9d" title=" " alt="" coords="205,351,399,376"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="158,361,192,361,192,366,158,366"/>
+<area shape="rect" id="Node000010" href="$dd/d6e/namespacesx__jacobi.html#a6a48b930880ee8078b7b5efd4ba521ab" title=" " alt="" coords="209,400,395,425"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="158,378,232,394,230,400,157,383"/>
+<area shape="rect" id="Node000011" href="$dd/d6e/namespacesx__jacobi.html#a95abd0586ea2ad48ba259649a699e719" title=" " alt="" coords="209,449,395,475"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="113,381,156,408,206,434,230,443,229,448,204,439,153,413,110,386"/>
+<area shape="rect" id="Node000012" href="$dd/d6e/namespacesx__jacobi.html#a3e053ef060bf5cc096e9bd0151eacdd1" title=" " alt="" coords="209,499,395,524"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="99,382,144,433,174,461,207,484,223,492,220,496,204,488,170,465,140,437,95,385"/>
+<area shape="rect" id="Node000013" href="$dd/d6e/namespacesx__jacobi.html#a9e4d81fa5671c83a6209a16b3aa5ad23" title=" " alt="" coords="209,548,395,573"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="94,383,111,416,135,457,168,498,207,533,219,540,216,545,204,537,164,502,131,460,106,419,89,385"/>
+<area shape="rect" id="Node000014" href="$dd/d6e/namespacesx__jacobi.html#a77b203487e2e5697c079108283eea003" title=" " alt="" coords="209,597,395,623"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="90,383,104,425,128,479,162,535,183,561,207,583,217,589,214,593,204,587,179,564,157,538,123,481,99,427,85,384"/>
+<area shape="rect" id="Node000015" href="$dd/d6e/namespacesx__jacobi.html#af41057ae51f4eea7e08300e627c864ff" title=" " alt="" coords="209,647,395,672"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="88,383,99,434,121,501,137,537,156,572,179,604,207,632,215,638,212,642,204,636,175,607,152,575,132,539,116,503,94,435,83,384"/>
+<area shape="rect" id="Node000016" href="$dd/d6e/namespacesx__jacobi.html#ae25c29f4e8bce6248b9cda0c0c97a70a" title=" " alt="" coords="209,696,395,721"/>
+<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="87,383,95,442,115,523,130,566,151,608,176,647,207,681,214,687,211,691,204,685,172,651,146,611,125,568,110,524,90,443,82,384"/>
+</map>

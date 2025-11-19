@@ -1,0 +1,9 @@
+<map id="cuda_wall_model_compute_mag_field" name="cuda_wall_model_compute_mag_field">
+<area shape="rect" id="Node000001" title=" " alt="" coords="501,60,700,100"/>
+<area shape="rect" id="Node000002" href="$db/d0e/namespacewall__model__device.html#afa43959f0a01c6ded4a8ff52afac29f2" title="Compute the wall shear stress&#39;s magnitude on device." alt="" coords="256,53,453,107"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="488,83,453,83,453,77,488,77"/>
+<area shape="rect" id="Node000003" href="$d5/dc5/interfacewall__model__device_1_1hip__wall__model__compute__mag__field.html#aab4cc413854818e5fbb11a3a1f0b0ae5" title=" " alt="" coords="5,5,208,75"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="242,65,208,59,209,54,243,59"/>
+<area shape="rect" id="Node000004" href="$da/ddd/namespacewall__model.html#ad6397879860434184e35416478a6fd17" title=" " alt="" coords="17,99,197,139"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="243,100,197,107,197,102,242,95"/>
+</map>

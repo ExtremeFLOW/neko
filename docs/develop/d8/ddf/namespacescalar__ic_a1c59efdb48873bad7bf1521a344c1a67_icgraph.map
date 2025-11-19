@@ -1,0 +1,5 @@
+<map id="scalar_ic::set_scalar_ic_point_zone" name="scalar_ic::set_scalar_ic_point_zone">
+<area shape="rect" id="Node000001" title="Point zone initial condition." alt="" coords="209,5,363,45"/>
+<area shape="rect" id="Node000002" href="$df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#aff3db0c152fe4232bd1493c8d5614c97" title="Set scalar initial condition (builtin)" alt="" coords="5,5,161,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,28,162,28,162,23,195,23"/>
+</map>

@@ -1,0 +1,23 @@
+<map id="device_math::device_cmult" name="device_math::device_cmult">
+<area shape="rect" id="Node000001" title="Multiplication by constant c ." alt="" coords="469,159,627,199"/>
+<area shape="rect" id="Node000002" href="$d0/d6f/namespacedrag__torque.html#a61b5e329f88dba02fd50bbabcbad0ec0" title="Calculate drag and torque from array of points." alt="" coords="257,8,408,48"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="518,151,474,108,420,66,390,50,392,46,423,62,477,104,522,147"/>
+<area shape="rect" id="Node000004" href="$d5/de6/namespacefield__math.html#ace939df7b2efd9fc297be656077298f8" title="Multiplication by constant c ." alt="" coords="247,77,418,102"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="498,154,420,117,383,105,385,100,422,112,501,150"/>
+<area shape="rect" id="Node000006" href="$d0/de4/namespacematrix.html#a436de793d5619d19a03a21a71173639a" title="Scalar&#45;matrix subtraction ." alt="" coords="259,127,406,167"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="456,168,406,160,406,155,456,162"/>
+<area shape="rect" id="Node000008" href="$de/d1a/namespacemean__sqr__field.html#ad713e2097358903ab18a79e8e7a136f2" title="Update a mean sqr field." alt="" coords="249,191,416,231"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="456,195,417,201,416,196,455,190"/>
+<area shape="rect" id="Node000009" href="$dd/d1f/namespacepnpn__res__stress__device.html#a62cedb09bbf5da8ce1c248095b493b39" title=" " alt="" coords="244,255,421,310"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="498,207,423,245,396,258,394,253,420,240,495,203"/>
+<area shape="rect" id="Node000010" href="$d7/d34/namespacevector.html#aa6bde052fe14043dc6f77bd247648469" title="Scalar&#45;vector subtraction ." alt="" coords="261,335,404,375"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="528,212,484,269,455,299,423,325,401,337,399,332,420,320,452,295,480,265,524,209"/>
+<area shape="rect" id="Node000003" href="$d6/daa/namespaceforce__torque.html#ab407c7b9763b091d7165c5d7d19044de" title="Compute the force_torque field." alt="" coords="28,5,173,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="243,30,173,29,173,23,243,24"/>
+<area shape="rect" id="Node000005" href="$d1/d26/namespacemean__field.html#a93a16c515f8dae835a404ebdd95f75d3" title="Update the mean field with a new sample." alt="" coords="13,69,188,109"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="233,92,188,92,188,87,233,87"/>
+<area shape="rect" id="Node000007" href="$da/d95/structmatrix_1_1matrix__t.html#a8cf4b090a9fdc6e43eadcdfc3cee02ad" title="Matrix&#45;matrix subtraction ." alt="" coords="5,134,196,159"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="245,149,196,149,196,144,245,144"/>
+<area shape="rect" id="Node000011" href="$d3/d5b/structvector_1_1vector__t.html#a296b0de5bb9330f27c30e2cc09b35987" title="Vector&#45;vector subtraction ." alt="" coords="7,342,194,367"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="248,357,194,357,194,352,248,352"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="hip_fusedcg_cpld_part2" name="hip_fusedcg_cpld_part2">
+<area shape="rect" id="Node000001" title=" " alt="" coords="473,20,648,45"/>
+<area shape="rect" id="Node000002" href="$d3/dbc/namespacefusedcg__cpld__device.html#acaca8f2d5150c2c04e3564fd17176f61" title=" " alt="" coords="219,13,425,53"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="460,35,426,35,426,30,460,30"/>
+<area shape="rect" id="Node000003" href="$d3/dbc/namespacefusedcg__cpld__device.html#ae11b1d1184dbadc1c882e946987c371f" title="Pipelined PCG solve coupled solve." alt="" coords="5,5,171,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="205,35,171,35,171,30,205,30"/>
+</map>

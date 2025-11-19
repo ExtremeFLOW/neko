@@ -1,0 +1,17 @@
+<map id="tensor_sx::tnsr2d_el_sx" name="tensor_sx::tnsr2d_el_sx">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1179,31,1353,56"/>
+<area shape="rect" id="Node000002" href="$d3/d45/namespacefdm__sx.html#a762fb6300072552516a196633c67e7c4" title=" " alt="" coords="949,5,1131,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1165,35,1130,31,1131,25,1165,29"/>
+<area shape="rect" id="Node000003" href="$dd/d8c/namespacetensor.html#afe76fa9151a4e8618ad1923f6e2bc597" title="Computes ." alt="" coords="975,55,1105,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1165,57,1106,63,1105,58,1164,51"/>
+<area shape="rect" id="Node000004" href="$dd/dd2/namespacedofmap.html#a971e44364f26c18dcc5aeaa06ab7d50d" title="Generate the x, y, z coordinates of the dofs in a signle element, assuming linear element edges." alt="" coords="725,29,901,55"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="961,61,901,54,902,49,961,56"/>
+<area shape="rect" id="Node000007" href="$dd/dd2/namespacedofmap.html#adb78d2dd3cc039858605775479de13ca" title=" " alt="" coords="485,80,677,105"/>
+<area shape="poly" id="edge8_Node000003_Node000007" title=" " alt="" coords="961,74,678,90,677,85,961,69"/>
+<area shape="rect" id="Node000005" href="$dd/dd2/namespacedofmap.html#a5d369623e2bb954910d6741afd4e93a8" title="Generate x,y,z&#45;coordinates for all dofs." alt="" coords="212,55,437,80"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="712,50,437,64,437,59,711,45"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="742,60,641,83,640,77,740,55"/>
+<area shape="rect" id="Node000006" href="$dd/dd2/namespacedofmap.html#ab00433635f8523e38ff52650bdbe62c0" title="Constructor." alt="" coords="5,55,164,80"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="198,70,164,70,164,65,198,65"/>
+<area shape="poly" id="edge7_Node000007_Node000005" title=" " alt="" coords="471,84,437,81,438,76,472,79"/>
+</map>

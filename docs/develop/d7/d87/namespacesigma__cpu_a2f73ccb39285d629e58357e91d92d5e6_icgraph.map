@@ -1,0 +1,5 @@
+<map id="sigma_cpu::sigma_compute_cpu" name="sigma_cpu::sigma_compute_cpu">
+<area shape="rect" id="Node000001" title="Compute eddy viscosity on the CPU." alt="" coords="228,5,463,31"/>
+<area shape="rect" id="Node000002" href="$d6/dcd/namespacesigma.html#a4382f10d4f01fe94f14c5b63666c8a01" title="Compute eddy viscosity." alt="" coords="5,5,180,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="214,21,180,21,180,15,214,15"/>
+</map>

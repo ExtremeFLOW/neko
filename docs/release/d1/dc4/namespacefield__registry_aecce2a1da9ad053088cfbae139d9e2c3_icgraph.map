@@ -1,0 +1,5 @@
+<map id="field_registry::get_field_by_name" name="field_registry::get_field_by_name">
+<area shape="rect" id="Node000001" title="Get pointer to a stored field by field name." alt="" coords="208,5,343,45"/>
+<area shape="rect" id="Node000002" href="$dd/d96/structfield__registry_1_1field__registry__t.html#a96a41a6c93e3a343bc1fa2042fc3a464" title="Get pointer to a stored field by index." alt="" coords="5,5,160,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="194,28,161,28,161,23,194,23"/>
+</map>

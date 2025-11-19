@@ -1,0 +1,7 @@
+<map id="hip_intf::hip_device_name" name="hip_intf::hip_device_name">
+<area shape="rect" id="Node000001" title=" " alt="" coords="412,5,604,31"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#aacdc0ad29b09298498fc06f3106fe4f4" title=" " alt="" coords="204,5,364,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="398,21,364,21,364,15,398,15"/>
+<area shape="rect" id="Node000003" href="$dd/d62/namespaceneko.html#a12ac3a3e9d30fbc66d5a77e012e90edb" title="Display job information, number of MPI ranks, CPU type and selected hardware backend." alt="" coords="5,5,156,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="190,21,157,21,157,15,190,15"/>
+</map>

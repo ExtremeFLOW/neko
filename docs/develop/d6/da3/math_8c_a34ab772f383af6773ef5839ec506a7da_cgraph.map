@@ -1,0 +1,9 @@
+<map id="opencl_glsc3" name="opencl_glsc3">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,112,62"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="340,29,504,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="112,47,327,47,327,52,112,52"/>
+<area shape="rect" id="Node000003" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="160,62,292,87"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="113,55,147,60,146,65,112,60"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="385,30,383,20,389,11,402,5,422,3,445,6,457,13,455,17,443,11,422,8,403,10,392,15,388,21,390,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="292,64,326,59,327,64,293,69"/>
+</map>

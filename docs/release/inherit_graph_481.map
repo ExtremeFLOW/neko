@@ -1,0 +1,9 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$d5/d8f/structstats__quant_1_1stats__quant__t.html" title="Abstract type defining a statistical quantity." alt="" coords="5,35,144,75"/>
+<area shape="rect" id="Node000001" href="$da/d8a/structfluid__stats_1_1fluid__stats__t.html" title=" " alt="" coords="223,5,348,45"/>
+<area shape="poly" id="edge164_Node000000_Node000001" title=" " alt="" coords="157,41,222,31,223,37,158,46"/>
+<area shape="rect" id="Node000002" href="$dc/d4a/structmean__field_1_1mean__field__t.html" title="Computes the temporal mean of a field." alt="" coords="192,70,379,95"/>
+<area shape="poly" id="edge165_Node000000_Node000002" title=" " alt="" coords="158,63,192,68,192,73,157,68"/>
+<area shape="rect" id="Node000003" href="$db/dc5/structmean__sqr__field_1_1mean__sqr__field__t.html" title=" " alt="" coords="427,63,593,103"/>
+<area shape="poly" id="edge166_Node000002_Node000003" title=" " alt="" coords="392,80,427,80,427,85,392,85"/>
+</map>

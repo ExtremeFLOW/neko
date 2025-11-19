@@ -1,0 +1,9 @@
+<map id="mappings::step_function_field" name="mappings::step_function_field">
+<area shape="rect" id="Node000001" title="Apply a step function to a field." alt="" coords="5,37,188,77"/>
+<area shape="rect" id="Node000002" href="$dc/d9e/namespacemappings__cpu.html#a9e2a5d06f0a746829448296b67effe19" title="Apply a step function to a scalar." alt="" coords="246,5,398,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,42,232,35,233,41,189,47"/>
+<area shape="rect" id="Node000004" href="$da/d74/namespacemappings__device.html#a427c6154a591c33d0b52e19e6206dcf4" title="Apply a step function to a scalar." alt="" coords="236,69,408,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="189,68,223,73,222,78,188,73"/>
+<area shape="rect" id="Node000003" href="$dc/d9e/namespacemappings__cpu.html#a0c77534c33f6015b2351fa45f9943f0d" title="Apply a step function to a scalar." alt="" coords="456,5,608,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="398,23,443,23,443,28,398,28"/>
+</map>
