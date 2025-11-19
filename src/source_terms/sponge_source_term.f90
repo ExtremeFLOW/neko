@@ -87,7 +87,8 @@ module sponge_source_term
      logical :: dump_fields = .false.
      !> Name of the fld file in which to dump the fields
      character(NEKO_FNAME_LEN) :: dump_fname
-
+     !> Flag to check for the existence of fringe and baseflow fields.
+     logical :: check = .true.
    contains
      !> Constructor from json.
      procedure, pass(this) :: init => sponge_init_from_json
@@ -420,8 +421,7 @@ contains
   !! NOTE: Unfortunately this function is JSON dependent due to the initial
   !! condition being JSON dependent quite deep, there should be a nice way
   !! to get rid of that but it should take some effort.
-  !! @param t The time value.
-  !! @param tstep The current time-step
+  !! @param time The current time state.
   subroutine sponge_compute(this, time)
     class(sponge_source_term_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
@@ -440,7 +440,7 @@ contains
     !
     ! Do some checks at the first timestep
     !
-    if (time%tstep .eq. 1) then
+    if (this%check) then
 
        u_name = trim(this%bf_rgstry_pref) // "_u"
        v_name = trim(this%bf_rgstry_pref) // "_v"
@@ -474,6 +474,9 @@ contains
        this%v_bf => neko_field_registry%get_field(trim(v_name))
        this%w_bf => neko_field_registry%get_field(trim(w_name))
 
+       ! Reset the flag
+       this%check = .false.
+
        !
        ! Dump the fringe and/or baseflow fields for visualization
        !
@@ -485,6 +488,7 @@ contains
           call fout%fields%assign_to_field(4, this%w_bf)
           call fout%sample(time%t)
        end if
+
     end if
 
 
