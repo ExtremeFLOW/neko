@@ -201,7 +201,7 @@ contains
             fringe_registry_name, bf_registry_pref, dump_fields, dump_fname)
 
     case default
-       call neko_error("(SPONGE)" // trim(baseflow_method) // &
+       call neko_error("(SPONGE) " // trim(baseflow_method) // &
             " is not a valid method")
     end select
 
