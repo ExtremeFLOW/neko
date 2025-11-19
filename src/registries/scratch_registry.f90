@@ -117,6 +117,12 @@ contains
 
   !> Constructor, optionally taking initial registry and expansion
   !! size as argument
+  !! @param size Initial size of the registry
+  !! @param expansion_size Size to expand the registry by when needed
+  !! @param dof Dofmap to associate with the scratch registry
+  !!
+  !! @note If no DOF map is provided here, it must be set later using
+  !!       scratch_registry_t::set_dofmap before requesting fields.
   subroutine scratch_registry_init(this, size, expansion_size, dof)
     class(scratch_registry_t), intent(inout) :: this
     integer, optional, intent(in) :: size
@@ -164,7 +170,7 @@ contains
 
   end subroutine scratch_registry_free
 
-  !> Assign a dofmap to the scratch registry
+  !> Assign a dofmap to the scratch registry.
   subroutine scratch_registry_set_dofmap(this, dof)
     class(scratch_registry_t), intent(inout) :: this
     type(dofmap_t), target, intent(in) :: dof
@@ -176,7 +182,7 @@ contains
     this%dof => dof
   end subroutine scratch_registry_set_dofmap
 
-  !> Get the number of fields stored in the registry
+  !> Get the number of objects stored in the registry
   pure function get_n_available(this) result(n)
     class(scratch_registry_t), intent(in) :: this
     integer :: n
@@ -194,7 +200,7 @@ contains
     end do
   end function get_n_inuse
 
-  !> Get the size of the fields array
+  !> Get the size of the objects array
   pure function get_size(this) result(n)
     class(scratch_registry_t), intent(in) :: this
     integer :: n
@@ -343,6 +349,8 @@ contains
             if (.not. this%registry(index)%allocated) then
                call this%registry(index)%init_matrix(nrows, ncols)
                n_available = n_available + 1
+            else if (trim(this%registry(index)%type) .ne. 'matrix') then
+               cycle
             else if (this%registry(index)%matrix_ptr%get_nrows() .ne. nrows &
                  .and. this%registry(index)%matrix_ptr%get_ncols() .ne. ncols &
                  ) then
