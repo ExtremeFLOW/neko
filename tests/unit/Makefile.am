@@ -30,6 +30,7 @@ SUBDIRS = tuple\
 	  vector_scratch_registry\
 	  matrix_scratch_registry\
 	  field_registry\
+	  vector_registry\
 	  fast3d\
 	  time_scheme\
 	  time_scheme_controller\
@@ -69,6 +70,7 @@ TESTS = device/device_test\
 	vector_scratch_registry/vector_scratch_registry_test\
 	matrix_scratch_registry/matrix_scratch_registry_test\
 	field_registry/field_registry_test\
+	vector_registry/vector_registry_test\
 	fast3d/fast3d_test\
 	time_scheme/time_scheme_test\
 	time_scheme_controller/time_scheme_controller_test\
@@ -135,6 +137,7 @@ EXTRA_DIST = \
 	vector_scratch_registry/test_vector_scratch_registry.pf\
 	matrix_scratch_registry/test_matrix_scratch_registry.pf\
 	field_registry/test_field_registry.pf\
+	vector_registry/test_vector_registry.pf\
 	fast3d/test_fd_weights_full.pf\
 	fast3d/test_setup_intp.pf\
 	time_scheme/test_bdf.pf\

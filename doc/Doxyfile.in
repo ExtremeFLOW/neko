@@ -765,7 +765,8 @@ INPUT                 = @top_srcdir@/doc/pages\
                         @top_srcdir@/contrib/average_field_in_space\
                         @top_srcdir@/contrib/postprocess_fluid_stats\
                         @top_srcdir@/contrib/genmeshbox\
-                        @top_srcdir@/examples/programming
+                        @top_srcdir@/examples/programming\
+                        @top_srcdir@/examples/api
 
 
 # This tag can be used to specify the character encoding of the source files
@@ -786,7 +787,7 @@ INPUT_ENCODING         = UTF-8
 # *.md, *.mm, *.dox, *.py, *.f90, *.f, *.for, *.tcl, *.vhd, *.vhdl, *.ucf,
 # *.qsf, *.as and *.js.
 
-FILE_PATTERNS          = *.f90 *.F90 *.c *.h *.hip *.cu *.md *.py
+FILE_PATTERNS          = *.f90 *.F90 *.c *.h *.hip *.cu *.md *.py *.jl
 
 # The RECURSIVE tag can be used to specify whether or not subdirectories should
 # be searched for input files as well.
