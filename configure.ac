@@ -420,6 +420,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/vector_scratch_registry/Makefile\
         tests/unit/matrix_scratch_registry/Makefile\
         tests/unit/field_registry/Makefile\
+        tests/unit/vector_registry/Makefile\
         tests/unit/fast3d/Makefile\
         tests/unit/time_scheme/Makefile\
         tests/unit/time_scheme_controller/Makefile\
