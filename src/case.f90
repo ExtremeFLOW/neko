@@ -198,8 +198,6 @@ contains
        call this%mesh_manager%start(meshmng_params, i)
        ! initialise type
        call this%mesh_manager%init(meshmng_params)
-       ! initial importing of mesh data; it may be not complete
-       call this%mesh_manager%import()
        ! Get raw data from the mesh file sticking to element distribution
        ! from mesh manager. This would work if element ordering in mesh manager
        ! and mesh file are the same.
@@ -207,14 +205,17 @@ contains
        call msh_file%read(this%mesh_manager%nmsh_mesh)
        ! apply data read from the mesh file to mesh manager structures
        call this%mesh_manager%mesh_file_apply()
+       ! construct neko mesh based on mesh manager data
+       call this%mesh_manager%mesh_construct(this%msh)
 
        ! initialise adaptive mesh refinement
        call this%amr%init(this%mesh_manager%transfer)
        call neko_log%end_section()
 
-       testing_refine : block
-         call this%amr%refine(this%mesh_manager, this%user, this%time)
-       end block testing_refine
+!       testing_refine : block
+!         call this%amr%refine(this%mesh_manager, this%msh, this%user, &
+!              this%time)
+!       end block testing_refine
     end if
 
     call msh_file%read(this%msh)

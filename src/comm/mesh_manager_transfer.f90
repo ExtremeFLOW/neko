@@ -55,8 +55,9 @@ module mesh_manager_transfer
      procedure, pass(this) :: free_base => mesh_manager_free_base
      !> Destructor.
      procedure(mesh_manager_free), pass(this), deferred :: free
-     !> Get new element distribution
-     procedure(mesh_manager_element_dist), pass(this), deferred :: elem_dist_get
+     !> Construct new element distribution
+     procedure(mesh_manager_element_dist), pass(this), deferred :: &
+          elem_dist_construct
   end type mesh_manager_transfer_t
 
   abstract interface

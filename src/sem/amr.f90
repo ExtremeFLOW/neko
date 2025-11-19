@@ -39,6 +39,7 @@ module amr
   use profiler, only : profiler_start_region, profiler_end_region
   use time_state, only : time_state_t
   use user_intf, only : user_t
+  use mesh, only : mesh_t
   use mesh_manager_transfer, only : mesh_manager_transfer_t
   use mesh_manager_transfer_p4est, only : mesh_manager_transfer_p4est_t
   use mesh_manager, only : mesh_manager_t
@@ -256,11 +257,13 @@ contains
 
   !> Refine/coarsen mesh
   !! @param[inout]   mesh_manager  mesh manager
+  !! @param[inout]   mesh          neko mesh type
   !! @param[in]      user          user interface
   !! @param[in]      time          time state
-  subroutine amr_refine(this, mesh_manager, user, time)
+  subroutine amr_refine(this, mesh_manager, mesh, user, time)
     class(amr_t), intent(inout) :: this
     class(mesh_manager_t), intent(inout) :: mesh_manager
+    type(mesh_t), intent(inout) :: mesh
     type(user_t), intent(in) :: user
     type(time_state_t), intent(in) :: time
     integer, allocatable, dimension(:) :: ref_mark
@@ -288,6 +291,13 @@ contains
        if (ifmod) then
           write(log_buf, '(a)') 'Mesh modified; restarting solver'
           call neko_log%message(log_buf, NEKO_LOG_INFO)
+
+          ! place to reconstruct geometry and correct mesh manager vertex
+          ! position
+          ! one should do gs here as well
+
+          ! Reconstruct neko mesh
+          call mesh_manager%mesh_construct(mesh)
 
           ! restart solver
           call this%restart(user)

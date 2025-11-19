@@ -154,8 +154,9 @@ contains
   !! @param[inout] crv        face curvature data
   !! @param[inout] bc         face boundary condition
   !! @param[inout] family     family flag
+  !! @param[in]   ifsave      save component types
   subroutine manager_mesh_init_data_p4est(this, nelt, nelv, gnelt, gnelto, &
-       level_max, tdim, gidx, level, igrp, crv, bc, family)
+       level_max, tdim, gidx, level, igrp, crv, bc, family, ifsave)
     class(manager_mesh_p4est_t), intent(inout) :: this
     integer(i4), intent(in) :: nelt, nelv, level_max, tdim
     integer(i8), intent(in) :: gnelt, gnelto
@@ -163,6 +164,7 @@ contains
     integer(i4), allocatable, dimension(:), intent(inout) :: level, igrp
     integer(i4), allocatable, dimension(:,:), intent(inout) :: crv, bc
     integer(i8), allocatable, dimension(:,:), intent(inout) :: family
+    logical, optional, intent(in) :: ifsave
     integer(i4) :: nvert, nface, nedge
 
     nvert = 2**tdim
@@ -177,9 +179,13 @@ contains
          (2 .ne. size(family, 1)) .or. (nelt .ne. size(family, 2))) &
          call neko_error('Inconsistent array sizes; p4est%mesh')
 
-    call this%free_data()
-
-    call this%init_data_base(nelt, gnelt, gnelto, tdim, gidx)
+    if (present(ifsave)) then
+       call this%free_data(ifsave)
+       call this%init_data_base(nelt, gnelt, gnelto, tdim, gidx, ifsave)
+    else
+       call this%free_data()
+       call this%init_data_base(nelt, gnelt, gnelto, tdim, gidx)
+    end if
 
     this%nelv = nelv
     this%level_max  = level_max
@@ -201,6 +207,7 @@ contains
     call this%free_data()
 
     call this%init_type_base(mesh)
+
     select type (mesh)
     type is(manager_mesh_p4est_t)
        this%nelv = mesh%nelv
@@ -216,10 +223,16 @@ contains
   end subroutine manager_mesh_init_type_p4est
 
   !> Destructor for the data in `mesh_manager_t` (base) type.
-  subroutine manager_mesh_free_data_p4est(this)
+  !! @param[in]   ifsave      save component types
+  subroutine manager_mesh_free_data_p4est(this, ifsave)
     class(manager_mesh_p4est_t), intent(inout) :: this
+    logical, optional, intent(in) :: ifsave
 
-    call this%free_data_base()
+    if (present(ifsave)) then
+       call this%free_data_base(ifsave)
+    else
+       call this%free_data_base()
+    end if
 
     this%nelv = 0
     this%level_max = 0

@@ -260,13 +260,15 @@ contains
   !! @param[inout] hngel   element hanging flag
   !! @param[inout] hngfc   element face hanging flag
   !! @param[inout] hnged   element edge hanging flag
+  !! @param[in]   ifsave      save component types
   subroutine manager_conn_init_data_p4est(this, tdim, nel, vmap, fmap, falgn, &
-       emap, ealgn, hngel, hngfc, hnged)
+       emap, ealgn, hngel, hngfc, hnged, ifsave)
     class(manager_conn_p4est_t), intent(inout) :: this
     integer(i4), intent(in) :: tdim, nel
     integer(i4), allocatable, dimension(:), intent(inout) :: hngel
     integer(i4), allocatable, dimension(:,:), intent(inout) :: vmap, fmap, &
          falgn, emap, ealgn, hngfc, hnged
+    logical, optional, intent(in) :: ifsave
     integer(i4) :: nvert, nface, nedge
 
     nvert = 2**tdim
@@ -284,8 +286,13 @@ contains
          (nedge .ne. size(hnged, 1)) .or. (nel .ne. size(hnged, 2))) &
          call neko_error('Inconsistent array sizes; p4est%conn')
 
-    call this%free()
-    call this%init_data_base(tdim, nel, vmap, fmap, emap)
+    if (present(ifsave)) then
+       call this%free_data(ifsave)
+       call this%init_data_base(tdim, nel, vmap, fmap, emap, ifsave)
+    else
+       call this%free_data()
+       call this%init_data_base(tdim, nel, vmap, fmap, emap)
+    end if
 
     if (allocated(falgn)) call move_alloc(falgn, this%falgn)
     if (allocated(ealgn)) call move_alloc(ealgn, this%ealgn)
@@ -317,10 +324,16 @@ contains
   end subroutine manager_conn_init_type_p4est
 
   !> Free connectivity information
-  subroutine manager_conn_free_data_p4est(this)
+  !! @param[in]   ifsave      save component types
+  subroutine manager_conn_free_data_p4est(this, ifsave)
     class(manager_conn_p4est_t), intent(inout) :: this
+    logical, optional, intent(in) :: ifsave
 
-    call this%free_data_base()
+    if (present(ifsave)) then
+       call this%free_data_base(ifsave)
+    else
+       call this%free_data_base()
+    end if
 
     if (allocated(this%falgn)) deallocate(this%falgn)
     if (allocated(this%ealgn)) deallocate(this%ealgn)

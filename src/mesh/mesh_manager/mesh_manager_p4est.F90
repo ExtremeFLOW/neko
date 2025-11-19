@@ -41,6 +41,7 @@ module mesh_manager_p4est
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default
   use profiler, only : profiler_start_region, profiler_end_region
+  use mesh, only : mesh_t
   use manager_mesh, only : manager_mesh_t
   use manager_geom_p4est, only : manager_geom_node_ind_p4est_t, &
        manager_geom_p4est_t
@@ -90,6 +91,8 @@ module mesh_manager_p4est
      procedure, pass(this) :: mesh_file_apply => p4est_mesh_file_apply
      !> Perform refinement/coarsening on the mesh manager side
      procedure, pass(this) :: refine => p4est_refine
+     !> Construct neko mesh type based on mesh manager data
+     procedure, pass(this) :: mesh_construct => p4est_mesh_construct
 #ifdef HAVE_P4EST
      !> The costrucructor from type components.
      procedure, pass(this) :: init_from_component => &
@@ -415,12 +418,18 @@ module mesh_manager_p4est
        type(c_ptr), value :: el_gnum, el_lnum, el_nid
      end subroutine wp4est_egmap_put
 
-     subroutine wp4est_msh_get_hst(map_nr, rfn_nr, crs_nr, &
-          elgl_map, elgl_rfn, elgl_crs) &
-          bind(c, name = 'wp4est_msh_get_hst')
+     subroutine wp4est_msh_get_hst_size(map_nr, rfn_nr, crs_nr) &
+          bind(c, name = 'wp4est_msh_get_hst_size')
        USE, INTRINSIC :: ISO_C_BINDING
        integer(c_int) :: map_nr, rfn_nr, crs_nr
-       type(c_ptr), value :: elgl_map, elgl_rfn, elgl_crs
+     end subroutine wp4est_msh_get_hst_size
+
+     subroutine wp4est_msh_get_hst(elgl_mapg, elgl_map, elgl_rfng, elgl_rfn, &
+          elgl_crsg, elgl_crs) &
+          bind(c, name = 'wp4est_msh_get_hst')
+       USE, INTRINSIC :: ISO_C_BINDING
+       type(c_ptr), value :: elgl_mapg, elgl_map, elgl_rfng, elgl_rfn, &
+            elgl_crsg, elgl_crs
      end subroutine wp4est_msh_get_hst
 
      subroutine wp4est_vtk_write(filename) &
@@ -443,7 +452,9 @@ contains
     integer, intent(out) :: ierr
     integer :: catch_signals, print_backtrace, log_level
     character(len=LOG_SIZE) :: log_buf
+    real(kind=rp) :: t_start, t_end
 
+    t_start = MPI_WTIME()
     write(log_buf, '(a)') 'Starting p4est.'
     call neko_log%message(log_buf, NEKO_LOG_INFO)
 
@@ -490,6 +501,11 @@ contains
        this%ifstarted = .true.
        ierr = 0
     end if
+
+    t_end = MPI_WTIME()
+    write(log_buf, '(A,F9.6)') 'Mesh manager starting time (s): ', &
+         t_end - t_start
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
   end subroutine p4est_start
 
@@ -585,7 +601,7 @@ contains
     call mesh_new%free()
 
     ! get new element distribution; get partitioning
-    call this%transfer%elem_dist_get(this%mesh)
+    call this%transfer%elem_dist_construct(this%mesh)
 
   end subroutine p4est_import
 
@@ -595,10 +611,11 @@ contains
     class(mesh_manager_p4est_t), intent(inout) :: this
     character(len=*), intent(in) :: tree_file, cnn_file
     integer, intent(in) :: ref_level_max
-    integer(i4) :: is_valid
+    integer(i4) :: is_valid, ierr
     character(len=LOG_SIZE) :: log_buf
-    type(manager_mesh_p4est_t) :: mesh_new
+    real(kind=rp) :: t_start, t_end
 
+    t_start = MPI_WTIME()
     ! allocate mesh types
     if (allocated(this%mesh))then
        call this%mesh%free()
@@ -663,6 +680,21 @@ contains
 
 !    call wp4est_cnn_save('test.cnn')
 !    call wp4est_tree_save('test.tree')
+
+    !call MPI_Barrier(NEKO_COMM, ierr)
+    t_end = MPI_WTIME()
+    write(log_buf, '(A,F9.6)') &
+         'Mesh manager initialisation (including file reading) time (s): ', &
+         t_end - t_start
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+
+    ! initial importing of mesh data; it may be not complete
+    call this%import()
+    t_start = MPI_WTIME()
+    write(log_buf, '(A,F9.6)') &
+         'Mesh manager initial import time (s): ', &
+         t_start - t_end
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
   end subroutine p4est_init_from_components
 
@@ -779,6 +811,7 @@ contains
              call geom%hng_edg%init_data(lnum_eh, gdim, ndep, &
                   itmp8v1, itmp4v21, rtmpv1)
           end if
+
        end select
 
        ! get element vertex mapping to nodes
@@ -791,8 +824,9 @@ contains
 !!$          end do
 !!$       end do
 
-       ! geometry type
-       call geom%init_data(gdim, nelt, itmp4v21)
+       ! geometry type saving already imported data
+       call geom%init_data(gdim, nelt, itmp4v21, .true.)
+
     end select
 
     call wp4est_nodes_del()
@@ -923,18 +957,18 @@ contains
 !!$          end do
 !!$       end do
 
-       ! element connectivity mappings
+       ! element connectivity mappings saving already imported data
        call conn%init_data(gdim, nelt, vmap, fmap, itmp4v23, emap, ealgn, &
-            hngel, hngfc, hnged)
+            hngel, hngfc, hnged, .true.)
 
     end select
 
     ! element family
     call p4est_family_get(itmp8v21, nelt, nvert, gnelto)
 
-    ! import element general information
+    ! import element general information saving already imported data
     call mesh_new%init_data(nelt, nelv, gnelt, gnelto, maxg, gdim, itmp8v1, &
-            itmp4v1, itmp4v2, itmp4v21, itmp4v22, itmp8v21)
+            itmp4v1, itmp4v2, itmp4v21, itmp4v22, itmp8v21, .true.)
 
     ! do not destroy p4est ghost cells here, as they could be needed
 !    call wp4est_ghost_del()
@@ -1136,12 +1170,16 @@ contains
     integer(i4), dimension(:), intent(in) :: ref_mark
     character(len=LOG_SIZE) :: log_buf
     logical, intent(out) :: ifmod
-    integer(i4), target, allocatable, dimension(:) :: pref_mark, pel_gnum, &
-         pel_lnum, pel_nid
+    integer(i8), target, allocatable, dimension(:) :: pel_gnum
+    integer(i4), target, allocatable, dimension(:) :: pref_mark, pel_lnum, &
+         pel_nid
     integer(i4), parameter :: p4est_compare = 0
     integer(i4) :: il, itmp
     ! element restructure data
     integer(i4) :: map_nr, rfn_nr, crs_nr
+    integer(i8), target, allocatable, dimension(:) :: map_gidx
+    integer(i8), target, allocatable, dimension(:, :) :: rfn_gidx
+    integer(i8), target, allocatable, dimension(:, :, :) :: crs_gidx
     integer(i4), target, allocatable, dimension(:, :) :: map, rfn
     integer(i4), target, allocatable, dimension(:, :, :) :: crs
 
@@ -1167,8 +1205,7 @@ contains
        call wp4est_refm_put(c_loc(pref_mark))
 
        ! set element distribution info in p4est
-       ! NOTICE; ELEMENT GLOBAL NUMBER IS NOT INT8!!!!!!
-       call transfer%neko_elm_dist(pel_gnum, pel_lnum, pel_nid)
+       call transfer%neko_elem_dist_set(pel_gnum, pel_lnum, pel_nid)
        call wp4est_egmap_put(c_loc(pel_gnum), c_loc(pel_lnum), c_loc(pel_nid))
 
        ! destroy p4est ghost cells
@@ -1193,17 +1230,19 @@ contains
           ! import new data
           call this%import()
 
-          ! get data to refine fields
-          ! NOTICE; ELEMENT GLOBAL NUMBER IS NOT INT8!!!!!!
+          ! get data to reconstruct fields
+          ! data sizes
+          call wp4est_msh_get_hst_size(map_nr, rfn_nr, crs_nr)
           ! number of children is equal to number of vertices
           itmp = 2**this%mesh%tdim
-          allocate(map(3, this%mesh%nelt), rfn(5, this%mesh%nelt), &
-               crs(4, itmp, this%mesh%nelt))
-          call wp4est_msh_get_hst(map_nr, rfn_nr, crs_nr, c_loc(map), &
-               c_loc(rfn), c_loc(crs))
+          allocate(map_gidx(this%mesh%nelt), map(2, this%mesh%nelt), &
+               rfn_gidx(2, rfn_nr), rfn(3, rfn_nr), &
+               crs_gidx(2, itmp, crs_nr), crs(2, itmp, crs_nr))
+          call wp4est_msh_get_hst(c_loc(map_gidx), c_loc(map), &
+               c_loc(rfn_gidx), c_loc(rfn), c_loc(crs_gidx), c_loc(crs))
           ! store data in the type
-          call transfer%reconstruct_data_get(map_nr, map, rfn_nr, rfn, crs_nr, &
-               crs)
+          call transfer%reconstruct_data_set(map_nr, map_gidx, map, rfn_nr, &
+               rfn_gidx, rfn, crs_nr, crs_gidx, crs)
        else
           ! regenerate the ghost layer
           call wp4est_ghost_new()
@@ -1222,6 +1261,56 @@ contains
     call profiler_end_region("p4est refine", 31)
 
   end subroutine p4est_refine
+
+  !> Construct neko mesh type based on mesh manager data
+  !! @param[inout]   mesh     neko mesh type
+  subroutine p4est_mesh_construct(this, mesh)
+    class(mesh_manager_p4est_t), intent(inout) :: this
+    type(mesh_t), intent(inout) :: mesh
+    integer :: ierr
+    character(len=LOG_SIZE) :: log_buf
+    real(kind=rp) :: t_start, t_end
+
+    t_start = MPI_WTIME()
+    write(log_buf, '(a)') 'Constructing neko mesh type'
+    call neko_log%message(log_buf, NEKO_LOG_INFO)
+
+    ! What follows is just a hack, as I'm trying to minimise changes outside
+    ! this file
+    ! There are some differences in a concept, so not everything can be filled
+    ! in properly
+
+    ! Free neko mesh type
+    call mesh%free()
+
+    ! General mesh info
+    ! There is no distinction between geometry and topology dimension
+    mesh%gdim = this%mesh%tdim
+    mesh%npts = this%mesh%geom%nvrt ! number of element vertices
+
+    ! general element info
+    mesh%nelv = this%mesh%nelt ! local number of elements
+    mesh%glb_nelv = this%mesh%gnelt ! global number of elelments
+    mesh%offset_el = this%mesh%gnelto ! global element offset;
+
+    ! Geometrical context
+    ! Local information only; global one will be related to connectivity
+    ! local number of unique vertices
+    select type (geom => this%mesh%geom)
+    type is (manager_geom_p4est_t)
+       mesh%mpts = geom%ind%lnum + geom%hng_edg%lnum + geom%hng_fcs%lnum
+    end select
+
+    write(*, *) 'TEST mesh construct', pe_rank, mesh%mpts, &
+         this%mesh%geom%ind%lnum
+
+    !call MPI_Barrier(NEKO_COMM, ierr)
+    t_end = MPI_WTIME()
+    write(log_buf, '(A,F9.6)') 'Mesh construction time (s): ', &
+         t_end - t_start
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+
+  end subroutine p4est_mesh_construct
 
 #else
 
@@ -1291,6 +1380,13 @@ contains
     call neko_error('p4est mesh manager must be compiled with p4est support.')
 
   end subroutine p4est_refine
+
+  !> Construct neko mesh type based on mesh manager data
+  !! @param[inout]   mesh     neko mesh type
+  subroutine p4est_mesh_construct(this, mesh)
+    class(mesh_manager_t), intent(inout) :: this
+    type(mesh_t), intent(inout) :: mesh
+  end subroutine p4est_mesh_construct
 #endif
 
 end module mesh_manager_p4est

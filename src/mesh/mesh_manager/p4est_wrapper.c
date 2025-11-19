@@ -911,7 +911,7 @@ void iter_datav(p4est_iter_volume_info_t * info, void *user_data) {
   // which quad (local and global element number)
   p4est_tree_t *tree;
   p4est_locidx_t iwl;
-  p4est_gloidx_t iwlt, iwg;
+  p4est_gloidx_t iwg;
   int iwli, il, jl;
   p4est_quadrant_t node;
   double vxyz[3];
@@ -1445,8 +1445,8 @@ void  quad_replace (p4est_t * p4est, p4est_topidx_t which_tree,
 	child->parent_ln = parent->el_ln;
 	child->parent_nid = parent->el_nid;
 	/* who am I */
-	child->el_gln = id_ch[id];
-	child->el_ln = -1;
+	child->el_gln = -1;
+	child->el_ln = id_ch[id];
 	child->el_nid = -1;
 
 	/* reset coarsening data */
@@ -1602,14 +1602,14 @@ void wp4est_refm_put(int * ref_mark) {
 
 /* data type for partitioning data transfer between neko and p4est*/
 typedef struct transfer_part_s {
-  int *gnum; /**< pointer to element level array */
+  int64_t *gnum; /**< pointer to element level array */
   int *lnum; /**< pointer to element group array */
   int *nid; /**< pointer to mpi rank owning the element */
 } transfer_part_t;
 
 /** @brief Iterate over element volumes to transfer element global mapping
  *
- * @details Required by wp4est_refm_put
+ * @details Required by wp4est_egmap_put
  *
  * @param info
  * @param user_data
@@ -1621,7 +1621,8 @@ void iter_emap(p4est_iter_volume_info_t * info, void *user_data) {
   // which quad (local and global element number)
   p4est_tree_t *tree;
   p4est_locidx_t iwl;
-  int iwlt, iwg;
+  p4est_gloidx_t iwg;
+  int iwlt;
   int ifc;// loop index
 
   // get quad number
@@ -1630,7 +1631,8 @@ void iter_emap(p4est_iter_volume_info_t * info, void *user_data) {
   iwl = info->quadid + tree->quadrants_offset;
   iwlt = (int) iwl;
   // global quad number
-  iwg = (int) info->p4est->global_first_quadrant[info->p4est->mpirank] + iwlt;
+  iwg = (p4est_gloidx_t)
+    info->p4est->global_first_quadrant[info->p4est->mpirank] + iwl;
 
   // sanity check
   if (el_map->gnum[iwlt] != iwg+1){
@@ -1652,7 +1654,7 @@ void iter_emap(p4est_iter_volume_info_t * info, void *user_data) {
 }
 
 /* fill element global mapping in p4est block */
-void wp4est_egmap_put(int * el_gnum,int * el_lnum,int * el_nid) {
+void wp4est_egmap_put(int64_t * el_gnum,int * el_lnum,int * el_nid) {
   transfer_part_t el_map;
   el_map.gnum = el_gnum;
   el_map.lnum = el_lnum;
@@ -1666,14 +1668,90 @@ void wp4est_egmap_put(int * el_gnum,int * el_lnum,int * el_nid) {
 #endif
 }
 
+/* data type for refinement history data transfer size between neko and p4est*/
+typedef struct transfer_hst_size_s {
+  int map_nr; /**< local number of unchanged elements */
+  int rfn_nr; /**< local number of refined elements */
+  int crs_nr; /**< local number of coarsened elements */
+} transfer_hst_size_t;
+
+/** @brief Iterate over element volumes to transfer refinement history data size
+ *
+ * @details Required by wp4est_msh_get_hst_size
+ *
+ * @param info
+ * @param user_data
+ */
+void iter_msh_hst_size(p4est_iter_volume_info_t * info, void *user_data) {
+  user_data_t *data = (user_data_t *) info->quad->p.user_data;
+  transfer_hst_size_t *trans_data = (transfer_hst_size_t *) user_data;
+
+  // which quad (local and global element number)
+  p4est_tree_t *tree;
+  p4est_locidx_t iwl;
+  p4est_gloidx_t iwg;
+  int iwlt;
+  int ifc, ifl, icg, ic, il;// loop index
+
+  // get quad number
+  tree = p4est_tree_array_index(info->p4est->trees, info->treeid);
+  // local quad number
+  iwl = info->quadid + tree->quadrants_offset;
+  iwlt = (int) iwl;
+  // global quad number
+  iwg = (p4est_gloidx_t)
+    info->p4est->global_first_quadrant[info->p4est->mpirank] + iwl;
+
+  // check refinement status
+  ic = -1;
+  for (il = 0; il < P4EST_CHILDREN; il++) {
+    if(data->children_gln[il] != -1) ic = 1;
+  }
+
+  if (data->parent_gln == -1 && ic == -1) {
+    // no refinement
+    // count elements
+    trans_data->map_nr = trans_data->map_nr + 1;
+  } else if (data->parent_gln != -1) {
+    // refinement
+    // count elements
+    trans_data->rfn_nr = trans_data->rfn_nr + 1;
+  } else {
+    // coarsening
+    // count elements
+    trans_data->crs_nr = trans_data->crs_nr + 1;
+  }
+}
+
+/* get refinement history data to Neko */
+void wp4est_msh_get_hst_size(int * map_nr, int * rfn_nr, int * crs_nr) {
+  transfer_hst_size_t transfer_data;
+  transfer_data.map_nr = 0;
+  transfer_data.rfn_nr = 0;
+  transfer_data.crs_nr = 0;
+#ifdef P4_TO_P8
+  p4est_iterate(tree_neko, ghost_neko, (void *) &transfer_data,
+		iter_msh_hst_size, NULL, NULL, NULL);
+#else
+  p4est_iterate(tree_neko, ghost_neko, (void *) &transfer_data,
+		iter_msh_hst_size, NULL, NULL);
+#endif
+  *map_nr = transfer_data.map_nr;
+  *rfn_nr = transfer_data.rfn_nr;
+  *crs_nr = transfer_data.crs_nr;
+}
+
 /* data type for refinement history data transfer between neko and p4est*/
 typedef struct transfer_hst_s {
   int map_nr; /**< local number of unchanged elements */
   int rfn_nr; /**< local number of refined elements */
   int crs_nr; /**< local number of coarsened elements */
-  int *elgl_map; /**< element global mapping info for unchanged elements */
-  int *elgl_rfn; /**< element global mapping info for refined elements */
-  int *elgl_crs; /**< element global mapping info for coarsened elements */
+  int64_t *elgl_mapg; /**< element global id for unchanged elements */
+  int *elgl_map; /**< element mapping info for unchanged elements */
+  int64_t *elgl_rfng; /**< element global id for refined elements */
+  int *elgl_rfn; /**< element mapping info for refined elements */
+  int64_t *elgl_crsg; /**< element global id for coarsened elements */
+  int *elgl_crs; /**< element mapping info for coarsened elements */
 } transfer_hst_t;
 
 /** @brief Iterate over element volumes to transfer refinement history data
@@ -1690,8 +1768,9 @@ void iter_msh_hst(p4est_iter_volume_info_t * info, void *user_data) {
   // which quad (local and global element number)
   p4est_tree_t *tree;
   p4est_locidx_t iwl;
-  int iwlt, iwg;
-  int ifc, ifl, ic, il;// loop index
+  p4est_gloidx_t iwg;
+  int iwlt;
+  int ifc, ifl, icg, ic, il;// loop index
 
   // get quad number
   tree = p4est_tree_array_index(info->p4est->trees, info->treeid);
@@ -1699,7 +1778,8 @@ void iter_msh_hst(p4est_iter_volume_info_t * info, void *user_data) {
   iwl = info->quadid + tree->quadrants_offset;
   iwlt = (int) iwl;
   // global quad number
-  iwg = (int) info->p4est->global_first_quadrant[info->p4est->mpirank] + iwlt;
+  iwg = (p4est_gloidx_t)
+    info->p4est->global_first_quadrant[info->p4est->mpirank] + iwl;
 
   // check refinement status
   ic = -1;
@@ -1712,61 +1792,67 @@ void iter_msh_hst(p4est_iter_volume_info_t * info, void *user_data) {
     // count elements
     trans_data->map_nr = trans_data->map_nr + 1;
     // set old element position
-    trans_data->elgl_map[3 * iwlt] = data->el_gln + 1;
-    trans_data->elgl_map[3 * iwlt + 1] = data->el_ln;
-    trans_data->elgl_map[3 * iwlt + 2] = data->el_nid;
+    trans_data->elgl_mapg[iwlt] = data->el_gln + 1;
+    trans_data->elgl_map[2 * iwlt] = data->el_ln;
+    trans_data->elgl_map[2 * iwlt + 1] = data->el_nid;
   } else if (data->parent_gln != -1) {
     // refinement
     // count elements
     trans_data->rfn_nr = trans_data->rfn_nr + 1;
     // set dummy element map
-    trans_data->elgl_map[3 * iwlt] = 0;
-    trans_data->elgl_map[3 * iwlt + 1] = 0;
-    trans_data->elgl_map[3 * iwlt + 2] = 0;
-    ic = (trans_data->rfn_nr - 1) * 5;
+    trans_data->elgl_mapg[iwlt] = 0;
+    trans_data->elgl_map[2 * iwlt] = 0;
+    trans_data->elgl_map[2 * iwlt + 1] = 0;
+    icg = (trans_data->rfn_nr - 1) * 2;
+    ic = (trans_data->rfn_nr - 1) * 3;
     // current global element number
-    trans_data->elgl_rfn[ic] = iwg + 1;
+    trans_data->elgl_rfng[icg] = iwg + 1;
     // old parent element position
-    trans_data->elgl_rfn[ic + 1] = data->parent_gln + 1;
-    trans_data->elgl_rfn[ic + 2] = data->parent_ln;
-    trans_data->elgl_rfn[ic + 3] = data->parent_nid;
+    trans_data->elgl_rfng[icg + 1] = data->parent_gln + 1;
+    trans_data->elgl_rfn[ic] = data->parent_ln;
+    trans_data->elgl_rfn[ic + 1] = data->parent_nid;
     // child position; numbered 0,..,P4EST_CHILDREN-1
-    trans_data->elgl_rfn[ic + 4] = data->el_gln;
+    trans_data->elgl_rfn[ic + 2] = data->el_ln;
   } else {
     // coarsening
     // count elements
     trans_data->crs_nr = trans_data->crs_nr + 1;
     // set dummy element map
-    trans_data->elgl_map[3 * iwlt] = 0;
-    trans_data->elgl_map[3 * iwlt + 1] = 0;
-    trans_data->elgl_map[3 * iwlt + 2] = 0;
+    trans_data->elgl_mapg[iwlt] = 0;
+    trans_data->elgl_map[2 * iwlt] = 0;
+    trans_data->elgl_map[2 * iwlt + 1] = 0;
     // new global position
-    ic =(trans_data->crs_nr - 1) * 4 * P4EST_CHILDREN;
-    trans_data->elgl_crs[ic] = iwg + 1;
+    ic =(trans_data->crs_nr - 1) * 2 * P4EST_CHILDREN;
+    trans_data->elgl_crsg[ic] = iwg + 1;
     // old global position
-    trans_data->elgl_crs[ic + 1] = data->children_gln[0] + 1;
-    trans_data->elgl_crs[ic + 2] = data->children_ln[0];
-    trans_data->elgl_crs[ic + 3] = data->children_nid[0];
+    trans_data->elgl_crsg[ic + 1] = data->children_gln[0] + 1;
+    trans_data->elgl_crs[ic] = data->children_ln[0];
+    trans_data->elgl_crs[ic + 1] = data->children_nid[0];
     for (il = 1; il < P4EST_CHILDREN; il++) {
+      icg = il * 2;
       // new dummy global position
-      trans_data->elgl_crs[ic + il * 4] = 0;
+      trans_data->elgl_crsg[ic + icg] = 0;
       // old global position
-      trans_data->elgl_crs[ic + il * 4 + 1] = data->children_gln[il] + 1;
-      trans_data->elgl_crs[ic + il * 4 + 2] = data->children_ln[il];
-      trans_data->elgl_crs[ic + il * 4 + 3] = data->children_nid[il];
+      trans_data->elgl_crsg[ic + icg + 1] = data->children_gln[il] + 1;
+      trans_data->elgl_crs[ic + icg] = data->children_ln[il];
+      trans_data->elgl_crs[ic + icg + 1] = data->children_nid[il];
     }
   }
 }
 
 /* get refinement history data to Neko */
-void wp4est_msh_get_hst(int * map_nr, int * rfn_nr, int * crs_nr, int *elgl_map,
-			int * elgl_rfn, int * elgl_crs) {
+void wp4est_msh_get_hst(int64_t * elgl_mapg, int *elgl_map,
+			int64_t * elgl_rfng, int * elgl_rfn,
+			int64_t * elgl_crsg, int * elgl_crs) {
   transfer_hst_t transfer_data;
   transfer_data.map_nr = 0;
   transfer_data.rfn_nr = 0;
   transfer_data.crs_nr = 0;
+  transfer_data.elgl_mapg = elgl_mapg;
   transfer_data.elgl_map = elgl_map;
+  transfer_data.elgl_rfng = elgl_rfng;
   transfer_data.elgl_rfn = elgl_rfn;
+  transfer_data.elgl_crsg = elgl_crsg;
   transfer_data.elgl_crs = elgl_crs;
 #ifdef P4_TO_P8
   p4est_iterate(tree_neko, ghost_neko, (void *) &transfer_data, iter_msh_hst,
@@ -1775,9 +1861,6 @@ void wp4est_msh_get_hst(int * map_nr, int * rfn_nr, int * crs_nr, int *elgl_map,
   p4est_iterate(tree_neko, ghost_neko, (void *) &transfer_data, iter_msh_hst,
 		NULL, NULL);
 #endif
-  *map_nr = transfer_data.map_nr;
-  *rfn_nr = transfer_data.rfn_nr;
-  *crs_nr = transfer_data.crs_nr;
 }
 
 /* I/O VTK to check tree structure */

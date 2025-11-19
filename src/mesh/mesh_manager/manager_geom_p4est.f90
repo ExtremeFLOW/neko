@@ -252,18 +252,24 @@ contains
   !! @param[in]    tdim    topological mesh dimension
   !! @param[in]    nel     local element number
   !! @param[inout] vmap    element vertices to node mapping
-  subroutine manager_geom_init_data_p4est(this, tdim, nel, vmap)
+  !! @param[in]   ifsave      save component types
+  subroutine manager_geom_init_data_p4est(this, tdim, nel, vmap, ifsave)
     class(manager_geom_p4est_t), intent(inout) :: this
     integer(i4), intent(in) :: tdim, nel
     integer(i4), allocatable, dimension(:,:), intent(inout) :: vmap
+    logical, optional, intent(in) :: ifsave
 
     ! sanity check
     if ((2**tdim .ne. size(vmap, 1)) .or. (nel .ne. size(vmap, 2))) &
          call neko_error('Inconsistent array sizes p4est%geom')
 
-    call this%free_data()
-
-    call this%init_data_base(tdim, nel, vmap)
+    if (present(ifsave)) then
+       call this%free_data(ifsave)
+       call this%init_data_base(tdim, nel, vmap, ifsave)
+    else
+       call this%free_data()
+       call this%init_data_base(tdim, nel, vmap)
+    end if
 
   end subroutine manager_geom_init_data_p4est
 
@@ -276,6 +282,7 @@ contains
     call this%free_data()
 
     call this%init_type_base(geom)
+
     select type (geom)
     type is(manager_geom_p4est_t)
        call this%hng_edg%init_type(geom%hng_edg)
@@ -285,12 +292,22 @@ contains
   end subroutine manager_geom_init_type_p4est
 
   !> Free geometry data
-  subroutine manager_geom_free_data_p4est(this)
+  !! @param[in]   ifsave      save component types
+  subroutine manager_geom_free_data_p4est(this, ifsave)
     class(manager_geom_p4est_t), intent(inout) :: this
+    logical, optional, intent(in) :: ifsave
 
-    call this%free_data_base()
-    call this%hng_edg%free()
-    call this%hng_fcs%free()
+    if (present(ifsave)) then
+       call this%free_data_base(ifsave)
+       if (.not. ifsave) then
+          call this%hng_edg%free()
+          call this%hng_fcs%free()
+       end if
+    else
+       call this%free_data_base()
+       call this%hng_edg%free()
+       call this%hng_fcs%free()
+    end if
 
   end subroutine manager_geom_free_data_p4est
 

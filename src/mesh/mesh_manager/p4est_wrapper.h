@@ -38,16 +38,16 @@ typedef struct user_data_s {
 		   given in .h */
   // to keep track of changes of Neko global element numbering and element
   // distribution element
-  int el_gln; /**< element global numbering; neko side */
-  int el_ln; /**< element local numbering; neko side */
+  int64_t el_gln; /**< element global id; neko side */
+  int el_ln; /**< element local id; neko side */
   int el_nid; /**< mpi rank owning element; neko side */
   // parent
-  int parent_gln; /**< parent global numbering; neko side */
-  int parent_ln; /**< parent local numbering; neko side */
+  int64_t parent_gln; /**< parent global id; neko side */
+  int parent_ln; /**< parent local id; neko side */
   int parent_nid; /**< mpi rank owning parent; neko side */
   // children
-  int children_gln[P4EST_CHILDREN]; /**< children global numbering; neko side */
-  int children_ln[P4EST_CHILDREN]; /**< children local numbering; neko side */
+  int64_t children_gln[P4EST_CHILDREN]; /**< children global id; neko side */
+  int children_ln[P4EST_CHILDREN]; /**< children local id; neko side */
   int children_nid[P4EST_CHILDREN]; /**< mpi rank owning children; neko side */
 } user_data_t;
 
@@ -461,20 +461,30 @@ void wp4est_refm_put(int * ref_mark)
  * @param el_lnum   element local number (neko distribution)
  * @param el_nid   element mpi rank (neko distribution)
  */
-void wp4est_egmap_put(int * el_gnum, int * el_lnum, int * el_nid)
+void wp4est_egmap_put(int64_t * el_gnum, int * el_lnum, int * el_nid)
 ;
 
-/** Get refinement/coarsening data to Neko
+/** Get refinement/coarsening data size to Neko
  *
  * @param map_nr     local number of unchanged elements
  * @param rfn_nr     local number of refined elements
  * @param crs_nr     local number of coarsened elements
+ */
+void wp4est_msh_get_hst_size(int * map_nr, int * rfn_nr, int * crs_nr)
+;
+
+/** Get refinement/coarsening data to Neko
+ *
+ * @param elgl_mapg  element mapping info for unchanged elements; global id
  * @param elgl_map   element mapping info for unchanged elements
+ * @param elgl_rfng  element mapping info for refined elements; global id
  * @param elgl_rfn   element mapping info for refined elements
+ * @param elgl_crsg  element mapping info for coarsened elements: global id
  * @param elgl_crs   element mapping info for coarsened elements
  */
-void wp4est_msh_get_hst(int * map_nr, int * rfn_nr, int * crs_nr,
-			int * elgl_map, int * elgl_rfn, int * elgl_crs)
+void wp4est_msh_get_hst(int64_t * elgl_mapg, int * elgl_map,
+			int64_t * elgl_rfng, int * elgl_rfn,
+			int64_t * elgl_crsg, int * elgl_crs)
 ;
 
 /** Write tree structure to VTK file

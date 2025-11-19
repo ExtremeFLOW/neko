@@ -37,7 +37,7 @@ sem/dofmap.lo : sem/dofmap.f90 mesh/hex.lo mesh/quad.lo mesh/element.lo math/mat
 sem/coef.lo : sem/coef.f90 device/device.lo math/mxm_wrapper.lo sem/bcknd/device/device_coef.lo math/bcknd/device/device_math.lo mesh/mesh.lo math/math.lo sem/space.lo sem/dofmap.lo config/num_types.lo config/neko_config.lo gs/gs_ops.lo gs/gather_scatter.lo 
 sem/cpr.lo : sem/cpr.f90 math/mxm_wrapper.lo sem/dofmap.lo common/log.lo sem/coef.lo mesh/mesh.lo math/tensor.lo math/math.lo sem/space.lo field/field.lo config/num_types.lo 
 sem/amr_reconstruct.lo : sem/amr_reconstruct.f90 comm/mesh_manager_transfer.lo config/num_types.lo 
-sem/amr.lo : sem/amr.f90 sem/amr_reconstruct.lo mesh/mesh_manager/mesh_manager.lo comm/mesh_manager_transfer_p4est.lo comm/mesh_manager_transfer.lo common/user_intf.lo common/time_state.lo common/profiler.lo common/utils.lo common/log.lo config/num_types.lo 
+sem/amr.lo : sem/amr.f90 sem/amr_reconstruct.lo mesh/mesh_manager/mesh_manager.lo comm/mesh_manager_transfer_p4est.lo comm/mesh_manager_transfer.lo mesh/mesh.lo common/user_intf.lo common/time_state.lo common/profiler.lo common/utils.lo common/log.lo config/num_types.lo 
 common/time_interpolator.lo : common/time_interpolator.f90 math/fast3d.lo common/utils.lo math/math.lo math/bcknd/device/device_math.lo config/neko_config.lo field/field_series.lo field/field.lo config/num_types.lo 
 sem/interpolation.lo : sem/interpolation.f90 common/utils.lo sem/space.lo math/bcknd/cpu/tensor_cpu.lo math/tensor.lo math/fast3d.lo device/device.lo config/num_types.lo config/neko_config.lo 
 sem/point_interpolator.lo : sem/point_interpolator.f90 config/neko_config.lo math/bcknd/device/device_math.lo device/device.lo common/utils.lo math/fast3d.lo math/math.lo mesh/point.lo config/num_types.lo sem/space.lo math/tensor.lo 
@@ -84,12 +84,12 @@ mesh/intersection_detector.lo : mesh/intersection_detector.f90 mesh/search_tree/
 mesh/mesh_manager/manager_geom.lo : mesh/mesh_manager/manager_geom.f90 config/num_types.lo 
 mesh/mesh_manager/manager_conn.lo : mesh/mesh_manager/manager_conn.f90 config/num_types.lo 
 mesh/mesh_manager/manager_mesh.lo : mesh/mesh_manager/manager_mesh.f90 mesh/mesh_manager/manager_conn.lo mesh/mesh_manager/manager_geom.lo config/num_types.lo 
-mesh/mesh_manager/mesh_manager.lo : mesh/mesh_manager/mesh_manager.f90 comm/mesh_manager_transfer.lo mesh/mesh_manager/manager_mesh.lo io/format/nmsh.lo config/num_types.lo 
+mesh/mesh_manager/mesh_manager.lo : mesh/mesh_manager/mesh_manager.f90 comm/mesh_manager_transfer.lo mesh/mesh_manager/manager_mesh.lo mesh/mesh.lo io/format/nmsh.lo config/num_types.lo 
 mesh/mesh_manager/mesh_manager_fctry.lo : mesh/mesh_manager/mesh_manager_fctry.f90 comm/mesh_manager_transfer_p4est.lo mesh/mesh_manager/mesh_manager_p4est.lo common/json_utils.lo common/utils.lo mesh/mesh_manager/mesh_manager.lo 
 mesh/mesh_manager/manager_geom_p4est.lo : mesh/mesh_manager/manager_geom_p4est.f90 mesh/mesh_manager/manager_geom.lo common/utils.lo config/num_types.lo 
 mesh/mesh_manager/manager_conn_p4est.lo : mesh/mesh_manager/manager_conn_p4est.f90 mesh/mesh_manager/manager_conn.lo common/utils.lo config/num_types.lo 
 mesh/mesh_manager/manager_mesh_p4est.lo : mesh/mesh_manager/manager_mesh_p4est.f90 mesh/mesh_manager/manager_mesh.lo mesh/mesh_manager/manager_conn_p4est.lo mesh/mesh_manager/manager_geom_p4est.lo mesh/mesh_manager/manager_conn.lo mesh/mesh_manager/manager_geom.lo common/utils.lo config/num_types.lo 
-mesh/mesh_manager/mesh_manager_p4est.lo : mesh/mesh_manager/mesh_manager_p4est.F90 mesh/mesh_manager/amr.h comm/mesh_manager_transfer_p4est.lo mesh/mesh_manager/mesh_manager.lo mesh/mesh_manager/manager_mesh_p4est.lo mesh/mesh_manager/manager_conn_p4est.lo mesh/mesh_manager/manager_geom_p4est.lo mesh/mesh_manager/manager_mesh.lo common/profiler.lo common/json_utils.lo common/utils.lo common/log.lo comm/comm.lo config/num_types.lo 
+mesh/mesh_manager/mesh_manager_p4est.lo : mesh/mesh_manager/mesh_manager_p4est.F90 mesh/mesh_manager/amr.h comm/mesh_manager_transfer_p4est.lo mesh/mesh_manager/mesh_manager.lo mesh/mesh_manager/manager_mesh_p4est.lo mesh/mesh_manager/manager_conn_p4est.lo mesh/mesh_manager/manager_geom_p4est.lo mesh/mesh_manager/manager_mesh.lo mesh/mesh.lo common/profiler.lo common/json_utils.lo common/utils.lo common/log.lo comm/comm.lo config/num_types.lo 
 field/field_registry.lo : field/field_registry.f90 common/json_utils.lo comm/comm.lo adt/htable.lo common/utils.lo sem/dofmap.lo field/field.lo 
 field/scratch_registry.lo : field/scratch_registry.f90 sem/dofmap.lo math/field_math.lo field/field.lo 
 field/field.lo : field/field.f90 sem/dofmap.lo sem/space.lo mesh/mesh.lo math/math.lo device/device.lo config/num_types.lo math/bcknd/device/device_math.lo config/neko_config.lo 

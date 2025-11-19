@@ -70,7 +70,7 @@ module manager_mesh
      !> Initialise data from type
      procedure(mesh_init_type), pass(this), deferred :: init_type
      !> Free type_data
-     procedure(mesh_init), pass(this), deferred :: free_data
+     procedure(mesh_free_data), pass(this), deferred :: free_data
      !> Free type
      procedure(mesh_init), pass(this), deferred :: free
   end type manager_mesh_t
@@ -86,6 +86,12 @@ module manager_mesh
        class(manager_mesh_t), intent(inout) :: this
        class(manager_mesh_t), intent(inout) :: mesh
      end subroutine mesh_init_type
+
+     subroutine mesh_free_data(this, ifsave)
+       import manager_mesh_t
+       class(manager_mesh_t), intent(inout) :: this
+       logical, optional, intent(in) :: ifsave
+     end subroutine mesh_free_data
   end interface
 
 contains
@@ -96,13 +102,20 @@ contains
   !! @param[in]    gnelto     global element offset
   !! @param[in]    tdim       topological mesh dimension
   !! @param[inout] gidx       global element number
-  subroutine manager_mesh_init_data_base(this, nelt, gnelt, gnelto, tdim, gidx)
+  !! @param[in]   ifsave      save component types
+  subroutine manager_mesh_init_data_base(this, nelt, gnelt, gnelto, tdim, &
+       gidx, ifsave)
     class(manager_mesh_t), intent(inout) :: this
     integer(i4), intent(in) :: nelt, tdim
     integer(i8), intent(in) :: gnelt, gnelto
     integer(i8), allocatable, dimension(:), intent(inout)  :: gidx
+    logical, optional, intent(in) :: ifsave
 
-    call this%free_data_base()
+    if (present(ifsave)) then
+       call this%free_data_base(ifsave)
+    else
+       call this%free_data_base()
+    end if
 
     this%tdim = tdim
     this%nelt = nelt
@@ -140,11 +153,19 @@ contains
   end subroutine manager_mesh_init_type_base
 
   !> Destructor for the data in `mesh_manager_t` (base) type.
-  subroutine manager_mesh_free_data_base(this)
+  !! @param[in]   ifsave      save component types
+  subroutine manager_mesh_free_data_base(this, ifsave)
     class(manager_mesh_t), intent(inout) :: this
+    logical, optional, intent(in) :: ifsave
+    logical :: ifsavel
 
-    if (allocated(this%geom)) call this%geom%free_data()
-    if (allocated(this%conn)) call this%conn%free_data()
+    ifsavel = .false.
+    if (present(ifsave)) ifsavel = ifsave
+
+    if (.not.ifsavel) then
+       if (allocated(this%geom)) call this%geom%free_data()
+       if (allocated(this%conn)) call this%conn%free_data()
+    end if
 
     this%tdim = 0
     this%nelt = 0

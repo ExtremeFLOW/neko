@@ -117,7 +117,7 @@ module manager_geom
      !> Initialise data from type
      procedure(mesh_geom_init_type), pass(this), deferred :: init_type
      !> Free type_data
-     procedure(mesh_geom_init), pass(this), deferred :: free_data
+     procedure(mesh_geom_free_data), pass(this), deferred :: free_data
      !> Free type
      procedure(mesh_geom_init), pass(this), deferred :: free
   end type manager_geom_t
@@ -133,6 +133,12 @@ module manager_geom
        class(manager_geom_t), intent(inout) :: this
        class(manager_geom_t), intent(inout) :: geom
      end subroutine mesh_geom_init_type
+
+     subroutine mesh_geom_free_data(this, ifsave)
+       import manager_geom_t
+       class(manager_geom_t), intent(inout) :: this
+       logical, optional, intent(in) :: ifsave
+     end subroutine mesh_geom_free_data
   end interface
 
 contains
@@ -189,12 +195,18 @@ contains
   !! @param[in]    tdim    topological mesh dimension
   !! @param[in]    nel     local element number
   !! @param[inout] vmap    element vertices to node mapping
-  subroutine manager_geom_init_data_base(this, tdim, nel, vmap)
+  !! @param[in]   ifsave      save component types
+  subroutine manager_geom_init_data_base(this, tdim, nel, vmap, ifsave)
     class(manager_geom_t), intent(inout) :: this
     integer(i4), intent(in) :: tdim, nel
     integer(i4), allocatable, dimension(:,:), intent(inout) :: vmap
+    logical, optional, intent(in) :: ifsave
 
-    call this%free_data_base()
+    if (present(ifsave)) then
+       call this%free_data_base(ifsave)
+    else
+       call this%free_data_base()
+    end if
 
     this%tdim = tdim
     this%nel = nel
@@ -225,10 +237,18 @@ contains
   end subroutine manager_geom_init_type_base
 
   !> Free geometry data
-  subroutine manager_geom_free_data_base(this)
+  !! @param[in]   ifsave      save component types
+  subroutine manager_geom_free_data_base(this, ifsave)
     class(manager_geom_t), intent(inout) :: this
+    logical, optional, intent(in) :: ifsave
+    logical :: ifsavel
 
-    if (allocated(this%ind)) call this%ind%free()
+    ifsavel = .false.
+    if (present(ifsave)) ifsavel = ifsave
+
+    if (.not.ifsavel) then
+       if (allocated(this%ind)) call this%ind%free()
+    end if
 
     this%tdim = 0
     this%nel = 0

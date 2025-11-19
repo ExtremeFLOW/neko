@@ -35,6 +35,7 @@ module mesh_manager
   use num_types, only : i4, i8, rp, dp
   use json_module, only : json_file
   use nmsh, only: nmsh_mesh_t
+  use mesh, only : mesh_t
   use manager_mesh, only : manager_mesh_t
   use mesh_manager_transfer, only : mesh_manager_transfer_t
 
@@ -76,6 +77,8 @@ module mesh_manager
      procedure(mesh_manager_free), pass(this), deferred :: mesh_file_apply
      !> Perform refinement/coarsening on the mesh manager side
      procedure(mesh_manager_refine), pass(this), deferred :: refine
+     !> Construct neko mesh type based on mesh manager data
+     procedure(mesh_manager_mesh), pass(this), deferred :: mesh_construct
   end type mesh_manager_t
 
   abstract interface
@@ -107,11 +110,19 @@ module mesh_manager
      !! @param[in]   ref_mark     refinement flag
      !! @param[out]  ifmod        mesh modification flag
      subroutine mesh_manager_refine(this, ref_mark, ifmod)
-       import mesh_manager_t, manager_mesh_t, i4
+       import mesh_manager_t, i4
        class(mesh_manager_t), intent(inout) :: this
        integer(i4), dimension(:), intent(in) :: ref_mark
        logical, intent(out) :: ifmod
      end subroutine mesh_manager_refine
+
+     !> Construct neko mesh type based on mesh manager data
+     !! @param[inout]   mesh     neko mesh type
+     subroutine mesh_manager_mesh(this, mesh)
+       import mesh_manager_t, mesh_t
+       class(mesh_manager_t), intent(inout) :: this
+       type(mesh_t), intent(inout) :: mesh
+     end subroutine mesh_manager_mesh
   end interface
 
   interface

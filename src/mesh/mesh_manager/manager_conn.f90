@@ -146,7 +146,7 @@ module manager_conn
      !> Initialise data from type
      procedure(mesh_conn_init_type), pass(this), deferred :: init_type
      !> Free type data
-     procedure(mesh_conn_init), pass(this), deferred :: free_data
+     procedure(mesh_conn_free_data), pass(this), deferred :: free_data
      !> Free type
      procedure(mesh_conn_init), pass(this), deferred :: free
   end type manager_conn_t
@@ -162,6 +162,12 @@ module manager_conn
        class(manager_conn_t), intent(inout) :: this
        class(manager_conn_t), intent(inout) :: conn
      end subroutine mesh_conn_init_type
+
+     subroutine mesh_conn_free_data(this, ifsave)
+       import manager_conn_t
+       class(manager_conn_t), intent(inout) :: this
+       logical, optional, intent(in) :: ifsave
+     end subroutine mesh_conn_free_data
   end interface
 
 contains
@@ -225,12 +231,19 @@ contains
   !! @param[inout] vmap    element vertex mapping
   !! @param[inout] fmap    element face mapping
   !! @param[inout] emap    element edge mapping
-  subroutine manager_conn_init_data_base(this, tdim, nel, vmap, fmap, emap)
+  !! @param[in]   ifsave      save component types
+  subroutine manager_conn_init_data_base(this, tdim, nel, vmap, fmap, emap, &
+       ifsave)
     class(manager_conn_t), intent(inout) :: this
     integer(i4), intent(in) :: tdim, nel
     integer(i4), allocatable, dimension(:,:), intent(inout) :: vmap, fmap, emap
+    logical, optional, intent(in) :: ifsave
 
-    call this%free_base()
+    if (present(ifsave)) then
+       call this%free_data_base(ifsave)
+    else
+       call this%free_data_base()
+    end if
 
     this%tdim = tdim
     this%nel = nel
@@ -274,12 +287,20 @@ contains
   end subroutine manager_conn_init_type_base
 
   !> Free connectivity data
-  subroutine manager_conn_free_data_base(this)
+  !! @param[in]   ifsave      save component types
+  subroutine manager_conn_free_data_base(this, ifsave)
     class(manager_conn_t), intent(inout) :: this
+    logical, optional, intent(in) :: ifsave
+    logical :: ifsavel
 
-    if (allocated(this%conn_vrt)) call this%conn_vrt%free()
-    if (allocated(this%conn_fcs)) call this%conn_fcs%free()
-    if (allocated(this%conn_edg)) call this%conn_edg%free()
+    ifsavel = .false.
+    if (present(ifsave)) ifsavel = ifsave
+
+    if (.not.ifsavel) then
+       if (allocated(this%conn_vrt)) call this%conn_vrt%free()
+       if (allocated(this%conn_fcs)) call this%conn_fcs%free()
+       if (allocated(this%conn_edg)) call this%conn_edg%free()
+    end if
 
     this%tdim = 0
     this%nel = 0
