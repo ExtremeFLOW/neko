@@ -416,6 +416,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/octree/Makefile\
         tests/unit/vector/Makefile\
         tests/unit/matrix/Makefile\
+        tests/unit/scratch_registry/Makefile\
         tests/unit/field_scratch_registry/Makefile\
         tests/unit/vector_scratch_registry/Makefile\
         tests/unit/matrix_scratch_registry/Makefile\

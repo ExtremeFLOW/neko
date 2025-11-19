@@ -26,6 +26,7 @@ SUBDIRS = tuple\
 	  octree\
 	  vector\
 	  matrix\
+	  scratch_registry\
 	  field_scratch_registry\
 	  vector_scratch_registry\
 	  matrix_scratch_registry\
@@ -65,6 +66,7 @@ TESTS = device/device_test\
 	octree/octree_test\
 	vector/vector_test\
 	matrix/matrix_test\
+	scratch_registry/scratch_registry_test\
 	field_scratch_registry/field_scratch_registry_test\
 	vector_scratch_registry/vector_scratch_registry_test\
 	matrix_scratch_registry/matrix_scratch_registry_test\
@@ -131,6 +133,7 @@ EXTRA_DIST = \
 	octree/octree.pf\
 	vector/vector_parallel.pf\
 	matrix/matrix_parallel.pf\
+	scratch_registry/test_scratch_registry.pf\
 	field_scratch_registry/test_field_scratch_registry.pf\
 	vector_scratch_registry/test_vector_scratch_registry.pf\
 	matrix_scratch_registry/test_matrix_scratch_registry.pf\
