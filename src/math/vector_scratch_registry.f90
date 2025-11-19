@@ -106,11 +106,11 @@ contains
     end if
 
     ! Initial allocation
-    allocate (this%vectors(size_))
+    allocate(this%vectors(size_))
     do i = 1, size_
        allocate(this%vectors(i)%ptr)
     end do
-    allocate (this%inuse(size_))
+    allocate(this%inuse(size_))
     this%inuse(:) = .false.
 
   end subroutine scratch_registry_init

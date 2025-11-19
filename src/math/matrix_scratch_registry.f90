@@ -106,12 +106,11 @@ contains
     end if
 
     ! Initial allocation
-    allocate (this%matrices(size_))
+    allocate(this%matrices(size_))
     do i = 1, size_
        allocate(this%matrices(i)%ptr)
     end do
-    allocate (this%inuse(size_))
-
+    allocate(this%inuse(size_))
     this%inuse(:) = .false.
 
   end subroutine scratch_registry_init
