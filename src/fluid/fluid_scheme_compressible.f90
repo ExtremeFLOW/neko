@@ -40,7 +40,7 @@ module fluid_scheme_compressible
   use json_module, only : json_file
   use num_types, only : rp
   use mesh, only : mesh_t
-  use field_scratch_registry, only : field_scratch_registry_t
+  use scratch_registry, only : scratch_registry_t
   use space, only : GLL
   use user_intf, only : user_t
   use json_utils, only : json_get_or_default
@@ -75,7 +75,7 @@ module fluid_scheme_compressible
      !> Global number of GLL points for the fluid (unique)
      integer(kind=i8) :: glb_unique_points
 
-     type(field_scratch_registry_t) :: scratch !< Manager for temporary fields
+     type(scratch_registry_t) :: scratch !< Manager for temporary fields
 
    contains
      !> Constructors

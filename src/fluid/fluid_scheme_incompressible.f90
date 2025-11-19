@@ -60,7 +60,7 @@ module fluid_scheme_incompressible
   use field_registry, only : neko_field_registry
   use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file
-  use field_scratch_registry, only : field_scratch_registry_t
+  use scratch_registry, only : scratch_registry_t
   use user_intf, only : user_t, dummy_user_material_properties, &
        user_material_properties_intf
   use utils, only : neko_error
@@ -102,7 +102,7 @@ module fluid_scheme_incompressible
      integer(kind=i8) :: glb_n_points
      !> Global number of GLL points for the fluid (unique)
      integer(kind=i8) :: glb_unique_points
-     type(field_scratch_registry_t) :: scratch !< Manager for temporary fields
+     type(scratch_registry_t) :: scratch !< Manager for temporary fields
    contains
      !> Constructor for the base type
      procedure, pass(this) :: init_base => fluid_scheme_init_base

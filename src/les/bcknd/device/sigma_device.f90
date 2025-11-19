@@ -36,7 +36,7 @@ module sigma_device
   use field_list, only : field_list_t
   use device_math, only : device_col2
   use math, only : NEKO_EPS
-  use field_scratch_registry, only : neko_scratch_registry
+  use scratch_registry, only : neko_scratch_registry
   use field_registry, only : neko_field_registry
   use field, only : field_t
   use operators, only : dudxyz

@@ -43,7 +43,7 @@ module rough_log_law
   use json_utils, only : json_get_or_default, json_get
   use rough_log_law_device, only : rough_log_law_compute_device
   use rough_log_law_cpu, only : rough_log_law_compute_cpu
-  use field_scratch_registry, only : neko_scratch_registry
+  use scratch_registry, only : neko_scratch_registry
   implicit none
   private
 

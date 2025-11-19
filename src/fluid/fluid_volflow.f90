@@ -76,7 +76,7 @@ module fluid_volflow
   use gather_scatter, only : gs_t, GS_OP_ADD
   use json_module, only : json_file
   use json_utils, only: json_get
-  use field_scratch_registry, only : field_scratch_registry_t
+  use scratch_registry, only : scratch_registry_t
   use bc_list, only : bc_list_t
   use ax_product, only : ax_t
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION
@@ -94,7 +94,7 @@ module fluid_volflow
      type(field_t) :: u_vol, v_vol, w_vol, p_vol
      real(kind=rp) :: domain_length, base_flow
      !> Manager for temporary fields
-     type(field_scratch_registry_t) :: scratch
+     type(scratch_registry_t) :: scratch
    contains
      procedure, pass(this) :: init => fluid_vol_flow_init
      procedure, pass(this) :: free => fluid_vol_flow_free
@@ -370,7 +370,7 @@ contains
       ifcomp = 0.0_rp
 
       if ((.not. abscmp(dt, this%dtlag)) .or. &
-           (.not. abscmp(ext_bdf%diffusion_coeffs(1), this%bdlag))) then
+          (.not. abscmp(ext_bdf%diffusion_coeffs(1), this%bdlag))) then
          ifcomp = 1.0_rp
       end if
 

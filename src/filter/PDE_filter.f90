@@ -51,7 +51,7 @@ module PDE_filter
   use mesh, only: mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
   use field_registry, only: neko_field_registry
   use filter, only: filter_t
-  use field_scratch_registry, only: neko_scratch_registry
+  use scratch_registry, only: neko_scratch_registry
   use field_math, only: field_copy, field_add3
   use coefs, only: coef_t
   use logger, only: neko_log, LOG_SIZE

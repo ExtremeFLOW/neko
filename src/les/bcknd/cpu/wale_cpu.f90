@@ -34,7 +34,7 @@
 module wale_cpu
   use num_types, only : rp
   use field_list, only : field_list_t
-  use field_scratch_registry, only : neko_scratch_registry
+  use scratch_registry, only : neko_scratch_registry
   use field_registry, only : neko_field_registry
   use field, only : field_t
   use operators, only : dudxyz, strain_rate
@@ -145,32 +145,32 @@ contains
        do concurrent(i = 1:coef%Xh%lxyz)
           ! gij^2 = g_ik * g_kj
           gsqr_11 = g11%x(i,1,1,e)*g11%x(i,1,1,e) + &
-               g12%x(i,1,1,e)*g21%x(i,1,1,e) + &
-               g13%x(i,1,1,e)*g31%x(i,1,1,e)
+                g12%x(i,1,1,e)*g21%x(i,1,1,e) + &
+                g13%x(i,1,1,e)*g31%x(i,1,1,e)
           gsqr_12 = g11%x(i,1,1,e)*g12%x(i,1,1,e) + &
-               g12%x(i,1,1,e)*g22%x(i,1,1,e) + &
-               g13%x(i,1,1,e)*g32%x(i,1,1,e)
+                g12%x(i,1,1,e)*g22%x(i,1,1,e) + &
+                g13%x(i,1,1,e)*g32%x(i,1,1,e)
           gsqr_13 = g11%x(i,1,1,e)*g13%x(i,1,1,e) + &
-               g12%x(i,1,1,e)*g23%x(i,1,1,e) + &
-               g13%x(i,1,1,e)*g33%x(i,1,1,e)
+                g12%x(i,1,1,e)*g23%x(i,1,1,e) + &
+                g13%x(i,1,1,e)*g33%x(i,1,1,e)
           gsqr_21 = g21%x(i,1,1,e)*g11%x(i,1,1,e) + &
-               g22%x(i,1,1,e)*g21%x(i,1,1,e) + &
-               g23%x(i,1,1,e)*g31%x(i,1,1,e)
+                g22%x(i,1,1,e)*g21%x(i,1,1,e) + &
+                g23%x(i,1,1,e)*g31%x(i,1,1,e)
           gsqr_22 = g21%x(i,1,1,e)*g12%x(i,1,1,e) + &
-               g22%x(i,1,1,e)*g22%x(i,1,1,e) + &
-               g23%x(i,1,1,e)*g32%x(i,1,1,e)
+                g22%x(i,1,1,e)*g22%x(i,1,1,e) + &
+                g23%x(i,1,1,e)*g32%x(i,1,1,e)
           gsqr_23 = g21%x(i,1,1,e)*g13%x(i,1,1,e) + &
-               g22%x(i,1,1,e)*g23%x(i,1,1,e) + &
-               g23%x(i,1,1,e)*g33%x(i,1,1,e)
+                g22%x(i,1,1,e)*g23%x(i,1,1,e) + &
+                g23%x(i,1,1,e)*g33%x(i,1,1,e)
           gsqr_31 = g31%x(i,1,1,e)*g11%x(i,1,1,e) + &
-               g32%x(i,1,1,e)*g21%x(i,1,1,e) + &
-               g33%x(i,1,1,e)*g31%x(i,1,1,e)
+                g32%x(i,1,1,e)*g21%x(i,1,1,e) + &
+                g33%x(i,1,1,e)*g31%x(i,1,1,e)
           gsqr_32 = g31%x(i,1,1,e)*g12%x(i,1,1,e) + &
-               g32%x(i,1,1,e)*g22%x(i,1,1,e) + &
-               g33%x(i,1,1,e)*g32%x(i,1,1,e)
+                g32%x(i,1,1,e)*g22%x(i,1,1,e) + &
+                g33%x(i,1,1,e)*g32%x(i,1,1,e)
           gsqr_33 = g31%x(i,1,1,e)*g13%x(i,1,1,e) + &
-               g32%x(i,1,1,e)*g23%x(i,1,1,e) + &
-               g33%x(i,1,1,e)*g33%x(i,1,1,e)
+                g32%x(i,1,1,e)*g23%x(i,1,1,e) + &
+                g33%x(i,1,1,e)*g33%x(i,1,1,e)
 
           ! sdij components
           sd11 = gsqr_11 - ( (gsqr_11 + gsqr_22 + gsqr_33) / 3.0_rp)
@@ -182,15 +182,15 @@ contains
 
           ! Sdij*Sdij
           Sdij_Sdij = sd11*sd11 + sd22*sd22 + sd33*sd33 + &
-               2.0_rp * (sd12*sd12 + sd13*sd13 + sd23*sd23)
+                            2.0_rp * (sd12*sd12 + sd13*sd13 + sd23*sd23)
           ! Sij*Sij
           Sij_Sij = s11%x(i,1,1,e)*s11%x(i,1,1,e) + s22%x(i,1,1,e)*s22%x(i,1,1,e) + &
-               s33%x(i,1,1,e)*s33%x(i,1,1,e) + 2.0_rp * (s12%x(i,1,1,e)*s12%x(i,1,1,e) + &
-               s13%x(i,1,1,e)*s13%x(i,1,1,e) + s23%x(i,1,1,e)*s23%x(i,1,1,e))
+                    s33%x(i,1,1,e)*s33%x(i,1,1,e) + 2.0_rp * (s12%x(i,1,1,e)*s12%x(i,1,1,e) + &
+                    s13%x(i,1,1,e)*s13%x(i,1,1,e) + s23%x(i,1,1,e)*s23%x(i,1,1,e))
 
           ! Wale operator
           OP_wale = Sdij_Sdij**(3.0_rp / 2.0_rp) / &
-               max((Sij_Sij**(5.0_rp / 2.0_rp) + Sdij_Sdij**(5.0_rp / 4.0_rp)), NEKO_EPS)
+                    max((Sij_Sij**(5.0_rp / 2.0_rp) + Sdij_Sdij**(5.0_rp / 4.0_rp)), NEKO_EPS)
 
           ! turbulent viscosity
           nut%x(i,1,1,e) = c_w**2 * delta%x(i,1,1,e)**2 * OP_wale * coef%mult(i,1,1,e)

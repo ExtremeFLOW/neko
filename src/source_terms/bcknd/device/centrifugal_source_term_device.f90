@@ -38,7 +38,7 @@ module centrifugal_source_term_device
   use field, only : field_t
   use dofmap, only : dofmap_t
   use device_math, only : device_add3s2, device_add2, device_cadd2
-  use field_scratch_registry, only : neko_scratch_registry
+  use scratch_registry, only : neko_scratch_registry
   implicit none
   private
 

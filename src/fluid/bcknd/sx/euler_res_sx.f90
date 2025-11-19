@@ -9,7 +9,7 @@ module euler_res_sx
   use math, only: subcol3, copy, sub2, add2, add3, &
        col2, col3, addcol3, cmult, cfill, invcol3
   use gs_ops, only : GS_OP_ADD
-  use field_scratch_registry, only: neko_scratch_registry
+  use scratch_registry, only: neko_scratch_registry
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   use field_list, only : field_list_t
   implicit none

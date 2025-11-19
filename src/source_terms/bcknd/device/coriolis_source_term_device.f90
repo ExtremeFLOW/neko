@@ -36,7 +36,7 @@ module coriolis_source_term_device
   use field_list, only : field_list_t
   use field, only : field_t
   use device_math, only : device_copy, device_add3s2, device_add2, device_cadd
-  use field_scratch_registry, only : neko_scratch_registry
+  use scratch_registry, only : neko_scratch_registry
   implicit none
   private
 

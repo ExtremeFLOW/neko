@@ -47,7 +47,7 @@ module spalding
   use vector, only : vector_t
   use math, only: masked_gather_copy_0
   use device_math, only: device_masked_gather_copy_0
-  use field_scratch_registry, only : neko_scratch_registry
+  use scratch_registry, only : neko_scratch_registry
 
   implicit none
   private

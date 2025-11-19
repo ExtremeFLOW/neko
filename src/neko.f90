@@ -113,8 +113,8 @@ module neko
   use system, only : system_cpu_name, system_cpuid
   use drag_torque, only : drag_torque_zone, drag_torque_facet, drag_torque_pt
   use field_registry, only : neko_field_registry
-  use field_scratch_registry, only : field_scratch_registry_t, &
-       neko_scratch_registry
+  use scratch_registry, only : scratch_registry_t, neko_scratch_registry
+  use field_scratch_registry, only : field_scratch_registry_t
   use vector_scratch_registry, only : vector_scratch_registry_t, &
        neko_vector_scratch_registry
   use matrix_scratch_registry, only : matrix_scratch_registry_t, &

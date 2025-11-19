@@ -35,7 +35,7 @@ module vreman_cpu
   use num_types, only : rp
   use field_list, only : field_list_t
   use math, only : cadd, NEKO_EPS, col2
-  use field_scratch_registry, only : neko_scratch_registry
+  use scratch_registry, only : neko_scratch_registry
   use field_registry, only : neko_field_registry
   use field, only : field_t
   use operators, only : dudxyz
