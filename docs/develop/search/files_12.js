@@ -5,7 +5,7 @@ var searchData=
   ['rea_2ef90_2',['rea.f90',['../d5/d56/rea_8f90.html',1,'']]],
   ['rea2nbin_2ef90_3',['rea2nbin.f90',['../d7/d64/rea2nbin_8f90.html',1,'']]],
   ['rea_5ffile_2ef90_4',['rea_file.f90',['../dd/def/rea__file_8f90.html',1,'']]],
-  ['readme_2emd_5',['README.md',['../da/ddd/README_8md.html',1,'']]],
+  ['readme_2emd_5',['readme.md',['../dd/d36/programming_2README_8md.html',1,'(Global Namespace)'],['../d4/da5/api_2c_2README_8md.html',1,'(Global Namespace)'],['../d1/d25/api_2Neko_8jl_2README_8md.html',1,'(Global Namespace)'],['../de/df8/api_2pyneko_2README_8md.html',1,'(Global Namespace)']]],
   ['redist_2ef90_6',['redist.f90',['../d3/d0d/redist_8f90.html',1,'']]],
   ['registries_2ef90_7',['registries.f90',['../dd/dd5/registries_8f90.html',1,'']]],
   ['rhs_5fmaker_2ec_8',['rhs_maker.c',['../d8/dae/rhs__maker_8c.html',1,'']]],

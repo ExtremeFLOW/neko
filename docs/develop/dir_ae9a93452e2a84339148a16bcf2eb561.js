@@ -20,5 +20,6 @@ var dir_ae9a93452e2a84339148a16bcf2eb561 =
     [ "tensor.f90", "d1/d85/tensor_8f90.html", "d1/d85/tensor_8f90" ],
     [ "vector.f90", "d3/db2/vector_8f90.html", "d3/db2/vector_8f90" ],
     [ "vector_math.f90", "d6/d03/vector__math_8f90.html", "d6/d03/vector__math_8f90" ],
+    [ "vector_registry.f90", "d2/d4c/vector__registry_8f90.html", "d2/d4c/vector__registry_8f90" ],
     [ "vector_scratch_registry.f90", "d1/de3/vector__scratch__registry_8f90.html", "d1/de3/vector__scratch__registry_8f90" ]
 ];

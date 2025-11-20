@@ -1,0 +1,7 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$d4/d70/structwall__model_1_1wall__model__t.html" title="Base abstract type for wall&#45;stress models for wall&#45;modelled LES." alt="" coords="5,42,197,67"/>
+<area shape="rect" id="Node000001" href="$df/d21/structrough__log__law_1_1rough__log__law__t.html" title="Wall model based on the log&#45;law for a rough wall. The formula defining the law is ...." alt="" coords="245,5,405,45"/>
+<area shape="poly" id="edge206_Node000000_Node000001" title=" " alt="" coords="211,38,245,33,246,38,212,43"/>
+<area shape="rect" id="Node000002" href="$df/df1/structspalding_1_1spalding__t.html" title="Wall model based on Spalding&#39;s law of the wall. Reference: http://dx.doi.org/10.1115/1...." alt="" coords="249,70,401,95"/>
+<area shape="poly" id="edge207_Node000000_Node000002" title=" " alt="" coords="212,66,250,71,249,76,211,71"/>
+</map>

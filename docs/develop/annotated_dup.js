@@ -1446,6 +1446,10 @@ var annotated_dup =
       [ "vector_ptr_t", "d5/d0b/structvector_1_1vector__ptr__t.html", "d5/d0b/structvector_1_1vector__ptr__t" ],
       [ "vector_t", "d3/d5b/structvector_1_1vector__t.html", "d3/d5b/structvector_1_1vector__t" ]
     ] ],
+    [ "vector_registry", "d1/d52/namespacevector__registry.html", [
+      [ "named_vector_t", "df/d1e/structvector__registry_1_1named__vector__t.html", "df/d1e/structvector__registry_1_1named__vector__t" ],
+      [ "vector_registry_t", "d7/d8f/structvector__registry_1_1vector__registry__t.html", "d7/d8f/structvector__registry_1_1vector__registry__t" ]
+    ] ],
     [ "vector_scratch_registry", "d3/d7b/namespacevector__scratch__registry.html", [
       [ "vector_scratch_registry_t", "da/d4a/structvector__scratch__registry_1_1vector__scratch__registry__t.html", "da/d4a/structvector__scratch__registry_1_1vector__scratch__registry__t" ]
     ] ],

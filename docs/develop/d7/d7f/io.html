@@ -102,23 +102,23 @@ $(document).ready(function(){initNavTree('d7/d7f/io.html','../../'); initResizab
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#autotoc_md119">Mesh</a></li>
-<li class="level1"><a href="#autotoc_md120">Three-dimensional field output</a><ul><li class="level2"><a href="#autotoc_md121">Compression of field output</a></li>
+<ul><li class="level1"><a href="#autotoc_md122">Mesh</a></li>
+<li class="level1"><a href="#autotoc_md123">Three-dimensional field output</a><ul><li class="level2"><a href="#autotoc_md124">Compression of field output</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md122">Checkpoint files</a></li>
+<li class="level1"><a href="#autotoc_md125">Checkpoint files</a></li>
 </ul>
 </div>
-<div class="textblock"><h1><a class="anchor" id="autotoc_md119"></a>
+<div class="textblock"><h1><a class="anchor" id="autotoc_md122"></a>
 Mesh</h1>
 <p>Neko has its own mesh format, <code>.nmsh</code>. All meshes should be 3D and consist of hexahedral elements. A 2D or 1D case can be mimicked by having a single element across selected axes and applying periodic boundary conditions.</p>
 <p>A native mesh generator for simple box meshes, called <code>genmeshbox</code>, is part of Neko, and is used in some of the examples, for example <code>advecting_cone</code>. The usage is straightforward, and is well described by the help string provided when running the utility.</p>
 <p>The main way of obtaining a <code>.nmsh</code> is converting a Nek5000 <code>.<a class="el" href="../../dd/da1/namespacere2.html" title="NEKTON re2 format.">re2</a></code> mesh file using the <code>rea2nbin</code> utility. Nek5000, in turn, has several converters among its tools, such as <code>gmsh2nek</code>. The latter is also available under the <code>contrib</code> directory in Neko. The workflow is thus to export your mesh into a format, which can be converted to <code>.<a class="el" href="../../dd/da1/namespacere2.html" title="NEKTON re2 format.">re2</a></code>, and then convert the <code>.<a class="el" href="../../dd/da1/namespacere2.html" title="NEKTON re2 format.">re2</a></code> to <code>.nmsh</code>. Of course one can also use native Nek5000 tools to produce the <code>.<a class="el" href="../../dd/da1/namespacere2.html" title="NEKTON re2 format.">re2</a></code>, such as <code>genbox</code>. In the future, native support for other formats than <code>.nmsh</code> will be added for convenience.</p>
 <p>It should be noted, that the <code>.<a class="el" href="../../dd/da1/namespacere2.html" title="NEKTON re2 format.">re2</a></code> format allows to store boundary conditions. This is relevant for users that have old Nek5000 cases, who wish to convert them to Neko. Boundary conditions are not converted by Neko as such, but the faces where they were applied are saved into regular boundary zones. The relevant conditions should then be prescribed in the case file as usual. Note also that periodic boundaries are directly encoded into the mesh file, and this will remain so in the future.</p>
-<h1><a class="anchor" id="autotoc_md120"></a>
+<h1><a class="anchor" id="autotoc_md123"></a>
 Three-dimensional field output</h1>
 <p>Neko stores the 3D fields with results in the <code>.f#####</code> format, which is the same as in Nek5000. The advantage of adopting this format, is that there is a reader in Paraview and VisIt, which can be used to visualize them. Note that the latest version of Paraview actually has two readers for <code>.f#####</code>. For now, Neko has been thoroughly tested with the older reader, which uses VisIt under the hood. However, the new reader was used for the smaller cases as well. A file with the <code>.nek5000</code> extension is used as the entry point for the readers and stores some metadata. Users may also find the Python package <a href="https://github.com/ExtremeFLOW/pySEMTools"><code>pysemtools</code></a> useful for working with <code>.f#####</code>s. Note that only the first output <code>.f#####</code> file stores the mesh. Detailded description of the file format can be found in <a href="https://nek5000.github.io/NekDoc/problem_setup/case_files.html#restart-output-files-f">Nek5000 documentation</a>. Notice, for brievity in this manual we often call <code>.f#####</code> file format an <code>.fld</code> one and in some cases Neko even outputs files with <code>.fld</code> extension. However, in all cases we refer to the binary <code>.f#####</code> format and not to the Nek5000 text file format with the same extension.</p>
-<h2><a class="anchor" id="autotoc_md121"></a>
+<h2><a class="anchor" id="autotoc_md124"></a>
 Compression of field output</h2>
 <p>Neko supports compression of the 3D field data when writing through the ADIOS2. If the ADIOS2 dependency was compiled with compression library support like BigWhoop, SZ, or ZFP the field output can be compressed using one of these lossy compressors (and other lossless compression techniques.) Using algorithms based on image compression, such as BigWhoop and ZFP, the local structure from higher order elements needs to be regarded. Setting <code>output\_layout=2</code> uses the implicit neighbourhood relations of DoFs in x,y,z in a 4D layout. The first three dimensions represent the DoFs and the fourth dimension refers to the number of elements in numeric order. This layout can be used for BigWhoop and ZFP. Additionally, benefits in compression efficiency can be observed for BigWhoop when packing and compressing field parameters together, effectively adding a fifth dimension for the number of field parameters. This layout is enabled when <code>output\_format=3</code>. (The default <code>output_layout=1</code> creates a contiguous 1D array access pattern equivalent to the data layout in the nek5000 files.)</p>
 <p>The compression algorithms are controlled by an additional file <code>adios2.xml</code>. Please refer to the documentation of ADIOS2 (and the specific compression library) to configure the data "operators" of the parallel I/O library.</p>
@@ -126,7 +126,7 @@ Compression of field output</h2>
 </div><!-- fragment --><p> The bool parameter specifies whether output is written using double precision. The parsed integer specifies the data layout in the case of an ADIOS2 <code>.bp</code> output file.</p>
 <p>The tool <code>psnr</code> can be used to analyze the Peak-Signal-to-Noise Ratio (PSNR), quantifying the compression efficiency, namely, the relation between compression ratio and the lost accuracy due to lossy data compression. </p><div class="fragment"><div class="line">psnr compressed_fields.bp uncompressed_fields.fld/bp .false.</div>
 </div><!-- fragment --><p> (The bool parameter specifies whether output should be double precision.) Test data sets can be generated during preprocessing and in an initial case setup workflow to compare and find an optimal compression rate with an acceptable accuracy loss. The value of the PSNR decreases with increasing accuracy loss. Tune the compression by increasing the compression ratio until a desired lower limiting value for the PSNR is reached. As a rule of thumb, target values of 60 or 40 can be used as lower limit for accurate postprocessing or visualization, respectively. Separately, it is recommended to check for compression errors from lossy compressors in the specific quantities of interest in postprocessing and visualization.</p>
-<h1><a class="anchor" id="autotoc_md122"></a>
+<h1><a class="anchor" id="autotoc_md125"></a>
 Checkpoint files</h1>
 <p>Simulations cannot be restarted from <code>.fld</code> files (although you can use an <code>fld</code> to provide initial conditions). Instead, separate checkpoint files can be output for the purpose of restarts. These contain additional information allowing a clean restart, with, e.g., the correct time integration order. A separate file format, <code>.chkp</code> is adopted for the checkpoint files. </p>
 </div></div><!-- contents -->
@@ -136,7 +136,7 @@ Checkpoint files</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Wed Nov 19 2025 03:47:26 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Nov 20 2025 03:46:45 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
