@@ -115,9 +115,6 @@ module neko
   use drag_torque, only : drag_torque_zone, drag_torque_facet, drag_torque_pt
   use field_registry, only : neko_field_registry, field_registry_t
   use scratch_registry, only : neko_scratch_registry, scratch_registry_t
-  use field_scratch_registry, only : field_scratch_registry_t
-  use vector_scratch_registry, only : vector_scratch_registry_t
-  use matrix_scratch_registry, only : matrix_scratch_registry_t
   use simcomp_executor, only : neko_simcomps
   use data_streamer, only : data_streamer_t
   use time_interpolator, only : time_interpolator_t
