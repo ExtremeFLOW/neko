@@ -128,7 +128,7 @@ contains
     integer, optional, intent(in) :: size
     integer, optional, intent(in) :: expansion_size
     type(dofmap_t), target, intent(in), optional :: dof
-    integer :: i, s
+    integer :: s
 
     call this%free()
 
@@ -171,14 +171,20 @@ contains
   end subroutine scratch_registry_free
 
   !> Assign a dofmap to the scratch registry.
+  !! @param dof Dofmap to assign
+  !! @note First check if a dofmap is already assigned, and throw an error,
+  !!       unless it's the same dofmap.
   subroutine scratch_registry_set_dofmap(this, dof)
     class(scratch_registry_t), intent(inout) :: this
     type(dofmap_t), target, intent(in) :: dof
 
-    if (associated(this%dof)) then
+    if (associated(this%dof, dof)) then
+       return
+    else if (associated(this%dof)) then
        call neko_error("scratch_registry::set_dofmap: "&
             // "Dofmap is already assigned to scratch registry.")
     end if
+
     this%dof => dof
   end subroutine scratch_registry_set_dofmap
 
