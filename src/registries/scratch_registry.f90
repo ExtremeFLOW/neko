@@ -35,7 +35,7 @@
 !! often and you don't want to create temporary objects (work arrays) inside
 !! it on each call.
 module scratch_registry
-  use scratch_entry, only : scratch_entry_t
+  use registry_entry, only : registry_entry_t
   use field, only : field_t
   use vector, only : vector_t
   use matrix, only : matrix_t
@@ -51,7 +51,7 @@ module scratch_registry
 
   type, public :: scratch_registry_t
      !> list of scratch fields
-     type(scratch_entry_t), private, allocatable :: registry(:)
+     type(registry_entry_t), private, allocatable :: registry(:)
      !> Tracks which fields are used
      logical, private, allocatable :: inuse(:)
      !> number of registered fields
@@ -231,7 +231,7 @@ contains
 
   subroutine expand(this)
     class(scratch_registry_t), intent(inout) :: this
-    type(scratch_entry_t), allocatable :: temp(:)
+    type(registry_entry_t), allocatable :: temp(:)
     logical, allocatable :: temp2(:)
     integer :: i
 

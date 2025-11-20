@@ -33,7 +33,7 @@
 !> Defines a registry entry for storing and requesting temporary objects
 !! This is used in the scratch registries to store temporary fields, vectors,
 !! and matrices.
-module scratch_entry
+module registry_entry
   use field, only : field_t
   use vector, only : vector_t
   use matrix, only : matrix_t
@@ -43,8 +43,9 @@ module scratch_entry
   implicit none
   private
 
-  type, public :: scratch_entry_t
-     character(len=32) :: type = ''
+  type, public :: registry_entry_t
+     character(len=:), allocatable :: name
+     character(len=:), allocatable :: type
      logical :: allocated = .false.
 
      type(field_t), pointer :: field_ptr => null()
@@ -56,16 +57,15 @@ module scratch_entry
      procedure, pass(this) :: init_vector => init_register_vector
      procedure, pass(this) :: init_matrix => init_register_matrix
      procedure, pass(this) :: free => free_register
-  end type scratch_entry_t
+  end type registry_entry_t
 
 contains
 
 !> Initialize a register entry
   subroutine init_register_field(this, dof, name)
-    class(scratch_entry_t), intent(inout) :: this
+    class(registry_entry_t), intent(inout) :: this
     type(dofmap_t), target, intent(in) :: dof
     character(len=*), intent(in) :: name
-    character(len=:), allocatable :: err_msg
 
     if (this%allocated) then
        call neko_error("scratch_registry::init_register_field: "&
@@ -77,16 +77,17 @@ contains
     allocate(this%field_ptr)
     call this%field_ptr%init(dof, trim(name))
 
+    this%name = trim(name)
     this%type = 'field'
     this%allocated = .true.
 
   end subroutine init_register_field
 
   !> Initialize a register entry
-  subroutine init_register_vector(this, n)
-    class(scratch_entry_t), intent(inout) :: this
+  subroutine init_register_vector(this, n, name)
+    class(registry_entry_t), intent(inout) :: this
     integer, intent(in) :: n
-    character(len=:), allocatable :: err_msg
+    character(len=*), optional, intent(in) :: name
 
     if (this%allocated) then
        call neko_error("scratch_registry::init_register_vector: "&
@@ -98,16 +99,17 @@ contains
     allocate(this%vector_ptr)
     call this%vector_ptr%init(n)
 
+    if (present(name)) this%name = trim(name)
     this%type = 'vector'
     this%allocated = .true.
 
   end subroutine init_register_vector
 
   !> Initialize a register entry
-  subroutine init_register_matrix(this, nrows, ncols)
-    class(scratch_entry_t), intent(inout) :: this
+  subroutine init_register_matrix(this, nrows, ncols, name)
+    class(registry_entry_t), intent(inout) :: this
     integer, intent(in) :: nrows, ncols
-    character(len=:), allocatable :: err_msg
+    character(len=*), optional, intent(in) :: name
 
     if (this%allocated) then
        call neko_error("scratch_registry::init_register_matrix: "&
@@ -119,6 +121,7 @@ contains
     allocate(this%matrix_ptr)
     call this%matrix_ptr%init(nrows, ncols)
 
+    if (present(name)) this%name = trim(name)
     this%type = 'matrix'
     this%allocated = .true.
 
@@ -126,7 +129,7 @@ contains
 
   !> Free a register entry
   subroutine free_register(this)
-    class(scratch_entry_t), intent(inout) :: this
+    class(registry_entry_t), intent(inout) :: this
 
     if (associated(this%field_ptr)) then
        call this%field_ptr%free()
@@ -143,8 +146,10 @@ contains
        deallocate(this%matrix_ptr)
     end if
 
+    if (allocated(this%name)) deallocate(this%name)
+    if (allocated(this%type)) deallocate(this%type)
     this%allocated = .false.
-    this%type = ''
+
   end subroutine free_register
 
-end module scratch_entry
+end module registry_entry
