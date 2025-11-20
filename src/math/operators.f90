@@ -753,13 +753,7 @@ contains
     integer, intent(in) :: idir
     type(coef_t), intent(in) :: coef
     if (coef%cyclic) then
-       if (NEKO_BCKND_SX .eq. 1) then
-          !>@todo rotate_cyc for sx
-          write(*, *) "rotate is not available in SX yet"
-       else if (NEKO_BCKND_XSMM .eq. 1) then
-          !>@todo rotate_cyc for xsmm
-          write(*, *) "rotate is not available in XSMM yet"
-       else if (NEKO_BCKND_DEVICE .eq. 1) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
           call opr_device_rotate_cyc_r1(vx, vy, vz, idir, coef)
        else
           call opr_cpu_rotate_cyc_r1(vx, vy, vz, idir, coef)
