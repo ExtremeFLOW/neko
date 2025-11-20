@@ -1,20 +1,19 @@
 module test_scratch_registry
   use pfunit
-  use field
-  use vector
-  use device
-  use matrix
-  use point
-  use space
-  use mesh
-  use dofmap
-  use math
-  use field_math
-  use vector_math
-  use matrix_math
-  use scratch_registry
-  use comm, only : NEKO_COMM, pe_rank, pe_size
-  use num_types
+  use field, only : field_t
+  use vector, only : vector_t
+  use matrix, only : matrix_t
+  use point, only : point_t
+  use space, only : space_t, GLL
+  use mesh, only : mesh_t
+  use dofmap, only : dofmap_t
+  use field_math, only : field_cfill
+  use vector_math, only : vector_cfill
+  use matrix_math, only : matrix_cfill
+  use scratch_registry, only : scratch_registry_t
+  use num_types, only : rp
+  use device, only : DEVICE_TO_HOST
+  use comm, only : pe_rank, pe_size
   implicit none
 
 contains
@@ -71,8 +70,7 @@ contains
     call Xh%init(GLL, lx, lx, lx)
     call dm%init(msh, Xh)
 
-    call scratch%init()
-    call scratch%set_dofmap(dm)
+    call scratch%init(dof = dm)
 
     @assertEqual(scratch%get_n_available(), 0)
     @assertEqual(scratch%get_expansion_size(), 10)
@@ -111,7 +109,9 @@ contains
     type(mesh_t) :: msh
     type(dofmap_t) :: dm
     type(scratch_registry_t) :: scratch
-    type(field_t), pointer :: f1, f2, f3
+    type(field_t), pointer :: f1
+    type(vector_t), pointer :: v2
+    type(matrix_t), pointer :: m3
     integer :: ierr, index1, index2, index3
     integer, parameter :: LX = 3
 
@@ -123,8 +123,8 @@ contains
     call scratch%init(5, 3, dm)
 
     call scratch%request_field(f1, index1)
-    call scratch%request_field(f2, index2)
-    call scratch%request_field(f3, index3)
+    call scratch%request_vector(42, v2, index2)
+    call scratch%request_matrix(42, 42, m3, index3)
     @assertEqual(index1, 1)
     @assertEqual(index2, 2)
     @assertEqual(scratch%get_inuse(index1), .true.)
@@ -133,13 +133,21 @@ contains
     @assertEqual(scratch%get_n_inuse(), 3)
 
     ! do something with the field
-    call cfill(f1%x, 1.0_rp, f1%size())
-    call cfill(f2%x, 2.0_rp, f2%size())
-    call cfill(f3%x, 3.0_rp, f3%size())
-    @assertEqual(f1%x(1,1,1,1), 1.0_rp)
-    @assertEqual(f2%x(1,1,1,1), 2.0_rp)
-    @assertEqual(f3%x(1,1,1,1), 3.0_rp)
+    call field_cfill(f1, 1.0_rp)
+    call vector_cfill(v2, 2.0_rp)
+    call matrix_cfill(m3, 3.0_rp)
 
+    call f1%copy_from(DEVICE_TO_HOST, sync = .false.)
+    call v2%copy_from(DEVICE_TO_HOST, sync = .false.)
+    call m3%copy_from(DEVICE_TO_HOST, sync = .false.)
+
+    @assertEqual(f1%x(1, 1, 1, 1), 1.0_rp)
+    @assertEqual(v2%x(1), 2.0_rp)
+    @assertEqual(m3%x(1, 1), 3.0_rp)
+
+    call scratch%relinquish(index1)
+    call scratch%relinquish(index2)
+    call scratch%relinquish(index3)
     call scratch%free()
   end subroutine test_scratch_registry_request_field_fresh
 
@@ -160,7 +168,7 @@ contains
     call scratch%init(5, 3, dm)
 
     call scratch%request_field(f, index)
-    call scratch%relinquish_field(index)
+    call scratch%relinquish(index)
     @assertEqual(scratch%get_inuse(index), .false.)
     @assertEqual(scratch%get_n_inuse(), 0)
     @assertEqual(scratch%get_n_available(), 1)
@@ -169,174 +177,14 @@ contains
   end subroutine test_scratch_registry_relinquish_field
 
   @test
-  subroutine test_scratch_registry_request_vector_fresh()
-    type(scratch_registry_t) :: scratch
-    type(vector_t), pointer :: v1, v2, v3
-    integer :: ierr, index1, index2, index3
-
-    ! write(*,*) "TEST FRESH"
-
-    call scratch%init(5, 3)
-
-    call scratch%request_vector(42, v1, index1)
-    call scratch%request_vector(42, v2, index2)
-    call scratch%request_vector(42, v3, index3)
-    @assertEqual(index1, 1)
-    @assertEqual(index2, 2)
-    @assertEqual(scratch%get_inuse(index1), .true.)
-    @assertEqual(scratch%get_inuse(index2), .true.)
-    @assertEqual(scratch%get_n_available(), 3)
-    @assertEqual(scratch%get_n_inuse(), 3)
-
-    ! do something with the vector
-    call vector_cfill(v1, 1.0_rp)
-    call vector_cfill(v2, 2.0_rp)
-    call vector_cfill(v3, 3.0_rp)
-
-    call v1%copy_from(DEVICE_TO_HOST, sync = .false.)
-    call v2%copy_from(DEVICE_TO_HOST, sync = .false.)
-    call v3%copy_from(DEVICE_TO_HOST, sync = .false.)
-
-    @assertEqual(v1%x(1), 1.0_rp)
-    @assertEqual(v2%x(1), 2.0_rp)
-    @assertEqual(v3%x(1), 3.0_rp)
-
-    call scratch%free()
-  end subroutine test_scratch_registry_request_vector_fresh
-
-  @test
-  subroutine test_scratch_registry_relinquish_vector()
-    type(scratch_registry_t) :: scratch
-    type(vector_t), pointer :: v
-    integer :: ierr, index
-    !
-    call scratch%init(5, 3)
-
-    call scratch%request_vector(42, v, index)
-    call scratch%relinquish_vector(index)
-    @assertEqual(scratch%get_inuse(index), .false.)
-    @assertEqual(scratch%get_n_inuse(), 0)
-    @assertEqual(scratch%get_n_available(), 1)
-
-    call scratch%free()
-  end subroutine test_scratch_registry_relinquish_vector
-
-  @test
-  subroutine test_scratch_registry_request_matrix_fresh()
-    type(scratch_registry_t) :: scratch
-    type(matrix_t), pointer :: m1, m2, m3
-    integer :: ierr, index1, index2, index3
-
-    ! write(*,*) "TEST FRESH"
-
-    call scratch%init(5, 3)
-
-    call scratch%request_matrix(42, 42, m1, index1)
-    call scratch%request_matrix(42, 42, m2, index2)
-    call scratch%request_matrix(42, 42, m3, index3)
-    @assertEqual(index1, 1)
-    @assertEqual(index2, 2)
-    @assertEqual(scratch%get_inuse(index1), .true.)
-    @assertEqual(scratch%get_inuse(index2), .true.)
-    @assertEqual(scratch%get_n_available(), 3)
-    @assertEqual(scratch%get_n_inuse(), 3)
-
-    ! do something with the matrix
-    call matrix_cfill(m1, 1.0_rp)
-    call matrix_cfill(m2, 2.0_rp)
-    call matrix_cfill(m3, 3.0_rp)
-
-    call m1%copy_from(DEVICE_TO_HOST, sync = .false.)
-    call m2%copy_from(DEVICE_TO_HOST, sync = .false.)
-    call m3%copy_from(DEVICE_TO_HOST, sync = .false.)
-
-    @assertEqual(m1%x(1, 1), 1.0_rp)
-    @assertEqual(m2%x(1, 1), 2.0_rp)
-    @assertEqual(m3%x(1, 1), 3.0_rp)
-
-    call scratch%free()
-  end subroutine test_scratch_registry_request_matrix_fresh
-
-  @test
-  subroutine test_scratch_registry_relinquish_matrix()
-    type(scratch_registry_t) :: scratch
-    type(matrix_t), pointer :: m
-    integer :: ierr, index
-    !
-    call scratch%init(5, 3)
-
-    call scratch%request_matrix(42, 42, m, index)
-    call scratch%relinquish_matrix(index)
-    @assertEqual(scratch%get_inuse(index), .false.)
-    @assertEqual(scratch%get_n_inuse(), 0)
-    @assertEqual(scratch%get_n_available(), 1)
-
-    call scratch%free()
-  end subroutine test_scratch_registry_relinquish_matrix
-
-  @test
-  subroutine test_scratch_registry_request_mixed_fresh()
+  subroutine test_vector_scratch_registry_relinquish_field_list()
     type(space_t) :: Xh
     type(mesh_t) :: msh
     type(dofmap_t) :: dm
     type(scratch_registry_t) :: scratch
-    type(field_t), pointer :: f1, f2, f3
-    type(vector_t), pointer :: v1
-    type(matrix_t), pointer :: m1
-    integer :: ierr, index1, index2, index3, index4, index5
-    integer, parameter :: LX = 3
-
-    ! write(*,*) "TEST FRESH"
-    call test_scratch_registry_gen_msh(msh)
-    call Xh%init(GLL, lx, lx, lx)
-    call dm%init(msh, Xh)
-
-    call scratch%init(5, 3, dm)
-
-    call scratch%request_field(f1, index1)
-    call scratch%request_field(f2, index2)
-    call scratch%request_field(f3, index3)
-    call scratch%request_vector(42, v1, index4)
-    call scratch%request_matrix(42, 42, m1, index5)
-
-    @assertEqual(index1, 1)
-    @assertEqual(index2, 2)
-    @assertEqual(index3, 3)
-    @assertEqual(index4, 4)
-    @assertEqual(index5, 5)
-    @assertEqual(scratch%get_inuse(index1), .true.)
-    @assertEqual(scratch%get_inuse(index2), .true.)
-    @assertEqual(scratch%get_inuse(index3), .true.)
-    @assertEqual(scratch%get_inuse(index4), .true.)
-    @assertEqual(scratch%get_inuse(index5), .true.)
-    @assertEqual(scratch%get_n_available(), 5)
-    @assertEqual(scratch%get_n_inuse(), 5)
-
-    ! do something with the field
-    call cfill(f1%x, 1.0_rp, f1%size())
-    call cfill(f2%x, 2.0_rp, f2%size())
-    call cfill(f3%x, 3.0_rp, f3%size())
-    call cfill(v1%x, 4.0_rp, v1%size())
-    call cfill(m1%x, 5.0_rp, m1%size())
-    @assertEqual(f1%x(1,1,1,1), 1.0_rp)
-    @assertEqual(f2%x(1,1,1,1), 2.0_rp)
-    @assertEqual(f3%x(1,1,1,1), 3.0_rp)
-    @assertEqual(v1%x(1), 4.0_rp)
-    @assertEqual(m1%x(1,1), 5.0_rp)
-
-    call scratch%free()
-  end subroutine test_scratch_registry_request_mixed_fresh
-
-  @test
-  subroutine test_scratch_registry_relinquish_mixed()
-    type(space_t) :: Xh
-    type(mesh_t) :: msh
-    type(dofmap_t) :: dm
-    type(scratch_registry_t) :: scratch
-    type(field_t), pointer :: f
-    type(vector_t), pointer :: v
-    type(matrix_t), pointer :: m
-    integer :: ierr, index, v_index, m_index
+    type(field_t), pointer :: f1
+    type(vector_t), pointer :: v2
+    integer :: ierr, indices(2)
     integer, parameter :: LX = 3
 
     call test_scratch_registry_gen_msh(msh)
@@ -345,21 +193,16 @@ contains
 
     call scratch%init(5, 3, dm)
 
-    call scratch%request_field(f, index)
-    call scratch%relinquish_field(index)
-
-    call scratch%request_vector(42, v, v_index)
-    call scratch%relinquish_vector(v_index)
-
-    call scratch%request_matrix(42, 42, m, m_index)
-    call scratch%relinquish_matrix(m_index)
-
-    @assertEqual(scratch%get_inuse(index), .false.)
+    call scratch%request_field(f1, indices(1))
+    call scratch%request_vector(42, v2, indices(2))
+    call scratch%relinquish(indices)
+    @assertEqual(scratch%get_inuse(indices(1)), .false.)
+    @assertEqual(scratch%get_inuse(indices(2)), .false.)
     @assertEqual(scratch%get_n_inuse(), 0)
-    @assertEqual(scratch%get_n_available(), 3)
+    @assertEqual(scratch%get_n_available(), 2)
 
     call scratch%free()
-  end subroutine test_scratch_registry_relinquish_mixed
+  end subroutine test_vector_scratch_registry_relinquish_field_list
 
   @test
   subroutine test_scratch_registry_expand()
@@ -367,10 +210,9 @@ contains
     type(mesh_t) :: msh
     type(dofmap_t) :: dm
     type(scratch_registry_t), target :: scratch
-    type(field_t), pointer :: f1, f2
-    type(vector_t), pointer :: v1
-    type(matrix_t), pointer :: m1
-    integer :: ierr, index1, index2, index3, index4
+    type(field_t), pointer :: f1
+    type(vector_t), pointer :: v2
+    integer :: ierr, index1, index2
     integer, parameter :: LX = 2
 
     ! write(*,*) "TEST EXPAND"
@@ -382,30 +224,33 @@ contains
     call scratch%init(1, 1, dm)
 
     call scratch%request_field(f1, index1)
-    call cfill(f1%x, 1.0_rp, f1%size())
-    @assertEqual(f1%x(1,1,1,1), 1.0_rp)
+    call field_cfill(f1, 1.0_rp)
+
+    call f1%copy_from(DEVICE_TO_HOST, sync = .false.)
+    @assertEqual(f1%x(1, 1, 1, 1), 1.0_rp)
 
     ! add new field, trigging expand
-    call scratch%request_field(f2, index2)
-    call scratch%request_vector(42, v1, index3)
-    call scratch%request_matrix(42, 42, m1, index4)
+    call scratch%request_vector(42, v2, index2)
 
     ! try to use the second field
-    call cfill(f2%x, 2.0_rp, dm%size())
+    call vector_cfill(v2, 2.0_rp)
 
     ! make sure values in f1 preserved after expansion
-    @assertEqual(f1%x(1,1,1,1), 1.0_rp)
-    @assertEqual(f2%x(1,1,1,1), 2.0_rp)
+    call f1%copy_from(DEVICE_TO_HOST, sync = .false.)
+    call v2%copy_from(DEVICE_TO_HOST, sync = .false.)
+
+    @assertEqual(f1%x(1, 1, 1, 1), 1.0_rp)
+    @assertEqual(v2%x(1), 2.0_rp)
     @assertEqual(index1, 1)
     @assertEqual(index2, 2)
-    @assertEqual(index3, 3)
-    @assertEqual(index4, 4)
     @assertEqual(scratch%get_inuse(index1), .true.)
     @assertEqual(scratch%get_inuse(index2), .true.)
-    @assertEqual(scratch%get_n_available(), 4)
-    @assertEqual(scratch%get_n_inuse(), 4)
-    @assertEqual(scratch%get_size(), 4)
+    @assertEqual(scratch%get_n_available(), 2)
+    @assertEqual(scratch%get_n_inuse(), 2)
+    @assertEqual(scratch%get_size(), 2)
 
+    call scratch%relinquish(index1)
+    call scratch%relinquish(index2)
     call scratch%free()
   end subroutine test_scratch_registry_expand
 
@@ -415,7 +260,9 @@ contains
     type(mesh_t) :: msh
     type(dofmap_t) :: dm
     type(scratch_registry_t), target :: scratch
-    type(field_t), pointer :: f1, f2, f3
+    type(field_t), pointer :: f1
+    type(vector_t), pointer :: v2
+    type(matrix_t), pointer :: m3
     integer :: ierr, index1, index2, index3
     integer, parameter :: LX = 2
 
@@ -428,9 +275,9 @@ contains
 
     ! add 2 fields, no expansion
     call scratch%request_field(f1, index1)
-    call scratch%request_field(f2, index2)
-    call cfill(f1%x, 1.0_rp, f1%size())
-    call cfill(f2%x, 2.0_rp, f2%size())
+    call scratch%request_vector(42, v2, index2)
+    call field_cfill(f1, 1.0_rp)
+    call vector_cfill(v2, 2.0_rp)
 
     @assertEqual(index1, 1)
     @assertEqual(index2, 2)
@@ -441,7 +288,7 @@ contains
     @assertEqual(scratch%get_size(), 2)
 
     ! get rid of one field
-    call scratch%relinquish_field(index1)
+    call scratch%relinquish(index1)
     @assertEqual(scratch%get_inuse(index1), .false.)
     @assertEqual(scratch%get_inuse(index2), .true.)
     @assertEqual(scratch%get_n_available(), 2)
@@ -450,7 +297,7 @@ contains
 
     ! get a new field, should get index 1
     call scratch%request_field(f1, index1)
-    call cfill(f1%x, 1.5_rp, f1%size())
+    call field_cfill(f1, 1.5_rp)
     @assertEqual(index1, 1)
     @assertEqual(scratch%get_inuse(index1), .true.)
     @assertEqual(scratch%get_inuse(index2), .true.)
@@ -459,12 +306,14 @@ contains
     @assertEqual(scratch%get_size(), 2)
 
     ! check that the fields have survived
-    @assertEqual(f1%x(1,1,1,1), 1.5_rp)
-    @assertEqual(f2%x(1,1,1,1), 2.0_rp)
+    call f1%copy_from(DEVICE_TO_HOST, sync = .false.)
+    call v2%copy_from(DEVICE_TO_HOST, sync = .false.)
+    @assertEqual(f1%x(1, 1, 1, 1), 1.5_rp)
+    @assertEqual(v2%x(1), 2.0_rp)
 
     ! get a another field, should get index 3 and triger expand
-    call scratch%request_field(f3, index3)
-    call cfill(f3%x, 3.0_rp, f3%size())
+    call scratch%request_matrix(42, 42, m3, index3)
+    call matrix_cfill(m3, 3.0_rp)
     @assertEqual(index3, 3)
     @assertEqual(scratch%get_inuse(index1), .true.)
     @assertEqual(scratch%get_inuse(index2), .true.)
@@ -474,10 +323,16 @@ contains
     @assertEqual(scratch%get_size(), 4)
 
     ! check that the fields have survived
-    @assertEqual(f1%x(1,1,1,1), 1.5_rp)
-    @assertEqual(f2%x(1,1,1,1), 2.0_rp)
-    @assertEqual(f3%x(1,1,1,1), 3.0_rp)
+    call f1%copy_from(DEVICE_TO_HOST, sync = .false.)
+    call v2%copy_from(DEVICE_TO_HOST, sync = .false.)
+    call m3%copy_from(DEVICE_TO_HOST, sync = .false.)
+    @assertEqual(f1%x(1, 1, 1, 1), 1.5_rp)
+    @assertEqual(v2%x(1), 2.0_rp)
+    @assertEqual(m3%x(1, 1), 3.0_rp)
 
+    call scratch%relinquish(index1)
+    call scratch%relinquish(index2)
+    call scratch%relinquish(index3)
     call scratch%free()
   end subroutine test_scratch_registry_combo
 
@@ -488,8 +343,8 @@ contains
     type(dofmap_t) :: dm
     type(scratch_registry_t), target :: scratch
     type(field_t), pointer :: f1
-    type(vector_t), pointer :: v1
-    type(matrix_t), pointer :: m1
+    type(vector_t), pointer :: v2
+    type(matrix_t), pointer :: m3
     integer :: ierr
     integer :: indices(3)
 
@@ -504,16 +359,16 @@ contains
 
     ! add 2 fields, no expansion
     call scratch%request_field(f1, indices(1))
-    call scratch%request_vector(31, v1, indices(2))
-    call scratch%request_matrix(62, 425, m1, indices(3))
+    call scratch%request_vector(42, v2, indices(2))
+    call scratch%request_matrix(42, 42, m3, indices(3))
 
     @assertEqual(indices(1), 1)
     @assertEqual(indices(2), 2)
     @assertEqual(indices(3), 3)
 
-    call cfill(f1%x, 1.0_rp, f1%size())
-    call cfill(v1%x, 2.0_rp, v1%size())
-    call cfill(m1%x, 2.0_rp, m1%size())
+    call field_cfill(f1, 1.0_rp)
+    call vector_cfill(v2, 2.0_rp)
+    call matrix_cfill(m3, 2.0_rp)
 
     ! get rid of the fields
     call scratch%relinquish(indices)
@@ -525,12 +380,13 @@ contains
 
     ! get a new field, should get index 1
     call scratch%request_field(f1, indices(1))
-    call cfill(f1%x, 1.5_rp, f1%size())
+    call field_cfill(f1, 1.5_rp)
     @assertEqual(indices(1), 1)
     @assertEqual(scratch%get_inuse(indices(1)), .true.)
     @assertEqual(scratch%get_n_available(), 3)
     @assertEqual(scratch%get_n_inuse(), 1)
 
+    call scratch%relinquish(indices(1))
     call scratch%free()
   end subroutine test_scratch_registry_array_indices
 end module test_scratch_registry
