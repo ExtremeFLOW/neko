@@ -40,7 +40,7 @@ module fluid_scheme_compressible
   use json_module, only : json_file
   use num_types, only : rp
   use mesh, only : mesh_t
-  use field_scratch_registry, only : field_scratch_registry_t
+  use scratch_registry, only : neko_scratch_registry
   use space, only : GLL
   use user_intf, only : user_t
   use json_utils, only : json_get_or_default
@@ -74,8 +74,6 @@ module fluid_scheme_compressible
      integer(kind=i8) :: glb_n_points
      !> Global number of GLL points for the fluid (unique)
      integer(kind=i8) :: glb_unique_points
-
-     type(field_scratch_registry_t) :: scratch !< Manager for temporary fields
 
    contains
      !> Constructors
@@ -137,8 +135,8 @@ contains
 
     call this%c_Xh%init(this%gs_Xh)
 
-    ! Local scratch registry
-    call this%scratch%init(this%dm_Xh, 10, 2)
+    ! Assign Dofmap to scratch registry
+    call neko_scratch_registry%set_dofmap(this%dm_Xh)
 
     ! Case parameters
     this%params => params
@@ -293,7 +291,7 @@ contains
     integer :: temp_indices(1)
 
     n = this%dm_Xh%size()
-    call this%scratch%request_field(temp, temp_indices(1))
+    call neko_scratch_registry%request_field(temp, temp_indices(1))
 
     !> Initialize the momentum field
     call field_col3(this%m_x, this%u, this%rho)
@@ -310,7 +308,7 @@ contains
     call field_cmult(temp, 0.5_rp, n)
     call field_add2(this%E, temp, n)
 
-    call this%scratch%relinquish_field(temp_indices)
+    call neko_scratch_registry%relinquish_field(temp_indices)
 
     !> Compute initial maximum wave speed from initial conditions
     call this%compute_max_wave_speed()
