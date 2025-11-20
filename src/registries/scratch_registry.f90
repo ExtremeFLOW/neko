@@ -269,11 +269,11 @@ contains
       do index = 1, this%get_size()
          if (.not. this%inuse(index)) then
 
-            if (.not. this%registry(index)%allocated) then
+            if (.not. this%registry(index)%is_allocated()) then
                write(name, "(A3,I0.3)") "wrk", index
                call this%registry(index)%init_field(this%dof, trim(name))
                n_available = n_available + 1
-            else if (this%registry(index)%type .ne. 'field') then
+            else if (this%registry(index)%get_type() .ne. 'field') then
                cycle
             end if
 
@@ -313,10 +313,10 @@ contains
       do index = 1, this%get_size()
          if (.not. this%inuse(index)) then
 
-            if (.not. this%registry(index)%allocated) then
+            if (.not. this%registry(index)%is_allocated()) then
                call this%registry(index)%init_vector(n)
                n_available = n_available + 1
-            else if (trim(this%registry(index)%type) .ne. 'vector') then
+            else if (trim(this%registry(index)%get_type()) .ne. 'vector') then
                cycle
             else if (this%registry(index)%vector_ptr%size() .ne. n) then
                cycle
@@ -358,10 +358,10 @@ contains
       do index = 1, this%get_size()
          if (.not. this%inuse(index)) then
 
-            if (.not. this%registry(index)%allocated) then
+            if (.not. this%registry(index)%is_allocated()) then
                call this%registry(index)%init_matrix(nrows, ncols)
                n_available = n_available + 1
-            else if (trim(this%registry(index)%type) .ne. 'matrix') then
+            else if (trim(this%registry(index)%get_type()) .ne. 'matrix') then
                cycle
             else if (this%registry(index)%matrix_ptr%get_nrows() .ne. nrows &
                  .and. this%registry(index)%matrix_ptr%get_ncols() .ne. ncols &
@@ -394,7 +394,7 @@ contains
     class(scratch_registry_t), target, intent(inout) :: this
     integer, intent(inout) :: index !< The index of the field to free
 
-    if (trim(this%registry(index)%type) .ne. 'field') then
+    if (trim(this%registry(index)%get_type()) .ne. 'field') then
        call neko_error("scratch_registry::relinquish_field_single: " &
             // "Register entry is not a field.")
     end if
@@ -409,7 +409,7 @@ contains
     integer :: i
 
     do i = 1, size(indices)
-       if (trim(this%registry(indices(i))%type) .ne. 'field') then
+       if (trim(this%registry(indices(i))%get_type()) .ne. 'field') then
           call neko_error("scratch_registry::relinquish_field_single: " &
                // "Register entry is not a field.")
        end if
@@ -424,7 +424,7 @@ contains
     class(scratch_registry_t), target, intent(inout) :: this
     integer, intent(inout) :: index !< The index of the vector to free
 
-    if (trim(this%registry(index)%type) .ne. 'vector') then
+    if (trim(this%registry(index)%get_type()) .ne. 'vector') then
        call neko_error("scratch_registry::relinquish_vector_single: " &
             // "Register entry is not a vector.")
     end if
@@ -439,7 +439,7 @@ contains
     integer :: i
 
     do i = 1, size(indices)
-       if (trim(this%registry(indices(i))%type) .ne. 'vector') then
+       if (trim(this%registry(indices(i))%get_type()) .ne. 'vector') then
           call neko_error("scratch_registry::relinquish_vector_single: " &
                // "Register entry is not a vector.")
        end if
@@ -454,7 +454,7 @@ contains
     class(scratch_registry_t), target, intent(inout) :: this
     integer, intent(inout) :: index !< The index of the matrix to free
 
-    if (trim(this%registry(index)%type) .ne. 'matrix') then
+    if (trim(this%registry(index)%get_type()) .ne. 'matrix') then
        call neko_error("scratch_registry::relinquish_matrix_single: " &
             // "Register entry is not a matrix.")
     end if
@@ -469,7 +469,7 @@ contains
     integer :: i
 
     do i = 1, size(indices)
-       if (trim(this%registry(indices(i))%type) .ne. 'matrix') then
+       if (trim(this%registry(indices(i))%get_type()) .ne. 'matrix') then
           call neko_error("scratch_registry::relinquish_matrix_single: " &
                // "Register entry is not a matrix.")
        end if

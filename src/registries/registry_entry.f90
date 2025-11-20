@@ -44,9 +44,10 @@ module registry_entry
   private
 
   type, public :: registry_entry_t
-     character(len=:), allocatable :: name
-     character(len=:), allocatable :: type
-     logical :: allocated = .false.
+
+     character(len=:), private, allocatable :: name
+     character(len=:), private, allocatable :: type
+     logical, private :: allocated = .false.
 
      type(field_t), pointer :: field_ptr => null()
      type(vector_t), pointer :: vector_ptr => null()
@@ -57,6 +58,10 @@ module registry_entry
      procedure, pass(this) :: init_vector => init_register_vector
      procedure, pass(this) :: init_matrix => init_register_matrix
      procedure, pass(this) :: free => free_register
+
+     procedure, pass(this) :: get_name
+     procedure, pass(this) :: get_type
+     procedure, pass(this) :: is_allocated
   end type registry_entry_t
 
 contains
@@ -151,5 +156,26 @@ contains
     this%allocated = .false.
 
   end subroutine free_register
+
+  !> Get the name of the registry entry
+  function get_name(this) result(name)
+    class(registry_entry_t), intent(in) :: this
+    character(len=:), allocatable :: name
+    name = this%name
+  end function get_name
+
+  !> Get the type of the registry entry
+  function get_type(this) result(type)
+    class(registry_entry_t), intent(in) :: this
+    character(len=:), allocatable :: type
+    type = this%type
+  end function get_type
+
+  !> Check if the registry entry is allocated
+  function is_allocated(this) result(allocated)
+    class(registry_entry_t), intent(in) :: this
+    logical :: allocated
+    allocated = this%allocated
+  end function is_allocated
 
 end module registry_entry
