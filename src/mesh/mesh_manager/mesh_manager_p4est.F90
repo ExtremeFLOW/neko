@@ -34,13 +34,15 @@
 module mesh_manager_p4est
   use mpi_f08
   use num_types, only : i4, i8, rp, dp
-  use comm, only : NEKO_COMM, pe_rank
+  use comm, only : NEKO_COMM, pe_rank, pe_size
   use logger, only : neko_log, NEKO_LOG_QUIET, NEKO_LOG_INFO, &
        NEKO_LOG_VERBOSE, NEKO_LOG_DEBUG, LOG_SIZE
   use utils, only : neko_error, neko_warning
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default
   use profiler, only : profiler_start_region, profiler_end_region
+  use stack, only : stack_i4_t
+  use hex, only : hex_t
   use mesh, only : mesh_t
   use manager_mesh, only : manager_mesh_t
   use manager_geom_p4est, only : manager_geom_node_ind_p4est_t, &
@@ -594,6 +596,7 @@ contains
 
     ! allocate types and import data from p4est
     call mesh_new%init()
+    call mesh_new%free_data()
     call p4est_import_data(mesh_new, this%is_periodic)
 
     ! fill mesh information
@@ -623,6 +626,7 @@ contains
     end if
     allocate(manager_mesh_p4est_t::this%mesh)
     call this%mesh%init()
+    call this%mesh%free_data()
 
     ! is p4est started?
     if (.not.this%ifstarted) call neko_error('p4est not started')
@@ -759,7 +763,6 @@ contains
 
        ! get nodes and their coordinates
        call wp4est_nds_get_size(lown, lshr, loff, lnum_in, lnum_fh, lnum_eh)
-
        itmp8 = lown
        call MPI_Allreduce(itmp8, gnum, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, &
             ierr)
@@ -811,7 +814,6 @@ contains
              call geom%hng_edg%init_data(lnum_eh, gdim, ndep, &
                   itmp8v1, itmp4v21, rtmpv1)
           end if
-
        end select
 
        ! get element vertex mapping to nodes
@@ -864,9 +866,9 @@ contains
        call MPI_Allreduce(itmp8, gnum, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, &
             ierr)
        itmp8lv(1) = gnum ! for stamping log
-       select type (conn_vrt => conn%conn_vrt)
+       select type (vrt => conn%vrt)
        type is (manager_conn_obj_p4est_t)
-          call conn_vrt%init_data(lnum_in, lown, goff, gnum, nrank, nshare, &
+          call vrt%init_data(lnum_in, lown, goff, gnum, nrank, nshare, &
                itmp8v1, itmp4v1, itmp4v3, itmp4v2)
        end select
 
@@ -889,9 +891,9 @@ contains
        call MPI_Allreduce(itmp8, gnum, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, &
             ierr)
        itmp8lv(2) = gnum ! for stamping log
-       select type (conn_fcs => conn%conn_fcs)
+       select type (fcs => conn%fcs)
        type is (manager_conn_obj_p4est_t)
-          call conn_fcs%init_data(lnum_in, lown, goff, gnum, &
+          call fcs%init_data(lnum_in, lown, goff, gnum, &
                nrank, nshare, itmp8v1, itmp4v1, itmp4v3, itmp4v2)
        end select
 
@@ -914,9 +916,9 @@ contains
        call MPI_Allreduce(itmp8, gnum, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, &
             ierr)
        itmp8lv(3) = gnum ! for stamping log
-       select type (conn_edg => conn%conn_edg)
+       select type (edg => conn%edg)
        type is (manager_conn_obj_p4est_t)
-          call conn_edg%init_data(lnum_in, lown, goff, gnum, &
+          call edg%init_data(lnum_in, lown, goff, gnum, &
                nrank, nshare, itmp8v1, itmp4v1, itmp4v3, itmp4v2)
        end select
 
@@ -992,6 +994,7 @@ contains
     allocate(gidx(lnum))
 
     ! This is not finished yet
+    call neko_error('Hanging node numbering not done yet')
 
   end subroutine p4est_hng_node_gnum_get
 
@@ -1265,9 +1268,10 @@ contains
   !> Construct neko mesh type based on mesh manager data
   !! @param[inout]   mesh     neko mesh type
   subroutine p4est_mesh_construct(this, mesh)
-    class(mesh_manager_p4est_t), intent(inout) :: this
+    class(mesh_manager_p4est_t), intent(in) :: this
     type(mesh_t), intent(inout) :: mesh
-    integer :: ierr
+    integer :: il, itmp
+    integer(i4) :: nidx
     character(len=LOG_SIZE) :: log_buf
     real(kind=rp) :: t_start, t_end
 
@@ -1290,19 +1294,116 @@ contains
 
     ! general element info
     mesh%nelv = this%mesh%nelt ! local number of elements
-    mesh%glb_nelv = this%mesh%gnelt ! global number of elelments
-    mesh%offset_el = this%mesh%gnelto ! global element offset;
+    mesh%glb_nelv = int(this%mesh%gnelt, i4) ! global number of elelments
+    mesh%offset_el = int(this%mesh%gnelto, i4) ! global element offset;
 
     ! Geometrical context
     ! Local information only; global one will be related to connectivity
-    ! local number of unique vertices
     select type (geom => this%mesh%geom)
     type is (manager_geom_p4est_t)
-       mesh%mpts = geom%ind%lnum + geom%hng_edg%lnum + geom%hng_fcs%lnum
+       ! local number of unique vertices
+       mesh%mpts = geom%ind%lnum + geom%hng_fcs%lnum + geom%hng_edg%lnum
+
+       ! fill the points
+       ! order matters due to the element vertex mapping
+       allocate(mesh%points(mesh%mpts))
+       itmp = 0
+       ! independent nodes
+       if (geom%ind%lnum .gt. 0) then
+          do il = 1, geom%ind%lnum
+             itmp = itmp + 1
+             nidx = int(geom%ind%gidx(il), i4)
+             call mesh%points(itmp)%init(geom%ind%coord(:, il), nidx)
+          end do
+       end if
+       ! face hanging nodes
+       if (geom%hng_fcs%lnum .gt. 0) then
+          do il = 1, geom%hng_fcs%lnum
+             itmp = itmp + 1
+             nidx = int(geom%hng_fcs%gidx(il), i4)
+             call mesh%points(itmp)%init(geom%hng_fcs%coord(:, il), nidx)
+          end do
+       end if
+       ! edge hanging nodes
+       if (geom%hng_edg%lnum .gt. 0) then
+          do il = 1, geom%hng_edg%lnum
+             itmp = itmp + 1
+             nidx = int(geom%hng_edg%gidx(il), i4)
+             call mesh%points(itmp)%init(geom%hng_edg%coord(:, il), nidx)
+          end do
+       end if
+
+       ! Global to local element mapping
+       call mesh%htel%init(mesh%nelv, il)
+
+       ! Fill in element array
+       allocate(mesh%elements(mesh%nelv))
+       do il = 1, mesh%nelv
+          allocate(hex_t::mesh%elements(il)%e)
+          nidx = int(this%mesh%gidx(il), i4)
+          select type(ep => mesh%elements(il)%e)
+          type is (hex_t)
+             call ep%init(nidx, &
+                  mesh%points(geom%vmap(1, il)), &
+                  mesh%points(geom%vmap(2, il)), &
+                  mesh%points(geom%vmap(3, il)), &
+                  mesh%points(geom%vmap(4, il)), &
+                  mesh%points(geom%vmap(5, il)), &
+                  mesh%points(geom%vmap(6, il)), &
+                  mesh%points(geom%vmap(7, il)), &
+                  mesh%points(geom%vmap(8, il)))
+          end select
+          ! Global to local element mapping
+          itmp = il
+          call mesh%htel%set(nidx, itmp)
+       end do
     end select
 
-    write(*, *) 'TEST mesh construct', pe_rank, mesh%mpts, &
-         this%mesh%geom%ind%lnum
+    ! Element deformation
+    ! deformed element flag; It is set in mesh_generate_flags
+    ! (dependent on vertex ordering)!!!!!!!!!!!!!!!!!!!!!!!!!
+    allocate(mesh%dfrmd_el(mesh%nelv))
+    
+    ! for now set everything true
+    mesh%dfrmd_el = .true.
+    
+
+    ! Connectivity context
+    ! missing number of vertices in connectivity context
+    mesh%mfcs = this%mesh%conn%fcs%lnum ! local number of unique faces
+    mesh%meds = this%mesh%conn%edg%lnum ! local number of unique edges
+
+    ! global number of unique vertices, faces and edges
+    mesh%glb_mpts = int(this%mesh%conn%vrt%gnum, i4)
+    mesh%glb_mfcs = int(this%mesh%conn%fcs%gnum,  i4)
+    mesh%glb_meds = int(this%mesh%conn%edg%gnum, i4)
+    ! this doesn't seem to be used in original version and
+    ! I do not need it for p4est either
+    !mesh%max_pts_id =
+
+    ! mesh%htp - not used as vertices global id is already provided by p4est
+    ! mesh%htf - not used as faces global id is already provided by p4est
+    ! mesh%hte - not used as edge global id is already provided by p4est
+
+    ! Fill in neighbour information
+    select type (conn => this%mesh%conn)
+    type is (manager_conn_p4est_t)
+       ! USED IN gather_scatter.f90;
+       ! MORE INVESTIGATION NEEDED
+       ! get neighbour rank info; based on vertex sharing info
+       call p4est_rank_neighbour_fill(mesh, conn)
+
+       ! get vertex neighbours; not used outside mesh.f90
+       call p4est_vertex_neighbour_fill(mesh, conn)
+
+       ! USED IN gather_scatter.f90, tree_amg_multigrid.f90;
+       ! MORE INVESTIGATION NEEDED
+       ! get face neighbours
+       call p4est_face_neighbour_fill(mesh, conn)
+    end select
+
+    write(*, *) 'TEST mesh construct', pe_rank, mesh%glb_mpts, mesh%glb_mfcs, &
+         mesh%glb_meds, mesh%mfcs, mesh%meds, this%mesh%conn%vrt%lnum
 
     !call MPI_Barrier(NEKO_COMM, ierr)
     t_end = MPI_WTIME()
@@ -1311,6 +1412,77 @@ contains
     call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
   end subroutine p4est_mesh_construct
+
+  !> Fill the mesh type with rank neighbour information
+  !! @details Based on vertex connectivity info
+  !! @param[inout]   mesh    neko mesh type
+  !! @param[in]      conn    connectivity
+  subroutine p4est_rank_neighbour_fill(mesh, conn)
+    type(mesh_t), intent(inout) :: mesh
+    type(manager_conn_p4est_t), intent(in) :: conn
+    integer :: il, jl, src, dst
+    type(stack_i4_t) :: neigh_order
+
+    ! initialize neighbour ranks
+    allocate(mesh%neigh(0:pe_size-1))
+    mesh%neigh = .false.
+
+    if (pe_size > 1) then
+       select type (vrt => conn%vrt)
+       type is (manager_conn_obj_p4est_t)
+          ! get rank list based on vertex information
+          do il= 1, vrt%nrank ! mpi rank loop
+             ! not sure I have to exclude myself
+             if (vrt%rank(il) /= pe_rank) mesh%neigh(vrt%rank(il)) = .true.
+          end do
+       end select
+
+       ! Generate neighbour exchange order
+       call neigh_order%init(pe_size)
+
+       do il = 1, pe_size - 1
+          src = modulo(pe_rank - il + pe_size, pe_size)
+          dst = modulo(pe_rank + il, pe_size)
+          if (mesh%neigh(src) .or. mesh%neigh(dst)) then
+             jl = il ! adhere to standards...
+             call neigh_order%push(jl)
+          end if
+       end do
+
+       allocate(mesh%neigh_order(neigh_order%size()))
+       select type(order => neigh_order%data)
+       type is (integer)
+          do il = 1, neigh_order%size()
+             mesh%neigh_order(il) = order(il)
+          end do
+       end select
+       call neigh_order%free()
+    else
+       allocate(mesh%neigh_order(1))
+       mesh%neigh_order = 1
+    end if
+
+  end subroutine p4est_rank_neighbour_fill
+
+  !> Fill the mesh type with vertex neighbour information
+  !! @param[inout]   mesh    neko mesh type
+  !! @param[in]      conn    connectivity
+  subroutine p4est_vertex_neighbour_fill(mesh, conn)
+    type(mesh_t), intent(inout) :: mesh
+    type(manager_conn_p4est_t), intent(in) :: conn
+
+    write(*, *) 'TEST vertex neigh', pe_rank
+  end subroutine p4est_vertex_neighbour_fill
+
+  !> Fill the mesh type with face neighbour information
+  !! @param[inout]   mesh    neko mesh type
+  !! @param[in]      conn    connectivity
+  subroutine p4est_face_neighbour_fill(mesh, conn)
+    type(mesh_t), intent(inout) :: mesh
+    type(manager_conn_p4est_t), intent(in) :: conn
+
+    write(*, *) 'TEST face neigh', pe_rank
+  end subroutine p4est_face_neighbour_fill
 
 #else
 

@@ -229,23 +229,23 @@ contains
   subroutine manager_conn_init_p4est(this)
     class(manager_conn_p4est_t), intent(inout) :: this
 
-    if (allocated(this%conn_vrt))then
-       call this%conn_vrt%free()
-       deallocate(this%conn_vrt)
+    if (allocated(this%vrt))then
+       call this%vrt%free()
+       deallocate(this%vrt)
     end if
-    allocate(manager_conn_obj_p4est_t::this%conn_vrt)
+    allocate(manager_conn_obj_p4est_t::this%vrt)
 
-    if (allocated(this%conn_fcs))then
-       call this%conn_fcs%free()
-       deallocate(this%conn_fcs)
+    if (allocated(this%fcs))then
+       call this%fcs%free()
+       deallocate(this%fcs)
     end if
-    allocate(manager_conn_obj_p4est_t::this%conn_fcs)
+    allocate(manager_conn_obj_p4est_t::this%fcs)
 
-    if (allocated(this%conn_edg))then
-       call this%conn_edg%free()
-       deallocate(this%conn_edg)
+    if (allocated(this%edg))then
+       call this%edg%free()
+       deallocate(this%edg)
     end if
-    allocate(manager_conn_obj_p4est_t::this%conn_edg)
+    allocate(manager_conn_obj_p4est_t::this%edg)
 
   end subroutine manager_conn_init_p4est
 

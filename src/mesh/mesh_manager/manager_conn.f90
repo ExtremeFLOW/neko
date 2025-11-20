@@ -80,7 +80,7 @@ module manager_conn
      !> Topological mesh dimension
      integer(i4) :: tdim
      !> Connectivity information for vertices, edges and faces
-     class(manager_conn_obj_t), allocatable :: conn_vrt, conn_fcs, conn_edg
+     class(manager_conn_obj_t), allocatable :: vrt, fcs, edg
      !> local number of elements
      integer(i4) :: nel
      !> Number of vertices per element
@@ -267,12 +267,12 @@ contains
 
     call this%free_data_base()
 
-    if (allocated(this%conn_vrt) .and. allocated(conn%conn_vrt)) &
-         call this%conn_vrt%init_type(conn%conn_vrt)
-    if (allocated(this%conn_fcs) .and. allocated(conn%conn_fcs)) &
-         call this%conn_fcs%init_type(conn%conn_fcs)
-    if (allocated(this%conn_edg) .and. allocated(conn%conn_edg)) &
-         call this%conn_edg%init_type(conn%conn_edg)
+    if (allocated(this%vrt) .and. allocated(conn%vrt)) &
+         call this%vrt%init_type(conn%vrt)
+    if (allocated(this%fcs) .and. allocated(conn%fcs)) &
+         call this%fcs%init_type(conn%fcs)
+    if (allocated(this%edg) .and. allocated(conn%edg)) &
+         call this%edg%init_type(conn%edg)
 
     this%tdim = conn%tdim
     this%nel = conn%nel
@@ -297,9 +297,9 @@ contains
     if (present(ifsave)) ifsavel = ifsave
 
     if (.not.ifsavel) then
-       if (allocated(this%conn_vrt)) call this%conn_vrt%free()
-       if (allocated(this%conn_fcs)) call this%conn_fcs%free()
-       if (allocated(this%conn_edg)) call this%conn_edg%free()
+       if (allocated(this%vrt)) call this%vrt%free()
+       if (allocated(this%fcs)) call this%fcs%free()
+       if (allocated(this%edg)) call this%edg%free()
     end if
 
     this%tdim = 0
@@ -319,9 +319,9 @@ contains
     class(manager_conn_t), intent(inout) :: this
 
     call this%free_data_base()
-    if (allocated(this%conn_vrt)) deallocate(this%conn_vrt)
-    if (allocated(this%conn_fcs)) deallocate(this%conn_fcs)
-    if (allocated(this%conn_edg)) deallocate(this%conn_edg)
+    if (allocated(this%vrt)) deallocate(this%vrt)
+    if (allocated(this%fcs)) deallocate(this%fcs)
+    if (allocated(this%edg)) deallocate(this%edg)
 
   end subroutine manager_conn_free_base
 

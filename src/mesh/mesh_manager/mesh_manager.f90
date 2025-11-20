@@ -120,7 +120,7 @@ module mesh_manager
      !! @param[inout]   mesh     neko mesh type
      subroutine mesh_manager_mesh(this, mesh)
        import mesh_manager_t, mesh_t
-       class(mesh_manager_t), intent(inout) :: this
+       class(mesh_manager_t), intent(in) :: this
        type(mesh_t), intent(inout) :: mesh
      end subroutine mesh_manager_mesh
   end interface
