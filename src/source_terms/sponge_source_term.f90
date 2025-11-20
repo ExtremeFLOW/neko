@@ -143,7 +143,7 @@ contains
 
     call json_get(json, "amplitudes", amplitudes)
     if (size(amplitudes) .ne. 3) then
-         call neko_error("(SPONGE) Expected 3 elements for 'amplitudes'")
+       call neko_error("(SPONGE) Expected 3 elements for 'amplitudes'")
     end if
 
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
@@ -187,7 +187,7 @@ contains
 
        call json_get(baseflow_subdict, "value", constant_value)
        if (size(constant_value) .lt. 3) then
-            call neko_error("(SPONGE) Expected 3 elements for 'value'")
+          call neko_error("(SPONGE) Expected 3 elements for 'value'")
        end if
 
        call this%init_constant(fields, coef, start_time, end_time, &
