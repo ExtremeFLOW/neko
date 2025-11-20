@@ -152,6 +152,11 @@ contains
     class(scratch_registry_t), intent(inout):: this
     integer :: i
 
+    if (this%n_inuse .ne. 0) then
+       call neko_error("scratch_registry::free: "&
+            // "Cannot free scratch registry with in-use entries.")
+    end if
+
     if (allocated(this%registry)) then
        do i = 1, this%n_available
           call this%registry(i)%free()
