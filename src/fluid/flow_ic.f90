@@ -65,7 +65,7 @@ module flow_ic
           set_compressible_flow_ic_usr
   end interface set_flow_ic
 
-  public :: set_flow_ic
+  public :: set_flow_ic, set_flow_ic_fld
 
 contains
 
