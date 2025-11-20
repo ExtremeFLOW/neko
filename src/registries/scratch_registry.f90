@@ -157,6 +157,7 @@ contains
           call neko_error("scratch_registry::free: "&
                // "Cannot free scratch registry with in-use entries.")
        end if
+       deallocate(this%inuse)
     end if
 
     if (allocated(this%registry)) then
@@ -167,7 +168,6 @@ contains
        deallocate(this%registry)
     end if
 
-    if (allocated(this%inuse)) deallocate(this%inuse)
     if (associated(this%dof)) nullify(this%dof)
 
     ! Reset to default values
