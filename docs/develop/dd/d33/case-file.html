@@ -119,27 +119,28 @@ $(document).ready(function(){initNavTree('dd/d33/case-file.html','../../'); init
 <li class="level2"><a href="#case-file_fluid-ic">Initial conditions</a></li>
 <li class="level2"><a href="#case-file_fluid-source-term">Source terms</a><ul><li class="level3"><a href="#autotoc_md56">Brinkman</a></li>
 <li class="level3"><a href="#autotoc_md57">Gradient Jump Penalty</a></li>
+<li class="level3"><a href="#autotoc_md58">Sponge</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md58">Linear solver configuration</a><ul><li class="level2"><a href="#autotoc_md59">Multilevel preconditioners</a></li>
-<li class="level2"><a href="#autotoc_md60">Flow rate forcing</a></li>
-<li class="level2"><a href="#autotoc_md61">Full parameter table</a></li>
+<li class="level1"><a href="#autotoc_md59">Linear solver configuration</a><ul><li class="level2"><a href="#autotoc_md60">Multilevel preconditioners</a></li>
+<li class="level2"><a href="#autotoc_md61">Flow rate forcing</a></li>
+<li class="level2"><a href="#autotoc_md62">Full parameter table</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#case-file_scalar">Scalar</a><ul><li class="level2"><a href="#autotoc_md62">Material properties</a></li>
-<li class="level2"><a href="#autotoc_md63">Turbulence modelling</a></li>
-<li class="level2"><a href="#autotoc_md64">Boundary conditions</a></li>
-<li class="level2"><a href="#autotoc_md65">Initial conditions</a></li>
-<li class="level2"><a href="#autotoc_md66">Source terms</a></li>
-<li class="level2"><a href="#autotoc_md67">Linear solver configuration</a></li>
-<li class="level2"><a href="#autotoc_md68">Full parameter table</a></li>
+<li class="level1"><a href="#case-file_scalar">Scalar</a><ul><li class="level2"><a href="#autotoc_md63">Material properties</a></li>
+<li class="level2"><a href="#autotoc_md64">Turbulence modelling</a></li>
+<li class="level2"><a href="#autotoc_md65">Boundary conditions</a></li>
+<li class="level2"><a href="#autotoc_md66">Initial conditions</a></li>
+<li class="level2"><a href="#autotoc_md67">Source terms</a></li>
+<li class="level2"><a href="#autotoc_md68">Linear solver configuration</a></li>
+<li class="level2"><a href="#autotoc_md69">Full parameter table</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md69">Simulation components</a></li>
-<li class="level1"><a href="#autotoc_md70">Point zones</a></li>
-<li class="level1"><a href="#autotoc_md71">Runtime statistics</a></li>
+<li class="level1"><a href="#autotoc_md70">Simulation components</a></li>
+<li class="level1"><a href="#autotoc_md71">Point zones</a></li>
+<li class="level1"><a href="#autotoc_md72">Runtime statistics</a></li>
 </ul>
 </div>
 <div class="textblock"><p>The case file defines all the parameters of a simulation. The format of the file is JSON, making it easy to read and write case files using the majority of the popular programming languages. JSON is hierarchical and, and consists of parameter blocks enclosed in curly braces. These blocks are referred to as objects. The case file makes use objects to separate the configuration of different parts of the solver. We refer the reader to the examples shipped with the code to get a good idea of how a case file looks. The table below provides a complete reference for all possible configuration choices.</p>
@@ -457,9 +458,7 @@ Initial conditions</h2>
 </ol>
 </li>
 <li><code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code>, the values are set to a constant base value, supplied under the <code>base_value</code> keyword, and then assigned a zone value inside a point zone. The point zone is specified by the <code>name</code> keyword, and should be defined in the <code>case.point_zones</code> object. See more about <a class="el" href="../../da/dd0/point-zones.html">point zones</a>.</li>
-<li><code>field</code>, where the initial condition is retrieved from a field file. The following keywords can be used:</li>
-</ol>
-<table class="markdownTable">
+<li><p class="startli"><code>field</code>, where the initial condition is retrieved from a field file. The following keywords can be used: </p><table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissible values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
 <tr class="markdownTableRowOdd">
@@ -473,8 +472,10 @@ Initial conditions</h2>
 </table>
 <dl class="section attention"><dt>Attention</dt><dd>Interpolating a field from the same mesh but different polynomial order is performed implicitly and does not require to enable interpolation.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>It is recommended to interpolate from <code>fld</code> files that were written in double precision. To check if your <code>fld</code> file was written in double precision, run the command: <div class="fragment"><div class="line">head -1 field0.f00000</div>
-</div><!-- fragment --> The output <code>#std 4 ...</code> indicates single precision, whereas <code>#std 8 ...</code> indicates double precision. Neko write single precision <code>fld</code> files by default. To write your files in double precision, set <code>case.output_precision</code> to <code>"double"</code>.</dd></dl>
-<dl class="section attention"><dt>Attention</dt><dd>Neko does not detect wether interpolation is needed or not. Interpolation will always be performed if <code>"interpolate"</code> is set to <code>true</code> even if the field file matches with the current simulation.</dd></dl>
+</div><!-- fragment --> The output <code>#std 4 ...</code> indicates single precision, whereas <code>#std 8 ...</code> indicates double precision. Neko writes single precision <code>fld</code> files by default. To write your files in double precision, set <code>case.output_precision</code> to <code>"double"</code>.</dd></dl>
+<dl class="section attention"><dt>Attention</dt><dd>Neko does not automatically detect if interpolation is needed. Interpolation will always be performed if <code>"interpolate"</code> is set to <code>true</code>, even if the field file matches with the current simulation.</dd></dl>
+</li>
+</ol>
 <h2><a class="anchor" id="case-file_fluid-source-term"></a>
 Source terms</h2>
 <p>The <code>source_terms</code> object should be used to specify the source terms in the momentum equation. The object is not mandatory, by default no forcing term is present. Each source term, is itself a JSON object, so <code>source_terms</code> is just an array of them. Note that with respect to the governing equations, the source terms define \( f^u \), meaning that the values are then multiplied by the density.</p>
@@ -509,12 +510,15 @@ Source terms</h2>
 <li><code>reference_point</code>: Array with 3 values. Deifines any point on the rotaion axis.</li>
 </ul>
 </li>
+</ol>
+<dl class="section note"><dt>Note</dt><dd>Notice that to perform simulation in a rotating reference frame one has to define both <code>coriolis</code> and <code>centrifugal</code> source terms in a consistent way.</dd></dl>
+<ol type="1">
 <li><code>user_pointwise</code>, the values are set inside the compiled user file, using the pointwise user file subroutine. Only works on CPUs!</li>
 <li><code>user_vector</code>, the values are set inside the compiled user file, using the non-pointwise user file subroutine. Should be used when running on the GPU.</li>
 <li><code>brinkman</code>, Brinkman permeability forcing inside a pre-defined region.</li>
 <li><code><a class="el" href="../../d6/def/namespacegradient__jump__penalty.html" title="Implements gradient_jump_penalty_t.">gradient_jump_penalty</a></code>, perform gradient_jump_penalisation.</li>
+<li><code>sponge</code>, adds a sponge term based on a reference velocity field, which is applied in a user-specified region of the domain.</li>
 </ol>
-<dl class="section note"><dt>Note</dt><dd>Notice that to perform simulation in a rotating reference frame one has to define both <code>coriolis</code> and <code>centrifugal</code> source terms in a consistent way.</dd></dl>
 <h3><a class="anchor" id="autotoc_md56"></a>
 Brinkman</h3>
 <p>The Brinkman source term introduces regions of resistance in the fluid domain. The volume force \( f_i \) applied in the selected regions are proportional to the fluid velocity component \( u_i \).</p>
@@ -611,7 +615,219 @@ Gradient Jump Penalty</h3>
 <li><code>scaling_factor</code>, the scaling parameter \( a \) for \( P &gt; 1 \), default to be <code>0.8</code>.</li>
 <li><code>scaling_exponent</code>, the scaling parameter \( b \) for \( P &gt; 1 \), default to be <code>4.0</code>.</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md58"></a>
+<h3><a class="anchor" id="autotoc_md58"></a>
+Sponge</h3>
+<p>The sponge source term adds a term to each of the momentum equations of the form</p>
+<p>\( \mathbf{\lambda} f(\mathbf{x}) ( \mathbf{u}^{bf} - \mathbf{u}) \)</p>
+<p>where:</p>
+<ul>
+<li>\( \mathbf{\lambda} \) is a 3-element vector of amplitudes of the sponge forcing in each Cartesian direction,</li>
+<li>\( \mathbf{u}^{\text{bf}} \) is a reference (baseflow) velocity field,</li>
+<li>\( f(\mathbf{x}) \) is a user-defined sponge mask field, defining where the sponge is active.</li>
+</ul>
+<p>Amplitudes are specified using the <code>amplitudes</code> keyword with an array of 3 reals. Any of those values can be set to 0 to suppress the forcing in that particular direction. For example <code>[1.0, 1.0, 0.0]</code> will multiply the fringe field by 1, 1, and 0 in the <code>x</code>, <code>y</code> and <code>z</code> directions respectively, effectively removing the forcing in the <code>z</code> direction.</p>
+<p>The reference velocity field, or <code>baseflow</code> can be set from three methods:</p><ol type="1">
+<li><p class="startli"><code>constant</code>, applies constant values according to the <code>values</code> keyword:</p>
+<details >
+<summary >
+<b><u>Example code snippet</u></b></summary>
+<div class="fragment"><div class="line">&quot;source_terms&quot;: [</div>
+<div class="line">   {</div>
+<div class="line">      &quot;type&quot;: &quot;sponge&quot;,</div>
+<div class="line">      &quot;amplitudes&quot;: [1.0, 1.0, 1.0],</div>
+<div class="line">      &quot;baseflow&quot;: {</div>
+<div class="line">          &quot;method&quot;: &quot;constant&quot;,</div>
+<div class="line">          &quot;value&quot;: [2.0, 0.0, 0.0]</div>
+<div class="line">      }</div>
+<div class="line">   }</div>
+<div class="line">]</div>
+</div><!-- fragment --> </details>
+</li>
+<li><code>field</code>, where the velocity fields are retrieved from an <code>fld</code> file. Uses the same parameters as the field initial condition. <dl class="section note"><dt>Note</dt><dd>The same parameters as the <code>field</code> initial condition apply here.</dd></dl>
+<details >
+<summary >
+<b><u>Example code snippet</u></b></summary>
+<div class="fragment"><div class="line">&quot;source_terms&quot;: [</div>
+<div class="line">   {</div>
+<div class="line">      &quot;type&quot;: &quot;sponge&quot;,</div>
+<div class="line">      &quot;amplitudes&quot;: [1.0, 1.0, 1.0],</div>
+<div class="line">      &quot;baseflow&quot;: {</div>
+<div class="line">          &quot;method&quot;: &quot;field&quot;,</div>
+<div class="line">          &quot;file_name&quot;: &quot;my_field0.f00016&quot;,</div>
+<div class="line">          &quot;mesh_file_name&quot;: &quot;my_field0.f00000&quot;,</div>
+<div class="line">          &quot;interpolate&quot;: true,</div>
+<div class="line">          &quot;tolerance&quot;: 1e-6</div>
+<div class="line">      }</div>
+<div class="line">   }</div>
+<div class="line">]</div>
+</div><!-- fragment --> </details>
+</li>
+<li><code>user</code>, where the velocity field is set according to what is defined in the user file. Useful for setting velocity fields manually. In this case, the base flow fields must be created and added to the <code>neko_field_registry</code> (see fortran code snippet below). <details >
+<summary >
+<b><u>Example code snippet</u></b></summary>
+<div class="fragment"><div class="line">&quot;source_terms&quot;: [</div>
+<div class="line">   {</div>
+<div class="line">      &quot;type&quot;: &quot;sponge&quot;,</div>
+<div class="line">      &quot;amplitudes&quot;: [1.0, 1.0, 1.0],</div>
+<div class="line">      &quot;baseflow&quot;: {</div>
+<div class="line">          &quot;method&quot;: &quot;user&quot;</div>
+<div class="line">      }</div>
+<div class="line">   }</div>
+<div class="line">]</div>
+</div><!-- fragment --> </details>
+</li>
+</ol>
+<p>Finally, the fringe function field must be filled by the user. This must be done through the user file by adding the fringe field to the <code>neko_field_registry</code> in either <code>user_init_modules</code> or <code>fluid_user_ic</code> (more specifically, before the first call to compute the sponge source term).</p>
+<p>The fringe field must be set by adding a field to the <code>neko_field_registry</code> under a specific name that can be retrieved internally. By default, Neko will search for the field <code>"sponge_fringe"</code> in the registry, but this can be changed by setting the parameter <code>fringe_registry_name</code>, which is important when using more than one sponge source term.</p>
+<p>The same principle applies for the base flow fields (if <code>"method": "user"</code>). By default, neko will search for the base flow fields in the registry using the prefix <code>"sponge_bf_"</code>, meaning that <code>u</code> will be in <code>sponge_bf_u</code>, etc. This prefix can be changed by setting the parameter <code>bf_registry_prefix</code>.</p>
+<details >
+<summary >
+<b><u>Example using <code>user_init_modules</code></u></b></summary>
+<div class="fragment"><div class="line"><span class="keyword">module</span> <a class="code hl_namespace" href="../../dc/d44/namespaceuser.html">user</a></div>
+<div class="line">  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/d62/namespaceneko.html">neko</a></div>
+<div class="line">  <span class="keywordtype">implicit none</span></div>
+<div class="line"> </div>
+<div class="line"><span class="keyword">contains</span></div>
+<div class="line"> </div>
+<div class="line">  <span class="comment">! Register user-defined functions (see user_intf.f90)</span></div>
+<div class="line">  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d44/namespaceuser.html#a34728c151f0dbb7521a84b18b09cbd9d">user_setup</a>(user)</div>
+<div class="line">    <span class="keywordtype">type</span>(user_t), <span class="keywordtype">intent(inout)</span> :: user</div>
+<div class="line">    <a class="code hl_namespace" href="../../dc/d44/namespaceuser.html">user</a>%initialize =&gt; user_initialize</div>
+<div class="line">  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d44/namespaceuser.html#a34728c151f0dbb7521a84b18b09cbd9d">user_setup</a></div>
+<div class="line"> </div>
+<div class="line">  <span class="comment">! User-defined initialization called just before time loop starts</span></div>
+<div class="line">  <span class="keyword">subroutine </span>user_initialize(t)</div>
+<div class="line">    <span class="keywordtype">type</span>(time_state_t), <span class="keywordtype">intent(in)</span> :: t</div>
+<div class="line"> </div>
+<div class="line">    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">pointer</span> :: u, fringe, ubf, vbf, wbf</div>
+<div class="line"><span class="keywordtype">    real</span>(kind=rp) :: x, y, xmin1, delta_rise1, xmin2, delta_rise2</div>
+<div class="line">    <span class="keywordtype">integer</span> :: i, imask</div>
+<div class="line"> </div>
+<div class="line">    <span class="comment">!</span></div>
+<div class="line">    <span class="comment">! 1. Add the &quot;sponge_field&quot; to the field registry.</span></div>
+<div class="line">    <span class="comment">!    NOTE: The name of the fringe field in the registry</span></div>
+<div class="line">    <span class="comment">!    can be changed with the parameter `fringe_registry_name`.</span></div>
+<div class="line">    <span class="comment">!</span></div>
+<div class="line">    <span class="comment">!</span></div>
+<div class="line">    u =&gt; neko_field_registry%get_field(<span class="stringliteral">&quot;u&quot;</span>)</div>
+<div class="line">    <span class="keyword">call </span>neko_field_registry%add_field(u%dof,<span class="stringliteral">&quot;sponge_fringe&quot;</span>)</div>
+<div class="line">    fringe =&gt; neko_field_registry%get_field(<span class="stringliteral">&quot;sponge_fringe&quot;</span>)</div>
+<div class="line"> </div>
+<div class="line">    <span class="comment">! Initialize the base flows</span></div>
+<div class="line">    <span class="keyword">call </span>neko_field_registry%add_field(u%dof,<span class="stringliteral">&quot;sponge_bf_u&quot;</span>)</div>
+<div class="line">    ubf =&gt; neko_field_registry%get_field(<span class="stringliteral">&quot;sponge_bf_u&quot;</span>)</div>
+<div class="line">    <span class="keyword">call </span>neko_field_registry%add_field(u%dof,<span class="stringliteral">&quot;sponge_bf_v&quot;</span>)</div>
+<div class="line">    vbf =&gt; neko_field_registry%get_field(<span class="stringliteral">&quot;sponge_bf_v&quot;</span>)</div>
+<div class="line">    <span class="keyword">call </span>neko_field_registry%add_field(u%dof,<span class="stringliteral">&quot;sponge_bf_w&quot;</span>)</div>
+<div class="line">    wbf =&gt; neko_field_registry%get_field(<span class="stringliteral">&quot;sponge_bf_w&quot;</span>)</div>
+<div class="line">    </div>
+<div class="line">    <span class="comment">!</span></div>
+<div class="line">    <span class="comment">! 2. Set the function f(x,y,z) from 0 to 1. in two zones of the mesh,</span></div>
+<div class="line">    <span class="comment">!    a top region in x \in [xmin1, +\infty[, y \in [0, +\infty[</span></div>
+<div class="line">    <span class="comment">!  and a bottom region x \in [xmin2, +\infty[, y \in ]-\infty, 0[</span></div>
+<div class="line">    <span class="comment">!</span></div>
+<div class="line">    <span class="comment">!    A smoothing function S(x) is applied at the beginning of each zone,</span></div>
+<div class="line">    <span class="comment">!    with a rising distance of delta_rise1 and delta_rise2</span></div>
+<div class="line">    <span class="comment">! </span></div>
+<div class="line">  </div>
+<div class="line">    <span class="comment">! Bottom boundary </span></div>
+<div class="line">    xmin1 = 3.0_rp</div>
+<div class="line">    delta_rise1 = 3.0_rp</div>
+<div class="line"> </div>
+<div class="line">    <span class="comment">! Top boundary</span></div>
+<div class="line">    xmin2 = 20.0_rp</div>
+<div class="line">    delta_rise2 = 7.0_rp</div>
+<div class="line"> </div>
+<div class="line">    fringe = 0.0_rp</div>
+<div class="line">    <span class="keywordflow">do</span> i = 1, fringe%size()</div>
+<div class="line">        x = fringe%dof%x(i,1,1,1)</div>
+<div class="line">        y = fringe%dof%y(i,1,1,1)</div>
+<div class="line">        </div>
+<div class="line">        <span class="comment">! Bottom boundary</span></div>
+<div class="line">        <span class="keywordflow">if</span> ( (y .lt. 0.0_rp) .and. (x .gt. xmin1)) <span class="keywordflow">then</span></div>
+<div class="line">           fringe%x(i,1,1,1) = s( (x - xmin1)/delta_rise1 )</div>
+<div class="line">        </div>
+<div class="line">        <span class="comment">! Top boundary</span></div>
+<div class="line">        <span class="keywordflow">else</span> <span class="keywordflow">if</span> ( (y .gt. 0.0_rp) .and. (x .gt. xmin2)) <span class="keywordflow">then</span></div>
+<div class="line">           fringe%x(i,1,1,1) = s( (x - xmin2)/delta_rise2 ) </div>
+<div class="line"><span class="keywordflow">        end if</span></div>
+<div class="line">       </div>
+<div class="line">       <span class="comment">! Set ubf,vbf to something random</span></div>
+<div class="line">       ubf%x(i,1,1,1) = sin(3.1415926_rp*2.0_rp/10.0_rp * x)</div>
+<div class="line">       vbf%x(i,1,1,1) = cos(3.1415926_rp*2.0_rp/10.0_rp * y)</div>
+<div class="line">    </div>
+<div class="line"><span class="keywordflow">    end do</span></div>
+<div class="line"> </div>
+<div class="line">    wbf = 0.0_rp</div>
+<div class="line">    <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line">       <span class="keyword">call </span>device_memcpy(ubf%x, ubf%x_d, ubf%size(), &amp;</div>
+<div class="line">            host_to_device, .false.)</div>
+<div class="line">       <span class="keyword">call </span>device_memcpy(vbf%x, vbf%x_d, vbf%size(), &amp;</div>
+<div class="line">            host_to_device, .false.)</div>
+<div class="line">       <span class="keyword">call </span>device_memcpy(fringe%x, fringe%x_d, fringe%size(), &amp;</div>
+<div class="line">            host_to_device, .false.)</div>
+<div class="line"><span class="keywordflow">    end if</span></div>
+<div class="line"> </div>
+<div class="line">    <span class="comment">! NOTE: You can dump the fringe field to file using the `dump_fields`</span></div>
+<div class="line">    <span class="comment">! parameter. The fringe field will be stored under `pressure`.</span></div>
+<div class="line"> </div>
+<div class="line">    <span class="keyword">nullify</span>(fringe)</div>
+<div class="line">    <span class="keyword">nullify</span>(u)</div>
+<div class="line">    <span class="keyword">nullify</span>(ubf)</div>
+<div class="line">    <span class="keyword">nullify</span>(vbf)</div>
+<div class="line">    <span class="keyword">nullify</span>(wbf)</div>
+<div class="line"> </div>
+<div class="line">  <span class="keyword">end subroutine </span>user_initialize</div>
+<div class="line"> </div>
+<div class="line">  <span class="comment">! Smooth step function, 0 if x &lt;= 0, 1 if x &gt;= 1, 1/erp(1/(x-1) + 1/x) between 0 and 1</span></div>
+<div class="line">  <span class="keyword">function </span>s(x) <span class="keyword">result</span>(y)</div>
+<div class="line"><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: x</div>
+<div class="line"><span class="keywordtype">    real</span>(kind=rp)             :: y</div>
+<div class="line"> </div>
+<div class="line">    <span class="keywordflow">if</span> ( x.le.0._rp ) <span class="keywordflow">then</span></div>
+<div class="line">       y = 0._rp</div>
+<div class="line">    <span class="keywordflow">else</span> <span class="keywordflow">if</span> ( x.ge.1._rp ) <span class="keywordflow">then</span></div>
+<div class="line">       y = 1._rp</div>
+<div class="line">    <span class="keywordflow">else</span></div>
+<div class="line">       y = 1._rp / (1._rp + exp( 1._rp/(x-1._rp) + 1._rp/x))</div>
+<div class="line"><span class="keywordflow">    end if</span></div>
+<div class="line"> </div>
+<div class="line">  <span class="keyword">end function </span>s</div>
+<div class="line"> </div>
+<div class="line"><span class="keyword">end module </span>user</div>
+<div class="ttc" id="anamespaceneko_html"><div class="ttname"><a href="../../dd/d62/namespaceneko.html">neko</a></div><div class="ttdoc">Master module.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/d1f/neko_8f90_source.html#l00034">neko.f90:34</a></div></div>
+<div class="ttc" id="anamespaceuser_html"><div class="ttname"><a href="../../dc/d44/namespaceuser.html">user</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/d6f/fields__vectors__math_8f90_source.html#l00018">fields_vectors_math.f90:18</a></div></div>
+<div class="ttc" id="anamespaceuser_html_a34728c151f0dbb7521a84b18b09cbd9d"><div class="ttname"><a href="../../dc/d44/namespaceuser.html#a34728c151f0dbb7521a84b18b09cbd9d">user::user_setup</a></div><div class="ttdeci">subroutine user_setup(user)</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d6f/fields__vectors__math_8f90_source.html#l00034">fields_vectors_math.f90:35</a></div></div>
+</div><!-- fragment --> </details>
+<p>In order to visualize your baseflow and fringe field, you may set <code>dump_fields</code> to <code>true</code>. An <code>fld</code> file will be written to disk as <code>spng_fields.fld</code>(note, not in <code>output_directory</code>) with the fringe field stored as <code>pressure</code>. You may change the name of the field file by setting <code>dump_file_name</code> (must have the extension <code>fld</code>).</p>
+<p>The parameters for the sponge source term are summarized in the table below:</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissible values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>amplitudes</code>   </td><td class="markdownTableBodyNone">Sponge forcing strength in each Cartesian direction   </td><td class="markdownTableBodyNone">Array of 3 reals   </td><td class="markdownTableBodyNone">-    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>baseflow.method</code>   </td><td class="markdownTableBodyNone">Method to define the reference (baseflow) velocity   </td><td class="markdownTableBodyNone"><code>"constant"</code>, <code>"field"</code>, <code>"user"</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>baseflow.value</code>   </td><td class="markdownTableBodyNone">Velocity vector for constant baseflow   </td><td class="markdownTableBodyNone">Array of 3 reals   </td><td class="markdownTableBodyNone">-    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>baseflow.file_name</code>   </td><td class="markdownTableBodyNone">File containing baseflow velocity field   </td><td class="markdownTableBodyNone">String   </td><td class="markdownTableBodyNone">-    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>baseflow.mesh_file_name</code>   </td><td class="markdownTableBodyNone">Mesh file corresponding to the baseflow field   </td><td class="markdownTableBodyNone">String   </td><td class="markdownTableBodyNone">-    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>baseflow.interpolate</code>   </td><td class="markdownTableBodyNone">Whether to interpolate field values to current mesh   </td><td class="markdownTableBodyNone">Boolean   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>baseflow.tolerance</code>   </td><td class="markdownTableBodyNone">Tolerance for interpolation convergence   </td><td class="markdownTableBodyNone">Real   </td><td class="markdownTableBodyNone">-    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>fringe_registry_name</code>   </td><td class="markdownTableBodyNone">Name of the fringe mask field in <code>neko_field_registry</code>   </td><td class="markdownTableBodyNone">String   </td><td class="markdownTableBodyNone"><code>"sponge_fringe"</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>baseflow_registry_prefix</code>   </td><td class="markdownTableBodyNone">Prefix of the base flow fields in <code>neko_field_registry</code>   </td><td class="markdownTableBodyNone">String   </td><td class="markdownTableBodyNone"><code>"sponge_bf"</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>dump_fields</code>   </td><td class="markdownTableBodyNone">If <code>true</code>, dumps the fringe and baseflow fields for visualization   </td><td class="markdownTableBodyNone">Boolean   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>dump_file_name</code>   </td><td class="markdownTableBodyNone">Name of the <code>fld</code> file in which to dump the base flow and fringe fields   </td><td class="markdownTableBodyNone">String ending with <code>fld</code>   </td><td class="markdownTableBodyNone"><code>spng_fields.fld</code>   </td></tr>
+</table>
+<h1><a class="anchor" id="autotoc_md59"></a>
 Linear solver configuration</h1>
 <p>The mandatory <code>velocity_solver</code> and <code>pressure_solver</code> objects are used to configure the solvers for the momentum and pressure-Poisson equation. The following keywords are used, with the corresponding options.</p>
 <ul>
@@ -640,7 +856,7 @@ Linear solver configuration</h1>
 <li><code>monitor</code>, monitoring of residuals. If set to true, the residuals will be printed for each iteration.</li>
 </ul>
 <p>In addition to the above settings, the solvers can be configured with strict convergence criteria. This is done by setting the <code>case.fluid.strict_convergence</code> keyword to <code>true</code>. This will force the solver to converge to the specified tolerance within the specified number of iterations. If the solver does not converge, the simulation will be terminated.</p>
-<h2><a class="anchor" id="autotoc_md59"></a>
+<h2><a class="anchor" id="autotoc_md60"></a>
 Multilevel preconditioners</h2>
 <p>The multilevel preconditioners, <code>hsmg</code> and <code>phmg</code>, come with an additional set of parameters related to the solution of the coarse grid problem. These parameters are specified as a <code>coarse_grid</code> block under <code>preconditioner</code>.</p>
 <p>For <code>hsmg</code>, the following keywords are used:</p>
@@ -679,7 +895,7 @@ Multilevel preconditioners</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>coarse_grid.cheby_degree</code>   </td><td class="markdownTableBodyNone">Degree of the Chebyshev based AMG smoother   </td><td class="markdownTableBodyNone">An integer   </td><td class="markdownTableBodyNone">5   </td></tr>
 </table>
-<h2><a class="anchor" id="autotoc_md60"></a>
+<h2><a class="anchor" id="autotoc_md61"></a>
 Flow rate forcing</h2>
 <p>The optional <code>flow_rate_force</code> object can be used to force a particular flow rate through the domain. Useful for channel and pipe flows. The configuration uses the following parameters:</p>
 <ul>
@@ -687,7 +903,7 @@ Flow rate forcing</h2>
 <li><code>value</code>, the desired flow rate.</li>
 <li><code>use_averaged_flow</code>, whether <code>value</code> specifies the domain-averaged (bulk) velocity or the volume flow rate.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md61"></a>
+<h2><a class="anchor" id="autotoc_md62"></a>
 Full parameter table</h2>
 <p>All the parameters are summarized in the table below. This includes all the subobjects discussed above, as well as keyword parameters that can be described concisely directly in the table.</p>
 <table class="markdownTable">
@@ -787,14 +1003,14 @@ Full parameter table</h2>
 <h1><a class="anchor" id="case-file_scalar"></a>
 Scalar</h1>
 <p>The scalar object allows to add a scalar transport equation to the solution. The solution variable is called <code>s</code> by default, but can be controlled by the <code>field_name</code> entry in the case file. In the fld files, it is saved as <code>temperature</code>. Some properties of the object are inherited from <code>fluid</code>: the value of the density, and the output control.</p>
-<h2><a class="anchor" id="autotoc_md62"></a>
+<h2><a class="anchor" id="autotoc_md63"></a>
 Material properties</h2>
 <p>The scalar equation requires defining additional material properties: the specific heat capacity and thermal conductivity. These are provided as <code>cp</code> and <code>lambda</code>. Similarly to the fluid, one can provide the Peclet number, <code>Pe</code>, as an alternative. In this case, <code>cp</code> is set to 1 and <code>lambda</code> to the inverse of <code>Pe</code>.</p>
 <p>As for the fluid, turbulence modelling is enabled by setting the <code>nut_field</code> to the name matching that set for the simulation component with the LES model. Additionally, the turbulent Prandtl number, <code>Pr_t</code> should be set. The eddy viscosity values will be divided by it to produce eddy diffusivity.</p>
-<h2><a class="anchor" id="autotoc_md63"></a>
+<h2><a class="anchor" id="autotoc_md64"></a>
 Turbulence modelling</h2>
 <p>The configuration is identical to the Fluid, however, one additionally has to provide the value of the turbulent Prandl number via the <code>Pr_t</code> keyword.</p>
-<h2><a class="anchor" id="autotoc_md64"></a>
+<h2><a class="anchor" id="autotoc_md65"></a>
 Boundary conditions</h2>
 <p>The boundary conditions for the scalar are specified through the <code>boundary_conditions</code> keyword, which follows the same format as the fluid, for specifying the type of the condition and where it is applied. Four types of conditions are available for the scalar:</p>
 <ul>
@@ -821,7 +1037,7 @@ Boundary conditions</h2>
 <div class="line">}</div>
 </div><!-- fragment --></li>
 </ul>
-<h2><a class="anchor" id="autotoc_md65"></a>
+<h2><a class="anchor" id="autotoc_md66"></a>
 Initial conditions</h2>
 <p>The object <code>initial_condition</code> is used to provide initial conditions. It is mandatory. The means of prescribing the values are controlled via the <code>type</code> keyword:</p>
 <ol type="1">
@@ -830,13 +1046,13 @@ Initial conditions</h2>
 <li><code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code>, the values are set to a constant base value, supplied under the <code>base_value</code> keyword, and then assigned a zone value inside a point zone. The point zone is specified by the <code>name</code> keyword, and should be defined in the <code>case.point_zones</code> object. See more about <a class="el" href="../../da/dd0/point-zones.html">point zones</a>.</li>
 <li><code>field</code>, where the initial condition is retrieved from a field file. Works in the same way as for the fluid. See the <a class="el" href="../../dd/d33/case-file.html#case-file_fluid-ic">fluid section</a> for detailed explanations.</li>
 </ol>
-<h2><a class="anchor" id="autotoc_md66"></a>
+<h2><a class="anchor" id="autotoc_md67"></a>
 Source terms</h2>
 <p>The configuration of source terms is the same as for the fluid. A demonstration of using source terms for the scalar can be found in the <code>scalar_mms</code> example.</p>
-<h2><a class="anchor" id="autotoc_md67"></a>
+<h2><a class="anchor" id="autotoc_md68"></a>
 Linear solver configuration</h2>
 <p>Should be provided as an object under the <code>solver</code> keyword. For available configuration options, see the corresponding documentation for the fliud. A standard choice would be <code>"type": "cg"</code> and <code>"preconditioner": "jacobi"</code>.</p>
-<h2><a class="anchor" id="autotoc_md68"></a>
+<h2><a class="anchor" id="autotoc_md69"></a>
 Full parameter table</h2>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -882,16 +1098,16 @@ Full parameter table</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>solver.projection_hold_steps</code>   </td><td class="markdownTableBodyNone">Holding steps of the projection for the scalar equation.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">5   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md69"></a>
+<h1><a class="anchor" id="autotoc_md70"></a>
 Simulation components</h1>
 <p>Simulation components enable the user to perform various additional operations, which are not strictly necessary to run the solver. An example could be computing and output of additional fields, e.g. vorticity.</p>
 <p>A more detailed description as well as a full list of available components and their setup is provided in a <a class="el" href="../../d3/d84/simcomps.html">separate page of the manual</a>.</p>
-<h1><a class="anchor" id="autotoc_md70"></a>
+<h1><a class="anchor" id="autotoc_md71"></a>
 Point zones</h1>
 <p>Point zones enable the user to select GLL points in the computational domain according to some geometric criterion. Two predefined geometric shapes are selectable from the case file, boxes and spheres.</p>
 <p>A point zone object defined in the case file can be retrieved from the point zone registry, <code>neko_point_zone_registry</code>, and can be used to perform any zone-specific operations (e.g. localized source term, probing...). User-specific point zones can also be added manually to the point zone registry from the user file.</p>
 <p>A more detailed description as well as a full list of available components and their setup is provided in a <a class="el" href="../../da/dd0/point-zones.html">separate page of the manual</a>.</p>
-<h1><a class="anchor" id="autotoc_md71"></a>
+<h1><a class="anchor" id="autotoc_md72"></a>
 Runtime statistics</h1>
 <p>This object adds the collection of runtime statistics (timings) for identified profiling regions. A region is defined as all functions between a call to <code>profiler_start_region(name, id)</code> and <code>profiler_end_region(name, id)</code>. Neko currently supports 50 regions, with id 1..25 being reserved for internal use.</p>
 <table class="markdownTable">
@@ -909,7 +1125,7 @@ Runtime statistics</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Thu Nov 20 2025 03:46:45 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Nov 21 2025 03:46:58 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

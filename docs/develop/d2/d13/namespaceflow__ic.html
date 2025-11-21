@@ -135,9 +135,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a336762f1b72735e67d1066d53d13697f" id="r_a336762f1b72735e67d1066d53d13697f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d13/namespaceflow__ic.html#a336762f1b72735e67d1066d53d13697f">set_flow_ic_point_zone</a> (u, v, w, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">base_value</a>, zone_name, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">zone_value</a>)</td></tr>
 <tr class="memdesc:a336762f1b72735e67d1066d53d13697f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the initial condition of the flow based on a point zone.  <br /></td></tr>
 <tr class="separator:a336762f1b72735e67d1066d53d13697f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a425835656c9daae13895696a4943dd5f" id="r_a425835656c9daae13895696a4943dd5f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d13/namespaceflow__ic.html#a425835656c9daae13895696a4943dd5f">set_flow_ic_fld</a> (u, v, w, p, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">file_name</a>, interpolate, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tolerance</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">mesh_file_name</a>)</td></tr>
-<tr class="memdesc:a425835656c9daae13895696a4943dd5f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the initial condition of the flow based on a field. @detail The fields are read from an <code>fld</code> file. If enabled, interpolation is also possible. In that case, the mesh coordinates can be read from another field in the <code>fld</code> field series.  <br /></td></tr>
-<tr class="separator:a425835656c9daae13895696a4943dd5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a97d32262faca8122e261500212f649c7" id="r_a97d32262faca8122e261500212f649c7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d13/namespaceflow__ic.html#a97d32262faca8122e261500212f649c7">set_flow_ic_fld</a> (u, v, w, p, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">file_name</a>, interpolate, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tolerance</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">mesh_file_name</a>)</td></tr>
+<tr class="memdesc:a97d32262faca8122e261500212f649c7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the initial condition of the flow based on a field. @detail The fields are read from an <code>fld</code> file. If enabled, interpolation is also possible. In that case, the mesh coordinates can be read from another field in the <code>fld</code> field series.  <br /></td></tr>
+<tr class="separator:a97d32262faca8122e261500212f649c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="a44ef661cec0a987689ef4d25fa029447" name="a44ef661cec0a987689ef4d25fa029447"></a>
@@ -407,17 +407,14 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
-<a id="a425835656c9daae13895696a4943dd5f" name="a425835656c9daae13895696a4943dd5f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a425835656c9daae13895696a4943dd5f">&#9670;&#160;</a></span>set_flow_ic_fld()</h2>
+<a id="a97d32262faca8122e261500212f649c7" name="a97d32262faca8122e261500212f649c7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a97d32262faca8122e261500212f649c7">&#9670;&#160;</a></span>set_flow_ic_fld()</h2>
 
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> flow_ic::set_flow_ic_fld </td>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> flow_ic::set_flow_ic_fld </td>
           <td>(</td>
           <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
           <td class="paramname"><em>u</em>, </td>
@@ -470,11 +467,6 @@ Here is the caller graph for this function:</div>
           <td></td><td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -495,8 +487,8 @@ Here is the caller graph for this function:</div>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d2/d13/namespaceflow__ic_a425835656c9daae13895696a4943dd5f_cgraph.png" border="0" usemap="#ad2/d13/namespaceflow__ic_a425835656c9daae13895696a4943dd5f_cgraph" alt=""/></div>
-<map name="ad2/d13/namespaceflow__ic_a425835656c9daae13895696a4943dd5f_cgraph" id="ad2/d13/namespaceflow__ic_a425835656c9daae13895696a4943dd5f_cgraph">
+<div class="center"><img src="../../d2/d13/namespaceflow__ic_a97d32262faca8122e261500212f649c7_cgraph.png" border="0" usemap="#ad2/d13/namespaceflow__ic_a97d32262faca8122e261500212f649c7_cgraph" alt=""/></div>
+<map name="ad2/d13/namespaceflow__ic_a97d32262faca8122e261500212f649c7_cgraph" id="ad2/d13/namespaceflow__ic_a97d32262faca8122e261500212f649c7_cgraph">
 <area shape="rect" title="Set the initial condition of the flow based on a field. @detail The fields are read from an fld file...." alt="" coords="5,70,176,95"/>
 <area shape="rect" href="../../d6/d84/namespaceutils.html#a0962746ef1c8f4a3a6e83aae5ef2d7a0" title="Extracts the index of a field file. For example, &quot;myfield.f00045&quot; will return 45. If the suffix of th..." alt="" coords="235,5,361,45"/>
 <area shape="poly" title=" " alt="" coords="137,67,220,44,222,49,138,73"/>
@@ -514,11 +506,13 @@ Here is the call graph for this function:</div>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d2/d13/namespaceflow__ic_a425835656c9daae13895696a4943dd5f_icgraph.png" border="0" usemap="#ad2/d13/namespaceflow__ic_a425835656c9daae13895696a4943dd5f_icgraph" alt=""/></div>
-<map name="ad2/d13/namespaceflow__ic_a425835656c9daae13895696a4943dd5f_icgraph" id="ad2/d13/namespaceflow__ic_a425835656c9daae13895696a4943dd5f_icgraph">
-<area shape="rect" title="Set the initial condition of the flow based on a field. @detail The fields are read from an fld file...." alt="" coords="200,13,371,38"/>
-<area shape="rect" href="../../d5/d04/interfaceflow__ic_1_1set__flow__ic.html#aa5c900e30a45a6ed61c876b4ce368b50" title="Set initial flow condition (builtin)" alt="" coords="5,5,152,45"/>
-<area shape="poly" title=" " alt="" coords="186,28,152,28,152,23,186,23"/>
+<div class="center"><img src="../../d2/d13/namespaceflow__ic_a97d32262faca8122e261500212f649c7_icgraph.png" border="0" usemap="#ad2/d13/namespaceflow__ic_a97d32262faca8122e261500212f649c7_icgraph" alt=""/></div>
+<map name="ad2/d13/namespaceflow__ic_a97d32262faca8122e261500212f649c7_icgraph" id="ad2/d13/namespaceflow__ic_a97d32262faca8122e261500212f649c7_icgraph">
+<area shape="rect" title="Set the initial condition of the flow based on a field. @detail The fields are read from an fld file...." alt="" coords="211,45,381,70"/>
+<area shape="rect" href="../../d5/d04/interfaceflow__ic_1_1set__flow__ic.html#aa5c900e30a45a6ed61c876b4ce368b50" title="Set initial flow condition (builtin)" alt="" coords="11,5,157,45"/>
+<area shape="poly" title=" " alt="" coords="197,45,157,39,158,34,198,40"/>
+<area shape="rect" href="../../de/dfc/namespacesponge__source__term.html#a1e5ce4c70646d106ea5113fc5d50cd23" title="Initialize a sponge with a baseflow imported from a field file." alt="" coords="5,69,163,109"/>
+<area shape="poly" title=" " alt="" coords="199,75,163,80,163,75,198,69"/>
 </map>
 </div>
 
@@ -848,7 +842,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d2/d13/namespaceflow__ic.html">flow_ic</a></li>
-    <li class="footer">Generated on Thu Nov 20 2025 03:46:46 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Nov 21 2025 03:46:59 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

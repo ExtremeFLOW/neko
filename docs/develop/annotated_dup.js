@@ -1294,6 +1294,9 @@ var annotated_dup =
     [ "sphere_point_zone", "d9/dfe/namespacesphere__point__zone.html", [
       [ "sphere_point_zone_t", "d1/d00/structsphere__point__zone_1_1sphere__point__zone__t.html", "d1/d00/structsphere__point__zone_1_1sphere__point__zone__t" ]
     ] ],
+    [ "sponge_source_term", "de/dfc/namespacesponge__source__term.html", [
+      [ "sponge_source_term_t", "d1/d27/structsponge__source__term_1_1sponge__source__term__t.html", "d1/d27/structsponge__source__term_1_1sponge__source__term__t" ]
+    ] ],
     [ "stack", "d9/d30/namespacestack.html", [
       [ "stack_2i4r8t3_t", "dc/d04/structstack_1_1stack__2i4r8t3__t.html", "dc/d04/structstack_1_1stack__2i4r8t3__t" ],
       [ "stack_curve_t", "d1/ddd/structstack_1_1stack__curve__t.html", "d1/ddd/structstack_1_1stack__curve__t" ],

@@ -102,16 +102,16 @@ $(document).ready(function(){initNavTree('df/d4a/filter.html','../../'); initRes
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#autotoc_md72">Filter base type</a></li>
-<li class="level1"><a href="#autotoc_md73">PDE filter</a></li>
-<li class="level1"><a href="#autotoc_md74">Elementwise filter</a></li>
+<ul><li class="level1"><a href="#autotoc_md73">Filter base type</a></li>
+<li class="level1"><a href="#autotoc_md74">PDE filter</a></li>
+<li class="level1"><a href="#autotoc_md75">Elementwise filter</a></li>
 </ul>
 </div>
-<div class="textblock"><h1><a class="anchor" id="autotoc_md72"></a>
+<div class="textblock"><h1><a class="anchor" id="autotoc_md73"></a>
 Filter base type</h1>
 <p><code>filter_t</code> is a base type for filters on <code>field_t</code> by calling subroutine <code>filter_tapply(F_out, F_in)</code>, where <code>F_out</code> and <code>F_in</code> are the output and the input fields, respectively.</p>
 <p>The derived type of <code>filter_t</code> includes <code>PDE_filter_t</code>, <code>elementwise_filter_t</code>, ...</p>
-<h1><a class="anchor" id="autotoc_md73"></a>
+<h1><a class="anchor" id="autotoc_md74"></a>
 PDE filter</h1>
 <p>The PDE filter is defined in the derived type <code>PDE_filter_t</code>. The filter is `based on the work of <a href="https://doi.org/10.1002/nme.3072">B. S. Lazarov, O. Sigmund</a> that solves a Helmholtz-type differential equation to provide smoothing. The equation has the form  </p><p class="formulaDsp">
 \[
@@ -133,7 +133,7 @@ PDE filter</h1>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>preconditioner</code>   </td><td class="markdownTableBodyNone">Pre-conditioner used to solve the system.   </td><td class="markdownTableBodyNone"><code>ident</code>, <code>hsmg</code>, <code>jacobi</code>   </td><td class="markdownTableBodyNone"><code>jacobi</code>   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md74"></a>
+<h1><a class="anchor" id="autotoc_md75"></a>
 Elementwise filter</h1>
 <p>The elementwise filter is defined in the derived type <code>elementwise_filter_t</code>. Basing on the spectral element discretization, it is performed by mapping the field into hierarchical polynomials element by element (currently only Legendre-like polynomials are supported) and then attenuating the kernel for different orders. One could directly set it up through the json file if the filter is needed in any section.</p>
 <p>The user can also modify <code>elementwise_filter_type</code> and <code>transfer_function</code> according to their need.</p>
@@ -160,7 +160,7 @@ Elementwise filter</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Thu Nov 20 2025 03:46:45 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Nov 21 2025 03:46:58 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

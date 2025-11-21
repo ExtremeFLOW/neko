@@ -34,28 +34,30 @@
 <area shape="poly" id="edge18_Node000001_Node000019" title=" " alt="" coords="807,642,793,686,770,739,736,794,716,818,692,840,670,853,667,848,689,836,712,815,732,790,765,737,788,684,802,641"/>
 <area shape="rect" id="Node000020" href="$dc/d60/namespacescalar__aux.html#a1c6773a769289adc92be4875534b3606" title="Prints for prs, velx, vely, velz the following: Number of iterations, start residual,..." alt="" coords="525,901,664,941"/>
 <area shape="poly" id="edge19_Node000001_Node000020" title=" " alt="" coords="809,642,797,693,775,760,741,829,719,861,692,889,665,907,663,902,689,885,715,858,737,826,770,758,792,692,804,641"/>
-<area shape="rect" id="Node000022" href="$d2/d13/namespaceflow__ic.html#a425835656c9daae13895696a4943dd5f" title="Set the initial condition of the flow based on a field. @detail The fields are read from an fld file...." alt="" coords="509,965,680,991"/>
+<area shape="rect" id="Node000022" href="$d2/d13/namespaceflow__ic.html#a97d32262faca8122e261500212f649c7" title="Set the initial condition of the flow based on a field. @detail The fields are read from an fld file...." alt="" coords="509,965,680,991"/>
 <area shape="poly" id="edge21_Node000001_Node000022" title=" " alt="" coords="813,642,805,706,786,790,770,835,750,878,724,919,692,955,673,968,670,963,689,951,720,916,745,876,765,833,781,788,800,705,807,642"/>
-<area shape="rect" id="Node000024" href="$d8/ddf/namespacescalar__ic.html#a492923019d125aeb21a4f9371c1b36ac" title="Set the initial condition of the scalar based on a field. @detail The field is read from an fld file...." alt="" coords="518,1015,671,1055"/>
-<area shape="poly" id="edge23_Node000001_Node000024" title=" " alt="" coords="814,642,808,712,790,809,775,861,754,912,727,961,693,1004,673,1019,670,1014,689,1000,722,958,749,910,770,859,785,808,802,712,808,641"/>
-<area shape="rect" id="Node000026" href="$d4/def/namespacesigned__distance.html#a0aadae5f88457c621981eef96209853e" title="Signed distance field for a triangular mesh." alt="" coords="503,1079,686,1119"/>
-<area shape="poly" id="edge25_Node000001_Node000026" title=" " alt="" coords="815,642,813,723,808,778,798,837,783,899,762,960,732,1018,693,1069,678,1081,674,1077,689,1065,727,1015,757,958,778,897,793,836,803,777,808,723,810,642"/>
-<area shape="rect" id="Node000029" href="$d9/d30/namespacestack.html#a8703c4c59b20a3e1d79a7c5b32c7dcd3" title="Initialize a stack of arbitrary type." alt="" coords="531,1144,659,1169"/>
-<area shape="poly" id="edge28_Node000001_Node000029" title=" " alt="" coords="811,642,798,749,775,896,759,971,740,1039,718,1095,693,1133,677,1145,660,1152,658,1148,675,1140,689,1130,713,1092,735,1037,753,970,769,895,793,748,806,642"/>
-<area shape="rect" id="Node000030" href="$d5/d1b/namespacetree__amg__multigrid.html#afdfe654db71422a5240a588dd522768d" title="Initialization of the TreeAMG multigrid solver." alt="" coords="519,1194,670,1234"/>
-<area shape="poly" id="edge29_Node000001_Node000030" title=" " alt="" coords="812,642,800,758,777,919,761,1002,741,1078,719,1140,693,1184,672,1200,668,1196,689,1180,714,1138,736,1076,755,1001,771,918,795,757,806,642"/>
+<area shape="rect" id="Node000025" href="$d8/ddf/namespacescalar__ic.html#a492923019d125aeb21a4f9371c1b36ac" title="Set the initial condition of the scalar based on a field. @detail The field is read from an fld file...." alt="" coords="518,1015,671,1055"/>
+<area shape="poly" id="edge24_Node000001_Node000025" title=" " alt="" coords="814,642,808,712,790,809,775,861,754,912,727,961,693,1004,673,1019,670,1014,689,1000,722,958,749,910,770,859,785,808,802,712,808,641"/>
+<area shape="rect" id="Node000027" href="$d4/def/namespacesigned__distance.html#a0aadae5f88457c621981eef96209853e" title="Signed distance field for a triangular mesh." alt="" coords="503,1079,686,1119"/>
+<area shape="poly" id="edge26_Node000001_Node000027" title=" " alt="" coords="815,642,813,723,808,778,798,837,783,899,762,960,732,1018,693,1069,678,1081,674,1077,689,1065,727,1015,757,958,778,897,793,836,803,777,808,723,810,642"/>
+<area shape="rect" id="Node000030" href="$d9/d30/namespacestack.html#a8703c4c59b20a3e1d79a7c5b32c7dcd3" title="Initialize a stack of arbitrary type." alt="" coords="531,1144,659,1169"/>
+<area shape="poly" id="edge29_Node000001_Node000030" title=" " alt="" coords="811,642,798,749,775,896,759,971,740,1039,718,1095,693,1133,677,1145,660,1152,658,1148,675,1140,689,1130,713,1092,735,1037,753,970,769,895,793,748,806,642"/>
+<area shape="rect" id="Node000031" href="$d5/d1b/namespacetree__amg__multigrid.html#afdfe654db71422a5240a588dd522768d" title="Initialization of the TreeAMG multigrid solver." alt="" coords="519,1194,670,1234"/>
+<area shape="poly" id="edge30_Node000001_Node000031" title=" " alt="" coords="812,642,800,758,777,919,761,1002,741,1078,719,1140,693,1184,672,1200,668,1196,689,1180,714,1138,736,1076,755,1001,771,918,795,757,806,642"/>
 <area shape="rect" id="Node000009" href="$dd/dd2/namespacedofmap.html#a5d369623e2bb954910d6741afd4e93a8" title="Generate x,y,z&#45;coordinates for all dofs." alt="" coords="225,376,451,401"/>
 <area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="485,391,451,391,451,386,485,386"/>
 <area shape="rect" id="Node000010" href="$dd/dd2/namespacedofmap.html#ab00433635f8523e38ff52650bdbe62c0" title="Constructor." alt="" coords="12,376,171,401"/>
 <area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="212,391,171,391,171,386,212,386"/>
-<area shape="rect" id="Node000021" href="$d1/de4/namespacescalars.html#af37ab3c3ae5da1e41850d1cd49785220" title="Perform a time step for all scalar fields." alt="" coords="259,904,417,929"/>
-<area shape="poly" id="edge20_Node000020_Node000021" title=" " alt="" coords="512,922,417,921,417,915,512,917"/>
-<area shape="rect" id="Node000023" href="$d5/d04/interfaceflow__ic_1_1set__flow__ic.html#aa5c900e30a45a6ed61c876b4ce368b50" title="Set initial flow condition (builtin)" alt="" coords="265,954,411,994"/>
-<area shape="poly" id="edge22_Node000022_Node000023" title=" " alt="" coords="496,979,411,978,411,972,496,974"/>
-<area shape="rect" id="Node000025" href="$df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#aff3db0c152fe4232bd1493c8d5614c97" title="Set scalar initial condition (builtin)" alt="" coords="260,1018,416,1058"/>
-<area shape="poly" id="edge24_Node000024_Node000025" title=" " alt="" coords="504,1039,416,1040,416,1035,504,1034"/>
-<area shape="rect" id="Node000027" href="$d4/def/namespacesigned__distance.html#aaacd6c5bec83fbff7c2205b5ed63af6a" title="Signed distance field." alt="" coords="249,1082,427,1122"/>
-<area shape="poly" id="edge26_Node000026_Node000027" title=" " alt="" coords="490,1103,428,1104,428,1098,490,1098"/>
-<area shape="rect" id="Node000028" href="$d0/d7b/namespacebrinkman__source__term.html#a35bde13a18b619fc56d9856fcdb60ecb" title="Initializes the source term from a boundary mesh." alt="" coords="5,1082,177,1122"/>
-<area shape="poly" id="edge27_Node000027_Node000028" title=" " alt="" coords="235,1105,177,1105,177,1099,235,1099"/>
+<area shape="rect" id="Node000021" href="$d1/de4/namespacescalars.html#af37ab3c3ae5da1e41850d1cd49785220" title="Perform a time step for all scalar fields." alt="" coords="259,844,417,869"/>
+<area shape="poly" id="edge20_Node000020_Node000021" title=" " alt="" coords="512,901,450,885,397,872,398,867,451,879,513,896"/>
+<area shape="rect" id="Node000023" href="$d5/d04/interfaceflow__ic_1_1set__flow__ic.html#aa5c900e30a45a6ed61c876b4ce368b50" title="Set initial flow condition (builtin)" alt="" coords="265,894,411,934"/>
+<area shape="poly" id="edge22_Node000022_Node000023" title=" " alt="" coords="529,964,411,935,412,930,530,959"/>
+<area shape="rect" id="Node000024" href="$de/dfc/namespacesponge__source__term.html#a1e5ce4c70646d106ea5113fc5d50cd23" title="Initialize a sponge with a baseflow imported from a field file." alt="" coords="259,958,417,998"/>
+<area shape="poly" id="edge23_Node000022_Node000024" title=" " alt="" coords="496,981,417,981,417,975,496,975"/>
+<area shape="rect" id="Node000026" href="$df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#aff3db0c152fe4232bd1493c8d5614c97" title="Set scalar initial condition (builtin)" alt="" coords="260,1022,416,1062"/>
+<area shape="poly" id="edge25_Node000025_Node000026" title=" " alt="" coords="504,1040,416,1043,416,1037,504,1035"/>
+<area shape="rect" id="Node000028" href="$d4/def/namespacesigned__distance.html#aaacd6c5bec83fbff7c2205b5ed63af6a" title="Signed distance field." alt="" coords="249,1086,427,1126"/>
+<area shape="poly" id="edge27_Node000027_Node000028" title=" " alt="" coords="490,1105,428,1106,428,1101,490,1099"/>
+<area shape="rect" id="Node000029" href="$d0/d7b/namespacebrinkman__source__term.html#a35bde13a18b619fc56d9856fcdb60ecb" title="Initializes the source term from a boundary mesh." alt="" coords="5,1086,177,1126"/>
+<area shape="poly" id="edge28_Node000028_Node000029" title=" " alt="" coords="235,1109,177,1109,177,1103,235,1103"/>
 </map>

@@ -688,6 +688,7 @@ var namespaces_dup =
     ] ],
     [ "spectral_error", "d0/d29/namespacespectral__error.html", "d0/d29/namespacespectral__error" ],
     [ "sphere_point_zone", "d9/dfe/namespacesphere__point__zone.html", "d9/dfe/namespacesphere__point__zone" ],
+    [ "sponge_source_term", "de/dfc/namespacesponge__source__term.html", "de/dfc/namespacesponge__source__term" ],
     [ "stack", "d9/d30/namespacestack.html", "d9/d30/namespacestack" ],
     [ "stats", "d4/de4/namespacestats.html", "d4/de4/namespacestats" ],
     [ "stats_quant", "dc/d65/namespacestats__quant.html", "dc/d65/namespacestats__quant" ],

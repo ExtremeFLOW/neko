@@ -816,6 +816,7 @@ var hierarchy =
       [ "coriolis_source_term::coriolis_source_term_t", "db/dbf/structcoriolis__source__term_1_1coriolis__source__term__t.html", null ],
       [ "custom_types::my_source_term_t", "d4/dc1/structcustom__types_1_1my__source__term__t.html", null ],
       [ "gradient_jump_penalty::gradient_jump_penalty_t", "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html", null ],
+      [ "sponge_source_term::sponge_source_term_t", "d1/d27/structsponge__source__term_1_1sponge__source__term__t.html", null ],
       [ "user_source_term::user_source_term_t", "db/da2/structuser__source__term_1_1user__source__term__t.html", null ]
     ] ],
     [ "source_term::source_term_wrapper_t", "d9/d5a/structsource__term_1_1source__term__wrapper__t.html", null ],

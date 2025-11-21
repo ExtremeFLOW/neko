@@ -1,0 +1,18 @@
+<map id="sponge_source_term::sponge_init_field" name="sponge_source_term::sponge_init_field">
+<area shape="rect" id="Node000001" title="Initialize a sponge with a baseflow imported from a field file." alt="" coords="5,92,163,132"/>
+<area shape="rect" id="Node000002" href="$d2/d13/namespaceflow__ic.html#a97d32262faca8122e261500212f649c7" title="Set the initial condition of the flow based on a field. @detail The fields are read from an fld file...." alt="" coords="211,70,381,95"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="162,99,197,94,197,99,163,104"/>
+<area shape="rect" id="Node000008" href="$de/dfc/namespacesponge__source__term.html#afce81788a6bef6ca26308b924e2edf31" title="Common constructor." alt="" coords="211,120,381,160"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="163,120,198,124,198,130,162,125"/>
+<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#a0962746ef1c8f4a3a6e83aae5ef2d7a0" title="Extracts the index of a field file. For example, &quot;myfield.f00045&quot; will return 45. If the suffix of th..." alt="" coords="440,5,567,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="342,67,426,44,427,49,343,73"/>
+<area shape="rect" id="Node000006" href="$d6/d84/namespaceutils.html#a94a1b10b4fd0d52a2bbd0bdfbac01692" title="Change a filename&#39;s suffix." alt="" coords="625,66,799,91"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="381,79,611,77,612,82,382,85"/>
+<area shape="rect" id="Node000007" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="429,121,577,146"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="350,93,438,115,437,120,348,98"/>
+<area shape="rect" id="Node000004" href="$d6/d84/namespaceutils.html#ab63ac98c412c96a48161b7ad74e5fa85" title="Extract a filename&#39;s suffix." alt="" coords="633,15,791,41"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="567,23,619,24,619,29,567,29"/>
+<area shape="rect" id="Node000005" href="$d6/d84/namespaceutils.html#ae2d9d80ae0bcff7643db09d1c1860542" title="Find position (in the string) of a filename&#39;s suffix." alt="" coords="847,42,1035,67"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="792,35,833,39,833,45,791,40"/>
+<area shape="poly" id="edge6_Node000006_Node000005" title=" " alt="" coords="798,67,833,63,833,69,799,72"/>
+</map>

@@ -1,17 +1,19 @@
 <map id="device_math::device_add2s2" name="device_math::device_add2s2">
-<area shape="rect" id="Node000001" title="Vector addition with scalar multiplication &#160;(multiplication on first argument)" alt="" coords="495,178,652,218"/>
+<area shape="rect" id="Node000001" title="Vector addition with scalar multiplication &#160;(multiplication on first argument)" alt="" coords="495,206,652,246"/>
 <area shape="rect" id="Node000002" href="$dc/d0b/namespaceboussinesq__source__term__device.html#ab119b3913528cc79e3a5f7a3d2874ac1" title="Computes the Boussinesq source term on the device." alt="" coords="244,5,447,60"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="546,169,502,121,445,75,423,63,426,58,448,70,505,118,550,166"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="551,196,507,135,478,103,445,75,425,62,428,58,448,71,481,99,511,132,555,193"/>
 <area shape="rect" id="Node000004" href="$d6/d60/namespacecg__device.html#a0e61c9447cf557811c5f8d566bc6ce5d" title="Standard PCG solve." alt="" coords="265,85,425,125"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="521,174,446,139,413,127,415,122,448,134,523,169"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="536,200,494,168,445,139,418,127,420,122,448,134,497,164,540,195"/>
 <area shape="rect" id="Node000005" href="$d4/dc5/namespacecheby__device.html#a56dd0099614626d018abbb680f4d21ce" title=" " alt="" coords="266,149,425,189"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="481,189,424,181,425,176,481,184"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="480,205,424,191,425,186,482,200"/>
 <area shape="rect" id="Node000007" href="$d5/de6/namespacefield__math.html#a65da9611ed2cfe6c591ada458d0b8bfd" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="255,213,436,239"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="481,212,437,217,436,212,481,207"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="481,229,436,229,436,223,481,223"/>
 <area shape="rect" id="Node000009" href="$dc/d12/namespacematrix__math.html#ab97b0789465191d24226766e2cf0bfa8" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="267,263,424,303"/>
-<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="516,226,448,254,413,266,412,261,446,249,514,221"/>
-<area shape="rect" id="Node000010" href="$d3/d0d/namespacevector__math.html#ad2e3b136be995cb9e58faec0d754e15e" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="269,327,422,367"/>
-<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="548,230,504,275,448,318,423,330,421,325,445,313,501,271,545,227"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="482,252,425,266,424,261,481,246"/>
+<area shape="rect" id="Node000010" href="$de/dfc/namespacesponge__source__term.html#a8f62d52eaea0e72b16c8ef1b6873c022" title="Compute the sponge field. The sponge is applied according to the following definition: f_x = amp_x * ..." alt="" coords="267,327,424,367"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="540,257,497,288,448,318,420,330,418,325,445,313,494,284,536,252"/>
+<area shape="rect" id="Node000011" href="$d3/d0d/namespacevector__math.html#ad2e3b136be995cb9e58faec0d754e15e" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="269,391,422,431"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="556,259,512,321,482,354,448,382,423,395,421,390,445,377,478,350,508,318,552,256"/>
 <area shape="rect" id="Node000003" href="$d0/d10/namespaceboussinesq__source__term.html#aaee9b03347869ec2dc5de2613b67ded0" title="Computes the source term and adds the result to fields." alt="" coords="5,5,196,60"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="230,35,196,35,196,30,230,30"/>
 <area shape="rect" id="Node000006" href="$d4/dc5/namespacecheby__device.html#af7ddf3344912ba0450cd079cec7e5929" title="A chebyshev preconditioner." alt="" coords="21,146,180,186"/>

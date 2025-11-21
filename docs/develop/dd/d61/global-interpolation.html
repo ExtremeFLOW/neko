@@ -101,16 +101,16 @@ $(document).ready(function(){initNavTree('dd/d61/global-interpolation.html','../
   <div class="headertitle"><div class="title">Global Interpolation</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><h1><a class="anchor" id="autotoc_md75"></a>
+<div class="textblock"><h1><a class="anchor" id="autotoc_md76"></a>
 Overview</h1>
 <p>The <code><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html" title="Implements global_interpolation given a dofmap.">global_interpolation</a></code> module in Neko provides functionality for interpolating arbitrary points within a computational domain. It is designed to handle distributed parallel environments, enabling interpolation across multiple processes. This module is particularly useful for applications requiring interpolation of fields or data points in spectral element simulations.</p>
 <hr  />
-<h1><a class="anchor" id="autotoc_md77"></a>
+<h1><a class="anchor" id="autotoc_md78"></a>
 Module: &lt;tt&gt;global_interpolation&lt;/tt&gt;</h1>
-<h2><a class="anchor" id="autotoc_md78"></a>
+<h2><a class="anchor" id="autotoc_md79"></a>
 Description</h2>
 <p>The <code><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html" title="Implements global_interpolation given a dofmap.">global_interpolation</a></code> module implements global interpolation for arbitrary points in the domain. It supports distributed parallelism using MPI and provides tools for finding process owners, element candidates, and local coordinates (<code>rst</code>) for interpolation.</p>
-<h2><a class="anchor" id="autotoc_md79"></a>
+<h2><a class="anchor" id="autotoc_md80"></a>
 Features</h2>
 <ul>
 <li><b>Distributed Interpolation</b>: Handles interpolation across multiple processes using MPI.</li>
@@ -120,14 +120,14 @@ Features</h2>
 <li><b>Error Handling</b>: Includes mechanisms to validate points and ensure interpolation accuracy.</li>
 </ul>
 <hr  />
-<h1><a class="anchor" id="autotoc_md81"></a>
+<h1><a class="anchor" id="autotoc_md82"></a>
 Type: &lt;tt&gt;global_interpolation_t&lt;/tt&gt;</h1>
-<h2><a class="anchor" id="autotoc_md82"></a>
+<h2><a class="anchor" id="autotoc_md83"></a>
 Description</h2>
 <p>The <code>global_interpolation_t</code> type encapsulates the functionality for global interpolation. It manages the data structures, processes, and algorithms required for interpolation in a distributed environment.</p>
-<h2><a class="anchor" id="autotoc_md83"></a>
+<h2><a class="anchor" id="autotoc_md84"></a>
 Attributes</h2>
-<h3><a class="anchor" id="autotoc_md84"></a>
+<h3><a class="anchor" id="autotoc_md85"></a>
 Domain and Space Information</h3>
 <ul>
 <li><code>gdim</code>: Geometric dimension of the simulation.</li>
@@ -135,7 +135,7 @@ Domain and Space Information</h3>
 <li><code>glb_nelv</code>: Global number of elements across all processes.</li>
 <li><code>Xh</code>: Spectral space used for interpolation.</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md85"></a>
+<h3><a class="anchor" id="autotoc_md86"></a>
 Point Management</h3>
 <ul>
 <li><code>n_points</code>: Total number of points to interpolate.</li>
@@ -144,7 +144,7 @@ Point Management</h3>
 <li><code>pe_owner</code>: List of owning processes for each point.</li>
 <li><code>el_owner0</code>: List of owning elements for each point (0-indexed).</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md86"></a>
+<h3><a class="anchor" id="autotoc_md87"></a>
 Local Points</h3>
 <ul>
 <li><code>n_points_local</code>: Number of points local to the current process.</li>
@@ -152,53 +152,53 @@ Local Points</h3>
 <li><code>rst_local</code>: Local <code>rst</code> coordinates for points (shape: <code>3 x n_points_local</code>).</li>
 <li><code>el_owner0_local</code>: Owning elements for local points.</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md87"></a>
+<h3><a class="anchor" id="autotoc_md88"></a>
 Interpolation Tools</h3>
 <ul>
 <li><code>local_interp</code>: Instance of <code>local_interpolator_t</code> for local interpolation.</li>
 <li><code>rst_finder</code>: Object for finding <code>rst</code> coordinates (<code>legendre_rst_finder_t</code>).</li>
 <li><code><a class="el" href="../../d6/d7c/namespacegs__comm.html" title="Defines a gather-scatter communication method.">gs_comm</a></code>: Gather-scatter communication object for distributed interpolation.</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md88"></a>
+<h3><a class="anchor" id="autotoc_md89"></a>
 Parallelism</h3>
 <ul>
 <li><code>comm</code>: MPI communicator for distributed interpolation.</li>
 <li><code>pe_rank</code>: Rank of the current process in <code>comm</code>.</li>
 <li><code>pe_size</code>: Total number of processes in <code>comm</code>.</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md89"></a>
+<h3><a class="anchor" id="autotoc_md90"></a>
 Configuration</h3>
 <ul>
 <li><code>tol</code>: Tolerance for Newton iterations to find <code>rst</code> coordinates.</li>
 <li><code>padding</code>: Padding for bounding boxes used in element and process finding.</li>
 </ul>
 <hr  />
-<h2><a class="anchor" id="autotoc_md91"></a>
+<h2><a class="anchor" id="autotoc_md92"></a>
 Methods</h2>
-<h3><a class="anchor" id="autotoc_md92"></a>
+<h3><a class="anchor" id="autotoc_md93"></a>
 Initialization</h3>
 <ul>
 <li><code>init_xyz(x, y, z, gdim, nelv, Xh, comm, tol, pad)</code>: Initializes the global interpolation object using coordinates and mesh information.</li>
 <li><code>init_dof(dofmap, comm, tol, pad)</code>: Initializes the object using a <code>dofmap_t</code> instance.</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md93"></a>
+<h3><a class="anchor" id="autotoc_md94"></a>
 Point Management</h3>
 <ul>
 <li><code>find_points_coords(x, y, z)</code>: Finds process owners, elements, and <code>rst</code> coordinates for given points.</li>
 <li><code>find_points_coords1d(x, y, z)</code>: Similar to <code>find_points_coords</code>, but for 1D arrays.</li>
 <li><code>find_points_and_redist()</code>: Finds points and redistributes them to their respective owners, changes the points this process has.</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md94"></a>
+<h3><a class="anchor" id="autotoc_md95"></a>
 Interpolation</h3>
 <ul>
 <li><code>evaluate(interp_values, field, on_host)</code>: Evaluates interpolated values at the points using a given field.</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md95"></a>
+<h3><a class="anchor" id="autotoc_md96"></a>
 Validation</h3>
 <ul>
 <li><code>check_points(x, y, z)</code>: Validates the points to ensure interpolation accuracy.</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md96"></a>
+<h3><a class="anchor" id="autotoc_md97"></a>
 Memory Management</h3>
 <ul>
 <li><code>free()</code>: Frees all allocated resources.</li>
@@ -206,9 +206,9 @@ Memory Management</h3>
 <li><code>free_points_local()</code>: Frees resources related to local points.</li>
 </ul>
 <hr  />
-<h2><a class="anchor" id="autotoc_md98"></a>
+<h2><a class="anchor" id="autotoc_md99"></a>
 Example Usage</h2>
-<h3><a class="anchor" id="autotoc_md99"></a>
+<h3><a class="anchor" id="autotoc_md100"></a>
 Initialization</h3>
 <div class="fragment"><div class="line"><span class="keywordtype">type</span>(global_interpolation_t) :: glob_interp</div>
 <div class="line"><span class="keywordtype">type</span>(space_t) :: Xh</div>
@@ -216,7 +216,7 @@ Initialization</h3>
 <div class="line"> </div>
 <div class="line"><span class="comment">! Initialize global interpolation object</span></div>
 <div class="line"><span class="keyword">call </span>glob_interp%init_dof(dof, neko_comm, tol=1e-6, pad=1e-2)</div>
-</div><!-- fragment --><h3><a class="anchor" id="autotoc_md100"></a>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md101"></a>
 Finding Points</h3>
 <div class="fragment"><div class="line"><span class="keywordtype">real</span>(kind=rp), <span class="keywordtype">allocatable</span> :: x(:), y(:), z(:)</div>
 <div class="line"><span class="keywordtype">integer</span> :: n_points</div>
@@ -230,7 +230,7 @@ Finding Points</h3>
 <div class="line"> </div>
 <div class="line"><span class="comment">! Find points and their owners</span></div>
 <div class="line"><span class="keyword">call </span>glob_interp%find_points_coords(x, y, z)</div>
-</div><!-- fragment --><h3><a class="anchor" id="autotoc_md101"></a>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md102"></a>
 Interpolation</h3>
 <div class="fragment"><div class="line"><span class="keywordtype">real</span>(kind=rp), <span class="keywordtype">allocatable</span> :: interp_values(:)</div>
 <div class="line"><span class="keywordtype">real</span>(kind=rp), <span class="keywordtype">allocatable</span> :: <a class="code hl_namespace" href="../../dc/da9/namespacefield.html">field</a>(:)</div>
@@ -245,18 +245,18 @@ Interpolation</h3>
 <div class="line"><span class="keyword">call </span>glob_interp%evaluate(interp_values, <a class="code hl_namespace" href="../../dc/da9/namespacefield.html">field</a>, on_host)</div>
 <div class="ttc" id="anamespacefield_html"><div class="ttname"><a href="../../dc/da9/namespacefield.html">field</a></div><div class="ttdoc">Defines a field.</div><div class="ttdef"><b>Definition</b> <a href="../../d3/dc1/field_8f90_source.html#l00034">field.f90:34</a></div></div>
 </div><!-- fragment --><hr  />
-<h2><a class="anchor" id="autotoc_md103"></a>
+<h2><a class="anchor" id="autotoc_md104"></a>
 Notes</h2>
 <ul>
 <li><b>Device Support</b>: If <code>NEKO_BCKND_DEVICE</code> is enabled, the module uses GPU memory for computations.</li>
 <li><b>Error Handling</b>: Ensure <code>tol</code> and <code>pad</code> are appropriately set for accurate interpolation.</li>
 <li><b>Parallelism</b>: The module relies on MPI for distributed computations. Ensure MPI is properly initialized.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md104"></a>
+<h2><a class="anchor" id="autotoc_md105"></a>
 Environment variables</h2>
 <p>This module depends on the environemnt variables <code>NEKO_GLOBAL_INTERP_PE_FINDER</code> and <code>NEKO_GLOBAL_INTERP_EL_FINDER</code>. Unless these are specified to AABB (using Axis aligned bounding boxes to find PEs and elements), the global interpolation object will make use of a structured cartesian grid for this. This grid is distributed among all processes for finding the PEs and local for each PE to find the element candidates. This is in general a lot faster than the AABB trees, but if you run into issues try specifying these environment variables to AABB.</p>
 <hr  />
-<h2><a class="anchor" id="autotoc_md106"></a>
+<h2><a class="anchor" id="autotoc_md107"></a>
 Related Modules</h2>
 <ul>
 <li><code><a class="el" href="../../da/d80/namespacelocal__interpolation.html" title="Routines to obtain interpolated values on a set of points with known rst coordinates in elements loca...">local_interpolation</a></code>: Provides local interpolation functionality.</li>
@@ -271,7 +271,7 @@ Related Modules</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Thu Nov 20 2025 03:46:45 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Nov 21 2025 03:46:58 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

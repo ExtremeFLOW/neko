@@ -102,27 +102,27 @@ $(document).ready(function(){initNavTree('da/dd0/point-zones.html','../../'); in
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#autotoc_md126">What are point zones?</a></li>
-<li class="level1"><a href="#autotoc_md127">Predefined geometrical shapes</a><ul><li class="level2"><a href="#autotoc_md128">Box</a></li>
-<li class="level2"><a href="#autotoc_md129">Sphere</a></li>
-<li class="level2"><a href="#autotoc_md130">Cylinder</a></li>
+<ul><li class="level1"><a href="#autotoc_md127">What are point zones?</a></li>
+<li class="level1"><a href="#autotoc_md128">Predefined geometrical shapes</a><ul><li class="level2"><a href="#autotoc_md129">Box</a></li>
+<li class="level2"><a href="#autotoc_md130">Sphere</a></li>
+<li class="level2"><a href="#autotoc_md131">Cylinder</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md131">Operations on point zones</a><ul><li class="level2"><a href="#autotoc_md132">Inversion</a></li>
-<li class="level2"><a href="#autotoc_md133">Combination</a></li>
+<li class="level1"><a href="#autotoc_md132">Operations on point zones</a><ul><li class="level2"><a href="#autotoc_md133">Inversion</a></li>
+<li class="level2"><a href="#autotoc_md134">Combination</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md134">User-defined geometrical shapes</a></li>
+<li class="level1"><a href="#autotoc_md135">User-defined geometrical shapes</a></li>
 <li class="level1"><a href="#point-zones_using-point-zones">Using point zones</a></li>
 </ul>
 </div>
-<div class="textblock"><h1><a class="anchor" id="autotoc_md126"></a>
+<div class="textblock"><h1><a class="anchor" id="autotoc_md127"></a>
 What are point zones?</h1>
 <p>Point zones are subsections of the computational domain which are selected based on a given geometrical criterion. A point zone is defined by the <code>point_zone_t</code> abstract type. Each <code>point_zone_t</code> object has a unique <code>name</code> attribute, and a <code>mask</code> containing a list of linear indices referring to the GLL points whose coordinates verify the above-mentioned geometrical criterion. Zones can then be used for different purposes, an example being applying a localized source term or probing a particular zone of interest.</p>
-<h1><a class="anchor" id="autotoc_md127"></a>
+<h1><a class="anchor" id="autotoc_md128"></a>
 Predefined geometrical shapes</h1>
 <p>There are three predefined shapes from which to initialize a point zone in the case file: boxes, spheres and cylinders. Each shape is described by its own subtype <code>box_point_zone_t</code>, <code>sphere_point_zone_t</code> and <code>cylinder_point_zone_t</code>, extending the abstract class <code>point_zone_t</code>.</p>
-<h2><a class="anchor" id="autotoc_md128"></a>
+<h2><a class="anchor" id="autotoc_md129"></a>
 Box</h2>
 <p>A box is defined from its <code>x,y</code> and <code>z</code> boundaries.</p>
 <div class="fragment"><div class="line">[</div>
@@ -134,7 +134,7 @@ Box</h2>
 <div class="line">        &quot;z_bounds&quot;: [-1.0, 1.0]</div>
 <div class="line">    }</div>
 <div class="line">]</div>
-</div><!-- fragment --> <h2><a class="anchor" id="autotoc_md129"></a>
+</div><!-- fragment --> <h2><a class="anchor" id="autotoc_md130"></a>
 Sphere</h2>
 <p>A sphere is defined by its center and its radius.</p>
 <div class="fragment"><div class="line">[</div>
@@ -145,7 +145,7 @@ Sphere</h2>
 <div class="line">        &quot;radius&quot;: 0.01</div>
 <div class="line">    },</div>
 <div class="line">]</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md130"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md131"></a>
 Cylinder</h2>
 <p>A cylinder is defined by its end points and its radius.</p>
 <div class="fragment"><div class="line">[</div>
@@ -157,9 +157,9 @@ Cylinder</h2>
 <div class="line">        &quot;radius&quot;: 0.01</div>
 <div class="line">    },</div>
 <div class="line">]</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md131"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md132"></a>
 Operations on point zones</h1>
-<h2><a class="anchor" id="autotoc_md132"></a>
+<h2><a class="anchor" id="autotoc_md133"></a>
 Inversion</h2>
 <p>By setting the keyword <code>invert</code> to <code>true</code>, you can indicate that you want to select all the points <b>but</b> those inside the point zone.</p>
 <div class="fragment"><div class="line">[</div>
@@ -172,7 +172,7 @@ Inversion</h2>
 <div class="line">        &quot;invert&quot;: true,</div>
 <div class="line">    },</div>
 <div class="line">]</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md133"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md134"></a>
 Combination</h2>
 <p>It is possible to combine predefined shapes into a single point zone. This is achieved by the <code>combine_point_zone_t</code> type which can construct a point zone based on the geometrical parameters of each sub point zone or refer to already existing point zones. The mask of a combined point zone will not contain any duplicate points in case the subset point zones overlap.</p>
 <p>Specifying which point zones to combine is done through the <code>subsets</code> array. In that array, you can specify:</p><ul>
@@ -230,7 +230,7 @@ Combination</h2>
 <div class="line">    },</div>
 <div class="line"> </div>
 <div class="line">]</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md134"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md135"></a>
 User-defined geometrical shapes</h1>
 <p>The current version of Neko does not support user-defined shapes from the case file. That said, shapes can be defined manually into new types by extending <code>point_zone_t</code> and implementing the abstract <code>criterion</code> interface.</p>
 <h1><a class="anchor" id="point-zones_using-point-zones"></a>
@@ -258,7 +258,7 @@ Using point zones</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Thu Nov 20 2025 03:46:45 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Nov 21 2025 03:46:58 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

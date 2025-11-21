@@ -10,5 +10,6 @@ var dir_5333ab263fff069c320f5b66c5911c96 =
     [ "source_term.f90", "df/d69/source__term_8f90.html", "df/d69/source__term_8f90" ],
     [ "source_term_fctry.f90", "d5/d3e/source__term__fctry_8f90.html", null ],
     [ "source_term_handler.f90", "d2/dc4/source__term__handler_8f90.html", "d2/dc4/source__term__handler_8f90" ],
+    [ "sponge_source_term.f90", "df/def/sponge__source__term_8f90.html", "df/def/sponge__source__term_8f90" ],
     [ "user_source_term.f90", "db/d9c/user__source__term_8f90.html", "db/d9c/user__source__term_8f90" ]
 ];

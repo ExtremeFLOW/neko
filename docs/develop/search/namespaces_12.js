@@ -36,13 +36,14 @@ var searchData=
   ['speclib_33',['speclib',['../dd/df0/namespacespeclib.html',1,'']]],
   ['spectral_5ferror_34',['spectral_error',['../d0/d29/namespacespectral__error.html',1,'']]],
   ['sphere_5fpoint_5fzone_35',['sphere_point_zone',['../d9/dfe/namespacesphere__point__zone.html',1,'']]],
-  ['stack_36',['stack',['../d9/d30/namespacestack.html',1,'']]],
-  ['stats_37',['stats',['../d4/de4/namespacestats.html',1,'']]],
-  ['stats_5fquant_38',['stats_quant',['../dc/d65/namespacestats__quant.html',1,'']]],
-  ['stl_39',['stl',['../d6/d89/namespacestl.html',1,'']]],
-  ['stl_5ffile_40',['stl_file',['../dc/dc8/namespacestl__file.html',1,'']]],
-  ['structs_41',['structs',['../d2/d74/namespacestructs.html',1,'']]],
-  ['sx_5fjacobi_42',['sx_jacobi',['../dd/d6e/namespacesx__jacobi.html',1,'']]],
-  ['symmetry_43',['symmetry',['../d1/d70/namespacesymmetry.html',1,'']]],
-  ['system_44',['system',['../d5/d81/namespacesystem.html',1,'']]]
+  ['sponge_5fsource_5fterm_36',['sponge_source_term',['../de/dfc/namespacesponge__source__term.html',1,'']]],
+  ['stack_37',['stack',['../d9/d30/namespacestack.html',1,'']]],
+  ['stats_38',['stats',['../d4/de4/namespacestats.html',1,'']]],
+  ['stats_5fquant_39',['stats_quant',['../dc/d65/namespacestats__quant.html',1,'']]],
+  ['stl_40',['stl',['../d6/d89/namespacestl.html',1,'']]],
+  ['stl_5ffile_41',['stl_file',['../dc/dc8/namespacestl__file.html',1,'']]],
+  ['structs_42',['structs',['../d2/d74/namespacestructs.html',1,'']]],
+  ['sx_5fjacobi_43',['sx_jacobi',['../dd/d6e/namespacesx__jacobi.html',1,'']]],
+  ['symmetry_44',['symmetry',['../d1/d70/namespacesymmetry.html',1,'']]],
+  ['system_45',['system',['../d5/d81/namespacesystem.html',1,'']]]
 ];
