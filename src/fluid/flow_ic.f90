@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -33,30 +33,31 @@
 !> Initial flow condition
 module flow_ic
   use num_types, only : rp
-  use logger, only: neko_log, LOG_SIZE
+  use logger, only : neko_log, LOG_SIZE
   use gather_scatter, only : gs_t, GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use flow_profile, only : blasius_profile, blasius_linear, blasius_cubic, &
        blasius_quadratic, blasius_quartic, blasius_sin, blasius_tanh
-  use device, only: device_memcpy, HOST_TO_DEVICE
+  use device, only : device_memcpy, HOST_TO_DEVICE, device_to_host, device_sync
   use field, only : field_t
   use utils, only : neko_error, filename_chsuffix, &
        neko_warning, NEKO_FNAME_LEN, extract_fld_file_index
   use coefs, only : coef_t
-  use math, only : col2, cfill, cfill_mask
+  use math, only : col2, cfill, cfill_mask, abscmp
   use device_math, only : device_col2
   use user_intf, only : user_initial_conditions_intf
   use json_module, only : json_file
-  use json_utils, only: json_get, json_get_or_default
-  use point_zone, only: point_zone_t
-  use point_zone_registry, only: neko_point_zone_registry
-  use fld_file_data, only: fld_file_data_t
-  use fld_file, only: fld_file_t
-  use file, only: file_t
-  use global_interpolation, only: global_interpolation_t
-  use interpolation, only: interpolator_t
-  use space, only: space_t, GLL
-  use field_list, only: field_list_t
+  use json_utils, only : json_get, json_get_or_default
+  use point_zone, only : point_zone_t
+  use point_zone_registry, only : neko_point_zone_registry
+  use fld_file_data, only : fld_file_data_t
+  use fld_file, only : fld_file_t
+  use file, only : file_t
+  use global_interpolation, only : global_interpolation_t
+  use interpolation, only : interpolator_t
+  use space, only : space_t, GLL
+  use field_list, only : field_list_t
+  use operators, only : rotate_cyc
   implicit none
   private
 
@@ -65,7 +66,7 @@ module flow_ic
           set_compressible_flow_ic_usr
   end interface set_flow_ic
 
-  public :: set_flow_ic
+  public :: set_flow_ic, set_flow_ic_fld
 
 contains
 
@@ -240,9 +241,11 @@ contains
     end if
 
     ! Ensure continuity across elements for initial conditions
+    call rotate_cyc(u%x, v%x, w%x, 1, coef)
     call gs%op(u%x, u%dof%size(), GS_OP_ADD)
     call gs%op(v%x, v%dof%size(), GS_OP_ADD)
     call gs%op(w%x, w%dof%size(), GS_OP_ADD)
+    call rotate_cyc(u%x, v%x, w%x, 0, coef)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_col2(u%x_d, coef%mult_d, u%dof%size())
@@ -320,21 +323,21 @@ contains
        call neko_error('Invalid Blasius approximation')
     end select
 
-    if ((uinf(1) .gt. 0.0_rp) .and. (uinf(2) .eq. 0.0_rp) &
-         .and. (uinf(3) .eq. 0.0_rp)) then
+    if ((uinf(1) .gt. 0.0_rp) .and. abscmp(uinf(2), 0.0_rp) &
+         .and. abscmp(uinf(3), 0.0_rp)) then
        do i = 1, u%dof%size()
           u%x(i,1,1,1) = bla(u%dof%z(i,1,1,1), delta, uinf(1))
           v%x(i,1,1,1) = 0.0_rp
           w%x(i,1,1,1) = 0.0_rp
        end do
-    else if ((uinf(1) .eq. 0.0_rp) .and. (uinf(2) .gt. 0.0_rp) &
-         .and. (uinf(3) .eq. 0.0_rp)) then
+    else if (abscmp(uinf(1), 0.0_rp) .and. (uinf(2) .gt. 0.0_rp) &
+         .and. abscmp(uinf(3), 0.0_rp)) then
        do i = 1, u%dof%size()
           u%x(i,1,1,1) = 0.0_rp
           v%x(i,1,1,1) = bla(u%dof%x(i,1,1,1), delta, uinf(2))
           w%x(i,1,1,1) = 0.0_rp
        end do
-    else if ((uinf(1) .eq. 0.0_rp) .and. (uinf(2) .eq. 0.0_rp) &
+    else if (abscmp(uinf(1), 0.0_rp) .and. abscmp(uinf(2), 0.0_rp) &
          .and. (uinf(3) .gt. 0.0_rp)) then
        do i = 1, u%dof%size()
           u%x(i,1,1,1) = 0.0_rp
@@ -520,15 +523,33 @@ contains
        class default
        end select
 
+       ! Sync coordinates to device for the interpolation
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_memcpy(fld_data%x%x, fld_data%x%x_d, fld_data%x%size(),&
+               HOST_TO_DEVICE, sync=.false.)
+          call device_memcpy(fld_data%y%x, fld_data%y%x_d, fld_data%y%size(),&
+               HOST_TO_DEVICE, sync=.false.)
+          call device_memcpy(fld_data%z%x, fld_data%z%x_d, fld_data%z%size(),&
+               HOST_TO_DEVICE, sync=.true.)
+       end if
+
        ! Generates an interpolator object and performs the point search
        call fld_data%generate_interpolator(global_interp, u%dof, u%msh, &
             tolerance)
-
+       call fld_data%u%copy_from(host_to_device, .true.)
+       call fld_data%v%copy_from(host_to_device, .true.)
+       call fld_data%w%copy_from(host_to_device, .true.)
+       call fld_data%p%copy_from(host_to_device, .true.)
        ! Evaluate velocities and pressure
-       call global_interp%evaluate(u%x, fld_data%u%x)
-       call global_interp%evaluate(v%x, fld_data%v%x)
-       call global_interp%evaluate(w%x, fld_data%w%x)
-       call global_interp%evaluate(p%x, fld_data%p%x)
+
+       call global_interp%evaluate(u%x(:,1,1,1), fld_data%u%x, .false.)
+       call global_interp%evaluate(v%x(:,1,1,1), fld_data%v%x, .false.)
+       call global_interp%evaluate(w%x(:,1,1,1), fld_data%w%x, .false.)
+       call global_interp%evaluate(p%x(:,1,1,1), fld_data%p%x, .false.)
+       call u%copy_from(device_to_host, .true.)
+       call v%copy_from(device_to_host, .true.)
+       call w%copy_from(device_to_host, .true.)
+       call p%copy_from(device_to_host, .true.)
 
        call global_interp%free
 
@@ -554,6 +575,7 @@ contains
          HOST_TO_DEVICE, sync = .false.)
 
     call fld_data%free
+    call prev_Xh%free()
 
   end subroutine set_flow_ic_fld
 

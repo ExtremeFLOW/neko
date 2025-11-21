@@ -43,8 +43,7 @@ module scalars
   use time_scheme_controller, only: time_scheme_controller_t
   use time_step_controller, only: time_step_controller_t
   use json_module, only: json_file
-  use json_utils, only: json_get, json_get_or_default, json_extract_object, &
-       json_extract_item
+  use json_utils, only: json_get, json_get_or_default, json_extract_item
   use field, only: field_t
   use field_list, only: field_list_t
   use field_series, only: field_series_t
@@ -164,7 +163,10 @@ contains
        call this%register_lags_with_checkpoint(chkp)
     else
        ! For single scalar, use legacy interface
-       call chkp%add_scalar(this%scalar_fields(1)%s, this%scalar_fields(1)%slag)
+       select type(scalar => this%scalar_fields(1))
+       type is (scalar_pnpn_t)
+          call chkp%add_scalar(scalar%s, scalar%slag, scalar%abx1, scalar%abx2)
+       end select
     end if
   end subroutine scalars_init
 
@@ -195,7 +197,10 @@ contains
          user, chkp, ulag, vlag, wlag, time_scheme, rho)
 
     ! Register single scalar with checkpoint
-    call chkp%add_scalar(this%scalar_fields(1)%s, this%scalar_fields(1)%slag)
+    select type(scalar => this%scalar_fields(1))
+    type is (scalar_pnpn_t)
+       call chkp%add_scalar(scalar%s, scalar%slag, scalar%abx1, scalar%abx2)
+    end select
   end subroutine scalars_init_single
 
   !> Perform a time step for all scalar fields
@@ -250,6 +255,11 @@ contains
           call this%scalar_fields(i)%free()
        end do
        deallocate(this%scalar_fields)
+    end if
+
+    if (allocated(this%shared_ksp)) then
+       call this%shared_ksp%free()
+       deallocate(this%shared_ksp)
     end if
   end subroutine scalars_free
 

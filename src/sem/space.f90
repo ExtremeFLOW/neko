@@ -34,8 +34,9 @@
 module space
   use neko_config
   use num_types, only : rp
-  use speclib, only : zwgll, zwgl, dgll
+  use speclib, only : zwgll, zwgl, dgll, legendre_poly
   use device
+  use matrix, only : matrix_t
   use utils, only : neko_error
   use fast3d, only : setup_intp
   use tensor, only : trsp1
@@ -261,6 +262,7 @@ contains
     else
        s%dt_inv = 0d0
     end if
+    call space_generate_transformation_matrices(s)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(s%dr_inv, s%dr_inv_d, s%lx)
@@ -295,13 +297,19 @@ contains
        call device_memcpy(s%dyt, s%dyt_d, s%lxy, HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(s%dzt, s%dzt_d, s%lxy, HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(s%w3, s%w3_d, s%lxyz, HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(s%v, s%v_d, s%lxy, HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(s%vt, s%vt_d, s%lxy, HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(s%vinv, s%vinv_d, s%lxy, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(s%vinvt, s%vinvt_d, s%lxy, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(s%w, s%w_d, s%lxy, HOST_TO_DEVICE, sync = .false.)
 
        ix = s%lx * 3
        call device_map(s%zg, s%zg_d, ix)
-       call device_memcpy(s%zg, s%zg_d, ix, HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(s%zg, s%zg_d, ix, HOST_TO_DEVICE, sync=.true.)
     end if
 
-    call space_generate_transformation_matrices(s)
 
     call device_sync()
 
@@ -526,6 +534,8 @@ contains
     real(kind=rp) :: L(0:Xh%lx-1)
     real(kind=rp) :: delta(Xh%lx)
     integer :: i, kj, j, j2, kk
+    type(matrix_t) :: m
+    logical :: scaled = .false.
 
     associate(v=> Xh%v, vt => Xh%vt, &
          vinv => Xh%vinv, vinvt => Xh%vinvt, w => Xh%w)
@@ -533,12 +543,7 @@ contains
       ! Then proceed to compose the transform matrix
       kj = 0
       do j = 1, Xh%lx
-         L(0) = 1.
-         L(1) = Xh%zg(j,1)
-         do j2 = 2, Xh%lx-1
-            L(j2) = ( (2*j2-1) * Xh%zg(j,1) * L(j2-1) &
-                 - (j2-1) * L(j2-2) ) / j2
-         end do
+         call legendre_poly(L, Xh%zg(j, 1), Xh%lx - 1)
          do kk = 1, Xh%lx
             kj = kj+1
             v(kj,1) = L(KK-1)
@@ -548,66 +553,61 @@ contains
       ! transpose the matrix
       call trsp1(v, Xh%lx) !< non orthogonal wrt weights
 
-      ! Calculate the nominal scaling factors
-      do i = 1, Xh%lx
-         delta(i) = 2.0_rp / (2*(i-1)+1)
-      end do
-      ! modify last entry
-      delta(Xh%lx) = 2.0_rp / (Xh%lx-1)
+      if (scaled) then
 
-      ! calculate the inverse to multiply the matrix
-      do i = 1, Xh%lx
-         delta(i) = sqrt(1.0_rp / delta(i))
-      end do
-      ! scale the matrix
-      do i = 1, Xh%lx
-         do j = 1, Xh%lx
-            v(i,j) = v(i,j) * delta(j) ! orthogonal wrt weights
+         ! Calculate the nominal scaling factors
+         do i = 1, Xh%lx
+            delta(i) = 2.0_rp / (2*(i-1)+1)
          end do
-      end do
+         ! modify last entry
+         delta(Xh%lx) = 2.0_rp / (Xh%lx-1)
 
-      ! get the trasposed
-      call copy(vt, v, Xh%lx * Xh%lx)
-      call trsp1(vt, Xh%lx)
-
-      !populate the mass matrix
-      kk = 1
-      do i = 1, Xh%lx
-         do j = 1, Xh%lx
-            if (i .eq. j) then
-               w(i,j) = Xh%wx(kk)
-               kk = kk+1
-            else
-               w(i,j) = 0
-            end if
+         ! calculate the inverse to multiply the matrix
+         do i = 1, Xh%lx
+            delta(i) = sqrt(1.0_rp / delta(i))
          end do
-      end do
+         ! scale the matrix
+         do i = 1, Xh%lx
+            do j = 1, Xh%lx
+               v(i,j) = v(i,j) * delta(j) ! orthogonal wrt weights
+            end do
+         end do
 
-      !Get the inverse of the transform matrix
-      call mxm(vt, Xh%lx, w, Xh%lx, vinv, Xh%lx)
+         ! get the trasposed
+         call copy(vt, v, Xh%lx * Xh%lx)
+         call trsp1(vt, Xh%lx)
 
-      !get the transposed of the inverse
-      call copy(vinvt, vinv, Xh%lx * Xh%lx)
-      call trsp1(vinvt, Xh%lx)
+         !populate the mass matrix
+         kk = 1
+         do i = 1, Xh%lx
+            do j = 1, Xh%lx
+               if (i .eq. j) then
+                  w(i,j) = Xh%wx(kk)
+                  kk = kk+1
+               else
+                  w(i,j) = 0
+               end if
+            end do
+         end do
+
+         !Get the inverse of the transform matrix
+         call mxm(vt, Xh%lx, w, Xh%lx, vinv, Xh%lx)
+
+         !get the transposed of the inverse
+         call copy(vinvt, vinv, Xh%lx * Xh%lx)
+         call trsp1(vinvt, Xh%lx)
+      else
+         call copy(vt, v, Xh%lxy)
+         call trsp1(vt, Xh%lx)
+         call m%init(Xh%lx, Xh%lx)
+         call copy(m%x, v, Xh%lxy)
+         call m%inverse_on_host()
+         call copy(vinv, m%x, Xh%lxy)
+         call copy(vinvt, vinv, Xh%lx * Xh%lx)
+         call trsp1(vinvt, Xh%lx)
+         call m%free()
+      end if
     end associate
-
-    ! Copy the data to the GPU
-    ! Move all this to space.f90 to for next version
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
-
-       call device_memcpy(Xh%v, Xh%v_d, Xh%lxy, &
-            HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(Xh%vt, Xh%vt_d, Xh%lxy, &
-            HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(Xh%vinv, Xh%vinv_d, Xh%lxy, &
-            HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(Xh%vinvt, Xh%vinvt_d, Xh%lxy, &
-            HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(Xh%w, Xh%w_d, Xh%lxy, &
-            HOST_TO_DEVICE, sync=.false.)
-
-    end if
 
   end subroutine space_generate_transformation_matrices
 

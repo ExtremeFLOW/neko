@@ -40,6 +40,7 @@ module gs_mpi
        MPI_Request, MPI_Isend, MPI_IRecv
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION
   use, intrinsic :: iso_c_binding
+  use utils, only : neko_error
   !$ use omp_lib
   implicit none
   private
@@ -216,25 +217,26 @@ contains
                 select case(op)
                 case (GS_OP_ADD)
                    !NEC$ IVDEP
-                   do concurrent (j = 1:this%send_dof(src)%size())
-
+                   do concurrent (j = 1:this%recv_dof(src)%size())
                       u(sp(j)) = u(sp(j)) + this%recv_buf(i)%data(j)
                    end do
                 case (GS_OP_MUL)
                    !NEC$ IVDEP
-                   do concurrent (j = 1:this%send_dof(src)%size())
+                   do concurrent (j = 1:this%recv_dof(src)%size())
                       u(sp(j)) = u(sp(j)) * this%recv_buf(i)%data(j)
                    end do
                 case (GS_OP_MIN)
                    !NEC$ IVDEP
-                   do concurrent (j = 1:this%send_dof(src)%size())
+                   do concurrent (j = 1:this%recv_dof(src)%size())
                       u(sp(j)) = min(u(sp(j)), this%recv_buf(i)%data(j))
                    end do
                 case (GS_OP_MAX)
                    !NEC$ IVDEP
-                   do concurrent (j = 1:this%send_dof(src)%size())
+                   do concurrent (j = 1:this%recv_dof(src)%size())
                       u(sp(j)) = max(u(sp(j)), this%recv_buf(i)%data(j))
                    end do
+                case default
+                   call neko_error("Unknown operation in gs_nbwait_mpi")
                 end select
              end if
           end if

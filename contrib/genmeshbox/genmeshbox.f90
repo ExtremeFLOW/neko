@@ -43,7 +43,7 @@ program genmeshbox
           '1 and with 8 elements in each spatial direction and periodic ', &
           'boundaries in x-y.'
      write(*,*) 'BCs for face 5,6 (z zones) can then be set by setting ', &
-          'bc_labels(5), bc_labels(6) in the parameter file'
+          'boundary_conditions in the parameter file'
      write(*,*) 'If you want a specific distribution of vertices in the ', &
           'directions, give the filename where it is stored'
      write(*,*) 'Example command: ./genmeshbox 0 1 0 1 0 1 8 8 8 ', &
@@ -206,7 +206,7 @@ program genmeshbox
                     coord(3) = cumm_z(e_z + 1 + iz)
                     pt_idx = 1 + (ix + e_x) + (iy + e_y)*(nelx + 1) + &
                          (iz + e_z)*(nelx + 1)*(nely + 1)
-                    p(ix+1, iy+1, iz+1) = point_t(coord, pt_idx)
+                    call p(ix+1, iy+1, iz+1)%init(coord, pt_idx)
                  end do
               end do
            end do

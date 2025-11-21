@@ -144,7 +144,6 @@ __kernel void ax_helm_kernel_lx##LX(__global real * __restrict__ w,            \
   }                                                                            \
 }
 
-DEFINE_AX_HELM_KERNEL(1, 256)
 DEFINE_AX_HELM_KERNEL(2, 256)
 DEFINE_AX_HELM_KERNEL(3, 256)
 DEFINE_AX_HELM_KERNEL(4, 256)
@@ -157,5 +156,322 @@ DEFINE_AX_HELM_KERNEL(10, 256)
 DEFINE_AX_HELM_KERNEL(11, 256)
 DEFINE_AX_HELM_KERNEL(12, 256)
 
+
+#define DEFINE_AX_HELM_KERNEL_KSTEP(LX)                                        \
+__kernel                                                                       \
+void ax_helm_kernel_kstep_lx##LX(__global real * __restrict__ w,               \
+                                 __global const real * __restrict__ u,         \
+                                 __global const real * __restrict__ dx,        \
+                                 __global const real * __restrict__ dy,        \
+                                 __global const real * __restrict__ dz,        \
+                                 __global const real * __restrict__ h1,        \
+                                 __global const real * __restrict__ g11,       \
+                                 __global const real * __restrict__ g22,       \
+                                 __global const real * __restrict__ g33,       \
+                                 __global const real * __restrict__ g12,       \
+                                 __global const real * __restrict__ g13,       \
+                                 __global const real * __restrict__ g23) {     \
+                                                                               \
+  __local real shdx[LX * LX];                                                  \
+  __local real shdy[LX * LX];                                                  \
+  __local real shdz[LX * LX];                                                  \
+                                                                               \
+  __local real shu[LX * LX];                                                   \
+  __local real shur[LX * LX];                                                  \
+  __local real shus[LX * LX];                                                  \
+                                                                               \
+  real ru[LX];                                                                 \
+  real rw[LX];                                                                 \
+  real rut;                                                                    \
+                                                                               \
+  const int e = get_group_id(0);                                               \
+  const int j = get_local_id(1);                                               \
+  const int i = get_local_id(0);                                               \
+  const int ij = i + j*LX;                                                     \
+  const int ele = e*LX*LX*LX;                                                  \
+                                                                               \
+  shdx[ij] = dx[ij];                                                           \
+  shdy[ij] = dy[ij];                                                           \
+  shdz[ij] = dz[ij];                                                           \
+                                                                               \
+  for(int k = 0; k < LX; ++k){                                                 \
+    ru[k] = u[ij + k*LX*LX + ele];                                             \
+    rw[k] = 0.0;                                                               \
+  }                                                                            \
+                                                                               \
+  barrier(CLK_LOCAL_MEM_FENCE);                                                \
+                                                                               \
+  for (int k = 0; k < LX; ++k){                                                \
+    const int ijk = ij + k*LX*LX;                                              \
+    const real G00 = g11[ijk+ele];                                             \
+    const real G11 = g22[ijk+ele];                                             \
+    const real G22 = g33[ijk+ele];                                             \
+    const real G01 = g12[ijk+ele];                                             \
+    const real G02 = g13[ijk+ele];                                             \
+    const real G12 = g23[ijk+ele];                                             \
+    const real H1  = h1[ijk+ele];                                              \
+    real ttmp = 0.0;                                                           \
+    shu[ij] = ru[k];                                                           \
+    for (int l = 0; l < LX; l++){                                              \
+      ttmp += shdz[k+l*LX] * ru[l];                                            \
+    }                                                                          \
+    barrier(CLK_LOCAL_MEM_FENCE);                                              \
+                                                                               \
+    real rtmp = 0.0;                                                           \
+    real stmp = 0.0;                                                           \
+                                                                               \
+    for (int l = 0; l < LX; l++){                                              \
+      rtmp += shdx[i+l*LX] * shu[l+j*LX];                                      \
+      stmp += shdy[j+l*LX] * shu[i+l*LX];                                      \
+    }                                                                          \
+    shur[ij] = H1                                                              \
+             * (G00 * rtmp                                                     \
+                + G01 * stmp                                                   \
+                + G02 * ttmp);                                                 \
+    shus[ij] = H1                                                              \
+             * (G01 * rtmp                                                     \
+                + G11 * stmp                                                   \
+                + G12 * ttmp);                                                 \
+    rut      = H1                                                              \
+             * (G02 * rtmp                                                     \
+                + G12 * stmp                                                   \
+                + G22 * ttmp);                                                 \
+                                                                               \
+    barrier(CLK_LOCAL_MEM_FENCE);                                              \
+                                                                               \
+    real wijke = 0.0;                                                          \
+                                                                               \
+    for (int l = 0; l < LX; l++){                                              \
+      wijke += shur[l+j*LX] * shdx[l+i*LX];                                    \
+      rw[l] += rut * shdz[k+l*LX];                                             \
+      wijke += shus[i+l*LX] * shdy[l + j*LX];                                  \
+    }                                                                          \
+    rw[k] += wijke;                                                            \
+  }                                                                            \
+                                                                               \
+  for (int k = 0; k < LX; ++k){                                                \
+    w[ij + k*LX*LX + ele] = rw[k];                                             \
+  }                                                                            \
+}
+
+DEFINE_AX_HELM_KERNEL_KSTEP(2)
+DEFINE_AX_HELM_KERNEL_KSTEP(3)
+DEFINE_AX_HELM_KERNEL_KSTEP(4)
+DEFINE_AX_HELM_KERNEL_KSTEP(5)
+DEFINE_AX_HELM_KERNEL_KSTEP(6)
+DEFINE_AX_HELM_KERNEL_KSTEP(7)
+DEFINE_AX_HELM_KERNEL_KSTEP(8)
+DEFINE_AX_HELM_KERNEL_KSTEP(9)
+DEFINE_AX_HELM_KERNEL_KSTEP(10)
+DEFINE_AX_HELM_KERNEL_KSTEP(11)
+DEFINE_AX_HELM_KERNEL_KSTEP(12)
+DEFINE_AX_HELM_KERNEL_KSTEP(13)
+DEFINE_AX_HELM_KERNEL_KSTEP(14)
+DEFINE_AX_HELM_KERNEL_KSTEP(15)
+DEFINE_AX_HELM_KERNEL_KSTEP(16)
+
+
+/*
+ * Vector versions
+ */
+
+
+#define DEFINE_AX_HELM_KERNEL_VECTOR_KSTEP(LX)                                 \
+__kernel void                                                                  \
+ax_helm_kernel_vector_kstep_lx##LX(__global real * __restrict__ au,            \
+                                   __global real * __restrict__ av,            \
+                                   __global real * __restrict__ aw,            \
+                                   __global const real * __restrict__ u,       \
+                                   __global const real * __restrict__ v,       \
+                                   __global const real * __restrict__ w,       \
+                                   __global const real * __restrict__ dx,      \
+                                   __global const real * __restrict__ dy,      \
+                                   __global const real * __restrict__ dz,      \
+                                   __global const real * __restrict__ h1,      \
+                                   __global const real * __restrict__ g11,     \
+                                   __global const real * __restrict__ g22,     \
+                                   __global const real * __restrict__ g33,     \
+                                   __global const real * __restrict__ g12,     \
+                                   __global const real * __restrict__ g13,     \
+                                   __global const real * __restrict__ g23) {   \
+                                                                               \
+  __local real shdx[LX * LX];                                                  \
+  __local real shdy[LX * LX];                                                  \
+  __local real shdz[LX * LX];                                                  \
+                                                                               \
+  __local real shu[LX * LX];                                                   \
+  __local real shur[LX * LX];                                                  \
+  __local real shus[LX * LX];                                                  \
+                                                                               \
+  __local real shv[LX * LX];                                                   \
+  __local real shvr[LX * LX];                                                  \
+  __local real shvs[LX * LX];                                                  \
+                                                                               \
+  __local real shw[LX * LX];                                                   \
+  __local real shwr[LX * LX];                                                  \
+  __local real shws[LX * LX];                                                  \
+                                                                               \
+  real ru[LX];                                                                 \
+  real rv[LX];                                                                 \
+  real rw[LX];                                                                 \
+                                                                               \
+  real ruw[LX];                                                                \
+  real rvw[LX];                                                                \
+  real rww[LX];                                                                \
+                                                                               \
+  real rut;                                                                    \
+  real rvt;                                                                    \
+  real rwt;                                                                    \
+                                                                               \
+  const int e = get_group_id(0);                                               \
+  const int j = get_local_id(1);                                               \
+  const int i = get_local_id(0);                                               \
+  const int ij = i + j*LX;                                                     \
+  const int ele = e*LX*LX*LX;                                                  \
+                                                                               \
+  shdx[ij] = dx[ij];                                                           \
+  shdy[ij] = dy[ij];                                                           \
+  shdz[ij] = dz[ij];                                                           \
+                                                                               \
+  for(int k = 0; k < LX; ++k){                                                 \
+    ru[k] = u[ij + k*LX*LX + ele];                                             \
+    ruw[k] = 0.0;                                                              \
+                                                                               \
+    rv[k] = v[ij + k*LX*LX + ele];                                             \
+    rvw[k] = 0.0;                                                              \
+                                                                               \
+    rw[k] = w[ij + k*LX*LX + ele];                                             \
+    rww[k] = 0.0;                                                              \
+  }                                                                            \
+                                                                               \
+  barrier(CLK_LOCAL_MEM_FENCE);                                                \
+                                                                               \
+  for (int k = 0; k < LX; ++k){                                                \
+    const int ijk = ij + k*LX*LX;                                              \
+    const real G00 = g11[ijk+ele];                                             \
+    const real G11 = g22[ijk+ele];                                             \
+    const real G22 = g33[ijk+ele];                                             \
+    const real G01 = g12[ijk+ele];                                             \
+    const real G02 = g13[ijk+ele];                                             \
+    const real G12 = g23[ijk+ele];                                             \
+    const real H1  = h1[ijk+ele];                                              \
+    real uttmp = 0.0;                                                          \
+    real vttmp = 0.0;                                                          \
+    real wttmp = 0.0;                                                          \
+    shu[ij] = ru[k];                                                           \
+    shv[ij] = rv[k];                                                           \
+    shw[ij] = rw[k];                                                           \
+    for (int l = 0; l < LX; l++){                                              \
+      uttmp += shdz[k+l*LX] * ru[l];                                           \
+      vttmp += shdz[k+l*LX] * rv[l];                                           \
+      wttmp += shdz[k+l*LX] * rw[l];                                           \
+    }                                                                          \
+    barrier(CLK_LOCAL_MEM_FENCE);                                              \
+                                                                               \
+    real urtmp = 0.0;                                                          \
+    real ustmp = 0.0;                                                          \
+                                                                               \
+    real vrtmp = 0.0;                                                          \
+    real vstmp = 0.0;                                                          \
+                                                                               \
+    real wrtmp = 0.0;                                                          \
+    real wstmp = 0.0;                                                          \
+                                                                               \
+    for (int l = 0; l < LX; l++){                                              \
+      urtmp += shdx[i+l*LX] * shu[l+j*LX];                                     \
+      ustmp += shdy[j+l*LX] * shu[i+l*LX];                                     \
+                                                                               \
+      vrtmp += shdx[i+l*LX] * shv[l+j*LX];                                     \
+      vstmp += shdy[j+l*LX] * shv[i+l*LX];                                     \
+                                                                               \
+      wrtmp += shdx[i+l*LX] * shw[l+j*LX];                                     \
+      wstmp += shdy[j+l*LX] * shw[i+l*LX];                                     \
+    }                                                                          \
+                                                                               \
+    shur[ij] = H1                                                              \
+             * (G00 * urtmp                                                    \
+                + G01 * ustmp                                                  \
+                + G02 * uttmp);                                                \
+    shus[ij] = H1                                                              \
+             * (G01 * urtmp                                                    \
+                + G11 * ustmp                                                  \
+                + G12 * uttmp);                                                \
+    rut      = H1                                                              \
+             * (G02 * urtmp                                                    \
+                + G12 * ustmp                                                  \
+                + G22 * uttmp);                                                \
+                                                                               \
+    shvr[ij] = H1                                                              \
+             * (G00 * vrtmp                                                    \
+                + G01 * vstmp                                                  \
+                + G02 * vttmp);                                                \
+    shvs[ij] = H1                                                              \
+             * (G01 * vrtmp                                                    \
+                + G11 * vstmp                                                  \
+                + G12 * vttmp);                                                \
+    rvt      = H1                                                              \
+             * (G02 * vrtmp                                                    \
+                + G12 * vstmp                                                  \
+                + G22 * vttmp);                                                \
+                                                                               \
+    shwr[ij] = H1                                                              \
+             * (G00 * wrtmp                                                    \
+                + G01 * wstmp                                                  \
+                + G02 * wttmp);                                                \
+    shws[ij] = H1                                                              \
+             * (G01 * wrtmp                                                    \
+                + G11 * wstmp                                                  \
+                + G12 * wttmp);                                                \
+    rwt      = H1                                                              \
+             * (G02 * wrtmp                                                    \
+                + G12 * wstmp                                                  \
+                + G22 * wttmp);                                                \
+                                                                               \
+    barrier(CLK_LOCAL_MEM_FENCE);                                              \
+                                                                               \
+    real uwijke = 0.0;                                                         \
+    real vwijke = 0.0;                                                         \
+    real wwijke = 0.0;                                                         \
+                                                                               \
+    for (int l = 0; l < LX; l++){                                              \
+      uwijke += shur[l+j*LX] * shdx[l+i*LX];                                   \
+      ruw[l] += rut * shdz[k+l*LX];                                            \
+      uwijke += shus[i+l*LX] * shdy[l + j*LX];                                 \
+                                                                               \
+      vwijke += shvr[l+j*LX] * shdx[l+i*LX];                                   \
+      rvw[l] += rvt * shdz[k+l*LX];                                            \
+      vwijke += shvs[i+l*LX] * shdy[l + j*LX];                                 \
+                                                                               \
+      wwijke += shwr[l+j*LX] * shdx[l+i*LX];                                   \
+      rww[l] += rwt * shdz[k+l*LX];                                            \
+      wwijke += shws[i+l*LX] * shdy[l + j*LX];                                 \
+    }                                                                          \
+    ruw[k] += uwijke;                                                          \
+    rvw[k] += vwijke;                                                          \
+    rww[k] += wwijke;                                                          \
+  }                                                                            \
+                                                                               \
+  for (int k = 0; k < LX; ++k){                                                \
+   au[ij + k*LX*LX + ele] = ruw[k];                                            \
+   av[ij + k*LX*LX + ele] = rvw[k];                                            \
+   aw[ij + k*LX*LX + ele] = rww[k];                                            \
+  }                                                                            \
+}
+
+DEFINE_AX_HELM_KERNEL_VECTOR_KSTEP(2)
+DEFINE_AX_HELM_KERNEL_VECTOR_KSTEP(3)
+DEFINE_AX_HELM_KERNEL_VECTOR_KSTEP(4)
+DEFINE_AX_HELM_KERNEL_VECTOR_KSTEP(5)
+DEFINE_AX_HELM_KERNEL_VECTOR_KSTEP(6)
+DEFINE_AX_HELM_KERNEL_VECTOR_KSTEP(7)
+DEFINE_AX_HELM_KERNEL_VECTOR_KSTEP(8)
+DEFINE_AX_HELM_KERNEL_VECTOR_KSTEP(9)
+DEFINE_AX_HELM_KERNEL_VECTOR_KSTEP(10)
+DEFINE_AX_HELM_KERNEL_VECTOR_KSTEP(11)
+DEFINE_AX_HELM_KERNEL_VECTOR_KSTEP(12)
+DEFINE_AX_HELM_KERNEL_VECTOR_KSTEP(13)
+DEFINE_AX_HELM_KERNEL_VECTOR_KSTEP(14)
+DEFINE_AX_HELM_KERNEL_VECTOR_KSTEP(15)
+DEFINE_AX_HELM_KERNEL_VECTOR_KSTEP(16)
 
 #endif // __MATH_AX_HELM_KERNEL_CL__

@@ -9,7 +9,6 @@ module map_2d
   use mesh, only: mesh_t
   use field_list, only : field_list_t
   use coefs, only: coef_t
-  use field_list, only: field_list_t
   use vector, only: vector_ptr_t
   use utils, only: neko_error, linear_index
   use math, only: cmult, col2, copy, rzero
@@ -18,7 +17,7 @@ module map_2d
   use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
   use comm, only : NEKO_COMM
   use neko_config, only : NEKO_BCKND_DEVICE
-  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM
+  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM, MPI_Exscan
   use fld_file_data, only : fld_file_data_t
   implicit none
   private
@@ -170,17 +169,17 @@ contains
   !! with averaged values.
   !! @param fld_data2D output 2D averages
   !! @param field_list list of fields to be averaged
-  subroutine map_2d_average_field_list(this,fld_data2D,fld_data3D)
+  subroutine map_2d_average_field_list(this, fld_data2D, fld_data3D)
     class(map_2d_t), intent(inout) :: this
     type(fld_file_data_t), intent(inout) :: fld_data2D
     type(field_list_t), intent(inout) :: fld_data3D
-    real(kind=rp), pointer, dimension(:,:,:,:) :: x_ptr, y_ptr
+    real(kind=rp), pointer, contiguous, dimension(:,:,:,:) :: x_ptr, y_ptr
 
     type(vector_ptr_t), allocatable :: fields2d(:)
     integer :: n_2d, n
     integer :: i, j, lx, lxy
 
-    call fld_data2D%init(this%nelv_2d,this%offset_el_2d)
+    call fld_data2D%init(this%nelv_2d, this%offset_el_2d)
     fld_data2D%gdim = 2
     fld_data2D%lx = this%dof%Xh%lx
     fld_data2D%ly = this%dof%Xh%ly
@@ -215,24 +214,24 @@ contains
     end do
     allocate(fields2D(fld_data3D%size()))
 
-    call fld_data2D%init_n_fields(fld_data3D%size(),n_2d)
+    call fld_data2D%init_n_fields(fld_data3D%size(), n_2d)
     this%u = 0.0_rp
     this%old_u = 0.0_rp
     this%avg_u = 0.0_rp
     do i = 1, fld_data3D%size()
-       call copy(this%old_u%x,fld_data3D%items(i)%ptr%x,n)
-       call perform_local_summation(this%u,this%old_u, &
+       call copy(this%old_u%x, fld_data3D%items(i)%ptr%x, n)
+       call perform_local_summation(this%u, this%old_u, &
             this%el_heights, this%domain_height, &
             this%map_1d%dir_el, this%coef, this%msh%nelv, lx)
-       call copy(this%old_u%x,this%u%x,n)
-       call copy(this%avg_u%x,this%u%x,n)
+       call copy(this%old_u%x, this%u%x, n)
+       call copy(this%avg_u%x, this%u%x, n)
        call perform_global_summation(this%u, this%avg_u, &
             this%old_u, this%map_1d%n_el_lvls, &
             this%map_1d%dir_el,this%coef%gs_h, this%coef%mult, &
             this%msh%nelv, lx)
-       call copy(fld_data3D%items(i)%ptr%x,this%u%x,n)
+       call copy(fld_data3D%items(i)%ptr%x, this%u%x, n)
     end do
-    call fld_data2D%get_list(fields2d,fld_data2D%size())
+    call fld_data2D%get_list(fields2d, fld_data2D%size())
     do i = 1, fld_data3D%size()
        do j = 1, n_2d
           fields2d(i)%ptr%x(j) = fld_data3D%items(i)%ptr%x(this%idx_2d(j),1,1,1)
@@ -246,7 +245,7 @@ contains
   !! with averaged values.
   !! @param fld_data2D output 2D averages
   !! @param fld_data3D fld_file_data of fields to be averaged
-  subroutine map_2d_average(this,fld_data2D,fld_data3D)
+  subroutine map_2d_average(this, fld_data2D, fld_data3D)
     class(map_2d_t), intent(inout) :: this
     type(fld_file_data_t), intent(inout) :: fld_data2D
     type(fld_file_data_t), intent(inout) :: fld_data3D
@@ -256,7 +255,7 @@ contains
     integer :: n_2d, n
     integer :: i, j, lx, lxy
 
-    call fld_data2D%init(this%nelv_2d,this%offset_el_2d)
+    call fld_data2D%init(this%nelv_2d, this%offset_el_2d)
     fld_data2D%gdim = 2
     fld_data2D%lx = this%dof%Xh%lx
     fld_data2D%ly = this%dof%Xh%ly
@@ -290,26 +289,26 @@ contains
     allocate(fields3D(fld_data3D%size()))
     allocate(fields2D(fld_data3D%size()))
 
-    call fld_data2D%init_n_fields(fld_data3D%size(),n_2d)
+    call fld_data2D%init_n_fields(fld_data3D%size(), n_2d)
     call fld_data3D%get_list(fields3D,fld_data3D%size())
 
     this%u = 0.0_rp
     this%old_u = 0.0_rp
     this%avg_u = 0.0_rp
     do i = 1, fld_data3D%size()
-       call copy(this%old_u%x,fields3D(i)%ptr%x,n)
+       call copy(this%old_u%x, fields3D(i)%ptr%x, n)
        call perform_local_summation(this%u,this%old_u,&
             this%el_heights, this%domain_height, &
             this%map_1d%dir_el, this%coef, this%msh%nelv, lx)
-       call copy(this%old_u%x,this%u%x,n)
-       call copy(this%avg_u%x,this%u%x,n)
+       call copy(this%old_u%x, this%u%x,n)
+       call copy(this%avg_u%x, this%u%x,n)
        call perform_global_summation(this%u, this%avg_u, &
             this%old_u, this%map_1d%n_el_lvls, &
-            this%map_1d%dir_el,this%coef%gs_h,&
+            this%map_1d%dir_el, this%coef%gs_h,&
             this%coef%mult, this%msh%nelv, lx)
-       call copy(fields3D(i)%ptr%x,this%u%x,n)
+       call copy(fields3D(i)%ptr%x, this%u%x, n)
     end do
-    call fld_data2D%get_list(fields2d,fld_data2D%size())
+    call fld_data2D%get_list(fields2d, fld_data2D%size())
     do i = 1, fld_data3D%size()
        do j = 1, n_2d
           fields2d(i)%ptr%x(j) = fields3D(i)%ptr%x(this%idx_2d(j))

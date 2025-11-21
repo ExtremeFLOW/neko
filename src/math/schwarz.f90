@@ -72,10 +72,11 @@ module schwarz
   use device, only : device_map, device_alloc, device_memcpy, &
        device_event_create, HOST_TO_DEVICE, DEVICE_TO_HOST, &
        device_get_ptr, glb_cmd_queue, aux_cmd_queue, &
-       device_event_record, device_event_sync, device_stream_wait_event
+       device_event_record, device_event_sync, device_stream_wait_event, &
+       device_event_destroy, device_free
   use neko_config, only : NEKO_BCKND_DEVICE
   use bc_list, only : bc_list_t
-  use, intrinsic :: iso_c_binding, only : c_sizeof, c_ptr, C_NULL_PTR
+  use, intrinsic :: iso_c_binding, only : c_sizeof, c_ptr, C_NULL_PTR, c_associated
   !$ use omp_lib
   implicit none
   private
@@ -91,13 +92,14 @@ module schwarz
      type(gs_t) :: gs_schwarz !< We are only interested in the gather-scatter!
      type(dofmap_t) :: dm_schwarz !< needed to init gs
      type(fdm_t) :: fdm
-     type(space_t), pointer :: Xh
-     type(bc_list_t), pointer :: bclst
-     type(dofmap_t), pointer :: dof
-     type(gs_t), pointer :: gs_h
-     type(mesh_t), pointer :: msh
-     type(c_ptr) :: event
+     type(space_t), pointer :: Xh => null()
+     type(bc_list_t), pointer :: bclst => null()
+     type(dofmap_t), pointer :: dof => null()
+     type(gs_t), pointer :: gs_h => null()
+     type(mesh_t), pointer :: msh => null()
+     type(c_ptr) :: event = C_NULL_PTR
      logical :: local_gs = .false.
+     type(gs_t), allocatable :: gs_h_local
    contains
      procedure, pass(this) :: init => schwarz_init
      procedure, pass(this) :: free => schwarz_free
@@ -141,8 +143,9 @@ contains
     ! If we are running multithreaded, we need a local gs object,
     ! otherwise we can reuse the external one
     if (nthrds .gt. 1) then
-       allocate(this%gs_h)
-       call this%gs_h%init(this%dof)
+       allocate(this%gs_h_local)
+       call this%gs_h_local%init(this%dof)
+       this%gs_h => this%gs_h_local
        this%local_gs = .true.
     else
        this%gs_h => gs_h
@@ -157,7 +160,7 @@ contains
     call schwarz_setup_wt(this)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_alloc(this%wt_d, &
-            int(this%dof%size() * c_sizeof(this%work1(1)), i8))
+            int(this%dof%size(), i8) * int(c_sizeof(this%work1(1)), i8))
        call rone(this%work1, this%dof%size())
        call schwarz_wt3d(this%work1, this%wt, Xh%lx, msh%nelv)
        call device_memcpy(this%work1, this%wt_d, this%dof%size(), &
@@ -173,23 +176,39 @@ contains
     if(allocated(this%work2)) deallocate(this%work2)
     if(allocated(this%wt)) deallocate(this%wt)
 
+    if (c_associated(this%work1_d)) then
+       call device_free(this%work1_d)
+    end if
+
+    if (c_associated(this%work2_d)) then
+       call device_free(this%work2_d)
+    end if
+
+    if (c_associated(this%wt_d)) then
+       call device_free(this%wt_d)
+    end if
+
     call this%Xh_schwarz%free()
     call this%gs_schwarz%free()
     !why cant I do this?
     !call dofmap_free(this%dm_schwarz)
+    call this%dm_schwarz%free()
     call this%fdm%free()
 
     nullify(this%Xh)
     nullify(this%bclst)
     nullify(this%dof)
-    if (this%local_gs) then
-       call this%gs_h%free()
-       deallocate(this%gs_h)
+    if (allocated(this%gs_h_local)) then
+       call this%gs_h_local%free()
+       deallocate(this%gs_h_local)
     end if
     nullify(this%gs_h)
     nullify(this%msh)
 
     this%local_gs = .false.
+    if (c_associated(this%event)) then
+       call device_event_destroy(this%event)
+    end if
   end subroutine schwarz_free
   !> setup weights
   subroutine schwarz_setup_wt(this)

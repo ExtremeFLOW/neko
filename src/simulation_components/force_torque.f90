@@ -56,7 +56,7 @@ module force_torque
   use math, only : masked_gather_copy_0, cadd, glsum, vcross
   use device_math, only : device_masked_gather_copy_0, device_cadd, &
        device_glsum, device_vcross
-  use mpi_f08, only : MPI_INTEGER, MPI_SUM
+  use mpi_f08, only : MPI_INTEGER, MPI_SUM, MPI_Allreduce
   use comm, only : NEKO_COMM
   use device, only: device_memcpy, HOST_TO_DEVICE
 
@@ -350,6 +350,7 @@ contains
     nullify(this%w)
     nullify(this%p)
     nullify(this%coef)
+    nullify(this%mu)
   end subroutine force_torque_free
 
   !> Compute the force_torque field.

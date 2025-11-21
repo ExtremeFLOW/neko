@@ -347,7 +347,7 @@ contains
                re2v1_data_xy, nelv, MPI_RE2V1_DATA_XY, status, ierr)
           do i = 1, nelv
              do j = 1, 4
-                p(j) = point_t(real(re2v1_data_xy(i)%x(j),dp), &
+                call p(j)%init(real(re2v1_data_xy(i)%x(j),dp), &
                      real(re2v1_data_xy(i)%y(j),dp), 0.0d0)
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
@@ -364,7 +364,7 @@ contains
                re2v2_data_xy, nelv, MPI_RE2V2_DATA_XY, status, ierr)
           do i = 1, nelv
              do j = 1, 4
-                p(j) = point_t(re2v2_data_xy(i)%x(j), &
+                call p(j)%init(re2v2_data_xy(i)%x(j), &
                      re2v2_data_xy(i)%y(j), 0.0d0)
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
@@ -384,7 +384,7 @@ contains
                re2v1_data_xyz, nelv, MPI_RE2V1_DATA_XYZ, status, ierr)
           do i = 1, nelv
              do j = 1, 8
-                p(j) = point_t(real(re2v1_data_xyz(i)%x(j),dp), &
+                call p(j)%init(real(re2v1_data_xyz(i)%x(j),dp), &
                      real(re2v1_data_xyz(i)%y(j),dp),&
                      real(re2v1_data_xyz(i)%z(j),dp))
                 call re2_file_add_point(htp, p(j), pt_idx)
@@ -403,7 +403,7 @@ contains
                re2v2_data_xyz, nelv, MPI_RE2V2_DATA_XYZ, status, ierr)
           do i = 1, nelv
              do j = 1, 8
-                p(j) = point_t(re2v2_data_xyz(i)%x(j), &
+                call p(j)%init(re2v2_data_xyz(i)%x(j), &
                      re2v2_data_xyz(i)%y(j),&
                      re2v2_data_xyz(i)%z(j))
                 call re2_file_add_point(htp, p(j), pt_idx)

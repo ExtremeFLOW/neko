@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,10 @@ module tree_amg_smoother
   use bc_list, only: bc_list_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use logger, only : neko_log, LOG_SIZE
-  use device, only: device_map, device_free, device_memcpy, HOST_TO_DEVICE
+  use device, only: device_map, device_free, device_memcpy, HOST_TO_DEVICE, &
+       device_deassociate
+  use device_tree_amg_smoother, only : amg_device_cheby_solve_part1, &
+       amg_device_cheby_solve_part2
   use neko_config, only: NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding
   implicit none
@@ -64,6 +67,7 @@ module tree_amg_smoother
      procedure, pass(this) :: init => amg_jacobi_init
      procedure, pass(this) :: solve => amg_jacobi_solve
      procedure, pass(this) :: comp_diag => amg_jacobi_diag
+     procedure, pass(this) :: free => amg_jacobi_free
   end type amg_jacobi_t
 
   !> Type for Chebyshev iteration using TreeAMG matvec
@@ -86,6 +90,7 @@ module tree_amg_smoother
      procedure, pass(this) :: comp_eig => amg_cheby_power
      procedure, pass(this) :: device_solve => amg_device_cheby_solve
      procedure, pass(this) :: device_comp_eig => amg_device_cheby_power
+     procedure, pass(this) :: free => amg_cheby_free
   end type amg_cheby_t
 
 contains
@@ -116,6 +121,30 @@ contains
     call amg_smoo_monitor(lvl, this)
 
   end subroutine amg_cheby_init
+
+  !> free cheby data
+  subroutine amg_cheby_free(this)
+    class(amg_cheby_t), intent(inout), target :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_deassociate(this%d)
+       call device_deassociate(this%w)
+       call device_deassociate(this%r)
+    end if
+    if (allocated(this%d)) then
+       deallocate(this%d)
+    end if
+    if (allocated(this%w)) then
+       deallocate(this%w)
+    end if
+    if (allocated(this%r)) then
+       deallocate(this%r)
+    end if
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_free(this%d_d)
+       call device_free(this%w_d)
+       call device_free(this%r_d)
+    end if
+  end subroutine amg_cheby_free
 
 
   !> Power method to approximate largest eigenvalue
@@ -189,7 +218,7 @@ contains
     class(tamg_hierarchy_t), intent(inout) :: amg
     type(ksp_monitor_t) :: ksp_results
     logical, optional, intent(in) :: zero_init
-    integer :: iter, max_iter
+    integer :: iter, max_iter, i
     real(kind=rp) :: rtr, rnorm
     real(kind=rp) :: rhok, rhokp1, s1, thet, delt, tmp1, tmp2
     logical :: zero_initial_guess
@@ -217,21 +246,26 @@ contains
       rhok = 1.0_rp / s1
 
       ! First iteration
-      call cmult2(d, r, 1.0_rp/thet, n)
-      call add2(x, d, n)
+      do concurrent (i = 1:n)
+         d(i) = 1.0_rp/thet * r(i)
+         x(i) = x(i) + d(i)
+      end do
 
       ! Rest of iterations
       do iter = 2, max_iter
          call amg%matvec(w, d, this%lvl)
-         call sub2(r, w, n)
 
          rhokp1 = 1.0_rp / (2.0_rp * s1 - rhok)
          tmp1 = rhokp1 * rhok
          tmp2 = 2.0_rp * rhokp1 / delt
          rhok = rhokp1
 
-         call add3s2(d, d, r, tmp1, tmp2, n)
-         call add2(x, d, n)
+         do concurrent (i = 1:n)
+            r(i) = r(i) - w(i)
+            d(i) = tmp1 * d(i) + tmp2 * r(i)
+            x(i) = x(i) + d(i)
+         end do
+
       end do
     end associate
   end subroutine amg_cheby_solve
@@ -324,10 +358,9 @@ contains
 
     associate( w_d => this%w_d, r_d => this%r_d, d_d => this%d_d, &
          blst => amg%blst)
-      call device_copy(r_d, f_d, n)
+
       if (.not. zero_initial_guess) then
          call amg%device_matvec(this%w, x, w_d, x_d, this%lvl)
-         call device_sub2(r_d, w_d, n)
       end if
 
       thet = this%tha
@@ -336,20 +369,20 @@ contains
       rhok = 1.0_rp / s1
 
       ! First iteration
-      call device_cmult2(d_d, r_d, 1.0_rp/thet, n)
-      call device_add2(x_d, d_d, n)
+      tmp1 = 1.0_rp / thet
+      call amg_device_cheby_solve_part1(r_d, f_d, w_d, x_d, d_d, &
+           tmp1, n, zero_initial_guess)
       ! Rest of iterations
       do iter = 2, max_iter
          call amg%device_matvec(this%w, this%d, w_d, d_d, this%lvl)
-         call device_sub2(r_d, w_d, n)
 
          rhokp1 = 1.0_rp / (2.0_rp * s1 - rhok)
          tmp1 = rhokp1 * rhok
          tmp2 = 2.0_rp * rhokp1 / delt
          rhok = rhokp1
 
-         call device_add3s2(d_d, d_d, r_d, tmp1, tmp2, n)
-         call device_add2(x_d, d_d, n)
+         call amg_device_cheby_solve_part2(r_d, w_d, d_d, x_d, tmp1, tmp2, n)
+
       end do
     end associate
   end subroutine amg_device_cheby_solve
@@ -373,6 +406,20 @@ contains
     this%omega = 0.7_rp
 
   end subroutine amg_jacobi_init
+
+  !> free jacobi data
+  subroutine amg_jacobi_free(this)
+    class(amg_jacobi_t), intent(inout), target :: this
+    if (allocated(this%d)) then
+       deallocate(this%d)
+    end if
+    if (allocated(this%w)) then
+       deallocate(this%w)
+    end if
+    if (allocated(this%r)) then
+       deallocate(this%r)
+    end if
+  end subroutine amg_jacobi_free
 
   !> SAMPLE MATRIX DIAGONAL VALUES (DO NOT USE, EXPENSIVE)
   !! @param amg TreeAMG object

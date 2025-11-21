@@ -59,7 +59,7 @@
 ! not be used for advertising or product endorsement purposes.
 !
 module fluid_volflow
-  use operators, only : opgrad, cdtp
+  use operators, only : opgrad, cdtp, rotate_cyc
   use num_types, only : rp
   use mathops, only : opchsign
   use krylov, only : ksp_t, ksp_monitor_t
@@ -68,7 +68,7 @@ module fluid_volflow
   use field, only : field_t
   use coefs, only : coef_t
   use time_scheme_controller, only : time_scheme_controller_t
-  use math, only : copy, glsc2, glmin, glmax, add2
+  use math, only : copy, glsc2, glmin, glmax, add2, abscmp
   use neko_config, only : NEKO_BCKND_DEVICE
   use device_math, only : device_cfill, device_rzero, device_copy, &
        device_add2, device_add2s2, device_glsc2
@@ -279,9 +279,11 @@ contains
       end if
       c_Xh%ifh2 = .true.
 
+      call rotate_cyc(u_res%x, v_res%x, w_res%x, 1, c_Xh)
       call gs_Xh%op(u_res, GS_OP_ADD)
       call gs_Xh%op(v_res, GS_OP_ADD)
       call gs_Xh%op(w_res, GS_OP_ADD)
+      call rotate_cyc(u_res%x, v_res%x, w_res%x, 0, c_Xh)
 
       call bclst_vel_res%apply_vector(u_res%x, v_res%x, w_res%x, n)
       call pc_vel%update()
@@ -369,8 +371,8 @@ contains
 
       ifcomp = 0.0_rp
 
-      if (dt .ne. this%dtlag .or. &
-           ext_bdf%diffusion_coeffs(1) .ne. this%bdlag) then
+      if ((.not. abscmp(dt, this%dtlag)) .or. &
+          (.not. abscmp(ext_bdf%diffusion_coeffs(1), this%bdlag))) then
          ifcomp = 1.0_rp
       end if
 

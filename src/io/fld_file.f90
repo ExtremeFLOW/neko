@@ -44,12 +44,13 @@ module fld_file
   use fld_file_data, only : fld_file_data_t
   use vector, only : vector_t
   use space, only : space_t
+  use logger, only: neko_log, LOG_SIZE
   use mesh, only : mesh_t
   use utils, only: filename_suffix_pos, filename_chsuffix, filename_name, &
        filename_path, neko_error
   use comm
   use datadist, only : linear_dist_t
-  use math, only : vlmin, vlmax
+  use math, only : vlmin, vlmax, sabscmp
   use neko_mpi_types, only : MPI_CHARACTER_SIZE, MPI_DOUBLE_PRECISION_SIZE, &
        MPI_REAL_SIZE, MPI_INTEGER_SIZE
   use mpi_f08
@@ -132,6 +133,10 @@ contains
        if (gdim .eq. 2) z%ptr => data%y%x
        if (data%u%size() .gt. 0) then
           u%ptr => data%u%x
+          ! In case only u is actually allocated, point the other comps to u
+          ! so that we don't die on trying to write them
+          if (data%v%size() .le. 0) v%ptr => data%u%x
+          if (data%w%size() .le. 0) w%ptr => data%u%x
           write_velocity = .true.
        end if
        if (data%v%size() .gt. 0) v%ptr => data%v%x
@@ -695,6 +700,7 @@ contains
     type(linear_dist_t) :: dist
     real(kind=sp), parameter :: test_pattern = 6.54321
     character :: rdcode(10), temp_str(4)
+    character(len=LOG_SIZE) :: log_buf
 
     select type (data)
     type is (fld_file_data_t)
@@ -707,19 +713,26 @@ contains
              read(file_unit, fmt = '(A)') string
              read(string(14:), fmt = '(A)') string
              string = trim(string)
+
              data%fld_series_fname = string(:scan(trim(string), '%')-1)
              data%fld_series_fname = adjustl(data%fld_series_fname)
              data%fld_series_fname = trim(data%fld_series_fname)//'0'
+
              read(file_unit, fmt = '(A)') string
              read(string(scan(string, ':')+1:), *) data%meta_start_counter
              read(file_unit, fmt = '(A)') string
              read(string(scan(string, ':')+1:), *) data%meta_nsamples
-
              close(file_unit)
-             write(*,*) 'Reading meta file for fld series'
-             write(*,*) 'Name: ', trim(data%fld_series_fname)
-             write(*,*) 'Start counter: ', data%meta_start_counter, &
-                  'Nsamples: ', data%meta_nsamples
+
+             write(log_buf,*) 'Reading meta file for fld series'
+             call neko_log%message(log_buf)
+             write(log_buf,*) 'Name: ', trim(data%fld_series_fname)
+             call neko_log%message(log_buf)
+             write(log_buf,*) 'Start counter: ', data%meta_start_counter
+             call neko_log%message(log_buf)
+             write(log_buf,*) 'Nsamples: ', data%meta_nsamples
+             call neko_log%message(log_buf)
+
           end if
           call MPI_Bcast(data%fld_series_fname, 1024, MPI_CHARACTER, 0, &
                NEKO_COMM, ierr)
@@ -727,6 +740,11 @@ contains
                NEKO_COMM, ierr)
           call MPI_Bcast(data%meta_nsamples, 1, MPI_INTEGER, 0, &
                NEKO_COMM, ierr)
+
+          if (this%get_counter() .eq. -1) then
+             call this%set_start_counter(data%meta_start_counter)
+             call this%set_counter(data%meta_start_counter)
+          end if
        end if
 
        if (meta_file) then
@@ -745,6 +763,8 @@ contains
             MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
 
        if (ierr .ne. 0) call neko_error("Could not read "//trim(fname))
+
+       call neko_log%message('Reading fld file ' // trim(fname))
 
        call MPI_File_read_all(fh, hdr, 132, MPI_CHARACTER, status, ierr)
        ! This read can prorbably be done wihtout the temp variables,
@@ -850,7 +870,7 @@ contains
        mpi_offset = 132 * MPI_CHARACTER_SIZE
        call MPI_File_read_at_all(fh, mpi_offset, temp, 1, &
             MPI_REAL, status, ierr)
-       if (temp .ne. test_pattern) then
+       if (.not. sabscmp(temp, test_pattern, epsilon(1.0_sp))) then
           call neko_error('Incorrect format for fld file, &
           &test pattern does not match.')
        end if
@@ -926,6 +946,8 @@ contains
                (int(lxyz, i8) * &
                int(FLD_DATA_SIZE, i8))
        end do
+
+       call this%increment_counter()
 
        if (allocated(tmp_dp)) deallocate(tmp_dp)
        if (allocated(tmp_sp)) deallocate(tmp_sp)

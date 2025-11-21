@@ -55,10 +55,10 @@ module fluid_scheme_incompressible
   use bc_list, only : bc_list_t
   use mesh, only : mesh_t
   use math, only : glsum
-  use operators, only : cfl
+  use operators, only : cfl, rotate_cyc
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use field_registry, only : neko_field_registry
-  use json_utils, only : json_get, json_get_or_default, json_extract_object
+  use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file
   use scratch_registry, only : scratch_registry_t
   use user_intf, only : user_t, dummy_user_material_properties, &
@@ -84,6 +84,7 @@ module fluid_scheme_incompressible
      integer :: vel_projection_activ_step !< Steps to activate projection for ksp_vel
      integer :: pr_projection_activ_step !< Steps to activate projection for ksp_pr
      logical :: strict_convergence !< Strict convergence for the velocity solver
+     logical :: allow_stabilization !< Allow stabilization period
      !> Extrapolation velocity fields for LES
      type(field_t), pointer :: u_e => null() !< Extrapolated x-Velocity
      type(field_t), pointer :: v_e => null() !< Extrapolated y-Velocity
@@ -283,7 +284,7 @@ contains
        call json_get(params, 'case.fluid.velocity_solver.type', string_val1)
        call json_get(params, 'case.fluid.velocity_solver.preconditioner.type', &
             string_val2)
-       call json_extract_object(params, &
+       call json_get(params, &
             'case.fluid.velocity_solver.preconditioner', json_subdict)
        call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance', &
             real_val)
@@ -307,6 +308,9 @@ contains
     ! Strict convergence for the velocity solver
     call json_get_or_default(params, 'case.fluid.strict_convergence', &
          this%strict_convergence, .false.)
+    ! Allow stabilization period where we do not warn about non-convergence
+    call json_get_or_default(params, 'case.fluid.allow_stabilization', &
+         this%allow_stabilization, .false.)
 
 
     !! Initialize time-lag fields
@@ -322,10 +326,11 @@ contains
     this%w_e => neko_field_registry%get_field('w_e')
 
     ! Initialize the source term
+    call neko_log%section('Fluid Source term')
     call this%source_term%init(this%f_x, this%f_y, this%f_z, this%c_Xh, user, &
          this%name)
     call this%source_term%add(params, 'case.fluid.source_terms')
-
+    call neko_log%end_section()
 
   end subroutine fluid_scheme_init_base
 
@@ -378,14 +383,17 @@ contains
 
     if (associated(this%f_x)) then
        call this%f_x%free()
+       deallocate(this%f_x)
     end if
 
     if (associated(this%f_y)) then
        call this%f_y%free()
+       deallocate(this%f_y)
     end if
 
     if (associated(this%f_z)) then
        call this%f_z%free()
+       deallocate(this%f_z)
     end if
 
     nullify(this%f_x)
@@ -394,6 +402,10 @@ contains
     nullify(this%rho)
     nullify(this%mu)
     nullify(this%mu_tot)
+
+    call this%dm_Xh%free()
+    call this%Xh%free()
+    nullify(this%msh)
 
   end subroutine fluid_scheme_free
 
@@ -442,22 +454,28 @@ contains
 
     call this%bcs_vel%apply_vector(&
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), time, strong)
+
+    call rotate_cyc(this%u%x, this%v%x, this%w%x, 1, this%c_Xh)
     call this%gs_Xh%op(this%u, GS_OP_MIN, glb_cmd_event)
     call device_event_sync(glb_cmd_event)
     call this%gs_Xh%op(this%v, GS_OP_MIN, glb_cmd_event)
     call device_event_sync(glb_cmd_event)
     call this%gs_Xh%op(this%w, GS_OP_MIN, glb_cmd_event)
     call device_event_sync(glb_cmd_event)
+    call rotate_cyc(this%u%x, this%v%x, this%w%x, 0, this%c_Xh)
 
 
     call this%bcs_vel%apply_vector(&
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), time, strong)
+
+    call rotate_cyc(this%u%x, this%v%x, this%w%x, 1, this%c_Xh)
     call this%gs_Xh%op(this%u, GS_OP_MAX, glb_cmd_event)
     call device_event_sync(glb_cmd_event)
     call this%gs_Xh%op(this%v, GS_OP_MAX, glb_cmd_event)
     call device_event_sync(glb_cmd_event)
     call this%gs_Xh%op(this%w, GS_OP_MAX, glb_cmd_event)
     call device_event_sync(glb_cmd_event)
+    call rotate_cyc(this%u%x, this%v%x, this%w%x, 0, this%c_Xh)
 
     do i = 1, this%bcs_vel%size()
        b => this%bcs_vel%get(i)

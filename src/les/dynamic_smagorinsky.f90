@@ -36,7 +36,7 @@ module dynamic_smagorinsky
   use field, only : field_t
   use fluid_scheme_base, only : fluid_scheme_base_t
   use les_model, only : les_model_t
-  use json_utils, only : json_get_or_default, json_get, json_extract_object
+  use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file
   use utils, only : neko_error
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -100,7 +100,7 @@ contains
 
       call this%free()
       call this%init_base(fluid, nut_name, delta_type, if_ext)
-      call json_extract_object(json, "test_filter", json_subdict)
+      call json_get(json, "test_filter", json_subdict)
       call this%test_filter%init(json_subdict, coef)
       if (json%valid_path('filter.transfer_function')) then
          call neko_error("Dynamic Smagorinsky model does not support " // &

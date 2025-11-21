@@ -34,7 +34,7 @@
 module dong_outflow
   use neko_config
   use dirichlet, only : dirichlet_t
-  use device, only : device_memcpy, device_alloc, HOST_TO_DEVICE
+  use device, only : device_memcpy, device_alloc, HOST_TO_DEVICE, device_free
   use num_types, only : rp, c_rp
   use bc, only : bc_t
   use field, only : field_t
@@ -43,7 +43,8 @@ module dong_outflow
   use utils, only : nonlinear_index
   use device_dong_outflow, only : device_dong_outflow_apply_scalar
   use field_registry, only : neko_field_registry
-  use, intrinsic :: iso_c_binding, only : c_ptr, c_sizeof, c_null_ptr
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_sizeof, c_null_ptr, &
+       c_associated
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default
   use utils, only : neko_error
@@ -193,6 +194,24 @@ contains
     class(dong_outflow_t), target, intent(inout) :: this
 
     call this%free_base
+    nullify(this%u)
+    nullify(this%v)
+    nullify(this%w)
+
+    if (c_associated(this%normal_x_d)) then
+       call device_free(this%normal_x_d)
+       this%normal_x_d = c_null_ptr
+    end if
+
+    if (c_associated(this%normal_y_d)) then
+       call device_free(this%normal_y_d)
+       this%normal_y_d = c_null_ptr
+    end if
+
+    if (c_associated(this%normal_z_d)) then
+       call device_free(this%normal_z_d)
+       this%normal_z_d = c_null_ptr
+    end if
 
   end subroutine dong_outflow_free
 

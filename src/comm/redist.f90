@@ -32,7 +32,7 @@
 !
 !> Redistribution routines
 module redist
-  use mesh_field, only : mesh_fld_t, mesh_field_init, mesh_field_free
+  use mesh_field, only : mesh_fld_t
   use neko_mpi_types, only : MPI_NMSH_ZONE, MPI_NMSH_HEX, &
        MPI_NMSH_CURVE
   use mpi_f08, only : MPI_Status, MPI_Allreduce, MPI_Sendrecv, &
@@ -126,7 +126,7 @@ contains
        end do
        call new_mesh_dist(parts%data(i))%push(el)
     end do
-
+    nullify(ep)
 
     gdim = msh%gdim
     call msh%free()
@@ -216,7 +216,7 @@ contains
     type is (nmsh_hex_t)
        do i = 1, new_mesh_dist(pe_rank)%size()
           do j = 1, 8
-             p(j) = point_t(np(i)%v(j)%v_xyz, np(i)%v(j)%v_idx)
+             call p(j)%init(np(i)%v(j)%v_xyz, np(i)%v(j)%v_idx)
           end do
           call msh%add_element(i, np(i)%el_idx, &
                p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
@@ -235,6 +235,9 @@ contains
        end do
     end select
     call new_mesh_dist(pe_rank)%free()
+    if (allocated(new_mesh_dist)) then
+       deallocate(new_mesh_dist)
+    end if
 
 
     !
@@ -335,6 +338,9 @@ contains
        end do
     end select
     call new_zone_dist(pe_rank)%free()
+    if (allocated(new_zone_dist)) then
+       deallocate(new_zone_dist)
+    end if
 
 
     !
@@ -350,6 +356,9 @@ contains
        end do
     end select
     call new_curve_dist(pe_rank)%free()
+    if (allocated(new_curve_dist)) then
+       deallocate(new_curve_dist)
+    end if
 
 
     call msh%finalize()

@@ -155,7 +155,7 @@ contains
 
   function field_list_x(this, i) result(x)
     class(field_list_t), target, intent(in) :: this
-    real(kind=rp), pointer :: x(:,:,:,:)
+    real(kind=rp), pointer, contiguous :: x(:,:,:,:)
     integer, intent(in) :: i
     x => this%items(i)%ptr%x
   end function field_list_x
