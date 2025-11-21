@@ -80,14 +80,14 @@ module manager_geom_p4est
      !> Geometrical h4-type hanging nodes
      type(manager_geom_node_hng_p4est_t) :: hng_fcs
      ! Mapping including hanging nodes:
-     ! 1<= vnmap(iv,iel) <= nin - independent node
-     ! nin < vnmap(iv,iel) <= nin + nhf - face hanging node
-     ! nin + nhf < vnmap(iv,iel) <= nin + nhf + nhe - edge hanging node
+     ! 1<= vmap(iv,iel) <= nin - independent node
+     ! nin < vmap(iv,iel) <= nin + nhf - face hanging node
+     ! nin + nhf < vmap(iv,iel) <= nin + nhf + nhe - edge hanging node
      ! where
      ! nin = number of local independent nodes
      ! nhf = number of local face hanging nodes
      ! nhe = number of local edge hanging nodes
-     ! vnmap uses symmetric vertex notation with (r,s,t) being a local
+     ! vmap uses symmetric vertex notation with (r,s,t) being a local
      ! counterpart of (x,y,z):
      !             3+--------+4    ^ s
      !             /        /|     |

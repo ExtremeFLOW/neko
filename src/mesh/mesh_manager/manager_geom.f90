@@ -93,8 +93,8 @@ module manager_geom
      !> Number of vertices per element
      integer(i4) :: nvrt
      ! Mapping for:
-     ! 1<= vnmap(iv,iel) <= nin - independent node
-     ! vnmap uses symmetric vertex notation with (r,s,t) being a local
+     ! 1<= vmap(iv,iel) <= nin - independent node
+     ! vmap uses symmetric vertex notation with (r,s,t) being a local
      ! counterpart of (x,y,z):
      !             3+--------+4    ^ s
      !             /        /|     |

@@ -1270,8 +1270,6 @@ contains
   subroutine p4est_mesh_construct(this, mesh)
     class(mesh_manager_p4est_t), intent(in) :: this
     type(mesh_t), intent(inout) :: mesh
-    integer :: il, itmp
-    integer(i4) :: nidx
     character(len=LOG_SIZE) :: log_buf
     real(kind=rp) :: t_start, t_end
 
@@ -1301,64 +1299,14 @@ contains
     ! Local information only; global one will be related to connectivity
     select type (geom => this%mesh%geom)
     type is (manager_geom_p4est_t)
-       ! local number of unique vertices
-       mesh%mpts = geom%ind%lnum + geom%hng_fcs%lnum + geom%hng_edg%lnum
+       ! get node information
+       call p4est_node_fill(mesh, geom)
 
-       ! fill the points
-       ! order matters due to the element vertex mapping
-       allocate(mesh%points(mesh%mpts))
-       itmp = 0
-       ! independent nodes
-       if (geom%ind%lnum .gt. 0) then
-          do il = 1, geom%ind%lnum
-             itmp = itmp + 1
-             nidx = int(geom%ind%gidx(il), i4)
-             call mesh%points(itmp)%init(geom%ind%coord(:, il), nidx)
-          end do
-       end if
-       ! face hanging nodes
-       if (geom%hng_fcs%lnum .gt. 0) then
-          do il = 1, geom%hng_fcs%lnum
-             itmp = itmp + 1
-             nidx = int(geom%hng_fcs%gidx(il), i4)
-             call mesh%points(itmp)%init(geom%hng_fcs%coord(:, il), nidx)
-          end do
-       end if
-       ! edge hanging nodes
-       if (geom%hng_edg%lnum .gt. 0) then
-          do il = 1, geom%hng_edg%lnum
-             itmp = itmp + 1
-             nidx = int(geom%hng_edg%gidx(il), i4)
-             call mesh%points(itmp)%init(geom%hng_edg%coord(:, il), nidx)
-          end do
-       end if
-
-       ! Global to local element mapping
-       call mesh%htel%init(mesh%nelv, il)
-
-       ! Fill in element array
-       allocate(mesh%elements(mesh%nelv))
-       do il = 1, mesh%nelv
-          allocate(hex_t::mesh%elements(il)%e)
-          nidx = int(this%mesh%gidx(il), i4)
-          select type(ep => mesh%elements(il)%e)
-          type is (hex_t)
-             call ep%init(nidx, &
-                  mesh%points(geom%vmap(1, il)), &
-                  mesh%points(geom%vmap(2, il)), &
-                  mesh%points(geom%vmap(3, il)), &
-                  mesh%points(geom%vmap(4, il)), &
-                  mesh%points(geom%vmap(5, il)), &
-                  mesh%points(geom%vmap(6, il)), &
-                  mesh%points(geom%vmap(7, il)), &
-                  mesh%points(geom%vmap(8, il)))
-          end select
-          ! Global to local element mapping
-          itmp = il
-          call mesh%htel%set(nidx, itmp)
-       end do
+       ! get element information
+       call p4est_element_fill(mesh, geom, this%mesh%gidx)
     end select
 
+    
     ! Element deformation
     ! deformed element flag; It is set in mesh_generate_flags
     ! (dependent on vertex ordering)!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1379,24 +1327,28 @@ contains
     mesh%glb_meds = int(this%mesh%conn%edg%gnum, i4)
     ! this doesn't seem to be used in original version and
     ! I do not need it for p4est either
-    !mesh%max_pts_id =
+    !mesh%max_pts_id
 
     ! mesh%htp - not used as vertices global id is already provided by p4est
     ! mesh%htf - not used as faces global id is already provided by p4est
     ! mesh%hte - not used as edge global id is already provided by p4est
 
+    ! used internally to get connectivity only; not added
+    ! mesh%facet_map
+
     ! Fill in neighbour information
     select type (conn => this%mesh%conn)
     type is (manager_conn_p4est_t)
-       ! USED IN gather_scatter.f90;
-       ! MORE INVESTIGATION NEEDED
+       ! used in: gather_scatter.f90;
        ! get neighbour rank info; based on vertex sharing info
        call p4est_rank_neighbour_fill(mesh, conn)
 
-       ! get vertex neighbours; not used outside mesh.f90
-       call p4est_vertex_neighbour_fill(mesh, conn)
+       ! not used outside mesh.f90
+       ! get vertex neighbours
+       ! MORE INVESTIGATION NEEDED
+       call p4est_vertex_neighbour_fill(mesh, conn, this%mesh%gidx)
 
-       ! USED IN gather_scatter.f90, tree_amg_multigrid.f90;
+       ! used in: gather_scatter.f90, tree_amg_multigrid.f90;
        ! MORE INVESTIGATION NEEDED
        ! get face neighbours
        call p4est_face_neighbour_fill(mesh, conn)
@@ -1411,7 +1363,94 @@ contains
          t_end - t_start
     call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
+    
+    ! for now
+    write(*,*) 'BEFORE MESH FREE'
+    call mesh%free()
+    write(*,*) 'AFTER MESH FREE'
+    
   end subroutine p4est_mesh_construct
+
+  !> Fill the geometrical nodes information
+  !! @param[inout]   mesh    neko mesh type
+  !! @param[in]      geom    geometry
+  subroutine p4est_node_fill(mesh, geom)
+    type(mesh_t), intent(inout) :: mesh
+    type(manager_geom_p4est_t), intent(in) :: geom
+    integer :: il, itmp
+    integer(i4) :: nidx
+
+    ! local number of unique vertices
+    mesh%mpts = geom%ind%lnum + geom%hng_fcs%lnum + geom%hng_edg%lnum
+
+    ! fill the points
+    ! order matters due to the element vertex mapping
+    allocate(mesh%points(mesh%mpts))
+    itmp = 0
+    ! independent nodes
+    if (geom%ind%lnum .gt. 0) then
+       do il = 1, geom%ind%lnum
+          itmp = itmp + 1
+          nidx = int(geom%ind%gidx(il), i4)
+          call mesh%points(itmp)%init(geom%ind%coord(:, il), nidx)
+       end do
+    end if
+    ! face hanging nodes
+    if (geom%hng_fcs%lnum .gt. 0) then
+       do il = 1, geom%hng_fcs%lnum
+          itmp = itmp + 1
+          nidx = int(geom%hng_fcs%gidx(il), i4)
+          call mesh%points(itmp)%init(geom%hng_fcs%coord(:, il), nidx)
+       end do
+    end if
+    ! edge hanging nodes
+    if (geom%hng_edg%lnum .gt. 0) then
+       do il = 1, geom%hng_edg%lnum
+          itmp = itmp + 1
+          nidx = int(geom%hng_edg%gidx(il), i4)
+          call mesh%points(itmp)%init(geom%hng_edg%coord(:, il), nidx)
+       end do
+    end if
+
+  end subroutine p4est_node_fill
+
+  !> Fill the geometrical element information
+  !! @param[inout]   mesh    neko mesh type
+  !! @param[in]      geom    geometry
+  !! @param[in]      gidx    element global index
+  subroutine p4est_element_fill(mesh, geom, gidx)
+    type(mesh_t), intent(inout) :: mesh
+    type(manager_geom_p4est_t), intent(in) :: geom
+    integer(i8), dimension(:), intent(in) :: gidx
+    integer :: il, itmp
+    integer(i4) :: nidx
+
+    ! Global to local element mapping
+    call mesh%htel%init(mesh%nelv, il)
+
+    ! Fill in element array
+    allocate(mesh%elements(mesh%nelv))
+    do il = 1, mesh%nelv
+       allocate(hex_t::mesh%elements(il)%e)
+       nidx = int(gidx(il), i4)
+       select type(ep => mesh%elements(il)%e)
+       type is (hex_t)
+          call ep%init(nidx, &
+               mesh%points(geom%vmap(1, il)), &
+               mesh%points(geom%vmap(2, il)), &
+               mesh%points(geom%vmap(3, il)), &
+               mesh%points(geom%vmap(4, il)), &
+               mesh%points(geom%vmap(5, il)), &
+               mesh%points(geom%vmap(6, il)), &
+               mesh%points(geom%vmap(7, il)), &
+               mesh%points(geom%vmap(8, il)))
+       end select
+       ! Global to local element mapping
+       itmp = il
+       call mesh%htel%set(nidx, itmp)
+    end do
+
+  end subroutine p4est_element_fill
 
   !> Fill the mesh type with rank neighbour information
   !! @details Based on vertex connectivity info
@@ -1467,9 +1506,42 @@ contains
   !> Fill the mesh type with vertex neighbour information
   !! @param[inout]   mesh    neko mesh type
   !! @param[in]      conn    connectivity
-  subroutine p4est_vertex_neighbour_fill(mesh, conn)
+  !! @param[in]      gidx    element global index
+  subroutine p4est_vertex_neighbour_fill(mesh, conn, gidx)
     type(mesh_t), intent(inout) :: mesh
     type(manager_conn_p4est_t), intent(in) :: conn
+    integer(i8), dimension(:), intent(in) :: gidx
+
+    integer(i4) :: il, jl, kl, ll, ml
+    integer(i4) :: itmp, ierr
+    ! offest in send/receive buffers
+    integer(i4), allocatable, dimension(:) :: cmoff
+    integer(i4) :: neighn
+    integer(i4), pointer, dimension(:) :: neighl
+    integer(i4), allocatable, dimension(:) :: rbuf, sbuf ! send/receive buffers
+    type(MPI_Request), allocatable, dimension(:) :: request ! MPI request
+    type(MPI_Status), allocatable, dimension(:) :: status ! MPI status
+
+    ! Get list of vertex neighbours (elements a given vertex belongs to)
+    ! local vertex neighbours
+    allocate(mesh%point_neigh(conn%vrt%lnum))
+    do il = 1, conn%vrt%lnum
+       call mesh%point_neigh(il)%init()
+    end do
+    do il = 1, mesh%nelv
+       ! get global element id
+       itmp = int(gidx(il), i4)
+       do jl = 1, mesh%npts
+          call mesh%point_neigh(conn%vmap(jl, il))%push(itmp)
+       end do
+    end do
+
+
+
+
+
+
+
 
     write(*, *) 'TEST vertex neigh', pe_rank
   end subroutine p4est_vertex_neighbour_fill

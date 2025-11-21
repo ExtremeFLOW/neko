@@ -87,7 +87,7 @@ module manager_conn
      integer(i4) :: nvrt
      ! Node info for building communicators; includes global indexing of various
      ! element objects
-     ! vertex%lmap uses symmetric vertex notation with (r,s,t) being a local
+     ! vmap uses symmetric vertex notation with (r,s,t) being a local
      ! counterpart of (x,y,z):
      !             3+--------+4    ^ s
      !             /        /|     |
@@ -104,7 +104,7 @@ module manager_conn
 
      !> Number of faces per element
      integer(i4) :: nfcs
-     ! face%lmap uses symmetric face notation with (r,s,t) being a local
+     ! fmap uses symmetric face notation with (r,s,t) being a local
      ! counterpart of (x,y,z):
      !              +--------+     ^ s
      !             /        /|     |
@@ -121,7 +121,7 @@ module manager_conn
 
      !> Number of edges per element
      integer(i4) :: nedg
-     ! edge%lmap uses symmetric edge notation with (r,s,t) being a local
+     ! emap uses symmetric edge notation with (r,s,t) being a local
      ! counterpart of (x,y,z):
      !              +---2----+     ^ s
      !             /        /|     |

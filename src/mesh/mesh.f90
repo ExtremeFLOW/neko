@@ -362,11 +362,12 @@ contains
     end if
 
     if (allocated(this%point_neigh)) then
-       do i = 1, this%gdim * this%npts * this%nelv
+       do i = 1, size(this%point_neigh)
           call this%point_neigh(i)%free()
        end do
        ! This causes Cray Fortran to take a long vacation
-       !deallocate(this%point_neigh)
+       ! but this is needed by AMR
+       deallocate(this%point_neigh)
     end if
 
     if (allocated(this%facet_type)) then
