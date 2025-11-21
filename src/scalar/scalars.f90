@@ -256,6 +256,11 @@ contains
        end do
        deallocate(this%scalar_fields)
     end if
+
+    if (allocated(this%shared_ksp)) then
+       call this%shared_ksp%free()
+       deallocate(this%shared_ksp)
+    end if
   end subroutine scalars_free
 
   !> Register scalar lag fields with checkpoint

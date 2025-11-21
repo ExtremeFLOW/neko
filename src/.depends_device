@@ -53,6 +53,7 @@ math/bcknd/device/cuda/set_convect_rst.lo : math/bcknd/device/cuda/set_convect_r
 math/bcknd/device/cuda/opr_opgrad.lo : math/bcknd/device/cuda/opr_opgrad.cu math/bcknd/device/cuda/opgrad_kernel.h
 math/bcknd/device/cuda/opr_lambda2.lo : math/bcknd/device/cuda/opr_lambda2.cu math/bcknd/device/cuda/lambda2_kernel.h
 math/bcknd/device/cuda/opr_cfl.lo : math/bcknd/device/cuda/opr_cfl.cu math/bcknd/device/cuda/cfl_kernel.h
+math/bcknd/device/cuda/opr_rotate_cyc.lo : math/bcknd/device/cuda/opr_rotate_cyc.cu math/bcknd/device/cuda/rotate_kernel.h
 math/bcknd/device/cuda/ax_helm.lo : math/bcknd/device/cuda/ax_helm.cu math/bcknd/device/cuda/ax_helm_kernel.h
 math/bcknd/device/cuda/ax_helm_full.lo : math/bcknd/device/cuda/ax_helm_full.cu math/bcknd/device/cuda/ax_helm_full_kernel.h
 math/bcknd/device/cuda/schwarz.lo : math/bcknd/device/cuda/schwarz.cu math/bcknd/device/cuda/schwarz_kernel.h

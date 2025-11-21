@@ -204,6 +204,7 @@ contains
              call device_free(this%xx_d(i))
           end if
        end do
+       deallocate(this%xx_d)
     end if
     if (c_associated(this%xx_d_d)) then
        call device_free(this%xx_d_d)
@@ -220,6 +221,7 @@ contains
              call device_free(this%bb_d(i))
           end if
        end do
+       deallocate(this%bb_d)
     end if
     if (c_associated(this%bb_d_d)) then
        call device_free(this%bb_d_d)

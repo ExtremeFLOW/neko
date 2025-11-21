@@ -734,7 +734,7 @@ contains
        call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(b, b_d, size(a), HOST_TO_DEVICE, sync=.false.)
 
-       call device_pwmax(a_d, b_d, n)
+       call device_pwmax2(a_d, b_d, n)
 
        call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
 
@@ -773,7 +773,7 @@ contains
        call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(b, b_d, size(a), HOST_TO_DEVICE, sync=.false.)
 
-       call device_pwmin(a_d, b_d, n)
+       call device_pwmin2(a_d, b_d, n)
 
        call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
 

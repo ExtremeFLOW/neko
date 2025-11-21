@@ -78,6 +78,10 @@ module matrix
      procedure, pass(m), private :: alloc => matrix_allocate
   end type matrix_t
 
+  type, public :: matrix_ptr_t
+     type(matrix_t), pointer :: ptr
+  end type matrix_ptr_t
+
 contains
 
   !> Initialise a matrix of size `nrows*ncols`.

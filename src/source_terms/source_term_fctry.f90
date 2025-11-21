@@ -39,18 +39,20 @@ submodule (source_term) source_term_fctry
   use coriolis_source_term, only : coriolis_source_term_t
   use centrifugal_source_term, only : centrifugal_source_term_t
   use gradient_jump_penalty, only : gradient_jump_penalty_t
+  use sponge_source_term, only: sponge_source_term_t
   use json_utils, only : json_get
   use utils, only : neko_type_error, neko_type_registration_error
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: SOURCE_KNOWN_TYPES(6) = [character(len=20) :: &
+  character(len=20) :: SOURCE_KNOWN_TYPES(7) = [character(len=20) :: &
        "constant", &
        "boussinesq", &
        "coriolis", &
        "centrifugal", &
        "gradient_jump_penalty", &
-       "brinkman"]
+       "brinkman", &
+       "sponge"]
 
 contains
 
@@ -97,6 +99,8 @@ contains
        allocate(centrifugal_source_term_t::object)
     case ("brinkman")
        allocate(brinkman_source_term_t::object)
+    case ("sponge")
+       allocate(sponge_source_term_t::object)
     case ("gradient_jump_penalty")
        allocate(gradient_jump_penalty_t::object)
     case default

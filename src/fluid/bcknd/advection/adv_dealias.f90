@@ -216,6 +216,9 @@ contains
     call this%GLL_to_GL%free()
     call this%Xh_GL%free()
 
+    nullify(this%Xh_GLL)
+    nullify(this%coef_GLL)
+
   end subroutine free_dealias
 
 
