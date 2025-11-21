@@ -42,7 +42,7 @@ module TKE_SGS
   use json_module, only : json_file
   use neko_config, only : NEKO_BCKND_DEVICE
   use TKE_SGS_cpu, only : TKE_SGS_compute_cpu
-  use TKE_SGS_device, only : TKE_SGS_compute_device
+  ! use TKE_SGS_device, only : TKE_SGS_compute_device
   use field_registry, only : neko_field_registry
   use logger, only : LOG_SIZE, neko_log
   implicit none
@@ -59,6 +59,9 @@ module TKE_SGS
      real(kind=rp) :: g
      !> Vertical direction
      character(len=:), allocatable :: vertical_dir
+     !> Eddy diffusivity for temperature and TKE
+     type(field_t), pointer :: nutheta => null()
+     type(field_t), pointer :: nue => null()
    contains
      !> Constructor from JSON.
      procedure, pass(this) :: init => TKE_SGS_init
@@ -105,34 +108,38 @@ contains
     call neko_log%message(log_buf)
     write(log_buf, '(A, A)') 'Delta evaluation : ', delta_type
     call neko_log%message(log_buf)
-    write(log_buf, '(A, E15.7)') 'c_k : ', c_k
+    write(log_buf, '(A, E15.7)') 'c_k : ', this%c_k
     call neko_log%message(log_buf)
     write(log_buf, '(A, L1)') 'extrapolation : ', if_ext
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
     call TKE_SGS_init_from_components(this, fluid, nut_name, &
-         delta_type, if_ext)
+         nutheta_name, nue_name, delta_type, if_ext)
 
   end subroutine TKE_SGS_init
 
   !> Constructor from components.
   !! @param fluid The fluid_scheme_base_t object.
-  !! @param nut_name The name of the SGS viscosity field.
+  !! @param nut_name The name of the Eddy viscosity field.
+  !! @param nutheta_name The name of the Eddy diffusivity field for temperature.
+  !! @param nue_name The name of the Eddy diffusivity field for TKE.
   !! @param delta_type The type of filter size.
   !! @param if_ext Whether trapolate the velocity.
   subroutine TKE_SGS_init_from_components(this, fluid, &
-       nut_name, delta_type, if_ext)
+       nut_name, nutheta_name, nue_name, delta_type, if_ext)
     class(TKE_SGS_t), intent(inout) :: this
     class(fluid_scheme_base_t), intent(inout), target :: fluid
     real(kind=rp) :: c_k
-    character(len=*), intent(in) :: nut_name
+    character(len=*), intent(in) :: nut_name, nutheta_name, nue_name
     character(len=*), intent(in) :: delta_type
     logical, intent(in) :: if_ext
 
     call this%free()
 
     call this%init_base(fluid, nut_name, delta_type, if_ext)
+    this%nutheta => neko_field_registry%get_field(trim(nutheta_name))
+    this%nue => neko_field_registry%get_field(trim(nue_name))
 
   end subroutine TKE_SGS_init_from_components
 
@@ -153,12 +160,11 @@ contains
 
     ! Compute the eddy viscosity field
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call TKE_SGS_compute_device(t, tstep, this%coef, &
-            this%nut, this%delta, this%c_k, this%T0, this%g, &
-            this%vertical_dir)
+       call neko_error("TKE SGS model is not implemented on device yet.")
     else
        call TKE_SGS_compute_cpu(t, tstep, this%coef, &
-            this%nut, this%delta, this%c_k, this%T0, this%g, &
+            this%nut, this%nutheta, this%nue, &
+            this%delta, this%c_k, this%T0, this%g, &
             this%vertical_dir)
     end if
 

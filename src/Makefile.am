@@ -362,6 +362,8 @@ neko_fortran_SOURCES = \
 	les/bcknd/device/device_sigma_nut.F90\
 	les/wale.f90\
 	les/bcknd/cpu/wale_cpu.f90\
+  les/TKE_SGS.f90\
+	les/bcknd/cpu/TKE_SGS_cpu.f90\
 	wall_models/wall_model.f90\
 	wall_models/bcknd/device/wall_model_device.F90\
 	wall_models/rough_log_law.f90\
