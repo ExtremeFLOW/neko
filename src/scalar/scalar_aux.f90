@@ -50,12 +50,12 @@ contains
   !> Prints for prs, velx, vely, velz the following:
   !! Number of iterations, start residual, end residual
   subroutine scalar_step_info(time, ksp_results, strict_convergence, &
-       stable_convergence)
+       allow_stabilization)
     type(ksp_monitor_t), dimension(:), intent(in) :: ksp_results
     type(time_state_t), intent(in) :: time
     logical, intent(in), optional :: strict_convergence
-    logical, intent(in), optional :: stable_convergence
-    logical :: converged, strict_conv, stable_conv
+    logical, intent(in), optional :: allow_stabilization
+    logical :: converged, strict_conv, allow_stab
     character(len=LOG_SIZE) :: log_buf
     integer :: i
 
@@ -65,10 +65,10 @@ contains
        strict_conv = .false.
     end if
 
-    if (present(stable_convergence)) then
-       stable_conv = stable_convergence
+    if (present(allow_stabilization)) then
+       allow_stab = allow_stabilization
     else
-       stabilized = .true.
+       allow_stab = .false.
     end if
 
     ! Do the printing
@@ -90,7 +90,7 @@ contains
           log_buf = 'Scalar solver did not converge for ' &
                // trim(ksp_results(i)%name)
 
-          if (.not. stabilized) then
+          if (.not. stabilized .and. allow_stab) then
              continue
           else if (strict_conv) then
              call neko_error(log_buf)

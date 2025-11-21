@@ -50,12 +50,13 @@ contains
   !> Prints for prs, velx, vely, velz the following:
   !! Number of iterations, start residual, end residual
   subroutine fluid_step_info(time, ksp_results, full_stress_formulation, &
-       strict_convergence)
+       strict_convergence, allow_stabilization)
     type(ksp_monitor_t), dimension(:), intent(in) :: ksp_results
     type(time_state_t), intent(in) :: time
     logical, intent(in) :: full_stress_formulation
     logical, intent(in), optional :: strict_convergence
-    logical :: converged, strict_conv
+    logical, intent(in), optional :: allow_stabilization
+    logical :: converged, strict_conv, allow_stab
     character(len=LOG_SIZE) :: log_buf
     integer :: i, n
 
@@ -66,6 +67,12 @@ contains
        strict_conv = strict_convergence
     else
        strict_conv = .false.
+    end if
+
+    if (present(allow_stabilization)) then
+       allow_stab = allow_stabilization
+    else
+       allow_stab = .false.
     end if
 
     ! Do the printing
@@ -87,7 +94,7 @@ contains
           log_buf = 'Fluid solver did not converge for ' &
                // trim(ksp_results(i)%name)
 
-          if (.not. stabilized) then
+          if (.not. stabilized .and. allow_stab) then
              continue
           else if (strict_conv) then
              call neko_error(log_buf)
