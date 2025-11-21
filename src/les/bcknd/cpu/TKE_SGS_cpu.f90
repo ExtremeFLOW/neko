@@ -53,15 +53,18 @@ contains
   !! @param t The time value.
   !! @param tstep The current time-step.
   !! @param coef SEM coefficients.
-  !! @param nut The SGS viscosity array.
+  !! @param nut The eddy viscosity field.
+  !! @param nutheta The eddy diffusivity field for temperature.
+  !! @param nue The eddy diffusivity field for TKE.
+  !! @param source_e The source terms for TKE equation.
   !! @param delta The LES lengthscale.
   !! @param c_k The TKE_SGS model constant
-  subroutine TKE_SGS_compute_cpu(t, tstep, coef, nut, nutheta, nue, &
+  subroutine TKE_SGS_compute_cpu(t, tstep, coef, nut, nutheta, nue, source_e, &
                                  delta, c_k, T0, g, vert_dir)
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
-    type(field_t), intent(inout) :: nut, nutheta, nue
+    type(field_t), intent(inout) :: nut, nutheta, nue, source_e
     type(field_t), intent(in) :: delta
     real(kind=rp), intent(in) :: c_k, T0, g
     character(len=*), intent(in) :: vert_dir
@@ -163,7 +166,10 @@ contains
 
        ! Dissipation term
        dissipation = -(0.19_rp + 0.74_rp / delta%x(i,1,1,1)) &
-                           * TKE%x(i,1,1,1)**(3.0_rp/2.0_rp)
+                           * sqrt(TKE%x(i,1,1,1)*TKE%x(i,1,1,1)*TKE%x(i,1,1,1))
+       
+       ! Add three source terms together
+       source_e%x(i,1,1,1) = shear + buoyancy + dissipation
     end do
 
     call neko_scratch_registry%relinquish_field(temp_indices)
