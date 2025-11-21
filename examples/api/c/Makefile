@@ -16,7 +16,5 @@ clean:
 $(DEST): ${OBJ}
 	$(CC) $(CFLAGS) ${OBJ} -o $@  $(LIBS)
 
-%.o: %.f90
-	${CC} ${CFLAGS} -c $<
 
 

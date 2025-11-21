@@ -1,7 +1,7 @@
 !> Residuals in the Pn-Pn formulation (CPU version)
 module pnpn_res_cpu
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use operators, only : opgrad, curl, cdtp
+  use operators, only : opgrad, curl, cdtp, rotate_cyc
   use field, only : field_t
   use ax_product, only : ax_t
   use coefs, only : coef_t
@@ -84,9 +84,11 @@ contains
             - ((wa3%x(i,1,1,1) * (mu_val / rho_val)) * c_Xh%B(i,1,1,1))
     end do
 
+    call rotate_cyc(ta1%x, ta2%x, ta3%x, 1, c_Xh)
     call gs_Xh%op(ta1, GS_OP_ADD)
     call gs_Xh%op(ta2, GS_OP_ADD)
     call gs_Xh%op(ta3, GS_OP_ADD)
+    call rotate_cyc(ta1%x, ta2%x, ta3%x, 0, c_Xh)
 
     do concurrent (i = 1:n)
        ta1%x(i,1,1,1) = ta1%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
