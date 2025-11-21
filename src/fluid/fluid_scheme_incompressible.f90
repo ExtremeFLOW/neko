@@ -84,6 +84,7 @@ module fluid_scheme_incompressible
      integer :: vel_projection_activ_step !< Steps to activate projection for ksp_vel
      integer :: pr_projection_activ_step !< Steps to activate projection for ksp_pr
      logical :: strict_convergence !< Strict convergence for the velocity solver
+     logical :: allow_stabilization !< Allow stabilization period
      !> Extrapolation velocity fields for LES
      type(field_t), pointer :: u_e => null() !< Extrapolated x-Velocity
      type(field_t), pointer :: v_e => null() !< Extrapolated y-Velocity
@@ -307,6 +308,9 @@ contains
     ! Strict convergence for the velocity solver
     call json_get_or_default(params, 'case.fluid.strict_convergence', &
          this%strict_convergence, .false.)
+    ! Allow stabilization period where we do not warn about non-convergence
+    call json_get_or_default(params, 'case.fluid.allow_stabilization', &
+         this%allow_stabilization, .false.)
 
 
     !! Initialize time-lag fields
