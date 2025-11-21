@@ -40,7 +40,7 @@ module euler_res_device
   use scratch_registry, only: neko_scratch_registry
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-  use operators, only : div
+  use operators, only : div, rotate_cyc
   use field_math, only : field_cmult
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   use field_list, only : field_list_t
@@ -542,9 +542,11 @@ contains
     call div(rhs_E%x, f_x%x, f_y%x, f_z%x, coef)
 
     call gs%op(rhs_rho_field, GS_OP_ADD)
+    call rotate_cyc(rhs_m_x%x, rhs_m_y%x, rhs_m_z%x, 1, coef)
     call gs%op(rhs_m_x, GS_OP_ADD)
     call gs%op(rhs_m_y, GS_OP_ADD)
     call gs%op(rhs_m_z, GS_OP_ADD)
+    call rotate_cyc(rhs_m_x%x, rhs_m_y%x, rhs_m_z%x, 0, coef)
     call gs%op(rhs_E, GS_OP_ADD)
 
 #ifdef HAVE_HIP
@@ -575,9 +577,11 @@ contains
     call Ax%compute(visc_E%x, E%x, coef, p%msh, p%Xh)
 
     call gs%op(visc_rho, GS_OP_ADD)
+    call rotate_cyc(visc_m_x%x, visc_m_y%x, visc_m_z%x, 1, coef)
     call gs%op(visc_m_x, GS_OP_ADD)
     call gs%op(visc_m_y, GS_OP_ADD)
     call gs%op(visc_m_z, GS_OP_ADD)
+    call rotate_cyc(visc_m_x%x, visc_m_y%x, visc_m_z%x, 0, coef)
     call gs%op(visc_E, GS_OP_ADD)
 
 #ifdef HAVE_HIP
