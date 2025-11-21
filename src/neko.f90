@@ -70,7 +70,7 @@ module neko
   use ax_product, only : ax_t, ax_helm_factory
   use parmetis, only : parmetis_partgeom, parmetis_partmeshkway
   use neko_config
-  use case, only : case_t, case_init, case_free
+  use case, only : case_t
   use output_controller, only : output_controller_t
   use output, only : output_t
   use simulation, only : simulation_step, simulation_init, simulation_finalize
@@ -217,7 +217,7 @@ contains
        !
        ! Create case
        !
-       call case_init(C, case_file)
+       call C%init(case_file)
 
        !
        ! Setup runtime statistics
@@ -269,7 +269,7 @@ contains
     call neko_scratch_registry%free()
 
     if (present(C)) then
-       call case_free(C)
+       call C%free()
     end if
 
     call neko_vector_scratch_registry%free()
