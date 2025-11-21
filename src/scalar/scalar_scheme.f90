@@ -68,10 +68,9 @@ module scalar_scheme
   use field_series, only : field_series_t
   use math, only : cfill, add2s2
   use field_math, only : field_cmult2, field_col3, field_cfill, field_add3, &
-       field_copy
+       field_copy, field_col2
   use device_math, only : device_cfill, device_add2s2
   use neko_config, only : NEKO_BCKND_DEVICE
-  use field_series, only : field_series_t
   use time_step_controller, only : time_step_controller_t
   use scratch_registry, only : neko_scratch_registry
   use time_state, only : time_state_t
@@ -124,6 +123,8 @@ module scalar_scheme
      type(chkp_t), pointer :: chkp => null()
      !> The turbulent kinematic viscosity field name
      character(len=:), allocatable :: nut_field_name
+     !> The turbulent diffusivity field name
+     character(len=:), allocatable :: nue_field_name
      !> Density.
      type(field_t), pointer :: rho => null()
      !> Thermal diffusivity.
@@ -317,7 +318,11 @@ contains
     if (params%valid_path('nut_field')) then
        call json_get(params, 'Pr_t', this%pr_turb)
        call json_get(params, 'nut_field', this%nut_field_name)
+    else if (params%valid_path('nue_field')) then
+       call json_get(params, 'nue_field', this%nue_field_name)
+       this%nut_field_name = ""
     else
+       this%nue_field_name = ""
        this%nut_field_name = ""
     end if
 
@@ -478,7 +483,7 @@ contains
   subroutine scalar_scheme_update_material_properties(this, time)
     class(scalar_scheme_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
-    type(field_t), pointer :: nut
+    type(field_t), pointer :: nut, nue
     integer :: index
     ! Factor to transform nu_t to lambda_t
     type(field_t), pointer :: lambda_factor
@@ -487,15 +492,33 @@ contains
          time)
 
     ! factor = rho * cp / pr_turb
-    if (len(trim(this%nut_field_name)) > 0) then
+    if (len(trim(this%nut_field_name)) > 0 &
+         .and. len(trim(this%nue_field_name)) .eq. 0 ) then
        nut => neko_field_registry%get_field(this%nut_field_name)
 
        ! lambda_tot = lambda + rho * cp * nut / pr_turb
        call neko_scratch_registry%request_field(lambda_factor, index)
-       call field_col3(lambda_factor, this%cp, this%rho)
        call field_cmult2(lambda_factor, nut, 1.0_rp / this%pr_turb)
+       call field_col2(lambda_factor, this%cp)
+       call field_col2(lambda_factor, this%rho)
        call field_add3(this%lambda_tot, this%lambda, lambda_factor)
        call neko_scratch_registry%relinquish_field(index)
+
+    else if (len(trim(this%nue_field_name)) > 0 &
+         .and. len(trim(this%nut_field_name)) .eq. 0 ) then
+       nue => neko_field_registry%get_field(this%nue_field_name)
+
+       ! lambda_tot = lambda + rho * cp * nue
+       call neko_scratch_registry%request_field(lambda_factor, index)
+       call field_col3(lambda_factor, this%cp, nue)
+       call field_col2(lambda_factor, this%rho)
+       call field_add3(this%lambda_tot, this%lambda, lambda_factor)
+       call neko_scratch_registry%relinquish_field(index)
+
+    else if (len(trim(this%nue_field_name)) > 0 &
+         .and. len(trim(this%nut_field_name)) > 0 ) then
+       call neko_error("Conflicting definition of eddy diffusivity "&
+                       "for the scalar equation")
     end if
 
     ! Since cp is a fields and we use the %x(1,1,1,1) of the
