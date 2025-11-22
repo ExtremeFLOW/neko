@@ -38,7 +38,7 @@ contains
     if (x .lt. y) then
        ...
     end if
-    
+
   end subroutine foo
 end module example
 ```
