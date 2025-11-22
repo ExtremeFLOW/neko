@@ -129,7 +129,6 @@ var annotated_dup =
       [ "i8_mpi_t", "d6/da5/structcartesian__pe__finder_1_1i8__mpi__t.html", "d6/da5/structcartesian__pe__finder_1_1i8__mpi__t" ]
     ] ],
     [ "case", "dd/da8/namespacecase.html", [
-      [ "case_init", "d8/d36/interfacecase_1_1case__init.html", "d8/d36/interfacecase_1_1case__init" ],
       [ "case_t", "db/d7a/structcase_1_1case__t.html", "db/d7a/structcase_1_1case__t" ]
     ] ],
     [ "centrifugal_source_term", "d5/d7a/namespacecentrifugal__source__term.html", [
@@ -988,6 +987,9 @@ var annotated_dup =
       [ "opencl_subcol3", "d0/d1e/interfaceopencl__math_1_1opencl__subcol3.html", "d0/d1e/interfaceopencl__math_1_1opencl__subcol3" ],
       [ "opencl_vcross", "da/df7/interfaceopencl__math_1_1opencl__vcross.html", "da/df7/interfaceopencl__math_1_1opencl__vcross" ],
       [ "opencl_vdot3", "dc/dd1/interfaceopencl__math_1_1opencl__vdot3.html", "dc/dd1/interfaceopencl__math_1_1opencl__vdot3" ]
+    ] ],
+    [ "operators", "dd/d30/namespaceoperators.html", [
+      [ "rotate_cyc", "de/dad/interfaceoperators_1_1rotate__cyc.html", "de/dad/interfaceoperators_1_1rotate__cyc" ]
     ] ],
     [ "opr_device", "d3/d4d/namespaceopr__device.html", [
       [ "hip_cdtp", "db/d39/interfaceopr__device_1_1hip__cdtp.html", "db/d39/interfaceopr__device_1_1hip__cdtp" ],

@@ -13,6 +13,9 @@ var structcoefs_1_1coef__t =
     [ "b_d", "d0/dea/structcoefs_1_1coef__t.html#ad69b4e6f1ba2b7aed698abc59ad21f49", null ],
     [ "binv", "d0/dea/structcoefs_1_1coef__t.html#a8af22dc56100d30397d61e025c554227", null ],
     [ "binv_d", "d0/dea/structcoefs_1_1coef__t.html#a0ce35188faea36fbccf4b67b245bc916", null ],
+    [ "cyc_msk", "d0/dea/structcoefs_1_1coef__t.html#af08d14e4382fbcbee994132b63172f05", null ],
+    [ "cyc_msk_d", "d0/dea/structcoefs_1_1coef__t.html#acedc4a9d7ae8ee59ede67967a2299d1a", null ],
+    [ "cyclic", "d0/dea/structcoefs_1_1coef__t.html#aa72493f906a008714b058b9840e0f5cf", null ],
     [ "dof", "d0/dea/structcoefs_1_1coef__t.html#a4437c44290731f4c410214695279b374", null ],
     [ "drdx", "d0/dea/structcoefs_1_1coef__t.html#a8519e4381c906a6bd5a1878cd4496ae8", null ],
     [ "drdx_d", "d0/dea/structcoefs_1_1coef__t.html#abc4af135e68a50928c932a7a959dec1d", null ],
@@ -81,6 +84,10 @@ var structcoefs_1_1coef__t =
     [ "ny_d", "d0/dea/structcoefs_1_1coef__t.html#a5dbcf31b2bc08dacdabf0e3749b9f9bc", null ],
     [ "nz", "d0/dea/structcoefs_1_1coef__t.html#a0d1d2d976e66a6cf5a631796e04f138a", null ],
     [ "nz_d", "d0/dea/structcoefs_1_1coef__t.html#a3c4a578b69ee656851abccd2f247b204", null ],
+    [ "r11", "d0/dea/structcoefs_1_1coef__t.html#a9e57f07b7b4cbee1119f4f519b5eb3a5", null ],
+    [ "r11_d", "d0/dea/structcoefs_1_1coef__t.html#aa9e6e8b4d1636df66a643a9ccd53a27a", null ],
+    [ "r12", "d0/dea/structcoefs_1_1coef__t.html#af35496f38df9cb58b84ec8cfc2206709", null ],
+    [ "r12_d", "d0/dea/structcoefs_1_1coef__t.html#a42e9edd2d94311b0c8739318ae30fe8c", null ],
     [ "volume", "d0/dea/structcoefs_1_1coef__t.html#a9f5f4004e94a50339b9689b0e1c00d54", null ],
     [ "xh", "d0/dea/structcoefs_1_1coef__t.html#a4b30808cb8d579fa8b940bd3ee64c86a", null ]
 ];

@@ -1,5 +1,10 @@
 var structcase_1_1case__t =
 [
+    [ "case_init_from_file", "db/d7a/structcase_1_1case__t.html#abd078f9300419cf8519a283a1d90e563", null ],
+    [ "case_init_from_json", "db/d7a/structcase_1_1case__t.html#a160d1468afca5f1f0c1b2076f1d60361", null ],
+    [ "free", "db/d7a/structcase_1_1case__t.html#af13724cb76a0b6ee87ed447262d3bf27", null ],
+    [ "init", "db/d7a/structcase_1_1case__t.html#a79a12a60ab85399c0d5059d72aaf0e0a", null ],
+    [ "init", "db/d7a/structcase_1_1case__t.html#a9efe04610b3fe9076ec55f9791e62abe", null ],
     [ "chkp", "db/d7a/structcase_1_1case__t.html#aefb69448b3eca81af13bab44fcc88d6e", null ],
     [ "chkp_out", "db/d7a/structcase_1_1case__t.html#a5273e3247139bba6b3fd47350bb7e4d8", null ],
     [ "f_out", "db/d7a/structcase_1_1case__t.html#a165cdddf3f6276422b3e77902fc50957", null ],

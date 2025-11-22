@@ -167,7 +167,7 @@ $(document).ready(function(){initNavTree('dd/d8d/fluid__volflow_8f90_source.html
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span><span class="comment">! not be used for advertising or product endorsement purposes.</span></div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span><span class="comment">!</span></div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno"><a class="line" href="../../d6/d21/namespacefluid__volflow.html">   61</a></span><span class="keyword">module</span> <a class="code hl_namespace" href="../../d6/d21/namespacefluid__volflow.html">fluid_volflow</a></div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/d30/namespaceoperators.html">operators</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84">opgrad</a>, <a class="code hl_function" href="../../dd/d30/namespaceoperators.html#ae0083f86c7db2d6aaee644b4cdcc02f6">cdtp</a></div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/d30/namespaceoperators.html">operators</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84">opgrad</a>, <a class="code hl_function" href="../../dd/d30/namespaceoperators.html#ae0083f86c7db2d6aaee644b4cdcc02f6">cdtp</a>, <a class="code hl_interface" href="../../de/dad/interfaceoperators_1_1rotate__cyc.html">rotate_cyc</a></div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../df/d48/namespacenum__types.html">num_types</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a></div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d2/dd4/namespacemathops.html">mathops</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../d2/dd4/namespacemathops.html#a68d977f87ad1cddedd66c62cb1f749d1">opchsign</a></div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../db/d6d/namespacekrylov.html">krylov</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d0/d3b/structkrylov_1_1ksp__t.html">ksp_t</a>, <a class="code hl_struct" href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">ksp_monitor_t</a></div>
@@ -389,161 +389,164 @@ $(document).ready(function(){initNavTree('dd/d8d/fluid__volflow_8f90_source.html
 <div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span><span class="keywordflow">      end if</span></div>
 <div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>      c_xh%ifh2 = .true.</div>
 <div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span> </div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>      <span class="keyword">call </span>gs_xh%op(u_res, gs_op_add)</div>
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>      <span class="keyword">call </span>gs_xh%op(v_res, gs_op_add)</div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>      <span class="keyword">call </span>gs_xh%op(w_res, gs_op_add)</div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span> </div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>      <span class="keyword">call </span>bclst_vel_res%apply_vector(u_res%x, v_res%x, w_res%x, n)</div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>      <span class="keyword">call </span>pc_vel%update()</div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span> </div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>      ksp_results(2:4) = ksp_vel%solve_coupled(ax_vel, &amp;</div>
-<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>           u_vol, v_vol, w_vol, &amp;</div>
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>           u_res%x, v_res%x, w_res%x, &amp;</div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>           n, c_xh, &amp;</div>
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>           bclst_du, bclst_dv, bclst_dw, &amp;</div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>           gs_xh, vel_max_iter)</div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span> </div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>      <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>         <span class="keywordflow">if</span> (this%flow_dir .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>            this%base_flow = &amp;</div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>                 <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#acf1634c9bad3b3a0d6215c9a076629aa">device_glsc2</a>(u_vol%x_d, c_xh%B_d, n) / this%domain_length</div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span><span class="keywordflow">         end if</span></div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span> </div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>         <span class="keywordflow">if</span> (this%flow_dir .eq. 2) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>            this%base_flow = &amp;</div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>                 <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#acf1634c9bad3b3a0d6215c9a076629aa">device_glsc2</a>(v_vol%x_d, c_xh%B_d, n) / this%domain_length</div>
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span><span class="keywordflow">         end if</span></div>
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span> </div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>         <span class="keywordflow">if</span> (this%flow_dir .eq. 3) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>            this%base_flow = &amp;</div>
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>                 <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#acf1634c9bad3b3a0d6215c9a076629aa">device_glsc2</a>(w_vol%x_d, c_xh%B_d, n) / this%domain_length</div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span><span class="keywordflow">         end if</span></div>
-<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>      <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>         <span class="keywordflow">if</span> (this%flow_dir .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>            this%base_flow = <a class="code hl_function" href="../../dd/d47/namespacemath.html#a662e670921645de8b50d2cdbe93ab1ed">glsc2</a>(u_vol%x, c_xh%B, n) / this%domain_length</div>
-<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span><span class="keywordflow">         end if</span></div>
-<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span> </div>
-<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>         <span class="keywordflow">if</span> (this%flow_dir .eq. 2) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>            this%base_flow = <a class="code hl_function" href="../../dd/d47/namespacemath.html#a662e670921645de8b50d2cdbe93ab1ed">glsc2</a>(v_vol%x, c_xh%B, n) / this%domain_length</div>
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span><span class="keywordflow">         end if</span></div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span> </div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>         <span class="keywordflow">if</span> (this%flow_dir .eq. 3) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>            this%base_flow = <a class="code hl_function" href="../../dd/d47/namespacemath.html#a662e670921645de8b50d2cdbe93ab1ed">glsc2</a>(w_vol%x, c_xh%B, n) / this%domain_length</div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span><span class="keywordflow">         end if</span></div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span><span class="keywordflow">      end if</span></div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>    <span class="keyword">end </span>associate</div>
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span> </div>
-<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>    <span class="keyword">call </span>this%scratch%relinquish_field(temp_indices)</div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>      <span class="keyword">call </span><a class="code hl_interface" href="../../de/dad/interfaceoperators_1_1rotate__cyc.html">rotate_cyc</a>(u_res%x, v_res%x, w_res%x, 1, c_xh)</div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>      <span class="keyword">call </span>gs_xh%op(u_res, gs_op_add)</div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>      <span class="keyword">call </span>gs_xh%op(v_res, gs_op_add)</div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>      <span class="keyword">call </span>gs_xh%op(w_res, gs_op_add)</div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>      <span class="keyword">call </span><a class="code hl_interface" href="../../de/dad/interfaceoperators_1_1rotate__cyc.html">rotate_cyc</a>(u_res%x, v_res%x, w_res%x, 0, c_xh)</div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span> </div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>      <span class="keyword">call </span>bclst_vel_res%apply_vector(u_res%x, v_res%x, w_res%x, n)</div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>      <span class="keyword">call </span>pc_vel%update()</div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span> </div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>      ksp_results(2:4) = ksp_vel%solve_coupled(ax_vel, &amp;</div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>           u_vol, v_vol, w_vol, &amp;</div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>           u_res%x, v_res%x, w_res%x, &amp;</div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>           n, c_xh, &amp;</div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>           bclst_du, bclst_dv, bclst_dw, &amp;</div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>           gs_xh, vel_max_iter)</div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span> </div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>      <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>         <span class="keywordflow">if</span> (this%flow_dir .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>            this%base_flow = &amp;</div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>                 <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#acf1634c9bad3b3a0d6215c9a076629aa">device_glsc2</a>(u_vol%x_d, c_xh%B_d, n) / this%domain_length</div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span><span class="keywordflow">         end if</span></div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span> </div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>         <span class="keywordflow">if</span> (this%flow_dir .eq. 2) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>            this%base_flow = &amp;</div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>                 <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#acf1634c9bad3b3a0d6215c9a076629aa">device_glsc2</a>(v_vol%x_d, c_xh%B_d, n) / this%domain_length</div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span><span class="keywordflow">         end if</span></div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span> </div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>         <span class="keywordflow">if</span> (this%flow_dir .eq. 3) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>            this%base_flow = &amp;</div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>                 <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#acf1634c9bad3b3a0d6215c9a076629aa">device_glsc2</a>(w_vol%x_d, c_xh%B_d, n) / this%domain_length</div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span><span class="keywordflow">         end if</span></div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>      <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>         <span class="keywordflow">if</span> (this%flow_dir .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>            this%base_flow = <a class="code hl_function" href="../../dd/d47/namespacemath.html#a662e670921645de8b50d2cdbe93ab1ed">glsc2</a>(u_vol%x, c_xh%B, n) / this%domain_length</div>
+<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span><span class="keywordflow">         end if</span></div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span> </div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>         <span class="keywordflow">if</span> (this%flow_dir .eq. 2) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>            this%base_flow = <a class="code hl_function" href="../../dd/d47/namespacemath.html#a662e670921645de8b50d2cdbe93ab1ed">glsc2</a>(v_vol%x, c_xh%B, n) / this%domain_length</div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span><span class="keywordflow">         end if</span></div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span> </div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>         <span class="keywordflow">if</span> (this%flow_dir .eq. 3) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>            this%base_flow = <a class="code hl_function" href="../../dd/d47/namespacemath.html#a662e670921645de8b50d2cdbe93ab1ed">glsc2</a>(w_vol%x, c_xh%B, n) / this%domain_length</div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span><span class="keywordflow">         end if</span></div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span><span class="keywordflow">      end if</span></div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>    <span class="keyword">end </span>associate</div>
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span> </div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>    <span class="keyword">call </span>this%scratch%relinquish_field(temp_indices)</div>
 </div>
-<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/d21/namespacefluid__volflow.html#aa98b3664b63c5f327790b496a51c20f5">fluid_vol_flow_compute</a></div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span> </div>
-<div class="foldopen" id="foldopen00338" data-start="" data-end="">
-<div class="line"><a id="l00338" name="l00338"></a><span class="lineno"><a class="line" href="../../d6/d21/namespacefluid__volflow.html#a1bbdf1ec4715d1dd7c033adb45fa8f5f">  338</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d6/d21/namespacefluid__volflow.html#a1bbdf1ec4715d1dd7c033adb45fa8f5f">fluid_vol_flow</a>(this, u, v, w, p, u_res, v_res, w_res, p_res, &amp;</div>
-<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>       c_Xh, gs_Xh, ext_bdf, rho, mu, dt, &amp;</div>
-<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>       bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &amp;</div>
-<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>       Ax_vel, Ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)</div>
-<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span> </div>
-<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d5/db8/structfluid__volflow_1_1fluid__volflow__t.html">fluid_volflow_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: u, v, w, p</div>
-<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: u_res, v_res, w_res, p_res</div>
-<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(inout)</span> :: c_Xh</div>
-<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>    <span class="keywordtype">type</span>(gs_t), <span class="keywordtype">intent(inout)</span> :: gs_Xh</div>
-<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>    <span class="keywordtype">type</span>(time_scheme_controller_t), <span class="keywordtype">intent(in)</span> :: ext_bdf</div>
-<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: rho, dt</div>
-<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>    <span class="keywordtype">type</span>(field_t) :: mu</div>
-<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>    <span class="keywordtype">type</span>(bc_list_t), <span class="keywordtype">intent(inout)</span> :: bclst_dp, bclst_du, bclst_dv, bclst_dw</div>
-<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>    <span class="keywordtype">type</span>(bc_list_t), <span class="keywordtype">intent(inout)</span> :: bclst_vel_res</div>
-<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>    <span class="keywordtype">class</span>(ax_t), <span class="keywordtype">intent(in)</span> :: Ax_vel</div>
-<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>    <span class="keywordtype">class</span>(ax_t), <span class="keywordtype">intent(in)</span> :: Ax_prs</div>
-<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>    <span class="keywordtype">class</span>(ksp_t), <span class="keywordtype">intent(inout)</span> :: ksp_prs, ksp_vel</div>
-<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>    <span class="keywordtype">class</span>(pc_t), <span class="keywordtype">intent(inout)</span> :: pc_prs, pc_vel</div>
-<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: prs_max_iter, vel_max_iter</div>
-<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span><span class="keywordtype">    real</span>(kind=rp) :: ifcomp, flow_rate, xsec</div>
-<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span><span class="keywordtype">    real</span>(kind=rp) :: current_flow, delta_flow, scale</div>
-<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>    <span class="keywordtype">integer</span> :: n, ierr, i</div>
-<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span> </div>
-<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>    associate(u_vol =&gt; this%u_vol, v_vol =&gt; this%v_vol, &amp;</div>
-<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>         w_vol =&gt; this%w_vol, p_vol =&gt; this%p_vol)</div>
-<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span> </div>
-<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>      n = c_xh%dof%size()</div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/d21/namespacefluid__volflow.html#aa98b3664b63c5f327790b496a51c20f5">fluid_vol_flow_compute</a></div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span> </div>
+<div class="foldopen" id="foldopen00340" data-start="" data-end="">
+<div class="line"><a id="l00340" name="l00340"></a><span class="lineno"><a class="line" href="../../d6/d21/namespacefluid__volflow.html#a1bbdf1ec4715d1dd7c033adb45fa8f5f">  340</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d6/d21/namespacefluid__volflow.html#a1bbdf1ec4715d1dd7c033adb45fa8f5f">fluid_vol_flow</a>(this, u, v, w, p, u_res, v_res, w_res, p_res, &amp;</div>
+<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>       c_Xh, gs_Xh, ext_bdf, rho, mu, dt, &amp;</div>
+<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>       bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &amp;</div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>       Ax_vel, Ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)</div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span> </div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d5/db8/structfluid__volflow_1_1fluid__volflow__t.html">fluid_volflow_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: u, v, w, p</div>
+<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: u_res, v_res, w_res, p_res</div>
+<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(inout)</span> :: c_Xh</div>
+<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>    <span class="keywordtype">type</span>(gs_t), <span class="keywordtype">intent(inout)</span> :: gs_Xh</div>
+<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>    <span class="keywordtype">type</span>(time_scheme_controller_t), <span class="keywordtype">intent(in)</span> :: ext_bdf</div>
+<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: rho, dt</div>
+<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>    <span class="keywordtype">type</span>(field_t) :: mu</div>
+<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>    <span class="keywordtype">type</span>(bc_list_t), <span class="keywordtype">intent(inout)</span> :: bclst_dp, bclst_du, bclst_dv, bclst_dw</div>
+<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>    <span class="keywordtype">type</span>(bc_list_t), <span class="keywordtype">intent(inout)</span> :: bclst_vel_res</div>
+<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>    <span class="keywordtype">class</span>(ax_t), <span class="keywordtype">intent(in)</span> :: Ax_vel</div>
+<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>    <span class="keywordtype">class</span>(ax_t), <span class="keywordtype">intent(in)</span> :: Ax_prs</div>
+<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>    <span class="keywordtype">class</span>(ksp_t), <span class="keywordtype">intent(inout)</span> :: ksp_prs, ksp_vel</div>
+<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>    <span class="keywordtype">class</span>(pc_t), <span class="keywordtype">intent(inout)</span> :: pc_prs, pc_vel</div>
+<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: prs_max_iter, vel_max_iter</div>
+<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span><span class="keywordtype">    real</span>(kind=rp) :: ifcomp, flow_rate, xsec</div>
+<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span><span class="keywordtype">    real</span>(kind=rp) :: current_flow, delta_flow, scale</div>
+<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>    <span class="keywordtype">integer</span> :: n, ierr, i</div>
+<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span> </div>
+<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>    associate(u_vol =&gt; this%u_vol, v_vol =&gt; this%v_vol, &amp;</div>
+<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>         w_vol =&gt; this%w_vol, p_vol =&gt; this%p_vol)</div>
 <div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span> </div>
-<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>      <span class="comment">! If either dt or the backwards difference coefficient change,</span></div>
-<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span>      <span class="comment">! then recompute base flow solution corresponding to unit forcing:</span></div>
-<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span> </div>
-<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span>      ifcomp = 0.0_rp</div>
+<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>      n = c_xh%dof%size()</div>
+<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span> </div>
+<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span>      <span class="comment">! If either dt or the backwards difference coefficient change,</span></div>
+<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span>      <span class="comment">! then recompute base flow solution corresponding to unit forcing:</span></div>
 <div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span> </div>
-<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>      <span class="keywordflow">if</span> ((.not. abscmp(dt, this%dtlag)) .or. &amp;</div>
-<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span>          (.not. abscmp(ext_bdf%diffusion_coeffs(1), this%bdlag))) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>         ifcomp = 1.0_rp</div>
-<div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span><span class="keywordflow">      end if</span></div>
-<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span> </div>
-<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span>      this%dtlag = dt</div>
-<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span>      this%bdlag = ext_bdf%diffusion_coeffs(1)</div>
-<div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span> </div>
-<div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span>      <span class="keyword">call </span>mpi_allreduce(mpi_in_place, ifcomp, 1, &amp;</div>
-<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span>           mpi_real_precision, mpi_sum, neko_comm, ierr)</div>
-<div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span> </div>
-<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span>      <span class="keywordflow">if</span> (ifcomp .gt. 0d0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>         <span class="keyword">call </span>this%compute(u_res, v_res, w_res, p_res, &amp;</div>
-<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>              ext_bdf, gs_xh, c_xh, rho, mu, ext_bdf%diffusion_coeffs(1), dt, &amp;</div>
-<div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span>              bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &amp;</div>
-<div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>              ax_vel, ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, &amp;</div>
-<div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span>              vel_max_iter)</div>
-<div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span><span class="keywordflow">      end if</span></div>
-<div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span> </div>
-<div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span>      <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span>         <span class="keywordflow">if</span> (this%flow_dir .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span>            current_flow = &amp;</div>
-<div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span>                 device_glsc2(u%x_d, c_xh%B_d, n) / this%domain_length <span class="comment">! for X</span></div>
-<div class="line"><a id="l00395" name="l00395"></a><span class="lineno">  395</span>         <span class="keywordflow">else</span> <span class="keywordflow">if</span> (this%flow_dir .eq. 2) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00396" name="l00396"></a><span class="lineno">  396</span>            current_flow = &amp;</div>
-<div class="line"><a id="l00397" name="l00397"></a><span class="lineno">  397</span>                 device_glsc2(v%x_d, c_xh%B_d, n) / this%domain_length <span class="comment">! for Y</span></div>
-<div class="line"><a id="l00398" name="l00398"></a><span class="lineno">  398</span>         <span class="keywordflow">else</span> <span class="keywordflow">if</span> (this%flow_dir .eq. 3) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00399" name="l00399"></a><span class="lineno">  399</span>            current_flow = &amp;</div>
-<div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span>                 device_glsc2(w%x_d, c_xh%B_d, n) / this%domain_length <span class="comment">! for Z</span></div>
-<div class="line"><a id="l00401" name="l00401"></a><span class="lineno">  401</span><span class="keywordflow">         end if</span></div>
-<div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span>      <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span>         <span class="keywordflow">if</span> (this%flow_dir .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span>            current_flow = glsc2(u%x, c_xh%B, n) / this%domain_length <span class="comment">! for X</span></div>
-<div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span>         <span class="keywordflow">else</span> <span class="keywordflow">if</span> (this%flow_dir .eq. 2) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span>            current_flow = glsc2(v%x, c_xh%B, n) / this%domain_length <span class="comment">! for Y</span></div>
-<div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span>         <span class="keywordflow">else</span> <span class="keywordflow">if</span> (this%flow_dir .eq. 3) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span>            current_flow = glsc2(w%x, c_xh%B, n) / this%domain_length <span class="comment">! for Z</span></div>
-<div class="line"><a id="l00409" name="l00409"></a><span class="lineno">  409</span><span class="keywordflow">         end if</span></div>
-<div class="line"><a id="l00410" name="l00410"></a><span class="lineno">  410</span><span class="keywordflow">      end if</span></div>
-<div class="line"><a id="l00411" name="l00411"></a><span class="lineno">  411</span> </div>
-<div class="line"><a id="l00412" name="l00412"></a><span class="lineno">  412</span>      <span class="keywordflow">if</span> (this%avflow) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00413" name="l00413"></a><span class="lineno">  413</span>         xsec = c_xh%volume / this%domain_length</div>
-<div class="line"><a id="l00414" name="l00414"></a><span class="lineno">  414</span>         flow_rate = this%flow_rate*xsec</div>
-<div class="line"><a id="l00415" name="l00415"></a><span class="lineno">  415</span>      <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00416" name="l00416"></a><span class="lineno">  416</span>         flow_rate = this%flow_rate</div>
-<div class="line"><a id="l00417" name="l00417"></a><span class="lineno">  417</span><span class="keywordflow">      end if</span></div>
-<div class="line"><a id="l00418" name="l00418"></a><span class="lineno">  418</span> </div>
-<div class="line"><a id="l00419" name="l00419"></a><span class="lineno">  419</span>      delta_flow = flow_rate - current_flow</div>
-<div class="line"><a id="l00420" name="l00420"></a><span class="lineno">  420</span>      scale = delta_flow / this%base_flow</div>
-<div class="line"><a id="l00421" name="l00421"></a><span class="lineno">  421</span> </div>
-<div class="line"><a id="l00422" name="l00422"></a><span class="lineno">  422</span>      <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00423" name="l00423"></a><span class="lineno">  423</span>         <span class="keyword">call </span>device_add2s2(u%x_d, u_vol%x_d, scale, n)</div>
-<div class="line"><a id="l00424" name="l00424"></a><span class="lineno">  424</span>         <span class="keyword">call </span>device_add2s2(v%x_d, v_vol%x_d, scale, n)</div>
-<div class="line"><a id="l00425" name="l00425"></a><span class="lineno">  425</span>         <span class="keyword">call </span>device_add2s2(w%x_d, w_vol%x_d, scale, n)</div>
-<div class="line"><a id="l00426" name="l00426"></a><span class="lineno">  426</span>         <span class="keyword">call </span>device_add2s2(p%x_d, p_vol%x_d, scale, n)</div>
-<div class="line"><a id="l00427" name="l00427"></a><span class="lineno">  427</span>      <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00428" name="l00428"></a><span class="lineno">  428</span>         <span class="keywordflow">do</span> concurrent(i = 1: n)</div>
-<div class="line"><a id="l00429" name="l00429"></a><span class="lineno">  429</span>            u%x(i,1,1,1) = u%x(i,1,1,1) + scale * u_vol%x(i,1,1,1)</div>
-<div class="line"><a id="l00430" name="l00430"></a><span class="lineno">  430</span>            v%x(i,1,1,1) = v%x(i,1,1,1) + scale * v_vol%x(i,1,1,1)</div>
-<div class="line"><a id="l00431" name="l00431"></a><span class="lineno">  431</span>            w%x(i,1,1,1) = w%x(i,1,1,1) + scale * w_vol%x(i,1,1,1)</div>
-<div class="line"><a id="l00432" name="l00432"></a><span class="lineno">  432</span>            p%x(i,1,1,1) = p%x(i,1,1,1) + scale * p_vol%x(i,1,1,1)</div>
-<div class="line"><a id="l00433" name="l00433"></a><span class="lineno">  433</span><span class="keywordflow">         end do</span></div>
-<div class="line"><a id="l00434" name="l00434"></a><span class="lineno">  434</span><span class="keywordflow">      end if</span></div>
-<div class="line"><a id="l00435" name="l00435"></a><span class="lineno">  435</span>    <span class="keyword">end </span>associate</div>
-<div class="line"><a id="l00436" name="l00436"></a><span class="lineno">  436</span> </div>
-</div>
-<div class="line"><a id="l00437" name="l00437"></a><span class="lineno">  437</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/d21/namespacefluid__volflow.html#a1bbdf1ec4715d1dd7c033adb45fa8f5f">fluid_vol_flow</a></div>
+<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>      ifcomp = 0.0_rp</div>
+<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span> </div>
+<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>      <span class="keywordflow">if</span> ((.not. abscmp(dt, this%dtlag)) .or. &amp;</div>
+<div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>          (.not. abscmp(ext_bdf%diffusion_coeffs(1), this%bdlag))) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span>         ifcomp = 1.0_rp</div>
+<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span><span class="keywordflow">      end if</span></div>
+<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span> </div>
+<div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span>      this%dtlag = dt</div>
+<div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span>      this%bdlag = ext_bdf%diffusion_coeffs(1)</div>
+<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span> </div>
+<div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span>      <span class="keyword">call </span>mpi_allreduce(mpi_in_place, ifcomp, 1, &amp;</div>
+<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span>           mpi_real_precision, mpi_sum, neko_comm, ierr)</div>
+<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span> </div>
+<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>      <span class="keywordflow">if</span> (ifcomp .gt. 0d0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span>         <span class="keyword">call </span>this%compute(u_res, v_res, w_res, p_res, &amp;</div>
+<div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>              ext_bdf, gs_xh, c_xh, rho, mu, ext_bdf%diffusion_coeffs(1), dt, &amp;</div>
+<div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span>              bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &amp;</div>
+<div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span>              ax_vel, ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, &amp;</div>
+<div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span>              vel_max_iter)</div>
+<div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span><span class="keywordflow">      end if</span></div>
+<div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span> </div>
+<div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span>      <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span>         <span class="keywordflow">if</span> (this%flow_dir .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00395" name="l00395"></a><span class="lineno">  395</span>            current_flow = &amp;</div>
+<div class="line"><a id="l00396" name="l00396"></a><span class="lineno">  396</span>                 device_glsc2(u%x_d, c_xh%B_d, n) / this%domain_length <span class="comment">! for X</span></div>
+<div class="line"><a id="l00397" name="l00397"></a><span class="lineno">  397</span>         <span class="keywordflow">else</span> <span class="keywordflow">if</span> (this%flow_dir .eq. 2) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00398" name="l00398"></a><span class="lineno">  398</span>            current_flow = &amp;</div>
+<div class="line"><a id="l00399" name="l00399"></a><span class="lineno">  399</span>                 device_glsc2(v%x_d, c_xh%B_d, n) / this%domain_length <span class="comment">! for Y</span></div>
+<div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span>         <span class="keywordflow">else</span> <span class="keywordflow">if</span> (this%flow_dir .eq. 3) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00401" name="l00401"></a><span class="lineno">  401</span>            current_flow = &amp;</div>
+<div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span>                 device_glsc2(w%x_d, c_xh%B_d, n) / this%domain_length <span class="comment">! for Z</span></div>
+<div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span><span class="keywordflow">         end if</span></div>
+<div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span>      <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span>         <span class="keywordflow">if</span> (this%flow_dir .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span>            current_flow = glsc2(u%x, c_xh%B, n) / this%domain_length <span class="comment">! for X</span></div>
+<div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span>         <span class="keywordflow">else</span> <span class="keywordflow">if</span> (this%flow_dir .eq. 2) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span>            current_flow = glsc2(v%x, c_xh%B, n) / this%domain_length <span class="comment">! for Y</span></div>
+<div class="line"><a id="l00409" name="l00409"></a><span class="lineno">  409</span>         <span class="keywordflow">else</span> <span class="keywordflow">if</span> (this%flow_dir .eq. 3) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00410" name="l00410"></a><span class="lineno">  410</span>            current_flow = glsc2(w%x, c_xh%B, n) / this%domain_length <span class="comment">! for Z</span></div>
+<div class="line"><a id="l00411" name="l00411"></a><span class="lineno">  411</span><span class="keywordflow">         end if</span></div>
+<div class="line"><a id="l00412" name="l00412"></a><span class="lineno">  412</span><span class="keywordflow">      end if</span></div>
+<div class="line"><a id="l00413" name="l00413"></a><span class="lineno">  413</span> </div>
+<div class="line"><a id="l00414" name="l00414"></a><span class="lineno">  414</span>      <span class="keywordflow">if</span> (this%avflow) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00415" name="l00415"></a><span class="lineno">  415</span>         xsec = c_xh%volume / this%domain_length</div>
+<div class="line"><a id="l00416" name="l00416"></a><span class="lineno">  416</span>         flow_rate = this%flow_rate*xsec</div>
+<div class="line"><a id="l00417" name="l00417"></a><span class="lineno">  417</span>      <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00418" name="l00418"></a><span class="lineno">  418</span>         flow_rate = this%flow_rate</div>
+<div class="line"><a id="l00419" name="l00419"></a><span class="lineno">  419</span><span class="keywordflow">      end if</span></div>
+<div class="line"><a id="l00420" name="l00420"></a><span class="lineno">  420</span> </div>
+<div class="line"><a id="l00421" name="l00421"></a><span class="lineno">  421</span>      delta_flow = flow_rate - current_flow</div>
+<div class="line"><a id="l00422" name="l00422"></a><span class="lineno">  422</span>      scale = delta_flow / this%base_flow</div>
+<div class="line"><a id="l00423" name="l00423"></a><span class="lineno">  423</span> </div>
+<div class="line"><a id="l00424" name="l00424"></a><span class="lineno">  424</span>      <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00425" name="l00425"></a><span class="lineno">  425</span>         <span class="keyword">call </span>device_add2s2(u%x_d, u_vol%x_d, scale, n)</div>
+<div class="line"><a id="l00426" name="l00426"></a><span class="lineno">  426</span>         <span class="keyword">call </span>device_add2s2(v%x_d, v_vol%x_d, scale, n)</div>
+<div class="line"><a id="l00427" name="l00427"></a><span class="lineno">  427</span>         <span class="keyword">call </span>device_add2s2(w%x_d, w_vol%x_d, scale, n)</div>
+<div class="line"><a id="l00428" name="l00428"></a><span class="lineno">  428</span>         <span class="keyword">call </span>device_add2s2(p%x_d, p_vol%x_d, scale, n)</div>
+<div class="line"><a id="l00429" name="l00429"></a><span class="lineno">  429</span>      <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00430" name="l00430"></a><span class="lineno">  430</span>         <span class="keywordflow">do</span> concurrent(i = 1: n)</div>
+<div class="line"><a id="l00431" name="l00431"></a><span class="lineno">  431</span>            u%x(i,1,1,1) = u%x(i,1,1,1) + scale * u_vol%x(i,1,1,1)</div>
+<div class="line"><a id="l00432" name="l00432"></a><span class="lineno">  432</span>            v%x(i,1,1,1) = v%x(i,1,1,1) + scale * v_vol%x(i,1,1,1)</div>
+<div class="line"><a id="l00433" name="l00433"></a><span class="lineno">  433</span>            w%x(i,1,1,1) = w%x(i,1,1,1) + scale * w_vol%x(i,1,1,1)</div>
+<div class="line"><a id="l00434" name="l00434"></a><span class="lineno">  434</span>            p%x(i,1,1,1) = p%x(i,1,1,1) + scale * p_vol%x(i,1,1,1)</div>
+<div class="line"><a id="l00435" name="l00435"></a><span class="lineno">  435</span><span class="keywordflow">         end do</span></div>
+<div class="line"><a id="l00436" name="l00436"></a><span class="lineno">  436</span><span class="keywordflow">      end if</span></div>
+<div class="line"><a id="l00437" name="l00437"></a><span class="lineno">  437</span>    <span class="keyword">end </span>associate</div>
 <div class="line"><a id="l00438" name="l00438"></a><span class="lineno">  438</span> </div>
-<div class="line"><a id="l00439" name="l00439"></a><span class="lineno">  439</span> </div>
-<div class="line"><a id="l00440" name="l00440"></a><span class="lineno">  440</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d6/d21/namespacefluid__volflow.html">fluid_volflow</a></div>
+</div>
+<div class="line"><a id="l00439" name="l00439"></a><span class="lineno">  439</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/d21/namespacefluid__volflow.html#a1bbdf1ec4715d1dd7c033adb45fa8f5f">fluid_vol_flow</a></div>
+<div class="line"><a id="l00440" name="l00440"></a><span class="lineno">  440</span> </div>
+<div class="line"><a id="l00441" name="l00441"></a><span class="lineno">  441</span> </div>
+<div class="line"><a id="l00442" name="l00442"></a><span class="lineno">  442</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d6/d21/namespacefluid__volflow.html">fluid_volflow</a></div>
 <div class="ttc" id="ainterfacejson__utils_1_1json__get_html"><div class="ttname"><a href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_utils::json_get</a></div><div class="ttdoc">Retrieves a parameter by name or throws an error.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00048">json_utils.f90:48</a></div></div>
 <div class="ttc" id="ainterfacemath_1_1abscmp_html"><div class="ttname"><a href="../../de/d34/interfacemath_1_1abscmp.html">math::abscmp</a></div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00077">math.f90:77</a></div></div>
+<div class="ttc" id="ainterfaceoperators_1_1rotate__cyc_html"><div class="ttname"><a href="../../de/dad/interfaceoperators_1_1rotate__cyc.html">operators::rotate_cyc</a></div><div class="ttdef"><b>Definition</b> <a href="../../dd/dbf/operators_8f90_source.html#l00074">operators.f90:74</a></div></div>
 <div class="ttc" id="anamespaceax__product_html"><div class="ttname"><a href="../../d2/dd1/namespaceax__product.html">ax_product</a></div><div class="ttdoc">Defines a Matrix-vector product.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/dd6/ax_8f90_source.html#l00034">ax.f90:34</a></div></div>
 <div class="ttc" id="anamespacebc__list_html"><div class="ttname"><a href="../../d1/dd7/namespacebc__list.html">bc_list</a></div><div class="ttdoc">Defines a list of bc_t.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d1c/bc__list_8f90_source.html#l00034">bc_list.f90:34</a></div></div>
 <div class="ttc" id="anamespacecoefs_html"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html">coefs</a></div><div class="ttdoc">Coefficients.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00034">coef.f90:34</a></div></div>
@@ -562,7 +565,7 @@ $(document).ready(function(){initNavTree('dd/d8d/fluid__volflow_8f90_source.html
 <div class="ttc" id="anamespacedofmap_html"><div class="ttname"><a href="../../dd/dd2/namespacedofmap.html">dofmap</a></div><div class="ttdoc">Defines a mapping of the degrees of freedom.</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/dofmap_8f90_source.html#l00035">dofmap.f90:35</a></div></div>
 <div class="ttc" id="anamespacefield_html"><div class="ttname"><a href="../../dc/da9/namespacefield.html">field</a></div><div class="ttdoc">Defines a field.</div><div class="ttdef"><b>Definition</b> <a href="../../d3/dc1/field_8f90_source.html#l00034">field.f90:34</a></div></div>
 <div class="ttc" id="anamespacefluid__volflow_html"><div class="ttname"><a href="../../d6/d21/namespacefluid__volflow.html">fluid_volflow</a></div><div class="ttdef"><b>Definition</b> <a href="../../dd/d8d/fluid__volflow_8f90_source.html#l00061">fluid_volflow.f90:61</a></div></div>
-<div class="ttc" id="anamespacefluid__volflow_html_a1bbdf1ec4715d1dd7c033adb45fa8f5f"><div class="ttname"><a href="../../d6/d21/namespacefluid__volflow.html#a1bbdf1ec4715d1dd7c033adb45fa8f5f">fluid_volflow::fluid_vol_flow</a></div><div class="ttdeci">subroutine fluid_vol_flow(this, u, v, w, p, u_res, v_res, w_res, p_res, c_xh, gs_xh, ext_bdf, rho, mu, dt, bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, ax_vel, ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)</div><div class="ttdoc">Adjust flow volume.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d8d/fluid__volflow_8f90_source.html#l00338">fluid_volflow.f90:342</a></div></div>
+<div class="ttc" id="anamespacefluid__volflow_html_a1bbdf1ec4715d1dd7c033adb45fa8f5f"><div class="ttname"><a href="../../d6/d21/namespacefluid__volflow.html#a1bbdf1ec4715d1dd7c033adb45fa8f5f">fluid_volflow::fluid_vol_flow</a></div><div class="ttdeci">subroutine fluid_vol_flow(this, u, v, w, p, u_res, v_res, w_res, p_res, c_xh, gs_xh, ext_bdf, rho, mu, dt, bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, ax_vel, ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)</div><div class="ttdoc">Adjust flow volume.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d8d/fluid__volflow_8f90_source.html#l00340">fluid_volflow.f90:344</a></div></div>
 <div class="ttc" id="anamespacefluid__volflow_html_a82204fe3919f649c6486a790363a0897"><div class="ttname"><a href="../../d6/d21/namespacefluid__volflow.html#a82204fe3919f649c6486a790363a0897">fluid_volflow::fluid_vol_flow_init</a></div><div class="ttdeci">subroutine fluid_vol_flow_init(this, dm_xh, params)</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d8d/fluid__volflow_8f90_source.html#l00107">fluid_volflow.f90:108</a></div></div>
 <div class="ttc" id="anamespacefluid__volflow_html_aa98b3664b63c5f327790b496a51c20f5"><div class="ttname"><a href="../../d6/d21/namespacefluid__volflow.html#aa98b3664b63c5f327790b496a51c20f5">fluid_volflow::fluid_vol_flow_compute</a></div><div class="ttdeci">subroutine fluid_vol_flow_compute(this, u_res, v_res, w_res, p_res, ext_bdf, gs_xh, c_xh, rho, mu, bd, dt, bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, ax_vel, ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)</div><div class="ttdoc">Compute flow adjustment.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d8d/fluid__volflow_8f90_source.html#l00153">fluid_volflow.f90:157</a></div></div>
 <div class="ttc" id="anamespacefluid__volflow_html_aad14bf357c26bb276fe765d1a0b75f29"><div class="ttname"><a href="../../d6/d21/namespacefluid__volflow.html#aad14bf357c26bb276fe765d1a0b75f29">fluid_volflow::fluid_vol_flow_free</a></div><div class="ttdeci">subroutine fluid_vol_flow_free(this)</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d8d/fluid__volflow_8f90_source.html#l00138">fluid_volflow.f90:139</a></div></div>
@@ -582,14 +585,14 @@ $(document).ready(function(){initNavTree('dd/d8d/fluid__volflow_8f90_source.html
 <div class="ttc" id="anamespacenum__types_html"><div class="ttname"><a href="../../df/d48/namespacenum__types.html">num_types</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00001">num_types.f90:1</a></div></div>
 <div class="ttc" id="anamespacenum__types_html_ae2be59b6de7b874ce5c12fd87f9e8b5e"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">num_types::rp</a></div><div class="ttdeci">integer, parameter, public rp</div><div class="ttdoc">Global precision used in computations.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00012">num_types.f90:12</a></div></div>
 <div class="ttc" id="anamespaceoperators_html"><div class="ttname"><a href="../../dd/d30/namespaceoperators.html">operators</a></div><div class="ttdoc">Operators.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/dbf/operators_8f90_source.html#l00034">operators.f90:34</a></div></div>
-<div class="ttc" id="anamespaceoperators_html_a3bb0b2a911e0cd08e32a255510d65c84"><div class="ttname"><a href="../../dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84">operators::opgrad</a></div><div class="ttdeci">subroutine, public opgrad(ux, uy, uz, u, coef, es, ee)</div><div class="ttdoc">Compute the weak gradient of a scalar field, i.e. the gradient multiplied by the mass matrix.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/dbf/operators_8f90_source.html#l00176">operators.f90:177</a></div></div>
-<div class="ttc" id="anamespaceoperators_html_ae0083f86c7db2d6aaee644b4cdcc02f6"><div class="ttname"><a href="../../dd/d30/namespaceoperators.html#ae0083f86c7db2d6aaee644b4cdcc02f6">operators::cdtp</a></div><div class="ttdeci">subroutine, public cdtp(dtx, x, dr, ds, dt, coef, es, ee)</div><div class="ttdoc">Apply D^T to a scalar field, where D is the derivative matrix.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/dbf/operators_8f90_source.html#l00241">operators.f90:242</a></div></div>
+<div class="ttc" id="anamespaceoperators_html_a3bb0b2a911e0cd08e32a255510d65c84"><div class="ttname"><a href="../../dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84">operators::opgrad</a></div><div class="ttdeci">subroutine, public opgrad(ux, uy, uz, u, coef, es, ee)</div><div class="ttdoc">Compute the weak gradient of a scalar field, i.e. the gradient multiplied by the mass matrix.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/dbf/operators_8f90_source.html#l00183">operators.f90:184</a></div></div>
+<div class="ttc" id="anamespaceoperators_html_ae0083f86c7db2d6aaee644b4cdcc02f6"><div class="ttname"><a href="../../dd/d30/namespaceoperators.html#ae0083f86c7db2d6aaee644b4cdcc02f6">operators::cdtp</a></div><div class="ttdeci">subroutine, public cdtp(dtx, x, dr, ds, dt, coef, es, ee)</div><div class="ttdoc">Apply D^T to a scalar field, where D is the derivative matrix.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/dbf/operators_8f90_source.html#l00248">operators.f90:249</a></div></div>
 <div class="ttc" id="anamespaceprecon_html"><div class="ttname"><a href="../../d0/dbb/namespaceprecon.html">precon</a></div><div class="ttdoc">Krylov preconditioner.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/de5/precon_8f90_source.html#l00034">precon.f90:34</a></div></div>
 <div class="ttc" id="anamespacescratch__registry_html"><div class="ttname"><a href="../../d7/dda/namespacescratch__registry.html">scratch_registry</a></div><div class="ttdoc">Defines a registry for storing and requesting temporary fields This can be used when you have a funct...</div><div class="ttdef"><b>Definition</b> <a href="../../dd/da7/scratch__registry_8f90_source.html#l00037">scratch_registry.f90:37</a></div></div>
 <div class="ttc" id="anamespacetime__scheme__controller_html"><div class="ttname"><a href="../../dc/dfb/namespacetime__scheme__controller.html">time_scheme_controller</a></div><div class="ttdoc">Compound scheme for the advection and diffusion operators in a transport equation.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d67/time__scheme__controller_8f90_source.html#l00035">time_scheme_controller.f90:35</a></div></div>
 <div class="ttc" id="astructax__product_1_1ax__t_html"><div class="ttname"><a href="../../d3/d2c/structax__product_1_1ax__t.html">ax_product::ax_t</a></div><div class="ttdoc">Base type for a matrix-vector product providing .</div><div class="ttdef"><b>Definition</b> <a href="../../dc/dd6/ax_8f90_source.html#l00043">ax.f90:43</a></div></div>
 <div class="ttc" id="astructbc__list_1_1bc__list__t_html"><div class="ttname"><a href="../../df/da4/structbc__list_1_1bc__list__t.html">bc_list::bc_list_t</a></div><div class="ttdoc">A list of allocatable `bc_t`. Follows the standard interface of lists.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d1c/bc__list_8f90_source.html#l00048">bc_list.f90:48</a></div></div>
-<div class="ttc" id="astructcoefs_1_1coef__t_html"><div class="ttname"><a href="../../d0/dea/structcoefs_1_1coef__t.html">coefs::coef_t</a></div><div class="ttdoc">Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,...</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00055">coef.f90:55</a></div></div>
+<div class="ttc" id="astructcoefs_1_1coef__t_html"><div class="ttname"><a href="../../d0/dea/structcoefs_1_1coef__t.html">coefs::coef_t</a></div><div class="ttdoc">Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,...</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00056">coef.f90:56</a></div></div>
 <div class="ttc" id="astructdofmap_1_1dofmap__t_html"><div class="ttname"><a href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap::dofmap_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/dofmap_8f90_source.html#l00053">dofmap.f90:53</a></div></div>
 <div class="ttc" id="astructfield_1_1field__t_html"><div class="ttname"><a href="../../d3/d5f/structfield_1_1field__t.html">field::field_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/dc1/field_8f90_source.html#l00047">field.f90:47</a></div></div>
 <div class="ttc" id="astructfluid__volflow_1_1fluid__volflow__t_html"><div class="ttname"><a href="../../d5/db8/structfluid__volflow_1_1fluid__volflow__t.html">fluid_volflow::fluid_volflow_t</a></div><div class="ttdoc">Defines volume flow.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d8d/fluid__volflow_8f90_source.html#l00088">fluid_volflow.f90:88</a></div></div>
@@ -605,7 +608,7 @@ $(document).ready(function(){initNavTree('dd/d8d/fluid__volflow_8f90_source.html
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_48eb729a40134e424c89304faa5c21a9.html">fluid</a></li><li class="navelem"><a class="el" href="../../dd/d8d/fluid__volflow_8f90.html">fluid_volflow.f90</a></li>
-    <li class="footer">Generated on Fri Nov 21 2025 03:46:56 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Nov 22 2025 03:42:55 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

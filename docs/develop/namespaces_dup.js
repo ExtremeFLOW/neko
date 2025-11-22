@@ -249,7 +249,9 @@ var namespaces_dup =
     [ "flow_ic", "d2/d13/namespaceflow__ic.html", "d2/d13/namespaceflow__ic" ],
     [ "flow_profile", "d4/d1e/namespaceflow__profile.html", "d4/d1e/namespaceflow__profile" ],
     [ "fluid_aux", "da/d33/namespacefluid__aux.html", [
-      [ "fluid_step_info", "da/d33/namespacefluid__aux.html#ac2bf7195e66d9a2252f50e28b8774c1e", null ]
+      [ "fluid_step_info", "da/d33/namespacefluid__aux.html#aad579682e929ac47e335858dc93c076d", null ],
+      [ "fluid_step_info_reset_stabilized", "da/d33/namespacefluid__aux.html#a652702d61a318d842f245a184d9b1cba", null ],
+      [ "stabilized", "da/d33/namespacefluid__aux.html#af56599981e3da44761e7b7484a81a301", null ]
     ] ],
     [ "fluid_output", "d6/d60/namespacefluid__output.html", "d6/d60/namespacefluid__output" ],
     [ "fluid_plan1", "d6/d78/namespacefluid__plan1.html", "d6/d78/namespacefluid__plan1" ],
@@ -506,27 +508,13 @@ var namespaces_dup =
       [ "tensor_program", "d0/dc0/namespaceopencl__prgm__lib.html#a5b1915a62de08f373ab819d92848a61e", null ],
       [ "zero_dirichlet_program", "d0/dc0/namespaceopencl__prgm__lib.html#a8c5cd0659625b9fb05b778b3246affeb", null ]
     ] ],
-    [ "operators", "dd/d30/namespaceoperators.html", [
-      [ "cdtp", "dd/d30/namespaceoperators.html#ae0083f86c7db2d6aaee644b4cdcc02f6", null ],
-      [ "cfl", "dd/d30/namespaceoperators.html#a2eb28e03490e7d78c86186d50f752da1", null ],
-      [ "cfl_compressible", "dd/d30/namespaceoperators.html#a6bb5297cbf4fdd8e3d7c3dde97af76a6", null ],
-      [ "conv1", "dd/d30/namespaceoperators.html#a72021f4e313d1dac8010fbab0b3f19d7", null ],
-      [ "convect_scalar", "dd/d30/namespaceoperators.html#a5585d01757c6ecea4927cd5e1139836d", null ],
-      [ "curl", "dd/d30/namespaceoperators.html#aa6e3c203c0b2b6ff45fa2d79ce7c3045", null ],
-      [ "div", "dd/d30/namespaceoperators.html#a6b1d2baa65e8e676f66e5cda841d3681", null ],
-      [ "dudxyz", "dd/d30/namespaceoperators.html#ae52fad680e572c55e87090cfa06c72eb", null ],
-      [ "grad", "dd/d30/namespaceoperators.html#a91f918cda1627fb384dd63393c822991", null ],
-      [ "lambda2op", "dd/d30/namespaceoperators.html#ab94fb6f7ef7c7147e433b1c0c3b67510", null ],
-      [ "opgrad", "dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84", null ],
-      [ "ortho", "dd/d30/namespaceoperators.html#a1691d2dad396026d7c10196f76ebe574", null ],
-      [ "runge_kutta", "dd/d30/namespaceoperators.html#af34806c82391877b1cfcc36bddaf16da", null ],
-      [ "set_convect_rst", "dd/d30/namespaceoperators.html#a0b1759aebe89495e5ee40574e50e3e21", null ],
-      [ "strain_rate", "dd/d30/namespaceoperators.html#ab2babd24679efca34a9310107b346969", null ]
-    ] ],
+    [ "operators", "dd/d30/namespaceoperators.html", "dd/d30/namespaceoperators" ],
     [ "opr_cpu", "d0/d94/namespaceopr__cpu.html", [
       [ "opr_cpu_cfl", "d0/d94/namespaceopr__cpu.html#a4a465514ef3ae0473678d23d8792f799", null ],
       [ "opr_cpu_curl", "d0/d94/namespaceopr__cpu.html#a102777fce325ee827cf3ddbbe20e1eea", null ],
-      [ "opr_cpu_lambda2", "d0/d94/namespaceopr__cpu.html#a9ddb521f33adfff1eee02fb4fc9255f8", null ]
+      [ "opr_cpu_lambda2", "d0/d94/namespaceopr__cpu.html#a9ddb521f33adfff1eee02fb4fc9255f8", null ],
+      [ "opr_cpu_rotate_cyc_r1", "d0/d94/namespaceopr__cpu.html#a281916ba5bf1e7c29c581832bdc01ac9", null ],
+      [ "opr_cpu_rotate_cyc_r4", "d0/d94/namespaceopr__cpu.html#aa6b02ac3eae8d8bbd2e5a6d9a9927e08", null ]
     ] ],
     [ "opr_device", "d3/d4d/namespaceopr__device.html", "d3/d4d/namespaceopr__device" ],
     [ "opr_sx", "df/db5/namespaceopr__sx.html", [
@@ -598,7 +586,9 @@ var namespaces_dup =
     [ "runge_kutta_time_scheme", "d3/dc8/namespacerunge__kutta__time__scheme.html", "d3/dc8/namespacerunge__kutta__time__scheme" ],
     [ "runtime_stats", "d6/d78/namespaceruntime__stats.html", "d6/d78/namespaceruntime__stats" ],
     [ "scalar_aux", "dc/d60/namespacescalar__aux.html", [
-      [ "scalar_step_info", "dc/d60/namespacescalar__aux.html#a1c6773a769289adc92be4875534b3606", null ]
+      [ "scalar_step_info", "dc/d60/namespacescalar__aux.html#a1dac7b67e3209e0a5f34da08a33830a6", null ],
+      [ "scalar_step_info_reset_stabilized", "dc/d60/namespacescalar__aux.html#a58a6f3bdec61db8ca66cff72b84ef5f1", null ],
+      [ "stabilized", "dc/d60/namespacescalar__aux.html#a549ee0be62f543af1583e9c41b982046", null ]
     ] ],
     [ "scalar_ic", "d8/ddf/namespacescalar__ic.html", "d8/ddf/namespacescalar__ic" ],
     [ "scalar_pnpn", "db/d56/namespacescalar__pnpn.html", "db/d56/namespacescalar__pnpn" ],

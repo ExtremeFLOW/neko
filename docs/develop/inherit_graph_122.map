@@ -1,3 +1,5 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$d4/d91/structdata__streamer_1_1data__streamer__t.html" title="Provides access to data streaming by interfacing with c++ ADIOS2 subroutines." alt="" coords="5,5,160,45"/>
+<area shape="rect" id="Node000000" href="$d6/d4a/structdatadist_1_1dist__t.html" title=" " alt="" coords="5,5,124,31"/>
+<area shape="rect" id="Node000001" href="$d7/d4f/structdatadist_1_1linear__dist__t.html" title="Load&#45;balanced linear distribution ." alt="" coords="172,5,335,31"/>
+<area shape="poly" id="edge29_Node000000_Node000001" title=" " alt="" coords="138,15,172,15,172,21,138,21"/>
 </map>

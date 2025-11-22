@@ -16,5 +16,7 @@ var opr__device_8F90 =
     [ "opr_device_dudxyz", "df/d36/opr__device_8F90.html#abc0d21999d04728a18514d4c422219ec", null ],
     [ "opr_device_lambda2", "df/d36/opr__device_8F90.html#ae39e101d94720e35947ae37ba3154d31", null ],
     [ "opr_device_opgrad", "df/d36/opr__device_8F90.html#ad5bf8b83c33e9c73125c466a6fab72df", null ],
+    [ "opr_device_rotate_cyc_r1", "df/d36/opr__device_8F90.html#a176528d5e4ecc8f5be227480b891aa1e", null ],
+    [ "opr_device_rotate_cyc_r4", "df/d36/opr__device_8F90.html#a668b8309c718fdf4a51cffb97afad559", null ],
     [ "opr_device_set_convect_rst", "df/d36/opr__device_8F90.html#a9de98814162021b7db7db8b303167684", null ]
 ];

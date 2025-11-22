@@ -39,7 +39,8 @@ var searchData=
   ['rhs_5fmaker_5fsumab_5fhip_36',['rhs_maker_sumab_hip',['../df/ded/interfacerhs__maker__device_1_1rhs__maker__sumab__hip.html',1,'rhs_maker_device']]],
   ['rhs_5fmaker_5fsumab_5fsx_5ft_37',['rhs_maker_sumab_sx_t',['../d9/d26/structrhs__maker__sx_1_1rhs__maker__sumab__sx__t.html',1,'rhs_maker_sx']]],
   ['rhs_5fmaker_5fsumab_5ft_38',['rhs_maker_sumab_t',['../df/daa/structrhs__maker_1_1rhs__maker__sumab__t.html',1,'rhs_maker']]],
-  ['rough_5flog_5flaw_5ft_39',['rough_log_law_t',['../df/d21/structrough__log__law_1_1rough__log__law__t.html',1,'rough_log_law']]],
-  ['runge_5fkutta_5ftime_5fscheme_5ft_40',['runge_kutta_time_scheme_t',['../d4/d16/structrunge__kutta__time__scheme_1_1runge__kutta__time__scheme__t.html',1,'runge_kutta_time_scheme']]],
-  ['runtime_5fstats_5ft_41',['runtime_stats_t',['../d5/db8/structruntime__stats_1_1runtime__stats__t.html',1,'runtime_stats']]]
+  ['rotate_5fcyc_39',['rotate_cyc',['../de/dad/interfaceoperators_1_1rotate__cyc.html',1,'operators']]],
+  ['rough_5flog_5flaw_5ft_40',['rough_log_law_t',['../df/d21/structrough__log__law_1_1rough__log__law__t.html',1,'rough_log_law']]],
+  ['runge_5fkutta_5ftime_5fscheme_5ft_41',['runge_kutta_time_scheme_t',['../d4/d16/structrunge__kutta__time__scheme_1_1runge__kutta__time__scheme__t.html',1,'runge_kutta_time_scheme']]],
+  ['runtime_5fstats_5ft_42',['runtime_stats_t',['../d5/db8/structruntime__stats_1_1runtime__stats__t.html',1,'runtime_stats']]]
 ];

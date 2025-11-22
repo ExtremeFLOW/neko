@@ -3,6 +3,7 @@ var coef_8f90 =
     [ "coefs::coef_t", "d0/dea/structcoefs_1_1coef__t.html", "d0/dea/structcoefs_1_1coef__t" ],
     [ "coef_free", "db/d85/coef_8f90.html#a20a95815e8ab1a9d5e513b959db5c3e7", null ],
     [ "coef_generate_area_and_normal", "db/d85/coef_8f90.html#aa8326a68db87fc07727e473a8e2dc484", null ],
+    [ "coef_generate_cyclic_bc", "db/d85/coef_8f90.html#aedfc2692ba7d456e06fbad958003f02c", null ],
     [ "coef_generate_dxyzdrst", "db/d85/coef_8f90.html#a7109166ad05f1f18a62a9b96be52900e", null ],
     [ "coef_generate_geo", "db/d85/coef_8f90.html#a1b615b359ab35faee3c6522857bdac33", null ],
     [ "coef_generate_mass", "db/d85/coef_8f90.html#af4bc052c7d759da9d20f84872216f462", null ],

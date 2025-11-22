@@ -34,6 +34,7 @@ var structfluid__pnpn_1_1fluid__pnpn__t =
     [ "advx", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a668f51a679551b8fe7954c8df917bb60", null ],
     [ "advy", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#abb7007908edb3630954bebb6f933f1b3", null ],
     [ "advz", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a7602b0b0660a3d16e6b29adfaa2810de", null ],
+    [ "allow_stabilization", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a2077b7c69850383644ff8267c0481da4", null ],
     [ "ax_prs", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a781db22a2fa42f4ac786ad638be9687e", null ],
     [ "ax_vel", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a1638eaae106cedfba25c49293b37c736", null ],
     [ "bc_dp", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#aacb1e2811ff59ae80cf69386ff86b458", null ],

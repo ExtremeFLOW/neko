@@ -1,0 +1,9 @@
+<map id="cuda_rotate_cyc" name="cuda_rotate_cyc">
+<area shape="rect" id="Node000001" title=" " alt="" coords="476,45,604,70"/>
+<area shape="rect" id="Node000002" href="$d3/d4d/namespaceopr__device.html#a176528d5e4ecc8f5be227480b891aa1e" title=" " alt="" coords="256,5,428,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="462,47,428,42,429,37,463,42"/>
+<area shape="rect" id="Node000003" href="$d3/d4d/namespaceopr__device.html#a668b8309c718fdf4a51cffb97afad559" title=" " alt="" coords="256,69,428,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="463,72,429,78,428,73,462,67"/>
+<area shape="rect" id="Node000004" href="$d3/d4d/namespaceopr__device.html#a99baf3e0c295d2b3603f603e7d11f458" title=" " alt="" coords="5,77,208,102"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="242,92,208,92,208,87,242,87"/>
+</map>

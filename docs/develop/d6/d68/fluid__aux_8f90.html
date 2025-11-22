@@ -100,7 +100,8 @@ $(document).ready(function(){initNavTree('d6/d68/fluid__aux_8f90.html','../../')
 <div class="header">
   <div class="summary">
 <a href="#namespaces">Modules</a> &#124;
-<a href="#func-members">Functions/Subroutines</a>  </div>
+<a href="#func-members">Functions/Subroutines</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">fluid_aux.f90 File Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -115,9 +116,18 @@ Modules</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:ac2bf7195e66d9a2252f50e28b8774c1e" id="r_ac2bf7195e66d9a2252f50e28b8774c1e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d33/namespacefluid__aux.html#ac2bf7195e66d9a2252f50e28b8774c1e">fluid_aux::fluid_step_info</a> (time, ksp_results, full_stress_formulation, strict_convergence)</td></tr>
-<tr class="memdesc:ac2bf7195e66d9a2252f50e28b8774c1e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints for prs, velx, vely, velz the following: Number of iterations, start residual, end residual.  <br /></td></tr>
-<tr class="separator:ac2bf7195e66d9a2252f50e28b8774c1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aad579682e929ac47e335858dc93c076d" id="r_aad579682e929ac47e335858dc93c076d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d33/namespacefluid__aux.html#aad579682e929ac47e335858dc93c076d">fluid_aux::fluid_step_info</a> (time, ksp_results, full_stress_formulation, strict_convergence, allow_stabilization)</td></tr>
+<tr class="memdesc:aad579682e929ac47e335858dc93c076d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints for prs, velx, vely, velz the following: Number of iterations, start residual, end residual.  <br /></td></tr>
+<tr class="separator:aad579682e929ac47e335858dc93c076d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a652702d61a318d842f245a184d9b1cba" id="r_a652702d61a318d842f245a184d9b1cba"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d33/namespacefluid__aux.html#a652702d61a318d842f245a184d9b1cba">fluid_aux::fluid_step_info_reset_stabilized</a> ()</td></tr>
+<tr class="memdesc:a652702d61a318d842f245a184d9b1cba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets the stabilized flag to false.  <br /></td></tr>
+<tr class="separator:a652702d61a318d842f245a184d9b1cba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:af56599981e3da44761e7b7484a81a301" id="r_af56599981e3da44761e7b7484a81a301"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">protected</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d33/namespacefluid__aux.html#af56599981e3da44761e7b7484a81a301">fluid_aux::stabilized</a> = .false.</td></tr>
+<tr class="memdesc:af56599981e3da44761e7b7484a81a301"><td class="mdescLeft">&#160;</td><td class="mdescRight">To track if the solver is stabilized.  <br /></td></tr>
+<tr class="separator:af56599981e3da44761e7b7484a81a301"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -125,7 +135,7 @@ Functions/Subroutines</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_48eb729a40134e424c89304faa5c21a9.html">fluid</a></li><li class="navelem"><a class="el" href="../../d6/d68/fluid__aux_8f90.html">fluid_aux.f90</a></li>
-    <li class="footer">Generated on Fri Nov 21 2025 03:46:57 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Nov 22 2025 03:42:56 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

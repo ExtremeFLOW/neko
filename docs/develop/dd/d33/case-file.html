@@ -683,6 +683,7 @@ Sponge</h3>
 <details >
 <summary >
 <b><u>Example using <code>user_init_modules</code></u></b></summary>
+<p></p>
 <div class="fragment"><div class="line"><span class="keyword">module</span> <a class="code hl_namespace" href="../../dc/d44/namespaceuser.html">user</a></div>
 <div class="line">  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/d62/namespaceneko.html">neko</a></div>
 <div class="line">  <span class="keywordtype">implicit none</span></div>
@@ -798,7 +799,8 @@ Sponge</h3>
 <div class="ttc" id="anamespaceneko_html"><div class="ttname"><a href="../../dd/d62/namespaceneko.html">neko</a></div><div class="ttdoc">Master module.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/d1f/neko_8f90_source.html#l00034">neko.f90:34</a></div></div>
 <div class="ttc" id="anamespaceuser_html"><div class="ttname"><a href="../../dc/d44/namespaceuser.html">user</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/d6f/fields__vectors__math_8f90_source.html#l00018">fields_vectors_math.f90:18</a></div></div>
 <div class="ttc" id="anamespaceuser_html_a34728c151f0dbb7521a84b18b09cbd9d"><div class="ttname"><a href="../../dc/d44/namespaceuser.html#a34728c151f0dbb7521a84b18b09cbd9d">user::user_setup</a></div><div class="ttdeci">subroutine user_setup(user)</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d6f/fields__vectors__math_8f90_source.html#l00034">fields_vectors_math.f90:35</a></div></div>
-</div><!-- fragment --> </details>
+</div><!-- fragment --><p></p>
+</details>
 <p>In order to visualize your baseflow and fringe field, you may set <code>dump_fields</code> to <code>true</code>. An <code>fld</code> file will be written to disk as <code>spng_fields.fld</code>(note, not in <code>output_directory</code>) with the fringe field stored as <code>pressure</code>. You may change the name of the field file by setting <code>dump_file_name</code> (must have the extension <code>fld</code>).</p>
 <p>The parameters for the sponge source term are summarized in the table below:</p>
 <table class="markdownTable">
@@ -855,7 +857,8 @@ Linear solver configuration</h1>
 <li><code>projection_hold_steps</code>, steps for which the simulation does not use projection after starting or time step changes. E.g. if 5, then the projection space will start to update at the 6th time step and the space will be utilized at the 7th time step.</li>
 <li><code>monitor</code>, monitoring of residuals. If set to true, the residuals will be printed for each iteration.</li>
 </ul>
-<p>In addition to the above settings, the solvers can be configured with strict convergence criteria. This is done by setting the <code>case.fluid.strict_convergence</code> keyword to <code>true</code>. This will force the solver to converge to the specified tolerance within the specified number of iterations. If the solver does not converge, the simulation will be terminated.</p>
+<p>In addition to the above settings, the solvers can be configured with strict convergence criteria. This is done by setting the <code>case.fluid.strict_convergence</code> keyword to <code>true</code>. This will force the solver to converge to the specified tolerance within the specified number of iterations. If the solver does not converge, the simulation will be terminated. <br  />
+ This can in some situations cause issues if the initial condition is far from a valid solution. Therefore a user can allow an initial stabilization phase by setting the <code>case.fluid.allow_stabilization</code> keyword to <code>true</code>. In this case, the strict convergence will be ignored untill all components of the velocity field converge within the specified tolerance. After this initial stabilization phase, strict convergence will be enforced for the rest of the simulation.</p>
 <h2><a class="anchor" id="autotoc_md60"></a>
 Multilevel preconditioners</h2>
 <p>The multilevel preconditioners, <code>hsmg</code> and <code>phmg</code>, come with an additional set of parameters related to the solution of the coarse grid problem. These parameters are specified as a <code>coarse_grid</code> block under <code>preconditioner</code>.</p>
@@ -996,6 +999,10 @@ Full parameter table</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>freeze</code>   </td><td class="markdownTableBodyNone">Whether to fix the velocity field at initial conditions.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
 <tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>strict_convergence</code>   </td><td class="markdownTableBodyNone">Whether to enforce strict convergence in the linear solvers.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>allow_stabilization</code>   </td><td class="markdownTableBodyNone">Whether to allow an initial stabilization phase before enforcing strict convergence.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>advection</code>   </td><td class="markdownTableBodyNone">Whether to compute the advection term.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>true</code>    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>full_stress_formulation</code>   </td><td class="markdownTableBodyNone">Whether to use the full form of the visous stress tensor term.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>   </td></tr>
@@ -1125,7 +1132,7 @@ Runtime statistics</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Fri Nov 21 2025 03:46:58 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Nov 22 2025 03:42:57 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

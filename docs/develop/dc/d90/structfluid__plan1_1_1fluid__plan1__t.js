@@ -21,6 +21,7 @@ var structfluid__plan1_1_1fluid__plan1__t =
     [ "update_material_properties", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a11537d3e071107627c4c166ef5d647c5", null ],
     [ "validate", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a5142fdbd177359a4b8aa17f97825dc79", null ],
     [ "validate", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a48d4aac803805c4e3427a186dc457120", null ],
+    [ "allow_stabilization", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a2077b7c69850383644ff8267c0481da4", null ],
     [ "bc_labels", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a2f3549b5b6feae729a898f691498a9c8", null ],
     [ "bcs_prs", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#ae7176706c8e0d55b82e4f91352120c2b", null ],
     [ "bcs_vel", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#aa2d769e8bed75a811894beb36f1fd5df", null ],

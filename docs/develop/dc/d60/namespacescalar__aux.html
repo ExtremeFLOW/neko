@@ -99,7 +99,8 @@ $(document).ready(function(){initNavTree('dc/d60/namespacescalar__aux.html','../
 
 <div class="header">
   <div class="summary">
-<a href="#func-members">Functions/Subroutines</a>  </div>
+<a href="#func-members">Functions/Subroutines</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">scalar_aux Module Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -109,19 +110,28 @@ $(document).ready(function(){initNavTree('dc/d60/namespacescalar__aux.html','../
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a1c6773a769289adc92be4875534b3606" id="r_a1c6773a769289adc92be4875534b3606"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d60/namespacescalar__aux.html#a1c6773a769289adc92be4875534b3606">scalar_step_info</a> (time, ksp_results, strict_convergence)</td></tr>
-<tr class="memdesc:a1c6773a769289adc92be4875534b3606"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints for prs, velx, vely, velz the following: Number of iterations, start residual, end residual.  <br /></td></tr>
-<tr class="separator:a1c6773a769289adc92be4875534b3606"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1dac7b67e3209e0a5f34da08a33830a6" id="r_a1dac7b67e3209e0a5f34da08a33830a6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d60/namespacescalar__aux.html#a1dac7b67e3209e0a5f34da08a33830a6">scalar_step_info</a> (time, ksp_results, strict_convergence, allow_stabilization)</td></tr>
+<tr class="memdesc:a1dac7b67e3209e0a5f34da08a33830a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints for prs, velx, vely, velz the following: Number of iterations, start residual, end residual.  <br /></td></tr>
+<tr class="separator:a1dac7b67e3209e0a5f34da08a33830a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a58a6f3bdec61db8ca66cff72b84ef5f1" id="r_a58a6f3bdec61db8ca66cff72b84ef5f1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d60/namespacescalar__aux.html#a58a6f3bdec61db8ca66cff72b84ef5f1">scalar_step_info_reset_stabilized</a> ()</td></tr>
+<tr class="memdesc:a58a6f3bdec61db8ca66cff72b84ef5f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets the stabilized flag to false.  <br /></td></tr>
+<tr class="separator:a58a6f3bdec61db8ca66cff72b84ef5f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a549ee0be62f543af1583e9c41b982046" id="r_a549ee0be62f543af1583e9c41b982046"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">protected</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d60/namespacescalar__aux.html#a549ee0be62f543af1583e9c41b982046">stabilized</a> = .false.</td></tr>
+<tr class="memdesc:a549ee0be62f543af1583e9c41b982046"><td class="mdescLeft">&#160;</td><td class="mdescRight">To track if the solver is stabilized.  <br /></td></tr>
+<tr class="separator:a549ee0be62f543af1583e9c41b982046"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
-<a id="a1c6773a769289adc92be4875534b3606" name="a1c6773a769289adc92be4875534b3606"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1c6773a769289adc92be4875534b3606">&#9670;&#160;</a></span>scalar_step_info()</h2>
+<a id="a1dac7b67e3209e0a5f34da08a33830a6" name="a1dac7b67e3209e0a5f34da08a33830a6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1dac7b67e3209e0a5f34da08a33830a6">&#9670;&#160;</a></span>scalar_step_info()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> scalar_aux::scalar_step_info </td>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> scalar_aux::scalar_step_info </td>
           <td>(</td>
           <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>time</em>, </td>
@@ -136,7 +146,13 @@ Functions/Subroutines</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>strict_convergence</em>&#160;</td>
+          <td class="paramname"><em>strict_convergence</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>allow_stabilization</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -146,27 +162,50 @@ Functions/Subroutines</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d7f/scalar__aux_8f90_source.html#l00014">14</a> of file <a class="el" href="../../df/d7f/scalar__aux_8f90_source.html">scalar_aux.f90</a>.</p>
-<div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="../../dc/d60/namespacescalar__aux_a1c6773a769289adc92be4875534b3606_cgraph.png" border="0" usemap="#adc/d60/namespacescalar__aux_a1c6773a769289adc92be4875534b3606_cgraph" alt=""/></div>
-<map name="adc/d60/namespacescalar__aux_a1c6773a769289adc92be4875534b3606_cgraph" id="adc/d60/namespacescalar__aux_a1c6773a769289adc92be4875534b3606_cgraph">
-<area shape="rect" title="Prints for prs, velx, vely, velz the following: Number of iterations, start residual,..." alt="" coords="5,5,144,45"/>
-<area shape="rect" href="../../d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="192,13,340,38"/>
-<area shape="poly" title=" " alt="" coords="144,23,178,23,178,28,144,28"/>
-</map>
-</div>
+<p class="definition">Definition at line <a class="el" href="../../df/d7f/scalar__aux_8f90_source.html#l00052">52</a> of file <a class="el" href="../../df/d7f/scalar__aux_8f90_source.html">scalar_aux.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../dc/d60/namespacescalar__aux_a1c6773a769289adc92be4875534b3606_icgraph.png" border="0" usemap="#adc/d60/namespacescalar__aux_a1c6773a769289adc92be4875534b3606_icgraph" alt=""/></div>
-<map name="adc/d60/namespacescalar__aux_a1c6773a769289adc92be4875534b3606_icgraph" id="adc/d60/namespacescalar__aux_a1c6773a769289adc92be4875534b3606_icgraph">
+<div class="center"><img src="../../dc/d60/namespacescalar__aux_a1dac7b67e3209e0a5f34da08a33830a6_icgraph.png" border="0" usemap="#adc/d60/namespacescalar__aux_a1dac7b67e3209e0a5f34da08a33830a6_icgraph" alt=""/></div>
+<map name="adc/d60/namespacescalar__aux_a1dac7b67e3209e0a5f34da08a33830a6_icgraph" id="adc/d60/namespacescalar__aux_a1dac7b67e3209e0a5f34da08a33830a6_icgraph">
 <area shape="rect" title="Prints for prs, velx, vely, velz the following: Number of iterations, start residual,..." alt="" coords="211,5,349,45"/>
 <area shape="rect" href="../../d1/de4/namespacescalars.html#af37ab3c3ae5da1e41850d1cd49785220" title="Perform a time step for all scalar fields." alt="" coords="5,13,163,38"/>
 <area shape="poly" title=" " alt="" coords="197,28,163,28,163,23,197,23"/>
 </map>
 </div>
+
+</div>
+</div>
+<a id="a58a6f3bdec61db8ca66cff72b84ef5f1" name="a58a6f3bdec61db8ca66cff72b84ef5f1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a58a6f3bdec61db8ca66cff72b84ef5f1">&#9670;&#160;</a></span>scalar_step_info_reset_stabilized()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> scalar_aux::scalar_step_info_reset_stabilized</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../df/d7f/scalar__aux_8f90_source.html#l00109">109</a> of file <a class="el" href="../../df/d7f/scalar__aux_8f90_source.html">scalar_aux.f90</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Variable Documentation</h2>
+<a id="a549ee0be62f543af1583e9c41b982046" name="a549ee0be62f543af1583e9c41b982046"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a549ee0be62f543af1583e9c41b982046">&#9670;&#160;</a></span>stabilized</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">protected</a> scalar_aux::stabilized = .false.</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../df/d7f/scalar__aux_8f90_source.html#l00046">46</a> of file <a class="el" href="../../df/d7f/scalar__aux_8f90_source.html">scalar_aux.f90</a>.</p>
 
 </div>
 </div>
@@ -176,7 +215,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dc/d60/namespacescalar__aux.html">scalar_aux</a></li>
-    <li class="footer">Generated on Fri Nov 21 2025 03:46:59 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Nov 22 2025 03:42:58 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

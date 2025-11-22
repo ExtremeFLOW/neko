@@ -67,7 +67,6 @@ var hierarchy =
       [ "buffer_4d::buffer_4d_t", "d8/dce/structbuffer__4d_1_1buffer__4d__t.html", null ],
       [ "buffer_4d_npar::buffer_4d_npar_t", "db/db7/structbuffer__4d__npar_1_1buffer__4d__npar__t.html", null ]
     ] ],
-    [ "case::case_init", "d8/d36/interfacecase_1_1case__init.html", null ],
     [ "case::case_t", "db/d7a/structcase_1_1case__t.html", null ],
     [ "checkpoint::chkp_t", "d9/d88/structcheckpoint_1_1chkp__t.html", null ],
     [ "opencl_intf::clcreatebuffer", "de/dd5/interfaceopencl__intf_1_1clcreatebuffer.html", null ],
@@ -744,6 +743,7 @@ var hierarchy =
       [ "rhs_maker_device::rhs_maker_sumab_device_t", "d0/df8/structrhs__maker__device_1_1rhs__maker__sumab__device__t.html", null ],
       [ "rhs_maker_sx::rhs_maker_sumab_sx_t", "d9/d26/structrhs__maker__sx_1_1rhs__maker__sumab__sx__t.html", null ]
     ] ],
+    [ "operators::rotate_cyc", "de/dad/interfaceoperators_1_1rotate__cyc.html", null ],
     [ "runge_kutta_time_scheme::runge_kutta_time_scheme_t", "d4/d16/structrunge__kutta__time__scheme_1_1runge__kutta__time__scheme__t.html", null ],
     [ "runtime_stats::runtime_stats_t", "d5/db8/structruntime__stats_1_1runtime__stats__t.html", null ],
     [ "scalar_residual::scalar_residual_interface", "d0/d90/interfacescalar__residual_1_1scalar__residual__interface.html", null ],

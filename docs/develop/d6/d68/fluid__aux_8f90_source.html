@@ -106,70 +106,130 @@ $(document).ready(function(){initNavTree('d6/d68/fluid__aux_8f90_source.html','.
   <div class="headertitle"><div class="title">fluid_aux.f90</div></div>
 </div><!--header-->
 <div class="contents">
-<a href="../../d6/d68/fluid__aux_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span> </div>
-<div class="line"><a id="l00002" name="l00002"></a><span class="lineno"><a class="line" href="../../da/d33/namespacefluid__aux.html">    2</a></span><span class="keyword">module</span> <a class="code hl_namespace" href="../../da/d33/namespacefluid__aux.html">fluid_aux</a></div>
-<div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span>  use, <span class="keywordtype">intrinsic</span> :: ieee_arithmetic, only: ieee_is_nan</div>
-<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../db/d6d/namespacekrylov.html">krylov</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">ksp_monitor_t</a></div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d8/da0/namespacelogger.html">logger</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ade757cfc4235350ea17397117ea3c4a6">log_size</a></div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/d84/namespaceutils.html">utils</a>, <span class="keywordtype">only</span> : <a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>, <a class="code hl_function" href="../../d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f">neko_warning</a></div>
-<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d8/d92/namespacetime__state.html">time_state</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a></div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span>  <span class="keywordtype">implicit none</span></div>
-<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span>  <span class="keywordtype">private</span></div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span> </div>
-<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span>  <span class="keywordtype">public</span> :: <a class="code hl_function" href="../../da/d33/namespacefluid__aux.html#ac2bf7195e66d9a2252f50e28b8774c1e">fluid_step_info</a></div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span> </div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="keyword">contains</span></div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span> </div>
-<div class="foldopen" id="foldopen00017" data-start="" data-end="">
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno"><a class="line" href="../../da/d33/namespacefluid__aux.html#ac2bf7195e66d9a2252f50e28b8774c1e">   17</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../da/d33/namespacefluid__aux.html#ac2bf7195e66d9a2252f50e28b8774c1e">fluid_step_info</a>(time, ksp_results, full_stress_formulation, &amp;</div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>       strict_convergence)</div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">ksp_monitor_t</a>), <span class="keywordtype">dimension(:)</span>, <span class="keywordtype">intent(in)</span> :: ksp_results</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <span class="keywordtype">intent(in)</span> :: time</div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span> :: full_stress_formulation</div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: strict_convergence</div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>    <span class="keywordtype">character(len=LOG_SIZE)</span> :: log_buf</div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>    <span class="keywordtype">integer</span> :: i, n</div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span> </div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    n = <span class="keyword">size</span>(ksp_results)</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    <span class="keywordflow">if</span> (full_stress_formulation) n = 2</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    <span class="comment">! Do the printing</span></div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>    <span class="keyword">call </span>ksp_results(1)%print_header()</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>    <span class="keywordflow">do</span> i = 1, n</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>       <span class="keyword">call </span>ksp_results(i)%print_result(time%tstep)</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span> </div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    <span class="comment">! Check for convergence</span></div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    <span class="keywordflow">do</span> i = 1, n</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>       <span class="keywordflow">if</span> (ieee_is_nan(ksp_results(i)%res_final)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>          <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Fluid solver diverged for &quot;</span> // &amp;</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>               trim(ksp_results(i)%name))</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>       <span class="keywordflow">if</span> (<span class="keyword">present</span>(strict_convergence)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>          <span class="keywordflow">if</span> (.not. ksp_results(i)%converged) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>             log_buf = <span class="stringliteral">&#39;Fluid solver did not converge for &#39;</span> &amp;</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>                  // trim(ksp_results(i)%name)</div>
+<a href="../../d6/d68/fluid__aux_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">! Copyright (c) 2025, The Neko Authors</span></div>
+<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment">! All rights reserved.</span></div>
+<div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="comment">!</span></div>
+<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment">! Redistribution and use in source and binary forms, with or without</span></div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="comment">! modification, are permitted provided that the following conditions</span></div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="comment">! are met:</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="comment">!</span></div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="comment">!   * Redistributions of source code must retain the above copyright</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="comment">!     notice, this list of conditions and the following disclaimer.</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="comment">!</span></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="comment">!   * Redistributions in binary form must reproduce the above</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="comment">!     copyright notice, this list of conditions and the following</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="comment">!     disclaimer in the documentation and/or other materials provided</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="comment">!     with the distribution.</span></div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="comment">!</span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="comment">!   * Neither the name of the authors nor the names of its</span></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="comment">!     contributors may be used to endorse or promote products derived</span></div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="comment">!     from this software without specific prior written permission.</span></div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="comment">!</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="comment">! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS</span></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="comment">! &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT</span></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="comment">! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="comment">! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE</span></div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="comment">! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,</span></div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="comment">! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,</span></div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="comment">! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;</span></div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="comment">! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER</span></div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="comment">! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT</span></div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="comment">! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN</span></div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="comment">! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE</span></div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="comment">! POSSIBILITY OF SUCH DAMAGE.</span></div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span> </div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno"><a class="line" href="../../da/d33/namespacefluid__aux.html">   34</a></span><span class="keyword">module</span> <a class="code hl_namespace" href="../../da/d33/namespacefluid__aux.html">fluid_aux</a></div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  use, <span class="keywordtype">intrinsic</span> :: ieee_arithmetic, only: ieee_is_nan</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../db/d6d/namespacekrylov.html">krylov</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">ksp_monitor_t</a></div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d8/da0/namespacelogger.html">logger</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>, <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ade757cfc4235350ea17397117ea3c4a6">log_size</a></div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/d84/namespaceutils.html">utils</a>, <span class="keywordtype">only</span> : <a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>, <a class="code hl_function" href="../../d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f">neko_warning</a></div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d8/d92/namespacetime__state.html">time_state</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a></div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="keywordtype">implicit none</span></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keywordtype">private</span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>  <span class="keywordtype">public</span> :: <a class="code hl_function" href="../../da/d33/namespacefluid__aux.html#aad579682e929ac47e335858dc93c076d">fluid_step_info</a>, <a class="code hl_function" href="../../da/d33/namespacefluid__aux.html#a652702d61a318d842f245a184d9b1cba">fluid_step_info_reset_stabilized</a></div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="../../da/d33/namespacefluid__aux.html#af56599981e3da44761e7b7484a81a301">   46</a></span>  <span class="keywordtype">logical</span>, <span class="keywordtype">public</span>, <span class="keywordtype">protected</span> :: <a class="code hl_variable" href="../../da/d33/namespacefluid__aux.html#af56599981e3da44761e7b7484a81a301">stabilized</a> = .false.</div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span> </div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>             <span class="keywordflow">if</span> (strict_convergence) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>                <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(log_buf)</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>             <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>                <span class="keyword">call </span><a class="code hl_function" href="../../d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f">neko_warning</a>(log_buf)</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><span class="keywordflow">             end if</span></div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span><span class="keywordflow">          end if</span></div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span> </div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span><span class="keyword">contains</span></div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
+<div class="foldopen" id="foldopen00052" data-start="" data-end="">
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno"><a class="line" href="../../da/d33/namespacefluid__aux.html#aad579682e929ac47e335858dc93c076d">   52</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../da/d33/namespacefluid__aux.html#aad579682e929ac47e335858dc93c076d">fluid_step_info</a>(time, ksp_results, full_stress_formulation, &amp;</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>       strict_convergence, allow_stabilization)</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">ksp_monitor_t</a>), <span class="keywordtype">dimension(:)</span>, <span class="keywordtype">intent(in)</span> :: ksp_results</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <span class="keywordtype">intent(in)</span> :: time</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span> :: full_stress_formulation</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: strict_convergence</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: allow_stabilization</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keywordtype">logical</span> :: converged, strict_conv, allow_stab</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="keywordtype">character(len=LOG_SIZE)</span> :: log_buf</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keywordtype">integer</span> :: i, n</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    n = <span class="keyword">size</span>(ksp_results)</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="keywordflow">if</span> (full_stress_formulation) n = 2</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span> </div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(strict_convergence)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>       strict_conv = strict_convergence</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>       strict_conv = .false.</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span> </div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(allow_stabilization)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>       allow_stab = allow_stabilization</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>       allow_stab = .false.</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span> </div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>    <span class="comment">! Do the printing</span></div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>    <span class="keyword">call </span>ksp_results(1)%print_header()</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    <span class="keywordflow">do</span> i = 1, n</div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>       <span class="keyword">call </span>ksp_results(i)%print_result(time%tstep)</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span> </div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>    <span class="comment">! Check for convergence</span></div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>    converged = .true.</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    <span class="keywordflow">do</span> i = 1, n</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>       <span class="keywordflow">if</span> (ieee_is_nan(ksp_results(i)%res_final)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>          <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Fluid solver diverged for &quot;</span> // &amp;</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>               trim(ksp_results(i)%name))</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span> </div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>       <span class="keywordflow">if</span> (.not. ksp_results(i)%converged) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>          converged = .false.</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>          log_buf = <span class="stringliteral">&#39;Fluid solver did not converge for &#39;</span> &amp;</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>               // trim(ksp_results(i)%name)</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span> </div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>          <span class="keywordflow">if</span> (.not. <a class="code hl_variable" href="../../da/d33/namespacefluid__aux.html#af56599981e3da44761e7b7484a81a301">stabilized</a> .and. allow_stab) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>             <span class="keywordflow">continue</span></div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>          <span class="keywordflow">else</span> <span class="keywordflow">if</span> (strict_conv) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>             <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(log_buf)</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>          <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>             <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(log_buf)</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span><span class="keywordflow">          end if</span></div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span> </div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>    <span class="comment">! Update stabilized status</span></div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <span class="keywordflow">if</span> (.not. <a class="code hl_variable" href="../../da/d33/namespacefluid__aux.html#af56599981e3da44761e7b7484a81a301">stabilized</a>) <a class="code hl_variable" href="../../da/d33/namespacefluid__aux.html#af56599981e3da44761e7b7484a81a301">stabilized</a> = converged</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span> </div>
 </div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../da/d33/namespacefluid__aux.html#ac2bf7195e66d9a2252f50e28b8774c1e">fluid_step_info</a></div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../da/d33/namespacefluid__aux.html">fluid_aux</a></div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../da/d33/namespacefluid__aux.html#aad579682e929ac47e335858dc93c076d">fluid_step_info</a></div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span> </div>
+<div class="foldopen" id="foldopen00113" data-start="" data-end="">
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno"><a class="line" href="../../da/d33/namespacefluid__aux.html#a652702d61a318d842f245a184d9b1cba">  113</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../da/d33/namespacefluid__aux.html#a652702d61a318d842f245a184d9b1cba">fluid_step_info_reset_stabilized</a>()</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    <a class="code hl_variable" href="../../da/d33/namespacefluid__aux.html#af56599981e3da44761e7b7484a81a301">stabilized</a> = .false.</div>
+</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../da/d33/namespacefluid__aux.html#a652702d61a318d842f245a184d9b1cba">fluid_step_info_reset_stabilized</a></div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span> </div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../da/d33/namespacefluid__aux.html">fluid_aux</a></div>
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00042">utils.f90:42</a></div></div>
-<div class="ttc" id="anamespacefluid__aux_html"><div class="ttname"><a href="../../da/d33/namespacefluid__aux.html">fluid_aux</a></div><div class="ttdoc">Auxiliary routines for fluid solvers.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d68/fluid__aux_8f90_source.html#l00002">fluid_aux.f90:2</a></div></div>
-<div class="ttc" id="anamespacefluid__aux_html_ac2bf7195e66d9a2252f50e28b8774c1e"><div class="ttname"><a href="../../da/d33/namespacefluid__aux.html#ac2bf7195e66d9a2252f50e28b8774c1e">fluid_aux::fluid_step_info</a></div><div class="ttdeci">subroutine, public fluid_step_info(time, ksp_results, full_stress_formulation, strict_convergence)</div><div class="ttdoc">Prints for prs, velx, vely, velz the following: Number of iterations, start residual,...</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d68/fluid__aux_8f90_source.html#l00017">fluid_aux.f90:19</a></div></div>
+<div class="ttc" id="anamespacefluid__aux_html"><div class="ttname"><a href="../../da/d33/namespacefluid__aux.html">fluid_aux</a></div><div class="ttdoc">Auxiliary routines for fluid solvers.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d68/fluid__aux_8f90_source.html#l00034">fluid_aux.f90:34</a></div></div>
+<div class="ttc" id="anamespacefluid__aux_html_a652702d61a318d842f245a184d9b1cba"><div class="ttname"><a href="../../da/d33/namespacefluid__aux.html#a652702d61a318d842f245a184d9b1cba">fluid_aux::fluid_step_info_reset_stabilized</a></div><div class="ttdeci">subroutine, public fluid_step_info_reset_stabilized()</div><div class="ttdoc">Resets the stabilized flag to false.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d68/fluid__aux_8f90_source.html#l00113">fluid_aux.f90:114</a></div></div>
+<div class="ttc" id="anamespacefluid__aux_html_aad579682e929ac47e335858dc93c076d"><div class="ttname"><a href="../../da/d33/namespacefluid__aux.html#aad579682e929ac47e335858dc93c076d">fluid_aux::fluid_step_info</a></div><div class="ttdeci">subroutine, public fluid_step_info(time, ksp_results, full_stress_formulation, strict_convergence, allow_stabilization)</div><div class="ttdoc">Prints for prs, velx, vely, velz the following: Number of iterations, start residual,...</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d68/fluid__aux_8f90_source.html#l00052">fluid_aux.f90:54</a></div></div>
+<div class="ttc" id="anamespacefluid__aux_html_af56599981e3da44761e7b7484a81a301"><div class="ttname"><a href="../../da/d33/namespacefluid__aux.html#af56599981e3da44761e7b7484a81a301">fluid_aux::stabilized</a></div><div class="ttdeci">logical, public, protected stabilized</div><div class="ttdoc">To track if the solver is stabilized.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d68/fluid__aux_8f90_source.html#l00046">fluid_aux.f90:46</a></div></div>
 <div class="ttc" id="anamespacekrylov_html"><div class="ttname"><a href="../../db/d6d/namespacekrylov.html">krylov</a></div><div class="ttdoc">Implements the base abstract type for Krylov solvers plus helper types.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/da5/krylov_8f90_source.html#l00034">krylov.f90:34</a></div></div>
 <div class="ttc" id="anamespacelogger_html"><div class="ttname"><a href="../../d8/da0/namespacelogger.html">logger</a></div><div class="ttdoc">Logging routines.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00034">log.f90:34</a></div></div>
+<div class="ttc" id="anamespacelogger_html_ad728b3400b2e5dfa9ee65757c599c9ce"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">logger::neko_log</a></div><div class="ttdeci">type(log_t), public neko_log</div><div class="ttdoc">Global log stream.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00070">log.f90:70</a></div></div>
 <div class="ttc" id="anamespacelogger_html_ade757cfc4235350ea17397117ea3c4a6"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#ade757cfc4235350ea17397117ea3c4a6">logger::log_size</a></div><div class="ttdeci">integer, parameter, public log_size</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00046">log.f90:46</a></div></div>
 <div class="ttc" id="anamespacetime__state_html"><div class="ttname"><a href="../../d8/d92/namespacetime__state.html">time_state</a></div><div class="ttdoc">Module with things related to the simulation time.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/dd6/time__state_8f90_source.html#l00034">time_state.f90:34</a></div></div>
 <div class="ttc" id="anamespaceutils_html"><div class="ttname"><a href="../../d6/d84/namespaceutils.html">utils</a></div><div class="ttdoc">Utilities.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00035">utils.f90:35</a></div></div>
@@ -182,7 +242,7 @@ $(document).ready(function(){initNavTree('d6/d68/fluid__aux_8f90_source.html','.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_48eb729a40134e424c89304faa5c21a9.html">fluid</a></li><li class="navelem"><a class="el" href="../../d6/d68/fluid__aux_8f90.html">fluid_aux.f90</a></li>
-    <li class="footer">Generated on Fri Nov 21 2025 03:46:56 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Nov 22 2025 03:42:55 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
