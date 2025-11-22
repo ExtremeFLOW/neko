@@ -3,7 +3,7 @@ name: develop
 # Controls when the action will run.
 on:
   pull_request:
-    branches: [develop, release/*]
+    branches: [develop, release/*, master]
     types:
       - opened
       - synchronize
