@@ -181,9 +181,12 @@ contains
   subroutine vector_registry_expand(this)
     class(vector_registry_t), intent(inout) :: this
     type(named_vector_t), allocatable :: temp(:)
+    integer :: i
 
     allocate(temp(this%n_vectors_ + this%expansion_size))
-    temp(1:this%n_vectors_) = this%vectors(1:this%n_vectors_)
+    do i = 1, this%n_vectors_
+       temp(i) = this%vectors(i)
+    end do
     call move_alloc(temp, this%vectors)
   end subroutine vector_registry_expand
 
