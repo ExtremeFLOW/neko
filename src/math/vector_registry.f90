@@ -184,7 +184,7 @@ contains
     integer :: i
 
     allocate(temp(this%n_vectors_ + this%expansion_size))
-    do concurrent (i = 1:this%n_vectors_)
+    do i = 1, this%n_vectors_
        temp(i) = this%vectors(i)
     end do
     call move_alloc(temp, this%vectors)
