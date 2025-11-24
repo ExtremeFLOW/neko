@@ -34,6 +34,9 @@ information that is not directly related to the usage of the code.
     using the Neko framework.
   - [Extending Neko](@ref extending) explains how to extend Neko with additional
     types to provide new capabilities.
+  - [Neko API](@ref api) explains how to use the C-based API of Neko.
+  - [Performance guidelines](@ref performance) Best practices guideline
+    on how to achieve good performance with Neko
 - \subpage developer-guide
   - [Contributing](@ref contributing) presents basic instructions to add
     your contributions to Neko.

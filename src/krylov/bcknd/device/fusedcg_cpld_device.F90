@@ -47,6 +47,7 @@ module fusedcg_cpld_device
   use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_IN_PLACE, MPI_Allreduce, &
        MPI_SUM
+  use operators, only : rotate_cyc
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, &
        c_associated, c_size_t, c_sizeof, c_int, c_loc
   implicit none
@@ -620,6 +621,8 @@ contains
 
          call Ax%compute_vector(w1, w2, w3, &
               p1(1, p_cur), p2(1, p_cur), p3(1, p_cur), coef, x%msh, x%Xh)
+
+         call rotate_cyc(w1, w2, w3, 1, coef)
          call gs_h%op(w1, n, GS_OP_ADD, this%gs_event1)
          call device_event_sync(this%gs_event1)
          call blstx%apply(w1, n)
@@ -629,6 +632,7 @@ contains
          call gs_h%op(w3, n, GS_OP_ADD, this%gs_event3)
          call device_event_sync(this%gs_event3)
          call blstz%apply(w3, n)
+         call rotate_cyc(w1, w2, w3, 0, coef)
 
          call device_fusedcg_cpld_part1(w1_d, w2_d, w3_d, p1_d(p_cur), &
               p2_d(p_cur), p3_d(p_cur), tmp_d, n)

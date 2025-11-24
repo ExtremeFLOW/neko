@@ -1,5 +1,7 @@
+#ifndef __ROTATE_KERNEL_H__
+#define __ROTATE_KERNEL_H__
 /*
- Copyright (c) 2025, The Neko Authors
+ Copyright (c) 2021-2022, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -20,7 +22,7 @@
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-     LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
@@ -31,36 +33,46 @@
  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 */
+template< typename T >
+__global__ void rotate_cyc_kernel(
+			   T * __restrict__ vx,
+			   T * __restrict__ vy,
+			   T * __restrict__ vz,
+			   const T * __restrict__ x,
+			   const T * __restrict__ y,
+			   const T * __restrict__ z,
+			   const int * __restrict__ cyc_msk,
+			   const T * __restrict__ R11,
+			   const T * __restrict__ R12,
+			   const int  ncyc,
+			   const int  idir) { 
+  
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
 
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <device/device_config.h>
-#include <device/cuda/check.h>
-#include "rough_log_law_kernel.h"
-
-extern "C" {
-  void cuda_rough_log_law_compute(void *u_d, void *v_d, void *w_d,
-          void *ind_r_d, void *ind_s_d, void *ind_t_d, void *ind_e_d,
-          void *n_x_d, void *n_y_d, void *n_z_d, void *h_d,
-          void *tau_x_d, void *tau_y_d, void *tau_z_d,
-          int *n_nodes, int *lx, real *kappa, real *B, real *z0, int *tstep) {
-    
-    const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks(((*n_nodes) + 1024 - 1) / 1024, 1, 1);
-    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
-
-    if (*n_nodes > 0) {
-    rough_log_law_compute<real>
-    <<<nblcks, nthrds, 0, stream>>>((real *) u_d, (real *) v_d, (real *) w_d,
-                                    (int *) ind_r_d, (int *) ind_s_d, 
-                                    (int *) ind_t_d, (int *) ind_e_d,
-                                    (real *) n_x_d, (real *) n_y_d, 
-                                    (real *) n_z_d, (real *) h_d,
-                                    (real *) tau_x_d, (real *) tau_y_d, 
-                                    (real *) tau_z_d,
-                                    *n_nodes, *lx, *kappa, *B, *z0);
-    CUDA_CHECK(cudaGetLastError());
+  for (int i = idx; i < ncyc; i += str) {
+    const int j  = cyc_msk[i+1]-1;
+    const T vxj  = vx[j];
+    const T vyj  = vy[j];
+    const T R11i = R11[i];
+    const T R12i = R12[i];
+    T vnor;
+    T vtan;
+    if (idir==1){
+        vnor =  vxj * R11i + vyj * R12i;
+        vtan = -vxj * R12i + vyj * R11i;
     }
+    else if (idir==0) {
+        vnor =  vxj * R11i - vyj * R12i;
+        vtan =  vxj * R12i + vyj * R11i;
+    }
+
+    vx[j] = vnor;
+    vy[j] = vtan;
   }
+
+
 }
+#endif
+
+

@@ -79,19 +79,18 @@ module case
      type(user_t) :: user
      class(fluid_scheme_base_t), allocatable :: fluid
      type(scalars_t), allocatable :: scalars
+   contains
+     procedure, private, pass(this) :: case_init_from_file
+     procedure, private, pass(this) :: case_init_from_json
+     procedure, pass(this) :: free => case_free
+     generic :: init => case_init_from_file, case_init_from_json
   end type case_t
-
-  interface case_init
-     module procedure case_init_from_file, case_init_from_json
-  end interface case_init
-
-  public :: case_init, case_free
 
 contains
 
   !> Initialize a case from an input file @a case_file
   subroutine case_init_from_file(this, case_file)
-    type(case_t), target, intent(inout) :: this
+    class(case_t), target, intent(inout) :: this
     character(len=*), intent(in) :: case_file
     integer :: ierr, integer_val
     character(len=:), allocatable :: json_buffer
@@ -126,7 +125,7 @@ contains
 
   !> Initialize a case from a JSON object describing a case
   subroutine case_init_from_json(this, case_json)
-    type(case_t), target, intent(inout) :: this
+    class(case_t), target, intent(inout) :: this
     type(json_file), intent(in) :: case_json
 
     call neko_log%section('Case')
@@ -179,7 +178,6 @@ contains
             'case file. Often caused by incorrectly formatted json.')
     end if
     call msh_file%init(string_val)
-
     call msh_file%read(this%msh)
 
     !
@@ -202,6 +200,9 @@ contains
        call neko_log%end_section()
     end if
 
+    ! Run user mesh motion routine
+    call this%user%mesh_setup(this%msh, this%time)
+
     !
     ! Time control
     !
@@ -212,11 +213,6 @@ contains
     ! Initialize point_zones registry
     !
     call neko_point_zone_registry%init(this%params, this%msh)
-
-    ! Run user mesh motion routine
-    call this%user%mesh_setup(this%msh, this%time)
-
-    call json_get(this%params, 'case.numerics', numerics_params)
 
     !
     ! Setup fluid scheme
@@ -256,6 +252,7 @@ contains
 
     if (scalar) then
        allocate(this%scalars)
+       call json_get(this%params, 'case.numerics', numerics_params)
        if (this%params%valid_path('case.scalar')) then
           ! For backward compatibility
           call json_get(this%params, 'case.scalar', scalar_params)
@@ -515,7 +512,7 @@ contains
 
   !> Deallocate a case
   subroutine case_free(this)
-    type(case_t), intent(inout) :: this
+    class(case_t), intent(inout) :: this
 
     if (allocated(this%fluid)) then
        call this%fluid%free()

@@ -40,7 +40,7 @@ module euler_res_cpu
   use coefs, only : coef_t
   use gather_scatter, only : gs_t
   use num_types, only : rp
-  use operators, only: div
+  use operators, only: div, rotate_cyc
   use math, only: subcol3, copy, sub2, add2, add3, &
        col2, col3, addcol3, cmult, cfill, invcol3
   use gs_ops, only : GS_OP_ADD
@@ -286,9 +286,11 @@ contains
 
     ! gs
     call gs%op(rhs_rho_field, GS_OP_ADD)
+    call rotate_cyc(rhs_m_x%x, rhs_m_y%x, rhs_m_z%x, 1, coef)
     call gs%op(rhs_m_x, GS_OP_ADD)
     call gs%op(rhs_m_y, GS_OP_ADD)
     call gs%op(rhs_m_z, GS_OP_ADD)
+    call rotate_cyc(rhs_m_x%x, rhs_m_y%x, rhs_m_z%x, 0, coef)
     call gs%op(rhs_E, GS_OP_ADD)
     do concurrent (i = 1:rhs_E%dof%size())
        rhs_rho_field%x(i,1,1,1) = rhs_rho_field%x(i,1,1,1) * coef%mult(i,1,1,1)
@@ -313,9 +315,11 @@ contains
 
     ! gs
     call gs%op(visc_rho, GS_OP_ADD)
+    call rotate_cyc(visc_m_x%x, visc_m_y%x, visc_m_z%x, 1, coef)
     call gs%op(visc_m_x, GS_OP_ADD)
     call gs%op(visc_m_y, GS_OP_ADD)
     call gs%op(visc_m_z, GS_OP_ADD)
+    call rotate_cyc(visc_m_x%x, visc_m_y%x, visc_m_z%x, 0, coef)
     call gs%op(visc_E, GS_OP_ADD)
 
     ! Move div to the rhs and apply artificial viscosity
