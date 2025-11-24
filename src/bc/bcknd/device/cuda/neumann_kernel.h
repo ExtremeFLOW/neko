@@ -96,4 +96,64 @@ void neumann_apply_scalar_kernel(const int * __restrict__ msk,
   }
 }
 
+/**
+ * Device kernel for neumann vector boundary condition
+ */
+template< typename T >
+__global__
+void neumann_apply_vector_kernel(const int * __restrict__ msk,
+                                 const int * __restrict__ facet,
+                                 T * __restrict__ x,
+                                 T * __restrict__ y,
+                                 T * __restrict__ z,
+                                 const T * __restrict__ flux_x,
+                                 const T * __restrict__ flux_y,
+                                 const T * __restrict__ flux_z,
+                                 const T * __restrict__ area,
+                                 const int lx,
+                                 const int m) {
+  int index[4];
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = (idx + 1); i < m; i += str) {
+    const int k = (msk[i] - 1);
+    const int f = (facet[i]);
+    nonlinear_index(msk[i], lx, index);
+
+    switch(f) {
+    case 1:
+    case 2:
+      {
+        const int na_idx = coef_normal_area_idx(index[1], index[2],
+                                                f, index[3], lx, 6);
+        x[k] += flux_x[i-1] * area[na_idx];
+        y[k] += flux_y[i-1] * area[na_idx];
+        z[k] += flux_z[i-1] * area[na_idx];
+        break;
+      }
+    case 3:
+    case 4:
+      {
+        const int na_idx = coef_normal_area_idx(index[0], index[2],
+                                                f, index[3], lx, 6);
+        x[k] += flux_x[i-1] * area[na_idx];
+        y[k] += flux_y[i-1] * area[na_idx];
+        z[k] += flux_z[i-1] * area[na_idx];
+        break;
+      }
+    case 5:
+    case 6:
+      {
+        const int na_idx = coef_normal_area_idx(index[0], index[1],
+                                                f, index[3], lx, 6);
+        x[k] += flux_x[i-1] * area[na_idx];
+        y[k] += flux_y[i-1] * area[na_idx];
+        z[k] += flux_z[i-1] * area[na_idx];
+        break;
+      }
+    }
+  }
+}
+
 #endif // __BC_NEUMANN_KERNEL__

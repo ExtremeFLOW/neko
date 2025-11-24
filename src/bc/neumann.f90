@@ -49,13 +49,16 @@ module neumann
   implicit none
   private
 
-  !> A Neumann boundary condition for scalar fields.
-  !! Sets the flux of the field to the chosen value.
+  !> A Neumann boundary condition.
+  !! Sets the flux of the field to the chosen values.
   !! @note The condition is imposed weekly by adding an appropriate source term
   !! to the right-hand-side.
   type, public, extends(bc_t) :: neumann_t
-     type(vector_t) :: flux_
-     real(kind=rp), private :: init_flux_
+     !> The flux values at the boundary.
+     type(vector_t), allocatable :: flux_(:)
+     !> An initial flux value set at construction. Copied to `flux_` at
+     !> finalization.
+     real(kind=rp), allocatable, private :: init_flux_(:)
      logical :: uniform_0 = .false.
    contains
      procedure, pass(this) :: apply_scalar => neumann_apply_scalar
@@ -89,22 +92,29 @@ contains
     class(neumann_t), intent(inout), target :: this
     type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) :: json
-    real(kind=rp) :: flux
+    real(kind=rp), allocatable :: flux(:)
 
     call this%init_base(coef)
     this%strong = .false.
 
     call json_get(json, "flux", flux)
+
+    if ((size(flux) .ne. 1) .and. (size(flux) .ne. 3)) then
+       call neko_error("Neumann BC flux must be a scalar or a 3-component" // &
+            "vector.")
+    end if
+
     this%init_flux_ = flux
+    allocate(this%flux_(size(flux)))
   end subroutine neumann_init
 
   !> Constructor from components.
   !! @param[in] coef The SEM coefficients.
-  !! @param[in] g The value to apply at the boundary.
+  !! @param[in] flux The value of the flux at the boundary.
   subroutine neumann_init_from_components(this, coef, flux)
     class(neumann_t), intent(inout), target :: this
     type(coef_t), intent(in) :: coef
-    real(kind=rp), intent(in) :: flux
+    real(kind=rp), intent(in) :: flux(:)
 
     call this%init_base(coef)
     this%init_flux_ = flux
@@ -139,13 +149,13 @@ contains
           select case (facet)
           case (1,2)
              x(k) = x(k) + &
-                  this%flux_%x(i)*this%coef%area(idx(2), idx(3), facet, idx(4))
+                  this%flux_(1)%x(i)*this%coef%area(idx(2), idx(3), facet, idx(4))
           case (3,4)
              x(k) = x(k) + &
-                  this%flux_%x(i)*this%coef%area(idx(1), idx(3), facet, idx(4))
+                  this%flux_(1)%x(i)*this%coef%area(idx(1), idx(3), facet, idx(4))
           case (5,6)
              x(k) = x(k) + &
-                  this%flux_%x(i)*this%coef%area(idx(1), idx(2), facet, idx(4))
+                  this%flux_(1)%x(i)*this%coef%area(idx(1), idx(2), facet, idx(4))
           end select
        end do
     end if
@@ -161,9 +171,48 @@ contains
     real(kind=rp), intent(inout), dimension(n) :: z
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
+    integer :: i, m, k, facet
+    ! Store non-linear index
+    integer :: idx(4)
+    logical :: strong_
 
-    if (.not. this%uniform_0 .and. this%msk(0) .gt. 0) then
-       call neko_error("Neumann bc not implemented for vectors")
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
+
+    m = this%msk(0)
+    if (.not. strong_) then
+       do i = 1, m
+          k = this%msk(i)
+          facet = this%facet(i)
+          idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx,&
+               this%coef%Xh%lx)
+          select case (facet)
+          case (1,2)
+             x(k) = x(k) + &
+                  this%flux_(1)%x(i)*this%coef%area(idx(2), idx(3), facet, idx(4))
+             y(k) = y(k) + &
+                  this%flux_(2)%x(i)*this%coef%area(idx(2), idx(3), facet, idx(4))
+             z(k) = z(k) + &
+                  this%flux_(3)%x(i)*this%coef%area(idx(2), idx(3), facet, idx(4))
+          case (3,4)
+             x(k) = x(k) + &
+                  this%flux_(1)%x(i)*this%coef%area(idx(1), idx(3), facet, idx(4))
+             y(k) = y(k) + &
+                  this%flux_(2)%x(i)*this%coef%area(idx(1), idx(3), facet, idx(4))
+             z(k) = z(k) + &
+                  this%flux_(3)%x(i)*this%coef%area(idx(1), idx(3), facet, idx(4))
+          case (5,6)
+             x(k) = x(k) + &
+                  this%flux_(1)%x(i)*this%coef%area(idx(1), idx(2), facet, idx(4))
+             y(k) = y(k) + &
+                  this%flux_(2)%x(i)*this%coef%area(idx(1), idx(2), facet, idx(4))
+             z(k) = z(k) + &
+                  this%flux_(3)%x(i)*this%coef%area(idx(1), idx(2), facet, idx(4))
+          end select
+       end do
     end if
   end subroutine neumann_apply_vector
 
@@ -184,9 +233,9 @@ contains
     end if
 
     if (.not. this%uniform_0 .and. this%msk(0) .gt. 0 .and. &
-        .not. strong_) then
+         .not. strong_) then
        call device_neumann_apply_scalar(this%msk_d, this%facet_d, x_d, &
-            this%flux_%x_d, this%coef%area_d, this%coef%Xh%lx, &
+            this%flux_(1)%x_d, this%coef%area_d, this%coef%Xh%lx, &
             size(this%msk), strm)
     end if
   end subroutine neumann_apply_scalar_dev
@@ -221,7 +270,7 @@ contains
   subroutine neumann_finalize(this, only_facets)
     class(neumann_t), target, intent(inout) :: this
     logical, optional, intent(in) :: only_facets
-    integer :: i
+    integer :: i, j
 
     if (present(only_facets)) then
        if (only_facets .eqv. .false.) then
@@ -231,13 +280,15 @@ contains
 
     call this%finalize_base(.true.)
 
-    call this%flux_%init(this%msk(0))
+    do i = 1,size(this%init_flux_)
+       call this%flux_(i)%init(this%msk(0))
+       this%flux_(i) = this%init_flux_(i)
+    end do
 
-    this%flux_ = this%init_flux_
     this%uniform_0 = .true.
 
-    do i = 1,this%msk(0)
-       this%uniform_0 = abscmp(this%init_flux_, 0.0_rp) .and. this%uniform_0
+    do i = 1, this%msk(0)
+       this%uniform_0 = abscmp(this%init_flux_(i), 0.0_rp) .and. this%uniform_0
     end do
   end subroutine neumann_finalize
 
@@ -247,28 +298,42 @@ contains
     class(neumann_t), intent(in) :: this
     real(kind=rp) :: flux(this%msk(0))
 
-    flux = this%flux_%x
+    flux = this%flux_(1)%x
   end function neumann_flux
 
   !> Set the flux using a scalar.
   !! @param flux The desired flux.
-  subroutine neumann_set_flux_scalar(this, flux)
+  !! @param comp The component to set.
+  subroutine neumann_set_flux_scalar(this, flux, comp)
     class(neumann_t), intent(inout) :: this
     real(kind=rp), intent(in) :: flux
+    integer, intent(in) :: comp
 
-    this%flux_ = flux
+    if (size(this%flux_) .lt. comp) then
+       call neko_error("Component index out of bounds in " // &
+            "neumann_set_flux_scalar")
+    end if
+
+    this%flux_(comp) = flux
     this%uniform_0 = abscmp(flux, 0.0_rp)
 
   end subroutine neumann_set_flux_scalar
 
-  !> Set the flux using an array of values.
+  !> Set a flux component using a vector_t of values.
   !> @param flux The desired flux.
-  subroutine neumann_set_flux_array(this, flux)
+  !> @param comp The component to set.
+  subroutine neumann_set_flux_array(this, flux, comp)
     class(neumann_t), intent(inout) :: this
     type(vector_t), intent(in) :: flux
+    integer, intent(in) :: comp
     integer :: i
 
-    this%flux_ = flux
+    if (size(this%flux_) .lt. comp) then
+       call neko_error("Component index out of bounds in " // &
+            "neuman_set_flux_array")
+    end if
+
+    this%flux_(comp) = flux
 
     ! We assume that passing a homogeneous array is so rare that it is not
     ! worth doing a check, which requires a loop over the flux values.
@@ -277,5 +342,4 @@ contains
     this%uniform_0 = .false.
 
   end subroutine neumann_set_flux_array
-
 end module neumann
