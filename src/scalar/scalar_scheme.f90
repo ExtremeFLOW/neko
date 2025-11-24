@@ -492,8 +492,8 @@ contains
          time)
 
     ! factor = rho * cp / pr_turb
-    if (len(trim(this%nut_field_name)) > 0 &
-         .and. len(trim(this%alphat_field_name)) .eq. 0 ) then
+    if (len_trim(this%nut_field_name) .gt. 0 &
+         .and. len_trim(this%alphat_field_name) .eq. 0 ) then
        nut => neko_field_registry%get_field(this%nut_field_name)
 
        ! lambda_tot = lambda + rho * cp * nut / pr_turb
