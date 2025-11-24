@@ -504,8 +504,8 @@ contains
        call field_add3(this%lambda_tot, this%lambda, lambda_factor)
        call neko_scratch_registry%relinquish_field(index)
 
-    else if (len(trim(this%alphat_field_name)) > 0 &
-         .and. len(trim(this%nut_field_name)) .eq. 0 ) then
+    else if (len_trim(this%alphat_field_name) .gt. 0 &
+         .and. len_trim(this%nut_field_name) .eq. 0 ) then
        alphat => neko_field_registry%get_field(this%alphat_field_name)
 
        ! lambda_tot = lambda + rho * cp * alphat
