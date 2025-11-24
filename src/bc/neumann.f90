@@ -370,9 +370,9 @@ contains
     end if
 
     this%flux_(comp) = flux
-
-    ! Once a flux is set explicitly, we no longer assume it is uniform zero.
-    this%uniform_0 = .false.
+    ! If we were uniform zero before, and this comp is set to zero, we are still
+    ! uniform zero
+    this%uniform_0 = abscmp(flux, 0.0_rp) .and. this%uniform_0
 
   end subroutine neumann_set_flux_scalar
 
