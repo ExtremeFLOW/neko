@@ -51,6 +51,9 @@ module logger
      integer, private :: tab_size_
      integer, private :: level_
      integer, private :: unit_
+
+     character(len=LOG_SIZE), private :: section_header = ""
+
    contains
      procedure, pass(this) :: init => log_init
      procedure, pass(this) :: free => log_free
@@ -155,6 +158,8 @@ contains
        this%indent_ = this%indent_ - this%tab_size_
     end if
 
+    this%section_header = ""
+
   end subroutine log_end
 
   !> Indent a log
@@ -192,7 +197,7 @@ contains
 
   !> Write a message to a log
   subroutine log_message(this, msg, lvl)
-    class(log_t), intent(in) :: this
+    class(log_t), intent(inout) :: this
     character(len=*), intent(in) :: msg
     integer, optional :: lvl
     integer :: lvl_
@@ -205,6 +210,13 @@ contains
 
     if (lvl_ .gt. this%level_) then
        return
+    end if
+
+    if (len_trim(this%section_header) .gt. 0) then
+       call this%newline(lvl)
+       call this%indent()
+       write(this%unit_, '(A)') trim(this%section_header)
+       this%section_header = ""
     end if
 
     if (pe_rank .eq. 0) then
@@ -264,7 +276,6 @@ contains
     character(len=*), intent(in) :: msg
     integer, optional :: lvl
 
-    character(len=LOG_SIZE) :: log_msg
     integer :: pre, pos
 
     call this%begin()
@@ -273,10 +284,8 @@ contains
        pre = (30 - len_trim(msg)) / 2
        pos = 30 - (len_trim(msg) + pre)
 
-       write(log_msg, '(A,A,A)') repeat('-', pre), trim(msg), repeat('-', pos)
-
-       call this%newline(lvl)
-       call this%message(trim(log_msg), lvl)
+       write(this%section_header, '(A,A,A)') &
+            repeat('-', pre), trim(msg), repeat('-', pos)
     end if
 
   end subroutine log_section
