@@ -1,5 +1,3 @@
-#ifndef __ROTATE_KERNEL_H__
-#define __ROTATE_KERNEL_H__
 /*
  Copyright (c) 2025, The Neko Authors
  All rights reserved.
@@ -33,44 +31,34 @@
  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 */
-template< typename T >
-__global__ void rotate_cyc_kernel(
-			   T * __restrict__ vx,
-			   T * __restrict__ vy,
-			   T * __restrict__ vz,
-			   const T * __restrict__ x,
-			   const T * __restrict__ y,
-			   const T * __restrict__ z,
-			   const int * __restrict__ cyc_msk,
-			   const T * __restrict__ R11,
-			   const T * __restrict__ R12,
-			   const int  ncyc,
-			   const int  idir) {
 
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
+#include <stdlib.h>
+#include <stdio.h>
+#include <hip/hip_runtime.h>
+#include <device/device_config.h>
+#include <device/hip/check.h>
+#include "rotate_kernel.h"
 
-  for (int i = idx; i < ncyc; i += str) {
-    const int j  = cyc_msk[i+1]-1;
-    const T vxj  = vx[j];
-    const T vyj  = vy[j];
-    const T R11i = R11[i];
-    const T R12i = R12[i];
-    T vnor;
-    T vtan;
-    if (idir==1){
-        vnor =  vxj * R11i + vyj * R12i;
-        vtan = -vxj * R12i + vyj * R11i;
-    }
-    else if (idir==0) {
-        vnor =  vxj * R11i - vyj * R12i;
-        vtan =  vxj * R12i + vyj * R11i;
-    }
 
-    vx[j] = vnor;
-    vy[j] = vtan;
+extern "C" {
+
+  void hip_rotate_cyc(void *vx, void *vy, void *vz,
+                      void *x, void *y, void *z,
+                      void *cyc_msk, void *R11, void *R12,
+                      int *ncyc, int *idir) {
+
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*ncyc)+1024 - 1)/ 1024, 1, 1);
+    const hipStream_t stream = (hipStream_t) glb_cmd_queue;
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME( rotate_cyc_kernel<real> ),
+                       nblcks, nthrds, 0, stream,
+                       (real *) vx, (real *) vy, (real *) vz,
+                       (real *) x,  (real *) y,  (real *) z,
+                       (int *) cyc_msk, (real *) R11, (real *) R12,
+                       *ncyc, *idir);
+    HIP_CHECK(hipGetLastError());
   }
 
-
 }
-#endif
