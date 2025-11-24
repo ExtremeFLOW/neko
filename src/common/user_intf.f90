@@ -61,7 +61,7 @@ module user_intf
 
   !> Abstract interface for user defined initial conditions
   !! @param scheme_name The name of the scheme calling the routine.
-  !! @fields The fields to be initialized packed in a list.
+  !! @param fields The fields to be initialized packed in a list.
   abstract interface
      subroutine user_initial_conditions_intf(scheme_name, fields)
        import field_list_t
