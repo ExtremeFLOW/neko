@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2025, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -46,20 +46,18 @@ extern "C" {
                        void *x, void *y, void *z,
                        void *cyc_msk, void *R11, void *R12,
                        int *ncyc, int *idir) {
-    
+
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*ncyc)+1024 - 1)/ 1024, 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
     rotate_cyc_kernel<real><<<nblcks, nthrds, 0, stream>>>(
-             (real *) vx, (real *) vy, (real *) vz,                                      
-             (real *) x,  (real *) y,  (real *) z,                                       
-             (int *) cyc_msk, (real *) R11, (real *) R12,                                       
+             (real *) vx, (real *) vy, (real *) vz,
+             (real *) x,  (real *) y,  (real *) z,
+             (int *) cyc_msk, (real *) R11, (real *) R12,
              *ncyc, *idir);
     CUDA_CHECK(cudaGetLastError());
   }
 
 }
-
-
