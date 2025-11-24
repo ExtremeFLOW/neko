@@ -791,7 +791,8 @@ the prefix `"sponge_bf_"`, meaning that `u` will be in `sponge_bf_u`, etc.
 This prefix can be changed by setting the parameter `bf_registry_prefix`.
 
 <details>
-<summary><b><u>Example using `user_init_modules`</u></b></summary> 
+<summary><b><u>Example using `user_init_modules`</u></b></summary>
+
 ```fortran
 module user
   use neko
@@ -906,6 +907,7 @@ contains
 
 end module user
 ```
+
 </details>
 
 In order to visualize your baseflow and fringe field, you may set 
@@ -970,7 +972,13 @@ In addition to the above settings, the solvers can be configured with strict
 convergence criteria. This is done by setting the
 `case.fluid.strict_convergence` keyword to `true`. This will force the solver to
 converge to the specified tolerance within the specified number of iterations.
-If the solver does not converge, the simulation will be terminated.
+If the solver does not converge, the simulation will be terminated.  
+This can in some situations cause issues if the initial condition is far from a
+valid solution. Therefore a user can allow an initial stabilization phase by
+setting the `case.fluid.allow_stabilization` keyword to `true`. In this case,
+the strict convergence will be ignored untill all components of the velocity
+field converge within the specified tolerance. After this initial stabilization
+phase, strict convergence will be enforced for the rest of the simulation.
 
 ### Multilevel preconditioners
 The multilevel preconditioners, `hsmg` and `phmg`, come with an
@@ -1065,6 +1073,8 @@ concisely directly in the table.
 | `flow_rate_force.value`                 | Bulk velocity or volumetric flow rate.                                                            | Positive real                                               | -             |
 | `flow_rate_force.use_averaged_flow`     | Whether bulk velocity or volumetric flow rate is given by the `value` parameter.                  | `true` or `false`                                           | -             |
 | `freeze`                                | Whether to fix the velocity field at initial conditions.                                          | `true` or `false`                                           | `false`       |
+| `strict_convergence`                    | Whether to enforce strict convergence in the linear solvers.                                      | `true` or `false`                                           | `false`       |
+| `allow_stabilization`                   | Whether to allow an initial stabilization phase before enforcing strict convergence.              | `true` or `false`                                           | `false`       |
 | `advection`                             | Whether to compute the advection term.                                                            | `true` or `false`                                           | `true`        |
 | `full_stress_formulation`               | Whether to use the full form of the visous stress tensor term.                                    | `true` or `false`                                           | `false`       |
 

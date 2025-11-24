@@ -50,6 +50,7 @@ extern "C" {
     const dim3 nblcks(((*n_nodes) + 1024 - 1) / 1024, 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
+    if (*n_nodes > 0) {
     rough_log_law_compute<real>
     <<<nblcks, nthrds, 0, stream>>>((real *) u_d, (real *) v_d, (real *) w_d,
                                     (int *) ind_r_d, (int *) ind_s_d, 
@@ -60,5 +61,6 @@ extern "C" {
                                     (real *) tau_z_d,
                                     *n_nodes, *lx, *kappa, *B, *z0);
     CUDA_CHECK(cudaGetLastError());
+    }
   }
 }
