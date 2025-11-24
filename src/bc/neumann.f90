@@ -44,21 +44,30 @@ module neumann
   use neko_config, only : NEKO_BCKND_DEVICE
   use device_math, only : device_cfill, device_copy
   use device, only : device_memcpy, DEVICE_TO_HOST
-  use device_neumann, only : device_neumann_apply_scalar
+  use device_neumann, only : device_neumann_apply_scalar, &
+       device_neumann_apply_vector
   use time_state, only : time_state_t
   implicit none
   private
 
   !> A Neumann boundary condition.
   !! Sets the flux of the field to the chosen values.
-  !! @note The condition is imposed weekly by adding an appropriate source term
-  !! to the right-hand-side.
+  !! @details The condition is imposed weakly by adding an appropriate source
+  !! term to the right-hand-side. At construction time, we check if the
+  !! prescribed flux is zero and if so, the condition just does nothing. Setting
+  !! the flux using the `set_flux` routine, automatically removes this
+  !! assumption.
   type, public, extends(bc_t) :: neumann_t
-     !> The flux values at the boundary.
+     !> The flux values at the boundary. Each vector in the array corresponds to
+     !> a component of the flux.
      type(vector_t), allocatable :: flux_(:)
-     !> An initial flux value set at construction. Copied to `flux_` at
+     !> An initial flux value set at construction. A constant for each
+     !> component. Copied to `flux_` at finalization. This is needed because we
+     !> do not know the size of the boundary at construction time, only at
      !> finalization.
      real(kind=rp), allocatable, private :: init_flux_(:)
+     !> Flag for whether we have a homogeneous Neumann condition, i.e.
+     !! "do nothing".
      logical :: uniform_0 = .false.
    contains
      procedure, pass(this) :: apply_scalar => neumann_apply_scalar
@@ -67,9 +76,13 @@ module neumann
      procedure, pass(this) :: apply_vector_dev => neumann_apply_vector_dev
      !> Constructor
      procedure, pass(this) :: init => neumann_init
-     !> Constructor from components
-     procedure, pass(this) :: init_from_components => &
-          neumann_init_from_components
+     !> Constructor from components, one flux value per component.
+     procedure, pass(this) :: neumann_init_from_components_array
+     !> Constructor from components, single flux for the single-component case.
+     procedure, pass(this) :: neumann_init_from_components_single
+     generic :: init_from_components => &
+          neumann_init_from_components_array, &
+          neumann_init_from_components_single
      procedure, pass(this) :: flux => neumann_flux
      !> Set the flux using a scalar.
      procedure, pass(this) :: set_flux_scalar => neumann_set_flux_scalar
@@ -92,33 +105,61 @@ contains
     class(neumann_t), intent(inout), target :: this
     type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) :: json
-    real(kind=rp), allocatable :: flux(:)
+    real(kind=rp) :: flux
+    logical :: found
 
     call this%init_base(coef)
     this%strong = .false.
 
-    call json_get(json, "flux", flux)
+    ! Try to read array from json
+    call json%get("flux", this%init_flux_, found)
 
-    if ((size(flux) .ne. 1) .and. (size(flux) .ne. 3)) then
-       call neko_error("Neumann BC flux must be a scalar or a 3-component" // &
-            "vector.")
+    ! If we haven't found an array, try to read a single value
+    if (.not. found) then
+       call json_get(json, "flux", flux)
+       allocate(this%init_flux_(1))
+       this%init_flux_(1) = flux
     end if
 
-    this%init_flux_ = flux
-    allocate(this%flux_(size(flux)))
+    if ((size(this%init_flux_) .ne. 1) &
+         .and. (size(this%init_flux_) .ne. 3)) then
+       call neko_error("Neumann BC flux must be a scalar or a 3-component" // &
+            " vector.")
+    end if
+
+    allocate(this%flux_(size(this%init_flux_)))
   end subroutine neumann_init
 
-  !> Constructor from components.
+  !> Constructor from components, using a flux array for vector components.
   !! @param[in] coef The SEM coefficients.
   !! @param[in] flux The value of the flux at the boundary.
-  subroutine neumann_init_from_components(this, coef, flux)
+  subroutine neumann_init_from_components_array(this, coef, flux)
     class(neumann_t), intent(inout), target :: this
     type(coef_t), intent(in) :: coef
-    real(kind=rp), intent(in) :: flux(:)
+    real(kind=rp), intent(in) :: flux(3)
 
     call this%init_base(coef)
     this%init_flux_ = flux
-  end subroutine neumann_init_from_components
+
+    if ((size(this%init_flux_) .ne. 3)) then
+       call neko_error("Neumann BC flux must be a scalar or a 3-component" // &
+            " vector.")
+    end if
+  end subroutine neumann_init_from_components_array
+
+  !> Constructor from components, using an signle flux.
+  !! @param[in] coef The SEM coefficients.
+  !! @param[in] flux The value of the flux at the boundary.
+  subroutine neumann_init_from_components_single(this, coef, flux)
+    class(neumann_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+    real(kind=rp), intent(in) :: flux
+
+    call this%init_base(coef)
+    allocate(this%init_flux_(1))
+    this%init_flux_(1) = flux
+
+  end subroutine neumann_init_from_components_single
 
   !> Boundary condition apply for a generic Neumann condition
   !! to a vector @a x
@@ -251,9 +292,21 @@ contains
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     type(c_ptr), intent(inout) :: strm
+    logical :: strong_
 
-    if (.not. this%uniform_0 .and. this%msk(0) .gt. 0) then
-       call neko_error("Neumann bc not implemented for vectors.")
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
+
+    if (.not. this%uniform_0 .and. this%msk(0) .gt. 0 .and. &
+         .not. strong_) then
+       call device_neumann_apply_vector(this%msk_d, this%facet_d, &
+            x_d, y_d, z_d, &
+            this%flux_(1)%x_d, this%flux_(2)%x_d, this%flux_(3)%x_d, &
+            this%coef%area_d, this%coef%Xh%lx, &
+            size(this%msk), strm)
     end if
 
   end subroutine neumann_apply_vector_dev
@@ -280,6 +333,7 @@ contains
 
     call this%finalize_base(.true.)
 
+    ! Allocate flux vectors and assign to initial constant values
     do i = 1,size(this%init_flux_)
        call this%flux_(i)%init(this%msk(0))
        this%flux_(i) = this%init_flux_(i)
@@ -287,18 +341,19 @@ contains
 
     this%uniform_0 = .true.
 
-    do i = 1, this%msk(0)
+    do i = 1, 3
        this%uniform_0 = abscmp(this%init_flux_(i), 0.0_rp) .and. this%uniform_0
     end do
   end subroutine neumann_finalize
 
-  !> Get the flux.
-  !This looks really sketchy IMO /Martin
-  pure function neumann_flux(this) result(flux)
+  !> Get a copy of a component of the flux.
+  !! @param comp The component to get.
+  function neumann_flux(this, comp) result(flux)
     class(neumann_t), intent(in) :: this
-    real(kind=rp) :: flux(this%msk(0))
+    integer, intent(in) :: comp
+    type(vector_t) :: flux
 
-    flux = this%flux_(1)%x
+    flux = this%flux_(comp)
   end function neumann_flux
 
   !> Set the flux using a scalar.
@@ -315,7 +370,9 @@ contains
     end if
 
     this%flux_(comp) = flux
-    this%uniform_0 = abscmp(flux, 0.0_rp)
+
+    ! Once a flux is set explicitly, we no longer assume it is uniform zero.
+    this%uniform_0 = .false.
 
   end subroutine neumann_set_flux_scalar
 
@@ -335,10 +392,7 @@ contains
 
     this%flux_(comp) = flux
 
-    ! We assume that passing a homogeneous array is so rare that it is not
-    ! worth doing a check, which requires a loop over the flux values.
-    ! Note that this routine can be called at each timestep, e.g. by wall
-    ! models.
+    ! Once a flux is set explicitly, we no longer assume it is uniform zero.
     this%uniform_0 = .false.
 
   end subroutine neumann_set_flux_array

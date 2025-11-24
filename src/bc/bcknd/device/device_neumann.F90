@@ -100,7 +100,7 @@ module device_neumann
   end interface
 #endif
 
-  public :: device_neumann_apply_scalar
+  public :: device_neumann_apply_scalar, device_neumann_apply_vector
 
 contains
 
