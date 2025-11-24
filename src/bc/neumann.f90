@@ -60,9 +60,9 @@ module neumann
   type, public, extends(bc_t) :: neumann_t
      !> The flux values at the boundary. Each vector in the array corresponds to
      !> a component of the flux.
-     type(vector_t), allocatable :: flux_(:)
+     type(vector_t), allocatable :: flux(:)
      !> An initial flux value set at construction. A constant for each
-     !> component. Copied to `flux_` at finalization. This is needed because we
+     !> component. Copied to `flux` at finalization. This is needed because we
      !> do not know the size of the boundary at construction time, only at
      !> finalization.
      real(kind=rp), allocatable, private :: init_flux_(:)
@@ -83,7 +83,6 @@ module neumann
      generic :: init_from_components => &
           neumann_init_from_components_array, &
           neumann_init_from_components_single
-     procedure, pass(this) :: flux => neumann_flux
      !> Set the flux using a scalar.
      procedure, pass(this) :: set_flux_scalar => neumann_set_flux_scalar
      !> Set the flux using an array.
@@ -127,7 +126,7 @@ contains
             " vector.")
     end if
 
-    allocate(this%flux_(size(this%init_flux_)))
+    allocate(this%flux(size(this%init_flux_)))
   end subroutine neumann_init
 
   !> Constructor from components, using a flux array for vector components.
@@ -190,13 +189,13 @@ contains
           select case (facet)
           case (1,2)
              x(k) = x(k) + &
-                  this%flux_(1)%x(i)*this%coef%area(idx(2), idx(3), facet, idx(4))
+                  this%flux(1)%x(i)*this%coef%area(idx(2), idx(3), facet, idx(4))
           case (3,4)
              x(k) = x(k) + &
-                  this%flux_(1)%x(i)*this%coef%area(idx(1), idx(3), facet, idx(4))
+                  this%flux(1)%x(i)*this%coef%area(idx(1), idx(3), facet, idx(4))
           case (5,6)
              x(k) = x(k) + &
-                  this%flux_(1)%x(i)*this%coef%area(idx(1), idx(2), facet, idx(4))
+                  this%flux(1)%x(i)*this%coef%area(idx(1), idx(2), facet, idx(4))
           end select
        end do
     end if
@@ -233,25 +232,25 @@ contains
           select case (facet)
           case (1,2)
              x(k) = x(k) + &
-                  this%flux_(1)%x(i)*this%coef%area(idx(2), idx(3), facet, idx(4))
+                  this%flux(1)%x(i)*this%coef%area(idx(2), idx(3), facet, idx(4))
              y(k) = y(k) + &
-                  this%flux_(2)%x(i)*this%coef%area(idx(2), idx(3), facet, idx(4))
+                  this%flux(2)%x(i)*this%coef%area(idx(2), idx(3), facet, idx(4))
              z(k) = z(k) + &
-                  this%flux_(3)%x(i)*this%coef%area(idx(2), idx(3), facet, idx(4))
+                  this%flux(3)%x(i)*this%coef%area(idx(2), idx(3), facet, idx(4))
           case (3,4)
              x(k) = x(k) + &
-                  this%flux_(1)%x(i)*this%coef%area(idx(1), idx(3), facet, idx(4))
+                  this%flux(1)%x(i)*this%coef%area(idx(1), idx(3), facet, idx(4))
              y(k) = y(k) + &
-                  this%flux_(2)%x(i)*this%coef%area(idx(1), idx(3), facet, idx(4))
+                  this%flux(2)%x(i)*this%coef%area(idx(1), idx(3), facet, idx(4))
              z(k) = z(k) + &
-                  this%flux_(3)%x(i)*this%coef%area(idx(1), idx(3), facet, idx(4))
+                  this%flux(3)%x(i)*this%coef%area(idx(1), idx(3), facet, idx(4))
           case (5,6)
              x(k) = x(k) + &
-                  this%flux_(1)%x(i)*this%coef%area(idx(1), idx(2), facet, idx(4))
+                  this%flux(1)%x(i)*this%coef%area(idx(1), idx(2), facet, idx(4))
              y(k) = y(k) + &
-                  this%flux_(2)%x(i)*this%coef%area(idx(1), idx(2), facet, idx(4))
+                  this%flux(2)%x(i)*this%coef%area(idx(1), idx(2), facet, idx(4))
              z(k) = z(k) + &
-                  this%flux_(3)%x(i)*this%coef%area(idx(1), idx(2), facet, idx(4))
+                  this%flux(3)%x(i)*this%coef%area(idx(1), idx(2), facet, idx(4))
           end select
        end do
     end if
@@ -276,7 +275,7 @@ contains
     if (.not. this%uniform_0 .and. this%msk(0) .gt. 0 .and. &
          .not. strong_) then
        call device_neumann_apply_scalar(this%msk_d, this%facet_d, x_d, &
-            this%flux_(1)%x_d, this%coef%area_d, this%coef%Xh%lx, &
+            this%flux(1)%x_d, this%coef%area_d, this%coef%Xh%lx, &
             size(this%msk), strm)
     end if
   end subroutine neumann_apply_scalar_dev
@@ -304,7 +303,7 @@ contains
          .not. strong_) then
        call device_neumann_apply_vector(this%msk_d, this%facet_d, &
             x_d, y_d, z_d, &
-            this%flux_(1)%x_d, this%flux_(2)%x_d, this%flux_(3)%x_d, &
+            this%flux(1)%x_d, this%flux(2)%x_d, this%flux(3)%x_d, &
             this%coef%area_d, this%coef%Xh%lx, &
             size(this%msk), strm)
     end if
@@ -335,8 +334,8 @@ contains
 
     ! Allocate flux vectors and assign to initial constant values
     do i = 1,size(this%init_flux_)
-       call this%flux_(i)%init(this%msk(0))
-       this%flux_(i) = this%init_flux_(i)
+       call this%flux(i)%init(this%msk(0))
+       this%flux(i) = this%init_flux_(i)
     end do
 
     this%uniform_0 = .true.
@@ -346,16 +345,6 @@ contains
     end do
   end subroutine neumann_finalize
 
-  !> Get a copy of a component of the flux.
-  !! @param comp The component to get.
-  function neumann_flux(this, comp) result(flux)
-    class(neumann_t), intent(in) :: this
-    integer, intent(in) :: comp
-    type(vector_t) :: flux
-
-    flux = this%flux_(comp)
-  end function neumann_flux
-
   !> Set the flux using a scalar.
   !! @param flux The desired flux.
   !! @param comp The component to set.
@@ -364,12 +353,12 @@ contains
     real(kind=rp), intent(in) :: flux
     integer, intent(in) :: comp
 
-    if (size(this%flux_) .lt. comp) then
+    if (size(this%flux) .lt. comp) then
        call neko_error("Component index out of bounds in " // &
             "neumann_set_flux_scalar")
     end if
 
-    this%flux_(comp) = flux
+    this%flux(comp) = flux
     ! If we were uniform zero before, and this comp is set to zero, we are still
     ! uniform zero
     this%uniform_0 = abscmp(flux, 0.0_rp) .and. this%uniform_0
@@ -385,12 +374,12 @@ contains
     integer, intent(in) :: comp
     integer :: i
 
-    if (size(this%flux_) .lt. comp) then
+    if (size(this%flux) .lt. comp) then
        call neko_error("Component index out of bounds in " // &
             "neuman_set_flux_array")
     end if
 
-    this%flux_(comp) = flux
+    this%flux(comp) = flux
 
     ! Once a flux is set explicitly, we no longer assume it is uniform zero.
     this%uniform_0 = .false.
