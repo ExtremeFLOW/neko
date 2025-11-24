@@ -127,8 +127,8 @@ void neumann_apply_vector_kernel(__global const int *msk,
   const int str = get_global_size(0);
 
   for (int i = (idx + 1); i < m; i += str) {
-    const int k = (msk[i] - 1);
-    const int f = (facet[i]);
+    const int k = msk[i] - 1;
+    const int f = facet[i];
     nonlinear_index(msk[i], lx, index);
 
     switch(f) {
