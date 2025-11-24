@@ -107,4 +107,63 @@ void neumann_apply_scalar_kernel(__global const int *msk,
   }
 }
 
+/**
+ * Device kernel for neumann vector boundary condition
+ */
+__kernel
+void neumann_apply_vector_kernel(__global const int *msk,
+                                 __global const int *facet,
+                                 __global real *x,
+                                 __global real *y,
+                                 __global real *z,
+                                 __global const real *flux_x,
+                                 __global const real *flux_y,
+                                 __global const real *flux_z,
+                                 __global const real *area,
+                                 const int lx,
+                                 const int m) {
+  int index[4];
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = (idx + 1); i < m; i += str) {
+    const int k = (msk[i] - 1);
+    const int f = (facet[i]);
+    nonlinear_index(msk[i], lx, index);
+
+    switch(f) {
+    case 1:
+    case 2:
+      {
+        const int na_idx = coef_normal_area_idx(index[1], index[2],
+                                              f, index[3], lx, 6);
+        x[k] += flux_x[i-1] * area[na_idx];
+        y[k] += flux_y[i-1] * area[na_idx];
+        z[k] += flux_z[i-1] * area[na_idx];
+        break;
+      }
+    case 3:
+    case 4:
+      {
+        const int na_idx = coef_normal_area_idx(index[0], index[2],
+                                              f, index[3], lx, 6);
+        x[k] += flux_x[i-1] * area[na_idx];
+        y[k] += flux_y[i-1] * area[na_idx];
+        z[k] += flux_z[i-1] * area[na_idx];
+        break;
+      }
+    case 5:
+    case 6:
+      {
+        const int na_idx = coef_normal_area_idx(index[0], index[1],
+                                              f, index[3], lx, 6);
+        x[k] += flux_x[i-1] * area[na_idx];
+        y[k] += flux_y[i-1] * area[na_idx];
+        z[k] += flux_z[i-1] * area[na_idx];
+        break;
+      }
+    }
+  }
+}
+
 #endif
