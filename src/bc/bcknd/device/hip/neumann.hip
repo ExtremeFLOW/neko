@@ -61,7 +61,7 @@ extern "C" {
   /**
    * Fortran wrapper for device neumann apply vector
    */
-  void hip_neumann_apply_scalar(void *msk, void *facet,
+  void hip_neumann_apply_vector(void *msk, void *facet,
                                 void *x, void *y, void *z,
                                 void *flux_x, void *flux_y, void *flux_z,
                                 void *area, int *lx, int *m,
@@ -70,7 +70,7 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m) + 1024 - 1)/ 1024, 1, 1);
 
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(neumann_apply_scalar_kernel<real>),
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(neumann_apply_vector_kernel<real>),
                        nblcks, nthrds, 0, strm,
                        (int *) msk, (int *) facet,
                        (real *) x,
