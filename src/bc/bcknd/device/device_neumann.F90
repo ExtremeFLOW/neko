@@ -95,7 +95,8 @@ module device_neumann
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, lx
-       type(c_ptr), value :: msk, facet, x, flux, area, strm
+       type(c_ptr), value :: msk, facet, x, y, z, flux_x, flux_y, flux_z, &
+            area, strm
      end subroutine opencl_neumann_apply_vector
   end interface
 #endif
