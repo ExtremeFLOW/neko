@@ -117,8 +117,8 @@ void neumann_apply_vector_kernel(const int * __restrict__ msk,
   const int str = blockDim.x * gridDim.x;
 
   for (int i = (idx + 1); i < m; i += str) {
-    const int k = (msk[i] - 1);
-    const int f = (facet[i]);
+    const int k = msk[i] - 1;
+    const int f = facet[i];
     nonlinear_index(msk[i], lx, index);
 
     switch(f) {
