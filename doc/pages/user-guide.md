@@ -16,3 +16,4 @@ advanced topics such as statistics and user defined extensions.
 - \subpage programming-examples
 - \subpage extending
 - \subpage api
+- \subpage performance

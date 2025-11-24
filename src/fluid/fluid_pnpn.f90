@@ -847,7 +847,8 @@ contains
       end if
 
       call fluid_step_info(time, ksp_results, &
-           this%full_stress_formulation, this%strict_convergence)
+           this%full_stress_formulation, this%strict_convergence, &
+           this%allow_stabilization)
 
     end associate
     call profiler_end_region('Fluid', 1)
