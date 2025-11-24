@@ -249,9 +249,9 @@ contains
     real(kind=rp), intent(in) :: tau_z
 
     ! Calls finalize and allocates the flux arrays
-    call this%neumann_x%set_flux(tau_x)
-    call this%neumann_y%set_flux(tau_y)
-    call this%neumann_z%set_flux(tau_z)
+    call this%neumann_x%set_flux(tau_x, 1)
+    call this%neumann_y%set_flux(tau_y, 1)
+    call this%neumann_z%set_flux(tau_z, 1)
 
 
   end subroutine shear_stress_set_stress_scalar
@@ -266,9 +266,9 @@ contains
     type(vector_t), intent(in) :: tau_y
     type(vector_t), intent(in) :: tau_z
 
-    call this%neumann_x%set_flux(tau_x)
-    call this%neumann_y%set_flux(tau_y)
-    call this%neumann_z%set_flux(tau_z)
+    call this%neumann_x%set_flux(tau_x, 1)
+    call this%neumann_y%set_flux(tau_y, 1)
+    call this%neumann_z%set_flux(tau_z, 1)
 
   end subroutine shear_stress_set_stress_array
 
