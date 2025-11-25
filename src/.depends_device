@@ -9,6 +9,7 @@ math/bcknd/device/hip/set_convect_rst.lo : math/bcknd/device/hip/set_convect_rst
 math/bcknd/device/hip/opr_opgrad.lo : math/bcknd/device/hip/opr_opgrad.hip math/bcknd/device/hip/opgrad_kernel.h
 math/bcknd/device/hip/opr_lambda2.lo : math/bcknd/device/hip/opr_lambda2.hip math/bcknd/device/hip/lambda2_kernel.h
 math/bcknd/device/hip/opr_cfl.lo : math/bcknd/device/hip/opr_cfl.hip math/bcknd/device/hip/cfl_kernel.h
+math/bcknd/device/hip/opr_rotate_cyc.lo : math/bcknd/device/hip/opr_rotate_cyc.hip math/bcknd/device/hip/rotate_kernel.h
 math/bcknd/device/hip/ax_helm.lo : math/bcknd/device/hip/ax_helm.hip math/bcknd/device/hip/ax_helm_kernel.h
 math/bcknd/device/hip/ax_helm_full.lo : math/bcknd/device/hip/ax_helm_full.hip math/bcknd/device/hip/ax_helm_full_kernel.h
 math/bcknd/device/hip/schwarz.lo : math/bcknd/device/hip/schwarz.hip math/bcknd/device/hip/schwarz_kernel.h
