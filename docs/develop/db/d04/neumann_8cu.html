@@ -113,6 +113,8 @@ $(document).ready(function(){initNavTree('db/d04/neumann_8cu.html','../../'); in
 Functions</h2></td></tr>
 <tr class="memitem:a0fbc26d160a97c537b1b160be2e759dc" id="r_a0fbc26d160a97c537b1b160be2e759dc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d04/neumann_8cu.html#a0fbc26d160a97c537b1b160be2e759dc">cuda_neumann_apply_scalar</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *msk, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *facet, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *<a class="el" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a3b35a10334f641ae16ea1c310523d458">x</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *flux, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *area, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a> *lx, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a> *m, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">cudaStream_t</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">strm</a>)</td></tr>
 <tr class="separator:a0fbc26d160a97c537b1b160be2e759dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7cceff18b9c9d4f9039b13492ab0979b" id="r_a7cceff18b9c9d4f9039b13492ab0979b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d04/neumann_8cu.html#a7cceff18b9c9d4f9039b13492ab0979b">cuda_neumann_apply_vector</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *msk, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *facet, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *<a class="el" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a3b35a10334f641ae16ea1c310523d458">x</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *y, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *z, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">flux_x</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">flux_y</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">flux_z</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *area, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a> *lx, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a> *m, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">cudaStream_t</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">strm</a>)</td></tr>
+<tr class="separator:a7cceff18b9c9d4f9039b13492ab0979b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="a0fbc26d160a97c537b1b160be2e759dc" name="a0fbc26d160a97c537b1b160be2e759dc"></a>
@@ -195,13 +197,129 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../db/d04/neumann_8cu_a0fbc26d160a97c537b1b160be2e759dc_icgraph.png" border="0" usemap="#adb/d04/neumann_8cu_a0fbc26d160a97c537b1b160be2e759dc_icgraph" alt=""/></div>
 <map name="adb/d04/neumann_8cu_a0fbc26d160a97c537b1b160be2e759dc_icgraph" id="adb/d04/neumann_8cu_a0fbc26d160a97c537b1b160be2e759dc_icgraph">
-<area shape="rect" title=" " alt="" coords="492,49,656,89"/>
-<area shape="rect" href="../../d3/d7b/namespacedevice__neumann.html#acff205a4b91a483e2c89a415b845b738" title=" " alt="" coords="260,49,444,89"/>
-<area shape="poly" title=" " alt="" coords="478,71,444,71,444,66,478,66"/>
-<area shape="rect" href="../../d9/da6/interfacedevice__neumann_1_1hip__neumann__apply__scalar.html#a9b972872a7e255a2fac69632492aa67b" title=" " alt="" coords="5,5,212,60"/>
-<area shape="poly" title=" " alt="" coords="246,56,212,51,213,45,247,50"/>
-<area shape="rect" href="../../d9/d75/namespaceneumann.html#aef749aa6c3a3c677f99639e00905eb15" title="Boundary condition apply for a generic Neumann condition to a vector x (device version)" alt="" coords="11,85,206,125"/>
-<area shape="poly" title=" " alt="" coords="247,87,207,93,206,88,246,82"/>
+<area shape="rect" title=" " alt="" coords="495,49,659,89"/>
+<area shape="rect" href="../../d3/d7b/namespacedevice__neumann.html#acff205a4b91a483e2c89a415b845b738" title=" " alt="" coords="263,49,447,89"/>
+<area shape="poly" title=" " alt="" coords="481,71,447,71,447,66,481,66"/>
+<area shape="rect" href="../../d2/dc5/interfacedevice__neumann_1_1hip__neumann__apply__vector.html#a74b63899eda1b8aff3d98cc1d1dcf554" title=" " alt="" coords="5,5,215,60"/>
+<area shape="poly" title=" " alt="" coords="249,56,214,51,215,45,250,51"/>
+<area shape="rect" href="../../d9/d75/namespaceneumann.html#aef749aa6c3a3c677f99639e00905eb15" title="Boundary condition apply for a generic Neumann condition to a vector x (device version)" alt="" coords="13,85,207,125"/>
+<area shape="poly" title=" " alt="" coords="250,87,208,93,207,88,249,82"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a7cceff18b9c9d4f9039b13492ab0979b" name="a7cceff18b9c9d4f9039b13492ab0979b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7cceff18b9c9d4f9039b13492ab0979b">&#9670;&#160;</a></span>cuda_neumann_apply_vector()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> cuda_neumann_apply_vector </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *&#160;</td>
+          <td class="paramname"><em>msk</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *&#160;</td>
+          <td class="paramname"><em>facet</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *&#160;</td>
+          <td class="paramname"><em>y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *&#160;</td>
+          <td class="paramname"><em>z</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *&#160;</td>
+          <td class="paramname"><em>flux_x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *&#160;</td>
+          <td class="paramname"><em>flux_y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *&#160;</td>
+          <td class="paramname"><em>flux_z</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> *&#160;</td>
+          <td class="paramname"><em>area</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a> *&#160;</td>
+          <td class="paramname"><em>lx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a> *&#160;</td>
+          <td class="paramname"><em>m</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">cudaStream_t</a>&#160;</td>
+          <td class="paramname"><em>strm</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Fortran wrapper for device neumann apply vector </p>
+
+<p class="definition">Definition at line <a class="el" href="../../db/d04/neumann_8cu_source.html#l00066">66</a> of file <a class="el" href="../../db/d04/neumann_8cu_source.html">neumann.cu</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../db/d04/neumann_8cu_a7cceff18b9c9d4f9039b13492ab0979b_cgraph.png" border="0" usemap="#adb/d04/neumann_8cu_a7cceff18b9c9d4f9039b13492ab0979b_cgraph" alt=""/></div>
+<map name="adb/d04/neumann_8cu_a7cceff18b9c9d4f9039b13492ab0979b_cgraph" id="adb/d04/neumann_8cu_a7cceff18b9c9d4f9039b13492ab0979b_cgraph">
+<area shape="rect" title=" " alt="" coords="5,29,169,69"/>
+<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="217,29,381,69"/>
+<area shape="poly" title=" " alt="" coords="170,47,204,47,204,52,170,52"/>
+<area shape="poly" title=" " alt="" coords="260,30,257,20,264,10,278,5,299,3,324,6,337,13,335,18,322,11,299,8,279,10,267,15,263,21,265,28"/>
+</map>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../db/d04/neumann_8cu_a7cceff18b9c9d4f9039b13492ab0979b_icgraph.png" border="0" usemap="#adb/d04/neumann_8cu_a7cceff18b9c9d4f9039b13492ab0979b_icgraph" alt=""/></div>
+<map name="adb/d04/neumann_8cu_a7cceff18b9c9d4f9039b13492ab0979b_icgraph" id="adb/d04/neumann_8cu_a7cceff18b9c9d4f9039b13492ab0979b_icgraph">
+<area shape="rect" title=" " alt="" coords="495,49,659,89"/>
+<area shape="rect" href="../../d3/d7b/namespacedevice__neumann.html#ad942308eb4757cf0f9a1d673b8daef2f" title=" " alt="" coords="263,49,447,89"/>
+<area shape="poly" title=" " alt="" coords="481,71,447,71,447,66,481,66"/>
+<area shape="rect" href="../../d2/dc5/interfacedevice__neumann_1_1hip__neumann__apply__vector.html#a74b63899eda1b8aff3d98cc1d1dcf554" title=" " alt="" coords="5,5,215,60"/>
+<area shape="poly" title=" " alt="" coords="249,56,214,51,215,45,250,51"/>
+<area shape="rect" href="../../d9/d75/namespaceneumann.html#a279eb17c329ba6b976949e76d0a62b25" title="Boundary condition apply for a generic Neumann condition to vectors x, y and z (device version)" alt="" coords="13,85,207,125"/>
+<area shape="poly" title=" " alt="" coords="250,87,208,93,207,88,249,82"/>
 </map>
 </div>
 
@@ -213,7 +331,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_96f7c11e9d5d0b09f433cbf8fd37f2d0.html">bc</a></li><li class="navelem"><a class="el" href="../../dir_2384b0d0751aa995a1b7d70277eddcb2.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_18707f658d20d5ab4d5f4803cc883ea1.html">device</a></li><li class="navelem"><a class="el" href="../../dir_1567c8fa60ead0edeb2b74277cf6ca34.html">cuda</a></li><li class="navelem"><a class="el" href="../../db/d04/neumann_8cu.html">neumann.cu</a></li>
-    <li class="footer">Generated on Mon Nov 24 2025 03:50:44 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Nov 25 2025 03:48:25 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

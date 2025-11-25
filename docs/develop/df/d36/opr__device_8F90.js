@@ -7,6 +7,7 @@ var opr__device_8F90 =
     [ "opr_device::hip_opgrad", "d8/dd7/interfaceopr__device_1_1hip__opgrad.html", "d8/dd7/interfaceopr__device_1_1hip__opgrad" ],
     [ "opr_device::hip_lambda2", "df/dfd/interfaceopr__device_1_1hip__lambda2.html", "df/dfd/interfaceopr__device_1_1hip__lambda2" ],
     [ "opr_device::hip_cfl", "d5/d51/interfaceopr__device_1_1hip__cfl.html", "d5/d51/interfaceopr__device_1_1hip__cfl" ],
+    [ "opr_device::hip_rotate_cyc", "d1/dea/interfaceopr__device_1_1hip__rotate__cyc.html", "d1/dea/interfaceopr__device_1_1hip__rotate__cyc" ],
     [ "opr_device::hip_set_convect_rst", "d5/d24/interfaceopr__device_1_1hip__set__convect__rst.html", "d5/d24/interfaceopr__device_1_1hip__set__convect__rst" ],
     [ "opr_device_cdtp", "df/d36/opr__device_8F90.html#a5976c035ccc91cc8b346fc866e476775", null ],
     [ "opr_device_cfl", "df/d36/opr__device_8F90.html#a8c94efab56085f4843490a6ab2c842c4", null ],

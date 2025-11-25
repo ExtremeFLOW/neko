@@ -109,11 +109,15 @@ $(document).ready(function(){initNavTree('d3/d7b/namespacedevice__neumann.html',
 Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/da6/interfacedevice__neumann_1_1hip__neumann__apply__scalar.html">hip_neumann_apply_scalar</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/dc5/interfacedevice__neumann_1_1hip__neumann__apply__vector.html">hip_neumann_apply_vector</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:acff205a4b91a483e2c89a415b845b738" id="r_acff205a4b91a483e2c89a415b845b738"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d7b/namespacedevice__neumann.html#acff205a4b91a483e2c89a415b845b738">device_neumann_apply_scalar</a> (msk, facet, x, flux, area, lx, m, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">strm</a>)</td></tr>
 <tr class="separator:acff205a4b91a483e2c89a415b845b738"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad942308eb4757cf0f9a1d673b8daef2f" id="r_ad942308eb4757cf0f9a1d673b8daef2f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d7b/namespacedevice__neumann.html#ad942308eb4757cf0f9a1d673b8daef2f">device_neumann_apply_vector</a> (msk, facet, x, y, z, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">flux_x</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">flux_y</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">flux_z</a>, area, lx, m, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">strm</a>)</td></tr>
+<tr class="separator:ad942308eb4757cf0f9a1d673b8daef2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="acff205a4b91a483e2c89a415b845b738" name="acff205a4b91a483e2c89a415b845b738"></a>
@@ -178,7 +182,7 @@ Functions/Subroutines</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d94/device__neumann_8F90_source.html#l00078">78</a> of file <a class="el" href="../../d3/d94/device__neumann_8F90_source.html">device_neumann.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d94/device__neumann_8F90_source.html#l00108">108</a> of file <a class="el" href="../../d3/d94/device__neumann_8F90_source.html">device_neumann.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -203,11 +207,132 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d3/d7b/namespacedevice__neumann_acff205a4b91a483e2c89a415b845b738_icgraph.png" border="0" usemap="#ad3/d7b/namespacedevice__neumann_acff205a4b91a483e2c89a415b845b738_icgraph" alt=""/></div>
 <map name="ad3/d7b/namespacedevice__neumann_acff205a4b91a483e2c89a415b845b738_icgraph" id="ad3/d7b/namespacedevice__neumann_acff205a4b91a483e2c89a415b845b738_icgraph">
-<area shape="rect" title=" " alt="" coords="260,49,444,89"/>
-<area shape="rect" href="../../d9/da6/interfacedevice__neumann_1_1hip__neumann__apply__scalar.html#a9b972872a7e255a2fac69632492aa67b" title=" " alt="" coords="5,5,212,60"/>
-<area shape="poly" title=" " alt="" coords="246,56,212,51,213,45,247,50"/>
-<area shape="rect" href="../../d9/d75/namespaceneumann.html#aef749aa6c3a3c677f99639e00905eb15" title="Boundary condition apply for a generic Neumann condition to a vector x (device version)" alt="" coords="11,85,206,125"/>
-<area shape="poly" title=" " alt="" coords="247,87,207,93,206,88,246,82"/>
+<area shape="rect" title=" " alt="" coords="263,49,447,89"/>
+<area shape="rect" href="../../d2/dc5/interfacedevice__neumann_1_1hip__neumann__apply__vector.html#a74b63899eda1b8aff3d98cc1d1dcf554" title=" " alt="" coords="5,5,215,60"/>
+<area shape="poly" title=" " alt="" coords="249,56,214,51,215,45,250,51"/>
+<area shape="rect" href="../../d9/d75/namespaceneumann.html#aef749aa6c3a3c677f99639e00905eb15" title="Boundary condition apply for a generic Neumann condition to a vector x (device version)" alt="" coords="13,85,207,125"/>
+<area shape="poly" title=" " alt="" coords="250,87,208,93,207,88,249,82"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="ad942308eb4757cf0f9a1d673b8daef2f" name="ad942308eb4757cf0f9a1d673b8daef2f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad942308eb4757cf0f9a1d673b8daef2f">&#9670;&#160;</a></span>device_neumann_apply_vector()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> device_neumann::device_neumann_apply_vector </td>
+          <td>(</td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>msk</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>facet</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>z</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>flux_x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>flux_y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>flux_z</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>area</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>lx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>m</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>strm</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d3/d94/device__neumann_8F90_source.html#l00125">125</a> of file <a class="el" href="../../d3/d94/device__neumann_8F90_source.html">device_neumann.F90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d3/d7b/namespacedevice__neumann_ad942308eb4757cf0f9a1d673b8daef2f_cgraph.png" border="0" usemap="#ad3/d7b/namespacedevice__neumann_ad942308eb4757cf0f9a1d673b8daef2f_cgraph" alt=""/></div>
+<map name="ad3/d7b/namespacedevice__neumann_ad942308eb4757cf0f9a1d673b8daef2f_cgraph" id="ad3/d7b/namespacedevice__neumann_ad942308eb4757cf0f9a1d673b8daef2f_cgraph">
+<area shape="rect" title=" " alt="" coords="5,35,189,75"/>
+<area shape="rect" href="../../db/d04/neumann_8cu.html#a7cceff18b9c9d4f9039b13492ab0979b" title=" " alt="" coords="461,5,625,45"/>
+<area shape="poly" title=" " alt="" coords="189,46,447,29,448,34,190,51"/>
+<area shape="rect" href="../../d0/dd5/neumann_8c.html#a133056d45e220294487583e705c2a4a5" title=" " alt="" coords="237,63,413,103"/>
+<area shape="poly" title=" " alt="" coords="190,63,224,68,223,73,189,69"/>
+<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="673,63,837,103"/>
+<area shape="poly" title=" " alt="" coords="619,43,668,56,667,62,617,48"/>
+<area shape="poly" title=" " alt="" coords="716,63,713,53,720,44,734,38,755,36,780,39,793,46,791,51,778,44,755,41,735,43,723,48,719,54,721,62"/>
+<area shape="poly" title=" " alt="" coords="414,80,660,80,660,85,414,85"/>
+<area shape="rect" href="../../d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="477,121,609,146"/>
+<area shape="poly" title=" " alt="" coords="412,100,475,115,474,120,411,105"/>
+<area shape="poly" title=" " alt="" coords="597,118,659,103,660,108,598,123"/>
+</map>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d3/d7b/namespacedevice__neumann_ad942308eb4757cf0f9a1d673b8daef2f_icgraph.png" border="0" usemap="#ad3/d7b/namespacedevice__neumann_ad942308eb4757cf0f9a1d673b8daef2f_icgraph" alt=""/></div>
+<map name="ad3/d7b/namespacedevice__neumann_ad942308eb4757cf0f9a1d673b8daef2f_icgraph" id="ad3/d7b/namespacedevice__neumann_ad942308eb4757cf0f9a1d673b8daef2f_icgraph">
+<area shape="rect" title=" " alt="" coords="263,49,447,89"/>
+<area shape="rect" href="../../d2/dc5/interfacedevice__neumann_1_1hip__neumann__apply__vector.html#a74b63899eda1b8aff3d98cc1d1dcf554" title=" " alt="" coords="5,5,215,60"/>
+<area shape="poly" title=" " alt="" coords="249,56,214,51,215,45,250,51"/>
+<area shape="rect" href="../../d9/d75/namespaceneumann.html#a279eb17c329ba6b976949e76d0a62b25" title="Boundary condition apply for a generic Neumann condition to vectors x, y and z (device version)" alt="" coords="13,85,207,125"/>
+<area shape="poly" title=" " alt="" coords="250,87,208,93,207,88,249,82"/>
 </map>
 </div>
 
@@ -219,7 +344,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d3/d7b/namespacedevice__neumann.html">device_neumann</a></li>
-    <li class="footer">Generated on Mon Nov 24 2025 03:50:45 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Nov 25 2025 03:48:26 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

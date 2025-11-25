@@ -7,6 +7,7 @@ var namespaceopr__device =
     [ "hip_dudxyz", "db/df6/interfaceopr__device_1_1hip__dudxyz.html", "db/df6/interfaceopr__device_1_1hip__dudxyz" ],
     [ "hip_lambda2", "df/dfd/interfaceopr__device_1_1hip__lambda2.html", "df/dfd/interfaceopr__device_1_1hip__lambda2" ],
     [ "hip_opgrad", "d8/dd7/interfaceopr__device_1_1hip__opgrad.html", "d8/dd7/interfaceopr__device_1_1hip__opgrad" ],
+    [ "hip_rotate_cyc", "d1/dea/interfaceopr__device_1_1hip__rotate__cyc.html", "d1/dea/interfaceopr__device_1_1hip__rotate__cyc" ],
     [ "hip_set_convect_rst", "d5/d24/interfaceopr__device_1_1hip__set__convect__rst.html", "d5/d24/interfaceopr__device_1_1hip__set__convect__rst" ],
     [ "opr_device_cdtp", "d3/d4d/namespaceopr__device.html#a5976c035ccc91cc8b346fc866e476775", null ],
     [ "opr_device_cfl", "d3/d4d/namespaceopr__device.html#a8c94efab56085f4843490a6ab2c842c4", null ],

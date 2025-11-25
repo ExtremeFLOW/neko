@@ -364,7 +364,8 @@ var annotated_dup =
       [ "hip_opcolv3c", "df/d18/interfacedevice__mathops_1_1hip__opcolv3c.html", "df/d18/interfacedevice__mathops_1_1hip__opcolv3c" ]
     ] ],
     [ "device_neumann", "d3/d7b/namespacedevice__neumann.html", [
-      [ "hip_neumann_apply_scalar", "d9/da6/interfacedevice__neumann_1_1hip__neumann__apply__scalar.html", "d9/da6/interfacedevice__neumann_1_1hip__neumann__apply__scalar" ]
+      [ "hip_neumann_apply_scalar", "d9/da6/interfacedevice__neumann_1_1hip__neumann__apply__scalar.html", "d9/da6/interfacedevice__neumann_1_1hip__neumann__apply__scalar" ],
+      [ "hip_neumann_apply_vector", "d2/dc5/interfacedevice__neumann_1_1hip__neumann__apply__vector.html", "d2/dc5/interfacedevice__neumann_1_1hip__neumann__apply__vector" ]
     ] ],
     [ "device_projection", "de/dc5/namespacedevice__projection.html", [
       [ "hip_project_on", "d4/dc6/interfacedevice__projection_1_1hip__project__on.html", "d4/dc6/interfacedevice__projection_1_1hip__project__on" ],
@@ -999,6 +1000,7 @@ var annotated_dup =
       [ "hip_dudxyz", "db/df6/interfaceopr__device_1_1hip__dudxyz.html", "db/df6/interfaceopr__device_1_1hip__dudxyz" ],
       [ "hip_lambda2", "df/dfd/interfaceopr__device_1_1hip__lambda2.html", "df/dfd/interfaceopr__device_1_1hip__lambda2" ],
       [ "hip_opgrad", "d8/dd7/interfaceopr__device_1_1hip__opgrad.html", "d8/dd7/interfaceopr__device_1_1hip__opgrad" ],
+      [ "hip_rotate_cyc", "d1/dea/interfaceopr__device_1_1hip__rotate__cyc.html", "d1/dea/interfaceopr__device_1_1hip__rotate__cyc" ],
       [ "hip_set_convect_rst", "d5/d24/interfaceopr__device_1_1hip__set__convect__rst.html", "d5/d24/interfaceopr__device_1_1hip__set__convect__rst" ]
     ] ],
     [ "output", "dd/d93/namespaceoutput.html", [

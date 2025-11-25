@@ -1,3 +1,17 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$d5/dcf/structprojection_1_1projection__t.html" title=" " alt="" coords="5,5,177,31"/>
+<area shape="rect" id="Node000000" href="$d7/d3a/structprecon_1_1pc__t.html" title="Defines a canonical Krylov preconditioner." alt="" coords="5,183,107,209"/>
+<area shape="rect" id="Node000001" href="$dd/ddc/structdevice__identity_1_1device__ident__t.html" title="Defines a canonical Krylov preconditioner for accelerators." alt="" coords="155,5,327,45"/>
+<area shape="poly" id="edge127_Node000000_Node000001" title=" " alt="" coords="67,169,101,113,125,82,153,55,172,43,175,48,156,59,129,86,105,116,71,172"/>
+<area shape="rect" id="Node000002" href="$d8/dca/structdevice__jacobi_1_1device__jacobi__t.html" title="Defines a jacobi preconditioner." alt="" coords="159,69,322,109"/>
+<area shape="poly" id="edge128_Node000000_Node000002" title=" " alt="" coords="80,172,114,145,153,119,178,107,181,112,156,124,117,149,83,176"/>
+<area shape="rect" id="Node000003" href="$dd/d81/structhsmg_1_1hsmg__t.html" title=" " alt="" coords="183,134,298,159"/>
+<area shape="poly" id="edge129_Node000000_Node000003" title=" " alt="" coords="117,177,191,157,193,162,118,182"/>
+<area shape="rect" id="Node000004" href="$d7/d69/structidentity_1_1ident__t.html" title="Defines a canonical Krylov preconditioner." alt="" coords="179,183,303,209"/>
+<area shape="poly" id="edge130_Node000000_Node000004" title=" " alt="" coords="120,193,179,193,179,199,120,199"/>
+<area shape="rect" id="Node000005" href="$da/d72/structjacobi_1_1jacobi__t.html" title="Defines a jacobi preconditioner." alt="" coords="181,233,301,258"/>
+<area shape="poly" id="edge131_Node000000_Node000005" title=" " alt="" coords="118,210,193,230,191,235,117,215"/>
+<area shape="rect" id="Node000006" href="$d8/d4e/structphmg_1_1phmg__t.html" title=" " alt="" coords="183,282,299,307"/>
+<area shape="poly" id="edge132_Node000000_Node000006" title=" " alt="" coords="84,216,117,243,156,267,187,279,185,284,153,272,114,247,80,221"/>
+<area shape="rect" id="Node000007" href="$d4/d41/structsx__jacobi_1_1sx__jacobi__t.html" title="Defines a jacobi preconditioner for SX&#45;Aurora." alt="" coords="159,331,323,357"/>
+<area shape="poly" id="edge133_Node000000_Node000007" title=" " alt="" coords="73,219,107,269,130,295,156,316,181,329,179,334,153,321,126,298,103,272,68,222"/>
 </map>

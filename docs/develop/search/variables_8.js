@@ -26,7 +26,7 @@ var searchData=
   ['indicator_5funfiltered_23',['indicator_unfiltered',['../dc/dcc/structbrinkman__source__term_1_1brinkman__source__term__t.html#adf6a56600ad1824d3ffac5cad3613eb5',1,'brinkman_source_term::brinkman_source_term_t']]],
   ['inflow_5fprogram_24',['inflow_program',['../d0/dc0/namespaceopencl__prgm__lib.html#a310d2c94f235106517f0d387a095a78c',1,'opencl_prgm_lib::inflow_program'],['../d1/df7/prgm__lib_8h.html#ae0485d22bf313cadddb9fef934996a9f',1,'inflow_program:&#160;prgm_lib.h']]],
   ['inhom_5fdirichlet_5fprogram_25',['inhom_dirichlet_program',['../d0/dc0/namespaceopencl__prgm__lib.html#a1a28c4147c2446e846956f0d5a0d0c6d',1,'opencl_prgm_lib::inhom_dirichlet_program'],['../d1/df7/prgm__lib_8h.html#abab4d34475f6b1f28ecc5f2a58cf3b54',1,'inhom_dirichlet_program:&#160;prgm_lib.h']]],
-  ['init_5fflux_5f_26',['init_flux_',['../d5/d84/structneumann_1_1neumann__t.html#a5919f24406d2220833f4a71c2f5c91f7',1,'neumann::neumann_t']]],
+  ['init_5fflux_5f_26',['init_flux_',['../d5/d84/structneumann_1_1neumann__t.html#a1037f451b23fecdaa5e90fea701d94c1',1,'neumann::neumann_t']]],
   ['initial_5fcondition_27',['initial_condition',['../de/dc2/namespacepyneko_1_1intf.html#abf6751a43bf848ba96ff3700aa3010fe',1,'pyneko::intf']]],
   ['initial_5fconditions_28',['initial_conditions',['../d7/da0/structuser__intf_1_1user__t.html#a8d4bc681a7889f3d9db830a1bb91bc41',1,'user_intf::user_t']]],
   ['initialize_29',['initialize',['../d7/da0/structuser__intf_1_1user__t.html#a1f4a0734bde48ea423f3b1bcb0f0a035',1,'user_intf::user_t']]],

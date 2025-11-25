@@ -14,7 +14,7 @@
 <area shape="poly" id="edge18_Node000000_Node000006" title=" " alt="" coords="91,314,125,314,125,319,91,319"/>
 <area shape="rect" id="Node000007" href="$d5/d8a/structinflow_1_1inflow__t.html" title="Dirichlet condition for inlet (vector valued)" alt="" coords="155,361,274,387"/>
 <area shape="poly" id="edge19_Node000000_Node000007" title=" " alt="" coords="87,332,126,346,167,359,165,364,124,351,85,337"/>
-<area shape="rect" id="Node000008" href="$d5/d84/structneumann_1_1neumann__t.html" title="A Neumann boundary condition for scalar fields. Sets the flux of the field to the chosen value." alt="" coords="133,411,297,436"/>
+<area shape="rect" id="Node000008" href="$d5/d84/structneumann_1_1neumann__t.html" title="A Neumann boundary condition. Sets the flux of the field to the chosen values." alt="" coords="133,411,297,436"/>
 <area shape="poly" id="edge20_Node000000_Node000008" title=" " alt="" coords="63,338,91,368,127,396,155,408,153,413,124,400,87,372,59,342"/>
 <area shape="rect" id="Node000009" href="$df/d63/structshear__stress_1_1shear__stress__t.html" title="A shear stress boundary condition." alt="" coords="141,461,289,501"/>
 <area shape="poly" id="edge21_Node000000_Node000009" title=" " alt="" coords="55,341,83,393,103,421,127,445,147,458,145,463,124,449,99,425,78,396,50,343"/>

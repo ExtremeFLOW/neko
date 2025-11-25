@@ -348,9 +348,9 @@ $(document).ready(function(){initNavTree('dc/de2/shear__stress_8f90_source.html'
 <div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: tau_z</div>
 <div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span> </div>
 <div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>    <span class="comment">! Calls finalize and allocates the flux arrays</span></div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>    <span class="keyword">call </span>this%neumann_x%set_flux(tau_x)</div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>    <span class="keyword">call </span>this%neumann_y%set_flux(tau_y)</div>
-<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>    <span class="keyword">call </span>this%neumann_z%set_flux(tau_z)</div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>    <span class="keyword">call </span>this%neumann_x%set_flux(tau_x, 1)</div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>    <span class="keyword">call </span>this%neumann_y%set_flux(tau_y, 1)</div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>    <span class="keyword">call </span>this%neumann_z%set_flux(tau_z, 1)</div>
 <div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span> </div>
 <div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span> </div>
 </div>
@@ -363,9 +363,9 @@ $(document).ready(function(){initNavTree('dc/de2/shear__stress_8f90_source.html'
 <div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d5b/structvector_1_1vector__t.html">vector_t</a>), <span class="keywordtype">intent(in)</span> :: tau_y</div>
 <div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d5b/structvector_1_1vector__t.html">vector_t</a>), <span class="keywordtype">intent(in)</span> :: tau_z</div>
 <div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span> </div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>    <span class="keyword">call </span>this%neumann_x%set_flux(tau_x)</div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>    <span class="keyword">call </span>this%neumann_y%set_flux(tau_y)</div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>    <span class="keyword">call </span>this%neumann_z%set_flux(tau_z)</div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>    <span class="keyword">call </span>this%neumann_x%set_flux(tau_x, 1)</div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>    <span class="keyword">call </span>this%neumann_y%set_flux(tau_y, 1)</div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>    <span class="keyword">call </span>this%neumann_z%set_flux(tau_z, 1)</div>
 <div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span> </div>
 </div>
 <div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../da/dea/namespaceshear__stress.html#a6b4cb0ec611db89ad6cc201cbabde7da">shear_stress_set_stress_array</a></div>
@@ -408,7 +408,7 @@ $(document).ready(function(){initNavTree('dc/de2/shear__stress_8f90_source.html'
 <div class="ttc" id="anamespacevector_html"><div class="ttname"><a href="../../d7/d34/namespacevector.html">vector</a></div><div class="ttdoc">Defines a vector.</div><div class="ttdef"><b>Definition</b> <a href="../../d3/db2/vector_8f90_source.html#l00034">vector.f90:34</a></div></div>
 <div class="ttc" id="astructbc_1_1bc__t_html"><div class="ttname"><a href="../../d6/db3/structbc_1_1bc__t.html">bc::bc_t</a></div><div class="ttdoc">Base type for a boundary condition.</div><div class="ttdef"><b>Definition</b> <a href="../../df/df6/bc_8f90_source.html#l00061">bc.f90:61</a></div></div>
 <div class="ttc" id="astructcoefs_1_1coef__t_html"><div class="ttname"><a href="../../d0/dea/structcoefs_1_1coef__t.html">coefs::coef_t</a></div><div class="ttdoc">Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,...</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00056">coef.f90:56</a></div></div>
-<div class="ttc" id="astructneumann_1_1neumann__t_html"><div class="ttname"><a href="../../d5/d84/structneumann_1_1neumann__t.html">neumann::neumann_t</a></div><div class="ttdoc">A Neumann boundary condition for scalar fields. Sets the flux of the field to the chosen value.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddf/neumann_8f90_source.html#l00056">neumann.f90:56</a></div></div>
+<div class="ttc" id="astructneumann_1_1neumann__t_html"><div class="ttname"><a href="../../d5/d84/structneumann_1_1neumann__t.html">neumann::neumann_t</a></div><div class="ttdoc">A Neumann boundary condition. Sets the flux of the field to the chosen values.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddf/neumann_8f90_source.html#l00060">neumann.f90:60</a></div></div>
 <div class="ttc" id="astructshear__stress_1_1shear__stress__t_html"><div class="ttname"><a href="../../df/d63/structshear__stress_1_1shear__stress__t.html">shear_stress::shear_stress_t</a></div><div class="ttdoc">A shear stress boundary condition.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/de2/shear__stress_8f90_source.html#l00052">shear_stress.f90:52</a></div></div>
 <div class="ttc" id="astructsymmetry_1_1symmetry__t_html"><div class="ttname"><a href="../../d1/d83/structsymmetry_1_1symmetry__t.html">symmetry::symmetry_t</a></div><div class="ttdoc">Mixed Dirichlet-Neumann symmetry plane condition.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d3a/symmetry_8f90_source.html#l00050">symmetry.f90:50</a></div></div>
 <div class="ttc" id="astructtime__state_1_1time__state__t_html"><div class="ttname"><a href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state::time_state_t</a></div><div class="ttdoc">A struct that contains all info about the time, expand as needed.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/dd6/time__state_8f90_source.html#l00044">time_state.f90:44</a></div></div>
@@ -419,7 +419,7 @@ $(document).ready(function(){initNavTree('dc/de2/shear__stress_8f90_source.html'
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_96f7c11e9d5d0b09f433cbf8fd37f2d0.html">bc</a></li><li class="navelem"><a class="el" href="../../dc/de2/shear__stress_8f90.html">shear_stress.f90</a></li>
-    <li class="footer">Generated on Mon Nov 24 2025 03:50:43 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Nov 25 2025 03:48:24 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

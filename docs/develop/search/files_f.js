@@ -31,8 +31,9 @@ var searchData=
   ['opr_5fopgrad_2ecu_28',['opr_opgrad.cu',['../d6/d68/opr__opgrad_8cu.html',1,'']]],
   ['opr_5fopgrad_2ehip_29',['opr_opgrad.hip',['../d5/dc3/opr__opgrad_8hip.html',1,'']]],
   ['opr_5frotate_5fcyc_2ecu_30',['opr_rotate_cyc.cu',['../de/d68/opr__rotate__cyc_8cu.html',1,'']]],
-  ['opr_5fsx_2ef90_31',['opr_sx.f90',['../d4/d06/opr__sx_8f90.html',1,'']]],
-  ['opr_5fxsmm_2ef90_32',['opr_xsmm.F90',['../d6/d05/opr__xsmm_8F90.html',1,'']]],
-  ['output_2ef90_33',['output.f90',['../dc/d31/examples_2programming_2output_8f90.html',1,'(Global Namespace)'],['../d1/d2b/src_2io_2output_8f90.html',1,'(Global Namespace)']]],
-  ['output_5fcontroller_2ef90_34',['output_controller.f90',['../d6/d94/output__controller_8f90.html',1,'']]]
+  ['opr_5frotate_5fcyc_2ehip_31',['opr_rotate_cyc.hip',['../dd/d46/opr__rotate__cyc_8hip.html',1,'']]],
+  ['opr_5fsx_2ef90_32',['opr_sx.f90',['../d4/d06/opr__sx_8f90.html',1,'']]],
+  ['opr_5fxsmm_2ef90_33',['opr_xsmm.F90',['../d6/d05/opr__xsmm_8F90.html',1,'']]],
+  ['output_2ef90_34',['output.f90',['../dc/d31/examples_2programming_2output_8f90.html',1,'(Global Namespace)'],['../d1/d2b/src_2io_2output_8f90.html',1,'(Global Namespace)']]],
+  ['output_5fcontroller_2ef90_35',['output_controller.f90',['../d6/d94/output__controller_8f90.html',1,'']]]
 ];

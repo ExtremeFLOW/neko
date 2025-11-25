@@ -26,7 +26,7 @@ var dir_4c3596ec6e7f8d381657f6ce7bbe76a2 =
     [ "opr_lambda2.cu", "df/d96/opr__lambda2_8cu.html", "df/d96/opr__lambda2_8cu" ],
     [ "opr_opgrad.cu", "d6/d68/opr__opgrad_8cu.html", "d6/d68/opr__opgrad_8cu" ],
     [ "opr_rotate_cyc.cu", "de/d68/opr__rotate__cyc_8cu.html", "de/d68/opr__rotate__cyc_8cu" ],
-    [ "rotate_kernel.h", "da/d82/rotate__kernel_8h.html", "da/d82/rotate__kernel_8h" ],
+    [ "rotate_kernel.h", "d7/d33/cuda_2rotate__kernel_8h.html", "d7/d33/cuda_2rotate__kernel_8h" ],
     [ "schwarz.cu", "d9/db6/schwarz_8cu.html", "d9/db6/schwarz_8cu" ],
     [ "schwarz_kernel.h", "d3/d4e/cuda_2schwarz__kernel_8h.html", "d3/d4e/cuda_2schwarz__kernel_8h" ],
     [ "set_convect_rst.cu", "de/da2/set__convect__rst_8cu.html", "de/da2/set__convect__rst_8cu" ],

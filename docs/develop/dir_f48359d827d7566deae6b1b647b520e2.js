@@ -25,6 +25,8 @@ var dir_f48359d827d7566deae6b1b647b520e2 =
     [ "opr_dudxyz.hip", "d6/d27/opr__dudxyz_8hip.html", "d6/d27/opr__dudxyz_8hip" ],
     [ "opr_lambda2.hip", "d2/dfe/opr__lambda2_8hip.html", "d2/dfe/opr__lambda2_8hip" ],
     [ "opr_opgrad.hip", "d5/dc3/opr__opgrad_8hip.html", "d5/dc3/opr__opgrad_8hip" ],
+    [ "opr_rotate_cyc.hip", "dd/d46/opr__rotate__cyc_8hip.html", "dd/d46/opr__rotate__cyc_8hip" ],
+    [ "rotate_kernel.h", "d6/d08/hip_2rotate__kernel_8h.html", "d6/d08/hip_2rotate__kernel_8h" ],
     [ "schwarz.hip", "d3/d58/schwarz_8hip.html", "d3/d58/schwarz_8hip" ],
     [ "schwarz_kernel.h", "d6/d6a/hip_2schwarz__kernel_8h.html", "d6/d6a/hip_2schwarz__kernel_8h" ],
     [ "set_convect_rst.hip", "d2/d4b/set__convect__rst_8hip.html", "d2/d4b/set__convect__rst_8hip" ],
