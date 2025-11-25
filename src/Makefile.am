@@ -350,6 +350,7 @@ neko_fortran_SOURCES = \
 	source_terms/bcknd/cpu/boussinesq_source_term_cpu.f90\
 	source_terms/bcknd/device/boussinesq_source_term_device.f90\
 	source_terms/source_term_fctry.f90\
+	source_terms/sponge_source_term.f90\
 	source_terms/brinkman_source_term.f90\
 	filter/mappings.f90\
 	filter/filter.f90\
@@ -430,6 +431,7 @@ libneko_la_SOURCES += \
 	math/bcknd/device/hip/opr_opgrad.hip\
 	math/bcknd/device/hip/opr_lambda2.hip\
 	math/bcknd/device/hip/opr_cfl.hip\
+	math/bcknd/device/hip/opr_rotate_cyc.hip\
 	math/bcknd/device/hip/ax_helm.hip\
 	math/bcknd/device/hip/ax_helm_full.hip\
 	krylov/bcknd/device/hip/pc_jacobi.hip\
@@ -486,6 +488,7 @@ libneko_la_SOURCES += \
 	math/bcknd/device/cuda/opr_opgrad.cu\
 	math/bcknd/device/cuda/opr_lambda2.cu\
 	math/bcknd/device/cuda/opr_cfl.cu\
+	math/bcknd/device/cuda/opr_rotate_cyc.cu\
 	math/bcknd/device/cuda/ax_helm.cu\
 	math/bcknd/device/cuda/ax_helm_full.cu\
 	krylov/bcknd/device/cuda/pc_jacobi.cu\
@@ -681,6 +684,7 @@ EXTRA_DIST = \
 	math/bcknd/device/cuda/opgrad_kernel.h\
 	math/bcknd/device/cuda/lambda2_kernel.h\
 	math/bcknd/device/cuda/cfl_kernel.h\
+	math/bcknd/device/cuda/rotate_kernel.h\
 	math/bcknd/device/cuda/ax_helm_kernel.h\
 	math/bcknd/device/cuda/ax_helm_full_kernel.h\
 	common/bcknd/device/cuda/sumab_kernel.h\
@@ -726,6 +730,7 @@ EXTRA_DIST = \
 	math/bcknd/device/hip/opgrad_kernel.h\
 	math/bcknd/device/hip/lambda2_kernel.h\
 	math/bcknd/device/hip/cfl_kernel.h\
+	math/bcknd/device/hip/rotate_kernel.h\
 	math/bcknd/device/hip/ax_helm_kernel.h\
 	math/bcknd/device/hip/ax_helm_full_kernel.h\
 	common/bcknd/device/hip/sumab_kernel.h\

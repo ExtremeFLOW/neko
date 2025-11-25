@@ -57,6 +57,7 @@ module flow_ic
   use interpolation, only : interpolator_t
   use space, only : space_t, GLL
   use field_list, only : field_list_t
+  use operators, only : rotate_cyc
   implicit none
   private
 
@@ -65,7 +66,7 @@ module flow_ic
           set_compressible_flow_ic_usr
   end interface set_flow_ic
 
-  public :: set_flow_ic
+  public :: set_flow_ic, set_flow_ic_fld
 
 contains
 
@@ -240,9 +241,11 @@ contains
     end if
 
     ! Ensure continuity across elements for initial conditions
+    call rotate_cyc(u%x, v%x, w%x, 1, coef)
     call gs%op(u%x, u%dof%size(), GS_OP_ADD)
     call gs%op(v%x, v%dof%size(), GS_OP_ADD)
     call gs%op(w%x, w%dof%size(), GS_OP_ADD)
+    call rotate_cyc(u%x, v%x, w%x, 0, coef)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_col2(u%x_d, coef%mult_d, u%dof%size())

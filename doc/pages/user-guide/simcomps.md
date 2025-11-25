@@ -3,8 +3,8 @@
 \tableofcontents
 
 ## What are simulation components?
-Simulation components, or simcomps fo short,  incapsulate additional
-functionality that may be useful for certain cases but not necessary to run the
+Simulation components, or simcomps for short, encapsulate additional
+functionalities that may be useful for certain cases but not necessary to run the
 solver.
 This can include computation and output of additional fields, in-situ
 post-processing operations, data sampling, etc.
