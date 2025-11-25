@@ -118,10 +118,12 @@ module mesh_manager
 
      !> Construct neko mesh type based on mesh manager data
      !! @param[inout]   mesh     neko mesh type
-     subroutine mesh_manager_mesh(this, mesh)
+     !! @param[in]      ifnmsh   use curvature information form nmsh file
+     subroutine mesh_manager_mesh(this, mesh, ifnmsh)
        import mesh_manager_t, mesh_t
        class(mesh_manager_t), intent(in) :: this
        type(mesh_t), intent(inout) :: mesh
+       logical, intent(in) :: ifnmsh
      end subroutine mesh_manager_mesh
   end interface
 

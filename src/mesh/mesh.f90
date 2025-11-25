@@ -72,11 +72,15 @@ module mesh
      integer :: nelv !< Number of elements
      integer :: npts !< Number of points per element
      integer :: gdim !< Geometric dimension
+     ! geometrical context
+     integer :: gpts !< Number of (unique) points in the mesh
+     ! connectivity context
      integer :: mpts !< Number of (unique) points in the mesh
      integer :: mfcs !< Number of (unique) faces in the mesh
      integer :: meds !< Number of (unique) edges in the mesh
 
      integer :: glb_nelv !< Global number of elements
+     ! connectivity context
      integer :: glb_mpts !< Global number of unique points
      integer :: glb_mfcs !< Global number of unique faces
      integer :: glb_meds !< Global number of unique edges
@@ -84,10 +88,12 @@ module mesh
      integer :: offset_el !< Element offset
      integer :: max_pts_id !< Max local point id
 
+     ! geometrical context
      type(point_t), allocatable :: points(:) !< list of points
      type(mesh_element_t), allocatable :: elements(:) !< List of elements
      logical, allocatable :: dfrmd_el(:) !< List of elements
 
+     ! connectivity context
      type(htable_i4_t) :: htp !< Table of unique points (global->local)
      type(htable_i4t4_t) :: htf !< Table of unique faces (facet->local id)
      type(htable_i4t2_t) :: hte !< Table of unique edges (edge->local id)
@@ -106,6 +112,7 @@ module mesh
      logical, allocatable :: neigh(:) !< Neighbouring ranks
      integer, allocatable :: neigh_order(:) !< Neighbour order
 
+     ! boundary condition and curvature
      integer(2), allocatable :: facet_type(:,:) !< Facet type
 
      type(facet_zone_t), allocatable :: labeled_zones(:) !< Zones with labeled facets
@@ -178,7 +185,7 @@ module mesh
      end subroutine mesh_deform
   end interface
 
-  public :: mesh_deform, parallelepiped_signed_volume
+  public :: mesh_deform, parallelepiped_signed_volume, mesh_generate_flags
 
 
 contains
@@ -317,6 +324,7 @@ contains
     allocate(this%neigh(0:pe_size-1))
     this%neigh = .false.
 
+    this%gpts = 0
     this%mpts = 0
     this%mfcs = 0
     this%meds = 0
@@ -415,6 +423,10 @@ contains
 
     ! Due to a bug, right handedness check disabled for the time being.
     !call this%check_right_handedness()
+
+    ! Originally neko does not distinguish between geometrical and connectivity
+    ! points
+    this%mpts = this%gpts
 
   end subroutine mesh_finalize
 
@@ -849,11 +861,11 @@ contains
     integer, contiguous, pointer :: neighs(:)
 
 
-    call send_buffer%init(this%mpts * 2)
+    call send_buffer%init(this%gpts * 2)
 
     ! Build send buffers containing
     ! [pt_glb_idx, #neigh, neigh id_1 ....neigh_id_n]
-    do i = 1, this%mpts
+    do i = 1, this%gpts
        pt_glb_idx = this%points(i)%id() ! Adhere to standards...
        num_neigh = this%point_neigh(i)%size()
        call send_buffer%push(pt_glb_idx)
@@ -1474,10 +1486,10 @@ contains
     end if
 
     if (this%htp%get(tmp, idx) .gt. 0) then
-       this%mpts = this%mpts + 1
-       call this%htp%set(tmp, this%mpts)
-       this%points(this%mpts) = p
-       idx = this%mpts
+       this%gpts = this%gpts + 1
+       call this%htp%set(tmp, this%gpts)
+       this%points(this%gpts) = p
+       idx = this%gpts
     end if
 
   end subroutine mesh_add_point

@@ -297,7 +297,7 @@ contains
           ! one should do gs here as well
 
           ! Reconstruct neko mesh
-          call mesh_manager%mesh_construct(mesh)
+          call mesh_manager%mesh_construct(mesh, .false.)
 
           ! restart solver
           call this%restart(user)

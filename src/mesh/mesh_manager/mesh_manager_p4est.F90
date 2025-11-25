@@ -44,7 +44,8 @@ module mesh_manager_p4est
   use tuple, only : tuple_i4_t, tuple4_i4_t
   use stack, only : stack_i4_t, stack_i4t2_t
   use hex, only : hex_t
-  use mesh, only : mesh_t
+  use mesh, only : mesh_t, mesh_generate_flags, NEKO_MSH_MAX_ZLBLS
+  use nmsh, only: nmsh_mesh_t
   use manager_mesh, only : manager_mesh_t
   use manager_geom_p4est, only : manager_geom_node_ind_p4est_t, &
        manager_geom_p4est_t
@@ -1268,16 +1269,16 @@ contains
 
   !> Construct neko mesh type based on mesh manager data
   !! @param[inout]   mesh     neko mesh type
-  subroutine p4est_mesh_construct(this, mesh)
+  !! @param[in]      ifnmsh   use curvature information form nmsh file
+  subroutine p4est_mesh_construct(this, mesh, ifnmsh)
     class(mesh_manager_p4est_t), intent(in) :: this
     type(mesh_t), intent(inout) :: mesh
+    logical, intent(in) :: ifnmsh
     type(stack_i4t2_t), allocatable, dimension(:) :: obj
     type(tuple_i4_t), pointer, dimension(:) :: neighl
     integer :: il, jl, itmp, neighn
     character(len=LOG_SIZE) :: log_buf
-    real(kind=rp) :: t_start, t_end
 
-    t_start = MPI_WTIME()
     write(log_buf, '(a)') 'Constructing neko mesh type'
     call neko_log%message(log_buf, NEKO_LOG_INFO)
 
@@ -1296,7 +1297,7 @@ contains
 
     ! general element info
     mesh%nelv = this%mesh%nelt ! local number of elements
-    mesh%glb_nelv = int(this%mesh%gnelt, i4) ! global number of elelments
+    mesh%glb_nelv = int(this%mesh%gnelt, i4) ! global number of elements
     mesh%offset_el = int(this%mesh%gnelto, i4) ! global element offset;
 
     ! Geometrical context
@@ -1310,18 +1311,20 @@ contains
        call p4est_element_fill(mesh, geom, this%mesh%gidx)
     end select
 
-    
     ! Element deformation
-    ! deformed element flag; It is set in mesh_generate_flags
-    ! (dependent on vertex ordering)!!!!!!!!!!!!!!!!!!!!!!!!!
     allocate(mesh%dfrmd_el(mesh%nelv))
-    
-    ! for now set everything true
-    mesh%dfrmd_el = .true.
-    
+    call mesh%curve%init(mesh%nelv)
+    if (ifnmsh) then
+       ! Get curvature information from
+       call p4est_curve_fill(mesh, this%nmsh_mesh)
+    end if
+    call mesh%curve%finalize() ! curved sides finalisation
+    ! deformed element flag is not set 100% correct, as it neglects curve flags
+    call mesh_generate_flags(mesh) ! deformation flag
+
 
     ! Connectivity context
-    ! missing number of vertices in connectivity context
+    mesh%mpts = this%mesh%conn%vrt%lnum ! local number of unique vertices
     mesh%mfcs = this%mesh%conn%fcs%lnum ! local number of unique faces
     mesh%meds = this%mesh%conn%edg%lnum ! local number of unique edges
 
@@ -1340,7 +1343,7 @@ contains
     ! used internally to get connectivity only; not added
     ! mesh%facet_map
 
-    ! Fill in neighbour information
+    ! Fill in neighbour and mesh distribution information
     select type (conn => this%mesh%conn)
     type is (manager_conn_p4est_t)
        ! used in: gather_scatter.f90;
@@ -1350,25 +1353,25 @@ contains
        ! not used outside mesh.f90
        ! get vertex neighbours
        ! MORE INVESTIGATION NEEDED
-       select type (vrt => conn%vrt)
-       type is (manager_conn_obj_p4est_t)
-          call p4est_object_neighbour_fill(obj, mesh%nelv, &
-               this%mesh%gidx, vrt, conn%vmap, conn%nvrt)
-          ! extract global element index
-          if (allocated(obj)) then
-             allocate(mesh%point_neigh(size(obj)))
-             do il = 1, size(obj)
-                call mesh%point_neigh(il)%init()
-                neighn = obj(il)%size()
-                neighl => obj(il)%array()
-                do jl = 1, neighn
-                   call mesh%point_neigh(il)%push(neighl(jl)%x(2))
-                end do
-                call obj(il)%free()
-             end do
-             deallocate(obj)
-          end if
-       end select
+!!$       select type (vrt => conn%vrt)
+!!$       type is (manager_conn_obj_p4est_t)
+!!$          call p4est_object_neighbour_fill(obj, mesh%nelv, &
+!!$               this%mesh%gidx, vrt, conn%vmap, conn%nvrt)
+!!$          ! extract global element index
+!!$          if (allocated(obj)) then
+!!$             allocate(mesh%point_neigh(size(obj)))
+!!$             do il = 1, size(obj)
+!!$                call mesh%point_neigh(il)%init()
+!!$                neighn = obj(il)%size()
+!!$                neighl => obj(il)%array()
+!!$                do jl = 1, neighn
+!!$                   call mesh%point_neigh(il)%push(neighl(jl)%x(2))
+!!$                end do
+!!$                call obj(il)%free()
+!!$             end do
+!!$             deallocate(obj)
+!!$          end if
+!!$       end select
 
        ! used in: gather_scatter.f90, tree_amg_multigrid.f90;
        ! MORE INVESTIGATION NEEDED
@@ -1409,23 +1412,25 @@ contains
              deallocate(obj)
           end if
        end select
+
+       ! used in dofmap.f90 through get_global and is_shared methods
+       ! MORE INVESTIGATION NEEDED
+       ! get mesh data distribution
+       call p4est_distdata_fill(mesh, conn)
     end select
 
-    write(*, *) 'TEST mesh construct', pe_rank, mesh%glb_mpts, mesh%glb_mfcs, &
-         mesh%glb_meds, mesh%mfcs, mesh%meds, this%mesh%conn%vrt%lnum
+    ! Boundary conditions
+    select type (meshmm => this%mesh)
+    type is (manager_mesh_p4est_t)
+       ! get boundary condition information
+       call p4est_bc_fill(mesh, meshmm)
+    end select
 
-    !call MPI_Barrier(NEKO_COMM, ierr)
-    t_end = MPI_WTIME()
-    write(log_buf, '(A,F9.6)') 'Mesh construction time (s): ', &
-         t_end - t_start
-    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+    ! final flags
+    mesh%lconn = .true.
+    ! not used
+    !mesh%lnumr = .true.
 
-    
-    ! for now
-    write(*,*) 'BEFORE MESH FREE'
-    call mesh%free()
-    write(*,*) 'AFTER MESH FREE'
-    
   end subroutine p4est_mesh_construct
 
   !> Fill the geometrical nodes information
@@ -1438,11 +1443,11 @@ contains
     integer(i4) :: nidx
 
     ! local number of unique vertices
-    mesh%mpts = geom%ind%lnum + geom%hng_fcs%lnum + geom%hng_edg%lnum
+    mesh%gpts = geom%ind%lnum + geom%hng_fcs%lnum + geom%hng_edg%lnum
 
     ! fill the points
     ! order matters due to the element vertex mapping
-    allocate(mesh%points(mesh%mpts))
+    allocate(mesh%points(mesh%gpts))
     itmp = 0
     ! independent nodes
     if (geom%ind%lnum .gt. 0) then
@@ -1509,8 +1514,27 @@ contains
 
   end subroutine p4est_element_fill
 
+  !> Fill the mesh type with curvature information
+  !! @param[inout]   mesh      neko mesh type
+  !! @param[in]      nmsh      nmsh mesh information
+  subroutine p4est_curve_fill(mesh, nmsh)
+    type(mesh_t), intent(inout) :: mesh
+    type(nmsh_mesh_t), intent(in) :: nmsh
+    integer :: il, element_offset4, itmp
+
+    ! add curved sides
+    if (nmsh%ncurve .gt. 0) then
+       element_offset4 = int(nmsh%offset_el, i4)
+       do il = 1, nmsh%ncurve
+          itmp = nmsh%curve(il)%e - element_offset4
+          call mesh%mark_curve_element(itmp, nmsh%curve(il)%curve_data, &
+               nmsh%curve(il)%type)
+       end do
+    end if
+
+  end subroutine p4est_curve_fill
+
   !> Fill the mesh type with rank neighbour information
-  !! @details Based on vertex connectivity info
   !! @param[inout]   mesh    neko mesh type
   !! @param[in]      conn    connectivity
   subroutine p4est_rank_neighbour_fill(mesh, conn)
@@ -1746,6 +1770,160 @@ contains
     deallocate(cmoff, request, status, rbuf, sbuf)
 
   end subroutine p4est_object_neighbour_fill
+
+  !> Fill the mesh type with mesh data distribution information
+  !! @param[inout]   mesh    neko mesh type
+  !! @param[in]      conn    connectivity
+  subroutine p4est_distdata_fill(mesh, conn)
+    type(mesh_t), intent(inout) :: mesh
+    type(manager_conn_p4est_t), intent(in) :: conn
+    integer :: il, jl, itmp, neighn
+    type(stack_i4t2_t), allocatable, dimension(:) :: obj
+    type(tuple_i4_t) :: ttmp
+    type(tuple_i4_t), pointer, dimension(:) :: neighl
+
+    ! initialise connectivity information
+    call mesh%ddata%init()
+
+    ! Add shared vertices
+    select type (vrt => conn%vrt)
+    type is (manager_conn_obj_p4est_t)
+       ! Local id
+       do il = 1, vrt%nrank
+          if (vrt%rank(il) == pe_rank) then
+             do jl = vrt%off(il), vrt%off(il + 1) - 1
+                call mesh%ddata%set_shared_point(vrt%share(jl))
+             end do
+             exit
+          end if
+       end do
+    end select
+
+    ! Add shared faces
+    select type (fcs => conn%fcs)
+    type is (manager_conn_obj_p4est_t)
+       ! Local id
+       do il = 1, fcs%nrank
+          if (fcs%rank(il) == pe_rank) then
+             itmp = il
+             do jl = fcs%off(il), fcs%off(il + 1) - 1
+                call mesh%ddata%set_shared_facet(fcs%share(jl))
+             end do
+             exit
+          end if
+       end do
+       ! Get faces that are shared
+       ! This part is to some extent already done in p4est_object_neighbour_fill
+       ! (local element number missing, so maybe could be taken from previous
+       ! steps.
+       allocate(obj(fcs%lnum))
+       do il = 1, fcs%lnum
+          call obj(il)%init()
+       end do
+       do il = 1, conn%nel
+          do jl = 1, conn%nfcs
+             ttmp%x = [il, jl]
+             call obj(conn%fmap(jl, il))%push(ttmp)
+          end do
+       end do
+       ! extract positions
+       do il = fcs%off(itmp), fcs%off(itmp + 1) - 1
+          jl = fcs%share(il)
+          neighn = obj(jl)%size()
+          neighl => obj(jl)%array()
+          do jl = 1, neighn
+             call mesh%ddata%set_shared_el_facet(neighl(jl)%x(1), &
+                  neighl(jl)%x(2))
+          end do
+       end do
+       ! Local to global id mapping
+       allocate(mesh%ddata%local_to_global_facet(fcs%lnum))
+       do il = 1, fcs%lnum
+          ! global face id; notice type casting
+          itmp = int(fcs%gidx(il),i4)
+          call mesh%ddata%set_local_to_global_facet(il, itmp)
+       end do
+
+       do il = 1, size(obj)
+          call obj(il)%free()
+       end do
+       deallocate(obj)
+    end select
+
+    ! Add shared edges
+    select type (edg => conn%edg)
+    type is (manager_conn_obj_p4est_t)
+       ! Local id
+       do il = 1, edg%nrank
+          if (edg%rank(il) == pe_rank) then
+             do jl = edg%off(il), edg%off(il + 1) - 1
+                call mesh%ddata%set_shared_edge(edg%share(jl))
+             end do
+             exit
+          end if
+       end do
+       ! Local to global id mapping
+       allocate(mesh%ddata%local_to_global_edge(edg%lnum))
+       do il = 1, edg%lnum
+          ! global face id; notice type casting
+          itmp = int(edg%gidx(il),i4)
+          call mesh%ddata%set_local_to_global_edge(il, itmp)
+       end do
+    end select
+
+    ! not used
+    !mesh%ldist = .true.
+
+  end subroutine p4est_distdata_fill
+
+  !> Fill the mesh type with boundary condition information
+  !! @param[inout]   mesh      neko mesh type
+  !! @param[in]      meshmm    mesh manager mesh information
+  subroutine p4est_bc_fill(mesh, meshmm)
+    type(mesh_t), intent(inout) :: mesh
+    type(manager_mesh_p4est_t), intent(in) :: meshmm
+    integer :: il, jl, itmp
+    integer(i4) :: p_f, p_e ! dummy variables for setting periodic bc
+    integer(i4), dimension(4) :: pt_id ! dummy array for setting periodic bc
+
+    ! Initialize element boundary condition
+    allocate(mesh%facet_type(meshmm%nfcs, meshmm%nelt))
+    mesh%facet_type(:, :) = 0
+
+    allocate(mesh%labeled_zones(NEKO_MSH_MAX_ZLBLS))
+    do il = 1, NEKO_MSH_MAX_ZLBLS
+       call mesh%labeled_zones(il)%init(mesh%nelv)
+    end do
+
+    call mesh%periodic%init(mesh%nelv)
+
+    ! Set BC
+    do il = 1, meshmm%nelt
+       do jl = 1, meshmm%nfcs
+          select case(meshmm%bc(jl, il))
+          case(-1)
+             ! this is my periodic bc mark, which is inconsistent with neko (5).
+             ! I don't think I have to do here much more than just mark a face,
+             ! as periodicity is already taken into account in communicator
+             ! IT WOULD BE SUFFICIENT TO HAVE THIS ZONE TO BE LIKE ANY OTHER ONE
+             call mesh%mark_periodic_facet(jl, il, p_f, p_e, pt_id)
+             ! There is no need to call mesh apply, as I do not stick to
+             ! node numbering anyhow.
+          case (1 : NEKO_MSH_MAX_ZLBLS) ! everything elese marked as labeled bc
+             itmp = meshmm%bc(jl,il) ! once again problem with inout attribute
+             call mesh%mark_labeled_facet(jl, il, itmp)
+          end select
+       end do
+    end do
+
+    ! Finalise boundary conditions
+    call mesh%periodic%finalize()
+
+    do il = 1, NEKO_MSH_MAX_ZLBLS
+       call mesh%labeled_zones(il)%finalize()
+    end do
+
+  end subroutine p4est_bc_fill
 
 #else
 

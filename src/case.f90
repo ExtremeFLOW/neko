@@ -204,8 +204,8 @@ contains
        call msh_file%read(this%mesh_manager%nmsh_mesh)
        ! apply data read from the mesh file to mesh manager structures
        call this%mesh_manager%mesh_file_apply()
-       ! construct neko mesh based on mesh manager data
-       call this%mesh_manager%mesh_construct(this%msh)
+       ! construct neko mesh based on mesh manager data and mesh file input
+       call this%mesh_manager%mesh_construct(this%msh, .true.)
 
        ! initialise adaptive mesh refinement
        call this%amr%init(this%mesh_manager%transfer)
@@ -215,6 +215,13 @@ contains
 !         call this%amr%refine(this%mesh_manager, this%msh, this%user, &
 !              this%time)
 !       end block testing_refine
+
+
+       ! for now
+       write(*,*) 'BEFORE MESH FREE'
+       call this%msh%free()
+       write(*,*) 'AFTER MESH FREE'
+    
     end if
 
     call msh_file%read(this%msh)
