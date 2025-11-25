@@ -19,14 +19,17 @@ documented and up to date.
 - 2d_cylinder, Running Neko with a 2D mesh (creates a 1 element thick mesh)
 - advecting_cone, Test case to check for dissipation and other numerical aspects
 - api, Demonstrations of using Neko APIs for other programming languages.
+- cyl_boundary_layer, Wall-mounted cylinder simulation with different boundary
+  condition options
 - euler_1d_sod, 1D Euler equation solution for the classical SOD problem.
 - euler_2d_cylinder, 2D Euler equations solution for the cylinder in cross-flow.
-- euler_2d_forward_facing_step, 2D Euler equations solution for the
+- euler_2d_forward_facing_step, 2D Euler equations solution for the forward
+  facing step problem.
 - euler_2d_smooth, 2D Euler equations for the advection of a smooth density
   wave.
 - euler_tgv, Euler equations solution for compressible Taylor-Green vortex.
 - hemi, One of the original cases from Nek5000.
-- immersed bunny, shows usage of Brinkman source term simulate an immersed
+- immersed_bunny, shows usage of Brinkman source term to simulate an immersed
   boundary.
 - immersed_zones, Brinkman source term for immersed zones in a flow.
 - lid, A typical lid-driven cavity case.
@@ -34,6 +37,8 @@ documented and up to date.
 - rayleigh_benard, Rayleigh Benard convection (RBC) (temperature as additional
   scalar)
 - rayleigh_benard_cylinder, Cylindrical domain RBC
+- recycling, Turbulent channel with recycling boundary conditions using global
+  interpolation.
 - scalar_mms, method of manufactured solutions for the scalar verification
 - tgv, 3D Taylor-Green vortex with several different meshes.
 - turb_pipe, Turbulent pipe flow
