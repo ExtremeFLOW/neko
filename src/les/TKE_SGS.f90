@@ -61,7 +61,7 @@ module TKE_SGS
      character(len=:), allocatable :: vertical_dir
      !> Eddy diffusivity for temperature and TKE
      type(field_t), pointer :: nutheta => null()
-     type(field_t), pointer :: nue => null()
+     type(field_t), pointer :: alphat => null()
      !> Source term for TKE equation
      type(field_t), pointer :: source_e => null()
    contains
@@ -84,7 +84,7 @@ contains
     class(TKE_SGS_t), intent(inout) :: this
     class(fluid_scheme_base_t), intent(inout), target :: fluid
     type(json_file), intent(inout) :: json
-    character(len=:), allocatable :: nut_name, nutheta_name, nue_name
+    character(len=:), allocatable :: nut_name, nutheta_name, alphat_name
     character(len=:), allocatable :: source_e_name
     character(len=:), allocatable :: vertical_dir
     character(len=:), allocatable :: delta_type
@@ -93,7 +93,7 @@ contains
 
     call json_get_or_default(json, "nut_field", nut_name, "nut")
     call json_get_or_default(json, "nutheta_field", nutheta_name, "nutheta")
-    call json_get_or_default(json, "nue_field", nue_name, "nue")
+    call json_get_or_default(json, "alphat_field", alphat_name, "alphat")
     call json_get_or_default(json, "source_e_field", source_e_name, "source_e")
     call json_get_or_default(json, "delta_type", delta_type, "pointwise")
     call json_get_or_default(json, "c_k", this%c_k, 0.10_rp)
@@ -120,7 +120,7 @@ contains
     call neko_log%end_section()
 
     call TKE_SGS_init_from_components(this, fluid, nut_name, &
-         nutheta_name, nue_name, source_e_name, delta_type, if_ext)
+         nutheta_name, alphat_name, source_e_name, delta_type, if_ext)
 
   end subroutine TKE_SGS_init
 
@@ -128,16 +128,16 @@ contains
   !! @param fluid The fluid_scheme_base_t object.
   !! @param nut_name The name of the Eddy viscosity field.
   !! @param nutheta_name The name of the Eddy diffusivity field for temperature.
-  !! @param nue_name The name of the Eddy diffusivity field for TKE.
+  !! @param alphat_name The name of the Eddy diffusivity field for TKE.
   !! @param source_e_name The name of the source term in the TKE equation
   !! @param delta_type The type of filter size.
   !! @param if_ext Whether trapolate the velocity.
   subroutine TKE_SGS_init_from_components(this, fluid, &
-       nut_name, nutheta_name, nue_name, source_e_name, delta_type, if_ext)
+       nut_name, nutheta_name, alphat_name, source_e_name, delta_type, if_ext)
     class(TKE_SGS_t), intent(inout) :: this
     class(fluid_scheme_base_t), intent(inout), target :: fluid
     real(kind=rp) :: c_k
-    character(len=*), intent(in) :: nut_name, nutheta_name, nue_name
+    character(len=*), intent(in) :: nut_name, nutheta_name, alphat_name
     character(len=*), intent(in) :: source_e_name
     character(len=*), intent(in) :: delta_type
     logical, intent(in) :: if_ext
@@ -146,7 +146,7 @@ contains
 
     call this%init_base(fluid, nut_name, delta_type, if_ext)
     this%nutheta => neko_field_registry%get_field(trim(nutheta_name))
-    this%nue => neko_field_registry%get_field(trim(nue_name))
+    this%alphat => neko_field_registry%get_field(trim(alphat_name))
     this%source_e => neko_field_registry%get_field(trim(source_e_name))
 
   end subroutine TKE_SGS_init_from_components
@@ -171,7 +171,7 @@ contains
        call neko_error("TKE SGS model is not implemented on device yet.")
     else
        call TKE_SGS_compute_cpu(t, tstep, this%coef, &
-            this%nut, this%nutheta, this%nue, this%source_e, &
+            this%nut, this%nutheta, this%alphat, this%source_e, &
             this%delta, this%c_k, this%T0, this%g, &
             this%vertical_dir)
     end if

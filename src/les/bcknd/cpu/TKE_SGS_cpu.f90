@@ -55,16 +55,16 @@ contains
   !! @param coef SEM coefficients.
   !! @param nut The eddy viscosity field.
   !! @param nutheta The eddy diffusivity field for temperature.
-  !! @param nue The eddy diffusivity field for TKE.
+  !! @param alphat The eddy diffusivity field for TKE.
   !! @param source_e The source terms for TKE equation.
   !! @param delta The LES lengthscale.
   !! @param c_k The TKE_SGS model constant
-  subroutine TKE_SGS_compute_cpu(t, tstep, coef, nut, nutheta, nue, source_e, &
+  subroutine TKE_SGS_compute_cpu(t, tstep, coef, nut, nutheta, alphat, source_e, &
                                  delta, c_k, T0, g, vert_dir)
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
-    type(field_t), intent(inout) :: nut, nutheta, nue, source_e
+    type(field_t), intent(inout) :: nut, nutheta, alphat, source_e
     type(field_t), intent(in) :: delta
     real(kind=rp), intent(in) :: c_k, T0, g
     character(len=*), intent(in) :: vert_dir
@@ -116,7 +116,7 @@ contains
        ! Eddy diffusivity for temperature
        nutheta%x(i,1,1,1) = (1.0_rp + 2.0_rp * l/delta%x(i,1,1,1)) &
                            * nut%x(i,1,1,1) 
-       nue%x(i,1,1,1) = 2.0_rp * nut%x(i,1,1,1) ! Eddy diffusivity of TKE
+       alphat%x(i,1,1,1) = 2.0_rp * nut%x(i,1,1,1) ! Eddy diffusivity of TKE
     end do
 
     ! Compute velocity gradients
