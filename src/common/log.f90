@@ -67,6 +67,9 @@ module logger
      procedure, pass(this) :: error => log_error
      procedure, pass(this) :: warning => log_warning
      procedure, pass(this) :: end_section => log_end_section
+
+     procedure, private, pass(this) :: print_section_header => &
+          log_print_section_header
   end type log_t
 
   !> Global log stream
@@ -213,10 +216,7 @@ contains
     end if
 
     if (len_trim(this%section_header) .gt. 0) then
-       call this%newline(lvl)
-       call this%indent()
-       write(this%unit_, '(A)') trim(this%section_header)
-       this%section_header = ""
+       call this%print_section_header(lvl)
     end if
 
     if (pe_rank .eq. 0) then
@@ -278,6 +278,10 @@ contains
 
     integer :: pre, pos
 
+    if (len_trim(this%section_header) .gt. 0) then
+       call this%print_section_header(lvl)
+    end if
+
     call this%begin()
 
     if (pe_rank .eq. 0) then
@@ -289,6 +293,31 @@ contains
     end if
 
   end subroutine log_section
+
+  !> Print a section header
+  subroutine log_print_section_header(this, lvl)
+    class(log_t), intent(inout) :: this
+    integer, optional :: lvl
+    integer :: lvl_
+
+    if (present(lvl)) then
+       lvl_ = lvl
+    else
+       lvl_ = NEKO_LOG_INFO
+    end if
+
+    if (lvl_ .gt. this%level_) then
+       return
+    end if
+
+    if (pe_rank .eq. 0) then
+       call this%newline(lvl)
+       call this%indent()
+       write(this%unit_, '(A)') trim(this%section_header)
+       this%section_header = ""
+    end if
+
+  end subroutine log_print_section_header
 
   !> End a log section
   subroutine log_end_section(this, msg, lvl)
