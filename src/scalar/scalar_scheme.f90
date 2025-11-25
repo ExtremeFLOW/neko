@@ -254,7 +254,8 @@ contains
     integer :: integer_val, ierr
     character(len=:), allocatable :: solver_type, solver_precon
     type(json_file) :: precon_params
-    real(kind=rp) :: GJP_param_a, GJP_param_b
+    type(json_file) :: json_subdict
+    logical :: nut_dependency
 
     this%u => neko_field_registry%get_field('u')
     this%v => neko_field_registry%get_field('v')
@@ -315,15 +316,17 @@ contains
     !
     ! Turbulence modelling
     !
-    if (params%valid_path('nut_field')) then
-       call json_get(params, 'Pr_t', this%pr_turb)
-       call json_get(params, 'nut_field', this%nut_field_name)
-    else if (params%valid_path('alphat_field')) then
-       call json_get(params, 'alphat_field', this%alphat_field_name)
-       this%nut_field_name = ""
-    else
-       this%alphat_field_name = ""
-       this%nut_field_name = ""
+    this%alphat_field_name = ""
+    this%nut_field_name = ""
+    if (params%valid_path('alphat')) then
+       call json_get(this%params, 'alphat', json_subdict)
+       call json_get(json_subdict, 'nut_dependency', nut_dependency)
+       if (nut_dependency) then
+          call json_get(json_subdict, 'Pr_t', this%pr_turb)
+          call json_get(json_subdict, 'nut_field', this%nut_field_name)
+       else
+          call json_get(json_subdict, 'alphat_field', this%alphat_field_name)
+       end if
     end if
 
     !
