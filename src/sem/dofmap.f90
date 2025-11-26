@@ -203,20 +203,21 @@ contains
   !> Assign numbers to each dofs on points
   subroutine dofmap_number_points(this)
     type(dofmap_t), target :: this
-    integer :: il, jl, ix, iy, iz
+    integer :: il, jl, ix, iy, iz, loc_id
     type(mesh_t), pointer :: msh
     type(space_t), pointer :: Xh
 
     msh => this%msh
     Xh => this%Xh
+
     do il = 1, msh%nelv
        do jl = 1, msh%npts
           ix = mod(jl - 1, 2)     * (Xh%lx - 1) + 1
           iy = (mod(jl - 1, 4)/2) * (Xh%ly - 1) + 1
           iz = ((jl - 1)/4)       * (Xh%lz - 1) + 1
-          this%dof(ix, iy, iz, il) = int(msh%elements(il)%e%pts(jl)%p%id(), i8)
-          this%shared_dof(ix, iy, iz, il) = &
-               msh%is_shared(msh%elements(il)%e%pts(jl)%p)
+          loc_id = msh%conn%vrt%map(jl, il)
+          this%dof(ix, iy, iz, il) = msh%conn%vrt%gidx(loc_id)
+          this%shared_dof(ix, iy, iz, il) = msh%conn%vrt%share(loc_id)
        end do
     end do
   end subroutine dofmap_number_points

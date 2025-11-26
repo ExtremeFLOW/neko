@@ -44,6 +44,7 @@ module mesh_manager_p4est
   use tuple, only : tuple_i4_t, tuple4_i4_t
   use stack, only : stack_i4_t, stack_i4t2_t
   use hex, only : hex_t
+  use mesh_conn, only : mesh_conn_t
   use mesh, only : mesh_t, mesh_generate_flags, NEKO_MSH_MAX_ZLBLS
   use nmsh, only: nmsh_mesh_t
   use manager_mesh, only : manager_mesh_t
@@ -722,7 +723,8 @@ contains
     integer(i8), allocatable, target, dimension(:) :: itmp8v1
     integer(i8), allocatable, target, dimension(:, :) :: itmp8v21
     integer(i4), allocatable, target, dimension(:) :: itmp4v1, itmp4v2, &
-         itmp4v3, hngel
+         itmp4v3, hngei
+    logical, allocatable, target, dimension(:) :: hngel
     integer(i4), allocatable, target, dimension(:, :) :: itmp4v21, itmp4v22, &
          itmp4v23, hngfc, hnged, vmap, fmap, emap, ealgn
     real(dp), allocatable, target, dimension(:, :) :: rtmpv1
@@ -853,8 +855,11 @@ contains
        call wp4est_lnodes_new(1)
 
        ! get hanging object info; based on lnode information
-       allocate(hngel(nelt), hngfc(nface, nelt), hnged(nedge, nelt))
-       call wp4est_hang_get_info(c_loc(hngel), c_loc(hngfc), c_loc(hnged))
+       allocate(hngei(nelt), hngel(nelt), hngfc(nface, nelt), &
+            hnged(nedge, nelt))
+       call wp4est_hang_get_info(c_loc(hngei), c_loc(hngfc), c_loc(hnged))
+       hngel(:) = (hngei(:) == 1)
+       deallocate(hngei)
 
        ! vertex connectivity
        allocate(vmap(nvert, nelt))
@@ -1350,9 +1355,9 @@ contains
        ! get neighbour rank info
        call p4est_rank_neighbour_fill(mesh, conn)
 
-       ! not used outside mesh.f90
-       ! get vertex neighbours
-       ! MORE INVESTIGATION NEEDED
+!!$       ! not used outside mesh.f90
+!!$       ! get vertex neighbours
+!!$       ! MORE INVESTIGATION NEEDED
 !!$       select type (vrt => conn%vrt)
 !!$       type is (manager_conn_obj_p4est_t)
 !!$          call p4est_object_neighbour_fill(obj, mesh%nelv, &
@@ -1413,10 +1418,14 @@ contains
           end if
        end select
 
-       ! used in dofmap.f90 through get_global and is_shared methods
-       ! MORE INVESTIGATION NEEDED
-       ! get mesh data distribution
-       call p4est_distdata_fill(mesh, conn)
+!!$       ! used in dofmap.f90 through get_global and is_shared methods
+!!$       ! MORE INVESTIGATION NEEDED
+!!$       ! replaced by new mesh connectivity type
+!!$       ! get mesh data distribution
+!!$       call p4est_distdata_fill(mesh, conn)
+
+       ! fill connectivity mapping information
+       call p4est_conn_mapping_fill(mesh%conn, conn)
     end select
 
     ! Boundary conditions
@@ -1875,6 +1884,70 @@ contains
     !mesh%ldist = .true.
 
   end subroutine p4est_distdata_fill
+
+  !> Fill the mesh type with connectivity mapping information
+  !! @param[inout]   conn    neko mesh type connectivity
+  !! @param[in]      connmm  mesh manager  connectivity
+  subroutine p4est_conn_mapping_fill(conn, connmm)
+    type(mesh_conn_t), intent(inout) :: conn
+    type(manager_conn_p4est_t), intent(in) :: connmm
+    logical, allocatable, dimension(:) :: share
+    integer :: il, jl
+
+    call conn%init(connmm%tdim, connmm%nel, connmm%hngel)
+
+    select type (vrt => connmm%vrt)
+    type is (manager_conn_obj_p4est_t)
+       allocate(share(vrt%lnum))
+       share(:) = .false.
+       do il = 1, vrt%nrank
+          if (vrt%rank(il) == pe_rank) then
+             do jl = vrt%off(il), vrt%off(il + 1) - 1
+                share(vrt%share(jl)) = .true.
+             end do
+             exit
+          end if
+       end do
+       call conn%vrt%init(vrt%lnum, vrt%gnum, connmm%nel, connmm%nvrt, &
+            vrt%gidx, share, connmm%vmap)
+       deallocate(share)
+    end select
+
+    select type (edg => connmm%edg)
+    type is (manager_conn_obj_p4est_t)
+       allocate(share(edg%lnum))
+       share(:) = .false.
+       do il = 1, edg%nrank
+          if (edg%rank(il) == pe_rank) then
+             do jl = edg%off(il), edg%off(il + 1) - 1
+                share(edg%share(jl)) = .true.
+             end do
+             exit
+          end if
+       end do
+       call conn%edg%init(edg%lnum, edg%gnum, connmm%nel, connmm%nedg, &
+            edg%gidx, share, connmm%emap, connmm%ealgn, connmm%hnged)
+       deallocate(share)
+    end select
+
+    select type (fcs => connmm%fcs)
+    type is (manager_conn_obj_p4est_t)
+       allocate(share(fcs%lnum))
+       share(:) = .false.
+       do il = 1, fcs%nrank
+          if (fcs%rank(il) == pe_rank) then
+             do jl = fcs%off(il), fcs%off(il + 1) - 1
+                share(fcs%share(jl)) = .true.
+             end do
+             exit
+          end if
+       end do
+       call conn%fcs%init(fcs%lnum, fcs%gnum, connmm%nel, connmm%nfcs, &
+            fcs%gidx, share, connmm%fmap, connmm%falgn, connmm%hngfc)
+       deallocate(share)
+    end select
+
+  end subroutine p4est_conn_mapping_fill
 
   !> Fill the mesh type with boundary condition information
   !! @param[inout]   mesh      neko mesh type

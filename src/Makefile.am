@@ -77,6 +77,7 @@ neko_fortran_SOURCES = \
 	mesh/point_zones/combine_point_zone.f90\
 	mesh/point_zone_fctry.f90\
 	mesh/point_zone_registry.f90\
+	mesh/mesh_conn.f90\
 	mesh/mesh.f90\
 	mesh/octree.f90\
 	mesh/search_tree/aabb.f90\

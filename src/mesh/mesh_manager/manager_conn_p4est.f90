@@ -137,7 +137,7 @@ module manager_conn_p4est
      !                       \|       |
      !                        +-------+
      !> Hanging element list; 1 if at least one hanging face or edge otherwise 0
-     integer(i4), allocatable, dimension(:) :: hngel
+     logical, allocatable, dimension(:) :: hngel
      !> Hanging face list; position of hanging face; otherwise -1
      integer(i4), allocatable, dimension(:,:) :: hngfc
      !> Hanging edge list;
@@ -265,7 +265,7 @@ contains
        emap, ealgn, hngel, hngfc, hnged, ifsave)
     class(manager_conn_p4est_t), intent(inout) :: this
     integer(i4), intent(in) :: tdim, nel
-    integer(i4), allocatable, dimension(:), intent(inout) :: hngel
+    logical, allocatable, dimension(:), intent(inout) :: hngel
     integer(i4), allocatable, dimension(:,:), intent(inout) :: vmap, fmap, &
          falgn, emap, ealgn, hngfc, hnged
     logical, optional, intent(in) :: ifsave

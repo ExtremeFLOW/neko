@@ -54,6 +54,7 @@ module mesh
        MPI_Get_count, MPI_Sendrecv
   use uset, only : uset_i8_t
   use curve, only : curve_t
+  use mesh_conn, only : mesh_conn_t
   use logger, only : LOG_SIZE
   use, intrinsic :: iso_fortran_env, only: error_unit
   implicit none
@@ -94,6 +95,9 @@ module mesh
      logical, allocatable :: dfrmd_el(:) !< List of elements
 
      ! connectivity context
+     ! connectivity information including element objects mapping
+     type(mesh_conn_t) :: conn
+
      type(htable_i4_t) :: htp !< Table of unique points (global->local)
      type(htable_i4t4_t) :: htf !< Table of unique faces (facet->local id)
      type(htable_i4t2_t) :: hte !< Table of unique edges (edge->local id)
@@ -336,6 +340,8 @@ contains
     class(mesh_t), intent(inout) :: this
     integer :: i
 
+    call this%conn%free()
+
     call this%htp%free()
     call this%htf%free()
     call this%hte%free()
@@ -415,6 +421,13 @@ contains
     call mesh_generate_flags(this)
     call mesh_generate_conn(this)
 
+    ! Originally neko does not distinguish between geometrical and connectivity
+    ! points
+    this%mpts = this%gpts
+
+    ! get connectivity mappings
+    call mesh_generate_conn_mapping(this)
+
     call this%periodic%finalize()
     do i = 1, NEKO_MSH_MAX_ZLBLS
        call this%labeled_zones(i)%finalize()
@@ -423,10 +436,6 @@ contains
 
     ! Due to a bug, right handedness check disabled for the time being.
     !call this%check_right_handedness()
-
-    ! Originally neko does not distinguish between geometrical and connectivity
-    ! points
-    this%mpts = this%gpts
 
   end subroutine mesh_finalize
 
@@ -1397,6 +1406,89 @@ contains
 
   end subroutine mesh_generate_facet_numbering
 
+  subroutine mesh_generate_conn_mapping(this)
+    type(mesh_t), intent(inout) :: this
+    integer :: nobj, loc_id, il, jl
+    integer(i8) :: gnum
+    integer(i8), allocatable, dimension(:) :: gidx
+    logical, allocatable, dimension(:) :: share
+    integer, allocatable, dimension(:, :) :: map
+    type(tuple4_i4_t) :: face
+    type(tuple_i4_t) :: edge
+
+    ! general info
+    call this%conn%init(this%gdim, this%nelv)
+
+    ! Get vertex mapping
+    nobj = 2**this%gdim
+    allocate(gidx(this%mpts), share(this%mpts), map(nobj, this%nelv))
+    gnum = this%glb_mpts
+    gidx(:) = 0
+    share(:) = .false.
+    do il = 1, this%mpts
+       gidx(il) = int(this%points(il)%id(), i8)
+       share(il) = this%is_shared(this%points(il))
+    end do
+    do il = 1, this%nelv
+       do jl = 1, nobj
+          map(jl, il) = this%get_local(this%elements(il)%e%pts(jl)%p)
+       end do
+    end do
+    call this%conn%vrt%init(this%mpts, gnum, this%nelv, nobj, gidx, share, map)
+    deallocate(gidx, share, map)
+
+    ! Get face mapping
+    nobj = 2*this%gdim
+    allocate(gidx(this%mfcs), share(this%mfcs), map(nobj, this%nelv))
+    gnum = this%glb_mfcs
+    gidx(:) = 0
+    share(:) = .false.
+    do il = 1, this%nelv
+       select type (ep => this%elements(il)%e)
+       type is (hex_t)
+          do jl = 1, nobj
+             call ep%facet_id(face, jl)
+             loc_id = this%get_local(face)
+             map(jl, il) = loc_id
+             ! this part could be done better
+             gidx(loc_id) = this%get_global(face)
+             share(loc_id) = this%is_shared(face)
+          end do
+       type is (quad_t)
+          call neko_error('Nothing done for quad for conn mapping.')
+       end select
+    end do
+    call this%conn%fcs%init(this%mfcs, gnum, this%nelv, nobj, gidx, share, map)
+    deallocate(gidx, share, map)
+
+    ! Get edge mapping
+    if (this%gdim .eq. 3) then
+       nobj = 12
+       allocate(gidx(this%meds), share(this%meds), map(nobj, this%nelv))
+       gnum = this%glb_meds
+       gidx(:) = 0
+       share(:) = .false.
+       do il = 1, this%nelv
+       select type (ep => this%elements(il)%e)
+       type is (hex_t)
+          do jl = 1, nobj
+             call ep%edge_id(edge, jl)
+             loc_id = this%get_local(edge)
+             map(jl, il) = loc_id
+             ! this part could be done better
+             gidx(loc_id) = this%get_global(edge)
+             share(loc_id) = this%is_shared(edge)
+          end do
+       type is (quad_t)
+          call neko_error('Nothing done for quad for conn mapping.')
+       end select
+    end do
+       call this%conn%edg%init(this%meds, gnum, this%nelv, nobj, gidx, &
+            share, map)
+       deallocate(gidx, share, map)
+    end if
+
+  end subroutine mesh_generate_conn_mapping
 
   !> Add a quadrilateral element to the mesh @a this
   subroutine mesh_add_quad(this, el, el_glb, p1, p2, p3, p4)
