@@ -80,7 +80,7 @@ native Neko format `.nmsh`.
 So, for most practical cases, the mesh generation for Neko boils down to mesh
 generation for Nek5000. At this stage it is indeed helpful to have a local copy
 of Nek5000 to make use of its mesh conversion tools. However, we provide one
-such tool under `contrib/gmsh2nek`.  Executing the `compile.sh` script in that
+such tool under `contrib/gmsh2nek`. Executing the `compile.sh` script in that
 folder will produce a `gmsh2nek` executable. As the name hints, this is a
 convertor from the gmsh `.msh` format to `re2`. In addition to just converting,
 the utility allows to define periodic boundaries.
