@@ -5,6 +5,7 @@ for simple examples where one just wish to configure a case and run it, to more
 advanced topics such as statistics and user defined extensions.
 
 - \subpage installation
+- \subpage meshing
 - \subpage case-file
 - \subpage user-file
 - \subpage simcomps
