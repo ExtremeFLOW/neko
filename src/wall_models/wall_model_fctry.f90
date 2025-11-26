@@ -30,10 +30,12 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
+
+! new comments put by Lorenzo on Nov 26 2025
 submodule (wall_model) wall_model_fctry
-  use vreman, only : vreman_t
+  use vreman, only : vreman_t   ! add new models
   use spalding, only : spalding_t
-  use rough_log_law, only : rough_log_law_t
+  use rough_log_law, only : rough_log_law_t   ! add new models
   use utils, only : neko_type_error
   use utils, only : neko_type_registration_error
   implicit none
@@ -41,7 +43,7 @@ submodule (wall_model) wall_model_fctry
   ! List of all possible types created by the factory routine
   character(len=20) :: WALLM_KNOWN_TYPES(2) = [character(len=20) :: &
        "spalding", &
-       "rough_log_law"]
+       "rough_log_law"]  ! here as well add models
 
 contains
 
