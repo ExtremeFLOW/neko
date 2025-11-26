@@ -93,7 +93,7 @@ pipeline is therefore the following:
 
 1. Generate your element mesh and save it to the `.msh` format. 
 2. Open the mesh in gmsh, set the order to 2, and export the mesh in the legacy
-   version 2 `.msh` format. 
+   version 2 `.msh` format.
 3. Convert it to `.re2` with `gmsh2nek`, defining periodic boundaries if needed.
 4. Run `rea2nbin` to get the `.nmsh`.
 5. Run Neko's `mesh_checker` utility on the generated `.nmsh`. This will create
