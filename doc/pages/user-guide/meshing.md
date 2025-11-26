@@ -53,7 +53,7 @@ pseudo-2d case). The topology can be fully unstructured. A practical way of
 generating a hexahedral mesh of a complicated geometry is to first generate a
 tetrahedral mesh (usually with triangle prisms in the boundary layer) and then
 convert it by chopping each tetrahedron into hexahedra. But keep in mind that
-the quality of such meshes are generally no very high.
+the quality of such meshes are generally not very high.
 
 Strong skewness, non-orthogonality and other issues will likely cause your case
 to crash. The SEM is a high-order method and that comes at the price of much
