@@ -1,6 +1,12 @@
 var NAVTREEINDEX90 =
 {
+"df/d14/opr__cdtp_8cu_source.html":[3,0,3,15,0,1,0,18],
+"df/d15/interfacefusedcg__device_1_1cuda__fusedcg__update__x.html":[1,0,157,2],
+"df/d15/interfacefusedcg__device_1_1cuda__fusedcg__update__x.html":[2,0,137,2],
+"df/d15/interfacefusedcg__device_1_1cuda__fusedcg__update__x.html#aec8a4140c6bcb8788b660d00851db90c":[2,0,137,2,0],
+"df/d15/interfacefusedcg__device_1_1cuda__fusedcg__update__x.html#aec8a4140c6bcb8788b660d00851db90c":[1,0,157,2,0],
 "df/d15/interfaceopencl__intf_1_1clenqueuecopybuffer.html":[2,0,196,5],
+"df/d15/interfaceopencl__intf_1_1clenqueuecopybuffer.html":[1,0,227,5],
 "df/d15/interfaceopencl__intf_1_1clenqueuecopybuffer.html#a8e1763002aed0b9ea9fcd488fa8fc128":[1,0,227,5,0],
 "df/d15/interfaceopencl__intf_1_1clenqueuecopybuffer.html#a8e1763002aed0b9ea9fcd488fa8fc128":[2,0,196,5,0],
 "df/d18/interfacedevice__mathops_1_1hip__opcolv3c.html":[1,0,89,4],
@@ -243,11 +249,5 @@ var NAVTREEINDEX90 =
 "df/d21/structrough__log__law_1_1rough__log__law__t.html#aa8946628e4d4ab1b4b022831f89127de":[1,0,272,0,4],
 "df/d21/structrough__log__law_1_1rough__log__law__t.html#aa8946628e4d4ab1b4b022831f89127de":[2,0,234,0,4],
 "df/d21/structrough__log__law_1_1rough__log__law__t.html#aaaa342b83ad2d72f82c6d81561f6a340":[1,0,272,0,13],
-"df/d21/structrough__log__law_1_1rough__log__law__t.html#aaaa342b83ad2d72f82c6d81561f6a340":[2,0,234,0,13],
-"df/d21/structrough__log__law_1_1rough__log__law__t.html#aac3d1e1f292b9fa9ad78c17106fa0c3a":[1,0,272,0,39],
-"df/d21/structrough__log__law_1_1rough__log__law__t.html#aac3d1e1f292b9fa9ad78c17106fa0c3a":[2,0,234,0,39],
-"df/d21/structrough__log__law_1_1rough__log__law__t.html#aafe1e036f56955a3301b03689c29eb93":[1,0,272,0,28],
-"df/d21/structrough__log__law_1_1rough__log__law__t.html#aafe1e036f56955a3301b03689c29eb93":[2,0,234,0,28],
-"df/d21/structrough__log__law_1_1rough__log__law__t.html#ab3c18e9684f1b92453b0d237c96ef324":[1,0,272,0,29],
-"df/d21/structrough__log__law_1_1rough__log__law__t.html#ab3c18e9684f1b92453b0d237c96ef324":[2,0,234,0,29]
+"df/d21/structrough__log__law_1_1rough__log__law__t.html#aaaa342b83ad2d72f82c6d81561f6a340":[2,0,234,0,13]
 };

@@ -1,5 +1,11 @@
 var NAVTREEINDEX94 =
 {
+"df/db9/structgmres_1_1gmres__t.html#a4f01bfbf0a5979a60a0612e504c64489":[1,0,162,0,7],
+"df/db9/structgmres_1_1gmres__t.html#a4f01bfbf0a5979a60a0612e504c64489":[2,0,142,0,7],
+"df/db9/structgmres_1_1gmres__t.html#a5eed557f16172eced2d898b3fafd0f57":[2,0,142,0,2],
+"df/db9/structgmres_1_1gmres__t.html#a5eed557f16172eced2d898b3fafd0f57":[1,0,162,0,2],
+"df/db9/structgmres_1_1gmres__t.html#a609cdc5492cb69c168830a4027e54c55":[1,0,162,0,27],
+"df/db9/structgmres_1_1gmres__t.html#a609cdc5492cb69c168830a4027e54c55":[2,0,142,0,27],
 "df/db9/structgmres_1_1gmres__t.html#a75721421d4d26e4ea23205cfbc34443b":[1,0,162,0,4],
 "df/db9/structgmres_1_1gmres__t.html#a75721421d4d26e4ea23205cfbc34443b":[2,0,142,0,4],
 "df/db9/structgmres_1_1gmres__t.html#a7799297600c967d5faeff29549d409d0":[1,0,162,0,11],
@@ -236,18 +242,12 @@ var NAVTREEINDEX94 =
 "df/dec/namespacetuple.html#aefdf3623e60c6b7952ffac6ccdd0bbac":[1,0,343,16],
 "df/ded/interfacerhs__maker__device_1_1rhs__maker__sumab__hip.html":[2,0,232,7],
 "df/ded/interfacerhs__maker__device_1_1rhs__maker__sumab__hip.html":[1,0,269,7],
+"df/ded/interfacerhs__maker__device_1_1rhs__maker__sumab__hip.html#af9789fa2c1aa3f33e021615c87fec108":[1,0,269,7,1],
 "df/ded/interfacerhs__maker__device_1_1rhs__maker__sumab__hip.html#af9789fa2c1aa3f33e021615c87fec108":[2,0,232,7,0],
 "df/ded/interfacerhs__maker__device_1_1rhs__maker__sumab__hip.html#af9789fa2c1aa3f33e021615c87fec108":[2,0,232,7,1],
-"df/ded/interfacerhs__maker__device_1_1rhs__maker__sumab__hip.html#af9789fa2c1aa3f33e021615c87fec108":[1,0,269,7,1],
 "df/ded/interfacerhs__maker__device_1_1rhs__maker__sumab__hip.html#af9789fa2c1aa3f33e021615c87fec108":[1,0,269,7,0],
 "df/ded/namespaceuser__stats.html":[1,0,348],
 "df/ded/namespaceuser__stats.html#a198f8ee894c83a524753b82ddfa3ca61":[1,0,348,2],
 "df/ded/namespaceuser__stats.html#a323eefdace33e6ba125945b61e67b331":[1,0,348,1],
-"df/ded/namespaceuser__stats.html#a455eca92ce4a6188c20ad306f983a4c2":[1,0,348,7],
-"df/ded/namespaceuser__stats.html#a52dd4a0b4aa4ff8adb97830e02583d09":[1,0,348,5],
-"df/ded/namespaceuser__stats.html#ace6d205150ecee2db3de6148e2181a8b":[1,0,348,6],
-"df/ded/namespaceuser__stats.html#ae8f219599ac714515c6ae1d30aa68882":[1,0,348,4],
-"df/ded/namespaceuser__stats.html#af65f7e67ab1e39ae0b1492646fe5e046":[1,0,348,3],
-"df/dee/interfacedevice__dynamic__smagorinsky__nut_1_1hip__mij__compute__part1.html":[1,0,80,2],
-"df/dee/interfacedevice__dynamic__smagorinsky__nut_1_1hip__mij__compute__part1.html":[2,0,69,2]
+"df/ded/namespaceuser__stats.html#a455eca92ce4a6188c20ad306f983a4c2":[1,0,348,7]
 };

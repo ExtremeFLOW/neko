@@ -14,6 +14,7 @@ var namespacelogger =
     [ "log_message", "d8/da0/namespacelogger.html#a567ff9b3d26cfb289fff24e118e03db1", null ],
     [ "log_message_c", "d8/da0/namespacelogger.html#a7503165ea169149c6485871abbb42423", null ],
     [ "log_newline", "d8/da0/namespacelogger.html#abe16d24271114fb1b15eab73223fd452", null ],
+    [ "log_print_section_header", "d8/da0/namespacelogger.html#a1f14a67eec025e0fa25123ee5fa1a084", null ],
     [ "log_section", "d8/da0/namespacelogger.html#af26458fdb2a8632e8c01296fc65f962b", null ],
     [ "log_section_c", "d8/da0/namespacelogger.html#accdcb0b637b2330ce2717845b8fe1c55", null ],
     [ "log_warning", "d8/da0/namespacelogger.html#a865ce1013019a8679865fc3ba1dc17bf", null ],

@@ -14,6 +14,7 @@ var log_8f90 =
     [ "log_message", "da/d53/log_8f90.html#a567ff9b3d26cfb289fff24e118e03db1", null ],
     [ "log_message_c", "da/d53/log_8f90.html#a7503165ea169149c6485871abbb42423", null ],
     [ "log_newline", "da/d53/log_8f90.html#abe16d24271114fb1b15eab73223fd452", null ],
+    [ "log_print_section_header", "da/d53/log_8f90.html#a1f14a67eec025e0fa25123ee5fa1a084", null ],
     [ "log_section", "da/d53/log_8f90.html#af26458fdb2a8632e8c01296fc65f962b", null ],
     [ "log_section_c", "da/d53/log_8f90.html#accdcb0b637b2330ce2717845b8fe1c55", null ],
     [ "log_warning", "da/d53/log_8f90.html#a865ce1013019a8679865fc3ba1dc17bf", null ],
