@@ -6,7 +6,7 @@ method. You generate a mesh of elements; the individual degrees of freedom
 (DoFs) inside each element are then placed automatically by Neko based on the
 chosen polynomial order.
 
-In SEM, the total DoF count scales with the polynomial order `p`. Consequently,
+In SEM, the total DoF count increases with the polynomial order `p`. Consequently,
 the effective spatial resolution depends both on the element size and on `p`.
 Within each element, nodal points are placed at Gauss–Lobatto–Legendre (GLL)
 locations, which are clustered near element boundaries and not uniformly spaced.
