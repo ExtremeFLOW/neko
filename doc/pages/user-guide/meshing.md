@@ -1,5 +1,5 @@
-# Generating meshes {#meshing}
-# General considerations {#general-considerations}
+# Meshing {#meshing}
+## General considerations {#general-considerations}
 
 The Spectral Element Method (SEM) used in Neko is a high-order finite element
 method. You generate a mesh of elements; the individual degrees of freedom
@@ -71,7 +71,7 @@ boundary conditions are part of the mesh definition in Neko, and not something
 you specify in the case file. Baking in periodicity into the mesh is discussed
 below.
 
-# Constructing meshes
+## Constructing meshes
 If your domain is a box, you can use Neko's built-in mesher called `genmeshbox`.
 Otherwise, you have to convert your mesh into a Nek5000 format called `.re2`,
 and then apply a utility in Neko called `rea2nbin`, which produces a mesh in the
@@ -83,13 +83,13 @@ of Nek5000 to make use of its mesh conversion tools. However, we provide one
 such tool under `contrib/gmsh2nek`.  Executing the `compile.sh` script in that
 folder will produce a `gmsh2nek` executable. As the name hints, this is a
 convertor from the gmsh `.msh` format to `re2`. In addition to just converting,
-the utility allows to additionally define periodic boundary conditions.
+the utility allows to define periodic boundaries.
 
-Since gmsh is popular, a lot of meshing software supports it. There is a caveat
-though: there have been several versions of the `.msh` and `gmsh2nek` supports
-only a particular flavour. Moreover, it expects the order of the mesh to be 2,
-whereas most software will produce a linear mesh. The typical meshing pipeline
-is therefore the following:
+Since gmsh is popular, a lot of meshing software supports its format. There is a
+caveat though: there have been several versions of the `.msh` and `gmsh2nek`
+supports only a particular flavour. Moreover, it expects the order of the mesh
+to be 2, whereas most software will produce a linear mesh. The typical meshing
+pipeline is therefore the following:
 
 1. Generate your element mesh and save it to the `.msh` format. 
 2. Open the mesh in gmsh, set the order to 2, and export the mesh in the legacy
