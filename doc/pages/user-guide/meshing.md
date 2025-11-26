@@ -53,7 +53,7 @@ pseudo-2d case). The topology can be fully unstructured. A practical way of
 generating a hexahedral mesh of a complicated geometry is to first generate a
 tetrahedral mesh (usually with triangle prisms in the boundary layer) and then
 convert it by chopping each tetrahedron into hexahedra. But keep in mind that
-the quality of such meshes are generally no very high.
+the quality of such meshes are generally not very high.
 
 Strong skewness, non-orthogonality and other issues will likely cause your case
 to crash. The SEM is a high-order method and that comes at the price of much
@@ -80,7 +80,7 @@ native Neko format `.nmsh`.
 So, for most practical cases, the mesh generation for Neko boils down to mesh
 generation for Nek5000. At this stage it is indeed helpful to have a local copy
 of Nek5000 to make use of its mesh conversion tools. However, we provide one
-such tool under `contrib/gmsh2nek`.  Executing the `compile.sh` script in that
+such tool under `contrib/gmsh2nek`. Executing the `compile.sh` script in that
 folder will produce a `gmsh2nek` executable. As the name hints, this is a
 convertor from the gmsh `.msh` format to `re2`. In addition to just converting,
 the utility allows to define periodic boundaries.
@@ -93,11 +93,11 @@ pipeline is therefore the following:
 
 1. Generate your element mesh and save it to the `.msh` format. 
 2. Open the mesh in gmsh, set the order to 2, and export the mesh in the legacy
-   version 2 `.msh` format. 
+   version 2 `.msh` format.
 3. Convert it to `.re2` with `gmsh2nek`, defining periodic boundaries if needed.
 4. Run `rea2nbin` to get the `.nmsh`.
 5. Run Neko's `mesh_checker` utility on the generated `.nmsh`. This will create
-   an internal representation of the mesh, just like during a simulation, and 
+   an internal representation of the mesh, just like during a simulation, and
    then output some statistics. If this goes smoothly, your mesh should be good
    to go.
 
