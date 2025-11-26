@@ -97,7 +97,7 @@ pipeline is therefore the following:
 3. Convert it to `.re2` with `gmsh2nek`, defining periodic boundaries if needed.
 4. Run `rea2nbin` to get the `.nmsh`.
 5. Run Neko's `mesh_checker` utility on the generated `.nmsh`. This will create
-   an internal representation of the mesh, just like during a simulation, and 
+   an internal representation of the mesh, just like during a simulation, and
    then output some statistics. If this goes smoothly, your mesh should be good
    to go.
 
