@@ -149,8 +149,6 @@ contains
        call nm%init(nelv, 2**ndim)
        call map_file%init(map_fname)
        call map_file%read(nm)
-    else
-       call neko_log%warning('No NEKTON map file found')
     end if
 
     call MPI_File_open(NEKO_COMM, trim(fname), &
