@@ -253,10 +253,11 @@ contains
   end subroutine expand
 
   !> Get a field from the registry by assigning it to a pointer
-  subroutine request_field(this, f, index)
+  subroutine request_field(this, f, index, zero)
     class(scratch_registry_t), target, intent(inout) :: this
     type(field_t), pointer, intent(inout) :: f
     integer, intent(inout) :: index !< The index of the field in the inuse array
+    logical, optional, intent(in) :: zero !< Zero field
     character(len=10) :: name
 
     if (.not. associated(this%dof)) then
@@ -278,7 +279,9 @@ contains
             end if
 
             f => this%registry(index)%field_ptr
-            call field_rzero(f)
+            if (present(zero)) then
+               if (zero) call field_rzero(f)
+            end if
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
             return
@@ -302,11 +305,13 @@ contains
   !! @param n Size of the requested vector.
   !! @param v Pointer to the requested vector.
   !! @param index Index of the vector in the registry (for relinquishing later).
-  subroutine request_vector(this, n, v, index)
+  !! @param zero Optional argument for zeroing a created vector.
+  subroutine request_vector(this, n, v, index, zero)
     class(scratch_registry_t), target, intent(inout) :: this
     integer, intent(in) :: n
     type(vector_t), pointer, intent(inout) :: v
     integer, intent(inout) :: index
+    logical, optional, intent(in) :: zero
 
     associate(n_available => this%n_available, n_inuse => this%n_inuse)
 
@@ -323,7 +328,9 @@ contains
             end if
 
             v => this%registry(index)%vector_ptr
-            call vector_rzero(v)
+            if (present(zero)) then
+               if (zero) call vector_rzero(v)
+            end if
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
             return
@@ -347,11 +354,13 @@ contains
   !! @param ncols Number of columns of the requested matrix.
   !! @param m Pointer to the requested matrix.
   !! @param index Index of the matrix in the registry (for relinquishing later).
-  subroutine request_matrix(this, nrows, ncols, m, index)
+  !! @param zero Optional argument for zeroing a created matrix.
+  subroutine request_matrix(this, nrows, ncols, m, index, zero)
     class(scratch_registry_t), target, intent(inout) :: this
     integer, intent(in) :: nrows, ncols
     type(matrix_t), pointer, intent(inout) :: m
     integer, intent(inout) :: index
+    logical, optional, intent(in) :: zero
 
     associate(n_available => this%n_available, n_inuse => this%n_inuse)
 
@@ -370,7 +379,9 @@ contains
             end if
 
             m => this%registry(index)%matrix_ptr
-            call matrix_rzero(m)
+            if (present(zero)) then
+               if (zero) call matrix_rzero(m)
+            end if
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
             return
