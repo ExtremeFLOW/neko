@@ -19,6 +19,8 @@ information that is not directly related to the usage of the code.
 - \subpage user-guide
   - [Installation](@ref installation) explains how to download and compile Neko
     on your platform.
+  - [Meshing](@ref meshing) discusses the requirements on the mesh and how to
+    generate one for Neko.
   - [Case File](@ref case-file) discusses the various parameters and options 
     for your case setup such as boundary conditions, output control, etc.
   - [User File](@ref user-file) explains all the user functions and how they can
