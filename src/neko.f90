@@ -115,10 +115,6 @@ module neko
   use drag_torque, only : drag_torque_zone, drag_torque_facet, drag_torque_pt
   use field_registry, only : neko_field_registry, field_registry_t
   use scratch_registry, only : neko_scratch_registry, scratch_registry_t
-  use vector_scratch_registry, only : neko_vector_scratch_registry, &
-       vector_scratch_registry_t
-  use matrix_scratch_registry, only : neko_matrix_scratch_registry, &
-       matrix_scratch_registry_t
   use simcomp_executor, only : neko_simcomps
   use data_streamer, only : data_streamer_t
   use time_interpolator, only : time_interpolator_t
@@ -175,8 +171,7 @@ contains
     call neko_log%init()
     call neko_field_registry%init()
     call neko_vector_registry%init()
-    call neko_vector_scratch_registry%init()
-    call neko_matrix_scratch_registry%init()
+    call neko_scratch_registry%init()
 
     call neko_log%header(NEKO_VERSION, NEKO_BUILD_INFO)
 
@@ -272,8 +267,6 @@ contains
        call C%free()
     end if
 
-    call neko_vector_scratch_registry%free()
-    call neko_matrix_scratch_registry%free()
     call neko_field_registry%free()
     call neko_user_access%free()
     call device_finalize

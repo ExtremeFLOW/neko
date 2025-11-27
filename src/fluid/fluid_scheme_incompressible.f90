@@ -60,7 +60,7 @@ module fluid_scheme_incompressible
   use field_registry, only : neko_field_registry
   use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file
-  use scratch_registry, only : scratch_registry_t
+  use scratch_registry, only : neko_scratch_registry
   use user_intf, only : user_t, dummy_user_material_properties, &
        user_material_properties_intf
   use utils, only : neko_error
@@ -103,7 +103,6 @@ module fluid_scheme_incompressible
      integer(kind=i8) :: glb_n_points
      !> Global number of GLL points for the fluid (unique)
      integer(kind=i8) :: glb_unique_points
-     type(scratch_registry_t) :: scratch !< Manager for temporary fields
    contains
      !> Constructor for the base type
      procedure, pass(this) :: init_base => fluid_scheme_init_base
@@ -181,8 +180,8 @@ contains
 
     call this%c_Xh%init(this%gs_Xh)
 
-    ! Local scratch registry
-    call this%scratch%init(this%dm_Xh, 10, 2)
+    ! Assign Dofmap to scratch registry
+    call neko_scratch_registry%set_dofmap(this%dm_Xh)
 
     ! Assign a name
     call json_get_or_default(params, 'case.fluid.name', this%name, "fluid")
@@ -364,8 +363,6 @@ contains
     call this%gs_Xh%free()
 
     call this%c_Xh%free()
-
-    call this%scratch%free()
 
     nullify(this%u)
     nullify(this%v)
