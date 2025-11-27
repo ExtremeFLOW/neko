@@ -521,7 +521,7 @@ contains
 
     else if (len_trim(this%alphat_field_name) .gt. 0 &
          .and. len_trim(this%nut_field_name) .gt. 0 ) then
-       call neko_error("Conflicting definition of eddy diffusivity "&
+       call neko_error("Conflicting definition of eddy diffusivity " // &
                        "for the scalar equation")
     end if
 
