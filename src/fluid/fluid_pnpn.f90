@@ -47,6 +47,7 @@ module fluid_pnpn
        rhs_maker_ext_fctry, rhs_maker_oifs_fctry
   use fluid_volflow, only : fluid_volflow_t
   use fluid_scheme_incompressible, only : fluid_scheme_incompressible_t
+  use scratch_registry, only : neko_scratch_registry
   use device_mathops, only : device_opcolv, device_opadd2cm
   use fluid_aux, only : fluid_step_info
   use projection, only : projection_t
@@ -1120,7 +1121,7 @@ contains
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
-    call this%scratch%request_field(bdry_field, temp_index)
+    call neko_scratch_registry%request_field(bdry_field, temp_index)
     bdry_field = 0.0_rp
 
 
@@ -1207,7 +1208,7 @@ contains
     call bdry_file%init('bdry.fld')
     call bdry_file%write(bdry_field)
 
-    call this%scratch%relinquish_field(temp_index)
+    call neko_scratch_registry%relinquish_field(temp_index)
   end subroutine fluid_pnpn_write_boundary_conditions
 
 
