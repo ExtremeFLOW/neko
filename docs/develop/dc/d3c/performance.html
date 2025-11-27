@@ -102,28 +102,28 @@ $(document).ready(function(){initNavTree('dc/d3c/performance.html','../../'); in
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#autotoc_md127">Installation</a><ul><li class="level2"><a href="#autotoc_md128">Accelerator specific options</a></li>
+<ul><li class="level1"><a href="#autotoc_md128">Installation</a><ul><li class="level2"><a href="#autotoc_md129">Accelerator specific options</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md129">Simulation setup</a><ul><li class="level2"><a href="#autotoc_md130">Load balancing</a></li>
-<li class="level2"><a href="#autotoc_md131">Parameters</a></li>
+<li class="level1"><a href="#autotoc_md130">Simulation setup</a><ul><li class="level2"><a href="#autotoc_md131">Load balancing</a></li>
+<li class="level2"><a href="#autotoc_md132">Parameters</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md132">Running a simulation</a></li>
+<li class="level1"><a href="#autotoc_md133">Running a simulation</a></li>
 </ul>
 </div>
 <div class="textblock"><p>This is a short best practices guideline on how to achieve good performance with Neko across various architectures. The guide covers various configuration options, as well as advice on how to set up and run simulations to achieve the best possible performance.</p>
-<h1><a class="anchor" id="autotoc_md127"></a>
+<h1><a class="anchor" id="autotoc_md128"></a>
 Installation</h1>
 <p>When building Neko, it is important to enable full optimisation for all configured backends. Configuring with <code>FCFLAGS</code> and <code>CFLAGS</code> to <code>-O3</code> will provide an optimal build for CPUs and SX-Aurora backends, while for accelerators, a user needs to set <code>CUDA_CFLAGS</code> or <code>HIP_HIPCC_FLAG</code> depending on the backend type (OpenCL optimisation is set in via the <code>CFLAGS</code> variable). Additional performance could also be gained for both CPUs and GPUs by passing architecture-specific configuration flags, either via <code>FCFLAGS</code> and <code>CFLAGS</code> (CPU, SX, and OpenCL), <code>HIP_HIPCC_FLAGS</code> (HIP), or <code>CUDA_ARCH</code> (CUDA).</p>
-<h2><a class="anchor" id="autotoc_md128"></a>
+<h2><a class="anchor" id="autotoc_md129"></a>
 Accelerator specific options</h2>
 <p>To avoid unnecessary data movement between host and device, it is important to use a device-aware MPI implementation and configure Neko with <code>--enable-device-mpi</code> for the CUDA and HIP backend. Furthermore, to improve GPU utilisation, especially with few elements per device, it could be beneficial to configure Neko to use OpenMP <code>--enable-openmp</code>, and launch the simulation with two threads. This would enable the task-parallel preconditioners inside Neko.</p>
 <dl class="section note"><dt>Note</dt><dd>In the current release, OpenMP is only used to launch jobs concurrently into different accelerator streams. Thus, no gains should be expected from OpenMP when using a CPU backend.</dd></dl>
-<h1><a class="anchor" id="autotoc_md129"></a>
+<h1><a class="anchor" id="autotoc_md130"></a>
 Simulation setup</h1>
 <p>This section explains how to set up and select options for a case to achieve the best possible simulation performance.</p>
-<h2><a class="anchor" id="autotoc_md130"></a>
+<h2><a class="anchor" id="autotoc_md131"></a>
 Load balancing</h2>
 <p>Load balancing is essential for good simulation performance. This can be performed using graph partitioning of the mesh, either offline or online (during a simulation with Neko). Both options require Neko to be built with the optional dependency ParMetis (see <a class="el" href="../../d5/dfc/installation.html">Installing Neko</a>).</p>
 <p>The offline tool is called <code>prepart</code>, and is installed in the same installation directory as <code>neko</code> and <code>makeneko</code>. To partition a mesh into <code>nparts</code>, launch <code>prepart</code> as below:</p>
@@ -132,11 +132,11 @@ Load balancing</h2>
 <dl class="section note"><dt>Note</dt><dd>The offline tool can require substantial memory to partition large meshes.</dd></dl>
 <p>To enable load balancing (mesh partitioning) during a simulation, set the <code>load_balancing</code> option to <code>true</code> (see <a class="el" href="../../dd/d33/case-file.html">Case File</a>). Runtime load balancing will partition the mesh (in parallel) before the time-stepping loop starts, and it will also save the balanced mesh with an additional <code>_lb</code> in the filename.</p>
 <dl class="section note"><dt>Note</dt><dd>Since mesh partitioning is non-deterministic, care has to be taken when restarting a simulation such that one does not i) restart with load balancing enabled and ii) use the original unbalanced mesh. The suggested workflow is to run the first simulation with load balancing enabled, and for all subsequent restarts, turn off load balancing and use the balanced mesh with the additional <code>_lb</code> in the filename.</dd></dl>
-<h2><a class="anchor" id="autotoc_md131"></a>
+<h2><a class="anchor" id="autotoc_md132"></a>
 Parameters</h2>
 <p>Depending on the configured backend, some simulation parameters can significantly impact performance, for example, the polynomial order. For CPU backends, performance is less sensitive to the chosen order and should be set depending on the accuracy and time-to-solution needs of a given case. On accelerators, performance and device utilisation are closely tied to the polynomial order. In general, accelerators run best with the highest possible polynomial order. However, using a very high order will force down the required time-step size and, in turn, increase the time-to-solution for a given case. A good rule of thumb is to use at least seventh-order polynomials for accelerator backends.</p>
 <p>Another important parameter to experiment with to improve performance is the combination of linear solver and preconditioner, and their associated tolerance criteria. The best combination is very case dependent, thus it is best to experiment with the various types provided (see <a class="el" href="../../dd/da8/namespacecase.html" title="Defines a simulation case.">case</a>-file).</p>
-<h1><a class="anchor" id="autotoc_md132"></a>
+<h1><a class="anchor" id="autotoc_md133"></a>
 Running a simulation</h1>
 <p>When running a simulation, the only parameter a user has some control over is the number of MPI ranks to use. Neko will always distribute a mesh across all ranks in a job using a load-balanced linear distribution. With too few elements per rank, communication costs will start to dominate, reducing both scalability and performance. The opposite, with too many elements per rank, will cause computational cost (per rank) to increase at the cost of a reduced (overall) parallel efficiency.</p>
 <p>Neko has been optimised with strong scalability in mind, and has demonstrated nearly ideal scaling and parallel efficiency with as few as 10 elements per MPI rank on CPUs or 7000-10000 elements per MPI rank on GPUs.</p>
@@ -149,7 +149,7 @@ Running a simulation</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Thu Nov 27 2025 03:47:18 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Nov 27 2025 08:34:34 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

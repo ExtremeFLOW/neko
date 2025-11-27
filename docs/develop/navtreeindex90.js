@@ -1,5 +1,8 @@
 var NAVTREEINDEX90 =
 {
+"df/d14/opr__cdtp_8cu.html#a6da2275131442637a01cb5dea579a604":[3,0,3,15,0,1,0,18,3],
+"df/d14/opr__cdtp_8cu.html#a706645ff08370f0954f66cb96382b9fd":[3,0,3,15,0,1,0,18,1],
+"df/d14/opr__cdtp_8cu.html#a78cd94c87103aee0b72822173bc9aeb0":[3,0,3,15,0,1,0,18,4],
 "df/d14/opr__cdtp_8cu_source.html":[3,0,3,15,0,1,0,18],
 "df/d15/interfacefusedcg__device_1_1cuda__fusedcg__update__x.html":[1,0,157,2],
 "df/d15/interfacefusedcg__device_1_1cuda__fusedcg__update__x.html":[2,0,137,2],
@@ -246,8 +249,5 @@ var NAVTREEINDEX90 =
 "df/d21/structrough__log__law_1_1rough__log__law__t.html#a9d6ead8ea280d840d8cff26652d35884":[1,0,272,0,35],
 "df/d21/structrough__log__law_1_1rough__log__law__t.html#a9ff19353c1f9c6b01bd39c853d9e7e16":[1,0,272,0,45],
 "df/d21/structrough__log__law_1_1rough__log__law__t.html#a9ff19353c1f9c6b01bd39c853d9e7e16":[2,0,234,0,45],
-"df/d21/structrough__log__law_1_1rough__log__law__t.html#aa8946628e4d4ab1b4b022831f89127de":[1,0,272,0,4],
-"df/d21/structrough__log__law_1_1rough__log__law__t.html#aa8946628e4d4ab1b4b022831f89127de":[2,0,234,0,4],
-"df/d21/structrough__log__law_1_1rough__log__law__t.html#aaaa342b83ad2d72f82c6d81561f6a340":[1,0,272,0,13],
-"df/d21/structrough__log__law_1_1rough__log__law__t.html#aaaa342b83ad2d72f82c6d81561f6a340":[2,0,234,0,13]
+"df/d21/structrough__log__law_1_1rough__log__law__t.html#aa8946628e4d4ab1b4b022831f89127de":[1,0,272,0,4]
 };

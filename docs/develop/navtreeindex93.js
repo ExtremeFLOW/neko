@@ -1,9 +1,12 @@
 var NAVTREEINDEX93 =
 {
-"df/d8f/statistics-guide.html#autotoc_md152":[0,1,5,1],
-"df/d8f/statistics-guide.html#autotoc_md153":[0,1,5,2],
-"df/d8f/statistics-guide.html#autotoc_md154":[0,1,5,2,0],
-"df/d8f/statistics-guide.html#autotoc_md155":[0,1,5,2,1],
+"df/d8f/statistics-guide.html#autotoc_md150":[0,1,6,0],
+"df/d8f/statistics-guide.html#autotoc_md151":[0,1,6,0,0],
+"df/d8f/statistics-guide.html#autotoc_md152":[0,1,6,0,1],
+"df/d8f/statistics-guide.html#autotoc_md153":[0,1,6,1],
+"df/d8f/statistics-guide.html#autotoc_md154":[0,1,6,2],
+"df/d8f/statistics-guide.html#autotoc_md155":[0,1,6,2,0],
+"df/d8f/statistics-guide.html#autotoc_md156":[0,1,6,2,1],
 "df/d96/hip_2set__convect__rst__kernel_8h.html":[3,0,3,15,0,1,1,30],
 "df/d96/hip_2set__convect__rst__kernel_8h.html#a007d04bf5b2a42c009b8970a06ba0b93":[3,0,3,15,0,1,1,30,8],
 "df/d96/hip_2set__convect__rst__kernel_8h.html#a0259bc3d213b944d3ad29f427f997ee8":[3,0,3,15,0,1,1,30,16],
@@ -246,8 +249,5 @@ var NAVTREEINDEX93 =
 "df/db9/structgmres_1_1gmres__t.html#a2ca7a7535667e507c41b36c614d53e2f":[1,0,162,0,28],
 "df/db9/structgmres_1_1gmres__t.html#a34dae2b9d3aff8de33af53f6bb156bc4":[1,0,162,0,5],
 "df/db9/structgmres_1_1gmres__t.html#a34dae2b9d3aff8de33af53f6bb156bc4":[2,0,142,0,5],
-"df/db9/structgmres_1_1gmres__t.html#a39467d0a5f0620de72b7a1a6e68e93d0":[2,0,142,0,1],
-"df/db9/structgmres_1_1gmres__t.html#a39467d0a5f0620de72b7a1a6e68e93d0":[1,0,162,0,1],
-"df/db9/structgmres_1_1gmres__t.html#a47465111a9dd47099db6d6a567510ebc":[2,0,142,0,16],
-"df/db9/structgmres_1_1gmres__t.html#a47465111a9dd47099db6d6a567510ebc":[1,0,162,0,16]
+"df/db9/structgmres_1_1gmres__t.html#a39467d0a5f0620de72b7a1a6e68e93d0":[2,0,142,0,1]
 };

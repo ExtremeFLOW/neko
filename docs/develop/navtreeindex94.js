@@ -1,5 +1,8 @@
 var NAVTREEINDEX94 =
 {
+"df/db9/structgmres_1_1gmres__t.html#a39467d0a5f0620de72b7a1a6e68e93d0":[1,0,162,0,1],
+"df/db9/structgmres_1_1gmres__t.html#a47465111a9dd47099db6d6a567510ebc":[2,0,142,0,16],
+"df/db9/structgmres_1_1gmres__t.html#a47465111a9dd47099db6d6a567510ebc":[1,0,162,0,16],
 "df/db9/structgmres_1_1gmres__t.html#a4f01bfbf0a5979a60a0612e504c64489":[1,0,162,0,7],
 "df/db9/structgmres_1_1gmres__t.html#a4f01bfbf0a5979a60a0612e504c64489":[2,0,142,0,7],
 "df/db9/structgmres_1_1gmres__t.html#a5eed557f16172eced2d898b3fafd0f57":[2,0,142,0,2],
@@ -246,8 +249,5 @@ var NAVTREEINDEX94 =
 "df/ded/interfacerhs__maker__device_1_1rhs__maker__sumab__hip.html#af9789fa2c1aa3f33e021615c87fec108":[2,0,232,7,0],
 "df/ded/interfacerhs__maker__device_1_1rhs__maker__sumab__hip.html#af9789fa2c1aa3f33e021615c87fec108":[2,0,232,7,1],
 "df/ded/interfacerhs__maker__device_1_1rhs__maker__sumab__hip.html#af9789fa2c1aa3f33e021615c87fec108":[1,0,269,7,0],
-"df/ded/namespaceuser__stats.html":[1,0,348],
-"df/ded/namespaceuser__stats.html#a198f8ee894c83a524753b82ddfa3ca61":[1,0,348,2],
-"df/ded/namespaceuser__stats.html#a323eefdace33e6ba125945b61e67b331":[1,0,348,1],
-"df/ded/namespaceuser__stats.html#a455eca92ce4a6188c20ad306f983a4c2":[1,0,348,7]
+"df/ded/namespaceuser__stats.html":[1,0,348]
 };

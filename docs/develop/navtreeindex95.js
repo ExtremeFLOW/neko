@@ -1,5 +1,8 @@
 var NAVTREEINDEX95 =
 {
+"df/ded/namespaceuser__stats.html#a198f8ee894c83a524753b82ddfa3ca61":[1,0,348,2],
+"df/ded/namespaceuser__stats.html#a323eefdace33e6ba125945b61e67b331":[1,0,348,1],
+"df/ded/namespaceuser__stats.html#a455eca92ce4a6188c20ad306f983a4c2":[1,0,348,7],
 "df/ded/namespaceuser__stats.html#a52dd4a0b4aa4ff8adb97830e02583d09":[1,0,348,5],
 "df/ded/namespaceuser__stats.html#ace6d205150ecee2db3de6148e2181a8b":[1,0,348,6],
 "df/ded/namespaceuser__stats.html#ae8f219599ac714515c6ae1d30aa68882":[1,0,348,4],
@@ -246,8 +249,5 @@ var NAVTREEINDEX95 =
 "dir_c2023af08936d1b8e282e73faf827ba8.html":[3,0,3,23,0,1,1],
 "dir_c6ef38773f6fdbefeec39fbb188ca448.html":[3,0,3,6,2],
 "dir_c72109f4f1977484b6826b81120eabf0.html":[3,0,3,8,0,0],
-"dir_c7522fa620ee62c1e198d99736688a46.html":[3,0,3,20,0,1,0],
-"dir_cb23463e89e6c13fb97d602a6844fe6c.html":[3,0,3,8,0,1,2],
-"dir_cb873dc7f356befc3a4f67611d5290db.html":[3,0,0,0],
-"dir_cd7ab70daf8d37dce54984748e177108.html":[3,0,0,3]
+"dir_c7522fa620ee62c1e198d99736688a46.html":[3,0,3,20,0,1,0]
 };
