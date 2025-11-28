@@ -203,14 +203,12 @@ contains
     n = this%n_available
   end function get_n_available
 
+  !> Get the number of objects currently in use
   pure function get_n_inuse(this) result(n)
     class(scratch_registry_t), intent(in) :: this
     integer :: n, i
 
-    n = 0
-    do i = 1, this%get_size()
-       if (this%inuse(i)) n = n + 1
-    end do
+    n = count(this%inuse)
   end function get_n_inuse
 
   !> Get the size of the objects array
@@ -229,8 +227,9 @@ contains
     n = this%expansion_size
   end function get_expansion_size
 
-  logical function get_inuse(this, index)
-    class(scratch_registry_t), target, intent(inout) :: this
+  !> Get the inuse status for a given index
+  pure logical function get_inuse(this, index)
+    class(scratch_registry_t), target, intent(in) :: this
     integer, intent(in) :: index
 
     get_inuse = this%inuse(index)
