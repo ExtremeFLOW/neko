@@ -171,9 +171,9 @@ contains
     type(field_t), pointer :: ta1, ta2, ta3
     integer :: temp_indices(3)
 
-    call neko_scratch_registry%request_field(ta1, temp_indices(1))
-    call neko_scratch_registry%request_field(ta2, temp_indices(2))
-    call neko_scratch_registry%request_field(ta3, temp_indices(3))
+    call neko_scratch_registry%request_field(ta1, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(ta2, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(ta3, temp_indices(3), .false.)
 
 
     associate(msh => c_Xh%msh, p_vol => this%p_vol, &

@@ -255,7 +255,7 @@ contains
     class(bc_t), pointer :: b
 
     n = this%dm_Xh%size()
-    call neko_scratch_registry%request_field(temp, temp_indices(1))
+    call neko_scratch_registry%request_field(temp, temp_indices(1), .false.)
     b => null()
 
     call profiler_start_region('Fluid compressible', 1)

@@ -1,6 +1,6 @@
 module rhs_maker_cpu
   use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_sumab_t, &
-                        rhs_maker_oifs_t
+       rhs_maker_oifs_t
   use field_series, only : field_series_t
   use field, only : field_t
   use num_types, only : rp, c_rp
@@ -34,7 +34,7 @@ module rhs_maker_cpu
 contains
 
   subroutine rhs_maker_sumab_cpu(u, v, w, uu, vv, ww, uulag, vvlag, wwlag, &
-                                 ab, nab)
+       ab, nab)
     type(field_t), intent(inout) :: u,v, w
     type(field_t), intent(inout) :: uu, vv, ww
     type(field_series_t), intent(inout) :: uulag, vvlag, wwlag
@@ -64,8 +64,8 @@ contains
   end subroutine rhs_maker_sumab_cpu
 
   subroutine rhs_maker_ext_cpu(fx_lag, fy_lag, fz_lag, &
-                             fx_laglag, fy_laglag, fz_laglag, fx, fy, fz, &
-                             rho, ext_coeffs, n)
+       fx_laglag, fy_laglag, fz_laglag, fx, fy, fz, &
+       rho, ext_coeffs, n)
     type(field_t), intent(inout) :: fx_lag, fy_lag, fz_lag
     type(field_t), intent(inout) :: fx_laglag, fy_laglag, fz_laglag
     real(kind=rp), intent(in) :: rho, ext_coeffs(4)
@@ -75,17 +75,17 @@ contains
     type(field_t), pointer :: temp1, temp2, temp3
     integer :: temp_indices(3)
 
-    call neko_scratch_registry%request_field(temp1, temp_indices(1))
-    call neko_scratch_registry%request_field(temp2, temp_indices(2))
-    call neko_scratch_registry%request_field(temp3, temp_indices(3))
+    call neko_scratch_registry%request_field(temp1, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(temp2, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(temp3, temp_indices(3), .false.)
 
     do concurrent (i = 1:n)
        temp1%x(i,1,1,1) = ext_coeffs(2) * fx_lag%x(i,1,1,1) + &
-                          ext_coeffs(3) * fx_laglag%x(i,1,1,1)
+            ext_coeffs(3) * fx_laglag%x(i,1,1,1)
        temp2%x(i,1,1,1) = ext_coeffs(2) * fy_lag%x(i,1,1,1) + &
-                          ext_coeffs(3) * fy_laglag%x(i,1,1,1)
+            ext_coeffs(3) * fy_laglag%x(i,1,1,1)
        temp3%x(i,1,1,1) = ext_coeffs(2) * fz_lag%x(i,1,1,1) + &
-                          ext_coeffs(3) * fz_laglag%x(i,1,1,1)
+            ext_coeffs(3) * fz_laglag%x(i,1,1,1)
     end do
 
     do concurrent (i = 1:n)
@@ -108,7 +108,7 @@ contains
   end subroutine rhs_maker_ext_cpu
 
   subroutine scalar_rhs_maker_ext_cpu(fs_lag, fs_laglag, fs, rho, &
-                                      ext_coeffs, n)
+       ext_coeffs, n)
     type(field_t), intent(inout) :: fs_lag
     type(field_t), intent(inout) :: fs_laglag
     real(kind=rp), intent(in) :: rho, ext_coeffs(4)
@@ -118,11 +118,11 @@ contains
     type(field_t), pointer :: temp1
     integer :: temp_index
 
-    call neko_scratch_registry%request_field(temp1, temp_index)
+    call neko_scratch_registry%request_field(temp1, temp_index, .false.)
 
     do concurrent (i = 1:n)
        temp1%x(i,1,1,1) = ext_coeffs(2) * fs_lag%x(i,1,1,1) + &
-                          ext_coeffs(3) * fs_laglag%x(i,1,1,1)
+            ext_coeffs(3) * fs_laglag%x(i,1,1,1)
     end do
 
     do concurrent (i = 1:n)
@@ -138,7 +138,7 @@ contains
   end subroutine scalar_rhs_maker_ext_cpu
 
   subroutine rhs_maker_bdf_cpu(ulag, vlag, wlag, bfx, bfy, bfz, &
-                               u, v, w, B, rho, dt, bd, nbd, n)
+       u, v, w, B, rho, dt, bd, nbd, n)
     integer, intent(in) :: n, nbd
     type(field_t), intent(in) :: u, v, w
     type(field_series_t), intent(in) :: ulag, vlag, wlag
@@ -149,9 +149,9 @@ contains
     integer :: temp_indices(3)
     integer :: i, ilag
 
-    call neko_scratch_registry%request_field(tb1, temp_indices(1))
-    call neko_scratch_registry%request_field(tb2, temp_indices(2))
-    call neko_scratch_registry%request_field(tb3, temp_indices(3))
+    call neko_scratch_registry%request_field(tb1, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(tb2, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(tb3, temp_indices(3), .false.)
 
     do concurrent (i = 1:n)
        tb1%x(i,1,1,1) = u%x(i,1,1,1) * B(i) * bd(2)
@@ -191,7 +191,7 @@ contains
     type(field_t), pointer :: temp1
     integer :: temp_indices
 
-    call neko_scratch_registry%request_field(temp1, temp_indices)
+    call neko_scratch_registry%request_field(temp1, temp_indices, .false.)
 
     do concurrent (i = 1:n)
        temp1%x(i,1,1,1) = s%x(i,1,1,1) * B(i) * bd(2)
@@ -212,7 +212,7 @@ contains
   end subroutine scalar_rhs_maker_bdf_cpu
 
   subroutine rhs_maker_oifs_cpu(phi_x, phi_y, phi_z, bf_x, bf_y, bf_z, &
-                                rho, dt, n)
+       rho, dt, n)
     real(kind=rp), intent(in) :: rho, dt
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: bf_x(n), bf_y(n), bf_z(n)

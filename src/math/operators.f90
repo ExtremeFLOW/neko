@@ -124,7 +124,7 @@ contains
        res_d = device_get_ptr(res)
     end if
 
-    call neko_scratch_registry%request_field(work, ind)
+    call neko_scratch_registry%request_field(work, ind, .false.)
 
     ! Get dux / dx
     call dudxyz(res, ux, coef%drdx, coef%dsdx, coef%dtdx, coef)
@@ -467,7 +467,7 @@ contains
     n = Xh%lx * Xh%ly * Xh%lz * nelv
 
     ! Request a scratch field for zero vector
-    call neko_scratch_registry%request_field(zero_vector, ind)
+    call neko_scratch_registry%request_field(zero_vector, ind, .false.)
 
     ! Initialize zero vector
     call field_rzero(zero_vector)
@@ -607,7 +607,7 @@ contains
        cy_d = device_get_ptr(cy)
        cz_d = device_get_ptr(cz)
        call opr_device_set_convect_rst(cr%x_d, cs%x_d, ct%x_d, &
-       cx_d, cy_d, cz_d, Xh, coef)
+            cx_d, cy_d, cz_d, Xh, coef)
     else
        call opr_cpu_set_convect_rst(cr%x, cs%x, ct%x, cx, cy, cz, Xh, coef)
     end if
@@ -646,11 +646,11 @@ contains
     integer :: ind(5), i, e
     type(c_ptr) :: u1_GL_d
 
-    call neko_scratch_registry%request_field(u1, ind(1))
-    call neko_scratch_registry%request_field(k1, ind(2))
-    call neko_scratch_registry%request_field(k2, ind(3))
-    call neko_scratch_registry%request_field(k3, ind(4))
-    call neko_scratch_registry%request_field(k4, ind(5))
+    call neko_scratch_registry%request_field(u1, ind(1), .false.)
+    call neko_scratch_registry%request_field(k1, ind(2), .false.)
+    call neko_scratch_registry%request_field(k2, ind(3), .false.)
+    call neko_scratch_registry%request_field(k3, ind(4), .false.)
+    call neko_scratch_registry%request_field(k4, ind(5), .false.)
 
     c1 = 1.0_rp
     c2 = -dtau/2.
@@ -663,8 +663,8 @@ contains
        call device_invcol3(u1%x_d, phi%x_d, coef%B_d, n)
        call GLL_to_GL%map(u1_GL, u1%x, nel, Xh_GL)
        call convect_scalar(k1%x, u1_GL, conv_k1%items(1)%ptr, &
-                           conv_k1%items(2)%ptr, conv_k1%items(3)%ptr, &
-                           Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
+            conv_k1%items(2)%ptr, conv_k1%items(3)%ptr, &
+            Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
        call device_col2(k1%x_d, coef%B_d, n)
 
        ! Stage 2:
@@ -672,8 +672,8 @@ contains
        call device_invcol2(u1%x_d, coef%B_d, n)
        call GLL_to_GL%map(u1_GL, u1%x, nel, Xh_GL)
        call convect_scalar(k2%x, u1_GL, conv_k23%items(1)%ptr, &
-                           conv_k23%items(2)%ptr, conv_k23%items(3)%ptr, &
-                           Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
+            conv_k23%items(2)%ptr, conv_k23%items(3)%ptr, &
+            Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
        call device_col2(k2%x_d, coef%B_d, n)
 
        ! Stage 3:
@@ -681,8 +681,8 @@ contains
        call device_invcol2(u1%x_d, coef%B_d, n)
        call GLL_to_GL%map(u1_GL, u1%x, nel, Xh_GL)
        call convect_scalar(k3%x, u1_GL, conv_k23%items(1)%ptr, &
-                           conv_k23%items(2)%ptr, conv_k23%items(3)%ptr, &
-                           Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
+            conv_k23%items(2)%ptr, conv_k23%items(3)%ptr, &
+            Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
        call device_col2(k3%x_d, coef%B_d, n)
 
        ! Stage 4:
@@ -690,15 +690,15 @@ contains
        call device_invcol2(u1%x_d, coef%B_d, n)
        call GLL_to_GL%map(u1_GL, u1%x, nel, Xh_GL)
        call convect_scalar(k4%x, u1_GL, conv_k4%items(1)%ptr, &
-                           conv_k4%items(2)%ptr, conv_k4%items(3)%ptr, &
-                           Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
+            conv_k4%items(2)%ptr, conv_k4%items(3)%ptr, &
+            Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
        call device_col2(k4%x_d, coef%B_d, n)
 
        c1 = -dtau/6.
        c2 = -dtau/3.
 
        call device_add5s4(phi%x_d, k1%x_d, k2%x_d, k3%x_d, k4%x_d, &
-                          c1, c2, c2, c1, n)
+            c1, c2, c2, c1, n)
 
        call device_free(u1_GL_d)
 
@@ -708,8 +708,8 @@ contains
        call invcol3(u1%x, phi%x, coef%B, n)
        call GLL_to_GL%map(u1_GL, u1%x, nel, Xh_GL)
        call convect_scalar(k1%x, u1_GL, conv_k1%items(1)%ptr, &
-                           conv_k1%items(2)%ptr, conv_k1%items(3)%ptr, &
-                           Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
+            conv_k1%items(2)%ptr, conv_k1%items(3)%ptr, &
+            Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
        call col2(k1%x, coef%B, n)
 
        ! Stage 2:
@@ -717,8 +717,8 @@ contains
        call invcol2(u1%x, coef%B, n)
        call GLL_to_GL%map(u1_GL, u1%x, nel, Xh_GL)
        call convect_scalar(k2%x, u1_GL, conv_k23%items(1)%ptr, &
-                           conv_k23%items(2)%ptr, conv_k23%items(3)%ptr, &
-                           Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
+            conv_k23%items(2)%ptr, conv_k23%items(3)%ptr, &
+            Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
        call col2(k2%x, coef%B, n)
 
        ! Stage 3:
@@ -726,8 +726,8 @@ contains
        call invcol2(u1%x, coef%B, n)
        call GLL_to_GL%map(u1_GL, u1%x, nel, Xh_GL)
        call convect_scalar(k3%x, u1_GL, conv_k23%items(1)%ptr, &
-                           conv_k23%items(2)%ptr, conv_k23%items(3)%ptr, &
-                           Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
+            conv_k23%items(2)%ptr, conv_k23%items(3)%ptr, &
+            Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
        call col2(k3%x, coef%B, n)
 
        ! Stage 4:
@@ -735,8 +735,8 @@ contains
        call invcol2(u1%x, coef%B, n)
        call GLL_to_GL%map(u1_GL, u1%x, nel, Xh_GL)
        call convect_scalar(k4%x, u1_GL, conv_k4%items(1)%ptr, &
-                           conv_k4%items(2)%ptr, conv_k4%items(3)%ptr, &
-                           Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
+            conv_k4%items(2)%ptr, conv_k4%items(3)%ptr, &
+            Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
        call col2(k4%x, coef%B, n)
 
        c1 = -dtau/6.

@@ -83,7 +83,7 @@ contains
     ! the strain rate tensor
     type(field_t), pointer :: s11, s22, s33, s12, s13, s23, s_abs
     real(kind=rp) :: alpha ! running averaging coefficient
-    integer :: temp_indices(7)
+    integer :: tmp_indices(7)
     integer :: i
 
     if (tstep .eq. 1) then
@@ -102,13 +102,13 @@ contains
        w => neko_field_registry%get_field_by_name("w")
     end if
 
-    call neko_scratch_registry%request_field(s11, temp_indices(1))
-    call neko_scratch_registry%request_field(s22, temp_indices(2))
-    call neko_scratch_registry%request_field(s33, temp_indices(3))
-    call neko_scratch_registry%request_field(s12, temp_indices(4))
-    call neko_scratch_registry%request_field(s13, temp_indices(5))
-    call neko_scratch_registry%request_field(s23, temp_indices(6))
-    call neko_scratch_registry%request_field(s_abs, temp_indices(7))
+    call neko_scratch_registry%request_field(s11, tmp_indices(1), .false.)
+    call neko_scratch_registry%request_field(s22, tmp_indices(2), .false.)
+    call neko_scratch_registry%request_field(s33, tmp_indices(3), .false.)
+    call neko_scratch_registry%request_field(s12, tmp_indices(4), .false.)
+    call neko_scratch_registry%request_field(s13, tmp_indices(5), .false.)
+    call neko_scratch_registry%request_field(s23, tmp_indices(6), .false.)
+    call neko_scratch_registry%request_field(s_abs, tmp_indices(7), .false.)
 
     ! Compute the strain rate tensor
     call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, u, v, w, coef)
@@ -140,7 +140,7 @@ contains
     call coef%gs_h%op(nut, GS_OP_ADD)
     call device_col2(nut%x_d, coef%mult_d, nut%dof%size())
 
-    call neko_scratch_registry%relinquish_field(temp_indices)
+    call neko_scratch_registry%relinquish_field(tmp_indices)
   end subroutine dynamic_smagorinsky_compute_device
 
   !> Compute Germano Identity on the device.
@@ -160,17 +160,17 @@ contains
     integer :: i
     !> filtered u,v,w by the test filter
     type(field_t), pointer :: fu, fv, fw, fuu, fvv, fww, fuv, fuw, fvw
-    integer :: temp_indices(9)
+    integer :: tmp_indices(9)
 
-    call neko_scratch_registry%request_field(fu, temp_indices(1))
-    call neko_scratch_registry%request_field(fv, temp_indices(2))
-    call neko_scratch_registry%request_field(fw, temp_indices(3))
-    call neko_scratch_registry%request_field(fuu, temp_indices(4))
-    call neko_scratch_registry%request_field(fvv, temp_indices(5))
-    call neko_scratch_registry%request_field(fww, temp_indices(6))
-    call neko_scratch_registry%request_field(fuv, temp_indices(7))
-    call neko_scratch_registry%request_field(fuw, temp_indices(8))
-    call neko_scratch_registry%request_field(fvw, temp_indices(9))
+    call neko_scratch_registry%request_field(fu, tmp_indices(1), .false.)
+    call neko_scratch_registry%request_field(fv, tmp_indices(2), .false.)
+    call neko_scratch_registry%request_field(fw, tmp_indices(3), .false.)
+    call neko_scratch_registry%request_field(fuu, tmp_indices(4), .false.)
+    call neko_scratch_registry%request_field(fvv, tmp_indices(5), .false.)
+    call neko_scratch_registry%request_field(fww, tmp_indices(6), .false.)
+    call neko_scratch_registry%request_field(fuv, tmp_indices(7), .false.)
+    call neko_scratch_registry%request_field(fuw, tmp_indices(8), .false.)
+    call neko_scratch_registry%request_field(fvw, tmp_indices(9), .false.)
 
     ! Use test filter for the velocity fields
     call test_filter%apply(fu, u)
@@ -201,7 +201,7 @@ contains
          lij(4)%x_d, lij(5)%x_d, lij(6)%x_d, &
          fuu%x_d, fvv%x_d, fww%x_d, &
          fuv%x_d, fuw%x_d, fvw%x_d, n)
-    call neko_scratch_registry%relinquish_field(temp_indices)
+    call neko_scratch_registry%relinquish_field(tmp_indices)
   end subroutine compute_lij_device
 
   !> Compute M_ij and nut on the device.
@@ -240,26 +240,26 @@ contains
     integer, intent(in) :: n
 
     real(kind=rp) :: delta_ratio2
-    integer :: temp_indices(13)
+    integer :: tmp_indices(13)
     type(field_t), pointer :: fs11, fs22, fs33, fs12, fs13, fs23, fs_abs, &
          fsabss11, fsabss22, fsabss33, &
          fsabss12, fsabss13, fsabss23
 
     delta_ratio2 = ((test_filter%nx-1.0_rp)/(test_filter%nt-1.0_rp))**2
 
-    call neko_scratch_registry%request_field(fs11, temp_indices(1))
-    call neko_scratch_registry%request_field(fs22, temp_indices(2))
-    call neko_scratch_registry%request_field(fs33, temp_indices(3))
-    call neko_scratch_registry%request_field(fs12, temp_indices(4))
-    call neko_scratch_registry%request_field(fs13, temp_indices(5))
-    call neko_scratch_registry%request_field(fs23, temp_indices(6))
-    call neko_scratch_registry%request_field(fsabss11, temp_indices(7))
-    call neko_scratch_registry%request_field(fsabss22, temp_indices(8))
-    call neko_scratch_registry%request_field(fsabss33, temp_indices(9))
-    call neko_scratch_registry%request_field(fsabss12, temp_indices(10))
-    call neko_scratch_registry%request_field(fsabss13, temp_indices(11))
-    call neko_scratch_registry%request_field(fsabss23, temp_indices(12))
-    call neko_scratch_registry%request_field(fs_abs, temp_indices(13))
+    call neko_scratch_registry%request_field(fs11, tmp_indices(1), .false.)
+    call neko_scratch_registry%request_field(fs22, tmp_indices(2), .false.)
+    call neko_scratch_registry%request_field(fs33, tmp_indices(3), .false.)
+    call neko_scratch_registry%request_field(fs12, tmp_indices(4), .false.)
+    call neko_scratch_registry%request_field(fs13, tmp_indices(5), .false.)
+    call neko_scratch_registry%request_field(fs23, tmp_indices(6), .false.)
+    call neko_scratch_registry%request_field(fsabss11, tmp_indices(7), .false.)
+    call neko_scratch_registry%request_field(fsabss22, tmp_indices(8), .false.)
+    call neko_scratch_registry%request_field(fsabss33, tmp_indices(9), .false.)
+    call neko_scratch_registry%request_field(fsabss12, tmp_indices(10), .false.)
+    call neko_scratch_registry%request_field(fsabss13, tmp_indices(11), .false.)
+    call neko_scratch_registry%request_field(fsabss23, tmp_indices(12), .false.)
+    call neko_scratch_registry%request_field(fs_abs, tmp_indices(13), .false.)
 
     !! Compute M_ij
     !!         _____     ____
@@ -301,7 +301,7 @@ contains
          fsabss12%x_d, fsabss13%x_d, fsabss23%x_d, &
          num%x_d, den%x_d, c_dyn%x_d, delta%x_d, &
          s_abs%x_d, nut%x_d, alpha, n)
-    call neko_scratch_registry%relinquish_field(temp_indices)
+    call neko_scratch_registry%relinquish_field(tmp_indices)
   end subroutine compute_nut_device
 
 end module dynamic_smagorinsky_device

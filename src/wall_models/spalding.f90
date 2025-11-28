@@ -165,7 +165,7 @@ contains
     type(field_t), pointer :: temp
     integer :: idx
 
-    call neko_scratch_registry%request_field(temp, idx)
+    call neko_scratch_registry%request_field(temp, idx, .false.)
     call field_invcol3(temp, this%mu, this%rho)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
