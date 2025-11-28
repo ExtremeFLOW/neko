@@ -231,7 +231,7 @@ contains
 
   logical function get_inuse(this, index)
     class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(in) :: index !< The index of the field to check
+    integer, intent(in) :: index
 
     get_inuse = this%inuse(index)
   end function get_inuse
@@ -398,9 +398,10 @@ contains
   end subroutine request_matrix
 
   !> Relinquish the use of a field in the registry
+  !! @param index The index of the field to free
   subroutine relinquish_field_single(this, index)
     class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: index !< The index of the field to free
+    integer, intent(inout) :: index
 
     if (trim(this%registry(index)%get_type()) .ne. 'field') then
        call neko_error("scratch_registry::relinquish_field_single: " &
@@ -411,9 +412,11 @@ contains
     this%n_inuse = this%n_inuse - 1
   end subroutine relinquish_field_single
 
+  !> Relinquish the use of multiple fields in the registry
+  !! @param indices The indices of the fields to free
   subroutine relinquish_field_multiple(this, indices)
     class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: indices(:) !< The indices of the field to free
+    integer, intent(inout) :: indices(:)
     integer :: i
 
     do i = 1, size(indices)
@@ -428,9 +431,10 @@ contains
   end subroutine relinquish_field_multiple
 
   !> Relinquish the use of a vector in the registry
+  !! @param index The index of the vector to free
   subroutine relinquish_vector_single(this, index)
     class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: index !< The index of the vector to free
+    integer, intent(inout) :: index
 
     if (trim(this%registry(index)%get_type()) .ne. 'vector') then
        call neko_error("scratch_registry::relinquish_vector_single: " &
@@ -441,9 +445,11 @@ contains
     this%n_inuse = this%n_inuse - 1
   end subroutine relinquish_vector_single
 
+  !> Relinquish the use of multiple vectors in the registry
+  !! @param indices The indices of the vectors to free
   subroutine relinquish_vector_multiple(this, indices)
     class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: indices(:) !< The indices of the vector to free
+    integer, intent(inout) :: indices(:)
     integer :: i
 
     do i = 1, size(indices)
@@ -458,9 +464,10 @@ contains
   end subroutine relinquish_vector_multiple
 
   !> Relinquish the use of a matrix in the registry
+  !! @param index The index of the matrix to free
   subroutine relinquish_matrix_single(this, index)
     class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: index !< The index of the matrix to free
+    integer, intent(inout) :: index
 
     if (trim(this%registry(index)%get_type()) .ne. 'matrix') then
        call neko_error("scratch_registry::relinquish_matrix_single: " &
@@ -471,9 +478,11 @@ contains
     this%n_inuse = this%n_inuse - 1
   end subroutine relinquish_matrix_single
 
+  !> Relinquish the use of multiple matrices in the registry
+  !! @param indices The indices of the matrices to free
   subroutine relinquish_matrix_multiple(this, indices)
     class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: indices(:) !< The indices of the matrix to free
+    integer, intent(inout) :: indices(:)
     integer :: i
 
     do i = 1, size(indices)
@@ -488,17 +497,20 @@ contains
   end subroutine relinquish_matrix_multiple
 
   !> Relinquish the use of an object in the registry
+  !! @param index The index of the object to free
   subroutine relinquish_single(this, index)
     class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: index !< The index of the matrix to free
+    integer, intent(inout) :: index
 
     this%inuse(index) = .false.
     this%n_inuse = this%n_inuse - 1
   end subroutine relinquish_single
 
+  !> Relinquish the use of multiple objects in the registry
+  !! @param indices The indices of the objects to free
   subroutine relinquish_multiple(this, indices)
     class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: indices(:) !< The indices of the matrix to free
+    integer, intent(inout) :: indices(:)
     integer :: i
 
     do i = 1, size(indices)
