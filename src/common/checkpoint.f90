@@ -40,7 +40,7 @@ module checkpoint
   use device, only : device_memcpy, DEVICE_TO_HOST, HOST_TO_DEVICE, &
        device_sync, glb_cmd_queue
   use field, only : field_t, field_ptr_t
-  use utils, only : neko_error, filename_suffix_pos
+  use utils, only : neko_error
   use mesh, only: mesh_t
   use math, only : NEKO_EPS
   implicit none
