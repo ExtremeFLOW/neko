@@ -253,10 +253,14 @@ contains
   end subroutine expand
 
   !> Get a field from the registry by assigning it to a pointer
-  subroutine request_field(this, f, index)
+  !! @param f Pointer to the requested field.
+  !! @param index Index of the field in the registry (for relinquishing later).
+  !! @param clear If true, the field values are set to zero upon request.
+  subroutine request_field(this, f, index, clear)
     class(scratch_registry_t), target, intent(inout) :: this
     type(field_t), pointer, intent(inout) :: f
-    integer, intent(inout) :: index !< The index of the field in the inuse array
+    integer, intent(inout) :: index
+    logical, intent(in) :: clear
     character(len=10) :: name
 
     if (.not. associated(this%dof)) then
@@ -278,7 +282,7 @@ contains
             end if
 
             f => this%registry(index)%field_ptr
-            call field_rzero(f)
+            if (clear) call field_rzero(f)
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
             return
@@ -302,11 +306,13 @@ contains
   !! @param n Size of the requested vector.
   !! @param v Pointer to the requested vector.
   !! @param index Index of the vector in the registry (for relinquishing later).
-  subroutine request_vector(this, n, v, index)
+  !! @param clear If true, the vector values are set to zero upon request.
+  subroutine request_vector(this, n, v, index, clear)
     class(scratch_registry_t), target, intent(inout) :: this
     integer, intent(in) :: n
     type(vector_t), pointer, intent(inout) :: v
     integer, intent(inout) :: index
+    logical, intent(in) :: clear
 
     associate(n_available => this%n_available, n_inuse => this%n_inuse)
 
@@ -323,7 +329,7 @@ contains
             end if
 
             v => this%registry(index)%vector_ptr
-            call vector_rzero(v)
+            if (clear) call vector_rzero(v)
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
             return
@@ -347,11 +353,13 @@ contains
   !! @param ncols Number of columns of the requested matrix.
   !! @param m Pointer to the requested matrix.
   !! @param index Index of the matrix in the registry (for relinquishing later).
-  subroutine request_matrix(this, nrows, ncols, m, index)
+  !! @param clear If true, the matrix values are set to zero upon request.
+  subroutine request_matrix(this, nrows, ncols, m, index, clear)
     class(scratch_registry_t), target, intent(inout) :: this
     integer, intent(in) :: nrows, ncols
     type(matrix_t), pointer, intent(inout) :: m
     integer, intent(inout) :: index
+    logical, intent(in) :: clear
 
     associate(n_available => this%n_available, n_inuse => this%n_inuse)
 
@@ -370,7 +378,7 @@ contains
             end if
 
             m => this%registry(index)%matrix_ptr
-            call matrix_rzero(m)
+            if (clear) call matrix_rzero(m)
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
             return
