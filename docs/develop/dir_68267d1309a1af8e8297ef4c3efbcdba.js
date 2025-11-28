@@ -20,6 +20,7 @@ var dir_68267d1309a1af8e8297ef4c3efbcdba =
     [ "multigrid", "dir_e7871f939970ad66f8f2efbe2c80ad83.html", "dir_e7871f939970ad66f8f2efbe2c80ad83" ],
     [ "python", "dir_5c0d64f70903e893b1efe571a4b8de29.html", "dir_5c0d64f70903e893b1efe571a4b8de29" ],
     [ "qoi", "dir_9c6b613226289d4f549a5bc7de136af8.html", "dir_9c6b613226289d4f549a5bc7de136af8" ],
+    [ "registries", "dir_948180147443d1dbaf75fb68db0219ed.html", "dir_948180147443d1dbaf75fb68db0219ed" ],
     [ "scalar", "dir_0691d6202b68dc26b40b4865e3c53c6d.html", "dir_0691d6202b68dc26b40b4865e3c53c6d" ],
     [ "sem", "dir_03fb5b14824697692326bbb959ec235e.html", "dir_03fb5b14824697692326bbb959ec235e" ],
     [ "simulation_components", "dir_702567638a028346607c31c39047d6bd.html", "dir_702567638a028346607c31c39047d6bd" ],

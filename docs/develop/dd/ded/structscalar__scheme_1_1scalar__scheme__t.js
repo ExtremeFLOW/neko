@@ -9,6 +9,7 @@ var structscalar__scheme_1_1scalar__scheme__t =
     [ "step", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a18a32f62a6eef4fcec1a684d263a3dc5", null ],
     [ "update_material_properties", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a9edabb97331662ca0e570f5bc6f7e560", null ],
     [ "validate", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a8a83986e0d5b15db5d390dd3c0d68b55", null ],
+    [ "alphat_field_name", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a4e657b2799e148584f8e0f24f78f2cd6", null ],
     [ "bcs", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a8f23b6ae37bbd287958ebce957fb50c0", null ],
     [ "c_xh", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#afd3e9a7e85f2e1a1bff37fc955d82add", null ],
     [ "chkp", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a7590a759ab71d4cdbbe7be5db8b1793e", null ],

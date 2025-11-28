@@ -549,7 +549,6 @@ var hierarchy =
     [ "map::map_t", "da/d40/structmap_1_1map__t.html", null ],
     [ "mask::mask_t", "d2/df5/structmask_1_1mask__t.html", null ],
     [ "matrix::matrix_ptr_t", "dd/da3/structmatrix_1_1matrix__ptr__t.html", null ],
-    [ "matrix_scratch_registry::matrix_scratch_registry_t", "db/df3/structmatrix__scratch__registry_1_1matrix__scratch__registry__t.html", null ],
     [ "matrix::matrix_t", "da/d95/structmatrix_1_1matrix__t.html", null ],
     [ "aabb::merge", "d9/dd5/interfaceaabb_1_1merge.html", null ],
     [ "mesh::mesh_deform", "d9/db3/interfacemesh_1_1mesh__deform.html", null ],
@@ -712,6 +711,7 @@ var hierarchy =
       [ "re2::re2v2_xyz_t", "d9/df1/structre2_1_1re2v2__xyz__t.html", null ]
     ] ],
     [ "rea::rea_t", "d1/db3/structrea_1_1rea__t.html", null ],
+    [ "registry_entry::registry_entry_t", "df/db9/structregistry__entry_1_1registry__entry__t.html", null ],
     [ "math::relcmp", "d9/d4d/interfacemath_1_1relcmp.html", null ],
     [ "math::reord", "d6/d4c/interfacemath_1_1reord.html", null ],
     [ "rhs_maker::rhs_maker_bdf", "d6/df3/interfacerhs__maker_1_1rhs__maker__bdf.html", null ],
@@ -908,7 +908,6 @@ var hierarchy =
     [ "fluid_scheme_base::validate_intrf", "d8/d38/interfacefluid__scheme__base_1_1validate__intrf.html", null ],
     [ "vector::vector_ptr_t", "d5/d0b/structvector_1_1vector__ptr__t.html", null ],
     [ "vector_registry::vector_registry_t", "d7/d8f/structvector__registry_1_1vector__registry__t.html", null ],
-    [ "vector_scratch_registry::vector_scratch_registry_t", "da/d4a/structvector__scratch__registry_1_1vector__scratch__registry__t.html", null ],
     [ "vector::vector_t", "d3/d5b/structvector_1_1vector__t.html", null ],
     [ "pnpn_residual::vel_res", "dd/d55/interfacepnpn__residual_1_1vel__res.html", null ],
     [ "wall_model::wall_model_allocate", "d6/dee/interfacewall__model_1_1wall__model__allocate.html", null ],

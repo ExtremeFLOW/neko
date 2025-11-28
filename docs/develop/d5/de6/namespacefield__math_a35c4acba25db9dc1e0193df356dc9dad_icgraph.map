@@ -1,5 +1,7 @@
 <map id="field_math::field_col2" name="field_math::field_col2">
-<area shape="rect" id="Node000001" title="Vector multiplication ." alt="" coords="264,20,425,45"/>
+<area shape="rect" id="Node000001" title="Vector multiplication ." alt="" coords="264,60,425,85"/>
 <area shape="rect" id="Node000002" href="$d3/d66/namespacefluid__scheme__compressible.html#aead24bdf8d441e371475ee0191f2d0f4" title="Validate field initialization and compute derived quantities." alt="" coords="5,5,216,60"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="250,35,216,35,216,30,250,30"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="256,60,216,53,217,48,257,55"/>
+<area shape="rect" id="Node000003" href="$da/de3/namespacescalar__scheme.html#a9f1e7d30e723418c67f7d22f72f0ace1" title="Call user material properties routine and update the values of lambda if necessary." alt="" coords="13,84,208,139"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="254,90,209,98,208,93,253,85"/>
 </map>

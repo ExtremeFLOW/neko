@@ -12,7 +12,6 @@ var dir_ae9a93452e2a84339148a16bcf2eb561 =
     [ "mathops.f90", "da/d52/mathops_8f90.html", "da/d52/mathops_8f90" ],
     [ "matrix.f90", "dc/dcb/matrix_8f90.html", "dc/dcb/matrix_8f90" ],
     [ "matrix_math.f90", "d5/d20/matrix__math_8f90.html", "d5/d20/matrix__math_8f90" ],
-    [ "matrix_scratch_registry.f90", "d3/df3/matrix__scratch__registry_8f90.html", "d3/df3/matrix__scratch__registry_8f90" ],
     [ "mxm_wrapper.F90", "d8/d25/mxm__wrapper_8F90.html", "d8/d25/mxm__wrapper_8F90" ],
     [ "operators.f90", "dd/dbf/operators_8f90.html", "dd/dbf/operators_8f90" ],
     [ "schwarz.f90", "df/dc4/schwarz_8f90.html", "df/dc4/schwarz_8f90" ],
@@ -20,6 +19,5 @@ var dir_ae9a93452e2a84339148a16bcf2eb561 =
     [ "tensor.f90", "d1/d85/tensor_8f90.html", "d1/d85/tensor_8f90" ],
     [ "vector.f90", "d3/db2/vector_8f90.html", "d3/db2/vector_8f90" ],
     [ "vector_math.f90", "d6/d03/vector__math_8f90.html", "d6/d03/vector__math_8f90" ],
-    [ "vector_registry.f90", "d2/d4c/vector__registry_8f90.html", "d2/d4c/vector__registry_8f90" ],
-    [ "vector_scratch_registry.f90", "d1/de3/vector__scratch__registry_8f90.html", "d1/de3/vector__scratch__registry_8f90" ]
+    [ "vector_registry.f90", "d2/d4c/vector__registry_8f90.html", "d2/d4c/vector__registry_8f90" ]
 ];

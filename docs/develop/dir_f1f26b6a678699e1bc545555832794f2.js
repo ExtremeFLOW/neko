@@ -6,6 +6,5 @@ var dir_f1f26b6a678699e1bc545555832794f2 =
     [ "field_series.f90", "db/dd7/field__series_8f90.html", "db/dd7/field__series_8f90" ],
     [ "field_series_list.f90", "d3/db2/field__series__list_8f90.html", "d3/db2/field__series__list_8f90" ],
     [ "mean_field.f90", "d0/d09/mean__field_8f90.html", "d0/d09/mean__field_8f90" ],
-    [ "mesh_field.f90", "de/d3c/mesh__field_8f90.html", "de/d3c/mesh__field_8f90" ],
-    [ "scratch_registry.f90", "dd/da7/scratch__registry_8f90.html", "dd/da7/scratch__registry_8f90" ]
+    [ "mesh_field.f90", "de/d3c/mesh__field_8f90.html", "de/d3c/mesh__field_8f90" ]
 ];

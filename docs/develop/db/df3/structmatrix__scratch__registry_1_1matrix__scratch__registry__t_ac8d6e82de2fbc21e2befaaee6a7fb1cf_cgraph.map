@@ -1,7 +1,0 @@
-<map id="matrix_scratch_registry::matrix_scratch_registry_t::relinquish_matrix" name="matrix_scratch_registry::matrix_scratch_registry_t::relinquish_matrix">
-<area shape="rect" id="Node000001" title="Free a matrix for later reuse." alt="" coords="5,30,189,85"/>
-<area shape="rect" id="Node000002" href="$df/deb/namespacematrix__scratch__registry.html#a56c020b376b591fa4691ebc1a73fa087" title=" " alt="" coords="237,5,443,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="189,43,223,38,224,43,190,48"/>
-<area shape="rect" id="Node000003" href="$df/deb/namespacematrix__scratch__registry.html#ab4f557cf82b8c43a12191540a9f2d3a5" title="Relinquish the use of a matrix in the registry." alt="" coords="245,69,435,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="190,67,232,72,231,78,189,72"/>
-</map>

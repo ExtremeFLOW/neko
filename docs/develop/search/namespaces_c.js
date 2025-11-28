@@ -12,10 +12,9 @@ var searchData=
   ['mathops_9',['mathops',['../d2/dd4/namespacemathops.html',1,'']]],
   ['matrix_10',['matrix',['../d0/de4/namespacematrix.html',1,'']]],
   ['matrix_5fmath_11',['matrix_math',['../dc/d12/namespacematrix__math.html',1,'']]],
-  ['matrix_5fscratch_5fregistry_12',['matrix_scratch_registry',['../df/deb/namespacematrix__scratch__registry.html',1,'']]],
-  ['mean_5ffield_13',['mean_field',['../d1/d26/namespacemean__field.html',1,'']]],
-  ['mean_5ffield_5foutput_14',['mean_field_output',['../d6/d47/namespacemean__field__output.html',1,'']]],
-  ['mesh_15',['mesh',['../db/dfc/namespacemesh.html',1,'']]],
-  ['mesh_5ffield_16',['mesh_field',['../da/dc3/namespacemesh__field.html',1,'']]],
-  ['mxm_5fwrapper_17',['mxm_wrapper',['../d1/d15/namespacemxm__wrapper.html',1,'']]]
+  ['mean_5ffield_12',['mean_field',['../d1/d26/namespacemean__field.html',1,'']]],
+  ['mean_5ffield_5foutput_13',['mean_field_output',['../d6/d47/namespacemean__field__output.html',1,'']]],
+  ['mesh_14',['mesh',['../db/dfc/namespacemesh.html',1,'']]],
+  ['mesh_5ffield_15',['mesh_field',['../da/dc3/namespacemesh__field.html',1,'']]],
+  ['mxm_5fwrapper_16',['mxm_wrapper',['../d1/d15/namespacemxm__wrapper.html',1,'']]]
 ];

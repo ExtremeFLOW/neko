@@ -867,9 +867,6 @@ var annotated_dup =
       [ "matrix_ptr_t", "dd/da3/structmatrix_1_1matrix__ptr__t.html", "dd/da3/structmatrix_1_1matrix__ptr__t" ],
       [ "matrix_t", "da/d95/structmatrix_1_1matrix__t.html", "da/d95/structmatrix_1_1matrix__t" ]
     ] ],
-    [ "matrix_scratch_registry", "df/deb/namespacematrix__scratch__registry.html", [
-      [ "matrix_scratch_registry_t", "db/df3/structmatrix__scratch__registry_1_1matrix__scratch__registry__t.html", "db/df3/structmatrix__scratch__registry_1_1matrix__scratch__registry__t" ]
-    ] ],
     [ "mean_field", "d1/d26/namespacemean__field.html", [
       [ "mean_field_t", "dc/d4a/structmean__field_1_1mean__field__t.html", "dc/d4a/structmean__field_1_1mean__field__t" ]
     ] ],
@@ -1139,6 +1136,9 @@ var annotated_dup =
     ] ],
     [ "rea_file", "d0/df9/namespacerea__file.html", [
       [ "rea_file_t", "d9/dfe/structrea__file_1_1rea__file__t.html", "d9/dfe/structrea__file_1_1rea__file__t" ]
+    ] ],
+    [ "registry_entry", "da/dd7/namespaceregistry__entry.html", [
+      [ "registry_entry_t", "df/db9/structregistry__entry_1_1registry__entry__t.html", "df/db9/structregistry__entry_1_1registry__entry__t" ]
     ] ],
     [ "rhs_maker", "db/d98/namespacerhs__maker.html", [
       [ "rhs_maker_bdf", "d6/df3/interfacerhs__maker_1_1rhs__maker__bdf.html", "d6/df3/interfacerhs__maker_1_1rhs__maker__bdf" ],
@@ -1456,9 +1456,6 @@ var annotated_dup =
     [ "vector_registry", "d1/d52/namespacevector__registry.html", [
       [ "named_vector_t", "df/d1e/structvector__registry_1_1named__vector__t.html", "df/d1e/structvector__registry_1_1named__vector__t" ],
       [ "vector_registry_t", "d7/d8f/structvector__registry_1_1vector__registry__t.html", "d7/d8f/structvector__registry_1_1vector__registry__t" ]
-    ] ],
-    [ "vector_scratch_registry", "d3/d7b/namespacevector__scratch__registry.html", [
-      [ "vector_scratch_registry_t", "da/d4a/structvector__scratch__registry_1_1vector__scratch__registry__t.html", "da/d4a/structvector__scratch__registry_1_1vector__scratch__registry__t" ]
     ] ],
     [ "vreman", "d4/d6e/namespacevreman.html", [
       [ "vreman_t", "de/d91/structvreman_1_1vreman__t.html", "de/d91/structvreman_1_1vreman__t" ]

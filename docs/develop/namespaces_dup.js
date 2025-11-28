@@ -376,7 +376,6 @@ var namespaces_dup =
       [ "matrix_sub3", "dc/d12/namespacematrix__math.html#af2525db7542aac3a007f5e432b970806", null ],
       [ "matrix_subcol3", "dc/d12/namespacematrix__math.html#a91cd44255623c158398ffbe4637ff26a", null ]
     ] ],
-    [ "matrix_scratch_registry", "df/deb/namespacematrix__scratch__registry.html", "df/deb/namespacematrix__scratch__registry" ],
     [ "mean_field", "d1/d26/namespacemean__field.html", "d1/d26/namespacemean__field" ],
     [ "mean_field_output", "d6/d47/namespacemean__field__output.html", "d6/d47/namespacemean__field__output" ],
     [ "mesh", "db/dfc/namespacemesh.html", "db/dfc/namespacemesh" ],
@@ -571,6 +570,7 @@ var namespaces_dup =
       [ "redist_mesh", "db/dbb/namespaceredist.html#a0495227a7bc72edb4553026a816d7ebf", null ],
       [ "redist_zone", "db/dbb/namespaceredist.html#a95ec995daa3e10e200586e964ec37700", null ]
     ] ],
+    [ "registry_entry", "da/dd7/namespaceregistry__entry.html", "da/dd7/namespaceregistry__entry" ],
     [ "rhs_maker", "db/d98/namespacerhs__maker.html", "db/d98/namespacerhs__maker" ],
     [ "rhs_maker_cpu", "db/dd7/namespacerhs__maker__cpu.html", "db/dd7/namespacerhs__maker__cpu" ],
     [ "rhs_maker_device", "d1/d29/namespacerhs__maker__device.html", "d1/d29/namespacerhs__maker__device" ],
@@ -819,7 +819,6 @@ var namespaces_dup =
       [ "vector_vdot3", "d3/d0d/namespacevector__math.html#a2dda46ce20ce34f6b2cff7601e742ad6", null ]
     ] ],
     [ "vector_registry", "d1/d52/namespacevector__registry.html", "d1/d52/namespacevector__registry" ],
-    [ "vector_scratch_registry", "d3/d7b/namespacevector__scratch__registry.html", "d3/d7b/namespacevector__scratch__registry" ],
     [ "vreman", "d4/d6e/namespacevreman.html", "d4/d6e/namespacevreman" ],
     [ "vreman_cpu", "d9/da0/namespacevreman__cpu.html", [
       [ "vreman_compute_cpu", "d9/da0/namespacevreman__cpu.html#a3c358b1cea7229013aa149a0bc69880f", null ]

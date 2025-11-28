@@ -367,7 +367,7 @@ $(document).ready(function(){initNavTree('dd/dbf/cg__coupled_8f90_source.html','
 <div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span><span class="keywordflow">      end do</span></div>
 <div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span> </div>
 <div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>      rtr = <a class="code hl_function" href="../../dd/d47/namespacemath.html#a22f2f98aad6feae117b800fa20fa43ed">glsc3</a>(tmp, coef%mult, coef%binv, n)</div>
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>      rnorm = sqrt(rtr*norm_fac)</div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>      rnorm = sqrt(rtr)*norm_fac</div>
 <div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>      ksp_results%res_start = rnorm</div>
 <div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>      ksp_results%res_final = rnorm</div>
 <div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>      ksp_results%iter = 0</div>
@@ -433,7 +433,7 @@ $(document).ready(function(){initNavTree('dd/dbf/cg__coupled_8f90_source.html','
 <div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span> </div>
 <div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>         rtr = <a class="code hl_function" href="../../dd/d47/namespacemath.html#a22f2f98aad6feae117b800fa20fa43ed">glsc3</a>(tmp, coef%mult, coef%binv, n)</div>
 <div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>         <span class="keywordflow">if</span> (iter .eq. 1) rtr0 = rtr</div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>         rnorm = sqrt(rtr * norm_fac)</div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>         rnorm = sqrt(rtr) * norm_fac</div>
 <div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>         <span class="keyword">call </span>this%monitor_iter(iter, rnorm)</div>
 <div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>         <span class="keywordflow">if</span> (rnorm .lt. this%abs_tol) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>            <span class="keywordflow">exit</span></div>
@@ -487,7 +487,7 @@ $(document).ready(function(){initNavTree('dd/dbf/cg__coupled_8f90_source.html','
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_e1eebdd739dbe665ed101a65279c9fe9.html">krylov</a></li><li class="navelem"><a class="el" href="../../dir_579bd9dcbaa72a162125f0b560cd82ab.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_902813e86b127dbb0dcb2952584e8a67.html">cpu</a></li><li class="navelem"><a class="el" href="../../dd/dbf/cg__coupled_8f90.html">cg_coupled.f90</a></li>
-    <li class="footer">Generated on Thu Nov 27 2025 08:34:33 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Nov 28 2025 03:47:16 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
