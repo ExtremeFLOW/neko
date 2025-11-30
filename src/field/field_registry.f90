@@ -108,14 +108,14 @@ contains
        allocate (this%fields(size))
        allocate (this%aliases(size))
     else
-       allocate (this%fields(50))
-       allocate (this%aliases(50))
+       allocate (this%fields(25))
+       allocate (this%aliases(25))
     end if
 
     if (present(expansion_size)) then
        this%expansion_size = expansion_size
     else
-       this%expansion_size = 50
+       this%expansion_size = 5
     end if
 
     this%n_fields_ = 0
