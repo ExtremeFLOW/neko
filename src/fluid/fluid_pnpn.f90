@@ -1121,8 +1121,7 @@ contains
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
-    call neko_scratch_registry%request_field(bdry_field, temp_index)
-    bdry_field = 0.0_rp
+    call neko_scratch_registry%request_field(bdry_field, temp_index, .true.)
 
 
 

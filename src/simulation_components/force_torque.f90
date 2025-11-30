@@ -366,12 +366,12 @@ contains
 
     n_pts = this%bc%msk(0)
 
-    call neko_scratch_registry%request_field(s11, temp_indices(1))
-    call neko_scratch_registry%request_field(s12, temp_indices(2))
-    call neko_scratch_registry%request_field(s13, temp_indices(3))
-    call neko_scratch_registry%request_field(s22, temp_indices(4))
-    call neko_scratch_registry%request_field(s23, temp_indices(5))
-    call neko_scratch_registry%request_field(s33, temp_indices(6))
+    call neko_scratch_registry%request_field(s11, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(s12, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(s13, temp_indices(3), .false.)
+    call neko_scratch_registry%request_field(s22, temp_indices(4), .false.)
+    call neko_scratch_registry%request_field(s23, temp_indices(5), .false.)
+    call neko_scratch_registry%request_field(s33, temp_indices(6), .false.)
 
     call strain_rate(s11%x, s22%x, s33%x, s12%x, &
          s13%x, s23%x, this%u, this%v, this%w, this%coef)

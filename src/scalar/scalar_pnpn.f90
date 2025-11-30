@@ -65,7 +65,6 @@ module scalar_pnpn
   use neko_config, only : NEKO_BCKND_DEVICE
   use zero_dirichlet, only : zero_dirichlet_t
   use time_step_controller, only : time_step_controller_t
-  use scratch_registry, only : neko_scratch_registry
   use time_state, only : time_state_t
   use bc, only : bc_t
   use comm, only : NEKO_COMM

@@ -259,8 +259,8 @@ contains
     type(field_t), pointer :: temp1, temp2
     integer :: tmp_idx(2)
 
-    call neko_scratch_registry%request_field(temp1, tmp_idx(1))
-    call neko_scratch_registry%request_field(temp2, tmp_idx(2))
+    call neko_scratch_registry%request_field(temp1, tmp_idx(1), .false.)
+    call neko_scratch_registry%request_field(temp2, tmp_idx(2), .false.)
 
     call curl(this%curl_x, this%curl_y, this%curl_z, this%u, this%v, &
          this%w, temp1, temp2, this%case%fluid%c_Xh, &
