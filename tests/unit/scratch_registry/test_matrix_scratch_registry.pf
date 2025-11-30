@@ -49,9 +49,9 @@ contains
 
     call scratch%init(5, 3)
 
-    call scratch%request_matrix(42, 42, m1, index1)
-    call scratch%request_matrix(42, 42, m2, index2)
-    call scratch%request_matrix(42, 42, m3, index3)
+    call scratch%request_matrix(42, 42, m1, index1, .false.)
+    call scratch%request_matrix(42, 42, m2, index2, .false.)
+    call scratch%request_matrix(42, 42, m3, index3, .false.)
     @assertEqual(index1, 1)
     @assertEqual(index2, 2)
     @assertEqual(scratch%get_inuse(index1), .true.)
@@ -86,7 +86,7 @@ contains
     !
     call scratch%init(5, 3)
 
-    call scratch%request_matrix(42, 42, m, index)
+    call scratch%request_matrix(42, 42, m, index, .false.)
     call scratch%relinquish_matrix(index)
     @assertEqual(scratch%get_inuse(index), .false.)
     @assertEqual(scratch%get_n_inuse(), 0)
@@ -103,8 +103,8 @@ contains
     !
     call scratch%init(5, 3)
 
-    call scratch%request_matrix(42, 42, m1, indices(1))
-    call scratch%request_matrix(42, 42, m2, indices(2))
+    call scratch%request_matrix(42, 42, m1, indices(1), .false.)
+    call scratch%request_matrix(42, 42, m2, indices(2), .false.)
     call scratch%relinquish_matrix(indices)
     @assertEqual(scratch%get_inuse(indices(1)), .false.)
     @assertEqual(scratch%get_inuse(indices(2)), .false.)
@@ -124,14 +124,14 @@ contains
 
     call scratch%init(1, 1)
 
-    call scratch%request_matrix(42, 42, m1, index1)
+    call scratch%request_matrix(42, 42, m1, index1, .false.)
     call matrix_cfill(m1, 1.0_rp)
 
     call m1%copy_from(DEVICE_TO_HOST, sync = .false.)
     @assertEqual(m1%x(1, 1), 1.0_rp)
 
     ! add new matrix, trigging expand
-    call scratch%request_matrix(84, 42, m2, index2)
+    call scratch%request_matrix(84, 42, m2, index2, .false.)
 
     ! try to use the second matrix
     call matrix_cfill(m2, 2.0_rp)
@@ -171,8 +171,8 @@ contains
     call scratch%init(2, 2)
 
     ! add 2 matrices, no expansion
-    call scratch%request_matrix(42, 42, m1, index1)
-    call scratch%request_matrix(42, 42, m2, index2)
+    call scratch%request_matrix(42, 42, m1, index1, .false.)
+    call scratch%request_matrix(42, 42, m2, index2, .false.)
     call matrix_cfill(m1, 1.0_rp)
     call matrix_cfill(m2, 2.0_rp)
 
@@ -193,7 +193,7 @@ contains
     @assertEqual(scratch%get_size(), 2)
 
     ! get a new matrix, should get index 1
-    call scratch%request_matrix(42, 42, m1, index1)
+    call scratch%request_matrix(42, 42, m1, index1, .false.)
     call matrix_cfill(m1, 1.5_rp)
     @assertEqual(index1, 1)
     @assertEqual(scratch%get_inuse(index1), .true.)
@@ -209,7 +209,7 @@ contains
     @assertEqual(m2%x(1, 1), 2.0_rp)
 
     ! get a another matrix, should get index 3 and triger expand
-    call scratch%request_matrix(42, 42, m3, index3)
+    call scratch%request_matrix(42, 42, m3, index3, .false.)
     call matrix_cfill(m3, 3.0_rp)
     @assertEqual(index3, 3)
     @assertEqual(scratch%get_inuse(index1), .true.)
@@ -244,9 +244,9 @@ contains
     call scratch%init(2, 2)
 
     ! add 2 matrices, no expansion
-    call scratch%request_matrix(42, 42, m1, indices(1))
-    call scratch%request_matrix(42, 42, m2, indices(2))
-    call scratch%request_matrix(42, 42, m3, indices(3))
+    call scratch%request_matrix(42, 42, m1, indices(1), .false.)
+    call scratch%request_matrix(42, 42, m2, indices(2), .false.)
+    call scratch%request_matrix(42, 42, m3, indices(3), .false.)
 
     @assertEqual(indices(1), 1)
     @assertEqual(indices(2), 2)
@@ -265,7 +265,7 @@ contains
     @assertEqual(scratch%get_n_inuse(), 0)
 
     ! get a new matrix, should get index 1
-    call scratch%request_matrix(42, 42, m1, indices(1))
+    call scratch%request_matrix(42, 42, m1, indices(1), .false.)
     call matrix_cfill(m1, 1.5_rp)
     @assertEqual(indices(1), 1)
     @assertEqual(scratch%get_inuse(indices(1)), .true.)

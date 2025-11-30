@@ -291,7 +291,7 @@ contains
     integer :: temp_indices(1)
 
     n = this%dm_Xh%size()
-    call neko_scratch_registry%request_field(temp, temp_indices(1))
+    call neko_scratch_registry%request_field(temp, temp_indices(1), .false.)
 
     !> Initialize the momentum field
     call field_col3(this%m_x, this%u, this%rho)

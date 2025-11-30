@@ -62,7 +62,7 @@ contains
   subroutine compute(time)
     type(time_state_t), intent(in) :: time
 
-    integer :: temp_index !<- For the scratch registry
+    integer :: tmp_index !<- For the scratch registry
     type(field_t), pointer :: temp_field_ptr !<- Will be our temporary field
     type(field_t), pointer :: u, v
 
@@ -72,7 +72,7 @@ contains
     ! advantage of using it is saving memory and time to allocate things.
 
     ! We get a temporary by using a field_t pointer and an index.
-    call neko_scratch_registry%request_field(temp_field_ptr, temp_index)
+    call neko_scratch_registry%request_field(temp_field_ptr, tmp_index, .false.)
 
     u => neko_field_registry%get_field("u")
     v => neko_field_registry%get_field("v")
@@ -84,7 +84,7 @@ contains
 
     ! At the end of the subroutine, the temporary field needs to be reliquished.
     ! This is where the integer index comes in.
-    call neko_scratch_registry%relinquish_field(temp_index)
+    call neko_scratch_registry%relinquish_field(tmp_index)
 
   end subroutine compute
 

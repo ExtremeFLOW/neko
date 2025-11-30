@@ -203,14 +203,12 @@ contains
     n = this%n_available
   end function get_n_available
 
+  !> Get the number of objects currently in use
   pure function get_n_inuse(this) result(n)
     class(scratch_registry_t), intent(in) :: this
     integer :: n, i
 
-    n = 0
-    do i = 1, this%get_size()
-       if (this%inuse(i)) n = n + 1
-    end do
+    n = count(this%inuse)
   end function get_n_inuse
 
   !> Get the size of the objects array
@@ -229,9 +227,10 @@ contains
     n = this%expansion_size
   end function get_expansion_size
 
-  logical function get_inuse(this, index)
-    class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(in) :: index !< The index of the field to check
+  !> Get the inuse status for a given index
+  pure logical function get_inuse(this, index)
+    class(scratch_registry_t), target, intent(in) :: this
+    integer, intent(in) :: index
 
     get_inuse = this%inuse(index)
   end function get_inuse
@@ -253,10 +252,14 @@ contains
   end subroutine expand
 
   !> Get a field from the registry by assigning it to a pointer
-  subroutine request_field(this, f, index)
+  !! @param f Pointer to the requested field.
+  !! @param index Index of the field in the registry (for relinquishing later).
+  !! @param clear If true, the field values are set to zero upon request.
+  subroutine request_field(this, f, index, clear)
     class(scratch_registry_t), target, intent(inout) :: this
     type(field_t), pointer, intent(inout) :: f
-    integer, intent(inout) :: index !< The index of the field in the inuse array
+    integer, intent(inout) :: index
+    logical, intent(in) :: clear
     character(len=10) :: name
 
     if (.not. associated(this%dof)) then
@@ -278,7 +281,7 @@ contains
             end if
 
             f => this%registry(index)%field_ptr
-            call field_rzero(f)
+            if (clear) call field_rzero(f)
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
             return
@@ -302,11 +305,13 @@ contains
   !! @param n Size of the requested vector.
   !! @param v Pointer to the requested vector.
   !! @param index Index of the vector in the registry (for relinquishing later).
-  subroutine request_vector(this, n, v, index)
+  !! @param clear If true, the vector values are set to zero upon request.
+  subroutine request_vector(this, n, v, index, clear)
     class(scratch_registry_t), target, intent(inout) :: this
     integer, intent(in) :: n
     type(vector_t), pointer, intent(inout) :: v
     integer, intent(inout) :: index
+    logical, intent(in) :: clear
 
     associate(n_available => this%n_available, n_inuse => this%n_inuse)
 
@@ -323,7 +328,7 @@ contains
             end if
 
             v => this%registry(index)%vector_ptr
-            call vector_rzero(v)
+            if (clear) call vector_rzero(v)
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
             return
@@ -347,11 +352,13 @@ contains
   !! @param ncols Number of columns of the requested matrix.
   !! @param m Pointer to the requested matrix.
   !! @param index Index of the matrix in the registry (for relinquishing later).
-  subroutine request_matrix(this, nrows, ncols, m, index)
+  !! @param clear If true, the matrix values are set to zero upon request.
+  subroutine request_matrix(this, nrows, ncols, m, index, clear)
     class(scratch_registry_t), target, intent(inout) :: this
     integer, intent(in) :: nrows, ncols
     type(matrix_t), pointer, intent(inout) :: m
     integer, intent(inout) :: index
+    logical, intent(in) :: clear
 
     associate(n_available => this%n_available, n_inuse => this%n_inuse)
 
@@ -370,7 +377,7 @@ contains
             end if
 
             m => this%registry(index)%matrix_ptr
-            call matrix_rzero(m)
+            if (clear) call matrix_rzero(m)
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
             return
@@ -390,9 +397,10 @@ contains
   end subroutine request_matrix
 
   !> Relinquish the use of a field in the registry
+  !! @param index The index of the field to free
   subroutine relinquish_field_single(this, index)
     class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: index !< The index of the field to free
+    integer, intent(inout) :: index
 
     if (trim(this%registry(index)%get_type()) .ne. 'field') then
        call neko_error("scratch_registry::relinquish_field_single: " &
@@ -403,9 +411,11 @@ contains
     this%n_inuse = this%n_inuse - 1
   end subroutine relinquish_field_single
 
+  !> Relinquish the use of multiple fields in the registry
+  !! @param indices The indices of the fields to free
   subroutine relinquish_field_multiple(this, indices)
     class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: indices(:) !< The indices of the field to free
+    integer, intent(inout) :: indices(:)
     integer :: i
 
     do i = 1, size(indices)
@@ -420,9 +430,10 @@ contains
   end subroutine relinquish_field_multiple
 
   !> Relinquish the use of a vector in the registry
+  !! @param index The index of the vector to free
   subroutine relinquish_vector_single(this, index)
     class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: index !< The index of the vector to free
+    integer, intent(inout) :: index
 
     if (trim(this%registry(index)%get_type()) .ne. 'vector') then
        call neko_error("scratch_registry::relinquish_vector_single: " &
@@ -433,9 +444,11 @@ contains
     this%n_inuse = this%n_inuse - 1
   end subroutine relinquish_vector_single
 
+  !> Relinquish the use of multiple vectors in the registry
+  !! @param indices The indices of the vectors to free
   subroutine relinquish_vector_multiple(this, indices)
     class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: indices(:) !< The indices of the vector to free
+    integer, intent(inout) :: indices(:)
     integer :: i
 
     do i = 1, size(indices)
@@ -450,9 +463,10 @@ contains
   end subroutine relinquish_vector_multiple
 
   !> Relinquish the use of a matrix in the registry
+  !! @param index The index of the matrix to free
   subroutine relinquish_matrix_single(this, index)
     class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: index !< The index of the matrix to free
+    integer, intent(inout) :: index
 
     if (trim(this%registry(index)%get_type()) .ne. 'matrix') then
        call neko_error("scratch_registry::relinquish_matrix_single: " &
@@ -463,9 +477,11 @@ contains
     this%n_inuse = this%n_inuse - 1
   end subroutine relinquish_matrix_single
 
+  !> Relinquish the use of multiple matrices in the registry
+  !! @param indices The indices of the matrices to free
   subroutine relinquish_matrix_multiple(this, indices)
     class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: indices(:) !< The indices of the matrix to free
+    integer, intent(inout) :: indices(:)
     integer :: i
 
     do i = 1, size(indices)
@@ -480,17 +496,20 @@ contains
   end subroutine relinquish_matrix_multiple
 
   !> Relinquish the use of an object in the registry
+  !! @param index The index of the object to free
   subroutine relinquish_single(this, index)
     class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: index !< The index of the matrix to free
+    integer, intent(inout) :: index
 
     this%inuse(index) = .false.
     this%n_inuse = this%n_inuse - 1
   end subroutine relinquish_single
 
+  !> Relinquish the use of multiple objects in the registry
+  !! @param indices The indices of the objects to free
   subroutine relinquish_multiple(this, indices)
     class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(inout) :: indices(:) !< The indices of the matrix to free
+    integer, intent(inout) :: indices(:)
     integer :: i
 
     do i = 1, size(indices)

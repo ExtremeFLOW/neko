@@ -500,7 +500,7 @@ contains
        nut => neko_field_registry%get_field(this%nut_field_name)
 
        ! lambda_tot = lambda + rho * cp * nut / pr_turb
-       call neko_scratch_registry%request_field(lambda_factor, index)
+       call neko_scratch_registry%request_field(lambda_factor, index, .false.)
        call field_cmult2(lambda_factor, nut, 1.0_rp / this%pr_turb)
        call field_col2(lambda_factor, this%cp)
        call field_col2(lambda_factor, this%rho)
@@ -512,7 +512,7 @@ contains
        alphat => neko_field_registry%get_field(this%alphat_field_name)
 
        ! lambda_tot = lambda + rho * cp * alphat
-       call neko_scratch_registry%request_field(lambda_factor, index)
+       call neko_scratch_registry%request_field(lambda_factor, index, .false.)
        call field_col3(lambda_factor, this%cp, alphat)
        call field_col2(lambda_factor, this%rho)
        call field_add3(this%lambda_tot, this%lambda, lambda_factor)
@@ -521,7 +521,7 @@ contains
     else if (len_trim(this%alphat_field_name) .gt. 0 &
          .and. len_trim(this%nut_field_name) .gt. 0 ) then
        call neko_error("Conflicting definition of eddy diffusivity " // &
-                       "for the scalar equation")
+            "for the scalar equation")
     end if
 
     ! Since cp is a fields and we use the %x(1,1,1,1) of the

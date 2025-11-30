@@ -58,23 +58,23 @@ contains
     integer :: temp_indices(15)
 
     ! Work arrays
-    call neko_scratch_registry%request_field(ta1, temp_indices(1))
-    call neko_scratch_registry%request_field(ta2, temp_indices(2))
-    call neko_scratch_registry%request_field(ta3, temp_indices(3))
-    call neko_scratch_registry%request_field(wa1, temp_indices(4))
-    call neko_scratch_registry%request_field(wa2, temp_indices(5))
-    call neko_scratch_registry%request_field(wa3, temp_indices(6))
-    call neko_scratch_registry%request_field(work1, temp_indices(7))
-    call neko_scratch_registry%request_field(work2, temp_indices(8))
-    call neko_scratch_registry%request_field(work3, temp_indices(9))
+    call neko_scratch_registry%request_field(ta1, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(ta2, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(ta3, temp_indices(3), .false.)
+    call neko_scratch_registry%request_field(wa1, temp_indices(4), .false.)
+    call neko_scratch_registry%request_field(wa2, temp_indices(5), .false.)
+    call neko_scratch_registry%request_field(wa3, temp_indices(6), .false.)
+    call neko_scratch_registry%request_field(work1, temp_indices(7), .false.)
+    call neko_scratch_registry%request_field(work2, temp_indices(8), .false.)
+    call neko_scratch_registry%request_field(work3, temp_indices(9), .false.)
 
     ! Stress tensor
-    call neko_scratch_registry%request_field(s11, temp_indices(10))
-    call neko_scratch_registry%request_field(s22, temp_indices(11))
-    call neko_scratch_registry%request_field(s33, temp_indices(12))
-    call neko_scratch_registry%request_field(s12, temp_indices(13))
-    call neko_scratch_registry%request_field(s13, temp_indices(14))
-    call neko_scratch_registry%request_field(s23, temp_indices(15))
+    call neko_scratch_registry%request_field(s11, temp_indices(10), .false.)
+    call neko_scratch_registry%request_field(s22, temp_indices(11), .false.)
+    call neko_scratch_registry%request_field(s33, temp_indices(12), .false.)
+    call neko_scratch_registry%request_field(s12, temp_indices(13), .false.)
+    call neko_scratch_registry%request_field(s13, temp_indices(14), .false.)
+    call neko_scratch_registry%request_field(s23, temp_indices(15), .false.)
 
     n = c_Xh%dof%size()
     lxyz = c_Xh%Xh%lxyz
@@ -224,9 +224,9 @@ contains
     call Ax%compute_vector(u_res%x, v_res%x, w_res%x, u%x, v%x, w%x, c_Xh,&
          msh, Xh)
 
-    call neko_scratch_registry%request_field(ta1, temp_indices(1))
-    call neko_scratch_registry%request_field(ta2, temp_indices(2))
-    call neko_scratch_registry%request_field(ta3, temp_indices(3))
+    call neko_scratch_registry%request_field(ta1, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(ta2, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(ta3, temp_indices(3), .false.)
 
     ! Pressure gradient
     call opgrad(ta1%x, ta2%x, ta3%x, p%x, c_Xh)
