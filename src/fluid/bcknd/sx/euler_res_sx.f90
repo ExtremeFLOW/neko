@@ -39,36 +39,36 @@ contains
          k_m_z_1, k_m_z_2, k_m_z_3, k_m_z_4, &
          k_E_1, k_E_2, k_E_3, k_E_4, &
          temp_rho, temp_m_x, temp_m_y, temp_m_z, temp_E
-    integer :: temp_indices(25)
+    integer :: tmp_indices(25)
     type(field_list_t) :: k_rho, k_m_x, k_m_y, k_m_z, k_E
 
     n = p%dof%size()
     s = rk_scheme%order
-    call neko_scratch_registry%request_field(k_rho_1, temp_indices(1))
-    call neko_scratch_registry%request_field(k_rho_2, temp_indices(2))
-    call neko_scratch_registry%request_field(k_rho_3, temp_indices(3))
-    call neko_scratch_registry%request_field(k_rho_4, temp_indices(4))
-    call neko_scratch_registry%request_field(k_m_x_1, temp_indices(5))
-    call neko_scratch_registry%request_field(k_m_x_2, temp_indices(6))
-    call neko_scratch_registry%request_field(k_m_x_3, temp_indices(7))
-    call neko_scratch_registry%request_field(k_m_x_4, temp_indices(8))
-    call neko_scratch_registry%request_field(k_m_y_1, temp_indices(9))
-    call neko_scratch_registry%request_field(k_m_y_2, temp_indices(10))
-    call neko_scratch_registry%request_field(k_m_y_3, temp_indices(11))
-    call neko_scratch_registry%request_field(k_m_y_4, temp_indices(12))
-    call neko_scratch_registry%request_field(k_m_z_1, temp_indices(13))
-    call neko_scratch_registry%request_field(k_m_z_2, temp_indices(14))
-    call neko_scratch_registry%request_field(k_m_z_3, temp_indices(15))
-    call neko_scratch_registry%request_field(k_m_z_4, temp_indices(16))
-    call neko_scratch_registry%request_field(k_E_1, temp_indices(17))
-    call neko_scratch_registry%request_field(k_E_2, temp_indices(18))
-    call neko_scratch_registry%request_field(k_E_3, temp_indices(19))
-    call neko_scratch_registry%request_field(k_E_4, temp_indices(20))
-    call neko_scratch_registry%request_field(temp_rho, temp_indices(21))
-    call neko_scratch_registry%request_field(temp_m_x, temp_indices(22))
-    call neko_scratch_registry%request_field(temp_m_y, temp_indices(23))
-    call neko_scratch_registry%request_field(temp_m_z, temp_indices(24))
-    call neko_scratch_registry%request_field(temp_E, temp_indices(25))
+    call neko_scratch_registry%request_field(k_rho_1, tmp_indices(1), .true.)
+    call neko_scratch_registry%request_field(k_rho_2, tmp_indices(2), .true.)
+    call neko_scratch_registry%request_field(k_rho_3, tmp_indices(3), .true.)
+    call neko_scratch_registry%request_field(k_rho_4, tmp_indices(4), .true.)
+    call neko_scratch_registry%request_field(k_m_x_1, tmp_indices(5), .true.)
+    call neko_scratch_registry%request_field(k_m_x_2, tmp_indices(6), .true.)
+    call neko_scratch_registry%request_field(k_m_x_3, tmp_indices(7), .true.)
+    call neko_scratch_registry%request_field(k_m_x_4, tmp_indices(8), .true.)
+    call neko_scratch_registry%request_field(k_m_y_1, tmp_indices(9), .true.)
+    call neko_scratch_registry%request_field(k_m_y_2, tmp_indices(10), .true.)
+    call neko_scratch_registry%request_field(k_m_y_3, tmp_indices(11), .true.)
+    call neko_scratch_registry%request_field(k_m_y_4, tmp_indices(12), .true.)
+    call neko_scratch_registry%request_field(k_m_z_1, tmp_indices(13), .true.)
+    call neko_scratch_registry%request_field(k_m_z_2, tmp_indices(14), .true.)
+    call neko_scratch_registry%request_field(k_m_z_3, tmp_indices(15), .true.)
+    call neko_scratch_registry%request_field(k_m_z_4, tmp_indices(16), .true.)
+    call neko_scratch_registry%request_field(k_E_1, tmp_indices(17), .true.)
+    call neko_scratch_registry%request_field(k_E_2, tmp_indices(18), .true.)
+    call neko_scratch_registry%request_field(k_E_3, tmp_indices(19), .true.)
+    call neko_scratch_registry%request_field(k_E_4, tmp_indices(20), .true.)
+    call neko_scratch_registry%request_field(temp_rho, tmp_indices(21), .false.)
+    call neko_scratch_registry%request_field(temp_m_x, tmp_indices(22), .false.)
+    call neko_scratch_registry%request_field(temp_m_y, tmp_indices(23), .false.)
+    call neko_scratch_registry%request_field(temp_m_z, tmp_indices(24), .false.)
+    call neko_scratch_registry%request_field(temp_E, tmp_indices(25), .false.)
 
     call k_rho%init(4)
     call k_rho%assign(1, k_rho_1)
@@ -144,7 +144,7 @@ contains
        end do
     end do
 
-    call neko_scratch_registry%relinquish_field(temp_indices)
+    call neko_scratch_registry%relinquish_field(tmp_indices)
   end subroutine advance_primitive_variables_sx
 
   subroutine evaluate_rhs_sx(rhs_rho_field, rhs_m_x, rhs_m_y, rhs_m_z, rhs_E, &
@@ -158,15 +158,14 @@ contains
     type(coef_t), intent(inout) :: coef
     type(gs_t), intent(inout) :: gs
     integer :: i, n
-    type(field_t), pointer :: temp, f_x, f_y, f_z, &
+    type(field_t), pointer :: f_x, f_y, f_z, &
          visc_rho, visc_m_x, visc_m_y, visc_m_z, visc_E
-    integer :: temp_indices(9)
+    integer :: tmp_indices(8)
 
     n = coef%dof%size()
-    call neko_scratch_registry%request_field(temp, temp_indices(1))
-    call neko_scratch_registry%request_field(f_x, temp_indices(2))
-    call neko_scratch_registry%request_field(f_y, temp_indices(3))
-    call neko_scratch_registry%request_field(f_z, temp_indices(4))
+    call neko_scratch_registry%request_field(f_x, tmp_indices(1), .false.)
+    call neko_scratch_registry%request_field(f_y, tmp_indices(2), .false.)
+    call neko_scratch_registry%request_field(f_z, tmp_indices(3), .false.)
 
     !> rho = rho - dt * div(m)
     call div(rhs_rho_field%x, m_x%x, m_y%x, m_z%x, coef)
@@ -222,11 +221,11 @@ contains
        rhs_E%x(i,1,1,1) = rhs_E%x(i,1,1,1) * coef%mult(i,1,1,1)
     end do
 
-    call neko_scratch_registry%request_field(visc_rho, temp_indices(5))
-    call neko_scratch_registry%request_field(visc_m_x, temp_indices(6))
-    call neko_scratch_registry%request_field(visc_m_y, temp_indices(7))
-    call neko_scratch_registry%request_field(visc_m_z, temp_indices(8))
-    call neko_scratch_registry%request_field(visc_E, temp_indices(9))
+    call neko_scratch_registry%request_field(visc_rho, tmp_indices(4), .false.)
+    call neko_scratch_registry%request_field(visc_m_x, tmp_indices(5), .false.)
+    call neko_scratch_registry%request_field(visc_m_y, tmp_indices(6), .false.)
+    call neko_scratch_registry%request_field(visc_m_z, tmp_indices(7), .false.)
+    call neko_scratch_registry%request_field(visc_E, tmp_indices(8), .false.)
 
     ! Set h1 coefficient to the effective viscosity for the Laplacian operator
     do concurrent (i = 1:n)
@@ -264,7 +263,7 @@ contains
             - coef%Binv(i,1,1,1) * visc_E%x(i,1,1,1)
     end do
 
-    call neko_scratch_registry%relinquish_field(temp_indices)
+    call neko_scratch_registry%relinquish_field(tmp_indices)
   end subroutine evaluate_rhs_sx
 
 end module euler_res_sx

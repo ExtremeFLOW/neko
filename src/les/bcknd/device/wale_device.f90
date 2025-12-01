@@ -82,15 +82,15 @@ contains
        w => neko_field_registry%get_field_by_name("w")
     end if
 
-    call neko_scratch_registry%request_field(g11, temp_indices(1))
-    call neko_scratch_registry%request_field(g12, temp_indices(2))
-    call neko_scratch_registry%request_field(g13, temp_indices(3))
-    call neko_scratch_registry%request_field(g21, temp_indices(4))
-    call neko_scratch_registry%request_field(g22, temp_indices(5))
-    call neko_scratch_registry%request_field(g23, temp_indices(6))
-    call neko_scratch_registry%request_field(g31, temp_indices(7))
-    call neko_scratch_registry%request_field(g32, temp_indices(8))
-    call neko_scratch_registry%request_field(g33, temp_indices(9))
+    call neko_scratch_registry%request_field(g11, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(g12, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(g13, temp_indices(3), .false.)
+    call neko_scratch_registry%request_field(g21, temp_indices(4), .false.)
+    call neko_scratch_registry%request_field(g22, temp_indices(5), .false.)
+    call neko_scratch_registry%request_field(g23, temp_indices(6), .false.)
+    call neko_scratch_registry%request_field(g31, temp_indices(7), .false.)
+    call neko_scratch_registry%request_field(g32, temp_indices(8), .false.)
+    call neko_scratch_registry%request_field(g33, temp_indices(9), .false.)
 
 
     ! Compute the derivatives of the velocity (the alpha tensor)

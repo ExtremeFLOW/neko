@@ -45,6 +45,7 @@ module fluid_scheme_compressible_euler
   use device_math, only : device_col2
   use field, only : field_t
   use fluid_scheme_compressible, only: fluid_scheme_compressible_t
+  use scratch_registry, only : neko_scratch_registry
   use gs_ops, only : GS_OP_ADD
   use gather_scatter, only : gs_t
   use num_types, only : rp
@@ -283,7 +284,7 @@ contains
     class(bc_t), pointer :: b
 
     n = this%dm_Xh%size()
-    call this%scratch%request_field(temp, temp_indices(1))
+    call neko_scratch_registry%request_field(temp, temp_indices(1), .false.)
     b => null()
 
     call profiler_start_region('Fluid compressible', 1)
@@ -386,7 +387,7 @@ contains
     end associate
     call profiler_end_region('Fluid compressible', 1)
 
-    call this%scratch%relinquish_field(temp_indices)
+    call neko_scratch_registry%relinquish_field(temp_indices)
 
   end subroutine fluid_scheme_compressible_euler_step
 

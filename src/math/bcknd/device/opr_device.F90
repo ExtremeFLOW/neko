@@ -153,6 +153,19 @@ module opr_device
   end interface
 
   interface
+     subroutine hip_rotate_cyc(vx_d, vy_d, vz_d, &
+          x_d, y_d, z_d, &
+          cyc_msk_d, R11_d, R12_d, ncyc, idir) &
+          bind(c, name = 'hip_rotate_cyc')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: vx_d, vy_d, vz_d
+       type(c_ptr), value :: x_d, y_d, z_d
+       type(c_ptr), value :: cyc_msk_d, R11_d, R12_d
+       integer(c_int) :: ncyc, idir
+     end subroutine hip_rotate_cyc
+  end interface
+
+  interface
      subroutine hip_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
           drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, drdz_d, dsdz_d, &
           dtdz_d, w3_d, nel, lx) bind(c, name = 'hip_set_convect_rst')
@@ -870,8 +883,10 @@ contains
     ncyc = coef%cyc_msk(0) - 1
 
 #ifdef HAVE_HIP
-    !>@todo opr_device_rotate_cyc_r1 for HIP
-    call neko_error('No device backend configured for rotate_cyc')
+    call hip_rotate_cyc(vx_d, vy_d, vz_d, &
+         coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
+         coef%cyc_msk_d, coef%R11_d, coef%R12_d, &
+         ncyc, idir)
 #elif HAVE_CUDA
     call cuda_rotate_cyc(vx_d, vy_d, vz_d, &
           coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
@@ -898,8 +913,10 @@ contains
     ncyc = coef%cyc_msk(0) - 1
 
 #ifdef HAVE_HIP
-    !>@todo opr_device_rotate_cyc_r4 for HIP
-    call neko_error('No device backend configured for rotate_cyc')
+    call hip_rotate_cyc(vx_d, vy_d, vz_d, &
+         coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
+         coef%cyc_msk_d, coef%R11_d, coef%R12_d, &
+         ncyc, idir)
 #elif HAVE_CUDA
     call cuda_rotate_cyc(vx_d, vy_d, vz_d, &
           coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &

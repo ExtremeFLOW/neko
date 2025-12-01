@@ -17,7 +17,7 @@ on:
         description: "The version of the pFUnit library to use."
         type: string
         required: false
-        default: "v4.4.2"
+        default: "v4.15.0"
 
 jobs:
   GNU:
@@ -79,7 +79,7 @@ jobs:
             setup-env: |
               echo "nproc=$(nproc)" >> $GITHUB_OUTPUT
               echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
-              
+
           - os: macos-15
             setup-env: |
               brew install openmpi automake libtool
@@ -173,7 +173,7 @@ jobs:
           PFUNIT_VERSION: ${{ inputs.pfunit-version }}
           JSON_FORTRAN_VERSION: ${{ inputs.json-fortran-version }}
         run: |
-          if [ -z "$PFUNIT_VERSION" ]; then PFUNIT_VERSION="v4.12.0"; fi
+          if [ -z "$PFUNIT_VERSION" ]; then PFUNIT_VERSION="v4.15.0"; fi
           if [ -z "$JSON_FORTRAN_VERSION" ]; then JSON_FORTRAN_VERSION="8.3.0"; fi
 
           echo "pfunit-version=$PFUNIT_VERSION" >> $GITHUB_OUTPUT

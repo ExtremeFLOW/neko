@@ -83,7 +83,6 @@ neko_fortran_SOURCES = \
 	mesh/tri_mesh.f90\
 	mesh/intersection_detector.f90\
 	field/field_registry.f90\
-	field/scratch_registry.f90\
 	field/field.f90\
 	field/field_list.f90\
 	field/field_series.f90\
@@ -122,8 +121,8 @@ neko_fortran_SOURCES = \
 	math/vector.f90\
 	math/vector_registry.f90\
 	math/vector_math.f90\
-	math/vector_scratch_registry.f90\
-	math/matrix_scratch_registry.f90\
+	registries/scratch_registry.f90\
+	registries/registry_entry.f90\
 	math/matrix.f90\
 	math/matrix_math.f90\
 	math/signed_distance.f90\
@@ -432,6 +431,7 @@ libneko_la_SOURCES += \
 	math/bcknd/device/hip/opr_opgrad.hip\
 	math/bcknd/device/hip/opr_lambda2.hip\
 	math/bcknd/device/hip/opr_cfl.hip\
+	math/bcknd/device/hip/opr_rotate_cyc.hip\
 	math/bcknd/device/hip/ax_helm.hip\
 	math/bcknd/device/hip/ax_helm_full.hip\
 	krylov/bcknd/device/hip/pc_jacobi.hip\
@@ -730,6 +730,7 @@ EXTRA_DIST = \
 	math/bcknd/device/hip/opgrad_kernel.h\
 	math/bcknd/device/hip/lambda2_kernel.h\
 	math/bcknd/device/hip/cfl_kernel.h\
+	math/bcknd/device/hip/rotate_kernel.h\
 	math/bcknd/device/hip/ax_helm_kernel.h\
 	math/bcknd/device/hip/ax_helm_full_kernel.h\
 	common/bcknd/device/hip/sumab_kernel.h\

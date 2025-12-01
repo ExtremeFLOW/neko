@@ -231,7 +231,7 @@ contains
     !
     ! Setup scratch registry
     !
-    call neko_scratch_registry%init(this%fluid%dm_Xh, 10, 10)
+    call neko_scratch_registry%set_dofmap(this%fluid%dm_Xh)
 
     !
     ! Setup scalar scheme

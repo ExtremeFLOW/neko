@@ -123,7 +123,7 @@ contains
     real(kind=rp), allocatable :: amplitudes(:)
     character(len=:), allocatable :: baseflow_method
     character(len=:), allocatable :: read_str, fringe_registry_name, &
-            bf_registry_pref, dump_fname
+         bf_registry_pref, dump_fname
     character(len=NEKO_FNAME_LEN) :: fname, mesh_fname
     logical :: interpolate, dump_fields
     real(kind=rp), allocatable :: constant_value(:)
@@ -219,7 +219,7 @@ contains
     real(kind=rp), intent(in) :: start_time, end_time
     real(kind=rp), intent(in) :: amplitudes(:)
     character(len=*), intent(in) :: fringe_registry_name, dump_fname, &
-            bf_registry_pref
+         bf_registry_pref
     logical, intent(in) :: dump_fields
     real(kind=rp), intent(in) :: constant_values(:)
 
@@ -237,11 +237,11 @@ contains
          lvl = NEKO_LOG_DEBUG)
 
     call neko_field_registry%add_field(this%u%dof, &
-            trim(bf_registry_pref) // "_u")
+         trim(bf_registry_pref) // "_u")
     call neko_field_registry%add_field(this%v%dof, &
-            trim(bf_registry_pref) // "_v")
+         trim(bf_registry_pref) // "_v")
     call neko_field_registry%add_field(this%w%dof, &
-            trim(bf_registry_pref) // "_w")
+         trim(bf_registry_pref) // "_w")
 
     this%u_bf => neko_field_registry%get_field(trim(bf_registry_pref) // "_u")
     this%v_bf => neko_field_registry%get_field(trim(bf_registry_pref) // "_v")
@@ -268,7 +268,7 @@ contains
     real(kind=rp), intent(in) :: start_time, end_time
     real(kind=rp), intent(in) :: amplitudes(:)
     character(len=*), intent(in) :: fringe_registry_name, dump_fname, &
-            bf_registry_pref
+         bf_registry_pref
     logical, intent(in) :: dump_fields
     character(len=*), intent(in) :: file_name
     logical, intent(in) :: interpolate
@@ -292,11 +292,11 @@ contains
          lvl = NEKO_LOG_DEBUG)
 
     call neko_field_registry%add_field(this%u%dof, &
-            trim(bf_registry_pref) // "_u")
+         trim(bf_registry_pref) // "_u")
     call neko_field_registry%add_field(this%v%dof, &
-            trim(bf_registry_pref) // "_v")
+         trim(bf_registry_pref) // "_v")
     call neko_field_registry%add_field(this%w%dof, &
-            trim(bf_registry_pref) // "_w")
+         trim(bf_registry_pref) // "_w")
 
     this%u_bf => neko_field_registry%get_field(trim(bf_registry_pref) // "_u")
     this%v_bf => neko_field_registry%get_field(trim(bf_registry_pref) // "_v")
@@ -341,7 +341,7 @@ contains
     real(kind=rp), intent(in) :: start_time, end_time
     real(kind=rp), intent(in) :: amplitudes(:)
     character(len=*), intent(in) :: fringe_registry_name, dump_fname, &
-            bf_registry_pref
+         bf_registry_pref
     logical, intent(in) :: dump_fields
 
     !
@@ -363,7 +363,7 @@ contains
     real(kind=rp), intent(in) :: start_time, end_time
     real(kind=rp), intent(in) :: amplitudes(:)
     character(len=*), intent(in) :: fringe_registry_name, dump_fname, &
-            bf_registry_pref
+         bf_registry_pref
     logical, intent(in) :: dump_fields
 
     integer :: i
@@ -448,8 +448,8 @@ contains
 
        ! Check if all the base flow fields exist in the registry
        this%baseflow_set = neko_field_registry%field_exists(trim(u_name)) &
-               .and. neko_field_registry%field_exists(trim(v_name)) .and. &
-               neko_field_registry%field_exists(trim(w_name))
+            .and. neko_field_registry%field_exists(trim(v_name)) .and. &
+            neko_field_registry%field_exists(trim(w_name))
 
        if (.not. this%baseflow_set) then
           call neko_error("SPONGE: No baseflow set (searching for " // &
@@ -500,7 +500,7 @@ contains
     fv => this%fields%get(2)
     fw => this%fields%get(3)
 
-    call neko_scratch_registry%request_field(wk, tmp_index)
+    call neko_scratch_registry%request_field(wk, tmp_index, .false.)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        ! wk = u_bf - u
