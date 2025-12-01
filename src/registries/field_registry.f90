@@ -31,7 +31,6 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a registry for storing solution fields
-!
 module field_registry
   use, intrinsic :: iso_fortran_env, only: error_unit
   use field, only : field_t, field_ptr_t
