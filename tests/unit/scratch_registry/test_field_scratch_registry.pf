@@ -8,11 +8,33 @@ module test_field_scratch_registry
   use field_math, only : field_cfill
   use scratch_registry, only : scratch_registry_t
   use num_types, only : rp
-  use device, only : DEVICE_TO_HOST
+  use device, only : DEVICE_TO_HOST, device_init, device_finalize
   use comm, only : pe_rank, pe_size
+  use neko_config, only : NEKO_BCKND_DEVICE
   implicit none
 
+  @TestCase
+  type, extends(TestCase) :: test_field_scratch_reg
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_field_scratch_reg
+
 contains
+
+  subroutine setUp(this)
+    class(test_field_scratch_reg), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_field_scratch_reg), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
 
   subroutine test_field_scratch_registry_gen_msh(msh)
     type(mesh_t), intent(inout) :: msh
@@ -53,7 +75,8 @@ contains
   end subroutine test_field_scratch_registry_gen_msh
 
   @test
-  subroutine test_field_scratch_registry_init_default()
+  subroutine test_field_scratch_registry_init_default(this)
+    class(test_field_scratch_reg), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
     type(dofmap_t) :: dm
@@ -77,7 +100,8 @@ contains
   end subroutine test_field_scratch_registry_init_default
 
   @test
-  subroutine test_field_scratch_registry_init()
+  subroutine test_field_scratch_registry_init(this)
+    class(test_field_scratch_reg), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
     type(dofmap_t) :: dm
@@ -100,7 +124,8 @@ contains
   end subroutine test_field_scratch_registry_init
 
   @test
-  subroutine test_field_scratch_registry_request_field_fresh()
+  subroutine test_field_scratch_registry_request_field_fresh(this)
+    class(test_field_scratch_reg), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
     type(dofmap_t) :: dm
@@ -133,7 +158,7 @@ contains
 
     call f1%copy_from(DEVICE_TO_HOST, sync = .false.)
     call f2%copy_from(DEVICE_TO_HOST, sync = .false.)
-    call f3%copy_from(DEVICE_TO_HOST, sync = .false.)
+    call f3%copy_from(DEVICE_TO_HOST, sync = .true.)
 
     @assertEqual(f1%x(1,1,1,1), 1.0_rp)
     @assertEqual(f2%x(1,1,1,1), 2.0_rp)
@@ -146,7 +171,8 @@ contains
   end subroutine test_field_scratch_registry_request_field_fresh
 
   @test
-  subroutine test_field_scratch_registry_relinquish_field()
+  subroutine test_field_scratch_registry_relinquish_field(this)
+    class(test_field_scratch_reg), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
     type(dofmap_t) :: dm
@@ -171,7 +197,8 @@ contains
   end subroutine test_field_scratch_registry_relinquish_field
 
   @test
-  subroutine test_vector_scratch_registry_relinquish_field_list()
+  subroutine test_vector_scratch_registry_relinquish_field_list(this)
+    class(test_field_scratch_reg), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
     type(dofmap_t) :: dm
@@ -198,7 +225,8 @@ contains
   end subroutine test_vector_scratch_registry_relinquish_field_list
 
   @test
-  subroutine test_field_scratch_registry_expand()
+  subroutine test_field_scratch_registry_expand(this)
+    class(test_field_scratch_reg), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
     type(dofmap_t) :: dm
@@ -218,7 +246,7 @@ contains
     call scratch%request_field(f1, index1, .false.)
     call field_cfill(f1, 1.0_rp)
 
-    call f1%copy_from(DEVICE_TO_HOST, sync = .false.)
+    call f1%copy_from(DEVICE_TO_HOST, sync = .true.)
     @assertEqual(f1%x(1,1,1,1), 1.0_rp)
 
     ! add new field, trigging expand
@@ -229,7 +257,7 @@ contains
 
     ! make sure values in f1 preserved after expansion
     call f1%copy_from(DEVICE_TO_HOST, sync = .false.)
-    call f2%copy_from(DEVICE_TO_HOST, sync = .false.)
+    call f2%copy_from(DEVICE_TO_HOST, sync = .true.)
 
     @assertEqual(f1%x(1,1,1,1), 1.0_rp)
     @assertEqual(f2%x(1,1,1,1), 2.0_rp)
@@ -247,7 +275,8 @@ contains
   end subroutine test_field_scratch_registry_expand
 
   @test
-  subroutine test_field_scratch_registry_combo()
+  subroutine test_field_scratch_registry_combo(this)
+    class(test_field_scratch_reg), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
     type(dofmap_t) :: dm
@@ -297,7 +326,7 @@ contains
 
     ! check that the fields have survived
     call f1%copy_from(DEVICE_TO_HOST, sync = .false.)
-    call f2%copy_from(DEVICE_TO_HOST, sync = .false.)
+    call f2%copy_from(DEVICE_TO_HOST, sync = .true.)
     @assertEqual(f1%x(1,1,1,1), 1.5_rp)
     @assertEqual(f2%x(1,1,1,1), 2.0_rp)
 
@@ -315,7 +344,7 @@ contains
     ! check that the fields have survived
     call f1%copy_from(DEVICE_TO_HOST, sync = .false.)
     call f2%copy_from(DEVICE_TO_HOST, sync = .false.)
-    call f3%copy_from(DEVICE_TO_HOST, sync = .false.)
+    call f3%copy_from(DEVICE_TO_HOST, sync = .true.)
     @assertEqual(f1%x(1,1,1,1), 1.5_rp)
     @assertEqual(f2%x(1,1,1,1), 2.0_rp)
     @assertEqual(f3%x(1,1,1,1), 3.0_rp)
@@ -327,7 +356,8 @@ contains
   end subroutine test_field_scratch_registry_combo
 
   @test
-  subroutine test_field_scratch_registry_array_indices()
+  subroutine test_field_scratch_registry_array_indices(this)
+    class(test_field_scratch_reg), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
     type(dofmap_t) :: dm

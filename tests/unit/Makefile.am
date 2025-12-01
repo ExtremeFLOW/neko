@@ -32,7 +32,7 @@ SUBDIRS = tuple\
 	  fast3d\
 	  time_scheme\
 	  time_scheme_controller\
-	  runge_kutta_scheme\
+		runge_kutta_scheme\
 	  time_based_controller\
 	  point_interpolation
 
@@ -87,7 +87,7 @@ EXTRA_DIST = \
 	tuple/tuple.pf\
 	point/point.pf\
 	signal/signal.pf\
-	space/space.pf\
+	space/space_test.pf\
 	jobctrl/jobctrl_parallel.pf\
 	dofmap/dofmap_parallel.pf\
 	field/field_parallel.pf\
