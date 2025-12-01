@@ -47,50 +47,62 @@ module field_registry
 
   type, public :: field_registry_t
      !> List of fields stored.
-     type(registry_entry_t), private, allocatable :: fields(:)
+     type(registry_entry_t), private, allocatable :: entries(:)
      !> List of aliases to fields stored.
      type(json_file), private :: aliases
      !> Number of registered fields.
-     integer, private :: n_fields_
+     integer, private :: n_fields_ = 0
+     !> Number of registered entries
+     integer, private :: n_entries_ = 0
      !> Number of aliases.
-     integer, private :: n_aliases_
+     integer, private :: n_aliases_ = 0
      !> The size the fields array is increased by upon reallocation.
-     integer, private :: expansion_size
+     integer, private :: expansion_size_
    contains
-     !> Expand the fields array so as to accommodate more fields.
-     procedure, private, pass(this) :: expand => field_registry_expand
      !> Constructor.
      procedure, pass(this) :: init => field_registry_init
      !> Destructor.
      procedure, pass(this) :: free => field_registry_free
+     !> Expand the fields array so as to accommodate more fields.
+     procedure, private, pass(this) :: expand => field_registry_expand
+
+
      !> Add a field to the registry.
      procedure, pass(this) :: add_field => field_registry_add_field
      !> Add an alias to a field in the registry.
      procedure, pass(this) :: add_alias => field_registry_add_alias
-     !> Get the number of fields in the registry.
-     procedure, pass(this) :: n_fields => field_registry_n_fields
-     !> Get the number of aliases in the registry.
-     procedure, pass(this) :: n_aliases => field_registry_n_aliases
      !> Get pointer to a stored field by index.
      procedure, pass(this) :: get_field_by_index => &
           field_registry_get_field_by_index
      !> Get pointer to a stored field by name.
      procedure, pass(this) :: get_field_by_name => &
           field_registry_get_field_by_name
+     !> Check if a field with a given name is already in the registry.
+     procedure, pass(this) :: field_exists => field_registry_field_exists
+
+     !> Generic field getter
+     generic :: get_field => get_field_by_index, get_field_by_name
+
+     !> Get total allocated size of `fields`.
+     procedure, pass(this) :: get_size => field_registry_get_size
+     !> Get number of registered entries.
+     procedure, pass(this) :: n_entries => field_registry_n_entries
+     !> Get the number of fields in the registry.
+     procedure, pass(this) :: n_fields => field_registry_n_fields
+     !> Get the number of aliases in the registry.
+     procedure, pass(this) :: n_aliases => field_registry_n_aliases
      !> Get the `expansion_size`
      procedure, pass(this) :: get_expansion_size => &
           field_registry_get_expansion_size
-     !> Get total allocated size of `fields`.
-     procedure, pass(this) :: get_size => field_registry_get_size
-     !> Check if a field with a given name is already in the registry.
-     procedure, pass(this) :: field_exists => field_registry_field_exists
-     generic :: get_field => get_field_by_index, get_field_by_name
   end type field_registry_t
 
   !> Global field registry
   type(field_registry_t), public, target :: neko_field_registry
 
 contains
+  ! ========================================================================== !
+  ! Constructors/Destructors
+
   !> Constructor
   !! @param size The allocation size of `fields` on init.
   !! @param expansion_size The number of entries added to `fields` on expansion.
@@ -102,50 +114,52 @@ contains
     call this%free()
 
     if (present(size)) then
-       allocate(this%fields(size))
+       allocate(this%entries(size))
     else
-       allocate(this%fields(25))
+       allocate(this%entries(25))
     end if
 
     call this%aliases%initialize()
 
     if (present(expansion_size)) then
-       this%expansion_size = expansion_size
+       this%expansion_size_ = expansion_size
     else
-       this%expansion_size = 5
+       this%expansion_size_ = 5
     end if
 
-    this%n_fields_ = 0
-    this%n_aliases_ = 0
   end subroutine field_registry_init
 
   !> Destructor
   subroutine field_registry_free(this)
     class(field_registry_t), intent(inout):: this
     integer :: i
-    if (allocated(this%fields)) then
-       do i = 1, this%n_fields()
-          call this%fields(i)%free()
+    if (allocated(this%entries)) then
+       do i = 1, this%n_entries()
+          call this%entries(i)%free()
        end do
-       deallocate(this%fields)
+       deallocate(this%entries)
     end if
 
     call this%aliases%destroy()
 
     this%n_fields_ = 0
+    this%n_entries_ = 0
     this%n_aliases_ = 0
-    this%expansion_size = 0
+    this%expansion_size_ = 0
   end subroutine field_registry_free
 
-  !> Expand the fields array so as to accomodate more fields.
+  !> Expand the fields array so as to accommodate more fields.
   subroutine field_registry_expand(this)
     class(field_registry_t), intent(inout) :: this
     type(registry_entry_t), allocatable :: temp(:)
 
-    allocate(temp(this%n_fields_ + this%expansion_size))
-    temp(1:this%n_fields_) = this%fields(1:this%n_fields_)
-    call move_alloc(temp, this%fields)
+    allocate(temp(this%n_fields_ + this%expansion_size_))
+    temp(1:this%n_fields_) = this%entries(1:this%n_fields_)
+    call move_alloc(temp, this%entries)
   end subroutine field_registry_expand
+
+  ! ========================================================================== !
+  ! Methods for adding objects to the registry
 
   !> Add a field to the registry.
   !! @param dof The map of degrees of freedom.
@@ -173,14 +187,14 @@ contains
        end if
     end if
 
-    if (this%n_fields() == size(this%fields)) then
+    if (this%n_fields() .eq. size(this%entries)) then
        call this%expand()
     end if
 
     this%n_fields_ = this%n_fields_ + 1
 
     ! initialize the field at the appropriate index
-    call this%fields(this%n_fields_)%init_field(dof, fld_name)
+    call this%entries(this%n_fields_)%init_field(dof, fld_name)
 
   end subroutine field_registry_add_field
 
@@ -206,6 +220,86 @@ contains
     end if
   end subroutine field_registry_add_alias
 
+  ! ========================================================================== !
+  ! Methods for retrieving objects from the registry
+
+  !> Get pointer to a stored field by index.
+  function field_registry_get_field_by_index(this, i) result(f)
+    class(field_registry_t), target, intent(in) :: this
+    integer, intent(in) :: i
+    type(field_t), pointer :: f
+
+    if (i < 1) then
+       call neko_error("Field index must be > 1")
+    else if (i > this%n_fields()) then
+       call neko_error("Field index exceeds number of stored fields")
+    endif
+
+    f => this%entries(i)%field_ptr
+  end function field_registry_get_field_by_index
+
+  !> Get pointer to a stored field by field name.
+  recursive function field_registry_get_field_by_name(this, name) result(f)
+    class(field_registry_t), target, intent(inout) :: this
+    character(len=*), intent(in) :: name
+    character(len=:), allocatable :: alias_target
+    type(field_t), pointer :: f
+    logical :: found, is_alias
+    integer :: i
+
+    do i = 1, this%n_fields()
+       if (this%entries(i)%get_name() .eq. trim(name)) then
+          f => this%entries(i)%field_ptr
+          return
+       end if
+    end do
+
+    call this%aliases%get(name, alias_target, found)
+    if (found) then
+       f => this%get_field_by_name(alias_target)
+       return
+    end if
+
+    if (pe_rank .eq. 0) then
+       write(error_unit, *) "Current field_registry contents:"
+
+       do i = 1, this%n_fields()
+          write(error_unit, *) "- ", this%entries(i)%get_name()
+       end do
+    end if
+    call neko_error("Field " // name // " could not be found in the registry")
+
+  end function field_registry_get_field_by_name
+
+  !> Check if a field with a given name is already in the registry.
+  function field_registry_field_exists(this, name) result(found)
+    class(field_registry_t), target, intent(inout) :: this
+    character(len=*), intent(in) :: name
+    logical :: found
+    integer :: i
+
+    found = .false.
+    do i = 1, this%n_fields()
+       if (this%entries(i)%get_name() .eq. name) then
+          found = .true.
+          return
+       end if
+    end do
+
+    found = this%aliases%valid_path(name)
+  end function field_registry_field_exists
+
+  ! ========================================================================== !
+  ! Generic component accessor methods
+
+  !> Get number of registered entries.
+  pure function field_registry_n_entries(this) result(n)
+    class(field_registry_t), intent(in) :: this
+    integer :: n
+
+    n = this%n_entries_
+  end function field_registry_n_entries
+
   !> Get the number of fields stored in the registry
   pure function field_registry_n_fields(this) result(n)
     class(field_registry_t), intent(in) :: this
@@ -227,7 +321,7 @@ contains
     class(field_registry_t), intent(in) :: this
     integer :: n
 
-    n = size(this%fields)
+    n = size(this%entries)
   end function field_registry_get_size
 
   !> Get the expansion size.
@@ -235,73 +329,7 @@ contains
     class(field_registry_t), intent(in) :: this
     integer :: n
 
-    n = this%expansion_size
+    n = this%expansion_size_
   end function field_registry_get_expansion_size
-
-  !> Get pointer to a stored field by index.
-  function field_registry_get_field_by_index(this, i) result(f)
-    class(field_registry_t), target, intent(in) :: this
-    integer, intent(in) :: i
-    type(field_t), pointer :: f
-
-    if (i < 1) then
-       call neko_error("Field index must be > 1")
-    else if (i > this%n_fields()) then
-       call neko_error("Field index exceeds number of stored fields")
-    endif
-
-    f => this%fields(i)%field_ptr
-  end function field_registry_get_field_by_index
-
-  !> Get pointer to a stored field by field name.
-  recursive function field_registry_get_field_by_name(this, name) result(f)
-    class(field_registry_t), target, intent(inout) :: this
-    character(len=*), intent(in) :: name
-    character(len=:), allocatable :: alias_target
-    type(field_t), pointer :: f
-    logical :: found, is_alias
-    integer :: i
-
-    do i = 1, this%n_fields()
-       if (this%fields(i)%get_name() == trim(name)) then
-          f => this%fields(i)%field_ptr
-          return
-       end if
-    end do
-
-    call this%aliases%get(name, alias_target, found)
-    if (found) then
-       f => this%get_field_by_name(alias_target)
-       return
-    end if
-
-    if (pe_rank .eq. 0) then
-       write(error_unit, *) "Current field_registry contents:"
-
-       do i = 1, this%n_fields()
-          write(error_unit, *) "- ", this%fields(i)%get_name()
-       end do
-    end if
-    call neko_error("Field " // name // " could not be found in the registry")
-
-  end function field_registry_get_field_by_name
-
-  !> Check if a field with a given name is already in the registry.
-  function field_registry_field_exists(this, name) result(found)
-    class(field_registry_t), target, intent(inout) :: this
-    character(len=*), intent(in) :: name
-    logical :: found
-    integer :: i
-
-    found = .false.
-    do i = 1, this%n_fields()
-       if (this%fields(i)%get_name() == name) then
-          found = .true.
-          return
-       end if
-    end do
-
-    found = this%aliases%valid_path(name)
-  end function field_registry_field_exists
 
 end module field_registry
