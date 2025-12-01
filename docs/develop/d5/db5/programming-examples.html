@@ -530,7 +530,7 @@ $(document).ready(function(){initNavTree('d5/db5/programming-examples.html','../
 <div class="line">  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d44/namespaceuser.html#a725b1b99599d26ff95cf2ac1cb400b08">compute</a>(time)</div>
 <div class="line">    <span class="keywordtype">type</span>(time_state_t), <span class="keywordtype">intent(in)</span> :: time</div>
 <div class="line"> </div>
-<div class="line">    <span class="keywordtype">integer</span> :: temp_index</div>
+<div class="line">    <span class="keywordtype">integer</span> :: tmp_index</div>
 <div class="line">    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">pointer</span> :: temp_field_ptr</div>
 <div class="line">    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">pointer</span> :: u, v</div>
 <div class="line"> </div>
@@ -540,7 +540,7 @@ $(document).ready(function(){initNavTree('d5/db5/programming-examples.html','../
 <div class="line">    <span class="comment">! advantage of using it is saving memory and time to allocate things.</span></div>
 <div class="line"> </div>
 <div class="line">    <span class="comment">! We get a temporary by using a field_t pointer and an index.</span></div>
-<div class="line">    <span class="keyword">call </span>neko_scratch_registry%request_field(temp_field_ptr, temp_index)</div>
+<div class="line">    <span class="keyword">call </span>neko_scratch_registry%request_field(temp_field_ptr, tmp_index, .false.)</div>
 <div class="line"> </div>
 <div class="line">    u =&gt; neko_field_registry%get_field(<span class="stringliteral">&quot;u&quot;</span>)</div>
 <div class="line">    v =&gt; neko_field_registry%get_field(<span class="stringliteral">&quot;v&quot;</span>)</div>
@@ -552,7 +552,7 @@ $(document).ready(function(){initNavTree('d5/db5/programming-examples.html','../
 <div class="line"> </div>
 <div class="line">    <span class="comment">! At the end of the subroutine, the temporary field needs to be reliquished.</span></div>
 <div class="line">    <span class="comment">! This is where the integer index comes in.</span></div>
-<div class="line">    <span class="keyword">call </span>neko_scratch_registry%relinquish_field(temp_index)</div>
+<div class="line">    <span class="keyword">call </span>neko_scratch_registry%relinquish_field(tmp_index)</div>
 <div class="line"> </div>
 <div class="line">  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d44/namespaceuser.html#a725b1b99599d26ff95cf2ac1cb400b08">compute</a></div>
 <div class="line"> </div>
@@ -854,7 +854,7 @@ $(document).ready(function(){initNavTree('d5/db5/programming-examples.html','../
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Sun Nov 30 2025 03:51:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Mon Dec 1 2025 04:02:41 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

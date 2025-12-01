@@ -570,7 +570,7 @@ $(document).ready(function(){initNavTree('da/dc7/scalar__scheme_8f90_source.html
 <div class="line"><a id="l00500" name="l00500"></a><span class="lineno">  500</span>       nut =&gt; <a class="code hl_variable" href="../../d1/dc4/namespacefield__registry.html#a6722b2b3dba13aaff3bf5222aecbb643">neko_field_registry</a>%get_field(this%nut_field_name)</div>
 <div class="line"><a id="l00501" name="l00501"></a><span class="lineno">  501</span> </div>
 <div class="line"><a id="l00502" name="l00502"></a><span class="lineno">  502</span>       <span class="comment">! lambda_tot = lambda + rho * cp * nut / pr_turb</span></div>
-<div class="line"><a id="l00503" name="l00503"></a><span class="lineno">  503</span>       <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(lambda_factor, index)</div>
+<div class="line"><a id="l00503" name="l00503"></a><span class="lineno">  503</span>       <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(lambda_factor, index, .false.)</div>
 <div class="line"><a id="l00504" name="l00504"></a><span class="lineno">  504</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d5/de6/namespacefield__math.html#a4c19dcb4f35e9411b39001a7e3180cf0">field_cmult2</a>(lambda_factor, nut, 1.0_rp / this%pr_turb)</div>
 <div class="line"><a id="l00505" name="l00505"></a><span class="lineno">  505</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d5/de6/namespacefield__math.html#a35c4acba25db9dc1e0193df356dc9dad">field_col2</a>(lambda_factor, this%cp)</div>
 <div class="line"><a id="l00506" name="l00506"></a><span class="lineno">  506</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d5/de6/namespacefield__math.html#a35c4acba25db9dc1e0193df356dc9dad">field_col2</a>(lambda_factor, this%rho)</div>
@@ -582,7 +582,7 @@ $(document).ready(function(){initNavTree('da/dc7/scalar__scheme_8f90_source.html
 <div class="line"><a id="l00512" name="l00512"></a><span class="lineno">  512</span>       alphat =&gt; <a class="code hl_variable" href="../../d1/dc4/namespacefield__registry.html#a6722b2b3dba13aaff3bf5222aecbb643">neko_field_registry</a>%get_field(this%alphat_field_name)</div>
 <div class="line"><a id="l00513" name="l00513"></a><span class="lineno">  513</span> </div>
 <div class="line"><a id="l00514" name="l00514"></a><span class="lineno">  514</span>       <span class="comment">! lambda_tot = lambda + rho * cp * alphat</span></div>
-<div class="line"><a id="l00515" name="l00515"></a><span class="lineno">  515</span>       <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(lambda_factor, index)</div>
+<div class="line"><a id="l00515" name="l00515"></a><span class="lineno">  515</span>       <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(lambda_factor, index, .false.)</div>
 <div class="line"><a id="l00516" name="l00516"></a><span class="lineno">  516</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d5/de6/namespacefield__math.html#a9ccc5f5cad26fed38137ab6e122de6c1">field_col3</a>(lambda_factor, this%cp, alphat)</div>
 <div class="line"><a id="l00517" name="l00517"></a><span class="lineno">  517</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d5/de6/namespacefield__math.html#a35c4acba25db9dc1e0193df356dc9dad">field_col2</a>(lambda_factor, this%rho)</div>
 <div class="line"><a id="l00518" name="l00518"></a><span class="lineno">  518</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d5/de6/namespacefield__math.html#ab68b2e2988093e76afe89ebfd50da67e">field_add3</a>(this%lambda_tot, this%lambda, lambda_factor)</div>
@@ -591,7 +591,7 @@ $(document).ready(function(){initNavTree('da/dc7/scalar__scheme_8f90_source.html
 <div class="line"><a id="l00521" name="l00521"></a><span class="lineno">  521</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (len_trim(this%alphat_field_name) .gt. 0 &amp;</div>
 <div class="line"><a id="l00522" name="l00522"></a><span class="lineno">  522</span>         .and. len_trim(this%nut_field_name) .gt. 0 ) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00523" name="l00523"></a><span class="lineno">  523</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Conflicting definition of eddy diffusivity &quot;</span> // &amp;</div>
-<div class="line"><a id="l00524" name="l00524"></a><span class="lineno">  524</span>                       <span class="stringliteral">&quot;for the scalar equation&quot;</span>)</div>
+<div class="line"><a id="l00524" name="l00524"></a><span class="lineno">  524</span>            <span class="stringliteral">&quot;for the scalar equation&quot;</span>)</div>
 <div class="line"><a id="l00525" name="l00525"></a><span class="lineno">  525</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00526" name="l00526"></a><span class="lineno">  526</span> </div>
 <div class="line"><a id="l00527" name="l00527"></a><span class="lineno">  527</span>    <span class="comment">! Since cp is a fields and we use the %x(1,1,1,1) of the</span></div>
@@ -818,7 +818,7 @@ $(document).ready(function(){initNavTree('da/dc7/scalar__scheme_8f90_source.html
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_0691d6202b68dc26b40b4865e3c53c6d.html">scalar</a></li><li class="navelem"><a class="el" href="../../da/dc7/scalar__scheme_8f90.html">scalar_scheme.f90</a></li>
-    <li class="footer">Generated on Sun Nov 30 2025 03:51:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Mon Dec 1 2025 04:02:41 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

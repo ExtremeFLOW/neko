@@ -212,7 +212,7 @@ $(document).ready(function(){initNavTree('df/def/sponge__source__term_8f90_sourc
 <div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">allocatable</span> :: amplitudes(:)</div>
 <div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>    <span class="keywordtype">character(len=:)</span>, <span class="keywordtype">allocatable</span> :: baseflow_method</div>
 <div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    <span class="keywordtype">character(len=:)</span>, <span class="keywordtype">allocatable</span> :: read_str, fringe_registry_name, &amp;</div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>            bf_registry_pref, dump_fname</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>         bf_registry_pref, dump_fname</div>
 <div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>    <span class="keywordtype">character(len=NEKO_FNAME_LEN)</span> :: fname, mesh_fname</div>
 <div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    <span class="keywordtype">logical</span> :: interpolate, dump_fields</div>
 <div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">allocatable</span> :: constant_value(:)</div>
@@ -309,7 +309,7 @@ $(document).ready(function(){initNavTree('df/def/sponge__source__term_8f90_sourc
 <div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: start_time, end_time</div>
 <div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: amplitudes(:)</div>
 <div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: fringe_registry_name, dump_fname, &amp;</div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>            bf_registry_pref</div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>         bf_registry_pref</div>
 <div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span> :: dump_fields</div>
 <div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: constant_values(:)</div>
 <div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span> </div>
@@ -327,11 +327,11 @@ $(document).ready(function(){initNavTree('df/def/sponge__source__term_8f90_sourc
 <div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>         lvl = <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#acda43c0334eca9fb3a0b3d5e23615f7c">neko_log_debug</a>)</div>
 <div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span> </div>
 <div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d1/dc4/namespacefield__registry.html#a6722b2b3dba13aaff3bf5222aecbb643">neko_field_registry</a>%add_field(this%u%dof, &amp;</div>
-<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>            trim(bf_registry_pref) // <span class="stringliteral">&quot;_u&quot;</span>)</div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>         trim(bf_registry_pref) // <span class="stringliteral">&quot;_u&quot;</span>)</div>
 <div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d1/dc4/namespacefield__registry.html#a6722b2b3dba13aaff3bf5222aecbb643">neko_field_registry</a>%add_field(this%v%dof, &amp;</div>
-<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>            trim(bf_registry_pref) // <span class="stringliteral">&quot;_v&quot;</span>)</div>
+<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>         trim(bf_registry_pref) // <span class="stringliteral">&quot;_v&quot;</span>)</div>
 <div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d1/dc4/namespacefield__registry.html#a6722b2b3dba13aaff3bf5222aecbb643">neko_field_registry</a>%add_field(this%w%dof, &amp;</div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>            trim(bf_registry_pref) // <span class="stringliteral">&quot;_w&quot;</span>)</div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>         trim(bf_registry_pref) // <span class="stringliteral">&quot;_w&quot;</span>)</div>
 <div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span> </div>
 <div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>    this%u_bf =&gt; <a class="code hl_variable" href="../../d1/dc4/namespacefield__registry.html#a6722b2b3dba13aaff3bf5222aecbb643">neko_field_registry</a>%get_field(trim(bf_registry_pref) // <span class="stringliteral">&quot;_u&quot;</span>)</div>
 <div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>    this%v_bf =&gt; <a class="code hl_variable" href="../../d1/dc4/namespacefield__registry.html#a6722b2b3dba13aaff3bf5222aecbb643">neko_field_registry</a>%get_field(trim(bf_registry_pref) // <span class="stringliteral">&quot;_v&quot;</span>)</div>
@@ -359,7 +359,7 @@ $(document).ready(function(){initNavTree('df/def/sponge__source__term_8f90_sourc
 <div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: start_time, end_time</div>
 <div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: amplitudes(:)</div>
 <div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: fringe_registry_name, dump_fname, &amp;</div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>            bf_registry_pref</div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>         bf_registry_pref</div>
 <div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span> :: dump_fields</div>
 <div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: file_name</div>
 <div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span> :: interpolate</div>
@@ -383,11 +383,11 @@ $(document).ready(function(){initNavTree('df/def/sponge__source__term_8f90_sourc
 <div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>         lvl = <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#acda43c0334eca9fb3a0b3d5e23615f7c">neko_log_debug</a>)</div>
 <div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span> </div>
 <div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d1/dc4/namespacefield__registry.html#a6722b2b3dba13aaff3bf5222aecbb643">neko_field_registry</a>%add_field(this%u%dof, &amp;</div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>            trim(bf_registry_pref) // <span class="stringliteral">&quot;_u&quot;</span>)</div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>         trim(bf_registry_pref) // <span class="stringliteral">&quot;_u&quot;</span>)</div>
 <div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d1/dc4/namespacefield__registry.html#a6722b2b3dba13aaff3bf5222aecbb643">neko_field_registry</a>%add_field(this%v%dof, &amp;</div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>            trim(bf_registry_pref) // <span class="stringliteral">&quot;_v&quot;</span>)</div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>         trim(bf_registry_pref) // <span class="stringliteral">&quot;_v&quot;</span>)</div>
 <div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d1/dc4/namespacefield__registry.html#a6722b2b3dba13aaff3bf5222aecbb643">neko_field_registry</a>%add_field(this%w%dof, &amp;</div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>            trim(bf_registry_pref) // <span class="stringliteral">&quot;_w&quot;</span>)</div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>         trim(bf_registry_pref) // <span class="stringliteral">&quot;_w&quot;</span>)</div>
 <div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span> </div>
 <div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>    this%u_bf =&gt; <a class="code hl_variable" href="../../d1/dc4/namespacefield__registry.html#a6722b2b3dba13aaff3bf5222aecbb643">neko_field_registry</a>%get_field(trim(bf_registry_pref) // <span class="stringliteral">&quot;_u&quot;</span>)</div>
 <div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>    this%v_bf =&gt; <a class="code hl_variable" href="../../d1/dc4/namespacefield__registry.html#a6722b2b3dba13aaff3bf5222aecbb643">neko_field_registry</a>%get_field(trim(bf_registry_pref) // <span class="stringliteral">&quot;_v&quot;</span>)</div>
@@ -433,7 +433,7 @@ $(document).ready(function(){initNavTree('df/def/sponge__source__term_8f90_sourc
 <div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: start_time, end_time</div>
 <div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: amplitudes(:)</div>
 <div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: fringe_registry_name, dump_fname, &amp;</div>
-<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>            bf_registry_pref</div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>         bf_registry_pref</div>
 <div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span> :: dump_fields</div>
 <div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span> </div>
 <div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>    <span class="comment">!</span></div>
@@ -456,7 +456,7 @@ $(document).ready(function(){initNavTree('df/def/sponge__source__term_8f90_sourc
 <div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: start_time, end_time</div>
 <div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: amplitudes(:)</div>
 <div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: fringe_registry_name, dump_fname, &amp;</div>
-<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>            bf_registry_pref</div>
+<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>         bf_registry_pref</div>
 <div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span> :: dump_fields</div>
 <div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span> </div>
 <div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span>    <span class="keywordtype">integer</span> :: i</div>
@@ -532,8 +532,8 @@ $(document).ready(function(){initNavTree('df/def/sponge__source__term_8f90_sourc
 <div class="line"><a id="l00448" name="l00448"></a><span class="lineno">  448</span> </div>
 <div class="line"><a id="l00449" name="l00449"></a><span class="lineno">  449</span>       <span class="comment">! Check if all the base flow fields exist in the registry</span></div>
 <div class="line"><a id="l00450" name="l00450"></a><span class="lineno">  450</span>       this%baseflow_set = <a class="code hl_variable" href="../../d1/dc4/namespacefield__registry.html#a6722b2b3dba13aaff3bf5222aecbb643">neko_field_registry</a>%field_exists(trim(u_name)) &amp;</div>
-<div class="line"><a id="l00451" name="l00451"></a><span class="lineno">  451</span>               .and. <a class="code hl_variable" href="../../d1/dc4/namespacefield__registry.html#a6722b2b3dba13aaff3bf5222aecbb643">neko_field_registry</a>%field_exists(trim(v_name)) .and. &amp;</div>
-<div class="line"><a id="l00452" name="l00452"></a><span class="lineno">  452</span>               <a class="code hl_variable" href="../../d1/dc4/namespacefield__registry.html#a6722b2b3dba13aaff3bf5222aecbb643">neko_field_registry</a>%field_exists(trim(w_name))</div>
+<div class="line"><a id="l00451" name="l00451"></a><span class="lineno">  451</span>            .and. <a class="code hl_variable" href="../../d1/dc4/namespacefield__registry.html#a6722b2b3dba13aaff3bf5222aecbb643">neko_field_registry</a>%field_exists(trim(v_name)) .and. &amp;</div>
+<div class="line"><a id="l00452" name="l00452"></a><span class="lineno">  452</span>            <a class="code hl_variable" href="../../d1/dc4/namespacefield__registry.html#a6722b2b3dba13aaff3bf5222aecbb643">neko_field_registry</a>%field_exists(trim(w_name))</div>
 <div class="line"><a id="l00453" name="l00453"></a><span class="lineno">  453</span> </div>
 <div class="line"><a id="l00454" name="l00454"></a><span class="lineno">  454</span>       <span class="keywordflow">if</span> (.not. this%baseflow_set) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00455" name="l00455"></a><span class="lineno">  455</span>          <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;SPONGE: No baseflow set (searching for &quot;</span> // &amp;</div>
@@ -584,7 +584,7 @@ $(document).ready(function(){initNavTree('df/def/sponge__source__term_8f90_sourc
 <div class="line"><a id="l00500" name="l00500"></a><span class="lineno">  500</span>    fv =&gt; this%fields%get(2)</div>
 <div class="line"><a id="l00501" name="l00501"></a><span class="lineno">  501</span>    fw =&gt; this%fields%get(3)</div>
 <div class="line"><a id="l00502" name="l00502"></a><span class="lineno">  502</span> </div>
-<div class="line"><a id="l00503" name="l00503"></a><span class="lineno">  503</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(wk, tmp_index)</div>
+<div class="line"><a id="l00503" name="l00503"></a><span class="lineno">  503</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(wk, tmp_index, .false.)</div>
 <div class="line"><a id="l00504" name="l00504"></a><span class="lineno">  504</span> </div>
 <div class="line"><a id="l00505" name="l00505"></a><span class="lineno">  505</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00506" name="l00506"></a><span class="lineno">  506</span>       <span class="comment">! wk = u_bf - u</span></div>
@@ -692,7 +692,7 @@ $(document).ready(function(){initNavTree('df/def/sponge__source__term_8f90_sourc
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_5333ab263fff069c320f5b66c5911c96.html">source_terms</a></li><li class="navelem"><a class="el" href="../../df/def/sponge__source__term_8f90.html">sponge_source_term.f90</a></li>
-    <li class="footer">Generated on Sun Nov 30 2025 03:51:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Mon Dec 1 2025 04:02:41 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -337,7 +337,7 @@ $(document).ready(function(){initNavTree('d9/daf/fluid__scheme__compressible__eu
 <div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>    <span class="keywordtype">class</span>(bc_t), <span class="keywordtype">pointer</span> :: b</div>
 <div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span> </div>
 <div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>    n = this%dm_Xh%size()</div>
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>    <span class="keyword">call </span>neko_scratch_registry%request_field(temp, temp_indices(1))</div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>    <span class="keyword">call </span>neko_scratch_registry%request_field(temp, temp_indices(1), .false.)</div>
 <div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>    b =&gt; null()</div>
 <div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span> </div>
 <div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>    <span class="keyword">call </span>profiler_start_region(<span class="stringliteral">&#39;Fluid compressible&#39;</span>, 1)</div>
@@ -690,7 +690,7 @@ $(document).ready(function(){initNavTree('d9/daf/fluid__scheme__compressible__eu
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_48eb729a40134e424c89304faa5c21a9.html">fluid</a></li><li class="navelem"><a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90.html">fluid_scheme_compressible_euler.f90</a></li>
-    <li class="footer">Generated on Sun Nov 30 2025 03:51:05 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Mon Dec 1 2025 04:02:40 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

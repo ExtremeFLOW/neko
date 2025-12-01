@@ -84,7 +84,7 @@ var searchData=
   ['get_5fglobal_5fidx_81',['get_global_idx',['../d4/d53/namespacecartesian__pe__finder.html#afc14fa9e32e0be9cc23fbcf1766f7de1',1,'cartesian_pe_finder']]],
   ['get_5fheight_82',['get_height',['../d5/ddb/structaabb_1_1aabb__t.html#a1d08a8eb3060d4c44b5bd7d272792580',1,'aabb::aabb_t']]],
   ['get_5findicators_83',['get_indicators',['../d9/deb/structspectral__error_1_1spectral__error__t.html#a936e56cae20ba7a7b495e6d0c50711ac',1,'spectral_error::spectral_error_t']]],
-  ['get_5finuse_84',['get_inuse',['../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a278a4504a5c8b6acaa5147ca773166e9',1,'scratch_registry::scratch_registry_t::get_inuse()'],['../d7/dda/namespacescratch__registry.html#a00c9fda51af4a2bdadf34817bc3c8194',1,'scratch_registry::get_inuse()']]],
+  ['get_5finuse_84',['get_inuse',['../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a278a4504a5c8b6acaa5147ca773166e9',1,'scratch_registry::scratch_registry_t::get_inuse()'],['../d7/dda/namespacescratch__registry.html#a0a7fe7001be1606989150c6e17630414',1,'scratch_registry::get_inuse()']]],
   ['get_5fleft_5findex_85',['get_left_index',['../df/d6d/structaabb__tree_1_1aabb__node__t.html#ac6f30ef23a8a089a9bccde759075040f',1,'aabb_tree::aabb_node_t::get_left_index()'],['../d9/d87/structaabb__tree_1_1aabb__tree__t.html#af9f678411a4fcf4ccc9683ba787cd088',1,'aabb_tree::aabb_tree_t::get_left_index(this, node_index)']]],
   ['get_5fleft_5fnode_86',['get_left_node',['../d9/d87/structaabb__tree_1_1aabb__tree__t.html#af41866dde02e6c0275653526af9f941c',1,'aabb_tree::aabb_tree_t']]],
   ['get_5flist_87',['get_list',['../db/da1/structfld__file__data_1_1fld__file__data__t.html#aaf518942ae3f4cbc80a0558e75f57d58',1,'fld_file_data::fld_file_data_t']]],
