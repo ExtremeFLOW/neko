@@ -461,23 +461,12 @@ contains
     real(kind=rp), intent(in) :: dt
     real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv), intent(in) :: max_wave_speed
     real(kind=rp) :: cfl_compressible
-    integer :: ierr, n
-    type(field_t), pointer :: zero_vector
-    integer :: ind
+    integer :: ierr
 
-    n = Xh%lx * Xh%ly * Xh%lz * nelv
-
-    ! Request a scratch field for zero vector
-    call neko_scratch_registry%request_field(zero_vector, ind, .false.)
-
-    ! Initialize zero vector
-    call field_rzero(zero_vector)
-
-    ! Use incompressible CFL with max_wave_speed as u-component, zero v and w
-    cfl_compressible = cfl(dt, max_wave_speed, zero_vector%x, zero_vector%x, Xh, coef, nelv, gdim)
-
-    ! Release the scratch field
-    call neko_scratch_registry%relinquish_field(ind)
+    ! For compressible flows, use the maximum wave speed in all directions
+    ! This correctly accounts for the isotropic propagation of waves
+    cfl_compressible = cfl(dt, max_wave_speed, max_wave_speed, max_wave_speed, &
+                          Xh, coef, nelv, gdim)
 
   end function cfl_compressible
 
