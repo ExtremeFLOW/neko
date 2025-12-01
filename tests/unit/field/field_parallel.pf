@@ -174,8 +174,8 @@ contains
     call test_field_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
 
-    call f%init(msh, Xh, 'test')
-    call g%init(msh, Xh, 'test')
+    call f%init(msh, Xh, 'test1')
+    call g%init(msh, Xh, 'test2')
 
     f = 42.0_rp
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -186,6 +186,7 @@ contains
        call device_memcpy(g%x, g%x_d, size(f%x), DEVICE_TO_HOST, sync=.true.)
     end if
     @assertEqual(maxval(g%x), maxval(f%x))
+    @assertEquel(g%name, f%name)
 
   end subroutine test_field_assign_field
 
