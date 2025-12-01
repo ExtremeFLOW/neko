@@ -145,7 +145,3 @@ EXTRA_DIST = \
 	time_based_controller/test_time_based_controller.pf\
 	point_interpolation/point_interpolation_parallel.pf\
 	point_interpolation/point_interpolation_test
-
-SUBDIRS = field_registry
-TESTS = field_registry/field_registry_test
-EXTRA_DIST = field_registry/test_field_registry.pf

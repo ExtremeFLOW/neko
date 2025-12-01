@@ -17,7 +17,7 @@ on:
         description: "The version of the pFUnit library to use."
         type: string
         required: false
-        default: "v4.4.2"
+        default: "v4.15.0"
 
 jobs:
   GNU:
@@ -173,7 +173,7 @@ jobs:
           PFUNIT_VERSION: ${{ inputs.pfunit-version }}
           JSON_FORTRAN_VERSION: ${{ inputs.json-fortran-version }}
         run: |
-          if [ -z "$PFUNIT_VERSION" ]; then PFUNIT_VERSION="v4.12.0"; fi
+          if [ -z "$PFUNIT_VERSION" ]; then PFUNIT_VERSION="v4.15.0"; fi
           if [ -z "$JSON_FORTRAN_VERSION" ]; then JSON_FORTRAN_VERSION="8.3.0"; fi
 
           echo "pfunit-version=$PFUNIT_VERSION" >> $GITHUB_OUTPUT
@@ -262,8 +262,7 @@ jobs:
           make -j ${{ steps.setup-env.outputs.nproc }} check > tests/test-suite.log
 
       - name: Test - Archive test report
-        # if: failure()
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: Test report - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
