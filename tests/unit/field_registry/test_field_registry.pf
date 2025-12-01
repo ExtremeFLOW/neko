@@ -1,13 +1,12 @@
 module test_field_registry
   use pfunit
-  use field
-  use point
-  use space
-  use mesh
-  use dofmap
-  use math
-  use field_registry
-  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use field, only : field_t
+  use point, only : point_t
+  use space, only : space_t, GLL
+  use mesh, only : mesh_t
+  use dofmap, only : dofmap_t
+  use field_registry, only : field_registry_t
+  use comm, only : pe_rank, pe_size
   use num_types
   implicit none
 
@@ -59,7 +58,7 @@ contains
 
     @assertEqual(registry%n_fields(), 0)
     @assertEqual(registry%n_aliases(), 0)
-    @assertEqual(registry%get_expansion_size(), 50)
+    @assertEqual(registry%get_expansion_size(), 5)
 
     call registry%init(5, 10)
     @assertEqual(registry%n_fields(), 0)
@@ -83,7 +82,7 @@ contains
 
     call registry%init()
 
-    call registry%add_field(dm , 'test_field')
+    call registry%add_field(dm, 'test_field')
 
     @assertEqual(registry%n_fields(), 1)
 
@@ -91,7 +90,7 @@ contains
 
     @assertEqual(field_ptr%name, 'test_field')
 
-    call registry%add_field(dm , 'test_field', ignore_existing=.true.)
+    call registry%add_field(dm, 'test_field', ignore_existing=.true.)
     @assertEqual(registry%n_fields(), 1)
   end subroutine test_field_registry_add_field
 
@@ -111,7 +110,7 @@ contains
 
     call registry%init()
 
-    call registry%add_field(dm , 'test_field')
+    call registry%add_field(dm, 'test_field')
     call registry%add_alias('test_alias', 'test_field')
     call registry%add_alias('test_alias2', 'test_field')
 
@@ -140,11 +139,16 @@ contains
 
     call registry%init(1, 1)
 
-    call registry%add_field(dm , 'test_field1')
-    call registry%add_field(dm , 'test_field2')
+    call registry%add_field(dm, 'test_field1')
+    call registry%add_field(dm, 'test_field2')
 
     @assertEqual(registry%n_fields(), 2)
-  end subroutine test_field_registry_expand
 
+    field_ptr => registry%get_field('test_field1')
+    @assertEqual(field_ptr%name, 'test_field1')
+
+    field_ptr => registry%get_field('test_field2')
+    @assertEqual(field_ptr%name, 'test_field2')
+  end subroutine test_field_registry_expand
 
 end module test_field_registry
