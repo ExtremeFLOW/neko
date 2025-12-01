@@ -186,7 +186,7 @@ contains
        call device_memcpy(g%x, g%x_d, size(f%x), DEVICE_TO_HOST, sync=.true.)
     end if
     @assertEqual(maxval(g%x), maxval(f%x))
-    @assertEquel(g%name, f%name)
+    @assertEqual(g%name, f%name)
 
   end subroutine test_field_assign_field
 
