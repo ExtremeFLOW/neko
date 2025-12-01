@@ -36,7 +36,7 @@ module field
   use device_math, only : device_add2, device_cadd, device_cfill, device_copy
   use num_types, only : rp, c_rp
   use device, only : device_map, device_free, device_memset, device_memcpy
-  use math, only : add2, copy, cadd
+  use math, only : add2, copy, cadd, cfill
   use mesh, only : mesh_t
   use space, only : space_t, operator(.ne.)
   use dofmap, only : dofmap_t
@@ -259,15 +259,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cfill(this%x_d, a, this%size())
     else
-       do i = 1, this%msh%nelv
-          do l = 1, this%Xh%lz
-             do k = 1, this%Xh%ly
-                do j = 1, this%Xh%lx
-                   this%x(j, k, l, i) = a
-                end do
-             end do
-          end do
-       end do
+       call cfill(this%x, a, this%size())
     end if
 
   end subroutine field_assign_scalar
