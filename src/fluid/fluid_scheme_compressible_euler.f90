@@ -692,7 +692,7 @@ contains
     
     ! Avoid division by zero
     if (n_S < 1.0e-12_rp) then
-       n_S = 1.0_rp
+       n_S = 1.0e-12_rp
     end if
     
     ! Print normalization value for monitoring
