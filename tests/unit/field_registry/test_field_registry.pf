@@ -1,14 +1,14 @@
 module test_field_registry
   use pfunit
-  ! use field
-  ! use point
-  ! use space
-  ! use mesh
-  ! use dofmap
-  ! use math
-  ! use field_registry
-  ! use comm, only : NEKO_COMM, pe_rank, pe_size
-  ! use num_types
+  use field
+  use point
+  use space
+  use mesh
+  use dofmap
+  use math
+  use field_registry
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use num_types
   implicit none
 
 contains
@@ -53,33 +53,33 @@ contains
 
   @test
   subroutine test_field_registry_init()
-    ! type(field_registry_t) :: registry
-    logical :: test_thing1, test_thing2
-    real :: x
-    write(*,*) 'Running test_field_registry_init'
+    type(field_registry_t) :: registry
+    ! logical :: test_thing1, test_thing2
+    ! real :: x
+    ! write(*,*) 'Running test_field_registry_init'
 
-    call random_number(x)
-    if (x .lt. 0.5) then
-       test_thing1 = .false.
-       test_thing2 = .true.
-    else
-       test_thing1 = .true.
-       test_thing2 = .false.
-    end if
+    ! call random_number(x)
+    ! if (x .lt. 0.5) then
+    !    test_thing1 = .false.
+    !    test_thing2 = .true.
+    ! else
+    !    test_thing1 = .true.
+    !    test_thing2 = .false.
+    ! end if
 
-    write(*,*) 'Asserting that ', test_thing1, ' equals ', test_thing2
-    @assertEqual(test_thing1, test_thing2)
+    ! write(*,*) 'Asserting that ', test_thing1, ' equals ', test_thing2
+    ! @assertEqual(test_thing1, test_thing2)
 
-    ! call registry%init()
+    call registry%init()
 
-    ! @assertEqual(registry%n_fields(), 0)
-    ! @assertEqual(registry%n_aliases(), 0)
-    ! @assertEqual(registry%get_expansion_size(), 50)
+    @assertEqual(registry%n_fields(), 0)
+    @assertEqual(registry%n_aliases(), 0)
+    @assertEqual(registry%get_expansion_size(), 50)
 
-    ! call registry%init(5, 10)
-    ! @assertEqual(registry%n_fields(), 0)
-    ! @assertEqual(registry%n_aliases(), 0)
-    ! @assertEqual(registry%get_expansion_size(), 10)
+    call registry%init(5, 10)
+    @assertEqual(registry%n_fields(), 0)
+    @assertEqual(registry%n_aliases(), 0)
+    @assertEqual(registry%get_expansion_size(), 10)
   end subroutine test_field_registry_init
 
   ! @test
