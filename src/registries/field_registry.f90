@@ -1,4 +1,4 @@
-! Copyright (c) 2018-2023, The Neko Authors
+! Copyright (c) 2018-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,8 @@
 !> Defines a registry for storing solution fields
 module field_registry
   use, intrinsic :: iso_fortran_env, only: error_unit
-  use field, only : field_t, field_ptr_t
+  use field, only : field_t
+  use registry_entry, only : registry_entry_t
   use dofmap, only : dofmap_t
   use utils, only : neko_error
   use htable, only : h_cptr_t
@@ -46,7 +47,7 @@ module field_registry
 
   type, public :: field_registry_t
      !> List of fields stored.
-     type(field_ptr_t), private, allocatable :: fields(:)
+     type(registry_entry_t), private, allocatable :: fields(:)
      !> List of aliases to fields stored.
      type(json_file), private :: aliases
      !> Number of registered fields.
@@ -124,8 +125,7 @@ contains
     integer :: i
     if (allocated(this%fields)) then
        do i = 1, this%n_fields()
-          call this%fields(i)%ptr%free()
-          deallocate(this%fields(i)%ptr)
+          call this%fields(i)%free()
        end do
        deallocate(this%fields)
     end if
@@ -140,7 +140,7 @@ contains
   !> Expand the fields array so as to accomodate more fields.
   subroutine field_registry_expand(this)
     class(field_registry_t), intent(inout) :: this
-    type(field_ptr_t), allocatable :: temp(:)
+    type(registry_entry_t), allocatable :: temp(:)
 
     allocate(temp(this%n_fields_ + this%expansion_size))
     temp(1:this%n_fields_) = this%fields(1:this%n_fields_)
@@ -180,8 +180,7 @@ contains
     this%n_fields_ = this%n_fields_ + 1
 
     ! initialize the field at the appropriate index
-    allocate(this%fields(this%n_fields_)%ptr)
-    call this%fields(this%n_fields_)%ptr%init(dof, fld_name)
+    call this%fields(this%n_fields_)%init_field(dof, fld_name)
 
   end subroutine field_registry_add_field
 
@@ -251,7 +250,7 @@ contains
        call neko_error("Field index exceeds number of stored fields")
     endif
 
-    f => this%fields(i)%ptr
+    f => this%fields(i)%field_ptr
   end function field_registry_get_field_by_index
 
   !> Get pointer to a stored field by field name.
@@ -264,8 +263,8 @@ contains
     integer :: i
 
     do i = 1, this%n_fields()
-       if (this%fields(i)%ptr%name == trim(name)) then
-          f => this%fields(i)%ptr
+       if (this%fields(i)%get_name() == trim(name)) then
+          f => this%fields(i)%field_ptr
           return
        end if
     end do
@@ -280,7 +279,7 @@ contains
        write(error_unit, *) "Current field_registry contents:"
 
        do i = 1, this%n_fields()
-          write(error_unit, *) "- ", this%fields(i)%ptr%name
+          write(error_unit, *) "- ", this%fields(i)%get_name()
        end do
     end if
     call neko_error("Field " // name // " could not be found in the registry")
@@ -296,7 +295,7 @@ contains
 
     found = .false.
     do i = 1, this%n_fields()
-       if (this%fields(i)%ptr%name == name) then
+       if (this%fields(i)%get_name() == name) then
           found = .true.
           return
        end if
