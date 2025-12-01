@@ -37,7 +37,7 @@ module fluid_scheme_compressible_euler
   use field_math, only : field_add2, field_cfill, field_cmult, &
        field_copy, field_col2, field_col3, &
        field_addcol3, field_sub2, field_invcol2
-  use operators, only : div
+  use operators, only : div, rotate_cyc
   use field_series, only : field_series_t
   use bdf_time_scheme, only : bdf_time_scheme_t
   use time_scheme_controller, only : time_scheme_controller_t
@@ -46,7 +46,7 @@ module fluid_scheme_compressible_euler
   use field, only : field_t
   use fluid_scheme_compressible, only: fluid_scheme_compressible_t
   use scratch_registry, only : neko_scratch_registry
-  use gs_ops, only : GS_OP_ADD
+  use gs_ops, only : GS_OP_ADD, GS_OP_MIN, GS_OP_MAX
   use gather_scatter, only : gs_t
   use num_types, only : rp
   use mesh, only : mesh_t
@@ -335,6 +335,22 @@ contains
       !> Apply velocity boundary conditions
       call this%bcs_vel%apply_vector(u%x, v%x, w%x, &
            dm_Xh%size(), time, strong = .true.)
+
+      call rotate_cyc(u%x, v%x, w%x, 1, c_Xh)
+      call gs_Xh%op(u, GS_OP_MIN)
+      call gs_Xh%op(v, GS_OP_MIN)
+      call gs_Xh%op(w, GS_OP_MIN)
+      call rotate_cyc(u%x, v%x, w%x, 0, c_Xh)
+
+      call this%bcs_vel%apply_vector(u%x, v%x, w%x, &
+           dm_Xh%size(), time, strong = .true.)
+
+      call rotate_cyc(u%x, v%x, w%x, 1, c_Xh)
+      call gs_Xh%op(u, GS_OP_MAX)
+      call gs_Xh%op(v, GS_OP_MAX)
+      call gs_Xh%op(w, GS_OP_MAX)
+      call rotate_cyc(u%x, v%x, w%x, 0, c_Xh)
+
       call field_copy(m_x, u, n)
       call field_col2(m_x, rho, n)
       call field_copy(m_y, v, n)

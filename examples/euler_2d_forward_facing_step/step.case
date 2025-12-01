@@ -14,7 +14,9 @@
 
         "numerics": {
             "time_order": 3,
-            "polynomial_order": 5
+            "polynomial_order": 5,
+            "c_avisc_low": 1.0,
+            "c_entropy": 0.5
         },
 
         "fluid": {
@@ -44,11 +46,20 @@
                 {
                     "type": "symmetry",
                     "zone_indices": [ 3, 4 ]
-                },
+                }
             ],
 
             "output_control": "nsamples",
             "output_value": 20
-        }
+        },
+
+        "simulation_components": [
+            {
+                "type": "field_writer",
+                "fields": ["S", "effective_visc"],
+                "output_control": "nsamples",
+                "output_value": 20
+            }
+        ]
     }
 }
