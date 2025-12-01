@@ -42,7 +42,7 @@ module euler_res_cpu
   use num_types, only : rp
   use operators, only: div, rotate_cyc
   use math, only: subcol3, copy, sub2, add2, add3, &
-       col2, col3, addcol3, cmult, cfill, invcol3
+       col2, col3, addcol3, cmult, cfill, invcol3, rone
   use gs_ops, only : GS_OP_ADD
   use scratch_registry, only: neko_scratch_registry
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
@@ -233,7 +233,6 @@ contains
     type(coef_t), intent(inout) :: coef
     type(gs_t), intent(inout) :: gs
     integer :: i, n
-    real(kind=rp) :: visc_coeff
     type(field_t), pointer :: temp, f_x, f_y, f_z, &
          visc_rho, visc_m_x, visc_m_y, visc_m_z, visc_E
     integer :: temp_indices(9)
@@ -306,12 +305,20 @@ contains
     call neko_scratch_registry%request_field(visc_m_z, temp_indices(8))
     call neko_scratch_registry%request_field(visc_E, temp_indices(9))
 
-    ! Calculate artificial diffusion
+    ! Set h1 coefficient to the effective viscosity for the Laplacian operator
+    do concurrent (i = 1:n)
+       coef%h1(i,1,1,1) = effective_visc%x(i,1,1,1)
+    end do
+
+    ! Calculate artificial diffusion with variable viscosity
     call Ax%compute(visc_rho%x, rho_field%x, coef, p%msh, p%Xh)
     call Ax%compute(visc_m_x%x, m_x%x, coef, p%msh, p%Xh)
     call Ax%compute(visc_m_y%x, m_y%x, coef, p%msh, p%Xh)
     call Ax%compute(visc_m_z%x, m_z%x, coef, p%msh, p%Xh)
     call Ax%compute(visc_E%x, E%x, coef, p%msh, p%Xh)
+
+    ! Reset h1 coefficient back to 1.0 for other operations
+    call rone(coef%h1, n)
 
     ! gs
     call gs%op(visc_rho, GS_OP_ADD)
@@ -323,21 +330,18 @@ contains
     call gs%op(visc_E, GS_OP_ADD)
 
     ! Move div to the rhs and apply artificial viscosity
-    ! i.e., calculate -div(grad(f)) + div(visc*grad(u))
-    ! Apply effective artificial viscosity (min of first-order and entropy viscosity)
+    ! The viscosity coefficient is already included in the Laplacian operator
     do concurrent (i = 1:n)
-       visc_coeff = effective_visc%x(i,1,1,1)
-       
        rhs_rho_field%x(i,1,1,1) = -rhs_rho_field%x(i,1,1,1) &
-            - visc_coeff * coef%Binv(i,1,1,1) * visc_rho%x(i,1,1,1)
+            - coef%Binv(i,1,1,1) * visc_rho%x(i,1,1,1)
        rhs_m_x%x(i,1,1,1) = -rhs_m_x%x(i,1,1,1) &
-            - visc_coeff * coef%Binv(i,1,1,1) * visc_m_x%x(i,1,1,1)
+            - coef%Binv(i,1,1,1) * visc_m_x%x(i,1,1,1)
        rhs_m_y%x(i,1,1,1) = -rhs_m_y%x(i,1,1,1) &
-            - visc_coeff * coef%Binv(i,1,1,1) * visc_m_y%x(i,1,1,1)
+            - coef%Binv(i,1,1,1) * visc_m_y%x(i,1,1,1)
        rhs_m_z%x(i,1,1,1) = -rhs_m_z%x(i,1,1,1) &
-            - visc_coeff * coef%Binv(i,1,1,1) * visc_m_z%x(i,1,1,1)
+            - coef%Binv(i,1,1,1) * visc_m_z%x(i,1,1,1)
        rhs_E%x(i,1,1,1) = -rhs_E%x(i,1,1,1) &
-            - visc_coeff * coef%Binv(i,1,1,1) * visc_E%x(i,1,1,1)
+            - coef%Binv(i,1,1,1) * visc_E%x(i,1,1,1)
     end do
 
     call neko_scratch_registry%relinquish_field(temp_indices)

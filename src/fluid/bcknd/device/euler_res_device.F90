@@ -565,12 +565,18 @@ contains
     call neko_scratch_registry%request_field(visc_m_z, temp_indices(8))
     call neko_scratch_registry%request_field(visc_E, temp_indices(9))
 
-    ! Calculate artificial diffusion
+    ! Set h1 coefficient to the effective viscosity for the Laplacian operator
+    call device_memcpy(coef%h1_d, effective_visc%x_d, n, DEVICE_TO_DEVICE)
+
+    ! Calculate artificial diffusion with variable viscosity
     call Ax%compute(visc_rho%x, rho_field%x, coef, p%msh, p%Xh)
     call Ax%compute(visc_m_x%x, m_x%x, coef, p%msh, p%Xh)
     call Ax%compute(visc_m_y%x, m_y%x, coef, p%msh, p%Xh)
     call Ax%compute(visc_m_z%x, m_z%x, coef, p%msh, p%Xh)
     call Ax%compute(visc_E%x, E%x, coef, p%msh, p%Xh)
+
+    ! Reset h1 coefficient back to 1.0 for other operations
+    call device_rone(coef%h1_d, n)
 
     call gs%op(visc_rho, GS_OP_ADD)
     call rotate_cyc(visc_m_x%x, visc_m_y%x, visc_m_z%x, 1, coef)
@@ -580,41 +586,28 @@ contains
     call rotate_cyc(visc_m_x%x, visc_m_y%x, visc_m_z%x, 0, coef)
     call gs%op(visc_E, GS_OP_ADD)
 
-    ! Apply effective artificial viscosity using GPU kernels
-#ifdef HAVE_HIP
-       call euler_res_part_visc_hip(rhs_rho_field%x_d, coef%Binv_d, &
-            visc_rho%x_d, effective_visc%x_d, n)
-       call euler_res_part_visc_hip(rhs_m_x%x_d, coef%Binv_d, &
-            visc_m_x%x_d, effective_visc%x_d, n)
-       call euler_res_part_visc_hip(rhs_m_y%x_d, coef%Binv_d, &
-            visc_m_y%x_d, effective_visc%x_d, n)
-       call euler_res_part_visc_hip(rhs_m_z%x_d, coef%Binv_d, &
-            visc_m_z%x_d, effective_visc%x_d, n)
-       call euler_res_part_visc_hip(rhs_E%x_d, coef%Binv_d, &
-            visc_E%x_d, effective_visc%x_d, n)
-#elif HAVE_CUDA
-       call euler_res_part_visc_cuda(rhs_rho_field%x_d, coef%Binv_d, &
-            visc_rho%x_d, effective_visc%x_d, n)
-       call euler_res_part_visc_cuda(rhs_m_x%x_d, coef%Binv_d, &
-            visc_m_x%x_d, effective_visc%x_d, n)
-       call euler_res_part_visc_cuda(rhs_m_y%x_d, coef%Binv_d, &
-            visc_m_y%x_d, effective_visc%x_d, n)
-       call euler_res_part_visc_cuda(rhs_m_z%x_d, coef%Binv_d, &
-            visc_m_z%x_d, effective_visc%x_d, n)
-       call euler_res_part_visc_cuda(rhs_E%x_d, coef%Binv_d, &
-            visc_E%x_d, effective_visc%x_d, n)
-#elif HAVE_OPENCL
-       call euler_res_part_visc_opencl(rhs_rho_field%x_d, coef%Binv_d, &
-            visc_rho%x_d, effective_visc%x_d, n)
-       call euler_res_part_visc_opencl(rhs_m_x%x_d, coef%Binv_d, &
-            visc_m_x%x_d, effective_visc%x_d, n)
-       call euler_res_part_visc_opencl(rhs_m_y%x_d, coef%Binv_d, &
-            visc_m_y%x_d, effective_visc%x_d, n)
-       call euler_res_part_visc_opencl(rhs_m_z%x_d, coef%Binv_d, &
-            visc_m_z%x_d, effective_visc%x_d, n)
-       call euler_res_part_visc_opencl(rhs_E%x_d, coef%Binv_d, &
-            visc_E%x_d, effective_visc%x_d, n)
-#endif
+    ! Apply artificial viscosity - the coefficient is already in the Laplacian
+    ! rhs = -rhs - Binv * visc_lap
+    call device_col2(visc_rho%x_d, coef%Binv_d, n)
+    call device_col2(visc_m_x%x_d, coef%Binv_d, n)
+    call device_col2(visc_m_y%x_d, coef%Binv_d, n)
+    call device_col2(visc_m_z%x_d, coef%Binv_d, n)
+    call device_col2(visc_E%x_d, coef%Binv_d, n)
+    
+    call device_cmult(rhs_rho_field%x_d, -1.0_rp, n)
+    call device_sub2(rhs_rho_field%x_d, visc_rho%x_d, n)
+    
+    call device_cmult(rhs_m_x%x_d, -1.0_rp, n)
+    call device_sub2(rhs_m_x%x_d, visc_m_x%x_d, n)
+    
+    call device_cmult(rhs_m_y%x_d, -1.0_rp, n)
+    call device_sub2(rhs_m_y%x_d, visc_m_y%x_d, n)
+    
+    call device_cmult(rhs_m_z%x_d, -1.0_rp, n)
+    call device_sub2(rhs_m_z%x_d, visc_m_z%x_d, n)
+    
+    call device_cmult(rhs_E%x_d, -1.0_rp, n)
+    call device_sub2(rhs_E%x_d, visc_E%x_d, n)
 
     call neko_scratch_registry%relinquish_field(temp_indices)
 
