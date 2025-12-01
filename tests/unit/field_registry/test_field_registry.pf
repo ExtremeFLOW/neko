@@ -5,7 +5,6 @@ module test_field_registry
   use space, only : space_t, GLL
   use mesh, only : mesh_t
   use dofmap, only : dofmap_t
-  use math, only : rzero
   use field_registry, only : field_registry_t
   use comm, only : pe_rank, pe_size
   use num_types
@@ -59,7 +58,7 @@ contains
 
     @assertEqual(registry%n_fields(), 0)
     @assertEqual(registry%n_aliases(), 0)
-    @assertEqual(registry%get_expansion_size(), 50)
+    @assertEqual(registry%get_expansion_size(), 5)
 
     call registry%init(5, 10)
     @assertEqual(registry%n_fields(), 0)
