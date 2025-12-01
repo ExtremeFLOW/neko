@@ -158,21 +158,21 @@ contains
   end subroutine free_register
 
   !> Get the name of the registry entry
-  function get_name(this) result(name)
+  pure function get_name(this) result(name)
     class(registry_entry_t), intent(in) :: this
     character(len=:), allocatable :: name
     name = this%name
   end function get_name
 
   !> Get the type of the registry entry
-  function get_type(this) result(type)
+  pure function get_type(this) result(type)
     class(registry_entry_t), intent(in) :: this
     character(len=:), allocatable :: type
     type = this%type
   end function get_type
 
   !> Check if the registry entry is allocated
-  function is_allocated(this) result(allocated)
+  pure function is_allocated(this) result(allocated)
     class(registry_entry_t), intent(in) :: this
     logical :: allocated
     allocated = this%allocated

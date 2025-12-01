@@ -113,7 +113,7 @@ module neko
        profiler_start_region, profiler_end_region
   use system, only : system_cpu_name, system_cpuid
   use drag_torque, only : drag_torque_zone, drag_torque_facet, drag_torque_pt
-  use field_registry, only : neko_field_registry, field_registry_t
+  use field_registry, only : neko_field_registry, registry_t
   use scratch_registry, only : neko_scratch_registry, scratch_registry_t
   use simcomp_executor, only : neko_simcomps
   use data_streamer, only : data_streamer_t
