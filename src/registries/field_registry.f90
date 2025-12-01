@@ -56,8 +56,8 @@ module field_registry
      integer, private :: n_entries_ = 0
      !> Number of aliases.
      integer, private :: n_aliases_ = 0
-     !> The size the fields array is increased by upon reallocation.
-     integer, private :: expansion_size_
+     !> The size the entries array is increased by upon reallocation.
+     integer, private :: expansion_size_ = 5
    contains
      !> Constructor.
      procedure, pass(this) :: init => field_registry_init
@@ -65,7 +65,6 @@ module field_registry
      procedure, pass(this) :: free => field_registry_free
      !> Expand the fields array so as to accommodate more fields.
      procedure, private, pass(this) :: expand => field_registry_expand
-
 
      !> Add a field to the registry.
      procedure, pass(this) :: add_field => field_registry_add_field
@@ -122,8 +121,6 @@ contains
 
     if (present(expansion_size)) then
        this%expansion_size_ = expansion_size
-    else
-       this%expansion_size_ = 5
     end if
 
   end subroutine field_registry_init
@@ -144,7 +141,7 @@ contains
     this%n_fields_ = 0
     this%n_entries_ = 0
     this%n_aliases_ = 0
-    this%expansion_size_ = 0
+    this%expansion_size_ = 5
   end subroutine field_registry_free
 
   !> Expand the fields array so as to accommodate more fields.
