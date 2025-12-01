@@ -16,7 +16,7 @@ contains
 
     call scratch%init()
 
-    @assertEqual(scratch%get_n_available(), 0)
+    @assertEqual(scratch%get_n_entries(), 0)
     @assertEqual(scratch%get_expansion_size(), 10)
     @assertEqual(scratch%get_size(), 10)
     @assertEqual(scratch%get_n_inuse(), 0)
@@ -31,7 +31,7 @@ contains
 
     call scratch%init(5, 3)
 
-    @assertEqual(scratch%get_n_available(), 0)
+    @assertEqual(scratch%get_n_entries(), 0)
     @assertEqual(scratch%get_expansion_size(), 3)
     @assertEqual(scratch%get_size(), 5)
     @assertEqual(scratch%get_n_inuse(), 0)
@@ -56,7 +56,7 @@ contains
     @assertEqual(index2, 2)
     @assertEqual(scratch%get_inuse(index1), .true.)
     @assertEqual(scratch%get_inuse(index2), .true.)
-    @assertEqual(scratch%get_n_available(), 3)
+    @assertEqual(scratch%get_n_entries(), 3)
     @assertEqual(scratch%get_n_inuse(), 3)
 
     ! do something with the matrix
@@ -90,7 +90,7 @@ contains
     call scratch%relinquish_matrix(index)
     @assertEqual(scratch%get_inuse(index), .false.)
     @assertEqual(scratch%get_n_inuse(), 0)
-    @assertEqual(scratch%get_n_available(), 1)
+    @assertEqual(scratch%get_n_entries(), 1)
 
     call scratch%free()
   end subroutine test_matrix_scratch_registry_relinquish_matrix
@@ -109,7 +109,7 @@ contains
     @assertEqual(scratch%get_inuse(indices(1)), .false.)
     @assertEqual(scratch%get_inuse(indices(2)), .false.)
     @assertEqual(scratch%get_n_inuse(), 0)
-    @assertEqual(scratch%get_n_available(), 2)
+    @assertEqual(scratch%get_n_entries(), 2)
 
     call scratch%free()
   end subroutine test_vector_scratch_registry_relinquish_matrix_list
@@ -152,7 +152,7 @@ contains
     @assertEqual(index2, 2)
     @assertEqual(scratch%get_inuse(index1), .true.)
     @assertEqual(scratch%get_inuse(index2), .true.)
-    @assertEqual(scratch%get_n_available(), 2)
+    @assertEqual(scratch%get_n_entries(), 2)
     @assertEqual(scratch%get_n_inuse(), 2)
     @assertEqual(scratch%get_size(), 2)
 
@@ -180,7 +180,7 @@ contains
     @assertEqual(index2, 2)
     @assertEqual(scratch%get_inuse(index1), .true.)
     @assertEqual(scratch%get_inuse(index2), .true.)
-    @assertEqual(scratch%get_n_available(), 2)
+    @assertEqual(scratch%get_n_entries(), 2)
     @assertEqual(scratch%get_n_inuse(), 2)
     @assertEqual(scratch%get_size(), 2)
 
@@ -188,7 +188,7 @@ contains
     call scratch%relinquish_matrix(index1)
     @assertEqual(scratch%get_inuse(index1), .false.)
     @assertEqual(scratch%get_inuse(index2), .true.)
-    @assertEqual(scratch%get_n_available(), 2)
+    @assertEqual(scratch%get_n_entries(), 2)
     @assertEqual(scratch%get_n_inuse(), 1)
     @assertEqual(scratch%get_size(), 2)
 
@@ -198,7 +198,7 @@ contains
     @assertEqual(index1, 1)
     @assertEqual(scratch%get_inuse(index1), .true.)
     @assertEqual(scratch%get_inuse(index2), .true.)
-    @assertEqual(scratch%get_n_available(), 2)
+    @assertEqual(scratch%get_n_entries(), 2)
     @assertEqual(scratch%get_n_inuse(), 2)
     @assertEqual(scratch%get_size(), 2)
 
@@ -215,7 +215,7 @@ contains
     @assertEqual(scratch%get_inuse(index1), .true.)
     @assertEqual(scratch%get_inuse(index2), .true.)
     @assertEqual(scratch%get_inuse(index3), .true.)
-    @assertEqual(scratch%get_n_available(), 3)
+    @assertEqual(scratch%get_n_entries(), 3)
     @assertEqual(scratch%get_n_inuse(), 3)
     @assertEqual(scratch%get_size(), 4)
 
@@ -261,7 +261,7 @@ contains
     @assertEqual(scratch%get_inuse(indices(1)), .false.)
     @assertEqual(scratch%get_inuse(indices(2)), .false.)
     @assertEqual(scratch%get_inuse(indices(3)), .false.)
-    @assertEqual(scratch%get_n_available(), 3)
+    @assertEqual(scratch%get_n_entries(), 3)
     @assertEqual(scratch%get_n_inuse(), 0)
 
     ! get a new matrix, should get index 1
@@ -269,7 +269,7 @@ contains
     call matrix_cfill(m1, 1.5_rp)
     @assertEqual(indices(1), 1)
     @assertEqual(scratch%get_inuse(indices(1)), .true.)
-    @assertEqual(scratch%get_n_available(), 3)
+    @assertEqual(scratch%get_n_entries(), 3)
     @assertEqual(scratch%get_n_inuse(), 1)
 
     call scratch%relinquish_matrix(indices(1))

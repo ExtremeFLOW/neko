@@ -51,11 +51,11 @@ module scratch_registry
 
   type, public :: scratch_registry_t
      !> list of scratch fields
-     type(registry_entry_t), private, allocatable :: registry(:)
+     type(registry_entry_t), private, allocatable :: entries(:)
      !> Tracks which fields are used
      logical, private, allocatable :: inuse(:)
      !> number of registered fields
-     integer, private :: n_available = 0
+     integer, private :: n_entries = 0
      !> number of fields in use
      integer, private :: n_inuse = 0
      !> the size the fields array is increased by upon reallocation
@@ -70,8 +70,8 @@ module scratch_registry
      procedure, pass(this) :: free => scratch_registry_free
      !> Assign a dofmap to the scratch registry
      procedure, pass(this) :: set_dofmap => scratch_registry_set_dofmap
-     !> Getter for n_available
-     procedure, pass(this) :: get_n_available
+     !> Getter for n_entries
+     procedure, pass(this) :: get_n_entries
      !> Getter for n_inuse
      procedure, pass(this) :: get_n_inuse
      !> Getter for expansion_size
@@ -136,15 +136,13 @@ contains
     if (present(size)) s = size
     if (present(dof)) this%dof => dof
 
-    allocate(this%registry(s))
+    allocate(this%entries(s))
     allocate(this%inuse(s))
     this%inuse(:) = .false.
 
     this%expansion_size = 10
     if (present(expansion_size)) this%expansion_size = expansion_size
 
-    this%n_available = 0
-    this%n_inuse = 0
   end subroutine scratch_registry_init
 
   !> Destructor
@@ -160,18 +158,18 @@ contains
        deallocate(this%inuse)
     end if
 
-    if (allocated(this%registry)) then
-       do i = 1, this%n_available
-          call this%registry(i)%free()
+    if (allocated(this%entries)) then
+       do i = 1, this%n_entries
+          call this%entries(i)%free()
        end do
 
-       deallocate(this%registry)
+       deallocate(this%entries)
     end if
 
     if (associated(this%dof)) nullify(this%dof)
 
     ! Reset to default values
-    this%n_available = 0
+    this%n_entries = 0
     this%n_inuse = 0
     this%expansion_size = 10
 
@@ -196,12 +194,12 @@ contains
   end subroutine scratch_registry_set_dofmap
 
   !> Get the number of objects stored in the registry
-  pure function get_n_available(this) result(n)
+  pure function get_n_entries(this) result(n)
     class(scratch_registry_t), intent(in) :: this
     integer :: n
 
-    n = this%n_available
-  end function get_n_available
+    n = this%n_entries
+  end function get_n_entries
 
   !> Get the number of objects currently in use
   pure function get_n_inuse(this) result(n)
@@ -216,7 +214,7 @@ contains
     class(scratch_registry_t), intent(in) :: this
     integer :: n
 
-    n = size(this%registry)
+    n = size(this%entries)
   end function get_size
 
   !> Get the expansion size
@@ -241,13 +239,13 @@ contains
     logical, allocatable :: temp2(:)
 
     allocate(temp(this%get_size() + this%expansion_size))
-    temp(1:this%n_available) = this%registry(1:this%n_available)
+    temp(1:this%n_entries) = this%entries(1:this%n_entries)
 
-    call move_alloc(temp, this%registry)
+    call move_alloc(temp, this%entries)
 
     allocate(temp2(this%get_size() + this%expansion_size))
-    temp2(1:this%n_available) = this%inuse(1:this%n_available)
-    temp2(this%n_available+1:) = .false.
+    temp2(1:this%n_entries) = this%inuse(1:this%n_entries)
+    temp2(this%n_entries+1:) = .false.
     this%inuse = temp2
   end subroutine expand
 
@@ -267,20 +265,20 @@ contains
             // "No dofmap assigned to scratch registry.")
     end if
 
-    associate(n_available => this%n_available, n_inuse => this%n_inuse)
+    associate(n_entries => this%n_entries, n_inuse => this%n_inuse)
 
       do index = 1, this%get_size()
          if (.not. this%inuse(index)) then
 
-            if (.not. this%registry(index)%is_allocated()) then
+            if (.not. this%entries(index)%is_allocated()) then
                write(name, "(A3,I0.3)") "wrk", index
-               call this%registry(index)%init_field(this%dof, trim(name))
-               n_available = n_available + 1
-            else if (this%registry(index)%get_type() .ne. 'field') then
+               call this%entries(index)%init_field(this%dof, trim(name))
+               n_entries = n_entries + 1
+            else if (this%entries(index)%get_type() .ne. 'field') then
                cycle
             end if
 
-            f => this%registry(index)%field_ptr
+            f => this%entries(index)%field_ptr
             if (clear) call field_rzero(f)
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
@@ -289,14 +287,14 @@ contains
       end do
 
       ! all existing fields in use, we need to expand to add a new one
-      index = n_available + 1
+      index = n_entries + 1
       call this%expand()
-      n_available = n_available + 1
+      n_entries = n_entries + 1
       n_inuse = n_inuse + 1
-      this%inuse(n_available) = .true.
+      this%inuse(n_entries) = .true.
       write (name, "(A3,I0.3)") "wrk", index
-      call this%registry(n_available)%init_field(this%dof, trim(name))
-      f => this%registry(n_available)%field_ptr
+      call this%entries(n_entries)%init_field(this%dof, trim(name))
+      f => this%entries(n_entries)%field_ptr
 
     end associate
   end subroutine request_field
@@ -313,21 +311,21 @@ contains
     integer, intent(inout) :: index
     logical, intent(in) :: clear
 
-    associate(n_available => this%n_available, n_inuse => this%n_inuse)
+    associate(n_entries => this%n_entries, n_inuse => this%n_inuse)
 
       do index = 1, this%get_size()
          if (.not. this%inuse(index)) then
 
-            if (.not. this%registry(index)%is_allocated()) then
-               call this%registry(index)%init_vector(n)
-               n_available = n_available + 1
-            else if (trim(this%registry(index)%get_type()) .ne. 'vector') then
+            if (.not. this%entries(index)%is_allocated()) then
+               call this%entries(index)%init_vector(n)
+               n_entries = n_entries + 1
+            else if (trim(this%entries(index)%get_type()) .ne. 'vector') then
                cycle
-            else if (this%registry(index)%vector_ptr%size() .ne. n) then
+            else if (this%entries(index)%vector_ptr%size() .ne. n) then
                cycle
             end if
 
-            v => this%registry(index)%vector_ptr
+            v => this%entries(index)%vector_ptr
             if (clear) call vector_rzero(v)
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
@@ -336,13 +334,13 @@ contains
       end do
 
       ! all existing vectors in use, we need to expand to add a new one
-      index = n_available + 1
+      index = n_entries + 1
       call this%expand()
-      n_available = n_available + 1
+      n_entries = n_entries + 1
       n_inuse = n_inuse + 1
-      this%inuse(n_available) = .true.
-      call this%registry(n_available)%init_vector(n)
-      v => this%registry(n_available)%vector_ptr
+      this%inuse(n_entries) = .true.
+      call this%entries(n_entries)%init_vector(n)
+      v => this%entries(n_entries)%vector_ptr
 
     end associate
   end subroutine request_vector
@@ -360,23 +358,23 @@ contains
     integer, intent(inout) :: index
     logical, intent(in) :: clear
 
-    associate(n_available => this%n_available, n_inuse => this%n_inuse)
+    associate(n_entries => this%n_entries, n_inuse => this%n_inuse)
 
       do index = 1, this%get_size()
          if (.not. this%inuse(index)) then
 
-            if (.not. this%registry(index)%is_allocated()) then
-               call this%registry(index)%init_matrix(nrows, ncols)
-               n_available = n_available + 1
-            else if (trim(this%registry(index)%get_type()) .ne. 'matrix') then
+            if (.not. this%entries(index)%is_allocated()) then
+               call this%entries(index)%init_matrix(nrows, ncols)
+               n_entries = n_entries + 1
+            else if (trim(this%entries(index)%get_type()) .ne. 'matrix') then
                cycle
-            else if (this%registry(index)%matrix_ptr%get_nrows() .ne. nrows &
-                 .and. this%registry(index)%matrix_ptr%get_ncols() .ne. ncols &
+            else if (this%entries(index)%matrix_ptr%get_nrows() .ne. nrows &
+                 .and. this%entries(index)%matrix_ptr%get_ncols() .ne. ncols &
                  ) then
                cycle
             end if
 
-            m => this%registry(index)%matrix_ptr
+            m => this%entries(index)%matrix_ptr
             if (clear) call matrix_rzero(m)
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
@@ -385,13 +383,13 @@ contains
       end do
 
       ! all existing matrices in use, we need to expand to add a new one
-      index = n_available + 1
+      index = n_entries + 1
       call this%expand()
-      n_available = n_available + 1
+      n_entries = n_entries + 1
       n_inuse = n_inuse + 1
-      this%inuse(n_available) = .true.
-      call this%registry(n_available)%init_matrix(nrows, ncols)
-      m => this%registry(n_available)%matrix_ptr
+      this%inuse(n_entries) = .true.
+      call this%entries(n_entries)%init_matrix(nrows, ncols)
+      m => this%entries(n_entries)%matrix_ptr
 
     end associate
   end subroutine request_matrix
@@ -402,7 +400,7 @@ contains
     class(scratch_registry_t), target, intent(inout) :: this
     integer, intent(inout) :: index
 
-    if (trim(this%registry(index)%get_type()) .ne. 'field') then
+    if (trim(this%entries(index)%get_type()) .ne. 'field') then
        call neko_error("scratch_registry::relinquish_field_single: " &
             // "Register entry is not a field.")
     end if
@@ -419,7 +417,7 @@ contains
     integer :: i
 
     do i = 1, size(indices)
-       if (trim(this%registry(indices(i))%get_type()) .ne. 'field') then
+       if (trim(this%entries(indices(i))%get_type()) .ne. 'field') then
           call neko_error("scratch_registry::relinquish_field_single: " &
                // "Register entry is not a field.")
        end if
@@ -435,7 +433,7 @@ contains
     class(scratch_registry_t), target, intent(inout) :: this
     integer, intent(inout) :: index
 
-    if (trim(this%registry(index)%get_type()) .ne. 'vector') then
+    if (trim(this%entries(index)%get_type()) .ne. 'vector') then
        call neko_error("scratch_registry::relinquish_vector_single: " &
             // "Register entry is not a vector.")
     end if
@@ -452,7 +450,7 @@ contains
     integer :: i
 
     do i = 1, size(indices)
-       if (trim(this%registry(indices(i))%get_type()) .ne. 'vector') then
+       if (trim(this%entries(indices(i))%get_type()) .ne. 'vector') then
           call neko_error("scratch_registry::relinquish_vector_single: " &
                // "Register entry is not a vector.")
        end if
@@ -468,7 +466,7 @@ contains
     class(scratch_registry_t), target, intent(inout) :: this
     integer, intent(inout) :: index
 
-    if (trim(this%registry(index)%get_type()) .ne. 'matrix') then
+    if (trim(this%entries(index)%get_type()) .ne. 'matrix') then
        call neko_error("scratch_registry::relinquish_matrix_single: " &
             // "Register entry is not a matrix.")
     end if
@@ -485,7 +483,7 @@ contains
     integer :: i
 
     do i = 1, size(indices)
-       if (trim(this%registry(indices(i))%get_type()) .ne. 'matrix') then
+       if (trim(this%entries(indices(i))%get_type()) .ne. 'matrix') then
           call neko_error("scratch_registry::relinquish_matrix_single: " &
                // "Register entry is not a matrix.")
        end if
