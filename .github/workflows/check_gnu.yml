@@ -263,6 +263,7 @@ jobs:
 
       - name: Test - Archive test report
         # if: failure()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: Test report - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
