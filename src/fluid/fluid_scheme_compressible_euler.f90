@@ -229,9 +229,9 @@ contains
     ! Compute h
     call this%compute_h()
     call json_get_or_default(params, 'case.numerics.c_avisc_low', &
-         this%c_avisc_low, 0.5_rp)
+         this%c_avisc_low, 1.0_rp)
     call json_get_or_default(params, 'case.numerics.c_entropy', &
-         this%c_entropy, 0.5_rp)
+         this%c_entropy, 100000000000000.0_rp) ! default to low-order viscosity
 
     ! Initialize Runge-Kutta scheme
     call json_get_or_default(params, 'case.numerics.time_order', rk_order, 4)
