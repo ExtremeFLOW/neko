@@ -114,34 +114,34 @@ runs:
         [ ! -z "$(ls -A $WORKING_DIR)" ] && rm -fr $WORKING_DIR
         git clone --depth 1 --branch $VERSION $REPO $WORKING_DIR
 
-    - name: Patch
-      if: ${{ steps.cache-pfunit.outputs.cache-hit != 'true' }}
-      shell: bash
-      env:
-        WORKING_DIR: ${{ steps.setup-env.outputs.working-dir }}
-      run: |
-        if [ ${{ inputs.version }} != "v4.4.2" ]; then
-          exit 0
-        fi
-        cur=$(pwd)
-        cd $WORKING_DIR
-        cat >> pfunit_error_stop.patch << _ACEOF
-        diff --git a/src/funit/FUnit.F90 b/src/funit/FUnit.F90
-        index 7df7b65..4f7dbf5 100644
-        --- a/src/funit/FUnit.F90
-        +++ b/src/funit/FUnit.F90
-        @@ -168,7 +168,7 @@ contains
-         #if defined(PGI)
-                  call exit(-1)
-         #else
-        -         stop '*** Encountered 1 or more failures/errors during testing. ***'
-        +         error stop '*** Encountered 1 or more failures/errors during testing. ***'
-         #endif
-               end if
+    # - name: Patch
+    #   if: ${{ steps.cache-pfunit.outputs.cache-hit != 'true' }}
+    #   shell: bash
+    #   env:
+    #     WORKING_DIR: ${{ steps.setup-env.outputs.working-dir }}
+    #   run: |
+    #     if [ ${{ inputs.version }} != "v4.4.2" ]; then
+    #       exit 0
+    #     fi
+    #     cur=$(pwd)
+    #     cd $WORKING_DIR
+    #     cat >> pfunit_error_stop.patch << _ACEOF
+    #     diff --git a/src/funit/FUnit.F90 b/src/funit/FUnit.F90
+    #     index 7df7b65..4f7dbf5 100644
+    #     --- a/src/funit/FUnit.F90
+    #     +++ b/src/funit/FUnit.F90
+    #     @@ -168,7 +168,7 @@ contains
+    #      #if defined(PGI)
+    #               call exit(-1)
+    #      #else
+    #     -         stop '*** Encountered 1 or more failures/errors during testing. ***'
+    #     +         error stop '*** Encountered 1 or more failures/errors during testing. ***'
+    #      #endif
+    #            end if
 
-        _ACEOF
-        git apply pfunit_error_stop.patch
-        cd $cur
+    #     _ACEOF
+    #     git apply pfunit_error_stop.patch
+    #     cd $cur
 
     - name: Configure
       if: ${{ steps.cache-pfunit.outputs.cache-hit != 'true' }}
