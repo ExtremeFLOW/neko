@@ -143,6 +143,12 @@ contains
     call registry%add_field(dm, 'test_field2')
 
     @assertEqual(registry%n_fields(), 2)
+
+    field_ptr => registry%get_field('test_field1')
+    @assertEqual(field_ptr%name, 'test_field1')
+
+    field_ptr => registry%get_field('test_field2')
+    @assertEqual(field_ptr%name, 'test_field2')
   end subroutine test_field_registry_expand
 
 end module test_field_registry
