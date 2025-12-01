@@ -55,6 +55,8 @@ contains
   subroutine test_field_registry_init()
     type(field_registry_t) :: registry
 
+    @assertTrue(.false.)
+
     call registry%init()
 
     @assertEqual(registry%n_fields(), 0)
