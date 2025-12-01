@@ -262,7 +262,7 @@ jobs:
           make -j ${{ steps.setup-env.outputs.nproc }} check > tests/test-suite.log
 
       - name: Test - Archive test report
-        if: failure()
+        # if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: Test report - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
