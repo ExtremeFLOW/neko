@@ -82,7 +82,7 @@ contains
 
     call registry%init()
 
-    call registry%add_field(dm , 'test_field')
+    call registry%add_field(dm, 'test_field')
 
     @assertEqual(registry%n_fields(), 1)
 
@@ -90,7 +90,7 @@ contains
 
     @assertEqual(field_ptr%name, 'test_field')
 
-    call registry%add_field(dm , 'test_field', ignore_existing=.true.)
+    call registry%add_field(dm, 'test_field', ignore_existing=.true.)
     @assertEqual(registry%n_fields(), 1)
   end subroutine test_field_registry_add_field
 
@@ -110,7 +110,7 @@ contains
 
     call registry%init()
 
-    call registry%add_field(dm , 'test_field')
+    call registry%add_field(dm, 'test_field')
     call registry%add_alias('test_alias', 'test_field')
     call registry%add_alias('test_alias2', 'test_field')
 
@@ -139,8 +139,8 @@ contains
 
     call registry%init(1, 1)
 
-    call registry%add_field(dm , 'test_field1')
-    call registry%add_field(dm , 'test_field2')
+    call registry%add_field(dm, 'test_field1')
+    call registry%add_field(dm, 'test_field2')
 
     @assertEqual(registry%n_fields(), 2)
   end subroutine test_field_registry_expand
