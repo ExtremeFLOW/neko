@@ -619,10 +619,10 @@ contains
                                            bdf_coeffs(4) * this%S_lag%lf(3)%x(i,1,1,1)) / dt
     end do
 
-    call this%scratch%request_field(us_field, temp_indices(1))
-    call this%scratch%request_field(vs_field, temp_indices(2))
-    call this%scratch%request_field(ws_field, temp_indices(3))
-    call this%scratch%request_field(div_field, temp_indices(4))
+    call neko_scratch_registry%request_field(us_field, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(vs_field, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(ws_field, temp_indices(3), .false.)
+    call neko_scratch_registry%request_field(div_field, temp_indices(4), .false.)
 
     do i = 1, n
        us_field%x(i,1,1,1) = this%u%x(i,1,1,1) * this%S%x(i,1,1,1)
@@ -636,7 +636,7 @@ contains
        this%entropy_residual%x(i,1,1,1) = abs(this%entropy_residual%x(i,1,1,1) + div_field%x(i,1,1,1))
     end do
 
-    call this%scratch%relinquish_field(temp_indices)
+    call neko_scratch_registry%relinquish_field(temp_indices)
 
   end subroutine compute_entropy_residual
 
@@ -654,7 +654,7 @@ contains
     n = this%dm_Xh%size()
     
     ! Get temporary field for computations
-    call this%scratch%request_field(temp_field, temp_indices(1))
+    call neko_scratch_registry%request_field(temp_field, temp_indices(1), .false.)
     
     ! Compute global mean of entropy function S
     ! Create a temporary field filled with 1.0 to count total DOFs
@@ -672,7 +672,7 @@ contains
     n_S = glmax(temp_field%x, n)
     
     ! Release temporary field
-    call this%scratch%relinquish_field(temp_indices)
+    call neko_scratch_registry%relinquish_field(temp_indices)
     
     ! Avoid division by zero
     if (n_S < 1.0e-12_rp) then
