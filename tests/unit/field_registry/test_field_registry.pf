@@ -56,6 +56,7 @@ contains
     ! type(field_registry_t) :: registry
     logical :: test_thing1, test_thing2
     real :: x
+    write(*,*) 'Running test_field_registry_init'
 
     call random_number(x)
     if (x .lt. 0.5) then
@@ -66,6 +67,7 @@ contains
        test_thing2 = .false.
     end if
 
+    write(*,*) 'Asserting that ', test_thing1, ' equals ', test_thing2
     @assertEqual(test_thing1, test_thing2)
 
     ! call registry%init()
