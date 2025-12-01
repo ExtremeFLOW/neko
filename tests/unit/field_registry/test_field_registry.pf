@@ -53,7 +53,7 @@ contains
 
   @test
   subroutine test_field_registry_init()
-    type(field_registry_t) :: registry
+    ! type(field_registry_t) :: registry
     logical :: test_thing1, test_thing2
     real :: x
 
