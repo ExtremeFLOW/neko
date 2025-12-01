@@ -211,19 +211,26 @@ contains
     type(field_t), intent(in) :: g
 
     if (allocated(this%x)) then
-       if (this%Xh .ne. g%Xh) then
+       if (.not. associated(this%Xh, g%Xh)) then
           call this%free()
        end if
     end if
 
     this%Xh => g%Xh
     this%msh => g%msh
-    this%dof => g%dof
+    this%name = g%name
 
-
-    this%Xh%lx = g%Xh%lx
-    this%Xh%ly = g%Xh%ly
-    this%Xh%lz = g%Xh%lz
+    if (.not. g%internal_dofmap) then
+       this%dof => g%dof
+    else
+       if (this%internal_dofmap) then
+          call this%dof%free()
+       else
+          allocate(this%dof)
+          this%internal_dofmap = .true.
+       end if
+       call this%dof%init(this%msh, this%Xh)
+    end if
 
     if (.not. allocated(this%x)) then
 
