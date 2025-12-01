@@ -71,12 +71,12 @@ module field_registry
      procedure, pass(this) :: add_field => field_registry_add_field
      !> Add an alias to a field in the registry.
      procedure, pass(this) :: add_alias => field_registry_add_alias
+
      !> Get pointer to a stored field by index.
-     procedure, pass(this) :: get_field_by_index => &
-          field_registry_get_field_by_index
+     procedure, pass(this) :: get_field_by_index => registry_get_field_by_index
      !> Get pointer to a stored field by name.
-     procedure, pass(this) :: get_field_by_name => &
-          field_registry_get_field_by_name
+     procedure, pass(this) :: get_field_by_name => registry_get_field_by_name
+
      !> Check if a field with a given name is already in the registry.
      procedure, pass(this) :: field_exists => field_registry_field_exists
 
@@ -92,8 +92,7 @@ module field_registry
      !> Get the number of aliases in the registry.
      procedure, pass(this) :: n_aliases => field_registry_n_aliases
      !> Get the `expansion_size`
-     procedure, pass(this) :: get_expansion_size => &
-          field_registry_get_expansion_size
+     procedure, pass(this) :: get_expansion_size => registry_get_expansion_size
   end type field_registry_t
 
   !> Global field registry
@@ -224,7 +223,7 @@ contains
   ! Methods for retrieving objects from the registry
 
   !> Get pointer to a stored field by index.
-  function field_registry_get_field_by_index(this, i) result(f)
+  function registry_get_field_by_index(this, i) result(f)
     class(field_registry_t), target, intent(in) :: this
     integer, intent(in) :: i
     type(field_t), pointer :: f
@@ -236,10 +235,10 @@ contains
     endif
 
     f => this%entries(i)%field_ptr
-  end function field_registry_get_field_by_index
+  end function registry_get_field_by_index
 
   !> Get pointer to a stored field by field name.
-  recursive function field_registry_get_field_by_name(this, name) result(f)
+  recursive function registry_get_field_by_name(this, name) result(f)
     class(field_registry_t), target, intent(inout) :: this
     character(len=*), intent(in) :: name
     character(len=:), allocatable :: alias_target
@@ -269,7 +268,7 @@ contains
     end if
     call neko_error("Field " // name // " could not be found in the registry")
 
-  end function field_registry_get_field_by_name
+  end function registry_get_field_by_name
 
   !> Check if a field with a given name is already in the registry.
   function field_registry_field_exists(this, name) result(found)
@@ -325,11 +324,11 @@ contains
   end function field_registry_get_size
 
   !> Get the expansion size.
-  pure function field_registry_get_expansion_size(this) result(n)
+  pure function registry_get_expansion_size(this) result(n)
     class(field_registry_t), intent(in) :: this
     integer :: n
 
     n = this%expansion_size_
-  end function field_registry_get_expansion_size
+  end function registry_get_expansion_size
 
 end module field_registry
