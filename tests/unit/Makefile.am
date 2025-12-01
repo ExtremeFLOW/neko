@@ -32,7 +32,7 @@ SUBDIRS = tuple\
 	  fast3d\
 	  time_scheme\
 	  time_scheme_controller\
-		runge_kutta_scheme\
+	  runge_kutta_scheme\
 	  time_based_controller\
 	  point_interpolation
 
