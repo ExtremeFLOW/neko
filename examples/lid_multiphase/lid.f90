@@ -282,7 +282,7 @@ contains
       call neko_scratch_registry%request_field(temp6, ind(6))
       call neko_scratch_registry%request_field(temp7, ind(7))
 
-      ! Compute gradient of phase field ∇φ
+      ! Compute gradient of phase field grad(phi)
       call grad(temp1%x, temp2%x, temp3%x, s%x, coef)
 
       ! Apply gather-scatter and multiplicity for continuity
@@ -293,12 +293,12 @@ contains
       call col2(temp2%x, coef%mult, temp4%size())
       call col2(temp3%x, coef%mult, temp4%size())
 
-      ! Store ∇φ for later (we need it at the end)
-      call copy(temp5%x, temp1%x, temp4%size())  ! temp5 = ∂φ/∂x
-      call copy(temp6%x, temp2%x, temp4%size())  ! temp6 = ∂φ/∂y
-      call copy(temp7%x, temp3%x, temp4%size())  ! temp6 = ∂φ/∂z
+      ! Store grad(phi) for later (we need it at the end)
+      call copy(temp5%x, temp1%x, temp4%size())  ! temp5 = dphi/dx
+      call copy(temp6%x, temp2%x, temp4%size())  ! temp6 = dphi/dy
+      call copy(temp7%x, temp3%x, temp4%size())  ! temp6 = dphi/dz
 
-      ! Compute normalized gradient n = ∇φ/|∇φ|
+      ! Compute normalized gradient n = grad(phi)/|grad(phi)|
       do i = 1, temp4%size()
         absgrad = sqrt(temp1%x(i,1,1,1)**2 + temp2%x(i,1,1,1)**2 + temp3%x(i,1,1,1)**2)
         if (absgrad < 1.0e-12_rp) then 
@@ -313,21 +313,21 @@ contains
         end if
       end do
 
-      ! Compute curvature κ = ∇·n
+      ! Compute curvature κ = div(n)
       call div(temp4%x,temp1%x, temp2%x,temp3%x,coef)
       ! call dudxyz(temp4%x, temp1%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
 
       call copy(temp1%x, temp4%x, temp4%size())
       ! ! Store it temporarily before we accumulate
 
-      ! Now temp1 contains κ = ∇·n (curvature)
+      ! Now temp1 contains κ = div(n) (curvature)
 
-      ! Compute surface tension force F_ST = σ κ ∇φ
-      ! Multiply curvature by each gradient component and sigma
+      ! Compute surface tension force per unit mass: F_ST = (sigma/rho) * kappa * grad(phi)
+      ! Force per volume is F = sigma * kappa * grad(phi)
       do i = 1, temp4%size()
-        temp5%x(i,1,1,1) = sigma * temp1%x(i,1,1,1) * temp5%x(i,1,1,1)  ! σκ(∂φ/∂x)
-        temp6%x(i,1,1,1) = sigma * temp1%x(i,1,1,1) * temp6%x(i,1,1,1)  ! σκ(∂φ/∂y)
-        temp7%x(i,1,1,1) = sigma * temp1%x(i,1,1,1) * temp7%x(i,1,1,1)  ! σκ(∂φ/∂z)
+        temp5%x(i,1,1,1) = sigma * temp1%x(i,1,1,1) * temp5%x(i,1,1,1)
+        temp6%x(i,1,1,1) = sigma * temp1%x(i,1,1,1) * temp6%x(i,1,1,1)
+        temp7%x(i,1,1,1) = sigma * temp1%x(i,1,1,1) * temp7%x(i,1,1,1)
       end do
 
       ! Add surface tension force to momentum equations
