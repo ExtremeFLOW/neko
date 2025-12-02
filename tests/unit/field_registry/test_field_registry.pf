@@ -5,14 +5,14 @@ module test_field_registry
   use space, only : space_t, GLL
   use mesh, only : mesh_t
   use dofmap, only : dofmap_t
-  use field_registry, only : field_registry_t
+  use field_registry, only : registry_t
   use comm, only : pe_rank, pe_size
   use num_types
   implicit none
 
 contains
 
-  subroutine test_field_registry_gen_msh(msh)
+  subroutine test_registry_gen_msh(msh)
     type(mesh_t), intent(inout) :: msh
     type(point_t) :: p(12)
 
@@ -48,11 +48,11 @@ contains
     pe_size = 1
     call msh%generate_conn()
 
-  end subroutine test_field_registry_gen_msh
+  end subroutine test_registry_gen_msh
 
   @test
-  subroutine test_field_registry_init()
-    type(field_registry_t) :: registry
+  subroutine test_registry_init()
+    type(registry_t) :: registry
 
     call registry%init()
 
@@ -64,18 +64,18 @@ contains
     @assertEqual(registry%n_fields(), 0)
     @assertEqual(registry%n_aliases(), 0)
     @assertEqual(registry%get_expansion_size(), 10)
-  end subroutine test_field_registry_init
+  end subroutine test_registry_init
 
   @test
-  subroutine test_field_registry_add_field()
+  subroutine test_registry_add_field()
     type(space_t) :: Xh
     type(mesh_t) :: msh
     type(dofmap_t) :: dm
     integer, parameter :: lx = 4
-    type(field_registry_t) :: registry
+    type(registry_t) :: registry
     type(field_t), pointer :: field_ptr
 
-    call test_field_registry_gen_msh(msh)
+    call test_registry_gen_msh(msh)
 
     call Xh%init(GLL, lx, lx, lx)
     call dm%init(msh, Xh)
@@ -92,18 +92,18 @@ contains
 
     call registry%add_field(dm, 'test_field', ignore_existing=.true.)
     @assertEqual(registry%n_fields(), 1)
-  end subroutine test_field_registry_add_field
+  end subroutine test_registry_add_field
 
   @test
-  subroutine test_field_registry_add_alias()
+  subroutine test_registry_add_alias()
     type(space_t) :: Xh
     type(mesh_t) :: msh
     type(dofmap_t) :: dm
     integer, parameter :: lx = 4
-    type(field_registry_t) :: registry
+    type(registry_t) :: registry
     type(field_t), pointer :: field_ptr
 
-    call test_field_registry_gen_msh(msh)
+    call test_registry_gen_msh(msh)
 
     call Xh%init(GLL, lx, lx, lx)
     call dm%init(msh, Xh)
@@ -121,18 +121,18 @@ contains
 
     field_ptr => registry%get_field('test_alias2')
     @assertEqual(field_ptr%name, 'test_field')
-  end subroutine test_field_registry_add_alias
+  end subroutine test_registry_add_alias
 
   @test
-  subroutine test_field_registry_expand()
+  subroutine test_registry_expand()
     type(space_t) :: Xh
     type(mesh_t) :: msh
     type(dofmap_t) :: dm
     integer, parameter :: lx = 4
-    type(field_registry_t) :: registry
+    type(registry_t) :: registry
     type(field_t), pointer :: field_ptr
 
-    call test_field_registry_gen_msh(msh)
+    call test_registry_gen_msh(msh)
 
     call Xh%init(GLL, lx, lx, lx)
     call dm%init(msh, Xh)
@@ -149,6 +149,6 @@ contains
 
     field_ptr => registry%get_field('test_field2')
     @assertEqual(field_ptr%name, 'test_field2')
-  end subroutine test_field_registry_expand
+  end subroutine test_registry_expand
 
 end module test_field_registry
