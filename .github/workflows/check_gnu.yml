@@ -131,7 +131,10 @@ jobs:
           cache-dependency-path: "**/requirements-tests.txt"
 
       - name: Setup - Install Python dependencies
-        run: pip install -r .github/workflows/extra/requirements-tests.txt
+        run: |
+          pip install -r .github/workflows/extra/requirements-tests.txt
+          echo "MPICC=$(which mpicc)" >> $GITHUB_ENV
+          pip install mpi4py --no-cache-dir
 
       # Setup matrix environment
       - name: Setup - Matrix environment

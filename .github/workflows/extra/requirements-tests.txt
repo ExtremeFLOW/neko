@@ -1,5 +1,4 @@
 pytest
 json5
 numpy
-mpi4py
 git+https://github.com/ExtremeFLOW/pySEMTools.git
