@@ -8,13 +8,36 @@ module test_field_scratch_registry
   use field_math, only : field_cfill
   use scratch_registry, only : scratch_registry_t
   use num_types, only : rp
-  use device, only : DEVICE_TO_HOST
+  use device, only : DEVICE_TO_HOST, device_init, &
+       device_finalize
   use comm, only : pe_rank, pe_size
+  use neko_config, only : NEKO_BCKND_DEVICE
   implicit none
+
+  @TestCase
+  type, extends(TestCase) :: test_field_scratch_reg
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_field_scratch_reg
 
 contains
 
-  subroutine test_field_scratch_registry_gen_msh(msh)
+  subroutine setUp(this)
+    class(test_field_scratch_reg), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_field_scratch_reg), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
+  subroutine test_f_scratch_reg_gen_msh(msh)
     type(mesh_t), intent(inout) :: msh
     type(point_t) :: p(12)
 
@@ -50,10 +73,11 @@ contains
     pe_size = 1
     call msh%generate_conn()
 
-  end subroutine test_field_scratch_registry_gen_msh
+  end subroutine test_f_scratch_reg_gen_msh
 
   @test
-  subroutine test_field_scratch_registry_init_default()
+  subroutine test_f_scratch_reg_init_default(this)
+    class(test_field_scratch_reg), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
     type(dofmap_t) :: dm
@@ -61,7 +85,7 @@ contains
     type(scratch_registry_t) :: scratch
     integer :: ierr
 
-    call test_field_scratch_registry_gen_msh(msh)
+    call test_f_scratch_reg_gen_msh(msh)
 
     call Xh%init(GLL, lx, lx, lx)
     call dm%init(msh, Xh)
@@ -74,10 +98,11 @@ contains
     @assertEqual(scratch%get_n_inuse(), 0)
 
     call scratch%free()
-  end subroutine test_field_scratch_registry_init_default
+  end subroutine test_f_scratch_reg_init_default
 
   @test
-  subroutine test_field_scratch_registry_init()
+  subroutine test_f_scratch_reg_init(this)
+    class(test_field_scratch_reg), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
     type(dofmap_t) :: dm
@@ -85,7 +110,7 @@ contains
     type(scratch_registry_t) :: scratch
     integer :: ierr
 
-    call test_field_scratch_registry_gen_msh(msh)
+    call test_f_scratch_reg_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
     call dm%init(msh, Xh)
 
@@ -97,10 +122,11 @@ contains
     @assertEqual(scratch%get_n_inuse(), 0)
 
     call scratch%free()
-  end subroutine test_field_scratch_registry_init
+  end subroutine test_f_scratch_reg_init
 
   @test
-  subroutine test_field_scratch_registry_request_field_fresh()
+  subroutine test_f_scratch_reg_req_f_fresh(this)
+    class(test_field_scratch_reg), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
     type(dofmap_t) :: dm
@@ -110,7 +136,7 @@ contains
     integer, parameter :: LX = 3
 
     ! write(*,*) "TEST FRESH"
-    call test_field_scratch_registry_gen_msh(msh)
+    call test_f_scratch_reg_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
     call dm%init(msh, Xh)
 
@@ -133,7 +159,7 @@ contains
 
     call f1%copy_from(DEVICE_TO_HOST, sync = .false.)
     call f2%copy_from(DEVICE_TO_HOST, sync = .false.)
-    call f3%copy_from(DEVICE_TO_HOST, sync = .false.)
+    call f3%copy_from(DEVICE_TO_HOST, sync = .true.)
 
     @assertEqual(f1%x(1,1,1,1), 1.0_rp)
     @assertEqual(f2%x(1,1,1,1), 2.0_rp)
@@ -143,10 +169,11 @@ contains
     call scratch%relinquish_field(index2)
     call scratch%relinquish_field(index3)
     call scratch%free()
-  end subroutine test_field_scratch_registry_request_field_fresh
+  end subroutine test_f_scratch_reg_req_f_fresh
 
   @test
-  subroutine test_field_scratch_registry_relinquish_field()
+  subroutine test_f_scratch_reg_relq_f(this)
+    class(test_field_scratch_reg), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
     type(dofmap_t) :: dm
@@ -155,7 +182,7 @@ contains
     integer :: ierr, index
     integer, parameter :: LX = 3
 
-    call test_field_scratch_registry_gen_msh(msh)
+    call test_f_scratch_reg_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
     call dm%init(msh, Xh)
 
@@ -168,10 +195,11 @@ contains
     @assertEqual(scratch%get_n_available(), 1)
 
     call scratch%free()
-  end subroutine test_field_scratch_registry_relinquish_field
+  end subroutine test_f_scratch_reg_relq_f
 
   @test
-  subroutine test_vector_scratch_registry_relinquish_field_list()
+  subroutine test_vector_scratch_registry_relq_f_lst(this)
+    class(test_field_scratch_reg), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
     type(dofmap_t) :: dm
@@ -180,7 +208,7 @@ contains
     integer :: ierr, indices(2)
     integer, parameter :: LX = 3
 
-    call test_field_scratch_registry_gen_msh(msh)
+    call test_f_scratch_reg_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
     call dm%init(msh, Xh)
 
@@ -195,10 +223,11 @@ contains
     @assertEqual(scratch%get_n_available(), 2)
 
     call scratch%free()
-  end subroutine test_vector_scratch_registry_relinquish_field_list
+  end subroutine test_vector_scratch_registry_relq_f_lst
 
   @test
-  subroutine test_field_scratch_registry_expand()
+  subroutine test_f_scratch_reg_expand(this)
+    class(test_field_scratch_reg), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
     type(dofmap_t) :: dm
@@ -209,7 +238,7 @@ contains
 
     ! write(*,*) "TEST EXPAND"
 
-    call test_field_scratch_registry_gen_msh(msh)
+    call test_f_scratch_reg_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
     call dm%init(msh, Xh)
 
@@ -218,7 +247,7 @@ contains
     call scratch%request_field(f1, index1, .false.)
     call field_cfill(f1, 1.0_rp)
 
-    call f1%copy_from(DEVICE_TO_HOST, sync = .false.)
+    call f1%copy_from(DEVICE_TO_HOST, sync = .true.)
     @assertEqual(f1%x(1,1,1,1), 1.0_rp)
 
     ! add new field, trigging expand
@@ -229,7 +258,7 @@ contains
 
     ! make sure values in f1 preserved after expansion
     call f1%copy_from(DEVICE_TO_HOST, sync = .false.)
-    call f2%copy_from(DEVICE_TO_HOST, sync = .false.)
+    call f2%copy_from(DEVICE_TO_HOST, sync = .true.)
 
     @assertEqual(f1%x(1,1,1,1), 1.0_rp)
     @assertEqual(f2%x(1,1,1,1), 2.0_rp)
@@ -244,10 +273,11 @@ contains
     call scratch%relinquish_field(index1)
     call scratch%relinquish_field(index2)
     call scratch%free()
-  end subroutine test_field_scratch_registry_expand
+  end subroutine test_f_scratch_reg_expand
 
   @test
-  subroutine test_field_scratch_registry_combo()
+  subroutine test_f_scratch_reg_combo(this)
+    class(test_field_scratch_reg), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
     type(dofmap_t) :: dm
@@ -256,7 +286,7 @@ contains
     integer :: ierr, index1, index2, index3
     integer, parameter :: LX = 2
 
-    call test_field_scratch_registry_gen_msh(msh)
+    call test_f_scratch_reg_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
     call dm%init(msh, Xh)
 
@@ -297,7 +327,7 @@ contains
 
     ! check that the fields have survived
     call f1%copy_from(DEVICE_TO_HOST, sync = .false.)
-    call f2%copy_from(DEVICE_TO_HOST, sync = .false.)
+    call f2%copy_from(DEVICE_TO_HOST, sync = .true.)
     @assertEqual(f1%x(1,1,1,1), 1.5_rp)
     @assertEqual(f2%x(1,1,1,1), 2.0_rp)
 
@@ -315,7 +345,7 @@ contains
     ! check that the fields have survived
     call f1%copy_from(DEVICE_TO_HOST, sync = .false.)
     call f2%copy_from(DEVICE_TO_HOST, sync = .false.)
-    call f3%copy_from(DEVICE_TO_HOST, sync = .false.)
+    call f3%copy_from(DEVICE_TO_HOST, sync = .true.)
     @assertEqual(f1%x(1,1,1,1), 1.5_rp)
     @assertEqual(f2%x(1,1,1,1), 2.0_rp)
     @assertEqual(f3%x(1,1,1,1), 3.0_rp)
@@ -324,10 +354,11 @@ contains
     call scratch%relinquish_field(index2)
     call scratch%relinquish_field(index3)
     call scratch%free()
-  end subroutine test_field_scratch_registry_combo
+  end subroutine test_f_scratch_reg_combo
 
   @test
-  subroutine test_field_scratch_registry_array_indices()
+  subroutine test_f_scratch_reg_array_indices(this)
+    class(test_field_scratch_reg), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
     type(dofmap_t) :: dm
@@ -338,7 +369,7 @@ contains
 
     integer, parameter :: LX = 2
 
-    call test_field_scratch_registry_gen_msh(msh)
+    call test_f_scratch_reg_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
     call dm%init(msh, Xh)
 
@@ -376,5 +407,5 @@ contains
 
     call scratch%relinquish_field(indices(1))
     call scratch%free()
-  end subroutine test_field_scratch_registry_array_indices
+  end subroutine test_f_scratch_reg_array_indices
 end module test_field_scratch_registry

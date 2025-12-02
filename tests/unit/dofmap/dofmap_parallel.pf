@@ -9,14 +9,36 @@ module dofmap_parallel
   use point
   use datadist
   use device
+  use neko_config
   use comm, only : NEKO_COMM, pe_rank, pe_size
   implicit none
 
+  @TestCase
+  type, extends(MPITestCase) :: test_dofmap
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_dofmap
+
 contains
+
+  subroutine setUp(this)
+    class(test_dofmap), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_dofmap), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
 
   @test(npes=[1])
   subroutine test_dofmap_genxyz(this)
-    class (MpiTestMethod), intent(inout) :: this
+    class (test_dofmap), intent(inout) :: this
     type(dofmap_t) :: d
     type(mesh_t) :: m
     type(linear_dist_t) :: dist
@@ -24,8 +46,6 @@ contains
     type(point_t) :: p(12)
     integer :: ierr
     integer, parameter :: gdim = 3
-
-    call device_init
 
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
@@ -83,7 +103,7 @@ contains
 
   @test(npes=[1])
   subroutine test_dofmap_face12(this)
-    class (MpiTestMethod), intent(inout) :: this
+    class (test_dofmap), intent(inout) :: this
     type(dofmap_t) :: d
     type(mesh_t) :: m
     type(linear_dist_t) :: dist
@@ -92,8 +112,6 @@ contains
     integer :: ierr, i,j, lx, i2, j2
     integer, parameter :: gdim = 3
     lx = 5
-
-    call device_init
 
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
@@ -157,7 +175,7 @@ contains
 
   @test(npes=[1])
   subroutine test_dofmap_face15(this)
-    class (MpiTestMethod), intent(inout) :: this
+    class (test_dofmap), intent(inout) :: this
     type(dofmap_t) :: d
     type(mesh_t) :: m
     type(linear_dist_t) :: dist
@@ -166,8 +184,6 @@ contains
     integer :: ierr, i,j, lx, i2, j2
     integer, parameter :: gdim = 3
     lx = 5
-
-    call device_init
 
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
@@ -230,7 +246,7 @@ contains
 
   @test(npes=[1])
   subroutine test_dofmap_face11(this)
-    class (MpiTestMethod), intent(inout) :: this
+    class (test_dofmap), intent(inout) :: this
     type(dofmap_t) :: d
     type(mesh_t) :: m
     type(linear_dist_t) :: dist
@@ -239,8 +255,6 @@ contains
     integer :: ierr, i,j, lx, j2, i2
     integer, parameter :: gdim = 3
     lx = 5
-
-    call device_init
 
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
@@ -302,7 +316,7 @@ contains
 
   @test(npes=[1])
   subroutine test_dofmap_face11rot(this)
-    class (MpiTestMethod), intent(inout) :: this
+    class (test_dofmap), intent(inout) :: this
     type(dofmap_t) :: d
     type(mesh_t) :: m
     type(linear_dist_t) :: dist
@@ -311,8 +325,6 @@ contains
     integer :: ierr, i,j, lx, i2, j2
     integer, parameter :: gdim = 3
     lx = 5
-
-    call device_init
 
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
@@ -375,7 +387,7 @@ contains
 
   @test(npes=[1])
   subroutine test_dofmap_face16(this)
-    class (MpiTestMethod), intent(inout) :: this
+    class (test_dofmap), intent(inout) :: this
     type(dofmap_t) :: d
     type(mesh_t) :: m
     type(linear_dist_t) :: dist
@@ -384,8 +396,6 @@ contains
     integer :: ierr, i,j, lx, i2, j2
     integer, parameter :: gdim = 3
     lx = 5
-
-    call device_init
 
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
@@ -449,7 +459,7 @@ contains
 
   @test(npes=[1])
   subroutine test_dofmap_face13(this)
-    class (MpiTestMethod), intent(inout) :: this
+    class (test_dofmap), intent(inout) :: this
     type(dofmap_t) :: d
     type(mesh_t) :: m
     type(linear_dist_t) :: dist
@@ -458,8 +468,6 @@ contains
     integer :: ierr, i,j, lx, i2, j2
     integer, parameter :: gdim = 3
     lx = 5
-
-    call device_init
 
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
@@ -522,7 +530,7 @@ contains
 
   @test(npes=[1])
   subroutine test_dofmap_face14(this)
-    class (MpiTestMethod), intent(inout) :: this
+    class (test_dofmap), intent(inout) :: this
     type(dofmap_t) :: d
     type(mesh_t) :: m
     type(linear_dist_t) :: dist
@@ -531,8 +539,6 @@ contains
     integer :: ierr, i,j, lx, i2,j2
     integer, parameter :: gdim = 3
     lx = 5
-
-    call device_init
 
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
