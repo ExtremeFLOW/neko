@@ -117,7 +117,7 @@ math/schwarz.lo : math/schwarz.f90 bc/bc_list.lo config/neko_config.lo device/de
 math/vector.lo : math/vector.f90 common/utils.lo math/bcknd/device/device_math.lo math/math.lo device/device.lo config/num_types.lo config/neko_config.lo 
 math/vector_registry.lo : math/vector_registry.f90 common/json_utils.lo comm/comm.lo common/utils.lo math/vector.lo 
 math/vector_math.lo : math/vector_math.f90 math/bcknd/device/device_math.lo math/math.lo device/device.lo math/vector.lo config/num_types.lo config/neko_config.lo 
-registries/registry.lo : registries/registry.f90 common/json_utils.lo comm/comm.lo adt/htable.lo common/utils.lo sem/dofmap.lo registries/registry_entry.lo field/field.lo 
+registries/registry.lo : registries/registry.f90 common/json_utils.lo comm/comm.lo adt/htable.lo common/utils.lo sem/dofmap.lo registries/registry_entry.lo math/matrix.lo math/vector.lo field/field.lo 
 registries/registry_entry.lo : registries/registry_entry.f90 common/utils.lo sem/dofmap.lo math/matrix.lo math/vector.lo field/field.lo 
 registries/scratch_registry.lo : registries/scratch_registry.f90 common/utils.lo sem/dofmap.lo math/matrix_math.lo math/vector_math.lo math/field_math.lo math/matrix.lo math/vector.lo field/field.lo registries/registry_entry.lo 
 math/matrix.lo : math/matrix.f90 common/utils.lo math/bcknd/device/device_math.lo device/device.lo config/num_types.lo math/math.lo config/neko_config.lo 

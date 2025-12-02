@@ -34,6 +34,8 @@
 module field_registry
   use, intrinsic :: iso_fortran_env, only: error_unit
   use field, only : field_t
+  use vector, only : vector_t
+  use matrix, only : matrix_t
   use registry_entry, only : registry_entry_t
   use dofmap, only : dofmap_t
   use utils, only : neko_error
@@ -46,9 +48,9 @@ module field_registry
   private
 
   type, public :: registry_t
-     !> List of fields stored.
+     !> List of entries stored.
      type(registry_entry_t), private, allocatable :: entries(:)
-     !> List of aliases to fields stored.
+     !> List of aliases to entries stored.
      type(json_file), private :: aliases
      !> Number of registered entries
      integer, private :: n_entries_ = 0
@@ -61,35 +63,47 @@ module field_registry
      procedure, pass(this) :: init => registry_init
      !> Destructor.
      procedure, pass(this) :: free => registry_free
-     !> Expand the fields array so as to accommodate more fields.
+     !> Expand the array of entries so as to accommodate more entries.
      procedure, private, pass(this) :: expand => registry_expand
 
      !> Add a field to the registry.
      procedure, pass(this) :: add_field => registry_add_field
      !> Add a vector to the registry.
      procedure, pass(this) :: add_vector => registry_add_vector
+     !> Add a matrix to the registry.
+     procedure, pass(this) :: add_matrix => registry_add_matrix
      !> Add an alias to a field in the registry.
      procedure, pass(this) :: add_alias => registry_add_alias
 
      !> Get pointer to a stored field by index.
      procedure, pass(this) :: get_field_by_index => registry_get_field_by_index
+     !> Get pointer to a stored vector by index.
+     procedure, pass(this) :: get_vector_by_index => &
+          registry_get_vector_by_index
+     !> Get pointer to a stored matrix by index.
+     procedure, pass(this) :: get_matrix_by_index => &
+          registry_get_matrix_by_index
+
      !> Get pointer to a stored field by name.
      procedure, pass(this) :: get_field_by_name => registry_get_field_by_name
-     !> Get pointer to a stored vector by index.
-     procedure, pass(this) :: get_vector_by_index => registry_get_vector_by_index
      !> Get pointer to a stored vector by name.
      procedure, pass(this) :: get_vector_by_name => registry_get_vector_by_name
+     !> Get pointer to a stored matrix by name.
+     procedure, pass(this) :: get_matrix_by_name => registry_get_matrix_by_name
 
      !> Generic field getter
      generic :: get_field => get_field_by_index, get_field_by_name
      !> Generic vector getter
      generic :: get_vector => get_vector_by_index, get_vector_by_name
+     !> Generic matrix getter
+     generic :: get_matrix => get_matrix_by_index, get_matrix_by_name
 
      !> Check if a field with a given name is already in the registry.
      procedure, pass(this) :: field_exists => registry_field_exists
      !> Check if a vector with a given name is already in the registry.
      procedure, pass(this) :: vector_exists => registry_vector_exists
-
+     !> Check if a matrix with a given name is already in the registry.
+     procedure, pass(this) :: matrix_exists => registry_matrix_exists
 
      !> Get total allocated size of `fields`.
      procedure, pass(this) :: get_size => registry_get_size
@@ -99,6 +113,8 @@ module field_registry
      procedure, pass(this) :: n_fields => registry_n_fields
      !> Get the number of vectors in the registry.
      procedure, pass(this) :: n_vectors => registry_n_vectors
+     !> Get the number of matrices in the registry.
+     procedure, pass(this) :: n_matrices => registry_n_matrices
      !> Get the number of aliases in the registry.
      procedure, pass(this) :: n_aliases => registry_n_aliases
      !> Get the `expansion_size`
@@ -113,8 +129,8 @@ contains
   ! Constructors/Destructors
 
   !> Constructor
-  !! @param size The allocation size of `fields` on init.
-  !! @param expansion_size The number of entries added to `fields` on expansion.
+  !! @param size The allocation size of `entries` on init.
+  !! @param expansion_size The number of entries added to `entries` on expansion.
   subroutine registry_init(this, size, expansion_size)
     class(registry_t), intent(inout):: this
     integer, optional, intent(in) :: size
@@ -149,7 +165,6 @@ contains
 
     call this%aliases%destroy()
 
-    this%n_fields_ = 0
     this%n_entries_ = 0
     this%n_aliases_ = 0
     this%expansion_size_ = 5
@@ -160,8 +175,8 @@ contains
     class(registry_t), intent(inout) :: this
     type(registry_entry_t), allocatable :: temp(:)
 
-    allocate(temp(this%n_fields_ + this%expansion_size_))
-    temp(1:this%n_fields_) = this%entries(1:this%n_fields_)
+    allocate(temp(this%n_entries_ + this%expansion_size_))
+    temp(1:this%n_entries_) = this%entries(1:this%n_entries_)
     call move_alloc(temp, this%entries)
   end subroutine registry_expand
 
@@ -170,13 +185,13 @@ contains
 
   !> Add a field to the registry.
   !! @param dof The map of degrees of freedom.
-  !! @param fld_name The name of the field.
+  !! @param name The name of the field.
   !! @param ignore_existing If true, will do nothing if the field is already in
   !! the registry. If false, will throw an error. Optional, defaults to false.
-  subroutine registry_add_field(this, dof, fld_name, ignore_existing)
+  subroutine registry_add_field(this, dof, name, ignore_existing)
     class(registry_t), intent(inout) :: this
     type(dofmap_t), target, intent(in) :: dof
-    character(len=*), target, intent(in) :: fld_name
+    character(len=*), target, intent(in) :: name
     logical, optional, intent(in) :: ignore_existing
     logical :: ignore_existing_
 
@@ -185,23 +200,23 @@ contains
        ignore_existing_ = ignore_existing
     end if
 
-    if (this%field_exists(fld_name)) then
+    if (this%field_exists(name)) then
        if (ignore_existing_) then
           return
        else
-          call neko_error("Field with name " // fld_name // &
+          call neko_error("Field with name " // name // &
                " is already registered")
        end if
     end if
 
-    if (this%n_fields() .eq. size(this%entries)) then
+    if (this%n_entries() .eq. size(this%entries)) then
        call this%expand()
     end if
 
-    this%n_fields_ = this%n_fields_ + 1
+    this%n_entries_ = this%n_entries_ + 1
 
     ! initialize the field at the appropriate index
-    call this%entries(this%n_fields_)%init_field(dof, fld_name)
+    call this%entries(this%n_entries_)%init_field(dof, name)
 
   end subroutine registry_add_field
 
@@ -231,56 +246,147 @@ contains
        end if
     end if
 
-    if (this%n_vectors() == size(this%vectors)) then
+    if (this%n_entries() == size(this%entries)) then
        call this%expand()
     end if
 
-    this%n_vectors_ = this%n_vectors_ + 1
+    this%n_entries_ = this%n_entries_ + 1
 
     ! Initialize the named vector at the appropriate index
-    call this%vectors(this%n_vectors_)%init(name, n)
+    call this%entries(this%n_entries_)%init_vector(n, name)
 
   end subroutine registry_add_vector
 
+  !> Add a matrix to the registry.
+  !! @param n The size of the matrix.
+  !! @param name The name of the matrix.
+  !! @param ignore_existing If true, will do nothing if the matrix is already in
+  !! the registry. If false, will throw an error. Optional, defaults to false.
+  subroutine registry_add_matrix(this, nrows, ncols, name, ignore_existing)
+    class(registry_t), intent(inout) :: this
+    integer, intent(in) :: nrows, ncols
+    character(len=*), target, intent(in) :: name
+    logical, optional, intent(in) :: ignore_existing
+    logical :: ignore_existing_
+
+    ignore_existing_ = .false.
+    if (present(ignore_existing)) then
+       ignore_existing_ = ignore_existing
+    end if
+
+    if (this%matrix_exists(name)) then
+       if (ignore_existing_) then
+          return
+       else
+          call neko_error("Vector with name " // name // &
+               " is already registered")
+       end if
+    end if
+
+    if (this%n_entries() == size(this%entries)) then
+       call this%expand()
+    end if
+
+    this%n_entries_ = this%n_entries_ + 1
+
+    ! Initialize the named matrix at the appropriate index
+    call this%entries(this%n_entries_)%init_matrix(nrows, ncols, name)
+
+  end subroutine registry_add_matrix
+
   !> Add an alias for an existing field in the registry.
   !! @param alias The alias.
-  !! @param fld_name The name of the field.
-  subroutine registry_add_alias(this, alias, fld_name)
+  !! @param name The name of the field.
+  subroutine registry_add_alias(this, alias, name)
     class(registry_t), intent(inout) :: this
     character(len=*), intent(in) :: alias
-    character(len=*), intent(in) :: fld_name
+    character(len=*), intent(in) :: name
 
     if (this%field_exists(alias)) then
        call neko_error("Cannot create alias. Field " // alias // &
             " already exists in the registry")
     end if
 
-    if (this%field_exists(fld_name)) then
+    if (this%field_exists(name)) then
        this%n_aliases_ = this%n_aliases_ + 1
-       call this%aliases%add(trim(alias), trim(fld_name))
+       call this%aliases%add(trim(alias), trim(name))
     else
-       call neko_error("Cannot create alias. Field " // fld_name // &
+       call neko_error("Cannot create alias. Field " // name // &
             " could not be found in the registry")
     end if
   end subroutine registry_add_alias
 
   ! ========================================================================== !
-  ! Methods for retrieving objects from the registry
+  ! Methods for retrieving objects from the registry by index
 
   !> Get pointer to a stored field by index.
   function registry_get_field_by_index(this, i) result(f)
     class(registry_t), target, intent(in) :: this
     integer, intent(in) :: i
     type(field_t), pointer :: f
+    character(len=:), allocatable :: buffer
 
     if (i < 1) then
        call neko_error("Field index must be > 1")
-    else if (i > this%n_fields()) then
+    else if (i > this%n_entries()) then
        call neko_error("Field index exceeds number of stored fields")
     endif
 
-    f => this%entries(i)%field_ptr
+    if (this%entries(i)%get_type() .ne. 'field') then
+       write(buffer, *) "Requested index ", i, " is not a field, but a ", &
+            this%entries(i)%get_type()
+       call neko_error(buffer)
+    end if
+
+    f => this%entries(i)%get_field()
   end function registry_get_field_by_index
+
+  !> Get pointer to a stored vector by index.
+  function registry_get_vector_by_index(this, i) result(f)
+    class(registry_t), target, intent(in) :: this
+    integer, intent(in) :: i
+    type(vector_t), pointer :: f
+    character(len=:), allocatable :: buffer
+
+    if (i < 1) then
+       call neko_error("Vector index must be > 1")
+    else if (i > this%n_entries()) then
+       call neko_error("Vector index exceeds number of stored vectors")
+    endif
+
+    if (this%entries(i)%get_type() .ne. 'vector') then
+       write(buffer, *) "Requested index ", i, " is not a vector, but a ", &
+            this%entries(i)%get_type()
+       call neko_error(buffer)
+    end if
+
+    f => this%entries(i)%get_vector()
+  end function registry_get_vector_by_index
+
+  !> Get pointer to a stored matrix by index.
+  function registry_get_matrix_by_index(this, i) result(f)
+    class(registry_t), target, intent(in) :: this
+    integer, intent(in) :: i
+    type(matrix_t), pointer :: f
+    character(len=:), allocatable :: buffer
+
+    if (i < 1) then
+       call neko_error("Matrix index must be > 1")
+    else if (i > this%n_entries()) then
+       call neko_error("Matrix index exceeds number of stored matrices")
+    endif
+
+    if (this%entries(i)%get_type() .ne. 'matrix') then
+       write(buffer, *) "Requested index ", i, " is not a matrix, but a ", &
+            this%entries(i)%get_type()
+       call neko_error(buffer)
+    end if
+
+    f => this%entries(i)%get_matrix()
+  end function registry_get_matrix_by_index
+
+  ! ========================================================================== !
+  ! Methods for retrieving objects from the registry by name
 
   !> Get pointer to a stored field by field name.
   recursive function registry_get_field_by_name(this, name) result(f)
@@ -288,12 +394,13 @@ contains
     character(len=*), intent(in) :: name
     character(len=:), allocatable :: alias_target
     type(field_t), pointer :: f
-    logical :: found, is_alias
+    logical :: found
     integer :: i
 
-    do i = 1, this%n_fields()
-       if (this%entries(i)%get_name() .eq. trim(name)) then
-          f => this%entries(i)%field_ptr
+    do i = 1, this%n_entries()
+       if (this%entries(i)%get_type() .eq. 'field' .and. &
+            this%entries(i)%get_name() .eq. name) then
+          f => this%entries(i)%get_field()
           return
        end if
     end do
@@ -305,9 +412,9 @@ contains
     end if
 
     if (pe_rank .eq. 0) then
-       write(error_unit, *) "Current field_registry contents:"
+       write(error_unit, *) "Current registry contents:"
 
-       do i = 1, this%n_fields()
+       do i = 1, this%n_entries()
           write(error_unit, *) "- ", this%entries(i)%get_name()
        end do
     end if
@@ -315,65 +422,78 @@ contains
 
   end function registry_get_field_by_name
 
-  !> Get pointer to a stored vector by index.
-  function registry_get_vector_by_index(this, i) result(f)
-    class(registry_t), target, intent(in) :: this
-    integer, intent(in) :: i
-    type(vector_t), pointer :: f
-
-    if (i < 1) then
-       call neko_error("Vector index must be > 1")
-    else if (i > this%n_vectors()) then
-       call neko_error("Vector index exceeds number of stored vectors")
-    endif
-
-    f => this%vectors(i)%vector
-  end function registry_get_vector_by_index
 
   !> Get pointer to a stored vector by name.
   recursive function registry_get_vector_by_name(this, name) result(f)
-    class(registry_t), target, intent(in) :: this
+    class(registry_t), target, intent(inout) :: this
     character(len=*), intent(in) :: name
-    character(len=:), allocatable :: alias
     character(len=:), allocatable :: alias_target
     type(vector_t), pointer :: f
     logical :: found
     integer :: i
-    type(json_file), pointer :: alias_json ! need this for some reason
 
     found = .false.
 
-    do i = 1, this%n_vectors()
-       if (this%vectors(i)%name == trim(name)) then
-          f => this%vectors(i)%vector
+    do i = 1, this%n_entries()
+       if (this%entries(i)%get_name() == trim(name)) then
+          f => this%entries(i)%get_vector()
           found = .true.
           exit
        end if
     end do
 
-    do i = 1, this%n_aliases()
-       alias_json => this%aliases(i)
-       call json_get(alias_json, "alias", alias)
-       if (alias == trim(name)) then
-          call json_get(alias_json, "target", alias_target)
-          f => this%get_vector_by_name(alias_target)
-          found = .true.
-          exit
-       end if
-    end do
-
-    if (.not. found) then
-       if (pe_rank .eq. 0) then
-          write(error_unit,*) "Current vector_registry contents:"
-
-          do i=1, this%n_vectors()
-             write(error_unit,*) "- ", this%vectors(i)%name
-          end do
-       end if
-       call neko_error("Vector " // name // &
-            " could not be found in the registry")
+    call this%aliases%get(name, alias_target, found)
+    if (found) then
+       f => this%get_vector_by_name(alias_target)
+       return
     end if
+
+    if (pe_rank .eq. 0) then
+       write(error_unit, *) "Current registry contents:"
+
+       do i = 1, this%n_entries()
+          write(error_unit, *) "- ", this%entries(i)%get_name()
+       end do
+    end if
+    call neko_error("Vector " // name // " could not be found in the registry")
+
   end function registry_get_vector_by_name
+
+  !> Get pointer to a stored matrix by name.
+  recursive function registry_get_matrix_by_name(this, name) result(f)
+    class(registry_t), target, intent(inout) :: this
+    character(len=*), intent(in) :: name
+    character(len=:), allocatable :: alias_target
+    type(matrix_t), pointer :: f
+    logical :: found
+    integer :: i
+
+    found = .false.
+
+    do i = 1, this%n_entries()
+       if (this%entries(i)%get_name() == trim(name)) then
+          f => this%entries(i)%get_matrix()
+          found = .true.
+          exit
+       end if
+    end do
+
+    call this%aliases%get(name, alias_target, found)
+    if (found) then
+       f => this%get_matrix_by_name(alias_target)
+       return
+    end if
+
+    if (pe_rank .eq. 0) then
+       write(error_unit, *) "Current registry contents:"
+
+       do i = 1, this%n_entries()
+          write(error_unit, *) "- ", this%entries(i)%get_name()
+       end do
+    end if
+    call neko_error("Matrix " // name // " could not be found in the registry")
+
+  end function registry_get_matrix_by_name
 
   ! ========================================================================== !
   ! Methods for checking existence of objects in the registry
@@ -386,8 +506,9 @@ contains
     integer :: i
 
     found = .false.
-    do i = 1, this%n_fields()
-       if (this%entries(i)%get_name() .eq. name) then
+    do i = 1, this%n_entries()
+       if (this%entries(i)%get_type() .eq. 'field' .and. &
+            this%entries(i)%get_name() .eq. name) then
           found = .true.
           return
        end if
@@ -398,30 +519,41 @@ contains
 
   !> Check if a vector with a given name is already in the registry.
   function registry_vector_exists(this, name) result(found)
-    class(registry_t), target, intent(in) :: this
+    class(registry_t), target, intent(inout) :: this
     character(len=*), intent(in) :: name
-    character(len=:), allocatable :: alias
     logical :: found
     integer :: i
-    type(json_file), pointer :: alias_json
 
     found = .false.
-    do i=1, this%n_vectors()
-       if (this%vectors(i)%name == name) then
+    do i = 1, this%n_entries()
+       if (this%entries(i)%get_type() .eq. 'vector' .and. &
+            this%entries(i)%get_name() .eq. name) then
           found = .true.
           exit
        end if
     end do
 
-    do i=1, this%n_aliases()
-       alias_json => this%aliases(i)
-       call json_get(alias_json, "alias", alias)
-       if (alias == name) then
+    found = this%aliases%valid_path(name)
+  end function registry_vector_exists
+
+  !> Check if a matrix with a given name is already in the registry.
+  function registry_matrix_exists(this, name) result(found)
+    class(registry_t), target, intent(inout) :: this
+    character(len=*), intent(in) :: name
+    logical :: found
+    integer :: i
+
+    found = .false.
+    do i = 1, this%n_entries()
+       if (this%entries(i)%get_type() .eq. 'matrix' .and. &
+            this%entries(i)%get_name() .eq. name) then
           found = .true.
           exit
        end if
     end do
-  end function registry_vector_exists
+
+    found = this%aliases%valid_path(name)
+  end function registry_matrix_exists
 
   ! ========================================================================== !
   ! Generic component accessor methods
@@ -440,8 +572,8 @@ contains
     integer :: n, i
 
     n = 0
-    do i = 1, this%n_entries_
-       if (trim(this%entries(i)%get_type()) .eq. "field") then
+    do i = 1, this%n_entries()
+       if (trim(this%entries(i)%get_type()) .eq. 'field') then
           n = n + 1
        end if
     end do
@@ -453,12 +585,25 @@ contains
     integer :: n, i
 
     n = 0
-    do i = 1, this%n_entries_
-       if (trim(this%entries(i)%get_type()) .eq. "vector") then
+    do i = 1, this%n_entries()
+       if (trim(this%entries(i)%get_type()) .eq. 'vector') then
           n = n + 1
        end if
     end do
   end function registry_n_vectors
+
+  !> Get the number of matrix stored in the registry
+  pure function registry_n_matrices(this) result(n)
+    class(registry_t), intent(in) :: this
+    integer :: n, i
+
+    n = 0
+    do i = 1, this%n_entries()
+       if (trim(this%entries(i)%get_type()) .eq. 'matrix') then
+          n = n + 1
+       end if
+    end do
+  end function registry_n_matrices
 
   !> Get the number of aliases stored in the registry
   pure function registry_n_aliases(this) result(n)
