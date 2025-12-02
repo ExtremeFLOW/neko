@@ -49,7 +49,7 @@ module field_registry
      !> List of fields stored.
      type(field_ptr_t), private, allocatable :: fields(:)
      !> List of aliases to fields stored.
-     type(json_file), private, allocatable :: aliases(:)
+     type(json_file), private :: aliases
      !> Number of registered fields.
      integer, private :: n_fields_
      !> Number of aliases.
@@ -57,11 +57,8 @@ module field_registry
      !> The size the fields array is increased by upon reallocation.
      integer, private :: expansion_size
    contains
-     !> Expand the fields array so as to accomodate more fields.
+     !> Expand the fields array so as to accommodate more fields.
      procedure, private, pass(this) :: expand => field_registry_expand
-     !> Expand the aliases array so as to accomodate more aliases.
-     procedure, private, pass(this) :: expand_aliases => &
-          field_registry_expand_aliases
      !> Constructor.
      procedure, pass(this) :: init => field_registry_init
      !> Destructor.
@@ -105,12 +102,12 @@ contains
     call this%free()
 
     if (present(size)) then
-       allocate (this%fields(size))
-       allocate (this%aliases(size))
+       allocate(this%fields(size))
     else
-       allocate (this%fields(25))
-       allocate (this%aliases(25))
+       allocate(this%fields(25))
     end if
+
+    call this%aliases%initialize()
 
     if (present(expansion_size)) then
        this%expansion_size = expansion_size
@@ -134,9 +131,7 @@ contains
        deallocate(this%fields)
     end if
 
-    if (allocated(this%aliases)) then
-       deallocate(this%aliases)
-    end if
+    call this%aliases%destroy()
 
     this%n_fields_ = 0
     this%n_aliases_ = 0
@@ -152,16 +147,6 @@ contains
     temp(1:this%n_fields_) = this%fields(1:this%n_fields_)
     call move_alloc(temp, this%fields)
   end subroutine field_registry_expand
-
-  !> Expand the aliases array so as to accomodate more aliases.
-  subroutine field_registry_expand_aliases(this)
-    class(field_registry_t), intent(inout) :: this
-    type(json_file), allocatable :: temp(:)
-
-    allocate(temp(this%n_aliases() + this%expansion_size))
-    temp(1:this%n_aliases()) = this%aliases(1:this%n_fields_)
-    call move_alloc(temp, this%aliases)
-  end subroutine field_registry_expand_aliases
 
   !> Add a field to the registry.
   !! @param dof The map of degrees of freedom.
@@ -206,8 +191,8 @@ contains
   !! @param fld_name The name of the field.
   subroutine field_registry_add_alias(this, alias, fld_name)
     class(field_registry_t), intent(inout) :: this
-    character(len=*), target, intent(in) :: alias
-    character(len=*), target, intent(in) :: fld_name
+    character(len=*), intent(in) :: alias
+    character(len=*), intent(in) :: fld_name
 
     if (this%field_exists(alias)) then
        call neko_error("Cannot create alias. Field " // alias // &
@@ -215,15 +200,8 @@ contains
     end if
 
     if (this%field_exists(fld_name)) then
-       if (this%n_aliases_ == size(this%aliases)) then
-          call this%expand_aliases()
-       end if
-
        this%n_aliases_ = this%n_aliases_ + 1
-
-       call this%aliases(this%n_aliases_)%initialize()
-       call this%aliases(this%n_aliases_)%add("alias", alias)
-       call this%aliases(this%n_aliases_)%add("target", fld_name)
+       call this%aliases%add(trim(alias), trim(fld_name))
     else
        call neko_error("Cannot create alias. Field " // fld_name // &
             " could not be found in the registry")
@@ -279,74 +257,53 @@ contains
 
   !> Get pointer to a stored field by field name.
   recursive function field_registry_get_field_by_name(this, name) result(f)
-    class(field_registry_t), target, intent(in) :: this
+    class(field_registry_t), target, intent(inout) :: this
     character(len=*), intent(in) :: name
-    character(len=:), allocatable :: alias
     character(len=:), allocatable :: alias_target
     type(field_t), pointer :: f
-    logical :: found
+    logical :: found, is_alias
     integer :: i
-    type(json_file), pointer :: alias_json ! need this for some reason
-
-    found = .false.
 
     do i = 1, this%n_fields()
        if (this%fields(i)%ptr%name == trim(name)) then
           f => this%fields(i)%ptr
-          found = .true.
-          exit
+          return
        end if
     end do
 
-    do i = 1, this%n_aliases()
-       alias_json => this%aliases(i)
-       call json_get(alias_json, "alias", alias)
-       if (alias == trim(name)) then
-          call json_get(alias_json, "target", alias_target)
-          f => this%get_field_by_name(alias_target)
-          found = .true.
-          exit
-       end if
-    end do
-
-    if (.not. found) then
-       if (pe_rank .eq. 0) then
-          write(error_unit,*) "Current field_registry contents:"
-
-          do i=1, this%n_fields()
-             write(error_unit,*) "- ", this%fields(i)%ptr%name
-          end do
-       end if
-       call neko_error("Field " // name // &
-            " could not be found in the registry")
+    call this%aliases%get(name, alias_target, found)
+    if (found) then
+       f => this%get_field_by_name(alias_target)
+       return
     end if
+
+    if (pe_rank .eq. 0) then
+       write(error_unit, *) "Current field_registry contents:"
+
+       do i = 1, this%n_fields()
+          write(error_unit, *) "- ", this%fields(i)%ptr%name
+       end do
+    end if
+    call neko_error("Field " // name // " could not be found in the registry")
+
   end function field_registry_get_field_by_name
 
   !> Check if a field with a given name is already in the registry.
   function field_registry_field_exists(this, name) result(found)
-    class(field_registry_t), target, intent(in) :: this
+    class(field_registry_t), target, intent(inout) :: this
     character(len=*), intent(in) :: name
-    character(len=:), allocatable :: alias
     logical :: found
     integer :: i
-    type(json_file), pointer :: alias_json
 
     found = .false.
-    do i=1, this%n_fields()
+    do i = 1, this%n_fields()
        if (this%fields(i)%ptr%name == name) then
           found = .true.
-          exit
+          return
        end if
     end do
 
-    do i=1, this%n_aliases()
-       alias_json => this%aliases(i)
-       call json_get(alias_json, "alias", alias)
-       if (alias == name) then
-          found = .true.
-          exit
-       end if
-    end do
+    found = this%aliases%valid_path(name)
   end function field_registry_field_exists
 
 end module field_registry
