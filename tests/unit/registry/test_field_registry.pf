@@ -7,7 +7,10 @@ module test_field_registry
   use dofmap, only : dofmap_t
   use field_registry, only : registry_t
   use comm, only : pe_rank, pe_size
-  use num_types
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE
+  use field_math, only : field_cfill
+  use num_types, only : rp
   implicit none
 
 contains
@@ -55,16 +58,36 @@ contains
     type(registry_t) :: registry
 
     call registry%init()
+    @assertEqual(25, registry%get_size())
+    @assertEqual(0, registry%n_entries())
+    @assertEqual(0, registry%n_fields())
+    @assertEqual(0, registry%n_aliases())
+    @assertEqual(5, registry%get_expansion_size())
 
-    @assertEqual(registry%n_fields(), 0)
-    @assertEqual(registry%n_aliases(), 0)
-    @assertEqual(registry%get_expansion_size(), 5)
-
-    call registry%init(5, 10)
-    @assertEqual(registry%n_fields(), 0)
-    @assertEqual(registry%n_aliases(), 0)
-    @assertEqual(registry%get_expansion_size(), 10)
+    ! Test freeing the registry
+    call registry%free()
+    @assertEqual(0, registry%get_size())
+    @assertEqual(0, registry%n_entries())
+    @assertEqual(0, registry%n_fields())
+    @assertEqual(0, registry%n_aliases())
+    @assertEqual(5, registry%get_expansion_size())
   end subroutine test_registry_init
+
+  @test
+  subroutine test_registry_init_custom()
+    type(registry_t) :: registry
+
+    ! Test custom initialization and reinitialization
+    call registry%init(5, 10)
+    @assertEqual(5, registry%get_size())
+    @assertEqual(0, registry%n_entries())
+    @assertEqual(0, registry%n_fields())
+    @assertEqual(0, registry%n_aliases())
+    @assertEqual(10, registry%get_expansion_size())
+
+    call registry%free()
+  end subroutine test_registry_init_custom
+
 
   @test
   subroutine test_registry_add_field()
@@ -73,7 +96,7 @@ contains
     type(dofmap_t) :: dm
     integer, parameter :: lx = 4
     type(registry_t) :: registry
-    type(field_t), pointer :: field_ptr
+    type(field_t), pointer :: field
 
     call test_registry_gen_msh(msh)
 
@@ -84,14 +107,16 @@ contains
 
     call registry%add_field(dm, 'test_field')
 
-    @assertEqual(registry%n_fields(), 1)
+    @assertEqual(1, registry%n_fields())
 
-    field_ptr => registry%get_field('test_field')
+    field => registry%get_field('test_field')
 
-    @assertEqual(field_ptr%name, 'test_field')
+    @assertEqual(field%name, 'test_field')
 
     call registry%add_field(dm, 'test_field', ignore_existing=.true.)
-    @assertEqual(registry%n_fields(), 1)
+    @assertEqual(1, registry%n_fields())
+
+    call registry%free()
   end subroutine test_registry_add_field
 
   @test
@@ -101,7 +126,7 @@ contains
     type(dofmap_t) :: dm
     integer, parameter :: lx = 4
     type(registry_t) :: registry
-    type(field_t), pointer :: field_ptr
+    type(field_t), pointer :: field, alias_ptr
 
     call test_registry_gen_msh(msh)
 
@@ -114,13 +139,20 @@ contains
     call registry%add_alias('test_alias', 'test_field')
     call registry%add_alias('test_alias2', 'test_field')
 
-    @assertEqual(registry%n_aliases(), 2)
+    @assertEqual(1, registry%n_fields())
+    @assertEqual(2, registry%n_aliases())
 
-    field_ptr => registry%get_field('test_alias')
-    @assertEqual(field_ptr%name, 'test_field')
+    field => registry%get_field('test_alias')
+    @assertEqual(field%name, 'test_field')
 
-    field_ptr => registry%get_field('test_alias2')
-    @assertEqual(field_ptr%name, 'test_field')
+    field => registry%get_field('test_alias2')
+    @assertEqual(field%name, 'test_field')
+
+    field => registry%get_field('test_field')
+    alias_ptr => registry%get_field('test_alias')
+    @assertAssociated(field, alias_ptr)
+
+    call registry%free()
   end subroutine test_registry_add_alias
 
   @test
@@ -130,7 +162,7 @@ contains
     type(dofmap_t) :: dm
     integer, parameter :: lx = 4
     type(registry_t) :: registry
-    type(field_t), pointer :: field_ptr
+    type(field_t), pointer :: field1, field1_post, field2
 
     call test_registry_gen_msh(msh)
 
@@ -140,15 +172,31 @@ contains
     call registry%init(1, 1)
 
     call registry%add_field(dm, 'test_field1')
+    field1 => registry%get_field('test_field1')
+    call field_cfill(field1, 42.0_rp)
+
     call registry%add_field(dm, 'test_field2')
+    field2 => registry%get_field('test_field2')
+    call field_cfill(field2, 84.0_rp)
 
-    @assertEqual(registry%n_fields(), 2)
+    @assertEqual(2, registry%n_entries())
+    @assertEqual(2, registry%n_fields())
 
-    field_ptr => registry%get_field('test_field1')
-    @assertEqual(field_ptr%name, 'test_field1')
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call field1%copy_from(DEVICE_TO_HOST, sync = .false.)
+       call field2%copy_from(DEVICE_TO_HOST, sync = .true.)
+    end if
 
-    field_ptr => registry%get_field('test_field2')
-    @assertEqual(field_ptr%name, 'test_field2')
+    ! Check values post-expansion
+    @assertEqual(field1%x(1,1,1,1), 42.0_rp)
+    @assertEqual(field2%x(1,1,1,1), 84.0_rp)
+
+    ! Check that we did indeed retain the objects
+    field1_post => registry%get_field('test_field1')
+    @assertAssociated(field1, field1_post)
+    @assertEqual(field1_post%x(1,1,1,1), 42.0_rp)
+
+    call registry%free()
   end subroutine test_registry_expand
 
 end module test_field_registry
