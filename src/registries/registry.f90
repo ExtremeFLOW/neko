@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a registry for storing solution fields
-module field_registry
+module registry
   use, intrinsic :: iso_fortran_env, only: error_unit
   use field, only : field_t
   use vector, only : vector_t
@@ -125,7 +125,7 @@ module field_registry
   end type registry_t
 
   !> Global field registry
-  type(registry_t), public, target :: neko_field_registry
+  type(registry_t), public, target :: neko_registry
 
 contains
   ! ========================================================================== !

@@ -57,7 +57,7 @@ module fluid_scheme_incompressible
   use math, only : glsum
   use operators, only : cfl, rotate_cyc
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file
   use scratch_registry, only : neko_scratch_registry
@@ -196,12 +196,12 @@ contains
     call neko_log%message(log_buf)
 
     ! Assign velocity fields
-    call neko_field_registry%add_field(this%dm_Xh, 'u')
-    call neko_field_registry%add_field(this%dm_Xh, 'v')
-    call neko_field_registry%add_field(this%dm_Xh, 'w')
-    this%u => neko_field_registry%get_field('u')
-    this%v => neko_field_registry%get_field('v')
-    this%w => neko_field_registry%get_field('w')
+    call neko_registry%add_field(this%dm_Xh, 'u')
+    call neko_registry%add_field(this%dm_Xh, 'v')
+    call neko_registry%add_field(this%dm_Xh, 'w')
+    this%u => neko_registry%get_field('u')
+    this%v => neko_registry%get_field('v')
+    this%w => neko_registry%get_field('w')
 
     !
     ! Material properties
@@ -316,12 +316,12 @@ contains
     call this%vlag%init(this%v, 2)
     call this%wlag%init(this%w, 2)
 
-    call neko_field_registry%add_field(this%dm_Xh, 'u_e')
-    call neko_field_registry%add_field(this%dm_Xh, 'v_e')
-    call neko_field_registry%add_field(this%dm_Xh, 'w_e')
-    this%u_e => neko_field_registry%get_field('u_e')
-    this%v_e => neko_field_registry%get_field('v_e')
-    this%w_e => neko_field_registry%get_field('w_e')
+    call neko_registry%add_field(this%dm_Xh, 'u_e')
+    call neko_registry%add_field(this%dm_Xh, 'v_e')
+    call neko_registry%add_field(this%dm_Xh, 'w_e')
+    this%u_e => neko_registry%get_field('u_e')
+    this%v_e => neko_registry%get_field('v_e')
+    this%w_e => neko_registry%get_field('w_e')
 
     ! Initialize the source term
     call neko_log%section('Fluid Source term')
@@ -580,7 +580,7 @@ contains
          time)
 
     if (len(trim(this%nut_field_name)) > 0) then
-       nut => neko_field_registry%get_field(this%nut_field_name)
+       nut => neko_registry%get_field(this%nut_field_name)
        ! Copy material property
        call field_copy(this%mu_tot, this%mu)
        ! Add turbulent contribution
@@ -615,12 +615,12 @@ contains
 
     dummy_mp_ptr => dummy_user_material_properties
 
-    call neko_field_registry%add_field(this%dm_Xh, this%name // "_mu")
-    call neko_field_registry%add_field(this%dm_Xh, this%name // "_mu_tot")
-    call neko_field_registry%add_field(this%dm_Xh, this%name // "_rho")
-    this%mu => neko_field_registry%get_field(this%name // "_mu")
-    this%mu_tot => neko_field_registry%get_field(this%name // "_mu_tot")
-    this%rho => neko_field_registry%get_field(this%name // "_rho")
+    call neko_registry%add_field(this%dm_Xh, this%name // "_mu")
+    call neko_registry%add_field(this%dm_Xh, this%name // "_mu_tot")
+    call neko_registry%add_field(this%dm_Xh, this%name // "_rho")
+    this%mu => neko_registry%get_field(this%name // "_mu")
+    this%mu_tot => neko_registry%get_field(this%name // "_mu_tot")
+    this%rho => neko_registry%get_field(this%name // "_rho")
 
     call this%material_properties%init(2)
     call this%material_properties%assign(1, this%rho)

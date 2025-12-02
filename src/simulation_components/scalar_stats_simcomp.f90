@@ -36,7 +36,7 @@ module scalar_stats_simcomp
   use num_types, only : rp, dp, sp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use time_state, only : time_state_t
   use field, only : field_t
   use scalar_stats, only: scalar_stats_t
@@ -113,11 +113,11 @@ contains
     call json_get_or_default(json, 'field', &
          sname, 's')
 
-    s => neko_field_registry%get_field_by_name(sname)
-    u => neko_field_registry%get_field("u")
-    v => neko_field_registry%get_field("v")
-    w => neko_field_registry%get_field("w")
-    p => neko_field_registry%get_field("p")
+    s => neko_registry%get_field_by_name(sname)
+    u => neko_registry%get_field("u")
+    v => neko_registry%get_field("v")
+    w => neko_registry%get_field("w")
+    p => neko_registry%get_field("p")
     coef => case%fluid%c_Xh
 
     if (json%valid_path("output_filename")) then

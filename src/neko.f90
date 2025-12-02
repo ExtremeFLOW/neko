@@ -100,7 +100,6 @@ module neko
   use field_list, only : field_list_t
   use user_source_term, only : user_source_term_t
   use vector, only : vector_t, vector_ptr_t
-  use vector_registry, only : neko_vector_registry, vector_registry_t
   use matrix, only : matrix_t
   use tensor
   use simulation_component, only : simulation_component_t, &

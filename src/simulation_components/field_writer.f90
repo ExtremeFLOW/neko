@@ -38,7 +38,7 @@ module field_writer
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use time_state, only : time_state_t
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use case, only : case_t
   use fld_file_output, only : fld_file_output_t
   use json_utils, only : json_get
@@ -190,7 +190,7 @@ contains
     ! Regsiter fields if they don't exist.
     do i = 1, size(fields)
        fieldi = trim(fields(i))
-       call neko_field_registry%add_field(this%case%fluid%dm_Xh, fieldi,&
+       call neko_registry%add_field(this%case%fluid%dm_Xh, fieldi,&
             ignore_existing = .true.)
     end do
 
@@ -203,7 +203,7 @@ contains
        do i = 1, size(fields)
           fieldi = trim(fields(i))
           call this%output%fields%assign(i, &
-               neko_field_registry%get_field(fieldi))
+               neko_registry%get_field(fieldi))
        end do
 
        call this%case%output_controller%add(this%output, &
@@ -213,7 +213,7 @@ contains
        do i = 1, size(fields)
           fieldi = trim(fields(i))
           call this%case%f_out%fluid%append( &
-               neko_field_registry%get_field(fieldi))
+               neko_registry%get_field(fieldi))
        end do
     end if
 

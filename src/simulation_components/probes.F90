@@ -42,7 +42,7 @@ module probes
   use field_list, only: field_list_t
   use time_state, only : time_state_t
   use simulation_component, only : simulation_component_t
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use dofmap, only: dofmap_t
   use json_module, only : json_file, json_value, json_core
   use json_utils, only : json_get, json_extract_item, json_get_or_default
@@ -155,7 +155,7 @@ contains
     do i = 1, this%n_fields
 
        call this%sampled_fields%assign(i, &
-       & neko_field_registry%get_field(trim(this%which_fields(i))))
+       & neko_registry%get_field(trim(this%which_fields(i))))
     end do
 
     ! Setup the required arrays and initialize variables.
