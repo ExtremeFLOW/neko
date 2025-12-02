@@ -394,12 +394,15 @@ neko_fortran_SOURCES = \
 	les/bcknd/device/device_wale_nut.F90\
 	wall_models/wall_model.f90\
 	wall_models/bcknd/device/wall_model_device.F90\
-	wall_models/rough_log_law.f90\
-	wall_models/bcknd/cpu/rough_log_law_cpu.f90\
-	wall_models/bcknd/device/rough_log_law_device.F90\
 	wall_models/spalding.f90\
 	wall_models/bcknd/cpu/spalding_cpu.f90\
 	wall_models/bcknd/device/spalding_device.F90\
+	wall_models/rough_log_law.f90\
+	wall_models/bcknd/cpu/rough_log_law_cpu.f90\
+	wall_models/bcknd/device/rough_log_law_device.F90\
+	wall_models/most_convective.f90\
+	wall_models/bcknd/cpu/most_convective_cpu.f90\
+	wall_models/bcknd/device/most_convective_device.F90\
 	wall_models/wall_model_fctry.f90\
 	neko.f90
 
@@ -476,6 +479,7 @@ libneko_la_SOURCES += \
 	wall_models/bcknd/device/hip/wall_model.hip\
 	wall_models/bcknd/device/hip/spalding.hip\
 	wall_models/bcknd/device/hip/rough_log_law.hip\
+	wall_models/bcknd/device/hip/most_convective.hip\
 	multigrid/bcknd/device/hip/amg_cheby.hip\
 	krylov/bcknd/device/hip/cheby_aux.hip
 endif
@@ -537,6 +541,7 @@ libneko_la_SOURCES += \
 	wall_models/bcknd/device/cuda/wall_model.cu\
 	wall_models/bcknd/device/cuda/spalding.cu\
 	wall_models/bcknd/device/cuda/rough_log_law.cu\
+	wall_models/bcknd/device/cuda/most_convective.cu\
 	multigrid/bcknd/device/cuda/amg_cheby.cu\
 	krylov/bcknd/device/cuda/cheby_aux.cu
 
@@ -722,6 +727,7 @@ EXTRA_DIST = \
 	wall_models/bcknd/device/cuda/wall_model_kernel.h\
 	wall_models/bcknd/device/cuda/spalding_kernel.h\
 	wall_models/bcknd/device/cuda/rough_log_law_kernel.h\
+	wall_models/bcknd/device/cuda/most_convective_kernel.h\
 	bc/bcknd/device/hip/dirichlet_kernel.h\
 	bc/bcknd/device/hip/inflow_kernel.h\
 	bc/bcknd/device/hip/zero_dirichlet_kernel.h\
@@ -777,6 +783,7 @@ EXTRA_DIST = \
 	wall_models/bcknd/device/hip/wall_model_kernel.h\
 	wall_models/bcknd/device/hip/spalding_kernel.h\
 	wall_models/bcknd/device/hip/rough_log_law_kernel.h\
+	wall_models/bcknd/device/hip/most_convective_kernel.h\
 	bc/bcknd/device/opencl/dirichlet_kernel.cl\
 	bc/bcknd/device/opencl/inflow_kernel.cl\
 	bc/bcknd/device/opencl/zero_dirichlet_kernel.cl\
