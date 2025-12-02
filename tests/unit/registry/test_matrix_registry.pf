@@ -1,0 +1,136 @@
+module test_matrix_registry
+  use pfunit
+  use matrix, only : matrix_t
+  use field_registry, only : registry_t
+  use comm, only : pe_rank, pe_size
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE
+  use matrix_math, only : matrix_cfill
+  use num_types, only : rp
+  implicit none
+
+contains
+
+  @test
+  subroutine test_registry_init()
+    type(registry_t) :: registry
+
+    call registry%init()
+    @assertEqual(25, registry%get_size())
+    @assertEqual(0, registry%n_entries())
+    @assertEqual(0, registry%n_matrices())
+    @assertEqual(0, registry%n_aliases())
+    @assertEqual(5, registry%get_expansion_size())
+
+    ! Test freeing the registry
+    call registry%free()
+    @assertEqual(0, registry%get_size())
+    @assertEqual(0, registry%n_entries())
+    @assertEqual(0, registry%n_matrices())
+    @assertEqual(0, registry%n_aliases())
+    @assertEqual(5, registry%get_expansion_size())
+  end subroutine test_registry_init
+
+  @test
+  subroutine test_registry_init_custom()
+    type(registry_t) :: registry
+
+    ! Test custom initialization and reinitialization
+    call registry%init(5, 10)
+    @assertEqual(5, registry%get_size())
+    @assertEqual(0, registry%n_entries())
+    @assertEqual(0, registry%n_matrices())
+    @assertEqual(0, registry%n_aliases())
+    @assertEqual(10, registry%get_expansion_size())
+
+    call registry%free()
+  end subroutine test_registry_init_custom
+
+
+  @test
+  subroutine test_registry_add_matrix()
+    type(registry_t) :: registry
+    type(matrix_t), pointer :: matrix
+
+    call registry%init()
+
+    call registry%add_matrix(3, 7, 'test_matrix')
+
+    @assertEqual(1, registry%n_matrices())
+
+    matrix => registry%get_matrix('test_matrix')
+
+    @assertEqual(3, matrix%get_nrows())
+    @assertEqual(7, matrix%get_ncols())
+
+    call registry%add_matrix(3, 7, 'test_matrix', ignore_existing=.true.)
+    @assertEqual(1, registry%n_matrices())
+
+    call registry%free()
+  end subroutine test_registry_add_matrix
+
+  @test
+  subroutine test_registry_add_alias()
+    type(registry_t) :: registry
+    type(matrix_t), pointer :: matrix, alias_ptr
+
+    call registry%init()
+
+    call registry%add_matrix(3, 7, 'test_matrix')
+    call registry%add_alias('test_alias', 'test_matrix')
+    call registry%add_alias('test_alias2', 'test_matrix')
+
+    @assertEqual(1, registry%n_matrices())
+    @assertEqual(2, registry%n_aliases())
+
+    matrix => registry%get_matrix('test_alias')
+    @assertEqual(3, matrix%get_nrows())
+    @assertEqual(7, matrix%get_ncols())
+
+    matrix => registry%get_matrix('test_alias2')
+    @assertEqual(3, matrix%get_nrows())
+    @assertEqual(7, matrix%get_ncols())
+
+    matrix => registry%get_matrix('test_matrix')
+    alias_ptr => registry%get_matrix('test_alias')
+    @assertAssociated(matrix, alias_ptr)
+
+    call registry%free()
+  end subroutine test_registry_add_alias
+
+  @test
+  subroutine test_registry_expand()
+    type(registry_t) :: registry
+    type(matrix_t), pointer :: matrix1, matrix1_post, matrix2
+
+    call registry%init(1, 1)
+
+    call registry%add_matrix(3, 7, 'test_matrix1')
+    matrix1 => registry%get_matrix('test_matrix1')
+    call matrix_cfill(matrix1, 42.0_rp)
+
+    call registry%add_matrix(3, 7, 'test_matrix2')
+    matrix2 => registry%get_matrix('test_matrix2')
+    call matrix_cfill(matrix2, 84.0_rp)
+
+    @assertEqual(2, registry%n_entries())
+    @assertEqual(2, registry%n_matrices())
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call matrix1%copy_from(DEVICE_TO_HOST, sync = .false.)
+       call matrix2%copy_from(DEVICE_TO_HOST, sync = .true.)
+    end if
+
+    ! Check values post-expansion
+    @assertEqual(matrix1%x(1,1), 42.0_rp)
+    @assertEqual(matrix2%x(1,1), 84.0_rp)
+
+    ! Check that we did indeed retain the objects
+    matrix1_post => registry%get_matrix('test_matrix1')
+    @assertAssociated(matrix1, matrix1_post)
+    @assertEqual(matrix1_post%x(1,1), 42.0_rp)
+
+    call registry%free()
+  end subroutine test_registry_expand
+
+end module test_matrix_registry

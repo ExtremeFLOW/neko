@@ -11,7 +11,11 @@ FC = @FC@
 
 check: registry_test
 
-registry_test_TESTS := test_field_registry.pf
+registry_test_TESTS := test_registry.pf \
+	test_field_registry.pf \
+	test_vector_registry.pf \
+	test_matrix_registry.pf
+
 registry_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko @LDFLAGS@ @LIBS@
 $(eval $(call make_pfunit_test,registry_test))
 
