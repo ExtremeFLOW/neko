@@ -99,7 +99,7 @@ module field_registry
      generic :: get_matrix => get_matrix_by_index, get_matrix_by_name
 
      !> Check if an entry with a given name is already in the registry.
-     procedure, pass(this) :: entry_exists => registry_field_exists
+     procedure, pass(this) :: entry_exists => registry_entry_exists
      !> Check if a field with a given name is already in the registry.
      procedure, pass(this) :: field_exists => registry_field_exists
      !> Check if a vector with a given name is already in the registry.
@@ -249,7 +249,7 @@ contains
        end if
     end if
 
-    if (this%n_entries() == this%get_size()) then
+    if (this%n_entries() .eq. this%get_size()) then
        call this%expand()
     end if
 
@@ -286,7 +286,7 @@ contains
        end if
     end if
 
-    if (this%n_entries() == this%get_size()) then
+    if (this%n_entries() .eq. this%get_size()) then
        call this%expand()
     end if
 
@@ -402,7 +402,7 @@ contains
 
     do i = 1, this%n_entries()
        if (this%entries(i)%get_type() .eq. 'field' .and. &
-            this%entries(i)%get_name() .eq. name) then
+            this%entries(i)%get_name() .eq. trim(name)) then
           f => this%entries(i)%get_field()
           return
        end if
@@ -438,10 +438,10 @@ contains
     found = .false.
 
     do i = 1, this%n_entries()
-       if (this%entries(i)%get_name() == trim(name)) then
+       if (this%entries(i)%get_type() .eq. 'vector' .and. &
+            this%entries(i)%get_name() .eq. trim(name)) then
           f => this%entries(i)%get_vector()
-          found = .true.
-          exit
+          return
        end if
     end do
 
@@ -474,10 +474,10 @@ contains
     found = .false.
 
     do i = 1, this%n_entries()
-       if (this%entries(i)%get_name() == trim(name)) then
+       if (this%entries(i)%get_type() .eq. 'matrix' .and. &
+            this%entries(i)%get_name() .eq. trim(name)) then
           f => this%entries(i)%get_matrix()
-          found = .true.
-          exit
+          return
        end if
     end do
 
@@ -510,7 +510,7 @@ contains
 
     found = .false.
     do i = 1, this%n_entries()
-       if (this%entries(i)%get_name() .eq. name) then
+       if (trim(this%entries(i)%get_name()) .eq. trim(name)) then
           found = .true.
           return
        end if
@@ -529,7 +529,7 @@ contains
     found = .false.
     do i = 1, this%n_entries()
        if (this%entries(i)%get_type() .eq. 'field' .and. &
-            this%entries(i)%get_name() .eq. name) then
+            this%entries(i)%get_name() .eq. trim(name)) then
           found = .true.
           return
        end if
@@ -548,9 +548,9 @@ contains
     found = .false.
     do i = 1, this%n_entries()
        if (this%entries(i)%get_type() .eq. 'vector' .and. &
-            this%entries(i)%get_name() .eq. name) then
+            this%entries(i)%get_name() .eq. trim(name)) then
           found = .true.
-          exit
+          return
        end if
     end do
 
@@ -567,9 +567,9 @@ contains
     found = .false.
     do i = 1, this%n_entries()
        if (this%entries(i)%get_type() .eq. 'matrix' .and. &
-            this%entries(i)%get_name() .eq. name) then
+            this%entries(i)%get_name() .eq. trim(name)) then
           found = .true.
-          exit
+          return
        end if
     end do
 
@@ -594,7 +594,7 @@ contains
 
     n = 0
     do i = 1, this%n_entries()
-       if (trim(this%entries(i)%get_type()) .eq. 'field') then
+       if (this%entries(i)%get_type() .eq. 'field') then
           n = n + 1
        end if
     end do
@@ -607,7 +607,7 @@ contains
 
     n = 0
     do i = 1, this%n_entries()
-       if (trim(this%entries(i)%get_type()) .eq. 'vector') then
+       if (this%entries(i)%get_type() .eq. 'vector') then
           n = n + 1
        end if
     end do
@@ -620,7 +620,7 @@ contains
 
     n = 0
     do i = 1, this%n_entries()
-       if (trim(this%entries(i)%get_type()) .eq. 'matrix') then
+       if (this%entries(i)%get_type() .eq. 'matrix') then
           n = n + 1
        end if
     end do

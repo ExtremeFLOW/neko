@@ -164,14 +164,14 @@ contains
   pure function get_name(this) result(name)
     class(registry_entry_t), intent(in) :: this
     character(len=:), allocatable :: name
-    name = this%name
+    name = trim(this%name)
   end function get_name
 
   !> Get the type of the registry entry
   pure function get_type(this) result(type)
     class(registry_entry_t), intent(in) :: this
     character(len=:), allocatable :: type
-    type = this%type
+    type = trim(this%type)
   end function get_type
 
   !> Check if the registry entry is allocated
