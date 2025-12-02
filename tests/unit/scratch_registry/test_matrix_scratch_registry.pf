@@ -32,7 +32,7 @@ contains
   end subroutine tearDown
 
   @test
-  subroutine test_matrix_scratch_registry_init_default(this)
+  subroutine test_mat_scratch_reg_init_default(this)
     class(test_matrix_scratch_reg), intent(inout) :: this
     type(scratch_registry_t) :: scratch
     integer :: ierr
@@ -45,10 +45,10 @@ contains
     @assertEqual(scratch%get_n_inuse(), 0)
 
     call scratch%free()
-  end subroutine test_matrix_scratch_registry_init_default
+  end subroutine test_mat_scratch_reg_init_default
 
   @test
-  subroutine test_matrix_scratch_registry_init(this)
+  subroutine test_mat_scratch_reg_init(this)
     class(test_matrix_scratch_reg), intent(inout) :: this
     type(scratch_registry_t) :: scratch
     integer :: ierr
@@ -61,10 +61,10 @@ contains
     @assertEqual(scratch%get_n_inuse(), 0)
 
     call scratch%free()
-  end subroutine test_matrix_scratch_registry_init
+  end subroutine test_mat_scratch_reg_init
 
   @test
-  subroutine test_matrix_scratch_registry_request_matrix_fresh(this)
+  subroutine test_mat_scratch_reg_request_matrix_fresh(this)
     class(test_matrix_scratch_reg), intent(inout) :: this
     type(scratch_registry_t) :: scratch
     type(matrix_t), pointer :: m1, m2, m3
@@ -101,10 +101,10 @@ contains
     call scratch%relinquish_matrix(index2)
     call scratch%relinquish_matrix(index3)
     call scratch%free()
-  end subroutine test_matrix_scratch_registry_request_matrix_fresh
+  end subroutine test_mat_scratch_reg_request_matrix_fresh
 
   @test
-  subroutine test_matrix_scratch_registry_relinquish_matrix(this)
+  subroutine test_mat_scratch_reg_relinquish_matrix(this)
     class(test_matrix_scratch_reg), intent(inout) :: this
     type(scratch_registry_t) :: scratch
     type(matrix_t), pointer :: m
@@ -119,7 +119,7 @@ contains
     @assertEqual(scratch%get_n_available(), 1)
 
     call scratch%free()
-  end subroutine test_matrix_scratch_registry_relinquish_matrix
+  end subroutine test_mat_scratch_reg_relinquish_matrix
 
   @test
   subroutine test_vector_scratch_registry_relinquish_matrix_list(this)
@@ -142,7 +142,7 @@ contains
   end subroutine test_vector_scratch_registry_relinquish_matrix_list
 
   @test
-  subroutine test_matrix_scratch_registry_expand(this)
+  subroutine test_mat_scratch_reg_expand(this)
     class(test_matrix_scratch_reg), intent(inout) :: this
     type(scratch_registry_t), target :: scratch
     type(matrix_t), pointer :: m1, m2
@@ -187,10 +187,10 @@ contains
     call scratch%relinquish_matrix(index1)
     call scratch%relinquish_matrix(index2)
     call scratch%free()
-  end subroutine test_matrix_scratch_registry_expand
+  end subroutine test_mat_scratch_reg_expand
 
   @test
-  subroutine test_matrix_scratch_registry_combo(this)
+  subroutine test_mat_scratch_reg_combo(this)
     class(test_matrix_scratch_reg), intent(inout) :: this
     type(scratch_registry_t), target :: scratch
     type(matrix_t), pointer :: m1, m2, m3
@@ -260,10 +260,10 @@ contains
     call scratch%relinquish_matrix(index2)
     call scratch%relinquish_matrix(index3)
     call scratch%free()
-  end subroutine test_matrix_scratch_registry_combo
+  end subroutine test_mat_scratch_reg_combo
 
   @test
-  subroutine test_matrix_scratch_registry_array_indices(this)
+  subroutine test_mat_scratch_reg_array_indices(this)
     class(test_matrix_scratch_reg), intent(inout) :: this
     type(scratch_registry_t), target :: scratch
     type(matrix_t), pointer :: m1, m2, m3
@@ -304,5 +304,5 @@ contains
 
     call scratch%relinquish_matrix(indices(1))
     call scratch%free()
-  end subroutine test_matrix_scratch_registry_array_indices
+  end subroutine test_mat_scratch_reg_array_indices
 end module test_matrix_scratch_registry

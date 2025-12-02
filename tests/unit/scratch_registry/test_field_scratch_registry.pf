@@ -36,7 +36,7 @@ contains
     end if
   end subroutine tearDown
 
-  subroutine test_field_scratch_registry_gen_msh(msh)
+  subroutine test_f_scratch_reg_gen_msh(msh)
     type(mesh_t), intent(inout) :: msh
     type(point_t) :: p(12)
 
@@ -72,10 +72,10 @@ contains
     pe_size = 1
     call msh%generate_conn()
 
-  end subroutine test_field_scratch_registry_gen_msh
+  end subroutine test_f_scratch_reg_gen_msh
 
   @test
-  subroutine test_field_scratch_registry_init_default(this)
+  subroutine test_f_scratch_reg_init_default(this)
     class(test_field_scratch_reg), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
@@ -84,7 +84,7 @@ contains
     type(scratch_registry_t) :: scratch
     integer :: ierr
 
-    call test_field_scratch_registry_gen_msh(msh)
+    call test_f_scratch_reg_gen_msh(msh)
 
     call Xh%init(GLL, lx, lx, lx)
     call dm%init(msh, Xh)
@@ -97,10 +97,10 @@ contains
     @assertEqual(scratch%get_n_inuse(), 0)
 
     call scratch%free()
-  end subroutine test_field_scratch_registry_init_default
+  end subroutine test_f_scratch_reg_init_default
 
   @test
-  subroutine test_field_scratch_registry_init(this)
+  subroutine test_f_scratch_reg_init(this)
     class(test_field_scratch_reg), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
@@ -109,7 +109,7 @@ contains
     type(scratch_registry_t) :: scratch
     integer :: ierr
 
-    call test_field_scratch_registry_gen_msh(msh)
+    call test_f_scratch_reg_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
     call dm%init(msh, Xh)
 
@@ -121,10 +121,10 @@ contains
     @assertEqual(scratch%get_n_inuse(), 0)
 
     call scratch%free()
-  end subroutine test_field_scratch_registry_init
+  end subroutine test_f_scratch_reg_init
 
   @test
-  subroutine test_field_scratch_registry_request_field_fresh(this)
+  subroutine test_f_scratch_reg_request_field_fresh(this)
     class(test_field_scratch_reg), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
@@ -135,7 +135,7 @@ contains
     integer, parameter :: LX = 3
 
     ! write(*,*) "TEST FRESH"
-    call test_field_scratch_registry_gen_msh(msh)
+    call test_f_scratch_reg_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
     call dm%init(msh, Xh)
 
@@ -168,10 +168,10 @@ contains
     call scratch%relinquish_field(index2)
     call scratch%relinquish_field(index3)
     call scratch%free()
-  end subroutine test_field_scratch_registry_request_field_fresh
+  end subroutine test_f_scratch_reg_request_field_fresh
 
   @test
-  subroutine test_field_scratch_registry_relinquish_field(this)
+  subroutine test_f_scratch_reg_relinquish_field(this)
     class(test_field_scratch_reg), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
@@ -181,7 +181,7 @@ contains
     integer :: ierr, index
     integer, parameter :: LX = 3
 
-    call test_field_scratch_registry_gen_msh(msh)
+    call test_f_scratch_reg_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
     call dm%init(msh, Xh)
 
@@ -194,7 +194,7 @@ contains
     @assertEqual(scratch%get_n_available(), 1)
 
     call scratch%free()
-  end subroutine test_field_scratch_registry_relinquish_field
+  end subroutine test_f_scratch_reg_relinquish_field
 
   @test
   subroutine test_vector_scratch_registry_relinquish_field_list(this)
@@ -207,7 +207,7 @@ contains
     integer :: ierr, indices(2)
     integer, parameter :: LX = 3
 
-    call test_field_scratch_registry_gen_msh(msh)
+    call test_f_scratch_reg_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
     call dm%init(msh, Xh)
 
@@ -225,7 +225,7 @@ contains
   end subroutine test_vector_scratch_registry_relinquish_field_list
 
   @test
-  subroutine test_field_scratch_registry_expand(this)
+  subroutine test_f_scratch_reg_expand(this)
     class(test_field_scratch_reg), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
@@ -237,7 +237,7 @@ contains
 
     ! write(*,*) "TEST EXPAND"
 
-    call test_field_scratch_registry_gen_msh(msh)
+    call test_f_scratch_reg_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
     call dm%init(msh, Xh)
 
@@ -272,10 +272,10 @@ contains
     call scratch%relinquish_field(index1)
     call scratch%relinquish_field(index2)
     call scratch%free()
-  end subroutine test_field_scratch_registry_expand
+  end subroutine test_f_scratch_reg_expand
 
   @test
-  subroutine test_field_scratch_registry_combo(this)
+  subroutine test_f_scratch_reg_combo(this)
     class(test_field_scratch_reg), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
@@ -285,7 +285,7 @@ contains
     integer :: ierr, index1, index2, index3
     integer, parameter :: LX = 2
 
-    call test_field_scratch_registry_gen_msh(msh)
+    call test_f_scratch_reg_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
     call dm%init(msh, Xh)
 
@@ -353,10 +353,10 @@ contains
     call scratch%relinquish_field(index2)
     call scratch%relinquish_field(index3)
     call scratch%free()
-  end subroutine test_field_scratch_registry_combo
+  end subroutine test_f_scratch_reg_combo
 
   @test
-  subroutine test_field_scratch_registry_array_indices(this)
+  subroutine test_f_scratch_reg_array_indices(this)
     class(test_field_scratch_reg), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
@@ -368,7 +368,7 @@ contains
 
     integer, parameter :: LX = 2
 
-    call test_field_scratch_registry_gen_msh(msh)
+    call test_f_scratch_reg_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
     call dm%init(msh, Xh)
 
@@ -406,5 +406,5 @@ contains
 
     call scratch%relinquish_field(indices(1))
     call scratch%free()
-  end subroutine test_field_scratch_registry_array_indices
+  end subroutine test_f_scratch_reg_array_indices
 end module test_field_scratch_registry
