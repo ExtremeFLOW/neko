@@ -204,7 +204,7 @@ contains
   end subroutine test_srtch_reg_relinquish_field
 
   @test
-  subroutine test_vector_scratch_registry_relinquish_field_list(this)
+  subroutine test_vector_scratch_registry_rellq_f_lst(this)
     class(test_scratch_reg), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
@@ -230,7 +230,7 @@ contains
     @assertEqual(scratch%get_n_available(), 2)
 
     call scratch%free()
-  end subroutine test_vector_scratch_registry_relinquish_field_list
+  end subroutine test_vector_scratch_registry_rellq_f_lst
 
   @test
   subroutine test_srtch_reg_expand(this)
