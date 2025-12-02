@@ -3,18 +3,18 @@ module user
   implicit none
 
 
-real(kind=rp), parameter :: U0 = 1.0_rp
-real(kind=rp), parameter :: U1 = 1.0_rp
-real(kind=rp), parameter :: V0 = 2.0_rp
-real(kind=rp), parameter :: V1 = 2.0_rp
-real(kind=rp), parameter :: W0 = 3.0_rp
-real(kind=rp), parameter :: W1 = 3.0_rp
-real(kind=rp), parameter :: S0 = 4.0_rp
-real(kind=rp), parameter :: S1 = 4.0_rp
-real(kind=rp), parameter :: omega = 1.0_rp
-real(kind=rp), parameter :: phi = 3.14192_rp / 4.0_rp
-real(kind=rp), parameter :: psi = 3.14192_rp / 2.0_rp
-real(kind=rp), parameter :: xi = 3.14192_rp / 3.0_rp
+  real(kind=rp), parameter :: U0 = 1.0_rp
+  real(kind=rp), parameter :: U1 = 1.0_rp
+  real(kind=rp), parameter :: V0 = 2.0_rp
+  real(kind=rp), parameter :: V1 = 2.0_rp
+  real(kind=rp), parameter :: W0 = 3.0_rp
+  real(kind=rp), parameter :: W1 = 3.0_rp
+  real(kind=rp), parameter :: S0 = 4.0_rp
+  real(kind=rp), parameter :: S1 = 4.0_rp
+  real(kind=rp), parameter :: omega = 1.0_rp
+  real(kind=rp), parameter :: phi = 3.14192_rp / 4.0_rp
+  real(kind=rp), parameter :: psi = 3.14192_rp / 2.0_rp
+  real(kind=rp), parameter :: xi = 3.14192_rp / 3.0_rp
 
 contains
   !> Register user defined functions (see user_intf.f90)

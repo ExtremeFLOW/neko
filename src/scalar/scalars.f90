@@ -224,8 +224,8 @@ contains
     end if
 
     do i = 1, size(this%scalar_fields)
-      if (this%scalar_fields(i)%freeze) cycle
-      call scalar_step_info(time, ksp_results(i))
+       if (this%scalar_fields(i)%freeze) cycle
+       call scalar_step_info(time, ksp_results(i))
     end do
   end subroutine scalars_step
 

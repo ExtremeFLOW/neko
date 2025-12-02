@@ -77,10 +77,10 @@ contains
     character(len=1024) :: fname
 
     if (trim(hom_dir) .eq. 'none' .or. &
-        trim(hom_dir) .eq. 'x' .or.&
-        trim(hom_dir) .eq. 'y' .or.&
-        trim(hom_dir) .eq. 'z'&
-       ) then
+         trim(hom_dir) .eq. 'x' .or.&
+         trim(hom_dir) .eq. 'y' .or.&
+         trim(hom_dir) .eq. 'z'&
+         ) then
        if (present(name) .and. present(path)) then
           fname = trim(path) // trim(name) // '.fld'
        else if (present(name)) then
@@ -94,8 +94,8 @@ contains
        this%output_dim = 3
 
        if (trim(hom_dir) .eq. 'x' .or.&
-           trim(hom_dir) .eq. 'y' .or.&
-           trim(hom_dir) .eq. 'z' ) then
+            trim(hom_dir) .eq. 'y' .or.&
+            trim(hom_dir) .eq. 'z' ) then
           call this%map_2d%init_char(stats%coef, hom_dir, 1e-7_rp)
           this%output_dim = 2
        end if
