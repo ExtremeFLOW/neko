@@ -17,7 +17,7 @@ var structfield__registry_1_1field__registry__t =
     [ "n_fields", "dd/d96/structfield__registry_1_1field__registry__t.html#a7d88942244f06788c2cbe2080d6b5d07", null ],
     [ "aliases", "dd/d96/structfield__registry_1_1field__registry__t.html#a31b454eeb3a3eb494dd370a7feab1913", null ],
     [ "expansion_size", "dd/d96/structfield__registry_1_1field__registry__t.html#a74279e3240d6680394f3700b679aeb11", null ],
-    [ "fields", "dd/d96/structfield__registry_1_1field__registry__t.html#a30491e091f81cca1ed77fc2e6ff05b74", null ],
+    [ "fields", "dd/d96/structfield__registry_1_1field__registry__t.html#a77a1be395c874be009d402528531a012", null ],
     [ "n_aliases_", "dd/d96/structfield__registry_1_1field__registry__t.html#a82925ee075afb5ba784e76cadbb2b7db", null ],
     [ "n_fields_", "dd/d96/structfield__registry_1_1field__registry__t.html#a8e24685c2828c6a55f2321ddcbcd1d78", null ]
 ];
