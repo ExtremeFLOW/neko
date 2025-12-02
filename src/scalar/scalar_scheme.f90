@@ -201,7 +201,7 @@ module scalar_scheme
      end subroutine scalar_scheme_restart_intrf
   end interface
 
-  
+
   !> Abstract interface to dealocate a scalar formulation
   abstract interface
      subroutine scalar_scheme_free_intrf(this)
