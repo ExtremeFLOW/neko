@@ -65,7 +65,7 @@ contains
   end subroutine test_vec_scratch_reg_init
 
   @test
-  subroutine test_vec_scratch_reg_request_vector_fresh(this)
+  subroutine test_vec_scratch_reg_req_vector_fresh(this)
     class(test_vector_scratch_reg), intent(inout) :: this
     type(scratch_registry_t) :: scratch
     type(vector_t), pointer :: v1, v2, v3
@@ -102,7 +102,7 @@ contains
     call scratch%relinquish_vector(index2)
     call scratch%relinquish_vector(index3)
     call scratch%free()
-  end subroutine test_vec_scratch_reg_request_vector_fresh
+  end subroutine test_vec_scratch_reg_req_vector_fresh
 
   @test
   subroutine test_vec_scratch_reg_relinquish_vector(this)
@@ -123,7 +123,7 @@ contains
   end subroutine test_vec_scratch_reg_relinquish_vector
 
   @test
-  subroutine test_vec_scratch_reg_relinquish_vector_list(this)
+  subroutine test_vec_scratch_reg_relinq_vec_lst(this)
     class(test_vector_scratch_reg), intent(inout) :: this
     type(scratch_registry_t) :: scratch
     type(vector_t), pointer :: v1, v2
@@ -140,7 +140,7 @@ contains
     @assertEqual(scratch%get_n_available(), 2)
 
     call scratch%free()
-  end subroutine test_vec_scratch_reg_relinquish_vector_list
+  end subroutine test_vec_scratch_reg_relinq_vec_lst
 
   @test
   subroutine test_vec_scratch_reg_expand(this)
