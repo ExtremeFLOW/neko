@@ -703,4 +703,95 @@ __kernel void glsum_kernel(__global const real* __restrict__ a,
   if (get_local_id(0) == 0) { buf_h[get_group_id(0)] = buf[0]; }
 }
 
+#define MAX(a,b) (((a)>(b))?(a):(b))
+#define MIN(a,b) (((a)<(b))?(a):(b))
+
+__kernel void pwmax_vec2_kernel(__global real * __restrict a,
+                                __global const real* __restrict b,
+                                const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) a[i] = MAX(a[i], b[i]);
+
+}
+
+__kernel void pwmax_vec3_kernel(__global real * __restrict a,
+                                __global const real* __restrict b,
+                                __global const real* __restrict c,
+                                const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) a[i] = MAX(b[i], c[i]);
+
+}
+
+__kernel void pwmax_sca2_kernel(__global real * __restrict a,
+                                const real c, const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) a[i] = MAX(a[i], c);
+
+}
+
+__kernel void pwmax_sca3_kernel(__global real * __restrict a,
+                                __global const real* __restrict b,
+                                const real c, const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) a[i] = MAX(b[i], c);
+
+}
+
+__kernel void pwmin_vec2_kernel(__global real * __restrict a,
+                                __global const real* __restrict b,
+                                const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) a[i] = MIN(a[i], b[i]);
+
+}
+
+__kernel void pwmin_vec3_kernel(__global real * __restrict a,
+                                __global const real* __restrict b,
+                                __global const real* __restrict c,
+                                const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) a[i] = MIN(b[i], c[i]);
+
+}
+
+__kernel void pwmin_sca2_kernel(__global real * __restrict a,
+                                const real c, const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) a[i] = MIN(a[i], c);
+
+}
+
+__kernel void pwmin_sca3_kernel(__global real * __restrict a,
+                                __global const real* __restrict b,
+                                const real c, const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) a[i] = MIN(b[i], c);
+
+}
+
 #endif // __MATH_MATH_KERNEL_CL__

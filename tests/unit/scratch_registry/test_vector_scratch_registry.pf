@@ -4,13 +4,38 @@ module test_vector_scratch_registry
   use vector_math, only : vector_cfill
   use scratch_registry, only : scratch_registry_t
   use num_types, only : rp
-  use device, only : DEVICE_TO_HOST
+  use device, only : DEVICE_TO_HOST, device_init, &
+       device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
   implicit none
+
+
+  @TestCase
+  type, extends(TestCase) :: test_vector_scratch_reg
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_vector_scratch_reg
 
 contains
 
+  subroutine setUp(this)
+    class(test_vector_scratch_reg), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_vector_scratch_reg), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+  
   @test
-  subroutine test_vector_scratch_registry_init_default()
+  subroutine test_vec_scratch_reg_init_default(this)
+    class(test_vector_scratch_reg), intent(inout) :: this
     type(scratch_registry_t) :: scratch
     integer :: ierr
 
@@ -22,10 +47,11 @@ contains
     @assertEqual(scratch%get_n_inuse(), 0)
 
     call scratch%free()
-  end subroutine test_vector_scratch_registry_init_default
+  end subroutine test_vec_scratch_reg_init_default
 
   @test
-  subroutine test_vector_scratch_registry_init()
+  subroutine test_vec_scratch_reg_init(this)
+    class(test_vector_scratch_reg), intent(inout) :: this
     type(scratch_registry_t) :: scratch
     integer :: ierr
 
@@ -37,10 +63,11 @@ contains
     @assertEqual(scratch%get_n_inuse(), 0)
 
     call scratch%free()
-  end subroutine test_vector_scratch_registry_init
+  end subroutine test_vec_scratch_reg_init
 
   @test
-  subroutine test_vector_scratch_registry_request_vector_fresh()
+  subroutine test_vec_scratch_reg_req_vector_fresh(this)
+    class(test_vector_scratch_reg), intent(inout) :: this
     type(scratch_registry_t) :: scratch
     type(vector_t), pointer :: v1, v2, v3
     integer :: ierr, index1, index2, index3
@@ -66,7 +93,7 @@ contains
 
     call v1%copy_from(DEVICE_TO_HOST, sync = .false.)
     call v2%copy_from(DEVICE_TO_HOST, sync = .false.)
-    call v3%copy_from(DEVICE_TO_HOST, sync = .false.)
+    call v3%copy_from(DEVICE_TO_HOST, sync = .true.)
 
     @assertEqual(v1%x(1), 1.0_rp)
     @assertEqual(v2%x(1), 2.0_rp)
@@ -76,10 +103,11 @@ contains
     call scratch%relinquish_vector(index2)
     call scratch%relinquish_vector(index3)
     call scratch%free()
-  end subroutine test_vector_scratch_registry_request_vector_fresh
+  end subroutine test_vec_scratch_reg_req_vector_fresh
 
   @test
-  subroutine test_vector_scratch_registry_relinquish_vector()
+  subroutine test_vec_scratch_reg_relinquish_vector(this)
+    class(test_vector_scratch_reg), intent(inout) :: this
     type(scratch_registry_t) :: scratch
     type(vector_t), pointer :: v
     integer :: ierr, index
@@ -93,10 +121,11 @@ contains
     @assertEqual(scratch%get_n_available(), 1)
 
     call scratch%free()
-  end subroutine test_vector_scratch_registry_relinquish_vector
+  end subroutine test_vec_scratch_reg_relinquish_vector
 
   @test
-  subroutine test_vector_scratch_registry_relinquish_vector_list()
+  subroutine test_vec_scratch_reg_relinq_vec_lst(this)
+    class(test_vector_scratch_reg), intent(inout) :: this
     type(scratch_registry_t) :: scratch
     type(vector_t), pointer :: v1, v2
     integer :: ierr, indices(2)
@@ -112,10 +141,11 @@ contains
     @assertEqual(scratch%get_n_available(), 2)
 
     call scratch%free()
-  end subroutine test_vector_scratch_registry_relinquish_vector_list
+  end subroutine test_vec_scratch_reg_relinq_vec_lst
 
   @test
-  subroutine test_vector_scratch_registry_expand()
+  subroutine test_vec_scratch_reg_expand(this)
+    class(test_vector_scratch_reg), intent(inout) :: this
     type(scratch_registry_t), target :: scratch
     type(vector_t), pointer :: v1, v2
     integer :: ierr, index1, index2
@@ -127,7 +157,7 @@ contains
     call scratch%request_vector(42, v1, index1, .false.)
     call vector_cfill(v1, 1.0_rp)
 
-    call v1%copy_from(DEVICE_TO_HOST, sync = .false.)
+    call v1%copy_from(DEVICE_TO_HOST, sync = .true.)
     @assertEqual(v1%x(1), 1.0_rp)
 
     ! add new vector, trigging expand
@@ -138,7 +168,7 @@ contains
 
     ! make sure values in v1 preserved after expansion
     call v1%copy_from(DEVICE_TO_HOST, sync = .false.)
-    call v2%copy_from(DEVICE_TO_HOST, sync = .false.)
+    call v2%copy_from(DEVICE_TO_HOST, sync = .true.)
 
     @assertEqual(v1%x(1), 1.0_rp)
     @assertEqual(v2%x(1), 2.0_rp)
@@ -155,10 +185,11 @@ contains
     call scratch%relinquish_vector(index1)
     call scratch%relinquish_vector(index2)
     call scratch%free()
-  end subroutine test_vector_scratch_registry_expand
+  end subroutine test_vec_scratch_reg_expand
 
   @test
-  subroutine test_vector_scratch_registry_combo()
+  subroutine test_vec_scratch_reg_combo(this)
+    class(test_vector_scratch_reg), intent(inout) :: this
     type(scratch_registry_t), target :: scratch
     type(vector_t), pointer :: v1, v2, v3
     integer :: ierr, index1, index2, index3
@@ -200,7 +231,7 @@ contains
 
     ! check that the vectors have survived
     call v1%copy_from(DEVICE_TO_HOST, sync = .false.)
-    call v2%copy_from(DEVICE_TO_HOST, sync = .false.)
+    call v2%copy_from(DEVICE_TO_HOST, sync = .true.)
     @assertEqual(v1%x(1), 1.5_rp)
     @assertEqual(v2%x(1), 2.0_rp)
 
@@ -218,7 +249,7 @@ contains
     ! check that the vectors have survived
     call v1%copy_from(DEVICE_TO_HOST, sync = .false.)
     call v2%copy_from(DEVICE_TO_HOST, sync = .false.)
-    call v3%copy_from(DEVICE_TO_HOST, sync = .false.)
+    call v3%copy_from(DEVICE_TO_HOST, sync = .true.)
     @assertEqual(v1%x(1), 1.5_rp)
     @assertEqual(v2%x(1), 2.0_rp)
     @assertEqual(v3%x(1), 3.0_rp)
@@ -227,10 +258,11 @@ contains
     call scratch%relinquish_vector(index2)
     call scratch%relinquish_vector(index3)
     call scratch%free()
-  end subroutine test_vector_scratch_registry_combo
+  end subroutine test_vec_scratch_reg_combo
 
   @test
-  subroutine test_vector_scratch_registry_array_indices()
+  subroutine test_vec_scratch_reg_array_indices(this)
+    class(test_vector_scratch_reg), intent(inout) :: this
     type(scratch_registry_t), target :: scratch
     type(vector_t), pointer :: v1, v2, v3
     integer :: ierr
@@ -270,5 +302,5 @@ contains
 
     call scratch%relinquish_vector(indices(1))
     call scratch%free()
-  end subroutine test_vector_scratch_registry_array_indices
+  end subroutine test_vec_scratch_reg_array_indices
 end module test_vector_scratch_registry
