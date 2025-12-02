@@ -44,6 +44,7 @@ module field_registry
   use comm, only : pe_rank
   use json_module, only : json_file
   use json_utils, only : json_get
+  use logger, only : neko_log, LOG_SIZE
   implicit none
   private
 
@@ -654,4 +655,18 @@ contains
     n = this%expansion_size_
   end function registry_get_expansion_size
 
-end module field_registry
+  !> Print the contents of the registry to standard output.
+  subroutine registry_print(this)
+    class(registry_t), intent(in) :: this
+    character(len=LOG_SIZE), allocatable :: buffer
+    integer :: i
+
+    call neko_log%section("Field Registry Contents")
+    do i = 1, this%n_entries()
+       write(buffer, '(A,I4,A,A)') "- [", i, "] ", &
+            this%entries(i)%get_type(), ": ", this%entries(i)%get_name()
+       call neko_log%message(trim(buffer))
+    end do
+
+    call neko_log%end_section()
+  end subroutine registry_print
