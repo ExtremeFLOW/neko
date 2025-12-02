@@ -278,7 +278,7 @@ contains
                cycle
             end if
 
-            f => this%entries(index)%field_ptr
+            f => this%entries(index)%get_field()
             if (clear) call field_rzero(f)
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
@@ -294,7 +294,7 @@ contains
       this%inuse(n_entries) = .true.
       write (name, "(A3,I0.3)") "wrk", index
       call this%entries(n_entries)%init_field(this%dof, trim(name))
-      f => this%entries(n_entries)%field_ptr
+      f => this%entries(n_entries)%get_field()
 
     end associate
   end subroutine request_field
@@ -321,11 +321,14 @@ contains
                n_entries = n_entries + 1
             else if (trim(this%entries(index)%get_type()) .ne. 'vector') then
                cycle
-            else if (this%entries(index)%vector_ptr%size() .ne. n) then
+            end if
+
+            v => this%entries(index)%get_vector()
+            if (v%size() .ne. n) then
+               nullify(v)
                cycle
             end if
 
-            v => this%entries(index)%vector_ptr
             if (clear) call vector_rzero(v)
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
@@ -340,7 +343,7 @@ contains
       n_inuse = n_inuse + 1
       this%inuse(n_entries) = .true.
       call this%entries(n_entries)%init_vector(n)
-      v => this%entries(n_entries)%vector_ptr
+      v => this%entries(n_entries)%get_vector()
 
     end associate
   end subroutine request_vector
@@ -368,13 +371,15 @@ contains
                n_entries = n_entries + 1
             else if (trim(this%entries(index)%get_type()) .ne. 'matrix') then
                cycle
-            else if (this%entries(index)%matrix_ptr%get_nrows() .ne. nrows &
-                 .and. this%entries(index)%matrix_ptr%get_ncols() .ne. ncols &
-                 ) then
+            end if
+
+            m => this%entries(index)%get_matrix()
+            if (m%get_nrows() .ne. nrows .or. &
+                 m%get_ncols() .ne. ncols) then
+               nullify(m)
                cycle
             end if
 
-            m => this%entries(index)%matrix_ptr
             if (clear) call matrix_rzero(m)
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
@@ -389,7 +394,7 @@ contains
       n_inuse = n_inuse + 1
       this%inuse(n_entries) = .true.
       call this%entries(n_entries)%init_matrix(nrows, ncols)
-      m => this%entries(n_entries)%matrix_ptr
+      m => this%entries(n_entries)%get_matrix()
 
     end associate
   end subroutine request_matrix
