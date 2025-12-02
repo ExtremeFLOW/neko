@@ -270,7 +270,7 @@ contains
     call json_get(params, 'name', this%name)
 
     ! Set the freeze flag
-    call json_get(params, 'freeze', this%freeze)
+    call json_get_or_default(params, 'freeze', this%freeze, .false.)
 
     call neko_log%section('Scalar')
     call json_get(params, 'solver.type', solver_type)
