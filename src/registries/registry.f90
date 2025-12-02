@@ -98,6 +98,8 @@ module field_registry
      !> Generic matrix getter
      generic :: get_matrix => get_matrix_by_index, get_matrix_by_name
 
+     !> Check if an entry with a given name is already in the registry.
+     procedure, pass(this) :: entry_exists => registry_field_exists
      !> Check if a field with a given name is already in the registry.
      procedure, pass(this) :: field_exists => registry_field_exists
      !> Check if a vector with a given name is already in the registry.
@@ -295,24 +297,24 @@ contains
 
   end subroutine registry_add_matrix
 
-  !> Add an alias for an existing field in the registry.
+  !> Add an alias for an existing entry in the registry.
   !! @param alias The alias.
-  !! @param name The name of the field.
+  !! @param name The name of the entry.
   subroutine registry_add_alias(this, alias, name)
     class(registry_t), intent(inout) :: this
     character(len=*), intent(in) :: alias
     character(len=*), intent(in) :: name
 
-    if (this%field_exists(alias)) then
-       call neko_error("Cannot create alias. Field " // alias // &
+    if (this%entry_exists(alias)) then
+       call neko_error("Cannot create alias. Entry " // alias // &
             " already exists in the registry")
     end if
 
-    if (this%field_exists(name)) then
+    if (this%entry_exists(name)) then
        this%n_aliases_ = this%n_aliases_ + 1
        call this%aliases%add(trim(alias), trim(name))
     else
-       call neko_error("Cannot create alias. Field " // name // &
+       call neko_error("Cannot create alias. Entry " // name // &
             " could not be found in the registry")
     end if
   end subroutine registry_add_alias
@@ -498,6 +500,24 @@ contains
 
   ! ========================================================================== !
   ! Methods for checking existence of objects in the registry
+
+  !> Check if a field with a given name is already in the registry.
+  function registry_entry_exists(this, name) result(found)
+    class(registry_t), target, intent(inout) :: this
+    character(len=*), intent(in) :: name
+    logical :: found
+    integer :: i
+
+    found = .false.
+    do i = 1, this%n_entries()
+       if (this%entries(i)%get_name() .eq. name) then
+          found = .true.
+          return
+       end if
+    end do
+
+    found = this%aliases%valid_path(name)
+  end function registry_entry_exists
 
   !> Check if a field with a given name is already in the registry.
   function registry_field_exists(this, name) result(found)
