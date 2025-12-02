@@ -108,9 +108,9 @@ contains
     call registry%add_field(dm, 'test_field')
 
     @assertEqual(1, registry%n_fields())
+    @assertEqual(.true., registry%field_exists('test_field'))
 
     field => registry%get_field('test_field')
-
     @assertEqual('test_field', field%name)
 
     call registry%add_field(dm, 'test_field', ignore_existing=.true.)
@@ -141,6 +141,10 @@ contains
 
     @assertEqual(1, registry%n_fields())
     @assertEqual(2, registry%n_aliases())
+
+    @assertEqual(.true., registry%field_exists('test_field'))
+    @assertEqual(.true., registry%field_exists('test_alias'))
+    @assertEqual(.true., registry%field_exists('test_alias2'))
 
     field => registry%get_field('test_alias')
     @assertEqual('test_field', field%name)

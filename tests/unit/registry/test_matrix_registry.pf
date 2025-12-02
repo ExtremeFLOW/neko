@@ -57,6 +57,7 @@ contains
     call registry%add_matrix(3, 7, 'test_matrix')
 
     @assertEqual(1, registry%n_matrices())
+    @assertEqual(.true., registry%matrix_exists('test_matrix'))
 
     matrix => registry%get_matrix('test_matrix')
 
@@ -82,6 +83,9 @@ contains
 
     @assertEqual(1, registry%n_matrices())
     @assertEqual(2, registry%n_aliases())
+    @assertEqual(.true., registry%matrix_exists('test_matrix'))
+    @assertEqual(.true., registry%matrix_exists('test_alias'))
+    @assertEqual(.true., registry%matrix_exists('test_alias2'))
 
     matrix => registry%get_matrix('test_alias')
     @assertEqual(3, matrix%get_nrows())

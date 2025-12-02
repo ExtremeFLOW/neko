@@ -57,6 +57,7 @@ contains
     call registry%add_vector(42, 'test_vector')
 
     @assertEqual(1, registry%n_vectors())
+    @assertEqual(.true., registry%vector_exists('test_vector'))
 
     vector => registry%get_vector('test_vector')
 
@@ -81,6 +82,9 @@ contains
 
     @assertEqual(1, registry%n_vectors())
     @assertEqual(2, registry%n_aliases())
+    @assertEqual(.true., registry%vector_exists('test_vector'))
+    @assertEqual(.true., registry%vector_exists('test_alias'))
+    @assertEqual(.true., registry%vector_exists('test_alias2'))
 
     vector => registry%get_vector('test_alias')
     @assertEqual(42, vector%size())

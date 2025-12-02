@@ -126,6 +126,10 @@ contains
     @assertEqual(1, registry%n_matrices())
     @assertEqual(3, registry%n_entries())
 
+    @assertEqual(.true., registry%entry_exists('test_matrix'))
+    @assertEqual(.true., registry%entry_exists('test_vector'))
+    @assertEqual(.true., registry%entry_exists('test_field'))
+
     field => registry%get_field('test_field')
     vector => registry%get_vector('test_vector')
     matrix => registry%get_matrix('test_matrix')
@@ -175,6 +179,10 @@ contains
     call registry%add_field(dm, 'test_field')
     call registry%add_vector(42, 'test_vector')
     call registry%add_matrix(3, 7, 'test_matrix')
+
+    @assertEqual(.true., registry%entry_exists('test_field'))
+    @assertEqual(.true., registry%entry_exists('test_vector'))
+    @assertEqual(.true., registry%entry_exists('test_matrix'))
 
     call registry%add_alias('test_alias', 'test_field')
     call registry%add_alias('test_alias2', 'test_vector')
