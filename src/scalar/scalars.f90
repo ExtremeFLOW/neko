@@ -208,14 +208,25 @@ contains
     type(time_step_controller_t), intent(inout) :: dt_controller
     integer :: i
     type(ksp_monitor_t), dimension(size(this%scalar_fields)) :: ksp_results
+    logical :: all_frozen
+
+    all_frozen = .true.
 
     ! Iterate through all scalar fields
     do i = 1, size(this%scalar_fields)
+       all_frozen = all_frozen .and. this%scalar_fields(i)%freeze
        call this%scalar_fields(i)%step(time, ext_bdf, dt_controller, &
             ksp_results(i))
     end do
 
-    call scalar_step_info(time, ksp_results)
+    if (.not. all_frozen) then
+       call ksp_results(i)%print_header()
+    end if
+
+    do i = 1, size(this%scalar_fields)
+      if (this%scalar_fields(i)%freeze) cycle
+      call scalar_step_info(time, ksp_results(i))
+    end do
   end subroutine scalars_step
 
   !> Restart from checkpoint data
