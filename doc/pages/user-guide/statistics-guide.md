@@ -186,6 +186,7 @@ In addition, one can specify the usual controls for the output, in the same mann
 ## List of fields in output files
 
 When only the basic set of stats is enabled, only stats 1-5 are computed.
+When averaging across a single spatial direction, `<ws>` is put into `s1` for the basic set and `s38` for the full set.
 
 | Number | Statistic | Stored in variable (for fld files) |
 | ------ | --------- | ------------------ |
