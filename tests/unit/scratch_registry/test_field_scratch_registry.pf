@@ -125,7 +125,7 @@ contains
   end subroutine test_f_scratch_reg_init
 
   @test
-  subroutine test_f_scratch_reg_request_field_fresh(this)
+  subroutine test_f_scratch_reg_req_f_fresh(this)
     class(test_field_scratch_reg), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
@@ -169,10 +169,10 @@ contains
     call scratch%relinquish_field(index2)
     call scratch%relinquish_field(index3)
     call scratch%free()
-  end subroutine test_f_scratch_reg_request_field_fresh
+  end subroutine test_f_scratch_reg_req_f_fresh
 
   @test
-  subroutine test_f_scratch_reg_relinquish_field(this)
+  subroutine test_f_scratch_reg_relq_f(this)
     class(test_field_scratch_reg), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
@@ -195,10 +195,10 @@ contains
     @assertEqual(scratch%get_n_available(), 1)
 
     call scratch%free()
-  end subroutine test_f_scratch_reg_relinquish_field
+  end subroutine test_f_scratch_reg_relq_f
 
   @test
-  subroutine test_vector_scratch_registry_relinquish_field_list(this)
+  subroutine test_vector_scratch_registry_relq_f_lst(this)
     class(test_field_scratch_reg), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
@@ -223,7 +223,7 @@ contains
     @assertEqual(scratch%get_n_available(), 2)
 
     call scratch%free()
-  end subroutine test_vector_scratch_registry_relinquish_field_list
+  end subroutine test_vector_scratch_registry_relq_f_lst
 
   @test
   subroutine test_f_scratch_reg_expand(this)
