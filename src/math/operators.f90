@@ -461,10 +461,7 @@ contains
     real(kind=rp), intent(in) :: dt
     real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv), intent(in) :: max_wave_speed
     real(kind=rp) :: cfl_compressible
-    integer :: ierr
 
-    ! For compressible flows, use the maximum wave speed in all directions
-    ! This correctly accounts for the isotropic propagation of waves
     cfl_compressible = cfl(dt, max_wave_speed, max_wave_speed, max_wave_speed, &
                           Xh, coef, nelv, gdim)
 

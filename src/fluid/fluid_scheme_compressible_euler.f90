@@ -336,20 +336,6 @@ contains
       call this%bcs_vel%apply_vector(u%x, v%x, w%x, &
            dm_Xh%size(), time, strong = .true.)
 
-      call rotate_cyc(u%x, v%x, w%x, 1, c_Xh)
-      call gs_Xh%op(u, GS_OP_MIN)
-      call gs_Xh%op(v, GS_OP_MIN)
-      call gs_Xh%op(w, GS_OP_MIN)
-      call rotate_cyc(u%x, v%x, w%x, 0, c_Xh)
-
-      call this%bcs_vel%apply_vector(u%x, v%x, w%x, &
-           dm_Xh%size(), time, strong = .true.)
-
-      call rotate_cyc(u%x, v%x, w%x, 1, c_Xh)
-      call gs_Xh%op(u, GS_OP_MAX)
-      call gs_Xh%op(v, GS_OP_MAX)
-      call gs_Xh%op(w, GS_OP_MAX)
-      call rotate_cyc(u%x, v%x, w%x, 0, c_Xh)
 
       call field_copy(m_x, u, n)
       call field_col2(m_x, rho, n)
@@ -622,17 +608,12 @@ contains
     dt_local = dt_lag
     
     call bdf_scheme%compute_coeffs(bdf_coeffs, dt_local, 3)
-    
-    ! Fix BDF-3 coefficients to match expected signs for time derivative calculation
-    bdf_coeffs(2) = -bdf_coeffs(2)
-    bdf_coeffs(3) = -bdf_coeffs(3)
-    bdf_coeffs(4) = -bdf_coeffs(4)
 
     do i = 1, n
-       this%entropy_residual%x(i,1,1,1) = (bdf_coeffs(1) * this%S%x(i,1,1,1) + &
-                                           bdf_coeffs(2) * this%S_lag%lf(1)%x(i,1,1,1) + &
-                                           bdf_coeffs(3) * this%S_lag%lf(2)%x(i,1,1,1) + &
-                                           bdf_coeffs(4) * this%S_lag%lf(3)%x(i,1,1,1)) / dt
+       this%entropy_residual%x(i,1,1,1) = (bdf_coeffs(1) * this%S%x(i,1,1,1) &
+                                           - bdf_coeffs(2) * this%S_lag%lf(1)%x(i,1,1,1) &
+                                           - bdf_coeffs(3) * this%S_lag%lf(2)%x(i,1,1,1) &
+                                           - bdf_coeffs(4) * this%S_lag%lf(3)%x(i,1,1,1)) / dt
     end do
 
     call neko_scratch_registry%request_field(us_field, temp_indices(1), .false.)
@@ -696,9 +677,9 @@ contains
     end if
     
     ! Print normalization value for monitoring
-    if (pe_rank .eq. 0) then
-       write(*,'(A,ES12.5)') 'Entropy viscosity normalization n(S) = ', n_S
-    end if
+    !  if (pe_rank .eq. 0) then
+    !     write(*,'(A,ES12.5)') 'Entropy viscosity normalization n(S) = ', n_S
+    !  end if
     
     ! Compute entropy viscosity with normalization: nu_E = c_entropy * h^2 * R_S / n(S)
     do i = 1, n

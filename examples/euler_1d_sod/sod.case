@@ -13,9 +13,7 @@
         },
         "numerics": {
             "time_order": 4,
-            "polynomial_order": 1,
-            "c_avisc_low": 1.0,
-            "c_entropy": 4.0
+            "polynomial_order": 5
         },
         "fluid": {
             "scheme": "compressible",
@@ -23,7 +21,12 @@
             "initial_condition": {
                 "type": "user"
             },
-            "boundary_conditions": [],
+            "boundary_conditions": [
+                {
+                    "type": "symmetry",
+                    "zone_indices": [ 1, 2 ]
+                }
+            ],
             "output_control": "nsamples",
             "output_value": 100
         },

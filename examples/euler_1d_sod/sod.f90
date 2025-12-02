@@ -36,7 +36,6 @@ contains
     ! rho_L = 1, u_L = (0, 0), p_L = 1
     ! rho_R = 0.125, u_R = (0, 0), p_R = 0.1
     ! end time = 0.2
-    theta = 0.01
     mux = 0.5
     do i = 1, rho%dof%size()
        x = rho%dof%x(i,1,1,1)
