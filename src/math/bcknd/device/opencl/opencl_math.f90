@@ -408,4 +408,74 @@ module opencl_math
      end function opencl_glsum
   end interface
 
+  ! ========================================================================== !
+  ! Interfaces for the pointwise operations.
+
+  interface
+     subroutine opencl_pwmax_vec2(a_d, b_d, n, strm) &
+          bind(c, name = 'opencl_pwmax_vec2')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       type(c_ptr), value :: a_d, b_d, strm
+       integer(c_int) :: n
+     end subroutine opencl_pwmax_vec2
+
+     subroutine opencl_pwmax_vec3(a_d, b_d, c_d, n, strm) &
+          bind(c, name = 'opencl_pwmax_vec3')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       type(c_ptr), value :: a_d, b_d, c_d, strm
+       integer(c_int) :: n
+     end subroutine opencl_pwmax_vec3
+
+     subroutine opencl_pwmax_sca2(a_d, c_d, n, strm) &
+          bind(c, name = 'opencl_pwmax_sca2')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: a_d, strm
+       real(c_rp) :: c_d
+       integer(c_int) :: n
+     end subroutine opencl_pwmax_sca2
+
+     subroutine opencl_pwmax_sca3(a_d, b_d, c_d, n, strm) &
+          bind(c, name = 'opencl_pwmax_sca3')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: a_d, b_d, strm
+       real(c_rp) :: c_d
+       integer(c_int) :: n
+     end subroutine opencl_pwmax_sca3
+
+     subroutine opencl_pwmin_vec2(a_d, b_d, n, strm) &
+          bind(c, name = 'opencl_pwmin_vec2')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       type(c_ptr), value :: a_d, b_d, strm
+       integer(c_int) :: n
+     end subroutine opencl_pwmin_vec2
+
+     subroutine opencl_pwmin_vec3(a_d, b_d, c_d, n, strm) &
+          bind(c, name = 'opencl_pwmin_vec3')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       type(c_ptr), value :: a_d, b_d, c_d, strm
+       integer(c_int) :: n
+     end subroutine opencl_pwmin_vec3
+
+     subroutine opencl_pwmin_sca2(a_d, c_d, n, strm) &
+          bind(c, name = 'opencl_pwmin_sca2')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: a_d, strm
+       real(c_rp) :: c_d
+       integer(c_int) :: n
+     end subroutine opencl_pwmin_sca2
+
+     subroutine opencl_pwmin_sca3(a_d, b_d, c_d, n, strm) &
+          bind(c, name = 'opencl_pwmin_sca3')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: a_d, b_d, strm
+       real(c_rp) :: c_d
+       integer(c_int) :: n
+     end subroutine opencl_pwmin_sca3
+
+  end interface
+
 end module opencl_math
