@@ -188,7 +188,13 @@ contains
     call registry%add_alias('test_alias2', 'test_vector')
 
     @assertEqual(1, registry%n_fields())
+    @assertEqual(1, registry%n_vectors())
+    @assertEqual(1, registry%n_matrices())
     @assertEqual(2, registry%n_aliases())
+    @assertEqual(3, registry%n_entries())
+    @assertEqual(.true., registry%field_exists('test_alias'))
+    @assertEqual(.true., registry%vector_exists('test_alias2'))
+
 
     field => registry%get_field('test_alias')
     @assertEqual('test_field', field%name)
