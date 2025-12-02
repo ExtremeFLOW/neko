@@ -670,3 +670,5 @@ contains
 
     call neko_log%end_section()
   end subroutine registry_print
+
+end module registry
