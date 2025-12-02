@@ -156,6 +156,7 @@ contains
   subroutine registry_free(this)
     class(registry_t), intent(inout):: this
     integer :: i
+
     if (allocated(this%entries)) then
        do i = 1, this%n_entries()
           call this%entries(i)%free()
@@ -209,7 +210,7 @@ contains
        end if
     end if
 
-    if (this%n_entries() .eq. size(this%entries)) then
+    if (this%n_entries() .eq. this%get_size()) then
        call this%expand()
     end if
 
@@ -246,7 +247,7 @@ contains
        end if
     end if
 
-    if (this%n_entries() == size(this%entries)) then
+    if (this%n_entries() == this%get_size()) then
        call this%expand()
     end if
 
@@ -283,7 +284,7 @@ contains
        end if
     end if
 
-    if (this%n_entries() == size(this%entries)) then
+    if (this%n_entries() == this%get_size()) then
        call this%expand()
     end if
 
@@ -618,7 +619,11 @@ contains
     class(registry_t), intent(in) :: this
     integer :: n
 
-    n = size(this%entries)
+    if (allocated(this%entries)) then
+       n = size(this%entries)
+    else
+       n = 0
+    end if
   end function registry_get_size
 
   !> Get the expansion size.

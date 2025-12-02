@@ -214,7 +214,11 @@ contains
     class(scratch_registry_t), intent(in) :: this
     integer :: n
 
-    n = size(this%entries)
+    if (allocated(this%entries)) then
+       n = size(this%entries)
+    else
+       n = 0
+    end if
   end function get_size
 
   !> Get the expansion size
