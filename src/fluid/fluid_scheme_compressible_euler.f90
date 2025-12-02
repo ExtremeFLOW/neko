@@ -67,6 +67,7 @@ module fluid_scheme_compressible_euler
   use logger, only : LOG_SIZE
   use time_state, only : time_state_t
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
+  use regularization, only: regularization_t, regularization_factory
   implicit none
   private
 
@@ -81,10 +82,7 @@ module fluid_scheme_compressible_euler
      class(euler_rhs_t), allocatable :: euler_rhs
      type(runge_kutta_time_scheme_t) :: rk_scheme
 
-     ! Entropy viscosity fields
-     type(field_t) :: entropy_residual, entropy_visc_coeff
-     type(field_series_t) :: S_lag
-     real(kind=rp) :: c_entropy
+     class(regularization_t), allocatable :: regularization
 
      ! List of boundary conditions for velocity
      type(bc_list_t) :: bcs_density
@@ -97,10 +95,7 @@ module fluid_scheme_compressible_euler
      procedure, pass(this) :: setup_bcs &
           => fluid_scheme_compressible_euler_setup_bcs
      procedure, pass(this) :: compute_h
-     !> Private entropy viscosity procedures
-     procedure, pass(this) :: compute_entropy_residual
-     procedure, pass(this) :: compute_entropy_viscosity
-     procedure, pass(this) :: smooth_entropy_viscosity_neighbor_max
+     procedure, pass(this), private :: setup_regularization
   end type fluid_scheme_compressible_euler_t
 
   interface
@@ -190,11 +185,6 @@ contains
       call this%dE%init(dm_Xh, 'dE')
       call this%h%init(dm_Xh, 'h')
 
-      ! Initialize entropy viscosity fields
-      call this%entropy_residual%init(dm_Xh, 'entropy_residual')
-      call this%entropy_visc_coeff%init(dm_Xh, 'entropy_visc_coeff')
-      call this%S_lag%init(this%S, 3)
-
     end associate
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -228,10 +218,9 @@ contains
 
     ! Compute h
     call this%compute_h()
-    call json_get_or_default(params, 'case.numerics.c_avisc_low', &
-         this%c_avisc_low, 1.0_rp)
-    call json_get_or_default(params, 'case.numerics.c_entropy', &
-         this%c_entropy, 100000000000000.0_rp) ! default to low-order viscosity
+
+    ! Initialize regularization
+    call this%setup_regularization(params)
 
     ! Initialize Runge-Kutta scheme
     call json_get_or_default(params, 'case.numerics.time_order', rk_order, 4)
@@ -259,12 +248,11 @@ contains
     call this%dm_z%free()
     call this%dE%free()
 
-    ! Free entropy viscosity fields
-    call this%entropy_residual%free()
-    call this%entropy_visc_coeff%free()
-    call this%S_lag%free()
+    if (allocated(this%regularization)) then
+       call this%regularization%free()
+       deallocate(this%regularization)
+    end if
 
-    ! call this%scheme_free()
   end subroutine fluid_scheme_compressible_euler_free
 
   !> Advance the fluid simulation one timestep
@@ -273,6 +261,7 @@ contains
   !> @param ext_bdf Time integration controller
   !> @param dt_controller Timestep size controller
   subroutine fluid_scheme_compressible_euler_step(this, time, dt_controller)
+    use entropy_viscosity, only: entropy_viscosity_t
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
     type(time_state_t), intent(in) :: time
     type(time_step_controller_t), intent(in) :: dt_controller
@@ -300,19 +289,8 @@ contains
          t => time%t, tstep => time%tstep, dt => time%dt, &
          c_avisc_low => this%c_avisc_low, rk_scheme => this%rk_scheme)
 
-      ! Compute entropy viscosity when enabled (BDF-3 needs 3 previous time steps)
-      if (tstep > 3 .and. this%c_entropy > 0.0_rp) then
-         call this%compute_entropy_residual(dt, time%dtlag)
-         call this%compute_entropy_viscosity()
-      else
-         call field_cfill(this%entropy_visc_coeff, 0.0_rp, n)
-      end if
-
-      ! Compute effective viscosity = min(first_order_visc, entropy_visc)
-      do i = 1, n
-         this%effective_visc%x(i,1,1,1) = min(c_avisc_low * h%x(i,1,1,1), &
-                                              this%entropy_visc_coeff%x(i,1,1,1))
-      end do
+      ! Compute artificial viscosity
+      call this%regularization%compute(time, time%tstep, time%dt)
 
       ! Execute RHS step with effective viscosity field
       call euler_rhs%step(rho, m_x, m_y, m_z, E, &
@@ -365,7 +343,14 @@ contains
 
       !> Compute entropy S = 1/(gamma-1) * rho * (log(p) - gamma * log(rho))
       call this%compute_entropy()
-      call this%S_lag%update()
+
+      !> Update entropy lag series for entropy viscosity
+      if (allocated(this%regularization)) then
+         select type (reg => this%regularization)
+         type is (entropy_viscosity_t)
+            call reg%update_lag()
+         end select
+      end if
 
       !> Update maximum wave speed for CFL computation
       call this%compute_max_wave_speed()
@@ -581,149 +566,45 @@ contains
     type(chkp_t), intent(inout) :: chkp
   end subroutine fluid_scheme_compressible_euler_restart
 
-  !> Compute entropy residual R_S = dS/dt + u.nabla(S) for entropy viscosity using BDF-3
-  !! @param this The fluid scheme object  
-  !! @param dt Current timestep size
-  !! @param dt_lag Array of previous timestep sizes
-  subroutine compute_entropy_residual(this, dt, dt_lag)
-    class(fluid_scheme_compressible_euler_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: dt
-    real(kind=rp), intent(in) :: dt_lag(10)
-    integer :: i, n
-    type(field_t), pointer :: us_field, vs_field, ws_field, div_field
-    integer :: temp_indices(4)
-    real(kind=rp) :: bdf_coeffs(4)
-    type(bdf_time_scheme_t) :: bdf_scheme
-    real(kind=rp) :: dt_local(10)
+  subroutine setup_regularization(this, params)
+    use entropy_viscosity, only: entropy_viscosity_t, entropy_viscosity_set_fields
+    class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
+    type(json_file), intent(inout) :: params
+    type(json_file) :: reg_json
+    type(json_core) :: json_core_inst
+    type(json_value), pointer :: reg_params
+    character(len=:), allocatable :: buffer
+    real(kind=rp) :: c_entropy_val
+    character(len=:), allocatable :: regularization_type
 
-    n = this%dm_Xh%size()
+    call json_get_or_default(params, 'case.numerics.c_avisc_low', &
+         this%c_avisc_low, 1.0_rp)
+    call json_get_or_default(params, 'case.numerics.c_entropy', &
+         c_entropy_val, 1.0_rp)
 
-    call field_cfill(this%entropy_residual, 0.0_rp, n)
-    
-    if (this%S_lag%size() .lt. 3) then
-       return
-    end if
+    call json_core_inst%initialize()
+    call json_core_inst%create_object(reg_params, '')
+    call json_core_inst%add(reg_params, 'c_entropy', c_entropy_val)
+    call json_core_inst%add(reg_params, 'c_max', this%c_avisc_low)
+    call json_core_inst%print_to_string(reg_params, buffer)
+    call json_core_inst%destroy(reg_params)
 
-    bdf_coeffs = 0.0_rp
-    dt_local = dt_lag
-    
-    call bdf_scheme%compute_coeffs(bdf_coeffs, dt_local, 3)
+    call reg_json%initialize()
+    call reg_json%load_from_string(buffer)
 
-    do i = 1, n
-       this%entropy_residual%x(i,1,1,1) = (bdf_coeffs(1) * this%S%x(i,1,1,1) &
-                                           - bdf_coeffs(2) * this%S_lag%lf(1)%x(i,1,1,1) &
-                                           - bdf_coeffs(3) * this%S_lag%lf(2)%x(i,1,1,1) &
-                                           - bdf_coeffs(4) * this%S_lag%lf(3)%x(i,1,1,1)) / dt
-    end do
+    regularization_type = 'entropy_viscosity'
 
-    call neko_scratch_registry%request_field(us_field, temp_indices(1), .false.)
-    call neko_scratch_registry%request_field(vs_field, temp_indices(2), .false.)
-    call neko_scratch_registry%request_field(ws_field, temp_indices(3), .false.)
-    call neko_scratch_registry%request_field(div_field, temp_indices(4), .false.)
+    call regularization_factory(this%regularization, regularization_type, reg_json, &
+         this%c_Xh, this%dm_Xh, this%effective_visc)
 
-    do i = 1, n
-       us_field%x(i,1,1,1) = this%u%x(i,1,1,1) * this%S%x(i,1,1,1)
-       vs_field%x(i,1,1,1) = this%v%x(i,1,1,1) * this%S%x(i,1,1,1)  
-       ws_field%x(i,1,1,1) = this%w%x(i,1,1,1) * this%S%x(i,1,1,1)
-    end do
+    select type (reg => this%regularization)
+    type is (entropy_viscosity_t)
+       call entropy_viscosity_set_fields(reg, this%S, this%u, this%v, this%w, &
+            this%h, this%max_wave_speed, this%msh, this%Xh)
+    end select
 
-    call div(div_field%x, us_field%x, vs_field%x, ws_field%x, this%c_Xh)
+    call reg_json%destroy()
 
-    do i = 1, n
-       this%entropy_residual%x(i,1,1,1) = abs(this%entropy_residual%x(i,1,1,1) + div_field%x(i,1,1,1))
-    end do
-
-    call neko_scratch_registry%relinquish_field(temp_indices)
-
-  end subroutine compute_entropy_residual
-
-  !> Compute entropy viscosity coefficient nu_E = c_entropy * h^2 * R_S / n(S)
-  !! @param this The fluid scheme object
-  subroutine compute_entropy_viscosity(this)
-    use field_math, only: field_glsum, field_cadd, field_copy, field_cfill
-    use math, only: glmax, absval
-    use comm, only: pe_rank
-    class(fluid_scheme_compressible_euler_t), intent(inout) :: this
-    integer :: i, n, temp_indices(1)
-    real(kind=rp) :: S_mean, n_S
-    type(field_t), pointer :: temp_field
-
-    n = this%dm_Xh%size()
-    
-    ! Get temporary field for computations
-    call neko_scratch_registry%request_field(temp_field, temp_indices(1), .false.)
-    
-    ! Compute global mean of entropy function S
-    ! Create a temporary field filled with 1.0 to count total DOFs
-    call field_cfill(temp_field, 1.0_rp, n)
-    S_mean = field_glsum(this%S, n) / field_glsum(temp_field, n)
-    
-    ! Compute S - mean(S) in temporary field: copy S, then subtract mean
-    call field_copy(temp_field, this%S, n)
-    call field_cadd(temp_field, -S_mean, n)
-    
-    ! Take absolute value: |S - mean(S)|
-    call absval(temp_field%x, n)
-    
-    ! Find global maximum of |S - mean(S)|
-    n_S = glmax(temp_field%x, n)
-    
-    ! Release temporary field
-    call neko_scratch_registry%relinquish_field(temp_indices)
-    
-    ! Avoid division by zero
-    if (n_S < 1.0e-12_rp) then
-       n_S = 1.0e-12_rp
-    end if
-    
-    ! Print normalization value for monitoring
-    !  if (pe_rank .eq. 0) then
-    !     write(*,'(A,ES12.5)') 'Entropy viscosity normalization n(S) = ', n_S
-    !  end if
-    
-    ! Compute entropy viscosity with normalization: nu_E = c_entropy * h^2 * R_S / n(S)
-    do i = 1, n
-       this%entropy_visc_coeff%x(i,1,1,1) = this%c_entropy * this%h%x(i,1,1,1)**2 * &
-                                            this%entropy_residual%x(i,1,1,1) / n_S
-    end do
-
-    ! Apply neighbor maximum smoothing to reduce jumpiness
-    call this%smooth_entropy_viscosity_neighbor_max()
-
-  end subroutine compute_entropy_viscosity
-
-  !> Smooth entropy viscosity using element-local maximum to reduce jumpiness
-  !! @param this The fluid scheme object
-  subroutine smooth_entropy_viscosity_neighbor_max(this)
-    class(fluid_scheme_compressible_euler_t), intent(inout) :: this
-    integer :: i, j, k, el, lx
-    real(kind=rp) :: max_visc_el
-
-    lx = this%dm_Xh%Xh%lx
-    
-    ! For each element, find maximum viscosity and apply to all points
-    do el = 1, this%msh%nelv
-       max_visc_el = 0.0_rp
-       
-       ! Find maximum viscosity in this element
-       do k = 1, lx
-          do j = 1, lx
-             do i = 1, lx
-                max_visc_el = max(max_visc_el, this%entropy_visc_coeff%x(i,j,k,el))
-             end do
-          end do
-       end do
-       
-       ! Apply maximum to all points in element
-       do k = 1, lx
-          do j = 1, lx
-             do i = 1, lx
-                this%entropy_visc_coeff%x(i,j,k,el) = max_visc_el
-             end do
-          end do
-       end do
-    end do
-
-  end subroutine smooth_entropy_viscosity_neighbor_max
+  end subroutine setup_regularization
 
 end module fluid_scheme_compressible_euler

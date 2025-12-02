@@ -13,7 +13,9 @@
         },
         "numerics": {
             "time_order": 4,
-            "polynomial_order": 5
+            "polynomial_order": 5,
+            "c_avisc_low": 1.0,
+            "c_entropy": 1E11 // enable low-order viscosity
         },
         "fluid": {
             "scheme": "compressible",
