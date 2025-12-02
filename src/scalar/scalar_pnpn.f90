@@ -352,6 +352,8 @@ contains
     ! Number of degrees of freedom
     integer :: n
 
+    if (this%freeze) return
+
     n = this%dm_Xh%size()
 
     call profiler_start_region(trim(this%name), 2)
