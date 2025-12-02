@@ -1,7 +1,7 @@
 
 stages:          
   - build
-  - test
+  - check
 
 build-cpu:       
   stage: build
@@ -18,7 +18,28 @@ build-cpu:
     - ./regen.sh
     - ./configure FC=mpif90 CC=mpicc FCFLAGS="-O3" --with-pfunit=${PFUNIT_ROOT}/PFUNIT-4.15/ --with-parmetis --with-metis
     - make -j 128
-    - make check
+  cache:
+    key: "$CI_COMMIT_REF_SLUG+cpu"
+    untracked: true
+  
+check-cpu:
+  stage: check
+  tags:
+    - cpu
+  before_script:
+      - ml openmpi/5.0.7-gcc-15.1.0-qhsadvh
+      - ml json-fortran/8.3.0-gcc-15.1.0-6yo3zb5
+      - ml openblas/0.3.29-gcc-15.1.0-zznztil
+      - ml parmetis/4.0.3-gcc-15.1.0-plk36ai
+      - ml metis/5.1.0-gcc-15.1.0-ezmekya
+      - ml pfunit/4.15.0-gcc-15.1.0-rdzsfri
+  script:
+    - make -j 128 check
+  needs:
+    - build-cpu
+  cache:
+    key: "$CI_COMMIT_REF_SLUG+cpu"
+    untracked: true
   artifacts:
     when: on_failure
     expire_in: 1 week
@@ -40,12 +61,33 @@ build-cuda:
     - ./regen.sh
     - ./configure FC=mpif90 CC=mpicc FCFLAGS="-O3" --with-pfunit=${PFUNIT_ROOT}/PFUNIT-4.15/ --with-parmetis --with-metis --with-cuda=/usr/local/cuda --enable-device-mpi
     - make -j 128
-    - make check
+  cache:
+    key: "$CI_COMMIT_REF_SLUG+cuda"
+    untracked: true
+
+check-cuda:
+  stage: check
+  tags:
+    - gpu
+  before_script:
+      - ml openmpi/5.0.9-gcc-14.3.0-55azq7t
+      - ml json-fortran/8.3.0-gcc-14.3.0-cd2wubx
+      - ml openblas/0.3.30-gcc-14.3.0-fbx4e7m
+      - ml parmetis/4.0.3-gcc-14.3.0-735rsvf
+      - ml metis/5.1.0-gcc-14.3.0-rchynit
+      - ml pfunit/4.15.0-gcc-14.3.0-oai37od 
+  script:
+    - make -j 128 check
+  needs:
+    - build-cuda
+  cache:
+    key: "$CI_COMMIT_REF_SLUG+cuda"
+    untracked: true
   artifacts:
     when: on_failure
     expire_in: 1 week
     paths:
-      - tests/unit/test-suite.log
+      - tests/unit/test-suite.log 
 
 build-opencl:
   stage: build
@@ -62,10 +104,32 @@ build-opencl:
     - ./regen.sh
     - ./configure FC=mpif90 CC=mpicc FCFLAGS="-O3" --with-pfunit=${PFUNIT_ROOT}/PFUNIT-4.15/ --with-parmetis --with-metis --with-opencl=/usr/local/cuda
     - make -j 128
-    - make check
+  cache:
+    key: "$CI_COMMIT_REF_SLUG+opencl"
+    untracked: true
+
+check-opencl:
+  stage: check
+  tags:
+    - gpu
+  before_script:
+      - ml openmpi/5.0.9-gcc-14.3.0-55azq7t
+      - ml json-fortran/8.3.0-gcc-14.3.0-cd2wubx
+      - ml openblas/0.3.30-gcc-14.3.0-fbx4e7m
+      - ml parmetis/4.0.3-gcc-14.3.0-735rsvf
+      - ml metis/5.1.0-gcc-14.3.0-rchynit
+      - ml pfunit/4.15.0-gcc-14.3.0-oai37od 
+  script:
+    - make -j 128 check
+  needs:
+    - build-opencl
+  cache:
+    key: "$CI_COMMIT_REF_SLUG+opencl"
+    untracked: true
   artifacts:
     when: on_failure
     expire_in: 1 week
     paths:
-      - tests/unit/test-suite.log
+      - tests/unit/test-suite.log 
+
 
