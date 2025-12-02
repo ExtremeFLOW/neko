@@ -4,7 +4,8 @@ module test_matrix_scratch_registry
   use matrix_math, only : matrix_cfill
   use scratch_registry, only : scratch_registry_t
   use num_types, only : rp
-  use device, only : DEVICE_TO_HOST, device_init, device_finalize
+  use device, only : DEVICE_TO_HOST, device_init, &
+       device_finalize
   use neko_config, only : NEKO_BCKND_DEVICE
   implicit none
 
