@@ -137,23 +137,23 @@ jobs:
           PIP_NO_BINARY: "mpi4py"
         run: |
           pip install -r .github/workflows/extra/requirements-tests.txt
-          pip install --no-binary=mpi4py mpi4py
+#          pip install --no-binary=mpi4py mpi4py
 
 
-      - name: Check MPI vendor used by mpi4py
-        run: |
-          python - << 'EOF'
-          from mpi4py import MPI
-          print("MPI vendor:", MPI.get_vendor())
-          print("MPI version:", MPI.Get_version())
-          EOF
+#      - name: Check MPI vendor used by mpi4py
+#        run: |
+#          python - << 'EOF'
+#          from mpi4py import MPI
+#          print("MPI vendor:", MPI.get_vendor())
+#          print("MPI version:", MPI.Get_version())
+#          EOF
 
-      - name: Debug MPI in CI
-        run: |
-          which mpirun || echo "mpirun not found"
-          mpirun --version || echo "mpirun --version failed"
-          echo "Running simple MPI hello..."
-          mpirun --oversubscribe -np 2 hostname
+#      - name: Debug MPI in CI
+#        run: |
+#          which mpirun || echo "mpirun not found"
+#          mpirun --version || echo "mpirun --version failed"
+#          echo "Running simple MPI hello..."
+#          mpirun --oversubscribe -np 2 hostname
 
 
       # Setup matrix environment
