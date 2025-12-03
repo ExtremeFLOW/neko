@@ -1,0 +1,71 @@
+{
+    "version": 1.0,
+    "case": {
+        "mesh_file": "20x20.nmsh",
+        "output_boundary": true,
+        "end_time": 6.28318530718,
+        "variable_timestep":false,
+        "timestep": 0.001,
+        "numerics": {
+            "time_order": 1,
+            "polynomial_order": 3,
+            "dealias": true
+        },
+        "fluid": {
+            "scheme": "pnpn",
+            "freeze": true,
+            "initial_condition": {
+                "type": "uniform",
+                "value": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "velocity_solver": {
+                "type": "cg",
+                "projection_space_size": 0,
+                "absolute_tolerance": 1e-6,
+                "max_iterations": 800,
+                "preconditioner": {
+                    "type": "jacobi"
+                },
+            },
+            "pressure_solver": {
+                "type": "gmres",
+                "preconditioner": {
+                    "type": "hsmg"
+                },
+                "projection_space_size": 0,
+                "absolute_tolerance": 1e-3,
+                "max_iterations": 800
+            },
+            "output_control": "simulationtime",
+            "output_value": 0.01,
+            "boundary_conditions":[],
+        },
+        "scalar": {
+            "enabled": true,
+            "epsilon": 0.005,
+            "gamma": 0.01,
+            "source_terms": [
+                {
+                    "type": "user_vector"
+                }
+            ],
+            "solver": {
+                "type": "cg",
+                "preconditioner": {
+                    "type": "jacobi"
+                },
+                "projection_space_size": 0,
+                "absolute_tolerance": 1e-6,
+                "max_iterations": 800
+            },
+            "initial_condition": {
+                "type": "user"
+            },
+            "boundary_conditions":[]
+        }
+    }
+}

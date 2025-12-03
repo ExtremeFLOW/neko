@@ -1,0 +1,1 @@
+rm -f field0.* *.nek5000 *.chkp bdry0.*
