@@ -10,14 +10,36 @@ module test_registry
   use field_registry, only : registry_t
   use comm, only : pe_rank, pe_size
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE
+  use device, only : DEVICE_TO_HOST, device_init, device_finalize
   use field_math, only : field_cfill
   use vector_math, only : vector_cfill
   use matrix_math, only : matrix_cfill
   use num_types, only : rp
+  use device, only :
   implicit none
 
+  @TestCase
+  type, extends(TestCase) :: test_field_reg
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_field_reg
+
 contains
+
+  subroutine setUp(this)
+    class(test_field_reg), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_field_reg), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
 
   subroutine test_registry_gen_msh(msh)
     type(mesh_t), intent(inout) :: msh
@@ -58,7 +80,8 @@ contains
   end subroutine test_registry_gen_msh
 
   @test
-  subroutine test_registry_init()
+  subroutine test_registry_init(this)
+    class(test_field_reg), intent(inout) :: this
     type(registry_t) :: registry
 
     call registry%init()
@@ -82,7 +105,8 @@ contains
   end subroutine test_registry_init
 
   @test
-  subroutine test_registry_init_custom()
+  subroutine test_registry_init_custom(this)
+    class(test_field_reg), intent(inout) :: this
     type(registry_t) :: registry
 
     ! Test custom initialization and reinitialization
@@ -100,7 +124,8 @@ contains
 
 
   @test
-  subroutine test_registry_add_objects()
+  subroutine test_registry_add_objects(this)
+    class(test_field_reg), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
     type(dofmap_t) :: dm
@@ -160,7 +185,8 @@ contains
   end subroutine test_registry_add_objects
 
   @test
-  subroutine test_registry_add_alias()
+  subroutine test_registry_add_alias(this)
+    class(test_field_reg), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
     type(dofmap_t) :: dm
@@ -210,7 +236,8 @@ contains
   end subroutine test_registry_add_alias
 
   @test
-  subroutine test_registry_expand()
+  subroutine test_registry_expand(this)
+    class(test_field_reg), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
     type(dofmap_t) :: dm
