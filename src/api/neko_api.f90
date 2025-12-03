@@ -123,18 +123,18 @@ contains
   end subroutine neko_api_job_info
 
   !> Initialise a Neko field registry
-  subroutine neko_api_field_registry_init() bind(c, name="neko_field_registry_init")
+  subroutine neko_api_registry_init() bind(c, name="neko_registry_init")
 
-    call neko_field_registry%init()
+    call neko_registry%init()
 
-  end subroutine neko_api_field_registry_init
+  end subroutine neko_api_registry_init
 
   !> Destroy a Neko field registry
-  subroutine neko_api_field_registry_free() bind(c, name="neko_field_registry_free")
+  subroutine neko_api_registry_free() bind(c, name="neko_registry_free")
 
-    call neko_field_registry%free()
+    call neko_registry%free()
 
-  end subroutine neko_api_field_registry_free
+  end subroutine neko_api_registry_free
 
   !> Allocate memory for a Neko case
   !! @param case_iptr Opaque pointer for the created Neko case
@@ -381,7 +381,7 @@ contains
        name(len:len) = field_name(len)
     end do
 
-    field => neko_field_registry%get_field(trim(name(1:len)))
+    field => neko_registry%get_field(trim(name(1:len)))
 
     field_ptr = c_loc(field%x)
 
@@ -404,7 +404,7 @@ contains
        name(len:len) = field_name(len)
     end do
 
-    field => neko_field_registry%get_field(trim(name(1:len)))
+    field => neko_registry%get_field(trim(name(1:len)))
 
     field_lx = field%Xh%lx
 
@@ -427,7 +427,7 @@ contains
        name(len:len) = field_name(len)
     end do
 
-    field => neko_field_registry%get_field(trim(name(1:len)))
+    field => neko_registry%get_field(trim(name(1:len)))
 
     field_nelv = field%msh%nelv
 
@@ -450,7 +450,7 @@ contains
        name(len:len) = field_name(len)
     end do
 
-    field => neko_field_registry%get_field(trim(name(1:len)))
+    field => neko_registry%get_field(trim(name(1:len)))
 
     field_size = field%dof%size()
 
@@ -477,7 +477,7 @@ contains
        name(len:len) = field_name(len)
     end do
 
-    field => neko_field_registry%get_field(trim(name(1:len)))
+    field => neko_registry%get_field(trim(name(1:len)))
     call neko_api_wrap_dofmap(field%dof, dof_ptr, x_ptr, y_ptr, z_ptr)
 
   end subroutine neko_api_field_dofmap
@@ -551,7 +551,7 @@ contains
        name(len:len) = field_name(len)
     end do
 
-    field => neko_field_registry%get_field(trim(name(1:len)))
+    field => neko_registry%get_field(trim(name(1:len)))
     call neko_api_wrap_space(field%Xh, lx, zg, dr_inv, ds_inv, dt_inv, &
          wx, wy, wz, dx, dy, dz)
 

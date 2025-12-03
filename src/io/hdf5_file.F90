@@ -40,7 +40,6 @@ module hdf5_file
   use field, only : field_t, field_ptr_t
   use field_list, only : field_list_t
   use field_series, only : field_series_t, field_series_ptr_t
-  use field_registry, only : neko_field_registry
   use dofmap, only : dofmap_t
   use logger, only : neko_log
   use comm, only : pe_rank, NEKO_COMM

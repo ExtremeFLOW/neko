@@ -101,15 +101,15 @@ program postprocess_fluid_stats
   call gs_h%init(dof)
   call coef%init(gs_h)
 
-  call neko_field_registry%add_field(dof, 'u')
-  call neko_field_registry%add_field(dof, 'v')
-  call neko_field_registry%add_field(dof, 'w')
-  call neko_field_registry%add_field(dof, 'p')
+  call neko_registry%add_field(dof, 'u')
+  call neko_registry%add_field(dof, 'v')
+  call neko_registry%add_field(dof, 'w')
+  call neko_registry%add_field(dof, 'p')
 
-  u => neko_field_registry%get_field('u')
-  v => neko_field_registry%get_field('v')
-  w => neko_field_registry%get_field('w')
-  p => neko_field_registry%get_field('p')
+  u => neko_registry%get_field('u')
+  v => neko_registry%get_field('v')
+  w => neko_registry%get_field('w')
+  p => neko_registry%get_field('p')
 
   call fld_stats%init(coef,u,v,w,p)
   n = stats_data%u%size()

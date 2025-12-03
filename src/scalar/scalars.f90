@@ -47,7 +47,6 @@ module scalars
   use field, only: field_t
   use field_list, only: field_list_t
   use field_series, only: field_series_t
-  use field_registry, only: neko_field_registry
   use checkpoint, only: chkp_t
   use krylov, only: ksp_t, ksp_monitor_t
   use logger, only: neko_log, LOG_SIZE, NEKO_LOG_VERBOSE

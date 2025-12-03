@@ -37,7 +37,7 @@ module PDE_filter
   use num_types, only: rp
   use json_module, only: json_file
   use json_utils, only: json_get_or_default, json_get
-  use field_registry, only: neko_field_registry
+  use registry, only: neko_registry
   use field, only: field_t
   use coefs, only: coef_t
   use ax_product, only: ax_t, ax_helm_factory
@@ -49,7 +49,7 @@ module PDE_filter
   use gather_scatter, only: gs_t, GS_OP_ADD
   use pnpn_residual, only: pnpn_prs_res_t
   use mesh, only: mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
-  use field_registry, only: neko_field_registry
+  use registry, only: neko_registry
   use filter, only: filter_t
   use scratch_registry, only: neko_scratch_registry
   use field_math, only: field_copy, field_add3

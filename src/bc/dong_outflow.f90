@@ -42,7 +42,7 @@ module dong_outflow
   use coefs, only : coef_t
   use utils, only : nonlinear_index
   use device_dong_outflow, only : device_dong_outflow_apply_scalar
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use, intrinsic :: iso_c_binding, only : c_ptr, c_sizeof, c_null_ptr, &
        c_associated
   use json_module, only : json_file
@@ -234,9 +234,9 @@ contains
 
     call this%finalize_base(.true.)
 
-    this%u => neko_field_registry%get_field("u")
-    this%v => neko_field_registry%get_field("v")
-    this%w => neko_field_registry%get_field("w")
+    this%u => neko_registry%get_field("u")
+    this%v => neko_registry%get_field("v")
+    this%w => neko_registry%get_field("w")
     if ((NEKO_BCKND_DEVICE .eq. 1) .and. (this%msk(0) .gt. 0)) then
        call device_alloc(this%normal_x_d, c_sizeof(dummy)*this%msk(0))
        call device_alloc(this%normal_y_d, c_sizeof(dummy)*this%msk(0))

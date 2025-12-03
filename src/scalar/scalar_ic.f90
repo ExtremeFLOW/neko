@@ -47,7 +47,6 @@ module scalar_ic
   use json_utils, only: json_get, json_get_or_default
   use point_zone, only: point_zone_t
   use point_zone_registry, only: neko_point_zone_registry
-  use field_registry, only: neko_field_registry
   use logger, only: neko_log, LOG_SIZE
   use fld_file_data, only: fld_file_data_t
   use fld_file, only: fld_file_t

@@ -48,7 +48,7 @@ module scalar_pnpn
   use scalar_residual, only : scalar_residual_t, scalar_residual_factory
   use ax_product, only : ax_t, ax_helm_factory
   use field_series, only: field_series_t
-  use field_registry, only: neko_field_registry
+  use registry, only: neko_registry
   use facet_normal, only : facet_normal_t
   use krylov, only : ksp_monitor_t
   use device_math, only : device_add2s2, device_col2
@@ -210,10 +210,10 @@ contains
       call this%s_res%init(dm_Xh, "s_res")
 
       call this%abx1%init(dm_Xh, trim(this%name)//"_abx1")
-      call neko_field_registry%add_field(dm_Xh, trim(this%name)//"_abx1", ignore_existing = .true.)
+      call neko_registry%add_field(dm_Xh, trim(this%name)//"_abx1", ignore_existing = .true.)
 
       call this%abx2%init(dm_Xh, trim(this%name)//"_abx2")
-      call neko_field_registry%add_field(dm_Xh, trim(this%name)//"_abx2", ignore_existing = .true.)
+      call neko_registry%add_field(dm_Xh, trim(this%name)//"_abx2", ignore_existing = .true.)
 
       call this%advs%init(dm_Xh, "advs")
 

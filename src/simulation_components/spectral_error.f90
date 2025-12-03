@@ -52,7 +52,7 @@ module spectral_error
   use json_module, only: json_file
   use json_utils, only: json_get, json_get_or_default
   use case, only: case_t
-  use field_registry, only: neko_field_registry
+  use registry, only: neko_registry
 
   use, intrinsic :: iso_c_binding
   implicit none
@@ -141,12 +141,12 @@ contains
     integer :: il, jl, aa
     character(len=NEKO_FNAME_LEN) :: fname_speri
 
-    this%u => neko_field_registry%get_field("u")
-    this%v => neko_field_registry%get_field("v")
-    this%w => neko_field_registry%get_field("w")
-    this%u_hat => neko_field_registry%get_field("u_hat")
-    this%v_hat => neko_field_registry%get_field("v_hat")
-    this%w_hat => neko_field_registry%get_field("w_hat")
+    this%u => neko_registry%get_field("u")
+    this%v => neko_registry%get_field("v")
+    this%w => neko_registry%get_field("w")
+    this%u_hat => neko_registry%get_field("u_hat")
+    this%v_hat => neko_registry%get_field("v_hat")
+    this%w_hat => neko_registry%get_field("w_hat")
 
     !> Initialize fields and copy data from proper one
     this%wk = this%u
