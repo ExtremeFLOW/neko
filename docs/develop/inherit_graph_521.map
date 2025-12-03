@@ -1,3 +1,11 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$d6/dc4/classpyneko_1_1intf_1_1neko__coef__t.html" title=" " alt="" coords="5,5,181,31"/>
+<area shape="rect" id="Node000000" href="$d6/d13/structpoint__zone_1_1point__zone__t.html" title="Base abstract type for point zones." alt="" coords="5,109,189,134"/>
+<area shape="rect" id="Node000001" href="$d4/d0c/structbox__point__zone_1_1box__point__zone__t.html" title="A box&#45;shaped point zone." alt="" coords="247,5,403,45"/>
+<area shape="poly" id="edge123_Node000000_Node000001" title=" " alt="" coords="136,100,236,55,267,43,269,48,238,60,138,105"/>
+<area shape="rect" id="Node000002" href="$d9/d38/structcombine__point__zone_1_1combine__point__zone__t.html" title="A point zone that combines different point zones." alt="" coords="237,69,413,109"/>
+<area shape="poly" id="edge124_Node000000_Node000002" title=" " alt="" coords="201,104,237,99,238,104,202,109"/>
+<area shape="rect" id="Node000003" href="$d2/d18/structcylinder__point__zone_1_1cylinder__point__zone__t.html" title="A cylindrical point zone." alt="" coords="239,133,411,173"/>
+<area shape="poly" id="edge125_Node000000_Node000003" title=" " alt="" coords="202,133,239,139,239,144,201,139"/>
+<area shape="rect" id="Node000004" href="$d1/d00/structsphere__point__zone_1_1sphere__point__zone__t.html" title="A sphere&#45;shaped point zone." alt="" coords="247,197,403,237"/>
+<area shape="poly" id="edge126_Node000000_Node000004" title=" " alt="" coords="138,138,238,183,269,195,267,200,236,188,136,143"/>
 </map>

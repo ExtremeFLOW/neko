@@ -41,5 +41,13 @@ var opencl__math_8f90 =
     [ "opencl_math::opencl_glsc3_many", "df/d22/interfaceopencl__math_1_1opencl__glsc3__many.html", "df/d22/interfaceopencl__math_1_1opencl__glsc3__many" ],
     [ "opencl_math::opencl_glsc2", "d5/d41/interfaceopencl__math_1_1opencl__glsc2.html", "d5/d41/interfaceopencl__math_1_1opencl__glsc2" ],
     [ "opencl_math::opencl_glsubnorm2", "de/d8a/interfaceopencl__math_1_1opencl__glsubnorm2.html", "de/d8a/interfaceopencl__math_1_1opencl__glsubnorm2" ],
-    [ "opencl_math::opencl_glsum", "de/d14/interfaceopencl__math_1_1opencl__glsum.html", "de/d14/interfaceopencl__math_1_1opencl__glsum" ]
+    [ "opencl_math::opencl_glsum", "de/d14/interfaceopencl__math_1_1opencl__glsum.html", "de/d14/interfaceopencl__math_1_1opencl__glsum" ],
+    [ "opencl_math::opencl_pwmax_vec2", "d9/df9/interfaceopencl__math_1_1opencl__pwmax__vec2.html", "d9/df9/interfaceopencl__math_1_1opencl__pwmax__vec2" ],
+    [ "opencl_math::opencl_pwmax_vec3", "d9/d61/interfaceopencl__math_1_1opencl__pwmax__vec3.html", "d9/d61/interfaceopencl__math_1_1opencl__pwmax__vec3" ],
+    [ "opencl_math::opencl_pwmax_sca2", "d1/d36/interfaceopencl__math_1_1opencl__pwmax__sca2.html", "d1/d36/interfaceopencl__math_1_1opencl__pwmax__sca2" ],
+    [ "opencl_math::opencl_pwmax_sca3", "d4/dab/interfaceopencl__math_1_1opencl__pwmax__sca3.html", "d4/dab/interfaceopencl__math_1_1opencl__pwmax__sca3" ],
+    [ "opencl_math::opencl_pwmin_vec2", "d1/dfd/interfaceopencl__math_1_1opencl__pwmin__vec2.html", "d1/dfd/interfaceopencl__math_1_1opencl__pwmin__vec2" ],
+    [ "opencl_math::opencl_pwmin_vec3", "d8/dfc/interfaceopencl__math_1_1opencl__pwmin__vec3.html", "d8/dfc/interfaceopencl__math_1_1opencl__pwmin__vec3" ],
+    [ "opencl_math::opencl_pwmin_sca2", "da/d8b/interfaceopencl__math_1_1opencl__pwmin__sca2.html", "da/d8b/interfaceopencl__math_1_1opencl__pwmin__sca2" ],
+    [ "opencl_math::opencl_pwmin_sca3", "da/d27/interfaceopencl__math_1_1opencl__pwmin__sca3.html", "da/d27/interfaceopencl__math_1_1opencl__pwmin__sca3" ]
 ];

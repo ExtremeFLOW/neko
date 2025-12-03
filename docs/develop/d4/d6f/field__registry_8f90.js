@@ -4,7 +4,6 @@ var field__registry_8f90 =
     [ "field_registry_add_alias", "d4/d6f/field__registry_8f90.html#a207475a858cf55d66b45aa7b7abf5bbd", null ],
     [ "field_registry_add_field", "d4/d6f/field__registry_8f90.html#a118b6c622f060aed8ebe8499d5ea47b9", null ],
     [ "field_registry_expand", "d4/d6f/field__registry_8f90.html#ab7986dfa30fa0163eddac809d2710e35", null ],
-    [ "field_registry_expand_aliases", "d4/d6f/field__registry_8f90.html#ad88d6328695051e3fc58c1dd3c68e07f", null ],
     [ "field_registry_field_exists", "d4/d6f/field__registry_8f90.html#a37a7c8ba6019a5d467cc7eb527905d29", null ],
     [ "field_registry_free", "d4/d6f/field__registry_8f90.html#a37b2c888042990813baac46ab5acf05c", null ],
     [ "field_registry_get_expansion_size", "d4/d6f/field__registry_8f90.html#a654fcdcf221482a1018d01e2ac6690ae", null ],
