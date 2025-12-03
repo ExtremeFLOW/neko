@@ -92,7 +92,7 @@ contains
     call vec_out%init(2) ! Initialize our vector with 2 elements (Ekin, enst)
 
     ! initialize work arrays for postprocessing
-    u => neko_field_registry%get_field("u")
+    u => neko_registry%get_field("u")
     call w1%init(u%dof, 'work1')
     call temp1%init(u%dof)
     call temp2%init(u%dof)
@@ -120,9 +120,9 @@ contains
     if (mod(time%tstep, ipostproc) .ne. 0) return
 
     coef => neko_user_access%case%fluid%c_Xh
-    u => neko_field_registry%get_field("u")
-    v => neko_field_registry%get_field("v")
-    w => neko_field_registry%get_field("w")
+    u => neko_registry%get_field("u")
+    v => neko_registry%get_field("v")
+    w => neko_registry%get_field("w")
 
     ntot = u%dof%size()
 

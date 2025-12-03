@@ -49,9 +49,9 @@ module registry_entry
      character(len=:), private, allocatable :: type
      logical, private :: allocated = .false.
 
-     type(field_t), pointer :: field_ptr => null()
-     type(vector_t), pointer :: vector_ptr => null()
-     type(matrix_t), pointer :: matrix_ptr => null()
+     type(field_t), private, pointer :: field_ptr => null()
+     type(vector_t), private, pointer :: vector_ptr => null()
+     type(matrix_t), private, pointer :: matrix_ptr => null()
 
    contains
      procedure, pass(this) :: init_field => init_register_field
@@ -61,6 +61,9 @@ module registry_entry
 
      procedure, pass(this) :: get_name
      procedure, pass(this) :: get_type
+     procedure, pass(this) :: get_field
+     procedure, pass(this) :: get_vector
+     procedure, pass(this) :: get_matrix
      procedure, pass(this) :: is_allocated
   end type registry_entry_t
 
@@ -73,7 +76,7 @@ contains
     character(len=*), intent(in) :: name
 
     if (this%allocated) then
-       call neko_error("scratch_registry::init_register_field: "&
+       call neko_error("scratch_registry::init_register_field: " &
             // "Register entry is already allocated.")
     end if
 
@@ -95,7 +98,7 @@ contains
     character(len=*), optional, intent(in) :: name
 
     if (this%allocated) then
-       call neko_error("scratch_registry::init_register_vector: "&
+       call neko_error("scratch_registry::init_register_vector: " &
             // "Register entry is already allocated.")
     end if
 
@@ -117,7 +120,7 @@ contains
     character(len=*), optional, intent(in) :: name
 
     if (this%allocated) then
-       call neko_error("scratch_registry::init_register_matrix: "&
+       call neko_error("scratch_registry::init_register_matrix: " &
             // "Register entry is already allocated.")
     end if
 
@@ -158,24 +161,57 @@ contains
   end subroutine free_register
 
   !> Get the name of the registry entry
-  function get_name(this) result(name)
+  pure function get_name(this) result(name)
     class(registry_entry_t), intent(in) :: this
     character(len=:), allocatable :: name
-    name = this%name
+    name = trim(this%name)
   end function get_name
 
   !> Get the type of the registry entry
-  function get_type(this) result(type)
+  pure function get_type(this) result(type)
     class(registry_entry_t), intent(in) :: this
     character(len=:), allocatable :: type
-    type = this%type
+    type = trim(this%type)
   end function get_type
 
   !> Check if the registry entry is allocated
-  function is_allocated(this) result(allocated)
+  pure function is_allocated(this) result(allocated)
     class(registry_entry_t), intent(in) :: this
     logical :: allocated
     allocated = this%allocated
   end function is_allocated
+
+  !> Get the field pointer of the registry entry
+  function get_field(this) result(field_ptr)
+    class(registry_entry_t), target, intent(in) :: this
+    type(field_t), pointer :: field_ptr
+    if (this%get_type() .ne. 'field') then
+       call neko_error("registry_entry::get_field: " &
+            // "Registry entry is not of type 'field'.")
+    end if
+    field_ptr => this%field_ptr
+  end function get_field
+
+  !> Get the vector pointer of the registry entry
+  function get_vector(this) result(vector_ptr)
+    class(registry_entry_t), target, intent(in) :: this
+    type(vector_t), pointer :: vector_ptr
+    if (this%get_type() .ne. 'vector') then
+       call neko_error("registry_entry::get_vector: " &
+            // "Registry entry is not of type 'vector'.")
+    end if
+    vector_ptr => this%vector_ptr
+  end function get_vector
+
+  !> Get the matrix pointer of the registry entry
+  function get_matrix(this) result(matrix_ptr)
+    class(registry_entry_t), target, intent(in) :: this
+    type(matrix_t), pointer :: matrix_ptr
+    if (this%get_type() .ne. 'matrix') then
+       call neko_error("registry_entry::get_field: " &
+            // "Registry entry is not of type 'matrix'.")
+    end if
+    matrix_ptr => this%matrix_ptr
+  end function get_matrix
 
 end module registry_entry
