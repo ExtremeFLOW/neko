@@ -362,13 +362,13 @@ contains
         ! Compute gradient of scalar field
         call grad(work1%x, work2%x, work3%x, s%x, coef)
         
-        ! ! Apply gather-scatter and multiplicity
-        ! call coef%gs_h%op(work1, GS_OP_ADD)
-        ! call coef%gs_h%op(work2, GS_OP_ADD)
-        ! call coef%gs_h%op(work3, GS_OP_ADD)
-        ! call col2(work1%x, coef%mult, work4%size())
-        ! call col2(work2%x, coef%mult, work4%size())
-        ! call col2(work3%x, coef%mult, work4%size())
+        ! Apply gather-scatter and multiplicity
+        call coef%gs_h%op(work1, GS_OP_ADD)
+        call coef%gs_h%op(work2, GS_OP_ADD)
+        call coef%gs_h%op(work3, GS_OP_ADD)
+        call col2(work1%x, coef%mult, work4%size())
+        call col2(work2%x, coef%mult, work4%size())
+        call col2(work3%x, coef%mult, work4%size())
 
         ! Compute normalized gradient and apply phase field forcing
         do i = 1, work4%size()
