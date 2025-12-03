@@ -8,8 +8,9 @@
         "mesh_file": "10x10.nmsh",
         "output_at_end": true,
         "output_checkpoints": false,
+        "runtime_statistics": { "enabled": true },
         "time": {
-            "end_time": 300,
+            "end_time": 30,
             "variable_timestep": true,
             "max_timestep": 0.25e-2,
             // some options for timestepping to play around
