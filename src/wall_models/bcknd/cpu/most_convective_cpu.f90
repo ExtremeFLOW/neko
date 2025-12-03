@@ -47,6 +47,7 @@
 
 module most_convective_cpu
   use num_types, only : rp
+  use utils, only : neko_error
   implicit none
   private
 
@@ -137,8 +138,8 @@ contains
        ! Error handling (if convergence not achieved)
        ! Temporary: I think it's better to just make the sim crash (?)
         if (count .eq. 20) then
-           write(*,*) "Obukhov length did not converge (convective MOST wall model)"   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-           l_obukhov = l_backup
+           call neko_error("Obukhov length did not converge (convective MOST wall model)")   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+          !  l_obukhov = l_backup
         end if
 
        ! Compute utau (should I update Obkuhov length?)
