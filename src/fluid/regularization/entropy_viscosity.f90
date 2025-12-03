@@ -47,6 +47,8 @@ module entropy_viscosity
   use scratch_registry, only: neko_scratch_registry
   use mesh, only: mesh_t
   use space, only: space_t
+  use gather_scatter, only: gs_t
+  use gs_ops, only: GS_OP_ADD, GS_OP_MAX
   implicit none
   private
 
@@ -63,15 +65,17 @@ module entropy_viscosity
      type(field_t), pointer :: max_wave_speed => null()
      type(mesh_t), pointer :: msh => null()
      type(space_t), pointer :: Xh => null()
+     type(gs_t), pointer :: gs => null()
    contains
      procedure, pass(this) :: init => entropy_viscosity_init
      procedure, pass(this) :: free => entropy_viscosity_free
      procedure, pass(this) :: compute => entropy_viscosity_compute
      procedure, pass(this) :: update_lag => entropy_viscosity_update_lag
-     procedure, pass(this), private :: compute_residual => entropy_viscosity_compute_residual
-     procedure, pass(this), private :: compute_viscosity => entropy_viscosity_compute_viscosity
-     procedure, pass(this), private :: smooth_element_max => entropy_viscosity_smooth_element_max
-     procedure, pass(this), private :: low_order_viscosity => entropy_viscosity_low_order
+    procedure, pass(this), private :: compute_residual => entropy_viscosity_compute_residual
+    procedure, pass(this), private :: compute_viscosity => entropy_viscosity_compute_viscosity
+    procedure, pass(this), private :: smooth_viscosity => entropy_viscosity_smooth_viscosity
+    procedure, pass(this), private :: apply_element_max => entropy_viscosity_apply_element_max
+    procedure, pass(this), private :: low_order_viscosity => entropy_viscosity_low_order
   end type entropy_viscosity_t
 
   public :: entropy_viscosity_set_fields
@@ -88,7 +92,7 @@ contains
     call this%init_base(json, coef, dof, reg_coeff)
 
     call json_get_or_default(json, 'c_max', this%c_max, 1.0_rp)
-    call json_get_or_default(json, 'c_entropy', this%c_entropy, 1.0_rp)    
+    call json_get_or_default(json, 'c_entropy', this%c_entropy, 1.0_rp)
 
     call this%entropy_residual%init(dof, 'entropy_residual')
 
@@ -100,6 +104,7 @@ contains
     nullify(this%max_wave_speed)
     nullify(this%msh)
     nullify(this%Xh)
+    nullify(this%gs)
 
   end subroutine entropy_viscosity_init
 
@@ -118,6 +123,7 @@ contains
     nullify(this%max_wave_speed)
     nullify(this%msh)
     nullify(this%Xh)
+    nullify(this%gs)
 
   end subroutine entropy_viscosity_free
 
@@ -231,21 +237,56 @@ contains
                                    this%entropy_residual%x(i,1,1,1) / n_S
     end do
 
-    call this%smooth_element_max()
+    ! Apply element max to make uniform within elements
+    call this%apply_element_max()
 
+    ! Clamp to low-order viscosity
     do i = 1, n
        this%reg_coeff%x(i,1,1,1) = min(this%reg_coeff%x(i,1,1,1), &
                                        this%low_order_viscosity(i))
     end do
 
+    ! Apply Gaussian smoothing for smooth final viscosity
+    call this%smooth_viscosity()
+
   end subroutine entropy_viscosity_compute_viscosity
 
-  subroutine entropy_viscosity_smooth_element_max(this)
+  !> Cross-element smoothing via gather-scatter averaging.
+  !! Averages viscosity values at shared nodes between elements.
+  subroutine entropy_viscosity_smooth_viscosity(this)
+    class(entropy_viscosity_t), intent(inout) :: this
+    integer :: i, n
+    type(field_t), pointer :: temp_field, mult_field
+    integer :: temp_indices(2)
+
+    n = this%dof%size()
+
+    call neko_scratch_registry%request_field(temp_field, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(mult_field, temp_indices(2), .false.)
+
+    ! Sum values at shared nodes
+    call field_copy(temp_field, this%reg_coeff, n)
+    call this%gs%op(temp_field, GS_OP_ADD)
+
+    ! Compute multiplicity (number of elements sharing each node)
+    call field_cfill(mult_field, 1.0_rp, n)
+    call this%gs%op(mult_field, GS_OP_ADD)
+
+    ! Average: divide sum by multiplicity
+    do i = 1, n
+       temp_field%x(i,1,1,1) = temp_field%x(i,1,1,1) / mult_field%x(i,1,1,1)
+    end do
+
+    call field_copy(this%reg_coeff, temp_field, n)
+
+    call neko_scratch_registry%relinquish_field(temp_indices)
+
+  end subroutine entropy_viscosity_smooth_viscosity
+
+  subroutine entropy_viscosity_apply_element_max(this)
     class(entropy_viscosity_t), intent(inout) :: this
     integer :: i, j, k, el, lx
     real(kind=rp) :: max_visc_el
-
-    if (.not. associated(this%msh) .or. .not. associated(this%Xh)) return
 
     lx = this%Xh%lx
     
@@ -269,14 +310,16 @@ contains
        end do
     end do
 
-  end subroutine entropy_viscosity_smooth_element_max
+  end subroutine entropy_viscosity_apply_element_max
 
-  subroutine entropy_viscosity_set_fields(this, S, u, v, w, h, max_wave_speed, msh, Xh)
+  subroutine entropy_viscosity_set_fields(this, S, u, v, w, h, max_wave_speed, &
+       msh, Xh, gs)
     class(entropy_viscosity_t), intent(inout) :: this
     type(field_t), target, intent(inout) :: S
     type(field_t), target, intent(in) :: u, v, w, h, max_wave_speed
     type(mesh_t), target, intent(in) :: msh
     type(space_t), target, intent(in) :: Xh
+    type(gs_t), target, intent(in) :: gs
 
     this%S => S
     this%u => u
@@ -286,6 +329,7 @@ contains
     this%max_wave_speed => max_wave_speed
     this%msh => msh
     this%Xh => Xh
+    this%gs => gs
 
     call this%S_lag%init(S, 3)
 

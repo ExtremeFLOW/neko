@@ -600,7 +600,7 @@ contains
     select type (reg => this%regularization)
     type is (entropy_viscosity_t)
        call entropy_viscosity_set_fields(reg, this%S, this%u, this%v, this%w, &
-            this%h, this%max_wave_speed, this%msh, this%Xh)
+            this%h, this%max_wave_speed, this%msh, this%Xh, this%gs_Xh)
     end select
 
     call reg_json%destroy()
