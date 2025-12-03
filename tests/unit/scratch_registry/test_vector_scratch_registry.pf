@@ -32,7 +32,7 @@ contains
        call device_finalize
     end if
   end subroutine tearDown
-  
+
   @test
   subroutine test_vec_scratch_reg_init_default(this)
     class(test_vector_scratch_reg), intent(inout) :: this
@@ -76,9 +76,9 @@ contains
 
     call scratch%init(5, 3)
 
-    call scratch%request_vector(42, v1, index1, .false.)
-    call scratch%request_vector(42, v2, index2, .false.)
-    call scratch%request_vector(42, v3, index3, .false.)
+    call scratch%request_vector(v1, index1, 42, .false.)
+    call scratch%request_vector(v2, index2, 42, .false.)
+    call scratch%request_vector(v3, index3, 42, .false.)
     @assertEqual(index1, 1)
     @assertEqual(index2, 2)
     @assertEqual(scratch%get_inuse(index1), .true.)
@@ -114,7 +114,7 @@ contains
     !
     call scratch%init(5, 3)
 
-    call scratch%request_vector(42, v, index, .false.)
+    call scratch%request_vector(v, index, 42, .false.)
     call scratch%relinquish_vector(index)
     @assertEqual(scratch%get_inuse(index), .false.)
     @assertEqual(scratch%get_n_inuse(), 0)
@@ -132,8 +132,8 @@ contains
     !
     call scratch%init(5, 3)
 
-    call scratch%request_vector(42, v1, indices(1), .false.)
-    call scratch%request_vector(42, v2, indices(2), .false.)
+    call scratch%request_vector(v1, indices(1), 42, .false.)
+    call scratch%request_vector(v2, indices(2), 42, .false.)
     call scratch%relinquish_vector(indices)
     @assertEqual(scratch%get_inuse(indices(1)), .false.)
     @assertEqual(scratch%get_inuse(indices(2)), .false.)
@@ -154,14 +154,14 @@ contains
 
     call scratch%init(1, 1)
 
-    call scratch%request_vector(42, v1, index1, .false.)
+    call scratch%request_vector(v1, index1, 42, .false.)
     call vector_cfill(v1, 1.0_rp)
 
     call v1%copy_from(DEVICE_TO_HOST, sync = .true.)
     @assertEqual(v1%x(1), 1.0_rp)
 
     ! add new vector, trigging expand
-    call scratch%request_vector(84, v2, index2, .false.)
+    call scratch%request_vector(v2, index2, 84, .false.)
 
     ! try to use the second vector
     call vector_cfill(v2, 2.0_rp)
@@ -198,8 +198,8 @@ contains
     call scratch%init(2, 2)
 
     ! add 2 vectors, no expansion
-    call scratch%request_vector(42, v1, index1, .false.)
-    call scratch%request_vector(42, v2, index2, .false.)
+    call scratch%request_vector(v1, index1, 42, .false.)
+    call scratch%request_vector(v2, index2, 42, .false.)
     call vector_cfill(v1, 1.0_rp)
     call vector_cfill(v2, 2.0_rp)
 
@@ -220,7 +220,7 @@ contains
     @assertEqual(scratch%get_size(), 2)
 
     ! get a new vector, should get index 1
-    call scratch%request_vector(42, v1, index1, .false.)
+    call scratch%request_vector(v1, index1, 42, .false.)
     call vector_cfill(v1, 1.5_rp)
     @assertEqual(index1, 1)
     @assertEqual(scratch%get_inuse(index1), .true.)
@@ -236,7 +236,7 @@ contains
     @assertEqual(v2%x(1), 2.0_rp)
 
     ! get a another vector, should get index 3 and triger expand
-    call scratch%request_vector(42, v3, index3, .false.)
+    call scratch%request_vector(v3, index3, 42, .false.)
     call vector_cfill(v3, 3.0_rp)
     @assertEqual(index3, 3)
     @assertEqual(scratch%get_inuse(index1), .true.)
@@ -272,9 +272,9 @@ contains
     call scratch%init(2, 2)
 
     ! add 2 vectors, no expansion
-    call scratch%request_vector(42, v1, indices(1), .false.)
-    call scratch%request_vector(42, v2, indices(2), .false.)
-    call scratch%request_vector(42, v3, indices(3), .false.)
+    call scratch%request_vector(v1, indices(1), 42, .false.)
+    call scratch%request_vector(v2, indices(2), 42, .false.)
+    call scratch%request_vector(v3, indices(3), 42, .false.)
 
     @assertEqual(indices(1), 1)
     @assertEqual(indices(2), 2)
@@ -293,7 +293,7 @@ contains
     @assertEqual(scratch%get_n_inuse(), 0)
 
     ! get a new vector, should get index 1
-    call scratch%request_vector(42, v1, indices(1), .false.)
+    call scratch%request_vector(v1, indices(1), 42, .false.)
     call vector_cfill(v1, 1.5_rp)
     @assertEqual(indices(1), 1)
     @assertEqual(scratch%get_inuse(indices(1)), .true.)
