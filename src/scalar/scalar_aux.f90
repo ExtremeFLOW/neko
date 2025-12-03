@@ -51,7 +51,7 @@ contains
   !! Number of iterations, start residual, end residual
   subroutine scalar_step_info(time, ksp_results, strict_convergence, &
        allow_stabilization)
-    type(ksp_monitor_t), dimension(:), intent(in) :: ksp_results
+    type(ksp_monitor_t), intent(in) :: ksp_results
     type(time_state_t), intent(in) :: time
     logical, intent(in), optional :: strict_convergence
     logical, intent(in), optional :: allow_stabilization
@@ -72,33 +72,26 @@ contains
     end if
 
     ! Do the printing
-    call ksp_results(1)%print_header()
-    do i = 1, size(ksp_results)
-       call ksp_results(i)%print_result(time%tstep)
-    end do
+    call ksp_results%print_result(time%tstep)
 
     ! Check for convergence
     converged = .true.
-    do i = 1, size(ksp_results)
-       if (ieee_is_nan(ksp_results(i)%res_final)) then
-          call neko_error("Scalar solver diverged for " // &
-               trim(ksp_results(i)%name))
-       end if
+    if (ieee_is_nan(ksp_results%res_final)) then
+       call neko_error("Scalar solver diverged for " // trim(ksp_results%name))
+    end if
 
-       if (.not. ksp_results(i)%converged) then
-          converged = .false.
-          log_buf = 'Scalar solver did not converge for ' &
-               // trim(ksp_results(i)%name)
+    if (.not. ksp_results%converged) then
+       converged = .false.
+       log_buf = 'Scalar solver did not converge for ' // trim(ksp_results%name)
 
-          if (.not. stabilized .and. allow_stab) then
-             continue
-          else if (strict_conv) then
-             call neko_error(log_buf)
-          else
-             call neko_log%message(log_buf)
-          end if
+       if (.not. stabilized .and. allow_stab) then
+          continue
+       else if (strict_conv) then
+          call neko_error(log_buf)
+       else
+          call neko_log%message(log_buf)
        end if
-    end do
+    end if
 
     ! Update stabilized status
     if (.not. stabilized) stabilized = converged

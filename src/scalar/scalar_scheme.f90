@@ -139,6 +139,8 @@ module scalar_scheme
      type(field_list_t) :: material_properties
      procedure(user_material_properties_intf), nopass, pointer :: &
           user_material_properties => null()
+     !> Freeze the scheme, i.e. do nothing in step()
+     logical :: freeze = .false.
    contains
      !> Constructor for the base type.
      procedure, pass(this) :: scheme_init => scalar_scheme_init
@@ -267,6 +269,9 @@ contains
     ! Note that the keyword is added by `scalars_t`, so there is always a
     ! default.
     call json_get(params, 'name', this%name)
+
+    ! Set the freeze flag
+    call json_get_or_default(params, 'freeze', this%freeze, .false.)
 
     call neko_log%section('Scalar')
     call json_get(params, 'solver.type', solver_type)
