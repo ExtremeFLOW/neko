@@ -36,7 +36,7 @@ module user
   !> Gather-scatter associated with \f$ X_h_GL \f$
   type(gs_t) :: gs_Xh_GL
   !> Coefficients associated with \f$ X_h_GL \f$
-  type(coef_t) :: c_Xh_GL 
+  type(coef_t) :: coef_GL 
   !> Interpolator between the original and higher-order spaces
   type(interpolator_t) :: GLL_to_GL
   !> Scratch registry on the GL space
@@ -144,7 +144,7 @@ contains
        call Xh_GL%init(GL, lxd, lxd, lxd)
        call dm_Xh_GL%init(coef%msh, Xh_GL)
        call gs_Xh_GL%init(dm_Xh_GL)
-       call c_Xh_GL%init(gs_Xh_GL)
+       call coef_GL%init(gs_Xh_GL)
 
        ! set up interpolator between GL and GLL
        call GLL_to_GL%init(Xh_GL, coef%Xh)
@@ -280,15 +280,15 @@ contains
         call GLL_to_GL%map(s_GL%x, s%x, nel, Xh_GL)
 
         ! Compute gradient of scalar field
-        call grad(work1_GL%x, work2_GL%x, work3_GL%x, s_GL%x, c_Xh_GL)
+        call grad(work1_GL%x, work2_GL%x, work3_GL%x, s_GL%x, coef_GL)
 
         ! ! Apply gather-scatter and multiplicity
         ! call gs_Xh_GL%op(work1_GL, GS_OP_ADD)
         ! call gs_Xh_GL%op(work2_GL, GS_OP_ADD)
         ! call gs_Xh_GL%op(work3_GL, GS_OP_ADD)
-        ! call col2(work1_GL%x, c_Xh_GL%mult, n_GL)
-        ! call col2(work2_GL%x, c_Xh_GL%mult, n_GL)
-        ! call col2(work3_GL%x, c_Xh_GL%mult, n_GL)
+        ! call col2(work1_GL%x, coef_GL%mult, n_GL)
+        ! call col2(work2_GL%x, coef_GL%mult, n_GL)
+        ! call col2(work3_GL%x, coef_GL%mult, n_GL)
 
         ! Compute normalized gradient and apply phase field forcing
         do i = 1, n_GL
@@ -304,39 +304,39 @@ contains
         end do
 
         ! Compute divergence of the normalized gradient
-        call dudxyz(work4_GL%x, work1_GL%x, c_Xh_GL%drdx, c_Xh_GL%dsdx, c_Xh_GL%dtdx, c_Xh_GL)
+        call dudxyz(work4_GL%x, work1_GL%x, coef_GL%drdx, coef_GL%dsdx, coef_GL%dtdx, coef_GL)
         ! Evaluate term on GL and preempt the GLL B premultiplication
         if (NEKO_BCKND_DEVICE .eq. 1) then
-            call device_col2(work4_GL%x_d, c_Xh_GL%B_d, n_GL)
+            call device_col2(work4_GL%x_d, coef_GL%B_d, n_GL)
             call GLL_to_GL%map(work_GLL%x, work4_GL%x, nel, coef%Xh)
             call device_invcol2(work_GLL%x_d, coef%B_d, work_GLL%size())
             call device_copy(rhs_s%x_d, work_GLL%x_d, work_GLL%size())
         else
-            call col2(work4_GL%x, c_Xh_GL%B, n_GL)
+            call col2(work4_GL%x, coef_GL%B, n_GL)
             call GLL_to_GL%map(work_GLL%x, work4_GL%x, nel, coef%Xh)
             call invcol2(work_GLL%x, coef%B, work_GLL%size())
             call copy(rhs_s%x, work_GLL%x, work_GLL%size())
         end if
-        call dudxyz(work4_GL%x, work2_GL%x, c_Xh_GL%drdy, c_Xh_GL%dsdy, c_Xh_GL%dtdy, c_Xh_GL)
+        call dudxyz(work4_GL%x, work2_GL%x, coef_GL%drdy, coef_GL%dsdy, coef_GL%dtdy, coef_GL)
         if (NEKO_BCKND_DEVICE .eq. 1) then
-            call device_col2(work4_GL%x_d, c_Xh_GL%B_d, n_GL)
+            call device_col2(work4_GL%x_d, coef_GL%B_d, n_GL)
             call GLL_to_GL%map(work_GLL%x, work4_GL%x, nel, coef%Xh)
             call device_invcol2(work_GLL%x_d, coef%B_d, work_GLL%size())
             call device_add2(rhs_s%x_d, work_GLL%x_d, work_GLL%size())
         else
-            call col2(work4_GL%x, c_Xh_GL%B, n_GL)
+            call col2(work4_GL%x, coef_GL%B, n_GL)
             call GLL_to_GL%map(work_GLL%x, work4_GL%x, nel, coef%Xh)
             call invcol2(work_GLL%x, coef%B, work_GLL%size())
             call add2(rhs_s%x, work_GLL%x, work_GLL%size())
         end if
-        call dudxyz(work4_GL%x, work3_GL%x, c_Xh_GL%drdz, c_Xh_GL%dsdz, c_Xh_GL%dtdz, c_Xh_GL)
+        call dudxyz(work4_GL%x, work3_GL%x, coef_GL%drdz, coef_GL%dsdz, coef_GL%dtdz, coef_GL)
         if (NEKO_BCKND_DEVICE .eq. 1) then
-            call device_col2(work4_GL%x_d, c_Xh_GL%B_d, n_GL)
+            call device_col2(work4_GL%x_d, coef_GL%B_d, n_GL)
             call GLL_to_GL%map(work_GLL%x, work4_GL%x, nel, coef%Xh)
             call device_invcol2(work_GLL%x_d, coef%B_d, work_GLL%size())
             call device_add2(rhs_s%x_d, work_GLL%x_d, work_GLL%size())
         else
-            call col2(work4_GL%x, c_Xh_GL%B, n_GL)
+            call col2(work4_GL%x, coef_GL%B, n_GL)
             call GLL_to_GL%map(work_GLL%x, work4_GL%x, nel, coef%Xh)
             call invcol2(work_GLL%x, coef%B, work_GLL%size())
             call add2(rhs_s%x, work_GLL%x, work_GLL%size())
