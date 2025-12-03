@@ -86,10 +86,10 @@ contains
     real(kind=rp) :: rapr, ta2pr
 
     if (scheme_name .eq. 'fluid') then
-       u => neko_field_registry%get_field('u')
-       v => neko_field_registry%get_field('v')
-       w => neko_field_registry%get_field('w')
-       s => neko_field_registry%get_field('temperature')
+       u => neko_registry%get_field('u')
+       v => neko_registry%get_field('v')
+       w => neko_registry%get_field('w')
+       s => neko_registry%get_field('temperature')
 
        rhs_u => rhs%get_by_index(1)
        rhs_v => rhs%get_by_index(2)

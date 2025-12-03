@@ -38,7 +38,7 @@ contains
     type (field_t), pointer :: s
     integer :: i
 
-    s => neko_field_registry%get_field("s")
+    s => neko_registry%get_field("s")
 
     do i = 1, s%size()
        call random_number(s%x(i,1,1,1))

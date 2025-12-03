@@ -37,7 +37,7 @@ module user_stats
   use num_types, only : rp, dp, sp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use field, only : field_t
   use case, only : case_t
   use mean_field_output, only : mean_field_output_t
@@ -201,7 +201,7 @@ contains
   !! @param coef The SEM coefficients.
   !! @param avg_dir The averaging direction.
   subroutine user_stats_init_common(this, start_time, coef, avg_dir, &
-         filename, precision)
+       filename, precision)
     class(user_stats_t), intent(inout) :: this
     character(len=*), intent(in) :: filename
     integer, intent(in), optional :: precision
@@ -217,7 +217,7 @@ contains
     !> Allocate and initialize the mean fields
     allocate(this%mean_fields(this%n_avg_fields))
     do i = 1, this%n_avg_fields
-       field_to_avg => neko_field_registry%get_field(trim(this%field_names(i)))
+       field_to_avg => neko_registry%get_field(trim(this%field_names(i)))
        call this%mean_fields(i)%init(field_to_avg)
     end do
 

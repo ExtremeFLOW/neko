@@ -757,7 +757,7 @@ The reference velocity field, or `baseflow` can be set from three methods:
 3. `user`, where the velocity field is set according to what 
    is defined in the user file. Useful for setting 
    velocity fields manually. In this case, the base flow fields must be
-   created and added to the `neko_field_registry` (see fortran code snippet
+   created and added to the `neko_registry` (see fortran code snippet
    below).
    <details>
    <summary><b><u>Example code snippet</u></b></summary>
@@ -776,10 +776,10 @@ The reference velocity field, or `baseflow` can be set from three methods:
 
 Finally, the fringe function field must be filled by the user. This must be
 done through the user file by adding the fringe field to the 
-`neko_field_registry` in either `user_init_modules` or `fluid_user_ic` (more 
+`neko_registry` in either `user_init_modules` or `fluid_user_ic` (more 
 specifically, before the first call to compute the sponge source term).
 
-The fringe field must be set by adding a field to the `neko_field_registry` 
+The fringe field must be set by adding a field to the `neko_registry` 
 under a specific name that can be retrieved internally. By default, Neko will
 search for the field `"sponge_fringe"` in the registry, but this can be changed
 by setting the parameter `fringe_registry_name`, which is important when using
@@ -820,17 +820,17 @@ contains
     !    can be changed with the parameter `fringe_registry_name`.
     !
     !
-    u => neko_field_registry%get_field("u")
-    call neko_field_registry%add_field(u%dof,"sponge_fringe")
-    fringe => neko_field_registry%get_field("sponge_fringe")
+    u => neko_registry%get_field("u")
+    call neko_registry%add_field(u%dof,"sponge_fringe")
+    fringe => neko_registry%get_field("sponge_fringe")
 
     ! Initialize the base flows
-    call neko_field_registry%add_field(u%dof,"sponge_bf_u")
-    ubf => neko_field_registry%get_field("sponge_bf_u")
-    call neko_field_registry%add_field(u%dof,"sponge_bf_v")
-    vbf => neko_field_registry%get_field("sponge_bf_v")
-    call neko_field_registry%add_field(u%dof,"sponge_bf_w")
-    wbf => neko_field_registry%get_field("sponge_bf_w")
+    call neko_registry%add_field(u%dof,"sponge_bf_u")
+    ubf => neko_registry%get_field("sponge_bf_u")
+    call neko_registry%add_field(u%dof,"sponge_bf_v")
+    vbf => neko_registry%get_field("sponge_bf_v")
+    call neko_registry%add_field(u%dof,"sponge_bf_w")
+    wbf => neko_registry%get_field("sponge_bf_w")
     
     !
     ! 2. Set the function f(x,y,z) from 0 to 1. in two zones of the mesh,
@@ -927,8 +927,8 @@ The parameters for the sponge source term are summarized in the table below:
 | `baseflow.mesh_file_name`| Mesh file corresponding to the baseflow field                               | String                                | -                   |
 | `baseflow.interpolate`   | Whether to interpolate field values to current mesh                         | Boolean                               | `false`             |
 | `baseflow.tolerance`     | Tolerance for interpolation convergence                                     | Real                                  | -                   |
-| `fringe_registry_name`   | Name of the fringe mask field in `neko_field_registry`                      | String                                | `"sponge_fringe"`   |
-| `baseflow_registry_prefix`   | Prefix of the base flow fields in `neko_field_registry`                      | String                                | `"sponge_bf"`   |
+| `fringe_registry_name`   | Name of the fringe mask field in `neko_registry`                      | String                                | `"sponge_fringe"`   |
+| `baseflow_registry_prefix`   | Prefix of the base flow fields in `neko_registry`                      | String                                | `"sponge_bf"`   |
 | `dump_fields`            | If `true`, dumps the fringe and baseflow fields for visualization           | Boolean                               | `false`             |
 | `dump_file_name`         | Name of the `fld` file in which to dump the base flow and fringe fields     | String ending with `fld`              | `spng_fields.fld`   |
 

@@ -56,7 +56,7 @@ module gradient_jump_penalty
        device_gradient_jump_penalty_finalize
   use source_term, only : source_term_t
   use field_list, only : field_list_t
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use time_state, only : time_state_t
   use operators, only : dudxyz
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
@@ -211,14 +211,14 @@ contains
 
     call this%init_base(fields, coef, start_time, end_time)
 
-    this%u => neko_field_registry%get_field("u")
-    this%v => neko_field_registry%get_field("v")
-    this%w => neko_field_registry%get_field("w")
+    this%u => neko_registry%get_field("u")
+    this%v => neko_registry%get_field("v")
+    this%w => neko_registry%get_field("w")
 
     if (fields%size() .eq. 1) then
        call this%s_fields%init(1)
        call this%s_fields%assign(1, &
-            neko_field_registry%get_field(variable_name))
+            neko_registry%get_field(variable_name))
     else if (fields%size() .eq. 3) then
        call this%s_fields%init(3)
        call this%s_fields%assign(1, this%u)

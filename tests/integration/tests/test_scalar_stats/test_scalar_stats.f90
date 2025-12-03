@@ -51,10 +51,10 @@ contains
     type (field_t), pointer :: u, v, w, s
     integer :: i
 
-    u => neko_field_registry%get_field("u")
-    v => neko_field_registry%get_field("v")
-    w => neko_field_registry%get_field("w")
-    s => neko_field_registry%get_field("s")
+    u => neko_registry%get_field("u")
+    v => neko_registry%get_field("v")
+    w => neko_registry%get_field("w")
+    s => neko_registry%get_field("s")
 
     call field_cfill(u, U0 + U1 * cos(omega * time%t))
     call field_cfill(v, V0 + V1 * cos(omega * time%t + phi))

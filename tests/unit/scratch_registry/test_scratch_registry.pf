@@ -40,7 +40,7 @@ contains
        call device_finalize
     end if
   end subroutine tearDown
-  
+
   subroutine test_srtch_reg_gen_msh(msh)
     type(mesh_t), intent(inout) :: msh
     type(point_t) :: p(12)
@@ -96,7 +96,7 @@ contains
 
     call scratch%init(dof = dm)
 
-    @assertEqual(scratch%get_n_available(), 0)
+    @assertEqual(scratch%get_n_entries(), 0)
     @assertEqual(scratch%get_expansion_size(), 10)
     @assertEqual(scratch%get_size(), 10)
     @assertEqual(scratch%get_n_inuse(), 0)
@@ -120,7 +120,7 @@ contains
 
     call scratch%init(5, 3, dm)
 
-    @assertEqual(scratch%get_n_available(), 0)
+    @assertEqual(scratch%get_n_entries(), 0)
     @assertEqual(scratch%get_expansion_size(), 3)
     @assertEqual(scratch%get_size(), 5)
     @assertEqual(scratch%get_n_inuse(), 0)
@@ -148,14 +148,14 @@ contains
 
     call scratch%init(5, 3, dm)
 
-    call scratch%request_field(f1, index1, .false.)
-    call scratch%request_vector(42, v2, index2, .false.)
-    call scratch%request_matrix(42, 42, m3, index3, .false.)
+    call scratch%request(f1, index1, .false.)
+    call scratch%request(v2, index2, 42, .false.)
+    call scratch%request(m3, index3, 42, 42, .false.)
     @assertEqual(index1, 1)
     @assertEqual(index2, 2)
     @assertEqual(scratch%get_inuse(index1), .true.)
     @assertEqual(scratch%get_inuse(index2), .true.)
-    @assertEqual(scratch%get_n_available(), 3)
+    @assertEqual(scratch%get_n_entries(), 3)
     @assertEqual(scratch%get_n_inuse(), 3)
 
     ! do something with the field
@@ -194,11 +194,11 @@ contains
 
     call scratch%init(5, 3, dm)
 
-    call scratch%request_field(f, index, .false.)
+    call scratch%request(f, index, .false.)
     call scratch%relinquish(index)
     @assertEqual(scratch%get_inuse(index), .false.)
     @assertEqual(scratch%get_n_inuse(), 0)
-    @assertEqual(scratch%get_n_available(), 1)
+    @assertEqual(scratch%get_n_entries(), 1)
 
     call scratch%free()
   end subroutine test_srtch_reg_relinquish_field
@@ -221,13 +221,13 @@ contains
 
     call scratch%init(5, 3, dm)
 
-    call scratch%request_field(f1, indices(1), .false.)
-    call scratch%request_vector(42, v2, indices(2), .false.)
+    call scratch%request(f1, indices(1), .false.)
+    call scratch%request(v2, indices(2), 42, .false.)
     call scratch%relinquish(indices)
     @assertEqual(scratch%get_inuse(indices(1)), .false.)
     @assertEqual(scratch%get_inuse(indices(2)), .false.)
     @assertEqual(scratch%get_n_inuse(), 0)
-    @assertEqual(scratch%get_n_available(), 2)
+    @assertEqual(scratch%get_n_entries(), 2)
 
     call scratch%free()
   end subroutine test_vector_scratch_registry_rellq_f_lst
@@ -252,14 +252,14 @@ contains
 
     call scratch%init(1, 1, dm)
 
-    call scratch%request_field(f1, index1, .false.)
+    call scratch%request(f1, index1, .false.)
     call field_cfill(f1, 1.0_rp)
 
     call f1%copy_from(DEVICE_TO_HOST, sync = .true.)
     @assertEqual(f1%x(1, 1, 1, 1), 1.0_rp)
 
     ! add new field, trigging expand
-    call scratch%request_vector(42, v2, index2, .false.)
+    call scratch%request(v2, index2, 42, .false.)
 
     ! try to use the second field
     call vector_cfill(v2, 2.0_rp)
@@ -274,7 +274,7 @@ contains
     @assertEqual(index2, 2)
     @assertEqual(scratch%get_inuse(index1), .true.)
     @assertEqual(scratch%get_inuse(index2), .true.)
-    @assertEqual(scratch%get_n_available(), 2)
+    @assertEqual(scratch%get_n_entries(), 2)
     @assertEqual(scratch%get_n_inuse(), 2)
     @assertEqual(scratch%get_size(), 2)
 
@@ -304,8 +304,8 @@ contains
     call scratch%init(2, 2, dm)
 
     ! add 2 fields, no expansion
-    call scratch%request_field(f1, index1, .false.)
-    call scratch%request_vector(42, v2, index2, .false.)
+    call scratch%request(f1, index1, .false.)
+    call scratch%request(v2, index2, 42, .false.)
     call field_cfill(f1, 1.0_rp)
     call vector_cfill(v2, 2.0_rp)
 
@@ -313,7 +313,7 @@ contains
     @assertEqual(index2, 2)
     @assertEqual(scratch%get_inuse(index1), .true.)
     @assertEqual(scratch%get_inuse(index2), .true.)
-    @assertEqual(scratch%get_n_available(), 2)
+    @assertEqual(scratch%get_n_entries(), 2)
     @assertEqual(scratch%get_n_inuse(), 2)
     @assertEqual(scratch%get_size(), 2)
 
@@ -321,17 +321,17 @@ contains
     call scratch%relinquish(index1)
     @assertEqual(scratch%get_inuse(index1), .false.)
     @assertEqual(scratch%get_inuse(index2), .true.)
-    @assertEqual(scratch%get_n_available(), 2)
+    @assertEqual(scratch%get_n_entries(), 2)
     @assertEqual(scratch%get_n_inuse(), 1)
     @assertEqual(scratch%get_size(), 2)
 
     ! get a new field, should get index 1
-    call scratch%request_field(f1, index1, .false.)
+    call scratch%request(f1, index1, .false.)
     call field_cfill(f1, 1.5_rp)
     @assertEqual(index1, 1)
     @assertEqual(scratch%get_inuse(index1), .true.)
     @assertEqual(scratch%get_inuse(index2), .true.)
-    @assertEqual(scratch%get_n_available(), 2)
+    @assertEqual(scratch%get_n_entries(), 2)
     @assertEqual(scratch%get_n_inuse(), 2)
     @assertEqual(scratch%get_size(), 2)
 
@@ -342,13 +342,13 @@ contains
     @assertEqual(v2%x(1), 2.0_rp)
 
     ! get a another field, should get index 3 and triger expand
-    call scratch%request_matrix(42, 42, m3, index3, .false.)
+    call scratch%request(m3, index3, 42, 42, .false.)
     call matrix_cfill(m3, 3.0_rp)
     @assertEqual(index3, 3)
     @assertEqual(scratch%get_inuse(index1), .true.)
     @assertEqual(scratch%get_inuse(index2), .true.)
     @assertEqual(scratch%get_inuse(index3), .true.)
-    @assertEqual(scratch%get_n_available(), 3)
+    @assertEqual(scratch%get_n_entries(), 3)
     @assertEqual(scratch%get_n_inuse(), 3)
     @assertEqual(scratch%get_size(), 4)
 
@@ -389,9 +389,9 @@ contains
     call scratch%init(2, 2, dm)
 
     ! add 2 fields, no expansion
-    call scratch%request_field(f1, indices(1), .false.)
-    call scratch%request_vector(42, v2, indices(2), .false.)
-    call scratch%request_matrix(42, 42, m3, indices(3), .false.)
+    call scratch%request(f1, indices(1), .false.)
+    call scratch%request(v2, indices(2), 42, .false.)
+    call scratch%request(m3, indices(3), 42, 42, .false.)
 
     @assertEqual(indices(1), 1)
     @assertEqual(indices(2), 2)
@@ -406,15 +406,15 @@ contains
     @assertEqual(scratch%get_inuse(indices(1)), .false.)
     @assertEqual(scratch%get_inuse(indices(2)), .false.)
     @assertEqual(scratch%get_inuse(indices(3)), .false.)
-    @assertEqual(scratch%get_n_available(), 3)
+    @assertEqual(scratch%get_n_entries(), 3)
     @assertEqual(scratch%get_n_inuse(), 0)
 
     ! get a new field, should get index 1
-    call scratch%request_field(f1, indices(1), .false.)
+    call scratch%request(f1, indices(1), .false.)
     call field_cfill(f1, 1.5_rp)
     @assertEqual(indices(1), 1)
     @assertEqual(scratch%get_inuse(indices(1)), .true.)
-    @assertEqual(scratch%get_n_available(), 3)
+    @assertEqual(scratch%get_n_entries(), 3)
     @assertEqual(scratch%get_n_inuse(), 1)
 
     call scratch%relinquish(indices(1))

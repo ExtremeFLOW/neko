@@ -46,7 +46,7 @@ module centrifugal_source_term
   use centrifugal_source_term_device, only : &
        centrifugal_source_term_compute_device
   use field, only : field_t
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use time_state, only : time_state_t
   implicit none
   private
