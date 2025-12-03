@@ -35,7 +35,7 @@ jobs:
               sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 python3-pip ca-certificates cmake
               python3 -m venv myenv
               source myenv/bin/activate
-              pip install pytest json5 mpi4py
+              pip install pytest json5
               pip install git+https://github.com/ExtremeFLOW/pySEMTools.git
               INTEL_PATH=$(find /opt/intel/oneapi/compiler/ -name "${FC}" -type f | xargs dirname)
               export PATH=$INTEL_PATH:${PATH}

@@ -40,6 +40,7 @@ contains
        call field_cfill(v, V0 + V1 * cos(omega * 0.0_rp + phi))
        call field_cfill(w, W0 + W1 * cos(omega * 0.0_rp + psi))
     else
+       s => fields%get("s")
        call field_cfill(s, S0 + S1 * sin(omega * 0.0_rp + xi))
     end if
 

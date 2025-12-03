@@ -120,7 +120,7 @@ jobs:
       - name: Setup - System dependencies (Non-Cacheable)
         if: matrix.os == 'ubuntu-24.04' || matrix.os == 'ubuntu-24.04-arm'
         run: |
-          sudo apt install -y openmpi-bin libopenmpi-dev libopenblas-dev
+          sudo apt install -y libopenmpi-dev libopenblas-dev
 
       # Setup python environment
       - name: Setup - Python environment
@@ -131,10 +131,10 @@ jobs:
           cache-dependency-path: "**/requirements-tests.txt"
 
       - name: Setup - Install Python dependencies
-        env:
-          MPICC: mpicc
-          MPI4PY_BUILD_WITH_MPI: "1"
-          PIP_NO_BINARY: "mpi4py"
+#        env:
+#          MPICC: mpicc
+#          MPI4PY_BUILD_WITH_MPI: "1"
+#          PIP_NO_BINARY: "mpi4py"
         run: |
           pip install -r .github/workflows/extra/requirements-tests.txt
 #          pip install --no-binary=mpi4py mpi4py
