@@ -143,7 +143,6 @@ of the boundary as follows.
 | velocity_value                  | 2   |
 | outflow, normal_outflow (+dong) | 3   |
 | symmetry                        | 4   |
-| user_velocity_pointwise         | 5   |
 | periodic                        | 6   |
 | user_velocity                   | 7   |
 | user_pressure                   | 8   |
@@ -270,7 +269,6 @@ table below.
 | blasius_profile         | A Blasius velocity profile.                                                                                                                            |
 | user_velocity           | The `field_dirichlet_vector_t` user-defined Dirichlet condition for velocity.                                                                          |
 | user_pressure           | The `field_dirichlet_t` user-defined Dirichlet condition for pressure.                                                                                 |
-| user_velocity_pointwise | The pointwise user-defined Dirichlet condition for velocity.                                                                                           |
 
 A more detailed description of each boundary condition is provided below.
 
@@ -386,17 +384,6 @@ A more detailed description of each boundary condition is provided below.
     "B": 5.2,
     "zone_indices": [1, 2],
     "h_index": 1
-  }
-  ```
-* `user_pointwise`. Allows to set the velocity values using the appropriate
-  routine in the user file. The routine is executed on a pointwise basis, which
-  is reflected in the name of this condition. It is advisable to instead use the
-  more general `user_velocity` condition. Requires no additional keywords.
-
-  ```json
-  {
-    "type": "user_pointwise",
-    "zone_indices": [1, 2]
   }
   ```
 * `user_velocity`, a Dirichlet boundary for more complex velocity profiles. This boundary
@@ -541,13 +528,11 @@ The following types are currently implemented.
 @note Notice that to perform simulation in a rotating reference frame one has to
 define both `coriolis` and `centrifugal` source terms in a consistent way.
 
-5. `user_pointwise`, the values are set inside the compiled user file, using the
-   pointwise user file subroutine. Only works on CPUs!
-6. `user_vector`, the values are set inside the compiled user file, using the
-   non-pointwise user file subroutine. Should be used when running on the GPU.
-7. `brinkman`, Brinkman permeability forcing inside a pre-defined region.
-8. `gradient_jump_penalty`, perform gradient_jump_penalisation.
-9. `sponge`, adds a sponge term based on a reference velocity field, which is 
+5. `user`, the values are set inside the compiled user file, using the
+   corresponding user file subroutine.
+6. `brinkman`, Brinkman permeability forcing inside a pre-defined region.
+7. `gradient_jump_penalty`, perform gradient_jump_penalisation.
+8. `sponge`, adds a sponge term based on a reference velocity field, which is
    applied in a user-specified region of the domain.
 
 #### Brinkman
@@ -705,13 +690,13 @@ where:
 - \f$ \mathbf{\lambda} \f$ is a 3-element vector of amplitudes of the sponge forcing in each Cartesian direction,
 - \f$ \mathbf{u}^{\text{bf}} \f$ is a reference (baseflow) velocity field,
 - \f$ f(\mathbf{x}) \f$ is a user-defined sponge mask field, defining where the sponge is active.
- 
+
 Amplitudes are specified using the `amplitudes` keyword with an array of
 3 reals. Any of those values can be set to 0 to suppress the forcing in that
 particular direction. For example `[1.0, 1.0, 0.0]` will multiply the fringe
-field by 1, 1, and 0 in the `x`, `y` and `z` directions respectively, 
+field by 1, 1, and 0 in the `x`, `y` and `z` directions respectively,
 effectively removing the forcing in the `z` direction.
- 
+
 The reference velocity field, or `baseflow` can be set from three methods:
 1. `constant`, applies constant values according to the `values` keyword:
 
@@ -731,10 +716,10 @@ The reference velocity field, or `baseflow` can be set from three methods:
    ```
    </details>
 
-2. `field`, where the velocity fields are retrieved from an `fld` file. 
+2. `field`, where the velocity fields are retrieved from an `fld` file.
    Uses the same parameters as the field initial condition.
    @note The same parameters as the `field` initial condition apply here.
-   
+
    <details>
    <summary><b><u>Example code snippet</u></b></summary>
    ```json
@@ -754,8 +739,8 @@ The reference velocity field, or `baseflow` can be set from three methods:
    ```
    </details>
 
-3. `user`, where the velocity field is set according to what 
-   is defined in the user file. Useful for setting 
+3. `user`, where the velocity field is set according to what
+   is defined in the user file. Useful for setting
    velocity fields manually. In this case, the base flow fields must be
    created and added to the `neko_registry` (see fortran code snippet
    below).
@@ -775,11 +760,11 @@ The reference velocity field, or `baseflow` can be set from three methods:
    </details>
 
 Finally, the fringe function field must be filled by the user. This must be
-done through the user file by adding the fringe field to the 
-`neko_registry` in either `user_init_modules` or `fluid_user_ic` (more 
+done through the user file by adding the fringe field to the
+`neko_registry` in either `user_init_modules` or `fluid_user_ic` (more
 specifically, before the first call to compute the sponge source term).
 
-The fringe field must be set by adding a field to the `neko_registry` 
+The fringe field must be set by adding a field to the `neko_registry`
 under a specific name that can be retrieved internally. By default, Neko will
 search for the field `"sponge_fringe"` in the registry, but this can be changed
 by setting the parameter `fringe_registry_name`, which is important when using
@@ -787,7 +772,7 @@ more than one sponge source term.
 
 The same principle applies for the base flow fields (if `"method": "user"`).
 By default, neko will search for the base flow fields in the registry using
-the prefix `"sponge_bf_"`, meaning that `u` will be in `sponge_bf_u`, etc. 
+the prefix `"sponge_bf_"`, meaning that `u` will be in `sponge_bf_u`, etc.
 This prefix can be changed by setting the parameter `bf_registry_prefix`.
 
 <details>
@@ -831,7 +816,7 @@ contains
     vbf => neko_registry%get_field("sponge_bf_v")
     call neko_registry%add_field(u%dof,"sponge_bf_w")
     wbf => neko_registry%get_field("sponge_bf_w")
-    
+
     !
     ! 2. Set the function f(x,y,z) from 0 to 1. in two zones of the mesh,
     !    a top region in x \in [xmin1, +\infty[, y \in [0, +\infty[
@@ -839,9 +824,9 @@ contains
     !
     !    A smoothing function S(x) is applied at the beginning of each zone,
     !    with a rising distance of delta_rise1 and delta_rise2
-    ! 
-  
-    ! Bottom boundary 
+    !
+
+    ! Bottom boundary
     xmin1 = 3.0_rp
     delta_rise1 = 3.0_rp
 
@@ -853,20 +838,20 @@ contains
     do i = 1, fringe%size()
         x = fringe%dof%x(i,1,1,1)
         y = fringe%dof%y(i,1,1,1)
-        
+
         ! Bottom boundary
         if ( (y .lt. 0.0_rp) .and. (x .gt. xmin1)) then
            fringe%x(i,1,1,1) = S( (x - xmin1)/delta_rise1 )
-        
+
         ! Top boundary
         else if ( (y .gt. 0.0_rp) .and. (x .gt. xmin2)) then
-           fringe%x(i,1,1,1) = S( (x - xmin2)/delta_rise2 ) 
+           fringe%x(i,1,1,1) = S( (x - xmin2)/delta_rise2 )
         end if
-       
+
        ! Set ubf,vbf to something random
        ubf%x(i,1,1,1) = sin(3.1415926_rp*2.0_rp/10.0_rp * x)
        vbf%x(i,1,1,1) = cos(3.1415926_rp*2.0_rp/10.0_rp * y)
-    
+
     end do
 
     wbf = 0.0_rp
@@ -910,13 +895,13 @@ end module user
 
 </details>
 
-In order to visualize your baseflow and fringe field, you may set 
-`dump_fields` to `true`. An `fld` file will be written to disk as 
-`spng_fields.fld`(note, not in `output_directory`) with the fringe field 
+In order to visualize your baseflow and fringe field, you may set
+`dump_fields` to `true`. An `fld` file will be written to disk as
+`spng_fields.fld`(note, not in `output_directory`) with the fringe field
 stored as `pressure`. You may change the name of the field file by setting
 `dump_file_name` (must have the extension `fld`).
 
-The parameters for the sponge source term are summarized in the table below: 
+The parameters for the sponge source term are summarized in the table below:
 
 | Name                     | Description                                                                 | Admissible values                     | Default value       |
 |--------------------------|-----------------------------------------------------------------------------|---------------------------------------|---------------------|
@@ -972,7 +957,7 @@ In addition to the above settings, the solvers can be configured with strict
 convergence criteria. This is done by setting the
 `case.fluid.strict_convergence` keyword to `true`. This will force the solver to
 converge to the specified tolerance within the specified number of iterations.
-If the solver does not converge, the simulation will be terminated.  
+If the solver does not converge, the simulation will be terminated.
 This can in some situations cause issues if the initial condition is far from a
 valid solution. Therefore a user can allow an initial stabilization phase by
 setting the `case.fluid.allow_stabilization` keyword to `true`. In this case,
@@ -1122,13 +1107,6 @@ Four types of conditions are available for the scalar:
   {
     "type": "neumann",
     "flux": 1,
-    "zone_indices": [1, 2]
-  }
-  ```
-* `user_pointwise`. Sets the scalar in the pointwise user interface routine.
-  ```json
-  {
-    "type": "user_poinwise",
     "zone_indices": [1, 2]
   }
   ```
