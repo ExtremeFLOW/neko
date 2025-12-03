@@ -31,6 +31,11 @@
                 "type": "uniform",
                 "value": [0, 0, 0]
             },
+            "source_terms": [
+                {
+                    "type": "user"
+                }
+            ],
             "velocity_solver": {
                 "type": "cg",
                 "preconditioner": {

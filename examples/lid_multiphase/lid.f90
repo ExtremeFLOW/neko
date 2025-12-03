@@ -296,7 +296,7 @@ contains
       ! Store grad(phi) for later (we need it at the end)
       call copy(temp5%x, temp1%x, temp4%size())  ! temp5 = dphi/dx
       call copy(temp6%x, temp2%x, temp4%size())  ! temp6 = dphi/dy
-      call copy(temp7%x, temp3%x, temp4%size())  ! temp6 = dphi/dz
+      call copy(temp7%x, temp3%x, temp4%size())  ! temp7 = dphi/dz
 
       ! Compute normalized gradient n = grad(phi)/|grad(phi)|
       do i = 1, temp4%size()
