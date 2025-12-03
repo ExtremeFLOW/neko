@@ -56,7 +56,7 @@ module scalar_scheme
   use facet_zone, only : facet_zone_t
   use time_scheme_controller, only : time_scheme_controller_t
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use json_utils, only : json_get, json_get_or_default, json_extract_item
   use json_module, only : json_file
   use user_intf, only : user_t, dummy_user_material_properties, &
@@ -257,9 +257,9 @@ contains
     type(json_file) :: json_subdict
     logical :: nut_dependency
 
-    this%u => neko_field_registry%get_field('u')
-    this%v => neko_field_registry%get_field('v')
-    this%w => neko_field_registry%get_field('w')
+    this%u => neko_registry%get_field('u')
+    this%v => neko_registry%get_field('v')
+    this%w => neko_registry%get_field('w')
     this%rho => rho
 
     ! Assign a name
@@ -297,10 +297,10 @@ contains
     this%params => params
     this%msh => msh
 
-    call neko_field_registry%add_field(this%dm_Xh, this%name, &
+    call neko_registry%add_field(this%dm_Xh, this%name, &
          ignore_existing = .true.)
 
-    this%s => neko_field_registry%get_field(this%name)
+    this%s => neko_registry%get_field(this%name)
 
     call this%slag%init(this%s, 2)
 
@@ -497,7 +497,7 @@ contains
     ! factor = rho * cp / pr_turb
     if (len_trim(this%nut_field_name) .gt. 0 &
          .and. len_trim(this%alphat_field_name) .eq. 0 ) then
-       nut => neko_field_registry%get_field(this%nut_field_name)
+       nut => neko_registry%get_field(this%nut_field_name)
 
        ! lambda_tot = lambda + rho * cp * nut / pr_turb
        call neko_scratch_registry%request_field(lambda_factor, index, .false.)
@@ -509,7 +509,7 @@ contains
 
     else if (len_trim(this%alphat_field_name) .gt. 0 &
          .and. len_trim(this%nut_field_name) .eq. 0 ) then
-       alphat => neko_field_registry%get_field(this%alphat_field_name)
+       alphat => neko_registry%get_field(this%alphat_field_name)
 
        ! lambda_tot = lambda + rho * cp * alphat
        call neko_scratch_registry%request_field(lambda_factor, index, .false.)
@@ -553,12 +553,12 @@ contains
 
     ! Fill lambda field with the physical value
 
-    call neko_field_registry%add_field(this%dm_Xh, this%name // "_lambda")
-    call neko_field_registry%add_field(this%dm_Xh, this%name // "_lambda_tot")
-    call neko_field_registry%add_field(this%dm_Xh, this%name // "_cp")
-    this%lambda => neko_field_registry%get_field(this%name // "_lambda")
-    this%lambda_tot => neko_field_registry%get_field(this%name // "_lambda_tot")
-    this%cp => neko_field_registry%get_field(this%name // "_cp")
+    call neko_registry%add_field(this%dm_Xh, this%name // "_lambda")
+    call neko_registry%add_field(this%dm_Xh, this%name // "_lambda_tot")
+    call neko_registry%add_field(this%dm_Xh, this%name // "_cp")
+    this%lambda => neko_registry%get_field(this%name // "_lambda")
+    this%lambda_tot => neko_registry%get_field(this%name // "_lambda_tot")
+    this%cp => neko_registry%get_field(this%name // "_cp")
 
     call this%material_properties%init(2)
     call this%material_properties%assign(1, this%cp)

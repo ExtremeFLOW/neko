@@ -56,9 +56,9 @@ contains
     type(dofmap_t), pointer :: dof
     type (field_t), pointer :: u, v, w, p
 
-    u => neko_field_registry%get_field('u')
-    v => neko_field_registry%get_field('v')
-    w => neko_field_registry%get_field('w')
+    u => neko_registry%get_field('u')
+    v => neko_registry%get_field('v')
+    w => neko_registry%get_field('w')
 
     if (mod(time%tstep, ipostproc) .ne. 0) return
 

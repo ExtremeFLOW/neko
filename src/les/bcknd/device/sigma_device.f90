@@ -37,7 +37,7 @@ module sigma_device
   use device_math, only : device_col2
   use math, only : NEKO_EPS
   use scratch_registry, only : neko_scratch_registry
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use field, only : field_t
   use operators, only : dudxyz
   use coefs, only : coef_t
@@ -81,13 +81,13 @@ contains
 
     ! get fields from registry
     if (if_ext .eqv. .true.) then
-       u => neko_field_registry%get_field_by_name("u_e")
-       v => neko_field_registry%get_field_by_name("v_e")
-       w => neko_field_registry%get_field_by_name("w_e")
+       u => neko_registry%get_field_by_name("u_e")
+       v => neko_registry%get_field_by_name("v_e")
+       w => neko_registry%get_field_by_name("w_e")
     else
-       u => neko_field_registry%get_field_by_name("u")
-       v => neko_field_registry%get_field_by_name("v")
-       w => neko_field_registry%get_field_by_name("w")
+       u => neko_registry%get_field_by_name("u")
+       v => neko_registry%get_field_by_name("v")
+       w => neko_registry%get_field_by_name("w")
     end if
 
     call neko_scratch_registry%request_field(g11, temp_indices(1), .false.)
