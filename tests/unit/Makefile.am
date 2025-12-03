@@ -26,9 +26,8 @@ SUBDIRS = tuple\
 	  octree\
 	  vector\
 	  matrix\
-	  scratch_registry\
 	  registry\
-	  vector_registry\
+	  scratch_registry\
 	  fast3d\
 	  time_scheme\
 	  time_scheme_controller\
@@ -64,9 +63,8 @@ TESTS = device/device_test\
 	octree/octree_test\
 	vector/vector_test\
 	matrix/matrix_test\
-	scratch_registry/scratch_registry_test\
 	registry/registry_test\
-	vector_registry/vector_registry_test\
+	scratch_registry/scratch_registry_test\
 	fast3d/fast3d_test\
 	time_scheme/time_scheme_test\
 	time_scheme_controller/time_scheme_controller_test\
@@ -129,12 +127,14 @@ EXTRA_DIST = \
 	octree/octree.pf\
 	vector/vector_parallel.pf\
 	matrix/matrix_parallel.pf\
+	registry/test_registry.pf\
+	registry/test_field_registry.pf\
+	registry/test_vector_registry.pf\
+	registry/test_matrix_registry.pf\
 	scratch_registry/test_scratch_registry.pf\
 	scratch_registry/test_field_scratch_registry.pf\
 	scratch_registry/test_vector_scratch_registry.pf\
 	scratch_registry/test_matrix_scratch_registry.pf\
-	registry/test_registry.pf\
-	vector_registry/test_vector_registry.pf\
 	fast3d/test_fd_weights_full.pf\
 	fast3d/test_setup_intp.pf\
 	time_scheme/test_bdf.pf\

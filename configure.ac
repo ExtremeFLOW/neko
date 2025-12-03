@@ -418,7 +418,6 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/matrix/Makefile\
         tests/unit/scratch_registry/Makefile\
         tests/unit/registry/Makefile\
-        tests/unit/vector_registry/Makefile\
         tests/unit/fast3d/Makefile\
         tests/unit/time_scheme/Makefile\
         tests/unit/time_scheme_controller/Makefile\
