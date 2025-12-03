@@ -67,6 +67,7 @@ module fluid_scheme_compressible
      type(field_t), pointer :: E => null() !< Total energy
      type(field_t), pointer :: max_wave_speed => null() !< Maximum wave speed field
      type(field_t), pointer :: S => null() !< Entropy field
+     type(field_t), pointer :: effective_visc => null() !< Effective artificial viscosity field
 
      real(kind=rp) :: gamma
 
@@ -176,6 +177,11 @@ contains
     call neko_field_registry%add_field(this%dm_Xh, "S")
     this%S => neko_field_registry%get_field("S")
     call this%S%init(this%dm_Xh, "S")
+
+    ! Assign effective artificial viscosity field
+    call neko_field_registry%add_field(this%dm_Xh, "effective_visc")
+    this%effective_visc => neko_field_registry%get_field("effective_visc")
+    call this%effective_visc%init(this%dm_Xh, "effective_visc")
 
     ! ! Assign velocity fields
     call neko_field_registry%add_field(this%dm_Xh, "u")
@@ -423,7 +429,7 @@ contains
     call neko_log%message(log_buf)
 
     ! Compressible-specific parameters
-    call json_get_or_default(params, 'case.numerics.c_avisc_low', real_val, 0.5_rp)
+    call json_get_or_default(params, 'case.numerics.c_avisc_low', real_val, 1.0_rp)
     write(log_buf, '(A,ES13.6)') 'c_avisc_low:', real_val
     call neko_log%message(log_buf)
 

@@ -13,8 +13,9 @@
         },
         "numerics": {
             "time_order": 4,
-            "polynomial_order": 3,
-            "c_avisc_low": 1.0
+            "polynomial_order": 5,
+            "c_avisc_low": 1.0,
+            "c_entropy": 1E11 // enable low-order viscosity
         },
         "fluid": {
             "scheme": "compressible",
@@ -22,14 +23,19 @@
             "initial_condition": {
                 "type": "user"
             },
-            "boundary_conditions": [],
+            "boundary_conditions": [
+                {
+                    "type": "symmetry",
+                    "zone_indices": [ 1, 2 ]
+                }
+            ],
             "output_control": "nsamples",
             "output_value": 100
         },
         "simulation_components": [
             {
                 "type": "field_writer",
-                "fields": ["S"],
+                "fields": ["S", "effective_visc"],
                 "output_control": "nsamples",
                 "output_value": 100
             }
