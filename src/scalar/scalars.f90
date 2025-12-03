@@ -101,7 +101,7 @@ contains
     integer :: i, j
     character(len=:), allocatable :: field_name
     character(len=:), allocatable :: field_names(:)
-    character(len=256) :: error_msg
+    character(len=256) :: error_msg, buffer
 
     ! Allocate the scalar fields
     ! If there are more scalar_scheme_t types, add a factory function here
@@ -115,18 +115,15 @@ contains
        call json_extract_item(params, "", i, json_subdict)
 
        ! Try to get name from JSON, generate one if not found or empty
-       if (json_subdict%valid_path('name')) then
-          call json_get(json_subdict, 'name', field_name)
-       else
-          field_name = ''
-       end if
+       call json_get_or_default(json_subdict, 'name', field_name, '')
 
        ! If name is empty or not provided, generate a default one
        if (len_trim(field_name) == 0) then
           if (n_scalars == 1) then
              field_name = 's' ! Single scalar gets default name 's'
           else
-             write(field_name, '(A,I0)') 's_', i
+             write(buffer, '(A,I0)') 's_', i
+             field_name = trim(buffer)
           end if
        end if
 
@@ -137,9 +134,9 @@ contains
           j = 1
           do while (j < i)
              if (trim(field_names(i)) == trim(field_names(j))) then
-                write(field_name, '(A,I0)') trim(field_names(i))//'_', j
-                field_names(i) = trim(field_name)
-                j = 1 ! Start over to check if new name is unique
+                call neko_error("Duplicate scalar field name detected: "// &
+                     trim(field_names(i)) // &
+                     ". Please provide unique names for each scalar field.")
              else
                 j = j + 1
              end if

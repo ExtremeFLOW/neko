@@ -36,7 +36,7 @@ module field
   use device_math, only : device_add2, device_cadd, device_cfill, device_copy
   use num_types, only : rp, c_rp
   use device, only : device_map, device_free, device_memset, device_memcpy
-  use math, only : add2, copy, cadd
+  use math, only : add2, copy, cadd, cfill
   use mesh, only : mesh_t
   use space, only : space_t, operator(.ne.)
   use dofmap, only : dofmap_t
@@ -211,19 +211,26 @@ contains
     type(field_t), intent(in) :: g
 
     if (allocated(this%x)) then
-       if (this%Xh .ne. g%Xh) then
+       if (.not. associated(this%Xh, g%Xh)) then
           call this%free()
        end if
     end if
 
     this%Xh => g%Xh
     this%msh => g%msh
-    this%dof => g%dof
+    this%name = g%name
 
-
-    this%Xh%lx = g%Xh%lx
-    this%Xh%ly = g%Xh%ly
-    this%Xh%lz = g%Xh%lz
+    if (.not. g%internal_dofmap) then
+       this%dof => g%dof
+    else
+       if (this%internal_dofmap) then
+          call this%dof%free()
+       else
+          allocate(this%dof)
+          this%internal_dofmap = .true.
+       end if
+       call this%dof%init(this%msh, this%Xh)
+    end if
 
     if (.not. allocated(this%x)) then
 
@@ -252,15 +259,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cfill(this%x_d, a, this%size())
     else
-       do i = 1, this%msh%nelv
-          do l = 1, this%Xh%lz
-             do k = 1, this%Xh%ly
-                do j = 1, this%Xh%lx
-                   this%x(j, k, l, i) = a
-                end do
-             end do
-          end do
-       end do
+       call cfill(this%x, a, this%size())
     end if
 
   end subroutine field_assign_scalar
