@@ -105,8 +105,11 @@ module scratch_registry
      generic :: relinquish_matrix => relinquish_matrix_single, &
           relinquish_matrix_multiple
 
+     !> Generic request procedure
+     generic :: request => request_field, request_vector, request_matrix
      procedure, pass(this) :: relinquish_single
      procedure, pass(this) :: relinquish_multiple
+     !> Generic relinquish procedure
      generic :: relinquish => relinquish_single, relinquish_multiple
   end type scratch_registry_t
 
@@ -304,15 +307,15 @@ contains
   end subroutine request_field
 
   !> Get a vector from the registry by assigning it to a pointer.
-  !! @param n Size of the requested vector.
   !! @param v Pointer to the requested vector.
   !! @param index Index of the vector in the registry (for relinquishing later).
+  !! @param n Size of the requested vector.
   !! @param clear If true, the vector values are set to zero upon request.
-  subroutine request_vector(this, n, v, index, clear)
+  subroutine request_vector(this, v, index, n, clear)
     class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(in) :: n
     type(vector_t), pointer, intent(inout) :: v
     integer, intent(inout) :: index
+    integer, intent(in) :: n
     logical, intent(in) :: clear
 
     associate(n_entries => this%n_entries, n_inuse => this%n_inuse)
@@ -353,16 +356,16 @@ contains
   end subroutine request_vector
 
   !> Get a matrix from the registry by assigning it to a pointer.
-  !! @param nrows Number of rows of the requested matrix.
-  !! @param ncols Number of columns of the requested matrix.
   !! @param m Pointer to the requested matrix.
   !! @param index Index of the matrix in the registry (for relinquishing later).
+  !! @param nrows Number of rows of the requested matrix.
+  !! @param ncols Number of columns of the requested matrix.
   !! @param clear If true, the matrix values are set to zero upon request.
-  subroutine request_matrix(this, nrows, ncols, m, index, clear)
+  subroutine request_matrix(this, m, index, nrows, ncols, clear)
     class(scratch_registry_t), target, intent(inout) :: this
-    integer, intent(in) :: nrows, ncols
     type(matrix_t), pointer, intent(inout) :: m
     integer, intent(inout) :: index
+    integer, intent(in) :: nrows, ncols
     logical, intent(in) :: clear
 
     associate(n_entries => this%n_entries, n_inuse => this%n_inuse)
