@@ -5,7 +5,7 @@ module test_field_registry
   use space, only : space_t, GLL
   use mesh, only : mesh_t
   use dofmap, only : dofmap_t
-  use field_registry, only : registry_t
+  use registry, only : registry_t
   use comm, only : pe_rank, pe_size
   use neko_config, only : NEKO_BCKND_DEVICE
   use device, only : DEVICE_TO_HOST, device_init, device_finalize
