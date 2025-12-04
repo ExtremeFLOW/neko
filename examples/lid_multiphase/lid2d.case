@@ -9,7 +9,7 @@
         "output_at_end": true,
         "output_checkpoints": false,
         "time": {
-            "end_time": 300,
+            "end_time": 20,
             "variable_timestep": true,
             "max_timestep": 0.25e-2,
             // some options for timestepping to play around
@@ -70,9 +70,9 @@
         "scalar": {
             "enabled": true,
             "name": "phase",
-            "epsilon": 0.1,
+            "epsilon": 0.05,
             "gamma": 0.001,
-            "sigma": 0.01,
+            "sigma": 0.00001,
             "initial_condition": {
                 "type": "user"
             },
