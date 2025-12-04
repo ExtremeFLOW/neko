@@ -30,14 +30,12 @@ jobs:
               echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list
               curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg
               sudo apt-get update
-              sudo apt-get clean
 
           - os: ubuntu-24.04-arm
             setup-keyring: |
               echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/arm64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list
               curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg
               sudo apt-get update
-              sudo apt-get clean
 
     env:
       CC: nvc
@@ -92,6 +90,7 @@ jobs:
       - name: Setup - Install NVIDIA HPC SDK
         run: |
           sudo apt-get install -y nvhpc-25-11
+          sudo apt-get clean
 
       - name: Setup - Environment
         id: setup-env
