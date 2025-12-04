@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -102,27 +102,27 @@ $(document).ready(function(){initNavTree('d5/d75/testing.html','../../'); initRe
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#autotoc_md25">pFUnit</a></li>
-<li class="level1"><a href="#autotoc_md26">Configuring Neko</a></li>
-<li class="level1"><a href="#autotoc_md27">Running the tests</a></li>
-<li class="level1"><a href="#autotoc_md28">Adding a new test</a></li>
+<ul><li class="level1"><a href="#autotoc_md36">pFUnit</a></li>
+<li class="level1"><a href="#autotoc_md37">Configuring Neko</a></li>
+<li class="level1"><a href="#autotoc_md38">Running the tests</a></li>
+<li class="level1"><a href="#autotoc_md39">Adding a new test</a></li>
 </ul>
 </div>
-<div class="textblock"><h1><a class="anchor" id="autotoc_md25"></a>
+<div class="textblock"><h1><a class="anchor" id="autotoc_md36"></a>
 pFUnit</h1>
 <p>Neko uses the software pFUnit for unit testing. To install the software you can use the following commands, in which you should just set the desired installation path </p><div class="fragment"><div class="line">git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git -b v4.4.2</div>
 <div class="line"> </div>
 <div class="line">cd pFUnit &amp;&amp; mkdir b &amp;&amp; cd b &amp;&amp; cmake -DCMAKE_INSTALL_PREFIX=/pfunit_install_path .. &amp;&amp; make -j$(nproc) &amp;&amp; make install</div>
-</div><!-- fragment --><p> You will now have a dirctory called PFUNIT-4.4 in your intall path.</p>
-<h1><a class="anchor" id="autotoc_md26"></a>
+</div><!-- fragment --><p> You will now have a directory called PFUNIT-4.4 in your install path.</p>
+<h1><a class="anchor" id="autotoc_md37"></a>
 Configuring Neko</h1>
 <p>To use pFUnit with Neko, we need to specify its location during the <code>configure</code> phase of the build. The following configuration is given here as an example, where again you need to provide the path </p><div class="fragment"><div class="line">./configure FC=${FC} FCFLAGS=&quot;-O2 -pedantic -std=f2008&quot; --with-pfunit=/pfunit_install_path/PFUNIT-4.4</div>
 </div><!-- fragment --><p> Make sure that in the output you see it says <code>pFUnit ... yes</code> at some point.</p>
-<h1><a class="anchor" id="autotoc_md27"></a>
+<h1><a class="anchor" id="autotoc_md38"></a>
 Running the tests</h1>
 <p>To run the tests you should execute </p><div class="fragment"><div class="line">make check</div>
 </div><!-- fragment --><p> This will first compile the software and the tests, and then execute them. In the end you should get a nice list of tests that were run and a summary, which hopefully says that all tests have passed!</p>
-<h1><a class="anchor" id="autotoc_md28"></a>
+<h1><a class="anchor" id="autotoc_md39"></a>
 Adding a new test</h1>
 <p>The first step is of course to read the documentation for pFUnit to understand how it works. It is up to you to learn how to write <code>.pf</code> files. Here, we only cover how to incorporate the test into the Neko build system.</p>
 <p>The tests are located in the <code>tests</code> folder. Unlike some other software, the structure of the <code>tests</code> folder does not follow that of <code>src</code>. Instead each folder loosely corresponds to a single class or sometimes a single abstract class and its children (see the <code>stack</code> folder, for example).</p>
@@ -132,12 +132,12 @@ Adding a new test</h1>
 <li>Put the <code>.pf</code> files you've written inside that folder.</li>
 <li>Copy over a <code>Makefile.in</code> file from some over test folder. If your test does not use MPI, you can copy from e.g. <code>hex</code>, otherwise take it from <code>field</code>. As usual, the <code>Makefile.in</code> will turn into a <code>Makefile</code> during the <code>configure</code> phase of the build.</li>
 <li>The <code>Makefile.in</code> looks very much like the <code>Makefile</code> examples in the documentation of pFUnit.<ol type="a">
-<li>The <code>check</code> target should be changed to the name of your test. If yor test does not use MPI, name it the same as the name of the folder + <code>_test</code>. If you need MPI, then don't use <code>test</code>, but rather something else, like <code>_suite</code>.</li>
+<li>The <code>check</code> target should be changed to the name of your test. If your test does not use MPI, name it the same as the name of the folder + <code>_test</code>. If you need MPI, then don't use <code>test</code>, but rather something else, like <code>_suite</code>.</li>
 <li>The lines defining <code>_TESTS</code>, <code>_OTHER_LIBRARIES</code>, and the other pFUnit stuff should be prefixed with the name selected above. Similarly with the <code>eval</code> statement.</li>
 <li>In the <code>clean</code> target, also put the same name as in <code>check</code>.</li>
 </ol>
 </li>
-<li>If you use MPI, you now need to create a runner script. Copy <code>field/field_test</code> tp start with, which looks like this <div class="fragment"><div class="line">#!/bin/sh</div>
+<li>If you use MPI, you now need to create a runner script. Copy <code>field/field_test</code> to start with, which looks like this <div class="fragment"><div class="line">#!/bin/sh</div>
 <div class="line">if which mpirun &gt;/dev/null; then</div>
 <div class="line">    mpirun -np 1 ./field/field_suite</div>
 <div class="line">else</div>
@@ -160,7 +160,7 @@ Adding a new test</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li><li class="navelem"><a class="el" href="../../d5/dfc/installation.html">Installing Neko</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

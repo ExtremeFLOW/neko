@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -106,7 +106,7 @@ $(document).ready(function(){initNavTree('d1/d1e/distdata_8f90_source.html','../
   <div class="headertitle"><div class="title">distdata.f90</div></div>
 </div><!--header-->
 <div class="contents">
-<a href="../../d1/d1e/distdata_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">! Copyright (c) 2020-2023, The Neko Authors</span></div>
+<a href="../../d1/d1e/distdata_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">! Copyright (c) 2020-2025, The Neko Authors</span></div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment">! All rights reserved.</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="comment">!</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment">! Redistribution and use in source and binary forms, with or without</span></div>
@@ -147,136 +147,142 @@ $(document).ready(function(){initNavTree('d1/d1e/distdata_8f90_source.html','../
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span> </div>
 <div class="foldopen" id="foldopen00041" data-start="" data-end="">
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno"><a class="line" href="../../d4/ddd/structdistdata_1_1distdata__t.html">   41</a></span>  <span class="keyword">type</span>, <span class="keyword">public</span> :: <a class="code hl_struct" href="../../d4/ddd/structdistdata_1_1distdata__t.html">distdata_t</a></div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno"><a class="line" href="../../d4/ddd/structdistdata_1_1distdata__t.html#aad65b4e047ab240ffec4861a7942c3e3">   42</a></span>     <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d1/d93/structstack_1_1stack__i4t2__t.html">stack_i4t2_t</a>) :: shared_el_facet</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno"><a class="line" href="../../d4/ddd/structdistdata_1_1distdata__t.html#ad3c9672792cf62ecca94d7e6524ffed5">   44</a></span>     <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d6/db2/structuset_1_1uset__i4__t.html">uset_i4_t</a>) :: shared_facet</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno"><a class="line" href="../../d4/ddd/structdistdata_1_1distdata__t.html#a34034a422a8cdb54001b58ea4e4532a7">   45</a></span>     <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d6/db2/structuset_1_1uset__i4__t.html">uset_i4_t</a>) :: shared_edge</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="../../d4/ddd/structdistdata_1_1distdata__t.html#a7b632edbf035cf79313df8cd1de5a3a8">   46</a></span>     <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d6/db2/structuset_1_1uset__i4__t.html">uset_i4_t</a>) :: shared_point</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span> </div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno"><a class="line" href="../../d4/ddd/structdistdata_1_1distdata__t.html#aa8ef94370db8edc4751781b1cc77ba1d">   48</a></span>     <span class="keywordtype">integer</span>, <span class="keywordtype">allocatable</span> :: local_to_global_facet(:)</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno"><a class="line" href="../../d4/ddd/structdistdata_1_1distdata__t.html#a62c36efe9df41f15a30928cc5d351c9e">   49</a></span>     <span class="keywordtype">integer</span>, <span class="keywordtype">allocatable</span> :: local_to_global_edge(:)</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>  <span class="keyword">end type </span><a class="code hl_struct" href="../../d4/ddd/structdistdata_1_1distdata__t.html">distdata_t</a></div>
-</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>  <span class="keywordtype">public</span> :: <a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a7393efc050ceff8d2b1577e814766df8">distdata_init</a>, <a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a3a77ef0dd4cbeff5d6c510c493007288">distdata_free</a>, <a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a13af2d2fa32c3733dbf1688e579951ec">distdata_set_shared_el_facet</a>, &amp;</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>       <a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a7aa5fbd5e4916c9f7eca2e0005716486">distdata_set_shared_facet</a>, <a class="code hl_function" href="../../dc/d48/namespacedistdata.html#ab553d9210e3f859553e82c8be368db33">distdata_set_shared_edge</a>, &amp;</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>       <a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a104a6fac60956fc167df8bb063632973">distdata_set_shared_point</a>, <a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a21b01a3e652f6cd332611cce8b4f46b9">distdata_set_local_to_global_facet</a>, &amp;</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>       <a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a66e2d8156519bf42e00ef85a2dd9d696">distdata_set_local_to_global_edge</a></div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span> </div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span><span class="keyword">contains</span></div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span> </div>
-<div class="foldopen" id="foldopen00061" data-start="" data-end="">
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno"><a class="line" href="../../dc/d48/namespacedistdata.html#a7393efc050ceff8d2b1577e814766df8">   61</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a7393efc050ceff8d2b1577e814766df8">distdata_init</a>(ddata)</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d4/ddd/structdistdata_1_1distdata__t.html">distdata_t</a>), <span class="keywordtype">intent(inout)</span> :: ddata</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a3a77ef0dd4cbeff5d6c510c493007288">distdata_free</a>(ddata)</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span> </div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    <span class="keyword">call </span>ddata%shared_el_facet%init()</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno"><a class="line" href="../../d4/ddd/structdistdata_1_1distdata__t.html#aad65b4e047ab240ffec4861a7942c3e3">   43</a></span>     <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d1/d93/structstack_1_1stack__i4t2__t.html">stack_i4t2_t</a>) :: shared_el_facet</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno"><a class="line" href="../../d4/ddd/structdistdata_1_1distdata__t.html#ad3c9672792cf62ecca94d7e6524ffed5">   45</a></span>     <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d6/db2/structuset_1_1uset__i4__t.html">uset_i4_t</a>) :: shared_facet</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno"><a class="line" href="../../d4/ddd/structdistdata_1_1distdata__t.html#a34034a422a8cdb54001b58ea4e4532a7">   47</a></span>     <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d6/db2/structuset_1_1uset__i4__t.html">uset_i4_t</a>) :: shared_edge</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno"><a class="line" href="../../d4/ddd/structdistdata_1_1distdata__t.html#a7b632edbf035cf79313df8cd1de5a3a8">   49</a></span>     <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d6/db2/structuset_1_1uset__i4__t.html">uset_i4_t</a>) :: shared_point</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno"><a class="line" href="../../d4/ddd/structdistdata_1_1distdata__t.html#aa8ef94370db8edc4751781b1cc77ba1d">   51</a></span>     <span class="keywordtype">integer</span>, <span class="keywordtype">allocatable</span> :: local_to_global_facet(:)</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno"><a class="line" href="../../d4/ddd/structdistdata_1_1distdata__t.html#a62c36efe9df41f15a30928cc5d351c9e">   53</a></span>     <span class="keywordtype">integer</span>, <span class="keywordtype">allocatable</span> :: local_to_global_edge(:)</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>   <span class="keyword">contains</span></div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno"><a class="line" href="../../d4/ddd/structdistdata_1_1distdata__t.html#af5acf0a6b50a0356eff556ecb6b8145f">   56</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: init =&gt; <a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a4af14908d6960533326dd68813d63a63">distdata_init</a></div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno"><a class="line" href="../../d4/ddd/structdistdata_1_1distdata__t.html#a9b7c9bc81886b024ecf3625e5bbf68de">   57</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: free =&gt; <a class="code hl_function" href="../../dc/d48/namespacedistdata.html#ad682bc588425b9eae4d651b0221323fa">distdata_free</a></div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno"><a class="line" href="../../d4/ddd/structdistdata_1_1distdata__t.html#a9f4231c86b11afdefd1f3c50305e815e">   58</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: set_shared_el_facet =&gt; &amp;</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>          <a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a2b07b6c335773e495299a7f415487cd1">distdata_set_shared_el_facet</a></div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno"><a class="line" href="../../d4/ddd/structdistdata_1_1distdata__t.html#a68a19671b174b699f10d476d8727e176">   60</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: set_shared_facet =&gt; <a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a720e08b958718c9326df0ca5a183d09e">distdata_set_shared_facet</a></div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno"><a class="line" href="../../d4/ddd/structdistdata_1_1distdata__t.html#ab3493e6fbb34f883e7deb09aca6a0712">   61</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: set_shared_edge =&gt; <a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a2fbcd739a9a17ad0a735e509777589b4">distdata_set_shared_edge</a></div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno"><a class="line" href="../../d4/ddd/structdistdata_1_1distdata__t.html#aa363fb5c4fd570db45dfd611dd2ea646">   62</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: set_shared_point =&gt; <a class="code hl_function" href="../../dc/d48/namespacedistdata.html#aeac6f6ad29be22fc2e576da982ff4846">distdata_set_shared_point</a></div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno"><a class="line" href="../../d4/ddd/structdistdata_1_1distdata__t.html#a0f07b94ec3ae0e51ba86971a8d888820">   63</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: set_local_to_global_facet =&gt; &amp;</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>          <a class="code hl_function" href="../../dc/d48/namespacedistdata.html#afb17b92f3c908c30c01bbe7e5dcdd764">distdata_set_local_to_global_facet</a></div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno"><a class="line" href="../../d4/ddd/structdistdata_1_1distdata__t.html#a2f00c5d3efb95af066fae548551929fe">   65</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: set_local_to_global_edge =&gt; &amp;</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>          <a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a5236798cbe34efc3a3596a971df5f890">distdata_set_local_to_global_edge</a></div>
 <div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span> </div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    <span class="keyword">call </span>ddata%shared_facet%init()</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    <span class="keyword">call </span>ddata%shared_edge%init()</div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>    <span class="keyword">call </span>ddata%shared_point%init()</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>  <span class="keyword">end type </span><a class="code hl_struct" href="../../d4/ddd/structdistdata_1_1distdata__t.html">distdata_t</a></div>
+</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span><span class="keyword">contains</span></div>
 <div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span> </div>
-</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a7393efc050ceff8d2b1577e814766df8">distdata_init</a></div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span> </div>
-<div class="foldopen" id="foldopen00075" data-start="" data-end="">
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno"><a class="line" href="../../dc/d48/namespacedistdata.html#a3a77ef0dd4cbeff5d6c510c493007288">   75</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a3a77ef0dd4cbeff5d6c510c493007288">distdata_free</a>(ddata)</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d4/ddd/structdistdata_1_1distdata__t.html">distdata_t</a>), <span class="keywordtype">intent(inout)</span> :: ddata</div>
+<div class="foldopen" id="foldopen00073" data-start="" data-end="">
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno"><a class="line" href="../../dc/d48/namespacedistdata.html#a4af14908d6960533326dd68813d63a63">   73</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a4af14908d6960533326dd68813d63a63">distdata_init</a>(this)</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d4/ddd/structdistdata_1_1distdata__t.html">distdata_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span> </div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#ad682bc588425b9eae4d651b0221323fa">distdata_free</a>(this)</div>
 <div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span> </div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>    <span class="keyword">call </span>ddata%shared_el_facet%free()</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>    <span class="keyword">call </span>this%shared_el_facet%init()</div>
 <div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span> </div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    <span class="keyword">call </span>ddata%shared_facet%free()</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    <span class="keyword">call </span>ddata%shared_edge%free()</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>    <span class="keyword">call </span>ddata%shared_point%free()</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    <span class="keyword">call </span>this%shared_facet%init()</div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    <span class="keyword">call </span>this%shared_edge%init()</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>    <span class="keyword">call </span>this%shared_point%init()</div>
 <div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span> </div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(ddata%local_to_global_facet)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>       <span class="keyword">deallocate</span>(ddata%local_to_global_facet)</div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span> </div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(ddata%local_to_global_edge)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>       <span class="keyword">deallocate</span>(ddata%local_to_global_edge)</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span> </div>
 </div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a3a77ef0dd4cbeff5d6c510c493007288">distdata_free</a></div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span> </div>
-<div class="foldopen" id="foldopen00095" data-start="" data-end="">
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno"><a class="line" href="../../dc/d48/namespacedistdata.html#a13af2d2fa32c3733dbf1688e579951ec">   95</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a13af2d2fa32c3733dbf1688e579951ec">distdata_set_shared_el_facet</a>(ddata, element, side)</div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d4/ddd/structdistdata_1_1distdata__t.html">distdata_t</a>), <span class="keywordtype">intent(inout)</span> :: ddata</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">value</span> :: <a class="code hl_namespace" href="../../d6/d0d/namespaceelement.html">element</a></div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">value</span> :: side</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d5/d16/structtuple_1_1tuple__i4__t.html">tuple_i4_t</a>) :: t</div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span> </div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    t%x = (/ <a class="code hl_namespace" href="../../d6/d0d/namespaceelement.html">element</a>, side /)</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    <span class="keyword">call </span>ddata%shared_el_facet%push(t)</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a4af14908d6960533326dd68813d63a63">distdata_init</a></div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span> </div>
+<div class="foldopen" id="foldopen00087" data-start="" data-end="">
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno"><a class="line" href="../../dc/d48/namespacedistdata.html#ad682bc588425b9eae4d651b0221323fa">   87</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#ad682bc588425b9eae4d651b0221323fa">distdata_free</a>(this)</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d4/ddd/structdistdata_1_1distdata__t.html">distdata_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span> </div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    <span class="keyword">call </span>this%shared_el_facet%free()</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span> </div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>    <span class="keyword">call </span>this%shared_facet%free()</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    <span class="keyword">call </span>this%shared_edge%free()</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    <span class="keyword">call </span>this%shared_point%free()</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span> </div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%local_to_global_facet)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>       <span class="keyword">deallocate</span>(this%local_to_global_facet)</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span> </div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%local_to_global_edge)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>       <span class="keyword">deallocate</span>(this%local_to_global_edge)</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span> </div>
 </div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a13af2d2fa32c3733dbf1688e579951ec">distdata_set_shared_el_facet</a></div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#ad682bc588425b9eae4d651b0221323fa">distdata_free</a></div>
 <div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span> </div>
 <div class="foldopen" id="foldopen00107" data-start="" data-end="">
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno"><a class="line" href="../../dc/d48/namespacedistdata.html#a7aa5fbd5e4916c9f7eca2e0005716486">  107</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a7aa5fbd5e4916c9f7eca2e0005716486">distdata_set_shared_facet</a>(ddata, facet)</div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d4/ddd/structdistdata_1_1distdata__t.html">distdata_t</a>), <span class="keywordtype">intent(inout)</span> :: ddata</div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">value</span> :: facet</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span> </div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>    <span class="keyword">call </span>ddata%shared_facet%add(facet)</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno"><a class="line" href="../../dc/d48/namespacedistdata.html#a2b07b6c335773e495299a7f415487cd1">  107</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a2b07b6c335773e495299a7f415487cd1">distdata_set_shared_el_facet</a>(this, element, side)</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d4/ddd/structdistdata_1_1distdata__t.html">distdata_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">value</span> :: element</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">value</span> :: side</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d5/d16/structtuple_1_1tuple__i4__t.html">tuple_i4_t</a>) :: t</div>
 <div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span> </div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    t%x = (/ <a class="code hl_namespace" href="../../d6/d0d/namespaceelement.html">element</a>, side /)</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    <span class="keyword">call </span>this%shared_el_facet%push(t)</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span> </div>
 </div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a7aa5fbd5e4916c9f7eca2e0005716486">distdata_set_shared_facet</a></div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span> </div>
-<div class="foldopen" id="foldopen00117" data-start="" data-end="">
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno"><a class="line" href="../../dc/d48/namespacedistdata.html#ab553d9210e3f859553e82c8be368db33">  117</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#ab553d9210e3f859553e82c8be368db33">distdata_set_shared_edge</a>(ddata, edge)</div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d4/ddd/structdistdata_1_1distdata__t.html">distdata_t</a>), <span class="keywordtype">intent(inout)</span> :: ddata</div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">value</span> :: edge</div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span> </div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>    <span class="keyword">call </span>ddata%shared_edge%add(edge)</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a2b07b6c335773e495299a7f415487cd1">distdata_set_shared_el_facet</a></div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span> </div>
+<div class="foldopen" id="foldopen00119" data-start="" data-end="">
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno"><a class="line" href="../../dc/d48/namespacedistdata.html#a720e08b958718c9326df0ca5a183d09e">  119</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a720e08b958718c9326df0ca5a183d09e">distdata_set_shared_facet</a>(this, facet)</div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d4/ddd/structdistdata_1_1distdata__t.html">distdata_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">value</span> :: facet</div>
 <div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span> </div>
-</div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#ab553d9210e3f859553e82c8be368db33">distdata_set_shared_edge</a></div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>    <span class="keyword">call </span>this%shared_facet%add(facet)</div>
 <div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span> </div>
-<div class="foldopen" id="foldopen00126" data-start="" data-end="">
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno"><a class="line" href="../../dc/d48/namespacedistdata.html#a104a6fac60956fc167df8bb063632973">  126</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a104a6fac60956fc167df8bb063632973">distdata_set_shared_point</a>(ddata, point)</div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d4/ddd/structdistdata_1_1distdata__t.html">distdata_t</a>), <span class="keywordtype">intent(inout)</span> :: ddata</div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">value</span> :: <a class="code hl_namespace" href="../../d8/dbc/namespacepoint.html">point</a></div>
-<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span> </div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>    <span class="keyword">call </span>ddata%shared_point%add(<a class="code hl_namespace" href="../../d8/dbc/namespacepoint.html">point</a>)</div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span> </div>
 </div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a104a6fac60956fc167df8bb063632973">distdata_set_shared_point</a></div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span> </div>
-<div class="foldopen" id="foldopen00135" data-start="" data-end="">
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno"><a class="line" href="../../dc/d48/namespacedistdata.html#a21b01a3e652f6cd332611cce8b4f46b9">  135</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a21b01a3e652f6cd332611cce8b4f46b9">distdata_set_local_to_global_facet</a>(ddata, local, global)</div>
-<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d4/ddd/structdistdata_1_1distdata__t.html">distdata_t</a>), <span class="keywordtype">intent(inout)</span> :: ddata</div>
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">value</span> :: local</div>
-<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">value</span> :: global</div>
-<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span> </div>
-<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>    ddata%local_to_global_facet(local) = global</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a720e08b958718c9326df0ca5a183d09e">distdata_set_shared_facet</a></div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span> </div>
+<div class="foldopen" id="foldopen00129" data-start="" data-end="">
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno"><a class="line" href="../../dc/d48/namespacedistdata.html#a2fbcd739a9a17ad0a735e509777589b4">  129</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a2fbcd739a9a17ad0a735e509777589b4">distdata_set_shared_edge</a>(this, edge)</div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d4/ddd/structdistdata_1_1distdata__t.html">distdata_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">value</span> :: edge</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span> </div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>    <span class="keyword">call </span>this%shared_edge%add(edge)</div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span> </div>
+</div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a2fbcd739a9a17ad0a735e509777589b4">distdata_set_shared_edge</a></div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span> </div>
+<div class="foldopen" id="foldopen00138" data-start="" data-end="">
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno"><a class="line" href="../../dc/d48/namespacedistdata.html#aeac6f6ad29be22fc2e576da982ff4846">  138</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#aeac6f6ad29be22fc2e576da982ff4846">distdata_set_shared_point</a>(this, point)</div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d4/ddd/structdistdata_1_1distdata__t.html">distdata_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">value</span> :: point</div>
 <div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span> </div>
-</div>
-<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a21b01a3e652f6cd332611cce8b4f46b9">distdata_set_local_to_global_facet</a></div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>    <span class="keyword">call </span>this%shared_point%add(<a class="code hl_namespace" href="../../d8/dbc/namespacepoint.html">point</a>)</div>
 <div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span> </div>
-<div class="foldopen" id="foldopen00145" data-start="" data-end="">
-<div class="line"><a id="l00145" name="l00145"></a><span class="lineno"><a class="line" href="../../dc/d48/namespacedistdata.html#a66e2d8156519bf42e00ef85a2dd9d696">  145</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a66e2d8156519bf42e00ef85a2dd9d696">distdata_set_local_to_global_edge</a>(ddata, local, global)</div>
-<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d4/ddd/structdistdata_1_1distdata__t.html">distdata_t</a>), <span class="keywordtype">intent(inout)</span> :: ddata</div>
-<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> , <span class="keywordtype">value</span> :: local</div>
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> , <span class="keywordtype">value</span> :: global</div>
-<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span> </div>
-<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>    ddata%local_to_global_edge(local) = global</div>
-<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span> </div>
 </div>
-<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a66e2d8156519bf42e00ef85a2dd9d696">distdata_set_local_to_global_edge</a></div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#aeac6f6ad29be22fc2e576da982ff4846">distdata_set_shared_point</a></div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span> </div>
+<div class="foldopen" id="foldopen00147" data-start="" data-end="">
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno"><a class="line" href="../../dc/d48/namespacedistdata.html#afb17b92f3c908c30c01bbe7e5dcdd764">  147</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#afb17b92f3c908c30c01bbe7e5dcdd764">distdata_set_local_to_global_facet</a>(this, local, global)</div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d4/ddd/structdistdata_1_1distdata__t.html">distdata_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">value</span> :: local</div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">value</span> :: global</div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span> </div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>    this%local_to_global_facet(local) = global</div>
 <div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span> </div>
-<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dc/d48/namespacedistdata.html">distdata</a></div>
+</div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#afb17b92f3c908c30c01bbe7e5dcdd764">distdata_set_local_to_global_facet</a></div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span> </div>
+<div class="foldopen" id="foldopen00157" data-start="" data-end="">
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno"><a class="line" href="../../dc/d48/namespacedistdata.html#a5236798cbe34efc3a3596a971df5f890">  157</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a5236798cbe34efc3a3596a971df5f890">distdata_set_local_to_global_edge</a>(this, local, global)</div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d4/ddd/structdistdata_1_1distdata__t.html">distdata_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> , <span class="keywordtype">value</span> :: local</div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> , <span class="keywordtype">value</span> :: global</div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span> </div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>    this%local_to_global_edge(local) = global</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span> </div>
+</div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d48/namespacedistdata.html#a5236798cbe34efc3a3596a971df5f890">distdata_set_local_to_global_edge</a></div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span> </div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dc/d48/namespacedistdata.html">distdata</a></div>
 <div class="ttc" id="anamespacedistdata_html"><div class="ttname"><a href="../../dc/d48/namespacedistdata.html">distdata</a></div><div class="ttdoc">Distributed mesh data.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d1e/distdata_8f90_source.html#l00034">distdata.f90:34</a></div></div>
-<div class="ttc" id="anamespacedistdata_html_a104a6fac60956fc167df8bb063632973"><div class="ttname"><a href="../../dc/d48/namespacedistdata.html#a104a6fac60956fc167df8bb063632973">distdata::distdata_set_shared_point</a></div><div class="ttdeci">subroutine, public distdata_set_shared_point(ddata, point)</div><div class="ttdoc">Mark a point as shared.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d1e/distdata_8f90_source.html#l00126">distdata.f90:127</a></div></div>
-<div class="ttc" id="anamespacedistdata_html_a13af2d2fa32c3733dbf1688e579951ec"><div class="ttname"><a href="../../dc/d48/namespacedistdata.html#a13af2d2fa32c3733dbf1688e579951ec">distdata::distdata_set_shared_el_facet</a></div><div class="ttdeci">subroutine, public distdata_set_shared_el_facet(ddata, element, side)</div><div class="ttdoc">Mark an element's facet as shared.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d1e/distdata_8f90_source.html#l00095">distdata.f90:96</a></div></div>
-<div class="ttc" id="anamespacedistdata_html_a21b01a3e652f6cd332611cce8b4f46b9"><div class="ttname"><a href="../../dc/d48/namespacedistdata.html#a21b01a3e652f6cd332611cce8b4f46b9">distdata::distdata_set_local_to_global_facet</a></div><div class="ttdeci">subroutine, public distdata_set_local_to_global_facet(ddata, local, global)</div><div class="ttdoc">Set local to global mapping (facets)</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d1e/distdata_8f90_source.html#l00135">distdata.f90:136</a></div></div>
-<div class="ttc" id="anamespacedistdata_html_a3a77ef0dd4cbeff5d6c510c493007288"><div class="ttname"><a href="../../dc/d48/namespacedistdata.html#a3a77ef0dd4cbeff5d6c510c493007288">distdata::distdata_free</a></div><div class="ttdeci">subroutine, public distdata_free(ddata)</div><div class="ttdoc">Free a distdata type.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d1e/distdata_8f90_source.html#l00075">distdata.f90:76</a></div></div>
-<div class="ttc" id="anamespacedistdata_html_a66e2d8156519bf42e00ef85a2dd9d696"><div class="ttname"><a href="../../dc/d48/namespacedistdata.html#a66e2d8156519bf42e00ef85a2dd9d696">distdata::distdata_set_local_to_global_edge</a></div><div class="ttdeci">subroutine, public distdata_set_local_to_global_edge(ddata, local, global)</div><div class="ttdoc">Set local to global mapping (edges)</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d1e/distdata_8f90_source.html#l00145">distdata.f90:146</a></div></div>
-<div class="ttc" id="anamespacedistdata_html_a7393efc050ceff8d2b1577e814766df8"><div class="ttname"><a href="../../dc/d48/namespacedistdata.html#a7393efc050ceff8d2b1577e814766df8">distdata::distdata_init</a></div><div class="ttdeci">subroutine, public distdata_init(ddata)</div><div class="ttdoc">Initialise a distdata type.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d1e/distdata_8f90_source.html#l00061">distdata.f90:62</a></div></div>
-<div class="ttc" id="anamespacedistdata_html_a7aa5fbd5e4916c9f7eca2e0005716486"><div class="ttname"><a href="../../dc/d48/namespacedistdata.html#a7aa5fbd5e4916c9f7eca2e0005716486">distdata::distdata_set_shared_facet</a></div><div class="ttdeci">subroutine, public distdata_set_shared_facet(ddata, facet)</div><div class="ttdoc">Mark a facet as shared.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d1e/distdata_8f90_source.html#l00107">distdata.f90:108</a></div></div>
-<div class="ttc" id="anamespacedistdata_html_ab553d9210e3f859553e82c8be368db33"><div class="ttname"><a href="../../dc/d48/namespacedistdata.html#ab553d9210e3f859553e82c8be368db33">distdata::distdata_set_shared_edge</a></div><div class="ttdeci">subroutine, public distdata_set_shared_edge(ddata, edge)</div><div class="ttdoc">Mark an element's edge as shared.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d1e/distdata_8f90_source.html#l00117">distdata.f90:118</a></div></div>
+<div class="ttc" id="anamespacedistdata_html_a2b07b6c335773e495299a7f415487cd1"><div class="ttname"><a href="../../dc/d48/namespacedistdata.html#a2b07b6c335773e495299a7f415487cd1">distdata::distdata_set_shared_el_facet</a></div><div class="ttdeci">subroutine distdata_set_shared_el_facet(this, element, side)</div><div class="ttdoc">Mark an element's facet as shared.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d1e/distdata_8f90_source.html#l00107">distdata.f90:108</a></div></div>
+<div class="ttc" id="anamespacedistdata_html_a2fbcd739a9a17ad0a735e509777589b4"><div class="ttname"><a href="../../dc/d48/namespacedistdata.html#a2fbcd739a9a17ad0a735e509777589b4">distdata::distdata_set_shared_edge</a></div><div class="ttdeci">subroutine distdata_set_shared_edge(this, edge)</div><div class="ttdoc">Mark an element's edge as shared.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d1e/distdata_8f90_source.html#l00129">distdata.f90:130</a></div></div>
+<div class="ttc" id="anamespacedistdata_html_a4af14908d6960533326dd68813d63a63"><div class="ttname"><a href="../../dc/d48/namespacedistdata.html#a4af14908d6960533326dd68813d63a63">distdata::distdata_init</a></div><div class="ttdeci">subroutine distdata_init(this)</div><div class="ttdoc">Initialise a distdata type.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d1e/distdata_8f90_source.html#l00073">distdata.f90:74</a></div></div>
+<div class="ttc" id="anamespacedistdata_html_a5236798cbe34efc3a3596a971df5f890"><div class="ttname"><a href="../../dc/d48/namespacedistdata.html#a5236798cbe34efc3a3596a971df5f890">distdata::distdata_set_local_to_global_edge</a></div><div class="ttdeci">subroutine distdata_set_local_to_global_edge(this, local, global)</div><div class="ttdoc">Set local to global mapping (edges)</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d1e/distdata_8f90_source.html#l00157">distdata.f90:158</a></div></div>
+<div class="ttc" id="anamespacedistdata_html_a720e08b958718c9326df0ca5a183d09e"><div class="ttname"><a href="../../dc/d48/namespacedistdata.html#a720e08b958718c9326df0ca5a183d09e">distdata::distdata_set_shared_facet</a></div><div class="ttdeci">subroutine distdata_set_shared_facet(this, facet)</div><div class="ttdoc">Mark a facet as shared.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d1e/distdata_8f90_source.html#l00119">distdata.f90:120</a></div></div>
+<div class="ttc" id="anamespacedistdata_html_ad682bc588425b9eae4d651b0221323fa"><div class="ttname"><a href="../../dc/d48/namespacedistdata.html#ad682bc588425b9eae4d651b0221323fa">distdata::distdata_free</a></div><div class="ttdeci">subroutine distdata_free(this)</div><div class="ttdoc">Free a distdata type.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d1e/distdata_8f90_source.html#l00087">distdata.f90:88</a></div></div>
+<div class="ttc" id="anamespacedistdata_html_aeac6f6ad29be22fc2e576da982ff4846"><div class="ttname"><a href="../../dc/d48/namespacedistdata.html#aeac6f6ad29be22fc2e576da982ff4846">distdata::distdata_set_shared_point</a></div><div class="ttdeci">subroutine distdata_set_shared_point(this, point)</div><div class="ttdoc">Mark a point as shared.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d1e/distdata_8f90_source.html#l00138">distdata.f90:139</a></div></div>
+<div class="ttc" id="anamespacedistdata_html_afb17b92f3c908c30c01bbe7e5dcdd764"><div class="ttname"><a href="../../dc/d48/namespacedistdata.html#afb17b92f3c908c30c01bbe7e5dcdd764">distdata::distdata_set_local_to_global_facet</a></div><div class="ttdeci">subroutine distdata_set_local_to_global_facet(this, local, global)</div><div class="ttdoc">Set local to global mapping (facets)</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d1e/distdata_8f90_source.html#l00147">distdata.f90:148</a></div></div>
 <div class="ttc" id="anamespaceelement_html"><div class="ttname"><a href="../../d6/d0d/namespaceelement.html">element</a></div><div class="ttdef"><b>Definition</b> <a href="../../de/d31/element_8f90_source.html#l00033">element.f90:33</a></div></div>
 <div class="ttc" id="anamespacepoint_html"><div class="ttname"><a href="../../d8/dbc/namespacepoint.html">point</a></div><div class="ttdoc">Implements a point.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/dc5/point_8f90_source.html#l00035">point.f90:35</a></div></div>
 <div class="ttc" id="anamespacestack_html"><div class="ttname"><a href="../../d9/d30/namespacestack.html">stack</a></div><div class="ttdoc">Implements a dynamic stack ADT.</div><div class="ttdef"><b>Definition</b> <a href="../../de/de6/stack_8f90_source.html#l00035">stack.f90:35</a></div></div>
@@ -292,7 +298,7 @@ $(document).ready(function(){initNavTree('d1/d1e/distdata_8f90_source.html','../
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_fdedb0aba14d44ce9d99bc100e026e6a.html">common</a></li><li class="navelem"><a class="el" href="../../d1/d1e/distdata_8f90.html">distdata.f90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

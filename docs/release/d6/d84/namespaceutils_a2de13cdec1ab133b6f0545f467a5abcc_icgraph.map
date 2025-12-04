@@ -1,5 +1,0 @@
-<map id="utils::split_string" name="utils::split_string">
-<area shape="rect" id="Node000001" title="Split a string based on delimiter (tokenizer) OBS: very hacky, this should really be improved,..." alt="" coords="264,5,395,31"/>
-<area shape="rect" id="Node000002" href="$d0/dc0/namespacebc.html#abfacbd681994384ab260ac3844936e36" title="Mark all facets from a list of zones, also marks type of bc in the mesh. The facet_type in mesh is be..." alt="" coords="5,5,216,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="250,21,216,21,216,15,250,15"/>
-</map>

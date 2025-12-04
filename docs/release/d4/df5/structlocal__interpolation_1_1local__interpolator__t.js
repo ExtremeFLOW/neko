@@ -1,9 +1,12 @@
 var structlocal__interpolation_1_1local__interpolator__t =
 [
     [ "compute_weights", "d4/df5/structlocal__interpolation_1_1local__interpolator__t.html#aba0693733059250c81896448e642219c", null ],
-    [ "evaluate", "d4/df5/structlocal__interpolation_1_1local__interpolator__t.html#a1e3ff9dc08c7889c33e9a744927158c3", null ],
+    [ "evaluate", "d4/df5/structlocal__interpolation_1_1local__interpolator__t.html#a1118a8ae824c2c9e528c805bc64e22e7", null ],
     [ "free", "d4/df5/structlocal__interpolation_1_1local__interpolator__t.html#ad335ae41dec764eee0067de79dc45dd9", null ],
-    [ "init", "d4/df5/structlocal__interpolation_1_1local__interpolator__t.html#acf9c356b9251a32cac5c4d97a745927e", null ],
+    [ "init", "d4/df5/structlocal__interpolation_1_1local__interpolator__t.html#a7359e05cd8a1b3b27126148102427c8c", null ],
+    [ "init", "d4/df5/structlocal__interpolation_1_1local__interpolator__t.html#afa3bc7c2e0e593907e04c75d5fef6db5", null ],
+    [ "init_1array", "d4/df5/structlocal__interpolation_1_1local__interpolator__t.html#a0d50f055c89491e4d521d8a4fa4229f1", null ],
+    [ "init_3arrays", "d4/df5/structlocal__interpolation_1_1local__interpolator__t.html#ab6bd2c004896b2f826e77d702ec1d4ad", null ],
     [ "n_points", "d4/df5/structlocal__interpolation_1_1local__interpolator__t.html#a0e03aaefc1d53f2d3ba8c1f337a2b466", null ],
     [ "weights_r", "d4/df5/structlocal__interpolation_1_1local__interpolator__t.html#a8cc9f755b61ed7ceea07a8fc86bbd811", null ],
     [ "weights_r_d", "d4/df5/structlocal__interpolation_1_1local__interpolator__t.html#a305977da5333447b10f0eb91b1079e39", null ],

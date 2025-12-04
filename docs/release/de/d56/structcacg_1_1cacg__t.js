@@ -2,7 +2,9 @@ var structcacg_1_1cacg__t =
 [
     [ "free", "de/d56/structcacg_1_1cacg__t.html#ab0dda42217c3531cafbf6a989c7266d9", null ],
     [ "free", "de/d56/structcacg_1_1cacg__t.html#a39467d0a5f0620de72b7a1a6e68e93d0", null ],
-    [ "init", "de/d56/structcacg_1_1cacg__t.html#a157eec78facea81fabdde8db1140fd41", null ],
+    [ "init", "de/d56/structcacg_1_1cacg__t.html#aaa1f3f82fc3e7a5993239818806d4cdc", null ],
+    [ "init", "de/d56/structcacg_1_1cacg__t.html#a212e2f4ae22fc2b8b984a036ac549985", null ],
+    [ "is_converged", "de/d56/structcacg_1_1cacg__t.html#a75721421d4d26e4ea23205cfbc34443b", null ],
     [ "ksp_free", "de/d56/structcacg_1_1cacg__t.html#a34dae2b9d3aff8de33af53f6bb156bc4", null ],
     [ "ksp_init", "de/d56/structcacg_1_1cacg__t.html#aa93557061efb3f02ecd62cf8c05931c0", null ],
     [ "monitor_iter", "de/d56/structcacg_1_1cacg__t.html#a4f01bfbf0a5979a60a0612e504c64489", null ],

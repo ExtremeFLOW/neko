@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -142,95 +142,94 @@ $(document).ready(function(){initNavTree('d8/d6f/device__sigma__nut_8F90_source.
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>  use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../df/d48/namespacenum__types.html">num_types</a>, <span class="keywordtype">only</span>: <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>, <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/d84/namespaceutils.html">utils</a>, <span class="keywordtype">only</span>: <a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a></div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d3/d8f/namespacecomm.html">comm</a>, <span class="keywordtype">only</span>: <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a74658af6604200fabba70f45980ca1c6">neko_comm</a>, <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a9f1fdc8cde3d5bdd6af8db18fc60fa44">pe_size</a>, <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a9d0c8371e47f3da961128e6c4ed5c4f8">mpi_real_precision</a></div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d3/d8f/namespacecomm.html">comm</a>, <span class="keywordtype">only</span>: <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a7c785ed9ced1166fa0d1591e62ad5d3d">neko_comm</a>, <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a50dc807442d4f821f0befa31b86f735d">pe_size</a>, <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a3119ac9b00aa5192f43296a1edb405bc">mpi_real_precision</a></div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">use </span>mpi_f08, <span class="keywordtype">only</span>: mpi_sum, mpi_in_place, mpi_allreduce</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="comment">! use cuda_sigma_nut</span></div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keywordtype">implicit none</span></div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>  <span class="keywordtype">private</span></div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="preprocessor">#ifdef HAVE_HIP</span></div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="preprocessor"></span>  <span class="keyword">interface</span></div>
-<div class="foldopen" id="foldopen00046" data-start="" data-end="">
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="../../d7/dc9/interfacedevice__sigma__nut_1_1hip__sigma__nut__compute.html#af068d2e8c7eaf0e33962d0646ef5a159">   46</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d7/dc9/interfacedevice__sigma__nut_1_1hip__sigma__nut__compute.html">hip_sigma_nut_compute</a>(g11_d, g12_d, g13_d, &amp;</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>                                      g21_d, g22_d, g23_d, &amp;</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>                                      g31_d, g32_d, g33_d, &amp;</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>                                      delta_d, nut_d, mult_d, c, eps, n) &amp;</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>          bind(c, name = <span class="stringliteral">&#39;hip_sigma_nut_compute&#39;</span>)</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: g11_d, g12_d, g13_d, &amp;</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>                             g21_d, g22_d, g23_d, &amp;</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>                             g31_d, g32_d, g33_d, &amp;</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>                             delta_d, nut_d, mult_d</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span><span class="keywordtype">       real</span>(c_rp) :: c, eps</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  </div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="keywordtype">implicit none</span></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keywordtype">private</span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="preprocessor">#ifdef HAVE_HIP</span></div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="preprocessor"></span>  <span class="keyword">interface</span></div>
+<div class="foldopen" id="foldopen00045" data-start="" data-end="">
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno"><a class="line" href="../../d7/dc9/interfacedevice__sigma__nut_1_1hip__sigma__nut__compute.html#af068d2e8c7eaf0e33962d0646ef5a159">   45</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d7/dc9/interfacedevice__sigma__nut_1_1hip__sigma__nut__compute.html">hip_sigma_nut_compute</a>(g11_d, g12_d, g13_d, &amp;</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>                                      g21_d, g22_d, g23_d, &amp;</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>                                      g31_d, g32_d, g33_d, &amp;</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>                                      delta_d, nut_d, mult_d, c, eps, n) &amp;</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>          bind(c, name = <span class="stringliteral">&#39;hip_sigma_nut_compute&#39;</span>)</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: g11_d, g12_d, g13_d, &amp;</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>                             g21_d, g22_d, g23_d, &amp;</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>                             g31_d, g32_d, g33_d, &amp;</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>                             delta_d, nut_d, mult_d</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span><span class="keywordtype">       real</span>(c_rp) :: c, eps</div>
 </div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d7/dc9/interfacedevice__sigma__nut_1_1hip__sigma__nut__compute.html">hip_sigma_nut_compute</a></div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>  <span class="keyword">end interface</span></div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span><span class="preprocessor"></span>  <span class="keyword">interface</span></div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>     <span class="keyword">subroutine </span><a class="code hl_function" href="../../d9/d43/sigma__nut_8cu.html#a2c790968b8045a4db5f04a04ceecada0">cuda_sigma_nut_compute</a>(g11_d, g12_d, g13_d, &amp;</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>                                      g21_d, g22_d, g23_d, &amp;</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>                                      g31_d, g32_d, g33_d, &amp;</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>                                      delta_d, nut_d, mult_d, c, eps, n) &amp;</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>          bind(c, name = <span class="stringliteral">&#39;cuda_sigma_nut_compute&#39;</span>)</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: g11_d, g12_d, g13_d, &amp;</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>                             g21_d, g22_d, g23_d, &amp;</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>                             g31_d, g32_d, g33_d, &amp;</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>                             delta_d, nut_d, mult_d</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span><span class="keywordtype">       real</span>(c_rp) :: c, eps</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>     <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d9/d43/sigma__nut_8cu.html#a2c790968b8045a4db5f04a04ceecada0">cuda_sigma_nut_compute</a></div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>  <span class="keyword">end interface</span></div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span><span class="preprocessor"></span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span><span class="preprocessor"></span> </div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>  <span class="keywordtype">public</span> :: <a class="code hl_function" href="../../d8/d87/namespacedevice__sigma__nut.html#a3093446b8bc4cd55ce6c59ade2fbf8a7">device_sigma_nut_compute</a></div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span> </div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span><span class="keyword">contains</span></div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span> </div>
-<div class="foldopen" id="foldopen00086" data-start="" data-end="">
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno"><a class="line" href="../../d8/d87/namespacedevice__sigma__nut.html#a3093446b8bc4cd55ce6c59ade2fbf8a7">   86</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/d87/namespacedevice__sigma__nut.html#a3093446b8bc4cd55ce6c59ade2fbf8a7">device_sigma_nut_compute</a>(g11_d, g12_d, g13_d, &amp;</div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>                              g21_d, g22_d, g23_d, &amp;</div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>                              g31_d, g32_d, g33_d, &amp;</div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>                              delta_d, nut_d, mult_d, c, eps, n)</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    <span class="keywordtype">type</span>(c_ptr) :: g11_d, g12_d, g13_d, &amp;</div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>                   g21_d, g22_d, g23_d, &amp;</div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>                   g31_d, g32_d, g33_d, &amp;</div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>                   delta_d, nut_d, mult_d</div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    <span class="keywordtype">integer</span> :: n</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: c, eps</div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span><span class="preprocessor">#if HAVE_HIP</span></div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d7/dc9/interfacedevice__sigma__nut_1_1hip__sigma__nut__compute.html">hip_sigma_nut_compute</a>(g11_d, g12_d, g13_d, &amp;</div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>                              g21_d, g22_d, g23_d, &amp;</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>                              g31_d, g32_d, g33_d, &amp;</div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>                              delta_d, nut_d, mult_d, c, eps, n)</div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../d9/d43/sigma__nut_8cu.html#a2c790968b8045a4db5f04a04ceecada0">cuda_sigma_nut_compute</a>(g11_d, g12_d, g13_d, &amp;</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>                              g21_d, g22_d, g23_d, &amp;</div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>                              g31_d, g32_d, g33_d, &amp;</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>                              delta_d, nut_d, mult_d, c, eps, n)</div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;opencl backend is not supported for device_sigma_nut&#39;</span>)</div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;no device backend configured&#39;</span>)</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d7/dc9/interfacedevice__sigma__nut_1_1hip__sigma__nut__compute.html">hip_sigma_nut_compute</a></div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span><span class="preprocessor"></span>  <span class="keyword">interface</span></div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>     <span class="keyword">subroutine </span><a class="code hl_function" href="../../d9/d43/sigma__nut_8cu.html#a2c790968b8045a4db5f04a04ceecada0">cuda_sigma_nut_compute</a>(g11_d, g12_d, g13_d, &amp;</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>                                      g21_d, g22_d, g23_d, &amp;</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>                                      g31_d, g32_d, g33_d, &amp;</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>                                      delta_d, nut_d, mult_d, c, eps, n) &amp;</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>          bind(c, name = <span class="stringliteral">&#39;cuda_sigma_nut_compute&#39;</span>)</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: g11_d, g12_d, g13_d, &amp;</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>                             g21_d, g22_d, g23_d, &amp;</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>                             g31_d, g32_d, g33_d, &amp;</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>                             delta_d, nut_d, mult_d</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span><span class="keywordtype">       real</span>(c_rp) :: c, eps</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>     <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d9/d43/sigma__nut_8cu.html#a2c790968b8045a4db5f04a04ceecada0">cuda_sigma_nut_compute</a></div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span><span class="preprocessor"></span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span><span class="preprocessor"></span> </div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>  <span class="keywordtype">public</span> :: <a class="code hl_function" href="../../d8/d87/namespacedevice__sigma__nut.html#a3093446b8bc4cd55ce6c59ade2fbf8a7">device_sigma_nut_compute</a></div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span> </div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span><span class="keyword">contains</span></div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span> </div>
+<div class="foldopen" id="foldopen00085" data-start="" data-end="">
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno"><a class="line" href="../../d8/d87/namespacedevice__sigma__nut.html#a3093446b8bc4cd55ce6c59ade2fbf8a7">   85</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/d87/namespacedevice__sigma__nut.html#a3093446b8bc4cd55ce6c59ade2fbf8a7">device_sigma_nut_compute</a>(g11_d, g12_d, g13_d, &amp;</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>                              g21_d, g22_d, g23_d, &amp;</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>                              g31_d, g32_d, g33_d, &amp;</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>                              delta_d, nut_d, mult_d, c, eps, n)</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    <span class="keywordtype">type</span>(c_ptr) :: g11_d, g12_d, g13_d, &amp;</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>                   g21_d, g22_d, g23_d, &amp;</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>                   g31_d, g32_d, g33_d, &amp;</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>                   delta_d, nut_d, mult_d</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    <span class="keywordtype">integer</span> :: n</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: c, eps</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span><span class="preprocessor">#if HAVE_HIP</span></div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d7/dc9/interfacedevice__sigma__nut_1_1hip__sigma__nut__compute.html">hip_sigma_nut_compute</a>(g11_d, g12_d, g13_d, &amp;</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>                              g21_d, g22_d, g23_d, &amp;</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>                              g31_d, g32_d, g33_d, &amp;</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>                              delta_d, nut_d, mult_d, c, eps, n)</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../d9/d43/sigma__nut_8cu.html#a2c790968b8045a4db5f04a04ceecada0">cuda_sigma_nut_compute</a>(g11_d, g12_d, g13_d, &amp;</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>                              g21_d, g22_d, g23_d, &amp;</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>                              g31_d, g32_d, g33_d, &amp;</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>                              delta_d, nut_d, mult_d, c, eps, n)</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;opencl backend is not supported for device_sigma_nut&#39;</span>)</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;no device backend configured&#39;</span>)</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span><span class="preprocessor">#endif</span></div>
 </div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span><span class="preprocessor"></span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/d87/namespacedevice__sigma__nut.html#a3093446b8bc4cd55ce6c59ade2fbf8a7">device_sigma_nut_compute</a></div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span> </div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>  </div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span><span class="keyword">end module </span>device_sigma_nut</div>
-<div class="ttc" id="ainterfacedevice__sigma__nut_1_1hip__sigma__nut__compute_html"><div class="ttname"><a href="../../d7/dc9/interfacedevice__sigma__nut_1_1hip__sigma__nut__compute.html">device_sigma_nut::hip_sigma_nut_compute</a></div><div class="ttdef"><b>Definition</b> <a href="../../d8/d6f/device__sigma__nut_8F90_source.html#l00046">device_sigma_nut.F90:46</a></div></div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span><span class="preprocessor"></span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/d87/namespacedevice__sigma__nut.html#a3093446b8bc4cd55ce6c59ade2fbf8a7">device_sigma_nut_compute</a></div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span> </div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>  </div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span><span class="keyword">end module </span>device_sigma_nut</div>
+<div class="ttc" id="ainterfacedevice__sigma__nut_1_1hip__sigma__nut__compute_html"><div class="ttname"><a href="../../d7/dc9/interfacedevice__sigma__nut_1_1hip__sigma__nut__compute.html">device_sigma_nut::hip_sigma_nut_compute</a></div><div class="ttdef"><b>Definition</b> <a href="../../d8/d6f/device__sigma__nut_8F90_source.html#l00045">device_sigma_nut.F90:45</a></div></div>
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00042">utils.f90:42</a></div></div>
 <div class="ttc" id="anamespacecomm_html"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html">comm</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00001">comm.F90:1</a></div></div>
-<div class="ttc" id="anamespacecomm_html_a74658af6604200fabba70f45980ca1c6"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a74658af6604200fabba70f45980ca1c6">comm::neko_comm</a></div><div class="ttdeci">type(mpi_comm) neko_comm</div><div class="ttdoc">MPI communicator.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00016">comm.F90:16</a></div></div>
-<div class="ttc" id="anamespacecomm_html_a9d0c8371e47f3da961128e6c4ed5c4f8"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a9d0c8371e47f3da961128e6c4ed5c4f8">comm::mpi_real_precision</a></div><div class="ttdeci">type(mpi_datatype) mpi_real_precision</div><div class="ttdoc">MPI type for working precision of REAL types.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00023">comm.F90:23</a></div></div>
-<div class="ttc" id="anamespacecomm_html_a9f1fdc8cde3d5bdd6af8db18fc60fa44"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a9f1fdc8cde3d5bdd6af8db18fc60fa44">comm::pe_size</a></div><div class="ttdeci">integer pe_size</div><div class="ttdoc">MPI size of communicator.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00031">comm.F90:31</a></div></div>
+<div class="ttc" id="anamespacecomm_html_a3119ac9b00aa5192f43296a1edb405bc"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a3119ac9b00aa5192f43296a1edb405bc">comm::mpi_real_precision</a></div><div class="ttdeci">type(mpi_datatype), public mpi_real_precision</div><div class="ttdoc">MPI type for working precision of REAL types.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00051">comm.F90:51</a></div></div>
+<div class="ttc" id="anamespacecomm_html_a50dc807442d4f821f0befa31b86f735d"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a50dc807442d4f821f0befa31b86f735d">comm::pe_size</a></div><div class="ttdeci">integer, public pe_size</div><div class="ttdoc">MPI size of communicator.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00059">comm.F90:59</a></div></div>
+<div class="ttc" id="anamespacecomm_html_a7c785ed9ced1166fa0d1591e62ad5d3d"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a7c785ed9ced1166fa0d1591e62ad5d3d">comm::neko_comm</a></div><div class="ttdeci">type(mpi_comm), public neko_comm</div><div class="ttdoc">MPI communicator.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00043">comm.F90:43</a></div></div>
 <div class="ttc" id="anamespacedevice__sigma__nut_html"><div class="ttname"><a href="../../d8/d87/namespacedevice__sigma__nut.html">device_sigma_nut</a></div><div class="ttdef"><b>Definition</b> <a href="../../d8/d6f/device__sigma__nut_8F90_source.html#l00033">device_sigma_nut.F90:33</a></div></div>
-<div class="ttc" id="anamespacedevice__sigma__nut_html_a3093446b8bc4cd55ce6c59ade2fbf8a7"><div class="ttname"><a href="../../d8/d87/namespacedevice__sigma__nut.html#a3093446b8bc4cd55ce6c59ade2fbf8a7">device_sigma_nut::device_sigma_nut_compute</a></div><div class="ttdeci">subroutine, public device_sigma_nut_compute(g11_d, g12_d, g13_d, g21_d, g22_d, g23_d, g31_d, g32_d, g33_d, delta_d, nut_d, mult_d, c, eps, n)</div><div class="ttdoc">Compute the eddy viscosity field for the Sigma model indevice.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d6f/device__sigma__nut_8F90_source.html#l00086">device_sigma_nut.F90:90</a></div></div>
+<div class="ttc" id="anamespacedevice__sigma__nut_html_a3093446b8bc4cd55ce6c59ade2fbf8a7"><div class="ttname"><a href="../../d8/d87/namespacedevice__sigma__nut.html#a3093446b8bc4cd55ce6c59ade2fbf8a7">device_sigma_nut::device_sigma_nut_compute</a></div><div class="ttdeci">subroutine, public device_sigma_nut_compute(g11_d, g12_d, g13_d, g21_d, g22_d, g23_d, g31_d, g32_d, g33_d, delta_d, nut_d, mult_d, c, eps, n)</div><div class="ttdoc">Compute the eddy viscosity field for the Sigma model indevice.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d6f/device__sigma__nut_8F90_source.html#l00085">device_sigma_nut.F90:89</a></div></div>
 <div class="ttc" id="anamespacenum__types_html"><div class="ttname"><a href="../../df/d48/namespacenum__types.html">num_types</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00001">num_types.f90:1</a></div></div>
 <div class="ttc" id="anamespacenum__types_html_ad604d43a6e18e80802dcc80ed820d8b1"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">num_types::c_rp</a></div><div class="ttdeci">integer, parameter, public c_rp</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00013">num_types.f90:13</a></div></div>
 <div class="ttc" id="anamespacenum__types_html_ae2be59b6de7b874ce5c12fd87f9e8b5e"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">num_types::rp</a></div><div class="ttdeci">integer, parameter, public rp</div><div class="ttdoc">Global precision used in computations.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00012">num_types.f90:12</a></div></div>
@@ -242,7 +241,7 @@ $(document).ready(function(){initNavTree('d8/d6f/device__sigma__nut_8F90_source.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_6ac2283507a4fed10461ea6c78ce067a.html">les</a></li><li class="navelem"><a class="el" href="../../dir_599240cb2473dd34d041fb3ead8fcd0b.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_a54a76f3f931e6cceee52e3a5311a9de.html">device</a></li><li class="navelem"><a class="el" href="../../d8/d6f/device__sigma__nut_8F90.html">device_sigma_nut.F90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

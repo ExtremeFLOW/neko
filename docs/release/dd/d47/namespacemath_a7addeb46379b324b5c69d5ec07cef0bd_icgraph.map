@@ -1,11 +1,15 @@
 <map id="math::addcol4" name="math::addcol4">
-<area shape="rect" id="Node000001" title="Returns ." alt="" coords="256,109,371,134"/>
+<area shape="rect" id="Node000001" title="Returns ." alt="" coords="256,170,371,195"/>
 <area shape="rect" id="Node000002" href="$d5/de3/namespaceax__helm__cpu.html#a2837063ed646a211207822382c71aada" title="Compute the product." alt="" coords="21,5,193,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="281,103,246,81,207,60,177,48,179,43,209,55,249,76,284,98"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="296,160,259,109,234,82,207,60,185,48,187,43,209,55,238,79,263,106,300,157"/>
 <area shape="rect" id="Node000003" href="$df/d07/namespaceax__helm__full__cpu.html#a055ffb72422b055e6bb9b2705f59f3e5" title="Compute &#160;inside a Krylov method, taking 3 components of a vector field in a coupled manner." alt="" coords="5,69,208,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="242,113,208,108,209,102,243,108"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="280,165,207,124,177,112,179,107,209,119,283,160"/>
 <area shape="rect" id="Node000004" href="$d5/dd0/namespaceax__helm__sx.html#a6a7775e32e88b2adb9c0674942dd080a" title=" " alt="" coords="25,133,189,173"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="243,135,189,143,189,138,242,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="242,175,189,168,189,162,243,170"/>
 <area shape="rect" id="Node000005" href="$d5/de6/namespacefield__math.html#ad612dd1dce947f21a6bd1643cf6b51c6" title="Returns ." alt="" coords="14,198,199,223"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="285,144,250,167,209,188,171,201,169,195,207,183,247,162,283,140"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="243,195,200,201,199,195,242,190"/>
+<area shape="rect" id="Node000006" href="$dc/d12/namespacematrix__math.html#a324647e17305a68956bec972d7115fb9" title="Returns ." alt="" coords="28,248,185,288"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="278,204,209,237,173,250,172,245,207,232,276,199"/>
+<area shape="rect" id="Node000007" href="$d3/d0d/namespacevector__math.html#ad9fdf831a3f155f08e437a3d871ca068" title="Returns ." alt="" coords="30,312,183,352"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="299,209,262,256,237,281,209,302,185,315,183,310,207,298,233,277,258,252,294,205"/>
 </map>

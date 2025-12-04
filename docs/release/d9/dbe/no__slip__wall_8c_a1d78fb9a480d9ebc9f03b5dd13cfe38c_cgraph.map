@@ -1,9 +1,0 @@
-<map id="opencl_no_slip_wall_apply_vector" name="opencl_no_slip_wall_apply_vector">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,157,69"/>
-<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="385,29,549,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="157,47,371,47,371,52,157,52"/>
-<area shape="rect" id="Node000003" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="205,62,337,87"/>
-<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="158,57,192,61,191,67,157,62"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="431,30,428,20,434,11,447,5,467,3,490,6,503,13,500,17,489,11,467,8,449,10,438,15,434,21,436,28"/>
-<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="337,64,371,59,372,64,338,69"/>
-</map>

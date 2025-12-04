@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -107,7 +107,7 @@ $(document).ready(function(){initNavTree('da/d70/structfield__dirichlet__vector_
 </div><!--header-->
 <div class="contents">
 
-<p>Extension of the user defined dirichlet condition <code><a class="el" href="../../db/d5b/namespacefield__dirichlet.html" title="Defines inflow dirichlet conditions.">field_dirichlet</a></code>  
+<p>Extension of the user defined dirichlet condition <code><a class="el" href="../../db/d5b/namespacefield__dirichlet.html" title="Defines user dirichlet condition for a scalar field.">field_dirichlet</a></code>  
  <a href="../../da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html#details">More...</a></p>
 <div class="dynheader">
 Inheritance diagram for field_dirichlet_vector::field_dirichlet_vector_t:</div>
@@ -124,137 +124,139 @@ Collaboration diagram for field_dirichlet_vector::field_dirichlet_vector_t:</div
 <div class="dyncontent">
 <div class="center"><img src="../../d4/d2a/structfield__dirichlet__vector_1_1field__dirichlet__vector__t__coll__graph.png" border="0" usemap="#afield__dirichlet__vector_1_1field__dirichlet__vector__t_coll__map" alt="Collaboration graph"/></div>
 <map name="afield__dirichlet__vector_1_1field__dirichlet__vector__t_coll__map" id="afield__dirichlet__vector_1_1field__dirichlet__vector__t_coll__map">
-<area shape="rect" title="Extension of the user defined dirichlet condition field_dirichlet" alt="" coords="2991,767,3169,807"/>
-<area shape="rect" href="../../d6/db3/structbc_1_1bc__t.html" title="Base type for a boundary condition." alt="" coords="2529,623,2601,649"/>
-<area shape="poly" title=" " alt="" coords="2615,637,2686,644,2775,658,2872,679,2968,711,3016,736,3056,764,3052,769,3013,741,2966,716,2871,685,2774,663,2685,649,2615,642"/>
-<area shape="rect" href="../../d9/da8/structfield__dirichlet_1_1field__dirichlet__t.html" title="User defined dirichlet condition, for which the user can work with an entire field...." alt="" coords="2749,728,2896,768"/>
-<area shape="poly" title=" " alt="" coords="2610,652,2777,726,2775,730,2608,657"/>
-<area shape="rect" href="../../d0/df0/structdofmap_1_1dofmap__t.html" title=" " alt="" coords="1785,561,1928,586"/>
-<area shape="poly" title=" " alt="" coords="1942,578,2529,630,2529,636,1942,583"/>
-<area shape="rect" href="../../d0/dea/structcoefs_1_1coef__t.html" title="Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,..." alt="" coords="2273,518,2378,543"/>
-<area shape="poly" title=" " alt="" coords="1942,563,2272,533,2273,538,1942,568"/>
-<area shape="rect" href="../../dd/db8/structgather__scatter_1_1gs__t.html" title=" " alt="" coords="2031,435,2181,461"/>
-<area shape="poly" title=" " alt="" coords="1894,552,2078,458,2081,463,1896,557"/>
-<area shape="rect" href="../../d3/d5f/structfield_1_1field__t.html" title=" " alt="" coords="2057,685,2155,710"/>
-<area shape="poly" title=" " alt="" coords="1889,592,1953,630,2015,659,2072,682,2070,687,2013,664,1951,634,1887,596"/>
-<area shape="rect" href="../../d7/d28/structmesh_1_1mesh__t.html" title=" " alt="" coords="1527,790,1642,815"/>
-<area shape="poly" title=" " alt="" coords="1655,799,1761,796,1826,796,1882,800,1976,810,2021,811,2068,808,2120,797,2180,776,2205,761,2221,743,2237,724,2263,706,2334,676,2407,656,2475,643,2529,636,2529,642,2476,649,2409,661,2336,682,2265,710,2241,728,2225,747,2209,765,2182,781,2122,802,2069,813,2021,817,1976,815,1881,805,1826,802,1761,801,1656,804"/>
-<area shape="poly" title=" " alt="" coords="1590,776,1600,744,1615,706,1637,668,1666,635,1690,620,1711,614,1733,611,1761,604,1819,584,1821,589,1762,609,1734,616,1712,619,1692,625,1670,639,1641,671,1620,709,1605,746,1595,777"/>
-<area shape="poly" title=" " alt="" coords="1655,795,1795,784,1960,767,2103,745,2153,733,2180,721,2189,709,2194,697,2194,672,2193,645,2196,630,2203,615,2223,590,2247,570,2295,541,2297,546,2250,574,2227,594,2208,617,2201,632,2198,645,2199,672,2199,698,2194,712,2183,725,2155,738,2104,750,1960,772,1795,789,1656,800"/>
-<area shape="poly" title=" " alt="" coords="1610,779,1636,761,1667,746,1719,729,1773,716,1881,700,1980,694,2056,693,2056,698,1980,699,1882,706,1774,721,1721,734,1669,750,1639,765,1613,783"/>
-<area shape="rect" href="../../db/d6f/structpoint_1_1point__t.html" title="A point in &#160;with coordinates ." alt="" coords="1193,835,1301,861"/>
-<area shape="poly" title=" " alt="" coords="1315,840,1501,817,1527,813,1527,818,1502,823,1316,845"/>
-<area shape="rect" href="../../da/d8b/structentity_1_1entity__t.html" title="Base type for an entity." alt="" coords="805,835,923,861"/>
-<area shape="poly" title=" " alt="" coords="936,845,1193,845,1193,851,936,851"/>
-<area shape="rect" href="../../d1/d4c/structmesh_1_1mesh__element__t.html" title=" " alt="" coords="1160,1189,1335,1214"/>
-<area shape="poly" title=" " alt="" coords="1317,1182,1333,1174,1388,1141,1428,1111,1462,1075,1499,1024,1531,967,1554,907,1578,815,1583,816,1559,908,1535,969,1504,1027,1466,1079,1431,1115,1391,1146,1336,1178,1319,1186"/>
-<area shape="rect" href="../../db/d4d/structhtable_1_1htable__i4__t.html" title="Integer based hash table." alt="" coords="411,791,553,817"/>
-<area shape="poly" title=" " alt="" coords="556,784,566,778,577,764,582,757,591,751,633,739,668,740,704,746,748,751,1041,759,1335,771,1418,771,1455,772,1502,777,1545,787,1544,793,1501,783,1455,777,1418,776,1335,776,1041,764,748,756,703,752,667,745,634,744,593,756,586,761,582,768,570,782,558,788"/>
-<area shape="rect" href="../../d6/db2/structuset_1_1uset__i4__t.html" title="Integer based unordered set." alt="" coords="805,942,923,967"/>
-<area shape="poly" title=" " alt="" coords="567,799,611,802,658,809,705,822,750,842,763,856,774,872,848,940,845,944,770,875,759,859,746,846,703,827,657,814,610,807,567,804"/>
-<area shape="rect" href="../../d0/d2e/structhtable_1_1htable__t.html" title="Base type for a hash table." alt="" coords="208,635,332,661"/>
-<area shape="poly" title=" " alt="" coords="289,670,334,725,364,753,397,778,421,789,419,794,395,782,361,757,330,728,285,673"/>
-<area shape="rect" href="../../d8/d53/structhtable_1_1htable__i4t4__t.html" title="Integer 4&#45;tuple based hash table." alt="" coords="980,661,1136,686"/>
-<area shape="poly" title=" " alt="" coords="346,648,980,668,980,674,346,653"/>
-<area shape="rect" href="../../da/d93/structhtable_1_1htable__i4t2__t.html" title="Integer 2&#45;tuple based hash table." alt="" coords="592,609,748,634"/>
-<area shape="poly" title=" " alt="" coords="346,640,592,624,592,629,346,646"/>
-<area shape="rect" href="../../df/da3/structhtable_1_1htable__i8__t.html" title="Integer*8 based hash table." alt="" coords="1359,77,1501,102"/>
-<area shape="poly" title=" " alt="" coords="271,621,284,531,298,473,318,414,345,359,380,313,401,295,425,281,451,272,481,269,1059,269,1109,265,1149,253,1182,235,1212,213,1273,161,1311,135,1358,111,1387,100,1389,105,1360,116,1314,140,1276,165,1215,217,1185,240,1151,258,1110,270,1059,275,481,275,453,278,427,286,404,299,384,316,349,362,322,416,303,474,289,532,276,622"/>
-<area shape="rect" href="../../d8/d5b/structhtable_1_1h__tuple__t.html" title="Hash table entry, tuple (key, data)" alt="" coords="5,635,136,661"/>
-<area shape="poly" title=" " alt="" coords="150,645,207,645,207,651,150,651"/>
-<area shape="poly" title=" " alt="" coords="1149,661,1228,660,1318,665,1413,681,1459,695,1503,714,1527,730,1549,750,1578,788,1574,792,1545,754,1524,734,1500,718,1457,700,1412,687,1318,670,1228,665,1149,667"/>
-<area shape="poly" title=" " alt="" coords="762,617,1020,619,1177,626,1335,640,1423,645,1460,653,1503,675,1532,702,1555,733,1581,789,1576,791,1550,736,1528,705,1500,680,1459,658,1422,650,1334,645,1177,631,1020,624,762,622"/>
-<area shape="rect" href="../../d2/d45/structstack_1_1stack__i4__t.html" title="Integer based stack." alt="" coords="993,886,1123,911"/>
-<area shape="poly" title=" " alt="" coords="1137,898,1232,895,1334,885,1419,869,1500,840,1559,813,1561,818,1502,845,1420,874,1335,891,1232,901,1137,903"/>
-<area shape="rect" href="../../d2/dbd/structstack_1_1stack__t.html" title="Base type for a stack." alt="" coords="214,931,326,957"/>
-<area shape="poly" title=" " alt="" coords="340,933,396,928,732,908,992,898,992,903,732,913,396,933,340,939"/>
-<area shape="rect" href="../../d1/d93/structstack_1_1stack__i4t2__t.html" title="Integer 2&#45;tuple based stack." alt="" coords="410,1051,554,1077"/>
-<area shape="poly" title=" " alt="" coords="298,964,343,999,397,1034,434,1049,432,1054,395,1038,340,1004,295,968"/>
-<area shape="rect" href="../../df/d1c/structstack_1_1stack__i4t4__t.html" title="Integer 4&#45;tuple based stack." alt="" coords="598,1186,742,1211"/>
-<area shape="poly" title=" " alt="" coords="289,966,334,1025,364,1058,398,1087,447,1122,490,1143,593,1179,608,1183,606,1188,591,1184,488,1148,445,1126,394,1091,361,1062,330,1029,285,970"/>
-<area shape="rect" href="../../d1/ddd/structstack_1_1stack__curve__t.html" title="Curved element stack." alt="" coords="405,841,559,866"/>
-<area shape="poly" title=" " alt="" coords="300,921,370,883,426,863,428,869,372,888,302,926"/>
-<area shape="rect" href="../../d4/ddd/structdistdata_1_1distdata__t.html" title=" " alt="" coords="1173,950,1321,975"/>
-<area shape="poly" title=" " alt="" coords="1335,957,1431,949,1472,941,1500,930,1529,904,1551,872,1577,815,1582,817,1556,875,1533,908,1503,934,1473,946,1432,954,1335,963"/>
-<area shape="poly" title=" " alt="" coords="568,1063,863,1065,2327,1065,2351,1064,2370,1059,2386,1051,2399,1040,2416,1011,2427,973,2439,881,2447,831,2463,781,2473,743,2477,726,2487,707,2515,673,2544,647,2548,651,2519,676,2492,709,2482,728,2478,744,2468,782,2453,832,2444,882,2432,974,2421,1013,2403,1043,2389,1055,2372,1064,2351,1069,2327,1071,863,1071,568,1068"/>
-<area shape="poly" title=" " alt="" coords="567,1050,592,1047,1173,970,1173,975,592,1052,568,1055"/>
-<area shape="rect" href="../../d2/d94/structfacet__zone_1_1facet__zone__t.html" title=" " alt="" coords="772,1246,956,1271"/>
-<area shape="poly" title=" " alt="" coords="551,1080,570,1094,580,1110,582,1125,584,1139,594,1151,613,1163,632,1168,669,1167,707,1165,728,1170,750,1182,759,1193,763,1204,766,1215,774,1225,808,1244,805,1248,770,1229,761,1217,758,1206,755,1195,746,1186,726,1175,707,1171,669,1173,631,1174,611,1168,590,1155,580,1141,577,1126,575,1112,566,1098,548,1085"/>
-<area shape="rect" href="../../d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html" title=" " alt="" coords="1161,1124,1333,1164"/>
-<area shape="poly" title=" " alt="" coords="552,1077,592,1084,749,1104,906,1119,1161,1137,1161,1142,905,1124,749,1109,592,1089,551,1082"/>
-<area shape="poly" title=" " alt="" coords="937,962,980,965,1058,967,1136,965,1173,964,1173,969,1136,971,1058,973,980,971,936,967"/>
-<area shape="rect" href="../../d8/d9e/structuset_1_1uset__t.html" title="Base type for an unordered set." alt="" coords="433,942,531,967"/>
-<area shape="poly" title=" " alt="" coords="545,952,805,952,805,957,545,957"/>
-<area shape="rect" href="../../dc/d23/structhtable_1_1htable__iter__i4__t.html" title="Iterator for an integer based hash table." alt="" coords="396,998,568,1023"/>
-<area shape="poly" title=" " alt="" coords="581,996,748,972,805,963,805,968,748,977,582,1001"/>
-<area shape="rect" href="../../d1/dec/structhtable_1_1htable__iter__t.html" title="Base type for a hash table iterator." alt="" coords="193,1135,347,1161"/>
-<area shape="poly" title=" " alt="" coords="291,1123,336,1080,395,1038,432,1021,435,1026,397,1042,339,1084,294,1127"/>
-<area shape="poly" title=" " alt="" coords="908,1274,989,1302,1097,1327,1156,1334,1216,1335,1276,1328,1334,1312,1391,1286,1432,1257,1465,1219,1499,1165,1523,1117,1542,1066,1566,963,1577,874,1581,815,1586,816,1583,874,1572,964,1547,1068,1528,1120,1504,1168,1469,1222,1436,1261,1394,1291,1336,1317,1277,1333,1217,1340,1156,1339,1096,1332,987,1307,906,1279"/>
-<area shape="poly" title=" " alt="" coords="969,1260,1011,1256,1054,1248,1096,1234,1134,1214,1142,1206,1146,1196,1150,1186,1158,1175,1179,1162,1182,1166,1162,1179,1154,1189,1151,1198,1147,1208,1138,1218,1098,1239,1055,1253,1012,1261,970,1265"/>
-<area shape="rect" href="../../d5/d16/structtuple_1_1tuple__i4__t.html" title="Integer based 2&#45;tuple." alt="" coords="419,1298,545,1323"/>
-<area shape="poly" title=" " alt="" coords="559,1295,592,1289,771,1266,772,1271,592,1295,560,1300"/>
-<area shape="poly" title=" " alt="" coords="559,1314,703,1322,874,1321,958,1316,1032,1305,1093,1288,1116,1277,1134,1265,1142,1255,1146,1245,1146,1223,1146,1200,1150,1188,1158,1176,1174,1162,1178,1166,1162,1179,1155,1190,1152,1201,1152,1223,1151,1246,1147,1257,1138,1269,1119,1282,1095,1293,1033,1310,958,1321,875,1327,703,1327,559,1320"/>
-<area shape="rect" href="../../d1/d3b/structtuple_1_1tuple__t.html" title="Base type for an n&#45;tuple." alt="" coords="216,1338,324,1363"/>
-<area shape="poly" title=" " alt="" coords="337,1335,418,1320,419,1325,338,1341"/>
-<area shape="rect" href="../../dd/de4/structtuple_1_1tuple4__i4__t.html" title="Integer based 4&#45;tuple." alt="" coords="603,1369,737,1394"/>
-<area shape="poly" title=" " alt="" coords="338,1353,603,1374,602,1379,338,1358"/>
-<area shape="poly" title=" " alt="" coords="1264,1111,1302,1056,1327,1029,1357,1006,1378,996,1397,992,1432,992,1465,992,1482,986,1500,975,1518,958,1533,937,1557,892,1571,848,1579,815,1584,816,1576,849,1562,894,1538,940,1522,961,1503,979,1484,991,1466,997,1432,998,1397,997,1379,1001,1360,1010,1331,1033,1306,1060,1268,1114"/>
-<area shape="poly" title=" " alt="" coords="736,1394,827,1408,880,1411,935,1409,990,1402,1043,1386,1092,1362,1134,1328,1146,1310,1151,1292,1147,1255,1142,1216,1146,1196,1158,1176,1173,1162,1176,1166,1162,1179,1151,1198,1147,1217,1152,1254,1156,1292,1151,1312,1138,1331,1095,1367,1045,1391,991,1407,935,1414,880,1416,826,1413,735,1400"/>
-<area shape="poly" title=" " alt="" coords="756,1191,956,1176,1161,1153,1161,1158,956,1181,756,1196"/>
-<area shape="rect" href="../../dd/d69/structcurve_1_1curve__t.html" title=" " alt="" coords="807,774,921,799"/>
-<area shape="poly" title=" " alt="" coords="935,786,1527,799,1527,804,935,791"/>
-<area shape="rect" href="../../d0/d10/structstructs_1_1struct__curve__t.html" title=" " alt="" coords="399,742,565,767"/>
-<area shape="poly" title=" " alt="" coords="579,760,807,779,806,785,579,765"/>
-<area shape="poly" title=" " alt="" coords="539,867,586,875,640,879,695,874,722,867,747,856,755,850,758,841,762,832,770,822,793,808,816,797,819,802,795,812,774,826,767,835,763,844,759,853,749,861,723,872,696,879,640,884,586,880,538,872"/>
-<area shape="rect" href="../../da/d99/structspace_1_1space__t.html" title="The function space for the SEM solution fields." alt="" coords="1525,479,1644,505"/>
-<area shape="poly" title=" " alt="" coords="1612,469,1638,454,1667,441,1808,404,1867,394,1922,390,1978,390,2038,396,2182,420,2268,440,2333,465,2394,499,2467,550,2515,588,2552,621,2549,625,2511,592,2464,554,2391,504,2331,469,2267,445,2181,425,2037,401,1978,396,1923,395,1868,399,1809,409,1669,447,1640,458,1615,474"/>
-<area shape="poly" title=" " alt="" coords="1625,508,1669,525,1731,544,1791,558,1790,563,1730,549,1667,531,1623,513"/>
-<area shape="poly" title=" " alt="" coords="1628,472,1668,461,1726,457,1785,459,1857,456,1928,459,2024,470,2119,485,2273,516,2272,521,2118,490,2024,475,1928,464,1857,462,1785,464,1726,462,1668,467,1630,477"/>
-<area shape="poly" title=" " alt="" coords="1658,483,1749,477,1851,475,1944,482,1981,491,2008,503,2021,516,2025,530,2028,545,2033,562,2099,683,2095,686,2028,564,2022,546,2020,531,2016,519,2005,508,1979,496,1943,488,1851,481,1749,482,1658,488"/>
-<area shape="rect" title=" " alt="" coords="1220,499,1275,525"/>
-<area shape="poly" title=" " alt="" coords="1255,485,1292,393,1321,335,1358,275,1403,220,1455,173,1484,155,1515,141,1548,132,1583,129,2327,129,2367,134,2402,147,2433,169,2460,196,2483,229,2502,265,2532,347,2550,433,2561,513,2567,623,2561,623,2556,513,2545,433,2527,349,2498,268,2479,231,2456,199,2430,173,2400,152,2366,139,2327,135,1583,135,1549,138,1517,146,1487,160,1458,177,1407,223,1363,278,1326,338,1296,396,1260,487"/>
-<area shape="poly" title=" " alt="" coords="1289,518,1395,538,1526,557,1664,567,1785,570,1785,576,1663,573,1525,563,1394,544,1288,523"/>
-<area shape="poly" title=" " alt="" coords="1289,512,1386,514,1501,508,1535,502,1536,507,1502,513,1386,519,1289,517"/>
-<area shape="poly" title=" " alt="" coords="1255,485,1269,452,1291,413,1320,376,1357,347,1395,334,1428,335,1461,342,1501,347,1652,341,1847,332,1946,331,2039,334,2120,345,2154,353,2182,364,2208,379,2232,398,2271,441,2301,483,2320,516,2315,519,2297,486,2267,444,2228,402,2205,383,2180,369,2152,358,2119,350,2038,340,1946,336,1847,337,1652,346,1501,352,1460,347,1427,341,1396,339,1360,352,1324,380,1295,416,1274,454,1260,487"/>
-<area shape="poly" title=" " alt="" coords="1287,528,1360,560,1512,615,1580,633,1668,652,1741,664,1798,669,1928,677,2057,690,2056,695,1928,683,1797,674,1740,669,1668,657,1579,638,1510,620,1358,565,1285,533"/>
-<area shape="poly" title=" " alt="" coords="2369,547,2536,621,2534,626,2367,551"/>
-<area shape="poly" title=" " alt="" coords="2181,462,2241,482,2306,516,2303,520,2239,486,2179,467"/>
-<area shape="poly" title=" " alt="" coords="1477,70,1585,39,1654,25,1728,17,1804,18,1878,29,1914,40,1947,55,1979,74,2009,98,2023,124,2029,162,2025,255,2020,349,2023,387,2033,415,2043,425,2056,433,2053,438,2040,429,2028,417,2017,389,2014,349,2020,254,2024,162,2018,126,2005,102,1976,79,1945,60,1912,45,1877,35,1803,23,1728,23,1654,31,1586,44,1478,75"/>
-<area shape="poly" title=" " alt="" coords="2910,758,2991,771,2990,776,2909,764"/>
-<area shape="poly" title=" " alt="" coords="2145,714,2200,737,2265,756,2330,766,2397,772,2531,773,2652,766,2749,756,2750,761,2653,772,2531,779,2397,777,2329,771,2263,761,2199,742,2143,719"/>
-<area shape="rect" href="../../dc/dd8/structfield_1_1field__ptr__t.html" title="field_ptr_t, To easily obtain a pointer to a field" alt="" coords="2264,721,2387,746"/>
-<area shape="poly" title=" " alt="" coords="2169,705,2264,721,2263,726,2168,710"/>
-<area shape="rect" href="../../d3/d90/structfield__list_1_1field__list__t.html" title="field_list_t, To be able to group fields together" alt="" coords="2489,721,2641,746"/>
-<area shape="poly" title=" " alt="" coords="2608,749,2674,773,2750,792,2812,799,2875,801,2990,795,2990,800,2875,806,2812,804,2749,797,2672,778,2607,754"/>
-<area shape="poly" title=" " alt="" coords="2655,736,2749,741,2749,747,2655,741"/>
-<area shape="poly" title=" " alt="" coords="2401,731,2489,731,2489,736,2401,736"/>
-<area shape="rect" href="../../d8/dd8/structbc_1_1bc__list__t.html" title="A list of boundary conditions." alt="" coords="2773,865,2872,890"/>
-<area shape="poly" title=" " alt="" coords="2885,867,2926,859,2966,847,3009,827,3048,804,3050,809,3012,832,2968,852,2927,864,2886,872"/>
-<area shape="rect" href="../../dc/d46/structbc_1_1bcp__t.html" title="Pointer to boundary condtiion." alt="" coords="2525,865,2605,890"/>
-<area shape="poly" title=" " alt="" coords="2619,875,2773,875,2773,880,2619,880"/>
+<area shape="rect" title="Extension of the user defined dirichlet condition field_dirichlet" alt="" coords="2979,759,3157,799"/>
+<area shape="rect" href="../../d6/db3/structbc_1_1bc__t.html" title="Base type for a boundary condition." alt="" coords="2529,863,2601,889"/>
+<area shape="poly" title=" " alt="" coords="2614,864,2978,793,2979,798,2615,869"/>
+<area shape="rect" href="../../d9/da8/structfield__dirichlet_1_1field__dirichlet__t.html" title="User defined dirichlet condition, for which the user can work with an entire field...." alt="" coords="2749,759,2896,799"/>
+<area shape="poly" title=" " alt="" coords="2612,856,2768,796,2769,801,2614,861"/>
+<area shape="rect" href="../../d0/df0/structdofmap_1_1dofmap__t.html" title=" " alt="" coords="1785,939,1928,965"/>
+<area shape="poly" title=" " alt="" coords="1941,946,2178,930,2321,915,2465,896,2529,883,2530,888,2466,901,2322,921,2178,935,1942,951"/>
+<area shape="rect" href="../../d0/dea/structcoefs_1_1coef__t.html" title="Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,..." alt="" coords="2273,1065,2378,1090"/>
+<area shape="poly" title=" " alt="" coords="1939,965,2055,990,2182,1023,2294,1062,2292,1067,2181,1028,2053,995,1938,970"/>
+<area shape="rect" href="../../dd/db8/structgather__scatter_1_1gs__t.html" title=" " alt="" coords="2031,1094,2181,1119"/>
+<area shape="poly" title=" " alt="" coords="1898,969,1929,987,1959,1010,1981,1031,2002,1051,2032,1072,2071,1092,2069,1096,2029,1077,1999,1055,1977,1035,1956,1014,1927,992,1896,973"/>
+<area shape="rect" href="../../d3/d5f/structfield_1_1field__t.html" title=" " alt="" coords="2057,774,2155,799"/>
+<area shape="poly" title=" " alt="" coords="1875,927,1908,890,1951,854,2005,826,2072,797,2074,802,2007,831,1953,858,1912,894,1879,930"/>
+<area shape="rect" href="../../d7/d28/structmesh_1_1mesh__t.html" title=" " alt="" coords="1527,645,1642,670"/>
+<area shape="poly" title=" " alt="" coords="1656,659,1761,665,1827,666,1886,663,1987,654,2035,655,2082,665,2131,687,2183,723,2194,739,2196,756,2198,772,2207,786,2220,795,2233,798,2264,801,2530,865,2529,871,2264,807,2232,803,2218,800,2203,790,2193,773,2191,757,2189,741,2179,727,2128,691,2080,670,2034,660,1988,659,1886,668,1827,672,1761,671,1655,664"/>
+<area shape="poly" title=" " alt="" coords="1594,683,1603,720,1618,764,1640,810,1670,852,1703,881,1741,905,1814,937,1812,942,1739,909,1700,885,1666,855,1636,813,1613,766,1598,721,1588,684"/>
+<area shape="poly" title=" " alt="" coords="1656,665,1969,713,2114,739,2161,750,2183,759,2199,781,2206,802,2207,822,2204,843,2199,886,2200,909,2208,934,2230,974,2259,1010,2311,1063,2307,1066,2255,1014,2226,977,2203,936,2195,910,2193,885,2199,842,2202,822,2201,803,2194,783,2180,763,2159,755,2112,744,1968,718,1655,670"/>
+<area shape="poly" title=" " alt="" coords="1611,678,1638,699,1669,716,1828,744,2057,777,2056,782,1827,749,1667,721,1635,703,1608,682"/>
+<area shape="rect" href="../../db/d6f/structpoint_1_1point__t.html" title="A point in &#160;with coordinates ." alt="" coords="1193,826,1301,851"/>
+<area shape="poly" title=" " alt="" coords="1314,827,1428,808,1475,798,1500,790,1529,762,1551,729,1577,669,1582,671,1556,731,1533,766,1503,794,1476,803,1429,813,1315,832"/>
+<area shape="rect" href="../../da/d8b/structentity_1_1entity__t.html" title="Base type for an entity." alt="" coords="805,826,923,851"/>
+<area shape="poly" title=" " alt="" coords="936,836,1193,836,1193,841,936,841"/>
+<area shape="rect" href="../../d1/d4c/structmesh_1_1mesh__element__t.html" title=" " alt="" coords="1160,486,1335,511"/>
+<area shape="poly" title=" " alt="" coords="1349,501,1438,511,1476,519,1503,530,1532,556,1555,587,1581,643,1577,646,1551,590,1528,559,1500,534,1474,524,1437,516,1349,506"/>
+<area shape="rect" href="../../db/d4d/structhtable_1_1htable__i4__t.html" title="Integer based hash table." alt="" coords="411,714,553,739"/>
+<area shape="poly" title=" " alt="" coords="567,722,821,713,1136,696,1319,681,1501,663,1527,660,1528,665,1502,668,1319,686,1136,701,822,718,567,727"/>
+<area shape="rect" href="../../d6/db2/structuset_1_1uset__i4__t.html" title="Integer based unordered set." alt="" coords="805,527,923,553"/>
+<area shape="poly" title=" " alt="" coords="555,706,566,699,574,691,577,682,581,672,590,663,612,652,632,646,668,645,705,646,725,643,747,635,779,616,808,593,850,551,854,555,811,597,782,621,749,640,726,648,705,652,668,651,633,652,614,657,594,667,586,675,582,684,578,694,570,703,558,711"/>
+<area shape="rect" href="../../d0/d2e/structhtable_1_1htable__t.html" title="Base type for a hash table." alt="" coords="208,747,332,773"/>
+<area shape="poly" title=" " alt="" coords="346,745,410,735,411,740,346,751"/>
+<area shape="rect" href="../../d8/d53/structhtable_1_1htable__i4t4__t.html" title="Integer 4&#45;tuple based hash table." alt="" coords="980,765,1136,790"/>
+<area shape="poly" title=" " alt="" coords="346,759,980,773,980,778,346,764"/>
+<area shape="rect" href="../../da/d93/structhtable_1_1htable__i4t2__t.html" title="Integer 2&#45;tuple based hash table." alt="" coords="592,589,748,614"/>
+<area shape="poly" title=" " alt="" coords="289,735,334,691,363,668,395,650,444,630,495,617,591,602,592,607,496,622,446,635,397,654,366,673,337,695,293,739"/>
+<area shape="rect" href="../../df/da3/structhtable_1_1htable__i8__t.html" title="Integer*8 based hash table." alt="" coords="1359,1165,1501,1190"/>
+<area shape="poly" title=" " alt="" coords="278,786,295,866,311,916,331,966,358,1013,392,1051,411,1066,432,1077,455,1084,481,1087,1060,1087,1111,1095,1198,1115,1382,1162,1380,1167,1197,1120,1110,1100,1059,1092,481,1092,454,1089,430,1082,408,1070,388,1055,354,1016,327,968,306,918,290,868,273,787"/>
+<area shape="rect" href="../../d8/d5b/structhtable_1_1h__tuple__t.html" title="Hash table entry, tuple (key, data)" alt="" coords="5,747,136,773"/>
+<area shape="poly" title=" " alt="" coords="150,757,207,757,207,763,150,763"/>
+<area shape="poly" title=" " alt="" coords="1150,775,1243,772,1344,766,1436,755,1473,747,1500,738,1523,723,1544,704,1573,668,1577,672,1548,708,1527,727,1503,742,1474,752,1437,760,1345,772,1243,778,1150,780"/>
+<area shape="poly" title=" " alt="" coords="762,599,1089,607,1295,619,1502,639,1527,643,1527,648,1501,644,1294,624,1088,612,762,604"/>
+<area shape="rect" href="../../d2/d45/structstack_1_1stack__i4__t.html" title="Integer based stack." alt="" coords="993,530,1123,555"/>
+<area shape="poly" title=" " alt="" coords="1137,536,1215,537,1308,545,1407,561,1456,574,1502,591,1543,615,1573,642,1570,646,1540,620,1500,596,1454,579,1406,566,1308,550,1215,543,1137,542"/>
+<area shape="rect" href="../../d2/dbd/structstack_1_1stack__t.html" title="Base type for a stack." alt="" coords="214,389,326,414"/>
+<area shape="poly" title=" " alt="" coords="340,407,525,431,748,467,853,487,957,512,1014,527,1013,533,955,517,852,492,748,472,524,437,340,412"/>
+<area shape="rect" href="../../d1/d93/structstack_1_1stack__i4t2__t.html" title="Integer 2&#45;tuple based stack." alt="" coords="410,346,554,371"/>
+<area shape="poly" title=" " alt="" coords="339,385,418,369,419,374,340,390"/>
+<area shape="rect" href="../../df/d1c/structstack_1_1stack__i4t4__t.html" title="Integer 4&#45;tuple based stack." alt="" coords="598,161,742,186"/>
+<area shape="poly" title=" " alt="" coords="296,377,347,337,418,286,502,233,591,188,603,184,605,189,593,193,504,238,421,290,350,341,299,381"/>
+<area shape="rect" href="../../d1/ddd/structstack_1_1stack__curve__t.html" title="Curved element stack." alt="" coords="405,514,559,539"/>
+<area shape="poly" title=" " alt="" coords="295,422,340,461,397,499,428,511,426,516,395,504,337,465,292,426"/>
+<area shape="rect" href="../../d4/ddd/structdistdata_1_1distdata__t.html" title=" " alt="" coords="1173,437,1321,462"/>
+<area shape="poly" title=" " alt="" coords="1335,439,1377,441,1421,448,1464,461,1503,483,1522,501,1538,521,1562,567,1577,611,1584,644,1579,645,1572,612,1557,569,1534,524,1518,504,1500,488,1462,466,1419,453,1376,447,1335,445"/>
+<area shape="poly" title=" " alt="" coords="568,353,941,341,1429,333,2327,333,2358,336,2384,343,2404,355,2419,370,2431,389,2438,412,2446,464,2448,588,2453,655,2468,721,2477,763,2481,781,2492,803,2519,836,2548,861,2544,865,2515,840,2487,805,2476,783,2472,765,2463,722,2448,655,2443,588,2441,464,2433,413,2426,392,2415,373,2401,359,2382,348,2357,341,2327,339,1429,339,941,346,568,358"/>
+<area shape="poly" title=" " alt="" coords="567,371,592,375,745,392,864,400,984,409,1136,427,1181,434,1181,439,1136,432,983,414,864,406,744,397,592,380,566,376"/>
+<area shape="rect" href="../../d2/d94/structfacet__zone_1_1facet__zone__t.html" title=" " alt="" coords="772,233,956,258"/>
+<area shape="poly" title=" " alt="" coords="506,335,544,306,591,280,624,271,669,263,772,251,772,256,670,268,625,276,593,285,547,310,509,339"/>
+<area shape="rect" href="../../d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html" title=" " alt="" coords="1161,188,1333,228"/>
+<area shape="poly" title=" " alt="" coords="567,341,592,337,774,312,854,300,955,281,1046,261,1135,236,1174,225,1176,231,1137,241,1047,266,957,287,855,305,775,317,592,343,568,347"/>
+<area shape="poly" title=" " alt="" coords="931,522,1192,460,1193,465,933,527"/>
+<area shape="rect" href="../../d8/d9e/structuset_1_1uset__t.html" title="Base type for an unordered set." alt="" coords="433,465,531,490"/>
+<area shape="poly" title=" " alt="" coords="545,474,642,478,696,484,749,493,796,508,837,525,835,530,794,513,747,499,695,489,641,483,545,479"/>
+<area shape="rect" href="../../dc/d23/structhtable_1_1htable__iter__i4__t.html" title="Iterator for an integer based hash table." alt="" coords="396,563,568,589"/>
+<area shape="poly" title=" " alt="" coords="582,567,748,553,805,546,805,551,748,559,582,573"/>
+<area shape="rect" href="../../d1/dec/structhtable_1_1htable__iter__t.html" title="Base type for a hash table iterator." alt="" coords="193,563,347,589"/>
+<area shape="poly" title=" " alt="" coords="361,573,396,573,396,579,361,579"/>
+<area shape="poly" title=" " alt="" coords="944,258,957,261,1232,336,1412,388,1474,409,1503,422,1526,448,1544,478,1568,542,1581,602,1585,644,1580,645,1576,603,1563,544,1539,481,1522,451,1500,426,1472,414,1410,393,1231,341,955,267,943,264"/>
+<area shape="poly" title=" " alt="" coords="969,232,1161,214,1161,219,970,238"/>
+<area shape="rect" href="../../d5/d16/structtuple_1_1tuple__i4__t.html" title="Integer based 2&#45;tuple." alt="" coords="419,94,545,119"/>
+<area shape="poly" title=" " alt="" coords="503,128,541,170,566,190,593,207,625,217,669,225,772,237,772,242,669,230,623,222,591,212,563,195,537,174,499,132"/>
+<area shape="poly" title=" " alt="" coords="560,108,741,120,956,143,1047,157,1137,176,1175,185,1173,191,1135,181,1046,162,956,148,740,126,559,113"/>
+<area shape="rect" href="../../d1/d3b/structtuple_1_1tuple__t.html" title="Base type for an n&#45;tuple." alt="" coords="216,61,324,86"/>
+<area shape="poly" title=" " alt="" coords="338,81,419,94,418,99,337,86"/>
+<area shape="rect" href="../../dd/de4/structtuple_1_1tuple4__i4__t.html" title="Integer based 4&#45;tuple." alt="" coords="603,35,737,61"/>
+<area shape="poly" title=" " alt="" coords="338,66,602,50,603,55,338,72"/>
+<area shape="poly" title=" " alt="" coords="1315,231,1362,254,1412,285,1462,323,1503,368,1526,404,1544,443,1569,524,1581,595,1585,644,1580,645,1576,596,1564,525,1539,445,1522,406,1499,371,1458,326,1409,289,1359,259,1312,236"/>
+<area shape="poly" title=" " alt="" coords="751,35,835,31,934,34,986,41,1038,51,1089,66,1137,86,1170,107,1197,134,1236,186,1232,189,1193,137,1166,111,1135,90,1087,71,1037,56,985,46,933,40,835,36,752,41"/>
+<area shape="poly" title=" " alt="" coords="756,176,1161,200,1161,206,756,181"/>
+<area shape="rect" href="../../dd/d69/structcurve_1_1curve__t.html" title=" " alt="" coords="807,651,921,677"/>
+<area shape="poly" title=" " alt="" coords="935,661,1527,655,1527,661,935,666"/>
+<area shape="rect" href="../../d0/d10/structstructs_1_1struct__curve__t.html" title=" " alt="" coords="399,665,565,690"/>
+<area shape="poly" title=" " alt="" coords="579,677,592,677,670,679,748,677,806,671,807,676,748,683,670,685,592,683,579,682"/>
+<area shape="poly" title=" " alt="" coords="573,513,615,512,660,515,706,524,749,539,794,584,853,649,849,653,790,588,747,544,705,529,660,520,615,517,573,518"/>
+<area shape="rect" href="../../da/d99/structspace_1_1space__t.html" title="The function space for the SEM solution fields." alt="" coords="1525,1063,1644,1089"/>
+<area shape="poly" title=" " alt="" coords="1658,1078,1761,1082,1893,1080,2037,1068,2110,1058,2181,1043,2290,1008,2394,963,2481,920,2541,886,2544,891,2484,924,2396,968,2292,1013,2182,1048,2111,1063,2038,1074,1893,1085,1761,1087,1658,1084"/>
+<area shape="poly" title=" " alt="" coords="1609,1052,1636,1032,1667,1014,1713,996,1761,983,1819,962,1821,967,1762,988,1715,1001,1669,1018,1639,1037,1613,1057"/>
+<area shape="poly" title=" " alt="" coords="1645,1089,1746,1112,1880,1133,1954,1140,2030,1142,2106,1139,2181,1129,2245,1111,2298,1088,2300,1093,2247,1116,2182,1135,2107,1144,2030,1147,1954,1145,1880,1138,1745,1117,1644,1095"/>
+<area shape="poly" title=" " alt="" coords="1654,1058,1822,1018,1927,990,1958,969,1986,945,2036,890,2073,837,2096,798,2100,801,2077,840,2040,893,1990,949,1961,974,1929,994,1823,1023,1655,1063"/>
+<area shape="rect" title=" " alt="" coords="1220,939,1275,965"/>
+<area shape="poly" title=" " alt="" coords="1287,940,1394,919,1525,900,1660,890,1766,888,1871,889,2007,888,2529,874,2529,880,2007,893,1871,894,1766,893,1660,895,1526,905,1395,924,1289,946"/>
+<area shape="poly" title=" " alt="" coords="1288,949,1785,949,1785,955,1288,955"/>
+<area shape="poly" title=" " alt="" coords="1271,974,1304,1017,1337,1070,1344,1088,1345,1104,1349,1118,1360,1130,1395,1147,1427,1150,1460,1142,1500,1130,1539,1110,1569,1087,1572,1091,1542,1115,1502,1134,1462,1147,1427,1155,1394,1152,1357,1134,1344,1120,1340,1105,1338,1089,1332,1072,1299,1020,1267,978"/>
+<area shape="poly" title=" " alt="" coords="1258,977,1291,1078,1319,1143,1355,1210,1399,1273,1424,1300,1451,1325,1481,1345,1513,1360,1547,1370,1583,1373,2107,1373,2133,1371,2156,1364,2178,1352,2198,1337,2233,1299,2261,1253,2284,1205,2300,1158,2319,1089,2324,1091,2305,1160,2289,1207,2266,1256,2237,1302,2201,1341,2181,1357,2158,1369,2134,1376,2107,1379,1583,1379,1546,1375,1511,1365,1478,1349,1448,1329,1420,1304,1395,1276,1350,1213,1314,1146,1286,1080,1253,979"/>
+<area shape="poly" title=" " alt="" coords="1265,927,1305,888,1330,869,1358,854,1418,835,1500,820,1701,800,1904,789,2056,785,2056,790,1904,794,1701,805,1501,825,1420,840,1360,858,1333,873,1308,892,1269,931"/>
+<area shape="poly" title=" " alt="" coords="2381,1058,2423,1039,2464,1013,2495,981,2521,946,2556,887,2560,890,2526,949,2499,985,2467,1017,2426,1043,2383,1062"/>
+<area shape="poly" title=" " alt="" coords="2195,1092,2272,1082,2273,1087,2196,1097"/>
+<area shape="poly" title=" " alt="" coords="1515,1166,2030,1112,2031,1117,1515,1171"/>
+<area shape="poly" title=" " alt="" coords="2910,776,2978,776,2978,781,2910,781"/>
+<area shape="poly" title=" " alt="" coords="2165,768,2205,759,2264,751,2394,742,2495,738,2596,742,2726,756,2750,760,2749,765,2725,761,2596,747,2495,743,2394,747,2264,756,2206,764,2166,773"/>
+<area shape="rect" href="../../dc/dd8/structfield_1_1field__ptr__t.html" title="field_ptr_t, To easily obtain a pointer to a field" alt="" coords="2264,766,2387,791"/>
+<area shape="poly" title=" " alt="" coords="2169,782,2264,778,2264,784,2169,787"/>
+<area shape="rect" href="../../d3/d90/structfield__list_1_1field__list__t.html" title="field_list_t, To be able to group fields together" alt="" coords="2489,766,2641,791"/>
+<area shape="poly" title=" " alt="" coords="2616,759,2683,741,2768,725,2862,718,2909,720,2955,727,2996,739,3032,756,3030,761,2994,744,2954,732,2908,725,2862,723,2769,730,2684,746,2617,764"/>
+<area shape="poly" title=" " alt="" coords="2655,776,2749,776,2749,781,2655,781"/>
+<area shape="poly" title=" " alt="" coords="2401,776,2489,776,2489,781,2401,781"/>
 </map>
 <center><span class="legend">[<a target="top" href="../../graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:aa2b603892d81006710982a641df926b3" id="r_aa2b603892d81006710982a641df926b3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html#aa2b603892d81006710982a641df926b3">init_field</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">bc_name</a>)</td></tr>
-<tr class="memdesc:aa2b603892d81006710982a641df926b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes thisfield_bc.  <br /></td></tr>
-<tr class="separator:aa2b603892d81006710982a641df926b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abf72752c9c88d157f73c73594f685c9e" id="r_abf72752c9c88d157f73c73594f685c9e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html#abf72752c9c88d157f73c73594f685c9e">init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a8044cfda61d692364d024558944e2fc7">coef</a>, json)</td></tr>
+<tr class="memdesc:abf72752c9c88d157f73c73594f685c9e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
+<tr class="separator:abf72752c9c88d157f73c73594f685c9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a80900c1ef927de3bc1aaa19b2289c982" id="r_a80900c1ef927de3bc1aaa19b2289c982"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html#a80900c1ef927de3bc1aaa19b2289c982">init_from_components</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a8044cfda61d692364d024558944e2fc7">coef</a>)</td></tr>
+<tr class="memdesc:a80900c1ef927de3bc1aaa19b2289c982"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor from components.  <br /></td></tr>
+<tr class="separator:a80900c1ef927de3bc1aaa19b2289c982"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a16f88df601ff44425dc0ad2101b759e4" id="r_a16f88df601ff44425dc0ad2101b759e4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html#a16f88df601ff44425dc0ad2101b759e4">free</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="memdesc:a16f88df601ff44425dc0ad2101b759e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <br /></td></tr>
 <tr class="separator:a16f88df601ff44425dc0ad2101b759e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a641706fb957cecbb86b4c8e8e4ecbbeb" id="r_a641706fb957cecbb86b4c8e8e4ecbbeb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html#a641706fb957cecbb86b4c8e8e4ecbbeb">apply_scalar</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x, n, t, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tstep</a>)</td></tr>
-<tr class="memdesc:a641706fb957cecbb86b4c8e8e4ecbbeb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply scalar by performing a masked copy.  <br /></td></tr>
-<tr class="separator:a641706fb957cecbb86b4c8e8e4ecbbeb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af086af9c314dd5839a17ece3203bd0ed" id="r_af086af9c314dd5839a17ece3203bd0ed"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html#af086af9c314dd5839a17ece3203bd0ed">apply_vector</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x, y, z, n, t, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tstep</a>)</td></tr>
-<tr class="memdesc:af086af9c314dd5839a17ece3203bd0ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">(No-op) Apply vector.  <br /></td></tr>
-<tr class="separator:af086af9c314dd5839a17ece3203bd0ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a446a16c6198195d7a3725f8d694d6a9d" id="r_a446a16c6198195d7a3725f8d694d6a9d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html#a446a16c6198195d7a3725f8d694d6a9d">apply_vector_dev</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x_d, y_d, z_d, t, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tstep</a>)</td></tr>
-<tr class="memdesc:a446a16c6198195d7a3725f8d694d6a9d"><td class="mdescLeft">&#160;</td><td class="mdescRight">(No-op) Apply vector (device).  <br /></td></tr>
-<tr class="separator:a446a16c6198195d7a3725f8d694d6a9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7fc8103e6e9c9ec7c1433ff08ba542a8" id="r_a7fc8103e6e9c9ec7c1433ff08ba542a8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html#a7fc8103e6e9c9ec7c1433ff08ba542a8">apply_scalar_dev</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x_d, t, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tstep</a>)</td></tr>
-<tr class="memdesc:a7fc8103e6e9c9ec7c1433ff08ba542a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply scalar (device).  <br /></td></tr>
-<tr class="separator:a7fc8103e6e9c9ec7c1433ff08ba542a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad69471c2e45d23d7030504e5b2ea5992" id="r_ad69471c2e45d23d7030504e5b2ea5992"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html#ad69471c2e45d23d7030504e5b2ea5992">finalize</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">only_facets</a>)</td></tr>
+<tr class="memdesc:ad69471c2e45d23d7030504e5b2ea5992"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finalize.  <br /></td></tr>
+<tr class="separator:ad69471c2e45d23d7030504e5b2ea5992"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ace71866185267206c5c4562054abe479" id="r_ace71866185267206c5c4562054abe479"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html#ace71866185267206c5c4562054abe479">apply_scalar</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x, n, time, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a3942c5f5427cf551d4e3909d6e2e7e4a">strong</a>)</td></tr>
+<tr class="memdesc:ace71866185267206c5c4562054abe479"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply scalar by performing a masked copy.  <br /></td></tr>
+<tr class="separator:ace71866185267206c5c4562054abe479"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abd17a733af79980beeeb5f45be0276f1" id="r_abd17a733af79980beeeb5f45be0276f1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html#abd17a733af79980beeeb5f45be0276f1">apply_vector</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x, y, z, n, time, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a3942c5f5427cf551d4e3909d6e2e7e4a">strong</a>)</td></tr>
+<tr class="memdesc:abd17a733af79980beeeb5f45be0276f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">(No-op) Apply vector.  <br /></td></tr>
+<tr class="separator:abd17a733af79980beeeb5f45be0276f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a00cd157f13438d1b48370be718dee8d1" id="r_a00cd157f13438d1b48370be718dee8d1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html#a00cd157f13438d1b48370be718dee8d1">apply_vector_dev</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x_d, y_d, z_d, time, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a3942c5f5427cf551d4e3909d6e2e7e4a">strong</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">strm</a>)</td></tr>
+<tr class="memdesc:a00cd157f13438d1b48370be718dee8d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">(No-op) Apply vector (device).  <br /></td></tr>
+<tr class="separator:a00cd157f13438d1b48370be718dee8d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab04eecc855a706b4822b93d4ec2d1b2c" id="r_ab04eecc855a706b4822b93d4ec2d1b2c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html#ab04eecc855a706b4822b93d4ec2d1b2c">apply_scalar_dev</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x_d, time, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a3942c5f5427cf551d4e3909d6e2e7e4a">strong</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">strm</a>)</td></tr>
+<tr class="memdesc:ab04eecc855a706b4822b93d4ec2d1b2c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply scalar (device).  <br /></td></tr>
+<tr class="separator:ab04eecc855a706b4822b93d4ec2d1b2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a197cb9063a580065c71a1aaf4c2ce14c" id="r_a197cb9063a580065c71a1aaf4c2ce14c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a197cb9063a580065c71a1aaf4c2ce14c">init_base</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a8044cfda61d692364d024558944e2fc7">coef</a>)</td></tr>
 <tr class="memdesc:a197cb9063a580065c71a1aaf4c2ce14c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
 <tr class="separator:a197cb9063a580065c71a1aaf4c2ce14c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -267,30 +269,42 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a430d34e6b58f58440ab8cdf9e4acdd16" id="r_a430d34e6b58f58440ab8cdf9e4acdd16"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a430d34e6b58f58440ab8cdf9e4acdd16">mark_facets</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">facet_list</a>)</td></tr>
 <tr class="memdesc:a430d34e6b58f58440ab8cdf9e4acdd16"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mark all facets from a (facet, element) tuple list.  <br /></td></tr>
 <tr class="separator:a430d34e6b58f58440ab8cdf9e4acdd16"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a66ef1a7d4c2203008744d55b75dc627f" id="r_a66ef1a7d4c2203008744d55b75dc627f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a66ef1a7d4c2203008744d55b75dc627f">mark_zones_from_list</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">bc_zones</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">bc_key</a>, bc_labels)</td></tr>
-<tr class="memdesc:a66ef1a7d4c2203008744d55b75dc627f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mark all facets from a list of zones, also marks type of bc in the mesh.  <br /></td></tr>
-<tr class="separator:a66ef1a7d4c2203008744d55b75dc627f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1d1cb8e0aca1ce0abd8661f7973d9cdf" id="r_a1d1cb8e0aca1ce0abd8661f7973d9cdf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a1d1cb8e0aca1ce0abd8661f7973d9cdf">mark_zone</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">bc_zone</a>)</td></tr>
 <tr class="memdesc:a1d1cb8e0aca1ce0abd8661f7973d9cdf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mark all facets from a zone.  <br /></td></tr>
 <tr class="separator:a1d1cb8e0aca1ce0abd8661f7973d9cdf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a425a17bb76500aef4cfdfe4d8cf3caae" id="r_a425a17bb76500aef4cfdfe4d8cf3caae"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a425a17bb76500aef4cfdfe4d8cf3caae">finalize</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
-<tr class="memdesc:a425a17bb76500aef4cfdfe4d8cf3caae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finalize the construction of the bc by populting the msk and facet arrays.  <br /></td></tr>
-<tr class="separator:a425a17bb76500aef4cfdfe4d8cf3caae"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a455a1489a77fb58ef1ca6ef8d9dd0f4d" id="r_a455a1489a77fb58ef1ca6ef8d9dd0f4d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>(bc_apply_scalar), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">deferred</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a455a1489a77fb58ef1ca6ef8d9dd0f4d">apply_scalar</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x, n, t, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tstep</a>)</td></tr>
-<tr class="memdesc:a455a1489a77fb58ef1ca6ef8d9dd0f4d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply the boundary condition to a scalar field.  <br /></td></tr>
-<tr class="separator:a455a1489a77fb58ef1ca6ef8d9dd0f4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a39ddc4343e8d11418fa998a6618f86ed" id="r_a39ddc4343e8d11418fa998a6618f86ed"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>(bc_apply_vector), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">deferred</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a39ddc4343e8d11418fa998a6618f86ed">apply_vector</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x, y, z, n, t, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tstep</a>)</td></tr>
-<tr class="memdesc:a39ddc4343e8d11418fa998a6618f86ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply the boundary condition to a vector field.  <br /></td></tr>
-<tr class="separator:a39ddc4343e8d11418fa998a6618f86ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abc7135a62658b06f5d69303f2e659e03" id="r_abc7135a62658b06f5d69303f2e659e03"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>(bc_apply_scalar_dev), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">deferred</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#abc7135a62658b06f5d69303f2e659e03">apply_scalar_dev</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x_d, t, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tstep</a>)</td></tr>
-<tr class="memdesc:abc7135a62658b06f5d69303f2e659e03"><td class="mdescLeft">&#160;</td><td class="mdescRight">Device version of <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a455a1489a77fb58ef1ca6ef8d9dd0f4d">apply_scalar</a>.  <br /></td></tr>
-<tr class="separator:abc7135a62658b06f5d69303f2e659e03"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5a3e344feec29f8677ee44bcdc084444" id="r_a5a3e344feec29f8677ee44bcdc084444"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>(bc_apply_vector_dev), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">deferred</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a5a3e344feec29f8677ee44bcdc084444">apply_vector_dev</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x_d, y_d, z_d, t, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tstep</a>)</td></tr>
-<tr class="memdesc:a5a3e344feec29f8677ee44bcdc084444"><td class="mdescLeft">&#160;</td><td class="mdescRight">Device version of <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a39ddc4343e8d11418fa998a6618f86ed">apply_vector</a>.  <br /></td></tr>
-<tr class="separator:a5a3e344feec29f8677ee44bcdc084444"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aca2ef5e87ea6142ee810f802657c9002" id="r_aca2ef5e87ea6142ee810f802657c9002"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#aca2ef5e87ea6142ee810f802657c9002">finalize_base</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">only_facets</a>)</td></tr>
+<tr class="memdesc:aca2ef5e87ea6142ee810f802657c9002"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finalize the construction of the bc by populating the msk and facet arrays.  <br /></td></tr>
+<tr class="separator:aca2ef5e87ea6142ee810f802657c9002"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac688ded193b5e9265d838a671e1f9802" id="r_ac688ded193b5e9265d838a671e1f9802"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#ac688ded193b5e9265d838a671e1f9802">apply_scalar_generic</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x, time, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a3942c5f5427cf551d4e3909d6e2e7e4a">strong</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">strm</a>)</td></tr>
+<tr class="memdesc:ac688ded193b5e9265d838a671e1f9802"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply the boundary condition to a scalar field. Dispatches to the CPU or the device version.  <br /></td></tr>
+<tr class="separator:ac688ded193b5e9265d838a671e1f9802"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d3b6d199883ade96b750d65b3779d19" id="r_a0d3b6d199883ade96b750d65b3779d19"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a0d3b6d199883ade96b750d65b3779d19">apply_vector_generic</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x, y, z, time, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a3942c5f5427cf551d4e3909d6e2e7e4a">strong</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">strm</a>)</td></tr>
+<tr class="memdesc:a0d3b6d199883ade96b750d65b3779d19"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply the boundary condition to a vector field. Dispatches to the CPU or the device version.  <br /></td></tr>
+<tr class="separator:a0d3b6d199883ade96b750d65b3779d19"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0050f4a5cbc2cdd21086d768a81bcc1a" id="r_a0050f4a5cbc2cdd21086d768a81bcc1a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a0050f4a5cbc2cdd21086d768a81bcc1a">debug_mask_</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">file_name</a>)</td></tr>
+<tr class="memdesc:a0050f4a5cbc2cdd21086d768a81bcc1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write a field showing the mask of the bcs.  <br /></td></tr>
+<tr class="separator:a0050f4a5cbc2cdd21086d768a81bcc1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acf7d3374ded3bdc6dc0bb9c438edbfd9" id="r_acf7d3374ded3bdc6dc0bb9c438edbfd9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>(bc_apply_scalar), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">deferred</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#acf7d3374ded3bdc6dc0bb9c438edbfd9">apply_scalar</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x, n, time, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a3942c5f5427cf551d4e3909d6e2e7e4a">strong</a>)</td></tr>
+<tr class="memdesc:acf7d3374ded3bdc6dc0bb9c438edbfd9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply the boundary condition to a scalar field on the CPU.  <br /></td></tr>
+<tr class="separator:acf7d3374ded3bdc6dc0bb9c438edbfd9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aca01313e3fa26077db1411a40fd3ff36" id="r_aca01313e3fa26077db1411a40fd3ff36"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>(bc_apply_vector), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">deferred</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#aca01313e3fa26077db1411a40fd3ff36">apply_vector</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x, y, z, n, time, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a3942c5f5427cf551d4e3909d6e2e7e4a">strong</a>)</td></tr>
+<tr class="memdesc:aca01313e3fa26077db1411a40fd3ff36"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply the boundary condition to a vector field on the CPU.  <br /></td></tr>
+<tr class="separator:aca01313e3fa26077db1411a40fd3ff36"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5f24bdea49ef8f519edc7169b40b0ab5" id="r_a5f24bdea49ef8f519edc7169b40b0ab5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>(bc_apply_scalar_dev), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">deferred</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a5f24bdea49ef8f519edc7169b40b0ab5">apply_scalar_dev</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x_d, time, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a3942c5f5427cf551d4e3909d6e2e7e4a">strong</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">strm</a>)</td></tr>
+<tr class="memdesc:a5f24bdea49ef8f519edc7169b40b0ab5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Device version of <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#acf7d3374ded3bdc6dc0bb9c438edbfd9">apply_scalar</a> on the device.  <br /></td></tr>
+<tr class="separator:a5f24bdea49ef8f519edc7169b40b0ab5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a53a44051829738ce6356d5d51693ebb7" id="r_a53a44051829738ce6356d5d51693ebb7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>(bc_apply_vector_dev), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">deferred</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a53a44051829738ce6356d5d51693ebb7">apply_vector_dev</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x_d, y_d, z_d, time, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a3942c5f5427cf551d4e3909d6e2e7e4a">strong</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">strm</a>)</td></tr>
+<tr class="memdesc:a53a44051829738ce6356d5d51693ebb7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Device version of <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#aca01313e3fa26077db1411a40fd3ff36">apply_vector</a> on the device.  <br /></td></tr>
+<tr class="separator:a53a44051829738ce6356d5d51693ebb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a37261adf9d55cd71683758248e0b6895" id="r_a37261adf9d55cd71683758248e0b6895"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>(bc_destructor), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">deferred</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a37261adf9d55cd71683758248e0b6895">free</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
-<tr class="memdesc:a37261adf9d55cd71683758248e0b6895"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <br /></td></tr>
+<tr class="memdesc:a37261adf9d55cd71683758248e0b6895"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deferred destructor.  <br /></td></tr>
 <tr class="separator:a37261adf9d55cd71683758248e0b6895"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a19ee9a2eddeedeb2954f089cf38796e9" id="r_a19ee9a2eddeedeb2954f089cf38796e9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>(bc_constructor), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">deferred</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a19ee9a2eddeedeb2954f089cf38796e9">init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a8044cfda61d692364d024558944e2fc7">coef</a>, json)</td></tr>
+<tr class="memdesc:a19ee9a2eddeedeb2954f089cf38796e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deferred constructor.  <br /></td></tr>
+<tr class="separator:a19ee9a2eddeedeb2954f089cf38796e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a723bdd23995522630dd0b5a1adb3adc9" id="r_a723bdd23995522630dd0b5a1adb3adc9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>(bc_finalize), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">deferred</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a723bdd23995522630dd0b5a1adb3adc9">finalize</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">only_facets</a>)</td></tr>
+<tr class="memdesc:a723bdd23995522630dd0b5a1adb3adc9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deferred finalizer.  <br /></td></tr>
+<tr class="separator:a723bdd23995522630dd0b5a1adb3adc9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -303,25 +317,22 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a38b2f4d0c3bfba83d8bc2d28ca4996d8" id="r_a38b2f4d0c3bfba83d8bc2d28ca4996d8"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list_t</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html#a38b2f4d0c3bfba83d8bc2d28ca4996d8">field_list</a></td></tr>
 <tr class="memdesc:a38b2f4d0c3bfba83d8bc2d28ca4996d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">A field list to store the bcs for passing to various subroutines.  <br /></td></tr>
 <tr class="separator:a38b2f4d0c3bfba83d8bc2d28ca4996d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a565b2baa9dcc19d4c74cce70710e4499" id="r_a565b2baa9dcc19d4c74cce70710e4499"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d8/dd8/structbc_1_1bc__list__t.html">bc_list_t</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html#a565b2baa9dcc19d4c74cce70710e4499">bc_list</a></td></tr>
-<tr class="memdesc:a565b2baa9dcc19d4c74cce70710e4499"><td class="mdescLeft">&#160;</td><td class="mdescRight">A bc list to store the bcs for passing to various subroutines.  <br /></td></tr>
-<tr class="separator:a565b2baa9dcc19d4c74cce70710e4499"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a638503614447154c642fcbc9bf5df9a6" id="r_a638503614447154c642fcbc9bf5df9a6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a638503614447154c642fcbc9bf5df9a6">msk</a></td></tr>
 <tr class="memdesc:a638503614447154c642fcbc9bf5df9a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">The linear index of each node in each boundary facet.  <br /></td></tr>
 <tr class="separator:a638503614447154c642fcbc9bf5df9a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a896224ab8a3c1d19a08a816447f1f8f3" id="r_a896224ab8a3c1d19a08a816447f1f8f3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a896224ab8a3c1d19a08a816447f1f8f3">facet</a></td></tr>
 <tr class="memdesc:a896224ab8a3c1d19a08a816447f1f8f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">A list of facet ids (1 to 6), one for each element in msk.  <br /></td></tr>
 <tr class="separator:a896224ab8a3c1d19a08a816447f1f8f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1ac479f86685364bc367d05fae6b125c" id="r_a1ac479f86685364bc367d05fae6b125c"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a1ac479f86685364bc367d05fae6b125c">dof</a></td></tr>
+<tr class="memitem:a1ac479f86685364bc367d05fae6b125c" id="r_a1ac479f86685364bc367d05fae6b125c"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a1ac479f86685364bc367d05fae6b125c">dof</a> =&gt; <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">null</a>()</td></tr>
 <tr class="memdesc:a1ac479f86685364bc367d05fae6b125c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Map of degrees of freedom.  <br /></td></tr>
 <tr class="separator:a1ac479f86685364bc367d05fae6b125c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8044cfda61d692364d024558944e2fc7" id="r_a8044cfda61d692364d024558944e2fc7"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a8044cfda61d692364d024558944e2fc7">coef</a></td></tr>
+<tr class="memitem:a8044cfda61d692364d024558944e2fc7" id="r_a8044cfda61d692364d024558944e2fc7"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a8044cfda61d692364d024558944e2fc7">coef</a> =&gt; <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">null</a>()</td></tr>
 <tr class="memdesc:a8044cfda61d692364d024558944e2fc7"><td class="mdescLeft">&#160;</td><td class="mdescRight">SEM coefficients.  <br /></td></tr>
 <tr class="separator:a8044cfda61d692364d024558944e2fc7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac9c45a8ed2e761cf3d3460567cbc4336" id="r_ac9c45a8ed2e761cf3d3460567cbc4336"><td class="memItemLeft" align="right" valign="top">type(mesh_t), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#ac9c45a8ed2e761cf3d3460567cbc4336">msh</a></td></tr>
+<tr class="memitem:ac9c45a8ed2e761cf3d3460567cbc4336" id="r_ac9c45a8ed2e761cf3d3460567cbc4336"><td class="memItemLeft" align="right" valign="top">type(mesh_t), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#ac9c45a8ed2e761cf3d3460567cbc4336">msh</a> =&gt; <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">null</a>()</td></tr>
 <tr class="memdesc:ac9c45a8ed2e761cf3d3460567cbc4336"><td class="mdescLeft">&#160;</td><td class="mdescRight">The mesh.  <br /></td></tr>
 <tr class="separator:ac9c45a8ed2e761cf3d3460567cbc4336"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa41e41065c9e29dc8cf48f739eeff18a" id="r_aa41e41065c9e29dc8cf48f739eeff18a"><td class="memItemLeft" align="right" valign="top">type(space_t), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#aa41e41065c9e29dc8cf48f739eeff18a">xh</a></td></tr>
+<tr class="memitem:aa41e41065c9e29dc8cf48f739eeff18a" id="r_aa41e41065c9e29dc8cf48f739eeff18a"><td class="memItemLeft" align="right" valign="top">type(space_t), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#aa41e41065c9e29dc8cf48f739eeff18a">xh</a> =&gt; <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">null</a>()</td></tr>
 <tr class="memdesc:aa41e41065c9e29dc8cf48f739eeff18a"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function space.  <br /></td></tr>
 <tr class="separator:aa41e41065c9e29dc8cf48f739eeff18a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4124089bd35e194fd05140100f9fb316" id="r_a4124089bd35e194fd05140100f9fb316"><td class="memItemLeft" align="right" valign="top">type(stack_i4t2_t)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a4124089bd35e194fd05140100f9fb316">marked_facet</a></td></tr>
@@ -333,6 +344,12 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a1bc263e701d6fc865ca5d4a1dfdac914" id="r_a1bc263e701d6fc865ca5d4a1dfdac914"><td class="memItemLeft" align="right" valign="top">type(c_ptr)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a1bc263e701d6fc865ca5d4a1dfdac914">facet_d</a> = <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">C_NULL_PTR</a></td></tr>
 <tr class="memdesc:a1bc263e701d6fc865ca5d4a1dfdac914"><td class="mdescLeft">&#160;</td><td class="mdescRight">Device pointer for facet.  <br /></td></tr>
 <tr class="separator:a1bc263e701d6fc865ca5d4a1dfdac914"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3942c5f5427cf551d4e3909d6e2e7e4a" id="r_a3942c5f5427cf551d4e3909d6e2e7e4a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#a3942c5f5427cf551d4e3909d6e2e7e4a">strong</a> = .true.</td></tr>
+<tr class="memdesc:a3942c5f5427cf551d4e3909d6e2e7e4a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wether the bc is strongly enforced. Essentially valid for all Dirichlet types of bcs. These need to be masked out for solvers etc, so that values are not affected. Mixed bcs are, by convention, weak.  <br /></td></tr>
+<tr class="separator:a3942c5f5427cf551d4e3909d6e2e7e4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acec6ac3a12e639a12be6344c9b4e3208" id="r_acec6ac3a12e639a12be6344c9b4e3208"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html#acec6ac3a12e639a12be6344c9b4e3208">updated</a> = .false.</td></tr>
+<tr class="memdesc:acec6ac3a12e639a12be6344c9b4e3208"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indicates wether the bc has been updated, for those BCs that need additional computations.  <br /></td></tr>
+<tr class="separator:acec6ac3a12e639a12be6344c9b4e3208"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
@@ -342,10 +359,10 @@ Static Public Attributes</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html#l00054">54</a> of file <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html">field_dirichlet_vector.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html#l00057">57</a> of file <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html">field_dirichlet_vector.f90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
-<a id="a455a1489a77fb58ef1ca6ef8d9dd0f4d" name="a455a1489a77fb58ef1ca6ef8d9dd0f4d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a455a1489a77fb58ef1ca6ef8d9dd0f4d">&#9670;&#160;</a></span>apply_scalar() <span class="overload">[1/2]</span></h2>
+<a id="acf7d3374ded3bdc6dc0bb9c438edbfd9" name="acf7d3374ded3bdc6dc0bb9c438edbfd9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acf7d3374ded3bdc6dc0bb9c438edbfd9">&#9670;&#160;</a></span>apply_scalar() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -362,7 +379,7 @@ Static Public Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=<a class="el" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(n), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(n), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
           <td class="paramname"><em>x</em>, </td>
         </tr>
         <tr>
@@ -374,14 +391,14 @@ Static Public Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=<a class="el" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>t</em>, </td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>time</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>tstep</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>strong</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -396,12 +413,12 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00087">87</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00112">112</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
-<a id="a641706fb957cecbb86b4c8e8e4ecbbeb" name="a641706fb957cecbb86b4c8e8e4ecbbeb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a641706fb957cecbb86b4c8e8e4ecbbeb">&#9670;&#160;</a></span>apply_scalar() <span class="overload">[2/2]</span></h2>
+<a id="ace71866185267206c5c4562054abe479" name="ace71866185267206c5c4562054abe479"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ace71866185267206c5c4562054abe479">&#9670;&#160;</a></span>apply_scalar() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -427,14 +444,14 @@ Static Public Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>t</em>, </td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>time</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>tstep</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>strong</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -447,18 +464,17 @@ Static Public Attributes</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">x</td><td>Field onto which to copy the values (e.g. u,v,w,p or s). </td></tr>
     <tr><td class="paramname">n</td><td>Size of the array <code>x</code>. </td></tr>
-    <tr><td class="paramname">t</td><td>Time. </td></tr>
-    <tr><td class="paramname">tstep</td><td>Time step. </td></tr>
+    <tr><td class="paramname">t</td><td>Current time state. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html#l00074">74</a> of file <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html">field_dirichlet_vector.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html#l00080">80</a> of file <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html">field_dirichlet_vector.f90</a>.</p>
 
 </div>
 </div>
-<a id="abc7135a62658b06f5d69303f2e659e03" name="abc7135a62658b06f5d69303f2e659e03"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abc7135a62658b06f5d69303f2e659e03">&#9670;&#160;</a></span>apply_scalar_dev() <span class="overload">[1/2]</span></h2>
+<a id="a5f24bdea49ef8f519edc7169b40b0ab5" name="a5f24bdea49ef8f519edc7169b40b0ab5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5f24bdea49ef8f519edc7169b40b0ab5">&#9670;&#160;</a></span>apply_scalar_dev() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -475,20 +491,26 @@ Static Public Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
           <td class="paramname"><em>x_d</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=<a class="el" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>t</em>, </td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>time</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>tstep</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>strong</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>strm</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -503,12 +525,12 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00091">91</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00116">116</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
-<a id="a7fc8103e6e9c9ec7c1433ff08ba542a8" name="a7fc8103e6e9c9ec7c1433ff08ba542a8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7fc8103e6e9c9ec7c1433ff08ba542a8">&#9670;&#160;</a></span>apply_scalar_dev() <span class="overload">[2/2]</span></h2>
+<a id="ab04eecc855a706b4822b93d4ec2d1b2c" name="ab04eecc855a706b4822b93d4ec2d1b2c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab04eecc855a706b4822b93d4ec2d1b2c">&#9670;&#160;</a></span>apply_scalar_dev() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -522,20 +544,26 @@ Static Public Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
           <td class="paramname"><em>x_d</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>t</em>, </td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>time</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>tstep</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>strong</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>strm</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -547,18 +575,82 @@ Static Public Attributes</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">x_d</td><td>Device pointer to the field onto which to copy the values. </td></tr>
-    <tr><td class="paramname">t</td><td>Time. </td></tr>
-    <tr><td class="paramname">tstep</td><td>Time step. </td></tr>
+    <tr><td class="paramname">time</td><td>The current time state. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html#l00081">81</a> of file <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html">field_dirichlet_vector.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html#l00089">89</a> of file <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html">field_dirichlet_vector.f90</a>.</p>
 
 </div>
 </div>
-<a id="a39ddc4343e8d11418fa998a6618f86ed" name="a39ddc4343e8d11418fa998a6618f86ed"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a39ddc4343e8d11418fa998a6618f86ed">&#9670;&#160;</a></span>apply_vector() <span class="overload">[1/2]</span></h2>
+<a id="ac688ded193b5e9265d838a671e1f9802" name="ac688ded193b5e9265d838a671e1f9802"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac688ded193b5e9265d838a671e1f9802">&#9670;&#160;</a></span>apply_scalar_generic()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) bc::bc_t::apply_scalar_generic </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d6/db3/structbc_1_1bc__t.html">bc_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>time</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>strong</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>strm</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>The x comp of the field for which to apply the bc. </td></tr>
+    <tr><td class="paramname">time</td><td>Current time state. </td></tr>
+    <tr><td class="paramname">strong</td><td>Whether we are setting a strong or a weak bc. </td></tr>
+    <tr><td class="paramname">strm</td><td>Device stream </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00105">105</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+
+</div>
+</div>
+<a id="aca01313e3fa26077db1411a40fd3ff36" name="aca01313e3fa26077db1411a40fd3ff36"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aca01313e3fa26077db1411a40fd3ff36">&#9670;&#160;</a></span>apply_vector() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -575,19 +667,19 @@ Static Public Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=<a class="el" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(n), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(n), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
           <td class="paramname"><em>x</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=<a class="el" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(n), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(n), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
           <td class="paramname"><em>y</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=<a class="el" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(n), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(n), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
           <td class="paramname"><em>z</em>, </td>
         </tr>
         <tr>
@@ -599,14 +691,14 @@ Static Public Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=<a class="el" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>t</em>, </td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>time</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>tstep</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>strong</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -621,12 +713,12 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00089">89</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00114">114</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
-<a id="af086af9c314dd5839a17ece3203bd0ed" name="af086af9c314dd5839a17ece3203bd0ed"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af086af9c314dd5839a17ece3203bd0ed">&#9670;&#160;</a></span>apply_vector() <span class="overload">[2/2]</span></h2>
+<a id="abd17a733af79980beeeb5f45be0276f1" name="abd17a733af79980beeeb5f45be0276f1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abd17a733af79980beeeb5f45be0276f1">&#9670;&#160;</a></span>apply_vector() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -664,14 +756,14 @@ Static Public Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>t</em>, </td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>time</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>tstep</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>strong</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -686,18 +778,17 @@ Static Public Attributes</h2></td></tr>
     <tr><td class="paramname">y</td><td>y-component of the field onto which to apply the values. </td></tr>
     <tr><td class="paramname">z</td><td>z-component of the field onto which to apply the values. </td></tr>
     <tr><td class="paramname">n</td><td>Size of the <code>x</code>, <code>y</code> and <code>z</code> arrays. </td></tr>
-    <tr><td class="paramname">t</td><td>Time. </td></tr>
-    <tr><td class="paramname">tstep</td><td>Time step. </td></tr>
+    <tr><td class="paramname">time</td><td>The current time state. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html#l00076">76</a> of file <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html">field_dirichlet_vector.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html#l00083">83</a> of file <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html">field_dirichlet_vector.f90</a>.</p>
 
 </div>
 </div>
-<a id="a5a3e344feec29f8677ee44bcdc084444" name="a5a3e344feec29f8677ee44bcdc084444"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5a3e344feec29f8677ee44bcdc084444">&#9670;&#160;</a></span>apply_vector_dev() <span class="overload">[1/2]</span></h2>
+<a id="a53a44051829738ce6356d5d51693ebb7" name="a53a44051829738ce6356d5d51693ebb7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a53a44051829738ce6356d5d51693ebb7">&#9670;&#160;</a></span>apply_vector_dev() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -714,32 +805,38 @@ Static Public Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
           <td class="paramname"><em>x_d</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
           <td class="paramname"><em>y_d</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
           <td class="paramname"><em>z_d</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=<a class="el" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>t</em>, </td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>time</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>tstep</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>strong</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>strm</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -754,12 +851,12 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00093">93</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00118">118</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
-<a id="a446a16c6198195d7a3725f8d694d6a9d" name="a446a16c6198195d7a3725f8d694d6a9d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a446a16c6198195d7a3725f8d694d6a9d">&#9670;&#160;</a></span>apply_vector_dev() <span class="overload">[2/2]</span></h2>
+<a id="a00cd157f13438d1b48370be718dee8d1" name="a00cd157f13438d1b48370be718dee8d1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a00cd157f13438d1b48370be718dee8d1">&#9670;&#160;</a></span>apply_vector_dev() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -773,32 +870,38 @@ Static Public Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
           <td class="paramname"><em>x_d</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
           <td class="paramname"><em>y_d</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
           <td class="paramname"><em>z_d</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>t</em>, </td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>time</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>tstep</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>strong</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>strm</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -812,18 +915,18 @@ Static Public Attributes</h2></td></tr>
     <tr><td class="paramname">x</td><td>x-component of the field onto which to apply the values. </td></tr>
     <tr><td class="paramname">y</td><td>y-component of the field onto which to apply the values. </td></tr>
     <tr><td class="paramname">z</td><td>z-component of the field onto which to apply the values. </td></tr>
-    <tr><td class="paramname">t</td><td>Time. </td></tr>
-    <tr><td class="paramname">tstep</td><td>Time step. </td></tr>
+    <tr><td class="paramname">time</td><td>The current time state. </td></tr>
+    <tr><td class="paramname">strm</td><td>Device stream </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html#l00078">78</a> of file <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html">field_dirichlet_vector.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html#l00086">86</a> of file <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html">field_dirichlet_vector.f90</a>.</p>
 
 </div>
 </div>
-<a id="a425a17bb76500aef4cfdfe4d8cf3caae" name="a425a17bb76500aef4cfdfe4d8cf3caae"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a425a17bb76500aef4cfdfe4d8cf3caae">&#9670;&#160;</a></span>finalize()</h2>
+<a id="a0d3b6d199883ade96b750d65b3779d19" name="a0d3b6d199883ade96b750d65b3779d19"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0d3b6d199883ade96b750d65b3779d19">&#9670;&#160;</a></span>apply_vector_generic()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -832,11 +935,51 @@ Static Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) bc::bc_t::finalize </td>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) bc::bc_t::apply_vector_generic </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d6/db3/structbc_1_1bc__t.html">bc_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
-          <td class="paramname"><em>this</em></td><td>)</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d6/db3/structbc_1_1bc__t.html">bc_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>z</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>time</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>strong</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>strm</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -845,9 +988,176 @@ Static Public Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>The x comp of the field for which to apply the bc. </td></tr>
+    <tr><td class="paramname">y</td><td>The y comp of the field for which to apply the bc. </td></tr>
+    <tr><td class="paramname">z</td><td>The z comp of the field for which to apply the bc. </td></tr>
+    <tr><td class="paramname">time</td><td>Current time state. </td></tr>
+    <tr><td class="paramname">strong</td><td>Whether we are setting a strong or a weak bc. </td></tr>
+    <tr><td class="paramname">Device</td><td>stream </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00108">108</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+
+</div>
+</div>
+<a id="a0050f4a5cbc2cdd21086d768a81bcc1a" name="a0050f4a5cbc2cdd21086d768a81bcc1a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0050f4a5cbc2cdd21086d768a81bcc1a">&#9670;&#160;</a></span>debug_mask_()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) bc::bc_t::debug_mask_ </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d6/db3/structbc_1_1bc__t.html">bc_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=*), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>file_name</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>The mask will be marked with 1. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">file_name</td><td>The name of the fld file. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00110">110</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+
+</div>
+</div>
+<a id="a723bdd23995522630dd0b5a1adb3adc9" name="a723bdd23995522630dd0b5a1adb3adc9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a723bdd23995522630dd0b5a1adb3adc9">&#9670;&#160;</a></span>finalize() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>(bc_finalize), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">deferred</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a> bc::bc_t::finalize </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d6/db3/structbc_1_1bc__t.html">bc_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>only_facets</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00124">124</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+
+</div>
+</div>
+<a id="ad69471c2e45d23d7030504e5b2ea5992" name="ad69471c2e45d23d7030504e5b2ea5992"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad69471c2e45d23d7030504e5b2ea5992">&#9670;&#160;</a></span>finalize() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) field_dirichlet_vector::field_dirichlet_vector_t::finalize </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html">field_dirichlet_vector_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>only_facets</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html#l00078">78</a> of file <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html">field_dirichlet_vector.f90</a>.</p>
+
+</div>
+</div>
+<a id="aca2ef5e87ea6142ee810f802657c9002" name="aca2ef5e87ea6142ee810f802657c9002"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aca2ef5e87ea6142ee810f802657c9002">&#9670;&#160;</a></span>finalize_base()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) bc::bc_t::finalize_base </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d6/db3/structbc_1_1bc__t.html">bc_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>only_facets</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">only_facets,if</td><td>the bc is only to be applied on facets. Relevant for bcs where the normal direction is important and where and shared dofs should not be included.</td></tr>
+  </table>
+  </dd>
+</dl>
 <p>This will linearize the marked facet's indicies in the msk array. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00085">85</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00101">101</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -875,7 +1185,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00095">95</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00120">120</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -895,7 +1205,7 @@ Static Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html#l00072">72</a> of file <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html">field_dirichlet_vector.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html#l00076">76</a> of file <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html">field_dirichlet_vector.f90</a>.</p>
 
 </div>
 </div>
@@ -923,7 +1233,94 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00074">74</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00092">92</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+
+</div>
+</div>
+<a id="a19ee9a2eddeedeb2954f089cf38796e9" name="a19ee9a2eddeedeb2954f089cf38796e9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a19ee9a2eddeedeb2954f089cf38796e9">&#9670;&#160;</a></span>init() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>(bc_constructor), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">deferred</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a> bc::bc_t::init </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d6/db3/structbc_1_1bc__t.html">bc_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>coef</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(json_file), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>json</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00122">122</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+
+</div>
+</div>
+<a id="abf72752c9c88d157f73c73594f685c9e" name="abf72752c9c88d157f73c73594f685c9e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abf72752c9c88d157f73c73594f685c9e">&#9670;&#160;</a></span>init() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) field_dirichlet_vector::field_dirichlet_vector_t::init </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html">field_dirichlet_vector_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>coef</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(json_file), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>json</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">coef</td><td>The SEM coefficients. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The JSON object configuring the boundary condition. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html#l00071">71</a> of file <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html">field_dirichlet_vector.f90</a>.</p>
 
 </div>
 </div>
@@ -967,27 +1364,27 @@ Static Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00072">72</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00090">90</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
-<a id="aa2b603892d81006710982a641df926b3" name="aa2b603892d81006710982a641df926b3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa2b603892d81006710982a641df926b3">&#9670;&#160;</a></span>init_field()</h2>
+<a id="a80900c1ef927de3bc1aaa19b2289c982" name="a80900c1ef927de3bc1aaa19b2289c982"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a80900c1ef927de3bc1aaa19b2289c982">&#9670;&#160;</a></span>init_from_components()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) field_dirichlet_vector::field_dirichlet_vector_t::init_field </td>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) field_dirichlet_vector::field_dirichlet_vector_t::init_from_components </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html">field_dirichlet_vector_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html">field_dirichlet_vector_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=*), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
-          <td class="paramname"><em>bc_name</em>&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>coef</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -996,8 +1393,14 @@ Static Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">coef</td><td>The SEM coefficients. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html#l00070">70</a> of file <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html">field_dirichlet_vector.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html#l00073">73</a> of file <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html">field_dirichlet_vector.f90</a>.</p>
 
 </div>
 </div>
@@ -1048,7 +1451,7 @@ Static Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00076">76</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00094">94</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1092,7 +1495,7 @@ Static Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00078">78</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00096">96</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1114,7 +1517,7 @@ Static Public Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d2/d94/structfacet__zone_1_1facet__zone__t.html">facet_zone_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d2/d94/structfacet__zone_1_1facet__zone__t.html">facet_zone_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>bc_zone</em>&#160;</td>
         </tr>
         <tr>
@@ -1136,85 +1539,11 @@ Static Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00082">82</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
-
-</div>
-</div>
-<a id="a66ef1a7d4c2203008744d55b75dc627f" name="a66ef1a7d4c2203008744d55b75dc627f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a66ef1a7d4c2203008744d55b75dc627f">&#9670;&#160;</a></span>mark_zones_from_list()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) bc::bc_t::mark_zones_from_list </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d6/db3/structbc_1_1bc__t.html">bc_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>this</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d2/d94/structfacet__zone_1_1facet__zone__t.html">facet_zone_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>bc_zones</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=*)&#160;</td>
-          <td class="paramname"><em>bc_key</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=neko_msh_max_zlbl_len), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:)&#160;</td>
-          <td class="paramname"><em>bc_labels</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">bc_zone</td><td>Array of boundary zones. </td></tr>
-    <tr><td class="paramname">bc_key</td><td>Boundary condition label, e.g. 'w' for wall. </td></tr>
-    <tr><td class="paramname">bc_label</td><td>List of boundary condition labels. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00080">80</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00098">98</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
 <h2 class="groupheader">Member Data Documentation</h2>
-<a id="a565b2baa9dcc19d4c74cce70710e4499" name="a565b2baa9dcc19d4c74cce70710e4499"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a565b2baa9dcc19d4c74cce70710e4499">&#9670;&#160;</a></span>bc_list</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">type(<a class="el" href="../../d8/dd8/structbc_1_1bc__list__t.html">bc_list_t</a>) field_dirichlet_vector::field_dirichlet_vector_t::bc_list</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html#l00064">64</a> of file <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html">field_dirichlet_vector.f90</a>.</p>
-
-</div>
-</div>
 <a id="a21cf7f8f29cec5fed5d75fb9166d8157" name="a21cf7f8f29cec5fed5d75fb9166d8157"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a21cf7f8f29cec5fed5d75fb9166d8157">&#9670;&#160;</a></span>bc_u</h2>
 
@@ -1227,7 +1556,7 @@ Static Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html#l00056">56</a> of file <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html">field_dirichlet_vector.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html#l00059">59</a> of file <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html">field_dirichlet_vector.f90</a>.</p>
 
 </div>
 </div>
@@ -1243,7 +1572,7 @@ Static Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html#l00058">58</a> of file <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html">field_dirichlet_vector.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html#l00061">61</a> of file <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html">field_dirichlet_vector.f90</a>.</p>
 
 </div>
 </div>
@@ -1259,7 +1588,7 @@ Static Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html#l00060">60</a> of file <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html">field_dirichlet_vector.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html#l00063">63</a> of file <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html">field_dirichlet_vector.f90</a>.</p>
 
 </div>
 </div>
@@ -1273,7 +1602,7 @@ Static Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a> bc::bc_t::coef</td>
+          <td class="memname">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a> bc::bc_t::coef =&gt; <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">null</a>()</td>
         </tr>
       </table>
   </td>
@@ -1283,7 +1612,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00059">59</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00069">69</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1297,7 +1626,7 @@ Static Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">type(<a class="el" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a> bc::bc_t::dof</td>
+          <td class="memname">type(<a class="el" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a> bc::bc_t::dof =&gt; <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">null</a>()</td>
         </tr>
       </table>
   </td>
@@ -1307,7 +1636,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00057">57</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00067">67</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1331,7 +1660,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00055">55</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00065">65</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1355,7 +1684,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00069">69</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00079">79</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1371,7 +1700,7 @@ Static Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html#l00062">62</a> of file <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html">field_dirichlet_vector.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html#l00065">65</a> of file <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html">field_dirichlet_vector.f90</a>.</p>
 
 </div>
 </div>
@@ -1395,7 +1724,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00065">65</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00075">75</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1409,7 +1738,7 @@ Static Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">type(mesh_t), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a> bc::bc_t::msh</td>
+          <td class="memname">type(mesh_t), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a> bc::bc_t::msh =&gt; <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">null</a>()</td>
         </tr>
       </table>
   </td>
@@ -1419,7 +1748,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00061">61</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00071">71</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1443,7 +1772,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00053">53</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00063">63</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1467,7 +1796,31 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00067">67</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00077">77</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+
+</div>
+</div>
+<a id="a3942c5f5427cf551d4e3909d6e2e7e4a" name="a3942c5f5427cf551d4e3909d6e2e7e4a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3942c5f5427cf551d4e3909d6e2e7e4a">&#9670;&#160;</a></span>strong</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a> bc::bc_t::strong = .true.</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00084">84</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1491,7 +1844,31 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html#l00067">67</a> of file <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html">field_dirichlet_vector.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html#l00068">68</a> of file <a class="el" href="../../d8/dce/field__dirichlet__vector_8f90_source.html">field_dirichlet_vector.f90</a>.</p>
+
+</div>
+</div>
+<a id="acec6ac3a12e639a12be6344c9b4e3208" name="acec6ac3a12e639a12be6344c9b4e3208"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acec6ac3a12e639a12be6344c9b4e3208">&#9670;&#160;</a></span>updated</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a> bc::bc_t::updated = .false.</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00087">87</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1505,7 +1882,7 @@ Static Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">type(space_t), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a> bc::bc_t::xh</td>
+          <td class="memname">type(space_t), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a> bc::bc_t::xh =&gt; <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">null</a>()</td>
         </tr>
       </table>
   </td>
@@ -1515,7 +1892,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00063">63</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00073">73</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -1528,7 +1905,7 @@ Static Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d0/d1c/namespacefield__dirichlet__vector.html">field_dirichlet_vector</a></li><li class="navelem"><a class="el" href="../../da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html">field_dirichlet_vector_t</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

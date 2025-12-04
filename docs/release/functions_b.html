@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -101,73 +101,67 @@ $(document).ready(function(){initNavTree('functions_b.html',''); initResizable()
 <div class="textblock">Here is a list of all data types members with links to the data types they belong to:</div>
 
 <h3><a id="index_b" name="index_b"></a>- b -</h3><ul>
-<li>b&#160;:&#160;<a class="el" href="d0/dea/structcoefs_1_1coef__t.html#a379446619e085f1317f6526b990a8dab">coefs::coef_t</a>, <a class="el" href="df/d21/structrough__log__law_1_1rough__log__law__t.html#a32d428eaf2c56dad9391df100efb491f">rough_log_law::rough_log_law_t</a>, <a class="el" href="df/df1/structspalding_1_1spalding__t.html#a6584a371ff654faa790f13a1384eae0c">spalding::spalding_t</a></li>
+<li>b&#160;:&#160;<a class="el" href="d0/dea/structcoefs_1_1coef__t.html#a379446619e085f1317f6526b990a8dab">coefs::coef_t</a></li>
+<li>B&#160;:&#160;<a class="el" href="d6/dc4/classpyneko_1_1intf_1_1neko__coef__t.html#a190a483be322d460f5891a99ca22b7c3">pyneko.intf.neko_coef_t</a></li>
+<li>b&#160;:&#160;<a class="el" href="df/d21/structrough__log__law_1_1rough__log__law__t.html#a32d428eaf2c56dad9391df100efb491f">rough_log_law::rough_log_law_t</a>, <a class="el" href="df/df1/structspalding_1_1spalding__t.html#a6584a371ff654faa790f13a1384eae0c">spalding::spalding_t</a></li>
 <li>b_d&#160;:&#160;<a class="el" href="d0/dea/structcoefs_1_1coef__t.html#ad69b4e6f1ba2b7aed698abc59ad21f49">coefs::coef_t</a></li>
 <li>base_flow&#160;:&#160;<a class="el" href="d5/db8/structfluid__volflow_1_1fluid__volflow__t.html#ab4ff9d9fa63c4550732ad23cbd5caa2e">fluid_volflow::fluid_volflow_t</a></li>
+<li>baseflow_is_ic&#160;:&#160;<a class="el" href="d1/d27/structsponge__source__term_1_1sponge__source__term__t.html#ae20c17504e2699759a816e30c1d57726">sponge_source_term::sponge_source_term_t</a></li>
+<li>baseflow_set&#160;:&#160;<a class="el" href="d1/d27/structsponge__source__term_1_1sponge__source__term__t.html#a7707f6220ac03ceda66b14d583d2798d">sponge_source_term::sponge_source_term_t</a></li>
 <li>bb&#160;:&#160;<a class="el" href="d5/dcf/structprojection_1_1projection__t.html#a27a57ed8664194f9dd696e72d43851ab">projection::projection_t</a></li>
 <li>bb_d&#160;:&#160;<a class="el" href="d5/dcf/structprojection_1_1projection__t.html#aeef9e616c8f4989139eb56b859ae2446">projection::projection_t</a></li>
 <li>bb_d_d&#160;:&#160;<a class="el" href="d5/dcf/structprojection_1_1projection__t.html#ac9a8d65b73607701048f940541cc14ed">projection::projection_t</a></li>
-<li>bc&#160;:&#160;<a class="el" href="d8/dd8/structbc_1_1bc__list__t.html#ae0529be2b7542ef271f038813b369666">bc::bc_list_t</a>, <a class="el" href="da/d47/structforce__torque_1_1force__torque__t.html#afb364971c4bfb270569b2dfce3d410c4">force_torque::force_torque_t</a></li>
-<li>bc_apply_prs()&#160;:&#160;<a class="el" href="da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a623513905fe3b53040150fbfbbaf2db5">fluid_scheme::fluid_scheme_t</a></li>
-<li>bc_apply_scalar()&#160;:&#160;<a class="el" href="d9/df2/interfacebc_1_1bc__apply__scalar.html#a35e59d487d611a9bc1c8aaf8db9f7284">bc::bc_apply_scalar</a></li>
-<li>bc_apply_scalar_dev()&#160;:&#160;<a class="el" href="dc/d9b/interfacebc_1_1bc__apply__scalar__dev.html#af143641c04d13764a5d991da5e921cec">bc::bc_apply_scalar_dev</a></li>
-<li>bc_apply_vector()&#160;:&#160;<a class="el" href="de/d2f/interfacebc_1_1bc__apply__vector.html#afe6f6985fa3388acd423f409eb30b0f2">bc::bc_apply_vector</a></li>
-<li>bc_apply_vector_dev()&#160;:&#160;<a class="el" href="de/dde/interfacebc_1_1bc__apply__vector__dev.html#a6dc085d2a2816f81d65388fae2db0046">bc::bc_apply_vector_dev</a></li>
-<li>bc_apply_vel()&#160;:&#160;<a class="el" href="da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#abb6a2e13a85716d8ad1b615fc5de1bb4">fluid_scheme::fluid_scheme_t</a></li>
-<li>bc_crs&#160;:&#160;<a class="el" href="dd/d81/structhsmg_1_1hsmg__t.html#af5cab985ccf74eac1dad7c45bdd3fefa">hsmg::hsmg_t</a></li>
+<li>bc&#160;:&#160;<a class="el" href="da/d47/structforce__torque_1_1force__torque__t.html#afb364971c4bfb270569b2dfce3d410c4">force_torque::force_torque_t</a>, <a class="el" href="d5/dec/structphmg_1_1phmg__lvl__t.html#a249db22cb401298f5d87f25327a0b29b">phmg::phmg_lvl_t</a></li>
+<li>bc_apply_prs()&#160;:&#160;<a class="el" href="d5/d0e/structfluid__scheme__incompressible_1_1fluid__scheme__incompressible__t.html#a114deae587167f7283d188ebfdcec927">fluid_scheme_incompressible::fluid_scheme_incompressible_t</a></li>
+<li>bc_apply_scalar()&#160;:&#160;<a class="el" href="d9/df2/interfacebc_1_1bc__apply__scalar.html#a28f35d751645a896f1339bcfe29858a1">bc::bc_apply_scalar</a></li>
+<li>bc_apply_scalar_dev()&#160;:&#160;<a class="el" href="dc/d9b/interfacebc_1_1bc__apply__scalar__dev.html#a4d10021eb3fcd5432eeb6335fce7a152">bc::bc_apply_scalar_dev</a></li>
+<li>bc_apply_vector()&#160;:&#160;<a class="el" href="de/d2f/interfacebc_1_1bc__apply__vector.html#a1ebe7e7d85636740bb55c105aa9e59fc">bc::bc_apply_vector</a></li>
+<li>bc_apply_vector_dev()&#160;:&#160;<a class="el" href="de/dde/interfacebc_1_1bc__apply__vector__dev.html#a4e7d76f6895fdfd2fce3bd8c8b201841">bc::bc_apply_vector_dev</a></li>
+<li>bc_apply_vel()&#160;:&#160;<a class="el" href="d5/d0e/structfluid__scheme__incompressible_1_1fluid__scheme__incompressible__t.html#a4a726a97d5381fbd304391e778a0801c">fluid_scheme_incompressible::fluid_scheme_incompressible_t</a></li>
+<li>bc_constructor()&#160;:&#160;<a class="el" href="d5/d7c/interfacebc_1_1bc__constructor.html#a50dfd88113c555d944329cd677b7e6c2">bc::bc_constructor</a></li>
+<li>bc_crs&#160;:&#160;<a class="el" href="dd/d81/structhsmg_1_1hsmg__t.html#a8698fbd8e07ffa7e95353ad1ebbe507b">hsmg::hsmg_t</a></li>
 <li>bc_data&#160;:&#160;<a class="el" href="db/db1/structre2_1_1re2v1__bc__t.html#a7b4bc86060f9e69a61f3679d17195c0f">re2::re2v1_bc_t</a>, <a class="el" href="d9/dc9/structre2_1_1re2v2__bc__t.html#aee89abc79250c018317ccd6f8c14dddb">re2::re2v2_bc_t</a></li>
 <li>bc_destructor()&#160;:&#160;<a class="el" href="de/d3c/interfacebc_1_1bc__destructor.html#a14bf2c8564b8c6763ca6dd74dc9a454a">bc::bc_destructor</a></li>
-<li>bc_dong&#160;:&#160;<a class="el" href="da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#ae7ec5d33f024ac3b849e215609031dfb">fluid_scheme::fluid_scheme_t</a></li>
-<li>bc_field_dirichlet_p&#160;:&#160;<a class="el" href="da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a2604e0d3eb85877678fc4881f270b8eb">fluid_pnpn::fluid_pnpn_t</a></li>
-<li>bc_field_dirichlet_u&#160;:&#160;<a class="el" href="da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a07155eeae44873e27569e7c3817fe214">fluid_pnpn::fluid_pnpn_t</a></li>
-<li>bc_field_dirichlet_v&#160;:&#160;<a class="el" href="da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#acf4ca9c48de3897f86f9353e84923051">fluid_pnpn::fluid_pnpn_t</a></li>
-<li>bc_field_dirichlet_w&#160;:&#160;<a class="el" href="da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a6e389e4aebf10103704d0c0b5e27b775">fluid_pnpn::fluid_pnpn_t</a></li>
-<li>bc_inflow&#160;:&#160;<a class="el" href="da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a173457cc02f08856953e2f334ac9990a">fluid_scheme::fluid_scheme_t</a></li>
-<li>bc_labels&#160;:&#160;<a class="el" href="da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#acf6551af1988d3476143259edefe410f">fluid_scheme::fluid_scheme_t</a>, <a class="el" href="dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a3e4592f37cf8c888ef15ca6a7b22902b">scalar_scheme::scalar_scheme_t</a></li>
-<li>bc_list&#160;:&#160;<a class="el" href="da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html#a565b2baa9dcc19d4c74cce70710e4499">field_dirichlet_vector::field_dirichlet_vector_t</a></li>
-<li>bc_list_apply_scalar()&#160;:&#160;<a class="el" href="df/d54/interfacebc_1_1bc__list__apply.html#ab0f7e1c5a2cde1a0e80afa0aa773f038">bc::bc_list_apply</a></li>
-<li>bc_list_apply_vector()&#160;:&#160;<a class="el" href="df/d54/interfacebc_1_1bc__list__apply.html#afb3ad80d5c2609d0f6dc85cb1aebdbb2">bc::bc_list_apply</a></li>
-<li>bc_mg&#160;:&#160;<a class="el" href="dd/d81/structhsmg_1_1hsmg__t.html#ad10c4b0b3ff243c64e0c6524e940cf57">hsmg::hsmg_t</a></li>
-<li>bc_prs&#160;:&#160;<a class="el" href="da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a276c269425825616f2a0126259fd00ee">fluid_scheme::fluid_scheme_t</a></li>
+<li>bc_dp&#160;:&#160;<a class="el" href="da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#aacb1e2811ff59ae80cf69386ff86b458">fluid_pnpn::fluid_pnpn_t</a></li>
+<li>bc_du&#160;:&#160;<a class="el" href="da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a61a6c6bafe3b523c6b48776808278e0f">fluid_pnpn::fluid_pnpn_t</a></li>
+<li>bc_dv&#160;:&#160;<a class="el" href="da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a34329292244d2b44ddbc4b484f0e7181">fluid_pnpn::fluid_pnpn_t</a></li>
+<li>bc_dw&#160;:&#160;<a class="el" href="da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a2d9b9780b0712a3323ee0bcc06cc3f6b">fluid_pnpn::fluid_pnpn_t</a></li>
+<li>bc_finalize()&#160;:&#160;<a class="el" href="d6/d1b/interfacebc_1_1bc__finalize.html#a2ec86094e21112b4abd6eb4a3b62cc73">bc::bc_finalize</a></li>
+<li>bc_labels&#160;:&#160;<a class="el" href="db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#a2f3549b5b6feae729a898f691498a9c8">fluid_scheme_base::fluid_scheme_base_t</a></li>
+<li>bc_mg&#160;:&#160;<a class="el" href="dd/d81/structhsmg_1_1hsmg__t.html#a0ca0cfe46ed2c57c226af051ee5e48a2">hsmg::hsmg_t</a></li>
 <li>bc_prs_surface&#160;:&#160;<a class="el" href="da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#ae8092c9a66cfd4c599d341c51f9047b5">fluid_pnpn::fluid_pnpn_t</a></li>
-<li>bc_reg&#160;:&#160;<a class="el" href="dd/d81/structhsmg_1_1hsmg__t.html#af2d15a9f95a9a4d9a55622e5f729edfd">hsmg::hsmg_t</a></li>
-<li>bc_res&#160;:&#160;<a class="el" href="d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#ab73ced814d39b3d390aea113f69c1a7a">scalar_pnpn::scalar_pnpn_t</a></li>
-<li>bc_sh&#160;:&#160;<a class="el" href="da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a214ced3bec7c6dba0933e457b1de7138">fluid_scheme::fluid_scheme_t</a></li>
-<li>bc_sym&#160;:&#160;<a class="el" href="da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#ad5ac320a6b63cd394de2ea457a3ce501">fluid_scheme::fluid_scheme_t</a></li>
+<li>bc_reg&#160;:&#160;<a class="el" href="dd/d81/structhsmg_1_1hsmg__t.html#aa473cdd26ea590165f0354d760d7f251">hsmg::hsmg_t</a></li>
+<li>bc_res&#160;:&#160;<a class="el" href="d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#ab12f4c6a6b1308b208f690a641949240">scalar_pnpn::scalar_pnpn_t</a></li>
 <li>bc_sym_surface&#160;:&#160;<a class="el" href="da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a6df1cd2197c75ba09e6ac8f8e436c780">fluid_pnpn::fluid_pnpn_t</a></li>
 <li>bc_u&#160;:&#160;<a class="el" href="da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html#a21cf7f8f29cec5fed5d75fb9166d8157">field_dirichlet_vector::field_dirichlet_vector_t</a></li>
 <li>bc_v&#160;:&#160;<a class="el" href="da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html#a10d696e45aeb0f3dde93742bf5fd4429">field_dirichlet_vector::field_dirichlet_vector_t</a></li>
-<li>bc_vel_res&#160;:&#160;<a class="el" href="da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#abf3d90871174f47c69b0ba21c0e90355">fluid_pnpn::fluid_pnpn_t</a></li>
-<li>bc_vel_res_non_normal&#160;:&#160;<a class="el" href="da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#aa6dff2866f06438b20755ea12800bf48">fluid_pnpn::fluid_pnpn_t</a></li>
+<li>bc_vel_res&#160;:&#160;<a class="el" href="da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a15767c8b3a38ea767dd683c04360543b">fluid_pnpn::fluid_pnpn_t</a></li>
 <li>bc_w&#160;:&#160;<a class="el" href="da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html#ae90d3dd1415e17172bcb7f1742f4ac31">field_dirichlet_vector::field_dirichlet_vector_t</a></li>
-<li>bc_wall&#160;:&#160;<a class="el" href="da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a6111bbe254d5c15bcfd17fa83f27cef6">fluid_scheme::fluid_scheme_t</a></li>
-<li>bc_wallmodel&#160;:&#160;<a class="el" href="da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a4334f89bb57fd1c5fec9d4fa331ecf72">fluid_scheme::fluid_scheme_t</a></li>
-<li>bc_x&#160;:&#160;<a class="el" href="d1/d83/structsymmetry_1_1symmetry__t.html#a4ac279f2b8deded7fef94212a47a6ff0">symmetry::symmetry_t</a></li>
-<li>bc_y&#160;:&#160;<a class="el" href="d1/d83/structsymmetry_1_1symmetry__t.html#a7601179fa5af09ab75b6ad1f3792803a">symmetry::symmetry_t</a></li>
-<li>bc_z&#160;:&#160;<a class="el" href="d1/d83/structsymmetry_1_1symmetry__t.html#a6dceed45c362d0a49356100746effce1">symmetry::symmetry_t</a></li>
+<li>bc_x&#160;:&#160;<a class="el" href="d1/d83/structsymmetry_1_1symmetry__t.html#aafc7f689d0789ff40bce51eec004112b">symmetry::symmetry_t</a></li>
+<li>bc_y&#160;:&#160;<a class="el" href="d1/d83/structsymmetry_1_1symmetry__t.html#a18cf05a8fa145230b6b3efc281d78f0e">symmetry::symmetry_t</a></li>
+<li>bc_z&#160;:&#160;<a class="el" href="d1/d83/structsymmetry_1_1symmetry__t.html#a801cd33f5c460620caeebd4064f1be88">symmetry::symmetry_t</a></li>
 <li>bcknd&#160;:&#160;<a class="el" href="dd/db8/structgather__scatter_1_1gs__t.html#aa2c175586dd0149be7281003bfc09967">gather_scatter::gs_t</a></li>
-<li>bclst&#160;:&#160;<a class="el" href="dd/d1b/structhsmg_1_1multigrid__t.html#af855eb8f907d4ca50016524a77ae487d">hsmg::multigrid_t</a>, <a class="el" href="d0/d9f/structschwarz_1_1schwarz__t.html#a0b947c16164025427a9959492e8a72c4">schwarz::schwarz_t</a></li>
+<li>bclst&#160;:&#160;<a class="el" href="dd/d1b/structhsmg_1_1multigrid__t.html#af855eb8f907d4ca50016524a77ae487d">hsmg::multigrid_t</a>, <a class="el" href="d5/dec/structphmg_1_1phmg__lvl__t.html#a031aee71b199aafb2631cb4c790c9df3">phmg::phmg_lvl_t</a>, <a class="el" href="d0/d9f/structschwarz_1_1schwarz__t.html#a0b947c16164025427a9959492e8a72c4">schwarz::schwarz_t</a></li>
 <li>bclst_crs&#160;:&#160;<a class="el" href="dd/d81/structhsmg_1_1hsmg__t.html#af59d23784818a962b592a07fe01b836c">hsmg::hsmg_t</a></li>
-<li>bclst_dirichlet&#160;:&#160;<a class="el" href="dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a19f3fcb47706d7481e7c53121c6b8b11">scalar_scheme::scalar_scheme_t</a></li>
 <li>bclst_dp&#160;:&#160;<a class="el" href="da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a76fd4408b472d4fc362a9de477ebc3f0">fluid_pnpn::fluid_pnpn_t</a></li>
 <li>bclst_ds&#160;:&#160;<a class="el" href="d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#a5eb9e5a18beb8c9d1bc02e8c433e770a">scalar_pnpn::scalar_pnpn_t</a></li>
 <li>bclst_du&#160;:&#160;<a class="el" href="da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#ac5581973f2fb904a16af19ac700c2401">fluid_pnpn::fluid_pnpn_t</a></li>
 <li>bclst_dv&#160;:&#160;<a class="el" href="da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a72f7db6a6710a5af4ed799d0aab65437">fluid_pnpn::fluid_pnpn_t</a></li>
 <li>bclst_dw&#160;:&#160;<a class="el" href="da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#aca8a3d85fbc155920979bb9b68d2c3d9">fluid_pnpn::fluid_pnpn_t</a></li>
+<li>bclst_filt&#160;:&#160;<a class="el" href="dc/d26/structpde__filter_1_1pde__filter__t.html#a734c01dc4bac0d39d4c94c13fcff3297">pde_filter::pde_filter_t</a></li>
 <li>bclst_mg&#160;:&#160;<a class="el" href="dd/d81/structhsmg_1_1hsmg__t.html#a29023a08ecada5027f496e50f0d380a3">hsmg::hsmg_t</a></li>
-<li>bclst_neumann&#160;:&#160;<a class="el" href="dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a2c9848cb1dae83a85e8aa2475103c200">scalar_scheme::scalar_scheme_t</a></li>
-<li>bclst_prs&#160;:&#160;<a class="el" href="da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#aff3629edb0c64f59b824b6ca321f5b66">fluid_scheme::fluid_scheme_t</a></li>
 <li>bclst_reg&#160;:&#160;<a class="el" href="dd/d81/structhsmg_1_1hsmg__t.html#adbd3764771b65a161c5db71113a07b7f">hsmg::hsmg_t</a></li>
-<li>bclst_vel&#160;:&#160;<a class="el" href="da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a719d3c6b29f1d4155575c7cd92c7ec00">fluid_scheme::fluid_scheme_t</a></li>
-<li>bclst_vel_neumann&#160;:&#160;<a class="el" href="da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a6abb1e6000ffcc22ca952e41053c01aa">fluid_scheme::fluid_scheme_t</a></li>
 <li>bclst_vel_res&#160;:&#160;<a class="el" href="da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a2ac7c8e21e3f90d017932699f202067d">fluid_pnpn::fluid_pnpn_t</a></li>
-<li>bcp&#160;:&#160;<a class="el" href="dc/d46/structbc_1_1bcp__t.html#aed55d57ebb6ee1ce0545ad0f922196eb">bc::bcp_t</a></li>
+<li>bcs&#160;:&#160;<a class="el" href="dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a8f23b6ae37bbd287958ebce957fb50c0">scalar_scheme::scalar_scheme_t</a></li>
+<li>bcs_density&#160;:&#160;<a class="el" href="da/d12/structfluid__scheme__compressible__euler_1_1fluid__scheme__compressible__euler__t.html#a08383ebe6d191f69a1bb0d44c6fa40b4">fluid_scheme_compressible_euler::fluid_scheme_compressible_euler_t</a></li>
+<li>bcs_prs&#160;:&#160;<a class="el" href="db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#ae7176706c8e0d55b82e4f91352120c2b">fluid_scheme_base::fluid_scheme_base_t</a></li>
+<li>bcs_vel&#160;:&#160;<a class="el" href="db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#aa2d769e8bed75a811894beb36f1fd5df">fluid_scheme_base::fluid_scheme_base_t</a></li>
 <li>bdf&#160;:&#160;<a class="el" href="d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t.html#ade1fd1bccaba1326299a882898da19bf">time_scheme_controller::time_scheme_controller_t</a></li>
 <li>bdlag&#160;:&#160;<a class="el" href="d5/db8/structfluid__volflow_1_1fluid__volflow__t.html#ae636cf50a00506f799480988ac898d64">fluid_volflow::fluid_volflow_t</a></li>
-<li>bdry&#160;:&#160;<a class="el" href="da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#aa25eb39d9231426c7785b49808d4e08a">fluid_scheme::fluid_scheme_t</a></li>
 <li>begin()&#160;:&#160;<a class="el" href="d0/d7b/structlogger_1_1log__t.html#ac3a388ed267fbf556230042943a183df">logger::log_t</a></li>
 <li>beta&#160;:&#160;<a class="el" href="d1/d30/structboussinesq__source__term_1_1boussinesq__source__term__t.html#a6ad5eb0f93aafe873ffbe8a57737d3e1">boussinesq_source_term::boussinesq_source_term_t</a>, <a class="el" href="dc/d01/structpipecg__device_1_1pipecg__device__t.html#a791aedfe2806b9b67ce73c276a6be8b0">pipecg_device::pipecg_device_t</a></li>
 <li>beta_d&#160;:&#160;<a class="el" href="dc/d01/structpipecg__device_1_1pipecg__device__t.html#a830176ab9aeda3581b9166dfc3aaa35e">pipecg_device::pipecg_device_t</a></li>
+<li>bf_rgstry_pref&#160;:&#160;<a class="el" href="d1/d27/structsponge__source__term_1_1sponge__source__term__t.html#addbd1885ca423f8eb1bf95d2b7e726e3">sponge_source_term::sponge_source_term_t</a></li>
 <li>binv&#160;:&#160;<a class="el" href="d0/dea/structcoefs_1_1coef__t.html#a8af22dc56100d30397d61e025c554227">coefs::coef_t</a></li>
 <li>binv_d&#160;:&#160;<a class="el" href="d0/dea/structcoefs_1_1coef__t.html#a0ce35188faea36fbccf4b67b245bc916">coefs::coef_t</a></li>
 <li>bla&#160;:&#160;<a class="el" href="d0/dca/structblasius_1_1blasius__t.html#a7fbd4509d3574195f33b7e73138a76ff">blasius::blasius_t</a></li>
@@ -175,19 +169,22 @@ $(document).ready(function(){initNavTree('functions_b.html',''); initResizable()
 <li>blax_d&#160;:&#160;<a class="el" href="d0/dca/structblasius_1_1blasius__t.html#a4017a86c5e6ce0016b76c0e93b8fee95">blasius::blasius_t</a></li>
 <li>blay_d&#160;:&#160;<a class="el" href="d0/dca/structblasius_1_1blasius__t.html#acf0282b870a03eff33c511e51aa16f57">blasius::blasius_t</a></li>
 <li>blaz_d&#160;:&#160;<a class="el" href="d0/dca/structblasius_1_1blasius__t.html#ae9936851378e90119f7d0c10bfc7face">blasius::blasius_t</a></li>
+<li>blst&#160;:&#160;<a class="el" href="d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html#a4d39858e7d8ca3d011382fba26cdaaad">tree_amg::tamg_hierarchy_t</a></li>
 <li>box_max&#160;:&#160;<a class="el" href="d5/ddb/structaabb_1_1aabb__t.html#a5edf0adccb931c8cb2e3ad65770b4b6a">aabb::aabb_t</a></li>
 <li>box_min&#160;:&#160;<a class="el" href="d5/ddb/structaabb_1_1aabb__t.html#ac822a6fafa7dbf22c635f4dae21531ad">aabb::aabb_t</a></li>
-<li>brinkman&#160;:&#160;<a class="el" href="dc/dcc/structbrinkman__source__term_1_1brinkman__source__term__t.html#a11f7e302e9392a86e649839918bf4df4">brinkman_source_term::brinkman_source_term_t</a></li>
-<li>buf_d&#160;:&#160;<a class="el" href="db/de6/structgs__device__mpi_1_1gs__device__mpi__buf__t.html#a354853ecf76ac965ae683f430312aa7f">gs_device_mpi::gs_device_mpi_buf_t</a></li>
-<li>build()&#160;:&#160;<a class="el" href="d9/d87/structaabb__tree_1_1aabb__tree__t.html#ae4fb0825f71c07dafbd2ef435076f3ab">aabb_tree::aabb_tree_t</a></li>
+<li>brinkman&#160;:&#160;<a class="el" href="dc/dcc/structbrinkman__source__term_1_1brinkman__source__term__t.html#a2b809574c33ed2cd8f8d1820aeb86721">brinkman_source_term::brinkman_source_term_t</a></li>
+<li>buf_d&#160;:&#160;<a class="el" href="db/de6/structgs__device__mpi_1_1gs__device__mpi__buf__t.html#a354853ecf76ac965ae683f430312aa7f">gs_device_mpi::gs_device_mpi_buf_t</a>, <a class="el" href="d5/dda/structgs__device__nccl_1_1gs__device__nccl__buf__t.html#a438cc09b2d118b948180782d6ce5e05e">gs_device_nccl::gs_device_nccl_buf_t</a>, <a class="el" href="da/d8c/structgs__device__shmem_1_1gs__device__shmem__buf__t.html#ac2cf338681642db616bda010269e9633">gs_device_shmem::gs_device_shmem_buf_t</a></li>
+<li>build()&#160;:&#160;<a class="el" href="d9/d87/structaabb__tree_1_1aabb__tree__t.html#ad90913cff086925b248a782a743d7d54">aabb_tree::aabb_tree_t</a></li>
 <li>build_1d()&#160;:&#160;<a class="el" href="d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html#a07850866abc3978bb132fa584b8dd417">elementwise_filter::elementwise_filter_t</a></li>
+<li>build_from_aabb()&#160;:&#160;<a class="el" href="d9/d87/structaabb__tree_1_1aabb__tree__t.html#aaeeeeb1f3cefca6137bfd014c8582350">aabb_tree::aabb_tree_t</a></li>
+<li>build_generic()&#160;:&#160;<a class="el" href="d9/d87/structaabb__tree_1_1aabb__tree__t.html#aaa48c791bb7e2f1e7ec3b17f5fc2efcb">aabb_tree::aabb_tree_t</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:54 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

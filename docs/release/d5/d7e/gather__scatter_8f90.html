@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -121,9 +121,9 @@ Modules</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a6abafa7eaef0e406c6d411d8554b8bee" id="r_a6abafa7eaef0e406c6d411d8554b8bee"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#a6abafa7eaef0e406c6d411d8554b8bee">gather_scatter::gs_init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">gs</a>, dofmap, bcknd)</td></tr>
-<tr class="memdesc:a6abafa7eaef0e406c6d411d8554b8bee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize a gather-scatter kernel.  <br /></td></tr>
-<tr class="separator:a6abafa7eaef0e406c6d411d8554b8bee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab47747b3dc7d9b75b840e7c6aafdf347" id="r_ab47747b3dc7d9b75b840e7c6aafdf347"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347">gather_scatter::gs_init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">gs</a>, dofmap, bcknd, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">comm_bcknd</a>)</td></tr>
+<tr class="memdesc:ab47747b3dc7d9b75b840e7c6aafdf347"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize a gather-scatter kernel.  <br /></td></tr>
+<tr class="separator:ab47747b3dc7d9b75b840e7c6aafdf347"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7b932fc67f24ee664f40c41bc61487c1" id="r_a7b932fc67f24ee664f40c41bc61487c1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#a7b932fc67f24ee664f40c41bc61487c1">gather_scatter::gs_free</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">gs</a>)</td></tr>
 <tr class="memdesc:a7b932fc67f24ee664f40c41bc61487c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocate a gather-scatter kernel.  <br /></td></tr>
 <tr class="separator:a7b932fc67f24ee664f40c41bc61487c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -131,7 +131,7 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memdesc:a116426a5fc51d480ab0f080002328566"><td class="mdescLeft">&#160;</td><td class="mdescRight">Setup mapping of dofs to gather-scatter operations.  <br /></td></tr>
 <tr class="separator:a116426a5fc51d480ab0f080002328566"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af8cc5f86931d4ca4f75ac2ddc0b311d8" id="r_af8cc5f86931d4ca4f75ac2ddc0b311d8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d7e/gather__scatter_8f90.html#af8cc5f86931d4ca4f75ac2ddc0b311d8">gs_mapping_add_dof</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">map_</a>, dof, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">max_id</a>)</td></tr>
-<tr class="memdesc:af8cc5f86931d4ca4f75ac2ddc0b311d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register a unique dof.  <br /></td></tr>
+<tr class="memdesc:af8cc5f86931d4ca4f75ac2ddc0b311d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register a unique dof Takes the unique id dof and checks if it is in the htable map_ If it is we return the gather-scatter id this global dof has been assigned to. This is done as the global id can be very large <a class="el" href="../../d9/d0b/tensor_8cu.html#affe776513b24d84b39af8ab0930fef7f">max(integer8)</a>, but the number of local points is at most <a class="el" href="../../d9/d0b/tensor_8cu.html#affe776513b24d84b39af8ab0930fef7f">max(integer4)</a>  <br /></td></tr>
 <tr class="separator:af8cc5f86931d4ca4f75ac2ddc0b311d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a762680d00a8b9d4de7498ece71c4092b" id="r_a762680d00a8b9d4de7498ece71c4092b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">recursive</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d7e/gather__scatter_8f90.html#a762680d00a8b9d4de7498ece71c4092b">gs_qsort_dofmap</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dg</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">gd</a>, n, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">lo</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">hi</a>)</td></tr>
 <tr class="memdesc:a762680d00a8b9d4de7498ece71c4092b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sort the dof lists based on the dof to gather-scatter list.  <br /></td></tr>
@@ -205,7 +205,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01095">1095</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01194">1194</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -214,7 +214,7 @@ Here is the caller graph for this function:</div>
 <area shape="rect" title="Find blocks sharing dofs in non&#45;facet data." alt="" coords="407,13,509,38"/>
 <area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a116426a5fc51d480ab0f080002328566" title="Setup mapping of dofs to gather&#45;scatter operations." alt="" coords="220,5,359,45"/>
 <area shape="poly" title=" " alt="" coords="393,28,359,28,359,23,393,23"/>
-<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a6abafa7eaef0e406c6d411d8554b8bee" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,13,172,38"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,13,172,38"/>
 <area shape="poly" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
 </map>
 </div>
@@ -260,17 +260,25 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">map_,htable</td><td>of global unique id to local unique id </td></tr>
+    <tr><td class="paramname">dof,global</td><td>unique id of dof </td></tr>
+    <tr><td class="paramname">max_id,current</td><td>number of entries in map_ </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01038">1038</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01137">1137</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d5/d7e/gather__scatter_8f90_af8cc5f86931d4ca4f75ac2ddc0b311d8_icgraph.png" border="0" usemap="#ad5/d7e/gather__scatter_8f90_af8cc5f86931d4ca4f75ac2ddc0b311d8_icgraph" alt=""/></div>
 <map name="ad5/d7e/gather__scatter_8f90_af8cc5f86931d4ca4f75ac2ddc0b311d8_icgraph" id="ad5/d7e/gather__scatter_8f90_af8cc5f86931d4ca4f75ac2ddc0b311d8_icgraph">
-<area shape="rect" title="Register a unique dof." alt="" coords="407,13,567,38"/>
+<area shape="rect" title="Register a unique dof Takes the unique id dof and checks if it is in the htable map_ If it is we retu..." alt="" coords="407,13,567,38"/>
 <area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a116426a5fc51d480ab0f080002328566" title="Setup mapping of dofs to gather&#45;scatter operations." alt="" coords="220,5,359,45"/>
 <area shape="poly" title=" " alt="" coords="393,28,359,28,359,23,393,23"/>
-<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a6abafa7eaef0e406c6d411d8554b8bee" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,13,172,38"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,13,172,38"/>
 <area shape="poly" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
 </map>
 </div>
@@ -329,7 +337,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01053">1053</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01152">1152</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -348,7 +356,7 @@ Here is the caller graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="507,19,497,11,474,8,455,10,444,15,442,20,448,28,443,31,437,21,440,11,453,5,474,3,499,6,510,15"/>
 <area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a116426a5fc51d480ab0f080002328566" title="Setup mapping of dofs to gather&#45;scatter operations." alt="" coords="220,22,359,62"/>
 <area shape="poly" title=" " alt="" coords="393,45,359,45,359,39,393,39"/>
-<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a6abafa7eaef0e406c6d411d8554b8bee" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,29,172,55"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,29,172,55"/>
 <area shape="poly" title=" " alt="" coords="206,45,172,45,172,39,206,39"/>
 </map>
 </div>
@@ -361,7 +369,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_efc6cc943adcbbcf7353b1e68a05f09f.html">gs</a></li><li class="navelem"><a class="el" href="../../d5/d7e/gather__scatter_8f90.html">gather_scatter.f90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

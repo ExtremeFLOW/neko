@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -106,7 +106,7 @@ $(document).ready(function(){initNavTree('d1/d37/jobctrl_8f90_source.html','../.
   <div class="headertitle"><div class="title">jobctrl.f90</div></div>
 </div><!--header-->
 <div class="contents">
-<a href="../../d1/d37/jobctrl_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">! Copyright (c) 2021, The Neko Authors</span></div>
+<a href="../../d1/d37/jobctrl_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">! Copyright (c) 2021-2025, The Neko Authors</span></div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment">! All rights reserved.</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="comment">!</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment">! Redistribution and use in source and binary forms, with or without</span></div>
@@ -141,128 +141,130 @@ $(document).ready(function(){initNavTree('d1/d37/jobctrl_8f90_source.html','../.
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno"><a class="line" href="../../d7/d06/namespacejobctrl.html">   34</a></span><span class="keyword">module</span> <a class="code hl_namespace" href="../../d7/d06/namespacejobctrl.html">jobctrl</a></div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../df/d48/namespacenum__types.html">num_types</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>, <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aab47a6c4827cb5c6bbd741a44c87e956">dp</a></div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d1/daf/namespacesignal.html">signal</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../d1/daf/namespacesignal.html#a6b00a55dcd3c7bd830fa925efd51e571">signal_timeout</a>, <a class="code hl_function" href="../../d1/daf/namespacesignal.html#a2290a09befe1d36d50034e39096dcfe7">signal_usr</a>, <a class="code hl_function" href="../../d1/daf/namespacesignal.html#a4b575d7f80b06fdb51ca6a8c7486d825">signal_trap_usr</a>, &amp;</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>                     <a class="code hl_function" href="../../d1/daf/namespacesignal.html#a05ea34a12169705ced009c42856bcb62">signal_set_timeout</a>, <a class="code hl_function" href="../../d1/daf/namespacesignal.html#adbf88cfbdc7991b88f2ddcc67304f05f">signal_trap_cpulimit</a></div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>       <a class="code hl_function" href="../../d1/daf/namespacesignal.html#a05ea34a12169705ced009c42856bcb62">signal_set_timeout</a>, <a class="code hl_function" href="../../d1/daf/namespacesignal.html#adbf88cfbdc7991b88f2ddcc67304f05f">signal_trap_cpulimit</a></div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/d84/namespaceutils.html">utils</a>, <span class="keywordtype">onlY</span> : <a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a></div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d3/d8f/namespacecomm.html">comm</a></div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d8/da0/namespacelogger.html">logger</a></div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keywordtype">implicit none</span></div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>  <span class="keywordtype">private</span></div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
-<div class="foldopen" id="foldopen00044" data-start="" data-end="">
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno"><a class="line" href="../../da/d39/interfacejobctrl_1_1jobctrl__set__time__limit.html">   44</a></span>  <span class="keyword">interface</span> <a class="code hl_interface" href="../../da/d39/interfacejobctrl_1_1jobctrl__set__time__limit.html">jobctrl_set_time_limit</a></div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>     <span class="keyword">module procedure</span> <a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#aaa38605ae63b754fcccffe3d10a3a4bb">jobctrl_set_time_limit_sec</a>, <a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#a288823dde72b2464cf502906b6bf40da">jobctrl_set_time_limit_str</a></div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  <span class="keywordtype">use </span>mpi_f08, <span class="keywordtype">only</span> : mpi_bcast, mpi_logical, mpi_wtime</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d3/d8f/namespacecomm.html">comm</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a7c785ed9ced1166fa0d1591e62ad5d3d">neko_comm</a></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d8/da0/namespacelogger.html">logger</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>, <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ade757cfc4235350ea17397117ea3c4a6">log_size</a>, <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#a67790b62b71ce7aee410f481d248d754">neko_log_quiet</a></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>  <span class="keywordtype">implicit none</span></div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>  <span class="keywordtype">private</span></div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
+<div class="foldopen" id="foldopen00045" data-start="" data-end="">
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno"><a class="line" href="../../da/d39/interfacejobctrl_1_1jobctrl__set__time__limit.html">   45</a></span>  <span class="keyword">interface</span> <a class="code hl_interface" href="../../da/d39/interfacejobctrl_1_1jobctrl__set__time__limit.html">jobctrl_set_time_limit</a></div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>     <span class="keyword">module procedure</span> <a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#aaa38605ae63b754fcccffe3d10a3a4bb">jobctrl_set_time_limit_sec</a>, <a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#a288823dde72b2464cf502906b6bf40da">jobctrl_set_time_limit_str</a></div>
 </div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>  <span class="keyword">end interface </span><a class="code hl_interface" href="../../da/d39/interfacejobctrl_1_1jobctrl__set__time__limit.html">jobctrl_set_time_limit</a></div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span> </div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>  <span class="keywordtype">public</span> :: <a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#ac1f9c065e490a227cedb2d1a5c0a7841">jobctrl_init</a>, <a class="code hl_interface" href="../../da/d39/interfacejobctrl_1_1jobctrl__set__time__limit.html">jobctrl_set_time_limit</a>, &amp;</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>       <a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#a668d576b7980c2488dece4c06fcbb41b">jobctrl_time_limit</a>, <a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#a7db1bdb67af7a36c1a77422333bb985f">jobctrl_jobtime</a></div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="keyword">contains</span></div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
-<div class="foldopen" id="foldopen00054" data-start="" data-end="">
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno"><a class="line" href="../../d7/d06/namespacejobctrl.html#ac1f9c065e490a227cedb2d1a5c0a7841">   54</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#ac1f9c065e490a227cedb2d1a5c0a7841">jobctrl_init</a>()</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aab47a6c4827cb5c6bbd741a44c87e956">dp</a>) :: jobtime</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span> </div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="comment">! Start the job clock</span></div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    jobtime = <a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#a7db1bdb67af7a36c1a77422333bb985f">jobctrl_jobtime</a>()</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span> </div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="comment">! Catch SIGXCPU</span></div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d1/daf/namespacesignal.html#adbf88cfbdc7991b88f2ddcc67304f05f">signal_trap_cpulimit</a>()</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    <span class="comment">! Catch SIGUSR1 and SIGUSR2</span></div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d1/daf/namespacesignal.html#a4b575d7f80b06fdb51ca6a8c7486d825">signal_trap_usr</a>()</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span> </div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>  <span class="keyword">end interface </span><a class="code hl_interface" href="../../da/d39/interfacejobctrl_1_1jobctrl__set__time__limit.html">jobctrl_set_time_limit</a></div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span> </div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>  <span class="keywordtype">public</span> :: <a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#ac1f9c065e490a227cedb2d1a5c0a7841">jobctrl_init</a>, <a class="code hl_interface" href="../../da/d39/interfacejobctrl_1_1jobctrl__set__time__limit.html">jobctrl_set_time_limit</a>, &amp;</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>       <a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#a668d576b7980c2488dece4c06fcbb41b">jobctrl_time_limit</a>, <a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#a7db1bdb67af7a36c1a77422333bb985f">jobctrl_jobtime</a></div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span> </div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><span class="keyword">contains</span></div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span> </div>
+<div class="foldopen" id="foldopen00055" data-start="" data-end="">
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno"><a class="line" href="../../d7/d06/namespacejobctrl.html#ac1f9c065e490a227cedb2d1a5c0a7841">   55</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#ac1f9c065e490a227cedb2d1a5c0a7841">jobctrl_init</a>()</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aab47a6c4827cb5c6bbd741a44c87e956">dp</a>) :: jobtime</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span> </div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    <span class="comment">! Start the job clock</span></div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    jobtime = <a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#a7db1bdb67af7a36c1a77422333bb985f">jobctrl_jobtime</a>()</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span> </div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="comment">! Catch SIGXCPU</span></div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d1/daf/namespacesignal.html#adbf88cfbdc7991b88f2ddcc67304f05f">signal_trap_cpulimit</a>()</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="comment">! Catch SIGUSR1 and SIGUSR2</span></div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d1/daf/namespacesignal.html#a4b575d7f80b06fdb51ca6a8c7486d825">signal_trap_usr</a>()</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span> </div>
 </div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#ac1f9c065e490a227cedb2d1a5c0a7841">jobctrl_init</a></div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span> </div>
-<div class="foldopen" id="foldopen00069" data-start="" data-end="">
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno"><a class="line" href="../../da/d39/interfacejobctrl_1_1jobctrl__set__time__limit.html#a465891abbe5d2c56c25d58e0afc0309a">   69</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#a288823dde72b2464cf502906b6bf40da">jobctrl_set_time_limit_str</a>(limit_str)</div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>    <span class="keywordtype">character(len=*)</span> limit_str</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    <span class="keywordtype">integer</span> :: str_len, sep_h, h, m, s</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span> </div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    str_len = len_trim(limit_str)</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span> </div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>    <span class="keywordflow">if</span> (str_len .lt. 8) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Invalid job limit&#39;</span>)</div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span> </div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>    <span class="comment">! hour</span></div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    sep_h = scan(trim(limit_str), <span class="stringliteral">&#39;:&#39;</span>)</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    <span class="keyword">read</span>(limit_str(1:sep_h-1), *) h</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span> </div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>    <span class="comment">!min</span></div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>    <span class="keyword">read</span>(limit_str(sep_h+1:sep_h+2), *) m</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span> </div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    <span class="comment">!sec</span></div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>    <span class="keyword">read</span>(limit_str(sep_h+4:str_len), *) s</div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span> </div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#aaa38605ae63b754fcccffe3d10a3a4bb">jobctrl_set_time_limit_sec</a>(h*3600 + m * 60 + s)</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span> </div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#ac1f9c065e490a227cedb2d1a5c0a7841">jobctrl_init</a></div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span> </div>
+<div class="foldopen" id="foldopen00070" data-start="" data-end="">
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno"><a class="line" href="../../da/d39/interfacejobctrl_1_1jobctrl__set__time__limit.html#a465891abbe5d2c56c25d58e0afc0309a">   70</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#a288823dde72b2464cf502906b6bf40da">jobctrl_set_time_limit_str</a>(limit_str)</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    <span class="keywordtype">character(len=*)</span> limit_str</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    <span class="keywordtype">integer</span> :: str_len, sep_h, h, m, s</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span> </div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    str_len = len_trim(limit_str)</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span> </div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    <span class="keywordflow">if</span> (str_len .lt. 8) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Invalid job limit&#39;</span>)</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span> </div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    <span class="comment">! hour</span></div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    sep_h = scan(trim(limit_str), <span class="stringliteral">&#39;:&#39;</span>)</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>    <span class="keyword">read</span>(limit_str(1:sep_h-1), *) h</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span> </div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>    <span class="comment">!min</span></div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>    <span class="keyword">read</span>(limit_str(sep_h+1:sep_h+2), *) m</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span> </div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>    <span class="comment">!sec</span></div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    <span class="keyword">read</span>(limit_str(sep_h+4:str_len), *) s</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span> </div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#aaa38605ae63b754fcccffe3d10a3a4bb">jobctrl_set_time_limit_sec</a>(h*3600 + m * 60 + s)</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span> </div>
 </div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#a288823dde72b2464cf502906b6bf40da">jobctrl_set_time_limit_str</a></div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span> </div>
-<div class="foldopen" id="foldopen00094" data-start="" data-end="">
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno"><a class="line" href="../../da/d39/interfacejobctrl_1_1jobctrl__set__time__limit.html#a726abeee8968fe20bca3a6e0b23215be">   94</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#aaa38605ae63b754fcccffe3d10a3a4bb">jobctrl_set_time_limit_sec</a>(sec)</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>    <span class="keywordtype">integer</span> :: sec</div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    <span class="keywordtype">integer</span> :: jstop_sec</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span> </div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>    <span class="keywordflow">if</span> (sec .gt. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>       jstop_sec = sec - <a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#a7db1bdb67af7a36c1a77422333bb985f">jobctrl_jobtime</a>()</div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d1/daf/namespacesignal.html#a05ea34a12169705ced009c42856bcb62">signal_set_timeout</a>(jstop_sec)</div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span> </div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#a288823dde72b2464cf502906b6bf40da">jobctrl_set_time_limit_str</a></div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span> </div>
+<div class="foldopen" id="foldopen00095" data-start="" data-end="">
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno"><a class="line" href="../../da/d39/interfacejobctrl_1_1jobctrl__set__time__limit.html#a726abeee8968fe20bca3a6e0b23215be">   95</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#aaa38605ae63b754fcccffe3d10a3a4bb">jobctrl_set_time_limit_sec</a>(sec)</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    <span class="keywordtype">integer</span> :: sec</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    <span class="keywordtype">integer</span> :: jstop_sec</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span> </div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    <span class="keywordflow">if</span> (sec .gt. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>       jstop_sec = sec - <a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#a7db1bdb67af7a36c1a77422333bb985f">jobctrl_jobtime</a>()</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d1/daf/namespacesignal.html#a05ea34a12169705ced009c42856bcb62">signal_set_timeout</a>(jstop_sec)</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span> </div>
 </div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#aaa38605ae63b754fcccffe3d10a3a4bb">jobctrl_set_time_limit_sec</a></div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span> </div>
-<div class="foldopen" id="foldopen00106" data-start="" data-end="">
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno"><a class="line" href="../../d7/d06/namespacejobctrl.html#a668d576b7980c2488dece4c06fcbb41b">  106</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#a668d576b7980c2488dece4c06fcbb41b">jobctrl_time_limit</a>() <span class="keyword">result</span>(jstop)</div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>    <span class="keywordtype">logical</span> :: jstop</div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <span class="keywordtype">integer</span> :: ierr</div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    <span class="keywordtype">character(len=LOG_SIZE)</span> :: log_buf</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span> </div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>    jstop = (<a class="code hl_function" href="../../d1/daf/namespacesignal.html#a6b00a55dcd3c7bd830fa925efd51e571">signal_timeout</a>() .or. <a class="code hl_function" href="../../d1/daf/namespacesignal.html#a2290a09befe1d36d50034e39096dcfe7">signal_usr</a>(1))</div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span> </div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    <span class="keywordflow">if</span> (jstop) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>       <span class="comment">! Todo: This might be a warning instead of a message?</span></div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>       <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A)&#39;</span>) <span class="stringliteral">&#39;! stop at job limit &gt;&gt;&gt;&#39;</span></div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>       <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(log_buf, <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#a67790b62b71ce7aee410f481d248d754">neko_log_quiet</a>)</div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span> </div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>    <span class="comment">! Let rank zero decide if we should stop</span></div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    <span class="keyword">call </span>mpi_bcast(jstop, 1, mpi_logical, 0, <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a74658af6604200fabba70f45980ca1c6">neko_comm</a>, ierr)</div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span> </div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#aaa38605ae63b754fcccffe3d10a3a4bb">jobctrl_set_time_limit_sec</a></div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span> </div>
+<div class="foldopen" id="foldopen00107" data-start="" data-end="">
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno"><a class="line" href="../../d7/d06/namespacejobctrl.html#a668d576b7980c2488dece4c06fcbb41b">  107</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#a668d576b7980c2488dece4c06fcbb41b">jobctrl_time_limit</a>() <span class="keyword">result</span>(jstop)</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <span class="keywordtype">logical</span> :: jstop</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    <span class="keywordtype">integer</span> :: ierr</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    <span class="keywordtype">character(len=LOG_SIZE)</span> :: log_buf</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span> </div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>    jstop = (<a class="code hl_function" href="../../d1/daf/namespacesignal.html#a6b00a55dcd3c7bd830fa925efd51e571">signal_timeout</a>() .or. <a class="code hl_function" href="../../d1/daf/namespacesignal.html#a2290a09befe1d36d50034e39096dcfe7">signal_usr</a>(1))</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span> </div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    <span class="keywordflow">if</span> (jstop) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>       <span class="comment">! Todo: This might be a warning instead of a message?</span></div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>       <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A)&#39;</span>) <span class="stringliteral">&#39;! stop at job limit &gt;&gt;&gt;&#39;</span></div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>       <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(log_buf, <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#a67790b62b71ce7aee410f481d248d754">neko_log_quiet</a>)</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span> </div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    <span class="comment">! Let rank zero decide if we should stop</span></div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>    <span class="keyword">call </span>mpi_bcast(jstop, 1, mpi_logical, 0, <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a7c785ed9ced1166fa0d1591e62ad5d3d">neko_comm</a>, ierr)</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span> </div>
 </div>
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#a668d576b7980c2488dece4c06fcbb41b">jobctrl_time_limit</a></div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span> </div>
-<div class="foldopen" id="foldopen00125" data-start="" data-end="">
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno"><a class="line" href="../../d7/d06/namespacejobctrl.html#a7db1bdb67af7a36c1a77422333bb985f">  125</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#a7db1bdb67af7a36c1a77422333bb985f">jobctrl_jobtime</a>() <span class="keyword">result</span>(jobtime)</div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">save</span> :: stime</div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: jobtime</div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">save</span> :: init = .false.</div>
-<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span> </div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>    <span class="keywordflow">if</span> (.not. init) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>       stime = mpi_wtime()</div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>       init = .true.</div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span> </div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>    jobtime = mpi_wtime() - stime</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#a668d576b7980c2488dece4c06fcbb41b">jobctrl_time_limit</a></div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span> </div>
+<div class="foldopen" id="foldopen00126" data-start="" data-end="">
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno"><a class="line" href="../../d7/d06/namespacejobctrl.html#a7db1bdb67af7a36c1a77422333bb985f">  126</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#a7db1bdb67af7a36c1a77422333bb985f">jobctrl_jobtime</a>() <span class="keyword">result</span>(jobtime)</div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">save</span> :: stime</div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: jobtime</div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">save</span> :: init = .false.</div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span> </div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>    <span class="keywordflow">if</span> (.not. init) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>       stime = mpi_wtime()</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>       init = .true.</div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span> </div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>    jobtime = mpi_wtime() - stime</div>
 </div>
-<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#a7db1bdb67af7a36c1a77422333bb985f">jobctrl_jobtime</a></div>
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span> </div>
-<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d7/d06/namespacejobctrl.html">jobctrl</a></div>
-<div class="ttc" id="ainterfacejobctrl_1_1jobctrl__set__time__limit_html"><div class="ttname"><a href="../../da/d39/interfacejobctrl_1_1jobctrl__set__time__limit.html">jobctrl::jobctrl_set_time_limit</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d37/jobctrl_8f90_source.html#l00044">jobctrl.f90:44</a></div></div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../d7/d06/namespacejobctrl.html#a7db1bdb67af7a36c1a77422333bb985f">jobctrl_jobtime</a></div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span> </div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d7/d06/namespacejobctrl.html">jobctrl</a></div>
+<div class="ttc" id="ainterfacejobctrl_1_1jobctrl__set__time__limit_html"><div class="ttname"><a href="../../da/d39/interfacejobctrl_1_1jobctrl__set__time__limit.html">jobctrl::jobctrl_set_time_limit</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d37/jobctrl_8f90_source.html#l00045">jobctrl.f90:45</a></div></div>
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00042">utils.f90:42</a></div></div>
 <div class="ttc" id="anamespacecomm_html"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html">comm</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00001">comm.F90:1</a></div></div>
-<div class="ttc" id="anamespacecomm_html_a74658af6604200fabba70f45980ca1c6"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a74658af6604200fabba70f45980ca1c6">comm::neko_comm</a></div><div class="ttdeci">type(mpi_comm) neko_comm</div><div class="ttdoc">MPI communicator.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00016">comm.F90:16</a></div></div>
+<div class="ttc" id="anamespacecomm_html_a7c785ed9ced1166fa0d1591e62ad5d3d"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a7c785ed9ced1166fa0d1591e62ad5d3d">comm::neko_comm</a></div><div class="ttdeci">type(mpi_comm), public neko_comm</div><div class="ttdoc">MPI communicator.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00043">comm.F90:43</a></div></div>
 <div class="ttc" id="anamespacejobctrl_html"><div class="ttname"><a href="../../d7/d06/namespacejobctrl.html">jobctrl</a></div><div class="ttdoc">Job control.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d37/jobctrl_8f90_source.html#l00034">jobctrl.f90:34</a></div></div>
-<div class="ttc" id="anamespacejobctrl_html_a288823dde72b2464cf502906b6bf40da"><div class="ttname"><a href="../../d7/d06/namespacejobctrl.html#a288823dde72b2464cf502906b6bf40da">jobctrl::jobctrl_set_time_limit_str</a></div><div class="ttdeci">subroutine jobctrl_set_time_limit_str(limit_str)</div><div class="ttdoc">Set a job's time limit (in walltime 'HH:MM:SS')</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d37/jobctrl_8f90_source.html#l00069">jobctrl.f90:70</a></div></div>
-<div class="ttc" id="anamespacejobctrl_html_a668d576b7980c2488dece4c06fcbb41b"><div class="ttname"><a href="../../d7/d06/namespacejobctrl.html#a668d576b7980c2488dece4c06fcbb41b">jobctrl::jobctrl_time_limit</a></div><div class="ttdeci">logical function, public jobctrl_time_limit()</div><div class="ttdoc">Check if the job's time limit has been reached.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d37/jobctrl_8f90_source.html#l00106">jobctrl.f90:107</a></div></div>
-<div class="ttc" id="anamespacejobctrl_html_a7db1bdb67af7a36c1a77422333bb985f"><div class="ttname"><a href="../../d7/d06/namespacejobctrl.html#a7db1bdb67af7a36c1a77422333bb985f">jobctrl::jobctrl_jobtime</a></div><div class="ttdeci">real(kind=rp) function, public jobctrl_jobtime()</div><div class="ttdoc">Returns a job's time in seconds relative to the first call.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d37/jobctrl_8f90_source.html#l00125">jobctrl.f90:126</a></div></div>
-<div class="ttc" id="anamespacejobctrl_html_aaa38605ae63b754fcccffe3d10a3a4bb"><div class="ttname"><a href="../../d7/d06/namespacejobctrl.html#aaa38605ae63b754fcccffe3d10a3a4bb">jobctrl::jobctrl_set_time_limit_sec</a></div><div class="ttdeci">subroutine jobctrl_set_time_limit_sec(sec)</div><div class="ttdoc">Set a job's time limit (in seconds)</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d37/jobctrl_8f90_source.html#l00094">jobctrl.f90:95</a></div></div>
-<div class="ttc" id="anamespacejobctrl_html_ac1f9c065e490a227cedb2d1a5c0a7841"><div class="ttname"><a href="../../d7/d06/namespacejobctrl.html#ac1f9c065e490a227cedb2d1a5c0a7841">jobctrl::jobctrl_init</a></div><div class="ttdeci">subroutine, public jobctrl_init()</div><div class="ttdoc">Initialize jobctrl.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d37/jobctrl_8f90_source.html#l00054">jobctrl.f90:55</a></div></div>
+<div class="ttc" id="anamespacejobctrl_html_a288823dde72b2464cf502906b6bf40da"><div class="ttname"><a href="../../d7/d06/namespacejobctrl.html#a288823dde72b2464cf502906b6bf40da">jobctrl::jobctrl_set_time_limit_str</a></div><div class="ttdeci">subroutine jobctrl_set_time_limit_str(limit_str)</div><div class="ttdoc">Set a job's time limit (in walltime 'HH:MM:SS')</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d37/jobctrl_8f90_source.html#l00070">jobctrl.f90:71</a></div></div>
+<div class="ttc" id="anamespacejobctrl_html_a668d576b7980c2488dece4c06fcbb41b"><div class="ttname"><a href="../../d7/d06/namespacejobctrl.html#a668d576b7980c2488dece4c06fcbb41b">jobctrl::jobctrl_time_limit</a></div><div class="ttdeci">logical function, public jobctrl_time_limit()</div><div class="ttdoc">Check if the job's time limit has been reached.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d37/jobctrl_8f90_source.html#l00107">jobctrl.f90:108</a></div></div>
+<div class="ttc" id="anamespacejobctrl_html_a7db1bdb67af7a36c1a77422333bb985f"><div class="ttname"><a href="../../d7/d06/namespacejobctrl.html#a7db1bdb67af7a36c1a77422333bb985f">jobctrl::jobctrl_jobtime</a></div><div class="ttdeci">real(kind=rp) function, public jobctrl_jobtime()</div><div class="ttdoc">Returns a job's time in seconds relative to the first call.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d37/jobctrl_8f90_source.html#l00126">jobctrl.f90:127</a></div></div>
+<div class="ttc" id="anamespacejobctrl_html_aaa38605ae63b754fcccffe3d10a3a4bb"><div class="ttname"><a href="../../d7/d06/namespacejobctrl.html#aaa38605ae63b754fcccffe3d10a3a4bb">jobctrl::jobctrl_set_time_limit_sec</a></div><div class="ttdeci">subroutine jobctrl_set_time_limit_sec(sec)</div><div class="ttdoc">Set a job's time limit (in seconds)</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d37/jobctrl_8f90_source.html#l00095">jobctrl.f90:96</a></div></div>
+<div class="ttc" id="anamespacejobctrl_html_ac1f9c065e490a227cedb2d1a5c0a7841"><div class="ttname"><a href="../../d7/d06/namespacejobctrl.html#ac1f9c065e490a227cedb2d1a5c0a7841">jobctrl::jobctrl_init</a></div><div class="ttdeci">subroutine, public jobctrl_init()</div><div class="ttdoc">Initialize jobctrl.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d37/jobctrl_8f90_source.html#l00055">jobctrl.f90:56</a></div></div>
 <div class="ttc" id="anamespacelogger_html"><div class="ttname"><a href="../../d8/da0/namespacelogger.html">logger</a></div><div class="ttdoc">Logging routines.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00034">log.f90:34</a></div></div>
-<div class="ttc" id="anamespacelogger_html_a67790b62b71ce7aee410f481d248d754"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a67790b62b71ce7aee410f481d248d754">logger::neko_log_quiet</a></div><div class="ttdeci">integer, parameter, public neko_log_quiet</div><div class="ttdoc">Always logged.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00067">log.f90:67</a></div></div>
-<div class="ttc" id="anamespacelogger_html_ad728b3400b2e5dfa9ee65757c599c9ce"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">logger::neko_log</a></div><div class="ttdeci">type(log_t), public neko_log</div><div class="ttdoc">Global log stream.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00065">log.f90:65</a></div></div>
+<div class="ttc" id="anamespacelogger_html_a67790b62b71ce7aee410f481d248d754"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a67790b62b71ce7aee410f481d248d754">logger::neko_log_quiet</a></div><div class="ttdeci">integer, parameter, public neko_log_quiet</div><div class="ttdoc">Always logged.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00078">log.f90:78</a></div></div>
+<div class="ttc" id="anamespacelogger_html_ad728b3400b2e5dfa9ee65757c599c9ce"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">logger::neko_log</a></div><div class="ttdeci">type(log_t), public neko_log</div><div class="ttdoc">Global log stream.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00076">log.f90:76</a></div></div>
+<div class="ttc" id="anamespacelogger_html_ade757cfc4235350ea17397117ea3c4a6"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#ade757cfc4235350ea17397117ea3c4a6">logger::log_size</a></div><div class="ttdeci">integer, parameter, public log_size</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00046">log.f90:46</a></div></div>
 <div class="ttc" id="anamespacenum__types_html"><div class="ttname"><a href="../../df/d48/namespacenum__types.html">num_types</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00001">num_types.f90:1</a></div></div>
 <div class="ttc" id="anamespacenum__types_html_aab47a6c4827cb5c6bbd741a44c87e956"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#aab47a6c4827cb5c6bbd741a44c87e956">num_types::dp</a></div><div class="ttdeci">integer, parameter, public dp</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00009">num_types.f90:9</a></div></div>
 <div class="ttc" id="anamespacenum__types_html_ae2be59b6de7b874ce5c12fd87f9e8b5e"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">num_types::rp</a></div><div class="ttdeci">integer, parameter, public rp</div><div class="ttdoc">Global precision used in computations.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00012">num_types.f90:12</a></div></div>
@@ -279,7 +281,7 @@ $(document).ready(function(){initNavTree('d1/d37/jobctrl_8f90_source.html','../.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_fdedb0aba14d44ce9d99bc100e026e6a.html">common</a></li><li class="navelem"><a class="el" href="../../d1/d37/jobctrl_8f90.html">jobctrl.f90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

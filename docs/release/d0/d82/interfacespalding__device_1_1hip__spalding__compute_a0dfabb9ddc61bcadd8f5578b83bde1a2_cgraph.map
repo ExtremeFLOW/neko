@@ -1,0 +1,10 @@
+<map id="spalding_device::hip_spalding_compute::hip_spalding_compute" name="spalding_device::hip_spalding_compute::hip_spalding_compute">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,22,181,77"/>
+<area shape="rect" id="Node000002" href="$d2/d9a/namespacespalding__device.html#ac149667d03538653fd32c48f973e2766" title="Compute the wall shear stress on device using Spalding&#39;s model." alt="" coords="229,29,420,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="182,47,216,47,216,52,182,52"/>
+<area shape="rect" id="Node000003" href="$d3/d8b/spalding_8cu.html#a0fc0674ca4b27dfeb155bc1e6be9f53b" title=" " alt="" coords="468,37,647,62"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="420,47,454,47,454,52,420,52"/>
+<area shape="rect" id="Node000004" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="695,29,859,69"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="647,47,681,47,681,52,647,52"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="736,30,733,20,740,10,754,5,777,3,802,6,816,13,814,18,801,11,777,8,756,10,743,15,738,21,741,28"/>
+</map>

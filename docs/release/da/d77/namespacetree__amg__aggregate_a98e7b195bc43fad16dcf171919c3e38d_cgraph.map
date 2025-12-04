@@ -1,0 +1,13 @@
+<map id="tree_amg_aggregate::aggregate_finest_level" name="tree_amg_aggregate::aggregate_finest_level">
+<area shape="rect" id="Node000001" title="Aggregaiton on finest level Aggregates all dofs in an element into a single aggregate." alt="" coords="5,102,184,142"/>
+<area shape="rect" id="Node000002" href="$da/d77/namespacetree__amg__aggregate.html#ab760962db302cfd723b1ff3cb8ecb3df" title=" " alt="" coords="245,5,412,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="147,99,243,62,245,67,149,104"/>
+<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#a4c8e13ce7a50b4ecdbc01c590018bea7" title="Compute the address of a (i,j,k,l) array with sizes (1:lx, 1:ly, 1:lz, :)" alt="" coords="259,84,398,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="184,110,245,103,246,108,184,115"/>
+<area shape="rect" id="Node000004" href="$dc/d1a/namespacetree__amg.html#ad89ff7cb0a5789fa030a730c4f4260c0" title="Initialization of a TreeAMG level." alt="" coords="240,133,417,159"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="184,128,227,133,226,138,184,134"/>
+<area shape="rect" id="Node000006" href="$dc/d1a/namespacetree__amg.html#a5ec06e62779cefe9b883e4fbcaea5d7a" title="Initialization of a TreeAMG tree node." alt="" coords="232,183,425,208"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="151,140,233,167,264,176,262,182,231,173,149,145"/>
+<area shape="rect" id="Node000005" href="$d2/d73/namespacedevice__math.html#adc0c8effa3af098f18442b81edc6fc6e" title="Set all elements to a constant c ." alt="" coords="473,126,631,166"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="418,143,460,143,460,149,418,149"/>
+</map>

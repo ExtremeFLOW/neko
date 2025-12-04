@@ -1,0 +1,13 @@
+<map id="neko::neko_job_info" name="neko::neko_job_info">
+<area shape="rect" id="Node000001" title="Display job information, number of MPI ranks, CPU type and selected hardware backend." alt="" coords="5,80,156,105"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#aacdc0ad29b09298498fc06f3106fe4f4" title=" " alt="" coords="224,55,384,80"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="156,82,210,75,211,81,156,87"/>
+<area shape="rect" id="Node000006" href="$d5/d81/namespacesystem.html#a35841ee3fbe6882a5d4c8507984d9904" title="Retrieve the system&#39;s CPU name (type)" alt="" coords="204,104,404,129"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="156,98,190,102,190,107,156,103"/>
+<area shape="rect" id="Node000003" href="$db/d9a/namespacecuda__intf.html#a05388b77b2bea0507b51694ea4bceb1f" title=" " alt="" coords="452,5,667,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="370,52,479,31,480,36,371,57"/>
+<area shape="rect" id="Node000004" href="$d0/d4e/namespacehip__intf.html#a1c8e3cf5e89ffe1b50253b6b38e45a93" title=" " alt="" coords="463,55,655,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="384,65,450,65,450,70,384,70"/>
+<area shape="rect" id="Node000005" href="$d3/d3b/namespaceopencl__intf.html#a07ec4ed5818678cf793c11b2b44543ca" title=" " alt="" coords="487,105,631,145"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="362,77,474,103,473,108,361,83"/>
+</map>

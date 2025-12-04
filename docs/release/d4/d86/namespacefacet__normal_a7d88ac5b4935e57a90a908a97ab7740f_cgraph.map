@@ -1,9 +1,0 @@
-<map id="facet_normal::facet_normal_apply_surfvec" name="facet_normal::facet_normal_apply_surfvec">
-<area shape="rect" id="Node000001" title="Apply in facet normal direction (vector valued)" alt="" coords="5,29,179,69"/>
-<area shape="rect" id="Node000002" href="$d2/d57/cuda_2facet__normal__kernel_8h.html#a255d8d741e1fc6cd080ba11e14dc7148" title=" " alt="" coords="227,37,353,62"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="179,47,213,47,213,52,179,52"/>
-<area shape="poly" id="edge4_Node000002_Node000002" title=" " alt="" coords="258,38,252,28,255,18,268,12,290,10,316,14,327,22,324,26,314,18,290,15,270,17,259,22,257,28,263,35"/>
-<area shape="rect" id="Node000003" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="401,29,565,69"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="354,47,388,47,388,52,354,52"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="447,30,445,20,451,11,464,5,483,3,506,6,518,13,516,17,504,11,483,8,465,10,454,15,450,21,452,28"/>
-</map>

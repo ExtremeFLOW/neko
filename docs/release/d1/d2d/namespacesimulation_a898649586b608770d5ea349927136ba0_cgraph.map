@@ -1,0 +1,5 @@
+<map id="simulation::simulation_finalize" name="simulation::simulation_finalize">
+<area shape="rect" id="Node000001" title="Finalize a simulation of a case." alt="" coords="5,5,173,45"/>
+<area shape="rect" id="Node000002" href="$d1/d2d/namespacesimulation.html#ad5774a0a06b35c326984f6ba2ccce3e6" title="Write a checkpoint at joblimit." alt="" coords="221,5,389,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="174,23,208,23,208,28,174,28"/>
+</map>

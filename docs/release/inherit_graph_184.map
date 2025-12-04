@@ -1,23 +1,3 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$d5/d37/structgeneric__file_1_1generic__file__t.html" title="A generic file handler." alt="" coords="5,221,159,261"/>
-<area shape="rect" id="Node000001" href="$dd/dd2/structchkp__file_1_1chkp__file__t.html" title="Interface for Neko checkpoint files." alt="" coords="211,5,370,31"/>
-<area shape="poly" id="edge37_Node000000_Node000001" title=" " alt="" coords="93,207,109,168,134,123,166,78,205,40,225,29,228,33,208,44,170,82,138,126,114,170,97,209"/>
-<area shape="rect" id="Node000002" href="$d3/d88/structcsv__file_1_1csv__file__t.html" title=" " alt="" coords="221,55,361,80"/>
-<area shape="poly" id="edge38_Node000000_Node000002" title=" " alt="" coords="99,207,143,147,172,116,205,89,228,78,230,83,208,94,175,120,147,150,104,210"/>
-<area shape="rect" id="Node000003" href="$dd/d2f/structfld__file_1_1fld__file__t.html" title="Interface for NEKTON fld files." alt="" coords="227,104,355,129"/>
-<area shape="poly" id="edge39_Node000000_Node000003" title=" " alt="" coords="111,209,154,172,205,138,233,127,235,132,208,143,157,177,115,213"/>
-<area shape="rect" id="Node000004" href="$df/d0b/structhdf5__file_1_1hdf5__file__t.html" title="Interface for HDF5 files." alt="" coords="213,153,368,179"/>
-<area shape="poly" id="edge40_Node000000_Node000004" title=" " alt="" coords="141,213,206,187,241,176,243,181,208,193,142,218"/>
-<area shape="rect" id="Node000005" href="$de/d14/structmap__file_1_1map__file__t.html" title="Interface for NEKTON map files." alt="" coords="213,203,368,228"/>
-<area shape="poly" id="edge41_Node000000_Node000005" title=" " alt="" coords="172,227,213,222,213,227,173,232"/>
-<area shape="rect" id="Node000006" href="$df/d4d/structnmsh__file_1_1nmsh__file__t.html" title="Interface for Neko nmsh files." alt="" coords="207,252,375,277"/>
-<area shape="poly" id="edge42_Node000000_Node000006" title=" " alt="" coords="172,248,207,252,206,258,172,254"/>
-<area shape="rect" id="Node000007" href="$d2/dfe/structre2__file_1_1re2__file__t.html" title="Interface for NEKTON re2 files." alt="" coords="221,301,360,327"/>
-<area shape="poly" id="edge43_Node000000_Node000007" title=" " alt="" coords="146,263,208,286,247,299,245,304,206,291,144,268"/>
-<area shape="rect" id="Node000008" href="$d9/dfe/structrea__file_1_1rea__file__t.html" title="Interface for NEKTON ascii files." alt="" coords="221,351,360,376"/>
-<area shape="poly" id="edge44_Node000000_Node000008" title=" " alt="" coords="116,268,158,303,208,336,238,348,236,353,205,340,155,307,112,272"/>
-<area shape="rect" id="Node000009" href="$d0/dab/structstl__file_1_1stl__file__t.html" title="Interface for STL files." alt="" coords="227,400,355,425"/>
-<area shape="poly" id="edge45_Node000000_Node000009" title=" " alt="" coords="104,271,147,329,176,359,208,385,233,398,231,402,205,390,172,363,143,333,100,274"/>
-<area shape="rect" id="Node000010" href="$d8/d43/structvtk__file_1_1vtk__file__t.html" title="Interface for legacy VTK files." alt="" coords="221,449,360,475"/>
-<area shape="poly" id="edge46_Node000000_Node000010" title=" " alt="" coords="98,273,115,310,139,354,170,397,208,435,231,447,228,452,205,439,166,401,134,357,110,313,93,275"/>
+<area shape="rect" id="Node000000" href="$d2/d5f/interfaceeuler__res__device_1_1euler__res__part__coef__mult__hip.html" title=" " alt="" coords="5,5,187,45"/>
 </map>

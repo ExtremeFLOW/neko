@@ -1,0 +1,5 @@
+<map id="centrifugal_source_term_device::centrifugal_source_term_compute_device" name="centrifugal_source_term_device::centrifugal_source_term_compute_device">
+<area shape="rect" id="Node000001" title="Computes the centrifugal source term on the device." alt="" coords="241,5,465,60"/>
+<area shape="rect" id="Node000002" href="$d5/d7a/namespacecentrifugal__source__term.html#afcb36f41c5d339ad0f9bea50689ab2e6" title="Computes the source term and adds the result to fields." alt="" coords="5,5,193,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="228,35,193,35,193,30,228,30"/>
+</map>

@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -107,15 +107,15 @@ $(document).ready(function(){initNavTree('d0/d22/interfacehip__math_1_1hip__absv
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a45cce6098a0b73abea2ad3163cff6583" id="r_a45cce6098a0b73abea2ad3163cff6583"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d22/interfacehip__math_1_1hip__absval.html#a45cce6098a0b73abea2ad3163cff6583">hip_absval</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">a_d</a>, n)</td></tr>
-<tr class="separator:a45cce6098a0b73abea2ad3163cff6583"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a903db844096c1464d1e26bafe120f1f5" id="r_a903db844096c1464d1e26bafe120f1f5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d22/interfacehip__math_1_1hip__absval.html#a903db844096c1464d1e26bafe120f1f5">hip_absval</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">a_d</a>, n, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">strm</a>)</td></tr>
+<tr class="separator:a903db844096c1464d1e26bafe120f1f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../d5/ddf/hip__math_8f90_source.html#l00336">336</a> of file <a class="el" href="../../d5/ddf/hip__math_8f90_source.html">hip_math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/ddf/hip__math_8f90_source.html#l00390">390</a> of file <a class="el" href="../../d5/ddf/hip__math_8f90_source.html">hip_math.f90</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a45cce6098a0b73abea2ad3163cff6583" name="a45cce6098a0b73abea2ad3163cff6583"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a45cce6098a0b73abea2ad3163cff6583">&#9670;&#160;</a></span>hip_absval()</h2>
+<a id="a903db844096c1464d1e26bafe120f1f5" name="a903db844096c1464d1e26bafe120f1f5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a903db844096c1464d1e26bafe120f1f5">&#9670;&#160;</a></span>hip_absval()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -129,8 +129,14 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">c_int</a>)&#160;</td>
-          <td class="paramname"><em>n</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>(c_int)&#160;</td>
+          <td class="paramname"><em>n</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">value</a>&#160;</td>
+          <td class="paramname"><em>strm</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -140,7 +146,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/ddf/hip__math_8f90_source.html#l00336">336</a> of file <a class="el" href="../../d5/ddf/hip__math_8f90_source.html">hip_math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/ddf/hip__math_8f90_source.html#l00390">390</a> of file <a class="el" href="../../d5/ddf/hip__math_8f90_source.html">hip_math.f90</a>.</p>
 
 </div>
 </div>
@@ -153,7 +159,7 @@ Public Member Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d7/de1/namespacehip__math.html">hip_math</a></li><li class="navelem"><a class="el" href="../../d0/d22/interfacehip__math_1_1hip__absval.html">hip_absval</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

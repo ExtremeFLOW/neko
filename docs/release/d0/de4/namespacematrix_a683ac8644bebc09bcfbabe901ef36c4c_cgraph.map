@@ -1,9 +1,0 @@
-<map id="matrix::matrix_cmult_right" name="matrix::matrix_cmult_right">
-<area shape="rect" id="Node000001" title="Scalar&#45;matrix multiplication ." alt="" coords="5,27,165,67"/>
-<area shape="rect" id="Node000002" href="$d0/de4/namespacematrix.html#aec1f42bb9193a96f5007d7a18866c2c7" title="Matrix&#45;scalar multiplication ." alt="" coords="213,35,401,60"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,45,200,45,200,50,166,50"/>
-<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#a0aa2bdfb2fdb9eae6679d958a82fd200" title="Multiplication by constant c ." alt="" coords="473,5,583,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="401,32,459,24,460,30,402,37"/>
-<area shape="rect" id="Node000004" href="$d2/d73/namespacedevice__math.html#a664f07df9ff67cf0e8e216047a81bca7" title="Multiplication by constant c ." alt="" coords="449,55,607,95"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="402,57,436,61,435,66,401,62"/>
-</map>

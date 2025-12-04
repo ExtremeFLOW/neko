@@ -4,7 +4,7 @@
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="690,71,656,71,656,66,690,66"/>
 <area shape="rect" id="Node000003" href="$d7/dc9/interfacedevice__sigma__nut_1_1hip__sigma__nut__compute.html#af068d2e8c7eaf0e33962d0646ef5a159" title=" " alt="" coords="228,5,417,60"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="452,55,417,50,418,44,452,50"/>
-<area shape="rect" id="Node000004" href="$d4/d88/namespacesigma__device.html#aeb1d48dffcec92f79ca628689adeb807" title="Compute eddy viscosity on device." alt="" coords="243,85,403,125"/>
+<area shape="rect" id="Node000004" href="$d4/d88/namespacesigma__device.html#a81c865394c4dff48cad4ebb1d6cbd5ff" title="Compute eddy viscosity on device." alt="" coords="243,85,403,125"/>
 <area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="452,88,403,95,402,90,452,82"/>
 <area shape="rect" id="Node000005" href="$d6/dcd/namespacesigma.html#a4382f10d4f01fe94f14c5b63666c8a01" title="Compute eddy viscosity." alt="" coords="5,92,180,117"/>
 <area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="229,107,180,107,180,102,229,102"/>

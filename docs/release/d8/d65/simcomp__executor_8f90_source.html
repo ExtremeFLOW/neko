@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -106,7 +106,7 @@ $(document).ready(function(){initNavTree('d8/d65/simcomp__executor_8f90_source.h
   <div class="headertitle"><div class="title">simcomp_executor.f90</div></div>
 </div><!--header-->
 <div class="contents">
-<a href="../../d8/d65/simcomp__executor_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">! Copyright (c) 2024, The Neko Authors</span></div>
+<a href="../../d8/d65/simcomp__executor_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">! Copyright (c) 2024-2025, The Neko Authors</span></div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment">! All rights reserved.</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="comment">!</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment">! Redistribution and use in source and binary forms, with or without</span></div>
@@ -142,375 +142,364 @@ $(document).ready(function(){initNavTree('d8/d65/simcomp__executor_8f90_source.h
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../df/d48/namespacenum__types.html">num_types</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a></div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d2/def/namespacesimulation__component.html">simulation_component</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../dc/d0d/structsimulation__component_1_1simulation__component__t.html">simulation_component_t</a>, &amp;</div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>       <a class="code hl_struct" href="../../d7/dc2/structsimulation__component_1_1simulation__component__wrapper__t.html">simulation_component_wrapper_t</a>, simulation_component_factory</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">use </span>json_module, <span class="keywordtype">only</span> : json_file, json_core, json_value</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">use </span>json_module, <span class="keywordtype">only</span> : json_file</div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d8/da8/namespacejson__utils.html">json_utils</a>, <span class="keywordtype">only</span> : <a class="code hl_interface" href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_get</a>, <a class="code hl_interface" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_get_or_default</a>, <a class="code hl_interface" href="../../d9/d2b/interfacejson__utils_1_1json__extract__item.html">json_extract_item</a></div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/da8/namespacecase.html">case</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../db/d7a/structcase_1_1case__t.html">case_t</a></div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/d84/namespaceutils.html">utils</a>, <span class="keywordtype">only</span> : <a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a></div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d8/da0/namespacelogger.html">logger</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a></div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>  <span class="keywordtype">implicit none</span></div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>  <span class="keywordtype">private</span></div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
-<div class="foldopen" id="foldopen00052" data-start="" data-end="">
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno"><a class="line" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">   52</a></span>  <span class="keyword">type</span>, <span class="keyword">public</span> :: <a class="code hl_struct" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">simcomp_executor_t</a></div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span> </div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno"><a class="line" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html#af5f35479585531e147bcbd2581dbd292">   55</a></span>     <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/dc2/structsimulation__component_1_1simulation__component__wrapper__t.html">simulation_component_wrapper_t</a>), <span class="keywordtype">allocatable</span> :: simcomps(:)</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno"><a class="line" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html#a4ebf628066252792db0d1d0a36d542d4">   57</a></span>     <span class="keywordtype">integer</span>, <span class="keywordtype">private</span> :: n_simcomps</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno"><a class="line" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html#abb980ba2d700969d68c275a505f1a6d5">   59</a></span>     <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d7a/structcase_1_1case__t.html">case_t</a>), <span class="keywordtype">pointer</span>, <span class="keywordtype">private</span> :: <a class="code hl_namespace" href="../../dd/da8/namespacecase.html">case</a></div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno"><a class="line" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html#a2c431a2ac5b3df52302fcb03ed5d31c3">   61</a></span>     <span class="keywordtype">logical</span>, <span class="keywordtype">private</span> :: finalized = .false.</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>   <span class="keyword">contains</span></div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno"><a class="line" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html#ae341774b921323f76c1f944e2916b03a">   64</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: init =&gt; <a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#a7f5ec92ba565c1a0002e25412f94229e">simcomp_executor_init</a></div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno"><a class="line" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html#a28b5f7c8e9033a511baebc180f162e07">   66</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: free =&gt; <a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#ac04c01763880b52b482bd6bd9c629359">simcomp_executor_free</a></div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno"><a class="line" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html#af207fda22838e44fa833602611db678b">   68</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: add_user_simcomp =&gt; <a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#a22119bff74d9d2b826cc1fb0d7d6a3cd">simcomp_executor_add</a></div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno"><a class="line" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html#a644ea97ae5717b43e78a44ecabd232cf">   70</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: preprocess =&gt; <a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#ad27c97db67ec3ab5ccf27633b48dd0d4">simcomp_executor_preprocess</a></div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno"><a class="line" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html#a06061a65ec2644d933edaa2c4647cacd">   72</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: compute =&gt; <a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#a86e7c125f09650b29116fe9100f8058b">simcomp_executor_compute</a></div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno"><a class="line" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html#aa7fa1e4ffd32653d845b6c60e138b639">   74</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: restart=&gt; <a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#a79871656f0a78005bf482c83435460a2">simcomp_executor_restart</a></div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno"><a class="line" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html#ad982492b3e6d13599ebb5a5429a38813">   76</a></span>     <span class="keywordtype">procedure</span>, <span class="keywordtype">private</span>, pass(this) :: finalize =&gt; <a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#a6f263de2f72e5a0711505f7077c6122e">simcomp_executor_finalize</a></div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno"><a class="line" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html#ae1ac08d131007fd4f66df60ffd8d487a">   78</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: get_n =&gt; <a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#aa2b274ace978b518672ac4fbaf19e74b">simcomp_executor_get_n</a></div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>  <span class="keyword">end type </span><a class="code hl_struct" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">simcomp_executor_t</a></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d8/d92/namespacetime__state.html">time_state</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/d84/namespaceutils.html">utils</a>, <span class="keywordtype">only</span> : <a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a></div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d8/da0/namespacelogger.html">logger</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a></div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>  <span class="keywordtype">implicit none</span></div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>  <span class="keywordtype">private</span></div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span> </div>
+<div class="foldopen" id="foldopen00053" data-start="" data-end="">
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno"><a class="line" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">   53</a></span>  <span class="keyword">type</span>, <span class="keyword">public</span> :: <a class="code hl_struct" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">simcomp_executor_t</a></div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno"><a class="line" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html#af5f35479585531e147bcbd2581dbd292">   56</a></span>     <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/dc2/structsimulation__component_1_1simulation__component__wrapper__t.html">simulation_component_wrapper_t</a>), <span class="keywordtype">allocatable</span> :: simcomps(:)</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno"><a class="line" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html#a4ebf628066252792db0d1d0a36d542d4">   58</a></span>     <span class="keywordtype">integer</span>, <span class="keywordtype">private</span> :: n_simcomps</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno"><a class="line" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html#a68231d9876bcecd27b40c062dba490aa">   60</a></span>     <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d7a/structcase_1_1case__t.html">case_t</a>), <span class="keywordtype">pointer</span> :: <a class="code hl_namespace" href="../../dd/da8/namespacecase.html">case</a></div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno"><a class="line" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html#a2c431a2ac5b3df52302fcb03ed5d31c3">   62</a></span>     <span class="keywordtype">logical</span>, <span class="keywordtype">private</span> :: finalized = .false.</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>   <span class="keyword">contains</span></div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno"><a class="line" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html#ae341774b921323f76c1f944e2916b03a">   65</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: init =&gt; <a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#a7f5ec92ba565c1a0002e25412f94229e">simcomp_executor_init</a></div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno"><a class="line" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html#a28b5f7c8e9033a511baebc180f162e07">   67</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: free =&gt; <a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#ac04c01763880b52b482bd6bd9c629359">simcomp_executor_free</a></div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno"><a class="line" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html#a3507b0753fefae075d1de11ceb5effc7">   69</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: add =&gt; <a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#a22119bff74d9d2b826cc1fb0d7d6a3cd">simcomp_executor_add</a></div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno"><a class="line" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html#ad6c647b554df949c1034710de1023a33">   71</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: preprocess =&gt; <a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#ab37b7e3a85e9d146796cb05a5ee7d5fc">simcomp_executor_preprocess</a></div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno"><a class="line" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html#a4adea2991ee4522f80a2144d04603add">   73</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: compute =&gt; <a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#a2f6d6acefb8cc9db02882f9a464ddf8c">simcomp_executor_compute</a></div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno"><a class="line" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html#ae6a1a46133a406287cdbddb511d07fe9">   75</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: restart=&gt; <a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#a0070bfaf30d230aba1583248b850106f">simcomp_executor_restart</a></div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno"><a class="line" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html#ad982492b3e6d13599ebb5a5429a38813">   77</a></span>     <span class="keywordtype">procedure</span>, <span class="keywordtype">private</span>, pass(this) :: finalize =&gt; <a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#a6f263de2f72e5a0711505f7077c6122e">simcomp_executor_finalize</a></div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno"><a class="line" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html#ae1ac08d131007fd4f66df60ffd8d487a">   79</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: get_n =&gt; <a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#aa2b274ace978b518672ac4fbaf19e74b">simcomp_executor_get_n</a></div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>  <span class="keyword">end type </span><a class="code hl_struct" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">simcomp_executor_t</a></div>
 </div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span> </div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno"><a class="line" href="../../d2/d78/namespacesimcomp__executor.html#a4e23cb01202a3d0847549aafe6b9738f">   82</a></span>  <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">simcomp_executor_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">public</span> :: <a class="code hl_variable" href="../../d2/d78/namespacesimcomp__executor.html#a4e23cb01202a3d0847549aafe6b9738f">neko_simcomps</a></div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span> </div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span><span class="keyword">contains</span></div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span> </div>
-<div class="foldopen" id="foldopen00090" data-start="" data-end="">
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno"><a class="line" href="../../d2/d78/namespacesimcomp__executor.html#a7f5ec92ba565c1a0002e25412f94229e">   90</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#a7f5ec92ba565c1a0002e25412f94229e">simcomp_executor_init</a>(this, case, simcomp_root)</div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">simcomp_executor_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d7a/structcase_1_1case__t.html">case_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: case</div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">optional</span>, <span class="keywordtype">intent(in)</span> :: simcomp_root</div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    <span class="keywordtype">integer</span> :: n_simcomps, i</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>    <span class="keywordtype">type</span>(json_core) :: core</div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    <span class="keywordtype">type</span>(json_value), <span class="keywordtype">pointer</span> :: simcomp_object</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    <span class="keywordtype">type</span>(json_file) :: comp_subdict</div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>    <span class="keywordtype">logical</span> :: found, is_user, has_user</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    <span class="comment">! Help array for finding minimal values</span></div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">allocatable</span> :: mask(:)</div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    <span class="comment">! The order value for each simcomp in order of appearance in the case file.</span></div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">allocatable</span> :: read_order(:), order(:)</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>    <span class="comment">! Location of the min value</span></div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>    <span class="keywordtype">integer</span> :: loc(1)</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>    <span class="keywordtype">integer</span> :: max_order</div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>    <span class="keywordtype">character(len=:)</span>, <span class="keywordtype">allocatable</span> :: root_name, comp_type</div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span> </div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <span class="keyword">call </span>this%free()</div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    this%case =&gt; <span class="keywordflow">case</span></div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span> </div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>    <span class="comment">! Get the root name of the simulation components if specified</span></div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(simcomp_root)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>       root_name = simcomp_root</div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>       root_name = <span class="stringliteral">&#39;case.simulation_components&#39;</span></div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span> </div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>    <span class="comment">! Get the core json object and the simulation components object</span></div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>    <span class="keyword">call </span><a class="code hl_namespace" href="../../dd/da8/namespacecase.html">case</a>%params%get_core(core)</div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    <span class="keyword">call </span><a class="code hl_namespace" href="../../dd/da8/namespacecase.html">case</a>%params%get(root_name, simcomp_object, found)</div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>    <span class="keywordflow">if</span> (.not. found) <span class="keywordflow">return</span></div>
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%section(<span class="stringliteral">&#39;Initialize simcomp&#39;</span>)</div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span> </div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>    <span class="comment">! Set the number of simcomps and allocate the arrays</span></div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    <span class="keyword">call </span><a class="code hl_namespace" href="../../dd/da8/namespacecase.html">case</a>%params%info(root_name, n_children = n_simcomps)</div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>    this%n_simcomps = n_simcomps</div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>    <span class="keyword">allocate</span>(this%simcomps(n_simcomps))</div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    <span class="keyword">allocate</span>(order(n_simcomps))</div>
-<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>    <span class="keyword">allocate</span>(read_order(n_simcomps))</div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>    <span class="keyword">allocate</span>(mask(n_simcomps), source = .true.)</div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span> </div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>    <span class="comment">! We need a separate loop to figure out the order, so that we can</span></div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>    <span class="comment">! apply the order to the initialization as well.</span></div>
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>    max_order = 0</div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>    has_user = .false.</div>
-<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>    <span class="keywordflow">do</span> i = 1, n_simcomps</div>
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>       <span class="comment">! Create a new json containing just the subdict for this simcomp</span></div>
-<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d9/d2b/interfacejson__utils_1_1json__extract__item.html">json_extract_item</a>(core, simcomp_object, i, comp_subdict)</div>
-<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span> </div>
-<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_get_or_default</a>(comp_subdict, <span class="stringliteral">&quot;is_user&quot;</span>, is_user, .false.)</div>
-<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>       has_user = has_user .or. is_user</div>
-<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span> </div>
-<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_get_or_default</a>(comp_subdict, <span class="stringliteral">&quot;order&quot;</span>, read_order(i), -1)</div>
-<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>       <span class="keywordflow">if</span> (read_order(i) .gt. max_order) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>          max_order = read_order(i)</div>
-<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span> </div>
-<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>    <span class="comment">! If the order was not specified, we use the order of appearance in the</span></div>
-<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>    <span class="comment">! case file.</span></div>
-<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>    <span class="keywordflow">do</span> i = 1, n_simcomps</div>
-<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>       <span class="keywordflow">if</span> (read_order(i) == -1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>          max_order = max_order + 1</div>
-<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>          read_order(i) = max_order</div>
-<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span> </div>
-<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>    <span class="comment">! Figure out the execution order using a poor man&#39;s argsort.</span></div>
-<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>    <span class="comment">! Searches for the location of the min value, each time masking out the</span></div>
-<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>    <span class="comment">! found location prior to the next search.</span></div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span> </div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno"><a class="line" href="../../d2/d78/namespacesimcomp__executor.html#a4e23cb01202a3d0847549aafe6b9738f">   83</a></span>  <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">simcomp_executor_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">public</span> :: <a class="code hl_variable" href="../../d2/d78/namespacesimcomp__executor.html#a4e23cb01202a3d0847549aafe6b9738f">neko_simcomps</a></div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span> </div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span><span class="keyword">contains</span></div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span> </div>
+<div class="foldopen" id="foldopen00091" data-start="" data-end="">
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno"><a class="line" href="../../d2/d78/namespacesimcomp__executor.html#a7f5ec92ba565c1a0002e25412f94229e">   91</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#a7f5ec92ba565c1a0002e25412f94229e">simcomp_executor_init</a>(this, case, simcomp_root)</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">simcomp_executor_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d7a/structcase_1_1case__t.html">case_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: case</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">optional</span>, <span class="keywordtype">intent(in)</span> :: simcomp_root</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>    <span class="keywordtype">integer</span> :: n_simcomps, i</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    <span class="keywordtype">type</span>(json_file) :: comp_subdict</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    <span class="keywordtype">logical</span> :: found</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>    <span class="comment">! Help array for finding minimal values</span></div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">allocatable</span> :: mask(:)</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>    <span class="comment">! The order value for each simcomp in order of appearance in the case file.</span></div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">allocatable</span> :: read_order(:), order(:)</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    <span class="comment">! Location of the min value</span></div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>    <span class="keywordtype">integer</span> :: loc(1)</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>    <span class="keywordtype">integer</span> :: max_order</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>    <span class="keywordtype">character(len=:)</span>, <span class="keywordtype">allocatable</span> :: root_name, comp_type</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span> </div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>    <span class="keyword">call </span>this%free()</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    this%case =&gt; <span class="keywordflow">case</span></div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span> </div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    <span class="comment">! Get the root name of the simulation components if specified</span></div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(simcomp_root)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>       root_name = simcomp_root</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>       root_name = <span class="stringliteral">&#39;case.simulation_components&#39;</span></div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span> </div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    <span class="comment">! Get the core json object and the simulation components object</span></div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>    <span class="keywordflow">if</span> (.not. (root_name .in. <a class="code hl_namespace" href="../../dd/da8/namespacecase.html">case</a>%params)) <span class="keywordflow">return</span></div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%section(<span class="stringliteral">&#39;Initialize simcomp&#39;</span>)</div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span> </div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>    <span class="comment">! Set the number of simcomps and allocate the arrays</span></div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>    <span class="keyword">call </span><a class="code hl_namespace" href="../../dd/da8/namespacecase.html">case</a>%params%info(root_name, n_children = n_simcomps)</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>    this%n_simcomps = n_simcomps</div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>    <span class="keyword">allocate</span>(this%simcomps(n_simcomps))</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    <span class="keyword">allocate</span>(order(n_simcomps))</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>    <span class="keyword">allocate</span>(read_order(n_simcomps))</div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>    <span class="keyword">allocate</span>(<a class="code hl_namespace" href="../../d3/d17/namespacemask.html">mask</a>(n_simcomps), source = .true.)</div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span> </div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>    <span class="comment">! We need a separate loop to figure out the order, so that we can</span></div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>    <span class="comment">! apply the order to the initialization as well.</span></div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>    max_order = 0</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>    <span class="keywordflow">do</span> i = 1, n_simcomps</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>       <span class="comment">! Create a new json containing just the subdict for this simcomp</span></div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d9/d2b/interfacejson__utils_1_1json__extract__item.html">json_extract_item</a>(<a class="code hl_namespace" href="../../dd/da8/namespacecase.html">case</a>%params, root_name, i, comp_subdict)</div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span> </div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_get_or_default</a>(comp_subdict, <span class="stringliteral">&quot;order&quot;</span>, read_order(i), -1)</div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>       <span class="keywordflow">if</span> (read_order(i) .gt. max_order) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>          max_order = read_order(i)</div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span> </div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>    <span class="comment">! If the order was not specified, we use the order of appearance in the</span></div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>    <span class="comment">! case file.</span></div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>    <span class="keywordflow">do</span> i = 1, n_simcomps</div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>       <span class="keywordflow">if</span> (read_order(i) == -1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>          max_order = max_order + 1</div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>          read_order(i) = max_order</div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span> </div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>    <span class="comment">! Figure out the execution order using a poor man&#39;s argsort.</span></div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>    <span class="comment">! Searches for the location of the min value, each time masking out the</span></div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>    <span class="comment">! found location prior to the next search.</span></div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>    <span class="keywordflow">do</span> i = 1, n_simcomps</div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>       loc = minloc(read_order, <a class="code hl_namespace" href="../../d3/d17/namespacemask.html">mask</a> = <a class="code hl_namespace" href="../../d3/d17/namespacemask.html">mask</a>)</div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>       order(i) = loc(1)</div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>       <a class="code hl_namespace" href="../../d3/d17/namespacemask.html">mask</a>(loc) = .false.</div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span> </div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>    <span class="comment">! Init in the determined order.</span></div>
 <div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>    <span class="keywordflow">do</span> i = 1, n_simcomps</div>
-<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>       loc = minloc(read_order, mask = mask)</div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>       order(i) = loc(1)</div>
-<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>       mask(loc) = .false.</div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span> </div>
-<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>    <span class="comment">! Init in the determined order.</span></div>
-<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>    <span class="keywordflow">do</span> i = 1, n_simcomps</div>
-<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d9/d2b/interfacejson__utils_1_1json__extract__item.html">json_extract_item</a>(core, simcomp_object, order(i), comp_subdict)</div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span> </div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>       <span class="comment">! Log the component type if it is not a user component</span></div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_get</a>(comp_subdict, <span class="stringliteral">&quot;type&quot;</span>, comp_type)</div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_get_or_default</a>(comp_subdict, <span class="stringliteral">&quot;is_user&quot;</span>, is_user, .false.)</div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>       <span class="keywordflow">if</span> (.not. is_user) <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(<span class="stringliteral">&#39;- &#39;</span> // trim(comp_type))</div>
-<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span> </div>
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>       <span class="keyword">call </span>simulation_component_factory(this%simcomps(i)%simcomp, &amp;</div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>            comp_subdict, <a class="code hl_namespace" href="../../dd/da8/namespacecase.html">case</a>)</div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d9/d2b/interfacejson__utils_1_1json__extract__item.html">json_extract_item</a>(<a class="code hl_namespace" href="../../dd/da8/namespacecase.html">case</a>%params, root_name, order(i), comp_subdict)</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span> </div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>       <span class="comment">! Log the component type</span></div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_get</a>(comp_subdict, <span class="stringliteral">&quot;type&quot;</span>, comp_type)</div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>       <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(<span class="stringliteral">&#39;- &#39;</span> // trim(comp_type))</div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span> </div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>       <span class="keyword">call </span>simulation_component_factory(this%simcomps(i)%simcomp, &amp;</div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>            comp_subdict, <a class="code hl_namespace" href="../../dd/da8/namespacecase.html">case</a>)</div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span> </div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>    <span class="comment">! Cleanup</span></div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>    <span class="keyword">deallocate</span>(order)</div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>    <span class="keyword">deallocate</span>(read_order)</div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>    <span class="keyword">deallocate</span>(<a class="code hl_namespace" href="../../d3/d17/namespacemask.html">mask</a>)</div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span> </div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%end_section()</div>
+</div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#a7f5ec92ba565c1a0002e25412f94229e">simcomp_executor_init</a></div>
 <div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span> </div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>    <span class="keywordflow">if</span> (has_user) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>       <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(<span class="stringliteral">&#39;Initialize user simcomp&#39;</span>)</div>
-<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span> </div>
-<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>       comp_subdict = json_file(simcomp_object)</div>
-<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>       <span class="keyword">call </span><a class="code hl_namespace" href="../../dd/da8/namespacecase.html">case</a>%usr%init_user_simcomp(comp_subdict)</div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span> </div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>    <span class="comment">! Cleanup</span></div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>    <span class="keyword">deallocate</span>(order)</div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    <span class="keyword">deallocate</span>(read_order)</div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>    <span class="keyword">deallocate</span>(mask)</div>
+<div class="foldopen" id="foldopen00181" data-start="" data-end="">
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno"><a class="line" href="../../d2/d78/namespacesimcomp__executor.html#ac04c01763880b52b482bd6bd9c629359">  181</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#ac04c01763880b52b482bd6bd9c629359">simcomp_executor_free</a>(this)</div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">simcomp_executor_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>    <span class="keywordtype">integer</span> :: i</div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span> </div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%simcomps)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>       <span class="keywordflow">do</span> i = 1, this%n_simcomps</div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>          <span class="keyword">call </span>this%simcomps(i)%simcomp%free</div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>       <span class="keyword">deallocate</span>(this%simcomps)</div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span> </div>
-<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%end_section()</div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>    <span class="keyword">nullify</span>(this%case)</div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>    this%finalized = .false.</div>
 </div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#a7f5ec92ba565c1a0002e25412f94229e">simcomp_executor_init</a></div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span> </div>
-<div class="foldopen" id="foldopen00196" data-start="" data-end="">
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno"><a class="line" href="../../d2/d78/namespacesimcomp__executor.html#ac04c01763880b52b482bd6bd9c629359">  196</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#ac04c01763880b52b482bd6bd9c629359">simcomp_executor_free</a>(this)</div>
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">simcomp_executor_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>    <span class="keywordtype">integer</span> :: i</div>
-<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span> </div>
-<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%simcomps)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>       <span class="keywordflow">do</span> i = 1, this%n_simcomps</div>
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>          <span class="keyword">call </span>this%simcomps(i)%simcomp%free</div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>       <span class="keyword">deallocate</span>(this%simcomps)</div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span><span class="keywordflow">    end if</span></div>
-</div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#ac04c01763880b52b482bd6bd9c629359">simcomp_executor_free</a></div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span> </div>
-<div class="foldopen" id="foldopen00211" data-start="" data-end="">
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno"><a class="line" href="../../d2/d78/namespacesimcomp__executor.html#a22119bff74d9d2b826cc1fb0d7d6a3cd">  211</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#a22119bff74d9d2b826cc1fb0d7d6a3cd">simcomp_executor_add</a>(this, object, settings)</div>
-<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">simcomp_executor_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../dc/d0d/structsimulation__component_1_1simulation__component__t.html">simulation_component_t</a>), <span class="keywordtype">intent(in)</span> :: object</div>
-<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>    <span class="keywordtype">type</span>(json_file), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">optional</span> :: settings</div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#ac04c01763880b52b482bd6bd9c629359">simcomp_executor_free</a></div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span> </div>
+<div class="foldopen" id="foldopen00199" data-start="" data-end="">
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno"><a class="line" href="../../d2/d78/namespacesimcomp__executor.html#a22119bff74d9d2b826cc1fb0d7d6a3cd">  199</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#a22119bff74d9d2b826cc1fb0d7d6a3cd">simcomp_executor_add</a>(this, object, settings)</div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">simcomp_executor_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../dc/d0d/structsimulation__component_1_1simulation__component__t.html">simulation_component_t</a>), <span class="keywordtype">intent(in)</span> :: object</div>
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>    <span class="keywordtype">type</span>(json_file), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">optional</span> :: settings</div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span> </div>
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/dc2/structsimulation__component_1_1simulation__component__wrapper__t.html">simulation_component_wrapper_t</a>), <span class="keywordtype">allocatable</span> :: tmp_simcomps(:)</div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>    <span class="keywordtype">integer</span> :: i, position</div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span> </div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>    <span class="comment">! Find the first empty position</span></div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>    position = 0</div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>    <span class="keywordflow">do</span> i = 1, this%n_simcomps</div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>       <span class="keywordflow">if</span> (.not. <span class="keyword">allocated</span>(this%simcomps(i)%simcomp)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>          position = i</div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>          <span class="keywordflow">exit</span></div>
+<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span> </div>
-<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/dc2/structsimulation__component_1_1simulation__component__wrapper__t.html">simulation_component_wrapper_t</a>), <span class="keywordtype">allocatable</span> :: tmp_simcomps(:)</div>
-<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>    <span class="keywordtype">integer</span> :: i, position</div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span> </div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>    <span class="comment">! Find the first empty position</span></div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>    position = 0</div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>    <span class="keywordflow">do</span> i = 1, this%n_simcomps</div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>       <span class="keywordflow">if</span> (.not. <span class="keyword">allocated</span>(this%simcomps(i)%simcomp)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>          position = i</div>
-<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>          <span class="keywordflow">exit</span></div>
+<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>    <span class="comment">! If no empty position was found, append to the end</span></div>
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>    <span class="keywordflow">if</span> (position .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>       <span class="keywordflow">if</span> (this%n_simcomps .gt. 0) <span class="keyword">call </span>move_alloc(this%simcomps, tmp_simcomps)</div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>       <span class="keyword">allocate</span>(this%simcomps(this%n_simcomps + 1))</div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span> </div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>       <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(tmp_simcomps)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>          <span class="keywordflow">do</span> i = 1, this%n_simcomps</div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>             <span class="keyword">call </span>move_alloc(tmp_simcomps(i)%simcomp, this%simcomps(i)%simcomp)</div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span><span class="keywordflow">          end do</span></div>
 <div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span> </div>
-<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>    <span class="comment">! If no empty position was found, append to the end</span></div>
-<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>    <span class="keywordflow">if</span> (position .eq. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>       <span class="keywordflow">if</span> (this%n_simcomps .gt. 0) <span class="keyword">call </span>move_alloc(this%simcomps, tmp_simcomps)</div>
-<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>       <span class="keyword">allocate</span>(this%simcomps(this%n_simcomps + 1))</div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span> </div>
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>       this%n_simcomps = this%n_simcomps + 1</div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>       position = this%n_simcomps</div>
+<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span> </div>
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>       <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(tmp_simcomps)) <span class="keyword">deallocate</span>(tmp_simcomps)</div>
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span> </div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>       <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(tmp_simcomps)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>          <span class="keywordflow">do</span> i = 1, this%n_simcomps</div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>             <span class="keyword">call </span>move_alloc(tmp_simcomps(i)%simcomp, this%simcomps(i)%simcomp)</div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span><span class="keywordflow">          end do</span></div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span> </div>
-<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>       this%n_simcomps = this%n_simcomps + 1</div>
-<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>       position = this%n_simcomps</div>
+<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>    this%simcomps(position)%simcomp = object</div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(settings)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>       <span class="keyword">call </span>this%simcomps(position)%simcomp%init(settings, this%case)</div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span> </div>
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>    this%finalized = .false.</div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span> </div>
+</div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#a22119bff74d9d2b826cc1fb0d7d6a3cd">simcomp_executor_add</a></div>
 <div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span> </div>
-<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>       <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(tmp_simcomps)) <span class="keyword">deallocate</span>(tmp_simcomps)</div>
-<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span> </div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>    this%simcomps(position)%simcomp = object</div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(settings)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>       <span class="keyword">call </span>this%simcomps(position)%simcomp%init(settings, this%case)</div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span> </div>
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>    this%finalized = .false.</div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span> </div>
-</div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#a22119bff74d9d2b826cc1fb0d7d6a3cd">simcomp_executor_add</a></div>
+<div class="foldopen" id="foldopen00246" data-start="" data-end="">
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno"><a class="line" href="../../d2/d78/namespacesimcomp__executor.html#a6f263de2f72e5a0711505f7077c6122e">  246</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#a6f263de2f72e5a0711505f7077c6122e">simcomp_executor_finalize</a>(this)</div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">simcomp_executor_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>    <span class="keywordtype">integer</span> :: i, order, max_order</div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>    <span class="keywordtype">logical</span> :: order_found, previous_found</div>
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span> </div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/dc2/structsimulation__component_1_1simulation__component__wrapper__t.html">simulation_component_wrapper_t</a>), <span class="keywordtype">allocatable</span> :: tmp_simcomps(:)</div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">allocatable</span> :: order_list(:)</div>
 <div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span> </div>
-<div class="foldopen" id="foldopen00258" data-start="" data-end="">
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno"><a class="line" href="../../d2/d78/namespacesimcomp__executor.html#a6f263de2f72e5a0711505f7077c6122e">  258</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#a6f263de2f72e5a0711505f7077c6122e">simcomp_executor_finalize</a>(this)</div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">simcomp_executor_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>    <span class="keywordtype">integer</span> :: i, order, max_order</div>
-<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>    <span class="keywordtype">logical</span> :: order_found, previous_found</div>
-<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span> </div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/dc2/structsimulation__component_1_1simulation__component__wrapper__t.html">simulation_component_wrapper_t</a>), <span class="keywordtype">allocatable</span> :: tmp_simcomps(:)</div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">allocatable</span> :: order_list(:)</div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span> </div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>    <span class="comment">! Check that all components are initialized</span></div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>    <span class="keywordflow">do</span> i = 1, this%n_simcomps</div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>       <span class="keywordflow">if</span> (.not. <span class="keyword">allocated</span>(this%simcomps(i)%simcomp)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>          <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Simulation component not initialized.&quot;</span>)</div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span> </div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>    <span class="comment">! Check that the order is unique and contiguous</span></div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>    previous_found = .true.</div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>    <span class="keywordflow">do</span> order = 1, this%n_simcomps</div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>       order_found = .false.</div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>       <span class="keywordflow">do</span> i = 1, this%n_simcomps</div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>          <span class="keywordflow">if</span> (this%simcomps(i)%simcomp%order == order .and. order_found) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>             <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Simulation component order must be unique.&quot;</span>)</div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>          <span class="keywordflow">else</span> <span class="keywordflow">if</span> (this%simcomps(i)%simcomp%order == order) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>             order_found = .true.</div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span><span class="keywordflow">          end if</span></div>
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>       <span class="keywordflow">if</span> (order_found .and. .not. previous_found) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>          <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Simulation component order must be contiguous &amp;</span></div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span><span class="stringliteral"></span><span class="stringliteral">               &amp;starting at 1.&quot;</span>)</div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>       previous_found = order_found</div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span> </div>
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>    <span class="keyword">allocate</span>(order_list(this%n_simcomps))</div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>    order_list = 0</div>
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>    max_order = 0</div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>    <span class="keywordflow">do</span> i = 1, this%n_simcomps</div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>       order_list(i) = this%simcomps(i)%simcomp%order</div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>       <span class="keywordflow">if</span> (order_list(i) .gt. max_order) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>          max_order = order_list(i)</div>
-<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span> </div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>    <span class="keywordflow">do</span> i = 1, this%n_simcomps</div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>       <span class="keywordflow">if</span> (order_list(i) .eq. -1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>          order_list(i) = max_order + 1</div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>          max_order = max_order + 1</div>
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span> </div>
-<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>    <span class="comment">! Check that the order is within bounds</span></div>
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>    <span class="keywordflow">do</span> i = 1, this%n_simcomps</div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>       <span class="keywordflow">if</span> (order_list(i) .gt. this%n_simcomps) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>          <span class="keyword">deallocate</span>(order_list)</div>
-<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>          <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Simulation component order is out of bounds.&quot;</span>)</div>
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span> </div>
-<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>    <span class="comment">! Reorder the simcomps based on the order specified</span></div>
-<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>    <span class="keyword">call </span>move_alloc(this%simcomps, tmp_simcomps)</div>
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>    <span class="keyword">allocate</span>(this%simcomps(this%n_simcomps))</div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>    <span class="keywordflow">do</span> i = 1, this%n_simcomps</div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>       order = order_list(i)</div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>       <span class="keyword">call </span>move_alloc(tmp_simcomps(i)%simcomp, this%simcomps(order)%simcomp)</div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span> </div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(tmp_simcomps)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>       <span class="keyword">deallocate</span>(tmp_simcomps)</div>
-<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(order_list)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>       <span class="keyword">deallocate</span>(order_list)</div>
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>    <span class="comment">! Check that all components are initialized</span></div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>    <span class="keywordflow">do</span> i = 1, this%n_simcomps</div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>       <span class="keywordflow">if</span> (.not. <span class="keyword">allocated</span>(this%simcomps(i)%simcomp)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>          <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Simulation component not initialized.&quot;</span>)</div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span> </div>
+<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>    <span class="comment">! Check that the order is unique and contiguous</span></div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>    previous_found = .true.</div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>    <span class="keywordflow">do</span> order = 1, this%n_simcomps</div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>       order_found = .false.</div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>       <span class="keywordflow">do</span> i = 1, this%n_simcomps</div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>          <span class="keywordflow">if</span> (this%simcomps(i)%simcomp%order == order .and. order_found) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>             <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Simulation component order must be unique.&quot;</span>)</div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>          <span class="keywordflow">else</span> <span class="keywordflow">if</span> (this%simcomps(i)%simcomp%order == order) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>             order_found = .true.</div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span><span class="keywordflow">          end if</span></div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>       <span class="keywordflow">if</span> (order_found .and. .not. previous_found) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>          <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Simulation component order must be contiguous &quot;</span> // &amp;</div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>               <span class="stringliteral">&quot;starting at 1.&quot;</span>)</div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>       previous_found = order_found</div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span> </div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>    <span class="keyword">allocate</span>(order_list(this%n_simcomps))</div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>    order_list = 0</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>    max_order = 0</div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>    <span class="keywordflow">do</span> i = 1, this%n_simcomps</div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>       order_list(i) = this%simcomps(i)%simcomp%order</div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>       <span class="keywordflow">if</span> (order_list(i) .gt. max_order) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>          max_order = order_list(i)</div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span> </div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>    <span class="keywordflow">do</span> i = 1, this%n_simcomps</div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>       <span class="keywordflow">if</span> (order_list(i) .eq. -1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>          order_list(i) = max_order + 1</div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>          max_order = max_order + 1</div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span> </div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>    <span class="comment">! Check that the order is within bounds</span></div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>    <span class="keywordflow">do</span> i = 1, this%n_simcomps</div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>       <span class="keywordflow">if</span> (order_list(i) .gt. this%n_simcomps) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>          <span class="keyword">deallocate</span>(order_list)</div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>          <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Simulation component order is out of bounds.&quot;</span>)</div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span> </div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>    <span class="comment">! Reorder the simcomps based on the order specified</span></div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>    <span class="keyword">call </span>move_alloc(this%simcomps, tmp_simcomps)</div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>    <span class="keyword">allocate</span>(this%simcomps(this%n_simcomps))</div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>    <span class="keywordflow">do</span> i = 1, this%n_simcomps</div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>       order = order_list(i)</div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>       <span class="keyword">call </span>move_alloc(tmp_simcomps(i)%simcomp, this%simcomps(order)%simcomp)</div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span> </div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(tmp_simcomps)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>       <span class="keyword">deallocate</span>(tmp_simcomps)</div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(order_list)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>       <span class="keyword">deallocate</span>(order_list)</div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span> </div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>    this%finalized = .true.</div>
+</div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#a6f263de2f72e5a0711505f7077c6122e">simcomp_executor_finalize</a></div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span> </div>
+<div class="foldopen" id="foldopen00324" data-start="" data-end="">
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno"><a class="line" href="../../d2/d78/namespacesimcomp__executor.html#ab37b7e3a85e9d146796cb05a5ee7d5fc">  324</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#ab37b7e3a85e9d146796cb05a5ee7d5fc">simcomp_executor_preprocess</a>(this, time)</div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">simcomp_executor_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <span class="keywordtype">intent(in)</span> :: time</div>
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>    <span class="keywordtype">integer</span> :: i</div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span> </div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>    <span class="keywordflow">if</span> (.not. this%finalized) <span class="keyword">call </span>this%finalize()</div>
 <div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span> </div>
-<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>    this%finalized = .true.</div>
+<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%simcomps)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>       <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(this%simcomps)</div>
+<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>          <span class="keyword">call </span>this%simcomps(i)%simcomp%preprocess(time)</div>
+<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span> </div>
 </div>
-<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#a6f263de2f72e5a0711505f7077c6122e">simcomp_executor_finalize</a></div>
-<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span> </div>
-<div class="foldopen" id="foldopen00337" data-start="" data-end="">
-<div class="line"><a id="l00337" name="l00337"></a><span class="lineno"><a class="line" href="../../d2/d78/namespacesimcomp__executor.html#ad27c97db67ec3ab5ccf27633b48dd0d4">  337</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#ad27c97db67ec3ab5ccf27633b48dd0d4">simcomp_executor_preprocess</a>(this, t, tstep)</div>
-<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">simcomp_executor_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: t</div>
-<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: tstep</div>
-<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>    <span class="keywordtype">integer</span> :: i</div>
-<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span> </div>
-<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>    <span class="keywordflow">if</span> (.not. this%finalized) <span class="keyword">call </span>this%finalize()</div>
-<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span> </div>
-<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%simcomps)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>       <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(this%simcomps)</div>
-<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>          <span class="keyword">call </span>this%simcomps(i)%simcomp%preprocess(t, tstep)</div>
-<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span> </div>
+<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#ab37b7e3a85e9d146796cb05a5ee7d5fc">simcomp_executor_preprocess</a></div>
+<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span> </div>
+<div class="foldopen" id="foldopen00341" data-start="" data-end="">
+<div class="line"><a id="l00341" name="l00341"></a><span class="lineno"><a class="line" href="../../d2/d78/namespacesimcomp__executor.html#a2f6d6acefb8cc9db02882f9a464ddf8c">  341</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#a2f6d6acefb8cc9db02882f9a464ddf8c">simcomp_executor_compute</a>(this, time)</div>
+<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">simcomp_executor_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <span class="keywordtype">intent(in)</span> :: time</div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>    <span class="keywordtype">integer</span> :: i</div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span> </div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>    <span class="keywordflow">if</span> (.not. this%finalized) <span class="keyword">call </span>this%finalize()</div>
+<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span> </div>
+<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%simcomps)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>       <span class="keywordflow">do</span> i = 1, this%n_simcomps</div>
+<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>          <span class="keyword">call </span>this%simcomps(i)%simcomp%compute(time)</div>
+<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span> </div>
 </div>
-<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#ad27c97db67ec3ab5ccf27633b48dd0d4">simcomp_executor_preprocess</a></div>
-<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span> </div>
-<div class="foldopen" id="foldopen00356" data-start="" data-end="">
-<div class="line"><a id="l00356" name="l00356"></a><span class="lineno"><a class="line" href="../../d2/d78/namespacesimcomp__executor.html#a86e7c125f09650b29116fe9100f8058b">  356</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#a86e7c125f09650b29116fe9100f8058b">simcomp_executor_compute</a>(this, t, tstep)</div>
-<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">simcomp_executor_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: t</div>
-<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: tstep</div>
-<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>    <span class="keywordtype">integer</span> :: i</div>
-<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span> </div>
-<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>    <span class="keywordflow">if</span> (.not. this%finalized) <span class="keyword">call </span>this%finalize()</div>
-<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span> </div>
-<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%simcomps)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>       <span class="keywordflow">do</span> i = 1, this%n_simcomps</div>
-<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>          <span class="keyword">call </span>this%simcomps(i)%simcomp%compute(t, tstep)</div>
-<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span> </div>
+<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#a2f6d6acefb8cc9db02882f9a464ddf8c">simcomp_executor_compute</a></div>
+<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span> </div>
+<div class="foldopen" id="foldopen00358" data-start="" data-end="">
+<div class="line"><a id="l00358" name="l00358"></a><span class="lineno"><a class="line" href="../../d2/d78/namespacesimcomp__executor.html#a0070bfaf30d230aba1583248b850106f">  358</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#a0070bfaf30d230aba1583248b850106f">simcomp_executor_restart</a>(this, time)</div>
+<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">simcomp_executor_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <span class="keywordtype">intent(in)</span> :: time</div>
+<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>    <span class="keywordtype">integer</span> :: i</div>
+<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span> </div>
+<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%simcomps)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>       <span class="keywordflow">do</span> i = 1, this%n_simcomps</div>
+<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>          <span class="keyword">call </span>this%simcomps(i)%simcomp%restart(time)</div>
+<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span> </div>
 </div>
-<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#a86e7c125f09650b29116fe9100f8058b">simcomp_executor_compute</a></div>
-<div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span> </div>
-<div class="foldopen" id="foldopen00374" data-start="" data-end="">
-<div class="line"><a id="l00374" name="l00374"></a><span class="lineno"><a class="line" href="../../d2/d78/namespacesimcomp__executor.html#a79871656f0a78005bf482c83435460a2">  374</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#a79871656f0a78005bf482c83435460a2">simcomp_executor_restart</a>(this, t)</div>
-<div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">simcomp_executor_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: t</div>
-<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span>    <span class="keywordtype">integer</span> :: i</div>
+<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#a0070bfaf30d230aba1583248b850106f">simcomp_executor_restart</a></div>
+<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span> </div>
+<div class="foldopen" id="foldopen00372" data-start="" data-end="">
+<div class="line"><a id="l00372" name="l00372"></a><span class="lineno"><a class="line" href="../../d2/d78/namespacesimcomp__executor.html#aa2b274ace978b518672ac4fbaf19e74b">  372</a></span>  <span class="keywordtype">pure</span> <span class="keyword">function </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#aa2b274ace978b518672ac4fbaf19e74b">simcomp_executor_get_n</a>(this) <span class="keyword">result</span>(n)</div>
+<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">simcomp_executor_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
+<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>    <span class="keywordtype">integer</span> :: n</div>
+<div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span> </div>
+<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span>    n = this%n_simcomps</div>
+</div>
+<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#aa2b274ace978b518672ac4fbaf19e74b">simcomp_executor_get_n</a></div>
 <div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span> </div>
-<div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%simcomps)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span>       <span class="keywordflow">do</span> i = 1, this%n_simcomps</div>
-<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span>          <span class="keyword">call </span>this%simcomps(i)%simcomp%restart(t)</div>
-<div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span> </div>
-</div>
-<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#a79871656f0a78005bf482c83435460a2">simcomp_executor_restart</a></div>
-<div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span> </div>
-<div class="foldopen" id="foldopen00388" data-start="" data-end="">
-<div class="line"><a id="l00388" name="l00388"></a><span class="lineno"><a class="line" href="../../d2/d78/namespacesimcomp__executor.html#aa2b274ace978b518672ac4fbaf19e74b">  388</a></span>  <span class="keywordtype">pure</span> <span class="keyword">function </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#aa2b274ace978b518672ac4fbaf19e74b">simcomp_executor_get_n</a>(this) <span class="keyword">result</span>(n)</div>
-<div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">simcomp_executor_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
-<div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span>    <span class="keywordtype">integer</span> :: n</div>
-<div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span> </div>
-<div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span>    n = this%n_simcomps</div>
-</div>
-<div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../d2/d78/namespacesimcomp__executor.html#aa2b274ace978b518672ac4fbaf19e74b">simcomp_executor_get_n</a></div>
-<div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span> </div>
-<div class="line"><a id="l00395" name="l00395"></a><span class="lineno">  395</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d2/d78/namespacesimcomp__executor.html">simcomp_executor</a></div>
-<div class="ttc" id="ainterfacejson__utils_1_1json__extract__item_html"><div class="ttname"><a href="../../d9/d2b/interfacejson__utils_1_1json__extract__item.html">json_utils::json_extract_item</a></div><div class="ttdef"><b>Definition</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00060">json_utils.f90:60</a></div></div>
-<div class="ttc" id="ainterfacejson__utils_1_1json__get__or__default_html"><div class="ttname"><a href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_utils::json_get_or_default</a></div><div class="ttdoc">Retrieves a parameter by name or assigns a provided default value. In the latter case also adds the m...</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00054">json_utils.f90:54</a></div></div>
-<div class="ttc" id="ainterfacejson__utils_1_1json__get_html"><div class="ttname"><a href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_utils::json_get</a></div><div class="ttdoc">Retrieves a parameter by name or throws an error.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00045">json_utils.f90:45</a></div></div>
+<div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d2/d78/namespacesimcomp__executor.html">simcomp_executor</a></div>
+<div class="ttc" id="ainterfacejson__utils_1_1json__extract__item_html"><div class="ttname"><a href="../../d9/d2b/interfacejson__utils_1_1json__extract__item.html">json_utils::json_extract_item</a></div><div class="ttdef"><b>Definition</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00063">json_utils.f90:63</a></div></div>
+<div class="ttc" id="ainterfacejson__utils_1_1json__get__or__default_html"><div class="ttname"><a href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_utils::json_get_or_default</a></div><div class="ttdoc">Retrieves a parameter by name or assigns a provided default value. In the latter case also adds the m...</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00057">json_utils.f90:57</a></div></div>
+<div class="ttc" id="ainterfacejson__utils_1_1json__get_html"><div class="ttname"><a href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_utils::json_get</a></div><div class="ttdoc">Retrieves a parameter by name or throws an error.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00048">json_utils.f90:48</a></div></div>
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00042">utils.f90:42</a></div></div>
 <div class="ttc" id="anamespacecase_html"><div class="ttname"><a href="../../dd/da8/namespacecase.html">case</a></div><div class="ttdoc">Defines a simulation case.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d0f/case_8f90_source.html#l00034">case.f90:34</a></div></div>
 <div class="ttc" id="anamespacejson__utils_html"><div class="ttname"><a href="../../d8/da8/namespacejson__utils.html">json_utils</a></div><div class="ttdoc">Utilities for retrieving parameters from the case files.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00034">json_utils.f90:34</a></div></div>
 <div class="ttc" id="anamespacelogger_html"><div class="ttname"><a href="../../d8/da0/namespacelogger.html">logger</a></div><div class="ttdoc">Logging routines.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00034">log.f90:34</a></div></div>
-<div class="ttc" id="anamespacelogger_html_ad728b3400b2e5dfa9ee65757c599c9ce"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">logger::neko_log</a></div><div class="ttdeci">type(log_t), public neko_log</div><div class="ttdoc">Global log stream.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00065">log.f90:65</a></div></div>
+<div class="ttc" id="anamespacelogger_html_ad728b3400b2e5dfa9ee65757c599c9ce"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">logger::neko_log</a></div><div class="ttdeci">type(log_t), public neko_log</div><div class="ttdoc">Global log stream.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00076">log.f90:76</a></div></div>
+<div class="ttc" id="anamespacemask_html"><div class="ttname"><a href="../../d3/d17/namespacemask.html">mask</a></div><div class="ttdoc">Object for handling masks in Neko.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d40/mask_8f90_source.html#l00034">mask.f90:34</a></div></div>
 <div class="ttc" id="anamespacenum__types_html"><div class="ttname"><a href="../../df/d48/namespacenum__types.html">num_types</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00001">num_types.f90:1</a></div></div>
 <div class="ttc" id="anamespacenum__types_html_ae2be59b6de7b874ce5c12fd87f9e8b5e"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">num_types::rp</a></div><div class="ttdeci">integer, parameter, public rp</div><div class="ttdoc">Global precision used in computations.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00012">num_types.f90:12</a></div></div>
 <div class="ttc" id="anamespacesimcomp__executor_html"><div class="ttname"><a href="../../d2/d78/namespacesimcomp__executor.html">simcomp_executor</a></div><div class="ttdoc">Contains the simcomp_executor_t type.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d65/simcomp__executor_8f90_source.html#l00034">simcomp_executor.f90:34</a></div></div>
-<div class="ttc" id="anamespacesimcomp__executor_html_a22119bff74d9d2b826cc1fb0d7d6a3cd"><div class="ttname"><a href="../../d2/d78/namespacesimcomp__executor.html#a22119bff74d9d2b826cc1fb0d7d6a3cd">simcomp_executor::simcomp_executor_add</a></div><div class="ttdeci">subroutine simcomp_executor_add(this, object, settings)</div><div class="ttdoc">Appending a new simcomp to the executor.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d65/simcomp__executor_8f90_source.html#l00211">simcomp_executor.f90:212</a></div></div>
-<div class="ttc" id="anamespacesimcomp__executor_html_a4e23cb01202a3d0847549aafe6b9738f"><div class="ttname"><a href="../../d2/d78/namespacesimcomp__executor.html#a4e23cb01202a3d0847549aafe6b9738f">simcomp_executor::neko_simcomps</a></div><div class="ttdeci">type(simcomp_executor_t), target, public neko_simcomps</div><div class="ttdoc">Global variable for the simulation component driver.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d65/simcomp__executor_8f90_source.html#l00082">simcomp_executor.f90:82</a></div></div>
-<div class="ttc" id="anamespacesimcomp__executor_html_a6f263de2f72e5a0711505f7077c6122e"><div class="ttname"><a href="../../d2/d78/namespacesimcomp__executor.html#a6f263de2f72e5a0711505f7077c6122e">simcomp_executor::simcomp_executor_finalize</a></div><div class="ttdeci">subroutine simcomp_executor_finalize(this)</div><div class="ttdoc">Finalize the initialization. Sorts the simcomps based on the order property. Additionally we check th...</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d65/simcomp__executor_8f90_source.html#l00258">simcomp_executor.f90:259</a></div></div>
-<div class="ttc" id="anamespacesimcomp__executor_html_a79871656f0a78005bf482c83435460a2"><div class="ttname"><a href="../../d2/d78/namespacesimcomp__executor.html#a79871656f0a78005bf482c83435460a2">simcomp_executor::simcomp_executor_restart</a></div><div class="ttdeci">subroutine simcomp_executor_restart(this, t)</div><div class="ttdoc">Execute restart for all simcomps.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d65/simcomp__executor_8f90_source.html#l00374">simcomp_executor.f90:375</a></div></div>
-<div class="ttc" id="anamespacesimcomp__executor_html_a7f5ec92ba565c1a0002e25412f94229e"><div class="ttname"><a href="../../d2/d78/namespacesimcomp__executor.html#a7f5ec92ba565c1a0002e25412f94229e">simcomp_executor::simcomp_executor_init</a></div><div class="ttdeci">subroutine simcomp_executor_init(this, case, simcomp_root)</div><div class="ttdoc">Constructor.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d65/simcomp__executor_8f90_source.html#l00090">simcomp_executor.f90:91</a></div></div>
-<div class="ttc" id="anamespacesimcomp__executor_html_a86e7c125f09650b29116fe9100f8058b"><div class="ttname"><a href="../../d2/d78/namespacesimcomp__executor.html#a86e7c125f09650b29116fe9100f8058b">simcomp_executor::simcomp_executor_compute</a></div><div class="ttdeci">subroutine simcomp_executor_compute(this, t, tstep)</div><div class="ttdoc">Execute compute_ for all simcomps.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d65/simcomp__executor_8f90_source.html#l00356">simcomp_executor.f90:357</a></div></div>
-<div class="ttc" id="anamespacesimcomp__executor_html_aa2b274ace978b518672ac4fbaf19e74b"><div class="ttname"><a href="../../d2/d78/namespacesimcomp__executor.html#aa2b274ace978b518672ac4fbaf19e74b">simcomp_executor::simcomp_executor_get_n</a></div><div class="ttdeci">pure integer function simcomp_executor_get_n(this)</div><div class="ttdoc">Get the number of simcomps.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d65/simcomp__executor_8f90_source.html#l00388">simcomp_executor.f90:389</a></div></div>
-<div class="ttc" id="anamespacesimcomp__executor_html_ac04c01763880b52b482bd6bd9c629359"><div class="ttname"><a href="../../d2/d78/namespacesimcomp__executor.html#ac04c01763880b52b482bd6bd9c629359">simcomp_executor::simcomp_executor_free</a></div><div class="ttdeci">subroutine simcomp_executor_free(this)</div><div class="ttdoc">Destructor.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d65/simcomp__executor_8f90_source.html#l00196">simcomp_executor.f90:197</a></div></div>
-<div class="ttc" id="anamespacesimcomp__executor_html_ad27c97db67ec3ab5ccf27633b48dd0d4"><div class="ttname"><a href="../../d2/d78/namespacesimcomp__executor.html#ad27c97db67ec3ab5ccf27633b48dd0d4">simcomp_executor::simcomp_executor_preprocess</a></div><div class="ttdeci">subroutine simcomp_executor_preprocess(this, t, tstep)</div><div class="ttdoc">Execute preprocess_ for all simcomps.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d65/simcomp__executor_8f90_source.html#l00337">simcomp_executor.f90:338</a></div></div>
+<div class="ttc" id="anamespacesimcomp__executor_html_a0070bfaf30d230aba1583248b850106f"><div class="ttname"><a href="../../d2/d78/namespacesimcomp__executor.html#a0070bfaf30d230aba1583248b850106f">simcomp_executor::simcomp_executor_restart</a></div><div class="ttdeci">subroutine simcomp_executor_restart(this, time)</div><div class="ttdoc">Execute restart for all simcomps.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d65/simcomp__executor_8f90_source.html#l00358">simcomp_executor.f90:359</a></div></div>
+<div class="ttc" id="anamespacesimcomp__executor_html_a22119bff74d9d2b826cc1fb0d7d6a3cd"><div class="ttname"><a href="../../d2/d78/namespacesimcomp__executor.html#a22119bff74d9d2b826cc1fb0d7d6a3cd">simcomp_executor::simcomp_executor_add</a></div><div class="ttdeci">subroutine simcomp_executor_add(this, object, settings)</div><div class="ttdoc">Appending a new simcomp to the executor.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d65/simcomp__executor_8f90_source.html#l00199">simcomp_executor.f90:200</a></div></div>
+<div class="ttc" id="anamespacesimcomp__executor_html_a2f6d6acefb8cc9db02882f9a464ddf8c"><div class="ttname"><a href="../../d2/d78/namespacesimcomp__executor.html#a2f6d6acefb8cc9db02882f9a464ddf8c">simcomp_executor::simcomp_executor_compute</a></div><div class="ttdeci">subroutine simcomp_executor_compute(this, time)</div><div class="ttdoc">Execute compute_ for all simcomps.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d65/simcomp__executor_8f90_source.html#l00341">simcomp_executor.f90:342</a></div></div>
+<div class="ttc" id="anamespacesimcomp__executor_html_a4e23cb01202a3d0847549aafe6b9738f"><div class="ttname"><a href="../../d2/d78/namespacesimcomp__executor.html#a4e23cb01202a3d0847549aafe6b9738f">simcomp_executor::neko_simcomps</a></div><div class="ttdeci">type(simcomp_executor_t), target, public neko_simcomps</div><div class="ttdoc">Global variable for the simulation component driver.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d65/simcomp__executor_8f90_source.html#l00083">simcomp_executor.f90:83</a></div></div>
+<div class="ttc" id="anamespacesimcomp__executor_html_a6f263de2f72e5a0711505f7077c6122e"><div class="ttname"><a href="../../d2/d78/namespacesimcomp__executor.html#a6f263de2f72e5a0711505f7077c6122e">simcomp_executor::simcomp_executor_finalize</a></div><div class="ttdeci">subroutine simcomp_executor_finalize(this)</div><div class="ttdoc">Finalize the initialization. Sorts the simcomps based on the order property. Additionally we check th...</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d65/simcomp__executor_8f90_source.html#l00246">simcomp_executor.f90:247</a></div></div>
+<div class="ttc" id="anamespacesimcomp__executor_html_a7f5ec92ba565c1a0002e25412f94229e"><div class="ttname"><a href="../../d2/d78/namespacesimcomp__executor.html#a7f5ec92ba565c1a0002e25412f94229e">simcomp_executor::simcomp_executor_init</a></div><div class="ttdeci">subroutine simcomp_executor_init(this, case, simcomp_root)</div><div class="ttdoc">Constructor.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d65/simcomp__executor_8f90_source.html#l00091">simcomp_executor.f90:92</a></div></div>
+<div class="ttc" id="anamespacesimcomp__executor_html_aa2b274ace978b518672ac4fbaf19e74b"><div class="ttname"><a href="../../d2/d78/namespacesimcomp__executor.html#aa2b274ace978b518672ac4fbaf19e74b">simcomp_executor::simcomp_executor_get_n</a></div><div class="ttdeci">pure integer function simcomp_executor_get_n(this)</div><div class="ttdoc">Get the number of simcomps.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d65/simcomp__executor_8f90_source.html#l00372">simcomp_executor.f90:373</a></div></div>
+<div class="ttc" id="anamespacesimcomp__executor_html_ab37b7e3a85e9d146796cb05a5ee7d5fc"><div class="ttname"><a href="../../d2/d78/namespacesimcomp__executor.html#ab37b7e3a85e9d146796cb05a5ee7d5fc">simcomp_executor::simcomp_executor_preprocess</a></div><div class="ttdeci">subroutine simcomp_executor_preprocess(this, time)</div><div class="ttdoc">Execute preprocess_ for all simcomps.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d65/simcomp__executor_8f90_source.html#l00324">simcomp_executor.f90:325</a></div></div>
+<div class="ttc" id="anamespacesimcomp__executor_html_ac04c01763880b52b482bd6bd9c629359"><div class="ttname"><a href="../../d2/d78/namespacesimcomp__executor.html#ac04c01763880b52b482bd6bd9c629359">simcomp_executor::simcomp_executor_free</a></div><div class="ttdeci">subroutine simcomp_executor_free(this)</div><div class="ttdoc">Destructor.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d65/simcomp__executor_8f90_source.html#l00181">simcomp_executor.f90:182</a></div></div>
 <div class="ttc" id="anamespacesimulation__component_html"><div class="ttname"><a href="../../d2/def/namespacesimulation__component.html">simulation_component</a></div><div class="ttdoc">Simulation components are objects that encapsulate functionality that can be fit to a particular comp...</div><div class="ttdef"><b>Definition</b> <a href="../../d9/d55/simulation__component_8f90_source.html#l00038">simulation_component.f90:38</a></div></div>
+<div class="ttc" id="anamespacetime__state_html"><div class="ttname"><a href="../../d8/d92/namespacetime__state.html">time_state</a></div><div class="ttdoc">Module with things related to the simulation time.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/dd6/time__state_8f90_source.html#l00034">time_state.f90:34</a></div></div>
 <div class="ttc" id="anamespaceutils_html"><div class="ttname"><a href="../../d6/d84/namespaceutils.html">utils</a></div><div class="ttdoc">Utilities.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00035">utils.f90:35</a></div></div>
-<div class="ttc" id="astructcase_1_1case__t_html"><div class="ttname"><a href="../../db/d7a/structcase_1_1case__t.html">case::case_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/d0f/case_8f90_source.html#l00063">case.f90:63</a></div></div>
-<div class="ttc" id="astructsimcomp__executor_1_1simcomp__executor__t_html"><div class="ttname"><a href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">simcomp_executor::simcomp_executor_t</a></div><div class="ttdoc">Singleton type that serves as a driver for the simulation components. Stores all the components in th...</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d65/simcomp__executor_8f90_source.html#l00052">simcomp_executor.f90:52</a></div></div>
-<div class="ttc" id="astructsimulation__component_1_1simulation__component__t_html"><div class="ttname"><a href="../../dc/d0d/structsimulation__component_1_1simulation__component__t.html">simulation_component::simulation_component_t</a></div><div class="ttdoc">Base abstract class for simulation components.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/d55/simulation__component_8f90_source.html#l00048">simulation_component.f90:48</a></div></div>
-<div class="ttc" id="astructsimulation__component_1_1simulation__component__wrapper__t_html"><div class="ttname"><a href="../../d7/dc2/structsimulation__component_1_1simulation__component__wrapper__t.html">simulation_component::simulation_component_wrapper_t</a></div><div class="ttdoc">A helper type that is needed to have an array of polymorphic objects.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/d55/simulation__component_8f90_source.html#l00087">simulation_component.f90:87</a></div></div>
+<div class="ttc" id="astructcase_1_1case__t_html"><div class="ttname"><a href="../../db/d7a/structcase_1_1case__t.html">case::case_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/d0f/case_8f90_source.html#l00070">case.f90:70</a></div></div>
+<div class="ttc" id="astructsimcomp__executor_1_1simcomp__executor__t_html"><div class="ttname"><a href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">simcomp_executor::simcomp_executor_t</a></div><div class="ttdoc">Singleton type that serves as a driver for the simulation components. Stores all the components in th...</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d65/simcomp__executor_8f90_source.html#l00053">simcomp_executor.f90:53</a></div></div>
+<div class="ttc" id="astructsimulation__component_1_1simulation__component__t_html"><div class="ttname"><a href="../../dc/d0d/structsimulation__component_1_1simulation__component__t.html">simulation_component::simulation_component_t</a></div><div class="ttdoc">Base abstract class for simulation components.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/d55/simulation__component_8f90_source.html#l00049">simulation_component.f90:49</a></div></div>
+<div class="ttc" id="astructsimulation__component_1_1simulation__component__wrapper__t_html"><div class="ttname"><a href="../../d7/dc2/structsimulation__component_1_1simulation__component__wrapper__t.html">simulation_component::simulation_component_wrapper_t</a></div><div class="ttdoc">A helper type that is needed to have an array of polymorphic objects.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/d55/simulation__component_8f90_source.html#l00104">simulation_component.f90:104</a></div></div>
+<div class="ttc" id="astructtime__state_1_1time__state__t_html"><div class="ttname"><a href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state::time_state_t</a></div><div class="ttdoc">A struct that contains all info about the time, expand as needed.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/dd6/time__state_8f90_source.html#l00044">time_state.f90:44</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_702567638a028346607c31c39047d6bd.html">simulation_components</a></li><li class="navelem"><a class="el" href="../../d8/d65/simcomp__executor_8f90.html">simcomp_executor.f90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

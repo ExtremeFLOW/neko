@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -105,29 +105,35 @@ $(document).ready(function(){initNavTree('dd/d52/namespaceelementwise__filter.ht
 </div><!--header-->
 <div class="contents">
 
-<p>Implements <code>explicit_filter_t</code>.  
+<p>Implements <code><a class="el" href="../../d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html" title="Implements the elementwise filter for SEM.">elementwise_filter_t</a></code>.  
 </p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html">elementwise_filter_t</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Implements the explicit filter for SEM.  <a href="../../d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Implements the elementwise filter for SEM.  <a href="../../d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:afc157f604fa569f1cba6c8c96e2e4b99" id="r_afc157f604fa569f1cba6c8c96e2e4b99"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d52/namespaceelementwise__filter.html#afc157f604fa569f1cba6c8c96e2e4b99">elementwise_filter_init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, nx, filter_type)</td></tr>
-<tr class="memdesc:afc157f604fa569f1cba6c8c96e2e4b99"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
-<tr class="separator:afc157f604fa569f1cba6c8c96e2e4b99"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8d185608967d02d5b1dced875e039576" id="r_a8d185608967d02d5b1dced875e039576"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d52/namespaceelementwise__filter.html#a8d185608967d02d5b1dced875e039576">elementwise_filter_init_from_json</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, json, coef)</td></tr>
+<tr class="memdesc:a8d185608967d02d5b1dced875e039576"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
+<tr class="separator:a8d185608967d02d5b1dced875e039576"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad09c2b30e39c1053855b29d95d2cd001" id="r_ad09c2b30e39c1053855b29d95d2cd001"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d52/namespaceelementwise__filter.html#ad09c2b30e39c1053855b29d95d2cd001">elementwise_filter_init_from_components</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, nx)</td></tr>
+<tr class="memdesc:ad09c2b30e39c1053855b29d95d2cd001"><td class="mdescLeft">&#160;</td><td class="mdescRight">Actual Constructor.  <br /></td></tr>
+<tr class="separator:ad09c2b30e39c1053855b29d95d2cd001"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abde18bcf3f47a3c2901cb23b24d5564d" id="r_abde18bcf3f47a3c2901cb23b24d5564d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d52/namespaceelementwise__filter.html#abde18bcf3f47a3c2901cb23b24d5564d">elementwise_filter_free</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="memdesc:abde18bcf3f47a3c2901cb23b24d5564d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <br /></td></tr>
 <tr class="separator:abde18bcf3f47a3c2901cb23b24d5564d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac2f5a8a0a33529944fc5302eee1e04f5" id="r_ac2f5a8a0a33529944fc5302eee1e04f5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d52/namespaceelementwise__filter.html#ac2f5a8a0a33529944fc5302eee1e04f5">build_1d</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="memdesc:ac2f5a8a0a33529944fc5302eee1e04f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build the 1d filter for an element.  <br /></td></tr>
 <tr class="separator:ac2f5a8a0a33529944fc5302eee1e04f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaef0ce44b4e36713bcc046b0badd3e05" id="r_aaef0ce44b4e36713bcc046b0badd3e05"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d52/namespaceelementwise__filter.html#aaef0ce44b4e36713bcc046b0badd3e05">elementwise_field_filter_3d</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, v, u, nelv)</td></tr>
-<tr class="memdesc:aaef0ce44b4e36713bcc046b0badd3e05"><td class="mdescLeft">&#160;</td><td class="mdescRight">Filter a 3D field.  <br /></td></tr>
-<tr class="separator:aaef0ce44b4e36713bcc046b0badd3e05"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af3e61989d0b375cd71de6d1550ddf803" id="r_af3e61989d0b375cd71de6d1550ddf803"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d52/namespaceelementwise__filter.html#af3e61989d0b375cd71de6d1550ddf803">elementwise_field_filter_3d</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, f_out, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">f_in</a>)</td></tr>
+<tr class="memdesc:af3e61989d0b375cd71de6d1550ddf803"><td class="mdescLeft">&#160;</td><td class="mdescRight">Filter a 3D field.  <br /></td></tr>
+<tr class="separator:af3e61989d0b375cd71de6d1550ddf803"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a106ce51f62e266dfa441bde829ddff19" id="r_a106ce51f62e266dfa441bde829ddff19"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d52/namespaceelementwise__filter.html#a106ce51f62e266dfa441bde829ddff19">build_1d_cpu</a> (fh, fht, transfer, nx, filter_type)</td></tr>
+<tr class="memdesc:a106ce51f62e266dfa441bde829ddff19"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build the 1d filter for an element on the CPU. Suppose field x is filtered into x_hat by x_hat = fh*x.  <br /></td></tr>
+<tr class="separator:a106ce51f62e266dfa441bde829ddff19"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="ac2f5a8a0a33529944fc5302eee1e04f5" name="ac2f5a8a0a33529944fc5302eee1e04f5"></a>
@@ -154,59 +160,180 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d9a/elementwise__filter_8f90_source.html#l00116">116</a> of file <a class="el" href="../../df/d9a/elementwise__filter_8f90_source.html">elementwise_filter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d9a/elementwise__filter_8f90_source.html#l00177">177</a> of file <a class="el" href="../../df/d9a/elementwise__filter_8f90_source.html">elementwise_filter.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/d52/namespaceelementwise__filter_ac2f5a8a0a33529944fc5302eee1e04f5_cgraph.png" border="0" usemap="#add/d52/namespaceelementwise__filter_ac2f5a8a0a33529944fc5302eee1e04f5_cgraph" alt=""/></div>
 <map name="add/d52/namespaceelementwise__filter_ac2f5a8a0a33529944fc5302eee1e04f5_cgraph" id="add/d52/namespaceelementwise__filter_ac2f5a8a0a33529944fc5302eee1e04f5_cgraph">
 <area shape="rect" title="Build the 1d filter for an element." alt="" coords="5,97,148,137"/>
-<area shape="rect" href="../../dd/d26/namespaceelementwise__filter__cpu.html#aafca1eafd7fe7847fb28b285189ca02f" title="Build the 1d filter for an element on the CPU. Suppose field x is filtered into x_hat by x_hat = fh*x..." alt="" coords="196,97,341,137"/>
-<area shape="poly" title=" " alt="" coords="149,114,182,114,182,119,149,119"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="426,5,521,31"/>
-<area shape="poly" title=" " alt="" coords="296,94,338,66,388,40,412,31,413,36,390,44,341,71,299,99"/>
-<area shape="rect" href="../../dd/df0/namespacespeclib.html#abff0bed325bbf553ee8ff1fb2d5b70c9" title="Evaluate Legendre polynomials of degrees 0&#45;N at point x and store in array L." alt="" coords="389,55,557,80"/>
-<area shape="poly" title=" " alt="" coords="341,97,406,81,407,86,342,102"/>
-<area shape="rect" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="394,104,553,129"/>
-<area shape="poly" title=" " alt="" coords="342,114,381,114,381,119,342,119"/>
-<area shape="rect" href="../../dd/d8c/namespacetensor.html#a8947209d2430fc2471fbf9d2984485da" title="Transpose of a rectangular tensor ." alt="" coords="425,153,521,179"/>
-<area shape="poly" title=" " alt="" coords="342,132,412,149,411,154,341,137"/>
-<area shape="rect" href="../../dd/df0/namespacespeclib.html#a35488656016cc28e6422a81377ee7434" title=" " alt="" coords="418,203,529,228"/>
-<area shape="poly" title=" " alt="" coords="300,135,342,162,390,188,411,196,409,201,388,192,339,166,297,139"/>
-<area shape="rect" href="../../dd/df0/namespacespeclib.html#a5b864c5653986341347795cb5ac75c92" title=" " alt="" coords="605,203,716,228"/>
-<area shape="poly" title=" " alt="" coords="529,213,591,213,591,218,529,218"/>
-<area shape="rect" href="../../dd/df0/namespacespeclib.html#a47a06503ffdba7aebba5ae4f41661c04" title=" " alt="" coords="764,203,883,228"/>
-<area shape="poly" title=" " alt="" coords="716,213,750,213,750,218,716,218"/>
-<area shape="rect" href="../../dd/df0/namespacespeclib.html#ac3838666020ca4150da3b691fe5f9c93" title=" " alt="" coords="1099,104,1218,129"/>
-<area shape="poly" title=" " alt="" coords="867,200,1100,131,1102,136,868,205"/>
-<area shape="rect" href="../../dd/df0/namespacespeclib.html#ae4d2f7c4f8ec88a4c0b11d7fb67b87ad" title=" " alt="" coords="931,60,1049,85"/>
-<area shape="poly" title=" " alt="" coords="838,200,962,92,966,96,842,204"/>
-<area shape="rect" href="../../dd/df0/namespacespeclib.html#a7b6b7a991f7a4deaff63144237f6b161" title=" " alt="" coords="1275,329,1391,355"/>
-<area shape="poly" title=" " alt="" coords="842,226,884,257,945,297,1019,336,1098,365,1145,372,1193,371,1239,365,1279,356,1280,361,1240,370,1194,376,1145,377,1097,370,1017,341,943,301,881,261,839,230"/>
-<area shape="rect" href="../../dd/df0/namespacespeclib.html#a80692f5a33b00328a2600d1d409035f7" title=" " alt="" coords="933,228,1047,253"/>
-<area shape="poly" title=" " alt="" coords="883,222,919,227,918,233,883,227"/>
-<area shape="poly" title=" " alt="" coords="1131,105,1125,96,1128,86,1139,80,1159,77,1182,81,1192,89,1188,93,1179,86,1159,83,1141,85,1132,89,1130,95,1135,102"/>
-<area shape="rect" href="../../dd/df0/namespacespeclib.html#a4048cd0103898d95f6f8064c13fe5294" title=" " alt="" coords="1268,141,1399,167"/>
-<area shape="poly" title=" " alt="" coords="1219,127,1261,136,1260,141,1218,132"/>
-<area shape="poly" title=" " alt="" coords="1304,143,1298,133,1302,123,1314,117,1333,115,1357,118,1367,127,1364,131,1355,123,1333,120,1315,122,1306,127,1304,132,1309,140"/>
-<area shape="poly" title=" " alt="" coords="1049,58,1132,51,1177,55,1221,65,1248,77,1273,94,1313,129,1309,133,1270,98,1245,82,1219,70,1176,60,1132,57,1050,63"/>
-<area shape="poly" title=" " alt="" coords="962,61,956,52,960,42,971,36,990,33,1013,37,1022,45,1019,49,1010,42,990,39,973,41,964,45,962,51,967,58"/>
-<area shape="poly" title=" " alt="" coords="1047,237,1130,230,1175,223,1219,211,1263,193,1301,172,1303,177,1265,198,1221,217,1176,228,1130,236,1048,243"/>
-<area shape="poly" title=" " alt="" coords="1035,251,1277,323,1275,328,1033,256"/>
-<area shape="rect" href="../../dd/df0/namespacespeclib.html#a42f3304560e837ccc11d02fac0d17598" title=" " alt="" coords="1107,329,1210,355"/>
-<area shape="poly" title=" " alt="" coords="1011,251,1099,308,1121,320,1118,325,1096,312,1008,256"/>
-<area shape="rect" href="../../dd/df0/namespacespeclib.html#a3d3ffb215920d3ac2599832211842480" title=" " alt="" coords="1097,177,1220,203"/>
-<area shape="poly" title=" " alt="" coords="1032,225,1102,204,1103,209,1034,230"/>
-<area shape="poly" title=" " alt="" coords="1210,339,1261,339,1261,345,1210,345"/>
-<area shape="poly" title=" " alt="" coords="1220,175,1257,167,1258,172,1221,180"/>
-<area shape="poly" title=" " alt="" coords="1131,179,1125,169,1128,159,1139,153,1159,151,1182,154,1192,163,1188,167,1179,159,1159,156,1141,158,1132,163,1130,168,1135,176"/>
+<area shape="rect" href="../../dd/d52/namespaceelementwise__filter.html#a106ce51f62e266dfa441bde829ddff19" title="Build the 1d filter for an element on the CPU. Suppose field x is filtered into x_hat by x_hat = fh*x..." alt="" coords="196,97,339,137"/>
+<area shape="poly" title=" " alt="" coords="148,114,183,114,183,119,148,119"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="423,5,518,31"/>
+<area shape="poly" title=" " alt="" coords="294,94,336,66,386,40,409,31,411,36,388,44,339,71,297,99"/>
+<area shape="rect" href="../../dd/df0/namespacespeclib.html#abff0bed325bbf553ee8ff1fb2d5b70c9" title="Evaluate Legendre polynomials of degrees 0&#45;N at point x and store in array L." alt="" coords="387,55,555,80"/>
+<area shape="poly" title=" " alt="" coords="338,97,403,81,405,86,339,102"/>
+<area shape="rect" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="391,104,550,129"/>
+<area shape="poly" title=" " alt="" coords="339,114,378,114,378,119,339,119"/>
+<area shape="rect" href="../../dd/d8c/namespacetensor.html#a8947209d2430fc2471fbf9d2984485da" title="Transpose of a rectangular tensor ." alt="" coords="423,153,519,179"/>
+<area shape="poly" title=" " alt="" coords="339,131,410,149,408,154,338,137"/>
+<area shape="rect" href="../../dd/df0/namespacespeclib.html#a35488656016cc28e6422a81377ee7434" title="Generate NP Gauss&#45;Lobatto Legendre points (Z) and weights (W) associated with Jacobi polynomial P(N)(..." alt="" coords="415,203,526,228"/>
+<area shape="poly" title=" " alt="" coords="298,135,340,162,388,188,409,196,407,201,386,192,337,166,295,139"/>
+<area shape="rect" href="../../dd/df0/namespacespeclib.html#a5b864c5653986341347795cb5ac75c92" title="Generate NP GAUSS LOBATTO JACOBI points (Z) and weights (W) associated with Jacobi polynomial P(N)(al..." alt="" coords="603,203,713,228"/>
+<area shape="poly" title=" " alt="" coords="526,213,589,213,589,218,526,218"/>
+<area shape="rect" href="../../dd/df0/namespacespeclib.html#a47a06503ffdba7aebba5ae4f41661c04" title="Generate NP GAUSS LOBATTO JACOBI points (Z) and weights (W) associated with Jacobi polynomial P(N)(al..." alt="" coords="761,203,880,228"/>
+<area shape="poly" title=" " alt="" coords="714,213,747,213,747,218,714,218"/>
+<area shape="rect" href="../../dd/df0/namespacespeclib.html#ac3838666020ca4150da3b691fe5f9c93" title=" " alt="" coords="1097,104,1215,129"/>
+<area shape="poly" title=" " alt="" coords="864,200,1098,131,1099,136,866,205"/>
+<area shape="rect" href="../../dd/df0/namespacespeclib.html#ae4d2f7c4f8ec88a4c0b11d7fb67b87ad" title=" " alt="" coords="928,60,1047,85"/>
+<area shape="poly" title=" " alt="" coords="835,200,959,92,963,96,839,204"/>
+<area shape="rect" href="../../dd/df0/namespacespeclib.html#a7b6b7a991f7a4deaff63144237f6b161" title="Computes the Jacobi polynomial (POLY) and its derivative (PDER) of degree N at X." alt="" coords="1273,329,1389,355"/>
+<area shape="poly" title=" " alt="" coords="840,226,881,257,943,297,1016,336,1095,365,1143,372,1191,371,1237,365,1277,356,1278,361,1238,370,1191,376,1142,377,1094,370,1014,341,940,301,878,261,836,230"/>
+<area shape="rect" href="../../dd/df0/namespacespeclib.html#a80692f5a33b00328a2600d1d409035f7" title="Generate NP GAUSS JACOBI points (Z) and weights (W) associated with Jacobi polynomial P(N)(alpha&gt;&#45;1,..." alt="" coords="930,228,1045,253"/>
+<area shape="poly" title=" " alt="" coords="881,222,917,227,916,233,880,227"/>
+<area shape="poly" title=" " alt="" coords="1128,105,1122,96,1125,86,1137,80,1156,77,1179,81,1189,89,1185,93,1177,86,1156,83,1138,85,1129,89,1127,95,1132,102"/>
+<area shape="rect" href="../../dd/df0/namespacespeclib.html#a4048cd0103898d95f6f8064c13fe5294" title=" " alt="" coords="1265,141,1396,167"/>
+<area shape="poly" title=" " alt="" coords="1216,127,1258,136,1257,141,1215,132"/>
+<area shape="poly" title=" " alt="" coords="1302,143,1296,133,1299,123,1311,117,1331,115,1355,118,1365,127,1361,131,1352,123,1331,120,1312,122,1303,127,1301,132,1306,140"/>
+<area shape="poly" title=" " alt="" coords="1047,58,1129,51,1174,55,1218,65,1245,77,1270,94,1310,129,1307,133,1267,98,1243,82,1216,70,1173,60,1129,57,1047,63"/>
+<area shape="poly" title=" " alt="" coords="960,61,954,52,957,42,968,36,987,33,1010,37,1020,45,1016,49,1008,42,987,39,970,41,961,45,959,51,964,58"/>
+<area shape="poly" title=" " alt="" coords="1045,237,1127,230,1172,223,1216,211,1260,193,1298,172,1300,177,1262,198,1218,217,1173,228,1128,236,1045,243"/>
+<area shape="poly" title=" " alt="" coords="1032,251,1274,323,1273,328,1031,256"/>
+<area shape="rect" href="../../dd/df0/namespacespeclib.html#a42f3304560e837ccc11d02fac0d17598" title="Compute NP Gauss points XJAC, which are the zeros of the Jacobi polynomial J(NP) with parameters ALPH..." alt="" coords="1105,329,1207,355"/>
+<area shape="poly" title=" " alt="" coords="1009,251,1096,308,1118,320,1116,325,1093,312,1006,256"/>
+<area shape="rect" href="../../dd/df0/namespacespeclib.html#a3d3ffb215920d3ac2599832211842480" title=" " alt="" coords="1095,177,1217,203"/>
+<area shape="poly" title=" " alt="" coords="1030,225,1099,204,1101,209,1031,230"/>
+<area shape="poly" title=" " alt="" coords="1208,339,1259,339,1259,345,1208,345"/>
+<area shape="poly" title=" " alt="" coords="1217,175,1254,167,1255,172,1218,180"/>
+<area shape="poly" title=" " alt="" coords="1128,179,1122,169,1125,159,1137,153,1156,151,1179,154,1189,163,1185,167,1177,159,1156,156,1138,158,1129,163,1127,168,1132,176"/>
 </map>
 </div>
 
 </div>
 </div>
-<a id="aaef0ce44b4e36713bcc046b0badd3e05" name="aaef0ce44b4e36713bcc046b0badd3e05"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aaef0ce44b4e36713bcc046b0badd3e05">&#9670;&#160;</a></span>elementwise_field_filter_3d()</h2>
+<a id="a106ce51f62e266dfa441bde829ddff19" name="a106ce51f62e266dfa441bde829ddff19"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a106ce51f62e266dfa441bde829ddff19">&#9670;&#160;</a></span>build_1d_cpu()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> elementwise_filter::build_1d_cpu </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(nx, nx), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>fh</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(nx, nx), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>fht</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(nx), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>transfer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>nx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=*), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>filter_type</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">fh</td><td>The 1D filter operator. </td></tr>
+    <tr><td class="paramname">fht</td><td>The transpose of fh. </td></tr>
+    <tr><td class="paramname">trnfr</td><td>The transfer function containing weights for different modes. </td></tr>
+    <tr><td class="paramname">nx</td><td>number of points, dimension of x. </td></tr>
+    <tr><td class="paramname">filter_type</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../df/d9a/elementwise__filter_8f90_source.html#l00210">210</a> of file <a class="el" href="../../df/d9a/elementwise__filter_8f90_source.html">elementwise_filter.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dd/d52/namespaceelementwise__filter_a106ce51f62e266dfa441bde829ddff19_cgraph.png" border="0" usemap="#add/d52/namespaceelementwise__filter_a106ce51f62e266dfa441bde829ddff19_cgraph" alt=""/></div>
+<map name="add/d52/namespaceelementwise__filter_a106ce51f62e266dfa441bde829ddff19_cgraph" id="add/d52/namespaceelementwise__filter_a106ce51f62e266dfa441bde829ddff19_cgraph">
+<area shape="rect" title="Build the 1d filter for an element on the CPU. Suppose field x is filtered into x_hat by x_hat = fh*x..." alt="" coords="5,97,148,137"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="233,5,327,31"/>
+<area shape="poly" title=" " alt="" coords="103,94,145,66,195,40,218,31,220,36,197,44,148,71,106,99"/>
+<area shape="rect" href="../../dd/df0/namespacespeclib.html#abff0bed325bbf553ee8ff1fb2d5b70c9" title="Evaluate Legendre polynomials of degrees 0&#45;N at point x and store in array L." alt="" coords="196,55,364,80"/>
+<area shape="poly" title=" " alt="" coords="148,97,213,81,214,86,149,102"/>
+<area shape="rect" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="201,104,359,129"/>
+<area shape="poly" title=" " alt="" coords="148,114,187,114,187,119,148,119"/>
+<area shape="rect" href="../../dd/d8c/namespacetensor.html#a8947209d2430fc2471fbf9d2984485da" title="Transpose of a rectangular tensor ." alt="" coords="232,153,328,179"/>
+<area shape="poly" title=" " alt="" coords="149,131,219,149,218,154,148,137"/>
+<area shape="rect" href="../../dd/df0/namespacespeclib.html#a35488656016cc28e6422a81377ee7434" title="Generate NP Gauss&#45;Lobatto Legendre points (Z) and weights (W) associated with Jacobi polynomial P(N)(..." alt="" coords="225,203,335,228"/>
+<area shape="poly" title=" " alt="" coords="107,135,149,162,197,188,218,196,216,201,195,192,146,166,104,139"/>
+<area shape="rect" href="../../dd/df0/namespacespeclib.html#a5b864c5653986341347795cb5ac75c92" title="Generate NP GAUSS LOBATTO JACOBI points (Z) and weights (W) associated with Jacobi polynomial P(N)(al..." alt="" coords="412,203,523,228"/>
+<area shape="poly" title=" " alt="" coords="336,213,398,213,398,218,336,218"/>
+<area shape="rect" href="../../dd/df0/namespacespeclib.html#a47a06503ffdba7aebba5ae4f41661c04" title="Generate NP GAUSS LOBATTO JACOBI points (Z) and weights (W) associated with Jacobi polynomial P(N)(al..." alt="" coords="571,203,689,228"/>
+<area shape="poly" title=" " alt="" coords="523,213,557,213,557,218,523,218"/>
+<area shape="rect" href="../../dd/df0/namespacespeclib.html#ac3838666020ca4150da3b691fe5f9c93" title=" " alt="" coords="906,104,1025,129"/>
+<area shape="poly" title=" " alt="" coords="673,200,907,131,909,136,675,205"/>
+<area shape="rect" href="../../dd/df0/namespacespeclib.html#ae4d2f7c4f8ec88a4c0b11d7fb67b87ad" title=" " alt="" coords="737,60,856,85"/>
+<area shape="poly" title=" " alt="" coords="645,200,769,92,772,96,648,204"/>
+<area shape="rect" href="../../dd/df0/namespacespeclib.html#a7b6b7a991f7a4deaff63144237f6b161" title="Computes the Jacobi polynomial (POLY) and its derivative (PDER) of degree N at X." alt="" coords="1082,329,1198,355"/>
+<area shape="poly" title=" " alt="" coords="649,226,691,257,752,297,825,336,905,365,952,372,1000,371,1046,365,1086,356,1087,361,1047,370,1000,376,952,377,903,370,823,341,749,301,688,261,646,230"/>
+<area shape="rect" href="../../dd/df0/namespacespeclib.html#a80692f5a33b00328a2600d1d409035f7" title="Generate NP GAUSS JACOBI points (Z) and weights (W) associated with Jacobi polynomial P(N)(alpha&gt;&#45;1,..." alt="" coords="739,228,854,253"/>
+<area shape="poly" title=" " alt="" coords="690,222,726,227,725,233,689,227"/>
+<area shape="poly" title=" " alt="" coords="937,105,931,96,934,86,946,80,965,77,988,81,998,89,995,93,986,86,965,83,948,85,939,89,937,95,942,102"/>
+<area shape="rect" href="../../dd/df0/namespacespeclib.html#a4048cd0103898d95f6f8064c13fe5294" title=" " alt="" coords="1075,141,1205,167"/>
+<area shape="poly" title=" " alt="" coords="1025,127,1067,136,1066,141,1024,132"/>
+<area shape="poly" title=" " alt="" coords="1111,143,1105,133,1108,123,1120,117,1140,115,1164,118,1174,127,1170,131,1162,123,1140,120,1122,122,1112,127,1110,132,1116,140"/>
+<area shape="poly" title=" " alt="" coords="856,58,938,51,984,55,1028,65,1055,77,1080,94,1119,129,1116,133,1076,98,1052,82,1026,70,983,60,938,57,856,63"/>
+<area shape="poly" title=" " alt="" coords="769,61,763,52,766,42,778,36,797,33,819,37,829,45,826,49,817,42,797,39,779,41,770,45,768,51,773,58"/>
+<area shape="poly" title=" " alt="" coords="854,237,936,230,982,223,1026,211,1069,193,1107,172,1110,177,1072,198,1028,217,983,228,937,236,854,243"/>
+<area shape="poly" title=" " alt="" coords="842,251,1084,323,1082,328,840,256"/>
+<area shape="rect" href="../../dd/df0/namespacespeclib.html#a42f3304560e837ccc11d02fac0d17598" title="Compute NP Gauss points XJAC, which are the zeros of the Jacobi polynomial J(NP) with parameters ALPH..." alt="" coords="914,329,1017,355"/>
+<area shape="poly" title=" " alt="" coords="818,251,905,308,928,320,925,325,903,312,815,256"/>
+<area shape="rect" href="../../dd/df0/namespacespeclib.html#a3d3ffb215920d3ac2599832211842480" title=" " alt="" coords="904,177,1027,203"/>
+<area shape="poly" title=" " alt="" coords="839,225,908,204,910,209,841,230"/>
+<area shape="poly" title=" " alt="" coords="1017,339,1068,339,1068,345,1017,345"/>
+<area shape="poly" title=" " alt="" coords="1026,175,1064,167,1065,172,1027,180"/>
+<area shape="poly" title=" " alt="" coords="937,179,931,169,934,159,946,153,965,151,988,154,998,163,995,167,986,159,965,156,948,158,939,163,937,168,942,176"/>
+</map>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dd/d52/namespaceelementwise__filter_a106ce51f62e266dfa441bde829ddff19_icgraph.png" border="0" usemap="#add/d52/namespaceelementwise__filter_a106ce51f62e266dfa441bde829ddff19_icgraph" alt=""/></div>
+<map name="add/d52/namespaceelementwise__filter_a106ce51f62e266dfa441bde829ddff19_icgraph" id="add/d52/namespaceelementwise__filter_a106ce51f62e266dfa441bde829ddff19_icgraph">
+<area shape="rect" title="Build the 1d filter for an element on the CPU. Suppose field x is filtered into x_hat by x_hat = fh*x..." alt="" coords="196,5,339,45"/>
+<area shape="rect" href="../../dd/d52/namespaceelementwise__filter.html#ac2f5a8a0a33529944fc5302eee1e04f5" title="Build the 1d filter for an element." alt="" coords="5,5,148,45"/>
+<area shape="poly" title=" " alt="" coords="183,28,148,28,148,23,183,23"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="af3e61989d0b375cd71de6d1550ddf803" name="af3e61989d0b375cd71de6d1550ddf803"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af3e61989d0b375cd71de6d1550ddf803">&#9670;&#160;</a></span>elementwise_field_filter_3d()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -223,20 +350,14 @@ Here is the call graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>%nx, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>%nx, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>%nx, nelv), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>v</em>, </td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>f_out</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>%nx, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>%nx, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>%nx, nelv), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>u</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>nelv</em>&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>f_in</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -251,12 +372,12 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d9a/elementwise__filter_8f90_source.html#l00129">129</a> of file <a class="el" href="../../df/d9a/elementwise__filter_8f90_source.html">elementwise_filter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d9a/elementwise__filter_8f90_source.html#l00192">192</a> of file <a class="el" href="../../df/d9a/elementwise__filter_8f90_source.html">elementwise_filter.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../dd/d52/namespaceelementwise__filter_aaef0ce44b4e36713bcc046b0badd3e05_cgraph.png" border="0" usemap="#add/d52/namespaceelementwise__filter_aaef0ce44b4e36713bcc046b0badd3e05_cgraph" alt=""/></div>
-<map name="add/d52/namespaceelementwise__filter_aaef0ce44b4e36713bcc046b0badd3e05_cgraph" id="add/d52/namespaceelementwise__filter_aaef0ce44b4e36713bcc046b0badd3e05_cgraph">
+<div class="center"><img src="../../dd/d52/namespaceelementwise__filter_af3e61989d0b375cd71de6d1550ddf803_cgraph.png" border="0" usemap="#add/d52/namespaceelementwise__filter_af3e61989d0b375cd71de6d1550ddf803_cgraph" alt=""/></div>
+<map name="add/d52/namespaceelementwise__filter_af3e61989d0b375cd71de6d1550ddf803_cgraph" id="add/d52/namespaceelementwise__filter_af3e61989d0b375cd71de6d1550ddf803_cgraph">
 <area shape="rect" title="Filter a 3D field." alt="" coords="5,263,155,318"/>
 <area shape="rect" href="../../dd/d8c/namespacetensor.html#aa84ebb51f8669d3d8010fa0c306fcef6" title="Tensor product &#160;performed on nelv elements." alt="" coords="203,278,315,303"/>
 <area shape="poly" title=" " alt="" coords="155,288,189,288,189,293,155,293"/>
@@ -322,18 +443,31 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d9a/elementwise__filter_8f90_source.html#l00094">94</a> of file <a class="el" href="../../df/d9a/elementwise__filter_8f90_source.html">elementwise_filter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d9a/elementwise__filter_8f90_source.html#l00141">141</a> of file <a class="el" href="../../df/d9a/elementwise__filter_8f90_source.html">elementwise_filter.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dd/d52/namespaceelementwise__filter_abde18bcf3f47a3c2901cb23b24d5564d_cgraph.png" border="0" usemap="#add/d52/namespaceelementwise__filter_abde18bcf3f47a3c2901cb23b24d5564d_cgraph" alt=""/></div>
+<map name="add/d52/namespaceelementwise__filter_abde18bcf3f47a3c2901cb23b24d5564d_cgraph" id="add/d52/namespaceelementwise__filter_abde18bcf3f47a3c2901cb23b24d5564d_cgraph">
+<area shape="rect" title="Destructor." alt="" coords="5,5,189,45"/>
+<area shape="rect" href="../../d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="237,13,387,38"/>
+<area shape="poly" title=" " alt="" coords="190,23,223,23,223,28,190,28"/>
+</map>
+</div>
 
 </div>
 </div>
-<a id="afc157f604fa569f1cba6c8c96e2e4b99" name="afc157f604fa569f1cba6c8c96e2e4b99"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afc157f604fa569f1cba6c8c96e2e4b99">&#9670;&#160;</a></span>elementwise_filter_init()</h2>
+<a id="ad09c2b30e39c1053855b29d95d2cd001" name="ad09c2b30e39c1053855b29d95d2cd001"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad09c2b30e39c1053855b29d95d2cd001">&#9670;&#160;</a></span>elementwise_filter_init_from_components()</h2>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> elementwise_filter::elementwise_filter_init </td>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> elementwise_filter::elementwise_filter_init_from_components </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html">elementwise_filter_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
@@ -342,13 +476,68 @@ Here is the call graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td>
-          <td class="paramname"><em>nx</em>, </td>
+          <td class="paramname"><em>nx</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">nx</td><td>number of points in an elements in one direction. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../df/d9a/elementwise__filter_8f90_source.html#l00116">116</a> of file <a class="el" href="../../df/d9a/elementwise__filter_8f90_source.html">elementwise_filter.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dd/d52/namespaceelementwise__filter_ad09c2b30e39c1053855b29d95d2cd001_cgraph.png" border="0" usemap="#add/d52/namespaceelementwise__filter_ad09c2b30e39c1053855b29d95d2cd001_cgraph" alt=""/></div>
+<map name="add/d52/namespaceelementwise__filter_ad09c2b30e39c1053855b29d95d2cd001_cgraph" id="add/d52/namespaceelementwise__filter_ad09c2b30e39c1053855b29d95d2cd001_cgraph">
+<area shape="rect" title="Actual Constructor." alt="" coords="5,55,180,110"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#adc0c8effa3af098f18442b81edc6fc6e" title="Set all elements to a constant c ." alt="" coords="228,5,385,45"/>
+<area shape="poly" title=" " alt="" coords="180,57,218,46,219,51,181,62"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#a6a2786eeaf4fa795dab048bb6c8d56c4" title="Set all elements to one." alt="" coords="260,70,353,95"/>
+<area shape="poly" title=" " alt="" coords="181,80,246,80,246,85,181,85"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="258,119,355,145"/>
+<area shape="poly" title=" " alt="" coords="181,100,245,115,244,120,180,105"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a8d185608967d02d5b1dced875e039576" name="a8d185608967d02d5b1dced875e039576"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8d185608967d02d5b1dced875e039576">&#9670;&#160;</a></span>elementwise_filter_init_from_json()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> elementwise_filter::elementwise_filter_init_from_json </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html">elementwise_filter_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=*)&#160;</td>
-          <td class="paramname"><em>filter_type</em>&#160;</td>
+          <td class="paramtype">type(json_file), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>json</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>coef</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -357,27 +546,8 @@ Here is the call graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">nx</td><td>number of points in an elements in one direction. </td></tr>
-    <tr><td class="paramname">filter_type</td><td>possible options: "Boyd", "nonBoyd" </td></tr>
-  </table>
-  </dd>
-</dl>
 
-<p class="definition">Definition at line <a class="el" href="../../df/d9a/elementwise__filter_8f90_source.html#l00074">74</a> of file <a class="el" href="../../df/d9a/elementwise__filter_8f90_source.html">elementwise_filter.f90</a>.</p>
-<div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="../../dd/d52/namespaceelementwise__filter_afc157f604fa569f1cba6c8c96e2e4b99_cgraph.png" border="0" usemap="#add/d52/namespaceelementwise__filter_afc157f604fa569f1cba6c8c96e2e4b99_cgraph" alt=""/></div>
-<map name="add/d52/namespaceelementwise__filter_afc157f604fa569f1cba6c8c96e2e4b99_cgraph" id="add/d52/namespaceelementwise__filter_afc157f604fa569f1cba6c8c96e2e4b99_cgraph">
-<area shape="rect" title="Constructor." alt="" coords="5,23,184,63"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#a6a2786eeaf4fa795dab048bb6c8d56c4" title="Set all elements to one." alt="" coords="234,5,327,31"/>
-<area shape="poly" title=" " alt="" coords="184,28,220,24,221,29,185,34"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="232,55,329,80"/>
-<area shape="poly" title=" " alt="" coords="185,52,219,57,218,62,184,58"/>
-</map>
-</div>
+<p class="definition">Definition at line <a class="el" href="../../df/d9a/elementwise__filter_8f90_source.html#l00086">86</a> of file <a class="el" href="../../df/d9a/elementwise__filter_8f90_source.html">elementwise_filter.f90</a>.</p>
 
 </div>
 </div>
@@ -387,7 +557,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dd/d52/namespaceelementwise__filter.html">elementwise_filter</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

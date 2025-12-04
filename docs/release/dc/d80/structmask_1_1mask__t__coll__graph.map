@@ -1,0 +1,5 @@
+<map id="mask::mask_t" name="mask::mask_t">
+<area shape="rect" id="Node000001" title="Type for consistently handling masks in Neko. This type encapsulates the mask array and its associate..." alt="" coords="5,93,120,119"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="35,5,90,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="65,45,65,93,60,93,60,45"/>
+</map>

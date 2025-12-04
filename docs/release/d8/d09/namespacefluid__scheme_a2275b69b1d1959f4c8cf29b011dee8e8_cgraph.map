@@ -1,6 +1,0 @@
-<map id="fluid_scheme::fluid_compute_cfl" name="fluid_scheme::fluid_compute_cfl">
-<area shape="rect" id="Node000001" title="Compute CFL." alt="" coords="5,22,149,62"/>
-<area shape="rect" id="Node000002" href="$dd/d30/namespaceoperators.html#a2eb28e03490e7d78c86186d50f752da1" title=" " alt="" coords="197,29,304,55"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,39,184,39,184,45,150,45"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="222,31,216,21,219,11,231,5,251,3,275,6,285,15,281,19,272,11,251,8,232,10,223,15,221,20,226,28"/>
-</map>

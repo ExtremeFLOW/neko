@@ -1,0 +1,8 @@
+<map id="device_tree_amg_smoother::amg_device_cheby_solve_part1" name="device_tree_amg_smoother::amg_device_cheby_solve_part1">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,244,69"/>
+<area shape="rect" id="Node000002" href="$d5/dc5/amg__cheby_8cu.html#a9505b7134554d83cc0dee8e485a21824" title=" " alt="" coords="292,29,469,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="244,47,278,47,278,52,244,52"/>
+<area shape="rect" id="Node000003" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="517,29,681,69"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="470,47,504,47,504,52,470,52"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="558,30,556,20,562,10,577,5,599,3,625,6,639,13,636,18,623,11,599,8,578,10,566,15,561,21,563,28"/>
+</map>

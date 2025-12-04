@@ -1,5 +1,5 @@
 <map id="gather_scatter::gs_schedule" name="gather_scatter::gs_schedule">
 <area shape="rect" id="Node000001" title="Schedule shared gather&#45;scatter operations." alt="" coords="220,5,359,45"/>
-<area shape="rect" id="Node000002" href="$d0/d78/namespacegather__scatter.html#a6abafa7eaef0e406c6d411d8554b8bee" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,13,172,38"/>
+<area shape="rect" id="Node000002" href="$d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,13,172,38"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
 </map>

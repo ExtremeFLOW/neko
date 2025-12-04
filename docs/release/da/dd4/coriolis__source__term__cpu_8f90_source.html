@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -147,57 +147,57 @@ $(document).ready(function(){initNavTree('da/dd4/coriolis__source__term__cpu_8f9
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>  <span class="keywordtype">private</span></div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>  <span class="keywordtype">public</span> :: <a class="code hl_function" href="../../de/d80/namespacecoriolis__source__term__cpu.html#a60e0337c7f1d3e0fe03c1eecf1747de5">coriolis_source_term_compute_cpu</a></div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>  <span class="keywordtype">public</span> :: <a class="code hl_function" href="../../de/d80/namespacecoriolis__source__term__cpu.html#a5a403e8120e884999ef8b193ecc3c900">coriolis_source_term_compute_cpu</a></div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="keyword">contains</span></div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span> </div>
-<div class="foldopen" id="foldopen00052" data-start="" data-end="">
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno"><a class="line" href="../../de/d80/namespacecoriolis__source__term__cpu.html#a60e0337c7f1d3e0fe03c1eecf1747de5">   52</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../de/d80/namespacecoriolis__source__term__cpu.html#a60e0337c7f1d3e0fe03c1eecf1747de5">coriolis_source_term_compute_cpu</a>(fields, omega, u_geo)</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list_t</a>), <span class="keywordtype">intent(inout)</span> :: fields</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: omega(3)</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: u_geo(3)</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="keywordtype">integer</span> :: i, n</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">pointer</span> :: u, v, w</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: ui, vi, wi</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span> </div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span> </div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    n = fields%item_size(1)</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    u =&gt; fields%get_by_index(1)</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    v =&gt; fields%get_by_index(2)</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    w =&gt; fields%get_by_index(3)</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span> </div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    <span class="keywordflow">do</span> concurrent(i = 1:n)</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>       ui = u%x(i,1,1,1) - u_geo(1)</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>       vi = v%x(i,1,1,1) - u_geo(2)</div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>       wi = w%x(i,1,1,1) - u_geo(3)</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span> </div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>       u%x(i,1,1,1) = u%x(i,1,1,1) - 2.0_rp * (omega(2) * wi - omega(3) * vi)</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>       v%x(i,1,1,1) = v%x(i,1,1,1) - 2.0_rp * (omega(3) * ui - omega(1) * wi)</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>       w%x(i,1,1,1) = w%x(i,1,1,1) - 2.0_rp * (omega(1) * vi - omega(2) * ui)</div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span> </div>
+<div class="foldopen" id="foldopen00055" data-start="" data-end="">
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno"><a class="line" href="../../de/d80/namespacecoriolis__source__term__cpu.html#a5a403e8120e884999ef8b193ecc3c900">   55</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../de/d80/namespacecoriolis__source__term__cpu.html#a5a403e8120e884999ef8b193ecc3c900">coriolis_source_term_compute_cpu</a>(u, v, w, fields, omega, u_geo)</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">intent(in)</span> :: u, v, w</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list_t</a>), <span class="keywordtype">intent(inout)</span> :: fields</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: omega(3)</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: u_geo(3)</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="keywordtype">integer</span> :: i, n</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">pointer</span> :: fu, fv, fw</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: ui, vi, wi</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    n = fields%item_size(1)</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span> </div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    fu =&gt; fields%get_by_index(1)</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    fv =&gt; fields%get_by_index(2)</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    fw =&gt; fields%get_by_index(3)</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>    <span class="keywordflow">do</span> concurrent(i = 1:n)</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>       ui = u%x(i,1,1,1) - u_geo(1)</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>       vi = v%x(i,1,1,1) - u_geo(2)</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>       wi = w%x(i,1,1,1) - u_geo(3)</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span> </div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>       fu%x(i,1,1,1) = fu%x(i,1,1,1) - 2.0_rp * (omega(2) * wi - omega(3) * vi)</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>       fv%x(i,1,1,1) = fv%x(i,1,1,1) - 2.0_rp * (omega(3) * ui - omega(1) * wi)</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>       fw%x(i,1,1,1) = fw%x(i,1,1,1) - 2.0_rp * (omega(1) * vi - omega(2) * ui)</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span> </div>
 </div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../de/d80/namespacecoriolis__source__term__cpu.html#a60e0337c7f1d3e0fe03c1eecf1747de5">coriolis_source_term_compute_cpu</a></div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span> </div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../de/d80/namespacecoriolis__source__term__cpu.html">coriolis_source_term_cpu</a></div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../de/d80/namespacecoriolis__source__term__cpu.html#a5a403e8120e884999ef8b193ecc3c900">coriolis_source_term_compute_cpu</a></div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span> </div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../de/d80/namespacecoriolis__source__term__cpu.html">coriolis_source_term_cpu</a></div>
 <div class="ttc" id="anamespacecoriolis__source__term__cpu_html"><div class="ttname"><a href="../../de/d80/namespacecoriolis__source__term__cpu.html">coriolis_source_term_cpu</a></div><div class="ttdoc">Implements the cpu kernel for the coriolis_source_term_t type. Maintainer: Timofey Mukha.</div><div class="ttdef"><b>Definition</b> <a href="../../da/dd4/coriolis__source__term__cpu_8f90_source.html#l00036">coriolis_source_term_cpu.f90:36</a></div></div>
-<div class="ttc" id="anamespacecoriolis__source__term__cpu_html_a60e0337c7f1d3e0fe03c1eecf1747de5"><div class="ttname"><a href="../../de/d80/namespacecoriolis__source__term__cpu.html#a60e0337c7f1d3e0fe03c1eecf1747de5">coriolis_source_term_cpu::coriolis_source_term_compute_cpu</a></div><div class="ttdeci">subroutine, public coriolis_source_term_compute_cpu(fields, omega, u_geo)</div><div class="ttdoc">Computes the generic Coriolis source term on the cpu.</div><div class="ttdef"><b>Definition</b> <a href="../../da/dd4/coriolis__source__term__cpu_8f90_source.html#l00052">coriolis_source_term_cpu.f90:53</a></div></div>
+<div class="ttc" id="anamespacecoriolis__source__term__cpu_html_a5a403e8120e884999ef8b193ecc3c900"><div class="ttname"><a href="../../de/d80/namespacecoriolis__source__term__cpu.html#a5a403e8120e884999ef8b193ecc3c900">coriolis_source_term_cpu::coriolis_source_term_compute_cpu</a></div><div class="ttdeci">subroutine, public coriolis_source_term_compute_cpu(u, v, w, fields, omega, u_geo)</div><div class="ttdoc">Computes the generic Coriolis source term on the cpu.</div><div class="ttdef"><b>Definition</b> <a href="../../da/dd4/coriolis__source__term__cpu_8f90_source.html#l00055">coriolis_source_term_cpu.f90:56</a></div></div>
 <div class="ttc" id="anamespacefield__list_html"><div class="ttname"><a href="../../df/d2b/namespacefield__list.html">field_list</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d13/field__list_8f90_source.html#l00001">field_list.f90:1</a></div></div>
 <div class="ttc" id="anamespacefield_html"><div class="ttname"><a href="../../dc/da9/namespacefield.html">field</a></div><div class="ttdoc">Defines a field.</div><div class="ttdef"><b>Definition</b> <a href="../../d3/dc1/field_8f90_source.html#l00034">field.f90:34</a></div></div>
 <div class="ttc" id="anamespacemath_html"><div class="ttname"><a href="../../dd/d47/namespacemath.html">math</a></div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00060">math.f90:60</a></div></div>
-<div class="ttc" id="anamespacemath_html_af014991361eebeb6b753b3deba502bc9"><div class="ttname"><a href="../../dd/d47/namespacemath.html#af014991361eebeb6b753b3deba502bc9">math::vcross</a></div><div class="ttdeci">subroutine, public vcross(u1, u2, u3, v1, v2, v3, w1, w2, w3, n)</div><div class="ttdoc">Compute a cross product  assuming vector components  etc.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00513">math.f90:514</a></div></div>
+<div class="ttc" id="anamespacemath_html_af014991361eebeb6b753b3deba502bc9"><div class="ttname"><a href="../../dd/d47/namespacemath.html#af014991361eebeb6b753b3deba502bc9">math::vcross</a></div><div class="ttdeci">subroutine, public vcross(u1, u2, u3, v1, v2, v3, w1, w2, w3, n)</div><div class="ttdoc">Compute a cross product  assuming vector components  etc.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00652">math.f90:653</a></div></div>
 <div class="ttc" id="anamespacenum__types_html"><div class="ttname"><a href="../../df/d48/namespacenum__types.html">num_types</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00001">num_types.f90:1</a></div></div>
 <div class="ttc" id="anamespacenum__types_html_ae2be59b6de7b874ce5c12fd87f9e8b5e"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">num_types::rp</a></div><div class="ttdeci">integer, parameter, public rp</div><div class="ttdoc">Global precision used in computations.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00012">num_types.f90:12</a></div></div>
-<div class="ttc" id="astructfield_1_1field__t_html"><div class="ttname"><a href="../../d3/d5f/structfield_1_1field__t.html">field::field_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/dc1/field_8f90_source.html#l00046">field.f90:46</a></div></div>
-<div class="ttc" id="astructfield__list_1_1field__list__t_html"><div class="ttname"><a href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list::field_list_t</a></div><div class="ttdoc">field_list_t, To be able to group fields together</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d13/field__list_8f90_source.html#l00013">field_list.f90:13</a></div></div>
+<div class="ttc" id="astructfield_1_1field__t_html"><div class="ttname"><a href="../../d3/d5f/structfield_1_1field__t.html">field::field_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/dc1/field_8f90_source.html#l00047">field.f90:47</a></div></div>
+<div class="ttc" id="astructfield__list_1_1field__list__t_html"><div class="ttname"><a href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list::field_list_t</a></div><div class="ttdoc">field_list_t, To be able to group fields together</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d13/field__list_8f90_source.html#l00015">field_list.f90:15</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_5333ab263fff069c320f5b66c5911c96.html">source_terms</a></li><li class="navelem"><a class="el" href="../../dir_89b8f2ab57928d108310b3ac1395bf66.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_613cd740a47d43a01aa8bbb8355c7276.html">cpu</a></li><li class="navelem"><a class="el" href="../../da/dd4/coriolis__source__term__cpu_8f90.html">coriolis_source_term_cpu.f90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

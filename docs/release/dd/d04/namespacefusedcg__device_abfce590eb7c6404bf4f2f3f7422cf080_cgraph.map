@@ -1,23 +1,26 @@
 <map id="fusedcg_device::fusedcg_device_solve" name="fusedcg_device::fusedcg_device_solve">
-<area shape="rect" id="Node000001" title="Pipelined PCG solve." alt="" coords="5,91,188,131"/>
-<area shape="rect" id="Node000002" href="$dd/d04/namespacefusedcg__device.html#a37d7ee87c969306b6428c008592d4646" title=" " alt="" coords="236,27,411,67"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,89,238,69,239,74,169,94"/>
-<area shape="rect" id="Node000006" href="$dd/d04/namespacefusedcg__device.html#ad32400ca22c2ca83585ebf9245ff0ae6" title=" " alt="" coords="236,91,411,131"/>
-<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="188,109,222,109,222,114,188,114"/>
-<area shape="rect" id="Node000008" href="$dd/d04/namespacefusedcg__device.html#a6c565ca5074aeb3779af13900552a342" title=" " alt="" coords="236,155,411,195"/>
-<area shape="poly" id="edge10_Node000001_Node000008" title=" " alt="" coords="169,129,239,149,238,154,168,134"/>
-<area shape="rect" id="Node000003" href="$db/df7/fusedcg__aux_8hip.html#a115cf98ddf6ab441ca3e3806db6d1945" title=" " alt="" coords="471,35,613,60"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="411,45,458,45,458,50,411,50"/>
+<area shape="rect" id="Node000001" title="Pipelined PCG solve." alt="" coords="5,135,188,175"/>
+<area shape="rect" id="Node000002" href="$dd/d04/namespacefusedcg__device.html#a37d7ee87c969306b6428c008592d4646" title=" " alt="" coords="236,61,411,101"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="157,133,248,102,250,108,159,138"/>
+<area shape="rect" id="Node000007" href="$dd/d04/namespacefusedcg__device.html#ad32400ca22c2ca83585ebf9245ff0ae6" title=" " alt="" coords="236,135,411,175"/>
+<area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="188,153,222,153,222,158,188,158"/>
+<area shape="rect" id="Node000009" href="$dd/d04/namespacefusedcg__device.html#a6c565ca5074aeb3779af13900552a342" title=" " alt="" coords="236,199,411,239"/>
+<area shape="poly" id="edge12_Node000001_Node000009" title=" " alt="" coords="169,173,239,193,238,198,168,178"/>
+<area shape="rect" id="Node000003" href="$db/df7/fusedcg__aux_8hip.html#a115cf98ddf6ab441ca3e3806db6d1945" title=" " alt="" coords="471,63,613,88"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="411,76,458,75,458,80,411,81"/>
 <area shape="rect" id="Node000004" href="$d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="675,5,839,31"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="612,35,660,28,661,34,613,40"/>
-<area shape="rect" id="Node000005" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="888,74,1052,114"/>
-<area shape="poly" id="edge6_Node000003_Node000005" title=" " alt="" coords="613,52,875,81,874,86,613,58"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="794,28,901,67,899,72,792,33"/>
-<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="930,74,928,64,934,55,948,49,970,47,995,50,1009,58,1006,62,993,55,970,53,950,55,937,59,933,65,935,73"/>
-<area shape="rect" id="Node000007" href="$db/df7/fusedcg__aux_8hip.html#a9cc3940ab477454bca2f83d72f77853c" title=" " alt="" coords="673,107,840,132"/>
-<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="411,110,660,115,659,120,411,116"/>
-<area shape="poly" id="edge9_Node000007_Node000005" title=" " alt="" coords="840,107,874,103,875,108,840,112"/>
-<area shape="rect" id="Node000009" href="$db/df7/fusedcg__aux_8hip.html#a0f309cac69abed9947b6106bc7708310" title=" " alt="" coords="459,161,625,187"/>
-<area shape="poly" id="edge11_Node000008_Node000009" title=" " alt="" coords="411,172,445,172,445,177,411,177"/>
-<area shape="poly" id="edge12_Node000009_Node000005" title=" " alt="" coords="625,169,728,161,839,142,913,117,914,122,841,147,729,166,626,175"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="590,60,694,32,696,37,591,65"/>
+<area shape="rect" id="Node000005" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="888,99,1052,139"/>
+<area shape="poly" id="edge8_Node000003_Node000005" title=" " alt="" coords="613,74,720,80,840,91,875,97,874,102,840,97,720,85,613,80"/>
+<area shape="rect" id="Node000006" href="$d3/dd2/device__nccl__reduce_8c.html#a371589d8f587766faf29bea073bd3e34" title=" " alt="" coords="674,107,839,132"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="605,85,682,101,680,107,604,91"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="795,28,841,48,923,90,921,95,839,52,792,33"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="930,100,928,90,934,80,948,75,970,73,995,76,1009,83,1006,88,993,81,970,78,950,80,937,85,933,91,935,98"/>
+<area shape="poly" id="edge7_Node000006_Node000005" title=" " alt="" coords="839,117,874,117,874,122,839,122"/>
+<area shape="rect" id="Node000008" href="$db/df7/fusedcg__aux_8hip.html#a9cc3940ab477454bca2f83d72f77853c" title=" " alt="" coords="673,156,840,181"/>
+<area shape="poly" id="edge10_Node000007_Node000008" title=" " alt="" coords="411,155,660,163,659,168,411,161"/>
+<area shape="poly" id="edge11_Node000008_Node000005" title=" " alt="" coords="812,153,874,139,875,144,813,159"/>
+<area shape="rect" id="Node000010" href="$db/df7/fusedcg__aux_8hip.html#a0f309cac69abed9947b6106bc7708310" title=" " alt="" coords="459,207,625,232"/>
+<area shape="poly" id="edge13_Node000009_Node000010" title=" " alt="" coords="411,217,445,217,445,222,411,222"/>
+<area shape="poly" id="edge14_Node000010_Node000005" title=" " alt="" coords="626,219,729,213,785,205,839,191,888,170,930,145,933,149,890,175,841,197,786,210,730,219,626,225"/>
 </map>

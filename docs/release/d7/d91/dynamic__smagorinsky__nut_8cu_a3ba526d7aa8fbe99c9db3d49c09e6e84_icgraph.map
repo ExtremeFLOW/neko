@@ -1,0 +1,9 @@
+<map id="cuda_s_abs_compute" name="cuda_s_abs_compute">
+<area shape="rect" id="Node000001" title=" " alt="" coords="572,60,733,85"/>
+<area shape="rect" id="Node000002" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#ac84f2458b7e3844fb271bb114231ea03" title="Compute the s_abs field for the Sigma model indevice." alt="" coords="305,53,524,93"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="558,75,524,75,524,70,558,70"/>
+<area shape="rect" id="Node000003" href="$dd/daf/namespacedynamic__smagorinsky__device.html#aad7c438416e36302a7eefa1042cd2529" title="Compute eddy viscosity on the device." alt="" coords="18,5,245,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="291,58,245,51,245,46,292,53"/>
+<area shape="rect" id="Node000004" href="$d5/d58/interfacedevice__dynamic__smagorinsky__nut_1_1hip__mij__nut__compute__part2.html#adaaa41cd7e60e2552367285f1b7757f5" title=" " alt="" coords="5,84,257,139"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="292,92,258,97,257,91,292,87"/>
+</map>

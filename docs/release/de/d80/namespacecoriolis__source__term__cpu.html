@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -109,13 +109,13 @@ $(document).ready(function(){initNavTree('de/d80/namespacecoriolis__source__term
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a60e0337c7f1d3e0fe03c1eecf1747de5" id="r_a60e0337c7f1d3e0fe03c1eecf1747de5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d80/namespacecoriolis__source__term__cpu.html#a60e0337c7f1d3e0fe03c1eecf1747de5">coriolis_source_term_compute_cpu</a> (fields, omega, u_geo)</td></tr>
-<tr class="memdesc:a60e0337c7f1d3e0fe03c1eecf1747de5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the generic Coriolis source term on the cpu.  <br /></td></tr>
-<tr class="separator:a60e0337c7f1d3e0fe03c1eecf1747de5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a403e8120e884999ef8b193ecc3c900" id="r_a5a403e8120e884999ef8b193ecc3c900"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d80/namespacecoriolis__source__term__cpu.html#a5a403e8120e884999ef8b193ecc3c900">coriolis_source_term_compute_cpu</a> (u, v, w, fields, omega, u_geo)</td></tr>
+<tr class="memdesc:a5a403e8120e884999ef8b193ecc3c900"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the generic Coriolis source term on the cpu.  <br /></td></tr>
+<tr class="separator:a5a403e8120e884999ef8b193ecc3c900"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
-<a id="a60e0337c7f1d3e0fe03c1eecf1747de5" name="a60e0337c7f1d3e0fe03c1eecf1747de5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a60e0337c7f1d3e0fe03c1eecf1747de5">&#9670;&#160;</a></span>coriolis_source_term_compute_cpu()</h2>
+<a id="a5a403e8120e884999ef8b193ecc3c900" name="a5a403e8120e884999ef8b193ecc3c900"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a403e8120e884999ef8b193ecc3c900">&#9670;&#160;</a></span>coriolis_source_term_compute_cpu()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -123,6 +123,24 @@ Functions/Subroutines</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> coriolis_source_term_cpu::coriolis_source_term_compute_cpu </td>
           <td>(</td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>u</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>v</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>w</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype">type(<a class="el" href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
           <td class="paramname"><em>fields</em>, </td>
         </tr>
@@ -147,6 +165,9 @@ Functions/Subroutines</h2></td></tr>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
+    <tr><td class="paramname">u</td><td>The x component of velocity. </td></tr>
+    <tr><td class="paramname">v</td><td>The y component of velocity. </td></tr>
+    <tr><td class="paramname">w</td><td>The z component of velocity. </td></tr>
     <tr><td class="paramname">fields</td><td>The right-hand side, which should be the velocity components. </td></tr>
     <tr><td class="paramname">omega</td><td>The rotation vector. </td></tr>
     <tr><td class="paramname">omega</td><td>The geostrophic wind. </td></tr>
@@ -154,14 +175,14 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/dd4/coriolis__source__term__cpu_8f90_source.html#l00052">52</a> of file <a class="el" href="../../da/dd4/coriolis__source__term__cpu_8f90_source.html">coriolis_source_term_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dd4/coriolis__source__term__cpu_8f90_source.html#l00055">55</a> of file <a class="el" href="../../da/dd4/coriolis__source__term__cpu_8f90_source.html">coriolis_source_term_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../de/d80/namespacecoriolis__source__term__cpu_a60e0337c7f1d3e0fe03c1eecf1747de5_icgraph.png" border="0" usemap="#ade/d80/namespacecoriolis__source__term__cpu_a60e0337c7f1d3e0fe03c1eecf1747de5_icgraph" alt=""/></div>
-<map name="ade/d80/namespacecoriolis__source__term__cpu_a60e0337c7f1d3e0fe03c1eecf1747de5_icgraph" id="ade/d80/namespacecoriolis__source__term__cpu_a60e0337c7f1d3e0fe03c1eecf1747de5_icgraph">
+<div class="center"><img src="../../de/d80/namespacecoriolis__source__term__cpu_a5a403e8120e884999ef8b193ecc3c900_icgraph.png" border="0" usemap="#ade/d80/namespacecoriolis__source__term__cpu_a5a403e8120e884999ef8b193ecc3c900_icgraph" alt=""/></div>
+<map name="ade/d80/namespacecoriolis__source__term__cpu_a5a403e8120e884999ef8b193ecc3c900_icgraph" id="ade/d80/namespacecoriolis__source__term__cpu_a5a403e8120e884999ef8b193ecc3c900_icgraph">
 <area shape="rect" title="Computes the generic Coriolis source term on the cpu." alt="" coords="219,5,376,60"/>
-<area shape="rect" href="../../d3/df3/namespacecoriolis__source__term.html#ad79345db7e7a06356d3dde33700dc0ae" title="Computes the source term and adds the result to fields." alt="" coords="5,5,171,60"/>
+<area shape="rect" href="../../d3/df3/namespacecoriolis__source__term.html#a0cd413f45f11dc22e38d87256ac9e68e" title="Computes the source term and adds the result to fields." alt="" coords="5,5,171,60"/>
 <area shape="poly" title=" " alt="" coords="205,35,171,35,171,30,205,30"/>
 </map>
 </div>
@@ -174,7 +195,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../de/d80/namespacecoriolis__source__term__cpu.html">coriolis_source_term_cpu</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

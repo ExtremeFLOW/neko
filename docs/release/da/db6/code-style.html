@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -102,13 +102,17 @@ $(document).ready(function(){initNavTree('da/db6/code-style.html','../../'); ini
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#autotoc_md8">Data types</a></li>
-<li class="level1"><a href="#autotoc_md9">Linting rules</a></li>
-<li class="level1"><a href="#autotoc_md10">Tools</a></li>
+<ul><li class="level1"><a href="#autotoc_md10">Data types</a></li>
+<li class="level1"><a href="#autotoc_md11">Enforcing rules</a><ul><li class="level2"><a href="#autotoc_md12">Tools</a><ul><li class="level3"><a href="#autotoc_md13">flint</a></li>
+<li class="level3"><a href="#autotoc_md14">findent</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </div>
-<div class="textblock"><p>Fortran code should conform to the Fortran 2008 standard and should use an indentation level of 2, except for the extra indentation within <code>do</code> <code>if</code>, <code>select</code> or <code>where</code> statements and for each level inside a structure e.g. <code>type</code>, <code>interface</code>, where the indentation level is 3, continuation statements, which should be indented by 5 and a 0 indentation is used for <code>module</code> or <code>contains</code> (except for <code>contains</code> inside a derived type, where a single indentation level is used).</p>
-<p>These are the default rules in Emacs' Fortran mode, an example is given below, additional information on the Emacs' Fortran mode can be found at <a href="https://emacsdocs.org/docs/emacs/Fortran">https://emacsdocs.org</a>.</p>
+<div class="textblock"><p>Fortran code should conform to the Fortran 2008 standard and should use an indentation level of 2, except for the extra indentation within <code>do</code> <code>if</code>, <code>select</code> or <code>where</code> statements and for each level inside a structure e.g. <code>type</code>, <code>interface</code>, where the indentation level is 3, continuation statements, which should be indented by 5 and a 0 indentation is used for <code>module</code> or <code>contains</code> (except for <code>contains</code> inside a derived type, where a single indentation level is used). It should be noted that no indentation should be applied to the <code>case</code> statements contained in a <code>select case</code> block.</p>
+<p>These are the default rules in Emacs' Fortran mode, an example is given below, additional information on the Emacs' Fortran mode can be found at <a href="https://emacsdocs.org/docs/emacs/Fortran">https://emacsdocs.org</a> and the full formatting script for emacs can be found at the <a href="https://github.com/emacs-mirror/emacs/blob/master/lisp/progmodes/f90.el">Emacs' GitHub</a>.</p>
 <div class="fragment"><div class="line"><span class="keyword">module</span> example</div>
 <div class="line">  <span class="keywordtype">use </span>mod</div>
 <div class="line">  <span class="keywordtype">implicit none</span></div>
@@ -134,28 +138,30 @@ $(document).ready(function(){initNavTree('da/db6/code-style.html','../../'); ini
 <div class="line">       ... this statement is very long &amp;</div>
 <div class="line">            continues on the next line</div>
 <div class="line"><span class="keywordflow">    end if</span></div>
+<div class="line">    </div>
+<div class="line">    <span class="keywordflow">select case</span> (x)</div>
+<div class="line">    <span class="keywordflow">case</span> (1)</div>
+<div class="line">       ...</div>
+<div class="line">    <span class="keywordflow">case</span> (2)</div>
+<div class="line">       ...</div>
+<div class="line"><span class="keywordflow">    end select</span></div>
 <div class="line"> </div>
 <div class="line">  <span class="keyword">end subroutine </span>foo</div>
 <div class="line"> </div>
 <div class="line"><span class="keyword">end module </span>example</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md8"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md10"></a>
 Data types</h1>
 <p>For portability reasons, it is essential to only use data type kinds defined in <a class="el" href="../../dc/d99/num__types_8f90.html">num_types.f90</a> and avoid legacy constructs like <code>real*8</code> or <code>integer(kind=8)</code></p>
 <p>Floating-point numbers should be declared using <code>real</code> with the kind <code>rp</code>, which is the configured working precision for Neko (defaults to double). If single, double or quad precision is explicitly needed, use the kinds <code>sp</code>, <code>dp</code> or <code>qp</code>, respectively. For 16, 32, or 64-bit integers, Neko has defined the kinds <code>i2</code>, <code>i4</code> or <code>i8</code>, respectively; however, for standard integers, it is perfectly fine to use a plain <code>integer</code>.</p>
-<h1><a class="anchor" id="autotoc_md9"></a>
-Linting rules</h1>
-<p>Submitting a pull request to Neko requires that the code passes the linting rules. The linting rules are enforced by the <a href="https://github.com/marshallward/flint">flint</a> tool. The rules are defined in the <code>flinter_rc.yml</code> file in the root of the repository.</p>
-<p>Please note, newer versions of flint fails to execute for some of our large files (<a class="el" href="../../d8/ddc/htable_8f90.html">htable.f90</a> and <a class="el" href="../../de/de6/stack_8f90.html">stack.f90</a>).</p>
-<p>One way to install flint is thorugh pip: </p><div class="fragment"><div class="line">pip install nobvisual==0.2.0 flinter==0.4.0</div>
-</div><!-- fragment --><p>To test your code against the linting rules, you can run the following command:</p>
-<div class="fragment"><div class="line">flint score -r flinter_rc.yml &lt;file&gt;.f90</div>
-</div><!-- fragment --><p> The whole src directory can be checked with: </p><div class="fragment"><div class="line">flint score -r flinter_rc.yml src/</div>
-</div><!-- fragment --><p>The rules are as follows:</p>
+<h1><a class="anchor" id="autotoc_md11"></a>
+Enforcing rules</h1>
+<p>Submitting a pull request to Neko requires that the code adheres to the linting rules and to the formatting. The linting will require that the code does not reduce the linting score of the repository, while the formatting should be completed for any modified files.</p>
+<p>In addition to the indentation specified above, the following rules are enforced:</p>
 <ul>
 <li>Lines may not exceed 80 characters.</li>
 <li>Do loop specification must have spaces <code>do i = 1, 10</code>.</li>
 <li>Logical operators must have spaces around them <code>a .eq. b</code>.</li>
-<li>The separator <code>::</code> must have a spaces around it.</li>
+<li>The separator <code>::</code> must have a spaces around it when declaring variables.</li>
 <li>Punctuations must have spaces after them <code>foo(b, c)</code>.</li>
 <li>Context blocks must have a space before the parenthesis <code>if (a .eq. b)</code>.</li>
 <li>Usage of OpenMP should be prepended with <code>!$</code>.</li>
@@ -181,13 +187,31 @@ Linting rules</h1>
 <ul>
 <li>The separator <code>::</code> may not have spaces around it in the case of a type declaration.</li>
 <li>Spaces after the comma in a list of arguments or array indices may be omitted for single letter variable names and 2 digit numbers. For example, <code>foo(a,b)</code> and <code>foo(a,10)</code> are allowed, but <code>foo(a,bb)</code> and <code>foo(a,100)</code> are not.</li>
-<li>Spaces after the comma is not required in format specifiers.</li>
-<li>Spaces around the <code>=</code> operator is not required in type declarations.</li>
+<li>Spaces after the comma are not required in format specifiers.</li>
+<li>Spaces around the <code>=</code> operator are not required in type declarations.</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md10"></a>
-Tools</h1>
-<p>In order to simplify compliance to the indentation rules the <a href="https://github.com/wvermin/findent">findent</a> tool can be used to enforce these rules by assigning the following options. The documentation of <code>findent</code> provide details for emacs, vim and gedit. For VSCode, the <a href="https://marketplace.visualstudio.com/items?itemName=fortran-lang.linter-gfortran">Modern Fortran</a> extension provide an integration.</p>
-<div class="fragment"><div class="line">findent -Rr -i2 -d3 -f3 -s3 -w3 -t3 -j3 -k5 --ws_remred --openmp=0 &lt; input.f90 &gt; formatted.f90</div>
+<h2><a class="anchor" id="autotoc_md12"></a>
+Tools</h2>
+<p>In order to simplify compliance to the formatting and linting rules the following tools can be used:</p>
+<ul>
+<li><a href="https://github.com/marshallward/flint">flint</a> to test the linting compliance.</li>
+<li><a href="https://github.com/wvermin/findent">findent</a> to apply the formatting rules.</li>
+</ul>
+<p>We have scripts available under the <code>contrib/lint_format</code> directory that can be used to lint and format the code. The scripts are <code>lint.sh</code> and <code>format.sh</code> respectively.</p>
+<h3><a class="anchor" id="autotoc_md13"></a>
+flint</h3>
+<p>The linting rules are enforced by the <a href="https://github.com/marshallward/flint">flint</a> tool. The rules are defined in the <code>flinter_rc.yml</code> file in the root of the repository.</p>
+<p>Please note, newer versions of flint fails to execute for some of our large files (<a class="el" href="../../d8/ddc/htable_8f90.html">htable.f90</a> and <a class="el" href="../../de/de6/stack_8f90.html">stack.f90</a>).</p>
+<p>One way to install flint is through pip: </p><div class="fragment"><div class="line">pip install nobvisual==0.2.0 flinter==0.4.0</div>
+</div><!-- fragment --><p>To test your code against the linting rules, you can run the following command:</p>
+<div class="fragment"><div class="line">flint score -r flinter_rc.yml &lt;file&gt;.f90</div>
+</div><!-- fragment --><p> The whole src directory can be checked with: </p><div class="fragment"><div class="line">flint score -r flinter_rc.yml src/</div>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md14"></a>
+findent</h3>
+<p>This tool can be used to enforce these rules by assigning the following options. The documentation of <code>findent</code> provide details for emacs, vim and gedit. For VSCode, the <a href="https://marketplace.visualstudio.com/items?itemName=fortran-lang.linter-gfortran">Modern Fortran</a> extension provides an integration.</p>
+<div class="fragment"><div class="line">pip install findent</div>
+<div class="line">findent -Rr -i2 -d3 -f3 -s3 -w3 -t3 -j3 -k- --ws_remred --indent_ampersand --openmp=0 &lt; file.f90 &gt; file.f90.tmp</div>
+<div class="line">mv file.f90.tmp file.f90</div>
 </div><!-- fragment --> </div></div><!-- contents -->
 </div><!-- PageDoc -->
 </div><!-- doc-content -->
@@ -195,7 +219,7 @@ Tools</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dc/d70/developer-guide.html">Developer guide</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

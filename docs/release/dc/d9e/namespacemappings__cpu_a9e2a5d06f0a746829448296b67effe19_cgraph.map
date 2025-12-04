@@ -1,0 +1,5 @@
+<map id="mappings_cpu::step_function_cpu" name="mappings_cpu::step_function_cpu">
+<area shape="rect" id="Node000001" title="Apply a step function to a scalar." alt="" coords="5,5,157,45"/>
+<area shape="rect" id="Node000002" href="$dc/d9e/namespacemappings__cpu.html#a0c77534c33f6015b2351fa45f9943f0d" title="Apply a step function to a scalar." alt="" coords="205,5,357,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="158,23,191,23,191,28,158,28"/>
+</map>

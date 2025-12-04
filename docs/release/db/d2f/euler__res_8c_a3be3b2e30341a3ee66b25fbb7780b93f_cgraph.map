@@ -1,0 +1,9 @@
+<map id="euler_res_part_E_flux_opencl" name="euler_res_part_E_flux_opencl">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,167,69"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="395,29,559,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="167,47,381,47,381,52,167,52"/>
+<area shape="rect" id="Node000003" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="215,62,347,87"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="167,57,201,62,200,67,167,63"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="440,30,438,20,444,11,457,5,477,3,500,6,512,13,509,17,498,11,477,8,458,10,447,15,443,21,445,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="347,64,381,59,381,64,347,69"/>
+</map>

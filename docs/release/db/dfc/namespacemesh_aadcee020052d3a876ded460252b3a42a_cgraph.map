@@ -1,5 +1,0 @@
-<map id="mesh::mesh_generate_external_point_conn" name="mesh::mesh_generate_external_point_conn">
-<area shape="rect" id="Node000001" title="Generate element&#45;element connectivity via points between PEs." alt="" coords="5,5,172,45"/>
-<area shape="rect" id="Node000002" href="$dc/d48/namespacedistdata.html#a104a6fac60956fc167df8bb063632973" title="Mark a point as shared." alt="" coords="220,5,360,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="173,23,206,23,206,28,173,28"/>
-</map>

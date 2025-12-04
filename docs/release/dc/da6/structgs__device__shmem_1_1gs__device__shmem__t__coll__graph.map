@@ -1,0 +1,14 @@
+<map id="gs_device_shmem::gs_device_shmem_t" name="gs_device_shmem::gs_device_shmem_t">
+<area shape="rect" id="Node000001" title="Gather&#45;scatter communication using device SHMEM. The arrays are indexed per PE like send_pe and @ rec..." alt="" coords="138,319,305,359"/>
+<area shape="rect" id="Node000002" href="$d5/d1c/structgs__comm_1_1gs__comm__t.html" title="Gather&#45;scatter communication method." alt="" coords="5,199,173,225"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="113,232,203,316,199,320,110,236"/>
+<area shape="rect" id="Node000003" href="$d2/d45/structstack_1_1stack__i4__t.html" title="Integer based stack." alt="" coords="24,80,155,105"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="92,119,92,199,87,199,87,119"/>
+<area shape="rect" id="Node000004" href="$d2/dbd/structstack_1_1stack__t.html" title="Base type for a stack." alt="" coords="33,5,145,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="92,45,92,80,87,80,87,45"/>
+<area shape="rect" id="Node000005" href="$da/d8c/structgs__device__shmem_1_1gs__device__shmem__buf__t.html" title="Buffers for non&#45;blocking communication and packing/unpacking." alt="" coords="320,192,488,232"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="367,242,251,321,248,316,364,238"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="215,80,270,105"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="242,119,236,183,225,318,220,318,231,182,237,119"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="271,111,380,190,376,194,268,116"/>
+</map>

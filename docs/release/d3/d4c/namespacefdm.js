@@ -5,7 +5,7 @@ var namespacefdm =
     [ "dp_sygv", "d3/d4c/namespacefdm.html#a7a6bab2aaecfd6ec540e3af45b8ddcdd", null ],
     [ "fdm_compute", "d3/d4c/namespacefdm.html#a560a8542a9618d26c701bad9968ba30b", null ],
     [ "fdm_free", "d3/d4c/namespacefdm.html#a64e85f5d3be390e220059491298872d1", null ],
-    [ "fdm_init", "d3/d4c/namespacefdm.html#ae8af19abfe644b11f304710d291ff549", null ],
+    [ "fdm_init", "d3/d4c/namespacefdm.html#a4e4c35e30cb7a09ac9f75e02ca5c6acb", null ],
     [ "fdm_setup_fast", "d3/d4c/namespacefdm.html#a44dfc3864c487c0445e167df75091904", null ],
     [ "fdm_setup_fast1d", "d3/d4c/namespacefdm.html#a8a1d2f27ff81cb45f1085337e07c429a", null ],
     [ "fdm_setup_fast1d_a", "d3/d4c/namespacefdm.html#abcb267e6e19214d0e7a53e435b1c40b7", null ],

@@ -1,0 +1,13 @@
+<map id="tree_amg_smoother::amg_cheby_power" name="tree_amg_smoother::amg_cheby_power">
+<area shape="rect" id="Node000001" title="Power method to approximate largest eigenvalue." alt="" coords="5,100,167,140"/>
+<area shape="rect" id="Node000002" href="$dc/d09/namespacetree__amg__smoother.html#afd89718fea6718237cdba763e55fa7e4" title=" " alt="" coords="215,5,376,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="125,97,214,55,229,48,231,53,216,60,128,102"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#a0aa2bdfb2fdb9eae6679d958a82fd200" title="Multiplication by constant c ." alt="" coords="241,70,350,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="167,103,227,92,227,97,168,108"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#a662e670921645de8b50d2cdbe93ab1ed" title="Weighted inner product ." alt="" coords="246,143,345,169"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="168,131,233,143,232,148,167,137"/>
+<area shape="rect" id="Node000005" href="$dd/d47/namespacemath.html#a22f2f98aad6feae117b800fa20fa43ed" title="Weighted inner product ." alt="" coords="246,217,345,242"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="126,138,259,208,256,212,124,142"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="261,145,254,135,258,125,272,119,295,117,324,120,336,129,332,134,322,125,295,122,273,124,261,129,259,134,265,142"/>
+<area shape="poly" id="edge6_Node000005_Node000005" title=" " alt="" coords="261,218,254,208,258,198,272,192,295,190,324,194,336,203,332,207,322,199,295,195,273,197,261,202,259,208,265,215"/>
+</map>

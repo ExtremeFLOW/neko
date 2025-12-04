@@ -1,5 +1,7 @@
 <map id="cheby::cheby_power" name="cheby::cheby_power">
-<area shape="rect" id="Node000001" title=" " alt="" coords="203,5,357,31"/>
-<area shape="rect" id="Node000002" href="$d8/dec/namespacecheby.html#af7979c0181a627e385c8bd107d603e84" title="A chebyshev preconditioner." alt="" coords="5,5,155,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="189,21,155,21,155,15,189,15"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="203,31,357,56"/>
+<area shape="rect" id="Node000002" href="$d8/dec/namespacecheby.html#a7cd4306d83190ab13e731079edeeb61d" title="A chebyshev preconditioner." alt="" coords="9,5,151,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="189,34,151,30,152,24,189,29"/>
+<area shape="rect" id="Node000003" href="$d8/dec/namespacecheby.html#af7979c0181a627e385c8bd107d603e84" title="A chebyshev preconditioner." alt="" coords="5,55,155,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="189,57,155,61,155,56,189,52"/>
 </map>

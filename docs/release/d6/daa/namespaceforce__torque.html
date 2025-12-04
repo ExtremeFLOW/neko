@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -105,33 +105,39 @@ $(document).ready(function(){initNavTree('d6/daa/namespaceforce__torque.html','.
 </div><!--header-->
 <div class="contents">
 
-<p>Implements the <code><a class="el" href="../../da/d47/structforce__torque_1_1force__torque__t.html" title="A simulation component that computes the force_torque field. Added to the field registry as omega_x,...">force_torque_t</a></code> type.  
+<p>Implements the <code><a class="el" href="../../da/d47/structforce__torque_1_1force__torque__t.html" title="A simulation component that computes the force and torque on a given boundary zone.">force_torque_t</a></code> type.  
 </p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d47/structforce__torque_1_1force__torque__t.html">force_torque_t</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A simulation component that computes the <a class="el" href="../../d6/daa/namespaceforce__torque.html" title="Implements the force_torque_t type.">force_torque</a> field. Added to the field registry as <code>omega_x</code>, <code>omega_y</code><code>, and</code>omega_z`.  <a href="../../da/d47/structforce__torque_1_1force__torque__t.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A simulation component that computes the force and torque on a given boundary zone.  <a href="../../da/d47/structforce__torque_1_1force__torque__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:af95812899d029c8c2c15b3742965583b" id="r_af95812899d029c8c2c15b3742965583b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daa/namespaceforce__torque.html#af95812899d029c8c2c15b3742965583b">force_torque_init_from_json</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">json</a>, case)</td></tr>
+<tr class="memitem:af95812899d029c8c2c15b3742965583b" id="r_af95812899d029c8c2c15b3742965583b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daa/namespaceforce__torque.html#af95812899d029c8c2c15b3742965583b">force_torque_init_from_json</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, json, case)</td></tr>
 <tr class="memdesc:af95812899d029c8c2c15b3742965583b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor from json.  <br /></td></tr>
 <tr class="separator:af95812899d029c8c2c15b3742965583b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0f667e648d5b3ccd99421fa1be4aaf89" id="r_a0f667e648d5b3ccd99421fa1be4aaf89"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daa/namespaceforce__torque.html#a0f667e648d5b3ccd99421fa1be4aaf89">force_torque_init_from_attributes</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, zone_id, zone_name, center, scale, coef, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">long_print</a>)</td></tr>
-<tr class="memdesc:a0f667e648d5b3ccd99421fa1be4aaf89"><td class="mdescLeft">&#160;</td><td class="mdescRight">Actual constructor.  <br /></td></tr>
-<tr class="separator:a0f667e648d5b3ccd99421fa1be4aaf89"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7be24bcf7c114f1f1b063d9641a8ab2e" id="r_a7be24bcf7c114f1f1b063d9641a8ab2e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daa/namespaceforce__torque.html#a7be24bcf7c114f1f1b063d9641a8ab2e">force_torque_init_from_controllers</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, case, order, preprocess_controller, compute_controller, output_controller, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">fluid_name</a>, zone_id, zone_name, center, scale, coef, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">long_print</a>)</td></tr>
+<tr class="memdesc:a7be24bcf7c114f1f1b063d9641a8ab2e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor from components, passing controllers.  <br /></td></tr>
+<tr class="separator:a7be24bcf7c114f1f1b063d9641a8ab2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac74931c226746f51ed0c5a257b41ca5a" id="r_ac74931c226746f51ed0c5a257b41ca5a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daa/namespaceforce__torque.html#ac74931c226746f51ed0c5a257b41ca5a">force_torque_init_from_controllers_properties</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, case, order, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">preprocess_control</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">preprocess_value</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">compute_control</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">compute_value</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">output_control</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">output_value</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">fluid_name</a>, zone_name, zone_id, center, scale, coef, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">long_print</a>)</td></tr>
+<tr class="memdesc:ac74931c226746f51ed0c5a257b41ca5a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor from components, passing properties to the time_based_controller` components in the base type.  <br /></td></tr>
+<tr class="separator:ac74931c226746f51ed0c5a257b41ca5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8a3bfdd03c6deef5b7b1e2687eb82d37" id="r_a8a3bfdd03c6deef5b7b1e2687eb82d37"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daa/namespaceforce__torque.html#a8a3bfdd03c6deef5b7b1e2687eb82d37">force_torque_init_common</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">fluid_name</a>, zone_id, zone_name, center, scale, coef, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">long_print</a>)</td></tr>
+<tr class="memdesc:a8a3bfdd03c6deef5b7b1e2687eb82d37"><td class="mdescLeft">&#160;</td><td class="mdescRight">Common part of constructors.  <br /></td></tr>
+<tr class="separator:a8a3bfdd03c6deef5b7b1e2687eb82d37"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2f551a49417997a3bf36fbcb67b6f23f" id="r_a2f551a49417997a3bf36fbcb67b6f23f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daa/namespaceforce__torque.html#a2f551a49417997a3bf36fbcb67b6f23f">force_torque_free</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="memdesc:a2f551a49417997a3bf36fbcb67b6f23f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <br /></td></tr>
 <tr class="separator:a2f551a49417997a3bf36fbcb67b6f23f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab407c7b9763b091d7165c5d7d19044de" id="r_ab407c7b9763b091d7165c5d7d19044de"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daa/namespaceforce__torque.html#ab407c7b9763b091d7165c5d7d19044de">force_torque_compute</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, t, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tstep</a>)</td></tr>
-<tr class="memdesc:ab407c7b9763b091d7165c5d7d19044de"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the <a class="el" href="../../d6/daa/namespaceforce__torque.html" title="Implements the force_torque_t type.">force_torque</a> field.  <br /></td></tr>
-<tr class="separator:ab407c7b9763b091d7165c5d7d19044de"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a04fd3661b7bbe9d298cb5c3109ac9499" id="r_a04fd3661b7bbe9d298cb5c3109ac9499"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daa/namespaceforce__torque.html#a04fd3661b7bbe9d298cb5c3109ac9499">force_torque_compute</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, time)</td></tr>
+<tr class="memdesc:a04fd3661b7bbe9d298cb5c3109ac9499"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the <a class="el" href="../../d6/daa/namespaceforce__torque.html" title="Implements the force_torque_t type.">force_torque</a> field.  <br /></td></tr>
+<tr class="separator:a04fd3661b7bbe9d298cb5c3109ac9499"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
-<a id="ab407c7b9763b091d7165c5d7d19044de" name="ab407c7b9763b091d7165c5d7d19044de"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab407c7b9763b091d7165c5d7d19044de">&#9670;&#160;</a></span>force_torque_compute()</h2>
+<a id="a04fd3661b7bbe9d298cb5c3109ac9499" name="a04fd3661b7bbe9d298cb5c3109ac9499"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a04fd3661b7bbe9d298cb5c3109ac9499">&#9670;&#160;</a></span>force_torque_compute()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -148,14 +154,8 @@ Functions/Subroutines</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
-          <td class="paramname"><em>t</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
-          <td class="paramname"><em>tstep</em>&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>time</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -171,77 +171,77 @@ Functions/Subroutines</h2></td></tr>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">t</td><td>The time value. </td></tr>
-    <tr><td class="paramname">tstep</td><td>The current time-step </td></tr>
+    <tr><td class="paramname">time</td><td>The current time state. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d3e/force__torque_8f90_source.html#l00246">246</a> of file <a class="el" href="../../d2/d3e/force__torque_8f90_source.html">force_torque.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d3e/force__torque_8f90_source.html#l00358">358</a> of file <a class="el" href="../../d2/d3e/force__torque_8f90_source.html">force_torque.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d6/daa/namespaceforce__torque_ab407c7b9763b091d7165c5d7d19044de_cgraph.png" border="0" usemap="#ad6/daa/namespaceforce__torque_ab407c7b9763b091d7165c5d7d19044de_cgraph" alt=""/></div>
-<map name="ad6/daa/namespaceforce__torque_ab407c7b9763b091d7165c5d7d19044de_cgraph" id="ad6/daa/namespaceforce__torque_ab407c7b9763b091d7165c5d7d19044de_cgraph">
-<area shape="rect" title="Compute the force_torque field." alt="" coords="5,453,151,493"/>
-<area shape="rect" href="../../d0/d6f/namespacedrag__torque.html#a9e75f4c39a6a1935ce464821d85dbbbe" title="Calculate drag and torque from array of points." alt="" coords="202,97,377,137"/>
-<area shape="poly" title=" " alt="" coords="87,451,132,362,196,247,263,147,268,149,201,250,137,364,92,454"/>
-<area shape="rect" href="../../d0/d6f/namespacedrag__torque.html#a61b5e329f88dba02fd50bbabcbad0ec0" title="Calculate drag and torque from array of points." alt="" coords="214,261,365,301"/>
-<area shape="poly" title=" " alt="" coords="87,451,129,383,160,344,197,311,205,305,208,310,200,315,164,348,133,386,92,454"/>
-<area shape="rect" href="../../d2/d73/namespacedevice__math.html#ad690c17ceae42edb16e83f3f518a65fd" title="Sum a vector of length n." alt="" coords="211,325,368,365"/>
-<area shape="poly" title=" " alt="" coords="98,451,142,413,197,374,210,368,213,373,200,379,145,417,102,455"/>
-<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a597a55f83e0427f6adedbeb19349582f" title=" " alt="" coords="211,389,368,429"/>
-<area shape="poly" title=" " alt="" coords="144,450,209,430,210,435,146,455"/>
-<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a6bc3df8a4c7cced80415d84b79479692" title="Compute a cross product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="211,453,368,493"/>
-<area shape="poly" title=" " alt="" coords="151,470,197,470,197,475,151,475"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#a79605e1f64791cdd50be86db3e5bec75" title="Sum a vector of length n." alt="" coords="237,541,341,567"/>
-<area shape="poly" title=" " alt="" coords="132,490,244,534,242,539,130,495"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#a537a4b4b100265f746243f3c5347187f" title="Copy a masked vector to reduced contigous vector ." alt="" coords="199,591,380,616"/>
-<area shape="poly" title=" " alt="" coords="99,491,142,534,170,556,200,576,217,584,215,589,197,580,167,561,139,538,95,495"/>
-<area shape="rect" href="../../dd/d30/namespaceoperators.html#ab2babd24679efca34a9310107b346969" title="Compute the strain rate tensor, i.e 0.5 * du_i/dx_j + du_j/dx_i." alt="" coords="208,640,371,665"/>
-<area shape="poly" title=" " alt="" coords="92,492,133,558,164,594,200,625,212,632,210,637,197,630,160,598,129,561,87,495"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#af014991361eebeb6b753b3deba502bc9" title="Compute a cross product &#160;assuming vector components &#160;etc." alt="" coords="236,689,343,715"/>
-<area shape="poly" title=" " alt="" coords="88,492,102,532,125,581,158,633,178,656,200,676,224,689,222,693,197,680,174,660,154,636,121,584,97,534,83,494"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#a0a627ff3e9d8b5a4fdffb489df69adb1" title="Multiplication by constant c ." alt="" coords="473,5,574,31"/>
-<area shape="poly" title=" " alt="" coords="321,94,370,66,427,40,458,29,460,34,429,44,372,71,324,99"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c" title="Vector multiplication with 3 vectors ." alt="" coords="478,55,569,80"/>
-<area shape="poly" title=" " alt="" coords="376,96,464,77,465,82,377,101"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="475,104,572,129"/>
-<area shape="poly" title=" " alt="" coords="377,114,461,114,461,119,377,119"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#ac6b1aa1e5e708afa691fde3c54956283" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="473,153,574,179"/>
-<area shape="poly" title=" " alt="" coords="377,132,459,150,458,155,376,138"/>
-<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a6e9089e626320f54bad8af5f0a13fc99" title="Multiplication by constant c ." alt="" coords="445,203,602,243"/>
-<area shape="poly" title=" " alt="" coords="364,260,430,243,432,248,366,265"/>
-<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a51b3ae540684036a51e44558a8e7650b" title="Vector multiplication with 3 vectors ." alt="" coords="428,268,619,293"/>
-<area shape="poly" title=" " alt="" coords="365,278,414,278,414,283,365,283"/>
-<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a2b8132d3d15d4b553af3a1b55d6f8d87" title="Zero a real vector." alt="" coords="445,318,602,358"/>
-<area shape="poly" title=" " alt="" coords="366,297,432,313,430,318,364,302"/>
-<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a62afd65bc6fb07e354fde87dad4d7c8c" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="445,382,602,422"/>
-<area shape="poly" title=" " alt="" coords="360,298,382,311,397,325,406,340,415,354,430,368,438,373,436,378,426,372,411,357,402,343,393,329,378,315,358,303"/>
-<area shape="poly" title=" " alt="" coords="255,543,247,533,251,523,266,517,289,515,319,518,330,527,327,532,317,523,289,520,267,522,255,527,253,532,259,540"/>
-<area shape="rect" href="../../dd/d30/namespaceoperators.html#ae52fad680e572c55e87090cfa06c72eb" title="Compute derivative of a scalar field along a single direction." alt="" coords="454,640,593,665"/>
-<area shape="poly" title=" " alt="" coords="371,650,440,650,440,655,371,655"/>
-<area shape="rect" href="../../d3/d4d/namespaceopr__device.html#abc0d21999d04728a18514d4c422219ec" title=" " alt="" coords="667,583,839,623"/>
-<area shape="poly" title=" " alt="" coords="582,637,653,622,654,627,584,643"/>
-<area shape="rect" href="../../d9/d5a/namespaceopr__xsmm.html#abd01047726757dd7140713007f5a5ff6" title=" " alt="" coords="669,665,837,705"/>
-<area shape="poly" title=" " alt="" coords="593,660,655,668,655,674,592,665"/>
-<area shape="rect" href="../../d3/d13/opr__dudxyz_8cu.html#a12bdb6bf9c94199b29d19641386a2ea0" title=" " alt="" coords="1106,540,1213,565"/>
-<area shape="poly" title=" " alt="" coords="838,583,886,575,995,563,1092,554,1093,560,995,568,887,581,839,589"/>
-<area shape="rect" href="../../d1/d28/opr__dudxyz_8c.html#aa154bc09bc993f78a4d5ba22abe64ab2" title=" " alt="" coords="907,591,1025,616"/>
-<area shape="poly" title=" " alt="" coords="839,601,893,601,893,606,839,606"/>
-<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="1273,583,1437,623"/>
-<area shape="poly" title=" " alt="" coords="1210,563,1265,577,1264,582,1209,568"/>
-<area shape="poly" title=" " alt="" coords="1319,584,1316,574,1322,565,1335,559,1355,557,1378,560,1391,567,1388,571,1377,565,1355,562,1337,564,1326,569,1322,575,1324,582"/>
-<area shape="poly" title=" " alt="" coords="1026,601,1260,601,1260,606,1026,606"/>
-<area shape="rect" href="../../d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="1093,641,1225,667"/>
-<area shape="poly" title=" " alt="" coords="1016,614,1098,635,1096,640,1015,619"/>
-<area shape="poly" title=" " alt="" coords="1209,639,1264,624,1265,629,1210,644"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#a9ae93ef16c85e8de722f56c281f444e6" title="Returns ." alt="" coords="909,640,1023,665"/>
-<area shape="poly" title=" " alt="" coords="837,669,895,661,896,666,838,675"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="921,689,1011,715"/>
-<area shape="poly" title=" " alt="" coords="837,689,907,695,906,700,837,694"/>
-<area shape="rect" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="887,739,1045,764"/>
-<area shape="poly" title=" " alt="" coords="817,702,887,725,911,732,909,737,886,730,815,707"/>
+<div class="center"><img src="../../d6/daa/namespaceforce__torque_a04fd3661b7bbe9d298cb5c3109ac9499_cgraph.png" border="0" usemap="#ad6/daa/namespaceforce__torque_a04fd3661b7bbe9d298cb5c3109ac9499_cgraph" alt=""/></div>
+<map name="ad6/daa/namespaceforce__torque_a04fd3661b7bbe9d298cb5c3109ac9499_cgraph" id="ad6/daa/namespaceforce__torque_a04fd3661b7bbe9d298cb5c3109ac9499_cgraph">
+<area shape="rect" title="Compute the force_torque field." alt="" coords="5,455,151,495"/>
+<area shape="rect" href="../../d0/d6f/namespacedrag__torque.html#a5067723230fde31368ad47fb10c8da77" title="Calculate drag and torque from array of points." alt="" coords="203,98,377,138"/>
+<area shape="poly" title=" " alt="" coords="87,454,132,365,196,250,264,148,268,151,201,253,137,367,92,456"/>
+<area shape="rect" href="../../d0/d6f/namespacedrag__torque.html#a70a6c2b95914784b94819fb918ff8b15" title="Calculate drag and torque from array of points." alt="" coords="215,263,365,303"/>
+<area shape="poly" title=" " alt="" coords="87,454,129,385,160,347,197,313,205,308,208,312,200,317,164,351,133,389,92,457"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a2bfbeed670b2e6b704a1a2c4e5bc03c4" title="Sum a vector of length n." alt="" coords="211,327,369,367"/>
+<area shape="poly" title=" " alt="" coords="98,453,142,415,197,377,210,371,212,375,200,382,145,419,101,457"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#ab5d60404a08d01766f7d764fd0f144a1" title="Gather a masked vector ." alt="" coords="199,391,381,431"/>
+<area shape="poly" title=" " alt="" coords="144,453,209,433,211,438,146,458"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a573e8b6d58c6e9bf4b86d081e8d820fa" title="Compute a cross product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="211,455,369,495"/>
+<area shape="poly" title=" " alt="" coords="151,473,197,473,197,478,151,478"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#a79605e1f64791cdd50be86db3e5bec75" title="Sum a vector of length n." alt="" coords="238,544,342,569"/>
+<area shape="poly" title=" " alt="" coords="132,493,244,537,242,542,130,498"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#a93ebdef19d8a165651d852f29d2bf5b7" title="Gather a masked vector to reduced contigous vector ." alt="" coords="208,594,372,634"/>
+<area shape="poly" title=" " alt="" coords="99,494,143,537,200,580,212,586,209,591,197,584,139,541,95,498"/>
+<area shape="rect" href="../../dd/d30/namespaceoperators.html#ab2babd24679efca34a9310107b346969" title="Compute the strain rate tensor, i.e 0.5 * du_i/dx_j + du_j/dx_i." alt="" coords="209,659,371,684"/>
+<area shape="poly" title=" " alt="" coords="90,494,106,527,131,568,162,609,200,644,212,651,209,655,197,648,158,613,126,571,102,530,85,497"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#af014991361eebeb6b753b3deba502bc9" title="Compute a cross product &#160;assuming vector components &#160;etc." alt="" coords="237,708,343,733"/>
+<area shape="poly" title=" " alt="" coords="87,495,100,537,123,591,156,647,177,673,200,695,225,708,222,712,197,699,173,676,152,650,118,593,95,539,82,496"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="922,200,1013,225"/>
+<area shape="poly" title=" " alt="" coords="378,119,493,127,620,141,778,168,909,196,908,202,777,173,620,146,493,132,377,124"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c" title="Vector multiplication with 3 vectors ." alt="" coords="479,156,570,181"/>
+<area shape="poly" title=" " alt="" coords="378,134,466,154,465,159,377,139"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="476,5,573,31"/>
+<area shape="poly" title=" " alt="" coords="321,95,371,67,428,40,462,29,464,34,430,44,373,72,324,100"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#ac6b1aa1e5e708afa691fde3c54956283" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="474,55,575,80"/>
+<area shape="poly" title=" " alt="" coords="377,97,460,78,461,84,378,102"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a5bc420eefcedaedd955663f62d9e5e89" title="Multiplication by constant c ." alt="" coords="446,206,603,246"/>
+<area shape="poly" title=" " alt="" coords="365,262,432,246,434,251,366,268"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a94ac78fc9b96b2e3ac600603c1afafb1" title="Vector multiplication ." alt="" coords="429,271,620,296"/>
+<area shape="poly" title=" " alt="" coords="365,281,416,281,416,286,365,286"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#ada32e4bb9b2ce2ff39e708510146ff23" title="Vector multiplication with 3 vectors ." alt="" coords="429,320,620,345"/>
+<area shape="poly" title=" " alt="" coords="366,296,451,315,450,320,365,302"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="446,370,603,410"/>
+<area shape="poly" title=" " alt="" coords="358,301,383,313,407,334,431,354,446,362,443,367,428,359,404,338,380,318,356,306"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a6c3ea57885e144ac36cab4fefde393d7" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="446,434,603,474"/>
+<area shape="poly" title=" " alt="" coords="366,301,383,313,395,327,402,341,408,368,413,395,420,407,431,420,436,424,433,428,427,424,416,410,408,396,403,369,397,343,391,330,380,317,363,306"/>
+<area shape="poly" title=" " alt="" coords="255,546,248,536,252,526,266,520,290,517,319,521,331,530,328,534,317,526,290,523,268,525,256,529,253,535,260,542"/>
+<area shape="rect" href="../../dd/d30/namespaceoperators.html#ae52fad680e572c55e87090cfa06c72eb" title="Compute derivative of a scalar field along a single direction." alt="" coords="455,579,594,604"/>
+<area shape="poly" title=" " alt="" coords="339,656,380,643,479,607,481,612,382,649,340,661"/>
+<area shape="rect" href="../../d3/d4d/namespaceopr__device.html#abc0d21999d04728a18514d4c422219ec" title=" " alt="" coords="668,571,840,611"/>
+<area shape="poly" title=" " alt="" coords="594,589,654,589,654,594,594,594"/>
+<area shape="rect" href="../../d9/d5a/namespaceopr__xsmm.html#abd01047726757dd7140713007f5a5ff6" title=" " alt="" coords="670,377,838,417"/>
+<area shape="poly" title=" " alt="" coords="539,577,717,424,720,428,543,581"/>
+<area shape="rect" href="../../d3/d13/opr__dudxyz_8cu.html#a12bdb6bf9c94199b29d19641386a2ea0" title=" " alt="" coords="1107,604,1214,629"/>
+<area shape="poly" title=" " alt="" coords="840,594,1093,610,1093,615,840,599"/>
+<area shape="rect" href="../../d1/d28/opr__dudxyz_8c.html#aa154bc09bc993f78a4d5ba22abe64ab2" title=" " alt="" coords="908,553,1027,579"/>
+<area shape="poly" title=" " alt="" coords="840,578,894,572,895,577,841,584"/>
+<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="1275,546,1439,586"/>
+<area shape="poly" title=" " alt="" coords="1210,601,1265,587,1266,592,1211,606"/>
+<area shape="poly" title=" " alt="" coords="1320,546,1318,536,1324,527,1337,521,1357,519,1380,522,1392,530,1389,534,1378,527,1357,525,1338,527,1327,531,1323,537,1325,545"/>
+<area shape="poly" title=" " alt="" coords="1027,563,1261,563,1261,569,1027,569"/>
+<area shape="rect" href="../../d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="1095,503,1227,528"/>
+<area shape="poly" title=" " alt="" coords="1016,551,1098,529,1099,534,1017,556"/>
+<area shape="poly" title=" " alt="" coords="1211,526,1266,540,1265,545,1210,531"/>
+<area shape="poly" title=" " alt="" coords="777,375,939,233,943,237,780,379"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#a9ae93ef16c85e8de722f56c281f444e6" title="Returns ." alt="" coords="910,408,1025,433"/>
+<area shape="poly" title=" " alt="" coords="839,404,896,410,896,415,838,409"/>
+<area shape="rect" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="888,359,1047,384"/>
+<area shape="poly" title=" " alt="" coords="838,384,874,380,875,385,839,389"/>
 </map>
 </div>
 
@@ -271,12 +271,12 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d3e/force__torque_8f90_source.html#l00232">232</a> of file <a class="el" href="../../d2/d3e/force__torque_8f90_source.html">force_torque.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d3e/force__torque_8f90_source.html#l00344">344</a> of file <a class="el" href="../../d2/d3e/force__torque_8f90_source.html">force_torque.f90</a>.</p>
 
 </div>
 </div>
-<a id="a0f667e648d5b3ccd99421fa1be4aaf89" name="a0f667e648d5b3ccd99421fa1be4aaf89"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0f667e648d5b3ccd99421fa1be4aaf89">&#9670;&#160;</a></span>force_torque_init_from_attributes()</h2>
+<a id="a8a3bfdd03c6deef5b7b1e2687eb82d37" name="a8a3bfdd03c6deef5b7b1e2687eb82d37"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8a3bfdd03c6deef5b7b1e2687eb82d37">&#9670;&#160;</a></span>force_torque_init_common()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -285,10 +285,16 @@ Here is the call graph for this function:</div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> force_torque::force_torque_init_from_attributes </td>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> force_torque::force_torque_init_common </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../da/d47/structforce__torque_1_1force__torque__t.html">force_torque_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=*), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>fluid_name</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -338,41 +344,303 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">fluid_name</td><td>The name of the fluid solver. </td></tr>
+    <tr><td class="paramname">zone_id</td><td>The id of the boundary zone. </td></tr>
+    <tr><td class="paramname">zone_name</td><td>The name of the boundary zone, to use in the log. </td></tr>
+    <tr><td class="paramname">center</td><td>The center of the torque calculation. </td></tr>
+    <tr><td class="paramname">scale</td><td>Normalization factor. </td></tr>
+    <tr><td class="paramname">coef</td><td>The SEM coefficients. </td></tr>
+    <tr><td class="paramname">long_print</td><td>If true, use a more precise print format. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d3e/force__torque_8f90_source.html#l00131">131</a> of file <a class="el" href="../../d2/d3e/force__torque_8f90_source.html">force_torque.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d3e/force__torque_8f90_source.html#l00234">234</a> of file <a class="el" href="../../d2/d3e/force__torque_8f90_source.html">force_torque.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d6/daa/namespaceforce__torque_a0f667e648d5b3ccd99421fa1be4aaf89_cgraph.png" border="0" usemap="#ad6/daa/namespaceforce__torque_a0f667e648d5b3ccd99421fa1be4aaf89_cgraph" alt=""/></div>
-<map name="ad6/daa/namespaceforce__torque_a0f667e648d5b3ccd99421fa1be4aaf89_cgraph" id="ad6/daa/namespaceforce__torque_a0f667e648d5b3ccd99421fa1be4aaf89_cgraph">
-<area shape="rect" title="Actual constructor." alt="" coords="5,97,212,137"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#a439630d12cb3027eb78f58e0519b8bc6" title="Add a scalar to vector ." alt="" coords="303,5,398,31"/>
-<area shape="poly" title=" " alt="" coords="144,94,198,66,259,40,289,30,291,35,261,44,200,71,147,99"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#a79605e1f64791cdd50be86db3e5bec75" title="Sum a vector of length n." alt="" coords="299,79,403,104"/>
-<area shape="poly" title=" " alt="" coords="212,103,285,96,285,101,212,109"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#a537a4b4b100265f746243f3c5347187f" title="Copy a masked vector to reduced contigous vector ." alt="" coords="260,128,441,153"/>
-<area shape="poly" title=" " alt="" coords="212,124,247,128,246,133,212,130"/>
-<area shape="rect" href="../../d0/d6f/namespacedrag__torque.html#a0c3183c7695dac7a0f04a13c5ca244f6" title=" " alt="" coords="279,178,423,218"/>
-<area shape="poly" title=" " alt="" coords="170,134,278,171,277,176,168,139"/>
-<area shape="poly" title=" " alt="" coords="318,80,311,70,314,60,328,54,351,52,379,56,390,65,386,69,376,61,351,57,329,59,318,64,316,70,322,77"/>
-<area shape="rect" href="../../d2/d57/cuda_2facet__normal__kernel_8h.html#a255d8d741e1fc6cd080ba11e14dc7148" title=" " alt="" coords="489,185,616,211"/>
-<area shape="poly" title=" " alt="" coords="423,195,476,195,476,201,423,201"/>
-<area shape="poly" title=" " alt="" coords="521,187,514,177,518,167,531,161,553,159,579,162,590,171,587,175,577,167,553,164,532,166,522,171,519,176,525,184"/>
-<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="664,178,828,218"/>
-<area shape="poly" title=" " alt="" coords="616,195,650,195,650,201,616,201"/>
-<area shape="poly" title=" " alt="" coords="710,178,708,168,713,159,726,153,746,151,769,154,781,162,778,166,767,159,746,157,728,159,717,163,713,169,715,177"/>
+<div class="center"><img src="../../d6/daa/namespaceforce__torque_a8a3bfdd03c6deef5b7b1e2687eb82d37_cgraph.png" border="0" usemap="#ad6/daa/namespaceforce__torque_a8a3bfdd03c6deef5b7b1e2687eb82d37_cgraph" alt=""/></div>
+<map name="ad6/daa/namespaceforce__torque_a8a3bfdd03c6deef5b7b1e2687eb82d37_cgraph" id="ad6/daa/namespaceforce__torque_a8a3bfdd03c6deef5b7b1e2687eb82d37_cgraph">
+<area shape="rect" title="Common part of constructors." alt="" coords="5,101,168,141"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#a439630d12cb3027eb78f58e0519b8bc6" title="Add a scalar to vector ." alt="" coords="251,5,345,31"/>
+<area shape="poly" title=" " alt="" coords="114,98,160,69,215,40,236,31,238,36,217,44,163,73,117,103"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#a79605e1f64791cdd50be86db3e5bec75" title="Sum a vector of length n." alt="" coords="246,79,350,104"/>
+<area shape="poly" title=" " alt="" coords="168,107,232,98,232,103,168,112"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#a93ebdef19d8a165651d852f29d2bf5b7" title="Gather a masked vector to reduced contigous vector ." alt="" coords="216,129,380,169"/>
+<area shape="poly" title=" " alt="" coords="168,129,203,133,202,139,168,134"/>
+<area shape="rect" href="../../d0/d6f/namespacedrag__torque.html#a0c3183c7695dac7a0f04a13c5ca244f6" title="Computes the normals for a given set of boundary points accessed by the mask." alt="" coords="226,193,370,233"/>
+<area shape="poly" title=" " alt="" coords="130,138,217,178,233,185,231,190,215,183,128,143"/>
+<area shape="poly" title=" " alt="" coords="266,80,260,70,263,60,276,54,298,52,324,56,335,64,332,68,322,60,298,57,278,59,267,64,265,70,271,77"/>
+<area shape="rect" href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d" title=" " alt="" coords="428,200,555,225"/>
+<area shape="poly" title=" " alt="" coords="370,210,414,210,414,215,370,215"/>
+<area shape="poly" title=" " alt="" coords="460,201,453,192,456,182,470,176,491,173,518,177,529,186,525,190,516,182,491,179,471,181,460,185,458,191,464,198"/>
 </map>
 </div>
-<div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="../../d6/daa/namespaceforce__torque_a0f667e648d5b3ccd99421fa1be4aaf89_icgraph.png" border="0" usemap="#ad6/daa/namespaceforce__torque_a0f667e648d5b3ccd99421fa1be4aaf89_icgraph" alt=""/></div>
-<map name="ad6/daa/namespaceforce__torque_a0f667e648d5b3ccd99421fa1be4aaf89_icgraph" id="ad6/daa/namespaceforce__torque_a0f667e648d5b3ccd99421fa1be4aaf89_icgraph">
-<area shape="rect" title="Actual constructor." alt="" coords="224,5,431,45"/>
-<area shape="rect" href="../../d6/daa/namespaceforce__torque.html#af95812899d029c8c2c15b3742965583b" title="Constructor from json." alt="" coords="5,5,176,45"/>
-<area shape="poly" title=" " alt="" coords="210,28,176,28,176,23,210,23"/>
-</map>
+
 </div>
+</div>
+<a id="a7be24bcf7c114f1f1b063d9641a8ab2e" name="a7be24bcf7c114f1f1b063d9641a8ab2e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7be24bcf7c114f1f1b063d9641a8ab2e">&#9670;&#160;</a></span>force_torque_init_from_controllers()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> force_torque::force_torque_init_from_controllers </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../da/d47/structforce__torque_1_1force__torque__t.html">force_torque_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../db/d7a/structcase_1_1case__t.html">case_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>case</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td>
+          <td class="paramname"><em>order</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../db/de7/structtime__based__controller_1_1time__based__controller__t.html">time_based_controller_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>preprocess_controller</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../db/de7/structtime__based__controller_1_1time__based__controller__t.html">time_based_controller_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>compute_controller</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../db/de7/structtime__based__controller_1_1time__based__controller__t.html">time_based_controller_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>output_controller</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=*), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>fluid_name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>zone_id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=*), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>zone_name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(3), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>center</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>scale</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>coef</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>long_print</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">case</td><td>The simulation case object. </td></tr>
+    <tr><td class="paramname">order</td><td>The execution oder priority of the simcomp. </td></tr>
+    <tr><td class="paramname">preprocess_controller</td><td>The controller for running preprocessing. </td></tr>
+    <tr><td class="paramname">compute_controller</td><td>The controller for running compute. </td></tr>
+    <tr><td class="paramname"><a class="el" href="../../d8/d57/namespaceoutput__controller.html" title="Implements output_controller_t">output_controller</a></td><td>The controller for producing output. </td></tr>
+    <tr><td class="paramname">fluid_name</td><td>The name of the fluid solver. </td></tr>
+    <tr><td class="paramname">zone_id</td><td>The id of the boundary zone. </td></tr>
+    <tr><td class="paramname">zone_name</td><td>The name of the boundary zone, to use in the log. </td></tr>
+    <tr><td class="paramname">center</td><td>The center of the torque calculation. </td></tr>
+    <tr><td class="paramname">scale</td><td>Normalization factor. </td></tr>
+    <tr><td class="paramname">coef</td><td>The SEM coefficients. </td></tr>
+    <tr><td class="paramname">long_print</td><td>If true, use a more precise print format. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d2/d3e/force__torque_8f90_source.html#l00156">156</a> of file <a class="el" href="../../d2/d3e/force__torque_8f90_source.html">force_torque.f90</a>.</p>
+
+</div>
+</div>
+<a id="ac74931c226746f51ed0c5a257b41ca5a" name="ac74931c226746f51ed0c5a257b41ca5a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac74931c226746f51ed0c5a257b41ca5a">&#9670;&#160;</a></span>force_torque_init_from_controllers_properties()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> force_torque::force_torque_init_from_controllers_properties </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../da/d47/structforce__torque_1_1force__torque__t.html">force_torque_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../db/d7a/structcase_1_1case__t.html">case_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>case</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td>
+          <td class="paramname"><em>order</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=*), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>preprocess_control</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>preprocess_value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=*), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>compute_control</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>compute_value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=*), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>output_control</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>output_value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=*), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>fluid_name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=*), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>zone_name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>zone_id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(3), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>center</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>scale</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>coef</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>long_print</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">case</td><td>The simulation case object. </td></tr>
+    <tr><td class="paramname">order</td><td>The execution oder priority of the simcomp. </td></tr>
+    <tr><td class="paramname">preprocess_controller</td><td>Control mode for preprocessing. </td></tr>
+    <tr><td class="paramname">preprocess_value</td><td>Value parameter for preprocessing. </td></tr>
+    <tr><td class="paramname">compute_controller</td><td>Control mode for computing. </td></tr>
+    <tr><td class="paramname">compute_value</td><td>Value parameter for computing. </td></tr>
+    <tr><td class="paramname"><a class="el" href="../../d8/d57/namespaceoutput__controller.html" title="Implements output_controller_t">output_controller</a></td><td>Control mode for output. </td></tr>
+    <tr><td class="paramname">output_value</td><td>Value parameter for output. </td></tr>
+    <tr><td class="paramname">fluid_name</td><td>The name of the fluid solver. </td></tr>
+    <tr><td class="paramname">zone_id</td><td>The id of the boundary zone. </td></tr>
+    <tr><td class="paramname">zone_name</td><td>The name of the boundary zone, to use in the log. </td></tr>
+    <tr><td class="paramname">center</td><td>The center of the torque calculation. </td></tr>
+    <tr><td class="paramname">scale</td><td>Normalization factor. </td></tr>
+    <tr><td class="paramname">coef</td><td>The SEM coefficients. </td></tr>
+    <tr><td class="paramname">long_print</td><td>If true, use a more precise print format. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d2/d3e/force__torque_8f90_source.html#l00197">197</a> of file <a class="el" href="../../d2/d3e/force__torque_8f90_source.html">force_torque.f90</a>.</p>
 
 </div>
 </div>
@@ -385,7 +653,7 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> force_torque::force_torque_init_from_json </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../da/d47/structforce__torque_1_1force__torque__t.html">force_torque_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../da/d47/structforce__torque_1_1force__torque__t.html">force_torque_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
@@ -408,32 +676,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d3e/force__torque_8f90_source.html#l00105">105</a> of file <a class="el" href="../../d2/d3e/force__torque_8f90_source.html">force_torque.f90</a>.</p>
-<div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="../../d6/daa/namespaceforce__torque_af95812899d029c8c2c15b3742965583b_cgraph.png" border="0" usemap="#ad6/daa/namespaceforce__torque_af95812899d029c8c2c15b3742965583b_cgraph" alt=""/></div>
-<map name="ad6/daa/namespaceforce__torque_af95812899d029c8c2c15b3742965583b_cgraph" id="ad6/daa/namespaceforce__torque_af95812899d029c8c2c15b3742965583b_cgraph">
-<area shape="rect" title="Constructor from json." alt="" coords="5,97,176,137"/>
-<area shape="rect" href="../../d6/daa/namespaceforce__torque.html#a0f667e648d5b3ccd99421fa1be4aaf89" title="Actual constructor." alt="" coords="224,97,431,137"/>
-<area shape="poly" title=" " alt="" coords="176,114,210,114,210,119,176,119"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#a439630d12cb3027eb78f58e0519b8bc6" title="Add a scalar to vector ." alt="" coords="522,5,617,31"/>
-<area shape="poly" title=" " alt="" coords="363,94,416,66,478,40,508,30,510,35,480,44,419,71,365,99"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#a79605e1f64791cdd50be86db3e5bec75" title="Sum a vector of length n." alt="" coords="517,79,621,104"/>
-<area shape="poly" title=" " alt="" coords="431,103,503,96,504,101,431,109"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#a537a4b4b100265f746243f3c5347187f" title="Copy a masked vector to reduced contigous vector ." alt="" coords="479,128,660,153"/>
-<area shape="poly" title=" " alt="" coords="431,124,466,128,465,133,431,130"/>
-<area shape="rect" href="../../d0/d6f/namespacedrag__torque.html#a0c3183c7695dac7a0f04a13c5ca244f6" title=" " alt="" coords="497,178,641,218"/>
-<area shape="poly" title=" " alt="" coords="389,134,497,171,495,176,387,139"/>
-<area shape="poly" title=" " alt="" coords="536,80,529,70,533,60,547,54,569,52,597,56,608,65,605,69,595,61,569,57,548,59,537,64,535,70,541,77"/>
-<area shape="rect" href="../../d2/d57/cuda_2facet__normal__kernel_8h.html#a255d8d741e1fc6cd080ba11e14dc7148" title=" " alt="" coords="708,185,835,211"/>
-<area shape="poly" title=" " alt="" coords="642,195,694,195,694,201,642,201"/>
-<area shape="poly" title=" " alt="" coords="740,187,733,177,736,167,750,161,771,159,798,162,809,171,805,175,796,167,771,164,751,166,740,171,738,176,744,184"/>
-<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="883,178,1047,218"/>
-<area shape="poly" title=" " alt="" coords="835,195,869,195,869,201,835,201"/>
-<area shape="poly" title=" " alt="" coords="928,178,926,168,932,159,945,153,965,151,987,154,1000,162,997,166,986,159,965,157,946,159,935,163,931,169,934,177"/>
-</map>
-</div>
+<p class="definition">Definition at line <a class="el" href="../../d2/d3e/force__torque_8f90_source.html#l00120">120</a> of file <a class="el" href="../../d2/d3e/force__torque_8f90_source.html">force_torque.f90</a>.</p>
 
 </div>
 </div>
@@ -443,7 +686,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d6/daa/namespaceforce__torque.html">force_torque</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

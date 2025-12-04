@@ -1,35 +1,37 @@
 <map id="krylov::ksp_t" name="krylov::ksp_t">
-<area shape="rect" id="Node000001" title="Base abstract type for a canonical Krylov method, solving ." alt="" coords="5,391,111,416"/>
+<area shape="rect" id="Node000001" title="Base abstract type for a canonical Krylov method, solving ." alt="" coords="5,424,111,449"/>
 <area shape="rect" id="Node000002" href="$dc/dd5/structbicgstab_1_1bicgstab__t.html" title="Standard preconditioned Bi&#45;Conjugate Gradient Stabilized method." alt="" coords="174,5,326,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="56,377,58,310,70,220,82,171,100,124,125,79,157,40,173,29,176,33,160,44,129,82,105,126,88,173,75,221,63,310,61,377"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="60,410,72,326,92,216,120,110,138,69,157,40,172,29,175,33,161,44,142,71,125,112,97,217,77,327,65,411"/>
 <area shape="rect" id="Node000003" href="$de/d56/structcacg_1_1cacg__t.html" title="S&#45;step communication avoiding preconditioned conjugate gradient method." alt="" coords="199,55,301,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="57,377,62,318,77,240,89,200,106,159,129,122,157,89,176,77,198,69,199,74,178,81,160,93,133,125,111,162,94,201,82,242,67,318,62,377"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="56,410,59,346,72,260,85,214,102,169,126,126,157,89,176,76,197,69,199,74,178,81,160,93,131,129,107,171,90,215,77,261,64,346,61,411"/>
 <area shape="rect" id="Node000004" href="$db/d98/structcg_1_1cg__t.html" title="Standard preconditioned conjugate gradient method." alt="" coords="214,104,286,129"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="59,376,67,326,83,262,112,196,132,165,157,139,184,123,213,116,214,121,186,128,160,143,137,169,117,198,88,264,72,327,64,377"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="58,410,63,354,79,281,91,242,108,205,130,170,157,139,184,123,213,116,214,121,186,128,160,143,134,173,113,207,96,244,84,282,69,355,63,411"/>
 <area shape="rect" id="Node000005" href="$d7/d45/structcg__cpld_1_1cg__cpld__t.html" title="Coupled preconditioned conjugate gradient method." alt="" coords="180,153,320,179"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="61,376,72,335,90,284,118,232,136,209,157,188,178,175,181,180,160,192,140,212,123,235,95,286,77,337,67,378"/>
-<area shape="rect" id="Node000006" href="$dd/d8e/structcg__device_1_1cg__device__t.html" title="Device based preconditioned conjugate gradient method." alt="" coords="164,203,336,228"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="65,377,79,345,98,307,124,269,157,237,178,226,180,230,160,241,128,273,103,310,83,347,70,379"/>
-<area shape="rect" id="Node000007" href="$d5/d34/structcg__sx_1_1sx__cg__t.html" title="Standard preconditioned conjugate gradient method (SX version)" alt="" coords="192,252,308,277"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="72,377,107,331,131,307,157,286,191,272,193,277,160,291,134,311,111,334,76,381"/>
-<area shape="rect" id="Node000008" href="$db/d28/structcheby_1_1cheby__t.html" title="Defines a Chebyshev preconditioner." alt="" coords="191,301,309,327"/>
-<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="85,380,119,358,158,337,193,324,194,329,160,342,122,362,88,385"/>
-<area shape="rect" id="Node000009" href="$d7/d81/structcheby__device_1_1cheby__device__t.html" title="Defines a Chebyshev preconditioner." alt="" coords="171,351,329,391"/>
-<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="124,390,170,382,171,387,125,395"/>
-<area shape="rect" id="Node000010" href="$d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t.html" title="Fused preconditioned conjugate gradient method." alt="" coords="161,415,339,455"/>
-<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="125,412,162,418,161,423,124,417"/>
-<area shape="rect" id="Node000011" href="$dc/d03/structfusedcg__device_1_1fusedcg__device__t.html" title="Fused preconditioned conjugate gradient method." alt="" coords="159,479,341,519"/>
-<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="89,422,160,465,187,477,185,482,157,470,86,426"/>
-<area shape="rect" id="Node000012" href="$df/db9/structgmres_1_1gmres__t.html" title="Standard preconditioned generalized minimal residual method." alt="" coords="188,544,312,569"/>
-<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="74,426,109,479,133,506,160,529,189,543,187,548,157,534,129,510,104,482,70,429"/>
-<area shape="rect" id="Node000013" href="$d8/d1e/structgmres__device_1_1gmres__device__t.html" title="Standard preconditioned generalized minimal residual method." alt="" coords="169,594,331,634"/>
-<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="70,428,83,462,102,502,128,543,160,579,180,592,177,596,157,583,124,546,97,505,78,464,65,430"/>
-<area shape="rect" id="Node000014" href="$d3/d41/structgmres__sx_1_1sx__gmres__t.html" title="Standard preconditioned generalized minimal residual method (SX version)" alt="" coords="166,659,334,684"/>
-<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="65,429,74,475,91,534,119,593,138,620,160,644,180,656,177,661,157,648,134,624,115,596,86,535,69,477,60,430"/>
-<area shape="rect" id="Node000015" href="$d4/db4/structpipecg_1_1pipecg__t.html" title="Pipelined preconditioned conjugate gradient method." alt="" coords="186,708,314,733"/>
-<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="63,429,69,484,85,556,97,593,114,630,135,664,160,693,187,709,185,714,157,697,130,667,109,632,92,595,79,557,64,485,58,430"/>
-<area shape="rect" id="Node000016" href="$dc/d01/structpipecg__device_1_1pipecg__device__t.html" title="Pipelined preconditioned conjugate gradient method." alt="" coords="167,758,333,798"/>
-<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="62,429,66,492,80,576,93,620,110,665,132,706,161,743,177,756,173,760,157,747,128,709,105,667,88,622,75,577,61,493,57,430"/>
-<area shape="rect" id="Node000017" href="$d1/d8e/structpipecg__sx_1_1sx__pipecg__t.html" title="Pipelined preconditioned conjugate gradient method for SX&#45;Aurora." alt="" coords="164,823,336,848"/>
-<area shape="poly" id="edge16_Node000001_Node000017" title=" " alt="" coords="65,430,77,515,97,629,125,738,142,780,161,808,178,820,174,825,157,812,137,782,120,739,91,630,71,516,60,430"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="60,410,69,362,86,303,114,242,134,214,157,189,178,176,181,180,160,193,138,217,119,245,91,305,74,364,65,411"/>
+<area shape="rect" id="Node000006" href="$db/d16/structcg__cpld__device_1_1cg__cpld__device__t.html" title="Device based coupled preconditioned conjugate gradient method." alt="" coords="178,203,322,243"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="65,410,77,375,97,333,123,290,157,253,176,241,179,245,160,257,127,294,101,335,82,377,70,411"/>
+<area shape="rect" id="Node000007" href="$dd/d8e/structcg__device_1_1cg__device__t.html" title="Device based preconditioned conjugate gradient method." alt="" coords="164,268,336,293"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="69,410,104,356,128,327,157,302,179,291,182,296,160,307,132,331,108,359,74,413"/>
+<area shape="rect" id="Node000008" href="$d5/d34/structcg__sx_1_1sx__cg__t.html" title="Standard preconditioned conjugate gradient method (SX version)" alt="" coords="192,317,308,343"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="79,412,114,381,157,352,191,339,193,344,160,356,117,385,83,416"/>
+<area shape="rect" id="Node000009" href="$db/d28/structcheby_1_1cheby__t.html" title="Defines a Chebyshev preconditioner." alt="" coords="191,367,309,392"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="110,417,158,402,202,389,203,395,159,407,112,422"/>
+<area shape="rect" id="Node000010" href="$d7/d81/structcheby__device_1_1cheby__device__t.html" title="Defines a Chebyshev preconditioner." alt="" coords="171,417,329,457"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="125,434,170,434,170,439,125,439"/>
+<area shape="rect" id="Node000011" href="$d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t.html" title="Fused preconditioned conjugate gradient method." alt="" coords="161,481,339,521"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="111,451,190,478,188,483,109,456"/>
+<area shape="rect" id="Node000012" href="$dc/d03/structfusedcg__device_1_1fusedcg__device__t.html" title="Fused preconditioned conjugate gradient method." alt="" coords="159,545,341,585"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="81,459,116,495,160,530,183,542,181,547,157,535,112,499,77,462"/>
+<area shape="rect" id="Node000013" href="$df/db9/structgmres_1_1gmres__t.html" title="Standard preconditioned generalized minimal residual method." alt="" coords="188,609,312,635"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="71,461,104,528,129,564,160,594,189,609,186,614,157,599,125,568,99,531,66,463"/>
+<area shape="rect" id="Node000014" href="$d8/d1e/structgmres__device_1_1gmres__device__t.html" title="Standard preconditioned generalized minimal residual method." alt="" coords="169,659,331,699"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="68,462,79,502,97,551,124,601,160,644,179,657,176,661,157,648,120,604,93,553,74,504,62,464"/>
+<area shape="rect" id="Node000015" href="$d3/d41/structgmres__sx_1_1sx__gmres__t.html" title="Standard preconditioned generalized minimal residual method (SX version)" alt="" coords="166,724,334,749"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="64,463,71,515,87,582,100,616,116,650,136,682,160,709,179,722,176,726,157,713,132,685,111,653,95,618,82,583,66,516,58,464"/>
+<area shape="rect" id="Node000016" href="$d4/db4/structpipecg_1_1pipecg__t.html" title="Pipelined preconditioned conjugate gradient method." alt="" coords="186,773,314,799"/>
+<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="62,463,66,523,80,603,93,645,110,687,132,725,160,759,187,775,184,779,157,763,128,728,105,689,88,647,75,604,61,524,57,463"/>
+<area shape="rect" id="Node000017" href="$dc/d01/structpipecg__device_1_1pipecg__device__t.html" title="Pipelined preconditioned conjugate gradient method." alt="" coords="167,823,333,863"/>
+<area shape="poly" id="edge16_Node000001_Node000017" title=" " alt="" coords="61,463,64,531,76,623,89,672,106,721,130,767,161,808,177,821,173,825,157,812,126,770,101,723,84,674,71,624,58,531,56,463"/>
+<area shape="rect" id="Node000018" href="$d1/d8e/structpipecg__sx_1_1sx__pipecg__t.html" title="Pipelined preconditioned conjugate gradient method for SX&#45;Aurora." alt="" coords="164,888,336,913"/>
+<area shape="poly" id="edge17_Node000001_Node000018" title=" " alt="" coords="64,463,75,555,94,678,123,797,141,843,161,874,177,886,174,890,157,877,136,845,118,798,89,679,70,555,59,463"/>
 </map>

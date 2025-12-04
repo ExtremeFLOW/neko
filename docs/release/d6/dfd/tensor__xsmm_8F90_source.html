@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -211,61 +211,62 @@ $(document).ready(function(){initNavTree('d6/dfd/tensor__xsmm_8F90_source.html',
 <div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span> </div>
 <div class="foldopen" id="foldopen00101" data-start="" data-end="">
 <div class="line"><a id="l00101" name="l00101"></a><span class="lineno"><a class="line" href="../../dd/d89/namespacetensor__xsmm.html#a15b0b5b4e2c552142cc023d190b0f965">  101</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dd/d89/namespacetensor__xsmm.html#a15b0b5b4e2c552142cc023d190b0f965">tnsr3d_xsmm</a>(v, nv, u, nu, A, Bt, Ct, nelv)</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(inout)</span> :: nv, nu, nelv</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: v(nv*nv*nv,nelv), u(nu*nu*nu,nelv)</div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: a(nv,nu), bt(nu, nv), ct(nu,nv)</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: work(0:nu**2*nv), work2(0:nu*nv**2)</div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>    <span class="keywordtype">integer</span> :: ie, i, nunu, nvnu, nvnv</div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span> </div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    nvnu = nv * nu</div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    nunu = nu * nu</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    nvnv = nv * nv</div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span> </div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>    <span class="keywordflow">do</span> ie = 1,nelv</div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed">mxm</a>(a, nv, u(1,ie), nu, work, nunu)</div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>       <span class="keywordflow">do</span> i = 0,nu-1</div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed">mxm</a>(work(nvnu*i), nv, bt, nu, work2(nv*nv*i), nv)</div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed">mxm</a>(work2, nvnv, ct, nu, v(1,ie), nv)</div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span> </div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: nv, nu, nelv</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: v(nv*nv*nv,nelv)</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: u(nu*nu*nu,nelv)</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: a(nv,nu), bt(nu, nv), ct(nu,nv)</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: work(0:nu**2*nv), work2(0:nu*nv**2)</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>    <span class="keywordtype">integer</span> :: ie, i, nunu, nvnu, nvnv</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span> </div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    nvnu = nv * nu</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    nunu = nu * nu</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>    nvnv = nv * nv</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span> </div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    <span class="keywordflow">do</span> ie = 1,nelv</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed">mxm</a>(a, nv, u(1,ie), nu, work, nunu)</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>       <span class="keywordflow">do</span> i = 0,nu-1</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed">mxm</a>(work(nvnu*i), nv, bt, nu, work2(nv*nv*i), nv)</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed">mxm</a>(work2, nvnv, ct, nu, v(1,ie), nv)</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span> </div>
 </div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/d89/namespacetensor__xsmm.html#a15b0b5b4e2c552142cc023d190b0f965">tnsr3d_xsmm</a></div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span> </div>
-<div class="foldopen" id="foldopen00122" data-start="" data-end="">
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno"><a class="line" href="../../dd/d89/namespacetensor__xsmm.html#acfea35f957e36091ce920190aa5ae848">  122</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dd/d89/namespacetensor__xsmm.html#acfea35f957e36091ce920190aa5ae848">tnsr1_3d_xsmm</a>(v, nv, nu, A, Bt, Ct, nelv)</div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: nv, nu, nelv</div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: v(nv*nv*nv*nelv)</div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: a(nv,nu), bt(nu, nv), ct(nu,nv)</div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: work(0:nu**2*nv), work2(0:nu*nv**2)</div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>    <span class="keywordtype">integer</span> :: e, e0, ee, es, iu, iv, i, nu3, nv3</div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span> </div>
-<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>    e0 = 1</div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>    es = 1</div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>    ee = nelv</div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span> </div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>    <span class="keywordflow">if</span> (nv.gt.nu) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>       e0 = nelv</div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>       es = -1</div>
-<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>       ee = 1</div>
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span><span class="keywordflow">    endif</span></div>
-<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span> </div>
-<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>    nu3 = nu**3</div>
-<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>    nv3 = nv**3</div>
-<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span> </div>
-<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>    <span class="keywordflow">do</span> e = e0,ee,es</div>
-<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>       iu = 1 + (e-1)*nu3</div>
-<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>       iv = 1 + (e-1)*nv3</div>
-<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed">mxm</a>(a, nv, v(iu), nu, work, nu*nu)</div>
-<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>       <span class="keywordflow">do</span> i = 0,nu-1</div>
-<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed">mxm</a>(work(nv*nu*i), nv, bt, nu, work2(nv*nv*i), nv)</div>
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed">mxm</a>(work2, nv*nv, ct, nu, v(iv), nv)</div>
-<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/d89/namespacetensor__xsmm.html#a15b0b5b4e2c552142cc023d190b0f965">tnsr3d_xsmm</a></div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span> </div>
+<div class="foldopen" id="foldopen00123" data-start="" data-end="">
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno"><a class="line" href="../../dd/d89/namespacetensor__xsmm.html#acfea35f957e36091ce920190aa5ae848">  123</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dd/d89/namespacetensor__xsmm.html#acfea35f957e36091ce920190aa5ae848">tnsr1_3d_xsmm</a>(v, nv, nu, A, Bt, Ct, nelv)</div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: nv, nu, nelv</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: v(nv*nv*nv*nelv)</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: a(nv,nu), bt(nu, nv), ct(nu,nv)</div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: work(0:nu**2*nv), work2(0:nu*nv**2)</div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    <span class="keywordtype">integer</span> :: e, e0, ee, es, iu, iv, i, nu3, nv3</div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span> </div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>    e0 = 1</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>    es = 1</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>    ee = nelv</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span> </div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>    <span class="keywordflow">if</span> (nv.gt.nu) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>       e0 = nelv</div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>       es = -1</div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>       ee = 1</div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span><span class="keywordflow">    endif</span></div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span> </div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>    nu3 = nu**3</div>
+<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>    nv3 = nv**3</div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span> </div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>    <span class="keywordflow">do</span> e = e0,ee,es</div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>       iu = 1 + (e-1)*nu3</div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>       iv = 1 + (e-1)*nv3</div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed">mxm</a>(a, nv, v(iu), nu, work, nu*nu)</div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>       <span class="keywordflow">do</span> i = 0,nu-1</div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed">mxm</a>(work(nv*nu*i), nv, bt, nu, work2(nv*nv*i), nv)</div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed">mxm</a>(work2, nv*nv, ct, nu, v(iv), nv)</div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span><span class="keywordflow">    end do</span></div>
 </div>
-<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/d89/namespacetensor__xsmm.html#acfea35f957e36091ce920190aa5ae848">tnsr1_3d_xsmm</a></div>
-<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span> </div>
-<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dd/d89/namespacetensor__xsmm.html">tensor_xsmm</a></div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/d89/namespacetensor__xsmm.html#acfea35f957e36091ce920190aa5ae848">tnsr1_3d_xsmm</a></div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span> </div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dd/d89/namespacetensor__xsmm.html">tensor_xsmm</a></div>
 <div class="ttc" id="anamespacemxm__wrapper_html"><div class="ttname"><a href="../../d1/d15/namespacemxm__wrapper.html">mxm_wrapper</a></div><div class="ttdoc">Wrapper for all matrix-matrix product implementations.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d25/mxm__wrapper_8F90_source.html#l00002">mxm_wrapper.F90:2</a></div></div>
 <div class="ttc" id="anamespacemxm__wrapper_html_ab3632911ec4db7f1ffe82b006aa287ed"><div class="ttname"><a href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed">mxm_wrapper::mxm</a></div><div class="ttdeci">subroutine, public mxm(a, n1, b, n2, c, n3)</div><div class="ttdoc">Compute matrix-matrix product  for contiguously packed matrices A,B, and C.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d25/mxm__wrapper_8F90_source.html#l00028">mxm_wrapper.F90:29</a></div></div>
 <div class="ttc" id="anamespacenum__types_html"><div class="ttname"><a href="../../df/d48/namespacenum__types.html">num_types</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00001">num_types.f90:1</a></div></div>
@@ -274,14 +275,14 @@ $(document).ready(function(){initNavTree('d6/dfd/tensor__xsmm_8F90_source.html',
 <div class="ttc" id="anamespacetensor__xsmm_html_a0672db2340d2fcd63a9acb16e3de3243"><div class="ttname"><a href="../../dd/d89/namespacetensor__xsmm.html#a0672db2340d2fcd63a9acb16e3de3243">tensor_xsmm::tnsr3d_el_xsmm</a></div><div class="ttdeci">subroutine, public tnsr3d_el_xsmm(v, nv, u, nu, a, bt, ct)</div><div class="ttdef"><b>Definition</b> <a href="../../d6/dfd/tensor__xsmm_8F90_source.html#l00082">tensor_xsmm.F90:83</a></div></div>
 <div class="ttc" id="anamespacetensor__xsmm_html_a15b0b5b4e2c552142cc023d190b0f965"><div class="ttname"><a href="../../dd/d89/namespacetensor__xsmm.html#a15b0b5b4e2c552142cc023d190b0f965">tensor_xsmm::tnsr3d_xsmm</a></div><div class="ttdeci">subroutine, public tnsr3d_xsmm(v, nv, u, nu, a, bt, ct, nelv)</div><div class="ttdef"><b>Definition</b> <a href="../../d6/dfd/tensor__xsmm_8F90_source.html#l00101">tensor_xsmm.F90:102</a></div></div>
 <div class="ttc" id="anamespacetensor__xsmm_html_ab2fc4092fde9a9041871a0d027db9a64"><div class="ttname"><a href="../../dd/d89/namespacetensor__xsmm.html#ab2fc4092fde9a9041871a0d027db9a64">tensor_xsmm::tnsr2d_el_xsmm</a></div><div class="ttdeci">subroutine, public tnsr2d_el_xsmm(v, nv, u, nu, a, bt)</div><div class="ttdef"><b>Definition</b> <a href="../../d6/dfd/tensor__xsmm_8F90_source.html#l00071">tensor_xsmm.F90:72</a></div></div>
-<div class="ttc" id="anamespacetensor__xsmm_html_acfea35f957e36091ce920190aa5ae848"><div class="ttname"><a href="../../dd/d89/namespacetensor__xsmm.html#acfea35f957e36091ce920190aa5ae848">tensor_xsmm::tnsr1_3d_xsmm</a></div><div class="ttdeci">subroutine, public tnsr1_3d_xsmm(v, nv, nu, a, bt, ct, nelv)</div><div class="ttdef"><b>Definition</b> <a href="../../d6/dfd/tensor__xsmm_8F90_source.html#l00122">tensor_xsmm.F90:123</a></div></div>
+<div class="ttc" id="anamespacetensor__xsmm_html_acfea35f957e36091ce920190aa5ae848"><div class="ttname"><a href="../../dd/d89/namespacetensor__xsmm.html#acfea35f957e36091ce920190aa5ae848">tensor_xsmm::tnsr1_3d_xsmm</a></div><div class="ttdeci">subroutine, public tnsr1_3d_xsmm(v, nv, nu, a, bt, ct, nelv)</div><div class="ttdef"><b>Definition</b> <a href="../../d6/dfd/tensor__xsmm_8F90_source.html#l00123">tensor_xsmm.F90:124</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_26325635ce1980a50826396f97882f13.html">xsmm</a></li><li class="navelem"><a class="el" href="../../d6/dfd/tensor__xsmm_8F90.html">tensor_xsmm.F90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

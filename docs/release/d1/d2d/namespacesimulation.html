@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -99,6 +99,7 @@ $(document).ready(function(){initNavTree('d1/d2d/namespacesimulation.html','../.
 
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Data Types</a> &#124;
 <a href="#func-members">Functions/Subroutines</a>  </div>
   <div class="headertitle"><div class="title">simulation Module Reference</div></div>
 </div><!--header-->
@@ -107,72 +108,186 @@ $(document).ready(function(){initNavTree('d1/d2d/namespacesimulation.html','../.
 <p>Simulation driver.  
 </p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Data Types</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d9a/interfacesimulation_1_1simulation__restart.html">simulation_restart</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a2279224e80a4202a630ebfaa2d686588" id="r_a2279224e80a4202a630ebfaa2d686588"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d2d/namespacesimulation.html#a2279224e80a4202a630ebfaa2d686588">neko_solve</a> (c)</td></tr>
-<tr class="memdesc:a2279224e80a4202a630ebfaa2d686588"><td class="mdescLeft">&#160;</td><td class="mdescRight">Main driver to solve a case <em>C</em>.  <br /></td></tr>
-<tr class="separator:a2279224e80a4202a630ebfaa2d686588"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a111609fb01cc2ce135762498895b0515" id="r_a111609fb01cc2ce135762498895b0515"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d2d/namespacesimulation.html#a111609fb01cc2ce135762498895b0515">simulation_settime</a> (t, dt, ext_bdf, tlag, dtlag, step)</td></tr>
-<tr class="separator:a111609fb01cc2ce135762498895b0515"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a23e4cf95c0bd2c02c5589e7899d78b10" id="r_a23e4cf95c0bd2c02c5589e7899d78b10"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d2d/namespacesimulation.html#a23e4cf95c0bd2c02c5589e7899d78b10">simulation_restart</a> (c, t)</td></tr>
-<tr class="memdesc:a23e4cf95c0bd2c02c5589e7899d78b10"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restart a case <em>C</em> from a given checkpoint.  <br /></td></tr>
-<tr class="separator:a23e4cf95c0bd2c02c5589e7899d78b10"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ace16571473f6d4b638c29de2d77aaf7d" id="r_ace16571473f6d4b638c29de2d77aaf7d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d2d/namespacesimulation.html#ace16571473f6d4b638c29de2d77aaf7d">simulation_init</a> (c, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dt_controller</a>)</td></tr>
+<tr class="memdesc:ace16571473f6d4b638c29de2d77aaf7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialise a simulation of a case.  <br /></td></tr>
+<tr class="separator:ace16571473f6d4b638c29de2d77aaf7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a898649586b608770d5ea349927136ba0" id="r_a898649586b608770d5ea349927136ba0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d2d/namespacesimulation.html#a898649586b608770d5ea349927136ba0">simulation_finalize</a> (c)</td></tr>
+<tr class="memdesc:a898649586b608770d5ea349927136ba0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finalize a simulation of a case.  <br /></td></tr>
+<tr class="separator:a898649586b608770d5ea349927136ba0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a625edcf01f19970ace9c4af485edfb19" id="r_a625edcf01f19970ace9c4af485edfb19"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d2d/namespacesimulation.html#a625edcf01f19970ace9c4af485edfb19">simulation_step</a> (c, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dt_controller</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tstep_loop_start_time</a>)</td></tr>
+<tr class="memdesc:a625edcf01f19970ace9c4af485edfb19"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute a single time-step of a case.  <br /></td></tr>
+<tr class="separator:a625edcf01f19970ace9c4af485edfb19"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7db8b311cbafdaca7602b3c7812394bc" id="r_a7db8b311cbafdaca7602b3c7812394bc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d2d/namespacesimulation.html#a7db8b311cbafdaca7602b3c7812394bc">simulation_settime</a> (time, ext_bdf)</td></tr>
+<tr class="separator:a7db8b311cbafdaca7602b3c7812394bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae3ff2159162b6cd9b5422a0d2cdadd30" id="r_ae3ff2159162b6cd9b5422a0d2cdadd30"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d2d/namespacesimulation.html#ae3ff2159162b6cd9b5422a0d2cdadd30">case_restart_from_parameters</a> (c)</td></tr>
+<tr class="memdesc:ae3ff2159162b6cd9b5422a0d2cdadd30"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restart a case <em>C</em> from a given checkpoint.  <br /></td></tr>
+<tr class="separator:ae3ff2159162b6cd9b5422a0d2cdadd30"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8ce70e6bf72b71e98683a5d63318fcf0" id="r_a8ce70e6bf72b71e98683a5d63318fcf0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d2d/namespacesimulation.html#a8ce70e6bf72b71e98683a5d63318fcf0">case_restart_from_checkpoint</a> (c, chkp)</td></tr>
+<tr class="memdesc:a8ce70e6bf72b71e98683a5d63318fcf0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restart a case <em>C</em> from a given checkpoint.  <br /></td></tr>
+<tr class="separator:a8ce70e6bf72b71e98683a5d63318fcf0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad5774a0a06b35c326984f6ba2ccce3e6" id="r_ad5774a0a06b35c326984f6ba2ccce3e6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d2d/namespacesimulation.html#ad5774a0a06b35c326984f6ba2ccce3e6">simulation_joblimit_chkp</a> (c, t)</td></tr>
 <tr class="memdesc:ad5774a0a06b35c326984f6ba2ccce3e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write a checkpoint at joblimit.  <br /></td></tr>
 <tr class="separator:ad5774a0a06b35c326984f6ba2ccce3e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
-<a id="a2279224e80a4202a630ebfaa2d686588" name="a2279224e80a4202a630ebfaa2d686588"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2279224e80a4202a630ebfaa2d686588">&#9670;&#160;</a></span>neko_solve()</h2>
+<a id="a8ce70e6bf72b71e98683a5d63318fcf0" name="a8ce70e6bf72b71e98683a5d63318fcf0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8ce70e6bf72b71e98683a5d63318fcf0">&#9670;&#160;</a></span>case_restart_from_checkpoint()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> simulation::case_restart_from_checkpoint </td>
+          <td>(</td>
+          <td class="paramtype">type(<a class="el" href="../../db/d7a/structcase_1_1case__t.html">case_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>c</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d9/d88/structcheckpoint_1_1chkp__t.html">chkp_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>chkp</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../db/d7e/simulation_8f90_source.html#l00275">275</a> of file <a class="el" href="../../db/d7e/simulation_8f90_source.html">simulation.f90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d1/d2d/namespacesimulation_a8ce70e6bf72b71e98683a5d63318fcf0_icgraph.png" border="0" usemap="#ad1/d2d/namespacesimulation_a8ce70e6bf72b71e98683a5d63318fcf0_icgraph" alt=""/></div>
+<map name="ad1/d2d/namespacesimulation_a8ce70e6bf72b71e98683a5d63318fcf0_icgraph" id="ad1/d2d/namespacesimulation_a8ce70e6bf72b71e98683a5d63318fcf0_icgraph">
+<area shape="rect" title="Restart a case C from a given checkpoint." alt="" coords="221,13,400,53"/>
+<area shape="rect" href="../../d1/d9a/interfacesimulation_1_1simulation__restart.html#a682f5fdecdcb1430fa32f6eadde16b96" title="Restart a case C from a given checkpoint." alt="" coords="5,5,173,60"/>
+<area shape="poly" title=" " alt="" coords="207,35,174,35,174,30,207,30"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="ae3ff2159162b6cd9b5422a0d2cdadd30" name="ae3ff2159162b6cd9b5422a0d2cdadd30"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae3ff2159162b6cd9b5422a0d2cdadd30">&#9670;&#160;</a></span>case_restart_from_parameters()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> simulation::case_restart_from_parameters </td>
+          <td>(</td>
+          <td class="paramtype">type(<a class="el" href="../../db/d7a/structcase_1_1case__t.html">case_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>c</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../db/d7e/simulation_8f90_source.html#l00234">234</a> of file <a class="el" href="../../db/d7e/simulation_8f90_source.html">simulation.f90</a>.</p>
+
+</div>
+</div>
+<a id="a898649586b608770d5ea349927136ba0" name="a898649586b608770d5ea349927136ba0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a898649586b608770d5ea349927136ba0">&#9670;&#160;</a></span>simulation_finalize()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> simulation::neko_solve </td>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> simulation::simulation_finalize </td>
           <td>(</td>
-          <td class="paramtype">type(<a class="el" href="../../db/d7a/structcase_1_1case__t.html">case_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../db/d7a/structcase_1_1case__t.html">case_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
           <td class="paramname"><em>c</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Execute outputs and user-init before time loop</p>
-<dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000055">Todo:</a></b></dt><dd>Temporary fix until we have reworked the material properties </dd></dl>
-<dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000056">Todo:</a></b></dt><dd>Temporary fix until we have reworked the material properties </dd></dl>
-<dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000057">Todo:</a></b></dt><dd>Temporary fix until we have reworked the material properties </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d7e/simulation_8f90_source.html#l00056">56</a> of file <a class="el" href="../../db/d7e/simulation_8f90_source.html">simulation.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d7e/simulation_8f90_source.html#l00100">100</a> of file <a class="el" href="../../db/d7e/simulation_8f90_source.html">simulation.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d1/d2d/namespacesimulation_a2279224e80a4202a630ebfaa2d686588_cgraph.png" border="0" usemap="#ad1/d2d/namespacesimulation_a2279224e80a4202a630ebfaa2d686588_cgraph" alt=""/></div>
-<map name="ad1/d2d/namespacesimulation_a2279224e80a4202a630ebfaa2d686588_cgraph" id="ad1/d2d/namespacesimulation_a2279224e80a4202a630ebfaa2d686588_cgraph">
-<area shape="rect" title="Main driver to solve a case C." alt="" coords="5,251,177,276"/>
-<area shape="rect" href="../../d7/d06/namespacejobctrl.html#a668d576b7980c2488dece4c06fcbb41b" title="Check if the job&#39;s time limit has been reached." alt="" coords="235,22,384,62"/>
-<area shape="poly" title=" " alt="" coords="96,249,113,214,141,167,178,117,224,72,231,67,234,71,227,76,182,120,146,170,118,217,101,252"/>
-<area shape="rect" href="../../dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5" title="End the most recently started profiler region." alt="" coords="248,86,371,126"/>
-<area shape="poly" title=" " alt="" coords="101,249,151,195,186,164,224,136,234,130,237,134,227,140,189,168,154,199,105,252"/>
-<area shape="rect" href="../../dc/dfc/namespaceprofiler.html#a80393e8359dfb47f6aea6abfc78ca54d" title="Start profiling." alt="" coords="248,150,371,190"/>
-<area shape="poly" title=" " alt="" coords="118,248,224,200,241,193,243,198,226,204,120,253"/>
-<area shape="rect" href="../../dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101" title="Started a named (name) profiler region." alt="" coords="248,214,371,254"/>
-<area shape="poly" title=" " alt="" coords="177,249,234,241,234,247,178,254"/>
-<area shape="rect" href="../../dc/dfc/namespaceprofiler.html#afd3dc3a9ab67bfba7e27c560e6339be0" title="Stop profiling." alt="" coords="231,279,388,304"/>
-<area shape="poly" title=" " alt="" coords="178,272,217,277,217,282,177,277"/>
-<area shape="rect" href="../../d1/d2d/namespacesimulation.html#ad5774a0a06b35c326984f6ba2ccce3e6" title="Write a checkpoint at joblimit." alt="" coords="225,329,393,369"/>
-<area shape="poly" title=" " alt="" coords="125,274,226,314,244,321,242,326,224,319,123,279"/>
-<area shape="rect" href="../../d1/d2d/namespacesimulation.html#a23e4cf95c0bd2c02c5589e7899d78b10" title="Restart a case C from a given checkpoint." alt="" coords="225,393,393,433"/>
-<area shape="poly" title=" " alt="" coords="106,274,156,324,190,353,227,378,238,384,235,389,224,383,187,357,152,328,102,278"/>
-<area shape="rect" href="../../d1/d2d/namespacesimulation.html#a111609fb01cc2ce135762498895b0515" title=" " alt="" coords="225,457,393,497"/>
-<area shape="poly" title=" " alt="" coords="101,275,119,308,147,353,183,401,227,443,234,448,231,452,224,447,179,404,142,356,114,311,96,278"/>
-<area shape="rect" href="../../d1/daf/namespacesignal.html#a6b00a55dcd3c7bd830fa925efd51e571" title="Check if any timeout has occurred (either SIGXCPU or SIGALRM)" alt="" coords="460,5,627,31"/>
-<area shape="poly" title=" " alt="" coords="384,32,446,25,447,31,385,37"/>
-<area shape="rect" href="../../d1/daf/namespacesignal.html#a2290a09befe1d36d50034e39096dcfe7" title="Check if a user signal has been raised." alt="" coords="476,55,611,80"/>
-<area shape="poly" title=" " alt="" coords="385,47,463,56,462,61,384,53"/>
-<area shape="rect" href="../../d0/dbe/namespacedevice.html#a6e8f2cb5ecf9fa00e06346d10dc8d478" title="Start device profiling." alt="" coords="459,150,628,190"/>
-<area shape="poly" title=" " alt="" coords="371,167,445,167,445,173,371,173"/>
-<area shape="rect" href="../../d0/dbe/namespacedevice.html#a61bac73fa0ec55d800487ab4c645ad86" title="Stop device profiling." alt="" coords="441,279,645,304"/>
-<area shape="poly" title=" " alt="" coords="388,289,427,289,427,294,388,294"/>
+<div class="center"><img src="../../d1/d2d/namespacesimulation_a898649586b608770d5ea349927136ba0_cgraph.png" border="0" usemap="#ad1/d2d/namespacesimulation_a898649586b608770d5ea349927136ba0_cgraph" alt=""/></div>
+<map name="ad1/d2d/namespacesimulation_a898649586b608770d5ea349927136ba0_cgraph" id="ad1/d2d/namespacesimulation_a898649586b608770d5ea349927136ba0_cgraph">
+<area shape="rect" title="Finalize a simulation of a case." alt="" coords="5,5,173,45"/>
+<area shape="rect" href="../../d1/d2d/namespacesimulation.html#ad5774a0a06b35c326984f6ba2ccce3e6" title="Write a checkpoint at joblimit." alt="" coords="221,5,389,45"/>
+<area shape="poly" title=" " alt="" coords="174,23,208,23,208,28,174,28"/>
+</map>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d1/d2d/namespacesimulation_a898649586b608770d5ea349927136ba0_icgraph.png" border="0" usemap="#ad1/d2d/namespacesimulation_a898649586b608770d5ea349927136ba0_icgraph" alt=""/></div>
+<map name="ad1/d2d/namespacesimulation_a898649586b608770d5ea349927136ba0_icgraph" id="ad1/d2d/namespacesimulation_a898649586b608770d5ea349927136ba0_icgraph">
+<area shape="rect" title="Finalize a simulation of a case." alt="" coords="188,5,356,45"/>
+<area shape="rect" href="../../dd/d62/namespaceneko.html#abf12d6da8fb2dd09f7ff843e0356ee04" title="Main driver to solve a case C." alt="" coords="5,13,140,38"/>
+<area shape="poly" title=" " alt="" coords="174,28,140,28,140,23,174,23"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="ace16571473f6d4b638c29de2d77aaf7d" name="ace16571473f6d4b638c29de2d77aaf7d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ace16571473f6d4b638c29de2d77aaf7d">&#9670;&#160;</a></span>simulation_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> simulation::simulation_init </td>
+          <td>(</td>
+          <td class="paramtype">type(<a class="el" href="../../db/d7a/structcase_1_1case__t.html">case_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>c</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d5/dab/structtime__step__controller_1_1time__step__controller__t.html">time_step_controller_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>dt_controller</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../db/d7e/simulation_8f90_source.html#l00063">63</a> of file <a class="el" href="../../db/d7e/simulation_8f90_source.html">simulation.f90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d1/d2d/namespacesimulation_ace16571473f6d4b638c29de2d77aaf7d_icgraph.png" border="0" usemap="#ad1/d2d/namespacesimulation_ace16571473f6d4b638c29de2d77aaf7d_icgraph" alt=""/></div>
+<map name="ad1/d2d/namespacesimulation_ace16571473f6d4b638c29de2d77aaf7d_icgraph" id="ad1/d2d/namespacesimulation_ace16571473f6d4b638c29de2d77aaf7d_icgraph">
+<area shape="rect" title="Initialise a simulation of a case." alt="" coords="188,5,384,31"/>
+<area shape="rect" href="../../dd/d62/namespaceneko.html#abf12d6da8fb2dd09f7ff843e0356ee04" title="Main driver to solve a case C." alt="" coords="5,5,140,31"/>
+<area shape="poly" title=" " alt="" coords="175,21,140,21,140,15,175,15"/>
 </map>
 </div>
 
@@ -212,70 +327,24 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d7e/simulation_8f90_source.html#l00298">298</a> of file <a class="el" href="../../db/d7e/simulation_8f90_source.html">simulation.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d7e/simulation_8f90_source.html#l00300">300</a> of file <a class="el" href="../../db/d7e/simulation_8f90_source.html">simulation.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d1/d2d/namespacesimulation_ad5774a0a06b35c326984f6ba2ccce3e6_icgraph.png" border="0" usemap="#ad1/d2d/namespacesimulation_ad5774a0a06b35c326984f6ba2ccce3e6_icgraph" alt=""/></div>
 <map name="ad1/d2d/namespacesimulation_ad5774a0a06b35c326984f6ba2ccce3e6_icgraph" id="ad1/d2d/namespacesimulation_ad5774a0a06b35c326984f6ba2ccce3e6_icgraph">
-<area shape="rect" title="Write a checkpoint at joblimit." alt="" coords="225,5,393,45"/>
-<area shape="rect" href="../../d1/d2d/namespacesimulation.html#a2279224e80a4202a630ebfaa2d686588" title="Main driver to solve a case C." alt="" coords="5,13,177,38"/>
-<area shape="poly" title=" " alt="" coords="211,28,177,28,177,23,211,23"/>
+<area shape="rect" title="Write a checkpoint at joblimit." alt="" coords="404,5,572,45"/>
+<area shape="rect" href="../../d1/d2d/namespacesimulation.html#a898649586b608770d5ea349927136ba0" title="Finalize a simulation of a case." alt="" coords="188,5,356,45"/>
+<area shape="poly" title=" " alt="" coords="390,28,356,28,356,23,390,23"/>
+<area shape="rect" href="../../dd/d62/namespaceneko.html#abf12d6da8fb2dd09f7ff843e0356ee04" title="Main driver to solve a case C." alt="" coords="5,13,140,38"/>
+<area shape="poly" title=" " alt="" coords="174,28,140,28,140,23,174,23"/>
 </map>
 </div>
 
 </div>
 </div>
-<a id="a23e4cf95c0bd2c02c5589e7899d78b10" name="a23e4cf95c0bd2c02c5589e7899d78b10"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a23e4cf95c0bd2c02c5589e7899d78b10">&#9670;&#160;</a></span>simulation_restart()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> simulation::simulation_restart </td>
-          <td>(</td>
-          <td class="paramtype">type(<a class="el" href="../../db/d7a/structcase_1_1case__t.html">case_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>c</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>t</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../db/d7e/simulation_8f90_source.html#l00244">244</a> of file <a class="el" href="../../db/d7e/simulation_8f90_source.html">simulation.f90</a>.</p>
-<div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="../../d1/d2d/namespacesimulation_a23e4cf95c0bd2c02c5589e7899d78b10_icgraph.png" border="0" usemap="#ad1/d2d/namespacesimulation_a23e4cf95c0bd2c02c5589e7899d78b10_icgraph" alt=""/></div>
-<map name="ad1/d2d/namespacesimulation_a23e4cf95c0bd2c02c5589e7899d78b10_icgraph" id="ad1/d2d/namespacesimulation_a23e4cf95c0bd2c02c5589e7899d78b10_icgraph">
-<area shape="rect" title="Restart a case C from a given checkpoint." alt="" coords="225,5,393,45"/>
-<area shape="rect" href="../../d1/d2d/namespacesimulation.html#a2279224e80a4202a630ebfaa2d686588" title="Main driver to solve a case C." alt="" coords="5,13,177,38"/>
-<area shape="poly" title=" " alt="" coords="211,28,177,28,177,23,211,23"/>
-</map>
-</div>
-
-</div>
-</div>
-<a id="a111609fb01cc2ce135762498895b0515" name="a111609fb01cc2ce135762498895b0515"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a111609fb01cc2ce135762498895b0515">&#9670;&#160;</a></span>simulation_settime()</h2>
+<a id="a7db8b311cbafdaca7602b3c7812394bc" name="a7db8b311cbafdaca7602b3c7812394bc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7db8b311cbafdaca7602b3c7812394bc">&#9670;&#160;</a></span>simulation_settime()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -286,38 +355,14 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> simulation::simulation_settime </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>t</em>, </td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>time</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
-          <td class="paramname"><em>dt</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t.html">time_scheme_controller_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>ext_bdf</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(10)&#160;</td>
-          <td class="paramname"><em>tlag</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(10)&#160;</td>
-          <td class="paramname"><em>dtlag</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
-          <td class="paramname"><em>step</em>&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t.html">time_scheme_controller_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td>
+          <td class="paramname"><em>ext_bdf</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -332,15 +377,77 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d7e/simulation_8f90_source.html#l00215">215</a> of file <a class="el" href="../../db/d7e/simulation_8f90_source.html">simulation.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d7e/simulation_8f90_source.html#l00207">207</a> of file <a class="el" href="../../db/d7e/simulation_8f90_source.html">simulation.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d1/d2d/namespacesimulation_a111609fb01cc2ce135762498895b0515_icgraph.png" border="0" usemap="#ad1/d2d/namespacesimulation_a111609fb01cc2ce135762498895b0515_icgraph" alt=""/></div>
-<map name="ad1/d2d/namespacesimulation_a111609fb01cc2ce135762498895b0515_icgraph" id="ad1/d2d/namespacesimulation_a111609fb01cc2ce135762498895b0515_icgraph">
-<area shape="rect" title=" " alt="" coords="225,5,393,45"/>
-<area shape="rect" href="../../d1/d2d/namespacesimulation.html#a2279224e80a4202a630ebfaa2d686588" title="Main driver to solve a case C." alt="" coords="5,13,177,38"/>
-<area shape="poly" title=" " alt="" coords="211,28,177,28,177,23,211,23"/>
+<div class="center"><img src="../../d1/d2d/namespacesimulation_a7db8b311cbafdaca7602b3c7812394bc_icgraph.png" border="0" usemap="#ad1/d2d/namespacesimulation_a7db8b311cbafdaca7602b3c7812394bc_icgraph" alt=""/></div>
+<map name="ad1/d2d/namespacesimulation_a7db8b311cbafdaca7602b3c7812394bc_icgraph" id="ad1/d2d/namespacesimulation_a7db8b311cbafdaca7602b3c7812394bc_icgraph">
+<area shape="rect" title=" " alt="" coords="439,5,607,45"/>
+<area shape="rect" href="../../d1/d2d/namespacesimulation.html#a625edcf01f19970ace9c4af485edfb19" title="Compute a single time&#45;step of a case." alt="" coords="188,13,391,38"/>
+<area shape="poly" title=" " alt="" coords="425,28,391,28,391,23,425,23"/>
+<area shape="rect" href="../../dd/d62/namespaceneko.html#abf12d6da8fb2dd09f7ff843e0356ee04" title="Main driver to solve a case C." alt="" coords="5,13,140,38"/>
+<area shape="poly" title=" " alt="" coords="174,28,140,28,140,23,174,23"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a625edcf01f19970ace9c4af485edfb19" name="a625edcf01f19970ace9c4af485edfb19"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a625edcf01f19970ace9c4af485edfb19">&#9670;&#160;</a></span>simulation_step()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> simulation::simulation_step </td>
+          <td>(</td>
+          <td class="paramtype">type(<a class="el" href="../../db/d7a/structcase_1_1case__t.html">case_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>c</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d5/dab/structtime__step__controller_1_1time__step__controller__t.html">time_step_controller_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>dt_controller</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=dp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>tstep_loop_start_time</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../db/d7e/simulation_8f90_source.html#l00121">121</a> of file <a class="el" href="../../db/d7e/simulation_8f90_source.html">simulation.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d1/d2d/namespacesimulation_a625edcf01f19970ace9c4af485edfb19_cgraph.png" border="0" usemap="#ad1/d2d/namespacesimulation_a625edcf01f19970ace9c4af485edfb19_cgraph" alt=""/></div>
+<map name="ad1/d2d/namespacesimulation_a625edcf01f19970ace9c4af485edfb19_cgraph" id="ad1/d2d/namespacesimulation_a625edcf01f19970ace9c4af485edfb19_cgraph">
+<area shape="rect" title="Compute a single time&#45;step of a case." alt="" coords="5,77,208,102"/>
+<area shape="rect" href="../../dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5" title="End the most recently started profiler region." alt="" coords="279,5,401,45"/>
+<area shape="poly" title=" " alt="" coords="153,74,265,43,266,48,155,79"/>
+<area shape="rect" href="../../dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101" title="Started a named (name) profiler region." alt="" coords="279,69,401,109"/>
+<area shape="poly" title=" " alt="" coords="208,87,265,87,265,92,208,92"/>
+<area shape="rect" href="../../d1/d2d/namespacesimulation.html#a7db8b311cbafdaca7602b3c7812394bc" title=" " alt="" coords="256,133,424,173"/>
+<area shape="poly" title=" " alt="" coords="155,100,254,127,252,132,153,105"/>
+</map>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d1/d2d/namespacesimulation_a625edcf01f19970ace9c4af485edfb19_icgraph.png" border="0" usemap="#ad1/d2d/namespacesimulation_a625edcf01f19970ace9c4af485edfb19_icgraph" alt=""/></div>
+<map name="ad1/d2d/namespacesimulation_a625edcf01f19970ace9c4af485edfb19_icgraph" id="ad1/d2d/namespacesimulation_a625edcf01f19970ace9c4af485edfb19_icgraph">
+<area shape="rect" title="Compute a single time&#45;step of a case." alt="" coords="188,5,391,31"/>
+<area shape="rect" href="../../dd/d62/namespaceneko.html#abf12d6da8fb2dd09f7ff843e0356ee04" title="Main driver to solve a case C." alt="" coords="5,5,140,31"/>
+<area shape="poly" title=" " alt="" coords="174,21,140,21,140,15,174,15"/>
 </map>
 </div>
 
@@ -352,7 +459,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d1/d2d/namespacesimulation.html">simulation</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:53 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

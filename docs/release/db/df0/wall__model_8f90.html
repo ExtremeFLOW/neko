@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -101,7 +101,8 @@ $(document).ready(function(){initNavTree('db/df0/wall__model_8f90.html','../../'
   <div class="summary">
 <a href="#nested-classes">Data Types</a> &#124;
 <a href="#namespaces">Modules</a> &#124;
-<a href="#func-members">Functions/Subroutines</a>  </div>
+<a href="#func-members">Functions/Subroutines</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">wall_model.f90 File Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -119,8 +120,20 @@ Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/db1/interfacewall__model_1_1wall__model__init.html">wall_model::wall_model_init</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Common constructor.  <a href="../../d5/db1/interfacewall__model_1_1wall__model__init.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/df2/interfacewall__model_1_1wall__model__partial__init.html">wall_model::wall_model_partial_init</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Partial constructor from JSON, meant to work as the first stage of initialization before the <code>finalize</code> call.  <a href="../../d8/df2/interfacewall__model_1_1wall__model__partial__init.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/dcb/interfacewall__model_1_1wall__model__finalize.html">wall_model::wall_model_finalize</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finilzation of partial construction, similar to <code>bc_t</code>  <a href="../../dc/dcb/interfacewall__model_1_1wall__model__finalize.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d3e/interfacewall__model_1_1wall__model__free.html">wall_model::wall_model_free</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <a href="../../dd/d3e/interfacewall__model_1_1wall__model__free.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/dee/interfacewall__model_1_1wall__model__allocate.html">wall_model::wall_model_allocate</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wall model factory. Both constructs and initializes the object.  <a href="../../d6/dee/interfacewall__model_1_1wall__model__allocate.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d57/structwall__model_1_1allocator__entry.html">wall_model::allocator_entry</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called in user modules to add an allocator for custom types.  <a href="../../da/d57/structwall__model_1_1allocator__entry.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
@@ -131,15 +144,31 @@ Modules</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a648d20d6e5f2372733f59d5e2315d4f1" id="r_a648d20d6e5f2372733f59d5e2315d4f1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/ddd/namespacewall__model.html#a648d20d6e5f2372733f59d5e2315d4f1">wall_model::wall_model_init_base</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, coef, msk, facet, nu, index)</td></tr>
-<tr class="memdesc:a648d20d6e5f2372733f59d5e2315d4f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wall model factory. Both constructs and initializes the object.  <br /></td></tr>
-<tr class="separator:a648d20d6e5f2372733f59d5e2315d4f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a55c82979b1d5c3b6c9e7c0d0da02a1e3" id="r_a55c82979b1d5c3b6c9e7c0d0da02a1e3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/ddd/namespacewall__model.html#a55c82979b1d5c3b6c9e7c0d0da02a1e3">wall_model::wall_model_init_base</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, scheme_name, coef, msk, facet, index)</td></tr>
+<tr class="memdesc:a55c82979b1d5c3b6c9e7c0d0da02a1e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for the <a class="el" href="../../d4/d70/structwall__model_1_1wall__model__t.html" title="Base abstract type for wall-stress models for wall-modelled LES.">wall_model_t</a> (base) class.  <br /></td></tr>
+<tr class="separator:a55c82979b1d5c3b6c9e7c0d0da02a1e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5889a9498af89fc7ba69f1bc288d40af" id="r_a5889a9498af89fc7ba69f1bc288d40af"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/ddd/namespacewall__model.html#a5889a9498af89fc7ba69f1bc288d40af">wall_model::wall_model_partial_init_base</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, coef, json)</td></tr>
+<tr class="memdesc:a5889a9498af89fc7ba69f1bc288d40af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Partial initialization based on JSON, prior to knowing the mask and facets.  <br /></td></tr>
+<tr class="separator:a5889a9498af89fc7ba69f1bc288d40af"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1fb79793d56ae890dd380413cc67a65b" id="r_a1fb79793d56ae890dd380413cc67a65b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/ddd/namespacewall__model.html#a1fb79793d56ae890dd380413cc67a65b">wall_model::wall_model_finalize_base</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, msk, facet)</td></tr>
+<tr class="separator:a1fb79793d56ae890dd380413cc67a65b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9c87c01ab361ff26b866c0e764a2a525" id="r_a9c87c01ab361ff26b866c0e764a2a525"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/ddd/namespacewall__model.html#a9c87c01ab361ff26b866c0e764a2a525">wall_model::wall_model_free_base</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="memdesc:a9c87c01ab361ff26b866c0e764a2a525"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor for the <a class="el" href="../../d4/d70/structwall__model_1_1wall__model__t.html" title="Base abstract type for wall-stress models for wall-modelled LES.">wall_model_t</a> (base) class.  <br /></td></tr>
 <tr class="separator:a9c87c01ab361ff26b866c0e764a2a525"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6adf0170da1ef5da42846e20015081dd" id="r_a6adf0170da1ef5da42846e20015081dd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/ddd/namespacewall__model.html#a6adf0170da1ef5da42846e20015081dd">wall_model::wall_model_find_points</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="memdesc:a6adf0170da1ef5da42846e20015081dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find sampling points based on the requested index.  <br /></td></tr>
 <tr class="separator:a6adf0170da1ef5da42846e20015081dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad6397879860434184e35416478a6fd17" id="r_ad6397879860434184e35416478a6fd17"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/ddd/namespacewall__model.html#ad6397879860434184e35416478a6fd17">wall_model::wall_model_compute_mag_field</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
+<tr class="separator:ad6397879860434184e35416478a6fd17"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a8e69f3f1a435ae96b14589e30342e9a4" id="r_a8e69f3f1a435ae96b14589e30342e9a4"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../da/d57/structwall__model_1_1allocator__entry.html">allocator_entry</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/ddd/namespacewall__model.html#a8e69f3f1a435ae96b14589e30342e9a4">wall_model::wall_model_registry</a></td></tr>
+<tr class="memdesc:a8e69f3f1a435ae96b14589e30342e9a4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registry of wall model allocators for user-defined types.  <br /></td></tr>
+<tr class="separator:a8e69f3f1a435ae96b14589e30342e9a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a41358c517c230e2a7a8692692da50d4d" id="r_a41358c517c230e2a7a8692692da50d4d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/ddd/namespacewall__model.html#a41358c517c230e2a7a8692692da50d4d">wall_model::wall_model_registry_size</a> = 0</td></tr>
+<tr class="memdesc:a41358c517c230e2a7a8692692da50d4d"><td class="mdescLeft">&#160;</td><td class="mdescRight">The size of the <code>wall_model_registry</code>  <br /></td></tr>
+<tr class="separator:a41358c517c230e2a7a8692692da50d4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -147,7 +176,7 @@ Functions/Subroutines</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_d19e42ec822a5375dfd47528cb2d7af7.html">wall_models</a></li><li class="navelem"><a class="el" href="../../db/df0/wall__model_8f90.html">wall_model.f90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

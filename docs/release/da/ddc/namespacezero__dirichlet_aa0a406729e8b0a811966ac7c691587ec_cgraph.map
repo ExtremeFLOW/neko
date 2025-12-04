@@ -1,0 +1,16 @@
+<map id="zero_dirichlet::zero_dirichlet_apply_scalar_dev" name="zero_dirichlet::zero_dirichlet_apply_scalar_dev">
+<area shape="rect" id="Node000001" title="Apply boundary condition to a scalar field, device version." alt="" coords="5,35,208,75"/>
+<area shape="rect" id="Node000002" href="$d2/d25/namespacedevice__zero__dirichlet.html#a29760e75889a48b8b3793db2ba3c18ba" title=" " alt="" coords="256,27,424,82"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,52,242,52,242,57,208,57"/>
+<area shape="rect" id="Node000003" href="$d5/d6c/zero__dirichlet_8cu.html#a55b3e2a9adf8a8d8ec8f0d1c81113fe5" title=" " alt="" coords="680,5,828,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="424,46,666,29,666,34,424,51"/>
+<area shape="rect" id="Node000005" href="$d1/d02/zero__dirichlet_8c.html#ae977516ee4d6aa16465aa5b40d4a779a" title=" " alt="" coords="472,63,632,103"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="424,63,459,68,458,73,424,68"/>
+<area shape="rect" id="Node000004" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="876,63,1040,103"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="826,43,874,56,872,61,825,48"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="920,63,918,53,924,44,937,38,958,36,982,39,995,46,992,51,980,44,958,41,939,43,927,48,923,54,925,62"/>
+<area shape="poly" id="edge6_Node000005_Node000004" title=" " alt="" coords="632,80,862,80,862,85,632,85"/>
+<area shape="rect" id="Node000006" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="688,121,820,146"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="633,100,690,115,688,120,631,105"/>
+<area shape="poly" id="edge8_Node000006_Node000004" title=" " alt="" coords="805,118,863,103,865,109,807,123"/>
+</map>

@@ -1,6 +1,6 @@
 <map id="speclib::dgll" name="speclib::dgll">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,105,55"/>
-<area shape="rect" id="Node000002" href="$dd/df0/namespacespeclib.html#a9cd5b9e4223625494d9a0acd3be8f85e" title=" " alt="" coords="153,29,265,55"/>
+<area shape="rect" id="Node000001" title="Compute the derivative matrix D and its transpose DT associated with the Nth order Lagrangian interpo..." alt="" coords="5,29,105,55"/>
+<area shape="rect" id="Node000002" href="$dd/df0/namespacespeclib.html#a9cd5b9e4223625494d9a0acd3be8f85e" title="Compute the value of the Nth order Legendre polynomial at Z. (Simpler than JACOBF) Based on the recur..." alt="" coords="153,29,265,55"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="105,39,140,39,140,45,105,45"/>
 <area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="184,31,178,21,181,11,192,5,209,3,230,6,239,15,236,19,228,11,209,8,194,10,185,15,184,20,188,28"/>
 </map>

@@ -1,8 +1,0 @@
-<map id="matrix::matrix_cmult_left" name="matrix::matrix_cmult_left">
-<area shape="rect" id="Node000001" title="Matrix&#45;scalar multiplication ." alt="" coords="452,42,640,67"/>
-<area shape="rect" id="Node000002" href="$d0/de4/namespacematrix.html#a683ac8644bebc09bcfbabe901ef36c4c" title="Scalar&#45;matrix multiplication ." alt="" coords="244,5,404,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="438,43,404,39,405,33,439,38"/>
-<area shape="rect" id="Node000003" href="$da/d95/structmatrix_1_1matrix__t.html#a609a029435af8ad8a310192ec05e5dda" title="Matrix&#45;scalar multiplication ." alt="" coords="5,42,196,67"/>
-<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="438,60,404,60,244,60,196,59,196,54,244,55,404,55,438,54"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="230,40,197,45,196,39,230,35"/>
-</map>

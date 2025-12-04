@@ -1,7 +1,7 @@
 <map id="speclib::dgljgj" name="speclib::dgljgj">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,117,31"/>
-<area shape="rect" id="Node000002" href="$dd/df0/namespacespeclib.html#acdccfcbf74d8f46f403829b97792e936" title=" " alt="" coords="165,5,285,31"/>
+<area shape="rect" id="Node000001" title="Compute the (one&#45;dimensional) derivative matrix D and its transpose DT associated with taking the der..." alt="" coords="5,5,117,31"/>
+<area shape="rect" id="Node000002" href="$dd/df0/namespacespeclib.html#acdccfcbf74d8f46f403829b97792e936" title="Compute the (one&#45;dimensional) derivative matrix D and its transpose DT associated with taking the der..." alt="" coords="165,5,285,31"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="118,15,152,15,152,21,118,21"/>
-<area shape="rect" id="Node000003" href="$dd/df0/namespacespeclib.html#a7b6b7a991f7a4deaff63144237f6b161" title=" " alt="" coords="333,5,449,31"/>
+<area shape="rect" id="Node000003" href="$dd/df0/namespacespeclib.html#a7b6b7a991f7a4deaff63144237f6b161" title="Computes the Jacobi polynomial (POLY) and its derivative (PDER) of degree N at X." alt="" coords="333,5,449,31"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="286,15,320,15,320,21,286,21"/>
 </map>

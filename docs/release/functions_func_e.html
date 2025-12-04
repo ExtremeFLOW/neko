@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -102,6 +102,9 @@ $(document).ready(function(){initNavTree('functions_func_e.html',''); initResiza
 
 <h3><a id="index_e" name="index_e"></a>- e -</h3><ul>
 <li>edge_id()&#160;:&#160;<a class="el" href="d6/d66/structhex_1_1hex__t.html#abb59639bb5537edcb99c0353c6e7bf80">hex::hex_t</a>, <a class="el" href="db/dd5/structtet_1_1tet__t.html#a9c6f7fa6e46ddacc42cd4fc4e607b819">tet::tet_t</a></li>
+<li>el_finder_find()&#160;:&#160;<a class="el" href="dc/d70/interfaceel__finder_1_1el__finder__find.html#ac79d8b2681a9cab91e250bb930ea0139">el_finder::el_finder_find</a></li>
+<li>el_finder_find_batch()&#160;:&#160;<a class="el" href="d0/d55/interfaceel__finder_1_1el__finder__find__batch.html#aced305827bedb1505cbdeed72b710981">el_finder::el_finder_find_batch</a></li>
+<li>el_finder_free()&#160;:&#160;<a class="el" href="df/d4c/interfaceel__finder_1_1el__finder__free.html#afd31f7c826d73bbed8ac26aafe835a59">el_finder::el_finder_free</a></li>
 <li>element()&#160;:&#160;<a class="el" href="d7/dd6/structelement_1_1element__t.html#aa6f2c9363028bfb6d63ef1286dd6f755">element::element_t</a>, <a class="el" href="d6/db2/structuset_1_1uset__i4__t.html#ae8e1a337b4208524086c67b3f6a36d60">uset::uset_i4_t</a>, <a class="el" href="d0/d60/structuset_1_1uset__i8__t.html#a0c1ac6fd1417f74504b81387b6d181bd">uset::uset_i8_t</a>, <a class="el" href="d3/d19/structuset_1_1uset__r8__t.html#ae38590fa769f31f03f8498990e819230">uset::uset_r8_t</a>, <a class="el" href="d8/d9e/structuset_1_1uset__t.html#aea7b4e9c4fb852c4db6a875a735cf077">uset::uset_t</a></li>
 <li>element_centroid()&#160;:&#160;<a class="el" href="d4/d46/interfaceelement_1_1element__centroid.html#a1fd6060cff7c4ef1aef904c757c18280">element::element_centroid</a></li>
 <li>element_diameter()&#160;:&#160;<a class="el" href="d7/d39/interfaceelement_1_1element__diameter.html#a744a91ca14f1f22d8bdccd69568cf081">element::element_diameter</a></li>
@@ -111,21 +114,33 @@ $(document).ready(function(){initNavTree('functions_func_e.html',''); initResiza
 <li>element_point()&#160;:&#160;<a class="el" href="d7/dd6/structelement_1_1element__t.html#a490abe821abe744dcad583021db1e0c8">element::element_t</a></li>
 <li>end()&#160;:&#160;<a class="el" href="d0/d7b/structlogger_1_1log__t.html#abff71c02307ab6c6c79ff10c8622f4ba">logger::log_t</a></li>
 <li>end_idx()&#160;:&#160;<a class="el" href="d7/d4f/structdatadist_1_1linear__dist__t.html#a0a0c335ca2aeace94cae6c3bfc248a63">datadist::linear_dist_t</a></li>
-<li>end_region()&#160;:&#160;<a class="el" href="d5/db8/structruntime__stats_1_1runtime__stats__t.html#a6abe32b0ec269377bc66ec9a817bf1ca">runtime_stats::runtime_stats_t</a></li>
+<li>end_region()&#160;:&#160;<a class="el" href="d5/db8/structruntime__stats_1_1runtime__stats__t.html#a65128afd9269478d6ddca870c47e6eb8">runtime_stats::runtime_stats_t</a></li>
 <li>end_section()&#160;:&#160;<a class="el" href="d0/d7b/structlogger_1_1log__t.html#a1f70a73399f2963f27fd02889558be20">logger::log_t</a></li>
+<li>entry_exists()&#160;:&#160;<a class="el" href="db/d1a/structregistry_1_1registry__t.html#a4a41bb19271c53de5803559924d86850">registry::registry_t</a></li>
 <li>equal()&#160;:&#160;<a class="el" href="d7/dd6/structelement_1_1element__t.html#a62147305effe460964fd63fcf73c99c7">element::element_t</a>, <a class="el" href="d6/d66/structhex_1_1hex__t.html#a5d64a86e88a287152ef9873813fedec1">hex::hex_t</a>, <a class="el" href="d2/d32/structquad_1_1quad__t.html#a2006b9f29e44dd00f93ed66cfb12a243">quad::quad_t</a>, <a class="el" href="db/dd5/structtet_1_1tet__t.html#a344ef1b498c269bf448253cf5c69e712">tet::tet_t</a>, <a class="el" href="d6/d51/structtri_1_1tri__t.html#aaeedb9211d4aa6181e9cda50161122bf">tri::tri_t</a>, <a class="el" href="d9/d51/structtuple_1_1tuple3__i4__t.html#af6beb39924233c9db3ccb32a2883c6ed">tuple::tuple3_i4_t</a>, <a class="el" href="dd/de4/structtuple_1_1tuple4__i4__t.html#a928335a46ef3a34e2f8123e50b4aacf3">tuple::tuple4_i4_t</a>, <a class="el" href="da/d95/structtuple_1_1tuple__2i4r8__t.html#a66db185dc23205abe24f6b13100b5313">tuple::tuple_2i4r8_t</a>, <a class="el" href="d5/d16/structtuple_1_1tuple__i4__t.html#a3814b19d790e0c569937cc83fbc18652">tuple::tuple_i4_t</a>, <a class="el" href="d4/deb/structtuple_1_1tuple__i4r8__t.html#a6d33e18b3a6c2693431c03d1ab5236f5">tuple::tuple_i4r8_t</a>, <a class="el" href="d7/d14/structtuple_1_1tuple__r8__t.html#a6e56c6d8119a9f49870bd45c4d49818e">tuple::tuple_r8_t</a>, <a class="el" href="d1/d3b/structtuple_1_1tuple__t.html#ada23a8e4214e33907dda2f5235441a7e">tuple::tuple_t</a></li>
 <li>error()&#160;:&#160;<a class="el" href="d0/d7b/structlogger_1_1log__t.html#abe2e034f563c8ac833b780c188ef5796">logger::log_t</a></li>
+<li>euler_res_part_coef_mult_hip()&#160;:&#160;<a class="el" href="d2/d5f/interfaceeuler__res__device_1_1euler__res__part__coef__mult__hip.html#ae426746d017a98a3ac30392119549393">euler_res_device::euler_res_part_coef_mult_hip</a></li>
+<li>euler_res_part_e_flux_hip()&#160;:&#160;<a class="el" href="dd/dbb/interfaceeuler__res__device_1_1euler__res__part__e__flux__hip.html#a424f51f1dadb5e7fd8aa2bfc7319351b">euler_res_device::euler_res_part_e_flux_hip</a></li>
+<li>euler_res_part_mx_flux_hip()&#160;:&#160;<a class="el" href="d3/dd3/interfaceeuler__res__device_1_1euler__res__part__mx__flux__hip.html#a044ea32ef270e36c4dfb3b6293ef02ea">euler_res_device::euler_res_part_mx_flux_hip</a></li>
+<li>euler_res_part_my_flux_hip()&#160;:&#160;<a class="el" href="d1/d98/interfaceeuler__res__device_1_1euler__res__part__my__flux__hip.html#ab26f90332c400c768573579f4eba398e">euler_res_device::euler_res_part_my_flux_hip</a></li>
+<li>euler_res_part_mz_flux_hip()&#160;:&#160;<a class="el" href="de/d8a/interfaceeuler__res__device_1_1euler__res__part__mz__flux__hip.html#a3b3b333af4e82c4fd43fd0cd18d3942a">euler_res_device::euler_res_part_mz_flux_hip</a></li>
+<li>euler_res_part_rk_sum_hip()&#160;:&#160;<a class="el" href="db/de9/interfaceeuler__res__device_1_1euler__res__part__rk__sum__hip.html#a38dd244ac3b761de4e95ef65a418af5c">euler_res_device::euler_res_part_rk_sum_hip</a></li>
+<li>euler_res_part_visc_hip()&#160;:&#160;<a class="el" href="df/d63/interfaceeuler__res__device_1_1euler__res__part__visc__hip.html#abd3cd1025b1197ada558f55feb8f00ed">euler_res_device::euler_res_part_visc_hip</a></li>
+<li>euler_rhs()&#160;:&#160;<a class="el" href="d4/d59/interfaceeuler__residual_1_1euler__rhs.html#abafe8311db5a7ed37130422e28b2016a">euler_residual::euler_rhs</a></li>
 <li>eval()&#160;:&#160;<a class="el" href="d5/dff/structstats_1_1stats__t.html#a1fe9214edeb2c466518061f343408a8b">stats::stats_t</a></li>
-<li>evaluate()&#160;:&#160;<a class="el" href="dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a9b60106f2288896e428b2a14ee4cad71">global_interpolation::global_interpolation_t</a>, <a class="el" href="d4/df5/structlocal__interpolation_1_1local__interpolator__t.html#a1e3ff9dc08c7889c33e9a744927158c3">local_interpolation::local_interpolator_t</a></li>
-<li>execute()&#160;:&#160;<a class="el" href="d4/d3d/structoutput__controller_1_1output__controller__t.html#aab7c7c591ffaf7f55732def90ec9a858">output_controller::output_controller_t</a></li>
-<li>expand()&#160;:&#160;<a class="el" href="dd/d96/structfield__registry_1_1field__registry__t.html#ae0c1d269d793803dc63042eea82ee582">field_registry::field_registry_t</a>, <a class="el" href="dc/d9b/structpoint__zone__registry_1_1point__zone__registry__t.html#a6e2c67bea02495426dcccd900d3b3770">point_zone_registry::point_zone_registry_t</a>, <a class="el" href="d8/d43/structscratch__registry_1_1scratch__registry__t.html#a8128a9a8ecab70eb26991936a3880f21">scratch_registry::scratch_registry_t</a></li>
+<li>evaluate()&#160;:&#160;<a class="el" href="dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a4b46d57a1fcadb26e4eeaa4e4d0b1fcc">global_interpolation::global_interpolation_t</a>, <a class="el" href="d4/df5/structlocal__interpolation_1_1local__interpolator__t.html#a1118a8ae824c2c9e528c805bc64e22e7">local_interpolation::local_interpolator_t</a></li>
+<li>evaluate_rhs_cpu()&#160;:&#160;<a class="el" href="d6/d1b/structeuler__res__cpu_1_1euler__res__cpu__t.html#a18a62f732e498f5918cab894010d3211">euler_res_cpu::euler_res_cpu_t</a></li>
+<li>evaluate_rhs_device()&#160;:&#160;<a class="el" href="d9/d65/structeuler__res__device_1_1euler__res__device__t.html#a62eb10dcebe1582fece18ebf83a39743">euler_res_device::euler_res_device_t</a></li>
+<li>evaluate_rhs_sx()&#160;:&#160;<a class="el" href="de/d70/structeuler__res__sx_1_1euler__res__sx__t.html#a2cd60e2ea4553f12e99646688cf34e02">euler_res_sx::euler_res_sx_t</a></li>
+<li>execute()&#160;:&#160;<a class="el" href="d4/d3d/structoutput__controller_1_1output__controller__t.html#a582da3297e824d0972b616004efa24f7">output_controller::output_controller_t</a></li>
+<li>expand()&#160;:&#160;<a class="el" href="dc/d9b/structpoint__zone__registry_1_1point__zone__registry__t.html#a6e2c67bea02495426dcccd900d3b3770">point_zone_registry::point_zone_registry_t</a>, <a class="el" href="db/d1a/structregistry_1_1registry__t.html#ad1d7d2cd4c20f497288d826b983b45f1">registry::registry_t</a>, <a class="el" href="d8/d43/structscratch__registry_1_1scratch__registry__t.html#a8128a9a8ecab70eb26991936a3880f21">scratch_registry::scratch_registry_t</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:54 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

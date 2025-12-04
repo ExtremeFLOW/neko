@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -113,11 +113,15 @@ Inheritance diagram for gs_comm::gs_comm_t:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d6/d59/structgs__comm_1_1gs__comm__t__inherit__graph.png" border="0" usemap="#ags__comm_1_1gs__comm__t_inherit__map" alt="Inheritance graph"/></div>
 <map name="ags__comm_1_1gs__comm__t_inherit__map" id="ags__comm_1_1gs__comm__t_inherit__map">
-<area shape="rect" title="Gather&#45;scatter communication method." alt="" coords="111,5,279,31"/>
-<area shape="rect" href="../../dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html" title="Gather&#45;scatter communication using device MPI. The arrays are indexed per PE like send_pe and @ recv_..." alt="" coords="5,79,197,119"/>
-<area shape="poly" title=" " alt="" coords="172,42,126,81,122,76,169,38"/>
-<area shape="rect" href="../../d6/d6b/structgs__mpi_1_1gs__mpi__t.html" title="Gather&#45;scatter communication using MPI." alt="" coords="221,86,357,111"/>
-<area shape="poly" title=" " alt="" coords="221,38,277,84,274,88,218,42"/>
+<area shape="rect" title="Gather&#45;scatter communication method." alt="" coords="5,109,173,134"/>
+<area shape="rect" href="../../dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html" title="Gather&#45;scatter communication using device MPI. The arrays are indexed per PE like send_pe and @ recv_..." alt="" coords="221,5,413,45"/>
+<area shape="poly" title=" " alt="" coords="125,100,220,55,252,43,254,48,222,60,127,105"/>
+<area shape="rect" href="../../db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html" title="Gather&#45;scatter communication using NCCL The arrays are indexed per PE like send_pe and @ recv_pe." alt="" coords="246,69,389,109"/>
+<area shape="poly" title=" " alt="" coords="187,105,245,97,246,102,188,110"/>
+<area shape="rect" href="../../df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html" title="Gather&#45;scatter communication using device SHMEM. The arrays are indexed per PE like send_pe and @ rec..." alt="" coords="234,133,401,173"/>
+<area shape="poly" title=" " alt="" coords="188,132,234,139,233,144,187,138"/>
+<area shape="rect" href="../../d6/d6b/structgs__mpi_1_1gs__mpi__t.html" title="Gather&#45;scatter communication using MPI." alt="" coords="249,198,385,223"/>
+<area shape="poly" title=" " alt="" coords="126,138,171,161,222,183,262,195,261,201,220,188,169,166,124,143"/>
 </map>
 <center><span class="legend">[<a target="top" href="../../graph_legend.html">legend</a>]</span></center></div>
 <div class="dynheader">
@@ -150,6 +154,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ac837cf4c6f619a7bd6eb120850d8a5a8" id="r_ac837cf4c6f619a7bd6eb120850d8a5a8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html#ac837cf4c6f619a7bd6eb120850d8a5a8">free_dofs</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="separator:ac837cf4c6f619a7bd6eb120850d8a5a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8cbd176ce03aa9f17e780266c755e489" id="r_a8cbd176ce03aa9f17e780266c755e489"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html#a8cbd176ce03aa9f17e780266c755e489">init_order</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html#a922bae84686dc75a7487fedf8544704a">send_pe</a>, <a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html#a3aa9a01e00b4124bc44d67d434c2790a">recv_pe</a>)</td></tr>
+<tr class="memdesc:a8cbd176ce03aa9f17e780266c755e489"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obtains which ranks to send and receive data from.  <br /></td></tr>
 <tr class="separator:a8cbd176ce03aa9f17e780266c755e489"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a66dd276aed0a68a9a6e7325b6350f4f7" id="r_a66dd276aed0a68a9a6e7325b6350f4f7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html#a66dd276aed0a68a9a6e7325b6350f4f7">free_order</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="separator:a66dd276aed0a68a9a6e7325b6350f4f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -157,21 +162,21 @@ Public Member Functions</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a8004e1ed7b91668a726c51f51712c246" id="r_a8004e1ed7b91668a726c51f51712c246"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d2/d45/structstack_1_1stack__i4__t.html">stack_i4_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html#a8004e1ed7b91668a726c51f51712c246">send_dof</a></td></tr>
-<tr class="memdesc:a8004e1ed7b91668a726c51f51712c246"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send dof to shared-gs.  <br /></td></tr>
+<tr class="memdesc:a8004e1ed7b91668a726c51f51712c246"><td class="mdescLeft">&#160;</td><td class="mdescRight">A list of stacks of dof indices local to this process to send to rank_i.  <br /></td></tr>
 <tr class="separator:a8004e1ed7b91668a726c51f51712c246"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a454cf259ff31b824bd4508df2f8bcd5a" id="r_a454cf259ff31b824bd4508df2f8bcd5a"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d2/d45/structstack_1_1stack__i4__t.html">stack_i4_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html#a454cf259ff31b824bd4508df2f8bcd5a">recv_dof</a></td></tr>
-<tr class="memdesc:a454cf259ff31b824bd4508df2f8bcd5a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Recv dof to shared-gs.  <br /></td></tr>
+<tr class="memdesc:a454cf259ff31b824bd4508df2f8bcd5a"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html#a454cf259ff31b824bd4508df2f8bcd5a" title="recv_dof(rank_i) is a stack of dof indices local to this process to receive from rank_i....">recv_dof(rank_i)</a> is a stack of dof indices local to this process to receive from rank_i. size(recv_dof) == pe_size  <br /></td></tr>
 <tr class="separator:a454cf259ff31b824bd4508df2f8bcd5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a922bae84686dc75a7487fedf8544704a" id="r_a922bae84686dc75a7487fedf8544704a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html#a922bae84686dc75a7487fedf8544704a">send_pe</a></td></tr>
-<tr class="memdesc:a922bae84686dc75a7487fedf8544704a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send order.  <br /></td></tr>
+<tr class="memdesc:a922bae84686dc75a7487fedf8544704a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Array of ranks that this process should send to.  <br /></td></tr>
 <tr class="separator:a922bae84686dc75a7487fedf8544704a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3aa9a01e00b4124bc44d67d434c2790a" id="r_a3aa9a01e00b4124bc44d67d434c2790a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html#a3aa9a01e00b4124bc44d67d434c2790a">recv_pe</a></td></tr>
-<tr class="memdesc:a3aa9a01e00b4124bc44d67d434c2790a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Recv order.  <br /></td></tr>
+<tr class="memdesc:a3aa9a01e00b4124bc44d67d434c2790a"><td class="mdescLeft">&#160;</td><td class="mdescRight">array of ranks that this process will receive messages from  <br /></td></tr>
 <tr class="separator:a3aa9a01e00b4124bc44d67d434c2790a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00045">45</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00046">46</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
 <a id="ad0291f575af07bd1109ba8d48c053c8d" name="ad0291f575af07bd1109ba8d48c053c8d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad0291f575af07bd1109ba8d48c053c8d">&#9670;&#160;</a></span>free()</h2>
@@ -193,7 +198,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00052">52</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00060">60</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -213,7 +218,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00057">57</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00065">65</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -233,7 +238,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00059">59</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00067">67</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -257,7 +262,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00051">51</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00059">59</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -277,7 +282,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00056">56</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00064">64</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -312,8 +317,15 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">send_pe,only</td><td>contains rank ids this porcesss should send to </td></tr>
+    <tr><td class="paramname">recv_pe,only</td><td>the ranks this process should receive from </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00058">58</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00066">66</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -337,7 +349,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00054">54</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00062">62</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -361,7 +373,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00053">53</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00061">61</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -385,7 +397,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00055">55</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00063">63</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -402,7 +414,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00047">47</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00051">51</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -418,7 +430,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00049">49</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00057">57</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -434,7 +446,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00046">46</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00048">48</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -449,8 +461,9 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="section note"><dt>Note</dt><dd>: this will usually be fewer than the total number of ranks size(send_pe) &lt;= pe_size </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00048">48</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00055">55</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -463,7 +476,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d6/d7c/namespacegs__comm.html">gs_comm</a></li><li class="navelem"><a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html">gs_comm_t</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

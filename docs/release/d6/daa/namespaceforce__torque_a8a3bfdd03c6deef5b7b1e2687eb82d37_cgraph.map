@@ -1,0 +1,15 @@
+<map id="force_torque::force_torque_init_common" name="force_torque::force_torque_init_common">
+<area shape="rect" id="Node000001" title="Common part of constructors." alt="" coords="5,101,168,141"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#a439630d12cb3027eb78f58e0519b8bc6" title="Add a scalar to vector ." alt="" coords="251,5,345,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="114,98,160,69,215,40,236,31,238,36,217,44,163,73,117,103"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#a79605e1f64791cdd50be86db3e5bec75" title="Sum a vector of length n." alt="" coords="246,79,350,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="168,107,232,98,232,103,168,112"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#a93ebdef19d8a165651d852f29d2bf5b7" title="Gather a masked vector to reduced contigous vector ." alt="" coords="216,129,380,169"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="168,129,203,133,202,139,168,134"/>
+<area shape="rect" id="Node000005" href="$d0/d6f/namespacedrag__torque.html#a0c3183c7695dac7a0f04a13c5ca244f6" title="Computes the normals for a given set of boundary points accessed by the mask." alt="" coords="226,193,370,233"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="130,138,217,178,233,185,231,190,215,183,128,143"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="266,80,260,70,263,60,276,54,298,52,324,56,335,64,332,68,322,60,298,57,278,59,267,64,265,70,271,77"/>
+<area shape="rect" id="Node000006" href="$d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d" title=" " alt="" coords="428,200,555,225"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="370,210,414,210,414,215,370,215"/>
+<area shape="poly" id="edge7_Node000006_Node000006" title=" " alt="" coords="460,201,453,192,456,182,470,176,491,173,518,177,529,186,525,190,516,182,491,179,471,181,460,185,458,191,464,198"/>
+</map>

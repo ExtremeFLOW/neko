@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -102,159 +102,162 @@ $(document).ready(function(){initNavTree('d6/def/user-file.html','../../'); init
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#autotoc_md85">Compiling and running</a></li>
-<li class="level1"><a href="#autotoc_md86">High-level structure</a></li>
-<li class="level1"><a href="#autotoc_md87">Default user functions</a><ul><li class="level2"><a href="#user-file_init-and-final">Initializing and finalizing</a></li>
+<ul><li class="level1"><a href="#autotoc_md157">Compiling and running</a></li>
+<li class="level1"><a href="#autotoc_md158">High-level structure</a></li>
+<li class="level1"><a href="#autotoc_md159">Default user functions</a><ul><li class="level2"><a href="#user-file_init-and-final">Initializing and finalizing</a></li>
 <li class="level2"><a href="#user-file_user-check">Computing at every time step</a></li>
 <li class="level2"><a href="#user-file_mat-prop">Setting material properties</a></li>
 <li class="level2"><a href="#user-file_user-mesh-setup">Runtime mesh deformation</a></li>
-<li class="level2"><a href="#user-file_scalar-bc">Scalar boundary conditions</a></li>
-<li class="level2"><a href="#user-file_simcomps">User defined simulation components</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md88">Case-specific user functions</a><ul><li class="level2"><a href="#user-file_user-ic">Fluid and Scalar initial conditions</a></li>
-<li class="level2"><a href="#user-file_fluid-user-if">Fluid inflow condition</a></li>
+<li class="level1"><a href="#autotoc_md160">Case-specific user functions</a><ul><li class="level2"><a href="#user-file_user-ic">Fluid and Scalar initial conditions</a></li>
 <li class="level2"><a href="#user-file_user-f">Fluid and scalar source terms</a></li>
-<li class="level2"><a href="#user-file_field-dirichlet-update">Complex fluid and/or scalar boundary conditions</a></li>
+<li class="level2"><a href="#user-file_field-dirichlet-update">Dirichlet boundary conditions</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md89">Additional remarks and tips</a><ul><li class="level2"><a href="#user-file_tips_running-on-gpus">Running on GPUs</a></li>
+<li class="level1"><a href="#autotoc_md161">Additional remarks and tips</a><ul><li class="level2"><a href="#user-file_tips_running-on-gpus">Running on GPUs</a><ul><li class="level3"><a href="#user-file_tips_running-on-gpus-custom-kernels">Custom GPU kernels</a></li>
+</ul>
+</li>
 <li class="level2"><a href="#user-file_tips_registries">Registries</a></li>
+<li class="level2"><a href="#user-file_access">User access to solver internals</a></li>
 </ul>
 </li>
 </ul>
 </div>
 <div class="textblock"><p>The user file is a fortran file where the user can implement their own functions to extend the capabilities of the default Neko executable. The user file can be used for setting advanced initial/boundary conditions, source terms, I/O operations, and interactions with the Neko framework.</p>
-<h1><a class="anchor" id="autotoc_md85"></a>
+<p>This section will provide a written explanation of the user file, its structure, and how to compile and run it. For a more hands-on approach, see the <a class="el" href="../../d5/db5/programming-examples.html">examples</a> section, which contains several user file examples that demonstrate various aspects of programming with Neko.</p>
+<h1><a class="anchor" id="autotoc_md157"></a>
 Compiling and running</h1>
 <p>The user file is a regular Fortran <code>.f90</code> file that needs to be compiled with <code>makeneko</code>, located in the <code>bin</code> folder of your neko installation. To compile a user file <code>user.f90</code>, run:</p>
 <div class="fragment"><div class="line">makeneko user.f90</div>
 </div><!-- fragment --><p>If everything goes well, you should observe the following output:</p>
-<div class="fragment"><div class="line">N E K O build tool, Version 0.7.99</div>
-<div class="line">(build: 2024-02-13 on x86_64-pc-linux-gnu using gnu)</div>
-<div class="line"> </div>
-<div class="line">Building user NEKO ... done!</div>
+<div class="fragment"><div class="line">N E K O build tool, Version 1.99.1</div>
+<div class="line">(build: 2025-08-01 on x86_64-pc-linux-gnu using gnu)</div>
+<div class="line">Building user NEKO ...</div>
+<div class="line">Detected the module named &#39;user&#39; in user.f90</div>
+<div class="line">No custom modules detected.</div>
+<div class="line">No custom modules register types.</div>
+<div class="line">Done!</div>
 </div><!-- fragment --><p>Compiling your user file with <code>makeneko</code> will create a <code>neko</code> executable, which you will need to execute with your case file as an argument. For example, if your case file is called <code>user.case</code>:</p>
 <div class="fragment"><div class="line">./neko user.case</div>
 </div><!-- fragment --><p>Or in parallel using MPI:</p>
 <div class="fragment"><div class="line">mpirun -n 8 ./neko user.case</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md86"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md158"></a>
 High-level structure</h1>
 <p>The current high-level structure of the user file is shown below.</p>
-<div class="fragment"><div class="line"><span class="keyword">module</span> user</div>
+<div class="fragment"><div class="line"><span class="keyword">module</span> <a class="code hl_namespace" href="../../dc/d44/namespaceuser.html">user</a></div>
 <div class="line">  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/d62/namespaceneko.html">neko</a></div>
 <div class="line">  <span class="keywordtype">implicit none</span></div>
 <div class="line"> </div>
 <div class="line"><span class="keyword">contains</span></div>
 <div class="line"> </div>
 <div class="line">  <span class="comment">! Register user defined functions here (see user_intf.f90)</span></div>
-<div class="line">  <span class="keyword">subroutine </span>user_setup(u)</div>
-<div class="line">    <span class="keywordtype">type</span>(user_t), <span class="keywordtype">intent(inout)</span> :: u</div>
+<div class="line">  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d44/namespaceuser.html#a34728c151f0dbb7521a84b18b09cbd9d">user_setup</a>(user)</div>
+<div class="line">    <span class="keywordtype">type</span>(user_t), <span class="keywordtype">intent(inout)</span> :: user</div>
 <div class="line"> </div>
 <div class="line"> </div>
-<div class="line">  <span class="keyword">end subroutine </span>user_setup</div>
+<div class="line">  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d44/namespaceuser.html#a34728c151f0dbb7521a84b18b09cbd9d">user_setup</a></div>
 <div class="line"> </div>
 <div class="line"><span class="keyword">end module </span>user</div>
 <div class="ttc" id="anamespaceneko_html"><div class="ttname"><a href="../../dd/d62/namespaceneko.html">neko</a></div><div class="ttdoc">Master module.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/d1f/neko_8f90_source.html#l00034">neko.f90:34</a></div></div>
-</div><!-- fragment --><p>The user file implements the <code>user</code> module. The <code>user</code> modules contains a subroutine named <code>user_setup</code>, which we use to interface the internal procedures defined in <code><a class="el" href="../../d7/d30/user__intf_8f90.html">src/common/user_intf.f90</a></code> with the subroutines that you will implement in your user file. Each user subroutine should be implemented under the <code>contains</code> statement, below <code>user_setup</code>.</p>
+<div class="ttc" id="anamespaceuser_html"><div class="ttname"><a href="../../dc/d44/namespaceuser.html">user</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/d6f/fields__vectors__math_8f90_source.html#l00018">fields_vectors_math.f90:18</a></div></div>
+<div class="ttc" id="anamespaceuser_html_a34728c151f0dbb7521a84b18b09cbd9d"><div class="ttname"><a href="../../dc/d44/namespaceuser.html#a34728c151f0dbb7521a84b18b09cbd9d">user::user_setup</a></div><div class="ttdeci">subroutine user_setup(user)</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d6f/fields__vectors__math_8f90_source.html#l00034">fields_vectors_math.f90:35</a></div></div>
+</div><!-- fragment --><p>The user file implements the <code>user</code> module. This modules contains a subroutine named <code>user_setup</code>, which we use to interface the internal procedures defined in <code><a class="el" href="../../d7/d30/user__intf_8f90.html">src/common/user_intf.f90</a></code> with the subroutines that you will implement in your user file. Each user subroutine should be implemented under the <code>contains</code> statement, below <code>user_setup</code>.</p>
 <dl class="section note"><dt>Note</dt><dd>The above code snippet is the most basic code structure for the user file. Compiling it and running it would be equivalent to running the "vanilla" neko executable <code>bin/neko</code> in your local neko installation folder.</dd></dl>
-<h1><a class="anchor" id="autotoc_md87"></a>
+<h1><a class="anchor" id="autotoc_md159"></a>
 Default user functions</h1>
 <p>The following user functions, if defined in the user file, will always be executed, regardless of what is set in the case file:</p>
 <ul>
-<li><a class="el" href="../../d6/def/user-file.html#user-file_init-and-final">user_init_modules</a>: For initializing user variables and objects</li>
-<li><a class="el" href="../../d6/def/user-file.html#user-file_init-and-final">user_finalize_modules</a>: For finalizing, e.g freeing variables and terminating processes</li>
-<li><a class="el" href="../../d6/def/user-file.html#user-file_user-check">user_check</a>: Executed at the end of every time step, for e.g. computing and/or outputting user defined quantities.</li>
+<li><a class="el" href="../../d6/def/user-file.html#user-file_init-and-final">startup</a>: For early access to the case file, its manipulation or initializing simple user parameter variables.</li>
+<li><a class="el" href="../../d6/def/user-file.html#user-file_init-and-final">initialize</a>: For initializing most user variables and objects.</li>
+<li><a class="el" href="../../d6/def/user-file.html#user-file_init-and-final">finilaze</a>: For finalizing, e.g freeing variables and terminating processes</li>
+<li><a class="el" href="../../d6/def/user-file.html#user-file_user-check">compute</a>: Executed at the end of every time step, for e.g. computing and/or outputting user defined quantities.</li>
+<li><a class="el" href="../../d6/def/user-file.html#user-file_user-check">preprocess</a>: Similar to <code>compute</code> but executed at the beginning of the time step.</li>
 <li><a class="el" href="../../d6/def/user-file.html#user-file_mat-prop">material_properties</a>: For computing and setting material properties such as <code>rho</code>, <code>mu</code>, <code>cp</code> and <code>lambda</code>.</li>
-<li><a class="el" href="../../d6/def/user-file.html#user-file_user-mesh-setup">user_mesh_setup</a>: For applying a deformation to the mesh element nodes, before the simulation time loop.</li>
-<li><a class="el" href="../../d6/def/user-file.html#user-file_scalar-bc">scalar_user_bc</a>: For applying boundary conditions to the scalar, on all zones that are not already specified with uniform dirichlet values e.g. <code>d=1</code>. For more information on the scalar, see the <a class="el" href="../../dd/d33/case-file.html#case-file_scalar">relevant section of the case file</a>.</li>
+<li><a class="el" href="../../d6/def/user-file.html#user-file_user-mesh-setup">mesh_setup</a>: For applying a deformation to the mesh element nodes, before the simulation time loop.</li>
 </ul>
 <h2><a class="anchor" id="user-file_init-and-final"></a>
 Initializing and finalizing</h2>
-<p>The two subroutines <code>user_init_modules</code> and <code>user_finalize_modules</code> may be used to initialize/finalize any user defined variables, external objects, or processes. They are respectively executed right before/after the simulation time loop.</p>
-<div class="fragment"><div class="line"><span class="comment">! Initialize user variables or external objects</span></div>
-<div class="line"><span class="keyword">subroutine </span>initialize(t, u, v, w, p, coef, params)</div>
-<div class="line"><span class="keywordtype">  real</span>(kind=rp) :: t</div>
-<div class="line">  <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: u</div>
-<div class="line">  <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: v</div>
-<div class="line">  <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: w</div>
-<div class="line">  <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: p</div>
-<div class="line">  <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(inout)</span> :: coef</div>
+<p>Three subroutines <code>startup</code>, <code>initialize</code> and <code>finalize</code> may be used to initialize/finalize any user defined variables, external objects, or processes. The <code>startup</code> routine is called immediately after the case file is read in, meaning that no important objects are initialized yet (e.g. the mesh, fluid, etc.). The <code>initialize</code> and <code>finalize</code> are respectively executed right before/after the simulation time loop.</p>
+<p>In most cases, one can use <code>initialize</code> routine and not the <code>startup</code>. The latter is only necessary when you want to either manipulate the case file programmatically before it is used in the simulation, or define some variables that will be used in the constructors of some of the types. An example of the latter is defining some material property constants that can be used in the user <code>material_properties</code> routine, which is run by the constructor of the <code>casefluid</code> object.</p>
+<div class="fragment"><div class="line"><span class="comment">! Manipulate the case file and define simple user variables</span></div>
+<div class="line"><span class="keyword">subroutine </span>startup(params)</div>
 <div class="line">  <span class="keywordtype">type</span>(json_file), <span class="keywordtype">intent(inout)</span> :: params</div>
+<div class="line"> </div>
+<div class="line">  <span class="comment">! insert your initialization code here</span></div>
+<div class="line"> </div>
+<div class="line"><span class="keyword">end subroutine </span>startup</div>
+<div class="line"> </div>
+<div class="line"><span class="comment">! Initialize user variables or external objects</span></div>
+<div class="line"><span class="keyword">subroutine </span>initialize(time)</div>
+<div class="line">  <span class="keywordtype">type</span>(time_state_t), <span class="keywordtype">intent(in)</span> :: time</div>
 <div class="line"> </div>
 <div class="line">  <span class="comment">! insert your initialization code here</span></div>
 <div class="line"> </div>
 <div class="line"><span class="keyword">end subroutine </span>initialize</div>
 <div class="line"> </div>
 <div class="line"><span class="comment">! Finalize user variables or external objects</span></div>
-<div class="line"><span class="keyword">subroutine </span>finalize(t, params)</div>
-<div class="line"><span class="keywordtype">  real</span>(kind=rp) :: t</div>
-<div class="line">  <span class="keywordtype">type</span>(json_file), <span class="keywordtype">intent(inout)</span> :: params</div>
+<div class="line"><span class="keyword">subroutine </span>finalize(time)</div>
+<div class="line">  <span class="keywordtype">type</span>(time_state_t), <span class="keywordtype">intent(in)</span> :: time</div>
 <div class="line"> </div>
 <div class="line">  <span class="comment">! insert your code here</span></div>
 <div class="line"> </div>
-<div class="line"><span class="keyword">end subroutine </span>initialize</div>
-</div><!-- fragment --><p>In the example above, the subroutines <code>initialize</code> and <code>finalize</code> contain the actual implementations. They must also be interfaced to the internal procedures <code>user_init_modules</code> and <code>user_finalize_modules</code> in <code>user_setup</code>:</p>
+<div class="line"><span class="keyword">end subroutine </span>finalize</div>
+</div><!-- fragment --><p>In the example above, the subroutines <code>startup</code>, <code>initialize</code> and <code>finalize</code> contain the actual implementations. They must also be associated to the internal procedures inside, inside <code>user_setup</code>:</p>
 <div class="fragment"><div class="line"><span class="comment">! Register user defined functions (see user_intf.f90)</span></div>
-<div class="line"><span class="keyword">subroutine </span>user_setup(u)</div>
-<div class="line">  <span class="keywordtype">type</span>(user_t), <span class="keywordtype">intent(inout)</span> :: u</div>
+<div class="line"><span class="keyword">subroutine </span>user_setup(user)</div>
+<div class="line">  <span class="keywordtype">type</span>(user_t), <span class="keywordtype">intent(inout)</span> :: user</div>
 <div class="line"> </div>
-<div class="line">  u%user_init_modules =&gt; initialize</div>
-<div class="line">  u%user_finalize_modules =&gt; finalize</div>
+<div class="line">  <a class="code hl_namespace" href="../../dc/d44/namespaceuser.html">user</a>%startup =&gt; startup</div>
+<div class="line">  <a class="code hl_namespace" href="../../dc/d44/namespaceuser.html">user</a>%initialize =&gt; initialize</div>
+<div class="line">  <a class="code hl_namespace" href="../../dc/d44/namespaceuser.html">user</a>%finalize =&gt; finalize</div>
 <div class="line"> </div>
 <div class="line"><span class="keyword">end subroutine </span>user_setup</div>
-</div><!-- fragment --><dl class="section note"><dt>Note</dt><dd><code>user_init_modules</code> and <code>user_finalize_modules</code> are independent of each other. Using one does not require the use of the other.</dd></dl>
+</div><!-- fragment --><dl class="section note"><dt>Note</dt><dd>All three routines are independent of each other. Using one does not require the use of the other. Moreover, the names of the routines implemented in the user file can be chosen freely, as long as they implement the correct interface.</dd></dl>
 <h2><a class="anchor" id="user-file_user-check"></a>
 Computing at every time step</h2>
-<p>The subroutine <code>user_check</code> is executed at the end of every time step. It can be used for computing and/or outputting your own variables/quantities at every time step. </p><div class="fragment"><div class="line"><span class="comment">! This is called at the end of every time step</span></div>
-<div class="line"><span class="keyword">subroutine </span>usercheck(t, tstep, u, v, w, p, coef, param)</div>
-<div class="line"><span class="keywordtype">  real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: t</div>
-<div class="line">  <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: tstep</div>
-<div class="line">  <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(inout)</span> :: coef</div>
-<div class="line">  <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: u</div>
-<div class="line">  <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: v</div>
-<div class="line">  <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: w</div>
-<div class="line">  <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: p</div>
-<div class="line">  <span class="keywordtype">type</span>(json_file), <span class="keywordtype">intent(inout)</span> :: param</div>
+<p>The subroutine <code>compute</code> is executed at the end of every time step. It can be used for computing and/or outputting your own variables/quantities at every time step. </p><div class="fragment"><div class="line"><span class="comment">! This is called at the end of every time step</span></div>
+<div class="line"><span class="keyword">subroutine </span>user_check(time)</div>
+<div class="line">  <span class="keywordtype">type</span>(time_state_t), <span class="keywordtype">intent(in)</span> :: time</div>
 <div class="line"> </div>
 <div class="line">  <span class="comment">! insert code below</span></div>
 <div class="line"> </div>
-<div class="line"><span class="keyword">end subroutine </span>usercheck</div>
-</div><!-- fragment --><p>In the example above, the subroutine <code>usercheck</code> contains the actual implementation, and needs to be registered by adding:</p>
-<div class="fragment"><div class="line">u%user_check =&gt; usercheck</div>
-</div><!-- fragment --><p>to our <code>user_setup</code>.</p>
+<div class="line"><span class="keyword">end subroutine </span>user_check</div>
+</div><!-- fragment --><p>In the example above, the subroutine <code>user_check</code> contains the actual implementation, as a homage to the Nek5000 routine, which served a similar purpose. As usual, the routine needs to be registered by adding:</p>
+<div class="fragment"><div class="line"><a class="code hl_namespace" href="../../dc/d44/namespaceuser.html">user</a>%compute =&gt; user_check</div>
+</div><!-- fragment --><p>to our <code>user_setup</code>. The <code>preprocess</code> routine can be implemented similarly.</p>
 <h2><a class="anchor" id="user-file_mat-prop"></a>
 Setting material properties</h2>
-<p><code>material_properties</code> allows for more complex computations and setting of various material properties, such as <code>rho</code>, <code>mu</code> for the fluid and <code>cp</code>, <code>lambda</code> for the scalar. The example below is taken from the <a href="https://github.com/ExtremeFLOW/neko/blob/564686b127ff75a362a06126c6b23e9b4e21879e/examples/rayleigh-benard-cylinder/rayleigh.f90#L22C1-L38C41">rayleigh-benard-cylinder example</a>.</p>
-<div class="fragment"><div class="line"><span class="keyword">subroutine </span>set_material_properties(t, tstep, rho, mu, cp, lambda, params)</div>
-<div class="line"><span class="keywordtype">  real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: t</div>
-<div class="line">  <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: tstep</div>
-<div class="line"><span class="keywordtype">  real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: rho, mu, cp, lambda</div>
-<div class="line">  <span class="keywordtype">type</span>(json_file), <span class="keywordtype">intent(inout)</span> :: params</div>
-<div class="line"><span class="keywordtype">  real</span>(kind=rp) :: re</div>
+<p>The <code>material_properties</code> routine allows for more complex computations and setting of various material properties, such as <code>rho</code>, <code>mu</code> for the fluid and <code>cp</code>, <code>lambda</code> for the scalar. The example below is taken from the <a href="https://github.com/ExtremeFLOW/neko/blob/564686b127ff75a362a06126c6b23e9b4e21879e/examples/rayleigh_benard_cylinder/rayleigh.f90#L22C1-L38C41">rayleigh_benard_cylinder example</a>.</p>
+<div class="fragment"><div class="line"><span class="keyword">subroutine </span>material_properties(scheme_name, properties, time)</div>
+<div class="line">  <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: scheme_name</div>
+<div class="line">  <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(inout)</span> :: properties</div>
+<div class="line">  <span class="keywordtype">type</span>(time_state_t), <span class="keywordtype">intent(in)</span> :: time</div>
 <div class="line"> </div>
-<div class="line">  <span class="keyword">call </span>json_get(params, <span class="stringliteral">&quot;case.fluid.Ra&quot;</span>, ra)</div>
-<div class="line">  <span class="keyword">call </span>json_get(params, <span class="stringliteral">&quot;case.scalar.Pr&quot;</span>, pr)</div>
-<div class="line"> </div>
-<div class="line">  re = sqrt(ra / pr)</div>
-<div class="line">  mu = 1.0_rp / re</div>
-<div class="line">  lambda = mu / pr</div>
-<div class="line">  rho = 1.0_rp</div>
-<div class="line">  cp = 1.0_rp</div>
-<div class="line"><span class="keyword">end subroutine </span>set_material_properties</div>
+<div class="line">  <span class="keywordflow">if</span> (scheme_name .eq. <span class="stringliteral">&quot;fluid&quot;</span>) <span class="keywordflow">then</span></div>
+<div class="line">     <span class="keyword">call </span>field_cfill(properties%get(<span class="stringliteral">&quot;fluid_rho&quot;</span>), 1.0_rp)</div>
+<div class="line">     <span class="keyword">call </span>field_cfill(properties%get(<span class="stringliteral">&quot;fluid_mu&quot;</span>), mu)</div>
+<div class="line">  <span class="keywordflow">else</span> <span class="keywordflow">if</span> (scheme_name .eq. <span class="stringliteral">&quot;temperature&quot;</span>) <span class="keywordflow">then</span></div>
+<div class="line">     <span class="keyword">call </span>field_cfill(properties%get(<span class="stringliteral">&quot;temperature_cp&quot;</span>), 1.0_rp)</div>
+<div class="line">     <span class="keyword">call </span>field_cfill(properties%get(<span class="stringliteral">&quot;temperature_lambda&quot;</span>), mu / pr)</div>
+<div class="line"><span class="keywordflow">  end if</span></div>
+<div class="line"><span class="keyword">end subroutine </span>material_properties</div>
 </div><!-- fragment --><p>And of course not forgetting to register our function in <code>user_setup</code> by adding the following line:</p>
-<div class="fragment"><div class="line">u%material_properties =&gt; set_material_properties</div>
-</div><!-- fragment --><h2><a class="anchor" id="user-file_user-mesh-setup"></a>
+<div class="fragment"><div class="line">u%material_properties =&gt; material_properties</div>
+</div><!-- fragment --><p>Note the usage of the <code>scheme_name</code> argument. This is used in several user routines, to provide the information about what solver (scheme) called the routine. In this example, we make use of it to distinguish the fluid and scalar solvers. The default scheme names are <code>fluid</code> and <code>scalar</code>, but can be controlled by the <code>name</code> entry in the JSON configuration of the solver. Here, the name for the scalar was set to <code>temperature</code>.</p>
+<h2><a class="anchor" id="user-file_user-mesh-setup"></a>
 Runtime mesh deformation</h2>
 <p>This user function allows for the modification of the mesh at runtime, by acting on the element nodes of the mesh specified in the case file. This function is only called once before the simulation time loop. The example below is taken from the <a href="https://github.com/ExtremeFLOW/neko/blob/a0613606360240e5059e65d6d98f4a57cf73e237/examples/tgv/tgv.f90#L27-L42">tgv example</a>.</p>
 <div class="fragment"><div class="line"><span class="comment">! Rescale mesh</span></div>
-<div class="line"><span class="keyword">subroutine </span>user_mesh_scale(msh)</div>
+<div class="line"><span class="keyword">subroutine </span>user_mesh_scale(msh, time)</div>
 <div class="line">  <span class="keywordtype">type</span>(mesh_t), <span class="keywordtype">intent(inout)</span> :: msh</div>
+<div class="line">  <span class="keywordtype">type</span>(time_state_t), <span class="keywordtype">intent(in)</span> :: time</div>
+<div class="line"> </div>
 <div class="line">  <span class="keywordtype">integer</span> :: i, p, nvert</div>
 <div class="line"><span class="keywordtype">  real</span>(kind=rp) :: d</div>
 <div class="line">  d = 4._rp</div>
 <div class="line"> </div>
-<div class="line">  <span class="comment">! original mesh has size 0..8 to be mapped onto -pi..pi</span></div>
+<div class="line">  <span class="comment">! The original mesh has size 0..8 to be mapped onto -pi..pi</span></div>
 <div class="line">  <span class="comment">! will be updated later to a method giving back the vertices of the mesh</span></div>
 <div class="line">  nvert = <span class="keyword">size</span>(msh%points)</div>
 <div class="line">  <span class="keywordflow">do</span> i = 1, nvert</div>
@@ -265,75 +268,21 @@ Runtime mesh deformation</h2>
 <div class="line"> </div>
 <div class="line"><span class="keyword">end subroutine </span>user_mesh_scale</div>
 </div><!-- fragment --><p>The registering of the above function in <code>user_setup</code> should then be done as follows:</p>
-<div class="fragment"><div class="line">u%user_mesh_setup =&gt; user_mesh_scale</div>
-</div><!-- fragment --><h2><a class="anchor" id="user-file_scalar-bc"></a>
-Scalar boundary conditions</h2>
-<p>This user function can be used to specify the scalar boundary values, on all zones that are not already set to uniform Dirichlet or Neumann values e.g. <code>d=1</code> or <code>n=0</code>. For more information on the scalar, see the <a class="el" href="../../dd/d33/case-file.html#case-file_scalar">relevant section of the case file</a>. The example below sets the scalar boundary condition values to be a linear function of the <code>z</code> coordinate (taken from the <a href="https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/rayleigh-benard-cylinder/rayleigh.f90#L41-L63">rayleigh-benard example</a>).</p>
-<div class="fragment"><div class="line"><span class="keyword">subroutine </span>set_scalar_boundary_conditions(s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)</div>
-<div class="line"><span class="keywordtype">  real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: s</div>
-<div class="line"><span class="keywordtype">  real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: x</div>
-<div class="line"><span class="keywordtype">  real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: y</div>
-<div class="line"><span class="keywordtype">  real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: z</div>
-<div class="line"><span class="keywordtype">  real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: nx</div>
-<div class="line"><span class="keywordtype">  real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: ny</div>
-<div class="line"><span class="keywordtype">  real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: nz</div>
-<div class="line">  <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: ix</div>
-<div class="line">  <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: iy</div>
-<div class="line">  <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: iz</div>
-<div class="line">  <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: ie</div>
-<div class="line"><span class="keywordtype">  real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: t</div>
-<div class="line">  <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: tstep</div>
-<div class="line"> </div>
-<div class="line">  <span class="comment">! This will be used on all zones without labels</span></div>
-<div class="line">  s = 1.0_rp - z</div>
-<div class="line"> </div>
-<div class="line"><span class="keyword">end subroutine </span>set_scalar_boundary_conditions</div>
-</div><!-- fragment --><p>This function will be called on all the points on the relevant boundaries. The registering of the above function in <code>user_setup</code> should be done as follows:</p>
-<div class="fragment"><div class="line">u%scalar_user_bc =&gt; set_scalar_boundary_conditions</div>
-</div><!-- fragment --><h2><a class="anchor" id="user-file_simcomps"></a>
-User defined simulation components</h2>
-<p>In addition to the case-specific user functions, the user can also define their own simulation components. This can be done by writing a new type which extends the simulation_component_t type, and implementing the necessary functions for the new type. The user can then specify the component in the list of simulation components in the case file. The setting <code>is_user</code> should be set to <code>true</code> in the JSON object for the new simulation component. The typename is used to extract the settings for the simulation component from the JSON file.</p>
-<div class="fragment"><div class="line">{</div>
-<div class="line">    &quot;type&quot;: &quot;my_comp&quot;,</div>
-<div class="line">    &quot;is_user&quot;: true,</div>
-<div class="line">    // other settings</div>
-<div class="line">}</div>
-</div><!-- fragment --> <div class="fragment"><div class="line"><span class="keyword">subroutine </span>user_simcomp(params)</div>
-<div class="line">  <span class="keywordtype">type</span>(json_file), <span class="keywordtype">intent(inout)</span> :: params</div>
-<div class="line">  <span class="keywordtype">type</span>(user_simcomp_t), <span class="keywordtype">allocatable</span> :: my_simcomp</div>
-<div class="line">  <span class="keywordtype">type</span>(json_file) :: simcomp_settings</div>
-<div class="line"> </div>
-<div class="line">  <span class="comment">! Allocate a simulation component</span></div>
-<div class="line">  <span class="keyword">allocate</span>(my_simcomp)</div>
-<div class="line">  simcomp_settings = simulation_component_user_settings(<span class="stringliteral">&quot;my_comp&quot;</span>, params)</div>
-<div class="line">  <span class="keyword">call </span>neko_simcomps%add_user_simcomp(my_simcomp, simcomp_settings)</div>
-<div class="line"> </div>
-<div class="line"><span class="keyword">end subroutine </span>user_simcomp</div>
-</div><!-- fragment --><p>In the example above, the subroutine <code>user_simcomp</code> contains the actual implementation, and needs to be registered by adding:</p>
-<div class="fragment"><div class="line">u%init_user_simcomp =&gt; user_simcomp</div>
-</div><!-- fragment --><p>A full example of a user-defined simulation component can be found in the examples.</p>
-<h1><a class="anchor" id="autotoc_md88"></a>
+<div class="fragment"><div class="line">u%mesh_setup =&gt; user_mesh_scale</div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md160"></a>
 Case-specific user functions</h1>
 <p>As explained in the <a class="el" href="../../d1/d79/case-file_8md.html">case file</a> page, certain components of the simulation can be set to be user defined. These components and their associated user functions are:</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">User function   </th><th class="markdownTableHeadNone">JSON Object in the case file    </th></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">Fluid initial condition   </td><td class="markdownTableBodyNone"><a class="el" href="../../d6/def/user-file.html#user-file_user-ic">fluid_user_ic</a>   </td><td class="markdownTableBodyNone"><code>case.fluid.initial_condition</code>    </td></tr>
+<td class="markdownTableBodyNone">Initial conditions   </td><td class="markdownTableBodyNone"><a class="el" href="../../d6/def/user-file.html#user-file_user-ic">initial_conditions</a>   </td><td class="markdownTableBodyNone"><code>case.fluid.initial_condition</code> or <code>case.scalar.initial_condition</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">Scalar initial condition   </td><td class="markdownTableBodyNone"><a class="el" href="../../d6/def/user-file.html#user-file_user-ic">scalar_user_ic</a>   </td><td class="markdownTableBodyNone"><code>case.scalar.initial_condition</code>    </td></tr>
+<td class="markdownTableBodyNone">Source terms   </td><td class="markdownTableBodyNone"><a class="el" href="../../d6/def/user-file.html#user-file_user-f">source_term</a>   </td><td class="markdownTableBodyNone"><code>case.fluid.source_terms</code> or <code>case.scalar.source_terms</code>    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">Fluid inflow boundary condition   </td><td class="markdownTableBodyNone"><a class="el" href="../../d6/def/user-file.html#user-file_fluid-user-if">fluid_user_if</a>   </td><td class="markdownTableBodyNone"><code>case.fluid.inflow_condition</code>    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">Scalar boundary conditions   </td><td class="markdownTableBodyNone"><a class="el" href="../../d6/def/user-file.html#user-file_scalar-bc">scalar_user_bc</a>   </td><td class="markdownTableBodyNone">(user function is always called)    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">Fluid source term   </td><td class="markdownTableBodyNone"><a class="el" href="../../d6/def/user-file.html#user-file_user-f">fluid_user_f_vector or fluid_user_f</a>   </td><td class="markdownTableBodyNone"><code>case.fluid.source_terms</code>    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">Scalar source term   </td><td class="markdownTableBodyNone"><a class="el" href="../../d6/def/user-file.html#user-file_user-f">scalar_user_f_vector or scalar_user_f</a>   </td><td class="markdownTableBodyNone"><code>case.scalar.source_terms</code>    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">Fluid and Scalar boundary conditions   </td><td class="markdownTableBodyNone"><a class="el" href="../../d6/def/user-file.html#user-file_field-dirichlet-update">field_dirichlet_update</a>   </td><td class="markdownTableBodyNone"><code>case.fluid.boundary_types</code> and/or <code>case.scalar.boundary_types</code>   </td></tr>
+<td class="markdownTableBodyNone">Dirichlet boundary conditions   </td><td class="markdownTableBodyNone"><a class="el" href="../../d6/def/user-file.html#user-file_field-dirichlet-update">dirichlet_conditions</a>   </td><td class="markdownTableBodyNone"><code>case.fluid.boundary_types</code> or <code>case.scalar.boundary_types</code>   </td></tr>
 </table>
-<p>Note that <code>scalar_user_bc</code> is included for completeness but is technically not case-specific.</p>
+<dl class="section note"><dt>Note</dt><dd>For the sake of simplicity, we refer to the setup with one scalar, i.e. <code>case.scalar</code> in the JSON. For multiple scalars, the same things apply, but the configuration is inside each individual element of <code>case.scalars</code>. In the case of multiple scalars, users should use <code>"checkpoint_format": "hdf5"</code> when enabling checkpointing.</dd></dl>
 <h2><a class="anchor" id="user-file_user-ic"></a>
 Fluid and Scalar initial conditions</h2>
 <p>Enabling user defined initial conditions for the fluid and/or scalar is done by setting the <code>initial_condition.type</code> to <code>"user"</code> in the relevant sections of the case file, <code>case.fluid</code> and/or <code>case.scalar</code>.</p>
@@ -345,116 +294,38 @@ Fluid and Scalar initial conditions</h2>
 <div class="line">    }</div>
 <div class="line">}</div>
 </div><!-- fragment --><p>See the relevant sections on the <a class="el" href="../../dd/d33/case-file.html#case-file_fluid-ic">fluid</a> and <a class="el" href="../../dd/d33/case-file.html#case-file_scalar">scalar</a> initial conditions in the <a class="el" href="../../dd/d33/case-file.html">case file page</a> for more details.</p>
-<p>The associated user functions for the fluid and/or scalar initial conditions can then be added to the user file. An example for the fluid taken from the <a href="https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/advecting_cone/advecting_cone.f90#L48-L75">advecting cone example</a>, is shown below.</p>
-<div class="fragment"><div class="line"> </div>
-<div class="line"><span class="keyword">subroutine </span>set_velocity(u, v, w, p, params)</div>
-<div class="line">  <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: u</div>
-<div class="line">  <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: v</div>
-<div class="line">  <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: w</div>
-<div class="line">  <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: p</div>
-<div class="line">  <span class="keywordtype">type</span>(json_file), <span class="keywordtype">intent(inout)</span> :: params</div>
+<p>The associated user function for initial conditions must then be added to the user file. An example for the fluid taken from the <a href="https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/scalar_mms/scalar_mms.f90#L55-L79">advecting cone example</a>, is shown below.</p>
+<div class="fragment"><div class="line"><span class="keyword">subroutine </span>initial_conditions(scheme_name, fields)</div>
+<div class="line">  <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: scheme_name</div>
+<div class="line">  <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(inout)</span> :: fields</div>
 <div class="line">  <span class="keywordtype">integer</span> :: i, e, k, j</div>
 <div class="line"><span class="keywordtype">  real</span>(kind=rp) :: x, y</div>
+<div class="line">  <span class="keywordtype">type</span> (field_t), <span class="keywordtype">pointer</span> :: u, v, w, s</div>
+<div class="line">  <span class="keywordtype">type</span>(dofmap_t), <span class="keywordtype">pointer</span> :: dof</div>
 <div class="line"> </div>
-<div class="line">  <span class="keywordflow">do</span> i = 1, u%dof%size()</div>
-<div class="line">     x = u%dof%x(i,1,1,1)</div>
-<div class="line">     y = u%dof%y(i,1,1,1)</div>
+<div class="line">  <span class="keywordflow">if</span> (scheme_name .eq. <span class="stringliteral">&#39;fluid&#39;</span>) <span class="keywordflow">then</span></div>
+<div class="line">     u =&gt; fields%get(<span class="stringliteral">&quot;u&quot;</span>)</div>
+<div class="line">     v =&gt; fields%get(<span class="stringliteral">&quot;v&quot;</span>)</div>
+<div class="line">     w =&gt; fields%get(<span class="stringliteral">&quot;w&quot;</span>)</div>
 <div class="line"> </div>
-<div class="line">     <span class="comment">! Angular velocity is pi, giving a full rotation in 2 sec</span></div>
-<div class="line">     u%x(i,1,1,1) = -y*pi</div>
-<div class="line">     v%x(i,1,1,1) = x*pi</div>
-<div class="line">     w%x(i,1,1,1) = 0</div>
-<div class="line"><span class="keywordflow">  end do</span></div>
-<div class="line"> </div>
-<div class="line">   <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line">     <span class="keyword">call </span>device_memcpy(u%x, u%x_d, u%dof%size(), &amp;</div>
-<div class="line">                        host_to_device, sync=.false.)</div>
-<div class="line">     <span class="keyword">call </span>device_memcpy(v%x, v%x_d, v%dof%size(), &amp;</div>
-<div class="line">                        host_to_device, sync=.false.)</div>
-<div class="line">     <span class="keyword">call </span>device_memcpy(w%x, w%x_d, w%dof%size(), &amp;</div>
-<div class="line">                        host_to_device, sync=.false.)</div>
+<div class="line">     <span class="keyword">call </span>field_rone(u)</div>
+<div class="line">     <span class="keyword">call </span>field_rzero(v)</div>
+<div class="line">     <span class="keyword">call </span>field_rzero(w)</div>
+<div class="line">  <span class="keywordflow">else</span> <span class="comment">!scalar</span></div>
+<div class="line">     s =&gt; fields%get(scheme_name)</div>
+<div class="line">     <span class="keywordflow">if</span> (scheme_name .eq. <span class="stringliteral">&#39;s1&#39;</span>) <span class="keywordflow">then</span></div>
+<div class="line">        <span class="keywordflow">do</span> i = 1, s%dof%size()</div>
+<div class="line">           x = s%dof%x(i,1,1,1)</div>
+<div class="line">           y = s%dof%y(i,1,1,1)</div>
+<div class="line">           s%x(i,1,1,1) = sin(x)</div>
+<div class="line"><span class="keywordflow">        end do</span></div>
+<div class="line"><span class="keywordflow">     end if</span></div>
 <div class="line"><span class="keywordflow">  end if</span></div>
-<div class="line"> </div>
-<div class="line"><span class="keyword">end subroutine </span>set_velocity</div>
-</div><!-- fragment --><dl class="section note"><dt>Note</dt><dd>Notice the use of the <code>NEKO_BCKND_DEVICE</code> flag, which will be set to 1 if running on GPUs, and the calls to <code>device_memcpy</code> to transfer data between the host and the device. See <a class="el" href="../../d6/def/user-file.html#user-file_tips_running-on-gpus">Running on GPUs</a> for more information on how this works.</dd></dl>
-<p>The same can be done for the scalar, with the example below also inspired from the <a href="https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/advecting_cone/advecting_cone.f90#L14-L45">advecting cone example</a>:</p>
-<div class="fragment"><div class="line"> </div>
-<div class="line"><span class="keyword">subroutine </span>set_s_ic(s, params)</div>
-<div class="line">  <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: s</div>
-<div class="line">  <span class="keywordtype">type</span>(json_file), <span class="keywordtype">intent(inout)</span> :: params</div>
-<div class="line">  <span class="keywordtype">integer</span> :: i, e, k, j</div>
-<div class="line"><span class="keywordtype">  real</span>(kind=rp) :: cone_radius, mux, muy, x, y, r, theta</div>
-<div class="line"> </div>
-<div class="line">  <span class="comment">! Center of the cone</span></div>
-<div class="line">  mux = 1</div>
-<div class="line">  muy = 0</div>
-<div class="line"> </div>
-<div class="line">  cone_radius = 0.5</div>
-<div class="line"> </div>
-<div class="line">  <span class="keywordflow">do</span> i = 1, s%dof%size()</div>
-<div class="line">     x = s%dof%x(i,1,1,1) - mux</div>
-<div class="line">     y = s%dof%y(i,1,1,1) - muy</div>
-<div class="line"> </div>
-<div class="line">     r = sqrt(x**2 + y**2)</div>
-<div class="line">     theta = atan2(y, x)</div>
-<div class="line"> </div>
-<div class="line">     <span class="comment">! Check if the point is inside the cone&#39;s base</span></div>
-<div class="line">     <span class="keywordflow">if</span> (r &gt; cone_radius) <span class="keywordflow">then</span></div>
-<div class="line">       s%x(i,1,1,1) = 0.0</div>
-<div class="line">     <span class="keywordflow">else</span></div>
-<div class="line">       s%x(i,1,1,1) = 1.0 - r / cone_radius</div>
-<div class="line"><span class="keywordflow">     endif</span></div>
-<div class="line"><span class="keywordflow">  end do</span></div>
-<div class="line"> </div>
-<div class="line">  <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line">     <span class="keyword">call </span>device_memcpy(s%x, s%x_d, s%dof%size(), &amp;</div>
-<div class="line">                        host_to_device, sync=.false.)</div>
-<div class="line"><span class="keywordflow">  end if</span></div>
-<div class="line"> </div>
-<div class="line"><span class="keyword">end subroutine </span>set_s_ic</div>
-</div><!-- fragment --><dl class="section note"><dt>Note</dt><dd>Notice the use of the <code>NEKO_BCKND_DEVICE</code> flag, which will be set to 1 if running on GPUs, and the calls to <code>device_memcpy</code> to transfer data between the host and the device. See <a class="el" href="../../d6/def/user-file.html#user-file_tips_running-on-gpus">Running on GPUs</a> for more information on how this works.</dd></dl>
-<p>We should also add of the following lines in <code>user_setup</code>, registering our user functions <code>set_velocity</code> and <code>set_s_ic</code> to be used as the fluid and scalar initial conditions:</p>
-<div class="fragment"><div class="line">u%fluid_user_ic =&gt; set_velocity</div>
-<div class="line">u%scalar_user_ic =&gt; set_s_ic</div>
-</div><!-- fragment --><h2><a class="anchor" id="user-file_fluid-user-if"></a>
-Fluid inflow condition</h2>
-<p>Enabling user defined inflow condition for the fluid is done by setting the <code>case.fluid.inflow_condition.type</code> to <code>"user"</code>:</p>
-<div class="fragment"><div class="line">&quot;case&quot;: {</div>
-<div class="line">    &quot;fluid&quot;: {</div>
-<div class="line">        &quot;inflow_condition&quot;: {</div>
-<div class="line">            &quot;type&quot;: &quot;user&quot;</div>
-<div class="line">        }</div>
-<div class="line">    }</div>
-<div class="line">}</div>
-</div><!-- fragment --><p>See the <a class="el" href="../../dd/d33/case-file.html#case-file_fluid-if">the relevant section</a> in the <a class="el" href="../../dd/d33/case-file.html">case file page</a> for more details. The associated user function for the fluid inflow condition can then be added to the user file. An example inspired from the <a href="https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/lid/lid.f90#L29-L53">lid-driven cavity example</a> is shown below.</p>
-<div class="fragment"><div class="line"><span class="comment">! user-defined boundary condition</span></div>
-<div class="line"> <span class="keyword">subroutine </span>user_bc(u, v, w, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)</div>
-<div class="line"><span class="keywordtype">   real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: u</div>
-<div class="line"><span class="keywordtype">   real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: v</div>
-<div class="line"><span class="keywordtype">   real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: w</div>
-<div class="line"><span class="keywordtype">   real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: x</div>
-<div class="line"><span class="keywordtype">   real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: y</div>
-<div class="line"><span class="keywordtype">   real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: z</div>
-<div class="line"><span class="keywordtype">   real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: nx</div>
-<div class="line"><span class="keywordtype">   real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: ny</div>
-<div class="line"><span class="keywordtype">   real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: nz</div>
-<div class="line">   <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: ix</div>
-<div class="line">   <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: iy</div>
-<div class="line">   <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: iz</div>
-<div class="line">   <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: ie</div>
-<div class="line"><span class="keywordtype">   real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: t</div>
-<div class="line">   <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: tstep</div>
-<div class="line"> </div>
-<div class="line"><span class="keywordtype">   real</span>(kind=rp) lsmoothing</div>
-<div class="line">   lsmoothing = 0.05_rp    <span class="comment">! length scale of smoothing at the edges</span></div>
-<div class="line"> </div>
-<div class="line">   u = step( x/lsmoothing ) * step( (1._rp-x)/lsmoothing )</div>
-<div class="line">   v = 0._rp</div>
-<div class="line">   w = 0._rp</div>
-<div class="line"> </div>
-<div class="line"> <span class="keyword">end subroutine </span>user_bc</div>
-</div><!-- fragment --><p>We should also add of the following line in <code>user_setup</code>, registering our user function <code>user_bc</code> to be used as the fluid inflow conditions:</p>
-<div class="fragment"><div class="line">u%fluid_user_if =&gt; user_bc</div>
+<div class="line"><span class="keyword">end subroutine </span>initial_conditions</div>
+</div><!-- fragment --><p>Not again the usage of <code>scheme_name</code> to distinguish between the fluid and the scalar. Depending on the scheme, the contents of the field list <code>fields</code> changes, and we extract individual fields via field pointers accordingly. The incompressible fluid solver always generates solution fields, <code>u</code>, <code>v</code> and <code>w</code>. For the scalar, the name of the field coincides with <code>scheme_name</code>. For single scalar cases, this defaults to <code>s</code>. For multiple scalar cases, the field name is set to the scalar name specified in the JSON configuration (e.g., "s1", "s2", etc.).</p>
+<dl class="section note"><dt>Note</dt><dd>Notice that the code for the scalar runs on the CPU. There is no need to add the transfer to GPU memory in this user routine, it will be done under the hood afterwards.</dd></dl>
+<p>We should also add of the following lines in <code>user_setup</code>, as usual.</p>
+<div class="fragment"><div class="line"><a class="code hl_namespace" href="../../dc/d44/namespaceuser.html">user</a>%initial_condtions =&gt; initial_conditions.</div>
 </div><!-- fragment --><h2><a class="anchor" id="user-file_user-f"></a>
 Fluid and scalar source terms</h2>
 <p>Enabling user defined source terms for the fluid and/or scalar is done by adding JSON Objects to the <code>case.fluid.source_terms</code> and/or <code>case.scalar.source_terms</code> lists.</p>
@@ -463,216 +334,200 @@ Fluid and scalar source terms</h2>
 <div class="line">        &quot;source_terms&quot;:</div>
 <div class="line">        [</div>
 <div class="line">            {</div>
-<div class="line">                &quot;type&quot;: &quot;user_vector&quot;</div>
+<div class="line">                &quot;type&quot;: &quot;user&quot;</div>
 <div class="line">            }</div>
 <div class="line">        ]</div>
 <div class="line">    }</div>
 <div class="line">}</div>
-</div><!-- fragment --><p>See the relevant sections on the <a class="el" href="../../dd/d33/case-file.html#case-file_fluid-source-term">fluid</a> and <a class="el" href="../../dd/d33/case-file.html#case-file_scalar">scalar</a> source terms in the <a class="el" href="../../dd/d33/case-file.html">case file page</a> for more details.</p>
-<dl class="section attention"><dt>Attention</dt><dd>There are two variants of the source term user functions: <code>_user_f</code> and <code>_user_f_vector</code>. The former is called when setting <code>"user_pointwise"</code> as the source term type, while the latter requires the use of the <code>"user_vector"</code> keyword in the case file. The pointwise variant, <code>fluid_user_f</code> is not supported on GPUs. In general, <code>fluid_user_f_vector</code> is the prefered variant, and is the one which will be use in our examples below. The same applies for the scalar source term user functions.</dd></dl>
-<p>The associated user functions for the fluid and/or scalar source terms can then be added to the user file. An example for the fluid, taken from the <a href="https://github.com/ExtremeFLOW/neko/blob/49925b7a04a638259db3b1ddd54349ca57f5d207/examples/rayleigh-benard-cylinder/rayleigh.f90#L101C1-L121C44">rayleigh-benard-cylinder example</a>, is shown below.</p>
-<div class="fragment"><div class="line"><span class="comment">! Sets the z-component of the fluid forcing term = scalar</span></div>
-<div class="line"><span class="keyword">subroutine </span>set_bousinesq_forcing_term(f, t)</div>
-<div class="line">  <span class="keywordtype">class</span>(fluid_user_source_term_t), <span class="keywordtype">intent(inout)</span> :: f</div>
-<div class="line"><span class="keywordtype">  real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: t</div>
+</div><!-- fragment --><p>See the relevant sections on the <a class="el" href="../../dd/d33/case-file.html#case-file_fluid-source-term">fluid</a> and <a class="el" href="../../dd/d33/case-file.html#case-file_scalar">scalar</a> source terms in the [case file page](<a class="el" href="../../dd/d33/case-file.html">Case File</a>) for more details.</p>
+<p>The associated user functions for the fluid and/or scalar source terms can then be added to the user file. An example for the fluid, taken from the <code>scalar_mms</code> example, is shown below.</p>
+<div class="fragment"><div class="line"><span class="keyword">subroutine </span><a class="code hl_namespace" href="../../de/de7/namespacesource__term.html">source_term</a>(scheme_name, rhs, time)</div>
+<div class="line">  <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: scheme_name</div>
+<div class="line">  <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(inout)</span> :: rhs</div>
+<div class="line">  <span class="keywordtype">type</span>(time_state_t), <span class="keywordtype">intent(in)</span> :: time</div>
 <div class="line"> </div>
-<div class="line">  <span class="comment">! Retrieve u,v,w,s fields from the field registry</span></div>
-<div class="line">  <span class="keywordtype">type</span>(field_t), <span class="keywordtype">pointer</span> :: u, v, w, s</div>
-<div class="line">  u =&gt; neko_field_registry%get_field(<span class="stringliteral">&#39;u&#39;</span>)</div>
-<div class="line">  v =&gt; neko_field_registry%get_field(<span class="stringliteral">&#39;v&#39;</span>)</div>
-<div class="line">  w =&gt; neko_field_registry%get_field(<span class="stringliteral">&#39;w&#39;</span>)</div>
-<div class="line">  s =&gt; neko_field_registry%get_field(<span class="stringliteral">&#39;s&#39;</span>)</div>
-<div class="line"> </div>
-<div class="line">  <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line">     <span class="keyword">call </span>device_rzero(f%u_d,f%dm%size())</div>
-<div class="line">     <span class="keyword">call </span>device_rzero(f%v_d,f%dm%size())</div>
-<div class="line">     <span class="keyword">call </span>device_copy(f%w_d,s%x_d,f%dm%size())</div>
-<div class="line">  <span class="keywordflow">else</span></div>
-<div class="line">     <span class="keyword">call </span>rzero(f%u,f%dm%size())</div>
-<div class="line">     <span class="keyword">call </span>rzero(f%v,f%dm%size())</div>
-<div class="line">     <span class="keyword">call </span>copy(f%w,s%x,f%dm%size())</div>
-<div class="line"><span class="keywordflow">  end if</span></div>
-<div class="line"><span class="keyword">end subroutine </span>set_bousinesq_forcing_term</div>
-</div><!-- fragment --><dl class="section note"><dt>Note</dt><dd>Notice the use of the <code>neko_field_registry</code> to retrieve the velocity and scalar fields. See <a class="el" href="../../d6/def/user-file.html#user-file_tips_registries">Registries</a> for more information about registries in neko. </dd>
-<dd>
-Notice the use of the <code>NEKO_BCKND_DEVICE</code> flag, which will be set to 1 if running on GPUs, and the use of <code>device_</code> functions. See <a class="el" href="../../d6/def/user-file.html#user-file_tips_running-on-gpus">Running on GPUs</a> for more information on how this works.</dd></dl>
-<p>The same can be done for the scalar, with the example below also taken from the <a href="https://github.com/ExtremeFLOW/neko/blob/49925b7a04a638259db3b1ddd54349ca57f5d207/examples/scalar_mms/scalar_mms.f90#L28-L47">scalar_mms example</a>:</p>
-<div class="fragment"><div class="line"> </div>
-<div class="line"><span class="keyword">subroutine </span>set_source(f, t)</div>
-<div class="line">  <span class="keywordtype">class</span>(scalar_user_source_term_t), <span class="keywordtype">intent(inout)</span> :: f</div>
-<div class="line"><span class="keywordtype">  real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: t</div>
-<div class="line"><span class="keywordtype">  real</span>(kind=rp) :: x, y</div>
+<div class="line"><span class="keywordtype">  real</span>(kind=rp) :: x</div>
+<div class="line">  <span class="keywordtype">type</span>(field_t), <span class="keywordtype">pointer</span> :: f</div>
 <div class="line">  <span class="keywordtype">integer</span> :: i</div>
 <div class="line"> </div>
-<div class="line">  <span class="keywordflow">do</span> i = 1, f%dm%size()</div>
-<div class="line">     x = f%dm%x(i,1,1,1)</div>
-<div class="line">     y = f%dm%y(i,1,1,1)</div>
+<div class="line">  <span class="keywordflow">if</span> (scheme_name .eq. <span class="stringliteral">&#39;fluid&#39;</span>) <span class="keywordflow">return</span></div>
+<div class="line"> </div>
+<div class="line">  f =&gt; rhs%items(1)%ptr</div>
+<div class="line">  <span class="keywordflow">do</span> i = 1, f%size()</div>
+<div class="line">     x = f%dof%x(i,1,1,1)</div>
 <div class="line"> </div>
 <div class="line">     <span class="comment">! 0.01 is the viscosity</span></div>
-<div class="line">     f%s(i,1,1,1) = cos(x) - 0.01 * sin(x) - 1.0_rp</div>
+<div class="line">     f%x(i,1,1,1) = cos(x) - 0.01 * sin(x) - 1.0_rp</div>
 <div class="line"><span class="keywordflow">  end do</span></div>
 <div class="line"> </div>
 <div class="line">  <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line">     <span class="keyword">call </span>device_memcpy(f%s, f%s_d, f%dm%size(), &amp;</div>
-<div class="line">                        host_to_device, sync=.false.)</div>
+<div class="line">     <span class="keyword">call </span>device_memcpy(f%x, f%x_d, f%size(), &amp;</div>
+<div class="line">          host_to_device, sync=.false.)</div>
 <div class="line"><span class="keywordflow">  end if</span></div>
 <div class="line"> </div>
-<div class="line"><span class="keyword">end subroutine </span>set_source</div>
-</div><!-- fragment --><dl class="section note"><dt>Note</dt><dd>Notice the use of the <code>NEKO_BCKND_DEVICE</code> flag, which will be set to 1 if running on GPUs, and the call to <code>device_memcpy</code> to transfer data between the host and the device. See <a class="el" href="../../d6/def/user-file.html#user-file_tips_running-on-gpus">Running on GPUs</a> for more information on how this works.</dd></dl>
-<p>We should also add of the following lines in <code>user_setup</code>, registering our user functions <code>set_boussinesq_forcing_term</code> and <code>set_source</code> to be used as the fluid and scalar source terms:</p>
-<div class="fragment"><div class="line">u%fluid_user_f_vector =&gt; set_boussinesq_forcing_term</div>
-<div class="line">u%scalar_user_f_vector =&gt; set_source</div>
+<div class="line"><span class="keyword">end subroutine </span>source_term</div>
+<div class="ttc" id="anamespacesource__term_html"><div class="ttname"><a href="../../de/de7/namespacesource__term.html">source_term</a></div><div class="ttdoc">Implements the source_term_t type and a wrapper source_term_wrapper_t.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d69/source__term_8f90_source.html#l00034">source_term.f90:34</a></div></div>
+</div><!-- fragment --><dl class="section note"><dt>Note</dt><dd>Notice the use of the <code>NEKO_BCKND_DEVICE</code> flag, which will be set to 1 if running on GPUs, and the use of <code>device_</code> functions. See [Running on GPUs](<a class="el" href="../../d6/def/user-file.html#user-file_tips_running-on-gpus">Running on GPUs</a>) for more information on how this works.</dd></dl>
+<p>As usual, we point the user routine to our implementation in <code>user_setup</code>.</p>
+<div class="fragment"><div class="line"><a class="code hl_namespace" href="../../dc/d44/namespaceuser.html">user</a>%source_term =&gt; <a class="code hl_namespace" href="../../de/de7/namespacesource__term.html">source_term</a></div>
 </div><!-- fragment --><h2><a class="anchor" id="user-file_field-dirichlet-update"></a>
-Complex fluid and/or scalar boundary conditions</h2>
-<p>This user function can be used to specify dirichlet boundary values for velocity components <code>u,v,w</code>, the pressure <code>p</code>, and/or the scalar <code>s</code>. This type of boundary condition allows for time-dependent velocity profiles (currently not possible with a standard <code>user_inflow</code>) or non-uniform pressure profiles to e.g. impose an outlet pressure computed from another simulation.</p>
-<p>The selection of such boundary condition is done in the <code>case.fluid.boundary_types</code> array for the velocities and pressure, and in the <code>case.scalar.boundary_types</code> array for the scalar. The <a class="el" href="../../dd/d33/case-file.html#case-file_boundary-types">case file</a> outlines which keywords can be used for such purpose:</p><ul>
-<li><code>d_vel_u</code> for the <code>u</code> component of the velocity field</li>
-<li><code>d_vel_v</code> for the <code>v</code> component of the velocity field</li>
-<li><code>d_vel_w</code> for the <code>w</code> component of the velocity field</li>
-<li><code>d_pres</code> for the pressure field</li>
-<li><code>d_s</code> for the scalar field (cannot be combined with the above)</li>
-</ul>
-<p>The separator <code>"/"</code> can be used to combine the keywords related to <code>u,v,w</code> and <code>p</code>. For example, if one wants to only apply <code>u,v</code> and <code>p</code> values on a given boundary, one should use <code>"d_vel_u/d_vel_v/d_pres"</code>. In this case, the <code>w</code> component would be left untouched (not zeroed!). An example of case file from the <a href="https://github.com/ExtremeFLOW/neko/blob/develop/examples/cyl_boundary_layer/cyl_bl_user_bc_test.case">cyl-boundary-layer example</a> is shown below.</p>
-<div class="fragment"><div class="line">&quot;case&quot;: {</div>
-<div class="line">    &quot;fluid&quot;: {</div>
-<div class="line">        &quot;boundary_types&quot;: [</div>
-<div class="line">          &quot;d_vel_u/d_vel_v/d_vel_w&quot;, </div>
-<div class="line">          &quot;d_vel_u/d_vel_v/d_vel_w/d_pres&quot;,</div>
-<div class="line">          &quot;sym&quot;,</div>
-<div class="line">          &quot;w&quot;,</div>
-<div class="line">          &quot;on&quot;, </div>
-<div class="line">          &quot;on&quot;, </div>
-<div class="line">          &quot;w&quot;</div>
-<div class="line">        ]</div>
-<div class="line">    }</div>
-<div class="line">    &quot;scalar&quot;: {</div>
-<div class="line">        &quot;boundary_types&quot;: [</div>
-<div class="line">          &quot;d_s&quot;,</div>
-<div class="line">          &quot;d_s&quot;,</div>
-<div class="line">          &quot;&quot;,</div>
-<div class="line">          &quot;&quot;,</div>
-<div class="line">          &quot;&quot;,</div>
-<div class="line">          &quot;&quot;</div>
-<div class="line">        ]</div>
-<div class="line">    }</div>
-<div class="line">}</div>
-</div><!-- fragment --><p>In this example, we indicate in <code>case.fluid.boundary_types</code> that we would like to apply a velocity profile on all three components <code>u,v,w</code> on the boundary number 1 (in this case, the inlet boundary). On boundary number 2 (the outlet boundary), we also indicate the three velocity components, with the addition of the pressure. In <code>case.scalar.boundary_types</code>, we indicate the same for the scalar on boundaries 1 and 2 (inlet and outlet).</p>
-<dl class="section attention"><dt>Attention</dt><dd>Do not confuse the <code>d_s</code> and <code>d=x</code> boundary conditions for the scalar. The latter is to be used to specify a constant Dirichlet value <code>x</code> along the relevant boundary.</dd></dl>
-<p>Once the appropriate boundaries have been identified and labeled, the user function <code>field_dirichlet_update</code> should be used to compute and apply the desired values to our velocity/pressure/scalar field(s). The prefix "field" in <code>field_dirichlet_update</code> refers to the fact that a list of entire fields is passed down for the user to edit.</p>
-<p>The fields that are passed down are tied to the <code>boundary_types</code> keywords passed in the case file. The function <code>field_dirichlet_update</code> is then called internally, one time in the <code>fluid</code> solver and one time in the <code>scalar</code> solver (if enabled).</p>
-<p>Finally, depending on which boundary labels were input, the fields given to the user are copied onto the solution field boundaries.</p>
+Dirichlet boundary conditions</h2>
+<p>This user function can be used to specify Dirichlet boundary values for velocity components <code>u,v,w</code>, the pressure <code>p</code>, and/or the scalar(s). This type of boundary condition allows for time-dependent velocity profiles or non-uniform pressure profiles to e.g. impose an outlet pressure computed from another simulation.</p>
+<p>The user routine is called by the <code>user_velocity</code> and <code>user_pressure</code> boundary conditions for the fluid, and the <code>user</code> boundary condtition for the scalar. Once the appropriate boundaries have been identified, the user function <code>dirichlet_conditions</code> should be used to compute and apply the desired values to our velocity/pressure/scalar field(s).</p>
+<p>The structure of the interface is very similar to e.g. the initial conditions. One gets a list of solution fields, the contents of which depends on what scheme owns the boundary condition. For <code>user_velocity</code>, it will be a list of 3 fields with names <code>u</code>, <code>v</code>, <code>w</code>; For <code>user_pressure</code>, a list with a single field <code>p</code>; For the scalar, also a single field with the same name as the solution field for the scalar (<code>s</code> by default).</p>
+<p>It is crucial to understand that all three boundary condition will call the same routine! So, if one has, for example, both <code>user_velocity</code> for the fluid and <code>user</code> for the scalar, it is necessary to have an <code>if</code> statement in the user routine to distinguish between the two cases. The convenient way to do that is to check the size of the passed field list and the names of the fields inside. For example, if there is one field and it is called <code>s</code>, one executes the code setting the boundary values for the scalar <code>s</code>.</p>
+<p>Note that the fields that one manipulates in the user routine are not the actual velocity fields, etc. Instead, the code does a masked copy from the dummy fields manipulated in the user routine to the actual fields of unknowns, with the mask corresponding to the boundary faces. So, even if you somehow manipulate the fields elsewhere in the domain inside the user routine, that will not affect the solution.</p>
+<p>In the following example, we indicate in <code>case.fluid.boundary_conditions</code> that we would like to apply a velocity profile on the boundary number 1 (in this case, the inlet boundary). On boundary number 2 (the outlet boundary), we change the pressure. In <code>case.scalar.boundary_conditions</code>, we indicate the same for the scalar on boundaries 1 and 2 (inlet and outlet).</p>
 <p>The header of the user function is given in the code snippet below.</p>
-<div class="fragment"><div class="line"><span class="keyword">subroutine </span>dirichlet_update(field_bc_list, bc_bc_list, coef, t, tstep, which_solver)</div>
-<div class="line">  <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(inout)</span> :: field_bc_list</div>
-<div class="line">  <span class="keywordtype">type</span>(bc_list_t), <span class="keywordtype">intent(inout)</span> :: bc_bc_list</div>
-<div class="line">  <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(inout)</span> :: coef</div>
-<div class="line"><span class="keywordtype">  real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: t</div>
-<div class="line">  <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: tstep</div>
-<div class="line">  <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: which_solver</div>
+<div class="fragment"><div class="line"><span class="keyword">subroutine </span>dirichlet_update(fields, bc, time)</div>
+<div class="line">  <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(inout)</span> :: fields</div>
+<div class="line">  <span class="keywordtype">type</span>(field_dirichlet_t), <span class="keywordtype">intent(inout)</span> :: bc</div>
+<div class="line">  <span class="keywordtype">type</span>(time_state_t) :: time</div>
 </div><!-- fragment --><p>The arguments and their purpose are as follows:</p>
 <ul>
-<li><code>field_bc_list</code> is the list of the field that can be edited. It is a list of <code>field_t</code> objects.<ul>
-<li>The field <code>i</code> contained in <code>field_bc_list</code> is accessed using <code>field_bc_list%items(i)%ptr</code> and will refer to a <code>field_t</code> object.</li>
-<li>If <code>which_solver = "fluid"</code>, it will contain the 4 fields <code>u,v,w,p</code>. They are retrieved in that order in <code>field_bc_list</code>, i.e. <code>u</code> corresponds to <code>field_bc_list%items(1)%ptr</code>, etc.</li>
-<li>If <code>which_solver = "scalar"</code>, it will only contain the scalar field <code>s</code>.</li>
+<li><code>fields</code> is the list of the fields that can be edited. It is a list of <code>field_t</code> objects.<ul>
+<li>The field <code>i</code> contained in <code>fields</code> is accessed using <code>fields%items(i)%ptr</code> and will refer to a <code>field_t</code> object. Alternatively, one can use the <code>get</code> method to retrieve a field by name or index, as done in the examples above for other routines.</li>
 </ul>
 </li>
-<li><code>bc_bc_list</code> contains a list of the <code>bc_t</code> objects to help access the boundary indices through the boundary <code>mask</code>.<ul>
-<li>The boundary <code>i</code> contained in <code>bc_bc_list</code> is accessed with <code>bc_bc_list%bc(i)%bcp</code>.</li>
-<li>The boundary mask of the <code>i</code>-th <code>bc_t</code> object contained in <code>bc_bc_list</code> is accessed with <code>bc_bc_list%bc(i)%bcp%msk</code>. It contains the linear indices of each GLL point on the <code>i</code>-th boundary facets. <dl class="section note"><dt>Note</dt><dd><code>msk(0)</code> contains the size of the array. The first boundary index is <code>msk(1)</code>.</dd></dl>
+<li><code>bc</code> contains a <code>field_dirichlet_t</code> object to help access the boundary indices through the boundary mask, <code>msk</code>.<ul>
+<li>The boundary mask of the <code>bc</code>object is accessed via <code>bc%msk</code>. It contains the linear indices of each GLL point on the boundary facets. <dl class="section note"><dt>Note</dt><dd><code>msk(0)</code> contains the size of the array. The first boundary index is <code>msk(1)</code>.</dd></dl>
 </li>
-<li>If <code>which_solver = "fluid"</code>, it will contain the 4 <code>bc_t</code> objects corresponding to <code>d_vel_u</code>, <code>d_vel_v</code>, <code>d_vel_w</code>, and <code>d_pres</code>. They can be retrieved in that order, in the same way as for <code>field_bc_list</code>.</li>
-<li>If <code>which_solver = "scalar"</code>, it will only the 1 <code>bc_t</code> object corresponding to <code>d_s</code>.</li>
 </ul>
 </li>
-<li><code>coef</code> is a <code>coef_t</code> object containing various numerical parameters and variables, such as the polynomial order <code>lx</code>, derivatives, facet normals...</li>
-<li><code>t</code>, <code>tstep</code> are self-explanatory.</li>
-<li><code>which_solver</code> takes the value <code>"fluid"</code> when the user function is called in the fluid solver. It takes the value <code>"scalar"</code> when it is called in the scalar solver.</li>
+<li><code>time</code>, is a simple structure that contains various info on time stepping, notably, the current time iteration and time value.</li>
 </ul>
-<p>Links to the documentation to learn more about what the types mentioned above contain and how to use them: <code><a class="el" href="../../d3/dc1/field_8f90.html">src/field/field.f90</a></code>, <code><a class="el" href="../../df/df6/bc_8f90.html">src/bc/bc.f90</a></code>, <code><a class="el" href="../../db/d85/coef_8f90.html">src/sem/coef.f90</a></code>.</p>
+<p>Links to the documentation to learn more about what the types mentioned above contain and how to use them: <code><a class="el" href="../../d3/dc1/field_8f90.html">src/field/field.f90</a></code>, <code><a class="el" href="../../df/df6/bc_8f90.html">src/bc/bc.f90</a></code>.</p>
 <p>The user function should be registered in <code>user_setup</code> with the following line:</p>
-<div class="fragment"><div class="line">u%user_dirichlet_update =&gt; dirichlet_update</div>
+<div class="fragment"><div class="line">u%dirichlet_conditions =&gt; dirichlet_update</div>
 </div><!-- fragment --><p>A very simple example illustrating the above is shown below, which is taken from the <a href="https://github.com/ExtremeFLOW/neko/blob/feature/field_bcs/examples/cyl_boundary_layer/cyl_bl.f90">cyl_boundary_layer example</a></p>
-<div class="fragment"><div class="line"><span class="comment">! Initial example of using user specified dirichlet bcs</span></div>
-<div class="line"><span class="comment">! Note: This subroutine will be called two times, once in the fluid solver, and once</span></div>
-<div class="line"><span class="comment">! in the scalar solver (if enabled).</span></div>
-<div class="line"><span class="comment">! We apply u = (1,0,0) at the inlet/outlet, p = -1 at the outlet, and s(y,z) = sin(y)*sin(z)</span></div>
-<div class="line"><span class="comment">! at the inlet/outlet.</span></div>
-<div class="line"><span class="keyword">subroutine </span>dirichlet_update(field_bc_list, bc_bc_list, coef, t, tstep, which_solver)</div>
-<div class="line">  <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(inout)</span> :: field_bc_list</div>
-<div class="line">  <span class="keywordtype">type</span>(bc_list_t), <span class="keywordtype">intent(inout)</span> :: bc_bc_list</div>
-<div class="line">  <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(inout)</span> :: coef</div>
-<div class="line"><span class="keywordtype">  real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: t</div>
-<div class="line">  <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: tstep</div>
-<div class="line">  <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: which_solver</div>
+<div class="fragment"><div class="line"><span class="keyword">subroutine </span>dirichlet_update(fields, bc, time)</div>
+<div class="line">  <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(inout)</span> :: fields</div>
+<div class="line">  <span class="keywordtype">type</span>(field_dirichlet_t), <span class="keywordtype">intent(in)</span> :: bc</div>
+<div class="line">  <span class="keywordtype">type</span>(time_state_t), <span class="keywordtype">intent(in)</span> :: time</div>
 <div class="line"> </div>
 <div class="line">  <span class="keywordtype">integer</span> :: i</div>
 <div class="line"><span class="keywordtype">  real</span>(kind=rp) :: y,z</div>
 <div class="line"> </div>
-<div class="line">  <span class="comment">! Only do this at the first time step since our BCs are constants.</span></div>
+<div class="line">  <span class="comment">! Only do this at the first time step since our BCs are constant in time.</span></div>
 <div class="line">  <span class="keywordflow">if</span> (tstep .ne. 1) <span class="keywordflow">return</span></div>
 <div class="line"> </div>
-<div class="line">  <span class="comment">! Check that we are being called by `fluid`</span></div>
-<div class="line">  <span class="keywordflow">if</span> (trim(which_solver) .eq. <span class="stringliteral">&quot;fluid&quot;</span>) <span class="keywordflow">then</span></div>
+<div class="line">  <span class="comment">! Check that we are being called by the fluid via the name of the field</span></div>
+<div class="line">  <span class="keywordflow">if</span> (fields%items(1)%ptr%name .eq. <span class="stringliteral">&quot;u&quot;</span>) <span class="keywordflow">then</span></div>
 <div class="line"> </div>
 <div class="line">     associate(u =&gt; field_bc_list%items(1)%ptr, &amp;</div>
-<div class="line">          v =&gt; field_bc_list%items(2)%ptr, &amp;</div>
-<div class="line">          w =&gt; field_bc_list%items(3)%ptr, &amp;</div>
-<div class="line">          p =&gt; field_bc_list%items(4)%ptr)</div>
-<div class="line"> </div>
+<div class="line">               v =&gt; field_bc_list%items(2)%ptr, &amp;</div>
+<div class="line">               w =&gt; field_bc_list%items(3)%ptr)</div>
 <div class="line">       <span class="comment">!</span></div>
-<div class="line">       <span class="comment">! Perform operations on u%x, v%x, w%x and p%x here</span></div>
-<div class="line">       <span class="comment">! Note that we are checking if fields are allocated. If a</span></div>
-<div class="line">       <span class="comment">! boundary type only contains e.g. &quot;d_vel_u/d_pres&quot;, the fields</span></div>
-<div class="line">       <span class="comment">! v%x and w%x will not be allocated.</span></div>
-<div class="line">       <span class="comment">!</span></div>
+<div class="line">       <span class="comment">! Perform operations on u%x, v%x, w%x here</span></div>
 <div class="line">       <span class="comment">! Here we are applying very simple uniform boundaries (u,v,w) = (1,0,0)</span></div>
-<div class="line">       <span class="comment">! and pressure outlet of p = -1</span></div>
-<div class="line">       <span class="comment">!</span></div>
-<div class="line">       <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(u%x)) u = 1.0_rp</div>
-<div class="line">       <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(v%x)) v = 0.0_rp</div>
-<div class="line">       <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(w%x)) w = 0.0_rp</div>
-<div class="line">       <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(p%x)) p = -1.0_rp</div>
+<div class="line">       <span class="comment">! Technically the values are put in the interior as well, but this</span></div>
+<div class="line">       <span class="comment">! does not matter, only the boundary values will be copied to the</span></div>
+<div class="line">       <span class="comment">! actual fields</span></div>
+<div class="line">       u = 1.0_rp</div>
+<div class="line">       v = 0.0_rp</div>
+<div class="line">       w = 0.0_rp</div>
 <div class="line"> </div>
 <div class="line">     <span class="keyword">end </span>associate</div>
 <div class="line"> </div>
-<div class="line">  <span class="comment">! Check that we are being called by `scalar`</span></div>
-<div class="line">  <span class="keywordflow">else</span> <span class="keywordflow">if</span> (trim(which_solver) .eq. <span class="stringliteral">&quot;scalar&quot;</span>) <span class="keywordflow">then</span></div>
+<div class="line">  <span class="comment">! Check that we are being called by the user_pressure bc via the name</span></div>
+<div class="line">  <span class="comment">! of the field</span></div>
+<div class="line">  <span class="keywordflow">else</span> <span class="keywordflow">if</span> (fields%items(1)%ptr%name .eq. <span class="stringliteral">&quot;p&quot;</span>) <span class="keywordflow">then</span></div>
+<div class="line">     associate( p =&gt; fields%items(1)%ptr)</div>
+<div class="line">       <span class="comment">!</span></div>
+<div class="line">       <span class="comment">! Perform operations on the pressure field here</span></div>
+<div class="line">       <span class="comment">!</span></div>
 <div class="line"> </div>
-<div class="line">     associate( s =&gt; field_bc_list%items(1)%ptr, &amp;</div>
-<div class="line">          s_bc =&gt; bc_bc_list%bc(1)%bcp)</div>
+<div class="line">       <span class="keywordflow">do</span> i = 1, <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%msk(0)</div>
+<div class="line">          p%x(<a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%msk(i), 1, 1, 1) = -1</div>
+<div class="line"><span class="keywordflow">       end do</span></div>
 <div class="line"> </div>
+<div class="line">     <span class="keyword">end </span>associate</div>
+<div class="line"> </div>
+<div class="line">  <span class="comment">! Check that we are being called by the scalar via the name of the field</span></div>
+<div class="line">  <span class="keywordflow">else</span> <span class="keywordflow">if</span> (fields%items(1)%ptr%name .eq. <span class="stringliteral">&quot;s&quot;</span>) <span class="keywordflow">then</span></div>
+<div class="line"> </div>
+<div class="line">     associate( s =&gt; field_bc_list%items(1)%ptr)</div>
 <div class="line">       <span class="comment">!</span></div>
 <div class="line">       <span class="comment">! Perform operations on the scalar field here</span></div>
-<div class="line">       <span class="comment">! Note that we are checking if the field is allocated, in</span></div>
-<div class="line">       <span class="comment">! case the boundary is empty.</span></div>
 <div class="line">       <span class="comment">!</span></div>
-<div class="line">       <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(s%x)) <span class="keywordflow">then</span></div>
 <div class="line"> </div>
-<div class="line">          <span class="keywordflow">do</span> i = 1, s_bc%msk(0)</div>
-<div class="line">             y = s_bc%dof%y(s_bc%msk(i), 1, 1, 1)</div>
-<div class="line">             z = s_bc%dof%z(s_bc%msk(i), 1, 1, 1)</div>
-<div class="line">             s%x(s_bc%msk(i), 1, 1, 1) = sin(y)*sin(z)</div>
-<div class="line"><span class="keywordflow">          end do</span></div>
+<div class="line">       <span class="keywordflow">do</span> i = 1, <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%msk(0)</div>
+<div class="line">          y = <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%dof%y(<a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%msk(i), 1, 1, 1)</div>
+<div class="line">          z = <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%dof%z(<a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%msk(i), 1, 1, 1)</div>
+<div class="line">          s%x(<a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%msk(i), 1, 1, 1) = sin(y)*sin(z)</div>
+<div class="line"><span class="keywordflow">       end do</span></div>
 <div class="line"> </div>
-<div class="line"><span class="keywordflow">       end if</span></div>
 <div class="line">     <span class="keyword">end </span>associate</div>
 <div class="line"> </div>
 <div class="line"><span class="keywordflow">  end if</span></div>
-<div class="line"> </div>
 <div class="line"><span class="keyword">end subroutine </span>dirichlet_update</div>
+<div class="ttc" id="anamespacebc_html"><div class="ttname"><a href="../../d0/dc0/namespacebc.html">bc</a></div><div class="ttdoc">Defines a boundary condition.</div><div class="ttdef"><b>Definition</b> <a href="../../df/df6/bc_8f90_source.html#l00034">bc.f90:34</a></div></div>
 </div><!-- fragment --><p>This example is applying constant dirichlet values at the selected boundaries for the velocity components and presure. The scalar is applied a function <code>s(y,z) = sin(y)*sin(z)</code> to demonstrate the usage of boundary masks.</p>
 <dl class="section attention"><dt>Attention</dt><dd>The notation <code>u = 1.0_rp</code> is only possible because of the overloading of the assignement operator <code>=</code> in <code>field_t</code>. In general, a field's array should be accessed and modified with <code>u%x</code>.</dd></dl>
-<p>Note that we are only applying our boundary values at the first timestep, which is done simply with the line <code>if (tstep .ne. 1) return</code>. This is a trick that can be used for time independent boundary profiles that require some kind of time consuming operation like interpolation or reading from a file, which would add overhead if executed at every time step.</p>
-<p>Observe that we always check if the fields are allocated before manipulating them. This is to prevent accidental memory access if only part of the velocity components or pressure are given in <code>case.fluid.boundary_types</code>. Fields in the lists are only allocated if they are present in the case file.For example, if we removed the <code>d_pres</code> condition in the JSON case file code snippet above, the pressure field for our boundary condition would not be allocated ( in the example above, <code>allocated(p%x)</code> would never be <code>true</code>). <code>"boundary_types": ["d_vel_u", "d_vel_v"]</code> will allocate the two first fields in <code>field_bc_list</code>, which is the same behaviour as <code>"boundary_types": ["d_vel_u/d_vel_v", ""]</code>.</p>
-<dl class="section attention"><dt>Attention</dt><dd>All the rules for <a class="el" href="../../d6/def/user-file.html#user-file_tips_running-on-gpus">Running on GPUs</a> apply when working on field arrays. Use <code>device_memcpy</code> to make sure the device arrays are also updated.</dd></dl>
-<h1><a class="anchor" id="autotoc_md89"></a>
+<p>Note that we are only applying our boundary values at the first timestep, which is done simply with the line <code>if (timetstep .ne. 1) return</code>. This is a trick that can be used for time-independent boundary profiles that require some kind of time consuming operation like interpolation or reading from a file, which would add overhead if executed at every time step.</p>
+<dl class="section attention"><dt>Attention</dt><dd>All the rules for [Running on GPUs](<a class="el" href="../../d6/def/user-file.html#user-file_tips_running-on-gpus">Running on GPUs</a>) apply when working on field arrays. Use <code>device_memcpy</code> to make sure the device arrays are also updated.</dd></dl>
+<h1><a class="anchor" id="autotoc_md161"></a>
 Additional remarks and tips</h1>
 <h2><a class="anchor" id="user-file_tips_running-on-gpus"></a>
 Running on GPUs</h2>
 <p>When running on GPUs, special care must be taken when using certain user functions. The short explanation is that the device (GPU) has its own memory and cannot directly access the memory on the host (CPU). This means that data and more specifically arrays must be copied manually from the host to the device (see <a class="el" href="../../d6/dac/interfacedevice_1_1device__memcpy.html" title="Copy data between host and device (or device and device)">device::device_memcpy</a>).</p>
-<dl class="section attention"><dt>Attention</dt><dd>In some cases, data transfer via <code>device_memcpy</code> is avoidable. Neko has some device math functions implemented that operate directly on device arrays. If you can decompose whatever operations you are performing in a user function into a set of instructions from the <code>math</code> module (e.g. <code>cadd</code>, <code>cfill</code>, <code>sub2</code>, ...), you may use the corresponding <code><a class="el" href="../../d2/d73/namespacedevice__math.html">device_math</a></code> functions to <a class="el" href="../../de/d06/accelerators.html#accelerators_offload-work">offload work to the GPU</a>. See the <a class="el" href="../../d6/def/user-file.html#user-file_user-f">fluid forcing code snippet</a> for a simple example. For more advanced examples, see the <a href="https://github.com/ExtremeFLOW/neko/blob/49925b7a04a638259db3b1ddd54349ca57f5d207/examples/rayleigh-benard/rayleigh.f90#L96-119">rayleigh-benard example</a> or the <a href="https://github.com/ExtremeFLOW/neko/blob/49925b7a04a638259db3b1ddd54349ca57f5d207/examples/tgv/tgv.f90#L146-172">tgv example</a>.</dd></dl>
-<p>To illustrate this, let us have a look at the <a class="el" href="../../d6/def/user-file.html#user-file_user-ic">fluid initial condition code snippet</a>:</p>
+<dl class="section attention"><dt>Attention</dt><dd>In some cases, data transfer via <code>device_memcpy</code> is avoidable. Neko has some device math functions implemented that operate directly on device arrays. If you can decompose whatever operations you are performing in a user function into a set of instructions from the <code>math</code> module (e.g. <code>cadd</code>, <code>cfill</code>, <code>sub2</code>, ...), you may use the corresponding <code><a class="el" href="../../d2/d73/namespacedevice__math.html">device_math</a></code> functions to <a class="el" href="../../de/d06/accelerators.html#accelerators_offload-work">offload work to the GPU</a>. Additionally, when you operate on <code>field_t</code> objects (which is very common), you can use routines in the <code><a class="el" href="../../d5/de6/namespacefield__math.html">field_math</a></code> module, that will automatically run on the right backend. This is highly recommended and avoids <code>if</code> statements.</dd></dl>
+<p>An example where manual transfer to the GPU was necessary has already been given for the source term. It is reiterated below.</p>
+<div class="fragment"><div class="line"><span class="keyword">subroutine </span><a class="code hl_namespace" href="../../de/de7/namespacesource__term.html">source_term</a>(scheme_name, rhs, time)</div>
+<div class="line">  <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: scheme_name</div>
+<div class="line">  <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(inout)</span> :: rhs</div>
+<div class="line">  <span class="keywordtype">type</span>(time_state_t), <span class="keywordtype">intent(in)</span> :: time</div>
+<div class="line"> </div>
+<div class="line"><span class="keywordtype">  real</span>(kind=rp) :: x</div>
+<div class="line">  <span class="keywordtype">type</span>(field_t), <span class="keywordtype">pointer</span> :: f</div>
+<div class="line">  <span class="keywordtype">integer</span> :: i</div>
+<div class="line"> </div>
+<div class="line">  <span class="keywordflow">if</span> (scheme_name .eq. <span class="stringliteral">&#39;fluid&#39;</span>) <span class="keywordflow">return</span></div>
+<div class="line"> </div>
+<div class="line">  f =&gt; rhs%items(1)%ptr</div>
+<div class="line">  <span class="keywordflow">do</span> i = 1, f%size()</div>
+<div class="line">     x = f%dof%x(i,1,1,1)</div>
+<div class="line"> </div>
+<div class="line">     <span class="comment">! 0.01 is the viscosity</span></div>
+<div class="line">     f%x(i,1,1,1) = cos(x) - 0.01 * sin(x) - 1.0_rp</div>
+<div class="line"><span class="keywordflow">  end do</span></div>
+<div class="line"> </div>
+<div class="line">  <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line">     <span class="keyword">call </span>device_memcpy(f%x, f%x_d, f%size(), &amp;</div>
+<div class="line">          host_to_device, sync=.false.)</div>
+<div class="line"><span class="keywordflow">  end if</span></div>
+<div class="line"> </div>
+<div class="line"><span class="keyword">end subroutine </span>source_term</div>
+</div><!-- fragment --><p>Note that <code>f%x</code> is the field's data on the CPU. Therefore, to populate the correspoding array on GPU, we need to call to <code>device_memcpy</code>. Looking at the detailof the <code>device_memcpy</code> call, we note the following:</p><ul>
+<li>Device arrays are refered to by appending the suffix <code>_d</code> to the host array variable name (e.g. <code>f%x</code> and <code>f%x_d</code>). This is the standard in Neko.</li>
+<li>We specify the direction of the data movement with the flag <code>HOST_TO_DEVICE</code>. Other flags can also be used to move data from device to host (<code>DEVICE_TO_HOST</code>) or device to device (<code>DEVICE_TO_DEVICE</code>). See the <a class="el" href="../../de/d06/accelerators.html#accelerators_data-transfer">accelerators page</a> for more details on this.</li>
+<li>The <code>sync</code> argument is a non-optional argument which dictates wether or not to perform the data transfer synchronously.</li>
+</ul>
+<dl class="section attention"><dt>Attention</dt><dd>Use asynchronous data transfers at your own risk! If you are unsure, use <code>sync = .true.</code> as a starting point.</dd></dl>
+<p>Finally, observe that we use the flag <code>NEKO_BCKND_DEVICE</code> to check if we are indeed running on GPUs. In that case, <code>NEKO_BCKND_DEVICE</code> would be equal to 1.</p>
+<h3><a class="anchor" id="user-file_tips_running-on-gpus-custom-kernels"></a>
+Custom GPU kernels</h3>
+<p>When running on GPUs it is possible to call an own custom kernel. This could be more performant for more complex source terms or boundary conditions.</p>
+<p>Assume we have a custom kernel called <code>mydevice_kernel</code> in a CUDA file called <code>mykernel.cu</code>, to set the initial velicity field. To call the custom kernel, the user file must define a C interface to the routine (inside the <code>.cu</code> file) that launches the kernel</p>
+<div class="fragment"><div class="line"><span class="keyword">interface</span></div>
+<div class="line">  <span class="keyword">subroutine </span>mydevice_kernel(u_d, v_d, w_d, n) &amp;</div>
+<div class="line">        bind(c, name = <span class="stringliteral">&#39;mydevice_kernel&#39;</span>)</div>
+<div class="line">    use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line">    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: u_d, v_d, w_d</div>
+<div class="line">    <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line">  <span class="keyword">end subroutine </span>mydevice_kernel</div>
+<div class="line"><span class="keyword">end interface</span></div>
+</div><!-- fragment --><p>Furthermore, the CUDA/HIP file must allow for C linkage, hence the routine <code>mydevice_kernel</code> must be inside an <code>extern "C"</code> block.</p>
+<div class="fragment"><div class="line"><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
+<div class="line">  <span class="keywordtype">void</span> <a class="code hl_function" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">mydevice_kernel</a>(<span class="keywordtype">void</span> *<a class="code hl_variable" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a7c8003e3422abb0b6eec11f6ebf6e6fb">u</a>, <span class="keywordtype">void</span> *<a class="code hl_variable" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#ad44828fa187c7f6962d8ef80a111c535">v</a>, <span class="keywordtype">void</span> *<a class="code hl_variable" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a43799c7789aa82c19649dc9f75f8a87f">w</a>, <span class="keywordtype">int</span> *n) {</div>
+<div class="line">    <span class="comment">/* Launch the device kernel here */</span></div>
+<div class="line">  }</div>
+<div class="line">}</div>
+<div class="ttc" id="acuda_2ax__helm__full__kernel_8h_html_a43799c7789aa82c19649dc9f75f8a87f"><div class="ttname"><a href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a43799c7789aa82c19649dc9f75f8a87f">w</a></div><div class="ttdeci">__global__ void T *__restrict__ T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ w</div><div class="ttdef"><b>Definition</b> <a href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h_source.html#l00048">ax_helm_full_kernel.h:48</a></div></div>
+<div class="ttc" id="acuda_2ax__helm__full__kernel_8h_html_a7c8003e3422abb0b6eec11f6ebf6e6fb"><div class="ttname"><a href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a7c8003e3422abb0b6eec11f6ebf6e6fb">u</a></div><div class="ttdeci">__global__ void T *__restrict__ T *__restrict__ const T *__restrict__ u</div><div class="ttdef"><b>Definition</b> <a href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h_source.html#l00046">ax_helm_full_kernel.h:46</a></div></div>
+<div class="ttc" id="acuda_2ax__helm__full__kernel_8h_html_ad44828fa187c7f6962d8ef80a111c535"><div class="ttname"><a href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#ad44828fa187c7f6962d8ef80a111c535">v</a></div><div class="ttdeci">__global__ void T *__restrict__ T *__restrict__ const T *__restrict__ const T *__restrict__ v</div><div class="ttdef"><b>Definition</b> <a href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h_source.html#l00047">ax_helm_full_kernel.h:47</a></div></div>
+<div class="ttc" id="acuda_2dirichlet__kernel_8h_html_ac2cb217184f95ca86456f610f72bd533"><div class="ttname"><a href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dirichlet_apply_scalar_kernel</a></div><div class="ttdeci">__global__ void dirichlet_apply_scalar_kernel(const int *__restrict__ msk, T *__restrict__ x, const T g, const int m)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d11/cuda_2dirichlet__kernel_8h_source.html#l00042">dirichlet_kernel.h:42</a></div></div>
+</div><!-- fragment --><p> The user defined routine for initial conditions calls the kernel in the following way.</p>
 <div class="fragment"><div class="line"> </div>
 <div class="line"><span class="keyword">subroutine </span>set_velocity(u, v, w, p, params)</div>
 <div class="line">  <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: u</div>
@@ -680,55 +535,37 @@ Running on GPUs</h2>
 <div class="line">  <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: w</div>
 <div class="line">  <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: p</div>
 <div class="line">  <span class="keywordtype">type</span>(json_file), <span class="keywordtype">intent(inout)</span> :: params</div>
-<div class="line">  <span class="keywordtype">integer</span> :: i, e, k, j</div>
-<div class="line"><span class="keywordtype">  real</span>(kind=rp) :: x, y</div>
 <div class="line"> </div>
-<div class="line">  <span class="comment">!</span></div>
-<div class="line">  <span class="comment">! 1. Set the initial condition in fields u%x, v%x, w%x</span></div>
-<div class="line">  <span class="comment">!</span></div>
-<div class="line">  <span class="keywordflow">do</span> i = 1, u%dof%size()</div>
-<div class="line">     x = u%dof%x(i,1,1,1)</div>
-<div class="line">     y = u%dof%y(i,1,1,1)</div>
-<div class="line"> </div>
-<div class="line">     <span class="comment">! Angular velocity is pi, giving a full rotation in 2 sec</span></div>
-<div class="line">     u%x(i,1,1,1) = -y*pi</div>
-<div class="line">     v%x(i,1,1,1) = x*pi</div>
-<div class="line">     w%x(i,1,1,1) = 0</div>
-<div class="line"><span class="keywordflow">  end do</span></div>
-<div class="line"> </div>
-<div class="line">  <span class="comment">!</span></div>
-<div class="line">  <span class="comment">! 2. Copy the data set in u%x, v%x, w%x to the device arrays</span></div>
-<div class="line">  <span class="comment">! u%x_d, v%x_d, w%x_d.</span></div>
-<div class="line">  <span class="comment">!</span></div>
 <div class="line">  <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line">     <span class="keyword">call </span>device_memcpy(u%x, u%x_d, u%dof%size(), &amp;</div>
-<div class="line">                        host_to_device, sync=.false.)</div>
-<div class="line">     <span class="keyword">call </span>device_memcpy(v%x, v%x_d, v%dof%size(), &amp;</div>
-<div class="line">                        host_to_device, sync=.false.)</div>
-<div class="line">     <span class="keyword">call </span>device_memcpy(w%x, w%x_d, w%dof%size(), &amp;</div>
-<div class="line">                        host_to_device, sync=.false.)</div>
-<div class="line"><span class="keywordflow">  end if</span></div>
+<div class="line">     <span class="keyword">call </span>mydevice_kernel(u%x_d, v%x_d, w%x_d, u%dof%size())</div>
+<div class="line"><span class="keywordflow">  endif</span></div>
 <div class="line"> </div>
 <div class="line"><span class="keyword">end subroutine </span>set_velocity</div>
-</div><!-- fragment --><p>The code above is used to set the fluid initial condition, by specifying the values of fields <code>u,v,w</code> (and <code>p</code>) at all points in the domain. Notice that we have divided the above code into two parts.</p>
-<p>In the first part, we set the velocity components <code>u=-y*pi*</code>, <code>v=x*pi*</code>, and <code>w=0</code>, which updates the velocity field arrays <code>u%x, v%x, w%x</code> allocated on the <b>host (CPU)</b>. If we were to run on GPUs, these lines of code would only act on the velocity arrays on the host (CPU), leaving the device (GPU) arrays untouched.</p>
-<p>We take care of this in the second part, for all three velocity arrays. To update the device (GPU) arrays, we use <code>device_memcpy</code> to copy the data contained in a host (CPU) array to a device (GPU) array. Looking at the details of the <code>device_memcpy</code> calls, we note the following:</p><ul>
-<li>Device arrays are refered to by appending the suffix <code>_d</code> to the host array variable name (e.g. <code>u%x</code> and <code>u%x_d</code>). This is the standard in Neko.</li>
-<li>We specify the direction of the data movement with the flag <code>HOST_TO_DEVICE</code>. Other flags can also be used to move data from device to host (<code>DEVICE_TO_HOST</code>) or device to device (<code>DEVICE_TO_DEVICE</code>). See the <a class="el" href="../../de/d06/accelerators.html#accelerators_data-transfer">accelerators page</a> for more details on this.</li>
-<li>The <code>sync</code> argument is a non-optional argument which dictates wether or not to perform the data transfer synchronously.</li>
-</ul>
-<dl class="section attention"><dt>Attention</dt><dd>Use asynchronous data transfers at your own risk! If you are unsure, use <code>sync = .true.</code> as a starting point.</dd></dl>
-<p>Finally, observe that we use the flag <code>NEKO_BCKND_DEVICE</code> to check if we are indeed running on GPUs. In that case, <code>NEKO_BCKND_DEVICE</code> would be equal to 1.</p>
+</div><!-- fragment --><p>Finally, compile using <code>makeneko</code> and provide both the <code>user.f90</code> and <code>mykernel.cu</code> file.</p>
+<div class="fragment"><div class="line">makeneko user.f90 mykernel.cu</div>
+</div><!-- fragment --><dl class="section note"><dt>Note</dt><dd><code>makeneko</code> does currently only support custom kernels written in CUDA or HIP.</dd></dl>
 <h2><a class="anchor" id="user-file_tips_registries"></a>
 Registries</h2>
 <p>Neko uses the concept of <code>registry</code> as a practical way to retrieve fields and point zones anywhere in the user file.</p>
-<p>The field registry <code>neko_field_registry</code> is often used in user functions where certain fields are not directly accessible as arguments. One can retrieve any field in the registry by its <code>name</code> with <code>neko_field_registry%get_field(name)</code>. Default fields that are added to the registry are <code>u,v,w,p</code> and <code>s</code> if running with the scalar enabled. For a practical example of usage, see the <a href="https://github.com/ExtremeFLOW/neko/blob/49925b7a04a638259db3b1ddd54349ca57f5d207/examples/rayleigh-benard/rayleigh.f90#L102-L105">rayleigh benard example</a></p>
+<p>The registry <code>neko_registry</code> is often used in user functions where certain fields are not directly accessible as arguments. One can retrieve any field in the registry by its <code>name</code> with <code>neko_registry%get_field(name)</code>. Default fields that are added to the registry are <code>u,v,w,p</code> and <code>s</code> if running with the scalar enabled. For a practical example of usage, see the <a href="https://github.com/ExtremeFLOW/neko/blob/49925b7a04a638259db3b1ddd54349ca57f5d207/examples/rayleigh_benard/rayleigh.f90#L102-L105">rayleigh benard example</a></p>
 <p>Other fields may be added to the registry by various simulation components. For example:</p><ul>
 <li>If running with <code>simulation_components.vorticity</code> enabled, the fields <code>omega_x, omega_y, omega_z</code> will be accessible in the registry.</li>
 <li>If running with <code>simulation_components.lambda2</code> enabled, the field <code><a class="el" href="../../d0/d66/namespacelambda2.html" title="A simulation component that computes lambda2 The values are stored in the field registry under the na...">lambda2</a></code> will be accessible in the registry.</li>
 </ul>
-<dl class="section note"><dt>Note</dt><dd>You can add your own fields to the registry with <code>neko_field_registry%add_field</code> (see field_registry::field_add).</dd></dl>
-<p>The point zone registry, <code>neko_point_zone_registry</code>, can be used to retrieve pointers to <code>point_zone_t</code> objects defined in the case file. See <a class="el" href="../../da/dd0/point-zones.html#point-zones_using-point-zones">using point zones</a> for detailed instructions. </p>
+<dl class="section note"><dt>Note</dt><dd>You can add your own fields to the registry with <code>neko_registry%add_field</code> (see registry::field_add).</dd></dl>
+<p>The point zone registry, <code>neko_point_zone_registry</code>, can be used to retrieve pointers to <code>point_zone_t</code> objects defined in the case file. See <a class="el" href="../../da/dd0/point-zones.html#point-zones_using-point-zones">using point zones</a> for detailed instructions.</p>
+<h2><a class="anchor" id="user-file_access"></a>
+User access to solver internals</h2>
+<p>Neko proives a special variable called <code>neko_user_access</code> that can be used in the user file to access the internal state of the entire case and the underlying solvers.</p>
+<p>In particular the case object (<code>case_t</code>) is reached via <code>neko_user_access%case</code>. There-in the <code>fluid</code> and <code>scalars</code> components refer to the asscociated schemes. You are encouraged to look a bit at <code><a class="el" href="../../d2/d0f/case_8f90.html">case.f90</a></code> to see the overall structure.</p>
+<p>A very common use case is to get access to various SEM-related objects, as well as the mesh object.</p>
+<ul>
+<li><code>neko_user_access%case%fluid%msh</code> &ndash; the mesh.</li>
+<li><code>neko_user_access%case%fluid%dm_Xh</code> &ndash; the function space used in the SEM.</li>
+<li><code>neko_user_access%case%fluid%dm_Xh</code> &ndash; the map of degrees of freedom, contains the locations of the GLL nodes.</li>
+<li><code>neko_user_access%case%fluid%c_Xh</code> &ndash; the coefficients of the SEM,</li>
+<li><code>neko_user_access%case%fluid%gs_Xh</code> &ndash; the gather-scatter kernels used for direct stiffness summation. </li>
+</ul>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
 </div><!-- doc-content -->
@@ -736,7 +573,7 @@ Registries</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

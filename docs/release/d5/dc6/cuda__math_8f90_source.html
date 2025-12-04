@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -106,7 +106,7 @@ $(document).ready(function(){initNavTree('d5/dc6/cuda__math_8f90_source.html','.
   <div class="headertitle"><div class="title">cuda_math.f90</div></div>
 </div><!--header-->
 <div class="contents">
-<a href="../../d5/dc6/cuda__math_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">! Copyright (c) 2024, The Neko Authors</span></div>
+<a href="../../d5/dc6/cuda__math_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">! Copyright (c) 2025, The Neko Authors</span></div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment">! All rights reserved.</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="comment">!</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment">! Redistribution and use in source and binary forms, with or without</span></div>
@@ -145,486 +145,608 @@ $(document).ready(function(){initNavTree('d5/dc6/cuda__math_8f90_source.html','.
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span> </div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keyword">interface</span></div>
 <div class="foldopen" id="foldopen00039" data-start="" data-end="">
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno"><a class="line" href="../../d6/d40/interfacecuda__math_1_1cuda__copy.html#af259d03086e18ccb3370affa34e48868">   39</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d6/d40/interfacecuda__math_1_1cuda__copy.html">cuda_copy</a>(a_d, b_d, n) &amp;</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno"><a class="line" href="../../d6/d40/interfacecuda__math_1_1cuda__copy.html#a18db1a2d0c47dd9cc9b666cb32c37318">   39</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d6/d40/interfacecuda__math_1_1cuda__copy.html">cuda_copy</a>(a_d, b_d, n, strm) &amp;</div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>          bind(c, name = <span class="stringliteral">&#39;cuda_copy&#39;</span>)</div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d6/d40/interfacecuda__math_1_1cuda__copy.html">cuda_copy</a></div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
 <div class="foldopen" id="foldopen00046" data-start="" data-end="">
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="../../d0/df3/interfacecuda__math_1_1cuda__masked__copy.html#a16d9e57d3e8ee522188a450dcd3267e7">   46</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d0/df3/interfacecuda__math_1_1cuda__masked__copy.html">cuda_masked_copy</a>(a_d, b_d, mask_d, n, m) &amp;</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="../../d0/df3/interfacecuda__math_1_1cuda__masked__copy.html#aa75c137b845d9e32567ba3ed34f6c6a9">   46</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d0/df3/interfacecuda__math_1_1cuda__masked__copy.html">cuda_masked_copy</a>(a_d, b_d, mask_d, n, n_mask, strm) &amp;</div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>          bind(c, name = <span class="stringliteral">&#39;cuda_masked_copy&#39;</span>)</div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, mask_d</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>       <span class="keywordtype">integer(c_int)</span> :: n, m</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, mask_d, strm</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>       <span class="keywordtype">integer(c_int)</span> :: n, n_mask</div>
 </div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d0/df3/interfacecuda__math_1_1cuda__masked__copy.html">cuda_masked_copy</a></div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
 <div class="foldopen" id="foldopen00053" data-start="" data-end="">
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno"><a class="line" href="../../dd/dfd/interfacecuda__math_1_1cuda__masked__red__copy.html#a6a8ee11ce20e2b98ee13dbadc545d63b">   53</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../dd/dfd/interfacecuda__math_1_1cuda__masked__red__copy.html">cuda_masked_red_copy</a>(a_d, b_d, mask_d, n, m) &amp;</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>          bind(c, name = <span class="stringliteral">&#39;cuda_masked_red_copy&#39;</span>)</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno"><a class="line" href="../../d7/df7/interfacecuda__math_1_1cuda__masked__gather__copy.html#a307b4e0587929e2beee4be121cd9f36b">   53</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d7/df7/interfacecuda__math_1_1cuda__masked__gather__copy.html">cuda_masked_gather_copy</a>(a_d, b_d, mask_d, n, n_mask, strm) &amp;</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>          bind(c, name = <span class="stringliteral">&#39;cuda_masked_gather_copy&#39;</span>)</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, mask_d</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>       <span class="keywordtype">integer(c_int)</span> :: n, m</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, mask_d, strm</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>       <span class="keywordtype">integer(c_int)</span> :: n, n_mask</div>
 </div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../dd/dfd/interfacecuda__math_1_1cuda__masked__red__copy.html">cuda_masked_red_copy</a></div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d7/df7/interfacecuda__math_1_1cuda__masked__gather__copy.html">cuda_masked_gather_copy</a></div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span> </div>
 <div class="foldopen" id="foldopen00060" data-start="" data-end="">
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno"><a class="line" href="../../d1/d8a/interfacecuda__math_1_1cuda__cfill__mask.html#a448cce900c6a5c3dc213cda8fc3e3d41">   60</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d1/d8a/interfacecuda__math_1_1cuda__cfill__mask.html">cuda_cfill_mask</a>(a_d, c, size, mask_d, mask_size) &amp;</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>          bind(c, name = <span class="stringliteral">&#39;cuda_cfill_mask&#39;</span>)</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno"><a class="line" href="../../d9/dda/interfacecuda__math_1_1cuda__masked__scatter__copy.html#ad24b31381f75c8c6aa148d58285060bb">   60</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d9/dda/interfacecuda__math_1_1cuda__masked__scatter__copy.html">cuda_masked_scatter_copy</a>(a_d, b_d, mask_d, n, n_mask, strm) &amp;</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>          bind(c, name = <span class="stringliteral">&#39;cuda_masked_scatter_copy&#39;</span>)</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span><span class="keywordtype">       real</span>(c_rp) :: c</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>       <span class="keywordtype">integer(c_int)</span> :: size</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: mask_d</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>       <span class="keywordtype">integer(c_int)</span> :: mask_size</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, mask_d, strm</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>       <span class="keywordtype">integer(c_int)</span> :: n, n_mask</div>
 </div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d1/d8a/interfacecuda__math_1_1cuda__cfill__mask.html">cuda_cfill_mask</a></div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span> </div>
-<div class="foldopen" id="foldopen00071" data-start="" data-end="">
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno"><a class="line" href="../../db/d0b/interfacecuda__math_1_1cuda__cmult.html#a7be34015652ef40d2b10bbabb8b0cce2">   71</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../db/d0b/interfacecuda__math_1_1cuda__cmult.html">cuda_cmult</a>(a_d, c, n) &amp;</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>          bind(c, name = <span class="stringliteral">&#39;cuda_cmult&#39;</span>)</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span><span class="keywordtype">       real</span>(c_rp) :: c</div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d9/dda/interfacecuda__math_1_1cuda__masked__scatter__copy.html">cuda_masked_scatter_copy</a></div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span> </div>
+<div class="foldopen" id="foldopen00067" data-start="" data-end="">
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno"><a class="line" href="../../d6/d66/interfacecuda__math_1_1cuda__masked__atomic__reduction.html#a2024baa787e106f0b2f078c871738b96">   67</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d6/d66/interfacecuda__math_1_1cuda__masked__atomic__reduction.html">cuda_masked_atomic_reduction</a>(a_d, b_d, mask_d, n, m, strm) &amp;</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>          bind(c, name = <span class="stringliteral">&#39;cuda_masked_atomic_reduction&#39;</span>)</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, mask_d, strm</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>       <span class="keywordtype">integer(c_int)</span> :: n, m</div>
 </div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../db/d0b/interfacecuda__math_1_1cuda__cmult.html">cuda_cmult</a></div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span> </div>
-<div class="foldopen" id="foldopen00080" data-start="" data-end="">
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno"><a class="line" href="../../d4/d81/interfacecuda__math_1_1cuda__cmult2.html#a3942428a8d15fee38fd8981c18430335">   80</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d4/d81/interfacecuda__math_1_1cuda__cmult2.html">cuda_cmult2</a>(a_d, b_d, c, n) &amp;</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>          bind(c, name = <span class="stringliteral">&#39;cuda_cmult2&#39;</span>)</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span><span class="keywordtype">       real</span>(c_rp) :: c</div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d6/d66/interfacecuda__math_1_1cuda__masked__atomic__reduction.html">cuda_masked_atomic_reduction</a></div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span> </div>
+<div class="foldopen" id="foldopen00074" data-start="" data-end="">
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno"><a class="line" href="../../d1/d8a/interfacecuda__math_1_1cuda__cfill__mask.html#acf3e68ad60b7f097f34374ebd18aee02">   74</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d1/d8a/interfacecuda__math_1_1cuda__cfill__mask.html">cuda_cfill_mask</a>(a_d, c, n, mask_d, n_mask, strm) &amp;</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>          bind(c, name = <span class="stringliteral">&#39;cuda_cfill_mask&#39;</span>)</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span><span class="keywordtype">       real</span>(c_rp) :: c</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: mask_d</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>       <span class="keywordtype">integer(c_int)</span> :: n_mask</div>
 </div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d4/d81/interfacecuda__math_1_1cuda__cmult2.html">cuda_cmult2</a></div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span> </div>
-<div class="foldopen" id="foldopen00089" data-start="" data-end="">
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno"><a class="line" href="../../dc/d4d/interfacecuda__math_1_1cuda__cadd.html#aa051abcb036d7b744d8b04f20ecf8d13">   89</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../dc/d4d/interfacecuda__math_1_1cuda__cadd.html">cuda_cadd</a>(a_d, c, n) &amp;</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>          bind(c, name = <span class="stringliteral">&#39;cuda_cadd&#39;</span>)</div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d</div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span><span class="keywordtype">       real</span>(c_rp) :: c</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d1/d8a/interfacecuda__math_1_1cuda__cfill__mask.html">cuda_cfill_mask</a></div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span> </div>
+<div class="foldopen" id="foldopen00085" data-start="" data-end="">
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno"><a class="line" href="../../db/d0b/interfacecuda__math_1_1cuda__cmult.html#a4737a56c9f500db0035cfe59ed04a2ae">   85</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../db/d0b/interfacecuda__math_1_1cuda__cmult.html">cuda_cmult</a>(a_d, c, n, strm) &amp;</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>          bind(c, name = <span class="stringliteral">&#39;cuda_cmult&#39;</span>)</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span><span class="keywordtype">       real</span>(c_rp) :: c</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../dc/d4d/interfacecuda__math_1_1cuda__cadd.html">cuda_cadd</a></div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span> </div>
-<div class="foldopen" id="foldopen00098" data-start="" data-end="">
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno"><a class="line" href="../../d5/d64/interfacecuda__math_1_1cuda__cadd2.html#acaf9388edc2345aa825ca19cd4d0c3ef">   98</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d5/d64/interfacecuda__math_1_1cuda__cadd2.html">cuda_cadd2</a>(a_d, b_d, c, n) &amp;</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>          bind(c, name = <span class="stringliteral">&#39;cuda_cadd2&#39;</span>)</div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: b_d</div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span><span class="keywordtype">       real</span>(c_rp) :: c</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../db/d0b/interfacecuda__math_1_1cuda__cmult.html">cuda_cmult</a></div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span> </div>
+<div class="foldopen" id="foldopen00094" data-start="" data-end="">
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno"><a class="line" href="../../d4/d81/interfacecuda__math_1_1cuda__cmult2.html#a048da1bda1d5a0f194ce1c36bcc47dd5">   94</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d4/d81/interfacecuda__math_1_1cuda__cmult2.html">cuda_cmult2</a>(a_d, b_d, c, n, strm) &amp;</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>          bind(c, name = <span class="stringliteral">&#39;cuda_cmult2&#39;</span>)</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span><span class="keywordtype">       real</span>(c_rp) :: c</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d5/d64/interfacecuda__math_1_1cuda__cadd2.html">cuda_cadd2</a></div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span> </div>
-<div class="foldopen" id="foldopen00108" data-start="" data-end="">
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno"><a class="line" href="../../d4/dc4/interfacecuda__math_1_1cuda__cfill.html#ac181204a06f2448a699c02630f7956b4">  108</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d4/dc4/interfacecuda__math_1_1cuda__cfill.html">cuda_cfill</a>(a_d, c, n) &amp;</div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>          bind(c, name = <span class="stringliteral">&#39;cuda_cfill&#39;</span>)</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d</div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span><span class="keywordtype">       real</span>(c_rp) :: c</div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d4/d81/interfacecuda__math_1_1cuda__cmult2.html">cuda_cmult2</a></div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span> </div>
+<div class="foldopen" id="foldopen00103" data-start="" data-end="">
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno"><a class="line" href="../../d9/d90/interfacecuda__math_1_1cuda__cdiv.html#ad602b842b6d7bb0cd1dcf3538cdeb0b6">  103</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d9/d90/interfacecuda__math_1_1cuda__cdiv.html">cuda_cdiv</a>(a_d, c, n, strm) &amp;</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>          bind(c, name = <span class="stringliteral">&#39;cuda_cdiv&#39;</span>)</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span><span class="keywordtype">       real</span>(c_rp) :: c</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d4/dc4/interfacecuda__math_1_1cuda__cfill.html">cuda_cfill</a></div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span> </div>
-<div class="foldopen" id="foldopen00117" data-start="" data-end="">
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno"><a class="line" href="../../d4/d40/interfacecuda__math_1_1cuda__rzero.html#a66b3e5a2e141e35166e71c78f2361bf6">  117</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d4/d40/interfacecuda__math_1_1cuda__rzero.html">cuda_rzero</a>(a_d, n) &amp;</div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>          bind(c, name = <span class="stringliteral">&#39;cuda_rzero&#39;</span>)</div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d</div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d9/d90/interfacecuda__math_1_1cuda__cdiv.html">cuda_cdiv</a></div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span> </div>
+<div class="foldopen" id="foldopen00112" data-start="" data-end="">
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno"><a class="line" href="../../dc/d8a/interfacecuda__math_1_1cuda__cdiv2.html#a176fed91bb25b2e6b90909f1ce289ca3">  112</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../dc/d8a/interfacecuda__math_1_1cuda__cdiv2.html">cuda_cdiv2</a>(a_d, b_d, c, n, strm) &amp;</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>          bind(c, name = <span class="stringliteral">&#39;cuda_cdiv2&#39;</span>)</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span><span class="keywordtype">       real</span>(c_rp) :: c</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d4/d40/interfacecuda__math_1_1cuda__rzero.html">cuda_rzero</a></div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span> </div>
-<div class="foldopen" id="foldopen00124" data-start="" data-end="">
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno"><a class="line" href="../../d7/d19/interfacecuda__math_1_1cuda__add2.html#a7a04834d3f94ec3107da797efd894a4d">  124</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d7/d19/interfacecuda__math_1_1cuda__add2.html">cuda_add2</a>(a_d, b_d, n) &amp;</div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>          bind(c, name = <span class="stringliteral">&#39;cuda_add2&#39;</span>)</div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d</div>
-<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../dc/d8a/interfacecuda__math_1_1cuda__cdiv2.html">cuda_cdiv2</a></div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span> </div>
+<div class="foldopen" id="foldopen00121" data-start="" data-end="">
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno"><a class="line" href="../../d1/da2/interfacecuda__math_1_1cuda__radd.html#a83acfbe56282e6a56511d35a62e9e09a">  121</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d1/da2/interfacecuda__math_1_1cuda__radd.html">cuda_radd</a>(a_d, c, n, strm) &amp;</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>          bind(c, name = <span class="stringliteral">&#39;cuda_radd&#39;</span>)</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span><span class="keywordtype">       real</span>(c_rp) :: c</div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d7/d19/interfacecuda__math_1_1cuda__add2.html">cuda_add2</a></div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span> </div>
-<div class="foldopen" id="foldopen00132" data-start="" data-end="">
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno"><a class="line" href="../../d6/dea/interfacecuda__math_1_1cuda__add4.html#a22e1208980d91e56bd7472e6e0404184">  132</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d6/dea/interfacecuda__math_1_1cuda__add4.html">cuda_add4</a>(a_d, b_d, c_d, d_d, n) &amp;</div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>          bind(c, name = <span class="stringliteral">&#39;cuda_add4&#39;</span>)</div>
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
-<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, d_d</div>
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d1/da2/interfacecuda__math_1_1cuda__radd.html">cuda_radd</a></div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span> </div>
+<div class="foldopen" id="foldopen00130" data-start="" data-end="">
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno"><a class="line" href="../../d5/d64/interfacecuda__math_1_1cuda__cadd2.html#a18f27e9e1374ae638b5cc0a5ce51308b">  130</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d5/d64/interfacecuda__math_1_1cuda__cadd2.html">cuda_cadd2</a>(a_d, b_d, c, n, strm) &amp;</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>          bind(c, name = <span class="stringliteral">&#39;cuda_cadd2&#39;</span>)</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d</div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: b_d</div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: strm</div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span><span class="keywordtype">       real</span>(c_rp) :: c</div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d6/dea/interfacecuda__math_1_1cuda__add4.html">cuda_add4</a></div>
-<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span> </div>
-<div class="foldopen" id="foldopen00140" data-start="" data-end="">
-<div class="line"><a id="l00140" name="l00140"></a><span class="lineno"><a class="line" href="../../d5/d4b/interfacecuda__math_1_1cuda__add2s1.html#ac01ef05bd93dc995ab7c2351195c42cb">  140</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d5/d4b/interfacecuda__math_1_1cuda__add2s1.html">cuda_add2s1</a>(a_d, b_d, c1, n) &amp;</div>
-<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>          bind(c, name = <span class="stringliteral">&#39;cuda_add2s1&#39;</span>)</div>
-<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
-<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d</div>
-<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span><span class="keywordtype">       real</span>(c_rp) :: c1</div>
-<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d5/d64/interfacecuda__math_1_1cuda__cadd2.html">cuda_cadd2</a></div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span> </div>
+<div class="foldopen" id="foldopen00141" data-start="" data-end="">
+<div class="line"><a id="l00141" name="l00141"></a><span class="lineno"><a class="line" href="../../d4/dc4/interfacecuda__math_1_1cuda__cfill.html#a84d073a6dec0ea774e3142acc9f164e3">  141</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d4/dc4/interfacecuda__math_1_1cuda__cfill.html">cuda_cfill</a>(a_d, c, n, strm) &amp;</div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>          bind(c, name = <span class="stringliteral">&#39;cuda_cfill&#39;</span>)</div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span><span class="keywordtype">       real</span>(c_rp) :: c</div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d5/d4b/interfacecuda__math_1_1cuda__add2s1.html">cuda_add2s1</a></div>
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span> </div>
-<div class="foldopen" id="foldopen00149" data-start="" data-end="">
-<div class="line"><a id="l00149" name="l00149"></a><span class="lineno"><a class="line" href="../../d0/d31/interfacecuda__math_1_1cuda__add2s2.html#a23e1808e7c3de0f43e7edf05a2c66fa0">  149</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d0/d31/interfacecuda__math_1_1cuda__add2s2.html">cuda_add2s2</a>(a_d, b_d, c1, n) &amp;</div>
-<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>          bind(c, name = <span class="stringliteral">&#39;cuda_add2s2&#39;</span>)</div>
-<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
-<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d</div>
-<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span><span class="keywordtype">       real</span>(c_rp) :: c1</div>
-<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d4/dc4/interfacecuda__math_1_1cuda__cfill.html">cuda_cfill</a></div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span> </div>
+<div class="foldopen" id="foldopen00150" data-start="" data-end="">
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno"><a class="line" href="../../d4/d40/interfacecuda__math_1_1cuda__rzero.html#abb1cbe2ff8287e429232784cd507b2bd">  150</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d4/d40/interfacecuda__math_1_1cuda__rzero.html">cuda_rzero</a>(a_d, n, strm) &amp;</div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>          bind(c, name = <span class="stringliteral">&#39;cuda_rzero&#39;</span>)</div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d0/d31/interfacecuda__math_1_1cuda__add2s2.html">cuda_add2s2</a></div>
-<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span> </div>
-<div class="foldopen" id="foldopen00158" data-start="" data-end="">
-<div class="line"><a id="l00158" name="l00158"></a><span class="lineno"><a class="line" href="../../d4/d82/interfacecuda__math_1_1cuda__addsqr2s2.html#a9ad81ea484d9c269ced271fbe95d7c13">  158</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d4/d82/interfacecuda__math_1_1cuda__addsqr2s2.html">cuda_addsqr2s2</a>(a_d, b_d, c1, n) &amp;</div>
-<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>          bind(c, name = <span class="stringliteral">&#39;cuda_addsqr2s2&#39;</span>)</div>
-<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
-<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d</div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span><span class="keywordtype">       real</span>(c_rp) :: c1</div>
-<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d4/d40/interfacecuda__math_1_1cuda__rzero.html">cuda_rzero</a></div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span> </div>
+<div class="foldopen" id="foldopen00157" data-start="" data-end="">
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno"><a class="line" href="../../d7/d19/interfacecuda__math_1_1cuda__add2.html#ae9c941b50b2673a58a0b003bc7d502c3">  157</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d7/d19/interfacecuda__math_1_1cuda__add2.html">cuda_add2</a>(a_d, b_d, n, strm) &amp;</div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>          bind(c, name = <span class="stringliteral">&#39;cuda_add2&#39;</span>)</div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d4/d82/interfacecuda__math_1_1cuda__addsqr2s2.html">cuda_addsqr2s2</a></div>
-<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span> </div>
-<div class="foldopen" id="foldopen00167" data-start="" data-end="">
-<div class="line"><a id="l00167" name="l00167"></a><span class="lineno"><a class="line" href="../../de/d9d/interfacecuda__math_1_1cuda__add3s2.html#ac60cd8f05d7a630f9d627bd10a7bb6f2">  167</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../de/d9d/interfacecuda__math_1_1cuda__add3s2.html">cuda_add3s2</a>(a_d, b_d, c_d, c1, c2, n) &amp;</div>
-<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>          bind(c, name = <span class="stringliteral">&#39;cuda_add3s2&#39;</span>)</div>
-<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d</div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span><span class="keywordtype">       real</span>(c_rp) :: c1, c2</div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d7/d19/interfacecuda__math_1_1cuda__add2.html">cuda_add2</a></div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span> </div>
+<div class="foldopen" id="foldopen00165" data-start="" data-end="">
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno"><a class="line" href="../../d6/dea/interfacecuda__math_1_1cuda__add4.html#aafefa83593b7dde3fe79996d1a283e2b">  165</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d6/dea/interfacecuda__math_1_1cuda__add4.html">cuda_add4</a>(a_d, b_d, c_d, d_d, n, strm) &amp;</div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>          bind(c, name = <span class="stringliteral">&#39;cuda_add4&#39;</span>)</div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, d_d, strm</div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../de/d9d/interfacecuda__math_1_1cuda__add3s2.html">cuda_add3s2</a></div>
-<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span> </div>
-<div class="foldopen" id="foldopen00176" data-start="" data-end="">
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno"><a class="line" href="../../de/da8/interfacecuda__math_1_1cuda__invcol1.html#a5e7664f45c64470f45ece52870b20add">  176</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../de/da8/interfacecuda__math_1_1cuda__invcol1.html">cuda_invcol1</a>(a_d, n) &amp;</div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>          bind(c, name = <span class="stringliteral">&#39;cuda_invcol1&#39;</span>)</div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d</div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d6/dea/interfacecuda__math_1_1cuda__add4.html">cuda_add4</a></div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span> </div>
+<div class="foldopen" id="foldopen00173" data-start="" data-end="">
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno"><a class="line" href="../../d5/d4b/interfacecuda__math_1_1cuda__add2s1.html#a48c8cbee02014e2030874c0f6bceeadc">  173</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d5/d4b/interfacecuda__math_1_1cuda__add2s1.html">cuda_add2s1</a>(a_d, b_d, c1, n, strm) &amp;</div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>          bind(c, name = <span class="stringliteral">&#39;cuda_add2s1&#39;</span>)</div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span><span class="keywordtype">       real</span>(c_rp) :: c1</div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../de/da8/interfacecuda__math_1_1cuda__invcol1.html">cuda_invcol1</a></div>
-<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span> </div>
-<div class="foldopen" id="foldopen00183" data-start="" data-end="">
-<div class="line"><a id="l00183" name="l00183"></a><span class="lineno"><a class="line" href="../../d5/d7d/interfacecuda__math_1_1cuda__invcol2.html#a9ebb27f4a9aa109dd2e661bc51e1ca50">  183</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d5/d7d/interfacecuda__math_1_1cuda__invcol2.html">cuda_invcol2</a>(a_d, b_d, n) &amp;</div>
-<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>          bind(c, name = <span class="stringliteral">&#39;cuda_invcol2&#39;</span>)</div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d</div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d5/d4b/interfacecuda__math_1_1cuda__add2s1.html">cuda_add2s1</a></div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span> </div>
+<div class="foldopen" id="foldopen00182" data-start="" data-end="">
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno"><a class="line" href="../../d0/d31/interfacecuda__math_1_1cuda__add2s2.html#aed3e0d85b71973ec47929cea65c887c9">  182</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d0/d31/interfacecuda__math_1_1cuda__add2s2.html">cuda_add2s2</a>(a_d, b_d, c1, n, strm) &amp;</div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>          bind(c, name = <span class="stringliteral">&#39;cuda_add2s2&#39;</span>)</div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span><span class="keywordtype">       real</span>(c_rp) :: c1</div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d5/d7d/interfacecuda__math_1_1cuda__invcol2.html">cuda_invcol2</a></div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span> </div>
-<div class="foldopen" id="foldopen00190" data-start="" data-end="">
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno"><a class="line" href="../../d6/d1d/interfacecuda__math_1_1cuda__col2.html#a6f67075f4044c3843c0ad58ee0667ffe">  190</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d6/d1d/interfacecuda__math_1_1cuda__col2.html">cuda_col2</a>(a_d, b_d, n) &amp;</div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>          bind(c, name = <span class="stringliteral">&#39;cuda_col2&#39;</span>)</div>
-<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d</div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d0/d31/interfacecuda__math_1_1cuda__add2s2.html">cuda_add2s2</a></div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span> </div>
+<div class="foldopen" id="foldopen00191" data-start="" data-end="">
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno"><a class="line" href="../../d4/d82/interfacecuda__math_1_1cuda__addsqr2s2.html#aa070bd49f21439bed3f27ff73104cfc5">  191</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d4/d82/interfacecuda__math_1_1cuda__addsqr2s2.html">cuda_addsqr2s2</a>(a_d, b_d, c1, n, strm) &amp;</div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>          bind(c, name = <span class="stringliteral">&#39;cuda_addsqr2s2&#39;</span>)</div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span><span class="keywordtype">       real</span>(c_rp) :: c1</div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d6/d1d/interfacecuda__math_1_1cuda__col2.html">cuda_col2</a></div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span> </div>
-<div class="foldopen" id="foldopen00197" data-start="" data-end="">
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno"><a class="line" href="../../d5/d51/interfacecuda__math_1_1cuda__col3.html#a1181c2c3c423454d8e9a581f4be1d22b">  197</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d5/d51/interfacecuda__math_1_1cuda__col3.html">cuda_col3</a>(a_d, b_d, c_d, n) &amp;</div>
-<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>          bind(c, name = <span class="stringliteral">&#39;cuda_col3&#39;</span>)</div>
-<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d</div>
-<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d4/d82/interfacecuda__math_1_1cuda__addsqr2s2.html">cuda_addsqr2s2</a></div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span> </div>
+<div class="foldopen" id="foldopen00200" data-start="" data-end="">
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno"><a class="line" href="../../de/d9d/interfacecuda__math_1_1cuda__add3s2.html#a61fbaabd11d4406a5b1608dc30abd937">  200</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../de/d9d/interfacecuda__math_1_1cuda__add3s2.html">cuda_add3s2</a>(a_d, b_d, c_d, c1, c2, n, strm) &amp;</div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>          bind(c, name = <span class="stringliteral">&#39;cuda_add3s2&#39;</span>)</div>
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, strm</div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span><span class="keywordtype">       real</span>(c_rp) :: c1, c2</div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d5/d51/interfacecuda__math_1_1cuda__col3.html">cuda_col3</a></div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span> </div>
-<div class="foldopen" id="foldopen00204" data-start="" data-end="">
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno"><a class="line" href="../../d8/d08/interfacecuda__math_1_1cuda__subcol3.html#a9022c3f3ccaaa77fab400085ad7c2f5d">  204</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d8/d08/interfacecuda__math_1_1cuda__subcol3.html">cuda_subcol3</a>(a_d, b_d, c_d, n) &amp;</div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>          bind(c, name = <span class="stringliteral">&#39;cuda_subcol3&#39;</span>)</div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d</div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
-</div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d8/d08/interfacecuda__math_1_1cuda__subcol3.html">cuda_subcol3</a></div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span> </div>
-<div class="foldopen" id="foldopen00211" data-start="" data-end="">
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno"><a class="line" href="../../d9/df2/interfacecuda__math_1_1cuda__sub2.html#a5a94c86df898d4b3e67388e3904a3226">  211</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d9/df2/interfacecuda__math_1_1cuda__sub2.html">cuda_sub2</a>(a_d, b_d, n) &amp;</div>
-<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>          bind(c, name = <span class="stringliteral">&#39;cuda_sub2&#39;</span>)</div>
-<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d</div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../de/d9d/interfacecuda__math_1_1cuda__add3s2.html">cuda_add3s2</a></div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span> </div>
+<div class="foldopen" id="foldopen00209" data-start="" data-end="">
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno"><a class="line" href="../../d3/d14/interfacecuda__math_1_1cuda__add4s3.html#ae972a1aba99e1daca33ab1adbebe440a">  209</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d3/d14/interfacecuda__math_1_1cuda__add4s3.html">cuda_add4s3</a>(a_d, b_d, c_d, d_d, c1, c2, c3, n, strm) &amp;</div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>          bind(c, name = <span class="stringliteral">&#39;cuda_add4s3&#39;</span>)</div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, d_d, strm</div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span><span class="keywordtype">       real</span>(c_rp) :: c1, c2, c3</div>
 <div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d9/df2/interfacecuda__math_1_1cuda__sub2.html">cuda_sub2</a></div>
+<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d3/d14/interfacecuda__math_1_1cuda__add4s3.html">cuda_add4s3</a></div>
 <div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span> </div>
 <div class="foldopen" id="foldopen00218" data-start="" data-end="">
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno"><a class="line" href="../../d9/d6a/interfacecuda__math_1_1cuda__sub3.html#aa10a52a67e4419ff4bd19bccd4d1f514">  218</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d9/d6a/interfacecuda__math_1_1cuda__sub3.html">cuda_sub3</a>(a_d, b_d, c_d, n) &amp;</div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>          bind(c, name = <span class="stringliteral">&#39;cuda_sub3&#39;</span>)</div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno"><a class="line" href="../../d5/d13/interfacecuda__math_1_1cuda__add5s4.html#abe70ec73c716202d1f25bf39419e071d">  218</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d5/d13/interfacecuda__math_1_1cuda__add5s4.html">cuda_add5s4</a>(a_d, b_d, c_d, d_d, e_d, c1, c2, c3, c4, n, strm) &amp;</div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>          bind(c, name = <span class="stringliteral">&#39;cuda_add5s4&#39;</span>)</div>
 <div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d</div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, d_d, e_d, strm</div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span><span class="keywordtype">       real</span>(c_rp) :: c1, c2, c3, c4</div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d9/d6a/interfacecuda__math_1_1cuda__sub3.html">cuda_sub3</a></div>
-<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span> </div>
-<div class="foldopen" id="foldopen00225" data-start="" data-end="">
-<div class="line"><a id="l00225" name="l00225"></a><span class="lineno"><a class="line" href="../../d4/dbc/interfacecuda__math_1_1cuda__add3.html#a0531719cd37571549e829acfb6589506">  225</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d4/dbc/interfacecuda__math_1_1cuda__add3.html">cuda_add3</a>(a_d, b_d, c_d, n) &amp;</div>
-<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>          bind(c, name = <span class="stringliteral">&#39;cuda_add3&#39;</span>)</div>
-<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d</div>
-<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d5/d13/interfacecuda__math_1_1cuda__add5s4.html">cuda_add5s4</a></div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span> </div>
+<div class="foldopen" id="foldopen00227" data-start="" data-end="">
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno"><a class="line" href="../../de/da8/interfacecuda__math_1_1cuda__invcol1.html#a5c133c6153c44dcf0486d0ce6c5f209c">  227</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../de/da8/interfacecuda__math_1_1cuda__invcol1.html">cuda_invcol1</a>(a_d, n, strm) &amp;</div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>          bind(c, name = <span class="stringliteral">&#39;cuda_invcol1&#39;</span>)</div>
+<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d4/dbc/interfacecuda__math_1_1cuda__add3.html">cuda_add3</a></div>
-<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span> </div>
-<div class="foldopen" id="foldopen00232" data-start="" data-end="">
-<div class="line"><a id="l00232" name="l00232"></a><span class="lineno"><a class="line" href="../../da/de3/interfacecuda__math_1_1cuda__addcol3.html#aaa8af19234203f334048f1d7bc278610">  232</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../da/de3/interfacecuda__math_1_1cuda__addcol3.html">cuda_addcol3</a>(a_d, b_d, c_d, n) &amp;</div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>          bind(c, name = <span class="stringliteral">&#39;cuda_addcol3&#39;</span>)</div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d</div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../de/da8/interfacecuda__math_1_1cuda__invcol1.html">cuda_invcol1</a></div>
+<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span> </div>
+<div class="foldopen" id="foldopen00234" data-start="" data-end="">
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno"><a class="line" href="../../d5/d7d/interfacecuda__math_1_1cuda__invcol2.html#afc6ba3a01aa8fca6f6758ecc541dcbbf">  234</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d5/d7d/interfacecuda__math_1_1cuda__invcol2.html">cuda_invcol2</a>(a_d, b_d, n, strm) &amp;</div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>          bind(c, name = <span class="stringliteral">&#39;cuda_invcol2&#39;</span>)</div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../da/de3/interfacecuda__math_1_1cuda__addcol3.html">cuda_addcol3</a></div>
-<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span> </div>
-<div class="foldopen" id="foldopen00239" data-start="" data-end="">
-<div class="line"><a id="l00239" name="l00239"></a><span class="lineno"><a class="line" href="../../d1/d08/interfacecuda__math_1_1cuda__addcol4.html#ae2f50199bff1f5c1b313a55dbefdacc6">  239</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d1/d08/interfacecuda__math_1_1cuda__addcol4.html">cuda_addcol4</a>(a_d, b_d, c_d, d_d, n) &amp;</div>
-<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>          bind(c, name = <span class="stringliteral">&#39;cuda_addcol4&#39;</span>)</div>
-<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, d_d</div>
-<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d5/d7d/interfacecuda__math_1_1cuda__invcol2.html">cuda_invcol2</a></div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span> </div>
+<div class="foldopen" id="foldopen00241" data-start="" data-end="">
+<div class="line"><a id="l00241" name="l00241"></a><span class="lineno"><a class="line" href="../../dc/d21/interfacecuda__math_1_1cuda__invcol3.html#ae3875f826ca0c53f377a264f38aad4fa">  241</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../dc/d21/interfacecuda__math_1_1cuda__invcol3.html">cuda_invcol3</a>(a_d, b_d, c_d, n, strm) &amp;</div>
+<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>          bind(c, name = <span class="stringliteral">&#39;cuda_invcol3&#39;</span>)</div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, strm</div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d1/d08/interfacecuda__math_1_1cuda__addcol4.html">cuda_addcol4</a></div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span> </div>
-<div class="foldopen" id="foldopen00246" data-start="" data-end="">
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno"><a class="line" href="../../d2/dc3/interfacecuda__math_1_1cuda__vdot3.html#ab3641c83793bd72990c59a988dd3d13c">  246</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d2/dc3/interfacecuda__math_1_1cuda__vdot3.html">cuda_vdot3</a>(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n) &amp;</div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>          bind(c, name = <span class="stringliteral">&#39;cuda_vdot3&#39;</span>)</div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d</div>
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../dc/d21/interfacecuda__math_1_1cuda__invcol3.html">cuda_invcol3</a></div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span> </div>
+<div class="foldopen" id="foldopen00248" data-start="" data-end="">
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno"><a class="line" href="../../d6/d1d/interfacecuda__math_1_1cuda__col2.html#abfa230e45798881623a6cc7c47e34439">  248</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d6/d1d/interfacecuda__math_1_1cuda__col2.html">cuda_col2</a>(a_d, b_d, n, strm) &amp;</div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>          bind(c, name = <span class="stringliteral">&#39;cuda_col2&#39;</span>)</div>
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d2/dc3/interfacecuda__math_1_1cuda__vdot3.html">cuda_vdot3</a></div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span> </div>
-<div class="foldopen" id="foldopen00253" data-start="" data-end="">
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno"><a class="line" href="../../d6/d50/interfacecuda__math_1_1cuda__vcross.html#a41659fa4237e06fb126252cfe4a4d216">  253</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d6/d50/interfacecuda__math_1_1cuda__vcross.html">cuda_vcross</a>(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, &amp;</div>
-<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>          w1_d, w2_d, w3_d, n) &amp;</div>
-<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>          bind(c, name = <span class="stringliteral">&#39;cuda_vcross&#39;</span>)</div>
-<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: u1_d, u2_d, u3_d</div>
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: v1_d, v2_d, v3_d</div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: w1_d, w2_d, w3_d</div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d6/d1d/interfacecuda__math_1_1cuda__col2.html">cuda_col2</a></div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span> </div>
+<div class="foldopen" id="foldopen00255" data-start="" data-end="">
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno"><a class="line" href="../../d5/d51/interfacecuda__math_1_1cuda__col3.html#a5169d3e1a67e0cf2daa463c833f5f42f">  255</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d5/d51/interfacecuda__math_1_1cuda__col3.html">cuda_col3</a>(a_d, b_d, c_d, n, strm) &amp;</div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>          bind(c, name = <span class="stringliteral">&#39;cuda_col3&#39;</span>)</div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, strm</div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d6/d50/interfacecuda__math_1_1cuda__vcross.html">cuda_vcross</a></div>
-<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span> </div>
-<div class="foldopen" id="foldopen00263" data-start="" data-end="">
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno"><a class="line" href="../../dd/d3e/interfacecuda__math_1_1cuda__vlsc3.html#abad12a02af96268f78a69d061f54876b">  263</a></span><span class="keywordtype">     real</span>(<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a>) function <a class="code hl_interface" href="../../dd/d3e/interfacecuda__math_1_1cuda__vlsc3.html">cuda_vlsc3</a>(u_d, v_d, w_d, n) &amp;</div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>          bind(c, name = <span class="stringliteral">&#39;cuda_vlsc3&#39;</span>)</div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: u_d, v_d, w_d</div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d5/d51/interfacecuda__math_1_1cuda__col3.html">cuda_col3</a></div>
+<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span> </div>
+<div class="foldopen" id="foldopen00262" data-start="" data-end="">
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno"><a class="line" href="../../d8/d08/interfacecuda__math_1_1cuda__subcol3.html#a4e58ca24c5d3fbc52d6ae0a08d00a345">  262</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d8/d08/interfacecuda__math_1_1cuda__subcol3.html">cuda_subcol3</a>(a_d, b_d, c_d, n, strm) &amp;</div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>          bind(c, name = <span class="stringliteral">&#39;cuda_subcol3&#39;</span>)</div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, strm</div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>     <span class="keyword">end function </span><a class="code hl_interface" href="../../dd/d3e/interfacecuda__math_1_1cuda__vlsc3.html">cuda_vlsc3</a></div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span> </div>
-<div class="foldopen" id="foldopen00271" data-start="" data-end="">
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno"><a class="line" href="../../da/d1a/interfacecuda__math_1_1cuda__add2s2__many.html#a63b01d067419f6c45b73545d1b95e49c">  271</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../da/d1a/interfacecuda__math_1_1cuda__add2s2__many.html">cuda_add2s2_many</a>(y_d, x_d_d, a_d, j, n) &amp;</div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>          bind(c, name = <span class="stringliteral">&#39;cuda_add2s2_many&#39;</span>)</div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: y_d, x_d_d, a_d</div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>       <span class="keywordtype">integer(c_int)</span> :: j, n</div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d8/d08/interfacecuda__math_1_1cuda__subcol3.html">cuda_subcol3</a></div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span> </div>
+<div class="foldopen" id="foldopen00269" data-start="" data-end="">
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno"><a class="line" href="../../d9/df2/interfacecuda__math_1_1cuda__sub2.html#a7f2068a6399d0c56a976bf6341e98bf4">  269</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d9/df2/interfacecuda__math_1_1cuda__sub2.html">cuda_sub2</a>(a_d, b_d, n, strm) &amp;</div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>          bind(c, name = <span class="stringliteral">&#39;cuda_sub2&#39;</span>)</div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../da/d1a/interfacecuda__math_1_1cuda__add2s2__many.html">cuda_add2s2_many</a></div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span> </div>
-<div class="foldopen" id="foldopen00279" data-start="" data-end="">
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno"><a class="line" href="../../d8/d9d/interfacecuda__math_1_1cuda__glsc3.html#a8e76c639eb66e6db1b336cdfc87450fe">  279</a></span><span class="keywordtype">     real</span>(<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a>) function <a class="code hl_interface" href="../../d8/d9d/interfacecuda__math_1_1cuda__glsc3.html">cuda_glsc3</a>(a_d, b_d, c_d, n) &amp;</div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>          bind(c, name = <span class="stringliteral">&#39;cuda_glsc3&#39;</span>)</div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d</div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d9/df2/interfacecuda__math_1_1cuda__sub2.html">cuda_sub2</a></div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span> </div>
+<div class="foldopen" id="foldopen00276" data-start="" data-end="">
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno"><a class="line" href="../../d9/d6a/interfacecuda__math_1_1cuda__sub3.html#af6c285260d69601943d564b285a46ea4">  276</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d9/d6a/interfacecuda__math_1_1cuda__sub3.html">cuda_sub3</a>(a_d, b_d, c_d, n, strm) &amp;</div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>          bind(c, name = <span class="stringliteral">&#39;cuda_sub3&#39;</span>)</div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, strm</div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>     <span class="keyword">end function </span><a class="code hl_interface" href="../../d8/d9d/interfacecuda__math_1_1cuda__glsc3.html">cuda_glsc3</a></div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span> </div>
-<div class="foldopen" id="foldopen00287" data-start="" data-end="">
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno"><a class="line" href="../../de/d67/interfacecuda__math_1_1cuda__glsc3__many.html#affe560456848083ebb88ea24b5d7a80c">  287</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../de/d67/interfacecuda__math_1_1cuda__glsc3__many.html">cuda_glsc3_many</a>(h, w_d, v_d_d, mult_d, j, n) &amp;</div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>          bind(c, name = <span class="stringliteral">&#39;cuda_glsc3_many&#39;</span>)</div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>       <span class="keywordtype">import </span>c_rp</div>
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: w_d, v_d_d, mult_d</div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>       <span class="keywordtype">integer(c_int)</span> :: j, n</div>
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span><span class="keywordtype">       real</span>(c_rp) :: h(j)</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d9/d6a/interfacecuda__math_1_1cuda__sub3.html">cuda_sub3</a></div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span> </div>
+<div class="foldopen" id="foldopen00283" data-start="" data-end="">
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno"><a class="line" href="../../d4/dbc/interfacecuda__math_1_1cuda__add3.html#a22e605151befe019bc67a00944454ddb">  283</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d4/dbc/interfacecuda__math_1_1cuda__add3.html">cuda_add3</a>(a_d, b_d, c_d, n, strm) &amp;</div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>          bind(c, name = <span class="stringliteral">&#39;cuda_add3&#39;</span>)</div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, strm</div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../de/d67/interfacecuda__math_1_1cuda__glsc3__many.html">cuda_glsc3_many</a></div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span> </div>
-<div class="foldopen" id="foldopen00296" data-start="" data-end="">
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno"><a class="line" href="../../d7/de4/interfacecuda__math_1_1cuda__glsc2.html#a8c7fbd567697e4b2a0507397a66af21c">  296</a></span><span class="keywordtype">     real</span>(c_rp) function <a class="code hl_interface" href="../../d7/de4/interfacecuda__math_1_1cuda__glsc2.html">cuda_glsc2</a>(a_d, b_d, n) &amp;</div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>          bind(c, name = <span class="stringliteral">&#39;cuda_glsc2&#39;</span>)</div>
-<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>       <span class="keywordtype">import </span>c_rp</div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d</div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d4/dbc/interfacecuda__math_1_1cuda__add3.html">cuda_add3</a></div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span> </div>
+<div class="foldopen" id="foldopen00290" data-start="" data-end="">
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno"><a class="line" href="../../da/de3/interfacecuda__math_1_1cuda__addcol3.html#aa29e053f65143f28869f8e6603700811">  290</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../da/de3/interfacecuda__math_1_1cuda__addcol3.html">cuda_addcol3</a>(a_d, b_d, c_d, n, strm) &amp;</div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>          bind(c, name = <span class="stringliteral">&#39;cuda_addcol3&#39;</span>)</div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, strm</div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+</div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../da/de3/interfacecuda__math_1_1cuda__addcol3.html">cuda_addcol3</a></div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span> </div>
+<div class="foldopen" id="foldopen00297" data-start="" data-end="">
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno"><a class="line" href="../../d1/d08/interfacecuda__math_1_1cuda__addcol4.html#aced3afe16bd1ac009823d0266767b73f">  297</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d1/d08/interfacecuda__math_1_1cuda__addcol4.html">cuda_addcol4</a>(a_d, b_d, c_d, d_d, n, strm) &amp;</div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>          bind(c, name = <span class="stringliteral">&#39;cuda_addcol4&#39;</span>)</div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, d_d, strm</div>
 <div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>     <span class="keyword">end function </span><a class="code hl_interface" href="../../d7/de4/interfacecuda__math_1_1cuda__glsc2.html">cuda_glsc2</a></div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d1/d08/interfacecuda__math_1_1cuda__addcol4.html">cuda_addcol4</a></div>
 <div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span> </div>
 <div class="foldopen" id="foldopen00304" data-start="" data-end="">
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno"><a class="line" href="../../d1/d88/interfacecuda__math_1_1cuda__glsum.html#a72b301c6cce3e2da4d759a2c7705c393">  304</a></span><span class="keywordtype">     real</span>(c_rp) function <a class="code hl_interface" href="../../d1/d88/interfacecuda__math_1_1cuda__glsum.html">cuda_glsum</a>(a_d, n) &amp;</div>
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>          bind(c, name = <span class="stringliteral">&#39;cuda_glsum&#39;</span>)</div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno"><a class="line" href="../../dc/dca/interfacecuda__math_1_1cuda__addcol3s2.html#a89b2f9d949510fe57231c8df480796f3">  304</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../dc/dca/interfacecuda__math_1_1cuda__addcol3s2.html">cuda_addcol3s2</a>(a_d, b_d, c_d, s, n, strm) &amp;</div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>          bind(c, name = <span class="stringliteral">&#39;cuda_addcol3s2&#39;</span>)</div>
 <div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>       <span class="keywordtype">import </span>c_rp</div>
-<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d</div>
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, strm</div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span><span class="keywordtype">       real</span>(c_rp) :: s</div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>     <span class="keyword">end function </span><a class="code hl_interface" href="../../d1/d88/interfacecuda__math_1_1cuda__glsum.html">cuda_glsum</a></div>
-<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span> </div>
-<div class="foldopen" id="foldopen00312" data-start="" data-end="">
-<div class="line"><a id="l00312" name="l00312"></a><span class="lineno"><a class="line" href="../../db/d5a/interfacecuda__math_1_1cuda__absval.html#a34fbfef25e15eda3ca5e04a8e5a497f0">  312</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../db/d5a/interfacecuda__math_1_1cuda__absval.html">cuda_absval</a>(a_d, n) &amp;</div>
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>          bind(c, name = <span class="stringliteral">&#39;cuda_absval&#39;</span>)</div>
-<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>       <span class="keywordtype">import </span>c_rp</div>
-<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d</div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../dc/dca/interfacecuda__math_1_1cuda__addcol3s2.html">cuda_addcol3s2</a></div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span> </div>
+<div class="foldopen" id="foldopen00313" data-start="" data-end="">
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno"><a class="line" href="../../d2/dc3/interfacecuda__math_1_1cuda__vdot3.html#af33dd2532cd764c040ae46a4fae09cbc">  313</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d2/dc3/interfacecuda__math_1_1cuda__vdot3.html">cuda_vdot3</a>(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n, strm) &amp;</div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>          bind(c, name = <span class="stringliteral">&#39;cuda_vdot3&#39;</span>)</div>
+<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, strm</div>
 <div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../db/d5a/interfacecuda__math_1_1cuda__absval.html">cuda_absval</a></div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>  <span class="keyword">end interface</span></div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span> </div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>  <span class="comment">! ========================================================================== !</span></div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>  <span class="comment">! Interfaces for the pointwise operations.</span></div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span> </div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>  <span class="keyword">interface</span></div>
-<div class="foldopen" id="foldopen00325" data-start="" data-end="">
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno"><a class="line" href="../../d3/d79/interfacecuda__math_1_1cuda__pwmax__vec2.html#a2f9a6fbdaa61197804dc576c77fc0542">  325</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d3/d79/interfacecuda__math_1_1cuda__pwmax__vec2.html">cuda_pwmax_vec2</a>(a_d, b_d, n) &amp;</div>
-<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>          bind(c, name = <span class="stringliteral">&#39;cuda_pwmax_vec2&#39;</span>)</div>
-<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d</div>
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d2/dc3/interfacecuda__math_1_1cuda__vdot3.html">cuda_vdot3</a></div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span> </div>
+<div class="foldopen" id="foldopen00320" data-start="" data-end="">
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno"><a class="line" href="../../d6/d50/interfacecuda__math_1_1cuda__vcross.html#ac84a348ad1c3f62ee4ddd60b3f0d30fa">  320</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d6/d50/interfacecuda__math_1_1cuda__vcross.html">cuda_vcross</a>(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, &amp;</div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>          w1_d, w2_d, w3_d, n, strm) &amp;</div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>          bind(c, name = <span class="stringliteral">&#39;cuda_vcross&#39;</span>)</div>
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: u1_d, u2_d, u3_d</div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: v1_d, v2_d, v3_d</div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: w1_d, w2_d, w3_d</div>
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: strm</div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d3/d79/interfacecuda__math_1_1cuda__pwmax__vec2.html">cuda_pwmax_vec2</a></div>
-<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span> </div>
-<div class="foldopen" id="foldopen00332" data-start="" data-end="">
-<div class="line"><a id="l00332" name="l00332"></a><span class="lineno"><a class="line" href="../../d3/dcb/interfacecuda__math_1_1cuda__pwmax__vec3.html#aa890391afa33b64e2f9de99dd81a9c6d">  332</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d3/dcb/interfacecuda__math_1_1cuda__pwmax__vec3.html">cuda_pwmax_vec3</a>(a_d, b_d, c_d, n) &amp;</div>
-<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>          bind(c, name = <span class="stringliteral">&#39;cuda_pwmax_vec3&#39;</span>)</div>
-<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d</div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d6/d50/interfacecuda__math_1_1cuda__vcross.html">cuda_vcross</a></div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span> </div>
+<div class="foldopen" id="foldopen00331" data-start="" data-end="">
+<div class="line"><a id="l00331" name="l00331"></a><span class="lineno"><a class="line" href="../../dd/d3e/interfacecuda__math_1_1cuda__vlsc3.html#a39016fe1c1976742ae6624745778d2b9">  331</a></span><span class="keywordtype">     real</span>(<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a>) function <a class="code hl_interface" href="../../dd/d3e/interfacecuda__math_1_1cuda__vlsc3.html">cuda_vlsc3</a>(u_d, v_d, w_d, n, strm) &amp;</div>
+<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>          bind(c, name = <span class="stringliteral">&#39;cuda_vlsc3&#39;</span>)</div>
+<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: u_d, v_d, w_d, strm</div>
 <div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d3/dcb/interfacecuda__math_1_1cuda__pwmax__vec3.html">cuda_pwmax_vec3</a></div>
+<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>     <span class="keyword">end function </span><a class="code hl_interface" href="../../dd/d3e/interfacecuda__math_1_1cuda__vlsc3.html">cuda_vlsc3</a></div>
 <div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span> </div>
 <div class="foldopen" id="foldopen00339" data-start="" data-end="">
-<div class="line"><a id="l00339" name="l00339"></a><span class="lineno"><a class="line" href="../../df/d32/interfacecuda__math_1_1cuda__pwmax__sca2.html#a036b4a9ab8b14634e8fca0f42451d395">  339</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../df/d32/interfacecuda__math_1_1cuda__pwmax__sca2.html">cuda_pwmax_sca2</a>(a_d, c_d, n) &amp;</div>
-<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>          bind(c, name = <span class="stringliteral">&#39;cuda_pwmax_sca2&#39;</span>)</div>
+<div class="line"><a id="l00339" name="l00339"></a><span class="lineno"><a class="line" href="../../da/d1a/interfacecuda__math_1_1cuda__add2s2__many.html#afec9177cd65b892506fa1ad0319e80fa">  339</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../da/d1a/interfacecuda__math_1_1cuda__add2s2__many.html">cuda_add2s2_many</a>(y_d, x_d_d, a_d, j, n, strm) &amp;</div>
+<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>          bind(c, name = <span class="stringliteral">&#39;cuda_add2s2_many&#39;</span>)</div>
 <div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>       <span class="keywordtype">import </span>c_rp</div>
-<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d</div>
-<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span><span class="keywordtype">       real</span>(c_rp) :: c_d</div>
-<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: y_d, x_d_d, a_d, strm</div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>       <span class="keywordtype">integer(c_int)</span> :: j, n</div>
 </div>
-<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../df/d32/interfacecuda__math_1_1cuda__pwmax__sca2.html">cuda_pwmax_sca2</a></div>
-<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span> </div>
-<div class="foldopen" id="foldopen00348" data-start="" data-end="">
-<div class="line"><a id="l00348" name="l00348"></a><span class="lineno"><a class="line" href="../../d0/da1/interfacecuda__math_1_1cuda__pwmax__sca3.html#a21a6ad72c5cc6cc94a5e64f89b212023">  348</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d0/da1/interfacecuda__math_1_1cuda__pwmax__sca3.html">cuda_pwmax_sca3</a>(a_d, b_d, c_d, n) &amp;</div>
-<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>          bind(c, name = <span class="stringliteral">&#39;cuda_pwmax_sca3&#39;</span>)</div>
-<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>       <span class="keywordtype">import </span>c_rp</div>
-<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d</div>
-<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span><span class="keywordtype">       real</span>(c_rp) :: c_d</div>
-<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../da/d1a/interfacecuda__math_1_1cuda__add2s2__many.html">cuda_add2s2_many</a></div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span> </div>
+<div class="foldopen" id="foldopen00347" data-start="" data-end="">
+<div class="line"><a id="l00347" name="l00347"></a><span class="lineno"><a class="line" href="../../d8/d9d/interfacecuda__math_1_1cuda__glsc3.html#a23f7c431e53877d5a0957b8db0292336">  347</a></span><span class="keywordtype">     real</span>(<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a>) function <a class="code hl_interface" href="../../d8/d9d/interfacecuda__math_1_1cuda__glsc3.html">cuda_glsc3</a>(a_d, b_d, c_d, n, strm) &amp;</div>
+<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>          bind(c, name = <span class="stringliteral">&#39;cuda_glsc3&#39;</span>)</div>
+<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>       <span class="keywordtype">import </span><a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, strm</div>
+<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d0/da1/interfacecuda__math_1_1cuda__pwmax__sca3.html">cuda_pwmax_sca3</a></div>
-<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span> </div>
-<div class="foldopen" id="foldopen00357" data-start="" data-end="">
-<div class="line"><a id="l00357" name="l00357"></a><span class="lineno"><a class="line" href="../../dc/daa/interfacecuda__math_1_1cuda__pwmin__vec2.html#a3822604afdfbb4a5b787ae1ca9281c57">  357</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../dc/daa/interfacecuda__math_1_1cuda__pwmin__vec2.html">cuda_pwmin_vec2</a>(a_d, b_d, n) &amp;</div>
-<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>          bind(c, name = <span class="stringliteral">&#39;cuda_pwmin_vec2&#39;</span>)</div>
-<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d</div>
-<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>     <span class="keyword">end function </span><a class="code hl_interface" href="../../d8/d9d/interfacecuda__math_1_1cuda__glsc3.html">cuda_glsc3</a></div>
+<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span> </div>
+<div class="foldopen" id="foldopen00355" data-start="" data-end="">
+<div class="line"><a id="l00355" name="l00355"></a><span class="lineno"><a class="line" href="../../de/d67/interfacecuda__math_1_1cuda__glsc3__many.html#a31892df06b3898b9a45689592e5c6318">  355</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../de/d67/interfacecuda__math_1_1cuda__glsc3__many.html">cuda_glsc3_many</a>(h, w_d, v_d_d, mult_d, j, n, strm) &amp;</div>
+<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>          bind(c, name = <span class="stringliteral">&#39;cuda_glsc3_many&#39;</span>)</div>
+<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>       <span class="keywordtype">import </span>c_rp</div>
+<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: w_d, v_d_d, mult_d, strm</div>
+<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>       <span class="keywordtype">integer(c_int)</span> :: j, n</div>
+<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span><span class="keywordtype">       real</span>(c_rp) :: h(j)</div>
 </div>
-<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../dc/daa/interfacecuda__math_1_1cuda__pwmin__vec2.html">cuda_pwmin_vec2</a></div>
+<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../de/d67/interfacecuda__math_1_1cuda__glsc3__many.html">cuda_glsc3_many</a></div>
 <div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span> </div>
 <div class="foldopen" id="foldopen00364" data-start="" data-end="">
-<div class="line"><a id="l00364" name="l00364"></a><span class="lineno"><a class="line" href="../../d0/dae/interfacecuda__math_1_1cuda__pwmin__vec3.html#aa4ab4496d9841197f320c739c9d4d7a5">  364</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d0/dae/interfacecuda__math_1_1cuda__pwmin__vec3.html">cuda_pwmin_vec3</a>(a_d, b_d, c_d, n) &amp;</div>
-<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>          bind(c, name = <span class="stringliteral">&#39;cuda_pwmin_vec3&#39;</span>)</div>
+<div class="line"><a id="l00364" name="l00364"></a><span class="lineno"><a class="line" href="../../d7/de4/interfacecuda__math_1_1cuda__glsc2.html#aca4c65817a628a0dec04a286151f2bf6">  364</a></span><span class="keywordtype">     real</span>(c_rp) function <a class="code hl_interface" href="../../d7/de4/interfacecuda__math_1_1cuda__glsc2.html">cuda_glsc2</a>(a_d, b_d, n, strm) &amp;</div>
+<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>          bind(c, name = <span class="stringliteral">&#39;cuda_glsc2&#39;</span>)</div>
 <div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d</div>
-<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>       <span class="keywordtype">import </span>c_rp</div>
+<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
+<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d0/dae/interfacecuda__math_1_1cuda__pwmin__vec3.html">cuda_pwmin_vec3</a></div>
-<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span> </div>
-<div class="foldopen" id="foldopen00371" data-start="" data-end="">
-<div class="line"><a id="l00371" name="l00371"></a><span class="lineno"><a class="line" href="../../d2/d29/interfacecuda__math_1_1cuda__pwmin__sca2.html#aa95ec7dd91676523c3d2d52af932880f">  371</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d2/d29/interfacecuda__math_1_1cuda__pwmin__sca2.html">cuda_pwmin_sca2</a>(a_d, c_d, n) &amp;</div>
-<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>          bind(c, name = <span class="stringliteral">&#39;cuda_pwmin_sca2&#39;</span>)</div>
-<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
-<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>       <span class="keywordtype">import </span>c_rp</div>
-<div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d</div>
-<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span><span class="keywordtype">       real</span>(c_rp) :: c_d</div>
+<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span>     <span class="keyword">end function </span><a class="code hl_interface" href="../../d7/de4/interfacecuda__math_1_1cuda__glsc2.html">cuda_glsc2</a></div>
+<div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span> </div>
+<div class="foldopen" id="foldopen00372" data-start="" data-end="">
+<div class="line"><a id="l00372" name="l00372"></a><span class="lineno"><a class="line" href="../../d3/d85/interfacecuda__math_1_1cuda__glsubnorm2.html#a7d684503dc181d5e7baf1c5f144d4994">  372</a></span><span class="keywordtype">     real</span>(c_rp) function <a class="code hl_interface" href="../../d3/d85/interfacecuda__math_1_1cuda__glsubnorm2.html">cuda_glsubnorm2</a>(a_d, b_d, n, strm) &amp;</div>
+<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span>          bind(c, name = <span class="stringliteral">&#39;cuda_glsubnorm2&#39;</span>)</div>
+<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>       <span class="keywordtype">import </span>c_rp</div>
+<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
 <div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d2/d29/interfacecuda__math_1_1cuda__pwmin__sca2.html">cuda_pwmin_sca2</a></div>
+<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span>     <span class="keyword">end function </span><a class="code hl_interface" href="../../d3/d85/interfacecuda__math_1_1cuda__glsubnorm2.html">cuda_glsubnorm2</a></div>
 <div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span> </div>
 <div class="foldopen" id="foldopen00380" data-start="" data-end="">
-<div class="line"><a id="l00380" name="l00380"></a><span class="lineno"><a class="line" href="../../d0/df7/interfacecuda__math_1_1cuda__pwmin__sca3.html#ae2b021ea2236cd20369c44af13fca2a2">  380</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d0/df7/interfacecuda__math_1_1cuda__pwmin__sca3.html">cuda_pwmin_sca3</a>(a_d, b_d, c_d, n) &amp;</div>
-<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span>          bind(c, name = <span class="stringliteral">&#39;cuda_pwmin_sca3&#39;</span>)</div>
+<div class="line"><a id="l00380" name="l00380"></a><span class="lineno"><a class="line" href="../../d1/d88/interfacecuda__math_1_1cuda__glsum.html#a103b84479550407942bc2ba2f358506a">  380</a></span><span class="keywordtype">     real</span>(c_rp) function <a class="code hl_interface" href="../../d1/d88/interfacecuda__math_1_1cuda__glsum.html">cuda_glsum</a>(a_d, n, strm) &amp;</div>
+<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span>          bind(c, name = <span class="stringliteral">&#39;cuda_glsum&#39;</span>)</div>
 <div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
 <div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span>       <span class="keywordtype">import </span>c_rp</div>
-<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d</div>
-<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span><span class="keywordtype">       real</span>(c_rp) :: c_d</div>
-<div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
+<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
 </div>
-<div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d0/df7/interfacecuda__math_1_1cuda__pwmin__sca3.html">cuda_pwmin_sca3</a></div>
-<div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span> </div>
-<div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span>  <span class="keyword">end interface</span></div>
-<div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d5/d2a/namespacecuda__math.html">cuda_math</a></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__absval_html"><div class="ttname"><a href="../../db/d5a/interfacecuda__math_1_1cuda__absval.html">cuda_math::cuda_absval</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00312">cuda_math.f90:312</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__add2_html"><div class="ttname"><a href="../../d7/d19/interfacecuda__math_1_1cuda__add2.html">cuda_math::cuda_add2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00124">cuda_math.f90:124</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__add2s1_html"><div class="ttname"><a href="../../d5/d4b/interfacecuda__math_1_1cuda__add2s1.html">cuda_math::cuda_add2s1</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00140">cuda_math.f90:140</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__add2s2__many_html"><div class="ttname"><a href="../../da/d1a/interfacecuda__math_1_1cuda__add2s2__many.html">cuda_math::cuda_add2s2_many</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00271">cuda_math.f90:271</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__add2s2_html"><div class="ttname"><a href="../../d0/d31/interfacecuda__math_1_1cuda__add2s2.html">cuda_math::cuda_add2s2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00149">cuda_math.f90:149</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__add3_html"><div class="ttname"><a href="../../d4/dbc/interfacecuda__math_1_1cuda__add3.html">cuda_math::cuda_add3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00225">cuda_math.f90:225</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__add3s2_html"><div class="ttname"><a href="../../de/d9d/interfacecuda__math_1_1cuda__add3s2.html">cuda_math::cuda_add3s2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00167">cuda_math.f90:167</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__add4_html"><div class="ttname"><a href="../../d6/dea/interfacecuda__math_1_1cuda__add4.html">cuda_math::cuda_add4</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00132">cuda_math.f90:132</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__addcol3_html"><div class="ttname"><a href="../../da/de3/interfacecuda__math_1_1cuda__addcol3.html">cuda_math::cuda_addcol3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00232">cuda_math.f90:232</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__addcol4_html"><div class="ttname"><a href="../../d1/d08/interfacecuda__math_1_1cuda__addcol4.html">cuda_math::cuda_addcol4</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00239">cuda_math.f90:239</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__addsqr2s2_html"><div class="ttname"><a href="../../d4/d82/interfacecuda__math_1_1cuda__addsqr2s2.html">cuda_math::cuda_addsqr2s2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00158">cuda_math.f90:158</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__cadd2_html"><div class="ttname"><a href="../../d5/d64/interfacecuda__math_1_1cuda__cadd2.html">cuda_math::cuda_cadd2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00098">cuda_math.f90:98</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__cadd_html"><div class="ttname"><a href="../../dc/d4d/interfacecuda__math_1_1cuda__cadd.html">cuda_math::cuda_cadd</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00089">cuda_math.f90:89</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__cfill__mask_html"><div class="ttname"><a href="../../d1/d8a/interfacecuda__math_1_1cuda__cfill__mask.html">cuda_math::cuda_cfill_mask</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00060">cuda_math.f90:60</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__cfill_html"><div class="ttname"><a href="../../d4/dc4/interfacecuda__math_1_1cuda__cfill.html">cuda_math::cuda_cfill</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00108">cuda_math.f90:108</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__cmult2_html"><div class="ttname"><a href="../../d4/d81/interfacecuda__math_1_1cuda__cmult2.html">cuda_math::cuda_cmult2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00080">cuda_math.f90:80</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__cmult_html"><div class="ttname"><a href="../../db/d0b/interfacecuda__math_1_1cuda__cmult.html">cuda_math::cuda_cmult</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00071">cuda_math.f90:71</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__col2_html"><div class="ttname"><a href="../../d6/d1d/interfacecuda__math_1_1cuda__col2.html">cuda_math::cuda_col2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00190">cuda_math.f90:190</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__col3_html"><div class="ttname"><a href="../../d5/d51/interfacecuda__math_1_1cuda__col3.html">cuda_math::cuda_col3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00197">cuda_math.f90:197</a></div></div>
+<div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span>     <span class="keyword">end function </span><a class="code hl_interface" href="../../d1/d88/interfacecuda__math_1_1cuda__glsum.html">cuda_glsum</a></div>
+<div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span> </div>
+<div class="foldopen" id="foldopen00388" data-start="" data-end="">
+<div class="line"><a id="l00388" name="l00388"></a><span class="lineno"><a class="line" href="../../db/d5a/interfacecuda__math_1_1cuda__absval.html#ae9c047407c4d71c83d03cd54e6d1e571">  388</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../db/d5a/interfacecuda__math_1_1cuda__absval.html">cuda_absval</a>(a_d, n, strm) &amp;</div>
+<div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span>          bind(c, name = <span class="stringliteral">&#39;cuda_absval&#39;</span>)</div>
+<div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span>       <span class="keywordtype">import </span>c_rp</div>
+<div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
+<div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+</div>
+<div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../db/d5a/interfacecuda__math_1_1cuda__absval.html">cuda_absval</a></div>
+<div class="line"><a id="l00395" name="l00395"></a><span class="lineno">  395</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00396" name="l00396"></a><span class="lineno">  396</span> </div>
+<div class="line"><a id="l00397" name="l00397"></a><span class="lineno">  397</span>  <span class="comment">! ========================================================================== !</span></div>
+<div class="line"><a id="l00398" name="l00398"></a><span class="lineno">  398</span>  <span class="comment">! Interfaces for the pointwise operations.</span></div>
+<div class="line"><a id="l00399" name="l00399"></a><span class="lineno">  399</span> </div>
+<div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span>  <span class="keyword">interface</span></div>
+<div class="foldopen" id="foldopen00401" data-start="" data-end="">
+<div class="line"><a id="l00401" name="l00401"></a><span class="lineno"><a class="line" href="../../d3/d79/interfacecuda__math_1_1cuda__pwmax__vec2.html#a3bd95f84b98c54d04c2d5a3dc48abfcb">  401</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d3/d79/interfacecuda__math_1_1cuda__pwmax__vec2.html">cuda_pwmax_vec2</a>(a_d, b_d, n, strm) &amp;</div>
+<div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span>          bind(c, name = <span class="stringliteral">&#39;cuda_pwmax_vec2&#39;</span>)</div>
+<div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
+<div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+</div>
+<div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d3/d79/interfacecuda__math_1_1cuda__pwmax__vec2.html">cuda_pwmax_vec2</a></div>
+<div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span> </div>
+<div class="foldopen" id="foldopen00408" data-start="" data-end="">
+<div class="line"><a id="l00408" name="l00408"></a><span class="lineno"><a class="line" href="../../d3/dcb/interfacecuda__math_1_1cuda__pwmax__vec3.html#aa75872ab4fa77992479c8022647b89a6">  408</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d3/dcb/interfacecuda__math_1_1cuda__pwmax__vec3.html">cuda_pwmax_vec3</a>(a_d, b_d, c_d, n, strm) &amp;</div>
+<div class="line"><a id="l00409" name="l00409"></a><span class="lineno">  409</span>          bind(c, name = <span class="stringliteral">&#39;cuda_pwmax_vec3&#39;</span>)</div>
+<div class="line"><a id="l00410" name="l00410"></a><span class="lineno">  410</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00411" name="l00411"></a><span class="lineno">  411</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, strm</div>
+<div class="line"><a id="l00412" name="l00412"></a><span class="lineno">  412</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+</div>
+<div class="line"><a id="l00413" name="l00413"></a><span class="lineno">  413</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d3/dcb/interfacecuda__math_1_1cuda__pwmax__vec3.html">cuda_pwmax_vec3</a></div>
+<div class="line"><a id="l00414" name="l00414"></a><span class="lineno">  414</span> </div>
+<div class="foldopen" id="foldopen00415" data-start="" data-end="">
+<div class="line"><a id="l00415" name="l00415"></a><span class="lineno"><a class="line" href="../../df/d32/interfacecuda__math_1_1cuda__pwmax__sca2.html#abc05021a060aded312d42d8132e8a130">  415</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../df/d32/interfacecuda__math_1_1cuda__pwmax__sca2.html">cuda_pwmax_sca2</a>(a_d, c_d, n, strm) &amp;</div>
+<div class="line"><a id="l00416" name="l00416"></a><span class="lineno">  416</span>          bind(c, name = <span class="stringliteral">&#39;cuda_pwmax_sca2&#39;</span>)</div>
+<div class="line"><a id="l00417" name="l00417"></a><span class="lineno">  417</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00418" name="l00418"></a><span class="lineno">  418</span>       <span class="keywordtype">import </span>c_rp</div>
+<div class="line"><a id="l00419" name="l00419"></a><span class="lineno">  419</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
+<div class="line"><a id="l00420" name="l00420"></a><span class="lineno">  420</span><span class="keywordtype">       real</span>(c_rp) :: c_d</div>
+<div class="line"><a id="l00421" name="l00421"></a><span class="lineno">  421</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+</div>
+<div class="line"><a id="l00422" name="l00422"></a><span class="lineno">  422</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../df/d32/interfacecuda__math_1_1cuda__pwmax__sca2.html">cuda_pwmax_sca2</a></div>
+<div class="line"><a id="l00423" name="l00423"></a><span class="lineno">  423</span> </div>
+<div class="foldopen" id="foldopen00424" data-start="" data-end="">
+<div class="line"><a id="l00424" name="l00424"></a><span class="lineno"><a class="line" href="../../d0/da1/interfacecuda__math_1_1cuda__pwmax__sca3.html#ad30b8ee5794077abb5c06e27b619243d">  424</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d0/da1/interfacecuda__math_1_1cuda__pwmax__sca3.html">cuda_pwmax_sca3</a>(a_d, b_d, c_d, n, strm) &amp;</div>
+<div class="line"><a id="l00425" name="l00425"></a><span class="lineno">  425</span>          bind(c, name = <span class="stringliteral">&#39;cuda_pwmax_sca3&#39;</span>)</div>
+<div class="line"><a id="l00426" name="l00426"></a><span class="lineno">  426</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00427" name="l00427"></a><span class="lineno">  427</span>       <span class="keywordtype">import </span>c_rp</div>
+<div class="line"><a id="l00428" name="l00428"></a><span class="lineno">  428</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
+<div class="line"><a id="l00429" name="l00429"></a><span class="lineno">  429</span><span class="keywordtype">       real</span>(c_rp) :: c_d</div>
+<div class="line"><a id="l00430" name="l00430"></a><span class="lineno">  430</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+</div>
+<div class="line"><a id="l00431" name="l00431"></a><span class="lineno">  431</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d0/da1/interfacecuda__math_1_1cuda__pwmax__sca3.html">cuda_pwmax_sca3</a></div>
+<div class="line"><a id="l00432" name="l00432"></a><span class="lineno">  432</span> </div>
+<div class="foldopen" id="foldopen00433" data-start="" data-end="">
+<div class="line"><a id="l00433" name="l00433"></a><span class="lineno"><a class="line" href="../../dc/daa/interfacecuda__math_1_1cuda__pwmin__vec2.html#ab8aa2e57ea1382416aec77d0e8cc8804">  433</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../dc/daa/interfacecuda__math_1_1cuda__pwmin__vec2.html">cuda_pwmin_vec2</a>(a_d, b_d, n, strm) &amp;</div>
+<div class="line"><a id="l00434" name="l00434"></a><span class="lineno">  434</span>          bind(c, name = <span class="stringliteral">&#39;cuda_pwmin_vec2&#39;</span>)</div>
+<div class="line"><a id="l00435" name="l00435"></a><span class="lineno">  435</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00436" name="l00436"></a><span class="lineno">  436</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
+<div class="line"><a id="l00437" name="l00437"></a><span class="lineno">  437</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+</div>
+<div class="line"><a id="l00438" name="l00438"></a><span class="lineno">  438</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../dc/daa/interfacecuda__math_1_1cuda__pwmin__vec2.html">cuda_pwmin_vec2</a></div>
+<div class="line"><a id="l00439" name="l00439"></a><span class="lineno">  439</span> </div>
+<div class="foldopen" id="foldopen00440" data-start="" data-end="">
+<div class="line"><a id="l00440" name="l00440"></a><span class="lineno"><a class="line" href="../../d0/dae/interfacecuda__math_1_1cuda__pwmin__vec3.html#a878bed6eb05d30b53f882868c426ce46">  440</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d0/dae/interfacecuda__math_1_1cuda__pwmin__vec3.html">cuda_pwmin_vec3</a>(a_d, b_d, c_d, n, strm) &amp;</div>
+<div class="line"><a id="l00441" name="l00441"></a><span class="lineno">  441</span>          bind(c, name = <span class="stringliteral">&#39;cuda_pwmin_vec3&#39;</span>)</div>
+<div class="line"><a id="l00442" name="l00442"></a><span class="lineno">  442</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00443" name="l00443"></a><span class="lineno">  443</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, c_d, strm</div>
+<div class="line"><a id="l00444" name="l00444"></a><span class="lineno">  444</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+</div>
+<div class="line"><a id="l00445" name="l00445"></a><span class="lineno">  445</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d0/dae/interfacecuda__math_1_1cuda__pwmin__vec3.html">cuda_pwmin_vec3</a></div>
+<div class="line"><a id="l00446" name="l00446"></a><span class="lineno">  446</span> </div>
+<div class="foldopen" id="foldopen00447" data-start="" data-end="">
+<div class="line"><a id="l00447" name="l00447"></a><span class="lineno"><a class="line" href="../../d2/d29/interfacecuda__math_1_1cuda__pwmin__sca2.html#a3ad772f85826e48f5be8cad9e81d0806">  447</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d2/d29/interfacecuda__math_1_1cuda__pwmin__sca2.html">cuda_pwmin_sca2</a>(a_d, c_d, n, strm) &amp;</div>
+<div class="line"><a id="l00448" name="l00448"></a><span class="lineno">  448</span>          bind(c, name = <span class="stringliteral">&#39;cuda_pwmin_sca2&#39;</span>)</div>
+<div class="line"><a id="l00449" name="l00449"></a><span class="lineno">  449</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00450" name="l00450"></a><span class="lineno">  450</span>       <span class="keywordtype">import </span>c_rp</div>
+<div class="line"><a id="l00451" name="l00451"></a><span class="lineno">  451</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
+<div class="line"><a id="l00452" name="l00452"></a><span class="lineno">  452</span><span class="keywordtype">       real</span>(c_rp) :: c_d</div>
+<div class="line"><a id="l00453" name="l00453"></a><span class="lineno">  453</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+</div>
+<div class="line"><a id="l00454" name="l00454"></a><span class="lineno">  454</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d2/d29/interfacecuda__math_1_1cuda__pwmin__sca2.html">cuda_pwmin_sca2</a></div>
+<div class="line"><a id="l00455" name="l00455"></a><span class="lineno">  455</span> </div>
+<div class="foldopen" id="foldopen00456" data-start="" data-end="">
+<div class="line"><a id="l00456" name="l00456"></a><span class="lineno"><a class="line" href="../../d0/df7/interfacecuda__math_1_1cuda__pwmin__sca3.html#a8936fda755846d1dc4d5a69bacf2ac3e">  456</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d0/df7/interfacecuda__math_1_1cuda__pwmin__sca3.html">cuda_pwmin_sca3</a>(a_d, b_d, c_d, n, strm) &amp;</div>
+<div class="line"><a id="l00457" name="l00457"></a><span class="lineno">  457</span>          bind(c, name = <span class="stringliteral">&#39;cuda_pwmin_sca3&#39;</span>)</div>
+<div class="line"><a id="l00458" name="l00458"></a><span class="lineno">  458</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00459" name="l00459"></a><span class="lineno">  459</span>       <span class="keywordtype">import </span>c_rp</div>
+<div class="line"><a id="l00460" name="l00460"></a><span class="lineno">  460</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, b_d, strm</div>
+<div class="line"><a id="l00461" name="l00461"></a><span class="lineno">  461</span><span class="keywordtype">       real</span>(c_rp) :: c_d</div>
+<div class="line"><a id="l00462" name="l00462"></a><span class="lineno">  462</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+</div>
+<div class="line"><a id="l00463" name="l00463"></a><span class="lineno">  463</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d0/df7/interfacecuda__math_1_1cuda__pwmin__sca3.html">cuda_pwmin_sca3</a></div>
+<div class="line"><a id="l00464" name="l00464"></a><span class="lineno">  464</span> </div>
+<div class="line"><a id="l00465" name="l00465"></a><span class="lineno">  465</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00466" name="l00466"></a><span class="lineno">  466</span> </div>
+<div class="line"><a id="l00467" name="l00467"></a><span class="lineno">  467</span>  <span class="comment">! ========================================================================== !</span></div>
+<div class="line"><a id="l00468" name="l00468"></a><span class="lineno">  468</span>  <span class="comment">! Interfaces for integer operations.</span></div>
+<div class="line"><a id="l00469" name="l00469"></a><span class="lineno">  469</span> </div>
+<div class="line"><a id="l00470" name="l00470"></a><span class="lineno">  470</span>  <span class="keyword">interface</span></div>
+<div class="line"><a id="l00471" name="l00471"></a><span class="lineno">  471</span> </div>
+<div class="foldopen" id="foldopen00472" data-start="" data-end="">
+<div class="line"><a id="l00472" name="l00472"></a><span class="lineno"><a class="line" href="../../d8/d83/interfacecuda__math_1_1cuda__iadd.html#aaf1ce2011f86d2959f206345751794e1">  472</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d8/d83/interfacecuda__math_1_1cuda__iadd.html">cuda_iadd</a>(a_d, c, n, strm) &amp;</div>
+<div class="line"><a id="l00473" name="l00473"></a><span class="lineno">  473</span>          bind(c, name = <span class="stringliteral">&#39;cuda_iadd&#39;</span>)</div>
+<div class="line"><a id="l00474" name="l00474"></a><span class="lineno">  474</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a id="l00475" name="l00475"></a><span class="lineno">  475</span>       <span class="keywordtype">import </span>c_rp</div>
+<div class="line"><a id="l00476" name="l00476"></a><span class="lineno">  476</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d, strm</div>
+<div class="line"><a id="l00477" name="l00477"></a><span class="lineno">  477</span>       <span class="keywordtype">integer(c_int)</span> :: c</div>
+<div class="line"><a id="l00478" name="l00478"></a><span class="lineno">  478</span>       <span class="keywordtype">integer(c_int)</span> :: n</div>
+</div>
+<div class="line"><a id="l00479" name="l00479"></a><span class="lineno">  479</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d8/d83/interfacecuda__math_1_1cuda__iadd.html">cuda_iadd</a></div>
+<div class="line"><a id="l00480" name="l00480"></a><span class="lineno">  480</span> </div>
+<div class="line"><a id="l00481" name="l00481"></a><span class="lineno">  481</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00482" name="l00482"></a><span class="lineno">  482</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d5/d2a/namespacecuda__math.html">cuda_math</a></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__absval_html"><div class="ttname"><a href="../../db/d5a/interfacecuda__math_1_1cuda__absval.html">cuda_math::cuda_absval</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00388">cuda_math.f90:388</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__add2_html"><div class="ttname"><a href="../../d7/d19/interfacecuda__math_1_1cuda__add2.html">cuda_math::cuda_add2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00157">cuda_math.f90:157</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__add2s1_html"><div class="ttname"><a href="../../d5/d4b/interfacecuda__math_1_1cuda__add2s1.html">cuda_math::cuda_add2s1</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00173">cuda_math.f90:173</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__add2s2__many_html"><div class="ttname"><a href="../../da/d1a/interfacecuda__math_1_1cuda__add2s2__many.html">cuda_math::cuda_add2s2_many</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00339">cuda_math.f90:339</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__add2s2_html"><div class="ttname"><a href="../../d0/d31/interfacecuda__math_1_1cuda__add2s2.html">cuda_math::cuda_add2s2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00182">cuda_math.f90:182</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__add3_html"><div class="ttname"><a href="../../d4/dbc/interfacecuda__math_1_1cuda__add3.html">cuda_math::cuda_add3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00283">cuda_math.f90:283</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__add3s2_html"><div class="ttname"><a href="../../de/d9d/interfacecuda__math_1_1cuda__add3s2.html">cuda_math::cuda_add3s2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00200">cuda_math.f90:200</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__add4_html"><div class="ttname"><a href="../../d6/dea/interfacecuda__math_1_1cuda__add4.html">cuda_math::cuda_add4</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00165">cuda_math.f90:165</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__add4s3_html"><div class="ttname"><a href="../../d3/d14/interfacecuda__math_1_1cuda__add4s3.html">cuda_math::cuda_add4s3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00209">cuda_math.f90:209</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__add5s4_html"><div class="ttname"><a href="../../d5/d13/interfacecuda__math_1_1cuda__add5s4.html">cuda_math::cuda_add5s4</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00218">cuda_math.f90:218</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__addcol3_html"><div class="ttname"><a href="../../da/de3/interfacecuda__math_1_1cuda__addcol3.html">cuda_math::cuda_addcol3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00290">cuda_math.f90:290</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__addcol3s2_html"><div class="ttname"><a href="../../dc/dca/interfacecuda__math_1_1cuda__addcol3s2.html">cuda_math::cuda_addcol3s2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00304">cuda_math.f90:304</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__addcol4_html"><div class="ttname"><a href="../../d1/d08/interfacecuda__math_1_1cuda__addcol4.html">cuda_math::cuda_addcol4</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00297">cuda_math.f90:297</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__addsqr2s2_html"><div class="ttname"><a href="../../d4/d82/interfacecuda__math_1_1cuda__addsqr2s2.html">cuda_math::cuda_addsqr2s2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00191">cuda_math.f90:191</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__cadd2_html"><div class="ttname"><a href="../../d5/d64/interfacecuda__math_1_1cuda__cadd2.html">cuda_math::cuda_cadd2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00130">cuda_math.f90:130</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__cdiv2_html"><div class="ttname"><a href="../../dc/d8a/interfacecuda__math_1_1cuda__cdiv2.html">cuda_math::cuda_cdiv2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00112">cuda_math.f90:112</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__cdiv_html"><div class="ttname"><a href="../../d9/d90/interfacecuda__math_1_1cuda__cdiv.html">cuda_math::cuda_cdiv</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00103">cuda_math.f90:103</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__cfill__mask_html"><div class="ttname"><a href="../../d1/d8a/interfacecuda__math_1_1cuda__cfill__mask.html">cuda_math::cuda_cfill_mask</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00074">cuda_math.f90:74</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__cfill_html"><div class="ttname"><a href="../../d4/dc4/interfacecuda__math_1_1cuda__cfill.html">cuda_math::cuda_cfill</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00141">cuda_math.f90:141</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__cmult2_html"><div class="ttname"><a href="../../d4/d81/interfacecuda__math_1_1cuda__cmult2.html">cuda_math::cuda_cmult2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00094">cuda_math.f90:94</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__cmult_html"><div class="ttname"><a href="../../db/d0b/interfacecuda__math_1_1cuda__cmult.html">cuda_math::cuda_cmult</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00085">cuda_math.f90:85</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__col2_html"><div class="ttname"><a href="../../d6/d1d/interfacecuda__math_1_1cuda__col2.html">cuda_math::cuda_col2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00248">cuda_math.f90:248</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__col3_html"><div class="ttname"><a href="../../d5/d51/interfacecuda__math_1_1cuda__col3.html">cuda_math::cuda_col3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00255">cuda_math.f90:255</a></div></div>
 <div class="ttc" id="ainterfacecuda__math_1_1cuda__copy_html"><div class="ttname"><a href="../../d6/d40/interfacecuda__math_1_1cuda__copy.html">cuda_math::cuda_copy</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00039">cuda_math.f90:39</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__glsc2_html"><div class="ttname"><a href="../../d7/de4/interfacecuda__math_1_1cuda__glsc2.html">cuda_math::cuda_glsc2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00296">cuda_math.f90:296</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__glsc3__many_html"><div class="ttname"><a href="../../de/d67/interfacecuda__math_1_1cuda__glsc3__many.html">cuda_math::cuda_glsc3_many</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00287">cuda_math.f90:287</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__glsc3_html"><div class="ttname"><a href="../../d8/d9d/interfacecuda__math_1_1cuda__glsc3.html">cuda_math::cuda_glsc3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00279">cuda_math.f90:279</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__glsum_html"><div class="ttname"><a href="../../d1/d88/interfacecuda__math_1_1cuda__glsum.html">cuda_math::cuda_glsum</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00304">cuda_math.f90:304</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__invcol1_html"><div class="ttname"><a href="../../de/da8/interfacecuda__math_1_1cuda__invcol1.html">cuda_math::cuda_invcol1</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00176">cuda_math.f90:176</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__invcol2_html"><div class="ttname"><a href="../../d5/d7d/interfacecuda__math_1_1cuda__invcol2.html">cuda_math::cuda_invcol2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00183">cuda_math.f90:183</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__glsc2_html"><div class="ttname"><a href="../../d7/de4/interfacecuda__math_1_1cuda__glsc2.html">cuda_math::cuda_glsc2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00364">cuda_math.f90:364</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__glsc3__many_html"><div class="ttname"><a href="../../de/d67/interfacecuda__math_1_1cuda__glsc3__many.html">cuda_math::cuda_glsc3_many</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00355">cuda_math.f90:355</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__glsc3_html"><div class="ttname"><a href="../../d8/d9d/interfacecuda__math_1_1cuda__glsc3.html">cuda_math::cuda_glsc3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00347">cuda_math.f90:347</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__glsubnorm2_html"><div class="ttname"><a href="../../d3/d85/interfacecuda__math_1_1cuda__glsubnorm2.html">cuda_math::cuda_glsubnorm2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00372">cuda_math.f90:372</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__glsum_html"><div class="ttname"><a href="../../d1/d88/interfacecuda__math_1_1cuda__glsum.html">cuda_math::cuda_glsum</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00380">cuda_math.f90:380</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__iadd_html"><div class="ttname"><a href="../../d8/d83/interfacecuda__math_1_1cuda__iadd.html">cuda_math::cuda_iadd</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00472">cuda_math.f90:472</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__invcol1_html"><div class="ttname"><a href="../../de/da8/interfacecuda__math_1_1cuda__invcol1.html">cuda_math::cuda_invcol1</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00227">cuda_math.f90:227</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__invcol2_html"><div class="ttname"><a href="../../d5/d7d/interfacecuda__math_1_1cuda__invcol2.html">cuda_math::cuda_invcol2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00234">cuda_math.f90:234</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__invcol3_html"><div class="ttname"><a href="../../dc/d21/interfacecuda__math_1_1cuda__invcol3.html">cuda_math::cuda_invcol3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00241">cuda_math.f90:241</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__masked__atomic__reduction_html"><div class="ttname"><a href="../../d6/d66/interfacecuda__math_1_1cuda__masked__atomic__reduction.html">cuda_math::cuda_masked_atomic_reduction</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00067">cuda_math.f90:67</a></div></div>
 <div class="ttc" id="ainterfacecuda__math_1_1cuda__masked__copy_html"><div class="ttname"><a href="../../d0/df3/interfacecuda__math_1_1cuda__masked__copy.html">cuda_math::cuda_masked_copy</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00046">cuda_math.f90:46</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__masked__red__copy_html"><div class="ttname"><a href="../../dd/dfd/interfacecuda__math_1_1cuda__masked__red__copy.html">cuda_math::cuda_masked_red_copy</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00053">cuda_math.f90:53</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__pwmax__sca2_html"><div class="ttname"><a href="../../df/d32/interfacecuda__math_1_1cuda__pwmax__sca2.html">cuda_math::cuda_pwmax_sca2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00339">cuda_math.f90:339</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__pwmax__sca3_html"><div class="ttname"><a href="../../d0/da1/interfacecuda__math_1_1cuda__pwmax__sca3.html">cuda_math::cuda_pwmax_sca3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00348">cuda_math.f90:348</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__pwmax__vec2_html"><div class="ttname"><a href="../../d3/d79/interfacecuda__math_1_1cuda__pwmax__vec2.html">cuda_math::cuda_pwmax_vec2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00325">cuda_math.f90:325</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__pwmax__vec3_html"><div class="ttname"><a href="../../d3/dcb/interfacecuda__math_1_1cuda__pwmax__vec3.html">cuda_math::cuda_pwmax_vec3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00332">cuda_math.f90:332</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__pwmin__sca2_html"><div class="ttname"><a href="../../d2/d29/interfacecuda__math_1_1cuda__pwmin__sca2.html">cuda_math::cuda_pwmin_sca2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00371">cuda_math.f90:371</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__pwmin__sca3_html"><div class="ttname"><a href="../../d0/df7/interfacecuda__math_1_1cuda__pwmin__sca3.html">cuda_math::cuda_pwmin_sca3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00380">cuda_math.f90:380</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__pwmin__vec2_html"><div class="ttname"><a href="../../dc/daa/interfacecuda__math_1_1cuda__pwmin__vec2.html">cuda_math::cuda_pwmin_vec2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00357">cuda_math.f90:357</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__pwmin__vec3_html"><div class="ttname"><a href="../../d0/dae/interfacecuda__math_1_1cuda__pwmin__vec3.html">cuda_math::cuda_pwmin_vec3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00364">cuda_math.f90:364</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__rzero_html"><div class="ttname"><a href="../../d4/d40/interfacecuda__math_1_1cuda__rzero.html">cuda_math::cuda_rzero</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00117">cuda_math.f90:117</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__sub2_html"><div class="ttname"><a href="../../d9/df2/interfacecuda__math_1_1cuda__sub2.html">cuda_math::cuda_sub2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00211">cuda_math.f90:211</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__sub3_html"><div class="ttname"><a href="../../d9/d6a/interfacecuda__math_1_1cuda__sub3.html">cuda_math::cuda_sub3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00218">cuda_math.f90:218</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__subcol3_html"><div class="ttname"><a href="../../d8/d08/interfacecuda__math_1_1cuda__subcol3.html">cuda_math::cuda_subcol3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00204">cuda_math.f90:204</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__vcross_html"><div class="ttname"><a href="../../d6/d50/interfacecuda__math_1_1cuda__vcross.html">cuda_math::cuda_vcross</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00253">cuda_math.f90:253</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__vdot3_html"><div class="ttname"><a href="../../d2/dc3/interfacecuda__math_1_1cuda__vdot3.html">cuda_math::cuda_vdot3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00246">cuda_math.f90:246</a></div></div>
-<div class="ttc" id="ainterfacecuda__math_1_1cuda__vlsc3_html"><div class="ttname"><a href="../../dd/d3e/interfacecuda__math_1_1cuda__vlsc3.html">cuda_math::cuda_vlsc3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00263">cuda_math.f90:263</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__masked__gather__copy_html"><div class="ttname"><a href="../../d7/df7/interfacecuda__math_1_1cuda__masked__gather__copy.html">cuda_math::cuda_masked_gather_copy</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00053">cuda_math.f90:53</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__masked__scatter__copy_html"><div class="ttname"><a href="../../d9/dda/interfacecuda__math_1_1cuda__masked__scatter__copy.html">cuda_math::cuda_masked_scatter_copy</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00060">cuda_math.f90:60</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__pwmax__sca2_html"><div class="ttname"><a href="../../df/d32/interfacecuda__math_1_1cuda__pwmax__sca2.html">cuda_math::cuda_pwmax_sca2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00415">cuda_math.f90:415</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__pwmax__sca3_html"><div class="ttname"><a href="../../d0/da1/interfacecuda__math_1_1cuda__pwmax__sca3.html">cuda_math::cuda_pwmax_sca3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00424">cuda_math.f90:424</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__pwmax__vec2_html"><div class="ttname"><a href="../../d3/d79/interfacecuda__math_1_1cuda__pwmax__vec2.html">cuda_math::cuda_pwmax_vec2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00401">cuda_math.f90:401</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__pwmax__vec3_html"><div class="ttname"><a href="../../d3/dcb/interfacecuda__math_1_1cuda__pwmax__vec3.html">cuda_math::cuda_pwmax_vec3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00408">cuda_math.f90:408</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__pwmin__sca2_html"><div class="ttname"><a href="../../d2/d29/interfacecuda__math_1_1cuda__pwmin__sca2.html">cuda_math::cuda_pwmin_sca2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00447">cuda_math.f90:447</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__pwmin__sca3_html"><div class="ttname"><a href="../../d0/df7/interfacecuda__math_1_1cuda__pwmin__sca3.html">cuda_math::cuda_pwmin_sca3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00456">cuda_math.f90:456</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__pwmin__vec2_html"><div class="ttname"><a href="../../dc/daa/interfacecuda__math_1_1cuda__pwmin__vec2.html">cuda_math::cuda_pwmin_vec2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00433">cuda_math.f90:433</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__pwmin__vec3_html"><div class="ttname"><a href="../../d0/dae/interfacecuda__math_1_1cuda__pwmin__vec3.html">cuda_math::cuda_pwmin_vec3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00440">cuda_math.f90:440</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__radd_html"><div class="ttname"><a href="../../d1/da2/interfacecuda__math_1_1cuda__radd.html">cuda_math::cuda_radd</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00121">cuda_math.f90:121</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__rzero_html"><div class="ttname"><a href="../../d4/d40/interfacecuda__math_1_1cuda__rzero.html">cuda_math::cuda_rzero</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00150">cuda_math.f90:150</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__sub2_html"><div class="ttname"><a href="../../d9/df2/interfacecuda__math_1_1cuda__sub2.html">cuda_math::cuda_sub2</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00269">cuda_math.f90:269</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__sub3_html"><div class="ttname"><a href="../../d9/d6a/interfacecuda__math_1_1cuda__sub3.html">cuda_math::cuda_sub3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00276">cuda_math.f90:276</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__subcol3_html"><div class="ttname"><a href="../../d8/d08/interfacecuda__math_1_1cuda__subcol3.html">cuda_math::cuda_subcol3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00262">cuda_math.f90:262</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__vcross_html"><div class="ttname"><a href="../../d6/d50/interfacecuda__math_1_1cuda__vcross.html">cuda_math::cuda_vcross</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00320">cuda_math.f90:320</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__vdot3_html"><div class="ttname"><a href="../../d2/dc3/interfacecuda__math_1_1cuda__vdot3.html">cuda_math::cuda_vdot3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00313">cuda_math.f90:313</a></div></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__vlsc3_html"><div class="ttname"><a href="../../dd/d3e/interfacecuda__math_1_1cuda__vlsc3.html">cuda_math::cuda_vlsc3</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00331">cuda_math.f90:331</a></div></div>
 <div class="ttc" id="anamespacecuda__math_html"><div class="ttname"><a href="../../d5/d2a/namespacecuda__math.html">cuda_math</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00033">cuda_math.f90:33</a></div></div>
 <div class="ttc" id="anamespacenum__types_html"><div class="ttname"><a href="../../df/d48/namespacenum__types.html">num_types</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00001">num_types.f90:1</a></div></div>
 <div class="ttc" id="anamespacenum__types_html_ad604d43a6e18e80802dcc80ed820d8b1"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">num_types::c_rp</a></div><div class="ttdeci">integer, parameter, public c_rp</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00013">num_types.f90:13</a></div></div>
@@ -635,7 +757,7 @@ $(document).ready(function(){initNavTree('d5/dc6/cuda__math_8f90_source.html','.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_23179ed14d067dddc96ef717056004fe.html">device</a></li><li class="navelem"><a class="el" href="../../dir_4c3596ec6e7f8d381657f6ce7bbe76a2.html">cuda</a></li><li class="navelem"><a class="el" href="../../d5/dc6/cuda__math_8f90.html">cuda_math.f90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

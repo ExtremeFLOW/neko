@@ -1,0 +1,5 @@
+<map id="gs_device_shmem::gs_device_shmem_buf_t" name="gs_device_shmem::gs_device_shmem_buf_t">
+<area shape="rect" id="Node000001" title="Buffers for non&#45;blocking communication and packing/unpacking." alt="" coords="5,108,173,148"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="62,5,117,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="92,45,92,108,87,108,87,45"/>
+</map>

@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -112,12 +112,12 @@ Data Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a3fe7eb0f4fcc1f9e1f348efbb04becf0" id="r_a3fe7eb0f4fcc1f9e1f348efbb04becf0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d78/namespacedevice__inflow.html#a3fe7eb0f4fcc1f9e1f348efbb04becf0">device_inflow_apply_vector</a> (msk, x, y, z, g, m)</td></tr>
-<tr class="separator:a3fe7eb0f4fcc1f9e1f348efbb04becf0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adf41eadb9c59e823c921d03824e546b9" id="r_adf41eadb9c59e823c921d03824e546b9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d78/namespacedevice__inflow.html#adf41eadb9c59e823c921d03824e546b9">device_inflow_apply_vector</a> (msk, x, y, z, g, m, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">strm</a>)</td></tr>
+<tr class="separator:adf41eadb9c59e823c921d03824e546b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
-<a id="a3fe7eb0f4fcc1f9e1f348efbb04becf0" name="a3fe7eb0f4fcc1f9e1f348efbb04becf0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3fe7eb0f4fcc1f9e1f348efbb04becf0">&#9670;&#160;</a></span>device_inflow_apply_vector()</h2>
+<a id="adf41eadb9c59e823c921d03824e546b9" name="adf41eadb9c59e823c921d03824e546b9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adf41eadb9c59e823c921d03824e546b9">&#9670;&#160;</a></span>device_inflow_apply_vector()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -156,7 +156,13 @@ Functions/Subroutines</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
-          <td class="paramname"><em>m</em>&#160;</td>
+          <td class="paramname"><em>m</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>strm</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -170,12 +176,12 @@ Functions/Subroutines</h2></td></tr>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d6/d78/namespacedevice__inflow_a3fe7eb0f4fcc1f9e1f348efbb04becf0_cgraph.png" border="0" usemap="#ad6/d78/namespacedevice__inflow_a3fe7eb0f4fcc1f9e1f348efbb04becf0_cgraph" alt=""/></div>
-<map name="ad6/d78/namespacedevice__inflow_a3fe7eb0f4fcc1f9e1f348efbb04becf0_cgraph" id="ad6/d78/namespacedevice__inflow_a3fe7eb0f4fcc1f9e1f348efbb04becf0_cgraph">
+<div class="center"><img src="../../d6/d78/namespacedevice__inflow_adf41eadb9c59e823c921d03824e546b9_cgraph.png" border="0" usemap="#ad6/d78/namespacedevice__inflow_adf41eadb9c59e823c921d03824e546b9_cgraph" alt=""/></div>
+<map name="ad6/d78/namespacedevice__inflow_adf41eadb9c59e823c921d03824e546b9_cgraph" id="ad6/d78/namespacedevice__inflow_adf41eadb9c59e823c921d03824e546b9_cgraph">
 <area shape="rect" title=" " alt="" coords="5,27,167,67"/>
-<area shape="rect" href="../../df/de5/inflow_8cu.html#aeee09fe7bb164997c86a2815cb6bfe38" title=" " alt="" coords="417,5,608,31"/>
+<area shape="rect" href="../../df/de5/inflow_8cu.html#ac491fd6063cbe1e48a09e3f7c4d2568d" title=" " alt="" coords="417,5,608,31"/>
 <area shape="poly" title=" " alt="" coords="167,39,403,23,404,28,167,44"/>
-<area shape="rect" href="../../d0/dff/inflow_8c.html#a52a873328124fec5b6fee3ae6b407984" title=" " alt="" coords="215,55,369,95"/>
+<area shape="rect" href="../../d0/dff/inflow_8c.html#afad0b4e2ee64e49e0f667e721bc4dcc8" title=" " alt="" coords="215,55,369,95"/>
 <area shape="poly" title=" " alt="" coords="167,56,201,60,201,66,167,61"/>
 <area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="656,49,820,89"/>
 <area shape="poly" title=" " alt="" coords="571,28,643,45,642,50,570,33"/>
@@ -189,12 +195,12 @@ Here is the call graph for this function:</div>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d6/d78/namespacedevice__inflow_a3fe7eb0f4fcc1f9e1f348efbb04becf0_icgraph.png" border="0" usemap="#ad6/d78/namespacedevice__inflow_a3fe7eb0f4fcc1f9e1f348efbb04becf0_icgraph" alt=""/></div>
-<map name="ad6/d78/namespacedevice__inflow_a3fe7eb0f4fcc1f9e1f348efbb04becf0_icgraph" id="ad6/d78/namespacedevice__inflow_a3fe7eb0f4fcc1f9e1f348efbb04becf0_icgraph">
+<div class="center"><img src="../../d6/d78/namespacedevice__inflow_adf41eadb9c59e823c921d03824e546b9_icgraph.png" border="0" usemap="#ad6/d78/namespacedevice__inflow_adf41eadb9c59e823c921d03824e546b9_icgraph" alt=""/></div>
+<map name="ad6/d78/namespacedevice__inflow_adf41eadb9c59e823c921d03824e546b9_icgraph" id="ad6/d78/namespacedevice__inflow_adf41eadb9c59e823c921d03824e546b9_icgraph">
 <area shape="rect" title=" " alt="" coords="240,49,401,89"/>
-<area shape="rect" href="../../d3/d75/interfacedevice__inflow_1_1hip__inflow__apply__vector.html#abce9ac5a7e6db69bf310df81bf73e23c" title=" " alt="" coords="5,5,192,60"/>
+<area shape="rect" href="../../d3/d75/interfacedevice__inflow_1_1hip__inflow__apply__vector.html#a895df347f0d27d1307639a8294b75cb9" title=" " alt="" coords="5,5,192,60"/>
 <area shape="poly" title=" " alt="" coords="226,56,192,50,192,45,227,51"/>
-<area shape="rect" href="../../d7/d43/namespaceinflow.html#acc06f3fa671c8234c4eca822843e8133" title="Apply inflow conditions (vector valued) (device version)" alt="" coords="23,85,174,125"/>
+<area shape="rect" href="../../d7/d43/namespaceinflow.html#abb7334c4e9937bf0082aa5a6f7bf3589" title="Apply inflow conditions (vector valued) (device version)" alt="" coords="23,85,174,125"/>
 <area shape="poly" title=" " alt="" coords="227,87,175,95,174,90,226,81"/>
 </map>
 </div>
@@ -207,7 +213,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d6/d78/namespacedevice__inflow.html">device_inflow</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

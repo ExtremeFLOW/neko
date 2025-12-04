@@ -1,5 +1,0 @@
-<map id="source_scalar::source_scalar_eval_pw" name="source_scalar::source_scalar_eval_pw">
-<area shape="rect" id="Node000001" title="Driver for all pointwise source_scalar term evaluatons." alt="" coords="216,5,379,45"/>
-<area shape="rect" id="Node000002" href="$de/dcb/namespacesource__scalar.html#af70199d73eed10d120b7742578aed6fc" title="Set the pointwise eval method for the source_scalar term f." alt="" coords="5,5,168,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,28,168,28,168,23,202,23"/>
-</map>

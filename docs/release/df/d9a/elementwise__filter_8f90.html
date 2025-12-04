@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Neko: /home/runner/work/neko/neko/src/les/elementwise_filter.f90 File Reference</title>
+<title>Neko: /home/runner/work/neko/neko/src/filter/elementwise_filter.f90 File Reference</title>
 <link href="../../tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="../../jquery.js"></script>
 <script type="text/javascript" src="../../dynsections.js"></script>
@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -111,37 +111,43 @@ $(document).ready(function(){initNavTree('df/d9a/elementwise__filter_8f90.html',
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html">elementwise_filter::elementwise_filter_t</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Implements the explicit filter for SEM.  <a href="../../d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Implements the elementwise filter for SEM.  <a href="../../d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
 Modules</h2></td></tr>
 <tr class="memitem:dd/d52/namespaceelementwise__filter" id="r_dd/d52/namespaceelementwise__filter"><td class="memItemLeft" align="right" valign="top">module &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d52/namespaceelementwise__filter.html">elementwise_filter</a></td></tr>
-<tr class="memdesc:dd/d52/namespaceelementwise__filter"><td class="mdescLeft">&#160;</td><td class="mdescRight">Implements <code>explicit_filter_t</code>. <br /></td></tr>
+<tr class="memdesc:dd/d52/namespaceelementwise__filter"><td class="mdescLeft">&#160;</td><td class="mdescRight">Implements <code><a class="el" href="../../d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html" title="Implements the elementwise filter for SEM.">elementwise_filter_t</a></code>. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:afc157f604fa569f1cba6c8c96e2e4b99" id="r_afc157f604fa569f1cba6c8c96e2e4b99"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d52/namespaceelementwise__filter.html#afc157f604fa569f1cba6c8c96e2e4b99">elementwise_filter::elementwise_filter_init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, nx, filter_type)</td></tr>
-<tr class="memdesc:afc157f604fa569f1cba6c8c96e2e4b99"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
-<tr class="separator:afc157f604fa569f1cba6c8c96e2e4b99"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8d185608967d02d5b1dced875e039576" id="r_a8d185608967d02d5b1dced875e039576"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d52/namespaceelementwise__filter.html#a8d185608967d02d5b1dced875e039576">elementwise_filter::elementwise_filter_init_from_json</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, json, coef)</td></tr>
+<tr class="memdesc:a8d185608967d02d5b1dced875e039576"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
+<tr class="separator:a8d185608967d02d5b1dced875e039576"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad09c2b30e39c1053855b29d95d2cd001" id="r_ad09c2b30e39c1053855b29d95d2cd001"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d52/namespaceelementwise__filter.html#ad09c2b30e39c1053855b29d95d2cd001">elementwise_filter::elementwise_filter_init_from_components</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, nx)</td></tr>
+<tr class="memdesc:ad09c2b30e39c1053855b29d95d2cd001"><td class="mdescLeft">&#160;</td><td class="mdescRight">Actual Constructor.  <br /></td></tr>
+<tr class="separator:ad09c2b30e39c1053855b29d95d2cd001"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abde18bcf3f47a3c2901cb23b24d5564d" id="r_abde18bcf3f47a3c2901cb23b24d5564d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d52/namespaceelementwise__filter.html#abde18bcf3f47a3c2901cb23b24d5564d">elementwise_filter::elementwise_filter_free</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="memdesc:abde18bcf3f47a3c2901cb23b24d5564d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <br /></td></tr>
 <tr class="separator:abde18bcf3f47a3c2901cb23b24d5564d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac2f5a8a0a33529944fc5302eee1e04f5" id="r_ac2f5a8a0a33529944fc5302eee1e04f5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d52/namespaceelementwise__filter.html#ac2f5a8a0a33529944fc5302eee1e04f5">elementwise_filter::build_1d</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="memdesc:ac2f5a8a0a33529944fc5302eee1e04f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build the 1d filter for an element.  <br /></td></tr>
 <tr class="separator:ac2f5a8a0a33529944fc5302eee1e04f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaef0ce44b4e36713bcc046b0badd3e05" id="r_aaef0ce44b4e36713bcc046b0badd3e05"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d52/namespaceelementwise__filter.html#aaef0ce44b4e36713bcc046b0badd3e05">elementwise_filter::elementwise_field_filter_3d</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, v, u, nelv)</td></tr>
-<tr class="memdesc:aaef0ce44b4e36713bcc046b0badd3e05"><td class="mdescLeft">&#160;</td><td class="mdescRight">Filter a 3D field.  <br /></td></tr>
-<tr class="separator:aaef0ce44b4e36713bcc046b0badd3e05"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af3e61989d0b375cd71de6d1550ddf803" id="r_af3e61989d0b375cd71de6d1550ddf803"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d52/namespaceelementwise__filter.html#af3e61989d0b375cd71de6d1550ddf803">elementwise_filter::elementwise_field_filter_3d</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, f_out, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">f_in</a>)</td></tr>
+<tr class="memdesc:af3e61989d0b375cd71de6d1550ddf803"><td class="mdescLeft">&#160;</td><td class="mdescRight">Filter a 3D field.  <br /></td></tr>
+<tr class="separator:af3e61989d0b375cd71de6d1550ddf803"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a106ce51f62e266dfa441bde829ddff19" id="r_a106ce51f62e266dfa441bde829ddff19"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d52/namespaceelementwise__filter.html#a106ce51f62e266dfa441bde829ddff19">elementwise_filter::build_1d_cpu</a> (fh, fht, transfer, nx, filter_type)</td></tr>
+<tr class="memdesc:a106ce51f62e266dfa441bde829ddff19"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build the 1d filter for an element on the CPU. Suppose field x is filtered into x_hat by x_hat = fh*x.  <br /></td></tr>
+<tr class="separator:a106ce51f62e266dfa441bde829ddff19"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_6ac2283507a4fed10461ea6c78ce067a.html">les</a></li><li class="navelem"><a class="el" href="../../df/d9a/elementwise__filter_8f90.html">elementwise_filter.f90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_8681a82a265081a91d191144ff606af9.html">filter</a></li><li class="navelem"><a class="el" href="../../df/d9a/elementwise__filter_8f90.html">elementwise_filter.f90</a></li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -3,6 +3,8 @@ var structcg__cpld_1_1cg__cpld__t =
     [ "free", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#a6a7ae94752ff4daae30cf1cd1227dafc", null ],
     [ "free", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#a39467d0a5f0620de72b7a1a6e68e93d0", null ],
     [ "init", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#a55be9554b22f2af8fb5f84da67f1a16e", null ],
+    [ "init", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#a212e2f4ae22fc2b8b984a036ac549985", null ],
+    [ "is_converged", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#a75721421d4d26e4ea23205cfbc34443b", null ],
     [ "ksp_free", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#a34dae2b9d3aff8de33af53f6bb156bc4", null ],
     [ "ksp_init", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#aa93557061efb3f02ecd62cf8c05931c0", null ],
     [ "monitor_iter", "d7/d45/structcg__cpld_1_1cg__cpld__t.html#a4f01bfbf0a5979a60a0612e504c64489", null ],

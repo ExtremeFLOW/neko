@@ -1,5 +1,5 @@
 <map id="speclib::dgjd" name="speclib::dgjd">
-<area shape="rect" id="Node000001" title=" " alt="" coords="149,5,253,31"/>
-<area shape="rect" id="Node000002" href="$dd/df0/namespacespeclib.html#a02bd426d1e3aa4ac0f414dffb22dc53d" title=" " alt="" coords="5,5,101,31"/>
+<area shape="rect" id="Node000001" title="Compute the derivative matrix D and its transpose DT associated with the Nth order Lagrangian interpo..." alt="" coords="149,5,253,31"/>
+<area shape="rect" id="Node000002" href="$dd/df0/namespacespeclib.html#a02bd426d1e3aa4ac0f414dffb22dc53d" title="Compute the derivative matrix D and its transpose DT associated with the Nth order Lagrangian interpo..." alt="" coords="5,5,101,31"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="136,21,102,21,102,15,136,15"/>
 </map>

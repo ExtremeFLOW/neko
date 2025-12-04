@@ -7,7 +7,7 @@ var structsx__jacobi_1_1sx__jacobi__t =
     [ "update", "d4/d41/structsx__jacobi_1_1sx__jacobi__t.html#ae5ca5b525f809c1338542168fa0d4287", null ],
     [ "update", "d4/d41/structsx__jacobi_1_1sx__jacobi__t.html#a70b83c20da370be4ac14af3ad1fcb83c", null ],
     [ "coef", "d4/d41/structsx__jacobi_1_1sx__jacobi__t.html#afc45938215ecdb395c267a5e0006e227", null ],
-    [ "d", "d4/d41/structsx__jacobi_1_1sx__jacobi__t.html#a80d3dcba11bb6a7997b6323dd9af7041", null ],
+    [ "d", "d4/d41/structsx__jacobi_1_1sx__jacobi__t.html#ac735e38ce65b2195efa4b36569d11f96", null ],
     [ "dof", "d4/d41/structsx__jacobi_1_1sx__jacobi__t.html#a41435b9b12029e133d13bb62b2eaeea8", null ],
     [ "gs_h", "d4/d41/structsx__jacobi_1_1sx__jacobi__t.html#a927125724788d5a3bbeac0b5b878788a", null ]
 ];

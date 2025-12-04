@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -157,15 +157,17 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/dd3/pc__jacobi__device_8F90_source.html#l00114">114</a> of file <a class="el" href="../../da/dd3/pc__jacobi__device_8F90_source.html">pc_jacobi_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dd3/pc__jacobi__device_8F90_source.html#l00120">120</a> of file <a class="el" href="../../da/dd3/pc__jacobi__device_8F90_source.html">pc_jacobi_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d2/da7/namespacedevice__jacobi_a0449982992f4fcbd66b8e69699672ab7_cgraph.png" border="0" usemap="#ad2/da7/namespacedevice__jacobi_a0449982992f4fcbd66b8e69699672ab7_cgraph" alt=""/></div>
 <map name="ad2/da7/namespacedevice__jacobi_a0449982992f4fcbd66b8e69699672ab7_cgraph" id="ad2/da7/namespacedevice__jacobi_a0449982992f4fcbd66b8e69699672ab7_cgraph">
-<area shape="rect" title=" " alt="" coords="5,5,168,45"/>
-<area shape="rect" href="../../d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="216,13,365,38"/>
-<area shape="poly" title=" " alt="" coords="168,23,202,23,202,28,168,28"/>
+<area shape="rect" title=" " alt="" coords="5,35,168,75"/>
+<area shape="rect" href="../../d0/dbe/namespacedevice.html#a85c44be65491e03c6d7de2856fd5d141" title="Destroy a device event." alt="" coords="216,5,376,45"/>
+<area shape="poly" title=" " alt="" coords="168,41,202,36,203,41,169,46"/>
+<area shape="rect" href="../../d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="221,70,371,95"/>
+<area shape="poly" title=" " alt="" coords="169,63,208,68,207,74,168,68"/>
 </map>
 </div>
 
@@ -189,13 +191,13 @@ Here is the call graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
           <td class="paramname"><em>coef</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
           <td class="paramname"><em>dof</em>, </td>
         </tr>
         <tr>
@@ -217,21 +219,25 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/dd3/pc__jacobi__device_8F90_source.html#l00094">94</a> of file <a class="el" href="../../da/dd3/pc__jacobi__device_8F90_source.html">pc_jacobi_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dd3/pc__jacobi__device_8F90_source.html#l00098">98</a> of file <a class="el" href="../../da/dd3/pc__jacobi__device_8F90_source.html">pc_jacobi_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d2/da7/namespacedevice__jacobi_a08dd6669e156ff25024b500bf81a5106_cgraph.png" border="0" usemap="#ad2/da7/namespacedevice__jacobi_a08dd6669e156ff25024b500bf81a5106_cgraph" alt=""/></div>
 <map name="ad2/da7/namespacedevice__jacobi_a08dd6669e156ff25024b500bf81a5106_cgraph" id="ad2/da7/namespacedevice__jacobi_a08dd6669e156ff25024b500bf81a5106_cgraph">
-<area shape="rect" title=" " alt="" coords="5,63,168,103"/>
-<area shape="rect" href="../../d2/da7/namespacedevice__jacobi.html#abcae239f5ab6ef4a8a597e7cca1d804b" title=" " alt="" coords="216,63,379,103"/>
-<area shape="poly" title=" " alt="" coords="168,80,202,80,202,85,168,85"/>
-<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a07d4f69bef8f8e5cd58ca113e8651314" title="Returns ." alt="" coords="443,5,601,45"/>
-<area shape="poly" title=" " alt="" coords="376,60,429,46,430,51,377,65"/>
-<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a14206e58118cce6865c6ce1bb6454061" title="Vector multiplication ." alt="" coords="427,70,617,95"/>
-<area shape="poly" title=" " alt="" coords="379,80,413,80,413,85,379,85"/>
-<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a46a957f0ada862da2400fb93b64b4cd9" title="Invert a vector ." alt="" coords="443,120,601,160"/>
-<area shape="poly" title=" " alt="" coords="377,100,430,114,429,119,376,105"/>
+<area shape="rect" title=" " alt="" coords="5,56,168,96"/>
+<area shape="rect" href="../../d0/dbe/namespacedevice.html#aaaa5631ad87c768e466be4f943c5c479" title="Create a device event queue." alt="" coords="217,24,377,64"/>
+<area shape="poly" title=" " alt="" coords="168,61,204,56,204,61,169,66"/>
+<area shape="rect" href="../../d2/da7/namespacedevice__jacobi.html#abcae239f5ab6ef4a8a597e7cca1d804b" title=" " alt="" coords="216,88,379,128"/>
+<area shape="poly" title=" " alt="" coords="169,86,203,91,202,96,168,91"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a2b8d4f8b84ce7cc369cadc71c01dc207" title="Returns ." alt="" coords="447,5,604,45"/>
+<area shape="poly" title=" " alt="" coords="348,85,426,55,447,47,449,52,428,60,350,90"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a94ac78fc9b96b2e3ac600603c1afafb1" title="Vector multiplication ." alt="" coords="430,70,621,95"/>
+<area shape="poly" title=" " alt="" coords="378,96,416,92,417,97,379,102"/>
+<area shape="rect" href="../../d0/dbe/namespacedevice.html#a08e073f459027c6c1b067ff777f0bbf9" title="Synchronize an event." alt="" coords="427,119,624,145"/>
+<area shape="poly" title=" " alt="" coords="379,114,413,118,413,123,378,119"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a34e76c2d7ad60ae8b0577675df512515" title="Invert a vector ." alt="" coords="447,169,604,209"/>
+<area shape="poly" title=" " alt="" coords="352,126,428,153,452,162,450,167,426,159,351,131"/>
 </map>
 </div>
 
@@ -283,14 +289,14 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/dd3/pc__jacobi__device_8F90_source.html#l00133">133</a> of file <a class="el" href="../../da/dd3/pc__jacobi__device_8F90_source.html">pc_jacobi_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dd3/pc__jacobi__device_8F90_source.html#l00143">143</a> of file <a class="el" href="../../da/dd3/pc__jacobi__device_8F90_source.html">pc_jacobi_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d2/da7/namespacedevice__jacobi_af31a276a111dbeaf4661cfc33e996605_cgraph.png" border="0" usemap="#ad2/da7/namespacedevice__jacobi_af31a276a111dbeaf4661cfc33e996605_cgraph" alt=""/></div>
 <map name="ad2/da7/namespacedevice__jacobi_af31a276a111dbeaf4661cfc33e996605_cgraph" id="ad2/da7/namespacedevice__jacobi_af31a276a111dbeaf4661cfc33e996605_cgraph">
 <area shape="rect" title="The jacobi preconditioner &#160;&#160;where ." alt="" coords="5,5,168,45"/>
-<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a51b3ae540684036a51e44558a8e7650b" title="Vector multiplication with 3 vectors ." alt="" coords="216,13,407,38"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#ada32e4bb9b2ce2ff39e708510146ff23" title="Vector multiplication with 3 vectors ." alt="" coords="216,13,407,38"/>
 <area shape="poly" title=" " alt="" coords="168,23,202,23,202,28,168,28"/>
 </map>
 </div>
@@ -321,19 +327,21 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/dd3/pc__jacobi__device_8F90_source.html#l00147">147</a> of file <a class="el" href="../../da/dd3/pc__jacobi__device_8F90_source.html">pc_jacobi_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dd3/pc__jacobi__device_8F90_source.html#l00157">157</a> of file <a class="el" href="../../da/dd3/pc__jacobi__device_8F90_source.html">pc_jacobi_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d2/da7/namespacedevice__jacobi_abcae239f5ab6ef4a8a597e7cca1d804b_cgraph.png" border="0" usemap="#ad2/da7/namespacedevice__jacobi_abcae239f5ab6ef4a8a597e7cca1d804b_cgraph" alt=""/></div>
 <map name="ad2/da7/namespacedevice__jacobi_abcae239f5ab6ef4a8a597e7cca1d804b_cgraph" id="ad2/da7/namespacedevice__jacobi_abcae239f5ab6ef4a8a597e7cca1d804b_cgraph">
-<area shape="rect" title=" " alt="" coords="5,63,168,103"/>
-<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a07d4f69bef8f8e5cd58ca113e8651314" title="Returns ." alt="" coords="233,5,390,45"/>
-<area shape="poly" title=" " alt="" coords="165,60,218,46,220,51,166,65"/>
-<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a14206e58118cce6865c6ce1bb6454061" title="Vector multiplication ." alt="" coords="216,70,407,95"/>
-<area shape="poly" title=" " alt="" coords="168,80,202,80,202,85,168,85"/>
-<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a46a957f0ada862da2400fb93b64b4cd9" title="Invert a vector ." alt="" coords="233,120,390,160"/>
-<area shape="poly" title=" " alt="" coords="166,100,220,114,218,119,165,105"/>
+<area shape="rect" title=" " alt="" coords="5,88,168,128"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a2b8d4f8b84ce7cc369cadc71c01dc207" title="Returns ." alt="" coords="236,5,393,45"/>
+<area shape="poly" title=" " alt="" coords="136,85,215,55,236,47,238,52,217,60,138,90"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a94ac78fc9b96b2e3ac600603c1afafb1" title="Vector multiplication ." alt="" coords="219,70,410,95"/>
+<area shape="poly" title=" " alt="" coords="168,96,206,92,206,97,168,102"/>
+<area shape="rect" href="../../d0/dbe/namespacedevice.html#a08e073f459027c6c1b067ff777f0bbf9" title="Synchronize an event." alt="" coords="216,119,413,145"/>
+<area shape="poly" title=" " alt="" coords="168,114,203,118,202,123,168,119"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a34e76c2d7ad60ae8b0577675df512515" title="Invert a vector ." alt="" coords="236,169,393,209"/>
+<area shape="poly" title=" " alt="" coords="142,126,217,153,241,162,240,167,215,159,140,131"/>
 </map>
 </div>
 <div class="dynheader">
@@ -355,7 +363,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d2/da7/namespacedevice__jacobi.html">device_jacobi</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -102,8 +102,7 @@ $(document).ready(function(){initNavTree('d5/dcb/hip__intf_8F90.html','../../');
 <a href="#nested-classes">Data Types</a> &#124;
 <a href="#namespaces">Modules</a> &#124;
 <a href="#enum-members">Enumerations</a> &#124;
-<a href="#func-members">Functions/Subroutines</a> &#124;
-<a href="#var-members">Variables</a>  </div>
+<a href="#func-members">Functions/Subroutines</a>  </div>
   <div class="headertitle"><div class="title">hip_intf.F90 File Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -119,6 +118,8 @@ Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/de9/interfacehip__intf_1_1hipmemcpy.html">hip_intf::hipmemcpy</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d39/interfacehip__intf_1_1hipmemcpyasync.html">hip_intf::hipmemcpyasync</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dac/interfacehip__intf_1_1hipmemsetasync.html">hip_intf::hipmemsetasync</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da0/interfacehip__intf_1_1hipdevicesynchronize.html">hip_intf::hipdevicesynchronize</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -206,30 +207,15 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a1fe3302af910fad64b1e7c2ba5b29d3e" id="r_a1fe3302af910fad64b1e7c2ba5b29d3e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#a1fe3302af910fad64b1e7c2ba5b29d3e">hip_intf::hip_init</a></td></tr>
-<tr class="separator:a1fe3302af910fad64b1e7c2ba5b29d3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a46ebe304218d34d01b56a41e65488e1f" id="r_a46ebe304218d34d01b56a41e65488e1f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#a46ebe304218d34d01b56a41e65488e1f">hip_intf::hip_finalize</a></td></tr>
-<tr class="separator:a46ebe304218d34d01b56a41e65488e1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a71cf325d479bbed01658a08561e54a48" id="r_a71cf325d479bbed01658a08561e54a48"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#a71cf325d479bbed01658a08561e54a48">hip_intf::hip_init</a> (glb_cmd_queue, aux_cmd_queue, strm_high_prio, strm_low_prio)</td></tr>
+<tr class="separator:a71cf325d479bbed01658a08561e54a48"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a89de67459398a401efed275ac5c3dc07" id="r_a89de67459398a401efed275ac5c3dc07"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#a89de67459398a401efed275ac5c3dc07">hip_intf::hip_finalize</a> (glb_cmd_queue, aux_cmd_queue)</td></tr>
+<tr class="separator:a89de67459398a401efed275ac5c3dc07"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1c8e3cf5e89ffe1b50253b6b38e45a93" id="r_a1c8e3cf5e89ffe1b50253b6b38e45a93"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#a1c8e3cf5e89ffe1b50253b6b38e45a93">hip_intf::hip_device_name</a> (name)</td></tr>
 <tr class="separator:a1c8e3cf5e89ffe1b50253b6b38e45a93"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae76e470dcd046e7ef62b0273edd6c56d" id="r_ae76e470dcd046e7ef62b0273edd6c56d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#ae76e470dcd046e7ef62b0273edd6c56d">hip_intf::hip_device_count</a> ()</td></tr>
 <tr class="memdesc:ae76e470dcd046e7ef62b0273edd6c56d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of available HIP devices.  <br /></td></tr>
 <tr class="separator:ae76e470dcd046e7ef62b0273edd6c56d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
-Variables</h2></td></tr>
-<tr class="memitem:a5fd1f28f420d73314c95a40edd15d37f" id="r_a5fd1f28f420d73314c95a40edd15d37f"><td class="memItemLeft" align="right" valign="top">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">bind</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">C</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#a5fd1f28f420d73314c95a40edd15d37f">hip_intf::glb_cmd_queue</a> = <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">C_NULL_PTR</a></td></tr>
-<tr class="memdesc:a5fd1f28f420d73314c95a40edd15d37f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Global HIP command queue.  <br /></td></tr>
-<tr class="separator:a5fd1f28f420d73314c95a40edd15d37f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a19e001b16b32fe3b03a6a42aa67b41fb" id="r_a19e001b16b32fe3b03a6a42aa67b41fb"><td class="memItemLeft" align="right" valign="top">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">bind</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">C</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#a19e001b16b32fe3b03a6a42aa67b41fb">hip_intf::aux_cmd_queue</a> = <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">C_NULL_PTR</a></td></tr>
-<tr class="memdesc:a19e001b16b32fe3b03a6a42aa67b41fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Aux HIP command queue.  <br /></td></tr>
-<tr class="separator:a19e001b16b32fe3b03a6a42aa67b41fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8996afbeeb8e8c59a38280475e1b3549" id="r_a8996afbeeb8e8c59a38280475e1b3549"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#a8996afbeeb8e8c59a38280475e1b3549">hip_intf::strm_high_prio</a></td></tr>
-<tr class="memdesc:a8996afbeeb8e8c59a38280475e1b3549"><td class="mdescLeft">&#160;</td><td class="mdescRight">High priority stream setting.  <br /></td></tr>
-<tr class="separator:a8996afbeeb8e8c59a38280475e1b3549"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1a75fbd54838dbeba03536ea8a7a0ffd" id="r_a1a75fbd54838dbeba03536ea8a7a0ffd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#a1a75fbd54838dbeba03536ea8a7a0ffd">hip_intf::strm_low_prio</a></td></tr>
-<tr class="memdesc:a1a75fbd54838dbeba03536ea8a7a0ffd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Low priority stream setting.  <br /></td></tr>
-<tr class="separator:a1a75fbd54838dbeba03536ea8a7a0ffd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -237,7 +223,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_16dc92632bab467dc50b01bd02b3341a.html">device</a></li><li class="navelem"><a class="el" href="../../d5/dcb/hip__intf_8F90.html">hip_intf.F90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

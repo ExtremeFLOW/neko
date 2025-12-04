@@ -1,0 +1,5 @@
+<map id="spalding_cpu::spalding_compute_cpu" name="spalding_cpu::spalding_compute_cpu">
+<area shape="rect" id="Node000001" title="Compute the wall shear stress on cpu using Spalding&#39;s model." alt="" coords="193,5,364,45"/>
+<area shape="rect" id="Node000002" href="$d5/d90/namespacespalding.html#a83c835e2b4c317e67d37e19821f62c7f" title="Compute the wall shear stress." alt="" coords="5,5,145,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="179,28,146,28,146,23,179,23"/>
+</map>

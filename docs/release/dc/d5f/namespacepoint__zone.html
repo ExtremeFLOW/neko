@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -100,13 +100,20 @@ $(document).ready(function(){initNavTree('dc/d5f/namespacepoint__zone.html','../
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Data Types</a> &#124;
-<a href="#func-members">Functions/Subroutines</a>  </div>
+<a href="#func-members">Functions/Subroutines</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">point_zone Module Reference</div></div>
 </div><!--header-->
 <div class="contents">
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Types</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d86/structpoint__zone_1_1allocator__entry.html">allocator_entry</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called in user modules to add an allocator for custom types.  <a href="../../d0/d86/structpoint__zone_1_1allocator__entry.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/dcd/interfacepoint__zone_1_1point__zone__allocate.html">point_zone_allocate</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Point zone factory. Constructs, initializes, and maps the point zone object.  <a href="../../db/dcd/interfacepoint__zone_1_1point__zone__allocate.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dc6/interfacepoint__zone_1_1point__zone__criterion.html">point_zone_criterion</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defines the criterion of selection of a GLL point to the <a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a>.  <a href="../../d7/dc6/interfacepoint__zone_1_1point__zone__criterion.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -129,7 +136,7 @@ Data Types</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ab9f5b565f64e8e144b00ef2d3e215bac" id="r_ab9f5b565f64e8e144b00ef2d3e215bac"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d5f/namespacepoint__zone.html#ab9f5b565f64e8e144b00ef2d3e215bac">point_zone_init_base</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, size, name, invert)</td></tr>
-<tr class="memdesc:ab9f5b565f64e8e144b00ef2d3e215bac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Point zone factory. Constructs, initializes, and maps the point zone object.  <br /></td></tr>
+<tr class="memdesc:ab9f5b565f64e8e144b00ef2d3e215bac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for the <a class="el" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html" title="Base abstract type for point zones.">point_zone_t</a> base type.  <br /></td></tr>
 <tr class="separator:ab9f5b565f64e8e144b00ef2d3e215bac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a05bf36dcccbd83cbef9c36d017579093" id="r_a05bf36dcccbd83cbef9c36d017579093"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d5f/namespacepoint__zone.html#a05bf36dcccbd83cbef9c36d017579093">point_zone_free_base</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="memdesc:a05bf36dcccbd83cbef9c36d017579093"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor for the <a class="el" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html" title="Base abstract type for point zones.">point_zone_t</a> base type.  <br /></td></tr>
@@ -143,6 +150,15 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:afadeef82ddfd6a4ed123fac4355ae94d" id="r_afadeef82ddfd6a4ed123fac4355ae94d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d5f/namespacepoint__zone.html#afadeef82ddfd6a4ed123fac4355ae94d">point_zone_map</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, dof)</td></tr>
 <tr class="memdesc:afadeef82ddfd6a4ed123fac4355ae94d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maps the GLL points that verify a <a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a>'s <code>criterion</code> by adding them to the stack.  <br /></td></tr>
 <tr class="separator:afadeef82ddfd6a4ed123fac4355ae94d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:af759ff89e7763de87e939440f829b63d" id="r_af759ff89e7763de87e939440f829b63d"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d0/d86/structpoint__zone_1_1allocator__entry.html">allocator_entry</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d5f/namespacepoint__zone.html#af759ff89e7763de87e939440f829b63d">point_zone_registry</a></td></tr>
+<tr class="memdesc:af759ff89e7763de87e939440f829b63d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registry of point zone allocators for user-defined types.  <br /></td></tr>
+<tr class="separator:af759ff89e7763de87e939440f829b63d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a98738e1f87ef86828e449c59f3d0b6fd" id="r_a98738e1f87ef86828e449c59f3d0b6fd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d5f/namespacepoint__zone.html#a98738e1f87ef86828e449c59f3d0b6fd">point_zone_registry_size</a> = 0</td></tr>
+<tr class="memdesc:a98738e1f87ef86828e449c59f3d0b6fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">The size of the <code><a class="el" href="../../d9/dac/namespacepoint__zone__registry.html">point_zone_registry</a></code>  <br /></td></tr>
+<tr class="separator:a98738e1f87ef86828e449c59f3d0b6fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="a590efa6045b41622f5313456101c516d" name="a590efa6045b41622f5313456101c516d"></a>
@@ -186,7 +202,7 @@ Functions/Subroutines</h2></td></tr>
 </dl>
 <dl class="section note"><dt>Note</dt><dd>The linear index of a point <code>(j,k,l,e)</code> can be retrieved using the subroutine <code>linear_index(j,k,l,e,lx)</code> in the <code>utils</code> module. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00243">243</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00272">272</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
 
 </div>
 </div>
@@ -214,7 +230,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00200">200</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00239">239</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
 
 </div>
 </div>
@@ -242,17 +258,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00182">182</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
-<div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="../../dc/d5f/namespacepoint__zone_a05bf36dcccbd83cbef9c36d017579093_cgraph.png" border="0" usemap="#adc/d5f/namespacepoint__zone_a05bf36dcccbd83cbef9c36d017579093_cgraph" alt=""/></div>
-<map name="adc/d5f/namespacepoint__zone_a05bf36dcccbd83cbef9c36d017579093_cgraph" id="adc/d5f/namespacepoint__zone_a05bf36dcccbd83cbef9c36d017579093_cgraph">
-<area shape="rect" title="Destructor for the point_zone_t base type." alt="" coords="5,5,177,45"/>
-<area shape="rect" href="../../d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="225,13,375,38"/>
-<area shape="poly" title=" " alt="" coords="178,23,212,23,212,28,178,28"/>
-</map>
-</div>
+<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00227">227</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
 
 </div>
 </div>
@@ -303,9 +309,6 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">object</td><td>The object allocated by the factory. </td></tr>
-    <tr><td class="paramname">json</td><td>JSON object initializing the point zone. </td></tr>
-    <tr><td class="paramname">dof</td><td>Dofmap from which to map the point zone. Constructor for the <a class="el" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html" title="Base abstract type for point zones.">point_zone_t</a> base type. </td></tr>
     <tr><td class="paramname">size</td><td>Size of the scratch stack. </td></tr>
     <tr><td class="paramname">name</td><td>Name of the point zone. </td></tr>
     <tr><td class="paramname">invert</td><td>Flag to indicate wether or not to invert the selection of points. </td></tr>
@@ -313,7 +316,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00162">162</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00207">207</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
 
 </div>
 </div>
@@ -357,21 +360,59 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00258">258</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00287">287</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dc/d5f/namespacepoint__zone_afadeef82ddfd6a4ed123fac4355ae94d_cgraph.png" border="0" usemap="#adc/d5f/namespacepoint__zone_afadeef82ddfd6a4ed123fac4355ae94d_cgraph" alt=""/></div>
 <map name="adc/d5f/namespacepoint__zone_afadeef82ddfd6a4ed123fac4355ae94d_cgraph" id="adc/d5f/namespacepoint__zone_afadeef82ddfd6a4ed123fac4355ae94d_cgraph">
-<area shape="rect" title="Maps the GLL points that verify a point_zone&#39;s criterion by adding them to the stack." alt="" coords="5,37,213,62"/>
-<area shape="rect" href="../../d2/d57/cuda_2facet__normal__kernel_8h.html#a255d8d741e1fc6cd080ba11e14dc7148" title=" " alt="" coords="261,37,388,62"/>
-<area shape="poly" title=" " alt="" coords="214,47,247,47,247,52,214,52"/>
-<area shape="poly" title=" " alt="" coords="293,38,286,28,290,18,303,12,325,10,351,14,362,22,359,26,349,18,325,15,304,17,294,22,291,28,297,35"/>
-<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="436,29,600,69"/>
-<area shape="poly" title=" " alt="" coords="388,47,422,47,422,52,388,52"/>
-<area shape="poly" title=" " alt="" coords="482,30,480,20,485,11,498,5,518,3,541,6,553,13,550,17,539,11,518,8,500,10,489,15,485,21,487,28"/>
+<area shape="rect" title="Maps the GLL points that verify a point_zone&#39;s criterion by adding them to the stack." alt="" coords="5,29,213,55"/>
+<area shape="rect" href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d" title=" " alt="" coords="261,29,388,55"/>
+<area shape="poly" title=" " alt="" coords="214,39,247,39,247,45,214,45"/>
+<area shape="poly" title=" " alt="" coords="290,31,282,21,286,11,301,5,325,3,354,6,366,15,363,20,352,11,325,8,302,10,290,15,287,20,294,28"/>
 </map>
 </div>
+
+</div>
+</div>
+<h2 class="groupheader">Variable Documentation</h2>
+<a id="af759ff89e7763de87e939440f829b63d" name="af759ff89e7763de87e939440f829b63d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af759ff89e7763de87e939440f829b63d">&#9670;&#160;</a></span>point_zone_registry</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">type(<a class="el" href="../../d0/d86/structpoint__zone_1_1allocator__entry.html">allocator_entry</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a> point_zone::point_zone_registry</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00192">192</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
+
+</div>
+</div>
+<a id="a98738e1f87ef86828e449c59f3d0b6fd" name="a98738e1f87ef86828e449c59f3d0b6fd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a98738e1f87ef86828e449c59f3d0b6fd">&#9670;&#160;</a></span>point_zone_registry_size</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> point_zone::point_zone_registry_size = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d9/daf/point__zone_8f90_source.html#l00195">195</a> of file <a class="el" href="../../d9/daf/point__zone_8f90_source.html">point_zone.f90</a>.</p>
 
 </div>
 </div>
@@ -381,7 +422,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:53 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

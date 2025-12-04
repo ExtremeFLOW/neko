@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -108,7 +108,7 @@ $(document).ready(function(){initNavTree('d6/dd0/map_8f90_source.html','../../')
 <div class="contents">
 <a href="../../d6/dd0/map_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span> </div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno"><a class="line" href="../../d3/dca/namespacemap.html">    3</a></span><span class="keyword">module</span> <a class="code hl_namespace" href="../../d3/dca/namespacemap.html">map</a></div>
-<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../db/dfc/namespacemesh.html">mesh</a></div>
+<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../db/dfc/namespacemesh.html">mesh</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a></div>
 <div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span>  <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span> </div>
 <div class="foldopen" id="foldopen00008" data-start="" data-end="">
@@ -116,89 +116,90 @@ $(document).ready(function(){initNavTree('d6/dd0/map_8f90_source.html','../../')
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno"><a class="line" href="../../da/d40/structmap_1_1map__t.html#a5e16fb09c9f80b5686972a93b40505f2">    9</a></span>     <span class="keywordtype">integer</span> :: nel, nlv</div>
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno"><a class="line" href="../../da/d40/structmap_1_1map__t.html#a5de4fee9c7d9a74398e87778a3419fc3">   10</a></span>     <span class="keywordtype">integer</span>, <span class="keywordtype">allocatable</span> :: imap(:)</div>
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno"><a class="line" href="../../da/d40/structmap_1_1map__t.html#ab336509284dc456e9239e5088b47e6bc">   11</a></span>     <span class="keywordtype">integer</span>, <span class="keywordtype">allocatable</span> :: vertex(:,:)</div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>  <span class="keyword">end type </span><a class="code hl_struct" href="../../da/d40/structmap_1_1map__t.html">map_t</a></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>   <span class="keyword">contains</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno"><a class="line" href="../../da/d40/structmap_1_1map__t.html#af970204e2c410e16ce728389c674b098">   14</a></span>     generic :: init =&gt; init_nel_nelv, init_mesh</div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno"><a class="line" href="../../da/d40/structmap_1_1map__t.html#aecf44617eb851d432190c11517ad427d">   15</a></span>     <span class="keywordtype">procedure</span>, <span class="keywordtype">private</span>, pass(this) :: init_common =&gt; <a class="code hl_function" href="../../d3/dca/namespacemap.html#aa77279493abe9c865a02afb8e59439d3">map_init_common</a></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno"><a class="line" href="../../da/d40/structmap_1_1map__t.html#a384f2f22466311f9c022d49fae63477b">   16</a></span>     <span class="keywordtype">procedure</span>, <span class="keywordtype">private</span>, pass(this) :: init_nel_nelv =&gt; <a class="code hl_function" href="../../d3/dca/namespacemap.html#aa13e5d58d9115992dc39d3c1e8ef8feb">map_init_nel_nelv</a></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno"><a class="line" href="../../da/d40/structmap_1_1map__t.html#aacba8b636e0868d6d13eeb8201d4a5df">   17</a></span>     <span class="keywordtype">procedure</span>, <span class="keywordtype">private</span>, pass(this) :: init_mesh =&gt; <a class="code hl_function" href="../../d3/dca/namespacemap.html#ae1138477428064d6e70414cb185d7ff2">map_init_mesh</a></div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno"><a class="line" href="../../da/d40/structmap_1_1map__t.html#ac53dfcdc6bc6fe49bd1bb05d58e228c5">   18</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: init_nel_ =&gt; <a class="code hl_function" href="../../d3/dca/namespacemap.html#aefe90a9b89124b4cc8cf89a867ceaaee">map_free</a></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno"><a class="line" href="../../da/d40/structmap_1_1map__t.html#a74bdb4184da9bd50bbc3770e2a2b4174">   20</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: free =&gt; <a class="code hl_function" href="../../d3/dca/namespacemap.html#aefe90a9b89124b4cc8cf89a867ceaaee">map_free</a></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>  <span class="keyword">end type </span><a class="code hl_struct" href="../../da/d40/structmap_1_1map__t.html">map_t</a></div>
 </div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span> </div>
-<div class="foldopen" id="foldopen00014" data-start="" data-end="">
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno"><a class="line" href="../../d2/d3d/interfacemap_1_1map__init.html">   14</a></span>  <span class="keyword">interface</span> <a class="code hl_interface" href="../../d2/d3d/interfacemap_1_1map__init.html">map_init</a></div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>     <span class="keyword">module procedure</span> <a class="code hl_function" href="../../d3/dca/namespacemap.html#ac2444935b4e7da3abf1f60748f220072">map_init_nel_nelv</a>, <a class="code hl_function" href="../../d3/dca/namespacemap.html#a29c5d4339cee0213bd01f1bfb7e72d44">map_init_mesh</a></div>
-</div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>  <span class="keyword">end interface </span><a class="code hl_interface" href="../../d2/d3d/interfacemap_1_1map__init.html">map_init</a></div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="keyword">contains</span></div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span> </div>
-<div class="foldopen" id="foldopen00019" data-start="" data-end="">
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno"><a class="line" href="../../d2/d3d/interfacemap_1_1map__init.html#a6c799e4e429dc5243a94e34715f9d90c">   19</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/dca/namespacemap.html#a29c5d4339cee0213bd01f1bfb7e72d44">map_init_mesh</a>(m, msh)</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../da/d40/structmap_1_1map__t.html">map_t</a>), <span class="keywordtype">intent(inout)</span> :: m</div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(in)</span> :: msh</div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d3/dca/namespacemap.html#a90c4b88b67d5c3d7afd949c475b68cd2">map_free</a>(m)</div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="keyword">contains</span></div>
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span> </div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    m%nel = msh%nelv</div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    m%nlv = msh%npts</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span> </div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d3/dca/namespacemap.html#aece6cc3eb234916e37f514e6cd6bfb9c">map_init_common</a>(m)</div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span> </div>
+<div class="foldopen" id="foldopen00025" data-start="" data-end="">
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno"><a class="line" href="../../d3/dca/namespacemap.html#ae1138477428064d6e70414cb185d7ff2">   25</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/dca/namespacemap.html#ae1138477428064d6e70414cb185d7ff2">map_init_mesh</a>(this, msh)</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../da/d40/structmap_1_1map__t.html">map_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(in)</span> :: msh</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    <span class="keyword">call </span>this%free()</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span> </div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>    this%nel = msh%nelv</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    this%nlv = msh%npts</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span> </div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    <span class="keyword">call </span>this%init_common()</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
 </div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/dca/namespacemap.html#a29c5d4339cee0213bd01f1bfb7e72d44">map_init_mesh</a></div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span> </div>
-<div class="foldopen" id="foldopen00032" data-start="" data-end="">
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno"><a class="line" href="../../d2/d3d/interfacemap_1_1map__init.html#af69cd0351a066aeff418437176269f41">   32</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/dca/namespacemap.html#ac2444935b4e7da3abf1f60748f220072">map_init_nel_nelv</a>(m, nel, nlv)</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../da/d40/structmap_1_1map__t.html">map_t</a>), <span class="keywordtype">intent(inout)</span> :: m</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: nel</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: nlv</div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span> </div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d3/dca/namespacemap.html#a90c4b88b67d5c3d7afd949c475b68cd2">map_free</a>(m)</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span> </div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    m%nel = nel</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    m%nlv = nlv</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d3/dca/namespacemap.html#aece6cc3eb234916e37f514e6cd6bfb9c">map_init_common</a>(m)</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/dca/namespacemap.html#ae1138477428064d6e70414cb185d7ff2">map_init_mesh</a></div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span> </div>
+<div class="foldopen" id="foldopen00038" data-start="" data-end="">
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno"><a class="line" href="../../d3/dca/namespacemap.html#aa13e5d58d9115992dc39d3c1e8ef8feb">   38</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/dca/namespacemap.html#aa13e5d58d9115992dc39d3c1e8ef8feb">map_init_nel_nelv</a>(this, nel, nlv)</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../da/d40/structmap_1_1map__t.html">map_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: nel</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: nlv</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    <span class="keyword">call </span>this%free()</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    this%nel = nel</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    this%nlv = nlv</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span> </div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    <span class="keyword">call </span>this%init_common()</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
 </div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/dca/namespacemap.html#ac2444935b4e7da3abf1f60748f220072">map_init_nel_nelv</a></div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
-<div class="foldopen" id="foldopen00046" data-start="" data-end="">
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="../../d3/dca/namespacemap.html#aece6cc3eb234916e37f514e6cd6bfb9c">   46</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/dca/namespacemap.html#aece6cc3eb234916e37f514e6cd6bfb9c">map_init_common</a>(m)</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../da/d40/structmap_1_1map__t.html">map_t</a>), <span class="keywordtype">intent(inout)</span> :: m</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span> </div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    <span class="keyword">allocate</span>(m%imap(m%nel))</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <span class="keyword">allocate</span>(m%vertex(m%nlv, m%nel))</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
-</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/dca/namespacemap.html#aece6cc3eb234916e37f514e6cd6bfb9c">map_init_common</a></div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/dca/namespacemap.html#aa13e5d58d9115992dc39d3c1e8ef8feb">map_init_nel_nelv</a></div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span> </div>
+<div class="foldopen" id="foldopen00052" data-start="" data-end="">
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno"><a class="line" href="../../d3/dca/namespacemap.html#aa77279493abe9c865a02afb8e59439d3">   52</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/dca/namespacemap.html#aa77279493abe9c865a02afb8e59439d3">map_init_common</a>(this)</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../da/d40/structmap_1_1map__t.html">map_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
-<div class="foldopen" id="foldopen00055" data-start="" data-end="">
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno"><a class="line" href="../../d3/dca/namespacemap.html#a90c4b88b67d5c3d7afd949c475b68cd2">   55</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/dca/namespacemap.html#a90c4b88b67d5c3d7afd949c475b68cd2">map_free</a>(m)</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../da/d40/structmap_1_1map__t.html">map_t</a>), <span class="keywordtype">intent(inout)</span> :: m</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span> </div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(m%imap)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>       <span class="keyword">deallocate</span>(m%imap)</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span> </div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(m%vertex)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>       <span class="keyword">deallocate</span>(m%vertex)</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    <span class="keyword">allocate</span>(this%imap(this%nel))</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span> </div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="keyword">allocate</span>(this%vertex(this%nlv, this%nel))</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
 </div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/dca/namespacemap.html#a90c4b88b67d5c3d7afd949c475b68cd2">map_free</a></div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span> </div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d3/dca/namespacemap.html">map</a></div>
-<div class="ttc" id="ainterfacemap_1_1map__init_html"><div class="ttname"><a href="../../d2/d3d/interfacemap_1_1map__init.html">map::map_init</a></div><div class="ttdef"><b>Definition</b> <a href="../../d6/dd0/map_8f90_source.html#l00014">map.f90:14</a></div></div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/dca/namespacemap.html#aa77279493abe9c865a02afb8e59439d3">map_init_common</a></div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span> </div>
+<div class="foldopen" id="foldopen00061" data-start="" data-end="">
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno"><a class="line" href="../../d3/dca/namespacemap.html#aefe90a9b89124b4cc8cf89a867ceaaee">   61</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/dca/namespacemap.html#aefe90a9b89124b4cc8cf89a867ceaaee">map_free</a>(this)</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../da/d40/structmap_1_1map__t.html">map_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%imap)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>       <span class="keyword">deallocate</span>(this%imap)</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span> </div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%vertex)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>       <span class="keyword">deallocate</span>(this%vertex)</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span><span class="keywordflow">    end if</span></div>
+</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/dca/namespacemap.html#aefe90a9b89124b4cc8cf89a867ceaaee">map_free</a></div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span> </div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d3/dca/namespacemap.html">map</a></div>
 <div class="ttc" id="anamespacemap_html"><div class="ttname"><a href="../../d3/dca/namespacemap.html">map</a></div><div class="ttdoc">NEKTON map.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/dd0/map_8f90_source.html#l00003">map.f90:3</a></div></div>
-<div class="ttc" id="anamespacemap_html_a29c5d4339cee0213bd01f1bfb7e72d44"><div class="ttname"><a href="../../d3/dca/namespacemap.html#a29c5d4339cee0213bd01f1bfb7e72d44">map::map_init_mesh</a></div><div class="ttdeci">subroutine map_init_mesh(m, msh)</div><div class="ttdef"><b>Definition</b> <a href="../../d6/dd0/map_8f90_source.html#l00019">map.f90:20</a></div></div>
-<div class="ttc" id="anamespacemap_html_a90c4b88b67d5c3d7afd949c475b68cd2"><div class="ttname"><a href="../../d3/dca/namespacemap.html#a90c4b88b67d5c3d7afd949c475b68cd2">map::map_free</a></div><div class="ttdeci">subroutine map_free(m)</div><div class="ttdef"><b>Definition</b> <a href="../../d6/dd0/map_8f90_source.html#l00055">map.f90:56</a></div></div>
-<div class="ttc" id="anamespacemap_html_ac2444935b4e7da3abf1f60748f220072"><div class="ttname"><a href="../../d3/dca/namespacemap.html#ac2444935b4e7da3abf1f60748f220072">map::map_init_nel_nelv</a></div><div class="ttdeci">subroutine map_init_nel_nelv(m, nel, nlv)</div><div class="ttdef"><b>Definition</b> <a href="../../d6/dd0/map_8f90_source.html#l00032">map.f90:33</a></div></div>
-<div class="ttc" id="anamespacemap_html_aece6cc3eb234916e37f514e6cd6bfb9c"><div class="ttname"><a href="../../d3/dca/namespacemap.html#aece6cc3eb234916e37f514e6cd6bfb9c">map::map_init_common</a></div><div class="ttdeci">subroutine map_init_common(m)</div><div class="ttdef"><b>Definition</b> <a href="../../d6/dd0/map_8f90_source.html#l00046">map.f90:47</a></div></div>
+<div class="ttc" id="anamespacemap_html_aa13e5d58d9115992dc39d3c1e8ef8feb"><div class="ttname"><a href="../../d3/dca/namespacemap.html#aa13e5d58d9115992dc39d3c1e8ef8feb">map::map_init_nel_nelv</a></div><div class="ttdeci">subroutine map_init_nel_nelv(this, nel, nlv)</div><div class="ttdef"><b>Definition</b> <a href="../../d6/dd0/map_8f90_source.html#l00038">map.f90:39</a></div></div>
+<div class="ttc" id="anamespacemap_html_aa77279493abe9c865a02afb8e59439d3"><div class="ttname"><a href="../../d3/dca/namespacemap.html#aa77279493abe9c865a02afb8e59439d3">map::map_init_common</a></div><div class="ttdeci">subroutine map_init_common(this)</div><div class="ttdef"><b>Definition</b> <a href="../../d6/dd0/map_8f90_source.html#l00052">map.f90:53</a></div></div>
+<div class="ttc" id="anamespacemap_html_ae1138477428064d6e70414cb185d7ff2"><div class="ttname"><a href="../../d3/dca/namespacemap.html#ae1138477428064d6e70414cb185d7ff2">map::map_init_mesh</a></div><div class="ttdeci">subroutine map_init_mesh(this, msh)</div><div class="ttdef"><b>Definition</b> <a href="../../d6/dd0/map_8f90_source.html#l00025">map.f90:26</a></div></div>
+<div class="ttc" id="anamespacemap_html_aefe90a9b89124b4cc8cf89a867ceaaee"><div class="ttname"><a href="../../d3/dca/namespacemap.html#aefe90a9b89124b4cc8cf89a867ceaaee">map::map_free</a></div><div class="ttdeci">subroutine map_free(this)</div><div class="ttdef"><b>Definition</b> <a href="../../d6/dd0/map_8f90_source.html#l00061">map.f90:62</a></div></div>
 <div class="ttc" id="anamespacemesh_html"><div class="ttname"><a href="../../db/dfc/namespacemesh.html">mesh</a></div><div class="ttdoc">Defines a mesh.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l00034">mesh.f90:34</a></div></div>
 <div class="ttc" id="astructmap_1_1map__t_html"><div class="ttname"><a href="../../da/d40/structmap_1_1map__t.html">map::map_t</a></div><div class="ttdoc">NEKTON vertex mapping.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/dd0/map_8f90_source.html#l00008">map.f90:8</a></div></div>
-<div class="ttc" id="astructmesh_1_1mesh__t_html"><div class="ttname"><a href="../../d7/d28/structmesh_1_1mesh__t.html">mesh::mesh_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l00064">mesh.f90:64</a></div></div>
+<div class="ttc" id="astructmesh_1_1mesh__t_html"><div class="ttname"><a href="../../d7/d28/structmesh_1_1mesh__t.html">mesh::mesh_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l00071">mesh.f90:71</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_c184e51c84f2c3f0345bbc8a0d75d3e1.html">io</a></li><li class="navelem"><a class="el" href="../../dir_4723786a25aeab7c362c514e51a8f74a.html">format</a></li><li class="navelem"><a class="el" href="../../d6/dd0/map_8f90.html">map.f90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

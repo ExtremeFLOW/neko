@@ -1,0 +1,5 @@
+<map id="adv_dummy::adv_dummy_t" name="adv_dummy::adv_dummy_t">
+<area shape="rect" id="Node000001" title="A zero&#45;valued advection that can be used to kill the advection term." alt="" coords="5,79,208,104"/>
+<area shape="rect" id="Node000002" href="$d4/d2a/structadvection_1_1advection__t.html" title="Base abstract type for computing the advection operator." alt="" coords="21,5,192,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="109,44,109,79,104,79,104,44"/>
+</map>

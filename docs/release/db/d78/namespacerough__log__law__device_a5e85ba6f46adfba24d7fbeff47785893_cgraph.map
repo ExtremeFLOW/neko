@@ -1,0 +1,8 @@
+<map id="rough_log_law_device::rough_log_law_compute_device" name="rough_log_law_device::rough_log_law_compute_device">
+<area shape="rect" id="Node000001" title="Compute the wall shear stress on device using the rough log&#45;law model." alt="" coords="5,22,193,77"/>
+<area shape="rect" id="Node000002" href="$d1/dc9/rough__log__law_8cu.html#ab517533c65763e148ba99991eefc94a0" title=" " alt="" coords="241,29,396,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="194,47,228,47,228,52,194,52"/>
+<area shape="rect" id="Node000003" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="444,29,608,69"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="396,47,431,47,431,52,396,52"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="487,30,485,20,491,11,505,5,526,3,550,6,563,13,561,18,548,11,526,8,506,10,495,15,490,21,492,28"/>
+</map>

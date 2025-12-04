@@ -1,7 +1,5 @@
 <map id="opencl_ax_helm" name="opencl_ax_helm">
-<area shape="rect" id="Node000001" title=" " alt="" coords="229,49,357,74"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="229,13,357,38"/>
 <area shape="rect" id="Node000002" href="$d7/d82/namespaceax__helm__device.html#a4cc4122d6e187648345aee9b9a0fc6a5" title=" " alt="" coords="5,5,181,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="215,50,181,44,182,39,216,45"/>
-<area shape="rect" id="Node000003" href="$d7/d82/namespaceax__helm__device.html#ad8f79b74811bcc8cc924f1dc961b6f6a" title=" " alt="" coords="5,70,181,125"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="216,78,182,84,181,79,215,73"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="216,28,182,28,182,23,216,23"/>
 </map>

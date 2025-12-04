@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -123,11 +123,12 @@ Public Member Functions</h2></td></tr>
     <tr><td class="paramname">dtlag</td><td>The lagged time steps. </td></tr>
     <tr><td class="paramname">tlag</td><td>The lagged times. </td></tr>
     <tr><td class="paramname"><a class="el" href="../../dd/d54/namespacetime__scheme.html" title="Base class for time integration schemes.">time_scheme</a></td><td>The bdf-ext time scheme used in the method. </td></tr>
-    <tr><td class="paramname">slag</td><td>The lagged scalar field. </td></tr>
+    <tr><td class="paramname">use_dummy</td><td>If true, a dummy zero-valued advection type is </td></tr>
+    <tr><td class="paramname">slag</td><td>The lagged scalar field. allocated. This can be used to kill the advection term. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>The factory both allocates and initializes <code>object</code>. Add advection operator to the right-hand-side for a fluld. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>The factory both allocates and initializes <code>object</code>. Add advection operator to the right-hand-side for a fluid. </dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">this</td><td>The object. </td></tr>
@@ -145,7 +146,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d71/advection_8f90_source.html#l00094">94</a> of file <a class="el" href="../../d8/d71/advection_8f90_source.html">advection.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d71/advection_8f90_source.html#l00096">96</a> of file <a class="el" href="../../d8/d71/advection_8f90_source.html">advection.f90</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a3a47cfb42adb5b7a1d592a5a8ab9e752" name="a3a47cfb42adb5b7a1d592a5a8ab9e752"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3a47cfb42adb5b7a1d592a5a8ab9e752">&#9670;&#160;</a></span>compute_adv()</h2>
@@ -201,13 +202,13 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../da/d99/structspace_1_1space__t.html">space_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../da/d99/structspace_1_1space__t.html">space_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>xh</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>coef</em>, </td>
         </tr>
         <tr>
@@ -235,7 +236,7 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d71/advection_8f90_source.html#l00094">94</a> of file <a class="el" href="../../d8/d71/advection_8f90_source.html">advection.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d71/advection_8f90_source.html#l00096">96</a> of file <a class="el" href="../../d8/d71/advection_8f90_source.html">advection.f90</a>.</p>
 
 </div>
 </div>
@@ -248,7 +249,7 @@ Public Member Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d3/d69/namespaceadvection.html">advection</a></li><li class="navelem"><a class="el" href="../../d5/d12/interfaceadvection_1_1compute__adv.html">compute_adv</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

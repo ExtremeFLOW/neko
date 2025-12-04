@@ -1,6 +1,6 @@
 <map id="scratch_registry::scratch_registry_t::relinquish_field" name="scratch_registry::scratch_registry_t::relinquish_field">
-<area shape="rect" id="Node000001" title="free a field for later reuse" alt="" coords="5,37,204,77"/>
-<area shape="rect" id="Node000002" href="$d7/dda/namespacescratch__registry.html#a78675710e5ecd78ec8cba776e634838a" title=" " alt="" coords="252,5,449,45"/>
+<area shape="rect" id="Node000001" title="Free a field for later reuse." alt="" coords="5,37,204,77"/>
+<area shape="rect" id="Node000002" href="$d7/dda/namespacescratch__registry.html#a78675710e5ecd78ec8cba776e634838a" title="Relinquish the use of multiple fields in the registry." alt="" coords="252,5,449,45"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="204,42,238,37,239,43,205,47"/>
 <area shape="rect" id="Node000003" href="$d7/dda/namespacescratch__registry.html#a6d50ee2b1062ce3a2ead6f2f6569f66b" title="Relinquish the use of a field in the registry." alt="" coords="252,69,449,109"/>
 <area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="205,68,239,72,238,77,204,73"/>

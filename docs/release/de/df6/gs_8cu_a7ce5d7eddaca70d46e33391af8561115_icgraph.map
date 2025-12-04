@@ -1,5 +1,7 @@
 <map id="cuda_gs_pack" name="cuda_gs_pack">
-<area shape="rect" id="Node000001" title=" " alt="" coords="245,13,359,38"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="245,45,359,70"/>
 <area shape="rect" id="Node000002" href="$d9/dfa/namespacegs__device__mpi.html#a832a9f3cba26a0e8c899d4897e697c69" title="Post non&#45;blocking send operations." alt="" coords="5,5,197,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="231,28,198,28,198,23,231,23"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="231,49,197,43,198,38,232,44"/>
+<area shape="rect" id="Node000003" href="$de/dcf/namespacegs__device__nccl.html#a068065dc694cd08a8203d82aeca5db86" title="Post non&#45;blocking send operations." alt="" coords="22,69,181,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="232,71,181,79,180,74,231,66"/>
 </map>

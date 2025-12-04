@@ -2,10 +2,6 @@
 <area shape="rect" id="Node000001" title="Initialise a mesh this with nelv elements." alt="" coords="5,31,171,56"/>
 <area shape="rect" id="Node000002" href="$db/dfc/namespacemesh.html#a84fb89799d74a310f3612f5334cf5b74" title=" " alt="" coords="219,5,413,31"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="170,32,205,28,205,33,171,37"/>
-<area shape="rect" id="Node000005" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="242,55,390,80"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="171,49,228,55,228,61,170,55"/>
-<area shape="rect" id="Node000003" href="$dc/d48/namespacedistdata.html#a7393efc050ceff8d2b1577e814766df8" title="Initialise a distdata type." alt="" coords="461,5,625,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="414,15,448,15,448,21,414,21"/>
-<area shape="rect" id="Node000004" href="$dc/d48/namespacedistdata.html#a3a77ef0dd4cbeff5d6c510c493007288" title="Free a distdata type." alt="" coords="673,5,843,31"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="625,15,660,15,660,21,625,21"/>
+<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="242,55,390,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="171,49,228,55,228,61,170,55"/>
 </map>

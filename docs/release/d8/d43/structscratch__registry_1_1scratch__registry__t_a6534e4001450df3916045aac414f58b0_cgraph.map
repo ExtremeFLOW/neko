@@ -1,0 +1,7 @@
+<map id="scratch_registry::scratch_registry_t::relinquish_vector" name="scratch_registry::scratch_registry_t::relinquish_vector">
+<area shape="rect" id="Node000001" title="Free a vector for later reuse." alt="" coords="5,37,216,77"/>
+<area shape="rect" id="Node000002" href="$d7/dda/namespacescratch__registry.html#a867466069feddb9c5d105cce6a85a40f" title="Relinquish the use of multiple vectors in the registry." alt="" coords="264,5,461,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="216,41,250,37,251,42,217,47"/>
+<area shape="rect" id="Node000003" href="$d7/dda/namespacescratch__registry.html#ab25fa294d3423b75f9829beebda8a7ed" title="Relinquish the use of a vector in the registry." alt="" coords="264,69,461,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="217,68,251,72,250,78,216,73"/>
+</map>

@@ -10,5 +10,6 @@ var structdevice__jacobi_1_1device__jacobi__t =
     [ "d", "d8/dca/structdevice__jacobi_1_1device__jacobi__t.html#a438293136ab8ef483341dc0b1b1cc7af", null ],
     [ "d_d", "d8/dca/structdevice__jacobi_1_1device__jacobi__t.html#a0c6d6d99b093e7cf2193d184f3e8b880", null ],
     [ "dof", "d8/dca/structdevice__jacobi_1_1device__jacobi__t.html#ab5adb59b85c80011eb8d52315cdea540", null ],
+    [ "gs_event", "d8/dca/structdevice__jacobi_1_1device__jacobi__t.html#a4e044632aae2120192df4c6f9705875c", null ],
     [ "gs_h", "d8/dca/structdevice__jacobi_1_1device__jacobi__t.html#a62886e6ec27b85665be6a821dcd6c97a", null ]
 ];

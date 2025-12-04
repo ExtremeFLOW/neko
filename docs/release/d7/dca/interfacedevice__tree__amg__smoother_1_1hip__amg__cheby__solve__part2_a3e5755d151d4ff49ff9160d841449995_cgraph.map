@@ -1,0 +1,15 @@
+<map id="device_tree_amg_smoother::hip_amg_cheby_solve_part2::hip_amg_cheby_solve_part2" name="device_tree_amg_smoother::hip_amg_cheby_solve_part2::hip_amg_cheby_solve_part2">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,30,220,85"/>
+<area shape="rect" id="Node000002" href="$d4/de8/namespacedevice__tree__amg__smoother.html#a4b5d02287134ff0f0b9bea979bc61499" title=" " alt="" coords="268,5,507,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="220,42,254,38,255,43,221,47"/>
+<area shape="rect" id="Node000005" href="$d4/de8/namespacedevice__tree__amg__smoother.html#ab3542f8bd288335a8af48cfd6317fd1e" title=" " alt="" coords="268,69,507,109"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="221,67,255,71,254,76,220,72"/>
+<area shape="rect" id="Node000003" href="$d5/dc5/amg__cheby_8cu.html#a9505b7134554d83cc0dee8e485a21824" title=" " alt="" coords="555,5,732,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="507,23,541,23,541,28,507,28"/>
+<area shape="rect" id="Node000004" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="780,37,944,77"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="733,36,767,41,766,46,732,41"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="821,38,819,28,825,18,840,13,862,11,888,14,902,21,899,26,886,19,862,16,841,18,828,23,824,29,826,36"/>
+<area shape="rect" id="Node000006" href="$d5/dc5/amg__cheby_8cu.html#a5bc0a9f73cce1bb4ced0c6224057cacd" title=" " alt="" coords="555,69,732,109"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="507,87,541,87,541,92,507,92"/>
+<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="732,74,766,69,767,74,733,79"/>
+</map>

@@ -1,9 +1,0 @@
-<map id="opencl_dirichlet_apply_vector" name="opencl_dirichlet_apply_vector">
-<area shape="rect" id="Node000001" title=" " alt="" coords="479,41,647,81"/>
-<area shape="rect" id="Node000002" href="$d0/d0d/namespacedevice__dirichlet.html#a6660f08c72ca368ea20e1b0a4e3845d3" title=" " alt="" coords="255,41,431,81"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="465,64,431,64,431,59,465,59"/>
-<area shape="rect" id="Node000003" href="$da/ddb/namespacedirichlet.html#a9e9d6d1c1329235bab20a437d74c18dd" title="Boundary condition apply for a generic Dirichlet condition to vectors x, y and z (device version)" alt="" coords="34,5,178,45"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="240,48,178,39,179,34,241,43"/>
-<area shape="rect" id="Node000004" href="$d6/df8/interfacedevice__dirichlet_1_1hip__dirichlet__apply__vector.html#ac60488d63e632de61c9354e50bc084b4" title=" " alt="" coords="5,70,207,125"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="241,79,207,85,206,79,241,74"/>
-</map>

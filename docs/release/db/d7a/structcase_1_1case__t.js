@@ -1,17 +1,19 @@
 var structcase_1_1case__t =
 [
-    [ "dt", "db/d7a/structcase_1_1case__t.html#a62ecb1a60ffc5c716907ed346bb7e208", null ],
-    [ "dtlag", "db/d7a/structcase_1_1case__t.html#a6df5ff95e06908aa98e93508a959c94e", null ],
-    [ "end_time", "db/d7a/structcase_1_1case__t.html#a6d1095c49ec258f7d2bcd4d5af00a7fb", null ],
-    [ "ext_bdf", "db/d7a/structcase_1_1case__t.html#ac447de9caebe1e2afe090a170781c2ec", null ],
-    [ "f_chkp", "db/d7a/structcase_1_1case__t.html#a386aa257e43f1993fba95fcf7ec37c9c", null ],
+    [ "case_init_from_file", "db/d7a/structcase_1_1case__t.html#abd078f9300419cf8519a283a1d90e563", null ],
+    [ "case_init_from_json", "db/d7a/structcase_1_1case__t.html#a160d1468afca5f1f0c1b2076f1d60361", null ],
+    [ "free", "db/d7a/structcase_1_1case__t.html#af13724cb76a0b6ee87ed447262d3bf27", null ],
+    [ "init", "db/d7a/structcase_1_1case__t.html#a79a12a60ab85399c0d5059d72aaf0e0a", null ],
+    [ "init", "db/d7a/structcase_1_1case__t.html#a9efe04610b3fe9076ec55f9791e62abe", null ],
+    [ "chkp", "db/d7a/structcase_1_1case__t.html#aefb69448b3eca81af13bab44fcc88d6e", null ],
+    [ "chkp_out", "db/d7a/structcase_1_1case__t.html#a5273e3247139bba6b3fd47350bb7e4d8", null ],
     [ "f_out", "db/d7a/structcase_1_1case__t.html#a165cdddf3f6276422b3e77902fc50957", null ],
-    [ "fluid", "db/d7a/structcase_1_1case__t.html#a888466771ac023403b048a1f69262a5a", null ],
+    [ "fluid", "db/d7a/structcase_1_1case__t.html#ac350605c24646405d3764b233e762c9e", null ],
     [ "msh", "db/d7a/structcase_1_1case__t.html#a248a24b1212aa88b2a1345ccb6e72cf6", null ],
     [ "output_controller", "db/d7a/structcase_1_1case__t.html#aa19239a00f927d54b3bbc305728751bb", null ],
     [ "output_directory", "db/d7a/structcase_1_1case__t.html#a596c6eccf1f63b048d6f7c8f747da1be", null ],
     [ "params", "db/d7a/structcase_1_1case__t.html#a0cec46707c2d83ee1f9e1cedfc8ea63e", null ],
-    [ "scalar", "db/d7a/structcase_1_1case__t.html#a82f9cabebab34fc9c60d63c90444705a", null ],
-    [ "tlag", "db/d7a/structcase_1_1case__t.html#ac90bc93619efdca5871557e43cfe4a9e", null ],
-    [ "usr", "db/d7a/structcase_1_1case__t.html#a43f72731b78ac5b8a724df44f4c53cf4", null ]
+    [ "scalars", "db/d7a/structcase_1_1case__t.html#a4f9a7c337bede3be3821e231d2ff9e83", null ],
+    [ "time", "db/d7a/structcase_1_1case__t.html#aa38b005e583c7d751275a98c746f6656", null ],
+    [ "user", "db/d7a/structcase_1_1case__t.html#a88959d0f0376a8e76875973137b64d01", null ]
 ];

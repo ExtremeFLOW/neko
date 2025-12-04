@@ -1,5 +1,0 @@
-<map id="bc::bc_list_init" name="bc::bc_list_init">
-<area shape="rect" id="Node000001" title="Constructor for a list of boundary conditions." alt="" coords="5,5,120,31"/>
-<area shape="rect" id="Node000002" href="$d0/dc0/namespacebc.html#a70aeff826889ae0f54bd98cfacb0decb" title="Destructor for a list of boundary conditions." alt="" coords="168,5,288,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="120,15,154,15,154,21,120,21"/>
-</map>

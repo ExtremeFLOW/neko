@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -110,7 +110,7 @@ $(document).ready(function(){initNavTree('d2/d96/file_8f90.html','../../'); init
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Types</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/dae/structfile_1_1file__t.html">file::file_t</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/dae/structfile_1_1file__t.html">file::file_t</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A wrapper around a polymorphic <code>generic_file_t</code> that handles its init. This is essentially a factory for <code>generic_file_t</code> descendants additionally handling special CSV file parameters (header and precision).  <a href="../../d6/dae/structfile_1_1file__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -122,9 +122,9 @@ Modules</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a0fab241fca30beb5b3de7e4245044f8e" id="r_a0fab241fca30beb5b3de7e4245044f8e"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d6/dae/structfile_1_1file__t.html">file_t</a>) <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d16/namespacefile.html#a0fab241fca30beb5b3de7e4245044f8e">file::file_init</a> (fname, header, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">precision</a>)</td></tr>
-<tr class="memdesc:a0fab241fca30beb5b3de7e4245044f8e"><td class="mdescLeft">&#160;</td><td class="mdescRight">File reader/writer constructor.  <br /></td></tr>
-<tr class="separator:a0fab241fca30beb5b3de7e4245044f8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab9074b1dd93018d51b11431e355046c5" id="r_ab9074b1dd93018d51b11431e355046c5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d16/namespacefile.html#ab9074b1dd93018d51b11431e355046c5">file::file_init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, fname, header, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">precision</a>, layout, overwrite)</td></tr>
+<tr class="memdesc:ab9074b1dd93018d51b11431e355046c5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
+<tr class="separator:ab9074b1dd93018d51b11431e355046c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa1b75b689ccaf533d011ac92fb6e8d5b" id="r_aa1b75b689ccaf533d011ac92fb6e8d5b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d16/namespacefile.html#aa1b75b689ccaf533d011ac92fb6e8d5b">file::file_free</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="memdesc:aa1b75b689ccaf533d011ac92fb6e8d5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">File operation destructor.  <br /></td></tr>
 <tr class="separator:aa1b75b689ccaf533d011ac92fb6e8d5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -134,6 +134,15 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a382c0a874d75f4e3f6e03fa52ae0e1ae" id="r_a382c0a874d75f4e3f6e03fa52ae0e1ae"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d16/namespacefile.html#a382c0a874d75f4e3f6e03fa52ae0e1ae">file::file_read</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, data)</td></tr>
 <tr class="memdesc:a382c0a874d75f4e3f6e03fa52ae0e1ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read <em>data</em> from a file.  <br /></td></tr>
 <tr class="separator:a382c0a874d75f4e3f6e03fa52ae0e1ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a107928576fc96bd328a56acb7186bea5" id="r_a107928576fc96bd328a56acb7186bea5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=1024) <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d16/namespacefile.html#a107928576fc96bd328a56acb7186bea5">file::file_get_fname</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
+<tr class="memdesc:a107928576fc96bd328a56acb7186bea5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a file's name.  <br /></td></tr>
+<tr class="separator:a107928576fc96bd328a56acb7186bea5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad37b184d54c74e0268985802df7ce728" id="r_ad37b184d54c74e0268985802df7ce728"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=1024) <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d16/namespacefile.html#ad37b184d54c74e0268985802df7ce728">file::file_get_base_fname</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
+<tr class="memdesc:ad37b184d54c74e0268985802df7ce728"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a file's base name.  <br /></td></tr>
+<tr class="separator:ad37b184d54c74e0268985802df7ce728"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2e3ac7008bfeee477ba02e5c22e4283a" id="r_a2e3ac7008bfeee477ba02e5c22e4283a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d16/namespacefile.html#a2e3ac7008bfeee477ba02e5c22e4283a">file::file_get_counter</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
+<tr class="memdesc:a2e3ac7008bfeee477ba02e5c22e4283a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a file's counter.  <br /></td></tr>
+<tr class="separator:a2e3ac7008bfeee477ba02e5c22e4283a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0f80193026d56ddfd5e13c0119d30776" id="r_a0f80193026d56ddfd5e13c0119d30776"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d16/namespacefile.html#a0f80193026d56ddfd5e13c0119d30776">file::file_set_counter</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, n)</td></tr>
 <tr class="memdesc:a0f80193026d56ddfd5e13c0119d30776"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set a file's counter.  <br /></td></tr>
 <tr class="separator:a0f80193026d56ddfd5e13c0119d30776"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -146,6 +155,12 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a43c32373b7c245beb1260418ecfbb597" id="r_a43c32373b7c245beb1260418ecfbb597"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d16/namespacefile.html#a43c32373b7c245beb1260418ecfbb597">file::file_set_precision</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">precision</a>)</td></tr>
 <tr class="memdesc:a43c32373b7c245beb1260418ecfbb597"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set a file's output precision.  <br /></td></tr>
 <tr class="separator:a43c32373b7c245beb1260418ecfbb597"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20347acf22c138e1cb0adfd16c4242e7" id="r_a20347acf22c138e1cb0adfd16c4242e7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d16/namespacefile.html#a20347acf22c138e1cb0adfd16c4242e7">file::file_set_layout</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, layout)</td></tr>
+<tr class="memdesc:a20347acf22c138e1cb0adfd16c4242e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set a file's output layout.  <br /></td></tr>
+<tr class="separator:a20347acf22c138e1cb0adfd16c4242e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a034b817bdac99ff12013e130ef6daaab" id="r_a034b817bdac99ff12013e130ef6daaab"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d16/namespacefile.html#a034b817bdac99ff12013e130ef6daaab">file::file_set_overwrite</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, overwrite)</td></tr>
+<tr class="memdesc:a034b817bdac99ff12013e130ef6daaab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the file's overwrite flag.  <br /></td></tr>
+<tr class="separator:a034b817bdac99ff12013e130ef6daaab"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -153,7 +168,7 @@ Functions/Subroutines</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_c184e51c84f2c3f0345bbc8a0d75d3e1.html">io</a></li><li class="navelem"><a class="el" href="../../d2/d96/file_8f90.html">file.f90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

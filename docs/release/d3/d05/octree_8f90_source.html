@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -155,9 +155,9 @@ $(document).ready(function(){initNavTree('d3/d05/octree_8f90_source.html','../..
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno"><a class="line" href="../../d5/dae/structoctree_1_1oct__t.html">   47</a></span>  <span class="keyword">type</span> <a class="code hl_struct" href="../../d5/dae/structoctree_1_1oct__t.html">oct_t</a></div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno"><a class="line" href="../../d5/dae/structoctree_1_1oct__t.html#af59072b2b6785599b099963e365fd014">   48</a></span>     <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d6/deb/structoctree_1_1oct__ptr__t.html">oct_ptr_t</a>) :: oct(8)</div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno"><a class="line" href="../../d5/dae/structoctree_1_1oct__t.html#a2257d4ad47675e7f9c6e8f89e42c0f42">   49</a></span>     <span class="keywordtype">integer</span> :: level</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno"><a class="line" href="../../d5/dae/structoctree_1_1oct__t.html#aada96c5d96c3c0bcc4a5d55a13761874">   50</a></span>     <span class="keywordtype">type</span>(<a class="code hl_interface" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>) :: origin</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno"><a class="line" href="../../d5/dae/structoctree_1_1oct__t.html#aada96c5d96c3c0bcc4a5d55a13761874">   50</a></span>     <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>) :: origin</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno"><a class="line" href="../../d5/dae/structoctree_1_1oct__t.html#aa28e4c4ef129abb23d60917402b3666c">   51</a></span><span class="keywordtype">     real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aab47a6c4827cb5c6bbd741a44c87e956">dp</a>) :: width</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno"><a class="line" href="../../d5/dae/structoctree_1_1oct__t.html#a19350429bf809b335b8c603428aa0b21">   52</a></span>     <span class="keywordtype">type</span>(<a class="code hl_interface" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>) :: <a class="code hl_namespace" href="../../d8/dbc/namespacepoint.html">point</a></div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno"><a class="line" href="../../d5/dae/structoctree_1_1oct__t.html#a19350429bf809b335b8c603428aa0b21">   52</a></span>     <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>) :: <a class="code hl_namespace" href="../../d8/dbc/namespacepoint.html">point</a></div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno"><a class="line" href="../../d5/dae/structoctree_1_1oct__t.html#a5de597629188326b41405af19a286e5e">   53</a></span>     <span class="keywordtype">logical</span> valid</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>  <span class="keyword">end type </span><a class="code hl_struct" href="../../d5/dae/structoctree_1_1oct__t.html">oct_t</a></div>
 </div>
@@ -179,7 +179,7 @@ $(document).ready(function(){initNavTree('d3/d05/octree_8f90_source.html','../..
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno"><a class="line" href="../../d8/d38/namespaceoctree.html#aeb33aa57b1f495e48bd5afb9657dd784">   69</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/d38/namespaceoctree.html#aeb33aa57b1f495e48bd5afb9657dd784">octree_init</a>(t, width)</div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d4/d27/structoctree_1_1octree__t.html">octree_t</a>), <span class="keywordtype">intent(inout)</span> :: t</div>
 <div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aab47a6c4827cb5c6bbd741a44c87e956">dp</a>), <span class="keywordtype">intent(in)</span> :: width</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    <span class="keywordtype">type</span>(<a class="code hl_interface" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>) :: origin</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>) :: origin</div>
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">parameter</span> :: top_level = 0</div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span> </div>
 <div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d8/d38/namespaceoctree.html#a36f53ea0ecfacb6b1ee426e8bfa6bf66">octree_free</a>(t)</div>
@@ -202,7 +202,7 @@ $(document).ready(function(){initNavTree('d3/d05/octree_8f90_source.html','../..
 <div class="foldopen" id="foldopen00091" data-start="" data-end="">
 <div class="line"><a id="l00091" name="l00091"></a><span class="lineno"><a class="line" href="../../d8/d38/namespaceoctree.html#a383206829a5f341a76123fe5b41cc844">   91</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/d38/namespaceoctree.html#a383206829a5f341a76123fe5b41cc844">octree_insert</a>(t, p)</div>
 <div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d4/d27/structoctree_1_1octree__t.html">octree_t</a>), <span class="keywordtype">intent(inout)</span> :: t</div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    <span class="keywordtype">type</span>(<a class="code hl_interface" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">intent(in)</span> :: p</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">intent(in)</span> :: p</div>
 <div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span> </div>
 <div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d8/d38/namespaceoctree.html#a650d2adb187faa4ebc524ddd6b723e65">octree_oct_insert</a>(t%root, p)</div>
 <div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span> </div>
@@ -212,7 +212,7 @@ $(document).ready(function(){initNavTree('d3/d05/octree_8f90_source.html','../..
 <div class="foldopen" id="foldopen00100" data-start="" data-end="">
 <div class="line"><a id="l00100" name="l00100"></a><span class="lineno"><a class="line" href="../../d8/d38/namespaceoctree.html#a94d784c902224f7b0d658de9d76ce81b">  100</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../d8/d38/namespaceoctree.html#a94d784c902224f7b0d658de9d76ce81b">octree_find</a>(t, p) <span class="keyword">result</span>(rcode)</div>
 <div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d4/d27/structoctree_1_1octree__t.html">octree_t</a>), <span class="keywordtype">intent(in)</span> :: t</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    <span class="keywordtype">type</span>(<a class="code hl_interface" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">intent(in)</span> :: p</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">intent(in)</span> :: p</div>
 <div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>    <span class="keywordtype">logical</span> rcode</div>
 <div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span> </div>
 <div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>    rcode = (<a class="code hl_function" href="../../d8/d38/namespaceoctree.html#ab120b3f2b99884c38d35855b3bed2410">octree_oct_find</a>(t%root, p) .eq. 0)</div>
@@ -224,8 +224,8 @@ $(document).ready(function(){initNavTree('d3/d05/octree_8f90_source.html','../..
 <div class="foldopen" id="foldopen00111" data-start="" data-end="">
 <div class="line"><a id="l00111" name="l00111"></a><span class="lineno"><a class="line" href="../../d8/d38/namespaceoctree.html#a650d2adb187faa4ebc524ddd6b723e65">  111</a></span>  <span class="keywordtype">recursive</span> <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/d38/namespaceoctree.html#a650d2adb187faa4ebc524ddd6b723e65">octree_oct_insert</a>(o, p)</div>
 <div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d5/dae/structoctree_1_1oct__t.html">oct_t</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">pointer</span> :: o</div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    <span class="keywordtype">type</span>(<a class="code hl_interface" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">intent(in)</span> :: p</div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    <span class="keywordtype">type</span>(<a class="code hl_interface" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>) :: tmp_pt, offset, new_origin</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">intent(in)</span> :: p</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>) :: tmp_pt, offset, new_origin</div>
 <div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>    <span class="keywordtype">integer</span> :: i</div>
 <div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span> </div>
 <div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    <span class="keywordflow">if</span> (.not. <span class="keyword">associated</span>(o%oct(1)%ptr)) <span class="keywordflow">then</span></div>
@@ -265,7 +265,7 @@ $(document).ready(function(){initNavTree('d3/d05/octree_8f90_source.html','../..
 <div class="foldopen" id="foldopen00151" data-start="" data-end="">
 <div class="line"><a id="l00151" name="l00151"></a><span class="lineno"><a class="line" href="../../d8/d38/namespaceoctree.html#ab120b3f2b99884c38d35855b3bed2410">  151</a></span>  <span class="keywordtype">recursive</span> <span class="keyword">function </span><a class="code hl_function" href="../../d8/d38/namespaceoctree.html#ab120b3f2b99884c38d35855b3bed2410">octree_oct_find</a>(o, p) <span class="keyword">result</span>(rcode)</div>
 <div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d5/dae/structoctree_1_1oct__t.html">oct_t</a>), <span class="keywordtype">pointer</span>, <span class="keywordtype">intent(in)</span> :: o</div>
-<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>    <span class="keywordtype">type</span>(<a class="code hl_interface" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">intent(in)</span> :: p</div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">intent(in)</span> :: p</div>
 <div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>    <span class="keywordtype">integer</span> :: rcode</div>
 <div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>    <span class="keywordtype">integer</span> :: oct_idx</div>
 <div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span> </div>
@@ -287,7 +287,7 @@ $(document).ready(function(){initNavTree('d3/d05/octree_8f90_source.html','../..
 <div class="foldopen" id="foldopen00172" data-start="" data-end="">
 <div class="line"><a id="l00172" name="l00172"></a><span class="lineno"><a class="line" href="../../d8/d38/namespaceoctree.html#aab2074f46ccdf70a1002b9a77ac922e7">  172</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/d38/namespaceoctree.html#aab2074f46ccdf70a1002b9a77ac922e7">octree_oct_init</a>(o, origin, width, level)</div>
 <div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d5/dae/structoctree_1_1oct__t.html">oct_t</a>), <span class="keywordtype">pointer</span>, <span class="keywordtype">intent(inout)</span> :: o</div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>    <span class="keywordtype">type</span>(<a class="code hl_interface" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">intent(in)</span> :: origin</div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">intent(in)</span> :: origin</div>
 <div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aab47a6c4827cb5c6bbd741a44c87e956">dp</a>), <span class="keywordtype">intent(in)</span> :: width</div>
 <div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: level</div>
 <div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>    <span class="keywordtype">integer</span> :: i</div>
@@ -335,7 +335,7 @@ $(document).ready(function(){initNavTree('d3/d05/octree_8f90_source.html','../..
 <div class="foldopen" id="foldopen00218" data-start="" data-end="">
 <div class="line"><a id="l00218" name="l00218"></a><span class="lineno"><a class="line" href="../../d8/d38/namespaceoctree.html#a960420894f5a5e971364de039ffca66c">  218</a></span>  <span class="keywordtype">pure</span> <span class="keyword">function </span><a class="code hl_function" href="../../d8/d38/namespaceoctree.html#a960420894f5a5e971364de039ffca66c">octree_oct</a>(oct, point) <span class="keyword">result</span>(oct_idx)</div>
 <div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d5/dae/structoctree_1_1oct__t.html">oct_t</a>), <span class="keywordtype">pointer</span>, <span class="keywordtype">intent(in)</span> :: oct</div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>    <span class="keywordtype">type</span>(<a class="code hl_interface" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">intent(in)</span> :: <a class="code hl_namespace" href="../../d8/dbc/namespacepoint.html">point</a></div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">intent(in)</span> :: <a class="code hl_namespace" href="../../d8/dbc/namespacepoint.html">point</a></div>
 <div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>    <span class="keywordtype">integer</span> :: oct_idx</div>
 <div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span> </div>
 <div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>    oct_idx = 0</div>
@@ -350,7 +350,7 @@ $(document).ready(function(){initNavTree('d3/d05/octree_8f90_source.html','../..
 <div class="foldopen" id="foldopen00232" data-start="" data-end="">
 <div class="line"><a id="l00232" name="l00232"></a><span class="lineno"><a class="line" href="../../d8/d38/namespaceoctree.html#a28a4cde09ef482c3ca9615933c0e0cde">  232</a></span>  <span class="keywordtype">pure</span> <span class="keyword">function </span><a class="code hl_function" href="../../d8/d38/namespaceoctree.html#a28a4cde09ef482c3ca9615933c0e0cde">octree_oct_inside</a>(oct, point) <span class="keyword">result</span>(inside)</div>
 <div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d5/dae/structoctree_1_1oct__t.html">oct_t</a>), <span class="keywordtype">pointer</span>, <span class="keywordtype">intent(in)</span> :: oct</div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>    <span class="keywordtype">type</span>(<a class="code hl_interface" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">intent(in)</span> :: <a class="code hl_namespace" href="../../d8/dbc/namespacepoint.html">point</a></div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">intent(in)</span> :: <a class="code hl_namespace" href="../../d8/dbc/namespacepoint.html">point</a></div>
 <div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>    <span class="keywordtype">logical</span> :: inside</div>
 <div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span> </div>
 <div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>    inside = .false.</div>
@@ -392,7 +392,7 @@ $(document).ready(function(){initNavTree('d3/d05/octree_8f90_source.html','../..
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_7be0d8c199b9408ae01f5d77515b8def.html">mesh</a></li><li class="navelem"><a class="el" href="../../d3/d05/octree_8f90.html">octree.f90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

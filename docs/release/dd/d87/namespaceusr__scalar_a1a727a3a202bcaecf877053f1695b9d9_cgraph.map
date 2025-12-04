@@ -1,9 +1,0 @@
-<map id="usr_scalar::usr_scalar_apply_scalar_dev" name="usr_scalar::usr_scalar_apply_scalar_dev">
-<area shape="rect" id="Node000001" title="Scalar apply (device version) Just imitating inflow for now, but we should look this over Applies bou..." alt="" coords="5,29,168,69"/>
-<area shape="rect" id="Node000002" href="$d2/d57/cuda_2facet__normal__kernel_8h.html#a255d8d741e1fc6cd080ba11e14dc7148" title=" " alt="" coords="216,37,343,62"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,47,202,47,202,52,168,52"/>
-<area shape="poly" id="edge4_Node000002_Node000002" title=" " alt="" coords="248,38,241,28,244,18,258,12,279,10,306,14,317,22,313,26,304,18,279,15,259,17,248,22,246,28,252,35"/>
-<area shape="rect" id="Node000003" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="391,29,555,69"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="343,47,377,47,377,52,343,52"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="436,30,434,20,440,11,453,5,473,3,495,6,508,13,505,17,494,11,473,8,454,10,443,15,439,21,442,28"/>
-</map>

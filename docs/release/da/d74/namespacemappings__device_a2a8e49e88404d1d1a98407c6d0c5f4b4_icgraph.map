@@ -1,0 +1,7 @@
+<map id="mappings_device::permeability_device" name="mappings_device::permeability_device">
+<area shape="rect" id="Node000001" title="Apply a permeability function to a scalar." alt="" coords="459,13,685,53"/>
+<area shape="rect" id="Node000002" href="$dc/da0/namespacemappings.html#a10451470ba86ab5de9a717cfbe9ea20b" title="Apply a permeability function to a field." alt="" coords="233,13,411,53"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="445,35,411,35,411,30,445,30"/>
+<area shape="rect" id="Node000003" href="$d0/d7b/namespacebrinkman__source__term.html#a642671680ad9713699170537d417d410" title="The common constructor using a JSON object." alt="" coords="5,5,185,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="219,35,185,35,185,30,219,30"/>
+</map>

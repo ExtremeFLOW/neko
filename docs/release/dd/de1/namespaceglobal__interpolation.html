@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -100,13 +100,14 @@ $(document).ready(function(){initNavTree('dd/de1/namespaceglobal__interpolation.
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Data Types</a> &#124;
-<a href="#func-members">Functions/Subroutines</a>  </div>
+<a href="#func-members">Functions/Subroutines</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">global_interpolation Module Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
 <p>Implements <a class="el" href="../../dd/de1/namespaceglobal__interpolation.html" title="Implements global_interpolation given a dofmap.">global_interpolation</a> given a dofmap.  
-<a href="../../dd/de1/namespaceglobal__interpolation.html#details">More...</a></p>
+</p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Types</h2></td></tr>
@@ -116,43 +117,105 @@ Data Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:aa45090e00c765fb9d098b30ae7278ec3" id="r_aa45090e00c765fb9d098b30ae7278ec3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#aa45090e00c765fb9d098b30ae7278ec3">global_interpolation_init_dof</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, dof, tol)</td></tr>
-<tr class="memdesc:aa45090e00c765fb9d098b30ae7278ec3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the global interpolation object on a dofmap.  <br /></td></tr>
-<tr class="separator:aa45090e00c765fb9d098b30ae7278ec3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5356e0128ea8ceab956a76c266ab89ca" id="r_a5356e0128ea8ceab956a76c266ab89ca"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#a5356e0128ea8ceab956a76c266ab89ca">global_interpolation_init_xyz</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x, y, z, gdim, nelv, xh, tol)</td></tr>
-<tr class="memdesc:a5356e0128ea8ceab956a76c266ab89ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the global interpolation object on a set of coordinates.  <br /></td></tr>
-<tr class="separator:a5356e0128ea8ceab956a76c266ab89ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a82dceeeb8721bb0c5fb08963a8128da7" id="r_a82dceeeb8721bb0c5fb08963a8128da7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#a82dceeeb8721bb0c5fb08963a8128da7">global_interpolation_init_dof</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, dof, comm, tol, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pad</a>)</td></tr>
+<tr class="memdesc:a82dceeeb8721bb0c5fb08963a8128da7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the global interpolation object on a dofmap.  <br /></td></tr>
+<tr class="separator:a82dceeeb8721bb0c5fb08963a8128da7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa22c2902ead56b80171cf0a6874732b7" id="r_aa22c2902ead56b80171cf0a6874732b7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#aa22c2902ead56b80171cf0a6874732b7">global_interpolation_init_xyz</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x, y, z, gdim, nelv, xh, comm, tol, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pad</a>)</td></tr>
+<tr class="memdesc:aa22c2902ead56b80171cf0a6874732b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the global interpolation object on a set of coordinates.  <br /></td></tr>
+<tr class="separator:aa22c2902ead56b80171cf0a6874732b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1da3dca9e49ce1adae0a90ab85e9deef" id="r_a1da3dca9e49ce1adae0a90ab85e9deef"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#a1da3dca9e49ce1adae0a90ab85e9deef">global_interpolation_free</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="memdesc:a1da3dca9e49ce1adae0a90ab85e9deef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <br /></td></tr>
 <tr class="separator:a1da3dca9e49ce1adae0a90ab85e9deef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a39e3a81dcd84a313a772376f36e9c42e" id="r_a39e3a81dcd84a313a772376f36e9c42e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#a39e3a81dcd84a313a772376f36e9c42e">global_interpolation_free_points</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="memdesc:a39e3a81dcd84a313a772376f36e9c42e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor for point arrays.  <br /></td></tr>
 <tr class="separator:a39e3a81dcd84a313a772376f36e9c42e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e178296f025752a53682e93cb2d5002" id="r_a4e178296f025752a53682e93cb2d5002"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#a4e178296f025752a53682e93cb2d5002">global_interpolation_free_points_local</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
+<tr class="separator:a4e178296f025752a53682e93cb2d5002"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac86ce66619281a9b322688bf9d527c28" id="r_ac86ce66619281a9b322688bf9d527c28"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#ac86ce66619281a9b322688bf9d527c28">global_interpolation_find_common</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="memdesc:ac86ce66619281a9b322688bf9d527c28"><td class="mdescLeft">&#160;</td><td class="mdescRight">Common routine for finding the points.  <br /></td></tr>
 <tr class="separator:ac86ce66619281a9b322688bf9d527c28"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acb054c21c127f811ef4b5e4805ca574f" id="r_acb054c21c127f811ef4b5e4805ca574f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#acb054c21c127f811ef4b5e4805ca574f">global_interpolation_check_points</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x, y, z)</td></tr>
+<tr class="memdesc:acb054c21c127f811ef4b5e4805ca574f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check the points for validity This is used to check that the points are valid and that the interpolation is correct. It checks that the points are within the tolerance.  <br /></td></tr>
+<tr class="separator:acb054c21c127f811ef4b5e4805ca574f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5dfe3afc61fac845acfadaef21e3465c" id="r_a5dfe3afc61fac845acfadaef21e3465c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#a5dfe3afc61fac845acfadaef21e3465c">global_interpolation_find_coords</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x, y, z, n_points)</td></tr>
-<tr class="memdesc:a5dfe3afc61fac845acfadaef21e3465c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the corresponding r,s,t coordinates in the correct global element as well as which process that owns the point. After this the values at these points can be evaluated. If the locations of the points change this must be called again.  <br /></td></tr>
+<tr class="memdesc:a5dfe3afc61fac845acfadaef21e3465c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the corresponding r,s,t coordinates in the correct global element as well as which process that owns the point. After this the values at these points can be evaluated.  <br /></td></tr>
 <tr class="separator:a5dfe3afc61fac845acfadaef21e3465c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a23ebf1358dbbe614220db1a9f5d58501" id="r_a23ebf1358dbbe614220db1a9f5d58501"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#a23ebf1358dbbe614220db1a9f5d58501">global_interpolation_find_coords1d</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x, y, z, n_points)</td></tr>
+<tr class="memdesc:a23ebf1358dbbe614220db1a9f5d58501"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the corresponding r,s,t coordinates in the correct global element as well as which process that owns the point. After this the values at these points can be evaluated.  <br /></td></tr>
+<tr class="separator:a23ebf1358dbbe614220db1a9f5d58501"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a419e4bc704c8fcd7549a4de09f5dfbb3" id="r_a419e4bc704c8fcd7549a4de09f5dfbb3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#a419e4bc704c8fcd7549a4de09f5dfbb3">global_interpolation_init_point_arrays</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="separator:a419e4bc704c8fcd7549a4de09f5dfbb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aad8a5b77756f4c2b1b6efb26f7b0163a" id="r_aad8a5b77756f4c2b1b6efb26f7b0163a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#aad8a5b77756f4c2b1b6efb26f7b0163a">global_interpolation_find_xyz</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, xyz, n_points)</td></tr>
 <tr class="memdesc:aad8a5b77756f4c2b1b6efb26f7b0163a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the corresponding r,s,t coordinates in the correct global element as well as which process that owns the point. After this the values at these points can be evaluated. If the locations of the points change this must be called again.  <br /></td></tr>
 <tr class="separator:aad8a5b77756f4c2b1b6efb26f7b0163a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac1d7dd757c992a82f1a201d671ce637d" id="r_ac1d7dd757c992a82f1a201d671ce637d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#ac1d7dd757c992a82f1a201d671ce637d">global_interpolation_find_and_redist</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, xyz, n_points)</td></tr>
-<tr class="memdesc:ac1d7dd757c992a82f1a201d671ce637d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the corresponding r,s,t coordinates and redistributes the points to the owning rank in the correct global element as well as which process that owns the point. After this the values at these points can be evaluated. If the locations of the points change this must be called again.  <br /></td></tr>
+<tr class="memdesc:ac1d7dd757c992a82f1a201d671ce637d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the corresponding r,s,t coordinates and redistributes the points to the owning rank in the correct global element as well as which process that owns the point. There will be some redundancy as for example xyz and xyz_local will have the same values After this the values at these points can be evaluated without MPI.  <br /></td></tr>
 <tr class="separator:ac1d7dd757c992a82f1a201d671ce637d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae67a17085d264b5f5d490d1047042ee2" id="r_ae67a17085d264b5f5d490d1047042ee2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#ae67a17085d264b5f5d490d1047042ee2">global_interpolation_redist</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
-<tr class="separator:ae67a17085d264b5f5d490d1047042ee2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a73584112440598ad7dbbed3cfa9ee2d9" id="r_a73584112440598ad7dbbed3cfa9ee2d9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#a73584112440598ad7dbbed3cfa9ee2d9">global_interpolation_evaluate</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">interp_values</a>, field)</td></tr>
-<tr class="memdesc:a73584112440598ad7dbbed3cfa9ee2d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Evalute the interpolated value in the points given a field on the dofmap.  <br /></td></tr>
-<tr class="separator:a73584112440598ad7dbbed3cfa9ee2d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4a4d8f68376ef3b08236e1180fccd40e" id="r_a4a4d8f68376ef3b08236e1180fccd40e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#a4a4d8f68376ef3b08236e1180fccd40e">global_interpolation_evaluate</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">interp_values</a>, field, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">on_host</a>)</td></tr>
+<tr class="memdesc:a4a4d8f68376ef3b08236e1180fccd40e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Evalute the interpolated value in the points given a field.  <br /></td></tr>
+<tr class="separator:a4a4d8f68376ef3b08236e1180fccd40e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a829324239907e3b2115c45ac52ab3d51" id="r_a829324239907e3b2115c45ac52ab3d51"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#a829324239907e3b2115c45ac52ab3d51">rst_cmp</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">rst1</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">rst2</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">res1</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">res2</a>, tol)</td></tr>
+<tr class="memdesc:a829324239907e3b2115c45ac52ab3d51"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compares two sets of rst coordinates and checks whether rst2 is better than rst1 given a tolerance res1 and res2 are the distances to the interpolated xyz coordinate and true xyz coord for point 1 and 2 tol specifies the range for the rst coordinate to be within: (r,s,t) in (-1+tol,1+tol)^3.  <br /></td></tr>
+<tr class="separator:a829324239907e3b2115c45ac52ab3d51"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a89ec4cd1c8a5ce060b6dbf7ef72f9a97" id="r_a89ec4cd1c8a5ce060b6dbf7ef72f9a97"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">parameter</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#a89ec4cd1c8a5ce060b6dbf7ef72f9a97">glob_map_size</a> = 4096</td></tr>
+<tr class="separator:a89ec4cd1c8a5ce060b6dbf7ef72f9a97"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><dl class="section note"><dt>Note</dt><dd>This modules uses functions from <code>gslib</code>, namely <code>findpts_setup</code>, <code>findpts</code>, and <code>findpts_eval</code>. A full description of these subroutines can be found at <a href="https://github.com/Nek5000/gslib/blob/master/src/findpts.c">https://github.com/Nek5000/gslib/blob/master/src/findpts.c</a> </dd></dl>
-</div><h2 class="groupheader">Function/Subroutine Documentation</h2>
-<a id="a73584112440598ad7dbbed3cfa9ee2d9" name="a73584112440598ad7dbbed3cfa9ee2d9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a73584112440598ad7dbbed3cfa9ee2d9">&#9670;&#160;</a></span>global_interpolation_evaluate()</h2>
+<h2 class="groupheader">Function/Subroutine Documentation</h2>
+<a id="acb054c21c127f811ef4b5e4805ca574f" name="acb054c21c127f811ef4b5e4805ca574f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acb054c21c127f811ef4b5e4805ca574f">&#9670;&#160;</a></span>global_interpolation_check_points()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> global_interpolation::global_interpolation_check_points </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>z</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00896">896</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+
+</div>
+</div>
+<a id="a4a4d8f68376ef3b08236e1180fccd40e" name="a4a4d8f68376ef3b08236e1180fccd40e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4a4d8f68376ef3b08236e1180fccd40e">&#9670;&#160;</a></span>global_interpolation_evaluate()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -163,20 +226,26 @@ Functions/Subroutines</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> global_interpolation::global_interpolation_evaluate </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>%n_points), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>%n_points), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
           <td class="paramname"><em>interp_values</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>%nelv*<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>%xh%lxyz), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>field</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>%nelv*<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>%xh%lxyz), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>field</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>on_host</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -194,11 +263,12 @@ Functions/Subroutines</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">interp_values</td><td>Array of values in the given points. </td></tr>
     <tr><td class="paramname">field</td><td>Array of values used for interpolation. </td></tr>
+    <tr><td class="paramname">on_host</td><td>If interpolation should be carried out on the host </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00566">566</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l01109">1109</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -241,37 +311,32 @@ Functions/Subroutines</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<ul>
-<li><code>error_code</code>: returns <code>0</code> if point found, <code>1</code> if closest point on a border (check dist2), <code>2</code> if not found.</li>
-<li><code>dist2</code>: distance squared (used to compare the points found by each processor) <dl class="params"><dt>Parameters</dt><dd>
+<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">xyz</td><td>The coordinates of the points. </td></tr>
     <tr><td class="paramname">n_points</td><td>The number of points. </td></tr>
   </table>
   </dd>
 </dl>
-</li>
-</ul>
 <p>make deep copy incase xyz goes out of scope or deallocated</p>
-<p>Sets new points and redistributes them</p>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00443">443</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l01065">1065</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/de1/namespaceglobal__interpolation_ac1d7dd757c992a82f1a201d671ce637d_cgraph.png" border="0" usemap="#add/de1/namespaceglobal__interpolation_ac1d7dd757c992a82f1a201d671ce637d_cgraph" alt=""/></div>
 <map name="add/de1/namespaceglobal__interpolation_ac1d7dd757c992a82f1a201d671ce637d_cgraph" id="add/de1/namespaceglobal__interpolation_ac1d7dd757c992a82f1a201d671ce637d_cgraph">
-<area shape="rect" title="Finds the corresponding r,s,t coordinates and redistributes the points to the owning rank in the corr..." alt="" coords="5,73,165,128"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="454,95,549,120"/>
-<area shape="poly" title=" " alt="" coords="117,71,160,41,212,18,257,7,293,3,330,6,374,18,404,31,433,47,478,83,475,87,430,52,402,35,372,23,329,12,293,8,258,12,214,23,163,46,120,76"/>
-<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#ac86ce66619281a9b322688bf9d527c28" title="Common routine for finding the points." alt="" coords="213,33,373,88"/>
-<area shape="poly" title=" " alt="" coords="165,83,199,76,200,81,166,88"/>
-<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#a419e4bc704c8fcd7549a4de09f5dfbb3" title=" " alt="" coords="421,144,581,199"/>
-<area shape="poly" title=" " alt="" coords="121,126,164,155,214,177,263,187,313,190,408,185,408,191,313,196,262,192,213,182,161,159,118,131"/>
-<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#ae67a17085d264b5f5d490d1047042ee2" title=" " alt="" coords="213,112,373,167"/>
-<area shape="poly" title=" " alt="" coords="166,113,200,119,199,125,165,118"/>
-<area shape="poly" title=" " alt="" coords="373,124,440,114,441,119,374,130"/>
-<area shape="poly" title=" " alt="" coords="374,149,408,154,407,160,373,154"/>
+<area shape="rect" title="Finds the corresponding r,s,t coordinates and redistributes the points to the owning rank in the corr..." alt="" coords="5,55,165,109"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="246,5,341,31"/>
+<area shape="poly" title=" " alt="" coords="165,54,213,39,236,32,238,37,214,45,166,60"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#ac86ce66619281a9b322688bf9d527c28" title="Common routine for finding the points." alt="" coords="213,55,373,109"/>
+<area shape="poly" title=" " alt="" coords="165,79,199,79,199,85,165,85"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#a419e4bc704c8fcd7549a4de09f5dfbb3" title=" " alt="" coords="213,133,373,188"/>
+<area shape="poly" title=" " alt="" coords="159,107,209,126,207,131,158,112"/>
+<area shape="rect" href="../../d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="423,41,572,67"/>
+<area shape="poly" title=" " alt="" coords="373,68,409,63,410,69,374,74"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#a829324239907e3b2115c45ac52ab3d51" title="Compares two sets of rst coordinates and checks whether rst2 is better than rst1 given a tolerance re..." alt="" coords="421,91,573,131"/>
+<area shape="poly" title=" " alt="" coords="374,91,408,96,408,101,373,96"/>
 </map>
 </div>
 
@@ -289,7 +354,7 @@ Here is the call graph for this function:</div>
         <tr>
           <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> global_interpolation::global_interpolation_find_common </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
           <td class="paramname"><em>this</em></td><td>)</td>
           <td></td>
         </tr>
@@ -300,20 +365,36 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Find element candidates at this rank</p>
+<p>Copy xyz coords to each element candidate</p>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00236">236</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00449">449</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dd/de1/namespaceglobal__interpolation_ac86ce66619281a9b322688bf9d527c28_cgraph.png" border="0" usemap="#add/de1/namespaceglobal__interpolation_ac86ce66619281a9b322688bf9d527c28_cgraph" alt=""/></div>
+<map name="add/de1/namespaceglobal__interpolation_ac86ce66619281a9b322688bf9d527c28_cgraph" id="add/de1/namespaceglobal__interpolation_ac86ce66619281a9b322688bf9d527c28_cgraph">
+<area shape="rect" title="Common routine for finding the points." alt="" coords="5,20,165,75"/>
+<area shape="rect" href="../../d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="215,5,364,31"/>
+<area shape="poly" title=" " alt="" coords="165,33,201,28,202,33,166,38"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#a829324239907e3b2115c45ac52ab3d51" title="Compares two sets of rst coordinates and checks whether rst2 is better than rst1 given a tolerance re..." alt="" coords="213,55,365,95"/>
+<area shape="poly" title=" " alt="" coords="166,56,200,60,200,66,165,61"/>
+</map>
+</div>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/de1/namespaceglobal__interpolation_ac86ce66619281a9b322688bf9d527c28_icgraph.png" border="0" usemap="#add/de1/namespaceglobal__interpolation_ac86ce66619281a9b322688bf9d527c28_icgraph" alt=""/></div>
 <map name="add/de1/namespaceglobal__interpolation_ac86ce66619281a9b322688bf9d527c28_icgraph" id="add/de1/namespaceglobal__interpolation_ac86ce66619281a9b322688bf9d527c28_icgraph">
-<area shape="rect" title="Common routine for finding the points." alt="" coords="213,84,373,139"/>
+<area shape="rect" title="Common routine for finding the points." alt="" coords="213,124,373,179"/>
 <area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#ac1d7dd757c992a82f1a201d671ce637d" title="Finds the corresponding r,s,t coordinates and redistributes the points to the owning rank in the corr..." alt="" coords="5,5,165,60"/>
-<area shape="poly" title=" " alt="" coords="206,81,157,63,159,58,208,76"/>
+<area shape="poly" title=" " alt="" coords="238,119,164,74,143,62,145,58,167,69,241,114"/>
 <area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#a5dfe3afc61fac845acfadaef21e3465c" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="5,84,165,139"/>
-<area shape="poly" title=" " alt="" coords="200,114,166,114,166,109,200,109"/>
-<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#aad8a5b77756f4c2b1b6efb26f7b0163a" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="5,163,165,217"/>
-<area shape="poly" title=" " alt="" coords="208,146,159,165,157,160,206,141"/>
+<area shape="poly" title=" " alt="" coords="199,136,165,129,166,124,200,131"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#a23ebf1358dbbe614220db1a9f5d58501" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="5,163,165,217"/>
+<area shape="poly" title=" " alt="" coords="200,171,166,178,165,173,199,166"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#aad8a5b77756f4c2b1b6efb26f7b0163a" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="5,241,165,296"/>
+<area shape="poly" title=" " alt="" coords="238,189,167,231,143,244,141,239,164,226,235,184"/>
 </map>
 </div>
 
@@ -370,9 +451,7 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-<ul>
-<li><code>error_code</code>: returns <code>0</code> if point found, <code>1</code> if closest point on a border (check dist2), <code>2</code> if not found</li>
-<li><code>dist2</code>: distance squared (used to compare the points found by each processor) <dl class="params"><dt>Parameters</dt><dd>
+<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">x</td><td>The x-coordinates of the points. </td></tr>
     <tr><td class="paramname">y</td><td>The y-coordinates of the points. </td></tr>
@@ -381,20 +460,103 @@ Here is the caller graph for this function:</div>
   </table>
   </dd>
 </dl>
-</li>
-</ul>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00360">360</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00950">950</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/de1/namespaceglobal__interpolation_a5dfe3afc61fac845acfadaef21e3465c_cgraph.png" border="0" usemap="#add/de1/namespaceglobal__interpolation_a5dfe3afc61fac845acfadaef21e3465c_cgraph" alt=""/></div>
 <map name="add/de1/namespaceglobal__interpolation_a5dfe3afc61fac845acfadaef21e3465c_cgraph" id="add/de1/namespaceglobal__interpolation_a5dfe3afc61fac845acfadaef21e3465c_cgraph">
-<area shape="rect" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="5,45,165,100"/>
-<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#ac86ce66619281a9b322688bf9d527c28" title="Common routine for finding the points." alt="" coords="213,5,373,60"/>
-<area shape="poly" title=" " alt="" coords="165,55,199,48,200,53,166,60"/>
-<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#a419e4bc704c8fcd7549a4de09f5dfbb3" title=" " alt="" coords="213,84,373,139"/>
-<area shape="poly" title=" " alt="" coords="166,85,200,91,199,97,165,90"/>
+<area shape="rect" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="5,59,165,113"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#ac86ce66619281a9b322688bf9d527c28" title="Common routine for finding the points." alt="" coords="213,19,373,73"/>
+<area shape="poly" title=" " alt="" coords="165,68,199,61,200,67,166,73"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#a419e4bc704c8fcd7549a4de09f5dfbb3" title=" " alt="" coords="213,97,373,152"/>
+<area shape="poly" title=" " alt="" coords="166,98,200,105,199,110,165,103"/>
+<area shape="rect" href="../../d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="423,5,572,31"/>
+<area shape="poly" title=" " alt="" coords="373,32,409,27,410,33,374,38"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#a829324239907e3b2115c45ac52ab3d51" title="Compares two sets of rst coordinates and checks whether rst2 is better than rst1 given a tolerance re..." alt="" coords="421,55,573,95"/>
+<area shape="poly" title=" " alt="" coords="374,55,408,60,408,65,373,60"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a23ebf1358dbbe614220db1a9f5d58501" name="a23ebf1358dbbe614220db1a9f5d58501"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a23ebf1358dbbe614220db1a9f5d58501">&#9670;&#160;</a></span>global_interpolation_find_coords1d()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> global_interpolation::global_interpolation_find_coords1d </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(n_points)&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(n_points)&#160;</td>
+          <td class="paramname"><em>y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(n_points)&#160;</td>
+          <td class="paramname"><em>z</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td>
+          <td class="paramname"><em>n_points</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>The x-coordinates of the points. </td></tr>
+    <tr><td class="paramname">y</td><td>The y-coordinates of the points. </td></tr>
+    <tr><td class="paramname">z</td><td>The z-coordinates of the points. </td></tr>
+    <tr><td class="paramname">n_points</td><td>The number of points. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00985">985</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dd/de1/namespaceglobal__interpolation_a23ebf1358dbbe614220db1a9f5d58501_cgraph.png" border="0" usemap="#add/de1/namespaceglobal__interpolation_a23ebf1358dbbe614220db1a9f5d58501_cgraph" alt=""/></div>
+<map name="add/de1/namespaceglobal__interpolation_a23ebf1358dbbe614220db1a9f5d58501_cgraph" id="add/de1/namespaceglobal__interpolation_a23ebf1358dbbe614220db1a9f5d58501_cgraph">
+<area shape="rect" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="5,59,165,113"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#ac86ce66619281a9b322688bf9d527c28" title="Common routine for finding the points." alt="" coords="213,19,373,73"/>
+<area shape="poly" title=" " alt="" coords="165,68,199,61,200,67,166,73"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#a419e4bc704c8fcd7549a4de09f5dfbb3" title=" " alt="" coords="213,97,373,152"/>
+<area shape="poly" title=" " alt="" coords="166,98,200,105,199,110,165,103"/>
+<area shape="rect" href="../../d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="423,5,572,31"/>
+<area shape="poly" title=" " alt="" coords="373,32,409,27,410,33,374,38"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#a829324239907e3b2115c45ac52ab3d51" title="Compares two sets of rst coordinates and checks whether rst2 is better than rst1 given a tolerance re..." alt="" coords="421,55,573,95"/>
+<area shape="poly" title=" " alt="" coords="374,55,408,60,408,65,373,60"/>
 </map>
 </div>
 
@@ -439,20 +601,16 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-<ul>
-<li><code>error_code</code>: returns <code>0</code> if point found, <code>1</code> if closest point on a border (check dist2), <code>2</code> if not found</li>
-<li><code>dist2</code>: distance squared (used to compare the points found by each processor) <dl class="params"><dt>Parameters</dt><dd>
+<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">xyz</td><td>The coordinates of the points. </td></tr>
     <tr><td class="paramname">n_points</td><td>The number of points. </td></tr>
   </table>
   </dd>
 </dl>
-</li>
-</ul>
 <p>make deep copy incase xyz goes out of scope or deallocated</p>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00412">412</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l01036">1036</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -465,6 +623,10 @@ Here is the call graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="165,79,199,79,199,85,165,85"/>
 <area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#a419e4bc704c8fcd7549a4de09f5dfbb3" title=" " alt="" coords="213,133,373,188"/>
 <area shape="poly" title=" " alt="" coords="159,107,209,126,207,131,158,112"/>
+<area shape="rect" href="../../d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="423,41,572,67"/>
+<area shape="poly" title=" " alt="" coords="373,68,409,63,410,69,374,74"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#a829324239907e3b2115c45ac52ab3d51" title="Compares two sets of rst coordinates and checks whether rst2 is better than rst1 given a tolerance re..." alt="" coords="421,91,573,131"/>
+<area shape="poly" title=" " alt="" coords="374,91,408,96,408,101,373,96"/>
 </map>
 </div>
 
@@ -482,7 +644,7 @@ Here is the call graph for this function:</div>
         <tr>
           <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> global_interpolation::global_interpolation_free </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
           <td class="paramname"><em>this</em></td><td>)</td>
           <td></td>
         </tr>
@@ -494,7 +656,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00193">193</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00366">366</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -510,7 +672,7 @@ Here is the call graph for this function:</div>
         <tr>
           <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> global_interpolation::global_interpolation_free_points </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
           <td class="paramname"><em>this</em></td><td>)</td>
           <td></td>
         </tr>
@@ -522,12 +684,60 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00216">216</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00410">410</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dd/de1/namespaceglobal__interpolation_a39e3a81dcd84a313a772376f36e9c42e_cgraph.png" border="0" usemap="#add/de1/namespaceglobal__interpolation_a39e3a81dcd84a313a772376f36e9c42e_cgraph" alt=""/></div>
+<map name="add/de1/namespaceglobal__interpolation_a39e3a81dcd84a313a772376f36e9c42e_cgraph" id="add/de1/namespaceglobal__interpolation_a39e3a81dcd84a313a772376f36e9c42e_cgraph">
+<area shape="rect" title="Destructor for point arrays." alt="" coords="5,5,165,60"/>
+<area shape="rect" href="../../d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="213,20,363,45"/>
+<area shape="poly" title=" " alt="" coords="166,30,199,30,199,35,166,35"/>
+</map>
+</div>
 
 </div>
 </div>
-<a id="aa45090e00c765fb9d098b30ae7278ec3" name="aa45090e00c765fb9d098b30ae7278ec3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa45090e00c765fb9d098b30ae7278ec3">&#9670;&#160;</a></span>global_interpolation_init_dof()</h2>
+<a id="a4e178296f025752a53682e93cb2d5002" name="a4e178296f025752a53682e93cb2d5002"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4e178296f025752a53682e93cb2d5002">&#9670;&#160;</a></span>global_interpolation_free_points_local()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> global_interpolation::global_interpolation_free_points_local </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00431">431</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dd/de1/namespaceglobal__interpolation_a4e178296f025752a53682e93cb2d5002_cgraph.png" border="0" usemap="#add/de1/namespaceglobal__interpolation_a4e178296f025752a53682e93cb2d5002_cgraph" alt=""/></div>
+<map name="add/de1/namespaceglobal__interpolation_a4e178296f025752a53682e93cb2d5002_cgraph" id="add/de1/namespaceglobal__interpolation_a4e178296f025752a53682e93cb2d5002_cgraph">
+<area shape="rect" title=" " alt="" coords="5,5,165,60"/>
+<area shape="rect" href="../../d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="213,20,363,45"/>
+<area shape="poly" title=" " alt="" coords="166,30,199,30,199,35,166,35"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a82dceeeb8721bb0c5fb08963a8128da7" name="a82dceeeb8721bb0c5fb08963a8128da7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a82dceeeb8721bb0c5fb08963a8128da7">&#9670;&#160;</a></span>global_interpolation_init_dof()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -535,20 +745,32 @@ Here is the call graph for this function:</div>
         <tr>
           <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> global_interpolation::global_interpolation_init_dof </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>)&#160;</td>
           <td class="paramname"><em>dof</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">type(mpi_comm), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>comm</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>tol</em>&#160;</td>
+          <td class="paramname"><em>tol</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>pad</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -565,7 +787,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00126">126</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00182">182</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -593,29 +815,28 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00387">387</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l01012">1012</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/de1/namespaceglobal__interpolation_a419e4bc704c8fcd7549a4de09f5dfbb3_icgraph.png" border="0" usemap="#add/de1/namespaceglobal__interpolation_a419e4bc704c8fcd7549a4de09f5dfbb3_icgraph" alt=""/></div>
 <map name="add/de1/namespaceglobal__interpolation_a419e4bc704c8fcd7549a4de09f5dfbb3_icgraph" id="add/de1/namespaceglobal__interpolation_a419e4bc704c8fcd7549a4de09f5dfbb3_icgraph">
-<area shape="rect" title=" " alt="" coords="421,73,581,128"/>
-<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#ac1d7dd757c992a82f1a201d671ce637d" title="Finds the corresponding r,s,t coordinates and redistributes the points to the owning rank in the corr..." alt="" coords="5,80,165,135"/>
-<area shape="poly" title=" " alt="" coords="456,67,417,42,372,23,329,12,293,8,258,12,214,23,187,34,161,49,117,82,114,78,158,45,185,30,212,18,257,6,293,3,330,7,374,18,419,37,459,63"/>
-<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#a5dfe3afc61fac845acfadaef21e3465c" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="213,33,373,88"/>
-<area shape="poly" title=" " alt="" coords="407,85,373,79,374,73,408,80"/>
-<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#aad8a5b77756f4c2b1b6efb26f7b0163a" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="213,112,373,167"/>
-<area shape="poly" title=" " alt="" coords="408,121,374,127,373,122,407,115"/>
-<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#ae67a17085d264b5f5d490d1047042ee2" title=" " alt="" coords="213,191,373,245"/>
-<area shape="poly" title=" " alt="" coords="446,138,375,180,351,193,349,188,372,176,443,133"/>
-<area shape="poly" title=" " alt="" coords="224,187,212,180,134,137,136,133,215,176,226,182"/>
+<area shape="rect" title=" " alt="" coords="213,124,373,179"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#ac1d7dd757c992a82f1a201d671ce637d" title="Finds the corresponding r,s,t coordinates and redistributes the points to the owning rank in the corr..." alt="" coords="5,5,165,60"/>
+<area shape="poly" title=" " alt="" coords="238,119,164,74,143,62,145,58,167,69,241,114"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#a5dfe3afc61fac845acfadaef21e3465c" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="5,84,165,139"/>
+<area shape="poly" title=" " alt="" coords="199,136,165,129,166,124,200,131"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#a23ebf1358dbbe614220db1a9f5d58501" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="5,163,165,217"/>
+<area shape="poly" title=" " alt="" coords="200,171,166,178,165,173,199,166"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#aad8a5b77756f4c2b1b6efb26f7b0163a" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="5,241,165,296"/>
+<area shape="poly" title=" " alt="" coords="238,189,167,231,143,244,141,239,164,226,235,184"/>
 </map>
 </div>
 
 </div>
 </div>
-<a id="a5356e0128ea8ceab956a76c266ab89ca" name="a5356e0128ea8ceab956a76c266ab89ca"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5356e0128ea8ceab956a76c266ab89ca">&#9670;&#160;</a></span>global_interpolation_init_xyz()</h2>
+<a id="aa22c2902ead56b80171cf0a6874732b7" name="aa22c2902ead56b80171cf0a6874732b7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa22c2902ead56b80171cf0a6874732b7">&#9670;&#160;</a></span>global_interpolation_init_xyz()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -626,25 +847,25 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> global_interpolation::global_interpolation_init_xyz </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>x</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>y</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>z</em>, </td>
         </tr>
         <tr>
@@ -662,14 +883,26 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../da/d99/structspace_1_1space__t.html">space_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../da/d99/structspace_1_1space__t.html">space_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>xh</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">type(mpi_comm), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>comm</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>tol</em>&#160;</td>
+          <td class="paramname"><em>tol</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>pad</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -692,16 +925,27 @@ Here is the caller graph for this function:</div>
     <tr><td class="paramname">nelv</td><td>Number of elements of the mesh in which to search for the points. </td></tr>
     <tr><td class="paramname">Xh</td><td>Space on which to interpolate. </td></tr>
     <tr><td class="paramname">tol</td><td>Tolerance for Newton iterations. </td></tr>
+    <tr><td class="paramname">pad</td><td>Padding of the bounding boxes. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00148">148</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00219">219</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dd/de1/namespaceglobal__interpolation_aa22c2902ead56b80171cf0a6874732b7_cgraph.png" border="0" usemap="#add/de1/namespaceglobal__interpolation_aa22c2902ead56b80171cf0a6874732b7_cgraph" alt=""/></div>
+<map name="add/de1/namespaceglobal__interpolation_aa22c2902ead56b80171cf0a6874732b7_cgraph" id="add/de1/namespaceglobal__interpolation_aa22c2902ead56b80171cf0a6874732b7_cgraph">
+<area shape="rect" title="Initialize the global interpolation object on a set of coordinates." alt="" coords="5,5,165,60"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="213,20,308,45"/>
+<area shape="poly" title=" " alt="" coords="165,30,200,30,200,35,165,35"/>
+</map>
+</div>
 
 </div>
 </div>
-<a id="ae67a17085d264b5f5d490d1047042ee2" name="ae67a17085d264b5f5d490d1047042ee2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae67a17085d264b5f5d490d1047042ee2">&#9670;&#160;</a></span>global_interpolation_redist()</h2>
+<a id="a829324239907e3b2115c45ac52ab3d51" name="a829324239907e3b2115c45ac52ab3d51"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a829324239907e3b2115c45ac52ab3d51">&#9670;&#160;</a></span>rst_cmp()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -710,11 +954,39 @@ Here is the caller graph for this function:</div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> global_interpolation::global_interpolation_redist </td>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a> global_interpolation::rst_cmp </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>this</em></td><td>)</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(3)&#160;</td>
+          <td class="paramname"><em>rst1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(3)&#160;</td>
+          <td class="paramname"><em>rst2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(3)&#160;</td>
+          <td class="paramname"><em>res1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(3)&#160;</td>
+          <td class="paramname"><em>res2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp)&#160;</td>
+          <td class="paramname"><em>tol</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -723,33 +995,54 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Calculate which processes this proc has points on</p>
-<p>Sum number of points on all pes to compute n_new_points Store how many points to receive from each pe</p>
-<p>This could be avoided by adding all indices to a list</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">rst1</td><td>local coordinates for point 1 </td></tr>
+    <tr><td class="paramname">rst2</td><td>local coordinates for point 2 </td></tr>
+    <tr><td class="paramname">rst1</td><td>distance between xyz(rst1) and the true xyz coordinate </td></tr>
+    <tr><td class="paramname">rst2</td><td>distance between xyz(rst2) and the true xyz coordinate </td></tr>
+    <tr><td class="paramname">tol</td><td>Tolerance for how much rst1 and rst2 can over/undershoot [-1,1] </td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Else we check rst2 is inside and has a smaller distance</p>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00487">487</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
-<div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="../../dd/de1/namespaceglobal__interpolation_ae67a17085d264b5f5d490d1047042ee2_cgraph.png" border="0" usemap="#add/de1/namespaceglobal__interpolation_ae67a17085d264b5f5d490d1047042ee2_cgraph" alt=""/></div>
-<map name="add/de1/namespaceglobal__interpolation_ae67a17085d264b5f5d490d1047042ee2_cgraph" id="add/de1/namespaceglobal__interpolation_ae67a17085d264b5f5d490d1047042ee2_cgraph">
-<area shape="rect" title=" " alt="" coords="5,23,165,77"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="246,5,341,31"/>
-<area shape="poly" title=" " alt="" coords="165,35,232,25,233,30,166,40"/>
-<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#a419e4bc704c8fcd7549a4de09f5dfbb3" title=" " alt="" coords="213,55,373,109"/>
-<area shape="poly" title=" " alt="" coords="166,60,200,65,199,70,165,65"/>
-</map>
-</div>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l01149">1149</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../dd/de1/namespaceglobal__interpolation_ae67a17085d264b5f5d490d1047042ee2_icgraph.png" border="0" usemap="#add/de1/namespaceglobal__interpolation_ae67a17085d264b5f5d490d1047042ee2_icgraph" alt=""/></div>
-<map name="add/de1/namespaceglobal__interpolation_ae67a17085d264b5f5d490d1047042ee2_icgraph" id="add/de1/namespaceglobal__interpolation_ae67a17085d264b5f5d490d1047042ee2_icgraph">
-<area shape="rect" title=" " alt="" coords="213,5,373,60"/>
+<div class="center"><img src="../../dd/de1/namespaceglobal__interpolation_a829324239907e3b2115c45ac52ab3d51_icgraph.png" border="0" usemap="#add/de1/namespaceglobal__interpolation_a829324239907e3b2115c45ac52ab3d51_icgraph" alt=""/></div>
+<map name="add/de1/namespaceglobal__interpolation_a829324239907e3b2115c45ac52ab3d51_icgraph" id="add/de1/namespaceglobal__interpolation_a829324239907e3b2115c45ac52ab3d51_icgraph">
+<area shape="rect" title="Compares two sets of rst coordinates and checks whether rst2 is better than rst1 given a tolerance re..." alt="" coords="421,131,573,171"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#ac86ce66619281a9b322688bf9d527c28" title="Common routine for finding the points." alt="" coords="213,124,373,179"/>
+<area shape="poly" title=" " alt="" coords="407,154,373,154,373,149,407,149"/>
 <area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#ac1d7dd757c992a82f1a201d671ce637d" title="Finds the corresponding r,s,t coordinates and redistributes the points to the owning rank in the corr..." alt="" coords="5,5,165,60"/>
-<area shape="poly" title=" " alt="" coords="200,35,166,35,166,30,200,30"/>
+<area shape="poly" title=" " alt="" coords="238,119,164,74,143,62,145,58,167,69,241,114"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#a5dfe3afc61fac845acfadaef21e3465c" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="5,84,165,139"/>
+<area shape="poly" title=" " alt="" coords="199,136,165,129,166,124,200,131"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#a23ebf1358dbbe614220db1a9f5d58501" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="5,163,165,217"/>
+<area shape="poly" title=" " alt="" coords="200,171,166,178,165,173,199,166"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#aad8a5b77756f4c2b1b6efb26f7b0163a" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="5,241,165,296"/>
+<area shape="poly" title=" " alt="" coords="238,189,167,231,143,244,141,239,164,226,235,184"/>
 </map>
 </div>
+
+</div>
+</div>
+<h2 class="groupheader">Variable Documentation</h2>
+<a id="a89ec4cd1c8a5ce060b6dbf7ef72f9a97" name="a89ec4cd1c8a5ce060b6dbf7ef72f9a97"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a89ec4cd1c8a5ce060b6dbf7ef72f9a97">&#9670;&#160;</a></span>glob_map_size</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">parameter</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> global_interpolation::glob_map_size = 4096</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00068">68</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -759,7 +1052,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html">global_interpolation</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

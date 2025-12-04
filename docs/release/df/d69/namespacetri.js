@@ -10,5 +10,6 @@ var namespacetri =
     [ "edge_nodes", "df/d69/namespacetri.html#ae5a2eca84151b7a0314098c53d6f336f", null ],
     [ "neko_tri_gdim", "df/d69/namespacetri.html#a5a37e086ad86bd0bb7e903905adcf3a2", null ],
     [ "neko_tri_neds", "df/d69/namespacetri.html#a7d35c2faa36dc9f851815b4d3815da9e", null ],
-    [ "neko_tri_npts", "df/d69/namespacetri.html#a227fb3d93cb7cc45b02a4b700fcc6f07", null ]
+    [ "neko_tri_npts", "df/d69/namespacetri.html#a227fb3d93cb7cc45b02a4b700fcc6f07", null ],
+    [ "neko_tri_sdim", "df/d69/namespacetri.html#a33d17249efe3f316c494c615f1725e5c", null ]
 ];

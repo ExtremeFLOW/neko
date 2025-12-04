@@ -3,6 +3,7 @@ var namespacecoefs =
     [ "coef_t", "d0/dea/structcoefs_1_1coef__t.html", "d0/dea/structcoefs_1_1coef__t" ],
     [ "coef_free", "d6/dbe/namespacecoefs.html#a20a95815e8ab1a9d5e513b959db5c3e7", null ],
     [ "coef_generate_area_and_normal", "d6/dbe/namespacecoefs.html#aa8326a68db87fc07727e473a8e2dc484", null ],
+    [ "coef_generate_cyclic_bc", "d6/dbe/namespacecoefs.html#aedfc2692ba7d456e06fbad958003f02c", null ],
     [ "coef_generate_dxyzdrst", "d6/dbe/namespacecoefs.html#a7109166ad05f1f18a62a9b96be52900e", null ],
     [ "coef_generate_geo", "d6/dbe/namespacecoefs.html#a1b615b359ab35faee3c6522857bdac33", null ],
     [ "coef_generate_mass", "d6/dbe/namespacecoefs.html#af4bc052c7d759da9d20f84872216f462", null ],

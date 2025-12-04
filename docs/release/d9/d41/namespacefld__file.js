@@ -1,6 +1,8 @@
 var namespacefld__file =
 [
     [ "fld_file_t", "dd/d2f/structfld__file_1_1fld__file__t.html", "dd/d2f/structfld__file_1_1fld__file__t" ],
+    [ "fld_file_get_fld_fname", "d9/d41/namespacefld__file.html#a28514486225e0924eb710b0c650207a2", null ],
+    [ "fld_file_get_meta_fname", "d9/d41/namespacefld__file.html#aa1bd6c4e70dd8e0c26e6f112c44f85a0", null ],
     [ "fld_file_read", "d9/d41/namespacefld__file.html#a7c5ac1508909a576be516f0a12389977", null ],
     [ "fld_file_read_field", "d9/d41/namespacefld__file.html#ae2031698c0cec1de5556d32dc197879f", null ],
     [ "fld_file_read_vector_field", "d9/d41/namespacefld__file.html#a70a3fd76ba0abc5165cf2f48b5bc13d6", null ],

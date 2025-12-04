@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -105,60 +105,90 @@ $(document).ready(function(){initNavTree('namespacemembers_func_g.html',''); ini
 <li>gammaf()&#160;:&#160;<a class="el" href="dd/df0/namespacespeclib.html#a4048cd0103898d95f6f8064c13fe5294">speclib</a></li>
 <li>generalev()&#160;:&#160;<a class="el" href="d3/d4c/namespacefdm.html#a80707a7089b9f914dc2b50b342672817">fdm</a></li>
 <li>generic_file_check_exists()&#160;:&#160;<a class="el" href="dc/d92/namespacegeneric__file.html#a3a3453fd00e2a5a9464ef072348e6c85">generic_file</a></li>
+<li>generic_file_get_base_fname()&#160;:&#160;<a class="el" href="dc/d92/namespacegeneric__file.html#ab7ca8c8f4661c12e674d7f6cff0a77d3">generic_file</a></li>
+<li>generic_file_get_counter()&#160;:&#160;<a class="el" href="dc/d92/namespacegeneric__file.html#a58a9524fc678ee459a4427846b892ed1">generic_file</a></li>
+<li>generic_file_get_fname()&#160;:&#160;<a class="el" href="dc/d92/namespacegeneric__file.html#a036a69d63d9a6769f447414beb540d06">generic_file</a></li>
+<li>generic_file_get_start_counter()&#160;:&#160;<a class="el" href="dc/d92/namespacegeneric__file.html#ada6c5c418b7c21823c02836f67f17eae">generic_file</a></li>
+<li>generic_file_increment_counter()&#160;:&#160;<a class="el" href="dc/d92/namespacegeneric__file.html#a7824845ffe3e87709b01b94e25c19343">generic_file</a></li>
 <li>generic_file_init()&#160;:&#160;<a class="el" href="dc/d92/namespacegeneric__file.html#ab1a94d0cd41f4cba16d87c5215dab3a3">generic_file</a></li>
 <li>generic_file_set_counter()&#160;:&#160;<a class="el" href="dc/d92/namespacegeneric__file.html#afe9db7dc3afaf649ef1abe031a8aeb89">generic_file</a></li>
+<li>generic_file_set_overwrite()&#160;:&#160;<a class="el" href="dc/d92/namespacegeneric__file.html#af55ff7e8a18a8a854c5a8f2f81b541e3">generic_file</a></li>
 <li>generic_file_set_start_counter()&#160;:&#160;<a class="el" href="dc/d92/namespacegeneric__file.html#a73a47eb97981e367ff016d3d036a5f6c">generic_file</a></li>
 <li>get_aabb()&#160;:&#160;<a class="el" href="d5/de2/namespaceaabb.html#a9a79814aa9d37785cb4d53a4aef2beb8">aabb</a></li>
 <li>get_aabb_element()&#160;:&#160;<a class="el" href="d5/de2/namespaceaabb.html#ab9198807cc6826776f8b94a84cd9f999">aabb</a></li>
 <li>get_aabb_mesh()&#160;:&#160;<a class="el" href="d5/de2/namespaceaabb.html#a7b35ee1d1158d03311f46930ee69b2de">aabb</a></li>
+<li>get_aabb_point()&#160;:&#160;<a class="el" href="d5/de2/namespaceaabb.html#a644f82ae94024c3e7a49a6237de57258">aabb</a></li>
 <li>get_aabb_tet_mesh()&#160;:&#160;<a class="el" href="d5/de2/namespaceaabb.html#abd0ecde4cac4aba5d3646a3319cb32e6">aabb</a></li>
 <li>get_aabb_tri_mesh()&#160;:&#160;<a class="el" href="d5/de2/namespaceaabb.html#a6a76082373d4b84a0fb3f820a3203954">aabb</a></li>
 <li>get_elem_l2norm()&#160;:&#160;<a class="el" href="d2/d80/namespacecpr.html#a40239ede9363a3edd5ad65aa84acf857">cpr</a></li>
-<li>get_expansion_size()&#160;:&#160;<a class="el" href="d1/dc4/namespacefield__registry.html#a5ccff38cfa858a849714d57fb065114b">field_registry</a>, <a class="el" href="d9/dac/namespacepoint__zone__registry.html#ad2d1829187816c2822b5f154a319a0b4">point_zone_registry</a>, <a class="el" href="d7/dda/namespacescratch__registry.html#afb1bc184f4f227a11e70c464592cf7ef">scratch_registry</a></li>
-<li>get_field_by_index()&#160;:&#160;<a class="el" href="d1/dc4/namespacefield__registry.html#ad50498d2f33da66aa905d4dab0e59083">field_registry</a></li>
-<li>get_field_by_name()&#160;:&#160;<a class="el" href="d1/dc4/namespacefield__registry.html#aecce2a1da9ad053088cfbae139d9e2c3">field_registry</a></li>
-<li>get_inuse()&#160;:&#160;<a class="el" href="d7/dda/namespacescratch__registry.html#a00c9fda51af4a2bdadf34817bc3c8194">scratch_registry</a></li>
-<li>get_nfields()&#160;:&#160;<a class="el" href="d7/dda/namespacescratch__registry.html#aafca68fc75e92344d9cd0c0ab845f363">scratch_registry</a></li>
-<li>get_nfields_inuse()&#160;:&#160;<a class="el" href="d7/dda/namespacescratch__registry.html#a1f256249797813fc96aca6bbd2736066">scratch_registry</a></li>
+<li>get_expansion_size()&#160;:&#160;<a class="el" href="d9/dac/namespacepoint__zone__registry.html#ad2d1829187816c2822b5f154a319a0b4">point_zone_registry</a>, <a class="el" href="d7/dda/namespacescratch__registry.html#afb1bc184f4f227a11e70c464592cf7ef">scratch_registry</a></li>
+<li>get_field()&#160;:&#160;<a class="el" href="da/dd7/namespaceregistry__entry.html#a967172fedbb0a6710a871d627b4ddc26">registry_entry</a></li>
+<li>get_global_idx()&#160;:&#160;<a class="el" href="d4/d53/namespacecartesian__pe__finder.html#afc14fa9e32e0be9cc23fbcf1766f7de1">cartesian_pe_finder</a></li>
+<li>get_inuse()&#160;:&#160;<a class="el" href="d7/dda/namespacescratch__registry.html#a0a7fe7001be1606989150c6e17630414">scratch_registry</a></li>
+<li>get_matrix()&#160;:&#160;<a class="el" href="da/dd7/namespaceregistry__entry.html#acedfce28cd2622f840edc90262dbc84c">registry_entry</a></li>
+<li>get_n_entries()&#160;:&#160;<a class="el" href="d7/dda/namespacescratch__registry.html#a4c97b6ce925226311d62330a069d4536">scratch_registry</a></li>
+<li>get_n_inuse()&#160;:&#160;<a class="el" href="d7/dda/namespacescratch__registry.html#a0c023657cfdd0b67769a502a1558e2c5">scratch_registry</a></li>
+<li>get_name()&#160;:&#160;<a class="el" href="da/dd7/namespaceregistry__entry.html#a234730e21ac5be9be352ba8121ad8dcd">registry_entry</a></li>
+<li>get_pe_idx()&#160;:&#160;<a class="el" href="d4/d53/namespacecartesian__pe__finder.html#aa56f9413e51d6c224b4b797049f585b7">cartesian_pe_finder</a></li>
 <li>get_point_zone_by_index()&#160;:&#160;<a class="el" href="d9/dac/namespacepoint__zone__registry.html#add503103a3dcb29115ad6d8910de73e3">point_zone_registry</a></li>
 <li>get_point_zone_by_name()&#160;:&#160;<a class="el" href="d9/dac/namespacepoint__zone__registry.html#acbeecef93f35f014523cc25382ba972a">point_zone_registry</a></li>
-<li>get_size()&#160;:&#160;<a class="el" href="d1/dc4/namespacefield__registry.html#a6f1b13ddfb226e6a1a302f78d72a4e41">field_registry</a>, <a class="el" href="d9/dac/namespacepoint__zone__registry.html#ab25104e01df01666bf81f6c9b8d9a8ff">point_zone_registry</a>, <a class="el" href="d7/dda/namespacescratch__registry.html#a6e3f5da60a77a9c8e956badff46cfd00">scratch_registry</a></li>
+<li>get_size()&#160;:&#160;<a class="el" href="d9/dac/namespacepoint__zone__registry.html#ab25104e01df01666bf81f6c9b8d9a8ff">point_zone_registry</a>, <a class="el" href="d7/dda/namespacescratch__registry.html#a6e3f5da60a77a9c8e956badff46cfd00">scratch_registry</a></li>
+<li>get_type()&#160;:&#160;<a class="el" href="da/dd7/namespaceregistry__entry.html#ad7db10ee9381282d6a82a14679671290">registry_entry</a></li>
+<li>get_vector()&#160;:&#160;<a class="el" href="da/dd7/namespaceregistry__entry.html#acc0b4db0e9bb178913d4a0a58fc08979">registry_entry</a></li>
 <li>gh_face_extend_2d()&#160;:&#160;<a class="el" href="dd/dd2/namespacedofmap.html#a1036efd4469d06921a6eacca861cad39">dofmap</a></li>
 <li>gh_face_extend_3d()&#160;:&#160;<a class="el" href="dd/dd2/namespacedofmap.html#ae710cdf2efdddfe06dfd930addd83c84">dofmap</a></li>
+<li>glb_intrp_comm_free()&#160;:&#160;<a class="el" href="d7/d4a/namespaceglb__intrp__comm.html#a44b69c9d77cbad783d5ceb3a68a42056">glb_intrp_comm</a></li>
+<li>glb_intrp_comm_free_dofs()&#160;:&#160;<a class="el" href="d7/d4a/namespaceglb__intrp__comm.html#a944116335561c5429cacfaae7b1cdb4c">glb_intrp_comm</a></li>
+<li>glb_intrp_comm_free_order()&#160;:&#160;<a class="el" href="d7/d4a/namespaceglb__intrp__comm.html#a60a3b2d3834bc562fb8c694ebf69531f">glb_intrp_comm</a></li>
+<li>glb_intrp_comm_init()&#160;:&#160;<a class="el" href="d7/d4a/namespaceglb__intrp__comm.html#a5bc24b96fa436117e5c79d1a10e3a44b">glb_intrp_comm</a></li>
+<li>glb_intrp_comm_init_dofs()&#160;:&#160;<a class="el" href="d7/d4a/namespaceglb__intrp__comm.html#a43baeb49df2eaa6cad07eb711ad70a82">glb_intrp_comm</a></li>
+<li>glb_intrp_comm_init_order()&#160;:&#160;<a class="el" href="d7/d4a/namespaceglb__intrp__comm.html#afa907eeb4c785a3e3b37f544a7cd2d3d">glb_intrp_comm</a></li>
+<li>glb_intrp_comm_nbwait_no_op()&#160;:&#160;<a class="el" href="d7/d4a/namespaceglb__intrp__comm.html#a58aeb2aa029f5afee73c28aba5fe631e">glb_intrp_comm</a></li>
+<li>glb_intrp_comm_sendrecv()&#160;:&#160;<a class="el" href="d7/d4a/namespaceglb__intrp__comm.html#a4fb6a09e86b10edfd8ce3076ce874a9d">glb_intrp_comm</a></li>
 <li>glimax()&#160;:&#160;<a class="el" href="dd/d47/namespacemath.html#adf2291fe82a8e395c51038a2c6dce168">math</a></li>
 <li>glimin()&#160;:&#160;<a class="el" href="dd/d47/namespacemath.html#a794b2ff7041b1f3fc1d9d8fcf24854c9">math</a></li>
 <li>glmax()&#160;:&#160;<a class="el" href="dd/d47/namespacemath.html#aa96bddc7b993fc15b1fa1263b875044d">math</a></li>
 <li>glmin()&#160;:&#160;<a class="el" href="dd/d47/namespacemath.html#aee45fd2307691bcc94e2986af286775e">math</a></li>
-<li>global_interpolation_evaluate()&#160;:&#160;<a class="el" href="dd/de1/namespaceglobal__interpolation.html#a73584112440598ad7dbbed3cfa9ee2d9">global_interpolation</a></li>
+<li>global_interpolation_check_points()&#160;:&#160;<a class="el" href="dd/de1/namespaceglobal__interpolation.html#acb054c21c127f811ef4b5e4805ca574f">global_interpolation</a></li>
+<li>global_interpolation_evaluate()&#160;:&#160;<a class="el" href="dd/de1/namespaceglobal__interpolation.html#a4a4d8f68376ef3b08236e1180fccd40e">global_interpolation</a></li>
 <li>global_interpolation_find_and_redist()&#160;:&#160;<a class="el" href="dd/de1/namespaceglobal__interpolation.html#ac1d7dd757c992a82f1a201d671ce637d">global_interpolation</a></li>
 <li>global_interpolation_find_common()&#160;:&#160;<a class="el" href="dd/de1/namespaceglobal__interpolation.html#ac86ce66619281a9b322688bf9d527c28">global_interpolation</a></li>
 <li>global_interpolation_find_coords()&#160;:&#160;<a class="el" href="dd/de1/namespaceglobal__interpolation.html#a5dfe3afc61fac845acfadaef21e3465c">global_interpolation</a></li>
+<li>global_interpolation_find_coords1d()&#160;:&#160;<a class="el" href="dd/de1/namespaceglobal__interpolation.html#a23ebf1358dbbe614220db1a9f5d58501">global_interpolation</a></li>
 <li>global_interpolation_find_xyz()&#160;:&#160;<a class="el" href="dd/de1/namespaceglobal__interpolation.html#aad8a5b77756f4c2b1b6efb26f7b0163a">global_interpolation</a></li>
 <li>global_interpolation_free()&#160;:&#160;<a class="el" href="dd/de1/namespaceglobal__interpolation.html#a1da3dca9e49ce1adae0a90ab85e9deef">global_interpolation</a></li>
 <li>global_interpolation_free_points()&#160;:&#160;<a class="el" href="dd/de1/namespaceglobal__interpolation.html#a39e3a81dcd84a313a772376f36e9c42e">global_interpolation</a></li>
-<li>global_interpolation_init_dof()&#160;:&#160;<a class="el" href="dd/de1/namespaceglobal__interpolation.html#aa45090e00c765fb9d098b30ae7278ec3">global_interpolation</a></li>
+<li>global_interpolation_free_points_local()&#160;:&#160;<a class="el" href="dd/de1/namespaceglobal__interpolation.html#a4e178296f025752a53682e93cb2d5002">global_interpolation</a></li>
+<li>global_interpolation_init_dof()&#160;:&#160;<a class="el" href="dd/de1/namespaceglobal__interpolation.html#a82dceeeb8721bb0c5fb08963a8128da7">global_interpolation</a></li>
 <li>global_interpolation_init_point_arrays()&#160;:&#160;<a class="el" href="dd/de1/namespaceglobal__interpolation.html#a419e4bc704c8fcd7549a4de09f5dfbb3">global_interpolation</a></li>
-<li>global_interpolation_init_xyz()&#160;:&#160;<a class="el" href="dd/de1/namespaceglobal__interpolation.html#a5356e0128ea8ceab956a76c266ab89ca">global_interpolation</a></li>
-<li>global_interpolation_redist()&#160;:&#160;<a class="el" href="dd/de1/namespaceglobal__interpolation.html#ae67a17085d264b5f5d490d1047042ee2">global_interpolation</a></li>
+<li>global_interpolation_init_xyz()&#160;:&#160;<a class="el" href="dd/de1/namespaceglobal__interpolation.html#aa22c2902ead56b80171cf0a6874732b7">global_interpolation</a></li>
 <li>glsc2()&#160;:&#160;<a class="el" href="dd/d47/namespacemath.html#a662e670921645de8b50d2cdbe93ab1ed">math</a></li>
 <li>glsc3()&#160;:&#160;<a class="el" href="dd/d47/namespacemath.html#a22f2f98aad6feae117b800fa20fa43ed">math</a></li>
 <li>glsc4()&#160;:&#160;<a class="el" href="dd/d47/namespacemath.html#a53095ab0beb34895f90c0e0fef2c8901">math</a></li>
+<li>glsubnorm()&#160;:&#160;<a class="el" href="dd/d47/namespacemath.html#acda160f2e287f7fc6fec7ee8e203c845">math</a></li>
 <li>glsum()&#160;:&#160;<a class="el" href="dd/d47/namespacemath.html#a79605e1f64791cdd50be86db3e5bec75">math</a></li>
 <li>gmres_device_free()&#160;:&#160;<a class="el" href="de/df2/namespacegmres__device.html#ae22b087c0b4a1f8189d29fefe812cc6a">gmres_device</a></li>
-<li>gmres_device_init()&#160;:&#160;<a class="el" href="de/df2/namespacegmres__device.html#a2eeee6ea6cae0288f8f4d8644ee13725">gmres_device</a></li>
+<li>gmres_device_init()&#160;:&#160;<a class="el" href="de/df2/namespacegmres__device.html#a0b4548cec5c339329d7919b3870d8810">gmres_device</a></li>
 <li>gmres_device_solve()&#160;:&#160;<a class="el" href="de/df2/namespacegmres__device.html#a269f2ad33b34a082f5267c088138c5a1">gmres_device</a></li>
 <li>gmres_device_solve_coupled()&#160;:&#160;<a class="el" href="de/df2/namespacegmres__device.html#aee2cff360c660336c7675de9ac257734">gmres_device</a></li>
 <li>gmres_free()&#160;:&#160;<a class="el" href="dc/d48/namespacegmres.html#a62c9792c5a51541a708d8bb3cb541944">gmres</a></li>
-<li>gmres_init()&#160;:&#160;<a class="el" href="dc/d48/namespacegmres.html#a0c2daad3ba0655f62235de64ccd89a03">gmres</a></li>
+<li>gmres_init()&#160;:&#160;<a class="el" href="dc/d48/namespacegmres.html#aa4f06f5871783ac66cc7c8458fbfa096">gmres</a></li>
 <li>gmres_solve()&#160;:&#160;<a class="el" href="dc/d48/namespacegmres.html#a3ad50be018611153f4c6184821724c96">gmres</a></li>
 <li>gmres_solve_coupled()&#160;:&#160;<a class="el" href="dc/d48/namespacegmres.html#a4072882a607752c8060209f5a3c2712c">gmres</a></li>
 <li>grad()&#160;:&#160;<a class="el" href="dd/d30/namespaceoperators.html#a91f918cda1627fb384dd63393c822991">operators</a></li>
-<li>gradient_jump_penalty_compute()&#160;:&#160;<a class="el" href="d6/def/namespacegradient__jump__penalty.html#a0734914600660d530280d0e77899d744">gradient_jump_penalty</a></li>
+<li>gradient_compute()&#160;:&#160;<a class="el" href="d6/dbf/namespacegradient__simcomp.html#a1a539519b79721407508897df56a6099">gradient_simcomp</a></li>
+<li>gradient_free()&#160;:&#160;<a class="el" href="d6/dbf/namespacegradient__simcomp.html#af5acf69a650d2bb85dadd5ec347efb53">gradient_simcomp</a></li>
+<li>gradient_init_common()&#160;:&#160;<a class="el" href="d6/dbf/namespacegradient__simcomp.html#a48601232c62444d0e9dffb7fe64c066a">gradient_simcomp</a></li>
+<li>gradient_init_from_controllers()&#160;:&#160;<a class="el" href="d6/dbf/namespacegradient__simcomp.html#a416b1381f308df3c2d767cf00b909697">gradient_simcomp</a></li>
+<li>gradient_init_from_controllers_properties()&#160;:&#160;<a class="el" href="d6/dbf/namespacegradient__simcomp.html#a4a94c8db05a7c0bd82b54bfa6d6b3946">gradient_simcomp</a></li>
+<li>gradient_init_from_json()&#160;:&#160;<a class="el" href="d6/dbf/namespacegradient__simcomp.html#af4f9024c70b300cf440a4c720dbc3344">gradient_simcomp</a></li>
+<li>gradient_jump_penalty_compute()&#160;:&#160;<a class="el" href="d6/def/namespacegradient__jump__penalty.html#ae3d7de1101a139faeb5be75ed657af8f">gradient_jump_penalty</a></li>
+<li>gradient_jump_penalty_compute_single()&#160;:&#160;<a class="el" href="d6/def/namespacegradient__jump__penalty.html#a2258cb7484d0bc0e33319f15339f4a8e">gradient_jump_penalty</a></li>
 <li>gradient_jump_penalty_finalize()&#160;:&#160;<a class="el" href="d6/def/namespacegradient__jump__penalty.html#a0d84b1b365fd1c178cf3e0230ded6de0">gradient_jump_penalty</a></li>
 <li>gradient_jump_penalty_finalize_hex()&#160;:&#160;<a class="el" href="d6/def/namespacegradient__jump__penalty.html#a06dd9e1fb40b3c25715428ed24ef11f4">gradient_jump_penalty</a></li>
 <li>gradient_jump_penalty_free()&#160;:&#160;<a class="el" href="d6/def/namespacegradient__jump__penalty.html#af6e69307864b0adf909c2db55805af7c">gradient_jump_penalty</a></li>
-<li>gradient_jump_penalty_init()&#160;:&#160;<a class="el" href="d6/def/namespacegradient__jump__penalty.html#ab7234be3b26833675975cce3bdd66935">gradient_jump_penalty</a></li>
-<li>gradient_jump_penalty_perform()&#160;:&#160;<a class="el" href="d6/def/namespacegradient__jump__penalty.html#a33c291e87e05f1ade6ffdbf387c8cc62">gradient_jump_penalty</a></li>
+<li>gradient_jump_penalty_init()&#160;:&#160;<a class="el" href="d6/def/namespacegradient__jump__penalty.html#acc186b4da8a34f4b181779fcba34395a">gradient_jump_penalty</a></li>
+<li>gradient_jump_penalty_init_from_components()&#160;:&#160;<a class="el" href="d6/def/namespacegradient__jump__penalty.html#af1fb6563db511fd72285e1ecd5dc8591">gradient_jump_penalty</a></li>
 <li>gs_cpu_free()&#160;:&#160;<a class="el" href="d5/d22/namespacegs__cpu.html#ab462d9a566f77c1f642aa36a8c58791c">gs_cpu</a></li>
 <li>gs_cpu_init()&#160;:&#160;<a class="el" href="d5/d22/namespacegs__cpu.html#a64b8bfefa8e30faca9a36931a44771e5">gs_cpu</a></li>
 <li>gs_device_free()&#160;:&#160;<a class="el" href="d8/dcd/namespacegs__device.html#acb55cb0b9872ab64f6a6465b793176df">gs_device</a></li>
@@ -170,6 +200,20 @@ $(document).ready(function(){initNavTree('namespacemembers_func_g.html',''); ini
 <li>gs_device_mpi_nbrecv()&#160;:&#160;<a class="el" href="d9/dfa/namespacegs__device__mpi.html#a3ab4035ed7c118c87f8902cdded702b9">gs_device_mpi</a></li>
 <li>gs_device_mpi_nbsend()&#160;:&#160;<a class="el" href="d9/dfa/namespacegs__device__mpi.html#a832a9f3cba26a0e8c899d4897e697c69">gs_device_mpi</a></li>
 <li>gs_device_mpi_nbwait()&#160;:&#160;<a class="el" href="d9/dfa/namespacegs__device__mpi.html#a3c4cdecb2527137b5665bfbb823e0518">gs_device_mpi</a></li>
+<li>gs_device_nccl_buf_free()&#160;:&#160;<a class="el" href="de/dcf/namespacegs__device__nccl.html#aefc2ac685c287cff92cd6de2cde7bc0f">gs_device_nccl</a></li>
+<li>gs_device_nccl_buf_init()&#160;:&#160;<a class="el" href="de/dcf/namespacegs__device__nccl.html#a7fd02aded867f9843400ccda5550adf1">gs_device_nccl</a></li>
+<li>gs_device_nccl_free()&#160;:&#160;<a class="el" href="de/dcf/namespacegs__device__nccl.html#aef31fde09a39eebc0ee90e008cba5bb5">gs_device_nccl</a></li>
+<li>gs_device_nccl_init()&#160;:&#160;<a class="el" href="de/dcf/namespacegs__device__nccl.html#a2d4e675b4dbc3a5de103b430b400981c">gs_device_nccl</a></li>
+<li>gs_device_nccl_nbrecv()&#160;:&#160;<a class="el" href="de/dcf/namespacegs__device__nccl.html#a8929fbf00f3912c54319e2a010d45317">gs_device_nccl</a></li>
+<li>gs_device_nccl_nbsend()&#160;:&#160;<a class="el" href="de/dcf/namespacegs__device__nccl.html#a068065dc694cd08a8203d82aeca5db86">gs_device_nccl</a></li>
+<li>gs_device_nccl_nbwait()&#160;:&#160;<a class="el" href="de/dcf/namespacegs__device__nccl.html#a6ce3a7bef43ec31cbe113f8073b40abc">gs_device_nccl</a></li>
+<li>gs_device_shmem_buf_free()&#160;:&#160;<a class="el" href="d0/d2a/namespacegs__device__shmem.html#ad4f3bfd3b1bc42e19c6703bbc1f17ef1">gs_device_shmem</a></li>
+<li>gs_device_shmem_buf_init()&#160;:&#160;<a class="el" href="d0/d2a/namespacegs__device__shmem.html#abf654870de96ff5947d52613f00e75d4">gs_device_shmem</a></li>
+<li>gs_device_shmem_free()&#160;:&#160;<a class="el" href="d0/d2a/namespacegs__device__shmem.html#ac47b0494a4a3bce988d5419447951920">gs_device_shmem</a></li>
+<li>gs_device_shmem_init()&#160;:&#160;<a class="el" href="d0/d2a/namespacegs__device__shmem.html#aea869741c5716a2755f9c792af9c5c05">gs_device_shmem</a></li>
+<li>gs_device_shmem_nbrecv()&#160;:&#160;<a class="el" href="d0/d2a/namespacegs__device__shmem.html#a64244d7891dc42743e757e2224dd10db">gs_device_shmem</a></li>
+<li>gs_device_shmem_nbsend()&#160;:&#160;<a class="el" href="d0/d2a/namespacegs__device__shmem.html#a0b13919b26dbb249026b12ebd74821f7">gs_device_shmem</a></li>
+<li>gs_device_shmem_nbwait()&#160;:&#160;<a class="el" href="d0/d2a/namespacegs__device__shmem.html#a6beab26e24a8a58b8b0237f6260d7c40">gs_device_shmem</a></li>
 <li>gs_free()&#160;:&#160;<a class="el" href="d0/d78/namespacegather__scatter.html#a7b932fc67f24ee664f40c41bc61487c1">gather_scatter</a></li>
 <li>gs_gather_cpu()&#160;:&#160;<a class="el" href="d5/d22/namespacegs__cpu.html#aa9efc97271dbcfc09b7da65b33b22024">gs_cpu</a></li>
 <li>gs_gather_device()&#160;:&#160;<a class="el" href="d8/dcd/namespacegs__device.html#a0dc20023a2019b907a4362fd93c2bd24">gs_device</a></li>
@@ -178,7 +222,7 @@ $(document).ready(function(){initNavTree('namespacemembers_func_g.html',''); ini
 <li>gs_gather_kernel_min()&#160;:&#160;<a class="el" href="d5/d22/namespacegs__cpu.html#ac86e65fcd35ad765f18abf5e64ffac26">gs_cpu</a>, <a class="el" href="d2/dc3/namespacegs__sx.html#ab03ce833fa343aaa8dd85a1101fbd4db">gs_sx</a></li>
 <li>gs_gather_kernel_mul()&#160;:&#160;<a class="el" href="d5/d22/namespacegs__cpu.html#a974599f87d5473ca6e043f5f6f276837">gs_cpu</a>, <a class="el" href="d2/dc3/namespacegs__sx.html#a291fba6afd6da6eebddf318c1c06a5a1">gs_sx</a></li>
 <li>gs_gather_sx()&#160;:&#160;<a class="el" href="d2/dc3/namespacegs__sx.html#a1256563bdcb26bc6e93e8816c2314717">gs_sx</a></li>
-<li>gs_init()&#160;:&#160;<a class="el" href="d0/d78/namespacegather__scatter.html#a6abafa7eaef0e406c6d411d8554b8bee">gather_scatter</a></li>
+<li>gs_init()&#160;:&#160;<a class="el" href="d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347">gather_scatter</a></li>
 <li>gs_init_mapping()&#160;:&#160;<a class="el" href="d0/d78/namespacegather__scatter.html#a116426a5fc51d480ab0f080002328566">gather_scatter</a></li>
 <li>gs_mpi_free()&#160;:&#160;<a class="el" href="d0/d25/namespacegs__mpi.html#a799543132b5c17cb125025a0c3d85f75">gs_mpi</a></li>
 <li>gs_mpi_init()&#160;:&#160;<a class="el" href="d0/d25/namespacegs__mpi.html#a76156f7dc592a6724863b4bc7eb6a093">gs_mpi</a></li>
@@ -201,7 +245,7 @@ $(document).ready(function(){initNavTree('namespacemembers_func_g.html',''); ini
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:53 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

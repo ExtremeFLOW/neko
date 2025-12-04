@@ -1,5 +1,5 @@
 <map id="speclib::dgljd" name="speclib::dgljd">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,113,31"/>
-<area shape="rect" id="Node000002" href="$dd/df0/namespacespeclib.html#a7b6b7a991f7a4deaff63144237f6b161" title=" " alt="" coords="161,5,277,31"/>
+<area shape="rect" id="Node000001" title="Compute the derivative matrix D and its transpose DT associated with the Nth order Lagrangian interpo..." alt="" coords="5,5,113,31"/>
+<area shape="rect" id="Node000002" href="$dd/df0/namespacespeclib.html#a7b6b7a991f7a4deaff63144237f6b161" title="Computes the Jacobi polynomial (POLY) and its derivative (PDER) of degree N at X." alt="" coords="161,5,277,31"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="113,15,148,15,148,21,113,21"/>
 </map>

@@ -1,0 +1,9 @@
+<map id="/home/runner/work/neko/neko/src/gs/bcknd/device/device_nccl.c" name="/home/runner/work/neko/neko/src/gs/bcknd/device/device_nccl.c">
+<area shape="rect" id="Node000001" title=" " alt="" coords="39,5,229,60"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,108,76,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="107,62,65,100,62,96,104,58"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="101,108,167,133"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="137,60,137,94,131,94,131,60"/>
+<area shape="rect" id="Node000004" href="$d2/d50/comm__nccl_8h.html" title=" " alt="" coords="192,108,345,133"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="177,58,241,98,238,103,174,62"/>
+</map>

@@ -8,6 +8,8 @@
 <area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="92,45,92,80,87,80,87,45"/>
 <area shape="rect" id="Node000005" href="$d7/d9f/structgs__mpi_1_1gs__comm__mpi__t.html" title="MPI buffer for non&#45;blocking operations." alt="" coords="197,183,381,208"/>
 <area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="270,220,201,287,198,283,266,216"/>
-<area shape="rect" id="Node000006" title=" " alt="" coords="242,80,337,105"/>
-<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="292,119,292,183,287,183,287,119"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="210,80,305,105"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="268,118,288,182,283,183,263,120"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="329,80,431,105"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="366,118,330,160,305,184,301,180,326,157,362,114"/>
 </map>

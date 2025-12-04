@@ -1,6 +1,0 @@
-<map id="hip_no_slip_wall_apply_vector" name="hip_no_slip_wall_apply_vector">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,177,69"/>
-<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="225,29,389,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="178,47,212,47,212,52,178,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="267,30,264,20,271,10,285,5,307,3,333,6,346,13,344,18,331,11,307,8,287,10,274,15,270,21,272,28"/>
-</map>

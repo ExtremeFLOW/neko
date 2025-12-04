@@ -1,0 +1,21 @@
+<map id="blasius::blasius_init_from_components" name="blasius::blasius_init_from_components">
+<area shape="rect" id="Node000001" title="Constructor from components." alt="" coords="5,249,156,289"/>
+<area shape="rect" id="Node000002" href="$d4/d1e/namespaceflow__profile.html#aade43f589d5ac4f11ccad839a9b36c2b" title="Cubic approximate Blasius Profile ." alt="" coords="222,29,373,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="87,248,104,212,128,167,161,120,202,79,210,74,213,78,206,83,165,123,133,170,108,215,92,250"/>
+<area shape="rect" id="Node000003" href="$d4/d1e/namespaceflow__profile.html#ae1dffd3e2f0c7e77056949157af2847b" title="Linear approximate Blasius profile ." alt="" coords="222,117,373,157"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="100,247,145,207,203,167,215,161,218,165,205,172,148,211,104,251"/>
+<area shape="rect" id="Node000004" href="$d4/d1e/namespaceflow__profile.html#a0b6d9188a113843878700cf45b4c12c6" title="Quadratic approximate Blasius Profile ." alt="" coords="222,205,373,245"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="156,251,208,241,209,246,157,257"/>
+<area shape="rect" id="Node000005" href="$d4/d1e/namespaceflow__profile.html#a49a9d197106fc26b15aefe65e7f404bf" title="Quartic approximate Blasius Profile &#160;." alt="" coords="222,293,373,333"/>
+<area shape="poly" id="edge7_Node000001_Node000005" title=" " alt="" coords="157,282,209,293,208,298,156,287"/>
+<area shape="rect" id="Node000006" href="$d4/d1e/namespaceflow__profile.html#a87e7739057dc2048eb90ad39274421ef" title="Sinusoidal approximate Blasius Profile ." alt="" coords="209,382,386,407"/>
+<area shape="poly" id="edge9_Node000001_Node000006" title=" " alt="" coords="115,287,205,343,260,373,258,378,203,348,112,292"/>
+<area shape="rect" id="Node000007" href="$d4/d1e/namespaceflow__profile.html#abd3c78263572801758b862a7ebb690b0" title="Hyperbolic tangent approximate Blasius Profile from O. Savas (2012) &#160;where &#160;is the 99 percent thickne..." alt="" coords="204,455,391,481"/>
+<area shape="poly" id="edge11_Node000001_Node000007" title=" " alt="" coords="97,288,141,349,172,385,206,417,254,447,251,451,202,421,168,388,137,353,92,291"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="257,30,254,20,261,10,275,5,297,3,323,6,336,13,334,18,321,11,297,8,277,10,264,15,260,21,262,28"/>
+<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="257,118,254,108,261,98,275,93,297,91,323,94,336,101,334,106,321,99,297,96,277,98,264,103,260,109,262,116"/>
+<area shape="poly" id="edge6_Node000004_Node000004" title=" " alt="" coords="257,206,254,196,261,186,275,181,297,179,323,182,336,189,334,194,321,187,297,184,277,186,264,191,260,197,262,204"/>
+<area shape="poly" id="edge8_Node000005_Node000005" title=" " alt="" coords="257,294,254,284,261,274,275,269,297,267,323,270,336,277,334,282,321,275,297,272,277,274,264,279,260,285,262,292"/>
+<area shape="poly" id="edge10_Node000006_Node000006" title=" " alt="" coords="262,384,254,374,258,364,273,358,297,355,327,359,339,368,336,372,325,364,297,361,274,363,262,368,260,373,266,380"/>
+<area shape="poly" id="edge12_Node000007_Node000007" title=" " alt="" coords="262,457,254,447,258,437,273,431,297,429,327,432,339,441,336,446,325,437,297,434,274,436,262,441,260,446,266,454"/>
+</map>

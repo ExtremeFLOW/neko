@@ -1,0 +1,6 @@
+<map id="operators::cfl_compressible" name="operators::cfl_compressible">
+<area shape="rect" id="Node000001" title=" " alt="" coords="264,29,465,55"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="410,20,407,15,399,12,365,8,337,10,323,15,320,20,328,27,324,31,315,21,319,11,336,5,365,3,400,7,411,11,414,17"/>
+<area shape="rect" id="Node000002" href="$d3/d66/namespacefluid__scheme__compressible.html#ada4acb292b99e433897dc8566af8713c" title="Compute CFL number." alt="" coords="5,15,216,69"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="250,45,216,45,216,39,250,39"/>
+</map>

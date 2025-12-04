@@ -1,7 +1,0 @@
-<map id="device_math::device_rone" name="device_math::device_rone">
-<area shape="rect" id="Node000001" title="Set all elements to one." alt="" coords="216,31,409,56"/>
-<area shape="rect" id="Node000002" href="$d6/dbe/namespacecoefs.html#ab2b9f8dad2fece2b466e7459e04111f8" title="Initialize coefficients." alt="" coords="15,5,159,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,34,158,29,159,23,203,28"/>
-<area shape="rect" id="Node000003" href="$d5/de6/namespacefield__math.html#a7b40c8c5bbf9d100cf0a8588a047ebf9" title="Set all elements to one." alt="" coords="5,55,168,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="203,58,169,61,168,56,202,52"/>
-</map>

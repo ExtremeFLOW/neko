@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -115,19 +115,19 @@ Data Types</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract interface for deallocating a Gather-scatter communication method.  <a href="../../dc/dc5/interfacegs__comm_1_1gs__comm__free.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/db4/interfacegs__comm_1_1gs__comm__init.html">gs_comm_init</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract interface for initialising a Gather-scatter communication method.  <a href="../../d8/db4/interfacegs__comm_1_1gs__comm__init.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract interface for initializing a Gather-scatter communication method.  <a href="../../d8/db4/interfacegs__comm_1_1gs__comm__init.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html">gs_comm_t</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gather-scatter communication method.  <a href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/dce/interfacegs__comm_1_1gs__nbrecv.html">gs_nbrecv</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract interface for initiating non-blocking receive operations.  <a href="../../df/dce/interfacegs__comm_1_1gs__nbrecv.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract interface for initiating non-blocking recieve operations Posts non-blocking recieve of values and puts the values into buffers.  <a href="../../df/dce/interfacegs__comm_1_1gs__nbrecv.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d38/interfacegs__comm_1_1gs__nbsend.html">gs_nbsend</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract interface for initiating non-blocking send operations.  <a href="../../d6/d38/interfacegs__comm_1_1gs__nbsend.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract interface for initiating non-blocking send operations Sends the values in u(send_dof(send_pe(i))) to each rank send_pe(i) for all ranks in send_pe.  <a href="../../d6/d38/interfacegs__comm_1_1gs__nbsend.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d94/interfacegs__comm_1_1gs__nbwait.html">gs_nbwait</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract interface for watining on non-blocking operations.  <a href="../../d3/d94/interfacegs__comm_1_1gs__nbwait.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract interface for waiting on non-blocking operations Waits and checks that data is in buffers and unpacks buffers into correct location in u u(recv_dof(recv_pe(i))) = gs_op(recieve_buffers(recv_pe) for this dof)  <a href="../../d3/d94/interfacegs__comm_1_1gs__nbwait.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
@@ -137,6 +137,7 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ae00beb400345e7fc6471a1955ee94274" id="r_ae00beb400345e7fc6471a1955ee94274"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d7c/namespacegs__comm.html#ae00beb400345e7fc6471a1955ee94274">free_dofs</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="separator:ae00beb400345e7fc6471a1955ee94274"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7b6ee6b6c0a37c740f810315fabd6ed7" id="r_a7b6ee6b6c0a37c740f810315fabd6ed7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d7c/namespacegs__comm.html#a7b6ee6b6c0a37c740f810315fabd6ed7">init_order</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, send_pe, recv_pe)</td></tr>
+<tr class="memdesc:a7b6ee6b6c0a37c740f810315fabd6ed7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obtains which ranks to send and receive data from.  <br /></td></tr>
 <tr class="separator:a7b6ee6b6c0a37c740f810315fabd6ed7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af358299661323a0d9c6f95066f16957b" id="r_af358299661323a0d9c6f95066f16957b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d7c/namespacegs__comm.html#af358299661323a0d9c6f95066f16957b">free_order</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="separator:af358299661323a0d9c6f95066f16957b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -147,6 +148,10 @@ Variables</h2></td></tr>
 <tr class="separator:a58325561231afe6ed26e5234d5d67f0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a393ea0390a10bb91e06c660203f08f82" id="r_a393ea0390a10bb91e06c660203f08f82"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">parameter</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d7c/namespacegs__comm.html#a393ea0390a10bb91e06c660203f08f82">gs_comm_mpigpu</a> = 2</td></tr>
 <tr class="separator:a393ea0390a10bb91e06c660203f08f82"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae4dccd3f016a80e6d76b6bcc87d3c620" id="r_ae4dccd3f016a80e6d76b6bcc87d3c620"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">parameter</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d7c/namespacegs__comm.html#ae4dccd3f016a80e6d76b6bcc87d3c620">gs_comm_nccl</a> = 3</td></tr>
+<tr class="separator:ae4dccd3f016a80e6d76b6bcc87d3c620"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8d5f4e7a6bf0a1e4d0d417a0d6e9780b" id="r_a8d5f4e7a6bf0a1e4d0d417a0d6e9780b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">parameter</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d7c/namespacegs__comm.html#a8d5f4e7a6bf0a1e4d0d417a0d6e9780b">gs_comm_nvshmem</a> = 4</td></tr>
+<tr class="separator:a8d5f4e7a6bf0a1e4d0d417a0d6e9780b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="ae00beb400345e7fc6471a1955ee94274" name="ae00beb400345e7fc6471a1955ee94274"></a>
@@ -173,7 +178,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00138">138</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00162">162</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -201,7 +206,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00181">181</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00208">208</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -229,7 +234,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00122">122</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00146">146</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -272,8 +277,15 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">send_pe,only</td><td>contains rank ids this porcesss should send to </td></tr>
+    <tr><td class="paramname">recv_pe,only</td><td>the ranks this process should receive from </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00158">158</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00185">185</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -310,13 +322,45 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a id="ae4dccd3f016a80e6d76b6bcc87d3c620" name="ae4dccd3f016a80e6d76b6bcc87d3c620"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae4dccd3f016a80e6d76b6bcc87d3c620">&#9670;&#160;</a></span>gs_comm_nccl</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">parameter</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> gs_comm::gs_comm_nccl = 3</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00042">42</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+
+</div>
+</div>
+<a id="a8d5f4e7a6bf0a1e4d0d417a0d6e9780b" name="a8d5f4e7a6bf0a1e4d0d417a0d6e9780b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8d5f4e7a6bf0a1e4d0d417a0d6e9780b">&#9670;&#160;</a></span>gs_comm_nvshmem</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">parameter</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> gs_comm::gs_comm_nvshmem = 4</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00042">42</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+
+</div>
+</div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d6/d7c/namespacegs__comm.html">gs_comm</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

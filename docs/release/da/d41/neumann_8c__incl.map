@@ -1,0 +1,19 @@
+<map id="/home/runner/work/neko/neko/src/bc/bcknd/device/opencl/neumann.c" name="/home/runner/work/neko/neko/src/bc/bcknd/device/opencl/neumann.c">
+<area shape="rect" id="Node000001" title=" " alt="" coords="296,5,485,60"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="358,196,423,221"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="296,37,186,43,130,50,80,60,40,74,15,93,9,104,9,116,13,130,24,146,46,162,78,175,165,192,262,201,344,204,344,210,262,206,165,197,77,180,43,167,20,150,9,133,3,117,4,103,11,90,38,70,79,55,129,44,185,37,295,31"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="34,115,101,141"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="296,59,207,82,114,111,107,113,106,108,112,105,205,77,294,54"/>
+<area shape="rect" id="Node000004" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="125,115,296,141"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="341,62,245,112,243,107,339,58"/>
+<area shape="rect" id="Node000005" href="$d4/d0f/jit_8h.html" title=" " alt="" coords="320,115,461,141"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="393,60,393,101,388,101,388,60"/>
+<area shape="rect" id="Node000006" href="$d1/df7/prgm__lib_8h.html" title=" " alt="" coords="486,108,636,148"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="440,58,516,99,513,104,437,62"/>
+<area shape="rect" id="Node000007" href="$d0/d05/opencl_2check_8h.html" title=" " alt="" coords="660,115,827,141"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="486,56,688,109,686,114,484,61"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="852,115,1009,141"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="486,46,840,105,864,110,863,115,839,111,485,51"/>
+<area shape="poly" id="edge5_Node000005_Node000002" title=" " alt="" coords="393,141,393,182,388,182,388,141"/>
+<area shape="poly" id="edge8_Node000007_Node000002" title=" " alt="" coords="693,143,437,200,436,195,692,138"/>
+</map>

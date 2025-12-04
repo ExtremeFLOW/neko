@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -132,6 +132,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a87e7739057dc2048eb90ad39274421ef" id="r_a87e7739057dc2048eb90ad39274421ef"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp) <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d4/d1e/namespaceflow__profile.html#a87e7739057dc2048eb90ad39274421ef">blasius_sin</a> (y, delta, u)</td></tr>
 <tr class="memdesc:a87e7739057dc2048eb90ad39274421ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sinusoidal approximate Blasius Profile \( \frac{u}{U} = \sin(\frac{\pi}{2}\frac{y}{\delta}) \).  <br /></td></tr>
 <tr class="separator:a87e7739057dc2048eb90ad39274421ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abd3c78263572801758b862a7ebb690b0" id="r_abd3c78263572801758b862a7ebb690b0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp) <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d4/d1e/namespaceflow__profile.html#abd3c78263572801758b862a7ebb690b0">blasius_tanh</a> (y, delta, u)</td></tr>
+<tr class="memdesc:abd3c78263572801758b862a7ebb690b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Hyperbolic tangent approximate Blasius Profile from O. Savas (2012) \( \frac{u}{U} = (\tanh((5.075 a \frac{y}{\delta})^n))^{1/n} \) where \( \delta \) is the 99 percent thickness and the coefficients are \( a = 0.33245 \) and \( n = 5/3 \) Reference: <a href="https://doi.org/10.1016/j.cnsns.2012.02.002">https://doi.org/10.1016/j.cnsns.2012.02.002</a>.  <br /></td></tr>
+<tr class="separator:abd3c78263572801758b862a7ebb690b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="aade43f589d5ac4f11ccad839a9b36c2b" name="aade43f589d5ac4f11ccad839a9b36c2b"></a>
@@ -181,14 +184,16 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d4/d1e/namespaceflow__profile_aade43f589d5ac4f11ccad839a9b36c2b_icgraph.png" border="0" usemap="#ad4/d1e/namespaceflow__profile_aade43f589d5ac4f11ccad839a9b36c2b_icgraph" alt=""/></div>
 <map name="ad4/d1e/namespaceflow__profile_aade43f589d5ac4f11ccad839a9b36c2b_icgraph" id="ad4/d1e/namespaceflow__profile_aade43f589d5ac4f11ccad839a9b36c2b_icgraph">
-<area shape="rect" title="Cubic approximate Blasius Profile ." alt="" coords="420,37,571,77"/>
-<area shape="poly" title=" " alt="" coords="530,26,518,19,495,16,475,18,463,23,459,29,461,36,456,38,454,28,460,18,474,13,495,11,520,14,533,21"/>
-<area shape="rect" href="../../dd/d19/interfaceflow__profile_1_1blasius__profile.html#a9af816754a48a7d524073b2d89de56a6" title=" " alt="" coords="200,5,372,45"/>
-<area shape="poly" title=" " alt="" coords="406,46,372,41,373,36,407,41"/>
-<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#aff7567086e0593009521c74afc760ff4" title="Set a Blasius profile as initial condition." alt="" coords="213,69,359,109"/>
-<area shape="poly" title=" " alt="" coords="407,74,360,81,359,76,406,68"/>
-<area shape="rect" href="../../d5/d04/interfaceflow__ic_1_1set__flow__ic.html#aa5c900e30a45a6ed61c876b4ce368b50" title="Set initial flow condition (builtin)" alt="" coords="5,69,152,109"/>
-<area shape="poly" title=" " alt="" coords="199,92,152,92,152,87,199,87"/>
+<area shape="rect" title="Cubic approximate Blasius Profile ." alt="" coords="420,69,571,109"/>
+<area shape="poly" title=" " alt="" coords="530,58,518,51,495,48,475,50,463,55,459,61,461,68,456,70,454,60,460,50,474,45,495,43,520,46,533,53"/>
+<area shape="rect" href="../../de/da4/namespaceblasius.html#aa30673fe1e7478b847dc3c6fcdb39efd" title="Constructor from components." alt="" coords="211,5,361,45"/>
+<area shape="poly" title=" " alt="" coords="415,68,351,48,353,43,417,63"/>
+<area shape="rect" href="../../dd/d19/interfaceflow__profile_1_1blasius__profile.html#a9af816754a48a7d524073b2d89de56a6" title=" " alt="" coords="200,69,372,109"/>
+<area shape="poly" title=" " alt="" coords="406,92,372,92,372,87,406,87"/>
+<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#aff7567086e0593009521c74afc760ff4" title="Set a Blasius profile as initial condition." alt="" coords="213,133,359,173"/>
+<area shape="poly" title=" " alt="" coords="417,116,353,136,351,131,415,111"/>
+<area shape="rect" href="../../d5/d04/interfaceflow__ic_1_1set__flow__ic.html#aa5c900e30a45a6ed61c876b4ce368b50" title="Set initial flow condition (builtin)" alt="" coords="5,133,152,173"/>
+<area shape="poly" title=" " alt="" coords="199,156,152,156,152,151,199,151"/>
 </map>
 </div>
 
@@ -241,14 +246,16 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d4/d1e/namespaceflow__profile_ae1dffd3e2f0c7e77056949157af2847b_icgraph.png" border="0" usemap="#ad4/d1e/namespaceflow__profile_ae1dffd3e2f0c7e77056949157af2847b_icgraph" alt=""/></div>
 <map name="ad4/d1e/namespaceflow__profile_ae1dffd3e2f0c7e77056949157af2847b_icgraph" id="ad4/d1e/namespaceflow__profile_ae1dffd3e2f0c7e77056949157af2847b_icgraph">
-<area shape="rect" title="Linear approximate Blasius profile ." alt="" coords="420,37,571,77"/>
-<area shape="poly" title=" " alt="" coords="530,26,518,19,495,16,475,18,463,23,459,29,461,36,456,38,454,28,460,18,474,13,495,11,520,14,533,21"/>
-<area shape="rect" href="../../dd/d19/interfaceflow__profile_1_1blasius__profile.html#a9af816754a48a7d524073b2d89de56a6" title=" " alt="" coords="200,5,372,45"/>
-<area shape="poly" title=" " alt="" coords="406,46,372,41,373,36,407,41"/>
-<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#aff7567086e0593009521c74afc760ff4" title="Set a Blasius profile as initial condition." alt="" coords="213,69,359,109"/>
-<area shape="poly" title=" " alt="" coords="407,74,360,81,359,76,406,68"/>
-<area shape="rect" href="../../d5/d04/interfaceflow__ic_1_1set__flow__ic.html#aa5c900e30a45a6ed61c876b4ce368b50" title="Set initial flow condition (builtin)" alt="" coords="5,69,152,109"/>
-<area shape="poly" title=" " alt="" coords="199,92,152,92,152,87,199,87"/>
+<area shape="rect" title="Linear approximate Blasius profile ." alt="" coords="420,69,571,109"/>
+<area shape="poly" title=" " alt="" coords="530,58,518,51,495,48,475,50,463,55,459,61,461,68,456,70,454,60,460,50,474,45,495,43,520,46,533,53"/>
+<area shape="rect" href="../../de/da4/namespaceblasius.html#aa30673fe1e7478b847dc3c6fcdb39efd" title="Constructor from components." alt="" coords="211,5,361,45"/>
+<area shape="poly" title=" " alt="" coords="415,68,351,48,353,43,417,63"/>
+<area shape="rect" href="../../dd/d19/interfaceflow__profile_1_1blasius__profile.html#a9af816754a48a7d524073b2d89de56a6" title=" " alt="" coords="200,69,372,109"/>
+<area shape="poly" title=" " alt="" coords="406,92,372,92,372,87,406,87"/>
+<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#aff7567086e0593009521c74afc760ff4" title="Set a Blasius profile as initial condition." alt="" coords="213,133,359,173"/>
+<area shape="poly" title=" " alt="" coords="417,116,353,136,351,131,415,111"/>
+<area shape="rect" href="../../d5/d04/interfaceflow__ic_1_1set__flow__ic.html#aa5c900e30a45a6ed61c876b4ce368b50" title="Set initial flow condition (builtin)" alt="" coords="5,133,152,173"/>
+<area shape="poly" title=" " alt="" coords="199,156,152,156,152,151,199,151"/>
 </map>
 </div>
 
@@ -301,14 +308,16 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d4/d1e/namespaceflow__profile_a0b6d9188a113843878700cf45b4c12c6_icgraph.png" border="0" usemap="#ad4/d1e/namespaceflow__profile_a0b6d9188a113843878700cf45b4c12c6_icgraph" alt=""/></div>
 <map name="ad4/d1e/namespaceflow__profile_a0b6d9188a113843878700cf45b4c12c6_icgraph" id="ad4/d1e/namespaceflow__profile_a0b6d9188a113843878700cf45b4c12c6_icgraph">
-<area shape="rect" title="Quadratic approximate Blasius Profile ." alt="" coords="420,37,571,77"/>
-<area shape="poly" title=" " alt="" coords="530,26,518,19,495,16,475,18,463,23,459,29,461,36,456,38,454,28,460,18,474,13,495,11,520,14,533,21"/>
-<area shape="rect" href="../../dd/d19/interfaceflow__profile_1_1blasius__profile.html#a9af816754a48a7d524073b2d89de56a6" title=" " alt="" coords="200,5,372,45"/>
-<area shape="poly" title=" " alt="" coords="406,46,372,41,373,36,407,41"/>
-<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#aff7567086e0593009521c74afc760ff4" title="Set a Blasius profile as initial condition." alt="" coords="213,69,359,109"/>
-<area shape="poly" title=" " alt="" coords="407,74,360,81,359,76,406,68"/>
-<area shape="rect" href="../../d5/d04/interfaceflow__ic_1_1set__flow__ic.html#aa5c900e30a45a6ed61c876b4ce368b50" title="Set initial flow condition (builtin)" alt="" coords="5,69,152,109"/>
-<area shape="poly" title=" " alt="" coords="199,92,152,92,152,87,199,87"/>
+<area shape="rect" title="Quadratic approximate Blasius Profile ." alt="" coords="420,69,571,109"/>
+<area shape="poly" title=" " alt="" coords="530,58,518,51,495,48,475,50,463,55,459,61,461,68,456,70,454,60,460,50,474,45,495,43,520,46,533,53"/>
+<area shape="rect" href="../../de/da4/namespaceblasius.html#aa30673fe1e7478b847dc3c6fcdb39efd" title="Constructor from components." alt="" coords="211,5,361,45"/>
+<area shape="poly" title=" " alt="" coords="415,68,351,48,353,43,417,63"/>
+<area shape="rect" href="../../dd/d19/interfaceflow__profile_1_1blasius__profile.html#a9af816754a48a7d524073b2d89de56a6" title=" " alt="" coords="200,69,372,109"/>
+<area shape="poly" title=" " alt="" coords="406,92,372,92,372,87,406,87"/>
+<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#aff7567086e0593009521c74afc760ff4" title="Set a Blasius profile as initial condition." alt="" coords="213,133,359,173"/>
+<area shape="poly" title=" " alt="" coords="417,116,353,136,351,131,415,111"/>
+<area shape="rect" href="../../d5/d04/interfaceflow__ic_1_1set__flow__ic.html#aa5c900e30a45a6ed61c876b4ce368b50" title="Set initial flow condition (builtin)" alt="" coords="5,133,152,173"/>
+<area shape="poly" title=" " alt="" coords="199,156,152,156,152,151,199,151"/>
 </map>
 </div>
 
@@ -361,14 +370,16 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d4/d1e/namespaceflow__profile_a49a9d197106fc26b15aefe65e7f404bf_icgraph.png" border="0" usemap="#ad4/d1e/namespaceflow__profile_a49a9d197106fc26b15aefe65e7f404bf_icgraph" alt=""/></div>
 <map name="ad4/d1e/namespaceflow__profile_a49a9d197106fc26b15aefe65e7f404bf_icgraph" id="ad4/d1e/namespaceflow__profile_a49a9d197106fc26b15aefe65e7f404bf_icgraph">
-<area shape="rect" title="Quartic approximate Blasius Profile &#160;." alt="" coords="420,37,571,77"/>
-<area shape="poly" title=" " alt="" coords="530,26,518,19,495,16,475,18,463,23,459,29,461,36,456,38,454,28,460,18,474,13,495,11,520,14,533,21"/>
-<area shape="rect" href="../../dd/d19/interfaceflow__profile_1_1blasius__profile.html#a9af816754a48a7d524073b2d89de56a6" title=" " alt="" coords="200,5,372,45"/>
-<area shape="poly" title=" " alt="" coords="406,46,372,41,373,36,407,41"/>
-<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#aff7567086e0593009521c74afc760ff4" title="Set a Blasius profile as initial condition." alt="" coords="213,69,359,109"/>
-<area shape="poly" title=" " alt="" coords="407,74,360,81,359,76,406,68"/>
-<area shape="rect" href="../../d5/d04/interfaceflow__ic_1_1set__flow__ic.html#aa5c900e30a45a6ed61c876b4ce368b50" title="Set initial flow condition (builtin)" alt="" coords="5,69,152,109"/>
-<area shape="poly" title=" " alt="" coords="199,92,152,92,152,87,199,87"/>
+<area shape="rect" title="Quartic approximate Blasius Profile &#160;." alt="" coords="420,69,571,109"/>
+<area shape="poly" title=" " alt="" coords="530,58,518,51,495,48,475,50,463,55,459,61,461,68,456,70,454,60,460,50,474,45,495,43,520,46,533,53"/>
+<area shape="rect" href="../../de/da4/namespaceblasius.html#aa30673fe1e7478b847dc3c6fcdb39efd" title="Constructor from components." alt="" coords="211,5,361,45"/>
+<area shape="poly" title=" " alt="" coords="415,68,351,48,353,43,417,63"/>
+<area shape="rect" href="../../dd/d19/interfaceflow__profile_1_1blasius__profile.html#a9af816754a48a7d524073b2d89de56a6" title=" " alt="" coords="200,69,372,109"/>
+<area shape="poly" title=" " alt="" coords="406,92,372,92,372,87,406,87"/>
+<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#aff7567086e0593009521c74afc760ff4" title="Set a Blasius profile as initial condition." alt="" coords="213,133,359,173"/>
+<area shape="poly" title=" " alt="" coords="417,116,353,136,351,131,415,111"/>
+<area shape="rect" href="../../d5/d04/interfaceflow__ic_1_1set__flow__ic.html#aa5c900e30a45a6ed61c876b4ce368b50" title="Set initial flow condition (builtin)" alt="" coords="5,133,152,173"/>
+<area shape="poly" title=" " alt="" coords="199,156,152,156,152,151,199,151"/>
 </map>
 </div>
 
@@ -421,14 +432,78 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d4/d1e/namespaceflow__profile_a87e7739057dc2048eb90ad39274421ef_icgraph.png" border="0" usemap="#ad4/d1e/namespaceflow__profile_a87e7739057dc2048eb90ad39274421ef_icgraph" alt=""/></div>
 <map name="ad4/d1e/namespaceflow__profile_a87e7739057dc2048eb90ad39274421ef_icgraph" id="ad4/d1e/namespaceflow__profile_a87e7739057dc2048eb90ad39274421ef_icgraph">
-<area shape="rect" title="Sinusoidal approximate Blasius Profile ." alt="" coords="420,45,597,70"/>
-<area shape="poly" title=" " alt="" coords="548,35,537,27,509,23,485,25,472,30,470,36,477,43,473,46,465,36,469,26,484,20,509,18,539,22,552,31"/>
-<area shape="rect" href="../../dd/d19/interfaceflow__profile_1_1blasius__profile.html#a9af816754a48a7d524073b2d89de56a6" title=" " alt="" coords="200,5,372,45"/>
-<area shape="poly" title=" " alt="" coords="406,45,372,40,372,35,407,40"/>
-<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#aff7567086e0593009521c74afc760ff4" title="Set a Blasius profile as initial condition." alt="" coords="213,69,359,109"/>
-<area shape="poly" title=" " alt="" coords="407,75,360,81,359,76,406,69"/>
-<area shape="rect" href="../../d5/d04/interfaceflow__ic_1_1set__flow__ic.html#aa5c900e30a45a6ed61c876b4ce368b50" title="Set initial flow condition (builtin)" alt="" coords="5,69,152,109"/>
-<area shape="poly" title=" " alt="" coords="199,92,152,92,152,87,199,87"/>
+<area shape="rect" title="Sinusoidal approximate Blasius Profile ." alt="" coords="420,77,597,102"/>
+<area shape="poly" title=" " alt="" coords="548,67,537,59,509,55,485,57,472,62,470,68,477,75,473,78,465,68,469,58,484,52,509,50,539,54,552,63"/>
+<area shape="rect" href="../../de/da4/namespaceblasius.html#aa30673fe1e7478b847dc3c6fcdb39efd" title="Constructor from components." alt="" coords="211,5,361,45"/>
+<area shape="poly" title=" " alt="" coords="449,75,356,48,357,43,451,70"/>
+<area shape="rect" href="../../dd/d19/interfaceflow__profile_1_1blasius__profile.html#a9af816754a48a7d524073b2d89de56a6" title=" " alt="" coords="200,69,372,109"/>
+<area shape="poly" title=" " alt="" coords="406,92,372,92,372,87,406,87"/>
+<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#aff7567086e0593009521c74afc760ff4" title="Set a Blasius profile as initial condition." alt="" coords="213,133,359,173"/>
+<area shape="poly" title=" " alt="" coords="451,109,357,136,356,131,449,103"/>
+<area shape="rect" href="../../d5/d04/interfaceflow__ic_1_1set__flow__ic.html#aa5c900e30a45a6ed61c876b4ce368b50" title="Set initial flow condition (builtin)" alt="" coords="5,133,152,173"/>
+<area shape="poly" title=" " alt="" coords="199,156,152,156,152,151,199,151"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="abd3c78263572801758b862a7ebb690b0" name="abd3c78263572801758b862a7ebb690b0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abd3c78263572801758b862a7ebb690b0">&#9670;&#160;</a></span>blasius_tanh()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp) <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> flow_profile::blasius_tanh </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>delta</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>u</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d0/d37/flow__profile_8f90_source.html#l00144">144</a> of file <a class="el" href="../../d0/d37/flow__profile_8f90_source.html">flow_profile.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d4/d1e/namespaceflow__profile_abd3c78263572801758b862a7ebb690b0_cgraph.png" border="0" usemap="#ad4/d1e/namespaceflow__profile_abd3c78263572801758b862a7ebb690b0_cgraph" alt=""/></div>
+<map name="ad4/d1e/namespaceflow__profile_abd3c78263572801758b862a7ebb690b0_cgraph" id="ad4/d1e/namespaceflow__profile_abd3c78263572801758b862a7ebb690b0_cgraph">
+<area shape="rect" title="Hyperbolic tangent approximate Blasius Profile from O. Savas (2012) &#160;where &#160;is the 99 percent thickne..." alt="" coords="5,29,192,55"/>
+<area shape="poly" title=" " alt="" coords="68,31,61,21,65,11,77,5,99,3,124,6,135,15,132,19,122,11,99,8,79,10,69,15,66,20,72,28"/>
+</map>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d4/d1e/namespaceflow__profile_abd3c78263572801758b862a7ebb690b0_icgraph.png" border="0" usemap="#ad4/d1e/namespaceflow__profile_abd3c78263572801758b862a7ebb690b0_icgraph" alt=""/></div>
+<map name="ad4/d1e/namespaceflow__profile_abd3c78263572801758b862a7ebb690b0_icgraph" id="ad4/d1e/namespaceflow__profile_abd3c78263572801758b862a7ebb690b0_icgraph">
+<area shape="rect" title="Hyperbolic tangent approximate Blasius Profile from O. Savas (2012) &#160;where &#160;is the 99 percent thickne..." alt="" coords="420,77,607,102"/>
+<area shape="poly" title=" " alt="" coords="554,67,543,59,513,55,489,57,476,62,474,68,480,75,476,78,468,68,473,58,488,52,513,50,545,54,557,63"/>
+<area shape="rect" href="../../de/da4/namespaceblasius.html#aa30673fe1e7478b847dc3c6fcdb39efd" title="Constructor from components." alt="" coords="211,5,361,45"/>
+<area shape="poly" title=" " alt="" coords="453,75,357,48,359,43,455,70"/>
+<area shape="rect" href="../../dd/d19/interfaceflow__profile_1_1blasius__profile.html#a9af816754a48a7d524073b2d89de56a6" title=" " alt="" coords="200,69,372,109"/>
+<area shape="poly" title=" " alt="" coords="407,92,372,92,372,87,407,87"/>
+<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#aff7567086e0593009521c74afc760ff4" title="Set a Blasius profile as initial condition." alt="" coords="213,133,359,173"/>
+<area shape="poly" title=" " alt="" coords="455,108,359,136,357,131,453,103"/>
+<area shape="rect" href="../../d5/d04/interfaceflow__ic_1_1set__flow__ic.html#aa5c900e30a45a6ed61c876b4ce368b50" title="Set initial flow condition (builtin)" alt="" coords="5,133,152,173"/>
+<area shape="poly" title=" " alt="" coords="199,156,152,156,152,151,199,151"/>
 </map>
 </div>
 
@@ -440,7 +515,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d4/d1e/namespaceflow__profile.html">flow_profile</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

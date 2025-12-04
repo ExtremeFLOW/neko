@@ -10,5 +10,6 @@ var tri_8f90 =
     [ "edge_nodes", "d7/d6a/tri_8f90.html#ae5a2eca84151b7a0314098c53d6f336f", null ],
     [ "neko_tri_gdim", "d7/d6a/tri_8f90.html#a5a37e086ad86bd0bb7e903905adcf3a2", null ],
     [ "neko_tri_neds", "d7/d6a/tri_8f90.html#a7d35c2faa36dc9f851815b4d3815da9e", null ],
-    [ "neko_tri_npts", "d7/d6a/tri_8f90.html#a227fb3d93cb7cc45b02a4b700fcc6f07", null ]
+    [ "neko_tri_npts", "d7/d6a/tri_8f90.html#a227fb3d93cb7cc45b02a4b700fcc6f07", null ],
+    [ "neko_tri_sdim", "d7/d6a/tri_8f90.html#a33d17249efe3f316c494c615f1725e5c", null ]
 ];

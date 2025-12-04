@@ -1,9 +1,0 @@
-<map id="mean_sqr_field::mean_sqr_field_update" name="mean_sqr_field::mean_sqr_field_update">
-<area shape="rect" id="Node000001" title="Update a mean sqr field." alt="" coords="5,55,172,95"/>
-<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#a4ee816e55efed3adc2543a7474162956" title="Returns ." alt="" coords="233,5,364,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="162,53,237,32,238,37,163,58"/>
-<area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#aff8bba420a03b5689e0f7be3fd999ebf" title="Returns ." alt="" coords="220,55,377,95"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="173,73,206,73,206,78,173,78"/>
-<area shape="rect" id="Node000004" href="$d2/d73/namespacedevice__math.html#a6e9089e626320f54bad8af5f0a13fc99" title="Multiplication by constant c ." alt="" coords="220,119,377,159"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="156,93,220,113,219,118,154,98"/>
-</map>

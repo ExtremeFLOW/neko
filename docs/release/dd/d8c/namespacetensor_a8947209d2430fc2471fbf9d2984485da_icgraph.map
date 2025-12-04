@@ -1,13 +1,13 @@
 <map id="tensor::trsp" name="tensor::trsp">
 <area shape="rect" id="Node000001" title="Transpose of a rectangular tensor ." alt="" coords="949,70,1045,95"/>
-<area shape="rect" id="Node000002" href="$dd/d26/namespaceelementwise__filter__cpu.html#aafca1eafd7fe7847fb28b285189ca02f" title="Build the 1d filter for an element on the CPU. Suppose field x is filtered into x_hat by x_hat = fh*x..." alt="" coords="741,5,886,45"/>
+<area shape="rect" id="Node000002" href="$dd/d52/namespaceelementwise__filter.html#a106ce51f62e266dfa441bde829ddff19" title="Build the 1d filter for an element on the CPU. Suppose field x is filtered into x_hat by x_hat = fh*x..." alt="" coords="742,5,885,45"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="942,68,877,48,879,43,944,63"/>
 <area shape="rect" id="Node000004" href="$dd/dd2/namespacedofmap.html#a971e44364f26c18dcc5aeaa06ab7d50d" title="Generate the x, y, z coordinates of the dofs in a signle element, assuming linear element edges." alt="" coords="725,70,901,95"/>
 <area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="936,85,901,85,901,80,936,80"/>
 <area shape="rect" id="Node000007" href="$dd/dd2/namespacedofmap.html#adb78d2dd3cc039858605775479de13ca" title=" " alt="" coords="485,121,677,146"/>
 <area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="942,102,902,111,785,125,678,133,677,128,785,120,901,105,941,96"/>
 <area shape="rect" id="Node000003" href="$dd/d52/namespaceelementwise__filter.html#ac2f5a8a0a33529944fc5302eee1e04f5" title="Build the 1d filter for an element." alt="" coords="510,5,653,45"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="726,28,653,28,653,23,726,23"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="728,28,653,28,653,23,728,23"/>
 <area shape="rect" id="Node000005" href="$dd/dd2/namespacedofmap.html#a5d369623e2bb954910d6741afd4e93a8" title="Generate x,y,z&#45;coordinates for all dofs." alt="" coords="212,95,437,121"/>
 <area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="712,91,437,105,437,100,711,85"/>
 <area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="742,101,641,123,640,118,740,96"/>

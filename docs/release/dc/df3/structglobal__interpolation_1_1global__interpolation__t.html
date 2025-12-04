@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -113,123 +113,243 @@ Collaboration diagram for global_interpolation::global_interpolation_t:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d4/d7e/structglobal__interpolation_1_1global__interpolation__t__coll__graph.png" border="0" usemap="#aglobal__interpolation_1_1global__interpolation__t_coll__map" alt="Collaboration graph"/></div>
 <map name="aglobal__interpolation_1_1global__interpolation__t_coll__map" id="aglobal__interpolation_1_1global__interpolation__t_coll__map">
-<area shape="rect" title="Implements global interpolation for arbitrary points in the domain." alt="" coords="152,479,324,519"/>
-<area shape="rect" href="../../dd/d8c/structstructs_1_1array__ptr__t.html" title="Pointer to array." alt="" coords="5,354,151,379"/>
-<area shape="poly" title=" " alt="" coords="97,389,124,421,158,453,197,476,194,481,155,457,121,425,93,393"/>
-<area shape="rect" href="../../da/d99/structspace_1_1space__t.html" title="The function space for the SEM solution fields." alt="" coords="229,249,348,275"/>
-<area shape="poly" title=" " alt="" coords="286,289,245,479,239,478,281,288"/>
-<area shape="rect" href="../../d4/df5/structlocal__interpolation_1_1local__interpolator__t.html" title="Interpolation on a set of points with known rst coordinates in elements local to this process...." alt="" coords="329,347,485,387"/>
-<area shape="poly" title=" " alt="" coords="314,282,387,344,384,349,311,286"/>
-<area shape="rect" title=" " alt="" coords="261,5,316,31"/>
-<area shape="poly" title=" " alt="" coords="276,44,249,94,219,162,207,200,198,241,194,282,195,322,213,410,234,477,229,479,208,411,190,323,188,282,193,240,202,199,214,160,244,91,271,41"/>
-<area shape="poly" title=" " alt="" coords="291,45,291,249,286,249,286,45"/>
-<area shape="poly" title=" " alt="" coords="330,31,344,41,356,53,378,90,394,131,405,173,411,215,415,292,412,347,407,346,409,292,406,216,399,174,389,133,373,93,352,56,341,45,327,36"/>
-<area shape="poly" title=" " alt="" coords="377,398,304,457,269,481,266,476,300,453,373,394"/>
+<area shape="rect" title="Implements global interpolation for arbitrary points in the domain." alt="" coords="873,331,1045,371"/>
+<area shape="rect" href="../../d3/d5b/structvector_1_1vector__t.html" title=" " alt="" coords="241,75,365,101"/>
+<area shape="poly" title=" " alt="" coords="378,77,479,73,539,75,603,81,668,92,732,109,794,134,851,167,890,205,920,250,941,294,955,330,950,331,936,296,915,252,886,208,848,171,792,139,730,114,667,97,602,86,539,80,479,78,378,82"/>
+<area shape="rect" href="../../da/d41/structlegendre__rst__finder_1_1legendre__rst__finder__t.html" title="Type to compute local element (rst) coordinates for a gives set points in physical (xyz) space on a S..." alt="" coords="549,163,716,203"/>
+<area shape="poly" title=" " alt="" coords="332,107,366,129,405,148,478,167,549,177,548,182,477,173,403,153,363,134,329,111"/>
+<area shape="rect" title=" " alt="" coords="34,286,89,311"/>
+<area shape="poly" title=" " alt="" coords="103,303,142,309,273,333,330,342,404,349,492,354,560,353,716,349,873,349,873,354,716,355,560,359,492,359,404,355,329,347,272,338,141,315,102,308"/>
+<area shape="poly" title=" " alt="" coords="63,272,71,235,84,191,107,148,122,128,140,111,163,97,188,88,240,81,241,87,190,94,165,102,143,115,126,132,111,151,89,193,76,237,68,273"/>
+<area shape="rect" href="../../da/d99/structspace_1_1space__t.html" title="The function space for the SEM solution fields." alt="" coords="243,226,362,251"/>
+<area shape="poly" title=" " alt="" coords="102,291,201,272,269,249,271,254,202,277,103,296"/>
+<area shape="rect" href="../../d4/df5/structlocal__interpolation_1_1local__interpolator__t.html" title="Interpolation on a set of points with known rst coordinates in elements local to this process...." alt="" coords="555,300,711,340"/>
+<area shape="poly" title=" " alt="" coords="103,298,225,304,555,315,555,321,225,309,103,303"/>
+<area shape="rect" title=" " alt="" coords="255,435,350,461"/>
+<area shape="poly" title=" " alt="" coords="364,446,458,444,580,437,715,422,849,395,918,368,920,373,850,400,716,427,580,443,458,450,364,451"/>
+<area shape="rect" href="../../db/d1d/structglb__intrp__comm_1_1glb__intrp__comm__t.html" title="Global interpolation communication method." alt="" coords="555,492,710,532"/>
+<area shape="poly" title=" " alt="" coords="364,457,556,494,555,500,363,462"/>
+<area shape="poly" title=" " alt="" coords="376,240,471,247,590,261,721,281,850,309,908,328,906,333,849,315,720,286,589,266,471,253,376,245"/>
+<area shape="poly" title=" " alt="" coords="349,254,405,272,482,291,555,305,554,310,481,296,403,277,347,259"/>
+<area shape="poly" title=" " alt="" coords="375,224,549,194,550,199,376,229"/>
+<area shape="rect" href="../../d2/d45/structstack_1_1stack__i4__t.html" title="Integer based stack." alt="" coords="237,594,368,619"/>
+<area shape="poly" title=" " alt="" coords="382,611,484,612,544,608,607,600,671,587,734,567,793,540,848,505,881,472,909,435,947,369,951,372,913,438,885,476,851,509,796,545,736,572,672,592,608,606,544,614,484,617,381,616"/>
+<area shape="poly" title=" " alt="" coords="381,593,452,579,524,559,593,530,595,534,526,564,453,584,383,598"/>
+<area shape="rect" href="../../d2/dbd/structstack_1_1stack__t.html" title="Base type for a stack." alt="" coords="5,594,117,619"/>
+<area shape="poly" title=" " alt="" coords="131,604,237,604,237,609,131,609"/>
+<area shape="poly" title=" " alt="" coords="725,326,873,340,873,345,724,331"/>
+<area shape="poly" title=" " alt="" coords="730,184,792,196,822,206,851,220,883,245,911,274,949,329,945,332,907,277,880,249,848,225,820,211,790,201,729,189"/>
+<area shape="poly" title=" " alt="" coords="723,501,786,487,848,462,877,441,904,417,942,369,946,373,907,420,881,445,851,466,788,492,724,507"/>
+<area shape="rect" href="../../dc/d33/structglb__intrp__comm_1_1glb__intrp__comm__mpi__t.html" title="MPI buffer for non&#45;blocking operations." alt="" coords="225,505,380,545"/>
+<area shape="poly" title=" " alt="" coords="394,524,525,521,555,519,555,524,525,527,394,530"/>
+<area shape="rect" title=" " alt="" coords="14,518,109,543"/>
+<area shape="poly" title=" " alt="" coords="122,527,225,524,225,530,122,532"/>
+<area shape="rect" title=" " alt="" coords="10,469,113,494"/>
+<area shape="poly" title=" " alt="" coords="127,490,226,509,225,514,126,496"/>
 </map>
 <center><span class="legend">[<a target="top" href="../../graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a6e07b249f4b8546e1a0093d481d09dc1" id="r_a6e07b249f4b8546e1a0093d481d09dc1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a6e07b249f4b8546e1a0093d481d09dc1">init_xyz</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a13deffca27a2e640ea244e3aec5a873d">x</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a083e242617fe9df99e534c21b49a6a9c">y</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a5cfe38b5ac6fab1cfa419bdd438e0c39">z</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a976164bc9d694941fa88dfa31acd2bc0">gdim</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a833d969ffb282664f4808ba25cfa5241">nelv</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a1d5475270ba87e19892e9092034cb7c7">xh</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#aa869537015abb9f167358049774fa52e">tol</a>)</td></tr>
-<tr class="memdesc:a6e07b249f4b8546e1a0093d481d09dc1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the global interpolation object on a dofmap.  <br /></td></tr>
-<tr class="separator:a6e07b249f4b8546e1a0093d481d09dc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a16d92be0cce7c05cc7b56b5c87250760" id="r_a16d92be0cce7c05cc7b56b5c87250760"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a16d92be0cce7c05cc7b56b5c87250760">init_dof</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, dof, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#aa869537015abb9f167358049774fa52e">tol</a>)</td></tr>
-<tr class="memdesc:a16d92be0cce7c05cc7b56b5c87250760"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the global interpolation object on a dofmap.  <br /></td></tr>
-<tr class="separator:a16d92be0cce7c05cc7b56b5c87250760"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a055ebb5e63d2eaeec92680c5bda806d9" id="r_a055ebb5e63d2eaeec92680c5bda806d9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a055ebb5e63d2eaeec92680c5bda806d9">init_xyz</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a56fd0e485b4457a93130c81b4cfc9359">x</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a90b8ccb14dd612019955fa1bd72a9fd9">y</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#ae98c203dd274cb41d50a73ae3988f4ee">z</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a976164bc9d694941fa88dfa31acd2bc0">gdim</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a833d969ffb282664f4808ba25cfa5241">nelv</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#af5b2a3fca1b8243e5c288e0afc3d7fc8">xh</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a4292fd619de8d8df8a802d3157c50fee">comm</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#aa869537015abb9f167358049774fa52e">tol</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pad</a>)</td></tr>
+<tr class="memdesc:a055ebb5e63d2eaeec92680c5bda806d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the global interpolation object based on a set of spectral elements.  <br /></td></tr>
+<tr class="separator:a055ebb5e63d2eaeec92680c5bda806d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a19d414e8386b591fe63f98e5fa62092e" id="r_a19d414e8386b591fe63f98e5fa62092e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a19d414e8386b591fe63f98e5fa62092e">init_dof</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, dof, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a4292fd619de8d8df8a802d3157c50fee">comm</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#aa869537015abb9f167358049774fa52e">tol</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pad</a>)</td></tr>
+<tr class="memdesc:a19d414e8386b591fe63f98e5fa62092e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the global interpolation object based on a dofmap.  <br /></td></tr>
+<tr class="separator:a19d414e8386b591fe63f98e5fa62092e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a49617e0be6fd52a72926c142665db4b4" id="r_a49617e0be6fd52a72926c142665db4b4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a49617e0be6fd52a72926c142665db4b4">free</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="memdesc:a49617e0be6fd52a72926c142665db4b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <br /></td></tr>
 <tr class="separator:a49617e0be6fd52a72926c142665db4b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a404ac4b6edba71b1319b12f405b1e989" id="r_a404ac4b6edba71b1319b12f405b1e989"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a404ac4b6edba71b1319b12f405b1e989">free_points</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="memdesc:a404ac4b6edba71b1319b12f405b1e989"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor for arrays related to evaluation points.  <br /></td></tr>
 <tr class="separator:a404ac4b6edba71b1319b12f405b1e989"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3b7837fa86061bab20fcdc37511e2918" id="r_a3b7837fa86061bab20fcdc37511e2918"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a3b7837fa86061bab20fcdc37511e2918">free_points_local</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
+<tr class="separator:a3b7837fa86061bab20fcdc37511e2918"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aed313d2002f9f2d617bc7033fbfc2db5" id="r_aed313d2002f9f2d617bc7033fbfc2db5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#aed313d2002f9f2d617bc7033fbfc2db5">find_points_and_redist</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a79ab1eaa5bf05941c0e8e0cde6a6d498">xyz</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a6b3f1f00057d79977ed4872299447d4d">n_points</a>)</td></tr>
-<tr class="memdesc:aed313d2002f9f2d617bc7033fbfc2db5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the corresponding r,s,t coordinates and redistributes the points to the owning rank in the correct global element as well as which process that owns the point. After this the values at these points can be evaluated. If the locations of the points change this must be called again.  <br /></td></tr>
+<tr class="memdesc:aed313d2002f9f2d617bc7033fbfc2db5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the corresponding r,s,t coordinates and redistributes the points to the owning rank in the correct global element as well as which process that owns the point. There will be some redundancy as for example xyz and xyz_local will have the same values After this the values at these points can be evaluated without MPI.  <br /></td></tr>
 <tr class="separator:aed313d2002f9f2d617bc7033fbfc2db5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7aeefe5c8a114bc104e052ff8db1e21b" id="r_a7aeefe5c8a114bc104e052ff8db1e21b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a7aeefe5c8a114bc104e052ff8db1e21b">find_points_coords</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a13deffca27a2e640ea244e3aec5a873d">x</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a083e242617fe9df99e534c21b49a6a9c">y</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a5cfe38b5ac6fab1cfa419bdd438e0c39">z</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a6b3f1f00057d79977ed4872299447d4d">n_points</a>)</td></tr>
+<tr class="memitem:a7aeefe5c8a114bc104e052ff8db1e21b" id="r_a7aeefe5c8a114bc104e052ff8db1e21b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a7aeefe5c8a114bc104e052ff8db1e21b">find_points_coords</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a56fd0e485b4457a93130c81b4cfc9359">x</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a90b8ccb14dd612019955fa1bd72a9fd9">y</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#ae98c203dd274cb41d50a73ae3988f4ee">z</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a6b3f1f00057d79977ed4872299447d4d">n_points</a>)</td></tr>
 <tr class="memdesc:a7aeefe5c8a114bc104e052ff8db1e21b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the process owner, global element number, and local rst coordinates for each point. Sets up correct values to be able to evalute the points.  <br /></td></tr>
 <tr class="separator:a7aeefe5c8a114bc104e052ff8db1e21b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a52e54abc658d736500f4f7c04edc3bea" id="r_a52e54abc658d736500f4f7c04edc3bea"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a52e54abc658d736500f4f7c04edc3bea">find_points_coords1d</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a56fd0e485b4457a93130c81b4cfc9359">x</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a90b8ccb14dd612019955fa1bd72a9fd9">y</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#ae98c203dd274cb41d50a73ae3988f4ee">z</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a6b3f1f00057d79977ed4872299447d4d">n_points</a>)</td></tr>
+<tr class="memdesc:a52e54abc658d736500f4f7c04edc3bea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the corresponding r,s,t coordinates in the correct global element as well as which process that owns the point. After this the values at these points can be evaluated.  <br /></td></tr>
+<tr class="separator:a52e54abc658d736500f4f7c04edc3bea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0565940df7cd765409d675467f27f492" id="r_a0565940df7cd765409d675467f27f492"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a0565940df7cd765409d675467f27f492">check_points</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a56fd0e485b4457a93130c81b4cfc9359">x</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a90b8ccb14dd612019955fa1bd72a9fd9">y</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#ae98c203dd274cb41d50a73ae3988f4ee">z</a>)</td></tr>
+<tr class="memdesc:a0565940df7cd765409d675467f27f492"><td class="mdescLeft">&#160;</td><td class="mdescRight">Subroutine to check if the points are within the tolerance.  <br /></td></tr>
+<tr class="separator:a0565940df7cd765409d675467f27f492"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adaed9a95de82b3189ea28942095cb8e2" id="r_adaed9a95de82b3189ea28942095cb8e2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#adaed9a95de82b3189ea28942095cb8e2">find_points_xyz</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a79ab1eaa5bf05941c0e8e0cde6a6d498">xyz</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a6b3f1f00057d79977ed4872299447d4d">n_points</a>)</td></tr>
 <tr class="memdesc:adaed9a95de82b3189ea28942095cb8e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the corresponding r,s,t coordinates in the correct global element as well as which process that owns the point. After this the values at these points can be evaluated. If the locations of the points change this must be called again.  <br /></td></tr>
 <tr class="separator:adaed9a95de82b3189ea28942095cb8e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a982da68b8215b99b757e2f7566052134" id="r_a982da68b8215b99b757e2f7566052134"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a982da68b8215b99b757e2f7566052134">find_points</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a79ab1eaa5bf05941c0e8e0cde6a6d498">xyz</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a6b3f1f00057d79977ed4872299447d4d">n_points</a>)</td></tr>
 <tr class="memdesc:a982da68b8215b99b757e2f7566052134"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the corresponding r,s,t coordinates in the correct global element as well as which process that owns the point. After this the values at these points can be evaluated. If the locations of the points change this must be called again.  <br /></td></tr>
 <tr class="separator:a982da68b8215b99b757e2f7566052134"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abe5531616031117e4535ec742f813dfa" id="r_abe5531616031117e4535ec742f813dfa"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#abe5531616031117e4535ec742f813dfa">find_points</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a13deffca27a2e640ea244e3aec5a873d">x</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a083e242617fe9df99e534c21b49a6a9c">y</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a5cfe38b5ac6fab1cfa419bdd438e0c39">z</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a6b3f1f00057d79977ed4872299447d4d">n_points</a>)</td></tr>
+<tr class="memitem:abe5531616031117e4535ec742f813dfa" id="r_abe5531616031117e4535ec742f813dfa"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#abe5531616031117e4535ec742f813dfa">find_points</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a56fd0e485b4457a93130c81b4cfc9359">x</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a90b8ccb14dd612019955fa1bd72a9fd9">y</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#ae98c203dd274cb41d50a73ae3988f4ee">z</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a6b3f1f00057d79977ed4872299447d4d">n_points</a>)</td></tr>
 <tr class="memdesc:abe5531616031117e4535ec742f813dfa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the process owner, global element number, and local rst coordinates for each point. Sets up correct values to be able to evalute the points.  <br /></td></tr>
 <tr class="separator:abe5531616031117e4535ec742f813dfa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9b60106f2288896e428b2a14ee4cad71" id="r_a9b60106f2288896e428b2a14ee4cad71"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a9b60106f2288896e428b2a14ee4cad71">evaluate</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">interp_values</a>, field)</td></tr>
-<tr class="memdesc:a9b60106f2288896e428b2a14ee4cad71"><td class="mdescLeft">&#160;</td><td class="mdescRight">Evaluate the value of the field in each point.  <br /></td></tr>
-<tr class="separator:a9b60106f2288896e428b2a14ee4cad71"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a497403c9d0ccbbcd36dc6c2d7136aafc" id="r_a497403c9d0ccbbcd36dc6c2d7136aafc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a497403c9d0ccbbcd36dc6c2d7136aafc">init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, dof, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#aa869537015abb9f167358049774fa52e">tol</a>)</td></tr>
-<tr class="memdesc:a497403c9d0ccbbcd36dc6c2d7136aafc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic constructor.  <br /></td></tr>
-<tr class="separator:a497403c9d0ccbbcd36dc6c2d7136aafc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a256294c3554fea3d0ba6648073e3f204" id="r_a256294c3554fea3d0ba6648073e3f204"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a256294c3554fea3d0ba6648073e3f204">init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a13deffca27a2e640ea244e3aec5a873d">x</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a083e242617fe9df99e534c21b49a6a9c">y</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a5cfe38b5ac6fab1cfa419bdd438e0c39">z</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a976164bc9d694941fa88dfa31acd2bc0">gdim</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a833d969ffb282664f4808ba25cfa5241">nelv</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a1d5475270ba87e19892e9092034cb7c7">xh</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#aa869537015abb9f167358049774fa52e">tol</a>)</td></tr>
-<tr class="memdesc:a256294c3554fea3d0ba6648073e3f204"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic constructor.  <br /></td></tr>
-<tr class="separator:a256294c3554fea3d0ba6648073e3f204"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe5531616031117e4535ec742f813dfa" id="r_abe5531616031117e4535ec742f813dfa"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#abe5531616031117e4535ec742f813dfa">find_points</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a56fd0e485b4457a93130c81b4cfc9359">x</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a90b8ccb14dd612019955fa1bd72a9fd9">y</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#ae98c203dd274cb41d50a73ae3988f4ee">z</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a6b3f1f00057d79977ed4872299447d4d">n_points</a>)</td></tr>
+<tr class="memdesc:abe5531616031117e4535ec742f813dfa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the corresponding r,s,t coordinates in the correct global element as well as which process that owns the point. After this the values at these points can be evaluated.  <br /></td></tr>
+<tr class="separator:abe5531616031117e4535ec742f813dfa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4b46d57a1fcadb26e4eeaa4e4d0b1fcc" id="r_a4b46d57a1fcadb26e4eeaa4e4d0b1fcc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a4b46d57a1fcadb26e4eeaa4e4d0b1fcc">evaluate</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">interp_values</a>, field, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">on_host</a>)</td></tr>
+<tr class="memdesc:a4b46d57a1fcadb26e4eeaa4e4d0b1fcc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Evaluate the value of the field in each point.  <br /></td></tr>
+<tr class="separator:a4b46d57a1fcadb26e4eeaa4e4d0b1fcc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae1827a62f3898bf8dbe48910d4a6d47b" id="r_ae1827a62f3898bf8dbe48910d4a6d47b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#ae1827a62f3898bf8dbe48910d4a6d47b">init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, dof, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a4292fd619de8d8df8a802d3157c50fee">comm</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#aa869537015abb9f167358049774fa52e">tol</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pad</a>)</td></tr>
+<tr class="memdesc:ae1827a62f3898bf8dbe48910d4a6d47b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic constructor.  <br /></td></tr>
+<tr class="separator:ae1827a62f3898bf8dbe48910d4a6d47b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a69318af9da3eeed7d81e6a9db4a2b0ee" id="r_a69318af9da3eeed7d81e6a9db4a2b0ee"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a69318af9da3eeed7d81e6a9db4a2b0ee">init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a56fd0e485b4457a93130c81b4cfc9359">x</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a90b8ccb14dd612019955fa1bd72a9fd9">y</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#ae98c203dd274cb41d50a73ae3988f4ee">z</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a976164bc9d694941fa88dfa31acd2bc0">gdim</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a833d969ffb282664f4808ba25cfa5241">nelv</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#af5b2a3fca1b8243e5c288e0afc3d7fc8">xh</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a4292fd619de8d8df8a802d3157c50fee">comm</a>, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#aa869537015abb9f167358049774fa52e">tol</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pad</a>)</td></tr>
+<tr class="memdesc:a69318af9da3eeed7d81e6a9db4a2b0ee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic constructor.  <br /></td></tr>
+<tr class="separator:a69318af9da3eeed7d81e6a9db4a2b0ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a13deffca27a2e640ea244e3aec5a873d" id="r_a13deffca27a2e640ea244e3aec5a873d"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../dd/d8c/structstructs_1_1array__ptr__t.html">array_ptr_t</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a13deffca27a2e640ea244e3aec5a873d">x</a></td></tr>
-<tr class="memdesc:a13deffca27a2e640ea244e3aec5a873d"><td class="mdescLeft">&#160;</td><td class="mdescRight">X coordinates from which to interpolate.  <br /></td></tr>
-<tr class="separator:a13deffca27a2e640ea244e3aec5a873d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a083e242617fe9df99e534c21b49a6a9c" id="r_a083e242617fe9df99e534c21b49a6a9c"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../dd/d8c/structstructs_1_1array__ptr__t.html">array_ptr_t</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a083e242617fe9df99e534c21b49a6a9c">y</a></td></tr>
-<tr class="memdesc:a083e242617fe9df99e534c21b49a6a9c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Y coordinates from which to interpolate.  <br /></td></tr>
-<tr class="separator:a083e242617fe9df99e534c21b49a6a9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5cfe38b5ac6fab1cfa419bdd438e0c39" id="r_a5cfe38b5ac6fab1cfa419bdd438e0c39"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../dd/d8c/structstructs_1_1array__ptr__t.html">array_ptr_t</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a5cfe38b5ac6fab1cfa419bdd438e0c39">z</a></td></tr>
-<tr class="memdesc:a5cfe38b5ac6fab1cfa419bdd438e0c39"><td class="mdescLeft">&#160;</td><td class="mdescRight">Z coordinates from which to interpolate.  <br /></td></tr>
-<tr class="separator:a5cfe38b5ac6fab1cfa419bdd438e0c39"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a56fd0e485b4457a93130c81b4cfc9359" id="r_a56fd0e485b4457a93130c81b4cfc9359"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d3/d5b/structvector_1_1vector__t.html">vector_t</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a56fd0e485b4457a93130c81b4cfc9359">x</a></td></tr>
+<tr class="memdesc:a56fd0e485b4457a93130c81b4cfc9359"><td class="mdescLeft">&#160;</td><td class="mdescRight">X coordinates from which to interpolate.  <br /></td></tr>
+<tr class="separator:a56fd0e485b4457a93130c81b4cfc9359"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a90b8ccb14dd612019955fa1bd72a9fd9" id="r_a90b8ccb14dd612019955fa1bd72a9fd9"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d3/d5b/structvector_1_1vector__t.html">vector_t</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a90b8ccb14dd612019955fa1bd72a9fd9">y</a></td></tr>
+<tr class="memdesc:a90b8ccb14dd612019955fa1bd72a9fd9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Y coordinates from which to interpolate.  <br /></td></tr>
+<tr class="separator:a90b8ccb14dd612019955fa1bd72a9fd9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae98c203dd274cb41d50a73ae3988f4ee" id="r_ae98c203dd274cb41d50a73ae3988f4ee"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d3/d5b/structvector_1_1vector__t.html">vector_t</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#ae98c203dd274cb41d50a73ae3988f4ee">z</a></td></tr>
+<tr class="memdesc:ae98c203dd274cb41d50a73ae3988f4ee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Z coordinates from which to interpolate.  <br /></td></tr>
+<tr class="separator:ae98c203dd274cb41d50a73ae3988f4ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a976164bc9d694941fa88dfa31acd2bc0" id="r_a976164bc9d694941fa88dfa31acd2bc0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a976164bc9d694941fa88dfa31acd2bc0">gdim</a></td></tr>
 <tr class="memdesc:a976164bc9d694941fa88dfa31acd2bc0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Geometric dimension of the simulation.  <br /></td></tr>
 <tr class="separator:a976164bc9d694941fa88dfa31acd2bc0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a833d969ffb282664f4808ba25cfa5241" id="r_a833d969ffb282664f4808ba25cfa5241"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a833d969ffb282664f4808ba25cfa5241">nelv</a></td></tr>
 <tr class="memdesc:a833d969ffb282664f4808ba25cfa5241"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of elements.  <br /></td></tr>
 <tr class="separator:a833d969ffb282664f4808ba25cfa5241"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1d5475270ba87e19892e9092034cb7c7" id="r_a1d5475270ba87e19892e9092034cb7c7"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../da/d99/structspace_1_1space__t.html">space_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a1d5475270ba87e19892e9092034cb7c7">xh</a></td></tr>
-<tr class="memdesc:a1d5475270ba87e19892e9092034cb7c7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Space.  <br /></td></tr>
-<tr class="separator:a1d5475270ba87e19892e9092034cb7c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3b480a51c000344962454a996ae21c7d" id="r_a3b480a51c000344962454a996ae21c7d"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d4/df5/structlocal__interpolation_1_1local__interpolator__t.html">local_interpolator_t</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a3b480a51c000344962454a996ae21c7d">local_interp</a></td></tr>
-<tr class="memdesc:a3b480a51c000344962454a996ae21c7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Interpolator for local points.  <br /></td></tr>
-<tr class="separator:a3b480a51c000344962454a996ae21c7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a48afec930d38c8ab783a6b6b181a3368" id="r_a48afec930d38c8ab783a6b6b181a3368"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a48afec930d38c8ab783a6b6b181a3368">all_points_local</a> = .false.</td></tr>
-<tr class="memdesc:a48afec930d38c8ab783a6b6b181a3368"><td class="mdescLeft">&#160;</td><td class="mdescRight">If all points are local on this PE.  <br /></td></tr>
-<tr class="separator:a48afec930d38c8ab783a6b6b181a3368"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac9f2f97791ad19ccaa187c6d3fe55274" id="r_ac9f2f97791ad19ccaa187c6d3fe55274"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#ac9f2f97791ad19ccaa187c6d3fe55274">gs_handle</a></td></tr>
-<tr class="separator:ac9f2f97791ad19ccaa187c6d3fe55274"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8ba9e5195a683d22f8edc6af8dc19bae" id="r_a8ba9e5195a683d22f8edc6af8dc19bae"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a8ba9e5195a683d22f8edc6af8dc19bae">gs_init</a> = .false.</td></tr>
-<tr class="separator:a8ba9e5195a683d22f8edc6af8dc19bae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a627b9e0e7365689a462b0dee65b2dae2" id="r_a627b9e0e7365689a462b0dee65b2dae2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a627b9e0e7365689a462b0dee65b2dae2">glb_nelv</a></td></tr>
+<tr class="memdesc:a627b9e0e7365689a462b0dee65b2dae2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Global number of elements.  <br /></td></tr>
+<tr class="separator:a627b9e0e7365689a462b0dee65b2dae2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4292fd619de8d8df8a802d3157c50fee" id="r_a4292fd619de8d8df8a802d3157c50fee"><td class="memItemLeft" align="right" valign="top">type(mpi_comm)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a4292fd619de8d8df8a802d3157c50fee">comm</a></td></tr>
+<tr class="memdesc:a4292fd619de8d8df8a802d3157c50fee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Which communicator to do interpolation on.  <br /></td></tr>
+<tr class="separator:a4292fd619de8d8df8a802d3157c50fee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0703a4aeea5002a51a039297c9886159" id="r_a0703a4aeea5002a51a039297c9886159"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a0703a4aeea5002a51a039297c9886159">pe_rank</a></td></tr>
+<tr class="memdesc:a0703a4aeea5002a51a039297c9886159"><td class="mdescLeft">&#160;</td><td class="mdescRight">pe_rank in comm  <br /></td></tr>
+<tr class="separator:a0703a4aeea5002a51a039297c9886159"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad6521fea2ad8b4a326f4b73b13cf7a0a" id="r_ad6521fea2ad8b4a326f4b73b13cf7a0a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#ad6521fea2ad8b4a326f4b73b13cf7a0a">pe_size</a></td></tr>
+<tr class="memdesc:ad6521fea2ad8b4a326f4b73b13cf7a0a"><td class="mdescLeft">&#160;</td><td class="mdescRight">pe_size of comm  <br /></td></tr>
+<tr class="separator:ad6521fea2ad8b4a326f4b73b13cf7a0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af5b2a3fca1b8243e5c288e0afc3d7fc8" id="r_af5b2a3fca1b8243e5c288e0afc3d7fc8"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../da/d99/structspace_1_1space__t.html">space_t</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#af5b2a3fca1b8243e5c288e0afc3d7fc8">xh</a></td></tr>
+<tr class="memdesc:af5b2a3fca1b8243e5c288e0afc3d7fc8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Space.  <br /></td></tr>
+<tr class="separator:af5b2a3fca1b8243e5c288e0afc3d7fc8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b3f1f00057d79977ed4872299447d4d" id="r_a6b3f1f00057d79977ed4872299447d4d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a6b3f1f00057d79977ed4872299447d4d">n_points</a></td></tr>
 <tr class="memdesc:a6b3f1f00057d79977ed4872299447d4d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Components related to the points we want to evalute Number of points we want to evaluate.  <br /></td></tr>
 <tr class="separator:a6b3f1f00057d79977ed4872299447d4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a79ab1eaa5bf05941c0e8e0cde6a6d498" id="r_a79ab1eaa5bf05941c0e8e0cde6a6d498"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:,:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a79ab1eaa5bf05941c0e8e0cde6a6d498">xyz</a></td></tr>
-<tr class="memdesc:a79ab1eaa5bf05941c0e8e0cde6a6d498"><td class="mdescLeft">&#160;</td><td class="mdescRight">x,y,z coordinates, findpts format.  <br /></td></tr>
+<tr class="memdesc:a79ab1eaa5bf05941c0e8e0cde6a6d498"><td class="mdescLeft">&#160;</td><td class="mdescRight">x,y,z coordinates  <br /></td></tr>
 <tr class="separator:a79ab1eaa5bf05941c0e8e0cde6a6d498"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a55d7c8812aee468838e4134b45264618" id="r_a55d7c8812aee468838e4134b45264618"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a55d7c8812aee468838e4134b45264618">proc_owner</a></td></tr>
-<tr class="memdesc:a55d7c8812aee468838e4134b45264618"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of owning processes.  <br /></td></tr>
-<tr class="separator:a55d7c8812aee468838e4134b45264618"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a92af72876ba34b9b7a4570344d618410" id="r_a92af72876ba34b9b7a4570344d618410"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a92af72876ba34b9b7a4570344d618410">el_owner</a></td></tr>
-<tr class="memdesc:a92af72876ba34b9b7a4570344d618410"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of owning elements.  <br /></td></tr>
-<tr class="separator:a92af72876ba34b9b7a4570344d618410"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad44587ff0da0270e5c41fb70b55444b0" id="r_ad44587ff0da0270e5c41fb70b55444b0"><td class="memItemLeft" align="right" valign="top">type(c_ptr)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#ad44587ff0da0270e5c41fb70b55444b0">el_owner_d</a> = c_null_ptr</td></tr>
-<tr class="separator:ad44587ff0da0270e5c41fb70b55444b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeab5b82efcc9f7529b66b49f0be9d97c" id="r_aeab5b82efcc9f7529b66b49f0be9d97c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:,:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#aeab5b82efcc9f7529b66b49f0be9d97c">rst</a></td></tr>
-<tr class="memdesc:aeab5b82efcc9f7529b66b49f0be9d97c"><td class="mdescLeft">&#160;</td><td class="mdescRight">r,s,t coordinates findpts format.  <br /></td></tr>
+<tr class="memdesc:aeab5b82efcc9f7529b66b49f0be9d97c"><td class="mdescLeft">&#160;</td><td class="mdescRight">r,s,t coordinates  <br /></td></tr>
 <tr class="separator:aeab5b82efcc9f7529b66b49f0be9d97c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abe70b410a4c41e16a8c95e627b803547" id="r_abe70b410a4c41e16a8c95e627b803547"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#abe70b410a4c41e16a8c95e627b803547">dist2</a></td></tr>
-<tr class="memdesc:abe70b410a4c41e16a8c95e627b803547"><td class="mdescLeft">&#160;</td><td class="mdescRight">Distance squared between original and interpolated point. (in xyz space) (according to gslib)  <br /></td></tr>
-<tr class="separator:abe70b410a4c41e16a8c95e627b803547"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac7503e00512a81815f838c98be444d66" id="r_ac7503e00512a81815f838c98be444d66"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#ac7503e00512a81815f838c98be444d66">error_code</a></td></tr>
-<tr class="memdesc:ac7503e00512a81815f838c98be444d66"><td class="mdescLeft">&#160;</td><td class="mdescRight">Error code for each point, needed for gslib.  <br /></td></tr>
-<tr class="separator:ac7503e00512a81815f838c98be444d66"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa869537015abb9f167358049774fa52e" id="r_aa869537015abb9f167358049774fa52e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#aa869537015abb9f167358049774fa52e">tol</a> = 5d-13</td></tr>
-<tr class="memdesc:aa869537015abb9f167358049774fa52e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tolerance for distance squared between original and interpolated point.  <br /></td></tr>
+<tr class="memitem:a813233907d40a76771d977be40286286" id="r_a813233907d40a76771d977be40286286"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a813233907d40a76771d977be40286286">pe_owner</a></td></tr>
+<tr class="memdesc:a813233907d40a76771d977be40286286"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of owning processes.  <br /></td></tr>
+<tr class="separator:a813233907d40a76771d977be40286286"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aefe16e046ba2bf15252313da78d58625" id="r_aefe16e046ba2bf15252313da78d58625"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d2/d45/structstack_1_1stack__i4__t.html">stack_i4_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#aefe16e046ba2bf15252313da78d58625">points_at_pe</a></td></tr>
+<tr class="memdesc:aefe16e046ba2bf15252313da78d58625"><td class="mdescLeft">&#160;</td><td class="mdescRight">array of stacks (to avoid expensive reinitialization)  <br /></td></tr>
+<tr class="separator:aefe16e046ba2bf15252313da78d58625"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abffd5266eb8e89b438bee26d2a7b01cc" id="r_abffd5266eb8e89b438bee26d2a7b01cc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#abffd5266eb8e89b438bee26d2a7b01cc">el_owner0</a></td></tr>
+<tr class="memdesc:abffd5266eb8e89b438bee26d2a7b01cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of owning elements. Note this is 0 indexed.  <br /></td></tr>
+<tr class="separator:abffd5266eb8e89b438bee26d2a7b01cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1cd9b7271b73e5db231afcbe9765e107" id="r_a1cd9b7271b73e5db231afcbe9765e107"><td class="memItemLeft" align="right" valign="top">type(c_ptr)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a1cd9b7271b73e5db231afcbe9765e107">el_owner0_d</a> = <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">C_NULL_PTR</a></td></tr>
+<tr class="separator:a1cd9b7271b73e5db231afcbe9765e107"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab31f56c083c0da6a0b68ac492316b2ef" id="r_ab31f56c083c0da6a0b68ac492316b2ef"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#ab31f56c083c0da6a0b68ac492316b2ef">n_points_local</a></td></tr>
+<tr class="memdesc:ab31f56c083c0da6a0b68ac492316b2ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Local points (points in this ranks domain)  <br /></td></tr>
+<tr class="separator:ab31f56c083c0da6a0b68ac492316b2ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aae36b89fb474f686aa0edab64a1579aa" id="r_aae36b89fb474f686aa0edab64a1579aa"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#aae36b89fb474f686aa0edab64a1579aa">el_owner0_local</a></td></tr>
+<tr class="separator:aae36b89fb474f686aa0edab64a1579aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f3c075dd11377b988711b9d07dd9f6a" id="r_a3f3c075dd11377b988711b9d07dd9f6a"><td class="memItemLeft" align="right" valign="top">type(c_ptr)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a3f3c075dd11377b988711b9d07dd9f6a">el_owner0_local_d</a> = <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">C_NULL_PTR</a></td></tr>
+<tr class="separator:a3f3c075dd11377b988711b9d07dd9f6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a25b41f6692a43509026e8a9d7884c571" id="r_a25b41f6692a43509026e8a9d7884c571"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:,:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a25b41f6692a43509026e8a9d7884c571">rst_local</a></td></tr>
+<tr class="separator:a25b41f6692a43509026e8a9d7884c571"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a44f5e029e069a46f6d48388f6f194644" id="r_a44f5e029e069a46f6d48388f6f194644"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:,:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a44f5e029e069a46f6d48388f6f194644">xyz_local</a></td></tr>
+<tr class="separator:a44f5e029e069a46f6d48388f6f194644"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3b480a51c000344962454a996ae21c7d" id="r_a3b480a51c000344962454a996ae21c7d"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d4/df5/structlocal__interpolation_1_1local__interpolator__t.html">local_interpolator_t</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a3b480a51c000344962454a996ae21c7d">local_interp</a></td></tr>
+<tr class="memdesc:a3b480a51c000344962454a996ae21c7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Interpolator for local points.  <br /></td></tr>
+<tr class="separator:a3b480a51c000344962454a996ae21c7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a48afec930d38c8ab783a6b6b181a3368" id="r_a48afec930d38c8ab783a6b6b181a3368"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a48afec930d38c8ab783a6b6b181a3368">all_points_local</a> = .false.</td></tr>
+<tr class="memdesc:a48afec930d38c8ab783a6b6b181a3368"><td class="mdescLeft">&#160;</td><td class="mdescRight">If all points are local on this PE. Turns true if points are redistributed to their respective owners.  <br /></td></tr>
+<tr class="separator:a48afec930d38c8ab783a6b6b181a3368"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa869537015abb9f167358049774fa52e" id="r_aa869537015abb9f167358049774fa52e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#aa869537015abb9f167358049774fa52e">tol</a> = <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">NEKO_EPS</a>*1<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">e3_rp</a></td></tr>
+<tr class="memdesc:aa869537015abb9f167358049774fa52e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tolerance for Newton solve to find the correct rst coordinates.  <br /></td></tr>
 <tr class="separator:aa869537015abb9f167358049774fa52e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0fffa8c2e33655878f52a814eedf6bcb" id="r_a0fffa8c2e33655878f52a814eedf6bcb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a0fffa8c2e33655878f52a814eedf6bcb">padding</a> = 1e-2<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">_rp</a></td></tr>
+<tr class="memdesc:a0fffa8c2e33655878f52a814eedf6bcb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Padding.  <br /></td></tr>
+<tr class="separator:a0fffa8c2e33655878f52a814eedf6bcb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a154b721fe154f6001da3a2681d87091f" id="r_a154b721fe154f6001da3a2681d87091f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a154b721fe154f6001da3a2681d87091f">n_points_pe</a></td></tr>
+<tr class="memdesc:a154b721fe154f6001da3a2681d87091f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mapping of points to ranks. <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a154b721fe154f6001da3a2681d87091f" title="Mapping of points to ranks. n_points_pe(pe_rank) = n_points I have at this rank Sum(n_points_pe) = n_...">n_points_pe(pe_rank)</a> = n_points I have at this rank Sum(n_points_pe) = n_points.  <br /></td></tr>
+<tr class="separator:a154b721fe154f6001da3a2681d87091f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a01079a1163ee94bfb3ae950d2d28bd06" id="r_a01079a1163ee94bfb3ae950d2d28bd06"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a01079a1163ee94bfb3ae950d2d28bd06">n_points_offset_pe</a></td></tr>
+<tr class="separator:a01079a1163ee94bfb3ae950d2d28bd06"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a10ec4abc1a4323fd8280a9970abb1d5a" id="r_a10ec4abc1a4323fd8280a9970abb1d5a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a10ec4abc1a4323fd8280a9970abb1d5a">n_points_pe_local</a></td></tr>
+<tr class="memdesc:a10ec4abc1a4323fd8280a9970abb1d5a"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a10ec4abc1a4323fd8280a9970abb1d5a" title="n_points_pe_local(pe_rank) = Number local points to send to this rank. Sum(n_points_pe_local) = n_poi...">n_points_pe_local(pe_rank)</a> = Number local points to send to this rank. Sum(n_points_pe_local) = n_points_local  <br /></td></tr>
+<tr class="separator:a10ec4abc1a4323fd8280a9970abb1d5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a18065075846b569c715f66e18ed4de3d" id="r_a18065075846b569c715f66e18ed4de3d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a18065075846b569c715f66e18ed4de3d">n_points_offset_pe_local</a></td></tr>
+<tr class="separator:a18065075846b569c715f66e18ed4de3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afca0c158a898071b2b1e726f0a26beca" id="r_afca0c158a898071b2b1e726f0a26beca"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dd/dfc/structpe__finder_1_1pe__finder__t.html">pe_finder_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#afca0c158a898071b2b1e726f0a26beca">pe_finder</a></td></tr>
+<tr class="memdesc:afca0c158a898071b2b1e726f0a26beca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finding elements Structure to find rank candidates.  <br /></td></tr>
+<tr class="separator:afca0c158a898071b2b1e726f0a26beca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3455ed4610d1207bff2d09a2585d49bc" id="r_a3455ed4610d1207bff2d09a2585d49bc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d6/dff/structel__finder_1_1el__finder__t.html">el_finder_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a3455ed4610d1207bff2d09a2585d49bc">el_finder</a></td></tr>
+<tr class="memdesc:a3455ed4610d1207bff2d09a2585d49bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structure to find element candidates.  <br /></td></tr>
+<tr class="separator:a3455ed4610d1207bff2d09a2585d49bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab8a88e2e8b9a5b555fa4c063d1495bfe" id="r_ab8a88e2e8b9a5b555fa4c063d1495bfe"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../da/d41/structlegendre__rst__finder_1_1legendre__rst__finder__t.html">legendre_rst_finder_t</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#ab8a88e2e8b9a5b555fa4c063d1495bfe">rst_finder</a></td></tr>
+<tr class="memdesc:ab8a88e2e8b9a5b555fa4c063d1495bfe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Object to find rst coordinates.  <br /></td></tr>
+<tr class="separator:ab8a88e2e8b9a5b555fa4c063d1495bfe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ace20bc8ff1cda77d0be7c2053fda5776" id="r_ace20bc8ff1cda77d0be7c2053fda5776"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../db/d1d/structglb__intrp__comm_1_1glb__intrp__comm__t.html">glb_intrp_comm_t</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#ace20bc8ff1cda77d0be7c2053fda5776">glb_intrp_comm</a></td></tr>
+<tr class="memdesc:ace20bc8ff1cda77d0be7c2053fda5776"><td class="mdescLeft">&#160;</td><td class="mdescRight">Things for communication operation (sending interpolated values back and forth)  <br /></td></tr>
+<tr class="separator:ace20bc8ff1cda77d0be7c2053fda5776"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac97fbd91d5e447597790ea9007f100a4" id="r_ac97fbd91d5e447597790ea9007f100a4"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d3/d5b/structvector_1_1vector__t.html">vector_t</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#ac97fbd91d5e447597790ea9007f100a4">temp_local</a></td></tr>
+<tr class="memdesc:ac97fbd91d5e447597790ea9007f100a4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Working vectors for global interpolation.  <br /></td></tr>
+<tr class="separator:ac97fbd91d5e447597790ea9007f100a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af225ff361faf7a8d132f05473c9258ea" id="r_af225ff361faf7a8d132f05473c9258ea"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d3/d5b/structvector_1_1vector__t.html">vector_t</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#af225ff361faf7a8d132f05473c9258ea">temp</a></td></tr>
+<tr class="separator:af225ff361faf7a8d132f05473c9258ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00054">54</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00071">71</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
-<a id="a9b60106f2288896e428b2a14ee4cad71" name="a9b60106f2288896e428b2a14ee4cad71"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9b60106f2288896e428b2a14ee4cad71">&#9670;&#160;</a></span>evaluate()</h2>
+<a id="a0565940df7cd765409d675467f27f492" name="a0565940df7cd765409d675467f27f492"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0565940df7cd765409d675467f27f492">&#9670;&#160;</a></span>check_points()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) global_interpolation::global_interpolation_t::check_points </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>z</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00165">165</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+
+</div>
+</div>
+<a id="a4b46d57a1fcadb26e4eeaa4e4d0b1fcc" name="a4b46d57a1fcadb26e4eeaa4e4d0b1fcc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4b46d57a1fcadb26e4eeaa4e4d0b1fcc">&#9670;&#160;</a></span>evaluate()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -237,20 +357,26 @@ Public Attributes</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) global_interpolation::global_interpolation_t::evaluate </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>%<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a6b3f1f00057d79977ed4872299447d4d">n_points</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>%<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a6b3f1f00057d79977ed4872299447d4d">n_points</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
           <td class="paramname"><em>interp_values</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>%<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a833d969ffb282664f4808ba25cfa5241">nelv</a>*<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>%<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a1d5475270ba87e19892e9092034cb7c7">xh</a>%lxyz), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>field</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>%<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a833d969ffb282664f4808ba25cfa5241">nelv</a>*<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>%<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#af5b2a3fca1b8243e5c288e0afc3d7fc8">xh</a>%lxyz), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>field</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>on_host</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -263,16 +389,17 @@ Public Attributes</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">interp_values</td><td>Array of values in the given points. </td></tr>
     <tr><td class="paramname">field</td><td>Array of values used for interpolation. </td></tr>
+    <tr><td class="paramname">on_host</td><td>If interpolation should be carried out on the host </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00114">114</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00170">170</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
 <a id="abe5531616031117e4535ec742f813dfa" name="abe5531616031117e4535ec742f813dfa"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abe5531616031117e4535ec742f813dfa">&#9670;&#160;</a></span>find_points() <span class="overload">[1/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#abe5531616031117e4535ec742f813dfa">&#9670;&#160;</a></span>find_points() <span class="overload">[1/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -314,9 +441,7 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<ul>
-<li><code>error_code</code>: returns <code>0</code> if point found, <code>1</code> if closest point on a border (check dist2), <code>2</code> if not found</li>
-<li><code>dist2</code>: distance squared (used to compare the points found by each processor) <dl class="params"><dt>Parameters</dt><dd>
+<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">x</td><td>The x-coordinates of the points. </td></tr>
     <tr><td class="paramname">y</td><td>The y-coordinates of the points. </td></tr>
@@ -325,15 +450,70 @@ Public Attributes</h2></td></tr>
   </table>
   </dd>
 </dl>
-</li>
-</ul>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00112">112</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00168">168</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+
+</div>
+</div>
+<a id="abe5531616031117e4535ec742f813dfa" name="abe5531616031117e4535ec742f813dfa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abe5531616031117e4535ec742f813dfa">&#9670;&#160;</a></span>find_points() <span class="overload">[2/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a> global_interpolation::global_interpolation_t::find_points </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a6b3f1f00057d79977ed4872299447d4d">n_points</a>)&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a6b3f1f00057d79977ed4872299447d4d">n_points</a>)&#160;</td>
+          <td class="paramname"><em>y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a6b3f1f00057d79977ed4872299447d4d">n_points</a>)&#160;</td>
+          <td class="paramname"><em>z</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td>
+          <td class="paramname"><em>n_points</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>The x-coordinates of the points. </td></tr>
+    <tr><td class="paramname">y</td><td>The y-coordinates of the points. </td></tr>
+    <tr><td class="paramname">z</td><td>The z-coordinates of the points. </td></tr>
+    <tr><td class="paramname">n_points</td><td>The number of points. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00168">168</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
 <a id="a982da68b8215b99b757e2f7566052134" name="a982da68b8215b99b757e2f7566052134"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a982da68b8215b99b757e2f7566052134">&#9670;&#160;</a></span>find_points() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a982da68b8215b99b757e2f7566052134">&#9670;&#160;</a></span>find_points() <span class="overload">[3/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -363,19 +543,15 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<ul>
-<li><code>error_code</code>: returns <code>0</code> if point found, <code>1</code> if closest point on a border (check dist2), <code>2</code> if not found</li>
-<li><code>dist2</code>: distance squared (used to compare the points found by each processor) <dl class="params"><dt>Parameters</dt><dd>
+<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">xyz</td><td>The coordinates of the points. </td></tr>
     <tr><td class="paramname">n_points</td><td>The number of points. </td></tr>
   </table>
   </dd>
 </dl>
-</li>
-</ul>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00112">112</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00168">168</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -410,19 +586,15 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<ul>
-<li><code>error_code</code>: returns <code>0</code> if point found, <code>1</code> if closest point on a border (check dist2), <code>2</code> if not found.</li>
-<li><code>dist2</code>: distance squared (used to compare the points found by each processor) <dl class="params"><dt>Parameters</dt><dd>
+<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">xyz</td><td>The coordinates of the points. </td></tr>
     <tr><td class="paramname">n_points</td><td>The number of points. </td></tr>
   </table>
   </dd>
 </dl>
-</li>
-</ul>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00104">104</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00155">155</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -469,9 +641,7 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<ul>
-<li><code>error_code</code>: returns <code>0</code> if point found, <code>1</code> if closest point on a border (check dist2), <code>2</code> if not found</li>
-<li><code>dist2</code>: distance squared (used to compare the points found by each processor) <dl class="params"><dt>Parameters</dt><dd>
+<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">x</td><td>The x-coordinates of the points. </td></tr>
     <tr><td class="paramname">y</td><td>The y-coordinates of the points. </td></tr>
@@ -480,10 +650,65 @@ Public Attributes</h2></td></tr>
   </table>
   </dd>
 </dl>
-</li>
-</ul>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00109">109</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00160">160</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+
+</div>
+</div>
+<a id="a52e54abc658d736500f4f7c04edc3bea" name="a52e54abc658d736500f4f7c04edc3bea"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a52e54abc658d736500f4f7c04edc3bea">&#9670;&#160;</a></span>find_points_coords1d()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) global_interpolation::global_interpolation_t::find_points_coords1d </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a6b3f1f00057d79977ed4872299447d4d">n_points</a>)&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a6b3f1f00057d79977ed4872299447d4d">n_points</a>)&#160;</td>
+          <td class="paramname"><em>y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a6b3f1f00057d79977ed4872299447d4d">n_points</a>)&#160;</td>
+          <td class="paramname"><em>z</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td>
+          <td class="paramname"><em>n_points</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>The x-coordinates of the points. </td></tr>
+    <tr><td class="paramname">y</td><td>The y-coordinates of the points. </td></tr>
+    <tr><td class="paramname">z</td><td>The z-coordinates of the points. </td></tr>
+    <tr><td class="paramname">n_points</td><td>The number of points. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00162">162</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -518,19 +743,15 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<ul>
-<li><code>error_code</code>: returns <code>0</code> if point found, <code>1</code> if closest point on a border (check dist2), <code>2</code> if not found</li>
-<li><code>dist2</code>: distance squared (used to compare the points found by each processor) <dl class="params"><dt>Parameters</dt><dd>
+<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">xyz</td><td>The coordinates of the points. </td></tr>
     <tr><td class="paramname">n_points</td><td>The number of points. </td></tr>
   </table>
   </dd>
 </dl>
-</li>
-</ul>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00111">111</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00167">167</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -543,14 +764,14 @@ Public Attributes</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) global_interpolation::global_interpolation_t::free </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
           <td class="paramname"><em>this</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00101">101</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00151">151</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -563,19 +784,39 @@ Public Attributes</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) global_interpolation::global_interpolation_t::free_points </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
           <td class="paramname"><em>this</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00103">103</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00153">153</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
-<a id="a497403c9d0ccbbcd36dc6c2d7136aafc" name="a497403c9d0ccbbcd36dc6c2d7136aafc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a497403c9d0ccbbcd36dc6c2d7136aafc">&#9670;&#160;</a></span>init() <span class="overload">[1/2]</span></h2>
+<a id="a3b7837fa86061bab20fcdc37511e2918" name="a3b7837fa86061bab20fcdc37511e2918"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3b7837fa86061bab20fcdc37511e2918">&#9670;&#160;</a></span>free_points_local()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) global_interpolation::global_interpolation_t::free_points_local </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00154">154</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+
+</div>
+</div>
+<a id="ae1827a62f3898bf8dbe48910d4a6d47b" name="ae1827a62f3898bf8dbe48910d4a6d47b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae1827a62f3898bf8dbe48910d4a6d47b">&#9670;&#160;</a></span>init() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -583,20 +824,32 @@ Public Attributes</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a> global_interpolation::global_interpolation_t::init </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>)&#160;</td>
           <td class="paramname"><em>dof</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">type(mpi_comm), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>comm</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>tol</em>&#160;</td>
+          <td class="paramname"><em>tol</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>pad</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -613,12 +866,12 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00117">117</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00173">173</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
-<a id="a256294c3554fea3d0ba6648073e3f204" name="a256294c3554fea3d0ba6648073e3f204"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a256294c3554fea3d0ba6648073e3f204">&#9670;&#160;</a></span>init() <span class="overload">[2/2]</span></h2>
+<a id="a69318af9da3eeed7d81e6a9db4a2b0ee" name="a69318af9da3eeed7d81e6a9db4a2b0ee"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a69318af9da3eeed7d81e6a9db4a2b0ee">&#9670;&#160;</a></span>init() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -626,25 +879,25 @@ Public Attributes</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a> global_interpolation::global_interpolation_t::init </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>x</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>y</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>z</em>, </td>
         </tr>
         <tr>
@@ -662,14 +915,26 @@ Public Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../da/d99/structspace_1_1space__t.html">space_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../da/d99/structspace_1_1space__t.html">space_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>xh</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">type(mpi_comm), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>comm</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>tol</em>&#160;</td>
+          <td class="paramname"><em>tol</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>pad</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -687,16 +952,17 @@ Public Attributes</h2></td></tr>
     <tr><td class="paramname">nelv</td><td>Number of elements of the mesh in which to search for the points. </td></tr>
     <tr><td class="paramname">Xh</td><td>Space on which to interpolate. </td></tr>
     <tr><td class="paramname">tol</td><td>Tolerance for Newton iterations. </td></tr>
+    <tr><td class="paramname">pad</td><td>Padding of the bounding boxes. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00117">117</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00173">173</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
-<a id="a16d92be0cce7c05cc7b56b5c87250760" name="a16d92be0cce7c05cc7b56b5c87250760"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a16d92be0cce7c05cc7b56b5c87250760">&#9670;&#160;</a></span>init_dof()</h2>
+<a id="a19d414e8386b591fe63f98e5fa62092e" name="a19d414e8386b591fe63f98e5fa62092e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a19d414e8386b591fe63f98e5fa62092e">&#9670;&#160;</a></span>init_dof()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -704,20 +970,32 @@ Public Attributes</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) global_interpolation::global_interpolation_t::init_dof </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>)&#160;</td>
           <td class="paramname"><em>dof</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">type(mpi_comm), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>comm</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>tol</em>&#160;</td>
+          <td class="paramname"><em>tol</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>pad</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -734,12 +1012,12 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00099">99</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00149">149</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
-<a id="a6e07b249f4b8546e1a0093d481d09dc1" name="a6e07b249f4b8546e1a0093d481d09dc1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6e07b249f4b8546e1a0093d481d09dc1">&#9670;&#160;</a></span>init_xyz()</h2>
+<a id="a055ebb5e63d2eaeec92680c5bda806d9" name="a055ebb5e63d2eaeec92680c5bda806d9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a055ebb5e63d2eaeec92680c5bda806d9">&#9670;&#160;</a></span>init_xyz()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -747,25 +1025,25 @@ Public Attributes</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) global_interpolation::global_interpolation_t::init_xyz </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>x</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>y</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>z</em>, </td>
         </tr>
         <tr>
@@ -783,14 +1061,26 @@ Public Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../da/d99/structspace_1_1space__t.html">space_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../da/d99/structspace_1_1space__t.html">space_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>xh</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">type(mpi_comm), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>comm</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>tol</em>&#160;</td>
+          <td class="paramname"><em>tol</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>pad</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -808,11 +1098,12 @@ Public Attributes</h2></td></tr>
     <tr><td class="paramname">nelv</td><td>Number of elements of the mesh in which to search for the points. </td></tr>
     <tr><td class="paramname">Xh</td><td>Space on which to interpolate. </td></tr>
     <tr><td class="paramname">tol</td><td>Tolerance for Newton iterations. </td></tr>
+    <tr><td class="paramname">pad</td><td>Padding of the bounding boxes. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00098">98</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00147">147</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -829,71 +1120,103 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00070">70</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00118">118</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
-<a id="abe70b410a4c41e16a8c95e627b803547" name="abe70b410a4c41e16a8c95e627b803547"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abe70b410a4c41e16a8c95e627b803547">&#9670;&#160;</a></span>dist2</h2>
+<a id="a4292fd619de8d8df8a802d3157c50fee" name="a4292fd619de8d8df8a802d3157c50fee"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4292fd619de8d8df8a802d3157c50fee">&#9670;&#160;</a></span>comm</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a> global_interpolation::global_interpolation_t::dist2</td>
+          <td class="memname">type(mpi_comm) global_interpolation::global_interpolation_t::comm</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00091">91</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00085">85</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
-<a id="a92af72876ba34b9b7a4570344d618410" name="a92af72876ba34b9b7a4570344d618410"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a92af72876ba34b9b7a4570344d618410">&#9670;&#160;</a></span>el_owner</h2>
+<a id="a3455ed4610d1207bff2d09a2585d49bc" name="a3455ed4610d1207bff2d09a2585d49bc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3455ed4610d1207bff2d09a2585d49bc">&#9670;&#160;</a></span>el_finder</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a> global_interpolation::global_interpolation_t::el_owner</td>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d6/dff/structel__finder_1_1el__finder__t.html">el_finder_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a> global_interpolation::global_interpolation_t::el_finder</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00084">84</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00137">137</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
-<a id="ad44587ff0da0270e5c41fb70b55444b0" name="ad44587ff0da0270e5c41fb70b55444b0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad44587ff0da0270e5c41fb70b55444b0">&#9670;&#160;</a></span>el_owner_d</h2>
+<a id="abffd5266eb8e89b438bee26d2a7b01cc" name="abffd5266eb8e89b438bee26d2a7b01cc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abffd5266eb8e89b438bee26d2a7b01cc">&#9670;&#160;</a></span>el_owner0</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">type(c_ptr) global_interpolation::global_interpolation_t::el_owner_d = c_null_ptr</td>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a> global_interpolation::global_interpolation_t::el_owner0</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00085">85</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00105">105</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
-<a id="ac7503e00512a81815f838c98be444d66" name="ac7503e00512a81815f838c98be444d66"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac7503e00512a81815f838c98be444d66">&#9670;&#160;</a></span>error_code</h2>
+<a id="a1cd9b7271b73e5db231afcbe9765e107" name="a1cd9b7271b73e5db231afcbe9765e107"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1cd9b7271b73e5db231afcbe9765e107">&#9670;&#160;</a></span>el_owner0_d</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a> global_interpolation::global_interpolation_t::error_code</td>
+          <td class="memname">type(c_ptr) global_interpolation::global_interpolation_t::el_owner0_d = <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">C_NULL_PTR</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00093">93</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00106">106</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+
+</div>
+</div>
+<a id="aae36b89fb474f686aa0edab64a1579aa" name="aae36b89fb474f686aa0edab64a1579aa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aae36b89fb474f686aa0edab64a1579aa">&#9670;&#160;</a></span>el_owner0_local</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a> global_interpolation::global_interpolation_t::el_owner0_local</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00110">110</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+
+</div>
+</div>
+<a id="a3f3c075dd11377b988711b9d07dd9f6a" name="a3f3c075dd11377b988711b9d07dd9f6a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3f3c075dd11377b988711b9d07dd9f6a">&#9670;&#160;</a></span>el_owner0_local_d</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">type(c_ptr) global_interpolation::global_interpolation_t::el_owner0_local_d = <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">C_NULL_PTR</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00111">111</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -909,39 +1232,39 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00062">62</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00079">79</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
-<a id="ac9f2f97791ad19ccaa187c6d3fe55274" name="ac9f2f97791ad19ccaa187c6d3fe55274"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac9f2f97791ad19ccaa187c6d3fe55274">&#9670;&#160;</a></span>gs_handle</h2>
+<a id="ace20bc8ff1cda77d0be7c2053fda5776" name="ace20bc8ff1cda77d0be7c2053fda5776"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ace20bc8ff1cda77d0be7c2053fda5776">&#9670;&#160;</a></span>glb_intrp_comm</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> global_interpolation::global_interpolation_t::gs_handle</td>
+          <td class="memname">type(<a class="el" href="../../db/d1d/structglb__intrp__comm_1_1glb__intrp__comm__t.html">glb_intrp_comm_t</a>) global_interpolation::global_interpolation_t::glb_intrp_comm</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00073">73</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00141">141</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
-<a id="a8ba9e5195a683d22f8edc6af8dc19bae" name="a8ba9e5195a683d22f8edc6af8dc19bae"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8ba9e5195a683d22f8edc6af8dc19bae">&#9670;&#160;</a></span>gs_init</h2>
+<a id="a627b9e0e7365689a462b0dee65b2dae2" name="a627b9e0e7365689a462b0dee65b2dae2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a627b9e0e7365689a462b0dee65b2dae2">&#9670;&#160;</a></span>glb_nelv</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a> global_interpolation::global_interpolation_t::gs_init = .false.</td>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> global_interpolation::global_interpolation_t::glb_nelv</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00074">74</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00083">83</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -957,7 +1280,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00068">68</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00115">115</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -973,7 +1296,87 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00077">77</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00094">94</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+
+</div>
+</div>
+<a id="ab31f56c083c0da6a0b68ac492316b2ef" name="ab31f56c083c0da6a0b68ac492316b2ef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab31f56c083c0da6a0b68ac492316b2ef">&#9670;&#160;</a></span>n_points_local</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> global_interpolation::global_interpolation_t::n_points_local</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00109">109</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+
+</div>
+</div>
+<a id="a01079a1163ee94bfb3ae950d2d28bd06" name="a01079a1163ee94bfb3ae950d2d28bd06"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a01079a1163ee94bfb3ae950d2d28bd06">&#9670;&#160;</a></span>n_points_offset_pe</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a> global_interpolation::global_interpolation_t::n_points_offset_pe</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00128">128</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+
+</div>
+</div>
+<a id="a18065075846b569c715f66e18ed4de3d" name="a18065075846b569c715f66e18ed4de3d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a18065075846b569c715f66e18ed4de3d">&#9670;&#160;</a></span>n_points_offset_pe_local</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a> global_interpolation::global_interpolation_t::n_points_offset_pe_local</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00132">132</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+
+</div>
+</div>
+<a id="a154b721fe154f6001da3a2681d87091f" name="a154b721fe154f6001da3a2681d87091f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a154b721fe154f6001da3a2681d87091f">&#9670;&#160;</a></span>n_points_pe</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a> global_interpolation::global_interpolation_t::n_points_pe</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00127">127</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+
+</div>
+</div>
+<a id="a10ec4abc1a4323fd8280a9970abb1d5a" name="a10ec4abc1a4323fd8280a9970abb1d5a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a10ec4abc1a4323fd8280a9970abb1d5a">&#9670;&#160;</a></span>n_points_pe_local</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a> global_interpolation::global_interpolation_t::n_points_pe_local</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00131">131</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -989,23 +1392,103 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00064">64</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00081">81</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
-<a id="a55d7c8812aee468838e4134b45264618" name="a55d7c8812aee468838e4134b45264618"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a55d7c8812aee468838e4134b45264618">&#9670;&#160;</a></span>proc_owner</h2>
+<a id="a0fffa8c2e33655878f52a814eedf6bcb" name="a0fffa8c2e33655878f52a814eedf6bcb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0fffa8c2e33655878f52a814eedf6bcb">&#9670;&#160;</a></span>padding</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a> global_interpolation::global_interpolation_t::proc_owner</td>
+          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp) global_interpolation::global_interpolation_t::padding = 1e-2<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">_rp</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00082">82</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00122">122</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+
+</div>
+</div>
+<a id="afca0c158a898071b2b1e726f0a26beca" name="afca0c158a898071b2b1e726f0a26beca"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afca0c158a898071b2b1e726f0a26beca">&#9670;&#160;</a></span>pe_finder</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dd/dfc/structpe__finder_1_1pe__finder__t.html">pe_finder_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a> global_interpolation::global_interpolation_t::pe_finder</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00135">135</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+
+</div>
+</div>
+<a id="a813233907d40a76771d977be40286286" name="a813233907d40a76771d977be40286286"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a813233907d40a76771d977be40286286">&#9670;&#160;</a></span>pe_owner</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a> global_interpolation::global_interpolation_t::pe_owner</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00100">100</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+
+</div>
+</div>
+<a id="a0703a4aeea5002a51a039297c9886159" name="a0703a4aeea5002a51a039297c9886159"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0703a4aeea5002a51a039297c9886159">&#9670;&#160;</a></span>pe_rank</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> global_interpolation::global_interpolation_t::pe_rank</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00087">87</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+
+</div>
+</div>
+<a id="ad6521fea2ad8b4a326f4b73b13cf7a0a" name="ad6521fea2ad8b4a326f4b73b13cf7a0a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad6521fea2ad8b4a326f4b73b13cf7a0a">&#9670;&#160;</a></span>pe_size</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> global_interpolation::global_interpolation_t::pe_size</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00089">89</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+
+</div>
+</div>
+<a id="aefe16e046ba2bf15252313da78d58625" name="aefe16e046ba2bf15252313da78d58625"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aefe16e046ba2bf15252313da78d58625">&#9670;&#160;</a></span>points_at_pe</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">type(<a class="el" href="../../d2/d45/structstack_1_1stack__i4__t.html">stack_i4_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a> global_interpolation::global_interpolation_t::points_at_pe</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00102">102</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -1020,9 +1503,72 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="section note"><dt>Note</dt><dd>: When replacing gs we can change format </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00088">88</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00098">98</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+
+</div>
+</div>
+<a id="ab8a88e2e8b9a5b555fa4c063d1495bfe" name="ab8a88e2e8b9a5b555fa4c063d1495bfe"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab8a88e2e8b9a5b555fa4c063d1495bfe">&#9670;&#160;</a></span>rst_finder</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">type(<a class="el" href="../../da/d41/structlegendre__rst__finder_1_1legendre__rst__finder__t.html">legendre_rst_finder_t</a>) global_interpolation::global_interpolation_t::rst_finder</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00139">139</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+
+</div>
+</div>
+<a id="a25b41f6692a43509026e8a9d7884c571" name="a25b41f6692a43509026e8a9d7884c571"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a25b41f6692a43509026e8a9d7884c571">&#9670;&#160;</a></span>rst_local</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:,:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a> global_interpolation::global_interpolation_t::rst_local</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00112">112</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+
+</div>
+</div>
+<a id="af225ff361faf7a8d132f05473c9258ea" name="af225ff361faf7a8d132f05473c9258ea"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af225ff361faf7a8d132f05473c9258ea">&#9670;&#160;</a></span>temp</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">type(<a class="el" href="../../d3/d5b/structvector_1_1vector__t.html">vector_t</a>) global_interpolation::global_interpolation_t::temp</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00143">143</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+
+</div>
+</div>
+<a id="ac97fbd91d5e447597790ea9007f100a4" name="ac97fbd91d5e447597790ea9007f100a4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac97fbd91d5e447597790ea9007f100a4">&#9670;&#160;</a></span>temp_local</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">type(<a class="el" href="../../d3/d5b/structvector_1_1vector__t.html">vector_t</a>) global_interpolation::global_interpolation_t::temp_local</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00143">143</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -1033,44 +1579,44 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp) global_interpolation::global_interpolation_t::tol = 5d-13</td>
+          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp) global_interpolation::global_interpolation_t::tol = <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">NEKO_EPS</a>*1<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">e3_rp</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00095">95</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00120">120</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
-<a id="a13deffca27a2e640ea244e3aec5a873d" name="a13deffca27a2e640ea244e3aec5a873d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a13deffca27a2e640ea244e3aec5a873d">&#9670;&#160;</a></span>x</h2>
+<a id="a56fd0e485b4457a93130c81b4cfc9359" name="a56fd0e485b4457a93130c81b4cfc9359"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a56fd0e485b4457a93130c81b4cfc9359">&#9670;&#160;</a></span>x</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">type(<a class="el" href="../../dd/d8c/structstructs_1_1array__ptr__t.html">array_ptr_t</a>) global_interpolation::global_interpolation_t::x</td>
+          <td class="memname">type(<a class="el" href="../../d3/d5b/structvector_1_1vector__t.html">vector_t</a>) global_interpolation::global_interpolation_t::x</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00056">56</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00073">73</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
-<a id="a1d5475270ba87e19892e9092034cb7c7" name="a1d5475270ba87e19892e9092034cb7c7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1d5475270ba87e19892e9092034cb7c7">&#9670;&#160;</a></span>xh</h2>
+<a id="af5b2a3fca1b8243e5c288e0afc3d7fc8" name="af5b2a3fca1b8243e5c288e0afc3d7fc8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af5b2a3fca1b8243e5c288e0afc3d7fc8">&#9670;&#160;</a></span>xh</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">type(<a class="el" href="../../da/d99/structspace_1_1space__t.html">space_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a> global_interpolation::global_interpolation_t::xh</td>
+          <td class="memname">type(<a class="el" href="../../da/d99/structspace_1_1space__t.html">space_t</a>) global_interpolation::global_interpolation_t::xh</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00066">66</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00091">91</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -1085,46 +1631,61 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="section note"><dt>Note</dt><dd>: When replacing gs we can change format </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00080">80</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00096">96</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
-<a id="a083e242617fe9df99e534c21b49a6a9c" name="a083e242617fe9df99e534c21b49a6a9c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a083e242617fe9df99e534c21b49a6a9c">&#9670;&#160;</a></span>y</h2>
+<a id="a44f5e029e069a46f6d48388f6f194644" name="a44f5e029e069a46f6d48388f6f194644"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a44f5e029e069a46f6d48388f6f194644">&#9670;&#160;</a></span>xyz_local</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">type(<a class="el" href="../../dd/d8c/structstructs_1_1array__ptr__t.html">array_ptr_t</a>) global_interpolation::global_interpolation_t::y</td>
+          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:,:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a> global_interpolation::global_interpolation_t::xyz_local</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00058">58</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00113">113</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
-<a id="a5cfe38b5ac6fab1cfa419bdd438e0c39" name="a5cfe38b5ac6fab1cfa419bdd438e0c39"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5cfe38b5ac6fab1cfa419bdd438e0c39">&#9670;&#160;</a></span>z</h2>
+<a id="a90b8ccb14dd612019955fa1bd72a9fd9" name="a90b8ccb14dd612019955fa1bd72a9fd9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a90b8ccb14dd612019955fa1bd72a9fd9">&#9670;&#160;</a></span>y</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">type(<a class="el" href="../../dd/d8c/structstructs_1_1array__ptr__t.html">array_ptr_t</a>) global_interpolation::global_interpolation_t::z</td>
+          <td class="memname">type(<a class="el" href="../../d3/d5b/structvector_1_1vector__t.html">vector_t</a>) global_interpolation::global_interpolation_t::y</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00060">60</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00075">75</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+
+</div>
+</div>
+<a id="ae98c203dd274cb41d50a73ae3988f4ee" name="ae98c203dd274cb41d50a73ae3988f4ee"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae98c203dd274cb41d50a73ae3988f4ee">&#9670;&#160;</a></span>z</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">type(<a class="el" href="../../d3/d5b/structvector_1_1vector__t.html">vector_t</a>) global_interpolation::global_interpolation_t::z</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00077">77</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
 <hr/>The documentation for this type was generated from the following file:<ul>
-<li>/home/runner/work/neko/neko/src/common/<a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a></li>
+<li>/home/runner/work/neko/neko/src/global_interpolation/<a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -1132,7 +1693,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html">global_interpolation</a></li><li class="navelem"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -1,5 +1,7 @@
 <map id="simulation::simulation_joblimit_chkp" name="simulation::simulation_joblimit_chkp">
-<area shape="rect" id="Node000001" title="Write a checkpoint at joblimit." alt="" coords="225,5,393,45"/>
-<area shape="rect" id="Node000002" href="$d1/d2d/namespacesimulation.html#a2279224e80a4202a630ebfaa2d686588" title="Main driver to solve a case C." alt="" coords="5,13,177,38"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="211,28,177,28,177,23,211,23"/>
+<area shape="rect" id="Node000001" title="Write a checkpoint at joblimit." alt="" coords="404,5,572,45"/>
+<area shape="rect" id="Node000002" href="$d1/d2d/namespacesimulation.html#a898649586b608770d5ea349927136ba0" title="Finalize a simulation of a case." alt="" coords="188,5,356,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="390,28,356,28,356,23,390,23"/>
+<area shape="rect" id="Node000003" href="$dd/d62/namespaceneko.html#abf12d6da8fb2dd09f7ff843e0356ee04" title="Main driver to solve a case C." alt="" coords="5,13,140,38"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="174,28,140,28,140,23,174,23"/>
 </map>

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Neko: scratch_registry::scratch_registry_t Interface Reference</title>
+<title>Neko: scratch_registry::scratch_registry_t Type Reference</title>
 <link href="../../tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="../../jquery.js"></script>
 <script type="text/javascript" src="../../dynsections.js"></script>
@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -104,7 +104,7 @@ $(document).ready(function(){initNavTree('d8/d43/structscratch__registry_1_1scra
 <a href="#pri-methods">Private Member Functions</a> &#124;
 <a href="#pri-attribs">Private Attributes</a> &#124;
 <a href="../../db/d0a/structscratch__registry_1_1scratch__registry__t-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">scratch_registry::scratch_registry_t Interface Reference</div></div>
+  <div class="headertitle"><div class="title">scratch_registry::scratch_registry_t Type Reference</div></div>
 </div><!--header-->
 <div class="contents">
 <div class="dynheader">
@@ -112,122 +112,186 @@ Collaboration diagram for scratch_registry::scratch_registry_t:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d1/de4/structscratch__registry_1_1scratch__registry__t__coll__graph.png" border="0" usemap="#ascratch__registry_1_1scratch__registry__t_coll__map" alt="Collaboration graph"/></div>
 <map name="ascratch__registry_1_1scratch__registry__t_coll__map" id="ascratch__registry_1_1scratch__registry__t_coll__map">
-<area shape="rect" title=" " alt="" coords="2247,189,2427,229"/>
-<area shape="rect" href="../../dc/dd8/structfield_1_1field__ptr__t.html" title="field_ptr_t, To easily obtain a pointer to a field" alt="" coords="2036,168,2159,193"/>
-<area shape="poly" title=" " alt="" coords="2173,187,2247,195,2246,201,2172,192"/>
-<area shape="rect" href="../../d3/d5f/structfield_1_1field__t.html" title=" " alt="" coords="1864,168,1963,193"/>
-<area shape="poly" title=" " alt="" coords="1976,178,2036,178,2036,183,1976,183"/>
-<area shape="rect" href="../../da/d99/structspace_1_1space__t.html" title="The function space for the SEM solution fields." alt="" coords="1448,139,1567,164"/>
-<area shape="poly" title=" " alt="" coords="1581,154,1864,174,1864,180,1580,159"/>
-<area shape="rect" href="../../d0/df0/structdofmap_1_1dofmap__t.html" title=" " alt="" coords="1648,219,1791,244"/>
-<area shape="poly" title=" " alt="" coords="1553,167,1592,182,1683,216,1681,221,1590,187,1551,172"/>
-<area shape="rect" title=" " alt="" coords="1220,148,1275,173"/>
-<area shape="poly" title=" " alt="" coords="1256,134,1271,103,1293,69,1322,36,1357,10,1375,4,1391,3,1425,10,1494,24,1564,42,1697,86,1810,131,1886,165,1884,170,1807,136,1695,92,1562,48,1493,29,1423,15,1390,9,1376,9,1360,15,1326,40,1298,72,1276,106,1261,136"/>
-<area shape="poly" title=" " alt="" coords="1288,166,1352,173,1424,171,1467,161,1469,167,1424,177,1352,178,1288,171"/>
-<area shape="poly" title=" " alt="" coords="1289,169,1335,182,1392,202,1448,217,1553,228,1648,230,1647,236,1552,233,1448,222,1390,207,1334,187,1287,174"/>
-<area shape="rect" href="../../d7/d28/structmesh_1_1mesh__t.html" title=" " alt="" coords="1450,477,1565,503"/>
-<area shape="poly" title=" " alt="" coords="1535,467,1893,191,1897,196,1538,471"/>
-<area shape="poly" title=" " alt="" coords="1526,465,1705,242,1710,246,1530,468"/>
-<area shape="rect" href="../../db/d6f/structpoint_1_1point__t.html" title="A point in &#160;with coordinates ." alt="" coords="1193,197,1301,223"/>
-<area shape="poly" title=" " alt="" coords="1316,221,1336,232,1349,248,1360,264,1377,273,1393,278,1409,282,1426,295,1460,341,1484,393,1499,441,1506,476,1501,477,1493,443,1479,395,1455,344,1422,298,1407,287,1392,283,1375,278,1357,268,1345,251,1333,236,1313,226"/>
-<area shape="rect" href="../../da/d8b/structentity_1_1entity__t.html" title="Base type for an entity." alt="" coords="805,197,923,223"/>
-<area shape="poly" title=" " alt="" coords="936,207,1193,207,1193,213,936,213"/>
-<area shape="rect" href="../../d1/d4c/structmesh_1_1mesh__element__t.html" title=" " alt="" coords="1160,247,1335,272"/>
-<area shape="poly" title=" " alt="" coords="1305,274,1336,289,1426,364,1471,425,1501,476,1497,478,1467,428,1422,368,1333,293,1303,279"/>
-<area shape="rect" href="../../db/d4d/structhtable_1_1htable__i4__t.html" title="Integer based hash table." alt="" coords="411,896,553,921"/>
-<area shape="poly" title=" " alt="" coords="567,909,682,907,825,898,982,876,1060,858,1135,835,1230,797,1267,777,1299,755,1329,729,1358,698,1422,618,1465,553,1496,501,1501,504,1470,556,1426,621,1362,702,1332,733,1302,759,1270,782,1233,802,1137,840,1061,863,983,881,826,903,682,913,567,914"/>
-<area shape="rect" href="../../d6/db2/structuset_1_1uset__i4__t.html" title="Integer based unordered set." alt="" coords="805,804,923,829"/>
-<area shape="poly" title=" " alt="" coords="565,891,747,850,824,827,826,832,749,855,566,896"/>
-<area shape="rect" href="../../d0/d2e/structhtable_1_1htable__t.html" title="Base type for a hash table." alt="" coords="208,947,332,972"/>
-<area shape="poly" title=" " alt="" coords="337,941,428,919,429,924,338,946"/>
-<area shape="rect" href="../../d8/d53/structhtable_1_1htable__i4t4__t.html" title="Integer 4&#45;tuple based hash table." alt="" coords="980,947,1136,972"/>
-<area shape="poly" title=" " alt="" coords="346,957,980,957,980,962,346,962"/>
-<area shape="rect" href="../../da/d93/structhtable_1_1htable__i4t2__t.html" title="Integer 2&#45;tuple based hash table." alt="" coords="592,1003,748,1028"/>
-<area shape="poly" title=" " alt="" coords="346,971,371,975,592,1004,592,1010,370,981,345,976"/>
-<area shape="rect" href="../../d8/d5b/structhtable_1_1h__tuple__t.html" title="Hash table entry, tuple (key, data)" alt="" coords="5,947,136,972"/>
-<area shape="poly" title=" " alt="" coords="150,957,207,957,207,962,150,962"/>
-<area shape="poly" title=" " alt="" coords="1122,972,1193,982,1274,983,1314,977,1354,966,1390,949,1422,924,1443,892,1460,842,1474,782,1485,715,1498,587,1503,502,1508,503,1503,588,1490,716,1479,783,1465,844,1448,894,1426,928,1393,953,1356,971,1316,982,1274,988,1192,987,1122,977"/>
-<area shape="poly" title=" " alt="" coords="722,1029,783,1047,862,1065,954,1081,1053,1089,1155,1086,1205,1079,1253,1067,1300,1051,1344,1030,1385,1003,1422,970,1444,933,1462,878,1476,810,1486,737,1499,595,1503,503,1508,503,1504,596,1492,737,1481,811,1467,879,1449,935,1426,973,1388,1007,1347,1035,1302,1056,1255,1073,1206,1084,1155,1091,1053,1094,953,1086,861,1071,782,1052,720,1034"/>
-<area shape="rect" href="../../d2/d45/structstack_1_1stack__i4__t.html" title="Integer based stack." alt="" coords="993,499,1123,524"/>
-<area shape="poly" title=" " alt="" coords="1137,505,1335,497,1450,490,1450,496,1335,502,1138,511"/>
-<area shape="rect" href="../../d2/dbd/structstack_1_1stack__t.html" title="Base type for a stack." alt="" coords="214,607,326,632"/>
-<area shape="poly" title=" " alt="" coords="307,598,349,579,395,562,477,541,561,525,646,514,728,507,878,503,993,505,993,510,879,508,729,513,646,520,562,531,478,546,397,567,351,584,309,603"/>
-<area shape="rect" href="../../d1/d93/structstack_1_1stack__i4t2__t.html" title="Integer 2&#45;tuple based stack." alt="" coords="410,577,554,603"/>
-<area shape="poly" title=" " alt="" coords="340,607,409,597,410,602,340,612"/>
-<area shape="rect" href="../../df/d1c/structstack_1_1stack__i4t4__t.html" title="Integer 4&#45;tuple based stack." alt="" coords="598,648,742,673"/>
-<area shape="poly" title=" " alt="" coords="340,624,598,651,598,656,339,629"/>
-<area shape="rect" href="../../d1/ddd/structstack_1_1stack__curve__t.html" title="Curved element stack." alt="" coords="405,679,559,704"/>
-<area shape="poly" title=" " alt="" coords="314,635,372,657,434,676,432,681,370,662,312,640"/>
-<area shape="rect" href="../../d4/ddd/structdistdata_1_1distdata__t.html" title=" " alt="" coords="1173,560,1321,585"/>
-<area shape="poly" title=" " alt="" coords="1335,564,1379,555,1423,542,1460,523,1489,501,1492,505,1463,527,1425,547,1381,561,1336,569"/>
-<area shape="poly" title=" " alt="" coords="568,585,1173,572,1173,577,568,591"/>
-<area shape="rect" href="../../d2/d94/structfacet__zone_1_1facet__zone__t.html" title=" " alt="" coords="772,309,956,335"/>
-<area shape="poly" title=" " alt="" coords="566,573,613,559,662,539,708,511,746,475,755,460,759,445,757,415,755,384,760,368,770,352,783,341,798,332,801,337,786,345,774,356,764,371,760,385,762,415,764,445,760,462,750,478,711,515,664,544,615,564,568,578"/>
-<area shape="rect" href="../../d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html" title=" " alt="" coords="1161,433,1333,473"/>
-<area shape="poly" title=" " alt="" coords="568,601,650,610,747,615,852,614,956,602,1011,593,1054,584,1092,567,1134,533,1143,520,1145,506,1148,492,1158,477,1167,470,1170,475,1162,481,1153,494,1150,507,1148,522,1138,537,1095,571,1055,589,1011,598,956,607,852,619,747,621,649,615,567,606"/>
-<area shape="poly" title=" " alt="" coords="936,817,984,815,1036,807,1088,791,1134,765,1144,756,1148,746,1158,721,1236,584,1241,587,1162,723,1153,748,1148,759,1138,769,1090,796,1037,812,985,820,937,823"/>
-<area shape="rect" href="../../d8/d9e/structuset_1_1uset__t.html" title="Base type for an unordered set." alt="" coords="433,777,531,803"/>
-<area shape="poly" title=" " alt="" coords="545,790,748,802,805,807,805,813,748,807,545,795"/>
-<area shape="rect" href="../../dc/d23/structhtable_1_1htable__iter__i4__t.html" title="Iterator for an integer based hash table." alt="" coords="396,827,568,852"/>
-<area shape="poly" title=" " alt="" coords="582,831,805,817,805,823,582,836"/>
-<area shape="rect" href="../../d1/dec/structhtable_1_1htable__iter__t.html" title="Base type for a hash table iterator." alt="" coords="193,827,347,852"/>
-<area shape="poly" title=" " alt="" coords="361,837,396,837,396,842,361,842"/>
-<area shape="poly" title=" " alt="" coords="970,321,1053,331,1096,340,1137,353,1150,361,1161,369,1208,387,1247,397,1335,418,1381,431,1425,447,1483,475,1481,479,1423,452,1379,436,1334,423,1245,402,1207,392,1159,374,1147,365,1135,358,1094,345,1052,336,969,326"/>
-<area shape="poly" title=" " alt="" coords="928,335,981,349,1025,357,1061,360,1096,368,1138,386,1150,399,1162,412,1194,430,1191,435,1158,416,1146,403,1134,391,1094,373,1060,366,1025,362,979,354,927,341"/>
-<area shape="rect" href="../../d5/d16/structtuple_1_1tuple__i4__t.html" title="Integer based 2&#45;tuple." alt="" coords="419,361,545,387"/>
-<area shape="poly" title=" " alt="" coords="559,358,592,353,771,329,772,335,592,358,560,363"/>
-<area shape="poly" title=" " alt="" coords="559,374,816,389,976,405,1136,427,1161,432,1160,437,1136,433,975,410,815,394,559,379"/>
-<area shape="rect" href="../../d1/d3b/structtuple_1_1tuple__t.html" title="Base type for an n&#45;tuple." alt="" coords="216,396,324,421"/>
-<area shape="poly" title=" " alt="" coords="337,395,418,382,419,387,338,400"/>
-<area shape="rect" href="../../dd/de4/structtuple_1_1tuple4__i4__t.html" title="Integer based 4&#45;tuple." alt="" coords="603,425,737,451"/>
-<area shape="poly" title=" " alt="" coords="338,411,603,430,602,436,338,416"/>
-<area shape="poly" title=" " alt="" coords="1348,464,1450,479,1450,484,1347,469"/>
-<area shape="poly" title=" " alt="" coords="751,437,1161,448,1161,453,751,443"/>
-<area shape="poly" title=" " alt="" coords="726,674,772,683,882,702,929,711,973,715,1014,714,1054,703,1094,681,1134,644,1147,624,1152,605,1146,564,1140,521,1145,499,1158,478,1165,471,1169,475,1162,481,1150,501,1146,522,1152,563,1157,605,1152,626,1138,648,1097,685,1056,708,1015,719,973,721,929,716,881,707,772,688,725,679"/>
-<area shape="rect" href="../../dd/d69/structcurve_1_1curve__t.html" title=" " alt="" coords="807,753,921,779"/>
-<area shape="poly" title=" " alt="" coords="935,759,1031,746,1084,735,1135,721,1222,689,1286,657,1347,619,1422,565,1462,532,1492,501,1496,505,1465,536,1426,569,1350,623,1289,662,1224,694,1137,726,1085,740,1032,751,936,764"/>
-<area shape="rect" href="../../d0/d10/structstructs_1_1struct__curve__t.html" title=" " alt="" coords="399,728,565,753"/>
-<area shape="poly" title=" " alt="" coords="579,744,806,759,806,765,579,750"/>
-<area shape="poly" title=" " alt="" coords="574,697,659,709,749,726,830,751,828,756,747,731,658,714,573,703"/>
-<area shape="poly" title=" " alt="" coords="1805,225,2246,209,2246,214,1805,231"/>
-<area shape="poly" title=" " alt="" coords="1781,212,1863,191,1864,196,1783,218"/>
+<area shape="rect" title=" " alt="" coords="2529,843,2709,883"/>
+<area shape="rect" href="../../df/db9/structregistry__entry_1_1registry__entry__t.html" title=" " alt="" coords="2261,924,2432,964"/>
+<area shape="poly" title=" " alt="" coords="2427,918,2551,880,2552,885,2428,923"/>
+<area shape="rect" href="../../d3/d5f/structfield_1_1field__t.html" title=" " alt="" coords="2057,847,2156,873"/>
+<area shape="poly" title=" " alt="" coords="2158,875,2289,921,2288,926,2156,880"/>
+<area shape="rect" href="../../da/d99/structspace_1_1space__t.html" title="The function space for the SEM solution fields." alt="" coords="1448,847,1567,873"/>
+<area shape="poly" title=" " alt="" coords="1581,857,2057,857,2057,863,1581,863"/>
+<area shape="rect" href="../../d0/df0/structdofmap_1_1dofmap__t.html" title=" " alt="" coords="1739,769,1881,794"/>
+<area shape="poly" title=" " alt="" coords="1570,841,1760,791,1761,797,1571,846"/>
+<area shape="rect" title=" " alt="" coords="1220,917,1275,942"/>
+<area shape="poly" title=" " alt="" coords="1288,923,2057,861,2057,867,1289,929"/>
+<area shape="poly" title=" " alt="" coords="1287,917,1423,881,1463,870,1464,875,1425,887,1289,922"/>
+<area shape="poly" title=" " alt="" coords="1258,903,1310,796,1337,747,1357,721,1385,706,1414,696,1475,686,1538,687,1599,697,1657,713,1710,732,1786,766,1784,771,1708,737,1656,718,1598,703,1537,693,1476,691,1416,701,1387,711,1360,725,1342,750,1314,799,1263,906"/>
+<area shape="rect" href="../../d3/d5b/structvector_1_1vector__t.html" title=" " alt="" coords="1591,959,1715,985"/>
+<area shape="poly" title=" " alt="" coords="1288,941,1359,960,1420,968,1482,971,1590,972,1590,977,1482,977,1420,973,1358,965,1287,946"/>
+<area shape="rect" href="../../da/d95/structmatrix_1_1matrix__t.html" title=" " alt="" coords="1905,1011,2033,1037"/>
+<area shape="poly" title=" " alt="" coords="1288,945,1360,972,1403,985,1448,992,1575,1006,1701,1015,1905,1021,1905,1026,1701,1020,1575,1011,1448,997,1402,990,1358,977,1286,950"/>
+<area shape="rect" href="../../d7/d28/structmesh_1_1mesh__t.html" title=" " alt="" coords="1450,474,1565,499"/>
+<area shape="poly" title=" " alt="" coords="1567,501,1639,527,1716,562,1777,597,1837,636,1947,719,2037,794,2093,845,2090,849,2033,798,1944,723,1834,641,1774,602,1713,566,1637,532,1565,506"/>
+<area shape="poly" title=" " alt="" coords="1530,509,1593,577,1654,630,1716,683,1799,767,1795,770,1713,687,1650,634,1589,581,1526,512"/>
+<area shape="rect" href="../../db/d6f/structpoint_1_1point__t.html" title="A point in &#160;with coordinates ." alt="" coords="1193,342,1301,367"/>
+<area shape="poly" title=" " alt="" coords="1315,360,1371,374,1425,398,1449,415,1470,435,1500,472,1495,476,1466,439,1446,419,1423,402,1369,379,1314,365"/>
+<area shape="rect" href="../../da/d8b/structentity_1_1entity__t.html" title="Base type for an entity." alt="" coords="805,389,923,414"/>
+<area shape="poly" title=" " alt="" coords="936,390,1193,359,1193,364,936,395"/>
+<area shape="rect" href="../../d1/d4c/structmesh_1_1mesh__element__t.html" title=" " alt="" coords="1160,391,1335,417"/>
+<area shape="poly" title=" " alt="" coords="1349,414,1425,435,1461,452,1490,472,1487,476,1458,457,1423,440,1348,419"/>
+<area shape="rect" href="../../db/d4d/structhtable_1_1htable__i4__t.html" title="Integer based hash table." alt="" coords="411,617,553,642"/>
+<area shape="poly" title=" " alt="" coords="567,629,713,630,904,626,1118,614,1334,591,1381,585,1400,580,1423,568,1445,552,1465,533,1495,498,1499,501,1469,537,1449,557,1425,573,1402,584,1382,590,1335,596,1119,620,904,631,713,635,567,634"/>
+<area shape="rect" href="../../d6/db2/structuset_1_1uset__i4__t.html" title="Integer based unordered set." alt="" coords="805,683,923,709"/>
+<area shape="poly" title=" " alt="" coords="556,642,592,649,805,685,805,690,592,655,555,647"/>
+<area shape="rect" href="../../d0/d2e/structhtable_1_1htable__t.html" title="Base type for a hash table." alt="" coords="208,617,332,642"/>
+<area shape="poly" title=" " alt="" coords="346,627,411,627,411,632,346,632"/>
+<area shape="rect" href="../../d8/d53/structhtable_1_1htable__i4t4__t.html" title="Integer 4&#45;tuple based hash table." alt="" coords="980,749,1136,774"/>
+<area shape="poly" title=" " alt="" coords="295,650,397,755,478,782,564,799,651,806,736,806,817,801,890,792,1004,771,1005,777,891,797,817,806,736,811,651,811,563,804,477,787,395,760,291,654"/>
+<area shape="rect" href="../../da/d93/structhtable_1_1htable__i4t2__t.html" title="Integer 2&#45;tuple based hash table." alt="" coords="592,557,748,582"/>
+<area shape="poly" title=" " alt="" coords="345,612,396,603,591,576,592,581,396,608,346,617"/>
+<area shape="rect" href="../../d8/d5b/structhtable_1_1h__tuple__t.html" title="Hash table entry, tuple (key, data)" alt="" coords="5,617,136,642"/>
+<area shape="poly" title=" " alt="" coords="150,627,207,627,207,632,150,632"/>
+<area shape="poly" title=" " alt="" coords="1149,747,1214,733,1286,710,1358,678,1391,658,1422,635,1452,602,1475,564,1500,499,1505,501,1480,566,1456,605,1426,639,1394,663,1360,683,1288,715,1216,738,1150,752"/>
+<area shape="poly" title=" " alt="" coords="762,558,1449,490,1450,495,762,563"/>
+<area shape="rect" href="../../d2/d45/structstack_1_1stack__i4__t.html" title="Integer based stack." alt="" coords="993,442,1123,467"/>
+<area shape="poly" title=" " alt="" coords="1138,458,1450,480,1449,485,1137,463"/>
+<area shape="rect" href="../../d2/dbd/structstack_1_1stack__t.html" title="Base type for a stack." alt="" coords="214,249,326,274"/>
+<area shape="poly" title=" " alt="" coords="314,277,397,310,582,375,665,399,772,423,889,440,992,449,992,454,888,445,772,428,664,404,581,380,395,314,312,282"/>
+<area shape="rect" href="../../d1/d93/structstack_1_1stack__i4t2__t.html" title="Integer 2&#45;tuple based stack." alt="" coords="410,275,554,301"/>
+<area shape="poly" title=" " alt="" coords="340,267,410,276,410,282,340,273"/>
+<area shape="rect" href="../../df/d1c/structstack_1_1stack__i4t4__t.html" title="Integer 4&#45;tuple based stack." alt="" coords="598,221,742,246"/>
+<area shape="poly" title=" " alt="" coords="339,254,598,236,598,241,340,259"/>
+<area shape="rect" href="../../d1/ddd/structstack_1_1stack__curve__t.html" title="Curved element stack." alt="" coords="405,55,559,81"/>
+<area shape="poly" title=" " alt="" coords="293,237,465,79,468,83,297,241"/>
+<area shape="rect" href="../../d4/ddd/structdistdata_1_1distdata__t.html" title=" " alt="" coords="1173,555,1321,581"/>
+<area shape="poly" title=" " alt="" coords="1335,566,1380,561,1423,548,1463,524,1492,498,1496,502,1466,529,1425,553,1381,566,1336,572"/>
+<area shape="poly" title=" " alt="" coords="514,306,592,356,704,422,838,488,909,517,981,540,1030,551,1080,559,1173,565,1173,571,1080,564,1029,557,979,545,907,522,836,493,702,427,589,361,511,311"/>
+<area shape="rect" href="../../d2/d94/structfacet__zone_1_1facet__zone__t.html" title=" " alt="" coords="772,275,956,301"/>
+<area shape="poly" title=" " alt="" coords="568,285,772,285,772,291,568,291"/>
+<area shape="rect" href="../../d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html" title=" " alt="" coords="1161,211,1333,251"/>
+<area shape="poly" title=" " alt="" coords="554,301,636,315,737,326,846,331,956,324,1024,310,1091,291,1201,248,1203,253,1093,296,1025,316,956,329,846,336,736,332,635,320,553,306"/>
+<area shape="poly" title=" " alt="" coords="927,709,975,716,1029,717,1084,710,1110,702,1135,690,1143,682,1148,673,1158,649,1194,609,1228,579,1232,583,1198,613,1162,652,1152,675,1148,685,1137,694,1112,706,1085,715,1030,722,975,721,927,714"/>
+<area shape="rect" href="../../d8/d9e/structuset_1_1uset__t.html" title="Base type for an unordered set." alt="" coords="433,670,531,695"/>
+<area shape="poly" title=" " alt="" coords="545,682,805,691,805,697,545,688"/>
+<area shape="rect" href="../../dc/d23/structhtable_1_1htable__iter__i4__t.html" title="Iterator for an integer based hash table." alt="" coords="396,719,568,745"/>
+<area shape="poly" title=" " alt="" coords="582,723,748,708,805,701,805,707,748,713,582,728"/>
+<area shape="rect" href="../../d1/dec/structhtable_1_1htable__iter__t.html" title="Base type for a hash table iterator." alt="" coords="193,719,347,745"/>
+<area shape="poly" title=" " alt="" coords="361,729,396,729,396,735,361,735"/>
+<area shape="poly" title=" " alt="" coords="969,286,1090,290,1224,300,1287,309,1344,320,1391,334,1426,353,1455,381,1478,415,1504,473,1499,475,1473,418,1451,385,1422,357,1389,339,1343,325,1286,314,1223,305,1090,295,969,291"/>
+<area shape="poly" title=" " alt="" coords="963,271,1161,241,1161,246,963,276"/>
+<area shape="rect" href="../../d5/d16/structtuple_1_1tuple__i4__t.html" title="Integer based 2&#45;tuple." alt="" coords="419,173,545,198"/>
+<area shape="poly" title=" " alt="" coords="560,184,668,192,716,201,749,214,759,224,763,234,766,245,774,254,808,273,806,278,770,258,762,247,758,236,755,227,747,218,714,206,667,198,559,189"/>
+<area shape="poly" title=" " alt="" coords="559,170,592,167,670,163,750,164,907,175,1049,192,1161,211,1160,216,1048,198,906,180,750,169,670,169,592,172,559,175"/>
+<area shape="rect" href="../../d1/d3b/structtuple_1_1tuple__t.html" title="Base type for an n&#45;tuple." alt="" coords="216,139,324,165"/>
+<area shape="poly" title=" " alt="" coords="338,160,419,173,418,178,337,165"/>
+<area shape="rect" href="../../dd/de4/structtuple_1_1tuple4__i4__t.html" title="Integer based 4&#45;tuple." alt="" coords="603,101,737,126"/>
+<area shape="poly" title=" " alt="" coords="337,143,602,117,603,122,338,148"/>
+<area shape="poly" title=" " alt="" coords="1348,236,1389,249,1426,273,1447,296,1465,323,1489,380,1502,434,1508,474,1502,474,1497,435,1484,382,1460,325,1443,299,1422,277,1387,254,1346,241"/>
+<area shape="poly" title=" " alt="" coords="751,98,833,90,932,89,1036,100,1088,111,1137,128,1167,145,1194,166,1233,209,1229,212,1190,170,1164,149,1135,133,1086,117,1035,105,932,94,834,95,751,103"/>
+<area shape="poly" title=" " alt="" coords="756,230,1161,228,1161,234,756,236"/>
+<area shape="rect" href="../../dd/d69/structcurve_1_1curve__t.html" title=" " alt="" coords="807,7,921,33"/>
+<area shape="poly" title=" " alt="" coords="936,22,1044,37,1109,52,1177,71,1245,97,1311,130,1373,171,1426,221,1449,252,1468,287,1492,361,1504,428,1508,474,1503,474,1499,428,1487,362,1463,290,1445,255,1422,224,1369,175,1309,135,1243,102,1175,76,1107,57,1043,43,935,27"/>
+<area shape="rect" href="../../d0/d10/structstructs_1_1struct__curve__t.html" title=" " alt="" coords="399,6,565,31"/>
+<area shape="poly" title=" " alt="" coords="579,16,806,17,806,22,579,22"/>
+<area shape="poly" title=" " alt="" coords="572,57,748,37,806,28,807,33,748,43,573,63"/>
+<area shape="poly" title=" " alt="" coords="1895,785,2034,797,2529,850,2529,855,2033,803,1895,791"/>
+<area shape="poly" title=" " alt="" coords="1858,796,1906,812,2058,847,2057,852,1905,817,1856,801"/>
+<area shape="poly" title=" " alt="" coords="1728,966,2261,945,2261,950,1728,972"/>
+<area shape="poly" title=" " alt="" coords="2047,1019,2139,1009,2188,1000,2237,988,2304,962,2306,967,2238,993,2189,1005,2140,1014,2047,1024"/>
 </map>
 <center><span class="legend">[<a target="top" href="../../graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a21c7e5cc77e6b671860d0a4bfb1bba79" id="r_a21c7e5cc77e6b671860d0a4bfb1bba79"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a21c7e5cc77e6b671860d0a4bfb1bba79">init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, size, <a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a46ae2a604bf36e34a82d43d9d9d7eb43">expansion_size</a>, <a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a79abc49eebe6cebf6b3f120bcc01aa6b">dof</a>)</td></tr>
+<tr class="memdesc:a21c7e5cc77e6b671860d0a4bfb1bba79"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
+<tr class="separator:a21c7e5cc77e6b671860d0a4bfb1bba79"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9599fa556f094ccb2279e0a1f60b6764" id="r_a9599fa556f094ccb2279e0a1f60b6764"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a9599fa556f094ccb2279e0a1f60b6764">free</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
-<tr class="memdesc:a9599fa556f094ccb2279e0a1f60b6764"><td class="mdescLeft">&#160;</td><td class="mdescRight">destructor  <br /></td></tr>
+<tr class="memdesc:a9599fa556f094ccb2279e0a1f60b6764"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <br /></td></tr>
 <tr class="separator:a9599fa556f094ccb2279e0a1f60b6764"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a93f6a01cbad40598965149806a00b358" id="r_a93f6a01cbad40598965149806a00b358"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a93f6a01cbad40598965149806a00b358">get_nfields</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
-<tr class="memdesc:a93f6a01cbad40598965149806a00b358"><td class="mdescLeft">&#160;</td><td class="mdescRight">getter for nfields  <br /></td></tr>
-<tr class="separator:a93f6a01cbad40598965149806a00b358"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a07fa92d5c0aa1c4f43eb73aff8064daf" id="r_a07fa92d5c0aa1c4f43eb73aff8064daf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a07fa92d5c0aa1c4f43eb73aff8064daf">get_nfields_inuse</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
-<tr class="memdesc:a07fa92d5c0aa1c4f43eb73aff8064daf"><td class="mdescLeft">&#160;</td><td class="mdescRight">getter for nfields_inuse  <br /></td></tr>
-<tr class="separator:a07fa92d5c0aa1c4f43eb73aff8064daf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae53d05af3146fa540b5ef44a5e16a532" id="r_ae53d05af3146fa540b5ef44a5e16a532"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#ae53d05af3146fa540b5ef44a5e16a532">set_dofmap</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a79abc49eebe6cebf6b3f120bcc01aa6b">dof</a>)</td></tr>
+<tr class="memdesc:ae53d05af3146fa540b5ef44a5e16a532"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assign a dofmap to the scratch registry.  <br /></td></tr>
+<tr class="separator:ae53d05af3146fa540b5ef44a5e16a532"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a197594883b7661e6aa42ff77d2226735" id="r_a197594883b7661e6aa42ff77d2226735"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a197594883b7661e6aa42ff77d2226735">get_n_entries</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
+<tr class="memdesc:a197594883b7661e6aa42ff77d2226735"><td class="mdescLeft">&#160;</td><td class="mdescRight">Getter for n_entries.  <br /></td></tr>
+<tr class="separator:a197594883b7661e6aa42ff77d2226735"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9cc0496188564c32dea9b28e0a1eda0e" id="r_a9cc0496188564c32dea9b28e0a1eda0e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a9cc0496188564c32dea9b28e0a1eda0e">get_n_inuse</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
+<tr class="memdesc:a9cc0496188564c32dea9b28e0a1eda0e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Getter for n_inuse.  <br /></td></tr>
+<tr class="separator:a9cc0496188564c32dea9b28e0a1eda0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a201535c13861b19f04217dd76ee68f1b" id="r_a201535c13861b19f04217dd76ee68f1b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a201535c13861b19f04217dd76ee68f1b">get_expansion_size</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
-<tr class="memdesc:a201535c13861b19f04217dd76ee68f1b"><td class="mdescLeft">&#160;</td><td class="mdescRight">getter for expansion_size  <br /></td></tr>
+<tr class="memdesc:a201535c13861b19f04217dd76ee68f1b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Getter for expansion_size.  <br /></td></tr>
 <tr class="separator:a201535c13861b19f04217dd76ee68f1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a223815a771e7157c9f8805f4fbc14cb7" id="r_a223815a771e7157c9f8805f4fbc14cb7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a223815a771e7157c9f8805f4fbc14cb7">get_size</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
-<tr class="memdesc:a223815a771e7157c9f8805f4fbc14cb7"><td class="mdescLeft">&#160;</td><td class="mdescRight">return size of allocated fields  <br /></td></tr>
+<tr class="memdesc:a223815a771e7157c9f8805f4fbc14cb7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return size of allocated fields.  <br /></td></tr>
 <tr class="separator:a223815a771e7157c9f8805f4fbc14cb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a278a4504a5c8b6acaa5147ca773166e9" id="r_a278a4504a5c8b6acaa5147ca773166e9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a278a4504a5c8b6acaa5147ca773166e9">get_inuse</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, index)</td></tr>
-<tr class="memdesc:a278a4504a5c8b6acaa5147ca773166e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">get value of inuse for a given index  <br /></td></tr>
+<tr class="memdesc:a278a4504a5c8b6acaa5147ca773166e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get value of inuse for a given index.  <br /></td></tr>
 <tr class="separator:a278a4504a5c8b6acaa5147ca773166e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7852bc97f68d2d51b986d49c06712136" id="r_a7852bc97f68d2d51b986d49c06712136"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a7852bc97f68d2d51b986d49c06712136">request_field</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, f, index)</td></tr>
-<tr class="memdesc:a7852bc97f68d2d51b986d49c06712136"><td class="mdescLeft">&#160;</td><td class="mdescRight">get a new scratch field  <br /></td></tr>
-<tr class="separator:a7852bc97f68d2d51b986d49c06712136"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9499f40c9be7572566bbf12108c03711" id="r_a9499f40c9be7572566bbf12108c03711"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a9499f40c9be7572566bbf12108c03711">request_field</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, f, index, clear)</td></tr>
+<tr class="memdesc:a9499f40c9be7572566bbf12108c03711"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a new scratch field.  <br /></td></tr>
+<tr class="separator:a9499f40c9be7572566bbf12108c03711"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6191b7ed927e7b9c4b69fa652b786e05" id="r_a6191b7ed927e7b9c4b69fa652b786e05"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a6191b7ed927e7b9c4b69fa652b786e05">relinquish_field_single</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, index)</td></tr>
 <tr class="memdesc:a6191b7ed927e7b9c4b69fa652b786e05"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relinquish the use of a field in the registry.  <br /></td></tr>
 <tr class="separator:a6191b7ed927e7b9c4b69fa652b786e05"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abcb8fee4b630bf465c3235cbba40224e" id="r_abcb8fee4b630bf465c3235cbba40224e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#abcb8fee4b630bf465c3235cbba40224e">relinquish_field_multiple</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">indices</a>)</td></tr>
+<tr class="memdesc:abcb8fee4b630bf465c3235cbba40224e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relinquish the use of multiple fields in the registry.  <br /></td></tr>
 <tr class="separator:abcb8fee4b630bf465c3235cbba40224e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8a905d960cebe1f7b169101a36fec231" id="r_a8a905d960cebe1f7b169101a36fec231"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a8a905d960cebe1f7b169101a36fec231">relinquish_field</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, index)</td></tr>
-<tr class="memdesc:a8a905d960cebe1f7b169101a36fec231"><td class="mdescLeft">&#160;</td><td class="mdescRight">free a field for later reuse  <br /></td></tr>
+<tr class="memdesc:a8a905d960cebe1f7b169101a36fec231"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free a field for later reuse.  <br /></td></tr>
 <tr class="separator:a8a905d960cebe1f7b169101a36fec231"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac23ce24bbaa0e4515ccca9e7df5b1f10" id="r_ac23ce24bbaa0e4515ccca9e7df5b1f10"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#ac23ce24bbaa0e4515ccca9e7df5b1f10">relinquish_field</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">indices</a>)</td></tr>
-<tr class="memdesc:ac23ce24bbaa0e4515ccca9e7df5b1f10"><td class="mdescLeft">&#160;</td><td class="mdescRight">free a field for later reuse  <br /></td></tr>
+<tr class="memdesc:ac23ce24bbaa0e4515ccca9e7df5b1f10"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free a field for later reuse.  <br /></td></tr>
 <tr class="separator:ac23ce24bbaa0e4515ccca9e7df5b1f10"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af79e0ceafaf225099b7a63c9f971b9fd" id="r_af79e0ceafaf225099b7a63c9f971b9fd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#af79e0ceafaf225099b7a63c9f971b9fd">request_vector</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, v, index, n, clear)</td></tr>
+<tr class="memdesc:af79e0ceafaf225099b7a63c9f971b9fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a new scratch vector.  <br /></td></tr>
+<tr class="separator:af79e0ceafaf225099b7a63c9f971b9fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a47bee86c2505dc010f82dc4803988b83" id="r_a47bee86c2505dc010f82dc4803988b83"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a47bee86c2505dc010f82dc4803988b83">relinquish_vector_single</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, index)</td></tr>
+<tr class="memdesc:a47bee86c2505dc010f82dc4803988b83"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relinquish the use of a vector in the registry.  <br /></td></tr>
+<tr class="separator:a47bee86c2505dc010f82dc4803988b83"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a708057b804ec81afcee2672bedc9f5b0" id="r_a708057b804ec81afcee2672bedc9f5b0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a708057b804ec81afcee2672bedc9f5b0">relinquish_vector_multiple</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">indices</a>)</td></tr>
+<tr class="memdesc:a708057b804ec81afcee2672bedc9f5b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relinquish the use of multiple vectors in the registry.  <br /></td></tr>
+<tr class="separator:a708057b804ec81afcee2672bedc9f5b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6534e4001450df3916045aac414f58b0" id="r_a6534e4001450df3916045aac414f58b0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a6534e4001450df3916045aac414f58b0">relinquish_vector</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, index)</td></tr>
+<tr class="memdesc:a6534e4001450df3916045aac414f58b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free a vector for later reuse.  <br /></td></tr>
+<tr class="separator:a6534e4001450df3916045aac414f58b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0adde2762e6cd0121e7c3f4c6a349276" id="r_a0adde2762e6cd0121e7c3f4c6a349276"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a0adde2762e6cd0121e7c3f4c6a349276">relinquish_vector</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">indices</a>)</td></tr>
+<tr class="memdesc:a0adde2762e6cd0121e7c3f4c6a349276"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free a vector for later reuse.  <br /></td></tr>
+<tr class="separator:a0adde2762e6cd0121e7c3f4c6a349276"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a814326acf108f3366fe3f85f6a25ed5b" id="r_a814326acf108f3366fe3f85f6a25ed5b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a814326acf108f3366fe3f85f6a25ed5b">request_matrix</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, m, index, nrows, ncols, clear)</td></tr>
+<tr class="memdesc:a814326acf108f3366fe3f85f6a25ed5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a new scratch matrix.  <br /></td></tr>
+<tr class="separator:a814326acf108f3366fe3f85f6a25ed5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0dc6f0c5163adb84a0e152170095060f" id="r_a0dc6f0c5163adb84a0e152170095060f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a0dc6f0c5163adb84a0e152170095060f">relinquish_matrix_single</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, index)</td></tr>
+<tr class="memdesc:a0dc6f0c5163adb84a0e152170095060f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relinquish the use of a matrix in the registry.  <br /></td></tr>
+<tr class="separator:a0dc6f0c5163adb84a0e152170095060f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a85f81b185323718b3f629c53c0438b8d" id="r_a85f81b185323718b3f629c53c0438b8d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a85f81b185323718b3f629c53c0438b8d">relinquish_matrix_multiple</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">indices</a>)</td></tr>
+<tr class="memdesc:a85f81b185323718b3f629c53c0438b8d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relinquish the use of multiple matrices in the registry.  <br /></td></tr>
+<tr class="separator:a85f81b185323718b3f629c53c0438b8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a007e9345ebdec9160665bc71a9ffc847" id="r_a007e9345ebdec9160665bc71a9ffc847"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a007e9345ebdec9160665bc71a9ffc847">relinquish_matrix</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, index)</td></tr>
+<tr class="memdesc:a007e9345ebdec9160665bc71a9ffc847"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free a matrix for later reuse.  <br /></td></tr>
+<tr class="separator:a007e9345ebdec9160665bc71a9ffc847"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8d8ebfdfa5fc357e2c97c300579bcbfe" id="r_a8d8ebfdfa5fc357e2c97c300579bcbfe"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a8d8ebfdfa5fc357e2c97c300579bcbfe">relinquish_matrix</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">indices</a>)</td></tr>
+<tr class="memdesc:a8d8ebfdfa5fc357e2c97c300579bcbfe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free a matrix for later reuse.  <br /></td></tr>
+<tr class="separator:a8d8ebfdfa5fc357e2c97c300579bcbfe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a88531fe3b3a4b60001b14f64e84e8be2" id="r_a88531fe3b3a4b60001b14f64e84e8be2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a88531fe3b3a4b60001b14f64e84e8be2">request</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, f, index, clear)</td></tr>
+<tr class="memdesc:a88531fe3b3a4b60001b14f64e84e8be2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic request procedure.  <br /></td></tr>
+<tr class="separator:a88531fe3b3a4b60001b14f64e84e8be2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad38cf57232f6a511f62dc7fe5a265429" id="r_ad38cf57232f6a511f62dc7fe5a265429"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#ad38cf57232f6a511f62dc7fe5a265429">request</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, v, index, n, clear)</td></tr>
+<tr class="memdesc:ad38cf57232f6a511f62dc7fe5a265429"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic request procedure.  <br /></td></tr>
+<tr class="separator:ad38cf57232f6a511f62dc7fe5a265429"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b7704ead7654f20f9779ac38a44b6f7" id="r_a9b7704ead7654f20f9779ac38a44b6f7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a9b7704ead7654f20f9779ac38a44b6f7">request</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, m, index, nrows, ncols, clear)</td></tr>
+<tr class="memdesc:a9b7704ead7654f20f9779ac38a44b6f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic request procedure.  <br /></td></tr>
+<tr class="separator:a9b7704ead7654f20f9779ac38a44b6f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad2a14e70acbe8d8a9e92d9305a6194bc" id="r_ad2a14e70acbe8d8a9e92d9305a6194bc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#ad2a14e70acbe8d8a9e92d9305a6194bc">relinquish_single</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, index)</td></tr>
+<tr class="memdesc:ad2a14e70acbe8d8a9e92d9305a6194bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relinquish the use of an object in the registry.  <br /></td></tr>
+<tr class="separator:ad2a14e70acbe8d8a9e92d9305a6194bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a32c884c2c0bd479e6ebe218ca81871e5" id="r_a32c884c2c0bd479e6ebe218ca81871e5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a32c884c2c0bd479e6ebe218ca81871e5">relinquish_multiple</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">indices</a>)</td></tr>
+<tr class="memdesc:a32c884c2c0bd479e6ebe218ca81871e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relinquish the use of multiple objects in the registry.  <br /></td></tr>
+<tr class="separator:a32c884c2c0bd479e6ebe218ca81871e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a556c81c4fd2aa5c660c3a6bf9c3c4cc8" id="r_a556c81c4fd2aa5c660c3a6bf9c3c4cc8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a556c81c4fd2aa5c660c3a6bf9c3c4cc8">relinquish</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, index)</td></tr>
+<tr class="memdesc:a556c81c4fd2aa5c660c3a6bf9c3c4cc8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic relinquish procedure.  <br /></td></tr>
+<tr class="separator:a556c81c4fd2aa5c660c3a6bf9c3c4cc8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a260e25af11c739cfc8b56f75fa375ad8" id="r_a260e25af11c739cfc8b56f75fa375ad8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a260e25af11c739cfc8b56f75fa375ad8">relinquish</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">indices</a>)</td></tr>
+<tr class="memdesc:a260e25af11c739cfc8b56f75fa375ad8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic relinquish procedure.  <br /></td></tr>
+<tr class="separator:a260e25af11c739cfc8b56f75fa375ad8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -242,25 +306,25 @@ Private Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
-<tr class="memitem:a172762f5d34e21a575b13a6b287340a3" id="r_a172762f5d34e21a575b13a6b287340a3"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../dc/dd8/structfield_1_1field__ptr__t.html">field_ptr_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a172762f5d34e21a575b13a6b287340a3">fields</a></td></tr>
-<tr class="memdesc:a172762f5d34e21a575b13a6b287340a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">list of scratch fields  <br /></td></tr>
-<tr class="separator:a172762f5d34e21a575b13a6b287340a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5775d0b7b4f675c87c79bc393a7b96e5" id="r_a5775d0b7b4f675c87c79bc393a7b96e5"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../df/db9/structregistry__entry_1_1registry__entry__t.html">registry_entry_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a5775d0b7b4f675c87c79bc393a7b96e5">entries</a></td></tr>
+<tr class="memdesc:a5775d0b7b4f675c87c79bc393a7b96e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">list of scratch fields  <br /></td></tr>
+<tr class="separator:a5775d0b7b4f675c87c79bc393a7b96e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4414417298ed453507feb58dc1d2564a" id="r_a4414417298ed453507feb58dc1d2564a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a4414417298ed453507feb58dc1d2564a">inuse</a></td></tr>
 <tr class="memdesc:a4414417298ed453507feb58dc1d2564a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tracks which fields are used.  <br /></td></tr>
 <tr class="separator:a4414417298ed453507feb58dc1d2564a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6e66dd17af6be8021b361c6d10e4bc3d" id="r_a6e66dd17af6be8021b361c6d10e4bc3d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a6e66dd17af6be8021b361c6d10e4bc3d">nfields</a></td></tr>
-<tr class="memdesc:a6e66dd17af6be8021b361c6d10e4bc3d"><td class="mdescLeft">&#160;</td><td class="mdescRight">number of registered fields  <br /></td></tr>
-<tr class="separator:a6e66dd17af6be8021b361c6d10e4bc3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a72d08f1954fe8f9e0a5837ec6e051761" id="r_a72d08f1954fe8f9e0a5837ec6e051761"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a72d08f1954fe8f9e0a5837ec6e051761">nfields_inuse</a></td></tr>
-<tr class="memdesc:a72d08f1954fe8f9e0a5837ec6e051761"><td class="mdescLeft">&#160;</td><td class="mdescRight">number of fields in use  <br /></td></tr>
-<tr class="separator:a72d08f1954fe8f9e0a5837ec6e051761"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a46ae2a604bf36e34a82d43d9d9d7eb43" id="r_a46ae2a604bf36e34a82d43d9d9d7eb43"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a46ae2a604bf36e34a82d43d9d9d7eb43">expansion_size</a></td></tr>
+<tr class="memitem:a290cb7f4c1987d65b3ba584342ad7572" id="r_a290cb7f4c1987d65b3ba584342ad7572"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a290cb7f4c1987d65b3ba584342ad7572">n_entries</a> = 0</td></tr>
+<tr class="memdesc:a290cb7f4c1987d65b3ba584342ad7572"><td class="mdescLeft">&#160;</td><td class="mdescRight">number of registered fields  <br /></td></tr>
+<tr class="separator:a290cb7f4c1987d65b3ba584342ad7572"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0da050f66c378b64808731a08608ae01" id="r_a0da050f66c378b64808731a08608ae01"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a0da050f66c378b64808731a08608ae01">n_inuse</a> = 0</td></tr>
+<tr class="memdesc:a0da050f66c378b64808731a08608ae01"><td class="mdescLeft">&#160;</td><td class="mdescRight">number of fields in use  <br /></td></tr>
+<tr class="separator:a0da050f66c378b64808731a08608ae01"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a46ae2a604bf36e34a82d43d9d9d7eb43" id="r_a46ae2a604bf36e34a82d43d9d9d7eb43"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a46ae2a604bf36e34a82d43d9d9d7eb43">expansion_size</a> = 10</td></tr>
 <tr class="memdesc:a46ae2a604bf36e34a82d43d9d9d7eb43"><td class="mdescLeft">&#160;</td><td class="mdescRight">the size the fields array is increased by upon reallocation  <br /></td></tr>
 <tr class="separator:a46ae2a604bf36e34a82d43d9d9d7eb43"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00044">44</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00052">52</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
 <a id="a8128a9a8ecab70eb26991936a3880f21" name="a8128a9a8ecab70eb26991936a3880f21"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8128a9a8ecab70eb26991936a3880f21">&#9670;&#160;</a></span>expand()</h2>
@@ -286,7 +350,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00058">58</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00066">66</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -306,7 +370,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00060">60</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00070">70</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -326,7 +390,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00066">66</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00078">78</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -339,13 +403,13 @@ Private Attributes</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) scratch_registry::scratch_registry_t::get_inuse </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>index</em>&#160;</td>
         </tr>
         <tr>
@@ -355,25 +419,19 @@ Private Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">index</td><td>The index of the field to check </td></tr>
-  </table>
-  </dd>
-</dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00070">70</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00082">82</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 
 </div>
 </div>
-<a id="a93f6a01cbad40598965149806a00b358" name="a93f6a01cbad40598965149806a00b358"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a93f6a01cbad40598965149806a00b358">&#9670;&#160;</a></span>get_nfields()</h2>
+<a id="a197594883b7661e6aa42ff77d2226735" name="a197594883b7661e6aa42ff77d2226735"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a197594883b7661e6aa42ff77d2226735">&#9670;&#160;</a></span>get_n_entries()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) scratch_registry::scratch_registry_t::get_nfields </td>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) scratch_registry::scratch_registry_t::get_n_entries </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>this</em></td><td>)</td>
@@ -382,18 +440,18 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00062">62</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00074">74</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 
 </div>
 </div>
-<a id="a07fa92d5c0aa1c4f43eb73aff8064daf" name="a07fa92d5c0aa1c4f43eb73aff8064daf"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a07fa92d5c0aa1c4f43eb73aff8064daf">&#9670;&#160;</a></span>get_nfields_inuse()</h2>
+<a id="a9cc0496188564c32dea9b28e0a1eda0e" name="a9cc0496188564c32dea9b28e0a1eda0e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9cc0496188564c32dea9b28e0a1eda0e">&#9670;&#160;</a></span>get_n_inuse()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) scratch_registry::scratch_registry_t::get_nfields_inuse </td>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) scratch_registry::scratch_registry_t::get_n_inuse </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>this</em></td><td>)</td>
@@ -402,7 +460,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00064">64</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00076">76</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -422,7 +480,142 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00080">80</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+
+</div>
+</div>
+<a id="a21c7e5cc77e6b671860d0a4bfb1bba79" name="a21c7e5cc77e6b671860d0a4bfb1bba79"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a21c7e5cc77e6b671860d0a4bfb1bba79">&#9670;&#160;</a></span>init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) scratch_registry::scratch_registry_t::init </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>expansion_size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>dof</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">size</td><td>Initial size of the registry </td></tr>
+    <tr><td class="paramname">expansion_size</td><td>Size to expand the registry by when needed </td></tr>
+    <tr><td class="paramname">dof</td><td>Dofmap to associate with the scratch registry</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Note</dt><dd>If no DOF map is provided here, it must be set later using <a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#ae53d05af3146fa540b5ef44a5e16a532" title="Assign a dofmap to the scratch registry.">scratch_registry_t::set_dofmap</a> before requesting fields. </dd></dl>
+
 <p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00068">68</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+
+</div>
+</div>
+<a id="a556c81c4fd2aa5c660c3a6bf9c3c4cc8" name="a556c81c4fd2aa5c660c3a6bf9c3c4cc8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a556c81c4fd2aa5c660c3a6bf9c3c4cc8">&#9670;&#160;</a></span>relinquish() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a> scratch_registry::scratch_registry_t::relinquish </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>index</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">index</td><td>The index of the object to free </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00113">113</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d8/d43/structscratch__registry_1_1scratch__registry__t_a556c81c4fd2aa5c660c3a6bf9c3c4cc8_cgraph.png" border="0" usemap="#ad8/d43/structscratch__registry_1_1scratch__registry__t_a556c81c4fd2aa5c660c3a6bf9c3c4cc8_cgraph" alt=""/></div>
+<map name="ad8/d43/structscratch__registry_1_1scratch__registry__t_a556c81c4fd2aa5c660c3a6bf9c3c4cc8_cgraph" id="ad8/d43/structscratch__registry_1_1scratch__registry__t_a556c81c4fd2aa5c660c3a6bf9c3c4cc8_cgraph">
+<area shape="rect" title="Generic relinquish procedure." alt="" coords="5,37,185,77"/>
+<area shape="rect" href="../../d7/dda/namespacescratch__registry.html#ae15b3b45226082405590af6a0a41d47f" title="Relinquish the use of multiple objects in the registry." alt="" coords="233,5,431,45"/>
+<area shape="poly" title=" " alt="" coords="185,43,219,38,220,43,186,48"/>
+<area shape="rect" href="../../d7/dda/namespacescratch__registry.html#ae23a3008febb84c6f541c8ffb01fa3d9" title="Relinquish the use of an object in the registry." alt="" coords="233,69,431,109"/>
+<area shape="poly" title=" " alt="" coords="186,67,220,72,219,77,185,72"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a260e25af11c739cfc8b56f75fa375ad8" name="a260e25af11c739cfc8b56f75fa375ad8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a260e25af11c739cfc8b56f75fa375ad8">&#9670;&#160;</a></span>relinquish() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a> scratch_registry::scratch_registry_t::relinquish </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>indices</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">indices</td><td>The indices of the objects to free </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00113">113</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -453,19 +646,19 @@ Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">index</td><td>The index of the field to free </td></tr>
+    <tr><td class="paramname">index</td><td>The index of the field to free </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00076">76</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00089">89</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d8/d43/structscratch__registry_1_1scratch__registry__t_a8a905d960cebe1f7b169101a36fec231_cgraph.png" border="0" usemap="#ad8/d43/structscratch__registry_1_1scratch__registry__t_a8a905d960cebe1f7b169101a36fec231_cgraph" alt=""/></div>
 <map name="ad8/d43/structscratch__registry_1_1scratch__registry__t_a8a905d960cebe1f7b169101a36fec231_cgraph" id="ad8/d43/structscratch__registry_1_1scratch__registry__t_a8a905d960cebe1f7b169101a36fec231_cgraph">
-<area shape="rect" title="free a field for later reuse" alt="" coords="5,37,204,77"/>
-<area shape="rect" href="../../d7/dda/namespacescratch__registry.html#a78675710e5ecd78ec8cba776e634838a" title=" " alt="" coords="252,5,449,45"/>
+<area shape="rect" title="Free a field for later reuse." alt="" coords="5,37,204,77"/>
+<area shape="rect" href="../../d7/dda/namespacescratch__registry.html#a78675710e5ecd78ec8cba776e634838a" title="Relinquish the use of multiple fields in the registry." alt="" coords="252,5,449,45"/>
 <area shape="poly" title=" " alt="" coords="204,42,238,37,239,43,205,47"/>
 <area shape="rect" href="../../d7/dda/namespacescratch__registry.html#a6d50ee2b1062ce3a2ead6f2f6569f66b" title="Relinquish the use of a field in the registry." alt="" coords="252,69,449,109"/>
 <area shape="poly" title=" " alt="" coords="205,68,239,72,238,77,204,73"/>
@@ -501,12 +694,12 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">indices</td><td>The indices of the field to free </td></tr>
+    <tr><td class="paramname">indices</td><td>The indices of the fields to free </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00076">76</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00089">89</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -537,12 +730,12 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">indices</td><td>The indices of the field to free </td></tr>
+    <tr><td class="paramname">indices</td><td>The indices of the fields to free </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00074">74</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00087">87</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -573,17 +766,592 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">index</td><td>The index of the field to free </td></tr>
+    <tr><td class="paramname">index</td><td>The index of the field to free </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00073">73</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00086">86</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 
 </div>
 </div>
-<a id="a7852bc97f68d2d51b986d49c06712136" name="a7852bc97f68d2d51b986d49c06712136"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7852bc97f68d2d51b986d49c06712136">&#9670;&#160;</a></span>request_field()</h2>
+<a id="a007e9345ebdec9160665bc71a9ffc847" name="a007e9345ebdec9160665bc71a9ffc847"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a007e9345ebdec9160665bc71a9ffc847">&#9670;&#160;</a></span>relinquish_matrix() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a> scratch_registry::scratch_registry_t::relinquish_matrix </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>index</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">index</td><td>The index of the matrix to free </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00105">105</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d8/d43/structscratch__registry_1_1scratch__registry__t_a007e9345ebdec9160665bc71a9ffc847_cgraph.png" border="0" usemap="#ad8/d43/structscratch__registry_1_1scratch__registry__t_a007e9345ebdec9160665bc71a9ffc847_cgraph" alt=""/></div>
+<map name="ad8/d43/structscratch__registry_1_1scratch__registry__t_a007e9345ebdec9160665bc71a9ffc847_cgraph" id="ad8/d43/structscratch__registry_1_1scratch__registry__t_a007e9345ebdec9160665bc71a9ffc847_cgraph">
+<area shape="rect" title="Free a matrix for later reuse." alt="" coords="5,37,219,77"/>
+<area shape="rect" href="../../d7/dda/namespacescratch__registry.html#a3e70dd138b7a86c4aa572c971175c302" title="Relinquish the use of multiple matrices in the registry." alt="" coords="267,5,464,45"/>
+<area shape="poly" title=" " alt="" coords="219,41,253,37,254,42,219,47"/>
+<area shape="rect" href="../../d7/dda/namespacescratch__registry.html#a09704a6a3f7b0da5268bfd5aac15d9ff" title="Relinquish the use of a matrix in the registry." alt="" coords="267,69,464,109"/>
+<area shape="poly" title=" " alt="" coords="219,68,254,73,253,78,219,73"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a8d8ebfdfa5fc357e2c97c300579bcbfe" name="a8d8ebfdfa5fc357e2c97c300579bcbfe"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8d8ebfdfa5fc357e2c97c300579bcbfe">&#9670;&#160;</a></span>relinquish_matrix() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a> scratch_registry::scratch_registry_t::relinquish_matrix </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>indices</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">indices</td><td>The indices of the matrices to free </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00105">105</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+
+</div>
+</div>
+<a id="a85f81b185323718b3f629c53c0438b8d" name="a85f81b185323718b3f629c53c0438b8d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a85f81b185323718b3f629c53c0438b8d">&#9670;&#160;</a></span>relinquish_matrix_multiple()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) scratch_registry::scratch_registry_t::relinquish_matrix_multiple </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>indices</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">indices</td><td>The indices of the matrices to free </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00103">103</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+
+</div>
+</div>
+<a id="a0dc6f0c5163adb84a0e152170095060f" name="a0dc6f0c5163adb84a0e152170095060f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0dc6f0c5163adb84a0e152170095060f">&#9670;&#160;</a></span>relinquish_matrix_single()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) scratch_registry::scratch_registry_t::relinquish_matrix_single </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>index</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">index</td><td>The index of the matrix to free </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00102">102</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+
+</div>
+</div>
+<a id="a32c884c2c0bd479e6ebe218ca81871e5" name="a32c884c2c0bd479e6ebe218ca81871e5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a32c884c2c0bd479e6ebe218ca81871e5">&#9670;&#160;</a></span>relinquish_multiple()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) scratch_registry::scratch_registry_t::relinquish_multiple </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>indices</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">indices</td><td>The indices of the objects to free </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00111">111</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+
+</div>
+</div>
+<a id="ad2a14e70acbe8d8a9e92d9305a6194bc" name="ad2a14e70acbe8d8a9e92d9305a6194bc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad2a14e70acbe8d8a9e92d9305a6194bc">&#9670;&#160;</a></span>relinquish_single()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) scratch_registry::scratch_registry_t::relinquish_single </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>index</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">index</td><td>The index of the object to free </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00110">110</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+
+</div>
+</div>
+<a id="a6534e4001450df3916045aac414f58b0" name="a6534e4001450df3916045aac414f58b0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6534e4001450df3916045aac414f58b0">&#9670;&#160;</a></span>relinquish_vector() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a> scratch_registry::scratch_registry_t::relinquish_vector </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>index</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">index</td><td>The index of the vector to free </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00097">97</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d8/d43/structscratch__registry_1_1scratch__registry__t_a6534e4001450df3916045aac414f58b0_cgraph.png" border="0" usemap="#ad8/d43/structscratch__registry_1_1scratch__registry__t_a6534e4001450df3916045aac414f58b0_cgraph" alt=""/></div>
+<map name="ad8/d43/structscratch__registry_1_1scratch__registry__t_a6534e4001450df3916045aac414f58b0_cgraph" id="ad8/d43/structscratch__registry_1_1scratch__registry__t_a6534e4001450df3916045aac414f58b0_cgraph">
+<area shape="rect" title="Free a vector for later reuse." alt="" coords="5,37,216,77"/>
+<area shape="rect" href="../../d7/dda/namespacescratch__registry.html#a867466069feddb9c5d105cce6a85a40f" title="Relinquish the use of multiple vectors in the registry." alt="" coords="264,5,461,45"/>
+<area shape="poly" title=" " alt="" coords="216,41,250,37,251,42,217,47"/>
+<area shape="rect" href="../../d7/dda/namespacescratch__registry.html#ab25fa294d3423b75f9829beebda8a7ed" title="Relinquish the use of a vector in the registry." alt="" coords="264,69,461,109"/>
+<area shape="poly" title=" " alt="" coords="217,68,251,72,250,78,216,73"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a0adde2762e6cd0121e7c3f4c6a349276" name="a0adde2762e6cd0121e7c3f4c6a349276"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0adde2762e6cd0121e7c3f4c6a349276">&#9670;&#160;</a></span>relinquish_vector() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a> scratch_registry::scratch_registry_t::relinquish_vector </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>indices</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">indices</td><td>The indices of the vectors to free </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00097">97</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+
+</div>
+</div>
+<a id="a708057b804ec81afcee2672bedc9f5b0" name="a708057b804ec81afcee2672bedc9f5b0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a708057b804ec81afcee2672bedc9f5b0">&#9670;&#160;</a></span>relinquish_vector_multiple()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) scratch_registry::scratch_registry_t::relinquish_vector_multiple </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>indices</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">indices</td><td>The indices of the vectors to free </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00095">95</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+
+</div>
+</div>
+<a id="a47bee86c2505dc010f82dc4803988b83" name="a47bee86c2505dc010f82dc4803988b83"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a47bee86c2505dc010f82dc4803988b83">&#9670;&#160;</a></span>relinquish_vector_single()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) scratch_registry::scratch_registry_t::relinquish_vector_single </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>index</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">index</td><td>The index of the vector to free </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00094">94</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+
+</div>
+</div>
+<a id="a88531fe3b3a4b60001b14f64e84e8be2" name="a88531fe3b3a4b60001b14f64e84e8be2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a88531fe3b3a4b60001b14f64e84e8be2">&#9670;&#160;</a></span>request() <span class="overload">[1/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a> scratch_registry::scratch_registry_t::request </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a>&#160;</td>
+          <td class="paramname"><em>f</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>clear</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">f</td><td>Pointer to the requested field. </td></tr>
+    <tr><td class="paramname">index</td><td>Index of the field in the registry (for relinquishing later). </td></tr>
+    <tr><td class="paramname">clear</td><td>If true, the field values are set to zero upon request. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00109">109</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d8/d43/structscratch__registry_1_1scratch__registry__t_a88531fe3b3a4b60001b14f64e84e8be2_cgraph.png" border="0" usemap="#ad8/d43/structscratch__registry_1_1scratch__registry__t_a88531fe3b3a4b60001b14f64e84e8be2_cgraph" alt=""/></div>
+<map name="ad8/d43/structscratch__registry_1_1scratch__registry__t_a88531fe3b3a4b60001b14f64e84e8be2_cgraph" id="ad8/d43/structscratch__registry_1_1scratch__registry__t_a88531fe3b3a4b60001b14f64e84e8be2_cgraph">
+<area shape="rect" title="Generic request procedure." alt="" coords="5,99,185,139"/>
+<area shape="rect" href="../../d7/dda/namespacescratch__registry.html#a3323d64c81fd680132b725888d8d8d16" title="Get a field from the registry by assigning it to a pointer." alt="" coords="233,35,416,75"/>
+<area shape="poly" title=" " alt="" coords="167,96,239,76,240,81,168,101"/>
+<area shape="rect" href="../../d7/dda/namespacescratch__registry.html#ab56e8bccbcc5ed446b6a1c0fab6979bb" title="Get a matrix from the registry by assigning it to a pointer." alt="" coords="233,99,416,139"/>
+<area shape="poly" title=" " alt="" coords="186,116,219,116,219,121,186,121"/>
+<area shape="rect" href="../../d7/dda/namespacescratch__registry.html#abb82d6f812046c663d7068b900e88998" title="Get a vector from the registry by assigning it to a pointer." alt="" coords="233,163,416,203"/>
+<area shape="poly" title=" " alt="" coords="168,136,240,156,239,162,167,141"/>
+<area shape="rect" href="../../d5/de6/namespacefield__math.html#a6d9ee36a5c455ef8e5d73ebe6424f4f6" title="Zero a real vector." alt="" coords="464,42,631,67"/>
+<area shape="poly" title=" " alt="" coords="416,52,450,52,450,57,416,57"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="679,5,836,45"/>
+<area shape="poly" title=" " alt="" coords="631,40,665,36,665,41,632,46"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="709,70,806,95"/>
+<area shape="poly" title=" " alt="" coords="632,63,695,72,695,77,631,68"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a9b7704ead7654f20f9779ac38a44b6f7" name="a9b7704ead7654f20f9779ac38a44b6f7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9b7704ead7654f20f9779ac38a44b6f7">&#9670;&#160;</a></span>request() <span class="overload">[2/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a> scratch_registry::scratch_registry_t::request </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../da/d95/structmatrix_1_1matrix__t.html">matrix_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a>&#160;</td>
+          <td class="paramname"><em>m</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>nrows</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>ncols</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>clear</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">m</td><td>Pointer to the requested matrix. </td></tr>
+    <tr><td class="paramname">index</td><td>Index of the matrix in the registry (for relinquishing later). </td></tr>
+    <tr><td class="paramname">nrows</td><td>Number of rows of the requested matrix. </td></tr>
+    <tr><td class="paramname">ncols</td><td>Number of columns of the requested matrix. </td></tr>
+    <tr><td class="paramname">clear</td><td>If true, the matrix values are set to zero upon request. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00109">109</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+
+</div>
+</div>
+<a id="ad38cf57232f6a511f62dc7fe5a265429" name="ad38cf57232f6a511f62dc7fe5a265429"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad38cf57232f6a511f62dc7fe5a265429">&#9670;&#160;</a></span>request() <span class="overload">[3/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a> scratch_registry::scratch_registry_t::request </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5b/structvector_1_1vector__t.html">vector_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a>&#160;</td>
+          <td class="paramname"><em>v</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>n</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>clear</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">v</td><td>Pointer to the requested vector. </td></tr>
+    <tr><td class="paramname">index</td><td>Index of the vector in the registry (for relinquishing later). </td></tr>
+    <tr><td class="paramname">n</td><td>Size of the requested vector. </td></tr>
+    <tr><td class="paramname">clear</td><td>If true, the vector values are set to zero upon request. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00109">109</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+
+</div>
+</div>
+<a id="a9499f40c9be7572566bbf12108c03711" name="a9499f40c9be7572566bbf12108c03711"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9499f40c9be7572566bbf12108c03711">&#9670;&#160;</a></span>request_field()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -604,7 +1372,13 @@ Here is the call graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>index</em>&#160;</td>
+          <td class="paramname"><em>index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>clear</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -615,10 +1389,170 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">index</td><td>The index of the field in the inuse array </td></tr>
+    <tr><td class="paramname">f</td><td>Pointer to the requested field. </td></tr>
+    <tr><td class="paramname">index</td><td>Index of the field in the registry (for relinquishing later). </td></tr>
+    <tr><td class="paramname">clear</td><td>If true, the field values are set to zero upon request. </td></tr>
   </table>
   </dd>
 </dl>
+
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00085">85</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+
+</div>
+</div>
+<a id="a814326acf108f3366fe3f85f6a25ed5b" name="a814326acf108f3366fe3f85f6a25ed5b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a814326acf108f3366fe3f85f6a25ed5b">&#9670;&#160;</a></span>request_matrix()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) scratch_registry::scratch_registry_t::request_matrix </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../da/d95/structmatrix_1_1matrix__t.html">matrix_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a>&#160;</td>
+          <td class="paramname"><em>m</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>nrows</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>ncols</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>clear</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">m</td><td>Pointer to the requested matrix. </td></tr>
+    <tr><td class="paramname">index</td><td>Index of the matrix in the registry (for relinquishing later). </td></tr>
+    <tr><td class="paramname">nrows</td><td>Number of rows of the requested matrix. </td></tr>
+    <tr><td class="paramname">ncols</td><td>Number of columns of the requested matrix. </td></tr>
+    <tr><td class="paramname">clear</td><td>If true, the matrix values are set to zero upon request. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00101">101</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+
+</div>
+</div>
+<a id="af79e0ceafaf225099b7a63c9f971b9fd" name="af79e0ceafaf225099b7a63c9f971b9fd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af79e0ceafaf225099b7a63c9f971b9fd">&#9670;&#160;</a></span>request_vector()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) scratch_registry::scratch_registry_t::request_vector </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5b/structvector_1_1vector__t.html">vector_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a>&#160;</td>
+          <td class="paramname"><em>v</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>n</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>clear</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">v</td><td>Pointer to the requested vector. </td></tr>
+    <tr><td class="paramname">index</td><td>Index of the vector in the registry (for relinquishing later). </td></tr>
+    <tr><td class="paramname">n</td><td>Size of the requested vector. </td></tr>
+    <tr><td class="paramname">clear</td><td>If true, the vector values are set to zero upon request. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00093">93</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+
+</div>
+</div>
+<a id="ae53d05af3146fa540b5ef44a5e16a532" name="ae53d05af3146fa540b5ef44a5e16a532"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae53d05af3146fa540b5ef44a5e16a532">&#9670;&#160;</a></span>set_dofmap()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) scratch_registry::scratch_registry_t::set_dofmap </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>dof</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">dof</td><td>Dofmap to assign </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Note</dt><dd>First check if a dofmap is already assigned, and throw an error, unless it's the same dofmap. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00072">72</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 
@@ -637,12 +1571,12 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00056">56</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00064">64</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 
 </div>
 </div>
-<a id="a46ae2a604bf36e34a82d43d9d9d7eb43" name="a46ae2a604bf36e34a82d43d9d9d7eb43"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a46ae2a604bf36e34a82d43d9d9d7eb43">&#9670;&#160;</a></span>expansion_size</h2>
+<a id="a5775d0b7b4f675c87c79bc393a7b96e5" name="a5775d0b7b4f675c87c79bc393a7b96e5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5775d0b7b4f675c87c79bc393a7b96e5">&#9670;&#160;</a></span>entries</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -651,7 +1585,7 @@ Here is the call graph for this function:</div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a> scratch_registry::scratch_registry_t::expansion_size</td>
+          <td class="memname">type(<a class="el" href="../../df/db9/structregistry__entry_1_1registry__entry__t.html">registry_entry_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a> scratch_registry::scratch_registry_t::entries</td>
         </tr>
       </table>
   </td>
@@ -665,8 +1599,8 @@ Here is the call graph for this function:</div>
 
 </div>
 </div>
-<a id="a172762f5d34e21a575b13a6b287340a3" name="a172762f5d34e21a575b13a6b287340a3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a172762f5d34e21a575b13a6b287340a3">&#9670;&#160;</a></span>fields</h2>
+<a id="a46ae2a604bf36e34a82d43d9d9d7eb43" name="a46ae2a604bf36e34a82d43d9d9d7eb43"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a46ae2a604bf36e34a82d43d9d9d7eb43">&#9670;&#160;</a></span>expansion_size</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -675,7 +1609,7 @@ Here is the call graph for this function:</div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">type(<a class="el" href="../../dc/dd8/structfield_1_1field__ptr__t.html">field_ptr_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a> scratch_registry::scratch_registry_t::fields</td>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a> scratch_registry::scratch_registry_t::expansion_size = 10</td>
         </tr>
       </table>
   </td>
@@ -685,7 +1619,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00046">46</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00062">62</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -709,12 +1643,12 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00048">48</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00056">56</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 
 </div>
 </div>
-<a id="a6e66dd17af6be8021b361c6d10e4bc3d" name="a6e66dd17af6be8021b361c6d10e4bc3d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6e66dd17af6be8021b361c6d10e4bc3d">&#9670;&#160;</a></span>nfields</h2>
+<a id="a290cb7f4c1987d65b3ba584342ad7572" name="a290cb7f4c1987d65b3ba584342ad7572"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a290cb7f4c1987d65b3ba584342ad7572">&#9670;&#160;</a></span>n_entries</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -723,7 +1657,7 @@ Here is the call graph for this function:</div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a> scratch_registry::scratch_registry_t::nfields</td>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a> scratch_registry::scratch_registry_t::n_entries = 0</td>
         </tr>
       </table>
   </td>
@@ -733,12 +1667,12 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00050">50</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00058">58</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 
 </div>
 </div>
-<a id="a72d08f1954fe8f9e0a5837ec6e051761" name="a72d08f1954fe8f9e0a5837ec6e051761"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a72d08f1954fe8f9e0a5837ec6e051761">&#9670;&#160;</a></span>nfields_inuse</h2>
+<a id="a0da050f66c378b64808731a08608ae01" name="a0da050f66c378b64808731a08608ae01"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0da050f66c378b64808731a08608ae01">&#9670;&#160;</a></span>n_inuse</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -747,7 +1681,7 @@ Here is the call graph for this function:</div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a> scratch_registry::scratch_registry_t::nfields_inuse</td>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a> scratch_registry::scratch_registry_t::n_inuse = 0</td>
         </tr>
       </table>
   </td>
@@ -757,12 +1691,12 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00052">52</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00060">60</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 
 </div>
 </div>
-<hr/>The documentation for this interface was generated from the following file:<ul>
-<li>/home/runner/work/neko/neko/src/field/<a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a></li>
+<hr/>The documentation for this type was generated from the following file:<ul>
+<li>/home/runner/work/neko/neko/src/registries/<a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -770,7 +1704,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d7/dda/namespacescratch__registry.html">scratch_registry</a></li><li class="navelem"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:53 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

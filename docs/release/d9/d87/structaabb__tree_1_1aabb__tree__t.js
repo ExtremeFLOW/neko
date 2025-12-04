@@ -1,7 +1,9 @@
 var structaabb__tree_1_1aabb__tree__t =
 [
     [ "allocate_node", "d9/d87/structaabb__tree_1_1aabb__tree__t.html#a70b9f85c6b2c864a65b4118eca8a2344", null ],
-    [ "build", "d9/d87/structaabb__tree_1_1aabb__tree__t.html#ae4fb0825f71c07dafbd2ef435076f3ab", null ],
+    [ "build", "d9/d87/structaabb__tree_1_1aabb__tree__t.html#ad90913cff086925b248a782a743d7d54", null ],
+    [ "build_from_aabb", "d9/d87/structaabb__tree_1_1aabb__tree__t.html#aaeeeeb1f3cefca6137bfd014c8582350", null ],
+    [ "build_generic", "d9/d87/structaabb__tree_1_1aabb__tree__t.html#aaa48c791bb7e2f1e7ec3b17f5fc2efcb", null ],
     [ "deallocate_node", "d9/d87/structaabb__tree_1_1aabb__tree__t.html#a3f6fd254d79c457a5496ea47c4c98a9e", null ],
     [ "fix_upwards_tree", "d9/d87/structaabb__tree_1_1aabb__tree__t.html#a213c42c85263053142558bb506bcde7c", null ],
     [ "get_aabb", "d9/d87/structaabb__tree_1_1aabb__tree__t.html#a6ff44212fb191049ac799ad5b775de62", null ],

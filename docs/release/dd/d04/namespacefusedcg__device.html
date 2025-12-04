@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -135,7 +135,7 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a239efd69a0c3289d4e1ede8b248ed9d4" id="r_a239efd69a0c3289d4e1ede8b248ed9d4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d04/namespacefusedcg__device.html#a239efd69a0c3289d4e1ede8b248ed9d4">fusedcg_device_free</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="memdesc:a239efd69a0c3289d4e1ede8b248ed9d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocate a pipelined PCG solver.  <br /></td></tr>
 <tr class="separator:a239efd69a0c3289d4e1ede8b248ed9d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abfce590eb7c6404bf4f2f3f7422cf080" id="r_abfce590eb7c6404bf4f2f3f7422cf080"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">ksp_monitor_t</a>) <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d04/namespacefusedcg__device.html#abfce590eb7c6404bf4f2f3f7422cf080">fusedcg_device_solve</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, ax, x, f, n, coef, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">blst</a>, gs_h, niter)</td></tr>
+<tr class="memitem:abfce590eb7c6404bf4f2f3f7422cf080" id="r_abfce590eb7c6404bf4f2f3f7422cf080"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">ksp_monitor_t</a>) <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d04/namespacefusedcg__device.html#abfce590eb7c6404bf4f2f3f7422cf080">fusedcg_device_solve</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, ax, x, f, n, coef, blst, gs_h, niter)</td></tr>
 <tr class="memdesc:abfce590eb7c6404bf4f2f3f7422cf080"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pipelined PCG solve.  <br /></td></tr>
 <tr class="separator:abfce590eb7c6404bf4f2f3f7422cf080"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a563eb61d5a3f2499dc6e2e8f51ac375d" id="r_a563eb61d5a3f2499dc6e2e8f51ac375d"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">ksp_monitor_t</a>) <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(3)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d04/namespacefusedcg__device.html#a563eb61d5a3f2499dc6e2e8f51ac375d">fusedcg_device_solve_coupled</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, ax, x, y, z, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">fx</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">fy</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">fz</a>, n, coef, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">blstx</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">blsty</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">blstz</a>, gs_h, niter)</td></tr>
@@ -212,21 +212,24 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html#l00170">170</a> of file <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html">fusedcg_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html#l00176">176</a> of file <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html">fusedcg_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/d04/namespacefusedcg__device_a37d7ee87c969306b6428c008592d4646_cgraph.png" border="0" usemap="#add/d04/namespacefusedcg__device_a37d7ee87c969306b6428c008592d4646_cgraph" alt=""/></div>
 <map name="add/d04/namespacefusedcg__device_a37d7ee87c969306b6428c008592d4646_cgraph" id="add/d04/namespacefusedcg__device_a37d7ee87c969306b6428c008592d4646_cgraph">
-<area shape="rect" title=" " alt="" coords="5,29,180,69"/>
-<area shape="rect" href="../../db/df7/fusedcg__aux_8hip.html#a115cf98ddf6ab441ca3e3806db6d1945" title=" " alt="" coords="228,37,369,62"/>
-<area shape="poly" title=" " alt="" coords="180,47,214,47,214,52,180,52"/>
-<area shape="rect" href="../../d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="417,11,581,37"/>
-<area shape="poly" title=" " alt="" coords="369,38,404,33,404,39,370,43"/>
-<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="629,29,793,69"/>
-<area shape="poly" title=" " alt="" coords="370,47,616,47,616,52,370,52"/>
-<area shape="poly" title=" " alt="" coords="582,31,616,35,616,41,581,36"/>
-<area shape="poly" title=" " alt="" coords="672,30,669,20,676,10,690,5,711,3,736,6,749,13,747,18,734,11,711,8,691,10,679,15,675,21,677,28"/>
+<area shape="rect" title=" " alt="" coords="5,49,180,89"/>
+<area shape="rect" href="../../db/df7/fusedcg__aux_8hip.html#a115cf98ddf6ab441ca3e3806db6d1945" title=" " alt="" coords="228,56,369,81"/>
+<area shape="poly" title=" " alt="" coords="180,66,214,66,214,71,180,71"/>
+<area shape="rect" href="../../d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="418,5,582,31"/>
+<area shape="poly" title=" " alt="" coords="349,53,435,31,436,37,351,58"/>
+<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="631,49,795,89"/>
+<area shape="poly" title=" " alt="" coords="370,66,617,66,617,71,370,71"/>
+<area shape="rect" href="../../d3/dd2/device__nccl__reduce_8c.html#a371589d8f587766faf29bea073bd3e34" title=" " alt="" coords="417,107,583,132"/>
+<area shape="poly" title=" " alt="" coords="351,79,436,101,435,106,349,84"/>
+<area shape="poly" title=" " alt="" coords="555,28,618,43,617,49,554,33"/>
+<area shape="poly" title=" " alt="" coords="673,49,671,39,677,30,691,24,713,22,737,25,751,32,748,37,736,30,713,27,692,29,680,34,676,40,678,48"/>
+<area shape="poly" title=" " alt="" coords="554,104,617,89,618,94,555,109"/>
 </map>
 </div>
 <div class="dynheader">
@@ -278,7 +281,7 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">c_int</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>(c_int)&#160;</td>
           <td class="paramname"><em>n</em>&#160;</td>
         </tr>
         <tr>
@@ -294,7 +297,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html#l00145">145</a> of file <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html">fusedcg_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html#l00151">151</a> of file <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html">fusedcg_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -351,13 +354,13 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">c_int</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>(c_int)&#160;</td>
           <td class="paramname"><em>p_cur</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">c_int</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>(c_int)&#160;</td>
           <td class="paramname"><em>n</em>&#160;</td>
         </tr>
         <tr>
@@ -373,7 +376,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html#l00158">158</a> of file <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html">fusedcg_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html#l00164">164</a> of file <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html">fusedcg_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -424,7 +427,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html#l00258">258</a> of file <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html">fusedcg_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html#l00264">264</a> of file <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html">fusedcg_device.F90</a>.</p>
 
 </div>
 </div>
@@ -458,19 +461,19 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d7/d3a/structprecon_1_1pc__t.html">pc_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d7/d3a/structprecon_1_1pc__t.html">pc_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
           <td class="paramname"><em>m</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
           <td class="paramname"><em>rel_tol</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
           <td class="paramname"><em>abs_tol</em>, </td>
         </tr>
         <tr>
@@ -492,7 +495,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html#l00195">195</a> of file <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html">fusedcg_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html#l00201">201</a> of file <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html">fusedcg_device.F90</a>.</p>
 
 </div>
 </div>
@@ -514,7 +517,7 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d3/d2c/structax__product_1_1ax__t.html">ax_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d3/d2c/structax__product_1_1ax__t.html">ax_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>ax</em>, </td>
         </tr>
         <tr>
@@ -526,7 +529,7 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(n), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(n), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>f</em>, </td>
         </tr>
         <tr>
@@ -544,7 +547,7 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d8/dd8/structbc_1_1bc__list__t.html">bc_list_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../df/da4/structbc__list_1_1bc__list__t.html">bc_list_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
           <td class="paramname"><em>blst</em>, </td>
         </tr>
         <tr>
@@ -572,33 +575,36 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html#l00319">319</a> of file <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html">fusedcg_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html#l00329">329</a> of file <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html">fusedcg_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/d04/namespacefusedcg__device_abfce590eb7c6404bf4f2f3f7422cf080_cgraph.png" border="0" usemap="#add/d04/namespacefusedcg__device_abfce590eb7c6404bf4f2f3f7422cf080_cgraph" alt=""/></div>
 <map name="add/d04/namespacefusedcg__device_abfce590eb7c6404bf4f2f3f7422cf080_cgraph" id="add/d04/namespacefusedcg__device_abfce590eb7c6404bf4f2f3f7422cf080_cgraph">
-<area shape="rect" title="Pipelined PCG solve." alt="" coords="5,91,188,131"/>
-<area shape="rect" href="../../dd/d04/namespacefusedcg__device.html#a37d7ee87c969306b6428c008592d4646" title=" " alt="" coords="236,27,411,67"/>
-<area shape="poly" title=" " alt="" coords="168,89,238,69,239,74,169,94"/>
-<area shape="rect" href="../../dd/d04/namespacefusedcg__device.html#ad32400ca22c2ca83585ebf9245ff0ae6" title=" " alt="" coords="236,91,411,131"/>
-<area shape="poly" title=" " alt="" coords="188,109,222,109,222,114,188,114"/>
-<area shape="rect" href="../../dd/d04/namespacefusedcg__device.html#a6c565ca5074aeb3779af13900552a342" title=" " alt="" coords="236,155,411,195"/>
-<area shape="poly" title=" " alt="" coords="169,129,239,149,238,154,168,134"/>
-<area shape="rect" href="../../db/df7/fusedcg__aux_8hip.html#a115cf98ddf6ab441ca3e3806db6d1945" title=" " alt="" coords="471,35,613,60"/>
-<area shape="poly" title=" " alt="" coords="411,45,458,45,458,50,411,50"/>
+<area shape="rect" title="Pipelined PCG solve." alt="" coords="5,135,188,175"/>
+<area shape="rect" href="../../dd/d04/namespacefusedcg__device.html#a37d7ee87c969306b6428c008592d4646" title=" " alt="" coords="236,61,411,101"/>
+<area shape="poly" title=" " alt="" coords="157,133,248,102,250,108,159,138"/>
+<area shape="rect" href="../../dd/d04/namespacefusedcg__device.html#ad32400ca22c2ca83585ebf9245ff0ae6" title=" " alt="" coords="236,135,411,175"/>
+<area shape="poly" title=" " alt="" coords="188,153,222,153,222,158,188,158"/>
+<area shape="rect" href="../../dd/d04/namespacefusedcg__device.html#a6c565ca5074aeb3779af13900552a342" title=" " alt="" coords="236,199,411,239"/>
+<area shape="poly" title=" " alt="" coords="169,173,239,193,238,198,168,178"/>
+<area shape="rect" href="../../db/df7/fusedcg__aux_8hip.html#a115cf98ddf6ab441ca3e3806db6d1945" title=" " alt="" coords="471,63,613,88"/>
+<area shape="poly" title=" " alt="" coords="411,76,458,75,458,80,411,81"/>
 <area shape="rect" href="../../d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="675,5,839,31"/>
-<area shape="poly" title=" " alt="" coords="612,35,660,28,661,34,613,40"/>
-<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="888,74,1052,114"/>
-<area shape="poly" title=" " alt="" coords="613,52,875,81,874,86,613,58"/>
-<area shape="poly" title=" " alt="" coords="794,28,901,67,899,72,792,33"/>
-<area shape="poly" title=" " alt="" coords="930,74,928,64,934,55,948,49,970,47,995,50,1009,58,1006,62,993,55,970,53,950,55,937,59,933,65,935,73"/>
-<area shape="rect" href="../../db/df7/fusedcg__aux_8hip.html#a9cc3940ab477454bca2f83d72f77853c" title=" " alt="" coords="673,107,840,132"/>
-<area shape="poly" title=" " alt="" coords="411,110,660,115,659,120,411,116"/>
-<area shape="poly" title=" " alt="" coords="840,107,874,103,875,108,840,112"/>
-<area shape="rect" href="../../db/df7/fusedcg__aux_8hip.html#a0f309cac69abed9947b6106bc7708310" title=" " alt="" coords="459,161,625,187"/>
-<area shape="poly" title=" " alt="" coords="411,172,445,172,445,177,411,177"/>
-<area shape="poly" title=" " alt="" coords="625,169,728,161,839,142,913,117,914,122,841,147,729,166,626,175"/>
+<area shape="poly" title=" " alt="" coords="590,60,694,32,696,37,591,65"/>
+<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="888,99,1052,139"/>
+<area shape="poly" title=" " alt="" coords="613,74,720,80,840,91,875,97,874,102,840,97,720,85,613,80"/>
+<area shape="rect" href="../../d3/dd2/device__nccl__reduce_8c.html#a371589d8f587766faf29bea073bd3e34" title=" " alt="" coords="674,107,839,132"/>
+<area shape="poly" title=" " alt="" coords="605,85,682,101,680,107,604,91"/>
+<area shape="poly" title=" " alt="" coords="795,28,841,48,923,90,921,95,839,52,792,33"/>
+<area shape="poly" title=" " alt="" coords="930,100,928,90,934,80,948,75,970,73,995,76,1009,83,1006,88,993,81,970,78,950,80,937,85,933,91,935,98"/>
+<area shape="poly" title=" " alt="" coords="839,117,874,117,874,122,839,122"/>
+<area shape="rect" href="../../db/df7/fusedcg__aux_8hip.html#a9cc3940ab477454bca2f83d72f77853c" title=" " alt="" coords="673,156,840,181"/>
+<area shape="poly" title=" " alt="" coords="411,155,660,163,659,168,411,161"/>
+<area shape="poly" title=" " alt="" coords="812,153,874,139,875,144,813,159"/>
+<area shape="rect" href="../../db/df7/fusedcg__aux_8hip.html#a0f309cac69abed9947b6106bc7708310" title=" " alt="" coords="459,207,625,232"/>
+<area shape="poly" title=" " alt="" coords="411,217,445,217,445,222,411,222"/>
+<area shape="poly" title=" " alt="" coords="626,219,729,213,785,205,839,191,888,170,930,145,933,149,890,175,841,197,786,210,730,219,626,225"/>
 </map>
 </div>
 
@@ -622,7 +628,7 @@ Here is the call graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d3/d2c/structax__product_1_1ax__t.html">ax_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d3/d2c/structax__product_1_1ax__t.html">ax_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>ax</em>, </td>
         </tr>
         <tr>
@@ -646,19 +652,19 @@ Here is the call graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(n), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(n), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>fx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(n), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(n), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>fy</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(n), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(n), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>fz</em>, </td>
         </tr>
         <tr>
@@ -676,19 +682,19 @@ Here is the call graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d8/dd8/structbc_1_1bc__list__t.html">bc_list_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../df/da4/structbc__list_1_1bc__list__t.html">bc_list_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
           <td class="paramname"><em>blstx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d8/dd8/structbc_1_1bc__list__t.html">bc_list_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../df/da4/structbc__list_1_1bc__list__t.html">bc_list_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
           <td class="paramname"><em>blsty</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d8/dd8/structbc_1_1bc__list__t.html">bc_list_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../df/da4/structbc__list_1_1bc__list__t.html">bc_list_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
           <td class="paramname"><em>blstz</em>, </td>
         </tr>
         <tr>
@@ -716,7 +722,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html#l00403">403</a> of file <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html">fusedcg_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html#l00417">417</a> of file <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html">fusedcg_device.F90</a>.</p>
 
 </div>
 </div>
@@ -741,7 +747,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html#l00050">50</a> of file <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html">fusedcg_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html#l00056">56</a> of file <a class="el" href="../../de/d66/fusedcg__device_8F90_source.html">fusedcg_device.F90</a>.</p>
 
 </div>
 </div>
@@ -751,7 +757,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dd/d04/namespacefusedcg__device.html">fusedcg_device</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

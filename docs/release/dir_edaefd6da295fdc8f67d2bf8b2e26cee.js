@@ -1,5 +1,6 @@
 var dir_edaefd6da295fdc8f67d2bf8b2e26cee =
 [
+    [ "cheby_aux.hip", "d5/deb/cheby__aux_8hip.html", "d5/deb/cheby__aux_8hip" ],
     [ "fusedcg_aux.hip", "db/df7/fusedcg__aux_8hip.html", "db/df7/fusedcg__aux_8hip" ],
     [ "fusedcg_cpld_aux.hip", "d4/dc3/fusedcg__cpld__aux_8hip.html", "d4/dc3/fusedcg__cpld__aux_8hip" ],
     [ "fusedcg_cpld_kernel.h", "de/d7d/hip_2fusedcg__cpld__kernel_8h.html", "de/d7d/hip_2fusedcg__cpld__kernel_8h" ],

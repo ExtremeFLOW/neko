@@ -3,6 +3,8 @@ var structcheby__device_1_1cheby__device__t =
     [ "free", "d7/d81/structcheby__device_1_1cheby__device__t.html#af56d73027d6019521e4111fe1df22b8b", null ],
     [ "free", "d7/d81/structcheby__device_1_1cheby__device__t.html#a39467d0a5f0620de72b7a1a6e68e93d0", null ],
     [ "init", "d7/d81/structcheby__device_1_1cheby__device__t.html#aa3b0495ef06682fb71ee6daf54214d4d", null ],
+    [ "init", "d7/d81/structcheby__device_1_1cheby__device__t.html#a212e2f4ae22fc2b8b984a036ac549985", null ],
+    [ "is_converged", "d7/d81/structcheby__device_1_1cheby__device__t.html#a75721421d4d26e4ea23205cfbc34443b", null ],
     [ "ksp_free", "d7/d81/structcheby__device_1_1cheby__device__t.html#a34dae2b9d3aff8de33af53f6bb156bc4", null ],
     [ "ksp_init", "d7/d81/structcheby__device_1_1cheby__device__t.html#aa93557061efb3f02ecd62cf8c05931c0", null ],
     [ "monitor_iter", "d7/d81/structcheby__device_1_1cheby__device__t.html#a4f01bfbf0a5979a60a0612e504c64489", null ],
@@ -27,7 +29,9 @@ var structcheby__device_1_1cheby__device__t =
     [ "r_d", "d7/d81/structcheby__device_1_1cheby__device__t.html#a96bbdcd1bb91a9e582f78a6dfc650e7b", null ],
     [ "recompute_eigs", "d7/d81/structcheby__device_1_1cheby__device__t.html#a915ac26a5f563409623b46e30a8ab0c7", null ],
     [ "rel_tol", "d7/d81/structcheby__device_1_1cheby__device__t.html#a7e02bc45055956c25f0825ca6322051f", null ],
+    [ "schwarz", "d7/d81/structcheby__device_1_1cheby__device__t.html#aece19bd233f19e8de1a77f616c5c60cc", null ],
     [ "tha", "d7/d81/structcheby__device_1_1cheby__device__t.html#a5e5b42664ab14e8c79e0099817957c0b", null ],
     [ "w", "d7/d81/structcheby__device_1_1cheby__device__t.html#a7fd16683fdeb12de352436e256b642c5", null ],
-    [ "w_d", "d7/d81/structcheby__device_1_1cheby__device__t.html#a0d5c6cf256125b94a9f35baeb17f32be", null ]
+    [ "w_d", "d7/d81/structcheby__device_1_1cheby__device__t.html#a0d5c6cf256125b94a9f35baeb17f32be", null ],
+    [ "zero_initial_guess", "d7/d81/structcheby__device_1_1cheby__device__t.html#ad9f64cfc85d5ca7e0142eedf55ab656c", null ]
 ];

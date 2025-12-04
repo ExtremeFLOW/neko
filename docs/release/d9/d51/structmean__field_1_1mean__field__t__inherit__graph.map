@@ -1,7 +1,5 @@
 <map id="mean_field::mean_field_t" name="mean_field::mean_field_t">
 <area shape="rect" id="Node000001" title="Computes the temporal mean of a field." alt="" coords="5,93,192,119"/>
-<area shape="rect" id="Node000003" href="$db/dc5/structmean__sqr__field_1_1mean__sqr__field__t.html" title=" " alt="" coords="15,167,182,207"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="101,132,101,167,96,167,96,132"/>
 <area shape="rect" id="Node000002" href="$d5/d8f/structstats__quant_1_1stats__quant__t.html" title="Abstract type defining a statistical quantity." alt="" coords="29,5,168,45"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="101,59,101,93,96,93,96,59"/>
 </map>

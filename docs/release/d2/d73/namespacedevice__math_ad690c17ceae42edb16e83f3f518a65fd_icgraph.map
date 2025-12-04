@@ -1,7 +1,0 @@
-<map id="device_math::device_glsum" name="device_math::device_glsum">
-<area shape="rect" id="Node000001" title="Sum a vector of length n." alt="" coords="228,27,385,67"/>
-<area shape="rect" id="Node000002" href="$d5/de6/namespacefield__math.html#a695417ff1e9677f8de61d1d44c79d9c5" title=" " alt="" coords="5,5,180,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="214,37,180,33,180,27,215,32"/>
-<area shape="rect" id="Node000003" href="$d6/daa/namespaceforce__torque.html#ab407c7b9763b091d7165c5d7d19044de" title="Compute the force_torque field." alt="" coords="20,55,165,95"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="215,62,166,69,165,63,214,57"/>
-</map>

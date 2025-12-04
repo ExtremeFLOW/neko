@@ -1,0 +1,5 @@
+<map id="cg_cpld_device::cg_cpld_device_init" name="cg_cpld_device::cg_cpld_device_init">
+<area shape="rect" id="Node000001" title="Initialise a device based PCG solver." alt="" coords="5,5,149,45"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#aaaa5631ad87c768e466be4f943c5c479" title="Create a device event queue." alt="" coords="197,5,357,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="149,23,184,23,184,28,149,28"/>
+</map>

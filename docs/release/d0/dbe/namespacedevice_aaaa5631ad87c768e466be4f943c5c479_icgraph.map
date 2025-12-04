@@ -1,19 +1,31 @@
 <map id="device::device_event_create" name="device::device_event_create">
-<area shape="rect" id="Node000001" title="Create a device event queue." alt="" coords="247,206,407,246"/>
-<area shape="rect" id="Node000002" href="$d6/d60/namespacecg__device.html#aa534217fdd8b696c1c18e59ece04fd06" title="Initialise a device based PCG solver." alt="" coords="8,5,196,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="309,194,291,159,266,119,235,79,197,46,173,33,175,28,200,41,239,75,270,116,296,156,314,192"/>
-<area shape="rect" id="Node000003" href="$d4/dc5/namespacecheby__device.html#a44c5b8d7217a68d7bb151c0855920b53" title="Initialise a standard solver." alt="" coords="23,55,181,95"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="298,198,254,152,197,110,173,98,176,93,200,105,257,148,302,194"/>
-<area shape="rect" id="Node000004" href="$d3/dbc/namespacefusedcg__cpld__device.html#a7686eabd075b75a40f7fa61d9be9ab13" title="Initialise a fused PCG solver." alt="" coords="5,119,199,159"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="268,203,198,174,165,162,167,157,200,169,270,198"/>
-<area shape="rect" id="Node000005" href="$d8/dcd/namespacegs__device.html#a4bb66ded555ba4ec7d3004165a21273d" title="Accelerator backend initialisation." alt="" coords="8,184,196,209"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="233,216,196,212,196,206,233,211"/>
-<area shape="rect" id="Node000006" href="$d9/dfa/namespacegs__device__mpi.html#afe2c32b8ff7fe4f3941b8653b47ec885" title="Initialise MPI based communication method." alt="" coords="6,234,198,274"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="233,240,199,245,198,239,233,235"/>
-<area shape="rect" id="Node000007" href="$dd/dd1/namespacehsmg.html#a419a2d9052dd2c5b986dded4a13e76c2" title=" " alt="" coords="37,299,167,324"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="276,255,200,288,159,301,158,296,198,284,274,250"/>
-<area shape="rect" id="Node000008" href="$da/d46/namespacepipecg__device.html#a242ee086e10b42f00316da314e7fc94d" title="Initialise a pipelined PCG solver." alt="" coords="19,349,185,389"/>
-<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="299,258,254,299,200,338,172,351,170,346,197,333,251,295,295,254"/>
-<area shape="rect" id="Node000009" href="$d2/d37/namespaceschwarz.html#acee8bbc3c000f7cf1e31b4cfc36d01c6" title=" " alt="" coords="20,413,184,439"/>
-<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="313,260,294,294,269,332,238,371,200,403,175,416,173,411,197,398,234,367,265,329,290,291,308,257"/>
+<area shape="rect" id="Node000001" title="Create a device event queue." alt="" coords="415,356,575,396"/>
+<area shape="rect" id="Node000002" href="$db/d3d/namespacecg__cpld__device.html#afc64b102287c90f309d9ce33021cb202" title="Initialise a device based PCG solver." alt="" coords="198,5,342,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="487,343,475,282,453,206,437,166,417,128,393,91,365,59,341,44,344,39,368,55,398,88,422,125,442,164,458,205,481,281,492,342"/>
+<area shape="rect" id="Node000003" href="$d6/d60/namespacecg__device.html#aa534217fdd8b696c1c18e59ece04fd06" title="Initialise a device based PCG solver." alt="" coords="176,70,364,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="484,343,471,291,448,228,413,164,391,135,365,110,344,98,347,93,368,106,395,132,417,161,452,226,476,290,490,342"/>
+<area shape="rect" id="Node000004" href="$d4/dc5/namespacecheby__device.html#a44c5b8d7217a68d7bb151c0855920b53" title="Initialise a standard solver." alt="" coords="191,120,349,160"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="479,344,462,305,437,259,404,214,365,174,346,162,349,158,368,170,409,210,441,257,466,303,484,342"/>
+<area shape="rect" id="Node000005" href="$d0/dbe/namespacedevice.html#aea8ac0b8d51031f74cc45d8e69a30bdb" title=" " alt="" coords="198,185,342,210"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="473,346,429,284,399,252,365,225,339,212,341,208,368,220,403,248,433,280,478,343"/>
+<area shape="rect" id="Node000007" href="$d2/da7/namespacedevice__jacobi.html#a08dd6669e156ff25024b500bf81a5106" title=" " alt="" coords="189,235,351,275"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="457,350,415,318,365,289,338,277,341,272,368,284,418,314,460,345"/>
+<area shape="rect" id="Node000008" href="$d3/dbc/namespacefusedcg__cpld__device.html#a7686eabd075b75a40f7fa61d9be9ab13" title="Initialise a fused PCG solver." alt="" coords="173,299,367,339"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="402,355,348,341,350,336,403,350"/>
+<area shape="rect" id="Node000009" href="$d8/dcd/namespacegs__device.html#a4bb66ded555ba4ec7d3004165a21273d" title="Accelerator backend initialisation." alt="" coords="176,363,364,389"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="401,379,364,379,364,373,401,373"/>
+<area shape="rect" id="Node000010" href="$d9/dfa/namespacegs__device__mpi.html#afe2c32b8ff7fe4f3941b8653b47ec885" title="Initialise MPI based communication method." alt="" coords="174,413,366,453"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="403,402,350,416,348,411,402,397"/>
+<area shape="rect" id="Node000011" href="$de/dcf/namespacegs__device__nccl.html#a2d4e675b4dbc3a5de103b430b400981c" title="Initialise NCCL based communication method." alt="" coords="199,477,341,517"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="460,407,418,438,368,468,341,480,338,475,365,463,415,434,457,402"/>
+<area shape="rect" id="Node000012" href="$d0/d2a/namespacegs__device__shmem.html#aea869741c5716a2755f9c792af9c5c05" title="Initialise MPI based communication method." alt="" coords="187,541,353,581"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="477,410,432,471,402,504,368,532,346,544,344,539,365,527,398,500,428,468,472,407"/>
+<area shape="rect" id="Node000013" href="$dd/dd1/namespacehsmg.html#ab830dd9f45e2e8d9c22e36f8639af6ae" title=" " alt="" coords="186,605,354,645"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="485,410,468,452,443,502,410,552,368,595,350,607,347,603,365,591,406,549,439,499,463,450,480,408"/>
+<area shape="rect" id="Node000014" href="$da/d46/namespacepipecg__device.html#a242ee086e10b42f00316da314e7fc94d" title="Initialise a pipelined PCG solver." alt="" coords="187,669,353,709"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="490,410,476,464,453,531,418,599,395,631,368,659,351,671,348,667,365,655,391,628,413,597,448,529,471,462,485,409"/>
+<area shape="rect" id="Node000015" href="$d2/d37/namespaceschwarz.html#a573d0b3a6c1130423e3e84cd5e4d78eb" title=" " alt="" coords="188,734,352,759"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="494,410,484,476,464,560,447,605,427,648,400,688,368,723,349,736,346,732,365,719,396,685,422,645,443,603,459,559,479,475,488,409"/>
+<area shape="rect" id="Node000006" href="$dd/d62/namespaceneko.html#a647e539d6b0950b6569c6752b8f007ff" title="Initialise Neko." alt="" coords="5,185,125,210"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="184,200,126,200,126,195,184,195"/>
 </map>

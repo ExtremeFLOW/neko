@@ -1,0 +1,15 @@
+<map id="device_math::device_vdot3" name="device_math::device_vdot3">
+<area shape="rect" id="Node000001" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="417,133,575,173"/>
+<area shape="rect" id="Node000002" href="$db/d3d/namespacecg__cpld__device.html#a4dd7a1a0cb377e19f6c17407064e198b" title="Standard PCG solve." alt="" coords="210,5,358,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="460,126,418,92,368,60,343,48,346,43,371,55,421,88,464,122"/>
+<area shape="rect" id="Node000003" href="$d9/df7/namespaceadv__dealias.html#a4ad2c5d9b00cd1275c1786415a359ab9" title="Add the advection term for the fluid, i.e. , to the RHS." alt="" coords="201,69,367,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="415,132,350,112,352,107,417,127"/>
+<area shape="rect" id="Node000004" href="$d0/d6f/namespacedrag__torque.html#a70a6c2b95914784b94819fb918ff8b15" title="Calculate drag and torque from array of points." alt="" coords="209,133,359,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="404,156,360,156,360,151,404,151"/>
+<area shape="rect" id="Node000006" href="$d5/de6/namespacefield__math.html#aec3d5a9d2e66f8b6d1200f02d5169c35" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="199,198,369,223"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="409,180,333,200,331,195,408,174"/>
+<area shape="rect" id="Node000007" href="$d3/d0d/namespacevector__math.html#a2dda46ce20ce34f6b2cff7601e742ad6" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="207,248,361,288"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="457,184,371,237,342,250,340,245,368,232,455,179"/>
+<area shape="rect" id="Node000005" href="$d6/daa/namespaceforce__torque.html#a04fd3661b7bbe9d298cb5c3109ac9499" title="Compute the force_torque field." alt="" coords="5,133,151,173"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="194,156,151,156,151,151,194,151"/>
+</map>

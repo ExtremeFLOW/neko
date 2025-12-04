@@ -1,3 +1,15 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$db/da7/interfacetensor_1_1transpose.html" title=" " alt="" coords="5,5,140,31"/>
+<area shape="rect" id="Node000000" href="$dd/d5f/structoutput_1_1output__t.html" title="Abstract type defining an output type." alt="" coords="5,159,132,184"/>
+<area shape="rect" id="Node000001" href="$da/d51/structchkp__output_1_1chkp__output__t.html" title=" " alt="" coords="180,5,383,31"/>
+<area shape="poly" id="edge105_Node000000_Node000001" title=" " alt="" coords="82,145,121,92,148,65,179,41,206,28,208,33,181,46,151,69,125,96,86,149"/>
+<area shape="rect" id="Node000002" href="$d4/d72/structfld__file__output_1_1fld__file__output__t.html" title="A simple output saving a list of fields to a .fld file." alt="" coords="212,55,351,95"/>
+<area shape="poly" id="edge106_Node000000_Node000002" title=" " alt="" coords="100,149,179,105,211,93,212,98,181,110,102,153"/>
+<area shape="rect" id="Node000003" href="$de/d0d/structfluid__output_1_1fluid__output__t.html" title="Fluid output." alt="" coords="214,119,349,159"/>
+<area shape="poly" id="edge107_Node000000_Node000003" title=" " alt="" coords="146,157,213,147,214,152,146,162"/>
+<area shape="rect" id="Node000004" href="$d4/da7/structfluid__stats__output_1_1fluid__stats__output__t.html" title="Defines an output for the fluid statistics computed using the fluid_stats_t object." alt="" coords="202,183,361,223"/>
+<area shape="poly" id="edge108_Node000000_Node000004" title=" " alt="" coords="146,180,202,189,201,194,146,186"/>
+<area shape="rect" id="Node000005" href="$d3/d08/structmean__field__output_1_1mean__field__output__t.html" title="Output for a list of mean fields." alt="" coords="204,247,359,287"/>
+<area shape="poly" id="edge109_Node000000_Node000005" title=" " alt="" coords="102,189,181,233,211,245,209,250,179,238,100,194"/>
+<area shape="rect" id="Node000006" href="$dc/d4c/structscalar__stats__output_1_1scalar__stats__output__t.html" title="Defines an output for the scalar statistics computed using the scalar_stats_t object." alt="" coords="197,311,366,351"/>
+<area shape="poly" id="edge110_Node000000_Node000006" title=" " alt="" coords="87,194,126,246,152,274,181,297,203,309,201,314,179,302,148,278,122,250,83,197"/>
 </map>

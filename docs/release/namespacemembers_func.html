@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -103,6 +103,10 @@ $(document).ready(function(){initNavTree('namespacemembers_func.html',''); initR
 <h3><a id="index_a" name="index_a"></a>- a -</h3><ul>
 <li>aabb_contains_other()&#160;:&#160;<a class="el" href="d5/de2/namespaceaabb.html#a9c37d90b1ed8ab0129a0ce2649dee7dd">aabb</a></li>
 <li>aabb_contains_point()&#160;:&#160;<a class="el" href="d5/de2/namespaceaabb.html#a37da94f592cad06c1d97ef5ef81c5d83">aabb</a></li>
+<li>aabb_el_finder_find_candidates()&#160;:&#160;<a class="el" href="d0/dc9/namespaceaabb__el__finder.html#a3659f3c94f097b5d5da5c8845ed5b674">aabb_el_finder</a></li>
+<li>aabb_el_finder_find_candidates_batch()&#160;:&#160;<a class="el" href="d0/dc9/namespaceaabb__el__finder.html#a09190b145793f492d7f2fb317920e15a">aabb_el_finder</a></li>
+<li>aabb_el_finder_free()&#160;:&#160;<a class="el" href="d0/dc9/namespaceaabb__el__finder.html#ae8cf147b28a89faa3dfb472430103605">aabb_el_finder</a></li>
+<li>aabb_el_finder_init()&#160;:&#160;<a class="el" href="d0/dc9/namespaceaabb__el__finder.html#afdf8095f3814c6630e3441e209a88fa9">aabb_el_finder</a></li>
 <li>aabb_get_center()&#160;:&#160;<a class="el" href="d5/de2/namespaceaabb.html#abdcd61f556591893e0a6bac6b5aaf07f">aabb</a></li>
 <li>aabb_get_depth()&#160;:&#160;<a class="el" href="d5/de2/namespaceaabb.html#ae45b6853c1e44a9a733f58e185e9a989">aabb</a></li>
 <li>aabb_get_diagonal()&#160;:&#160;<a class="el" href="d5/de2/namespaceaabb.html#ac93cb076586d9002c32afb79de0b3fc0">aabb</a></li>
@@ -127,8 +131,13 @@ $(document).ready(function(){initNavTree('namespacemembers_func.html',''); initR
 <li>aabb_node_less()&#160;:&#160;<a class="el" href="de/dbe/namespaceaabb__tree.html#ab0c71708b8ade5c9e65aca3598e91a49">aabb_tree</a></li>
 <li>aabb_node_min_distance()&#160;:&#160;<a class="el" href="de/dbe/namespaceaabb__tree.html#a85bb0588af0fe408b35b3c96390ba533">aabb_tree</a></li>
 <li>aabb_overlaps()&#160;:&#160;<a class="el" href="d5/de2/namespaceaabb.html#a710f33df0cf179d3767b51e5765b9d90">aabb</a></li>
+<li>aabb_pe_finder_find_candidates()&#160;:&#160;<a class="el" href="d9/db0/namespaceaabb__pe__finder.html#a1d3f50e22c22bd2b19aaff7f65f87aaa">aabb_pe_finder</a></li>
+<li>aabb_pe_finder_find_candidates_batch()&#160;:&#160;<a class="el" href="d9/db0/namespaceaabb__pe__finder.html#a0c85f103dd93402f9b935217b2a7ddc9">aabb_pe_finder</a></li>
+<li>aabb_pe_finder_free()&#160;:&#160;<a class="el" href="d9/db0/namespaceaabb__pe__finder.html#a145d55ee8646240d94ba9dce774b0555">aabb_pe_finder</a></li>
+<li>aabb_pe_finder_init()&#160;:&#160;<a class="el" href="d9/db0/namespaceaabb__pe__finder.html#a9c5c86744c4d114aece6bd854e3efd86">aabb_pe_finder</a></li>
 <li>aabb_tree_allocate_node()&#160;:&#160;<a class="el" href="de/dbe/namespaceaabb__tree.html#a6c321ee4f3bde1bf34f74e11c6e50621">aabb_tree</a></li>
-<li>aabb_tree_build_tree()&#160;:&#160;<a class="el" href="de/dbe/namespaceaabb__tree.html#a9436c192bfc12ea59cce3fd54e787b9c">aabb_tree</a></li>
+<li>aabb_tree_build_tree()&#160;:&#160;<a class="el" href="de/dbe/namespaceaabb__tree.html#ac4abcec7597dde9d7152f2b650133745">aabb_tree</a></li>
+<li>aabb_tree_build_tree_aabb()&#160;:&#160;<a class="el" href="de/dbe/namespaceaabb__tree.html#a367883eefbcad9b32170a98d8fadcd3b">aabb_tree</a></li>
 <li>aabb_tree_deallocate_node()&#160;:&#160;<a class="el" href="de/dbe/namespaceaabb__tree.html#a7c1ebfe1ce7d64f5facb3219e607599b">aabb_tree</a></li>
 <li>aabb_tree_fix_upwards_tree()&#160;:&#160;<a class="el" href="de/dbe/namespaceaabb__tree.html#a0f44029eb102244891274a7c30284738">aabb_tree</a></li>
 <li>aabb_tree_get_aabb()&#160;:&#160;<a class="el" href="de/dbe/namespaceaabb__tree.html#a0524bcd89f318044670f1109d417959d">aabb_tree</a></li>
@@ -158,11 +167,13 @@ $(document).ready(function(){initNavTree('namespacemembers_func.html',''); initR
 <li>add3()&#160;:&#160;<a class="el" href="dd/d47/namespacemath.html#a79189c047ee36fa194f43257bda3c8d8">math</a></li>
 <li>add3s2()&#160;:&#160;<a class="el" href="dd/d47/namespacemath.html#a8449fe8f39c313a280adbf2b567797d4">math</a></li>
 <li>add4()&#160;:&#160;<a class="el" href="dd/d47/namespacemath.html#ab59b2dc6ce917f3dde0054cc7cc61a2f">math</a></li>
-<li>add_field()&#160;:&#160;<a class="el" href="d1/dc4/namespacefield__registry.html#af9ca5bbdaa677a3db9694136627df9c4">field_registry</a></li>
+<li>add4s3()&#160;:&#160;<a class="el" href="dd/d47/namespacemath.html#ab5391c9ff9ad6a9b813ca953ad4b2b72">math</a></li>
+<li>add5s4()&#160;:&#160;<a class="el" href="dd/d47/namespacemath.html#abe7f69d8afb42983b5d079f94774d700">math</a></li>
 <li>add_padding()&#160;:&#160;<a class="el" href="d5/de2/namespaceaabb.html#a301c1a0d114874f2989145194b47a840">aabb</a></li>
 <li>add_point_zone_from_json()&#160;:&#160;<a class="el" href="d9/dac/namespacepoint__zone__registry.html#ac000af656c591a6a7a133c1290416264">point_zone_registry</a></li>
 <li>add_points()&#160;:&#160;<a class="el" href="d2/d4d/namespaceprobes.html#a27da5032a894e076ade6b945085a2164">probes</a></li>
 <li>addcol3()&#160;:&#160;<a class="el" href="dd/d47/namespacemath.html#a9ae93ef16c85e8de722f56c281f444e6">math</a></li>
+<li>addcol3s2()&#160;:&#160;<a class="el" href="dd/d47/namespacemath.html#a2b7e2d2411f2e7a0ddce6ff916d48ed6">math</a></li>
 <li>addcol4()&#160;:&#160;<a class="el" href="dd/d47/namespacemath.html#a7addeb46379b324b5c69d5ec07cef0bd">math</a></li>
 <li>addsqr2s2()&#160;:&#160;<a class="el" href="dd/d47/namespacemath.html#a4ee816e55efed3adc2543a7474162956">math</a></li>
 <li>addtnsr()&#160;:&#160;<a class="el" href="dd/d8c/namespacetensor.html#a602319f4b98e03843c70cd7a416d0866">tensor</a></li>
@@ -170,9 +181,38 @@ $(document).ready(function(){initNavTree('namespacemembers_func.html',''); initR
 <li>adv_oifs_compute_scalar()&#160;:&#160;<a class="el" href="dd/d97/namespaceadv__oifs.html#a1ccfb5e43ee2923b38a1a32540379f3a">adv_oifs</a></li>
 <li>adv_oifs_free()&#160;:&#160;<a class="el" href="dd/d97/namespaceadv__oifs.html#af6833f87fe3310b13d5e5152d4cf1466">adv_oifs</a></li>
 <li>adv_oifs_init()&#160;:&#160;<a class="el" href="dd/d97/namespaceadv__oifs.html#ae09ccdb55142e86ed6fb78ca5d6a90b4">adv_oifs</a></li>
+<li>advance_primitive_variables_cpu()&#160;:&#160;<a class="el" href="d1/d20/namespaceeuler__res__cpu.html#aa1bfd1583e093204cb59e081daaf9646">euler_res_cpu</a></li>
+<li>advance_primitive_variables_device()&#160;:&#160;<a class="el" href="d4/d49/namespaceeuler__res__device.html#a86988c02aabf70727c8674ddbab529c6">euler_res_device</a></li>
+<li>advance_primitive_variables_sx()&#160;:&#160;<a class="el" href="de/d1c/namespaceeuler__res__sx.html#a17f468c7e2d9fdc556f6c2c371aaf219">euler_res_sx</a></li>
+<li>agg_fill_nhbr_info()&#160;:&#160;<a class="el" href="da/d77/namespacetree__amg__aggregate.html#aef5c98b12984e9821f9dcc7edc13af2e">tree_amg_aggregate</a></li>
+<li>agg_greedy_first_pass()&#160;:&#160;<a class="el" href="da/d77/namespacetree__amg__aggregate.html#a0eee22807919ce075cb45760502a76b6">tree_amg_aggregate</a></li>
+<li>agg_greedy_second_pass()&#160;:&#160;<a class="el" href="da/d77/namespacetree__amg__aggregate.html#aa681abbb5ee7badea593dac1ef8cf7a5">tree_amg_aggregate</a></li>
+<li>aggregate_end()&#160;:&#160;<a class="el" href="da/d77/namespacetree__amg__aggregate.html#a2bbacf70f1edcab65c424b998f5506af">tree_amg_aggregate</a></li>
+<li>aggregate_finest_level()&#160;:&#160;<a class="el" href="da/d77/namespacetree__amg__aggregate.html#a98e7b195bc43fad16dcf171919c3e38d">tree_amg_aggregate</a></li>
+<li>aggregate_greedy()&#160;:&#160;<a class="el" href="da/d77/namespacetree__amg__aggregate.html#a6b8dcb1915a0e9af672e75db09450d37">tree_amg_aggregate</a></li>
+<li>aggregate_pairs()&#160;:&#160;<a class="el" href="da/d77/namespacetree__amg__aggregate.html#a47299926f3ee5d2dc3258c060f494626">tree_amg_aggregate</a></li>
+<li>aggregation_monitor_final()&#160;:&#160;<a class="el" href="da/d77/namespacetree__amg__aggregate.html#a9c44b615de93c484749f905b71d21511">tree_amg_aggregate</a></li>
+<li>aggregation_monitor_finest()&#160;:&#160;<a class="el" href="da/d77/namespacetree__amg__aggregate.html#ab760962db302cfd723b1ff3cb8ecb3df">tree_amg_aggregate</a></li>
+<li>aggregation_monitor_phase1()&#160;:&#160;<a class="el" href="da/d77/namespacetree__amg__aggregate.html#af6d21d1d1265727bc608a84be68788f8">tree_amg_aggregate</a></li>
+<li>aggregation_monitor_phase2()&#160;:&#160;<a class="el" href="da/d77/namespacetree__amg__aggregate.html#a5328791ea70be104d40aab230b793ec6">tree_amg_aggregate</a></li>
+<li>amg_cheby_free()&#160;:&#160;<a class="el" href="dc/d09/namespacetree__amg__smoother.html#a3aa333c0d73fca90b9025384eb172ffb">tree_amg_smoother</a></li>
+<li>amg_cheby_init()&#160;:&#160;<a class="el" href="dc/d09/namespacetree__amg__smoother.html#a73ff690416d06b4874565b299769906e">tree_amg_smoother</a></li>
+<li>amg_cheby_monitor()&#160;:&#160;<a class="el" href="dc/d09/namespacetree__amg__smoother.html#afd89718fea6718237cdba763e55fa7e4">tree_amg_smoother</a></li>
+<li>amg_cheby_power()&#160;:&#160;<a class="el" href="dc/d09/namespacetree__amg__smoother.html#a50905e9240529935d6f5dfdc9905a73b">tree_amg_smoother</a></li>
+<li>amg_cheby_solve()&#160;:&#160;<a class="el" href="dc/d09/namespacetree__amg__smoother.html#a6710120718258fa7d9d4fa76f41252ef">tree_amg_smoother</a></li>
+<li>amg_device_cheby_power()&#160;:&#160;<a class="el" href="dc/d09/namespacetree__amg__smoother.html#a5f0ce08e2db1caa65ee888d184a5cea2">tree_amg_smoother</a></li>
+<li>amg_device_cheby_solve()&#160;:&#160;<a class="el" href="dc/d09/namespacetree__amg__smoother.html#aa4eedae4521055fd8cb9fd2ea4f0e6c0">tree_amg_smoother</a></li>
+<li>amg_device_cheby_solve_part1()&#160;:&#160;<a class="el" href="d4/de8/namespacedevice__tree__amg__smoother.html#a4b5d02287134ff0f0b9bea979bc61499">device_tree_amg_smoother</a></li>
+<li>amg_device_cheby_solve_part2()&#160;:&#160;<a class="el" href="d4/de8/namespacedevice__tree__amg__smoother.html#ab3542f8bd288335a8af48cfd6317fd1e">device_tree_amg_smoother</a></li>
+<li>amg_jacobi_diag()&#160;:&#160;<a class="el" href="dc/d09/namespacetree__amg__smoother.html#a9f56d48ec7dd5470af905db90fbe53c9">tree_amg_smoother</a></li>
+<li>amg_jacobi_free()&#160;:&#160;<a class="el" href="dc/d09/namespacetree__amg__smoother.html#a8234216acfcd0274c2140233738e69f4">tree_amg_smoother</a></li>
+<li>amg_jacobi_init()&#160;:&#160;<a class="el" href="dc/d09/namespacetree__amg__smoother.html#a3e9c3ae7f37b2e8c9e7b383cc4a1752b">tree_amg_smoother</a></li>
+<li>amg_jacobi_solve()&#160;:&#160;<a class="el" href="dc/d09/namespacetree__amg__smoother.html#aad651a4ea54d512f11b98064c0480105">tree_amg_smoother</a></li>
+<li>amg_smoo_monitor()&#160;:&#160;<a class="el" href="dc/d09/namespacetree__amg__smoother.html#ab58a4a0614f42d503d41f454323e9cbf">tree_amg_smoother</a></li>
 <li>arc_surface()&#160;:&#160;<a class="el" href="dd/dd2/namespacedofmap.html#a89e7d07f185fa31411b5466d5caa2e7b">dofmap</a></li>
 <li>ascol5()&#160;:&#160;<a class="el" href="dd/d47/namespacemath.html#a246a54f16aad4521c46ede94359485fa">math</a></li>
 <li>assign_point_zone()&#160;:&#160;<a class="el" href="db/dc1/namespacecombine__point__zone.html#a191349ad9515ab7191f84609f326de2e">combine_point_zone</a></li>
+<li>associate_scalar_abx_fields()&#160;:&#160;<a class="el" href="d1/de4/namespacescalars.html#a8bf8432eba1d074f75e1ea18817b8677">scalars</a></li>
 <li>ax_helm_compute()&#160;:&#160;<a class="el" href="d5/de3/namespaceax__helm__cpu.html#a2837063ed646a211207822382c71aada">ax_helm_cpu</a></li>
 <li>ax_helm_compute_vector()&#160;:&#160;<a class="el" href="d0/d35/namespaceax__helm.html#aa759cc32bd68f6a127a9d9eebdd433d2">ax_helm</a></li>
 <li>ax_helm_device_compute()&#160;:&#160;<a class="el" href="d7/d82/namespaceax__helm__device.html#a4cc4122d6e187648345aee9b9a0fc6a5">ax_helm_device</a></li>
@@ -216,7 +256,7 @@ $(document).ready(function(){initNavTree('namespacemembers_func.html',''); initR
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:53 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

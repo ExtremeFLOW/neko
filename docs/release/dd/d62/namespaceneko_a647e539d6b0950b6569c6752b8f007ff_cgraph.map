@@ -1,69 +1,63 @@
 <map id="neko::neko_init" name="neko::neko_init">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,537,125,562"/>
-<area shape="rect" id="Node000002" href="$d3/d8f/namespacecomm.html#afae3434add6b83dcb318017c7c70664a" title=" " alt="" coords="203,139,343,165"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="63,536,64,472,76,375,89,321,109,267,136,218,172,174,189,162,192,166,175,178,140,221,113,270,94,322,81,376,70,472,69,536"/>
-<area shape="rect" id="Node000003" href="$d0/dbe/namespacedevice.html#ab8f226110e5c9f9abb99deee30d81335" title="Return the number of available devices." alt="" coords="194,213,353,238"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="69,535,107,447,136,388,171,330,209,284,246,246,250,250,213,287,176,334,141,391,111,449,74,537"/>
-<area shape="rect" id="Node000007" href="$d0/dbe/namespacedevice.html#aea8ac0b8d51031f74cc45d8e69a30bdb" title=" " alt="" coords="201,345,345,370"/>
-<area shape="poly" id="edge10_Node000001_Node000007" title=" " alt="" coords="79,534,247,377,250,381,83,538"/>
-<area shape="rect" id="Node000011" href="$d0/dbe/namespacedevice.html#aacdc0ad29b09298498fc06f3106fe4f4" title=" " alt="" coords="193,497,353,522"/>
-<area shape="poly" id="edge14_Node000001_Node000011" title=" " alt="" coords="125,535,192,522,193,527,126,540"/>
-<area shape="rect" id="Node000015" href="$d6/d84/namespaceutils.html#ab63ac98c412c96a48161b7ad74e5fa85" title="Extract a filename&#39;s suffix." alt="" coords="194,565,353,590"/>
-<area shape="poly" id="edge18_Node000001_Node000015" title=" " alt="" coords="126,555,181,562,180,567,125,560"/>
-<area shape="rect" id="Node000017" href="$d7/d06/namespacejobctrl.html#ac1f9c065e490a227cedb2d1a5c0a7841" title="Initialize jobctrl." alt="" coords="203,661,343,686"/>
-<area shape="poly" id="edge20_Node000001_Node000017" title=" " alt="" coords="89,560,240,651,238,656,86,564"/>
-<area shape="rect" id="Node000021" href="$d7/dd4/namespaceneko__mpi__types.html#a119aebb71e9f7bc6fff6105784ecac3b" title="Define all MPI derived types." alt="" coords="190,1020,357,1060"/>
-<area shape="poly" id="edge24_Node000001_Node000021" title=" " alt="" coords="75,561,261,1007,256,1009,70,563"/>
-<area shape="rect" id="Node000032" href="$d5/d81/namespacesystem.html#a35841ee3fbe6882a5d4c8507984d9904" title="Retrieve the system&#39;s CPU name (type)" alt="" coords="173,1085,373,1110"/>
-<area shape="poly" id="edge35_Node000001_Node000032" title=" " alt="" coords="70,562,78,661,97,815,111,895,129,969,150,1030,162,1053,175,1070,180,1075,177,1079,171,1074,158,1056,145,1032,124,971,106,896,92,816,73,662,65,562"/>
-<area shape="poly" id="edge5_Node000003_Node000003" title=" " alt="" coords="239,214,232,204,236,194,250,188,273,186,302,190,314,199,310,203,300,195,273,191,251,193,239,198,237,204,243,211"/>
-<area shape="rect" id="Node000004" href="$db/d9a/namespacecuda__intf.html#a4c6829041b1ce806df2141185b6e705b" title="Return the number of avaialble CUDA devices." alt="" coords="443,29,614,69"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="313,210,343,195,371,174,387,150,394,127,401,103,419,79,429,72,433,76,423,83,406,105,399,128,392,153,375,178,346,200,315,215"/>
-<area shape="rect" id="Node000005" href="$d0/d4e/namespacehip__intf.html#ae76e470dcd046e7ef62b0273edd6c56d" title="Return the number of available HIP devices." alt="" coords="455,117,603,157"/>
-<area shape="poly" id="edge6_Node000003_Node000005" title=" " alt="" coords="305,210,420,167,445,159,446,164,422,172,307,215"/>
-<area shape="rect" id="Node000006" href="$d3/d3b/namespaceopencl__intf.html#a476f3dd0418dfa1401fb91a1a75635d8" title="Return the number of OpenCL devices." alt="" coords="457,205,601,245"/>
-<area shape="poly" id="edge8_Node000003_Node000006" title=" " alt="" coords="353,223,443,223,443,228,353,228"/>
-<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="482,30,479,20,486,10,503,5,529,3,558,6,574,13,572,18,557,11,529,8,504,10,489,15,484,21,487,28"/>
-<area shape="poly" id="edge7_Node000005_Node000005" title=" " alt="" coords="482,118,479,108,486,98,503,93,529,91,558,94,574,101,572,106,557,99,529,96,504,98,489,103,484,109,487,116"/>
-<area shape="poly" id="edge9_Node000006_Node000006" title=" " alt="" coords="482,206,479,196,486,186,503,181,529,179,558,182,574,189,572,194,557,187,529,184,504,186,489,191,484,197,487,204"/>
-<area shape="rect" id="Node000008" href="$db/d9a/namespacecuda__intf.html#a27da6bd58a4b66b6c2be1908922c18d1" title=" " alt="" coords="455,270,603,295"/>
-<area shape="poly" id="edge11_Node000007_Node000008" title=" " alt="" coords="307,342,421,304,452,296,453,301,422,309,309,347"/>
-<area shape="rect" id="Node000009" href="$d0/d4e/namespacehip__intf.html#a1fe3302af910fad64b1e7c2ba5b29d3e" title=" " alt="" coords="465,319,592,345"/>
-<area shape="poly" id="edge12_Node000007_Node000009" title=" " alt="" coords="345,348,451,337,452,342,346,353"/>
-<area shape="rect" id="Node000010" href="$d3/d3b/namespaceopencl__intf.html#a4f119f6561e368585603573f2c8b5041" title=" " alt="" coords="443,369,615,394"/>
-<area shape="poly" id="edge13_Node000007_Node000010" title=" " alt="" coords="346,361,429,369,429,375,345,367"/>
-<area shape="rect" id="Node000012" href="$db/d9a/namespacecuda__intf.html#a05388b77b2bea0507b51694ea4bceb1f" title=" " alt="" coords="421,418,636,443"/>
-<area shape="poly" id="edge15_Node000011_Node000012" title=" " alt="" coords="304,494,421,452,451,444,452,449,422,457,306,499"/>
-<area shape="rect" id="Node000013" href="$d0/d4e/namespacehip__intf.html#a1c8e3cf5e89ffe1b50253b6b38e45a93" title=" " alt="" coords="433,467,625,493"/>
-<area shape="poly" id="edge16_Node000011_Node000013" title=" " alt="" coords="353,498,419,490,419,495,354,503"/>
-<area shape="rect" id="Node000014" href="$d3/d3b/namespaceopencl__intf.html#a07ec4ed5818678cf793c11b2b44543ca" title=" " alt="" coords="457,517,601,557"/>
-<area shape="poly" id="edge17_Node000011_Node000014" title=" " alt="" coords="354,515,443,525,443,531,353,521"/>
-<area shape="rect" id="Node000016" href="$d6/d84/namespaceutils.html#ae2d9d80ae0bcff7643db09d1c1860542" title="Find position (in the string) of a filename&#39;s suffix." alt="" coords="435,582,623,607"/>
-<area shape="poly" id="edge19_Node000015_Node000016" title=" " alt="" coords="353,580,421,585,421,590,353,585"/>
-<area shape="rect" id="Node000018" href="$d7/d06/namespacejobctrl.html#a7db1bdb67af7a36c1a77422333bb985f" title="Returns a job&#39;s time in seconds relative to the first call." alt="" coords="444,631,613,657"/>
-<area shape="poly" id="edge21_Node000017_Node000018" title=" " alt="" coords="343,663,430,653,431,658,344,668"/>
-<area shape="rect" id="Node000019" href="$d1/daf/namespacesignal.html#adbf88cfbdc7991b88f2ddcc67304f05f" title="Initialize signal handler to trap SIGXCPU." alt="" coords="458,681,599,721"/>
-<area shape="poly" id="edge22_Node000017_Node000019" title=" " alt="" coords="344,678,445,689,444,695,343,684"/>
-<area shape="rect" id="Node000020" href="$d1/daf/namespacesignal.html#a4b575d7f80b06fdb51ca6a8c7486d825" title="Initialize signal handler to trap SIGUSR1 and SIGUSR2." alt="" coords="445,746,613,771"/>
-<area shape="poly" id="edge23_Node000017_Node000020" title=" " alt="" coords="303,684,358,707,422,731,454,740,453,745,421,736,356,712,301,689"/>
-<area shape="rect" id="Node000022" href="$d7/dd4/namespaceneko__mpi__types.html#a19e534d22e0873bb1fc4e4255ee5dd14" title="Define a MPI derived type for a nmsh curved element." alt="" coords="443,796,615,836"/>
-<area shape="poly" id="edge25_Node000021_Node000022" title=" " alt="" coords="282,1019,303,982,333,935,373,887,420,846,429,840,432,844,423,850,376,891,338,938,307,984,287,1021"/>
-<area shape="rect" id="Node000023" href="$d7/dd4/namespaceneko__mpi__types.html#a493d894ba2476b7133f84584baf6ee39" title="Define a MPI derived type for a 3d nmsh hex." alt="" coords="448,860,609,900"/>
-<area shape="poly" id="edge26_Node000021_Node000023" title=" " alt="" coords="291,1018,345,964,381,935,420,910,434,903,436,908,423,914,384,939,349,968,294,1022"/>
-<area shape="rect" id="Node000024" href="$d7/dd4/namespaceneko__mpi__types.html#a08d4bce14d80ce9956cf3b8555324bd6" title="Define a MPI derived type for a 2d nmsh quad." alt="" coords="445,924,613,964"/>
-<area shape="poly" id="edge27_Node000021_Node000024" title=" " alt="" coords="316,1017,420,974,443,966,445,971,422,978,318,1022"/>
-<area shape="rect" id="Node000025" href="$d7/dd4/namespaceneko__mpi__types.html#a3aa0dcbfe591954955a65ac8cabfd832" title="Define a MPI derived type for a nmsh zone." alt="" coords="445,988,612,1028"/>
-<area shape="poly" id="edge28_Node000021_Node000025" title=" " alt="" coords="356,1027,431,1017,432,1023,357,1032"/>
-<area shape="rect" id="Node000026" href="$d7/dd4/namespaceneko__mpi__types.html#a9b0a9d3c3e4cf3a2c654d16638c129dc" title="Define a MPI derived type for re2 bc data." alt="" coords="448,1052,609,1092"/>
-<area shape="poly" id="edge29_Node000021_Node000026" title=" " alt="" coords="357,1048,435,1058,434,1063,356,1053"/>
-<area shape="rect" id="Node000027" href="$d7/dd4/namespaceneko__mpi__types.html#a6db42947561a610ff314927baf3518d8" title="Define a MPI derived type for re2 cv data." alt="" coords="448,1116,609,1156"/>
-<area shape="poly" id="edge30_Node000021_Node000027" title=" " alt="" coords="346,1058,375,1070,399,1086,423,1102,439,1109,437,1114,420,1106,396,1090,372,1074,344,1062"/>
-<area shape="rect" id="Node000028" href="$d7/dd4/namespaceneko__mpi__types.html#abdd7089722ec1da503ebc0bf3fd5b666" title="Define a MPI derived type for a 2d re2 data." alt="" coords="448,1180,609,1220"/>
-<area shape="poly" id="edge31_Node000021_Node000028" title=" " alt="" coords="357,1058,375,1070,393,1095,400,1119,406,1143,423,1166,437,1176,434,1180,419,1170,401,1146,395,1121,389,1097,371,1074,354,1062"/>
-<area shape="rect" id="Node000029" href="$d7/dd4/namespaceneko__mpi__types.html#ac4a4ed902f6de403063346d52120f97c" title="Define a MPI derived type for a 3d re2 data." alt="" coords="448,1244,609,1284"/>
-<area shape="poly" id="edge32_Node000021_Node000029" title=" " alt="" coords="359,1057,375,1070,390,1091,398,1111,400,1152,402,1192,409,1211,423,1230,437,1241,434,1245,419,1234,404,1213,396,1193,394,1152,393,1113,386,1093,371,1074,355,1062"/>
-<area shape="rect" id="Node000030" href="$d7/dd4/namespaceneko__mpi__types.html#a145a40499bcab0b08fb996f110328d30" title="Define a MPI dervied type for a STL header." alt="" coords="448,1308,609,1348"/>
-<area shape="poly" id="edge33_Node000021_Node000030" title=" " alt="" coords="359,1057,375,1070,395,1099,403,1128,403,1156,400,1185,396,1212,397,1240,405,1267,423,1294,437,1306,434,1310,419,1298,400,1269,392,1240,391,1212,394,1184,398,1156,397,1129,390,1101,371,1074,355,1061"/>
-<area shape="rect" id="Node000031" href="$d7/dd4/namespaceneko__mpi__types.html#a42574c77310686e48827dfff24bd55c0" title="Define a MPI derived type for a STL triangle." alt="" coords="445,1372,612,1412"/>
-<area shape="poly" id="edge34_Node000021_Node000031" title=" " alt="" coords="359,1056,375,1070,399,1108,407,1145,406,1181,400,1217,393,1252,392,1287,401,1323,423,1358,435,1369,432,1373,419,1362,396,1325,387,1288,388,1252,394,1216,400,1180,402,1145,394,1110,371,1074,355,1060"/>
+<area shape="rect" id="Node000001" title="Initialise Neko." alt="" coords="5,363,125,389"/>
+<area shape="rect" id="Node000002" href="$d3/d8f/namespacecomm.html#a08a353f1ee66ac93674f48d999819eec" title=" " alt="" coords="187,190,327,215"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="70,362,106,296,136,258,172,225,181,219,184,223,175,229,139,261,111,299,75,364"/>
+<area shape="rect" id="Node000003" href="$d0/dbe/namespacedevice.html#aea8ac0b8d51031f74cc45d8e69a30bdb" title=" " alt="" coords="185,239,329,265"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="85,361,223,270,226,275,88,365"/>
+<area shape="rect" id="Node000012" href="$d6/d84/namespaceutils.html#ab63ac98c412c96a48161b7ad74e5fa85" title="Extract a filename&#39;s suffix." alt="" coords="177,338,336,363"/>
+<area shape="poly" id="edge15_Node000001_Node000012" title=" " alt="" coords="125,365,164,360,164,366,126,371"/>
+<area shape="rect" id="Node000014" href="$d7/d06/namespacejobctrl.html#ac1f9c065e490a227cedb2d1a5c0a7841" title="Initialize jobctrl." alt="" coords="187,387,327,413"/>
+<area shape="poly" id="edge17_Node000001_Node000014" title=" " alt="" coords="126,381,174,387,173,392,126,386"/>
+<area shape="rect" id="Node000018" href="$da/d03/neko_8h.html#a708b3eb1233ece9386057552a35074c9" title=" " alt="" coords="201,437,313,462"/>
+<area shape="poly" id="edge21_Node000001_Node000018" title=" " alt="" coords="94,386,174,422,199,430,197,435,172,426,92,391"/>
+<area shape="rect" id="Node000019" href="$d7/dd4/namespaceneko__mpi__types.html#a119aebb71e9f7bc6fff6105784ecac3b" title="Define all MPI derived types." alt="" coords="173,808,340,848"/>
+<area shape="poly" id="edge22_Node000001_Node000019" title=" " alt="" coords="75,388,244,794,239,796,70,390"/>
+<area shape="rect" id="Node000004" href="$db/d9a/namespacecuda__intf.html#a7be9d4a8d82859375deb54ec039b58fc" title=" " alt="" coords="408,51,556,77"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="320,237,338,225,351,208,358,191,361,157,364,121,372,103,386,86,394,80,397,84,390,90,376,106,369,123,366,157,363,193,356,211,342,229,323,241"/>
+<area shape="rect" id="Node000005" href="$d0/dbe/namespacedevice.html#aab9b9e345cf9153c37f6376d32dbb012" title="Return the number of available devices." alt="" coords="403,125,561,150"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="315,237,338,225,353,209,361,193,370,177,386,161,399,153,402,158,390,165,374,180,366,196,358,212,342,229,317,242"/>
+<area shape="rect" id="Node000009" href="$d0/dbe/namespacedevice.html#aaaa5631ad87c768e466be4f943c5c479" title="Create a device event queue." alt="" coords="402,175,562,215"/>
+<area shape="poly" id="edge12_Node000003_Node000009" title=" " alt="" coords="307,237,389,215,390,221,308,242"/>
+<area shape="rect" id="Node000010" href="$d0/d4e/namespacehip__intf.html#a71cf325d479bbed01658a08561e54a48" title=" " alt="" coords="419,239,545,265"/>
+<area shape="poly" id="edge13_Node000003_Node000010" title=" " alt="" coords="329,249,405,249,405,255,329,255"/>
+<area shape="rect" id="Node000011" href="$d3/d3b/namespaceopencl__intf.html#a5b24574b4ca8c9754859e219522d083f" title=" " alt="" coords="396,289,568,314"/>
+<area shape="poly" id="edge14_Node000003_Node000011" title=" " alt="" coords="316,262,411,283,409,288,315,267"/>
+<area shape="poly" id="edge7_Node000005_Node000005" title=" " alt="" coords="445,126,438,116,442,106,457,100,482,98,514,102,526,111,522,115,512,107,482,103,458,105,445,110,443,116,450,123"/>
+<area shape="rect" id="Node000006" href="$db/d9a/namespacecuda__intf.html#a4c6829041b1ce806df2141185b6e705b" title="Return the number of avaialble CUDA devices." alt="" coords="624,29,795,69"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="514,122,623,79,641,72,643,77,625,84,516,127"/>
+<area shape="rect" id="Node000007" href="$d0/d4e/namespacehip__intf.html#ae76e470dcd046e7ef62b0273edd6c56d" title="Return the number of available HIP devices." alt="" coords="635,117,783,157"/>
+<area shape="poly" id="edge8_Node000005_Node000007" title=" " alt="" coords="562,135,622,135,622,140,562,140"/>
+<area shape="rect" id="Node000008" href="$d3/d3b/namespaceopencl__intf.html#a476f3dd0418dfa1401fb91a1a75635d8" title="Return the number of OpenCL devices." alt="" coords="637,205,781,245"/>
+<area shape="poly" id="edge10_Node000005_Node000008" title=" " alt="" coords="537,148,577,160,659,197,657,201,575,165,535,153"/>
+<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="667,30,664,20,671,10,686,5,709,3,736,6,750,13,748,18,734,11,709,8,688,10,674,15,670,21,672,28"/>
+<area shape="poly" id="edge9_Node000007_Node000007" title=" " alt="" coords="667,118,664,108,671,98,686,93,709,91,736,94,750,101,748,106,734,99,709,96,688,98,674,103,670,109,672,116"/>
+<area shape="poly" id="edge11_Node000008_Node000008" title=" " alt="" coords="667,206,664,196,671,186,686,181,709,179,736,182,750,189,748,194,734,187,709,184,688,186,674,191,670,197,672,204"/>
+<area shape="rect" id="Node000013" href="$d6/d84/namespaceutils.html#ae2d9d80ae0bcff7643db09d1c1860542" title="Find position (in the string) of a filename&#39;s suffix." alt="" coords="388,338,576,363"/>
+<area shape="poly" id="edge16_Node000012_Node000013" title=" " alt="" coords="337,348,374,348,374,353,337,353"/>
+<area shape="rect" id="Node000015" href="$d7/d06/namespacejobctrl.html#a7db1bdb67af7a36c1a77422333bb985f" title="Returns a job&#39;s time in seconds relative to the first call." alt="" coords="397,387,567,413"/>
+<area shape="poly" id="edge18_Node000014_Node000015" title=" " alt="" coords="327,397,383,397,383,403,327,403"/>
+<area shape="rect" id="Node000016" href="$d1/daf/namespacesignal.html#adbf88cfbdc7991b88f2ddcc67304f05f" title="Initialize signal handler to trap SIGXCPU." alt="" coords="411,437,553,477"/>
+<area shape="poly" id="edge19_Node000014_Node000016" title=" " alt="" coords="308,410,399,433,397,439,307,415"/>
+<area shape="rect" id="Node000017" href="$d1/daf/namespacesignal.html#a4b575d7f80b06fdb51ca6a8c7486d825" title="Initialize signal handler to trap SIGUSR1 and SIGUSR2." alt="" coords="398,502,566,527"/>
+<area shape="poly" id="edge20_Node000014_Node000017" title=" " alt="" coords="320,410,342,422,358,439,366,456,374,472,390,487,402,494,399,499,386,491,370,475,362,458,354,442,338,426,318,415"/>
+<area shape="rect" id="Node000020" href="$d7/dd4/namespaceneko__mpi__types.html#a19e534d22e0873bb1fc4e4255ee5dd14" title="Define a MPI derived type for a nmsh curved element." alt="" coords="396,552,568,592"/>
+<area shape="poly" id="edge23_Node000019_Node000020" title=" " alt="" coords="262,806,278,764,304,709,340,652,362,625,386,602,393,597,396,601,390,606,366,629,344,655,308,712,283,766,267,808"/>
+<area shape="rect" id="Node000021" href="$d7/dd4/namespaceneko__mpi__types.html#a493d894ba2476b7133f84584baf6ee39" title="Define a MPI derived type for a 3d nmsh hex." alt="" coords="401,616,563,656"/>
+<area shape="poly" id="edge24_Node000019_Node000021" title=" " alt="" coords="267,806,313,738,347,699,386,666,395,660,398,665,390,670,351,703,318,741,271,809"/>
+<area shape="rect" id="Node000022" href="$d7/dd4/namespaceneko__mpi__types.html#a08d4bce14d80ce9956cf3b8555324bd6" title="Define a MPI derived type for a 2d nmsh quad." alt="" coords="398,680,566,720"/>
+<area shape="poly" id="edge25_Node000019_Node000022" title=" " alt="" coords="279,806,327,768,387,730,401,723,403,728,389,734,330,772,283,810"/>
+<area shape="rect" id="Node000023" href="$d7/dd4/namespaceneko__mpi__types.html#a3aa0dcbfe591954955a65ac8cabfd832" title="Define a MPI derived type for a nmsh zone." alt="" coords="399,744,565,784"/>
+<area shape="poly" id="edge26_Node000019_Node000023" title=" " alt="" coords="327,805,397,785,398,790,329,810"/>
+<area shape="rect" id="Node000024" href="$d7/dd4/namespaceneko__mpi__types.html#a9b0a9d3c3e4cf3a2c654d16638c129dc" title="Define a MPI derived type for re2 bc data." alt="" coords="401,808,563,848"/>
+<area shape="poly" id="edge27_Node000019_Node000024" title=" " alt="" coords="340,825,388,825,388,831,340,831"/>
+<area shape="rect" id="Node000025" href="$d7/dd4/namespaceneko__mpi__types.html#a6db42947561a610ff314927baf3518d8" title="Define a MPI derived type for re2 cv data." alt="" coords="401,872,563,912"/>
+<area shape="poly" id="edge28_Node000019_Node000025" title=" " alt="" coords="329,846,398,866,397,871,327,851"/>
+<area shape="rect" id="Node000026" href="$d7/dd4/namespaceneko__mpi__types.html#abdd7089722ec1da503ebc0bf3fd5b666" title="Define a MPI derived type for a 2d re2 data." alt="" coords="401,936,563,976"/>
+<area shape="poly" id="edge29_Node000019_Node000026" title=" " alt="" coords="283,846,330,884,389,922,403,928,401,933,387,926,327,888,279,850"/>
+<area shape="rect" id="Node000027" href="$d7/dd4/namespaceneko__mpi__types.html#ac4a4ed902f6de403063346d52120f97c" title="Define a MPI derived type for a 3d re2 data." alt="" coords="401,1000,563,1040"/>
+<area shape="poly" id="edge30_Node000019_Node000027" title=" " alt="" coords="271,847,318,915,351,953,390,986,398,991,395,996,386,990,347,957,313,918,267,850"/>
+<area shape="rect" id="Node000028" href="$d7/dd4/namespaceneko__mpi__types.html#a145a40499bcab0b08fb996f110328d30" title="Define a MPI dervied type for a STL header." alt="" coords="401,1064,563,1104"/>
+<area shape="poly" id="edge31_Node000019_Node000028" title=" " alt="" coords="267,848,283,890,308,944,344,1001,366,1027,390,1050,396,1055,393,1059,386,1054,362,1031,340,1004,304,947,278,892,262,850"/>
+<area shape="rect" id="Node000029" href="$d7/dd4/namespaceneko__mpi__types.html#a42574c77310686e48827dfff24bd55c0" title="Define a MPI derived type for a STL triangle." alt="" coords="399,1128,565,1168"/>
+<area shape="poly" id="edge32_Node000019_Node000029" title=" " alt="" coords="264,848,276,901,300,972,316,1010,337,1048,361,1083,390,1114,395,1118,392,1123,386,1118,357,1086,332,1051,312,1013,295,974,271,902,259,849"/>
 </map>

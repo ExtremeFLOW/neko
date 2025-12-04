@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -142,63 +142,102 @@ $(document).ready(function(){initNavTree('da/d1e/wall__model__fctry_8f90_source.
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d4/d6e/namespacevreman.html">vreman</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../de/d91/structvreman_1_1vreman__t.html">vreman_t</a></div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d5/d90/namespacespalding.html">spalding</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../df/df1/structspalding_1_1spalding__t.html">spalding_t</a></div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d7/d0f/namespacerough__log__law.html">rough_log_law</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../df/d21/structrough__log__law_1_1rough__log__law__t.html">rough_log_law_t</a></div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/d84/namespaceutils.html">utils</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../d6/d84/namespaceutils.html#a1118aac17fca960a9444986355db28ad">concat_string_array</a></div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d8/da8/namespacejson__utils.html">json_utils</a>, <span class="keywordtype">only</span> : <a class="code hl_interface" href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_get</a></div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/d84/namespaceutils.html">utils</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../d6/d84/namespaceutils.html#ac2aece3826d2efe73113379fc55ae05b">neko_type_error</a></div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/d84/namespaceutils.html">utils</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../d6/d84/namespaceutils.html#a131a6b98b16e65151cc8b92283a40337">neko_type_registration_error</a></div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span> </div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="comment">! List of all possible types created by the factory routine</span></div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>  <span class="keywordtype">character(len=20)</span> :: WALLM_KNOWN_TYPES(2) = [character(len=20) :: &amp;</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>     <span class="stringliteral">&quot;spalding&quot;</span>, &amp;</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>     <span class="stringliteral">&quot;rough_log_law&quot;</span>]</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>       <span class="stringliteral">&quot;spalding&quot;</span>, &amp;</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>       <span class="stringliteral">&quot;rough_log_law&quot;</span>]</div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="keyword">contains</span></div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span> </div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>  <span class="keyword">module</span> subroutine wall_model_factory(object, coef, msk, facet, nu, &amp;</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>  <span class="keyword">module</span> subroutine wall_model_factory(object, scheme_name, coef, msk, facet, &amp;</div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>       json)</div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    <span class="keywordtype">class</span>(wall_model_t), <span class="keywordtype">allocatable</span>, <span class="keywordtype">intent(inout)</span> :: object</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(in)</span> :: coef</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: msk(:)</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: facet(:)</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: nu</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: scheme_name</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(in)</span> :: coef</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: msk(:)</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: facet(:)</div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    <span class="keywordtype">type</span>(json_file), <span class="keywordtype">intent(inout)</span> :: json</div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="keywordtype">character(len=:)</span>, <span class="keywordtype">allocatable</span> :: type_name</div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    <span class="keywordtype">character(len=:)</span>, <span class="keywordtype">allocatable</span> :: type_string</div>
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    <span class="keywordtype">integer</span> :: h_index</div>
 <div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span> </div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    type_string =  <a class="code hl_function" href="../../d6/d84/namespaceutils.html#a1118aac17fca960a9444986355db28ad">concat_string_array</a>(wallm_known_types, &amp;</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>         new_line(<span class="stringliteral">&#39;A&#39;</span>) // <span class="stringliteral">&quot;-  &quot;</span>, prepend = .true.)</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    <span class="keyword">call </span>json_get(json, <span class="stringliteral">&quot;model&quot;</span>, type_name)</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    <span class="keyword">call </span>json_get(json, <span class="stringliteral">&quot;h_index&quot;</span>, h_index)</div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span> </div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_get</a>(json, <span class="stringliteral">&quot;type&quot;</span>, type_name)</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    <span class="keyword">call </span>wall_model_allocator(object, type_name)</div>
 <div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span> </div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    <span class="keywordflow">if</span> (trim(type_name) .eq. <span class="stringliteral">&quot;spalding&quot;</span>) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>       <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../df/df1/structspalding_1_1spalding__t.html">spalding_t</a>::object)</div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (trim(type_name) .eq. <span class="stringliteral">&quot;rough_log_law&quot;</span>) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>       <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../df/d21/structrough__log__law_1_1rough__log__law__t.html">rough_log_law_t</a>::object)</div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Unknown wall model type: &quot;</span> // trim(type_name) // &amp;</div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>          trim(type_name) // <span class="stringliteral">&quot;.  Known types are: &quot;</span>  // type_string)</div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>       stop</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span> </div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_get</a>(json, <span class="stringliteral">&quot;h_index&quot;</span>, h_index)</div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span> </div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>    <span class="comment">! Initialize</span></div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    <span class="keyword">call </span>object%init(coef, msk, facet, nu, h_index, json)</div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span> </div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>  <span class="keyword">end subroutine </span>wall_model_factory</div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span> </div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span><span class="keyword">end </span>submodule wall_model_fctry</div>
-<div class="ttc" id="ainterfacejson__utils_1_1json__get_html"><div class="ttname"><a href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_utils::json_get</a></div><div class="ttdoc">Retrieves a parameter by name or throws an error.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00045">json_utils.f90:45</a></div></div>
-<div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00042">utils.f90:42</a></div></div>
-<div class="ttc" id="anamespacejson__utils_html"><div class="ttname"><a href="../../d8/da8/namespacejson__utils.html">json_utils</a></div><div class="ttdoc">Utilities for retrieving parameters from the case files.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00034">json_utils.f90:34</a></div></div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    <span class="comment">! Initialize</span></div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    <span class="keyword">call </span>object%init(scheme_name, coef, msk, facet, h_index, json)</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span> </div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>  <span class="keyword">end subroutine </span>wall_model_factory</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span> </div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>  <span class="keyword">module</span> subroutine wall_model_allocator(object, type_name)</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>    <span class="keywordtype">class</span>(wall_model_t), <span class="keywordtype">allocatable</span>, <span class="keywordtype">intent(inout)</span> :: object</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>    <span class="keywordtype">character(len=:)</span>, <span class="keywordtype">allocatable</span>, <span class="keywordtype">intent(in)</span> :: type_name</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>    <span class="keywordtype">integer</span> :: i</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span> </div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    <span class="keywordflow">select case</span> (trim(type_name) )</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&quot;spalding&quot;</span>)</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>       <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../df/df1/structspalding_1_1spalding__t.html">spalding_t</a>::object)</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&quot;rough_log_law&quot;</span>)</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>       <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../df/d21/structrough__log__law_1_1rough__log__law__t.html">rough_log_law_t</a>::object)</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span><span class="keywordflow">    case default</span></div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>       <span class="keywordflow">do</span> i = 1, wall_model_registry_size</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>          <span class="keywordflow">if</span> (trim(type_name) .eq. trim(wall_model_registry(i)%type_name)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>             <span class="keyword">call </span>wall_model_registry(i)%allocator(object)</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>             <span class="keywordflow">return</span></div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span><span class="keywordflow">          end if</span></div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d6/d84/namespaceutils.html#ac2aece3826d2efe73113379fc55ae05b">neko_type_error</a>(<span class="stringliteral">&quot;wall model&quot;</span>, trim(type_name), wallm_known_types)</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span><span class="keywordflow">    end select</span></div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>  <span class="keyword">end subroutine </span>wall_model_allocator</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span> </div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>  <span class="keyword">module</span> subroutine register_wall_model(type_name, allocator)</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: type_name</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    <span class="keywordtype">procedure</span>(wall_model_allocate), <span class="keywordtype">pointer</span>, <span class="keywordtype">intent(in)</span> :: allocator</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    <span class="keywordtype">type</span>(allocator_entry), <span class="keywordtype">allocatable</span> :: temp(:)</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>    <span class="keywordtype">integer</span> :: i</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span> </div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(wallm_known_types)</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>       <span class="keywordflow">if</span> (trim(type_name) .eq. trim(wallm_known_types(i))) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d6/d84/namespaceutils.html#a131a6b98b16e65151cc8b92283a40337">neko_type_registration_error</a>(<span class="stringliteral">&quot;wall model&quot;</span>, type_name, .true.)</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span> </div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>    <span class="keywordflow">do</span> i = 1, wall_model_registry_size</div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>       <span class="keywordflow">if</span> (trim(type_name) .eq. trim(wall_model_registry(i)%type_name)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d6/d84/namespaceutils.html#a131a6b98b16e65151cc8b92283a40337">neko_type_registration_error</a>(<span class="stringliteral">&quot;wall model&quot;</span>, type_name, .false.)</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span> </div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    <span class="comment">! Expand registry</span></div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>    <span class="keywordflow">if</span> (wall_model_registry_size .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>       <span class="keyword">allocate</span>(wall_model_registry(1))</div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>       <span class="keyword">allocate</span>(temp(wall_model_registry_size + 1))</div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>       temp(1:wall_model_registry_size) = wall_model_registry</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>       <span class="keyword">call </span>move_alloc(temp, wall_model_registry)</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span> </div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>    wall_model_registry_size = wall_model_registry_size + 1</div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>    wall_model_registry(wall_model_registry_size)%type_name = type_name</div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>    wall_model_registry(wall_model_registry_size)%allocator =&gt; allocator</div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>  <span class="keyword">end subroutine </span>register_wall_model</div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span> </div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span><span class="keyword">end </span>submodule wall_model_fctry</div>
 <div class="ttc" id="anamespacerough__log__law_html"><div class="ttname"><a href="../../d7/d0f/namespacerough__log__law.html">rough_log_law</a></div><div class="ttdoc">Implements rough_log_law_t.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d49/rough__log__law_8f90_source.html#l00035">rough_log_law.f90:35</a></div></div>
 <div class="ttc" id="anamespacespalding_html"><div class="ttname"><a href="../../d5/d90/namespacespalding.html">spalding</a></div><div class="ttdoc">Implements spalding_t.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/de5/spalding_8f90_source.html#l00035">spalding.f90:35</a></div></div>
 <div class="ttc" id="anamespaceutils_html"><div class="ttname"><a href="../../d6/d84/namespaceutils.html">utils</a></div><div class="ttdoc">Utilities.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00035">utils.f90:35</a></div></div>
-<div class="ttc" id="anamespaceutils_html_a1118aac17fca960a9444986355db28ad"><div class="ttname"><a href="../../d6/d84/namespaceutils.html#a1118aac17fca960a9444986355db28ad">utils::concat_string_array</a></div><div class="ttdeci">character(:) function, allocatable, public concat_string_array(array, sep, prepend)</div><div class="ttdoc">Concatenate an array of strings into one string with array items separated by spaces.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00254">utils.f90:255</a></div></div>
+<div class="ttc" id="anamespaceutils_html_a131a6b98b16e65151cc8b92283a40337"><div class="ttname"><a href="../../d6/d84/namespaceutils.html#a131a6b98b16e65151cc8b92283a40337">utils::neko_type_registration_error</a></div><div class="ttdeci">subroutine, public neko_type_registration_error(base_type, wrong_type, known)</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00327">utils.f90:328</a></div></div>
+<div class="ttc" id="anamespaceutils_html_ac2aece3826d2efe73113379fc55ae05b"><div class="ttname"><a href="../../d6/d84/namespaceutils.html#ac2aece3826d2efe73113379fc55ae05b">utils::neko_type_error</a></div><div class="ttdeci">subroutine, public neko_type_error(base_type, wrong_type, known_types)</div><div class="ttdoc">Reports an error allocating a type for a particular base pointer class.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00312">utils.f90:313</a></div></div>
 <div class="ttc" id="anamespacevreman_html"><div class="ttname"><a href="../../d4/d6e/namespacevreman.html">vreman</a></div><div class="ttdoc">Implements vreman_t.</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d02/vreman_8f90_source.html#l00035">vreman.f90:35</a></div></div>
 <div class="ttc" id="anamespacewall__model_html"><div class="ttname"><a href="../../da/ddd/namespacewall__model.html">wall_model</a></div><div class="ttdoc">Implements wall_model_t.</div><div class="ttdef"><b>Definition</b> <a href="../../db/df0/wall__model_8f90_source.html#l00035">wall_model.f90:35</a></div></div>
-<div class="ttc" id="astructrough__log__law_1_1rough__log__law__t_html"><div class="ttname"><a href="../../df/d21/structrough__log__law_1_1rough__log__law__t.html">rough_log_law::rough_log_law_t</a></div><div class="ttdoc">Wall model based on the log-law for a rough wall. The formula defining the law is ....</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d49/rough__log__law_8f90_source.html#l00053">rough_log_law.f90:53</a></div></div>
-<div class="ttc" id="astructspalding_1_1spalding__t_html"><div class="ttname"><a href="../../df/df1/structspalding_1_1spalding__t.html">spalding::spalding_t</a></div><div class="ttdoc">Wall model based on Spalding's law of the wall. Reference: http://dx.doi.org/10.1115/1....</div><div class="ttdef"><b>Definition</b> <a href="../../dc/de5/spalding_8f90_source.html#l00053">spalding.f90:53</a></div></div>
+<div class="ttc" id="astructrough__log__law_1_1rough__log__law__t_html"><div class="ttname"><a href="../../df/d21/structrough__log__law_1_1rough__log__law__t.html">rough_log_law::rough_log_law_t</a></div><div class="ttdoc">Wall model based on the log-law for a rough wall. The formula defining the law is ....</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d49/rough__log__law_8f90_source.html#l00054">rough_log_law.f90:54</a></div></div>
+<div class="ttc" id="astructspalding_1_1spalding__t_html"><div class="ttname"><a href="../../df/df1/structspalding_1_1spalding__t.html">spalding::spalding_t</a></div><div class="ttdoc">Wall model based on Spalding's law of the wall. Reference: http://dx.doi.org/10.1115/1....</div><div class="ttdef"><b>Definition</b> <a href="../../dc/de5/spalding_8f90_source.html#l00057">spalding.f90:57</a></div></div>
 <div class="ttc" id="astructvreman_1_1vreman__t_html"><div class="ttname"><a href="../../de/d91/structvreman_1_1vreman__t.html">vreman::vreman_t</a></div><div class="ttdoc">Implements the Vreman LES model.</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d02/vreman_8f90_source.html#l00052">vreman.f90:52</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
@@ -206,7 +245,7 @@ $(document).ready(function(){initNavTree('da/d1e/wall__model__fctry_8f90_source.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_d19e42ec822a5375dfd47528cb2d7af7.html">wall_models</a></li><li class="navelem"><a class="el" href="../../da/d1e/wall__model__fctry_8f90.html">wall_model_fctry.f90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

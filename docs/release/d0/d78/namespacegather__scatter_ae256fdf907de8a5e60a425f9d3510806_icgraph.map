@@ -1,6 +1,6 @@
 <map id="gather_scatter::gs_op_vector" name="gather_scatter::gs_op_vector">
 <area shape="rect" id="Node000001" title="Gather&#45;scatter operation on a vector u with op op." alt="" coords="407,85,545,125"/>
-<area shape="rect" id="Node000002" href="$d0/d78/namespacegather__scatter.html#a6abafa7eaef0e406c6d411d8554b8bee" title="Initialize a gather&#45;scatter kernel." alt="" coords="192,5,359,31"/>
+<area shape="rect" id="Node000002" href="$d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347" title="Initialize a gather&#45;scatter kernel." alt="" coords="192,5,359,31"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="428,80,358,46,322,33,324,28,360,41,430,75"/>
 <area shape="rect" id="Node000003" href="$d0/d78/namespacegather__scatter.html#af6d7eed444d705e5a72312bf01e3c083" title="Gather&#45;scatter operation on a field u with op op." alt="" coords="206,55,345,95"/>
 <area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="393,95,345,88,345,83,394,90"/>

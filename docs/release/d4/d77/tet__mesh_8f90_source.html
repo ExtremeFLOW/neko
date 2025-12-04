@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -106,7 +106,7 @@ $(document).ready(function(){initNavTree('d4/d77/tet__mesh_8f90_source.html','..
   <div class="headertitle"><div class="title">tet_mesh.f90</div></div>
 </div><!--header-->
 <div class="contents">
-<a href="../../d4/d77/tet__mesh_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">! Copyright (c) 2021, The Neko Authors</span></div>
+<a href="../../d4/d77/tet__mesh_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">! Copyright (c) 2021-2025, The Neko Authors</span></div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment">! All rights reserved.</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="comment">!</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment">! Redistribution and use in source and binary forms, with or without</span></div>
@@ -139,10 +139,10 @@ $(document).ready(function(){initNavTree('d4/d77/tet__mesh_8f90_source.html','..
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="comment">! POSSIBILITY OF SUCH DAMAGE.</span></div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="comment">!</span></div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno"><a class="line" href="../../d4/d59/namespacetet__mesh.html">   35</a></span><span class="keyword">module</span> <a class="code hl_namespace" href="../../d4/d59/namespacetet__mesh.html">tet_mesh</a></div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../db/dfc/namespacemesh.html">mesh</a></div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/df0/namespacetet.html">tet</a></div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d8/dbc/namespacepoint.html">point</a></div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/d84/namespaceutils.html">utils</a></div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../db/dfc/namespacemesh.html">mesh</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a></div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/df0/namespacetet.html">tet</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../db/dd5/structtet_1_1tet__t.html">tet_t</a></div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d8/dbc/namespacepoint.html">point</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a></div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/d84/namespaceutils.html">utils</a>, <span class="keywordtype">only</span> : <a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a></div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keywordtype">private</span></div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
@@ -219,7 +219,7 @@ $(document).ready(function(){initNavTree('d4/d77/tet__mesh_8f90_source.html','..
 <div class="line"><a id="l00108" name="l00108"></a><span class="lineno"><a class="line" href="../../d4/d59/namespacetet__mesh.html#a42638e8a9c6cf76999b6a089fb4e69fb">  108</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d4/d59/namespacetet__mesh.html#a42638e8a9c6cf76999b6a089fb4e69fb">tet_mesh_bisect_otpv</a>(tet_msh)</div>
 <div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d3a/structtet__mesh_1_1tet__mesh__t.html">tet_mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: tet_msh</div>
 <div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    <span class="keywordtype">integer</span> :: i, j</div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>    <span class="keywordtype">type</span>(<a class="code hl_interface" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">pointer</span> :: p1, p2, p3, p4</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">pointer</span> :: p1, p2, p3, p4</div>
 <div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span> </div>
 <div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    j = 0</div>
 <div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    <span class="keywordflow">do</span> i = 1, tet_msh%msh%nelv</div>
@@ -289,7 +289,7 @@ $(document).ready(function(){initNavTree('d4/d77/tet__mesh_8f90_source.html','..
 <div class="line"><a id="l00177" name="l00177"></a><span class="lineno"><a class="line" href="../../d4/d59/namespacetet__mesh.html#a60daf2f4bb4e5e15ce2e0bf53118f1eb">  177</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d4/d59/namespacetet__mesh.html#a60daf2f4bb4e5e15ce2e0bf53118f1eb">tet_mesh_bisect_fvtc</a>(tet_msh)</div>
 <div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d3a/structtet__mesh_1_1tet__mesh__t.html">tet_mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: tet_msh</div>
 <div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>    <span class="keywordtype">integer</span> :: i, j</div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>    <span class="keywordtype">type</span>(<a class="code hl_interface" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">pointer</span> :: p1, p2, p3, p4</div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">pointer</span> :: p1, p2, p3, p4</div>
 <div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span> </div>
 <div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>    j = 0</div>
 <div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>    <span class="keywordflow">do</span> i = 1, tet_msh%msh%nelv</div>
@@ -336,7 +336,7 @@ $(document).ready(function(){initNavTree('d4/d77/tet__mesh_8f90_source.html','..
 <div class="line"><a id="l00223" name="l00223"></a><span class="lineno"><a class="line" href="../../d4/d59/namespacetet__mesh.html#a30a55d42a259908d73e5693cc0de3780">  223</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d4/d59/namespacetet__mesh.html#a30a55d42a259908d73e5693cc0de3780">tet_mesh_bisect_svtc</a>(tet_msh)</div>
 <div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d3a/structtet__mesh_1_1tet__mesh__t.html">tet_mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: tet_msh</div>
 <div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>    <span class="keywordtype">integer</span> :: i, j</div>
-<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>    <span class="keywordtype">type</span>(<a class="code hl_interface" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">pointer</span> :: p1, p2, p3, p4</div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">pointer</span> :: p1, p2, p3, p4</div>
 <div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span> </div>
 <div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>    j = 0</div>
 <div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>    <span class="keywordflow">do</span> i = 1, tet_msh%msh%nelv</div>
@@ -404,7 +404,7 @@ $(document).ready(function(){initNavTree('d4/d77/tet__mesh_8f90_source.html','..
 <div class="ttc" id="anamespacetet__mesh_html_af6e976e971e8f00e78f6990de5badc36"><div class="ttname"><a href="../../d4/d59/namespacetet__mesh.html#af6e976e971e8f00e78f6990de5badc36">tet_mesh::tet_msh_svtc</a></div><div class="ttdeci">integer, parameter, public tet_msh_svtc</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d77/tet__mesh_8f90_source.html#l00043">tet_mesh.f90:43</a></div></div>
 <div class="ttc" id="anamespacetet_html"><div class="ttname"><a href="../../d6/df0/namespacetet.html">tet</a></div><div class="ttdoc">Defines a tetrahedral element.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d96/tet_8f90_source.html#l00034">tet.f90:34</a></div></div>
 <div class="ttc" id="anamespaceutils_html"><div class="ttname"><a href="../../d6/d84/namespaceutils.html">utils</a></div><div class="ttdoc">Utilities.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00035">utils.f90:35</a></div></div>
-<div class="ttc" id="astructmesh_1_1mesh__t_html"><div class="ttname"><a href="../../d7/d28/structmesh_1_1mesh__t.html">mesh::mesh_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l00064">mesh.f90:64</a></div></div>
+<div class="ttc" id="astructmesh_1_1mesh__t_html"><div class="ttname"><a href="../../d7/d28/structmesh_1_1mesh__t.html">mesh::mesh_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l00071">mesh.f90:71</a></div></div>
 <div class="ttc" id="astructpoint_1_1point__t_html"><div class="ttname"><a href="../../db/d6f/structpoint_1_1point__t.html">point::point_t</a></div><div class="ttdoc">A point in  with coordinates .</div><div class="ttdef"><b>Definition</b> <a href="../../d8/dc5/point_8f90_source.html#l00043">point.f90:43</a></div></div>
 <div class="ttc" id="astructtet_1_1tet__t_html"><div class="ttname"><a href="../../db/dd5/structtet_1_1tet__t.html">tet::tet_t</a></div><div class="ttdoc">Tetrahedral element.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d96/tet_8f90_source.html#l00063">tet.f90:63</a></div></div>
 <div class="ttc" id="astructtet__mesh_1_1tet__mesh__t_html"><div class="ttname"><a href="../../db/d3a/structtet__mesh_1_1tet__mesh__t.html">tet_mesh::tet_mesh_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d4/d77/tet__mesh_8f90_source.html#l00046">tet_mesh.f90:46</a></div></div>
@@ -414,7 +414,7 @@ $(document).ready(function(){initNavTree('d4/d77/tet__mesh_8f90_source.html','..
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_7be0d8c199b9408ae01f5d77515b8def.html">mesh</a></li><li class="navelem"><a class="el" href="../../d4/d77/tet__mesh_8f90.html">tet_mesh.f90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

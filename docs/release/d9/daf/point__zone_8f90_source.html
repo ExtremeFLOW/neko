@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -142,258 +142,287 @@ $(document).ready(function(){initNavTree('d9/daf/point__zone_8f90_source.html','
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno"><a class="line" href="../../dc/d5f/namespacepoint__zone.html">   34</a></span><span class="keyword">module</span> <a class="code hl_namespace" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d9/d30/namespacestack.html">stack</a>, <span class="keywordtype">only</span>: <a class="code hl_struct" href="../../d2/d45/structstack_1_1stack__i4__t.html">stack_i4_t</a></div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../df/d48/namespacenum__types.html">num_types</a>, <span class="keywordtype">only</span>: <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a></div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/d84/namespaceutils.html">utils</a>, <span class="keywordtype">only</span>: <a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>, <a class="code hl_function" href="../../d2/d57/cuda_2facet__normal__kernel_8h.html#a255d8d741e1fc6cd080ba11e14dc7148">nonlinear_index</a></div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/d84/namespaceutils.html">utils</a>, <span class="keywordtype">only</span>: <a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>, <a class="code hl_function" href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d">nonlinear_index</a></div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/dd2/namespacedofmap.html">dofmap</a>, <span class="keywordtype">only</span>: <a class="code hl_struct" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a></div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  <span class="keywordtype">use </span>json_module, <span class="keywordtype">only</span>: json_file</div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d9/d77/namespaceneko__config.html">neko_config</a>, <span class="keywordtype">only</span>: <a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a></div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d0/dbe/namespacedevice.html">device</a></div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>  use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_null_ptr</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>  <span class="keywordtype">implicit none</span></div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>  <span class="keywordtype">private</span></div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
-<div class="foldopen" id="foldopen00047" data-start="" data-end="">
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html">   47</a></span>  <span class="keyword">type</span>, <span class="keyword">public</span>, <span class="keyword">abstract</span> :: <a class="code hl_struct" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html">point_zone_t</a></div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#a6dc1abafb1a38fae4a9b8914868c4450">   49</a></span>     <span class="keywordtype">integer</span>, <span class="keywordtype">allocatable</span> :: mask(:)</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#a9f0d1102c0d7c62b237bafd28d004d07">   51</a></span>     <span class="keywordtype">type</span>(c_ptr) :: mask_d = c_null_ptr</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#a4a648d9b6d2c23e6149567b974dc306a">   53</a></span>     <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d2/d45/structstack_1_1stack__i4__t.html">stack_i4_t</a>), <span class="keywordtype">private</span> :: scratch</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#a3b3e2210b38d6577561a7ff877a43325">   55</a></span>     <span class="keywordtype">integer</span> :: size = 0</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#acb0a0f6391614fc59fe0cf302d513993">   58</a></span>     <span class="keywordtype">logical</span>, <span class="keywordtype">private</span> :: finalized = .false.</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#aa485a77f2a223a2249231cfe6ef19c8a">   60</a></span>     <span class="keywordtype">character(len=80)</span> :: name</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#aad3ba8338f7108d775b528b93eb92810">   62</a></span>     <span class="keywordtype">logical</span> :: invert = .false.</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>   <span class="keyword">contains</span></div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#a7b7aceb7bda8447480f271b8e1eee1a8">   65</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: init_base =&gt; <a class="code hl_function" href="../../dc/d5f/namespacepoint__zone.html#ab9f5b565f64e8e144b00ef2d3e215bac">point_zone_init_base</a></div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#a9f72805a437aae973aa02b78cfd98e07">   67</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: free_base =&gt; <a class="code hl_function" href="../../dc/d5f/namespacepoint__zone.html#a05bf36dcccbd83cbef9c36d017579093">point_zone_free_base</a></div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#adff51a13c077eaff2c9854a8715c9129">   69</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: finalize =&gt; <a class="code hl_function" href="../../dc/d5f/namespacepoint__zone.html#ab89b8b69818fccb933f59eebc27e440b">point_zone_finalize</a></div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#add3781341b5f44e5c96d66dcfd17b253">   71</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: add =&gt; <a class="code hl_function" href="../../dc/d5f/namespacepoint__zone.html#a590efa6045b41622f5313456101c516d">point_zone_add</a></div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#a0945aa9ed66621528be6df1007cc147a">   74</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: <a class="code hl_namespace" href="../../d3/dca/namespacemap.html">map</a> =&gt; <a class="code hl_function" href="../../dc/d5f/namespacepoint__zone.html#afadeef82ddfd6a4ed123fac4355ae94d">point_zone_map</a></div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#a43cdf137fb9e4b41018e4cbcfb1c767d">   76</a></span>     <span class="keywordtype">procedure</span>(<a class="code hl_interface" href="../../d3/d1e/interfacepoint__zone_1_1point__zone__init.html">point_zone_init</a>), pass(this), <span class="keywordtype">deferred</span> :: init</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#ac699b1324da0a9c2e54450bb0c486f89">   78</a></span>     <span class="keywordtype">procedure</span>(<a class="code hl_interface" href="../../dc/d4e/interfacepoint__zone_1_1point__zone__free.html">point_zone_free</a>), pass(this), <span class="keywordtype">deferred</span> :: free</div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#acb47d75383a81be32fbe3c7a8c48e178">   80</a></span>     <span class="keywordtype">procedure</span>(<a class="code hl_interface" href="../../d7/dc6/interfacepoint__zone_1_1point__zone__criterion.html">point_zone_criterion</a>), pass(this), <span class="keywordtype">deferred</span> :: criterion</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>  <span class="keyword">end type </span><a class="code hl_struct" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html">point_zone_t</a></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d3/d17/namespacemask.html">mask</a>, <span class="keywordtype">only</span>: <a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d0/dbe/namespacedevice.html">device</a>, <span class="keywordtype">only</span>: <a class="code hl_interface" href="../../da/db0/interfacedevice_1_1device__map.html">device_map</a>, <a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>, <a class="code hl_function" href="../../d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0">device_free</a></div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>  use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_null_ptr, c_associated</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>  <span class="keywordtype">implicit none</span></div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>  <span class="keywordtype">private</span></div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span> </div>
+<div class="foldopen" id="foldopen00048" data-start="" data-end="">
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html">   48</a></span>  <span class="keyword">type</span>, <span class="keyword">public</span>, <span class="keyword">abstract</span> :: <a class="code hl_struct" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html">point_zone_t</a></div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#a93afe571db4cfd369a7ecb6b80830b35">   50</a></span>     <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>) :: <a class="code hl_namespace" href="../../d3/d17/namespacemask.html">mask</a></div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#a4a648d9b6d2c23e6149567b974dc306a">   52</a></span>     <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d2/d45/structstack_1_1stack__i4__t.html">stack_i4_t</a>), <span class="keywordtype">private</span> :: scratch</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#a3b3e2210b38d6577561a7ff877a43325">   54</a></span>     <span class="keywordtype">integer</span> :: size = 0</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#acb0a0f6391614fc59fe0cf302d513993">   57</a></span>     <span class="keywordtype">logical</span>, <span class="keywordtype">private</span> :: finalized = .false.</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#aa485a77f2a223a2249231cfe6ef19c8a">   59</a></span>     <span class="keywordtype">character(len=80)</span> :: name</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#aad3ba8338f7108d775b528b93eb92810">   61</a></span>     <span class="keywordtype">logical</span> :: invert = .false.</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>   <span class="keyword">contains</span></div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#a7b7aceb7bda8447480f271b8e1eee1a8">   64</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: init_base =&gt; <a class="code hl_function" href="../../dc/d5f/namespacepoint__zone.html#ab9f5b565f64e8e144b00ef2d3e215bac">point_zone_init_base</a></div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#a9f72805a437aae973aa02b78cfd98e07">   66</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: free_base =&gt; <a class="code hl_function" href="../../dc/d5f/namespacepoint__zone.html#a05bf36dcccbd83cbef9c36d017579093">point_zone_free_base</a></div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#adff51a13c077eaff2c9854a8715c9129">   68</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: finalize =&gt; <a class="code hl_function" href="../../dc/d5f/namespacepoint__zone.html#ab89b8b69818fccb933f59eebc27e440b">point_zone_finalize</a></div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#add3781341b5f44e5c96d66dcfd17b253">   70</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: add =&gt; <a class="code hl_function" href="../../dc/d5f/namespacepoint__zone.html#a590efa6045b41622f5313456101c516d">point_zone_add</a></div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#a0945aa9ed66621528be6df1007cc147a">   73</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: <a class="code hl_namespace" href="../../d3/dca/namespacemap.html">map</a> =&gt; <a class="code hl_function" href="../../dc/d5f/namespacepoint__zone.html#afadeef82ddfd6a4ed123fac4355ae94d">point_zone_map</a></div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#a43cdf137fb9e4b41018e4cbcfb1c767d">   75</a></span>     <span class="keywordtype">procedure</span>(<a class="code hl_interface" href="../../d3/d1e/interfacepoint__zone_1_1point__zone__init.html">point_zone_init</a>), pass(this), <span class="keywordtype">deferred</span> :: init</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#ac699b1324da0a9c2e54450bb0c486f89">   77</a></span>     <span class="keywordtype">procedure</span>(<a class="code hl_interface" href="../../dc/d4e/interfacepoint__zone_1_1point__zone__free.html">point_zone_free</a>), pass(this), <span class="keywordtype">deferred</span> :: free</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno"><a class="line" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html#acb47d75383a81be32fbe3c7a8c48e178">   79</a></span>     <span class="keywordtype">procedure</span>(<a class="code hl_interface" href="../../d7/dc6/interfacepoint__zone_1_1point__zone__criterion.html">point_zone_criterion</a>), pass(this), <span class="keywordtype">deferred</span> :: criterion</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>  <span class="keyword">end type </span><a class="code hl_struct" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html">point_zone_t</a></div>
 </div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span> </div>
-<div class="foldopen" id="foldopen00084" data-start="" data-end="">
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno"><a class="line" href="../../dc/d31/structpoint__zone_1_1point__zone__wrapper__t.html">   84</a></span>  <span class="keyword">type</span>, <span class="keyword">public</span> :: <a class="code hl_struct" href="../../dc/d31/structpoint__zone_1_1point__zone__wrapper__t.html">point_zone_wrapper_t</a></div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno"><a class="line" href="../../dc/d31/structpoint__zone_1_1point__zone__wrapper__t.html#a9893a525d705f2e5954261ca812597f8">   85</a></span>     <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html">point_zone_t</a>), <span class="keywordtype">allocatable</span> :: pz</div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>  <span class="keyword">end type </span><a class="code hl_struct" href="../../dc/d31/structpoint__zone_1_1point__zone__wrapper__t.html">point_zone_wrapper_t</a></div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span> </div>
+<div class="foldopen" id="foldopen00083" data-start="" data-end="">
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno"><a class="line" href="../../dc/d31/structpoint__zone_1_1point__zone__wrapper__t.html">   83</a></span>  <span class="keyword">type</span>, <span class="keyword">public</span> :: <a class="code hl_struct" href="../../dc/d31/structpoint__zone_1_1point__zone__wrapper__t.html">point_zone_wrapper_t</a></div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno"><a class="line" href="../../dc/d31/structpoint__zone_1_1point__zone__wrapper__t.html#a9893a525d705f2e5954261ca812597f8">   84</a></span>     <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html">point_zone_t</a>), <span class="keywordtype">allocatable</span> :: pz</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>  <span class="keyword">end type </span><a class="code hl_struct" href="../../dc/d31/structpoint__zone_1_1point__zone__wrapper__t.html">point_zone_wrapper_t</a></div>
 </div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span> </div>
-<div class="foldopen" id="foldopen00089" data-start="" data-end="">
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno"><a class="line" href="../../dd/dae/structpoint__zone_1_1point__zone__pointer__t.html">   89</a></span>  <span class="keyword">type</span>, <span class="keyword">public</span> :: <a class="code hl_struct" href="../../dd/dae/structpoint__zone_1_1point__zone__pointer__t.html">point_zone_pointer_t</a></div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno"><a class="line" href="../../dd/dae/structpoint__zone_1_1point__zone__pointer__t.html#a26ba9f35b3713d4dba7560bedb2ea4a6">   90</a></span>     <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html">point_zone_t</a>), <span class="keywordtype">pointer</span> :: pz =&gt; null()</div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>  <span class="keyword">end type </span><a class="code hl_struct" href="../../dd/dae/structpoint__zone_1_1point__zone__pointer__t.html">point_zone_pointer_t</a></div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span> </div>
+<div class="foldopen" id="foldopen00088" data-start="" data-end="">
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno"><a class="line" href="../../dd/dae/structpoint__zone_1_1point__zone__pointer__t.html">   88</a></span>  <span class="keyword">type</span>, <span class="keyword">public</span> :: <a class="code hl_struct" href="../../dd/dae/structpoint__zone_1_1point__zone__pointer__t.html">point_zone_pointer_t</a></div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno"><a class="line" href="../../dd/dae/structpoint__zone_1_1point__zone__pointer__t.html#a26ba9f35b3713d4dba7560bedb2ea4a6">   89</a></span>     <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html">point_zone_t</a>), <span class="keywordtype">pointer</span> :: pz =&gt; null()</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>  <span class="keyword">end type </span><a class="code hl_struct" href="../../dd/dae/structpoint__zone_1_1point__zone__pointer__t.html">point_zone_pointer_t</a></div>
 </div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span> </div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>  abstract <span class="keyword">interface</span></div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span> </div>
-<div class="foldopen" id="foldopen00102" data-start="" data-end="">
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno"><a class="line" href="../../d7/dc6/interfacepoint__zone_1_1point__zone__criterion.html#a52784e11a324dd0395a85820ef360bfb">  102</a></span>     <span class="keywordtype">pure</span> <span class="keyword">function </span><a class="code hl_interface" href="../../d7/dc6/interfacepoint__zone_1_1point__zone__criterion.html">point_zone_criterion</a>(this, x, y, z, j, k, l, e) &amp;</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>          result(is_inside)</div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>       <span class="keywordtype">import </span>:: <a class="code hl_struct" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html">point_zone_t</a></div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>       <span class="keywordtype">import </span>:: <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a></div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>       <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html">point_zone_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span><span class="keywordtype">       real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: x</div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span><span class="keywordtype">       real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: y</div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span><span class="keywordtype">       real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: z</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>       <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: j</div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>       <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: k</div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>       <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: l</div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>       <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: e</div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>       <span class="keywordtype">logical</span> :: is_inside</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span> </div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>  abstract <span class="keyword">interface</span></div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span> </div>
+<div class="foldopen" id="foldopen00101" data-start="" data-end="">
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno"><a class="line" href="../../d7/dc6/interfacepoint__zone_1_1point__zone__criterion.html#a52784e11a324dd0395a85820ef360bfb">  101</a></span>     <span class="keywordtype">pure</span> <span class="keyword">function </span><a class="code hl_interface" href="../../d7/dc6/interfacepoint__zone_1_1point__zone__criterion.html">point_zone_criterion</a>(this, x, y, z, j, k, l, e) &amp;</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>          result(is_inside)</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>       <span class="keywordtype">import </span>:: <a class="code hl_struct" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html">point_zone_t</a></div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>       <span class="keywordtype">import </span>:: <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a></div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>       <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html">point_zone_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span><span class="keywordtype">       real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: x</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span><span class="keywordtype">       real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: y</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span><span class="keywordtype">       real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: z</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>       <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: j</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>       <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: k</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>       <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: l</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>       <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: e</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>       <span class="keywordtype">logical</span> :: is_inside</div>
 </div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>     <span class="keyword">end function </span><a class="code hl_interface" href="../../d7/dc6/interfacepoint__zone_1_1point__zone__criterion.html">point_zone_criterion</a></div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>  <span class="keyword">end interface</span></div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span> </div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>  abstract <span class="keyword">interface</span></div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span> </div>
-<div class="foldopen" id="foldopen00122" data-start="" data-end="">
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno"><a class="line" href="../../d3/d1e/interfacepoint__zone_1_1point__zone__init.html#a00185410b5b3ee621e377cf40804f20e">  122</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d3/d1e/interfacepoint__zone_1_1point__zone__init.html">point_zone_init</a>(this, json, size)</div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>       <span class="keywordtype">import </span>:: <a class="code hl_struct" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html">point_zone_t</a></div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>       <span class="keywordtype">import </span>:: json_file</div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>       <span class="keywordtype">import </span>:: <a class="code hl_struct" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a></div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>       <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html">point_zone_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>       <span class="keywordtype">type</span>(json_file), <span class="keywordtype">intent(inout)</span> :: json</div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>       <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: size</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>     <span class="keyword">end function </span><a class="code hl_interface" href="../../d7/dc6/interfacepoint__zone_1_1point__zone__criterion.html">point_zone_criterion</a></div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span> </div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>  abstract <span class="keyword">interface</span></div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span> </div>
+<div class="foldopen" id="foldopen00121" data-start="" data-end="">
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno"><a class="line" href="../../d3/d1e/interfacepoint__zone_1_1point__zone__init.html#a00185410b5b3ee621e377cf40804f20e">  121</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../d3/d1e/interfacepoint__zone_1_1point__zone__init.html">point_zone_init</a>(this, json, size)</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>       <span class="keywordtype">import </span>:: <a class="code hl_struct" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html">point_zone_t</a></div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>       <span class="keywordtype">import </span>:: json_file</div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>       <span class="keywordtype">import </span>:: <a class="code hl_struct" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a></div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>       <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html">point_zone_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>       <span class="keywordtype">type</span>(json_file), <span class="keywordtype">intent(inout)</span> :: json</div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>       <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: size</div>
 </div>
-<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d3/d1e/interfacepoint__zone_1_1point__zone__init.html">point_zone_init</a></div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>  <span class="keyword">end interface</span></div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span> </div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>  abstract <span class="keyword">interface</span></div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span> </div>
-<div class="foldopen" id="foldopen00134" data-start="" data-end="">
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno"><a class="line" href="../../dc/d4e/interfacepoint__zone_1_1point__zone__free.html#ab00cc118eb74d6c48133e6984adce4a4">  134</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../dc/d4e/interfacepoint__zone_1_1point__zone__free.html">point_zone_free</a>(this)</div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>       <span class="keywordtype">import </span>:: <a class="code hl_struct" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html">point_zone_t</a></div>
-<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>       <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html">point_zone_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../d3/d1e/interfacepoint__zone_1_1point__zone__init.html">point_zone_init</a></div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span> </div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>  abstract <span class="keyword">interface</span></div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span> </div>
+<div class="foldopen" id="foldopen00133" data-start="" data-end="">
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno"><a class="line" href="../../dc/d4e/interfacepoint__zone_1_1point__zone__free.html#ab00cc118eb74d6c48133e6984adce4a4">  133</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../dc/d4e/interfacepoint__zone_1_1point__zone__free.html">point_zone_free</a>(this)</div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>       <span class="keywordtype">import </span>:: <a class="code hl_struct" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html">point_zone_t</a></div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>       <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html">point_zone_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
 </div>
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../dc/d4e/interfacepoint__zone_1_1point__zone__free.html">point_zone_free</a></div>
-<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>  <span class="keyword">end interface</span></div>
-<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span> </div>
-<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>  <span class="keyword">interface</span></div>
-<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span> </div>
-<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>     <span class="keyword">module</span> subroutine point_zone_factory(object, json, dof)</div>
-<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>       <span class="keywordtype">class</span>(point_zone_t), <span class="keywordtype">allocatable</span>, <span class="keywordtype">intent(inout)</span> :: object</div>
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>       <span class="keywordtype">type</span>(json_file), <span class="keywordtype">intent(inout)</span> :: json</div>
-<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>       <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">optional</span> :: dof</div>
-<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>     <span class="keyword">end subroutine </span>point_zone_factory</div>
-<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>  <span class="keyword">end interface</span></div>
-<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span> </div>
-<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>  <span class="keywordtype">public</span> :: point_zone_factory</div>
-<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span> </div>
-<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span><span class="keyword">contains</span></div>
-<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span> </div>
-<div class="foldopen" id="foldopen00162" data-start="" data-end="">
-<div class="line"><a id="l00162" name="l00162"></a><span class="lineno"><a class="line" href="../../dc/d5f/namespacepoint__zone.html#ab9f5b565f64e8e144b00ef2d3e215bac">  162</a></span>  <span class="keyword">subroutine </span>point_zone_init_base(this, size, name, invert)</div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>    <span class="keywordtype">class</span>(point_zone_t), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: size</div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: name</div>
-<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span> :: invert</div>
-<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span> </div>
-<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>    <span class="keyword">call </span>point_zone_free_base(this)</div>
-<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span> </div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(size)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>       <span class="keyword">call </span>this%scratch%init(size)</div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>       <span class="keyword">call </span>this%scratch%init()</div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../dc/d4e/interfacepoint__zone_1_1point__zone__free.html">point_zone_free</a></div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span> </div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>  <span class="keyword">interface</span></div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span> </div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>     <span class="keyword">module</span> subroutine point_zone_factory(object, json, dof)</div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>       <span class="keywordtype">class</span>(point_zone_t), <span class="keywordtype">allocatable</span>, <span class="keywordtype">intent(inout)</span> :: object</div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>       <span class="keywordtype">type</span>(json_file), <span class="keywordtype">intent(inout)</span> :: json</div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>       <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">optional</span> :: dof</div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>     <span class="keyword">end subroutine </span>point_zone_factory</div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span> </div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>  <span class="keyword">interface</span></div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span> </div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>     <span class="keyword">module</span> subroutine point_zone_allocator(object, type_name)</div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>       <span class="keywordtype">class</span>(point_zone_t), <span class="keywordtype">allocatable</span>, <span class="keywordtype">intent(inout)</span> :: object</div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>       <span class="keywordtype">character(len=:)</span>, <span class="keywordtype">allocatable</span>, <span class="keywordtype">intent(in)</span> :: type_name</div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>     <span class="keyword">end subroutine </span>point_zone_allocator</div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span> </div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>  <span class="comment">!</span></div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>  <span class="comment">! Machinery for injecting user-defined types</span></div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>  <span class="comment">!</span></div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span> </div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>  abstract <span class="keyword">interface</span></div>
+<div class="foldopen" id="foldopen00170" data-start="" data-end="">
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno"><a class="line" href="../../db/dcd/interfacepoint__zone_1_1point__zone__allocate.html#a2e178fa90a3b99699d2b2897b7ed7989">  170</a></span>     <span class="keyword">subroutine </span>point_zone_allocate(obj)</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>       <span class="keywordtype">import </span>point_zone_t</div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>       <span class="keywordtype">class</span>(point_zone_t), <span class="keywordtype">allocatable</span>, <span class="keywordtype">intent(inout)</span> :: obj</div>
+</div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>     <span class="keyword">end subroutine </span>point_zone_allocate</div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>  <span class="keyword">end interface</span></div>
 <div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span> </div>
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>    this%name = trim(name)</div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>    this%invert = invert</div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span> </div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>  <span class="keyword">interface</span></div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span> </div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>     <span class="keyword">module</span> subroutine register_point_zone(type_name, allocator)</div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>       <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: type_name</div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>       <span class="keywordtype">procedure</span>(point_zone_allocate), <span class="keywordtype">pointer</span>, <span class="keywordtype">intent(in)</span> :: allocator</div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>     <span class="keyword">end subroutine </span>register_point_zone</div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span> </div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>  <span class="comment">! A name-allocator pair for user-defined types. A helper type to define a</span></div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>  <span class="comment">! registry of custom allocators.</span></div>
+<div class="foldopen" id="foldopen00186" data-start="" data-end="">
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno"><a class="line" href="../../d0/d86/structpoint__zone_1_1allocator__entry.html">  186</a></span>  <span class="keyword">type</span> allocator_entry</div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno"><a class="line" href="../../d0/d86/structpoint__zone_1_1allocator__entry.html#aca3c861c448726d861a46d572e94de7d">  187</a></span>     <span class="keywordtype">character(len=20)</span> :: type_name</div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno"><a class="line" href="../../d0/d86/structpoint__zone_1_1allocator__entry.html#a2907a6b7cc7e9a5ddc3097a170588cda">  188</a></span>     <span class="keywordtype">procedure</span>(point_zone_allocate), <span class="keywordtype">pointer</span>, <span class="keywordtype">nopass</span> :: allocator</div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>  <span class="keyword">end type </span>allocator_entry</div>
 </div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>  <span class="keyword">end subroutine </span>point_zone_init_base</div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span> </div>
-<div class="foldopen" id="foldopen00182" data-start="" data-end="">
-<div class="line"><a id="l00182" name="l00182"></a><span class="lineno"><a class="line" href="../../dc/d5f/namespacepoint__zone.html#a05bf36dcccbd83cbef9c36d017579093">  182</a></span>  <span class="keyword">subroutine </span>point_zone_free_base(this)</div>
-<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>    <span class="keywordtype">class</span>(point_zone_t), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%mask)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>       <span class="keyword">deallocate</span>(this%mask)</div>
-<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span> </div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>    this%finalized = .false.</div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    this%size = 0</div>
 <div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span> </div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>    <span class="keyword">call </span>this%scratch%free()</div>
-<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span> </div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>    <span class="keywordflow">if</span> (c_associated(this%mask_d)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0">device_free</a>(this%mask_d)</div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno"><a class="line" href="../../dc/d5f/namespacepoint__zone.html#af759ff89e7763de87e939440f829b63d">  192</a></span>  <span class="keywordtype">type</span>(allocator_entry), <span class="keywordtype">allocatable</span> :: <a class="code hl_namespace" href="../../d9/dac/namespacepoint__zone__registry.html">point_zone_registry</a>(:)</div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span> </div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno"><a class="line" href="../../dc/d5f/namespacepoint__zone.html#a98738e1f87ef86828e449c59f3d0b6fd">  195</a></span>  <span class="keywordtype">integer</span> :: point_zone_registry_size = 0</div>
 <div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span> </div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>  <span class="keywordtype">public</span> :: point_zone_factory, point_zone_allocator, register_point_zone, &amp;</div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>       point_zone_allocate</div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span> </div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span><span class="keyword">contains</span></div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span> </div>
+<div class="foldopen" id="foldopen00207" data-start="" data-end="">
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno"><a class="line" href="../../dc/d5f/namespacepoint__zone.html#ab9f5b565f64e8e144b00ef2d3e215bac">  207</a></span>  <span class="keyword">subroutine </span>point_zone_init_base(this, size, name, invert)</div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>    <span class="keywordtype">class</span>(point_zone_t), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: size</div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: name</div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span> :: invert</div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span> </div>
+<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>    <span class="keyword">call </span>point_zone_free_base(this)</div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span> </div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(size)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>       <span class="keyword">call </span>this%scratch%init(size)</div>
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>       <span class="keyword">call </span>this%scratch%init()</div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span> </div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>    this%name = trim(name)</div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>    this%invert = invert</div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span> </div>
 </div>
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>  <span class="keyword">end subroutine </span>point_zone_free_base</div>
-<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span> </div>
-<div class="foldopen" id="foldopen00200" data-start="" data-end="">
-<div class="line"><a id="l00200" name="l00200"></a><span class="lineno"><a class="line" href="../../dc/d5f/namespacepoint__zone.html#ab89b8b69818fccb933f59eebc27e440b">  200</a></span>  <span class="keyword">subroutine </span>point_zone_finalize(this)</div>
-<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>    <span class="keywordtype">class</span>(point_zone_t), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">pointer</span> :: tp(:)</div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>    <span class="keywordtype">integer</span> :: i</div>
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span> </div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>    <span class="keywordflow">if</span> (.not. this%finalized) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span> </div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>       <span class="keywordflow">if</span> (this%scratch%size() .ne. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span> </div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>          <span class="keyword">allocate</span>(this%mask(this%scratch%size()))</div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span> </div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>          tp =&gt; this%scratch%array()</div>
-<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>          <span class="keywordflow">do</span> i = 1, this%scratch%size()</div>
-<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>             this%mask(i) = tp(i)</div>
-<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span><span class="keywordflow">          end do</span></div>
-<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span> </div>
-<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>          this%size = this%scratch%size()</div>
-<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span> </div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>          <span class="keyword">call </span>this%scratch%clear()</div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span> </div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>          <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>             <span class="keyword">call </span><a class="code hl_interface" href="../../da/db0/interfacedevice_1_1device__map.html">device_map</a>(this%mask, this%mask_d, this%size)</div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>             <span class="keyword">call </span><a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(this%mask, this%mask_d, this%size, &amp;</div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>                  <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, sync = .false.)</div>
-<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span><span class="keywordflow">          end if</span></div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>  <span class="keyword">end subroutine </span>point_zone_init_base</div>
 <div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span> </div>
-<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>       <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span> </div>
-<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>          this%size = 0</div>
-<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>          <span class="keyword">call </span>this%scratch%clear()</div>
-<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span> </div>
-<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span><span class="keywordflow">       end if</span></div>
+<div class="foldopen" id="foldopen00227" data-start="" data-end="">
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno"><a class="line" href="../../dc/d5f/namespacepoint__zone.html#a05bf36dcccbd83cbef9c36d017579093">  227</a></span>  <span class="keyword">subroutine </span>point_zone_free_base(this)</div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>    <span class="keywordtype">class</span>(point_zone_t), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span> </div>
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>    this%finalized = .false.</div>
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>    this%size = 0</div>
 <div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span> </div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>       this%finalized = .true.</div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span> </div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span> </div>
+<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>    <span class="keyword">call </span>this%scratch%free()</div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>    <span class="keyword">call </span>this%mask%free()</div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span> </div>
 </div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>  <span class="keyword">end subroutine </span>point_zone_finalize</div>
-<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span> </div>
-<div class="foldopen" id="foldopen00243" data-start="" data-end="">
-<div class="line"><a id="l00243" name="l00243"></a><span class="lineno"><a class="line" href="../../dc/d5f/namespacepoint__zone.html#a590efa6045b41622f5313456101c516d">  243</a></span>  <span class="keyword">subroutine </span>point_zone_add(this, idx)</div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>    <span class="keywordtype">class</span>(point_zone_t), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(inout)</span> :: idx</div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>  <span class="keyword">end subroutine </span>point_zone_free_base</div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span> </div>
+<div class="foldopen" id="foldopen00239" data-start="" data-end="">
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno"><a class="line" href="../../dc/d5f/namespacepoint__zone.html#ab89b8b69818fccb933f59eebc27e440b">  239</a></span>  <span class="keyword">subroutine </span>point_zone_finalize(this)</div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>    <span class="keywordtype">class</span>(point_zone_t), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">pointer</span> :: tp(:)</div>
+<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span> </div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>    <span class="keywordflow">if</span> (.not. this%finalized) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span> </div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>       <span class="keywordflow">if</span> (this%scratch%size() .ne. 0) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span> </div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>    <span class="keywordflow">if</span> (this%finalized) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Point zone already finalized&#39;</span>)</div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>          tp =&gt; this%scratch%array()</div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>          this%size = this%scratch%size()</div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>          <span class="keyword">call </span>this%mask%init(tp, this%size)</div>
 <div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span> </div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>    <span class="keyword">call </span>this%scratch%push(idx)</div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span> </div>
-</div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>  <span class="keyword">end subroutine </span>point_zone_add</div>
-<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span> </div>
-<div class="foldopen" id="foldopen00258" data-start="" data-end="">
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno"><a class="line" href="../../dc/d5f/namespacepoint__zone.html#afadeef82ddfd6a4ed123fac4355ae94d">  258</a></span>  <span class="keyword">subroutine </span>point_zone_map(this, dof)</div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>    <span class="keywordtype">class</span>(point_zone_t), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>), <span class="keywordtype">intent(in)</span> :: dof</div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>          <span class="keyword">call </span>this%scratch%clear()</div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>       <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span> </div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>          this%size = 0</div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>          tp =&gt; this%scratch%array()</div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>          <span class="keyword">call </span>this%mask%init(tp, this%size)</div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span> </div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>          <span class="keyword">call </span>this%scratch%clear()</div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span> </div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span><span class="keywordflow">       end if</span></div>
 <div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span> </div>
-<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>    <span class="keywordtype">integer</span> :: i, ix, iy, iz, ie, nlindex(4), lx, idx</div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: x, y, z</div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span> </div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>    lx = dof%Xh%lx</div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span> </div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>    <span class="keywordflow">do</span> i = 1, dof%size()</div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>       nlindex = <a class="code hl_function" href="../../d2/d57/cuda_2facet__normal__kernel_8h.html#a255d8d741e1fc6cd080ba11e14dc7148">nonlinear_index</a>(i, lx, lx, lx)</div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>       x = dof%x(nlindex(1), nlindex(2), nlindex(3), nlindex(4))</div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>       y = dof%y(nlindex(1), nlindex(2), nlindex(3), nlindex(4))</div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>       z = dof%z(nlindex(1), nlindex(2), nlindex(3), nlindex(4))</div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>       ix = nlindex(1)</div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>       iy = nlindex(2)</div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>       iz = nlindex(3)</div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>       ie = nlindex(4)</div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span> </div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>       <span class="keywordflow">if</span> (this%invert .neqv. this%criterion(x, y, z, ix, iy, iz, ie)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>          idx = i</div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>          <span class="keyword">call </span>this%add(idx)</div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span> </div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>       this%finalized = .true.</div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span> </div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span> </div>
 </div>
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>  <span class="keyword">end subroutine </span>point_zone_map</div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span> </div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></div>
-<div class="ttc" id="acuda_2facet__normal__kernel_8h_html_a255d8d741e1fc6cd080ba11e14dc7148"><div class="ttname"><a href="../../d2/d57/cuda_2facet__normal__kernel_8h.html#a255d8d741e1fc6cd080ba11e14dc7148">nonlinear_index</a></div><div class="ttdeci">__device__ void nonlinear_index(const int idx, const int lx, int *index)</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d57/cuda_2facet__normal__kernel_8h_source.html#l00051">facet_normal_kernel.h:51</a></div></div>
-<div class="ttc" id="ainterfacedevice_1_1device__map_html"><div class="ttname"><a href="../../da/db0/interfacedevice_1_1device__map.html">device::device_map</a></div><div class="ttdoc">Map a Fortran array to a device (allocate and associate)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00057">device.F90:57</a></div></div>
-<div class="ttc" id="ainterfacedevice_1_1device__memcpy_html"><div class="ttname"><a href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device::device_memcpy</a></div><div class="ttdoc">Copy data between host and device (or device and device)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00051">device.F90:51</a></div></div>
-<div class="ttc" id="ainterfacepoint__zone_1_1point__zone__criterion_html"><div class="ttname"><a href="../../d7/dc6/interfacepoint__zone_1_1point__zone__criterion.html">point_zone::point_zone_criterion</a></div><div class="ttdoc">Defines the criterion of selection of a GLL point to the point_zone.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/daf/point__zone_8f90_source.html#l00102">point_zone.f90:102</a></div></div>
-<div class="ttc" id="ainterfacepoint__zone_1_1point__zone__free_html"><div class="ttname"><a href="../../dc/d4e/interfacepoint__zone_1_1point__zone__free.html">point_zone::point_zone_free</a></div><div class="ttdoc">Destructor.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/daf/point__zone_8f90_source.html#l00134">point_zone.f90:134</a></div></div>
-<div class="ttc" id="ainterfacepoint__zone_1_1point__zone__init_html"><div class="ttname"><a href="../../d3/d1e/interfacepoint__zone_1_1point__zone__init.html">point_zone::point_zone_init</a></div><div class="ttdoc">The common constructor using a JSON object.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/daf/point__zone_8f90_source.html#l00122">point_zone.f90:122</a></div></div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>  <span class="keyword">end subroutine </span>point_zone_finalize</div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span> </div>
+<div class="foldopen" id="foldopen00272" data-start="" data-end="">
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno"><a class="line" href="../../dc/d5f/namespacepoint__zone.html#a590efa6045b41622f5313456101c516d">  272</a></span>  <span class="keyword">subroutine </span>point_zone_add(this, idx)</div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>    <span class="keywordtype">class</span>(point_zone_t), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(inout)</span> :: idx</div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span> </div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>    <span class="keywordflow">if</span> (this%finalized) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Point zone already finalized&#39;</span>)</div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span> </div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>    <span class="keyword">call </span>this%scratch%push(idx)</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span> </div>
+</div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>  <span class="keyword">end subroutine </span>point_zone_add</div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span> </div>
+<div class="foldopen" id="foldopen00287" data-start="" data-end="">
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno"><a class="line" href="../../dc/d5f/namespacepoint__zone.html#afadeef82ddfd6a4ed123fac4355ae94d">  287</a></span>  <span class="keyword">subroutine </span>point_zone_map(this, dof)</div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>    <span class="keywordtype">class</span>(point_zone_t), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>), <span class="keywordtype">intent(in)</span> :: dof</div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span> </div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>    <span class="keywordtype">integer</span> :: i, ix, iy, iz, ie, nlindex(4), lx, idx</div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: x, y, z</div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span> </div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>    lx = dof%Xh%lx</div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span> </div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>    <span class="keywordflow">do</span> i = 1, dof%size()</div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>       nlindex = <a class="code hl_function" href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d">nonlinear_index</a>(i, lx, lx, lx)</div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>       x = dof%x(nlindex(1), nlindex(2), nlindex(3), nlindex(4))</div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>       y = dof%y(nlindex(1), nlindex(2), nlindex(3), nlindex(4))</div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>       z = dof%z(nlindex(1), nlindex(2), nlindex(3), nlindex(4))</div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>       ix = nlindex(1)</div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>       iy = nlindex(2)</div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>       iz = nlindex(3)</div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>       ie = nlindex(4)</div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span> </div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>       <span class="keywordflow">if</span> (this%invert .neqv. this%criterion(x, y, z, ix, iy, iz, ie)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>          idx = i</div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>          <span class="keyword">call </span>this%add(idx)</div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span> </div>
+</div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>  <span class="keyword">end subroutine </span>point_zone_map</div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span> </div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></div>
+<div class="ttc" id="acuda_2bc__utils_8h_html_a97af2a5f58e9e047d747424d0f89132d"><div class="ttname"><a href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d">nonlinear_index</a></div><div class="ttdeci">__inline__ __device__ void nonlinear_index(const int idx, const int lx, int *index)</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d74/cuda_2bc__utils_8h_source.html#l00044">bc_utils.h:44</a></div></div>
+<div class="ttc" id="ainterfacedevice_1_1device__map_html"><div class="ttname"><a href="../../da/db0/interfacedevice_1_1device__map.html">device::device_map</a></div><div class="ttdoc">Map a Fortran array to a device (allocate and associate)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00077">device.F90:77</a></div></div>
+<div class="ttc" id="ainterfacedevice_1_1device__memcpy_html"><div class="ttname"><a href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device::device_memcpy</a></div><div class="ttdoc">Copy data between host and device (or device and device)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00071">device.F90:71</a></div></div>
+<div class="ttc" id="ainterfacepoint__zone_1_1point__zone__criterion_html"><div class="ttname"><a href="../../d7/dc6/interfacepoint__zone_1_1point__zone__criterion.html">point_zone::point_zone_criterion</a></div><div class="ttdoc">Defines the criterion of selection of a GLL point to the point_zone.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/daf/point__zone_8f90_source.html#l00101">point_zone.f90:101</a></div></div>
+<div class="ttc" id="ainterfacepoint__zone_1_1point__zone__free_html"><div class="ttname"><a href="../../dc/d4e/interfacepoint__zone_1_1point__zone__free.html">point_zone::point_zone_free</a></div><div class="ttdoc">Destructor.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/daf/point__zone_8f90_source.html#l00133">point_zone.f90:133</a></div></div>
+<div class="ttc" id="ainterfacepoint__zone_1_1point__zone__init_html"><div class="ttname"><a href="../../d3/d1e/interfacepoint__zone_1_1point__zone__init.html">point_zone::point_zone_init</a></div><div class="ttdoc">The common constructor using a JSON object.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/daf/point__zone_8f90_source.html#l00121">point_zone.f90:121</a></div></div>
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00042">utils.f90:42</a></div></div>
 <div class="ttc" id="anamespacedevice_html"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html">device</a></div><div class="ttdoc">Device abstraction, common interface for various accelerators.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00034">device.F90:34</a></div></div>
-<div class="ttc" id="anamespacedevice_html_a3f51b2c9ef4bd878a310bd1e1d0d3c80"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">device::host_to_device</a></div><div class="ttdeci">integer, parameter, public host_to_device</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00047">device.F90:47</a></div></div>
-<div class="ttc" id="anamespacedevice_html_a79e3ce634472f542b8d135571f7a36e0"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0">device::device_free</a></div><div class="ttdeci">subroutine, public device_free(x_d)</div><div class="ttdoc">Deallocate memory on the device.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00184">device.F90:185</a></div></div>
+<div class="ttc" id="anamespacedevice_html_a79e3ce634472f542b8d135571f7a36e0"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0">device::device_free</a></div><div class="ttdeci">subroutine, public device_free(x_d)</div><div class="ttdoc">Deallocate memory on the device.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00218">device.F90:219</a></div></div>
 <div class="ttc" id="anamespacedofmap_html"><div class="ttname"><a href="../../dd/dd2/namespacedofmap.html">dofmap</a></div><div class="ttdoc">Defines a mapping of the degrees of freedom.</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/dofmap_8f90_source.html#l00035">dofmap.f90:35</a></div></div>
 <div class="ttc" id="anamespacemap_html"><div class="ttname"><a href="../../d3/dca/namespacemap.html">map</a></div><div class="ttdoc">NEKTON map.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/dd0/map_8f90_source.html#l00003">map.f90:3</a></div></div>
+<div class="ttc" id="anamespacemask_html"><div class="ttname"><a href="../../d3/d17/namespacemask.html">mask</a></div><div class="ttdoc">Object for handling masks in Neko.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d40/mask_8f90_source.html#l00034">mask.f90:34</a></div></div>
 <div class="ttc" id="anamespaceneko__config_html"><div class="ttname"><a href="../../d9/d77/namespaceneko__config.html">neko_config</a></div><div class="ttdoc">Build configurations.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d2d/neko__config_8f90_source.html#l00034">neko_config.f90:34</a></div></div>
 <div class="ttc" id="anamespaceneko__config_html_ac196ccb4b3efd94171f0cfbfedaa7b9d"><div class="ttname"><a href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_config::neko_bcknd_device</a></div><div class="ttdeci">integer, parameter neko_bcknd_device</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d2d/neko__config_8f90_source.html#l00044">neko_config.f90:44</a></div></div>
 <div class="ttc" id="anamespacenum__types_html"><div class="ttname"><a href="../../df/d48/namespacenum__types.html">num_types</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00001">num_types.f90:1</a></div></div>
 <div class="ttc" id="anamespacenum__types_html_ae2be59b6de7b874ce5c12fd87f9e8b5e"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">num_types::rp</a></div><div class="ttdeci">integer, parameter, public rp</div><div class="ttdoc">Global precision used in computations.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00012">num_types.f90:12</a></div></div>
+<div class="ttc" id="anamespacepoint__zone__registry_html"><div class="ttname"><a href="../../d9/dac/namespacepoint__zone__registry.html">point_zone_registry</a></div><div class="ttdef"><b>Definition</b> <a href="../../d6/d9f/point__zone__registry_8f90_source.html#l00034">point_zone_registry.f90:34</a></div></div>
 <div class="ttc" id="anamespacepoint__zone_html"><div class="ttname"><a href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></div><div class="ttdef"><b>Definition</b> <a href="../../d9/daf/point__zone_8f90_source.html#l00034">point_zone.f90:34</a></div></div>
-<div class="ttc" id="anamespacepoint__zone_html_a05bf36dcccbd83cbef9c36d017579093"><div class="ttname"><a href="../../dc/d5f/namespacepoint__zone.html#a05bf36dcccbd83cbef9c36d017579093">point_zone::point_zone_free_base</a></div><div class="ttdeci">subroutine point_zone_free_base(this)</div><div class="ttdoc">Destructor for the point_zone_t base type.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/daf/point__zone_8f90_source.html#l00182">point_zone.f90:183</a></div></div>
-<div class="ttc" id="anamespacepoint__zone_html_a590efa6045b41622f5313456101c516d"><div class="ttname"><a href="../../dc/d5f/namespacepoint__zone.html#a590efa6045b41622f5313456101c516d">point_zone::point_zone_add</a></div><div class="ttdeci">subroutine point_zone_add(this, idx)</div><div class="ttdoc">Adds a point's linear index to the scratch stack.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/daf/point__zone_8f90_source.html#l00243">point_zone.f90:244</a></div></div>
-<div class="ttc" id="anamespacepoint__zone_html_ab89b8b69818fccb933f59eebc27e440b"><div class="ttname"><a href="../../dc/d5f/namespacepoint__zone.html#ab89b8b69818fccb933f59eebc27e440b">point_zone::point_zone_finalize</a></div><div class="ttdeci">subroutine point_zone_finalize(this)</div><div class="ttdoc">Builds the mask from the scratch stack.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/daf/point__zone_8f90_source.html#l00200">point_zone.f90:201</a></div></div>
-<div class="ttc" id="anamespacepoint__zone_html_ab9f5b565f64e8e144b00ef2d3e215bac"><div class="ttname"><a href="../../dc/d5f/namespacepoint__zone.html#ab9f5b565f64e8e144b00ef2d3e215bac">point_zone::point_zone_init_base</a></div><div class="ttdeci">subroutine point_zone_init_base(this, size, name, invert)</div><div class="ttdoc">Point zone factory. Constructs, initializes, and maps the point zone object.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/daf/point__zone_8f90_source.html#l00162">point_zone.f90:163</a></div></div>
-<div class="ttc" id="anamespacepoint__zone_html_afadeef82ddfd6a4ed123fac4355ae94d"><div class="ttname"><a href="../../dc/d5f/namespacepoint__zone.html#afadeef82ddfd6a4ed123fac4355ae94d">point_zone::point_zone_map</a></div><div class="ttdeci">subroutine point_zone_map(this, dof)</div><div class="ttdoc">Maps the GLL points that verify a point_zone's criterion by adding them to the stack.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/daf/point__zone_8f90_source.html#l00258">point_zone.f90:259</a></div></div>
+<div class="ttc" id="anamespacepoint__zone_html_a05bf36dcccbd83cbef9c36d017579093"><div class="ttname"><a href="../../dc/d5f/namespacepoint__zone.html#a05bf36dcccbd83cbef9c36d017579093">point_zone::point_zone_free_base</a></div><div class="ttdeci">subroutine point_zone_free_base(this)</div><div class="ttdoc">Destructor for the point_zone_t base type.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/daf/point__zone_8f90_source.html#l00227">point_zone.f90:228</a></div></div>
+<div class="ttc" id="anamespacepoint__zone_html_a590efa6045b41622f5313456101c516d"><div class="ttname"><a href="../../dc/d5f/namespacepoint__zone.html#a590efa6045b41622f5313456101c516d">point_zone::point_zone_add</a></div><div class="ttdeci">subroutine point_zone_add(this, idx)</div><div class="ttdoc">Adds a point's linear index to the scratch stack.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/daf/point__zone_8f90_source.html#l00272">point_zone.f90:273</a></div></div>
+<div class="ttc" id="anamespacepoint__zone_html_ab89b8b69818fccb933f59eebc27e440b"><div class="ttname"><a href="../../dc/d5f/namespacepoint__zone.html#ab89b8b69818fccb933f59eebc27e440b">point_zone::point_zone_finalize</a></div><div class="ttdeci">subroutine point_zone_finalize(this)</div><div class="ttdoc">Builds the mask from the scratch stack.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/daf/point__zone_8f90_source.html#l00239">point_zone.f90:240</a></div></div>
+<div class="ttc" id="anamespacepoint__zone_html_ab9f5b565f64e8e144b00ef2d3e215bac"><div class="ttname"><a href="../../dc/d5f/namespacepoint__zone.html#ab9f5b565f64e8e144b00ef2d3e215bac">point_zone::point_zone_init_base</a></div><div class="ttdeci">subroutine point_zone_init_base(this, size, name, invert)</div><div class="ttdoc">Constructor for the point_zone_t base type.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/daf/point__zone_8f90_source.html#l00207">point_zone.f90:208</a></div></div>
+<div class="ttc" id="anamespacepoint__zone_html_afadeef82ddfd6a4ed123fac4355ae94d"><div class="ttname"><a href="../../dc/d5f/namespacepoint__zone.html#afadeef82ddfd6a4ed123fac4355ae94d">point_zone::point_zone_map</a></div><div class="ttdeci">subroutine point_zone_map(this, dof)</div><div class="ttdoc">Maps the GLL points that verify a point_zone's criterion by adding them to the stack.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/daf/point__zone_8f90_source.html#l00287">point_zone.f90:288</a></div></div>
 <div class="ttc" id="anamespacestack_html"><div class="ttname"><a href="../../d9/d30/namespacestack.html">stack</a></div><div class="ttdoc">Implements a dynamic stack ADT.</div><div class="ttdef"><b>Definition</b> <a href="../../de/de6/stack_8f90_source.html#l00035">stack.f90:35</a></div></div>
 <div class="ttc" id="anamespaceutils_html"><div class="ttname"><a href="../../d6/d84/namespaceutils.html">utils</a></div><div class="ttdoc">Utilities.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00035">utils.f90:35</a></div></div>
 <div class="ttc" id="astructdofmap_1_1dofmap__t_html"><div class="ttname"><a href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap::dofmap_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/dofmap_8f90_source.html#l00053">dofmap.f90:53</a></div></div>
-<div class="ttc" id="astructpoint__zone_1_1point__zone__pointer__t_html"><div class="ttname"><a href="../../dd/dae/structpoint__zone_1_1point__zone__pointer__t.html">point_zone::point_zone_pointer_t</a></div><div class="ttdoc">A helper type to build a list of pointers to point_zones.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/daf/point__zone_8f90_source.html#l00089">point_zone.f90:89</a></div></div>
-<div class="ttc" id="astructpoint__zone_1_1point__zone__t_html"><div class="ttname"><a href="../../d6/d13/structpoint__zone_1_1point__zone__t.html">point_zone::point_zone_t</a></div><div class="ttdoc">Base abstract type for point zones.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/daf/point__zone_8f90_source.html#l00047">point_zone.f90:47</a></div></div>
-<div class="ttc" id="astructpoint__zone_1_1point__zone__wrapper__t_html"><div class="ttname"><a href="../../dc/d31/structpoint__zone_1_1point__zone__wrapper__t.html">point_zone::point_zone_wrapper_t</a></div><div class="ttdoc">A helper type to build a list of polymorphic point_zones.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/daf/point__zone_8f90_source.html#l00084">point_zone.f90:84</a></div></div>
+<div class="ttc" id="astructmask_1_1mask__t_html"><div class="ttname"><a href="../../d2/df5/structmask_1_1mask__t.html">mask::mask_t</a></div><div class="ttdoc">Type for consistently handling masks in Neko. This type encapsulates the mask array and its associate...</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d40/mask_8f90_source.html#l00051">mask.f90:51</a></div></div>
+<div class="ttc" id="astructpoint__zone_1_1point__zone__pointer__t_html"><div class="ttname"><a href="../../dd/dae/structpoint__zone_1_1point__zone__pointer__t.html">point_zone::point_zone_pointer_t</a></div><div class="ttdoc">A helper type to build a list of pointers to point_zones.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/daf/point__zone_8f90_source.html#l00088">point_zone.f90:88</a></div></div>
+<div class="ttc" id="astructpoint__zone_1_1point__zone__t_html"><div class="ttname"><a href="../../d6/d13/structpoint__zone_1_1point__zone__t.html">point_zone::point_zone_t</a></div><div class="ttdoc">Base abstract type for point zones.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/daf/point__zone_8f90_source.html#l00048">point_zone.f90:48</a></div></div>
+<div class="ttc" id="astructpoint__zone_1_1point__zone__wrapper__t_html"><div class="ttname"><a href="../../dc/d31/structpoint__zone_1_1point__zone__wrapper__t.html">point_zone::point_zone_wrapper_t</a></div><div class="ttdoc">A helper type to build a list of polymorphic point_zones.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/daf/point__zone_8f90_source.html#l00083">point_zone.f90:83</a></div></div>
 <div class="ttc" id="astructstack_1_1stack__i4__t_html"><div class="ttname"><a href="../../d2/d45/structstack_1_1stack__i4__t.html">stack::stack_i4_t</a></div><div class="ttdoc">Integer based stack.</div><div class="ttdef"><b>Definition</b> <a href="../../de/de6/stack_8f90_source.html#l00063">stack.f90:63</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
@@ -401,7 +430,7 @@ $(document).ready(function(){initNavTree('d9/daf/point__zone_8f90_source.html','
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_7be0d8c199b9408ae01f5d77515b8def.html">mesh</a></li><li class="navelem"><a class="el" href="../../d9/daf/point__zone_8f90.html">point_zone.f90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

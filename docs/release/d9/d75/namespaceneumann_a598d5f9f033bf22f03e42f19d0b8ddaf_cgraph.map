@@ -1,9 +1,0 @@
-<map id="neumann::neumann_apply_scalar" name="neumann::neumann_apply_scalar">
-<area shape="rect" id="Node000001" title="Boundary condition apply for a generic Neumann condition to a vector x." alt="" coords="5,29,200,69"/>
-<area shape="rect" id="Node000002" href="$d2/d57/cuda_2facet__normal__kernel_8h.html#a255d8d741e1fc6cd080ba11e14dc7148" title=" " alt="" coords="248,37,375,62"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,47,234,47,234,52,200,52"/>
-<area shape="poly" id="edge4_Node000002_Node000002" title=" " alt="" coords="280,38,273,28,276,18,290,12,311,10,338,14,349,22,345,26,336,18,311,15,291,17,280,22,278,28,284,35"/>
-<area shape="rect" id="Node000003" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="423,29,587,69"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="375,47,409,47,409,52,375,52"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="468,30,466,20,472,11,485,5,505,3,527,6,540,13,537,17,526,11,505,8,486,10,475,15,471,21,474,28"/>
-</map>

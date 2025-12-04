@@ -1,19 +1,15 @@
 var structuser__intf_1_1user__t =
 [
-    [ "init", "d7/da0/structuser__intf_1_1user__t.html#ad1b7b518bda62069381721ca09eb0c0d", null ],
-    [ "fluid_user_f", "d7/da0/structuser__intf_1_1user__t.html#a5b21c2a3f7e3c18890e63ea8c9d1c8a5", null ],
-    [ "fluid_user_f_vector", "d7/da0/structuser__intf_1_1user__t.html#a7530a0d1e6e2a31a5c49cb524ac69974", null ],
-    [ "fluid_user_ic", "d7/da0/structuser__intf_1_1user__t.html#a35c539e2ba57c773797d183685fe2fca", null ],
-    [ "fluid_user_if", "d7/da0/structuser__intf_1_1user__t.html#ae627890c5ff5e9ca1d52af5a319fed40", null ],
-    [ "init_user_simcomp", "d7/da0/structuser__intf_1_1user__t.html#aa8427cd46b38d77b2d524324aa83d887", null ],
-    [ "material_properties", "d7/da0/structuser__intf_1_1user__t.html#aa24a668c1ddd6d222fa5d609f357c6c5", null ],
-    [ "scalar_user_bc", "d7/da0/structuser__intf_1_1user__t.html#a0025e2f103eac46f346c1177460ddf49", null ],
-    [ "scalar_user_f", "d7/da0/structuser__intf_1_1user__t.html#a0ce5acd5b6ce49a4625d401e520efc99", null ],
-    [ "scalar_user_f_vector", "d7/da0/structuser__intf_1_1user__t.html#ab56d8dfdb1ef57dffa0dcf03415ddde5", null ],
-    [ "scalar_user_ic", "d7/da0/structuser__intf_1_1user__t.html#a03f4b7e8b73d8343575766822389b3f3", null ],
-    [ "user_check", "d7/da0/structuser__intf_1_1user__t.html#a37d2a792121a8fb5ce0d3f64b16bcc8f", null ],
-    [ "user_dirichlet_update", "d7/da0/structuser__intf_1_1user__t.html#a2bfe4f1dc4479f47793ee677b45e0179", null ],
-    [ "user_finalize_modules", "d7/da0/structuser__intf_1_1user__t.html#aa8c71441dff3b2c340b2d0576806754d", null ],
-    [ "user_init_modules", "d7/da0/structuser__intf_1_1user__t.html#a7d432ecdaf4a4ac3acb7175da4dde28b", null ],
-    [ "user_mesh_setup", "d7/da0/structuser__intf_1_1user__t.html#a7e7643d63f6706d748fa04e0d6931c49", null ]
+    [ "init", "d7/da0/structuser__intf_1_1user__t.html#acce1164ad09d873988b2931b92d5013c", null ],
+    [ "compute", "d7/da0/structuser__intf_1_1user__t.html#a7984efee9a7536313f391975fd8d4fda", null ],
+    [ "dirichlet_conditions", "d7/da0/structuser__intf_1_1user__t.html#a8dd564b890a3d0c73d013d7e4a00fba7", null ],
+    [ "finalize", "d7/da0/structuser__intf_1_1user__t.html#a00d29933f0101440b51ba97d7eca80bb", null ],
+    [ "initial_conditions", "d7/da0/structuser__intf_1_1user__t.html#a8d4bc681a7889f3d9db830a1bb91bc41", null ],
+    [ "initialize", "d7/da0/structuser__intf_1_1user__t.html#a1f4a0734bde48ea423f3b1bcb0f0a035", null ],
+    [ "material_properties", "d7/da0/structuser__intf_1_1user__t.html#aedb0810ed2c1cf18cc433d830831d3a5", null ],
+    [ "mesh_setup", "d7/da0/structuser__intf_1_1user__t.html#a89db9c5075b1eb026e454b877526444f", null ],
+    [ "preprocess", "d7/da0/structuser__intf_1_1user__t.html#a61cc61ba502a9afb50766cf68e5405ad", null ],
+    [ "source_term", "d7/da0/structuser__intf_1_1user__t.html#ae7c65492321446cb36b109bdd45ad913", null ],
+    [ "startup", "d7/da0/structuser__intf_1_1user__t.html#aaa480b56968df4827e43f297ede5f8b5", null ],
+    [ "suppress_type_injection", "d7/da0/structuser__intf_1_1user__t.html#aaded7964de57f80598caeba39f25f8c4", null ]
 ];

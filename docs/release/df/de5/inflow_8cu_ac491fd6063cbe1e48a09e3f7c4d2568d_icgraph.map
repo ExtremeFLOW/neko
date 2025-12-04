@@ -1,0 +1,9 @@
+<map id="cuda_inflow_apply_vector" name="cuda_inflow_apply_vector">
+<area shape="rect" id="Node000001" title=" " alt="" coords="449,56,640,81"/>
+<area shape="rect" id="Node000002" href="$d6/d78/namespacedevice__inflow.html#adf41eadb9c59e823c921d03824e546b9" title=" " alt="" coords="240,49,401,89"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="435,71,402,71,402,66,435,66"/>
+<area shape="rect" id="Node000003" href="$d3/d75/interfacedevice__inflow_1_1hip__inflow__apply__vector.html#a895df347f0d27d1307639a8294b75cb9" title=" " alt="" coords="5,5,192,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="226,56,192,50,192,45,227,51"/>
+<area shape="rect" id="Node000004" href="$d7/d43/namespaceinflow.html#abb7334c4e9937bf0082aa5a6f7bf3589" title="Apply inflow conditions (vector valued) (device version)" alt="" coords="23,85,174,125"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="227,87,175,95,174,90,226,81"/>
+</map>

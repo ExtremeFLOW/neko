@@ -1,0 +1,31 @@
+<map id="neko::neko_solve" name="neko::neko_solve">
+<area shape="rect" id="Node000001" title="Main driver to solve a case C." alt="" coords="5,203,140,228"/>
+<area shape="rect" id="Node000002" href="$d7/d06/namespacejobctrl.html#a668d576b7980c2488dece4c06fcbb41b" title="Check if the job&#39;s time limit has been reached." alt="" coords="215,45,364,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="81,201,122,150,153,120,187,94,201,87,203,91,189,99,156,124,126,153,85,204"/>
+<area shape="rect" id="Node000005" href="$dc/dfc/namespaceprofiler.html#a80393e8359dfb47f6aea6abfc78ca54d" title="Start profiling." alt="" coords="228,109,351,149"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="97,200,187,158,214,148,216,153,189,163,99,205"/>
+<area shape="rect" id="Node000007" href="$dc/dfc/namespaceprofiler.html#afd3dc3a9ab67bfba7e27c560e6339be0" title="Stop profiling." alt="" coords="211,173,368,199"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="140,204,197,196,197,201,141,209"/>
+<area shape="rect" id="Node000009" href="$d1/d2d/namespacesimulation.html#a898649586b608770d5ea349927136ba0" title="Finalize a simulation of a case." alt="" coords="205,223,373,263"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="141,221,192,228,191,233,140,227"/>
+<area shape="rect" id="Node000011" href="$d1/d2d/namespacesimulation.html#ace16571473f6d4b638c29de2d77aaf7d" title="Initialise a simulation of a case." alt="" coords="191,288,387,313"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="96,226,138,249,189,273,216,282,214,287,187,278,136,254,93,230"/>
+<area shape="rect" id="Node000012" href="$d1/d2d/namespacesimulation.html#a625edcf01f19970ace9c4af485edfb19" title="Compute a single time&#45;step of a case." alt="" coords="188,348,391,373"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="86,226,128,273,157,299,189,322,228,341,226,346,187,327,154,303,125,277,82,230"/>
+<area shape="rect" id="Node000003" href="$d1/daf/namespacesignal.html#a6b00a55dcd3c7bd830fa925efd51e571" title="Check if any timeout has occurred (either SIGXCPU or SIGALRM)" alt="" coords="457,5,624,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="364,48,458,31,459,36,365,53"/>
+<area shape="rect" id="Node000004" href="$d1/daf/namespacesignal.html#a2290a09befe1d36d50034e39096dcfe7" title="Check if a user signal has been raised." alt="" coords="473,55,608,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="364,63,459,64,459,69,364,68"/>
+<area shape="rect" id="Node000006" href="$d0/dbe/namespacedevice.html#a6e8f2cb5ecf9fa00e06346d10dc8d478" title="Start device profiling." alt="" coords="456,109,625,149"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="351,126,442,126,442,131,351,131"/>
+<area shape="rect" id="Node000008" href="$d0/dbe/namespacedevice.html#a61bac73fa0ec55d800487ab4c645ad86" title="Stop device profiling." alt="" coords="439,173,643,199"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="368,183,425,183,425,189,368,189"/>
+<area shape="rect" id="Node000010" href="$d1/d2d/namespacesimulation.html#ad5774a0a06b35c326984f6ba2ccce3e6" title="Write a checkpoint at joblimit." alt="" coords="457,223,625,263"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="373,241,443,241,443,246,373,246"/>
+<area shape="rect" id="Node000013" href="$dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5" title="End the most recently started profiler region." alt="" coords="479,287,602,327"/>
+<area shape="poly" id="edge12_Node000012_Node000013" title=" " alt="" coords="350,345,465,321,466,326,351,350"/>
+<area shape="rect" id="Node000014" href="$dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101" title="Started a named (name) profiler region." alt="" coords="479,351,602,391"/>
+<area shape="poly" id="edge13_Node000012_Node000014" title=" " alt="" coords="391,362,466,366,466,371,391,368"/>
+<area shape="rect" id="Node000015" href="$d1/d2d/namespacesimulation.html#a7db8b311cbafdaca7602b3c7812394bc" title=" " alt="" coords="457,415,625,455"/>
+<area shape="poly" id="edge14_Node000012_Node000015" title=" " alt="" coords="334,371,460,409,458,414,333,376"/>
+</map>

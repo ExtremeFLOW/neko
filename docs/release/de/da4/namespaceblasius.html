@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -111,32 +111,41 @@ $(document).ready(function(){initNavTree('de/da4/namespaceblasius.html','../../'
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dca/structblasius_1_1blasius__t.html">blasius_t</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Blasius profile for inlet (vector valued)  <a href="../../d0/dca/structblasius_1_1blasius__t.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Blasius profile for inlet (vector valued).  <a href="../../d0/dca/structblasius_1_1blasius__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
+<tr class="memitem:a6bf80ee6a1e8749677f6592c19a1e300" id="r_a6bf80ee6a1e8749677f6592c19a1e300"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/da4/namespaceblasius.html#a6bf80ee6a1e8749677f6592c19a1e300">blasius_init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, coef, json)</td></tr>
+<tr class="memdesc:a6bf80ee6a1e8749677f6592c19a1e300"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
+<tr class="separator:a6bf80ee6a1e8749677f6592c19a1e300"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa30673fe1e7478b847dc3c6fcdb39efd" id="r_aa30673fe1e7478b847dc3c6fcdb39efd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/da4/namespaceblasius.html#aa30673fe1e7478b847dc3c6fcdb39efd">blasius_init_from_components</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, coef, delta, uinf, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">approximation</a>)</td></tr>
+<tr class="memdesc:aa30673fe1e7478b847dc3c6fcdb39efd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor from components.  <br /></td></tr>
+<tr class="separator:aa30673fe1e7478b847dc3c6fcdb39efd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad870c19602eeb17380eeba2452eaca92" id="r_ad870c19602eeb17380eeba2452eaca92"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/da4/namespaceblasius.html#ad870c19602eeb17380eeba2452eaca92">blasius_free</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="separator:ad870c19602eeb17380eeba2452eaca92"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac854ce79c0eff75798d5bf77e825ebf9" id="r_ac854ce79c0eff75798d5bf77e825ebf9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/da4/namespaceblasius.html#ac854ce79c0eff75798d5bf77e825ebf9">blasius_apply_scalar</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x, n, t, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tstep</a>)</td></tr>
-<tr class="memdesc:ac854ce79c0eff75798d5bf77e825ebf9"><td class="mdescLeft">&#160;</td><td class="mdescRight">No-op scalar apply.  <br /></td></tr>
-<tr class="separator:ac854ce79c0eff75798d5bf77e825ebf9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9df874b756edb92dd194750b2517f9f1" id="r_a9df874b756edb92dd194750b2517f9f1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/da4/namespaceblasius.html#a9df874b756edb92dd194750b2517f9f1">blasius_apply_scalar_dev</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x_d, t, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tstep</a>)</td></tr>
-<tr class="memdesc:a9df874b756edb92dd194750b2517f9f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">No-op scalar apply (device version)  <br /></td></tr>
-<tr class="separator:a9df874b756edb92dd194750b2517f9f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a378986d247fd5773160cd6b9bf1505dc" id="r_a378986d247fd5773160cd6b9bf1505dc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/da4/namespaceblasius.html#a378986d247fd5773160cd6b9bf1505dc">blasius_apply_vector</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x, y, z, n, t, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tstep</a>)</td></tr>
-<tr class="memdesc:a378986d247fd5773160cd6b9bf1505dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply blasius conditions (vector valued)  <br /></td></tr>
-<tr class="separator:a378986d247fd5773160cd6b9bf1505dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5b963a7a1f2dede307f60284e7139d67" id="r_a5b963a7a1f2dede307f60284e7139d67"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/da4/namespaceblasius.html#a5b963a7a1f2dede307f60284e7139d67">blasius_apply_vector_dev</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x_d, y_d, z_d, t, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tstep</a>)</td></tr>
-<tr class="memdesc:a5b963a7a1f2dede307f60284e7139d67"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply blasius conditions (vector valued) (device version)  <br /></td></tr>
-<tr class="separator:a5b963a7a1f2dede307f60284e7139d67"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab977233e21938a0d12589987f84cd0d9" id="r_ab977233e21938a0d12589987f84cd0d9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/da4/namespaceblasius.html#ab977233e21938a0d12589987f84cd0d9">blasius_apply_scalar</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x, n, time, strong)</td></tr>
+<tr class="memdesc:ab977233e21938a0d12589987f84cd0d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">No-op scalar apply.  <br /></td></tr>
+<tr class="separator:ab977233e21938a0d12589987f84cd0d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5f3897a38481786ea5308671bb6a54b7" id="r_a5f3897a38481786ea5308671bb6a54b7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/da4/namespaceblasius.html#a5f3897a38481786ea5308671bb6a54b7">blasius_apply_scalar_dev</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x_d, time, strong, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">strm</a>)</td></tr>
+<tr class="memdesc:a5f3897a38481786ea5308671bb6a54b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">No-op scalar apply (device version)  <br /></td></tr>
+<tr class="separator:a5f3897a38481786ea5308671bb6a54b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa8af49165029988273492279c065582b" id="r_aa8af49165029988273492279c065582b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/da4/namespaceblasius.html#aa8af49165029988273492279c065582b">blasius_apply_vector</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x, y, z, n, time, strong)</td></tr>
+<tr class="memdesc:aa8af49165029988273492279c065582b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply blasius conditions (vector valued)  <br /></td></tr>
+<tr class="separator:aa8af49165029988273492279c065582b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abd0daef6ae710a2b996e38a043ed2198" id="r_abd0daef6ae710a2b996e38a043ed2198"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/da4/namespaceblasius.html#abd0daef6ae710a2b996e38a043ed2198">blasius_apply_vector_dev</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x_d, y_d, z_d, time, strong, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">strm</a>)</td></tr>
+<tr class="memdesc:abd0daef6ae710a2b996e38a043ed2198"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply blasius conditions (vector valued) (device version)  <br /></td></tr>
+<tr class="separator:abd0daef6ae710a2b996e38a043ed2198"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af72bfa9aed6f9f6496bb9c6f16b2e7ac" id="r_af72bfa9aed6f9f6496bb9c6f16b2e7ac"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/da4/namespaceblasius.html#af72bfa9aed6f9f6496bb9c6f16b2e7ac">blasius_set_params</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, uinf, delta, type)</td></tr>
 <tr class="memdesc:af72bfa9aed6f9f6496bb9c6f16b2e7ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set Blasius parameters.  <br /></td></tr>
 <tr class="separator:af72bfa9aed6f9f6496bb9c6f16b2e7ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a038a6c067394f111bb6f8a9b8663b5a7" id="r_a038a6c067394f111bb6f8a9b8663b5a7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/da4/namespaceblasius.html#a038a6c067394f111bb6f8a9b8663b5a7">blasius_finalize</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">only_facets</a>)</td></tr>
+<tr class="memdesc:a038a6c067394f111bb6f8a9b8663b5a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finalize.  <br /></td></tr>
+<tr class="separator:a038a6c067394f111bb6f8a9b8663b5a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
-<a id="ac854ce79c0eff75798d5bf77e825ebf9" name="ac854ce79c0eff75798d5bf77e825ebf9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac854ce79c0eff75798d5bf77e825ebf9">&#9670;&#160;</a></span>blasius_apply_scalar()</h2>
+<a id="ab977233e21938a0d12589987f84cd0d9" name="ab977233e21938a0d12589987f84cd0d9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab977233e21938a0d12589987f84cd0d9">&#9670;&#160;</a></span>blasius_apply_scalar()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -165,14 +174,14 @@ Functions/Subroutines</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>t</em>, </td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>time</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>tstep</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>strong</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -187,12 +196,12 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d18/blasius_8f90_source.html#l00088">88</a> of file <a class="el" href="../../db/d18/blasius_8f90_source.html">blasius.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d18/blasius_8f90_source.html#l00162">162</a> of file <a class="el" href="../../db/d18/blasius_8f90_source.html">blasius.f90</a>.</p>
 
 </div>
 </div>
-<a id="a9df874b756edb92dd194750b2517f9f1" name="a9df874b756edb92dd194750b2517f9f1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9df874b756edb92dd194750b2517f9f1">&#9670;&#160;</a></span>blasius_apply_scalar_dev()</h2>
+<a id="a5f3897a38481786ea5308671bb6a54b7" name="a5f3897a38481786ea5308671bb6a54b7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5f3897a38481786ea5308671bb6a54b7">&#9670;&#160;</a></span>blasius_apply_scalar_dev()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -209,20 +218,26 @@ Functions/Subroutines</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
           <td class="paramname"><em>x_d</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>t</em>, </td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>time</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>tstep</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>strong</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>strm</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -237,12 +252,12 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d18/blasius_8f90_source.html#l00097">97</a> of file <a class="el" href="../../db/d18/blasius_8f90_source.html">blasius.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d18/blasius_8f90_source.html#l00171">171</a> of file <a class="el" href="../../db/d18/blasius_8f90_source.html">blasius.f90</a>.</p>
 
 </div>
 </div>
-<a id="a378986d247fd5773160cd6b9bf1505dc" name="a378986d247fd5773160cd6b9bf1505dc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a378986d247fd5773160cd6b9bf1505dc">&#9670;&#160;</a></span>blasius_apply_vector()</h2>
+<a id="aa8af49165029988273492279c065582b" name="aa8af49165029988273492279c065582b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa8af49165029988273492279c065582b">&#9670;&#160;</a></span>blasius_apply_vector()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -283,14 +298,14 @@ Functions/Subroutines</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>t</em>, </td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>time</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>tstep</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>strong</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -305,26 +320,23 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d18/blasius_8f90_source.html#l00105">105</a> of file <a class="el" href="../../db/d18/blasius_8f90_source.html">blasius.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d18/blasius_8f90_source.html#l00180">180</a> of file <a class="el" href="../../db/d18/blasius_8f90_source.html">blasius.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../de/da4/namespaceblasius_a378986d247fd5773160cd6b9bf1505dc_cgraph.png" border="0" usemap="#ade/da4/namespaceblasius_a378986d247fd5773160cd6b9bf1505dc_cgraph" alt=""/></div>
-<map name="ade/da4/namespaceblasius_a378986d247fd5773160cd6b9bf1505dc_cgraph" id="ade/da4/namespaceblasius_a378986d247fd5773160cd6b9bf1505dc_cgraph">
-<area shape="rect" title="Apply blasius conditions (vector valued)" alt="" coords="5,29,171,69"/>
-<area shape="rect" href="../../d2/d57/cuda_2facet__normal__kernel_8h.html#a255d8d741e1fc6cd080ba11e14dc7148" title=" " alt="" coords="219,37,345,62"/>
-<area shape="poly" title=" " alt="" coords="171,47,205,47,205,52,171,52"/>
-<area shape="poly" title=" " alt="" coords="250,38,244,28,247,18,260,12,282,10,308,14,319,22,316,26,306,18,282,15,262,17,251,22,249,28,255,35"/>
-<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="393,29,557,69"/>
-<area shape="poly" title=" " alt="" coords="346,47,380,47,380,52,346,52"/>
-<area shape="poly" title=" " alt="" coords="439,30,437,20,443,11,456,5,475,3,498,6,510,13,508,17,496,11,475,8,457,10,446,15,442,21,444,28"/>
+<div class="center"><img src="../../de/da4/namespaceblasius_aa8af49165029988273492279c065582b_cgraph.png" border="0" usemap="#ade/da4/namespaceblasius_aa8af49165029988273492279c065582b_cgraph" alt=""/></div>
+<map name="ade/da4/namespaceblasius_aa8af49165029988273492279c065582b_cgraph" id="ade/da4/namespaceblasius_aa8af49165029988273492279c065582b_cgraph">
+<area shape="rect" title="Apply blasius conditions (vector valued)" alt="" coords="5,22,171,62"/>
+<area shape="rect" href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d" title=" " alt="" coords="219,29,345,55"/>
+<area shape="poly" title=" " alt="" coords="171,39,205,39,205,45,171,45"/>
+<area shape="poly" title=" " alt="" coords="250,31,244,21,247,11,260,5,282,3,308,6,319,15,316,19,306,11,282,8,262,10,251,15,249,20,255,28"/>
 </map>
 </div>
 
 </div>
 </div>
-<a id="a5b963a7a1f2dede307f60284e7139d67" name="a5b963a7a1f2dede307f60284e7139d67"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5b963a7a1f2dede307f60284e7139d67">&#9670;&#160;</a></span>blasius_apply_vector_dev()</h2>
+<a id="abd0daef6ae710a2b996e38a043ed2198" name="abd0daef6ae710a2b996e38a043ed2198"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abd0daef6ae710a2b996e38a043ed2198">&#9670;&#160;</a></span>blasius_apply_vector_dev()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -341,32 +353,38 @@ Here is the call graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
           <td class="paramname"><em>x_d</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
           <td class="paramname"><em>y_d</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
           <td class="paramname"><em>z_d</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>t</em>, </td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>time</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>tstep</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>strong</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>strm</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -381,21 +399,56 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d18/blasius_8f90_source.html#l00145">145</a> of file <a class="el" href="../../db/d18/blasius_8f90_source.html">blasius.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d18/blasius_8f90_source.html#l00229">229</a> of file <a class="el" href="../../db/d18/blasius_8f90_source.html">blasius.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../de/da4/namespaceblasius_a5b963a7a1f2dede307f60284e7139d67_cgraph.png" border="0" usemap="#ade/da4/namespaceblasius_a5b963a7a1f2dede307f60284e7139d67_cgraph" alt=""/></div>
-<map name="ade/da4/namespaceblasius_a5b963a7a1f2dede307f60284e7139d67_cgraph" id="ade/da4/namespaceblasius_a5b963a7a1f2dede307f60284e7139d67_cgraph">
-<area shape="rect" title="Apply blasius conditions (vector valued) (device version)" alt="" coords="5,29,171,69"/>
-<area shape="rect" href="../../d2/d57/cuda_2facet__normal__kernel_8h.html#a255d8d741e1fc6cd080ba11e14dc7148" title=" " alt="" coords="219,37,345,62"/>
-<area shape="poly" title=" " alt="" coords="171,47,205,47,205,52,171,52"/>
-<area shape="poly" title=" " alt="" coords="250,38,244,28,247,18,260,12,282,10,308,14,319,22,316,26,306,18,282,15,262,17,251,22,249,28,255,35"/>
-<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="393,29,557,69"/>
-<area shape="poly" title=" " alt="" coords="346,47,380,47,380,52,346,52"/>
-<area shape="poly" title=" " alt="" coords="439,30,437,20,443,11,456,5,475,3,498,6,510,13,508,17,496,11,475,8,457,10,446,15,442,21,444,28"/>
+<div class="center"><img src="../../de/da4/namespaceblasius_abd0daef6ae710a2b996e38a043ed2198_cgraph.png" border="0" usemap="#ade/da4/namespaceblasius_abd0daef6ae710a2b996e38a043ed2198_cgraph" alt=""/></div>
+<map name="ade/da4/namespaceblasius_abd0daef6ae710a2b996e38a043ed2198_cgraph" id="ade/da4/namespaceblasius_abd0daef6ae710a2b996e38a043ed2198_cgraph">
+<area shape="rect" title="Apply blasius conditions (vector valued) (device version)" alt="" coords="5,22,171,62"/>
+<area shape="rect" href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d" title=" " alt="" coords="219,29,345,55"/>
+<area shape="poly" title=" " alt="" coords="171,39,205,39,205,45,171,45"/>
+<area shape="poly" title=" " alt="" coords="250,31,244,21,247,11,260,5,282,3,308,6,319,15,316,19,306,11,282,8,262,10,251,15,249,20,255,28"/>
 </map>
 </div>
+
+</div>
+</div>
+<a id="a038a6c067394f111bb6f8a9b8663b5a7" name="a038a6c067394f111bb6f8a9b8663b5a7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a038a6c067394f111bb6f8a9b8663b5a7">&#9670;&#160;</a></span>blasius_finalize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> blasius::blasius_finalize </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d0/dca/structblasius_1_1blasius__t.html">blasius_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>only_facets</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../db/d18/blasius_8f90_source.html#l00338">338</a> of file <a class="el" href="../../db/d18/blasius_8f90_source.html">blasius.f90</a>.</p>
 
 </div>
 </div>
@@ -404,6 +457,9 @@ Here is the call graph for this function:</div>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> blasius::blasius_free </td>
@@ -413,9 +469,14 @@ Here is the call graph for this function:</div>
           <td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d18/blasius_8f90_source.html#l00067">67</a> of file <a class="el" href="../../db/d18/blasius_8f90_source.html">blasius.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d18/blasius_8f90_source.html#l00141">141</a> of file <a class="el" href="../../db/d18/blasius_8f90_source.html">blasius.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -424,6 +485,140 @@ Here is the call graph for this function:</div>
 <area shape="rect" title=" " alt="" coords="5,5,160,31"/>
 <area shape="rect" href="../../d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="208,5,357,31"/>
 <area shape="poly" title=" " alt="" coords="160,15,194,15,194,21,160,21"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a6bf80ee6a1e8749677f6592c19a1e300" name="a6bf80ee6a1e8749677f6592c19a1e300"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6bf80ee6a1e8749677f6592c19a1e300">&#9670;&#160;</a></span>blasius_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> blasius::blasius_init </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d0/dca/structblasius_1_1blasius__t.html">blasius_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>coef</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(json_file), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>json</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">coef</td><td>The SEM coefficients. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The JSON object configuring the boundary condition. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../db/d18/blasius_8f90_source.html#l00082">82</a> of file <a class="el" href="../../db/d18/blasius_8f90_source.html">blasius.f90</a>.</p>
+
+</div>
+</div>
+<a id="aa30673fe1e7478b847dc3c6fcdb39efd" name="aa30673fe1e7478b847dc3c6fcdb39efd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa30673fe1e7478b847dc3c6fcdb39efd">&#9670;&#160;</a></span>blasius_init_from_components()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> blasius::blasius_init_from_components </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d0/dca/structblasius_1_1blasius__t.html">blasius_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>coef</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp)&#160;</td>
+          <td class="paramname"><em>delta</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(3)&#160;</td>
+          <td class="paramname"><em>uinf</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=*)&#160;</td>
+          <td class="paramname"><em>approximation</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">coef</td><td>The SEM coefficients. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">delta</td><td>The boundary layer thickness. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">uinf</td><td>The freestream velocity. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">approximation</td><td>The type of approximation for the profile. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../db/d18/blasius_8f90_source.html#l00110">110</a> of file <a class="el" href="../../db/d18/blasius_8f90_source.html">blasius.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../de/da4/namespaceblasius_aa30673fe1e7478b847dc3c6fcdb39efd_cgraph.png" border="0" usemap="#ade/da4/namespaceblasius_aa30673fe1e7478b847dc3c6fcdb39efd_cgraph" alt=""/></div>
+<map name="ade/da4/namespaceblasius_aa30673fe1e7478b847dc3c6fcdb39efd_cgraph" id="ade/da4/namespaceblasius_aa30673fe1e7478b847dc3c6fcdb39efd_cgraph">
+<area shape="rect" title="Constructor from components." alt="" coords="5,249,156,289"/>
+<area shape="rect" href="../../d4/d1e/namespaceflow__profile.html#aade43f589d5ac4f11ccad839a9b36c2b" title="Cubic approximate Blasius Profile ." alt="" coords="222,29,373,69"/>
+<area shape="poly" title=" " alt="" coords="87,248,104,212,128,167,161,120,202,79,210,74,213,78,206,83,165,123,133,170,108,215,92,250"/>
+<area shape="rect" href="../../d4/d1e/namespaceflow__profile.html#ae1dffd3e2f0c7e77056949157af2847b" title="Linear approximate Blasius profile ." alt="" coords="222,117,373,157"/>
+<area shape="poly" title=" " alt="" coords="100,247,145,207,203,167,215,161,218,165,205,172,148,211,104,251"/>
+<area shape="rect" href="../../d4/d1e/namespaceflow__profile.html#a0b6d9188a113843878700cf45b4c12c6" title="Quadratic approximate Blasius Profile ." alt="" coords="222,205,373,245"/>
+<area shape="poly" title=" " alt="" coords="156,251,208,241,209,246,157,257"/>
+<area shape="rect" href="../../d4/d1e/namespaceflow__profile.html#a49a9d197106fc26b15aefe65e7f404bf" title="Quartic approximate Blasius Profile &#160;." alt="" coords="222,293,373,333"/>
+<area shape="poly" title=" " alt="" coords="157,282,209,293,208,298,156,287"/>
+<area shape="rect" href="../../d4/d1e/namespaceflow__profile.html#a87e7739057dc2048eb90ad39274421ef" title="Sinusoidal approximate Blasius Profile ." alt="" coords="209,382,386,407"/>
+<area shape="poly" title=" " alt="" coords="115,287,205,343,260,373,258,378,203,348,112,292"/>
+<area shape="rect" href="../../d4/d1e/namespaceflow__profile.html#abd3c78263572801758b862a7ebb690b0" title="Hyperbolic tangent approximate Blasius Profile from O. Savas (2012) &#160;where &#160;is the 99 percent thickne..." alt="" coords="204,455,391,481"/>
+<area shape="poly" title=" " alt="" coords="97,288,141,349,172,385,206,417,254,447,251,451,202,421,168,388,137,353,92,291"/>
+<area shape="poly" title=" " alt="" coords="257,30,254,20,261,10,275,5,297,3,323,6,336,13,334,18,321,11,297,8,277,10,264,15,260,21,262,28"/>
+<area shape="poly" title=" " alt="" coords="257,118,254,108,261,98,275,93,297,91,323,94,336,101,334,106,321,99,297,96,277,98,264,103,260,109,262,116"/>
+<area shape="poly" title=" " alt="" coords="257,206,254,196,261,186,275,181,297,179,323,182,336,189,334,194,321,187,297,184,277,186,264,191,260,197,262,204"/>
+<area shape="poly" title=" " alt="" coords="257,294,254,284,261,274,275,269,297,267,323,270,336,277,334,282,321,275,297,272,277,274,264,279,260,285,262,292"/>
+<area shape="poly" title=" " alt="" coords="262,384,254,374,258,364,273,358,297,355,327,359,339,368,336,372,325,364,297,361,274,363,262,368,260,373,266,380"/>
+<area shape="poly" title=" " alt="" coords="262,457,254,447,258,437,273,431,297,429,327,432,339,441,336,446,325,437,297,434,274,436,262,441,260,446,266,454"/>
 </map>
 </div>
 
@@ -475,7 +670,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d18/blasius_8f90_source.html#l00216">216</a> of file <a class="el" href="../../db/d18/blasius_8f90_source.html">blasius.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d18/blasius_8f90_source.html#l00311">311</a> of file <a class="el" href="../../db/d18/blasius_8f90_source.html">blasius.f90</a>.</p>
 
 </div>
 </div>
@@ -485,7 +680,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../de/da4/namespaceblasius.html">blasius</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

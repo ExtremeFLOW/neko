@@ -1,0 +1,9 @@
+<map id="scalar_rhs_maker_oifs_opencl" name="scalar_rhs_maker_oifs_opencl">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,172,69"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="400,29,564,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,47,386,47,386,52,172,52"/>
+<area shape="rect" id="Node000003" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="220,62,352,87"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="173,57,207,62,206,67,172,63"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="445,30,443,20,449,11,462,5,482,3,505,6,517,13,515,17,503,11,482,8,463,10,452,15,448,21,450,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="352,64,386,59,387,64,353,69"/>
+</map>

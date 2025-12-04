@@ -1,0 +1,6 @@
+<map id="dong_outflow::dong_outflow_apply_scalar" name="dong_outflow::dong_outflow_apply_scalar">
+<area shape="rect" id="Node000001" title="Boundary condition apply for a generic Dirichlet condition to a vector x." alt="" coords="5,22,172,62"/>
+<area shape="rect" id="Node000002" href="$d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d" title=" " alt="" coords="220,29,347,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="173,39,206,39,206,45,173,45"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="251,31,244,21,248,11,261,5,283,3,310,6,321,15,318,19,308,11,283,8,263,10,252,15,250,20,255,28"/>
+</map>

@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -115,50 +115,58 @@ $(document).ready(function(){initNavTree('d7/d64/rea2nbin_8f90_source.html','../
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span>  <span class="keywordtype">type</span>(file_t) :: <a class="code hl_namespace" href="../../d0/df9/namespacerea__file.html">rea_file</a>, <a class="code hl_namespace" href="../../da/dd2/namespacenmsh__file.html">nmsh_file</a></div>
 <div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span>  <span class="keywordtype">integer</span> :: argc</div>
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span>  <span class="keywordtype">character(len=80)</span> :: suffix</div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span>  </div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span> </div>
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span>  argc = command_argument_count()</div>
 <div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span> </div>
 <div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>  <span class="keywordflow">if</span> ((argc .lt. 1) .or. (argc .gt. 2)) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>     <span class="keyword">write</span>(*,*) <span class="stringliteral">&#39;Usage: ./rea2nbin &lt;reafile&gt; &lt;neko mesh&gt;&#39;</span></div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>     stop</div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="keywordflow">  end if</span></div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>  </div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>  <span class="keyword">call </span><a class="code hl_function" href="../../dd/d62/namespaceneko.html#a647e539d6b0950b6569c6752b8f007ff">neko_init</a> </div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>  </div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>  <span class="keyword">call </span>get_command_argument(1, fname) </div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>  <span class="keywordflow">if</span> (argc .eq. 2) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>     <span class="keyword">call </span>get_command_argument(2, output_)</div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>     <span class="keyword">call </span>filename_suffix(output_, suffix)</div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span> </div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>     <span class="keywordflow">if</span> (suffix .ne. <span class="stringliteral">&quot;nmsh&quot;</span>) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>        <span class="keyword">call </span>neko_error(<span class="stringliteral">&quot;Invalid output format&quot;</span>)</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="keywordflow">     end if</span></div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>  <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>     <span class="keyword">call </span>filename_chsuffix(fname, output_, <span class="stringliteral">&#39;nmsh&#39;</span>)</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="keywordflow">  end if</span></div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>     </div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>  </div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>  <a class="code hl_namespace" href="../../d0/df9/namespacerea__file.html">rea_file</a> = file_t(fname)</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    </div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  msh%lgenc = .false.</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  </div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keyword">call </span><a class="code hl_namespace" href="../../d0/df9/namespacerea__file.html">rea_file</a>%read(msh)</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  </div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <a class="code hl_namespace" href="../../da/dd2/namespacenmsh__file.html">nmsh_file</a> = file_t(output_)</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  </div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>  <span class="keyword">call </span><a class="code hl_namespace" href="../../da/dd2/namespacenmsh__file.html">nmsh_file</a>%write(msh)</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>  </div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>  <span class="keyword">call </span>msh%free()</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>  </div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>  <span class="keyword">call </span><a class="code hl_function" href="../../dd/d62/namespaceneko.html#a11ff0635183fc4cd90027907c86cbfe8">neko_finalize</a></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>  <span class="keyword">call </span><a class="code hl_function" href="../../da/d03/neko_8h.html#a6723abe8de86a489274925547af9e556">neko_init</a></div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>  <span class="keywordflow">if</span> (pe_size .gt. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>     <span class="keyword">call </span>neko_error(<span class="stringliteral">&quot;rea2nbin can only run on 1 rank&quot;</span>)</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="keywordflow">  end if</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>  <span class="keyword">call </span>get_command_argument(1, fname)</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>  <span class="keyword">call </span>filename_suffix(fname, suffix)</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>  <span class="keywordflow">if</span> (suffix .ne. <span class="stringliteral">&quot;re2&quot;</span>) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>     <span class="keyword">call </span>neko_error(<span class="stringliteral">&quot;rea is no longer supported. Please convert to re2 first&quot;</span>)</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="keywordflow">  end if</span></div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span> </div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>  <span class="keywordflow">if</span> (argc .eq. 2) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>     <span class="keyword">call </span>get_command_argument(2, output_)</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>     <span class="keyword">call </span>filename_suffix(output_, suffix)</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span> </div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>     <span class="keywordflow">if</span> (suffix .ne. <span class="stringliteral">&quot;nmsh&quot;</span>) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>        <span class="keyword">call </span>neko_error(<span class="stringliteral">&quot;Invalid output format&quot;</span>)</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><span class="keywordflow">     end if</span></div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>     <span class="keyword">call </span>filename_chsuffix(fname, output_, <span class="stringliteral">&#39;nmsh&#39;</span>)</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><span class="keywordflow">  end if</span></div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span> </div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>  <span class="keyword">call </span><a class="code hl_namespace" href="../../d0/df9/namespacerea__file.html">rea_file</a>%init(fname)</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>  msh%lgenc = .false.</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>  <span class="keyword">call </span><a class="code hl_namespace" href="../../d0/df9/namespacerea__file.html">rea_file</a>%read(msh)</div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span> </div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span><span class="keyword">end program </span><a class="code hl_function" href="../../d7/d64/rea2nbin_8f90.html#ab8d17097ee23bae0a0911d8d65590e5e">rea2nbin</a></div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>  <span class="keyword">call </span><a class="code hl_namespace" href="../../da/dd2/namespacenmsh__file.html">nmsh_file</a>%init(output_)</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>  <span class="keyword">call </span><a class="code hl_namespace" href="../../da/dd2/namespacenmsh__file.html">nmsh_file</a>%write(msh)</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span> </div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>  <span class="keyword">call </span>msh%free()</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span> </div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>  <span class="keyword">call </span><a class="code hl_function" href="../../da/d03/neko_8h.html#a36ec20ef46a38cb2dfcec581e25735a2">neko_finalize</a></div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span> </div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span><span class="keyword">end program </span><a class="code hl_function" href="../../d7/d64/rea2nbin_8f90.html#ab8d17097ee23bae0a0911d8d65590e5e">rea2nbin</a></div>
 <div class="ttc" id="anamespaceneko_html"><div class="ttname"><a href="../../dd/d62/namespaceneko.html">neko</a></div><div class="ttdoc">Master module.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/d1f/neko_8f90_source.html#l00034">neko.f90:34</a></div></div>
-<div class="ttc" id="anamespaceneko_html_a11ff0635183fc4cd90027907c86cbfe8"><div class="ttname"><a href="../../dd/d62/namespaceneko.html#a11ff0635183fc4cd90027907c86cbfe8">neko::neko_finalize</a></div><div class="ttdeci">subroutine neko_finalize(c)</div><div class="ttdef"><b>Definition</b> <a href="../../d5/d1f/neko_8f90_source.html#l00294">neko.f90:295</a></div></div>
-<div class="ttc" id="anamespaceneko_html_a647e539d6b0950b6569c6752b8f007ff"><div class="ttname"><a href="../../dd/d62/namespaceneko.html#a647e539d6b0950b6569c6752b8f007ff">neko::neko_init</a></div><div class="ttdeci">subroutine neko_init(c)</div><div class="ttdef"><b>Definition</b> <a href="../../d5/d1f/neko_8f90_source.html#l00129">neko.f90:130</a></div></div>
 <div class="ttc" id="anamespacenmsh__file_html"><div class="ttname"><a href="../../da/dd2/namespacenmsh__file.html">nmsh_file</a></div><div class="ttdoc">Neko binary mesh data.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d33/nmsh__file_8f90_source.html#l00034">nmsh_file.f90:34</a></div></div>
 <div class="ttc" id="anamespacerea__file_html"><div class="ttname"><a href="../../d0/df9/namespacerea__file.html">rea_file</a></div><div class="ttdoc">NEKTON session data reader.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/def/rea__file_8f90_source.html#l00035">rea_file.f90:35</a></div></div>
+<div class="ttc" id="aneko_8h_html_a36ec20ef46a38cb2dfcec581e25735a2"><div class="ttname"><a href="../../da/d03/neko_8h.html#a36ec20ef46a38cb2dfcec581e25735a2">neko_finalize</a></div><div class="ttdeci">void neko_finalize()</div></div>
+<div class="ttc" id="aneko_8h_html_a6723abe8de86a489274925547af9e556"><div class="ttname"><a href="../../da/d03/neko_8h.html#a6723abe8de86a489274925547af9e556">neko_init</a></div><div class="ttdeci">void neko_init()</div></div>
 <div class="ttc" id="area2nbin_8f90_html_ab8d17097ee23bae0a0911d8d65590e5e"><div class="ttname"><a href="../../d7/d64/rea2nbin_8f90.html#ab8d17097ee23bae0a0911d8d65590e5e">rea2nbin</a></div><div class="ttdeci">program rea2nbin</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d64/rea2nbin_8f90_source.html#l00001">rea2nbin.f90:1</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
@@ -166,7 +174,7 @@ $(document).ready(function(){initNavTree('d7/d64/rea2nbin_8f90_source.html','../
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_3847941dc22744d30c1d316a1f1a60e2.html">contrib</a></li><li class="navelem"><a class="el" href="../../dir_41b7c68cb723da04a39c3da52ec6a844.html">rea2nbin</a></li><li class="navelem"><a class="el" href="../../d7/d64/rea2nbin_8f90.html">rea2nbin.f90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:47 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

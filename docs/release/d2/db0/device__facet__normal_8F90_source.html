@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -170,14 +170,14 @@ $(document).ready(function(){initNavTree('d2/db0/device__facet__normal_8F90_sour
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>  <span class="keyword">end interface</span></div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span><span class="preprocessor"></span>  <span class="keyword">interface</span></div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>     <span class="keyword">subroutine </span><a class="code hl_function" href="../../df/d13/facet__normal_8c.html#a7f49779f0445c37353937d5bbcf63c0e">opencl_facet_normal_apply_surfvec</a>(msk, facet, x, y, z, u, v, w, &amp;</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>     <span class="keyword">subroutine </span><a class="code hl_function" href="../../df/d13/facet__normal_8c.html#a86957195d1c690d51d42bdf335d4bd4b">opencl_facet_normal_apply_surfvec</a>(msk, facet, x, y, z, u, v, w, &amp;</div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>                                                nx, ny, nz, area, lx, m) &amp;</div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>          bind(c, name=<span class="stringliteral">&#39;opencl_facet_normal_apply_surfvec&#39;</span>)</div>
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
 <div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>       <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>       <span class="keywordtype">integer(c_int)</span> :: m, lx</div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span>  :: msk, facet, x, y, z, u, v, w, nx, ny, nz, area</div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>     <span class="keyword">end subroutine </span><a class="code hl_function" href="../../df/d13/facet__normal_8c.html#a7f49779f0445c37353937d5bbcf63c0e">opencl_facet_normal_apply_surfvec</a></div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>     <span class="keyword">end subroutine </span><a class="code hl_function" href="../../df/d13/facet__normal_8c.html#a86957195d1c690d51d42bdf335d4bd4b">opencl_facet_normal_apply_surfvec</a></div>
 <div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>  <span class="keyword">end interface</span></div>
 <div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span><span class="preprocessor"></span> </div>
@@ -198,7 +198,7 @@ $(document).ready(function(){initNavTree('d2/db0/device__facet__normal_8F90_sour
 <div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../d2/ddc/facet__normal_8cu.html#ae032cc1ead1a20095724c0cfcc8df4f9">cuda_facet_normal_apply_surfvec</a>(msk, facet, x, y, z, u, v, w, &amp;</div>
 <div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>                                         nx, ny, nz, area, lx, m)</div>
 <div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../df/d13/facet__normal_8c.html#a7f49779f0445c37353937d5bbcf63c0e">opencl_facet_normal_apply_surfvec</a>(msk, facet, x, y, z, u, v, w, &amp;</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../df/d13/facet__normal_8c.html#a86957195d1c690d51d42bdf335d4bd4b">opencl_facet_normal_apply_surfvec</a>(msk, facet, x, y, z, u, v, w, &amp;</div>
 <div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>                                         nx, ny, nz, area, lx, m)</div>
 <div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span><span class="preprocessor">#else</span></div>
 <div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;No device backend configured&#39;</span>)</div>
@@ -208,7 +208,7 @@ $(document).ready(function(){initNavTree('d2/db0/device__facet__normal_8F90_sour
 <div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../db/db7/namespacedevice__facet__normal.html#a7886d535977fdcaf76b9ebb2070ea20b">device_facet_normal_apply_surfvec</a></div>
 <div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span> </div>
 <div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../db/db7/namespacedevice__facet__normal.html">device_facet_normal</a></div>
-<div class="ttc" id="afacet__normal_8c_html_a7f49779f0445c37353937d5bbcf63c0e"><div class="ttname"><a href="../../df/d13/facet__normal_8c.html#a7f49779f0445c37353937d5bbcf63c0e">opencl_facet_normal_apply_surfvec</a></div><div class="ttdeci">void opencl_facet_normal_apply_surfvec(void *msk, void *facet, void *x, void *y, void *z, void *u, void *v, void *w, void *nx, void *ny, void *nz, void *area, int *lx, int *m)</div><div class="ttdef"><b>Definition</b> <a href="../../df/d13/facet__normal_8c_source.html#l00052">facet_normal.c:52</a></div></div>
+<div class="ttc" id="afacet__normal_8c_html_a86957195d1c690d51d42bdf335d4bd4b"><div class="ttname"><a href="../../df/d13/facet__normal_8c.html#a86957195d1c690d51d42bdf335d4bd4b">opencl_facet_normal_apply_surfvec</a></div><div class="ttdeci">void opencl_facet_normal_apply_surfvec(void *msk, void *facet, void *x, void *y, void *z, void *u, void *v, void *w, void *nx, void *ny, void *nz, void *area, int *lx, int *m, cl_command_queue cmd_queue)</div><div class="ttdef"><b>Definition</b> <a href="../../df/d13/facet__normal_8c_source.html#l00052">facet_normal.c:52</a></div></div>
 <div class="ttc" id="afacet__normal_8cu_html_ae032cc1ead1a20095724c0cfcc8df4f9"><div class="ttname"><a href="../../d2/ddc/facet__normal_8cu.html#ae032cc1ead1a20095724c0cfcc8df4f9">cuda_facet_normal_apply_surfvec</a></div><div class="ttdeci">void cuda_facet_normal_apply_surfvec(void *msk, void *facet, void *x, void *y, void *z, void *u, void *v, void *w, void *nx, void *ny, void *nz, void *area, int *lx, int *m)</div><div class="ttdef"><b>Definition</b> <a href="../../d2/ddc/facet__normal_8cu_source.html#l00044">facet_normal.cu:44</a></div></div>
 <div class="ttc" id="ainterfacedevice__facet__normal_1_1hip__facet__normal__apply__surfvec_html"><div class="ttname"><a href="../../d3/da7/interfacedevice__facet__normal_1_1hip__facet__normal__apply__surfvec.html">device_facet_normal::hip_facet_normal_apply_surfvec</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/db0/device__facet__normal_8F90_source.html#l00041">device_facet_normal.F90:41</a></div></div>
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00042">utils.f90:42</a></div></div>
@@ -221,7 +221,7 @@ $(document).ready(function(){initNavTree('d2/db0/device__facet__normal_8F90_sour
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_96f7c11e9d5d0b09f433cbf8fd37f2d0.html">bc</a></li><li class="navelem"><a class="el" href="../../dir_2384b0d0751aa995a1b7d70277eddcb2.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_18707f658d20d5ab4d5f4803cc883ea1.html">device</a></li><li class="navelem"><a class="el" href="../../d2/db0/device__facet__normal_8F90.html">device_facet_normal.F90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:47 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

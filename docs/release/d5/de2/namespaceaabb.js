@@ -23,6 +23,7 @@ var namespaceaabb =
     [ "get_aabb", "d5/de2/namespaceaabb.html#a9a79814aa9d37785cb4d53a4aef2beb8", null ],
     [ "get_aabb_element", "d5/de2/namespaceaabb.html#ab9198807cc6826776f8b94a84cd9f999", null ],
     [ "get_aabb_mesh", "d5/de2/namespaceaabb.html#a7b35ee1d1158d03311f46930ee69b2de", null ],
+    [ "get_aabb_point", "d5/de2/namespaceaabb.html#a644f82ae94024c3e7a49a6237de57258", null ],
     [ "get_aabb_tet_mesh", "d5/de2/namespaceaabb.html#abd0ecde4cac4aba5d3646a3319cb32e6", null ],
     [ "get_aabb_tri_mesh", "d5/de2/namespaceaabb.html#a6a76082373d4b84a0fb3f820a3203954", null ],
     [ "intersection_aabb", "d5/de2/namespaceaabb.html#a7c0f875737af7796ba0492ea8662f9c1", null ],

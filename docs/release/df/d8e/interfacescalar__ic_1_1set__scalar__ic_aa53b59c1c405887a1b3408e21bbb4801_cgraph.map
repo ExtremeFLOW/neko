@@ -1,9 +1,0 @@
-<map id="scalar_ic::set_scalar_ic::set_scalar_ic_usr" name="scalar_ic::set_scalar_ic::set_scalar_ic_usr">
-<area shape="rect" id="Node000001" title="Set scalar intial condition (user defined)" alt="" coords="5,23,164,63"/>
-<area shape="rect" id="Node000002" href="$d8/ddf/namespacescalar__ic.html#a284c2151baaf62794c62dfa896b63a6b" title="Set scalar initial condition (common)" alt="" coords="212,23,365,63"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="164,41,198,41,198,46,164,46"/>
-<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="463,5,554,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="365,32,449,22,450,27,366,37"/>
-<area shape="rect" id="Node000004" href="$d2/d73/namespacedevice__math.html#a14206e58118cce6865c6ce1bb6454061" title="Vector multiplication ." alt="" coords="413,55,604,80"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="366,49,400,53,399,58,365,54"/>
-</map>

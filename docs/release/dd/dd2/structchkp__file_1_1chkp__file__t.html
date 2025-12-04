@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -101,6 +101,7 @@ $(document).ready(function(){initNavTree('dd/dd2/structchkp__file_1_1chkp__file_
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="#pri-attribs">Private Attributes</a> &#124;
 <a href="../../d3/d4e/structchkp__file_1_1chkp__file__t-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">chkp_file::chkp_file_t Type Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div></div>
 </div><!--header-->
@@ -123,27 +124,48 @@ Collaboration diagram for chkp_file::chkp_file_t:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d6/d5a/structchkp__file_1_1chkp__file__t__coll__graph.png" border="0" usemap="#achkp__file_1_1chkp__file__t_coll__map" alt="Collaboration graph"/></div>
 <map name="achkp__file_1_1chkp__file__t_coll__map" id="achkp__file_1_1chkp__file__t_coll__map">
-<area shape="rect" title="Interface for Neko checkpoint files." alt="" coords="1053,143,1212,169"/>
-<area shape="rect" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html" title="A generic file handler." alt="" coords="753,47,907,87"/>
-<area shape="poly" title=" " alt="" coords="921,77,975,89,1030,104,1073,122,1110,141,1108,146,1071,127,1028,109,974,94,920,82"/>
-<area shape="rect" href="../../da/d99/structspace_1_1space__t.html" title="The function space for the SEM solution fields." alt="" coords="168,226,287,251"/>
-<area shape="poly" title=" " alt="" coords="276,219,310,211,461,192,668,177,1053,157,1053,162,669,182,461,197,311,216,277,224"/>
-<area shape="rect" href="../../db/d74/structinterpolation_1_1interpolator__t.html" title="Interpolation between two space::space_t." alt="" coords="413,113,615,138"/>
-<area shape="poly" title=" " alt="" coords="249,214,276,191,309,170,363,149,417,135,418,141,364,154,312,174,279,195,252,218"/>
-<area shape="rect" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html" title="Implements global interpolation for arbitrary points in the domain." alt="" coords="744,283,916,323"/>
-<area shape="poly" title=" " alt="" coords="301,231,386,228,492,229,607,237,721,255,757,266,791,280,789,285,756,271,719,260,606,242,492,234,386,233,301,236"/>
-<area shape="rect" href="../../d4/df5/structlocal__interpolation_1_1local__interpolator__t.html" title="Interpolation on a set of points with known rst coordinates in elements local to this process...." alt="" coords="436,388,592,428"/>
-<area shape="poly" title=" " alt="" coords="265,256,391,328,483,386,480,390,388,333,262,261"/>
-<area shape="rect" title=" " alt="" coords="5,301,60,326"/>
-<area shape="poly" title=" " alt="" coords="72,297,143,271,196,249,198,254,145,276,74,302"/>
-<area shape="poly" title=" " alt="" coords="34,286,49,188,63,140,72,122,82,110,131,81,186,66,242,60,300,63,355,72,405,84,483,110,481,115,404,89,354,77,299,69,243,66,187,71,133,86,86,114,77,125,68,142,55,189,39,287"/>
-<area shape="poly" title=" " alt="" coords="74,318,181,334,311,348,428,350,546,343,654,330,744,316,744,321,655,335,546,348,429,355,311,353,180,339,73,323"/>
-<area shape="poly" title=" " alt="" coords="53,335,86,367,124,395,169,411,238,422,309,426,377,423,436,418,436,423,377,429,309,431,238,428,167,416,122,400,82,371,50,338"/>
-<area shape="poly" title=" " alt="" coords="629,128,1053,149,1053,155,628,134"/>
-<area shape="poly" title=" " alt="" coords="898,275,962,249,1028,218,1112,166,1114,171,1031,222,964,254,900,280"/>
-<area shape="rect" href="../../dd/d8c/structstructs_1_1array__ptr__t.html" title="Pointer to array." alt="" coords="441,287,587,313"/>
-<area shape="poly" title=" " alt="" coords="601,298,639,299,744,299,744,305,639,304,601,304"/>
-<area shape="poly" title=" " alt="" coords="605,405,663,397,719,382,768,353,807,321,810,325,771,358,721,386,664,403,606,410"/>
+<area shape="rect" title="Interface for Neko checkpoint files." alt="" coords="1217,154,1376,179"/>
+<area shape="rect" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html" title="A generic file handler." alt="" coords="917,57,1071,97"/>
+<area shape="poly" title=" " alt="" coords="1085,88,1139,99,1194,115,1237,133,1274,151,1272,156,1235,137,1192,120,1138,104,1084,93"/>
+<area shape="rect" href="../../da/d99/structspace_1_1space__t.html" title="The function space for the SEM solution fields." alt="" coords="243,277,362,302"/>
+<area shape="poly" title=" " alt="" coords="341,268,403,244,475,228,549,220,737,200,923,185,1217,168,1217,173,924,191,737,206,550,225,476,233,405,249,343,273"/>
+<area shape="rect" href="../../db/d74/structinterpolation_1_1interpolator__t.html" title="Interpolation between two space::space_t." alt="" coords="549,123,751,149"/>
+<area shape="poly" title=" " alt="" coords="326,265,361,237,403,211,450,189,499,172,588,146,590,151,501,177,452,194,405,216,364,242,330,269"/>
+<area shape="rect" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html" title="Implements global interpolation for arbitrary points in the domain." alt="" coords="908,479,1080,519"/>
+<area shape="poly" title=" " alt="" coords="376,290,549,308,651,324,751,347,821,369,885,403,935,440,975,476,971,480,932,444,883,408,819,373,750,352,650,329,548,313,376,296"/>
+<area shape="rect" href="../../d4/df5/structlocal__interpolation_1_1local__interpolator__t.html" title="Interpolation on a set of points with known rst coordinates in elements local to this process...." alt="" coords="572,235,728,275"/>
+<area shape="poly" title=" " alt="" coords="375,280,571,260,572,265,376,285"/>
+<area shape="rect" href="../../da/d41/structlegendre__rst__finder_1_1legendre__rst__finder__t.html" title="Type to compute local element (rst) coordinates for a gives set points in physical (xyz) space on a S..." alt="" coords="567,361,733,401"/>
+<area shape="poly" title=" " alt="" coords="334,308,367,327,405,344,487,365,567,375,566,380,486,370,403,349,365,332,332,312"/>
+<area shape="rect" title=" " alt="" coords="34,303,89,329"/>
+<area shape="poly" title=" " alt="" coords="102,315,150,316,201,312,260,299,261,305,202,317,150,321,102,321"/>
+<area shape="poly" title=" " alt="" coords="65,289,74,253,89,210,110,164,139,122,159,102,177,90,225,73,280,63,337,61,394,64,449,72,547,96,618,121,616,126,546,102,448,78,393,70,337,66,281,69,226,79,180,94,162,106,143,126,115,167,94,212,79,255,70,291"/>
+<area shape="poly" title=" " alt="" coords="91,335,143,378,183,414,227,446,274,472,312,490,352,502,404,513,472,523,541,529,679,530,805,521,908,510,908,515,806,527,679,535,541,534,471,528,404,519,351,507,310,495,271,477,224,450,180,418,140,382,87,340"/>
+<area shape="rect" href="../../d3/d5b/structvector_1_1vector__t.html" title=" " alt="" coords="241,410,365,435"/>
+<area shape="poly" title=" " alt="" coords="103,331,274,408,272,412,101,336"/>
+<area shape="poly" title=" " alt="" coords="64,289,72,256,86,218,108,180,140,151,175,137,220,128,273,123,330,123,442,132,489,141,526,151,559,167,589,189,634,232,630,236,586,193,557,172,524,156,488,146,441,137,330,128,274,128,221,133,176,142,143,156,112,184,91,220,77,258,69,291"/>
+<area shape="poly" title=" " alt="" coords="765,139,1217,160,1217,166,764,144"/>
+<area shape="poly" title=" " alt="" coords="1021,467,1282,178,1286,181,1025,470"/>
+<area shape="poly" title=" " alt="" coords="356,437,445,463,550,484,645,494,741,499,908,499,908,505,741,504,645,499,549,489,444,468,354,442"/>
+<area shape="poly" title=" " alt="" coords="379,425,450,425,525,419,598,399,599,404,526,424,450,431,379,431"/>
+<area shape="rect" title=" " alt="" coords="255,617,350,642"/>
+<area shape="poly" title=" " alt="" coords="364,626,486,622,637,613,781,599,839,589,883,576,932,549,971,517,974,521,935,553,885,581,841,594,782,604,637,619,486,627,364,631"/>
+<area shape="rect" href="../../db/d1d/structglb__intrp__comm_1_1glb__intrp__comm__t.html" title="Global interpolation communication method." alt="" coords="573,673,727,713"/>
+<area shape="poly" title=" " alt="" coords="364,638,573,677,572,682,363,643"/>
+<area shape="rect" href="../../d2/d45/structstack_1_1stack__i4__t.html" title="Integer based stack." alt="" coords="237,775,368,801"/>
+<area shape="poly" title=" " alt="" coords="382,795,492,800,556,798,625,791,694,778,761,757,825,727,882,687,920,646,949,599,970,554,984,518,989,520,975,556,954,602,924,650,886,691,828,732,763,762,695,783,625,796,557,803,492,806,382,801"/>
+<area shape="poly" title=" " alt="" coords="381,772,451,758,525,739,602,711,603,716,526,744,452,763,382,777"/>
+<area shape="rect" href="../../d2/dbd/structstack_1_1stack__t.html" title="Base type for a stack." alt="" coords="5,775,117,801"/>
+<area shape="poly" title=" " alt="" coords="131,785,237,785,237,791,131,791"/>
+<area shape="poly" title=" " alt="" coords="742,249,778,253,816,261,852,274,886,292,908,312,928,336,959,387,979,438,991,478,986,479,974,440,954,390,924,339,905,316,882,297,850,278,814,266,777,258,741,255"/>
+<area shape="poly" title=" " alt="" coords="723,403,935,476,933,481,722,408"/>
+<area shape="poly" title=" " alt="" coords="741,687,813,673,849,661,883,643,916,615,944,581,981,518,986,520,949,584,920,619,885,648,851,665,814,678,742,693"/>
+<area shape="rect" href="../../dc/d33/structglb__intrp__comm_1_1glb__intrp__comm__mpi__t.html" title="MPI buffer for non&#45;blocking operations." alt="" coords="225,687,380,727"/>
+<area shape="poly" title=" " alt="" coords="394,705,525,703,572,699,573,705,525,708,394,711"/>
+<area shape="rect" title=" " alt="" coords="14,650,109,675"/>
+<area shape="poly" title=" " alt="" coords="122,671,225,690,224,695,121,676"/>
+<area shape="rect" title=" " alt="" coords="10,699,113,725"/>
+<area shape="poly" title=" " alt="" coords="126,708,225,706,225,711,126,713"/>
 </map>
 <center><span class="legend">[<a target="top" href="../../graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -157,23 +179,43 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aca08725cdd104354e4ef8c82d24bbbca" id="r_aca08725cdd104354e4ef8c82d24bbbca"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dd2/structchkp__file_1_1chkp__file__t.html#aca08725cdd104354e4ef8c82d24bbbca">write</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, data, t)</td></tr>
 <tr class="memdesc:aca08725cdd104354e4ef8c82d24bbbca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write a Neko checkpoint.  <br /></td></tr>
 <tr class="separator:aca08725cdd104354e4ef8c82d24bbbca"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a97b49155861328f0d439579245505ff3" id="r_a97b49155861328f0d439579245505ff3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#a97b49155861328f0d439579245505ff3">init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#a751e18551cff4a19fae3ab607f6dffba">fname</a>)</td></tr>
+<tr class="memitem:a4260b8d62365eb8ec6a22c62d3bb2558" id="r_a4260b8d62365eb8ec6a22c62d3bb2558"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dd2/structchkp__file_1_1chkp__file__t.html#a4260b8d62365eb8ec6a22c62d3bb2558">set_overwrite</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#a83d94631b6a99d757b267bb39198d020">overwrite</a>)</td></tr>
+<tr class="separator:a4260b8d62365eb8ec6a22c62d3bb2558"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a97b49155861328f0d439579245505ff3" id="r_a97b49155861328f0d439579245505ff3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#a97b49155861328f0d439579245505ff3">init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#a799a56687f86ad7540b4e5ab92a78230">fname</a>)</td></tr>
 <tr class="memdesc:a97b49155861328f0d439579245505ff3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic file constructor.  <br /></td></tr>
 <tr class="separator:a97b49155861328f0d439579245505ff3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a95cb39f5312b217bdb810a9c00988139" id="r_a95cb39f5312b217bdb810a9c00988139"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>(<a class="el" href="../../dd/d86/interfacegeneric__file_1_1generic__file__write.html">generic_file_write</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">deferred</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#a95cb39f5312b217bdb810a9c00988139">write</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, data, t)</td></tr>
+<tr class="memitem:a95cb39f5312b217bdb810a9c00988139" id="r_a95cb39f5312b217bdb810a9c00988139"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>(generic_file_write), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">deferred</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#a95cb39f5312b217bdb810a9c00988139">write</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, data, t)</td></tr>
 <tr class="memdesc:a95cb39f5312b217bdb810a9c00988139"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read method.  <br /></td></tr>
 <tr class="separator:a95cb39f5312b217bdb810a9c00988139"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa72e85d7d49e3ef38b822ddc04d364f0" id="r_aa72e85d7d49e3ef38b822ddc04d364f0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>(<a class="el" href="../../d5/d27/interfacegeneric__file_1_1generic__file__read.html">generic_file_read</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">deferred</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#aa72e85d7d49e3ef38b822ddc04d364f0">read</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, data)</td></tr>
+<tr class="memitem:aa72e85d7d49e3ef38b822ddc04d364f0" id="r_aa72e85d7d49e3ef38b822ddc04d364f0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>(generic_file_read), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">deferred</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#aa72e85d7d49e3ef38b822ddc04d364f0">read</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, data)</td></tr>
 <tr class="separator:aa72e85d7d49e3ef38b822ddc04d364f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad63a6157051ac39af2d6f1be99fd9a0b" id="r_ad63a6157051ac39af2d6f1be99fd9a0b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#ad63a6157051ac39af2d6f1be99fd9a0b">get_fname</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
+<tr class="memdesc:ad63a6157051ac39af2d6f1be99fd9a0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a file's name.  <br /></td></tr>
+<tr class="separator:ad63a6157051ac39af2d6f1be99fd9a0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad7bc3c4a8fddb807e51da03e1f49f88e" id="r_ad7bc3c4a8fddb807e51da03e1f49f88e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#ad7bc3c4a8fddb807e51da03e1f49f88e">get_base_fname</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
+<tr class="memdesc:ad7bc3c4a8fddb807e51da03e1f49f88e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get base name without counter.  <br /></td></tr>
+<tr class="separator:ad7bc3c4a8fddb807e51da03e1f49f88e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a31367fccf095b1ae11da3b6be9934b6b" id="r_a31367fccf095b1ae11da3b6be9934b6b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#a31367fccf095b1ae11da3b6be9934b6b">set_counter</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, n)</td></tr>
 <tr class="memdesc:a31367fccf095b1ae11da3b6be9934b6b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the file counter to <em>n</em>.  <br /></td></tr>
 <tr class="separator:a31367fccf095b1ae11da3b6be9934b6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af858a91828f91d9bd77848b330cfd127" id="r_af858a91828f91d9bd77848b330cfd127"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#af858a91828f91d9bd77848b330cfd127">get_counter</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
+<tr class="memdesc:af858a91828f91d9bd77848b330cfd127"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the file counter.  <br /></td></tr>
+<tr class="separator:af858a91828f91d9bd77848b330cfd127"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8ab94d40ed0f05554e32f932e454d7f7" id="r_a8ab94d40ed0f05554e32f932e454d7f7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#a8ab94d40ed0f05554e32f932e454d7f7">set_start_counter</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, n)</td></tr>
 <tr class="memdesc:a8ab94d40ed0f05554e32f932e454d7f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the file start counter to <em>n</em>.  <br /></td></tr>
 <tr class="separator:a8ab94d40ed0f05554e32f932e454d7f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a98d12938b076977dc3623911305ed748" id="r_a98d12938b076977dc3623911305ed748"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#a98d12938b076977dc3623911305ed748">get_start_counter</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
+<tr class="memdesc:a98d12938b076977dc3623911305ed748"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the file start counter.  <br /></td></tr>
+<tr class="separator:a98d12938b076977dc3623911305ed748"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad69c655c9860851f14c00e3524deaa12" id="r_ad69c655c9860851f14c00e3524deaa12"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#ad69c655c9860851f14c00e3524deaa12">increment_counter</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
+<tr class="memdesc:ad69c655c9860851f14c00e3524deaa12"><td class="mdescLeft">&#160;</td><td class="mdescRight">Increment the file counter by 1.  <br /></td></tr>
+<tr class="separator:ad69c655c9860851f14c00e3524deaa12"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6019f3063f90b496f9ab9d84a4bb472b" id="r_a6019f3063f90b496f9ab9d84a4bb472b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#a6019f3063f90b496f9ab9d84a4bb472b">check_exists</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="memdesc:a6019f3063f90b496f9ab9d84a4bb472b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ensure the file exists.  <br /></td></tr>
 <tr class="separator:a6019f3063f90b496f9ab9d84a4bb472b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac6814900be97ad2a2281e99c2dda2ba5" id="r_ac6814900be97ad2a2281e99c2dda2ba5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#ac6814900be97ad2a2281e99c2dda2ba5">set_overwrite</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#a83d94631b6a99d757b267bb39198d020">overwrite</a>)</td></tr>
+<tr class="memdesc:ac6814900be97ad2a2281e99c2dda2ba5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set overwrite mode.  <br /></td></tr>
+<tr class="separator:ac6814900be97ad2a2281e99c2dda2ba5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -192,19 +234,24 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a63f2e33ab30f00fd264b3c010cbedeae" id="r_a63f2e33ab30f00fd264b3c010cbedeae"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dd2/structchkp__file_1_1chkp__file__t.html#a63f2e33ab30f00fd264b3c010cbedeae">mesh2mesh</a></td></tr>
 <tr class="memdesc:a63f2e33ab30f00fd264b3c010cbedeae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flag if previous mesh difers from current.  <br /></td></tr>
 <tr class="separator:a63f2e33ab30f00fd264b3c010cbedeae"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a751e18551cff4a19fae3ab607f6dffba" id="r_a751e18551cff4a19fae3ab607f6dffba"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=1024)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#a751e18551cff4a19fae3ab607f6dffba">fname</a></td></tr>
-<tr class="separator:a751e18551cff4a19fae3ab607f6dffba"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a590608acce62212a28ba15a094caa5b4" id="r_a590608acce62212a28ba15a094caa5b4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#a590608acce62212a28ba15a094caa5b4">counter</a></td></tr>
-<tr class="separator:a590608acce62212a28ba15a094caa5b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af9ee98e9248b3cc3d7ac7ed5b98eb9a7" id="r_af9ee98e9248b3cc3d7ac7ed5b98eb9a7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#af9ee98e9248b3cc3d7ac7ed5b98eb9a7">start_counter</a> = 0</td></tr>
-<tr class="separator:af9ee98e9248b3cc3d7ac7ed5b98eb9a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5c58822d2a60425c9c0a508f0ce7ac36" id="r_a5c58822d2a60425c9c0a508f0ce7ac36"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#a5c58822d2a60425c9c0a508f0ce7ac36">serial</a> = .false.</td></tr>
 <tr class="memdesc:a5c58822d2a60425c9c0a508f0ce7ac36"><td class="mdescLeft">&#160;</td><td class="mdescRight">File format is serial.  <br /></td></tr>
 <tr class="separator:a5c58822d2a60425c9c0a508f0ce7ac36"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a83d94631b6a99d757b267bb39198d020" id="r_a83d94631b6a99d757b267bb39198d020"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#a83d94631b6a99d757b267bb39198d020">overwrite</a> = .false.</td></tr>
+<tr class="separator:a83d94631b6a99d757b267bb39198d020"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
+Private Attributes</h2></td></tr>
+<tr class="memitem:a799a56687f86ad7540b4e5ab92a78230" id="r_a799a56687f86ad7540b4e5ab92a78230"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=1024), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#a799a56687f86ad7540b4e5ab92a78230">fname</a></td></tr>
+<tr class="separator:a799a56687f86ad7540b4e5ab92a78230"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a348c38fcfe4de5c515221da1561ce5b3" id="r_a348c38fcfe4de5c515221da1561ce5b3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#a348c38fcfe4de5c515221da1561ce5b3">counter</a> = -1</td></tr>
+<tr class="separator:a348c38fcfe4de5c515221da1561ce5b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab6715e33fc0466279e687f333c6e8794" id="r_ab6715e33fc0466279e687f333c6e8794"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#ab6715e33fc0466279e687f333c6e8794">start_counter</a> = 0</td></tr>
+<tr class="separator:ab6715e33fc0466279e687f333c6e8794"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00055">55</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00061">61</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
 <a id="a6019f3063f90b496f9ab9d84a4bb472b" name="a6019f3063f90b496f9ab9d84a4bb472b"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6019f3063f90b496f9ab9d84a4bb472b">&#9670;&#160;</a></span>check_exists()</h2>
@@ -230,7 +277,147 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00056">56</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00071">71</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
+
+</div>
+</div>
+<a id="ad7bc3c4a8fddb807e51da03e1f49f88e" name="ad7bc3c4a8fddb807e51da03e1f49f88e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad7bc3c4a8fddb807e51da03e1f49f88e">&#9670;&#160;</a></span>get_base_fname()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a> generic_file::generic_file_t::get_base_fname </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html">generic_file_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00059">59</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
+
+</div>
+</div>
+<a id="af858a91828f91d9bd77848b330cfd127" name="af858a91828f91d9bd77848b330cfd127"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af858a91828f91d9bd77848b330cfd127">&#9670;&#160;</a></span>get_counter()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a> generic_file::generic_file_t::get_counter </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html">generic_file_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00063">63</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
+
+</div>
+</div>
+<a id="ad63a6157051ac39af2d6f1be99fd9a0b" name="ad63a6157051ac39af2d6f1be99fd9a0b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad63a6157051ac39af2d6f1be99fd9a0b">&#9670;&#160;</a></span>get_fname()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a> generic_file::generic_file_t::get_fname </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html">generic_file_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00057">57</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
+
+</div>
+</div>
+<a id="a98d12938b076977dc3623911305ed748" name="a98d12938b076977dc3623911305ed748"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a98d12938b076977dc3623911305ed748">&#9670;&#160;</a></span>get_start_counter()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a> generic_file::generic_file_t::get_start_counter </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html">generic_file_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00067">67</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
+
+</div>
+</div>
+<a id="ad69c655c9860851f14c00e3524deaa12" name="ad69c655c9860851f14c00e3524deaa12"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad69c655c9860851f14c00e3524deaa12">&#9670;&#160;</a></span>increment_counter()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a> generic_file::generic_file_t::increment_counter </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html">generic_file_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00069">69</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
 
 </div>
 </div>
@@ -269,7 +456,7 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>Write method. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00046">46</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00051">51</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
 
 </div>
 </div>
@@ -299,7 +486,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00062">62</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00073">73</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
 
 </div>
 </div>
@@ -313,7 +500,7 @@ Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>(<a class="el" href="../../d5/d27/interfacegeneric__file_1_1generic__file__read.html">generic_file_read</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">deferred</a> generic_file::generic_file_t::read </td>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>(generic_file_read), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">deferred</a> generic_file::generic_file_t::read </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html">generic_file_t</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
@@ -337,7 +524,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00050">50</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00055">55</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
 
 </div>
 </div>
@@ -385,7 +572,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00063">63</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00074">74</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
 
 </div>
 </div>
@@ -423,7 +610,75 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00052">52</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00061">61</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
+
+</div>
+</div>
+<a id="a4260b8d62365eb8ec6a22c62d3bb2558" name="a4260b8d62365eb8ec6a22c62d3bb2558"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4260b8d62365eb8ec6a22c62d3bb2558">&#9670;&#160;</a></span>set_overwrite() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a> chkp_file::chkp_file_t::set_overwrite </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dd/dd2/structchkp__file_1_1chkp__file__t.html">chkp_file_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>overwrite</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00076">76</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
+
+</div>
+</div>
+<a id="ac6814900be97ad2a2281e99c2dda2ba5" name="ac6814900be97ad2a2281e99c2dda2ba5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac6814900be97ad2a2281e99c2dda2ba5">&#9670;&#160;</a></span>set_overwrite() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a> generic_file::generic_file_t::set_overwrite </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html">generic_file_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>overwrite</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00073">73</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
 
 </div>
 </div>
@@ -461,7 +716,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00054">54</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00065">65</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
 
 </div>
 </div>
@@ -497,7 +752,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00064">64</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00075">75</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
 
 </div>
 </div>
@@ -511,7 +766,7 @@ Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>(<a class="el" href="../../dd/d86/interfacegeneric__file_1_1generic__file__write.html">generic_file_write</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">deferred</a> generic_file::generic_file_t::write </td>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>(generic_file_write), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">deferred</a> generic_file::generic_file_t::write </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html">generic_file_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
@@ -525,7 +780,7 @@ Public Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=<a class="el" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
           <td class="paramname"><em>t</em>&#160;</td>
         </tr>
         <tr>
@@ -541,7 +796,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00048">48</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00053">53</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
 
 </div>
 </div>
@@ -558,12 +813,12 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00056">56</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00063">63</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
 
 </div>
 </div>
-<a id="a590608acce62212a28ba15a094caa5b4" name="a590608acce62212a28ba15a094caa5b4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a590608acce62212a28ba15a094caa5b4">&#9670;&#160;</a></span>counter</h2>
+<a id="a348c38fcfe4de5c515221da1561ce5b3" name="a348c38fcfe4de5c515221da1561ce5b3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a348c38fcfe4de5c515221da1561ce5b3">&#9670;&#160;</a></span>counter</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -572,22 +827,22 @@ Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> generic_file::generic_file_t::counter</td>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a> generic_file::generic_file_t::counter = -1</td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+<span class="mlabels"><span class="mlabel">private</span><span class="mlabel">inherited</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00040">40</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00044">44</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
 
 </div>
 </div>
-<a id="a751e18551cff4a19fae3ab607f6dffba" name="a751e18551cff4a19fae3ab607f6dffba"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a751e18551cff4a19fae3ab607f6dffba">&#9670;&#160;</a></span>fname</h2>
+<a id="a799a56687f86ad7540b4e5ab92a78230" name="a799a56687f86ad7540b4e5ab92a78230"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a799a56687f86ad7540b4e5ab92a78230">&#9670;&#160;</a></span>fname</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -596,17 +851,17 @@ Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=1024) generic_file::generic_file_t::fname</td>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=1024), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a> generic_file::generic_file_t::fname</td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+<span class="mlabels"><span class="mlabel">private</span><span class="mlabel">inherited</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00039">39</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00043">43</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
 
 </div>
 </div>
@@ -622,7 +877,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00059">59</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00069">69</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
 
 </div>
 </div>
@@ -638,7 +893,31 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00060">60</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00071">71</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
+
+</div>
+</div>
+<a id="a83d94631b6a99d757b267bb39198d020" name="a83d94631b6a99d757b267bb39198d020"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a83d94631b6a99d757b267bb39198d020">&#9670;&#160;</a></span>overwrite</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a> generic_file::generic_file_t::overwrite = .false.</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00048">48</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
 
 </div>
 </div>
@@ -662,7 +941,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00043">43</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00047">47</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
 
 </div>
 </div>
@@ -678,7 +957,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00057">57</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00065">65</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
 
 </div>
 </div>
@@ -694,12 +973,12 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00058">58</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d8c/chkp__file_8f90_source.html#l00067">67</a> of file <a class="el" href="../../db/d8c/chkp__file_8f90_source.html">chkp_file.f90</a>.</p>
 
 </div>
 </div>
-<a id="af9ee98e9248b3cc3d7ac7ed5b98eb9a7" name="af9ee98e9248b3cc3d7ac7ed5b98eb9a7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af9ee98e9248b3cc3d7ac7ed5b98eb9a7">&#9670;&#160;</a></span>start_counter</h2>
+<a id="ab6715e33fc0466279e687f333c6e8794" name="ab6715e33fc0466279e687f333c6e8794"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab6715e33fc0466279e687f333c6e8794">&#9670;&#160;</a></span>start_counter</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -708,17 +987,17 @@ Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> generic_file::generic_file_t::start_counter = 0</td>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">private</a> generic_file::generic_file_t::start_counter = 0</td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+<span class="mlabels"><span class="mlabel">private</span><span class="mlabel">inherited</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00041">41</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00045">45</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
 
 </div>
 </div>
@@ -731,7 +1010,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dc/dcb/namespacechkp__file.html">chkp_file</a></li><li class="navelem"><a class="el" href="../../dd/dd2/structchkp__file_1_1chkp__file__t.html">chkp_file_t</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

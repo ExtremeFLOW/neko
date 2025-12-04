@@ -1,7 +1,0 @@
-<map id="device_math::device_addsqr2s2" name="device_math::device_addsqr2s2">
-<area shape="rect" id="Node000001" title="Returns ." alt="" coords="255,27,412,67"/>
-<area shape="rect" id="Node000002" href="$d5/de6/namespacefield__math.html#ad990551f82897418c80b304b6e9a5d47" title="Returns ." alt="" coords="5,5,207,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="240,38,204,33,205,28,241,33"/>
-<area shape="rect" id="Node000003" href="$de/d1a/namespacemean__sqr__field.html#ad713e2097358903ab18a79e8e7a136f2" title="Update a mean sqr field." alt="" coords="23,55,189,95"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="241,61,190,68,189,62,240,56"/>
-</map>

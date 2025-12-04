@@ -1,5 +1,0 @@
-<map id="filters_cpu::smooth_step_kernel" name="filters_cpu::smooth_step_kernel">
-<area shape="rect" id="Node000001" title="Apply a smooth step function to a scalar." alt="" coords="5,5,152,45"/>
-<area shape="rect" id="Node000002" href="$d9/d3d/namespacefilters__cpu.html#abdfec7c5ceb30f82d028bb3626fbbf15" title="Clamp a value between two limits." alt="" coords="200,5,337,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,23,186,23,186,28,152,28"/>
-</map>

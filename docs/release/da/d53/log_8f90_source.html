@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -139,426 +139,458 @@ $(document).ready(function(){initNavTree('da/d53/log_8f90_source.html','../../')
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="comment">! POSSIBILITY OF SUCH DAMAGE.</span></div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="comment">!</span></div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html">   34</a></span><span class="keyword">module</span> <a class="code hl_namespace" href="../../d8/da0/namespacelogger.html">logger</a></div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d3/d8f/namespacecomm.html">comm</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a3d2f6d5f4a851e20c893da0c24a09c04">pe_rank</a></div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d3/d8f/namespacecomm.html">comm</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">pe_rank</a></div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../df/d48/namespacenum__types.html">num_types</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a></div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  use, <span class="keywordtype">intrinsic</span> :: iso_fortran_env, only: stdout =&gt; output_unit, &amp;</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>       stderr =&gt; error_unit</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  <span class="keywordtype">implicit none</span></div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="keywordtype">private</span></div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#ade757cfc4235350ea17397117ea3c4a6">   42</a></span>  <span class="keywordtype">integer</span>, <span class="keywordtype">public</span>, <span class="keywordtype">parameter</span> :: <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ade757cfc4235350ea17397117ea3c4a6">log_size</a> = 80</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
-<div class="foldopen" id="foldopen00044" data-start="" data-end="">
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html">   44</a></span>  <span class="keyword">type</span>, <span class="keyword">public</span> :: <a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a></div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#ae98480f3095f27d69871d709fbd86cbf">   45</a></span>     <span class="keywordtype">integer</span> :: indent_</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#ad70857d19c83dcad2a93171857d57b1c">   46</a></span>     <span class="keywordtype">integer</span> :: section_id_</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#ae99823d0184e82b3d3415b03f077a51e">   47</a></span>     <span class="keywordtype">integer</span> :: level_</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#a05d7fb65b24d8cef7ff504d74989c847">   48</a></span>     <span class="keywordtype">integer</span> :: unit_</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>   <span class="keyword">contains</span></div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#a126e646c4f6ecbd6577b93d52b567466">   50</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: init =&gt; <a class="code hl_function" href="../../d8/da0/namespacelogger.html#a8551faa34f96a05fd4c3375f52f1620b">log_init</a></div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#ac3a388ed267fbf556230042943a183df">   51</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: begin =&gt; <a class="code hl_function" href="../../d8/da0/namespacelogger.html#a74e550d4b7b4f2d473d577bbfc2d7eea">log_begin</a></div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#abff71c02307ab6c6c79ff10c8622f4ba">   52</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: end =&gt; <a class="code hl_function" href="../../d8/da0/namespacelogger.html#a1c857f10ca5adb4d2fc1ca01258301d4">log_end</a></div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#ac8679bd7c7b18a2c68b5e1d25c02c26a">   53</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: indent =&gt; <a class="code hl_function" href="../../d8/da0/namespacelogger.html#aa5cb5e4f91d477e6a8bd70d19d36f38f">log_indent</a></div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#a3814550804c14f88373bea7328b13a6b">   54</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: newline =&gt; <a class="code hl_function" href="../../d8/da0/namespacelogger.html#abe16d24271114fb1b15eab73223fd452">log_newline</a></div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#aff78e8ea68edb3feea1f437afcf5d1c8">   55</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: message =&gt; <a class="code hl_function" href="../../d8/da0/namespacelogger.html#a567ff9b3d26cfb289fff24e118e03db1">log_message</a></div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#ab84cc4cbf7dc101ad210c35f2ef0ba30">   56</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: section =&gt; <a class="code hl_function" href="../../d8/da0/namespacelogger.html#af26458fdb2a8632e8c01296fc65f962b">log_section</a></div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#ac87cbdf7a550d1cc890f80755b20a880">   57</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: status =&gt; <a class="code hl_function" href="../../d8/da0/namespacelogger.html#acecf27e6da617823b1727e4a127b4304">log_status</a></div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#a02484fb6a6b0dcaf283056eebd494f2b">   58</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: header =&gt; <a class="code hl_function" href="../../d8/da0/namespacelogger.html#a32c862e8094a51ee2a94f0cf68d3f6fe">log_header</a></div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#abe2e034f563c8ac833b780c188ef5796">   59</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: error =&gt; <a class="code hl_function" href="../../d8/da0/namespacelogger.html#afb89964ae557bfbbe4ece672e5d18e3f">log_error</a></div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#a2e4cca00255643d27f808b9de5f04c79">   60</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: warning =&gt; <a class="code hl_function" href="../../d8/da0/namespacelogger.html#a865ce1013019a8679865fc3ba1dc17bf">log_warning</a></div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#a1f70a73399f2963f27fd02889558be20">   61</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: end_section =&gt; <a class="code hl_function" href="../../d8/da0/namespacelogger.html#a808b22ce5cee030b830b7c5e6fe8b0d8">log_end_section</a></div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>  <span class="keyword">end type </span><a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a></div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/d84/namespaceutils.html">utils</a>, <span class="keywordtype">only</span>: <a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a></div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  use, <span class="keywordtype">intrinsic</span> :: iso_fortran_env, only: stdout =&gt; output_unit, &amp;</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>       stderr =&gt; error_unit</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="keywordtype">implicit none</span></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keywordtype">private</span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>  <span class="comment">! &gt; Size of the log message buffer</span></div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>  <span class="comment">!! @note This adjust for the leading space applied by `write`. 80 character</span></div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>  <span class="comment">!! output log leaves 79 characters for the message.</span></div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#ade757cfc4235350ea17397117ea3c4a6">   46</a></span>  <span class="keywordtype">integer</span>, <span class="keywordtype">public</span>, <span class="keywordtype">parameter</span> :: <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ade757cfc4235350ea17397117ea3c4a6">log_size</a> = 79</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span> </div>
+<div class="foldopen" id="foldopen00048" data-start="" data-end="">
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html">   48</a></span>  <span class="keyword">type</span>, <span class="keyword">public</span> :: <a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a></div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#a751b489b08964421a867fc1b443e71ca">   49</a></span>     <span class="keywordtype">integer</span>, <span class="keywordtype">private</span> :: indent_</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#aeff97cd278529010acfa8f26c7580813">   50</a></span>     <span class="keywordtype">integer</span>, <span class="keywordtype">private</span> :: section_id_</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#a4b760de83cafd4ee622bef69aa5fed6e">   51</a></span>     <span class="keywordtype">integer</span>, <span class="keywordtype">private</span> :: tab_size_</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#a121d735ba518952b2093873dbacfa0eb">   52</a></span>     <span class="keywordtype">integer</span>, <span class="keywordtype">private</span> :: level_</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#a02a3e6672b6c573897f9fd3071d43a0c">   53</a></span>     <span class="keywordtype">integer</span>, <span class="keywordtype">private</span> :: unit_</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#af6902b8fbc6f6df09bda92ea107957dc">   55</a></span>     <span class="keywordtype">character(len=LOG_SIZE)</span>, <span class="keywordtype">private</span> :: section_header = <span class="stringliteral">&quot;&quot;</span></div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span> </div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>   <span class="keyword">contains</span></div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#a126e646c4f6ecbd6577b93d52b567466">   58</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: init =&gt; <a class="code hl_function" href="../../d8/da0/namespacelogger.html#a8551faa34f96a05fd4c3375f52f1620b">log_init</a></div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#a5b68a5dec3b1cc8daa0f4e9906dd57c9">   59</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: free =&gt; <a class="code hl_function" href="../../d8/da0/namespacelogger.html#aede702c1206d7daf96f4f06dcc03b178">log_free</a></div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#ac3a388ed267fbf556230042943a183df">   60</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: begin =&gt; <a class="code hl_function" href="../../d8/da0/namespacelogger.html#a74e550d4b7b4f2d473d577bbfc2d7eea">log_begin</a></div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#abff71c02307ab6c6c79ff10c8622f4ba">   61</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: end =&gt; <a class="code hl_function" href="../../d8/da0/namespacelogger.html#a1c857f10ca5adb4d2fc1ca01258301d4">log_end</a></div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#ac8679bd7c7b18a2c68b5e1d25c02c26a">   62</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: indent =&gt; <a class="code hl_function" href="../../d8/da0/namespacelogger.html#aa5cb5e4f91d477e6a8bd70d19d36f38f">log_indent</a></div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#a3814550804c14f88373bea7328b13a6b">   63</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: newline =&gt; <a class="code hl_function" href="../../d8/da0/namespacelogger.html#abe16d24271114fb1b15eab73223fd452">log_newline</a></div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#aff78e8ea68edb3feea1f437afcf5d1c8">   64</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: message =&gt; <a class="code hl_function" href="../../d8/da0/namespacelogger.html#a567ff9b3d26cfb289fff24e118e03db1">log_message</a></div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#ab84cc4cbf7dc101ad210c35f2ef0ba30">   65</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: section =&gt; <a class="code hl_function" href="../../d8/da0/namespacelogger.html#af26458fdb2a8632e8c01296fc65f962b">log_section</a></div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#a02484fb6a6b0dcaf283056eebd494f2b">   66</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: header =&gt; <a class="code hl_function" href="../../d8/da0/namespacelogger.html#a32c862e8094a51ee2a94f0cf68d3f6fe">log_header</a></div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#abe2e034f563c8ac833b780c188ef5796">   67</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: error =&gt; <a class="code hl_function" href="../../d8/da0/namespacelogger.html#afb89964ae557bfbbe4ece672e5d18e3f">log_error</a></div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#a2e4cca00255643d27f808b9de5f04c79">   68</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: warning =&gt; <a class="code hl_function" href="../../d8/da0/namespacelogger.html#a865ce1013019a8679865fc3ba1dc17bf">log_warning</a></div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#a1f70a73399f2963f27fd02889558be20">   69</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: end_section =&gt; <a class="code hl_function" href="../../d8/da0/namespacelogger.html#a808b22ce5cee030b830b7c5e6fe8b0d8">log_end_section</a></div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span> </div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno"><a class="line" href="../../d0/d7b/structlogger_1_1log__t.html#a21c3620f969d837d2766b0de9a0a2696">   71</a></span>     <span class="keywordtype">procedure</span>, <span class="keywordtype">private</span>, pass(this) :: print_section_header =&gt; &amp;</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>          <a class="code hl_function" href="../../d8/da0/namespacelogger.html#a1f14a67eec025e0fa25123ee5fa1a084">log_print_section_header</a></div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>  <span class="keyword">end type </span><a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a></div>
 </div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">   65</a></span>  <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">public</span> :: <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a></div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#a67790b62b71ce7aee410f481d248d754">   67</a></span>  <span class="keywordtype">integer</span>, <span class="keywordtype">public</span>, <span class="keywordtype">parameter</span> :: <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#a67790b62b71ce7aee410f481d248d754">neko_log_quiet</a> = 0</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#aea23bca657681dfcdf10ce6024e73f02">   69</a></span>  <span class="keywordtype">integer</span>, <span class="keywordtype">public</span>, <span class="keywordtype">parameter</span> :: <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#aea23bca657681dfcdf10ce6024e73f02">neko_log_info</a> = 1</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#a5399c64f888a732c061c518a5558a1bb">   71</a></span>  <span class="keywordtype">integer</span>, <span class="keywordtype">public</span>, <span class="keywordtype">parameter</span> :: <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#a5399c64f888a732c061c518a5558a1bb">neko_log_verbose</a> = 2</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#acda43c0334eca9fb3a0b3d5e23615f7c">   73</a></span>  <span class="keywordtype">integer</span>, <span class="keywordtype">public</span>, <span class="keywordtype">parameter</span> :: <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#acda43c0334eca9fb3a0b3d5e23615f7c">neko_log_debug</a> = 10</div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span> </div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span><span class="keyword">contains</span></div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span> </div>
-<div class="foldopen" id="foldopen00078" data-start="" data-end="">
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#a8551faa34f96a05fd4c3375f52f1620b">   78</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a8551faa34f96a05fd4c3375f52f1620b">log_init</a>(this)</div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    <span class="keywordtype">character(len=255)</span> :: log_level</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    <span class="keywordtype">character(len=255)</span> :: log_file</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>    <span class="keywordtype">integer</span> :: envvar_len</div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span> </div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>    this%indent_ = 1</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>    this%section_id_ = 0</div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span> </div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>    <span class="keyword">call </span>get_environment_variable(<span class="stringliteral">&quot;NEKO_LOG_LEVEL&quot;</span>, log_level, envvar_len)</div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    <span class="keywordflow">if</span> (envvar_len .gt. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>       <span class="keyword">read</span>(log_level(1:envvar_len), *) this%level_</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>       this%level_ = <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#aea23bca657681dfcdf10ce6024e73f02">neko_log_info</a></div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span> </div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    <span class="keyword">call </span>get_environment_variable(<span class="stringliteral">&quot;NEKO_LOG_FILE&quot;</span>, log_file, envvar_len)</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>    <span class="keywordflow">if</span> (envvar_len .gt. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>       this%unit_ = 69</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>       <span class="keyword">open</span>(unit = this%unit_, <a class="code hl_namespace" href="../../da/d16/namespacefile.html">file</a> = trim(log_file), status = <span class="stringliteral">&#39;replace&#39;</span>, &amp;</div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>            action = <span class="stringliteral">&#39;write&#39;</span>)</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>       this%unit_ = stdout</div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span> </div>
-</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a8551faa34f96a05fd4c3375f52f1620b">log_init</a></div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span> </div>
-<div class="foldopen" id="foldopen00106" data-start="" data-end="">
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#a74e550d4b7b4f2d473d577bbfc2d7eea">  106</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a74e550d4b7b4f2d473d577bbfc2d7eea">log_begin</a>(this)</div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span> </div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a3d2f6d5f4a851e20c893da0c24a09c04">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>       this%indent_ = this%indent_ + 1</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">   76</a></span>  <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">public</span> :: <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a></div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#a67790b62b71ce7aee410f481d248d754">   78</a></span>  <span class="keywordtype">integer</span>, <span class="keywordtype">public</span>, <span class="keywordtype">parameter</span> :: <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#a67790b62b71ce7aee410f481d248d754">neko_log_quiet</a> = 0</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#aea23bca657681dfcdf10ce6024e73f02">   80</a></span>  <span class="keywordtype">integer</span>, <span class="keywordtype">public</span>, <span class="keywordtype">parameter</span> :: <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#aea23bca657681dfcdf10ce6024e73f02">neko_log_info</a> = 1</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#a5399c64f888a732c061c518a5558a1bb">   82</a></span>  <span class="keywordtype">integer</span>, <span class="keywordtype">public</span>, <span class="keywordtype">parameter</span> :: <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#a5399c64f888a732c061c518a5558a1bb">neko_log_verbose</a> = 2</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#acda43c0334eca9fb3a0b3d5e23615f7c">   84</a></span>  <span class="keywordtype">integer</span>, <span class="keywordtype">public</span>, <span class="keywordtype">parameter</span> :: <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#acda43c0334eca9fb3a0b3d5e23615f7c">neko_log_debug</a> = 10</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span> </div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span><span class="keyword">contains</span></div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span> </div>
+<div class="foldopen" id="foldopen00089" data-start="" data-end="">
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#a8551faa34f96a05fd4c3375f52f1620b">   89</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a8551faa34f96a05fd4c3375f52f1620b">log_init</a>(this)</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>    <span class="keywordtype">character(len=255)</span> :: log_level</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>    <span class="keywordtype">character(len=255)</span> :: log_tab_size</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    <span class="keywordtype">character(len=255)</span> :: log_file</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    <span class="keywordtype">integer</span> :: envvar_len</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span> </div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    this%indent_ = 0</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    this%section_id_ = 0</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span> </div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    <span class="keyword">call </span>get_environment_variable(<span class="stringliteral">&quot;NEKO_LOG_TAB_SIZE&quot;</span>, log_tab_size, envvar_len)</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>    <span class="keywordflow">if</span> (envvar_len .gt. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>       <span class="keyword">read</span>(log_tab_size(1:envvar_len), *) this%tab_size_</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>       this%tab_size_ = 1</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span> </div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>    <span class="keyword">call </span>get_environment_variable(<span class="stringliteral">&quot;NEKO_LOG_LEVEL&quot;</span>, log_level, envvar_len)</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>    <span class="keywordflow">if</span> (envvar_len .gt. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>       <span class="keyword">read</span>(log_level(1:envvar_len), *) this%level_</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>       this%level_ = <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#aea23bca657681dfcdf10ce6024e73f02">neko_log_info</a></div>
 <div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span> </div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    <span class="keyword">call </span>get_environment_variable(<span class="stringliteral">&quot;NEKO_LOG_FILE&quot;</span>, log_file, envvar_len)</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    <span class="keywordflow">if</span> (envvar_len .gt. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>       <span class="keyword">open</span>(newunit = this%unit_, <a class="code hl_namespace" href="../../da/d16/namespacefile.html">file</a> = trim(log_file), status = <span class="stringliteral">&#39;replace&#39;</span>, &amp;</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>            action = <span class="stringliteral">&#39;write&#39;</span>)</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>       this%unit_ = stdout</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span> </div>
 </div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a74e550d4b7b4f2d473d577bbfc2d7eea">log_begin</a></div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span> </div>
-<div class="foldopen" id="foldopen00116" data-start="" data-end="">
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#a1c857f10ca5adb4d2fc1ca01258301d4">  116</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a1c857f10ca5adb4d2fc1ca01258301d4">log_end</a>(this)</div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span> </div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a3d2f6d5f4a851e20c893da0c24a09c04">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>       this%indent_ = this%indent_ - 1</div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a8551faa34f96a05fd4c3375f52f1620b">log_init</a></div>
 <div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span> </div>
+<div class="foldopen" id="foldopen00124" data-start="" data-end="">
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#aede702c1206d7daf96f4f06dcc03b178">  124</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#aede702c1206d7daf96f4f06dcc03b178">log_free</a>(this)</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span> </div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>    <span class="keywordflow">if</span> (this%section_id_ .ne. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Log is unbalanced&quot;</span>)</div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span> </div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>    <span class="keywordflow">if</span> (this%unit_ .ne. stdout) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>       <span class="keyword">close</span>(this%unit_)</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span> </div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>    this%indent_ = 0</div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>    this%level_ = <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#aea23bca657681dfcdf10ce6024e73f02">neko_log_info</a></div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>    this%unit_ = -1</div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span> </div>
 </div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a1c857f10ca5adb4d2fc1ca01258301d4">log_end</a></div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span> </div>
-<div class="foldopen" id="foldopen00126" data-start="" data-end="">
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#aa5cb5e4f91d477e6a8bd70d19d36f38f">  126</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#aa5cb5e4f91d477e6a8bd70d19d36f38f">log_indent</a>(this)</div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    <span class="keywordtype">integer</span> :: i</div>
-<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span> </div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a3d2f6d5f4a851e20c893da0c24a09c04">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>       <span class="keyword">write</span>(this%unit_, <span class="stringliteral">&#39;(A)&#39;</span>, advance = <span class="stringliteral">&#39;no&#39;</span>) repeat(<span class="stringliteral">&#39; &#39;</span>, this%indent_)</div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span> </div>
-</div>
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#aa5cb5e4f91d477e6a8bd70d19d36f38f">log_indent</a></div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span> </div>
-<div class="foldopen" id="foldopen00137" data-start="" data-end="">
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#abe16d24271114fb1b15eab73223fd452">  137</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#abe16d24271114fb1b15eab73223fd452">log_newline</a>(this, lvl)</div>
-<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
-<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">optional</span> :: lvl</div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#aede702c1206d7daf96f4f06dcc03b178">log_free</a></div>
 <div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span> </div>
-<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>    <span class="keywordtype">integer</span> :: lvl_</div>
-<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span> </div>
-<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(lvl)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>       lvl_ = lvl</div>
-<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>       lvl_ = <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#aea23bca657681dfcdf10ce6024e73f02">neko_log_info</a></div>
-<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span> </div>
-<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>    <span class="keywordflow">if</span> (lvl_ .gt. this%level_) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>       <span class="keywordflow">return</span></div>
-<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span> </div>
-<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a3d2f6d5f4a851e20c893da0c24a09c04">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>       <span class="keyword">write</span>(this%unit_, <span class="stringliteral">&#39;(A)&#39;</span>) <span class="stringliteral">&#39;&#39;</span></div>
-<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span> </div>
+<div class="foldopen" id="foldopen00142" data-start="" data-end="">
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#a74e550d4b7b4f2d473d577bbfc2d7eea">  142</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a74e550d4b7b4f2d473d577bbfc2d7eea">log_begin</a>(this)</div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span> </div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>       this%section_id_ = this%section_id_ + 1</div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>       this%indent_ = this%indent_ + this%tab_size_</div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span> </div>
 </div>
-<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#abe16d24271114fb1b15eab73223fd452">log_newline</a></div>
-<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span> </div>
-<div class="foldopen" id="foldopen00160" data-start="" data-end="">
-<div class="line"><a id="l00160" name="l00160"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#a567ff9b3d26cfb289fff24e118e03db1">  160</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a567ff9b3d26cfb289fff24e118e03db1">log_message</a>(this, msg, lvl)</div>
-<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
-<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: msg</div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">optional</span> :: lvl</div>
-<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>    <span class="keywordtype">integer</span> :: lvl_</div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a74e550d4b7b4f2d473d577bbfc2d7eea">log_begin</a></div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span> </div>
+<div class="foldopen" id="foldopen00153" data-start="" data-end="">
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#a1c857f10ca5adb4d2fc1ca01258301d4">  153</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a1c857f10ca5adb4d2fc1ca01258301d4">log_end</a>(this)</div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span> </div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>       <span class="keywordflow">if</span> (this%section_id_ .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>          <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Log is unbalanced&quot;</span>)</div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>       this%section_id_ = this%section_id_ - 1</div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>       this%indent_ = this%indent_ - this%tab_size_</div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span> </div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>    this%section_header = <span class="stringliteral">&quot;&quot;</span></div>
 <div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span> </div>
-<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(lvl)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>       lvl_ = lvl</div>
-<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>       lvl_ = <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#aea23bca657681dfcdf10ce6024e73f02">neko_log_info</a></div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span><span class="keywordflow">    end if</span></div>
+</div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a1c857f10ca5adb4d2fc1ca01258301d4">log_end</a></div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span> </div>
+<div class="foldopen" id="foldopen00169" data-start="" data-end="">
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#aa5cb5e4f91d477e6a8bd70d19d36f38f">  169</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#aa5cb5e4f91d477e6a8bd70d19d36f38f">log_indent</a>(this)</div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
 <div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span> </div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>    <span class="keywordflow">if</span> (lvl_ .gt. this%level_) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>       <span class="keywordflow">return</span></div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>       <span class="keyword">write</span>(this%unit_, <span class="stringliteral">&#39;(A)&#39;</span>, advance = <span class="stringliteral">&#39;no&#39;</span>) repeat(<span class="stringliteral">&#39; &#39;</span>, this%indent_)</div>
 <div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span> </div>
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a3d2f6d5f4a851e20c893da0c24a09c04">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>       <span class="keyword">call </span>this%indent()</div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>       <span class="keyword">write</span>(this%unit_, <span class="stringliteral">&#39;(A)&#39;</span>) trim(msg)</div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span> </div>
 </div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a567ff9b3d26cfb289fff24e118e03db1">log_message</a></div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#aa5cb5e4f91d477e6a8bd70d19d36f38f">log_indent</a></div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span> </div>
+<div class="foldopen" id="foldopen00179" data-start="" data-end="">
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#abe16d24271114fb1b15eab73223fd452">  179</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#abe16d24271114fb1b15eab73223fd452">log_newline</a>(this, lvl)</div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">optional</span> :: lvl</div>
 <div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span> </div>
-<div class="foldopen" id="foldopen00184" data-start="" data-end="">
-<div class="line"><a id="l00184" name="l00184"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#a32c862e8094a51ee2a94f0cf68d3f6fe">  184</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a32c862e8094a51ee2a94f0cf68d3f6fe">log_header</a>(this, version, build_info)</div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
-<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: version</div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: build_info</div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span> </div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a3d2f6d5f4a851e20c893da0c24a09c04">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>       <span class="keyword">write</span>(this%unit_, <span class="stringliteral">&#39;(A)&#39;</span>) <span class="stringliteral">&#39;&#39;</span></div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>       <span class="keyword">write</span>(this%unit_, <span class="stringliteral">&#39;(1X,A)&#39;</span>) <span class="stringliteral">&#39;   _  __  ____  __ __  ____  &#39;</span></div>
-<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>       <span class="keyword">write</span>(this%unit_, <span class="stringliteral">&#39;(1X,A)&#39;</span>) <span class="stringliteral">&#39;  / |/ / / __/ / //_/ / __ \ &#39;</span></div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>       <span class="keyword">write</span>(this%unit_, <span class="stringliteral">&#39;(1X,A)&#39;</span>) <span class="stringliteral">&#39; /    / / _/  / ,&lt;   / /_/ / &#39;</span></div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>       <span class="keyword">write</span>(this%unit_, <span class="stringliteral">&#39;(1X,A)&#39;</span>) <span class="stringliteral">&#39;/_/|_/ /___/ /_/|_|  \____/  &#39;</span></div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>       <span class="keyword">write</span>(this%unit_, <span class="stringliteral">&#39;(A)&#39;</span>) <span class="stringliteral">&#39;&#39;</span></div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>       <span class="keyword">write</span>(this%unit_, <span class="stringliteral">&#39;(1X,A,A,A)&#39;</span>) <span class="stringliteral">&#39;(version: &#39;</span>, trim(version), <span class="stringliteral">&#39;)&#39;</span></div>
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>       <span class="keyword">write</span>(this%unit_, <span class="stringliteral">&#39;(1X,A)&#39;</span>) trim(build_info)</div>
-<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>       <span class="keyword">write</span>(this%unit_, <span class="stringliteral">&#39;(A)&#39;</span>) <span class="stringliteral">&#39;&#39;</span></div>
-<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>    <span class="keywordtype">integer</span> :: lvl_</div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span> </div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(lvl)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>       lvl_ = lvl</div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>       lvl_ = <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#aea23bca657681dfcdf10ce6024e73f02">neko_log_info</a></div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span> </div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>    <span class="keywordflow">if</span> (lvl_ .gt. this%level_) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>       <span class="keywordflow">return</span></div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span> </div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>       <span class="keyword">write</span>(this%unit_, <span class="stringliteral">&#39;(A)&#39;</span>) <span class="stringliteral">&#39;&#39;</span></div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span> </div>
+</div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#abe16d24271114fb1b15eab73223fd452">log_newline</a></div>
 <div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span> </div>
-</div>
-<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a32c862e8094a51ee2a94f0cf68d3f6fe">log_header</a></div>
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span> </div>
-<div class="foldopen" id="foldopen00204" data-start="" data-end="">
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#afb89964ae557bfbbe4ece672e5d18e3f">  204</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#afb89964ae557bfbbe4ece672e5d18e3f">log_error</a>(this, msg)</div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: msg</div>
+<div class="foldopen" id="foldopen00202" data-start="" data-end="">
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#a567ff9b3d26cfb289fff24e118e03db1">  202</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a567ff9b3d26cfb289fff24e118e03db1">log_message</a>(this, msg, lvl)</div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: msg</div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">optional</span> :: lvl</div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>    <span class="keywordtype">integer</span> :: lvl_</div>
 <div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span> </div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a3d2f6d5f4a851e20c893da0c24a09c04">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>       <span class="keyword">call </span>this%indent()</div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>       <span class="keyword">write</span>(stderr, <span class="stringliteral">&#39;(A,A,A)&#39;</span>) <span class="stringliteral">&#39;*** ERROR: &#39;</span>, trim(msg), <span class="stringliteral">&#39;  ***&#39;</span></div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span> </div>
-</div>
-<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#afb89964ae557bfbbe4ece672e5d18e3f">log_error</a></div>
-<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span> </div>
-<div class="foldopen" id="foldopen00216" data-start="" data-end="">
-<div class="line"><a id="l00216" name="l00216"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#a865ce1013019a8679865fc3ba1dc17bf">  216</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a865ce1013019a8679865fc3ba1dc17bf">log_warning</a>(this, msg)</div>
-<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: msg</div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span> </div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a3d2f6d5f4a851e20c893da0c24a09c04">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>       <span class="keyword">call </span>this%indent()</div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>       <span class="keyword">write</span>(this%unit_, <span class="stringliteral">&#39;(A,A,A)&#39;</span>) <span class="stringliteral">&#39;*** WARNING: &#39;</span>, trim(msg), <span class="stringliteral">&#39;  ***&#39;</span></div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span> </div>
-</div>
-<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a865ce1013019a8679865fc3ba1dc17bf">log_warning</a></div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(lvl)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>       lvl_ = lvl</div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>       lvl_ = <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#aea23bca657681dfcdf10ce6024e73f02">neko_log_info</a></div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span> </div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>    <span class="keywordflow">if</span> (lvl_ .gt. this%level_) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>       <span class="keywordflow">return</span></div>
+<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span> </div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>    <span class="keywordflow">if</span> (len_trim(this%section_header) .gt. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>       <span class="keyword">call </span>this%print_section_header(lvl)</div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span> </div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>       <span class="keyword">call </span>this%indent()</div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>       <span class="keyword">write</span>(this%unit_, <span class="stringliteral">&#39;(A)&#39;</span>) trim(msg)</div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span> </div>
-<div class="foldopen" id="foldopen00228" data-start="" data-end="">
-<div class="line"><a id="l00228" name="l00228"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#af26458fdb2a8632e8c01296fc65f962b">  228</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#af26458fdb2a8632e8c01296fc65f962b">log_section</a>(this, msg, lvl)</div>
-<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: msg</div>
-<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">optional</span> :: lvl</div>
-<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span> </div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>    <span class="keywordtype">integer</span> :: i, pre, pos</div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>    <span class="keywordtype">integer</span> :: lvl_</div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span> </div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(lvl)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>       lvl_ = lvl</div>
-<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>       lvl_ = <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#aea23bca657681dfcdf10ce6024e73f02">neko_log_info</a></div>
-<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span> </div>
-<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>    <span class="keywordflow">if</span> (lvl_ .gt. this%level_) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>       <span class="keywordflow">return</span></div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span> </div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a3d2f6d5f4a851e20c893da0c24a09c04">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span> </div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>       this%indent_ = this%indent_ + this%section_id_</div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>       this%section_id_ = this%section_id_ + 1</div>
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span> </div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>       pre = (30 - len_trim(msg)) / 2</div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>       pos = 30 - (len_trim(msg) + pre)</div>
+</div>
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a567ff9b3d26cfb289fff24e118e03db1">log_message</a></div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span> </div>
+<div class="foldopen" id="foldopen00230" data-start="" data-end="">
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#a32c862e8094a51ee2a94f0cf68d3f6fe">  230</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a32c862e8094a51ee2a94f0cf68d3f6fe">log_header</a>(this, version, build_info)</div>
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
+<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: version</div>
+<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: build_info</div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span> </div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>       <span class="keyword">write</span>(this%unit_, <span class="stringliteral">&#39;(A)&#39;</span>) <span class="stringliteral">&#39;&#39;</span></div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>       <span class="keyword">write</span>(this%unit_, <span class="stringliteral">&#39;(1X,A)&#39;</span>) <span class="stringliteral">&#39;   _  __  ____  __ __  ____  &#39;</span></div>
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>       <span class="keyword">write</span>(this%unit_, <span class="stringliteral">&#39;(1X,A)&#39;</span>) <span class="stringliteral">&#39;  / |/ / / __/ / //_/ / __ \ &#39;</span></div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>       <span class="keyword">write</span>(this%unit_, <span class="stringliteral">&#39;(1X,A)&#39;</span>) <span class="stringliteral">&#39; /    / / _/  / ,&lt;   / /_/ / &#39;</span></div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>       <span class="keyword">write</span>(this%unit_, <span class="stringliteral">&#39;(1X,A)&#39;</span>) <span class="stringliteral">&#39;/_/|_/ /___/ /_/|_|  \____/  &#39;</span></div>
+<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>       <span class="keyword">write</span>(this%unit_, <span class="stringliteral">&#39;(A)&#39;</span>) <span class="stringliteral">&#39;&#39;</span></div>
+<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>       <span class="keyword">write</span>(this%unit_, <span class="stringliteral">&#39;(1X,A,A,A)&#39;</span>) <span class="stringliteral">&#39;(version: &#39;</span>, trim(version), <span class="stringliteral">&#39;)&#39;</span></div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>       <span class="keyword">write</span>(this%unit_, <span class="stringliteral">&#39;(1X,A)&#39;</span>) trim(build_info)</div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>       <span class="keyword">write</span>(this%unit_, <span class="stringliteral">&#39;(A)&#39;</span>) <span class="stringliteral">&#39;&#39;</span></div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span> </div>
+</div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a32c862e8094a51ee2a94f0cf68d3f6fe">log_header</a></div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span> </div>
+<div class="foldopen" id="foldopen00250" data-start="" data-end="">
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#afb89964ae557bfbbe4ece672e5d18e3f">  250</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#afb89964ae557bfbbe4ece672e5d18e3f">log_error</a>(this, msg)</div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: msg</div>
 <div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span> </div>
-<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>       <span class="keyword">write</span>(this%unit_, <span class="stringliteral">&#39;(A)&#39;</span>) <span class="stringliteral">&#39;&#39;</span></div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>       <span class="keyword">call </span>this%indent()</div>
-<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>       <span class="keyword">write</span>(this%unit_, <span class="stringliteral">&#39;(A,A,A)&#39;</span>) &amp;</div>
-<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>            repeat(<span class="stringliteral">&#39;-&#39;</span>, pre), trim(msg), repeat(<span class="stringliteral">&#39;-&#39;</span>, pos)</div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>       <span class="keyword">write</span>(stderr, <span class="stringliteral">&#39;(A,A,A)&#39;</span>) <span class="stringliteral">&#39;*** ERROR: &#39;</span>, trim(msg), <span class="stringliteral">&#39;  ***&#39;</span></div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span> </div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span><span class="keywordflow">    end if</span></div>
+</div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#afb89964ae557bfbbe4ece672e5d18e3f">log_error</a></div>
 <div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span> </div>
+<div class="foldopen" id="foldopen00262" data-start="" data-end="">
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#a865ce1013019a8679865fc3ba1dc17bf">  262</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a865ce1013019a8679865fc3ba1dc17bf">log_warning</a>(this, msg)</div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: msg</div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span> </div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>       <span class="keyword">call </span>this%indent()</div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>       <span class="keyword">write</span>(this%unit_, <span class="stringliteral">&#39;(A,A,A)&#39;</span>) <span class="stringliteral">&#39;*** WARNING: &#39;</span>, trim(msg), <span class="stringliteral">&#39;  ***&#39;</span></div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span> </div>
 </div>
-<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#af26458fdb2a8632e8c01296fc65f962b">log_section</a></div>
-<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span> </div>
-<div class="foldopen" id="foldopen00264" data-start="" data-end="">
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#a808b22ce5cee030b830b7c5e6fe8b0d8">  264</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a808b22ce5cee030b830b7c5e6fe8b0d8">log_end_section</a>(this, msg, lvl)</div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: msg</div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">optional</span> :: lvl</div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>    <span class="keywordtype">integer</span> :: lvl_</div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span> </div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(lvl)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>       lvl_ = lvl</div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>       lvl_ = <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#aea23bca657681dfcdf10ce6024e73f02">neko_log_info</a></div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span> </div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>    <span class="keywordflow">if</span> (lvl_ .gt. this%level_) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>       <span class="keywordflow">return</span></div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span> </div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(msg)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>       <span class="keyword">call </span>this%message(msg, <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#a67790b62b71ce7aee410f481d248d754">neko_log_quiet</a>)</div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span> </div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a3d2f6d5f4a851e20c893da0c24a09c04">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>       this%section_id_ = this%section_id_ - 1</div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>       this%indent_ = this%indent_ - this%section_id_</div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span> </div>
-</div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a808b22ce5cee030b830b7c5e6fe8b0d8">log_end_section</a></div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a865ce1013019a8679865fc3ba1dc17bf">log_warning</a></div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span> </div>
+<div class="foldopen" id="foldopen00274" data-start="" data-end="">
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#af26458fdb2a8632e8c01296fc65f962b">  274</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#af26458fdb2a8632e8c01296fc65f962b">log_section</a>(this, msg, lvl)</div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: msg</div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">optional</span> :: lvl</div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span> </div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>    <span class="keywordtype">integer</span> :: pre, pos</div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span> </div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>    <span class="keywordflow">if</span> (len_trim(this%section_header) .gt. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>       <span class="keyword">call </span>this%print_section_header(lvl)</div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span> </div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>    <span class="keyword">call </span>this%begin()</div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span> </div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>       pre = (30 - len_trim(msg)) / 2</div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>       pos = 30 - (len_trim(msg) + pre)</div>
 <div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span> </div>
-<div class="foldopen" id="foldopen00293" data-start="" data-end="">
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#acecf27e6da617823b1727e4a127b4304">  293</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#acecf27e6da617823b1727e4a127b4304">log_status</a>(this, t, T_end)</div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: t</div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: t_end</div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>    <span class="keywordtype">character(len=LOG_SIZE)</span> :: log_buf</div>
-<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: t_prog</div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span> </div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>    t_prog = 100d0 * t / t_end</div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>    <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A4,E15.7,34X,A2,F6.2,A3)&#39;</span>) <span class="stringliteral">&#39;t = &#39;</span>, t, <span class="stringliteral">&#39;[ &#39;</span>, t_prog, <span class="stringliteral">&#39;% ]&#39;</span></div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span> </div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>    <span class="keyword">call </span>this%message(repeat(<span class="stringliteral">&#39;-&#39;</span>, 64), <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#a67790b62b71ce7aee410f481d248d754">neko_log_quiet</a>)</div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>    <span class="keyword">call </span>this%message(log_buf, <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#a67790b62b71ce7aee410f481d248d754">neko_log_quiet</a>)</div>
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>    <span class="keyword">call </span>this%message(repeat(<span class="stringliteral">&#39;-&#39;</span>, 64), <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#a67790b62b71ce7aee410f481d248d754">neko_log_quiet</a>)</div>
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span> </div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>       <span class="keyword">write</span>(this%section_header, <span class="stringliteral">&#39;(A,A,A)&#39;</span>) &amp;</div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>            repeat(<span class="stringliteral">&#39;-&#39;</span>, pre), trim(msg), repeat(<span class="stringliteral">&#39;-&#39;</span>, pos)</div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span> </div>
 </div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#acecf27e6da617823b1727e4a127b4304">log_status</a></div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#af26458fdb2a8632e8c01296fc65f962b">log_section</a></div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span> </div>
+<div class="foldopen" id="foldopen00298" data-start="" data-end="">
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#a1f14a67eec025e0fa25123ee5fa1a084">  298</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a1f14a67eec025e0fa25123ee5fa1a084">log_print_section_header</a>(this, lvl)</div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">optional</span> :: lvl</div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>    <span class="keywordtype">integer</span> :: lvl_</div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span> </div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(lvl)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>       lvl_ = lvl</div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>       lvl_ = <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#aea23bca657681dfcdf10ce6024e73f02">neko_log_info</a></div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span> </div>
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>  <span class="comment">!</span></div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>  <span class="comment">! Rudimentary C interface</span></div>
-<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>  <span class="comment">!</span></div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>    <span class="keywordflow">if</span> (lvl_ .gt. this%level_) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>       <span class="keywordflow">return</span></div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span> </div>
-<div class="foldopen" id="foldopen00315" data-start="" data-end="">
-<div class="line"><a id="l00315" name="l00315"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#a7503165ea169149c6485871abbb42423">  315</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a7503165ea169149c6485871abbb42423">log_message_c</a>(c_msg) bind(c, name = &#39;log_message&#39;)</div>
-<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>    use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
-<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>    <span class="keywordtype">character(kind=c_char)</span>, <span class="keywordtype">dimension(*)</span>, <span class="keywordtype">intent(in)</span> :: c_msg</div>
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>    <span class="keywordtype">character(len=LOG_SIZE)</span> :: msg</div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>    <span class="keywordtype">integer</span> :: len</div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span> </div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a3d2f6d5f4a851e20c893da0c24a09c04">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>       len = 0</div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>       <span class="keywordflow">do</span></div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>          <span class="keywordflow">if</span> (c_msg(len+1) .eq. c_null_char) <span class="keywordflow">exit</span></div>
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>          len = len + 1</div>
-<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>          msg(len:len) = c_msg(len)</div>
-<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>       <span class="keyword">call </span>this%newline(lvl)</div>
+<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>       <span class="keyword">call </span>this%indent()</div>
+<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>       <span class="keyword">write</span>(this%unit_, <span class="stringliteral">&#39;(A)&#39;</span>) trim(this%section_header)</div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>       this%section_header = <span class="stringliteral">&quot;&quot;</span></div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span> </div>
+</div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a1f14a67eec025e0fa25123ee5fa1a084">log_print_section_header</a></div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span> </div>
+<div class="foldopen" id="foldopen00323" data-start="" data-end="">
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#a808b22ce5cee030b830b7c5e6fe8b0d8">  323</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a808b22ce5cee030b830b7c5e6fe8b0d8">log_end_section</a>(this, msg, lvl)</div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: msg</div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">optional</span> :: lvl</div>
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>    <span class="keywordtype">integer</span> :: lvl_</div>
 <div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span> </div>
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>       <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%indent()</div>
-<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>       <span class="keyword">write</span>(<a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%unit_, <span class="stringliteral">&#39;(A)&#39;</span>) trim(msg(1:len))</div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(msg)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>       <span class="keyword">call </span>this%message(msg, lvl)</div>
 <div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span> </div>
-</div>
-<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a7503165ea169149c6485871abbb42423">log_message_c</a></div>
+<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>    <span class="keyword">call </span>this%end()</div>
 <div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span> </div>
-<div class="foldopen" id="foldopen00337" data-start="" data-end="">
-<div class="line"><a id="l00337" name="l00337"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#a9f88ca73de5fb3e49da3dc3ee488b666">  337</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a9f88ca73de5fb3e49da3dc3ee488b666">log_error_c</a>(c_msg) <span class="keyword">bind(c, name = &quot;log_error&quot;)</span></div>
-<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>    use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
-<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>    <span class="keywordtype">character(kind=c_char)</span>, <span class="keywordtype">dimension(*)</span>, <span class="keywordtype">intent(in)</span> :: c_msg</div>
-<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>    <span class="keywordtype">character(len=LOG_SIZE)</span> :: msg</div>
-<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>    <span class="keywordtype">integer</span> :: len</div>
-<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span> </div>
-<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a3d2f6d5f4a851e20c893da0c24a09c04">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>       len = 0</div>
-<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>       <span class="keywordflow">do</span></div>
-<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>          <span class="keywordflow">if</span> (c_msg(len+1) .eq. c_null_char) <span class="keywordflow">exit</span></div>
-<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>          len = len + 1</div>
-<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>          msg(len:len) = c_msg(len)</div>
-<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span> </div>
-<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>       <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%indent()</div>
-<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>       <span class="keyword">write</span>(stderr, <span class="stringliteral">&#39;(A,A,A)&#39;</span>) <span class="stringliteral">&#39;*** ERROR: &#39;</span>, trim(msg(1:len)), <span class="stringliteral">&#39;  ***&#39;</span></div>
-<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span> </div>
 </div>
-<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a9f88ca73de5fb3e49da3dc3ee488b666">log_error_c</a></div>
+<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a808b22ce5cee030b830b7c5e6fe8b0d8">log_end_section</a></div>
+<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span> </div>
+<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>  <span class="comment">!</span></div>
+<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>  <span class="comment">! Rudimentary C interface</span></div>
+<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>  <span class="comment">!</span></div>
+<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span> </div>
+<div class="foldopen" id="foldopen00343" data-start="" data-end="">
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#a7503165ea169149c6485871abbb42423">  343</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a7503165ea169149c6485871abbb42423">log_message_c</a>(c_msg) bind(c, name = &#39;log_message&#39;)</div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>    use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>    <span class="keywordtype">character(kind=c_char)</span>, <span class="keywordtype">dimension(*)</span>, <span class="keywordtype">intent(in)</span> :: c_msg</div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>    <span class="keywordtype">character(len=LOG_SIZE)</span> :: msg</div>
+<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>    <span class="keywordtype">integer</span> :: len</div>
+<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span> </div>
+<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>       len = 0</div>
+<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>       <span class="keywordflow">do</span></div>
+<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>          <span class="keywordflow">if</span> (c_msg(len+1) .eq. c_null_char) <span class="keywordflow">exit</span></div>
+<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>          len = len + 1</div>
+<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>          msg(len:len) = c_msg(len)</div>
+<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span> </div>
-<div class="foldopen" id="foldopen00359" data-start="" data-end="">
-<div class="line"><a id="l00359" name="l00359"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#aba52cf419d2fa76de5933019a325565a">  359</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#aba52cf419d2fa76de5933019a325565a">log_warning_c</a>(c_msg) <span class="keyword">bind(c, name = &quot;log_warning&quot;)</span></div>
-<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>    use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
-<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>    <span class="keywordtype">character(kind=c_char)</span>, <span class="keywordtype">dimension(*)</span>, <span class="keywordtype">intent(in)</span> :: c_msg</div>
-<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>    <span class="keywordtype">character(len=LOG_SIZE)</span> :: msg</div>
-<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>    <span class="keywordtype">integer</span> :: len</div>
-<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span> </div>
-<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a3d2f6d5f4a851e20c893da0c24a09c04">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>       len = 0</div>
-<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>       <span class="keywordflow">do</span></div>
-<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span>          <span class="keywordflow">if</span> (c_msg(len+1) .eq. c_null_char) <span class="keywordflow">exit</span></div>
-<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span>          len = len + 1</div>
-<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span>          msg(len:len) = c_msg(len)</div>
-<div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span> </div>
-<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span>       <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%indent()</div>
-<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>       <span class="keyword">write</span>(<a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%unit_, <span class="stringliteral">&#39;(A,A,A)&#39;</span>) &amp;</div>
-<div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>            <span class="stringliteral">&#39;*** WARNING: &#39;</span>, trim(msg(1:len)), <span class="stringliteral">&#39;  ***&#39;</span></div>
-<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>       <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(trim(msg(1:len)))</div>
+<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span> </div>
+</div>
+<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a7503165ea169149c6485871abbb42423">log_message_c</a></div>
+<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span> </div>
+<div class="foldopen" id="foldopen00364" data-start="" data-end="">
+<div class="line"><a id="l00364" name="l00364"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#a9f88ca73de5fb3e49da3dc3ee488b666">  364</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a9f88ca73de5fb3e49da3dc3ee488b666">log_error_c</a>(c_msg) <span class="keyword">bind(c, name = &quot;log_error&quot;)</span></div>
+<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>    use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
+<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>    <span class="keywordtype">character(kind=c_char)</span>, <span class="keywordtype">dimension(*)</span>, <span class="keywordtype">intent(in)</span> :: c_msg</div>
+<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>    <span class="keywordtype">character(len=LOG_SIZE)</span> :: msg</div>
+<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span>    <span class="keywordtype">integer</span> :: len</div>
+<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span> </div>
+<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span>       len = 0</div>
+<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>       <span class="keywordflow">do</span></div>
+<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span>          <span class="keywordflow">if</span> (c_msg(len+1) .eq. c_null_char) <span class="keywordflow">exit</span></div>
+<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>          len = len + 1</div>
+<div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>          msg(len:len) = c_msg(len)</div>
+<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span> </div>
+<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span>       <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%indent()</div>
+<div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span>       <span class="keyword">write</span>(stderr, <span class="stringliteral">&#39;(A,A,A)&#39;</span>) <span class="stringliteral">&#39;*** ERROR: &#39;</span>, trim(msg(1:len)), <span class="stringliteral">&#39;  ***&#39;</span></div>
+<div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span> </div>
 </div>
-<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#aba52cf419d2fa76de5933019a325565a">log_warning_c</a></div>
-<div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span> </div>
-<div class="foldopen" id="foldopen00382" data-start="" data-end="">
-<div class="line"><a id="l00382" name="l00382"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#accdcb0b637b2330ce2717845b8fe1c55">  382</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#accdcb0b637b2330ce2717845b8fe1c55">log_section_c</a>(c_msg) <span class="keyword">bind(c, name = &quot;log_section&quot;)</span></div>
-<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span>    use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
-<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>    <span class="keywordtype">character(kind=c_char)</span>, <span class="keywordtype">dimension(*)</span>, <span class="keywordtype">intent(in)</span> :: c_msg</div>
-<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>    <span class="keywordtype">character(len=LOG_SIZE)</span> :: msg</div>
-<div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span>    <span class="keywordtype">integer</span> :: len</div>
-<div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span> </div>
-<div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a3d2f6d5f4a851e20c893da0c24a09c04">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span>       len = 0</div>
-<div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span>       <span class="keywordflow">do</span></div>
-<div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span>          <span class="keywordflow">if</span> (c_msg(len+1) .eq. c_null_char) <span class="keywordflow">exit</span></div>
-<div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span>          len = len + 1</div>
-<div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span>          msg(len:len) = c_msg(len)</div>
-<div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00395" name="l00395"></a><span class="lineno">  395</span> </div>
-<div class="line"><a id="l00396" name="l00396"></a><span class="lineno">  396</span>       <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%section(trim(msg(1:len)))</div>
-<div class="line"><a id="l00397" name="l00397"></a><span class="lineno">  397</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00398" name="l00398"></a><span class="lineno">  398</span> </div>
-</div>
-<div class="line"><a id="l00399" name="l00399"></a><span class="lineno">  399</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#accdcb0b637b2330ce2717845b8fe1c55">log_section_c</a></div>
-<div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span> </div>
-<div class="foldopen" id="foldopen00403" data-start="" data-end="">
-<div class="line"><a id="l00403" name="l00403"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#a003e2e484726039ea74743cde1165e4f">  403</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a003e2e484726039ea74743cde1165e4f">log_end_section_c</a>() <span class="keyword">bind(c, name = &quot;log_end_section&quot;)</span></div>
+<div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a9f88ca73de5fb3e49da3dc3ee488b666">log_error_c</a></div>
+<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span> </div>
+<div class="foldopen" id="foldopen00386" data-start="" data-end="">
+<div class="line"><a id="l00386" name="l00386"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#aba52cf419d2fa76de5933019a325565a">  386</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#aba52cf419d2fa76de5933019a325565a">log_warning_c</a>(c_msg) <span class="keyword">bind(c, name = &quot;log_warning&quot;)</span></div>
+<div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>    use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
+<div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span>    <span class="keywordtype">character(kind=c_char)</span>, <span class="keywordtype">dimension(*)</span>, <span class="keywordtype">intent(in)</span> :: c_msg</div>
+<div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span>    <span class="keywordtype">character(len=LOG_SIZE)</span> :: msg</div>
+<div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span>    <span class="keywordtype">integer</span> :: len</div>
+<div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span> </div>
+<div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span>       len = 0</div>
+<div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span>       <span class="keywordflow">do</span></div>
+<div class="line"><a id="l00395" name="l00395"></a><span class="lineno">  395</span>          <span class="keywordflow">if</span> (c_msg(len+1) .eq. c_null_char) <span class="keywordflow">exit</span></div>
+<div class="line"><a id="l00396" name="l00396"></a><span class="lineno">  396</span>          len = len + 1</div>
+<div class="line"><a id="l00397" name="l00397"></a><span class="lineno">  397</span>          msg(len:len) = c_msg(len)</div>
+<div class="line"><a id="l00398" name="l00398"></a><span class="lineno">  398</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00399" name="l00399"></a><span class="lineno">  399</span> </div>
+<div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span>       <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%indent()</div>
+<div class="line"><a id="l00401" name="l00401"></a><span class="lineno">  401</span>       <span class="keyword">write</span>(<a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%unit_, <span class="stringliteral">&#39;(A,A,A)&#39;</span>) &amp;</div>
+<div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span>            <span class="stringliteral">&#39;*** WARNING: &#39;</span>, trim(msg(1:len)), <span class="stringliteral">&#39;  ***&#39;</span></div>
+<div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span> </div>
-<div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%end_section()</div>
-<div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span> </div>
 </div>
-<div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a003e2e484726039ea74743cde1165e4f">log_end_section_c</a></div>
-<div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span> </div>
-<div class="line"><a id="l00409" name="l00409"></a><span class="lineno">  409</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d8/da0/namespacelogger.html">logger</a></div>
+<div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#aba52cf419d2fa76de5933019a325565a">log_warning_c</a></div>
+<div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span> </div>
+<div class="foldopen" id="foldopen00409" data-start="" data-end="">
+<div class="line"><a id="l00409" name="l00409"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#accdcb0b637b2330ce2717845b8fe1c55">  409</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#accdcb0b637b2330ce2717845b8fe1c55">log_section_c</a>(c_msg) <span class="keyword">bind(c, name = &quot;log_section&quot;)</span></div>
+<div class="line"><a id="l00410" name="l00410"></a><span class="lineno">  410</span>    use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
+<div class="line"><a id="l00411" name="l00411"></a><span class="lineno">  411</span>    <span class="keywordtype">character(kind=c_char)</span>, <span class="keywordtype">dimension(*)</span>, <span class="keywordtype">intent(in)</span> :: c_msg</div>
+<div class="line"><a id="l00412" name="l00412"></a><span class="lineno">  412</span>    <span class="keywordtype">character(len=LOG_SIZE)</span> :: msg</div>
+<div class="line"><a id="l00413" name="l00413"></a><span class="lineno">  413</span>    <span class="keywordtype">integer</span> :: len</div>
+<div class="line"><a id="l00414" name="l00414"></a><span class="lineno">  414</span> </div>
+<div class="line"><a id="l00415" name="l00415"></a><span class="lineno">  415</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00416" name="l00416"></a><span class="lineno">  416</span>       len = 0</div>
+<div class="line"><a id="l00417" name="l00417"></a><span class="lineno">  417</span>       <span class="keywordflow">do</span></div>
+<div class="line"><a id="l00418" name="l00418"></a><span class="lineno">  418</span>          <span class="keywordflow">if</span> (c_msg(len+1) .eq. c_null_char) <span class="keywordflow">exit</span></div>
+<div class="line"><a id="l00419" name="l00419"></a><span class="lineno">  419</span>          len = len + 1</div>
+<div class="line"><a id="l00420" name="l00420"></a><span class="lineno">  420</span>          msg(len:len) = c_msg(len)</div>
+<div class="line"><a id="l00421" name="l00421"></a><span class="lineno">  421</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00422" name="l00422"></a><span class="lineno">  422</span> </div>
+<div class="line"><a id="l00423" name="l00423"></a><span class="lineno">  423</span>       <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%section(trim(msg(1:len)))</div>
+<div class="line"><a id="l00424" name="l00424"></a><span class="lineno">  424</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00425" name="l00425"></a><span class="lineno">  425</span> </div>
+</div>
+<div class="line"><a id="l00426" name="l00426"></a><span class="lineno">  426</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#accdcb0b637b2330ce2717845b8fe1c55">log_section_c</a></div>
+<div class="line"><a id="l00427" name="l00427"></a><span class="lineno">  427</span> </div>
+<div class="foldopen" id="foldopen00430" data-start="" data-end="">
+<div class="line"><a id="l00430" name="l00430"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#a003e2e484726039ea74743cde1165e4f">  430</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a003e2e484726039ea74743cde1165e4f">log_end_section_c</a>() <span class="keyword">bind(c, name = &quot;log_end_section&quot;)</span></div>
+<div class="line"><a id="l00431" name="l00431"></a><span class="lineno">  431</span> </div>
+<div class="line"><a id="l00432" name="l00432"></a><span class="lineno">  432</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%end_section()</div>
+<div class="line"><a id="l00433" name="l00433"></a><span class="lineno">  433</span> </div>
+</div>
+<div class="line"><a id="l00434" name="l00434"></a><span class="lineno">  434</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a003e2e484726039ea74743cde1165e4f">log_end_section_c</a></div>
+<div class="line"><a id="l00435" name="l00435"></a><span class="lineno">  435</span> </div>
+<div class="line"><a id="l00436" name="l00436"></a><span class="lineno">  436</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d8/da0/namespacelogger.html">logger</a></div>
+<div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00042">utils.f90:42</a></div></div>
 <div class="ttc" id="anamespacecomm_html"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html">comm</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00001">comm.F90:1</a></div></div>
-<div class="ttc" id="anamespacecomm_html_a3d2f6d5f4a851e20c893da0c24a09c04"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a3d2f6d5f4a851e20c893da0c24a09c04">comm::pe_rank</a></div><div class="ttdeci">integer pe_rank</div><div class="ttdoc">MPI rank.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00028">comm.F90:28</a></div></div>
+<div class="ttc" id="anamespacecomm_html_a5d73a7756860779f8bbc7e2eecf5fdde"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">comm::pe_rank</a></div><div class="ttdeci">integer, public pe_rank</div><div class="ttdoc">MPI rank.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00056">comm.F90:56</a></div></div>
 <div class="ttc" id="anamespacefile_html"><div class="ttname"><a href="../../da/d16/namespacefile.html">file</a></div><div class="ttdoc">Module for file I/O operations.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d96/file_8f90_source.html#l00034">file.f90:34</a></div></div>
 <div class="ttc" id="anamespacelogger_html"><div class="ttname"><a href="../../d8/da0/namespacelogger.html">logger</a></div><div class="ttdoc">Logging routines.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00034">log.f90:34</a></div></div>
-<div class="ttc" id="anamespacelogger_html_a003e2e484726039ea74743cde1165e4f"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a003e2e484726039ea74743cde1165e4f">logger::log_end_section_c</a></div><div class="ttdeci">subroutine log_end_section_c()</div><div class="ttdoc">End a log section (from C)</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00403">log.f90:404</a></div></div>
-<div class="ttc" id="anamespacelogger_html_a1c857f10ca5adb4d2fc1ca01258301d4"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a1c857f10ca5adb4d2fc1ca01258301d4">logger::log_end</a></div><div class="ttdeci">subroutine log_end(this)</div><div class="ttdoc">Decrease indention level.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00116">log.f90:117</a></div></div>
-<div class="ttc" id="anamespacelogger_html_a32c862e8094a51ee2a94f0cf68d3f6fe"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a32c862e8094a51ee2a94f0cf68d3f6fe">logger::log_header</a></div><div class="ttdeci">subroutine log_header(this, version, build_info)</div><div class="ttdoc">Write the Neko header to a log.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00184">log.f90:185</a></div></div>
-<div class="ttc" id="anamespacelogger_html_a5399c64f888a732c061c518a5558a1bb"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a5399c64f888a732c061c518a5558a1bb">logger::neko_log_verbose</a></div><div class="ttdeci">integer, parameter, public neko_log_verbose</div><div class="ttdoc">Verbose log level.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00071">log.f90:71</a></div></div>
-<div class="ttc" id="anamespacelogger_html_a567ff9b3d26cfb289fff24e118e03db1"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a567ff9b3d26cfb289fff24e118e03db1">logger::log_message</a></div><div class="ttdeci">subroutine log_message(this, msg, lvl)</div><div class="ttdoc">Write a message to a log.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00160">log.f90:161</a></div></div>
-<div class="ttc" id="anamespacelogger_html_a67790b62b71ce7aee410f481d248d754"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a67790b62b71ce7aee410f481d248d754">logger::neko_log_quiet</a></div><div class="ttdeci">integer, parameter, public neko_log_quiet</div><div class="ttdoc">Always logged.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00067">log.f90:67</a></div></div>
-<div class="ttc" id="anamespacelogger_html_a74e550d4b7b4f2d473d577bbfc2d7eea"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a74e550d4b7b4f2d473d577bbfc2d7eea">logger::log_begin</a></div><div class="ttdeci">subroutine log_begin(this)</div><div class="ttdoc">Increase indention level.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00106">log.f90:107</a></div></div>
-<div class="ttc" id="anamespacelogger_html_a7503165ea169149c6485871abbb42423"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a7503165ea169149c6485871abbb42423">logger::log_message_c</a></div><div class="ttdeci">subroutine log_message_c(c_msg)</div><div class="ttdoc">Write a message to a log (from C)</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00315">log.f90:316</a></div></div>
-<div class="ttc" id="anamespacelogger_html_a808b22ce5cee030b830b7c5e6fe8b0d8"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a808b22ce5cee030b830b7c5e6fe8b0d8">logger::log_end_section</a></div><div class="ttdeci">subroutine log_end_section(this, msg, lvl)</div><div class="ttdoc">End a log section.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00264">log.f90:265</a></div></div>
-<div class="ttc" id="anamespacelogger_html_a8551faa34f96a05fd4c3375f52f1620b"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a8551faa34f96a05fd4c3375f52f1620b">logger::log_init</a></div><div class="ttdeci">subroutine log_init(this)</div><div class="ttdoc">Initialize a log.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00078">log.f90:79</a></div></div>
-<div class="ttc" id="anamespacelogger_html_a865ce1013019a8679865fc3ba1dc17bf"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a865ce1013019a8679865fc3ba1dc17bf">logger::log_warning</a></div><div class="ttdeci">subroutine log_warning(this, msg)</div><div class="ttdoc">Write a warning message to a log.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00216">log.f90:217</a></div></div>
-<div class="ttc" id="anamespacelogger_html_a9f88ca73de5fb3e49da3dc3ee488b666"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a9f88ca73de5fb3e49da3dc3ee488b666">logger::log_error_c</a></div><div class="ttdeci">subroutine log_error_c(c_msg)</div><div class="ttdoc">Write an error message to a log (from C)</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00337">log.f90:338</a></div></div>
-<div class="ttc" id="anamespacelogger_html_aa5cb5e4f91d477e6a8bd70d19d36f38f"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#aa5cb5e4f91d477e6a8bd70d19d36f38f">logger::log_indent</a></div><div class="ttdeci">subroutine log_indent(this)</div><div class="ttdoc">Indent a log.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00126">log.f90:127</a></div></div>
-<div class="ttc" id="anamespacelogger_html_aba52cf419d2fa76de5933019a325565a"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#aba52cf419d2fa76de5933019a325565a">logger::log_warning_c</a></div><div class="ttdeci">subroutine log_warning_c(c_msg)</div><div class="ttdoc">Write a warning message to a log (from C)</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00359">log.f90:360</a></div></div>
-<div class="ttc" id="anamespacelogger_html_abe16d24271114fb1b15eab73223fd452"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#abe16d24271114fb1b15eab73223fd452">logger::log_newline</a></div><div class="ttdeci">subroutine log_newline(this, lvl)</div><div class="ttdoc">Write a new line to a log.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00137">log.f90:138</a></div></div>
-<div class="ttc" id="anamespacelogger_html_accdcb0b637b2330ce2717845b8fe1c55"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#accdcb0b637b2330ce2717845b8fe1c55">logger::log_section_c</a></div><div class="ttdeci">subroutine log_section_c(c_msg)</div><div class="ttdoc">Begin a new log section (from C)</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00382">log.f90:383</a></div></div>
-<div class="ttc" id="anamespacelogger_html_acda43c0334eca9fb3a0b3d5e23615f7c"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#acda43c0334eca9fb3a0b3d5e23615f7c">logger::neko_log_debug</a></div><div class="ttdeci">integer, parameter, public neko_log_debug</div><div class="ttdoc">Debug log level.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00073">log.f90:73</a></div></div>
-<div class="ttc" id="anamespacelogger_html_acecf27e6da617823b1727e4a127b4304"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#acecf27e6da617823b1727e4a127b4304">logger::log_status</a></div><div class="ttdeci">subroutine log_status(this, t, t_end)</div><div class="ttdoc">Write status banner.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00293">log.f90:294</a></div></div>
-<div class="ttc" id="anamespacelogger_html_ad728b3400b2e5dfa9ee65757c599c9ce"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">logger::neko_log</a></div><div class="ttdeci">type(log_t), public neko_log</div><div class="ttdoc">Global log stream.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00065">log.f90:65</a></div></div>
-<div class="ttc" id="anamespacelogger_html_ade757cfc4235350ea17397117ea3c4a6"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#ade757cfc4235350ea17397117ea3c4a6">logger::log_size</a></div><div class="ttdeci">integer, parameter, public log_size</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00042">log.f90:42</a></div></div>
-<div class="ttc" id="anamespacelogger_html_aea23bca657681dfcdf10ce6024e73f02"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#aea23bca657681dfcdf10ce6024e73f02">logger::neko_log_info</a></div><div class="ttdeci">integer, parameter, public neko_log_info</div><div class="ttdoc">Default log level.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00069">log.f90:69</a></div></div>
-<div class="ttc" id="anamespacelogger_html_af26458fdb2a8632e8c01296fc65f962b"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#af26458fdb2a8632e8c01296fc65f962b">logger::log_section</a></div><div class="ttdeci">subroutine log_section(this, msg, lvl)</div><div class="ttdoc">Begin a new log section.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00228">log.f90:229</a></div></div>
-<div class="ttc" id="anamespacelogger_html_afb89964ae557bfbbe4ece672e5d18e3f"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#afb89964ae557bfbbe4ece672e5d18e3f">logger::log_error</a></div><div class="ttdeci">subroutine log_error(this, msg)</div><div class="ttdoc">Write an error message to a log.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00204">log.f90:205</a></div></div>
+<div class="ttc" id="anamespacelogger_html_a003e2e484726039ea74743cde1165e4f"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a003e2e484726039ea74743cde1165e4f">logger::log_end_section_c</a></div><div class="ttdeci">subroutine log_end_section_c()</div><div class="ttdoc">End a log section (from C)</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00430">log.f90:431</a></div></div>
+<div class="ttc" id="anamespacelogger_html_a1c857f10ca5adb4d2fc1ca01258301d4"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a1c857f10ca5adb4d2fc1ca01258301d4">logger::log_end</a></div><div class="ttdeci">subroutine log_end(this)</div><div class="ttdoc">Decrease indention level.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00153">log.f90:154</a></div></div>
+<div class="ttc" id="anamespacelogger_html_a1f14a67eec025e0fa25123ee5fa1a084"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a1f14a67eec025e0fa25123ee5fa1a084">logger::log_print_section_header</a></div><div class="ttdeci">subroutine log_print_section_header(this, lvl)</div><div class="ttdoc">Print a section header.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00298">log.f90:299</a></div></div>
+<div class="ttc" id="anamespacelogger_html_a32c862e8094a51ee2a94f0cf68d3f6fe"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a32c862e8094a51ee2a94f0cf68d3f6fe">logger::log_header</a></div><div class="ttdeci">subroutine log_header(this, version, build_info)</div><div class="ttdoc">Write the Neko header to a log.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00230">log.f90:231</a></div></div>
+<div class="ttc" id="anamespacelogger_html_a5399c64f888a732c061c518a5558a1bb"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a5399c64f888a732c061c518a5558a1bb">logger::neko_log_verbose</a></div><div class="ttdeci">integer, parameter, public neko_log_verbose</div><div class="ttdoc">Verbose log level.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00082">log.f90:82</a></div></div>
+<div class="ttc" id="anamespacelogger_html_a567ff9b3d26cfb289fff24e118e03db1"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a567ff9b3d26cfb289fff24e118e03db1">logger::log_message</a></div><div class="ttdeci">subroutine log_message(this, msg, lvl)</div><div class="ttdoc">Write a message to a log.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00202">log.f90:203</a></div></div>
+<div class="ttc" id="anamespacelogger_html_a67790b62b71ce7aee410f481d248d754"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a67790b62b71ce7aee410f481d248d754">logger::neko_log_quiet</a></div><div class="ttdeci">integer, parameter, public neko_log_quiet</div><div class="ttdoc">Always logged.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00078">log.f90:78</a></div></div>
+<div class="ttc" id="anamespacelogger_html_a74e550d4b7b4f2d473d577bbfc2d7eea"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a74e550d4b7b4f2d473d577bbfc2d7eea">logger::log_begin</a></div><div class="ttdeci">subroutine log_begin(this)</div><div class="ttdoc">Increase indention level.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00142">log.f90:143</a></div></div>
+<div class="ttc" id="anamespacelogger_html_a7503165ea169149c6485871abbb42423"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a7503165ea169149c6485871abbb42423">logger::log_message_c</a></div><div class="ttdeci">subroutine log_message_c(c_msg)</div><div class="ttdoc">Write a message to a log (from C)</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00343">log.f90:344</a></div></div>
+<div class="ttc" id="anamespacelogger_html_a808b22ce5cee030b830b7c5e6fe8b0d8"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a808b22ce5cee030b830b7c5e6fe8b0d8">logger::log_end_section</a></div><div class="ttdeci">subroutine log_end_section(this, msg, lvl)</div><div class="ttdoc">End a log section.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00323">log.f90:324</a></div></div>
+<div class="ttc" id="anamespacelogger_html_a8551faa34f96a05fd4c3375f52f1620b"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a8551faa34f96a05fd4c3375f52f1620b">logger::log_init</a></div><div class="ttdeci">subroutine log_init(this)</div><div class="ttdoc">Initialize a log.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00089">log.f90:90</a></div></div>
+<div class="ttc" id="anamespacelogger_html_a865ce1013019a8679865fc3ba1dc17bf"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a865ce1013019a8679865fc3ba1dc17bf">logger::log_warning</a></div><div class="ttdeci">subroutine log_warning(this, msg)</div><div class="ttdoc">Write a warning message to a log.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00262">log.f90:263</a></div></div>
+<div class="ttc" id="anamespacelogger_html_a9f88ca73de5fb3e49da3dc3ee488b666"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a9f88ca73de5fb3e49da3dc3ee488b666">logger::log_error_c</a></div><div class="ttdeci">subroutine log_error_c(c_msg)</div><div class="ttdoc">Write an error message to a log (from C)</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00364">log.f90:365</a></div></div>
+<div class="ttc" id="anamespacelogger_html_aa5cb5e4f91d477e6a8bd70d19d36f38f"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#aa5cb5e4f91d477e6a8bd70d19d36f38f">logger::log_indent</a></div><div class="ttdeci">subroutine log_indent(this)</div><div class="ttdoc">Indent a log.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00169">log.f90:170</a></div></div>
+<div class="ttc" id="anamespacelogger_html_aba52cf419d2fa76de5933019a325565a"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#aba52cf419d2fa76de5933019a325565a">logger::log_warning_c</a></div><div class="ttdeci">subroutine log_warning_c(c_msg)</div><div class="ttdoc">Write a warning message to a log (from C)</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00386">log.f90:387</a></div></div>
+<div class="ttc" id="anamespacelogger_html_abe16d24271114fb1b15eab73223fd452"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#abe16d24271114fb1b15eab73223fd452">logger::log_newline</a></div><div class="ttdeci">subroutine log_newline(this, lvl)</div><div class="ttdoc">Write a new line to a log.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00179">log.f90:180</a></div></div>
+<div class="ttc" id="anamespacelogger_html_accdcb0b637b2330ce2717845b8fe1c55"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#accdcb0b637b2330ce2717845b8fe1c55">logger::log_section_c</a></div><div class="ttdeci">subroutine log_section_c(c_msg)</div><div class="ttdoc">Begin a new log section (from C)</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00409">log.f90:410</a></div></div>
+<div class="ttc" id="anamespacelogger_html_acda43c0334eca9fb3a0b3d5e23615f7c"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#acda43c0334eca9fb3a0b3d5e23615f7c">logger::neko_log_debug</a></div><div class="ttdeci">integer, parameter, public neko_log_debug</div><div class="ttdoc">Debug log level.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00084">log.f90:84</a></div></div>
+<div class="ttc" id="anamespacelogger_html_ad728b3400b2e5dfa9ee65757c599c9ce"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">logger::neko_log</a></div><div class="ttdeci">type(log_t), public neko_log</div><div class="ttdoc">Global log stream.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00076">log.f90:76</a></div></div>
+<div class="ttc" id="anamespacelogger_html_ade757cfc4235350ea17397117ea3c4a6"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#ade757cfc4235350ea17397117ea3c4a6">logger::log_size</a></div><div class="ttdeci">integer, parameter, public log_size</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00046">log.f90:46</a></div></div>
+<div class="ttc" id="anamespacelogger_html_aea23bca657681dfcdf10ce6024e73f02"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#aea23bca657681dfcdf10ce6024e73f02">logger::neko_log_info</a></div><div class="ttdeci">integer, parameter, public neko_log_info</div><div class="ttdoc">Default log level.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00080">log.f90:80</a></div></div>
+<div class="ttc" id="anamespacelogger_html_aede702c1206d7daf96f4f06dcc03b178"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#aede702c1206d7daf96f4f06dcc03b178">logger::log_free</a></div><div class="ttdeci">subroutine log_free(this)</div><div class="ttdoc">Free a log.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00124">log.f90:125</a></div></div>
+<div class="ttc" id="anamespacelogger_html_af26458fdb2a8632e8c01296fc65f962b"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#af26458fdb2a8632e8c01296fc65f962b">logger::log_section</a></div><div class="ttdeci">subroutine log_section(this, msg, lvl)</div><div class="ttdoc">Begin a new log section.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00274">log.f90:275</a></div></div>
+<div class="ttc" id="anamespacelogger_html_afb89964ae557bfbbe4ece672e5d18e3f"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#afb89964ae557bfbbe4ece672e5d18e3f">logger::log_error</a></div><div class="ttdeci">subroutine log_error(this, msg)</div><div class="ttdoc">Write an error message to a log.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00250">log.f90:251</a></div></div>
 <div class="ttc" id="anamespacenum__types_html"><div class="ttname"><a href="../../df/d48/namespacenum__types.html">num_types</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00001">num_types.f90:1</a></div></div>
 <div class="ttc" id="anamespacenum__types_html_ae2be59b6de7b874ce5c12fd87f9e8b5e"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">num_types::rp</a></div><div class="ttdeci">integer, parameter, public rp</div><div class="ttdoc">Global precision used in computations.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00012">num_types.f90:12</a></div></div>
-<div class="ttc" id="astructlogger_1_1log__t_html"><div class="ttname"><a href="../../d0/d7b/structlogger_1_1log__t.html">logger::log_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00044">log.f90:44</a></div></div>
+<div class="ttc" id="anamespaceutils_html"><div class="ttname"><a href="../../d6/d84/namespaceutils.html">utils</a></div><div class="ttdoc">Utilities.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00035">utils.f90:35</a></div></div>
+<div class="ttc" id="astructlogger_1_1log__t_html"><div class="ttname"><a href="../../d0/d7b/structlogger_1_1log__t.html">logger::log_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00048">log.f90:48</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_fdedb0aba14d44ce9d99bc100e026e6a.html">common</a></li><li class="navelem"><a class="el" href="../../da/d53/log_8f90.html">log.f90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

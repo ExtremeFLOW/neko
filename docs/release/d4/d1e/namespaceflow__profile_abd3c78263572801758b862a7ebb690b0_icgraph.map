@@ -1,0 +1,12 @@
+<map id="flow_profile::blasius_tanh" name="flow_profile::blasius_tanh">
+<area shape="rect" id="Node000001" title="Hyperbolic tangent approximate Blasius Profile from O. Savas (2012) &#160;where &#160;is the 99 percent thickne..." alt="" coords="420,77,607,102"/>
+<area shape="poly" id="edge3_Node000001_Node000001" title=" " alt="" coords="554,67,543,59,513,55,489,57,476,62,474,68,480,75,476,78,468,68,473,58,488,52,513,50,545,54,557,63"/>
+<area shape="rect" id="Node000002" href="$de/da4/namespaceblasius.html#aa30673fe1e7478b847dc3c6fcdb39efd" title="Constructor from components." alt="" coords="211,5,361,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="453,75,357,48,359,43,455,70"/>
+<area shape="rect" id="Node000003" href="$dd/d19/interfaceflow__profile_1_1blasius__profile.html#a9af816754a48a7d524073b2d89de56a6" title=" " alt="" coords="200,69,372,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="407,92,372,92,372,87,407,87"/>
+<area shape="rect" id="Node000004" href="$d2/d13/namespaceflow__ic.html#aff7567086e0593009521c74afc760ff4" title="Set a Blasius profile as initial condition." alt="" coords="213,133,359,173"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="455,108,359,136,357,131,453,103"/>
+<area shape="rect" id="Node000005" href="$d5/d04/interfaceflow__ic_1_1set__flow__ic.html#aa5c900e30a45a6ed61c876b4ce368b50" title="Set initial flow condition (builtin)" alt="" coords="5,133,152,173"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="199,156,152,156,152,151,199,151"/>
+</map>

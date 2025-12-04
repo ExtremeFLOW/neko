@@ -10,8 +10,7 @@ var structpoint__zone_1_1point__zone__t =
     [ "map", "d6/d13/structpoint__zone_1_1point__zone__t.html#a0945aa9ed66621528be6df1007cc147a", null ],
     [ "finalized", "d6/d13/structpoint__zone_1_1point__zone__t.html#acb0a0f6391614fc59fe0cf302d513993", null ],
     [ "invert", "d6/d13/structpoint__zone_1_1point__zone__t.html#aad3ba8338f7108d775b528b93eb92810", null ],
-    [ "mask", "d6/d13/structpoint__zone_1_1point__zone__t.html#a6dc1abafb1a38fae4a9b8914868c4450", null ],
-    [ "mask_d", "d6/d13/structpoint__zone_1_1point__zone__t.html#a9f0d1102c0d7c62b237bafd28d004d07", null ],
+    [ "mask", "d6/d13/structpoint__zone_1_1point__zone__t.html#a93afe571db4cfd369a7ecb6b80830b35", null ],
     [ "name", "d6/d13/structpoint__zone_1_1point__zone__t.html#aa485a77f2a223a2249231cfe6ef19c8a", null ],
     [ "scratch", "d6/d13/structpoint__zone_1_1point__zone__t.html#a4a648d9b6d2c23e6149567b974dc306a", null ],
     [ "size", "d6/d13/structpoint__zone_1_1point__zone__t.html#a3b3e2210b38d6577561a7ff877a43325", null ]

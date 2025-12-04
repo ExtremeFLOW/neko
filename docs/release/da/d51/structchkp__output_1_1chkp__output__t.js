@@ -1,7 +1,7 @@
 var structchkp__output_1_1chkp__output__t =
 [
-    [ "chkp_output_init", "da/d51/structchkp__output_1_1chkp__output__t.html#a60fe3c3758d29cbdbfb20ce4444d7b86", null ],
-    [ "init_base", "da/d51/structchkp__output_1_1chkp__output__t.html#a901669a133c005189e509dac771374f0", null ],
+    [ "init", "da/d51/structchkp__output_1_1chkp__output__t.html#a6bc6f674413ae2932925a8ac96591a46", null ],
+    [ "init_base", "da/d51/structchkp__output_1_1chkp__output__t.html#aa9853130252151809a431108e99384fa", null ],
     [ "sample", "da/d51/structchkp__output_1_1chkp__output__t.html#acffce1b32fa6435268225e12633fa14d", null ],
     [ "sample", "da/d51/structchkp__output_1_1chkp__output__t.html#af5d4cdfe7ed6d35653ed43bd9367359f", null ],
     [ "set_counter", "da/d51/structchkp__output_1_1chkp__output__t.html#a9d3113c083480f602b99fbaa78c4ad8a", null ],

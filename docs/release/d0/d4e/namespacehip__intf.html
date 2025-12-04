@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -101,8 +101,7 @@ $(document).ready(function(){initNavTree('d0/d4e/namespacehip__intf.html','../..
   <div class="summary">
 <a href="#nested-classes">Data Types</a> &#124;
 <a href="#enum-members">Enumerations</a> &#124;
-<a href="#func-members">Functions/Subroutines</a> &#124;
-<a href="#var-members">Variables</a>  </div>
+<a href="#func-members">Functions/Subroutines</a>  </div>
   <div class="headertitle"><div class="title">hip_intf Module Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -137,6 +136,8 @@ Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/de9/interfacehip__intf_1_1hipmemcpy.html">hipmemcpy</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d39/interfacehip__intf_1_1hipmemcpyasync.html">hipmemcpyasync</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dac/interfacehip__intf_1_1hipmemsetasync.html">hipmemsetasync</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/da9/interfacehip__intf_1_1hipstreamcreate.html">hipstreamcreate</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -200,30 +201,15 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a1fe3302af910fad64b1e7c2ba5b29d3e" id="r_a1fe3302af910fad64b1e7c2ba5b29d3e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#a1fe3302af910fad64b1e7c2ba5b29d3e">hip_init</a></td></tr>
-<tr class="separator:a1fe3302af910fad64b1e7c2ba5b29d3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a46ebe304218d34d01b56a41e65488e1f" id="r_a46ebe304218d34d01b56a41e65488e1f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#a46ebe304218d34d01b56a41e65488e1f">hip_finalize</a></td></tr>
-<tr class="separator:a46ebe304218d34d01b56a41e65488e1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a71cf325d479bbed01658a08561e54a48" id="r_a71cf325d479bbed01658a08561e54a48"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#a71cf325d479bbed01658a08561e54a48">hip_init</a> (glb_cmd_queue, aux_cmd_queue, strm_high_prio, strm_low_prio)</td></tr>
+<tr class="separator:a71cf325d479bbed01658a08561e54a48"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a89de67459398a401efed275ac5c3dc07" id="r_a89de67459398a401efed275ac5c3dc07"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#a89de67459398a401efed275ac5c3dc07">hip_finalize</a> (glb_cmd_queue, aux_cmd_queue)</td></tr>
+<tr class="separator:a89de67459398a401efed275ac5c3dc07"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1c8e3cf5e89ffe1b50253b6b38e45a93" id="r_a1c8e3cf5e89ffe1b50253b6b38e45a93"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#a1c8e3cf5e89ffe1b50253b6b38e45a93">hip_device_name</a> (name)</td></tr>
 <tr class="separator:a1c8e3cf5e89ffe1b50253b6b38e45a93"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae76e470dcd046e7ef62b0273edd6c56d" id="r_ae76e470dcd046e7ef62b0273edd6c56d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#ae76e470dcd046e7ef62b0273edd6c56d">hip_device_count</a> ()</td></tr>
 <tr class="memdesc:ae76e470dcd046e7ef62b0273edd6c56d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of available HIP devices.  <br /></td></tr>
 <tr class="separator:ae76e470dcd046e7ef62b0273edd6c56d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
-Variables</h2></td></tr>
-<tr class="memitem:a5fd1f28f420d73314c95a40edd15d37f" id="r_a5fd1f28f420d73314c95a40edd15d37f"><td class="memItemLeft" align="right" valign="top">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">bind</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">C</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#a5fd1f28f420d73314c95a40edd15d37f">glb_cmd_queue</a> = <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">C_NULL_PTR</a></td></tr>
-<tr class="memdesc:a5fd1f28f420d73314c95a40edd15d37f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Global HIP command queue.  <br /></td></tr>
-<tr class="separator:a5fd1f28f420d73314c95a40edd15d37f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a19e001b16b32fe3b03a6a42aa67b41fb" id="r_a19e001b16b32fe3b03a6a42aa67b41fb"><td class="memItemLeft" align="right" valign="top">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">bind</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">C</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#a19e001b16b32fe3b03a6a42aa67b41fb">aux_cmd_queue</a> = <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">C_NULL_PTR</a></td></tr>
-<tr class="memdesc:a19e001b16b32fe3b03a6a42aa67b41fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Aux HIP command queue.  <br /></td></tr>
-<tr class="separator:a19e001b16b32fe3b03a6a42aa67b41fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8996afbeeb8e8c59a38280475e1b3549" id="r_a8996afbeeb8e8c59a38280475e1b3549"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#a8996afbeeb8e8c59a38280475e1b3549">strm_high_prio</a></td></tr>
-<tr class="memdesc:a8996afbeeb8e8c59a38280475e1b3549"><td class="mdescLeft">&#160;</td><td class="mdescRight">High priority stream setting.  <br /></td></tr>
-<tr class="separator:a8996afbeeb8e8c59a38280475e1b3549"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1a75fbd54838dbeba03536ea8a7a0ffd" id="r_a1a75fbd54838dbeba03536ea8a7a0ffd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#a1a75fbd54838dbeba03536ea8a7a0ffd">strm_low_prio</a></td></tr>
-<tr class="memdesc:a1a75fbd54838dbeba03536ea8a7a0ffd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Low priority stream setting.  <br /></td></tr>
-<tr class="separator:a1a75fbd54838dbeba03536ea8a7a0ffd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Enumeration Type Documentation</h2>
 <a id="aa17e0a13bc9ae73f0e3054782cdaf705" name="aa17e0a13bc9ae73f0e3054782cdaf705"></a>
@@ -263,7 +249,7 @@ Variables</h2></td></tr>
 <tr><td class="fieldname"><a id="aa17e0a13bc9ae73f0e3054782cdaf705a01611d41ad95404ee0c73e0b58a888e2" name="aa17e0a13bc9ae73f0e3054782cdaf705a01611d41ad95404ee0c73e0b58a888e2"></a>hiperrortbd&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00054">54</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00042">42</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
 
 </div>
 </div>
@@ -286,7 +272,7 @@ Variables</h2></td></tr>
 <tr><td class="fieldname"><a id="a424bfafc976d0c41a57a3618892fd30bac3d9fe7d4a9b060ced6b0e6dd895d67c" name="a424bfafc976d0c41a57a3618892fd30bac3d9fe7d4a9b060ced6b0e6dd895d67c"></a>hipmemcpydefault&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00081">81</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00069">69</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
 
 </div>
 </div>
@@ -303,7 +289,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00282">282</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00287">287</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -318,25 +304,15 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d0/d4e/namespacehip__intf_ae76e470dcd046e7ef62b0273edd6c56d_icgraph.png" border="0" usemap="#ad0/d4e/namespacehip__intf_ae76e470dcd046e7ef62b0273edd6c56d_icgraph" alt=""/></div>
 <map name="ad0/d4e/namespacehip__intf_ae76e470dcd046e7ef62b0273edd6c56d_icgraph" id="ad0/d4e/namespacehip__intf_ae76e470dcd046e7ef62b0273edd6c56d_icgraph">
-<area shape="rect" title="Return the number of available HIP devices." alt="" coords="603,122,751,162"/>
-<area shape="poly" title=" " alt="" coords="710,110,698,103,677,101,658,103,646,107,642,113,644,121,639,122,637,112,643,103,656,97,677,95,700,98,713,106"/>
-<area shape="rect" href="../../d0/dbe/namespacedevice.html#ab8f226110e5c9f9abb99deee30d81335" title="Return the number of available devices." alt="" coords="396,129,555,155"/>
-<area shape="poly" title=" " alt="" coords="589,145,555,145,555,139,589,139"/>
-<area shape="poly" title=" " alt="" coords="508,119,499,111,475,108,456,110,445,115,443,120,449,128,444,131,438,121,441,111,454,105,475,103,501,106,512,115"/>
-<area shape="rect" href="../../dd/d62/namespaceneko.html#a647e539d6b0950b6569c6752b8f007ff" title=" " alt="" coords="228,129,348,155"/>
-<area shape="poly" title=" " alt="" coords="382,145,348,145,348,139,382,139"/>
-<area shape="rect" href="../../d9/dd1/average__field__in__space_8f90.html#a37dc68f9f9805d99614ae0ca36d971a3" title="Program to sum up a field in space in a homogenous direction Martin Karp 17/02&#45;23." alt="" coords="5,5,180,31"/>
-<area shape="poly" title=" " alt="" coords="266,120,228,81,179,44,153,33,155,28,181,40,231,77,269,117"/>
-<area shape="rect" href="../../d3/dc7/average__fields__in__time_8f90.html#ac6905300ca74b33833aa210ef56e2bb7" title="Program to sum up averaged fields computed for statistics and mean field Martin Karp 27/01&#45;23." alt="" coords="6,55,179,80"/>
-<area shape="poly" title=" " alt="" coords="250,126,179,94,145,83,146,78,181,89,252,121"/>
-<area shape="rect" href="../../dc/da2/genmeshbox_8f90.html#ac2c2abdf1b6ab8a11de24035862245d5" title="Simple program to generate a mesh for a box Gives some insight into how one can use built in function..." alt="" coords="39,104,146,129"/>
-<area shape="poly" title=" " alt="" coords="214,135,146,126,147,121,214,130"/>
-<area shape="rect" href="../../d1/dd9/postprocess__fluid__stats_8f90.html#a54f8c504cff2703e12c6c4fce128f532" title="Somewhat preliminary program to sum up averaged fields computed for statistics and mean field Martin ..." alt="" coords="5,153,180,179"/>
-<area shape="poly" title=" " alt="" coords="215,154,180,158,180,153,214,148"/>
-<area shape="rect" href="../../d7/d64/rea2nbin_8f90.html#ab8d17097ee23bae0a0911d8d65590e5e" title=" " alt="" coords="53,203,132,228"/>
-<area shape="poly" title=" " alt="" coords="249,163,181,192,133,208,131,203,179,188,247,158"/>
-<area shape="rect" href="../../d0/dd9/driver_8f90.html#a30d609876f05bf02c9ca79b0448dc937" title="Main driver for TurboNeko." alt="" coords="49,252,136,277"/>
-<area shape="poly" title=" " alt="" coords="269,167,231,205,181,242,137,259,135,254,179,237,227,201,265,163"/>
+<area shape="rect" title="Return the number of available HIP devices." alt="" coords="572,29,720,69"/>
+<area shape="poly" title=" " alt="" coords="680,18,668,11,646,8,627,10,615,15,611,21,613,28,608,30,606,20,612,11,626,5,646,3,670,6,682,13"/>
+<area shape="rect" href="../../d0/dbe/namespacedevice.html#aab9b9e345cf9153c37f6376d32dbb012" title="Return the number of available devices." alt="" coords="365,37,524,62"/>
+<area shape="poly" title=" " alt="" coords="558,52,524,52,524,47,558,47"/>
+<area shape="poly" title=" " alt="" coords="480,27,470,18,445,15,424,17,413,22,410,28,416,35,412,38,405,28,409,18,422,12,445,10,472,14,483,22"/>
+<area shape="rect" href="../../d0/dbe/namespacedevice.html#aea8ac0b8d51031f74cc45d8e69a30bdb" title=" " alt="" coords="173,37,317,62"/>
+<area shape="poly" title=" " alt="" coords="351,52,318,52,318,47,351,47"/>
+<area shape="rect" href="../../dd/d62/namespaceneko.html#a647e539d6b0950b6569c6752b8f007ff" title="Initialise Neko." alt="" coords="5,37,125,62"/>
+<area shape="poly" title=" " alt="" coords="159,52,126,52,126,47,159,47"/>
 </map>
 </div>
 
@@ -358,176 +334,115 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00265">265</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00270">270</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d0/d4e/namespacehip__intf_a1c8e3cf5e89ffe1b50253b6b38e45a93_icgraph.png" border="0" usemap="#ad0/d4e/namespacehip__intf_a1c8e3cf5e89ffe1b50253b6b38e45a93_icgraph" alt=""/></div>
 <map name="ad0/d4e/namespacehip__intf_a1c8e3cf5e89ffe1b50253b6b38e45a93_icgraph" id="ad0/d4e/namespacehip__intf_a1c8e3cf5e89ffe1b50253b6b38e45a93_icgraph">
-<area shape="rect" title=" " alt="" coords="604,129,796,155"/>
-<area shape="rect" href="../../d0/dbe/namespacedevice.html#aacdc0ad29b09298498fc06f3106fe4f4" title=" " alt="" coords="396,129,556,155"/>
-<area shape="poly" title=" " alt="" coords="590,145,556,145,556,139,590,139"/>
-<area shape="rect" href="../../dd/d62/namespaceneko.html#a647e539d6b0950b6569c6752b8f007ff" title=" " alt="" coords="228,129,348,155"/>
-<area shape="poly" title=" " alt="" coords="382,145,348,145,348,139,382,139"/>
-<area shape="rect" href="../../d9/dd1/average__field__in__space_8f90.html#a37dc68f9f9805d99614ae0ca36d971a3" title="Program to sum up a field in space in a homogenous direction Martin Karp 17/02&#45;23." alt="" coords="5,5,180,31"/>
-<area shape="poly" title=" " alt="" coords="266,120,228,81,179,44,153,33,155,28,181,40,231,77,269,117"/>
-<area shape="rect" href="../../d3/dc7/average__fields__in__time_8f90.html#ac6905300ca74b33833aa210ef56e2bb7" title="Program to sum up averaged fields computed for statistics and mean field Martin Karp 27/01&#45;23." alt="" coords="6,55,179,80"/>
-<area shape="poly" title=" " alt="" coords="250,126,179,94,145,83,146,78,181,89,252,121"/>
-<area shape="rect" href="../../dc/da2/genmeshbox_8f90.html#ac2c2abdf1b6ab8a11de24035862245d5" title="Simple program to generate a mesh for a box Gives some insight into how one can use built in function..." alt="" coords="39,104,146,129"/>
-<area shape="poly" title=" " alt="" coords="214,135,146,126,147,121,214,130"/>
-<area shape="rect" href="../../d1/dd9/postprocess__fluid__stats_8f90.html#a54f8c504cff2703e12c6c4fce128f532" title="Somewhat preliminary program to sum up averaged fields computed for statistics and mean field Martin ..." alt="" coords="5,153,180,179"/>
-<area shape="poly" title=" " alt="" coords="215,154,180,158,180,153,214,148"/>
-<area shape="rect" href="../../d7/d64/rea2nbin_8f90.html#ab8d17097ee23bae0a0911d8d65590e5e" title=" " alt="" coords="53,203,132,228"/>
-<area shape="poly" title=" " alt="" coords="249,163,181,192,133,208,131,203,179,188,247,158"/>
-<area shape="rect" href="../../d0/dd9/driver_8f90.html#a30d609876f05bf02c9ca79b0448dc937" title="Main driver for TurboNeko." alt="" coords="49,252,136,277"/>
-<area shape="poly" title=" " alt="" coords="269,167,231,205,181,242,137,259,135,254,179,237,227,201,265,163"/>
+<area shape="rect" title=" " alt="" coords="412,5,604,31"/>
+<area shape="rect" href="../../d0/dbe/namespacedevice.html#aacdc0ad29b09298498fc06f3106fe4f4" title=" " alt="" coords="204,5,364,31"/>
+<area shape="poly" title=" " alt="" coords="398,21,364,21,364,15,398,15"/>
+<area shape="rect" href="../../dd/d62/namespaceneko.html#a12ac3a3e9d30fbc66d5a77e012e90edb" title="Display job information, number of MPI ranks, CPU type and selected hardware backend." alt="" coords="5,5,156,31"/>
+<area shape="poly" title=" " alt="" coords="190,21,157,21,157,15,190,15"/>
 </map>
 </div>
 
 </div>
 </div>
-<a id="a46ebe304218d34d01b56a41e65488e1f" name="a46ebe304218d34d01b56a41e65488e1f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a46ebe304218d34d01b56a41e65488e1f">&#9670;&#160;</a></span>hip_finalize()</h2>
+<a id="a89de67459398a401efed275ac5c3dc07" name="a89de67459398a401efed275ac5c3dc07"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a89de67459398a401efed275ac5c3dc07">&#9670;&#160;</a></span>hip_finalize()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> hip_intf::hip_finalize</td>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> hip_intf::hip_finalize </td>
+          <td>(</td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>glb_cmd_queue</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>aux_cmd_queue</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00255">255</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00257">257</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d0/d4e/namespacehip__intf_a46ebe304218d34d01b56a41e65488e1f_icgraph.png" border="0" usemap="#ad0/d4e/namespacehip__intf_a46ebe304218d34d01b56a41e65488e1f_icgraph" alt=""/></div>
-<map name="ad0/d4e/namespacehip__intf_a46ebe304218d34d01b56a41e65488e1f_icgraph" id="ad0/d4e/namespacehip__intf_a46ebe304218d34d01b56a41e65488e1f_icgraph">
-<area shape="rect" title=" " alt="" coords="641,129,793,155"/>
-<area shape="rect" href="../../d0/dbe/namespacedevice.html#a1e3084493809835d96d99e4ddeeba980" title=" " alt="" coords="423,129,593,155"/>
-<area shape="poly" title=" " alt="" coords="627,145,594,145,594,139,627,139"/>
-<area shape="rect" href="../../dd/d62/namespaceneko.html#a11ff0635183fc4cd90027907c86cbfe8" title=" " alt="" coords="228,129,375,155"/>
-<area shape="poly" title=" " alt="" coords="409,145,375,145,375,139,409,139"/>
-<area shape="rect" href="../../d9/dd1/average__field__in__space_8f90.html#a37dc68f9f9805d99614ae0ca36d971a3" title="Program to sum up a field in space in a homogenous direction Martin Karp 17/02&#45;23." alt="" coords="5,5,180,31"/>
-<area shape="poly" title=" " alt="" coords="277,121,234,82,179,44,152,33,154,28,181,40,237,78,280,117"/>
-<area shape="rect" href="../../d3/dc7/average__fields__in__time_8f90.html#ac6905300ca74b33833aa210ef56e2bb7" title="Program to sum up averaged fields computed for statistics and mean field Martin Karp 27/01&#45;23." alt="" coords="6,55,179,80"/>
-<area shape="poly" title=" " alt="" coords="259,126,179,94,143,83,145,78,181,89,261,121"/>
-<area shape="rect" href="../../dc/da2/genmeshbox_8f90.html#ac2c2abdf1b6ab8a11de24035862245d5" title="Simple program to generate a mesh for a box Gives some insight into how one can use built in function..." alt="" coords="39,104,146,129"/>
-<area shape="poly" title=" " alt="" coords="214,134,146,126,147,120,215,129"/>
-<area shape="rect" href="../../d1/dd9/postprocess__fluid__stats_8f90.html#a54f8c504cff2703e12c6c4fce128f532" title="Somewhat preliminary program to sum up averaged fields computed for statistics and mean field Martin ..." alt="" coords="5,153,180,179"/>
-<area shape="poly" title=" " alt="" coords="215,155,180,159,180,153,214,149"/>
-<area shape="rect" href="../../d7/d64/rea2nbin_8f90.html#ab8d17097ee23bae0a0911d8d65590e5e" title=" " alt="" coords="53,203,132,228"/>
-<area shape="poly" title=" " alt="" coords="258,163,181,193,133,207,132,202,179,187,257,158"/>
-<area shape="rect" href="../../d0/dd9/driver_8f90.html#a30d609876f05bf02c9ca79b0448dc937" title="Main driver for TurboNeko." alt="" coords="49,252,136,277"/>
-<area shape="poly" title=" " alt="" coords="279,167,236,205,181,242,137,258,135,253,179,237,233,201,275,163"/>
+<div class="center"><img src="../../d0/d4e/namespacehip__intf_a89de67459398a401efed275ac5c3dc07_icgraph.png" border="0" usemap="#ad0/d4e/namespacehip__intf_a89de67459398a401efed275ac5c3dc07_icgraph" alt=""/></div>
+<map name="ad0/d4e/namespacehip__intf_a89de67459398a401efed275ac5c3dc07_icgraph" id="ad0/d4e/namespacehip__intf_a89de67459398a401efed275ac5c3dc07_icgraph">
+<area shape="rect" title=" " alt="" coords="419,5,571,31"/>
+<area shape="rect" href="../../d0/dbe/namespacedevice.html#a1e3084493809835d96d99e4ddeeba980" title=" " alt="" coords="200,5,371,31"/>
+<area shape="poly" title=" " alt="" coords="405,21,371,21,371,15,405,15"/>
+<area shape="rect" href="../../dd/d62/namespaceneko.html#a11ff0635183fc4cd90027907c86cbfe8" title="Finalize Neko." alt="" coords="5,5,152,31"/>
+<area shape="poly" title=" " alt="" coords="186,21,152,21,152,15,186,15"/>
 </map>
 </div>
 
 </div>
 </div>
-<a id="a1fe3302af910fad64b1e7c2ba5b29d3e" name="a1fe3302af910fad64b1e7c2ba5b29d3e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1fe3302af910fad64b1e7c2ba5b29d3e">&#9670;&#160;</a></span>hip_init()</h2>
+<a id="a71cf325d479bbed01658a08561e54a48" name="a71cf325d479bbed01658a08561e54a48"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a71cf325d479bbed01658a08561e54a48">&#9670;&#160;</a></span>hip_init()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> hip_intf::hip_init</td>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> hip_intf::hip_init </td>
+          <td>(</td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>glb_cmd_queue</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>aux_cmd_queue</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>strm_high_prio</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>strm_low_prio</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00237">237</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00234">234</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d0/d4e/namespacehip__intf_a1fe3302af910fad64b1e7c2ba5b29d3e_icgraph.png" border="0" usemap="#ad0/d4e/namespacehip__intf_a1fe3302af910fad64b1e7c2ba5b29d3e_icgraph" alt=""/></div>
-<map name="ad0/d4e/namespacehip__intf_a1fe3302af910fad64b1e7c2ba5b29d3e_icgraph" id="ad0/d4e/namespacehip__intf_a1fe3302af910fad64b1e7c2ba5b29d3e_icgraph">
-<area shape="rect" title=" " alt="" coords="588,129,715,155"/>
-<area shape="rect" href="../../d0/dbe/namespacedevice.html#aea8ac0b8d51031f74cc45d8e69a30bdb" title=" " alt="" coords="396,129,540,155"/>
-<area shape="poly" title=" " alt="" coords="574,145,540,145,540,139,574,139"/>
-<area shape="rect" href="../../dd/d62/namespaceneko.html#a647e539d6b0950b6569c6752b8f007ff" title=" " alt="" coords="228,129,348,155"/>
-<area shape="poly" title=" " alt="" coords="382,145,349,145,349,139,382,139"/>
-<area shape="rect" href="../../d9/dd1/average__field__in__space_8f90.html#a37dc68f9f9805d99614ae0ca36d971a3" title="Program to sum up a field in space in a homogenous direction Martin Karp 17/02&#45;23." alt="" coords="5,5,180,31"/>
-<area shape="poly" title=" " alt="" coords="266,120,228,81,179,44,153,33,155,28,181,40,231,77,269,117"/>
-<area shape="rect" href="../../d3/dc7/average__fields__in__time_8f90.html#ac6905300ca74b33833aa210ef56e2bb7" title="Program to sum up averaged fields computed for statistics and mean field Martin Karp 27/01&#45;23." alt="" coords="6,55,179,80"/>
-<area shape="poly" title=" " alt="" coords="250,126,179,94,145,83,146,78,181,89,252,121"/>
-<area shape="rect" href="../../dc/da2/genmeshbox_8f90.html#ac2c2abdf1b6ab8a11de24035862245d5" title="Simple program to generate a mesh for a box Gives some insight into how one can use built in function..." alt="" coords="39,104,146,129"/>
-<area shape="poly" title=" " alt="" coords="214,135,146,126,147,121,214,130"/>
-<area shape="rect" href="../../d1/dd9/postprocess__fluid__stats_8f90.html#a54f8c504cff2703e12c6c4fce128f532" title="Somewhat preliminary program to sum up averaged fields computed for statistics and mean field Martin ..." alt="" coords="5,153,180,179"/>
-<area shape="poly" title=" " alt="" coords="215,154,180,158,180,153,214,148"/>
-<area shape="rect" href="../../d7/d64/rea2nbin_8f90.html#ab8d17097ee23bae0a0911d8d65590e5e" title=" " alt="" coords="53,203,132,228"/>
-<area shape="poly" title=" " alt="" coords="249,163,181,192,133,208,131,203,179,188,247,158"/>
-<area shape="rect" href="../../d0/dd9/driver_8f90.html#a30d609876f05bf02c9ca79b0448dc937" title="Main driver for TurboNeko." alt="" coords="49,252,136,277"/>
-<area shape="poly" title=" " alt="" coords="269,167,231,205,181,242,137,259,135,254,179,237,227,201,265,163"/>
+<div class="center"><img src="../../d0/d4e/namespacehip__intf_a71cf325d479bbed01658a08561e54a48_icgraph.png" border="0" usemap="#ad0/d4e/namespacehip__intf_a71cf325d479bbed01658a08561e54a48_icgraph" alt=""/></div>
+<map name="ad0/d4e/namespacehip__intf_a71cf325d479bbed01658a08561e54a48_icgraph" id="ad0/d4e/namespacehip__intf_a71cf325d479bbed01658a08561e54a48_icgraph">
+<area shape="rect" title=" " alt="" coords="365,5,492,31"/>
+<area shape="rect" href="../../d0/dbe/namespacedevice.html#aea8ac0b8d51031f74cc45d8e69a30bdb" title=" " alt="" coords="173,5,317,31"/>
+<area shape="poly" title=" " alt="" coords="352,21,318,21,318,15,352,15"/>
+<area shape="rect" href="../../dd/d62/namespaceneko.html#a647e539d6b0950b6569c6752b8f007ff" title="Initialise Neko." alt="" coords="5,5,125,31"/>
+<area shape="poly" title=" " alt="" coords="159,21,126,21,126,15,159,15"/>
 </map>
 </div>
-
-</div>
-</div>
-<h2 class="groupheader">Variable Documentation</h2>
-<a id="a19e001b16b32fe3b03a6a42aa67b41fb" name="a19e001b16b32fe3b03a6a42aa67b41fb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a19e001b16b32fe3b03a6a42aa67b41fb">&#9670;&#160;</a></span>aux_cmd_queue</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">bind</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">C</a>) hip_intf::aux_cmd_queue = <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">C_NULL_PTR</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00045">45</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
-
-</div>
-</div>
-<a id="a5fd1f28f420d73314c95a40edd15d37f" name="a5fd1f28f420d73314c95a40edd15d37f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5fd1f28f420d73314c95a40edd15d37f">&#9670;&#160;</a></span>glb_cmd_queue</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">bind</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">C</a>) hip_intf::glb_cmd_queue = <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">C_NULL_PTR</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00042">42</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
-
-</div>
-</div>
-<a id="a8996afbeeb8e8c59a38280475e1b3549" name="a8996afbeeb8e8c59a38280475e1b3549"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8996afbeeb8e8c59a38280475e1b3549">&#9670;&#160;</a></span>strm_high_prio</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> hip_intf::strm_high_prio</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00048">48</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
-
-</div>
-</div>
-<a id="a1a75fbd54838dbeba03536ea8a7a0ffd" name="a1a75fbd54838dbeba03536ea8a7a0ffd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1a75fbd54838dbeba03536ea8a7a0ffd">&#9670;&#160;</a></span>strm_low_prio</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> hip_intf::strm_low_prio</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00051">51</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
 
 </div>
 </div>
@@ -537,7 +452,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d0/d4e/namespacehip__intf.html">hip_intf</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

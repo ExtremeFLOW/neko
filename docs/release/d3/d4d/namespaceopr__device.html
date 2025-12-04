@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -116,11 +116,17 @@ Data Types</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d14/interfaceopr__device_1_1hip__conv1.html">hip_conv1</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/da4/interfaceopr__device_1_1hip__convect__scalar.html">hip_convect_scalar</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/df6/interfaceopr__device_1_1hip__dudxyz.html">hip_dudxyz</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/dfd/interfaceopr__device_1_1hip__lambda2.html">hip_lambda2</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/dd7/interfaceopr__device_1_1hip__opgrad.html">hip_opgrad</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/dea/interfaceopr__device_1_1hip__rotate__cyc.html">hip_rotate_cyc</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d24/interfaceopr__device_1_1hip__set__convect__rst.html">hip_set_convect_rst</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
@@ -135,10 +141,18 @@ Functions/Subroutines</h2></td></tr>
 <tr class="separator:a5976c035ccc91cc8b346fc866e476775"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae04611fe66a4b513beb0157ac526838b" id="r_ae04611fe66a4b513beb0157ac526838b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d4d/namespaceopr__device.html#ae04611fe66a4b513beb0157ac526838b">opr_device_conv1</a> (du, u, vx, vy, vz, xh, coef, nelv, gdim)</td></tr>
 <tr class="separator:ae04611fe66a4b513beb0157ac526838b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2dbb24b2b6aff8d7d546656b638566e2" id="r_a2dbb24b2b6aff8d7d546656b638566e2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d4d/namespaceopr__device.html#a2dbb24b2b6aff8d7d546656b638566e2">opr_device_curl</a> (w1, w2, w3, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">u1</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">u2</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">u3</a>, work1, work2, c_xh)</td></tr>
-<tr class="separator:a2dbb24b2b6aff8d7d546656b638566e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a046cc3f2f0d5f27cc7b098b2085a717e" id="r_a046cc3f2f0d5f27cc7b098b2085a717e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d4d/namespaceopr__device.html#a046cc3f2f0d5f27cc7b098b2085a717e">opr_device_convect_scalar</a> (du, u_d, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">cr_d</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">cs_d</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">ct_d</a>, xh_gll, xh_gl, coef_gll, coef_gl, gll_to_gl)</td></tr>
+<tr class="separator:a046cc3f2f0d5f27cc7b098b2085a717e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a99baf3e0c295d2b3603f603e7d11f458" id="r_a99baf3e0c295d2b3603f603e7d11f458"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d4d/namespaceopr__device.html#a99baf3e0c295d2b3603f603e7d11f458">opr_device_curl</a> (w1, w2, w3, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">u1</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">u2</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">u3</a>, work1, work2, c_xh, event)</td></tr>
+<tr class="separator:a99baf3e0c295d2b3603f603e7d11f458"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8c94efab56085f4843490a6ab2c842c4" id="r_a8c94efab56085f4843490a6ab2c842c4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp) <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d4d/namespaceopr__device.html#a8c94efab56085f4843490a6ab2c842c4">opr_device_cfl</a> (dt, u, v, w, xh, coef, nelv, gdim)</td></tr>
 <tr class="separator:a8c94efab56085f4843490a6ab2c842c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a176528d5e4ecc8f5be227480b891aa1e" id="r_a176528d5e4ecc8f5be227480b891aa1e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d4d/namespaceopr__device.html#a176528d5e4ecc8f5be227480b891aa1e">opr_device_rotate_cyc_r1</a> (vx, vy, vz, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">idir</a>, coef)</td></tr>
+<tr class="separator:a176528d5e4ecc8f5be227480b891aa1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a668b8309c718fdf4a51cffb97afad559" id="r_a668b8309c718fdf4a51cffb97afad559"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d4d/namespaceopr__device.html#a668b8309c718fdf4a51cffb97afad559">opr_device_rotate_cyc_r4</a> (vx, vy, vz, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">idir</a>, coef)</td></tr>
+<tr class="separator:a668b8309c718fdf4a51cffb97afad559"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9de98814162021b7db7db8b303167684" id="r_a9de98814162021b7db7db8b303167684"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d4d/namespaceopr__device.html#a9de98814162021b7db7db8b303167684">opr_device_set_convect_rst</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">cr_d</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">cs_d</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">ct_d</a>, cx_d, cy_d, cz_d, xh, coef)</td></tr>
+<tr class="separator:a9de98814162021b7db7db8b303167684"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="a5976c035ccc91cc8b346fc866e476775" name="a5976c035ccc91cc8b346fc866e476775"></a>
@@ -191,7 +205,7 @@ Functions/Subroutines</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00431">431</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00539">539</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -221,15 +235,15 @@ Here is the caller graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="398,192,364,192,364,187,398,187"/>
 <area shape="rect" href="../../d6/d21/namespacefluid__volflow.html#aa98b3664b63c5f327790b496a51c20f5" title="Compute flow adjustment." alt="" coords="27,5,174,45"/>
 <area shape="poly" title=" " alt="" coords="287,166,249,112,224,84,194,60,173,48,176,43,198,55,227,80,253,109,291,163"/>
-<area shape="rect" href="../../d2/de4/namespacepnpn__res__cpu.html#afb3dfb95e9097f06e31bb302c9054bb4" title=" " alt="" coords="15,69,186,109"/>
+<area shape="rect" href="../../d2/de4/namespacepnpn__res__cpu.html#a4ac756a5d738cc2007d3c1a638ce3a7c" title=" " alt="" coords="15,69,186,109"/>
 <area shape="poly" title=" " alt="" coords="273,171,236,147,195,124,167,112,169,107,197,119,239,142,276,166"/>
-<area shape="rect" href="../../d8/dea/namespacepnpn__res__device.html#a3420aa182689903e3e3fa6ed03a177a7" title=" " alt="" coords="5,133,196,173"/>
+<area shape="rect" href="../../d8/dea/namespacepnpn__res__device.html#a3e57cd69551328b4f51766b33d4b4d3d" title=" " alt="" coords="5,133,196,173"/>
 <area shape="poly" title=" " alt="" coords="230,179,196,173,197,168,231,174"/>
-<area shape="rect" href="../../de/d0d/namespacepnpn__res__stress__cpu.html#aaf1c75297d8ffd5bb6e15bfa4e629d46" title=" " alt="" coords="19,198,182,253"/>
+<area shape="rect" href="../../de/d0d/namespacepnpn__res__stress__cpu.html#a31cf6435d89a64e387d00dd2d42e019f" title=" " alt="" coords="19,198,182,253"/>
 <area shape="poly" title=" " alt="" coords="231,205,183,214,182,208,230,200"/>
-<area shape="rect" href="../../dd/d1f/namespacepnpn__res__stress__device.html#aa01b9675011a43985690c2e8b9558f94" title=" " alt="" coords="12,277,189,331"/>
+<area shape="rect" href="../../dd/d1f/namespacepnpn__res__stress__device.html#a9c09a9089caa70d30de4f4b7b087d19e" title=" " alt="" coords="12,277,189,331"/>
 <area shape="poly" title=" " alt="" coords="278,212,240,239,197,266,172,279,170,274,195,262,237,235,275,208"/>
-<area shape="rect" href="../../d4/da3/namespacepnpn__res__sx.html#ad2eab31249a957ed269daae4a2f8f9b0" title=" " alt="" coords="15,356,186,396"/>
+<area shape="rect" href="../../d4/da3/namespacepnpn__res__sx.html#aef62882f6b94db68f970070af4cba651" title=" " alt="" coords="15,356,186,396"/>
 <area shape="poly" title=" " alt="" coords="294,216,257,280,230,314,198,345,175,358,172,354,194,341,226,311,252,277,289,213"/>
 </map>
 </div>
@@ -298,32 +312,35 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00664">664</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00833">833</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d3/d4d/namespaceopr__device_a8c94efab56085f4843490a6ab2c842c4_cgraph.png" border="0" usemap="#ad3/d4d/namespaceopr__device_a8c94efab56085f4843490a6ab2c842c4_cgraph" alt=""/></div>
 <map name="ad3/d4d/namespaceopr__device_a8c94efab56085f4843490a6ab2c842c4_cgraph" id="ad3/d4d/namespaceopr__device_a8c94efab56085f4843490a6ab2c842c4_cgraph">
-<area shape="rect" title=" " alt="" coords="5,107,200,132"/>
-<area shape="rect" href="../../da/d37/opr__cfl_8cu.html#adeaa12656ff2c67c96231368ffc58bc7" title=" " alt="" coords="254,56,329,81"/>
-<area shape="poly" title=" " alt="" coords="150,104,240,80,241,85,152,109"/>
-<area shape="rect" href="../../da/d03/opr__cfl_8c.html#adf7676afc438521800bf332becd4212c" title=" " alt="" coords="248,132,335,157"/>
-<area shape="poly" title=" " alt="" coords="198,129,234,134,234,140,197,135"/>
+<area shape="rect" title=" " alt="" coords="5,157,200,183"/>
+<area shape="rect" href="../../da/d37/opr__cfl_8cu.html#adeaa12656ff2c67c96231368ffc58bc7" title=" " alt="" coords="254,81,329,107"/>
+<area shape="poly" title=" " alt="" coords="134,155,245,109,247,114,136,160"/>
+<area shape="rect" href="../../da/d03/opr__cfl_8c.html#adf7676afc438521800bf332becd4212c" title=" " alt="" coords="248,183,335,208"/>
+<area shape="poly" title=" " alt="" coords="198,180,234,185,234,190,197,185"/>
 <area shape="rect" href="../../d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="383,5,547,31"/>
-<area shape="poly" title=" " alt="" coords="328,55,407,32,408,37,330,60"/>
-<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="595,99,759,139"/>
-<area shape="poly" title=" " alt="" coords="329,71,582,104,581,110,328,76"/>
-<area shape="poly" title=" " alt="" coords="502,28,548,48,630,90,627,95,546,52,499,33"/>
-<area shape="poly" title=" " alt="" coords="637,100,635,90,641,80,655,75,677,73,701,76,715,83,712,88,700,81,677,78,656,80,644,85,640,91,642,98"/>
-<area shape="poly" title=" " alt="" coords="335,139,581,123,581,128,335,145"/>
-<area shape="rect" href="../../d6/d9b/cuda_2cfl__kernel_8h.html#a0007a47cb62f063f2431f56c9ebf81d0" title=" " alt="" coords="423,207,507,232"/>
-<area shape="poly" title=" " alt="" coords="314,155,384,192,410,202,409,207,382,196,312,160"/>
-<area shape="rect" href="../../d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="399,157,531,183"/>
-<area shape="poly" title=" " alt="" coords="335,148,385,156,384,161,334,154"/>
-<area shape="poly" title=" " alt="" coords="506,206,546,192,591,169,632,144,635,149,594,173,548,196,508,211"/>
-<area shape="rect" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="619,207,734,232"/>
-<area shape="poly" title=" " alt="" coords="507,217,605,217,605,222,507,222"/>
-<area shape="poly" title=" " alt="" coords="518,155,581,140,582,145,519,160"/>
+<area shape="poly" title=" " alt="" coords="316,79,382,48,416,33,418,38,384,52,318,84"/>
+<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="596,125,760,165"/>
+<area shape="poly" title=" " alt="" coords="329,87,428,82,489,84,549,91,588,102,625,116,624,121,587,107,547,97,488,89,428,87,329,92"/>
+<area shape="rect" href="../../d3/dd2/device__nccl__reduce_8c.html#a371589d8f587766faf29bea073bd3e34" title=" " alt="" coords="383,107,548,132"/>
+<area shape="poly" title=" " alt="" coords="329,97,370,103,369,108,329,102"/>
+<area shape="poly" title=" " alt="" coords="506,28,549,48,600,80,645,114,641,118,597,85,547,52,504,33"/>
+<area shape="poly" title=" " alt="" coords="638,125,636,115,642,106,657,100,678,98,703,101,716,108,714,113,701,106,678,103,658,105,646,110,641,116,644,124"/>
+<area shape="poly" title=" " alt="" coords="549,127,583,131,582,136,548,132"/>
+<area shape="poly" title=" " alt="" coords="335,187,582,154,583,160,335,192"/>
+<area shape="rect" href="../../d6/d9b/cuda_2cfl__kernel_8h.html#a0007a47cb62f063f2431f56c9ebf81d0" title=" " alt="" coords="423,257,507,283"/>
+<area shape="poly" title=" " alt="" coords="314,206,384,242,411,252,409,257,382,247,312,210"/>
+<area shape="rect" href="../../d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="399,208,531,233"/>
+<area shape="poly" title=" " alt="" coords="335,199,386,206,385,212,335,204"/>
+<area shape="poly" title=" " alt="" coords="507,258,547,242,599,208,644,172,647,176,603,213,549,247,508,263"/>
+<area shape="rect" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="621,257,735,283"/>
+<area shape="poly" title=" " alt="" coords="508,267,607,267,607,273,508,273"/>
+<area shape="poly" title=" " alt="" coords="501,205,608,167,609,172,503,210"/>
 </map>
 </div>
 
@@ -397,7 +414,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00467">467</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00575">575</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -434,8 +451,105 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
-<a id="a2dbb24b2b6aff8d7d546656b638566e2" name="a2dbb24b2b6aff8d7d546656b638566e2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2dbb24b2b6aff8d7d546656b638566e2">&#9670;&#160;</a></span>opr_device_curl()</h2>
+<a id="a046cc3f2f0d5f27cc7b098b2085a717e" name="a046cc3f2f0d5f27cc7b098b2085a717e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a046cc3f2f0d5f27cc7b098b2085a717e">&#9670;&#160;</a></span>opr_device_convect_scalar()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> opr_device::opr_device_convect_scalar </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(xh_gll%lx, xh_gll%ly, xh_gll%lz, coef_gl%msh%nelv), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>du</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>u_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>cr_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>cs_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>ct_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../da/d99/structspace_1_1space__t.html">space_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>xh_gll</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../da/d99/structspace_1_1space__t.html">space_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>xh_gl</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>coef_gll</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>coef_gl</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../db/d74/structinterpolation_1_1interpolator__t.html">interpolator_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>gll_to_gl</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00622">622</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d3/d4d/namespaceopr__device_a046cc3f2f0d5f27cc7b098b2085a717e_cgraph.png" border="0" usemap="#ad3/d4d/namespaceopr__device_a046cc3f2f0d5f27cc7b098b2085a717e_cgraph" alt=""/></div>
+<map name="ad3/d4d/namespaceopr__device_a046cc3f2f0d5f27cc7b098b2085a717e_cgraph" id="ad3/d4d/namespaceopr__device_a046cc3f2f0d5f27cc7b098b2085a717e_cgraph">
+<area shape="rect" title=" " alt="" coords="5,23,177,63"/>
+<area shape="rect" href="../../da/daa/opr__convect__scalar_8cu.html#a836eccecdf545e5819c3eb3f0b9a45fc" title=" " alt="" coords="443,5,600,31"/>
+<area shape="poly" title=" " alt="" coords="177,36,429,21,429,26,178,41"/>
+<area shape="rect" href="../../d3/d27/opr__convect__scalar_8c.html#aa739bbd25495dd215c5d209b13051e80" title=" " alt="" coords="225,56,395,81"/>
+<area shape="poly" title=" " alt="" coords="178,51,212,55,212,60,177,56"/>
+<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="648,49,812,89"/>
+<area shape="poly" title=" " alt="" coords="575,28,635,43,634,48,574,33"/>
+<area shape="poly" title=" " alt="" coords="691,49,689,39,695,30,709,24,730,22,754,25,768,32,765,37,753,30,730,27,710,29,698,34,694,40,696,48"/>
+<area shape="poly" title=" " alt="" coords="395,66,634,66,634,71,395,71"/>
+<area shape="rect" href="../../d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="455,107,587,132"/>
+<area shape="poly" title=" " alt="" coords="365,79,455,101,454,106,363,84"/>
+<area shape="poly" title=" " alt="" coords="574,104,634,89,635,94,575,109"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a99baf3e0c295d2b3603f603e7d11f458" name="a99baf3e0c295d2b3603f603e7d11f458"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a99baf3e0c295d2b3603f603e7d11f458">&#9670;&#160;</a></span>opr_device_curl()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -461,19 +575,19 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>u1</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>u2</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>u3</em>, </td>
         </tr>
         <tr>
@@ -492,7 +606,13 @@ Here is the caller graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
-          <td class="paramname"><em>c_xh</em>&#160;</td>
+          <td class="paramname"><em>c_xh</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>event</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -502,24 +622,29 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00514">514</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00667">667</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d3/d4d/namespaceopr__device_a2dbb24b2b6aff8d7d546656b638566e2_cgraph.png" border="0" usemap="#ad3/d4d/namespaceopr__device_a2dbb24b2b6aff8d7d546656b638566e2_cgraph" alt=""/></div>
-<map name="ad3/d4d/namespaceopr__device_a2dbb24b2b6aff8d7d546656b638566e2_cgraph" id="ad3/d4d/namespaceopr__device_a2dbb24b2b6aff8d7d546656b638566e2_cgraph">
-<area shape="rect" title=" " alt="" coords="5,31,208,56"/>
-<area shape="rect" href="../../d3/d13/opr__dudxyz_8cu.html#a12bdb6bf9c94199b29d19641386a2ea0" title=" " alt="" coords="435,5,542,31"/>
-<area shape="poly" title=" " alt="" coords="208,34,421,20,422,25,208,39"/>
-<area shape="rect" href="../../d1/d28/opr__dudxyz_8c.html#aa154bc09bc993f78a4d5ba22abe64ab2" title=" " alt="" coords="256,56,375,81"/>
-<area shape="poly" title=" " alt="" coords="209,53,243,57,242,62,208,58"/>
-<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="603,49,767,89"/>
-<area shape="poly" title=" " alt="" coords="539,28,594,43,593,48,538,33"/>
-<area shape="poly" title=" " alt="" coords="648,49,646,39,652,30,665,24,685,22,708,25,720,32,717,37,706,30,685,27,666,29,655,34,651,40,653,48"/>
-<area shape="poly" title=" " alt="" coords="375,66,589,66,589,71,375,71"/>
-<area shape="rect" href="../../d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="423,107,555,132"/>
-<area shape="poly" title=" " alt="" coords="360,79,432,100,430,105,359,84"/>
-<area shape="poly" title=" " alt="" coords="538,104,593,90,594,95,539,109"/>
+<div class="center"><img src="../../d3/d4d/namespaceopr__device_a99baf3e0c295d2b3603f603e7d11f458_cgraph.png" border="0" usemap="#ad3/d4d/namespaceopr__device_a99baf3e0c295d2b3603f603e7d11f458_cgraph" alt=""/></div>
+<map name="ad3/d4d/namespaceopr__device_a99baf3e0c295d2b3603f603e7d11f458_cgraph" id="ad3/d4d/namespaceopr__device_a99baf3e0c295d2b3603f603e7d11f458_cgraph">
+<area shape="rect" title=" " alt="" coords="5,67,208,92"/>
+<area shape="rect" href="../../d3/d13/opr__dudxyz_8cu.html#a12bdb6bf9c94199b29d19641386a2ea0" title=" " alt="" coords="489,5,595,31"/>
+<area shape="poly" title=" " alt="" coords="178,64,256,51,475,23,476,28,256,57,179,69"/>
+<area shape="rect" href="../../d1/d28/opr__dudxyz_8c.html#aa154bc09bc993f78a4d5ba22abe64ab2" title=" " alt="" coords="283,67,401,92"/>
+<area shape="poly" title=" " alt="" coords="208,77,269,77,269,82,208,82"/>
+<area shape="rect" href="../../d3/d4d/namespaceopr__device.html#a668b8309c718fdf4a51cffb97afad559" title=" " alt="" coords="256,127,428,167"/>
+<area shape="poly" title=" " alt="" coords="153,90,260,121,258,126,151,95"/>
+<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="656,74,820,114"/>
+<area shape="poly" title=" " alt="" coords="577,28,674,66,672,71,575,33"/>
+<area shape="poly" title=" " alt="" coords="701,74,699,64,705,55,718,49,738,47,761,50,773,58,771,62,759,55,738,53,719,55,708,59,704,65,706,73"/>
+<area shape="poly" title=" " alt="" coords="401,79,642,88,642,93,401,84"/>
+<area shape="rect" href="../../d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="476,107,608,132"/>
+<area shape="poly" title=" " alt="" coords="402,89,465,101,464,107,401,94"/>
+<area shape="poly" title=" " alt="" coords="608,108,642,104,643,109,609,113"/>
+<area shape="rect" href="../../de/d68/opr__rotate__cyc_8cu.html#a03227187d2a29859b2f5f36d015463ad" title=" " alt="" coords="478,156,606,181"/>
+<area shape="poly" title=" " alt="" coords="428,154,465,158,464,163,428,159"/>
+<area shape="poly" title=" " alt="" coords="577,153,607,142,672,117,674,122,609,147,579,158"/>
 </map>
 </div>
 
@@ -575,7 +700,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00324">324</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00432">432</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -600,47 +725,74 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d3/d4d/namespaceopr__device_abc0d21999d04728a18514d4c422219ec_icgraph.png" border="0" usemap="#ad3/d4d/namespaceopr__device_abc0d21999d04728a18514d4c422219ec_icgraph" alt=""/></div>
 <map name="ad3/d4d/namespaceopr__device_abc0d21999d04728a18514d4c422219ec_icgraph" id="ad3/d4d/namespaceopr__device_abc0d21999d04728a18514d4c422219ec_icgraph">
-<area shape="rect" title=" " alt="" coords="992,239,1164,279"/>
-<area shape="rect" href="../../dd/d30/namespaceoperators.html#ae52fad680e572c55e87090cfa06c72eb" title="Compute derivative of a scalar field along a single direction." alt="" coords="805,246,944,271"/>
-<area shape="poly" title=" " alt="" coords="978,261,944,261,944,256,978,256"/>
-<area shape="rect" href="../../d6/dbc/namespacederivative.html#a644e64ee3bb510ed6375d1fc698447ac" title="Compute the derivative field." alt="" coords="559,5,721,45"/>
-<area shape="poly" title=" " alt="" coords="863,234,849,195,826,147,795,100,756,59,720,41,723,36,759,55,799,96,831,145,853,193,868,232"/>
-<area shape="rect" href="../../dd/d30/namespaceoperators.html#a6b1d2baa65e8e676f66e5cda841d3681" title="Compute the divergence of a vector field." alt="" coords="584,70,696,95"/>
-<area shape="poly" title=" " alt="" coords="859,235,820,171,790,137,756,109,727,96,696,89,697,83,729,91,759,104,794,133,824,168,864,232"/>
-<area shape="rect" href="../../dd/d30/namespaceoperators.html#a91f918cda1627fb384dd63393c822991" title="Compute the gradient of a scalar field." alt="" coords="579,119,701,145"/>
-<area shape="poly" title=" " alt="" coords="850,238,808,201,756,166,700,146,702,141,759,162,811,197,853,234"/>
-<area shape="rect" href="../../de/d0d/namespacepnpn__res__stress__cpu.html#aaf1c75297d8ffd5bb6e15bfa4e629d46" title=" " alt="" coords="280,91,443,146"/>
-<area shape="poly" title=" " alt="" coords="831,243,757,215,442,140,444,135,758,209,833,238"/>
-<area shape="rect" href="../../dd/d1f/namespacepnpn__res__stress__device.html#aa01b9675011a43985690c2e8b9558f94" title=" " alt="" coords="273,170,450,225"/>
-<area shape="poly" title=" " alt="" coords="791,252,450,211,451,205,792,246"/>
-<area shape="rect" href="../../d7/d87/namespacesigma__cpu.html#ad5639c13d4ac097ec8fcf954271feb9c" title="Compute eddy viscosity on the CPU." alt="" coords="523,321,757,346"/>
-<area shape="poly" title=" " alt="" coords="836,280,758,311,711,323,709,318,756,305,834,275"/>
-<area shape="rect" href="../../d4/d88/namespacesigma__device.html#aeb1d48dffcec92f79ca628689adeb807" title="Compute eddy viscosity on device." alt="" coords="560,371,720,411"/>
-<area shape="poly" title=" " alt="" coords="854,283,812,322,759,360,722,375,719,370,756,355,809,318,850,280"/>
-<area shape="rect" href="../../dd/d30/namespaceoperators.html#ab2babd24679efca34a9310107b346969" title="Compute the strain rate tensor, i.e 0.5 * du_i/dx_j + du_j/dx_i." alt="" coords="559,271,721,297"/>
-<area shape="poly" title=" " alt="" coords="791,270,722,278,721,273,791,265"/>
-<area shape="rect" href="../../d9/da0/namespacevreman__cpu.html#afd690af29ff96e9cde941ebdafd9ca44" title="Compute eddy viscosity on the CPU." alt="" coords="560,435,720,475"/>
-<area shape="poly" title=" " alt="" coords="865,285,825,355,795,393,759,425,721,443,719,438,756,420,791,389,820,352,860,283"/>
-<area shape="rect" href="../../dd/dcb/namespacevreman__device.html#a827df8208f1e5169d7b043f267d9b7b6" title="Compute eddy viscosity on the device." alt="" coords="550,499,730,539"/>
-<area shape="poly" title=" " alt="" coords="870,286,857,330,835,385,803,441,782,466,759,489,731,505,729,500,756,485,778,463,798,438,830,383,852,329,865,285"/>
-<area shape="rect" href="../../d6/dcd/namespacesigma.html#a4382f10d4f01fe94f14c5b63666c8a01" title="Compute eddy viscosity." alt="" coords="274,457,449,482"/>
-<area shape="poly" title=" " alt="" coords="535,354,524,361,508,381,501,402,494,425,476,446,450,460,448,455,473,442,490,422,496,401,503,378,521,357,532,350"/>
-<area shape="poly" title=" " alt="" coords="548,417,524,425,476,447,430,459,428,454,474,441,522,420,546,412"/>
-<area shape="poly" title=" " alt="" coords="606,266,521,203,498,180,473,160,442,144,444,139,476,155,501,176,524,199,609,261"/>
-<area shape="poly" title=" " alt="" coords="576,270,522,255,441,227,443,222,523,249,578,265"/>
-<area shape="rect" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#afc315d593e38cf654ffdc958baa9a5c6" title="Compute eddy viscosity on the CPU." alt="" coords="258,249,465,303"/>
-<area shape="poly" title=" " alt="" coords="545,284,465,282,465,276,545,279"/>
-<area shape="rect" href="../../d6/daa/namespaceforce__torque.html#ab407c7b9763b091d7165c5d7d19044de" title="Compute the force_torque field." alt="" coords="289,328,434,368"/>
-<area shape="poly" title=" " alt="" coords="562,302,523,311,435,332,434,327,522,305,561,297"/>
-<area shape="rect" href="../../dd/d73/namespacesmagorinsky__cpu.html#a4c7509e1ca11400eb45a26eaa7ce4de8" title="Compute eddy viscosity on the CPU." alt="" coords="248,392,475,432"/>
-<area shape="poly" title=" " alt="" coords="547,299,524,310,508,327,501,345,493,364,476,382,456,394,453,389,473,378,489,361,496,343,504,324,521,306,544,294"/>
-<area shape="rect" href="../../d4/d9c/namespacedynamic__smagorinsky.html#ad9e829fe19717511484cca0fe4524c52" title="Compute eddy viscosity." alt="" coords="15,249,191,303"/>
-<area shape="poly" title=" " alt="" coords="244,279,191,279,191,273,244,273"/>
-<area shape="rect" href="../../d9/d9a/namespacesmagorinsky.html#a7e50d1b4992ed399dae8d96bed4a0d5b" title="Compute eddy viscosity." alt="" coords="5,392,200,432"/>
-<area shape="poly" title=" " alt="" coords="234,415,200,415,200,409,234,409"/>
-<area shape="rect" href="../../d4/d6e/namespacevreman.html#a83a0531f4d84533dc1c0599c3a132485" title="Compute eddy viscosity." alt="" coords="264,506,459,531"/>
-<area shape="poly" title=" " alt="" coords="547,480,475,497,424,509,423,503,474,492,546,475"/>
-<area shape="poly" title=" " alt="" coords="536,521,459,521,459,516,536,516"/>
+<area shape="rect" title=" " alt="" coords="1003,645,1175,685"/>
+<area shape="rect" href="../../dd/d30/namespaceoperators.html#ae52fad680e572c55e87090cfa06c72eb" title="Compute derivative of a scalar field along a single direction." alt="" coords="816,653,955,678"/>
+<area shape="poly" title=" " alt="" coords="989,668,955,668,955,663,989,663"/>
+<area shape="rect" href="../../dc/d1d/namespacederivative__simcomp.html#a6735c6cf425d5d49e4cc2e303b42828d" title="Compute the derivative field." alt="" coords="571,108,731,148"/>
+<area shape="poly" title=" " alt="" coords="879,639,867,535,844,392,829,319,810,252,790,198,766,162,749,149,730,140,732,135,752,144,770,158,794,196,815,251,834,317,849,391,872,534,884,639"/>
+<area shape="rect" href="../../dd/d30/namespaceoperators.html#a6b1d2baa65e8e676f66e5cda841d3681" title="Compute the divergence of a vector field." alt="" coords="595,173,707,198"/>
+<area shape="poly" title=" " alt="" coords="878,640,867,575,846,487,813,389,791,340,766,295,743,265,718,239,669,200,673,196,721,235,748,262,770,292,796,338,818,387,851,485,872,574,883,639"/>
+<area shape="rect" href="../../dd/d30/namespaceoperators.html#a91f918cda1627fb384dd63393c822991" title="Compute the gradient of a scalar field." alt="" coords="590,306,711,331"/>
+<area shape="poly" title=" " alt="" coords="876,640,863,589,842,523,809,453,789,420,766,390,747,372,726,357,684,334,686,329,729,352,751,368,770,386,794,417,814,451,847,521,868,587,881,638"/>
+<area shape="rect" href="../../de/d0d/namespacepnpn__res__stress__cpu.html#a31cf6435d89a64e387d00dd2d42e019f" title=" " alt="" coords="291,326,453,381"/>
+<area shape="poly" title=" " alt="" coords="866,643,824,589,796,559,766,533,688,481,605,438,523,404,452,379,454,374,525,400,607,434,691,477,770,529,800,555,828,585,870,639"/>
+<area shape="rect" href="../../dd/d1f/namespacepnpn__res__stress__device.html#a9c09a9089caa70d30de4f4b7b087d19e" title=" " alt="" coords="283,405,461,459"/>
+<area shape="poly" title=" " alt="" coords="847,649,691,570,484,474,452,462,454,457,486,470,693,565,850,644"/>
+<area shape="rect" href="../../d7/d87/namespacesigma__cpu.html#a2f73ccb39285d629e58357e91d92d5e6" title="Compute eddy viscosity on the CPU." alt="" coords="533,794,768,819"/>
+<area shape="poly" title=" " alt="" coords="869,691,827,738,800,762,769,782,735,796,733,791,767,778,796,758,823,734,865,687"/>
+<area shape="rect" href="../../d4/d88/namespacesigma__device.html#a81c865394c4dff48cad4ebb1d6cbd5ff" title="Compute eddy viscosity on device." alt="" coords="571,847,731,887"/>
+<area shape="poly" title=" " alt="" coords="875,692,835,762,805,800,770,833,732,852,730,848,766,828,802,796,831,759,871,689"/>
+<area shape="rect" href="../../dd/d30/namespaceoperators.html#ab2babd24679efca34a9310107b346969" title="Compute the strain rate tensor, i.e 0.5 * du_i/dx_j + du_j/dx_i." alt="" coords="569,627,732,653"/>
+<area shape="poly" title=" " alt="" coords="802,659,732,651,732,646,802,654"/>
+<area shape="rect" href="../../d7/da8/namespacewale__cpu.html#ae8860c8d1c538c880c01de3ad5137a6c" title="Compute eddy viscosity on the CPU." alt="" coords="264,849,480,874"/>
+<area shape="poly" title=" " alt="" coords="803,671,728,675,650,684,580,698,554,707,535,718,522,731,515,745,511,776,507,807,500,823,487,838,467,851,464,846,484,834,496,820,502,806,506,775,510,744,518,728,532,714,552,703,579,693,649,679,728,670,802,665"/>
+<area shape="rect" href="../../d9/da0/namespacevreman__cpu.html#a3c358b1cea7229013aa149a0bc69880f" title="Compute eddy viscosity on the CPU." alt="" coords="571,916,731,956"/>
+<area shape="poly" title=" " alt="" coords="881,692,868,737,846,793,814,851,793,877,770,901,732,922,729,918,766,897,789,874,809,848,841,790,863,735,876,690"/>
+<area shape="rect" href="../../dd/dcb/namespacevreman__device.html#a1034f16a0846c21b9ae661c97bfb892c" title="Compute eddy viscosity on the device." alt="" coords="561,991,741,1031"/>
+<area shape="poly" title=" " alt="" coords="884,692,874,749,854,823,839,862,821,901,798,937,770,970,736,993,733,988,766,966,793,934,816,898,834,860,849,821,869,748,879,691"/>
+<area shape="rect" href="../../d0/d87/namespacewale__device.html#a500b74870423cb69a3ac86bc91974475" title="Compute eddy viscosity on the device." alt="" coords="547,728,754,768"/>
+<area shape="poly" title=" " alt="" coords="840,685,769,712,714,731,713,725,767,707,838,680"/>
+<area shape="rect" href="../../d8/dec/namespacedivergence__simcomp.html#afd972ea52ff980dd011d6f144b62b137" title="Compute the divergence field." alt="" coords="289,5,455,45"/>
+<area shape="poly" title=" " alt="" coords="580,184,555,176,532,162,519,149,512,136,506,110,501,84,495,71,484,59,454,42,457,38,487,55,499,68,506,82,512,109,517,134,524,146,535,158,557,171,582,178"/>
+<area shape="rect" href="../../d1/d20/namespaceeuler__res__cpu.html#a83856a062ef183395a069cd9fb5c1a30" title="Evaluates the right&#45;hand side of the Euler equations Computes fluxes, divergence terms,..." alt="" coords="283,69,461,109"/>
+<area shape="poly" title=" " alt="" coords="580,178,532,162,517,153,507,143,498,133,484,124,457,112,459,107,487,119,501,129,511,139,521,149,534,158,582,173"/>
+<area shape="rect" href="../../d4/d49/namespaceeuler__res__device.html#a54d62b334a0d21f168ff6e7e3084bce8" title=" " alt="" coords="273,133,471,173"/>
+<area shape="poly" title=" " alt="" coords="581,180,471,167,471,162,581,175"/>
+<area shape="rect" href="../../de/d1c/namespaceeuler__res__sx.html#aa6dbd6132b629c9aaddde9d8d97e7e10" title=" " alt="" coords="287,197,457,237"/>
+<area shape="poly" title=" " alt="" coords="581,196,457,210,456,205,580,191"/>
+<area shape="rect" href="../../d1/d20/namespaceeuler__res__cpu.html#aa1bfd1583e093204cb59e081daaf9646" title="Advances the primitive variables (density, momentum, energy) in time using a Runge&#45;Kutta scheme." alt="" coords="15,69,201,109"/>
+<area shape="poly" title=" " alt="" coords="269,92,201,92,201,87,269,87"/>
+<area shape="rect" href="../../d4/d49/namespaceeuler__res__device.html#a86988c02aabf70727c8674ddbab529c6" title=" " alt="" coords="5,133,211,173"/>
+<area shape="poly" title=" " alt="" coords="260,156,211,156,211,151,260,151"/>
+<area shape="rect" href="../../de/d1c/namespaceeuler__res__sx.html#a17f468c7e2d9fdc556f6c2c371aaf219" title=" " alt="" coords="19,197,197,237"/>
+<area shape="poly" title=" " alt="" coords="274,220,197,220,197,215,274,215"/>
+<area shape="rect" href="../../d6/dbf/namespacegradient__simcomp.html#a1a539519b79721407508897df56a6099" title="Compute the gradient field." alt="" coords="269,261,475,301"/>
+<area shape="poly" title=" " alt="" coords="576,311,475,298,475,292,577,306"/>
+<area shape="rect" href="../../d6/dcd/namespacesigma.html#a4382f10d4f01fe94f14c5b63666c8a01" title="Compute eddy viscosity." alt="" coords="285,950,459,975"/>
+<area shape="poly" title=" " alt="" coords="550,827,535,837,524,848,518,859,512,883,506,908,499,921,487,933,452,952,449,947,484,929,494,917,501,906,507,882,513,857,520,844,532,833,547,823"/>
+<area shape="poly" title=" " alt="" coords="567,894,534,906,511,920,486,933,428,952,426,947,484,928,508,915,532,902,566,889"/>
+<area shape="poly" title=" " alt="" coords="637,615,615,568,582,509,538,447,512,419,484,394,452,376,455,372,487,390,516,415,542,444,586,506,620,566,641,613"/>
+<area shape="poly" title=" " alt="" coords="623,620,531,531,509,500,499,487,484,474,460,460,463,456,487,470,503,484,513,497,535,528,627,616"/>
+<area shape="rect" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#a4413235e5f71141ae47e071699c75afb" title="Compute eddy viscosity on the CPU." alt="" coords="269,691,475,746"/>
+<area shape="poly" title=" " alt="" coords="590,659,534,675,467,694,466,689,533,669,588,654"/>
+<area shape="rect" href="../../dd/daf/namespacedynamic__smagorinsky__device.html#aad7c438416e36302a7eefa1042cd2529" title="Compute eddy viscosity on the device." alt="" coords="259,770,485,825"/>
+<area shape="poly" title=" " alt="" coords="559,660,535,674,518,694,511,715,504,737,487,759,469,772,466,768,484,755,500,735,506,713,514,691,532,670,556,655"/>
+<area shape="rect" href="../../d6/daa/namespaceforce__torque.html#a04fd3661b7bbe9d298cb5c3109ac9499" title="Compute the force_torque field." alt="" coords="299,484,445,524"/>
+<area shape="poly" title=" " alt="" coords="620,621,559,580,484,538,444,524,446,519,486,534,562,575,623,617"/>
+<area shape="rect" href="../../dd/d73/namespacesmagorinsky__cpu.html#a481f97d45d0f9cdff801d0e0c0e48da8" title="Compute eddy viscosity on the CPU." alt="" coords="259,548,485,588"/>
+<area shape="poly" title=" " alt="" coords="587,626,450,591,451,585,588,621"/>
+<area shape="rect" href="../../dd/d4e/namespacesmagorinsky__device.html#aca81097aab237ed87916a91e70ee0875" title="Compute eddy viscosity on the device." alt="" coords="283,613,461,667"/>
+<area shape="poly" title=" " alt="" coords="556,643,461,643,461,637,556,637"/>
+<area shape="poly" title=" " alt="" coords="558,658,535,674,520,693,513,713,512,755,511,796,503,818,487,838,469,851,466,846,484,834,499,815,506,795,507,754,508,712,516,691,531,670,555,654"/>
+<area shape="rect" href="../../d9/d9a/namespacesmagorinsky.html#a7e50d1b4992ed399dae8d96bed4a0d5b" title="Compute eddy viscosity." alt="" coords="11,584,205,624"/>
+<area shape="poly" title=" " alt="" coords="245,588,206,593,205,588,245,583"/>
+<area shape="poly" title=" " alt="" coords="269,629,205,620,206,615,270,623"/>
+<area shape="rect" href="../../d5/d8e/namespacewale.html#a4f65e01baf4d0d403fc12e795d1ab2c2" title="Compute eddy viscosity." alt="" coords="30,874,186,899"/>
+<area shape="poly" title=" " alt="" coords="251,876,186,882,186,877,250,870"/>
+<area shape="rect" href="../../d4/d6e/namespacevreman.html#a83a0531f4d84533dc1c0599c3a132485" title="Compute eddy viscosity." alt="" coords="275,999,469,1025"/>
+<area shape="poly" title=" " alt="" coords="579,963,486,991,439,1002,438,997,485,985,577,958"/>
+<area shape="poly" title=" " alt="" coords="547,1014,470,1014,470,1009,547,1008"/>
+<area shape="poly" title=" " alt="" coords="543,777,535,783,524,796,518,808,514,836,508,863,500,876,487,888,445,909,399,922,352,928,305,928,218,918,149,902,150,897,219,913,306,923,352,922,398,916,443,904,484,883,496,873,503,861,508,835,513,807,520,793,532,779,540,773"/>
 </map>
 </div>
 
@@ -690,7 +842,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00401">401</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00509">509</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -757,7 +909,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00359">359</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00467">467</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -782,27 +934,246 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d3/d4d/namespaceopr__device_ad5bf8b83c33e9c73125c466a6fab72df_icgraph.png" border="0" usemap="#ad3/d4d/namespaceopr__device_ad5bf8b83c33e9c73125c466a6fab72df_icgraph" alt=""/></div>
 <map name="ad3/d4d/namespaceopr__device_ad5bf8b83c33e9c73125c466a6fab72df_icgraph" id="ad3/d4d/namespaceopr__device_ad5bf8b83c33e9c73125c466a6fab72df_icgraph">
-<area shape="rect" title=" " alt="" coords="429,261,601,301"/>
-<area shape="rect" href="../../dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84" title="Compute the weak gradient of a scalar field, i.e. the gradient multiplied by the mass matrix." alt="" coords="244,269,381,294"/>
-<area shape="poly" title=" " alt="" coords="416,284,381,284,381,279,416,279"/>
+<area shape="rect" title=" " alt="" coords="429,297,601,337"/>
+<area shape="rect" href="../../dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84" title="Compute the weak gradient of a scalar field, i.e. the gradient multiplied by the mass matrix." alt="" coords="244,305,381,330"/>
+<area shape="poly" title=" " alt="" coords="416,320,381,320,381,315,416,315"/>
 <area shape="rect" href="../../d9/df7/namespaceadv__dealias.html#a4ad2c5d9b00cd1275c1786415a359ab9" title="Add the advection term for the fluid, i.e. , to the RHS." alt="" coords="18,5,183,45"/>
-<area shape="poly" title=" " alt="" coords="302,256,289,214,267,161,236,106,216,81,194,59,177,48,180,43,198,55,220,78,240,103,272,158,294,212,307,255"/>
+<area shape="poly" title=" " alt="" coords="304,292,293,242,272,180,240,115,219,86,194,59,178,48,181,43,198,55,223,82,244,113,277,178,298,241,309,290"/>
 <area shape="rect" href="../../d9/d7d/namespacefluid__stats.html#a4f4f6b67d4aaee16ce1a646a3d23e844" title="Updates all fields with a new sample." alt="" coords="38,69,163,109"/>
-<area shape="poly" title=" " alt="" coords="297,257,257,191,228,155,194,124,162,106,165,102,198,119,232,151,262,188,302,255"/>
+<area shape="poly" title=" " alt="" coords="300,292,285,255,263,209,232,163,194,123,162,106,165,101,198,119,237,160,267,207,290,252,305,290"/>
 <area shape="rect" href="../../d6/d21/namespacefluid__volflow.html#aa98b3664b63c5f327790b496a51c20f5" title="Compute flow adjustment." alt="" coords="27,133,174,173"/>
-<area shape="poly" title=" " alt="" coords="288,261,246,224,195,188,169,176,172,171,197,183,250,219,291,257"/>
+<area shape="poly" title=" " alt="" coords="294,295,253,241,225,212,195,188,173,176,175,171,197,183,229,208,257,237,298,292"/>
 <area shape="rect" href="../../d2/de4/namespacepnpn__res__cpu.html#a43bf48bf3b10c70759c96eb91cd2b452" title=" " alt="" coords="15,197,186,237"/>
-<area shape="poly" title=" " alt="" coords="256,267,167,240,168,235,257,262"/>
+<area shape="poly" title=" " alt="" coords="279,299,240,275,195,252,166,240,168,235,197,247,242,271,282,295"/>
 <area shape="rect" href="../../d8/dea/namespacepnpn__res__device.html#a7634678695c23385c494115658ff88cd" title=" " alt="" coords="5,261,196,301"/>
-<area shape="poly" title=" " alt="" coords="231,284,196,284,196,279,231,279"/>
+<area shape="poly" title=" " alt="" coords="230,306,196,300,197,295,231,301"/>
 <area shape="rect" href="../../de/d0d/namespacepnpn__res__stress__cpu.html#a986698f8eee1fe0a1178677cd9f304ed" title=" " alt="" coords="19,326,182,381"/>
-<area shape="poly" title=" " alt="" coords="263,301,182,329,181,323,261,296"/>
+<area shape="poly" title=" " alt="" coords="231,334,182,342,182,337,230,329"/>
 <area shape="rect" href="../../dd/d1f/namespacepnpn__res__stress__device.html#a62cedb09bbf5da8ce1c248095b493b39" title=" " alt="" coords="12,405,189,459"/>
-<area shape="poly" title=" " alt="" coords="294,306,252,350,198,394,176,407,173,402,194,390,248,346,290,302"/>
+<area shape="poly" title=" " alt="" coords="284,340,197,394,172,407,169,402,195,390,281,336"/>
 <area shape="rect" href="../../d4/da3/namespacepnpn__res__sx.html#ad2586259b3e34e72aebb30cd0a05fb69" title=" " alt="" coords="15,484,186,524"/>
-<area shape="poly" title=" " alt="" coords="305,308,289,345,266,389,236,434,198,473,176,486,174,482,194,469,232,430,262,386,284,342,300,306"/>
-<area shape="rect" href="../../de/d32/namespaceweak__grad.html#a84e25f3dbf1e49a44a3333a0ce7ed1d3" title="Compute the weak_grad field." alt="" coords="15,548,187,588"/>
-<area shape="poly" title=" " alt="" coords="309,308,297,356,276,418,244,482,222,512,198,538,180,550,177,546,194,534,218,508,239,479,271,416,292,355,304,307"/>
+<area shape="poly" title=" " alt="" coords="301,343,261,407,232,442,198,473,174,486,172,482,194,469,228,439,256,404,297,340"/>
+<area shape="rect" href="../../dc/d5e/namespacescalar__stats.html#aa5566a78671c59995c5eeb1d7fd19c5a" title="Updates all fields with a new sample." alt="" coords="27,548,174,588"/>
+<area shape="poly" title=" " alt="" coords="307,344,293,386,271,438,239,492,220,516,198,538,176,552,173,548,194,534,216,513,235,488,266,436,288,384,302,342"/>
+<area shape="rect" href="../../d4/dd6/namespaceweak__gradient__simcomp.html#ae236a24b2d3afb8a0cdb2f3fe182d75c" title="Compute the weak_gradient field." alt="" coords="5,612,196,652"/>
+<area shape="poly" title=" " alt="" coords="311,344,300,398,280,467,247,539,224,572,198,602,181,614,178,610,194,598,220,569,242,536,275,465,295,396,305,343"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a176528d5e4ecc8f5be227480b891aa1e" name="a176528d5e4ecc8f5be227480b891aa1e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a176528d5e4ecc8f5be227480b891aa1e">&#9670;&#160;</a></span>opr_device_rotate_cyc_r1()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> opr_device::opr_device_rotate_cyc_r1 </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(coef%xh%lx*coef%xh%ly*coef%xh%lz*coef%msh%nelv)&#160;</td>
+          <td class="paramname"><em>vx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(coef%xh%lx*coef%xh%ly*coef%xh%lz*coef%msh%nelv)&#160;</td>
+          <td class="paramname"><em>vy</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(coef%xh%lx*coef%xh%ly*coef%xh%lz*coef%msh%nelv)&#160;</td>
+          <td class="paramname"><em>vz</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td>
+          <td class="paramname"><em>idir</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>)&#160;</td>
+          <td class="paramname"><em>coef</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00873">873</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d3/d4d/namespaceopr__device_a176528d5e4ecc8f5be227480b891aa1e_cgraph.png" border="0" usemap="#ad3/d4d/namespaceopr__device_a176528d5e4ecc8f5be227480b891aa1e_cgraph" alt=""/></div>
+<map name="ad3/d4d/namespaceopr__device_a176528d5e4ecc8f5be227480b891aa1e_cgraph" id="ad3/d4d/namespaceopr__device_a176528d5e4ecc8f5be227480b891aa1e_cgraph">
+<area shape="rect" title=" " alt="" coords="5,29,177,69"/>
+<area shape="rect" href="../../de/d68/opr__rotate__cyc_8cu.html#a03227187d2a29859b2f5f36d015463ad" title=" " alt="" coords="225,37,353,62"/>
+<area shape="poly" title=" " alt="" coords="178,47,211,47,211,52,178,52"/>
+<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="401,29,565,69"/>
+<area shape="poly" title=" " alt="" coords="354,47,388,47,388,52,354,52"/>
+<area shape="poly" title=" " alt="" coords="447,30,445,20,451,11,464,5,483,3,506,6,518,13,516,17,504,11,483,8,465,10,454,15,450,21,452,28"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a668b8309c718fdf4a51cffb97afad559" name="a668b8309c718fdf4a51cffb97afad559"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a668b8309c718fdf4a51cffb97afad559">&#9670;&#160;</a></span>opr_device_rotate_cyc_r4()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> opr_device::opr_device_rotate_cyc_r4 </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(coef%xh%lx, coef%xh%ly, coef%xh%lz, coef%msh%nelv)&#160;</td>
+          <td class="paramname"><em>vx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(coef%xh%lx, coef%xh%ly, coef%xh%lz, coef%msh%nelv)&#160;</td>
+          <td class="paramname"><em>vy</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(coef%xh%lx, coef%xh%ly, coef%xh%lz, coef%msh%nelv)&#160;</td>
+          <td class="paramname"><em>vz</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td>
+          <td class="paramname"><em>idir</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>)&#160;</td>
+          <td class="paramname"><em>coef</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00903">903</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d3/d4d/namespaceopr__device_a668b8309c718fdf4a51cffb97afad559_cgraph.png" border="0" usemap="#ad3/d4d/namespaceopr__device_a668b8309c718fdf4a51cffb97afad559_cgraph" alt=""/></div>
+<map name="ad3/d4d/namespaceopr__device_a668b8309c718fdf4a51cffb97afad559_cgraph" id="ad3/d4d/namespaceopr__device_a668b8309c718fdf4a51cffb97afad559_cgraph">
+<area shape="rect" title=" " alt="" coords="5,29,177,69"/>
+<area shape="rect" href="../../de/d68/opr__rotate__cyc_8cu.html#a03227187d2a29859b2f5f36d015463ad" title=" " alt="" coords="225,37,353,62"/>
+<area shape="poly" title=" " alt="" coords="178,47,211,47,211,52,178,52"/>
+<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="401,29,565,69"/>
+<area shape="poly" title=" " alt="" coords="354,47,388,47,388,52,354,52"/>
+<area shape="poly" title=" " alt="" coords="447,30,445,20,451,11,464,5,483,3,506,6,518,13,516,17,504,11,483,8,465,10,454,15,450,21,452,28"/>
+</map>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d3/d4d/namespaceopr__device_a668b8309c718fdf4a51cffb97afad559_icgraph.png" border="0" usemap="#ad3/d4d/namespaceopr__device_a668b8309c718fdf4a51cffb97afad559_icgraph" alt=""/></div>
+<map name="ad3/d4d/namespaceopr__device_a668b8309c718fdf4a51cffb97afad559_icgraph" id="ad3/d4d/namespaceopr__device_a668b8309c718fdf4a51cffb97afad559_icgraph">
+<area shape="rect" title=" " alt="" coords="256,5,428,45"/>
+<area shape="rect" href="../../d3/d4d/namespaceopr__device.html#a99baf3e0c295d2b3603f603e7d11f458" title=" " alt="" coords="5,13,208,38"/>
+<area shape="poly" title=" " alt="" coords="242,28,208,28,208,23,242,23"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a9de98814162021b7db7db8b303167684" name="a9de98814162021b7db7db8b303167684"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9de98814162021b7db7db8b303167684">&#9670;&#160;</a></span>opr_device_set_convect_rst()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> opr_device::opr_device_set_convect_rst </td>
+          <td>(</td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>cr_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>cs_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>ct_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>cx_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>cy_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>cz_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../da/d99/structspace_1_1space__t.html">space_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>xh</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>coef</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../df/d36/opr__device_8F90_source.html#l00933">933</a> of file <a class="el" href="../../df/d36/opr__device_8F90_source.html">opr_device.F90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d3/d4d/namespaceopr__device_a9de98814162021b7db7db8b303167684_cgraph.png" border="0" usemap="#ad3/d4d/namespaceopr__device_a9de98814162021b7db7db8b303167684_cgraph" alt=""/></div>
+<map name="ad3/d4d/namespaceopr__device_a9de98814162021b7db7db8b303167684_cgraph" id="ad3/d4d/namespaceopr__device_a9de98814162021b7db7db8b303167684_cgraph">
+<area shape="rect" title=" " alt="" coords="5,23,177,63"/>
+<area shape="rect" href="../../de/da2/set__convect__rst_8cu.html#afe7fc6ae83712d1af0ebc6ad0bd37115" title=" " alt="" coords="448,5,611,31"/>
+<area shape="poly" title=" " alt="" coords="177,36,434,21,434,26,178,41"/>
+<area shape="rect" href="../../d3/d53/set__convect__rst_8c.html#afc085279156cae85060897581989d120" title=" " alt="" coords="225,56,400,81"/>
+<area shape="poly" title=" " alt="" coords="178,51,212,55,212,60,178,56"/>
+<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="659,49,823,89"/>
+<area shape="poly" title=" " alt="" coords="584,28,646,43,645,48,583,33"/>
+<area shape="poly" title=" " alt="" coords="701,49,699,39,705,30,719,24,741,22,765,25,779,32,776,37,764,30,741,27,720,29,708,34,704,40,706,48"/>
+<area shape="poly" title=" " alt="" coords="400,66,645,66,645,71,400,71"/>
+<area shape="rect" href="../../d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="463,107,595,132"/>
+<area shape="poly" title=" " alt="" coords="369,79,462,101,460,106,367,84"/>
+<area shape="poly" title=" " alt="" coords="583,104,645,89,646,94,584,109"/>
 </map>
 </div>
 
@@ -814,7 +1185,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d3/d4d/namespaceopr__device.html">opr_device</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:53 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

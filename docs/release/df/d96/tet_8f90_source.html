@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -142,7 +142,7 @@ $(document).ready(function(){initNavTree('df/d96/tet_8f90_source.html','../../')
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../df/d48/namespacenum__types.html">num_types</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aab47a6c4827cb5c6bbd741a44c87e956">dp</a></div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/d0d/namespaceelement.html">element</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d7/dd6/structelement_1_1element__t.html">element_t</a></div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../df/dec/namespacetuple.html">tuple</a></div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d8/dbc/namespacepoint.html">point</a>, <span class="keywordtype">only</span> : <a class="code hl_interface" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a></div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d8/dbc/namespacepoint.html">point</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a></div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="keywordtype">private</span></div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
@@ -190,7 +190,7 @@ $(document).ready(function(){initNavTree('df/d96/tet_8f90_source.html','../../')
 <div class="line"><a id="l00125" name="l00125"></a><span class="lineno"><a class="line" href="../../d6/df0/namespacetet.html#a2089e2185e2d0d298d6be6e02d51eb6b">  125</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d6/df0/namespacetet.html#a2089e2185e2d0d298d6be6e02d51eb6b">tet_init</a>(this, id, p1, p2, p3, p4)</div>
 <div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../db/dd5/structtet_1_1tet__t.html">tet_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
 <div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(inout)</span> :: id</div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    <span class="keywordtype">type</span>(<a class="code hl_interface" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(in)</span> :: p1, p2, p3, p4</div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(in)</span> :: p1, p2, p3, p4</div>
 <div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span> </div>
 <div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>    <span class="keyword">call </span>this%element(id, <a class="code hl_variable" href="../../d6/df0/namespacetet.html#aed38a8ea83498e7f1723e720c15b360e">neko_tet_gdim</a>, <a class="code hl_variable" href="../../d6/df0/namespacetet.html#a5a636d16010667e9daa9c4c920f423ab">neko_tet_npts</a>)</div>
 <div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span> </div>
@@ -208,7 +208,7 @@ $(document).ready(function(){initNavTree('df/d96/tet_8f90_source.html','../../')
 <div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d1/d3b/structtuple_1_1tuple__t.html">tuple_t</a>), <span class="keywordtype">intent(inout)</span> :: t</div>
 <div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: side</div>
 <div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>    <span class="keywordtype">integer</span> :: i, j, temp</div>
-<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>    <span class="keywordtype">type</span>(<a class="code hl_interface" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">pointer</span> :: p1,p2,p3</div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">pointer</span> :: p1,p2,p3</div>
 <div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span> </div>
 <div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>    p1 =&gt; this%p(<a class="code hl_variable" href="../../d6/df0/namespacetet.html#aa502299278f625e50f5aa40a646418cc">face_nodes</a>(1, side))</div>
 <div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>    p2 =&gt; this%p(<a class="code hl_variable" href="../../d6/df0/namespacetet.html#aa502299278f625e50f5aa40a646418cc">face_nodes</a>(2, side))</div>
@@ -236,7 +236,7 @@ $(document).ready(function(){initNavTree('df/d96/tet_8f90_source.html','../../')
 <div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../db/dd5/structtet_1_1tet__t.html">tet_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
 <div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d1/d3b/structtuple_1_1tuple__t.html">tuple_t</a>), <span class="keywordtype">intent(inout)</span> :: t</div>
 <div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: side</div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>    <span class="keywordtype">type</span>(<a class="code hl_interface" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">pointer</span> :: p1,p2,p3</div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">pointer</span> :: p1,p2,p3</div>
 <div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span> </div>
 <div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>    p1 =&gt; this%p(<a class="code hl_variable" href="../../d6/df0/namespacetet.html#aa502299278f625e50f5aa40a646418cc">face_nodes</a>(1, side))</div>
 <div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>    p2 =&gt; this%p(<a class="code hl_variable" href="../../d6/df0/namespacetet.html#aa502299278f625e50f5aa40a646418cc">face_nodes</a>(2, side))</div>
@@ -256,7 +256,7 @@ $(document).ready(function(){initNavTree('df/d96/tet_8f90_source.html','../../')
 <div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../db/dd5/structtet_1_1tet__t.html">tet_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
 <div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d1/d3b/structtuple_1_1tuple__t.html">tuple_t</a>), <span class="keywordtype">intent(inout)</span> :: t</div>
 <div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: side</div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>    <span class="keywordtype">type</span>(<a class="code hl_interface" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">pointer</span> :: p1,p2</div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">pointer</span> :: p1,p2</div>
 <div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span> </div>
 <div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>    p1 =&gt; this%p(<a class="code hl_variable" href="../../d6/df0/namespacetet.html#a77e1773f3786a0310a0bbfc7a7018332">edge_nodes</a>(1, side))</div>
 <div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>    p2 =&gt; this%p(<a class="code hl_variable" href="../../d6/df0/namespacetet.html#a77e1773f3786a0310a0bbfc7a7018332">edge_nodes</a>(2, side))</div>
@@ -278,7 +278,7 @@ $(document).ready(function(){initNavTree('df/d96/tet_8f90_source.html','../../')
 <div class="line"><a id="l00209" name="l00209"></a><span class="lineno"><a class="line" href="../../d6/df0/namespacetet.html#a405a7f9daaa8c87e2a098288f7360212">  209</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../d6/df0/namespacetet.html#a405a7f9daaa8c87e2a098288f7360212">tet_diameter</a>(this) <span class="keyword">result</span>(res)</div>
 <div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../db/dd5/structtet_1_1tet__t.html">tet_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
 <div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aab47a6c4827cb5c6bbd741a44c87e956">dp</a>) :: d1, d2, d3, d4, d5, d6, res</div>
-<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>    <span class="keywordtype">type</span>(<a class="code hl_interface" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">pointer</span> :: p1, p2, p3, p4</div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">pointer</span> :: p1, p2, p3, p4</div>
 <div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>    <span class="keywordtype">integer</span> :: i</div>
 <div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span> </div>
 <div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>    d1 = 0d0</div>
@@ -317,8 +317,8 @@ $(document).ready(function(){initNavTree('df/d96/tet_8f90_source.html','../../')
 <div class="foldopen" id="foldopen00248" data-start="" data-end="">
 <div class="line"><a id="l00248" name="l00248"></a><span class="lineno"><a class="line" href="../../d6/df0/namespacetet.html#a8f0dee583308bf424074dd313b1e720d">  248</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../d6/df0/namespacetet.html#a8f0dee583308bf424074dd313b1e720d">tet_centroid</a>(this) <span class="keyword">result</span>(res)</div>
 <div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../db/dd5/structtet_1_1tet__t.html">tet_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>    <span class="keywordtype">type</span>(<a class="code hl_interface" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>) :: res</div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>    <span class="keywordtype">type</span>(<a class="code hl_interface" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">pointer</span> :: p1, p2, p3, p4</div>
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>) :: res</div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">pointer</span> :: p1, p2, p3, p4</div>
 <div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>    <span class="keywordtype">integer</span> :: i</div>
 <div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span> </div>
 <div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>    p1 =&gt; this%p(1)</div>
@@ -391,7 +391,7 @@ $(document).ready(function(){initNavTree('df/d96/tet_8f90_source.html','../../')
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_7be0d8c199b9408ae01f5d77515b8def.html">mesh</a></li><li class="navelem"><a class="el" href="../../df/d96/tet_8f90.html">tet.f90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

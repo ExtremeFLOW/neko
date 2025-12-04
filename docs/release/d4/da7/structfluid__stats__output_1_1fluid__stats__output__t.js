@@ -1,7 +1,7 @@
 var structfluid__stats__output_1_1fluid__stats__output__t =
 [
     [ "init", "d4/da7/structfluid__stats__output_1_1fluid__stats__output__t.html#a7b856923cfdbd9c46ed6cea50b959c5c", null ],
-    [ "init_base", "d4/da7/structfluid__stats__output_1_1fluid__stats__output__t.html#a901669a133c005189e509dac771374f0", null ],
+    [ "init_base", "d4/da7/structfluid__stats__output_1_1fluid__stats__output__t.html#aa9853130252151809a431108e99384fa", null ],
     [ "sample", "d4/da7/structfluid__stats__output_1_1fluid__stats__output__t.html#ad8ab16dd64dcf0f7632e94175a3ad946", null ],
     [ "sample", "d4/da7/structfluid__stats__output_1_1fluid__stats__output__t.html#af5d4cdfe7ed6d35653ed43bd9367359f", null ],
     [ "set_counter", "d4/da7/structfluid__stats__output_1_1fluid__stats__output__t.html#a9d3113c083480f602b99fbaa78c4ad8a", null ],

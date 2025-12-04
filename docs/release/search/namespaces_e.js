@@ -1,8 +1,8 @@
 var searchData=
 [
   ['octree_0',['octree',['../d8/d38/namespaceoctree.html',1,'']]],
-  ['opencl_5ffilters_1',['opencl_filters',['../dc/dac/namespaceopencl__filters.html',1,'']]],
-  ['opencl_5fintf_2',['opencl_intf',['../d3/d3b/namespaceopencl__intf.html',1,'']]],
+  ['opencl_5fintf_1',['opencl_intf',['../d3/d3b/namespaceopencl__intf.html',1,'']]],
+  ['opencl_5fmappings_2',['opencl_mappings',['../d5/dc8/namespaceopencl__mappings.html',1,'']]],
   ['opencl_5fmath_3',['opencl_math',['../de/d3f/namespaceopencl__math.html',1,'']]],
   ['opencl_5fprgm_5flib_4',['opencl_prgm_lib',['../d0/dc0/namespaceopencl__prgm__lib.html',1,'']]],
   ['operators_5',['operators',['../dd/d30/namespaceoperators.html',1,'']]],

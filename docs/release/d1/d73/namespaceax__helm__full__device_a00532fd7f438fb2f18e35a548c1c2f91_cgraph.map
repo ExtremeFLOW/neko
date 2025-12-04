@@ -1,13 +1,21 @@
 <map id="ax_helm_full_device::ax_helm_full_device_compute_vector" name="ax_helm_full_device::ax_helm_full_device_compute_vector">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,62,169,117"/>
-<area shape="rect" id="Node000002" href="$d2/d2b/ax__helm__full_8cu.html#a20c6069d3f0bf7ee650b3318a9c99b54" title=" " alt="" coords="217,5,380,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="169,62,218,47,220,52,170,67"/>
-<area shape="rect" id="Node000004" href="$d2/d2b/ax__helm__full_8cu.html#aaa93c146c98c25191a16d38da3a4c3d0" title=" " alt="" coords="217,69,380,109"/>
-<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="169,87,204,87,204,92,169,92"/>
-<area shape="rect" id="Node000005" href="$d2/d73/namespacedevice__math.html#aed2fd3264759aee7b318baa739e572a6" title="Returns ." alt="" coords="220,133,377,173"/>
-<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="170,112,220,127,218,132,169,117"/>
-<area shape="rect" id="Node000003" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="428,37,592,77"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="380,35,415,40,414,46,380,40"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="470,38,468,28,474,18,489,13,510,11,535,14,548,21,546,26,533,19,510,16,490,18,478,23,473,29,476,36"/>
-<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="380,74,414,69,415,74,380,80"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,91,169,146"/>
+<area shape="rect" id="Node000002" href="$d2/d2b/ax__helm__full_8cu.html#a20c6069d3f0bf7ee650b3318a9c99b54" title=" " alt="" coords="440,5,603,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="169,94,217,83,426,40,427,45,218,88,170,100"/>
+<area shape="rect" id="Node000004" href="$d2/d2b/ax__helm__full_8cu.html#aaa93c146c98c25191a16d38da3a4c3d0" title=" " alt="" coords="440,69,603,109"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="170,110,426,93,427,98,170,116"/>
+<area shape="rect" id="Node000005" href="$d4/d4b/ax__helm__full_8c.html#a128fa3ae8e40c44e64bcde395dbc9250" title=" " alt="" coords="217,127,392,167"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="170,127,204,131,203,136,169,132"/>
+<area shape="rect" id="Node000007" href="$d4/d4b/ax__helm__full_8c.html#a3536971be8baf93f558c8b90097dad0a" title=" " alt="" coords="217,191,392,231"/>
+<area shape="poly" id="edge10_Node000001_Node000007" title=" " alt="" coords="146,144,218,176,236,183,234,188,216,181,144,149"/>
+<area shape="rect" id="Node000003" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="651,127,815,167"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="579,43,604,55,653,85,697,116,694,120,650,90,601,60,576,48"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="693,127,691,117,697,108,711,102,733,100,757,103,771,110,768,115,756,108,733,105,712,107,700,112,696,118,698,126"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="596,107,646,120,645,126,595,112"/>
+<area shape="poly" id="edge7_Node000005_Node000003" title=" " alt="" coords="392,144,637,144,637,149,392,149"/>
+<area shape="rect" id="Node000006" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="455,185,587,210"/>
+<area shape="poly" id="edge8_Node000005_Node000006" title=" " alt="" coords="391,164,454,179,452,184,390,169"/>
+<area shape="poly" id="edge9_Node000006_Node000003" title=" " alt="" coords="575,182,637,167,638,172,576,187"/>
+<area shape="poly" id="edge11_Node000007_Node000003" title=" " alt="" coords="393,225,441,231,494,233,549,230,602,220,652,199,694,173,697,177,654,204,603,225,550,235,494,238,441,236,392,230"/>
+<area shape="poly" id="edge12_Node000007_Node000006" title=" " alt="" coords="392,203,441,200,441,205,393,208"/>
 </map>

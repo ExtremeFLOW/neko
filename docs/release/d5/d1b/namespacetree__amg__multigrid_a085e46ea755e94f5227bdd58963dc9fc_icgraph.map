@@ -1,0 +1,8 @@
+<map id="tree_amg_multigrid::calc_resid" name="tree_amg_multigrid::calc_resid">
+<area shape="rect" id="Node000001" title="Wrapper function to calculate residyal." alt="" coords="403,29,553,69"/>
+<area shape="rect" id="Node000002" href="$d5/d1b/namespacetree__amg__multigrid.html#a06bb4fd3fe04b4bc0a36cafaccf475eb" title="Recrsive multigrid cycle for the TreeAMG solver object." alt="" coords="204,29,355,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="389,52,355,52,355,47,389,47"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="313,18,301,11,279,8,260,10,249,15,245,21,247,28,242,30,240,20,246,11,259,5,279,3,303,6,315,13"/>
+<area shape="rect" id="Node000003" href="$d5/d1b/namespacetree__amg__multigrid.html#aceff3d75610ff13856f0687a6c1c8343" title="Solver function for the TreeAMG solver object." alt="" coords="5,29,156,69"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="191,52,156,52,156,47,191,47"/>
+</map>

@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -103,6 +103,7 @@ $(document).ready(function(){initNavTree('da/dd6/appendices.html','../../'); ini
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
 <ul><li class="level1"><a href="#appendices_env-var">Environmental variable reference</a><ul><li class="level2"><a href="#autotoc_md0">Logging level details</a></li>
+<li class="level2"><a href="#autotoc_md1">Gather-scatter communication backend details</a></li>
 </ul>
 </li>
 </ul>
@@ -123,9 +124,15 @@ Environmental variable reference</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>NEKO_LOG_FILE</code>   </td><td class="markdownTableBodyNone">Log file name, uses <code>stdout</code> if not set.   </td><td class="markdownTableBodyNone">Unset    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>NEKO_LOG_LEVEL</code>   </td><td class="markdownTableBodyNone">Log verbosity level (integer &gt; 0, default: 1)   </td><td class="markdownTableBodyNone">Unset    </td></tr>
+<td class="markdownTableBodyNone"><code>NEKO_LOG_TAB_SIZE</code>   </td><td class="markdownTableBodyNone">Number of spaces added for each level of indentation in the log file.   </td><td class="markdownTableBodyNone">1    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>NEKO_GS_STRTGY</code>   </td><td class="markdownTableBodyNone">Gather-scatter device MPI sync. strategy (0 &lt; integer &lt; 5 )   </td><td class="markdownTableBodyNone">Unset   </td></tr>
+<td class="markdownTableBodyNone"><code>NEKO_LOG_LEVEL</code>   </td><td class="markdownTableBodyNone">Log verbosity level (integer &gt; 0, default: 1)   </td><td class="markdownTableBodyNone">Unset    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>NEKO_GS_STRTGY</code>   </td><td class="markdownTableBodyNone">Gather-scatter device MPI sync. strategy (0 &lt; integer &lt; 5 )   </td><td class="markdownTableBodyNone">Unset    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>NEKO_GS_COMM</code>   </td><td class="markdownTableBodyNone">Gather-scatter communication backend   </td><td class="markdownTableBodyNone">Unset    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>NEKO_COMM_ID</code>   </td><td class="markdownTableBodyNone">Communicator id for this process (non-negative integer)   </td><td class="markdownTableBodyNone">0   </td></tr>
 </table>
 <h2><a class="anchor" id="autotoc_md0"></a>
 Logging level details</h2>
@@ -134,7 +141,16 @@ Logging level details</h2>
 <li><code>NEKO_LOG_LEVEL=0</code> : Quiet mode, minimal logging during execution.</li>
 <li><code>NEKO_LOG_LEVEL=1</code> : Default information mode, adding step informations.</li>
 <li><code>NEKO_LOG_LEVEL=2</code> : Verbose mode, logging extra details.</li>
-<li><code>NEKO_LOG_LEVEL=10</code> : Debug mode. </li>
+<li><code>NEKO_LOG_LEVEL=10</code> : Debug mode.</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md1"></a>
+Gather-scatter communication backend details</h2>
+<p>A number of gather-scatter backends are supported.</p>
+<ul>
+<li><code>NEKO_GS_COMM=MPI</code> : Host based MPI</li>
+<li><code>NEKO_GS_COMM=MPIGPU</code> : Device based MPI</li>
+<li><code>NEKO_GS_COMM=NCCL</code> : NCCL/RCCL using its point-to-point interface</li>
+<li><code>NEKO_GS_COMM=SHMEM</code> : NVSHMEM based (for NVIDIA GPUs) </li>
 </ul>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
@@ -143,7 +159,7 @@ Logging level details</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

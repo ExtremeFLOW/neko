@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -106,7 +106,7 @@ $(document).ready(function(){initNavTree('dd/d9a/device__symmetry_8F90_source.ht
   <div class="headertitle"><div class="title">device_symmetry.F90</div></div>
 </div><!--header-->
 <div class="contents">
-<a href="../../dd/d9a/device__symmetry_8F90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">! Copyright (c) 2021-2022, The Neko Authors</span></div>
+<a href="../../dd/d9a/device__symmetry_8F90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">! Copyright (c) 2021-2025, The Neko Authors</span></div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment">! All rights reserved.</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="comment">!</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment">! Redistribution and use in source and binary forms, with or without</span></div>
@@ -147,73 +147,77 @@ $(document).ready(function(){initNavTree('dd/d9a/device__symmetry_8F90_source.ht
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><span class="preprocessor">#ifdef HAVE_HIP</span></div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="preprocessor"></span>  <span class="keyword">interface</span></div>
 <div class="foldopen" id="foldopen00041" data-start="" data-end="">
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno"><a class="line" href="../../df/d0e/interfacedevice__symmetry_1_1hip__symmetry__apply__vector.html#a0a47340cd1aafd9e1fac67a78970c869">   41</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../df/d0e/interfacedevice__symmetry_1_1hip__symmetry__apply__vector.html">hip_symmetry_apply_vector</a>(xmsk, ymsk, zmsk, x, y, z, m, n, l) &amp;</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>          bind(c, name=<span class="stringliteral">&#39;hip_symmetry_apply_vector&#39;</span>)</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>       <span class="keywordtype">implicit none</span></div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>       <span class="keywordtype">integer(c_int)</span> :: m, n, l</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: xmsk, ymsk, zmsk, x, y, z</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno"><a class="line" href="../../df/d0e/interfacedevice__symmetry_1_1hip__symmetry__apply__vector.html#a68a2ea0a9c5cbb917342502bc358736a">   41</a></span>     <span class="keyword">subroutine </span><a class="code hl_interface" href="../../df/d0e/interfacedevice__symmetry_1_1hip__symmetry__apply__vector.html">hip_symmetry_apply_vector</a>(xmsk, ymsk, zmsk, &amp;</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>          x, y, z, m, n, l, strm) &amp;</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>          bind(c, name=<span class="stringliteral">&#39;hip_symmetry_apply_vector&#39;</span>)</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>       <span class="keywordtype">implicit none</span></div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>       <span class="keywordtype">integer(c_int)</span> :: m, n, l</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: xmsk, ymsk, zmsk, x, y, z, strm</div>
 </div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../df/d0e/interfacedevice__symmetry_1_1hip__symmetry__apply__vector.html">hip_symmetry_apply_vector</a></div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>  <span class="keyword">end interface</span></div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span><span class="preprocessor"></span>  <span class="keyword">interface</span></div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>     <span class="keyword">subroutine </span><a class="code hl_function" href="../../d0/d4f/symmetry_8cu.html#a18cf0c1c88299827ad097a3972a8b0c7">cuda_symmetry_apply_vector</a>(xmsk, ymsk, zmsk, x, y, z, m, n, l) &amp;</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>          bind(c, name=<span class="stringliteral">&#39;cuda_symmetry_apply_vector&#39;</span>)</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>       <span class="keywordtype">implicit none</span></div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>       <span class="keywordtype">integer(c_int)</span> :: m, n, l</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: xmsk, ymsk, zmsk, x, y, z</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>     <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d0/d4f/symmetry_8cu.html#a18cf0c1c88299827ad097a3972a8b0c7">cuda_symmetry_apply_vector</a></div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>  <span class="keyword">end interface</span></div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span><span class="preprocessor"></span>  <span class="keyword">interface</span></div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>     <span class="keyword">subroutine </span><a class="code hl_function" href="../../d6/d04/symmetry_8c.html#a3ba53bd119f13be13f8c1148e38902c4">opencl_symmetry_apply_vector</a>(xmsk, ymsk, zmsk, x, y, z, m, n, l) &amp;</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>          bind(c, name=<span class="stringliteral">&#39;opencl_symmetry_apply_vector&#39;</span>)</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>       <span class="keywordtype">implicit none</span></div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>       <span class="keywordtype">integer(c_int)</span> :: m, n, l</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: xmsk, ymsk, zmsk, x, y, z</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>     <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/d04/symmetry_8c.html#a3ba53bd119f13be13f8c1148e38902c4">opencl_symmetry_apply_vector</a></div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>  <span class="keyword">end interface</span></div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span><span class="preprocessor"></span> </div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span><span class="keyword">contains</span></div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span> </div>
-<div class="foldopen" id="foldopen00073" data-start="" data-end="">
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno"><a class="line" href="../../d0/dc5/namespacedevice__symmetry.html#aef35fe069516c1c5b46e9e682cb99846">   73</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d0/dc5/namespacedevice__symmetry.html#aef35fe069516c1c5b46e9e682cb99846">device_symmetry_apply_vector</a>(xmsk, ymsk, zmsk, x, y, z, m, n, l)</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: m, n, l</div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>    <span class="keywordtype">type</span>(c_ptr) :: xmsk, ymsk, zmsk, x, y, z</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span> </div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span><span class="preprocessor">#ifdef HAVE_HIP</span></div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../df/d0e/interfacedevice__symmetry_1_1hip__symmetry__apply__vector.html">hip_symmetry_apply_vector</a>(xmsk, ymsk, zmsk, x, y, z, m, n, l)</div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../d0/d4f/symmetry_8cu.html#a18cf0c1c88299827ad097a3972a8b0c7">cuda_symmetry_apply_vector</a>(xmsk, ymsk, zmsk, x, y, z, m, n, l)</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../d6/d04/symmetry_8c.html#a3ba53bd119f13be13f8c1148e38902c4">opencl_symmetry_apply_vector</a>(xmsk, ymsk, zmsk, x, y, z, m, n, l)</div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;No device backend configured&#39;</span>)</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span><span class="preprocessor"></span> </div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>     <span class="keyword">end subroutine </span><a class="code hl_interface" href="../../df/d0e/interfacedevice__symmetry_1_1hip__symmetry__apply__vector.html">hip_symmetry_apply_vector</a></div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="preprocessor"></span>  <span class="keyword">interface</span></div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>     <span class="keyword">subroutine </span><a class="code hl_function" href="../../d0/d4f/symmetry_8cu.html#a2626d99fcdcd15eb0e0c007fc183f459">cuda_symmetry_apply_vector</a>(xmsk, ymsk, zmsk, &amp;</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>          x, y, z, m, n, l, strm) &amp;</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>          bind(c, name=<span class="stringliteral">&#39;cuda_symmetry_apply_vector&#39;</span>)</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>       <span class="keywordtype">implicit none</span></div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>       <span class="keywordtype">integer(c_int)</span> :: m, n, l</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: xmsk, ymsk, zmsk, x, y, z, strm</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>     <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d0/d4f/symmetry_8cu.html#a2626d99fcdcd15eb0e0c007fc183f459">cuda_symmetry_apply_vector</a></div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span><span class="preprocessor"></span>  <span class="keyword">interface</span></div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>     <span class="keyword">subroutine </span><a class="code hl_function" href="../../d6/d04/symmetry_8c.html#acad9f12920a2dce3fb7dd3499892b735">opencl_symmetry_apply_vector</a>(xmsk, ymsk, zmsk, &amp;</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>          x, y, z, m, n, l, strm) &amp;</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>          bind(c, name=<span class="stringliteral">&#39;opencl_symmetry_apply_vector&#39;</span>)</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>       <span class="keywordtype">implicit none</span></div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>       <span class="keywordtype">integer(c_int)</span> :: m, n, l</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: xmsk, ymsk, zmsk, x, y, z, strm</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>     <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/d04/symmetry_8c.html#acad9f12920a2dce3fb7dd3499892b735">opencl_symmetry_apply_vector</a></div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>  <span class="keyword">end interface</span></div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span><span class="preprocessor"></span> </div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span><span class="keyword">contains</span></div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span> </div>
+<div class="foldopen" id="foldopen00076" data-start="" data-end="">
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno"><a class="line" href="../../d0/dc5/namespacedevice__symmetry.html#a360f5a9be6f13dca708c81b77cd701db">   76</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d0/dc5/namespacedevice__symmetry.html#a360f5a9be6f13dca708c81b77cd701db">device_symmetry_apply_vector</a>(xmsk, ymsk, zmsk, &amp;</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>       x, y, z, m, n, l, strm)</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: m, n, l</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>    <span class="keywordtype">type</span>(c_ptr) :: xmsk, ymsk, zmsk, x, y, z, strm</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span> </div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span><span class="preprocessor">#ifdef HAVE_HIP</span></div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../df/d0e/interfacedevice__symmetry_1_1hip__symmetry__apply__vector.html">hip_symmetry_apply_vector</a>(xmsk, ymsk, zmsk, x, y, z, m, n, l, strm)</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../d0/d4f/symmetry_8cu.html#a2626d99fcdcd15eb0e0c007fc183f459">cuda_symmetry_apply_vector</a>(xmsk, ymsk, zmsk, x, y, z, m, n, l, strm)</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span><span class="preprocessor">#elif HAVE_OPENCL</span></div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_function" href="../../d6/d04/symmetry_8c.html#acad9f12920a2dce3fb7dd3499892b735">opencl_symmetry_apply_vector</a>(xmsk, ymsk, zmsk, x, y, z, m, n, l, strm)</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span><span class="preprocessor"></span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;No device backend configured&#39;</span>)</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span><span class="preprocessor"></span> </div>
 </div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d0/dc5/namespacedevice__symmetry.html#aef35fe069516c1c5b46e9e682cb99846">device_symmetry_apply_vector</a></div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span> </div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d0/dc5/namespacedevice__symmetry.html">device_symmetry</a></div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d0/dc5/namespacedevice__symmetry.html#a360f5a9be6f13dca708c81b77cd701db">device_symmetry_apply_vector</a></div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span> </div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d0/dc5/namespacedevice__symmetry.html">device_symmetry</a></div>
 <div class="ttc" id="ainterfacedevice__symmetry_1_1hip__symmetry__apply__vector_html"><div class="ttname"><a href="../../df/d0e/interfacedevice__symmetry_1_1hip__symmetry__apply__vector.html">device_symmetry::hip_symmetry_apply_vector</a></div><div class="ttdef"><b>Definition</b> <a href="../../dd/d9a/device__symmetry_8F90_source.html#l00041">device_symmetry.F90:41</a></div></div>
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00042">utils.f90:42</a></div></div>
 <div class="ttc" id="anamespacedevice__symmetry_html"><div class="ttname"><a href="../../d0/dc5/namespacedevice__symmetry.html">device_symmetry</a></div><div class="ttdef"><b>Definition</b> <a href="../../dd/d9a/device__symmetry_8F90_source.html#l00033">device_symmetry.F90:33</a></div></div>
-<div class="ttc" id="anamespacedevice__symmetry_html_aef35fe069516c1c5b46e9e682cb99846"><div class="ttname"><a href="../../d0/dc5/namespacedevice__symmetry.html#aef35fe069516c1c5b46e9e682cb99846">device_symmetry::device_symmetry_apply_vector</a></div><div class="ttdeci">subroutine device_symmetry_apply_vector(xmsk, ymsk, zmsk, x, y, z, m, n, l)</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d9a/device__symmetry_8F90_source.html#l00073">device_symmetry.F90:74</a></div></div>
+<div class="ttc" id="anamespacedevice__symmetry_html_a360f5a9be6f13dca708c81b77cd701db"><div class="ttname"><a href="../../d0/dc5/namespacedevice__symmetry.html#a360f5a9be6f13dca708c81b77cd701db">device_symmetry::device_symmetry_apply_vector</a></div><div class="ttdeci">subroutine device_symmetry_apply_vector(xmsk, ymsk, zmsk, x, y, z, m, n, l, strm)</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d9a/device__symmetry_8F90_source.html#l00076">device_symmetry.F90:78</a></div></div>
 <div class="ttc" id="anamespacenum__types_html"><div class="ttname"><a href="../../df/d48/namespacenum__types.html">num_types</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00001">num_types.f90:1</a></div></div>
 <div class="ttc" id="anamespaceutils_html"><div class="ttname"><a href="../../d6/d84/namespaceutils.html">utils</a></div><div class="ttdoc">Utilities.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00035">utils.f90:35</a></div></div>
-<div class="ttc" id="asymmetry_8c_html_a3ba53bd119f13be13f8c1148e38902c4"><div class="ttname"><a href="../../d6/d04/symmetry_8c.html#a3ba53bd119f13be13f8c1148e38902c4">opencl_symmetry_apply_vector</a></div><div class="ttdeci">void opencl_symmetry_apply_vector(void *xmsk, void *ymsk, void *zmsk, void *x, void *y, void *z, int *m, int *n, int *l)</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d04/symmetry_8c_source.html#l00054">symmetry.c:54</a></div></div>
-<div class="ttc" id="asymmetry_8cu_html_a18cf0c1c88299827ad097a3972a8b0c7"><div class="ttname"><a href="../../d0/d4f/symmetry_8cu.html#a18cf0c1c88299827ad097a3972a8b0c7">cuda_symmetry_apply_vector</a></div><div class="ttdeci">void cuda_symmetry_apply_vector(void *xmsk, void *ymsk, void *zmsk, void *x, void *y, void *z, int *m, int *n, int *l)</div><div class="ttdef"><b>Definition</b> <a href="../../d0/d4f/symmetry_8cu_source.html#l00047">symmetry.cu:47</a></div></div>
+<div class="ttc" id="asymmetry_8c_html_acad9f12920a2dce3fb7dd3499892b735"><div class="ttname"><a href="../../d6/d04/symmetry_8c.html#acad9f12920a2dce3fb7dd3499892b735">opencl_symmetry_apply_vector</a></div><div class="ttdeci">void opencl_symmetry_apply_vector(void *xmsk, void *ymsk, void *zmsk, void *x, void *y, void *z, int *m, int *n, int *l, cl_command_queue cmd_queue)</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d04/symmetry_8c_source.html#l00054">symmetry.c:54</a></div></div>
+<div class="ttc" id="asymmetry_8cu_html_a2626d99fcdcd15eb0e0c007fc183f459"><div class="ttname"><a href="../../d0/d4f/symmetry_8cu.html#a2626d99fcdcd15eb0e0c007fc183f459">cuda_symmetry_apply_vector</a></div><div class="ttdeci">void cuda_symmetry_apply_vector(void *xmsk, void *ymsk, void *zmsk, void *x, void *y, void *z, int *m, int *n, int *l, cudaStream_t strm)</div><div class="ttdef"><b>Definition</b> <a href="../../d0/d4f/symmetry_8cu_source.html#l00047">symmetry.cu:47</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_96f7c11e9d5d0b09f433cbf8fd37f2d0.html">bc</a></li><li class="navelem"><a class="el" href="../../dir_2384b0d0751aa995a1b7d70277eddcb2.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_18707f658d20d5ab4d5f4803cc883ea1.html">device</a></li><li class="navelem"><a class="el" href="../../dd/d9a/device__symmetry_8F90.html">device_symmetry.F90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:47 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

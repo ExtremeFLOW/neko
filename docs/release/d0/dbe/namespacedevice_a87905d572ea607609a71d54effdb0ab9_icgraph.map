@@ -1,23 +1,27 @@
 <map id="device::device_alloc" name="device::device_alloc">
-<area shape="rect" id="Node000001" title="Allocate memory on the device." alt="" coords="247,301,401,326"/>
+<area shape="rect" id="Node000001" title="Allocate memory on the device." alt="" coords="247,365,401,390"/>
 <area shape="rect" id="Node000002" href="$da/db0/interfacedevice_1_1device__map.html#ab1886d1a491a6a865722981bb1672493" title="Map a Fortran rank 1 array to a device (allocate and associate)" alt="" coords="26,5,178,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="315,288,301,239,278,178,244,114,222,85,197,59,177,46,180,42,200,55,226,82,248,111,283,176,306,238,320,287"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="317,351,307,292,286,213,271,172,251,131,226,93,197,59,177,45,180,41,200,55,231,90,255,128,276,169,291,212,313,290,323,350"/>
 <area shape="rect" id="Node000003" href="$da/db0/interfacedevice_1_1device__map.html#aea9502d8994e14383cbaa31e5f69ba91" title="Map a Fortran rank 2 array to a device (allocate and associate)" alt="" coords="26,69,178,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="310,289,293,252,269,207,237,162,197,123,177,111,180,107,200,119,241,159,273,205,298,250,315,287"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="315,352,301,303,278,242,244,178,222,149,197,123,177,110,180,106,200,119,226,146,248,175,283,240,306,302,320,351"/>
 <area shape="rect" id="Node000004" href="$da/db0/interfacedevice_1_1device__map.html#a4cf19244e0c4488482616c7463c7d541" title="Map a Fortran rank 3 array to a device (allocate and associate)" alt="" coords="26,133,178,173"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="303,291,259,239,229,212,197,188,175,176,177,171,200,183,233,207,263,235,307,288"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="310,353,293,316,269,271,237,226,197,187,177,175,180,171,200,183,241,223,273,269,298,314,315,351"/>
 <area shape="rect" id="Node000005" href="$da/db0/interfacedevice_1_1device__map.html#aecdbf1e7dacdf791acb53309363660a6" title="Map a Fortran rank 4 array to a device (allocate and associate)" alt="" coords="26,197,178,237"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="287,296,198,252,166,240,168,235,200,247,290,291"/>
-<area shape="rect" id="Node000006" href="$d5/d79/namespacedong__outflow.html#ad3c889fcbb9245ad8ab57fc4286110e2" title=" " alt="" coords="28,261,176,301"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="233,303,176,295,177,289,233,298"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="303,355,259,303,229,276,197,252,175,240,177,235,200,247,233,271,263,299,307,352"/>
+<area shape="rect" id="Node000006" href="$d5/d79/namespacedong__outflow.html#af5663917b9839c80d54433b39a2f8c7a" title="Finalize." alt="" coords="28,261,176,301"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="287,360,198,316,166,304,168,299,200,311,290,355"/>
 <area shape="rect" id="Node000007" href="$d3/dbc/namespacefusedcg__cpld__device.html#a7686eabd075b75a40f7fa61d9be9ab13" title="Initialise a fused PCG solver." alt="" coords="5,325,199,365"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="233,329,199,334,199,329,233,324"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="233,367,199,362,199,357,233,362"/>
 <area shape="rect" id="Node000008" href="$d9/dfa/namespacegs__device__mpi.html#a1ffb2ff8429c63efe7920436e7fd21d6" title=" " alt="" coords="6,389,198,429"/>
-<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="290,335,200,380,168,392,166,387,198,375,287,330"/>
-<area shape="rect" id="Node000009" href="$da/d46/namespacepipecg__device.html#a242ee086e10b42f00316da314e7fc94d" title="Initialise a pipelined PCG solver." alt="" coords="19,453,185,493"/>
-<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="307,339,263,391,233,419,200,444,177,456,175,451,197,439,229,415,259,388,303,335"/>
-<area shape="rect" id="Node000010" href="$d3/d06/namespaceprojection.html#ac1b032ca495291ff5533e68fa3d9fe80" title=" " alt="" coords="8,518,196,543"/>
-<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="316,340,299,378,274,423,241,469,200,507,176,520,174,515,197,503,237,465,270,420,294,376,311,338"/>
-<area shape="rect" id="Node000011" href="$d2/d37/namespaceschwarz.html#acee8bbc3c000f7cf1e31b4cfc36d01c6" title=" " alt="" coords="20,567,184,593"/>
-<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="319,340,305,387,282,446,247,506,226,533,200,557,179,570,176,565,197,553,222,529,243,503,277,443,300,385,314,339"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="234,393,199,398,198,393,233,388"/>
+<area shape="rect" id="Node000009" href="$de/dcf/namespacegs__device__nccl.html#a7fd02aded867f9843400ccda5550adf1" title=" " alt="" coords="21,453,183,493"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="290,399,200,444,168,456,166,451,198,439,287,394"/>
+<area shape="rect" id="Node000010" href="$d0/d2a/namespacegs__device__shmem.html#abf654870de96ff5947d52613f00e75d4" title=" " alt="" coords="10,517,194,557"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="307,403,263,455,233,483,200,508,177,520,175,515,197,503,229,479,259,452,303,399"/>
+<area shape="rect" id="Node000011" href="$da/d46/namespacepipecg__device.html#a242ee086e10b42f00316da314e7fc94d" title="Initialise a pipelined PCG solver." alt="" coords="19,581,185,621"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="315,404,298,441,273,486,241,532,200,571,181,584,178,579,197,567,237,528,269,483,293,439,310,402"/>
+<area shape="rect" id="Node000012" href="$d3/d06/namespaceprojection.html#ac1b032ca495291ff5533e68fa3d9fe80" title=" " alt="" coords="8,646,196,671"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="320,404,307,453,284,516,249,580,227,610,200,635,179,648,176,644,197,631,223,606,245,577,279,514,302,452,315,403"/>
+<area shape="rect" id="Node000013" href="$d2/d37/namespaceschwarz.html#a573d0b3a6c1130423e3e84cd5e4d78eb" title=" " alt="" coords="20,695,184,721"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="322,404,312,462,291,538,275,578,255,617,230,653,200,685,181,697,178,693,197,681,226,650,251,614,270,575,286,536,307,461,317,403"/>
 </map>

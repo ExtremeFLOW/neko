@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -190,11 +190,11 @@ $(document).ready(function(){initNavTree('dd/de0/ax__helm__xsmm_8F90_source.html
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span> </div>
 <div class="foldopen" id="foldopen00081" data-start="" data-end="">
 <div class="line"><a id="l00081" name="l00081"></a><span class="lineno"><a class="line" href="../../d3/d57/namespaceax__helm__xsmm.html#aa2a5192a10809522ded1055672723b78">   81</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/d57/namespaceax__helm__xsmm.html#aa2a5192a10809522ded1055672723b78">ax_helm_xsmm_compute</a>(w, u, coef, msh, Xh)</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: msh</div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../da/d99/structspace_1_1space__t.html">space_t</a>), <span class="keywordtype">intent(inout)</span> :: Xh</div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <span class="keywordtype">intent(inout)</span> :: coef</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(in)</span> :: msh</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../da/d99/structspace_1_1space__t.html">space_t</a>), <span class="keywordtype">intent(in)</span> :: Xh</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <span class="keywordtype">intent(in)</span> :: coef</div>
 <div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: w(xh%lx, xh%ly, xh%lz, msh%nelv)</div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: u(xh%lx, xh%ly, xh%lz, msh%nelv)</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: u(xh%lx, xh%ly, xh%lz, msh%nelv)</div>
 <div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span><span class="preprocessor">#ifdef HAVE_LIBXSMM</span></div>
 <div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span><span class="preprocessor"></span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: dudr(xh%lx,xh%ly,xh%lz)</div>
 <div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: duds(xh%lx,xh%ly,xh%lz)</div>
@@ -294,16 +294,16 @@ $(document).ready(function(){initNavTree('dd/de0/ax__helm__xsmm_8F90_source.html
 <div class="ttc" id="anamespacespace_html"><div class="ttname"><a href="../../d5/d0d/namespacespace.html">space</a></div><div class="ttdoc">Defines a function space.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/da4/space_8f90_source.html#l00034">space.f90:34</a></div></div>
 <div class="ttc" id="astructax__helm_1_1ax__helm__t_html"><div class="ttname"><a href="../../d1/d58/structax__helm_1_1ax__helm__t.html">ax_helm::ax_helm_t</a></div><div class="ttdoc">Matrix-vector product for a Helmholtz problem.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/dd9/ax__helm_8f90_source.html#l00044">ax_helm.f90:44</a></div></div>
 <div class="ttc" id="astructax__helm__xsmm_1_1ax__helm__xsmm__t_html"><div class="ttname"><a href="../../d3/d23/structax__helm__xsmm_1_1ax__helm__xsmm__t.html">ax_helm_xsmm::ax_helm_xsmm_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../dd/de0/ax__helm__xsmm_8F90_source.html#l00074">ax_helm_xsmm.F90:74</a></div></div>
-<div class="ttc" id="astructcoefs_1_1coef__t_html"><div class="ttname"><a href="../../d0/dea/structcoefs_1_1coef__t.html">coefs::coef_t</a></div><div class="ttdoc">Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,...</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00055">coef.f90:55</a></div></div>
-<div class="ttc" id="astructmesh_1_1mesh__t_html"><div class="ttname"><a href="../../d7/d28/structmesh_1_1mesh__t.html">mesh::mesh_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l00064">mesh.f90:64</a></div></div>
-<div class="ttc" id="astructspace_1_1space__t_html"><div class="ttname"><a href="../../da/d99/structspace_1_1space__t.html">space::space_t</a></div><div class="ttdoc">The function space for the SEM solution fields.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/da4/space_8f90_source.html#l00062">space.f90:62</a></div></div>
+<div class="ttc" id="astructcoefs_1_1coef__t_html"><div class="ttname"><a href="../../d0/dea/structcoefs_1_1coef__t.html">coefs::coef_t</a></div><div class="ttdoc">Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,...</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00056">coef.f90:56</a></div></div>
+<div class="ttc" id="astructmesh_1_1mesh__t_html"><div class="ttname"><a href="../../d7/d28/structmesh_1_1mesh__t.html">mesh::mesh_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l00071">mesh.f90:71</a></div></div>
+<div class="ttc" id="astructspace_1_1space__t_html"><div class="ttname"><a href="../../da/d99/structspace_1_1space__t.html">space::space_t</a></div><div class="ttdoc">The function space for the SEM solution fields.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/da4/space_8f90_source.html#l00063">space.f90:63</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_26325635ce1980a50826396f97882f13.html">xsmm</a></li><li class="navelem"><a class="el" href="../../dd/de0/ax__helm__xsmm_8F90.html">ax_helm_xsmm.F90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

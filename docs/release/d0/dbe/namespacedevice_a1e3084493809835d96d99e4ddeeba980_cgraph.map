@@ -1,11 +1,13 @@
 <map id="device::device_finalize" name="device::device_finalize">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,84,176,109"/>
-<area shape="rect" id="Node000002" href="$db/d9a/namespacecuda__intf.html#a1fda1a5e75d7de6040433bee82910bd3" title=" " alt="" coords="227,5,401,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="119,81,223,39,248,32,249,37,225,45,121,86"/>
-<area shape="rect" id="Node000003" href="$d0/d4e/namespacehip__intf.html#a46ebe304218d34d01b56a41e65488e1f" title=" " alt="" coords="238,55,390,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="176,83,224,76,225,82,176,88"/>
-<area shape="rect" id="Node000004" href="$d3/d3b/namespaceopencl__intf.html#a5ce6da49666abca7251742b79fe8c0ff" title=" " alt="" coords="242,105,386,145"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="176,105,229,111,228,117,176,110"/>
-<area shape="rect" id="Node000005" href="$d0/dc0/namespaceopencl__prgm__lib.html#a3ab53e711b467d88cad765265e808cea" title=" " alt="" coords="224,169,404,209"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="120,107,225,154,243,161,241,166,223,159,117,112"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,120,176,145"/>
+<area shape="rect" id="Node000002" href="$db/d9a/namespacecuda__intf.html#a10bd37fe379b2bd6d63b3713be546ebf" title=" " alt="" coords="227,5,401,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="106,118,156,80,223,41,244,32,246,37,225,46,159,85,109,122"/>
+<area shape="rect" id="Node000003" href="$d0/dbe/namespacedevice.html#a85c44be65491e03c6d7de2856fd5d141" title="Destroy a device event." alt="" coords="234,55,394,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="140,117,222,96,223,101,142,123"/>
+<area shape="rect" id="Node000004" href="$d0/d4e/namespacehip__intf.html#a89de67459398a401efed275ac5c3dc07" title=" " alt="" coords="238,120,390,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="176,130,224,130,224,135,176,135"/>
+<area shape="rect" id="Node000005" href="$d3/d3b/namespaceopencl__intf.html#a43488c7c45d719e3bb5d729808f523ce" title=" " alt="" coords="242,170,386,210"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="142,143,229,166,228,171,140,148"/>
+<area shape="rect" id="Node000006" href="$d0/dc0/namespaceopencl__prgm__lib.html#a78c01ae7f526303f5064048ada2d1529" title=" " alt="" coords="224,234,404,274"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="110,143,160,180,225,220,240,226,237,231,223,224,157,185,107,148"/>
 </map>

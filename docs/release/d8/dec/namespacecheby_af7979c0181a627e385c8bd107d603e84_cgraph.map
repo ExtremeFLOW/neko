@@ -1,10 +1,12 @@
 <map id="cheby::cheby_solve" name="cheby::cheby_solve">
-<area shape="rect" id="Node000001" title="A chebyshev preconditioner." alt="" coords="5,43,155,68"/>
-<area shape="rect" id="Node000002" href="$d8/dec/namespacecheby.html#ab40c8151b9adc5d370afba6bc0ef9b65" title=" " alt="" coords="203,43,357,68"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="155,53,189,53,189,58,155,58"/>
+<area shape="rect" id="Node000001" title="A chebyshev preconditioner." alt="" coords="5,55,155,80"/>
+<area shape="rect" id="Node000002" href="$d8/dec/namespacecheby.html#ab40c8151b9adc5d370afba6bc0ef9b65" title=" " alt="" coords="203,55,357,80"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="155,65,189,65,189,70,155,70"/>
 <area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#a0aa2bdfb2fdb9eae6679d958a82fd200" title="Multiplication by constant c ." alt="" coords="405,5,515,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="341,40,391,30,392,35,342,45"/>
-<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#a22f2f98aad6feae117b800fa20fa43ed" title="Weighted inner product ." alt="" coords="411,79,509,104"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="344,65,398,76,397,81,343,71"/>
-<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="430,80,424,70,427,61,440,54,460,52,485,56,495,64,491,68,482,60,460,57,441,59,431,64,429,70,435,77"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="326,52,398,32,400,37,328,57"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="413,55,507,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="358,65,399,65,399,70,358,70"/>
+<area shape="rect" id="Node000005" href="$dd/d47/namespacemath.html#a22f2f98aad6feae117b800fa20fa43ed" title="Weighted inner product ." alt="" coords="411,128,509,153"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="313,78,416,120,414,125,311,83"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="430,129,424,120,427,110,440,104,460,101,485,105,495,114,491,118,482,110,460,107,441,109,431,113,429,119,435,126"/>
 </map>

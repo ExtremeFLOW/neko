@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -102,79 +102,78 @@ $(document).ready(function(){initNavTree('d5/dfc/installation.html','../../'); i
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#autotoc_md51">Building from source</a><ul><li class="level2"><a href="#autotoc_md52">Dependencies</a><ul><li class="level3"><a href="#autotoc_md53">Building JSON Fortran</a></li>
-<li class="level3"><a href="#autotoc_md54">Building gslib (optional)</a></li>
-<li class="level3"><a href="#autotoc_md55">Building ParMETIS (optional)</a></li>
-<li class="level3"><a href="#autotoc_md56">Bulding PFunit (optional)</a></li>
+<ul><li class="level1"><a href="#autotoc_md108">Building from source</a><ul><li class="level2"><a href="#autotoc_md109">Dependencies</a><ul><li class="level3"><a href="#autotoc_md110">Building JSON Fortran</a></li>
+<li class="level3"><a href="#autotoc_md111">Building HDF5 (optional, but highly recommended)</a></li>
+<li class="level3"><a href="#autotoc_md112">Building ParMETIS (optional)</a></li>
+<li class="level3"><a href="#autotoc_md113">Bulding PFunit (optional)</a></li>
 </ul>
 </li>
-<li class="level2"><a href="#autotoc_md57">Building Neko</a><ul><li class="level3"><a href="#autotoc_md58">Compiling Neko for CPU or SX-Aurora</a></li>
-<li class="level3"><a href="#autotoc_md59">Compiling Neko for NVIDIA GPUs</a></li>
-<li class="level3"><a href="#autotoc_md60">Compiling Neko for AMD GPUs</a></li>
+<li class="level2"><a href="#autotoc_md114">Building Neko</a><ul><li class="level3"><a href="#autotoc_md115">Compiling Neko for CPU or SX-Aurora</a></li>
+<li class="level3"><a href="#autotoc_md116">Compiling Neko for NVIDIA GPUs</a></li>
+<li class="level3"><a href="#autotoc_md117">Compiling Neko for AMD GPUs</a></li>
+<li class="level3"><a href="#autotoc_md118">Compiling Neko with a collective communications library</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md61">Installing via Spack</a><ul><li class="level2"><a href="#autotoc_md62">Quick start guide with Spack</a></li>
+<li class="level1"><a href="#autotoc_md119">Installing via Spack</a><ul><li class="level2"><a href="#autotoc_md120">Quick start guide with Spack</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md63">Using a Docker container</a></li>
+<li class="level1"><a href="#autotoc_md121">Installing using pixi</a></li>
+<li class="level1"><a href="#autotoc_md122">Using a Docker container</a></li>
 </ul>
 </div>
-<div class="textblock"><p>Neko can be installed in various ways, either building directly from source, manually compiling all dependencies and Neko or via Spack. Pre-built Docker images are also provided for each release of Neko.</p>
-<h1><a class="anchor" id="autotoc_md51"></a>
+<div class="textblock"><p>Neko can be installed in various ways, either building directly from source, manually compiling all dependencies and Neko or via tools like Spack, pixi, and Docker. What to use comes down to personal preference, but here are some rough guidelines.</p>
+<ul>
+<li>Use pixi to quickly obtain a CPU build with all optional dependencies in an isolated environment.</li>
+<li>Spack is a more advanced package manager, targeting HPC environments. It gives you a lot of control yet the possibility to easily get neko for several compute backends.</li>
+<li>Use Docker if you are a fan of containers.</li>
+<li>Build from source if you want full control over the build parameters and environment and don't want to use a package manager.</li>
+</ul>
+<h1><a class="anchor" id="autotoc_md108"></a>
 Building from source</h1>
-<p>To build Neko, you will need a Fortran compiler supporting the Fortran-08 standard, autotools, libtool, pkg-config, a working MPI installation supporting the Fortran 2008 bindings (<code>mpi_f08</code>), BLAS/LAPACK and JSON-Fortran. Optional dependencies are PFunit, gslib and ParMETIS.</p>
+<p>To build Neko, you will need a Fortran compiler supporting the Fortran-08 standard, autotools, libtool, pkg-config, a working MPI installation supporting the Fortran 2008 bindings (<code>mpi_f08</code>), BLAS/LAPACK and JSON-Fortran. Optional dependencies are PFunit, HDF5 and ParMETIS.</p>
 <p>Follow the steps below to install the less common dependencies (e.g. JSON-Fortran).</p>
-<h2><a class="anchor" id="autotoc_md52"></a>
+<h2><a class="anchor" id="autotoc_md109"></a>
 Dependencies</h2>
-<h3><a class="anchor" id="autotoc_md53"></a>
+<h3><a class="anchor" id="autotoc_md110"></a>
 Building JSON Fortran</h3>
 <p>Download and compile, at least version 0.7.1 of JSON Fortran from the main repository. </p><dl class="section note"><dt>Note</dt><dd>Neko requires JSON Fortran to be configured with <code>USE_GNU_INSTALL_CONVENTION</code>.</dd></dl>
-<div class="fragment"><div class="line"> shell</div>
-<div class="line">git clone --depth=1 https://github.com/jacobwilliams/json-fortran.git</div>
+<div class="fragment"><div class="line">git clone --depth=1 https://github.com/jacobwilliams/json-fortran.git</div>
 <div class="line">cd json-fortran &amp;&amp; mkdir b &amp;&amp; cd b</div>
 <div class="line">cmake -DCMAKE_INSTALL_PREFIX=/path/to/installation -DUSE_GNU_INSTALL_CONVENTION=ON ..</div>
 <div class="line">make install</div>
 </div><!-- fragment --><p> Now ad the installation path to <code>PKG_CONFIG_PATH</code> (and if needed <code>LD_LIBRARY_PATH</code>). </p><dl class="section note"><dt>Note</dt><dd>On certain systems <code>lib</code> should be substituted with <code>lib64</code></dd></dl>
-<div class="fragment"><div class="line"> bash</div>
+<div class="fragment"><div class="line">export PKG_CONFIG_PATH=/path/to/installation/lib/pkgconfig:$PKG_CONFIG_PATH</div>
+<div class="line">export LD_LIBRARY_PATH=/path/to/installation/lib:$LD_LIBRARY_PATH</div>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md111"></a>
+Building HDF5 (optional, but highly recommended)</h3>
+<p>Download and compile at least version 1.14 of HDF5, with Fortran and MPI support. Note that you may need to adjust the compilers depending on you machine (for example, on Cray supercomputers <code>mpifort</code> is usually replaced with <code>ftn</code>, and so on).</p>
+<div class="fragment"><div class="line">wget https://github.com/HDFGroup/hdf5/archive/refs/tags/hdf5_1.14.6.tar.gz</div>
+<div class="line">tar xvf hdf5_1.14.6.tar.gz</div>
+<div class="line">cd hdf5-hdf5_1.14.6/</div>
+<div class="line">cmake -B build -S ./ --install-prefix /path/to/installation \</div>
+<div class="line">    -DCMAKE_C_COMPILER=mpicc -DCMAKE_CXX_COMPILER=mpicxx \</div>
+<div class="line">    -DCMAKE_Fortran_COMPILER=mpifort -DHDF5_ENABLE_PARALLEL=ON \</div>
+<div class="line">    -DHDF5_BUILD_FORTRAN=ON -DCMAKE_BUILD_TYPE=Release</div>
+<div class="line">cmake --build build/ --parallel</div>
+<div class="line">cmake --install build/</div>
+</div><!-- fragment --><p>It can be a good idea to double-check that you have files starting with <code>libhdf5_fortran</code> in the <code>lib</code> directory in your install path. If not, try to inspecting the log in the <code>build</code> directory with <code>cat CMakeCache.txt | grep FORTRAN</code> to identify issues.</p>
+<p>Similar to <code>json-fortran</code>, populate relevant environmental variables. </p><div class="fragment"><div class="line">export PATH=:/path/to/installation/bin:$PATH</div>
 <div class="line">export PKG_CONFIG_PATH=/path/to/installation/lib/pkgconfig:$PKG_CONFIG_PATH</div>
 <div class="line">export LD_LIBRARY_PATH=/path/to/installation/lib:$LD_LIBRARY_PATH</div>
-</div><!-- fragment --><h3><a class="anchor" id="autotoc_md54"></a>
-Building gslib (optional)</h3>
-<p>If you have a Nek5000 installation, use:</p>
-<div class="fragment"><div class="line"> bash</div>
-<div class="line">export GSLIB=/path/to/Nek5000/3rd_party/gslib/gslib/src</div>
-</div><!-- fragment --><p>If not, you should download and compile <code>gslib</code>. In a folder outside of Neko:</p>
-<div class="fragment"><div class="line"> shell</div>
-<div class="line">git clone https://github.com/Nek5000/gslib.git</div>
-<div class="line">cd gslib</div>
-<div class="line">make</div>
-</div><!-- fragment --><p>Check that <code>libgs.a</code> has been created:</p>
-<div class="fragment"><div class="line"> shell</div>
-<div class="line">$ ls build/lib</div>
-<div class="line">libgs.a </div>
-</div><!-- fragment --><p>Now add the path to gslib to an environment variable <code>GSLIB</code></p>
-<div class="fragment"><div class="line"> shell</div>
-<div class="line">export GSLIB=$(pwd)/build</div>
-</div><!-- fragment --><p>Later, when configuring Neko, add the following option to enable gslib</p>
-<div class="fragment"><div class="line">shell</div>
-<div class="line">--with-gslib=${GSLIB}</div>
-</div><!-- fragment --><p>Make sure you see the following message during the configuration:</p>
-<div class="fragment"><div class="line"> shell</div>
-<div class="line">checking for fgslib_gs_setup in -lgs... yes</div>
-</div><!-- fragment --><h3><a class="anchor" id="autotoc_md55"></a>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md112"></a>
 Building ParMETIS (optional)</h3>
 <p>The following steps is an example on how to build and install ParMETIS</p>
 <div class="fragment"><div class="line"> shell</div>
-<div class="line">$ wget http://glaros.dtc.umn.edu/gkhome/fetch/sw/parmetis/parmetis-4.0.3.tar.gz</div>
-<div class="line">$ tar xzf parmetis-4.0.3.tar.gz &amp;&amp; cd parmetis-4.0.3 &amp;&amp; make config prefix=/parmetis_install_path</div>
-<div class="line">$ make -j$(nproc) &amp;&amp; make install</div>
-</div><!-- fragment --> <dl class="section note"><dt>Note</dt><dd>ParMETIS might not install <code>metis.h</code>, check if it is found in <code>/parmetis_install_path/include</code>. If this is not the case, repeat the same <code>make config prefix=/parmetis_install_path</code> and <code>make install</code> commands from the <code>metis</code> subfolder.</dd></dl>
-<h3><a class="anchor" id="autotoc_md56"></a>
+<div class="line">$ export PARMETIS_INSTALL=/usr/local/parmetis</div>
+<div class="line">$ wget https://github.com/mfem/tpls/raw/refs/heads/gh-pages/parmetis-4.0.3.tar.gz</div>
+<div class="line">$ tar xzf parmetis-4.0.3.tar.gz &amp;&amp; cd parmetis-4.0.3 &amp;&amp; make config prefix=${PARMETIS_INSTALL} &amp;&amp; make install</div>
+<div class="line">$ cd metis &amp;&amp; make config prefix=${PARMETIS_INSTALL} &amp;&amp; make install &amp;&amp; cd ../..</div>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md113"></a>
 Bulding PFunit (optional)</h3>
 <p>To build the PFunit testing framework, please refers to the <a class="el" href="../../d5/d75/testing.html">Testing</a> page</p>
-<h2><a class="anchor" id="autotoc_md57"></a>
+<h2><a class="anchor" id="autotoc_md114"></a>
 Building Neko</h2>
 <p>Neko uses autotools as its build system. The first step is to run the <code>configure</code> script, located in the top directory.</p>
 <div class="fragment"><div class="line"> shell</div>
@@ -189,10 +188,8 @@ Building Neko</h2>
 <th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description    </th></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>--enable-real=Xp</code>   </td><td class="markdownTableBodyNone">Specify working precision of REAL types:<br  />
-<code>sp</code> &ndash; <code>REAL(kind=REAL32)</code><br  />
-<code>dp</code> &ndash; <code>REAL(kind=REAL64)</code> (default)<br  />
-<code>qp</code> &ndash; <code>REAL(kind=REAL128)</code><br  />
-    </td></tr>
+<code>sp</code> &ndash; <code>REAL(kind=REAL32)</code> <br  />
+<code>dp</code> &ndash; <code>REAL(kind=REAL64)</code> (default)    </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>--enable-contrib</code>   </td><td class="markdownTableBodyNone">Compile various tools    </td></tr>
 <tr class="markdownTableRowOdd">
@@ -204,7 +201,7 @@ Building Neko</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>--enable-static</code>   </td><td class="markdownTableBodyNone">Build static libraries (default: yes)   </td></tr>
 </table>
-<p>Optional packages are controlled by passing either <code>--with-PACKAGE[=ARG]</code> or <code>--without-PACKAGE</code> to <code>configure</code>. A list of all supported optional packages are given in the table below.</p>
+<p>When configuring Neko with <code>sp</code> precision some variables are still stored in double precision, for example when gathering data from multiple processes. This can be avoided by specifying <code>ssp</code> instead, however, this is not actively maintained. Optional packages are controlled by passing either <code>--with-PACKAGE[=ARG]</code> or <code>--without-PACKAGE</code> to <code>configure</code>. A list of all supported optional packages are given in the table below.</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description    </th></tr>
@@ -223,7 +220,7 @@ Building Neko</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>--with-adios2=DIR</code>   </td><td class="markdownTableBodyNone">Compile with support for ADIOS2    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>--with-gslib=DIR</code>   </td><td class="markdownTableBodyNone">Compile with support for gslib    </td></tr>
+<td class="markdownTableBodyNone"><code>--with-adios2-fortran=DIR</code>   </td><td class="markdownTableBodyNone">Compile with support for ADIOS2 with Fortran    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>--with-libxsmm</code>   </td><td class="markdownTableBodyNone">Compile with support for libxsmm    </td></tr>
 <tr class="markdownTableRowEven">
@@ -237,18 +234,22 @@ Building Neko</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>--with-roctx=DIR</code>   </td><td class="markdownTableBodyNone">Compile with support for ROCTX    </td></tr>
 <tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>--with-nccl=DIR</code>   </td><td class="markdownTableBodyNone">Compiler with support for NCCL    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>--with-rccl=DIR</code>   </td><td class="markdownTableBodyNone">Compiler with support for RCCL    </td></tr>
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>--with-hdf5</code>   </td><td class="markdownTableBodyNone">Compile with support for HDF5    </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>--with-pfunit=DIR</code>   </td><td class="markdownTableBodyNone">Directory for pFUnit (see <a class="el" href="../../d5/d75/testing.html">Testing</a>)   </td></tr>
 </table>
 <dl class="section note"><dt>Note</dt><dd>Accelerators backends are not enabled as a feature in Neko, but rather via optional packages.</dd></dl>
 <p>Once configured, to compile and install Neko issue <code>make</code> followed by <code>make install</code></p>
-<h3><a class="anchor" id="autotoc_md58"></a>
+<h3><a class="anchor" id="autotoc_md115"></a>
 Compiling Neko for CPU or SX-Aurora</h3>
 <p>For a standard CPU or SX-Aurora build of Neko, simply run the <code>configure</code> script as given above, using appropriate compilers and compiler flags, e.g:</p>
-<div class="fragment"><div class="line">$ ./configure FC=gfortran FCFLAGS=&quot;-O2 -pedantic -std=f2008&quot; --prefix=/opt/pkg/neko </div>
+<div class="fragment"><div class="line">$ ./configure FC=gfortran FCFLAGS=&quot;-O2 -pedantic -std=f2008&quot; --prefix=/opt/pkg/neko</div>
 <div class="line">$ make &amp;&amp; make install</div>
-</div><!-- fragment --><h3><a class="anchor" id="autotoc_md59"></a>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md116"></a>
 Compiling Neko for NVIDIA GPUs</h3>
 <p>To compile Neko for NVIDIA GPUs</p><ul>
 <li>Make sure you have the CUDA Toolkit installed (e.g. <code>nvidia-cuda-toolkit</code>)</li>
@@ -256,10 +257,9 @@ Compiling Neko for NVIDIA GPUs</h3>
 </div><!-- fragment --></li>
 <li>CUDA compiler flags and options can be passed using <code>CUDA_CFLAGS</code>, <code>CUDA_ARCH</code> and <code>NVCC</code> respectively, e.g: <div class="fragment"><div class="line">$ ./configure  --with-cuda=/usr/local/cuda CUDA_CFLAGS=-O3  CUDA_ARCH=-arch=sm_80 NVCC=/usr/local/cuda/bin/nvcc</div>
 </div><!-- fragment --></li>
-<li>Build using <code>make &amp;&amp; make install</code> <br  />
-</li>
+<li>Build using <code>make &amp;&amp; make install</code></li>
 </ul>
-<h3><a class="anchor" id="autotoc_md60"></a>
+<h3><a class="anchor" id="autotoc_md117"></a>
 Compiling Neko for AMD GPUs</h3>
 <p>To compile Neko for AMD GPUs</p><ul>
 <li>Make sure you have the ROCm Toolkit installed</li>
@@ -269,13 +269,20 @@ Compiling Neko for AMD GPUs</h3>
 </div><!-- fragment --></li>
 </ul>
 <dl class="section note"><dt>Note</dt><dd>More examples, and instructions for specific machines can be found on Neko's <a href="https://github.com/ExtremeFLOW/neko/discussions">user discussions</a> pages.</dd></dl>
-<h1><a class="anchor" id="autotoc_md61"></a>
+<h3><a class="anchor" id="autotoc_md118"></a>
+Compiling Neko with a collective communications library</h3>
+<p>To compile Neko to use a collective communcations library on GPUs</p><ul>
+<li>Configure Neko to use NCCL (on NVIDIA GPUs) using the <code>--with-nccl=/path/to/nccl</code> argument to <code>configure</code></li>
+<li>Configure Neko to use RCCL (on AMD GPUs) using the <code>--with-rccl=/path/to/rccl</code> argument to <code>configure</code></li>
+</ul>
+<dl class="section note"><dt>Note</dt><dd>This will change all collective communications (reductions etc) during a simulation step to use NCCL/RCCL, while gather-scatter operations still uses MPI.</dd></dl>
+<h1><a class="anchor" id="autotoc_md119"></a>
 Installing via Spack</h1>
 <p>Neko is distributed as part of the package manager Spack as <code>neko</code>. The package can install releases of Neko as well as the latest commit to the <code>develop</code> branch, for most of Neko's supported backends. For a list of all supported variants, see <code>spack info neko</code></p>
-<h2><a class="anchor" id="autotoc_md62"></a>
+<h2><a class="anchor" id="autotoc_md120"></a>
 Quick start guide with Spack</h2>
 <p>To install a CPU build of Neko using Spack, follow the steps below:</p>
-<div class="fragment"><div class="line"> shell </div>
+<div class="fragment"><div class="line"> shell</div>
 <div class="line">$ git clone https://github.com/spack/spack.git</div>
 <div class="line">$ cd spack</div>
 <div class="line">$ . share/spack/setup-env.sh</div>
@@ -284,7 +291,19 @@ Quick start guide with Spack</h2>
 <div class="fragment"><div class="line"> shell</div>
 <div class="line">$ spack install neko+cuda</div>
 </div><!-- fragment --><p>For a more detailed guide on getting started with Spack, please refer to the offical documentation: <a href="https://spack.readthedocs.io/en/latest/getting_started.html">https://spack.readthedocs.io/en/latest/getting_started.html</a></p>
-<h1><a class="anchor" id="autotoc_md63"></a>
+<h1><a class="anchor" id="autotoc_md121"></a>
+Installing using pixi</h1>
+<p>Pixi is a package managment tool using conda under the hood. It is very easy to install. For more information see (pixi.sh)[pixi.sh].</p>
+<div class="fragment"><div class="line">curl -fsSL https://pixi.sh/install.sh | sh</div>
+</div><!-- fragment --><p>Pixi will leverage conda to install all the dependencies, including basic ones like <code>gfortran</code> and <code>openmpi</code>. All of these will be installed inside an isolated environment. So, to install Neko simply clone the repo with git, and run the following command inside it</p>
+<div class="fragment"><div class="line">pixi run install-neko-cpu</div>
+</div><!-- fragment --><p>This will give you a double-precision CPU build charged with all optional dependencies: hdf5, and parmetis. For now, this is the only configuration that can be installed automatically with pixi.</p>
+<p>To use Neko, you need to drop into a shell, where the pixi environment will be activated. For that run</p>
+<div class="fragment"><div class="line">pixi shell</div>
+</div><!-- fragment --><p>The <code>neko</code> and <code>makeneko</code> executables are already be in your <code>PATH</code>, so you can start running cases!</p>
+<p>The installed executables, libraries, etc. are all located inside the <code>install</code> folder in the repo.</p>
+<p>Note that you can use this pixi environment as you like, including manually <code>configuring</code> and building Neko (as per instructions for building from source), for example, with single precision reals or even with a different backend.</p>
+<h1><a class="anchor" id="autotoc_md122"></a>
 Using a Docker container</h1>
 <p>Perhaps the easiest way to quickly give Neko a try is using a Docker container. Below we assume that you have Docker up and running on your system. The released container images can be found here: <a href="https://gitlab.com/ExtremeFLOW/neko/container_registry">https://gitlab.com/ExtremeFLOW/neko/container_registry</a>. Select the image with the release you want to use. Here we will use version 0.6.1, but in most cases you will want to simply pick up the latest version available. To the left of every image there is a button with three dots. Click on it to get the full path to the image in the correct format for Docker. For our release this is <code>registry.gitlab.com/extremeflow/neko/release-0.6.1-ubunut20.04-x86_64-gcc-12.3</code>. To get the image on you machine use <code>docker pull</code>:</p>
 <div class="fragment"><div class="line">docker pull registry.gitlab.com/extremeflow/neko/release-0.6.1-ubunut20.04-x86_64-gcc-12.3</div>
@@ -300,7 +319,7 @@ Using a Docker container</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

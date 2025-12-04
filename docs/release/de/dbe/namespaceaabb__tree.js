@@ -14,7 +14,8 @@ var namespaceaabb__tree =
     [ "aabb_node_less", "de/dbe/namespaceaabb__tree.html#ab0c71708b8ade5c9e65aca3598e91a49", null ],
     [ "aabb_node_min_distance", "de/dbe/namespaceaabb__tree.html#a85bb0588af0fe408b35b3c96390ba533", null ],
     [ "aabb_tree_allocate_node", "de/dbe/namespaceaabb__tree.html#a6c321ee4f3bde1bf34f74e11c6e50621", null ],
-    [ "aabb_tree_build_tree", "de/dbe/namespaceaabb__tree.html#a9436c192bfc12ea59cce3fd54e787b9c", null ],
+    [ "aabb_tree_build_tree", "de/dbe/namespaceaabb__tree.html#ac4abcec7597dde9d7152f2b650133745", null ],
+    [ "aabb_tree_build_tree_aabb", "de/dbe/namespaceaabb__tree.html#a367883eefbcad9b32170a98d8fadcd3b", null ],
     [ "aabb_tree_deallocate_node", "de/dbe/namespaceaabb__tree.html#a7c1ebfe1ce7d64f5facb3219e607599b", null ],
     [ "aabb_tree_fix_upwards_tree", "de/dbe/namespaceaabb__tree.html#a0f44029eb102244891274a7c30284738", null ],
     [ "aabb_tree_get_aabb", "de/dbe/namespaceaabb__tree.html#a0524bcd89f318044670f1109d417959d", null ],
@@ -35,6 +36,6 @@ var namespaceaabb__tree =
     [ "aabb_tree_query_overlaps", "de/dbe/namespaceaabb__tree.html#a91bbc6b82fa750c901f9aee8627ab9c0", null ],
     [ "aabb_tree_resize_node_pool", "de/dbe/namespaceaabb__tree.html#af77bf6a7eeca30e61097905ff8760fbd", null ],
     [ "aabb_tree_valid_tree", "de/dbe/namespaceaabb__tree.html#ae5e9ca363c42439f3aac15476a21429c", null ],
-    [ "sort", "de/dbe/namespaceaabb__tree.html#ab005b48a94d453913bfa417f9c450e7c", null ],
+    [ "sort", "de/dbe/namespaceaabb__tree.html#aaf12bc5fc9d3ed07702d4984c9eb75fd", null ],
     [ "aabb_null_node", "de/dbe/namespaceaabb__tree.html#acc3848138af2d8c26920f00b31ae1e5e", null ]
 ];

@@ -2,7 +2,7 @@ var structcheckpoint_1_1chkp__t =
 [
     [ "chkp_free", "d9/d88/structcheckpoint_1_1chkp__t.html#a353621a69fc1a257551a328566c737e4", null ],
     [ "add_lag", "d9/d88/structcheckpoint_1_1chkp__t.html#ab1bb5ba54ad54fce85f19660a86a2081", null ],
-    [ "add_scalar", "d9/d88/structcheckpoint_1_1chkp__t.html#ad095c09f4ef4d3a486272c33b387ffd1", null ],
+    [ "add_scalar", "d9/d88/structcheckpoint_1_1chkp__t.html#a4f642649e03c8278603963862beb1215", null ],
     [ "init", "d9/d88/structcheckpoint_1_1chkp__t.html#a9fe2da13b4cbb4812686a279b20e3a89", null ],
     [ "restart_time", "d9/d88/structcheckpoint_1_1chkp__t.html#a6e8f28d16a52b02b4eecbddab94a739e", null ],
     [ "sync_device", "d9/d88/structcheckpoint_1_1chkp__t.html#a1c04e0452b634f1d915b09c5df3890a0", null ],
@@ -21,6 +21,9 @@ var structcheckpoint_1_1chkp__t =
     [ "previous_mesh", "d9/d88/structcheckpoint_1_1chkp__t.html#a5cdc095671197441bced2d2530728ce3", null ],
     [ "previous_xh", "d9/d88/structcheckpoint_1_1chkp__t.html#ad300d4d0e1a2c57eb152411373ba6792", null ],
     [ "s", "d9/d88/structcheckpoint_1_1chkp__t.html#af409d7eee1c85522b5d8aac86672b7a9", null ],
+    [ "scalar_abx1", "d9/d88/structcheckpoint_1_1chkp__t.html#a29a662ca0505b99e79b274bac2758019", null ],
+    [ "scalar_abx2", "d9/d88/structcheckpoint_1_1chkp__t.html#a4a2551c0a6a225db3f16c024503f1490", null ],
+    [ "scalar_lags", "d9/d88/structcheckpoint_1_1chkp__t.html#aad8a80db0aba71e6cc6d3260374ab939", null ],
     [ "slag", "d9/d88/structcheckpoint_1_1chkp__t.html#a90584524aa61e8e7cbeea4aa7fbb68b2", null ],
     [ "t", "d9/d88/structcheckpoint_1_1chkp__t.html#ad8c0636e0a1c4d1a6ccf8915f9a7c6d8", null ],
     [ "tlag", "d9/d88/structcheckpoint_1_1chkp__t.html#aaedff974304bcd677d22d1003ca0ed9b", null ],

@@ -1,5 +1,0 @@
-<map id="device_math::device_vlsc3" name="device_math::device_vlsc3">
-<area shape="rect" id="Node000001" title="Compute multiplication sum ." alt="" coords="220,5,377,45"/>
-<area shape="rect" id="Node000002" href="$da/d46/namespacepipecg__device.html#af8b348213f1bde50d210f885ae0dd66a" title="Pipelined PCG solve." alt="" coords="5,5,172,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
-</map>

@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -139,8 +139,284 @@ Functions</h2></td></tr>
 <tr class="memitem:aa5cdc2c6437075685e4dfc49d2aee6f1" id="r_aa5cdc2c6437075685e4dfc49d2aee6f1"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">typename</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> &gt; </td></tr>
 <tr class="memitem:aa5cdc2c6437075685e4dfc49d2aee6f1"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__global__</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h.html#aa5cdc2c6437075685e4dfc49d2aee6f1">gs_unpack_add_kernel</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a> <a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a7c8003e3422abb0b6eec11f6ebf6e6fb">u</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a> <a class="el" href="../../d8/d3b/pipecg__aux_8cu.html#a378a68ec6e48844b307e97b86902feac">buf</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int32_t</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a> dof, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a> n)</td></tr>
 <tr class="separator:aa5cdc2c6437075685e4dfc49d2aee6f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a59f36e28cf42772db39280516613af6a" id="r_a59f36e28cf42772db39280516613af6a"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">typename</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> &gt; </td></tr>
+<tr class="memitem:a59f36e28cf42772db39280516613af6a"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__device__</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h.html#a59f36e28cf42772db39280516613af6a">atomicMinFloat</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">address</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">val</a>)</td></tr>
+<tr class="separator:a59f36e28cf42772db39280516613af6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aee826b1bf04713c99fb66d03c2719d46" id="r_aee826b1bf04713c99fb66d03c2719d46"><td class="memItemLeft" align="right" valign="top">template&lt;&gt; </td></tr>
+<tr class="memitem:aee826b1bf04713c99fb66d03c2719d46"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__device__</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">float</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h.html#aee826b1bf04713c99fb66d03c2719d46">atomicMinFloat&lt; float &gt;</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">float</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">address</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">float</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">val</a>)</td></tr>
+<tr class="separator:aee826b1bf04713c99fb66d03c2719d46"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af497e59e67d52a44a313b488474bf5c9" id="r_af497e59e67d52a44a313b488474bf5c9"><td class="memItemLeft" align="right" valign="top">template&lt;&gt; </td></tr>
+<tr class="memitem:af497e59e67d52a44a313b488474bf5c9"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__device__</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">double</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h.html#af497e59e67d52a44a313b488474bf5c9">atomicMinFloat&lt; double &gt;</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">double</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">address</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">double</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">val</a>)</td></tr>
+<tr class="separator:af497e59e67d52a44a313b488474bf5c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6517aee583142293b4a366032f27b6ae" id="r_a6517aee583142293b4a366032f27b6ae"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">typename</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> &gt; </td></tr>
+<tr class="memitem:a6517aee583142293b4a366032f27b6ae"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__global__</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h.html#a6517aee583142293b4a366032f27b6ae">gs_unpack_min_kernel</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a> <a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a7c8003e3422abb0b6eec11f6ebf6e6fb">u</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a> <a class="el" href="../../d8/d3b/pipecg__aux_8cu.html#a378a68ec6e48844b307e97b86902feac">buf</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int32_t</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a> dof, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a> n)</td></tr>
+<tr class="separator:a6517aee583142293b4a366032f27b6ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a053232fae2dba9bae6ec16e67b0f2596" id="r_a053232fae2dba9bae6ec16e67b0f2596"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">typename</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> &gt; </td></tr>
+<tr class="memitem:a053232fae2dba9bae6ec16e67b0f2596"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__device__</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h.html#a053232fae2dba9bae6ec16e67b0f2596">atomicMaxFloat</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">address</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">val</a>)</td></tr>
+<tr class="separator:a053232fae2dba9bae6ec16e67b0f2596"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa034ea6e833a8d46e6c40fb8725c07d0" id="r_aa034ea6e833a8d46e6c40fb8725c07d0"><td class="memItemLeft" align="right" valign="top">template&lt;&gt; </td></tr>
+<tr class="memitem:aa034ea6e833a8d46e6c40fb8725c07d0"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__device__</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">float</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h.html#aa034ea6e833a8d46e6c40fb8725c07d0">atomicMaxFloat&lt; float &gt;</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">float</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">address</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">float</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">val</a>)</td></tr>
+<tr class="separator:aa034ea6e833a8d46e6c40fb8725c07d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8664701575f897a9d8ba6ad39fd61fd8" id="r_a8664701575f897a9d8ba6ad39fd61fd8"><td class="memItemLeft" align="right" valign="top">template&lt;&gt; </td></tr>
+<tr class="memitem:a8664701575f897a9d8ba6ad39fd61fd8"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__device__</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">double</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h.html#a8664701575f897a9d8ba6ad39fd61fd8">atomicMaxFloat&lt; double &gt;</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">double</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">address</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">double</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">val</a>)</td></tr>
+<tr class="separator:a8664701575f897a9d8ba6ad39fd61fd8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a193b09c56933818591dae07c052e3888" id="r_a193b09c56933818591dae07c052e3888"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">typename</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> &gt; </td></tr>
+<tr class="memitem:a193b09c56933818591dae07c052e3888"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__global__</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h.html#a193b09c56933818591dae07c052e3888">gs_unpack_max_kernel</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a> <a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a7c8003e3422abb0b6eec11f6ebf6e6fb">u</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a> <a class="el" href="../../d8/d3b/pipecg__aux_8cu.html#a378a68ec6e48844b307e97b86902feac">buf</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int32_t</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a> dof, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a> n)</td></tr>
+<tr class="separator:a193b09c56933818591dae07c052e3888"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="a053232fae2dba9bae6ec16e67b0f2596" name="a053232fae2dba9bae6ec16e67b0f2596"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a053232fae2dba9bae6ec16e67b0f2596">&#9670;&#160;</a></span>atomicMaxFloat()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">typename</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__device__</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> atomicMaxFloat </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> *&#160;</td>
+          <td class="paramname"><em>address</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a>&#160;</td>
+          <td class="paramname"><em>val</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d0/dc4/cuda_2gs__kernels_8h_a053232fae2dba9bae6ec16e67b0f2596_icgraph.png" border="0" usemap="#ad0/dc4/cuda_2gs__kernels_8h_a053232fae2dba9bae6ec16e67b0f2596_icgraph" alt=""/></div>
+<map name="ad0/dc4/cuda_2gs__kernels_8h_a053232fae2dba9bae6ec16e67b0f2596_icgraph" id="ad0/dc4/cuda_2gs__kernels_8h_a053232fae2dba9bae6ec16e67b0f2596_icgraph">
+<area shape="rect" title=" " alt="" coords="228,5,356,31"/>
+<area shape="rect" href="../../d0/dc4/cuda_2gs__kernels_8h.html#a193b09c56933818591dae07c052e3888" title=" " alt="" coords="5,5,180,31"/>
+<area shape="poly" title=" " alt="" coords="214,21,180,21,180,15,214,15"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a8664701575f897a9d8ba6ad39fd61fd8" name="a8664701575f897a9d8ba6ad39fd61fd8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8664701575f897a9d8ba6ad39fd61fd8">&#9670;&#160;</a></span>atomicMaxFloat&lt; double &gt;()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__device__</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">double</a> <a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h.html#a053232fae2dba9bae6ec16e67b0f2596">atomicMaxFloat</a>&lt; <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">double</a> &gt; </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">double</a> *&#160;</td>
+          <td class="paramname"><em>address</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">double</a>&#160;</td>
+          <td class="paramname"><em>val</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h_source.html#l00351">351</a> of file <a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h_source.html">gs_kernels.h</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d0/dc4/cuda_2gs__kernels_8h_a8664701575f897a9d8ba6ad39fd61fd8_cgraph.png" border="0" usemap="#ad0/dc4/cuda_2gs__kernels_8h_a8664701575f897a9d8ba6ad39fd61fd8_cgraph" alt=""/></div>
+<map name="ad0/dc4/cuda_2gs__kernels_8h_a8664701575f897a9d8ba6ad39fd61fd8_cgraph" id="ad0/dc4/cuda_2gs__kernels_8h_a8664701575f897a9d8ba6ad39fd61fd8_cgraph">
+<area shape="rect" title=" " alt="" coords="5,37,208,62"/>
+<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="256,29,420,69"/>
+<area shape="poly" title=" " alt="" coords="208,47,242,47,242,52,208,52"/>
+<area shape="poly" title=" " alt="" coords="295,30,293,20,299,10,315,5,338,3,365,6,379,13,377,18,363,11,338,8,316,10,303,15,298,21,300,28"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="aa034ea6e833a8d46e6c40fb8725c07d0" name="aa034ea6e833a8d46e6c40fb8725c07d0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa034ea6e833a8d46e6c40fb8725c07d0">&#9670;&#160;</a></span>atomicMaxFloat&lt; float &gt;()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__device__</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">float</a> <a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h.html#a053232fae2dba9bae6ec16e67b0f2596">atomicMaxFloat</a>&lt; <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">float</a> &gt; </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">float</a> *&#160;</td>
+          <td class="paramname"><em>address</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">float</a>&#160;</td>
+          <td class="paramname"><em>val</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h_source.html#l00343">343</a> of file <a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h_source.html">gs_kernels.h</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d0/dc4/cuda_2gs__kernels_8h_aa034ea6e833a8d46e6c40fb8725c07d0_cgraph.png" border="0" usemap="#ad0/dc4/cuda_2gs__kernels_8h_aa034ea6e833a8d46e6c40fb8725c07d0_cgraph" alt=""/></div>
+<map name="ad0/dc4/cuda_2gs__kernels_8h_aa034ea6e833a8d46e6c40fb8725c07d0_cgraph" id="ad0/dc4/cuda_2gs__kernels_8h_aa034ea6e833a8d46e6c40fb8725c07d0_cgraph">
+<area shape="rect" title=" " alt="" coords="5,37,192,62"/>
+<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="240,29,404,69"/>
+<area shape="poly" title=" " alt="" coords="192,47,226,47,226,52,192,52"/>
+<area shape="poly" title=" " alt="" coords="281,30,278,20,285,10,300,5,322,3,348,6,362,13,360,18,346,11,322,8,301,10,288,15,283,21,286,28"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a59f36e28cf42772db39280516613af6a" name="a59f36e28cf42772db39280516613af6a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a59f36e28cf42772db39280516613af6a">&#9670;&#160;</a></span>atomicMinFloat()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">typename</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__device__</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> atomicMinFloat </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> *&#160;</td>
+          <td class="paramname"><em>address</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a>&#160;</td>
+          <td class="paramname"><em>val</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d0/dc4/cuda_2gs__kernels_8h_a59f36e28cf42772db39280516613af6a_icgraph.png" border="0" usemap="#ad0/dc4/cuda_2gs__kernels_8h_a59f36e28cf42772db39280516613af6a_icgraph" alt=""/></div>
+<map name="ad0/dc4/cuda_2gs__kernels_8h_a59f36e28cf42772db39280516613af6a_icgraph" id="ad0/dc4/cuda_2gs__kernels_8h_a59f36e28cf42772db39280516613af6a_icgraph">
+<area shape="rect" title=" " alt="" coords="224,5,348,31"/>
+<area shape="rect" href="../../d0/dc4/cuda_2gs__kernels_8h.html#a6517aee583142293b4a366032f27b6ae" title=" " alt="" coords="5,5,176,31"/>
+<area shape="poly" title=" " alt="" coords="210,21,176,21,176,15,210,15"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="af497e59e67d52a44a313b488474bf5c9" name="af497e59e67d52a44a313b488474bf5c9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af497e59e67d52a44a313b488474bf5c9">&#9670;&#160;</a></span>atomicMinFloat&lt; double &gt;()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__device__</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">double</a> <a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h.html#a59f36e28cf42772db39280516613af6a">atomicMinFloat</a>&lt; <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">double</a> &gt; </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">double</a> *&#160;</td>
+          <td class="paramname"><em>address</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">double</a>&#160;</td>
+          <td class="paramname"><em>val</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h_source.html#l00305">305</a> of file <a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h_source.html">gs_kernels.h</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d0/dc4/cuda_2gs__kernels_8h_af497e59e67d52a44a313b488474bf5c9_cgraph.png" border="0" usemap="#ad0/dc4/cuda_2gs__kernels_8h_af497e59e67d52a44a313b488474bf5c9_cgraph" alt=""/></div>
+<map name="ad0/dc4/cuda_2gs__kernels_8h_af497e59e67d52a44a313b488474bf5c9_cgraph" id="ad0/dc4/cuda_2gs__kernels_8h_af497e59e67d52a44a313b488474bf5c9_cgraph">
+<area shape="rect" title=" " alt="" coords="5,37,204,62"/>
+<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="252,29,416,69"/>
+<area shape="poly" title=" " alt="" coords="204,47,238,47,238,52,204,52"/>
+<area shape="poly" title=" " alt="" coords="291,30,289,20,295,10,311,5,334,3,361,6,375,13,373,18,359,11,334,8,312,10,299,15,294,21,296,28"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="aee826b1bf04713c99fb66d03c2719d46" name="aee826b1bf04713c99fb66d03c2719d46"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aee826b1bf04713c99fb66d03c2719d46">&#9670;&#160;</a></span>atomicMinFloat&lt; float &gt;()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__device__</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">float</a> <a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h.html#a59f36e28cf42772db39280516613af6a">atomicMinFloat</a>&lt; <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">float</a> &gt; </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">float</a> *&#160;</td>
+          <td class="paramname"><em>address</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">float</a>&#160;</td>
+          <td class="paramname"><em>val</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h_source.html#l00296">296</a> of file <a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h_source.html">gs_kernels.h</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d0/dc4/cuda_2gs__kernels_8h_aee826b1bf04713c99fb66d03c2719d46_cgraph.png" border="0" usemap="#ad0/dc4/cuda_2gs__kernels_8h_aee826b1bf04713c99fb66d03c2719d46_cgraph" alt=""/></div>
+<map name="ad0/dc4/cuda_2gs__kernels_8h_aee826b1bf04713c99fb66d03c2719d46_cgraph" id="ad0/dc4/cuda_2gs__kernels_8h_aee826b1bf04713c99fb66d03c2719d46_cgraph">
+<area shape="rect" title=" " alt="" coords="5,37,188,62"/>
+<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="236,29,400,69"/>
+<area shape="poly" title=" " alt="" coords="188,47,222,47,222,52,188,52"/>
+<area shape="poly" title=" " alt="" coords="277,30,274,20,281,10,296,5,318,3,344,6,358,13,356,18,342,11,318,8,297,10,284,15,279,21,282,28"/>
+</map>
+</div>
+
+</div>
+</div>
 <a id="a7717b67950b3a1fe909b5c601d400661" name="a7717b67950b3a1fe909b5c601d400661"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a7717b67950b3a1fe909b5c601d400661">&#9670;&#160;</a></span>gather_kernel_add()</h2>
 
@@ -549,7 +825,7 @@ template&lt;<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h_source.html#l00254">254</a> of file <a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h_source.html">gs_kernels.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h_source.html#l00256">256</a> of file <a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h_source.html">gs_kernels.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -604,7 +880,7 @@ template&lt;<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h_source.html#l00269">269</a> of file <a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h_source.html">gs_kernels.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h_source.html#l00271">271</a> of file <a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h_source.html">gs_kernels.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -614,6 +890,120 @@ Here is the call graph for this function:</div>
 <area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="223,29,387,69"/>
 <area shape="poly" title=" " alt="" coords="175,47,209,47,209,52,175,52"/>
 <area shape="poly" title=" " alt="" coords="265,30,262,20,269,10,283,5,305,3,330,6,343,13,341,18,328,11,305,8,284,10,272,15,267,21,270,28"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a193b09c56933818591dae07c052e3888" name="a193b09c56933818591dae07c052e3888"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a193b09c56933818591dae07c052e3888">&#9670;&#160;</a></span>gs_unpack_max_kernel()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">typename</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__global__</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> gs_unpack_max_kernel </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a>&#160;</td>
+          <td class="paramname"><em>u</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a>&#160;</td>
+          <td class="paramname"><em>buf</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int32_t</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a>&#160;</td>
+          <td class="paramname"><em>dof</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a>&#160;</td>
+          <td class="paramname"><em>n</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h_source.html#l00363">363</a> of file <a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h_source.html">gs_kernels.h</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d0/dc4/cuda_2gs__kernels_8h_a193b09c56933818591dae07c052e3888_cgraph.png" border="0" usemap="#ad0/dc4/cuda_2gs__kernels_8h_a193b09c56933818591dae07c052e3888_cgraph" alt=""/></div>
+<map name="ad0/dc4/cuda_2gs__kernels_8h_a193b09c56933818591dae07c052e3888_cgraph" id="ad0/dc4/cuda_2gs__kernels_8h_a193b09c56933818591dae07c052e3888_cgraph">
+<area shape="rect" title=" " alt="" coords="5,47,180,72"/>
+<area shape="rect" href="../../d0/dc4/cuda_2gs__kernels_8h.html#a053232fae2dba9bae6ec16e67b0f2596" title=" " alt="" coords="246,5,374,31"/>
+<area shape="poly" title=" " alt="" coords="160,44,232,30,233,35,161,49"/>
+<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="228,79,392,119"/>
+<area shape="poly" title=" " alt="" coords="163,69,215,79,214,84,162,75"/>
+<area shape="poly" title=" " alt="" coords="269,80,267,70,274,60,288,55,310,53,335,56,349,63,347,68,334,61,310,58,289,60,277,65,272,71,275,78"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a6517aee583142293b4a366032f27b6ae" name="a6517aee583142293b4a366032f27b6ae"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6517aee583142293b4a366032f27b6ae">&#9670;&#160;</a></span>gs_unpack_min_kernel()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">typename</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__global__</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> gs_unpack_min_kernel </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a>&#160;</td>
+          <td class="paramname"><em>u</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a>&#160;</td>
+          <td class="paramname"><em>buf</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int32_t</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a>&#160;</td>
+          <td class="paramname"><em>dof</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a>&#160;</td>
+          <td class="paramname"><em>n</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h_source.html#l00317">317</a> of file <a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h_source.html">gs_kernels.h</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d0/dc4/cuda_2gs__kernels_8h_a6517aee583142293b4a366032f27b6ae_cgraph.png" border="0" usemap="#ad0/dc4/cuda_2gs__kernels_8h_a6517aee583142293b4a366032f27b6ae_cgraph" alt=""/></div>
+<map name="ad0/dc4/cuda_2gs__kernels_8h_a6517aee583142293b4a366032f27b6ae_cgraph" id="ad0/dc4/cuda_2gs__kernels_8h_a6517aee583142293b4a366032f27b6ae_cgraph">
+<area shape="rect" title=" " alt="" coords="5,47,176,72"/>
+<area shape="rect" href="../../d0/dc4/cuda_2gs__kernels_8h.html#a59f36e28cf42772db39280516613af6a" title=" " alt="" coords="244,5,368,31"/>
+<area shape="poly" title=" " alt="" coords="157,44,230,30,231,35,158,49"/>
+<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="224,79,388,119"/>
+<area shape="poly" title=" " alt="" coords="160,69,211,79,210,84,159,75"/>
+<area shape="poly" title=" " alt="" coords="266,80,264,70,270,60,284,55,306,53,331,56,345,63,342,68,329,61,306,58,286,60,273,65,269,71,271,78"/>
 </map>
 </div>
 
@@ -711,7 +1101,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_efc6cc943adcbbcf7353b1e68a05f09f.html">gs</a></li><li class="navelem"><a class="el" href="../../dir_77c81aa14b6219eec0132e0447c94fac.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_bbf3ca66c1b560da8bc9e61fd2cef0aa.html">device</a></li><li class="navelem"><a class="el" href="../../dir_49ec912c0ebcd73652f5e3a19f5d0531.html">cuda</a></li><li class="navelem"><a class="el" href="../../d0/dc4/cuda_2gs__kernels_8h.html">gs_kernels.h</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

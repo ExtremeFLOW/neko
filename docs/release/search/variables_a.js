@@ -4,9 +4,13 @@ var searchData=
   ['key_1',['key',['../d8/d5b/structhtable_1_1h__tuple__t.html#ad4b2e086ab2cd8e51f44dc7236178a9e',1,'htable::h_tuple_t']]],
   ['ksp_2',['ksp',['../dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a0ce7093688cf35d0ec72056afca365b9',1,'scalar_scheme::scalar_scheme_t']]],
   ['ksp_5fabs_5ftol_3',['ksp_abs_tol',['../db/d6d/namespacekrylov.html#a24e2167e9e8017246e51a908433f0138',1,'krylov']]],
-  ['ksp_5fmax_5fiter_4',['ksp_max_iter',['../db/d6d/namespacekrylov.html#a6c54e214c5bf4ff86e242ae694736ba1',1,'krylov']]],
-  ['ksp_5fmaxiter_5',['ksp_maxiter',['../dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a26b6e9eed22364790269b6cdb97c6701',1,'scalar_scheme::scalar_scheme_t']]],
-  ['ksp_5fprs_6',['ksp_prs',['../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a226c6fbac8257bde2183ee1dc1dc9003',1,'fluid_scheme::fluid_scheme_t']]],
-  ['ksp_5frel_5ftol_7',['ksp_rel_tol',['../db/d6d/namespacekrylov.html#a2232d050e8220dd0e352118faceb029a',1,'krylov']]],
-  ['ksp_5fvel_8',['ksp_vel',['../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#ac9e7a9c6e7ee31f9d9533246f7aadfda',1,'fluid_scheme::fluid_scheme_t']]]
+  ['ksp_5ffilt_4',['ksp_filt',['../dc/d26/structpde__filter_1_1pde__filter__t.html#a06e5ad4a4d0451ef6521d478f6eb7214',1,'pde_filter::pde_filter_t']]],
+  ['ksp_5fmax_5fiter_5',['ksp_max_iter',['../dc/d26/structpde__filter_1_1pde__filter__t.html#a0a8a6e97a9b7acefe149f86dec5d9b12',1,'pde_filter::pde_filter_t::ksp_max_iter'],['../db/d6d/namespacekrylov.html#a6c54e214c5bf4ff86e242ae694736ba1',1,'krylov::ksp_max_iter']]],
+  ['ksp_5fmaxiter_6',['ksp_maxiter',['../dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a26b6e9eed22364790269b6cdb97c6701',1,'scalar_scheme::scalar_scheme_t']]],
+  ['ksp_5fn_7',['ksp_n',['../dc/d26/structpde__filter_1_1pde__filter__t.html#aed1b2db7c98246b32c90f8202dd79fd1',1,'pde_filter::pde_filter_t']]],
+  ['ksp_5fprs_8',['ksp_prs',['../d5/d0e/structfluid__scheme__incompressible_1_1fluid__scheme__incompressible__t.html#a5884acefc8f3d037efe22e9837da38dd',1,'fluid_scheme_incompressible::fluid_scheme_incompressible_t']]],
+  ['ksp_5frel_5ftol_9',['ksp_rel_tol',['../db/d6d/namespacekrylov.html#a2232d050e8220dd0e352118faceb029a',1,'krylov']]],
+  ['ksp_5fresults_10',['ksp_results',['../dc/d26/structpde__filter_1_1pde__filter__t.html#a3be84c2715e69562aa4d985b734551e6',1,'pde_filter::pde_filter_t']]],
+  ['ksp_5fsolver_11',['ksp_solver',['../dc/d26/structpde__filter_1_1pde__filter__t.html#a9f7563a51dda4da68440eacc582a278a',1,'pde_filter::pde_filter_t']]],
+  ['ksp_5fvel_12',['ksp_vel',['../d5/d0e/structfluid__scheme__incompressible_1_1fluid__scheme__incompressible__t.html#a99df63f42a8bd04a972aa673c31441c2',1,'fluid_scheme_incompressible::fluid_scheme_incompressible_t']]]
 ];

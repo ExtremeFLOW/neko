@@ -1,0 +1,10 @@
+<map id="tree_amg_aggregate::agg_fill_nhbr_info" name="tree_amg_aggregate::agg_fill_nhbr_info">
+<area shape="rect" id="Node000001" title="Create information on which aggregates are &quot;adjacent&quot; to eachother." alt="" coords="409,37,567,77"/>
+<area shape="rect" id="Node000002" href="$da/d77/namespacetree__amg__aggregate.html#a6b8dcb1915a0e9af672e75db09450d37" title="Aggregates dofs based on adjacent dofs." alt="" coords="204,5,361,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="395,46,361,40,362,35,396,40"/>
+<area shape="rect" id="Node000004" href="$da/d77/namespacetree__amg__aggregate.html#a47299926f3ee5d2dc3258c060f494626" title="Aggregates pairs of dofs based on adjacent dofs." alt="" coords="204,69,361,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="396,74,362,80,361,74,395,69"/>
+<area shape="rect" id="Node000003" href="$d5/d1b/namespacetree__amg__multigrid.html#afdfe654db71422a5240a588dd522768d" title="Initialization of the TreeAMG multigrid solver." alt="" coords="5,37,156,77"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="191,43,157,48,156,43,190,37"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="190,77,156,72,157,67,191,72"/>
+</map>

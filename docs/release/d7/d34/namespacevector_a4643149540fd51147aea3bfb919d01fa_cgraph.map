@@ -1,9 +1,0 @@
-<map id="vector::vector_add_scalar_right" name="vector::vector_add_scalar_right">
-<area shape="rect" id="Node000001" title="Scalar&#45;vector addition ." alt="" coords="5,27,148,67"/>
-<area shape="rect" id="Node000002" href="$d7/d34/namespacevector.html#aa5730016c4836d2b002728e55bd94b3f" title="Vector&#45;scalar addition ." alt="" coords="196,27,339,67"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,45,183,45,183,50,148,50"/>
-<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#a379adcc7bf693d6ceaec23f715dd93b8" title="Add a scalar to vector ." alt="" coords="414,5,517,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="339,34,400,25,401,30,340,39"/>
-<area shape="rect" id="Node000004" href="$d2/d73/namespacedevice__math.html#ad868323dda2925e1f5d954d61de4b8dd" title="Add a scalar to vector ." alt="" coords="387,55,544,95"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="340,55,373,60,373,65,339,60"/>
-</map>

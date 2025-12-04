@@ -1,0 +1,13 @@
+<map id="device_math::device_masked_gather_copy_0" name="device_math::device_masked_gather_copy_0">
+<area shape="rect" id="Node000001" title="Gather a masked vector ." alt="" coords="257,133,440,173"/>
+<area shape="rect" id="Node000002" href="$d4/d86/namespacefacet__normal.html#a93d2f3b5fd10d1a5338fc2b2712a4149" title="Apply in facet normal direction (vector valued, device version)" alt="" coords="5,5,209,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="311,127,264,92,208,60,180,48,182,43,211,55,266,88,314,123"/>
+<area shape="rect" id="Node000003" href="$d5/de6/namespacefield__math.html#af7251846973bd60c4cd510a41c0939bd" title="Gather a field to reduced contigous array ." alt="" coords="15,69,200,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="259,132,183,112,184,107,260,127"/>
+<area shape="rect" id="Node000004" href="$d6/daa/namespaceforce__torque.html#a04fd3661b7bbe9d298cb5c3109ac9499" title="Compute the force_torque field." alt="" coords="35,133,180,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="243,156,180,156,180,151,243,151"/>
+<area shape="rect" id="Node000005" href="$d5/d90/namespacespalding.html#a8fceccd55236c0ec4100055cd9bacc81" title="Compute the kinematic viscosity vector." alt="" coords="37,197,177,237"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="260,179,178,201,177,196,259,174"/>
+<area shape="rect" id="Node000006" href="$d3/d0d/namespacevector__math.html#a102c3fdd6473f46807a9cd38290910de" title="Gather a vector to reduced contigous array ." alt="" coords="16,261,199,301"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="314,184,266,219,211,252,182,264,180,259,208,247,264,214,311,180"/>
+</map>

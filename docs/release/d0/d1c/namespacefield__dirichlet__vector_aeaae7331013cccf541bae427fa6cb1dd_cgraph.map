@@ -1,5 +1,0 @@
-<map id="field_dirichlet_vector::field_dirichlet_vector_free" name="field_dirichlet_vector::field_dirichlet_vector_free">
-<area shape="rect" id="Node000001" title="Destructor. Currently unused as is, all field_dirichlet attributes are freed in fluid_scheme::free." alt="" coords="5,5,204,45"/>
-<area shape="rect" id="Node000002" href="$d0/dc0/namespacebc.html#a70aeff826889ae0f54bd98cfacb0decb" title="Destructor for a list of boundary conditions." alt="" coords="252,13,372,38"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="204,23,238,23,238,28,204,28"/>
-</map>

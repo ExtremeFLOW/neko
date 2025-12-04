@@ -1,5 +1,5 @@
 var dirichlet_8cu =
 [
-    [ "cuda_dirichlet_apply_scalar", "d4/d09/dirichlet_8cu.html#ae2bbc2ac76abf0ebcaa904af6d1cee79", null ],
-    [ "cuda_dirichlet_apply_vector", "d4/d09/dirichlet_8cu.html#a63a321804d567ca2b862322db5f96df4", null ]
+    [ "cuda_dirichlet_apply_scalar", "d4/d09/dirichlet_8cu.html#ae9fc49c9ca11009e0f2858edec3f2879", null ],
+    [ "cuda_dirichlet_apply_vector", "d4/d09/dirichlet_8cu.html#af9361b6d3c80cab028c1d827290fc7b9", null ]
 ];

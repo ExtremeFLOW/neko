@@ -3,7 +3,7 @@ var gather__scatter_8f90 =
     [ "gather_scatter::gs_t", "dd/db8/structgather__scatter_1_1gs__t.html", "dd/db8/structgather__scatter_1_1gs__t" ],
     [ "gs_find_blks", "d5/d7e/gather__scatter_8f90.html#a0df0f0f94eb369fc80627b7721fad2c3", null ],
     [ "gs_free", "d5/d7e/gather__scatter_8f90.html#a7b932fc67f24ee664f40c41bc61487c1", null ],
-    [ "gs_init", "d5/d7e/gather__scatter_8f90.html#a6abafa7eaef0e406c6d411d8554b8bee", null ],
+    [ "gs_init", "d5/d7e/gather__scatter_8f90.html#ab47747b3dc7d9b75b840e7c6aafdf347", null ],
     [ "gs_init_mapping", "d5/d7e/gather__scatter_8f90.html#a116426a5fc51d480ab0f080002328566", null ],
     [ "gs_mapping_add_dof", "d5/d7e/gather__scatter_8f90.html#af8cc5f86931d4ca4f75ac2ddc0b311d8", null ],
     [ "gs_op_fld", "d5/d7e/gather__scatter_8f90.html#af6d7eed444d705e5a72312bf01e3c083", null ],

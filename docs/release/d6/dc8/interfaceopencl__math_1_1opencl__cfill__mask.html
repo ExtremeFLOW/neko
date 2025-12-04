@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -107,15 +107,15 @@ $(document).ready(function(){initNavTree('d6/dc8/interfaceopencl__math_1_1opencl
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a7d123f21f8dbe97f7622a9ef9ab10bdc" id="r_a7d123f21f8dbe97f7622a9ef9ab10bdc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/dc8/interfaceopencl__math_1_1opencl__cfill__mask.html#a7d123f21f8dbe97f7622a9ef9ab10bdc">opencl_cfill_mask</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">a_d</a>, c, size, mask_d, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">mask_size</a>)</td></tr>
-<tr class="separator:a7d123f21f8dbe97f7622a9ef9ab10bdc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a384bf67dfac4af4a5df06ee6b6c51f9f" id="r_a384bf67dfac4af4a5df06ee6b6c51f9f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/dc8/interfaceopencl__math_1_1opencl__cfill__mask.html#a384bf67dfac4af4a5df06ee6b6c51f9f">opencl_cfill_mask</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">a_d</a>, c, n, mask_d, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">n_mask</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">strm</a>)</td></tr>
+<tr class="separator:a384bf67dfac4af4a5df06ee6b6c51f9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../d1/d96/opencl__math_8f90_source.html#l00053">53</a> of file <a class="el" href="../../d1/d96/opencl__math_8f90_source.html">opencl_math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/d96/opencl__math_8f90_source.html#l00067">67</a> of file <a class="el" href="../../d1/d96/opencl__math_8f90_source.html">opencl_math.f90</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a7d123f21f8dbe97f7622a9ef9ab10bdc" name="a7d123f21f8dbe97f7622a9ef9ab10bdc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7d123f21f8dbe97f7622a9ef9ab10bdc">&#9670;&#160;</a></span>opencl_cfill_mask()</h2>
+<a id="a384bf67dfac4af4a5df06ee6b6c51f9f" name="a384bf67dfac4af4a5df06ee6b6c51f9f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a384bf67dfac4af4a5df06ee6b6c51f9f">&#9670;&#160;</a></span>opencl_cfill_mask()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -135,8 +135,8 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">c_int</a>)&#160;</td>
-          <td class="paramname"><em>size</em>, </td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>(c_int)&#160;</td>
+          <td class="paramname"><em>n</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -147,8 +147,14 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">c_int</a>)&#160;</td>
-          <td class="paramname"><em>mask_size</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>(c_int)&#160;</td>
+          <td class="paramname"><em>n_mask</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">value</a>&#160;</td>
+          <td class="paramname"><em>strm</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -158,7 +164,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/d96/opencl__math_8f90_source.html#l00053">53</a> of file <a class="el" href="../../d1/d96/opencl__math_8f90_source.html">opencl_math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/d96/opencl__math_8f90_source.html#l00067">67</a> of file <a class="el" href="../../d1/d96/opencl__math_8f90_source.html">opencl_math.f90</a>.</p>
 
 </div>
 </div>
@@ -171,7 +177,7 @@ Public Member Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../de/d3f/namespaceopencl__math.html">opencl_math</a></li><li class="navelem"><a class="el" href="../../d6/dc8/interfaceopencl__math_1_1opencl__cfill__mask.html">opencl_cfill_mask</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:53 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -1,0 +1,10 @@
+<map id="tree_amg_multigrid::tamg_mg_cycle_d" name="tree_amg_multigrid::tamg_mg_cycle_d">
+<area shape="rect" id="Node000001" title="Recrsive multigrid cycle for the TreeAMG solver object on device." alt="" coords="5,55,156,95"/>
+<area shape="poly" id="edge4_Node000001_Node000001" title=" " alt="" coords="39,56,37,46,43,36,58,31,81,29,107,32,121,39,118,44,105,37,81,34,59,36,47,41,42,47,44,54"/>
+<area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#a2599f84bce1660a18c72dc3eddb17bfe" title="Vector addition ." alt="" coords="204,5,400,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="156,53,203,41,238,32,240,37,205,46,157,58"/>
+<area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="223,55,381,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="156,73,210,73,210,78,156,78"/>
+<area shape="rect" id="Node000004" href="$d2/d73/namespacedevice__math.html#a15f0219911143a157a87c04479635102" title="Vector subtraction ." alt="" coords="205,120,399,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="157,92,205,105,240,114,238,119,203,110,156,97"/>
+</map>

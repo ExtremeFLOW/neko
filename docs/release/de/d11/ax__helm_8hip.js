@@ -4,6 +4,8 @@ var ax__helm_8hip =
     [ "CASE_1D", "de/d11/ax__helm_8hip.html#a706645ff08370f0954f66cb96382b9fd", null ],
     [ "CASE_KSTEP", "de/d11/ax__helm_8hip.html#a391aacbd26da5922ec80e721035d44cc", null ],
     [ "CASE_KSTEP_PADDED", "de/d11/ax__helm_8hip.html#a8394801dd34a9cab5e07803be5073d8b", null ],
+    [ "CASE_LARGE", "de/d11/ax__helm_8hip.html#a6da2275131442637a01cb5dea579a604", null ],
+    [ "CASE_LARGE_PADDED", "de/d11/ax__helm_8hip.html#aa24ef32d12b6f3f517255c7359977373", null ],
     [ "CASE_PADDED", "de/d11/ax__helm_8hip.html#a552b47049e2cb53a99b404632f295024", null ],
     [ "CASE_VECTOR", "de/d11/ax__helm_8hip.html#a0e633116639902b6dbb336d5ffd095e0", null ],
     [ "CASE_VECTOR_KSTEP", "de/d11/ax__helm_8hip.html#a67f5732bcab636abc065fa25097dcdc0", null ],

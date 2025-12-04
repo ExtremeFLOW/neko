@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -183,142 +183,143 @@ $(document).ready(function(){initNavTree('dd/d90/fast3d_8f90_source.html','../..
 <div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: x(0:n)</div>
 <div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(out)</span> :: c(0:n,0:m)</div>
 <div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: xi</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>) :: c1, c2, c3, c4, c5</div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>    <span class="keywordtype">integer</span> :: i, j, k, mn</div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span> </div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    c1 = 1d0</div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    c4 = x(0) - xi</div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span> </div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>    <span class="keywordflow">do</span> k = 0, m</div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>       <span class="keywordflow">do</span> j = 0, n</div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>          c(j,k) = 0d0</div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span> </div>
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>    c(0,0) = 1d0</div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span> </div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>    <span class="keywordflow">do</span> i = 1, n</div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>       mn = min(i,m)</div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>       c2 = 1d0</div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>       c5 = c4</div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>       c4 = x(i) - xi</div>
-<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>       <span class="keywordflow">do</span> j = 0, i - 1</div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>          c3 = x(i) - x(j)</div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>          c2 = c2 * c3</div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>          <span class="keywordflow">do</span> k = mn, 1, -1</div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>             c(i,k) = c1 * (k * c(i-1,k-1) - c5 * c(i-1,k)) / c2</div>
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span><span class="keywordflow">          end do</span></div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>          c(i,0) = -c1 * c5 * c(i-1,0) / c2</div>
-<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>          <span class="keywordflow">do</span> k = mn, 1, -1</div>
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>             c(j,k) = (c4 * c(j,k) - k * c(j,k-1)) / c3</div>
-<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span><span class="keywordflow">          end do</span></div>
-<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>          c(j,0) = c4 * c(j,0) / c3</div>
-<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>       c1 = c2</div>
-<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span> </div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>) :: cx(0:n,0:m)</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>) :: c1, c2, c3, c4, c5</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>    <span class="keywordtype">integer</span> :: i, j, k, mn</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span> </div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    c1 = 1d0</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>    c4 = x(0) - xi</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span> </div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    <span class="keywordflow">do</span> k = 0, m</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>       <span class="keywordflow">do</span> j = 0, n</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>          cx(j,k) = 0.0_xp</div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span> </div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>    cx(0,0) = 1d0</div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span> </div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    <span class="keywordflow">do</span> i = 1, n</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>       mn = min(i,m)</div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>       c2 = 1d0</div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>       c5 = c4</div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>       c4 = x(i) - xi</div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>       <span class="keywordflow">do</span> j = 0, i - 1</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>          c3 = x(i) - x(j)</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>          c2 = c2 * c3</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>          <span class="keywordflow">do</span> k = mn, 1, -1</div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>             cx(i,k) = c1 * (k * cx(i-1,k-1) - c5 * cx(i-1,k)) / c2</div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span><span class="keywordflow">          end do</span></div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>          cx(i,0) = -c1 * c5 * cx(i-1,0) / c2</div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>          <span class="keywordflow">do</span> k = mn, 1, -1</div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>             cx(j,k) = (c4 * cx(j,k) - k * cx(j,k-1)) / c3</div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span><span class="keywordflow">          end do</span></div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>          cx(j,0) = c4 * cx(j,0) / c3</div>
+<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>       c1 = c2</div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>    c = <a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(cx, kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>)</div>
 </div>
-<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d5b/namespacefast3d.html#a8cf69d1d964e71a541204bd6c2fc41c4">fd_weights_full</a></div>
-<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span> </div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d5b/namespacefast3d.html#a8cf69d1d964e71a541204bd6c2fc41c4">fd_weights_full</a></div>
 <div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span> </div>
-<div class="foldopen" id="foldopen00167" data-start="" data-end="">
-<div class="line"><a id="l00167" name="l00167"></a><span class="lineno"><a class="line" href="../../dc/d5b/namespacefast3d.html#a71d142b2e4b813e2a446dc2cae7d47a4">  167</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d5b/namespacefast3d.html#a71d142b2e4b813e2a446dc2cae7d47a4">semhat</a>(a, b, c, d, z, dgll, jgll, bgl, zgl, dgl, jgl, n, w)</div>
-<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
-<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: a(0:n,0:n)</div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: b(0:n)</div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: c(0:n,0:n)</div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: d(0:n,0:n)</div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: z(0:n)</div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: <a class="code hl_function" href="../../dd/df0/namespacespeclib.html#a05661077bac4533389e8ad59f95a6c9d">dgll</a>(0:n,1:n-1),jgll(0:n,1:n-1)</div>
-<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: bgl(1:n-1)</div>
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: zgl(1:n-1)</div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: dgl(1:n-1,0:n)</div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: jgl(1:n-1,0:n)</div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: w(0:2*n+1)</div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>    <span class="keywordtype">integer</span> :: np, nm, n2, i, j, k</div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>    np = n+1</div>
-<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>    nm = n-1</div>
-<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>    n2 = n-2</div>
-<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/df0/namespacespeclib.html#a35488656016cc28e6422a81377ee7434">zwgll</a>(z, b, np)</div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>    <span class="keywordflow">do</span> i = 0,n</div>
-<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dc/d5b/namespacefast3d.html#a8cf69d1d964e71a541204bd6c2fc41c4">fd_weights_full</a>(z(i), z, n, 1, w)</div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>       <span class="keywordflow">do</span> j = 0,n</div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>          d(i,j) = w(j+np)                   <span class="comment">!  Derivative matrix</span></div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span> </div>
-<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>    <span class="keywordflow">if</span> (n.eq.1) <span class="keywordflow">return</span>                       <span class="comment">!  No interpolation for n=1</span></div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span> </div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>    <span class="keywordflow">do</span> i = 0,n</div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dc/d5b/namespacefast3d.html#a8cf69d1d964e71a541204bd6c2fc41c4">fd_weights_full</a>(z(i), z(1), n2, 1, w(1))</div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>       <span class="keywordflow">do</span> j = 1,nm</div>
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>          jgll(i,j) = w(j   )                  <span class="comment">!  Interpolation matrix</span></div>
-<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>          <a class="code hl_function" href="../../dd/df0/namespacespeclib.html#a05661077bac4533389e8ad59f95a6c9d">dgll</a>(i,j) = w(j+nm)                  <span class="comment">!  Derivative    matrix</span></div>
-<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a>(a, np*np)</div>
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>    <span class="keywordflow">do</span> j = 0,n</div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>       <span class="keywordflow">do</span> i = 0,n</div>
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>          <span class="keywordflow">do</span> k = 0,n</div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>             a(i,j) = a(i,j) + d(k,i)*b(k)*d(k,j)</div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span><span class="keywordflow">          end do</span></div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>          c(i,j) = b(i)*d(i,j)</div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/df0/namespacespeclib.html#acf61de5c4c6c150e008f2f7981ca10db">zwgl</a>(zgl, bgl, nm)</div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>    <span class="keywordflow">do</span> i = 1,n-1</div>
-<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dc/d5b/namespacefast3d.html#a8cf69d1d964e71a541204bd6c2fc41c4">fd_weights_full</a>(zgl(i), z, n, 1, w)</div>
-<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>       <span class="keywordflow">do</span> j = 0,n</div>
-<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>          jgl(i,j) = w(j   )                  <span class="comment">!  Interpolation matrix</span></div>
-<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>          dgl(i,j) = w(j+np)                  <span class="comment">!  Derivative    matrix</span></div>
-<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span> </div>
+<div class="foldopen" id="foldopen00168" data-start="" data-end="">
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno"><a class="line" href="../../dc/d5b/namespacefast3d.html#a71d142b2e4b813e2a446dc2cae7d47a4">  168</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d5b/namespacefast3d.html#a71d142b2e4b813e2a446dc2cae7d47a4">semhat</a>(a, b, c, d, z, dgll, jgll, bgl, zgl, dgl, jgl, n, w)</div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: a(0:n,0:n)</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: b(0:n)</div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: c(0:n,0:n)</div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: d(0:n,0:n)</div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: z(0:n)</div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: <a class="code hl_function" href="../../dd/df0/namespacespeclib.html#a05661077bac4533389e8ad59f95a6c9d">dgll</a>(0:n,1:n-1),jgll(0:n,1:n-1)</div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: bgl(1:n-1)</div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: zgl(1:n-1)</div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: dgl(1:n-1,0:n)</div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: jgl(1:n-1,0:n)</div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: w(0:2*n+1)</div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>    <span class="keywordtype">integer</span> :: np, nm, n2, i, j, k</div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>    np = n+1</div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>    nm = n-1</div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>    n2 = n-2</div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/df0/namespacespeclib.html#a35488656016cc28e6422a81377ee7434">zwgll</a>(z, b, np)</div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>    <span class="keywordflow">do</span> i = 0,n</div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dc/d5b/namespacefast3d.html#a8cf69d1d964e71a541204bd6c2fc41c4">fd_weights_full</a>(z(i), z, n, 1, w)</div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>       <span class="keywordflow">do</span> j = 0,n</div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>          d(i,j) = w(j+np) <span class="comment">!  Derivative matrix</span></div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span> </div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>    <span class="keywordflow">if</span> (n.eq.1) <span class="keywordflow">return</span> <span class="comment">!  No interpolation for n=1</span></div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span> </div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>    <span class="keywordflow">do</span> i = 0,n</div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dc/d5b/namespacefast3d.html#a8cf69d1d964e71a541204bd6c2fc41c4">fd_weights_full</a>(z(i), z(1), n2, 1, w(1))</div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>       <span class="keywordflow">do</span> j = 1,nm</div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>          jgll(i,j) = w(j) <span class="comment">! Interpolation matrix</span></div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>          <a class="code hl_function" href="../../dd/df0/namespacespeclib.html#a05661077bac4533389e8ad59f95a6c9d">dgll</a>(i,j) = w(j + nm) <span class="comment">! Derivative matrix</span></div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a>(a, np*np)</div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>    <span class="keywordflow">do</span> j = 0,n</div>
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>       <span class="keywordflow">do</span> i = 0,n</div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>          <span class="keywordflow">do</span> k = 0,n</div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>             a(i,j) = a(i,j) + d(k,i)*b(k)*d(k,j)</div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span><span class="keywordflow">          end do</span></div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>          c(i,j) = b(i)*d(i,j)</div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/df0/namespacespeclib.html#acf61de5c4c6c150e008f2f7981ca10db">zwgl</a>(zgl, bgl, nm)</div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>    <span class="keywordflow">do</span> i = 1,n-1</div>
+<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dc/d5b/namespacefast3d.html#a8cf69d1d964e71a541204bd6c2fc41c4">fd_weights_full</a>(zgl(i), z, n, 1, w)</div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>       <span class="keywordflow">do</span> j = 0,n</div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>          jgl(i,j) = w(j ) <span class="comment">!  Interpolation matrix</span></div>
+<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>          dgl(i,j) = w(j+np) <span class="comment">!  Derivative    matrix</span></div>
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span><span class="keywordflow">    end do</span></div>
 </div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d5b/namespacefast3d.html#a71d142b2e4b813e2a446dc2cae7d47a4">semhat</a></div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span> </div>
-<div class="foldopen" id="foldopen00242" data-start="" data-end="">
-<div class="line"><a id="l00242" name="l00242"></a><span class="lineno"><a class="line" href="../../dc/d5b/namespacefast3d.html#aaf25d1aac3262e9adea18d25b10b2ddc">  242</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d5b/namespacefast3d.html#aaf25d1aac3262e9adea18d25b10b2ddc">setup_intp</a>(jh, jht, z_to, z_from, n_to, n_from, derivative)</div>
-<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>    <span class="keywordtype">implicit none</span></div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n_to, n_from, <a class="code hl_namespace" href="../../d6/dbc/namespacederivative.html">derivative</a></div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: jh(n_to, n_from), jht(n_from, n_to)</div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: z_to(n_to), z_from(n_from)</div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) ::  w(n_from, 0:<a class="code hl_namespace" href="../../d6/dbc/namespacederivative.html">derivative</a>)</div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>    <span class="keywordtype">integer</span> :: i, j</div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>    <span class="keywordflow">do</span> i = 1, n_to</div>
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>       <span class="comment">! This will assign w the weights for interpolating to point</span></div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>       <span class="comment">! zf(i) values at points zc</span></div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dc/d5b/namespacefast3d.html#a8cf69d1d964e71a541204bd6c2fc41c4">fd_weights_full</a>(z_to(i), z_from, n_from-1, <a class="code hl_namespace" href="../../d6/dbc/namespacederivative.html">derivative</a>, w)</div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span> </div>
-<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>       <span class="comment">! store each of the weights in the corresponding row/column</span></div>
-<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>       <span class="keywordflow">do</span> j = 1, n_from</div>
-<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>          jh(i,j) = w(j, <a class="code hl_namespace" href="../../d6/dbc/namespacederivative.html">derivative</a>)</div>
-<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>          jht(j,i) = w(j, <a class="code hl_namespace" href="../../d6/dbc/namespacederivative.html">derivative</a>)</div>
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d5b/namespacefast3d.html#a71d142b2e4b813e2a446dc2cae7d47a4">semhat</a></div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span> </div>
+<div class="foldopen" id="foldopen00243" data-start="" data-end="">
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno"><a class="line" href="../../dc/d5b/namespacefast3d.html#aaf25d1aac3262e9adea18d25b10b2ddc">  243</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d5b/namespacefast3d.html#aaf25d1aac3262e9adea18d25b10b2ddc">setup_intp</a>(jh, jht, z_to, z_from, n_to, n_from, derivative)</div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>    <span class="keywordtype">implicit none</span></div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n_to, n_from, derivative</div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: jh(n_to, n_from), jht(n_from, n_to)</div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: z_to(n_to), z_from(n_from)</div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: w(n_from, 0:derivative)</div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>    <span class="keywordtype">integer</span> :: i, j</div>
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>    <span class="keywordflow">do</span> i = 1, n_to</div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>       <span class="comment">! This will assign w the weights for interpolating to point</span></div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>       <span class="comment">! zf(i) values at points zc</span></div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dc/d5b/namespacefast3d.html#a8cf69d1d964e71a541204bd6c2fc41c4">fd_weights_full</a>(z_to(i), z_from, n_from-1, derivative, w)</div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span> </div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>       <span class="comment">! store each of the weights in the corresponding row/column</span></div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>       <span class="keywordflow">do</span> j = 1, n_from</div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>          jh(i,j) = w(j, derivative)</div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>          jht(j,i) = w(j, derivative)</div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span><span class="keywordflow">    end do</span></div>
 </div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d5b/namespacefast3d.html#aaf25d1aac3262e9adea18d25b10b2ddc">setup_intp</a></div>
-<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dc/d5b/namespacefast3d.html">fast3d</a></div>
-<div class="ttc" id="anamespacederivative_html"><div class="ttname"><a href="../../d6/dbc/namespacederivative.html">derivative</a></div><div class="ttdoc">Implements the derivative_t type.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d11/derivative_8f90_source.html#l00036">derivative.f90:36</a></div></div>
+<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d5b/namespacefast3d.html#aaf25d1aac3262e9adea18d25b10b2ddc">setup_intp</a></div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dc/d5b/namespacefast3d.html">fast3d</a></div>
+<div class="ttc" id="adevice__config_8h_html_a11d147c64891830c9e79b3315b1b2e21"><div class="ttname"><a href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a></div><div class="ttdeci">double real</div><div class="ttdef"><b>Definition</b> <a href="../../d8/dc8/device__config_8h_source.html#l00012">device_config.h:12</a></div></div>
 <div class="ttc" id="anamespacefast3d_html"><div class="ttname"><a href="../../dc/d5b/namespacefast3d.html">fast3d</a></div><div class="ttdoc">Fast diagonalization methods from NEKTON.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d90/fast3d_8f90_source.html#l00061">fast3d.f90:61</a></div></div>
-<div class="ttc" id="anamespacefast3d_html_a71d142b2e4b813e2a446dc2cae7d47a4"><div class="ttname"><a href="../../dc/d5b/namespacefast3d.html#a71d142b2e4b813e2a446dc2cae7d47a4">fast3d::semhat</a></div><div class="ttdeci">subroutine, public semhat(a, b, c, d, z, dgll, jgll, bgl, zgl, dgl, jgl, n, w)</div><div class="ttdoc">Generate matrices for single element, 1D operators: a = Laplacian b = diagonal mass matrix c = convec...</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d90/fast3d_8f90_source.html#l00167">fast3d.f90:168</a></div></div>
+<div class="ttc" id="anamespacefast3d_html_a71d142b2e4b813e2a446dc2cae7d47a4"><div class="ttname"><a href="../../dc/d5b/namespacefast3d.html#a71d142b2e4b813e2a446dc2cae7d47a4">fast3d::semhat</a></div><div class="ttdeci">subroutine, public semhat(a, b, c, d, z, dgll, jgll, bgl, zgl, dgl, jgl, n, w)</div><div class="ttdoc">Generate matrices for single element, 1D operators: a = Laplacian b = diagonal mass matrix c = convec...</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d90/fast3d_8f90_source.html#l00168">fast3d.f90:169</a></div></div>
 <div class="ttc" id="anamespacefast3d_html_a8cf69d1d964e71a541204bd6c2fc41c4"><div class="ttname"><a href="../../dc/d5b/namespacefast3d.html#a8cf69d1d964e71a541204bd6c2fc41c4">fast3d::fd_weights_full</a></div><div class="ttdeci">subroutine, public fd_weights_full(xi, x, n, m, c)</div><div class="ttdoc">Compute finite-difference stencil weights for evaluating derivatives up to order  at a point.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d90/fast3d_8f90_source.html#l00104">fast3d.f90:105</a></div></div>
-<div class="ttc" id="anamespacefast3d_html_aaf25d1aac3262e9adea18d25b10b2ddc"><div class="ttname"><a href="../../dc/d5b/namespacefast3d.html#aaf25d1aac3262e9adea18d25b10b2ddc">fast3d::setup_intp</a></div><div class="ttdeci">subroutine, public setup_intp(jh, jht, z_to, z_from, n_to, n_from, derivative)</div><div class="ttdoc">Compute interpolation weights for points z_to using values at points z_from.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d90/fast3d_8f90_source.html#l00242">fast3d.f90:243</a></div></div>
+<div class="ttc" id="anamespacefast3d_html_aaf25d1aac3262e9adea18d25b10b2ddc"><div class="ttname"><a href="../../dc/d5b/namespacefast3d.html#aaf25d1aac3262e9adea18d25b10b2ddc">fast3d::setup_intp</a></div><div class="ttdeci">subroutine, public setup_intp(jh, jht, z_to, z_from, n_to, n_from, derivative)</div><div class="ttdoc">Compute interpolation weights for points z_to using values at points z_from.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d90/fast3d_8f90_source.html#l00243">fast3d.f90:244</a></div></div>
 <div class="ttc" id="anamespacemath_html"><div class="ttname"><a href="../../dd/d47/namespacemath.html">math</a></div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00060">math.f90:60</a></div></div>
-<div class="ttc" id="anamespacemath_html_accd3b06fc22b453552cc46d0fbf80677"><div class="ttname"><a href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">math::rzero</a></div><div class="ttdeci">subroutine, public rzero(a, n)</div><div class="ttdoc">Zero a real vector.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00194">math.f90:195</a></div></div>
+<div class="ttc" id="anamespacemath_html_accd3b06fc22b453552cc46d0fbf80677"><div class="ttname"><a href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">math::rzero</a></div><div class="ttdeci">subroutine, public rzero(a, n)</div><div class="ttdoc">Zero a real vector.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00204">math.f90:205</a></div></div>
 <div class="ttc" id="anamespacenum__types_html"><div class="ttname"><a href="../../df/d48/namespacenum__types.html">num_types</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00001">num_types.f90:1</a></div></div>
 <div class="ttc" id="anamespacenum__types_html_aa354c6c166d079844cabd25276780021"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">num_types::xp</a></div><div class="ttdeci">integer, parameter, public xp</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00014">num_types.f90:14</a></div></div>
 <div class="ttc" id="anamespacenum__types_html_ae2be59b6de7b874ce5c12fd87f9e8b5e"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">num_types::rp</a></div><div class="ttdeci">integer, parameter, public rp</div><div class="ttdoc">Global precision used in computations.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00012">num_types.f90:12</a></div></div>
 <div class="ttc" id="anamespacespeclib_html"><div class="ttname"><a href="../../dd/df0/namespacespeclib.html">speclib</a></div><div class="ttdoc">LIBRARY ROUTINES FOR SPECTRAL METHODS.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d52/speclib_8f90_source.html#l00148">speclib.f90:148</a></div></div>
-<div class="ttc" id="anamespacespeclib_html_a05661077bac4533389e8ad59f95a6c9d"><div class="ttname"><a href="../../dd/df0/namespacespeclib.html#a05661077bac4533389e8ad59f95a6c9d">speclib::dgll</a></div><div class="ttdeci">subroutine dgll(d, dt, z, nz, nzd)</div><div class="ttdef"><b>Definition</b> <a href="../../de/d52/speclib_8f90_source.html#l00864">speclib.f90:865</a></div></div>
-<div class="ttc" id="anamespacespeclib_html_a35488656016cc28e6422a81377ee7434"><div class="ttname"><a href="../../dd/df0/namespacespeclib.html#a35488656016cc28e6422a81377ee7434">speclib::zwgll</a></div><div class="ttdeci">subroutine zwgll(z, w, np)</div><div class="ttdef"><b>Definition</b> <a href="../../de/d52/speclib_8f90_source.html#l00168">speclib.f90:169</a></div></div>
-<div class="ttc" id="anamespacespeclib_html_acf61de5c4c6c150e008f2f7981ca10db"><div class="ttname"><a href="../../dd/df0/namespacespeclib.html#acf61de5c4c6c150e008f2f7981ca10db">speclib::zwgl</a></div><div class="ttdeci">subroutine zwgl(z, w, np)</div><div class="ttdoc">Generate NP Gauss Legendre points Z and weights W associated with Jacobi polynomial ....</div><div class="ttdef"><b>Definition</b> <a href="../../de/d52/speclib_8f90_source.html#l00160">speclib.f90:161</a></div></div>
+<div class="ttc" id="anamespacespeclib_html_a05661077bac4533389e8ad59f95a6c9d"><div class="ttname"><a href="../../dd/df0/namespacespeclib.html#a05661077bac4533389e8ad59f95a6c9d">speclib::dgll</a></div><div class="ttdeci">subroutine dgll(d, dt, z, nz, nzd)</div><div class="ttdoc">Compute the derivative matrix D and its transpose DT associated with the Nth order Lagrangian interpo...</div><div class="ttdef"><b>Definition</b> <a href="../../de/d52/speclib_8f90_source.html#l00879">speclib.f90:880</a></div></div>
+<div class="ttc" id="anamespacespeclib_html_a35488656016cc28e6422a81377ee7434"><div class="ttname"><a href="../../dd/df0/namespacespeclib.html#a35488656016cc28e6422a81377ee7434">speclib::zwgll</a></div><div class="ttdeci">subroutine zwgll(z, w, np)</div><div class="ttdoc">Generate NP Gauss-Lobatto Legendre points (Z) and weights (W) associated with Jacobi polynomial P(N)(...</div><div class="ttdef"><b>Definition</b> <a href="../../de/d52/speclib_8f90_source.html#l00178">speclib.f90:179</a></div></div>
+<div class="ttc" id="anamespacespeclib_html_acf61de5c4c6c150e008f2f7981ca10db"><div class="ttname"><a href="../../dd/df0/namespacespeclib.html#acf61de5c4c6c150e008f2f7981ca10db">speclib::zwgl</a></div><div class="ttdeci">subroutine zwgl(z, w, np)</div><div class="ttdoc">Generate NP Gauss Legendre points Z and weights W associated with Jacobi polynomial ....</div><div class="ttdef"><b>Definition</b> <a href="../../de/d52/speclib_8f90_source.html#l00163">speclib.f90:164</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dd/d90/fast3d_8f90.html">fast3d.f90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

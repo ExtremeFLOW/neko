@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -105,6 +105,7 @@ $(document).ready(function(){initNavTree('d9/d48/opr__lambda2_8c.html','../../')
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &lt;CL/cl.h&gt;</code><br />
+<code>#include &lt;stdlib.h&gt;</code><br />
 <code>#include &lt;stdio.h&gt;</code><br />
 <code>#include &lt;<a class="el" href="../../d8/dc8/device__config_8h_source.html">device/device_config.h</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="../../d4/d0f/jit_8h_source.html">device/opencl/jit.h</a>&gt;</code><br />
@@ -116,23 +117,25 @@ Include dependency graph for opr_lambda2.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d9/d45/opr__lambda2_8c__incl.png" border="0" usemap="#a_2home_2runner_2work_2neko_2neko_2src_2math_2bcknd_2device_2opencl_2opr__lambda2_8c" alt=""/></div>
 <map name="a_2home_2runner_2work_2neko_2neko_2src_2math_2bcknd_2device_2opencl_2opr__lambda2_8c" id="a_2home_2runner_2work_2neko_2neko_2src_2math_2bcknd_2device_2opencl_2opr__lambda2_8c">
-<area shape="rect" title=" " alt="" coords="286,5,494,60"/>
-<area shape="rect" title=" " alt="" coords="358,196,423,221"/>
-<area shape="poly" title=" " alt="" coords="286,37,178,43,124,51,76,61,38,76,14,94,9,105,9,117,14,131,24,146,45,162,78,175,165,192,262,201,344,204,344,210,262,206,165,197,76,180,43,167,20,150,9,133,3,118,4,104,10,91,35,71,74,56,123,45,177,38,286,31"/>
-<area shape="rect" title=" " alt="" coords="34,115,101,141"/>
-<area shape="poly" title=" " alt="" coords="287,61,202,84,114,111,107,113,106,108,112,105,200,78,285,56"/>
-<area shape="rect" href="../../d8/dc8/device__config_8h.html" title=" " alt="" coords="125,115,296,141"/>
-<area shape="poly" title=" " alt="" coords="341,62,245,112,243,107,338,58"/>
-<area shape="rect" href="../../d4/d0f/jit_8h.html" title=" " alt="" coords="320,115,461,141"/>
-<area shape="poly" title=" " alt="" coords="393,60,393,101,388,101,388,60"/>
-<area shape="rect" href="../../d1/df7/prgm__lib_8h.html" title=" " alt="" coords="486,108,636,148"/>
-<area shape="poly" title=" " alt="" coords="440,58,516,99,513,104,437,62"/>
-<area shape="rect" href="../../d0/d05/opencl_2check_8h.html" title=" " alt="" coords="660,115,827,141"/>
-<area shape="poly" title=" " alt="" coords="490,57,688,109,687,114,489,63"/>
-<area shape="rect" title=" " alt="" coords="851,115,1004,141"/>
-<area shape="poly" title=" " alt="" coords="495,47,840,105,864,110,862,115,839,111,494,52"/>
-<area shape="poly" title=" " alt="" coords="393,141,393,182,388,182,388,141"/>
-<area shape="poly" title=" " alt="" coords="693,143,437,200,436,195,692,138"/>
+<area shape="rect" title=" " alt="" coords="292,5,500,60"/>
+<area shape="rect" title=" " alt="" coords="454,196,520,221"/>
+<area shape="poly" title=" " alt="" coords="292,37,181,43,126,50,77,61,38,75,14,94,9,105,9,117,14,131,25,146,45,157,85,166,201,183,441,202,441,207,200,188,84,172,43,162,21,150,9,133,3,118,4,103,10,91,36,71,76,56,125,45,181,38,292,31"/>
+<area shape="rect" title=" " alt="" coords="36,115,106,141"/>
+<area shape="poly" title=" " alt="" coords="293,61,120,111,112,113,111,108,118,105,291,56"/>
+<area shape="rect" title=" " alt="" coords="131,115,198,141"/>
+<area shape="poly" title=" " alt="" coords="331,63,211,110,206,112,204,108,209,106,329,58"/>
+<area shape="rect" href="../../d8/dc8/device__config_8h.html" title=" " alt="" coords="222,115,392,141"/>
+<area shape="poly" title=" " alt="" coords="373,62,330,107,326,103,369,58"/>
+<area shape="rect" href="../../d4/d0f/jit_8h.html" title=" " alt="" coords="416,115,558,141"/>
+<area shape="poly" title=" " alt="" coords="424,58,468,103,464,107,420,62"/>
+<area shape="rect" href="../../d1/df7/prgm__lib_8h.html" title=" " alt="" coords="582,108,733,148"/>
+<area shape="poly" title=" " alt="" coords="471,58,593,101,591,106,469,63"/>
+<area shape="rect" href="../../d0/d05/opencl_2check_8h.html" title=" " alt="" coords="757,115,924,141"/>
+<area shape="poly" title=" " alt="" coords="501,53,773,110,772,115,500,58"/>
+<area shape="rect" title=" " alt="" coords="948,115,1101,141"/>
+<area shape="poly" title=" " alt="" coords="501,43,703,69,937,105,961,110,960,115,936,111,703,75,500,49"/>
+<area shape="poly" title=" " alt="" coords="490,141,490,182,484,182,484,141"/>
+<area shape="poly" title=" " alt="" coords="790,143,534,200,533,195,788,138"/>
 </map>
 </div>
 </div>
@@ -367,7 +370,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <p>Fortran wrapper for device Lambda2 </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d48/opr__lambda2_8c_source.html#l00052">52</a> of file <a class="el" href="../../d9/d48/opr__lambda2_8c_source.html">opr_lambda2.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d48/opr__lambda2_8c_source.html#l00053">53</a> of file <a class="el" href="../../d9/d48/opr__lambda2_8c_source.html">opr_lambda2.c</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -401,7 +404,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_23179ed14d067dddc96ef717056004fe.html">device</a></li><li class="navelem"><a class="el" href="../../dir_a753435b69305af25b1972a8c16b18f4.html">opencl</a></li><li class="navelem"><a class="el" href="../../d9/d48/opr__lambda2_8c.html">opr_lambda2.c</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

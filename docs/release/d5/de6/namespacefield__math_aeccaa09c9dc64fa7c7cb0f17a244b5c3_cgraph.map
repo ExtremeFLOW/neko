@@ -1,0 +1,7 @@
+<map id="field_math::field_pwmin2" name="field_math::field_pwmin2">
+<area shape="rect" id="Node000001" title="Point&#45;wise min operation ." alt="" coords="5,42,192,67"/>
+<area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#a039668a3a7735da05df23cf68f62c537" title="Compute the point&#45;wise minimum of two vectors ." alt="" coords="240,5,397,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="192,40,226,35,227,40,193,45"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#a91ae5eb754e6a6c9593c7fb4d71585e5" title="Point&#45;wise minimum of two vectors ." alt="" coords="261,70,377,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="193,64,247,71,246,76,192,69"/>
+</map>

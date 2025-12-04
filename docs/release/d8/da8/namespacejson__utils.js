@@ -5,7 +5,6 @@ var namespacejson__utils =
     [ "json_get_or_default", "d0/d70/interfacejson__utils_1_1json__get__or__default.html", "d0/d70/interfacejson__utils_1_1json__get__or__default" ],
     [ "json_extract_item_from_array", "d8/da8/namespacejson__utils.html#a676fe75290b2ea73d99971cb8dbdb729", null ],
     [ "json_extract_item_from_name", "d8/da8/namespacejson__utils.html#a1fc9296024e5aece2174f714c31c2f50", null ],
-    [ "json_extract_object", "d8/da8/namespacejson__utils.html#a4c35d409d6b54da77e2a4970f4319ef3", null ],
     [ "json_get_double", "d8/da8/namespacejson__utils.html#aa088520fcc25a630ff016d711ca7ae5c", null ],
     [ "json_get_double_array", "d8/da8/namespacejson__utils.html#a82a81e3000fb38e87c7d4671e489507e", null ],
     [ "json_get_integer", "d8/da8/namespacejson__utils.html#afc0f4193d3552e4d619462768d49b438", null ],
@@ -21,5 +20,6 @@ var namespacejson__utils =
     [ "json_get_real_array", "d8/da8/namespacejson__utils.html#a49cc7045db3b5af6399786dab6a3a475", null ],
     [ "json_get_string", "d8/da8/namespacejson__utils.html#a6a877546952415f968ce799d22d78dff", null ],
     [ "json_get_string_array", "d8/da8/namespacejson__utils.html#ab8b46e0f866a8f20e9b0c3c963d2caa5", null ],
-    [ "json_get_subdict", "d8/da8/namespacejson__utils.html#a5f4db096e193f8435427e3cf4dfc9643", null ]
+    [ "json_get_subdict", "d8/da8/namespacejson__utils.html#a5f4db096e193f8435427e3cf4dfc9643", null ],
+    [ "json_no_defaults", "d8/da8/namespacejson__utils.html#ae50ee70ea52a9e122a7b06f9ed23db69", null ]
 ];

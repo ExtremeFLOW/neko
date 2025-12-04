@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -158,14 +158,14 @@ $(document).ready(function(){initNavTree('d1/dd9/postprocess__fluid__stats_8f90_
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>     stop</div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><span class="keywordflow">  end if</span></div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span> </div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>  <span class="keyword">call </span><a class="code hl_function" href="../../dd/d62/namespaceneko.html#a647e539d6b0950b6569c6752b8f007ff">neko_init</a></div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>  <span class="keyword">call </span><a class="code hl_function" href="../../da/d03/neko_8h.html#a6723abe8de86a489274925547af9e556">neko_init</a></div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span> </div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>  <span class="keyword">call </span>get_command_argument(1, inputchar)</div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>  <span class="keyword">read</span>(inputchar, *) mesh_fname</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>  mesh_file = file_t(trim(mesh_fname))</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>  <span class="keyword">call </span>mesh_file%init(trim(mesh_fname))</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>  <span class="keyword">call </span>get_command_argument(2, inputchar)</div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>  <span class="keyword">read</span>(inputchar, *) stats_fname</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>  stats_file = file_t(trim(stats_fname))</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>  <span class="keyword">call </span>stats_file%init(trim(stats_fname))</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>  <span class="keyword">call </span>mesh_file%read(msh)</div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span> </div>
@@ -208,18 +208,18 @@ $(document).ready(function(){initNavTree('d1/dd9/postprocess__fluid__stats_8f90_
 <div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>  <span class="keyword">call </span>gs_h%init(dof)</div>
 <div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>  <span class="keyword">call </span>coef%init(gs_h)</div>
 <div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span> </div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>  <span class="keyword">call </span>neko_field_registry%add_field(dof, <span class="stringliteral">&#39;u&#39;</span>)</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>  <span class="keyword">call </span>neko_field_registry%add_field(dof, <span class="stringliteral">&#39;v&#39;</span>)</div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>  <span class="keyword">call </span>neko_field_registry%add_field(dof, <span class="stringliteral">&#39;w&#39;</span>)</div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>  <span class="keyword">call </span>neko_field_registry%add_field(dof, <span class="stringliteral">&#39;p&#39;</span>)</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>  <span class="keyword">call </span>neko_registry%add_field(dof, <span class="stringliteral">&#39;u&#39;</span>)</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>  <span class="keyword">call </span>neko_registry%add_field(dof, <span class="stringliteral">&#39;v&#39;</span>)</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>  <span class="keyword">call </span>neko_registry%add_field(dof, <span class="stringliteral">&#39;w&#39;</span>)</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>  <span class="keyword">call </span>neko_registry%add_field(dof, <span class="stringliteral">&#39;p&#39;</span>)</div>
 <div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span> </div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>  u =&gt; neko_field_registry%get_field(<span class="stringliteral">&#39;u&#39;</span>)</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>  v =&gt; neko_field_registry%get_field(<span class="stringliteral">&#39;v&#39;</span>)</div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>  w =&gt; neko_field_registry%get_field(<span class="stringliteral">&#39;w&#39;</span>)</div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>  p =&gt; neko_field_registry%get_field(<span class="stringliteral">&#39;p&#39;</span>)</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>  u =&gt; neko_registry%get_field(<span class="stringliteral">&#39;u&#39;</span>)</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>  v =&gt; neko_registry%get_field(<span class="stringliteral">&#39;v&#39;</span>)</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>  w =&gt; neko_registry%get_field(<span class="stringliteral">&#39;w&#39;</span>)</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>  p =&gt; neko_registry%get_field(<span class="stringliteral">&#39;p&#39;</span>)</div>
 <div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span> </div>
 <div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>  <span class="keyword">call </span>fld_stats%init(coef,u,v,w,p)</div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>  n = stats_data%u%n</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>  n = stats_data%u%size()</div>
 <div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span> </div>
 <div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>  <span class="keyword">call </span>copy(fld_stats%stat_fields%items(1)%ptr%x, stats_data%p%x,n)</div>
 <div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>  <span class="keyword">call </span>copy(fld_stats%stat_fields%items(2)%ptr%x, stats_data%u%x,n)</div>
@@ -251,7 +251,7 @@ $(document).ready(function(){initNavTree('d1/dd9/postprocess__fluid__stats_8f90_
 <div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>  <span class="keyword">call </span>reynolds%assign_to_field(7, vw)</div>
 <div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span> </div>
 <div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>  <span class="keyword">call </span>fld_stats%post_process(reynolds=reynolds)</div>
-<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>  output_file = file_t(<span class="stringliteral">&#39;reynolds.fld&#39;</span>)</div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>  <span class="keyword">call </span>output_file%init(<span class="stringliteral">&#39;reynolds.fld&#39;</span>)</div>
 <div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>  <span class="keywordflow">if</span> (pe_rank .eq. 0) <span class="keyword">write</span>(*,*) <span class="stringliteral">&#39;Wrtiting Reynolds stresses into reynolds&#39;</span></div>
 <div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>  <span class="keyword">call </span>output_file%write(reynolds, stats_data%time)</div>
 <div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>  <span class="keywordflow">if</span> (pe_rank .eq. 0) <span class="keyword">write</span>(*,*) <span class="stringliteral">&#39;Done&#39;</span></div>
@@ -281,16 +281,16 @@ $(document).ready(function(){initNavTree('d1/dd9/postprocess__fluid__stats_8f90_
 <div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span> </div>
 <div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span> </div>
 <div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>  <span class="keywordflow">if</span> (pe_rank .eq. 0) <span class="keyword">write</span>(*,*) <span class="stringliteral">&#39;Writing mean velocity gradient into mean_vel_grad&#39;</span></div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>  output_file = file_t(<span class="stringliteral">&#39;mean_vel_grad.fld&#39;</span>)</div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>  <span class="keyword">call </span>output_file%init(<span class="stringliteral">&#39;mean_vel_grad.fld&#39;</span>)</div>
 <div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>  <span class="keyword">call </span>output_file%write(mean_vel_grad, stats_data%time)</div>
 <div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>  <span class="keywordflow">if</span> (pe_rank .eq. 0) <span class="keyword">write</span>(*,*) <span class="stringliteral">&#39;Done&#39;</span></div>
 <div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span> </div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>  <span class="keyword">call </span><a class="code hl_function" href="../../dd/d62/namespaceneko.html#a11ff0635183fc4cd90027907c86cbfe8">neko_finalize</a></div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>  <span class="keyword">call </span><a class="code hl_function" href="../../da/d03/neko_8h.html#a36ec20ef46a38cb2dfcec581e25735a2">neko_finalize</a></div>
 <div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span> </div>
 <div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span><span class="keyword">end program </span><a class="code hl_function" href="../../d1/dd9/postprocess__fluid__stats_8f90.html#a54f8c504cff2703e12c6c4fce128f532">postprocess_fluid_stats</a></div>
 <div class="ttc" id="anamespaceneko_html"><div class="ttname"><a href="../../dd/d62/namespaceneko.html">neko</a></div><div class="ttdoc">Master module.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/d1f/neko_8f90_source.html#l00034">neko.f90:34</a></div></div>
-<div class="ttc" id="anamespaceneko_html_a11ff0635183fc4cd90027907c86cbfe8"><div class="ttname"><a href="../../dd/d62/namespaceneko.html#a11ff0635183fc4cd90027907c86cbfe8">neko::neko_finalize</a></div><div class="ttdeci">subroutine neko_finalize(c)</div><div class="ttdef"><b>Definition</b> <a href="../../d5/d1f/neko_8f90_source.html#l00294">neko.f90:295</a></div></div>
-<div class="ttc" id="anamespaceneko_html_a647e539d6b0950b6569c6752b8f007ff"><div class="ttname"><a href="../../dd/d62/namespaceneko.html#a647e539d6b0950b6569c6752b8f007ff">neko::neko_init</a></div><div class="ttdeci">subroutine neko_init(c)</div><div class="ttdef"><b>Definition</b> <a href="../../d5/d1f/neko_8f90_source.html#l00129">neko.f90:130</a></div></div>
+<div class="ttc" id="aneko_8h_html_a36ec20ef46a38cb2dfcec581e25735a2"><div class="ttname"><a href="../../da/d03/neko_8h.html#a36ec20ef46a38cb2dfcec581e25735a2">neko_finalize</a></div><div class="ttdeci">void neko_finalize()</div></div>
+<div class="ttc" id="aneko_8h_html_a6723abe8de86a489274925547af9e556"><div class="ttname"><a href="../../da/d03/neko_8h.html#a6723abe8de86a489274925547af9e556">neko_init</a></div><div class="ttdeci">void neko_init()</div></div>
 <div class="ttc" id="apostprocess__fluid__stats_8f90_html_a54f8c504cff2703e12c6c4fce128f532"><div class="ttname"><a href="../../d1/dd9/postprocess__fluid__stats_8f90.html#a54f8c504cff2703e12c6c4fce128f532">postprocess_fluid_stats</a></div><div class="ttdeci">program postprocess_fluid_stats</div><div class="ttdoc">Somewhat preliminary program to sum up averaged fields computed for statistics and mean field Martin ...</div><div class="ttdef"><b>Definition</b> <a href="../../d1/dd9/postprocess__fluid__stats_8f90_source.html#l00003">postprocess_fluid_stats.f90:3</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
@@ -298,7 +298,7 @@ $(document).ready(function(){initNavTree('d1/dd9/postprocess__fluid__stats_8f90_
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_3847941dc22744d30c1d316a1f1a60e2.html">contrib</a></li><li class="navelem"><a class="el" href="../../dir_cd7ab70daf8d37dce54984748e177108.html">postprocess_fluid_stats</a></li><li class="navelem"><a class="el" href="../../d1/dd9/postprocess__fluid__stats_8f90.html">postprocess_fluid_stats.f90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:47 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

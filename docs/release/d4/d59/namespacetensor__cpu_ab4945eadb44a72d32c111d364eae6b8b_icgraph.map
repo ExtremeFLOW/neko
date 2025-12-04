@@ -1,15 +1,19 @@
 <map id="tensor_cpu::tnsr3d_el_n4_cpu" name="tensor_cpu::tnsr3d_el_n4_cpu">
-<area shape="rect" id="Node000001" title=" " alt="" coords="657,47,800,87"/>
-<area shape="rect" id="Node000002" href="$d4/d59/namespacetensor__cpu.html#ad676f5ad81cd24008b8e0433bb237361" title=" " alt="" coords="467,47,609,87"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="644,70,609,70,609,65,644,65"/>
-<area shape="rect" id="Node000003" href="$da/db7/namespacefdm__cpu.html#a6cfa04a90992de2138efc0c36836b3ec" title=" " alt="" coords="221,5,419,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="452,51,376,33,377,28,454,46"/>
-<area shape="rect" id="Node000004" href="$dd/d8c/namespacetensor.html#a4fd5961937350ece05c54764f4dbd7d0" title="Tensor product &#160;performed on a single element." alt="" coords="255,55,385,80"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="452,70,385,70,385,65,452,65"/>
-<area shape="rect" id="Node000006" href="$dd/d8c/namespacetensor.html#a30b9814d1b35c876810959d4816527d6" title="Tensor product &#160;performed on a subset of the elements." alt="" coords="241,111,399,136"/>
-<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="454,92,371,113,370,108,452,87"/>
-<area shape="rect" id="Node000005" href="$dc/d32/interfacetensor_1_1triple__tensor__product.html#abb65a678c3512912b2606c6bce7d78c2" title="Computes the tensor product . This operation is usually performed for spectral interpolation of a sca..." alt="" coords="5,32,173,87"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="241,67,173,65,174,60,241,62"/>
-<area shape="rect" id="Node000007" href="$da/d80/namespacelocal__interpolation.html#a4707f5b542b2a511476d0bdf808ab48d" title="Interpolates a list of fields based on a set of element ids." alt="" coords="17,111,161,165"/>
-<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="227,132,162,136,161,131,227,127"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="676,85,819,125"/>
+<area shape="rect" id="Node000002" href="$d4/d59/namespacetensor__cpu.html#ad676f5ad81cd24008b8e0433bb237361" title=" " alt="" coords="485,85,628,125"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="663,107,628,107,628,102,663,102"/>
+<area shape="rect" id="Node000003" href="$da/db7/namespacefdm__cpu.html#a6cfa04a90992de2138efc0c36836b3ec" title=" " alt="" coords="240,5,437,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="509,80,436,46,397,33,399,28,438,41,511,75"/>
+<area shape="rect" id="Node000004" href="$d4/d3b/namespacelegendre__rst__finder.html#ad5a19c84e42ad8ea774710c506f5aa6a" title="Using the Legendre polynomials to find the rst coordinates." alt="" coords="253,55,425,95"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="471,96,425,90,425,84,472,91"/>
+<area shape="rect" id="Node000006" href="$dd/d8c/namespacetensor.html#a4fd5961937350ece05c54764f4dbd7d0" title="Tensor product &#160;performed on a single element." alt="" coords="273,120,404,145"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="472,118,404,127,404,122,471,113"/>
+<area shape="rect" id="Node000008" href="$dd/d8c/namespacetensor.html#a888ffea182763585491caac1e00b8569" title="Tensor product &#160;performed on a subset of the elements." alt="" coords="259,184,418,209"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="499,133,438,159,373,186,371,181,436,154,497,128"/>
+<area shape="rect" id="Node000005" href="$d4/d3b/namespacelegendre__rst__finder.html#ac32ea7dd963da3dcb750ca92c10bec1c" title="Given a set of element candidates containing the given points and computes the local RST coordinates ..." alt="" coords="5,41,192,81"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="239,72,192,69,192,64,239,67"/>
+<area shape="rect" id="Node000007" href="$dc/d32/interfacetensor_1_1triple__tensor__product.html#abb65a678c3512912b2606c6bce7d78c2" title="Computes the tensor product . This operation is usually performed for spectral interpolation of a sca..." alt="" coords="15,105,183,160"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="260,135,183,135,183,130,260,130"/>
+<area shape="rect" id="Node000009" href="$da/d80/namespacelocal__interpolation.html#afd8d4d55f170e96693e05613b4a37f10" title="Interpolates a list of fields based on a set of element ids." alt="" coords="27,184,171,239"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="246,205,171,210,171,204,245,200"/>
 </map>

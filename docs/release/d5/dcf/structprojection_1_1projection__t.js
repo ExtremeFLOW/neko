@@ -3,7 +3,7 @@ var structprojection_1_1projection__t =
     [ "clear", "d5/dcf/structprojection_1_1projection__t.html#abe5c06b79875db7cb4df44313258100a", null ],
     [ "free", "d5/dcf/structprojection_1_1projection__t.html#ac3a95ae10c4d33ab46991ba731c2d78e", null ],
     [ "init", "d5/dcf/structprojection_1_1projection__t.html#a244a2f7974dcd444fad1b1a97cdca91a", null ],
-    [ "log_info", "d5/dcf/structprojection_1_1projection__t.html#a9c845af076974d950bbc0ef8165de2c9", null ],
+    [ "log_info", "d5/dcf/structprojection_1_1projection__t.html#a511f1f624ffc132df20b46edee24262d", null ],
     [ "post_solving", "d5/dcf/structprojection_1_1projection__t.html#a6ecc08a5a945580c5456dbe9398c868b", null ],
     [ "pre_solving", "d5/dcf/structprojection_1_1projection__t.html#a60d4d8f7fd0bf998653f419349cb4329", null ],
     [ "project_back", "d5/dcf/structprojection_1_1projection__t.html#aee49fce659de4f55f1267ea93e4df5dc", null ],

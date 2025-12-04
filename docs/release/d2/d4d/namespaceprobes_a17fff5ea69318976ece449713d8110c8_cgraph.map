@@ -1,9 +1,6 @@
 <map id="probes::read_point_zone" name="probes::read_point_zone">
-<area shape="rect" id="Node000001" title="Construct a list of points from a point zone." alt="" coords="5,37,187,62"/>
-<area shape="rect" id="Node000002" href="$d2/d57/cuda_2facet__normal__kernel_8h.html#a255d8d741e1fc6cd080ba11e14dc7148" title=" " alt="" coords="235,37,361,62"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="187,47,221,47,221,52,187,52"/>
-<area shape="poly" id="edge4_Node000002_Node000002" title=" " alt="" coords="266,38,260,28,263,18,276,12,298,10,324,14,335,22,332,26,322,18,298,15,278,17,267,22,265,28,271,35"/>
-<area shape="rect" id="Node000003" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="409,29,573,69"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="362,47,396,47,396,52,362,52"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="455,30,453,20,459,11,472,5,491,3,514,6,526,13,524,17,512,11,491,8,473,10,462,15,458,21,460,28"/>
+<area shape="rect" id="Node000001" title="Construct a list of points from a point zone." alt="" coords="5,29,187,55"/>
+<area shape="rect" id="Node000002" href="$d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d" title=" " alt="" coords="235,29,361,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="187,39,221,39,221,45,187,45"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="265,31,258,21,262,11,275,5,298,3,326,6,337,16,334,20,324,11,298,8,277,10,266,15,263,20,269,28"/>
 </map>

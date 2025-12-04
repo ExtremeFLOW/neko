@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -100,7 +100,8 @@ $(document).ready(function(){initNavTree('df/d7f/scalar__aux_8f90.html','../../'
 <div class="header">
   <div class="summary">
 <a href="#namespaces">Modules</a> &#124;
-<a href="#func-members">Functions/Subroutines</a>  </div>
+<a href="#func-members">Functions/Subroutines</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">scalar_aux.f90 File Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -115,9 +116,18 @@ Modules</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a498a7bb330e6f6499e40144dfdaa19a2" id="r_a498a7bb330e6f6499e40144dfdaa19a2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d60/namespacescalar__aux.html#a498a7bb330e6f6499e40144dfdaa19a2">scalar_aux::scalar_step_info</a> (step, t, dt, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">ksp_results</a>)</td></tr>
-<tr class="memdesc:a498a7bb330e6f6499e40144dfdaa19a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints for prs, velx, vely, velz the following: Number of iterations, start residual, end residual.  <br /></td></tr>
-<tr class="separator:a498a7bb330e6f6499e40144dfdaa19a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1dac7b67e3209e0a5f34da08a33830a6" id="r_a1dac7b67e3209e0a5f34da08a33830a6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d60/namespacescalar__aux.html#a1dac7b67e3209e0a5f34da08a33830a6">scalar_aux::scalar_step_info</a> (time, ksp_results, strict_convergence, allow_stabilization)</td></tr>
+<tr class="memdesc:a1dac7b67e3209e0a5f34da08a33830a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints for prs, velx, vely, velz the following: Number of iterations, start residual, end residual.  <br /></td></tr>
+<tr class="separator:a1dac7b67e3209e0a5f34da08a33830a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a58a6f3bdec61db8ca66cff72b84ef5f1" id="r_a58a6f3bdec61db8ca66cff72b84ef5f1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d60/namespacescalar__aux.html#a58a6f3bdec61db8ca66cff72b84ef5f1">scalar_aux::scalar_step_info_reset_stabilized</a> ()</td></tr>
+<tr class="memdesc:a58a6f3bdec61db8ca66cff72b84ef5f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets the stabilized flag to false.  <br /></td></tr>
+<tr class="separator:a58a6f3bdec61db8ca66cff72b84ef5f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a549ee0be62f543af1583e9c41b982046" id="r_a549ee0be62f543af1583e9c41b982046"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">protected</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d60/namespacescalar__aux.html#a549ee0be62f543af1583e9c41b982046">scalar_aux::stabilized</a> = .false.</td></tr>
+<tr class="memdesc:a549ee0be62f543af1583e9c41b982046"><td class="mdescLeft">&#160;</td><td class="mdescRight">To track if the solver is stabilized.  <br /></td></tr>
+<tr class="separator:a549ee0be62f543af1583e9c41b982046"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -125,7 +135,7 @@ Functions/Subroutines</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_0691d6202b68dc26b40b4865e3c53c6d.html">scalar</a></li><li class="navelem"><a class="el" href="../../df/d7f/scalar__aux_8f90.html">scalar_aux.f90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

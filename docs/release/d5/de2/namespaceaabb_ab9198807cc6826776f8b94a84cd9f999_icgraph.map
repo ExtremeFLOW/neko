@@ -1,22 +1,24 @@
 <map id="aabb::get_aabb_element" name="aabb::get_aabb_element">
-<area shape="rect" id="Node000001" title="Get the aabb of an arbitrary element." alt="" coords="415,223,597,249"/>
-<area shape="rect" id="Node000002" href="$d5/de2/namespaceaabb.html#a9a79814aa9d37785cb4d53a4aef2beb8" title="Construct the aabb of a predefined object." alt="" coords="244,223,367,249"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="401,239,367,239,367,233,401,233"/>
-<area shape="rect" id="Node000003" href="$de/dbe/namespaceaabb__tree.html#a9436c192bfc12ea59cce3fd54e787b9c" title="Builds the tree." alt="" coords="21,5,181,45"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="293,211,278,177,257,136,229,95,194,59,176,48,179,43,198,55,233,91,261,133,283,175,297,209"/>
-<area shape="rect" id="Node000004" href="$de/dbe/namespaceaabb__tree.html#a4712a2a8811238d8662927d80039af0d" title="Inserts an object into the tree." alt="" coords="21,69,181,109"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="285,214,247,168,222,144,195,124,172,112,175,107,197,119,225,140,250,164,289,210"/>
-<area shape="rect" id="Node000005" href="$de/dbe/namespaceaabb__tree.html#a91bbc6b82fa750c901f9aee8627ab9c0" title="Queries the tree for overlapping objects." alt="" coords="21,133,181,173"/>
-<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="266,220,195,188,163,176,165,171,197,183,268,215"/>
-<area shape="rect" id="Node000006" href="$d5/de2/namespaceaabb.html#a7b35ee1d1158d03311f46930ee69b2de" title="Get the aabb of a mesh." alt="" coords="18,198,183,223"/>
-<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="230,238,144,226,145,221,231,233"/>
-<area shape="rect" id="Node000007" href="$d5/de2/namespaceaabb.html#abd0ecde4cac4aba5d3646a3319cb32e6" title="Get the aabb of a tetrahedral mesh." alt="" coords="5,247,196,273"/>
-<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="248,254,197,260,196,255,247,248"/>
-<area shape="rect" id="Node000008" href="$d5/de2/namespaceaabb.html#a6a76082373d4b84a0fb3f820a3203954" title="Get the aabb of a triangular mesh." alt="" coords="7,297,194,322"/>
-<area shape="poly" id="edge9_Node000002_Node000008" title=" " alt="" coords="283,259,243,280,197,298,195,299,193,294,195,294,241,275,280,254"/>
-<area shape="rect" id="Node000009" href="$d0/d7b/namespacebrinkman__source__term.html#a35bde13a18b619fc56d9856fcdb60ecb" title="Initializes the source term from a boundary mesh." alt="" coords="15,347,187,387"/>
-<area shape="poly" id="edge11_Node000002_Node000009" title=" " alt="" coords="285,261,246,299,197,336,170,349,168,344,195,331,243,295,281,258"/>
-<area shape="poly" id="edge6_Node000006_Node000002" title=" " alt="" coords="197,211,263,221,262,226,196,216"/>
-<area shape="poly" id="edge8_Node000007_Node000002" title=" " alt="" coords="159,242,244,232,244,237,159,248"/>
-<area shape="poly" id="edge10_Node000008_Node000002" title=" " alt="" coords="132,289,195,269,253,246,255,251,197,275,133,295"/>
+<area shape="rect" id="Node000001" title="Get the aabb of an arbitrary element." alt="" coords="415,262,597,287"/>
+<area shape="rect" id="Node000002" href="$d5/de2/namespaceaabb.html#a9a79814aa9d37785cb4d53a4aef2beb8" title="Construct the aabb of a predefined object." alt="" coords="244,262,367,287"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="401,277,367,277,367,272,401,272"/>
+<area shape="rect" id="Node000003" href="$de/dbe/namespaceaabb__tree.html#ac4abcec7597dde9d7152f2b650133745" title="Builds the tree." alt="" coords="21,5,181,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="295,249,283,208,263,157,233,104,215,80,194,59,177,48,180,43,198,55,219,77,238,101,267,154,288,206,300,248"/>
+<area shape="rect" id="Node000004" href="$de/dbe/namespaceaabb__tree.html#a367883eefbcad9b32170a98d8fadcd3b" title="Builds the tree." alt="" coords="21,69,181,109"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="290,251,253,187,226,153,194,123,175,112,177,107,198,119,230,149,258,184,295,248"/>
+<area shape="rect" id="Node000005" href="$de/dbe/namespaceaabb__tree.html#a4712a2a8811238d8662927d80039af0d" title="Inserts an object into the tree." alt="" coords="21,133,181,173"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="280,254,242,220,195,188,169,176,172,171,197,183,245,216,283,250"/>
+<area shape="rect" id="Node000006" href="$de/dbe/namespaceaabb__tree.html#a91bbc6b82fa750c901f9aee8627ab9c0" title="Queries the tree for overlapping objects." alt="" coords="21,197,181,237"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="245,261,172,240,173,235,247,256"/>
+<area shape="rect" id="Node000007" href="$d5/de2/namespaceaabb.html#a7b35ee1d1158d03311f46930ee69b2de" title="Get the aabb of a mesh." alt="" coords="18,262,183,287"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="230,286,184,286,184,281,230,281"/>
+<area shape="rect" id="Node000008" href="$d5/de2/namespaceaabb.html#abd0ecde4cac4aba5d3646a3319cb32e6" title="Get the aabb of a tetrahedral mesh." alt="" coords="5,311,196,337"/>
+<area shape="poly" id="edge8_Node000002_Node000008" title=" " alt="" coords="265,294,191,314,190,309,264,289"/>
+<area shape="rect" id="Node000009" href="$d5/de2/namespaceaabb.html#a6a76082373d4b84a0fb3f820a3203954" title="Get the aabb of a triangular mesh." alt="" coords="7,361,194,386"/>
+<area shape="poly" id="edge10_Node000002_Node000009" title=" " alt="" coords="288,300,248,333,197,362,195,363,193,358,195,358,245,328,285,296"/>
+<area shape="rect" id="Node000010" href="$d0/d7b/namespacebrinkman__source__term.html#a35bde13a18b619fc56d9856fcdb60ecb" title="Initializes the source term from a boundary mesh." alt="" coords="15,411,187,451"/>
+<area shape="poly" id="edge12_Node000002_Node000010" title=" " alt="" coords="291,300,252,350,226,376,197,400,173,413,170,408,195,395,223,373,248,346,286,297"/>
+<area shape="poly" id="edge7_Node000007_Node000002" title=" " alt="" coords="197,263,244,264,244,269,197,268"/>
+<area shape="poly" id="edge9_Node000008_Node000002" title=" " alt="" coords="141,304,243,278,245,284,142,310"/>
+<area shape="poly" id="edge11_Node000009_Node000002" title=" " alt="" coords="135,354,195,334,238,310,275,285,278,290,241,314,197,338,136,359"/>
 </map>

@@ -1,7 +1,9 @@
 <map id="field_math::field_cfill" name="field_math::field_cfill">
-<area shape="rect" id="Node000001" title="Set all elements to a constant c ." alt="" coords="452,13,609,38"/>
-<area shape="rect" id="Node000002" href="$d8/d09/namespacefluid__scheme.html#a954fd0e94a3e06097351d3ca34709ad4" title="Initialise a fluid scheme." alt="" coords="232,5,404,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="438,28,404,28,404,23,438,23"/>
-<area shape="rect" id="Node000003" href="$da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a367dbe8934b9990a7608ec43744312fd" title="Constructor for the base type." alt="" coords="5,5,184,45"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="219,28,184,28,184,23,219,23"/>
+<area shape="rect" id="Node000001" title="Set all elements to a constant c ." alt="" coords="292,85,449,110"/>
+<area shape="rect" id="Node000002" href="$d3/d66/namespacefluid__scheme__compressible.html#acb6812095efba4a414478c6ba9e87db7" title="Initialize common data for compressible fluid scheme." alt="" coords="5,5,244,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="317,83,243,60,202,48,203,43,245,55,319,78"/>
+<area shape="rect" id="Node000003" href="$d7/dff/namespacefluid__scheme__incompressible.html#a052a68c343e9896c679cece6f6d400f5" title="Sets rho and mu." alt="" coords="17,70,232,125"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="278,100,232,100,232,95,278,95"/>
+<area shape="rect" id="Node000004" href="$da/de3/namespacescalar__scheme.html#ab72269e4be11d711d345d540ff333415" title="Set lamdba and cp." alt="" coords="40,149,209,203"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="318,117,210,152,209,146,316,112"/>
 </map>

@@ -1,7 +1,0 @@
-<map id="parmetis::parmetis_mark_parts" name="parmetis::parmetis_mark_parts">
-<area shape="rect" id="Node000001" title="Fill mesh field according to new partitions." alt="" coords="5,5,152,45"/>
-<area shape="rect" id="Node000002" href="$da/dc3/namespacemesh__field.html#aaa97d6c142cefd8fa464a140d00aeb77" title=" " alt="" coords="200,13,400,38"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,23,186,23,186,28,152,28"/>
-<area shape="rect" id="Node000003" href="$da/dc3/namespacemesh__field.html#a8db8f80b2676dca5b068e135557fcf53" title=" " alt="" coords="448,13,653,38"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="400,23,434,23,434,28,400,28"/>
-</map>

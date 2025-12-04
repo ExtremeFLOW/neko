@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -101,7 +101,8 @@ $(document).ready(function(){initNavTree('d9/daf/point__zone_8f90.html','../../'
   <div class="summary">
 <a href="#nested-classes">Data Types</a> &#124;
 <a href="#namespaces">Modules</a> &#124;
-<a href="#func-members">Functions/Subroutines</a>  </div>
+<a href="#func-members">Functions/Subroutines</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">point_zone.f90 File Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -128,6 +129,12 @@ Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d4e/interfacepoint__zone_1_1point__zone__free.html">point_zone::point_zone_free</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <a href="../../dc/d4e/interfacepoint__zone_1_1point__zone__free.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/dcd/interfacepoint__zone_1_1point__zone__allocate.html">point_zone::point_zone_allocate</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Point zone factory. Constructs, initializes, and maps the point zone object.  <a href="../../db/dcd/interfacepoint__zone_1_1point__zone__allocate.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d86/structpoint__zone_1_1allocator__entry.html">point_zone::allocator_entry</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called in user modules to add an allocator for custom types.  <a href="../../d0/d86/structpoint__zone_1_1allocator__entry.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
 Modules</h2></td></tr>
@@ -137,7 +144,7 @@ Modules</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ab9f5b565f64e8e144b00ef2d3e215bac" id="r_ab9f5b565f64e8e144b00ef2d3e215bac"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d5f/namespacepoint__zone.html#ab9f5b565f64e8e144b00ef2d3e215bac">point_zone::point_zone_init_base</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, size, name, invert)</td></tr>
-<tr class="memdesc:ab9f5b565f64e8e144b00ef2d3e215bac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Point zone factory. Constructs, initializes, and maps the point zone object.  <br /></td></tr>
+<tr class="memdesc:ab9f5b565f64e8e144b00ef2d3e215bac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for the <a class="el" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html" title="Base abstract type for point zones.">point_zone_t</a> base type.  <br /></td></tr>
 <tr class="separator:ab9f5b565f64e8e144b00ef2d3e215bac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a05bf36dcccbd83cbef9c36d017579093" id="r_a05bf36dcccbd83cbef9c36d017579093"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d5f/namespacepoint__zone.html#a05bf36dcccbd83cbef9c36d017579093">point_zone::point_zone_free_base</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="memdesc:a05bf36dcccbd83cbef9c36d017579093"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor for the <a class="el" href="../../d6/d13/structpoint__zone_1_1point__zone__t.html" title="Base abstract type for point zones.">point_zone_t</a> base type.  <br /></td></tr>
@@ -151,6 +158,15 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:afadeef82ddfd6a4ed123fac4355ae94d" id="r_afadeef82ddfd6a4ed123fac4355ae94d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d5f/namespacepoint__zone.html#afadeef82ddfd6a4ed123fac4355ae94d">point_zone::point_zone_map</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, dof)</td></tr>
 <tr class="memdesc:afadeef82ddfd6a4ed123fac4355ae94d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maps the GLL points that verify a <a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a>'s <code>criterion</code> by adding them to the stack.  <br /></td></tr>
 <tr class="separator:afadeef82ddfd6a4ed123fac4355ae94d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:af759ff89e7763de87e939440f829b63d" id="r_af759ff89e7763de87e939440f829b63d"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d0/d86/structpoint__zone_1_1allocator__entry.html">allocator_entry</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d5f/namespacepoint__zone.html#af759ff89e7763de87e939440f829b63d">point_zone::point_zone_registry</a></td></tr>
+<tr class="memdesc:af759ff89e7763de87e939440f829b63d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registry of point zone allocators for user-defined types.  <br /></td></tr>
+<tr class="separator:af759ff89e7763de87e939440f829b63d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a98738e1f87ef86828e449c59f3d0b6fd" id="r_a98738e1f87ef86828e449c59f3d0b6fd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d5f/namespacepoint__zone.html#a98738e1f87ef86828e449c59f3d0b6fd">point_zone::point_zone_registry_size</a> = 0</td></tr>
+<tr class="memdesc:a98738e1f87ef86828e449c59f3d0b6fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">The size of the <code><a class="el" href="../../d9/dac/namespacepoint__zone__registry.html">point_zone_registry</a></code>  <br /></td></tr>
+<tr class="separator:a98738e1f87ef86828e449c59f3d0b6fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -158,7 +174,7 @@ Functions/Subroutines</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_7be0d8c199b9408ae01f5d77515b8def.html">mesh</a></li><li class="navelem"><a class="el" href="../../d9/daf/point__zone_8f90.html">point_zone.f90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -1,7 +1,0 @@
-<map id="les_model::les_model_compute_delta" name="les_model::les_model_compute_delta">
-<area shape="rect" id="Node000001" title="Compute the LES lengthscale. For each GLL point, we take the distance between its neighbours in all 3..." alt="" coords="5,23,169,63"/>
-<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="267,5,358,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="169,31,253,22,254,27,170,37"/>
-<area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#a14206e58118cce6865c6ce1bb6454061" title="Vector multiplication ." alt="" coords="217,55,408,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="170,49,204,53,203,58,169,55"/>
-</map>

@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -99,6 +99,7 @@ $(document).ready(function(){initNavTree('db/d7e/simulation_8f90.html','../../')
 
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Data Types</a> &#124;
 <a href="#namespaces">Modules</a> &#124;
 <a href="#func-members">Functions/Subroutines</a>  </div>
   <div class="headertitle"><div class="title">simulation.f90 File Reference</div></div>
@@ -107,6 +108,11 @@ $(document).ready(function(){initNavTree('db/d7e/simulation_8f90.html','../../')
 
 <p><a href="../../db/d7e/simulation_8f90_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Data Types</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d9a/interfacesimulation_1_1simulation__restart.html">simulation::simulation_restart</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
 Modules</h2></td></tr>
 <tr class="memitem:d1/d2d/namespacesimulation" id="r_d1/d2d/namespacesimulation"><td class="memItemLeft" align="right" valign="top">module &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d2d/namespacesimulation.html">simulation</a></td></tr>
@@ -115,14 +121,23 @@ Modules</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a2279224e80a4202a630ebfaa2d686588" id="r_a2279224e80a4202a630ebfaa2d686588"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d2d/namespacesimulation.html#a2279224e80a4202a630ebfaa2d686588">simulation::neko_solve</a> (c)</td></tr>
-<tr class="memdesc:a2279224e80a4202a630ebfaa2d686588"><td class="mdescLeft">&#160;</td><td class="mdescRight">Main driver to solve a case <em>C</em>.  <br /></td></tr>
-<tr class="separator:a2279224e80a4202a630ebfaa2d686588"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a111609fb01cc2ce135762498895b0515" id="r_a111609fb01cc2ce135762498895b0515"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d2d/namespacesimulation.html#a111609fb01cc2ce135762498895b0515">simulation::simulation_settime</a> (t, dt, ext_bdf, tlag, dtlag, step)</td></tr>
-<tr class="separator:a111609fb01cc2ce135762498895b0515"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a23e4cf95c0bd2c02c5589e7899d78b10" id="r_a23e4cf95c0bd2c02c5589e7899d78b10"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d2d/namespacesimulation.html#a23e4cf95c0bd2c02c5589e7899d78b10">simulation::simulation_restart</a> (c, t)</td></tr>
-<tr class="memdesc:a23e4cf95c0bd2c02c5589e7899d78b10"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restart a case <em>C</em> from a given checkpoint.  <br /></td></tr>
-<tr class="separator:a23e4cf95c0bd2c02c5589e7899d78b10"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ace16571473f6d4b638c29de2d77aaf7d" id="r_ace16571473f6d4b638c29de2d77aaf7d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d2d/namespacesimulation.html#ace16571473f6d4b638c29de2d77aaf7d">simulation::simulation_init</a> (c, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dt_controller</a>)</td></tr>
+<tr class="memdesc:ace16571473f6d4b638c29de2d77aaf7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialise a simulation of a case.  <br /></td></tr>
+<tr class="separator:ace16571473f6d4b638c29de2d77aaf7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a898649586b608770d5ea349927136ba0" id="r_a898649586b608770d5ea349927136ba0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d2d/namespacesimulation.html#a898649586b608770d5ea349927136ba0">simulation::simulation_finalize</a> (c)</td></tr>
+<tr class="memdesc:a898649586b608770d5ea349927136ba0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finalize a simulation of a case.  <br /></td></tr>
+<tr class="separator:a898649586b608770d5ea349927136ba0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a625edcf01f19970ace9c4af485edfb19" id="r_a625edcf01f19970ace9c4af485edfb19"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d2d/namespacesimulation.html#a625edcf01f19970ace9c4af485edfb19">simulation::simulation_step</a> (c, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dt_controller</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tstep_loop_start_time</a>)</td></tr>
+<tr class="memdesc:a625edcf01f19970ace9c4af485edfb19"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute a single time-step of a case.  <br /></td></tr>
+<tr class="separator:a625edcf01f19970ace9c4af485edfb19"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7db8b311cbafdaca7602b3c7812394bc" id="r_a7db8b311cbafdaca7602b3c7812394bc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d2d/namespacesimulation.html#a7db8b311cbafdaca7602b3c7812394bc">simulation::simulation_settime</a> (time, ext_bdf)</td></tr>
+<tr class="separator:a7db8b311cbafdaca7602b3c7812394bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae3ff2159162b6cd9b5422a0d2cdadd30" id="r_ae3ff2159162b6cd9b5422a0d2cdadd30"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d2d/namespacesimulation.html#ae3ff2159162b6cd9b5422a0d2cdadd30">simulation::case_restart_from_parameters</a> (c)</td></tr>
+<tr class="memdesc:ae3ff2159162b6cd9b5422a0d2cdadd30"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restart a case <em>C</em> from a given checkpoint.  <br /></td></tr>
+<tr class="separator:ae3ff2159162b6cd9b5422a0d2cdadd30"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8ce70e6bf72b71e98683a5d63318fcf0" id="r_a8ce70e6bf72b71e98683a5d63318fcf0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d2d/namespacesimulation.html#a8ce70e6bf72b71e98683a5d63318fcf0">simulation::case_restart_from_checkpoint</a> (c, chkp)</td></tr>
+<tr class="memdesc:a8ce70e6bf72b71e98683a5d63318fcf0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restart a case <em>C</em> from a given checkpoint.  <br /></td></tr>
+<tr class="separator:a8ce70e6bf72b71e98683a5d63318fcf0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad5774a0a06b35c326984f6ba2ccce3e6" id="r_ad5774a0a06b35c326984f6ba2ccce3e6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d2d/namespacesimulation.html#ad5774a0a06b35c326984f6ba2ccce3e6">simulation::simulation_joblimit_chkp</a> (c, t)</td></tr>
 <tr class="memdesc:ad5774a0a06b35c326984f6ba2ccce3e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write a checkpoint at joblimit.  <br /></td></tr>
 <tr class="separator:ad5774a0a06b35c326984f6ba2ccce3e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -133,7 +148,7 @@ Functions/Subroutines</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../db/d7e/simulation_8f90.html">simulation.f90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

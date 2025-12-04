@@ -4,6 +4,7 @@ var hip__intf_8F90 =
     [ "hip_intf::hipfree", "d0/d5c/interfacehip__intf_1_1hipfree.html", "d0/d5c/interfacehip__intf_1_1hipfree" ],
     [ "hip_intf::hipmemcpy", "d0/de9/interfacehip__intf_1_1hipmemcpy.html", "d0/de9/interfacehip__intf_1_1hipmemcpy" ],
     [ "hip_intf::hipmemcpyasync", "d3/d39/interfacehip__intf_1_1hipmemcpyasync.html", "d3/d39/interfacehip__intf_1_1hipmemcpyasync" ],
+    [ "hip_intf::hipmemsetasync", "d0/dac/interfacehip__intf_1_1hipmemsetasync.html", "d0/dac/interfacehip__intf_1_1hipmemsetasync" ],
     [ "hip_intf::hipdevicesynchronize", "d1/da0/interfacehip__intf_1_1hipdevicesynchronize.html", "d1/da0/interfacehip__intf_1_1hipdevicesynchronize" ],
     [ "hip_intf::hipdevicegetname", "d1/d41/interfacehip__intf_1_1hipdevicegetname.html", "d1/d41/interfacehip__intf_1_1hipdevicegetname" ],
     [ "hip_intf::hipgetdevicecount", "db/d7a/interfacehip__intf_1_1hipgetdevicecount.html", "db/d7a/interfacehip__intf_1_1hipgetdevicecount" ],
@@ -21,10 +22,6 @@ var hip__intf_8F90 =
     [ "hip_intf::hipeventsynchronize", "d9/d67/interfacehip__intf_1_1hipeventsynchronize.html", "d9/d67/interfacehip__intf_1_1hipeventsynchronize" ],
     [ "hip_device_count", "d5/dcb/hip__intf_8F90.html#ae76e470dcd046e7ef62b0273edd6c56d", null ],
     [ "hip_device_name", "d5/dcb/hip__intf_8F90.html#a1c8e3cf5e89ffe1b50253b6b38e45a93", null ],
-    [ "hip_finalize", "d5/dcb/hip__intf_8F90.html#a46ebe304218d34d01b56a41e65488e1f", null ],
-    [ "hip_init", "d5/dcb/hip__intf_8F90.html#a1fe3302af910fad64b1e7c2ba5b29d3e", null ],
-    [ "aux_cmd_queue", "d5/dcb/hip__intf_8F90.html#a19e001b16b32fe3b03a6a42aa67b41fb", null ],
-    [ "glb_cmd_queue", "d5/dcb/hip__intf_8F90.html#a5fd1f28f420d73314c95a40edd15d37f", null ],
-    [ "strm_high_prio", "d5/dcb/hip__intf_8F90.html#a8996afbeeb8e8c59a38280475e1b3549", null ],
-    [ "strm_low_prio", "d5/dcb/hip__intf_8F90.html#a1a75fbd54838dbeba03536ea8a7a0ffd", null ]
+    [ "hip_finalize", "d5/dcb/hip__intf_8F90.html#a89de67459398a401efed275ac5c3dc07", null ],
+    [ "hip_init", "d5/dcb/hip__intf_8F90.html#a71cf325d479bbed01658a08561e54a48", null ]
 ];

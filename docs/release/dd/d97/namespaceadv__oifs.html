@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -186,13 +186,13 @@ Functions/Subroutines</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../da/d99/structspace_1_1space__t.html">space_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../da/d99/structspace_1_1space__t.html">space_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>xh</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>coef</em>, </td>
         </tr>
         <tr>
@@ -235,19 +235,23 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html#l00285">285</a> of file <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html">adv_oifs.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html#l00411">411</a> of file <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html">adv_oifs.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/d97/namespaceadv__oifs_a80799e22bf67ad6539d6b2420520e732_cgraph.png" border="0" usemap="#add/d97/namespaceadv__oifs_a80799e22bf67ad6539d6b2420520e732_cgraph" alt=""/></div>
 <map name="add/d97/namespaceadv__oifs_a80799e22bf67ad6539d6b2420520e732_cgraph" id="add/d97/namespaceadv__oifs_a80799e22bf67ad6539d6b2420520e732_cgraph">
-<area shape="rect" title="Add the advection term for the fluid, i.e. , to the RHS using the OIFS method." alt="" coords="5,31,145,71"/>
-<area shape="rect" href="../../dd/d30/namespaceoperators.html#a0085c48ec2704af39c81d18b98be1668" title="Compute one step of Runge Kutta time interpolation for OIFS scheme." alt="" coords="193,13,363,38"/>
-<area shape="poly" title=" " alt="" coords="145,39,179,35,180,40,146,45"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="229,62,327,87"/>
-<area shape="poly" title=" " alt="" coords="146,56,216,65,215,70,145,62"/>
-<area shape="rect" href="../../dd/d30/namespaceoperators.html#a208acebbafcb3861bd89dc435fcbea99" title="Apply the convecting velocity c to the to the scalar field u, used in the OIFS scheme." alt="" coords="411,5,553,45"/>
-<area shape="poly" title=" " alt="" coords="363,23,397,23,397,28,363,28"/>
+<area shape="rect" title="Add the advection term for the fluid, i.e. , to the RHS using the OIFS method." alt="" coords="5,99,145,139"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#af4b3d851914d7068340bacbf5b282904" title="Returns ." alt="" coords="199,5,357,45"/>
+<area shape="poly" title=" " alt="" coords="111,96,192,55,208,48,210,53,194,60,114,101"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="199,69,357,109"/>
+<area shape="poly" title=" " alt="" coords="145,106,185,100,186,105,146,111"/>
+<area shape="rect" href="../../dd/d30/namespaceoperators.html#af34806c82391877b1cfcc36bddaf16da" title="Compute one step of Runge Kutta time interpolation for OIFS scheme." alt="" coords="193,134,363,159"/>
+<area shape="poly" title=" " alt="" coords="146,126,180,130,179,136,145,131"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="229,183,327,209"/>
+<area shape="poly" title=" " alt="" coords="119,136,194,168,219,177,217,182,192,173,117,141"/>
+<area shape="rect" href="../../dd/d30/namespaceoperators.html#a5585d01757c6ecea4927cd5e1139836d" title="Apply the convecting velocity c to the to the scalar field u, used in the OIFS scheme." alt="" coords="411,127,553,167"/>
+<area shape="poly" title=" " alt="" coords="363,144,397,144,397,149,363,149"/>
 </map>
 </div>
 
@@ -301,13 +305,13 @@ Here is the call graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../da/d99/structspace_1_1space__t.html">space_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../da/d99/structspace_1_1space__t.html">space_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>xh</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>coef</em>, </td>
         </tr>
         <tr>
@@ -350,7 +354,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html#l00389">389</a> of file <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html">adv_oifs.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html#l00541">541</a> of file <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html">adv_oifs.f90</a>.</p>
 
 </div>
 </div>
@@ -378,7 +382,17 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html#l00204">204</a> of file <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html">adv_oifs.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html#l00274">274</a> of file <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html">adv_oifs.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dd/d97/namespaceadv__oifs_af6833f87fe3310b13d5e5152d4cf1466_cgraph.png" border="0" usemap="#add/d97/namespaceadv__oifs_af6833f87fe3310b13d5e5152d4cf1466_cgraph" alt=""/></div>
+<map name="add/d97/namespaceadv__oifs_af6833f87fe3310b13d5e5152d4cf1466_cgraph" id="add/d97/namespaceadv__oifs_af6833f87fe3310b13d5e5152d4cf1466_cgraph">
+<area shape="rect" title="Destructor." alt="" coords="5,5,179,31"/>
+<area shape="rect" href="../../d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="227,5,376,31"/>
+<area shape="poly" title=" " alt="" coords="179,15,213,15,213,21,179,21"/>
+</map>
+</div>
 
 </div>
 </div>
@@ -477,7 +491,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html#l00113">113</a> of file <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html">adv_oifs.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html#l00126">126</a> of file <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html">adv_oifs.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -546,17 +560,15 @@ Here is the call graph for this function:</div>
 </dl>
 <dl class="section note"><dt>Note</dt><dd>similar to set_ct_cvx in NEK5000 </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html#l00247">247</a> of file <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html">adv_oifs.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html#l00372">372</a> of file <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html">adv_oifs.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/d97/namespaceadv__oifs_abf88b9e745adde6b8cb80b4a00930cba_cgraph.png" border="0" usemap="#add/d97/namespaceadv__oifs_abf88b9e745adde6b8cb80b4a00930cba_cgraph" alt=""/></div>
 <map name="add/d97/namespaceadv__oifs_abf88b9e745adde6b8cb80b4a00930cba_cgraph" id="add/d97/namespaceadv__oifs_abf88b9e745adde6b8cb80b4a00930cba_cgraph">
-<area shape="rect" title="Mapping the velocity fields to GL space and transforming them to the rst format." alt="" coords="5,23,148,63"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="246,5,341,31"/>
-<area shape="poly" title=" " alt="" coords="148,32,232,22,232,28,148,38"/>
-<area shape="rect" href="../../dd/d30/namespaceoperators.html#a0b1759aebe89495e5ee40574e50e3e21" title="Transforms the convecting velocity field to the rst form of the GL space." alt="" coords="196,55,391,80"/>
-<area shape="poly" title=" " alt="" coords="148,49,182,52,182,58,148,54"/>
+<area shape="rect" title="Mapping the velocity fields to GL space and transforming them to the rst format." alt="" coords="5,5,148,45"/>
+<area shape="rect" href="../../dd/d30/namespaceoperators.html#a0b1759aebe89495e5ee40574e50e3e21" title="Transforms the convecting velocity field to the rst form of the GL space." alt="" coords="196,13,391,38"/>
+<area shape="poly" title=" " alt="" coords="148,23,182,23,182,28,148,28"/>
 </map>
 </div>
 
@@ -568,7 +580,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dd/d97/namespaceadv__oifs.html">adv_oifs</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

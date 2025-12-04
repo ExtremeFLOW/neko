@@ -1,9 +1,0 @@
-<map id="math::masked_red_copy" name="math::masked_red_copy">
-<area shape="rect" id="Node000001" title="Copy a masked vector to reduced contigous vector ." alt="" coords="479,45,660,70"/>
-<area shape="rect" id="Node000002" href="$d6/daa/namespaceforce__torque.html#ab407c7b9763b091d7165c5d7d19044de" title="Compute the force_torque field." alt="" coords="255,5,400,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="465,46,400,38,400,32,465,41"/>
-<area shape="rect" id="Node000003" href="$d6/daa/namespaceforce__torque.html#a0f667e648d5b3ccd99421fa1be4aaf89" title="Actual constructor." alt="" coords="224,69,431,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="466,74,431,78,431,73,465,68"/>
-<area shape="rect" id="Node000004" href="$d6/daa/namespaceforce__torque.html#af95812899d029c8c2c15b3742965583b" title="Constructor from json." alt="" coords="5,69,176,109"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="210,92,176,92,176,87,210,87"/>
-</map>

@@ -1,0 +1,13 @@
+<map id="hsmg::hsmg_init_from_components" name="hsmg::hsmg_init_from_components">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,173,103"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#aaaa5631ad87c768e466be4f943c5c479" title="Create a device event queue." alt="" coords="221,5,381,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="163,60,213,46,214,52,165,65"/>
+<area shape="rect" id="Node000003" href="$dd/dd1/namespacehsmg.html#a85bb6dc5e43b5b530f93d3e2eafec031" title=" " alt="" coords="223,70,380,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="173,80,209,80,209,85,173,85"/>
+<area shape="rect" id="Node000004" href="$dd/dd1/namespacehsmg.html#a25c9fa74d9a25ea39e51a25695e12cf3" title=" " alt="" coords="229,119,373,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="174,100,233,114,232,119,173,105"/>
+<area shape="rect" id="Node000005" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="479,94,574,119"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="373,121,465,111,466,116,374,127"/>
+<area shape="rect" id="Node000006" href="$d2/d73/namespacedevice__math.html#a855e85405a5eb63227e1970691aa2a5a" title="Copy a vector ." alt="" coords="429,143,624,169"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="374,137,416,142,415,147,373,142"/>
+</map>

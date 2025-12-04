@@ -13,6 +13,7 @@ var namespacehip__intf =
     [ "hipmalloc", "dd/de4/interfacehip__intf_1_1hipmalloc.html", "dd/de4/interfacehip__intf_1_1hipmalloc" ],
     [ "hipmemcpy", "d0/de9/interfacehip__intf_1_1hipmemcpy.html", "d0/de9/interfacehip__intf_1_1hipmemcpy" ],
     [ "hipmemcpyasync", "d3/d39/interfacehip__intf_1_1hipmemcpyasync.html", "d3/d39/interfacehip__intf_1_1hipmemcpyasync" ],
+    [ "hipmemsetasync", "d0/dac/interfacehip__intf_1_1hipmemsetasync.html", "d0/dac/interfacehip__intf_1_1hipmemsetasync" ],
     [ "hipstreamcreate", "da/da9/interfacehip__intf_1_1hipstreamcreate.html", "da/da9/interfacehip__intf_1_1hipstreamcreate" ],
     [ "hipstreamcreatewithflags", "da/dee/interfacehip__intf_1_1hipstreamcreatewithflags.html", "da/dee/interfacehip__intf_1_1hipstreamcreatewithflags" ],
     [ "hipstreamcreatewithpriority", "d6/dc0/interfacehip__intf_1_1hipstreamcreatewithpriority.html", "d6/dc0/interfacehip__intf_1_1hipstreamcreatewithpriority" ],
@@ -21,10 +22,6 @@ var namespacehip__intf =
     [ "hipstreamwaitevent", "d7/ddb/interfacehip__intf_1_1hipstreamwaitevent.html", "d7/ddb/interfacehip__intf_1_1hipstreamwaitevent" ],
     [ "hip_device_count", "d0/d4e/namespacehip__intf.html#ae76e470dcd046e7ef62b0273edd6c56d", null ],
     [ "hip_device_name", "d0/d4e/namespacehip__intf.html#a1c8e3cf5e89ffe1b50253b6b38e45a93", null ],
-    [ "hip_finalize", "d0/d4e/namespacehip__intf.html#a46ebe304218d34d01b56a41e65488e1f", null ],
-    [ "hip_init", "d0/d4e/namespacehip__intf.html#a1fe3302af910fad64b1e7c2ba5b29d3e", null ],
-    [ "aux_cmd_queue", "d0/d4e/namespacehip__intf.html#a19e001b16b32fe3b03a6a42aa67b41fb", null ],
-    [ "glb_cmd_queue", "d0/d4e/namespacehip__intf.html#a5fd1f28f420d73314c95a40edd15d37f", null ],
-    [ "strm_high_prio", "d0/d4e/namespacehip__intf.html#a8996afbeeb8e8c59a38280475e1b3549", null ],
-    [ "strm_low_prio", "d0/d4e/namespacehip__intf.html#a1a75fbd54838dbeba03536ea8a7a0ffd", null ]
+    [ "hip_finalize", "d0/d4e/namespacehip__intf.html#a89de67459398a401efed275ac5c3dc07", null ],
+    [ "hip_init", "d0/d4e/namespacehip__intf.html#a71cf325d479bbed01658a08561e54a48", null ]
 ];

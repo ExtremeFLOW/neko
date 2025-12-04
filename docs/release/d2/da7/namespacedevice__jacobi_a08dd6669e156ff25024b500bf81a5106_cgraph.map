@@ -1,11 +1,15 @@
 <map id="device_jacobi::device_jacobi_init" name="device_jacobi::device_jacobi_init">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,168,103"/>
-<area shape="rect" id="Node000002" href="$d2/da7/namespacedevice__jacobi.html#abcae239f5ab6ef4a8a597e7cca1d804b" title=" " alt="" coords="216,63,379,103"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,80,202,80,202,85,168,85"/>
-<area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#a07d4f69bef8f8e5cd58ca113e8651314" title="Returns ." alt="" coords="443,5,601,45"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="376,60,429,46,430,51,377,65"/>
-<area shape="rect" id="Node000004" href="$d2/d73/namespacedevice__math.html#a14206e58118cce6865c6ce1bb6454061" title="Vector multiplication ." alt="" coords="427,70,617,95"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="379,80,413,80,413,85,379,85"/>
-<area shape="rect" id="Node000005" href="$d2/d73/namespacedevice__math.html#a46a957f0ada862da2400fb93b64b4cd9" title="Invert a vector ." alt="" coords="443,120,601,160"/>
-<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="377,100,430,114,429,119,376,105"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,56,168,96"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#aaaa5631ad87c768e466be4f943c5c479" title="Create a device event queue." alt="" coords="217,24,377,64"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,61,204,56,204,61,169,66"/>
+<area shape="rect" id="Node000003" href="$d2/da7/namespacedevice__jacobi.html#abcae239f5ab6ef4a8a597e7cca1d804b" title=" " alt="" coords="216,88,379,128"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="169,86,203,91,202,96,168,91"/>
+<area shape="rect" id="Node000004" href="$d2/d73/namespacedevice__math.html#a2b8d4f8b84ce7cc369cadc71c01dc207" title="Returns ." alt="" coords="447,5,604,45"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="348,85,426,55,447,47,449,52,428,60,350,90"/>
+<area shape="rect" id="Node000005" href="$d2/d73/namespacedevice__math.html#a94ac78fc9b96b2e3ac600603c1afafb1" title="Vector multiplication ." alt="" coords="430,70,621,95"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="378,96,416,92,417,97,379,102"/>
+<area shape="rect" id="Node000006" href="$d0/dbe/namespacedevice.html#a08e073f459027c6c1b067ff777f0bbf9" title="Synchronize an event." alt="" coords="427,119,624,145"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="379,114,413,118,413,123,378,119"/>
+<area shape="rect" id="Node000007" href="$d2/d73/namespacedevice__math.html#a34e76c2d7ad60ae8b0577675df512515" title="Invert a vector ." alt="" coords="447,169,604,209"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="352,126,428,153,452,162,450,167,426,159,351,131"/>
 </map>

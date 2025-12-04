@@ -1,5 +1,0 @@
-<map id="neumann::neumann_set_flux_array" name="neumann::neumann_set_flux_array">
-<area shape="rect" id="Node000001" title="Set the flux using an array of values." alt="" coords="5,5,184,45"/>
-<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="232,13,327,38"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="184,23,219,23,219,28,184,28"/>
-</map>

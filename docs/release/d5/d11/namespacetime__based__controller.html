@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -105,7 +105,7 @@ $(document).ready(function(){initNavTree('d5/d11/namespacetime__based__controlle
 </div><!--header-->
 <div class="contents">
 
-<p>Contains the <code><a class="el" href="../../db/de7/structtime__based__controller_1_1time__based__controller__t.html" title="A utility type for determening whether an action should be executed based on the current time value....">time_based_controller_t</a></code> type.  
+<p>Contains the <code><a class="el" href="../../db/de7/structtime__based__controller_1_1time__based__controller__t.html" title="A utility type for determining whether an action should be executed based on the current time value....">time_based_controller_t</a></code> type.  
 </p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
@@ -113,26 +113,29 @@ Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d69/interfacetime__based__controller_1_1assignment_07_0a_08.html">assignment(=)</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/de7/structtime__based__controller_1_1time__based__controller__t.html">time_based_controller_t</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A utility type for determening whether an action should be executed based on the current time value. Used to e.g. control whether we should write a file or execute a simcomp. Note that the nexecutions variable should be incremented externally by calling the <code>register_execution</code> procedure. This is to allow running the the <code>check</code> multiple times at the same time step.  <a href="../../db/de7/structtime__based__controller_1_1time__based__controller__t.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A utility type for determining whether an action should be executed based on the current time value. Used to e.g. control whether we should write a file or execute a simcomp. Note that the nexecutions variable should be incremented externally by calling the <code>register_execution</code> procedure. This is to allow running the the <code>check</code> multiple times at the same time step.  <a href="../../db/de7/structtime__based__controller_1_1time__based__controller__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a3c1773bbaab9280a701df7ab4ba5d72f" id="r_a3c1773bbaab9280a701df7ab4ba5d72f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d11/namespacetime__based__controller.html#a3c1773bbaab9280a701df7ab4ba5d72f">time_based_controller_init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, end_time, control_mode, control_value)</td></tr>
-<tr class="memdesc:a3c1773bbaab9280a701df7ab4ba5d72f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
-<tr class="separator:a3c1773bbaab9280a701df7ab4ba5d72f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afd1ea8e8fb044eef014125c3ab22e072" id="r_afd1ea8e8fb044eef014125c3ab22e072"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d11/namespacetime__based__controller.html#afd1ea8e8fb044eef014125c3ab22e072">time_based_controller_check</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, t, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tstep</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">force</a>)</td></tr>
-<tr class="memdesc:afd1ea8e8fb044eef014125c3ab22e072"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the execution should be performed.  <br /></td></tr>
-<tr class="separator:afd1ea8e8fb044eef014125c3ab22e072"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a878bf9420acc704cc4facf96cc7454bf" id="r_a878bf9420acc704cc4facf96cc7454bf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d11/namespacetime__based__controller.html#a878bf9420acc704cc4facf96cc7454bf">time_based_controller_init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, start_time, end_time, control_mode, control_value)</td></tr>
+<tr class="memdesc:a878bf9420acc704cc4facf96cc7454bf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
+<tr class="separator:a878bf9420acc704cc4facf96cc7454bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d3d95c7e0bf898ab45e8c5c469985b9" id="r_a0d3d95c7e0bf898ab45e8c5c469985b9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d11/namespacetime__based__controller.html#a0d3d95c7e0bf898ab45e8c5c469985b9">time_based_controller_free</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
+<tr class="memdesc:a0d3d95c7e0bf898ab45e8c5c469985b9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <br /></td></tr>
+<tr class="separator:a0d3d95c7e0bf898ab45e8c5c469985b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad1b34cd12dabdcbbb365289e39ed2492" id="r_ad1b34cd12dabdcbbb365289e39ed2492"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d11/namespacetime__based__controller.html#ad1b34cd12dabdcbbb365289e39ed2492">time_based_controller_check</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, time, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">force</a>)</td></tr>
+<tr class="memdesc:ad1b34cd12dabdcbbb365289e39ed2492"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the execution should be performed.  <br /></td></tr>
+<tr class="separator:ad1b34cd12dabdcbbb365289e39ed2492"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a56211edc97c6aa44412bf9049517751d" id="r_a56211edc97c6aa44412bf9049517751d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d11/namespacetime__based__controller.html#a56211edc97c6aa44412bf9049517751d">time_based_controller_assignment</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">ctrl1</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">ctrl2</a>)</td></tr>
 <tr class="memdesc:a56211edc97c6aa44412bf9049517751d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assignment operator. Simply copies attribute values.  <br /></td></tr>
 <tr class="separator:a56211edc97c6aa44412bf9049517751d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad6ddd9f6847cc15209a87459cf18be22" id="r_ad6ddd9f6847cc15209a87459cf18be22"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d11/namespacetime__based__controller.html#ad6ddd9f6847cc15209a87459cf18be22">time_based_controller_register_execution</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="memdesc:ad6ddd9f6847cc15209a87459cf18be22"><td class="mdescLeft">&#160;</td><td class="mdescRight">Increment <code>nexectutions</code>.  <br /></td></tr>
 <tr class="separator:ad6ddd9f6847cc15209a87459cf18be22"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5e3db6300d4890aff4663d15f41854a2" id="r_a5e3db6300d4890aff4663d15f41854a2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d11/namespacetime__based__controller.html#a5e3db6300d4890aff4663d15f41854a2">time_based_controller_set_counter</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, t)</td></tr>
-<tr class="memdesc:a5e3db6300d4890aff4663d15f41854a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the counter based on a time (for restarts)  <br /></td></tr>
-<tr class="separator:a5e3db6300d4890aff4663d15f41854a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1fdc496e70c834ef593206685bcff542" id="r_a1fdc496e70c834ef593206685bcff542"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d11/namespacetime__based__controller.html#a1fdc496e70c834ef593206685bcff542">time_based_controller_set_counter</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, time)</td></tr>
+<tr class="memdesc:a1fdc496e70c834ef593206685bcff542"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the counter based on a time (for restarts)  <br /></td></tr>
+<tr class="separator:a1fdc496e70c834ef593206685bcff542"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="a56211edc97c6aa44412bf9049517751d" name="a56211edc97c6aa44412bf9049517751d"></a>
@@ -176,12 +179,12 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html#l00165">165</a> of file <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html">time_based_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html#l00199">199</a> of file <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html">time_based_controller.f90</a>.</p>
 
 </div>
 </div>
-<a id="afd1ea8e8fb044eef014125c3ab22e072" name="afd1ea8e8fb044eef014125c3ab22e072"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afd1ea8e8fb044eef014125c3ab22e072">&#9670;&#160;</a></span>time_based_controller_check()</h2>
+<a id="ad1b34cd12dabdcbbb365289e39ed2492" name="ad1b34cd12dabdcbbb365289e39ed2492"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad1b34cd12dabdcbbb365289e39ed2492">&#9670;&#160;</a></span>time_based_controller_check()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -198,14 +201,8 @@ Functions/Subroutines</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
-          <td class="paramname"><em>t</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
-          <td class="paramname"><em>tstep</em>, </td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>time</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -229,18 +226,47 @@ Functions/Subroutines</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">t</td><td>Time value. </td></tr>
     <tr><td class="paramname">tstep</td><td>Current timestep. </td></tr>
+    <tr><td class="paramname">dt</td><td>Timestep size. </td></tr>
     <tr><td class="paramname">force</td><td>Whether to force returning true. Optional. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>In the logic, <code>nsteps</code> being zero corresponds to us not knowing the number of time-steps between executions and thus having to rely on <code>nexecutions</code>. This is done in anticipation of having a variable timestep. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>In the logic, <code>nsteps</code> being zero corresponds to us not knowing the number of time-steps between executions and thus having to rely on <code>nexecutions</code>. This is done in anticipation of having a variable timestep. A fraction of the time step (10 percent) is used as a tolerance. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html#l00133">133</a> of file <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html">time_based_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html#l00159">159</a> of file <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html">time_based_controller.f90</a>.</p>
 
 </div>
 </div>
-<a id="a3c1773bbaab9280a701df7ab4ba5d72f" name="a3c1773bbaab9280a701df7ab4ba5d72f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3c1773bbaab9280a701df7ab4ba5d72f">&#9670;&#160;</a></span>time_based_controller_init()</h2>
+<a id="a0d3d95c7e0bf898ab45e8c5c469985b9" name="a0d3d95c7e0bf898ab45e8c5c469985b9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0d3d95c7e0bf898ab45e8c5c469985b9">&#9670;&#160;</a></span>time_based_controller_free()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> time_based_controller::time_based_controller_free </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../db/de7/structtime__based__controller_1_1time__based__controller__t.html">time_based_controller_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html#l00134">134</a> of file <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html">time_based_controller.f90</a>.</p>
+
+</div>
+</div>
+<a id="a878bf9420acc704cc4facf96cc7454bf" name="a878bf9420acc704cc4facf96cc7454bf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a878bf9420acc704cc4facf96cc7454bf">&#9670;&#160;</a></span>time_based_controller_init()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -253,6 +279,12 @@ Functions/Subroutines</h2></td></tr>
           <td>(</td>
           <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../db/de7/structtime__based__controller_1_1time__based__controller__t.html">time_based_controller_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>start_time</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -288,12 +320,12 @@ Functions/Subroutines</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">end_time</td><td>The final simulation time. </td></tr>
     <tr><td class="paramname">control_mode</td><td>The way to interpret the <code>control_value</code> parameter. </td></tr>
-    <tr><td class="paramname">control_value</td><td>The value definining the execution frequency. </td></tr>
+    <tr><td class="paramname">control_value</td><td>The value defining the execution frequency. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html#l00090">90</a> of file <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html">time_based_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html#l00095">95</a> of file <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html">time_based_controller.f90</a>.</p>
 
 </div>
 </div>
@@ -321,12 +353,12 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html#l00178">178</a> of file <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html">time_based_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html#l00212">212</a> of file <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html">time_based_controller.f90</a>.</p>
 
 </div>
 </div>
-<a id="a5e3db6300d4890aff4663d15f41854a2" name="a5e3db6300d4890aff4663d15f41854a2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5e3db6300d4890aff4663d15f41854a2">&#9670;&#160;</a></span>time_based_controller_set_counter()</h2>
+<a id="a1fdc496e70c834ef593206685bcff542" name="a1fdc496e70c834ef593206685bcff542"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1fdc496e70c834ef593206685bcff542">&#9670;&#160;</a></span>time_based_controller_set_counter()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -343,8 +375,8 @@ Functions/Subroutines</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
-          <td class="paramname"><em>t</em>&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>)&#160;</td>
+          <td class="paramname"><em>time</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -360,12 +392,12 @@ Functions/Subroutines</h2></td></tr>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">t</td><td>simulation time. </td></tr>
+    <tr><td class="paramname">time</td><td>Current time. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html#l00187">187</a> of file <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html">time_based_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html#l00221">221</a> of file <a class="el" href="../../d8/db0/time__based__controller_8f90_source.html">time_based_controller.f90</a>.</p>
 
 </div>
 </div>
@@ -375,7 +407,7 @@ Functions/Subroutines</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d5/d11/namespacetime__based__controller.html">time_based_controller</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:53 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

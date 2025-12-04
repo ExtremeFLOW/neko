@@ -4,7 +4,7 @@
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="744,71,710,71,710,66,744,66"/>
 <area shape="rect" id="Node000003" href="$d3/d27/interfacedevice__vreman__nut_1_1hip__vreman__nut__compute.html#abd53c501171edbcf5ac0e227e30f8427" title=" " alt="" coords="248,5,447,60"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="481,54,447,49,447,44,482,49"/>
-<area shape="rect" id="Node000004" href="$dd/dcb/namespacevreman__device.html#a827df8208f1e5169d7b043f267d9b7b6" title="Compute eddy viscosity on the device." alt="" coords="257,85,437,125"/>
+<area shape="rect" id="Node000004" href="$dd/dcb/namespacevreman__device.html#a1034f16a0846c21b9ae661c97bfb892c" title="Compute eddy viscosity on the device." alt="" coords="257,85,437,125"/>
 <area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="481,88,438,95,437,89,481,83"/>
 <area shape="rect" id="Node000005" href="$d4/d6e/namespacevreman.html#a83a0531f4d84533dc1c0599c3a132485" title="Compute eddy viscosity." alt="" coords="5,92,200,117"/>
 <area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="244,107,200,107,200,102,244,102"/>

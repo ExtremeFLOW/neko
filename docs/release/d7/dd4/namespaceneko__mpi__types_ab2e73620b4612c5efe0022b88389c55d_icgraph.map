@@ -1,19 +1,7 @@
 <map id="neko_mpi_types::mpi_type_nmsh_hex_free" name="neko_mpi_types::mpi_type_nmsh_hex_free">
-<area shape="rect" id="Node000001" title="Deallocate nmsh hex derived MPI type." alt="" coords="637,122,803,162"/>
-<area shape="rect" id="Node000002" href="$d7/dd4/namespaceneko__mpi__types.html#ae5705f5c8322b515988b0208ee4098c1" title="Deallocate all derived MPI types." alt="" coords="423,122,589,162"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="623,145,590,145,590,139,623,139"/>
-<area shape="rect" id="Node000003" href="$dd/d62/namespaceneko.html#a11ff0635183fc4cd90027907c86cbfe8" title=" " alt="" coords="228,129,375,155"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="409,145,375,145,375,139,409,139"/>
-<area shape="rect" id="Node000004" href="$d9/dd1/average__field__in__space_8f90.html#a37dc68f9f9805d99614ae0ca36d971a3" title="Program to sum up a field in space in a homogenous direction Martin Karp 17/02&#45;23." alt="" coords="5,5,180,31"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="277,121,234,82,179,44,152,33,154,28,181,40,237,78,280,117"/>
-<area shape="rect" id="Node000005" href="$d3/dc7/average__fields__in__time_8f90.html#ac6905300ca74b33833aa210ef56e2bb7" title="Program to sum up averaged fields computed for statistics and mean field Martin Karp 27/01&#45;23." alt="" coords="6,55,179,80"/>
-<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="259,126,179,94,143,83,145,78,181,89,261,121"/>
-<area shape="rect" id="Node000006" href="$dc/da2/genmeshbox_8f90.html#ac2c2abdf1b6ab8a11de24035862245d5" title="Simple program to generate a mesh for a box Gives some insight into how one can use built in function..." alt="" coords="39,104,146,129"/>
-<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="214,134,146,126,147,120,215,129"/>
-<area shape="rect" id="Node000007" href="$d1/dd9/postprocess__fluid__stats_8f90.html#a54f8c504cff2703e12c6c4fce128f532" title="Somewhat preliminary program to sum up averaged fields computed for statistics and mean field Martin ..." alt="" coords="5,153,180,179"/>
-<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="215,155,180,159,180,153,214,149"/>
-<area shape="rect" id="Node000008" href="$d7/d64/rea2nbin_8f90.html#ab8d17097ee23bae0a0911d8d65590e5e" title=" " alt="" coords="53,203,132,228"/>
-<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="258,163,181,193,133,207,132,202,179,187,257,158"/>
-<area shape="rect" id="Node000009" href="$d0/dd9/driver_8f90.html#a30d609876f05bf02c9ca79b0448dc937" title="Main driver for TurboNeko." alt="" coords="49,252,136,277"/>
-<area shape="poly" id="edge8_Node000003_Node000009" title=" " alt="" coords="279,167,236,205,181,242,137,258,135,253,179,237,233,201,275,163"/>
+<area shape="rect" id="Node000001" title="Deallocate nmsh hex derived MPI type." alt="" coords="415,5,580,45"/>
+<area shape="rect" id="Node000002" href="$d7/dd4/namespaceneko__mpi__types.html#ae5705f5c8322b515988b0208ee4098c1" title="Deallocate all derived MPI types." alt="" coords="200,5,367,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="401,28,367,28,367,23,401,23"/>
+<area shape="rect" id="Node000003" href="$dd/d62/namespaceneko.html#a11ff0635183fc4cd90027907c86cbfe8" title="Finalize Neko." alt="" coords="5,13,152,38"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="186,28,152,28,152,23,186,23"/>
 </map>

@@ -1,0 +1,5 @@
+<map id="centrifugal_source_term::centrifugal_source_term_t" name="centrifugal_source_term::centrifugal_source_term_t">
+<area shape="rect" id="Node000001" title="This source term adds the centrifugal force." alt="" coords="5,93,193,148"/>
+<area shape="rect" id="Node000002" href="$d8/d03/structsource__term_1_1source__term__t.html" title="Base abstract type for source terms." alt="" coords="22,5,177,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="102,59,102,93,97,93,97,59"/>
+</map>

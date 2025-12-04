@@ -1,5 +1,0 @@
-<map id="field_dirichlet::field_dirichlet_apply_scalar" name="field_dirichlet::field_dirichlet_apply_scalar">
-<area shape="rect" id="Node000001" title="Apply scalar by performing a masked copy." alt="" coords="5,5,176,45"/>
-<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#aa06e93ee36a23b04f55d444bbb3e6741" title="Copy a masked vector ." alt="" coords="224,13,377,38"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="176,23,210,23,210,28,176,28"/>
-</map>

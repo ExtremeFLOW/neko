@@ -1,7 +1,9 @@
 <map id="rhs_maker::rhs_maker_oifs_t" name="rhs_maker::rhs_maker_oifs_t">
-<area shape="rect" id="Node000001" title="Abstract type to add contributions of kth order OIFS scheme." alt="" coords="92,5,259,45"/>
-<area shape="rect" id="Node000002" href="$d6/de6/structrhs__maker__cpu_1_1rhs__maker__oifs__cpu__t.html" title=" " alt="" coords="5,93,153,133"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="145,57,102,95,99,91,142,53"/>
-<area shape="rect" id="Node000003" href="$df/d1c/structrhs__maker__sx_1_1rhs__maker__oifs__sx__t.html" title=" " alt="" coords="177,93,365,133"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="209,53,252,91,248,95,205,57"/>
+<area shape="rect" id="Node000001" title="Abstract type to add contributions of kth order OIFS scheme." alt="" coords="5,69,172,109"/>
+<area shape="rect" id="Node000002" href="$d6/de6/structrhs__maker__cpu_1_1rhs__maker__oifs__cpu__t.html" title=" " alt="" coords="240,5,388,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,63,242,43,244,48,174,68"/>
+<area shape="rect" id="Node000003" href="$dd/d53/structrhs__maker__device_1_1rhs__maker__oifs__device__t.html" title=" " alt="" coords="230,69,398,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="186,87,230,87,230,92,186,92"/>
+<area shape="rect" id="Node000004" href="$df/d1c/structrhs__maker__sx_1_1rhs__maker__oifs__sx__t.html" title=" " alt="" coords="220,133,408,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="174,111,244,131,242,136,172,116"/>
 </map>

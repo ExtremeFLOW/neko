@@ -3,6 +3,8 @@ var structfusedcg__device_1_1fusedcg__device__t =
     [ "free", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#a05185b5dd6b32dc9351b0edd5d1c4e25", null ],
     [ "free", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#a39467d0a5f0620de72b7a1a6e68e93d0", null ],
     [ "init", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#af3a77904896876d5444d90b82e715f80", null ],
+    [ "init", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#a212e2f4ae22fc2b8b984a036ac549985", null ],
+    [ "is_converged", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#a75721421d4d26e4ea23205cfbc34443b", null ],
     [ "ksp_free", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#a34dae2b9d3aff8de33af53f6bb156bc4", null ],
     [ "ksp_init", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#aa93557061efb3f02ecd62cf8c05931c0", null ],
     [ "monitor_iter", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html#a4f01bfbf0a5979a60a0612e504c64489", null ],

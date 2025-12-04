@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -112,12 +112,12 @@ Data Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:aba05d2f25e6eebdfcc8e4e53229ecf91" id="r_aba05d2f25e6eebdfcc8e4e53229ecf91"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d2d/namespacedevice__dong__outflow.html#aba05d2f25e6eebdfcc8e4e53229ecf91">device_dong_outflow_apply_scalar</a> (msk, x, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">normal_x</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">normal_y</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">normal_z</a>, u, v, w, uinf, delta, m)</td></tr>
-<tr class="separator:aba05d2f25e6eebdfcc8e4e53229ecf91"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8f314cc32e90e164da23144e03b228ef" id="r_a8f314cc32e90e164da23144e03b228ef"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d2d/namespacedevice__dong__outflow.html#a8f314cc32e90e164da23144e03b228ef">device_dong_outflow_apply_scalar</a> (msk, x, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">normal_x</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">normal_y</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">normal_z</a>, u, v, w, uinf, delta, m, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">strm</a>)</td></tr>
+<tr class="separator:a8f314cc32e90e164da23144e03b228ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
-<a id="aba05d2f25e6eebdfcc8e4e53229ecf91" name="aba05d2f25e6eebdfcc8e4e53229ecf91"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aba05d2f25e6eebdfcc8e4e53229ecf91">&#9670;&#160;</a></span>device_dong_outflow_apply_scalar()</h2>
+<a id="a8f314cc32e90e164da23144e03b228ef" name="a8f314cc32e90e164da23144e03b228ef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8f314cc32e90e164da23144e03b228ef">&#9670;&#160;</a></span>device_dong_outflow_apply_scalar()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -185,8 +185,14 @@ Functions/Subroutines</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">c_int</a>)&#160;</td>
-          <td class="paramname"><em>m</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>(c_int)&#160;</td>
+          <td class="paramname"><em>m</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>strm</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -200,10 +206,10 @@ Functions/Subroutines</h2></td></tr>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d6/d2d/namespacedevice__dong__outflow_aba05d2f25e6eebdfcc8e4e53229ecf91_cgraph.png" border="0" usemap="#ad6/d2d/namespacedevice__dong__outflow_aba05d2f25e6eebdfcc8e4e53229ecf91_cgraph" alt=""/></div>
-<map name="ad6/d2d/namespacedevice__dong__outflow_aba05d2f25e6eebdfcc8e4e53229ecf91_cgraph" id="ad6/d2d/namespacedevice__dong__outflow_aba05d2f25e6eebdfcc8e4e53229ecf91_cgraph">
+<div class="center"><img src="../../d6/d2d/namespacedevice__dong__outflow_a8f314cc32e90e164da23144e03b228ef_cgraph.png" border="0" usemap="#ad6/d2d/namespacedevice__dong__outflow_a8f314cc32e90e164da23144e03b228ef_cgraph" alt=""/></div>
+<map name="ad6/d2d/namespacedevice__dong__outflow_a8f314cc32e90e164da23144e03b228ef_cgraph" id="ad6/d2d/namespacedevice__dong__outflow_a8f314cc32e90e164da23144e03b228ef_cgraph">
 <area shape="rect" title=" " alt="" coords="5,27,172,82"/>
-<area shape="rect" href="../../dc/d78/dong__outflow_8cu.html#ac2a23d02cacc1749b3bc50f966ca326b" title=" " alt="" coords="427,5,617,45"/>
+<area shape="rect" href="../../dc/d78/dong__outflow_8cu.html#a681f9516e343301d1c05e575305efb4a" title=" " alt="" coords="427,5,617,45"/>
 <area shape="poly" title=" " alt="" coords="172,46,413,30,413,35,172,52"/>
 <area shape="rect" href="../../d4/dce/dong__outflow_8c.html#aad58a7c1e5641e428baad2edca38c410" title=" " alt="" coords="220,63,379,103"/>
 <area shape="poly" title=" " alt="" coords="173,63,207,68,206,73,172,68"/>
@@ -219,12 +225,12 @@ Here is the call graph for this function:</div>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d6/d2d/namespacedevice__dong__outflow_aba05d2f25e6eebdfcc8e4e53229ecf91_icgraph.png" border="0" usemap="#ad6/d2d/namespacedevice__dong__outflow_aba05d2f25e6eebdfcc8e4e53229ecf91_icgraph" alt=""/></div>
-<map name="ad6/d2d/namespacedevice__dong__outflow_aba05d2f25e6eebdfcc8e4e53229ecf91_icgraph" id="ad6/d2d/namespacedevice__dong__outflow_aba05d2f25e6eebdfcc8e4e53229ecf91_icgraph">
+<div class="center"><img src="../../d6/d2d/namespacedevice__dong__outflow_a8f314cc32e90e164da23144e03b228ef_icgraph.png" border="0" usemap="#ad6/d2d/namespacedevice__dong__outflow_a8f314cc32e90e164da23144e03b228ef_icgraph" alt=""/></div>
+<map name="ad6/d2d/namespacedevice__dong__outflow_a8f314cc32e90e164da23144e03b228ef_icgraph" id="ad6/d2d/namespacedevice__dong__outflow_a8f314cc32e90e164da23144e03b228ef_icgraph">
 <area shape="rect" title=" " alt="" coords="251,38,417,93"/>
-<area shape="rect" href="../../d5/d79/namespacedong__outflow.html#aae3837fe3813ef9de80f22390532928c" title="Boundary condition apply for a generic Dirichlet condition to a vector x (device version)" alt="" coords="5,5,203,45"/>
+<area shape="rect" href="../../d5/d79/namespacedong__outflow.html#ac6acd97499ffeb33c08fda71b43caca3" title="Boundary condition apply for a generic Dirichlet condition to a vector x (device version)" alt="" coords="5,5,203,45"/>
 <area shape="poly" title=" " alt="" coords="237,51,202,45,203,40,238,46"/>
-<area shape="rect" href="../../df/dc2/interfacedevice__dong__outflow_1_1hip__dong__outflow__apply__scalar.html#afd1871d85a55adf38673c551f404426c" title=" " alt="" coords="9,69,199,139"/>
+<area shape="rect" href="../../df/dc2/interfacedevice__dong__outflow_1_1hip__dong__outflow__apply__scalar.html#abb7828b34bcb83ad1c884b6e58775088" title=" " alt="" coords="9,69,199,139"/>
 <area shape="poly" title=" " alt="" coords="238,84,200,91,199,85,237,79"/>
 </map>
 </div>
@@ -237,7 +243,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d6/d2d/namespacedevice__dong__outflow.html">device_dong_outflow</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

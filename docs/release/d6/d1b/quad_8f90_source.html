@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -142,7 +142,7 @@ $(document).ready(function(){initNavTree('d6/d1b/quad_8f90_source.html','../../'
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../df/d48/namespacenum__types.html">num_types</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aab47a6c4827cb5c6bbd741a44c87e956">dp</a></div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/d0d/namespaceelement.html">element</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d7/dd6/structelement_1_1element__t.html">element_t</a></div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../df/dec/namespacetuple.html">tuple</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d1/d3b/structtuple_1_1tuple__t.html">tuple_t</a>, <a class="code hl_struct" href="../../d5/d16/structtuple_1_1tuple__i4__t.html">tuple_i4_t</a></div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d8/dbc/namespacepoint.html">point</a>, <span class="keywordtype">only</span> : <a class="code hl_interface" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a></div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d8/dbc/namespacepoint.html">point</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a></div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="keywordtype">private</span></div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
@@ -177,7 +177,7 @@ $(document).ready(function(){initNavTree('d6/d1b/quad_8f90_source.html','../../'
 <div class="line"><a id="l00090" name="l00090"></a><span class="lineno"><a class="line" href="../../d1/da7/namespacequad.html#ac0178d502a06b3bc39d3fc277c495e42">   90</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d1/da7/namespacequad.html#ac0178d502a06b3bc39d3fc277c495e42">quad_init</a>(this, id, p1, p2, p3, p4)</div>
 <div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/d32/structquad_1_1quad__t.html">quad_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
 <div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(inout)</span> :: id</div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    <span class="keywordtype">type</span>(<a class="code hl_interface" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(in)</span> :: p1, p2, p3, p4</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(in)</span> :: p1, p2, p3, p4</div>
 <div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span> </div>
 <div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>    <span class="keyword">call </span>this%element(id, <a class="code hl_variable" href="../../d1/da7/namespacequad.html#a11908e64d22e2fd221b2d95c7fb3c620">neko_quad_gdim</a>, <a class="code hl_variable" href="../../d1/da7/namespacequad.html#aa8e63ae970a9d879b75b0110fafc750a">neko_quad_npts</a>)</div>
 <div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span> </div>
@@ -194,7 +194,7 @@ $(document).ready(function(){initNavTree('d6/d1b/quad_8f90_source.html','../../'
 <div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/d32/structquad_1_1quad__t.html">quad_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
 <div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d1/d3b/structtuple_1_1tuple__t.html">tuple_t</a>), <span class="keywordtype">intent(inout)</span> :: t</div>
 <div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: side</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    <span class="keywordtype">type</span>(<a class="code hl_interface" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">pointer</span> :: p1, p2</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">pointer</span> :: p1, p2</div>
 <div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span> </div>
 <div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>    p1 =&gt; this%p(<a class="code hl_variable" href="../../d1/da7/namespacequad.html#a067ac0f9cf6af2df6a1eea2f5ae08b66">edge_nodes</a>(1, side))</div>
 <div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    p2 =&gt; this%p(<a class="code hl_variable" href="../../d1/da7/namespacequad.html#a067ac0f9cf6af2df6a1eea2f5ae08b66">edge_nodes</a>(2, side))</div>
@@ -215,7 +215,7 @@ $(document).ready(function(){initNavTree('d6/d1b/quad_8f90_source.html','../../'
 <div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/d32/structquad_1_1quad__t.html">quad_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
 <div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d1/d3b/structtuple_1_1tuple__t.html">tuple_t</a>), <span class="keywordtype">intent(inout)</span> :: t</div>
 <div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: side</div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>    <span class="keywordtype">type</span>(<a class="code hl_interface" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">pointer</span> :: p1, p2</div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">pointer</span> :: p1, p2</div>
 <div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span> </div>
 <div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>    p1 =&gt; this%p(<a class="code hl_variable" href="../../d1/da7/namespacequad.html#a067ac0f9cf6af2df6a1eea2f5ae08b66">edge_nodes</a>(1, side))</div>
 <div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>    p2 =&gt; this%p(<a class="code hl_variable" href="../../d1/da7/namespacequad.html#a067ac0f9cf6af2df6a1eea2f5ae08b66">edge_nodes</a>(2, side))</div>
@@ -232,7 +232,7 @@ $(document).ready(function(){initNavTree('d6/d1b/quad_8f90_source.html','../../'
 <div class="line"><a id="l00143" name="l00143"></a><span class="lineno"><a class="line" href="../../d1/da7/namespacequad.html#ac16ff4084be511efd869110328b8a595">  143</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../d1/da7/namespacequad.html#ac16ff4084be511efd869110328b8a595">quad_diameter</a>(this) <span class="keyword">result</span>(res)</div>
 <div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/d32/structquad_1_1quad__t.html">quad_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
 <div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aab47a6c4827cb5c6bbd741a44c87e956">dp</a>) :: d1, d2, res</div>
-<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>    <span class="keywordtype">type</span>(<a class="code hl_interface" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">pointer</span> :: p1, p2, p3, p4</div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">pointer</span> :: p1, p2, p3, p4</div>
 <div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>    <span class="keywordtype">integer</span> :: i</div>
 <div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span> </div>
 <div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>    d1 = 0d0</div>
@@ -256,8 +256,8 @@ $(document).ready(function(){initNavTree('d6/d1b/quad_8f90_source.html','../../'
 <div class="foldopen" id="foldopen00167" data-start="" data-end="">
 <div class="line"><a id="l00167" name="l00167"></a><span class="lineno"><a class="line" href="../../d1/da7/namespacequad.html#aff0c11dc2055c5e3445eb99a2b727687">  167</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../d1/da7/namespacequad.html#aff0c11dc2055c5e3445eb99a2b727687">quad_centroid</a>(this) <span class="keyword">result</span>(res)</div>
 <div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/d32/structquad_1_1quad__t.html">quad_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
-<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>    <span class="keywordtype">type</span>(<a class="code hl_interface" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>) :: res</div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>    <span class="keywordtype">type</span>(<a class="code hl_interface" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">pointer</span> :: p1, p2, p3, p4</div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>) :: res</div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">pointer</span> :: p1, p2, p3, p4</div>
 <div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>    <span class="keywordtype">integer</span> :: i</div>
 <div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span> </div>
 <div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>    p1 =&gt; this%p(1)</div>
@@ -325,7 +325,7 @@ $(document).ready(function(){initNavTree('d6/d1b/quad_8f90_source.html','../../'
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_7be0d8c199b9408ae01f5d77515b8def.html">mesh</a></li><li class="navelem"><a class="el" href="../../d6/d1b/quad_8f90.html">quad.f90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

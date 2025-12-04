@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -110,8 +110,8 @@ $(document).ready(function(){initNavTree('d5/d9f/interfacesource__term_1_1source
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:aa2fd54c1be7737c524bfbe763e01b288" id="r_aa2fd54c1be7737c524bfbe763e01b288"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d9f/interfacesource__term_1_1source__term__init.html#aa2fd54c1be7737c524bfbe763e01b288">source_term_init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">json</a>, fields, coef)</td></tr>
-<tr class="separator:aa2fd54c1be7737c524bfbe763e01b288"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1c1dee292e52c4cd84281bdce12558ef" id="r_a1c1dee292e52c4cd84281bdce12558ef"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d9f/interfacesource__term_1_1source__term__init.html#a1c1dee292e52c4cd84281bdce12558ef">source_term_init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, json, fields, coef, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">variable_name</a>)</td></tr>
+<tr class="separator:a1c1dee292e52c4cd84281bdce12558ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><dl class="params"><dt>Parameters</dt><dd>
@@ -119,14 +119,15 @@ Public Member Functions</h2></td></tr>
     <tr><td class="paramname">json</td><td>The JSON object for the source. </td></tr>
     <tr><td class="paramname">fields</td><td>A list of fields for adding the source values. </td></tr>
     <tr><td class="paramname">coef</td><td>The SEM coeffs. </td></tr>
+    <tr><td class="paramname">variable_name</td><td>The name of the variable where the source term acts. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../df/d69/source__term_8f90_source.html#l00082">82</a> of file <a class="el" href="../../df/d69/source__term_8f90_source.html">source_term.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d69/source__term_8f90_source.html#l00085">85</a> of file <a class="el" href="../../df/d69/source__term_8f90_source.html">source_term.f90</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="aa2fd54c1be7737c524bfbe763e01b288" name="aa2fd54c1be7737c524bfbe763e01b288"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa2fd54c1be7737c524bfbe763e01b288">&#9670;&#160;</a></span>source_term_init()</h2>
+<a id="a1c1dee292e52c4cd84281bdce12558ef" name="a1c1dee292e52c4cd84281bdce12558ef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1c1dee292e52c4cd84281bdce12558ef">&#9670;&#160;</a></span>source_term_init()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -149,14 +150,20 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
           <td class="paramname"><em>fields</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
-          <td class="paramname"><em>coef</em>&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramname"><em>coef</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=*), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>variable_name</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -171,7 +178,7 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d69/source__term_8f90_source.html#l00082">82</a> of file <a class="el" href="../../df/d69/source__term_8f90_source.html">source_term.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d69/source__term_8f90_source.html#l00085">85</a> of file <a class="el" href="../../df/d69/source__term_8f90_source.html">source_term.f90</a>.</p>
 
 </div>
 </div>
@@ -184,7 +191,7 @@ Public Member Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../de/de7/namespacesource__term.html">source_term</a></li><li class="navelem"><a class="el" href="../../d5/d9f/interfacesource__term_1_1source__term__init.html">source_term_init</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:53 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

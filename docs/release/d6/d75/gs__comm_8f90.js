@@ -11,5 +11,7 @@ var gs__comm_8f90 =
     [ "init_dofs", "d6/d75/gs__comm_8f90.html#a21f8761e92a47ba0e2644ae2b48aa27d", null ],
     [ "init_order", "d6/d75/gs__comm_8f90.html#a7b6ee6b6c0a37c740f810315fabd6ed7", null ],
     [ "gs_comm_mpi", "d6/d75/gs__comm_8f90.html#a58325561231afe6ed26e5234d5d67f0e", null ],
-    [ "gs_comm_mpigpu", "d6/d75/gs__comm_8f90.html#a393ea0390a10bb91e06c660203f08f82", null ]
+    [ "gs_comm_mpigpu", "d6/d75/gs__comm_8f90.html#a393ea0390a10bb91e06c660203f08f82", null ],
+    [ "gs_comm_nccl", "d6/d75/gs__comm_8f90.html#ae4dccd3f016a80e6d76b6bcc87d3c620", null ],
+    [ "gs_comm_nvshmem", "d6/d75/gs__comm_8f90.html#a8d5f4e7a6bf0a1e4d0d417a0d6e9780b", null ]
 ];

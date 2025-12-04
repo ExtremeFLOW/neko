@@ -1,7 +1,3 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$da/dd4/structfluid__scheme_1_1fluid__scheme__t.html" title="Base type of all fluid formulations." alt="" coords="5,35,149,75"/>
-<area shape="rect" id="Node000001" href="$dc/d90/structfluid__plan1_1_1fluid__plan1__t.html" title=" " alt="" coords="221,5,350,45"/>
-<area shape="poly" id="edge35_Node000000_Node000001" title=" " alt="" coords="163,40,220,32,221,37,164,45"/>
-<area shape="rect" id="Node000002" href="$da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html" title=" " alt="" coords="197,70,373,95"/>
-<area shape="poly" id="edge36_Node000000_Node000002" title=" " alt="" coords="164,64,198,68,197,73,163,69"/>
+<area shape="rect" id="Node000000" href="$d3/db3/interfacedevice__zero__dirichlet_1_1hip__zero__dirichlet__apply__vector.html" title=" " alt="" coords="5,5,165,60"/>
 </map>

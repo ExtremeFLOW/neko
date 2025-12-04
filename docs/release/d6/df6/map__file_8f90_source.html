@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -139,86 +139,92 @@ $(document).ready(function(){initNavTree('d6/df6/map__file_8f90_source.html','..
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="comment">! POSSIBILITY OF SUCH DAMAGE.</span></div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="comment">!</span></div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno"><a class="line" href="../../dc/da2/namespacemap__file.html">   35</a></span><span class="keyword">module</span> <a class="code hl_namespace" href="../../dc/da2/namespacemap__file.html">map_file</a></div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dc/d92/namespacegeneric__file.html">generic_file</a></div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/d84/namespaceutils.html">utils</a></div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d3/d8f/namespacecomm.html">comm</a></div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d3/dca/namespacemap.html">map</a></div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="keywordtype">implicit none</span></div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keywordtype">private</span></div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
-<div class="foldopen" id="foldopen00044" data-start="" data-end="">
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno"><a class="line" href="../../de/d14/structmap__file_1_1map__file__t.html">   44</a></span>  <span class="keyword">type</span>, <span class="keyword">public</span>, <span class="keyword">extends</span>(<a class="code hl_struct" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html">generic_file_t</a>) :: <a class="code hl_struct" href="../../de/d14/structmap__file_1_1map__file__t.html">map_file_t</a></div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>   <span class="keyword">contains</span></div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="../../de/d14/structmap__file_1_1map__file__t.html#a9ed0bb860b9392c5991d57cd707c8cef">   46</a></span>     <span class="keywordtype">procedure</span> :: read =&gt; <a class="code hl_function" href="../../dc/da2/namespacemap__file.html#afc264685c906324d1805e75ac3373146">map_file_read</a></div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno"><a class="line" href="../../de/d14/structmap__file_1_1map__file__t.html#a7df34335029e13601248a2eb336faa6a">   47</a></span>     <span class="keywordtype">procedure</span> :: write =&gt; <a class="code hl_function" href="../../dc/da2/namespacemap__file.html#a138190d047ec14330a32a79dcf7b21b1">map_file_write</a></div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>  <span class="keyword">end type </span><a class="code hl_struct" href="../../de/d14/structmap__file_1_1map__file__t.html">map_file_t</a></div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../df/d48/namespacenum__types.html">num_types</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a></div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dc/d92/namespacegeneric__file.html">generic_file</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html">generic_file_t</a></div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/d84/namespaceutils.html">utils</a>, <span class="keywordtype">only</span> : <a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a></div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d3/d8f/namespacecomm.html">comm</a></div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d3/dca/namespacemap.html">map</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../da/d40/structmap_1_1map__t.html">map_t</a></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keywordtype">implicit none</span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>  <span class="keywordtype">private</span></div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
+<div class="foldopen" id="foldopen00045" data-start="" data-end="">
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno"><a class="line" href="../../de/d14/structmap__file_1_1map__file__t.html">   45</a></span>  <span class="keyword">type</span>, <span class="keyword">public</span>, <span class="keyword">extends</span>(<a class="code hl_struct" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html">generic_file_t</a>) :: <a class="code hl_struct" href="../../de/d14/structmap__file_1_1map__file__t.html">map_file_t</a></div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>   <span class="keyword">contains</span></div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno"><a class="line" href="../../de/d14/structmap__file_1_1map__file__t.html#a9ed0bb860b9392c5991d57cd707c8cef">   47</a></span>     <span class="keywordtype">procedure</span> :: read =&gt; <a class="code hl_function" href="../../dc/da2/namespacemap__file.html#afc264685c906324d1805e75ac3373146">map_file_read</a></div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno"><a class="line" href="../../de/d14/structmap__file_1_1map__file__t.html#a7df34335029e13601248a2eb336faa6a">   48</a></span>     <span class="keywordtype">procedure</span> :: write =&gt; <a class="code hl_function" href="../../dc/da2/namespacemap__file.html#a138190d047ec14330a32a79dcf7b21b1">map_file_write</a></div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>  <span class="keyword">end type </span><a class="code hl_struct" href="../../de/d14/structmap__file_1_1map__file__t.html">map_file_t</a></div>
 </div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span><span class="keyword">contains</span></div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span> </div>
-<div class="foldopen" id="foldopen00053" data-start="" data-end="">
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno"><a class="line" href="../../dc/da2/namespacemap__file.html#afc264685c906324d1805e75ac3373146">   53</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/da2/namespacemap__file.html#afc264685c906324d1805e75ac3373146">map_file_read</a>(this, data)</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../de/d14/structmap__file_1_1map__file__t.html">map_file_t</a>) :: this</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    <span class="keywordtype">class</span>(*), <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: data</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../da/d40/structmap_1_1map__t.html">map_t</a>), <span class="keywordtype">pointer</span> :: nm</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="keywordtype">integer</span> :: j, k, neli, nnzi, ierr</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keyword">call </span>this%check_exists()</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span> </div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keywordflow">select type</span>(data)</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span><span class="keywordflow">    type is</span> (<a class="code hl_struct" href="../../da/d40/structmap_1_1map__t.html">map_t</a>)</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>       nm =&gt; <span class="keyword">data</span></div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span><span class="keywordflow">    class default</span></div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Invalid output data&quot;</span>)</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span><span class="keywordflow">    end select</span></div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span> </div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    <span class="keyword">open</span>(unit=10, <a class="code hl_namespace" href="../../da/d16/namespacefile.html">file</a>=trim(this%fname), status=<span class="stringliteral">&#39;old&#39;</span>, iostat=ierr)</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a3d2f6d5f4a851e20c893da0c24a09c04">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>       <span class="keyword">write</span>(*, <span class="stringliteral">&#39;(A,A)&#39;</span>) <span class="stringliteral">&quot; Reading NEKTON map file &quot;</span>, this%fname</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span> </div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    <span class="keyword">read</span>(10, *) neli, nnzi</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span> </div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="keyword">contains</span></div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
+<div class="foldopen" id="foldopen00054" data-start="" data-end="">
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno"><a class="line" href="../../dc/da2/namespacemap__file.html#afc264685c906324d1805e75ac3373146">   54</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/da2/namespacemap__file.html#afc264685c906324d1805e75ac3373146">map_file_read</a>(this, data)</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../de/d14/structmap__file_1_1map__file__t.html">map_file_t</a>) :: this</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="keywordtype">class</span>(*), <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: data</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../da/d40/structmap_1_1map__t.html">map_t</a>), <span class="keywordtype">pointer</span> :: nm</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    <span class="keywordtype">integer</span> :: j, k, neli, nnzi, ierr</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keywordtype">integer</span> :: file_unit</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="keywordtype">character(len=1024)</span> :: fname</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span> </div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keyword">call </span>this%check_exists()</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="keywordflow">select type</span>(data)</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span><span class="keywordflow">    type is</span> (<a class="code hl_struct" href="../../da/d40/structmap_1_1map__t.html">map_t</a>)</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>       nm =&gt; <span class="keyword">data</span></div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span><span class="keywordflow">    class default</span></div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Invalid output data&quot;</span>)</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span><span class="keywordflow">    end select</span></div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span> </div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    fname = trim(this%get_fname())</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    <span class="keyword">open</span>(newunit=file_unit, <a class="code hl_namespace" href="../../da/d16/namespacefile.html">file</a>=fname, status=<span class="stringliteral">&#39;old&#39;</span>, iostat=ierr)</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>       <span class="keyword">write</span>(*, <span class="stringliteral">&#39;(A,A)&#39;</span>) <span class="stringliteral">&quot; Reading NEKTON map file &quot;</span>, trim(fname)</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span> </div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>    <span class="keywordflow">do</span> j = 1, nm%nel</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>       <span class="keyword">read</span>(10, *) nm%imap(j),(nm%vertex(k, j), k=1,nm%nlv)</div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>    <span class="keyword">read</span>(file_unit, *) neli, nnzi</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span> </div>
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span> </div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    <span class="keyword">close</span>(unit=10)</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span> </div>
-</div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/da2/namespacemap__file.html#afc264685c906324d1805e75ac3373146">map_file_read</a></div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    <span class="keywordflow">do</span> j = 1, nm%nel</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>       <span class="keyword">read</span>(file_unit, *) nm%imap(j),(nm%vertex(k, j), k=1,nm%nlv)</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span> </div>
-<div class="foldopen" id="foldopen00085" data-start="" data-end="">
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno"><a class="line" href="../../dc/da2/namespacemap__file.html#a138190d047ec14330a32a79dcf7b21b1">   85</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/da2/namespacemap__file.html#a138190d047ec14330a32a79dcf7b21b1">map_file_write</a>(this, data, t)</div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../de/d14/structmap__file_1_1map__file__t.html">map_file_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>    <span class="keywordtype">class</span>(*), <span class="keywordtype">target</span>, <span class="keywordtype">intent(in)</span> :: data</div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: t</div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Not implemented yet!&quot;</span>)</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>    <span class="keyword">close</span>(unit=file_unit)</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span> </div>
 </div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/da2/namespacemap__file.html#a138190d047ec14330a32a79dcf7b21b1">map_file_write</a></div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span> </div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dc/da2/namespacemap__file.html">map_file</a></div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/da2/namespacemap__file.html#afc264685c906324d1805e75ac3373146">map_file_read</a></div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span> </div>
+<div class="foldopen" id="foldopen00089" data-start="" data-end="">
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno"><a class="line" href="../../dc/da2/namespacemap__file.html#a138190d047ec14330a32a79dcf7b21b1">   89</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/da2/namespacemap__file.html#a138190d047ec14330a32a79dcf7b21b1">map_file_write</a>(this, data, t)</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../de/d14/structmap__file_1_1map__file__t.html">map_file_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>    <span class="keywordtype">class</span>(*), <span class="keywordtype">target</span>, <span class="keywordtype">intent(in)</span> :: data</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: t</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Not implemented yet!&quot;</span>)</div>
+</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/da2/namespacemap__file.html#a138190d047ec14330a32a79dcf7b21b1">map_file_write</a></div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span> </div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dc/da2/namespacemap__file.html">map_file</a></div>
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00042">utils.f90:42</a></div></div>
 <div class="ttc" id="anamespacecomm_html"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html">comm</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00001">comm.F90:1</a></div></div>
-<div class="ttc" id="anamespacecomm_html_a3d2f6d5f4a851e20c893da0c24a09c04"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a3d2f6d5f4a851e20c893da0c24a09c04">comm::pe_rank</a></div><div class="ttdeci">integer pe_rank</div><div class="ttdoc">MPI rank.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00028">comm.F90:28</a></div></div>
+<div class="ttc" id="anamespacecomm_html_a5d73a7756860779f8bbc7e2eecf5fdde"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">comm::pe_rank</a></div><div class="ttdeci">integer, public pe_rank</div><div class="ttdoc">MPI rank.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00056">comm.F90:56</a></div></div>
 <div class="ttc" id="anamespacefile_html"><div class="ttname"><a href="../../da/d16/namespacefile.html">file</a></div><div class="ttdoc">Module for file I/O operations.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d96/file_8f90_source.html#l00034">file.f90:34</a></div></div>
 <div class="ttc" id="anamespacegeneric__file_html"><div class="ttname"><a href="../../dc/d92/namespacegeneric__file.html">generic_file</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/d26/generic__file_8f90_source.html#l00033">generic_file.f90:33</a></div></div>
 <div class="ttc" id="anamespacemap__file_html"><div class="ttname"><a href="../../dc/da2/namespacemap__file.html">map_file</a></div><div class="ttdoc">NEKTON map file.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/df6/map__file_8f90_source.html#l00035">map_file.f90:35</a></div></div>
-<div class="ttc" id="anamespacemap__file_html_a138190d047ec14330a32a79dcf7b21b1"><div class="ttname"><a href="../../dc/da2/namespacemap__file.html#a138190d047ec14330a32a79dcf7b21b1">map_file::map_file_write</a></div><div class="ttdeci">subroutine map_file_write(this, data, t)</div><div class="ttdef"><b>Definition</b> <a href="../../d6/df6/map__file_8f90_source.html#l00085">map_file.f90:86</a></div></div>
-<div class="ttc" id="anamespacemap__file_html_afc264685c906324d1805e75ac3373146"><div class="ttname"><a href="../../dc/da2/namespacemap__file.html#afc264685c906324d1805e75ac3373146">map_file::map_file_read</a></div><div class="ttdeci">subroutine map_file_read(this, data)</div><div class="ttdoc">Load NEKTON map file.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/df6/map__file_8f90_source.html#l00053">map_file.f90:54</a></div></div>
+<div class="ttc" id="anamespacemap__file_html_a138190d047ec14330a32a79dcf7b21b1"><div class="ttname"><a href="../../dc/da2/namespacemap__file.html#a138190d047ec14330a32a79dcf7b21b1">map_file::map_file_write</a></div><div class="ttdeci">subroutine map_file_write(this, data, t)</div><div class="ttdef"><b>Definition</b> <a href="../../d6/df6/map__file_8f90_source.html#l00089">map_file.f90:90</a></div></div>
+<div class="ttc" id="anamespacemap__file_html_afc264685c906324d1805e75ac3373146"><div class="ttname"><a href="../../dc/da2/namespacemap__file.html#afc264685c906324d1805e75ac3373146">map_file::map_file_read</a></div><div class="ttdeci">subroutine map_file_read(this, data)</div><div class="ttdoc">Load NEKTON map file.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/df6/map__file_8f90_source.html#l00054">map_file.f90:55</a></div></div>
 <div class="ttc" id="anamespacemap_html"><div class="ttname"><a href="../../d3/dca/namespacemap.html">map</a></div><div class="ttdoc">NEKTON map.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/dd0/map_8f90_source.html#l00003">map.f90:3</a></div></div>
+<div class="ttc" id="anamespacenum__types_html"><div class="ttname"><a href="../../df/d48/namespacenum__types.html">num_types</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00001">num_types.f90:1</a></div></div>
+<div class="ttc" id="anamespacenum__types_html_ae2be59b6de7b874ce5c12fd87f9e8b5e"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">num_types::rp</a></div><div class="ttdeci">integer, parameter, public rp</div><div class="ttdoc">Global precision used in computations.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00012">num_types.f90:12</a></div></div>
 <div class="ttc" id="anamespaceutils_html"><div class="ttname"><a href="../../d6/d84/namespaceutils.html">utils</a></div><div class="ttdoc">Utilities.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00035">utils.f90:35</a></div></div>
-<div class="ttc" id="astructgeneric__file_1_1generic__file__t_html"><div class="ttname"><a href="../../d5/d37/structgeneric__file_1_1generic__file__t.html">generic_file::generic_file_t</a></div><div class="ttdoc">A generic file handler.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d26/generic__file_8f90_source.html#l00038">generic_file.f90:38</a></div></div>
+<div class="ttc" id="astructgeneric__file_1_1generic__file__t_html"><div class="ttname"><a href="../../d5/d37/structgeneric__file_1_1generic__file__t.html">generic_file::generic_file_t</a></div><div class="ttdoc">A generic file handler.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d26/generic__file_8f90_source.html#l00042">generic_file.f90:42</a></div></div>
 <div class="ttc" id="astructmap_1_1map__t_html"><div class="ttname"><a href="../../da/d40/structmap_1_1map__t.html">map::map_t</a></div><div class="ttdoc">NEKTON vertex mapping.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/dd0/map_8f90_source.html#l00008">map.f90:8</a></div></div>
-<div class="ttc" id="astructmap__file_1_1map__file__t_html"><div class="ttname"><a href="../../de/d14/structmap__file_1_1map__file__t.html">map_file::map_file_t</a></div><div class="ttdoc">Interface for NEKTON map files.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/df6/map__file_8f90_source.html#l00044">map_file.f90:44</a></div></div>
+<div class="ttc" id="astructmap__file_1_1map__file__t_html"><div class="ttname"><a href="../../de/d14/structmap__file_1_1map__file__t.html">map_file::map_file_t</a></div><div class="ttdoc">Interface for NEKTON map files.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/df6/map__file_8f90_source.html#l00045">map_file.f90:45</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_c184e51c84f2c3f0345bbc8a0d75d3e1.html">io</a></li><li class="navelem"><a class="el" href="../../d6/df6/map__file_8f90.html">map_file.f90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -109,7 +109,7 @@ $(document).ready(function(){initNavTree('d2/df1/fdm__cpu_8f90_source.html','../
 <a href="../../d2/df1/fdm__cpu_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span> </div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno"><a class="line" href="../../da/db7/namespacefdm__cpu.html">    2</a></span><span class="keyword">module</span> <a class="code hl_namespace" href="../../da/db7/namespacefdm__cpu.html">fdm_cpu</a></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../df/d48/namespacenum__types.html">num_types</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a></div>
-<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d4/d59/namespacetensor__cpu.html">tensor_cpu</a></div>
+<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d4/d59/namespacetensor__cpu.html">tensor_cpu</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../d4/d59/namespacetensor__cpu.html#acc19954200ae575492692c19bba2a7c3">tnsr2d_el_cpu</a>, <a class="code hl_function" href="../../d4/d59/namespacetensor__cpu.html#ad676f5ad81cd24008b8e0433bb237361">tnsr3d_el_cpu</a></div>
 <div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span>  <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span>  <span class="keywordtype">private</span></div>
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span> </div>
@@ -124,7 +124,7 @@ $(document).ready(function(){initNavTree('d2/df1/fdm__cpu_8f90_source.html','../
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: r(nl**ldim, nelv)</div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: s(nl*nl,2,ldim, nelv)</div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: d(nl**ldim, nelv)</div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>    <span class="keywordtype">integer</span> ::  ie, nn, i</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>    <span class="keywordtype">integer</span> :: ie, nn, i</div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>    nn = nl**ldim</div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>    <span class="keywordflow">if</span>(.not. ldim .eq. 3) <span class="keywordflow">then</span></div>
@@ -163,7 +163,7 @@ $(document).ready(function(){initNavTree('d2/df1/fdm__cpu_8f90_source.html','../
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_a1c99f91a79f7bf548f96fca73db34ee.html">cpu</a></li><li class="navelem"><a class="el" href="../../d2/df1/fdm__cpu_8f90.html">fdm_cpu.f90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

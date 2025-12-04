@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -145,88 +145,100 @@ $(document).ready(function(){initNavTree('da/d60/advection__fctry_8f90_source.ht
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d9/df7/namespaceadv__dealias.html">adv_dealias</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../db/dde/structadv__dealias_1_1adv__dealias__t.html">adv_dealias_t</a></div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d9/de3/namespaceadv__no__dealias.html">adv_no_dealias</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d9/dd0/structadv__no__dealias_1_1adv__no__dealias__t.html">adv_no_dealias_t</a></div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/d97/namespaceadv__oifs.html">adv_oifs</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d0/d27/structadv__oifs_1_1adv__oifs__t.html">adv_oifs_t</a></div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d9/d9b/namespaceadv__dummy.html">adv_dummy</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../dd/dc4/structadv__dummy_1_1adv__dummy__t.html">adv_dummy_t</a></div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="keyword">contains</span></div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>  <span class="keyword">module</span> subroutine advection_factory(object, json, coef, ulag, vlag, wlag, &amp;</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>                               dtlag, tlag, <a class="code hl_namespace" href="../../dd/d54/namespacetime__scheme.html">time_scheme</a>, slag)</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    <span class="keywordtype">class</span>(advection_t), <span class="keywordtype">allocatable</span>, <span class="keywordtype">intent(inout)</span> :: object</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keywordtype">type</span>(json_file), <span class="keywordtype">intent(inout)</span> :: json</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">target</span> :: coef</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keywordtype">type</span>(field_series_t), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">target</span> :: ulag, vlag, wlag</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">target</span> :: dtlag(10)</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">target</span> :: tlag(10)</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="keywordtype">type</span>(time_scheme_controller_t), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">target</span> :: time_scheme</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    <span class="keywordtype">type</span>(field_series_t), <span class="keywordtype">target</span>, <span class="keywordtype">optional</span> :: slag</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span> </div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    <span class="keywordtype">logical</span> :: dealias, oifs</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span><span class="keywordtype">    real</span>(kind=rp) :: ctarget</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    <span class="keywordtype">integer</span> :: lxd, order</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="keyword">contains</span></div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>  <span class="keyword">module</span> subroutine advection_factory(object, json, coef, ulag, vlag, wlag, &amp;</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>       dtlag, tlag, <a class="code hl_namespace" href="../../dd/d54/namespacetime__scheme.html">time_scheme</a>, use_dummy, slag)</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keywordtype">class</span>(advection_t), <span class="keywordtype">allocatable</span>, <span class="keywordtype">intent(inout)</span> :: object</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keywordtype">type</span>(json_file), <span class="keywordtype">intent(inout)</span> :: json</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">target</span> :: coef</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="keywordtype">type</span>(field_series_t), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">target</span> :: ulag, vlag, wlag</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">target</span> :: dtlag(10)</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">target</span> :: tlag(10)</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    <span class="keywordtype">type</span>(time_scheme_controller_t), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">target</span> :: time_scheme</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">optional</span>, <span class="keywordtype">intent(in)</span> :: use_dummy</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    <span class="keywordtype">type</span>(field_series_t), <span class="keywordtype">target</span>, <span class="keywordtype">optional</span>, <span class="keywordtype">intent(in)</span> :: slag</div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span> </div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    <span class="comment">! Read the parameters from the json file</span></div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_get</a>(json, <span class="stringliteral">&#39;case.numerics.dealias&#39;</span>, dealias)</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_get</a>(json, <span class="stringliteral">&#39;case.numerics.polynomial_order&#39;</span>, order)</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_get_or_default</a>(json, <span class="stringliteral">&#39;case.numerics.oifs&#39;</span>, oifs, .false.)</div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span> </div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_get_or_default</a>(json, <span class="stringliteral">&#39;case.numerics.dealiased_polynomial_order&#39;</span>, &amp;</div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>                             lxd, ( 3 * (order + 1) ) / 2)</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span> </div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_get_or_default</a>(json, <span class="stringliteral">&#39;case.numerics.target_cfl&#39;</span>, ctarget, 1.9_rp)</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    <span class="keywordtype">logical</span> :: dealias, oifs</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span><span class="keywordtype">    real</span>(kind=rp) :: ctarget</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    <span class="keywordtype">integer</span> :: lxd, order</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span> </div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>    <span class="comment">! Free allocatables if necessary</span></div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(object)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>       <span class="keyword">call </span>object%free</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>       <span class="keyword">deallocate</span>(object)</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span> </div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    <span class="comment">! Free allocatables if necessary</span></div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(object)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>       <span class="keyword">call </span>object%free</div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>       <span class="keyword">deallocate</span>(object)</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span> </div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>    <span class="keywordflow">if</span> (oifs) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>      <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../d0/d27/structadv__oifs_1_1adv__oifs__t.html">adv_oifs_t</a>::object)</div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>      <span class="keywordflow">if</span> (dealias) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>         <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../db/dde/structadv__dealias_1_1adv__dealias__t.html">adv_dealias_t</a>::object)</div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>      <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>         <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../d9/dd0/structadv__no__dealias_1_1adv__no__dealias__t.html">adv_no_dealias_t</a>::object)</div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span><span class="keywordflow">      end if</span></div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span> </div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    <span class="keywordflow">select type</span> (adv =&gt; object)</div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span><span class="keywordflow">      type is</span> (<a class="code hl_struct" href="../../db/dde/structadv__dealias_1_1adv__dealias__t.html">adv_dealias_t</a>)</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>       <span class="keyword">call </span>adv%init(lxd, coef)</div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span><span class="keywordflow">      type is</span> (<a class="code hl_struct" href="../../d9/dd0/structadv__no__dealias_1_1adv__no__dealias__t.html">adv_no_dealias_t</a>)</div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>       <span class="keyword">call </span>adv%init(coef)</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span><span class="keywordflow">      type is</span> (<a class="code hl_struct" href="../../d0/d27/structadv__oifs_1_1adv__oifs__t.html">adv_oifs_t</a>)</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>       <span class="keywordflow">if</span> (<span class="keyword">present</span>(slag)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>          <span class="keyword">call </span>adv%init(lxd, coef, ctarget, ulag, vlag, wlag, &amp;</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>                        dtlag, tlag, <a class="code hl_namespace" href="../../dd/d54/namespacetime__scheme.html">time_scheme</a>, slag)</div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>       <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>          <span class="keyword">call </span>adv%init(lxd, coef, ctarget, ulag, vlag, wlag, &amp;</div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>                        dtlag, tlag, <a class="code hl_namespace" href="../../dd/d54/namespacetime__scheme.html">time_scheme</a>)</div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span><span class="keywordflow">    end select</span></div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span> </div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>  <span class="keyword">end subroutine </span>advection_factory</div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span> </div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span> </div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span><span class="keyword">end </span>submodule advection_fctry</div>
-<div class="ttc" id="ainterfacejson__utils_1_1json__get__or__default_html"><div class="ttname"><a href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_utils::json_get_or_default</a></div><div class="ttdoc">Retrieves a parameter by name or assigns a provided default value. In the latter case also adds the m...</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00054">json_utils.f90:54</a></div></div>
-<div class="ttc" id="ainterfacejson__utils_1_1json__get_html"><div class="ttname"><a href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_utils::json_get</a></div><div class="ttdoc">Retrieves a parameter by name or throws an error.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00045">json_utils.f90:45</a></div></div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(use_dummy)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>       <span class="keywordflow">if</span> (use_dummy .eqv. .true.) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>          <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../dd/dc4/structadv__dummy_1_1adv__dummy__t.html">adv_dummy_t</a>::object)</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>          <span class="keywordflow">return</span></div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span> </div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    <span class="comment">! Read the parameters from the json file</span></div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_get</a>(json, <span class="stringliteral">&#39;dealias&#39;</span>, dealias)</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_get</a>(json, <span class="stringliteral">&#39;polynomial_order&#39;</span>, order)</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_get_or_default</a>(json, <span class="stringliteral">&#39;oifs&#39;</span>, oifs, .false.)</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span> </div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_get_or_default</a>(json, <span class="stringliteral">&#39;dealiased_polynomial_order&#39;</span>, &amp;</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>         lxd, ( 3 * (order + 1) ) / 2)</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span> </div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_get_or_default</a>(json, <span class="stringliteral">&#39;oifs_target_cfl&#39;</span>, ctarget, 1.9_rp)</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span> </div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span> </div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    <span class="keywordflow">if</span> (oifs) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>       <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../d0/d27/structadv__oifs_1_1adv__oifs__t.html">adv_oifs_t</a>::object)</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>       <span class="keywordflow">if</span> (dealias) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>          <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../db/dde/structadv__dealias_1_1adv__dealias__t.html">adv_dealias_t</a>::object)</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>       <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>          <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../d9/dd0/structadv__no__dealias_1_1adv__no__dealias__t.html">adv_no_dealias_t</a>::object)</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span> </div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    <span class="keywordflow">select type</span> (adv =&gt; object)</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span><span class="keywordflow">    type is</span> (<a class="code hl_struct" href="../../db/dde/structadv__dealias_1_1adv__dealias__t.html">adv_dealias_t</a>)</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>       <span class="keyword">call </span>adv%init(lxd, coef)</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span><span class="keywordflow">    type is</span> (<a class="code hl_struct" href="../../d9/dd0/structadv__no__dealias_1_1adv__no__dealias__t.html">adv_no_dealias_t</a>)</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>       <span class="keyword">call </span>adv%init(coef)</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span><span class="keywordflow">    type is</span> (<a class="code hl_struct" href="../../d0/d27/structadv__oifs_1_1adv__oifs__t.html">adv_oifs_t</a>)</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>       <span class="keywordflow">if</span> (<span class="keyword">present</span>(slag)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>          <span class="keyword">call </span>adv%init(lxd, coef, ctarget, ulag, vlag, wlag, &amp;</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>               dtlag, tlag, <a class="code hl_namespace" href="../../dd/d54/namespacetime__scheme.html">time_scheme</a>, slag)</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>       <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>          <span class="keyword">call </span>adv%init(lxd, coef, ctarget, ulag, vlag, wlag, &amp;</div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>               dtlag, tlag, <a class="code hl_namespace" href="../../dd/d54/namespacetime__scheme.html">time_scheme</a>)</div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span><span class="keywordflow">    end select</span></div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span> </div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>  <span class="keyword">end subroutine </span>advection_factory</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span> </div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span> </div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span><span class="keyword">end </span>submodule advection_fctry</div>
+<div class="ttc" id="ainterfacejson__utils_1_1json__get__or__default_html"><div class="ttname"><a href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_utils::json_get_or_default</a></div><div class="ttdoc">Retrieves a parameter by name or assigns a provided default value. In the latter case also adds the m...</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00057">json_utils.f90:57</a></div></div>
+<div class="ttc" id="ainterfacejson__utils_1_1json__get_html"><div class="ttname"><a href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_utils::json_get</a></div><div class="ttdoc">Retrieves a parameter by name or throws an error.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00048">json_utils.f90:48</a></div></div>
 <div class="ttc" id="anamespaceadv__dealias_html"><div class="ttname"><a href="../../d9/df7/namespaceadv__dealias.html">adv_dealias</a></div><div class="ttdoc">Subroutines to add advection terms to the RHS of a transport equation.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/dbb/adv__dealias_8f90_source.html#l00034">adv_dealias.f90:34</a></div></div>
+<div class="ttc" id="anamespaceadv__dummy_html"><div class="ttname"><a href="../../d9/d9b/namespaceadv__dummy.html">adv_dummy</a></div><div class="ttdoc">Implements adv_dummy_t</div><div class="ttdef"><b>Definition</b> <a href="../../de/d3c/adv__dummy_8f90_source.html#l00034">adv_dummy.f90:34</a></div></div>
 <div class="ttc" id="anamespaceadv__no__dealias_html"><div class="ttname"><a href="../../d9/de3/namespaceadv__no__dealias.html">adv_no_dealias</a></div><div class="ttdoc">Subroutines to add advection terms to the RHS of a transport equation.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/de5/adv__no__dealias_8f90_source.html#l00034">adv_no_dealias.f90:34</a></div></div>
 <div class="ttc" id="anamespaceadv__oifs_html"><div class="ttname"><a href="../../dd/d97/namespaceadv__oifs.html">adv_oifs</a></div><div class="ttdoc">Subroutines to add advection terms to the RHS of a transport equation.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/dda/adv__oifs_8f90_source.html#l00034">adv_oifs.f90:34</a></div></div>
 <div class="ttc" id="anamespaceadvection_html"><div class="ttname"><a href="../../d3/d69/namespaceadvection.html">advection</a></div><div class="ttdoc">Subroutines to add advection terms to the RHS of a transport equation.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d71/advection_8f90_source.html#l00034">advection.f90:34</a></div></div>
 <div class="ttc" id="anamespacejson__utils_html"><div class="ttname"><a href="../../d8/da8/namespacejson__utils.html">json_utils</a></div><div class="ttdoc">Utilities for retrieving parameters from the case files.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00034">json_utils.f90:34</a></div></div>
 <div class="ttc" id="anamespacetime__scheme_html"><div class="ttname"><a href="../../dd/d54/namespacetime__scheme.html">time_scheme</a></div><div class="ttdoc">Base class for time integration schemes.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/dcb/time__scheme_8f90_source.html#l00061">time_scheme.f90:61</a></div></div>
 <div class="ttc" id="astructadv__dealias_1_1adv__dealias__t_html"><div class="ttname"><a href="../../db/dde/structadv__dealias_1_1adv__dealias__t.html">adv_dealias::adv_dealias_t</a></div><div class="ttdoc">Type encapsulating advection routines with dealiasing.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/dbb/adv__dealias_8f90_source.html#l00052">adv_dealias.f90:52</a></div></div>
+<div class="ttc" id="astructadv__dummy_1_1adv__dummy__t_html"><div class="ttname"><a href="../../dd/dc4/structadv__dummy_1_1adv__dummy__t.html">adv_dummy::adv_dummy_t</a></div><div class="ttdoc">A zero-valued advection that can be used to kill the advection term.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d3c/adv__dummy_8f90_source.html#l00044">adv_dummy.f90:44</a></div></div>
 <div class="ttc" id="astructadv__no__dealias_1_1adv__no__dealias__t_html"><div class="ttname"><a href="../../d9/dd0/structadv__no__dealias_1_1adv__no__dealias__t.html">adv_no_dealias::adv_no_dealias_t</a></div><div class="ttdoc">Type encapsulating advection routines with no dealiasing applied.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/de5/adv__no__dealias_8f90_source.html#l00050">adv_no_dealias.f90:50</a></div></div>
-<div class="ttc" id="astructadv__oifs_1_1adv__oifs__t_html"><div class="ttname"><a href="../../d0/d27/structadv__oifs_1_1adv__oifs__t.html">adv_oifs::adv_oifs_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d4/dda/adv__oifs_8f90_source.html#l00058">adv_oifs.f90:58</a></div></div>
+<div class="ttc" id="astructadv__oifs_1_1adv__oifs__t_html"><div class="ttname"><a href="../../d0/d27/structadv__oifs_1_1adv__oifs__t.html">adv_oifs::adv_oifs_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d4/dda/adv__oifs_8f90_source.html#l00060">adv_oifs.f90:60</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_48eb729a40134e424c89304faa5c21a9.html">fluid</a></li><li class="navelem"><a class="el" href="../../da/d60/advection__fctry_8f90.html">advection_fctry.f90</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -2,7 +2,9 @@ var rough__log__law_8f90 =
 [
     [ "rough_log_law::rough_log_law_t", "df/d21/structrough__log__law_1_1rough__log__law__t.html", "df/d21/structrough__log__law_1_1rough__log__law__t" ],
     [ "rough_log_law_compute", "dd/d49/rough__log__law_8f90.html#af4bdad1f2c2574505332afd9ccbbfa95", null ],
+    [ "rough_log_law_finalize", "dd/d49/rough__log__law_8f90.html#a1a5be2add3e924c64754193b407ae8ab", null ],
     [ "rough_log_law_free", "dd/d49/rough__log__law_8f90.html#ae29300fe4fa273d06b1b37ba44820735", null ],
-    [ "rough_log_law_init", "dd/d49/rough__log__law_8f90.html#acd8e1540cc6f17ba4698e68217d2cb9d", null ],
-    [ "rough_log_law_init_from_components", "dd/d49/rough__log__law_8f90.html#a5a1c388b18a9abc30b4a81c87d679b6c", null ]
+    [ "rough_log_law_init", "dd/d49/rough__log__law_8f90.html#a949bad166e56693107fc15c8efae6c52", null ],
+    [ "rough_log_law_init_from_components", "dd/d49/rough__log__law_8f90.html#a166600919e34555e27e71c800c33c7f7", null ],
+    [ "rough_log_law_partial_init", "dd/d49/rough__log__law_8f90.html#aa8753c1ba21f364ec913de47162e69ee", null ]
 ];

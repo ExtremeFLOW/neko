@@ -1,8 +1,8 @@
 <map id="adv_dealias::compute_advection_dealias" name="adv_dealias::compute_advection_dealias">
 <area shape="rect" id="Node000001" title="Add the advection term for the fluid, i.e. , to the RHS." alt="" coords="5,113,171,153"/>
-<area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#ae733f8b62f2410dae4188a682fe74fb8" title="Vector substraction ." alt="" coords="219,5,413,31"/>
+<area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#a7eb32013433f33a89a83e9668d2bdf42" title="Vector substraction ." alt="" coords="219,5,413,31"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="111,110,159,75,218,41,240,32,242,37,220,46,162,79,115,115"/>
-<area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#a62afd65bc6fb07e354fde87dad4d7c8c" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="237,55,395,95"/>
+<area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#a6c3ea57885e144ac36cab4fefde393d7" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="237,55,395,95"/>
 <area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="167,110,223,96,224,101,169,115"/>
 <area shape="rect" id="Node000004" href="$dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84" title="Compute the weak gradient of a scalar field, i.e. the gradient multiplied by the mass matrix." alt="" coords="247,120,385,145"/>
 <area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="171,130,233,130,233,135,171,135"/>

@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;0.9.1</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -105,7 +105,7 @@ $(document).ready(function(){initNavTree('d8/db4/interfacegs__comm_1_1gs__comm__
 </div><!--header-->
 <div class="contents">
 
-<p>Abstract interface for initialising a Gather-scatter communication method.  
+<p>Abstract interface for initializing a Gather-scatter communication method.  
  <a href="../../d8/db4/interfacegs__comm_1_1gs__comm__init.html#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
@@ -114,8 +114,15 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a74b1eedc577589e564bf0f86c6936349"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00064">64</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<div class="textblock"><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">send_pe,stack</td><td>of ranks this process will send messages to </td></tr>
+    <tr><td class="paramname">recv_pe,stack</td><td>of ranks this process will receive messages from </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00074">74</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a74b1eedc577589e564bf0f86c6936349" name="a74b1eedc577589e564bf0f86c6936349"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a74b1eedc577589e564bf0f86c6936349">&#9670;&#160;</a></span>gs_comm_init()</h2>
@@ -157,7 +164,7 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00064">64</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d75/gs__comm_8f90_source.html#l00074">74</a> of file <a class="el" href="../../d6/d75/gs__comm_8f90_source.html">gs_comm.f90</a>.</p>
 
 </div>
 </div>
@@ -170,7 +177,7 @@ Public Member Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d6/d7c/namespacegs__comm.html">gs_comm</a></li><li class="navelem"><a class="el" href="../../d8/db4/interfacegs__comm_1_1gs__comm__init.html">gs_comm_init</a></li>
-    <li class="footer">Generated on Sun Dec 29 2024 14:19:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 20:51:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
