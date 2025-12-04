@@ -7,6 +7,7 @@ layout: default
 [![GNU](https://github.com/ExtremeFLOW/neko/actions/workflows/check_gnu.yml/badge.svg?branch=develop)](https://github.com/ExtremeFLOW/neko/actions/workflows/check_gnu.yml)
 [![Intel](https://github.com/ExtremeFLOW/neko/actions/workflows/check_intel.yml/badge.svg?branch=develop)](https://github.com/ExtremeFLOW/neko/actions/workflows/check_intel.yml)
 [![Nvidia](https://github.com/ExtremeFLOW/neko/actions/workflows/check_nvidia.yml/badge.svg?branch=develop)](https://github.com/ExtremeFLOW/neko/actions/workflows/check_nvidia.yml)
+[![Test-suite](https://gitlab.com/ExtremeFLOW/neko-test-suite/badges/master/pipeline.svg?job=karma&key_text=Test+suite&key_width=64)](https://gitlab.com/ExtremeFLOW/neko-test-suite/-/pipelines/latest)
 
 ## About
 
