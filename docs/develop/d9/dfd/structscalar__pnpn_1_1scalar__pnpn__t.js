@@ -29,6 +29,7 @@ var structscalar__pnpn_1_1scalar__pnpn__t =
     [ "dm_xh", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#a105b73e1270a07f079e156d2fc498e87", null ],
     [ "ds", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#ac1b97ce971bcbc1475c9b924ce7951fc", null ],
     [ "f_xh", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#ad8c9591c6e270bb7c4be3c97cb9573c4", null ],
+    [ "freeze", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#a902d16198ae1b17b2e8b26ce2a0f566a", null ],
     [ "gs_xh", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#aa3537cc65eb2a69e010a2396a745c215", null ],
     [ "ksp", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#a0ce7093688cf35d0ec72056afca365b9", null ],
     [ "ksp_maxiter", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html#a26b6e9eed22364790269b6cdb97c6701", null ],

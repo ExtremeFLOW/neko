@@ -1,3 +1,13 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$d3/d58/interfaceles__model_1_1les__model__init.html" title="Common constructor." alt="" coords="5,5,197,31"/>
+<area shape="rect" id="Node000000" href="$df/d6c/structles__model_1_1les__model__t.html" title="Base abstract type for LES models based on the Boussinesq approximation." alt="" coords="5,119,181,145"/>
+<area shape="rect" id="Node000001" href="$d1/dcc/structdynamic__smagorinsky_1_1dynamic__smagorinsky__t.html" title="Implements the dynamic Smagorinsky LES model." alt="" coords="239,5,427,45"/>
+<area shape="poly" id="edge98_Node000000_Node000001" title=" " alt="" coords="125,110,173,82,228,55,260,43,262,48,230,60,175,87,128,114"/>
+<area shape="rect" id="Node000002" href="$d2/dae/structsigma_1_1sigma__t.html" title="Implements the Sigma LES model." alt="" coords="271,70,394,95"/>
+<area shape="poly" id="edge99_Node000000_Node000002" title=" " alt="" coords="168,114,270,93,272,98,169,119"/>
+<area shape="rect" id="Node000003" href="$d7/d8f/structsmagorinsky_1_1smagorinsky__t.html" title="Implements the smagorinsky LES model." alt="" coords="229,119,436,145"/>
+<area shape="poly" id="edge100_Node000000_Node000003" title=" " alt="" coords="195,129,229,129,229,135,195,135"/>
+<area shape="rect" id="Node000004" href="$de/d91/structvreman_1_1vreman__t.html" title="Implements the Vreman LES model." alt="" coords="261,169,404,194"/>
+<area shape="poly" id="edge101_Node000000_Node000004" title=" " alt="" coords="169,145,271,166,270,171,168,150"/>
+<area shape="rect" id="Node000005" href="$db/d6d/structwale_1_1wale__t.html" title="Implements the Wale LES model." alt="" coords="281,218,385,243"/>
+<area shape="poly" id="edge102_Node000000_Node000005" title=" " alt="" coords="127,150,175,177,230,203,281,218,279,223,228,208,173,182,125,154"/>
 </map>

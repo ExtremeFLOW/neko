@@ -16,6 +16,7 @@ var structscalar__scheme_1_1scalar__scheme__t =
     [ "cp", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a1f0cd7c1c638900e15d9d4a428455365", null ],
     [ "dm_xh", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a105b73e1270a07f079e156d2fc498e87", null ],
     [ "f_xh", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#ad8c9591c6e270bb7c4be3c97cb9573c4", null ],
+    [ "freeze", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a902d16198ae1b17b2e8b26ce2a0f566a", null ],
     [ "gs_xh", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#aa3537cc65eb2a69e010a2396a745c215", null ],
     [ "ksp", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a0ce7093688cf35d0ec72056afca365b9", null ],
     [ "ksp_maxiter", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a26b6e9eed22364790269b6cdb97c6701", null ],

@@ -271,18 +271,16 @@ Boundary type numbering in the "output_boundary" field</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">symmetry   </td><td class="markdownTableBodyNone">4    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">user_velocity_pointwise   </td><td class="markdownTableBodyNone">5    </td></tr>
-<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">periodic   </td><td class="markdownTableBodyNone">6    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">user_velocity   </td><td class="markdownTableBodyNone">7    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">user_pressure   </td><td class="markdownTableBodyNone">8    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><a class="el" href="../../da/dea/namespaceshear__stress.html" title="Defines a shear stress boundary condition for a vector field. Maintainer: Timofey Mukha.">shear_stress</a>   </td><td class="markdownTableBodyNone">9    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><a class="el" href="../../da/ddd/namespacewall__model.html" title="Implements wall_model_t.">wall_model</a>   </td><td class="markdownTableBodyNone">10    </td></tr>
+<td class="markdownTableBodyNone"><a class="el" href="../../da/dea/namespaceshear__stress.html" title="Defines a shear stress boundary condition for a vector field. Maintainer: Timofey Mukha.">shear_stress</a>   </td><td class="markdownTableBodyNone">9    </td></tr>
 <tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><a class="el" href="../../da/ddd/namespacewall__model.html" title="Implements wall_model_t.">wall_model</a>   </td><td class="markdownTableBodyNone">10    </td></tr>
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">blasius_profile   </td><td class="markdownTableBodyNone">11   </td></tr>
 </table>
 <p>For a description of the boundary conditions themselves, see below.</p>
@@ -361,9 +359,7 @@ Available conditions</h3>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">user_velocity   </td><td class="markdownTableBodyNone">The <code>field_dirichlet_vector_t</code> user-defined Dirichlet condition for velocity.    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">user_pressure   </td><td class="markdownTableBodyNone">The <code>field_dirichlet_t</code> user-defined Dirichlet condition for pressure.    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">user_velocity_pointwise   </td><td class="markdownTableBodyNone">The pointwise user-defined Dirichlet condition for velocity.   </td></tr>
+<td class="markdownTableBodyNone">user_pressure   </td><td class="markdownTableBodyNone">The <code>field_dirichlet_t</code> user-defined Dirichlet condition for pressure.   </td></tr>
 </table>
 <p>A more detailed description of each boundary condition is provided below.</p>
 <ul>
@@ -418,12 +414,6 @@ Available conditions</h3>
 <div class="line">  &quot;B&quot;: 5.2,</div>
 <div class="line">  &quot;zone_indices&quot;: [1, 2],</div>
 <div class="line">  &quot;h_index&quot;: 1</div>
-<div class="line">}</div>
-</div><!-- fragment --></li>
-<li><p class="startli"><code>user_pointwise</code>. Allows to set the velocity values using the appropriate routine in the user file. The routine is executed on a pointwise basis, which is reflected in the name of this condition. It is advisable to instead use the more general <code>user_velocity</code> condition. Requires no additional keywords.</p>
-<div class="fragment"><div class="line">{</div>
-<div class="line">  &quot;type&quot;: &quot;user_pointwise&quot;,</div>
-<div class="line">  &quot;zone_indices&quot;: [1, 2]</div>
 <div class="line">}</div>
 </div><!-- fragment --></li>
 <li><code>user_velocity</code>, a Dirichlet boundary for more complex velocity profiles. This boundary condition uses a <a class="el" href="../../d6/def/user-file.html#user-file_field-dirichlet-update">more advanced user interface</a>. <div class="fragment"><div class="line">{</div>
@@ -513,8 +503,7 @@ Source terms</h2>
 </ol>
 <dl class="section note"><dt>Note</dt><dd>Notice that to perform simulation in a rotating reference frame one has to define both <code>coriolis</code> and <code>centrifugal</code> source terms in a consistent way.</dd></dl>
 <ol type="1">
-<li><code>user_pointwise</code>, the values are set inside the compiled user file, using the pointwise user file subroutine. Only works on CPUs!</li>
-<li><code>user_vector</code>, the values are set inside the compiled user file, using the non-pointwise user file subroutine. Should be used when running on the GPU.</li>
+<li><code>user</code>, the values are set inside the compiled user file, using the corresponding user file subroutine.</li>
 <li><code>brinkman</code>, Brinkman permeability forcing inside a pre-defined region.</li>
 <li><code><a class="el" href="../../d6/def/namespacegradient__jump__penalty.html" title="Implements gradient_jump_penalty_t.">gradient_jump_penalty</a></code>, perform gradient_jump_penalisation.</li>
 <li><code>sponge</code>, adds a sponge term based on a reference velocity field, which is applied in a user-specified region of the domain.</li>
@@ -662,7 +651,7 @@ Sponge</h3>
 <div class="line">]</div>
 </div><!-- fragment --> </details>
 </li>
-<li><code>user</code>, where the velocity field is set according to what is defined in the user file. Useful for setting velocity fields manually. In this case, the base flow fields must be created and added to the <code>neko_field_registry</code> (see fortran code snippet below). <details >
+<li><code>user</code>, where the velocity field is set according to what is defined in the user file. Useful for setting velocity fields manually. In this case, the base flow fields must be created and added to the <code>neko_registry</code> (see fortran code snippet below). <details >
 <summary >
 <b><u>Example code snippet</u></b></summary>
 <div class="fragment"><div class="line">&quot;source_terms&quot;: [</div>
@@ -677,8 +666,8 @@ Sponge</h3>
 </div><!-- fragment --> </details>
 </li>
 </ol>
-<p>Finally, the fringe function field must be filled by the user. This must be done through the user file by adding the fringe field to the <code>neko_field_registry</code> in either <code>user_init_modules</code> or <code>fluid_user_ic</code> (more specifically, before the first call to compute the sponge source term).</p>
-<p>The fringe field must be set by adding a field to the <code>neko_field_registry</code> under a specific name that can be retrieved internally. By default, Neko will search for the field <code>"sponge_fringe"</code> in the registry, but this can be changed by setting the parameter <code>fringe_registry_name</code>, which is important when using more than one sponge source term.</p>
+<p>Finally, the fringe function field must be filled by the user. This must be done through the user file by adding the fringe field to the <code>neko_registry</code> in either <code>user_init_modules</code> or <code>fluid_user_ic</code> (more specifically, before the first call to compute the sponge source term).</p>
+<p>The fringe field must be set by adding a field to the <code>neko_registry</code> under a specific name that can be retrieved internally. By default, Neko will search for the field <code>"sponge_fringe"</code> in the registry, but this can be changed by setting the parameter <code>fringe_registry_name</code>, which is important when using more than one sponge source term.</p>
 <p>The same principle applies for the base flow fields (if <code>"method": "user"</code>). By default, neko will search for the base flow fields in the registry using the prefix <code>"sponge_bf_"</code>, meaning that <code>u</code> will be in <code>sponge_bf_u</code>, etc. This prefix can be changed by setting the parameter <code>bf_registry_prefix</code>.</p>
 <details >
 <summary >
@@ -710,18 +699,18 @@ Sponge</h3>
 <div class="line">    <span class="comment">!    can be changed with the parameter `fringe_registry_name`.</span></div>
 <div class="line">    <span class="comment">!</span></div>
 <div class="line">    <span class="comment">!</span></div>
-<div class="line">    u =&gt; neko_field_registry%get_field(<span class="stringliteral">&quot;u&quot;</span>)</div>
-<div class="line">    <span class="keyword">call </span>neko_field_registry%add_field(u%dof,<span class="stringliteral">&quot;sponge_fringe&quot;</span>)</div>
-<div class="line">    fringe =&gt; neko_field_registry%get_field(<span class="stringliteral">&quot;sponge_fringe&quot;</span>)</div>
+<div class="line">    u =&gt; neko_registry%get_field(<span class="stringliteral">&quot;u&quot;</span>)</div>
+<div class="line">    <span class="keyword">call </span>neko_registry%add_field(u%dof,<span class="stringliteral">&quot;sponge_fringe&quot;</span>)</div>
+<div class="line">    fringe =&gt; neko_registry%get_field(<span class="stringliteral">&quot;sponge_fringe&quot;</span>)</div>
 <div class="line"> </div>
 <div class="line">    <span class="comment">! Initialize the base flows</span></div>
-<div class="line">    <span class="keyword">call </span>neko_field_registry%add_field(u%dof,<span class="stringliteral">&quot;sponge_bf_u&quot;</span>)</div>
-<div class="line">    ubf =&gt; neko_field_registry%get_field(<span class="stringliteral">&quot;sponge_bf_u&quot;</span>)</div>
-<div class="line">    <span class="keyword">call </span>neko_field_registry%add_field(u%dof,<span class="stringliteral">&quot;sponge_bf_v&quot;</span>)</div>
-<div class="line">    vbf =&gt; neko_field_registry%get_field(<span class="stringliteral">&quot;sponge_bf_v&quot;</span>)</div>
-<div class="line">    <span class="keyword">call </span>neko_field_registry%add_field(u%dof,<span class="stringliteral">&quot;sponge_bf_w&quot;</span>)</div>
-<div class="line">    wbf =&gt; neko_field_registry%get_field(<span class="stringliteral">&quot;sponge_bf_w&quot;</span>)</div>
-<div class="line">    </div>
+<div class="line">    <span class="keyword">call </span>neko_registry%add_field(u%dof,<span class="stringliteral">&quot;sponge_bf_u&quot;</span>)</div>
+<div class="line">    ubf =&gt; neko_registry%get_field(<span class="stringliteral">&quot;sponge_bf_u&quot;</span>)</div>
+<div class="line">    <span class="keyword">call </span>neko_registry%add_field(u%dof,<span class="stringliteral">&quot;sponge_bf_v&quot;</span>)</div>
+<div class="line">    vbf =&gt; neko_registry%get_field(<span class="stringliteral">&quot;sponge_bf_v&quot;</span>)</div>
+<div class="line">    <span class="keyword">call </span>neko_registry%add_field(u%dof,<span class="stringliteral">&quot;sponge_bf_w&quot;</span>)</div>
+<div class="line">    wbf =&gt; neko_registry%get_field(<span class="stringliteral">&quot;sponge_bf_w&quot;</span>)</div>
+<div class="line"> </div>
 <div class="line">    <span class="comment">!</span></div>
 <div class="line">    <span class="comment">! 2. Set the function f(x,y,z) from 0 to 1. in two zones of the mesh,</span></div>
 <div class="line">    <span class="comment">!    a top region in x \in [xmin1, +\infty[, y \in [0, +\infty[</span></div>
@@ -729,9 +718,9 @@ Sponge</h3>
 <div class="line">    <span class="comment">!</span></div>
 <div class="line">    <span class="comment">!    A smoothing function S(x) is applied at the beginning of each zone,</span></div>
 <div class="line">    <span class="comment">!    with a rising distance of delta_rise1 and delta_rise2</span></div>
-<div class="line">    <span class="comment">! </span></div>
-<div class="line">  </div>
-<div class="line">    <span class="comment">! Bottom boundary </span></div>
+<div class="line">    <span class="comment">!</span></div>
+<div class="line"> </div>
+<div class="line">    <span class="comment">! Bottom boundary</span></div>
 <div class="line">    xmin1 = 3.0_rp</div>
 <div class="line">    delta_rise1 = 3.0_rp</div>
 <div class="line"> </div>
@@ -743,20 +732,20 @@ Sponge</h3>
 <div class="line">    <span class="keywordflow">do</span> i = 1, fringe%size()</div>
 <div class="line">        x = fringe%dof%x(i,1,1,1)</div>
 <div class="line">        y = fringe%dof%y(i,1,1,1)</div>
-<div class="line">        </div>
+<div class="line"> </div>
 <div class="line">        <span class="comment">! Bottom boundary</span></div>
 <div class="line">        <span class="keywordflow">if</span> ( (y .lt. 0.0_rp) .and. (x .gt. xmin1)) <span class="keywordflow">then</span></div>
 <div class="line">           fringe%x(i,1,1,1) = s( (x - xmin1)/delta_rise1 )</div>
-<div class="line">        </div>
+<div class="line"> </div>
 <div class="line">        <span class="comment">! Top boundary</span></div>
 <div class="line">        <span class="keywordflow">else</span> <span class="keywordflow">if</span> ( (y .gt. 0.0_rp) .and. (x .gt. xmin2)) <span class="keywordflow">then</span></div>
-<div class="line">           fringe%x(i,1,1,1) = s( (x - xmin2)/delta_rise2 ) </div>
+<div class="line">           fringe%x(i,1,1,1) = s( (x - xmin2)/delta_rise2 )</div>
 <div class="line"><span class="keywordflow">        end if</span></div>
-<div class="line">       </div>
+<div class="line"> </div>
 <div class="line">       <span class="comment">! Set ubf,vbf to something random</span></div>
 <div class="line">       ubf%x(i,1,1,1) = sin(3.1415926_rp*2.0_rp/10.0_rp * x)</div>
 <div class="line">       vbf%x(i,1,1,1) = cos(3.1415926_rp*2.0_rp/10.0_rp * y)</div>
-<div class="line">    </div>
+<div class="line"> </div>
 <div class="line"><span class="keywordflow">    end do</span></div>
 <div class="line"> </div>
 <div class="line">    wbf = 0.0_rp</div>
@@ -821,9 +810,9 @@ Sponge</h3>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>baseflow.tolerance</code>   </td><td class="markdownTableBodyNone">Tolerance for interpolation convergence   </td><td class="markdownTableBodyNone">Real   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>fringe_registry_name</code>   </td><td class="markdownTableBodyNone">Name of the fringe mask field in <code>neko_field_registry</code>   </td><td class="markdownTableBodyNone">String   </td><td class="markdownTableBodyNone"><code>"sponge_fringe"</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>fringe_registry_name</code>   </td><td class="markdownTableBodyNone">Name of the fringe mask field in <code>neko_registry</code>   </td><td class="markdownTableBodyNone">String   </td><td class="markdownTableBodyNone"><code>"sponge_fringe"</code>    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>baseflow_registry_prefix</code>   </td><td class="markdownTableBodyNone">Prefix of the base flow fields in <code>neko_field_registry</code>   </td><td class="markdownTableBodyNone">String   </td><td class="markdownTableBodyNone"><code>"sponge_bf"</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>baseflow_registry_prefix</code>   </td><td class="markdownTableBodyNone">Prefix of the base flow fields in <code>neko_registry</code>   </td><td class="markdownTableBodyNone">String   </td><td class="markdownTableBodyNone"><code>"sponge_bf"</code>    </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>dump_fields</code>   </td><td class="markdownTableBodyNone">If <code>true</code>, dumps the fringe and baseflow fields for visualization   </td><td class="markdownTableBodyNone">Boolean   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
 <tr class="markdownTableRowOdd">
@@ -857,8 +846,7 @@ Linear solver configuration</h1>
 <li><code>projection_hold_steps</code>, steps for which the simulation does not use projection after starting or time step changes. E.g. if 5, then the projection space will start to update at the 6th time step and the space will be utilized at the 7th time step.</li>
 <li><code>monitor</code>, monitoring of residuals. If set to true, the residuals will be printed for each iteration.</li>
 </ul>
-<p>In addition to the above settings, the solvers can be configured with strict convergence criteria. This is done by setting the <code>case.fluid.strict_convergence</code> keyword to <code>true</code>. This will force the solver to converge to the specified tolerance within the specified number of iterations. If the solver does not converge, the simulation will be terminated. <br  />
- This can in some situations cause issues if the initial condition is far from a valid solution. Therefore a user can allow an initial stabilization phase by setting the <code>case.fluid.allow_stabilization</code> keyword to <code>true</code>. In this case, the strict convergence will be ignored untill all components of the velocity field converge within the specified tolerance. After this initial stabilization phase, strict convergence will be enforced for the rest of the simulation.</p>
+<p>In addition to the above settings, the solvers can be configured with strict convergence criteria. This is done by setting the <code>case.fluid.strict_convergence</code> keyword to <code>true</code>. This will force the solver to converge to the specified tolerance within the specified number of iterations. If the solver does not converge, the simulation will be terminated. This can in some situations cause issues if the initial condition is far from a valid solution. Therefore a user can allow an initial stabilization phase by setting the <code>case.fluid.allow_stabilization</code> keyword to <code>true</code>. In this case, the strict convergence will be ignored untill all components of the velocity field converge within the specified tolerance. After this initial stabilization phase, strict convergence will be enforced for the rest of the simulation.</p>
 <h2><a class="anchor" id="autotoc_md60"></a>
 Multilevel preconditioners</h2>
 <p>The multilevel preconditioners, <code>hsmg</code> and <code>phmg</code>, come with an additional set of parameters related to the solution of the coarse grid problem. These parameters are specified as a <code>coarse_grid</code> block under <code>preconditioner</code>.</p>
@@ -1033,11 +1021,6 @@ Boundary conditions</h2>
 <div class="line">  &quot;zone_indices&quot;: [1, 2]</div>
 <div class="line">}</div>
 </div><!-- fragment --></li>
-<li><code>user_pointwise</code>. Sets the scalar in the pointwise user interface routine. <div class="fragment"><div class="line">{</div>
-<div class="line">  &quot;type&quot;: &quot;user_poinwise&quot;,</div>
-<div class="line">  &quot;zone_indices&quot;: [1, 2]</div>
-<div class="line">}</div>
-</div><!-- fragment --></li>
 <li><code>user</code>. User boundary condition, see <a class="el" href="../../d6/def/user-file.html#user-file_field-dirichlet-update">further documentation</a>. <div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;user&quot;,</div>
 <div class="line">  &quot;zone_indices&quot;: [1, 2]</div>
@@ -1132,7 +1115,7 @@ Runtime statistics</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Wed Dec 3 2025 03:49:08 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 03:49:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

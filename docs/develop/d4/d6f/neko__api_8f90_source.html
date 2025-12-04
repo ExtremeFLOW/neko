@@ -228,20 +228,20 @@ $(document).ready(function(){initNavTree('d4/d6f/neko__api_8f90_source.html','..
 <div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>  <span class="keyword">end subroutine </span>neko_api_job_info</div>
 <div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span> </div>
 <div class="foldopen" id="foldopen00126" data-start="" data-end="">
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno"><a class="line" href="../../d5/dd3/namespaceneko__api.html#aae17fa2710460f067fd7d94c1b4cb015">  126</a></span>  <span class="keyword">subroutine </span>neko_api_field_registry_init() <span class="keyword">bind(c, name=&quot;neko_field_registry_init&quot;)</span></div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno"><a class="line" href="../../d5/dd3/namespaceneko__api.html#a4b7b3d38b17b2a3aa182bce4502a1b5d">  126</a></span>  <span class="keyword">subroutine </span>neko_api_registry_init() <span class="keyword">bind(c, name=&quot;neko_registry_init&quot;)</span></div>
 <div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span> </div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    <span class="keyword">call </span>neko_field_registry%init()</div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    <span class="keyword">call </span>neko_registry%init()</div>
 <div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span> </div>
 </div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>  <span class="keyword">end subroutine </span>neko_api_field_registry_init</div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>  <span class="keyword">end subroutine </span>neko_api_registry_init</div>
 <div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span> </div>
 <div class="foldopen" id="foldopen00133" data-start="" data-end="">
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno"><a class="line" href="../../d5/dd3/namespaceneko__api.html#a0abd6ffabda93319299057a7f5f5ab4a">  133</a></span>  <span class="keyword">subroutine </span>neko_api_field_registry_free() <span class="keyword">bind(c, name=&quot;neko_field_registry_free&quot;)</span></div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno"><a class="line" href="../../d5/dd3/namespaceneko__api.html#ab56cde4b331af6941b42456d16cfd4bd">  133</a></span>  <span class="keyword">subroutine </span>neko_api_registry_free() <span class="keyword">bind(c, name=&quot;neko_registry_free&quot;)</span></div>
 <div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span> </div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>    <span class="keyword">call </span>neko_field_registry%free()</div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>    <span class="keyword">call </span>neko_registry%free()</div>
 <div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span> </div>
 </div>
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>  <span class="keyword">end subroutine </span>neko_api_field_registry_free</div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>  <span class="keyword">end subroutine </span>neko_api_registry_free</div>
 <div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span> </div>
 <div class="foldopen" id="foldopen00141" data-start="" data-end="">
 <div class="line"><a id="l00141" name="l00141"></a><span class="lineno"><a class="line" href="../../d5/dd3/namespaceneko__api.html#a5a85cf3e312f49d9fb29696e22c99a12">  141</a></span>  <span class="keyword">subroutine </span>neko_api_case_allocate(case_iptr) &amp;</div>
@@ -481,7 +481,7 @@ $(document).ready(function(){initNavTree('d4/d6f/neko__api_8f90_source.html','..
 <div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span>       name(len:len) = field_name(len)</div>
 <div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span> </div>
-<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>    <a class="code hl_namespace" href="../../dc/da9/namespacefield.html">field</a> =&gt; neko_field_registry%get_field(trim(name(1:len)))</div>
+<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>    <a class="code hl_namespace" href="../../dc/da9/namespacefield.html">field</a> =&gt; neko_registry%get_field(trim(name(1:len)))</div>
 <div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span> </div>
 <div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span>    field_ptr = c_loc(<a class="code hl_namespace" href="../../dc/da9/namespacefield.html">field</a>%x)</div>
 <div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span> </div>
@@ -504,7 +504,7 @@ $(document).ready(function(){initNavTree('d4/d6f/neko__api_8f90_source.html','..
 <div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span>       name(len:len) = field_name(len)</div>
 <div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span> </div>
-<div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span>    <a class="code hl_namespace" href="../../dc/da9/namespacefield.html">field</a> =&gt; neko_field_registry%get_field(trim(name(1:len)))</div>
+<div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span>    <a class="code hl_namespace" href="../../dc/da9/namespacefield.html">field</a> =&gt; neko_registry%get_field(trim(name(1:len)))</div>
 <div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span> </div>
 <div class="line"><a id="l00409" name="l00409"></a><span class="lineno">  409</span>    field_lx = <a class="code hl_namespace" href="../../dc/da9/namespacefield.html">field</a>%Xh%lx</div>
 <div class="line"><a id="l00410" name="l00410"></a><span class="lineno">  410</span> </div>
@@ -527,7 +527,7 @@ $(document).ready(function(){initNavTree('d4/d6f/neko__api_8f90_source.html','..
 <div class="line"><a id="l00427" name="l00427"></a><span class="lineno">  427</span>       name(len:len) = field_name(len)</div>
 <div class="line"><a id="l00428" name="l00428"></a><span class="lineno">  428</span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00429" name="l00429"></a><span class="lineno">  429</span> </div>
-<div class="line"><a id="l00430" name="l00430"></a><span class="lineno">  430</span>    <a class="code hl_namespace" href="../../dc/da9/namespacefield.html">field</a> =&gt; neko_field_registry%get_field(trim(name(1:len)))</div>
+<div class="line"><a id="l00430" name="l00430"></a><span class="lineno">  430</span>    <a class="code hl_namespace" href="../../dc/da9/namespacefield.html">field</a> =&gt; neko_registry%get_field(trim(name(1:len)))</div>
 <div class="line"><a id="l00431" name="l00431"></a><span class="lineno">  431</span> </div>
 <div class="line"><a id="l00432" name="l00432"></a><span class="lineno">  432</span>    field_nelv = <a class="code hl_namespace" href="../../dc/da9/namespacefield.html">field</a>%msh%nelv</div>
 <div class="line"><a id="l00433" name="l00433"></a><span class="lineno">  433</span> </div>
@@ -550,7 +550,7 @@ $(document).ready(function(){initNavTree('d4/d6f/neko__api_8f90_source.html','..
 <div class="line"><a id="l00450" name="l00450"></a><span class="lineno">  450</span>       name(len:len) = field_name(len)</div>
 <div class="line"><a id="l00451" name="l00451"></a><span class="lineno">  451</span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00452" name="l00452"></a><span class="lineno">  452</span> </div>
-<div class="line"><a id="l00453" name="l00453"></a><span class="lineno">  453</span>    <a class="code hl_namespace" href="../../dc/da9/namespacefield.html">field</a> =&gt; neko_field_registry%get_field(trim(name(1:len)))</div>
+<div class="line"><a id="l00453" name="l00453"></a><span class="lineno">  453</span>    <a class="code hl_namespace" href="../../dc/da9/namespacefield.html">field</a> =&gt; neko_registry%get_field(trim(name(1:len)))</div>
 <div class="line"><a id="l00454" name="l00454"></a><span class="lineno">  454</span> </div>
 <div class="line"><a id="l00455" name="l00455"></a><span class="lineno">  455</span>    field_size = <a class="code hl_namespace" href="../../dc/da9/namespacefield.html">field</a>%dof%size()</div>
 <div class="line"><a id="l00456" name="l00456"></a><span class="lineno">  456</span> </div>
@@ -573,7 +573,7 @@ $(document).ready(function(){initNavTree('d4/d6f/neko__api_8f90_source.html','..
 <div class="line"><a id="l00477" name="l00477"></a><span class="lineno">  477</span>       name(len:len) = field_name(len)</div>
 <div class="line"><a id="l00478" name="l00478"></a><span class="lineno">  478</span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00479" name="l00479"></a><span class="lineno">  479</span> </div>
-<div class="line"><a id="l00480" name="l00480"></a><span class="lineno">  480</span>    <a class="code hl_namespace" href="../../dc/da9/namespacefield.html">field</a> =&gt; neko_field_registry%get_field(trim(name(1:len)))</div>
+<div class="line"><a id="l00480" name="l00480"></a><span class="lineno">  480</span>    <a class="code hl_namespace" href="../../dc/da9/namespacefield.html">field</a> =&gt; neko_registry%get_field(trim(name(1:len)))</div>
 <div class="line"><a id="l00481" name="l00481"></a><span class="lineno">  481</span>    <span class="keyword">call </span>neko_api_wrap_dofmap(<a class="code hl_namespace" href="../../dc/da9/namespacefield.html">field</a>%dof, dof_ptr, x_ptr, y_ptr, z_ptr)</div>
 <div class="line"><a id="l00482" name="l00482"></a><span class="lineno">  482</span> </div>
 </div>
@@ -632,7 +632,7 @@ $(document).ready(function(){initNavTree('d4/d6f/neko__api_8f90_source.html','..
 <div class="line"><a id="l00551" name="l00551"></a><span class="lineno">  551</span>       name(len:len) = field_name(len)</div>
 <div class="line"><a id="l00552" name="l00552"></a><span class="lineno">  552</span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00553" name="l00553"></a><span class="lineno">  553</span> </div>
-<div class="line"><a id="l00554" name="l00554"></a><span class="lineno">  554</span>    <a class="code hl_namespace" href="../../dc/da9/namespacefield.html">field</a> =&gt; neko_field_registry%get_field(trim(name(1:len)))</div>
+<div class="line"><a id="l00554" name="l00554"></a><span class="lineno">  554</span>    <a class="code hl_namespace" href="../../dc/da9/namespacefield.html">field</a> =&gt; neko_registry%get_field(trim(name(1:len)))</div>
 <div class="line"><a id="l00555" name="l00555"></a><span class="lineno">  555</span>    <span class="keyword">call </span>neko_api_wrap_space(<a class="code hl_namespace" href="../../dc/da9/namespacefield.html">field</a>%Xh, lx, zg, dr_inv, ds_inv, dt_inv, &amp;</div>
 <div class="line"><a id="l00556" name="l00556"></a><span class="lineno">  556</span>         wx, wy, wz, dx, dy, dz)</div>
 <div class="line"><a id="l00557" name="l00557"></a><span class="lineno">  557</span> </div>
@@ -849,7 +849,7 @@ $(document).ready(function(){initNavTree('d4/d6f/neko__api_8f90_source.html','..
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_da61e3e9a357748887e3ca8d7c5a0c16.html">api</a></li><li class="navelem"><a class="el" href="../../d4/d6f/neko__api_8f90.html">neko_api.f90</a></li>
-    <li class="footer">Generated on Wed Dec 3 2025 03:49:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 03:49:47 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

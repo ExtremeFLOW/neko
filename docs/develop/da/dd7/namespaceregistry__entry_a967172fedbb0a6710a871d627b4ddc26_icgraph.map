@@ -1,0 +1,5 @@
+<map id="registry_entry::get_field" name="registry_entry::get_field">
+<area shape="rect" id="Node000001" title="Get the field pointer of the registry entry." alt="" coords="183,5,324,45"/>
+<area shape="rect" id="Node000002" href="$db/d1a/structregistry_1_1registry__t.html#a96a5449c3daa160f798756fdd53f1e4c" title="Generic field getter." alt="" coords="5,5,135,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="169,28,135,28,135,23,169,23"/>
+</map>

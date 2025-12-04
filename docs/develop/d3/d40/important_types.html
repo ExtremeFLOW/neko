@@ -144,12 +144,8 @@ Governing equation solvers and related types</h1>
 Singletons</h1>
 <p>Singleton types are meant to only have a single object of their kind to be created. These objects are declared in the same module where the type resides, and all have their name starting with <code>neko_</code>.</p>
 <ul>
-<li><a class="el" href="../../dd/d96/structfield__registry_1_1field__registry__t.html">field_registry_t</a>: A registry of <a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>, retrievable by name or index. This is the main object used to access the fields of unknowns for any place in the code.</li>
-<li><a class="el" href="../../d7/d8f/structvector__registry_1_1vector__registry__t.html">vector_registry_t</a>: The same as the field registry, but for <a class="el" href="../../d3/d5b/structvector_1_1vector__t.html">vector_t</a>.</li>
+<li><a class="el" href="../../db/d1a/structregistry_1_1registry__t.html">registry_t</a>: A registry of <a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>, <a class="el" href="../../d3/d5b/structvector_1_1vector__t.html">vector_t</a> and <a class="el" href="../../da/d95/structmatrix_1_1matrix__t.html">matrix_t</a>, retrievable by name or index. This is the main object used to access the array types of unknowns for any place in the code.</li>
 <li><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>: Provides a mechanism to get a temporary <a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>, <a class="el" href="../../d3/d5b/structvector_1_1vector__t.html">vector_t</a> or <a class="el" href="../../da/d95/structmatrix_1_1matrix__t.html">matrix_t</a> for doing some work. Use this instead of creating temporary fields inside a subroutine.</li>
-<li>field_scratch_registry_t: Provides a mechanism to get a temporary <a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a> for doing some work. Use this instead of creating temporary fields inside a subroutine.</li>
-<li>vector_scratch_registry_t: Provides a mechanism to get a temporary <a class="el" href="../../d3/d5b/structvector_1_1vector__t.html">vector_t</a> for doing some work. Use this instead of creating temporary vectors inside a subroutine.</li>
-<li>matrix_scratch_registry_t: Provides a mechanism to get a temporary <a class="el" href="../../da/d95/structmatrix_1_1matrix__t.html">matrix_t</a> for doing some work. Use this instead of creating temporary matrices inside a subroutine.</li>
 <li><a class="el" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">simcomp_executor_t</a>: Driver for simulation components. The object is called <code>neko_simcomps</code>.</li>
 <li><a class="el" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>: Used to write to the simulation log.</li>
 <li>use_access_t: Used to access the internals of the <a class="el" href="../../db/d7a/structcase_1_1case__t.html">case_t</a> object from within the user file.</li>
@@ -167,7 +163,7 @@ Linear algebra</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dc/d70/developer-guide.html">Developer guide</a></li>
-    <li class="footer">Generated on Wed Dec 3 2025 03:49:08 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 03:49:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

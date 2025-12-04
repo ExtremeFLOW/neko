@@ -156,7 +156,7 @@ $(document).ready(function(){initNavTree('df/d7f/scalar__aux_8f90_source.html','
 <div class="foldopen" id="foldopen00052" data-start="" data-end="">
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno"><a class="line" href="../../dc/d60/namespacescalar__aux.html#a1dac7b67e3209e0a5f34da08a33830a6">   52</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d60/namespacescalar__aux.html#a1dac7b67e3209e0a5f34da08a33830a6">scalar_step_info</a>(time, ksp_results, strict_convergence, &amp;</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>       allow_stabilization)</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">ksp_monitor_t</a>), <span class="keywordtype">dimension(:)</span>, <span class="keywordtype">intent(in)</span> :: ksp_results</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">ksp_monitor_t</a>), <span class="keywordtype">intent(in)</span> :: ksp_results</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <span class="keywordtype">intent(in)</span> :: time</div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: strict_convergence</div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: allow_stabilization</div>
@@ -177,47 +177,40 @@ $(document).ready(function(){initNavTree('df/d7f/scalar__aux_8f90_source.html','
 <div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span> </div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    <span class="comment">! Do the printing</span></div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>    <span class="keyword">call </span>ksp_results(1)%print_header()</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(ksp_results)</div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>       <span class="keyword">call </span>ksp_results(i)%print_result(time%tstep)</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span> </div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    <span class="comment">! Check for convergence</span></div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    converged = .true.</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>    <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(ksp_results)</div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>       <span class="keywordflow">if</span> (ieee_is_nan(ksp_results(i)%res_final)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>          <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Scalar solver diverged for &quot;</span> // &amp;</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>               trim(ksp_results(i)%name))</div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span> </div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>       <span class="keywordflow">if</span> (.not. ksp_results(i)%converged) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>          converged = .false.</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>          log_buf = <span class="stringliteral">&#39;Scalar solver did not converge for &#39;</span> &amp;</div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>               // trim(ksp_results(i)%name)</div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span> </div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>          <span class="keywordflow">if</span> (.not. <a class="code hl_variable" href="../../dc/d60/namespacescalar__aux.html#a549ee0be62f543af1583e9c41b982046">stabilized</a> .and. allow_stab) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>             <span class="keywordflow">continue</span></div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>          <span class="keywordflow">else</span> <span class="keywordflow">if</span> (strict_conv) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>             <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(log_buf)</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>          <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>             <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(log_buf)</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span><span class="keywordflow">          end if</span></div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span> </div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>    <span class="comment">! Update stabilized status</span></div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>    <span class="keywordflow">if</span> (.not. <a class="code hl_variable" href="../../dc/d60/namespacescalar__aux.html#a549ee0be62f543af1583e9c41b982046">stabilized</a>) <a class="code hl_variable" href="../../dc/d60/namespacescalar__aux.html#a549ee0be62f543af1583e9c41b982046">stabilized</a> = converged</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>    <span class="keyword">call </span>ksp_results%print_result(time%tstep)</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span> </div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>    <span class="comment">! Check for convergence</span></div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>    converged = .true.</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>    <span class="keywordflow">if</span> (ieee_is_nan(ksp_results%res_final)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Scalar solver diverged for &quot;</span> // trim(ksp_results%name))</div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span> </div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>    <span class="keywordflow">if</span> (.not. ksp_results%converged) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>       converged = .false.</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>       log_buf = <span class="stringliteral">&#39;Scalar solver did not converge for &#39;</span> // trim(ksp_results%name)</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span> </div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>       <span class="keywordflow">if</span> (.not. <a class="code hl_variable" href="../../dc/d60/namespacescalar__aux.html#a549ee0be62f543af1583e9c41b982046">stabilized</a> .and. allow_stab) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>          <span class="keywordflow">continue</span></div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>       <span class="keywordflow">else</span> <span class="keywordflow">if</span> (strict_conv) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>          <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(log_buf)</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>       <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>          <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(log_buf)</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span> </div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    <span class="comment">! Update stabilized status</span></div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    <span class="keywordflow">if</span> (.not. <a class="code hl_variable" href="../../dc/d60/namespacescalar__aux.html#a549ee0be62f543af1583e9c41b982046">stabilized</a>) <a class="code hl_variable" href="../../dc/d60/namespacescalar__aux.html#a549ee0be62f543af1583e9c41b982046">stabilized</a> = converged</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span> </div>
+</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d60/namespacescalar__aux.html#a1dac7b67e3209e0a5f34da08a33830a6">scalar_step_info</a></div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span> </div>
+<div class="foldopen" id="foldopen00102" data-start="" data-end="">
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno"><a class="line" href="../../dc/d60/namespacescalar__aux.html#a58a6f3bdec61db8ca66cff72b84ef5f1">  102</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d60/namespacescalar__aux.html#a58a6f3bdec61db8ca66cff72b84ef5f1">scalar_step_info_reset_stabilized</a>()</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>    <a class="code hl_variable" href="../../dc/d60/namespacescalar__aux.html#a549ee0be62f543af1583e9c41b982046">stabilized</a> = .false.</div>
+</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d60/namespacescalar__aux.html#a58a6f3bdec61db8ca66cff72b84ef5f1">scalar_step_info_reset_stabilized</a></div>
 <div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span> </div>
-</div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d60/namespacescalar__aux.html#a1dac7b67e3209e0a5f34da08a33830a6">scalar_step_info</a></div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span> </div>
-<div class="foldopen" id="foldopen00109" data-start="" data-end="">
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno"><a class="line" href="../../dc/d60/namespacescalar__aux.html#a58a6f3bdec61db8ca66cff72b84ef5f1">  109</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/d60/namespacescalar__aux.html#a58a6f3bdec61db8ca66cff72b84ef5f1">scalar_step_info_reset_stabilized</a>()</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    <a class="code hl_variable" href="../../dc/d60/namespacescalar__aux.html#a549ee0be62f543af1583e9c41b982046">stabilized</a> = .false.</div>
-</div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d60/namespacescalar__aux.html#a58a6f3bdec61db8ca66cff72b84ef5f1">scalar_step_info_reset_stabilized</a></div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span> </div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dc/d60/namespacescalar__aux.html">scalar_aux</a></div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dc/d60/namespacescalar__aux.html">scalar_aux</a></div>
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00042">utils.f90:42</a></div></div>
 <div class="ttc" id="anamespacekrylov_html"><div class="ttname"><a href="../../db/d6d/namespacekrylov.html">krylov</a></div><div class="ttdoc">Implements the base abstract type for Krylov solvers plus helper types.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/da5/krylov_8f90_source.html#l00034">krylov.f90:34</a></div></div>
 <div class="ttc" id="anamespacelogger_html"><div class="ttname"><a href="../../d8/da0/namespacelogger.html">logger</a></div><div class="ttdoc">Logging routines.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00034">log.f90:34</a></div></div>
@@ -226,7 +219,7 @@ $(document).ready(function(){initNavTree('df/d7f/scalar__aux_8f90_source.html','
 <div class="ttc" id="anamespacescalar__aux_html"><div class="ttname"><a href="../../dc/d60/namespacescalar__aux.html">scalar_aux</a></div><div class="ttdoc">Auxiliary routines for fluid solvers.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d7f/scalar__aux_8f90_source.html#l00034">scalar_aux.f90:34</a></div></div>
 <div class="ttc" id="anamespacescalar__aux_html_a1dac7b67e3209e0a5f34da08a33830a6"><div class="ttname"><a href="../../dc/d60/namespacescalar__aux.html#a1dac7b67e3209e0a5f34da08a33830a6">scalar_aux::scalar_step_info</a></div><div class="ttdeci">subroutine, public scalar_step_info(time, ksp_results, strict_convergence, allow_stabilization)</div><div class="ttdoc">Prints for prs, velx, vely, velz the following: Number of iterations, start residual,...</div><div class="ttdef"><b>Definition</b> <a href="../../df/d7f/scalar__aux_8f90_source.html#l00052">scalar_aux.f90:54</a></div></div>
 <div class="ttc" id="anamespacescalar__aux_html_a549ee0be62f543af1583e9c41b982046"><div class="ttname"><a href="../../dc/d60/namespacescalar__aux.html#a549ee0be62f543af1583e9c41b982046">scalar_aux::stabilized</a></div><div class="ttdeci">logical, public, protected stabilized</div><div class="ttdoc">To track if the solver is stabilized.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d7f/scalar__aux_8f90_source.html#l00046">scalar_aux.f90:46</a></div></div>
-<div class="ttc" id="anamespacescalar__aux_html_a58a6f3bdec61db8ca66cff72b84ef5f1"><div class="ttname"><a href="../../dc/d60/namespacescalar__aux.html#a58a6f3bdec61db8ca66cff72b84ef5f1">scalar_aux::scalar_step_info_reset_stabilized</a></div><div class="ttdeci">subroutine, public scalar_step_info_reset_stabilized()</div><div class="ttdoc">Resets the stabilized flag to false.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d7f/scalar__aux_8f90_source.html#l00109">scalar_aux.f90:110</a></div></div>
+<div class="ttc" id="anamespacescalar__aux_html_a58a6f3bdec61db8ca66cff72b84ef5f1"><div class="ttname"><a href="../../dc/d60/namespacescalar__aux.html#a58a6f3bdec61db8ca66cff72b84ef5f1">scalar_aux::scalar_step_info_reset_stabilized</a></div><div class="ttdeci">subroutine, public scalar_step_info_reset_stabilized()</div><div class="ttdoc">Resets the stabilized flag to false.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d7f/scalar__aux_8f90_source.html#l00102">scalar_aux.f90:103</a></div></div>
 <div class="ttc" id="anamespacetime__state_html"><div class="ttname"><a href="../../d8/d92/namespacetime__state.html">time_state</a></div><div class="ttdoc">Module with things related to the simulation time.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/dd6/time__state_8f90_source.html#l00034">time_state.f90:34</a></div></div>
 <div class="ttc" id="anamespaceutils_html"><div class="ttname"><a href="../../d6/d84/namespaceutils.html">utils</a></div><div class="ttdoc">Utilities.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00035">utils.f90:35</a></div></div>
 <div class="ttc" id="anamespaceutils_html_a8de91e60607d8bf98d265d9e9a90f88f"><div class="ttname"><a href="../../d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f">utils::neko_warning</a></div><div class="ttdeci">subroutine, public neko_warning(warning_msg)</div><div class="ttdoc">Reports a warning to standard output.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00345">utils.f90:346</a></div></div>
@@ -238,7 +231,7 @@ $(document).ready(function(){initNavTree('df/d7f/scalar__aux_8f90_source.html','
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_0691d6202b68dc26b40b4865e3c53c6d.html">scalar</a></li><li class="navelem"><a class="el" href="../../df/d7f/scalar__aux_8f90.html">scalar_aux.f90</a></li>
-    <li class="footer">Generated on Wed Dec 3 2025 03:49:07 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 03:49:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -146,7 +146,7 @@ Using statistics</h2>
 </table>
 <p>*The name of the written statistics file will by default be <code>fluid_statsX0.f0000X,..., fluid_statsX0.f0000Y</code> where X is the number of the first outputted statistic of the current run.</p>
 <p>In addition, one can specify the usual controls for the output, which then outputs the averages computes from the last time the statistics were written to file. For example, if one wants to compute only the basic statistics and sample the fields every 4 time steps and compute and output batches every 20 time units and have an initial transient of 60 time units the following would work:</p>
-<div class="fragment"><div class="line">&quot;simulation_components&quot;: </div>
+<div class="fragment"><div class="line">&quot;simulation_components&quot;:</div>
 <div class="line">  [</div>
 <div class="line">    {</div>
 <div class="line">      &quot;type&quot;: &quot;fluid_stats&quot;,</div>
@@ -178,85 +178,85 @@ List of fields in output files</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">4   </td><td class="markdownTableBodyNone">\( \langle w \rangle \)   </td><td class="markdownTableBodyNone">Z-Velocity    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">5   </td><td class="markdownTableBodyNone">\( \langle pp \rangle \)   </td><td class="markdownTableBodyNone">Scalar 1 (s1)    </td></tr>
+<td class="markdownTableBodyNone">5   </td><td class="markdownTableBodyNone">\( \langle pp \rangle \)   </td><td class="markdownTableBodyNone">Temperature    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">6   </td><td class="markdownTableBodyNone">\( \langle uu \rangle \)   </td><td class="markdownTableBodyNone">Scalar 2 (s2)    </td></tr>
+<td class="markdownTableBodyNone">6   </td><td class="markdownTableBodyNone">\( \langle uu \rangle \)   </td><td class="markdownTableBodyNone">Scalar 1 (s1)    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">7   </td><td class="markdownTableBodyNone">\( \langle vv \rangle \)   </td><td class="markdownTableBodyNone">s3    </td></tr>
+<td class="markdownTableBodyNone">7   </td><td class="markdownTableBodyNone">\( \langle vv \rangle \)   </td><td class="markdownTableBodyNone">Scalar 2 (s2)    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">8   </td><td class="markdownTableBodyNone">\( \langle ww \rangle \)   </td><td class="markdownTableBodyNone">s4    </td></tr>
+<td class="markdownTableBodyNone">8   </td><td class="markdownTableBodyNone">\( \langle ww \rangle \)   </td><td class="markdownTableBodyNone">s3    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">9   </td><td class="markdownTableBodyNone">\( \langle uv \rangle \)   </td><td class="markdownTableBodyNone">s5    </td></tr>
+<td class="markdownTableBodyNone">9   </td><td class="markdownTableBodyNone">\( \langle uv \rangle \)   </td><td class="markdownTableBodyNone">s4    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">10   </td><td class="markdownTableBodyNone">\( \langle uw \rangle \)   </td><td class="markdownTableBodyNone">s6    </td></tr>
+<td class="markdownTableBodyNone">10   </td><td class="markdownTableBodyNone">\( \langle uw \rangle \)   </td><td class="markdownTableBodyNone">s5    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">11   </td><td class="markdownTableBodyNone">\( \langle vw \rangle \)   </td><td class="markdownTableBodyNone">s7    </td></tr>
+<td class="markdownTableBodyNone">11   </td><td class="markdownTableBodyNone">\( \langle vw \rangle \)   </td><td class="markdownTableBodyNone">s6    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">12   </td><td class="markdownTableBodyNone">\( \langle uuu \rangle \)   </td><td class="markdownTableBodyNone">s8    </td></tr>
+<td class="markdownTableBodyNone">12   </td><td class="markdownTableBodyNone">\( \langle uuu \rangle \)   </td><td class="markdownTableBodyNone">s7    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">13   </td><td class="markdownTableBodyNone">\( \langle vvv \rangle \)   </td><td class="markdownTableBodyNone">s9    </td></tr>
+<td class="markdownTableBodyNone">13   </td><td class="markdownTableBodyNone">\( \langle vvv \rangle \)   </td><td class="markdownTableBodyNone">s8    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">14   </td><td class="markdownTableBodyNone">\( \langle www \rangle \)   </td><td class="markdownTableBodyNone">s10    </td></tr>
+<td class="markdownTableBodyNone">14   </td><td class="markdownTableBodyNone">\( \langle www \rangle \)   </td><td class="markdownTableBodyNone">s9    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">15   </td><td class="markdownTableBodyNone">\( \langle  uuv   \rangle \)   </td><td class="markdownTableBodyNone">s11    </td></tr>
+<td class="markdownTableBodyNone">15   </td><td class="markdownTableBodyNone">\( \langle  uuv   \rangle \)   </td><td class="markdownTableBodyNone">s10    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">16   </td><td class="markdownTableBodyNone">\( \langle  uuw   \rangle \)   </td><td class="markdownTableBodyNone">s12    </td></tr>
+<td class="markdownTableBodyNone">16   </td><td class="markdownTableBodyNone">\( \langle  uuw   \rangle \)   </td><td class="markdownTableBodyNone">s11    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">17   </td><td class="markdownTableBodyNone">\( \langle  uvv   \rangle \)   </td><td class="markdownTableBodyNone">s13    </td></tr>
+<td class="markdownTableBodyNone">17   </td><td class="markdownTableBodyNone">\( \langle  uvv   \rangle \)   </td><td class="markdownTableBodyNone">s12    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">18   </td><td class="markdownTableBodyNone">\( \langle  uvw   \rangle \)   </td><td class="markdownTableBodyNone">s14    </td></tr>
+<td class="markdownTableBodyNone">18   </td><td class="markdownTableBodyNone">\( \langle  uvw   \rangle \)   </td><td class="markdownTableBodyNone">s13    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">19   </td><td class="markdownTableBodyNone">\( \langle  vvw   \rangle \)   </td><td class="markdownTableBodyNone">s15    </td></tr>
+<td class="markdownTableBodyNone">19   </td><td class="markdownTableBodyNone">\( \langle  vvw   \rangle \)   </td><td class="markdownTableBodyNone">s14    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">20   </td><td class="markdownTableBodyNone">\( \langle  uww   \rangle \)   </td><td class="markdownTableBodyNone">s16    </td></tr>
+<td class="markdownTableBodyNone">20   </td><td class="markdownTableBodyNone">\( \langle  uww   \rangle \)   </td><td class="markdownTableBodyNone">s15    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">21   </td><td class="markdownTableBodyNone">\( \langle  vww   \rangle \)   </td><td class="markdownTableBodyNone">s17    </td></tr>
+<td class="markdownTableBodyNone">21   </td><td class="markdownTableBodyNone">\( \langle  vww   \rangle \)   </td><td class="markdownTableBodyNone">s16    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">22   </td><td class="markdownTableBodyNone">\( \langle  uuuu  \rangle \)   </td><td class="markdownTableBodyNone">s18    </td></tr>
+<td class="markdownTableBodyNone">22   </td><td class="markdownTableBodyNone">\( \langle  uuuu  \rangle \)   </td><td class="markdownTableBodyNone">s17    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">23   </td><td class="markdownTableBodyNone">\( \langle  vvvv  \rangle \)   </td><td class="markdownTableBodyNone">s19    </td></tr>
+<td class="markdownTableBodyNone">23   </td><td class="markdownTableBodyNone">\( \langle  vvvv  \rangle \)   </td><td class="markdownTableBodyNone">s18    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">24   </td><td class="markdownTableBodyNone">\( \langle wwww   \rangle \)   </td><td class="markdownTableBodyNone">s20    </td></tr>
+<td class="markdownTableBodyNone">24   </td><td class="markdownTableBodyNone">\( \langle wwww   \rangle \)   </td><td class="markdownTableBodyNone">s19    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">25   </td><td class="markdownTableBodyNone">\( \langle  ppp   \rangle \)   </td><td class="markdownTableBodyNone">s21    </td></tr>
+<td class="markdownTableBodyNone">25   </td><td class="markdownTableBodyNone">\( \langle  ppp   \rangle \)   </td><td class="markdownTableBodyNone">s20    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">26   </td><td class="markdownTableBodyNone">\( \langle  pppp  \rangle \)   </td><td class="markdownTableBodyNone">s22    </td></tr>
+<td class="markdownTableBodyNone">26   </td><td class="markdownTableBodyNone">\( \langle  pppp  \rangle \)   </td><td class="markdownTableBodyNone">s21    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">27   </td><td class="markdownTableBodyNone">\( \langle  pu    \rangle \)   </td><td class="markdownTableBodyNone">s23    </td></tr>
+<td class="markdownTableBodyNone">27   </td><td class="markdownTableBodyNone">\( \langle  pu    \rangle \)   </td><td class="markdownTableBodyNone">s22    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">28   </td><td class="markdownTableBodyNone">\( \langle  pv    \rangle \)   </td><td class="markdownTableBodyNone">s24    </td></tr>
+<td class="markdownTableBodyNone">28   </td><td class="markdownTableBodyNone">\( \langle  pv    \rangle \)   </td><td class="markdownTableBodyNone">s23    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">29   </td><td class="markdownTableBodyNone">\( \langle  pw    \rangle \)   </td><td class="markdownTableBodyNone">s25    </td></tr>
+<td class="markdownTableBodyNone">29   </td><td class="markdownTableBodyNone">\( \langle  pw    \rangle \)   </td><td class="markdownTableBodyNone">s24    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">30   </td><td class="markdownTableBodyNone">\( \langle  p \frac{\partial u} {\partial x} \rangle \)   </td><td class="markdownTableBodyNone">s26    </td></tr>
+<td class="markdownTableBodyNone">30   </td><td class="markdownTableBodyNone">\( \langle  p \frac{\partial u} {\partial x} \rangle \)   </td><td class="markdownTableBodyNone">s25    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">31   </td><td class="markdownTableBodyNone">\( \langle  p \frac{\partial u} {\partial y}\rangle \)   </td><td class="markdownTableBodyNone">s27    </td></tr>
+<td class="markdownTableBodyNone">31   </td><td class="markdownTableBodyNone">\( \langle  p \frac{\partial u} {\partial y}\rangle \)   </td><td class="markdownTableBodyNone">s26    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">32   </td><td class="markdownTableBodyNone">\( \langle  p \frac{\partial u} {\partial z}\rangle \)   </td><td class="markdownTableBodyNone">s28    </td></tr>
+<td class="markdownTableBodyNone">32   </td><td class="markdownTableBodyNone">\( \langle  p \frac{\partial u} {\partial z}\rangle \)   </td><td class="markdownTableBodyNone">s27    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">33   </td><td class="markdownTableBodyNone">\( \langle  p \frac{\partial v} {\partial x}\rangle \)   </td><td class="markdownTableBodyNone">s29    </td></tr>
+<td class="markdownTableBodyNone">33   </td><td class="markdownTableBodyNone">\( \langle  p \frac{\partial v} {\partial x}\rangle \)   </td><td class="markdownTableBodyNone">s28    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">34   </td><td class="markdownTableBodyNone">\( \langle  p \frac{\partial v} {\partial y}\rangle \)   </td><td class="markdownTableBodyNone">s30    </td></tr>
+<td class="markdownTableBodyNone">34   </td><td class="markdownTableBodyNone">\( \langle  p \frac{\partial v} {\partial y}\rangle \)   </td><td class="markdownTableBodyNone">s29    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">35   </td><td class="markdownTableBodyNone">\( \langle  p \frac{\partial v} {\partial z}\rangle \)   </td><td class="markdownTableBodyNone">s31    </td></tr>
+<td class="markdownTableBodyNone">35   </td><td class="markdownTableBodyNone">\( \langle  p \frac{\partial v} {\partial z}\rangle \)   </td><td class="markdownTableBodyNone">s30    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">36   </td><td class="markdownTableBodyNone">\( \langle  p \frac{\partial w} {\partial x}\rangle \)   </td><td class="markdownTableBodyNone">s32    </td></tr>
+<td class="markdownTableBodyNone">36   </td><td class="markdownTableBodyNone">\( \langle  p \frac{\partial w} {\partial x}\rangle \)   </td><td class="markdownTableBodyNone">s31    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">37   </td><td class="markdownTableBodyNone">\( \langle  p \frac{\partial w} {\partial y}\rangle \)   </td><td class="markdownTableBodyNone">s33    </td></tr>
+<td class="markdownTableBodyNone">37   </td><td class="markdownTableBodyNone">\( \langle  p \frac{\partial w} {\partial y}\rangle \)   </td><td class="markdownTableBodyNone">s32    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">38   </td><td class="markdownTableBodyNone">\( \langle  p \frac{\partial w} {\partial z}\rangle \)   </td><td class="markdownTableBodyNone">s34    </td></tr>
+<td class="markdownTableBodyNone">38   </td><td class="markdownTableBodyNone">\( \langle  p \frac{\partial w} {\partial z}\rangle \)   </td><td class="markdownTableBodyNone">s33    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">39   </td><td class="markdownTableBodyNone">\( \langle  e11   \rangle \)   </td><td class="markdownTableBodyNone">s35    </td></tr>
+<td class="markdownTableBodyNone">39   </td><td class="markdownTableBodyNone">\( \langle  e11   \rangle \)   </td><td class="markdownTableBodyNone">s34    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">40   </td><td class="markdownTableBodyNone">\( \langle  e22   \rangle \)   </td><td class="markdownTableBodyNone">s36    </td></tr>
+<td class="markdownTableBodyNone">40   </td><td class="markdownTableBodyNone">\( \langle  e22   \rangle \)   </td><td class="markdownTableBodyNone">s35    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">41   </td><td class="markdownTableBodyNone">\( \langle  e33   \rangle \)   </td><td class="markdownTableBodyNone">s37    </td></tr>
+<td class="markdownTableBodyNone">41   </td><td class="markdownTableBodyNone">\( \langle  e33   \rangle \)   </td><td class="markdownTableBodyNone">s36    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">42   </td><td class="markdownTableBodyNone">\( \langle  e12   \rangle \)   </td><td class="markdownTableBodyNone">s38    </td></tr>
+<td class="markdownTableBodyNone">42   </td><td class="markdownTableBodyNone">\( \langle  e12   \rangle \)   </td><td class="markdownTableBodyNone">s37    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">43   </td><td class="markdownTableBodyNone">\( \langle  e13   \rangle \)   </td><td class="markdownTableBodyNone">s39    </td></tr>
+<td class="markdownTableBodyNone">43   </td><td class="markdownTableBodyNone">\( \langle  e13   \rangle \)   </td><td class="markdownTableBodyNone">s38    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">44   </td><td class="markdownTableBodyNone">\( \langle  e23   \rangle \)   </td><td class="markdownTableBodyNone">s40   </td></tr>
+<td class="markdownTableBodyNone">44   </td><td class="markdownTableBodyNone">\( \langle  e23   \rangle \)   </td><td class="markdownTableBodyNone">s39   </td></tr>
 </table>
 <p>where \(e11,e22...\) is computed as: $$ \begin{aligned} e11 &amp;= \left(\frac{\partial u}{\partial x}\right)^2 + \left(\frac{\partial u}{\partial y}\right)^2 + \left(\frac{\partial u}{\partial z}\right)^2 \\ e22 &amp;= \left(\frac{\partial v}{\partial x}\right)^2 + \left(\frac{\partial v}{\partial y}\right)^2 + \left(\frac{\partial v}{\partial z}\right)^2 \\ e33 &amp;= \left(\frac{\partial w}{\partial x}\right)^2 + \left(\frac{\partial w}{\partial y}\right)^2 + \left(\frac{\partial w}{\partial z}\right)^2 \\ e12 &amp;= \frac{\partial u}{\partial x} \frac{\partial v}{\partial x} + \frac{\partial u}{\partial y}\frac{\partial v}{\partial y}+ \frac{\partial u}{\partial z}\frac{\partial v}{\partial z} \\ e13 &amp;= \frac{\partial u}{\partial x} \frac{\partial w}{\partial x} + \frac{\partial u}{\partial y}\frac{\partial w}{\partial y}+ \frac{\partial u}{\partial z}\frac{\partial w}{\partial z} \\ e23 &amp;= \frac{\partial v}{\partial x} \frac{\partial w}{\partial x} + \frac{\partial v}{\partial y}\frac{\partial w}{\partial y}+ \frac{\partial v}{\partial z}\frac{\partial w}{\partial z} \\ \end{aligned} $$</p>
 <h1><a class="anchor" id="autotoc_md153"></a>
@@ -288,7 +288,7 @@ Using statistics</h2>
 </table>
 <p>*The name of the written statistics file will by default be <code>scalar_statsX0.f0000X,..., scalar_statsX0.f0000Y</code> where X is the number of the first outputted statistic of the current run. Note that if you want to compute statistics for multiple scalars, you will need to specify an independent <code>output_filename</code> for each.</p>
 <p>In addition, one can specify the usual controls for the output, in the same manner as for fluid statistics. For example, if one wants to compute only the basic statistics and sample the fields every 4 time steps and compute and output batches every 20 time units and have an initial transient of 60 time units the following would work:</p>
-<div class="fragment"><div class="line">&quot;simulation_components&quot;: </div>
+<div class="fragment"><div class="line">&quot;simulation_components&quot;:</div>
 <div class="line">  [</div>
 <div class="line">    {</div>
 <div class="line">      &quot;type&quot;: &quot;scalar_stats&quot;,</div>
@@ -304,7 +304,7 @@ Using statistics</h2>
 <div class="line">  ]</div>
 </div><!-- fragment --><h2><a class="anchor" id="autotoc_md156"></a>
 List of fields in output files</h2>
-<p>When only the basic set of stats is enabled, only stats 1-5 are computed.</p>
+<p>When only the basic set of stats is enabled, only stats 1-5 are computed. When averaging across a single spatial direction, <code>&lt;ws&gt;</code> is put into <code>s1</code> for the basic set and <code>s38</code> for the full set.</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Number   </th><th class="markdownTableHeadNone">Statistic   </th><th class="markdownTableHeadNone">Stored in variable (for fld files)    </th></tr>
@@ -317,81 +317,81 @@ List of fields in output files</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">4   </td><td class="markdownTableBodyNone">\( \langle ws \rangle \)   </td><td class="markdownTableBodyNone">Z-Velocity    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">5   </td><td class="markdownTableBodyNone">\( \langle ss \rangle \)   </td><td class="markdownTableBodyNone">Scalar 1 (s1)    </td></tr>
+<td class="markdownTableBodyNone">5   </td><td class="markdownTableBodyNone">\( \langle ss \rangle \)   </td><td class="markdownTableBodyNone">Temperature    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">6   </td><td class="markdownTableBodyNone">\( \langle sss \rangle \)   </td><td class="markdownTableBodyNone">Scalar 2 (s2)    </td></tr>
+<td class="markdownTableBodyNone">6   </td><td class="markdownTableBodyNone">\( \langle sss \rangle \)   </td><td class="markdownTableBodyNone">Scalar 1 (s1)    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">7   </td><td class="markdownTableBodyNone">\( \langle ssss \rangle \)   </td><td class="markdownTableBodyNone">s3    </td></tr>
+<td class="markdownTableBodyNone">7   </td><td class="markdownTableBodyNone">\( \langle ssss \rangle \)   </td><td class="markdownTableBodyNone">Scalar 2 (s2)    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">8   </td><td class="markdownTableBodyNone">\( \langle uss \rangle \)   </td><td class="markdownTableBodyNone">s4    </td></tr>
+<td class="markdownTableBodyNone">8   </td><td class="markdownTableBodyNone">\( \langle uss \rangle \)   </td><td class="markdownTableBodyNone">s3    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">9   </td><td class="markdownTableBodyNone">\( \langle vss \rangle \)   </td><td class="markdownTableBodyNone">s5    </td></tr>
+<td class="markdownTableBodyNone">9   </td><td class="markdownTableBodyNone">\( \langle vss \rangle \)   </td><td class="markdownTableBodyNone">s4    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">10   </td><td class="markdownTableBodyNone">\( \langle wss \rangle \)   </td><td class="markdownTableBodyNone">s6    </td></tr>
+<td class="markdownTableBodyNone">10   </td><td class="markdownTableBodyNone">\( \langle wss \rangle \)   </td><td class="markdownTableBodyNone">s5    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">11   </td><td class="markdownTableBodyNone">\( \langle uus \rangle \)   </td><td class="markdownTableBodyNone">s7    </td></tr>
+<td class="markdownTableBodyNone">11   </td><td class="markdownTableBodyNone">\( \langle uus \rangle \)   </td><td class="markdownTableBodyNone">s6    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">12   </td><td class="markdownTableBodyNone">\( \langle vvs \rangle \)   </td><td class="markdownTableBodyNone">s8    </td></tr>
+<td class="markdownTableBodyNone">12   </td><td class="markdownTableBodyNone">\( \langle vvs \rangle \)   </td><td class="markdownTableBodyNone">s7    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">13   </td><td class="markdownTableBodyNone">\( \langle wws \rangle \)   </td><td class="markdownTableBodyNone">s9    </td></tr>
+<td class="markdownTableBodyNone">13   </td><td class="markdownTableBodyNone">\( \langle wws \rangle \)   </td><td class="markdownTableBodyNone">s8    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">14   </td><td class="markdownTableBodyNone">\( \langle uvs \rangle \)   </td><td class="markdownTableBodyNone">s10    </td></tr>
+<td class="markdownTableBodyNone">14   </td><td class="markdownTableBodyNone">\( \langle uvs \rangle \)   </td><td class="markdownTableBodyNone">s9    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">15   </td><td class="markdownTableBodyNone">\( \langle  uws   \rangle \)   </td><td class="markdownTableBodyNone">s11    </td></tr>
+<td class="markdownTableBodyNone">15   </td><td class="markdownTableBodyNone">\( \langle  uws   \rangle \)   </td><td class="markdownTableBodyNone">s10    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">16   </td><td class="markdownTableBodyNone">\( \langle  vws   \rangle \)   </td><td class="markdownTableBodyNone">s12    </td></tr>
+<td class="markdownTableBodyNone">16   </td><td class="markdownTableBodyNone">\( \langle  vws   \rangle \)   </td><td class="markdownTableBodyNone">s11    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">17   </td><td class="markdownTableBodyNone">\( \langle  ps   \rangle \)   </td><td class="markdownTableBodyNone">s13    </td></tr>
+<td class="markdownTableBodyNone">17   </td><td class="markdownTableBodyNone">\( \langle  ps   \rangle \)   </td><td class="markdownTableBodyNone">s12    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">18   </td><td class="markdownTableBodyNone">\( \langle  p \frac{\partial s}{\partial x}  \rangle \)   </td><td class="markdownTableBodyNone">s14    </td></tr>
+<td class="markdownTableBodyNone">18   </td><td class="markdownTableBodyNone">\( \langle  p \frac{\partial s}{\partial x}  \rangle \)   </td><td class="markdownTableBodyNone">s13    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">19   </td><td class="markdownTableBodyNone">\( \langle  p \frac{\partial s}{\partial y}  \rangle \)   </td><td class="markdownTableBodyNone">s15    </td></tr>
+<td class="markdownTableBodyNone">19   </td><td class="markdownTableBodyNone">\( \langle  p \frac{\partial s}{\partial y}  \rangle \)   </td><td class="markdownTableBodyNone">s14    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">20   </td><td class="markdownTableBodyNone">\( \langle  p \frac{\partial s}{\partial z}  \rangle \)   </td><td class="markdownTableBodyNone">s16    </td></tr>
+<td class="markdownTableBodyNone">20   </td><td class="markdownTableBodyNone">\( \langle  p \frac{\partial s}{\partial z}  \rangle \)   </td><td class="markdownTableBodyNone">s15    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">21   </td><td class="markdownTableBodyNone">\( \langle  u \frac{\partial s}{\partial x}  \rangle \)   </td><td class="markdownTableBodyNone">s17    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">22   </td><td class="markdownTableBodyNone">\( \langle  u \frac{\partial s}{\partial y}  \rangle \)   </td><td class="markdownTableBodyNone">s18    </td></tr>
+<td class="markdownTableBodyNone">22   </td><td class="markdownTableBodyNone">\( \langle  u \frac{\partial s}{\partial y}  \rangle \)   </td><td class="markdownTableBodyNone">s17    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">23   </td><td class="markdownTableBodyNone">\( \langle  u \frac{\partial s}{\partial z}  \rangle \)   </td><td class="markdownTableBodyNone">s19    </td></tr>
+<td class="markdownTableBodyNone">23   </td><td class="markdownTableBodyNone">\( \langle  u \frac{\partial s}{\partial z}  \rangle \)   </td><td class="markdownTableBodyNone">s18    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">24   </td><td class="markdownTableBodyNone">\( \langle  v \frac{\partial s}{\partial x}  \rangle \)   </td><td class="markdownTableBodyNone">s20    </td></tr>
+<td class="markdownTableBodyNone">24   </td><td class="markdownTableBodyNone">\( \langle  v \frac{\partial s}{\partial x}  \rangle \)   </td><td class="markdownTableBodyNone">s19    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">25   </td><td class="markdownTableBodyNone">\( \langle  v \frac{\partial s}{\partial y}  \rangle \)   </td><td class="markdownTableBodyNone">s21    </td></tr>
+<td class="markdownTableBodyNone">25   </td><td class="markdownTableBodyNone">\( \langle  v \frac{\partial s}{\partial y}  \rangle \)   </td><td class="markdownTableBodyNone">s20    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">26   </td><td class="markdownTableBodyNone">\( \langle  v \frac{\partial s}{\partial z}  \rangle \)   </td><td class="markdownTableBodyNone">s22    </td></tr>
+<td class="markdownTableBodyNone">26   </td><td class="markdownTableBodyNone">\( \langle  v \frac{\partial s}{\partial z}  \rangle \)   </td><td class="markdownTableBodyNone">s21    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">27   </td><td class="markdownTableBodyNone">\( \langle  w \frac{\partial s}{\partial x}  \rangle \)   </td><td class="markdownTableBodyNone">s23    </td></tr>
+<td class="markdownTableBodyNone">27   </td><td class="markdownTableBodyNone">\( \langle  w \frac{\partial s}{\partial x}  \rangle \)   </td><td class="markdownTableBodyNone">s22    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">28   </td><td class="markdownTableBodyNone">\( \langle  w \frac{\partial s}{\partial y}  \rangle \)   </td><td class="markdownTableBodyNone">s24    </td></tr>
+<td class="markdownTableBodyNone">28   </td><td class="markdownTableBodyNone">\( \langle  w \frac{\partial s}{\partial y}  \rangle \)   </td><td class="markdownTableBodyNone">s23    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">29   </td><td class="markdownTableBodyNone">\( \langle  w \frac{\partial s}{\partial z}  \rangle \)   </td><td class="markdownTableBodyNone">s25    </td></tr>
+<td class="markdownTableBodyNone">29   </td><td class="markdownTableBodyNone">\( \langle  w \frac{\partial s}{\partial z}  \rangle \)   </td><td class="markdownTableBodyNone">s24    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">30   </td><td class="markdownTableBodyNone">\( \langle  s \frac{\partial u}{\partial x} \rangle \)   </td><td class="markdownTableBodyNone">s26    </td></tr>
+<td class="markdownTableBodyNone">30   </td><td class="markdownTableBodyNone">\( \langle  s \frac{\partial u}{\partial x} \rangle \)   </td><td class="markdownTableBodyNone">s25    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">31   </td><td class="markdownTableBodyNone">\( \langle  s \frac{\partial u}{\partial y} \rangle \)   </td><td class="markdownTableBodyNone">s27    </td></tr>
+<td class="markdownTableBodyNone">31   </td><td class="markdownTableBodyNone">\( \langle  s \frac{\partial u}{\partial y} \rangle \)   </td><td class="markdownTableBodyNone">s26    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">32   </td><td class="markdownTableBodyNone">\( \langle  s \frac{\partial u}{\partial z} \rangle \)   </td><td class="markdownTableBodyNone">s28    </td></tr>
+<td class="markdownTableBodyNone">32   </td><td class="markdownTableBodyNone">\( \langle  s \frac{\partial u}{\partial z} \rangle \)   </td><td class="markdownTableBodyNone">s27    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">33   </td><td class="markdownTableBodyNone">\( \langle  s \frac{\partial v}{\partial x} \rangle \)   </td><td class="markdownTableBodyNone">s29    </td></tr>
+<td class="markdownTableBodyNone">33   </td><td class="markdownTableBodyNone">\( \langle  s \frac{\partial v}{\partial x} \rangle \)   </td><td class="markdownTableBodyNone">s28    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">34   </td><td class="markdownTableBodyNone">\( \langle  s \frac{\partial v}{\partial x} \rangle \)   </td><td class="markdownTableBodyNone">s30    </td></tr>
+<td class="markdownTableBodyNone">34   </td><td class="markdownTableBodyNone">\( \langle  s \frac{\partial v}{\partial x} \rangle \)   </td><td class="markdownTableBodyNone">s29    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">35   </td><td class="markdownTableBodyNone">\( \langle  s \frac{\partial v}{\partial x} \rangle \)   </td><td class="markdownTableBodyNone">s31    </td></tr>
+<td class="markdownTableBodyNone">35   </td><td class="markdownTableBodyNone">\( \langle  s \frac{\partial v}{\partial x} \rangle \)   </td><td class="markdownTableBodyNone">s30    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">36   </td><td class="markdownTableBodyNone">\( \langle  s \frac{\partial w}{\partial x} \rangle \)   </td><td class="markdownTableBodyNone">s32    </td></tr>
+<td class="markdownTableBodyNone">36   </td><td class="markdownTableBodyNone">\( \langle  s \frac{\partial w}{\partial x} \rangle \)   </td><td class="markdownTableBodyNone">s31    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">37   </td><td class="markdownTableBodyNone">\( \langle  s \frac{\partial w}{\partial x} \rangle \)   </td><td class="markdownTableBodyNone">s33    </td></tr>
+<td class="markdownTableBodyNone">37   </td><td class="markdownTableBodyNone">\( \langle  s \frac{\partial w}{\partial x} \rangle \)   </td><td class="markdownTableBodyNone">s32    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">38   </td><td class="markdownTableBodyNone">\( \langle  s \frac{\partial w}{\partial x} \rangle \)   </td><td class="markdownTableBodyNone">s34    </td></tr>
+<td class="markdownTableBodyNone">38   </td><td class="markdownTableBodyNone">\( \langle  s \frac{\partial w}{\partial x} \rangle \)   </td><td class="markdownTableBodyNone">s33    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">39   </td><td class="markdownTableBodyNone">\( \langle  e_{ss}   \rangle \)   </td><td class="markdownTableBodyNone">s35    </td></tr>
+<td class="markdownTableBodyNone">39   </td><td class="markdownTableBodyNone">\( \langle  e_{ss}   \rangle \)   </td><td class="markdownTableBodyNone">s34    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">40   </td><td class="markdownTableBodyNone">\( \langle  e_{us}   \rangle \)   </td><td class="markdownTableBodyNone">s36    </td></tr>
+<td class="markdownTableBodyNone">40   </td><td class="markdownTableBodyNone">\( \langle  e_{us}   \rangle \)   </td><td class="markdownTableBodyNone">s35    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">41   </td><td class="markdownTableBodyNone">\( \langle  e_{vs}   \rangle \)   </td><td class="markdownTableBodyNone">s37    </td></tr>
+<td class="markdownTableBodyNone">41   </td><td class="markdownTableBodyNone">\( \langle  e_{vs}   \rangle \)   </td><td class="markdownTableBodyNone">s36    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">42   </td><td class="markdownTableBodyNone">\( \langle  e_{ws}   \rangle \)   </td><td class="markdownTableBodyNone">s38   </td></tr>
+<td class="markdownTableBodyNone">42   </td><td class="markdownTableBodyNone">\( \langle  e_{ws}   \rangle \)   </td><td class="markdownTableBodyNone">s37   </td></tr>
 </table>
 <p>where \(e_{ss}, e_{us}, e_{vs}, e_{ws}\) are computed as: $$ \begin{aligned} e_{ss} &amp;= \left(\frac{\partial s}{\partial x}\right)^2 + \left(\frac{\partial s}{\partial y}\right)^2 + \left(\frac{\partial s}{\partial z}\right)^2 \\ e_{us} &amp;= \frac{\partial u}{\partial x} \frac{\partial s}{\partial x} + \frac{\partial u}{\partial y}\frac{\partial s}{\partial y}+ \frac{\partial u}{\partial z}\frac{\partial s}{\partial z} \\ e_{vs} &amp;= \frac{\partial v}{\partial x} \frac{\partial s}{\partial x} + \frac{\partial v}{\partial y}\frac{\partial s}{\partial y}+ \frac{\partial v}{\partial z}\frac{\partial s}{\partial z} \\ e_{ws} &amp;= \frac{\partial w}{\partial x} \frac{\partial s}{\partial x} + \frac{\partial w}{\partial y}\frac{\partial s}{\partial y}+ \frac{\partial w}{\partial z}\frac{\partial s}{\partial z} \\ \end{aligned} $$ </p>
 </div></div><!-- contents -->
@@ -401,7 +401,7 @@ List of fields in output files</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Wed Dec 3 2025 03:49:08 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 03:49:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

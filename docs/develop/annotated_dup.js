@@ -488,9 +488,6 @@ var annotated_dup =
     [ "field_list", "df/d2b/namespacefield__list.html", [
       [ "field_list_t", "d3/d90/structfield__list_1_1field__list__t.html", "d3/d90/structfield__list_1_1field__list__t" ]
     ] ],
-    [ "field_registry", "d1/dc4/namespacefield__registry.html", [
-      [ "field_registry_t", "dd/d96/structfield__registry_1_1field__registry__t.html", "dd/d96/structfield__registry_1_1field__registry__t" ]
-    ] ],
     [ "field_series", "d6/d32/namespacefield__series.html", [
       [ "field_series_ptr_t", "de/db3/structfield__series_1_1field__series__ptr__t.html", "de/db3/structfield__series_1_1field__series__ptr__t" ],
       [ "field_series_t", "d1/d6e/structfield__series_1_1field__series__t.html", "d1/d6e/structfield__series_1_1field__series__t" ]
@@ -1145,6 +1142,9 @@ var annotated_dup =
     [ "rea_file", "d0/df9/namespacerea__file.html", [
       [ "rea_file_t", "d9/dfe/structrea__file_1_1rea__file__t.html", "d9/dfe/structrea__file_1_1rea__file__t" ]
     ] ],
+    [ "registry", "de/d1f/namespaceregistry.html", [
+      [ "registry_t", "db/d1a/structregistry_1_1registry__t.html", "db/d1a/structregistry_1_1registry__t" ]
+    ] ],
     [ "registry_entry", "da/dd7/namespaceregistry__entry.html", [
       [ "registry_entry_t", "df/db9/structregistry__entry_1_1registry__entry__t.html", "df/db9/structregistry__entry_1_1registry__entry__t" ]
     ] ],
@@ -1460,10 +1460,6 @@ var annotated_dup =
     [ "vector", "d7/d34/namespacevector.html", [
       [ "vector_ptr_t", "d5/d0b/structvector_1_1vector__ptr__t.html", "d5/d0b/structvector_1_1vector__ptr__t" ],
       [ "vector_t", "d3/d5b/structvector_1_1vector__t.html", "d3/d5b/structvector_1_1vector__t" ]
-    ] ],
-    [ "vector_registry", "d1/d52/namespacevector__registry.html", [
-      [ "named_vector_t", "df/d1e/structvector__registry_1_1named__vector__t.html", "df/d1e/structvector__registry_1_1named__vector__t" ],
-      [ "vector_registry_t", "d7/d8f/structvector__registry_1_1vector__registry__t.html", "d7/d8f/structvector__registry_1_1vector__registry__t" ]
     ] ],
     [ "vreman", "d4/d6e/namespacevreman.html", [
       [ "vreman_t", "de/d91/structvreman_1_1vreman__t.html", "de/d91/structvreman_1_1vreman__t" ]

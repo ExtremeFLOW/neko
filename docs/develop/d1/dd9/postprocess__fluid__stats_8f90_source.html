@@ -208,15 +208,15 @@ $(document).ready(function(){initNavTree('d1/dd9/postprocess__fluid__stats_8f90_
 <div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>  <span class="keyword">call </span>gs_h%init(dof)</div>
 <div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>  <span class="keyword">call </span>coef%init(gs_h)</div>
 <div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span> </div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>  <span class="keyword">call </span>neko_field_registry%add_field(dof, <span class="stringliteral">&#39;u&#39;</span>)</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>  <span class="keyword">call </span>neko_field_registry%add_field(dof, <span class="stringliteral">&#39;v&#39;</span>)</div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>  <span class="keyword">call </span>neko_field_registry%add_field(dof, <span class="stringliteral">&#39;w&#39;</span>)</div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>  <span class="keyword">call </span>neko_field_registry%add_field(dof, <span class="stringliteral">&#39;p&#39;</span>)</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>  <span class="keyword">call </span>neko_registry%add_field(dof, <span class="stringliteral">&#39;u&#39;</span>)</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>  <span class="keyword">call </span>neko_registry%add_field(dof, <span class="stringliteral">&#39;v&#39;</span>)</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>  <span class="keyword">call </span>neko_registry%add_field(dof, <span class="stringliteral">&#39;w&#39;</span>)</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>  <span class="keyword">call </span>neko_registry%add_field(dof, <span class="stringliteral">&#39;p&#39;</span>)</div>
 <div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span> </div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>  u =&gt; neko_field_registry%get_field(<span class="stringliteral">&#39;u&#39;</span>)</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>  v =&gt; neko_field_registry%get_field(<span class="stringliteral">&#39;v&#39;</span>)</div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>  w =&gt; neko_field_registry%get_field(<span class="stringliteral">&#39;w&#39;</span>)</div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>  p =&gt; neko_field_registry%get_field(<span class="stringliteral">&#39;p&#39;</span>)</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>  u =&gt; neko_registry%get_field(<span class="stringliteral">&#39;u&#39;</span>)</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>  v =&gt; neko_registry%get_field(<span class="stringliteral">&#39;v&#39;</span>)</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>  w =&gt; neko_registry%get_field(<span class="stringliteral">&#39;w&#39;</span>)</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>  p =&gt; neko_registry%get_field(<span class="stringliteral">&#39;p&#39;</span>)</div>
 <div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span> </div>
 <div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>  <span class="keyword">call </span>fld_stats%init(coef,u,v,w,p)</div>
 <div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>  n = stats_data%u%size()</div>
@@ -298,7 +298,7 @@ $(document).ready(function(){initNavTree('d1/dd9/postprocess__fluid__stats_8f90_
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_3847941dc22744d30c1d316a1f1a60e2.html">contrib</a></li><li class="navelem"><a class="el" href="../../dir_cd7ab70daf8d37dce54984748e177108.html">postprocess_fluid_stats</a></li><li class="navelem"><a class="el" href="../../d1/dd9/postprocess__fluid__stats_8f90.html">postprocess_fluid_stats.f90</a></li>
-    <li class="footer">Generated on Wed Dec 3 2025 03:49:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 03:49:46 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

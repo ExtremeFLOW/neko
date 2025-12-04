@@ -547,12 +547,12 @@ Custom GPU kernels</h3>
 <h2><a class="anchor" id="user-file_tips_registries"></a>
 Registries</h2>
 <p>Neko uses the concept of <code>registry</code> as a practical way to retrieve fields and point zones anywhere in the user file.</p>
-<p>The field registry <code>neko_field_registry</code> is often used in user functions where certain fields are not directly accessible as arguments. One can retrieve any field in the registry by its <code>name</code> with <code>neko_field_registry%get_field(name)</code>. Default fields that are added to the registry are <code>u,v,w,p</code> and <code>s</code> if running with the scalar enabled. For a practical example of usage, see the <a href="https://github.com/ExtremeFLOW/neko/blob/49925b7a04a638259db3b1ddd54349ca57f5d207/examples/rayleigh_benard/rayleigh.f90#L102-L105">rayleigh benard example</a></p>
+<p>The registry <code>neko_registry</code> is often used in user functions where certain fields are not directly accessible as arguments. One can retrieve any field in the registry by its <code>name</code> with <code>neko_registry%get_field(name)</code>. Default fields that are added to the registry are <code>u,v,w,p</code> and <code>s</code> if running with the scalar enabled. For a practical example of usage, see the <a href="https://github.com/ExtremeFLOW/neko/blob/49925b7a04a638259db3b1ddd54349ca57f5d207/examples/rayleigh_benard/rayleigh.f90#L102-L105">rayleigh benard example</a></p>
 <p>Other fields may be added to the registry by various simulation components. For example:</p><ul>
 <li>If running with <code>simulation_components.vorticity</code> enabled, the fields <code>omega_x, omega_y, omega_z</code> will be accessible in the registry.</li>
 <li>If running with <code>simulation_components.lambda2</code> enabled, the field <code><a class="el" href="../../d0/d66/namespacelambda2.html" title="A simulation component that computes lambda2 The values are stored in the field registry under the na...">lambda2</a></code> will be accessible in the registry.</li>
 </ul>
-<dl class="section note"><dt>Note</dt><dd>You can add your own fields to the registry with <code>neko_field_registry%add_field</code> (see field_registry::field_add).</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>You can add your own fields to the registry with <code>neko_registry%add_field</code> (see registry::field_add).</dd></dl>
 <p>The point zone registry, <code>neko_point_zone_registry</code>, can be used to retrieve pointers to <code>point_zone_t</code> objects defined in the case file. See <a class="el" href="../../da/dd0/point-zones.html#point-zones_using-point-zones">using point zones</a> for detailed instructions.</p>
 <h2><a class="anchor" id="user-file_access"></a>
 User access to solver internals</h2>
@@ -573,7 +573,7 @@ User access to solver internals</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Wed Dec 3 2025 03:49:08 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 03:49:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

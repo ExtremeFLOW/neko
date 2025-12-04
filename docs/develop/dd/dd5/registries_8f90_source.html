@@ -110,7 +110,7 @@ $(document).ready(function(){initNavTree('dd/dd5/registries_8f90_source.html','.
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment">! temporary data. It covers the following key points:</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="comment">!</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment">! - Registering user-defined routines using the `user_setup` subroutine.</span></div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="comment">! - Accessing and managing fields using the `neko_field_registry`:</span></div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="comment">! - Accessing and managing fields using the `neko_registry`:</span></div>
 <div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="comment">!   - Retrieving existing fields registered by solvers (e.g., velocity fields).</span></div>
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="comment">!   - Registering new fields for use across modules or for output purposes.</span></div>
 <div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="comment">! - Using the `neko_scratch_registry` to manage temporary fields:</span></div>
@@ -148,13 +148,13 @@ $(document).ready(function(){initNavTree('dd/dd5/registries_8f90_source.html','.
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span> </div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    <span class="comment">! Sometimes we need fields to be accessible across different modules. This</span></div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    <span class="comment">! can include fields that we create in the user module. To that end, Neko</span></div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    <span class="comment">! provides a special singleton object of type `field_registry_t`. The name</span></div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    <span class="comment">! of the singleton is `neko_field_registry`. Solvers register their solution</span></div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    <span class="comment">! provides a special singleton object of type `registry_t`. The name</span></div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    <span class="comment">! of the singleton is `neko_registry`. Solvers register their solution</span></div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <span class="comment">! fields there, for example.</span></div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span> </div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <span class="comment">! Here we can grab the x-velocity from the fluid_scheme_t, which is</span></div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    <span class="comment">! registered as &quot;u&quot; in the registry.</span></div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    my_field_ptr =&gt; neko_field_registry%get_field(<span class="stringliteral">&quot;u&quot;</span>)</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    my_field_ptr =&gt; neko_registry%get_field(<span class="stringliteral">&quot;u&quot;</span>)</div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <span class="comment">! We can also register new fields. For that we need a dofmap_t object, just</span></div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    <span class="comment">! like when we initialize a field. Once in the registry, the field is</span></div>
@@ -163,7 +163,7 @@ $(document).ready(function(){initNavTree('dd/dd5/registries_8f90_source.html','.
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    <span class="comment">! then use the field_writer simcomp to output it to disk during the</span></div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="comment">! simulation. The field_writer looks for fields in the registry, given their</span></div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="comment">! names.</span></div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    <span class="keyword">call </span>neko_field_registry%add_field(my_field_ptr%dof, <span class="stringliteral">&quot;my_field&quot;</span>)</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    <span class="keyword">call </span>neko_registry%add_field(my_field_ptr%dof, <span class="stringliteral">&quot;my_field&quot;</span>)</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span> </div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/d44/namespaceuser.html#a2fd9b995e523d56e60c506dcc796a7c1">initialize</a></div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span> </div>
@@ -182,8 +182,8 @@ $(document).ready(function(){initNavTree('dd/dd5/registries_8f90_source.html','.
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    <span class="comment">! We get a temporary by using a field_t pointer and an index.</span></div>
 <div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>    <span class="keyword">call </span>neko_scratch_registry%request_field(temp_field_ptr, tmp_index, .false.)</div>
 <div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span> </div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>    u =&gt; neko_field_registry%get_field(<span class="stringliteral">&quot;u&quot;</span>)</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>    v =&gt; neko_field_registry%get_field(<span class="stringliteral">&quot;v&quot;</span>)</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>    u =&gt; neko_registry%get_field(<span class="stringliteral">&quot;u&quot;</span>)</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>    v =&gt; neko_registry%get_field(<span class="stringliteral">&quot;v&quot;</span>)</div>
 <div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span> </div>
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    <span class="comment">! Perform some operations and use the temporary for something</span></div>
 <div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    <span class="keyword">call </span>field_cfill(temp_field_ptr, 1.0_rp)</div>
@@ -209,7 +209,7 @@ $(document).ready(function(){initNavTree('dd/dd5/registries_8f90_source.html','.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_d28a4824dc47e487b107a5db32ef43c4.html">examples</a></li><li class="navelem"><a class="el" href="../../dir_385db79e6f7b56731a21812b19c444c1.html">programming</a></li><li class="navelem"><a class="el" href="../../dd/dd5/registries_8f90.html">registries.f90</a></li>
-    <li class="footer">Generated on Wed Dec 3 2025 03:49:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Dec 4 2025 03:49:46 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
