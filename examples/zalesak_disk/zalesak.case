@@ -3,9 +3,11 @@
     "case": {
         "mesh_file": "20x20.nmsh",
         "output_boundary": true,
-        "end_time": 6.28318530718,
-        "variable_timestep":false,
-        "timestep": 0.001,
+        "time": {
+            "end_time": 6.28318530718,
+            "variable_timestep": false,
+            "timestep": 0.001
+        },
         "numerics": {
             "time_order": 1,
             "polynomial_order": 3,
@@ -16,11 +18,7 @@
             "freeze": true,
             "initial_condition": {
                 "type": "uniform",
-                "value": [
-                    0.0,
-                    0.0,
-                    0.0
-                ]
+                "value": [0.0, 0.0, 0.0]
             },
             "velocity_solver": {
                 "type": "cg",
@@ -29,7 +27,7 @@
                 "max_iterations": 800,
                 "preconditioner": {
                     "type": "jacobi"
-                },
+                }
             },
             "pressure_solver": {
                 "type": "gmres",
@@ -42,15 +40,15 @@
             },
             "output_control": "simulationtime",
             "output_value": 0.01,
-            "boundary_conditions":[],
+            "boundary_conditions": []
         },
         "scalar": {
             "enabled": true,
-            "epsilon": 0.005,
+            "epsilon": 0.01,
             "gamma": 0.01,
             "source_terms": [
                 {
-                    "type": "user_vector"
+                    "type": "user"
                 }
             ],
             "solver": {
@@ -65,7 +63,7 @@
             "initial_condition": {
                 "type": "user"
             },
-            "boundary_conditions":[]
+            "boundary_conditions": []
         }
     }
 }
