@@ -213,6 +213,7 @@ test-opencl:
 
 build-hip:
   stage: build
+  when: manual
   tags:
       - gpu
   before_script:
@@ -226,7 +227,7 @@ build-hip:
     - export PATH=/opt/rocm/bin:${PATH}
     - export LD_LIBRARY_PATH=/opt/rocm/lib:${LD_LIBRARY_PATH}
     - ./regen.sh
-    - ./configure FC=mpif90 CC=mpicc FCFLAGS="-O3" --with-pfunit=${PFUNIT_ROOT}/PFUNIT-4.15/ --with-parmetis --with-metis --with-hip=/usr/rocm/
+    - ./configure FC=mpif90 CC=mpicc FCFLAGS="-O3" --with-pfunit=${PFUNIT_ROOT}/PFUNIT-4.15/ --with-parmetis --with-metis --with-hip=/opt/rocm/
     - make -j 128
   cache:
     key: "$CI_COMMIT_REF_SLUG+hip"
@@ -234,6 +235,7 @@ build-hip:
 
 check-hip:
   stage: check
+  when: manual
   tags:
     - gpu
   before_script:
@@ -260,6 +262,7 @@ check-hip:
 
 test-hip:
   stage: test
+  when: manual
   tags:
     - gpu
   before_script:
