@@ -37,12 +37,12 @@ module field_writer
   use num_types, only : rp, dp, sp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
-  use field_registry, only : neko_field_registry
-  use field, only : field_t
-  use operators, only : curl
+  use time_state, only : time_state_t
+  use registry, only : neko_registry
   use case, only : case_t
   use fld_file_output, only : fld_file_output_t
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get
+  use time_based_controller, only : time_based_controller_t
   implicit none
   private
 
@@ -54,9 +54,18 @@ module field_writer
    contains
      !> Constructor from json, wrapping the actual constructor.
      procedure, pass(this) :: init => field_writer_init_from_json
-     !> Actual constructor.
-     procedure, pass(this) :: init_from_attributes => &
-        field_writer_init_from_attributes
+     !> Generic for constructing from components.
+     generic :: init_from_components => &
+          init_from_controllers, init_from_controllers_properties
+     !> Constructor from components, passing time_based_controllers.
+     procedure, pass(this) :: init_from_controllers => &
+          field_writer_init_from_controllers
+     !> Constructor from components, passing the properties of
+     !! time_based_controllers.
+     procedure, pass(this) :: init_from_controllers_properties => &
+          field_writer_init_from_controllers_properties
+     !> Common part of both constructors.
+     procedure, private, pass(this) :: init_common => field_writer_init_common
      !> Destructor.
      procedure, pass(this) :: free => field_writer_free
      !> Here to compy with the interface, does nothing.
@@ -69,7 +78,7 @@ contains
   !> @param json JSON object with the parameters.
   !! @param case The case object.
   subroutine field_writer_init_from_json(this, json, case)
-    class(field_writer_t), intent(inout) :: this
+    class(field_writer_t), intent(inout), target :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: filename
@@ -82,39 +91,107 @@ contains
     if (json%valid_path("output_filename")) then
        call json_get(json, "output_filename", filename)
        if (json%valid_path("output_precision")) then
-           call json_get(json, "output_precision", precision)
-           if (precision == "double") then
-              call field_writer_init_from_attributes(this, fields, filename, dp)
-           else
-              call field_writer_init_from_attributes(this, fields, filename, sp)
-           end if
+          call json_get(json, "output_precision", precision)
+          if (precision == "double") then
+             call this%init_common(fields, filename, dp)
+          else
+             call this%init_common(fields, filename, sp)
+          end if
        else
-           call field_writer_init_from_attributes(this, fields, filename)
+          call this%init_common(fields, filename)
        end if
     else
-       call field_writer_init_from_attributes(this, fields)
+       call this%init_common(fields)
     end if
   end subroutine field_writer_init_from_json
 
-  !> Actual constructor.
+  !> Constructor from components, passing controllers.
+  !! @param case The simulation case object.
+  !! @param order The execution oder priority of the simcomp.
+  !! @param preprocess_controller The controller for running preprocessing.
+  !! @param compute_controller The controller for running compute.
+  !! @param output_controller The controller for producing output.
   !! @param fields Array of field names to be sampled.
   !! @param filename The name of the file save the fields to. Optional, if not
   !! provided, fields are added to the main output file.
   !! @param precision The real precision of the output data. Optional, defaults
   !! to single precision.
-  subroutine field_writer_init_from_attributes(this, fields, filename, precision)
+  subroutine field_writer_init_from_controllers(this, case, order, &
+       preprocess_controller, compute_controller, output_controller, &
+       fields, filename, precision)
     class(field_writer_t), intent(inout) :: this
-    character(len=20), allocatable, intent(in) :: fields(:)
+    class(case_t), intent(inout), target :: case
+    integer :: order
+    type(time_based_controller_t), intent(in) :: preprocess_controller
+    type(time_based_controller_t), intent(in) :: compute_controller
+    type(time_based_controller_t), intent(in) :: output_controller
+    character(len=20), intent(in) :: fields(:)
+    character(len=*), intent(in), optional :: filename
+    integer, intent(in), optional :: precision
+
+    call this%init_base_from_components(case, order, preprocess_controller, &
+         compute_controller, output_controller)
+    call this%init_common(fields, filename, precision)
+
+  end subroutine field_writer_init_from_controllers
+
+  !> Constructor from components, passing properties to the
+  !! time_based_controller` components in the base type.
+  !! @param case The simulation case object.
+  !! @param order The execution oder priority of the simcomp.
+  !! @param preprocess_controller Control mode for preprocessing.
+  !! @param preprocess_value Value parameter for preprocessing.
+  !! @param compute_controller Control mode for computing.
+  !! @param compute_value Value parameter for computing.
+  !! @param output_controller Control mode for output.
+  !! @param output_value Value parameter for output.
+  !! @param fields Array of field names to be sampled.
+  !! @param filename The name of the file save the fields to. Optional, if not
+  !! provided, fields are added to the main output file.
+  !! @param precision The real precision of the output data. Optional, defaults
+  !! to single precision.
+  subroutine field_writer_init_from_controllers_properties(this, &
+       case, order, preprocess_control, preprocess_value, compute_control, &
+       compute_value, output_control, output_value, fields, filename, precision)
+    class(field_writer_t), intent(inout) :: this
+    class(case_t), intent(inout), target :: case
+    integer :: order
+    character(len=*), intent(in) :: preprocess_control
+    real(kind=rp), intent(in) :: preprocess_value
+    character(len=*), intent(in) :: compute_control
+    real(kind=rp), intent(in) :: compute_value
+    character(len=*), intent(in) :: output_control
+    real(kind=rp), intent(in) :: output_value
+    character(len=20), intent(in) :: fields(:)
+    character(len=*), intent(in), optional :: filename
+    integer, intent(in), optional :: precision
+
+    call this%init_base_from_components(case, order, preprocess_control, &
+         preprocess_value, compute_control, compute_value, output_control, &
+         output_value)
+    call this%init_common(fields, filename, precision)
+
+  end subroutine field_writer_init_from_controllers_properties
+
+  !> Common part of both constructors.
+  !! @param fields Array of field names to be sampled.
+  !! @param filename The name of the file save the fields to. Optional, if not
+  !! provided, fields are added to the main output file.
+  !! @param precision The real precision of the output data. Optional, defaults
+  !! to single precision.
+  subroutine field_writer_init_common(this, fields, filename, precision)
+    class(field_writer_t), intent(inout) :: this
+    character(len=20), intent(in) :: fields(:)
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
     character(len=20) :: fieldi
     integer :: i
 
     ! Regsiter fields if they don't exist.
-    do i=1, size(fields)
-      fieldi = trim(fields(i))
-      call neko_field_registry%add_field(this%case%fluid%dm_Xh, fieldi,&
-                                         ignore_existing=.true.)
+    do i = 1, size(fields)
+       fieldi = trim(fields(i))
+       call neko_registry%add_field(this%case%fluid%dm_Xh, fieldi,&
+            ignore_existing = .true.)
     end do
 
     if (present(filename)) then
@@ -123,22 +200,24 @@ contains
        else
           call this%output%init(sp, filename, size(fields))
        end if
-       do i=1, size(fields)
+       do i = 1, size(fields)
           fieldi = trim(fields(i))
-          call this%output%fields%assign(i, neko_field_registry%get_field(fieldi))
+          call this%output%fields%assign(i, &
+               neko_registry%get_field(fieldi))
        end do
 
        call this%case%output_controller%add(this%output, &
             this%output_controller%control_value, &
             this%output_controller%control_mode)
     else
-      do i=1, size(fields)
-         fieldi = trim(fields(i))
-         call this%case%f_out%fluid%append(neko_field_registry%get_field(fieldi))
-      end do
+       do i = 1, size(fields)
+          fieldi = trim(fields(i))
+          call this%case%f_out%fluid%append( &
+               neko_registry%get_field(fieldi))
+       end do
     end if
 
-  end subroutine field_writer_init_from_attributes
+  end subroutine field_writer_init_common
 
   !> Destructor.
   subroutine field_writer_free(this)
@@ -147,12 +226,9 @@ contains
   end subroutine field_writer_free
 
   !> Here to comply with the interface, does nothing.
-  !! @param t The time value.
-  !! @param tstep The current time-step
-  subroutine field_writer_compute(this, t, tstep)
+  subroutine field_writer_compute(this, time)
     class(field_writer_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
 
   end subroutine field_writer_compute
 

@@ -10,7 +10,7 @@ module point_interpolation_parallel
   use space
   use point
   use datadist
-  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use comm, only : NEKO_COMM, pe_rank, pe_size, comm_init
   use device
   use neko_config
   implicit none
@@ -32,6 +32,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_init
     end if
+    call comm_init
   end subroutine setUp
 
   subroutine tearDown(this)
@@ -46,21 +47,21 @@ contains
     implicit none
     type(point_t) :: p(8)
 
-    p(1) = point_t(1d0, 1d0, 1d0)
+    call p(1)%init(1d0, 1d0, 1d0)
     call p(1)%set_id(1)
-    p(2) = point_t(2d0, 1d0, 1d0)
+    call p(2)%init(2d0, 1d0, 1d0)
     call p(2)%set_id(2)
-    p(3) = point_t(1d0, 2d0, 1d0)
+    call p(3)%init(1d0, 2d0, 1d0)
     call p(3)%set_id(4)
-    p(4) = point_t(2d0, 2d0, 1d0)
+    call p(4)%init(2d0, 2d0, 1d0)
     call p(4)%set_id(3)
-    p(5) = point_t(1d0, 1d0, 2d0)
+    call p(5)%init(1d0, 1d0, 2d0)
     call p(5)%set_id(5)
-    p(6) = point_t(2d0, 1d0, 2d0)
+    call p(6)%init(2d0, 1d0, 2d0)
     call p(6)%set_id(6)
-    p(7) = point_t(1d0, 2d0, 2d0)
+    call p(7)%init(1d0, 2d0, 2d0)
     call p(7)%set_id(7)
-    p(8) = point_t(2d0, 2d0, 2d0)
+    call p(8)%init(2d0, 2d0, 2d0)
     call p(8)%set_id(8)
   end subroutine create_points
 
@@ -102,7 +103,7 @@ contains
     call create_points(p)
 
     call msh%init(3, dist)
-    call msh%add_element(1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
+    call msh%add_element(1, 1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
 
     call msh%generate_conn()
     call Xh%init(GLL, lx, lx, lx)
@@ -142,7 +143,7 @@ contains
     dist = linear_dist_t(1, pe_rank, pe_size, NEKO_COMM)
     call create_points(p)
     call msh%init(3, dist)
-    call msh%add_element(1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
+    call msh%add_element(1, 1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
     call msh%generate_conn()
     call Xh%init(GLL, lx, lx, lx)
     call dof%init(msh, Xh)
@@ -165,7 +166,7 @@ contains
     ! We use the interpolation for a vector field, interpolating the coordinates
     ! themselves
     xyz = interp%interpolate(rst, coef%dof%x(:,:,:,e), &
-                             coef%dof%y(:,:,:,e), coef%dof%z(:,:,:,e))
+         coef%dof%y(:,:,:,e), coef%dof%z(:,:,:,e))
 
     @assertRelativelyEqual(xyz(1)%x, xyz_equal(1)%x, tolerance=1e-4_rp)
     @assertRelativelyEqual(xyz(2)%x, xyz_equal(2)%x, tolerance=1e-4_rp)
@@ -206,7 +207,7 @@ contains
     dist = linear_dist_t(1, pe_rank, pe_size, NEKO_COMM)
     call create_points(p)
     call msh%init(3, dist)
-    call msh%add_element(1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
+    call msh%add_element(1, 1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
     call msh%generate_conn()
     call Xh%init(GLL, lx, lx, lx)
     call dof%init(msh, Xh)
@@ -223,7 +224,7 @@ contains
     ! We use the interpolation for a vector field, interpolating the coordinates
     ! themselves
     xyz = interp%interpolate(rst, coef%dof%x(:,:,:,e), &
-                             coef%dof%y(:,:,:,e), coef%dof%z(:,:,:,e))
+         coef%dof%y(:,:,:,e), coef%dof%z(:,:,:,e))
 
     @assertRelativelyEqual(xyz(1)%x, xyz_equal(1)%x, tolerance=1e-4_rp)
 

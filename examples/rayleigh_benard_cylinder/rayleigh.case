@@ -1,0 +1,110 @@
+{
+    "version": 1.0,
+    "case": {
+        "mesh_file": "rayleigh.nmsh",
+        "output_at_end": true,
+        "output_boundary": true,
+        "time": {
+            "end_time": 250,
+            "timestep": 2e-3
+        },
+        "output_checkpoints": true,
+        "checkpoint_control": "simulationtime",
+        "checkpoint_value": 50,
+        "job_timelimit": "12:00:00",
+        "numerics": {
+            "time_order": 3,
+            "polynomial_order": 7,
+            "dealias": true
+        },
+        "fluid": {
+            "scheme": "pnpn",
+            "Ra": 1e8,
+            "variable_material_properties": false,
+            "source_terms": [
+                {
+                    "type": "boussinesq",
+                    "scalar_field": "temperature",
+                    "g": [ 0, 0, 1 ],
+                    "reference_value": 0,
+                    "beta": 1
+                }
+            ],
+            "initial_condition": {
+                "type": "uniform",
+                "value": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "velocity_solver": {
+                "type": "cg",
+                "preconditioner": {
+                    "type": "jacobi"
+                },
+                "projection_space_size": 0,
+                "absolute_tolerance": 1e-6,
+                "max_iterations": 800
+            },
+            "pressure_solver": {
+                "type": "gmres",
+                "preconditioner": {
+                    "type": "hsmg"
+                },
+                "projection_space_size": 0,
+                "absolute_tolerance": 1e-4,
+                "max_iterations": 800
+            },
+            "output_control": "nsamples",
+            "output_value": 10,
+            "boundary_conditions": [
+                {
+                    "type": "no_slip",
+                    "zone_indices": [ 1, 2, 3 ]
+                }
+            ]
+        },
+        "scalar": {
+            "name": "temperature",
+            "enabled": true,
+            "Pr": 1.0,
+            "initial_condition": {
+                "type": "user"
+            },
+            "solver": {
+                "type": "cg",
+                "preconditioner": {
+                    "type": "jacobi"
+                },
+                "projection_space_size": 0,
+                "absolute_tolerance": 1e-6,
+                "max_iterations": 800
+            },
+            "boundary_conditions": [
+                {
+                    "type": "user",
+                    "zone_indices": [ 1, 2 ]
+                },
+                {
+                    "type": "neumann",
+                    "flux": 0,
+                    "zone_indices": [ 3 ]
+                }
+            ]
+        },
+        "simulation_components": [
+            {
+                "type": "probes",
+                "compute_control": "simulationtime",
+                "compute_value": 1,
+                "points_file": "probes.csv",
+                "output_file": "output.csv",
+                "fields": [
+                    "w",
+                    "temperature"
+                ]
+            }
+        ]
+    }
+}

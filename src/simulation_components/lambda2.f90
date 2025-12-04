@@ -38,11 +38,13 @@ module lambda2
   use num_types, only : rp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use field, only : field_t
+  use time_state, only : time_state_t
   use operators, only : lambda2op
   use case, only : case_t
   use field_writer, only : field_writer_t
+  use time_based_controller, only : time_based_controller_t
   use device
   implicit none
   private
@@ -68,9 +70,18 @@ module lambda2
    contains
      !> Constructor from json.
      procedure, pass(this) :: init => lambda2_init_from_json
-     !> Actual constructor.
-     procedure, pass(this) :: init_from_attributes => &
-          lambda2_init_from_attributes
+     !> Generic for constructing from components.
+     generic :: init_from_components => &
+          init_from_controllers, init_from_controllers_properties
+     !> Constructor from components, passing time_based_controllers.
+     procedure, pass(this) :: init_from_controllers => &
+          lambda2_init_from_controllers
+     !> Constructor from components, passing the properties of
+     !! time_based_controllers.
+     procedure, pass(this) :: init_from_controllers_properties => &
+          lambda2_init_from_controllers_properties
+     !> Common part of both constructors.
+     procedure, private, pass(this) :: init_common => lambda2_init_common
      !> Destructor.
      procedure, pass(this) :: free => lambda2_free
      !> Compute the lambda2 field
@@ -81,7 +92,7 @@ contains
 
   !> Constructor from json.
   subroutine lambda2_init_from_json(this, json, case)
-    class(lambda2_t), intent(inout) :: this
+    class(lambda2_t), intent(inout), target :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target ::case
     character(len=20) :: fields(1)
@@ -94,39 +105,111 @@ contains
 
     call this%init_base(json, case)
     call this%writer%init(json, case)
-    u => neko_field_registry%get_field("u")
-    v => neko_field_registry%get_field("v")
-    w => neko_field_registry%get_field("w")
-    lambda2 => neko_field_registry%get_field("lambda2")
 
-    call lambda2_init_from_attributes(this, u, v, w, lambda2)
+    call this%init_common()
   end subroutine lambda2_init_from_json
 
-  !> Actual constructor.
-  subroutine lambda2_init_from_attributes(this, u, v, w, lambda2)
+  !> Common part of constructors.
+  subroutine lambda2_init_common(this)
     class(lambda2_t), intent(inout) :: this
-    type(field_t), pointer, intent(inout) :: u, v, w, lambda2
 
-    this%u => u
-    this%v => v
-    this%w => w
-    this%lambda2 => lambda2
+    this%u => neko_registry%get_field("u")
+    this%v => neko_registry%get_field("v")
+    this%w => neko_registry%get_field("w")
+    this%lambda2 => neko_registry%get_field("lambda2")
 
-  end subroutine lambda2_init_from_attributes
+  end subroutine lambda2_init_common
+
+  !> Constructor from components, passing controllers.
+  !! @param case The simulation case object.
+  !! @param order The execution oder priority of the simcomp.
+  !! @param preprocess_controller The controller for running preprocessing.
+  !! @param compute_controller The controller for running compute.
+  !! @param output_controller The controller for producing output.
+  !! @param filename The name of the file save the fields to. Optional, if not
+  !! @param precision The real precision of the output data. Optional, defaults
+  !! to single precision.
+  subroutine lambda2_init_from_controllers(this, case, order, &
+       preprocess_controller, compute_controller, output_controller, &
+       filename, precision)
+    class(lambda2_t), intent(inout) :: this
+    class(case_t), intent(inout), target :: case
+    integer :: order
+    type(time_based_controller_t), intent(in) :: preprocess_controller
+    type(time_based_controller_t), intent(in) :: compute_controller
+    type(time_based_controller_t), intent(in) :: output_controller
+    character(len=*), intent(in), optional :: filename
+    integer, intent(in), optional :: precision
+
+    character(len=20) :: fields(1)
+    fields(1) = "lambda2"
+
+    call this%init_base_from_components(case, order, preprocess_controller, &
+         compute_controller, output_controller)
+    call this%writer%init_from_components(case, order, preprocess_controller, &
+         compute_controller, output_controller, fields, filename, precision)
+    call this%init_common()
+
+  end subroutine lambda2_init_from_controllers
+
+  !> Constructor from components, passing properties to the
+  !! time_based_controller` components in the base type.
+  !! @param case The simulation case object.
+  !! @param order The execution oder priority of the simcomp.
+  !! @param preprocess_controller Control mode for preprocessing.
+  !! @param preprocess_value Value parameter for preprocessing.
+  !! @param compute_controller Control mode for computing.
+  !! @param compute_value Value parameter for computing.
+  !! @param output_controller Control mode for output.
+  !! @param output_value Value parameter for output.
+  !! @param filename The name of the file save the fields to. Optional, if not
+  !! provided, fields are added to the main output file.
+  !! @param precision The real precision of the output data. Optional, defaults
+  !! to single precision.
+  subroutine lambda2_init_from_controllers_properties(this, &
+       case, order, preprocess_control, preprocess_value, compute_control, &
+       compute_value, output_control, output_value, filename, precision)
+    class(lambda2_t), intent(inout) :: this
+    class(case_t), intent(inout), target :: case
+    integer :: order
+    character(len=*), intent(in) :: preprocess_control
+    real(kind=rp), intent(in) :: preprocess_value
+    character(len=*), intent(in) :: compute_control
+    real(kind=rp), intent(in) :: compute_value
+    character(len=*), intent(in) :: output_control
+    real(kind=rp), intent(in) :: output_value
+    character(len=*), intent(in), optional :: filename
+    integer, intent(in), optional :: precision
+
+    character(len=20) :: fields(1)
+    fields(1) = "lambda2"
+
+    call this%init_base_from_components(case, order, preprocess_control, &
+         preprocess_value, compute_control, compute_value, output_control, &
+         output_value)
+    call this%writer%init_from_components(case, order, preprocess_control, &
+         preprocess_value, compute_control, compute_value, output_control, &
+         output_value, fields, filename, precision)
+    call this%init_common()
+
+  end subroutine lambda2_init_from_controllers_properties
 
   !> Destructor.
   subroutine lambda2_free(this)
     class(lambda2_t), intent(inout) :: this
     call this%free_base()
+
+    nullify(this%u)
+    nullify(this%v)
+    nullify(this%w)
+    nullify(this%lambda2)
   end subroutine lambda2_free
 
   !> Compute the lambda2 field.
-  !! @param t The time value.
-  !! @param tstep The current time-step
-  subroutine lambda2_compute(this, t, tstep)
+  !! @param time The time state.
+  subroutine lambda2_compute(this, time)
     class(lambda2_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
 
     call lambda2op(this%lambda2, this%u, this%v, this%w, this%case%fluid%c_Xh)
 

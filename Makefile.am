@@ -4,12 +4,14 @@ pkgconfig_DATA = neko.pc
 
 SUBDIRS = src
 
+if !ENABLE_NVSHMEM
 if ENABLE_CONTRIB
 SUBDIRS += contrib
 endif
 
 if ENABLE_PFUNIT
 SUBDIRS += tests/unit
+endif
 endif
 
 if ENABLE_DOXYGEN
@@ -39,23 +41,23 @@ EXTRA_DIST = \
 	examples/turb_channel/README.md\
 	examples/turb_channel/turb_channel.f90\
 	examples/turb_channel/box.nmsh\
-	examples/turbpipe/pipe.case\
-	examples/turbpipe/pipe.f90\
-	examples/turbpipe/pipe.nmsh\
-	examples/turbpipe/README.md\
-	examples/turbpipe/pipe_source.case\
+	examples/turb_pipe/turb_pipe.case\
+	examples/turb_pipe/turb_pipe_source.case\
+	examples/turb_pipe/turb_pipe.f90\
+	examples/turb_pipe/turb_pipe.nmsh\
+	examples/turb_pipe/turb_pipe.geo\
+	examples/turb_pipe/README.md\
 	examples/hemi/hemi.nmsh\
 	examples/hemi/README.md\
 	examples/hemi/hemi.case\
 	examples/lid/lid.f90\
 	examples/lid/lid2d.nmsh\
-	examples/lid/lid2d.f90\
 	examples/lid/lid.nmsh\
 	examples/lid/README.md\
-	examples/lid/lid2d.box\
 	examples/lid/lid2d.case\
 	examples/lid/lid.case\
-	examples/lid/lid.box\
+	examples/lid/elem_dist.csv\
+	examples/lid/plot_stat.py\
 	examples/poisson/ax_poisson.f90\
 	examples/poisson/setup.f90\
 	examples/poisson/Makefile\
@@ -70,8 +72,10 @@ EXTRA_DIST = \
 	examples/poisson/data/512.nmsh\
 	examples/poisson/data/1024.nmsh\
 	examples/poisson/driver.f90\
-	examples/2d_cylinder/ext_cyl.nmsh\
+	examples/2d_cylinder/2d_cylinder.nmsh\
 	examples/2d_cylinder/2d_cylinder.case\
+	examples/2d_cylinder/2d_cylinder.f90\
+	examples/2d_cylinder/2d_cylinder.geo\
 	examples/2d_cylinder/README.md\
 	examples/cyl_boundary_layer/cyl_bl_rot.case\
 	examples/cyl_boundary_layer/cyl_bl.f90\
@@ -79,22 +83,31 @@ EXTRA_DIST = \
 	examples/cyl_boundary_layer/cyl_bl_user.case\
 	examples/cyl_boundary_layer/cyl_bl_basic.case\
 	examples/cyl_boundary_layer/cyl.nmsh\
-	examples/rayleigh-benard/rayleigh.f90\
-	examples/rayleigh-benard/README.md\
-	examples/rayleigh-benard/box.nmsh\
-	examples/rayleigh-benard/rayleigh.case\
+	examples/rayleigh_benard/rayleigh.f90\
+	examples/rayleigh_benard/README.md\
+	examples/rayleigh_benard/box.nmsh\
+	examples/rayleigh_benard/rayleigh.case\
 	examples/tgv/262144.nmsh\
 	examples/tgv/tgv.case\
 	examples/tgv/README.md\
 	examples/tgv/32768.nmsh\
 	examples/tgv/tgv.f90\
 	examples/tgv/512.nmsh\
-	examples/rayleigh-benard-cylinder/probes.csv\
-	examples/rayleigh-benard-cylinder/rayleigh.f90\
-	examples/rayleigh-benard-cylinder/README.md\
-	examples/rayleigh-benard-cylinder/cylinder.nmsh\
-	examples/rayleigh-benard-cylinder/rayleigh.case\
-	examples/rayleigh-benard-cylinder/postprocess_probes.py\
+	examples/rayleigh_benard_cylinder/probes.csv\
+	examples/rayleigh_benard_cylinder/rayleigh.f90\
+	examples/rayleigh_benard_cylinder/README.md\
+	examples/rayleigh_benard_cylinder/rayleigh.nmsh\
+	examples/rayleigh_benard_cylinder/rayleigh.geo\
+	examples/rayleigh_benard_cylinder/rayleigh.case\
+	examples/rayleigh_benard_cylinder/postprocess_probes.py\
+	examples/api/pyneko/README.md\
+	examples/api/pyneko/cylinder.case\
+	examples/api/pyneko/cylinder.py\
+	examples/api/pyneko/cylinder.nmsh\
+	examples/api/c/README.md\
+	examples/api/c/cylinder.case\
+	examples/api/c/cylinder.c\
+	examples/api/c/cylinder.nmsh\
 	tests/reframe/checks.py\
 	tests/reframe/settings.py\
 	tests/reframe/README.md\
@@ -105,16 +118,32 @@ EXTRA_DIST = \
 	tests/reframe/src/rocm_select_gpu_device.sh\
 	tests/reframe/src/tgv.case.template\
 	tests/reframe/src/tgv.f90\
-	tests/regression/README.md\
-	tests/regression/cylinder/cylinder_part1.case\
-	tests/regression/cylinder/cylinder_part2.case\
-	tests/regression/cylinder/ref1_dp.log\
-	tests/regression/cylinder/ref1_sp.log\
-	tests/regression/cylinder/ref2_dp.log\
-	tests/regression/cylinder/ref2_sp.log\
-	tests/regression/cylinder/small_test_cyl.nmsh\
-	tests/regression/cylinder/test_easy.sh\
-	tests/regression/cylinder/test.sh\
+	tests/integration/default_cpu_launcher.sh\
+	tests/integration/default_cuda_launcher.sh\
+	tests/integration/conftest.py\
+	tests/integration/testlib.py\
+	tests/integration/pytest.ini\
+	tests/integration/meshes/small_test_cyl.nmsh\
+	tests/integration/tests/test_demo/test_suite.py\
+	tests/integration/tests/test_examples/test_examples.py\
+	tests/integration/tests/test_cylinder/test_cylinder.py\
+	tests/integration/tests/test_cylinder/cylinder_part1.case\
+	tests/integration/tests/test_cylinder/reflog1_cpu_dp.csv\
+	tests/integration/tests/test_cylinder/reflog1_cpu_sp.csv\
+	tests/integration/tests/test_cylinder/reflog2_cpu_dp.csv\
+	tests/integration/tests/test_cylinder/reflog2_cpu_sp.csv\
+	tests/integration/tests/test_cylinder/reflog1_cuda_dp.csv\
+	tests/integration/tests/test_cylinder/reflog1_cuda_sp.csv\
+	tests/integration/tests/test_cylinder/reflog2_cuda_dp.csv\
+	tests/integration/tests/test_cylinder/reflog2_cuda_sp.csv\
+	tests/integration/tests/test_cylinder/reflog1_hip_dp.csv\
+	tests/integration/tests/test_cylinder/reflog1_hip_sp.csv\
+	tests/integration/tests/test_cylinder/reflog2_hip_dp.csv\
+	tests/integration/tests/test_cylinder/reflog2_hip_sp.csv\
+	tests/integration/tests/test_cylinder/reflog1_opencl_dp.csv\
+	tests/integration/tests/test_cylinder/reflog1_opencl_sp.csv\
+	tests/integration/tests/test_cylinder/reflog2_opencl_dp.csv\
+	tests/integration/tests/test_cylinder/reflog2_opencl_sp.csv\
 	patches/nvhpc_bge.patch\
 	patches/json-fortran71.patch
 

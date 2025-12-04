@@ -1,6 +1,6 @@
 module rhs_maker_sx
   use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_sumab_t, &
-                        rhs_maker_oifs_t
+       rhs_maker_oifs_t
   use field_series, only : field_series_t
   use field, only : field_t
   use num_types, only : rp, c_rp
@@ -13,7 +13,7 @@ module rhs_maker_sx
      procedure, nopass :: compute_fluid => rhs_maker_sumab_sx
   end type rhs_maker_sumab_sx_t
 
-  type, public, extends(rhs_maker_ext_t) ::  rhs_maker_ext_sx_t
+  type, public, extends(rhs_maker_ext_t) :: rhs_maker_ext_sx_t
    contains
      procedure, nopass :: compute_fluid => rhs_maker_ext_sx
      procedure, nopass :: compute_scalar => scalar_rhs_maker_ext_sx
@@ -34,7 +34,7 @@ module rhs_maker_sx
 contains
 
   subroutine rhs_maker_sumab_sx(u, v, w, uu, vv, ww, uulag, vvlag, wwlag, &
-                                ab, nab)
+       ab, nab)
     type(field_t), intent(inout) :: u,v, w
     type(field_t), intent(inout) :: uu, vv, ww
     type(field_series_t), intent(inout) :: uulag, vvlag, wwlag
@@ -61,28 +61,28 @@ contains
   end subroutine rhs_maker_sumab_sx
 
   subroutine rhs_maker_ext_sx(fx_lag, fy_lag, fz_lag, &
-                             fx_laglag, fy_laglag, fz_laglag, fx, fy, fz, &
-                             rho, ext_coeffs, n)
+       fx_laglag, fy_laglag, fz_laglag, fx, fy, fz, &
+       rho, ext_coeffs, n)
     type(field_t), intent(inout) :: fx_lag, fy_lag, fz_lag
     type(field_t), intent(inout) :: fx_laglag, fy_laglag, fz_laglag
-    real(kind=rp), intent(inout) :: rho, ext_coeffs(4)
+    real(kind=rp), intent(in) :: rho, ext_coeffs(4)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: fx(n), fy(n), fz(n)
     integer :: i
     type(field_t), pointer :: temp1, temp2, temp3
     integer :: temp_indices(3)
 
-    call neko_scratch_registry%request_field(temp1, temp_indices(1))
-    call neko_scratch_registry%request_field(temp2, temp_indices(2))
-    call neko_scratch_registry%request_field(temp3, temp_indices(3))
+    call neko_scratch_registry%request_field(temp1, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(temp2, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(temp3, temp_indices(3), .false.)
 
     do i = 1, n
        temp1%x(i,1,1,1) = ext_coeffs(2) * fx_lag%x(i,1,1,1) + &
-                          ext_coeffs(3) * fx_laglag%x(i,1,1,1)
+            ext_coeffs(3) * fx_laglag%x(i,1,1,1)
        temp2%x(i,1,1,1) = ext_coeffs(2) * fy_lag%x(i,1,1,1) + &
-                          ext_coeffs(3) * fy_laglag%x(i,1,1,1)
+            ext_coeffs(3) * fy_laglag%x(i,1,1,1)
        temp3%x(i,1,1,1) = ext_coeffs(2) * fz_lag%x(i,1,1,1) + &
-                          ext_coeffs(3) * fz_laglag%x(i,1,1,1)
+            ext_coeffs(3) * fz_laglag%x(i,1,1,1)
     end do
 
     do i = 1, n
@@ -105,21 +105,21 @@ contains
   end subroutine rhs_maker_ext_sx
 
   subroutine scalar_rhs_maker_ext_sx(fs_lag, fs_laglag, fs, rho, &
-                                     ext_coeffs, n)
+       ext_coeffs, n)
     type(field_t), intent(inout) :: fs_lag
     type(field_t), intent(inout) :: fs_laglag
-    real(kind=rp), intent(inout) :: rho, ext_coeffs(4)
+    real(kind=rp), intent(in) :: rho, ext_coeffs(4)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: fs(n)
     integer :: i
     type(field_t), pointer :: temp1
     integer :: temp_index
 
-    call neko_scratch_registry%request_field(temp1, temp_index)
+    call neko_scratch_registry%request_field(temp1, temp_index, .false.)
 
     do i = 1, n
        temp1%x(i,1,1,1) = ext_coeffs(2) * fs_lag%x(i,1,1,1) + &
-                          ext_coeffs(3) * fs_laglag%x(i,1,1,1)
+            ext_coeffs(3) * fs_laglag%x(i,1,1,1)
     end do
 
     do i = 1, n
@@ -135,7 +135,7 @@ contains
   end subroutine scalar_rhs_maker_ext_sx
 
   subroutine rhs_maker_bdf_sx(ulag, vlag, wlag, bfx, bfy, bfz, &
-                              u, v, w, B, rho, dt, bd, nbd, n)
+       u, v, w, B, rho, dt, bd, nbd, n)
     integer, intent(in) :: n, nbd
     type(field_t), intent(in) :: u, v, w
     type(field_series_t), intent(in) :: ulag, vlag, wlag
@@ -147,12 +147,12 @@ contains
     integer :: temp_indices(6)
     integer :: i, ilag
 
-    call neko_scratch_registry%request_field(ta1, temp_indices(1))
-    call neko_scratch_registry%request_field(ta2, temp_indices(2))
-    call neko_scratch_registry%request_field(ta3, temp_indices(3))
-    call neko_scratch_registry%request_field(tb1, temp_indices(4))
-    call neko_scratch_registry%request_field(tb2, temp_indices(5))
-    call neko_scratch_registry%request_field(tb3, temp_indices(6))
+    call neko_scratch_registry%request_field(ta1, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(ta2, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(ta3, temp_indices(3), .false.)
+    call neko_scratch_registry%request_field(tb1, temp_indices(4), .false.)
+    call neko_scratch_registry%request_field(tb2, temp_indices(5), .false.)
+    call neko_scratch_registry%request_field(tb3, temp_indices(6), .false.)
 
     do i = 1, n
        tb1%x(i,1,1,1) = u%x(i,1,1,1) * B(i) * bd(2)
@@ -195,8 +195,8 @@ contains
     type(field_t), pointer :: temp1, temp2
     integer :: temp_indices(2)
 
-    call neko_scratch_registry%request_field(temp1, temp_indices(1))
-    call neko_scratch_registry%request_field(temp2, temp_indices(2))
+    call neko_scratch_registry%request_field(temp1, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(temp2, temp_indices(2), .false.)
 
     do i = 1, n
        temp2%x(i,1,1,1) = s%x(i,1,1,1) * B(i) * bd(2)
@@ -220,7 +220,7 @@ contains
   end subroutine scalar_rhs_maker_bdf_sx
 
   subroutine rhs_maker_oifs_sx(phi_x, phi_y, phi_z, bf_x, bf_y, bf_z, &
-                               rho, dt, n)
+       rho, dt, n)
     real(kind=rp), intent(in) :: rho, dt
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: bf_x(n), bf_y(n), bf_z(n)

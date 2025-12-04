@@ -33,18 +33,23 @@
 !> Defines a pipelined Conjugate Gradient methods
 module pipecg_device
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
-  use precon,  only : pc_t
+  use precon, only : pc_t
   use ax_product, only : ax_t
   use num_types, only: rp, c_rp
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc, only : bc_list_t, bc_list_apply
+  use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, abscmp
   use device_math, only : device_rzero, device_copy, &
        device_glsc3, device_vlsc3
   use device
-  use comm
+  use utils, only : neko_error
+  use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_Iallreduce, MPI_Status, &
+       MPI_SUM, MPI_IN_PLACE, MPI_Request, MPI_Wait
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, &
+       c_associated, c_size_t, c_sizeof, c_int, c_loc
   implicit none
   private
 
@@ -100,7 +105,7 @@ module pipecg_device
 
   interface
      subroutine cuda_cg_update_xp(x_d, p_d, u_d_d, alpha, beta, &
-                                  p_cur, p_space, n) &
+          p_cur, p_space, n) &
           bind(c, name='cuda_cg_update_xp')
        use, intrinsic :: iso_c_binding
        implicit none
@@ -125,7 +130,7 @@ module pipecg_device
 
   interface
      subroutine hip_cg_update_xp(x_d, p_d, u_d_d, alpha, beta, &
-                                 p_cur, p_space, n) &
+          p_cur, p_space, n) &
           bind(c, name='hip_cg_update_xp')
        use, intrinsic :: iso_c_binding
        implicit none
@@ -145,10 +150,10 @@ contains
     real(c_rp) :: alpha, beta, reduction(3)
 #ifdef HAVE_HIP
     call hip_pipecg_vecops(p_d, q_d, r_d,&
-       s_d, u_d1, u_d2, w_d, z_d, ni_d, mi_d, alpha, beta, mult_d, reduction,n)
+         s_d, u_d1, u_d2, w_d, z_d, ni_d, mi_d, alpha, beta, mult_d, reduction,n)
 #elif HAVE_CUDA
     call cuda_pipecg_vecops(p_d, q_d, r_d,&
-       s_d, u_d1, u_d2, w_d, z_d, ni_d, mi_d, alpha, beta, mult_d, reduction,n)
+         s_d, u_d1, u_d2, w_d, z_d, ni_d, mi_d, alpha, beta, mult_d, reduction,n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -170,11 +175,11 @@ contains
   !> Initialise a pipelined PCG solver
   subroutine pipecg_device_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
     class(pipecg_device_t), target, intent(inout) :: this
-    class(pc_t), optional, intent(inout), target :: M
+    class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
-    real(kind=rp), optional, intent(inout) :: rel_tol
-    real(kind=rp), optional, intent(inout) :: abs_tol
+    real(kind=rp), optional, intent(in) :: rel_tol
+    real(kind=rp), optional, intent(in) :: abs_tol
     logical, optional, intent(in) :: monitor
     type(c_ptr) :: ptr
     integer(c_size_t) :: u_size
@@ -218,7 +223,7 @@ contains
     call device_alloc(this%u_d_d, u_size)
     ptr = c_loc(this%u_d)
     call device_memcpy(ptr,this%u_d_d, u_size, &
-                       HOST_TO_DEVICE, sync=.false.)
+         HOST_TO_DEVICE, sync=.false.)
 
     if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
@@ -336,10 +341,10 @@ contains
   !> Pipelined PCG solve
   function pipecg_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
     class(pipecg_device_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: f
+    real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
@@ -363,7 +368,7 @@ contains
 
     associate(p => this%p, q => this%q, r => this%r, s => this%s, &
          u => this%u, w => this%w, z => this%z, mi => this%mi, ni => this%ni, &
-         alpha => this%alpha, beta => this%beta,  &
+         alpha => this%alpha, beta => this%beta, &
          alpha_d => this%alpha_d, beta_d => this%beta_d, &
          p_d => this%p_d, q_d => this%q_d, r_d => this%r_d, &
          s_d => this%s_d, u_d => this%u_d, u_d_d => this%u_d_d, &
@@ -384,14 +389,17 @@ contains
       call Ax%compute(w, u(1,u_prev), coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
       call device_event_sync(this%gs_event)
-      call bc_list_apply(blst, w, n)
+      call blst%apply_scalar(w, n)
 
       rtr = device_glsc3(r_d, coef%mult_d, r_d, n)
       rnorm = sqrt(rtr)*norm_fac
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
-      if(abscmp(rnorm, 0.0_rp)) return
+      if(abscmp(rnorm, 0.0_rp)) then
+         ksp_results%converged = .true.
+         return
+      end if
 
       gamma1 = 0.0_rp
       tmp1 = 0.0_rp
@@ -413,7 +421,7 @@ contains
          call Ax%compute(ni, mi, coef, x%msh, x%Xh)
          call gs_h%op(ni, n, GS_OP_ADD, this%gs_event)
          call device_event_sync(this%gs_event)
-         call bc_list_apply(blst, ni, n)
+         call blst%apply(ni, n)
 
          call MPI_Wait(request, status, ierr)
          gamma2 = gamma1
@@ -435,17 +443,17 @@ contains
          end if
 
          call device_pipecg_vecops(p_d, q_d, r_d,&
-                                 s_d, u_d(u_prev), u_d(p_cur),&
-                                 w_d, z_d, ni_d,&
-                                 mi_d, alpha(p_cur), beta(p_cur),&
-                                 coef%mult_d, reduction, n)
+              s_d, u_d(u_prev), u_d(p_cur),&
+              w_d, z_d, ni_d,&
+              mi_d, alpha(p_cur), beta(p_cur),&
+              coef%mult_d, reduction, n)
          if (p_cur .eq. DEVICE_PIPECG_P_SPACE) then
             call device_memcpy(alpha, alpha_d, p_cur, &
-                               HOST_TO_DEVICE, sync=.false.)
+                 HOST_TO_DEVICE, sync=.false.)
             call device_memcpy(beta, beta_d, p_cur, &
-                               HOST_TO_DEVICE, sync=.false.)
+                 HOST_TO_DEVICE, sync=.false.)
             call device_cg_update_xp(x%x_d, p_d, u_d_d, alpha_d, beta_d, p_cur, &
-                                     DEVICE_PIPECG_P_SPACE, n)
+                 DEVICE_PIPECG_P_SPACE, n)
             p_prev = p_cur
             u_prev = DEVICE_PIPECG_P_SPACE + 1
             alpha(1) = alpha(p_cur)
@@ -462,11 +470,12 @@ contains
          call device_memcpy(alpha, alpha_d, p_cur, HOST_TO_DEVICE, sync=.false.)
          call device_memcpy(beta, beta_d, p_cur, HOST_TO_DEVICE, sync=.false.)
          call device_cg_update_xp(x%x_d, p_d, u_d_d, alpha_d, beta_d, p_cur, &
-                                  DEVICE_PIPECG_P_SPACE, n)
+              DEVICE_PIPECG_P_SPACE, n)
       end if
       call this%monitor_stop()
       ksp_results%res_final = rnorm
       ksp_results%iter = iter
+      ksp_results%converged = this%is_converged(iter, rnorm)
 
     end associate
 
@@ -476,14 +485,14 @@ contains
   function pipecg_device_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
        n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
     class(pipecg_device_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     type(field_t), intent(inout) :: y
     type(field_t), intent(inout) :: z
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: fx
-    real(kind=rp), dimension(n), intent(inout) :: fy
-    real(kind=rp), dimension(n), intent(inout) :: fz
+    real(kind=rp), dimension(n), intent(in) :: fx
+    real(kind=rp), dimension(n), intent(in) :: fy
+    real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blstx
     type(bc_list_t), intent(inout) :: blsty
@@ -492,12 +501,10 @@ contains
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
 
-    ksp_results(1) =  this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) =  this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
 
   end function pipecg_device_solve_coupled
 
 end module pipecg_device
-
-

@@ -61,26 +61,37 @@ module field_math
   use neko_config, only: NEKO_BCKND_DEVICE
   use num_types, only: rp
   use field, only: field_t
+  use device, only : device_get_ptr
   use math, only: rzero, rone, copy, cmult, cadd, cfill, invcol1, vdot3, add2, &
        add3, add4, sub2, sub3, add2s1, add2s2, addsqr2s2, cmult2, invcol2, &
-       col2, col3, subcol3, add3s2, addcol3, addcol4, glsum, glsc2, glsc3
+       col2, col3, subcol3, add3s2, addcol3, addcol4, glsum, glsc2, glsc3, &
+       masked_gather_copy_0, masked_scatter_copy_0, glsubnorm, invcol3, &
+       pwmax2, pwmax3, cpwmax2, cpwmax3, pwmin2, pwmin3, cpwmin2, cpwmin3
   use device_math, only: device_rzero, device_rone, device_copy, device_cmult, &
        device_cadd, device_cfill, device_invcol1, device_vdot3, device_add2, &
        device_add3, device_add4, device_sub2, device_sub3, device_add2s1, &
        device_add2s2, device_addsqr2s2, device_cmult2, device_invcol2, &
        device_col2, device_col3, device_subcol3, device_add3s2, &
-       device_addcol3, device_addcol4, device_glsum, device_glsc2, device_glsc3
+       device_addcol3, device_addcol4, device_glsum, device_glsc2, &
+       device_glsc3, device_masked_gather_copy_0, device_masked_scatter_copy_0,&
+       device_glsubnorm, device_invcol3, device_pwmax2, device_pwmax3, &
+       device_cpwmax2, device_cpwmax3, device_pwmin2, device_pwmin3, &
+       device_cpwmin2, device_cpwmin3
+  use, intrinsic :: iso_c_binding, only: c_ptr
   implicit none
   private
 
   public :: field_rzero, field_rone, field_copy, field_cmult, &
-       field_cadd, field_cfill, field_invcol1, field_vdot3, &
+       field_cadd, field_cfill, field_invcol1, field_invcol3, field_vdot3, &
        field_add2, field_sub2, field_sub3, field_add2s1, &
        field_add2s2, field_addsqr2s2, field_cmult2, &
        field_invcol2, field_col2, field_col3, field_subcol3, &
        field_add3s2, field_addcol3, field_addcol4, field_glsum, &
-       field_glsc2, field_glsc3
-  
+       field_glsc2, field_glsc3, field_add3, field_masked_gather_copy_0, &
+       field_masked_scatter_copy_0, field_glsubnorm, field_pwmax2, &
+       field_pwmax3, field_cpwmax2, field_cpwmax3, field_pwmin2, &
+       field_pwmin3, field_cpwmin2, field_cpwmin3
+
 contains
 
   !> Zero a real vector
@@ -221,6 +232,28 @@ contains
 
   end subroutine field_invcol1
 
+  !> Invert a vector \f$ a = b / c \f$
+  subroutine field_invcol3(a, b, c, n)
+    integer, intent(in), optional :: n
+    type(field_t), intent(inout) :: a
+    type(field_t), intent(in) :: b
+    type(field_t), intent(in) :: c
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_invcol3(a%x_d, b%x_d, c%x_d, size)
+    else
+       call invcol3(a%x, b%x, c%x, size)
+    end if
+
+  end subroutine field_invcol3
+
   !> Compute a dot product \f$ dot = u \cdot v \f$ (3-d version)
   !! assuming vector components \f$ u = (u_1, u_2, u_3) \f$ etc.
   subroutine field_vdot3(dot, u1, u2, u3, v1, v2, v3, n)
@@ -337,9 +370,9 @@ contains
   !> Vector subtraction \f$ a = b - c \f$
   subroutine field_sub3(a, b, c, n)
     integer, intent(in), optional :: n
-    type(field_t), intent(inout) :: c
-    type(field_t), intent(inout) :: b
-    type(field_t), intent(out) :: a
+    type(field_t), intent(inout) :: a
+    type(field_t), intent(in) :: b
+    type(field_t), intent(in) :: c
     integer :: size
 
     if (present(n)) then
@@ -661,5 +694,253 @@ contains
     end if
 
   end function field_glsc3
+
+  function field_glsubnorm(a, b, n) result(norm)
+    integer, intent(in), optional :: n
+    type(field_t), intent(in) :: a, b
+    real(kind=rp) :: norm
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       norm = device_glsubnorm(a%x_d, b%x_d, size)
+    else
+       norm = glsubnorm(a%x, b%x, size)
+    end if
+
+  end function field_glsubnorm
+
+  !> Gather a field to reduced contigous array
+  !! \f$ a = b(mask) \f$.
+  !! @param a Destination array of size `n_mask`.
+  !! @param b Source array of size `n`.
+  !! @param mask Mask array of length n_mask + 1, where `mask(0) = n_mask`
+  !! the length of the mask array.
+  !! @param n Size of the field `b`.
+  !! @param n_mask Size of the mask array `mask` and `a`.
+  subroutine field_masked_gather_copy_0(a, b, mask, n, n_mask)
+    integer, intent(in) :: n, n_mask
+    real(kind=rp), dimension(n_mask), intent(inout) :: a
+    type(field_t) :: b
+    integer, dimension(0:n_mask) :: mask
+    type(c_ptr) :: mask_d, a_d
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       mask_d = device_get_ptr(mask)
+       a_d = device_get_ptr(a)
+       call device_masked_gather_copy_0(a_d, b%x_d, mask_d, n, n_mask)
+    else
+       call masked_gather_copy_0(a, b%x, mask, n, n_mask)
+    end if
+
+  end subroutine field_masked_gather_copy_0
+
+  !> Gather a contigous array into a field
+  !! \f$ a(mask) = b \f$.
+  !! @param a Destination field.
+  !! @param b Source array of size `n_mask`.
+  !! @param mask Mask array of length n_mask + 1, where `mask(0) = n_mask`
+  !! the length of the mask array.
+  !! @param n Size of the field `a`.
+  !! @param n_mask Size of the mask array `mask` and `b`.
+  subroutine field_masked_scatter_copy_0(a, b, mask, n, n_mask)
+    integer, intent(in) :: n, n_mask
+    real(kind=rp), dimension(n_mask), intent(in) :: b
+    type(field_t), intent(inout) :: a
+    integer, dimension(0:n_mask) :: mask
+    type(c_ptr) :: mask_d, b_d
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       mask_d = device_get_ptr(mask)
+       b_d = device_get_ptr(b)
+       call device_masked_scatter_copy_0(a%x_d, b_d, mask_d, n, n_mask)
+    else
+       call masked_scatter_copy_0(a%x, b, mask, n, n_mask)
+    end if
+
+  end subroutine field_masked_scatter_copy_0
+
+  !> Point-wise max operation
+  !! \f$ a = max(a,b) \f$
+  subroutine field_pwmax2(a, b, n)
+    integer, intent(in), optional :: n
+    type(field_t), intent(inout) :: a
+    type(field_t), intent(in) :: b
+    integer :: size, i
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_pwmax2(a%x_d, b%x_d, size)
+    else
+       call pwmax2(a%x, b%x, size)
+    end if
+
+  end subroutine field_pwmax2
+
+  !> Point-wise max operation
+  !! \f$ a = max(b, c) \f$
+  subroutine field_pwmax3(a, b, c, n)
+    integer, intent(in), optional :: n
+    type(field_t), intent(inout) :: a
+    type(field_t), intent(in) :: b
+    type(field_t), intent(in) :: c
+    integer :: size, i
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_pwmax3(a%x_d, b%x_d, c%x_d, size)
+    else
+       call pwmax3(a%x, b%x, c%x, size)
+    end if
+  end subroutine field_pwmax3
+
+  !> Point-wise max operation for field and constant
+  !! \f$ a(i) = max(a(i), b) \f$
+  subroutine field_cpwmax2(a, b, n)
+    integer, intent(in), optional :: n
+    type(field_t), intent(inout) :: a
+    real(kind=rp), intent(in) :: b
+    integer :: size, i
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_cpwmax2(a%x_d, b, size)
+    else
+       call cpwmax2(a%x, b, size)
+    end if
+
+  end subroutine field_cpwmax2
+
+  !> Point-wise max operation for field and constant
+  !! \f$ a(i) = max(b(i), c) \f$
+  subroutine field_cpwmax3(a, b, c, n)
+    integer, intent(in), optional :: n
+    type(field_t), intent(inout) :: a
+    type(field_t), intent(in) :: b
+    real(kind=rp), intent(in) :: c
+    integer :: size, i
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_cpwmax3(a%x_d, b%x_d, c, size)
+    else
+       call cpwmax3(a%x, b%x, c, size)
+    end if
+
+  end subroutine field_cpwmax3
+
+  !> Point-wise min operation
+  !! \f$ a = min(a,b) \f$
+  subroutine field_pwmin2(a, b, n)
+    integer, intent(in), optional :: n
+    type(field_t), intent(inout) :: a
+    type(field_t), intent(in) :: b
+    integer :: size, i
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_pwmin2(a%x_d, b%x_d, size)
+    else
+       call pwmin2(a%x, b%x, size)
+    end if
+
+  end subroutine field_pwmin2
+
+  !> Point-wise min operation
+  !! \f$ a = min(b, c) \f$
+  subroutine field_pwmin3(a, b, c, n)
+    integer, intent(in), optional :: n
+    type(field_t), intent(inout) :: a
+    type(field_t), intent(in) :: b
+    type(field_t), intent(in) :: c
+    integer :: size, i
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_pwmin3(a%x_d, b%x_d, c%x_d, size)
+    else
+       call pwmin3(a%x, b%x, c%x, size)
+    end if
+  end subroutine field_pwmin3
+
+  !> Point-wise min operation for field and constant
+  !! \f$ a(i) = min(a(i), b) \f$
+  subroutine field_cpwmin2(a, b, n)
+    integer, intent(in), optional :: n
+    type(field_t), intent(inout) :: a
+    real(kind=rp), intent(in) :: b
+    integer :: size, i
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_cpwmin2(a%x_d, b, size)
+    else
+       call cpwmin2(a%x, b, size)
+    end if
+
+  end subroutine field_cpwmin2
+
+  !> Point-wise min operation for field and constant
+  !! \f$ a(i) = min(b(i), c) \f$
+  subroutine field_cpwmin3(a, b, c, n)
+    integer, intent(in), optional :: n
+    type(field_t), intent(inout) :: a
+    type(field_t), intent(in) :: b
+    real(kind=rp), intent(in) :: c
+    integer :: size, i
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_cpwmin3(a%x_d, b%x_d, c, size)
+    else
+       call cpwmin3(a%x, b%x, c, size)
+    end if
+
+  end subroutine field_cpwmin3
 
 end module field_math

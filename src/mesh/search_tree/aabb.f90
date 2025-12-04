@@ -187,23 +187,30 @@ contains
 
     select type(object)
 
-      type is (tri_t)
+    type is (aabb_t)
+       call box%init(object%get_min(), object%get_max())
+    type is (point_t)
+       box = get_aabb_point(object)
+    type is (tri_t)
        box = get_aabb_element(object)
-      type is (hex_t)
+    type is (hex_t)
        box = get_aabb_element(object)
-      type is (tet_t)
+    type is (tet_t)
        box = get_aabb_element(object)
-      type is (quad_t)
+    type is (quad_t)
+       box = get_aabb_element(object)
+    class is (element_t)
        box = get_aabb_element(object)
 
-      type is (mesh_t)
+
+    type is (mesh_t)
        box = get_aabb_mesh(object)
-      type is (tri_mesh_t)
+    type is (tri_mesh_t)
        box = get_aabb_tri_mesh(object)
-      type is (tet_mesh_t)
+    type is (tet_mesh_t)
        box = get_aabb_tet_mesh(object)
 
-      class default
+    class default
        call neko_error("get_aabb: Unsupported object type")
     end select
 
@@ -228,6 +235,27 @@ contains
 
     call this%init(box_min, box_max)
   end subroutine add_padding
+
+
+  !> @brief Get the aabb of a point.
+  !!
+  !! @details This function calculates the aabb of a point.
+  !!
+  !! @param object The point to get the aabb of.
+  !! @return The aabb of the point.
+  function get_aabb_point(object) result(box)
+    type(point_t), intent(in) :: object
+    type(aabb_t) :: box
+
+    integer :: i
+    real(kind=dp) :: box_min(3), box_max(3)
+
+    box_min = huge(0.0_dp)
+    box_max = -huge(0.0_dp)
+    box_min = min(box_min, object%x)
+    box_max = max(box_max, object%x)
+    call box%init(box_min, box_max)
+  end function get_aabb_point
 
   !> @brief Get the aabb of an arbitrary element.
   !!
@@ -436,9 +464,8 @@ contains
        !  call neko_error("aabb_overlaps: One or both aabbs are not initialized")
        is_overlapping = .false.
     else
-
        is_overlapping = all(this%box_min .le. other%box_max) .and. &
-         all(this%box_max .ge. other%box_min)
+            all(this%box_max .ge. other%box_min)
     end if
 
   end function aabb_overlaps
@@ -454,7 +481,7 @@ contains
     ! end if
 
     is_contained = all(this%box_min .le. other%box_min) .and. &
-      all(this%box_max .ge. other%box_max)
+         all(this%box_max .ge. other%box_max)
 
   end function aabb_contains_other
 
@@ -512,11 +539,10 @@ contains
     class(aabb_t), intent(in) :: this
     real(kind=dp) :: surface_area
 
-    surface_area = 2.0 * (&
-      & this%get_width() * this%get_height() &
-      & + this%get_width() * this%get_depth() &
-      & + this%get_height() * this%get_depth() &
-      &)
+    surface_area = 2.0 * ( &
+         this%get_width() * this%get_height() &
+         + this%get_width() * this%get_depth() &
+         + this%get_height() * this%get_depth())
   end function calculate_surface_area
 
   ! ========================================================================== !

@@ -55,10 +55,10 @@ program postprocess_fluid_stats
 
   call get_command_argument(1, inputchar)
   read(inputchar, *) mesh_fname
-  mesh_file = file_t(trim(mesh_fname))
+  call mesh_file%init(trim(mesh_fname))
   call get_command_argument(2, inputchar)
   read(inputchar, *) stats_fname
-  stats_file = file_t(trim(stats_fname))
+  call stats_file%init(trim(stats_fname))
 
   call mesh_file%read(msh)
 
@@ -101,18 +101,18 @@ program postprocess_fluid_stats
   call gs_h%init(dof)
   call coef%init(gs_h)
 
-  call neko_field_registry%add_field(dof, 'u')
-  call neko_field_registry%add_field(dof, 'v')
-  call neko_field_registry%add_field(dof, 'w')
-  call neko_field_registry%add_field(dof, 'p')
+  call neko_registry%add_field(dof, 'u')
+  call neko_registry%add_field(dof, 'v')
+  call neko_registry%add_field(dof, 'w')
+  call neko_registry%add_field(dof, 'p')
 
-  u => neko_field_registry%get_field('u')
-  v => neko_field_registry%get_field('v')
-  w => neko_field_registry%get_field('w')
-  p => neko_field_registry%get_field('p')
+  u => neko_registry%get_field('u')
+  v => neko_registry%get_field('v')
+  w => neko_registry%get_field('w')
+  p => neko_registry%get_field('p')
 
   call fld_stats%init(coef,u,v,w,p)
-  n = stats_data%u%n
+  n = stats_data%u%size()
 
   call copy(fld_stats%stat_fields%items(1)%ptr%x, stats_data%p%x,n)
   call copy(fld_stats%stat_fields%items(2)%ptr%x, stats_data%u%x,n)
@@ -144,7 +144,7 @@ program postprocess_fluid_stats
   call reynolds%assign_to_field(7, vw)
 
   call fld_stats%post_process(reynolds=reynolds)
-  output_file = file_t('reynolds.fld')
+  call output_file%init('reynolds.fld')
   if (pe_rank .eq. 0) write(*,*) 'Wrtiting Reynolds stresses into reynolds'
   call output_file%write(reynolds, stats_data%time)
   if (pe_rank .eq. 0) write(*,*) 'Done'
@@ -174,7 +174,7 @@ program postprocess_fluid_stats
 
 
   if (pe_rank .eq. 0) write(*,*) 'Writing mean velocity gradient into mean_vel_grad'
-  output_file = file_t('mean_vel_grad.fld')
+  call output_file%init('mean_vel_grad.fld')
   call output_file%write(mean_vel_grad, stats_data%time)
   if (pe_rank .eq. 0) write(*,*) 'Done'
 

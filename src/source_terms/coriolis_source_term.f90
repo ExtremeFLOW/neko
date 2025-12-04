@@ -43,6 +43,10 @@ module coriolis_source_term
   use neko_config, only : NEKO_BCKND_DEVICE
   use utils, only : neko_error
   use coriolis_source_term_cpu, only : coriolis_source_term_compute_cpu
+  use coriolis_source_term_device, only : coriolis_source_term_compute_device
+  use field, only : field_t
+  use registry, only : neko_registry
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -57,7 +61,7 @@ module coriolis_source_term
      procedure, pass(this) :: init => coriolis_source_term_init_from_json
      !> The costrucructor from type components.
      procedure, pass(this) :: init_from_compenents => &
-       coriolis_source_term_init_from_components
+          coriolis_source_term_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => coriolis_source_term_free
      !> Computes the source term and adds the result to `fields`.
@@ -69,11 +73,14 @@ contains
   !! @param json The JSON object for the source.
   !! @param fields A list of fields for adding the source values.
   !! @param coef The SEM coeffs.
-  subroutine coriolis_source_term_init_from_json(this, json, fields, coef)
+  !! @param variable_name The name of the variable for this source term.
+  subroutine coriolis_source_term_init_from_json(this, json, fields, coef, &
+       variable_name)
     class(coriolis_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    type(field_list_t), intent(inout), target :: fields
-    type(coef_t), intent(inout), target :: coef
+    type(field_list_t), intent(in), target :: fields
+    type(coef_t), intent(in), target :: coef
+    character(len=*), intent(in) :: variable_name
     ! Rotation vector and geostrophic wind
     real(kind=rp), allocatable :: rotation_vec(:), u_geo(:)
     ! Alternative parameters to set the rotation vector
@@ -102,7 +109,7 @@ contains
        rotation_vec(2) = omega * cos(phi * pi / 180 )
        rotation_vec(3) = omega * sin(phi * pi / 180)
     else if (json%valid_path("f")) then
-       call json_get(json, "f", phi)
+       call json_get(json, "f", f)
 
        allocate(rotation_vec(3))
        rotation_vec(1) = 0.0_rp
@@ -110,13 +117,13 @@ contains
        rotation_vec(3) = 0.5_rp * f
     else
        call neko_error("Specify either rotation_vector, phi and omega, or f &
-             & for the Coriolis source term.")
+       & for the Coriolis source term.")
     end if
 
 
 
     call coriolis_source_term_init_from_components(this, fields, rotation_vec, &
-          u_geo, coef, start_time, end_time)
+         u_geo, coef, start_time, end_time)
 
   end subroutine coriolis_source_term_init_from_json
 
@@ -130,7 +137,7 @@ contains
   subroutine coriolis_source_term_init_from_components(this, fields, omega, &
        u_geo, coef, start_time, end_time)
     class(coriolis_source_term_t), intent(inout) :: this
-    class(field_list_t), intent(inout), target :: fields
+    class(field_list_t), intent(in), target :: fields
     real(kind=rp), intent(in) :: omega(3)
     real(kind=rp), intent(in) :: u_geo(3)
     type(coef_t) :: coef
@@ -156,17 +163,21 @@ contains
   end subroutine coriolis_source_term_free
 
   !> Computes the source term and adds the result to `fields`.
-  !! @param t The time value.
-  !! @param tstep The current time-step.
-  subroutine coriolis_source_term_compute(this, t, tstep)
+  !! @param time The time state.
+  subroutine coriolis_source_term_compute(this, time)
     class(coriolis_source_term_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
+    type(field_t), pointer :: u, v, w
+
+    u => neko_registry%get_field("u")
+    v => neko_registry%get_field("v")
+    w => neko_registry%get_field("w")
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call neko_error("The Coriolis force is only implemented on the CPU")
+       call coriolis_source_term_compute_device(u, v, w, this%fields, &
+            this%omega, this%u_geo)
     else
-       call coriolis_source_term_compute_cpu(this%fields, this%omega, &
+       call coriolis_source_term_compute_cpu(u, v, w, this%fields, this%omega, &
             this%u_geo)
     end if
   end subroutine coriolis_source_term_compute

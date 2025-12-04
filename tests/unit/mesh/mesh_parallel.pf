@@ -86,25 +86,25 @@ contains
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
 
-    p(1) = point_t(0d0, 0d0, 0d0) !e1 p1
+    call p(1)%init(0d0, 0d0, 0d0) !e1 p1
     call p(1)%set_id(1)
-    p(2) = point_t(1d0, 0d0, 0d0) !e1 p2
+    call p(2)%init(1d0, 0d0, 0d0) !e1 p2
     call p(2)%set_id(2)
-    p(3) = point_t(0d0, 1d0, 0d0) !e1 p3
+    call p(3)%init(0d0, 1d0, 0d0) !e1 p3
     call p(3)%set_id(4)
-    p(4) = point_t(1d0, 1d0, 0d0) !e1 p4
+    call p(4)%init(1d0, 1d0, 0d0) !e1 p4
     call p(4)%set_id(3)
-    p(5) = point_t(2d0, 0d0, 0d0) !e2 p2
+    call p(5)%init(2d0, 0d0, 0d0) !e2 p2
     call p(5)%set_id(5)
-    p(6) = point_t(2d0, 1d0, 0d0) !e2 p4
+    call p(6)%init(2d0, 1d0, 0d0) !e2 p4
     call p(6)%set_id(6)
 
     call m%init(gdim, dist)
     if (this%getNumProcesses() .eq. 1) then
 
-       call m%add_element(1, p(1), p(2), p(3), p(4))
+       call m%add_element(1, 1, p(1), p(2), p(3), p(4))
 
-       call m%add_element(2, p(2), p(5), p(4), p(6))
+       call m%add_element(2, 2, p(2), p(5), p(4), p(6))
 
        @assertEqual(6, m%htp%num_entries())
 
@@ -124,10 +124,10 @@ contains
        @assertEqual(t%x(1), p(5)%id())
        @assertEqual(t%x(2), p(6)%id())
 
-    else   
+    else
        if (this%getProcessRank() .eq. 0) then
 
-          call m%add_element(1, p(1), p(2), p(3), p(4))
+          call m%add_element(1, 1, p(1), p(2), p(3), p(4))
 
           @assertEqual(4, m%htp%num_entries())
 
@@ -141,7 +141,7 @@ contains
 
        else
 
-          call m%add_element(1, p(2), p(5), p(4), p(6))
+          call m%add_element(1, 1, p(2), p(5), p(4), p(6))
 
           @assertEqual(4, m%htp%num_entries())
 
@@ -173,40 +173,40 @@ contains
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
 
-    p(1) = point_t(0d0, 0d0, 0d0) !e1 p1
+    call p(1)%init(0d0, 0d0, 0d0) !e1 p1
     call p(1)%set_id(1)
-    p(2) = point_t(1d0, 0d0, 0d0) !e1 p2
+    call p(2)%init(1d0, 0d0, 0d0) !e1 p2
     call p(2)%set_id(2)
-    p(3) = point_t(0d0, 1d0, 0d0) !e1 p3
+    call p(3)%init(0d0, 1d0, 0d0) !e1 p3
     call p(3)%set_id(4)
-    p(4) = point_t(1d0, 1d0, 0d0) !e1 p4
+    call p(4)%init(1d0, 1d0, 0d0) !e1 p4
     call p(4)%set_id(3)
-    p(5) = point_t(2d0, 0d0, 0d0) !e2 p2
+    call p(5)%init(2d0, 0d0, 0d0) !e2 p2
     call p(5)%set_id(5)
-    p(6) = point_t(2d0, 1d0, 0d0) !e2 p4
+    call p(6)%init(2d0, 1d0, 0d0) !e2 p4
     call p(6)%set_id(6)
-    p(7) = point_t(0d0, 0d0, 1d0) !e1 p5
+    call p(7)%init(0d0, 0d0, 1d0) !e1 p5
     call p(7)%set_id(7)
-    p(8) = point_t(1d0, 0d0, 1d0) !e1 p6
+    call p(8)%init(1d0, 0d0, 1d0) !e1 p6
     call p(8)%set_id(8)
-    p(9) = point_t(1d0, 1d0, 1d0) !e1 p8
+    call p(9)%init(1d0, 1d0, 1d0) !e1 p8
     call p(9)%set_id(9)
-    p(10) = point_t(0d0, 1d0, 1d0) !e1 p7
+    call p(10)%init(0d0, 1d0, 1d0) !e1 p7
     call p(10)%set_id(10)
-    p(11) = point_t(2d0, 0d0, 1d0) !e2 p6
+    call p(11)%init(2d0, 0d0, 1d0) !e2 p6
     call p(11)%set_id(11)
-    p(12) = point_t(2d0, 1d0, 1d0) !e2 p8
+    call p(12)%init(2d0, 1d0, 1d0) !e2 p8
     call p(12)%set_id(12)
 
 
     call m%init(gdim, dist)
     if (this%getNumProcesses() .eq. 1) then
 
-       call m%add_element(1, p(1), p(2), p(3), p(4), &
+       call m%add_element(1, 1, p(1), p(2), p(3), p(4), &
             p(7), p(8), p(10), p(9))
 
 
-       call m%add_element(2, p(2), p(5), p(4), p(6), &
+       call m%add_element(2, 2, p(2), p(5), p(4), p(6), &
             p(8), p(11), p(9), p(12))
 
        @assertEqual(12, m%htp%num_entries())
@@ -235,10 +235,10 @@ contains
        @assertEqual(t%x(3), p(11)%id())
        @assertEqual(t%x(4), p(12)%id())
 
-    else   
+    else
        if (this%getProcessRank() .eq. 0) then
 
-          call m%add_element(1, p(1), p(2), p(3), p(4), &
+          call m%add_element(1, 1, p(1), p(2), p(3), p(4), &
                p(7), p(8), p(10), p(9))
 
           @assertEqual(8, m%htp%num_entries())
@@ -257,7 +257,7 @@ contains
 
        else
 
-          call m%add_element(1, p(2), p(5), p(4), p(6), &
+          call m%add_element(1, 1, p(2), p(5), p(4), p(6), &
                p(8), p(11), p(9), p(12))
 
           @assertEqual(8, m%htp%num_entries())
@@ -272,7 +272,7 @@ contains
           @assertEqual(t%x(1), p(5)%id())
           @assertEqual(t%x(2), p(6)%id())
           @assertEqual(t%x(3), p(11)%id())
-          @assertEqual(t%x(4), p(12)%id())          
+          @assertEqual(t%x(4), p(12)%id())
        end if
     end if
 
@@ -296,25 +296,25 @@ contains
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
 
-    p(1) = point_t(0d0, 0d0, 0d0) !e1 p1
+    call p(1)%init(0d0, 0d0, 0d0) !e1 p1
     call p(1)%set_id(1)
-    p(2) = point_t(1d0, 0d0, 0d0) !e1 p2 
+    call p(2)%init(1d0, 0d0, 0d0) !e1 p2
     call p(2)%set_id(2)
-    p(3) = point_t(0d0, 1d0, 0d0) !e1 p3 
+    call p(3)%init(0d0, 1d0, 0d0) !e1 p3
     call p(3)%set_id(4)
-    p(4) = point_t(1d0, 1d0, 0d0) !e1 p4
+    call p(4)%init(1d0, 1d0, 0d0) !e1 p4
     call p(4)%set_id(3)
-    p(5) = point_t(2d0, 0d0, 0d0) !e2 p2
+    call p(5)%init(2d0, 0d0, 0d0) !e2 p2
     call p(5)%set_id(5)
-    p(6) = point_t(2d0, 1d0, 0d0) !e2 p4
+    call p(6)%init(2d0, 1d0, 0d0) !e2 p4
     call p(6)%set_id(6)
 
     call m%init(gdim, dist)
     if (this%getNumProcesses() .eq. 1) then
 
-       call m%add_element(1, p(1), p(2), p(3), p(4))
+       call m%add_element(1, 1, p(1), p(2), p(3), p(4))
 
-       call m%add_element(2, p(2), p(5), p(4), p(6))
+       call m%add_element(2, 2, p(2), p(5), p(4), p(6))
 
        call m%generate_conn()
 
@@ -344,16 +344,16 @@ contains
        @assertEqual(0, m%facet_neigh(3, 2))
        @assertEqual(0, m%facet_neigh(4, 2))
 
-    else   
+    else
        if (this%getProcessRank() .eq. 0) then
 
-          call m%add_element(1, p(1), p(2), p(3), p(4))
+          call m%add_element(1, 1, p(1), p(2), p(3), p(4))
 
           call m%generate_conn()
 
           @assertEqual(4, m%hte%num_entries())
           @MPIassertEqual(2, m%glb_nelv)
-       
+
 
           p_local_idx = m%get_local(p(1))
           @assertEqual(1, m%point_neigh(p_local_idx)%size())
@@ -368,16 +368,16 @@ contains
           @assertEqual(-2, m%facet_neigh(2, 1))
           @assertEqual(0, m%facet_neigh(3, 1))
           @assertEqual(0, m%facet_neigh(4, 1))
-       
+
        else
 
-          call m%add_element(1, p(2), p(5), p(4), p(6))
+          call m%add_element(1, 1, p(2), p(5), p(4), p(6))
 
           call m%generate_conn()
 
           @assertEqual(4, m%hte%num_entries())
           @MPIassertEqual(2, m%glb_nelv)
-          
+
           p_local_idx = m%get_local(p(2))
           @assertEqual(2, m%point_neigh(p_local_idx)%size())
           p_local_idx = m%get_local(p(5))
@@ -391,7 +391,7 @@ contains
           @assertEqual(0, m%facet_neigh(2, 1))
           @assertEqual(0, m%facet_neigh(3, 1))
           @assertEqual(0, m%facet_neigh(4, 1))
-          
+
        end if
     end if
 
@@ -415,47 +415,47 @@ contains
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
 
-    p(1) = point_t(0d0, 0d0, 0d0)
+    call p(1)%init(0d0, 0d0, 0d0)
     call p(1)%set_id(1)
-    p(2) = point_t(1d0, 0d0, 0d0)
+    call p(2)%init(1d0, 0d0, 0d0)
     call p(2)%set_id(2)
-    p(3) = point_t(0d0, 1d0, 0d0)
+    call p(3)%init(0d0, 1d0, 0d0)
     call p(3)%set_id(4)
-    p(4) = point_t(1d0, 1d0, 0d0)
+    call p(4)%init(1d0, 1d0, 0d0)
     call p(4)%set_id(3)
-    p(5) = point_t(2d0, 0d0, 0d0)
+    call p(5)%init(2d0, 0d0, 0d0)
     call p(5)%set_id(5)
-    p(6) = point_t(2d0, 1d0, 0d0)
+    call p(6)%init(2d0, 1d0, 0d0)
     call p(6)%set_id(6)
-    p(7) = point_t(0d0, 0d0, 1d0)
+    call p(7)%init(0d0, 0d0, 1d0)
     call p(7)%set_id(7)
-    p(8) = point_t(1d0, 0d0, 1d0)
+    call p(8)%init(1d0, 0d0, 1d0)
     call p(8)%set_id(8)
-    p(9) = point_t(1d0, 1d0, 1d0)
+    call p(9)%init(1d0, 1d0, 1d0)
     call p(9)%set_id(9)
-    p(10) = point_t(0d0, 1d0, 1d0)
+    call p(10)%init(0d0, 1d0, 1d0)
     call p(10)%set_id(10)
-    p(11) = point_t(2d0, 0d0, 1d0)
+    call p(11)%init(2d0, 0d0, 1d0)
     call p(11)%set_id(11)
-    p(12) = point_t(2d0, 1d0, 1d0)
+    call p(12)%init(2d0, 1d0, 1d0)
     call p(12)%set_id(12)
 
 
     call m%init(gdim, dist)
     if (this%getNumProcesses() .eq. 1) then
 
-       call m%add_element(1, p(1), p(2), p(3), p(4), &
+       call m%add_element(1, 1, p(1), p(2), p(3), p(4), &
             p(7), p(8), p(10), p(9))
 
 
-       call m%add_element(2, p(2), p(5), p(4), p(6), &
+       call m%add_element(2, 2, p(2), p(5), p(4), p(6), &
             p(8), p(11), p(9), p(12))
 
        call m%generate_conn()
        @MPIassertEqual(2, m%glb_nelv)
        @MPIassertEqual(11, m%glb_mfcs)
        @MPIassertEqual(20, m%glb_meds)
-       
+
        p_local_idx = m%get_local(p(1))
        @assertEqual(1, m%point_neigh(p_local_idx)%size())
        p_local_idx = m%get_local(p(2))
@@ -516,12 +516,12 @@ contains
        @assertFalse(m%is_shared(t))
        call m%elements(2)%e%facet_id(t, 2)
        @assertFalse(m%is_shared(t))
-       
-       
-    else   
+
+
+    else
        if (this%getProcessRank() .eq. 0) then
 
-          call m%add_element(1, p(1), p(2), p(3), p(4), &
+          call m%add_element(1, 1, p(1), p(2), p(3), p(4), &
                p(7), p(8), p(10), p(9))
 
           call m%generate_conn()
@@ -530,7 +530,7 @@ contains
           @MPIassertEqual(2, m%glb_nelv)
           @MPIassertEqual(11, m%glb_mfcs)
           @MPIassertEqual(20, m%glb_meds)
-          
+
           p_local_idx = m%get_local(p(1))
           @assertEqual(1, m%point_neigh(p_local_idx)%size())
           p_local_idx = m%get_local(p(2))
@@ -563,7 +563,7 @@ contains
 
        else
 
-          call m%add_element(1, p(2), p(5), p(4), p(6), &
+          call m%add_element(1, 1, p(2), p(5), p(4), p(6), &
                p(8), p(11), p(9), p(12))
 
           call m%generate_conn()
@@ -572,7 +572,7 @@ contains
           @MPIassertEqual(2, m%glb_nelv)
           @MPIassertEqual(11, m%glb_mfcs)
           @MPIassertEqual(20, m%glb_meds)
-                    
+
           p_local_idx = m%get_local(p(2))
           @assertEqual(2, m%point_neigh(p_local_idx)%size())
           p_local_idx = m%get_local(p(5))
@@ -607,5 +607,27 @@ contains
     end if
 
   end subroutine test_mesh_hex_conn
+
+  @test
+  subroutine test_paralleliped_signed_volume
+    real(kind=dp),dimension(3) :: p1, p2, p3, origin
+    real(kind=dp) :: v
+
+    origin = [0.0_rp, 0.0_rp, 0.0_rp]
+    p1 = [1.0_rp, 0.0_rp, 0.0_rp]
+    p2 = [0.0_rp, 1.0_rp, 0.0_rp]
+    p3 = [0.0_rp, 0.0_rp, 1.0_rp]
+
+    v = parallelepiped_signed_volume(p1, p2, p3, origin)
+    @assertEqual(1.0_rp, v)
+
+    p2 = [1.0_rp, 0.0_rp, 0.0_rp]
+    p1 = [0.0_rp, 1.0_rp, 0.0_rp]
+    p3 = [0.0_rp, 0.0_rp, 1.0_rp]
+    v = parallelepiped_signed_volume(p1, p2, p3, origin)
+    @assertEqual(-1.0_rp, v)
+
+
+  end subroutine test_paralleliped_signed_volume
 
 end module mesh_parallel

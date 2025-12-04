@@ -1,0 +1,27 @@
+{
+    "version": 1.0,
+    "case": {
+        "mesh_file": "box.nmsh",
+        "output_at_end": true,
+        "output_boundary": false,
+        "output_checkpoints": false,
+        "time": {
+            "end_time": 2.0,
+            "timestep": 0.00001
+        },
+        "numerics": {
+            "time_order": 3,
+            "polynomial_order": 5,
+            "c_avisc_low": 0.5
+        },
+        "fluid": {
+            "scheme": "compressible",
+            "gamma": 1.4,
+            "initial_condition": {
+                "type": "user"
+            },
+            "output_control": "nsamples",
+            "output_value": 100
+        }
+    }
+}

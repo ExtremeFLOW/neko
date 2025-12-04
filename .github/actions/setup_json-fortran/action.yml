@@ -34,7 +34,7 @@ inputs:
   version:
     description: "The version of the JSON-Fortran library to use."
     required: false
-    default: "8.3.0"
+    default: "8.4.0"
   arch:
     description: "The architecture to use."
     required: false
@@ -129,6 +129,7 @@ runs:
         cmake -B $WORKING_DIR/build -S $WORKING_DIR \
           --install-prefix=$INSTALL_DIR \
           -DUSE_GNU_INSTALL_CONVENTION=ON \
+          -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
           -DSKIP_DOC_GEN=ON ${{ inputs.configure-options }}
 
     - name: Build
@@ -168,4 +169,6 @@ runs:
           exit 1
         fi
         echo "install-dir=$INSTALL_DIR" >> $GITHUB_OUTPUT
+        echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:$INSTALL_DIR/lib/pkgconfig/" >> $GITHUB_ENV
+        echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$INSTALL_DIR/lib/" >> $GITHUB_ENV
         rm -f $INSTALL_DIR/lib/*.dylib

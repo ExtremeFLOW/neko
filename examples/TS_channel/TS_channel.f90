@@ -12,37 +12,35 @@ module user
 contains
 
   ! Register user defined functions (see user_intf.f90)
-  subroutine user_setup(usr)
-    type(user_t), intent(inout) :: usr
+  subroutine user_setup(user)
+    type(user_t), intent(inout) :: user
 
-    usr%user_mesh_setup => user_mesh_scale
-    usr%fluid_user_ic => user_ic
-    
+    user%mesh_setup => user_mesh_scale
+    user%initial_conditions => initial_conditions
+
   end subroutine user_setup
 
 
   ! Rescale mesh
   ! Original mesh size: (2.0, 2.0, 1.0).
   ! New mesh can easily be genreated with genmeshbox.
-  subroutine user_mesh_scale(msh)
+  subroutine user_mesh_scale(msh, time)
     type(mesh_t), intent(inout) :: msh
+    type(time_state_t), intent(in) :: time
     integer :: i
 
     do i = 1, size(msh%points)
        msh%points(i)%x(1) = pi_rp * msh%points(i)%x(1) / 1.12_rp
        msh%points(i)%x(3) = pi_rp * (msh%points(i)%x(3) - 0.5_rp) &
-                                  * 2.0_rp / 2.1_rp
+            * 2.0_rp / 2.1_rp
     end do
 
   end subroutine user_mesh_scale
 
   ! User defined initial condition
-  subroutine user_ic(u, v, w, p, params)
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    type(json_file), intent(inout) :: params
+  subroutine initial_conditions(scheme_name, fields)
+    character(len=*), intent(in) :: scheme_name
+    type(field_list_t), intent(inout) :: fields
     integer :: i, j, i_y
     real(kind=rp) :: uvw(3)
 
@@ -58,37 +56,42 @@ contains
 
     real(kind=rp) :: ur_2D, ui_2D, vr_2D, vi_2D
     real(kind=rp) :: ur_3D, ui_3D, vr_3D, vi_3D, wr_3D, wi_3D
-    type(map_1d_t) :: map_1d 
+    type(map_1d_t) :: map_1d
     type(gs_t) :: gs_h
     type(coef_t) :: coef
-   
+    type (field_t), pointer :: u, v, w
+
+    u => fields%items(1)%ptr
+    v => fields%items(2)%ptr
+    w => fields%items(3)%ptr
+
     !Init these only for the initial condition...
     call gs_h%init(u%dof)
     call coef%init(gs_h)
     call map_1d%init(coef,2,1e-5_rp)
-   
-    num_ygll = map_1d%n_gll_lvls  
- 
+
+    num_ygll = map_1d%n_gll_lvls
+
     allocate(y_GLL(num_ygll))
     allocate(TS2D_GLL(num_ygll, num_columns-1))
     allocate(TS3D_GLL(num_ygll, num_columns-1))
     ! data reading
     open(unit = 10, file = 'TSwave_cheb_2D.bin', form = 'unformatted', &
-                  access = 'stream')
-       read(10) data_mode_cheb_2D
+         access = 'stream')
+    read(10) data_mode_cheb_2D
     close(10)
     y_GLC = data_mode_cheb_2D(:,1)
     TS2D_GLC = data_mode_cheb_2D(:,2:num_columns)
 
     open(unit = 10, file = 'TSwave_cheb_3D.bin', form = 'unformatted', &
-                  access = 'stream')
-       read(10) data_mode_cheb_3D
+         access = 'stream')
+    read(10) data_mode_cheb_3D
     close(10)
     TS3D_GLC = data_mode_cheb_3D(:,2:num_columns)
 
     ! alternative of point zone
     i_y = 1
-    
+
     ! initialize y_GLL
     do i = 1, num_ygll
        y_GLL(i) = 0.0
@@ -120,14 +123,14 @@ contains
        wr_3D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS3D_GLL(:,5))
        wi_3D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS3D_GLL(:,6))
        uvw = channel_ic(u%dof%x(i,1,1,1), u%dof%y(i,1,1,1), u%dof%z(i,1,1,1), &
-                        ur_2D, ui_2D, vr_2D, vi_2D, &
-                        ur_3D, ui_3D, vr_3D, vi_3D, wr_3D, wi_3D)
+            ur_2D, ui_2D, vr_2D, vi_2D, &
+            ur_3D, ui_3D, vr_3D, vi_3D, wr_3D, wi_3D)
        u%x(i,1,1,1) = uvw(1)
        v%x(i,1,1,1) = uvw(2)
        w%x(i,1,1,1) = uvw(3)
     end do
 
-  end subroutine user_ic
+  end subroutine initial_conditions
 
   function in_array(y, y_list) result(is_in)
     logical :: is_in
@@ -154,7 +157,7 @@ contains
     integer :: i
     logical :: found
     real(kind=rp) :: dist
-    
+
     tol = 1e-4_rp
     found = .false.
     dist = 100
@@ -165,7 +168,7 @@ contains
        end if
     end do
     if ( dist .le. tol ) found = .true.
-    
+
     if (.not. found) then
        write (*,*) 'tolerence too small for picking points. dist:', dist
     end if
@@ -173,8 +176,8 @@ contains
   end function pick_pt
 
   function channel_ic(x, y, z, &
-                      ur_2D, ui_2D, vr_2D, vi_2D, &
-                      ur_3D, ui_3D, vr_3D, vi_3D, wr_3D, wi_3D) result(uvw)
+       ur_2D, ui_2D, vr_2D, vi_2D, &
+       ur_3D, ui_3D, vr_3D, vi_3D, wr_3D, wi_3D) result(uvw)
     real(kind=rp) :: x, y, z
     real(kind=rp) :: uvw(3)
     real(kind=rp) :: ub
@@ -190,7 +193,7 @@ contains
     complex(kind=rp) :: u_mode_3D, v_mode_3D, w_mode_3D
     complex(kind=rp) :: spa_osci_3D_p, spa_osci_3D_n
     real(kind=rp) :: u_pert_TS_3D, v_pert_TS_3D, w_pert_TS_3D
-    
+
     ! amplitude for decaying TS wave:
     ! TS_amp_2D = 1e-6_rp
     ! TS_amp_3D = 0.0_rp
@@ -245,11 +248,11 @@ contains
     xs = x_GLC(1)
     xe = x_GLC(N+1)
     xnc = ( 2.0_rp*xn - (xs+xe) )/ &
-          ( xe - xs)
+         ( xe - xs)
     dchebyshev = eval_dchebyshev(xnc,N)
     do i = 1, N+1
        chi(i) = ( 2.0_rp*x_GLC(i) - (xs+xe) )/ &
-                ( xe - xs)
+            ( xe - xs)
 
        if (i .eq. 1) then
           cj = 2.0_rp
@@ -260,7 +263,7 @@ contains
        end if
 
        psi(i) = ((-1.0_rp)**(i) * (1.0_rp-xnc*xnc) * dchebyshev)/ &
-                (cj * N*N * (xnc-chi(i)))
+            (cj * N*N * (xnc-chi(i)))
 
        is_nan = ieee_is_nan(psi(i))
        if (is_nan .or. psi(i) .gt. 1e+3) then
@@ -297,7 +300,7 @@ contains
 
     dT_Nx = dT(N+1)
   end function eval_dchebyshev
-  
+
   ! Evaluate the Chebyshev polynomials of the first kind
   function eval_chebyshev(x,N) result(T_Nx)
     real(kind=rp) :: x, T_Nx

@@ -6,7 +6,8 @@ module device_math_parallel
   use device_math
   use neko_config
   use num_types
-  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use comm, only : NEKO_COMM, pe_rank, pe_size, comm_init
+  use, intrinsic :: iso_c_binding
   implicit none
 
   @TestCase
@@ -23,6 +24,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_init
     end if
+    call comm_init
   end subroutine setUp
 
   subroutine tearDown(this)
@@ -733,7 +735,7 @@ contains
        call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(b, b_d, size(a), HOST_TO_DEVICE, sync=.false.)
 
-       call device_pwmax(a_d, b_d, n)
+       call device_pwmax2(a_d, b_d, n)
 
        call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
 
@@ -772,7 +774,7 @@ contains
        call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(b, b_d, size(a), HOST_TO_DEVICE, sync=.false.)
 
-       call device_pwmin(a_d, b_d, n)
+       call device_pwmin2(a_d, b_d, n)
 
        call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST, sync=.true.)
 

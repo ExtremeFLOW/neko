@@ -8,7 +8,7 @@ on:
 jobs:
   lint-develop:
     name: "Lint develop branch"
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     outputs:
       score: ${{ steps.save-score.outputs.score }}
 
@@ -35,7 +35,7 @@ jobs:
 
   lint-current:
     name: "Lint current branch"
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     outputs:
       score: ${{ steps.save-score.outputs.score }}
 
@@ -61,7 +61,7 @@ jobs:
 
   lint-changed-files:
     name: "Lint changed files"
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs:
       - lint-develop
       - lint-current
@@ -140,6 +140,11 @@ jobs:
               continue
             fi
 
+            # If the file is the `src/adt/stack.f90` file, skip it.
+            if [[ $file == "src/adt/stack.f90" ]]; then
+              continue
+            fi
+
             printf "\t- $file"
             score=$(flint score -r flinter_rc.yml $(realpath $file) 2> /dev/null |
                   grep -oP '(?<=\>\|)[^\|\<]+(?=\|\<)')
@@ -185,7 +190,7 @@ jobs:
   # Create a badge for the flint score
   create-badge-lint:
     name: "Create linting badge"
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs:
       - lint-current
 

@@ -34,31 +34,42 @@
 module logger
   use comm, only : pe_rank
   use num_types, only : rp
+  use utils, only: neko_error
   use, intrinsic :: iso_fortran_env, only: stdout => output_unit, &
        stderr => error_unit
   implicit none
   private
 
-  integer, public, parameter :: LOG_SIZE = 80
+  ! > Size of the log message buffer
+  !! @note This adjust for the leading space applied by `write`. 80 character
+  !! output log leaves 79 characters for the message.
+  integer, public, parameter :: LOG_SIZE = 79
 
   type, public :: log_t
-     integer :: indent_
-     integer :: section_id_
-     integer :: level_
-     integer :: unit_
+     integer, private :: indent_
+     integer, private :: section_id_
+     integer, private :: tab_size_
+     integer, private :: level_
+     integer, private :: unit_
+
+     character(len=LOG_SIZE), private :: section_header = ""
+
    contains
      procedure, pass(this) :: init => log_init
+     procedure, pass(this) :: free => log_free
      procedure, pass(this) :: begin => log_begin
      procedure, pass(this) :: end => log_end
      procedure, pass(this) :: indent => log_indent
      procedure, pass(this) :: newline => log_newline
      procedure, pass(this) :: message => log_message
      procedure, pass(this) :: section => log_section
-     procedure, pass(this) :: status => log_status
      procedure, pass(this) :: header => log_header
      procedure, pass(this) :: error => log_error
      procedure, pass(this) :: warning => log_warning
      procedure, pass(this) :: end_section => log_end_section
+
+     procedure, private, pass(this) :: print_section_header => &
+          log_print_section_header
   end type log_t
 
   !> Global log stream
@@ -78,11 +89,19 @@ contains
   subroutine log_init(this)
     class(log_t), intent(inout) :: this
     character(len=255) :: log_level
+    character(len=255) :: log_tab_size
     character(len=255) :: log_file
     integer :: envvar_len
 
-    this%indent_ = 1
+    this%indent_ = 0
     this%section_id_ = 0
+
+    call get_environment_variable("NEKO_LOG_TAB_SIZE", log_tab_size, envvar_len)
+    if (envvar_len .gt. 0) then
+       read(log_tab_size(1:envvar_len), *) this%tab_size_
+    else
+       this%tab_size_ = 1
+    end if
 
     call get_environment_variable("NEKO_LOG_LEVEL", log_level, envvar_len)
     if (envvar_len .gt. 0) then
@@ -93,8 +112,7 @@ contains
 
     call get_environment_variable("NEKO_LOG_FILE", log_file, envvar_len)
     if (envvar_len .gt. 0) then
-       this%unit_ = 69
-       open(unit = this%unit_, file = trim(log_file), status = 'replace', &
+       open(newunit = this%unit_, file = trim(log_file), status = 'replace', &
             action = 'write')
     else
        this%unit_ = stdout
@@ -102,12 +120,31 @@ contains
 
   end subroutine log_init
 
+  !> Free a log
+  subroutine log_free(this)
+    class(log_t), intent(inout) :: this
+
+    if (this%section_id_ .ne. 0) then
+       call neko_error("Log is unbalanced")
+    end if
+
+    if (this%unit_ .ne. stdout) then
+       close(this%unit_)
+    end if
+
+    this%indent_ = 0
+    this%level_ = NEKO_LOG_INFO
+    this%unit_ = -1
+
+  end subroutine log_free
+
   !> Increase indention level
   subroutine log_begin(this)
     class(log_t), intent(inout) :: this
 
     if (pe_rank .eq. 0) then
-       this%indent_ = this%indent_ + 1
+       this%section_id_ = this%section_id_ + 1
+       this%indent_ = this%indent_ + this%tab_size_
     end if
 
   end subroutine log_begin
@@ -117,15 +154,20 @@ contains
     class(log_t), intent(inout) :: this
 
     if (pe_rank .eq. 0) then
-       this%indent_ = this%indent_ - 1
+       if (this%section_id_ .eq. 0) then
+          call neko_error("Log is unbalanced")
+       end if
+       this%section_id_ = this%section_id_ - 1
+       this%indent_ = this%indent_ - this%tab_size_
     end if
+
+    this%section_header = ""
 
   end subroutine log_end
 
   !> Indent a log
   subroutine log_indent(this)
     class(log_t), intent(in) :: this
-    integer :: i
 
     if (pe_rank .eq. 0) then
        write(this%unit_, '(A)', advance = 'no') repeat(' ', this%indent_)
@@ -158,7 +200,7 @@ contains
 
   !> Write a message to a log
   subroutine log_message(this, msg, lvl)
-    class(log_t), intent(in) :: this
+    class(log_t), intent(inout) :: this
     character(len=*), intent(in) :: msg
     integer, optional :: lvl
     integer :: lvl_
@@ -171,6 +213,10 @@ contains
 
     if (lvl_ .gt. this%level_) then
        return
+    end if
+
+    if (len_trim(this%section_header) .gt. 0) then
+       call this%print_section_header(lvl)
     end if
 
     if (pe_rank .eq. 0) then
@@ -230,40 +276,27 @@ contains
     character(len=*), intent(in) :: msg
     integer, optional :: lvl
 
-    integer :: i, pre, pos
-    integer :: lvl_
+    integer :: pre, pos
 
-    if (present(lvl)) then
-       lvl_ = lvl
-    else
-       lvl_ = NEKO_LOG_INFO
+    if (len_trim(this%section_header) .gt. 0) then
+       call this%print_section_header(lvl)
     end if
 
-    if (lvl_ .gt. this%level_) then
-       return
-    end if
+    call this%begin()
 
     if (pe_rank .eq. 0) then
-
-       this%indent_ = this%indent_ + this%section_id_
-       this%section_id_ = this%section_id_ + 1
-
        pre = (30 - len_trim(msg)) / 2
        pos = 30 - (len_trim(msg) + pre)
 
-       write(this%unit_, '(A)') ''
-       call this%indent()
-       write(this%unit_, '(A,A,A)') &
+       write(this%section_header, '(A,A,A)') &
             repeat('-', pre), trim(msg), repeat('-', pos)
-
     end if
 
   end subroutine log_section
 
-  !> End a log section
-  subroutine log_end_section(this, msg, lvl)
+  !> Print a section header
+  subroutine log_print_section_header(this, lvl)
     class(log_t), intent(inout) :: this
-    character(len=*), intent(in), optional :: msg
     integer, optional :: lvl
     integer :: lvl_
 
@@ -277,34 +310,29 @@ contains
        return
     end if
 
-    if (present(msg)) then
-       call this%message(msg, NEKO_LOG_QUIET)
+    if (pe_rank .eq. 0) then
+       call this%newline(lvl)
+       call this%indent()
+       write(this%unit_, '(A)') trim(this%section_header)
+       this%section_header = ""
     end if
 
-    if (pe_rank .eq. 0) then
-       this%section_id_ = this%section_id_ - 1
-       this%indent_ = this%indent_ - this%section_id_
+  end subroutine log_print_section_header
+
+  !> End a log section
+  subroutine log_end_section(this, msg, lvl)
+    class(log_t), intent(inout) :: this
+    character(len=*), intent(in), optional :: msg
+    integer, optional :: lvl
+    integer :: lvl_
+
+    if (present(msg)) then
+       call this%message(msg, lvl)
     end if
+
+    call this%end()
 
   end subroutine log_end_section
-
-  !> Write status banner
-  !! @todo move to a future Time module
-  subroutine log_status(this, t, T_end)
-    class(log_t), intent(in) :: this
-    real(kind=rp), intent(in) :: t
-    real(kind=rp), intent(in) :: T_end
-    character(len=LOG_SIZE) :: log_buf
-    real(kind=rp) :: t_prog
-
-    t_prog = 100d0 * t / T_end
-    write(log_buf, '(A4,E15.7,34X,A2,F6.2,A3)') 't = ', t, '[ ', t_prog, '% ]'
-
-    call this%message(repeat('-', 64), NEKO_LOG_QUIET)
-    call this%message(log_buf, NEKO_LOG_QUIET)
-    call this%message(repeat('-', 64), NEKO_LOG_QUIET)
-
-  end subroutine log_status
 
   !
   ! Rudimentary C interface
@@ -326,8 +354,7 @@ contains
           msg(len:len) = c_msg(len)
        end do
 
-       call neko_log%indent()
-       write(neko_log%unit_, '(A)') trim(msg(1:len))
+       call neko_log%message(trim(msg(1:len)))
     end if
 
   end subroutine log_message_c

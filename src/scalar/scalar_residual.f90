@@ -36,7 +36,6 @@ module scalar_residual
   use ax_product, only : ax_t
   use field, only : field_t
   use coefs, only : coef_t
-  use source_scalar, only : source_scalar_t
   use facet_normal, only : facet_normal_t
   use space, only : space_t
   use mesh, only : mesh_t
@@ -65,12 +64,11 @@ module scalar_residual
      !! @param dt The timestep.
      !! @param n The total number of degrees of freedom.
      subroutine scalar_residual_interface(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, &
-                                          lambda, rhocp, bd, dt, n)
+          lambda, rhocp, bd, dt, n)
        import field_t
        import Ax_t
        import gs_t
        import facet_normal_t
-       import source_scalar_t
        import space_t
        import coef_t
        import mesh_t
@@ -80,7 +78,7 @@ module scalar_residual
        type(space_t), intent(inout) :: Xh
        type(field_t), intent(inout) :: s
        type(field_t), intent(inout) :: s_res
-       type(field_t), intent(inout) :: f_Xh
+       type(field_t), intent(in) :: f_Xh
        type(coef_t), intent(inout) :: c_Xh
        type(field_t), intent(in) :: lambda
        real(kind=rp), intent(in) :: rhocp
@@ -100,5 +98,5 @@ module scalar_residual
   end interface
 
   public :: scalar_residual_factory
-  
+
 end module scalar_residual

@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2024, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,17 +32,19 @@
 !
 !> Defines a communication avoiding Conjugate Gradient method
 module cacg
-  use num_types, only: rp
+  use num_types, only : rp
+  use neko_config, only : NEKO_BLK_SIZE
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
-  use precon,  only : pc_t
+  use precon, only : pc_t
   use ax_product, only : ax_t
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc, only : bc_list_t, bc_list_apply, bc_list_apply_scalar
+  use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, x_update, abscmp
   use utils, only : neko_warning
-  use comm
+  use comm, only : pe_rank, NEKO_COMM, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_Allreduce, MPI_SUM
   use mxm_wrapper
   implicit none
   private
@@ -52,7 +54,7 @@ module cacg
      real(kind=rp), allocatable :: r(:)
      real(kind=rp), allocatable :: p(:)
      real(kind=rp), allocatable :: PR(:,:)
-     integer :: s
+     integer :: s = 4
    contains
      procedure, pass(this) :: init => cacg_init
      procedure, pass(this) :: free => cacg_free
@@ -63,25 +65,19 @@ module cacg
 contains
 
   !> Initialise a s-step CA  PCG solver
-  subroutine cacg_init(this, n, max_iter, M, s, rel_tol, abs_tol, monitor)
-    class(cacg_t), intent(inout) :: this
-    class(pc_t), optional, intent(inout), target :: M
+  subroutine cacg_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
+    class(cacg_t), target, intent(inout) :: this
+    class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
-    real(kind=rp), optional, intent(inout) :: rel_tol
-    real(kind=rp), optional, intent(inout) :: abs_tol
+    real(kind=rp), optional, intent(in) :: rel_tol
+    real(kind=rp), optional, intent(in) :: abs_tol
     logical, optional, intent(in) :: monitor
-    integer, optional, intent(inout) :: s
     call this%free()
 
-    if (present(s)) then
-       this%s = s
-    else
-       this%s = 4
-    end if
     if (pe_rank .eq. 0) then
        call neko_warning("Communication Avoiding CG chosen,&
-            & be aware of potential instabilities")
+       & be aware of potential instabilities")
     end if
 
     allocate(this%r(n))
@@ -137,10 +133,10 @@ contains
   !> S-step CA PCG solve
   function cacg_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
     class(cacg_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: f
+    real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
@@ -175,7 +171,9 @@ contains
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
       iter = 0
-      if(abscmp(rnorm, 0.0_rp)) return
+      if(abscmp(rnorm, 0.0_rp)) then
+         ksp_results%converged = .true.
+      end if
       call this%monitor_start('CACG')
       do while (iter < max_iter)
 
@@ -187,7 +185,7 @@ contains
             if (mod(i,2) .eq. 0) then
                call Ax%compute(PR(1,i), PR(1,i-1), coef, x%msh, x%Xh)
                call gs_h%gs_op_vector(PR(1,i), n, GS_OP_ADD)
-               call bc_list_apply_scalar(blst, PR(1,i), n)
+               call blst%apply_scalar(PR(1,i), n)
             else
                call this%M%solve(PR(1,i), PR(1,i-1), n)
             end if
@@ -199,7 +197,7 @@ contains
             else
                call Ax%compute(PR(1,i+1), PR(1,i), coef, x%msh, x%Xh)
                call gs_h%gs_op_vector(PR(1,i+1), n, GS_OP_ADD)
-               call bc_list_apply_scalar(blst, PR(1,1+i), n)
+               call blst%apply_scalar(PR(1,1+i), n)
             end if
          end do
 
@@ -220,7 +218,7 @@ contains
                      it = it + 1
                      do k = 1, NEKO_BLK_SIZE
                         temp(it,1) = temp(it,1) &
-                                   + PR(i+k,j) * PR(i+k,l) * coef%mult(i+k,1,1,1)
+                             + PR(i+k,j) * PR(i+k,l) * coef%mult(i+k,1,1,1)
                      end do
                   end do
                end do
@@ -230,7 +228,7 @@ contains
                      it = it + 1
                      do k = 1, n-i
                         temp(it,1) = temp(it,1) &
-                                   + PR(i+k,j) * PR(i+k,l) * coef%mult(i+k,1,1,1)
+                             + PR(i+k,j) * PR(i+k,l) * coef%mult(i+k,1,1,1)
                      end do
                   end do
                end do
@@ -269,7 +267,7 @@ contains
                do k = 1, 4*s+1
                   tmp = tmp + Tt(i,k) * p_c(k,j)
                end do
-               r_c(i,j+1) =  r_c(i,j) - alpha(j)*tmp
+               r_c(i,j+1) = r_c(i,j) - alpha(j)*tmp
                tmp = 0.0_rp
                do k = 1, 4*s+1
                   tmp = tmp + Tt(i,k)*r_c(k,j+1)
@@ -284,7 +282,7 @@ contains
             end do
             beta(j) = alpha2 / alpha1
             do i = 1,4*s+1
-               p_c(i,j+1) = z_c(i,j+1) +  beta(j)*p_c(i,j)
+               p_c(i,j+1) = z_c(i,j+1) + beta(j)*p_c(i,j)
             end do
          end do
 
@@ -328,6 +326,7 @@ contains
       call this%monitor_stop()
       ksp_results%res_final = rnorm
       ksp_results%iter = iter
+      ksp_results%converged = this%is_converged(iter, rnorm)
 
     end associate
 
@@ -352,14 +351,14 @@ contains
   function cacg_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
        n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
     class(cacg_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     type(field_t), intent(inout) :: y
     type(field_t), intent(inout) :: z
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: fx
-    real(kind=rp), dimension(n), intent(inout) :: fy
-    real(kind=rp), dimension(n), intent(inout) :: fz
+    real(kind=rp), dimension(n), intent(in) :: fx
+    real(kind=rp), dimension(n), intent(in) :: fy
+    real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blstx
     type(bc_list_t), intent(inout) :: blsty
@@ -368,9 +367,9 @@ contains
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
 
-    ksp_results(1) =  this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) =  this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
 
   end function cacg_solve_coupled
 

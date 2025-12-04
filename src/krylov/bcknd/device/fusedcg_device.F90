@@ -33,17 +33,23 @@
 !> Defines a fused Conjugate Gradient method for accelerators
 module fusedcg_device
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
-  use precon,  only : pc_t
+  use precon, only : pc_t
   use ax_product, only : ax_t
   use num_types, only: rp, c_rp
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc, only : bc_list_t, bc_list_apply
+  use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, abscmp
   use device_math, only : device_rzero, device_copy, device_glsc3
-  use device
-  use comm
+  use device, only : device_memcpy, HOST_TO_DEVICE, device_get_ptr, &
+       device_free, device_map, device_alloc, device_event_create, &
+       device_event_sync, device_event_destroy
+  use utils, only : neko_error
+  use comm, only : pe_size, NEKO_COMM, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, &
+       c_associated, c_size_t, c_sizeof, c_int, c_loc
   implicit none
   private
 
@@ -168,7 +174,7 @@ contains
   end subroutine device_fusedcg_update_x
 
   function device_fusedcg_part2(a_d, b_d, c_d, alpha_d, alpha, &
-                                p_cur, n) result(res)
+       p_cur, n) result(res)
     type(c_ptr), value :: a_d, b_d, c_d, alpha_d
     real(c_rp) :: alpha
     integer :: n, p_cur
@@ -193,13 +199,13 @@ contains
 
   !> Initialise a fused PCG solver
   subroutine fusedcg_device_init(this, n, max_iter, M, rel_tol, abs_tol, &
-                                 monitor)
+       monitor)
     class(fusedcg_device_t), target, intent(inout) :: this
-    class(pc_t), optional, intent(inout), target :: M
+    class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
-    real(kind=rp), optional, intent(inout) :: rel_tol
-    real(kind=rp), optional, intent(inout) :: abs_tol
+    real(kind=rp), optional, intent(in) :: rel_tol
+    real(kind=rp), optional, intent(in) :: abs_tol
     logical, optional, intent(in) :: monitor
     type(c_ptr) :: ptr
     integer(c_size_t) :: p_size
@@ -231,7 +237,7 @@ contains
     call device_alloc(this%p_d_d, p_size)
     ptr = c_loc(this%p_d)
     call device_memcpy(ptr, this%p_d_d, p_size, &
-                       HOST_TO_DEVICE, sync=.false.)
+         HOST_TO_DEVICE, sync=.false.)
     if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
     else if (present(rel_tol) .and. present(abs_tol)) then
@@ -307,6 +313,10 @@ contains
        end do
     end if
 
+    if (c_associated(this%p_d_d)) then
+       call device_free(this%p_d_d)
+    end if
+
     nullify(this%M)
 
     if (c_associated(this%gs_event)) then
@@ -318,17 +328,17 @@ contains
   !> Pipelined PCG solve
   function fusedcg_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
     class(fusedcg_device_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: f
+    real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
     integer :: iter, max_iter, ierr, i, p_cur, p_prev
-    real(kind=rp) :: rnorm, rtr, norm_fac,  rtz1, rtz2
+    real(kind=rp) :: rnorm, rtr, norm_fac, rtz1, rtz2
     real(kind=rp) :: pap, beta
     type(c_ptr) :: f_d
     f_d = device_get_ptr(f)
@@ -357,7 +367,10 @@ contains
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
-      if(abscmp(rnorm, 0.0_rp)) return
+      if(abscmp(rnorm, 0.0_rp)) then
+         ksp_results%converged = .true.
+         return
+      end if
 
       call this%monitor_start('FusedCG')
       do iter = 1, max_iter
@@ -371,13 +384,13 @@ contains
          call Ax%compute(w, p(1, p_cur), coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
          call device_event_sync(this%gs_event)
-         call bc_list_apply(blst, w, n)
+         call blst%apply(w, n)
 
          pap = device_glsc3(w_d, coef%mult_d, this%p_d(p_cur), n)
 
          alpha(p_cur) = rtz1 / pap
          rtr = device_fusedcg_part2(r_d, coef%mult_d, w_d, &
-                                    alpha_d, alpha(p_cur), p_cur, n)
+              alpha_d, alpha(p_cur), p_cur, n)
          rnorm = sqrt(rtr)*norm_fac
          call this%monitor_iter(iter, rnorm)
          if ((p_cur .eq. DEVICE_FUSEDCG_P_SPACE) .or. &
@@ -394,6 +407,7 @@ contains
       call this%monitor_stop()
       ksp_results%res_final = rnorm
       ksp_results%iter = iter
+      ksp_results%converged = this%is_converged(iter, rnorm)
 
     end associate
 
@@ -403,14 +417,14 @@ contains
   function fusedcg_device_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
        n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
     class(fusedcg_device_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     type(field_t), intent(inout) :: y
     type(field_t), intent(inout) :: z
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: fx
-    real(kind=rp), dimension(n), intent(inout) :: fy
-    real(kind=rp), dimension(n), intent(inout) :: fz
+    real(kind=rp), dimension(n), intent(in) :: fx
+    real(kind=rp), dimension(n), intent(in) :: fy
+    real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blstx
     type(bc_list_t), intent(inout) :: blsty
@@ -419,12 +433,10 @@ contains
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
 
-    ksp_results(1) =  this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) =  this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
 
   end function fusedcg_device_solve_coupled
-  
+
 end module fusedcg_device
-
-

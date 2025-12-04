@@ -40,11 +40,11 @@ module adv_dealias
   use coefs, only: coef_t
   use device_math, only: device_vdot3, device_sub2
   use neko_config, only: NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_XSMM, &
-    NEKO_BCKND_OPENCL, NEKO_BCKND_CUDA, NEKO_BCKND_HIP
+       NEKO_BCKND_OPENCL, NEKO_BCKND_CUDA, NEKO_BCKND_HIP
   use operators, only: opgrad
   use interpolation, only: interpolator_t
-  use device, only: device_map, device_get_ptr
-  use, intrinsic :: iso_c_binding, only: c_ptr, C_NULL_PTR
+  use device, only: device_map, device_get_ptr, device_free
+  use, intrinsic :: iso_c_binding, only: c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
 
@@ -125,8 +125,8 @@ contains
     call this%GLL_to_GL%map(this%coef_GL%dsdz, coef%dsdz, nel, this%Xh_GL)
     call this%GLL_to_GL%map(this%coef_GL%dtdz, coef%dtdz, nel, this%Xh_GL)
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-       (NEKO_BCKND_OPENCL .eq. 1) .or. (NEKO_BCKND_SX .eq. 1) .or. &
-       (NEKO_BCKND_XSMM .eq. 1)) then
+         (NEKO_BCKND_OPENCL .eq. 1) .or. (NEKO_BCKND_SX .eq. 1) .or. &
+         (NEKO_BCKND_XSMM .eq. 1)) then
        allocate(this%temp(n_GL))
        allocate(this%tbf(n_GL))
        allocate(this%tx(n_GL))
@@ -153,6 +153,72 @@ contains
   !> Destructor
   subroutine free_dealias(this)
     class(adv_dealias_t), intent(inout) :: this
+
+    if (allocated(this%temp)) then
+       deallocate(this%temp)
+    end if
+
+    if (allocated(this%tbf)) then
+       deallocate(this%tbf)
+    end if
+    if (allocated(this%tx)) then
+       deallocate(this%tx)
+    end if
+    if (allocated(this%ty)) then
+       deallocate(this%ty)
+    end if
+    if (allocated(this%tz)) then
+       deallocate(this%tz)
+    end if
+    if (allocated(this%vr)) then
+       deallocate(this%vr)
+    end if
+    if (allocated(this%vs)) then
+       deallocate(this%vs)
+    end if
+    if (allocated(this%vt)) then
+       deallocate(this%vt)
+    end if
+
+    if (c_associated(this%temp_d)) then
+       call device_free(this%temp_d)
+    end if
+
+    if (c_associated(this%tbf_d)) then
+       call device_free(this%tbf_d)
+    end if
+
+    if (c_associated(this%tx_d)) then
+       call device_free(this%tx_d)
+    end if
+
+    if (c_associated(this%ty_d)) then
+       call device_free(this%ty_d)
+    end if
+
+    if (c_associated(this%tz_d)) then
+       call device_free(this%tz_d)
+    end if
+
+    if (c_associated(this%vr_d)) then
+       call device_free(this%vr_d)
+    end if
+
+    if (c_associated(this%vs_d)) then
+       call device_free(this%vs_d)
+    end if
+
+    if (c_associated(this%vt_d)) then
+       call device_free(this%vt_d)
+    end if
+
+    call this%coef_GL%free()
+    call this%GLL_to_GL%free()
+    call this%Xh_GL%free()
+
+    nullify(this%Xh_GLL)
+    nullify(this%coef_GLL)
+
   end subroutine free_dealias
 
 
@@ -169,10 +235,10 @@ contains
   !! @param n Typically the size of the mesh.
   !! @param dt Current time-step, not required for this method.
   subroutine compute_advection_dealias(this, vx, vy, vz, fx, fy, fz, Xh, &
-                                       coef, n, dt)
+       coef, n, dt)
     class(adv_dealias_t), intent(inout) :: this
-    type(space_t), intent(inout) :: Xh
-    type(coef_t), intent(inout) :: coef
+    type(space_t), intent(in) :: Xh
+    type(coef_t), intent(in) :: coef
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: fx, fy, fz
     integer, intent(in) :: n
@@ -196,20 +262,20 @@ contains
 
          call opgrad(this%vr, this%vs, this%vt, this%tx, c_GL)
          call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
-                           this%tx_d, this%ty_d, this%tz_d, n_GL)
+              this%tx_d, this%ty_d, this%tz_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
          call device_sub2(fx%x_d, this%temp_d, n)
 
 
          call opgrad(this%vr, this%vs, this%vt, this%ty, c_GL)
          call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
-                           this%tx_d, this%ty_d, this%tz_d, n_GL)
+              this%tx_d, this%ty_d, this%tz_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
          call device_sub2(fy%x_d, this%temp_d, n)
 
          call opgrad(this%vr, this%vs, this%vt, this%tz, c_GL)
          call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
-                           this%tx_d, this%ty_d, this%tz_d, n_GL)
+              this%tx_d, this%ty_d, this%tz_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
          call device_sub2(fz%x_d, this%temp_d, n)
 
@@ -221,20 +287,20 @@ contains
 
          call opgrad(this%vr, this%vs, this%vt, this%tx, c_GL)
          call vdot3(this%tbf, this%vr, this%vs, this%vt, &
-                    this%tx, this%ty, this%tz, n_GL)
+              this%tx, this%ty, this%tz, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
          call sub2(fx%x, this%temp, n)
 
 
          call opgrad(this%vr, this%vs, this%vt, this%ty, c_GL)
          call vdot3(this%tbf, this%vr, this%vs, this%vt, &
-                    this%tx, this%ty, this%tz, n_GL)
+              this%tx, this%ty, this%tz, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
          call sub2(fy%x, this%temp, n)
 
          call opgrad(this%vr, this%vs, this%vt, this%tz, c_GL)
          call vdot3(this%tbf, this%vr, this%vs, this%vt, &
-                    this%tx, this%ty, this%tz, n_GL)
+              this%tx, this%ty, this%tz, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
          call sub2(fz%x, this%temp, n)
 
@@ -289,13 +355,13 @@ contains
   !! @param n Typically the size of the mesh.
   !! @param dt Current time-step, not required for this method.
   subroutine compute_scalar_advection_dealias(this, vx, vy, vz, s, fs, Xh, &
-                                              coef, n, dt)
+       coef, n, dt)
     class(adv_dealias_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: s
     type(field_t), intent(inout) :: fs
-    type(space_t), intent(inout) :: Xh
-    type(coef_t), intent(inout) :: coef
+    type(space_t), intent(in) :: Xh
+    type(coef_t), intent(in) :: coef
     integer, intent(in) :: n
     real(kind=rp), intent(in), optional :: dt
 
@@ -324,7 +390,7 @@ contains
 
          ! Compute the convective term, i.e dot the velocity with the scalar grad
          call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
-                           this%tx_d, this%ty_d, this%tz_d, n_GL)
+              this%tx_d, this%ty_d, this%tz_d, n_GL)
 
          ! Map back to the original space (we reuse this%temp)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
@@ -347,7 +413,7 @@ contains
 
          ! Compute the convective term, i.e dot the velocity with the scalar grad
          call vdot3(this%tbf, this%vr, this%vs, this%vt, &
-                    this%tx, this%ty, this%tz, n_GL)
+              this%tx, this%ty, this%tz, n_GL)
 
          ! Map back to the original space (we reuse this%temp)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)

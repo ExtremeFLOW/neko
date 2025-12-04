@@ -44,7 +44,8 @@ module boussinesq_source_term
   use boussinesq_source_term_cpu, only : boussinesq_source_term_compute_cpu
   use boussinesq_source_term_device, only : &
        boussinesq_source_term_compute_device
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -70,7 +71,7 @@ module boussinesq_source_term
      procedure, pass(this) :: init => boussinesq_source_term_init_from_json
      !> The constructor from type components.
      procedure, pass(this) :: init_from_compenents => &
-       boussinesq_source_term_init_from_components
+          boussinesq_source_term_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => boussinesq_source_term_free
      !> Computes the source term and adds the result to `fields`.
@@ -82,11 +83,14 @@ contains
   !! @param json The JSON object for the source.
   !! @param fields A list of fields for adding the source values.
   !! @param coef The SEM coeffs.
-  subroutine boussinesq_source_term_init_from_json(this, json, fields, coef)
+  !! @param variable_name The name of the variable where the source term acts.
+  subroutine boussinesq_source_term_init_from_json(this, json, fields, coef, &
+       variable_name)
     class(boussinesq_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    type(field_list_t), intent(inout), target :: fields
-    type(coef_t), intent(inout), target :: coef
+    type(field_list_t), intent(in), target :: fields
+    type(coef_t), intent(in), target :: coef
+    character(len=*), intent(in) :: variable_name
     real(kind=rp), allocatable :: values(:)
     real(kind=rp) :: start_time, end_time, ref_value
     character(len=:), allocatable :: scalar_name
@@ -100,7 +104,7 @@ contains
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
     call json_get_or_default(json, "end_time", end_time, huge(0.0_rp))
 
-    call json_get_or_default(json, "scalar_field", scalar_name, "s")
+    call json_get_or_default(json, "scalar_field", scalar_name, "temperature")
     call json_get(json, "g", g)
 
     if (.not. size(g) == 3) then
@@ -111,7 +115,7 @@ contains
     call json_get_or_default(json, "beta", beta, 1.0_rp/ref_value)
 
     call boussinesq_source_term_init_from_components(this, fields, scalar_name,&
-       ref_value, g, beta, coef, start_time, end_time)
+         ref_value, g, beta, coef, start_time, end_time)
 
   end subroutine boussinesq_source_term_init_from_json
 
@@ -125,9 +129,9 @@ contains
   !! @param start_time When to start adding the source term.
   !! @param end_time When to stop adding the source term.
   subroutine boussinesq_source_term_init_from_components(this, fields, &
-    scalar_name, ref_value, g, beta, coef, start_time, end_time)
+       scalar_name, ref_value, g, beta, coef, start_time, end_time)
     class(boussinesq_source_term_t), intent(inout) :: this
-    class(field_list_t), intent(inout), target :: fields
+    class(field_list_t), intent(in), target :: fields
     character(len=*), intent(in) :: scalar_name
     real(kind=rp), intent(in) :: ref_value
     real(kind=rp), intent(in) :: g(3)
@@ -139,10 +143,10 @@ contains
     call this%free()
     call this%init_base(fields, coef, start_time, end_time)
 
-    if (.not. neko_field_registry%field_exists(scalar_name)) then
-       call neko_field_registry%add_field(this%fields%dof(1), "s")
+    if (.not. neko_registry%field_exists(scalar_name)) then
+       call neko_registry%add_field(this%fields%dof(1), scalar_name)
     end if
-    this%s => neko_field_registry%get_field("s")
+    this%s => neko_registry%get_field(scalar_name)
 
     this%ref_value = ref_value
     this%g = g
@@ -160,10 +164,9 @@ contains
   !> Computes the source term and adds the result to `fields`.
   !! @param t The time value.
   !! @param tstep The current time-step.
-  subroutine boussinesq_source_term_compute(this, t, tstep)
+  subroutine boussinesq_source_term_compute(this, time)
     class(boussinesq_source_term_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     integer :: n_fields, i, n
 
     n_fields = this%fields%size()
@@ -171,10 +174,10 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call boussinesq_source_term_compute_device(this%fields, this%s,&
-         this%ref_value, this%g, this%beta)
+            this%ref_value, this%g, this%beta)
     else
        call boussinesq_source_term_compute_cpu(this%fields, this%s,&
-         this%ref_value, this%g, this%beta)
+            this%ref_value, this%g, this%beta)
     end if
   end subroutine boussinesq_source_term_compute
 

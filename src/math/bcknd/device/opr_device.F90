@@ -34,20 +34,22 @@
 module opr_device
   use gather_scatter, only : GS_OP_ADD
   use num_types, only : rp, c_rp
-  use device, only : device_get_ptr
+  use device, only : device_get_ptr, device_event_sync, device_map, device_free
   use space, only : space_t
   use coefs, only : coef_t
   use field, only : field_t
   use utils, only : neko_error
-  use device_math, only : device_sub3, device_rzero, device_copy
+  use interpolation, only : interpolator_t
+  use device_math, only : device_sub3, device_rzero, device_copy, device_col2
   use device_mathops, only : device_opcolv
-  use comm
   use, intrinsic :: iso_c_binding
   implicit none
   private
 
   public :: opr_device_dudxyz, opr_device_opgrad, opr_device_cdtp, &
-       opr_device_conv1, opr_device_curl, opr_device_cfl, opr_device_lambda2
+       opr_device_conv1, opr_device_convect_scalar, opr_device_curl, &
+       opr_device_cfl, opr_device_lambda2, opr_device_set_convect_rst, &
+       opr_device_rotate_cyc_r1, opr_device_rotate_cyc_r4
 
 #ifdef HAVE_HIP
   interface
@@ -85,6 +87,17 @@ module opr_device
        type(c_ptr), value :: jacinv_d
        integer(c_int) :: nel, gdim, lx
      end subroutine hip_conv1
+  end interface
+
+  interface
+     subroutine hip_convect_scalar(du_d, u_d, cr_d, cs_d, ct_d, &
+          dx_d, dy_d, dz_d, nel, lx) bind(c, name = 'hip_convect_scalar')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: du_d, u_d
+       type(c_ptr), value :: cr_d, cs_d, ct_d
+       type(c_ptr), value :: dx_d, dy_d, dz_d
+       integer(c_int) :: nel, lx
+     end subroutine hip_convect_scalar
   end interface
 
   interface
@@ -138,6 +151,35 @@ module opr_device
        integer(c_int) :: nel, lx
      end function hip_cfl
   end interface
+
+  interface
+     subroutine hip_rotate_cyc(vx_d, vy_d, vz_d, &
+          x_d, y_d, z_d, &
+          cyc_msk_d, R11_d, R12_d, ncyc, idir) &
+          bind(c, name = 'hip_rotate_cyc')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: vx_d, vy_d, vz_d
+       type(c_ptr), value :: x_d, y_d, z_d
+       type(c_ptr), value :: cyc_msk_d, R11_d, R12_d
+       integer(c_int) :: ncyc, idir
+     end subroutine hip_rotate_cyc
+  end interface
+
+  interface
+     subroutine hip_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
+          drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, drdz_d, dsdz_d, &
+          dtdz_d, w3_d, nel, lx) bind(c, name = 'hip_set_convect_rst')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: cr_d, cs_d, ct_d
+       type(c_ptr), value :: cx_d, cy_d, cz_d
+       type(c_ptr), value :: drdx_d, dsdx_d, dtdx_d
+       type(c_ptr), value :: drdy_d, dsdy_d, dtdy_d
+       type(c_ptr), value :: drdz_d, dsdz_d, dtdz_d
+       type(c_ptr), value :: w3_d
+       integer(c_int) :: nel, lx
+     end subroutine hip_set_convect_rst
+  end interface
+
 #elif HAVE_CUDA
   interface
      subroutine cuda_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, &
@@ -177,6 +219,17 @@ module opr_device
   end interface
 
   interface
+     subroutine cuda_convect_scalar(du_d, u_d, cr_d, cs_d, ct_d, &
+          dx_d, dy_d, dz_d, nel, lx) bind(c, name = 'cuda_convect_scalar')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: du_d, u_d
+       type(c_ptr), value :: cr_d, cs_d, ct_d
+       type(c_ptr), value :: dx_d, dy_d, dz_d
+       integer(c_int) :: nel, lx
+     end subroutine cuda_convect_scalar
+  end interface
+
+  interface
      subroutine cuda_opgrad(ux_d, uy_d, uz_d, u_d, &
           dx_d, dy_d, dz_d, &
           drdx_d, dsdx_d, dtdx_d, &
@@ -212,7 +265,6 @@ module opr_device
      end subroutine cuda_lambda2
   end interface
 
-
   interface
      real(c_rp) function cuda_cfl(dt, u_d, v_d, w_d, &
           drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, &
@@ -228,6 +280,35 @@ module opr_device
        integer(c_int) :: nel, lx
      end function cuda_cfl
   end interface
+
+  interface
+     subroutine cuda_rotate_cyc(vx_d, vy_d, vz_d, &
+          x_d, y_d, z_d, &
+          cyc_msk_d, R11_d, R12_d, ncyc, idir) &
+          bind(c, name = 'cuda_rotate_cyc')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: vx_d, vy_d, vz_d
+       type(c_ptr), value :: x_d, y_d, z_d
+       type(c_ptr), value :: cyc_msk_d, R11_d, R12_d
+       integer(c_int) :: ncyc, idir
+     end subroutine cuda_rotate_cyc
+  end interface
+
+  interface
+     subroutine cuda_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
+          drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, drdz_d, dsdz_d, &
+          dtdz_d, w3_d, nel, lx) bind(c, name = 'cuda_set_convect_rst')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: cr_d, cs_d, ct_d
+       type(c_ptr), value :: cx_d, cy_d, cz_d
+       type(c_ptr), value :: drdx_d, dsdx_d, dtdx_d
+       type(c_ptr), value :: drdy_d, dsdy_d, dtdy_d
+       type(c_ptr), value :: drdz_d, dsdz_d, dtdz_d
+       type(c_ptr), value :: w3_d
+       integer(c_int) :: nel, lx
+     end subroutine cuda_set_convect_rst
+  end interface
+
 #elif HAVE_OPENCL
   interface
      subroutine opencl_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, &
@@ -264,6 +345,17 @@ module opr_device
        type(c_ptr), value :: jacinv_d
        integer(c_int) :: nel, gdim, lx
      end subroutine opencl_conv1
+  end interface
+
+  interface
+     subroutine opencl_convect_scalar(du_d, u_d, cr_d, cs_d, ct_d, &
+          dx_d, dy_d, dz_d, nel, lx) bind(c, name = 'opencl_convect_scalar')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: du_d, u_d
+       type(c_ptr), value :: cr_d, cs_d, ct_d
+       type(c_ptr), value :: dx_d, dy_d, dz_d
+       integer(c_int) :: nel, lx
+     end subroutine opencl_convect_scalar
   end interface
 
   interface
@@ -317,6 +409,22 @@ module opr_device
        integer(c_int) :: nel, lx
      end subroutine opencl_lambda2
   end interface
+
+  interface
+     subroutine opencl_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
+          drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, drdz_d, dsdz_d, &
+          dtdz_d, w3_d, nel, lx) bind(c, name = 'opencl_set_convect_rst')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: cr_d, cs_d, ct_d
+       type(c_ptr), value :: cx_d, cy_d, cz_d
+       type(c_ptr), value :: drdx_d, dsdx_d, dtdx_d
+       type(c_ptr), value :: drdy_d, dsdy_d, dtdy_d
+       type(c_ptr), value :: drdz_d, dsdz_d, dtdz_d
+       type(c_ptr), value :: w3_d
+       integer(c_int) :: nel, lx
+     end subroutine opencl_set_convect_rst
+  end interface
+
 #endif
 
 contains
@@ -511,16 +619,62 @@ contains
 
   end subroutine opr_device_conv1
 
-  subroutine opr_device_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
+  subroutine opr_device_convect_scalar(du, u_d, cr_d, cs_d, ct_d, &
+            Xh_GLL, Xh_GL, coef_GLL, coef_GL, GLL_to_GL)
+    type(space_t), intent(in) :: Xh_GL
+    type(space_t), intent(in) :: Xh_GLL
+    type(coef_t), intent(in) :: coef_GLL
+    type(coef_t), intent(in) :: coef_GL
+    type(interpolator_t), intent(inout) :: GLL_to_GL
+    real(kind=rp), intent(inout) :: &
+                   du(Xh_GLL%lx, Xh_GLL%ly, Xh_GLL%lz, coef_GL%msh%nelv)
+    type(c_ptr) :: cr_d, cs_d, ct_d, u_d
+    real(kind=rp) :: ud(Xh_GL%lx*Xh_GL%lx*Xh_GL%lx)
+    type(c_ptr) :: du_d, ud_d
+    integer :: n_GL, n_GLL
+
+    n_GLL = coef_GL%msh%nelv * Xh_GL%lxyz
+    n_GLL = coef_GL%msh%nelv * Xh_GLL%lxyz
+
+    call device_map(ud, ud_d, n_GL)
+
+    du_d = device_get_ptr(du)
+
+    associate(Xh => Xh_GL, nelv => coef_GL%msh%nelv, lx => Xh_GL%lx)
+#ifdef HAVE_HIP
+      call hip_convect_scalar(ud_d, u_d, cr_d, cs_d, ct_d, &
+           Xh%dx_d, Xh%dy_d, Xh%dz_d, nelv, lx)
+#elif HAVE_CUDA
+      call cuda_convect_scalar(ud_d, u_d, cr_d, cs_d, ct_d, &
+           Xh%dx_d, Xh%dy_d, Xh%dz_d, nelv, lx)
+#elif HAVE_OPENCL
+      call opencl_convect_scalar(ud_d, u_d, cr_d, cs_d, ct_d, &
+           Xh%dx_d, Xh%dy_d, Xh%dz_d, nelv, lx)
+#else
+      call neko_error('No device backend configured')
+#endif
+
+      call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
+      call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
+      call device_col2(du_d, coef_GLL%Binv_d, n_GLL)
+
+    end associate
+
+    call device_free(ud_d)
+
+  end subroutine opr_device_convect_scalar
+
+  subroutine opr_device_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh, event)
     type(field_t), intent(inout) :: w1
     type(field_t), intent(inout) :: w2
     type(field_t), intent(inout) :: w3
-    type(field_t), intent(inout) :: u1
-    type(field_t), intent(inout) :: u2
-    type(field_t), intent(inout) :: u3
+    type(field_t), intent(in) :: u1
+    type(field_t), intent(in) :: u2
+    type(field_t), intent(in) :: u3
     type(field_t), intent(inout) :: work1
     type(field_t), intent(inout) :: work2
     type(coef_t), intent(in) :: c_Xh
+    type(c_ptr), optional, intent(inout) :: event
     integer :: gdim, n, nelv
 
     n = w1%dof%size()
@@ -650,9 +804,24 @@ contains
     !!    BC dependent, Needs to change if cyclic
 
     call device_opcolv(w1%x_d, w2%x_d, w3%x_d, c_Xh%B_d, gdim, n)
-    call c_Xh%gs_h%op(w1, GS_OP_ADD)
-    call c_Xh%gs_h%op(w2, GS_OP_ADD)
-    call c_Xh%gs_h%op(w3, GS_OP_ADD)
+
+    if (present(event)) then
+       if(c_Xh%cyclic) call opr_device_rotate_cyc_r4(w1%x, w2%x, w3%x, 1, c_Xh)
+       call c_Xh%gs_h%op(w1, GS_OP_ADD, event)
+       call device_event_sync(event)
+       call c_Xh%gs_h%op(w2, GS_OP_ADD, event)
+       call device_event_sync(event)
+       call c_Xh%gs_h%op(w3, GS_OP_ADD, event)
+       call device_event_sync(event)
+       if(c_Xh%cyclic) call opr_device_rotate_cyc_r4(w1%x, w2%x, w3%x, 0, c_Xh)
+    else
+       if(c_Xh%cyclic) call opr_device_rotate_cyc_r4(w1%x, w2%x, w3%x, 1, c_Xh)
+       call c_Xh%gs_h%op(w1, GS_OP_ADD)
+       call c_Xh%gs_h%op(w2, GS_OP_ADD)
+       call c_Xh%gs_h%op(w3, GS_OP_ADD)
+       if(c_Xh%cyclic) call opr_device_rotate_cyc_r4(w1%x, w2%x, w3%x, 0, c_Xh)
+    end if
+
     call device_opcolv(w1%x_d, w2%x_d, w3%x_d, c_Xh%Binv_d, gdim, n)
 
 #else
@@ -700,5 +869,95 @@ contains
     call neko_error('No device backend configured')
 #endif
   end function opr_device_cfl
+
+  subroutine opr_device_rotate_cyc_r1(vx, vy, vz, idir, coef)
+    type(coef_t) :: coef
+    integer :: idir, ncyc
+    real(rp), dimension(coef%Xh%lx*coef%Xh%ly*coef%Xh%lz*coef%msh%nelv) :: &
+               vx, vy, vz
+    type(c_ptr) :: vx_d, vy_d, vz_d
+
+    vx_d = device_get_ptr(vx)
+    vy_d = device_get_ptr(vy)
+    vz_d = device_get_ptr(vz)
+    ncyc = coef%cyc_msk(0) - 1
+
+#ifdef HAVE_HIP
+    call hip_rotate_cyc(vx_d, vy_d, vz_d, &
+         coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
+         coef%cyc_msk_d, coef%R11_d, coef%R12_d, &
+         ncyc, idir)
+#elif HAVE_CUDA
+    call cuda_rotate_cyc(vx_d, vy_d, vz_d, &
+          coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
+          coef%cyc_msk_d, coef%R11_d, coef%R12_d, &
+          ncyc, idir)
+#elif HAVE_OPENCL
+    !>@todo opr_device_rotate_cyc_r1 for OPENCL
+    call neko_error('No device backend configured for rotate_cyc')
+#else
+    call neko_error('No device backend configured for rotate_cyc')
+#endif
+  end subroutine opr_device_rotate_cyc_r1
+
+  subroutine opr_device_rotate_cyc_r4(vx, vy, vz, idir, coef)
+    type(coef_t) :: coef
+    integer :: idir, ncyc
+    real(rp), dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv) :: &
+              vx, vy, vz
+    type(c_ptr) :: vx_d, vy_d, vz_d
+
+    vx_d = device_get_ptr(vx)
+    vy_d = device_get_ptr(vy)
+    vz_d = device_get_ptr(vz)
+    ncyc = coef%cyc_msk(0) - 1
+
+#ifdef HAVE_HIP
+    call hip_rotate_cyc(vx_d, vy_d, vz_d, &
+         coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
+         coef%cyc_msk_d, coef%R11_d, coef%R12_d, &
+         ncyc, idir)
+#elif HAVE_CUDA
+    call cuda_rotate_cyc(vx_d, vy_d, vz_d, &
+          coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
+          coef%cyc_msk_d, coef%R11_d, coef%R12_d, &
+          ncyc, idir)
+#elif HAVE_OPENCL
+    !>@todo opr_device_rotate_cyc_r4 for OPENCL
+    call neko_error('No device backend configured for rotate_cyc')
+#else
+    call neko_error('No device backend configured for rotate_cyc')
+#endif
+  end subroutine opr_device_rotate_cyc_r4
+
+  subroutine opr_device_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
+            Xh, coef)
+    type(space_t), intent(inout) :: Xh
+    type(coef_t), intent(inout) :: coef
+    type(c_ptr) :: cr_d, cs_d, ct_d, cx_d, cy_d, cz_d
+
+#ifdef HAVE_HIP
+    call hip_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
+           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+           Xh%w3_d, coef%msh%nelv, Xh%lx)
+#elif HAVE_CUDA
+    call cuda_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
+           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+           Xh%w3_d, coef%msh%nelv, Xh%lx)
+#elif HAVE_OPENCL
+    call opencl_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
+           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+           Xh%w3_d, coef%msh%nelv, Xh%lx)
+#else
+    call neko_error('No device backend configured')
+#endif
+
+  end subroutine opr_device_set_convect_rst
 
 end module opr_device

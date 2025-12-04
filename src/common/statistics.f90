@@ -35,13 +35,17 @@ module stats
   use num_types, only : rp, dp
   use stats_quant, only : stats_quant_t
   use logger, only : LOG_SIZE, neko_log
-  use comm
+  use mpi_f08, only : MPI_Barrier, MPI_WTIME
+  use comm, only : NEKO_COMM
   implicit none
   private
 
   !> Pointer to an arbitrary quantitiy
   type, private :: quantp_t
      class(stats_quant_t), pointer :: quantp
+   contains
+     !> Destructor.
+     procedure, pass(this) :: free => quantp_free
   end type quantp_t
 
   !> Statistics backend
@@ -60,6 +64,12 @@ module stats
   end type stats_t
 
 contains
+  !> Destructor for quantp_t.
+  subroutine quantp_free(this)
+    class(quantp_t), intent(inout) :: this
+
+    nullify(this%quantp)
+  end subroutine quantp_free
 
   !> Initialize statistics, computed after @a T_begin
   subroutine stats_init(this, T_begin, samp_interval, size)
@@ -94,8 +104,13 @@ contains
   !> Deallocate
   subroutine stats_free(this)
     class(stats_t), intent(inout) :: this
+    integer :: i
 
     if (allocated(this%quant_list)) then
+       do i = 1, size(this%quant_list)
+          call this%quant_list(i)%free()
+       end do
+
        deallocate(this%quant_list)
     end if
 
@@ -148,7 +163,7 @@ contains
           sample_end_time = MPI_WTIME()
           sample_time = sample_end_time - sample_start_time
           write(log_buf,'(A17,1x,F10.6,A,F9.6)') 'Sampling at time:', t, &
-          ' Sampling time (s): ', sample_time
+               ' Sampling time (s): ', sample_time
           call neko_log%message(log_buf)
           call neko_log%end_section()
        end if

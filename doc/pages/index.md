@@ -11,40 +11,48 @@ structure and numerical methods are adopted.
 ## Structure of the Manual
 
 In order to facilitate reading of the documentation. The manual is divided into
-several sections. The [user guides](@ref user-guide) are intended for users of the code, while the
-[developer guides](@ref developer-guide) are intended for developers of the code. The [appendix](@ref appendices) contains
-additional information that is not directly related to the usage of the code.
+several sections. The [user guides](@ref user-guide) are intended for users of
+the code, while the [developer guides](@ref developer-guide) are intended for
+developers of the code. The [appendix](@ref appendices) contains additional
+information that is not directly related to the usage of the code.
 
 - \subpage user-guide
   - [Installation](@ref installation) explains how to download and compile Neko
-  on your platform.
+    on your platform.
+  - [Meshing](@ref meshing) discusses the requirements on the mesh and how to
+    generate one for Neko.
   - [Case File](@ref case-file) discusses the various parameters and options 
-  for your case setup such as boundary conditions, output control, etc.
+    for your case setup such as boundary conditions, output control, etc.
   - [User File](@ref user-file) explains all the user functions and how they can
-  be used to run more advanced simulations.
-  - [Simulation Components](@ref simcomps) presents some extra functionalities 
-  and tools such as computation and output of additional fields, in-situ 
-post-processing operations, data sampling, etc.
+    be used to run more advanced simulations.
+  - [Simulation Components](@ref simcomps) presents some extra functionalities
+    and tools such as computation and output of additional fields, in-situ
+    post-processing operations, data sampling, etc.
   - [Point Zones](@ref point-zones) allow you to select zones in the mesh for
-application of source terms, initial conditions, etc.
+    application of source terms, initial conditions, etc.
   - [Statistics Guide](@ref statistics-guide) outlines the steps to generate
-3D and 2D field statistics.
+    3D and 2D field statistics.
   - [Input/Output](@ref io) explains how to read and write various types of data
-using the Neko framework.
+    using the Neko framework.
+  - [Extending Neko](@ref extending) explains how to extend Neko with additional
+    types to provide new capabilities.
+  - [Neko API](@ref api) explains how to use the C-based API of Neko.
+  - [Performance guidelines](@ref performance) Best practices guideline
+    on how to achieve good performance with Neko
 - \subpage developer-guide
   - [Contributing](@ref contributing) presents basic instructions to add
-your contributions to Neko.
+    your contributions to Neko.
   - [Development Patterns](@ref dev_patterns) outlines the standards to be used
-when developing code in the Neko framework, such as naming conventions and
-documentation.
+    when developing code in the Neko framework, such as naming conventions and
+    documentation.
   - [Code Style](@ref code-style) introduces some extra programming conventions
-related to coding style and IDEs.
+    related to coding style and IDEs.
   - [Testing](@ref testing) outlines the steps to run and add unit tests to the
-code base with pFUnit.
+    code base with pFUnit.
   - [Accelerators](@ref accelerators) discusses important concepts and 
-conventions related to GPU programming in the Neko framework.
-  - [Run-time selectable types](@ref rts_types) presents the standard programming
-pattern used to select object types at run time.
+    conventions related to GPU programming in the Neko framework.
+  - [Run-time selectable types](@ref rts_types) presents the standard
+    programming pattern used to select object types at run time.
 - \subpage appendices
   - [Governing Equations](@ref governing-equations) used in our solvers.
   - [Publications](@ref publications)

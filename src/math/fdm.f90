@@ -60,22 +60,23 @@
 !> Type for the Fast Diagonalization connected with the schwarz overlapping solves.
 module fdm
   use neko_config
-  use num_types
-  use speclib
-  use math
-  use mesh
-  use space
-  use dofmap
-  use gather_scatter
-  use fast3d
-  use tensor
-  use fdm_sx
-  use fdm_xsmm
-  use fdm_cpu
-  use fdm_device
-  use device
-  use utils
+  use num_types, only : rp, sp, dp, qp
+  use mesh, only : mesh_t
+  use space, only : space_t
+  use dofmap, only : dofmap_t
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use fdm_cpu, only : fdm_do_fast_cpu
+  use fdm_device, only : fdm_do_fast_device
+  use fdm_sx, only : fdm_do_fast_sx
+  use fdm_xsmm, only : fdm_do_fast_xsmm
+  use utils, only : neko_error, neko_warning
   use comm, only : pe_rank
+  use math, only : vlmax
+  use device, only : glb_cmd_queue, DEVICE_TO_HOST, HOST_TO_DEVICE, &
+       device_memcpy, device_map, device_free
+  use fast3d, only : semhat
+  use tensor, only : trsp
+  use math, only : rzero, row_zero
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -90,10 +91,10 @@ module fdm
      real(kind=rp), allocatable :: len_rr(:), len_rs(:), len_rt(:)
      real(kind=rp), allocatable :: swplen(:,:,:,:)
      type(c_ptr) :: swplen_d = C_NULL_PTR
-     type(space_t), pointer :: Xh
-     type(dofmap_t), pointer :: dof
-     type(gs_t), pointer :: gs_h
-     type(mesh_t), pointer :: msh
+     type(space_t), pointer :: Xh => null()
+     type(dofmap_t), pointer :: dof => null()
+     type(gs_t), pointer :: gs_h => null()
+     type(mesh_t), pointer :: msh => null()
    contains
      procedure, pass(this) :: init => fdm_init
      procedure, pass(this) :: free => fdm_free
@@ -106,10 +107,10 @@ module fdm
 
 contains
 
-  subroutine fdm_init(this, Xh, dm, gs_h)
+  subroutine fdm_init(this, Xh, dof, gs_h)
     class(fdm_t), intent(inout) :: this
     type(space_t), target, intent(inout) :: Xh
-    type(dofmap_t), target, intent(inout) :: dm
+    type(dofmap_t), target, intent(in) :: dof
     type(gs_t), target, intent(inout) :: gs_h
     !We only really use ah, bh
     real(kind=rp), dimension((Xh%lx)**2) :: ah, bh, ch, dh, zh
@@ -118,42 +119,42 @@ contains
 
     n = Xh%lx -1 !Polynomnial degree
     nl = Xh%lx + 2 !Schwarz!
-    nelv = dm%msh%nelv
+    nelv = dof%msh%nelv
     call fdm_free(this)
-    allocate(this%s(nl*nl,2,dm%msh%gdim, dm%msh%nelv))
-    allocate(this%d(nl**3,dm%msh%nelv))
-    allocate(this%swplen(Xh%lx, Xh%lx, Xh%lx,dm%msh%nelv))
+    allocate(this%s(nl*nl,2,dof%msh%gdim, dof%msh%nelv))
+    allocate(this%d(nl**3,dof%msh%nelv))
+    allocate(this%swplen(Xh%lx, Xh%lx, Xh%lx,dof%msh%nelv))
     allocate(this%len_lr(nelv), this%len_ls(nelv), this%len_lt(nelv))
     allocate(this%len_mr(nelv), this%len_ms(nelv), this%len_mt(nelv))
     allocate(this%len_rr(nelv), this%len_rs(nelv), this%len_rt(nelv))
 
     ! Zeroing here enables easier debugging since then
     ! MPI messages in GS are deterministic
-    call rzero(this%swplen, Xh%lxyz * dm%msh%nelv)
+    call rzero(this%swplen, Xh%lxyz * dof%msh%nelv)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(this%s, this%s_d,nl*nl*2*dm%msh%gdim*dm%msh%nelv)
-       call device_map(this%d, this%d_d,nl**dm%msh%gdim*dm%msh%nelv)
-       call device_map(this%swplen,this%swplen_d, Xh%lxyz*dm%msh%nelv)
+       call device_map(this%s, this%s_d,nl*nl*2*dof%msh%gdim*dof%msh%nelv)
+       call device_map(this%d, this%d_d,nl**dof%msh%gdim*dof%msh%nelv)
+       call device_map(this%swplen,this%swplen_d, Xh%lxyz*dof%msh%nelv)
     end if
 
     call semhat(ah, bh, ch, dh, zh, dph, jph, bgl, zglhat, dgl, jgl, n, wh)
     this%Xh => Xh
-    this%dof => dm
+    this%dof => dof
     this%gs_h => gs_h
-    this%msh => dm%msh
+    this%msh => dof%msh
 
-    call swap_lengths(this, dm%x, dm%y, dm%z, dm%msh%nelv, dm%msh%gdim)
+    call swap_lengths(this, dof%x, dof%y, dof%z, dof%msh%nelv, dof%msh%gdim)
 
     call fdm_setup_fast(this, ah, bh, nl, n)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%s, this%s_d, &
-            nl*nl*2*dm%msh%gdim*dm%msh%nelv, HOST_TO_DEVICE, sync=.false.)
+            nl*nl*2*dof%msh%gdim*dof%msh%nelv, HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(this%d, this%d_d, &
-            nl**dm%msh%gdim*dm%msh%nelv, HOST_TO_DEVICE, sync=.false.)
+            nl**dof%msh%gdim*dof%msh%nelv, HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(this%swplen, this%swplen_d, &
-            Xh%lxyz*dm%msh%nelv, HOST_TO_DEVICE, sync=.false.)
+            Xh%lxyz*dof%msh%nelv, HOST_TO_DEVICE, sync=.false.)
     end if
   end subroutine fdm_init
 
@@ -171,7 +172,7 @@ contains
       n2 = lx1 - 1
       nz0 = 1
       nzn = 1
-      nx  = lx1 - 2
+      nx = lx1 - 2
       if (gdim .eq. 3) then
          nz0 = 0
          nzn = n2
@@ -194,10 +195,10 @@ contains
          end do
          if (NEKO_BCKND_DEVICE .eq. 1) then
             call device_memcpy(l, this%swplen_d, this%dof%size(), &
-                               HOST_TO_DEVICE, sync=.false.)
+                 HOST_TO_DEVICE, sync=.false.)
             call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
             call device_memcpy(l, this%swplen_d, this%dof%size(), &
-                               DEVICE_TO_HOST, sync=.false.)
+                 DEVICE_TO_HOST, sync=.true.)
          else
             call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
          end if
@@ -222,10 +223,10 @@ contains
 
          if (NEKO_BCKND_DEVICE .eq. 1) then
             call device_memcpy(l, this%swplen_d, this%dof%size(), &
-                               HOST_TO_DEVICE, sync=.false.)
+                 HOST_TO_DEVICE, sync=.false.)
             call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
             call device_memcpy(l, this%swplen_d, this%dof%size(), &
-                               DEVICE_TO_HOST, sync=.true.)
+                 DEVICE_TO_HOST, sync=.true.)
          else
             call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
          end if
@@ -244,14 +245,14 @@ contains
   !! We no longer base this on the finest grid, but rather
   !! the dofmap we are working with, Karp 210112
   subroutine plane_space(lr, ls, lt, i1, i2, w, x, y, z, &
-                         nx, nxn, nz0, nzn, nelv, gdim)
+       nx, nxn, nz0, nzn, nelv, gdim)
     integer, intent(in) :: nxn, nzn, i1, i2, nelv, gdim, nx, nz0
     real(kind=rp), intent(inout) :: lr(nelv), ls(nelv), lt(nelv)
     real(kind=rp), intent(inout) :: w(nx)
     real(kind=rp), intent(in) :: x(0:nxn,0:nxn,nz0:nzn,nelv)
     real(kind=rp), intent(in) :: y(0:nxn,0:nxn,nz0:nzn,nelv)
     real(kind=rp), intent(in) :: z(0:nxn,0:nxn,nz0:nzn,nelv)
-    real(kind=rp) ::  lr2, ls2, lt2, weight, wsum
+    real(kind=rp) :: lr2, ls2, lt2, weight, wsum
     integer :: ny, nz, j1, k1, j2, k2, i, j, k, ie
     ny = nx
     nz = nx
@@ -262,71 +263,71 @@ contains
     !   Now, for each element, compute lr,ls,lt between specified planes
     do ie = 1,nelv
        if (gdim .eq. 3) then
-          lr2  = 0d0
+          lr2 = 0d0
           wsum = 0d0
           do k = 1,nz
              do j = 1,ny
                 weight = w(j)*w(k)
-                lr2  = lr2  +   weight /&
+                lr2 = lr2 + weight /&
                      ( (x(i2,j,k,ie)-x(i1,j,k,ie))**2&
-                     +   (y(i2,j,k,ie)-y(i1,j,k,ie))**2&
-                     +   (z(i2,j,k,ie)-z(i1,j,k,ie))**2 )
+                     + (y(i2,j,k,ie)-y(i1,j,k,ie))**2&
+                     + (z(i2,j,k,ie)-z(i1,j,k,ie))**2 )
                 wsum = wsum + weight
              end do
           end do
-          lr2     = lr2/wsum
-          lr(ie)  = 1d0/sqrt(lr2)
+          lr2 = lr2/wsum
+          lr(ie) = 1d0/sqrt(lr2)
           ls2 = 0d0
           wsum = 0d0
           do k = 1,nz
              do i = 1,nx
                 weight = w(i)*w(k)
-                ls2  = ls2  +   weight / &
+                ls2 = ls2 + weight / &
                      ( (x(i,j2,k,ie)-x(i,j1,k,ie))**2 &
-                     +   (y(i,j2,k,ie)-y(i,j1,k,ie))**2 &
-                     +   (z(i,j2,k,ie)-z(i,j1,k,ie))**2 )
+                     + (y(i,j2,k,ie)-y(i,j1,k,ie))**2 &
+                     + (z(i,j2,k,ie)-z(i,j1,k,ie))**2 )
                 wsum = wsum + weight
              end do
           end do
-          ls2     = ls2/wsum
-          ls(ie)  = 1d0/sqrt(ls2)
+          ls2 = ls2/wsum
+          ls(ie) = 1d0/sqrt(ls2)
           lt2 = 0d0
           wsum = 0d0
           do j=1,ny
              do i=1,nx
                 weight = w(i)*w(j)
-                lt2  = lt2  +   weight / &
+                lt2 = lt2 + weight / &
                      ( (x(i,j,k2,ie)-x(i,j,k1,ie))**2 &
-                     +   (y(i,j,k2,ie)-y(i,j,k1,ie))**2 &
-                     +   (z(i,j,k2,ie)-z(i,j,k1,ie))**2 )
+                     + (y(i,j,k2,ie)-y(i,j,k1,ie))**2 &
+                     + (z(i,j,k2,ie)-z(i,j,k1,ie))**2 )
                 wsum = wsum + weight
              end do
           end do
-          lt2     = lt2/wsum
-          lt(ie)  = 1d0/sqrt(lt2)
-       else              ! 2D
+          lt2 = lt2/wsum
+          lt(ie) = 1d0/sqrt(lt2)
+       else ! 2D
           lr2 = 0d0
           wsum = 0d0
           do j=1,ny
              weight = w(j)
-             lr2  = lr2  + weight / &
-                          ( (x(i2,j,1,ie)-x(i1,j,1,ie))**2 &
-                          + (y(i2,j,1,ie)-y(i1,j,1,ie))**2 )
+             lr2 = lr2 + weight / &
+                  ( (x(i2,j,1,ie)-x(i1,j,1,ie))**2 &
+                  + (y(i2,j,1,ie)-y(i1,j,1,ie))**2 )
              wsum = wsum + weight
           enddo
-          lr2     = lr2/wsum
-          lr(ie)  = 1d0/sqrt(lr2)
+          lr2 = lr2/wsum
+          lr(ie) = 1d0/sqrt(lr2)
           ls2 = 0d0
           wsum = 0d0
           do i=1,nx
              weight = w(i)
-             ls2  = ls2  + weight / &
-                          ( (x(i,j2,1,ie)-x(i,j1,1,ie))**2 &
-                        +   (y(i,j2,1,ie)-y(i,j1,1,ie))**2 )
+             ls2 = ls2 + weight / &
+                  ( (x(i,j2,1,ie)-x(i,j1,1,ie))**2 &
+                  + (y(i,j2,1,ie)-y(i,j1,1,ie))**2 )
              wsum = wsum + weight
           enddo
-          ls2     = ls2/wsum
-          ls(ie)  = 1d0/sqrt(ls2)
+          ls2 = ls2/wsum
+          ls(ie) = 1d0/sqrt(ls2)
        endif
     enddo
     ie = 1014
@@ -336,7 +337,7 @@ contains
   subroutine fdm_setup_fast(this, ah, bh, nl, n)
     integer, intent(in) :: nl, n
     type(fdm_t), intent(inout) :: this
-    real(kind=rp), intent(inout) ::  ah(n+1,n+1), bh(n+1)
+    real(kind=rp), intent(inout) :: ah(n+1,n+1), bh(n+1)
     real(kind=rp), dimension(2*this%Xh%lx + 4) :: lr, ls, lt
     integer :: i, j, k
     integer :: ie, il, nr, ns, nt
@@ -344,9 +345,9 @@ contains
     real(kind=rp) :: eps, diag
 
     associate(s => this%s, d => this%d, &
-              llr => this%len_lr, lls => this%len_ls, llt => this%len_lt, &
-              lmr => this%len_mr, lms => this%len_ms, lmt => this%len_mt, &
-              lrr => this%len_rr, lrs => this%len_rs, lrt => this%len_rt)
+         llr => this%len_lr, lls => this%len_ls, llt => this%len_lt, &
+         lmr => this%len_mr, lms => this%len_ms, lmt => this%len_mt, &
+         lrr => this%len_rr, lrs => this%len_rs, lrt => this%len_rt)
       do ie=1,this%dof%msh%nelv
          lbr = this%dof%msh%facet_type(1, ie)
          rbr = this%dof%msh%facet_type(2, ie)
@@ -404,10 +405,10 @@ contains
   end subroutine fdm_setup_fast
 
   subroutine fdm_setup_fast1d(s, lam, nl, lbc, rbc, ll, lm, lr, ah, bh, n)
-    integer, intent(in)  :: nl, lbc, rbc, n
+    integer, intent(in) :: nl, lbc, rbc, n
     real(kind=rp), intent(inout) :: s(nl, nl, 2), lam(nl), ll, lm, lr
-    real(kind=rp), intent(inout) ::  ah(0:n, 0:n), bh(0:n)
-    integer ::  lx1, lxm
+    real(kind=rp), intent(inout) :: ah(0:n, 0:n), bh(0:n)
+    integer :: lx1, lxm
     real(kind=rp) :: b(2*(n+3)**2)
 
     lx1 = n + 1
@@ -504,8 +505,8 @@ contains
     if(lbc .eq. 0) then
        fac = 2.0_rp / ll
        a(0,0) = fac * ah(n-1,n-1)
-       a(1,0) = fac * ah(n  ,n-1)
-       a(0,1) = fac * ah(n-1,n  )
+       a(1,0) = fac * ah(n ,n-1)
+       a(0,1) = fac * ah(n-1,n )
        a(1,1) = a(1,1) + fac * ah(n,n)
     else
        a(0,0) = 1.0_rp
@@ -618,6 +619,16 @@ contains
     nullify(this%dof)
     nullify(this%gs_h)
     nullify(this%msh)
+
+    if (c_associated(this%s_d)) then
+       call device_free(this%s_d)
+    end if
+    if (c_associated(this%d_d)) then
+       call device_free(this%d_d)
+    end if
+    if (c_associated(this%swplen_d)) then
+       call device_free(this%swplen_d)
+    end if
 
   end subroutine fdm_free
 

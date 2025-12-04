@@ -30,26 +30,31 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Stores a series fields
+!> Contains the `field_serties_t` type.
 module field_series
-  use num_types, only : rp
   use field, only : field_t
   implicit none
   private
 
+  !> Stores a series (sequence) of fields, logically connected to a base field,
+  !! and arranged according to some ordering.
+  !! Currently used to store time-lagged values of solution fields.
   type, public :: field_series_t
      type(field_t), pointer :: f => null()
      type(field_t), allocatable :: lf(:)
      integer, private :: len = 0
    contains
+     !> Constructor.
      procedure, pass(this) :: init => field_series_init
+     !> Destructor.
      procedure, pass(this) :: free => field_series_free
      procedure, pass(this) :: update => field_series_update
      procedure, pass(this) :: set => field_series_set
+     !> Return the size of the field series.
      procedure, pass(this) :: size => field_series_size
   end type field_series_t
 
-  !> field_series_ptr_t, To easily obtain a pointer to a field series
+  !> A wrapper for a pointer to a `field_series_t`.
   type, public :: field_series_ptr_t
      type(field_series_t), pointer :: ptr => null()
   end type field_series_ptr_t
@@ -89,9 +94,14 @@ contains
        nullify(this%f)
     end if
 
-    do i = 1, this%len
-       call this%lf(i)%free()
-    end do
+
+    if (allocated(this%lf)) then
+       do i = 1, this%len
+          call this%lf(i)%free()
+       end do
+
+       deallocate(this%lf)
+    end if
 
   end subroutine field_series_free
 

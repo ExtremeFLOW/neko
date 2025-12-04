@@ -195,4 +195,5 @@ __global__ void opadd2col_kernel(T * __restrict__ a1,
 }
 
 
+
 #endif // __MATH_MATHOPS_KERNEL_H__

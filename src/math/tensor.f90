@@ -59,14 +59,17 @@
 !
 !> Tensor operations.
 module tensor
-  use tensor_xsmm
-  use tensor_cpu
-  use tensor_sx
-  use tensor_device
+  use tensor_xsmm, only : tnsr3d_xsmm, tnsr1_3d_xsmm, &
+       tnsr2d_el_xsmm, tnsr3d_el_xsmm
+  use tensor_cpu, only : tnsr3d_cpu, tnsr1_3d_cpu, &
+       tnsr2d_el_cpu, tnsr3d_el_cpu
+  use tensor_sx, only : tnsr3d_sx, tnsr1_3d_sx, &
+       tnsr2d_el_sx, tnsr3d_el_sx
+  use tensor_device, only : tnsr3d_device, tnsr3d_el_list_device
   use num_types, only : rp
-  use mxm_wrapper
-  use neko_config
-  use device
+  use mxm_wrapper, only : mxm
+  use neko_config, only : NEKO_BCKND_SX, NEKO_BCKND_XSMM, NEKO_BCKND_DEVICE
+  use device, only : device_get_ptr
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
@@ -80,8 +83,8 @@ module tensor
   end interface triple_tensor_product
 
   public :: tensr3, transpose, trsp, trsp1, &
-     tnsr2d_el, tnsr3d_el, tnsr3d, tnsr1_3d, addtnsr, &
-     triple_tensor_product, tnsr3d_el_list
+       tnsr2d_el, tnsr3d_el, tnsr3d, tnsr1_3d, addtnsr, &
+       triple_tensor_product, tnsr3d_el_list
 
 
 contains
@@ -153,7 +156,7 @@ contains
   subroutine tnsr2d_el(v, nv, u, nu, A, Bt)
     integer, intent(in) :: nv, nu
     real(kind=rp), intent(inout) :: v(nv*nv), u(nu*nu)
-    real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu,nv)
+    real(kind=rp), intent(inout) :: A(nv, nu), Bt(nu, nv)
 
     if (NEKO_BCKND_SX .eq. 1) then
        call tnsr2d_el_sx(v, nv, u, nu, A, Bt)
@@ -184,47 +187,57 @@ contains
 
   !> Tensor product \f$ v =(C \otimes B \otimes A) u \f$
   !! performed on a subset of the  elements.
-  subroutine tnsr3d_el_list(v, nv, u, nu, A, Bt, Ct, el_list, n_pt)
+  subroutine tnsr3d_el_list(v, nv, u, nu, A, Bt, Ct, el_list, n_pt, on_host)
     integer, intent(in) :: nv, nu, n_pt, el_list(n_pt)
-    real(kind=rp), intent(inout) :: v(nv*nv*nv, n_pt), u(nu*nu*nu,1)
-    real(kind=rp), intent(inout) :: A(nv,nu,n_pt),Bt(nu, nv,n_pt),Ct(nu,nv,n_pt)
+    real(kind=rp), intent(inout) :: v(nv*nv*nv, n_pt), u(nu*nu*nu, 1)
+    real(kind=rp), intent(inout) :: A(nv, nu, n_pt)
+    real(kind=rp), intent(inout) :: Bt(nu, nv, n_pt)
+    real(kind=rp), intent(inout) :: Ct(nu, nv, n_pt)
+    logical, intent(in) :: on_host
     type(c_ptr) :: v_d, u_d, A_d, Bt_d, Ct_d, el_list_d
     integer :: i
 
+    if (n_pt .eq. 0) return
+
     if (NEKO_BCKND_SX .eq. 1) then
        do i = 1, n_pt
-          call tnsr3d_el_sx(v(1,i), nv, u(1,el_list(i)), nu, A(1,1,i), Bt(1,1,i), Ct(1,1,i))
+          call tnsr3d_el_sx(v(1,i), nv, u(1,el_list(i)), &
+               nu, A(1,1,i), Bt(1,1,i), Ct(1,1,i))
        end do
     else if (NEKO_BCKND_XSMM .eq. 1) then
        do i = 1, n_pt
-          call tnsr3d_el_xsmm(v(1,i), nv, u(1,el_list(i)), nu, A(1,1,i), Bt(1,1,i), Ct(1,1,i))
+          call tnsr3d_el_xsmm(v(1,i), nv, u(1,el_list(i)), &
+               nu, A(1,1,i), Bt(1,1,i), Ct(1,1,i))
        end do
-    else if (NEKO_BCKND_DEVICE .eq. 1) then
+    else if (NEKO_BCKND_DEVICE .eq. 1 .and. .not. on_host) then
        v_d = device_get_ptr(v)
        u_d = device_get_ptr(u)
        A_d = device_get_ptr(A)
        Bt_d = device_get_ptr(Bt)
        Ct_d = device_get_ptr(Ct)
        el_list_d = device_get_ptr(el_list)
-       call tnsr3d_el_list_device(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, el_list_d, n_pt)
+       call tnsr3d_el_list_device(v_d, nv, u_d, nu, &
+            A_d, Bt_d, Ct_d, el_list_d, n_pt)
     else
        do i = 1, n_pt
-          !       Note the use of el_list(i) + 1, because of the gslib C interface
-          call tnsr3d_el_cpu(v(1,i), nv, u(1,el_list(i)+1), nu, A(1,1,i), Bt(1,1,i), Ct(1,1,i))
+          ! Note the use of el_list(i) + 1, because of the gslib C interface
+          call tnsr3d_el_cpu(v(1,i), nv, u(1,el_list(i)+1), &
+               nu, A(1,1,i), Bt(1,1,i), Ct(1,1,i))
        end do
     end if
 
   end subroutine tnsr3d_el_list
 
-
   !> Tensor product \f$ v =(C \otimes B \otimes A) u \f$ performed on
   !!`nelv` elements.
   subroutine tnsr3d(v, nv, u, nu, A, Bt, Ct, nelv)
-    integer, intent(inout) :: nv, nu, nelv
-    real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv), u(nu*nu*nu,nelv)
-    real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+    integer, intent(in) :: nv, nu, nelv
+    real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv)
+    real(kind=rp), intent(in) :: u(nu*nu*nu,nelv)
+    real(kind=rp), intent(in) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
     type(c_ptr) :: v_d, u_d, A_d, Bt_d, Ct_d
 
+    if (nelv .eq. 0) return
 
     if (NEKO_BCKND_SX .eq. 1) then
        call tnsr3d_sx(v, nv, u, nu, A, Bt, Ct, nelv)
@@ -249,6 +262,8 @@ contains
     real(kind=rp), intent(inout) :: v(nv*nv*nv*nelv)
     real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
 
+    if (nelv .eq. 0) return
+
     if (NEKO_BCKND_SX .eq. 1) then
        call tnsr1_3d_sx(v, nv, nu, A, Bt, Ct, nelv)
     else if (NEKO_BCKND_XSMM .eq. 1) then
@@ -265,7 +280,7 @@ contains
 
     integer, intent(in) :: nx, ny, nz
     real(kind=rp), intent(in) :: h1(nx), h2(ny), h3(nz)
-    real(kind=rp), intent(inout) ::  s(nx, ny, nz)
+    real(kind=rp), intent(inout) :: s(nx, ny, nz)
     real(kind=rp) :: hh
     integer :: ix, iy, iz
 
@@ -297,7 +312,7 @@ contains
   subroutine triple_tensor_product_scalar(v, u, nu, Hr, Hs, Ht)
     real(kind=rp), intent(inout) :: v
     integer, intent(in) :: nu
-    real(kind=rp), intent(inout) :: u(nu,nu,nu)
+    real(kind=rp), intent(inout) :: u(nu, nu, nu)
     real(kind=rp), intent(inout) :: Hr(nu)
     real(kind=rp), intent(inout) :: Hs(nu)
     real(kind=rp), intent(inout) :: Ht(nu)
@@ -307,7 +322,7 @@ contains
     real(kind=rp) :: vv(1)
     ! vv(1) = v
 
-    call tnsr3d_el(vv,1,u,nu,Hr,Hs,Ht)
+    call tnsr3d_el(vv, 1, u, nu, Hr, Hs, Ht)
 
     v = vv(1)
 
@@ -333,9 +348,9 @@ contains
   subroutine triple_tensor_product_vector(v, u1, u2, u3, nu, Hr, Hs, Ht)
     real(kind=rp), intent(inout) :: v(3)
     integer, intent(in) :: nu
-    real(kind=rp), intent(inout) :: u1(nu,nu,nu)
-    real(kind=rp), intent(inout) :: u2(nu,nu,nu)
-    real(kind=rp), intent(inout) :: u3(nu,nu,nu)
+    real(kind=rp), intent(inout) :: u1(nu, nu, nu)
+    real(kind=rp), intent(inout) :: u2(nu, nu, nu)
+    real(kind=rp), intent(inout) :: u3(nu, nu, nu)
     real(kind=rp), intent(inout) :: Hr(nu)
     real(kind=rp), intent(inout) :: Hs(nu)
     real(kind=rp), intent(inout) :: Ht(nu)

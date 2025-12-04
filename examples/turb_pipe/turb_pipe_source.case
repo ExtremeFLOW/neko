@@ -1,0 +1,61 @@
+{
+    "version": 1.0,
+    "case": {
+        "mesh_file": "turb_pipe.nmsh",
+        "output_at_end": true,
+        "output_boundary": true,
+        "output_checkpoints": true,
+        "checkpoint_control": "simulationtime",
+        "checkpoint_value": 5,
+        "time": {
+            "end_time": 30.0,
+            "timestep": 2.5e-3
+        },
+        "numerics": {
+            "time_order": 3,
+            "polynomial_order": 5,
+            "dealias": true
+        },
+        "fluid": {
+            "scheme": "pnpn",
+            "Re": 2650,
+            "source_terms":
+            [
+                {
+                    "type": "constant",
+                    "values": [ 0, 0, 0.0092274831 ]
+                }
+            ],
+            "initial_condition": {
+                "type": "user"
+            },
+            "velocity_solver": {
+                "type": "cg",
+                "preconditioner": {
+                    "type": "jacobi"
+                },
+                "projection_space_size": 3,
+                "absolute_tolerance": 1e-7,
+                "max_iterations": 800
+            },
+            "pressure_solver": {
+                "type": "gmres",
+                "preconditioner": {
+                    "type": "hsmg"
+                },
+                "projection_space_size": 10,
+                "absolute_tolerance": 1e-4,
+                "max_iterations": 800
+            },
+            "output_control": "simulationtime",
+            "output_value": 5,
+            "boundary_conditions": [
+                {
+                    "type": "no_slip",
+                    "zone_indices": [ 3 ]
+                }
+            ]
+        }
+    }
+}
+

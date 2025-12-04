@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@
 !
 !> HDF5 file format
 module hdf5_file
-  use num_types, only : rp
+  use num_types, only : rp, dp, sp
   use generic_file, only : generic_file_t
   use checkpoint, only : chkp_t
   use utils, only : neko_error, filename_suffix_pos
@@ -41,9 +41,10 @@ module hdf5_file
   use field_list, only : field_list_t
   use field_series, only : field_series_t, field_series_ptr_t
   use dofmap, only : dofmap_t
-  use logger
-  use comm
-  use mpi_f08
+  use logger, only : neko_log
+  use comm, only : pe_rank, NEKO_COMM
+  use mpi_f08, only : MPI_INFO_NULL, MPI_Allreduce, MPI_IN_PLACE, &
+       MPI_INTEGER8, MPI_SUM
 #ifdef HAVE_HDF5
   use hdf5
 #endif
@@ -55,12 +56,13 @@ module hdf5_file
    contains
      procedure :: read => hdf5_file_read
      procedure :: write => hdf5_file_write
+     procedure :: set_overwrite => hdf5_file_set_overwrite
   end type hdf5_file_t
 
 contains
 
 #ifdef HAVE_HDF5
-  
+
   !> Write data in HDF5 format
   subroutine hdf5_file_write(this, data, t)
     class(hdf5_file_t), intent(inout) :: this
@@ -71,73 +73,76 @@ contains
     type(field_ptr_t), allocatable :: fp(:)
     type(field_series_ptr_t), allocatable :: fsp(:)
     real(kind=rp), pointer :: dtlag(:)
-    real(kind=rp), pointer :: tlag(:) 
+    real(kind=rp), pointer :: tlag(:)
     integer :: ierr, info, drank, i, j
     integer(hid_t) :: plist_id, file_id, dset_id, grp_id, attr_id
     integer(hid_t) :: filespace, memspace
+    integer(hid_t) :: H5T_NEKO_REAL
     integer(hsize_t), dimension(1) :: ddim, dcount, doffset
     integer :: suffix_pos
     character(len=5) :: id_str
     character(len=1024) :: fname
- 
+
     call hdf5_file_determine_data(data, msh, dof, fp, fsp, dtlag, tlag)
 
-    suffix_pos = filename_suffix_pos(this%fname)
-    write(id_str, '(i5.5)') this%counter
-    fname = trim(this%fname(1:suffix_pos-1))//id_str//'.h5'
-       
+    if (.not. this%overwrite) call this%increment_counter()
+    fname = trim(this%get_fname())
+
     call h5open_f(ierr)
+
+    call hdf5_file_determine_real(H5T_NEKO_REAL)
+
     call h5pcreate_f(H5P_FILE_ACCESS_F, plist_id, ierr)
     info = MPI_INFO_NULL%mpi_val
     call h5pset_fapl_mpio_f(plist_id, NEKO_COMM%mpi_val, info, ierr)
 
     call h5fcreate_f(fname, H5F_ACC_TRUNC_F, &
          file_id, ierr, access_prp = plist_id)
-    
+
     call h5pcreate_f(H5P_DATASET_XFER_F, plist_id, ierr)
     call h5pset_dxpl_mpio_f(plist_id, H5FD_MPIO_COLLECTIVE_F, ierr)
-    
+
     call h5screate_f(H5S_SCALAR_F, filespace, ierr)
     ddim = 1
 
     if (present(t)) then
-       call h5acreate_f(file_id, "Time", H5T_NATIVE_DOUBLE, filespace, attr_id, &
-                        ierr, h5p_default_f, h5p_default_f)
-       call h5awrite_f(attr_id, H5T_NATIVE_DOUBLE, t, ddim, ierr)
+       call h5acreate_f(file_id, "Time", H5T_NEKO_REAL, filespace, attr_id, &
+            ierr, h5p_default_f, h5p_default_f)
+       call h5awrite_f(attr_id, H5T_NEKO_REAL, t, ddim, ierr)
        call h5aclose_f(attr_id, ierr)
     end if
 
     if (associated(dof)) then
        call h5acreate_f(file_id, "Lx", H5T_NATIVE_INTEGER, filespace, attr_id, &
-                        ierr, h5p_default_f, h5p_default_f)
+            ierr, h5p_default_f, h5p_default_f)
        call h5awrite_f(attr_id, H5T_NATIVE_INTEGER, dof%Xh%lx, ddim, ierr)
        call h5aclose_f(attr_id, ierr)
     end if
-    
+
     if (associated(msh)) then
        call h5gcreate_f(file_id, "Mesh", grp_id, ierr, lcpl_id=h5p_default_f, &
             gcpl_id=h5p_default_f, gapl_id=h5p_default_f)
-    
+
        call h5acreate_f(grp_id, "Elements", H5T_NATIVE_INTEGER, filespace, attr_id, &
-                        ierr, h5p_default_f, h5p_default_f)
+            ierr, h5p_default_f, h5p_default_f)
        call h5awrite_f(attr_id, H5T_NATIVE_INTEGER, msh%glb_nelv, ddim, ierr)
        call h5aclose_f(attr_id, ierr)
 
        call h5acreate_f(grp_id, "Dimension", H5T_NATIVE_INTEGER, filespace, attr_id, &
-                        ierr, h5p_default_f, h5p_default_f)
+            ierr, h5p_default_f, h5p_default_f)
        call h5awrite_f(attr_id, H5T_NATIVE_INTEGER, msh%gdim, ddim, ierr)
        call h5aclose_f(attr_id, ierr)
 
        call h5gclose_f(grp_id, ierr)
     end if
 
-    
+
     call h5sclose_f(filespace, ierr)
-    
+
     !
     ! Write restart group (tlag, dtlag)
     !
-    if (associated(tlag) .and. associated(dtlag)) then    
+    if (associated(tlag) .and. associated(dtlag)) then
        call h5gcreate_f(file_id, "Restart", grp_id, ierr, lcpl_id=h5p_default_f, &
             gcpl_id=h5p_default_f, gapl_id=h5p_default_f)
 
@@ -152,94 +157,92 @@ contains
 
        call h5screate_simple_f(drank, ddim, filespace, ierr)
 
-       call h5dcreate_f(grp_id,'tlag', H5T_NATIVE_DOUBLE, &
-                        filespace, dset_id, ierr)
+       call h5dcreate_f(grp_id,'tlag', H5T_NEKO_REAL, &
+            filespace, dset_id, ierr)
        call h5dget_space_f(dset_id, filespace, ierr)
        call h5sselect_hyperslab_f (filespace, H5S_SELECT_SET_F, &
-                                   doffset, dcount, ierr)
-       call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, tlag, &
-                          ddim, ierr, xfer_prp = plist_id)
+            doffset, dcount, ierr)
+       call h5dwrite_f(dset_id, H5T_NEKO_REAL, tlag, &
+            ddim, ierr, xfer_prp = plist_id)
        call h5dclose_f(dset_id, ierr)
 
-       call h5dcreate_f(grp_id,'dtlag', H5T_NATIVE_DOUBLE, &
-                        filespace, dset_id, ierr)
+       call h5dcreate_f(grp_id,'dtlag', H5T_NEKO_REAL, &
+            filespace, dset_id, ierr)
        call h5dget_space_f(dset_id, filespace, ierr)
        call h5sselect_hyperslab_f (filespace, H5S_SELECT_SET_F, &
-                                   doffset, dcount, ierr)
-       call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, dtlag, &
-                          ddim, ierr, xfer_prp = plist_id)
+            doffset, dcount, ierr)
+       call h5dwrite_f(dset_id, H5T_NEKO_REAL, dtlag, &
+            ddim, ierr, xfer_prp = plist_id)
        call h5dclose_f(dset_id, ierr)
-       
+
        call h5sclose_f(filespace, ierr)
        call h5gclose_f(grp_id, ierr)
-       
+
     end if
 
 
     !
     ! Write fields group
-    ! 
+    !
     if (allocated(fp) .or. allocated(fsp)) then
        call h5gcreate_f(file_id, "Fields", grp_id, ierr, lcpl_id=h5p_default_f, &
             gcpl_id=h5p_default_f, gapl_id=h5p_default_f)
-    
+
        dcount(1) = int(dof%size(), 8)
        doffset(1) = int(msh%offset_el, 8) * int((dof%Xh%lx**3),8)
-       ddim =  int(dof%size(), 8)
+       ddim = int(dof%size(), 8)
        drank = 1
        call MPI_Allreduce(MPI_IN_PLACE, ddim(1), 1, &
-                          MPI_INTEGER8, MPI_SUM, NEKO_COMM, ierr)
+            MPI_INTEGER8, MPI_SUM, NEKO_COMM, ierr)
 
        call h5screate_simple_f(drank, ddim, filespace, ierr)
        call h5screate_simple_f(drank, dcount, memspace, ierr)
-       
+
 
        if (allocated(fp)) then
           do i = 1, size(fp)
-             call h5dcreate_f(grp_id, fp(i)%ptr%name, H5T_NATIVE_DOUBLE, &
-                              filespace, dset_id, ierr)
+             call h5dcreate_f(grp_id, fp(i)%ptr%name, H5T_NEKO_REAL, &
+                  filespace, dset_id, ierr)
              call h5dget_space_f(dset_id, filespace, ierr)
              call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
-                                        doffset, dcount, ierr)
-             call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, &
-                             fp(i)%ptr%x(1,1,1,1), &
-                             ddim, ierr, file_space_id = filespace, &
-                             mem_space_id = memspace, xfer_prp = plist_id)
+                  doffset, dcount, ierr)
+             call h5dwrite_f(dset_id, H5T_NEKO_REAL, &
+                  fp(i)%ptr%x(1,1,1,1), &
+                  ddim, ierr, file_space_id = filespace, &
+                  mem_space_id = memspace, xfer_prp = plist_id)
              call h5dclose_f(dset_id, ierr)
           end do
-          deallocate(fp)       
+          deallocate(fp)
        end if
 
        if (allocated(fsp)) then
           do i = 1, size(fsp)
              do j = 1, fsp(i)%ptr%size()
                 call h5dcreate_f(grp_id, fsp(i)%ptr%lf(j)%name, &
-                                 H5T_NATIVE_DOUBLE, filespace, dset_id, ierr)
+                     H5T_NEKO_REAL, filespace, dset_id, ierr)
                 call h5dget_space_f(dset_id, filespace, ierr)
                 call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
-                                           doffset, dcount, ierr)
-                call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, &
-                                fsp(i)%ptr%lf(j)%x(1,1,1,1), &
-                                ddim, ierr, file_space_id = filespace, &
-                                mem_space_id = memspace, xfer_prp = plist_id)
+                     doffset, dcount, ierr)
+                call h5dwrite_f(dset_id, H5T_NEKO_REAL, &
+                     fsp(i)%ptr%lf(j)%x(1,1,1,1), &
+                     ddim, ierr, file_space_id = filespace, &
+                     mem_space_id = memspace, xfer_prp = plist_id)
                 call h5dclose_f(dset_id, ierr)
              end do
           end do
           deallocate(fsp)
        end if
-    
+
        call h5gclose_f(grp_id, ierr)
        call h5sclose_f(filespace, ierr)
        call h5sclose_f(memspace, ierr)
     end if
-    
+
     call h5pclose_f(plist_id, ierr)
     call h5fclose_f(file_id, ierr)
 
     call h5close_f(ierr)
 
-    this%counter = this%counter + 1
-    
   end subroutine hdf5_file_write
 
   !> Read data in HDF5 format
@@ -248,6 +251,7 @@ contains
     class(*), target, intent(inout) :: data
     integer(hid_t) :: plist_id, file_id, dset_id, grp_id, attr_id
     integer(hid_t) :: filespace, memspace
+    integer(hid_t) :: H5T_NEKO_REAL
     integer(hsize_t), dimension(1) :: ddim, dcount, doffset
     integer :: i,j, ierr, info, glb_nelv, gdim, lx, drank
     type(mesh_t), pointer :: msh
@@ -255,25 +259,31 @@ contains
     type(field_ptr_t), allocatable :: fp(:)
     type(field_series_ptr_t), allocatable :: fsp(:)
     real(kind=rp), pointer :: dtlag(:)
-    real(kind=rp), pointer :: tlag(:) 
+    real(kind=rp), pointer :: tlag(:)
     real(kind=rp) :: t
+    character(len=1024) :: fname
+
+    fname = trim(this%get_fname())
 
     call hdf5_file_determine_data(data, msh, dof, fp, fsp, dtlag, tlag)
 
     call h5open_f(ierr)
+
+    call hdf5_file_determine_real(H5T_NEKO_REAL)
+
     call h5pcreate_f(H5P_FILE_ACCESS_F, plist_id, ierr)
     info = MPI_INFO_NULL%mpi_val
     call h5pset_fapl_mpio_f(plist_id, NEKO_COMM%mpi_val, info, ierr)
 
-    call h5fopen_f(trim(this%fname), H5F_ACC_RDONLY_F, &
+    call h5fopen_f(fname, H5F_ACC_RDONLY_F, &
          file_id, ierr, access_prp = plist_id)
 
     call h5pcreate_f(H5P_DATASET_XFER_F, plist_id, ierr)
     call h5pset_dxpl_mpio_f(plist_id, H5FD_MPIO_COLLECTIVE_F, ierr)
 
-    ddim = 1 
+    ddim = 1
     call h5aopen_name_f(file_id, 'Time', attr_id, ierr)
-    call h5aread_f(attr_id, H5T_NATIVE_DOUBLE, t, ddim, ierr)
+    call h5aread_f(attr_id, H5T_NEKO_REAL, t, ddim, ierr)
     call h5aclose_f(attr_id, ierr)
 
     select type(data)
@@ -306,54 +316,54 @@ contains
        else
           dcount = 0
        end if
-       
+
        call h5gopen_f(file_id, 'Restart', grp_id, ierr, gapl_id=h5p_default_f)
        call h5dopen_f(grp_id, 'tlag', dset_id, ierr)
        call h5dget_space_f(dset_id, filespace, ierr)
        call h5sselect_hyperslab_f (filespace, H5S_SELECT_SET_F, &
-                                   doffset, dcount, ierr)
-       call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, tlag, ddim, ierr, xfer_prp=plist_id)
+            doffset, dcount, ierr)
+       call h5dread_f(dset_id, H5T_NEKO_REAL, tlag, ddim, ierr, xfer_prp=plist_id)
        call h5dclose_f(dset_id, ierr)
        call h5sclose_f(filespace, ierr)
 
        call h5dopen_f(grp_id, 'dtlag', dset_id, ierr)
        call h5dget_space_f(dset_id, filespace, ierr)
        call h5sselect_hyperslab_f (filespace, H5S_SELECT_SET_F, &
-                                   doffset, dcount, ierr)
-       call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, dtlag, ddim, ierr, xfer_prp=plist_id)
+            doffset, dcount, ierr)
+       call h5dread_f(dset_id, H5T_NEKO_REAL, dtlag, ddim, ierr, xfer_prp=plist_id)
        call h5dclose_f(dset_id, ierr)
        call h5sclose_f(filespace, ierr)
-       
+
        call h5gclose_f(grp_id, ierr)
     end if
 
-   if (allocated(fp) .or. allocated(fsp)) then
-      call h5gopen_f(file_id, 'Fields', grp_id, ierr, gapl_id=h5p_default_f)
+    if (allocated(fp) .or. allocated(fsp)) then
+       call h5gopen_f(file_id, 'Fields', grp_id, ierr, gapl_id=h5p_default_f)
 
        dcount(1) = int(dof%size(), 8)
        doffset(1) = int(msh%offset_el, 8) * int((dof%Xh%lx**3),8)
-       ddim =  int(dof%size(), 8)
+       ddim = int(dof%size(), 8)
        drank = 1
 
        dcount(1) = int(dof%size(), 8)
        doffset(1) = int(msh%offset_el, 8) * int((dof%Xh%lx**3),8)
-       ddim =  int(dof%size(), 8)
+       ddim = int(dof%size(), 8)
        drank = 1
        call MPI_Allreduce(MPI_IN_PLACE, ddim(1), 1, &
-                          MPI_INTEGER8, MPI_SUM, NEKO_COMM, ierr)
+            MPI_INTEGER8, MPI_SUM, NEKO_COMM, ierr)
 
        call h5screate_simple_f(drank, dcount, memspace, ierr)
-       
-      if (allocated(fp)) then
+
+       if (allocated(fp)) then
           do i = 1, size(fp)
              call h5dopen_f(grp_id, fp(i)%ptr%name, dset_id, ierr)
              call h5dget_space_f(dset_id, filespace, ierr)
              call h5sselect_hyperslab_f (filespace, H5S_SELECT_SET_F, &
                   doffset, dcount, ierr)
-             call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, &
-                            fp(i)%ptr%x(1,1,1,1), &
-                            ddim, ierr, file_space_id = filespace, &
-                            mem_space_id = memspace, xfer_prp=plist_id)
+             call h5dread_f(dset_id, H5T_NEKO_REAL, &
+                  fp(i)%ptr%x(1,1,1,1), &
+                  ddim, ierr, file_space_id = filespace, &
+                  mem_space_id = memspace, xfer_prp=plist_id)
              call h5dclose_f(dset_id, ierr)
              call h5sclose_f(filespace, ierr)
           end do
@@ -365,11 +375,11 @@ contains
                 call h5dopen_f(grp_id, fsp(i)%ptr%lf(j)%name, dset_id, ierr)
                 call h5dget_space_f(dset_id, filespace, ierr)
                 call h5sselect_hyperslab_f (filespace, H5S_SELECT_SET_F, &
-                                            doffset, dcount, ierr)
-                call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, &
-                               fsp(i)%ptr%lf(j)%x(1,1,1,1), &
-                               ddim, ierr, file_space_id = filespace, &
-                               mem_space_id = memspace, xfer_prp=plist_id)
+                     doffset, dcount, ierr)
+                call h5dread_f(dset_id, H5T_NEKO_REAL, &
+                     fsp(i)%ptr%lf(j)%x(1,1,1,1), &
+                     ddim, ierr, file_space_id = filespace, &
+                     mem_space_id = memspace, xfer_prp=plist_id)
                 call h5dclose_f(dset_id, ierr)
                 call h5sclose_f(filespace, ierr)
              end do
@@ -378,7 +388,7 @@ contains
        call h5sclose_f(memspace, ierr)
        call h5gclose_f(grp_id, ierr)
     end if
-   
+
     call h5pclose_f(plist_id, ierr)
     call h5fclose_f(file_id, ierr)
 
@@ -395,7 +405,8 @@ contains
     type(field_series_ptr_t), allocatable, intent(inout) :: fsp(:)
     real(kind=rp), pointer, intent(inout) :: dtlag(:)
     real(kind=rp), pointer, intent(inout) :: tlag(:)
-    integer :: i, j, fp_size, fp_cur, fsp_size, fsp_cur
+    integer :: i, j, fp_size, fp_cur, fsp_size, fsp_cur, scalar_count, ab_count
+    character(len=32) :: scalar_name
 
     select type(data)
     type is (field_t)
@@ -407,12 +418,12 @@ contains
 
        nullify(dtlag)
        nullify(tlag)
-       
+
     type is (field_list_t)
 
        if (data%size() .gt. 0) then
           allocate(fp(data%size()))
-       
+
           dof => data%dof(1)
           msh => data%msh(1)
 
@@ -425,7 +436,7 @@ contains
 
        nullify(dtlag)
        nullify(tlag)
-       
+
     type is(chkp_t)
 
        if ( .not. associated(data%u) .or. &
@@ -437,18 +448,31 @@ contains
 
        fp_size = 4
 
-       if (associated(data%s)) then
+       if (allocated(data%scalar_lags%items) .and. data%scalar_lags%size() > 0) then
+          scalar_count = data%scalar_lags%size()
+       else if (associated(data%s)) then
+          scalar_count = 1
+       else
+          scalar_count = 0
+       end if
+
+       if (scalar_count .gt. 1) then
+          fp_size = fp_size + scalar_count
+
+          ! Add abx1 and abx2 fields for each scalar
+          fp_size = fp_size + (scalar_count * 2)
+       else if (associated(data%s)) then
+          ! Single scalar support
           fp_size = fp_size + 1
+          if (associated(data%abs1)) then
+             fp_size = fp_size + 2
+          end if
        end if
 
        if (associated(data%abx1)) then
           fp_size = fp_size + 6
        end if
 
-       if (associated(data%abs1)) then
-          fp_size = fp_size + 2
-       end if
-       
        allocate(fp(fp_size))
 
        fsp_size = 0
@@ -456,7 +480,11 @@ contains
           fsp_size = fsp_size + 3
        end if
 
-       if (associated(data%slag)) then
+       if (scalar_count .gt. 1) then
+          if (allocated(data%scalar_lags%items)) then
+             fsp_size = fsp_size + data%scalar_lags%size()
+          end if
+       else if (associated(data%slag)) then
           fsp_size = fsp_size + 1
        end if
 
@@ -467,16 +495,40 @@ contains
 
        dof => data%u%dof
        msh => data%u%msh
-       
+
        fp(1)%ptr => data%u
        fp(2)%ptr => data%v
        fp(3)%ptr => data%w
        fp(4)%ptr => data%p
 
        fp_cur = 5
-       if (associated(data%s)) then
+
+       if (scalar_count .gt. 1) then
+          block
+            type(field_series_t), pointer :: slag
+            do i = 1, scalar_count
+               slag => data%scalar_lags%get(i)
+               fp(fp_cur)%ptr => slag%f
+               fp_cur = fp_cur + 1
+            end do
+          end block
+
+          do i = 1, scalar_count
+             fp(fp_cur)%ptr => data%scalar_abx1(i)%ptr
+             fp_cur = fp_cur + 1
+             fp(fp_cur)%ptr => data%scalar_abx2(i)%ptr
+             fp_cur = fp_cur + 1
+          end do
+       else if (associated(data%s)) then
+          ! Single scalar support
           fp(fp_cur)%ptr => data%s
           fp_cur = fp_cur + 1
+
+          if (associated(data%abs1)) then
+             fp(fp_cur)%ptr => data%abs1
+             fp(fp_cur+1)%ptr => data%abs2
+             fp_cur = fp_cur + 2
+          end if
        end if
 
        if (associated(data%abx1)) then
@@ -489,12 +541,6 @@ contains
           fp_cur = fp_cur + 6
        end if
 
-       if (associated(data%abs1)) then
-          fp(fp_cur)%ptr => data%abs1
-          fp(fp_cur+1)%ptr => data%abs2
-          fp_cur = fp_cur + 2
-       end if
-
        if (associated(data%ulag)) then
           fsp(fsp_cur)%ptr => data%ulag
           fsp(fsp_cur+1)%ptr => data%vlag
@@ -502,7 +548,15 @@ contains
           fsp_cur = fsp_cur + 3
        end if
 
-       if (associated(data%slag)) then
+
+       if (scalar_count .gt. 1) then
+          if (allocated(data%scalar_lags%items)) then
+             do j = 1, data%scalar_lags%size()
+                fsp(fsp_cur)%ptr => data%scalar_lags%get(j)
+                fsp_cur = fsp_cur + 1
+             end do
+          end if
+       else if (associated(data%slag)) then
           fsp(fsp_cur)%ptr => data%slag
           fsp_cur = fsp_cur + 1
        end if
@@ -510,14 +564,36 @@ contains
        if (associated(data%tlag)) then
           tlag => data%tlag
           dtlag => data%dtlag
-       end if       
-       
+       end if
+
     class default
        call neko_log%error('Invalid data')
     end select
-    
+
   end subroutine hdf5_file_determine_data
-  
+
+  !> Determine hdf5 real type corresponding to NEKO_REAL
+  !! @note This must be called after h5open_f, otherwise
+  !! the H5T_NATIVE_XYZ types has a value of 0
+  subroutine hdf5_file_determine_real(H5T_NEKO_REAL)
+    integer(hid_t), intent(inout) :: H5T_NEKO_REAL
+    select case(rp)
+    case(dp)
+       H5T_NEKO_REAL = H5T_NATIVE_DOUBLE
+    case(sp)
+       H5T_NEKO_REAL = H5T_NATIVE_REAL
+    case default
+       call neko_error("Unsupported real type")
+    end select
+  end subroutine hdf5_file_determine_real
+
+  !> Set the overwrite flag for HDF5 files
+  subroutine hdf5_file_set_overwrite(this, overwrite)
+    class(hdf5_file_t), intent(inout) :: this
+    logical, intent(in) :: overwrite
+    this%overwrite = overwrite
+  end subroutine hdf5_file_set_overwrite
+
 #else
 
   !> Write data in HDF5 format
@@ -535,6 +611,12 @@ contains
     call neko_error('Neko needs to be built with HDF5 support')
   end subroutine hdf5_file_read
 
+  !> Set the overwrite flag for HDF5 files
+  subroutine hdf5_file_set_overwrite(this, overwrite)
+    class(hdf5_file_t), intent(inout) :: this
+    logical, intent(in) :: overwrite
+    call neko_error('Neko needs to be built with HDF5 support')
+  end subroutine hdf5_file_set_overwrite
 
 #endif
 

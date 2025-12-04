@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -38,18 +38,6 @@ module cuda_intf
   implicit none
 
 #ifdef HAVE_CUDA
-
-  !> Global HIP command queue
-  type(c_ptr), bind(c) :: glb_cmd_queue = C_NULL_PTR
-
-  !> Aux HIP command queue
-  type(c_ptr), bind(c) :: aux_cmd_queue = C_NULL_PTR
-
-  !> High priority stream setting
-  integer :: STRM_HIGH_PRIO
-
-  !> Low priority stream setting
-  integer :: STRM_LOW_PRIO
 
   !> Enum @a cudaError
   enum, bind(c)
@@ -107,6 +95,17 @@ module cuda_intf
        integer(c_size_t), value :: s
        integer(c_int), value :: dir
      end function cudaMemcpyAsync
+  end interface
+
+  interface
+     integer(c_int) function cudaMemsetAsync(ptr, v, s, stream) &
+          bind(c, name = 'cudaMemsetAsync')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: ptr, stream
+       integer(c_int), value :: v
+       integer(c_size_t), value :: s
+     end function cudaMemsetAsync
   end interface
 
   interface
@@ -285,7 +284,12 @@ module cuda_intf
 
 contains
 
-  subroutine cuda_init
+  subroutine cuda_init(glb_cmd_queue, aux_cmd_queue, &
+       STRM_HIGH_PRIO, STRM_LOW_PRIO)
+    type(c_ptr), intent(inout) :: glb_cmd_queue
+    type(c_ptr), intent(inout) :: aux_cmd_queue
+    integer, intent(inout) :: STRM_HIGH_PRIO
+    integer, intent(inout) :: STRM_LOW_PRIO
     integer(c_int) :: device_id
     integer :: nthrds = 1
 
@@ -324,7 +328,10 @@ contains
     end if
   end subroutine cuda_init
 
-  subroutine cuda_finalize
+  subroutine cuda_finalize(glb_cmd_queue, aux_cmd_queue)
+    type(c_ptr), intent(inout) :: glb_cmd_queue
+    type(c_ptr), intent(inout) :: aux_cmd_queue
+
     if (cudaStreamDestroy(glb_cmd_queue) .ne. cudaSuccess) then
        call neko_error('Error destroying main stream')
     end if

@@ -45,7 +45,9 @@ module opr_cpu
 
   public :: opr_cpu_dudxyz, opr_cpu_opgrad, opr_cpu_cdtp, &
        opr_cpu_conv1, opr_cpu_curl, opr_cpu_cfl, opr_cpu_lambda2, &
-       opr_cpu_convect_scalar, opr_cpu_set_convect_rst
+       opr_cpu_convect_scalar, opr_cpu_set_convect_rst, &
+       opr_cpu_rotate_cyc_r1, opr_cpu_rotate_cyc_r4
+
 
   interface
      module subroutine opr_cpu_dudxyz(du, u, dr, ds, dt, coef)
@@ -92,30 +94,32 @@ module opr_cpu
             vz(Xh%lx, Xh%ly, Xh%lz, e_end - e_start + 1)
      end subroutine opr_cpu_conv1
 
-     module subroutine opr_cpu_convect_scalar(du, u, c, Xh_GLL, Xh_GL, &
+     module subroutine opr_cpu_convect_scalar(du, u, cr, cs, ct, Xh_GLL, Xh_GL, &
                                               coef_GLL, coef_GL, GLL_to_GL)
-        type(space_t), intent(in) :: Xh_GL
-        type(space_t), intent(in) :: Xh_GLL
-        type(coef_t), intent(in) :: coef_GLL
-        type(coef_t), intent(in) :: coef_GL
-        type(interpolator_t), intent(inout) :: GLL_to_GL
-        real(kind=rp), intent(inout) :: &
+       type(space_t), intent(in) :: Xh_GL
+       type(space_t), intent(in) :: Xh_GLL
+       type(coef_t), intent(in) :: coef_GLL
+       type(coef_t), intent(in) :: coef_GL
+       type(interpolator_t), intent(inout) :: GLL_to_GL
+       real(kind=rp), intent(inout) :: &
                    du(Xh_GLL%lx, Xh_GLL%ly, Xh_GLL%lz, coef_GL%msh%nelv)
-        real(kind=rp), intent(inout) :: &
+       real(kind=rp), intent(inout) :: &
                    u(Xh_GL%lx, Xh_GL%lx, Xh_GL%lx, coef_GL%msh%nelv)
-        real(kind=rp), intent(inout) :: c(Xh_GL%lxyz, coef_GL%msh%nelv, 3)
+       real(kind=rp), intent(inout) :: cr(Xh_GL%lxyz, coef_GL%msh%nelv)
+       real(kind=rp), intent(inout) :: cs(Xh_GL%lxyz, coef_GL%msh%nelv)
+       real(kind=rp), intent(inout) :: ct(Xh_GL%lxyz, coef_GL%msh%nelv)
 
-      end subroutine opr_cpu_convect_scalar
+     end subroutine opr_cpu_convect_scalar
 
-      module subroutine opr_cpu_set_convect_rst(cr, cs, ct, cx, cy, cz, &
+     module subroutine opr_cpu_set_convect_rst(cr, cs, ct, cx, cy, cz, &
                                                 Xh, coef)
-         type(space_t), intent(inout) :: Xh
-         type(coef_t), intent(inout) :: coef
-         real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), &
+       type(space_t), intent(inout) :: Xh
+       type(coef_t), intent(inout) :: coef
+       real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), &
                         intent(inout) :: cr, cs, ct
-         real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), &
+       real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), &
                         intent(in) :: cx, cy, cz
-       end subroutine opr_cpu_set_convect_rst
+     end subroutine opr_cpu_set_convect_rst
   end interface
 
 contains
@@ -124,9 +128,9 @@ contains
     type(field_t), intent(inout) :: w1
     type(field_t), intent(inout) :: w2
     type(field_t), intent(inout) :: w3
-    type(field_t), intent(inout) :: u1
-    type(field_t), intent(inout) :: u2
-    type(field_t), intent(inout) :: u3
+    type(field_t), intent(in) :: u1
+    type(field_t), intent(in) :: u2
+    type(field_t), intent(in) :: u3
     type(field_t), intent(inout) :: work1
     type(field_t), intent(inout) :: work2
     type(coef_t), intent(in) :: c_Xh
@@ -164,9 +168,11 @@ contains
     !!    BC dependent, Needs to change if cyclic
 
     call opcolv(w1%x, w2%x, w3%x, c_Xh%B, gdim, n)
+    if(c_Xh%cyclic) call opr_cpu_rotate_cyc_r4(w1%x, w2%x, w3%x, 1, c_Xh)
     call c_Xh%gs_h%op(w1, GS_OP_ADD)
     call c_Xh%gs_h%op(w2, GS_OP_ADD)
     call c_Xh%gs_h%op(w3, GS_OP_ADD)
+    if(c_Xh%cyclic) call opr_cpu_rotate_cyc_r4(w1%x, w2%x, w3%x, 0, c_Xh)
     call opcolv(w1%x, w2%x, w3%x, c_Xh%Binv, gdim, n)
 
   end subroutine opr_cpu_curl
@@ -303,5 +309,61 @@ contains
     end do
 
   end subroutine opr_cpu_lambda2
+
+  subroutine opr_cpu_rotate_cyc_r1(vx, vy, vz, idir, coef)
+    use iso_c_binding
+    real(kind=rp), dimension(:), intent(inout) :: vx, vy, vz
+    integer, intent(in) :: idir
+    type(coef_t), intent(in) :: coef
+    integer :: i, j, ncyc
+    real(kind=rp) :: vnor, vtan
+
+    ncyc = coef%cyc_msk(0) - 1
+
+    do i = 1, ncyc
+       j = coef%cyc_msk(i)
+
+       if (idir.eq.1) then
+          vnor = vx(j) * coef%R11(i) + vy(j) * coef%R12(i)
+          vtan = -vx(j) * coef%R12(i) + vy(j) * coef%R11(i)
+       else if(idir.eq.0) then
+          vnor = vx(j) * coef%R11(i) - vy(j) * coef%R12(i)
+          vtan = vx(j) * coef%R12(i) + vy(j) * coef%R11(i)
+       end if
+
+       vx(j) = vnor
+       vy(j) = vtan
+
+    end do
+  end subroutine opr_cpu_rotate_cyc_r1
+
+
+  subroutine opr_cpu_rotate_cyc_r4(vx, vy, vz, idir, coef)
+    use iso_c_binding
+    real(kind=rp), dimension(:,:,:,:), intent(inout) :: vx, vy, vz
+    integer, intent(in) :: idir
+    type(coef_t), intent(in) :: coef
+    integer :: i, j, ncyc
+    real(kind=rp) :: vnor, vtan
+
+    ncyc = coef%cyc_msk(0) - 1
+
+    do i = 1, ncyc
+       j = coef%cyc_msk(i)
+
+       if (idir.eq.1) then
+          vnor = vx(j, 1, 1, 1) * coef%R11(i) + vy(j, 1, 1, 1) * coef%R12(i)
+          vtan =-vx(j, 1, 1, 1) * coef%R12(i) + vy(j, 1, 1, 1) * coef%R11(i)
+       else if(idir.eq.0) then
+          vnor = vx(j, 1, 1, 1) * coef%R11(i) - vy(j, 1, 1, 1) * coef%R12(i)
+          vtan = vx(j, 1, 1, 1) * coef%R12(i) + vy(j, 1, 1, 1) * coef%R11(i)
+       end if
+
+       vx(j, 1, 1, 1) = vnor
+       vy(j, 1, 1, 1) = vtan
+
+    end do
+
+  end subroutine opr_cpu_rotate_cyc_r4
 
 end module opr_cpu

@@ -185,6 +185,9 @@ contains
 
     end if
 
+    call Xh%free()
+    call dof%free()
+
   end subroutine point_zone_registry_init
 
   !> Constructs a combine_point_zone_t object.
@@ -247,7 +250,6 @@ contains
   subroutine expand(this)
     class(point_zone_registry_t), intent(inout) :: this
     type(point_zone_wrapper_t), allocatable :: temp(:)
-    integer :: i
 
     allocate(temp(this%n + this%expansion_size))
     temp(1:this%n) = this%point_zones(1:this%n)
@@ -264,7 +266,6 @@ contains
     type(dofmap_t), target, intent(inout) :: dof
 !    type(h_cptr_t) :: key
     character(len=:), allocatable :: str_read
-    integer :: i
 
     !
     ! Allocate the point zones array as it was not necessarily done
@@ -279,7 +280,7 @@ contains
     ! Check if point zone exists with the input name
     if (this%point_zone_exists(trim(str_read))) then
        call neko_error("Field with name " // trim(str_read) // &
-                       " is already registered")
+            " is already registered")
     end if
 
     !
@@ -367,7 +368,7 @@ contains
 
     if (.not. found) then
        call neko_error("Point zone " // trim(name) // &
-                       " could not be found in the registry")
+            " could not be found in the registry")
     end if
   end function get_point_zone_by_name
 

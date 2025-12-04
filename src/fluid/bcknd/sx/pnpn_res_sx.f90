@@ -12,6 +12,7 @@ module pnpn_res_sx
   use num_types, only : rp
   use space, only : space_t
   use math, only : copy, cmult2, invers2, rzero
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 
@@ -29,43 +30,44 @@ contains
 
   subroutine pnpn_prs_res_sx_compute(p, p_res, u, v, w, u_e, v_e, w_e, f_x, &
        f_y, f_z, c_Xh, gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt, mu, &
-       rho)
+       rho, event)
     type(field_t), intent(inout) :: p, u, v, w
-    type(field_t), intent(inout) :: u_e, v_e, w_e
+    type(field_t), intent(in) :: u_e, v_e, w_e
     type(field_t), intent(inout) :: p_res
-    type(field_t), intent(inout) :: f_x, f_y, f_z
+    type(field_t), intent(in) :: f_x, f_y, f_z
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
-    type(facet_normal_t), intent(inout) :: bc_prs_surface
-    type(facet_normal_t), intent(inout) :: bc_sym_surface
+    type(facet_normal_t), intent(in) :: bc_prs_surface
+    type(facet_normal_t), intent(in) :: bc_sym_surface
     class(ax_t), intent(inout) :: Ax
-    real(kind=rp), intent(inout) :: bd
+    real(kind=rp), intent(in) :: bd
     real(kind=rp), intent(in) :: dt
     type(field_t), intent(in) :: mu
     type(field_t), intent(in) :: rho
+    type(c_ptr), intent(inout) :: event
     real(kind=rp) :: dtbd, rho_val, mu_val
     integer :: n
     integer :: i
     type(field_t), pointer :: ta1, ta2, ta3, wa1, wa2, wa3, work1, work2
     integer :: temp_indices(8)
 
-    call neko_scratch_registry%request_field(ta1, temp_indices(1))
-    call neko_scratch_registry%request_field(ta2, temp_indices(2))
-    call neko_scratch_registry%request_field(ta3, temp_indices(3))
-    call neko_scratch_registry%request_field(wa1, temp_indices(4))
-    call neko_scratch_registry%request_field(wa2, temp_indices(5))
-    call neko_scratch_registry%request_field(wa3, temp_indices(6))
-    call neko_scratch_registry%request_field(work1, temp_indices(7))
-    call neko_scratch_registry%request_field(work2, temp_indices(8))
+    call neko_scratch_registry%request_field(ta1, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(ta2, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(ta3, temp_indices(3), .false.)
+    call neko_scratch_registry%request_field(wa1, temp_indices(4), .false.)
+    call neko_scratch_registry%request_field(wa2, temp_indices(5), .false.)
+    call neko_scratch_registry%request_field(wa3, temp_indices(6), .false.)
+    call neko_scratch_registry%request_field(work1, temp_indices(7), .false.)
+    call neko_scratch_registry%request_field(work2, temp_indices(8), .false.)
 
     n = c_Xh%dof%size()
-    
+
     ! We assume the material properties are constant
     rho_val = rho%x(1,1,1,1)
     mu_val = mu%x(1,1,1,1)
     do i = 1, n
-      c_Xh%h1(i,1,1,1) = 1.0_rp / rho_val
-      c_Xh%h2(i,1,1,1) = 0.0_rp
+       c_Xh%h1(i,1,1,1) = 1.0_rp / rho_val
+       c_Xh%h2(i,1,1,1) = 0.0_rp
     end do
     c_Xh%ifh2 = .false.
 
@@ -101,7 +103,7 @@ contains
     call cdtp(wa3%x, ta3%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
     do i = 1, n
        p_res%x(i,1,1,1) = (-p_res%x(i,1,1,1)) &
-                        + wa1%x(i,1,1,1) + wa2%x(i,1,1,1) + wa3%x(i,1,1,1)
+            + wa1%x(i,1,1,1) + wa2%x(i,1,1,1) + wa3%x(i,1,1,1)
     end do
 
     !
@@ -114,7 +116,7 @@ contains
     end do
 
     call bc_sym_surface%apply_surfvec(wa1%x, wa2%x, wa3%x, ta1%x, ta2%x, ta3%x,&
-                                      n)
+         n)
 
     dtbd = bd / dt
     do i = 1, n
@@ -141,7 +143,7 @@ contains
     type(space_t), intent(inout) :: Xh
     type(field_t), intent(inout) :: p, u, v, w
     type(field_t), intent(inout) :: u_res, v_res, w_res
-    type(field_t), intent(inout) :: f_x, f_y, f_z
+    type(field_t), intent(in) :: f_x, f_y, f_z
     type(coef_t), intent(inout) :: c_Xh
     type(field_t), intent(in) :: mu
     type(field_t), intent(in) :: rho
@@ -152,13 +154,13 @@ contains
     type(field_t), pointer :: ta1, ta2, ta3
     integer :: i
     real(kind=rp) :: rho_val, mu_val
-    
+
     rho_val = rho%x(1,1,1,1)
     mu_val = mu%x(1,1,1,1)
 
     do i = 1, n
-      c_Xh%h1(i,1,1,1) = mu_val
-      c_Xh%h2(i,1,1,1) = rho_val * bd / dt
+       c_Xh%h1(i,1,1,1) = mu_val
+       c_Xh%h2(i,1,1,1) = rho_val * bd / dt
     end do
 
     c_Xh%ifh2 = .true.
@@ -167,9 +169,9 @@ contains
     call Ax%compute(v_res%x, v%x, c_Xh, msh, Xh)
     call Ax%compute(w_res%x, w%x, c_Xh, msh, Xh)
 
-    call neko_scratch_registry%request_field(ta1, temp_indices(1))
-    call neko_scratch_registry%request_field(ta2, temp_indices(2))
-    call neko_scratch_registry%request_field(ta3, temp_indices(3))
+    call neko_scratch_registry%request_field(ta1, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(ta2, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(ta3, temp_indices(3), .false.)
 
     call opgrad(ta1%x, ta2%x, ta3%x, p%x, c_Xh)
 

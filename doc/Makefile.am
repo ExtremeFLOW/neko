@@ -28,11 +28,13 @@ EXTRA_DIST = pages/appendices/governing-equations.md \
 			pages/user-guide \
 			pages/user-guide/case-file.md \
 			pages/user-guide/installation.md \
+			pages/user-guide/meshing.md \
 			pages/user-guide/io.md \
 			pages/user-guide/point-zones.md \
 			pages/user-guide/simcomps.md \
 			pages/user-guide/statistics-guide.md \
 			pages/user-guide/user-file.md \
+			pages/user-guide/extension.md \
 			pages/appendices.md \
 			pages/developer-guide.md \
 			pages/index.md \

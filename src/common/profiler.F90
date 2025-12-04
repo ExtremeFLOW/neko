@@ -43,7 +43,7 @@ module profiler
   private
 
   public :: profiler_start, profiler_start_region, profiler_end_region, &
-            profiler_stop
+       profiler_stop
 
 contains
 
@@ -97,18 +97,16 @@ contains
        call fapp_start(trim(name), region_id, 0)
     end if
 #endif
-    
-    if (present(region_id)) then
-       call neko_rt_stats%start_region(name, region_id)
-    end if
-    
+
+    call neko_rt_stats%start_region(name, region_id)
+
   end subroutine profiler_start_region
 
   !> End the most recently started profiler region
   subroutine profiler_end_region(name, region_id)
     character(kind=c_char, len=*), optional :: name
     integer, optional :: region_id
-    
+
 #ifdef HAVE_NVTX
     call nvtxRangePop
 #elif HAVE_ROCTX
@@ -118,16 +116,14 @@ contains
        call craypat_region_end(region_id)
     end if
 #endif
-    
+
 #if defined(__FUJITSU) && defined(NEKO_FJPROF)
     if (present(name) .and. present(region_id)) then
        call fapp_stop(trim(name), region_id, 0)
     end if
 #endif
 
-    if (present(name) .and. present(region_id)) then
-       call neko_rt_stats%end_region(name, region_id)
-    end if
+    call neko_rt_stats%end_region(name, region_id)
 
   end subroutine profiler_end_region
 

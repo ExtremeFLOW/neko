@@ -1,7 +1,7 @@
 #ifndef __MATH_CONV1_KERNEL_CL__
 #define __MATH_CONV1_KERNEL_CL__
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2021-2025, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -71,11 +71,11 @@ __kernel void conv1_kernel_lx##LX(__global real * __restrict__ du,             \
   __local real shjacinv[LX * LX * LX];                                         \
                                                                                \
                                                                                \
-  int i,j,k;                                                                   \
                                                                                \
   const int e = get_group_id(0);                                               \
   const int iii = get_local_id(0);                                             \
   const int nchunks = (LX * LX * LX - 1) / CHUNKS + 1;                         \
+  const int ele = e*LX*LX*LX;                                                  \
                                                                                \
   if (iii < (LX * LX)) {                                                       \
     shdx[iii] = dx[iii];                                                       \
@@ -83,17 +83,17 @@ __kernel void conv1_kernel_lx##LX(__global real * __restrict__ du,             \
     shdz[iii] = dz[iii];                                                       \
   }                                                                            \
                                                                                \
-  j = iii;                                                                     \
-  while(j < (LX * LX * LX)) {                                                  \
-    shu[j] = u[j + e * LX * LX * LX];                                          \
+  int l = iii;                                                                 \
+  while(l < (LX * LX * LX)) {                                                  \
+    shu[l] = u[l + ele];                                                       \
                                                                                \
-    shvx[j] = vx[j + e * LX * LX * LX];                                        \
-    shvy[j] = vy[j + e * LX * LX * LX];                                        \
-    shvz[j] = vz[j + e * LX * LX * LX];                                        \
+    shvx[l] = vx[l + ele];                                                     \
+    shvy[l] = vy[l + ele];                                                     \
+    shvz[l] = vz[l + ele];                                                     \
                                                                                \
-    shjacinv[j] = jacinv[j + e * LX * LX * LX];                                \
+    shjacinv[l] = jacinv[l + ele];                                             \
                                                                                \
-    j = j + CHUNKS;                                                            \
+    l = l + CHUNKS;                                                            \
   }                                                                            \
                                                                                \
   barrier(CLK_LOCAL_MEM_FENCE);                                                \
@@ -101,9 +101,9 @@ __kernel void conv1_kernel_lx##LX(__global real * __restrict__ du,             \
   for (int n = 0; n < nchunks; n++) {                                          \
     const int ijk = iii + n * CHUNKS;                                          \
     const int jk = ijk / LX;                                                   \
-    i = ijk - jk * LX;                                                         \
-    k = jk / LX;                                                               \
-    j = jk - k * LX;                                                           \
+    const int i = ijk - jk * LX;                                               \
+    const int k = jk / LX;                                                     \
+    const int j = jk - k * LX;                                                 \
     if ( i < LX && j < LX && k < LX) {                                         \
       real rtmp = 0.0;                                                         \
       real stmp = 0.0;                                                         \
@@ -115,18 +115,18 @@ __kernel void conv1_kernel_lx##LX(__global real * __restrict__ du,             \
       }                                                                        \
                                                                                \
       du[ijk + e * LX * LX * LX] = shjacinv[ijk] *                             \
-        (shvx[ijk] * (drdx[ijk + e * LX * LX * LX] * rtmp                      \
-                      + dsdx[ijk + e * LX * LX * LX] * stmp                    \
-                      + dtdx[ijk + e * LX * LX * LX] * ttmp)                   \
-         + shvy[ijk] * (drdy[ijk + e * LX * LX * LX] * rtmp                    \
-                        + dsdy[ijk + e * LX * LX * LX] * stmp                  \
-                        + dtdy[ijk + e * LX * LX * LX] * ttmp)                 \
-         + shvz[ijk] * (drdz[ijk + e * LX * LX * LX] * rtmp                    \
-                        + dsdz[ijk + e * LX * LX * LX] * stmp                  \
-                        + dtdz[ijk + e * LX * LX * LX] * ttmp));               \
+        (shvx[ijk] * (drdx[ijk + ele] * rtmp                                   \
+                      + dsdx[ijk + ele] * stmp                                 \
+                      + dtdx[ijk + ele] * ttmp)                                \
+         + shvy[ijk] * (drdy[ijk + ele] * rtmp                                 \
+                        + dsdy[ijk + ele] * stmp                               \
+                        + dtdy[ijk + ele] * ttmp)                              \
+         + shvz[ijk] * (drdz[ijk + ele] * rtmp                                 \
+                        + dsdz[ijk + ele] * stmp                               \
+                        + dtdz[ijk + ele] * ttmp));                            \
     }                                                                          \
   }                                                                            \
-}                                                                              
+}
 
 DEFINE_CONV1_KERNEL(2, 256)
 DEFINE_CONV1_KERNEL(3, 256)
@@ -136,6 +136,107 @@ DEFINE_CONV1_KERNEL(6, 256)
 DEFINE_CONV1_KERNEL(7, 256)
 DEFINE_CONV1_KERNEL(8, 256)
 DEFINE_CONV1_KERNEL(9, 256)
+DEFINE_CONV1_KERNEL(10, 256)
+DEFINE_CONV1_KERNEL(11, 256)
 
+#define DEFINE_CONV1_KERNEL_KSTEP(LX)                                          \
+__kernel                                                                       \
+void conv1_kernel_kstep_lx##LX(__global real * __restrict__ du,                \
+                               __global const real * __restrict__ u,           \
+                               __global const real * __restrict__ vx,          \
+                               __global const real * __restrict__ vy,          \
+                               __global const real * __restrict__ vz,          \
+                               __global const real * __restrict__ dx,          \
+                               __global const real * __restrict__ dy,          \
+                               __global const real * __restrict__ dz,          \
+                               __global const real * __restrict__ drdx,        \
+                               __global const real * __restrict__ dsdx,        \
+                               __global const real * __restrict__ dtdx,        \
+                               __global const real * __restrict__ drdy,        \
+                               __global const real * __restrict__ dsdy,        \
+                               __global const real * __restrict__ dtdy,        \
+                               __global const real * __restrict__ drdz,        \
+                               __global const real * __restrict__ dsdz,        \
+                               __global const real * __restrict__ dtdz,        \
+                               __global const real * __restrict__ jacinv) {    \
+                                                                               \
+  __local real shu[LX * LX];                                                   \
+                                                                               \
+  __local real shdx[LX*LX];                                                    \
+  __local real shdy[LX*LX];                                                    \
+  __local real shdz[LX*LX];                                                    \
+                                                                               \
+  const int e = get_group_id(0);                                               \
+  const int j = get_local_id(1);                                               \
+  const int i = get_local_id(0);                                               \
+  const int ij = i + j * LX;                                                   \
+  const int ele = e*LX*LX*LX;                                                  \
+                                                                               \
+  shdx[ij] = dx[ij];                                                           \
+  shdy[ij] = dy[ij];                                                           \
+  shdz[ij] = dz[ij];                                                           \
+                                                                               \
+  real ru[LX];                                                                 \
+  real rvx[LX];                                                                \
+  real rvy[LX];                                                                \
+  real rvz[LX];                                                                \
+  real rjacinv[LX];                                                            \
+                                                                               \
+  for (int k = 0; k < LX; ++k) {                                               \
+    ru[k] = u[ij + k*LX*LX + ele];                                             \
+    rvx[k] = vx[ij + k*LX*LX + ele];                                           \
+    rvy[k] = vy[ij + k*LX*LX + ele];                                           \
+    rvz[k] = vz[ij + k*LX*LX + ele];                                           \
+    rjacinv[k] = jacinv[ij + k*LX*LX + ele];                                   \
+  }                                                                            \
+                                                                               \
+  barrier(CLK_LOCAL_MEM_FENCE);                                                \
+                                                                               \
+  for (int k = 0; k < LX; ++k) {                                               \
+    const int ijk = ij + k*LX*LX;                                              \
+    real ttmp = 0.0;                                                           \
+    shu[ij] = ru[k];                                                           \
+    for (int l = 0; l < LX; l++) {                                             \
+      ttmp += shdz[k+l*LX] * ru[l];                                            \
+    }                                                                          \
+    barrier(CLK_LOCAL_MEM_FENCE);                                              \
+                                                                               \
+    real rtmp = 0.0;                                                           \
+    real stmp = 0.0;                                                           \
+                                                                               \
+    for (int l = 0; l < LX; l++) {                                             \
+      rtmp += shdx[i+l*LX] * shu[l+j*LX];                                      \
+      stmp += shdy[j+l*LX] * shu[i+l*LX];                                      \
+    }                                                                          \
+                                                                               \
+    du[ijk + ele] = rjacinv[k] *                                               \
+	(rvx[k] * (drdx[ijk + ele] * rtmp                                            \
+                   + dsdx[ijk + ele] * stmp                                    \
+                   + dtdx[ijk + ele] * ttmp)                                   \
+	 + rvy[k] * (drdy[ijk + ele] * rtmp                                          \
+                     + dsdy[ijk + ele] * stmp                                  \
+                     + dtdy[ijk + ele] * ttmp)                                 \
+	 + rvz[k] * (drdz[ijk + ele] * rtmp                                          \
+                     + dsdz[ijk + ele] * stmp                                  \
+                     + dtdz[ijk + ele] * ttmp));                               \
+    barrier(CLK_LOCAL_MEM_FENCE);                                              \
+  }                                                                            \
+}
+
+DEFINE_CONV1_KERNEL_KSTEP(2)
+DEFINE_CONV1_KERNEL_KSTEP(3)
+DEFINE_CONV1_KERNEL_KSTEP(4)
+DEFINE_CONV1_KERNEL_KSTEP(5)
+DEFINE_CONV1_KERNEL_KSTEP(6)
+DEFINE_CONV1_KERNEL_KSTEP(7)
+DEFINE_CONV1_KERNEL_KSTEP(8)
+DEFINE_CONV1_KERNEL_KSTEP(9)
+DEFINE_CONV1_KERNEL_KSTEP(10)
+DEFINE_CONV1_KERNEL_KSTEP(11)
+DEFINE_CONV1_KERNEL_KSTEP(12)
+DEFINE_CONV1_KERNEL_KSTEP(13)
+DEFINE_CONV1_KERNEL_KSTEP(14)
+DEFINE_CONV1_KERNEL_KSTEP(15)
+DEFINE_CONV1_KERNEL_KSTEP(16)
 
 #endif // __MATH_CONV1_KERNEL_CL__
