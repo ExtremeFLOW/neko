@@ -313,14 +313,15 @@ contains
         end if
       end do
 
-      ! Compute curvature κ = div(n)
-      call div(temp4%x,temp1%x, temp2%x,temp3%x,coef)
+      ! Compute curvature kappa = div(n)
+      call div(temp4%x, temp1%x, temp2%x, temp3%x, coef)
+
       ! call dudxyz(temp4%x, temp1%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
 
       call copy(temp1%x, temp4%x, temp4%size())
       ! ! Store it temporarily before we accumulate
 
-      ! Now temp1 contains κ = div(n) (curvature)
+      ! Now temp1 contains kappa = div(n) (curvature)
 
       ! Compute surface tension force per unit mass: F_ST = (sigma/rho) * kappa * grad(phi)
       ! Force per volume is F = sigma * kappa * grad(phi)
