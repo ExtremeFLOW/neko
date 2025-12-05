@@ -38,7 +38,7 @@ module force_torque
   use time_based_controller, only : time_based_controller_t
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use scratch_registry, only : neko_scratch_registry
   use time_state, only : time_state_t
   use field, only : field_t
@@ -256,11 +256,11 @@ contains
        this%print_format = '(I7,E13.5,E13.5,E13.5,E13.5,A)'
     end if
 
-    this%u => neko_field_registry%get_field_by_name("u")
-    this%v => neko_field_registry%get_field_by_name("v")
-    this%w => neko_field_registry%get_field_by_name("w")
-    this%p => neko_field_registry%get_field_by_name("p")
-    this%mu => neko_field_registry%get_field_by_name(fluid_name // '_mu_tot')
+    this%u => neko_registry%get_field_by_name("u")
+    this%v => neko_registry%get_field_by_name("v")
+    this%w => neko_registry%get_field_by_name("w")
+    this%p => neko_registry%get_field_by_name("p")
+    this%mu => neko_registry%get_field_by_name(fluid_name // '_mu_tot')
 
 
     call this%bc%init_base(this%coef)
@@ -366,12 +366,12 @@ contains
 
     n_pts = this%bc%msk(0)
 
-    call neko_scratch_registry%request_field(s11, temp_indices(1))
-    call neko_scratch_registry%request_field(s12, temp_indices(2))
-    call neko_scratch_registry%request_field(s13, temp_indices(3))
-    call neko_scratch_registry%request_field(s22, temp_indices(4))
-    call neko_scratch_registry%request_field(s23, temp_indices(5))
-    call neko_scratch_registry%request_field(s33, temp_indices(6))
+    call neko_scratch_registry%request_field(s11, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(s12, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(s13, temp_indices(3), .false.)
+    call neko_scratch_registry%request_field(s22, temp_indices(4), .false.)
+    call neko_scratch_registry%request_field(s23, temp_indices(5), .false.)
+    call neko_scratch_registry%request_field(s33, temp_indices(6), .false.)
 
     call strain_rate(s11%x, s22%x, s33%x, s12%x, &
          s13%x, s23%x, this%u, this%v, this%w, this%coef)

@@ -48,11 +48,10 @@ module scalar_pnpn
   use scalar_residual, only : scalar_residual_t, scalar_residual_factory
   use ax_product, only : ax_t, ax_helm_factory
   use field_series, only: field_series_t
-  use field_registry, only: neko_field_registry
+  use registry, only: neko_registry
   use facet_normal, only : facet_normal_t
   use krylov, only : ksp_monitor_t
   use device_math, only : device_add2s2, device_col2
-  use scalar_aux, only : scalar_step_info
   use time_scheme_controller, only : time_scheme_controller_t
   use projection, only : projection_t
   use math, only : glsc2, col2, add2s2
@@ -65,7 +64,6 @@ module scalar_pnpn
   use neko_config, only : NEKO_BCKND_DEVICE
   use zero_dirichlet, only : zero_dirichlet_t
   use time_step_controller, only : time_step_controller_t
-  use scratch_registry, only : neko_scratch_registry
   use time_state, only : time_state_t
   use bc, only : bc_t
   use comm, only : NEKO_COMM
@@ -212,10 +210,10 @@ contains
       call this%s_res%init(dm_Xh, "s_res")
 
       call this%abx1%init(dm_Xh, trim(this%name)//"_abx1")
-      call neko_field_registry%add_field(dm_Xh, trim(this%name)//"_abx1", ignore_existing = .true.)
+      call neko_registry%add_field(dm_Xh, trim(this%name)//"_abx1", ignore_existing = .true.)
 
       call this%abx2%init(dm_Xh, trim(this%name)//"_abx2")
-      call neko_field_registry%add_field(dm_Xh, trim(this%name)//"_abx2", ignore_existing = .true.)
+      call neko_registry%add_field(dm_Xh, trim(this%name)//"_abx2", ignore_existing = .true.)
 
       call this%advs%init(dm_Xh, "advs")
 
@@ -352,6 +350,8 @@ contains
     type(ksp_monitor_t), intent(inout) :: ksp_results
     ! Number of degrees of freedom
     integer :: n
+
+    if (this%freeze) return
 
     n = this%dm_Xh%size()
 

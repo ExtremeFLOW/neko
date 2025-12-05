@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -37,8 +37,8 @@ module jobctrl
        signal_set_timeout, signal_trap_cpulimit
   use utils, onlY : neko_error
   use mpi_f08, only : MPI_Bcast, MPI_LOGICAL, MPI_WTIME
-  use comm
-  use logger
+  use comm, only : NEKO_COMM
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_QUIET
   implicit none
   private
 

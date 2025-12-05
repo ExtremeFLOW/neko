@@ -47,7 +47,6 @@ module scalars
   use field, only: field_t
   use field_list, only: field_list_t
   use field_series, only: field_series_t
-  use field_registry, only: neko_field_registry
   use checkpoint, only: chkp_t
   use krylov, only: ksp_t, ksp_monitor_t
   use logger, only: neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
@@ -102,7 +101,7 @@ contains
     integer :: i, j
     character(len=:), allocatable :: field_name
     character(len=:), allocatable :: field_names(:)
-    character(len=256) :: error_msg
+    character(len=256) :: error_msg, buffer
 
     ! Allocate the scalar fields
     ! If there are more scalar_scheme_t types, add a factory function here
@@ -116,18 +115,15 @@ contains
        call json_extract_item(params, "", i, json_subdict)
 
        ! Try to get name from JSON, generate one if not found or empty
-       if (json_subdict%valid_path('name')) then
-          call json_get(json_subdict, 'name', field_name)
-       else
-          field_name = ''
-       end if
+       call json_get_or_default(json_subdict, 'name', field_name, '')
 
        ! If name is empty or not provided, generate a default one
        if (len_trim(field_name) == 0) then
           if (n_scalars == 1) then
              field_name = 's' ! Single scalar gets default name 's'
           else
-             write(field_name, '(A,I0)') 's_', i
+             write(buffer, '(A,I0)') 's_', i
+             field_name = trim(buffer)
           end if
        end if
 
@@ -138,9 +134,9 @@ contains
           j = 1
           do while (j < i)
              if (trim(field_names(i)) == trim(field_names(j))) then
-                write(field_name, '(A,I0)') trim(field_names(i))//'_', j
-                field_names(i) = trim(field_name)
-                j = 1 ! Start over to check if new name is unique
+                call neko_error("Duplicate scalar field name detected: "// &
+                     trim(field_names(i)) // &
+                     ". Please provide unique names for each scalar field.")
              else
                 j = j + 1
              end if
@@ -211,14 +207,25 @@ contains
     type(time_step_controller_t), intent(inout) :: dt_controller
     integer :: i
     type(ksp_monitor_t), dimension(size(this%scalar_fields)) :: ksp_results
+    logical :: all_frozen
+
+    all_frozen = .true.
 
     ! Iterate through all scalar fields
     do i = 1, size(this%scalar_fields)
+       all_frozen = all_frozen .and. this%scalar_fields(i)%freeze
        call this%scalar_fields(i)%step(time, ext_bdf, dt_controller, &
             ksp_results(i))
     end do
 
-    call scalar_step_info(time, ksp_results)
+    if (.not. all_frozen) then
+       call ksp_results(i)%print_header()
+    end if
+
+    do i = 1, size(this%scalar_fields)
+       if (this%scalar_fields(i)%freeze) cycle
+       call scalar_step_info(time, ksp_results(i))
+    end do
   end subroutine scalars_step
 
   !> Restart from checkpoint data

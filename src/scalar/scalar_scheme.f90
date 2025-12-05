@@ -56,7 +56,7 @@ module scalar_scheme
   use facet_zone, only : facet_zone_t
   use time_scheme_controller, only : time_scheme_controller_t
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use json_utils, only : json_get, json_get_or_default, json_extract_item
   use json_module, only : json_file
   use user_intf, only : user_t, dummy_user_material_properties, &
@@ -68,10 +68,9 @@ module scalar_scheme
   use field_series, only : field_series_t
   use math, only : cfill, add2s2
   use field_math, only : field_cmult2, field_col3, field_cfill, field_add3, &
-       field_copy
+       field_copy, field_col2
   use device_math, only : device_cfill, device_add2s2
   use neko_config, only : NEKO_BCKND_DEVICE
-  use field_series, only : field_series_t
   use time_step_controller, only : time_step_controller_t
   use scratch_registry, only : neko_scratch_registry
   use time_state, only : time_state_t
@@ -124,6 +123,8 @@ module scalar_scheme
      type(chkp_t), pointer :: chkp => null()
      !> The turbulent kinematic viscosity field name
      character(len=:), allocatable :: nut_field_name
+     !> The turbulent diffusivity field name
+     character(len=:), allocatable :: alphat_field_name
      !> Density.
      type(field_t), pointer :: rho => null()
      !> Thermal diffusivity.
@@ -138,6 +139,8 @@ module scalar_scheme
      type(field_list_t) :: material_properties
      procedure(user_material_properties_intf), nopass, pointer :: &
           user_material_properties => null()
+     !> Freeze the scheme, i.e. do nothing in step()
+     logical :: freeze = .false.
    contains
      !> Constructor for the base type.
      procedure, pass(this) :: scheme_init => scalar_scheme_init
@@ -253,17 +256,21 @@ contains
     integer :: integer_val, ierr
     character(len=:), allocatable :: solver_type, solver_precon
     type(json_file) :: precon_params
-    real(kind=rp) :: GJP_param_a, GJP_param_b
+    type(json_file) :: json_subdict
+    logical :: nut_dependency
 
-    this%u => neko_field_registry%get_field('u')
-    this%v => neko_field_registry%get_field('v')
-    this%w => neko_field_registry%get_field('w')
+    this%u => neko_registry%get_field('u')
+    this%v => neko_registry%get_field('v')
+    this%w => neko_registry%get_field('w')
     this%rho => rho
 
     ! Assign a name
     ! Note that the keyword is added by `scalars_t`, so there is always a
     ! default.
     call json_get(params, 'name', this%name)
+
+    ! Set the freeze flag
+    call json_get_or_default(params, 'freeze', this%freeze, .false.)
 
     call neko_log%section('Scalar')
     call json_get(params, 'solver.type', solver_type)
@@ -295,10 +302,10 @@ contains
     this%params => params
     this%msh => msh
 
-    call neko_field_registry%add_field(this%dm_Xh, this%name, &
+    call neko_registry%add_field(this%dm_Xh, this%name, &
          ignore_existing = .true.)
 
-    this%s => neko_field_registry%get_field(this%name)
+    this%s => neko_registry%get_field(this%name)
 
     call this%slag%init(this%s, 2)
 
@@ -314,11 +321,17 @@ contains
     !
     ! Turbulence modelling
     !
-    if (params%valid_path('nut_field')) then
-       call json_get(params, 'Pr_t', this%pr_turb)
-       call json_get(params, 'nut_field', this%nut_field_name)
-    else
-       this%nut_field_name = ""
+    this%alphat_field_name = ""
+    this%nut_field_name = ""
+    if (params%valid_path('alphat')) then
+       call json_get(this%params, 'alphat', json_subdict)
+       call json_get(json_subdict, 'nut_dependency', nut_dependency)
+       if (nut_dependency) then
+          call json_get(json_subdict, 'Pr_t', this%pr_turb)
+          call json_get(json_subdict, 'nut_field', this%nut_field_name)
+       else
+          call json_get(json_subdict, 'alphat_field', this%alphat_field_name)
+       end if
     end if
 
     !
@@ -478,7 +491,7 @@ contains
   subroutine scalar_scheme_update_material_properties(this, time)
     class(scalar_scheme_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
-    type(field_t), pointer :: nut
+    type(field_t), pointer :: nut, alphat
     integer :: index
     ! Factor to transform nu_t to lambda_t
     type(field_t), pointer :: lambda_factor
@@ -487,15 +500,33 @@ contains
          time)
 
     ! factor = rho * cp / pr_turb
-    if (len(trim(this%nut_field_name)) > 0) then
-       nut => neko_field_registry%get_field(this%nut_field_name)
+    if (len_trim(this%nut_field_name) .gt. 0 &
+         .and. len_trim(this%alphat_field_name) .eq. 0 ) then
+       nut => neko_registry%get_field(this%nut_field_name)
 
        ! lambda_tot = lambda + rho * cp * nut / pr_turb
-       call neko_scratch_registry%request_field(lambda_factor, index)
-       call field_col3(lambda_factor, this%cp, this%rho)
+       call neko_scratch_registry%request_field(lambda_factor, index, .false.)
        call field_cmult2(lambda_factor, nut, 1.0_rp / this%pr_turb)
+       call field_col2(lambda_factor, this%cp)
+       call field_col2(lambda_factor, this%rho)
        call field_add3(this%lambda_tot, this%lambda, lambda_factor)
        call neko_scratch_registry%relinquish_field(index)
+
+    else if (len_trim(this%alphat_field_name) .gt. 0 &
+         .and. len_trim(this%nut_field_name) .eq. 0 ) then
+       alphat => neko_registry%get_field(this%alphat_field_name)
+
+       ! lambda_tot = lambda + rho * cp * alphat
+       call neko_scratch_registry%request_field(lambda_factor, index, .false.)
+       call field_col3(lambda_factor, this%cp, alphat)
+       call field_col2(lambda_factor, this%rho)
+       call field_add3(this%lambda_tot, this%lambda, lambda_factor)
+       call neko_scratch_registry%relinquish_field(index)
+
+    else if (len_trim(this%alphat_field_name) .gt. 0 &
+         .and. len_trim(this%nut_field_name) .gt. 0 ) then
+       call neko_error("Conflicting definition of eddy diffusivity " // &
+            "for the scalar equation")
     end if
 
     ! Since cp is a fields and we use the %x(1,1,1,1) of the
@@ -527,12 +558,12 @@ contains
 
     ! Fill lambda field with the physical value
 
-    call neko_field_registry%add_field(this%dm_Xh, this%name // "_lambda")
-    call neko_field_registry%add_field(this%dm_Xh, this%name // "_lambda_tot")
-    call neko_field_registry%add_field(this%dm_Xh, this%name // "_cp")
-    this%lambda => neko_field_registry%get_field(this%name // "_lambda")
-    this%lambda_tot => neko_field_registry%get_field(this%name // "_lambda_tot")
-    this%cp => neko_field_registry%get_field(this%name // "_cp")
+    call neko_registry%add_field(this%dm_Xh, this%name // "_lambda")
+    call neko_registry%add_field(this%dm_Xh, this%name // "_lambda_tot")
+    call neko_registry%add_field(this%dm_Xh, this%name // "_cp")
+    this%lambda => neko_registry%get_field(this%name // "_lambda")
+    this%lambda_tot => neko_registry%get_field(this%name // "_lambda_tot")
+    this%cp => neko_registry%get_field(this%name // "_cp")
 
     call this%material_properties%init(2)
     call this%material_properties%assign(1, this%cp)

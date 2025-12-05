@@ -39,7 +39,7 @@ module spalding
   use coefs, only : coef_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use wall_model, only : wall_model_t
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use json_utils, only : json_get_or_default
   use spalding_cpu, only : spalding_compute_cpu
   use spalding_device, only : spalding_compute_device
@@ -165,7 +165,7 @@ contains
     type(field_t), pointer :: temp
     integer :: idx
 
-    call neko_scratch_registry%request_field(temp, idx)
+    call neko_scratch_registry%request_field(temp, idx, .false.)
     call field_invcol3(temp, this%mu, this%rho)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -202,9 +202,9 @@ contains
 
     call this%compute_nu()
 
-    u => neko_field_registry%get_field("u")
-    v => neko_field_registry%get_field("v")
-    w => neko_field_registry%get_field("w")
+    u => neko_registry%get_field("u")
+    v => neko_registry%get_field("v")
+    w => neko_registry%get_field("w")
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call spalding_compute_device(u%x_d, v%x_d, w%x_d, this%ind_r_d, &

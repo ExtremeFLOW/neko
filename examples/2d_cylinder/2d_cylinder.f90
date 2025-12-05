@@ -24,7 +24,7 @@ contains
 
     ! set the w component to zero to avoid any 3D instability
     ! in this quasi-2D flow
-    w => neko_field_registry%get_field("w")
+    w => neko_registry%get_field("w")
     call field_rzero(w)
 
   end subroutine compute

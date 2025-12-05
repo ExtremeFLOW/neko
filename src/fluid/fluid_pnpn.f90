@@ -35,7 +35,7 @@ module fluid_pnpn
   use, intrinsic :: iso_fortran_env, only: error_unit
   use coefs, only : coef_t
   use symmetry, only : symmetry_t
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use logger, only: neko_log, LOG_SIZE
   use num_types, only : rp
   use krylov, only : ksp_monitor_t
@@ -47,6 +47,7 @@ module fluid_pnpn
        rhs_maker_ext_fctry, rhs_maker_oifs_fctry
   use fluid_volflow, only : fluid_volflow_t
   use fluid_scheme_incompressible, only : fluid_scheme_incompressible_t
+  use scratch_registry, only : neko_scratch_registry
   use device_mathops, only : device_opcolv, device_opadd2cm
   use fluid_aux, only : fluid_step_info
   use projection, only : projection_t
@@ -266,8 +267,8 @@ contains
 
     ! Add pressure field to the registry. For this scheme it is in the same
     ! Xh as the velocity
-    call neko_field_registry%add_field(this%dm_Xh, 'p')
-    this%p => neko_field_registry%get_field('p')
+    call neko_registry%add_field(this%dm_Xh, 'p')
+    this%p => neko_registry%get_field('p')
 
     !
     ! Select governing equations via associated residual and Ax types
@@ -1120,8 +1121,7 @@ contains
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
-    call this%scratch%request_field(bdry_field, temp_index)
-    bdry_field = 0.0_rp
+    call neko_scratch_registry%request_field(bdry_field, temp_index, .true.)
 
 
 
@@ -1207,7 +1207,7 @@ contains
     call bdry_file%init('bdry.fld')
     call bdry_file%write(bdry_field)
 
-    call this%scratch%relinquish_field(temp_index)
+    call neko_scratch_registry%relinquish_field(temp_index)
   end subroutine fluid_pnpn_write_boundary_conditions
 
 end module fluid_pnpn

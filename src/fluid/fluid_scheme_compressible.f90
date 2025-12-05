@@ -35,12 +35,12 @@ module fluid_scheme_compressible
   use field_math, only : field_cfill, field_col2, field_col3, &
        field_cmult2, field_cmult, field_addcol3, field_add2
 
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use fluid_scheme_base, only : fluid_scheme_base_t
   use json_module, only : json_file
   use num_types, only : rp
   use mesh, only : mesh_t
-  use scratch_registry, only : scratch_registry_t
+  use scratch_registry, only : neko_scratch_registry
   use space, only : GLL
   use user_intf, only : user_t
   use json_utils, only : json_get_or_default
@@ -74,8 +74,6 @@ module fluid_scheme_compressible
      integer(kind=i8) :: glb_n_points
      !> Global number of GLL points for the fluid (unique)
      integer(kind=i8) :: glb_unique_points
-
-     type(scratch_registry_t) :: scratch !< Manager for temporary fields
 
    contains
      !> Constructors
@@ -137,8 +135,8 @@ contains
 
     call this%c_Xh%init(this%gs_Xh)
 
-    ! Local scratch registry
-    call this%scratch%init(this%dm_Xh, 10, 2)
+    ! Assign Dofmap to scratch registry
+    call neko_scratch_registry%set_dofmap(this%dm_Xh)
 
     ! Case parameters
     this%params => params
@@ -147,50 +145,50 @@ contains
     call json_get_or_default(params, 'case.fluid.name', this%name, "fluid")
 
     ! Fill mu and rho field with the physical value
-    call neko_field_registry%add_field(this%dm_Xh, this%name // "_mu")
-    call neko_field_registry%add_field(this%dm_Xh, this%name // "_rho")
-    this%mu => neko_field_registry%get_field(this%name // "_mu")
-    this%rho => neko_field_registry%get_field(this%name // "_rho")
+    call neko_registry%add_field(this%dm_Xh, this%name // "_mu")
+    call neko_registry%add_field(this%dm_Xh, this%name // "_rho")
+    this%mu => neko_registry%get_field(this%name // "_mu")
+    this%rho => neko_registry%get_field(this%name // "_rho")
     call field_cfill(this%mu, 0.0_rp, this%mu%size())
 
     ! Assign momentum fields
-    call neko_field_registry%add_field(this%dm_Xh, "m_x")
-    call neko_field_registry%add_field(this%dm_Xh, "m_y")
-    call neko_field_registry%add_field(this%dm_Xh, "m_z")
-    this%m_x => neko_field_registry%get_field("m_x")
-    this%m_y => neko_field_registry%get_field("m_y")
-    this%m_z => neko_field_registry%get_field("m_z")
+    call neko_registry%add_field(this%dm_Xh, "m_x")
+    call neko_registry%add_field(this%dm_Xh, "m_y")
+    call neko_registry%add_field(this%dm_Xh, "m_z")
+    this%m_x => neko_registry%get_field("m_x")
+    this%m_y => neko_registry%get_field("m_y")
+    this%m_z => neko_registry%get_field("m_z")
     call this%m_x%init(this%dm_Xh, "m_x")
     call this%m_y%init(this%dm_Xh, "m_y")
     call this%m_z%init(this%dm_Xh, "m_z")
 
     ! Assign energy field
-    call neko_field_registry%add_field(this%dm_Xh, "E")
-    this%E => neko_field_registry%get_field("E")
+    call neko_registry%add_field(this%dm_Xh, "E")
+    this%E => neko_registry%get_field("E")
     call this%E%init(this%dm_Xh, "E")
 
     ! Assign maximum wave speed field
-    call neko_field_registry%add_field(this%dm_Xh, "max_wave_speed")
-    this%max_wave_speed => neko_field_registry%get_field("max_wave_speed")
+    call neko_registry%add_field(this%dm_Xh, "max_wave_speed")
+    this%max_wave_speed => neko_registry%get_field("max_wave_speed")
     call this%max_wave_speed%init(this%dm_Xh, "max_wave_speed")
 
     ! Assign entropy field
-    call neko_field_registry%add_field(this%dm_Xh, "S")
-    this%S => neko_field_registry%get_field("S")
+    call neko_registry%add_field(this%dm_Xh, "S")
+    this%S => neko_registry%get_field("S")
     call this%S%init(this%dm_Xh, "S")
 
     ! ! Assign velocity fields
-    call neko_field_registry%add_field(this%dm_Xh, "u")
-    call neko_field_registry%add_field(this%dm_Xh, "v")
-    call neko_field_registry%add_field(this%dm_Xh, "w")
-    this%u => neko_field_registry%get_field("u")
-    this%v => neko_field_registry%get_field("v")
-    this%w => neko_field_registry%get_field("w")
+    call neko_registry%add_field(this%dm_Xh, "u")
+    call neko_registry%add_field(this%dm_Xh, "v")
+    call neko_registry%add_field(this%dm_Xh, "w")
+    this%u => neko_registry%get_field("u")
+    this%v => neko_registry%get_field("v")
+    this%w => neko_registry%get_field("w")
     call this%u%init(this%dm_Xh, "u")
     call this%v%init(this%dm_Xh, "v")
     call this%w%init(this%dm_Xh, "w")
-    call neko_field_registry%add_field(this%dm_Xh, 'p')
-    this%p => neko_field_registry%get_field('p')
+    call neko_registry%add_field(this%dm_Xh, 'p')
+    this%p => neko_registry%get_field('p')
     call this%p%init(this%dm_Xh, "p")
 
     !
@@ -293,7 +291,7 @@ contains
     integer :: temp_indices(1)
 
     n = this%dm_Xh%size()
-    call this%scratch%request_field(temp, temp_indices(1))
+    call neko_scratch_registry%request_field(temp, temp_indices(1), .false.)
 
     !> Initialize the momentum field
     call field_col3(this%m_x, this%u, this%rho)
@@ -310,7 +308,7 @@ contains
     call field_cmult(temp, 0.5_rp, n)
     call field_add2(this%E, temp, n)
 
-    call this%scratch%relinquish_field(temp_indices)
+    call neko_scratch_registry%relinquish_field(temp_indices)
 
     !> Compute initial maximum wave speed from initial conditions
     call this%compute_max_wave_speed()

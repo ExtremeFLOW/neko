@@ -35,7 +35,7 @@
 module sponge_source_term
   use num_types, only : rp, dp, sp
   use json_module, only : json_file
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use field, only : field_t
   use json_utils, only : json_get, json_get_or_default, json_get
   use utils, only : neko_error
@@ -123,7 +123,7 @@ contains
     real(kind=rp), allocatable :: amplitudes(:)
     character(len=:), allocatable :: baseflow_method
     character(len=:), allocatable :: read_str, fringe_registry_name, &
-            bf_registry_pref, dump_fname
+         bf_registry_pref, dump_fname
     character(len=NEKO_FNAME_LEN) :: fname, mesh_fname
     logical :: interpolate, dump_fields
     real(kind=rp), allocatable :: constant_value(:)
@@ -219,7 +219,7 @@ contains
     real(kind=rp), intent(in) :: start_time, end_time
     real(kind=rp), intent(in) :: amplitudes(:)
     character(len=*), intent(in) :: fringe_registry_name, dump_fname, &
-            bf_registry_pref
+         bf_registry_pref
     logical, intent(in) :: dump_fields
     real(kind=rp), intent(in) :: constant_values(:)
 
@@ -236,16 +236,16 @@ contains
     call neko_log%message("Initializing bf fields", &
          lvl = NEKO_LOG_DEBUG)
 
-    call neko_field_registry%add_field(this%u%dof, &
-            trim(bf_registry_pref) // "_u")
-    call neko_field_registry%add_field(this%v%dof, &
-            trim(bf_registry_pref) // "_v")
-    call neko_field_registry%add_field(this%w%dof, &
-            trim(bf_registry_pref) // "_w")
+    call neko_registry%add_field(this%u%dof, &
+         trim(bf_registry_pref) // "_u")
+    call neko_registry%add_field(this%v%dof, &
+         trim(bf_registry_pref) // "_v")
+    call neko_registry%add_field(this%w%dof, &
+         trim(bf_registry_pref) // "_w")
 
-    this%u_bf => neko_field_registry%get_field(trim(bf_registry_pref) // "_u")
-    this%v_bf => neko_field_registry%get_field(trim(bf_registry_pref) // "_v")
-    this%w_bf => neko_field_registry%get_field(trim(bf_registry_pref) // "_w")
+    this%u_bf => neko_registry%get_field(trim(bf_registry_pref) // "_u")
+    this%v_bf => neko_registry%get_field(trim(bf_registry_pref) // "_v")
+    this%w_bf => neko_registry%get_field(trim(bf_registry_pref) // "_w")
 
     !
     ! Assign constant values
@@ -268,7 +268,7 @@ contains
     real(kind=rp), intent(in) :: start_time, end_time
     real(kind=rp), intent(in) :: amplitudes(:)
     character(len=*), intent(in) :: fringe_registry_name, dump_fname, &
-            bf_registry_pref
+         bf_registry_pref
     logical, intent(in) :: dump_fields
     character(len=*), intent(in) :: file_name
     logical, intent(in) :: interpolate
@@ -291,16 +291,16 @@ contains
     call neko_log%message("Initializing bf fields", &
          lvl = NEKO_LOG_DEBUG)
 
-    call neko_field_registry%add_field(this%u%dof, &
-            trim(bf_registry_pref) // "_u")
-    call neko_field_registry%add_field(this%v%dof, &
-            trim(bf_registry_pref) // "_v")
-    call neko_field_registry%add_field(this%w%dof, &
-            trim(bf_registry_pref) // "_w")
+    call neko_registry%add_field(this%u%dof, &
+         trim(bf_registry_pref) // "_u")
+    call neko_registry%add_field(this%v%dof, &
+         trim(bf_registry_pref) // "_v")
+    call neko_registry%add_field(this%w%dof, &
+         trim(bf_registry_pref) // "_w")
 
-    this%u_bf => neko_field_registry%get_field(trim(bf_registry_pref) // "_u")
-    this%v_bf => neko_field_registry%get_field(trim(bf_registry_pref) // "_v")
-    this%w_bf => neko_field_registry%get_field(trim(bf_registry_pref) // "_w")
+    this%u_bf => neko_registry%get_field(trim(bf_registry_pref) // "_u")
+    this%v_bf => neko_registry%get_field(trim(bf_registry_pref) // "_v")
+    this%w_bf => neko_registry%get_field(trim(bf_registry_pref) // "_w")
 
     !
     ! Use the initial condition field subroutine to set a field as baseflow
@@ -341,7 +341,7 @@ contains
     real(kind=rp), intent(in) :: start_time, end_time
     real(kind=rp), intent(in) :: amplitudes(:)
     character(len=*), intent(in) :: fringe_registry_name, dump_fname, &
-            bf_registry_pref
+         bf_registry_pref
     logical, intent(in) :: dump_fields
 
     !
@@ -363,7 +363,7 @@ contains
     real(kind=rp), intent(in) :: start_time, end_time
     real(kind=rp), intent(in) :: amplitudes(:)
     character(len=*), intent(in) :: fringe_registry_name, dump_fname, &
-            bf_registry_pref
+         bf_registry_pref
     logical, intent(in) :: dump_fields
 
     integer :: i
@@ -384,9 +384,9 @@ contains
 
     call neko_log%message("Pointing at fields u,v,w", &
          lvl = NEKO_LOG_DEBUG)
-    this%u => neko_field_registry%get_field_by_name("u")
-    this%v => neko_field_registry%get_field_by_name("v")
-    this%w => neko_field_registry%get_field_by_name("w")
+    this%u => neko_registry%get_field_by_name("u")
+    this%v => neko_registry%get_field_by_name("v")
+    this%w => neko_registry%get_field_by_name("w")
 
   end subroutine sponge_init_common
 
@@ -447,9 +447,9 @@ contains
        w_name = trim(this%bf_rgstry_pref) // "_w"
 
        ! Check if all the base flow fields exist in the registry
-       this%baseflow_set = neko_field_registry%field_exists(trim(u_name)) &
-               .and. neko_field_registry%field_exists(trim(v_name)) .and. &
-               neko_field_registry%field_exists(trim(w_name))
+       this%baseflow_set = neko_registry%field_exists(trim(u_name)) &
+            .and. neko_registry%field_exists(trim(v_name)) .and. &
+            neko_registry%field_exists(trim(w_name))
 
        if (.not. this%baseflow_set) then
           call neko_error("SPONGE: No baseflow set (searching for " // &
@@ -457,7 +457,7 @@ contains
        end if
 
        ! Check if the user has added the fringe field in the registry
-       if (.not. neko_field_registry%field_exists( &
+       if (.not. neko_registry%field_exists( &
             trim(this%fringe_registry_name))) then
           call neko_error("SPONGE: No fringe field set (" // &
                this%fringe_registry_name // " not found)")
@@ -466,13 +466,13 @@ contains
        ! This will throw an error if the user hasn't added 'sponge_fringe'
        ! to the registry.
        this%fringe => &
-            neko_field_registry%get_field(trim(this%fringe_registry_name))
+            neko_registry%get_field(trim(this%fringe_registry_name))
 
        ! This will throw an error if the user hasn't added the base flow fields
        ! to the registry.
-       this%u_bf => neko_field_registry%get_field(trim(u_name))
-       this%v_bf => neko_field_registry%get_field(trim(v_name))
-       this%w_bf => neko_field_registry%get_field(trim(w_name))
+       this%u_bf => neko_registry%get_field(trim(u_name))
+       this%v_bf => neko_registry%get_field(trim(v_name))
+       this%w_bf => neko_registry%get_field(trim(w_name))
 
        ! Reset the flag
        this%check = .false.
@@ -500,7 +500,7 @@ contains
     fv => this%fields%get(2)
     fw => this%fields%get(3)
 
-    call neko_scratch_registry%request_field(wk, tmp_index)
+    call neko_scratch_registry%request_field(wk, tmp_index, .false.)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        ! wk = u_bf - u
