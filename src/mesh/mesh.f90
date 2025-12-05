@@ -54,6 +54,7 @@ module mesh
        MPI_Get_count, MPI_Sendrecv
   use uset, only : uset_i8_t
   use curve, only : curve_t
+  use mesh_conn, only : mesh_conn_t
   use logger, only : LOG_SIZE
   use, intrinsic :: iso_fortran_env, only: error_unit
   implicit none
@@ -72,29 +73,48 @@ module mesh
      integer :: nelv !< Number of elements
      integer :: npts !< Number of points per element
      integer :: gdim !< Geometric dimension
-     integer :: mpts !< Number of (unique) points in the mesh
-     integer :: mfcs !< Number of (unique) faces in the mesh
-     integer :: meds !< Number of (unique) edges in the mesh
 
      integer :: glb_nelv !< Global number of elements
-     integer :: glb_mpts !< Global number of unique points
-     integer :: glb_mfcs !< Global number of unique faces
-     integer :: glb_meds !< Global number of unique edges
-
      integer :: offset_el !< Element offset
-     integer :: max_pts_id !< Max local point id
+     integer :: max_pts_id !< Max local point id; not used
+
+     type(htable_i4_t) :: htel !< Table of unique elements (global->local)
+
+     ! geometrical context
+     integer :: gpts !< Number of (unique) points in the mesh (local)
 
      type(point_t), allocatable :: points(:) !< list of points
      type(mesh_element_t), allocatable :: elements(:) !< List of elements
      logical, allocatable :: dfrmd_el(:) !< List of elements
 
+     ! connectivity context
+     integer :: mpts !< Number of (unique) points in the mesh
+     integer :: mfcs !< Number of (unique) faces in the mesh
+     integer :: meds !< Number of (unique) edges in the mesh
+
+     integer :: glb_mpts !< Global number of unique points
+     integer :: glb_mfcs !< Global number of unique faces
+     integer :: glb_meds !< Global number of unique edges
+
+     ! connectivity information including element objects mapping
+     type(mesh_conn_t) :: conn
+
+     logical, allocatable :: neigh(:) !< Neighbouring ranks
+     integer, allocatable :: neigh_order(:) !< Neighbour order
+
+     integer, allocatable :: facet_neigh(:,:) !< Facet to neigh. element table
+
+     ! boundary condition and curvature
+     integer(2), allocatable :: facet_type(:,:) !< Facet type
+
+     type(facet_zone_t), allocatable :: labeled_zones(:) !< Zones with labeled facets
+     type(facet_zone_periodic_t) :: periodic !< Zones with periodic facets
+     type(curve_t) :: curve !< Set of curved elements
+
+     ! used in mesh.f90 only
      type(htable_i4_t) :: htp !< Table of unique points (global->local)
      type(htable_i4t4_t) :: htf !< Table of unique faces (facet->local id)
      type(htable_i4t2_t) :: hte !< Table of unique edges (edge->local id)
-     type(htable_i4_t) :: htel !< Table of unique elements (global->local)
-
-
-     integer, allocatable :: facet_neigh(:,:) !< Facet to neigh. element table
 
      !> Facet to element's id tuple and the mapping of the
      !! points between lower id element and higher
@@ -103,14 +123,6 @@ module mesh
      type(stack_i4_t), allocatable :: point_neigh(:) !< Point to neigh. table
 
      type(distdata_t) :: ddata !< Mesh distributed data
-     logical, allocatable :: neigh(:) !< Neighbouring ranks
-     integer, allocatable :: neigh_order(:) !< Neighbour order
-
-     integer(2), allocatable :: facet_type(:,:) !< Facet type
-
-     type(facet_zone_t), allocatable :: labeled_zones(:) !< Zones with labeled facets
-     type(facet_zone_periodic_t) :: periodic !< Zones with periodic facets
-     type(curve_t) :: curve !< Set of curved elements
 
      logical :: lconn = .false. !< valid connectivity
      logical :: ldist = .false. !< valid distributed data
@@ -178,7 +190,7 @@ module mesh
      end subroutine mesh_deform
   end interface
 
-  public :: mesh_deform, parallelepiped_signed_volume
+  public :: mesh_deform, parallelepiped_signed_volume, mesh_generate_flags
 
 
 contains
@@ -317,6 +329,7 @@ contains
     allocate(this%neigh(0:pe_size-1))
     this%neigh = .false.
 
+    this%gpts = 0
     this%mpts = 0
     this%mfcs = 0
     this%meds = 0
@@ -327,6 +340,8 @@ contains
   subroutine mesh_free(this)
     class(mesh_t), intent(inout) :: this
     integer :: i
+
+    call this%conn%free()
 
     call this%htp%free()
     call this%htf%free()
@@ -362,11 +377,12 @@ contains
     end if
 
     if (allocated(this%point_neigh)) then
-       do i = 1, this%gdim * this%npts * this%nelv
+       do i = 1, size(this%point_neigh)
           call this%point_neigh(i)%free()
        end do
        ! This causes Cray Fortran to take a long vacation
-       !deallocate(this%point_neigh)
+       ! but this is needed by AMR
+       deallocate(this%point_neigh)
     end if
 
     if (allocated(this%facet_type)) then
@@ -405,6 +421,13 @@ contains
 
     call mesh_generate_flags(this)
     call mesh_generate_conn(this)
+
+    ! Originally neko does not distinguish between geometrical and connectivity
+    ! points
+    this%mpts = this%gpts
+
+    ! get connectivity mappings
+    call mesh_generate_conn_mapping(this)
 
     call this%periodic%finalize()
     do i = 1, NEKO_MSH_MAX_ZLBLS
@@ -848,11 +871,11 @@ contains
     integer, contiguous, pointer :: neighs(:)
 
 
-    call send_buffer%init(this%mpts * 2)
+    call send_buffer%init(this%gpts * 2)
 
     ! Build send buffers containing
     ! [pt_glb_idx, #neigh, neigh id_1 ....neigh_id_n]
-    do i = 1, this%mpts
+    do i = 1, this%gpts
        pt_glb_idx = this%points(i)%id() ! Adhere to standards...
        num_neigh = this%point_neigh(i)%size()
        call send_buffer%push(pt_glb_idx)
@@ -1384,6 +1407,154 @@ contains
 
   end subroutine mesh_generate_facet_numbering
 
+  subroutine mesh_generate_conn_mapping(this)
+    type(mesh_t), intent(inout) :: this
+    integer :: nobj, loc_id, il, jl
+    integer(i8) :: gnum
+    integer, dimension(1) :: iv
+    integer(i8), allocatable, dimension(:) :: gidx
+    logical, allocatable, dimension(:) :: share
+    integer, allocatable, dimension(:, :) :: map, algn
+    type(tuple4_i4_t) :: face, face_order
+    type(tuple_i4_t) :: edge, edge_order
+
+    ! general info
+    call this%conn%init(this%gdim, this%nelv)
+
+    ! Get vertex mapping
+    nobj = 2**this%gdim
+    allocate(gidx(this%mpts), share(this%mpts), map(nobj, this%nelv))
+    gnum = this%glb_mpts
+    gidx(:) = 0
+    share(:) = .false.
+    do il = 1, this%mpts
+       gidx(il) = int(this%points(il)%id(), i8)
+       share(il) = this%is_shared(this%points(il))
+    end do
+    do il = 1, this%nelv
+       do jl = 1, nobj
+          map(jl, il) = this%get_local(this%elements(il)%e%pts(jl)%p)
+       end do
+    end do
+    call this%conn%vrt%init(this%mpts, gnum, this%nelv, nobj, gidx, share, map)
+    deallocate(gidx, share, map)
+
+    ! Get face mapping
+    nobj = 2*this%gdim
+    allocate(gidx(this%mfcs), share(this%mfcs), map(nobj, this%nelv), &
+         algn(nobj, this%nelv))
+    gnum = this%glb_mfcs
+    gidx(:) = 0
+    share(:) = .false.
+    algn(:, :) = 0
+    do il = 1, this%nelv
+       select type (ep => this%elements(il)%e)
+       type is (hex_t)
+          do jl = 1, nobj
+             call ep%facet_id(face, jl)
+             call ep%facet_order(face_order, jl)
+             loc_id = this%get_local(face)
+             map(jl, il) = loc_id
+             ! Face alignment is based on the global vertex numbering, so
+             ! not related to data alignment, but it is not trivial to get
+             ! consistent global alignment, so for now I leave it this way.
+             ! IT HAS TO BE CHANGED FOR MESH CONVERTER.
+             ! The first face vertex is set by the smallest value of the vertex
+             ! global id, and the second by the neighbour of the first vertex
+             ! with smallest global id
+             ! possible swap between 3 and 4
+             ! Remember Neko uses circular notation for face nodes!!!!!!!
+             ! There seems to be some inconsistency in face edge circulation for
+             ! faces 1 and 2!!!!!!
+             vertex_swap : block
+               integer itmp
+               ! swap vertex positions for faces 1 and 2
+               if (jl .eq. 1 .or. jl .eq. 2) then
+                  itmp = face_order%x(2)
+                  face_order%x(2) = face_order%x(4)
+                  face_order%x(4) = itmp
+               end if
+             end block vertex_swap
+             iv = minloc(face_order%x)
+             select case (iv(1))
+             case (1)
+                if (face_order%x(2) .lt. face_order%x(4)) then
+                   algn(jl, il) = 0 ! identity
+                else
+                   algn(jl, il) = 1 ! transpose
+                end if
+             case (2)
+                if (face_order%x(1) .lt. face_order%x(3)) then
+                   algn(jl, il) = 2 ! permutation in X
+                else
+                   ! it is swapped in dofmap
+                   algn(jl, il) = 4!3 ! permutation in X; transpose; inverse of 4
+                end if
+             case (3)
+                if (face_order%x(2) .lt. face_order%x(4)) then
+                   algn(jl, il) = 6 ! permutation in Y; X; transpose
+                else
+                   algn(jl, il) = 7 ! permutation in Y; X
+                end if
+             case (4)
+                if (face_order%x(1) .lt. face_order%x(3)) then
+                   ! it is swapped in dofmap
+                   algn(jl, il) = 3!4 ! permutation in Y; transpose; inverse of 3
+                else
+                   algn(jl, il) = 5 ! permutation in Y
+                end if
+             end select
+             ! this part could be done better
+             gidx(loc_id) = this%get_global(face)
+             share(loc_id) = this%is_shared(face)
+          end do
+       type is (quad_t)
+          call neko_error('Nothing done for quad for conn mapping.')
+       end select
+    end do
+    call this%conn%fcs%init(this%mfcs, gnum, this%nelv, nobj, gidx, share, &
+         map, algn = algn)
+    deallocate(gidx, share, map, algn)
+
+    ! Get edge mapping
+    if (this%gdim .eq. 3) then
+       nobj = 12
+       allocate(gidx(this%meds), share(this%meds), map(nobj, this%nelv), &
+            algn(nobj, this%nelv))
+       gnum = this%glb_meds
+       gidx(:) = 0
+       share(:) = .false.
+       algn(:, :) = 0
+       do il = 1, this%nelv
+          select type (ep => this%elements(il)%e)
+          type is (hex_t)
+             do jl = 1, nobj
+                call ep%edge_id(edge, jl)
+                call ep%edge_order(edge_order, jl)
+                loc_id = this%get_local(edge)
+                map(jl, il) = loc_id
+                ! Edge alignment is based on the global vertex numbering, so
+                ! not related to data alignment, but it is not trivial to get
+                ! consistent global alignment, so for now I leave it this way.
+                if (edge%x(1) .eq. edge_order%x(1)) then
+                   algn(jl, il) = 0 ! identity
+                else
+                   algn(jl, il) = 1 ! permutation
+                end if
+                ! this part could be done better
+                gidx(loc_id) = this%get_global(edge)
+                share(loc_id) = this%is_shared(edge)
+             end do
+          type is (quad_t)
+             call neko_error('Nothing done for quad for conn mapping.')
+          end select
+       end do
+       call this%conn%edg%init(this%meds, gnum, this%nelv, nobj, gidx, &
+            share, map, algn = algn)
+       deallocate(gidx, share, map, algn)
+    end if
+
+  end subroutine mesh_generate_conn_mapping
 
   !> Add a quadrilateral element to the mesh @a this
   subroutine mesh_add_quad(this, el, el_glb, p1, p2, p3, p4)
@@ -1473,10 +1644,10 @@ contains
     end if
 
     if (this%htp%get(tmp, idx) .gt. 0) then
-       this%mpts = this%mpts + 1
-       call this%htp%set(tmp, this%mpts)
-       this%points(this%mpts) = p
-       idx = this%mpts
+       this%gpts = this%gpts + 1
+       call this%htp%set(tmp, this%gpts)
+       this%points(this%gpts) = p
+       idx = this%gpts
     end if
 
   end subroutine mesh_add_point

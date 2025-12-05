@@ -420,7 +420,7 @@ contains
 
        translation = - scaling * mesh_box%get_min() + target_box%get_min()
 
-       do idx_p = 1, boundary_mesh%mpts
+       do idx_p = 1, boundary_mesh%gpts
           boundary_mesh%points(idx_p)%x = &
                scaling * boundary_mesh%points(idx_p)%x + translation
        end do

@@ -68,6 +68,7 @@ module hex
      procedure, pass(this) :: diameter => hex_diameter
      procedure, pass(this) :: centroid => hex_centroid
      procedure, pass(this) :: edge_id => hex_edge_id
+     procedure, pass(this) :: edge_order => hex_edge_order
      procedure, pass(this) :: equal => hex_equal
      generic :: operator(.eq.) => equal
   end type hex_t
@@ -221,6 +222,24 @@ contains
     end select
 
   end subroutine hex_edge_id
+
+  !> Return the ordered points for an edge @a i as a 2-tuple @a t
+  subroutine hex_edge_order(this, t, side)
+    class(hex_t), intent(in) :: this
+    class(tuple_t), intent(inout) :: t
+    integer, intent(in) :: side
+    type(point_t), pointer :: p1,p2
+
+    p1 => this%p(edge_nodes(1, side))
+    p2 => this%p(edge_nodes(2, side))
+
+    select type(t)
+    type is(tuple_i4_t)
+       t%x = (/ p1%id(), p2%id() /)
+
+    end select
+
+  end subroutine hex_edge_order
 
   !> Compute the diameter of a hexahedron element
   function hex_diameter(this) result(res)
