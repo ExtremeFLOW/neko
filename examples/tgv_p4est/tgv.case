@@ -1,0 +1,67 @@
+{
+    "version": 1.0,
+    "case":
+    {
+        "mesh_file": "512.nmsh",
+        "mesh_manager": {
+            "type": "p4est",
+            "tree_file": "512.tree",
+            "ref_level_max": 2,
+	    "log_level": 0
+        },
+	"runtime_statistics" : {
+            "enabled" : true
+	},
+        "output_boundary": true,
+        "output_checkpoints": false,
+        "output_at_end": true,
+        "load_balance": false,
+        "job_timelimit": "00:00:00",
+        "time": {
+            "end_time": 0.5,
+            "timestep": 1e-2
+        },
+        "numerics": {
+            "time_order": 3,
+            "polynomial_order": 7,
+            "dealias": true
+        },
+        "fluid": {
+            "scheme": "pnpn",
+            "Re": 360,
+            "initial_condition": {
+                "type": "user"
+            },
+            "velocity_solver": {
+                "type": "cg",
+                "preconditioner": {
+                    "type": "jacobi"
+                },
+                "projection_space_size": 0,
+                "absolute_tolerance": 1e-7,
+                "max_iterations": 800
+            },
+            "pressure_solver": {
+                "type": "gmres",
+                "preconditioner": {
+                    "type": "hsmg"
+                },
+                "projection_space_size": 20,
+                "absolute_tolerance": 1e-4,
+                "max_iterations": 800
+            },
+            "output_control": "simulationtime",
+            "output_value": 1
+        },
+        "simulation_components":
+        [
+            {
+                "type": "curl",
+                "fields": [ "u", "v", "w" ],
+                "computed_field": "omega",
+                "compute_control": "tsteps",
+                "compute_value": 50
+            }
+        ]
+    }
+}
