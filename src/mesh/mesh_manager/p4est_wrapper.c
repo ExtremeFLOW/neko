@@ -57,12 +57,8 @@
 
 /* Global variables
  *  Notice. I use tree_neko->user_pointer to store ghost quadrants data.
- *  Moreover, to get a proper list of independent nodes in geometrical
- *  context for periodic domains I use proper non-periodic connectivity.
- *  This is just a hack, but it works.
  */
 static p4est_connectivity_t *connect_neko = NULL; /**< connectivity structure */
-static p4est_connectivity_t *conn_np_neko = NULL; /**< non-periodic connect. */
 static p4est_t *tree_neko = NULL; /**< tree structure */
 static p4est_mesh_t *mesh_neko = NULL; /**< mesh structure */
 static p4est_ghost_t *ghost_neko = NULL; /**< ghost zone structure */
@@ -157,16 +153,10 @@ void wp4est_cnn_rot_cubes() {
 void wp4est_cnn_del() {
   if (connect_neko != NULL) p4est_connectivity_destroy(connect_neko);
   connect_neko =  NULL;
-  if (conn_np_neko != NULL) p4est_connectivity_destroy(conn_np_neko);
-  conn_np_neko =  NULL;
 }
 
 void wp4est_cnn_valid(int * is_valid) {
   *is_valid = p4est_connectivity_is_valid(connect_neko);
-}
-
-void wp4est_cnn_np_valid(int * is_valid) {
-  *is_valid = p4est_connectivity_is_valid(conn_np_neko);
 }
 
 void wp4est_cnn_attr(int * enable_tree_attr) {
@@ -184,11 +174,6 @@ void wp4est_cnn_save(char filename[]) {
 void wp4est_cnn_load(char filename[]) {
   if (connect_neko != NULL) p4est_connectivity_destroy(connect_neko);
   connect_neko = p4est_connectivity_load(filename, NULL);
-}
-
-void wp4est_cnn_np_load(char filename[]) {
-  if (conn_np_neko != NULL) p4est_connectivity_destroy(conn_np_neko);
-  conn_np_neko = p4est_connectivity_load(filename, NULL);
 }
 
 /* geometry_ management */
@@ -269,15 +254,6 @@ void wp4est_tree_load(char filename[]) {
 			     1, 1, NULL, &connect_neko);
   // As the quad data is not loaded from the file, one has to reset memory
   p4est_reset_data (tree_neko, sizeof(user_data_t), init_msh_dat, NULL);
-}
-
-/* to get rid of periodic bc for independent node operation*/
-void wp4est_tree_cnn_swap(){
-  tree_neko->connectivity = conn_np_neko;
-}
-
-void wp4est_tree_cnn_swap_back(){
-  tree_neko->connectivity = connect_neko;
 }
 
 /* tree and grid info */
@@ -866,18 +842,217 @@ void wp4est_nds_get_hed(int * depend, double * ncoord) {
 }
 
 /* get vertex to node mapping */
-void wp4est_nds_get_vmap(int * vmap) {
-  int il, jl;
+void wp4est_nds_get_vmap(int * vmap, double * vcoord, double * tol) {
+  int il, jl, xi, yi, zi, inp, fhp, ehp, itmp;
+  double dst;
+  p4est_topidx_t jt, first_local_tree, last_local_tree, node_tree;
+  p4est_locidx_t nind, nfhng, nehng, quad_count, ndid;
+  sc_array_t *trees, *quadrants, *nodes_ind, *nodes_fhng, *nodes_ehng;
+  p4est_tree_t *tree;
+  size_t num_quads, zz;
+  p4est_quadrant_t *quad;
+  p4est_indep_t *node_ind;
+#ifdef P4_TO_P8
+  p8est_hang4_t *node_fcs;
+  p8est_hang2_t *node_edg;
+#else
+  p4est_hang2_t *node_fcs;
+#endif
+  p4est_qcoord_t level, qx, qy, qz = 0;
+  double xyz[3], nxyz[3];   /* 3 not P4EST_DIM */
 
   if (nodes_neko != NULL) {
-    // number of local elements
-    const int vi = (int) nodes_neko->num_local_quadrants;
-    // quad to vertex local map
-    // conversion to fortran numbering
-    for (il = 0; il < vi; ++il) {
-      for (jl = 0; jl < P4EST_CHILDREN; ++jl) {
-	vmap[il * P4EST_CHILDREN + jl] = (int)
-	  nodes_neko->local_nodes[il * P4EST_CHILDREN + jl] + 1;
+    // trees
+    trees = tree_neko->trees;
+    first_local_tree = tree_neko->first_local_tree;
+    last_local_tree = tree_neko->last_local_tree;
+    // nodes
+    nodes_ind = &nodes_neko->indep_nodes;
+    nind = nodes_ind->elem_count;
+    nodes_fhng = &nodes_neko->face_hangings;
+    nfhng = nodes_fhng->elem_count;
+    nodes_ehng = &nodes_neko->edge_hangings;
+    nehng = nodes_ehng->elem_count;
+    /* quad to vertex local map with conversion to fortran numbering
+     * marking periodic nodes */
+    // loop over the trees
+    for (jt = first_local_tree, quad_count = 0; jt <= last_local_tree; ++jt) {
+      tree = p4est_tree_array_index (trees, jt);
+      quadrants = &tree->quadrants;
+      num_quads = quadrants->elem_count;
+      // loop over quads in a tree
+      for (zz = 0; zz < num_quads; ++zz, ++quad_count) {
+	quad = p4est_quadrant_array_index (quadrants, zz);
+	level = P4EST_QUADRANT_LEN (quad->level);
+	// count vertices
+	il = 0;
+#ifdef P4_TO_P8
+	for (zi = 0; zi < 2; ++zi) {
+	  qz = quad->z + level * zi;
+#endif
+	  for (yi = 0; yi < 2; ++yi) {
+	    qy = quad->y + level * yi;
+	    for (xi = 0; xi < 2; ++xi) {
+	      qx = quad->x + level * xi;
+	      // node id
+	      ndid = nodes_neko->local_nodes[quad_count * P4EST_CHILDREN + il];
+	      // set map array
+	      vmap[quad_count * P4EST_CHILDREN + il] = (int) ndid + 1;
+	      /* check periodicity comparing the node and the quad vertex
+	       * positions*/
+	      // check node type
+	      if (ndid < nind) {
+		// independent node
+		node_ind = sc_array_index(nodes_ind, ndid);
+		node_tree = node_ind->p.piggy3.which_tree;
+		// check if it is consistent with quad vertex
+		if (jt == node_tree) {
+		  // the same tree
+		  if (qx != node_ind->x || qy != node_ind->y ||
+		      qz != node_ind->z) {
+		    // periodic boundary
+		    // get vertex coordinates
+		    p4est_qcoord_to_vertex (connect_neko, jt, qx, qy, qz, xyz);
+		    // Flag position in vmap and set coordinates
+		    itmp = quad_count * P4EST_CHILDREN + il;
+		    vmap[itmp] = - vmap[itmp];
+		    for (jl = 0; jl < N_DIM; ++jl) {
+		      vcoord[itmp * N_DIM + jl] = xyz[jl];
+		    }
+		  }
+		} else {
+		  /* With different trees I cannot simply compare integer
+		     coordinates, so let's compare real one. Not perfect, but
+		     it is difficult to do it better due to tree alignment. I
+		     cannot use it, as I want to exclude periodicity.
+		   */
+		  // get node coordinates
+		  p4est_qcoord_to_vertex (connect_neko, node_tree,
+					  node_ind->x, node_ind->y,
+					  node_ind->z, nxyz);
+		  // get vertex coordinates
+		  p4est_qcoord_to_vertex (connect_neko, jt, qx, qy, qz, xyz);
+		  for (jl = 0; jl < 3; ++jl) {
+		    nxyz[jl] = nxyz[jl] - xyz[jl];
+		  }
+		  // distance
+		  dst = sqrt(nxyz[0] * nxyz[0] + nxyz[1] * nxyz[1] +
+			     nxyz[2] * nxyz[2]);
+		  if (dst > *tol) {
+		    // Flag position in vmap and set coordinates
+		    itmp = quad_count * P4EST_CHILDREN + il;
+		    vmap[itmp] = - vmap[itmp];
+		    for (jl = 0; jl < N_DIM; ++jl) {
+		      vcoord[itmp * N_DIM + jl] = xyz[jl];
+		    }
+		  }
+		}
+	      } else if (ndid < nind + nfhng) {
+		// face hanging node
+		ndid = ndid - nind;
+		node_fcs = sc_array_index(nodes_fhng, ndid);
+		node_tree = node_fcs->p.piggy.which_tree;
+		// check if it is consistent with quad vertex
+		if (jt == node_tree) {
+		  // the same tree
+		  if (qx != node_fcs->x || qy != node_fcs->y ||
+		      qz != node_fcs->z) {
+		    // periodic boundary
+		    // get vertex coordinates
+		    p4est_qcoord_to_vertex (connect_neko, jt, qx, qy, qz, xyz);
+		    // Flag position in vmap and set coordinates
+		    itmp = quad_count * P4EST_CHILDREN + il;
+		    vmap[itmp] = - vmap[itmp];
+		    for (jl = 0; jl < N_DIM; ++jl) {
+		      vcoord[itmp * N_DIM + jl] = xyz[jl];
+		    }
+		  }
+		} else {
+		  /* With different trees I cannot simply compare integer
+		     coordinates, so let's compare real one. Not perfect, but
+		     it is difficult to do it better due to tree alignment. I
+		     cannot use it, as I want to exclude periodicity.
+		   */
+		  // get node coordinates
+		  p4est_qcoord_to_vertex (connect_neko, node_tree,
+					  node_fcs->x, node_fcs->y,
+					  node_fcs->z, nxyz);
+		  // get vertex coordinates
+		  p4est_qcoord_to_vertex (connect_neko, jt, qx, qy, qz, xyz);
+		  for (jl = 0; jl < 3; ++jl) {
+		    nxyz[jl] = nxyz[jl] - xyz[jl];
+		  }
+		  // distance
+		  dst = sqrt(nxyz[0] * nxyz[0] + nxyz[1] * nxyz[1] +
+			     nxyz[2] * nxyz[2]);
+		  if (dst > *tol) {
+		    // Flag position in vmap and set coordinates
+		    itmp = quad_count * P4EST_CHILDREN + il;
+		    vmap[itmp] = - vmap[itmp];
+		    for (jl = 0; jl < N_DIM; ++jl) {
+		      vcoord[itmp * N_DIM + jl] = xyz[jl];
+		    }
+		  }
+		}
+#ifdef P4_TO_P8
+	      } else if (ndid < nind + nfhng + nehng) {
+		// edge hanging node
+		ndid = ndid - nind - nfhng;
+		node_edg = sc_array_index(nodes_ehng, ndid);
+		node_tree = node_edg->p.piggy.which_tree;
+		// check if it is consistent with quad vertex
+		if (jt == node_tree) {
+		  // the same tree
+		  if (qx != node_edg->x || qy != node_edg->y ||
+		      qz != node_edg->z) {
+		    // periodic boundary
+		    // get vertex coordinates
+		    p4est_qcoord_to_vertex (connect_neko, jt, qx, qy, qz, xyz);
+		    // Flag position in vmap and set coordinates
+		    itmp = quad_count * P4EST_CHILDREN + il;
+		    vmap[itmp] = - vmap[itmp];
+		    for (jl = 0; jl < N_DIM; ++jl) {
+		      vcoord[itmp * N_DIM + jl] = xyz[jl];
+		    }
+		  }
+		} else {
+		  /* With different trees I cannot simply compare integer
+		     coordinates, so let's compare real one. Not perfect, but
+		     it is difficult to do it better due to tree alignment. I
+		     cannot use it, as I want to exclude periodicity.
+		   */
+		  // get node coordinates
+		  p4est_qcoord_to_vertex (connect_neko, node_tree,
+					  node_edg->x, node_edg->y,
+					  node_edg->z, nxyz);
+		  // get vertex coordinates
+		  p4est_qcoord_to_vertex (connect_neko, jt, qx, qy, qz, xyz);
+		  for (jl = 0; jl < 3; ++jl) {
+		    nxyz[jl] = nxyz[jl] - xyz[jl];
+		  }
+		  // distance
+		  dst = sqrt(nxyz[0] * nxyz[0] + nxyz[1] * nxyz[1] +
+			     nxyz[2] * nxyz[2]);
+		  if (dst > *tol) {
+		    // Flag position in vmap and set coordinates
+		    itmp = quad_count * P4EST_CHILDREN + il;
+		    vmap[itmp] = - vmap[itmp];
+		    for (jl = 0; jl < N_DIM; ++jl) {
+		      vcoord[itmp * N_DIM + jl] = xyz[jl];
+		    }
+		  }
+		}
+#endif
+	      } else {
+		SC_ABORT("Wrong node number; aborting: wp4est_nds_get_vmap\n");
+	      }
+	      // count vertices
+	      ++il;
+	    }
+	  }
+#ifdef P4_TO_P8
+	}
+#endif
       }
     }
   }else {
@@ -885,6 +1060,57 @@ void wp4est_nds_get_vmap(int * vmap) {
   }
 }
 
+/* get quad vertex coordinates; just linear interpolation */
+void wp4est_nds_get_vcoord(double * vcoord) {
+  int il, jl, xi, yi, zi, itmp;
+  p4est_topidx_t jt, first_local_tree, last_local_tree;
+  p4est_locidx_t quad_count;
+  sc_array_t *trees, *quadrants;
+  p4est_tree_t *tree;
+  size_t num_quads, zz;
+  p4est_quadrant_t *quad;
+  p4est_qcoord_t level, qx, qy, qz = 0;
+  double xyz[3];   /* 3 not P4EST_DIM */
+
+  // trees
+  trees = tree_neko->trees;
+  first_local_tree = tree_neko->first_local_tree;
+  last_local_tree = tree_neko->last_local_tree;
+  // loop over the trees
+  for (jt = first_local_tree, quad_count = 0; jt <= last_local_tree; ++jt) {
+    tree = p4est_tree_array_index (trees, jt);
+    quadrants = &tree->quadrants;
+    num_quads = quadrants->elem_count;
+    // loop over quads in a tree
+    for (zz = 0; zz < num_quads; ++zz, ++quad_count) {
+      quad = p4est_quadrant_array_index (quadrants, zz);
+      level = P4EST_QUADRANT_LEN (quad->level);
+      // count vertices
+      il = 0;
+#ifdef P4_TO_P8
+      for (zi = 0; zi < 2; ++zi) {
+	qz = quad->z + level * zi;
+#endif
+	for (yi = 0; yi < 2; ++yi) {
+	  qy = quad->y + level * yi;
+	  for (xi = 0; xi < 2; ++xi) {
+	    qx = quad->x + level * xi;
+	    // get vertex coordinates
+	    p4est_qcoord_to_vertex (connect_neko, jt, qx, qy, qz, xyz);
+	    itmp = quad_count * P4EST_CHILDREN + il;
+	    for (jl = 0; jl < N_DIM; ++jl) {
+	      vcoord[itmp * N_DIM + jl] = xyz[jl];
+	    }
+	    // count vertices
+	    ++il;
+	  }
+	}
+#ifdef P4_TO_P8
+      }
+#endif
+    }
+  }
+}
 
 /* data type for mesh data transfer between neko and p4est*/
 typedef struct transfer_data_s {

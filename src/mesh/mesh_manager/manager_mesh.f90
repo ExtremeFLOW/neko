@@ -40,6 +40,10 @@ module manager_mesh
   private
 
   type, abstract, public :: manager_mesh_t
+     !> Was mesh data imported
+     logical :: ifimported
+     !> Did we import simple or complete mesh information set
+     logical :: ifcomplete
      !> Topological mesh dimension
      integer(i4) :: tdim
      !> total number of local element (both V- and T-type)
@@ -102,13 +106,15 @@ contains
   !! @param[in]    gnelto     global element offset
   !! @param[in]    tdim       topological mesh dimension
   !! @param[inout] gidx       global element number
+  !! @param[in]   ifcomplete  do we import simple or complete set of information
   !! @param[in]   ifsave      save component types
   subroutine manager_mesh_init_data_base(this, nelt, gnelt, gnelto, tdim, &
-       gidx, ifsave)
+       gidx, ifcomplete, ifsave)
     class(manager_mesh_t), intent(inout) :: this
     integer(i4), intent(in) :: nelt, tdim
     integer(i8), intent(in) :: gnelt, gnelto
     integer(i8), allocatable, dimension(:), intent(inout)  :: gidx
+    logical, intent(in) :: ifcomplete
     logical, optional, intent(in) :: ifsave
 
     if (present(ifsave)) then
@@ -117,6 +123,8 @@ contains
        call this%free_data_base()
     end if
 
+    this%ifimported = .true.
+    this%ifcomplete = ifcomplete
     this%tdim = tdim
     this%nelt = nelt
     this%gnelt = gnelt
@@ -142,6 +150,8 @@ contains
     if (allocated(this%conn) .and. allocated(mesh%conn)) &
          call this%conn%init_type(mesh%conn)
 
+    this%ifimported = mesh%ifimported
+    this%ifcomplete = mesh%ifcomplete
     this%tdim = mesh%tdim
     this%nelt = mesh%nelt
     this%gnelt = mesh%gnelt
@@ -167,6 +177,8 @@ contains
        if (allocated(this%conn)) call this%conn%free_data()
     end if
 
+    this%ifimported = .false.
+    this%ifcomplete = .false.
     this%tdim = 0
     this%nelt = 0
     this%gnelt = 0

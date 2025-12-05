@@ -84,6 +84,8 @@ module manager_geom
   !! independent nodes lists and combines it with element vertices for node
   !! mapping.
   type, abstract, public :: manager_geom_t
+     !> Did we import simple or complete mesh information set
+     logical :: ifcomplete
      !> Topological mesh dimension
      integer(i4) :: tdim
      !> Geometrical independent nodes
@@ -105,10 +107,13 @@ module manager_geom
      !          |        | /     /
      !          |        |/     /
      !         5+--------+6    t
-     !> Local mapping of element vertices to the nodes
-     integer(i4), allocatable, dimension(:,:) :: vmap
+     !> Local mapping of element vertices to the nodes; complete global info
+     integer(i4), allocatable, dimension(:, :) :: vmap
+     !> Coordinates of element vertices; just local info
+     real(dp), allocatable, dimension(:, :, :) :: vcoord
    contains
      procedure, pass(this) :: init_data_base => manager_geom_init_data_base
+     procedure, pass(this) :: init_simple_base => manager_geom_init_simple_base
      procedure, pass(this) :: init_type_base => manager_geom_init_type_base
      procedure, pass(this) :: free_data_base => manager_geom_free_data_base
      procedure, pass(this) :: free_base => manager_geom_free_base
@@ -191,7 +196,7 @@ contains
 
   end subroutine manager_geom_node_free_base
 
-  !> Initialise geometry type
+  !> Initialise complete geometry type
   !! @param[in]    tdim    topological mesh dimension
   !! @param[in]    nel     local element number
   !! @param[inout] vmap    element vertices to node mapping
@@ -199,7 +204,7 @@ contains
   subroutine manager_geom_init_data_base(this, tdim, nel, vmap, ifsave)
     class(manager_geom_t), intent(inout) :: this
     integer(i4), intent(in) :: tdim, nel
-    integer(i4), allocatable, dimension(:,:), intent(inout) :: vmap
+    integer(i4), allocatable, dimension(:, :), intent(inout) :: vmap
     logical, optional, intent(in) :: ifsave
 
     if (present(ifsave)) then
@@ -208,6 +213,7 @@ contains
        call this%free_data_base()
     end if
 
+    this%ifcomplete = .true.
     this%tdim = tdim
     this%nel = nel
     ! we work with hex/quad only and there is no difference between
@@ -217,6 +223,28 @@ contains
     if (allocated(vmap)) call move_alloc(vmap, this%vmap)
 
   end subroutine manager_geom_init_data_base
+
+  !> Initialise simple geometry type
+  !! @param[in]    tdim    topological mesh dimension
+  !! @param[in]    nel     local element number
+  !! @param[inout] vcoord  coordinates of element vertices
+  subroutine manager_geom_init_simple_base(this, tdim, nel, vcoord)
+    class(manager_geom_t), intent(inout) :: this
+    integer(i4), intent(in) :: tdim, nel
+    real(dp), allocatable, dimension(:, :, :), intent(inout) :: vcoord
+
+    call this%free_data_base()
+
+    this%ifcomplete = .false.
+    this%tdim = tdim
+    this%nel = nel
+    ! we work with hex/quad only and there is no difference between
+    ! topology and geometrical dimensions
+    this%nvrt = 2**tdim
+
+    if (allocated(vcoord)) call move_alloc(vcoord, this%vcoord)
+
+  end subroutine manager_geom_init_simple_base
 
   !> Initialise geometry type based on another geometry type
   !! @param[inout] geom   geometry data
@@ -228,11 +256,13 @@ contains
     if (allocated(this%ind) .and. allocated(geom%ind)) &
             call this%ind%init_type(geom%ind)
 
+    this%ifcomplete = geom%ifcomplete
     this%tdim = geom%tdim
     this%nel = geom%nel
     this%nvrt = geom%nvrt
 
     if (allocated(geom%vmap)) call move_alloc(geom%vmap, this%vmap)
+    if (allocated(geom%vcoord)) call move_alloc(geom%vcoord, this%vcoord)
 
   end subroutine manager_geom_init_type_base
 
@@ -250,11 +280,13 @@ contains
        if (allocated(this%ind)) call this%ind%free()
     end if
 
+    this%ifcomplete = .false.
     this%tdim = 0
     this%nel = 0
     this%nvrt = 0
 
     if (allocated(this%vmap)) deallocate(this%vmap)
+    if (allocated(this%vcoord)) deallocate(this%vcoord)
 
   end subroutine manager_geom_free_data_base
 

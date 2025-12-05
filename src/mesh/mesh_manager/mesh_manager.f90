@@ -72,7 +72,7 @@ module mesh_manager
      !> Destructor.
      procedure(mesh_manager_free), pass(this), deferred :: free
      !> Import mesh data into current type
-     procedure(mesh_manager_free), pass(this), deferred :: import
+     procedure(mesh_manager_import), pass(this), deferred :: import
      !> Apply data read from mesh file to mesh manager structures
      procedure(mesh_manager_free), pass(this), deferred :: mesh_file_apply
      !> Perform refinement/coarsening on the mesh manager side
@@ -100,11 +100,18 @@ module mesh_manager
        type(json_file), intent(inout) :: json
      end subroutine mesh_manager_init
 
-     !> Destructor, 3rd-party stopping, importing
+     !> Destructor, 3rd-party stopping
      subroutine mesh_manager_free(this)
        import mesh_manager_t
        class(mesh_manager_t), intent(inout) :: this
      end subroutine mesh_manager_free
+
+     !> Importing mesh data
+     subroutine mesh_manager_import(this, ifcomplete)
+       import mesh_manager_t
+       class(mesh_manager_t), intent(inout) :: this
+       logical, intent(in) :: ifcomplete
+     end subroutine mesh_manager_import
 
      !> Perform refinement/coarsening on the mesh manager side
      !! @param[in]   ref_mark     refinement flag

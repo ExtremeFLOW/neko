@@ -137,13 +137,6 @@ void wp4est_cnn_del()
 void wp4est_cnn_valid(int * is_valid)
 ;
 
-/** Check non-periodic connectivity consistency
- *
- * @param[out] is_valid   non zero for correct connectivity
- */
-void wp4est_cnn_np_valid(int * is_valid)
-;
-
 /** Allocate or free the attribute fields in a connectivity
  *
  * @param enable_tree_attr
@@ -152,7 +145,7 @@ void wp4est_cnn_attr(int * enable_tree_attr)
 ;
 
 /** Internally connect a connectivity based on tree_to_vertex information.
- * Only internal connectivity; nor mesh periodicity
+ * Only internal connectivity; not mesh periodicity
  */
 void wp4est_cnn_complete();
 
@@ -168,13 +161,6 @@ void wp4est_cnn_save(char filename[])
  * @param filename       file name
  */
 void wp4est_cnn_load(char filename[])
-;
-
-/** Load a non-periodic connectivity structure from a file
- *
- * @param filename       file name
- */
-void wp4est_cnn_np_load(char filename[])
 ;
 
 /** Destroy mesh geometry */
@@ -209,16 +195,6 @@ void wp4est_tree_save(char filename[])
  * @param[in] filename            file name
  */
 void wp4est_tree_load(char filename[])
-;
-
-/** Swap connectivity with non-periodic one
- */
-void wp4est_tree_cnn_swap()
-;
-
-/** Swap connectivity back
- */
-void wp4est_tree_cnn_swap_back()
 ;
 
 /** Build ghost layer */
@@ -344,9 +320,18 @@ void wp4est_nds_get_hed(int * depend, double * ncoord)
 
 /** Get mapping of element vertices to nodes
  *
- * @param[out] vmap    vertex mapping to nodes (local numbering)
+ * @param[out] vmap        vertex mapping to nodes (local numbering)
+ * @param[out] vcoord      coordinates of periodic nodes
+ * @param[in]  tol         tolerance for search between trees
  */
-void wp4est_nds_get_vmap(int * vmap)
+void wp4est_nds_get_vmap(int * vmap, double * vcoord, double * tol)
+;
+
+/** Get linear position of element vertices
+ *
+ * @param[out] vcoord      approximate coordinates of element vertices
+ */
+void wp4est_nds_get_vcoord(double * vcoord)
 ;
 
 /** Get element info

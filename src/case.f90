@@ -197,6 +197,8 @@ contains
        call this%mesh_manager%start(meshmng_params, i)
        ! initialise type
        call this%mesh_manager%init(meshmng_params)
+       ! initial import of mesh data; simple data set
+       call this%mesh_manager%import(.false.)
        ! Get raw data from the mesh file sticking to element distribution
        ! from mesh manager. This would work if element ordering in mesh manager
        ! and mesh file are the same.
@@ -216,34 +218,29 @@ contains
 !              this%time)
 !       end block testing_refine
 
+    else
 
-       ! for now
-       write(*,*) 'BEFORE MESH FREE'
-       call this%msh%free()
-       write(*,*) 'AFTER MESH FREE'
-    
-    end if
+       call msh_file%read(this%msh)
 
-    call msh_file%read(this%msh)
+       !
+       ! Load Balancing
+       !
+       call json_get_or_default(this%params, 'case.load_balancing', &
+            logical_val, .false.)
 
-    !
-    ! Load Balancing
-    !
-    call json_get_or_default(this%params, 'case.load_balancing', logical_val,&
-         .false.)
+       if (pe_size .gt. 1 .and. logical_val) then
+          call neko_log%section('Load Balancing')
+          call parmetis_partmeshkway(this%msh, parts)
+          call redist_mesh(this%msh, parts)
 
-    if (pe_size .gt. 1 .and. logical_val) then
-       call neko_log%section('Load Balancing')
-       call parmetis_partmeshkway(this%msh, parts)
-       call redist_mesh(this%msh, parts)
+          ! store the balanced mesh (for e.g. restarts)
+          string_val = trim(string_val(1:scan(trim(string_val), &
+               '.', back = .true.) - 1)) // '_lb.nmsh'
+          call msh_file%init(string_val)
+          call msh_file%write(this%msh)
 
-       ! store the balanced mesh (for e.g. restarts)
-       string_val = trim(string_val(1:scan(trim(string_val), &
-            '.', back = .true.) - 1)) // '_lb.nmsh'
-       call msh_file%init(string_val)
-       call msh_file%write(this%msh)
-
-       call neko_log%end_section()
+          call neko_log%end_section()
+       end if
     end if
 
     ! Run user mesh motion routine

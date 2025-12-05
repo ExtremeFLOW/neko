@@ -50,6 +50,14 @@ module manager_geom_p4est
      integer(i4) :: loff
      !> Node owner (MPI rank)
      integer(i4), allocatable, dimension(:) :: ndown
+     !> Local number of independent periodic nodes
+     integer(i4) :: pnum
+     !> Global indexing of unique periodic nodes
+     integer(i8), allocatable, dimension(:) :: pgidx
+     !> Physical periodic node coordinates
+     real(kind=dp), allocatable, dimension(:,:) :: pcoord
+     !> Mapping of periodic nodes to existing ones
+     integer(i4), allocatable, dimension(:) :: pmap
    contains
      procedure, pass(this) :: init_data => manager_geom_node_ind_init_data_p4est
      procedure, pass(this) :: init_type => manager_geom_node_ind_init_type_p4est
@@ -66,6 +74,14 @@ module manager_geom_p4est
      integer(i4) :: ndep
      !> Local hanging to independent node mapping
      integer(i4), allocatable, dimension(:,:) :: lmap
+     !> Local number of hanging periodic nodes
+     integer(i4) :: pnum
+     !> Global indexing of unique periodic nodes
+     integer(i8), allocatable, dimension(:) :: pgidx
+     !> Physical periodic node coordinates
+     real(kind=dp), allocatable, dimension(:,:) :: pcoord
+     !> Mapping of periodic nodes to existing ones
+     integer(i4), allocatable, dimension(:) :: pmap
    contains
      procedure, pass(this) :: init_data => manager_geom_node_hng_init_data_p4est
      procedure, pass(this) :: init_type => manager_geom_node_hng_init_type_p4est
@@ -101,6 +117,7 @@ module manager_geom_p4est
    contains
      procedure, pass(this) :: init => manager_geom_init_p4est
      procedure, pass(this) :: init_data => manager_geom_init_data_p4est
+     procedure, pass(this) :: init_simple => manager_geom_init_simple_p4est
      procedure, pass(this) :: init_type => manager_geom_init_type_p4est
      procedure, pass(this) :: free_data => manager_geom_free_data_p4est
      procedure, pass(this) :: free => manager_geom_free_p4est
@@ -117,17 +134,23 @@ contains
   !! @param[inout] gidx    global node index
   !! @param[inout] ndown   node owner (MPI rank)
   !! @param[inout] coord   node coordinates
+  !! @param[in]    pnum    local number of periodic nodes
+  !! @param[inout] pgidx   global periodic node index
+  !! @param[inout] pcoord  periodic node coordinates
+  !! @param[inout] pmap    periodic to existing node mapping
   subroutine manager_geom_node_ind_init_data_p4est(this, lown, lshr, loff, &
-       lnum, gdim, gidx, ndown, coord)
+       lnum, gdim, gidx, ndown, coord, pnum, pgidx, pcoord, pmap)
     class(manager_geom_node_ind_p4est_t), intent(inout) :: this
-    integer(i4), intent(in) :: lown, lshr, loff, lnum, gdim
-    integer(i8), allocatable, dimension(:), intent(inout) :: gidx
-    integer(i4), allocatable, dimension(:), intent(inout) :: ndown
-    real(kind=dp), allocatable, dimension(:,:), intent(inout) :: coord
+    integer(i4), intent(in) :: lown, lshr, loff, lnum, gdim, pnum
+    integer(i8), allocatable, dimension(:), intent(inout) :: gidx, pgidx
+    integer(i4), allocatable, dimension(:), intent(inout) :: ndown, pmap
+    real(kind=dp), allocatable, dimension(:,:), intent(inout) :: coord, pcoord
 
     ! sanity check
     if ((lnum .ne. size(gidx)) .or. (lnum .ne. size(ndown)) .or. &
-         (gdim .ne. size(coord, 1)) .or. (lnum .ne. size(coord, 2))) &
+         (gdim .ne. size(coord, 1)) .or. (lnum .ne. size(coord, 2)) .or. &
+         (pnum .ne. size(pgidx)) .or. (gdim .ne. size(pcoord, 1)) .or. &
+         (pnum .ne. size(pcoord, 2)) .or. (pnum .ne. size(pmap))) &
          call neko_error('Inconsistent array sizes; p4est%geom_ind')
 
     call this%free()
@@ -136,8 +159,12 @@ contains
     this%lown = lown
     this%lshr = lshr
     this%loff = loff
+    this%pnum = pnum
 
     if (allocated(ndown)) call move_alloc(ndown, this%ndown)
+    if (allocated(pgidx)) call move_alloc(pgidx, this%pgidx)
+    if (allocated(pcoord)) call move_alloc(pcoord, this%pcoord)
+    if (allocated(pmap)) call move_alloc(pmap, this%pmap)
 
   end subroutine manager_geom_node_ind_init_data_p4est
 
@@ -155,9 +182,12 @@ contains
        this%lown = node%lown
        this%lshr = node%lshr
        this%loff = node%loff
+       this%pnum = node%pnum
 
        if (allocated(node%ndown)) call move_alloc(node%ndown, this%ndown)
-
+       if (allocated(node%pgidx)) call move_alloc(node%pgidx, this%pgidx)
+       if (allocated(node%pcoord)) call move_alloc(node%pcoord, this%pcoord)
+       if (allocated(node%pmap)) call move_alloc(node%pmap, this%pmap)
     end select
 
   end subroutine manager_geom_node_ind_init_type_p4est
@@ -171,8 +201,12 @@ contains
     this%lown = 0
     this%lshr = 0
     this%loff = 0
+    this%pnum = 0
 
     if (allocated(this%ndown)) deallocate(this%ndown)
+    if (allocated(this%pgidx)) deallocate(this%pgidx)
+    if (allocated(this%pcoord)) deallocate(this%pcoord)
+    if (allocated(this%pmap)) deallocate(this%pmap)
 
   end subroutine manager_geom_node_ind_free_p4est
 
@@ -183,26 +217,37 @@ contains
   !! @param[inout] gidx    global node index
   !! @param[inout] lmap    node mapping to independent node
   !! @param[inout] coord   node coordinates
+  !! @param[in]    pnum    local number of periodic nodes
+  !! @param[inout] pgidx   global periodic node index
+  !! @param[inout] pcoord  periodic node coordinates
+  !! @param[inout] pmap    periodic to existing node mapping
   subroutine manager_geom_node_hng_init_data_p4est(this, lnum, gdim, ndep, &
-       gidx, lmap, coord)
+       gidx, lmap, coord, pnum, pgidx, pcoord, pmap)
     class(manager_geom_node_hng_p4est_t), intent(inout) :: this
-    integer(i4), intent(in) :: lnum, gdim, ndep
-    integer(i8), allocatable, dimension(:), intent(inout) :: gidx
+    integer(i4), intent(in) :: lnum, gdim, ndep, pnum
+    integer(i8), allocatable, dimension(:), intent(inout) :: gidx, pgidx
     integer(i4), allocatable, dimension(:, :), intent(inout) :: lmap
-    real(kind=dp), allocatable, dimension(:,:), intent(inout) :: coord
+    integer(i4), allocatable, dimension(:), intent(inout) :: pmap
+    real(kind=dp), allocatable, dimension(:,:), intent(inout) :: coord, pcoord
 
     ! sanity check
     if ((lnum .ne. size(gidx)) .or. &
          (ndep .ne. size(lmap, 1)) .or. (lnum .ne. size(lmap, 2)) .or. &
-         (gdim .ne. size(coord, 1)) .or. (lnum .ne. size(coord, 2))) &
+         (gdim .ne. size(coord, 1)) .or. (lnum .ne. size(coord, 2)) .or. &
+         (pnum .ne. size(pgidx)) .or. (gdim .ne. size(pcoord, 1)) .or. &
+         (pnum .ne. size(pcoord, 2)) .or. (pnum .ne. size(pmap))) &
          call neko_error('Inconsistent array sizes; p4est%geom_hng')
 
     call this%free()
     call this%init_data_base(lnum, gdim, gidx, coord)
 
     this%ndep = ndep
+    this%pnum = pnum
 
     if (allocated(lmap)) call move_alloc(lmap, this%lmap)
+    if (allocated(pgidx)) call move_alloc(pgidx, this%pgidx)
+    if (allocated(pcoord)) call move_alloc(pcoord, this%pcoord)
+    if (allocated(pmap)) call move_alloc(pmap, this%pmap)
 
   end subroutine manager_geom_node_hng_init_data_p4est
 
@@ -218,8 +263,12 @@ contains
     select type (node)
     type is(manager_geom_node_hng_p4est_t)
        this%ndep = node%ndep
+       this%pnum = node%pnum
 
        if (allocated(node%lmap)) call move_alloc(node%lmap, this%lmap)
+       if (allocated(node%pgidx)) call move_alloc(node%pgidx, this%pgidx)
+       if (allocated(node%pcoord)) call move_alloc(node%pcoord, this%pcoord)
+       if (allocated(node%pmap)) call move_alloc(node%pmap, this%pmap)
     end select
 
   end subroutine manager_geom_node_hng_init_type_p4est
@@ -231,8 +280,12 @@ contains
     call this%free_base()
 
     this%ndep = 0
+    this%pnum = 0
 
     if (allocated(this%lmap)) deallocate(this%lmap)
+    if (allocated(this%pgidx)) deallocate(this%pgidx)
+    if (allocated(this%pcoord)) deallocate(this%pcoord)
+    if (allocated(this%pmap)) deallocate(this%pmap)
 
   end subroutine manager_geom_node_hng_free_p4est
 
@@ -248,7 +301,7 @@ contains
 
   end subroutine manager_geom_init_p4est
 
-  !> Initialise geometry type
+  !> Initialise complete geometry info
   !! @param[in]    tdim    topological mesh dimension
   !! @param[in]    nel     local element number
   !! @param[inout] vmap    element vertices to node mapping
@@ -272,6 +325,25 @@ contains
     end if
 
   end subroutine manager_geom_init_data_p4est
+
+  !> Initialise simple geometry info
+  !! @param[in]    tdim    topological mesh dimension
+  !! @param[in]    nel     local element number
+  !! @param[inout] vcoord  coordinates of  element vertices
+  subroutine manager_geom_init_simple_p4est(this, tdim, nel, vcoord)
+    class(manager_geom_p4est_t), intent(inout) :: this
+    integer(i4), intent(in) :: tdim, nel
+    real(dp), allocatable, dimension(:, :, :), intent(inout) :: vcoord
+
+    ! sanity check
+    if ((tdim .ne. size(vcoord, 1)) .or. (2**tdim .ne. size(vcoord, 2)) &
+         .or. (nel .ne. size(vcoord, 3))) &
+         call neko_error('Inconsistent array sizes p4est%geom')
+
+    call this%free_data()
+    call this%init_simple_base(tdim, nel, vcoord)
+
+  end subroutine manager_geom_init_simple_p4est
 
   !> Initialise geometry type based on another geometry type
   !! @param[inout] geom   geometry data

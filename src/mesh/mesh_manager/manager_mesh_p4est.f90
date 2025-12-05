@@ -154,16 +154,18 @@ contains
   !! @param[inout] crv        face curvature data
   !! @param[inout] bc         face boundary condition
   !! @param[inout] family     family flag
+  !! @param[in]   ifcomplete  do we import simple or complete set of information
   !! @param[in]   ifsave      save component types
   subroutine manager_mesh_init_data_p4est(this, nelt, nelv, gnelt, gnelto, &
-       level_max, tdim, gidx, level, igrp, crv, bc, family, ifsave)
+       level_max, tdim, gidx, level, igrp, crv, bc, family, ifcomplete, ifsave)
     class(manager_mesh_p4est_t), intent(inout) :: this
     integer(i4), intent(in) :: nelt, nelv, level_max, tdim
     integer(i8), intent(in) :: gnelt, gnelto
     integer(i8), allocatable, dimension(:), intent(inout)  :: gidx
     integer(i4), allocatable, dimension(:), intent(inout) :: level, igrp
-    integer(i4), allocatable, dimension(:,:), intent(inout) :: crv, bc
-    integer(i8), allocatable, dimension(:,:), intent(inout) :: family
+    integer(i4), allocatable, dimension(:, :), intent(inout) :: crv, bc
+    integer(i8), allocatable, dimension(:, :), intent(inout) :: family
+    logical, intent(in) :: ifcomplete
     logical, optional, intent(in) :: ifsave
     integer(i4) :: nvert, nface, nedge
 
@@ -181,10 +183,11 @@ contains
 
     if (present(ifsave)) then
        call this%free_data(ifsave)
-       call this%init_data_base(nelt, gnelt, gnelto, tdim, gidx, ifsave)
+       call this%init_data_base(nelt, gnelt, gnelto, tdim, gidx, ifcomplete, &
+            ifsave)
     else
        call this%free_data()
-       call this%init_data_base(nelt, gnelt, gnelto, tdim, gidx)
+       call this%init_data_base(nelt, gnelt, gnelto, tdim, gidx, ifcomplete)
     end if
 
     this%nelv = nelv

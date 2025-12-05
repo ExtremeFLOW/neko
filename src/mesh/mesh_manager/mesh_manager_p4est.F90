@@ -73,10 +73,6 @@ module mesh_manager_p4est
   type, public, extends(mesh_manager_t) :: mesh_manager_p4est_t
      !> Tree file
      character(len=:), allocatable :: tree_file
-     !> Non-periodic connectivity file
-     character(len=:), allocatable :: cnn_np_file
-     !> Is domain periodic
-     logical :: is_periodic
      !> Max refinement level
      integer :: ref_level_max
      !> Log level for p4est
@@ -176,12 +172,6 @@ module mesh_manager_p4est
        integer(c_int) :: is_valid
      end subroutine wp4est_cnn_valid
 
-     subroutine wp4est_cnn_np_valid(is_valid) &
-          bind(c, name = 'wp4est_cnn_np_valid')
-       USE, INTRINSIC :: ISO_C_BINDING
-       integer(c_int) :: is_valid
-     end subroutine wp4est_cnn_np_valid
-
      subroutine wp4est_cnn_attr(enable_tree_attr) &
           bind(c, name = 'wp4est_cnn_attr')
        USE, INTRINSIC :: ISO_C_BINDING
@@ -203,12 +193,6 @@ module mesh_manager_p4est
        USE, INTRINSIC :: ISO_C_BINDING
        character(kind=c_char), dimension(*) :: filename
      end subroutine wp4est_cnn_load
-
-     subroutine wp4est_cnn_np_load(filename) &
-          bind(c, name = 'wp4est_cnn_np_load')
-       USE, INTRINSIC :: ISO_C_BINDING
-       character(kind=c_char), dimension(*) :: filename
-     end subroutine wp4est_cnn_np_load
 
      subroutine wp4est_geom_del() bind(c, name = 'wp4est_geom_del')
        USE, INTRINSIC :: ISO_C_BINDING
@@ -238,15 +222,6 @@ module mesh_manager_p4est
        USE, INTRINSIC :: ISO_C_BINDING
        character(kind=c_char), dimension(*) :: filename
      end subroutine wp4est_tree_load
-
-     subroutine wp4est_tree_cnn_swap() bind(c, name = 'wp4est_tree_cnn_swap')
-       USE, INTRINSIC :: ISO_C_BINDING
-     end subroutine wp4est_tree_cnn_swap
-
-     subroutine wp4est_tree_cnn_swap_back() &
-          bind(c, name = 'wp4est_tree_cnn_swap_back')
-       USE, INTRINSIC :: ISO_C_BINDING
-     end subroutine wp4est_tree_cnn_swap_back
 
      subroutine wp4est_ghost_new() bind(c, name = 'wp4est_ghost_new')
        USE, INTRINSIC :: ISO_C_BINDING
@@ -332,11 +307,18 @@ module mesh_manager_p4est
        type(c_ptr), value :: depend, ncoord
      end subroutine wp4est_nds_get_hed
 
-     subroutine wp4est_nds_get_vmap(vmap)&
+     subroutine wp4est_nds_get_vmap(vmap, vcoord, tol) &
           bind(c, name = 'wp4est_nds_get_vmap')
        USE, INTRINSIC :: ISO_C_BINDING
-       type(c_ptr), value :: vmap
+       type(c_ptr), value :: vmap, vcoord
+       real(c_double) :: tol
      end subroutine wp4est_nds_get_vmap
+
+     subroutine wp4est_nds_get_vcoord(vcoord) &
+          bind(c, name = 'wp4est_nds_get_vcoord')
+       USE, INTRINSIC :: ISO_C_BINDING
+       type(c_ptr), value :: vcoord
+     end subroutine wp4est_nds_get_vcoord
 
      subroutine wp4est_elm_get_dat(gidx, level, igrp, crv, bc, falg) &
           bind(c, name = 'wp4est_elm_get_dat')
@@ -534,7 +516,7 @@ contains
   subroutine p4est_init_from_json(this, json)
     class(mesh_manager_p4est_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    character(len=:), allocatable :: tree_file, cnn_file
+    character(len=:), allocatable :: tree_file
     integer :: ref_level_max
 
     ! Extract runtime parameters
@@ -545,9 +527,6 @@ contains
             'case file. Often caused by incorrectly formatted json.')
     end if
 
-    ! check if there is any non-periodic connectivity file
-    call json_get_or_default(json, 'connectivity_file', cnn_file, 'no cnn')
-
     ! p4est supports AMR; get maximum allowed refinement level
     ! Notice, p4est has internal max refinement level (P8EST_QMAXLEVEL
     ! defined in p8est.h) that cannot be exceeded. Moreover, negative
@@ -555,10 +534,9 @@ contains
     ! P8EST_QMAXLEVEL. By default we set no refinement.
     call json_get_or_default(json, "ref_level_max", ref_level_max, 0)
 
-    call p4est_init_from_components(this, tree_file, cnn_file, ref_level_max)
+    call p4est_init_from_components(this, trim(tree_file), ref_level_max)
 
     if (allocated(tree_file)) deallocate(tree_file)
-    if (allocated(cnn_file)) deallocate(cnn_file)
 
   end subroutine p4est_init_from_json
 
@@ -583,24 +561,23 @@ contains
 
     call this%free_base()
 
-    this%is_periodic = .false.
     this%ref_level_max = 0
     this%log_level = 0
 
     if (allocated(this%tree_file)) deallocate(this%tree_file)
-    if (allocated(this%cnn_np_file)) deallocate(this%cnn_np_file)
 
   end subroutine p4est_free
 
   !> Import mesh data
-  subroutine p4est_import(this)
+  subroutine p4est_import(this, ifcomplete)
     class(mesh_manager_p4est_t), intent(inout) :: this
+    logical, intent(in) :: ifcomplete
     type(manager_mesh_p4est_t) :: mesh_new
 
     ! allocate types and import data from p4est
     call mesh_new%init()
     call mesh_new%free_data()
-    call p4est_import_data(mesh_new, this%is_periodic)
+    call p4est_import_data(mesh_new, ifcomplete)
 
     ! fill mesh information
     call this%mesh%init_type(mesh_new)
@@ -612,10 +589,9 @@ contains
   end subroutine p4est_import
 
   !> The constructor from type components.
-  subroutine p4est_init_from_components(this, tree_file, cnn_file, &
-       ref_level_max)
+  subroutine p4est_init_from_components(this, tree_file, ref_level_max)
     class(mesh_manager_p4est_t), intent(inout) :: this
-    character(len=*), intent(in) :: tree_file, cnn_file
+    character(len=*), intent(in) :: tree_file
     integer, intent(in) :: ref_level_max
     integer(i4) :: is_valid, ierr
     character(len=LOG_SIZE) :: log_buf
@@ -636,39 +612,19 @@ contains
 
     this%tree_file = trim(tree_file)
 
-    ! If domain is periodic special treatment of independent nodes is needed
-    if (trim(cnn_file) .eq. 'no cnn') then
-       this%is_periodic = .false.
-    else
-       this%cnn_np_file = trim(cnn_file)
-       this%is_periodic = .true.
-    end if
-
     ! AMR related stuff
     this%ref_level_max = ref_level_max
 
     ! for testing
 !    call wp4est_cnn_rot_cubes()
-!    call wp4est_cnn_save('rot_cubes.cnn')
-!    call wp4est_tree_new()
-!    call wp4est_tree_save('rot_cubes.tree')
 !    call wp4est_cnn_brick(2, 2, 2)
 !    call wp4est_cnn_unit_cube_periodic()
-!    call wp4est_cnn_save('test.cnn')
-!    call wp4est_cnn_load('unit_cube_periodic.cnn')
-!    call wp4est_cnn_valid(is_valid)
-!    write(*,*) 'TESTcnn', is_valid
-!    call wp4est_cnn_np_load('unit_cube.cnn')
-!    call wp4est_cnn_np_valid(is_valid)
-!    write(*,*) 'TESTcnn_np', is_valid
 !    call wp4est_tree_new()
-!    call wp4est_tree_save('unit_cube_periodic.tree')
-!    call wp4est_tree_load('512.tree')
 !    call wp4est_vtk_write('test')
 !    call wp4est_tree_del()
 !    call wp4est_cnn_del()
 
-    write(log_buf, '(a)') 'Reading p4est tree/connectivity data.'
+    write(log_buf, '(a)') 'Reading p4est tree data.'
     call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
     ! read the tree file
     call wp4est_tree_load(trim(this%tree_file))
@@ -676,17 +632,12 @@ contains
     if (is_valid .eq. 0) call neko_error('Invalid p4est tree')
     call wp4est_cnn_valid(is_valid)
     if (is_valid .eq. 0) call neko_error('Invalid p4est connectivity')
-    ! for periodic domains load non-periodic connectivity
-    if (this%is_periodic) then
-       call wp4est_cnn_np_load(trim(this%cnn_np_file))
-       call wp4est_cnn_np_valid(is_valid)
-       if (is_valid .eq. 0) call neko_error('Invalid non-periodic connectivity')
-    end if
     ! perform partitioning on p4est side
     call wp4est_part()
 
 !    call wp4est_cnn_save('test.cnn')
 !    call wp4est_tree_save('test.tree')
+!    call wp4est_vtk_write('test')
 
     !call MPI_Barrier(NEKO_COMM, ierr)
     t_end = MPI_WTIME()
@@ -695,20 +646,12 @@ contains
          t_end - t_start
     call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
-    ! initial importing of mesh data; it may be not complete
-    call this%import()
-    t_start = MPI_WTIME()
-    write(log_buf, '(A,F9.6)') &
-         'Mesh manager initial import time (s): ', &
-         t_start - t_end
-    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
-
   end subroutine p4est_init_from_components
 
   !> Import data from p4est
-  subroutine p4est_import_data(mesh_new, is_periodic)
+  subroutine p4est_import_data(mesh_new, ifcomplete)
     type(manager_mesh_p4est_t), intent(inout) :: mesh_new
-    logical, intent(in) :: is_periodic
+    logical, intent(in) :: ifcomplete
     character(len=LOG_SIZE) :: log_buf
     character(len=*), parameter :: frmt1="('mesh: element number =', i6,&
          &', max ref. lev. = ',i2)"
@@ -717,31 +660,29 @@ contains
     character(len=*), parameter :: frmt3="('connectivity: dim = ', i1, ';&
          & number of: vrt = ', i6, ', fcs = ', i6, ', edg = ', i6)"
     integer(i4) :: nvert, nface, nedge, ierr, gdim, nelt, nelv, ngrp, maxl, &
-         maxg, ndep, lown, lshr, loff, lnum_in, lnum_fh, lnum_eh, nrank, nshare
+         maxg, ndep, lown, lshr, loff, lnum_in, lnum_fh, lnum_eh, nrank, &
+         nshare, nindp, nfhngp, nehngp
     integer(i8) :: itmp8, gnelt, gnelto, goff, gnum
     integer(i8), dimension(3) :: itmp8lv
-    integer(i8), allocatable, target, dimension(:) :: itmp8v1
+    integer(i8), allocatable, target, dimension(:) :: itmp8v1, itmp8v2
     integer(i8), allocatable, target, dimension(:, :) :: itmp8v21
     integer(i4), allocatable, target, dimension(:) :: itmp4v1, itmp4v2, &
-         itmp4v3, hngei
+         itmp4v3, hngei, ind_map, fhng_map, ehng_map
     logical, allocatable, target, dimension(:) :: hngel
     integer(i4), allocatable, target, dimension(:, :) :: itmp4v21, itmp4v22, &
          itmp4v23, hngfc, hnged, vmap, fmap, emap, ealgn
-    real(dp), allocatable, target, dimension(:, :) :: rtmpv1
-!!$    integer(i4) :: il, jl
+    real(dp), allocatable, target, dimension(:, :) :: rtmpv1, ind_coord, &
+         fhng_coord, ehng_coord
+    real(dp), allocatable, target, dimension(:, :, :) :: vcoord
+    real(dp), parameter :: tol = 1.0D-10
 
     call profiler_start_region("p4est import", 32)
 
     write(log_buf, '(a)') 'Importing p4est data'
     call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
-    ! if mesh has periodic boundaries swap connectivity in tree to get
-    ! geometrical information
-    if (is_periodic) call wp4est_tree_cnn_swap()
-
-    ! create p4est ghost zones and nodes
+    ! create p4est ghost zones
     call wp4est_ghost_new()
-    call wp4est_nodes_new()
 
     ! get mesh size and distribution information
     call wp4est_msh_get_size(gdim, gnelt, gnelto, nelt, nelv, ngrp, maxl)
@@ -765,87 +706,88 @@ contains
     select type (geom => mesh_new%geom)
     type is (manager_geom_p4est_t)
 
-       ! get nodes and their coordinates
-       call wp4est_nds_get_size(lown, lshr, loff, lnum_in, lnum_fh, lnum_eh)
-       itmp8 = lown
-       call MPI_Allreduce(itmp8, gnum, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, &
-            ierr)
-       write(log_buf, frmt2) gdim, gnum
-       call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+       ! get complete global information
+       if (ifcomplete) then
+          ! create p4est nodes
+          call wp4est_nodes_new()
 
-!!$       write(*,*) 'TESTsize ', pe_rank, nelv, ngrp, nelt
-!!$       write(*,*) 'TESTsizen ', pe_rank, lown, lshr, loff, lnum_in, &
-!!$            lnum_fh, lnum_eh
+          ! get nodes and their coordinates
+          call wp4est_nds_get_size(lown, lshr, loff, lnum_in, lnum_fh, lnum_eh)
+          itmp8 = lown
+          call MPI_Allreduce(itmp8, gnum, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, &
+               ierr)
+          write(log_buf, frmt2) gdim, gnum
+          call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
-       ! independent nodes
-       allocate(itmp8v1(lnum_in), itmp4v1(lnum_in), rtmpv1(gdim, lnum_in))
-       call wp4est_nds_get_ind(c_loc(itmp8v1), c_loc(itmp4v1),c_loc(rtmpv1))
+          ! get element vertex mapping to nodes and identify periodic ones
+          allocate(itmp4v21(nvert, nelt), vcoord(gdim, nvert, nelt))
+          vcoord(:, :, :) = 0.0
+          call wp4est_nds_get_vmap(c_loc(itmp4v21), c_loc(vcoord), tol)
 
-!!$       do il = 1, lnum_in
-!!$          write(*,*) 'TESTind ', pe_rank, il, itmp8v1(il), &
-!!$               itmp4v1(il), rtmpv1(:,il)
-!!$       end do
+          ! Get periodic nodes and correct vertex mapping
+          call p4est_periodic_get(itmp4v21, vcoord, nindp, ind_map, ind_coord, &
+               nfhngp, fhng_map, fhng_coord, nehngp, ehng_map, ehng_coord, &
+               nvert, nelt, lnum_in, lnum_fh, lnum_eh, gdim)
+          deallocate(vcoord)
 
-       select type (ind => geom%ind)
-       type is(manager_geom_node_ind_p4est_t)
-          call ind%init_data(lown, lshr, loff, lnum_in, gdim, &
-               itmp8v1, itmp4v1, rtmpv1)
+          ! geometry type saving already imported data
+          call geom%init_data(gdim, nelt, itmp4v21, .true.)
 
-          if (lnum_fh > 0) then
-             ! face hanging nodes
-             ndep = 4
-             allocate(itmp4v21(ndep, lnum_fh), rtmpv1(gdim, lnum_fh))
-             call wp4est_nds_get_hfc(c_loc(itmp4v21), c_loc(rtmpv1))
+          select type (ind => geom%ind)
+          type is(manager_geom_node_ind_p4est_t)
+             ! independent nodes
+             allocate(itmp8v1(lnum_in), itmp4v1(lnum_in), &
+                  rtmpv1(gdim, lnum_in), itmp8v2(nindp))
+             call wp4est_nds_get_ind(c_loc(itmp8v1), c_loc(itmp4v1), &
+                  c_loc(rtmpv1))
 
-             ! get global numbering of hanging nodes
-             call p4est_hng_node_gnum_get(itmp8v1, itmp4v21, lnum_fh, ndep, &
-                  ind%gidx, ind%ndown, ind%lnum)
+             ! for now just a placeholder for global numbering of periodic nodes
+             call ind%init_data(lown, lshr, loff, lnum_in, gdim, &
+                  itmp8v1, itmp4v1, rtmpv1, nindp, itmp8v2, ind_coord, ind_map)
 
-             call geom%hng_fcs%init_data(lnum_fh, gdim, ndep, &
-                  itmp8v1, itmp4v21, rtmpv1)
-          end if
+             if (lnum_fh > 0) then
+                ! face hanging nodes
+                ndep = 4
+                allocate(itmp8v1(lnum_fh), itmp4v21(ndep, lnum_fh), &
+                     rtmpv1(gdim, lnum_fh), itmp8v2(nfhngp))
+                call wp4est_nds_get_hfc(c_loc(itmp4v21), c_loc(rtmpv1))
 
-          if (lnum_eh > 0) then
-             ! edge hanging nodes
-             ndep = 2
-             allocate(itmp4v21(ndep, lnum_eh), rtmpv1(gdim, lnum_eh))
-             call wp4est_nds_get_hed(c_loc(itmp4v21), c_loc(rtmpv1))
+                ! for now just a placeholder for global numbering of nodes
+                call geom%hng_fcs%init_data(lnum_fh, gdim, ndep, &
+                     itmp8v1, itmp4v21, rtmpv1, nfhngp, itmp8v2, fhng_coord, &
+                     fhng_map)
+             end if
 
-             ! get global numbering of hanging nodes
-             call p4est_hng_node_gnum_get(itmp8v1, itmp4v21, lnum_eh, ndep, &
-                  ind%gidx, ind%ndown, ind%lnum)
+             if (lnum_eh > 0) then
+                ! edge hanging nodes
+                ndep = 2
+                allocate(itmp8v1(lnum_eh), itmp4v21(ndep, lnum_eh), &
+                     rtmpv1(gdim, lnum_eh), itmp8v2(nehngp))
+                call wp4est_nds_get_hed(c_loc(itmp4v21), c_loc(rtmpv1))
 
-             call geom%hng_edg%init_data(lnum_eh, gdim, ndep, &
-                  itmp8v1, itmp4v21, rtmpv1)
-          end if
-       end select
+                ! for now just a placeholder for global numbering of nodes
+                call geom%hng_edg%init_data(lnum_eh, gdim, ndep, &
+                     itmp8v1, itmp4v21, rtmpv1, nehngp, itmp8v2, ehng_coord, &
+                     ehng_map)
+             end if
+          end select
 
-       ! get element vertex mapping to nodes
-       allocate(itmp4v21(nvert, nelt))
-       call wp4est_nds_get_vmap(c_loc(itmp4v21))
+          call wp4est_nodes_del()
+       else ! ifcomplete
+          ! just a simple set of information containing approximate (linear
+          ! interpolation) coordinates of element vertices, but no global
+          ! mapping
+          ! get coordinates of element vertices
+          allocate(vcoord(gdim, nvert, nelt))
+          call wp4est_nds_get_vcoord(c_loc(vcoord))
 
-!!$       do il = 1, nelt
-!!$          do jl = 1, nvert
-!!$             write(*,*) 'TESTvmap ', pe_rank, il, jl, itmp4v21(jl, il)
-!!$          end do
-!!$       end do
+          ! geometry type simple initialisation
+          call geom%init_simple(gdim, nelt, vcoord)
 
-       ! geometry type saving already imported data
-       call geom%init_data(gdim, nelt, itmp4v21, .true.)
-
+          call neko_log%message('Extracted local geometry representation', &
+               NEKO_LOG_VERBOSE)
+       end if
     end select
-
-    call wp4est_nodes_del()
-
-    ! for periodic domain reconstruct ghosts and nodes to include periodicity
-    ! in connectivity data
-    if (is_periodic) then
-       call wp4est_ghost_del()
-
-       call wp4est_tree_cnn_swap_back()
-
-       call wp4est_ghost_new()
-    end if
 
     ! get connectivity info
     select type (conn => mesh_new%conn)
@@ -879,8 +821,6 @@ contains
                itmp8v1, itmp4v1, itmp4v3, itmp4v2)
        end select
 
-!!$       write(*,*) 'TESTcvrt', lnum_in, lown, goff, gnum, nrank, nshare
-
        call wp4est_lnodes_del()
 
        ! faces
@@ -903,8 +843,6 @@ contains
           call fcs%init_data(lnum_in, lown, goff, gnum, &
                nrank, nshare, itmp8v1, itmp4v1, itmp4v3, itmp4v2)
        end select
-
-!!$       write(*,*) 'TESTcfcs', lnum_in, lown, goff, gnum, nrank, nshare
 
        call wp4est_lnodes_del()
 
@@ -932,8 +870,6 @@ contains
        write(log_buf, frmt3) gdim, itmp8lv
        call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
-!!$       write(*,*) 'TESTcedg', lnum_in, lown, goff, gnum, nrank, nshare
-
        call wp4est_lnodes_del()
 
        ! get element data
@@ -947,25 +883,6 @@ contains
        ! get edge alignment
        call p4est_edge_alignment_get(ealgn, nelt, nedge)
 
-!!$       write(*,*) 'TESTvrt'
-!!$       do il = 1, nelt
-!!$          do jl = 1, nvert
-!!$             write(*,*) 'TESTvmap', il, jl, vmap(jl, il)
-!!$          end do
-!!$       end do
-!!$       write(*,*) 'TESTfcs'
-!!$       do il = 1, nelt
-!!$          do jl = 1, nface
-!!$             write(*,*) 'TESTfmap', il, jl, fmap(jl, il), itmp4v23(jl, il)
-!!$          end do
-!!$       end do
-!!$       write(*,*) 'TESTedg'
-!!$       do il = 1, nelt
-!!$          do jl = 1, nedge
-!!$             write(*,*) 'TESTemap', il, jl, emap(jl, il), ealgn(jl, il)
-!!$          end do
-!!$       end do
-
        ! element connectivity mappings saving already imported data
        call conn%init_data(gdim, nelt, vmap, fmap, itmp4v23, emap, ealgn, &
             hngel, hngfc, hnged, .true.)
@@ -977,7 +894,11 @@ contains
 
     ! import element general information saving already imported data
     call mesh_new%init_data(nelt, nelv, gnelt, gnelto, maxg, gdim, itmp8v1, &
-            itmp4v1, itmp4v2, itmp4v21, itmp4v22, itmp8v21, .true.)
+         itmp4v1, itmp4v2, itmp4v21, itmp4v22, itmp8v21, ifcomplete, .true.)
+
+    ! Get global numbering of hanging and periodic nodes including reordering
+    ! of faces with respect of multiplicity
+    call p4est_hng_periodic_gnum_get(mesh_new)
 
     ! do not destroy p4est ghost cells here, as they could be needed
 !    call wp4est_ghost_del()
@@ -986,24 +907,143 @@ contains
 
   end subroutine p4est_import_data
 
-  !> Get global numbering of hanging nodes
-  !! @details p4est is a connectivity code, so it does not care about global
-  !! numbering of hanging nodes just mapping them to independent nodes
-  subroutine p4est_hng_node_gnum_get(gidx, map, lnum, ndep, ingidx, inown, &
-       inlnum)
-    integer(i8), allocatable, dimension(:), intent(inout) :: gidx
-    integer(i4), dimension(:, :), intent(in) :: map
-    integer(i4), intent(in) :: lnum, ndep
-    integer(i8), dimension(:), intent(in) :: ingidx
-    integer(i4), dimension(:), intent(in) :: inown
-    integer(i4), intent(in) :: inlnum
+  !> Get periodic nodes and correct vertex mapping
+  !! @details p4est is a connectivity code, so it does not distinguish between
+  !! independent node and the node set on periodic boundary. This can result in
+  !! a wrong element shape, so I have to identify them on my own
+  subroutine p4est_periodic_get(vmap, vcoord, nind, ind_map, ind_coord, &
+       nfhng, fhng_map, fhng_coord, nehng, ehng_map, ehng_coord, nvert, nelt, &
+       lnum_in, lnum_fh, lnum_eh, gdim)
+    integer(i4), allocatable, target, dimension(:, :), intent(inout) :: vmap
+    real(dp),allocatable, target, dimension(:, :, :), intent(inout) :: vcoord
+    integer(i4), allocatable, target, dimension(:), intent(inout) :: ind_map, &
+         fhng_map, ehng_map
+    real(dp), allocatable, target, dimension(:, :), intent(inout) :: &
+         ind_coord, fhng_coord, ehng_coord
+    integer(i4), intent(out) :: nind, nfhng, nehng
+    integer(i4), intent(in) :: nvert, nelt, lnum_in, lnum_fh, lnum_eh, gdim
+    integer :: il, jl, itmp, bndf, bnde, bndfp, bndep
+    real(dp), allocatable, target, dimension(:, :) :: lind_coord, &
+         lfhng_coord, lehng_coord
+    integer(i4), allocatable, target, dimension(:) :: lind_map, lfhng_map, &
+         lehng_map
 
-    allocate(gidx(lnum))
+    ! THIS IS NOT UPDATED YET!!! OLD METHOD WORKED WITH SINGLE PERIODICITY ONLY
+    call neko_error('Periodic nodes not finalised yet')
+    ! count periodic nodes
+    ! independent
+    nind = 0
+    do il = 1, lnum_in
+       if (ind_map(il) .gt. 0) then
+          nind = nind + 1
+          ind_map(il) = nind
+       end if
+    end do
+    ! face hanging
+    nfhng = 0
+    do il = 1, lnum_fh
+       if (fhng_map(il) .gt. 0) then
+          nfhng = nfhng + 1
+          fhng_map(il) = nfhng
+       end if
+    end do
+    ! edge hanging
+    nehng = 0
+    do il = 1, lnum_eh
+       if (ehng_map(il) .gt. 0) then
+          nehng = nehng + 1
+          ehng_map(il) = nehng
+       end if
+    end do
 
-    ! This is not finished yet
-    call neko_error('Hanging node numbering not done yet')
+    ! shrink coordinate lists
+    allocate(lind_coord(gdim, nind), lfhng_coord(gdim, nfhng), &
+         lehng_coord(gdim, nehng))
+    do il = 1, lnum_in
+       if (ind_map(il) .gt. 0) then
+          lind_coord(:, ind_map(il)) = ind_coord(:, il)
+       end if
+    end do
+    call move_alloc(lind_coord, ind_coord)
+    do il = 1, lnum_fh
+       if (fhng_map(il) .gt. 0) then
+          lfhng_coord(:, fhng_map(il)) = fhng_coord(:, il)
+       end if
+    end do
+    call move_alloc(lfhng_coord, fhng_coord)
+    do il = 1, lnum_eh
+       if (ehng_map(il) .gt. 0) then
+          lehng_coord(:, ehng_map(il)) = ehng_coord(:, il)
+       end if
+    end do
+    call move_alloc(lehng_coord, ehng_coord)
 
-  end subroutine p4est_hng_node_gnum_get
+    ! update vertex mapping
+    bndf = lnum_in + lnum_fh
+    bnde = lnum_in + lnum_fh + lnum_eh
+    bndfp = lnum_in + nind + lnum_fh
+    bndep = lnum_in + nind + lnum_fh + nfhng + lnum_eh
+    do il = 1, nelt
+       do jl = 1, nvert
+          itmp = abs(vmap(jl, il))
+          if (itmp .le. lnum_in) then
+             ! independent node
+             if (vmap(jl, il) .lt. 0) then
+                ! periodic
+                vmap(jl, il) = lnum_in + ind_map(itmp)
+             else
+                ! nothing to do
+             end if
+          else if (itmp .le. bndf) then
+             ! face hanging node
+             if (vmap(jl, il) .lt. 0) then
+                ! periodic
+                itmp = itmp - lnum_in
+                vmap(jl, il) = bndfp + fhng_map(itmp)
+             else
+                ! update position including periodic nodes
+                vmap(jl, il) = vmap(jl, il) + nind
+             end if
+          else if (itmp .le. bnde) then
+             ! edge hanging node
+             if (vmap(jl, il) .lt. 0) then
+                ! periodic
+                itmp = itmp - bndf
+                vmap(jl, il) = bndep + ehng_map(itmp)
+             else
+                ! update position including periodic nodes
+                vmap(jl, il) = vmap(jl, il) + nind + nfhng
+             end if
+          else
+             call neko_error('Wrong vertex mapping index.')
+          end if
+       end do
+    end do
+
+    ! get periodic node to already existing node mapping
+    allocate(lind_map(nind), lfhng_map(nfhng), lehng_map(nehng))
+    do il = 1, lnum_in
+       if (ind_map(il) .gt. 0) then
+          lind_map(ind_map(il)) = il
+       end if
+    end do
+    call move_alloc(lind_map, ind_map)
+    do il = 1, lnum_fh
+       if (fhng_map(il) .gt. 0) then
+          lfhng_map(fhng_map(il)) = il
+       end if
+    end do
+    call move_alloc(lfhng_map, fhng_map)
+    do il = 1, lnum_eh
+       if (ehng_map(il) .gt. 0) then
+          lehng_map(ehng_map(il)) = il
+       end if
+    end do
+    call move_alloc(lehng_map, ehng_map)
+
+    ! missing global numbering of periodic nodes; will be done later
+
+  end subroutine p4est_periodic_get
 
   !> Extract edge orientation
   !! @detail Unfortunately p4est does not keep global edge orientation, as
@@ -1091,12 +1131,31 @@ contains
 
   end subroutine p4est_family_get
 
+  !> Get global numbering of hanging and periodic nodes
+  !! @details p4est is a connectivity code, so it does not care about global
+  !! numbering of hanging or periodic nodes just mapping them to independent
+  !! nodes
+  subroutine p4est_hng_periodic_gnum_get(mesh_new)
+    type(manager_mesh_p4est_t), intent(inout) :: mesh_new
+
+    ! This is not finished yet
+    !call neko_error('Nodes global numbering not finalised yet')
+
+    ! periodic node numbering
+    ! hanging node numbering
+    ! reordering of faces taking into account their multiplicity
+
+  end subroutine p4est_hng_periodic_gnum_get
+
   !> Apply data read from mesh file to mesh manager structures
   subroutine p4est_mesh_file_apply(this)
     class(mesh_manager_p4est_t), intent(inout) :: this
-    integer(i4) :: il, iel, ifc, ibc, nin, nhf, nhe
+    integer(i4) :: il, iel, ifc, ibc, nin, ninp, nhf, nhfp, nhe, nhep
     integer(i8) :: itmp8
     integer(i4), target, allocatable, dimension(:) :: imsh
+    ! conversion from circular to symmetric notation
+    integer(i4) , dimension(8), parameter :: cs_cnv = &
+         [1, 2, 4, 3, 5, 6, 8, 7]
 
     select type(mesh => this%mesh)
     type is (manager_mesh_p4est_t)
@@ -1147,27 +1206,53 @@ contains
     ! mesh file is fine, but in case of corrupted file could be important
     select type(geom => this%mesh%geom)
     type is (manager_geom_p4est_t)
-       ! get limits for different node types
-       nin = geom%ind%lnum
-       nhf = nin + geom%hng_fcs%lnum
-       nhe = nhf + geom%hng_edg%lnum
-       do il = 1, geom%nel
-          do ifc = 1, geom%nvrt
-             ibc = geom%vmap(ifc, il)
-             if (ibc .le. nin) then
-                geom%ind%coord(:, ibc) = this%nmsh_mesh%hex(il)%v(ifc)%v_xyz(:)
-             else if (ibc .le. nhf) then
-                geom%hng_fcs%coord(:, ibc - nin) = &
-                     this%nmsh_mesh%hex(il)%v(ifc)%v_xyz(:)
-             else if (ibc .le. nhe) then
-                geom%hng_edg%coord(:, ibc - nhf) = &
-                     this%nmsh_mesh%hex(il)%v(ifc)%v_xyz(:)
-             else
-                call neko_error('Inconsistent vertex to node mapping')
-             end if
+       ! complete global geometry information
+       if (geom%ifcomplete) then
+          select type (ind => geom%ind)
+          type is(manager_geom_node_ind_p4est_t)
+             ! get limits for different node types
+             nin = ind%lnum
+             ninp = nin + ind%pnum
+             nhf = ninp + geom%hng_fcs%lnum
+             nhfp = nhf + geom%hng_fcs%pnum
+             nhe = nhfp + geom%hng_edg%lnum
+             nhep = nhe + geom%hng_edg%pnum
+             do il = 1, geom%nel
+                do ifc = 1, geom%nvrt
+                   ibc = geom%vmap(ifc, il)
+                   if (ibc .le. nin) then
+                      ind%coord(:, ibc) = &
+                           this%nmsh_mesh%hex(il)%v(cs_cnv(ifc))%v_xyz(:)
+                   else if (ibc .le. ninp) then
+                      ind%pcoord(:, ibc - nin) = &
+                           this%nmsh_mesh%hex(il)%v(cs_cnv(ifc))%v_xyz(:)
+                   else if (ibc .le. nhf) then
+                      geom%hng_fcs%coord(:, ibc - ninp) = &
+                           this%nmsh_mesh%hex(il)%v(cs_cnv(ifc))%v_xyz(:)
+                   else if (ibc .le. nhfp) then
+                      geom%hng_fcs%pcoord(:, ibc - nhf) = &
+                           this%nmsh_mesh%hex(il)%v(cs_cnv(ifc))%v_xyz(:)
+                   else if (ibc .le. nhe) then
+                      geom%hng_edg%coord(:, ibc - nhfp) = &
+                           this%nmsh_mesh%hex(il)%v(cs_cnv(ifc))%v_xyz(:)
+                   else if (ibc .le. nhep) then
+                      geom%hng_edg%pcoord(:, ibc - nhe) = &
+                           this%nmsh_mesh%hex(il)%v(cs_cnv(ifc))%v_xyz(:)
+                   else
+                      call neko_error('Inconsistent vertex to node mapping')
+                   end if
+                end do
+             end do
+          end select
+       else ! ifcomplete
+          ! only simplified info; local coordinates of element vertices
+          do il = 1, geom%nel
+             do ifc = 1, geom%nvrt
+                geom%vcoord(:, ifc, il) = &
+                     this%nmsh_mesh%hex(il)%v(cs_cnv(ifc))%v_xyz(:)
+             end do
           end do
-       end do
-
+       end if
     end select
 
   end subroutine p4est_mesh_file_apply
@@ -1237,8 +1322,8 @@ contains
           write(log_buf, '(a)') 'p4est refinement; mesh changed'
           call neko_log%message(log_buf, NEKO_LOG_INFO)
 
-          ! import new data
-          call this%import()
+          ! import new data; just a simple geometry representation
+          call this%import(.false.)
 
           ! get data to reconstruct fields
           ! data sizes
@@ -1320,7 +1405,7 @@ contains
     allocate(mesh%dfrmd_el(mesh%nelv))
     call mesh%curve%init(mesh%nelv)
     if (ifnmsh) then
-       ! Get curvature information from
+       ! Get curvature information
        call p4est_curve_fill(mesh, this%nmsh_mesh)
     end if
     call mesh%curve%finalize() ! curved sides finalisation
@@ -1448,38 +1533,85 @@ contains
   subroutine p4est_node_fill(mesh, geom)
     type(mesh_t), intent(inout) :: mesh
     type(manager_geom_p4est_t), intent(in) :: geom
-    integer :: il, itmp
+    integer :: il, jl, itmp
     integer(i4) :: nidx
 
-    ! local number of unique vertices
-    mesh%gpts = geom%ind%lnum + geom%hng_fcs%lnum + geom%hng_edg%lnum
+    ! complete global geometry information
+    if (geom%ifcomplete) then
+       select type (ind => geom%ind)
+       type is(manager_geom_node_ind_p4est_t)
+          ! local number of unique vertices
+          mesh%gpts = ind%lnum +  ind%pnum + geom%hng_fcs%lnum + &
+               geom%hng_fcs%pnum + geom%hng_edg%lnum+ geom%hng_edg%pnum
 
-    ! fill the points
-    ! order matters due to the element vertex mapping
-    allocate(mesh%points(mesh%gpts))
-    itmp = 0
-    ! independent nodes
-    if (geom%ind%lnum .gt. 0) then
-       do il = 1, geom%ind%lnum
-          itmp = itmp + 1
-          nidx = int(geom%ind%gidx(il), i4)
-          call mesh%points(itmp)%init(geom%ind%coord(:, il), nidx)
-       end do
-    end if
-    ! face hanging nodes
-    if (geom%hng_fcs%lnum .gt. 0) then
-       do il = 1, geom%hng_fcs%lnum
-          itmp = itmp + 1
-          nidx = int(geom%hng_fcs%gidx(il), i4)
-          call mesh%points(itmp)%init(geom%hng_fcs%coord(:, il), nidx)
-       end do
-    end if
-    ! edge hanging nodes
-    if (geom%hng_edg%lnum .gt. 0) then
-       do il = 1, geom%hng_edg%lnum
-          itmp = itmp + 1
-          nidx = int(geom%hng_edg%gidx(il), i4)
-          call mesh%points(itmp)%init(geom%hng_edg%coord(:, il), nidx)
+          ! fill the points
+          ! order matters due to the element vertex mapping
+          allocate(mesh%points(mesh%gpts))
+          itmp = 0
+          ! independent nodes
+          if (ind%lnum .gt. 0) then
+             do il = 1, ind%lnum
+                itmp = itmp + 1
+                nidx = int(ind%gidx(il), i4)
+                call mesh%points(itmp)%init(ind%coord(:, il), nidx)
+             end do
+          end if
+          ! independent periodic
+          if (ind%pnum .gt. 0) then
+             do il = 1, ind%pnum
+                itmp = itmp + 1
+                nidx = int(ind%pgidx(il), i4)
+                call mesh%points(itmp)%init(ind%pcoord(:, il), nidx)
+             end do
+          end if
+          ! face hanging nodes
+          if (geom%hng_fcs%lnum .gt. 0) then
+             do il = 1, geom%hng_fcs%lnum
+                itmp = itmp + 1
+                nidx = int(geom%hng_fcs%gidx(il), i4)
+                call mesh%points(itmp)%init(geom%hng_fcs%coord(:, il), nidx)
+             end do
+          end if
+          ! face hanging periodic
+          if (geom%hng_fcs%pnum .gt. 0) then
+             do il = 1, geom%hng_fcs%pnum
+                itmp = itmp + 1
+                nidx = int(geom%hng_fcs%pgidx(il), i4)
+                call mesh%points(itmp)%init(geom%hng_fcs%pcoord(:, il), nidx)
+             end do
+          end if
+          ! edge hanging nodes
+          if (geom%hng_edg%lnum .gt. 0) then
+             do il = 1, geom%hng_edg%lnum
+                itmp = itmp + 1
+                nidx = int(geom%hng_edg%gidx(il), i4)
+                call mesh%points(itmp)%init(geom%hng_edg%coord(:, il), nidx)
+             end do
+          end if
+          ! edge hanging periodic
+          if (geom%hng_edg%pnum .gt. 0) then
+             do il = 1, geom%hng_edg%pnum
+                itmp = itmp + 1
+                nidx = int(geom%hng_edg%pgidx(il), i4)
+                call mesh%points(itmp)%init(geom%hng_edg%pcoord(:, il), nidx)
+             end do
+          end if
+       end select
+    else ! ifcomplete
+       ! only simplified info; local coordinates of element vertices
+
+       ! THIS IS JUST A HACK, AS POINTS IN THE POINT LIST ARE NOT UNIQUE
+       mesh%gpts = geom%nvrt * geom%nel
+       ! fill the points
+       ! order matters due to the way elements are initialised
+       allocate(mesh%points(mesh%gpts))
+       itmp = 0
+       do il = 1, geom%nel
+          do jl = 1, geom%nvrt
+             itmp = itmp + 1
+             ! No real global numbering
+             call mesh%points(itmp)%init(geom%vcoord(:, jl, il), itmp)
+          end do
        end do
     end if
 
@@ -1501,25 +1633,47 @@ contains
 
     ! Fill in element array
     allocate(mesh%elements(mesh%nelv))
-    do il = 1, mesh%nelv
-       allocate(hex_t::mesh%elements(il)%e)
-       nidx = int(gidx(il), i4)
-       select type(ep => mesh%elements(il)%e)
-       type is (hex_t)
-          call ep%init(nidx, &
-               mesh%points(geom%vmap(1, il)), &
-               mesh%points(geom%vmap(2, il)), &
-               mesh%points(geom%vmap(3, il)), &
-               mesh%points(geom%vmap(4, il)), &
-               mesh%points(geom%vmap(5, il)), &
-               mesh%points(geom%vmap(6, il)), &
-               mesh%points(geom%vmap(7, il)), &
-               mesh%points(geom%vmap(8, il)))
-       end select
-       ! Global to local element mapping
-       itmp = il
-       call mesh%htel%set(nidx, itmp)
-    end do
+    ! complete global geometry information
+    if (geom%ifcomplete) then
+       do il = 1, mesh%nelv
+          allocate(hex_t::mesh%elements(il)%e)
+          nidx = int(gidx(il), i4)
+          select type(ep => mesh%elements(il)%e)
+          type is (hex_t)
+             call ep%init(nidx, &
+                  mesh%points(geom%vmap(1, il)), &
+                  mesh%points(geom%vmap(2, il)), &
+                  mesh%points(geom%vmap(3, il)), &
+                  mesh%points(geom%vmap(4, il)), &
+                  mesh%points(geom%vmap(5, il)), &
+                  mesh%points(geom%vmap(6, il)), &
+                  mesh%points(geom%vmap(7, il)), &
+                  mesh%points(geom%vmap(8, il)))
+          end select
+          ! Global to local element mapping
+          itmp = il
+          call mesh%htel%set(nidx, itmp)
+       end do
+    else ! ifcomplete
+       ! only simplified info; local coordinates of element vertices
+
+       ! THIS IS JUST A HACK, AS POINTS IN THE POINT LIST ARE NOT UNIQUE
+       do il = 1, mesh%nelv
+          itmp = (il - 1) * geom%nvrt
+          allocate(hex_t::mesh%elements(il)%e)
+          nidx = int(gidx(il), i4)
+          select type(ep => mesh%elements(il)%e)
+          type is (hex_t)
+             call ep%init(nidx, mesh%points(1 + itmp), mesh%points(2 + itmp), &
+                  mesh%points(3 + itmp), mesh%points(4 + itmp), &
+                  mesh%points(5 + itmp), mesh%points(6 + itmp), &
+                  mesh%points(7 + itmp), mesh%points(8 + itmp))
+          end select
+          ! Global to local element mapping
+          itmp = il
+          call mesh%htel%set(nidx, itmp)
+       end do
+    end if
 
   end subroutine p4est_element_fill
 
@@ -2040,8 +2194,9 @@ contains
   end subroutine p4est_free
 
   !> Import mesh data
-  subroutine p4est_import(this)
+  subroutine p4est_import(this, ifcomplete)
     class(mesh_manager_p4est_t), intent(inout) :: this
+    logical, intent(in) :: ifcomplete
 
     call neko_error('p4est mesh manager must be compiled with p4est support.')
 
@@ -2069,9 +2224,14 @@ contains
 
   !> Construct neko mesh type based on mesh manager data
   !! @param[inout]   mesh     neko mesh type
-  subroutine p4est_mesh_construct(this, mesh)
+  !! @param[in]      ifnmsh   use curvature information form nmsh file
+  subroutine p4est_mesh_construct(this, mesh, ifnmsh)
     class(mesh_manager_t), intent(inout) :: this
     type(mesh_t), intent(inout) :: mesh
+    logical, intent(in) :: ifnmsh
+
+    call neko_error('p4est mesh manager must be compiled with p4est support.')
+
   end subroutine p4est_mesh_construct
 #endif
 
