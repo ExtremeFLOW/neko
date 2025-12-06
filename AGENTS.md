@@ -81,5 +81,7 @@ making decisions about how to setup a case.
   - `doc/pages/developer-guide/important_types.md` provides an overview of
     the most important types for Neko. It is a very good idea to look at their
     implementation in the respective .f90 files under th `src` structure.
+- Be generous with comments in the user file you generate, so that one can
+  easily follow what your code does.
 - At the end always run `makeneko` on the generated user file and makes sure it
   compiles.
