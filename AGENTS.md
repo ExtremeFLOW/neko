@@ -8,8 +8,9 @@ of turbulent flows.
 ## Helping users setup new Neko simulation cases
 Neko is a simulation software, and a common scenario is that the user will ask
 you to help setup a simulation. Alternatively, they may want tips about specific
-settings or and explanation about a setup they find in an existing case. The instructions under this header are specifically for these scenarios. We
-will refer to a concrete simulation to as "the case". 
+settings or and explanation about a setup they find in an existing case. The
+instructions under this header are specifically for these scenarios. We will
+refer to a concrete simulation to as "the case". 
 
 ### General guidelines
 Below are the main guidelines you should follow for retrieving information and
@@ -61,7 +62,8 @@ making decisions about how to setup a case.
     that for non-uniform element size distributions `genmeshbox` takes the
     location of element edges from files. You may therefore need to generate
     these files based on the user's specifications.
-- **Always** run the utility `mesh_checker` on the generated or existing .nmsh and make sure it reports no errors.
+- **Always** run the utility `mesh_checker` on the generated or existing .nmsh
+  and make sure it reports no errors.
 
 ### The user file
 - The general guide for the user file is is `doc/pages/user-guide/user-file.md`.
