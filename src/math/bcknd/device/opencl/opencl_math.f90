@@ -406,6 +406,14 @@ module opencl_math
        type(c_ptr), value :: a_d, strm
        integer(c_int) :: n
      end function opencl_glsum
+
+     subroutine opencl_absval(a_d, n, strm) &
+          bind(c, name = 'opencl_absval')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       implicit none
+       type(c_ptr), value :: a_d, strm
+       integer(c_int) :: n
+     end subroutine opencl_absval
   end interface
 
 end module opencl_math

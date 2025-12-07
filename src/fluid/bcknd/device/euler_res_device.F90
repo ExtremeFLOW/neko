@@ -44,7 +44,8 @@ module euler_res_device
   use field_math, only : field_cmult
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   use field_list, only : field_list_t
-  use device_math, only : device_copy
+  use device_math, only : device_copy, device_rone, &
+       device_col2, device_cmult, device_sub2
 
   type, public, extends(euler_rhs_t) :: euler_res_device_t
    contains
@@ -565,7 +566,7 @@ contains
     call neko_scratch_registry%request_field(visc_E, temp_indices(8), .false.)
 
     ! Set h1 coefficient to the effective viscosity for the Laplacian operator
-    call device_memcpy(coef%h1_d, effective_visc%x_d, n, DEVICE_TO_DEVICE)
+    call device_copy(coef%h1_d, effective_visc%x_d, n)
 
     ! Calculate artificial diffusion with variable viscosity
     call Ax%compute(visc_rho%x, rho_field%x, coef, p%msh, p%Xh)

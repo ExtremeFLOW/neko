@@ -703,4 +703,16 @@ __kernel void glsum_kernel(__global const real* __restrict__ a,
   if (get_local_id(0) == 0) { buf_h[get_group_id(0)] = buf[0]; }
 }
 
+/**
+ * Device kernel for absval
+ */
+__kernel void absval_kernel(__global real* __restrict__ a,
+                            const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) { a[i] = fabs(a[i]); }
+}
+
 #endif // __MATH_MATH_KERNEL_CL__

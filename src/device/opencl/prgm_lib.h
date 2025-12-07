@@ -111,4 +111,7 @@ extern void *mapping_program;
 /** Device find rst kernel */
 extern void *find_rst_legendre_program;
 
+/** Device entropy viscosity kernels */
+extern void *entropy_viscosity_program;
+
 #endif
