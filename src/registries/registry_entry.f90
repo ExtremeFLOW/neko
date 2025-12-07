@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a registry entry for storing and requesting temporary objects
-!! This is used in the scratch registries to store temporary fields, vectors,
+!! This is used in the registries to store temporary fields, vectors,
 !! and matrices.
 module registry_entry
   use field, only : field_t
@@ -76,7 +76,7 @@ contains
     character(len=*), intent(in) :: name
 
     if (this%allocated) then
-       call neko_error("scratch_registry::init_register_field: " &
+       call neko_error("init_register_field: " &
             // "Register entry is already allocated.")
     end if
 
@@ -98,7 +98,7 @@ contains
     character(len=*), optional, intent(in) :: name
 
     if (this%allocated) then
-       call neko_error("scratch_registry::init_register_vector: " &
+       call neko_error("init_register_vector: " &
             // "Register entry is already allocated.")
     end if
 
@@ -120,7 +120,7 @@ contains
     character(len=*), optional, intent(in) :: name
 
     if (this%allocated) then
-       call neko_error("scratch_registry::init_register_matrix: " &
+       call neko_error("init_register_matrix: " &
             // "Register entry is already allocated.")
     end if
 
