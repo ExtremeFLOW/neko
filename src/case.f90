@@ -63,6 +63,8 @@ module case
   use scalars, only : scalars_t
   use comm, only : NEKO_COMM, pe_rank, pe_size
   use mpi_f08, only : MPI_Bcast, MPI_CHARACTER, MPI_INTEGER
+  use registry, only : neko_registry
+  use vector, only : vector_t
 
   implicit none
   private
@@ -148,6 +150,8 @@ contains
     logical :: temperature_found = .false.
     integer :: integer_val
     real(kind=rp) :: real_val
+    real(kind=rp), allocatable :: real_vals(:)
+    type(vector_t), pointer :: vec
     character(len = :), allocatable :: string_val, name, file_format
     integer :: output_dir_len
     integer :: precision, layout
@@ -166,6 +170,27 @@ contains
     ! Check if default value fill-in is allowed
     if (this%params%valid_path('case.no_defaults')) then
        call json_get(this%params, 'case.no_defaults', json_no_defaults)
+    end if
+
+
+    !
+    ! Populate registry with global data from the case file
+    !
+    if (this%params%valid_path('case.registered_data')) then
+       if (this%params%valid_path('case.registered_data.arrays')) then
+          call this%params%info('case.registered_data.arrays', &
+               n_children = integer_val)
+          do i = 1, integer_val
+             call json_extract_item(this%params, 'case.registered_data.arrays',&
+                  i, json_subdict)
+          end do
+          call json_get(json_subdict, 'name', string_val)
+          call json_get(json_subdict, 'value', real_vals)
+          call neko_registry%add_vector(size(real_vals), trim(string_val))
+          vec => neko_registry%get_vector(trim(string_val))
+          vec = real_vals
+
+       end if
     end if
 
     !
