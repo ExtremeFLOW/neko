@@ -66,6 +66,7 @@ void euler_res_part_visc_opencl(void *rhs_u, void *Binv, void *lap_sol,
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));  
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 void euler_res_part_mx_flux_opencl(void *f_x, void *f_y, void *f_z,
@@ -97,6 +98,7 @@ void euler_res_part_mx_flux_opencl(void *f_x, void *f_y, void *f_z,
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));  
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 void euler_res_part_my_flux_opencl(void *f_x, void *f_y, void *f_z,
@@ -128,6 +130,7 @@ void euler_res_part_my_flux_opencl(void *f_x, void *f_y, void *f_z,
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));  
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 void euler_res_part_mz_flux_opencl(void *f_x, void *f_y, void *f_z,
@@ -159,6 +162,7 @@ void euler_res_part_mz_flux_opencl(void *f_x, void *f_y, void *f_z,
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));  
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 void euler_res_part_E_flux_opencl(void *f_x, void *f_y, void *f_z,
@@ -191,6 +195,7 @@ void euler_res_part_E_flux_opencl(void *f_x, void *f_y, void *f_z,
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));  
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 void euler_res_part_coef_mult_opencl(void *rhs_rho, void *rhs_m_x,
@@ -220,6 +225,7 @@ void euler_res_part_coef_mult_opencl(void *rhs_rho, void *rhs_m_x,
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));  
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 void euler_res_part_rk_sum_opencl(void *rho, void *m_x, void *m_y, void *m_z,
@@ -256,4 +262,5 @@ void euler_res_part_rk_sum_opencl(void *rho, void *m_x, void *m_y, void *m_z,
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));  
+  CL_CHECK(clReleaseKernel(kernel));
 }

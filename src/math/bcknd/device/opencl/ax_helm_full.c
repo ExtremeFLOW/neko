@@ -108,7 +108,7 @@ void opencl_ax_helm_stress_vector(void *au, void *av, void *aw,
      CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue,         \
                                      kernel, 2, NULL, global_kstep,            \
                                      local_kstep, 0, NULL, NULL));             \
-                                                                               \
+      CL_CHECK(clReleaseKernel(kernel));                                       \
     }                                                                          \
     break
 
@@ -170,5 +170,5 @@ void opencl_ax_helm_stress_vector_part2(void *au, void *av, void *aw,
   CL_CHECK(clEnqueueNDRangeKernel(glb_cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
- 
+  CL_CHECK(clReleaseKernel(kernel));
 }
