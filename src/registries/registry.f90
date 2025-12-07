@@ -122,6 +122,8 @@ module registry
      procedure, pass(this) :: n_aliases => registry_n_aliases
      !> Get the `expansion_size`
      procedure, pass(this) :: get_expansion_size => registry_get_expansion_size
+     !> Print registry contents optionally filtered by type.
+     procedure, pass(this) :: print_contents => registry_print_contents
   end type registry_t
 
   !> Global field registry
@@ -670,5 +672,63 @@ contains
 
     call neko_log%end_section()
   end subroutine registry_print
+
+  !> Print the registry contents grouped by entity type.
+  subroutine registry_print_contents(this, type)
+    class(registry_t), intent(in) :: this
+    character(len=*), optional, intent(in) :: type
+    character(len=:), allocatable :: filter_type
+    character(len=6), parameter :: types(3) = (/ 'field ', 'vector', 'matrix' /)
+    logical :: filter_active
+    integer :: i
+    logical :: known_type
+
+    filter_active = .false.
+    if (present(type)) then
+       filter_type = trim(type)
+       filter_active = .true.
+       known_type = .false.
+       do i = 1, size(types)
+          if (filter_type == types(i)) then
+             known_type = .true.
+             exit
+          end if
+       end do
+       if (.not. known_type) then
+          call neko_error("registry::print_contents: Unsupported type " &
+               // trim(filter_type))
+       end if
+    end if
+
+    call neko_log%section("Registry Contents")
+    do i = 1, size(types)
+       if (filter_active .and. (filter_type .ne. types(i))) cycle
+       call registry_print_section(this, types(i))
+    end do
+    call neko_log%end_section()
+  end subroutine registry_print_contents
+
+  !> Print a single section of the registry for the given type.
+  subroutine registry_print_section(this, entity_type)
+    class(registry_t), intent(in) :: this
+    character(len=*), intent(in) :: entity_type
+    integer :: i
+    logical :: found
+    character(len=LOG_SIZE) :: buffer
+
+    call neko_log%message("  "//trim(entity_type)//" entries:")
+    found = .false.
+    do i = 1, this%n_entries()
+       if (this%entries(i)%get_type() .eq. entity_type) then
+          found = .true.
+          write(buffer, '(A,I4,A,A)') "    [", i, "] ", &
+               trim(this%entries(i)%get_name())
+          call neko_log%message(trim(buffer))
+       end if
+    end do
+    if (.not. found) then
+       call neko_log%message("    <none>")
+    end if
+  end subroutine registry_print_section
 
 end module registry
