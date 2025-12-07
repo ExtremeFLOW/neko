@@ -228,6 +228,8 @@ contains
     call div(div_field%x, us_field%x, vs_field%x, ws_field%x, this%coef)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%entropy_residual%x, this%entropy_residual%x_d, &
+            n, DEVICE_TO_HOST, sync = .false.)
        call device_memcpy(div_field%x, div_field%x_d, n, DEVICE_TO_HOST, &
             sync = .true.)
     end if

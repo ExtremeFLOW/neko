@@ -56,6 +56,10 @@ void opencl_symmetry_apply_vector(void *xmsk, void *ymsk, void *zmsk,
                                   int *m, int *n, int *l,
                                   cl_command_queue cmd_queue) {
 
+  const int max_len = MAX(MAX(*m, *n), *l);
+  if (max_len == 0)
+    return;
+
   cl_int err;
    
   if (symmetry_program == NULL)
@@ -75,7 +79,6 @@ void opencl_symmetry_apply_vector(void *xmsk, void *ymsk, void *zmsk,
   CL_CHECK(clSetKernelArg(kernel, 7, sizeof(int), n));
   CL_CHECK(clSetKernelArg(kernel, 8, sizeof(int), l));
   
-  const int max_len = MAX(MAX(*m, *n), *l);
   const int nb = (max_len + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;

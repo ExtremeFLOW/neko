@@ -1295,6 +1295,30 @@ real opencl_glsum(void *a, int *n, cl_command_queue cmd_queue) {
 }
 
 
+/** Fortran wrapper for absval
+ * Absolute value \f$ a_i = |a_i| \f$
+ */
+void opencl_absval(void *a, int *n, cl_command_queue cmd_queue) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "absval_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(int), n));
+
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
+                                  &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+}
+
 /** Fortran wrapper for cadd
  * Add a scalar to vector \f$ a = \sum a_i + s \f$
  */
