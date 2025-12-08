@@ -42,7 +42,7 @@ module fluid_output
   use device
   use output, only : output_t
   use scalars, only : scalars_t
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use field, only : field_t
   implicit none
   private
@@ -104,7 +104,7 @@ contains
     end if
 
     ! Check if max_wave_speed field exists (for compressible flows)
-    has_max_wave_speed = neko_field_registry%field_exists("max_wave_speed")
+    has_max_wave_speed = neko_registry%field_exists("max_wave_speed")
 
     ! Check if density field exists (for compressible flows)
     ! We need to check the solver type here since the incompressible
@@ -155,7 +155,7 @@ contains
     ! Add max_wave_speed field if it exists (for compressible flows)
     if (has_max_wave_speed) then
        i = i + 1
-       max_wave_speed_field => neko_field_registry%get_field("max_wave_speed")
+       max_wave_speed_field => neko_registry%get_field("max_wave_speed")
        call this%fluid%assign(i, max_wave_speed_field)
     end if
 

@@ -55,6 +55,15 @@
 
             "output_control": "nsamples",
             "output_value": 100
-        }
+        },
+
+        "simulation_components": [
+            {
+                "type": "field_writer",
+                "fields": ["fluid_rho", "S", "effective_visc"], // s2, s3, s4 in Paraview
+                "output_control": "nsamples",
+                "output_value": 100
+            }
+        ]
     }
 }

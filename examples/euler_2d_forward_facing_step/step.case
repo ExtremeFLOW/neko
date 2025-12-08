@@ -56,7 +56,7 @@
         "simulation_components": [
             {
                 "type": "field_writer",
-                "fields": ["S", "effective_visc", "max_wave_speed"],
+                "fields": ["fluid_rho", "S", "effective_visc", "max_wave_speed"], // s2, s3, s4, s5 in Paraview
                 "output_control": "nsamples",
                 "output_value": 20
             }

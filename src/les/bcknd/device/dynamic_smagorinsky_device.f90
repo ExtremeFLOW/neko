@@ -35,7 +35,7 @@ module dynamic_smagorinsky_device
   use num_types, only : rp
   use field_list, only : field_list_t
   use scratch_registry, only : neko_scratch_registry
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use field, only : field_t
   use operators, only : strain_rate
   use coefs, only : coef_t
@@ -93,13 +93,13 @@ contains
     end if
 
     if (if_ext .eqv. .true.) then
-       u => neko_field_registry%get_field_by_name("u_e")
-       v => neko_field_registry%get_field_by_name("v_e")
-       w => neko_field_registry%get_field_by_name("w_e")
+       u => neko_registry%get_field_by_name("u_e")
+       v => neko_registry%get_field_by_name("v_e")
+       w => neko_registry%get_field_by_name("w_e")
     else
-       u => neko_field_registry%get_field_by_name("u")
-       v => neko_field_registry%get_field_by_name("v")
-       w => neko_field_registry%get_field_by_name("w")
+       u => neko_registry%get_field_by_name("u")
+       v => neko_registry%get_field_by_name("v")
+       w => neko_registry%get_field_by_name("w")
     end if
 
     call neko_scratch_registry%request_field(s11, tmp_indices(1), .false.)

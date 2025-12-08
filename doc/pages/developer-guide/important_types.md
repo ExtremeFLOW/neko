@@ -53,25 +53,14 @@ Singleton types are meant to only have a single object of their kind to be
 created. These objects are declared in the same module where the type resides,
 and all have their name starting with `neko_`.
 
-- [field_registry_t](#field_registry::field_registry_t): A registry of
-  [field_t](#field::field_t), retrievable by name or index. This is the main
-  object used to access the fields of unknowns for any place in the code.
-- [vector_registry_t](#vector_registry::vector_registry_t): The same as the
-  field registry, but for [vector_t](#vector::vector_t).
+- [registry_t](#registry::registry_t): A registry of
+  [field_t](#field::field_t), [vector_t](#vector::vector_t) and 
+  [matrix_t](#matrix::matrix_t), retrievable by name or index. This is the main
+  object used to access the array types of unknowns for any place in the code.
 - [scratch_registry_t](#scratch_registry::scratch_registry_t): Provides a
   mechanism to get a temporary [field_t](#field::field_t),
   [vector_t](#vector::vector_t) or [matrix_t](#matrix::matrix_t) for doing some
   work. Use this instead of creating temporary fields inside a subroutine.
-- [field_scratch_registry_t](#field_scratch_registry::field_scratch_registry_t):
-  Provides a mechanism to get a temporary [field_t](#field::field_t) for doing
-  some work. Use this instead of creating temporary fields inside a subroutine.
-- [vector_scratch_registry_t](#vector_scratch_registry::vector_scratch_registry_t):
-  Provides a mechanism to get a temporary [vector_t](#vector::vector_t) for doing
-  some work. Use this instead of creating temporary vectors inside a subroutine.
-- [matrix_scratch_registry_t](#matrix_scratch_registry::matrix_scratch_registry_t):
-  Provides a mechanism to get a temporary [matrix_t](#matrix::matrix_t) for doing
-  some work. Use this instead of creating temporary matrices inside a
-  subroutine.
 - [simcomp_executor_t](#simcomp_executor::simcomp_executor_t): Driver for
   simulation components. The object is called `neko_simcomps`.
 - [log_t](#logger::log_t): Used to write to the simulation log.

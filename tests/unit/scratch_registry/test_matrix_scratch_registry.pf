@@ -4,43 +4,69 @@ module test_matrix_scratch_registry
   use matrix_math, only : matrix_cfill
   use scratch_registry, only : scratch_registry_t
   use num_types, only : rp
-  use device, only : DEVICE_TO_HOST
+  use device, only : DEVICE_TO_HOST, device_init, &
+       device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
   implicit none
+
+  @TestCase
+  type, extends(TestCase) :: test_matrix_scratch_reg
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_matrix_scratch_reg
 
 contains
 
+  subroutine setUp(this)
+    class(test_matrix_scratch_reg), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_matrix_scratch_reg), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
   @test
-  subroutine test_matrix_scratch_registry_init_default()
+  subroutine test_mat_scratch_reg_init_default(this)
+    class(test_matrix_scratch_reg), intent(inout) :: this
     type(scratch_registry_t) :: scratch
     integer :: ierr
 
     call scratch%init()
 
-    @assertEqual(scratch%get_n_available(), 0)
+    @assertEqual(scratch%get_n_entries(), 0)
     @assertEqual(scratch%get_expansion_size(), 10)
     @assertEqual(scratch%get_size(), 10)
     @assertEqual(scratch%get_n_inuse(), 0)
 
     call scratch%free()
-  end subroutine test_matrix_scratch_registry_init_default
+  end subroutine test_mat_scratch_reg_init_default
 
   @test
-  subroutine test_matrix_scratch_registry_init()
+  subroutine test_mat_scratch_reg_init(this)
+    class(test_matrix_scratch_reg), intent(inout) :: this
     type(scratch_registry_t) :: scratch
     integer :: ierr
 
     call scratch%init(5, 3)
 
-    @assertEqual(scratch%get_n_available(), 0)
+    @assertEqual(scratch%get_n_entries(), 0)
     @assertEqual(scratch%get_expansion_size(), 3)
     @assertEqual(scratch%get_size(), 5)
     @assertEqual(scratch%get_n_inuse(), 0)
 
     call scratch%free()
-  end subroutine test_matrix_scratch_registry_init
+  end subroutine test_mat_scratch_reg_init
 
   @test
-  subroutine test_matrix_scratch_registry_request_matrix_fresh()
+  subroutine test_mat_scratch_reg_req_mat_frsh(this)
+    class(test_matrix_scratch_reg), intent(inout) :: this
     type(scratch_registry_t) :: scratch
     type(matrix_t), pointer :: m1, m2, m3
     integer :: ierr, index1, index2, index3
@@ -49,14 +75,14 @@ contains
 
     call scratch%init(5, 3)
 
-    call scratch%request_matrix(42, 42, m1, index1, .false.)
-    call scratch%request_matrix(42, 42, m2, index2, .false.)
-    call scratch%request_matrix(42, 42, m3, index3, .false.)
+    call scratch%request_matrix(m1, index1, 42, 42, .false.)
+    call scratch%request_matrix(m2, index2, 42, 42, .false.)
+    call scratch%request_matrix(m3, index3, 42, 42, .false.)
     @assertEqual(index1, 1)
     @assertEqual(index2, 2)
     @assertEqual(scratch%get_inuse(index1), .true.)
     @assertEqual(scratch%get_inuse(index2), .true.)
-    @assertEqual(scratch%get_n_available(), 3)
+    @assertEqual(scratch%get_n_entries(), 3)
     @assertEqual(scratch%get_n_inuse(), 3)
 
     ! do something with the matrix
@@ -66,7 +92,7 @@ contains
 
     call m1%copy_from(DEVICE_TO_HOST, sync = .false.)
     call m2%copy_from(DEVICE_TO_HOST, sync = .false.)
-    call m3%copy_from(DEVICE_TO_HOST, sync = .false.)
+    call m3%copy_from(DEVICE_TO_HOST, sync = .true.)
 
     @assertEqual(m1%x(1, 1), 1.0_rp)
     @assertEqual(m2%x(1, 1), 2.0_rp)
@@ -76,46 +102,49 @@ contains
     call scratch%relinquish_matrix(index2)
     call scratch%relinquish_matrix(index3)
     call scratch%free()
-  end subroutine test_matrix_scratch_registry_request_matrix_fresh
+  end subroutine test_mat_scratch_reg_req_mat_frsh
 
   @test
-  subroutine test_matrix_scratch_registry_relinquish_matrix()
+  subroutine test_mat_scratch_reg_relq_mat(this)
+    class(test_matrix_scratch_reg), intent(inout) :: this
     type(scratch_registry_t) :: scratch
     type(matrix_t), pointer :: m
     integer :: ierr, index
     !
     call scratch%init(5, 3)
 
-    call scratch%request_matrix(42, 42, m, index, .false.)
+    call scratch%request_matrix(m, index, 42, 42, .false.)
     call scratch%relinquish_matrix(index)
     @assertEqual(scratch%get_inuse(index), .false.)
     @assertEqual(scratch%get_n_inuse(), 0)
-    @assertEqual(scratch%get_n_available(), 1)
+    @assertEqual(scratch%get_n_entries(), 1)
 
     call scratch%free()
-  end subroutine test_matrix_scratch_registry_relinquish_matrix
+  end subroutine test_mat_scratch_reg_relq_mat
 
   @test
-  subroutine test_vector_scratch_registry_relinquish_matrix_list()
+  subroutine test_vector_scratch_reg_relinq_mat_lst(this)
+    class(test_matrix_scratch_reg), intent(inout) :: this
     type(scratch_registry_t) :: scratch
     type(matrix_t), pointer :: m1, m2
     integer :: ierr, indices(2)
     !
     call scratch%init(5, 3)
 
-    call scratch%request_matrix(42, 42, m1, indices(1), .false.)
-    call scratch%request_matrix(42, 42, m2, indices(2), .false.)
+    call scratch%request_matrix(m1, indices(1), 42, 42, .false.)
+    call scratch%request_matrix(m2, indices(2), 42, 42, .false.)
     call scratch%relinquish_matrix(indices)
     @assertEqual(scratch%get_inuse(indices(1)), .false.)
     @assertEqual(scratch%get_inuse(indices(2)), .false.)
     @assertEqual(scratch%get_n_inuse(), 0)
-    @assertEqual(scratch%get_n_available(), 2)
+    @assertEqual(scratch%get_n_entries(), 2)
 
     call scratch%free()
-  end subroutine test_vector_scratch_registry_relinquish_matrix_list
+  end subroutine test_vector_scratch_reg_relinq_mat_lst
 
   @test
-  subroutine test_matrix_scratch_registry_expand()
+  subroutine test_mat_scratch_reg_expand(this)
+    class(test_matrix_scratch_reg), intent(inout) :: this
     type(scratch_registry_t), target :: scratch
     type(matrix_t), pointer :: m1, m2
     integer :: ierr, index1, index2
@@ -124,21 +153,21 @@ contains
 
     call scratch%init(1, 1)
 
-    call scratch%request_matrix(42, 42, m1, index1, .false.)
+    call scratch%request_matrix(m1, index1, 42, 42, .false.)
     call matrix_cfill(m1, 1.0_rp)
 
-    call m1%copy_from(DEVICE_TO_HOST, sync = .false.)
+    call m1%copy_from(DEVICE_TO_HOST, sync = .true.)
     @assertEqual(m1%x(1, 1), 1.0_rp)
 
     ! add new matrix, trigging expand
-    call scratch%request_matrix(84, 42, m2, index2, .false.)
+    call scratch%request_matrix(m2, index2, 84, 42, .false.)
 
     ! try to use the second matrix
     call matrix_cfill(m2, 2.0_rp)
 
     ! make sure values in m1 preserved after expansion
     call m1%copy_from(DEVICE_TO_HOST, sync = .false.)
-    call m2%copy_from(DEVICE_TO_HOST, sync = .false.)
+    call m2%copy_from(DEVICE_TO_HOST, sync = .true.)
 
     @assertEqual(m1%x(1, 1), 1.0_rp)
     @assertEqual(m2%x(1, 1), 2.0_rp)
@@ -152,17 +181,18 @@ contains
     @assertEqual(index2, 2)
     @assertEqual(scratch%get_inuse(index1), .true.)
     @assertEqual(scratch%get_inuse(index2), .true.)
-    @assertEqual(scratch%get_n_available(), 2)
+    @assertEqual(scratch%get_n_entries(), 2)
     @assertEqual(scratch%get_n_inuse(), 2)
     @assertEqual(scratch%get_size(), 2)
 
     call scratch%relinquish_matrix(index1)
     call scratch%relinquish_matrix(index2)
     call scratch%free()
-  end subroutine test_matrix_scratch_registry_expand
+  end subroutine test_mat_scratch_reg_expand
 
   @test
-  subroutine test_matrix_scratch_registry_combo()
+  subroutine test_mat_scratch_reg_combo(this)
+    class(test_matrix_scratch_reg), intent(inout) :: this
     type(scratch_registry_t), target :: scratch
     type(matrix_t), pointer :: m1, m2, m3
     integer :: ierr, index1, index2, index3
@@ -171,8 +201,8 @@ contains
     call scratch%init(2, 2)
 
     ! add 2 matrices, no expansion
-    call scratch%request_matrix(42, 42, m1, index1, .false.)
-    call scratch%request_matrix(42, 42, m2, index2, .false.)
+    call scratch%request_matrix(m1, index1, 42, 42, .false.)
+    call scratch%request_matrix(m2, index2, 42, 42, .false.)
     call matrix_cfill(m1, 1.0_rp)
     call matrix_cfill(m2, 2.0_rp)
 
@@ -180,7 +210,7 @@ contains
     @assertEqual(index2, 2)
     @assertEqual(scratch%get_inuse(index1), .true.)
     @assertEqual(scratch%get_inuse(index2), .true.)
-    @assertEqual(scratch%get_n_available(), 2)
+    @assertEqual(scratch%get_n_entries(), 2)
     @assertEqual(scratch%get_n_inuse(), 2)
     @assertEqual(scratch%get_size(), 2)
 
@@ -188,41 +218,41 @@ contains
     call scratch%relinquish_matrix(index1)
     @assertEqual(scratch%get_inuse(index1), .false.)
     @assertEqual(scratch%get_inuse(index2), .true.)
-    @assertEqual(scratch%get_n_available(), 2)
+    @assertEqual(scratch%get_n_entries(), 2)
     @assertEqual(scratch%get_n_inuse(), 1)
     @assertEqual(scratch%get_size(), 2)
 
     ! get a new matrix, should get index 1
-    call scratch%request_matrix(42, 42, m1, index1, .false.)
+    call scratch%request_matrix(m1, index1, 42, 42, .false.)
     call matrix_cfill(m1, 1.5_rp)
     @assertEqual(index1, 1)
     @assertEqual(scratch%get_inuse(index1), .true.)
     @assertEqual(scratch%get_inuse(index2), .true.)
-    @assertEqual(scratch%get_n_available(), 2)
+    @assertEqual(scratch%get_n_entries(), 2)
     @assertEqual(scratch%get_n_inuse(), 2)
     @assertEqual(scratch%get_size(), 2)
 
     ! check that the matrices have survived
     call m1%copy_from(DEVICE_TO_HOST, sync = .false.)
-    call m2%copy_from(DEVICE_TO_HOST, sync = .false.)
+    call m2%copy_from(DEVICE_TO_HOST, sync = .true.)
     @assertEqual(m1%x(1, 1), 1.5_rp)
     @assertEqual(m2%x(1, 1), 2.0_rp)
 
     ! get a another matrix, should get index 3 and triger expand
-    call scratch%request_matrix(42, 42, m3, index3, .false.)
+    call scratch%request_matrix(m3, index3, 42, 42, .false.)
     call matrix_cfill(m3, 3.0_rp)
     @assertEqual(index3, 3)
     @assertEqual(scratch%get_inuse(index1), .true.)
     @assertEqual(scratch%get_inuse(index2), .true.)
     @assertEqual(scratch%get_inuse(index3), .true.)
-    @assertEqual(scratch%get_n_available(), 3)
+    @assertEqual(scratch%get_n_entries(), 3)
     @assertEqual(scratch%get_n_inuse(), 3)
     @assertEqual(scratch%get_size(), 4)
 
     ! check that the matrices have survived
     call m1%copy_from(DEVICE_TO_HOST, sync = .false.)
     call m2%copy_from(DEVICE_TO_HOST, sync = .false.)
-    call m3%copy_from(DEVICE_TO_HOST, sync = .false.)
+    call m3%copy_from(DEVICE_TO_HOST, sync = .true.)
     @assertEqual(m1%x(1, 1), 1.5_rp)
     @assertEqual(m2%x(1, 1), 2.0_rp)
     @assertEqual(m3%x(1, 1), 3.0_rp)
@@ -231,10 +261,11 @@ contains
     call scratch%relinquish_matrix(index2)
     call scratch%relinquish_matrix(index3)
     call scratch%free()
-  end subroutine test_matrix_scratch_registry_combo
+  end subroutine test_mat_scratch_reg_combo
 
   @test
-  subroutine test_matrix_scratch_registry_array_indices()
+  subroutine test_mat_scratch_reg_array_indices(this)
+    class(test_matrix_scratch_reg), intent(inout) :: this
     type(scratch_registry_t), target :: scratch
     type(matrix_t), pointer :: m1, m2, m3
     integer :: ierr
@@ -244,9 +275,9 @@ contains
     call scratch%init(2, 2)
 
     ! add 2 matrices, no expansion
-    call scratch%request_matrix(42, 42, m1, indices(1), .false.)
-    call scratch%request_matrix(42, 42, m2, indices(2), .false.)
-    call scratch%request_matrix(42, 42, m3, indices(3), .false.)
+    call scratch%request_matrix(m1, indices(1), 42, 42, .false.)
+    call scratch%request_matrix(m2, indices(2), 42, 42, .false.)
+    call scratch%request_matrix(m3, indices(3), 42, 42, .false.)
 
     @assertEqual(indices(1), 1)
     @assertEqual(indices(2), 2)
@@ -261,18 +292,18 @@ contains
     @assertEqual(scratch%get_inuse(indices(1)), .false.)
     @assertEqual(scratch%get_inuse(indices(2)), .false.)
     @assertEqual(scratch%get_inuse(indices(3)), .false.)
-    @assertEqual(scratch%get_n_available(), 3)
+    @assertEqual(scratch%get_n_entries(), 3)
     @assertEqual(scratch%get_n_inuse(), 0)
 
     ! get a new matrix, should get index 1
-    call scratch%request_matrix(42, 42, m1, indices(1), .false.)
+    call scratch%request_matrix(m1, indices(1), 42, 42, .false.)
     call matrix_cfill(m1, 1.5_rp)
     @assertEqual(indices(1), 1)
     @assertEqual(scratch%get_inuse(indices(1)), .true.)
-    @assertEqual(scratch%get_n_available(), 3)
+    @assertEqual(scratch%get_n_entries(), 3)
     @assertEqual(scratch%get_n_inuse(), 1)
 
     call scratch%relinquish_matrix(indices(1))
     call scratch%free()
-  end subroutine test_matrix_scratch_registry_array_indices
+  end subroutine test_mat_scratch_reg_array_indices
 end module test_matrix_scratch_registry

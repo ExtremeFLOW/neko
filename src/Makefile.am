@@ -82,7 +82,6 @@ neko_fortran_SOURCES = \
 	mesh/tet_mesh.f90\
 	mesh/tri_mesh.f90\
 	mesh/intersection_detector.f90\
-	field/field_registry.f90\
 	field/field.f90\
 	field/field_list.f90\
 	field/field_series.f90\
@@ -119,10 +118,10 @@ neko_fortran_SOURCES = \
 	math/bcknd/xsmm/fdm_xsmm.f90\
 	math/schwarz.f90\
 	math/vector.f90\
-	math/vector_registry.f90\
 	math/vector_math.f90\
-	registries/scratch_registry.f90\
+	registries/registry.f90\
 	registries/registry_entry.f90\
+	registries/scratch_registry.f90\
 	math/matrix.f90\
 	math/matrix_math.f90\
 	math/signed_distance.f90\

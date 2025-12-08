@@ -1343,3 +1343,219 @@ void opencl_iadd(void *a, int *c, int *n, cl_command_queue cmd_queue) {
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));
 }
+
+/** Fortran wrapper for pwmax_vec2
+ *
+ * Compute the maximum of two vectors \f$ a = \max(a, b) \f$
+ */
+void opencl_pwmax_vec2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "pwmax_vec2_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(int), n));
+
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+}
+
+/** Fortran wrapper for pwmax_vec3
+ *
+ * Compute the maximum of two vectors \f$ a = \max(b, c) \f$
+ */
+void opencl_pwmax_vec3(void *a, void *b, void *c,
+                       int *n, cl_command_queue cmd_queue) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "pwmax_vec3_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &c));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
+
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+}
+
+/** Fortran wrapper for pwmax_sca2
+ *
+ * Compute the maximum of vector and scalar \f$ a = \max(a, c) \f$
+ */
+void opencl_pwmax_sca2(void *a, real *c, int *n, cl_command_queue cmd_queue) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "pwmax_sca2_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(real), c));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(int), n));
+
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+}
+
+/** Fortran wrapper for pwmax_sca3
+ *
+ * Compute the maximum of vector and scalar \f$ a = \max(b, c) \f$
+ */
+void opencl_pwmax_sca3(void *a, void *b, real *c,
+                       int *n, cl_command_queue cmd_queue) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "pwmax_sca3_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(real), c));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
+
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+}
+
+/** Fortran wrapper for pwmin_vec2
+ *
+ * Compute the minimum of two vectors \f$ a = \min(a, b) \f$
+ */
+void opencl_pwmin_vec2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "pwmin_vec2_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(int), n));
+
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+}
+
+/** Fortran wrapper for pwmin_vec3
+ *
+ * Compute the minimum of two vectors \f$ a = \min(b, c) \f$
+ */
+void opencl_pwmin_vec3(void *a, void *b, void *c,
+                       int *n, cl_command_queue cmd_queue) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "pwmin_vec3_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &c));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
+
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+}
+
+/** Fortran wrapper for pwmin_sca2
+ *
+ * Compute the minimum of vector and scalar \f$ a = \min(a, c) \f$
+ */
+void opencl_pwmin_sca2(void *a, real *c, int *n, cl_command_queue cmd_queue) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "pwmin_sca2_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(real), c));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(int), n));
+
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+}
+
+/** Fortran wrapper for pwmin_sca3
+ *
+ * Compute the minimum of vector and scalar \f$ a = \min(b, c) \f$
+ */
+void opencl_pwmin_sca3(void *a, void *b, real *c,
+                       int *n, cl_command_queue cmd_queue) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "pwmin_sca3_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(real), c));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
+
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+}

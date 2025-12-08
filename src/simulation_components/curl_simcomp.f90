@@ -37,7 +37,7 @@ module curl_simcomp
   use num_types, only : rp, dp, sp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use field, only : field_t
   use time_state, only : time_state_t
   use operators, only : curl
@@ -135,16 +135,16 @@ contains
     character(len=*) :: field_names(3)
     character(len=*) :: computed_field
 
-    this%u => neko_field_registry%get_field_by_name(field_names(1))
-    this%v => neko_field_registry%get_field_by_name(field_names(2))
-    this%w => neko_field_registry%get_field_by_name(field_names(3))
+    this%u => neko_registry%get_field_by_name(field_names(1))
+    this%v => neko_registry%get_field_by_name(field_names(2))
+    this%w => neko_registry%get_field_by_name(field_names(3))
 
-    this%curl_x => neko_field_registry%get_field_by_name(computed_field // &
+    this%curl_x => neko_registry%get_field_by_name(computed_field // &
          "_x")
-    this%curl_y => neko_field_registry%get_field_by_name(computed_field // &
+    this%curl_y => neko_registry%get_field_by_name(computed_field // &
 
          "_y")
-    this%curl_z => neko_field_registry%get_field_by_name(computed_field // &
+    this%curl_z => neko_registry%get_field_by_name(computed_field // &
          "_z")
 
   end subroutine curl_init_common

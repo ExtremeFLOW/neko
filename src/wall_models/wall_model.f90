@@ -36,7 +36,7 @@ module wall_model
   use num_types, only : rp
   use field, only : field_t
   use json_module, only : json_file
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -47,7 +47,6 @@ module wall_model
   use comm, only : pe_rank
   use logger, only : neko_log, NEKO_LOG_DEBUG, LOG_SIZE
   use file, only : file_t
-  use field_registry, only : neko_field_registry
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   use device, only : device_map, device_free, device_get_ptr
   use wall_model_device, only : wall_model_compute_mag_field_device
@@ -294,13 +293,13 @@ contains
     this%dof => coef%dof
     this%h_index = index
     this%scheme_name = trim(scheme_name)
-    this%mu => neko_field_registry%get_field_by_name(this%scheme_name // "_mu")
-    this%rho => neko_field_registry%get_field_by_name(this%scheme_name // &
+    this%mu => neko_registry%get_field_by_name(this%scheme_name // "_mu")
+    this%rho => neko_registry%get_field_by_name(this%scheme_name // &
          "_rho")
 
-    call neko_field_registry%add_field(this%dof, "tau", &
+    call neko_registry%add_field(this%dof, "tau", &
          ignore_existing = .true.)
-    this%tau_field => neko_field_registry%get_field("tau")
+    this%tau_field => neko_registry%get_field("tau")
 
     call this%finalize_base(msk, facet)
   end subroutine wall_model_init_base
@@ -321,13 +320,13 @@ contains
     call json_get(json, "h_index", this%h_index)
     call json_get(json, "scheme_name", this%scheme_name)
 
-    this%mu => neko_field_registry%get_field_by_name(this%scheme_name // "_mu")
-    this%rho => neko_field_registry%get_field_by_name(this%scheme_name // &
+    this%mu => neko_registry%get_field_by_name(this%scheme_name // "_mu")
+    this%rho => neko_registry%get_field_by_name(this%scheme_name // &
          "_rho")
 
-    call neko_field_registry%add_field(this%dof, "tau", &
+    call neko_registry%add_field(this%dof, "tau", &
          ignore_existing = .true.)
-    this%tau_field => neko_field_registry%get_field("tau")
+    this%tau_field => neko_registry%get_field("tau")
   end subroutine wall_model_partial_init_base
 
   subroutine wall_model_finalize_base(this, msk, facet)
@@ -443,10 +442,10 @@ contains
     n_nodes = this%msk(0)
     this%n_nodes = n_nodes
 
-    call neko_field_registry%add_field(this%coef%dof, "sampling_height", &
+    call neko_registry%add_field(this%coef%dof, "sampling_height", &
          ignore_existing=.true.)
 
-    h_field => neko_field_registry%get_field_by_name("sampling_height")
+    h_field => neko_registry%get_field_by_name("sampling_height")
 
     do i = 1, n_nodes
        linear = this%msk(i)

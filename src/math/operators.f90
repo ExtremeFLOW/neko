@@ -637,7 +637,7 @@ contains
     call neko_scratch_registry%request_field(k2, ind(3), .false.)
     call neko_scratch_registry%request_field(k3, ind(4), .false.)
     call neko_scratch_registry%request_field(k4, ind(5), .false.)
-    call neko_scratch_registry%request_vector(n_GL, u1_GL, ind(6), .false.)
+    call neko_scratch_registry%request_vector(u1_GL, ind(6), n_GL, .false.)
 
     c1 = 1.0_rp
     c2 = -dtau/2.

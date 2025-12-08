@@ -36,7 +36,7 @@ module gradient_simcomp
   use num_types, only : rp, dp, sp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use field, only : field_t
   use operators, only : grad
   use time_state, only : time_state_t
@@ -119,13 +119,13 @@ contains
     character(len=*) :: field_name
     character(len=*) :: computed_field
 
-    this%u => neko_field_registry%get_field_by_name(trim(field_name))
+    this%u => neko_registry%get_field_by_name(trim(field_name))
 
-    this%gradient_x => neko_field_registry%get_field_by_name( &
+    this%gradient_x => neko_registry%get_field_by_name( &
          computed_field // "_x")
-    this%gradient_y => neko_field_registry%get_field_by_name( &
+    this%gradient_y => neko_registry%get_field_by_name( &
          computed_field // "_y")
-    this%gradient_z => neko_field_registry%get_field_by_name( &
+    this%gradient_z => neko_registry%get_field_by_name( &
          computed_field // "_z")
 
 

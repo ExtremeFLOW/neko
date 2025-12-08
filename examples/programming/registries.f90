@@ -2,7 +2,7 @@
 ! temporary data. It covers the following key points:
 !
 ! - Registering user-defined routines using the `user_setup` subroutine.
-! - Accessing and managing fields using the `neko_field_registry`:
+! - Accessing and managing fields using the `neko_registry`:
 !   - Retrieving existing fields registered by solvers (e.g., velocity fields).
 !   - Registering new fields for use across modules or for output purposes.
 ! - Using the `neko_scratch_registry` to manage temporary fields:
@@ -40,13 +40,13 @@ contains
 
     ! Sometimes we need fields to be accessible across different modules. This
     ! can include fields that we create in the user module. To that end, Neko
-    ! provides a special singleton object of type `field_registry_t`. The name
-    ! of the singleton is `neko_field_registry`. Solvers register their solution
+    ! provides a special singleton object of type `registry_t`. The name
+    ! of the singleton is `neko_registry`. Solvers register their solution
     ! fields there, for example.
 
     ! Here we can grab the x-velocity from the fluid_scheme_t, which is
     ! registered as "u" in the registry.
-    my_field_ptr => neko_field_registry%get_field("u")
+    my_field_ptr => neko_registry%get_field("u")
 
     ! We can also register new fields. For that we need a dofmap_t object, just
     ! like when we initialize a field. Once in the registry, the field is
@@ -55,7 +55,7 @@ contains
     ! then use the field_writer simcomp to output it to disk during the
     ! simulation. The field_writer looks for fields in the registry, given their
     ! names.
-    call neko_field_registry%add_field(my_field_ptr%dof, "my_field")
+    call neko_registry%add_field(my_field_ptr%dof, "my_field")
 
   end subroutine initialize
 
@@ -74,8 +74,8 @@ contains
     ! We get a temporary by using a field_t pointer and an index.
     call neko_scratch_registry%request_field(temp_field_ptr, tmp_index, .false.)
 
-    u => neko_field_registry%get_field("u")
-    v => neko_field_registry%get_field("v")
+    u => neko_registry%get_field("u")
+    v => neko_registry%get_field("v")
 
     ! Perform some operations and use the temporary for something
     call field_cfill(temp_field_ptr, 1.0_rp)

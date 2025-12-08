@@ -1320,7 +1320,7 @@ contains
 #elif HAVE_CUDA
     call cuda_pwmax_vec2(a_d, b_d, n, strm_)
 #elif HAVE_OPENCL
-    call neko_error('No OpenCL backend for device_pwmax2')
+    call opencl_pwmax_vec2(a_d, b_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -1347,7 +1347,7 @@ contains
 #elif HAVE_CUDA
     call cuda_pwmax_vec3(a_d, b_d, c_d, n, strm_)
 #elif HAVE_OPENCL
-    call neko_error('No OpenCL backend for device_pwmax3')
+    call opencl_pwmax_vec3(a_d, b_d, c_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -1376,7 +1376,7 @@ contains
 #elif HAVE_CUDA
     call cuda_pwmax_sca2(a_d, c, n, strm_)
 #elif HAVE_OPENCL
-    call neko_error('No OpenCL backend for device_cpwmax2')
+    call opencl_pwmax_sca2(a_d, c, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -1405,7 +1405,7 @@ contains
 #elif HAVE_CUDA
     call cuda_pwmax_sca3(a_d, b_d, c, n, strm_)
 #elif HAVE_OPENCL
-    call neko_error('No OpenCL backend for device_cpwmax3')
+    call opencl_pwmax_sca3(a_d, b_d, c, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -1436,7 +1436,7 @@ contains
 #elif HAVE_CUDA
     call cuda_pwmin_vec2(a_d, b_d, n, strm_)
 #elif HAVE_OPENCL
-    call neko_error('No OpenCL backend for device_pwmin2')
+    call opencl_pwmin_vec2(a_d, b_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -1463,7 +1463,7 @@ contains
 #elif HAVE_CUDA
     call cuda_pwmin_vec3(a_d, b_d, c_d, n, strm_)
 #elif HAVE_OPENCL
-    call neko_error('No OpenCL backend for device_pwmin3')
+    call opencl_pwmin_vec3(a_d, b_d, c_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -1492,7 +1492,7 @@ contains
 #elif HAVE_CUDA
     call cuda_pwmin_sca2(a_d, c, n, strm_)
 #elif HAVE_OPENCL
-    call neko_error('No OpenCL backend for device_cpwmin2')
+    call opencl_pwmin_sca2(a_d, c, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -1521,7 +1521,7 @@ contains
 #elif HAVE_CUDA
     call cuda_pwmin_sca3(a_d, b_d, c, n, strm_)
 #elif HAVE_OPENCL
-    call neko_error('No OpenCL backend for device_cpwmin3')
+    call opencl_pwmin_sca3(a_d, b_d, c, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
