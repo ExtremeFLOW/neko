@@ -31,8 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a registry entry for storing and requesting temporary objects
-!! This is used in the registries to store temporary fields, vectors,
-!! and matrices.
+!! This is used in the registries to store a scalar, vector, matrix or field.
 module registry_entry
   use num_types, only : rp
   use field, only : field_t
