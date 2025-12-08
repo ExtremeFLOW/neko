@@ -16,7 +16,7 @@
             "time_order": 3,
             "polynomial_order": 5,
             "c_avisc_low": 0.5,
-            "c_entropy": 0.5
+            "c_avisc_entropy": 0.5
         },
 
         "fluid": {

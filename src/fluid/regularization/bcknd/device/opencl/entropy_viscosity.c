@@ -87,7 +87,7 @@ void opencl_entropy_visc_compute_residual(void *entropy_residual,
 void opencl_entropy_visc_compute_viscosity(void *reg_coeff,
                                            void *entropy_residual,
                                            void *h,
-                                           real c_entropy,
+                                           real c_avisc_entropy,
                                            real n_S,
                                            int n) {
   cl_int err;
@@ -103,7 +103,7 @@ void opencl_entropy_visc_compute_viscosity(void *reg_coeff,
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &reg_coeff));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &entropy_residual));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &h));
-  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(real), &c_entropy));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(real), &c_avisc_entropy));
   CL_CHECK(clSetKernelArg(kernel, 4, sizeof(real), &n_S));
   CL_CHECK(clSetKernelArg(kernel, 5, sizeof(int), &n));
 
@@ -148,7 +148,7 @@ void opencl_entropy_visc_apply_element_max(void *reg_coeff,
 void opencl_entropy_visc_clamp_to_low_order(void *reg_coeff,
                                             void *h,
                                             void *max_wave_speed,
-                                            real c_max,
+                                            real c_avisc_low,
                                             int n) {
   cl_int err;
 
@@ -163,7 +163,7 @@ void opencl_entropy_visc_clamp_to_low_order(void *reg_coeff,
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &reg_coeff));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &h));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &max_wave_speed));
-  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(real), &c_max));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(real), &c_avisc_low));
   CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), &n));
 
   const int nb = (n + 256 - 1) / 256;

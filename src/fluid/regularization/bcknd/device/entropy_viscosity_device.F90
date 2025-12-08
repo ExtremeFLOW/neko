@@ -55,12 +55,12 @@ module entropy_viscosity_device
 
   interface
      subroutine hip_entropy_visc_compute_viscosity(reg_coeff_d, &
-          entropy_residual_d, h_d, c_entropy, n_S, n) &
+          entropy_residual_d, h_d, c_avisc_entropy, n_S, n) &
           bind(c, name = 'hip_entropy_visc_compute_viscosity')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: reg_coeff_d, entropy_residual_d, h_d
-       real(c_rp) :: c_entropy, n_S
+       real(c_rp) :: c_avisc_entropy, n_S
        integer(c_int) :: n
      end subroutine hip_entropy_visc_compute_viscosity
   end interface
@@ -76,12 +76,12 @@ module entropy_viscosity_device
 
   interface
      subroutine hip_entropy_visc_clamp_to_low_order(reg_coeff_d, &
-          h_d, max_wave_speed_d, c_max, n) &
+          h_d, max_wave_speed_d, c_avisc_low, n) &
           bind(c, name = 'hip_entropy_visc_clamp_to_low_order')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: reg_coeff_d, h_d, max_wave_speed_d
-       real(c_rp) :: c_max
+       real(c_rp) :: c_avisc_low
        integer(c_int) :: n
      end subroutine hip_entropy_visc_clamp_to_low_order
   end interface
@@ -113,12 +113,12 @@ module entropy_viscosity_device
 
   interface
      subroutine cuda_entropy_visc_compute_viscosity(reg_coeff_d, &
-          entropy_residual_d, h_d, c_entropy, n_S, n) &
+          entropy_residual_d, h_d, c_avisc_entropy, n_S, n) &
           bind(c, name = 'cuda_entropy_visc_compute_viscosity')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: reg_coeff_d, entropy_residual_d, h_d
-       real(c_rp) :: c_entropy, n_S
+       real(c_rp) :: c_avisc_entropy, n_S
        integer(c_int) :: n
      end subroutine cuda_entropy_visc_compute_viscosity
   end interface
@@ -134,12 +134,12 @@ module entropy_viscosity_device
 
   interface
      subroutine cuda_entropy_visc_clamp_to_low_order(reg_coeff_d, &
-          h_d, max_wave_speed_d, c_max, n) &
+          h_d, max_wave_speed_d, c_avisc_low, n) &
           bind(c, name = 'cuda_entropy_visc_clamp_to_low_order')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: reg_coeff_d, h_d, max_wave_speed_d
-       real(c_rp) :: c_max
+       real(c_rp) :: c_avisc_low
        integer(c_int) :: n
      end subroutine cuda_entropy_visc_clamp_to_low_order
   end interface
@@ -171,12 +171,12 @@ module entropy_viscosity_device
 
   interface
      subroutine opencl_entropy_visc_compute_viscosity(reg_coeff_d, &
-          entropy_residual_d, h_d, c_entropy, n_S, n) &
+          entropy_residual_d, h_d, c_avisc_entropy, n_S, n) &
           bind(c, name = 'opencl_entropy_visc_compute_viscosity')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: reg_coeff_d, entropy_residual_d, h_d
-       real(c_rp), value :: c_entropy, n_S
+       real(c_rp), value :: c_avisc_entropy, n_S
        integer(c_int), value :: n
      end subroutine opencl_entropy_visc_compute_viscosity
   end interface
@@ -192,12 +192,12 @@ module entropy_viscosity_device
 
   interface
      subroutine opencl_entropy_visc_clamp_to_low_order(reg_coeff_d, &
-          h_d, max_wave_speed_d, c_max, n) &
+          h_d, max_wave_speed_d, c_avisc_low, n) &
           bind(c, name = 'opencl_entropy_visc_clamp_to_low_order')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: reg_coeff_d, h_d, max_wave_speed_d
-       real(c_rp), value :: c_max
+       real(c_rp), value :: c_avisc_low
        integer(c_int), value :: n
      end subroutine opencl_entropy_visc_clamp_to_low_order
   end interface
@@ -249,20 +249,20 @@ contains
 
   !> Compute viscosity from entropy residual on device
   subroutine entropy_viscosity_compute_viscosity_device(reg_coeff_d, &
-       entropy_residual_d, h_d, c_entropy, n_S, n)
+       entropy_residual_d, h_d, c_avisc_entropy, n_S, n)
     type(c_ptr), intent(in) :: reg_coeff_d, entropy_residual_d, h_d
-    real(kind=rp), intent(in) :: c_entropy, n_S
+    real(kind=rp), intent(in) :: c_avisc_entropy, n_S
     integer, intent(in) :: n
 
 #ifdef HAVE_HIP
     call hip_entropy_visc_compute_viscosity(reg_coeff_d, &
-         entropy_residual_d, h_d, c_entropy, n_S, n)
+         entropy_residual_d, h_d, c_avisc_entropy, n_S, n)
 #elif HAVE_CUDA
     call cuda_entropy_visc_compute_viscosity(reg_coeff_d, &
-         entropy_residual_d, h_d, c_entropy, n_S, n)
+         entropy_residual_d, h_d, c_avisc_entropy, n_S, n)
 #elif HAVE_OPENCL
     call opencl_entropy_visc_compute_viscosity(reg_coeff_d, &
-         entropy_residual_d, h_d, c_entropy, n_S, n)
+         entropy_residual_d, h_d, c_avisc_entropy, n_S, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -286,20 +286,20 @@ contains
 
   !> Clamp regularization coefficient to low-order viscosity on device
   subroutine entropy_viscosity_clamp_to_low_order_device(reg_coeff_d, &
-       h_d, max_wave_speed_d, c_max, n)
+       h_d, max_wave_speed_d, c_avisc_low, n)
     type(c_ptr), intent(in) :: reg_coeff_d, h_d, max_wave_speed_d
-    real(kind=rp), intent(in) :: c_max
+    real(kind=rp), intent(in) :: c_avisc_low
     integer, intent(in) :: n
 
 #ifdef HAVE_HIP
     call hip_entropy_visc_clamp_to_low_order(reg_coeff_d, &
-         h_d, max_wave_speed_d, c_max, n)
+         h_d, max_wave_speed_d, c_avisc_low, n)
 #elif HAVE_CUDA
     call cuda_entropy_visc_clamp_to_low_order(reg_coeff_d, &
-         h_d, max_wave_speed_d, c_max, n)
+         h_d, max_wave_speed_d, c_avisc_low, n)
 #elif HAVE_OPENCL
     call opencl_entropy_visc_clamp_to_low_order(reg_coeff_d, &
-         h_d, max_wave_speed_d, c_max, n)
+         h_d, max_wave_speed_d, c_avisc_low, n)
 #else
     call neko_error('No device backend configured')
 #endif

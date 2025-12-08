@@ -574,18 +574,18 @@ contains
     type(json_core) :: json_core_inst
     type(json_value), pointer :: reg_params
     character(len=:), allocatable :: buffer
-    real(kind=rp) :: c_entropy_val
+    real(kind=rp) :: c_avisc_entropy_val
     character(len=:), allocatable :: regularization_type
 
     call json_get_or_default(params, 'case.numerics.c_avisc_low', &
-         this%c_avisc_low, 1.0_rp)
-    call json_get_or_default(params, 'case.numerics.c_entropy', &
-         c_entropy_val, 1.0_rp)
+         this%c_avisc_low, 0.5_rp)
+    call json_get_or_default(params, 'case.numerics.c_avisc_entropy', &
+         c_avisc_entropy_val, 1.0_rp)
 
     call json_core_inst%initialize()
     call json_core_inst%create_object(reg_params, '')
-    call json_core_inst%add(reg_params, 'c_entropy', c_entropy_val)
-    call json_core_inst%add(reg_params, 'c_max', this%c_avisc_low)
+    call json_core_inst%add(reg_params, 'c_avisc_entropy', c_avisc_entropy_val)
+    call json_core_inst%add(reg_params, 'c_avisc_low', this%c_avisc_low)
     call json_core_inst%print_to_string(reg_params, buffer)
     call json_core_inst%destroy(reg_params)
 

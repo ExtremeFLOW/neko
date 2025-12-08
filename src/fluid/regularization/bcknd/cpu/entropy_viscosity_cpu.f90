@@ -75,19 +75,19 @@ contains
   !! @param reg_coeff Output regularization coefficient field
   !! @param entropy_residual Entropy residual field
   !! @param h Mesh size field
-  !! @param c_entropy Entropy viscosity constant
+  !! @param c_avisc_entropy Entropy viscosity constant
   !! @param n_S Normalization factor
   !! @param n Number of points
   subroutine entropy_viscosity_compute_viscosity_cpu(reg_coeff, &
-       entropy_residual, h, c_entropy, n_S, n)
+       entropy_residual, h, c_avisc_entropy, n_S, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(out) :: reg_coeff
     real(kind=rp), dimension(n), intent(in) :: entropy_residual, h
-    real(kind=rp), intent(in) :: c_entropy, n_S
+    real(kind=rp), intent(in) :: c_avisc_entropy, n_S
     integer :: i
 
     do concurrent (i = 1:n)
-       reg_coeff(i) = c_entropy * h(i) * h(i) * entropy_residual(i) / n_S
+       reg_coeff(i) = c_avisc_entropy * h(i) * h(i) * entropy_residual(i) / n_S
     end do
 
   end subroutine entropy_viscosity_compute_viscosity_cpu
@@ -128,19 +128,19 @@ contains
   !! @param reg_coeff Regularization coefficient field (modified in-place)
   !! @param h Mesh size field
   !! @param max_wave_speed Maximum wave speed field
-  !! @param c_max Low-order viscosity constant
+  !! @param c_avisc_low Low-order viscosity constant
   !! @param n Number of points
   subroutine entropy_viscosity_clamp_to_low_order_cpu(reg_coeff, &
-       h, max_wave_speed, c_max, n)
+       h, max_wave_speed, c_avisc_low, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: reg_coeff
     real(kind=rp), dimension(n), intent(in) :: h, max_wave_speed
-    real(kind=rp), intent(in) :: c_max
+    real(kind=rp), intent(in) :: c_avisc_low
     integer :: i
     real(kind=rp) :: low_order_visc
 
     do concurrent (i = 1:n)
-       low_order_visc = c_max * h(i) * max_wave_speed(i)
+       low_order_visc = c_avisc_low * h(i) * max_wave_speed(i)
        reg_coeff(i) = min(reg_coeff(i), low_order_visc)
     end do
 

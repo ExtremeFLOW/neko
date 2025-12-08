@@ -429,7 +429,7 @@ contains
     call neko_log%message(log_buf)
 
     ! Compressible-specific parameters
-    call json_get_or_default(params, 'case.numerics.c_avisc_low', real_val, 1.0_rp)
+    call json_get_or_default(params, 'case.numerics.c_avisc_low', real_val, 0.5_rp)
     write(log_buf, '(A,ES13.6)') 'c_avisc_low:', real_val
     call neko_log%message(log_buf)
 

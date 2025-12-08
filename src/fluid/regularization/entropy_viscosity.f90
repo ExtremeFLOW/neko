@@ -66,8 +66,8 @@ module entropy_viscosity
   private
 
   type, public, extends(regularization_t) :: entropy_viscosity_t
-     real(kind=rp) :: c_entropy
-     real(kind=rp) :: c_max
+     real(kind=rp) :: c_avisc_entropy
+     real(kind=rp) :: c_avisc_low
      type(field_t) :: entropy_residual
      type(field_series_t) :: S_lag
      type(field_t), pointer :: S => null()
@@ -104,8 +104,8 @@ contains
 
     call this%init_base(json, coef, dof, reg_coeff)
 
-    call json_get_or_default(json, 'c_max', this%c_max, 1.0_rp)
-    call json_get_or_default(json, 'c_entropy', this%c_entropy, 1.0_rp)
+    call json_get_or_default(json, 'c_avisc_low', this%c_avisc_low, 1.0_rp)
+    call json_get_or_default(json, 'c_avisc_entropy', this%c_avisc_entropy, 1.0_rp)
 
     call this%entropy_residual%init(dof, 'entropy_residual')
 
@@ -271,26 +271,26 @@ contains
        n_S = 1.0e-12_rp
     end if
 
-    ! entropy viscosity = c_entropy * h^2 * entropy_residual / n_S
+    ! entropy viscosity = c_avisc_entropy * h^2 * entropy_residual / n_S
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call entropy_viscosity_compute_viscosity_device( &
             this%reg_coeff%x_d, this%entropy_residual%x_d, &
-            this%h%x_d, this%c_entropy, n_S, n)
+            this%h%x_d, this%c_avisc_entropy, n_S, n)
     else
        call entropy_viscosity_compute_viscosity_cpu( &
             this%reg_coeff%x, this%entropy_residual%x, &
-            this%h%x, this%c_entropy, n_S, n)
+            this%h%x, this%c_avisc_entropy, n_S, n)
     end if
 
     ! effective viscosity = min(entropy viscosity, low-order viscosity)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call entropy_viscosity_clamp_to_low_order_device( &
             this%reg_coeff%x_d, this%h%x_d, this%max_wave_speed%x_d, &
-            this%c_max, n)
+            this%c_avisc_low, n)
     else
        call entropy_viscosity_clamp_to_low_order_cpu( &
             this%reg_coeff%x, this%h%x, this%max_wave_speed%x, &
-            this%c_max, n)
+            this%c_avisc_low, n)
     end if
 
     call this%apply_element_max()
@@ -376,13 +376,13 @@ contains
 
   end subroutine entropy_viscosity_update_lag
 
-  !> Compute low-order viscosity at point i: c_max * h * max_wave_speed
+  !> Compute low-order viscosity at point i: c_avisc_low * h * max_wave_speed
   pure function entropy_viscosity_low_order(this, i) result(visc)
     class(entropy_viscosity_t), intent(in) :: this
     integer, intent(in) :: i
     real(kind=rp) :: visc
 
-    visc = this%c_max * this%h%x(i,1,1,1) * this%max_wave_speed%x(i,1,1,1)
+    visc = this%c_avisc_low * this%h%x(i,1,1,1) * this%max_wave_speed%x(i,1,1,1)
 
   end function entropy_viscosity_low_order
 

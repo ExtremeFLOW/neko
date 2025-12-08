@@ -60,7 +60,7 @@ void hip_entropy_visc_compute_residual(void *entropy_residual,
 void hip_entropy_visc_compute_viscosity(void *reg_coeff,
                                         void *entropy_residual,
                                         void *h,
-                                        real *c_entropy,
+                                        real *c_avisc_entropy,
                                         real *n_S,
                                         int *n) {
   const dim3 nthrds(1024, 1, 1);
@@ -72,7 +72,7 @@ void hip_entropy_visc_compute_viscosity(void *reg_coeff,
                      (real *) reg_coeff,
                      (real *) entropy_residual,
                      (real *) h,
-                     *c_entropy, *n_S, *n);
+                     *c_avisc_entropy, *n_S, *n);
   HIP_CHECK(hipGetLastError());
 }
 
@@ -94,7 +94,7 @@ void hip_entropy_visc_apply_element_max(void *reg_coeff,
 void hip_entropy_visc_clamp_to_low_order(void *reg_coeff,
                                          void *h,
                                          void *max_wave_speed,
-                                         real *c_max,
+                                         real *c_avisc_low,
                                          int *n) {
   const dim3 nthrds(1024, 1, 1);
   const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
@@ -105,7 +105,7 @@ void hip_entropy_visc_clamp_to_low_order(void *reg_coeff,
                      (real *) reg_coeff,
                      (real *) h,
                      (real *) max_wave_speed,
-                     *c_max, *n);
+                     *c_avisc_low, *n);
   HIP_CHECK(hipGetLastError());
 }
 

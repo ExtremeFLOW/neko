@@ -63,14 +63,14 @@ __kernel void entropy_visc_compute_residual_kernel(__global real * __restrict__ 
 __kernel void entropy_visc_compute_viscosity_kernel(__global real * __restrict__ reg_coeff,
                                                     __global const real * __restrict__ entropy_residual,
                                                     __global const real * __restrict__ h,
-                                                    const real c_entropy,
+                                                    const real c_avisc_entropy,
                                                     const real n_S,
                                                     const int n) {
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
 
   for (int i = idx; i < n; i += str) {
-    reg_coeff[i] = c_entropy * h[i] * h[i] * entropy_residual[i] / n_S;
+    reg_coeff[i] = c_avisc_entropy * h[i] * h[i] * entropy_residual[i] / n_S;
   }
 }
 
@@ -120,13 +120,13 @@ __kernel void entropy_visc_apply_element_max_kernel(__global real * __restrict__
 __kernel void entropy_visc_clamp_to_low_order_kernel(__global real * __restrict__ reg_coeff,
                                                      __global const real * __restrict__ h,
                                                      __global const real * __restrict__ max_wave_speed,
-                                                     const real c_max,
+                                                     const real c_avisc_low,
                                                      const int n) {
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
 
   for (int i = idx; i < n; i += str) {
-    real low_order_visc = c_max * h[i] * max_wave_speed[i];
+    real low_order_visc = c_avisc_low * h[i] * max_wave_speed[i];
     reg_coeff[i] = fmin(reg_coeff[i], low_order_visc);
   }
 }

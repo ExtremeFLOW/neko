@@ -70,14 +70,14 @@ template<typename T>
 __global__ void entropy_visc_compute_viscosity_kernel(T * __restrict__ reg_coeff,
                                                       const T * __restrict__ entropy_residual,
                                                       const T * __restrict__ h,
-                                                      const T c_entropy,
+                                                      const T c_avisc_entropy,
                                                       const T n_S,
                                                       const int n) {
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
   for (int i = idx; i < n; i += str) {
-    reg_coeff[i] = c_entropy * h[i] * h[i] * entropy_residual[i] / n_S;
+    reg_coeff[i] = c_avisc_entropy * h[i] * h[i] * entropy_residual[i] / n_S;
   }
 }
 
@@ -128,13 +128,13 @@ template<typename T>
 __global__ void entropy_visc_clamp_to_low_order_kernel(T * __restrict__ reg_coeff,
                                                        const T * __restrict__ h,
                                                        const T * __restrict__ max_wave_speed,
-                                                       const T c_max,
+                                                       const T c_avisc_low,
                                                        const int n) {
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
   for (int i = idx; i < n; i += str) {
-    T low_order_visc = c_max * h[i] * max_wave_speed[i];
+    T low_order_visc = c_avisc_low * h[i] * max_wave_speed[i];
     reg_coeff[i] = min(reg_coeff[i], low_order_visc);
   }
 }
