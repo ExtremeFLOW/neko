@@ -40,6 +40,7 @@ module entropy_viscosity_cpu
             entropy_viscosity_compute_viscosity_cpu, &
             entropy_viscosity_apply_element_max_cpu, &
             entropy_viscosity_clamp_to_low_order_cpu, &
+            entropy_viscosity_set_low_order_cpu, &
             entropy_viscosity_smooth_divide_cpu
 
 contains
@@ -145,6 +146,26 @@ contains
     end do
 
   end subroutine entropy_viscosity_clamp_to_low_order_cpu
+
+  !> Set regularization coefficient to low-order viscosity on CPU
+  !! @param reg_coeff Regularization coefficient field (output)
+  !! @param h Mesh size field
+  !! @param max_wave_speed Maximum wave speed field
+  !! @param c_max Low-order viscosity constant
+  !! @param n Number of points
+  subroutine entropy_viscosity_set_low_order_cpu(reg_coeff, &
+       h, max_wave_speed, c_max, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(out) :: reg_coeff
+    real(kind=rp), dimension(n), intent(in) :: h, max_wave_speed
+    real(kind=rp), intent(in) :: c_max
+    integer :: i
+
+    do concurrent (i = 1:n)
+       reg_coeff(i) = c_max * h(i) * max_wave_speed(i)
+    end do
+
+  end subroutine entropy_viscosity_set_low_order_cpu
 
   !> Divide by multiplicity for smoothing on CPU
   !! @param reg_coeff Regularization coefficient field (modified in-place)

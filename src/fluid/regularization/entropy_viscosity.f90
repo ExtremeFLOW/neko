@@ -56,11 +56,13 @@ module entropy_viscosity
        entropy_viscosity_compute_viscosity_cpu, &
        entropy_viscosity_apply_element_max_cpu, &
        entropy_viscosity_clamp_to_low_order_cpu, &
+       entropy_viscosity_set_low_order_cpu, &
        entropy_viscosity_smooth_divide_cpu
   use entropy_viscosity_device, only: entropy_viscosity_compute_residual_device, &
        entropy_viscosity_compute_viscosity_device, &
        entropy_viscosity_apply_element_max_device, &
        entropy_viscosity_clamp_to_low_order_device, &
+       entropy_viscosity_set_low_order_device, &
        entropy_viscosity_smooth_divide_device
   implicit none
   private
@@ -151,16 +153,13 @@ contains
 
     if (this%c_entropy >= 1.0e10_rp) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call entropy_viscosity_clamp_to_low_order_device( &
-               this%reg_coeff%x_d, this%h%x_d, this%max_wave_speed%x_d, &
-               0.0_rp, n)
-          call entropy_viscosity_clamp_to_low_order_device( &
+          call entropy_viscosity_set_low_order_device( &
                this%reg_coeff%x_d, this%h%x_d, this%max_wave_speed%x_d, &
                this%c_max, n)
        else
-          do i = 1, n
-             this%reg_coeff%x(i,1,1,1) = this%low_order_viscosity(i)
-          end do
+          call entropy_viscosity_set_low_order_cpu( &
+               this%reg_coeff%x, this%h%x, this%max_wave_speed%x, &
+               this%c_max, n)
        end if
        return
     end if
