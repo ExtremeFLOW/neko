@@ -59,10 +59,10 @@ module registry_entry
 
    contains
      !> Constructors
-     procedure, pass(this) :: init_field => init_register_field
+     procedure, pass(this) :: init_scalar => init_register_scalar
      procedure, pass(this) :: init_vector => init_register_vector
      procedure, pass(this) :: init_matrix => init_register_matrix
-     procedure, pass(this) :: init_scalar => init_register_scalar
+     procedure, pass(this) :: init_field => init_register_field
      !> Destructor
      procedure, pass(this) :: free => free_register
 
