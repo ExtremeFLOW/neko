@@ -69,10 +69,10 @@ module registry_entry
      !> Getters that return a pointer to the object in the entry.
      procedure, pass(this) :: get_name
      procedure, pass(this) :: get_type
-     procedure, pass(this) :: get_field
+     procedure, pass(this) :: get_scalar
      procedure, pass(this) :: get_vector
      procedure, pass(this) :: get_matrix
-     procedure, pass(this) :: get_scalar
+     procedure, pass(this) :: get_field
      procedure, pass(this) :: is_allocated
   end type registry_entry_t
 
