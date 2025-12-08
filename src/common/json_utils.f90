@@ -417,8 +417,6 @@ contains
     end if
   end subroutine json_get_or_default_string
 
-
-
   !> Extract `i`th item from a JSON array as a separate JSON object.
   !! @param[inout] core JSON core object.
   !! @param[in] array The JSON object with the array.
