@@ -36,7 +36,7 @@ module fluid_scheme_compressible_euler
   use device, only : device_memcpy, HOST_TO_DEVICE
   use field_math, only : field_add2, field_cfill, field_cmult, &
        field_copy, field_col2, field_col3, &
-       field_addcol3, field_sub2, field_invcol2
+       field_addcol3, field_sub2, field_invcol2, field_cpwmax2
   use operators, only : div, rotate_cyc
   use field_series, only : field_series_t
   use bdf_time_scheme, only : bdf_time_scheme_t
@@ -334,7 +334,8 @@ contains
 
       !> Apply pressure boundary conditions
       call this%bcs_prs%apply(p, time)
-      ! TODO: Make sure pressure is positive
+      ! Ensure pressure is positive
+      call field_cpwmax2(p, 1.0e-12_rp, n)
       ! E = p / (gamma - 1) + 0.5 * rho * (u^2 + v^2 + w^2)
       call field_copy(E, p, n)
       call field_cmult(E, 1.0_rp / (this%gamma - 1.0_rp), n)
