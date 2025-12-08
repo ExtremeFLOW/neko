@@ -177,18 +177,29 @@ contains
     ! Populate registry with global data from the case file
     !
     if (this%params%valid_path('case.registered_data')) then
+       if (this%params%valid_path('case.registered_data.scalars')) then
+          call this%params%info('case.registered_data.scalars', &
+               n_children = integer_val)
+          do i = 1, integer_val
+             call json_extract_item(this%params, &
+                  'case.registered_data.scalars', i, json_subdict)
+             call json_get(json_subdict, 'name', string_val)
+             call json_get(json_subdict, 'value', real_val)
+             call neko_registry%add_scalar(real_val, trim(string_val))
+          end do
+
+       end if
+
        if (this%params%valid_path('case.registered_data.arrays')) then
           call this%params%info('case.registered_data.arrays', &
                n_children = integer_val)
           do i = 1, integer_val
              call json_extract_item(this%params, 'case.registered_data.arrays',&
                   i, json_subdict)
+             call json_get(json_subdict, 'name', string_val)
+             call json_get(json_subdict, 'value', real_vals)
+             call neko_registry%add_vector(size(real_vals), trim(string_val))
           end do
-          call json_get(json_subdict, 'name', string_val)
-          call json_get(json_subdict, 'value', real_vals)
-          call neko_registry%add_vector(size(real_vals), trim(string_val))
-          vec => neko_registry%get_vector(trim(string_val))
-          vec = real_vals
 
        end if
     end if

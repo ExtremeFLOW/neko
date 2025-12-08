@@ -39,7 +39,8 @@ module json_utils
   private
 
   public :: json_get, json_get_or_default, json_extract_item, &
-       json_no_defaults, json_get_real_array_from_registry_or_entry
+       json_no_defaults, json_get_real_array_from_registry_or_entry, &
+       json_get_real_from_registry_or_entry
 
   !> If true, the json_get_or_default routines will not add missing parameters
   logical :: json_no_defaults = .false.
@@ -65,6 +66,13 @@ module json_utils
   end interface json_extract_item
 
   interface
+     module subroutine json_get_real_from_registry_or_entry(json, name, &
+          val)
+       type(json_file), intent(inout) :: json
+       character(len=*), intent(in) :: name
+       real(kind=rp), allocatable, intent(out) :: val
+     end subroutine json_get_real_from_registry_or_entry
+
      module subroutine json_get_real_array_from_registry_or_entry(json, name, &
           val)
        type(json_file), intent(inout) :: json
