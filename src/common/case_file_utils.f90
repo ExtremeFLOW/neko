@@ -96,7 +96,7 @@ contains
 !> Retrieves a real array either from the json or from the corresponding vector
 !! in the `neko_registry`.
 !! @details First tries to retrieve the array from the JSON, looking for a real
-!! vector entry unde the given name. If not found, the name is looked up in the
+!! vector entry under the given name. If not found, the name is looked up in the
 !! `neko_registry` as a vector, and the data is copied from there.
 !! @param[inout] json The json to retrieve the parameter from.
 !! @param[in] name The full path to the parameter.
