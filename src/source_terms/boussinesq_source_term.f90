@@ -37,7 +37,7 @@ module boussinesq_source_term
   use field, only : field_t
   use json_module, only : json_file
   use json_utils, only: json_get, json_get_or_default, &
-       json_get_real_array_from_registry_or_entry
+       json_get_from_registry_or_entry
   use source_term, only : source_term_t
   use coefs, only : coef_t
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -107,7 +107,7 @@ contains
 
     call json_get_or_default(json, "scalar_field", scalar_name, "temperature")
 
-    call json_get_real_array_from_registry_or_entry(json, "g", g)
+    call json_get_from_registry_or_entry(json, "g", g)
 
     if (.not. size(g) == 3) then
        call neko_error("The gravity vector should have 3 components")

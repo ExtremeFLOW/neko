@@ -50,8 +50,7 @@ contains
   module subroutine json_get_real_from_registry_or_entry(json, name, val)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
-    real(kind=rp), allocatable, intent(out) :: val
-    character(len=:), allocatable :: reg_name
+    real(kind=rp), intent(out) :: val
     real(kind=rp), pointer :: scalar_ptr
 
     logical :: found
@@ -62,6 +61,37 @@ contains
     scalar_ptr => neko_registry%get_scalar(name)
     val = scalar_ptr
   end subroutine json_get_real_from_registry_or_entry
+
+!> Retrieves a real either from the json or from the corresponding scalar
+!! in the `neko_registry`, otherwise sets the default value.
+!! @details First tries to retrieve the array from the JSON, looking for a real
+!! entry unde the given name. If not found, the name is looked up in the
+!! `neko_registry` as a scalar, and the data is copied from there.
+!! @param[inout] json The json to retrieve the parameter from.
+!! @param[in] name The full path to the parameter.
+!! @param[out] value The variable to be populated with the retrieved parameter
+!! @param[in] defalt The default value to be used if the parameter is not found
+  module subroutine json_get_real_from_registry_or_entry_or_default(json, name,&
+       val, default)
+    type(json_file), intent(inout) :: json
+    character(len=*), intent(in) :: name
+    real(kind=rp), intent(out) :: val
+    real(kind=rp), intent(in) :: default
+
+    real(kind=rp), pointer :: scalar_ptr
+    logical :: found
+
+    call json%get(name, val, found)
+    if (found) return
+
+    found = neko_registry%scalar_exists(name)
+    if (found) then
+       scalar_ptr => neko_registry%get_scalar(name)
+       val = scalar_ptr
+    else
+       val = default
+    end if
+  end subroutine json_get_real_from_registry_or_entry_or_default
 
 !> Retrieves a real array either from the json or from the corresponding vector
 !! in the `neko_registry`.
@@ -75,7 +105,6 @@ contains
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
     real(kind=rp), allocatable, intent(out) :: val(:)
-    character(len=:), allocatable :: reg_name
     type(vector_t), pointer :: vec_ptr
 
     logical :: found
