@@ -140,23 +140,6 @@ __global__ void entropy_visc_clamp_to_low_order_kernel(T * __restrict__ reg_coef
 }
 
 /**
- * Kernel for setting low-order viscosity directly (no clamping)
- */
-template<typename T>
-__global__ void entropy_visc_set_low_order_kernel(T * __restrict__ reg_coeff,
-                                                  const T * __restrict__ h,
-                                                  const T * __restrict__ max_wave_speed,
-                                                  const T c_max,
-                                                  const int n) {
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
-
-  for (int i = idx; i < n; i += str) {
-    reg_coeff[i] = c_max * h[i] * max_wave_speed[i];
-  }
-}
-
-/**
  * Kernel for dividing by multiplicity (smoothing)
  */
 template<typename T>

@@ -14,8 +14,8 @@
         "numerics": {
             "time_order": 4,
             "polynomial_order": 3,
-            "c_avisc_low": 1.0,
-            "c_entropy": 20.0 // Somehow this test is highly oscillating
+            "c_avisc_low": 0.5,
+            "c_entropy": 20.0
         },
         "fluid": {
             "scheme": "compressible",

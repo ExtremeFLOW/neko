@@ -48,7 +48,7 @@ module entropy_viscosity
   use mesh, only: mesh_t
   use space, only: space_t
   use gather_scatter, only: gs_t
-  use gs_ops, only: GS_OP_ADD, GS_OP_MAX
+  use gs_ops, only: GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use device, only: device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
   use device_math, only: device_col3, device_absval, device_glsum
@@ -56,13 +56,11 @@ module entropy_viscosity
        entropy_viscosity_compute_viscosity_cpu, &
        entropy_viscosity_apply_element_max_cpu, &
        entropy_viscosity_clamp_to_low_order_cpu, &
-       entropy_viscosity_set_low_order_cpu, &
        entropy_viscosity_smooth_divide_cpu
   use entropy_viscosity_device, only: entropy_viscosity_compute_residual_device, &
        entropy_viscosity_compute_viscosity_device, &
        entropy_viscosity_apply_element_max_device, &
        entropy_viscosity_clamp_to_low_order_device, &
-       entropy_viscosity_set_low_order_device, &
        entropy_viscosity_smooth_divide_device
   implicit none
   private
@@ -150,19 +148,6 @@ contains
     integer :: i, n
 
     n = this%dof%size()
-
-    if (this%c_entropy >= 1.0e10_rp) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call entropy_viscosity_set_low_order_device( &
-               this%reg_coeff%x_d, this%h%x_d, this%max_wave_speed%x_d, &
-               this%c_max, n)
-       else
-          call entropy_viscosity_set_low_order_cpu( &
-               this%reg_coeff%x, this%h%x, this%max_wave_speed%x, &
-               this%c_max, n)
-       end if
-       return
-    end if
 
     call this%compute_residual(tstep, dt, time%dtlag)
     call this%compute_viscosity(tstep)
@@ -277,6 +262,7 @@ contains
        call absval(temp_field%x, n)
     end if
 
+    ! Normalization factor n_S = |S-S_mean|_inf
     n_S = glmax(temp_field%x, n)
 
     call neko_scratch_registry%relinquish_field(temp_indices)
@@ -285,6 +271,7 @@ contains
        n_S = 1.0e-12_rp
     end if
 
+    ! entropy viscosity = c_entropy * h^2 * entropy_residual / n_S
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call entropy_viscosity_compute_viscosity_device( &
             this%reg_coeff%x_d, this%entropy_residual%x_d, &
@@ -295,8 +282,7 @@ contains
             this%h%x, this%c_entropy, n_S, n)
     end if
 
-    call this%apply_element_max()
-
+    ! effective viscosity = min(entropy viscosity, low-order viscosity)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call entropy_viscosity_clamp_to_low_order_device( &
             this%reg_coeff%x_d, this%h%x_d, this%max_wave_speed%x_d, &
@@ -306,6 +292,8 @@ contains
             this%reg_coeff%x, this%h%x, this%max_wave_speed%x, &
             this%c_max, n)
     end if
+
+    call this%apply_element_max()
 
     call this%smooth_viscosity()
 

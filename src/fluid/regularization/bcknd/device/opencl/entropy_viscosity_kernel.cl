@@ -132,22 +132,6 @@ __kernel void entropy_visc_clamp_to_low_order_kernel(__global real * __restrict_
 }
 
 /**
- * Kernel for setting low-order viscosity directly (no clamping)
- */
-__kernel void entropy_visc_set_low_order_kernel(__global real * __restrict__ reg_coeff,
-                                                __global const real * __restrict__ h,
-                                                __global const real * __restrict__ max_wave_speed,
-                                                const real c_max,
-                                                const int n) {
-  const int idx = get_global_id(0);
-  const int str = get_global_size(0);
-
-  for (int i = idx; i < n; i += str) {
-    reg_coeff[i] = c_max * h[i] * max_wave_speed[i];
-  }
-}
-
-/**
  * Kernel for dividing by multiplicity (smoothing)
  */
 __kernel void entropy_visc_smooth_divide_kernel(__global real * __restrict__ reg_coeff,

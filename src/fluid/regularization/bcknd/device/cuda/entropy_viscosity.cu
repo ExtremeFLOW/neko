@@ -105,23 +105,6 @@ void cuda_entropy_visc_clamp_to_low_order(void *reg_coeff,
   CUDA_CHECK(cudaGetLastError());
 }
 
-void cuda_entropy_visc_set_low_order(void *reg_coeff,
-                                     void *h,
-                                     void *max_wave_speed,
-                                     real *c_max,
-                                     int *n) {
-  const dim3 nthrds(1024, 1, 1);
-  const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
-  const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
-
-  entropy_visc_set_low_order_kernel<real>
-    <<<nblcks, nthrds, 0, stream>>>((real *) reg_coeff,
-                                    (real *) h,
-                                    (real *) max_wave_speed,
-                                    *c_max, *n);
-  CUDA_CHECK(cudaGetLastError());
-}
-
 void cuda_entropy_visc_smooth_divide(void *reg_coeff,
                                      void *temp_field,
                                      void *mult_field,
