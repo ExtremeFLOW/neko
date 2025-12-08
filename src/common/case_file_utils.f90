@@ -33,9 +33,9 @@
 !> Utilities for handling the case file, which are not pure JSON. Therefore,
 !! split from the JSON utilities parent module.
 submodule (json_utils) case_file_utils
-use registry, only : neko_registry
-use vector, only : vector_t
-implicit none
+  use registry, only : neko_registry
+  use vector, only : vector_t
+  implicit none
 
 contains
 
@@ -47,21 +47,21 @@ contains
 !! @param[inout] json The json to retrieve the parameter from.
 !! @param[in] name The full path to the parameter.
 !! @param[out] value The variable to be populated with the retrieved parameter
-module subroutine json_get_real_from_registry_or_entry(json, name, val)
-  type(json_file), intent(inout) :: json
-  character(len=*), intent(in) :: name
-  real(kind=rp), allocatable, intent(out) :: val
-  character(len=:), allocatable :: reg_name
-  real(kind=rp), pointer :: scalar_ptr
+  module subroutine json_get_real_from_registry_or_entry(json, name, val)
+    type(json_file), intent(inout) :: json
+    character(len=*), intent(in) :: name
+    real(kind=rp), allocatable, intent(out) :: val
+    character(len=:), allocatable :: reg_name
+    real(kind=rp), pointer :: scalar_ptr
 
-  logical :: found
+    logical :: found
 
-  call json%get(name, val, found)
-  if (found) return
+    call json%get(name, val, found)
+    if (found) return
 
-  scalar_ptr => neko_registry%get_scalar(name)
-  val = scalar_ptr
-end subroutine json_get_real_from_registry_or_entry
+    scalar_ptr => neko_registry%get_scalar(name)
+    val = scalar_ptr
+  end subroutine json_get_real_from_registry_or_entry
 
 !> Retrieves a real array either from the json or from the corresponding vector
 !! in the `neko_registry`.
@@ -71,20 +71,20 @@ end subroutine json_get_real_from_registry_or_entry
 !! @param[inout] json The json to retrieve the parameter from.
 !! @param[in] name The full path to the parameter.
 !! @param[out] value The variable to be populated with the retrieved parameter
-module subroutine json_get_real_array_from_registry_or_entry(json, name, val)
-  type(json_file), intent(inout) :: json
-  character(len=*), intent(in) :: name
-  real(kind=rp), allocatable, intent(out) :: val(:)
-  character(len=:), allocatable :: reg_name
-  type(vector_t), pointer :: vec_ptr
+  module subroutine json_get_real_array_from_registry_or_entry(json, name, val)
+    type(json_file), intent(inout) :: json
+    character(len=*), intent(in) :: name
+    real(kind=rp), allocatable, intent(out) :: val(:)
+    character(len=:), allocatable :: reg_name
+    type(vector_t), pointer :: vec_ptr
 
-  logical :: found
+    logical :: found
 
-  call json%get(name, val, found)
-  if (found) return
+    call json%get(name, val, found)
+    if (found) return
 
-  vec_ptr => neko_registry%get_vector(name)
-  val = vec_ptr%x
-end subroutine json_get_real_array_from_registry_or_entry
+    vec_ptr => neko_registry%get_vector(name)
+    val = vec_ptr%x
+  end subroutine json_get_real_array_from_registry_or_entry
 
-end submodule
+end submodule case_file_utils

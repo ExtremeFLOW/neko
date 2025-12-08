@@ -685,7 +685,7 @@ contains
     end do
 
     found = this%aliases%valid_path(name)
-   end function registry_matrix_exists
+  end function registry_matrix_exists
 
   !> Check if a scalar with a given name is already in the registry.
   function registry_scalar_exists(this, name) result(found)
