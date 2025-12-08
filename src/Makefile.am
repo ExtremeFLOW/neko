@@ -267,7 +267,6 @@ neko_fortran_SOURCES = \
 	fluid/bcknd/sx/pnpn_res_sx.f90\
 	fluid/bcknd/device/pnpn_res_device.F90\
 	fluid/bcknd/cpu/euler_res_cpu.f90\
-	fluid/bcknd/sx/euler_res_sx.f90\
 	fluid/bcknd/device/euler_res_device.F90\
 	fluid/bcknd/cpu/compressible_ops_cpu.f90\
 	fluid/bcknd/device/compressible_ops_device.F90\
