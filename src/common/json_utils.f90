@@ -39,7 +39,7 @@ module json_utils
   private
 
   public :: json_get, json_get_or_default, json_extract_item, &
-       json_no_defaults
+       json_no_defaults, json_get_real_array_from_registry_or_entry
 
   !> If true, the json_get_or_default routines will not add missing parameters
   logical :: json_no_defaults = .false.
@@ -63,6 +63,16 @@ module json_utils
   interface json_extract_item
      module procedure json_extract_item_from_array, json_extract_item_from_name
   end interface json_extract_item
+
+  interface
+     module subroutine json_get_real_array_from_registry_or_entry(json, name, &
+          val)
+       type(json_file), intent(inout) :: json
+       character(len=*), intent(in) :: name
+       real(kind=rp), allocatable, intent(out) :: val(:)
+     end subroutine json_get_real_array_from_registry_or_entry
+
+  end interface
 contains
 
   !> Retrieves a real parameter by name or throws an error
@@ -386,6 +396,8 @@ contains
        call neko_error("Parameter " // name // " missing from the case file")
     end if
   end subroutine json_get_or_default_string
+
+
 
   !> Extract `i`th item from a JSON array as a separate JSON object.
   !! @param[inout] core JSON core object.
