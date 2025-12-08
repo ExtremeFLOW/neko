@@ -52,11 +52,11 @@ module registry_entry
      !> Whether the entry is allocated
      logical, private :: allocated = .false.
 
-     !> Storage. Only one of these will be allocated at a time.
-     type(field_t), private, pointer :: field_ptr => null()
+     ! Storage. Only one of these will be allocated at a time.
+     real(kind=rp), private :: scalar = 0.0_rp
      type(vector_t), private, pointer :: vector_ptr => null()
      type(matrix_t), private, pointer :: matrix_ptr => null()
-     real(kind=rp), private :: scalar = 0.0_rp
+     type(field_t), private, pointer :: field_ptr => null()
 
    contains
      !> Constructors
