@@ -11,7 +11,7 @@ contains
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
     user%initial_conditions => initial_conditions
-    user%source_term => source_term
+    user%source_term => forcing_source_term
     user%startup => startup
   end subroutine user_setup
 
@@ -75,8 +75,8 @@ contains
 
   end subroutine initial_conditions
 
-  !> Forcing
-  subroutine source_term(scheme_name, rhs, time)
+  ! Forcing
+  subroutine forcing_source_term(scheme_name, rhs, time)
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: rhs
     type(time_state_t), intent(in) :: time
@@ -102,5 +102,5 @@ contains
        call field_cmult2(rhs_v, u, Ta2Pr)
        call field_cmult2(rhs_w, s, rapr)
     end if
-  end subroutine source_term
+  end subroutine forcing_source_term
 end module user
