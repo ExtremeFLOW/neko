@@ -202,7 +202,7 @@ contains
     type(registry_t) :: registry
     type(field_t), pointer :: field, alias_ptr
     type(vector_t), pointer :: vector
-    real(kind=rp), pointer :: scalar
+    real(kind=rp) :: scalar
 
     call test_registry_gen_msh(msh)
 
