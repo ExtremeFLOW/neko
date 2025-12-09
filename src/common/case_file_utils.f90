@@ -33,17 +33,19 @@
 !> Utilities for handling the case file, which are not pure JSON. Therefore,
 !! split from the JSON utilities parent module.
 submodule (json_utils) case_file_utils
-  use registry, only : neko_registry
+  use registry, only : neko_const_registry
   use vector, only : vector_t
+  use device, only : DEVICE_TO_HOST
   implicit none
 
 contains
 
 !> Retrieves a real either from the json or from the corresponding scalar
-!! in the `neko_registry`.
-!! @details First tries to retrieve the array from the JSON, looking for a real
-!! entry under the given name. If not found, the name is looked up in the
-!! `neko_registry` as a scalar, and the data is copied from there.
+!! in the `neko_const_registry`.
+!! @details First tries to retrieve the value from the JSON, looking for a real
+!! entry under the given name. If not found, it looks for the same entry, but
+!! with a string value. The retrieved string is the name looked up in the
+!! `neko_const_registry` as a scalar, and the data is copied from there.
 !! @param[inout] json The json to retrieve the parameter from.
 !! @param[in] name The full path to the parameter.
 !! @param[out] value The variable to be populated with the retrieved parameter
@@ -51,22 +53,29 @@ contains
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
     real(kind=rp), intent(out) :: val
-    real(kind=rp), pointer :: scalar_ptr
 
+    real(kind=rp), pointer :: scalar_ptr
+    character(:), allocatable :: reg_name
     logical :: found
 
+    ! Try to find a real
     call json%get(name, val, found)
     if (found) return
 
-    scalar_ptr => neko_registry%get_scalar(name)
+    ! Try to find a string. It must exist
+    call json_get(json, name, reg_name)
+
+    scalar_ptr => neko_const_registry%get_scalar(reg_name)
     val = scalar_ptr
   end subroutine json_get_real_from_registry_or_entry
 
 !> Retrieves a real either from the json or from the corresponding scalar
 !! in the `neko_registry`, otherwise sets the default value.
-!! @details First tries to retrieve the array from the JSON, looking for a real
-!! entry under the given name. If not found, the name is looked up in the
-!! `neko_registry` as a scalar, and the data is copied from there.
+!! @details First tries to retrieve the value from the JSON, looking for a real
+!! entry under the given name. If not found, it looks for the same entry, but
+!! with a string value. If this fails, the default value is assigned. Otherwise,
+!! the retrieved string is the name looked up in the `neko_const_registry` as a
+!! scalar, and the data is copied from there.
 !! @param[inout] json The json to retrieve the parameter from.
 !! @param[in] name The full path to the parameter.
 !! @param[out] value The variable to be populated with the retrieved parameter
@@ -79,25 +88,30 @@ contains
     real(kind=rp), intent(in) :: default
 
     real(kind=rp), pointer :: scalar_ptr
+    character(:), allocatable :: reg_name
     logical :: found
 
     call json%get(name, val, found)
     if (found) return
 
-    found = neko_registry%scalar_exists(name)
-    if (found) then
-       scalar_ptr => neko_registry%get_scalar(name)
-       val = scalar_ptr
+    ! Try to find a string. At this point it must exist
+    call json%get(name, reg_name, found)
+    if (.not. found) then
+       ! We use another call here instead of just assigning the defaut value
+       ! to handle whether defaults are allowed as per `json_no_defaults`.
+       call json_get_or_default(json, name, val, default)
     else
-       val = default
+       scalar_ptr => neko_const_registry%get_scalar(reg_name)
+       val = scalar_ptr
     end if
   end subroutine json_get_real_from_registry_or_entry_or_default
 
 !> Retrieves a real array either from the json or from the corresponding vector
 !! in the `neko_registry`.
-!! @details First tries to retrieve the array from the JSON, looking for a real
-!! vector entry under the given name. If not found, the name is looked up in the
-!! `neko_registry` as a vector, and the data is copied from there.
+!! @details First tries to retrieve the values from the JSON, looking for a real
+!! array entry under the given name. If not found, it looks for the same entry,
+!! but with a string value. The retrieved string is the name looked up in the
+!! `neko_const_registry` as a scalar, and the data is copied from there.
 !! @param[inout] json The json to retrieve the parameter from.
 !! @param[in] name The full path to the parameter.
 !! @param[out] value The variable to be populated with the retrieved parameter
@@ -105,14 +119,20 @@ contains
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
     real(kind=rp), allocatable, intent(out) :: val(:)
+
     type(vector_t), pointer :: vec_ptr
-
     logical :: found
+    character(:), allocatable :: reg_name
 
+    ! Try to find a real array
     call json%get(name, val, found)
     if (found) return
 
-    vec_ptr => neko_registry%get_vector(name)
+    ! Try to find a string. It must exist
+    call json_get(json, name, reg_name)
+
+    vec_ptr => neko_const_registry%get_vector(name)
+    call vec_ptr%copy_from(DEVICE_TO_HOST, sync = .true.)
     val = vec_ptr%x
   end subroutine json_get_real_array_from_registry_or_entry
 

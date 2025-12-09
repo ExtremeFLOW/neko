@@ -143,13 +143,21 @@ module registry
   !> Global field registry
   type(registry_t), public, target :: neko_registry
 
+  !> This registry is used to store user-defined scalars and vectors, provided
+  !! under the `registered_data` section of the case file. These are separated
+  !! from the global registry to prevent name clashes with registered objects
+  !! used by Neko itself.
+  type(registry_t), public, target :: neko_const_registry
+
+
 contains
   ! ========================================================================== !
   ! Constructors/Destructors
 
   !> Constructor
   !! @param size The allocation size of `entries` on init.
-  !! @param expansion_size The number of entries added to `entries` on expansion.
+  !! @param expansion_size The number of entries added to `entries` on
+  !! expansion.
   subroutine registry_init(this, size, expansion_size)
     class(registry_t), intent(inout):: this
     integer, optional, intent(in) :: size

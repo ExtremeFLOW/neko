@@ -175,7 +175,7 @@ contains
 
 
     !
-    ! Populate registry with global data from the case file
+    ! Populate const registry with global data from the case file
     !
     if (this%params%valid_path('case.registered_data')) then
        if (this%params%valid_path('case.registered_data.scalars')) then
@@ -186,7 +186,7 @@ contains
                   'case.registered_data.scalars', i, json_subdict)
              call json_get(json_subdict, 'name', string_val)
              call json_get(json_subdict, 'value', real_val)
-             call neko_registry%add_scalar(real_val, trim(string_val))
+             call neko_const_registry%add_scalar(real_val, trim(string_val))
           end do
 
        end if

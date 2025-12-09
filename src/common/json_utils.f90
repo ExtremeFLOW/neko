@@ -85,6 +85,7 @@ module json_utils
        real(kind=rp), intent(out) :: val
        real(kind=rp), intent(in) :: default
      end subroutine json_get_real_from_registry_or_entry_or_default
+
      module subroutine json_get_real_array_from_registry_or_entry(json, name, &
           val)
        type(json_file), intent(inout) :: json
