@@ -241,7 +241,7 @@ contains
     vector => registry%get_vector('test_alias2')
     @assertEqual(42, vector%size())
 
-    scalar => registry%get_scalar('test_alias3')
+    scalar = registry%get_scalar('test_alias3')
     @assertEqual(3.0_rp, scalar)
 
     field => registry%get_field('test_field')
