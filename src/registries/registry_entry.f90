@@ -58,7 +58,7 @@ module registry_entry
      type(field_t), private, pointer :: field_ptr => null()
 
    contains
-     !> Constructors
+     ! Constructors
      procedure, pass(this) :: init_scalar => init_register_scalar
      procedure, pass(this) :: init_vector => init_register_vector
      procedure, pass(this) :: init_matrix => init_register_matrix
