@@ -54,19 +54,19 @@ contains
     character(len=*), intent(in) :: name
     real(kind=rp), intent(out) :: val
 
-    real(kind=rp), pointer :: scalar_ptr
     character(:), allocatable :: reg_name
     logical :: found
 
     ! Try to find a real
     call json%get(name, val, found)
+    ! The value is retrieved from the JSON keyword, we are done
     if (found) return
 
     ! Try to find a string. It must exist
     call json_get(json, name, reg_name)
 
-    scalar_ptr => neko_const_registry%get_scalar(reg_name)
-    val = scalar_ptr
+    ! Retrieve the array from the registry
+    val = neko_const_registry%get_scalar(reg_name)
   end subroutine json_get_real_from_registry_or_entry
 
 !> Retrieves a real either from the json or from the corresponding scalar
@@ -87,22 +87,22 @@ contains
     real(kind=rp), intent(out) :: val
     real(kind=rp), intent(in) :: default
 
-    real(kind=rp), pointer :: scalar_ptr
     character(:), allocatable :: reg_name
     logical :: found
 
     call json%get(name, val, found)
+    ! The value is retrieved from the JSON keyword, we are done
     if (found) return
 
-    ! Try to find a string. At this point it must exist
+    ! Try to find a string.
     call json%get(name, reg_name, found)
     if (.not. found) then
        ! We use another call here instead of just assigning the defaut value
        ! to handle whether defaults are allowed as per `json_no_defaults`.
        call json_get_or_default(json, name, val, default)
     else
-       scalar_ptr => neko_const_registry%get_scalar(reg_name)
-       val = scalar_ptr
+       ! Retrieve the array from the registry
+       val = neko_const_registry%get_scalar(reg_name)
     end if
   end subroutine json_get_real_from_registry_or_entry_or_default
 
@@ -126,12 +126,14 @@ contains
 
     ! Try to find a real array
     call json%get(name, val, found)
+    ! The value is retrieved from the JSON keyword, we are done
     if (found) return
 
     ! Try to find a string. It must exist
     call json_get(json, name, reg_name)
 
-    vec_ptr => neko_const_registry%get_vector(name)
+    ! Retrieve the array from the registry
+    vec_ptr => neko_const_registry%get_vector(reg_name)
     call vec_ptr%copy_from(DEVICE_TO_HOST, sync = .true.)
     val = vec_ptr%x
   end subroutine json_get_real_array_from_registry_or_entry

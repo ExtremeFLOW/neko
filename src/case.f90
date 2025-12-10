@@ -64,7 +64,7 @@ module case
   use scalars, only : scalars_t
   use comm, only : NEKO_COMM, pe_rank, pe_size
   use mpi_f08, only : MPI_Bcast, MPI_CHARACTER, MPI_INTEGER
-  use registry, only : neko_registry
+  use registry, only : neko_registry, neko_const_registry
   use vector, only : vector_t
 
   implicit none
@@ -199,7 +199,7 @@ contains
                   i, json_subdict)
              call json_get(json_subdict, 'name', string_val)
              call json_get(json_subdict, 'value', real_vals)
-             call neko_registry%add_vector(size(real_vals), trim(string_val))
+             call neko_const_registry%add_vector(size(real_vals), trim(string_val))
           end do
 
        end if
