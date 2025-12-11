@@ -153,14 +153,14 @@ void wp4est_cnn_complete();
  *
  * @param filename       file name
  */
-void wp4est_cnn_save(char filename[])
+void wp4est_cnn_save(char * filename)
 ;
 
 /** Load a connectivity structure from a file
  *
  * @param filename       file name
  */
-void wp4est_cnn_load(char filename[])
+void wp4est_cnn_load(char * filename)
 ;
 
 /** Destroy mesh geometry */
@@ -187,14 +187,14 @@ void wp4est_tree_valid(int * is_valid)
  *
  * @param[in] filename       file name
  */
-void wp4est_tree_save(char filename[])
+void wp4est_tree_save(char * filename)
 ;
 
 /** Load tree from a file
  *
  * @param[in] filename            file name
  */
-void wp4est_tree_load(char filename[])
+void wp4est_tree_load(char * filename)
 ;
 
 /** Build ghost layer */
@@ -476,7 +476,7 @@ void wp4est_msh_get_hst(int64_t * elgl_mapg, int * elgl_map,
  *
  * @param filename
  */
-void wp4est_vtk_write(char filename[])
+void wp4est_vtk_write(char * filename)
 ;
 
 #endif /* NEKO_P4EST_FWRAP_H_ */

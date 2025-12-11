@@ -54,6 +54,7 @@ module mesh_manager_p4est
   use manager_mesh_p4est, only : manager_mesh_p4est_t
   use mesh_manager, only : mesh_manager_t
   use mesh_manager_transfer_p4est, only : mesh_manager_transfer_p4est_t
+  use, intrinsic :: iso_c_binding, only : c_null_char
 
   implicit none
 
@@ -596,6 +597,7 @@ contains
     integer(i4) :: is_valid, ierr
     character(len=LOG_SIZE) :: log_buf
     real(kind=rp) :: t_start, t_end
+    logical :: exist
 
     t_start = MPI_WTIME()
     ! allocate mesh types
@@ -624,10 +626,12 @@ contains
 !    call wp4est_tree_del()
 !    call wp4est_cnn_del()
 
-    write(log_buf, '(a)') 'Reading p4est tree data.'
-    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+    call neko_log%message('Reading p4est tree data from the file '// &
+         trim(this%tree_file), NEKO_LOG_VERBOSE)
+    inquire(file = trim(this%tree_file), exist = exist)
+    if (.not. exist) call neko_error('Missing p4est tree file.')
     ! read the tree file
-    call wp4est_tree_load(trim(this%tree_file))
+    call wp4est_tree_load(trim(this%tree_file)//c_null_char)
     call wp4est_tree_valid(is_valid)
     if (is_valid .eq. 0) call neko_error('Invalid p4est tree')
     call wp4est_cnn_valid(is_valid)
@@ -635,9 +639,9 @@ contains
     ! perform partitioning on p4est side
     call wp4est_part()
 
-!    call wp4est_cnn_save('test.cnn')
-!    call wp4est_tree_save('test.tree')
-!    call wp4est_vtk_write('test')
+!    call wp4est_cnn_save('test.cnn'//c_null_char)
+!    call wp4est_tree_save('test.tree'//c_null_char)
+!    call wp4est_vtk_write('test'//c_null_char)
 
     !call MPI_Barrier(NEKO_COMM, ierr)
     t_end = MPI_WTIME()
@@ -1152,7 +1156,9 @@ contains
     class(mesh_manager_p4est_t), intent(inout) :: this
     integer(i4) :: il, iel, ifc, ibc, nin, ninp, nhf, nhfp, nhe, nhep
     integer(i8) :: itmp8
-    integer(i4), target, allocatable, dimension(:) :: imsh
+    integer(i8), target, allocatable, dimension(:) :: gidx
+    integer(i4), target, allocatable, dimension(:) :: imsh, igrp
+    integer(i4), target, allocatable, dimension(:, :) :: crv, bc
     ! conversion from circular to symmetric notation
     integer(i4) , dimension(8), parameter :: cs_cnv = &
          [1, 2, 4, 3, 5, 6, 8, 7]
@@ -1162,7 +1168,8 @@ contains
 
        ! Fill all the information that may be not properly initialised
        ! neko supports just V-type elements
-       allocate(imsh(mesh%nelt))
+       allocate(gidx(mesh%nelt), imsh(mesh%nelt), igrp(mesh%nelt), &
+            crv(mesh%nfcs, mesh%nelt), bc(mesh%nfcs, mesh%nelt))
        imsh(:) = 0
        !> group flag is not used for now
        mesh%igrp(:) = 0
@@ -1186,8 +1193,12 @@ contains
        end do
 
        ! transfer data to p4est
-       call wp4est_elm_ini_dat(c_loc(mesh%gidx), c_loc(imsh), &
-            c_loc(mesh%igrp), c_loc(mesh%crv), c_loc(mesh%bc))
+       gidx(:) = mesh%gidx(:)
+       igrp(:) = mesh%igrp(:)
+       crv(:, :) = mesh%crv(:, :)
+       bc(:, :) = mesh%bc(:, :)
+       call wp4est_elm_ini_dat(c_loc(gidx), c_loc(imsh), c_loc(igrp), &
+            c_loc(crv), c_loc(bc))
 
        ! check if applied boundary conditions are consistent with tree structure
        ! the ghost mesh was not destroyed at the end of data import, so no need
@@ -1196,7 +1207,7 @@ contains
        call wp4est_bc_check()
 !       call wp4est_ghost_del()
 
-       deallocate(imsh)
+       deallocate(gidx, imsh, igrp, crv, bc)
     end select
 
     ! correct vertex information in the mesh manager geometry
@@ -1813,7 +1824,7 @@ contains
     ! SHOULD THE COMMUNICATION PATTERN BE CHANGED?
     ! non-local object neighbours
     ! count size of send/receive buffers
-    allocate(cmoff(objmm%nrank), cmoffr(objmm%nrank),)
+    allocate(cmoff(objmm%nrank), cmoffr(objmm%nrank))
     itmp = 1
     cmoff(itmp) = 1
     do il= 1, objmm%nrank ! mpi rank loop

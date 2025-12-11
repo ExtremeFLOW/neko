@@ -167,11 +167,11 @@ void wp4est_cnn_complete() {
   p4est_connectivity_complete(connect_neko);
 }
 
-void wp4est_cnn_save(char filename[]) {
+void wp4est_cnn_save(char * filename) {
   p4est_connectivity_save(filename, connect_neko);
 }
 
-void wp4est_cnn_load(char filename[]) {
+void wp4est_cnn_load(char * filename) {
   if (connect_neko != NULL) p4est_connectivity_destroy(connect_neko);
   connect_neko = p4est_connectivity_load(filename, NULL);
 }
@@ -243,11 +243,11 @@ void wp4est_tree_valid(int * is_valid) {
   *is_valid = p4est_is_valid(tree_neko);
 }
 
-void wp4est_tree_save(char filename[]) {
+void wp4est_tree_save(char * filename) {
   p4est_save_ext(filename, tree_neko, 0, 0);
 }
 
-void wp4est_tree_load(char filename[]) {
+void wp4est_tree_load(char * filename) {
   if (tree_neko != NULL) p4est_destroy(tree_neko);
   if (connect_neko != NULL) p4est_connectivity_destroy(connect_neko);
   tree_neko = p4est_load_ext(filename, mpicomm, sizeof(user_data_t), 0,
@@ -2090,6 +2090,6 @@ void wp4est_msh_get_hst(int64_t * elgl_mapg, int *elgl_map,
 }
 
 /* I/O VTK to check tree structure */
-void wp4est_vtk_write(char filename[]) {
+void wp4est_vtk_write(char * filename) {
   p4est_vtk_write_file(tree_neko, NULL, filename);
 }
