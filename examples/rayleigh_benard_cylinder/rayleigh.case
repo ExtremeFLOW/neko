@@ -12,6 +12,31 @@
         "checkpoint_control": "simulationtime",
         "checkpoint_value": 50,
         "job_timelimit": "12:00:00",
+        "registered_data":
+        {
+            "scalars":
+            [
+                {
+                    "name": "c1",
+                    "value": 1
+                },
+                {
+                    "name": "c2",
+                    "value": 2
+                }
+            ],
+            "arrays":
+            [
+                {
+                    "name": "g",
+                    "value": [0, 0, 9.8]
+                },
+                {
+                    "name": "g2",
+                    "value": [1, 0, 0.0]
+                }
+            ]
+        },
         "numerics": {
             "time_order": 3,
             "polynomial_order": 7,
@@ -25,7 +50,8 @@
                 {
                     "type": "boussinesq",
                     "scalar_field": "temperature",
-                    "g": [ 0, 0, 1 ],
+                    //"g": [ 0, 0, 1 ],
+                    "g": "g2",
                     "reference_value": 0,
                     "beta": 1
                 }

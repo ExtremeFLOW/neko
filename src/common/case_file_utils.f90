@@ -64,9 +64,39 @@ contains
     ! Try to find a string. It must exist
     call json_get(json, name, reg_name)
 
-    ! Retrieve the array from the registry
+    ! Retrieve the value from the registry
     val = neko_const_registry%get_scalar(reg_name)
   end subroutine json_get_real_from_registry_or_entry
+
+!> Retrieves an intiger either from the json or from the corresponding scalar
+!! in the `neko_const_registry`.
+!! @details First tries to retrieve the value from the JSON, looking for an int
+!! entry under the given name. If not found, it looks for the same entry, but
+!! with a string value. The retrieved string is the name looked up in the
+!! `neko_const_registry` as a scalar, and the data is copied from there,
+!! using explicit conversion to an int.
+!! @param[inout] json The json to retrieve the parameter from.
+!! @param[in] name The full path to the parameter.
+!! @param[out] value The variable to be populated with the retrieved parameter
+  module subroutine json_get_integer_from_registry_or_entry(json, name, val)
+    type(json_file), intent(inout) :: json
+    character(len=*), intent(in) :: name
+    integer, intent(out) :: val
+
+    character(:), allocatable :: reg_name
+    logical :: found
+
+    ! Try to find an int
+    call json%get(name, val, found)
+    ! The value is retrieved from the JSON keyword, we are done
+    if (found) return
+
+    ! Try to find a string. It must exist
+    call json_get(json, name, reg_name)
+
+    ! Retrieve the value from the registry
+    val = int(neko_const_registry%get_scalar(reg_name))
+  end subroutine json_get_integer_from_registry_or_entry
 
 !> Retrieves a real either from the json or from the corresponding scalar
 !! in the `neko_registry`, otherwise sets the default value.
@@ -105,6 +135,44 @@ contains
     end if
   end subroutine json_get_real_from_registry_or_entry_or_default
 
+!> Retrieves an integer either from the json or from the corresponding scalar
+!! in the `neko_registry`, otherwise sets the default value.
+!! @details First tries to retrieve the value from the JSON, looking for an int
+!! entry under the given name. If not found, it looks for the same entry, but
+!! with a string value. If this fails, the default value is assigned. Otherwise,
+!! the retrieved string is the name looked up in the `neko_const_registry` as a
+!! scalar, and the data is copied from there, using explicit convresionto an
+!! int.
+!! @param[inout] json The json to retrieve the parameter from.
+!! @param[in] name The full path to the parameter.
+!! @param[out] value The variable to be populated with the retrieved parameter
+!! @param[in] defalt The default value to be used if the parameter is not found
+  module subroutine json_get_integer_from_registry_or_entry_or_default(json, &
+       name, val, default)
+    type(json_file), intent(inout) :: json
+    character(len=*), intent(in) :: name
+    integer, intent(out) :: val
+    integer, intent(in) :: default
+
+    character(:), allocatable :: reg_name
+    logical :: found
+
+    call json%get(name, val, found)
+    ! The value is retrieved from the JSON keyword, we are done
+    if (found) return
+
+    ! Try to find a string.
+    call json%get(name, reg_name, found)
+    if (.not. found) then
+       ! We use another call here instead of just assigning the defaut value
+       ! to handle whether defaults are allowed as per `json_no_defaults`.
+       call json_get_or_default(json, name, val, default)
+    else
+       ! Retrieve the array from the registry
+       val = int(neko_const_registry%get_scalar(reg_name))
+    end if
+  end subroutine json_get_integer_from_registry_or_entry_or_default
+
 !> Retrieves a real array either from the json or from the corresponding vector
 !! in the `neko_registry`.
 !! @details First tries to retrieve the values from the JSON, looking for a real
@@ -135,5 +203,37 @@ contains
     vec_ptr => neko_const_registry%get_vector(reg_name)
     val = vec_ptr%x
   end subroutine json_get_real_array_from_registry_or_entry
+
+!> Retrieves ain int array either from the json or from the corresponding vector
+!! in the `neko_registry`.
+!! @details First tries to retrieve the values from the JSON, looking for an int
+!! array entry under the given name. If not found, it looks for the same entry,
+!! but with a string value. The retrieved string is the name looked up in the
+!! `neko_const_registry` as a scalar, and the data is copied from there.
+!! @param[inout] json The json to retrieve the parameter from.
+!! @param[in] name The full path to the parameter.
+!! @param[out] value The variable to be populated with the retrieved parameter
+  module subroutine json_get_integer_array_from_registry_or_entry(json, name, &
+       val)
+    type(json_file), intent(inout) :: json
+    character(len=*), intent(in) :: name
+    integer, allocatable, intent(out) :: val(:)
+
+    type(vector_t), pointer :: vec_ptr
+    logical :: found
+    character(:), allocatable :: reg_name
+
+    ! Try to find an integer array
+    call json%get(name, val, found)
+    ! The value is retrieved from the JSON keyword, we are done
+    if (found) return
+
+    ! Try to find a string. It must exist
+    call json_get(json, name, reg_name)
+
+    ! Retrieve the array from the registry
+    vec_ptr => neko_const_registry%get_vector(reg_name)
+    val = int(vec_ptr%x)
+  end subroutine json_get_integer_array_from_registry_or_entry
 
 end submodule case_file_utils

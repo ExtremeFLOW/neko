@@ -63,7 +63,10 @@ module json_utils
   interface json_get_from_registry_or_entry
      module procedure json_get_real_from_registry_or_entry, &
           json_get_real_from_registry_or_entry_or_default, &
-          json_get_real_array_from_registry_or_entry
+          json_get_real_array_from_registry_or_entry, &
+          json_get_integer_from_registry_or_entry, &
+          json_get_integer_from_registry_or_entry_or_default, &
+          json_get_integer_array_from_registry_or_entry
   end interface json_get_from_registry_or_entry
 
   interface json_extract_item
@@ -78,6 +81,13 @@ module json_utils
        real(kind=rp), intent(out) :: val
      end subroutine json_get_real_from_registry_or_entry
 
+     module subroutine json_get_integer_from_registry_or_entry(json, name, &
+          val)
+       type(json_file), intent(inout) :: json
+       character(len=*), intent(in) :: name
+       integer, intent(out) :: val
+     end subroutine json_get_integer_from_registry_or_entry
+
      module subroutine json_get_real_from_registry_or_entry_or_default(json, &
           name, val, default)
        type(json_file), intent(inout) :: json
@@ -86,12 +96,27 @@ module json_utils
        real(kind=rp), intent(in) :: default
      end subroutine json_get_real_from_registry_or_entry_or_default
 
+     module subroutine json_get_integer_from_registry_or_entry_or_default(json,&
+          name, val, default)
+       type(json_file), intent(inout) :: json
+       character(len=*), intent(in) :: name
+       integer, intent(out) :: val
+       integer, intent(in) :: default
+     end subroutine json_get_integer_from_registry_or_entry_or_default
+
      module subroutine json_get_real_array_from_registry_or_entry(json, name, &
           val)
        type(json_file), intent(inout) :: json
        character(len=*), intent(in) :: name
        real(kind=rp), allocatable, intent(out) :: val(:)
      end subroutine json_get_real_array_from_registry_or_entry
+
+     module subroutine json_get_integer_array_from_registry_or_entry(json, &
+          name, val)
+       type(json_file), intent(inout) :: json
+       character(len=*), intent(in) :: name
+       integer, allocatable, intent(out) :: val(:)
+     end subroutine json_get_integer_array_from_registry_or_entry
 
   end interface
 contains

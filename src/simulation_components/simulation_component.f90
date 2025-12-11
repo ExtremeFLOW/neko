@@ -40,7 +40,8 @@ module simulation_component
   use json_module, only : json_file
   use case, only : case_t
   use time_based_controller, only : time_based_controller_t
-  use json_utils, only : json_get_or_default, json_get
+  use json_utils, only : json_get_or_default, json_get, &
+      json_get_from_registry_or_entry
   use time_state, only : time_state_t
   implicit none
   private
@@ -294,12 +295,14 @@ contains
     ! We default to preprocess every time-step
     call json_get_or_default(json, "preprocess_control", preprocess_control, &
          "tsteps")
-    call json_get_or_default(json, "preprocess_value", preprocess_value, 1.0_rp)
+    call json_get_from_registry_or_entry(json, "preprocess_value", &
+         preprocess_value, 1.0_rp)
 
     ! We default to compute every time-step
     call json_get_or_default(json, "compute_control", compute_control, &
          "tsteps")
-    call json_get_or_default(json, "compute_value", compute_value, 1.0_rp)
+    call json_get_from_registry_or_entry(json, "compute_value", &
+         compute_value, 1.0_rp)
 
     if (compute_control .eq. "fluid_output") then
        call json_get(case_params, 'case.fluid.output_control', &
