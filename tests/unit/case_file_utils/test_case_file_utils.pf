@@ -1,0 +1,125 @@
+module test_case_file_utils
+  use pfunit
+  use json_module, only : json_file
+  use json_utils, only : json_get_from_registry_or_entry, json_no_defaults
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use num_types, only : rp
+  use registry, only : neko_const_registry
+  use vector, only : vector_t
+  use device, only : device_init, device_finalize, HOST_TO_DEVICE
+  implicit none
+
+  @TestCase
+  type, extends(TestCase) :: case_file_utils_tc
+     logical :: prev_no_defaults
+  contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type case_file_utils_tc
+
+contains
+
+  subroutine setUp(this)
+    class(case_file_utils_tc), intent(inout) :: this
+    this%prev_no_defaults = json_no_defaults
+    json_no_defaults = .false.
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+    call neko_const_registry%free()
+    call neko_const_registry%init()
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(case_file_utils_tc), intent(inout) :: this
+    call neko_const_registry%free()
+    json_no_defaults = this%prev_no_defaults
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
+  @test
+  subroutine test_uses_json_scalar(this)
+    class(case_file_utils_tc), intent(inout) :: this
+    type(json_file) :: json
+    real(kind=rp) :: value
+
+    call json%load_from_string('{"params":{"value":1.25}}')
+
+    call json_get_from_registry_or_entry(json, 'params.value', value)
+
+    @assertEqual(1.25_rp, value, tolerance=1e-12_rp)
+  end subroutine test_uses_json_scalar
+
+  @test
+  subroutine test_uses_registry_scalar(this)
+    class(case_file_utils_tc), intent(inout) :: this
+    type(json_file) :: json
+    real(kind=rp) :: value
+    real(kind=rp) :: expected = 9.875_rp
+
+    call neko_const_registry%add_scalar(expected, 'ref_scalar')
+    call json%load_from_string('{"params":{"value":"ref_scalar"}}')
+
+    call json_get_from_registry_or_entry(json, 'params/value', value)
+
+    @assertEqual(expected, value, tolerance=1e-12_rp)
+  end subroutine test_uses_registry_scalar
+
+  @test
+  subroutine test_default_value_for_reals(this)
+    class(case_file_utils_tc), intent(inout) :: this
+    type(json_file) :: json
+    real(kind=rp) :: value, stored
+    logical :: found
+    real(kind=rp), parameter :: default_val = 3.14_rp
+
+    call json%load_from_string('{}')
+
+    call json_get_from_registry_or_entry(json, 'params/value', value, &
+         default_val)
+    call json%get('params/value', stored, found)
+
+    @assertTrue(found)
+    @assertEqual(default_val, value, tolerance=1e-12_rp)
+    @assertEqual(default_val, stored, tolerance=1e-12_rp)
+  end subroutine test_default_value_for_reals
+
+  @test
+  subroutine test_uses_real_array_from_json(this)
+    class(case_file_utils_tc), intent(inout) :: this
+    type(json_file) :: json
+    real(kind=rp), allocatable :: values(:)
+    real(kind=rp), parameter :: expected(3) = [0.5_rp, 1.5_rp, 2.5_rp]
+
+    call json%load_from_string('{"params":{"arr":[0.5,1.5,2.5]}}')
+
+    call json_get_from_registry_or_entry(json, 'params/arr', values)
+
+    @assertEqual(expected, values, tolerance=1e-12_rp)
+  end subroutine test_uses_real_array_from_json
+!
+  @test
+  subroutine test_uses_real_array_from_registry(this)
+    class(case_file_utils_tc), intent(inout) :: this
+    type(json_file) :: json
+    real(kind=rp), allocatable :: values(:)
+    type(vector_t), pointer :: vec_ptr
+    real(kind=rp), parameter :: expected(4) = [2.0_rp, 4.0_rp, 6.0_rp, 8.0_rp]
+
+    call neko_const_registry%add_vector(size(expected), 'arr_ref')
+    vec_ptr => neko_const_registry%get_vector('arr_ref')
+    vec_ptr%x = expected
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call vec_ptr%copy_from(HOST_TO_DEVICE, .true.)
+    end if
+
+    call json%load_from_string('{"params":{"arr":"arr_ref"}}')
+
+    call json_get_from_registry_or_entry(json, 'params/arr', values)
+
+    @assertEqual(expected, values, tolerance=1e-12_rp)
+  end subroutine test_uses_real_array_from_registry
+
+end module test_case_file_utils

@@ -31,9 +31,9 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a registry entry for storing and requesting temporary objects
-!! This is used in the scratch registries to store temporary fields, vectors,
-!! and matrices.
+!! This is used in the registries to store a scalar, vector, matrix or field.
 module registry_entry
+  use num_types, only : rp
   use field, only : field_t
   use vector, only : vector_t
   use matrix, only : matrix_t
@@ -44,26 +44,35 @@ module registry_entry
   private
 
   type, public :: registry_entry_t
-
+     !> Name of the registry entry
      character(len=:), private, allocatable :: name
+     !> Type of the registry entry; must be supproted.
      character(len=:), private, allocatable :: type
+     !> Whether the entry is allocated
      logical, private :: allocated = .false.
 
-     type(field_t), private, pointer :: field_ptr => null()
+     ! Storage. Only one of these will be allocated at a time.
+     real(kind=rp), private :: scalar = 0.0_rp
      type(vector_t), private, pointer :: vector_ptr => null()
      type(matrix_t), private, pointer :: matrix_ptr => null()
+     type(field_t), private, pointer :: field_ptr => null()
 
    contains
-     procedure, pass(this) :: init_field => init_register_field
+     ! Constructors
+     procedure, pass(this) :: init_scalar => init_register_scalar
      procedure, pass(this) :: init_vector => init_register_vector
      procedure, pass(this) :: init_matrix => init_register_matrix
+     procedure, pass(this) :: init_field => init_register_field
+     !> Destructor
      procedure, pass(this) :: free => free_register
 
+     !> Getters that return a pointer to the object in the entry.
      procedure, pass(this) :: get_name
      procedure, pass(this) :: get_type
-     procedure, pass(this) :: get_field
+     procedure, pass(this) :: get_scalar
      procedure, pass(this) :: get_vector
      procedure, pass(this) :: get_matrix
+     procedure, pass(this) :: get_field
      procedure, pass(this) :: is_allocated
   end type registry_entry_t
 
@@ -76,7 +85,7 @@ contains
     character(len=*), intent(in) :: name
 
     if (this%allocated) then
-       call neko_error("scratch_registry::init_register_field: " &
+       call neko_error("init_register_field: " &
             // "Register entry is already allocated.")
     end if
 
@@ -98,7 +107,7 @@ contains
     character(len=*), optional, intent(in) :: name
 
     if (this%allocated) then
-       call neko_error("scratch_registry::init_register_vector: " &
+       call neko_error("init_register_vector: " &
             // "Register entry is already allocated.")
     end if
 
@@ -120,7 +129,7 @@ contains
     character(len=*), optional, intent(in) :: name
 
     if (this%allocated) then
-       call neko_error("scratch_registry::init_register_matrix: " &
+       call neko_error("init_register_matrix: " &
             // "Register entry is already allocated.")
     end if
 
@@ -134,6 +143,27 @@ contains
     this%allocated = .true.
 
   end subroutine init_register_matrix
+
+  !> Initialize a scalar register entry
+  subroutine init_register_scalar(this, val, name)
+    class(registry_entry_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: val
+    character(len=*), optional, intent(in) :: name
+
+    if (this%allocated) then
+       call neko_error("init_register_scalar: " &
+            // "Register entry is already allocated.")
+    end if
+
+    call this%free()
+
+    this%scalar = val
+
+    if (present(name)) this%name = trim(name)
+    this%type = 'scalar'
+    this%allocated = .true.
+
+  end subroutine init_register_scalar
 
   !> Free a register entry
   subroutine free_register(this)
@@ -153,6 +183,8 @@ contains
        call this%matrix_ptr%free()
        deallocate(this%matrix_ptr)
     end if
+
+    this%scalar = 0.0_rp
 
     if (allocated(this%name)) deallocate(this%name)
     if (allocated(this%type)) deallocate(this%type)
@@ -213,5 +245,16 @@ contains
     end if
     matrix_ptr => this%matrix_ptr
   end function get_matrix
+
+  !> Get the scalar pointer of the registry entry
+  function get_scalar(this) result(scalar_ptr)
+    class(registry_entry_t), target, intent(in) :: this
+    real(kind=rp), pointer :: scalar_ptr
+    if (this%get_type() .ne. 'scalar') then
+       call neko_error("registry_entry::get_field: " &
+            // "Registry entry is not of type 'scalar'.")
+    end if
+    scalar_ptr => this%scalar
+  end function get_scalar
 
 end module registry_entry

@@ -57,12 +57,15 @@ module case
   use scalar_scheme, only : scalar_scheme_t
   use time_state, only : time_state_t
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default, json_extract_item, json_no_defaults
+  use json_utils, only : json_get, json_get_or_default, json_extract_item, &
+       json_no_defaults, json_get_from_registry_or_entry
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   use point_zone_registry, only: neko_point_zone_registry
   use scalars, only : scalars_t
   use comm, only : NEKO_COMM, pe_rank, pe_size
   use mpi_f08, only : MPI_Bcast, MPI_CHARACTER, MPI_INTEGER
+  use registry, only : neko_registry, neko_const_registry
+  use vector, only : vector_t
 
   implicit none
   private
@@ -148,6 +151,8 @@ contains
     logical :: temperature_found = .false.
     integer :: integer_val
     real(kind=rp) :: real_val
+    real(kind=rp), allocatable :: real_vals(:)
+    type(vector_t), pointer :: vec
     character(len = :), allocatable :: string_val, name, file_format
     integer :: output_dir_len
     integer :: precision, layout
@@ -166,6 +171,38 @@ contains
     ! Check if default value fill-in is allowed
     if (this%params%valid_path('case.no_defaults')) then
        call json_get(this%params, 'case.no_defaults', json_no_defaults)
+    end if
+
+
+    !
+    ! Populate const registry with global data from the case file
+    !
+    if (this%params%valid_path('case.registered_data')) then
+       if (this%params%valid_path('case.registered_data.scalars')) then
+          call this%params%info('case.registered_data.scalars', &
+               n_children = integer_val)
+          do i = 1, integer_val
+             call json_extract_item(this%params, &
+                  'case.registered_data.scalars', i, json_subdict)
+             call json_get(json_subdict, 'name', string_val)
+             call json_get(json_subdict, 'value', real_val)
+             call neko_const_registry%add_scalar(real_val, trim(string_val))
+          end do
+
+       end if
+
+       if (this%params%valid_path('case.registered_data.arrays')) then
+          call this%params%info('case.registered_data.arrays', &
+               n_children = integer_val)
+          do i = 1, integer_val
+             call json_extract_item(this%params, 'case.registered_data.arrays',&
+                  i, json_subdict)
+             call json_get(json_subdict, 'name', string_val)
+             call json_get(json_subdict, 'value', real_vals)
+             call neko_const_registry%add_vector(size(real_vals), trim(string_val))
+          end do
+
+       end if
     end if
 
     !
@@ -492,8 +529,8 @@ contains
             path = this%output_directory, fmt = trim(string_val))
        call json_get_or_default(this%params, 'case.checkpoint_control', &
             string_val, "simulationtime")
-       call json_get_or_default(this%params, 'case.checkpoint_value', &
-            real_val, 1e10_rp)
+       call json_get_from_registry_or_entry(this%params, &
+            'case.checkpoint_value', real_val, 1e10_rp)
        call this%output_controller%add(this%chkp_out, real_val, string_val, &
             NEKO_EPS)
     end if
