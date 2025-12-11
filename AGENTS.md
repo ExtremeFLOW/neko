@@ -3,14 +3,14 @@
 # What is Neko?
 Neko is computational fluid dynamics (CFD) software based on the Spectral
 Element Method. It primarily targets high-fidelity scale-resolving simulations
-of turbulent flows.  
+of turbulent flows.
 
 ## Helping users setup new Neko simulation cases
 Neko is a simulation software, and a common scenario is that the user will ask
 you to help setup a simulation. Alternatively, they may want tips about specific
 settings or and explanation about a setup they find in an existing case. The
 instructions under this header are specifically for these scenarios. We will
-refer to a concrete simulation to as "the case". 
+refer to a concrete simulation to as "the case".
 
 ### General guidelines
 Below are the main guidelines you should follow for retrieving information and
@@ -85,3 +85,53 @@ making decisions about how to setup a case.
   easily follow what your code does.
 - At the end always run `makeneko` on the generated user file and makes sure it
   compiles.
+
+## Writing tests for Neko
+
+### General guidelines
+
+- All the tests are located in the directory `tests`.
+- There are three types of tests for Neko, all using different frameworks and
+  serving a different purpose.
+  - The folder `tests/unit` contains unit tests written using
+    [pFUnit](https://github.com/Goddard-Fortran-Ecosystem/pFUnit). These are run
+    by CI for every PR.
+  - The folder `tests/integration` contains tests written with pytest. Here,
+    python and pytest are used to setup neko cases, run neko and makeneko as
+    subprocesses and then post-process the results. These are run by CI for
+    every PR.
+  - The folder `tests/reframe` contains nigthly tests that are run on a
+    supercomputer via a gitlab pipeline. The tests are written using
+    [reframe](https://reframe-hpc.readthedocs.io/en/stable/). These are
+    validation tests checking that important cases produce the expected output.
+
+### Unit tests with pFUnit.
+- A guideline for writing these tests is given in
+  `doc/pages/developer-guide/testing.md`. Make sure to read it.
+- There are fundamentally two types of tests here: those using MPI to run in
+  parallel and those that do not. The differ a bit in file naming and other
+  aspects metioned in the `testing.md` referred to above.
+  - A prototype for a test that needs MPI is `tests/unit/field`
+  - A prototype for a test that doesn't need MPI is
+    `tests/unit/time_based_controller`.
+- Make sure you understand how to add the test to the build system, that is
+  somewhat tedious. Study `doc/pages/developer-guide/testing.md` carefully to
+  that end.
+ - File/module naming: pFUnit generates a driver that calls <pf_basename>_suite(), where <pf_basename> is the .pf filename without extension. For a smooth link:
+   - Keep the module name inside each .pf file identical to the file’s basename
+     (e.g., test_case_file_utils.pf must declare module test_case_file_utils).
+  - If you use multiple .pf files in one suite, each file’s module name should
+    match its basename and be unique.
+- Some tests require a simple `mesh_t` to be contructed programmatically. See
+  `subroutine test_field_gen_msh` in `tests/unit/field/field_parallel.pf`.
+- If your test uses `json_module` you have to add `@NEKO_PKG_FCFLAGS@` to the
+  `FFLAGS` in the `Makefile.in`
+- Note that in JSON routnes, the path in the file is spearated by periods,
+  for example `params.value`. NOT `params/value`.
+- If the user asks you to create a new unit test, you should first prepare all
+the necessary files and add them the build system. The .pf can just be a dummy
+at this point, but make sure to make all the file and module names correct. When
+you are done, you should run `make check` in the test folder and make sure it
+compiles. If you cannot run this command yourself, you should ask the user to do
+it. Only when this succeds should you start populating the .pf with actual
+tests.
