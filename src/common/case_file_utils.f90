@@ -35,7 +35,6 @@
 submodule (json_utils) case_file_utils
   use registry, only : neko_const_registry
   use vector, only : vector_t
-  use device, only : DEVICE_TO_HOST
   implicit none
 
 contains
@@ -134,7 +133,6 @@ contains
 
     ! Retrieve the array from the registry
     vec_ptr => neko_const_registry%get_vector(reg_name)
-    call vec_ptr%copy_from(DEVICE_TO_HOST, sync = .true.)
     val = vec_ptr%x
   end subroutine json_get_real_array_from_registry_or_entry
 

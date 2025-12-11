@@ -1,0 +1,26 @@
+ifneq ("$(wildcard @PFUNIT_DIR@/include/PFUNIT.mk)", "")
+include @PFUNIT_DIR@/include/PFUNIT.mk
+endif
+FFLAGS += $(PFUNIT_EXTRA_FFLAGS) @NEKO_PKG_FCFLAGS@ -I@top_builddir@/src
+FC = @FC@
+
+%.o : %.F90
+	$(FC) -c $(FFLAGS) $<
+
+
+check: case_file_utils_test
+
+case_file_utils_test_TESTS := test_case_file_utils.pf
+case_file_utils_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko @LDFLAGS@ @LIBS@
+$(eval $(call make_pfunit_test,case_file_utils_test))
+
+distclean:
+clean:
+	$(RM) *.o *.mod *.a  *.inc *.F90 case_file_utils_test
+
+
+
+all:
+html:
+install:
+distdir:
