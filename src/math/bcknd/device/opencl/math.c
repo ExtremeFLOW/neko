@@ -175,7 +175,7 @@ void opencl_cfill_mask(void* a, void* c, int* size, void* mask, int* mask_size,
                                   &global_item_size, &local_item_size,
                                   0, NULL, NULL));
   CL_CHECK(clReleaseKernel(kernel));
-  }
+}
 
 /** Fortran wrapper for rzero
  * Zero a real vector
@@ -1103,7 +1103,6 @@ real opencl_glsc3(void *a, void *b, void *c, int *n,
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, &kern_wait));
-  CL_CHECK(clReleaseKernel(kernel));
 
   CL_CHECK(clEnqueueReadBuffer(cmd_queue, bufred_d, CL_TRUE, 0,
                                nb * sizeof(real), bufred, 1,
@@ -1113,6 +1112,8 @@ real opencl_glsc3(void *a, void *b, void *c, int *n,
   for (i = 0; i < nb; i++) {
     res += bufred[i];
   }
+
+  CL_CHECK(clReleaseKernel(kernel));
 
   return res;
 }
@@ -1166,7 +1167,6 @@ void opencl_glsc3_many(real *h, void * w, void *v, void *mult, int *j, int *n,
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 2, NULL,
                                   global_item_size, local_item_size,
                                   0, NULL, &kern_wait));
-  CL_CHECK(clReleaseKernel(kernel));
 
   CL_CHECK(clEnqueueReadBuffer(cmd_queue, bufred_d, CL_TRUE, 0,
                                (*j) * nb * sizeof(real),
@@ -1181,6 +1181,8 @@ void opencl_glsc3_many(real *h, void * w, void *v, void *mult, int *j, int *n,
         h[k] += bufred[i*(*j)+k];
     }
   }
+
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /**
@@ -1216,8 +1218,6 @@ real opencl_glsc2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, &kern_wait));
-  CL_CHECK(clReleaseKernel(kernel));
-
 
   CL_CHECK(clEnqueueReadBuffer(cmd_queue, buf_d, CL_TRUE, 0,
                                nb * sizeof(real), buf, 1, &kern_wait, NULL));
@@ -1229,6 +1229,7 @@ real opencl_glsc2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
 
   free(buf);
   CL_CHECK(clReleaseMemObject(buf_d));
+  CL_CHECK(clReleaseKernel(kernel));
 
   return res;
 }
@@ -1266,8 +1267,6 @@ real opencl_glsubnorm2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, &kern_wait));
-  CL_CHECK(clReleaseKernel(kernel));
-
 
   CL_CHECK(clEnqueueReadBuffer(cmd_queue, buf_d, CL_TRUE, 0,
                                nb * sizeof(real), buf, 1, &kern_wait, NULL));
@@ -1279,6 +1278,7 @@ real opencl_glsubnorm2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
 
   free(buf);
   CL_CHECK(clReleaseMemObject(buf_d));
+  CL_CHECK(clReleaseKernel(kernel));
 
   return res;
 }
@@ -1315,8 +1315,6 @@ real opencl_glsum(void *a, int *n, cl_command_queue cmd_queue) {
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, &kern_wait));
-  CL_CHECK(clReleaseKernel(kernel));
-
 
   CL_CHECK(clEnqueueReadBuffer(cmd_queue, buf_d, CL_TRUE, 0,
                                nb * sizeof(real), buf, 1, &kern_wait, NULL));
@@ -1328,6 +1326,7 @@ real opencl_glsum(void *a, int *n, cl_command_queue cmd_queue) {
 
   free(buf);
   CL_CHECK(clReleaseMemObject(buf_d));
+  CL_CHECK(clReleaseKernel(kernel));
 
   return res;
 }
