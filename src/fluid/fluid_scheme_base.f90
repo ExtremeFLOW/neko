@@ -49,13 +49,14 @@ module fluid_scheme_base
   use utils, only : neko_error
   use bc_list, only : bc_list_t
   use field_list, only : field_list_t
-  use time_state, only: time_state_t
+  use time_state, only : time_state_t
+  use amr_restart_component, only : amr_restart_component_t
   implicit none
   private
   public :: fluid_scheme_base_t, fluid_scheme_base_factory
 
   !> Base type of all fluid formulations.
-  type, abstract :: fluid_scheme_base_t
+  type, abstract, extends(amr_restart_component_t) :: fluid_scheme_base_t
      !> A name that can be used to distinguish this solver in e.g. user routines
      character(len=:), allocatable :: name
 
