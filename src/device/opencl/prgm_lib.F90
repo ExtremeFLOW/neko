@@ -114,6 +114,9 @@ module opencl_prgm_lib
   !> Device find rest kernels
   type(c_ptr), public, bind(c) :: find_rst_legendre_program = C_NULL_PTR
 
+  !> Device entropy viscosity kernels
+  type(c_ptr), public, bind(c) :: entropy_viscosity_program = C_NULL_PTR
+
   public :: opencl_prgm_lib_release
 
 contains
@@ -349,6 +352,13 @@ contains
           call neko_error('Failed to release program')
        end if
        find_rst_legendre_program = C_NULL_PTR
+    end if
+
+    if (c_associated(entropy_viscosity_program)) then
+       if(clReleaseProgram(entropy_viscosity_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       entropy_viscosity_program = C_NULL_PTR
     end if
 
   end subroutine opencl_prgm_lib_release

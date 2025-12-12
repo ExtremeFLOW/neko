@@ -1289,7 +1289,7 @@ contains
 #elif HAVE_CUDA
     call cuda_absval(a_d, n, strm_)
 #elif HAVE_OPENCL
-    call neko_error('OPENCL is not implemented for device_absval')
+    call opencl_absval(a_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
