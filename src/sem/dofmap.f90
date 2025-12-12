@@ -43,6 +43,8 @@ module dofmap
   use device
   use math, only : add3, copy, rone, rzero
   use element, only : element_t
+  use amr_reconstruct, only : amr_reconstruct_t
+  use amr_restart_component, only : amr_restart_component_t
 !!$  use comm, only : pe_size, pe_rank, NEKO_COMM
 !!$  use mpi_f08
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
@@ -50,7 +52,7 @@ module dofmap
   implicit none
   private
 
-  type, public :: dofmap_t
+  type, public, extends(amr_restart_component_t) :: dofmap_t
      integer(kind=i8), allocatable :: dof(:,:,:,:)  !< Mapping to unique dof
      logical, allocatable :: shared_dof(:,:,:,:)    !< True if the dof is shared
      real(kind=rp), allocatable :: x(:,:,:,:)       !< Mapping to x-coordinates
@@ -75,6 +77,8 @@ module dofmap
      procedure, pass(this) :: free => dofmap_free
      !> Return the total number of degrees of freedom, lx*ly*lz*nelv
      procedure, pass(this) :: size => dofmap_size
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => dofmap_amr_restart
   end type dofmap_t
 
 contains
@@ -326,6 +330,18 @@ contains
     integer :: res
     res = this%ntot
   end function dofmap_size
+
+  !> AMR restart
+  !! @param[in]  reconstruct   data reconstruction type
+  !! @param[in]  counter       restart counter
+  subroutine dofmap_amr_restart(this, reconstruct, counter)
+    class(dofmap_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(in) :: reconstruct
+    integer, intent(in) :: counter
+
+    write(*,*) 'TEST dofmap registered'
+
+  end subroutine dofmap_amr_restart
 
   !> Assign numbers to each dofs on points
   subroutine dofmap_number_points(this)

@@ -44,38 +44,10 @@ module amr
   use mesh_manager_transfer_p4est, only : mesh_manager_transfer_p4est_t
   use mesh_manager, only : mesh_manager_t
   use amr_reconstruct, only : amr_reconstruct_t
+  use amr_restart_component, only : amr_restart_component_t
 
   implicit none
   private
-
-  !> basic type for AMR restart component
-  type, abstract, public :: amr_restart_component_t
-     !> Is a component listed in amr type
-     logical :: listed = .false.
-     !> Position in the component list
-     integer :: lst_pos
-     !> Restart counter
-     integer :: counter
-   contains
-     !> Initialise base type
-     procedure, pass(this) :: init_base => amr_restart_init_base
-     !> Free base type
-     procedure, pass(this) :: free_base => amr_restart_free_base
-     !> Restart the component
-     procedure(amr_restart_comp), pass(this), deferred :: restart
-  end type amr_restart_component_t
-
-  abstract interface
-     !> Restart the component
-     !! @param[in]  reconstruct   data reconstruction type
-     !! @param[in]  counter       restart counter
-     subroutine amr_restart_comp(this, reconstruct, counter)
-       import amr_restart_component_t, amr_reconstruct_t
-       class(amr_restart_component_t), intent(inout) :: this
-       type(amr_reconstruct_t), intent(in) :: reconstruct
-       integer, intent(in) :: counter
-     end subroutine amr_restart_comp
-  end interface
 
   !> Component entrance
   type, public :: amr_component_pointer_t
@@ -107,30 +79,7 @@ module amr
      procedure, pass(this) :: refine => amr_refine
   end type amr_t
 
-
 contains
-
-  !> Initialise base restart component type
-  !> @param[in]  lst_pos   position in the component list
-  subroutine amr_restart_init_base(this, lst_pos)
-    class(amr_restart_component_t), intent(inout) :: this
-    integer, intent(in) :: lst_pos
-
-    call this%free_base()
-
-    this%listed = .true.
-    this%lst_pos = lst_pos
-
-  end subroutine amr_restart_init_base
-
-  !> Free base restart component type
-  subroutine amr_restart_free_base(this)
-    class(amr_restart_component_t), intent(inout) :: this
-
-    this%listed = .false.
-    this%lst_pos = 0
-    this%counter = 0
-  end subroutine amr_restart_free_base
 
   !> Initialise amr type
   !! @param[in]  transfer     mesh manager data transfer type
@@ -167,7 +116,7 @@ contains
        this%ncomponents = 1
        allocate(this%components(1))
        this%components(il)%cmp => component
-       call component%init_base(this%ncomponents)
+       call component%init_amr_base(this%ncomponents)
     else
        ! check if there is an empty slot
        itmp = 0
@@ -179,7 +128,7 @@ contains
        end do
        if (itmp .ne. 0) then
           this%components(itmp)%cmp => component
-          call component%init_base(itmp)
+          call component%init_amr_base(itmp)
        else
           allocate(tmp(this%ncomponents + 1))
           do il = 1, this%ncomponents
@@ -187,7 +136,7 @@ contains
           end do
           this%ncomponents = this%ncomponents + 1
           tmp(this%ncomponents)%cmp => component
-          call component%init_base(this%ncomponents)
+          call component%init_amr_base(this%ncomponents)
           deallocate(this%components)
           call MOVE_ALLOC(tmp, this%components)
        end if
@@ -245,7 +194,7 @@ contains
     if (allocated(this%components)) then
        do il = 1, this%ncomponents
           if (associated(this%components(il)%cmp)) &
-               call this%components(il)%cmp%restart(this%reconstruct, &
+               call this%components(il)%cmp%amr_restart(this%reconstruct, &
                this%counter)
        end do
     end if

@@ -40,6 +40,7 @@ neko_fortran_SOURCES = \
 	sem/coef.f90\
 	sem/cpr.f90\
 	sem/amr_reconstruct.f90\
+	sem/amr_restart_component.f90\
 	sem/amr.f90\
 	common/time_interpolator.f90\
 	sem/interpolation.f90\

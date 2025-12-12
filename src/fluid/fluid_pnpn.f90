@@ -82,6 +82,7 @@ module fluid_pnpn
   use operators, only : ortho, rotate_cyc
   use time_state, only : time_state_t
   use comm, only : NEKO_COMM
+  use amr_reconstruct, only : amr_reconstruct_t
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_MAX, MPI_LOR, &
        MPI_INTEGER, MPI_LOGICAL
   implicit none
@@ -204,6 +205,8 @@ module fluid_pnpn
      !> Write a field with boundary condition specifications.
      procedure, pass(this) :: write_boundary_conditions => &
           fluid_pnpn_write_boundary_conditions
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => fluid_pnpn_amr_restart
   end type fluid_pnpn_t
 
   interface
@@ -625,6 +628,8 @@ contains
     end if
 
     call this%vol_flow%free()
+
+    call this%free_amr_base()
 
   end subroutine fluid_pnpn_free
 
@@ -1123,8 +1128,6 @@ contains
 
     call neko_scratch_registry%request_field(bdry_field, temp_index, .true.)
 
-
-
     call bdry_mask%init_from_components(this%c_Xh, 6.0_rp)
     call bdry_mask%mark_zone(this%msh%periodic)
     call bdry_mask%finalize()
@@ -1209,5 +1212,18 @@ contains
 
     call neko_scratch_registry%relinquish_field(temp_index)
   end subroutine fluid_pnpn_write_boundary_conditions
+
+  !> AMR restart
+  !! @param[in]  reconstruct   data reconstruction type
+  !! @param[in]  counter       restart counter
+  subroutine fluid_pnpn_amr_restart(this, reconstruct, counter)
+    class(fluid_pnpn_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(in) :: reconstruct
+    integer, intent(in) :: counter
+
+    ! Reconstruct dofmap
+    call this%dm_Xh%amr_restart(reconstruct, counter)
+
+  end subroutine fluid_pnpn_amr_restart
 
 end module fluid_pnpn
