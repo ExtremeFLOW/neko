@@ -124,7 +124,11 @@ Running the tests</h1>
 </div><!-- fragment --><p> This will first compile the software and the tests, and then execute them. In the end you should get a nice list of tests that were run and a summary, which hopefully says that all tests have passed!</p>
 <h1><a class="anchor" id="autotoc_md39"></a>
 Adding a new test</h1>
-<p>The first step is of course to read the documentation for pFUnit to understand how it works. It is up to you to learn how to write <code>.pf</code> files. Here, we only cover how to incorporate the test into the Neko build system.</p>
+<p>The first step is of course to read the documentation for pFUnit to understand how it works. It is up to you to learn how to write <code>.pf</code> files. Here, we only cover how to incorporate the test into the Neko build system. However, we note the following two important points:</p><ul>
+<li>The name of the <code>module</code> inside the <code>.pf</code> must coincide with the base name of the <code>.pf</code> file. So <code>test_a.pf</code> should containt <code>module test_a</code>.</li>
+<li>The name of the test subroutines must be at most 44 characters long, otherwise pFUnit will throw the following obscure error: <code>Error: Syntax error in argument list at (1)</code></li>
+</ul>
+<p>Finally, the AGENTS.md file in the root folder of Neko contains instructions for LLMs on how to add a test, so you can try to let your favorite agent to do the work of adding all the necessary files for you and then just edit the <code>.pf</code>.</p>
 <p>The tests are located in the <code>tests</code> folder. Unlike some other software, the structure of the <code>tests</code> folder does not follow that of <code>src</code>. Instead each folder loosely corresponds to a single class or sometimes a single abstract class and its children (see the <code>stack</code> folder, for example).</p>
 <p>We now go through the steps of adding a test. The instructions will differ somewhat depending on whether you test uses MPI or not.</p>
 <ol type="1">
@@ -160,7 +164,7 @@ Adding a new test</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li><li class="navelem"><a class="el" href="../../d5/dfc/installation.html">Installing Neko</a></li>
-    <li class="footer">Generated on Fri Dec 12 2025 03:50:55 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Dec 13 2025 03:48:11 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
