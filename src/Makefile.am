@@ -644,7 +644,8 @@ CLEANFILES += \
 	scalar/bcknd/device/opencl/*.cl.h\
 	sem/bcknd/device/opencl/*.cl.h\
 	source_terms/bcknd/device/opencl/*.cl.h\
-	filter/bcknd/device/opencl/*.cl.h
+	filter/bcknd/device/opencl/*.cl.h\
+	common/bcknd/device/opencl/*.cl.h
 endif
 
 if ENABLE_MAKEDEPF90
