@@ -181,26 +181,27 @@ $(document).ready(function(){initNavTree('d3/d18/fdm_8c_source.html','../../'); 
 <div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span><span class="preprocessor">      CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel,                       \</span></div>
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span><span class="preprocessor">                                      1, NULL, &amp;global_item_size,              \</span></div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span><span class="preprocessor">                                      &amp;local_item_size, 0, NULL, NULL));       \</span></div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span><span class="preprocessor">    }                                                                          \</span></div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span><span class="preprocessor">   break</span></div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span> </div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>  <span class="keywordflow">switch</span>(*<a class="code hl_function" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nl</a>) {</div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>    <a class="code hl_define" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(2);</div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    <a class="code hl_define" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(3);</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    <a class="code hl_define" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(4);</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>    <a class="code hl_define" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(5);</div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>    <a class="code hl_define" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(6);</div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>    <a class="code hl_define" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(7);</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>    <a class="code hl_define" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(8);</div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    <a class="code hl_define" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(9);</div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>    <a class="code hl_define" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(10);</div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    <a class="code hl_define" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(11);</div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    <a class="code hl_define" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(12);</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    <a class="code hl_define" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(13);</div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>    <a class="code hl_define" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(14);</div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>    <a class="code hl_define" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(15);</div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>  }</div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>}</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span><span class="preprocessor">      CL_CHECK(clReleaseKernel(kernel));                                       \</span></div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span><span class="preprocessor">    }                                                                          \</span></div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span><span class="preprocessor">   break</span></div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span> </div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>  <span class="keywordflow">switch</span>(*<a class="code hl_function" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nl</a>) {</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    <a class="code hl_define" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(2);</div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    <a class="code hl_define" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(3);</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>    <a class="code hl_define" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(4);</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>    <a class="code hl_define" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(5);</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>    <a class="code hl_define" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(6);</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>    <a class="code hl_define" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(7);</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    <a class="code hl_define" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(8);</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>    <a class="code hl_define" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(9);</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    <a class="code hl_define" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(10);</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    <a class="code hl_define" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(11);</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    <a class="code hl_define" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(12);</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>    <a class="code hl_define" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(13);</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>    <a class="code hl_define" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(14);</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    <a class="code hl_define" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(15);</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>  }</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>}</div>
 </div>
 <div class="ttc" id="acuda_2ax__helm__full__kernel_8h_html_a83e52139e060d0c1ba0475539f657304"><div class="ttname"><a href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a83e52139e060d0c1ba0475539f657304">e</a></div><div class="ttdeci">const int e</div><div class="ttdef"><b>Definition</b> <a href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h_source.html#l00093">ax_helm_full_kernel.h:93</a></div></div>
 <div class="ttc" id="acuda_2dirichlet__kernel_8h_html_ac2cb217184f95ca86456f610f72bd533"><div class="ttname"><a href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dirichlet_apply_scalar_kernel</a></div><div class="ttdeci">__global__ void dirichlet_apply_scalar_kernel(const int *__restrict__ msk, T *__restrict__ x, const T g, const int m)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d11/cuda_2dirichlet__kernel_8h_source.html#l00042">dirichlet_kernel.h:42</a></div></div>
@@ -218,7 +219,7 @@ $(document).ready(function(){initNavTree('d3/d18/fdm_8c_source.html','../../'); 
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_23179ed14d067dddc96ef717056004fe.html">device</a></li><li class="navelem"><a class="el" href="../../dir_a753435b69305af25b1972a8c16b18f4.html">opencl</a></li><li class="navelem"><a class="el" href="../../d3/d18/fdm_8c.html">fdm.c</a></li>
-    <li class="footer">Generated on Sat Dec 13 2025 03:48:10 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sun Dec 14 2025 03:53:02 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -199,7 +199,7 @@ $(document).ready(function(){initNavTree('d9/d48/opr__lambda2_8c_source.html','.
 <div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span><span class="preprocessor">     CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue,          \</span></div>
 <div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span><span class="preprocessor">                                     kernel, 1, NULL, &amp;global_item_size,        \</span></div>
 <div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span><span class="preprocessor">                                     &amp;local_item_size, 0, NULL, NULL));         \</span></div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span><span class="preprocessor">                                                                                \</span></div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span><span class="preprocessor">      CL_CHECK(clReleaseKernel(kernel));                                        \</span></div>
 <div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span><span class="preprocessor">    }                                                                           \</span></div>
 <div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span><span class="preprocessor">    break</span></div>
 <div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span> </div>
@@ -257,7 +257,7 @@ $(document).ready(function(){initNavTree('d9/d48/opr__lambda2_8c_source.html','.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_23179ed14d067dddc96ef717056004fe.html">device</a></li><li class="navelem"><a class="el" href="../../dir_a753435b69305af25b1972a8c16b18f4.html">opencl</a></li><li class="navelem"><a class="el" href="../../d9/d48/opr__lambda2_8c.html">opr_lambda2.c</a></li>
-    <li class="footer">Generated on Sat Dec 13 2025 03:48:10 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sun Dec 14 2025 03:53:02 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

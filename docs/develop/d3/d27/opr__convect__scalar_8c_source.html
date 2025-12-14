@@ -187,23 +187,24 @@ $(document).ready(function(){initNavTree('d3/d27/opr__convect__scalar_8c_source.
 <div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span><span class="preprocessor">      CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue,         \</span></div>
 <div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span><span class="preprocessor">                                      kernel, 1, NULL, &amp;global_item_size,       \</span></div>
 <div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span><span class="preprocessor">                                      &amp;local_item_size, 0, NULL, NULL));        \</span></div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span><span class="preprocessor">    }                                                                           \</span></div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span><span class="preprocessor">    break</span></div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span> </div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>  <span class="keywordflow">switch</span>(*lx) {</div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    <a class="code hl_define" href="../../d3/d27/opr__convect__scalar_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(2);</div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    <a class="code hl_define" href="../../d3/d27/opr__convect__scalar_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(3);</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    <a class="code hl_define" href="../../d3/d27/opr__convect__scalar_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(4);</div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>    <a class="code hl_define" href="../../d3/d27/opr__convect__scalar_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(5);</div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>    <a class="code hl_define" href="../../d3/d27/opr__convect__scalar_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(6);</div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    <a class="code hl_define" href="../../d3/d27/opr__convect__scalar_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(7);</div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    <a class="code hl_define" href="../../d3/d27/opr__convect__scalar_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(8);</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>    <a class="code hl_define" href="../../d3/d27/opr__convect__scalar_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(9);</div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    <a class="code hl_define" href="../../d3/d27/opr__convect__scalar_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(10);</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    <a class="code hl_define" href="../../d3/d27/opr__convect__scalar_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(11);</div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>    <a class="code hl_define" href="../../d3/d27/opr__convect__scalar_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(12);</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>  }</div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>}</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span><span class="preprocessor">      CL_CHECK(clReleaseKernel(kernel));                                        \</span></div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span><span class="preprocessor">    }                                                                           \</span></div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span><span class="preprocessor">    break</span></div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span> </div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>  <span class="keywordflow">switch</span>(*lx) {</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    <a class="code hl_define" href="../../d3/d27/opr__convect__scalar_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(2);</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    <a class="code hl_define" href="../../d3/d27/opr__convect__scalar_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(3);</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>    <a class="code hl_define" href="../../d3/d27/opr__convect__scalar_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(4);</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>    <a class="code hl_define" href="../../d3/d27/opr__convect__scalar_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(5);</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    <a class="code hl_define" href="../../d3/d27/opr__convect__scalar_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(6);</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    <a class="code hl_define" href="../../d3/d27/opr__convect__scalar_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(7);</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>    <a class="code hl_define" href="../../d3/d27/opr__convect__scalar_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(8);</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    <a class="code hl_define" href="../../d3/d27/opr__convect__scalar_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(9);</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    <a class="code hl_define" href="../../d3/d27/opr__convect__scalar_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(10);</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>    <a class="code hl_define" href="../../d3/d27/opr__convect__scalar_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(11);</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    <a class="code hl_define" href="../../d3/d27/opr__convect__scalar_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(12);</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>  }</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>}</div>
 </div>
 <div class="ttc" id="acuda_2ax__helm__full__kernel_8h_html_a7c8003e3422abb0b6eec11f6ebf6e6fb"><div class="ttname"><a href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a7c8003e3422abb0b6eec11f6ebf6e6fb">u</a></div><div class="ttdeci">__global__ void T *__restrict__ T *__restrict__ const T *__restrict__ u</div><div class="ttdef"><b>Definition</b> <a href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h_source.html#l00046">ax_helm_full_kernel.h:46</a></div></div>
 <div class="ttc" id="acuda_2ax__helm__full__kernel_8h_html_a837d27a547e9646295729177f7c088cc"><div class="ttname"><a href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a837d27a547e9646295729177f7c088cc">dx</a></div><div class="ttdeci">__global__ void T *__restrict__ T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ dx</div><div class="ttdef"><b>Definition</b> <a href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h_source.html#l00049">ax_helm_full_kernel.h:49</a></div></div>
@@ -227,7 +228,7 @@ $(document).ready(function(){initNavTree('d3/d27/opr__convect__scalar_8c_source.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_23179ed14d067dddc96ef717056004fe.html">device</a></li><li class="navelem"><a class="el" href="../../dir_a753435b69305af25b1972a8c16b18f4.html">opencl</a></li><li class="navelem"><a class="el" href="../../d3/d27/opr__convect__scalar_8c.html">opr_convect_scalar.c</a></li>
-    <li class="footer">Generated on Sat Dec 13 2025 03:48:10 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sun Dec 14 2025 03:53:02 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

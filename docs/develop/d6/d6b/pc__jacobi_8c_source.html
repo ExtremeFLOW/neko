@@ -193,27 +193,28 @@ $(document).ready(function(){initNavTree('d6/d6b/pc__jacobi_8c_source.html','../
 <div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span><span class="preprocessor">      CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue,        \</span></div>
 <div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span><span class="preprocessor">                      kernel, 1, NULL, &amp;global_item_size,      \</span></div>
 <div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span><span class="preprocessor">                      &amp;local_item_size, 0, NULL, NULL));       \</span></div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span><span class="preprocessor">    }                                                                          \</span></div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span><span class="preprocessor">    break</span></div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span> </div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>  <span class="keywordflow">switch</span>(*lx) {</div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    <a class="code hl_define" href="../../d6/d6b/pc__jacobi_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(2);</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>    <a class="code hl_define" href="../../d6/d6b/pc__jacobi_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(3);</div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    <a class="code hl_define" href="../../d6/d6b/pc__jacobi_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(4);</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    <a class="code hl_define" href="../../d6/d6b/pc__jacobi_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(5);</div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>    <a class="code hl_define" href="../../d6/d6b/pc__jacobi_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(6);</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    <a class="code hl_define" href="../../d6/d6b/pc__jacobi_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(7);</div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>    <a class="code hl_define" href="../../d6/d6b/pc__jacobi_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(8);</div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    <a class="code hl_define" href="../../d6/d6b/pc__jacobi_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(9);</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    <a class="code hl_define" href="../../d6/d6b/pc__jacobi_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(10);</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>    <a class="code hl_define" href="../../d6/d6b/pc__jacobi_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(11);</div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>    <a class="code hl_define" href="../../d6/d6b/pc__jacobi_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(12);</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>    <a class="code hl_define" href="../../d6/d6b/pc__jacobi_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(13);</div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>    <a class="code hl_define" href="../../d6/d6b/pc__jacobi_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(14);</div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>    <a class="code hl_define" href="../../d6/d6b/pc__jacobi_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(15);</div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <a class="code hl_define" href="../../d6/d6b/pc__jacobi_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(16);</div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>  }</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>}</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span><span class="preprocessor">      CL_CHECK(clReleaseKernel(kernel));                                       \</span></div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span><span class="preprocessor">    }                                                                          \</span></div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span><span class="preprocessor">    break</span></div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span> </div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>  <span class="keywordflow">switch</span>(*lx) {</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>    <a class="code hl_define" href="../../d6/d6b/pc__jacobi_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(2);</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    <a class="code hl_define" href="../../d6/d6b/pc__jacobi_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(3);</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    <a class="code hl_define" href="../../d6/d6b/pc__jacobi_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(4);</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>    <a class="code hl_define" href="../../d6/d6b/pc__jacobi_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(5);</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    <a class="code hl_define" href="../../d6/d6b/pc__jacobi_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(6);</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>    <a class="code hl_define" href="../../d6/d6b/pc__jacobi_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(7);</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    <a class="code hl_define" href="../../d6/d6b/pc__jacobi_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(8);</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    <a class="code hl_define" href="../../d6/d6b/pc__jacobi_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(9);</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>    <a class="code hl_define" href="../../d6/d6b/pc__jacobi_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(10);</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>    <a class="code hl_define" href="../../d6/d6b/pc__jacobi_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(11);</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>    <a class="code hl_define" href="../../d6/d6b/pc__jacobi_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(12);</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>    <a class="code hl_define" href="../../d6/d6b/pc__jacobi_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(13);</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>    <a class="code hl_define" href="../../d6/d6b/pc__jacobi_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(14);</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <a class="code hl_define" href="../../d6/d6b/pc__jacobi_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(15);</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    <a class="code hl_define" href="../../d6/d6b/pc__jacobi_8c.html#a2866935c460d99727321a9f4a0c91949">CASE</a>(16);</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>  }</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>}</div>
 </div>
 <div class="ttc" id="acuda_2cdtp__kernel_8h_html_ac074100bc8161312918795a55ed1fd6a"><div class="ttname"><a href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#ac074100bc8161312918795a55ed1fd6a">dzt</a></div><div class="ttdeci">__global__ void const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ dzt</div><div class="ttdef"><b>Definition</b> <a href="../../d3/dd9/cuda_2cdtp__kernel_8h_source.html#l00112">cdtp_kernel.h:112</a></div></div>
 <div class="ttc" id="acuda_2cdtp__kernel_8h_html_af4dfdc19ce423df0d0e277a211ee34a8"><div class="ttname"><a href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#af4dfdc19ce423df0d0e277a211ee34a8">dyt</a></div><div class="ttdeci">__global__ void const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ dyt</div><div class="ttdef"><b>Definition</b> <a href="../../d3/dd9/cuda_2cdtp__kernel_8h_source.html#l00111">cdtp_kernel.h:111</a></div></div>
@@ -234,7 +235,7 @@ $(document).ready(function(){initNavTree('d6/d6b/pc__jacobi_8c_source.html','../
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_e1eebdd739dbe665ed101a65279c9fe9.html">krylov</a></li><li class="navelem"><a class="el" href="../../dir_579bd9dcbaa72a162125f0b560cd82ab.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_5b344269ce3b5a4183603946c5547674.html">device</a></li><li class="navelem"><a class="el" href="../../dir_35efc43d0aa27c0c2adfddc1e607c25b.html">opencl</a></li><li class="navelem"><a class="el" href="../../d6/d6b/pc__jacobi_8c.html">pc_jacobi.c</a></li>
-    <li class="footer">Generated on Sat Dec 13 2025 03:48:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sun Dec 14 2025 03:53:02 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
