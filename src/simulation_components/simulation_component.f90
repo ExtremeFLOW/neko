@@ -314,7 +314,7 @@ contains
     ! We default to output whenever we execute
     call json_get_or_default(json, "output_control", output_control, &
          compute_control)
-    call json_get_or_default(json, "output_value", output_value, &
+    call json_get_from_registry_or_entry(json, "output_value", output_value, &
          compute_value)
 
     if (output_control == "global") then
