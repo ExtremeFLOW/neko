@@ -41,7 +41,7 @@ module shear_stress
   use symmetry, only : symmetry_t
   use neumann, only : neumann_t
   use json_module, only : json_file
-  use json_utils, only : json_get_from_registry_or_entry
+  use json_utils, only : json_get_or_lookup
   use vector, only : vector_t
   use time_state, only : time_state_t
   implicit none
@@ -180,7 +180,7 @@ contains
     type(json_file), intent(inout) ::json
     real(kind=rp), allocatable :: value(:)
 
-    call json_get_from_registry_or_entry(json, 'value', value)
+    call json_get_or_lookup(json, 'value', value)
 
     if (size(value) .ne. 3) then
        call neko_error ("The shear stress vector provided for the shear stress &

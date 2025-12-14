@@ -39,7 +39,7 @@ module json_utils
   private
 
   public :: json_get, json_get_or_default, json_extract_item, &
-       json_no_defaults, json_get_from_registry_or_entry
+       json_no_defaults, json_get_or_lookup, json_get_or_lookup_or_default
 
   !> If true, the json_get_or_default routines will not add missing parameters
   logical :: json_no_defaults = .false.
@@ -60,14 +60,17 @@ module json_utils
           json_get_or_default_logical
   end interface json_get_or_default
 
-  interface json_get_from_registry_or_entry
+  interface json_get_or_lookup
      module procedure json_get_real_from_registry_or_entry, &
-          json_get_real_from_registry_or_entry_or_default, &
           json_get_real_array_from_registry_or_entry, &
           json_get_integer_from_registry_or_entry, &
-          json_get_integer_from_registry_or_entry_or_default, &
           json_get_integer_array_from_registry_or_entry
-  end interface json_get_from_registry_or_entry
+  end interface json_get_or_lookup
+
+  interface json_get_or_lookup_or_default
+     module procedure json_get_real_from_registry_or_entry_or_default, &
+          json_get_integer_from_registry_or_entry_or_default
+  end interface json_get_or_lookup_or_default
 
   interface json_extract_item
      module procedure json_extract_item_from_array, json_extract_item_from_name

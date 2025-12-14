@@ -44,7 +44,8 @@ module scalar_ic
   use math, only : col2, cfill, cfill_mask
   use user_intf, only : user_initial_conditions_intf
   use json_module, only : json_file
-  use json_utils, only: json_get, json_get_or_default
+  use json_utils, only: json_get, json_get_or_default, &
+       json_get_or_lookup, json_get_or_lookup_or_default
   use point_zone, only: point_zone_t
   use point_zone_registry, only: neko_point_zone_registry
   use logger, only: neko_log, LOG_SIZE
@@ -96,14 +97,14 @@ contains
 
     if (trim(type) .eq. 'uniform') then
 
-       call json_get(params, 'value', ic_value)
+       call json_get_or_lookup(params, 'value', ic_value)
        call set_scalar_ic_uniform(s, ic_value)
 
     else if (trim(type) .eq. 'point_zone') then
 
-       call json_get(params, 'base_value', ic_value)
+       call json_get_or_lookup(params, 'base_value', ic_value)
        call json_get(params, 'zone_name', read_str)
-       call json_get(params, 'zone_value', zone_value)
+       call json_get_or_lookup(params, 'zone_value', zone_value)
 
        call set_scalar_ic_point_zone(s, ic_value, read_str, zone_value)
 
@@ -113,7 +114,7 @@ contains
        fname = trim(read_str)
        call json_get_or_default(params, 'interpolate', interpolate, &
             .false.)
-       call json_get_or_default(params, 'tolerance', tol, 0.000001_rp)
+       call json_get_or_lookup_or_default(params, 'tolerance', tol, 0.000001_rp)
        call json_get_or_default(params, 'mesh_file_name', read_str, &
             "none")
        mesh_fname = trim(read_str)

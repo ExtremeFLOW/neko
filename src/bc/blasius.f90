@@ -42,7 +42,7 @@ module blasius
   use, intrinsic :: iso_c_binding
   use bc, only : bc_t
   use json_module, only : json_file
-  use json_utils, only : json_get
+  use json_utils, only : json_get, json_get_or_lookup
   use time_state, only : time_state_t
   implicit none
   private
@@ -89,9 +89,9 @@ contains
 
     call this%init_base(coef)
 
-    call json_get(json, 'delta', delta)
+    call json_get_or_lookup(json, 'delta', delta)
     call json_get(json, 'approximation', approximation)
-    call json_get(json, 'freestream_velocity', uinf)
+    call json_get_or_lookup(json, 'freestream_velocity', uinf)
 
     if (size(uinf) .ne. 3) then
        call neko_error("The uinf keyword for the blasius profile should be an &

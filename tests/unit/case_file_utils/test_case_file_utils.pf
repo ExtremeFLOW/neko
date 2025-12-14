@@ -1,7 +1,7 @@
 module test_case_file_utils
   use pfunit
   use json_module, only : json_file
-  use json_utils, only : json_get_from_registry_or_entry, json_no_defaults
+  use json_utils, only : json_get_or_lookup, json_no_defaults
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use registry, only : neko_const_registry
@@ -47,7 +47,7 @@ contains
 
     call json%load_from_string('{"params":{"value":1.25}}')
 
-    call json_get_from_registry_or_entry(json, 'params.value', value)
+    call json_get_or_lookup(json, 'params.value', value)
 
     @assertEqual(1.25_rp, value, tolerance=1e-12_rp)
   end subroutine test_uses_json_scalar
@@ -62,7 +62,7 @@ contains
     call neko_const_registry%add_scalar(expected, 'ref_scalar')
     call json%load_from_string('{"params":{"value":"ref_scalar"}}')
 
-    call json_get_from_registry_or_entry(json, 'params/value', value)
+    call json_get_or_lookup(json, 'params/value', value)
 
     @assertEqual(expected, value, tolerance=1e-12_rp)
   end subroutine test_uses_registry_scalar
@@ -77,7 +77,7 @@ contains
 
     call json%load_from_string('{}')
 
-    call json_get_from_registry_or_entry(json, 'params/value', value, &
+    call json_get_or_lookup(json, 'params/value', value, &
          default_val)
     call json%get('params/value', stored, found)
 
@@ -95,7 +95,7 @@ contains
 
     call json%load_from_string('{"params":{"arr":[0.5,1.5,2.5]}}')
 
-    call json_get_from_registry_or_entry(json, 'params/arr', values)
+    call json_get_or_lookup(json, 'params/arr', values)
 
     @assertEqual(expected, values, tolerance=1e-12_rp)
   end subroutine test_uses_real_array_from_json
@@ -117,7 +117,7 @@ contains
 
     call json%load_from_string('{"params":{"arr":"arr_ref"}}')
 
-    call json_get_from_registry_or_entry(json, 'params/arr', values)
+    call json_get_or_lookup(json, 'params/arr', values)
 
     @assertEqual(expected, values, tolerance=1e-12_rp)
   end subroutine test_uses_real_array_from_registry

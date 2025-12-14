@@ -41,7 +41,7 @@ module simulation_component
   use case, only : case_t
   use time_based_controller, only : time_based_controller_t
   use json_utils, only : json_get_or_default, json_get, &
-      json_get_from_registry_or_entry
+      json_get_or_lookup_or_default
   use time_state, only : time_state_t
   implicit none
   private
@@ -295,13 +295,13 @@ contains
     ! We default to preprocess every time-step
     call json_get_or_default(json, "preprocess_control", preprocess_control, &
          "tsteps")
-    call json_get_from_registry_or_entry(json, "preprocess_value", &
+    call json_get_or_lookup_or_default(json, "preprocess_value", &
          preprocess_value, 1.0_rp)
 
     ! We default to compute every time-step
     call json_get_or_default(json, "compute_control", compute_control, &
          "tsteps")
-    call json_get_from_registry_or_entry(json, "compute_value", &
+    call json_get_or_lookup_or_default(json, "compute_value", &
          compute_value, 1.0_rp)
 
     if (compute_control .eq. "fluid_output") then
@@ -314,7 +314,7 @@ contains
     ! We default to output whenever we execute
     call json_get_or_default(json, "output_control", output_control, &
          compute_control)
-    call json_get_from_registry_or_entry(json, "output_value", output_value, &
+    call json_get_or_lookup_or_default(json, "output_value", output_value, &
          compute_value)
 
     if (output_control == "global") then
