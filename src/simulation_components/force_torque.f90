@@ -345,6 +345,31 @@ contains
     class(force_torque_t), intent(inout) :: this
     call this%free_base()
 
+    call this%n1%free()
+    call this%n2%free()
+    call this%n3%free()
+    
+    call this%r1%free()
+    call this%r2%free()
+    call this%r3%free()
+    
+    call this%force1%free()
+    call this%force2%free()
+    call this%force3%free()
+    
+    call this%force4%free()
+    call this%force5%free()
+    call this%force6%free()
+    
+    call this%pmsk%free()
+    call this%mu_msk%free()
+    call this%s11msk%free()
+    call this%s22msk%free()
+    call this%s33msk%free()
+    call this%s12msk%free()
+    call this%s13msk%free()
+    call this%s23msk%free()
+
     nullify(this%u)
     nullify(this%v)
     nullify(this%w)

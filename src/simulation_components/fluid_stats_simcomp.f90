@@ -189,6 +189,7 @@ contains
     class(fluid_stats_simcomp_t), intent(inout) :: this
     call this%free_base()
     call this%stats%free()
+    call this%stats_output%free()
   end subroutine fluid_stats_simcomp_free
 
   subroutine fluid_stats_simcomp_restart(this, time)
