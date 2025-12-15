@@ -117,13 +117,9 @@ making decisions about how to setup a case.
 - Make sure you understand how to add the test to the build system, that is
   somewhat tedious. Study `doc/pages/developer-guide/testing.md` carefully to
   that end.
-<<<<<<< HEAD
- - File/module naming: pFUnit generates a driver that calls <pf_basename>_suite(), where <pf_basename> is the .pf filename without extension. For a smooth link:
-=======
  - File/module naming: pFUnit generates a driver that calls
    <pf_basename>_suite(), where <pf_basename> is the .pf filename without
    extension. For a smooth link:
->>>>>>> doc/testing
    - Keep the module name inside each .pf file identical to the file’s basename
      (e.g., test_case_file_utils.pf must declare module test_case_file_utils).
   - If you use multiple .pf files in one suite, each file’s module name should

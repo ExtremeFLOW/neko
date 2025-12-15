@@ -72,6 +72,7 @@ void opencl_fdm_do_fast(void *e, void *r, void *s, void *d, int *nl, int *nel,
       CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel,                       \
                                       1, NULL, &global_item_size,              \
                                       &local_item_size, 0, NULL, NULL));       \
+      CL_CHECK(clReleaseKernel(kernel));                                       \
     }                                                                          \
    break
 
