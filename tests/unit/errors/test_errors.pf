@@ -1,0 +1,33 @@
+module test_errors
+  use pfunit
+  use errors, only : neko_error, neko_type_error, neko_type_registration_error,&
+      neko_warning
+  implicit none
+
+contains
+
+  @test
+  subroutine test_neko_error_raises()
+    call neko_error("boom")
+    @assertExceptionRaised()
+  end subroutine test_neko_error_raises
+
+  @test
+  subroutine test_neko_type_error_raises()
+    call neko_type_error("base", "wrong", ["known1", "known2"])
+    @assertExceptionRaised()
+  end subroutine test_neko_type_error_raises
+
+  @test
+  subroutine test_neko_type_registration_error_raises()
+    call neko_type_registration_error("base", "wrong", .true. )
+    @assertExceptionRaised()
+  end subroutine test_neko_type_registration_error_raises
+
+  @test
+  subroutine test_neko_warning_raises()
+    call neko_warning("this is a warning")
+    @assertExceptionRaised()
+  end subroutine test_neko_warning_raises
+
+end module test_errors
