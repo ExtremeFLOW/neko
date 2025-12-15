@@ -530,6 +530,10 @@ contains
 
     call this%output_controller%free()
 
+    if (allocated(this%output_directory)) then
+       deallocate(this%output_directory)
+    end if
+
   end subroutine case_free
 
 end module case
