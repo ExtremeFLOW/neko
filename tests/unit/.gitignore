@@ -61,4 +61,5 @@ time_scheme/time_scheme_test
 time_scheme_controller/time_scheme_controller_test
 time_based_controller/time_based_controller_test
 errors/errors_test
+json_utils/json_utils_test
 point_interpolation/point_interpolation_suite
