@@ -7,8 +7,7 @@ module most_cpu
   public :: most_compute_cpu
 
   ! TO DO:
-  ! - where/when should I sample ts?  and z0t?
-  ! - create a neutral branch if Rib==0
+  ! - where to get ts [registry thing]?  and z0t [case file]?
 
   abstract interface
      function slaw_m_interface(h,L_o,z0) result(slaw)
@@ -96,23 +95,19 @@ contains
   subroutine set_stability_regime(Ri_b)
     real(kind=rp), intent(in) :: Ri_b
 
-    if (Ri_b > 0.0) then
-       slaw_m_ptr => slaw_m_stable
-       slaw_h_ptr => slaw_h_stable
-       corr_m_ptr => corr_m_stable
-       corr_h_ptr => corr_h_stable
-    elseif (Ri_b < 0.0) then
-       slaw_m_ptr => slaw_m_convective
-       slaw_h_ptr => slaw_h_convective
-       corr_m_ptr => corr_m_convective
-       corr_h_ptr => corr_h_convective
-
-!!> INCLUDE NEUTRAL WITH A BETTER IMPLEMENTATION (COPY ROUGHLOG)
-    ! else
-    !    slaw_m_ptr => slaw_m_neutral   ! include or not?
-    !    slaw_h_ptr => slaw_h_neutral
-    !    corr_m_ptr => corr_m_neutral
-    !    corr_h_ptr => corr_h_neutral
+    if (Ri_b > 0.01) then
+      slaw_m_ptr => slaw_m_stable
+      slaw_h_ptr => slaw_h_stable
+      corr_m_ptr => corr_m_stable
+      corr_h_ptr => corr_h_stable
+    elseif (Ri_b < 0.01) then
+      slaw_m_ptr => slaw_m_convective
+      slaw_h_ptr => slaw_h_convective
+      corr_m_ptr => corr_m_convective
+      corr_h_ptr => corr_h_convective
+    else
+      slaw_m_ptr => slaw_m_neutral
+      slaw_h_ptr => slaw_h_neutral
     end if
   end subroutine set_stability_regime
 
@@ -131,12 +126,12 @@ contains
     character(len=*), intent(in) :: bc_type
     real(kind=rp), intent(inout) :: ts,q   ! should this be multidimensional?
     real(kind=rp), dimension(n_nodes), intent(inout) :: tau_x, tau_y, tau_z
-    integer :: i, count, count_def
+    integer :: i, count
     integer, parameter :: max_count = 20
     real(kind=rp) :: ui, vi, wi, ti, hi
     real(kind=rp) :: magu, utau, normu
-    real(kind=rp) :: L_ob, L_ob_def, L_upper, L_lower, L_backup, L_old
-    real(kind=rp) :: Ri_b, Ri_b_def, f, dfdl, fd_h    
+    real(kind=rp) :: L_ob, L_upper, L_lower, L_backup, L_old
+    real(kind=rp) :: Ri_b, f, dfdl, fd_h    
     real(kind=rp), parameter :: g = 9.80665_rp
     real(kind=rp), parameter :: tol = 0.001_rp
     real(kind=rp), parameter :: NR_step = 0.001_rp
@@ -175,16 +170,13 @@ contains
         ! Get q, Ri, f, dfdl based on bc_type 
         call split_bc_type(bc_type, g, hi, ti, ts, magu, kappa, q, Ri_b, 1)
 
-        ! Obukhov _ based on the previous-step utau
-        L_ob= -(ti*utau**3)/(kappa*g*q)  ! this is only initialisation (ts,ti,300 doesn't matter)
-        L_ob_def = L_ob
-        L_backup = L_ob
-
-        if (Ri_b == 0) then
-          ! Neutral
-          L_ob = 0   ! improve this once the neutral option is implemented
-
-        else:
+        if (abs(Ri_b) <= 0.01) then
+          ! Neutral (L_ob undefined)
+          L_ob = 0   
+        else
+          ! Obukhov based on the previous-step utau
+          L_ob= -(ti*utau**3)/(kappa*g*q)  ! this is only initialisation (ts,ti,300 doesn't matter)
+          L_backup = L_ob
           L_old = 0
           count = 0
           do while  ((abs(L_old - L_ob)/abs(L_ob) .gt. tol) .and. (count .lt. max_count))
@@ -211,13 +203,9 @@ contains
 
         ! Error handling 
         if (count .eq. max_count) then
-            L_ob_def = L_backup
+            L_ob = L_backup
             call neko_error("Obukhov length did not converge (MOST wall model)") 
         end if
-
-        L_ob_def = L_ob
-        Ri_b_def = Ri_b
-        count_def = count
 
         ! Based on stability and bc_type, compute utau/q 
         call set_stability_regime(Ri_b) 
@@ -357,7 +345,23 @@ contains
     corr = 2*log(0.5_rp*(1 + xi**2))
   end function corr_h_convective
 
-!!!_-----------------------------------------_!!!
+  !--------------- Neutral ----------------
+
+  function slaw_m_neutral(h,L_o,z0) result(slaw)
+    real(kind=rp), intent(in) :: h, L_o, z0
+    real(kind=rp) :: slaw
+
+    slaw = log(h/z0)
+  end function slaw_m_neutral
+
+  function slaw_h_neutral(h,L_o,z0t) result(slaw)
+    real(kind=rp), intent(in) :: h, L_o, z0t
+    real(kind=rp) :: slaw
+
+    slaw = log(h/z0t)
+  end function slaw_h_neutral
+
+  !------------- Similarity laws --------------
 
   function f_neumann(Ri_b, h, z0, z0t, L_ob, slaw_m, slaw_h) result(f)
     real(kind=rp), intent(in) :: Ri_b, h, z0, z0t, L_ob
