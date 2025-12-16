@@ -97,6 +97,7 @@ void opencl_coef_generate_geo(void *G11, void *G12, void *G13,
       CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue,         \
                                       kernel, 1, NULL, &global_item_size,       \
                                       &local_item_size, 0, NULL, NULL));        \
+      CL_CHECK(clReleaseKernel(kernel));                                        \
     }                                                                           \
     break
     
@@ -170,6 +171,7 @@ void opencl_coef_generate_dxyzdrst(void *drdx, void *drdy, void *drdz,
       CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue,         \
                                       kernel, 1, NULL, &global_item_size_dxyz,  \
                                       &local_item_size, 0, NULL, NULL));        \
+      CL_CHECK(clReleaseKernel(kernel));                                        \
     }                                                                           \
     break
     
@@ -219,5 +221,6 @@ void opencl_coef_generate_dxyzdrst(void *drdx, void *drdy, void *drdz,
   
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue,         
                                   kernel, 1, NULL, &global_item_size_drst,  
-                                  &local_item_size, 0, NULL, NULL));   
+                                  &local_item_size, 0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
