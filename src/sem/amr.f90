@@ -88,16 +88,17 @@ contains
   !> Initialise amr type
   !! @param[in]  transfer     mesh manager data transfer type
   !! @param[in]  isamr        AMR execution flag
+  !! @param[in]  gdim         geometrical mesh dimension
   !! @param[in]  lx           polynomial order + 1
-  subroutine amr_init(this, transfer, isamr, lx)
+  subroutine amr_init(this, transfer, isamr, gdim, lx)
     class(amr_t), intent(inout) :: this
     class(mesh_manager_transfer_t), intent(in) :: transfer
     logical, intent(in) :: isamr
-    integer, intent(in) :: lx
+    integer, intent(in) :: gdim, lx
 
     call this%free()
 
-    call this%reconstruct%init(transfer)
+    call this%reconstruct%init(transfer, gdim, lx)
     this%isamr = isamr
 
   end subroutine amr_init

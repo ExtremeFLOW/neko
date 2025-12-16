@@ -213,7 +213,7 @@ contains
        call json_get(this%params, 'case.numerics.polynomial_order', lx)
        lx = lx + 1 ! add 1 to get number of gll points
        call this%amr%init(this%mesh_manager%transfer, this%mesh_manager%isamr, &
-            lx)
+            this%mesh_manager%mesh%tdim, lx)
        call neko_log%end_section()
     else
 

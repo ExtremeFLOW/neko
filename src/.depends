@@ -36,7 +36,7 @@ sem/map_2d.lo : sem/map_2d.f90 io/fld_file_data.lo comm/comm.lo device/device.lo
 sem/dofmap.lo : sem/dofmap.f90 sem/amr_restart_component.lo sem/amr_reconstruct.lo mesh/element.lo math/math.lo device/device.lo math/tensor.lo math/fast3d.lo common/utils.lo config/num_types.lo sem/space.lo mesh/mesh.lo config/neko_config.lo 
 sem/coef.lo : sem/coef.f90 common/utils.lo device/device.lo math/mxm_wrapper.lo sem/bcknd/device/device_coef.lo math/bcknd/device/device_math.lo mesh/mesh.lo math/math.lo sem/space.lo sem/dofmap.lo config/num_types.lo config/neko_config.lo gs/gs_ops.lo gs/gather_scatter.lo 
 sem/cpr.lo : sem/cpr.f90 math/mxm_wrapper.lo sem/dofmap.lo common/log.lo sem/coef.lo mesh/mesh.lo math/tensor.lo math/math.lo sem/space.lo field/field.lo config/num_types.lo 
-sem/amr_reconstruct.lo : sem/amr_reconstruct.f90 comm/mesh_manager_transfer.lo config/num_types.lo 
+sem/amr_reconstruct.lo : sem/amr_reconstruct.f90 comm/mesh_manager_transfer.lo math/math.lo math/mxm_wrapper.lo device/device.lo sem/space.lo sem/speclib.lo common/utils.lo config/num_types.lo config/neko_config.lo 
 sem/amr_restart_component.lo : sem/amr_restart_component.f90 sem/amr_reconstruct.lo 
 sem/amr.lo : sem/amr.f90 sem/amr_restart_component.lo sem/amr_reconstruct.lo mesh/mesh_manager/mesh_manager.lo comm/mesh_manager_transfer_p4est.lo comm/mesh_manager_transfer.lo mesh/mesh.lo common/user_intf.lo common/time_state.lo common/profiler.lo common/utils.lo common/log.lo config/num_types.lo 
 common/time_interpolator.lo : common/time_interpolator.f90 math/fast3d.lo common/utils.lo math/math.lo math/bcknd/device/device_math.lo config/neko_config.lo field/field_series.lo field/field.lo config/num_types.lo 
