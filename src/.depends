@@ -17,7 +17,7 @@ comm/mpi_types.lo : comm/mpi_types.f90 io/format/stl.lo io/format/nmsh.lo io/for
 common/datadist.lo : common/datadist.f90 
 common/distdata.lo : common/distdata.f90 adt/uset.lo adt/tuple.lo adt/stack.lo 
 common/utils.lo : common/utils.f90 
-common/errors.lo : common/errors.f90 
+common/errors.lo : common/errors.f90 common/utils.lo 
 common/time_state.lo : common/time_state.f90 common/json_utils.lo common/checkpoint.lo common/log.lo config/num_types.lo 
 common/json_utils.lo : common/json_utils.f90 math/math.lo common/utils.lo config/num_types.lo 
 common/mask.lo : common/mask.f90 common/utils.lo math/bcknd/device/device_math.lo device/device.lo config/neko_config.lo 

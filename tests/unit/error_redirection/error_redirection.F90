@@ -1,5 +1,5 @@
 module error_redirection
-  use errors, only: throw_error, throw_warning, throw_intf
+  use utils, only: throw_error, throw_warning, throw_intf
   use funit, only: SourceLocation, pFUnit_throw => throw
 
   implicit none
