@@ -67,32 +67,48 @@ contains
   ! 4. User-facing selectors for stability regime
   !================================================
 
-  subroutine split_bc_type(bc_type, g, hi, ti, ts, magu, kappa, q, Ri_b, flag)
-    real(kind=rp), intent(in) :: g, hi, ti, ts, magu, kappa
+  subroutine select_bc_operators(bc_type)
     character(len=*), intent(in) :: bc_type
-    real(kind=rp), intent(inout) :: Ri_b, q
-    integer :: flag
 
     select case (bc_type)
     case ("neumann")
-      if (flag /= 0) then
-        Ri_b = - g*hi / ti*q / (magu**3*kappa**2)
-        f_ptr => f_neumann
-        dfdl_ptr => dfdl_neumann
-      end if
+      f_ptr    => f_neumann
+      dfdl_ptr => dfdl_neumann
     case ("dirichlet")
-      q =  kappa*utau*(ts - ti)/log(hi/z0t)
-      if (flag /= 0) then
-        Ri_b = g*hi/ti*(ti - ts)/magu**2
-        f_ptr => f_dirichlet
-        dfdl_ptr => dfdl_dirichlet
-      end if
+      f_ptr    => f_dirichlet
+      dfdl_ptr => dfdl_dirichlet
     case default
       call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
-      ! perhaps I should split this in two "cases" so that i can have two error messages 
-      ! (one in case the user forget ts or q and one in case it forgets bc_type) ?
     end select
-  end subroutine split_bc_type
+  end subroutine select_bc_operators
+
+  subroutine compute_Ri_b(bc_type, g, hi, ti, ts, magu, kappa, q, Ri_b)
+    character(len=*), intent(in) :: bc_type
+    real(kind=rp), intent(in)    :: g, hi, ti, ts, magu, kappa
+    real(kind=rp), intent(inout) :: q
+    real(kind=rp), intent(out)   :: Ri_b
+
+    select case (bc_type)
+    case ("neumann")
+      Ri_b = - g*hi / ti*q / (magu**3*kappa**2)
+
+    case ("dirichlet")
+      Ri_b = g*hi/ti*(ti - ts)/magu**2
+
+    case default
+      call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
+    end select
+  end subroutine compute_Ri_b
+
+  subroutine init_q(bc_type, hi, ti, ts, kappa, utau, z0t, q)
+    character(len=*), intent(in) :: bc_type
+    real(kind=rp), intent(in)    :: hi, ti, ts, kappa, utau, z0t
+    real(kind=rp), intent(inout) :: q
+
+    if (bc_type == "dirichlet") then
+      q = kappa*utau*(ts - ti)/log(hi/z0t)
+    end if
+  end subroutine init_q
 
   subroutine set_stability_regime(Ri_b)
     real(kind=rp), intent(in) :: Ri_b
@@ -166,12 +182,14 @@ contains
 
       ! Get q, Ri_b, f_ptr, dfdl_ptr based on bc_type 
       ! Maybe redundant, but needed to initialise Rib
-      call split_bc_type(bc_type, g, hi, ti, ts, magu, kappa, q, Ri_b, 0)
+      call select_bc_operators(bc_type)
+      call init_q(bc_type, hi, ti, ts, kappa, utau, z0t, q)
+      call compute_Ri_b(bc_type, g, hi, ti, ts, magu, kappa, q, Ri_b)
 
       ! Compute Obukhov length
       if (tstep > 0) then
         ! Get q, Ri, f, dfdl based on bc_type 
-        call split_bc_type(bc_type, g, hi, ti, ts, magu, kappa, q, Ri_b, 1)
+        call compute_Ri_b(bc_type, g, hi, ti, ts, magu, kappa, q, Ri_b)
 
         if (abs(Ri_b) <= 0.01) then
           ! Neutral (L_ob undefined)
