@@ -153,7 +153,6 @@ contains
     real(kind=rp), parameter :: tol = 0.001_rp
     real(kind=rp), parameter :: NR_step = 0.001_rp
 
-    z0h = z0 
     do i=1, n_nodes
    
       ! Sample the variables
@@ -177,7 +176,10 @@ contains
         utau = sqrt( sqrt( tau_x(i)**2 + tau_y(i)**2 + tau_z(i)**2 ) ) 
       else 
         utau = magu*kappa / log(hi/z0)
+   
       end if
+      ! Compute thermal roughness length from Zilitinkevich 1995
+      z0h = z0 !* exp(-0.1_rp*sqrt((utau*z0)/1.46e-5_rp))  this would make it change in time!
 
       ! Get q, Ri_b, f_ptr, dfdl_ptr based on bc_type 
       ! Maybe redundant, but needed to initialise Rib
