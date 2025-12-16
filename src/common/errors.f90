@@ -32,58 +32,18 @@
 !
 !> Errors that can be thrown by Neko.
 !! @details Various error handling routines that can be used in the code.
-!! Also contans additional hooks for pFUnit to catch errors during testing.
-module errors
-  use, intrinsic :: iso_fortran_env, only: error_unit, output_unit
+!! They use the throw_error and throw_warning mechanisms defined in utils.f90
+!! in order to allow pFUnit to catch them during testing.
+submodule (utils) errors
   implicit none
-  private
-
-  abstract interface
-     !> Interface for the throw procedure. Follows pFunit conventions.
-     subroutine throw_intf(filename, line_number, message)
-       character(len=*), intent(in) :: filename
-       integer, intent(in) :: line_number
-       character(len=*), optional, intent(in) :: message
-     end subroutine throw_intf
-  end interface
-
-  !> Pointer to the throw procedure.
-  !! @details Ordinarily only raises an error stop. During testing,
-  !! pFUnit will hijack this procedure to raise an excpeption that
-  !! can be caught by the testing framework.
-  procedure(throw_intf), public, pointer :: throw_error => &
-       default_throw_error
-  !> Same as above, but for warnings. Does nothing by default
-  procedure(throw_intf), public, pointer :: throw_warning => &
-       default_throw_warning
-
-  public :: throw_intf, neko_error, neko_type_error, &
-       neko_type_registration_error, neko_warning
 
 contains
-  !> Default throw method that stops execution.
-  !! @details pFUnit will highjack this method during testing to catch
-  !! exceptions.
-  subroutine default_throw_error(filename, line_number, message)
-    character(len=*), intent(in) :: filename
-    integer, intent(in) :: line_number
-    character(len=*), optional, intent(in) :: message
-
-    error stop
-  end subroutine default_throw_error
-
-  !> Default throw method for warnings. Does nothing.
-  subroutine default_throw_warning(filename, line_number, message)
-    character(len=*), intent(in) :: filename
-    integer, intent(in) :: line_number
-    character(len=*), optional, intent(in) :: message
-  end subroutine default_throw_warning
 
   !> Reports a type selection error and stops execution.
   !! @param base_type The base type for which the selection was attempted.
   !! @param wrong_type The type that was attempted to be selected.
   !! @param known_types An array of known valid types.
-  subroutine neko_type_error(base_type, wrong_type, known_types)
+  module subroutine neko_type_error(base_type, wrong_type, known_types)
     character(len=*), intent(in) :: base_type
     character(len=*), intent(in) :: wrong_type
     character(len=*), intent(in) :: known_types(:)
@@ -99,32 +59,11 @@ contains
     call throw_error('errors.f90', -1, message='')
   end subroutine neko_type_error
 
-  !> Reports an error and stops execution.
-  !! @param error_msg Optional error message to report.
-  !! @param error_code Optional error code to report.
-  subroutine neko_error(error_msg, error_code)
-    character(len=*), optional :: error_msg
-    integer, optional :: error_code
-    character(len=:), allocatable :: msg
-
-    if (present(error_code)) then
-       write(error_unit, *) '*** ERROR ***', error_code
-       error stop
-    else if (present(error_msg)) then
-       write(error_unit, *) '*** ERROR: ', error_msg, ' ***'
-    else
-       write(error_unit, *) '*** ERROR ***'
-       error stop
-    end if
-
-    call throw_error('errors.f90', -1, message='')
-  end subroutine neko_error
-
   !> Reports a type registration error and stops execution.
   !! @param base_type The base type for which the registration was attempted.
   !! @param wrong_type The type that was attempted to be registered.
   !! @param known Whether the conflicting type is known (standard) or custom.
-  subroutine neko_type_registration_error(base_type, wrong_type, known)
+  module subroutine neko_type_registration_error(base_type, wrong_type, known)
     character(len=*), intent(in) :: base_type
     character(len=*),intent(in) :: wrong_type
     logical, intent(in) :: known
@@ -143,11 +82,36 @@ contains
   end subroutine neko_type_registration_error
 
   !> Reports a warning to standard output
-  subroutine neko_warning(warning_msg)
+  !! @param warning_msg The warning message to report.
+  module subroutine neko_warning(warning_msg)
     character(len=*) :: warning_msg
     write(output_unit, *) '*** WARNING: ', warning_msg, ' ***'
 
     call throw_warning('errors.f90', -1, message='')
   end subroutine neko_warning
 
-end module errors
+  !> Reports an error and stops execution.
+  !! @param[optional] error_code The error code to report.
+  module subroutine neko_error_plain(error_code)
+    integer, optional, intent(in) :: error_code
+
+    if (present(error_code)) then
+       write(error_unit, *) '*** ERROR ***', error_code
+    else
+       write(error_unit, *) '*** ERROR ***'
+    end if
+
+    call throw_error('errors.f90', -1, message='')
+  end subroutine neko_error_plain
+
+  !> Reports an error and stops execution.
+  !! @param error_msg The error message to report.
+  module subroutine neko_error_msg(error_msg)
+    character(len=*), intent(in) :: error_msg
+    write(error_unit, *) '*** ERROR: ', error_msg, ' ***'
+
+    call throw_error('errors.f90', -1, message='')
+  end subroutine neko_error_msg
+
+
+end submodule errors

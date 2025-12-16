@@ -1,6 +1,6 @@
 module test_errors
   use pfunit
-  use errors, only : neko_error, neko_type_error, neko_type_registration_error,&
+  use utils, only : neko_error, neko_type_error, neko_type_registration_error,&
       neko_warning
   implicit none
 
