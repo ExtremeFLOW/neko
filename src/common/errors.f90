@@ -41,9 +41,9 @@ module errors
   abstract interface
      !> Interface for the throw procedure. Follows pFunit conventions.
      subroutine throw_intf(filename, line_number, message)
-        character(len=*), intent(in) :: filename
-        integer, intent(in) :: line_number
-        character(len=*), optional, intent(in) :: message
+       character(len=*), intent(in) :: filename
+       integer, intent(in) :: line_number
+       character(len=*), optional, intent(in) :: message
      end subroutine throw_intf
   end interface
 
@@ -65,18 +65,18 @@ contains
   !! @details pFUnit will highjack this method during testing to catch
   !! exceptions.
   subroutine default_throw_error(filename, line_number, message)
-     character(len=*), intent(in) :: filename
-     integer, intent(in) :: line_number
-     character(len=*), optional, intent(in) :: message
+    character(len=*), intent(in) :: filename
+    integer, intent(in) :: line_number
+    character(len=*), optional, intent(in) :: message
 
-     error stop
+    error stop
   end subroutine default_throw_error
 
   !> Default throw method for warnings. Does nothing.
   subroutine default_throw_warning(filename, line_number, message)
-     character(len=*), intent(in) :: filename
-     integer, intent(in) :: line_number
-     character(len=*), optional, intent(in) :: message
+    character(len=*), intent(in) :: filename
+    integer, intent(in) :: line_number
+    character(len=*), optional, intent(in) :: message
   end subroutine default_throw_warning
 
   !> Reports a type selection error and stops execution.
