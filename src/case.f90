@@ -210,14 +210,11 @@ contains
        call this%mesh_manager%mesh_construct(this%msh, .true.)
 
        ! initialise adaptive mesh refinement
-       call this%amr%init(this%mesh_manager%transfer)
+       call json_get(this%params, 'case.numerics.polynomial_order', lx)
+       lx = lx + 1 ! add 1 to get number of gll points
+       call this%amr%init(this%mesh_manager%transfer, this%mesh_manager%isamr, &
+            lx)
        call neko_log%end_section()
-
-!       testing_refine : block
-!         call this%amr%refine(this%mesh_manager, this%msh, this%user, &
-!              this%time)
-!       end block testing_refine
-
     else
 
        call msh_file%read(this%msh)
@@ -238,6 +235,9 @@ contains
                '.', back = .true.) - 1)) // '_lb.nmsh'
           call msh_file%init(string_val)
           call msh_file%write(this%msh)
+
+          ! make sure no AMR operation would be executed
+          call this%amr%free()
 
           call neko_log%end_section()
        end if
@@ -262,6 +262,9 @@ contains
     !
     call json_get(this%params, 'case.fluid.scheme', string_val)
     call fluid_scheme_base_factory(this%fluid, trim(string_val))
+    if (this%amr%ifamr()) then
+       call this%amr%comp_add(this%fluid)
+    end if
 
     call json_get(this%params, 'case.numerics.polynomial_order', lx)
     lx = lx + 1 ! add 1 to get number of gll points
@@ -310,6 +313,9 @@ contains
                this%fluid%gs_Xh, json_subdict, numerics_params, this%user, &
                this%chkp, this%fluid%ulag, this%fluid%vlag, this%fluid%wlag, &
                this%fluid%ext_bdf, this%fluid%rho)
+       end if
+       if (this%amr%ifamr()) then
+          call this%amr%comp_add(this%scalars)
        end if
     end if
 

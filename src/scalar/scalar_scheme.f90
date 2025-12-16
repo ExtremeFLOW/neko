@@ -75,10 +75,11 @@ module scalar_scheme
   use scratch_registry, only : neko_scratch_registry
   use time_state, only : time_state_t
   use device, only : device_memcpy, DEVICE_TO_HOST
+  use amr_restart_component, only : amr_restart_component_t
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
-  type, abstract :: scalar_scheme_t
+  type, abstract, extends(amr_restart_component_t) :: scalar_scheme_t
      !> A name that can be used to distinguish this solver in e.g. user routines
      character(len=:), allocatable :: name
      !> x-component of Velocity
@@ -162,6 +163,7 @@ module scalar_scheme
      procedure(scalar_scheme_step_intrf), pass(this), deferred :: step
      !> Restart from a checkpoint.
      procedure(scalar_scheme_restart_intrf), pass(this), deferred :: restart
+     
   end type scalar_scheme_t
 
   !> Abstract interface to initialize a scalar formulation

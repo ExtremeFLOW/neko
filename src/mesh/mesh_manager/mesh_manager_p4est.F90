@@ -490,6 +490,9 @@ contains
        ierr = 0
     end if
 
+    ! this is AMR framework
+    this%isamr = .true.
+
     t_end = MPI_WTIME()
     write(log_buf, '(A,F9.6)') 'Mesh manager starting time (s): ', &
          t_end - t_start
@@ -1291,7 +1294,7 @@ contains
 
     call profiler_start_region("p4est refine", 31)
 
-    write(log_buf, '(a)') 'p4est refinement/coarsening start'
+    write(log_buf, '(a)') 'p4est refinement/coarsening'
     call neko_log%message(log_buf, NEKO_LOG_INFO)
 
     ifmod = .false.
@@ -1361,8 +1364,6 @@ contains
        call neko_error('Wrong data redistribution type')
     end select
 
-    write(log_buf, '(a)') 'p4est refinement/coarsening end'
-    call neko_log%message(log_buf, NEKO_LOG_INFO)
 
     call profiler_end_region("p4est refine", 31)
 

@@ -56,6 +56,8 @@ module amr
 
   !> Main AMR type
   type, public :: amr_t
+     !> AMR execution flag
+     logical :: isamr
      !> Data reconstruction type
      type(amr_reconstruct_t) :: reconstruct
      !> Number of components
@@ -69,6 +71,8 @@ module amr
      procedure, pass(this) :: init => amr_init
      !> Free type
      procedure, pass(this) :: free => amr_free
+     !> Do we perform AMR operations
+     procedure, pass(this) :: ifamr => amr_ifamr
      !> Add restart component
      procedure, pass(this) :: comp_add => amr_component_add
      !> Remove restart component
@@ -83,13 +87,18 @@ contains
 
   !> Initialise amr type
   !! @param[in]  transfer     mesh manager data transfer type
-  subroutine amr_init(this, transfer)
+  !! @param[in]  isamr        AMR execution flag
+  !! @param[in]  lx           polynomial order + 1
+  subroutine amr_init(this, transfer, isamr, lx)
     class(amr_t), intent(inout) :: this
     class(mesh_manager_transfer_t), intent(in) :: transfer
+    logical, intent(in) :: isamr
+    integer, intent(in) :: lx
 
     call this%free()
 
     call this%reconstruct%init(transfer)
+    this%isamr = isamr
 
   end subroutine amr_init
 
@@ -100,9 +109,19 @@ contains
 
     call this%reconstruct%free()
     if (allocated(this%components)) deallocate(this%components)
+    this%isamr = .false.
     this%ncomponents = 0
     this%counter = 0
   end subroutine amr_free
+
+  !> Give AMR execution flag
+  function amr_ifamr(this) result(ifamr)
+    class(amr_t), intent(inout) :: this
+    logical :: ifamr
+
+    ifamr = this%isamr
+
+  end function amr_ifamr
 
   !> Add restart component
   !! @param[inout]  component     component to be added
@@ -115,7 +134,7 @@ contains
     if (.not. allocated(this%components)) then
        this%ncomponents = 1
        allocate(this%components(1))
-       this%components(il)%cmp => component
+       this%components(1)%cmp => component
        call component%init_amr_base(this%ncomponents)
     else
        ! check if there is an empty slot
@@ -238,7 +257,7 @@ contains
        call mesh_manager%refine(ref_mark, ifmod)
 
        if (ifmod) then
-          write(log_buf, '(a)') 'Mesh modified; restarting solver'
+          write(log_buf, '(a)') 'Restarting solver'
           call neko_log%message(log_buf, NEKO_LOG_INFO)
 
           ! place to reconstruct geometry and correct mesh manager vertex
@@ -250,9 +269,6 @@ contains
 
           ! restart solver
           call this%restart(user)
-       else
-          write(log_buf, '(a)') 'Mesh not changed'
-          call neko_log%message(log_buf, NEKO_LOG_INFO)
        end if
 
        call profiler_end_region("Mesh refinement", 30)

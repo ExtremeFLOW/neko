@@ -48,6 +48,8 @@ module mesh_manager
      character(len=:), allocatable :: type_name
      !> 3rd-party software activation flag
      logical :: ifstarted
+     !> AMR execution flag
+     logical :: isamr
      !> mesh information
      class(manager_mesh_t), allocatable :: mesh
      !> raw mesh data from the nmsh file
@@ -167,6 +169,7 @@ contains
 
     this%type_name = trim(type_name)
     this%ifstarted = .false.
+    this%isamr = .false.
 
   end subroutine mesh_manager_init_base
 

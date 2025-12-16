@@ -202,6 +202,11 @@ contains
     call neko_log%end()
     call profiler_end_region
 
+    ! Error indicator and AMR refinement
+    if (C%amr%ifamr()) then
+       call C%amr%refine(C%mesh_manager, C%msh, C%user, C%time)
+    end if
+
   end subroutine simulation_step
 
   subroutine simulation_settime(time, ext_bdf)
