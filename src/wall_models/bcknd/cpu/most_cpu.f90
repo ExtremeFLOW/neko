@@ -10,34 +10,36 @@ module most_cpu
   ! - where to get ts [registry thing]?  and z0t [case file]?
 
   abstract interface
-     function slaw_m_interface(h,L_o,z0) result(slaw)
-        real(kind=rp), intent(in) :: h, L_o, z0
+     function slaw_m_interface(z,L_ob,z0) result(slaw)
+        real(kind=rp), intent(in) :: z, L_ob, z0
         real(kind=rp) :: slaw
      end function slaw_m_interface
 
-     function slaw_h_interface(h,L_o,z0t) result(slaw)
-        real(kind=rp), intent(in) :: h, L_o, z0t
+     function slaw_h_interface(z,L_ob,z0t) result(slaw)
+        real(kind=rp), intent(in) :: z, L_ob, z0t
         real(kind=rp) :: slaw
      end function slaw_h_interface
 
-     function corr_m_interface(h,L_o) result(corr)
-        real(kind=rp), intent(in) :: h, L_o
+     function corr_m_interface(z,L_ob) result(corr)
+        real(kind=rp), intent(in) :: z, L_ob
         real(kind=rp) :: corr
      end function corr_m_interface
 
-     function corr_h_interface(h,L_o) result(corr)
-        real(kind=rp), intent(in) :: h, L_o
+     function corr_h_interface(z,L_ob) result(corr)
+        real(kind=rp), intent(in) :: z, L_ob
         real(kind=rp) :: corr
      end function corr_h_interface
 
-     function f_interface(Ri_b, h, z0, z0t, L_ob, slaw_m, slaw_h) result(f)
-        real(kind=rp), intent(in) :: Ri_b, h, z0, z0t, L_ob
+     function f_interface(Ri_b, z, z0, z0t, L_ob, slaw_m, slaw_h) result(f)
+        real(kind=rp), intent(in) :: Ri_b, z, z0, z0t, L_ob
+        real(kind=rp) :: f
         procedure(slaw_m_interface) :: slaw_m
         procedure(slaw_h_interface) :: slaw_h
      end function f_interface
 
-     function dfdl_interface(l_upper, l_lower, h, z0, z0t, L_ob, slaw_m, slaw_h, fd_h) result(dfdl)
-        real(kind=rp), intent(in) :: l_upper, l_lower, h, z0, z0t, L_ob, fd_h
+     function dfdl_interface(l_upper, l_lower, z, z0, z0t, L_ob, slaw_m, slaw_h, fd_h) result(dfdl)
+        real(kind=rp), intent(in) :: l_upper, l_lower, z, z0, z0t, L_ob, fd_h
+        real(kind=rp) :: dfdl
         procedure(slaw_m_interface) :: slaw_m
         procedure(slaw_h_interface) :: slaw_h
         real(kind=rp) :: dfdl
@@ -73,14 +75,14 @@ contains
 
     select case (bc_type)
     case ("neumann")
-      if (flag /= 0), then
+      if (flag /= 0) then
         Ri_b = - g*hi / ti*q / (magu**3*kappa**2)
         f_ptr => f_neumann
         dfdl_ptr => dfdl_neumann
       end if
     case ("dirichlet")
       q =  kappa*utau*(ts - ti)/log(hi/z0t)
-      if (flag /= 0), then
+      if (flag /= 0) then
         Ri_b = g*hi/ti*(ti - ts)/magu**2
         f_ptr => f_dirichlet
         dfdl_ptr => dfdl_dirichlet
@@ -117,25 +119,26 @@ contains
 
   subroutine most_compute_cpu(u, v, w, temp, ind_r, ind_s, ind_t, ind_e, &  
        n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
-       kappa, z0, bc_type, ts, q, tstep)
+       kappa, z0, bc_type, ts, q, tstep)  ! ts, q in input only temporarily
     integer, intent(in) :: n_nodes, lx, nelv, tstep
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w, temp
     integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
     real(kind=rp), dimension(n_nodes), intent(in) :: n_x, n_y, n_z, h
-    real(kind=rp), intent(in) :: kappa, z0, z0t
+    real(kind=rp), intent(in) :: kappa, z0
     character(len=*), intent(in) :: bc_type
     real(kind=rp), intent(inout) :: ts,q   ! should this be multidimensional?
     real(kind=rp), dimension(n_nodes), intent(inout) :: tau_x, tau_y, tau_z
     integer :: i, count
     integer, parameter :: max_count = 20
     real(kind=rp) :: ui, vi, wi, ti, hi
-    real(kind=rp) :: magu, utau, normu
+    real(kind=rp) :: magu, utau, normu, z0t
     real(kind=rp) :: L_ob, L_upper, L_lower, L_backup, L_old
     real(kind=rp) :: Ri_b, f, dfdl, fd_h    
     real(kind=rp), parameter :: g = 9.80665_rp
     real(kind=rp), parameter :: tol = 0.001_rp
     real(kind=rp), parameter :: NR_step = 0.001_rp
 
+    z0t = z0 
     do i=1, n_nodes
    
       ! Sample the variables
@@ -179,6 +182,10 @@ contains
           L_backup = L_ob
           L_old = 0
           count = 0
+          ! Set slaw and corr pointers based on stability
+          call set_stability_regime(Ri_b)
+
+          ! Find Obukhov length
           do while  ((abs(L_old - L_ob)/abs(L_ob) .gt. tol) .and. (count .lt. max_count))
             ! Switch between stable and convective based on bulk Richardson (Ri_b)
             L_old = L_ob
@@ -187,10 +194,8 @@ contains
             L_upper = L_ob + fd_h
             L_lower = L_ob - fd_h
 
-            ! Set slaw and corr pointers based on stability
-            call set_stability_regime(Ri_b)
-
             ! Compute L_ob based on stability and bc_type
+            if (.not. associated(f_ptr)) .or. (.not. associated(dfdl_ptr)) call neko_error("ERROR: Unassociated pointer for f or dfdl")
             f = f_ptr(Ri_b, hi, z0, z0t, L_ob, slaw_m_ptr, slaw_h_ptr)
             dfdl = dfdl_ptr(l_upper, l_lower, h, z0, z0t, L_ob, slaw_m_ptr, slaw_h_ptr, fd_h)
             L_ob = L_ob - f/dfdl
@@ -198,13 +203,13 @@ contains
             if (abs(L_ob) > 20000 .or. abs(L_ob) < 1e-5_rp) then
                 count = max_count
             end if
-          end if
-        end do
+          end do
+        end if
 
         ! Error handling 
         if (count .eq. max_count) then
             L_ob = L_backup
-            call neko_error("Obukhov length did not converge (MOST wall model)") 
+            call neko_error("ERROR: Obukhov length did not converge (MOST wall model)") 
         end if
 
         ! Based on stability and bc_type, compute utau/q 
@@ -219,16 +224,17 @@ contains
             ! and compute q from here
             q = kappa*utau*(ts - ti)/slaw_h_ptr(L_ob, hi, z0t)  ! z0t placeholder
           case default
-            call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
+            call neko_error("ERROR: Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
         end select 
 
       end if
 
       ! Distribute according to the velocity vector
-      tau_x(i) = -utau**2 * ui / magu
-      tau_y(i) = -utau**2 * vi / magu
-      tau_z(i) = -utau**2 * wi / magu
-      ! export q as well?
+      if (magu>tiny(magu)) then
+        tau_x(i) = -utau**2 * ui / magu
+        tau_y(i) = -utau**2 * vi / magu
+        tau_z(i) = -utau**2 * wi / magu
+      end if
     end do
 
   end subroutine most_compute_cpu
@@ -237,55 +243,29 @@ contains
   ! 6. Concrete similarity functions
   !================================================
 
-  !--------------- Neutral ----------------
-  ! function slaw_m_neutral(zeta) result(slaw)
-  !   real(kind=rp), intent(in) :: zeta
-  !   real(kind=rp) :: slaw
-  !   slaw = 1.0                        include neutral or not?
-  ! end function slaw_m_neutral
-
-  ! function slaw_h_neutral(zeta) result(slaw)
-  !   real(kind=rp), intent(in) :: zeta
-  !   real(kind=rp) :: slaw
-  !   slaw = 1.0
-  ! end function slaw_h_neutral
-
-  ! function corr_m_neutral(zeta) result(corr)
-  !   real(kind=rp), intent(in) :: zeta
-  !   real(kind=rp) :: corr
-  !   corr = 0.0
-  ! end function corr_m_neutral
-
-  ! function corr_h_neutral(zeta) result(corr)
-  !   real(kind=rp), intent(in) :: zeta
-  !   real(kind=rp) :: corr
-  !   corr = 0.0
-  ! end function corr_h_neutral
-
-
   !--------------- Stable ----------------
 
-  function slaw_m_stable(h,L_o,z_0) result(slaw)
-    real(kind=rp), intent(in) :: h,L_o,z_0
+  function slaw_m_stable(z,L_ob,z_0) result(slaw)
+    real(kind=rp), intent(in) :: z,L_ob,z_0
     real(kind=rp) :: slaw
 
-    slaw = log(h/z0)-corr_m_stable(h,L_o)+corr_m_stable(z0,L_o)
+    slaw = log(z/z0)-corr_m_stable(z,L_ob)+corr_m_stable(z0,L_ob)
   end function slaw_m_stable
 
-  function slaw_h_stable(h,L_o,z0t) result(slaw)
-    real(kind=rp), intent(in) :: h,L_o,z0t
+  function slaw_h_stable(z,L_ob,z0t) result(slaw)
+    real(kind=rp), intent(in) :: z,L_ob,z0t
     real(kind=rp) :: slaw
 
-    slaw = log(h/z0t)-corr_h_stable(h,L_o)+corr_h_stable(z0t,L_o)
+    slaw = log(z/z0t)-corr_h_stable(z,L_ob)+corr_h_stable(z0t,L_ob)
   end function slaw_h_stable
 
-  function corr_m_stable(h,L_o) result(corr)
-    real(kind=rp), intent(in) :: h,L_o
+  function corr_m_stable(z,L_ob) result(corr)
+    real(kind=rp), intent(in) :: z,L_ob
     real(kind=rp) :: corr
     real(kind=rp) :: a, b, c, d  ! parameter
     real(kind=rp) :: zeta
 
-    zeta = h/L_o
+    zeta = z/L_ob
     a = 1.0_rp
     b = 0.6666666_rp
     c = 5.0_rp
@@ -293,13 +273,13 @@ contains
     corr = - a*zeta - b*(zeta-c/d)*exp(-d*zeta) - b*c/d
   end function corr_m_stable
 
-  function corr_h_stable(h,L_o) result(corr)    ! identical to corr_m_stable...?
-    real(kind=rp), intent(in) :: h,L_o
+  function corr_h_stable(z,L_ob) result(corr)    ! identical to corr_m_stable...?
+    real(kind=rp), intent(in) :: z,L_ob
     real(kind=rp) :: corr
     real(kind=rp) :: a, b, c, d
     real(kind=rp) :: zeta
 
-    zeta = h/L_o
+    zeta = z/L_ob
     a = 1.0_rp
     b = 0.6666666_rp
     c = 5.0_rp
@@ -309,37 +289,37 @@ contains
 
   !--------------- Convective ----------------
 
-  function slaw_m_convective(h,L_o,z0) result(slaw)
-    real(kind=rp), intent(in) :: h, L_o, z0
+  function slaw_m_convective(z,L_ob,z0) result(slaw)
+    real(kind=rp), intent(in) :: z, L_ob, z0
     real(kind=rp) :: slaw
 
-    slaw = log(h/z0) - corr_m_convective(h, L_o) + corr_m_convective(z0, L_o)
+    slaw = log(z/z0) - corr_m_convective(z, L_ob) + corr_m_convective(z0, L_ob)
   end function slaw_m_convective
 
-  function slaw_h_convective(h,L_o,z0t) result(slaw)
-    real(kind=rp), intent(in) :: h, L_o, z0t
+  function slaw_h_convective(z,L_ob,z0t) result(slaw)
+    real(kind=rp), intent(in) :: z, L_ob, z0t
     real(kind=rp) :: slaw
 
-    slaw = log(h/z0t) - corr_h_conv(h, L_o) + corr_h_conv(z0t, L_o)
+    slaw = log(z/z0t) - corr_h_conv(z, L_ob) + corr_h_conv(z0t, L_ob)
   end function slaw_h_convective
 
-  function corr_m_convective(h,L_o) result(corr)
-    real(kind=rp), intent(in) :: h, L_o
+  function corr_m_convective(z,L_ob) result(corr)
+    real(kind=rp), intent(in) :: z, L_ob
     real(kind=rp) :: xi, pi, zeta
     real(kind=rp) :: corr
 
-    zeta = h/L_o
+    zeta = z/L_ob
     pi = 4*atan(1.0_rp)
     xi = (1.0_rp - 16.0_rp*zeta)**0.25_rp
     corr = 2*log(0.5_rp*(1 + xi)) + log(0.5_rp*(1 + xi**2)) - 2*atan(xi) + pi/2
   end function corr_m_convective
 
-  function corr_h_convective(h,L_o) result(corr)
-    real(kind=rp), intent(in) :: h, L_o
+  function corr_h_convective(z,L_ob) result(corr)
+    real(kind=rp), intent(in) :: z, L_ob
     real(kind=rp) :: zeta, pi, xi
     real(kind=rp) :: corr
 
-    zeta = h/L_o
+    zeta = z/L_ob
     pi = 4*atan(1.0_rp)
     xi = (1.0_rp - 16.0_rp*zeta)**0.25_rp
     corr = 2*log(0.5_rp*(1 + xi**2))
@@ -347,59 +327,59 @@ contains
 
   !--------------- Neutral ----------------
 
-  function slaw_m_neutral(h,L_o,z0) result(slaw)
-    real(kind=rp), intent(in) :: h, L_o, z0
+  function slaw_m_neutral(z,L_ob,z0) result(slaw)
+    real(kind=rp), intent(in) :: z, L_ob, z0
     real(kind=rp) :: slaw
 
-    slaw = log(h/z0)
+    slaw = log(z/z0)
   end function slaw_m_neutral
 
-  function slaw_h_neutral(h,L_o,z0t) result(slaw)
-    real(kind=rp), intent(in) :: h, L_o, z0t
+  function slaw_h_neutral(z,L_ob,z0t) result(slaw)
+    real(kind=rp), intent(in) :: z, L_ob, z0t
     real(kind=rp) :: slaw
 
-    slaw = log(h/z0t)
+    slaw = log(z/z0t)
   end function slaw_h_neutral
 
   !------------- Similarity laws --------------
 
-  function f_neumann(Ri_b, h, z0, z0t, L_ob, slaw_m, slaw_h) result(f)
-    real(kind=rp), intent(in) :: Ri_b, h, z0, z0t, L_ob
+  function f_neumann(Ri_b, z, z0, z0t, L_ob, slaw_m, slaw_h) result(f)
+    real(kind=rp), intent(in) :: Ri_b, z, z0, z0t, L_ob
     procedure(slaw_m_interface) :: slaw_m
     procedure(slaw_h_interface) :: slaw_h
     real(kind=rp) :: f
 
-    f = (Ri_b - h/L_ob/slaw_m(h, L_ob, z0)**3) !! ChatGPT reports that this is wrong in terms of sign?
+    f = (Ri_b - z/L_ob/slaw_m(z, L_ob, z0)**3) 
   end function f_neumann
 
-  function dfdl_neumann(l_upper, l_lower, h, z0, z0t, L_ob, slaw_m, slaw_h, fd_h) result(dfdl)
-    real(kind=rp), intent(in) :: l_upper, l_lower, h, z0, z0t, L_ob, fd_h
+  function dfdl_neumann(l_upper, l_lower, z, z0, z0t, L_ob, slaw_m, slaw_h, fd_h) result(dfdl)
+    real(kind=rp), intent(in) :: l_upper, l_lower, z, z0, z0t, L_ob, fd_h
     procedure(slaw_m_interface) :: slaw_m
     procedure(slaw_h_interface) :: slaw_h
     real(kind=rp) :: dfdl
 
-    dfdl = (-h/l_upper/slaw_m(h, l_upper, z0)**3)  ! conv
-    dfdl = dfdl + (h/l_lower/slaw_m(h, l_lower, z0)**3)  ! conv
+    dfdl = (-z/l_upper/slaw_m(z, l_upper, z0)**3)  ! conv
+    dfdl = dfdl + (z/l_lower/slaw_m(z, l_lower, z0)**3)  ! conv
     dfdl = dfdl/(2*fd_h)
   end function dfdl_neumann
 
-  function f_dirichlet(Ri_b, h, z0, z0t, L_ob, slaw_m, slaw_h) result(f)
-    real(kind=rp), intent(in) :: Ri_b, h, z0, z0t, L_ob
+  function f_dirichlet(Ri_b, z, z0, z0t, L_ob, slaw_m, slaw_h) result(f)
+    real(kind=rp), intent(in) :: Ri_b, z, z0, z0t, L_ob
     procedure(slaw_m_interface) :: slaw_m
     procedure(slaw_h_interface) :: slaw_h
     real(kind=rp) :: f
 
-    f = (Ri_b - h/L_ob*slaw_h(h, L_ob, z0t)/slaw_m(h, L_ob, z0)**2)  ! conv
+    f = (Ri_b - z/L_ob*slaw_h(z, L_ob, z0t)/slaw_m(z, L_ob, z0)**2)  ! conv
   end function f_dirichlet
 
-  function dfdl_dirichlet(l_upper, l_lower, h, z0, z0t, L_ob, slaw_m, slaw_h, fd_h) result(dfdl)
-    real(kind=rp), intent(in) :: l_upper, l_lower, h, z0, z0t, L_ob, fd_h
+  function dfdl_dirichlet(l_upper, l_lower, z, z0, z0t, L_ob, slaw_m, slaw_h, fd_h) result(dfdl)
+    real(kind=rp), intent(in) :: l_upper, l_lower, z, z0, z0t, L_ob, fd_h
     procedure(slaw_m_interface) :: slaw_m
     procedure(slaw_h_interface) :: slaw_h
     real(kind=rp) :: dfdl
 
-    dfdl = (-h/l_upper*slaw_h(h, l_upper, z0t)/slaw_m(h, l_upper, z0)**2)  ! conv
-    dfdl=dfdl + (h/l_lower*slaw_h(h, l_lower, z0t)/slaw_m(h, l_lower, z0)**2)  ! conv
+    dfdl = (-z/l_upper*slaw_h(z, l_upper, z0t)/slaw_m(z, l_upper, z0)**2)  ! conv
+    dfdl=dfdl + (z/l_lower*slaw_h(z, l_lower, z0t)/slaw_m(z, l_lower, z0)**2)  ! conv
     dfdl = dfdl/(2*fd_h)
   end function dfdl_dirichlet
   
