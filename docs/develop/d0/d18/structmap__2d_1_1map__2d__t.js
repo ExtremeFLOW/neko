@@ -4,6 +4,7 @@ var structmap__2d_1_1map__2d__t =
     [ "average", "d0/d18/structmap__2d_1_1map__2d__t.html#aeadd690dd2a4bedc2527d0e0da3bb5c4", null ],
     [ "average_file", "d0/d18/structmap__2d_1_1map__2d__t.html#a5ff6721af6363b588eebcf0768b7cb6f", null ],
     [ "average_list", "d0/d18/structmap__2d_1_1map__2d__t.html#a7fbfb934d6997f9011d4821589c7e5c1", null ],
+    [ "free", "d0/d18/structmap__2d_1_1map__2d__t.html#a31adaa66caad0ee28e914ee17c16fd90", null ],
     [ "init", "d0/d18/structmap__2d_1_1map__2d__t.html#a5ec6694efb2aa76ca4c4bee5bc0d42ba", null ],
     [ "init", "d0/d18/structmap__2d_1_1map__2d__t.html#a5ec6694efb2aa76ca4c4bee5bc0d42ba", null ],
     [ "init_char", "d0/d18/structmap__2d_1_1map__2d__t.html#afdf7250d40a09c1ce20b0deea094bd76", null ],
