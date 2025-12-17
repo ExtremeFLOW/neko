@@ -62,15 +62,15 @@ module json_utils
   end interface json_get_or_default
 
   interface json_get_or_lookup
-     module procedure json_get_real_from_registry_or_entry, &
-          json_get_real_array_from_registry_or_entry, &
-          json_get_integer_from_registry_or_entry, &
-          json_get_integer_array_from_registry_or_entry
+     module procedure json_get_or_lookup_real, &
+          json_get_or_lookup_real_array, &
+          json_get_or_lookup_integer, &
+          json_get_or_lookup_integer_array
   end interface json_get_or_lookup
 
   interface json_get_or_lookup_or_default
-     module procedure json_get_real_from_registry_or_entry_or_default, &
-          json_get_integer_from_registry_or_entry_or_default
+     module procedure json_get_or_lookup_or_default_real, &
+          json_get_or_lookup_or_default_integer
   end interface json_get_or_lookup_or_default
 
   interface json_extract_item
@@ -78,49 +78,48 @@ module json_utils
   end interface json_extract_item
 
   interface
-     module subroutine json_get_real_from_registry_or_entry(json, name, &
+     module subroutine json_get_or_lookup_real(json, name, &
           val)
        type(json_file), intent(inout) :: json
        character(len=*), intent(in) :: name
        real(kind=rp), intent(out) :: val
-     end subroutine json_get_real_from_registry_or_entry
+     end subroutine json_get_or_lookup_real
 
-     module subroutine json_get_integer_from_registry_or_entry(json, name, &
+     module subroutine json_get_or_lookup_integer(json, name, &
           val)
        type(json_file), intent(inout) :: json
        character(len=*), intent(in) :: name
        integer, intent(out) :: val
-     end subroutine json_get_integer_from_registry_or_entry
+     end subroutine json_get_or_lookup_integer
 
-     module subroutine json_get_real_from_registry_or_entry_or_default(json, &
+     module subroutine json_get_or_lookup_or_default_real(json, &
           name, val, default)
        type(json_file), intent(inout) :: json
        character(len=*), intent(in) :: name
        real(kind=rp), intent(out) :: val
        real(kind=rp), intent(in) :: default
-     end subroutine json_get_real_from_registry_or_entry_or_default
-
-     module subroutine json_get_integer_from_registry_or_entry_or_default(json,&
+     end subroutine json_get_or_lookup_or_default_real
+     module subroutine json_get_or_lookup_or_default_integer(json,&
           name, val, default)
        type(json_file), intent(inout) :: json
        character(len=*), intent(in) :: name
        integer, intent(out) :: val
        integer, intent(in) :: default
-     end subroutine json_get_integer_from_registry_or_entry_or_default
+     end subroutine json_get_or_lookup_or_default_integer
 
-     module subroutine json_get_real_array_from_registry_or_entry(json, name, &
+     module subroutine json_get_or_lookup_real_array(json, name, &
           val)
        type(json_file), intent(inout) :: json
        character(len=*), intent(in) :: name
        real(kind=rp), allocatable, intent(out) :: val(:)
-     end subroutine json_get_real_array_from_registry_or_entry
+     end subroutine json_get_or_lookup_real_array
 
-     module subroutine json_get_integer_array_from_registry_or_entry(json, &
+     module subroutine json_get_or_lookup_integer_array(json, &
           name, val)
        type(json_file), intent(inout) :: json
        character(len=*), intent(in) :: name
        integer, allocatable, intent(out) :: val(:)
-     end subroutine json_get_integer_array_from_registry_or_entry
+     end subroutine json_get_or_lookup_integer_array
 
   end interface
 contains

@@ -48,7 +48,7 @@ contains
 !! @param[inout] json The json to retrieve the parameter from.
 !! @param[in] name The full path to the parameter.
 !! @param[out] value The variable to be populated with the retrieved parameter
-  module subroutine json_get_real_from_registry_or_entry(json, name, val)
+  module subroutine json_get_or_lookup_real(json, name, val)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
     real(kind=rp), intent(out) :: val
@@ -66,7 +66,7 @@ contains
 
     ! Retrieve the value from the registry
     val = neko_const_registry%get_scalar(reg_name)
-  end subroutine json_get_real_from_registry_or_entry
+  end subroutine json_get_or_lookup_real
 
 !> Retrieves an intiger either from the json or from the corresponding scalar
 !! in the `neko_const_registry`.
@@ -78,7 +78,7 @@ contains
 !! @param[inout] json The json to retrieve the parameter from.
 !! @param[in] name The full path to the parameter.
 !! @param[out] value The variable to be populated with the retrieved parameter
-  module subroutine json_get_integer_from_registry_or_entry(json, name, val)
+  module subroutine json_get_or_lookup_integer(json, name, val)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
     integer, intent(out) :: val
@@ -96,7 +96,7 @@ contains
 
     ! Retrieve the value from the registry
     val = int(neko_const_registry%get_scalar(reg_name))
-  end subroutine json_get_integer_from_registry_or_entry
+  end subroutine json_get_or_lookup_integer
 
 !> Retrieves a real either from the json or from the corresponding scalar
 !! in the `neko_registry`, otherwise sets the default value.
@@ -109,7 +109,7 @@ contains
 !! @param[in] name The full path to the parameter.
 !! @param[out] value The variable to be populated with the retrieved parameter
 !! @param[in] defalt The default value to be used if the parameter is not found
-  module subroutine json_get_real_from_registry_or_entry_or_default(json, name,&
+  module subroutine json_get_or_lookup_or_default_real(json, name,&
        val, default)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
@@ -133,7 +133,7 @@ contains
        ! Retrieve the array from the registry
        val = neko_const_registry%get_scalar(reg_name)
     end if
-  end subroutine json_get_real_from_registry_or_entry_or_default
+  end subroutine json_get_or_lookup_or_default_real
 
 !> Retrieves an integer either from the json or from the corresponding scalar
 !! in the `neko_registry`, otherwise sets the default value.
@@ -147,7 +147,7 @@ contains
 !! @param[in] name The full path to the parameter.
 !! @param[out] value The variable to be populated with the retrieved parameter
 !! @param[in] defalt The default value to be used if the parameter is not found
-  module subroutine json_get_integer_from_registry_or_entry_or_default(json, &
+  module subroutine json_get_or_lookup_or_default_integer(json, &
        name, val, default)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
@@ -171,7 +171,7 @@ contains
        ! Retrieve the array from the registry
        val = int(neko_const_registry%get_scalar(reg_name))
     end if
-  end subroutine json_get_integer_from_registry_or_entry_or_default
+  end subroutine json_get_or_lookup_or_default_integer
 
 !> Retrieves a real array either from the json or from the corresponding vector
 !! in the `neko_registry`.
@@ -182,7 +182,7 @@ contains
 !! @param[inout] json The json to retrieve the parameter from.
 !! @param[in] name The full path to the parameter.
 !! @param[out] value The variable to be populated with the retrieved parameter
-  module subroutine json_get_real_array_from_registry_or_entry(json, name, val)
+  module subroutine json_get_or_lookup_real_array(json, name, val)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
     real(kind=rp), allocatable, intent(out) :: val(:)
@@ -202,7 +202,7 @@ contains
     ! Retrieve the array from the registry
     vec_ptr => neko_const_registry%get_vector(reg_name)
     val = vec_ptr%x
-  end subroutine json_get_real_array_from_registry_or_entry
+  end subroutine json_get_or_lookup_real_array
 
 !> Retrieves ain int array either from the json or from the corresponding vector
 !! in the `neko_registry`.
@@ -213,7 +213,7 @@ contains
 !! @param[inout] json The json to retrieve the parameter from.
 !! @param[in] name The full path to the parameter.
 !! @param[out] value The variable to be populated with the retrieved parameter
-  module subroutine json_get_integer_array_from_registry_or_entry(json, name, &
+  module subroutine json_get_or_lookup_integer_array(json, name, &
        val)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
@@ -234,6 +234,6 @@ contains
     ! Retrieve the array from the registry
     vec_ptr => neko_const_registry%get_vector(reg_name)
     val = int(vec_ptr%x)
-  end subroutine json_get_integer_array_from_registry_or_entry
+  end subroutine json_get_or_lookup_integer_array
 
 end submodule case_file_utils
