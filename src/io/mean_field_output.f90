@@ -53,15 +53,15 @@ module mean_field_output
      !> Pointers to the fields inside the mean_fields
      type(field_list_t) :: fields
      !> Time to start output
-     real(kind=rp) :: start_time
+     real(kind=rp) :: start_time = 0.0_rp
      !> Number of fields
-     integer :: n_fields
+     integer :: n_fields = 0
      !> Space averaging object for 2 homogeneous directions.
      type(map_1d_t) :: map_1d
      !> Space averaging object for 1 homogeneous direction.
      type(map_2d_t) :: map_2d
      !> The dimension of the output fields. Either 1, 2, or 3.
-     integer :: output_dim
+     integer :: output_dim = 0
    contains
      !> Constructor
      procedure, pass(this) :: init => mean_field_output_init
