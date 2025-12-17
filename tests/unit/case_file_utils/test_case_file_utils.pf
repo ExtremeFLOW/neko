@@ -1,7 +1,8 @@
 module test_case_file_utils
   use pfunit
   use json_module, only : json_file
-  use json_utils, only : json_get_or_lookup, json_no_defaults
+  use json_utils, only : json_get_or_lookup, json_no_defaults, &
+       json_get_or_lookup_or_default
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use registry, only : neko_const_registry
@@ -21,8 +22,6 @@ contains
 
   subroutine setUp(this)
     class(case_file_utils_tc), intent(inout) :: this
-    this%prev_no_defaults = json_no_defaults
-    json_no_defaults = .false.
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_init
     end if
@@ -33,14 +32,13 @@ contains
   subroutine tearDown(this)
     class(case_file_utils_tc), intent(inout) :: this
     call neko_const_registry%free()
-    json_no_defaults = this%prev_no_defaults
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_finalize
     end if
   end subroutine tearDown
 
   @test
-  subroutine test_uses_json_scalar(this)
+  subroutine test_json_real_scalar(this)
     class(case_file_utils_tc), intent(inout) :: this
     type(json_file) :: json
     real(kind=rp) :: value
@@ -50,10 +48,23 @@ contains
     call json_get_or_lookup(json, 'params.value', value)
 
     @assertEqual(1.25_rp, value, tolerance=1e-12_rp)
-  end subroutine test_uses_json_scalar
+  end subroutine test_json_real_scalar
 
   @test
-  subroutine test_uses_registry_scalar(this)
+  subroutine test_json_integer_scalar(this)
+    class(case_file_utils_tc), intent(inout) :: this
+    type(json_file) :: json
+    integer :: value
+
+    call json%load_from_string('{"params":{"value":1.0}}')
+
+    call json_get_or_lookup(json, 'params.value', value)
+
+    @assertEqual(1, value)
+  end subroutine test_json_integer_scalar
+
+  @test
+  subroutine test_registry_real_scalar(this)
     class(case_file_utils_tc), intent(inout) :: this
     type(json_file) :: json
     real(kind=rp) :: value
@@ -62,10 +73,25 @@ contains
     call neko_const_registry%add_scalar(expected, 'ref_scalar')
     call json%load_from_string('{"params":{"value":"ref_scalar"}}')
 
-    call json_get_or_lookup(json, 'params/value', value)
+    call json_get_or_lookup(json, 'params.value', value)
 
     @assertEqual(expected, value, tolerance=1e-12_rp)
-  end subroutine test_uses_registry_scalar
+  end subroutine test_registry_real_scalar
+
+  @test
+  subroutine test_registry_real_integer(this)
+    class(case_file_utils_tc), intent(inout) :: this
+    type(json_file) :: json
+    integer :: value
+    real(kind=rp) :: expected = 2.0_rp
+
+    call neko_const_registry%add_scalar(expected, 'ref_scalar')
+    call json%load_from_string('{"params":{"value":"ref_scalar"}}')
+
+    call json_get_or_lookup(json, 'params.value', value)
+
+    @assertEqual(expected, real(value, kind=rp), tolerance=1e-12_rp)
+  end subroutine test_registry_real_integer
 
   @test
   subroutine test_default_value_for_reals(this)
@@ -77,9 +103,9 @@ contains
 
     call json%load_from_string('{}')
 
-    call json_get_or_lookup(json, 'params/value', value, &
+    call json_get_or_lookup_or_default(json, 'params.value', value, &
          default_val)
-    call json%get('params/value', stored, found)
+    call json%get('params.value', stored, found)
 
     @assertTrue(found)
     @assertEqual(default_val, value, tolerance=1e-12_rp)
@@ -87,7 +113,7 @@ contains
   end subroutine test_default_value_for_reals
 
   @test
-  subroutine test_uses_real_array_from_json(this)
+  subroutine test_real_array_from_json(this)
     class(case_file_utils_tc), intent(inout) :: this
     type(json_file) :: json
     real(kind=rp), allocatable :: values(:)
@@ -95,13 +121,13 @@ contains
 
     call json%load_from_string('{"params":{"arr":[0.5,1.5,2.5]}}')
 
-    call json_get_or_lookup(json, 'params/arr', values)
+    call json_get_or_lookup(json, 'params.arr', values)
 
     @assertEqual(expected, values, tolerance=1e-12_rp)
-  end subroutine test_uses_real_array_from_json
+  end subroutine test_real_array_from_json
 !
   @test
-  subroutine test_uses_real_array_from_registry(this)
+  subroutine test_real_array_from_registry(this)
     class(case_file_utils_tc), intent(inout) :: this
     type(json_file) :: json
     real(kind=rp), allocatable :: values(:)
@@ -111,15 +137,65 @@ contains
     call neko_const_registry%add_vector(size(expected), 'arr_ref')
     vec_ptr => neko_const_registry%get_vector('arr_ref')
     vec_ptr%x = expected
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call vec_ptr%copy_from(HOST_TO_DEVICE, .true.)
-    end if
 
     call json%load_from_string('{"params":{"arr":"arr_ref"}}')
 
-    call json_get_or_lookup(json, 'params/arr', values)
+    call json_get_or_lookup(json, 'params.arr', values)
 
     @assertEqual(expected, values, tolerance=1e-12_rp)
-  end subroutine test_uses_real_array_from_registry
+  end subroutine test_real_array_from_registry
+
+  @test
+  subroutine test_integer_array_from_json(this)
+    class(case_file_utils_tc), intent(inout) :: this
+    type(json_file) :: json
+    integer, allocatable :: values(:)
+    integer, parameter :: expected(3) = [1, 2, 3]
+
+    call json%load_from_string('{"params":{"arr":[1,2,3]}}')
+
+    call json_get_or_lookup(json, 'params.arr', values)
+
+    @assertEqual(expected, values)
+  end subroutine test_integer_array_from_json
+
+  @test
+  subroutine test_integer_array_from_registry(this)
+    class(case_file_utils_tc), intent(inout) :: this
+    type(json_file) :: json
+    integer, allocatable :: values(:)
+    type(vector_t), pointer :: vec_ptr
+    integer, parameter :: expected(4) = [2, 4, 6, 8]
+
+    call neko_const_registry%add_vector(size(expected), 'arr_ref_int')
+    vec_ptr => neko_const_registry%get_vector('arr_ref_int')
+    vec_ptr%x = real(expected, kind=rp)
+
+    call json%load_from_string('{"params":{"arr":"arr_ref_int"}}')
+
+    call json_get_or_lookup(json, 'params.arr', values)
+
+    @assertEqual(expected, values)
+  end subroutine test_integer_array_from_registry
+
+  @test
+  subroutine test_default_value_for_integers(this)
+    class(case_file_utils_tc), intent(inout) :: this
+    type(json_file) :: json
+    integer :: value, stored
+    logical :: found
+    integer, parameter :: default_val = 7
+
+    call json%load_from_string('{}')
+
+    call json_get_or_lookup_or_default(json, 'params.value', value, &
+         default_val)
+    call json%get('params.value', stored, found)
+
+    @assertTrue(found)
+    @assertEqual(default_val, value)
+    @assertEqual(default_val, stored)
+  end subroutine test_default_value_for_integers
+
 
 end module test_case_file_utils

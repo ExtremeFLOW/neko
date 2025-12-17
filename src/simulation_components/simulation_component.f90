@@ -41,7 +41,7 @@ module simulation_component
   use case, only : case_t
   use time_based_controller, only : time_based_controller_t
   use json_utils, only : json_get_or_default, json_get, &
-      json_get_or_lookup_or_default
+       json_get_or_lookup_or_default
   use time_state, only : time_state_t
   implicit none
   private

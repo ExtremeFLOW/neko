@@ -177,13 +177,13 @@ contains
     !
     ! Populate const registry with global data from the case file
     !
-    if (this%params%valid_path('case.registered_data')) then
-       if (this%params%valid_path('case.registered_data.scalars')) then
-          call this%params%info('case.registered_data.scalars', &
+    if (this%params%valid_path('case.constants')) then
+       if (this%params%valid_path('case.constants.scalars')) then
+          call this%params%info('case.constants.scalars', &
                n_children = integer_val)
           do i = 1, integer_val
              call json_extract_item(this%params, &
-                  'case.registered_data.scalars', i, json_subdict)
+                  'case.constants.scalars', i, json_subdict)
              call json_get(json_subdict, 'name', string_val)
              call json_get(json_subdict, 'value', real_val)
              call neko_const_registry%add_scalar(real_val, trim(string_val))
@@ -191,11 +191,11 @@ contains
 
        end if
 
-       if (this%params%valid_path('case.registered_data.arrays')) then
-          call this%params%info('case.registered_data.arrays', &
+       if (this%params%valid_path('case.constants.arrays')) then
+          call this%params%info('case.constants.arrays', &
                n_children = integer_val)
           do i = 1, integer_val
-             call json_extract_item(this%params, 'case.registered_data.arrays',&
+             call json_extract_item(this%params, 'case.constants.arrays',&
                   i, json_subdict)
              call json_get(json_subdict, 'name', string_val)
              call json_get(json_subdict, 'value', real_vals)

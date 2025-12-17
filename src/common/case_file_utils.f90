@@ -96,6 +96,7 @@ contains
 
     ! Retrieve the value from the registry
     val = int(neko_const_registry%get_scalar(reg_name))
+    call test_integer_conversion(val, reg_name)
   end subroutine json_get_or_lookup_integer
 
 !> Retrieves a real either from the json or from the corresponding scalar
@@ -170,6 +171,7 @@ contains
     else
        ! Retrieve the array from the registry
        val = int(neko_const_registry%get_scalar(reg_name))
+       call test_integer_conversion(val, reg_name)
     end if
   end subroutine json_get_or_lookup_or_default_integer
 
@@ -222,6 +224,7 @@ contains
     type(vector_t), pointer :: vec_ptr
     logical :: found
     character(:), allocatable :: reg_name
+    integer :: i
 
     ! Try to find an integer array
     call json%get(name, val, found)
@@ -234,6 +237,31 @@ contains
     ! Retrieve the array from the registry
     vec_ptr => neko_const_registry%get_vector(reg_name)
     val = int(vec_ptr%x)
+
+    do i = 1, size(val)
+       if (.not. abscmp(real(val(i), kind=rp), vec_ptr%x(i))) then
+          call neko_error("json_get_or_lookup_integer_array: " &
+               // "Value retrieved from registry entry '" // reg_name &
+               // "' is not an integer array.")
+       end if
+    end do
   end subroutine json_get_or_lookup_integer_array
+
+!> Tests that the value retrieved from the registry as a scalar is indeed an
+!! integer, by comparing it to the integer value passed.
+  subroutine test_integer_conversion(int, reg_entry)
+    integer, intent(in) :: int
+    character(len=*), intent(in) :: reg_entry
+    real(kind=rp) :: reg_scalar
+
+    reg_scalar = neko_const_registry%get_scalar(reg_entry)
+
+    if (.not. abscmp(real(int, kind=rp), reg_scalar)) then
+       call neko_error("test_integer_conversion: " &
+            // "Value retrieved from registry entry '" // reg_entry &
+            // "' is not an integer.")
+    end if
+
+  end subroutine test_integer_conversion
 
 end submodule case_file_utils

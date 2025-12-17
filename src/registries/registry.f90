@@ -144,7 +144,7 @@ module registry
   type(registry_t), public, target :: neko_registry
 
   !> This registry is used to store user-defined scalars and vectors, provided
-  !! under the `registered_data` section of the case file. These are separated
+  !! under the `constants` section of the case file. These are separated
   !! from the global registry to prevent name clashes with registered objects
   !! used by Neko itself.
   type(registry_t), public, target :: neko_const_registry
