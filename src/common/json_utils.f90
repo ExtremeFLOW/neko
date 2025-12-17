@@ -35,6 +35,7 @@ module json_utils
   use num_types, only : rp, dp, sp
   use json_module, only : json_file, json_value, json_core
   use utils, only : neko_error
+  use math, only : abscmp
   implicit none
   private
 
@@ -165,11 +166,20 @@ contains
     character(len=*), intent(in) :: name
     integer, intent(out) :: value
 
+    real(kind=rp) :: test_real
+
     if (.not. json%valid_path(name)) then
        call neko_error("Parameter " // name // " missing from the case file")
     end if
 
     call json%get(name, value)
+    call json%get(name, test_real)
+
+    if (.not. abscmp(real(value, kind=rp), test_real)) then
+       call neko_error("Parameter " // name // " is not an integer value")
+    end if
+
+
   end subroutine json_get_integer
 
   !> Retrieves a logical parameter by name or throws an error
@@ -245,11 +255,21 @@ contains
     character(len=*), intent(in) :: name
     integer, allocatable, intent(out) :: value(:)
 
+    real(kind=rp), allocatable :: test_real(:)
+    integer :: i
+
     if (.not. json%valid_path(name)) then
        call neko_error("Parameter " // name // " missing from the case file")
     end if
 
     call json%get(name, value)
+    call json%get(name, test_real)
+
+    do i = 1, size(value)
+       if (.not. abscmp(real(value(i), kind=rp), test_real(i))) then
+          call neko_error("Parameter " // name // " is not an integer array")
+       end if
+    end do
   end subroutine json_get_integer_array
 
   !> Retrieves a logical array parameter by name or throws an error

@@ -268,6 +268,8 @@ contains
 
     call neko_registry%free()
     call neko_user_access%free()
+    call neko_log%free()
+
     call device_finalize
     call neko_mpi_types_free
     call comm_free
