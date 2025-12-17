@@ -5,6 +5,16 @@
     "output_at_end": true,
     "output_boundary": true,
     "output_checkpoints": false,
+    "constants":
+    {
+        "arrays":
+        [
+            {
+                "name": "U0",
+                "value": [1.0, 0.0, 0.0] 
+            }
+        ]
+    },
     "time": {
         "end_time": 2,
         "timestep": 0.001
@@ -21,7 +31,7 @@
             "type": "blasius",
             "approximation": "sin",
             "delta": 0.6,
-            "freestream_velocity": [1.0, 0.0, 0.0]
+            "freestream_velocity": "U0"
         },
         "velocity_solver": {
             "type": "cg",
@@ -59,7 +69,7 @@
             "zone_indices": [4],
             "approximation": "sin",
             "delta": 0.6,
-            "freestream_velocity": [1.0, 0.0, 0.0]
+            "freestream_velocity": "U0"
         }
         ],
         "output_control": "nsamples",
