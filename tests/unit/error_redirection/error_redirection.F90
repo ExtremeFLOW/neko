@@ -1,6 +1,6 @@
 module error_redirection
   use utils, only: throw_error, throw_warning, throw_intf
-  use funit, only: SourceLocation, pFUnit_throw => throw
+  use funit, only: SourceLocation, throw
 
   implicit none
   private
@@ -27,7 +27,7 @@ contains
        msg = '<no message>'
     end if
 
-    call pFUnit_throw(msg, SourceLocation(filename, line))
+    call throw(msg, SourceLocation(filename, line))
   end subroutine fail_with_pfunit
 
 end module error_redirection
