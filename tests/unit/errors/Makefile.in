@@ -1,0 +1,35 @@
+ifneq ("$(wildcard @PFUNIT_DIR@/include/PFUNIT.mk)", "")
+include @PFUNIT_DIR@/include/PFUNIT.mk
+endif
+FFLAGS += $(PFUNIT_EXTRA_FFLAGS) -I@top_builddir@/src
+FC = @FC@
+
+%.o : %.F90
+	$(FC) -c $(FFLAGS) $<
+
+
+check: errors_test
+
+errors_test_TESTS := test_errors.pf
+errors_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs/ -lneko @LDFLAGS@ @LIBS@
+errors_test_OTHER_SRCS := error_redirection.F90
+errors_test_EXTRA_USE := error_redirection
+errors_test_EXTRA_INITIALIZE := redirect_errors
+
+errors_test_driver.o: error_redirection.o
+
+error_redirection.F90: ../error_redirection/error_redirection.F90
+	cp $< $@
+
+$(eval $(call make_pfunit_test,errors_test))
+
+distclean:
+clean:
+	$(RM) *.o *.mod *.a  *.inc *.F90 errors_test
+
+
+
+all:
+html:
+install:
+distdir:

@@ -27,6 +27,7 @@ SUBDIRS = tuple\
 	  vector\
 	  matrix\
 	  registry\
+	  errors\
 	  scratch_registry\
 	  fast3d\
 	  time_scheme\
@@ -65,6 +66,7 @@ TESTS = device/device_test\
 	vector/vector_test\
 	matrix/matrix_test\
 	registry/registry_test\
+	errors/errors_test\
 	scratch_registry/scratch_registry_test\
 	fast3d/fast3d_test\
 	time_scheme/time_scheme_test\
@@ -133,6 +135,7 @@ EXTRA_DIST = \
 	registry/test_field_registry.pf\
 	registry/test_vector_registry.pf\
 	registry/test_matrix_registry.pf\
+	errors/test_errors.pf\
 	scratch_registry/test_scratch_registry.pf\
 	scratch_registry/test_field_scratch_registry.pf\
 	scratch_registry/test_vector_scratch_registry.pf\
