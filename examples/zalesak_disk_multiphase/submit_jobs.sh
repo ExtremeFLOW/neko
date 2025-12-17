@@ -29,6 +29,16 @@ if [ "$MODE" == "single" ]; then
 #SBATCH -J test_${TEST_DIR}
 #SBATCH -p main
 
+# Load environment modules
+module unload PDC
+ml PrgEnv-cray/8.5.0
+ml cpe/23.09
+
+# Source environment file if it exists
+if [ -f \$SLURM_SUBMIT_DIR/.env ]; then
+    source \$SLURM_SUBMIT_DIR/.env
+fi
+
 cd \$SLURM_SUBMIT_DIR/${TEST_DIR}
 srun -u -n 64 ../neko zalesak.case
 EOF
@@ -53,6 +63,16 @@ elif [ "$MODE" == "array" ]; then
 #SBATCH -J sweep_array
 #SBATCH -p main
 #SBATCH --array=0-$((N-1))
+
+# Load environment modules
+module unload PDC
+ml PrgEnv-cray/8.5.0
+ml cpe/23.09
+
+# Source environment file if it exists
+if [ -f \$SLURM_SUBMIT_DIR/.env ]; then
+    source \$SLURM_SUBMIT_DIR/.env
+fi
 
 # Get directory for this array task
 DIR=\$(sed -n "\$((SLURM_ARRAY_TASK_ID + 1))p" sweep_dirs.txt)
