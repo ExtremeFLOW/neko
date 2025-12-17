@@ -200,6 +200,8 @@ contains
              call json_get(json_subdict, 'name', string_val)
              call json_get(json_subdict, 'value', real_vals)
              call neko_const_registry%add_vector(size(real_vals), trim(string_val))
+             vec => neko_const_registry%get_vector(trim(string_val))
+             vec%x = real_vals
           end do
 
        end if
