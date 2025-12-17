@@ -93,6 +93,8 @@ contains
     character(len=1024) :: fname
     integer :: i
 
+    this%start_time = start_time
+
     if (trim(avg_dir) .eq. 'none' .or. &
          trim(avg_dir) .eq. 'x' .or.&
          trim(avg_dir) .eq. 'y' .or.&
