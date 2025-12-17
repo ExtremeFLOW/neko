@@ -511,11 +511,12 @@ $(document).ready(function(){initNavTree('d9/d00/fluid__scheme__compressible_8f9
 <div class="line"><a id="l00430" name="l00430"></a><span class="lineno">  430</span>    <span class="keyword">call </span>json_get_or_default(params, <span class="stringliteral">&#39;case.numerics.time_order&#39;</span>, integer_val, 4)</div>
 <div class="line"><a id="l00431" name="l00431"></a><span class="lineno">  431</span>    <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A, I0)&#39;</span>) <span class="stringliteral">&#39;RK order   : &#39;</span>, integer_val</div>
 <div class="line"><a id="l00432" name="l00432"></a><span class="lineno">  432</span>    <span class="keyword">call </span>neko_log%message(log_buf)</div>
-<div class="line"><a id="l00433" name="l00433"></a><span class="lineno">  433</span> </div>
+<div class="line"><a id="l00433" name="l00433"></a><span class="lineno">  433</span>    <span class="keyword">call </span>neko_log%end_section()</div>
+<div class="line"><a id="l00434" name="l00434"></a><span class="lineno">  434</span> </div>
 </div>
-<div class="line"><a id="l00434" name="l00434"></a><span class="lineno">  434</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d66/namespacefluid__scheme__compressible.html#a3a872e975017374135cc5ce283181e36">fluid_scheme_compressible_log_solver_info</a></div>
-<div class="line"><a id="l00435" name="l00435"></a><span class="lineno">  435</span> </div>
-<div class="line"><a id="l00436" name="l00436"></a><span class="lineno">  436</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d3/d66/namespacefluid__scheme__compressible.html">fluid_scheme_compressible</a></div>
+<div class="line"><a id="l00435" name="l00435"></a><span class="lineno">  435</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d66/namespacefluid__scheme__compressible.html#a3a872e975017374135cc5ce283181e36">fluid_scheme_compressible_log_solver_info</a></div>
+<div class="line"><a id="l00436" name="l00436"></a><span class="lineno">  436</span> </div>
+<div class="line"><a id="l00437" name="l00437"></a><span class="lineno">  437</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d3/d66/namespacefluid__scheme__compressible.html">fluid_scheme_compressible</a></div>
 <div class="ttc" id="ainterfacefluid__scheme__base_1_1update__material__properties_html"><div class="ttname"><a href="../../db/dfd/interfacefluid__scheme__base_1_1update__material__properties.html">fluid_scheme_base::update_material_properties</a></div><div class="ttdoc">Abstract interface to sets rho and mu.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00266">fluid_scheme_base.f90:266</a></div></div>
 <div class="ttc" id="ainterfacejson__utils_1_1json__get__or__default_html"><div class="ttname"><a href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_utils::json_get_or_default</a></div><div class="ttdoc">Retrieves a parameter by name or assigns a provided default value. In the latter case also adds the m...</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00058">json_utils.f90:58</a></div></div>
 <div class="ttc" id="anamespacecompressible__ops__cpu_html"><div class="ttname"><a href="../../d7/d6d/namespacecompressible__ops__cpu.html">compressible_ops_cpu</a></div><div class="ttdoc">CPU implementation of compressible flow operations.</div><div class="ttdef"><b>Definition</b> <a href="../../de/dea/compressible__ops__cpu_8f90_source.html#l00034">compressible_ops_cpu.f90:34</a></div></div>
@@ -577,7 +578,7 @@ $(document).ready(function(){initNavTree('d9/d00/fluid__scheme__compressible_8f9
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_48eb729a40134e424c89304faa5c21a9.html">fluid</a></li><li class="navelem"><a class="el" href="../../d9/d00/fluid__scheme__compressible_8f90.html">fluid_scheme_compressible.f90</a></li>
-    <li class="footer">Generated on Tue Dec 16 2025 03:51:28 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Dec 17 2025 03:50:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
