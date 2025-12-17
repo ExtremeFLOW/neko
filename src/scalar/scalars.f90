@@ -273,6 +273,9 @@ contains
        call this%shared_ksp%free()
        deallocate(this%shared_ksp)
     end if
+
+    call this%free_amr_base()
+
   end subroutine scalars_free
 
   !> Register scalar lag fields with checkpoint
@@ -321,6 +324,11 @@ contains
     integer :: il
 
     call neko_error('Nothing done for AMR reconstruction')
+
+    ! Was this component already refined?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
 
     do il = 1, size(this%scalar_fields(:))
        call this%scalar_fields(il)%amr_restart(reconstruct, counter)

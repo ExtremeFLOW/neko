@@ -240,6 +240,9 @@ contains
     call this%dE%free()
 
     ! call this%scheme_free()
+
+    call this%free_amr_base()
+
   end subroutine fluid_scheme_compressible_euler_free
 
   !> Advance the fluid simulation one timestep
@@ -549,6 +552,11 @@ contains
     integer, intent(in) :: counter
 
     call neko_error('Nothing done for AMR reconstruction')
+
+    ! Was this component already refined?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
 
   end subroutine fluid_scheme_compressible_euler_amr_restart
 

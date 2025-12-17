@@ -224,6 +224,11 @@ contains
        !
        call neko_simcomps%init(C)
 
+       !
+       ! List AMR restart components
+       !
+       if (C%amr%ifamr()) call C%amr%comp_list()
+
     end if
 
   end subroutine neko_init

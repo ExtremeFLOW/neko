@@ -95,7 +95,6 @@ module mesh_manager
 
      !> The common constructor using a JSON object.
      !! @param json       The JSON object for the mesh manager.
-     !! @param type_name  Manager type name
      subroutine mesh_manager_init(this, json)
        import mesh_manager_t, json_file
        class(mesh_manager_t), intent(inout) :: this

@@ -342,6 +342,8 @@ contains
        deallocate(this%makeoifs)
     end if
 
+    call this%free_amr_base()
+
   end subroutine scalar_pnpn_free
 
   subroutine scalar_pnpn_step(this, time, ext_bdf, dt_controller, &
@@ -573,6 +575,11 @@ contains
     integer, intent(in) :: counter
 
     !call neko_error('Nothing done for AMR reconstruction')
+
+    ! Was this component already refined?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
 
   end subroutine scalar_pnpn_amr_restart
 

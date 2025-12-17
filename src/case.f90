@@ -262,9 +262,6 @@ contains
     !
     call json_get(this%params, 'case.fluid.scheme', string_val)
     call fluid_scheme_base_factory(this%fluid, trim(string_val))
-    if (this%amr%ifamr()) then
-       call this%amr%comp_add(this%fluid)
-    end if
 
     call json_get(this%params, 'case.numerics.polynomial_order', lx)
     lx = lx + 1 ! add 1 to get number of gll points
@@ -272,7 +269,9 @@ contains
     this%chkp%tlag => this%time%tlag
     this%chkp%dtlag => this%time%dtlag
     call this%fluid%init(this%msh, lx, this%params, this%user, this%chkp)
-
+    if (this%amr%ifamr()) then
+       call this%amr%comp_add(this%fluid, 'fluid')
+    end if
 
     !
     ! Setup scratch registry
@@ -315,7 +314,7 @@ contains
                this%fluid%ext_bdf, this%fluid%rho)
        end if
        if (this%amr%ifamr()) then
-          call this%amr%comp_add(this%scalars)
+          call this%amr%comp_add(this%scalars, 'scalar')
        end if
     end if
 

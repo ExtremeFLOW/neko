@@ -77,6 +77,8 @@ module amr
      procedure, pass(this) :: comp_add => amr_component_add
      !> Remove restart component
      procedure, pass(this) :: comp_remove => amr_component_remove
+     !> List registered components
+     procedure, pass(this) :: comp_list => amr_component_list
      !> Restart components
      procedure, pass(this) :: restart => amr_restart
      !> Refine/coarsen
@@ -126,9 +128,11 @@ contains
 
   !> Add restart component
   !! @param[inout]  component     component to be added
-  subroutine amr_component_add(this, component)
+  !! @param[in]     name          component name
+  subroutine amr_component_add(this, component, name)
     class(amr_t), intent(inout) :: this
     class(amr_restart_component_t), target, intent(inout) :: component
+    character(len=*), intent(in) :: name
     class(amr_component_pointer_t), allocatable, dimension(:) :: tmp
     integer :: il, itmp
 
@@ -136,7 +140,7 @@ contains
        this%ncomponents = 1
        allocate(this%components(1))
        this%components(1)%cmp => component
-       call component%init_amr_base(this%ncomponents)
+       call component%init_amr_base(this%ncomponents, trim(name))
     else
        ! check if there is an empty slot
        itmp = 0
@@ -148,7 +152,7 @@ contains
        end do
        if (itmp .ne. 0) then
           this%components(itmp)%cmp => component
-          call component%init_amr_base(itmp)
+          call component%init_amr_base(itmp, name)
        else
           allocate(tmp(this%ncomponents + 1))
           do il = 1, this%ncomponents
@@ -156,7 +160,7 @@ contains
           end do
           this%ncomponents = this%ncomponents + 1
           tmp(this%ncomponents)%cmp => component
-          call component%init_amr_base(this%ncomponents)
+          call component%init_amr_base(this%ncomponents, name)
           deallocate(this%components)
           call MOVE_ALLOC(tmp, this%components)
        end if
@@ -199,6 +203,23 @@ contains
     component%lst_pos = 0
 
   end subroutine amr_component_remove
+
+  !> List registered components
+  subroutine amr_component_list(this)
+    class(amr_t), intent(in) :: this
+    integer :: il
+
+    if (allocated(this%components)) then
+       call neko_log%section("AMR restart components")
+       do il = 1, this%ncomponents
+          if (associated(this%components(il)%cmp)) then
+             call neko_log%message('- '//&
+                  trim(this%components(il)%cmp%cmp_name), NEKO_LOG_INFO)
+          end if
+       end do
+       call neko_log%end_section()
+    end if
+  end subroutine amr_component_list
 
   !> Restart components
   !! @param[in]      user          user interface

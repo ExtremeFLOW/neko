@@ -43,6 +43,8 @@ module amr_restart_component
      logical :: listed = .false.
      !> Position in the component list
      integer :: lst_pos
+     !> Component name
+     character(len=:), allocatable :: cmp_name
      !> Restart counter
      integer :: counter
    contains
@@ -69,15 +71,18 @@ module amr_restart_component
 contains
 
   !> Initialise base restart component type
-  !> @param[in]  lst_pos   position in the component list
-  subroutine amr_restart_init_base(this, lst_pos)
+  !! @param[in]  lst_pos   position in the component list
+  !! @param[in]  name      component name
+  subroutine amr_restart_init_base(this, lst_pos, name)
     class(amr_restart_component_t), intent(inout) :: this
     integer, intent(in) :: lst_pos
+    character(len=*), intent(in) :: name
 
     call this%free_amr_base()
 
     this%listed = .true.
     this%lst_pos = lst_pos
+    this%cmp_name = trim(name)
 
   end subroutine amr_restart_init_base
 
@@ -87,6 +92,7 @@ contains
 
     this%listed = .false.
     this%lst_pos = 0
+    if (allocated(this%cmp_name)) deallocate(this%cmp_name)
     this%counter = 0
   end subroutine amr_restart_free_base
 

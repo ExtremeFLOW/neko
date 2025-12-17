@@ -322,6 +322,8 @@ contains
        call device_free(this%z_d)
     end if
 
+    call this%free_amr_base()
+
   end subroutine dofmap_free
 
   !> Return the total number of dofs in the dofmap, lx*ly*lz*nelv
@@ -338,6 +340,11 @@ contains
     class(dofmap_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(in) :: reconstruct
     integer, intent(in) :: counter
+
+    ! Was this component already refined?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
 
     write(*,*) 'TEST dofmap registered'
 
@@ -729,7 +736,7 @@ contains
           xyzb(2,1,1,j) = element%pts(2)%p%x(j)
           xyzb(1,2,1,j) = element%pts(3)%p%x(j)
           xyzb(2,2,1,j) = element%pts(4)%p%x(j)
-          
+
           xyzb(1,1,2,j) = element%pts(5)%p%x(j)
           xyzb(2,1,2,j) = element%pts(6)%p%x(j)
           xyzb(1,2,2,j) = element%pts(7)%p%x(j)
@@ -1030,7 +1037,7 @@ contains
     ! Symmetric edge to vertex mapping
     integer, parameter, dimension(2, 12) :: edge_nodes = reshape([1, 2, 3, 4, &
          & 5, 6, 7, 8, 1, 3, 2, 4, 5, 7, 6, 8, 1, 5, 2, 6, 3, 7, 4, 8], &
-         & [2,12]) 
+         & [2,12])
     ! copy from hex as this has private attribute there
 
     ! this subroutine is a mess of symmetric and cyclic edge/face numberring and

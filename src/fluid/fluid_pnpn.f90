@@ -1221,6 +1221,11 @@ contains
     type(amr_reconstruct_t), intent(in) :: reconstruct
     integer, intent(in) :: counter
 
+    ! Was this component already refined?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
     ! Reconstruct dofmap
     call this%dm_Xh%amr_restart(reconstruct, counter)
 
