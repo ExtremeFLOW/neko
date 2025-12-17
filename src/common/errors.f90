@@ -56,6 +56,7 @@ contains
        write(error_unit, *) "    ", known_types(i)
     end do
 
+    if (.not. associated(throw_error)) throw_error => default_throw_error
     call throw_error('errors.f90', -1, message='')
   end subroutine neko_type_error
 
@@ -78,6 +79,7 @@ contains
             ' Make all custom type names unique!'
     end if
 
+    if (.not. associated(throw_error)) throw_error => default_throw_error
     call throw_error('errors.f90', -1, message='')
   end subroutine neko_type_registration_error
 
@@ -87,6 +89,7 @@ contains
     character(len=*) :: warning_msg
     write(output_unit, *) '*** WARNING: ', warning_msg, ' ***'
 
+    if (.not. associated(throw_warning)) throw_warning => default_throw_warning
     call throw_warning('errors.f90', -1, message='')
   end subroutine neko_warning
 
@@ -101,6 +104,7 @@ contains
        write(error_unit, *) '*** ERROR ***'
     end if
 
+    if (.not. associated(throw_error)) throw_error => default_throw_error
     call throw_error('errors.f90', -1, message='')
   end subroutine neko_error_plain
 
@@ -110,6 +114,7 @@ contains
     character(len=*), intent(in) :: error_msg
     write(error_unit, *) '*** ERROR: ', error_msg, ' ***'
 
+    if (.not. associated(throw_error)) throw_error => default_throw_error
     call throw_error('errors.f90', -1, message='')
   end subroutine neko_error_msg
 

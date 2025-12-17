@@ -98,18 +98,17 @@ module utils
   !! @details Ordinarily only raises an error stop. During testing,
   !! pFUnit will hijack this procedure to raise an excpeption that
   !! can be caught by the testing framework.
-  procedure(throw_intf), pointer :: throw_error => &
-       default_throw_error
+  procedure(throw_intf), pointer :: throw_error => null()
   !> Same as above, but for warnings. Does nothing by default
-  procedure(throw_intf), pointer :: throw_warning => &
-       default_throw_warning
+  procedure(throw_intf), pointer :: throw_warning => null()
 
   public :: neko_error, neko_warning, nonlinear_index, filename_chsuffix, &
        filename_path, filename_name, filename_suffix, &
        filename_suffix_pos, filename_tslash_pos, &
        linear_index, split_string, NEKO_FNAME_LEN, index_is_on_facet, &
        concat_string_array, extract_fld_file_index, neko_type_error, &
-       neko_type_registration_error, throw_error, throw_warning, throw_intf
+       neko_type_registration_error, throw_error, throw_warning, throw_intf, &
+       default_throw_error, default_throw_warning
 
 
 contains
