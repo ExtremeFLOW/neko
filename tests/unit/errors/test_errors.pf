@@ -2,9 +2,16 @@ module test_errors
   use pfunit
   use utils, only : neko_error, neko_type_error, neko_type_registration_error,&
       neko_warning
+  use error_redirection, only : redirect_errors
   implicit none
 
 contains
+
+
+  @before
+  subroutine setup()
+    call redirect_errors()
+  end subroutine setup
 
   @test
   subroutine test_neko_error_raises()
