@@ -187,7 +187,7 @@ contains
   module subroutine json_get_or_lookup_real_array(json, name, val)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
-    real(kind=rp), allocatable, intent(out) :: val(:)
+    real(kind=rp), allocatable, intent(inout) :: val(:)
 
     type(vector_t), pointer :: vec_ptr
     logical :: found
@@ -204,6 +204,7 @@ contains
     ! Retrieve the array from the registry
     vec_ptr => neko_const_registry%get_vector(reg_name)
     val = vec_ptr%x
+    write(*,*) vec_ptr%x, val
   end subroutine json_get_or_lookup_real_array
 
 !> Retrieves ain int array either from the json or from the corresponding vector
@@ -219,7 +220,7 @@ contains
        val)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
-    integer, allocatable, intent(out) :: val(:)
+    integer, allocatable, intent(inout) :: val(:)
 
     type(vector_t), pointer :: vec_ptr
     logical :: found

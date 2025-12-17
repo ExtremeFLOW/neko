@@ -111,14 +111,14 @@ module json_utils
           val)
        type(json_file), intent(inout) :: json
        character(len=*), intent(in) :: name
-       real(kind=rp), allocatable, intent(out) :: val(:)
+       real(kind=rp), allocatable, intent(inout) :: val(:)
      end subroutine json_get_or_lookup_real_array
 
      module subroutine json_get_or_lookup_integer_array(json, &
           name, val)
        type(json_file), intent(inout) :: json
        character(len=*), intent(in) :: name
-       integer, allocatable, intent(out) :: val(:)
+       integer, allocatable, intent(inout) :: val(:)
      end subroutine json_get_or_lookup_integer_array
 
   end interface
