@@ -39,24 +39,6 @@ submodule (utils) errors
 
 contains
 
-  !> Default throw method for warnings. Does nothing.
-  module subroutine default_throw_warning(filename, line_number, message)
-    character(len=*), intent(in) :: filename
-    integer, intent(in) :: line_number
-    character(len=*), optional, intent(in) :: message
-  end subroutine default_throw_warning
-
-  !> Default throw method that stops execution.
-  !! @details pFUnit will highjack this method during testing to catch
-  !! exceptions.
-  module subroutine default_throw_error(filename, line_number, message)
-    character(len=*), intent(in) :: filename
-    integer, intent(in) :: line_number
-    character(len=*), optional, intent(in) :: message
-
-    error stop
-  end subroutine default_throw_error
-
   !> Reports a type selection error and stops execution.
   !! @param base_type The base type for which the selection was attempted.
   !! @param wrong_type The type that was attempted to be selected.

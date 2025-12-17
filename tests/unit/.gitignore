@@ -25,6 +25,8 @@ test-suite.log
 */*.log
 */*.trs
 
+!error_redirection/error_redirection.F90
+
 bc/bc_test
 device/device_test
 device_math/device_math_suite

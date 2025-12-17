@@ -83,22 +83,6 @@ module utils
      module subroutine neko_warning(warning_msg)
        character(len=*) :: warning_msg
      end subroutine neko_warning
-
-     !> Default throw method for warnings. Does nothing.
-     module subroutine default_throw_warning(filename, line_number, message)
-       character(len=*), intent(in) :: filename
-       integer, intent(in) :: line_number
-       character(len=*), optional, intent(in) :: message
-     end subroutine default_throw_warning
-
-     !> Default throw method that stops execution.
-     !! @details pFUnit will highjack this method during testing to catch
-     !! exceptions.
-     module subroutine default_throw_error(filename, line_number, message)
-       character(len=*), intent(in) :: filename
-       integer, intent(in) :: line_number
-       character(len=*), optional, intent(in) :: message
-     end subroutine default_throw_error
   end interface
 
   abstract interface
@@ -129,6 +113,25 @@ module utils
 
 
 contains
+
+  !> Default throw method for warnings. Does nothing.
+  subroutine default_throw_warning(filename, line_number, message)
+    character(len=*), intent(in) :: filename
+    integer, intent(in) :: line_number
+    character(len=*), optional, intent(in) :: message
+  end subroutine default_throw_warning
+
+  !> Default throw method that stops execution.
+  !! @details pFUnit will highjack this method during testing to catch
+  !! exceptions.
+  subroutine default_throw_error(filename, line_number, message)
+    character(len=*), intent(in) :: filename
+    integer, intent(in) :: line_number
+    character(len=*), optional, intent(in) :: message
+
+    error stop
+  end subroutine default_throw_error
+
 
   !> Find position (in the string) of a filename's suffix
   pure function filename_suffix_pos(fname) result(suffix_pos)
