@@ -41,7 +41,7 @@
                 "max_iterations": 800
             },
             "output_control": "simulationtime",
-            "output_value": 0.01,
+            "output_value": 3.14159265359,
             "boundary_conditions": []
         },
         "scalar": {

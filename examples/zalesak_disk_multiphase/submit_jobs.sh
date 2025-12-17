@@ -31,8 +31,11 @@ if [ "$MODE" == "single" ]; then
 
 # Load environment modules
 module unload PDC
-ml PrgEnv-cray/8.5.0
-ml cpe/23.09
+ml craype-accel-amd-gfx90a rocm/6.2.4 PrgEnv-cray
+module use /cfs/klemming/pdc/projects/hpcrd/modules
+ml hpcrd
+ml json-fortran/8.3.0-cce-18.0.1-bjoug3p
+
 
 # Source environment file if it exists
 if [ -f \$SLURM_SUBMIT_DIR/.env ]; then
@@ -65,9 +68,10 @@ elif [ "$MODE" == "array" ]; then
 #SBATCH --array=0-$((N-1))
 
 # Load environment modules
-module unload PDC
-ml PrgEnv-cray/8.5.0
-ml cpe/23.09
+ml craype-accel-amd-gfx90a rocm/6.2.4 PrgEnv-cray
+module use /cfs/klemming/pdc/projects/hpcrd/modules
+ml hpcrd
+ml json-fortran/8.3.0-cce-18.0.1-bjoug3p
 
 # Source environment file if it exists
 if [ -f \$SLURM_SUBMIT_DIR/.env ]; then
