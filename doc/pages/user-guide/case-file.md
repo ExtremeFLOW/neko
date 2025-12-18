@@ -201,6 +201,86 @@ coupled manner, which requires an appropriate linear solver. By default, Neko
 will use the simplified form of the tensor, and the full one must be selected
 by the user by setting `full_stress_formulation` to true.
 
+### Compressible flows
+
+Neko supports compressible flow simulations via the compressible solver.
+To enable compressible flow, set `"scheme": "compressible"` in the fluid
+configuration. This solver integrates the compressible Euler equations (full
+Navier-Stokes will be enabled in upcoming updates) using a Runge-Kutta time
+integration scheme with artificial viscosity for stability.
+
+The compressible solver requires the following parameters:
+
+| Name    | Description                              | Admissible values | Default value |
+| ------- | ---------------------------------------- | ----------------- | ------------- |
+| `gamma` | Ratio of specific heats for ideal gas    | Positive reals    | `1.4`         |
+
+Additional numerics parameters specific to compressible flows:
+
+| Name                | Description                                       | Admissible values | Default value |
+| ------------------- | ------------------------------------------------- | ----------------- | ------------- |
+| `c_avisc_low`       | Coefficient for low-order artificial viscosity    | Positive reals    | `0.5`         |
+| `c_avisc_entropy`   | Coefficient for entropy-based artificial viscosity| Positive reals    | `1.0`         |
+
+The compressible solver uses variable time-stepping controlled by the CFL
+number. Set `variable_timestep` to `true` and specify `target_cfl` in the time
+control object.
+
+Example configuration:
+~~~~~~~~~~~~~~~{.json}
+{
+  "fluid": {
+    "scheme": "compressible",
+    "gamma": 1.4,
+    "initial_condition": {
+      "type": "user"
+    },
+    "boundary_conditions": [
+      {
+        "type": "velocity_value",
+        "zone_indices": [1],
+        "value": [3, 0, 0]
+      },
+      {
+        "type": "density_value",
+        "zone_indices": [1],
+        "value": 1.4
+      },
+      {
+        "type": "pressure_value",
+        "zone_indices": [1],
+        "value": 1
+      }
+    ],
+    "output_control": "nsamples",
+    "output_value": 20
+  },
+  "numerics": {
+    "time_order": 3,
+    "polynomial_order": 5,
+    "c_avisc_low": 0.5,
+    "c_avisc_entropy": 0.5
+  }
+}
+~~~~~~~~~~~~~~~
+
+#### Compressible boundary conditions
+
+The compressible solver supports the following boundary conditions:
+
+| Boundary Condition  | Description                                |
+| ------------------- | ------------------------------------------ |
+| velocity_value      | Dirichlet condition for velocity (inflow)  |
+| density_value       | Dirichlet condition for density            |
+| pressure_value      | Dirichlet condition for pressure           |
+| no_slip             | Zero velocity wall                         |
+| symmetry            | Symmetry plane                             |
+| outflow             | Pressure outlet (zero gradient)            |
+| normal_outflow      | Normal outflow condition                   |
+
+For examples of compressible flow setups, see the `euler_1d_sod`,
+`euler_2d_forward_facing_step`, and `euler_tgv` examples.
+
 ### Turbulence modelling
 
 Neko currently provides several LES models via the `les_model` simulation

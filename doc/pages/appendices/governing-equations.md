@@ -52,6 +52,36 @@ Here, \f$ T \f$ is the scalar temperature field, \f$ c_p \f$ is the specific
 heat capacity, \f$ \lambda_{tot} \f$ is the total thermal conductivity, and \f$ f_j^s
 \f$ are the components of the active source terms. As for the momentum,  for constant \f$\lambda\f$ the Laplacian of the temperature may be used.
 
+## Compressible Flows
+
+Neko supports compressible flow simulations via the compressible Navier-Stokes
+equations. The current implementation solves the compressible Euler equations
+(inviscid limit). Physical viscosity terms will be added in upcoming updates.
+
+The compressible Euler equations consist of conservation of mass, momentum, and
+energy:
+
+$$\frac{\partial \rho}{\partial t} + 
+  \frac{\partial (\rho u_i)}{\partial x_i} = 0,$$
+
+$$\frac{\partial (\rho u_i)}{\partial t} + 
+  \frac{\partial (\rho u_i u_j)}{\partial x_j} = 
+  -\frac{\partial p}{\partial x_i}, \quad i=1,2,3,$$
+
+$$\frac{\partial E}{\partial t} + 
+  \frac{\partial ((E + p) u_i)}{\partial x_i} = 0.$$
+
+Here, \f$ \rho \f$ is the density, \f$ u_i \f$ are the velocity components,
+\f$ p \f$ is the pressure, and \f$ E \f$ is the total energy per unit volume.
+The total energy is related to the internal energy and kinetic energy by
+
+$$E = \frac{p}{\gamma - 1} + \frac{1}{2} \rho u_i u_i,$$
+
+where \f$ \gamma \f$ is the ratio of specific heats. The system is closed by
+the ideal gas equation of state:
+
+$$p = (\gamma - 1) \left( E - \frac{1}{2} \rho u_i u_i \right).$$
+
 ## Non-dimensionalisation
 A non-dimensional form of the Navier-Stokes equations may be found by defining the Reynolds number
 $$ Re = \frac{\rho U L}{\mu} \ ,$$
