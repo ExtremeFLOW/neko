@@ -46,16 +46,19 @@
 
 #include "compressible_ops_compute_max_wave_speed_kernel.cl.h"
 
-void opencl_compute_max_wave_speed(void *max_wave_speed, void *u, void *v, void *w,
-                                   real gamma, void *p, void *rho, int n) {
+void opencl_compute_max_wave_speed(void *max_wave_speed, void *u, void *v,
+                                   void *w, real gamma, void *p, void *rho,
+                                   int n) {
 
   cl_int err;
 
   if (compressible_ops_compute_max_wave_speed_program == NULL)
-    opencl_kernel_jit(compressible_ops_compute_max_wave_speed_kernel, (cl_program *) &compressible_ops_compute_max_wave_speed_program);
+    opencl_kernel_jit(compressible_ops_compute_max_wave_speed_kernel,
+                      (cl_program *) &compressible_ops_compute_max_wave_speed_program);
 
-  cl_kernel kernel = clCreateKernel((cl_program) compressible_ops_compute_max_wave_speed_program, 
-                                    "compute_max_wave_speed_kernel", &err);
+  cl_kernel kernel =
+    clCreateKernel((cl_program) compressible_ops_compute_max_wave_speed_program, 
+                   "compute_max_wave_speed_kernel", &err);
   CL_CHECK(err);
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &max_wave_speed));
@@ -75,4 +78,4 @@ void opencl_compute_max_wave_speed(void *max_wave_speed, void *u, void *v, void 
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));
   CL_CHECK(clReleaseKernel(kernel));
-}
+} 

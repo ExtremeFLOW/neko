@@ -1,18 +1,23 @@
 /*
- Copyright (c) 2022, The Neko Authors
+ Copyright (c) 2025, The Neko Authors
  All rights reserved.
+
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
  are met:
+
    * Redistributions of source code must retain the above copyright
      notice, this list of conditions and the following disclaimer.
+
    * Redistributions in binary form must reproduce the above
      copyright notice, this list of conditions and the following
      disclaimer in the documentation and/or other materials provided
      with the distribution.
+
    * Neither the name of the authors nor the names of its
      contributors may be used to endorse or promote products derived
      from this software without specific prior written permission.
+
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -77,6 +82,7 @@ void pnpn_prs_res_part1_opencl(void *ta1, void *ta2, void *ta3,
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));  
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 void pnpn_prs_res_part2_opencl(void *p_res, void *wa1, void *wa2,
@@ -103,6 +109,7 @@ void pnpn_prs_res_part2_opencl(void *p_res, void *wa1, void *wa2,
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));  
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 void pnpn_prs_res_part3_opencl(void *p_res, void *ta1, void *ta2,
@@ -130,6 +137,7 @@ void pnpn_prs_res_part3_opencl(void *p_res, void *ta1, void *ta2,
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 void pnpn_vel_res_update_opencl(void *u_res, void *v_res, void *w_res,
@@ -162,4 +170,5 @@ void pnpn_vel_res_update_opencl(void *u_res, void *v_res, void *w_res,
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }

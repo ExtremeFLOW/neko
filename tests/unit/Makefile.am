@@ -33,6 +33,7 @@ SUBDIRS = tuple\
 	  time_scheme_controller\
 	  runge_kutta_scheme\
 	  time_based_controller\
+	  json_utils\
 	  point_interpolation
 
 TESTS = device/device_test\
@@ -70,6 +71,7 @@ TESTS = device/device_test\
 	time_scheme_controller/time_scheme_controller_test\
 	runge_kutta_scheme/runge_kutta_scheme_test\
 	time_based_controller/time_based_controller_test\
+	json_utils/json_utils_test\
 	point_interpolation/point_interpolation_test
 
 # Note we need to list .pf and runner scripts manually
@@ -142,6 +144,7 @@ EXTRA_DIST = \
 	time_scheme/test_ab.pf\
 	time_scheme_controller/test_time_scheme_controller.pf\
 	runge_kutta_scheme/test_runge_kutta_scheme.pf\
+	json_utils/test_json_utils.pf\
 	time_based_controller/test_time_based_controller.pf\
 	point_interpolation/point_interpolation_parallel.pf\
 	point_interpolation/point_interpolation_test

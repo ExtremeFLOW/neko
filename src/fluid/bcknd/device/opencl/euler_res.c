@@ -1,18 +1,23 @@
 /*
  Copyright (c) 2025, The Neko Authors
  All rights reserved.
+
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
  are met:
+
    * Redistributions of source code must retain the above copyright
      notice, this list of conditions and the following disclaimer.
+
    * Redistributions in binary form must reproduce the above
      copyright notice, this list of conditions and the following
      disclaimer in the documentation and/or other materials provided
      with the distribution.
+
    * Neither the name of the authors nor the names of its
      contributors may be used to endorse or promote products derived
      from this software without specific prior written permission.
+
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -65,6 +70,7 @@ void euler_res_part_visc_opencl(void *rhs_u, void *Binv, void *lap_sol,
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));  
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 void euler_res_part_mx_flux_opencl(void *f_x, void *f_y, void *f_z,
@@ -96,6 +102,7 @@ void euler_res_part_mx_flux_opencl(void *f_x, void *f_y, void *f_z,
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));  
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 void euler_res_part_my_flux_opencl(void *f_x, void *f_y, void *f_z,
@@ -127,6 +134,7 @@ void euler_res_part_my_flux_opencl(void *f_x, void *f_y, void *f_z,
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));  
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 void euler_res_part_mz_flux_opencl(void *f_x, void *f_y, void *f_z,
@@ -158,6 +166,7 @@ void euler_res_part_mz_flux_opencl(void *f_x, void *f_y, void *f_z,
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));  
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 void euler_res_part_E_flux_opencl(void *f_x, void *f_y, void *f_z,
@@ -190,6 +199,7 @@ void euler_res_part_E_flux_opencl(void *f_x, void *f_y, void *f_z,
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));  
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 void euler_res_part_coef_mult_opencl(void *rhs_rho, void *rhs_m_x,
@@ -219,6 +229,7 @@ void euler_res_part_coef_mult_opencl(void *rhs_rho, void *rhs_m_x,
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));  
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 void euler_res_part_rk_sum_opencl(void *rho, void *m_x, void *m_y, void *m_z,
@@ -255,4 +266,5 @@ void euler_res_part_rk_sum_opencl(void *rho, void *m_x, void *m_y, void *m_z,
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));  
+  CL_CHECK(clReleaseKernel(kernel));
 }
