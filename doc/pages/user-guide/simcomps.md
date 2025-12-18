@@ -55,7 +55,7 @@ suppress output all together. If no parameters for the `output_` parameters are
 provided, they are set to be the same as for `compute_`. In order to simplify
 the configuration, the `compute_control` can be set to `fluid_output` to sync
 the computation to the fluid output. All `_value` keywords can also be strings
-pointing to an entry under `registered_data.scalars`.
+pointing to an entry under `constants.scalars`.
 
 For simcomps that compute 3D fields, the output can be either added to the main
 `.fld` file, containing velocity and pressure, or saved to a separate file. For
