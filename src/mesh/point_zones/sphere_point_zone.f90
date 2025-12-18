@@ -165,7 +165,7 @@ contains
 
     ! Inside if distance from center <= radius
     is_inside = (dist_from_center .lt. this%radius .or. &
-                 abscmp(dist_from_center, this%radius))
+         abscmp(dist_from_center, this%radius))
 
   end function sphere_point_zone_criterion
 
