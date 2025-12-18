@@ -882,6 +882,8 @@ contains
     vz_d = device_get_ptr(vz)
     ncyc = coef%cyc_msk(0) - 1
 
+    if (ncyc .le. 0) return
+
 #ifdef HAVE_HIP
     call hip_rotate_cyc(vx_d, vy_d, vz_d, &
          coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
@@ -911,6 +913,8 @@ contains
     vy_d = device_get_ptr(vy)
     vz_d = device_get_ptr(vz)
     ncyc = coef%cyc_msk(0) - 1
+
+    if (ncyc .le. 0) return
 
 #ifdef HAVE_HIP
     call hip_rotate_cyc(vx_d, vy_d, vz_d, &
