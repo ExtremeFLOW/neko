@@ -242,16 +242,23 @@ contains
        deallocate(this%Ax)
     end if
 
+    if (allocated(this%euler_rhs)) then
+       deallocate(this%euler_rhs)
+    end if
+
     call this%drho%free()
     call this%dm_x%free()
     call this%dm_y%free()
     call this%dm_z%free()
     call this%dE%free()
+    call this%h%free()
 
     if (allocated(this%regularization)) then
        call this%regularization%free()
        deallocate(this%regularization)
     end if
+
+    call this%bcs_density%free()
 
   end subroutine fluid_scheme_compressible_euler_free
 
