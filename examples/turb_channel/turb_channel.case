@@ -7,7 +7,6 @@
         "output_checkpoints": true,
         "checkpoint_control": "simulationtime",
         "checkpoint_value": 50,
-        "checkpoint_format": "hdf5",
         "time": {
             "end_time": 200.0,
             "variable_timestep": true,
