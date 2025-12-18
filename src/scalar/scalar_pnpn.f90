@@ -66,6 +66,7 @@ module scalar_pnpn
   use time_step_controller, only : time_step_controller_t
   use time_state, only : time_state_t
   use bc, only : bc_t
+  use amr_reconstruct, only : amr_reconstruct_t
   use comm, only : NEKO_COMM
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
   implicit none
@@ -133,6 +134,8 @@ module scalar_pnpn
      !> Setup the boundary conditions
      procedure, pass(this) :: setup_bcs_ => scalar_pnpn_setup_bcs_
      !> Sync lag field data to registry for checkpointing
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => scalar_pnpn_amr_restart
   end type scalar_pnpn_t
 
   interface
@@ -338,6 +341,8 @@ contains
     if (allocated(this%makeoifs)) then
        deallocate(this%makeoifs)
     end if
+
+    call this%free_amr_base()
 
   end subroutine scalar_pnpn_free
 
@@ -560,5 +565,22 @@ contains
     end if
   end subroutine scalar_pnpn_setup_bcs_
 
+  !> AMR restart
+  !! @param[in]  reconstruct   data reconstruction type
+  !! @param[in]  counter       restart counter
+  subroutine scalar_pnpn_amr_restart(this, reconstruct, &
+       counter)
+    class(scalar_pnpn_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(in) :: reconstruct
+    integer, intent(in) :: counter
+
+    !call neko_error('Nothing done for AMR reconstruction')
+
+    ! Was this component already refined?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+  end subroutine scalar_pnpn_amr_restart
 
 end module scalar_pnpn

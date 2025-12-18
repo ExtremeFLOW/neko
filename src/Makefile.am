@@ -39,6 +39,9 @@ neko_fortran_SOURCES = \
 	sem/dofmap.f90\
 	sem/coef.f90\
 	sem/cpr.f90\
+	sem/amr_reconstruct.f90\
+	sem/amr_restart_component.f90\
+	sem/amr.f90\
 	common/time_interpolator.f90\
 	sem/interpolation.f90\
 	sem/point_interpolator.f90\
@@ -75,6 +78,7 @@ neko_fortran_SOURCES = \
 	mesh/point_zones/combine_point_zone.f90\
 	mesh/point_zone_fctry.f90\
 	mesh/point_zone_registry.f90\
+	mesh/mesh_conn.f90\
 	mesh/mesh.f90\
 	mesh/octree.f90\
 	mesh/search_tree/aabb.f90\
@@ -82,6 +86,15 @@ neko_fortran_SOURCES = \
 	mesh/tet_mesh.f90\
 	mesh/tri_mesh.f90\
 	mesh/intersection_detector.f90\
+	mesh/mesh_manager/manager_geom.f90\
+	mesh/mesh_manager/manager_conn.f90\
+	mesh/mesh_manager/manager_mesh.f90\
+	mesh/mesh_manager/mesh_manager.f90\
+	mesh/mesh_manager/mesh_manager_fctry.f90\
+	mesh/mesh_manager/manager_geom_p4est.f90\
+	mesh/mesh_manager/manager_conn_p4est.f90\
+	mesh/mesh_manager/manager_mesh_p4est.f90\
+	mesh/mesh_manager/mesh_manager_p4est.F90\
 	field/field.f90\
 	field/field_list.f90\
 	field/field_series.f90\
@@ -282,6 +295,8 @@ neko_fortran_SOURCES = \
 	common/bcknd/device/device_projection.F90\
 	comm/parmetis.F90\
 	comm/redist.f90\
+	comm/mesh_manager_transfer.f90\
+	comm/mesh_manager_transfer_p4est.f90\
 	krylov/pc_hsmg.f90\
 	common/signal.f90\
 	common/jobctrl.f90\
@@ -412,6 +427,12 @@ libneko_la_SOURCES = \
 
 if ENABLE_PARMETIS
 libneko_la_SOURCES += comm/parmetis_wrapper.c
+endif
+
+if ENABLE_P4EST
+libneko_la_SOURCES += \
+	mesh/mesh_manager/p4est_wrapper.c\
+	mesh/mesh_manager/p8est_lnodes_edge.c
 endif
 
 if ENABLE_HIP
@@ -815,6 +836,13 @@ EXTRA_DIST = \
 	comm/comm.h\
 	common/neko_log.h
 
+
+if ENABLE_P4EST
+EXTRA_DIST += \
+	mesh/mesh_manager/p4est_wrapper.h\
+	mesh/mesh_manager/p8est_lnodes_edge.h\
+	mesh/mesh_manager/amr.h
+endif
 
 # Expose the listed headers in the package
 nobase_pkginclude_HEADERS = ${EXTRA_DIST}

@@ -148,8 +148,8 @@ contains
     integer, dimension(8), parameter :: vcyc_to_sym = (/1, 2, 4, 3, &
          5, 6, 8, 7/)
     ! Dump coordinates
-    write(unit, fmt='(A,I8,A)') 'POINTS', msh%mpts,' double'
-    do i = 1, msh%mpts
+    write(unit, fmt='(A,I8,A)') 'POINTS', msh%gpts,' double'
+    do i = 1, msh%gpts
        write(unit, fmt='(F15.8,F15.8,F15.8)') real(msh%points(i)%x,dp)
     end do
 
@@ -203,14 +203,14 @@ contains
        call neko_log%warning("Interpolate high-order data onto a low-order mesh")
     end if
 
-    write(unit, fmt='(A,I8)') 'POINT_DATA', fld%msh%mpts
+    write(unit, fmt='(A,I8)') 'POINT_DATA', fld%msh%gpts
     write(unit, fmt='(A,A,A,I8)') 'SCALARS ', trim(fld%name), ' double', 1
     write(unit, fmt='(A)') 'LOOKUP_TABLE default'
 
     lx = fld%Xh%lx
     ly = fld%Xh%ly
     lz = fld%Xh%lz
-    allocate(point_data(fld%msh%mpts))
+    allocate(point_data(fld%msh%gpts))
 
     do i = 1, fld%msh%nelv
        do j = 1, fld%msh%npts
@@ -313,8 +313,8 @@ contains
     integer :: i, j, vtk_type
 
     ! Dump coordinates
-    write(unit, fmt='(A,I8,A)') 'POINTS', tet_msh%msh%mpts,' double'
-    do i = 1, tet_msh%msh%mpts
+    write(unit, fmt='(A,I8,A)') 'POINTS', tet_msh%msh%gpts,' double'
+    do i = 1, tet_msh%msh%gpts
        write(unit, fmt='(F15.8,F15.8,F15.8)') real(tet_msh%msh%points(i)%x,dp)
     end do
 
@@ -344,8 +344,8 @@ contains
     integer :: i, j, vtk_type
 
     ! Dump coordinates
-    write(unit, fmt='(A,I8,A)') 'POINTS', tri_msh%mpts,' double'
-    do i = 1, tri_msh%mpts
+    write(unit, fmt='(A,I8,A)') 'POINTS', tri_msh%gpts,' double'
+    do i = 1, tri_msh%gpts
        write(unit, fmt='(F15.8,F15.8,F15.8)') real(tri_msh%points(i)%x,dp)
     end do
 

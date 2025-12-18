@@ -18,7 +18,7 @@ guidelines.
 
 ## Building from source
 
-To build Neko, you will need a Fortran compiler supporting the Fortran-08 standard, autotools, libtool, pkg-config, a working MPI installation supporting the Fortran 2008 bindings (`mpi_f08`), BLAS/LAPACK and JSON-Fortran. Optional dependencies are PFunit, HDF5 and ParMETIS.
+To build Neko, you will need a Fortran compiler supporting the Fortran-08 standard, autotools, libtool, pkg-config, a working MPI installation supporting the Fortran 2008 bindings (`mpi_f08`), BLAS/LAPACK and JSON-Fortran. Optional dependencies are PFunit, HDF5, ParMETIS and p4est.
 
 Follow the steps below to install the less common dependencies (e.g. JSON-Fortran).
 
@@ -85,6 +85,26 @@ $ tar xzf parmetis-4.0.3.tar.gz && cd parmetis-4.0.3 && make config prefix=${PAR
 $ cd metis && make config prefix=${PARMETIS_INSTALL} && make install && cd ../..
 ```
 
+#### Building p4est (optional)
+
+The following steps is an example on how to build and install p4est
+
+```shell
+wget http://p4est.github.io/release/p4est-2.8.7.tar.gz
+tar xvf p4est-2.8.7.tar.gz
+cd ./p4est-2.8.7
+./configure FC=mpifort CC=mpicc CXX=mpic++ --prefix=/path/to/installation --enable-mpi 
+make -j4
+make install
+```
+Finally ad the installation path to `PKG_CONFIG_PATH` (and if needed `LD_LIBRARY_PATH`).
+@note On certain systems `lib` should be substituted with `lib64`
+
+```bash
+export PKG_CONFIG_PATH=/path/to/installation/lib/pkgconfig:$PKG_CONFIG_PATH
+export LD_LIBRARY_PATH=/path/to/installation/lib:$LD_LIBRARY_PATH
+```
+
 #### Bulding PFunit (optional)
 
 To build the PFunit testing framework, please refers to the \subpage testing page
@@ -125,6 +145,7 @@ Optional packages are controlled by passing either `--with-PACKAGE[=ARG]` or `--
 | `--with-metis-libdir=LIBDIR`    | Directory for metis library (if different)    |
 | `--with-parmetis=DIR`           | Compile with support for parmetis library     |
 | `--with-parmetis-libdir=LIBDIR` | Directory for parmetis library (if different) |
+| `--with-p4est`                  | Compile with support for p4est                |
 | `--with-adios2=DIR`             | Compile with support for ADIOS2               |
 | `--with-adios2-fortran=DIR`     | Compile with support for ADIOS2 with Fortran  |              
 | `--with-libxsmm`                | Compile with support for libxsmm              |

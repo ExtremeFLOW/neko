@@ -46,6 +46,7 @@ module user_intf
   use bc, only : bc_t
   use field_dirichlet, only : field_dirichlet_t
   use time_state, only : time_state_t
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -137,6 +138,30 @@ module user_intf
      end subroutine user_material_properties_intf
   end interface
 
+  !> Abstract interface for setting refinement flag
+  !! @param[in]   time        The time state.
+  !! @param[out]  ref_mark    Element refinement flag
+  !! @param[out]  ifrefine    Refinement flag
+  abstract interface
+     subroutine user_amr_refine_flag(time, ref_mark, ifrefine)
+       import time_state_t
+       type(time_state_t), intent(in) :: time
+       integer, dimension(:), intent(out) :: ref_mark
+       logical, intent(out) :: ifrefine
+     end subroutine user_amr_refine_flag
+  end interface
+
+  !> Abstract interface for adaptive mesh refinement related operations
+  !! @param[inout]  reconstruct    field/vector reconstruction tools
+  !! @param[in]     counter        refinement/coarsening counter
+  abstract interface
+     subroutine user_amr_reconstruct(reconstruct, counter)
+       import amr_reconstruct_t
+       type(amr_reconstruct_t), intent(inout) :: reconstruct
+       integer, intent(in) :: counter
+     end subroutine user_amr_reconstruct
+  end interface
+
   !> A type collecting all the overridable user routines and flag to suppress
   !! type injection from custom modules.
   type, public :: user_t
@@ -174,6 +199,12 @@ module user_intf
      !> Routine to set material properties.
      procedure(user_material_properties_intf), nopass, pointer :: &
           material_properties => null()
+     !> Routine to set refinement flag
+     procedure(user_amr_refine_flag), nopass, pointer :: &
+          amr_refine_flag => null()
+     !> Routine to let user reconstruct the fields
+     procedure(user_amr_reconstruct), nopass, pointer :: &
+          amr_reconstruct => null()
    contains
      !> Constructor that points non-associated routines to dummy ones.
      !! Calling a dummy routine causes an error in most cases, but sometimes
@@ -188,14 +219,15 @@ module user_intf
   public :: user_initial_conditions_intf, user_initialize_intf, &
        user_mesh_setup_intf, dummy_user_material_properties, &
        user_material_properties_intf, user_finalize_intf, &
-       user_startup_intf, user_source_term_intf
+       user_startup_intf, user_source_term_intf, user_amr_refine_flag, &
+       user_amr_reconstruct
 contains
 
   !> Constructor.
   subroutine user_intf_init(this)
     class(user_t), intent(inout) :: this
     logical :: user_extended = .false.
-    character(len=256), dimension(14) :: extensions
+    character(len=256), dimension(16) :: extensions
     integer :: i, n
 
     n = 0
@@ -279,6 +311,22 @@ contains
        write(extensions(n), '(A)') '- Material properties'
     end if
 
+    if (.not. associated(this%amr_refine_flag)) then
+       this%amr_refine_flag => dummy_user_amr_refine_flag
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Refinement flag'
+    end if
+
+    if (.not. associated(this%amr_reconstruct)) then
+       this%amr_reconstruct => dummy_user_amr_reconstruct
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- AMR reconstruct'
+    end if
+
     if (user_extended) then
        call neko_log%section('User defined extensions')
 
@@ -349,5 +397,16 @@ contains
     type(time_state_t), intent(in) :: time
   end subroutine dummy_user_material_properties
 
+  subroutine dummy_user_amr_refine_flag(time, ref_mark, ifrefine)
+    type(time_state_t), intent(in) :: time
+    integer, dimension(:), intent(out) :: ref_mark
+    logical, intent(out) :: ifrefine
+    ifrefine = .false.
+  end subroutine dummy_user_amr_refine_flag
+
+  subroutine dummy_user_amr_reconstruct(reconstruct, counter)
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+  end subroutine dummy_user_amr_reconstruct
 
 end module user_intf

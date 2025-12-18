@@ -54,11 +54,13 @@ module scalars
   use utils, only: neko_error
   use coefs, only : coef_t
   use time_state, only : time_state_t
+  use amr_reconstruct, only : amr_reconstruct_t
+  use amr_restart_component, only : amr_restart_component_t
   implicit none
   private
 
   !> Type to manage multiple scalar transport equations
-  type, public :: scalars_t
+  type, public, extends(amr_restart_component_t) :: scalars_t
      !> The scalar fields
      class(scalar_scheme_t), allocatable :: scalar_fields(:)
      !> Shared KSP solver for all scalar fields
@@ -78,6 +80,9 @@ module scalars
      procedure :: free => scalars_free
      !> Register scalar lag fields with checkpoint
      procedure, private :: register_lags_with_checkpoint
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => &
+          scalars_amr_restart
   end type scalars_t
 
 contains
@@ -268,6 +273,9 @@ contains
        call this%shared_ksp%free()
        deallocate(this%shared_ksp)
     end if
+
+    call this%free_amr_base()
+
   end subroutine scalars_free
 
   !> Register scalar lag fields with checkpoint
@@ -304,5 +312,28 @@ contains
     chkp%scalar_abx1(index)%ptr => scalar_field%abx1
     chkp%scalar_abx2(index)%ptr => scalar_field%abx2
   end subroutine associate_scalar_abx_fields
+
+  !> AMR restart
+  !! @param[in]  reconstruct   data reconstruction type
+  !! @param[in]  counter       restart counter
+  subroutine scalars_amr_restart(this, reconstruct, &
+       counter)
+    class(scalars_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(in) :: reconstruct
+    integer, intent(in) :: counter
+    integer :: il
+
+    call neko_error('Nothing done for AMR reconstruction')
+
+    ! Was this component already refined?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    do il = 1, size(this%scalar_fields(:))
+       call this%scalar_fields(il)%amr_restart(reconstruct, counter)
+    end do
+
+  end subroutine scalars_amr_restart
 
 end module scalars

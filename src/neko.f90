@@ -51,6 +51,7 @@ module neko
   use stack
   use tuple
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS
+  use mesh_manager, only : mesh_manager_t, mesh_manager_factory
   use point, only : point_t
   use mesh_field, only : mesh_fld_t
   use map
@@ -222,6 +223,11 @@ contains
        ! Create simulation components
        !
        call neko_simcomps%init(C)
+
+       !
+       ! List AMR restart components
+       !
+       if (C%amr%ifamr()) call C%amr%comp_list()
 
     end if
 

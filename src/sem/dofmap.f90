@@ -36,7 +36,6 @@ module dofmap
   use neko_config, only : NEKO_BCKND_DEVICE
   use mesh, only : mesh_t
   use space, only : space_t, GLL
-  use tuple, only : tuple_i4_t, tuple4_i4_t
   use num_types, only : i4, i8, rp, xp
   use utils, only : neko_error, neko_warning
   use fast3d, only : fd_weights_full
@@ -44,13 +43,16 @@ module dofmap
   use device
   use math, only : add3, copy, rone, rzero
   use element, only : element_t
-  use quad, only : quad_t
-  use hex, only : hex_t
+  use amr_reconstruct, only : amr_reconstruct_t
+  use amr_restart_component, only : amr_restart_component_t
+!!$  use comm, only : pe_size, pe_rank, NEKO_COMM
+!!$  use mpi_f08
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
+
   implicit none
   private
 
-  type, public :: dofmap_t
+  type, public, extends(amr_restart_component_t) :: dofmap_t
      integer(kind=i8), allocatable :: dof(:,:,:,:)  !< Mapping to unique dof
      logical, allocatable :: shared_dof(:,:,:,:)    !< True if the dof is shared
      real(kind=rp), allocatable :: x(:,:,:,:)       !< Mapping to x-coordinates
@@ -75,6 +77,8 @@ module dofmap
      procedure, pass(this) :: free => dofmap_free
      !> Return the total number of degrees of freedom, lx*ly*lz*nelv
      procedure, pass(this) :: size => dofmap_size
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => dofmap_amr_restart
   end type dofmap_t
 
 contains
@@ -147,6 +151,133 @@ contains
                           HOST_TO_DEVICE, sync = .false.)
     end if
 
+!!$    testing_save : block
+!!$      integer, save :: icall = 0
+!!$      integer :: il, jl, kl, ll, ierr, iunit
+!!$      character(len=2) :: sicall, spe_id, slx1, slx2
+!!$      character(len=:), allocatable :: sfmt1, sfmt2, sfmt3
+!!$      call MPI_Barrier(NEKO_COMM, ierr)
+!!$      write(spe_id, '(i2.2)') pe_rank
+!!$      icall = icall + 1
+!!$      write(sicall, '(i2.2)') icall
+!!$      open(newunit=iunit,file='dofmap'//spe_id//'_'//sicall//'.txt')
+!!$      write(iunit,*) 'TEST',pe_rank,msh%nelv,Xh%lx
+!!$      write(iunit,*) 'MESH', msh%mpts,msh%glb_mpts, &
+!!$           msh%mfcs,msh%glb_mfcs,msh%meds,msh%glb_meds
+!!$      write(iunit,*) 'VRT',msh%conn%vrt%lnum, msh%conn%vrt%gnum
+!!$      write(iunit,*) 'EDG',msh%conn%edg%lnum, msh%conn%edg%gnum
+!!$      write(iunit,*) 'FCS',msh%conn%fcs%lnum, msh%conn%fcs%gnum
+!!$      write(iunit,*) '======================================='
+!!$      write(iunit,*) '  '
+!!$      do il = 1, msh%nelv
+!!$         write(iunit,'(a,3i7)') 'ELEMENT', pe_rank, msh%offset_el + il, il
+!!$         write(iunit,'(a,11i7)') 'VRT', pe_rank, msh%offset_el + il, il,&
+!!$              msh%conn%vrt%gidx(msh%conn%vrt%map(:, il))
+!!$         write(iunit,'(a,9i7)') 'FCS', pe_rank, msh%offset_el + il, il,&
+!!$              msh%conn%fcs%gidx(msh%conn%fcs%map(:, il))
+!!$         write(iunit,'(a,9i7)') 'FAL', pe_rank, msh%offset_el + il, il,&
+!!$              msh%conn%fcs%algn(:, il)
+!!$         write(iunit,'(a,15i7)') 'EDG', pe_rank, msh%offset_el + il, il,&
+!!$              msh%conn%edg%gidx(msh%conn%edg%map(:, il))
+!!$         write(iunit,'(a,15i7)') 'EAL', pe_rank, msh%offset_el + il, il,&
+!!$              msh%conn%edg%algn(:, il)
+!!$
+!!$         write(slx1, '(i2.2)') Xh%lx + 4
+!!$         sfmt1 = '('//slx1//'i7)'
+!!$         write(slx2, '(i2.2)') Xh%lx
+!!$         sfmt2 = '(4i7,'//slx2//'l7)'
+!!$         sfmt3 = '(a,3i4,'//slx2//'f9.5)'
+!!$
+!!$         write(iunit,*) '  '
+!!$         write(iunit,'(a,4i7)') 'FACE', pe_rank, msh%offset_el + il, il, 1
+!!$         do kl = Xh%lx, 1, -1
+!!$            write(iunit,sfmt1) pe_rank, msh%offset_el + il, il, kl, &
+!!$                 (this%dof(1, jl, kl, il), jl= 1, Xh%lx)
+!!$         end do
+!!$         do kl = Xh%lx, 1, -1
+!!$            write(iunit,sfmt2) pe_rank, msh%offset_el + il, il, kl, &
+!!$                 (this%shared_dof(1, jl, kl, il),jl = 1, Xh%lx)
+!!$         end do
+!!$
+!!$         write(iunit,*) '  '
+!!$         write(iunit,'(a,4i7)') 'FACE', pe_rank, msh%offset_el + il, il, 2
+!!$         do kl = Xh%lx, 1, -1
+!!$            write(iunit,sfmt1) pe_rank, msh%offset_el + il, il, kl, &
+!!$                 (this%dof(Xh%lx, jl, kl, il), jl= 1, Xh%lx)
+!!$         end do
+!!$         do kl = Xh%lx, 1, -1
+!!$            write(iunit,sfmt2) pe_rank, msh%offset_el + il, il, kl, &
+!!$                 (this%shared_dof(Xh%lx, jl, kl, il),jl = 1, Xh%lx)
+!!$         end do
+!!$
+!!$         write(iunit,*) '  '
+!!$         write(iunit,'(a,4i7)') 'FACE', pe_rank, msh%offset_el + il, il, 3
+!!$         do kl = Xh%lx, 1, -1
+!!$            write(iunit,sfmt1) pe_rank, msh%offset_el + il, il, kl, &
+!!$                 (this%dof(jl, 1, kl, il), jl= 1, Xh%lx)
+!!$         end do
+!!$         do kl = Xh%lx, 1, -1
+!!$            write(iunit,sfmt2) pe_rank, msh%offset_el + il, il, kl, &
+!!$                 (this%shared_dof(jl, 1, kl, il),jl = 1, Xh%lx)
+!!$         end do
+!!$
+!!$         write(iunit,*) '  '
+!!$         write(iunit,'(a,4i7)') 'FACE', pe_rank, msh%offset_el + il, il, 4
+!!$         do kl = Xh%lx, 1, -1
+!!$            write(iunit,sfmt1) pe_rank, msh%offset_el + il, il, kl, &
+!!$                 (this%dof(jl, Xh%lx, kl, il), jl= 1, Xh%lx)
+!!$         end do
+!!$         do kl = Xh%lx, 1, -1
+!!$            write(iunit,sfmt2) pe_rank, msh%offset_el + il, il, kl, &
+!!$                 (this%shared_dof(jl, Xh%lx, kl, il),jl = 1, Xh%lx)
+!!$         end do
+!!$
+!!$         write(iunit,*) '  '
+!!$         write(iunit,'(a,4i7)') 'FACE', pe_rank, msh%offset_el + il, il, 5
+!!$         do kl = Xh%lx, 1, -1
+!!$            write(iunit,sfmt1) pe_rank, msh%offset_el + il, il, kl, &
+!!$                 (this%dof(jl, kl, 1, il), jl= 1, Xh%lx)
+!!$         end do
+!!$         do kl = Xh%lx, 1, -1
+!!$            write(iunit,sfmt2) pe_rank, msh%offset_el + il, il, kl, &
+!!$                 (this%shared_dof(jl, kl, 1, il),jl = 1, Xh%lx)
+!!$         end do
+!!$
+!!$         write(iunit,*) '  '
+!!$         write(iunit,'(a,4i7)') 'FACE', pe_rank, msh%offset_el + il, il, 6
+!!$         do kl = Xh%lx, 1, -1
+!!$            write(iunit,sfmt1) pe_rank, msh%offset_el + il, il, kl, &
+!!$                 (this%dof(jl, kl, Xh%lx, il), jl= 1, Xh%lx)
+!!$         end do
+!!$         do kl = Xh%lx, 1, -1
+!!$            write(iunit,sfmt2) pe_rank, msh%offset_el + il, il, kl, &
+!!$                 (this%shared_dof(jl, kl, Xh%lx, il),jl = 1, Xh%lx)
+!!$         end do
+!!$         write(iunit,*) '======================================='
+!!$      end do
+!!$      write(iunit,*) '  '
+!!$      write(iunit,*) 'COORDINATES test'
+!!$      write(iunit,*) '  '
+!!$      do il = 1, msh%nelv
+!!$         do ll = 1, Xh%lz
+!!$            do kl = 1, Xh%ly
+!!$               write(iunit, sfmt3) 'x',il, ll, kl, &
+!!$                    & (this%x(jl,kl,ll,il),jl=1,Xh%lx)
+!!$               write(iunit, sfmt3) 'y',il, ll, kl, &
+!!$                    & (this%y(jl,kl,ll,il),jl=1,Xh%lx)
+!!$               write(iunit, sfmt3) 'z',il, ll, kl, &
+!!$                    & (this%z(jl,kl,ll,il),jl=1,Xh%lx)
+!!$               write(iunit,*) '  '
+!!$            end do
+!!$            write(iunit,*) '-----------------------------------------'
+!!$         end do
+!!$         write(iunit,*) '======================================='
+!!$      end do
+!!$      close(iunit)
+!!$      call MPI_Barrier(NEKO_COMM, ierr)
+!!$      call neko_error('This is not error.')
+!!$    end block testing_save
+
    end subroutine dofmap_init
 
   !> Destructor.
@@ -191,6 +322,8 @@ contains
        call device_free(this%z_d)
     end if
 
+    call this%free_amr_base()
+
   end subroutine dofmap_free
 
   !> Return the total number of dofs in the dofmap, lx*ly*lz*nelv
@@ -200,25 +333,46 @@ contains
     res = this%ntot
   end function dofmap_size
 
+  !> AMR restart
+  !! @param[in]  reconstruct   data reconstruction type
+  !! @param[in]  counter       restart counter
+  subroutine dofmap_amr_restart(this, reconstruct, counter)
+    class(dofmap_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(in) :: reconstruct
+    integer, intent(in) :: counter
+
+    ! Was this component already refined?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    write(*,*) 'TEST dofmap registered'
+
+  end subroutine dofmap_amr_restart
+
   !> Assign numbers to each dofs on points
   subroutine dofmap_number_points(this)
     type(dofmap_t), target :: this
-    integer :: il, jl, ix, iy, iz
+    integer :: il, jl, ix, iy, iz, loc_id
     type(mesh_t), pointer :: msh
     type(space_t), pointer :: Xh
 
     msh => this%msh
     Xh => this%Xh
-    do il = 1, msh%nelv
-       do jl = 1, msh%npts
-          ix = mod(jl - 1, 2)     * (Xh%lx - 1) + 1
-          iy = (mod(jl - 1, 4)/2) * (Xh%ly - 1) + 1
-          iz = ((jl - 1)/4)       * (Xh%lz - 1) + 1
-          this%dof(ix, iy, iz, il) = int(msh%elements(il)%e%pts(jl)%p%id(), i8)
-          this%shared_dof(ix, iy, iz, il) = &
-               msh%is_shared(msh%elements(il)%e%pts(jl)%p)
-       end do
-    end do
+
+    associate (vrt => msh%conn%vrt)
+      do il = 1, msh%nelv
+         do jl = 1, msh%npts
+            ix = mod(jl - 1, 2)     * (Xh%lx - 1) + 1
+            iy = (mod(jl - 1, 4)/2) * (Xh%ly - 1) + 1
+            iz = ((jl - 1)/4)       * (Xh%lz - 1) + 1
+            loc_id = msh%conn%vrt%map(jl, il)
+            this%dof(ix, iy, iz, il) = vrt%gidx(loc_id)
+            this%shared_dof(ix, iy, iz, il) = vrt%share(loc_id)
+         end do
+      end do
+    end associate
+
   end subroutine dofmap_number_points
 
   !> Assing numbers to dofs on edges
@@ -226,334 +380,86 @@ contains
     type(dofmap_t), target :: this
     type(mesh_t), pointer :: msh
     type(space_t), pointer :: Xh
-    integer :: i,j,k
-    integer :: global_id
-    type(tuple_i4_t) :: edge
-    integer(kind=i8) :: num_dofs_edges(3) ! #dofs for each dir (r, s, t)
-    integer(kind=i8) :: edge_id, edge_offset
+    integer(i8) :: num_dofs_edges(3) ! #dofs for each dir (r, s, t)
+    integer(i8) :: edge_id, edge_offset
     logical :: shared_dof
+    integer :: nx, ny, nz, nxyz, loc_id, il, jl, kl
+    integer, dimension(3) :: stride
+    integer, dimension(12) :: start
+    integer(i8), pointer, dimension(:), contiguous :: elm_gidx
+    logical, pointer, dimension(:), contiguous :: elm_shr
 
     msh => this%msh
     Xh => this%Xh
 
+    ! Edges must be oriented
+    if (.not. msh%conn%edg%ifalgn) &
+         call neko_error('Missing edge alignment in dofmap.')
+
+    ! data position in the element
+    nx = Xh%lx
+    ny = Xh%ly
+    nz = Xh%lz
+    nxyz = nx * ny * nz
+    ! data stride
+    stride(1)  = 1
+    stride(2)  = nx
+    stride(3)  = nx * ny
+    ! data start
+    start(1)  = 1
+    start(2)  = nx * (ny - 1) + 1
+    start(3)  = nx * ny * (nz - 1) + 1
+    start(4)  = nx * (ny * nz - 1) + 1
+    start(5)  = 1
+    start(6)  = nx
+    start(7)  = nx * ny * (nz - 1) + 1
+    start(8)  = nx * ny * (nz - 1) + nx
+    start(9)  = 1
+    start(10) = nx
+    start(11) = nx * (ny - 1) + 1
+    start(12) = nx * ny
+
     ! Number of dofs on an edge excluding end-points
-    num_dofs_edges(1) =  int(Xh%lx - 2, i8)
-    num_dofs_edges(2) =  int(Xh%ly - 2, i8)
-    num_dofs_edges(3) =  int(Xh%lz - 2, i8)
-    edge_offset = int(msh%glb_mpts, i8) + int(1, i8)
+    num_dofs_edges(1) =  int(nx - 2, i8)
+    num_dofs_edges(2) =  int(ny - 2, i8)
+    num_dofs_edges(3) =  int(nz - 2, i8)
+    edge_offset = msh%conn%vrt%gnum
 
-    do i = 1, msh%nelv
+    ! Following code works for nx = ny = nz only, since global edge number
+    ! is not correlated with spacial edge orientation
+    associate (edg => msh%conn%edg)
+      do il = 1, edg%nel
+         elm_gidx(1:nxyz) => this%dof(:, :, :, il)
+         elm_shr(1:nxyz) => this%shared_dof(:, :, :, il)
+         do jl = 1, edg%nobj
+            loc_id = edg%map(jl, il)
+            ! just num_dofs_edges(1)
+            edge_id = edge_offset + (edg%gidx(loc_id) - 1_i8) * &
+                 num_dofs_edges(1)
+            shared_dof = edg%share(loc_id)
+            loc_id = (jl - 1)/4 + 1
+            ! edge alignment
+            select case (edg%algn(jl, il))
+            case (0) ! identity
+               ! just nx
+               do concurrent (kl = start(jl) + stride(loc_id) : &
+                    start(jl) + (nx - 2) * stride(loc_id) : stride(loc_id))
+                  elm_gidx(kl) = edge_id + (kl - start(jl))/stride(loc_id)
+                  elm_shr(kl) = shared_dof
+               end do
+            case (1) ! permutation
+               ! just nx
+               do concurrent (kl = start(jl) + stride(loc_id) : &
+                    start(jl) + (nx - 2) * stride(loc_id) : stride(loc_id))
+                  elm_gidx(kl) = edge_id + nx - 1 - &
+                       (kl - start(jl))/stride(loc_id)
+                  elm_shr(kl) = shared_dof
+               end do
+            end select
+         end do
+      end do
+    end associate
 
-       select type (ep => msh%elements(i)%e)
-       type is (hex_t)
-          !
-          ! Number edges in r-direction
-          !
-          call ep%edge_id(edge, 1)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
-          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
-          !Reverse order of tranversal if edge is reversed
-          if (int(edge%x(1), i8) .ne. this%dof(1,1,1,i)) then
-             do concurrent (j = 2:Xh%lx - 1)
-                k = Xh%lx+1-j
-                this%dof(k, 1, 1, i) = edge_id + (j-2)
-                this%shared_dof(k, 1, 1, i) = shared_dof
-             end do
-          else
-             do concurrent (j = 2:Xh%lx - 1)
-                k = j
-                this%dof(k, 1, 1, i) = edge_id + (j-2)
-                this%shared_dof(k, 1, 1, i) = shared_dof
-             end do
-          end if
-          
-          call ep%edge_id(edge, 3)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
-          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
-          if (int(edge%x(1), i8) .ne. this%dof(1, 1, Xh%lz, i)) then
-             do concurrent (j = 2:Xh%lx - 1)
-                k = Xh%lx+1-j
-                this%dof(k, 1, Xh%lz, i) = edge_id + (j-2)
-                this%shared_dof(k, 1, Xh%lz, i) = shared_dof
-             end do
-          else
-             do concurrent (j = 2:Xh%lx - 1)
-                k = j
-                this%dof(k, 1, Xh%lz, i) = edge_id + (j-2)
-                this%shared_dof(k, 1, Xh%lz, i) = shared_dof
-             end do
-          end if
-             
-          call ep%edge_id(edge, 2)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
-          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
-          if (int(edge%x(1), i8) .ne. this%dof(1, Xh%ly, 1, i)) then
-             do concurrent (j = 2:Xh%lx - 1)
-                k = Xh%lx+1-j
-                this%dof(k, Xh%ly, 1, i) = edge_id + (j-2)
-                this%shared_dof(k, Xh%ly, 1, i) = shared_dof
-             end do
-          else
-             do concurrent (j = 2:Xh%lx - 1)
-                k = j
-                this%dof(k, Xh%ly, 1, i) = edge_id + (j-2)
-                this%shared_dof(k, Xh%ly, 1, i) = shared_dof
-             end do
-          end if
-          
-          call ep%edge_id(edge, 4)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
-          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
-          if (int(edge%x(1), i8) .ne. this%dof(1, Xh%ly, Xh%lz, i)) then
-             do concurrent (j = 2:Xh%lx - 1)
-                k = Xh%lx+1-j
-                this%dof(k, Xh%ly, Xh%lz, i) = edge_id + (j-2)
-                this%shared_dof(k, Xh%ly, Xh%lz, i) = shared_dof
-             end do
-          else
-             do concurrent (j = 2:Xh%lx - 1)
-                k = j
-                this%dof(k, Xh%ly, Xh%lz, i) = edge_id + (j-2)
-                this%shared_dof(k, Xh%ly, Xh%lz, i) = shared_dof
-             end do
-          end if
-
-
-          !
-          ! Number edges in s-direction
-          !
-          call ep%edge_id(edge, 5)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
-          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
-          if (int(edge%x(1), i8) .ne. this%dof(1,1,1,i)) then
-             do concurrent (j = 2:Xh%ly - 1)
-                k = Xh%ly+1-j
-                this%dof(1, k, 1, i) = edge_id + (j-2)
-                this%shared_dof(1, k, 1, i) = shared_dof
-             end do
-          else
-             do concurrent (j = 2:Xh%ly - 1)
-                k = j
-                this%dof(1, k, 1, i) = edge_id + (j-2)
-                this%shared_dof(1, k, 1, i) = shared_dof
-             end do
-          end if
-          
-          call ep%edge_id(edge, 7)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
-          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
-          if (int(edge%x(1), i8) .ne. this%dof(1, 1, Xh%lz, i)) then
-             do concurrent (j = 2:Xh%ly - 1)
-                k = Xh%ly+1-j
-                this%dof(1, k, Xh%lz, i) = edge_id + (j-2)
-                this%shared_dof(1, k, Xh%lz, i) = shared_dof
-             end do
-          else
-             do concurrent (j = 2:Xh%ly - 1)
-                k = j
-                this%dof(1, k, Xh%lz, i) = edge_id + (j-2)
-                this%shared_dof(1, k, Xh%lz, i) = shared_dof
-             end do
-          end if
-
-          call ep%edge_id(edge, 6)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
-          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
-          if (int(edge%x(1), i8) .ne. this%dof(Xh%lx, 1, 1, i)) then
-             do concurrent (j = 2:Xh%ly - 1)
-                k = Xh%ly+1-j
-                this%dof(Xh%lx, k, 1, i) = edge_id + (j-2)
-                this%shared_dof(Xh%lx, k, 1, i) = shared_dof
-             end do
-          else
-             do concurrent (j = 2:Xh%ly - 1)
-                k = j
-                this%dof(Xh%lx, k, 1, i) = edge_id + (j-2)
-                this%shared_dof(Xh%lx, k, 1, i) = shared_dof
-             end do
-          end if
-
-          call ep%edge_id(edge, 8)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
-          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
-          if (int(edge%x(1), i8) .ne. this%dof(Xh%lx, 1, Xh%lz, i)) then
-             do concurrent (j = 2:Xh%ly - 1)
-                k = Xh%lz+1-j
-                this%dof(Xh%lx, k, Xh%lz, i) = edge_id + (j-2)
-                this%shared_dof(Xh%lx, k, Xh%lz, i) = shared_dof
-             end do
-          else
-             do concurrent (j = 2:Xh%ly - 1)
-                k = j
-                this%dof(Xh%lx, k, Xh%lz, i) = edge_id + (j-2)
-                this%shared_dof(Xh%lx, k, Xh%lz, i) = shared_dof
-             end do
-          end if
-
-          !
-          ! Number edges in t-direction
-          !
-          call ep%edge_id(edge, 9)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
-          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
-          if (int(edge%x(1), i8) .ne. this%dof(1,1,1,i)) then
-             do concurrent (j = 2:Xh%lz - 1)
-                k = Xh%lz+1-j
-                this%dof(1, 1, k, i) = edge_id + (j-2)
-                this%shared_dof(1, 1, k, i) = shared_dof
-             end do
-          else
-             do concurrent (j = 2:Xh%lz - 1)
-                k = j
-                this%dof(1, 1, k, i) = edge_id + (j-2)
-                this%shared_dof(1, 1, k, i) = shared_dof
-             end do
-          end if
-
-          call ep%edge_id(edge, 10)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
-          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
-          if (int(edge%x(1), i8) .ne. this%dof(Xh%lx,1,1,i))  then
-             do concurrent (j = 2:Xh%lz - 1)
-                k = Xh%lz+1-j
-                this%dof(Xh%lx, 1, k, i) = edge_id + (j-2)
-                this%shared_dof(Xh%lx, 1, k, i) = shared_dof
-             end do
-          else
-             do concurrent (j = 2:Xh%lz - 1)
-                k = j
-                this%dof(Xh%lx, 1, k, i) = edge_id + (j-2)
-                this%shared_dof(Xh%lx, 1, k, i) = shared_dof
-             end do
-          end if
-
-          call ep%edge_id(edge, 11)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
-          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
-          if (int(edge%x(1), i8) .ne. this%dof(1, Xh%ly, 1, i)) then
-             do concurrent (j = 2:Xh%lz - 1)
-                k = Xh%lz+1-j
-                this%dof(1, Xh%ly, k, i) = edge_id + (j-2)
-                this%shared_dof(1, Xh%ly, k, i) = shared_dof
-             end do
-          else
-             do concurrent (j = 2:Xh%lz - 1)
-                k = j
-                this%dof(1, Xh%ly, k, i) = edge_id + (j-2)
-                this%shared_dof(1, Xh%ly, k, i) = shared_dof
-             end do
-          end if
-          
-          call ep%edge_id(edge, 12)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
-          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
-          if (int(edge%x(1), i8) .ne. this%dof(Xh%lx, Xh%ly, 1, i)) then
-             do concurrent (j = 2:Xh%lz - 1)
-                k = Xh%lz+1-j
-                this%dof(Xh%lx, Xh%ly, k, i) = edge_id + (j-2)
-                this%shared_dof(Xh%lx, Xh%ly, k, i) = shared_dof
-             end do
-          else
-             do concurrent (j = 2:Xh%lz - 1)
-                k = j
-                this%dof(Xh%lx, Xh%ly, k, i) = edge_id + (j-2)
-                this%shared_dof(Xh%lx, Xh%ly, k, i) = shared_dof
-             end do
-          end if
-       type is (quad_t)
-          !
-          ! Number edges in r-direction
-          !
-          call ep%facet_id(edge, 3)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
-          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
-          !Reverse order of tranversal if edge is reversed
-          if (int(edge%x(1), i8) .ne. this%dof(1,1,1,i)) then
-             do concurrent (j = 2:Xh%lx - 1)
-                k = Xh%lx+1-j
-                this%dof(k, 1, 1, i) = edge_id + (j-2)
-                this%shared_dof(k, 1, 1, i) = shared_dof
-             end do
-          else
-             do concurrent (j = 2:Xh%lx - 1)
-                k = j
-                this%dof(k, 1, 1, i) = edge_id + (j-2)
-                this%shared_dof(k, 1, 1, i) = shared_dof
-             end do
-          end if
-
-          call ep%facet_id(edge, 4)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
-          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
-          if (int(edge%x(1), i8) .ne. this%dof(1, Xh%ly, 1, i)) then
-             do concurrent (j = 2:Xh%lx - 1)
-                k = Xh%lx+1-j
-                this%dof(k, Xh%ly, 1, i) = edge_id + (j-2)
-                this%shared_dof(k, Xh%ly, 1, i) = shared_dof
-             end do
-          else
-             do concurrent (j = 2:Xh%lx - 1)
-                k = j
-                this%dof(k, Xh%ly, 1, i) = edge_id + (j-2)
-                this%shared_dof(k, Xh%ly, 1, i) = shared_dof
-             end do
-          end if
-
-          !
-          ! Number edges in s-direction
-          !
-          call ep%facet_id(edge, 1)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
-          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
-          if (int(edge%x(1), i8) .ne. this%dof(1,1,1,i)) then
-             do concurrent (j = 2:Xh%ly - 1)
-                k = Xh%ly+1-j 
-                this%dof(1, k, 1, i) = edge_id + (j-2)
-                this%shared_dof(1, k, 1, i) = shared_dof
-             end do
-          else
-             do concurrent (j = 2:Xh%ly - 1)
-                k = j
-                this%dof(1, k, 1, i) = edge_id + (j-2)
-                this%shared_dof(1, k, 1, i) = shared_dof
-             end do
-          end if
-          
-          call ep%facet_id(edge, 2)
-          shared_dof = msh%is_shared(edge)
-          global_id = msh%get_global(edge)
-          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
-          if (int(edge%x(1), i8) .ne. this%dof(Xh%lx,1,1,i)) then
-             do concurrent (j = 2:Xh%ly - 1)
-                k = Xh%ly+1-j
-                this%dof(Xh%lx, k, 1, i) = edge_id + (j-2)
-                this%shared_dof(Xh%lx, k, 1, i) = shared_dof
-             end do
-          else
-             do concurrent (j = 2:Xh%ly - 1)
-                k = j
-                this%dof(Xh%lx, k, 1, i) = edge_id + (j-2)
-                this%shared_dof(Xh%lx, k, 1, i) = shared_dof
-             end do
-          end if
-       end select
-
-    end do
   end subroutine dofmap_number_edges
 
   !> Assign numbers to dofs on faces
@@ -561,162 +467,162 @@ contains
     type(dofmap_t), target :: this
     type(mesh_t), pointer :: msh
     type(space_t), pointer :: Xh
-    integer :: i,j,k
-    integer :: global_id
-    type(tuple4_i4_t) :: face, face_order
-    integer(kind=i8) :: num_dofs_faces(3) ! #dofs for each dir (r, s, t)
-    integer(kind=i8) :: facet_offset, facet_id
+    integer(i8) :: num_dofs_edges(3) ! #dofs for each dir (r, s, t)
+    integer(i8) :: num_dofs_faces(3) ! #dofs for each dir (r, s, t)
+    integer(i8) :: facet_offset, facet_id
     logical :: shared_dof
+    integer :: nx, ny, nz, nxyz, loc_id, il, jl, kl, ll
+    integer, dimension(6) :: stride, strider, start
+    integer(i8), pointer, dimension(:), contiguous :: elm_gidx
+    logical, pointer, dimension(:), contiguous :: elm_shr
 
     msh => this%msh
     Xh => this%Xh
 
-    !> @todo don't assume lx = ly = lz
-    facet_offset = int(msh%glb_mpts, i8) + &
-         int(msh%glb_meds, i8) * int(Xh%lx-2, i8) + int(1, i8)
+    ! Faces must be oriented
+    if (.not. msh%conn%fcs%ifalgn) &
+         call neko_error('Missing face alignment in dofmap.')
 
-    ! Number of dofs on an face excluding end-points
-    num_dofs_faces(1) =  int((Xh%ly - 2) * (Xh%lz - 2), i8)
-    num_dofs_faces(2) =  int((Xh%lx - 2) * (Xh%lz - 2), i8)
-    num_dofs_faces(3) =  int((Xh%lx - 2) * (Xh%ly - 2), i8)
+    ! data position in the element
+    nx = Xh%lx
+    ny = Xh%ly
+    nz = Xh%lz
+    nxyz = nx * ny * nz
+    ! data stride; within 1D row
+    stride(1) = nx
+    stride(2) = nx
+    stride(3) = 1
+    stride(4) = 1
+    stride(5) = 1
+    stride(6) = 1
+    ! data stride; between 1D rows
+    strider(1) = nx * ny
+    strider(2) = nx * ny
+    strider(3) = nx * ny
+    strider(4) = nx * ny
+    strider(5) = nx
+    strider(6) = nx
+    ! data start
+    start(1) = nx * ny + 1
+    start(2) = nx * (ny + 1)
+    start(3) = nx * ny + 1
+    start(4) = nx * (2 * ny - 1) + 1
+    start(5) = nx + 1
+    start(6) = nx * ny * (nz - 1) + nx + 1
 
-    do i = 1, msh%nelv
+    ! Number of dofs on edge and face excluding end-points
+    num_dofs_edges(1) =  int(nx - 2, i8)
+    num_dofs_edges(2) =  int(ny - 2, i8)
+    num_dofs_edges(3) =  int(nz - 2, i8)
+    num_dofs_faces(1) =  int((ny - 2) * (nz - 2), i8)
+    num_dofs_faces(2) =  int((nx - 2) * (nz - 2), i8)
+    num_dofs_faces(3) =  int((nx - 2) * (ny - 2), i8)
+    facet_offset = msh%conn%vrt%gnum + msh%conn%edg%gnum * int(nx - 2, i8)
 
-       !
-       ! Number facets in r-direction (s, t)-plane
-       !
-       call msh%elements(i)%e%facet_id(face, 1)
-       call msh%elements(i)%e%facet_order(face_order, 1)
-       shared_dof = msh%is_shared(face)
-       global_id = msh%get_global(face)
-       facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(1)
-       do concurrent (j = 2:(Xh%ly - 1), k = 2:(Xh%lz -1))
-          this%dof(1, j, k, i) = &
-               dofmap_facetidx(face_order, face, facet_id, j, k, Xh%lz, Xh%ly)
-          this%shared_dof(1, j, k, i) = shared_dof
-       end do
+    ! Following code works for nx = ny = nz only, since global face number
+    ! is not correlated with spacial face orientation
+    associate (fcs => msh%conn%fcs)
+      do il = 1, fcs%nel
+         elm_gidx(1:nxyz) => this%dof(:, :, :, il)
+         elm_shr(1:nxyz) => this%shared_dof(:, :, :, il)
+         do jl = 1, fcs%nobj
+            loc_id = fcs%map(jl, il)
+            ! just num_dofs_faces(1)
+            facet_id = facet_offset + (fcs%gidx(loc_id) - 1_i8) * &
+                 num_dofs_faces(1)
+            shared_dof = fcs%share(loc_id)
+            loc_id = (jl - 1)/2 + 1
+            ! face alignment
+            select case (fcs%algn(jl, il))
+            case (0) ! identity
+               ! just nx and num_dofs_edges(1)
+               do concurrent (ll = 0 : (nx - 3) * strider(jl) : strider(jl), &
+                    kl = start(jl) + stride(jl) : &
+                    start(jl) + (nx - 2) * stride(jl) : stride(jl))
+                  elm_gidx(ll + kl) = facet_id + (ll / strider(jl)) * &
+                       num_dofs_edges(1) + (kl - start(jl)) / stride(jl)
+                  elm_shr(ll + kl) = shared_dof
+               end do
+            case (1) ! transpose
+               ! just nx and num_dofs_edges(1)
+               do concurrent (ll = 0 : (nx - 3) * strider(jl) : strider(jl), &
+                    kl = start(jl) + stride(jl) : &
+                    start(jl) + (nx - 2) * stride(jl) : stride(jl))
+                  elm_gidx(ll + kl) = facet_id + ll / strider(jl) + 1 + &
+                       ((kl - start(jl)) / stride(jl) - 1) * &
+                       num_dofs_edges(1)
+                  elm_shr(ll + kl) = shared_dof
+               end do
+            case (2) ! permutation in X
+               ! just nx and num_dofs_edges(1)
+               do concurrent (ll = 0 : (nx - 3) * strider(jl) : strider(jl), &
+                    kl = start(jl) + stride(jl) : &
+                    start(jl) + (nx - 2) * stride(jl) : stride(jl))
+                  elm_gidx(ll + kl) = facet_id + (ll / strider(jl)) * &
+                       num_dofs_edges(1) + nx - 1 - &
+                       (kl - start(jl)) / stride(jl)
+                  elm_shr(ll + kl) = shared_dof
+               end do
+            case (3) ! permutation in X; transpose; inverse of 4
+               ! in reality this coded part is P_Y T as the operation is done
+               ! from reference element perspective
+               ! just nx and num_dofs_edges(1)
+               do concurrent (ll = 0 : (nx - 3) * strider(jl) : strider(jl), &
+                    kl = start(jl) + stride(jl) : &
+                    start(jl) + (nx - 2) * stride(jl) : stride(jl))
+                  elm_gidx(ll + kl) = facet_id + nx - 2 - ll / strider(jl) + &
+                       ((kl - start(jl)) / stride(jl) - 1) * &
+                       num_dofs_edges(1)
+                  elm_shr(ll + kl) = shared_dof
+               end do
+            case (4) ! permutation in Y; transpose; inverse of 3
+               ! in reality this coded part is P_X T as the operation is done
+               ! from reference element perspective
+               ! just nx and num_dofs_edges(1)
+               do concurrent (ll = 0 : (nx - 3) * strider(jl) : strider(jl), &
+                    kl = start(jl) + stride(jl) : &
+                    start(jl) + (nx - 2) * stride(jl) : stride(jl))
+                  elm_gidx(ll + kl) = facet_id + ll / strider(jl) + 1 + &
+                       (nx - 2 - (kl - start(jl)) / stride(jl)) * &
+                       num_dofs_edges(1)
+                  elm_shr(ll + kl) = shared_dof
+               end do
+            case (5) ! permutation in Y
+               ! just nx and num_dofs_edges(1)
+               do concurrent (ll = 0 : (nx - 3) * strider(jl) : strider(jl), &
+                    kl = start(jl) + stride(jl) : &
+                    start(jl) + (nx - 2) * stride(jl) : stride(jl))
+                  elm_gidx(ll + kl) = facet_id + (nx - 3 - ll / strider(jl)) * &
+                       num_dofs_edges(1) + (kl - start(jl)) / stride(jl)
+                  elm_shr(ll + kl) = shared_dof
+               end do
+            case (6) ! permutation in Y; permutation in X; transpose
+               ! just nx and num_dofs_edges(1)
+               do concurrent (ll = 0 : (nx - 3) * strider(jl) : strider(jl), &
+                    kl = start(jl) + stride(jl) : &
+                    start(jl) + (nx - 2) * stride(jl) : stride(jl))
+                  elm_gidx(ll + kl) = facet_id + nx - 2 - ll / strider(jl) + &
+                       (nx - 2 - (kl - start(jl)) / stride(jl)) * &
+                       num_dofs_edges(1)
+                  elm_shr(ll + kl) = shared_dof
+               end do
+            case (7) ! permutation in Y; permutation in X
+               ! just nx and num_dofs_edges(1)
+               do concurrent (ll = 0 : (nx - 3) * strider(jl) : strider(jl), &
+                    kl = start(jl) + stride(jl) : &
+                    start(jl) + (nx - 2) * stride(jl) : stride(jl))
+                  elm_gidx(ll + kl) = facet_id + (nx - 3 - ll / strider(jl)) * &
+                       num_dofs_edges(1) + nx - 1 - &
+                       (kl - start(jl)) / stride(jl)
+                  elm_shr(ll + kl) = shared_dof
+               end do
+            end select
+         end do
+      end do
 
-       call msh%elements(i)%e%facet_id(face, 2)
-       call msh%elements(i)%e%facet_order(face_order, 2)
-       shared_dof = msh%is_shared(face)
-       global_id = msh%get_global(face)
-       facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(1)
-       do concurrent (j = 2:(Xh%ly - 1), k = 2:(Xh%lz -1))
-          this%dof(Xh%lx, j, k, i) = &
-               dofmap_facetidx(face_order, face, facet_id, j, k, Xh%lz, Xh%ly)
-          this%shared_dof(Xh%lx, j, k, i) = shared_dof
-       end do
-
-
-       !
-       ! Number facets in s-direction (r, t)-plane
-       !
-       call msh%elements(i)%e%facet_id(face, 3)
-       call msh%elements(i)%e%facet_order(face_order, 3)
-       shared_dof = msh%is_shared(face)
-       global_id = msh%get_global(face)
-       facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(2)
-       do concurrent (j = 2:(Xh%lx - 1), k = 2:(Xh%lz - 1))
-          this%dof(j, 1, k, i) = &
-               dofmap_facetidx(face_order, face, facet_id, k, j, Xh%lz, Xh%lx)
-          this%shared_dof(j, 1, k, i) = shared_dof
-       end do
-
-       call msh%elements(i)%e%facet_id(face, 4)
-       call msh%elements(i)%e%facet_order(face_order, 4)
-       shared_dof = msh%is_shared(face)
-       global_id = msh%get_global(face)
-       facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(2)
-       do concurrent (j = 2:(Xh%lx - 1), k = 2:(Xh%lz - 1))
-          this%dof(j, Xh%ly, k, i) = &
-               dofmap_facetidx(face_order, face, facet_id, k, j, Xh%lz, Xh%lx)
-          this%shared_dof(j, Xh%ly, k, i) = shared_dof
-       end do
-
-
-       !
-       ! Number facets in t-direction (r, s)-plane
-       !
-       call msh%elements(i)%e%facet_id(face, 5)
-       call msh%elements(i)%e%facet_order(face_order, 5)
-       shared_dof = msh%is_shared(face)
-       global_id = msh%get_global(face)
-       facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(3)
-       do concurrent (j = 2:(Xh%lx - 1), k = 2:(Xh%ly - 1))
-          this%dof(j, k, 1, i) = &
-               dofmap_facetidx(face_order, face, facet_id, k, j, Xh%ly, Xh%lx)
-          this%shared_dof(j, k, 1, i) = shared_dof
-       end do
-
-       call msh%elements(i)%e%facet_id(face, 6)
-       call msh%elements(i)%e%facet_order(face_order, 6)
-       shared_dof = msh%is_shared(face)
-       global_id = msh%get_global(face)
-       facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(3)
-       do concurrent (j = 2:(Xh%lx - 1), k = 2:(Xh%ly - 1))
-          this%dof(j, k, Xh%lz, i) = &
-               dofmap_facetidx(face_order, face, facet_id, k, j, Xh%lz, Xh%lx)
-          this%shared_dof(j, k, Xh%lz, i) = shared_dof
-       end do
-    end do
+    end associate
 
   end subroutine dofmap_number_faces
-
-  !> Get idx for GLL point on face depending on face ordering k and j
-  pure function dofmap_facetidx(face_order, face, facet_id, k1, j1, lk1, &
-       lj1) result(facet_idx)
-    type(tuple4_i4_t), intent(in) :: face_order, face
-    integer(kind=i8), intent(in) :: facet_id
-    integer(kind=i8) :: facet_idx
-    integer, intent(in) :: k1, j1, lk1, lj1
-    integer :: k, j, lk, lj
-
-    k = k1 - 2
-    j = j1 - 2
-    lk = lk1 - 2
-    lj = lj1 - 2
-
-    ! Given the indexes k,j for a GLL point on the inner part of the
-    ! face, we assign a unique number to it that depends on the
-    ! corner with the lowest id and its neighbour with the lowest
-    ! id. The id is assigned in this way to be consistent regardless
-    ! of how the faces are rotated or mirrored.
-    !
-    !   4 -------- 3
-    !     |      |      k
-    !     |----->|      ^
-    !     |----->|      |
-    !     |----->|      |
-    !   1 -------- 2    0--->j
-
-
-    if (face_order%x(1) .eq. face%x(1)) then
-       if (face_order%x(2) .lt. face_order%x(4)) then
-          facet_idx = facet_id + j + k*lj
-       else
-          facet_idx = facet_id + j*lk + k
-       end if
-    else  if (face_order%x(2) .eq. face%x(1)) then
-       if (face_order%x(3) .lt. face_order%x(1)) then
-          facet_idx = facet_id + lk*(lj-1-j) + k
-       else
-          facet_idx = facet_id + (lj-1-j) + k*lj
-       end if
-    else if (face_order%x(3) .eq. face%x(1)) then
-       if (face_order%x(4) .lt. face_order%x(2)) then
-          facet_idx = facet_id + (lj-1-j) + lj*(lk-1-k)
-       else
-          facet_idx = facet_id + lk*(lj-1-j) + (lk-1-k)
-       end if
-    else if (face_order%x(4) .eq. face%x(1)) then
-       if (face_order%x(1) .lt. face_order%x(3)) then
-          facet_idx = facet_id + lk*j + (lk-1-k)
-       else
-          facet_idx = facet_id + j + lj*(lk-1-k)
-       end if
-    end if
-
-  end function dofmap_facetidx
 
   !> Generate x,y,z-coordinates for all dofs
   !! @note Assumes \f$ X_{h_x} = X_{h_y} = X_{h_z} \f$
@@ -830,7 +736,7 @@ contains
           xyzb(2,1,1,j) = element%pts(2)%p%x(j)
           xyzb(1,2,1,j) = element%pts(3)%p%x(j)
           xyzb(2,2,1,j) = element%pts(4)%p%x(j)
-          
+
           xyzb(1,1,2,j) = element%pts(5)%p%x(j)
           xyzb(2,1,2,j) = element%pts(6)%p%x(j)
           xyzb(1,2,2,j) = element%pts(7)%p%x(j)
@@ -1131,7 +1037,7 @@ contains
     ! Symmetric edge to vertex mapping
     integer, parameter, dimension(2, 12) :: edge_nodes = reshape([1, 2, 3, 4, &
          & 5, 6, 7, 8, 1, 3, 2, 4, 5, 7, 6, 8, 1, 5, 2, 6, 3, 7, 4, 8], &
-         & [2,12]) 
+         & [2,12])
     ! copy from hex as this has private attribute there
 
     ! this subroutine is a mess of symmetric and cyclic edge/face numberring and

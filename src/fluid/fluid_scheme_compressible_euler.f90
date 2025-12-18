@@ -61,6 +61,7 @@ module fluid_scheme_compressible_euler
   use utils, only : neko_error, neko_type_error
   use logger, only : LOG_SIZE
   use time_state, only : time_state_t
+  use amr_reconstruct, only : amr_reconstruct_t
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
   implicit none
   private
@@ -87,6 +88,9 @@ module fluid_scheme_compressible_euler
      procedure, pass(this) :: setup_bcs &
           => fluid_scheme_compressible_euler_setup_bcs
      procedure, pass(this) :: compute_h
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => &
+          fluid_scheme_compressible_euler_amr_restart
   end type fluid_scheme_compressible_euler_t
 
   interface
@@ -236,6 +240,9 @@ contains
     call this%dE%free()
 
     ! call this%scheme_free()
+
+    call this%free_amr_base()
+
   end subroutine fluid_scheme_compressible_euler_free
 
   !> Advance the fluid simulation one timestep
@@ -534,5 +541,23 @@ contains
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
     type(chkp_t), intent(inout) :: chkp
   end subroutine fluid_scheme_compressible_euler_restart
+
+  !> AMR restart
+  !! @param[in]  reconstruct   data reconstruction type
+  !! @param[in]  counter       restart counter
+  subroutine fluid_scheme_compressible_euler_amr_restart(this, reconstruct, &
+       counter)
+    class(fluid_scheme_compressible_euler_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(in) :: reconstruct
+    integer, intent(in) :: counter
+
+    call neko_error('Nothing done for AMR reconstruction')
+
+    ! Was this component already refined?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+  end subroutine fluid_scheme_compressible_euler_amr_restart
 
 end module fluid_scheme_compressible_euler
