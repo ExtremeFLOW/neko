@@ -70,12 +70,12 @@ contains
     real(kind=sp) :: value
     real(kind=sp) :: expected = 9.875_sp
 
-    call neko_const_registry%add_scalar(expected, 'ref_scalar')
+    call neko_const_registry%add_scalar(real(expected, kind=rp), 'ref_scalar')
     call json%load_from_string('{"params":{"value":"ref_scalar"}}')
 
     call json_get_or_lookup(json, 'params.value', value)
 
-    @assertEqual(expected, value, tolerance=1e-12_rp)
+    @assertEqual(expected, value, tolerance=1e-12_sp)
   end subroutine test_registry_real_scalar
 
   @test
@@ -123,8 +123,8 @@ contains
     call json%get('params.value', stored, found)
 
     @assertTrue(found)
-    @assertEqual(default_val, value, tolerance=1e-12_rp)
-    @assertEqual(default_val, stored, tolerance=1e-12_rp)
+    @assertEqual(default_val, value, tolerance=1e-12_sp)
+    @assertEqual(default_val, stored, tolerance=1e-12_sp)
   end subroutine test_default_value_for_reals
 
   @test
