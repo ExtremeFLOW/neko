@@ -34,7 +34,7 @@
 module box_point_zone
   use point_zone, only: point_zone_t
   use num_types, only: rp
-  use json_utils, only: json_get, json_get_or_default
+  use json_utils, only: json_get, json_get_or_default, json_get_or_lookup
   use json_module, only: json_file
   use math, only: abscmp
   implicit none
@@ -75,13 +75,13 @@ contains
     real(kind=rp) :: xmin, xmax, ymin, ymax, zmin, zmax
     logical :: invert
 
-    call json_get(json, "x_bounds", values)
+    call json_get_or_lookup(json, "x_bounds", values)
     xmin = values(1)
     xmax = values(2)
-    call json_get(json, "y_bounds", values)
+    call json_get_or_lookup(json, "y_bounds", values)
     ymin = values(1)
     ymax = values(2)
-    call json_get(json, "z_bounds", values)
+    call json_get_or_lookup(json, "z_bounds", values)
     zmin = values(1)
     zmax = values(2)
     call json_get(json, "name", str_read)

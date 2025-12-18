@@ -259,7 +259,7 @@ contains
     call json_get(this%params, 'case.fluid.scheme', string_val)
     call fluid_scheme_base_factory(this%fluid, trim(string_val))
 
-    call json_get(this%params, 'case.numerics.polynomial_order', lx)
+    call json_get_or_lookup(this%params, 'case.numerics.polynomial_order', lx)
     lx = lx + 1 ! add 1 to get number of gll points
     ! Set time lags in chkp
     this%chkp%tlag => this%time%tlag
@@ -480,7 +480,8 @@ contains
     !
     ! Setup output layout of the field bp file
     !
-    call json_get_or_default(this%params, 'case.output_layout', layout, 1)
+    call json_get_or_lookup_or_default(this%params, 'case.output_layout', &
+         layout, 1)
 
     !
     ! Setup output_controller
@@ -509,11 +510,11 @@ contains
        call this%output_controller%add(this%f_out, real_val, 'nsamples')
     else if (trim(string_val) .eq. 'never') then
        ! Fix a dummy 0.0 output_value
-       call json_get_or_default(this%params, 'case.fluid.output_value', &
-            real_val, 0.0_rp)
+       call json_get_or_lookup_or_default(this%params, &
+            'case.fluid.output_value', real_val, 0.0_rp)
        call this%output_controller%add(this%f_out, 0.0_rp, string_val)
     else
-       call json_get(this%params, 'case.fluid.output_value', real_val)
+       call json_get_or_lookup(this%params, 'case.fluid.output_value', real_val)
        call this%output_controller%add(this%f_out, real_val, string_val)
     end if
 

@@ -75,7 +75,7 @@ module fluid_volflow
   use device_mathops, only : device_opchsign
   use gather_scatter, only : gs_t, GS_OP_ADD
   use json_module, only : json_file
-  use json_utils, only: json_get
+  use json_utils, only: json_get, json_get_or_lookup
   use scratch_registry, only : neko_scratch_registry
   use bc_list, only : bc_list_t
   use ax_product, only : ax_t
@@ -113,8 +113,9 @@ contains
     call this%free()
 
     !Initialize vol_flow (if there is a forced volume flow)
-    call json_get(params, 'case.fluid.flow_rate_force.direction', direction)
-    call json_get(params, 'case.fluid.flow_rate_force.value', rate)
+    call json_get_or_lookup(params, 'case.fluid.flow_rate_force.direction', &
+         direction)
+    call json_get_or_lookup(params, 'case.fluid.flow_rate_force.value', rate)
     call json_get(params, 'case.fluid.flow_rate_force.use_averaged_flow',&
          average)
 

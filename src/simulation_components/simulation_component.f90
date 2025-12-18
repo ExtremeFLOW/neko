@@ -41,7 +41,7 @@ module simulation_component
   use case, only : case_t
   use time_based_controller, only : time_based_controller_t
   use json_utils, only : json_get_or_default, json_get, &
-       json_get_or_lookup_or_default
+       json_get_or_lookup_or_default, json_get_or_lookup
   use time_state, only : time_state_t
   implicit none
   private
@@ -307,7 +307,7 @@ contains
     if (compute_control .eq. "fluid_output") then
        call json_get(case_params, 'case.fluid.output_control', &
             compute_control)
-       call json_get(case_params, 'case.fluid.output_value', &
+       call json_get_or_lookup(case_params, 'case.fluid.output_value', &
             compute_value)
     end if
 
@@ -320,7 +320,7 @@ contains
     if (output_control == "global") then
        call json_get(case_params, 'case.fluid.output_control', &
             output_control)
-       call json_get(case_params, 'case.fluid.output_value', &
+       call json_get_or_lookup(case_params, 'case.fluid.output_value', &
             output_value)
     end if
   end subroutine simulation_component_parse_json

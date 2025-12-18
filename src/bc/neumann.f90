@@ -38,7 +38,7 @@ module neumann
   use utils, only : neko_error, nonlinear_index
   use coefs, only : coef_t
   use json_module, only : json_file
-  use json_utils, only : json_get
+  use json_utils, only : json_get_or_lookup
   use math, only : cfill, copy, abscmp
   use vector, only: vector_t
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -115,7 +115,7 @@ contains
 
     ! If we haven't found an array, try to read a single value
     if (.not. found) then
-       call json_get(json, "flux", flux)
+       call json_get_or_lookup(json, "flux", flux)
        allocate(this%init_flux_(1))
        this%init_flux_(1) = flux
     end if

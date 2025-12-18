@@ -58,7 +58,8 @@ module fluid_scheme_incompressible
   use operators, only : cfl, rotate_cyc
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use registry, only : neko_registry
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get, json_get_or_default, json_get_or_lookup, &
+       json_get_or_lookup_or_default
   use json_module, only : json_file
   use scratch_registry, only : neko_scratch_registry
   use user_intf, only : user_t, dummy_user_material_properties, &
@@ -209,16 +210,16 @@ contains
     call this%set_material_properties(params, user)
 
     ! Projection spaces
-    call json_get_or_default(params, &
+    call json_get_or_lookup_or_default(params, &
          'case.fluid.velocity_solver.projection_space_size', &
          this%vel_projection_dim, 0)
-    call json_get_or_default(params, &
+    call json_get_or_lookup_or_default(params, &
          'case.fluid.pressure_solver.projection_space_size', &
          this%pr_projection_dim, 0)
-    call json_get_or_default(params, &
+    call json_get_or_lookup_or_default(params, &
          'case.fluid.velocity_solver.projection_hold_steps', &
          this%vel_projection_activ_step, 5)
-    call json_get_or_default(params, &
+    call json_get_or_lookup_or_default(params, &
          'case.fluid.pressure_solver.projection_hold_steps', &
          this%pr_projection_activ_step, 5)
 
@@ -276,7 +277,7 @@ contains
     ! Initialize velocity solver
     if (kspv_init) then
        call neko_log%section("Velocity solver")
-       call json_get_or_default(params, &
+       call json_get_or_lookup_or_default(params, &
             'case.fluid.velocity_solver.max_iterations', &
             integer_val, KSP_MAX_ITER)
        call json_get(params, 'case.fluid.velocity_solver.type', string_val1)
@@ -284,7 +285,8 @@ contains
             string_val2)
        call json_get(params, &
             'case.fluid.velocity_solver.preconditioner', json_subdict)
-       call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance', &
+       call json_get_or_lookup(params, &
+            'case.fluid.velocity_solver.absolute_tolerance', &
             real_val)
        call json_get_or_default(params, &
             'case.fluid.velocity_solver.monitor', &
@@ -655,7 +657,7 @@ contains
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
 
           ! Read Re into mu for further manipulation.
-          call json_get(params, 'case.fluid.Re', const_mu)
+          call json_get_or_lookup(params, 'case.fluid.Re', const_mu)
           write(log_buf, '(A)') 'Read non-dimensional material properties'
           call neko_log%message(log_buf)
           write(log_buf, '(A,ES13.6)') 'Re         :', const_mu
@@ -667,8 +669,8 @@ contains
           const_mu = 1.0_rp/const_mu
        else
           ! Dimensional case
-          call json_get(params, 'case.fluid.mu', const_mu)
-          call json_get(params, 'case.fluid.rho', const_rho)
+          call json_get_or_lookup(params, 'case.fluid.mu', const_mu)
+          call json_get_or_lookup(params, 'case.fluid.rho', const_rho)
        end if
     end if
 

@@ -34,7 +34,7 @@
 module sphere_point_zone
   use point_zone, only: point_zone_t
   use num_types, only: rp
-  use json_utils, only: json_get, json_get_or_default
+  use json_utils, only: json_get, json_get_or_default, json_get_or_lookup
   use json_module, only: json_file
   use math, only: abscmp
   implicit none
@@ -75,11 +75,11 @@ contains
     real(kind=rp) :: x0, y0, z0, radius
     logical :: invert
 
-    call json_get(json, "center", values)
+    call json_get_or_lookup(json, "center", values)
     x0 = values(1)
     y0 = values(2)
     z0 = values(3)
-    call json_get(json, "radius", value)
+    call json_get_or_lookup(json, "radius", value)
     radius = value
     call json_get(json, "name", str_read)
 

@@ -113,7 +113,7 @@ contains
        call neko_error("The gravity vector should have 3 components")
     end if
 
-    call json_get(json, "reference_value", ref_value)
+    call json_get_or_lookup(json, "reference_value", ref_value)
     call json_get_or_default(json, "beta", beta, 1.0_rp/ref_value)
 
     call boussinesq_source_term_init_from_components(this, fields, scalar_name,&
