@@ -84,11 +84,11 @@ module entropy_viscosity
      procedure, pass(this) :: free => entropy_viscosity_free
      procedure, pass(this) :: compute => entropy_viscosity_compute
      procedure, pass(this) :: update_lag => entropy_viscosity_update_lag
-    procedure, pass(this), private :: compute_residual => entropy_viscosity_compute_residual
-    procedure, pass(this), private :: compute_viscosity => entropy_viscosity_compute_viscosity
-    procedure, pass(this), private :: smooth_viscosity => entropy_viscosity_smooth_viscosity
-    procedure, pass(this), private :: apply_element_max => entropy_viscosity_apply_element_max
-    procedure, pass(this), private :: low_order_viscosity => entropy_viscosity_low_order
+     procedure, pass(this), private :: compute_residual => entropy_viscosity_compute_residual
+     procedure, pass(this), private :: compute_viscosity => entropy_viscosity_compute_viscosity
+     procedure, pass(this), private :: smooth_viscosity => entropy_viscosity_smooth_viscosity
+     procedure, pass(this), private :: apply_element_max => entropy_viscosity_apply_element_max
+     procedure, pass(this), private :: low_order_viscosity => entropy_viscosity_low_order
   end type entropy_viscosity_t
 
   public :: entropy_viscosity_set_fields

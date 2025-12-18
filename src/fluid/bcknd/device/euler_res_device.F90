@@ -593,19 +593,19 @@ contains
     call device_col2(visc_m_y%x_d, coef%Binv_d, n)
     call device_col2(visc_m_z%x_d, coef%Binv_d, n)
     call device_col2(visc_E%x_d, coef%Binv_d, n)
-    
+
     call device_cmult(rhs_rho_field%x_d, -1.0_rp, n)
     call device_sub2(rhs_rho_field%x_d, visc_rho%x_d, n)
-    
+
     call device_cmult(rhs_m_x%x_d, -1.0_rp, n)
     call device_sub2(rhs_m_x%x_d, visc_m_x%x_d, n)
-    
+
     call device_cmult(rhs_m_y%x_d, -1.0_rp, n)
     call device_sub2(rhs_m_y%x_d, visc_m_y%x_d, n)
-    
+
     call device_cmult(rhs_m_z%x_d, -1.0_rp, n)
     call device_sub2(rhs_m_z%x_d, visc_m_z%x_d, n)
-    
+
     call device_cmult(rhs_E%x_d, -1.0_rp, n)
     call device_sub2(rhs_E%x_d, visc_E%x_d, n)
 
