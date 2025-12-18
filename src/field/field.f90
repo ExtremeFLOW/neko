@@ -218,7 +218,9 @@ contains
 
     this%Xh => g%Xh
     this%msh => g%msh
-    this%name = g%name
+    if (len_trim(this%name) == 0) then
+       this%name = g%name
+    end if
 
     if (.not. g%internal_dofmap) then
        this%dof => g%dof
