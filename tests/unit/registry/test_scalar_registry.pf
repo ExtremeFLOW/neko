@@ -1,0 +1,133 @@
+module test_scalar_registry
+  use pfunit
+  use registry, only : registry_t
+  use num_types, only : rp
+  implicit none
+
+  @TestCase
+  type, extends(TestCase) :: test_scalar_reg
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_scalar_reg
+
+contains
+
+  subroutine setUp(this)
+    class(test_scalar_reg), intent(inout) :: this
+    ! nothing to set up
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_scalar_reg), intent(inout) :: this
+    ! nothing to tear down
+  end subroutine tearDown
+
+  @test
+  subroutine test_registry_init(this)
+    class(test_scalar_reg), intent(inout) :: this
+    type(registry_t) :: registry
+
+    call registry%init()
+    @assertEqual(25, registry%get_size())
+    @assertEqual(0, registry%n_entries())
+    @assertEqual(0, registry%n_scalars())
+    @assertEqual(0, registry%n_aliases())
+    @assertEqual(5, registry%get_expansion_size())
+
+    call registry%free()
+    @assertEqual(0, registry%get_size())
+    @assertEqual(0, registry%n_entries())
+    @assertEqual(0, registry%n_scalars())
+    @assertEqual(0, registry%n_aliases())
+    @assertEqual(5, registry%get_expansion_size())
+  end subroutine test_registry_init
+
+  @test
+  subroutine test_registry_init_custom(this)
+    class(test_scalar_reg), intent(inout) :: this
+    type(registry_t) :: registry
+
+    call registry%init(5, 10)
+    @assertEqual(5, registry%get_size())
+    @assertEqual(0, registry%n_entries())
+    @assertEqual(0, registry%n_scalars())
+    @assertEqual(0, registry%n_aliases())
+    @assertEqual(10, registry%get_expansion_size())
+
+    call registry%free()
+  end subroutine test_registry_init_custom
+
+  @test
+  subroutine test_registry_add_scalar(this)
+    class(test_scalar_reg), intent(inout) :: this
+    type(registry_t) :: registry
+    real(kind=rp) :: value
+
+    call registry%init()
+
+    call registry%add_scalar(3.14_rp, 'test_scalar')
+
+    @assertEqual(1, registry%n_scalars())
+    @assertTrue(registry%scalar_exists('test_scalar'))
+
+    value = registry%get_scalar('test_scalar')
+    @assertEqual(3.14_rp, value, tolerance=1e-12_rp)
+
+    call registry%add_scalar(2.71_rp, 'test_scalar', ignore_existing=.true.)
+    @assertEqual(1, registry%n_scalars())
+
+    call registry%free()
+  end subroutine test_registry_add_scalar
+
+  @test
+  subroutine test_registry_add_alias(this)
+    class(test_scalar_reg), intent(inout) :: this
+    type(registry_t) :: registry
+    real(kind=rp) :: value_alias
+
+    call registry%init()
+
+    call registry%add_scalar(1.23_rp, 'test_scalar')
+    call registry%add_alias('test_alias', 'test_scalar')
+    call registry%add_alias('test_alias2', 'test_scalar')
+
+    @assertEqual(1, registry%n_scalars())
+    @assertEqual(2, registry%n_aliases())
+    @assertTrue(registry%scalar_exists('test_scalar'))
+    @assertTrue(registry%scalar_exists('test_alias'))
+    @assertTrue(registry%scalar_exists('test_alias2'))
+
+    value_alias = registry%get_scalar('test_alias')
+    @assertEqual(1.23_rp, value_alias, tolerance=1e-12_rp)
+
+    value_alias = registry%get_scalar('test_alias2')
+    @assertEqual(1.23_rp, value_alias, tolerance=1e-12_rp)
+
+    call registry%free()
+  end subroutine test_registry_add_alias
+
+  @test
+  subroutine test_registry_expand(this)
+    class(test_scalar_reg), intent(inout) :: this
+    type(registry_t) :: registry
+    real(kind=rp) :: value1, value2
+
+    call registry%init(1, 1)
+
+    call registry%add_scalar(1.5_rp, 'test_scalar1')
+    call registry%add_scalar(2.5_rp, 'test_scalar2')
+
+    @assertEqual(2, registry%n_entries())
+    @assertEqual(2, registry%n_scalars())
+
+    value1 = registry%get_scalar('test_scalar1')
+    value2 = registry%get_scalar('test_scalar2')
+
+    @assertEqual(1.5_rp, value1, tolerance=1e-12_rp)
+    @assertEqual(2.5_rp, value2, tolerance=1e-12_rp)
+
+    call registry%free()
+  end subroutine test_registry_expand
+
+end module test_scalar_registry
