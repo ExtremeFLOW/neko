@@ -51,7 +51,7 @@ contains
   module subroutine json_get_or_lookup_real(json, name, val)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
-    real(kind=rp), intent(out) :: val
+    real(kind=sp), intent(out) :: val
 
     character(:), allocatable :: reg_name
     logical :: found
@@ -65,8 +65,32 @@ contains
     call json_get(json, name, reg_name)
 
     ! Retrieve the value from the registry
-    val = neko_const_registry%get_scalar(reg_name)
+    val = real(neko_const_registry%get_scalar(reg_name), kind=sp)
   end subroutine json_get_or_lookup_real
+
+!> Same as `json_get_or_lookup_real`, but for double precision.
+!! @param[inout] json The json to retrieve the parameter from.
+!! @param[in] name The full path to the parameter.
+!! @param[out] value The variable to be populated with the retrieved parameter
+  module subroutine json_get_or_lookup_double(json, name, val)
+    type(json_file), intent(inout) :: json
+    character(len=*), intent(in) :: name
+    real(kind=dp), intent(out) :: val
+
+    character(:), allocatable :: reg_name
+    logical :: found
+
+    ! Try to find a real
+    call json%get(name, val, found)
+    ! The value is retrieved from the JSON keyword, we are done
+    if (found) return
+
+    ! Try to find a string. It must exist
+    call json_get(json, name, reg_name)
+
+    ! Retrieve the value from the registry
+    val = real(neko_const_registry%get_scalar(reg_name), kind=dp)
+  end subroutine json_get_or_lookup_double
 
 !> Retrieves an intiger either from the json or from the corresponding scalar
 !! in the `neko_const_registry`.
@@ -114,8 +138,8 @@ contains
        val, default)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
-    real(kind=rp), intent(out) :: val
-    real(kind=rp), intent(in) :: default
+    real(kind=sp), intent(out) :: val
+    real(kind=sp), intent(in) :: default
 
     character(:), allocatable :: reg_name
     logical :: found
@@ -132,9 +156,40 @@ contains
        call json_get_or_default(json, name, val, default)
     else
        ! Retrieve the array from the registry
-       val = neko_const_registry%get_scalar(reg_name)
+       val = real(neko_const_registry%get_scalar(reg_name), kind=sp)
     end if
   end subroutine json_get_or_lookup_or_default_real
+
+!> Same as `json_get_or_lookup_or_default_real`, but for doubles.
+!! @param[inout] json The json to retrieve the parameter from.
+!! @param[in] name The full path to the parameter.
+!! @param[out] value The variable to be populated with the retrieved parameter
+!! @param[in] defalt The default value to be used if the parameter is not found
+  module subroutine json_get_or_lookup_or_default_double(json, name, &
+       val, default)
+    type(json_file), intent(inout) :: json
+    character(len=*), intent(in) :: name
+    real(kind=dp), intent(out) :: val
+    real(kind=dp), intent(in) :: default
+
+    character(:), allocatable :: reg_name
+    logical :: found
+
+    call json%get(name, val, found)
+    ! The value is retrieved from the JSON keyword, we are done
+    if (found) return
+
+    ! Try to find a string.
+    call json%get(name, reg_name, found)
+    if (.not. found) then
+       ! We use another call here instead of just assigning the defaut value
+       ! to handle whether defaults are allowed as per `json_no_defaults`.
+       call json_get_or_default(json, name, val, default)
+    else
+       ! Retrieve the array from the registry
+       val = real(neko_const_registry%get_scalar(reg_name), kind=dp)
+    end if
+  end subroutine json_get_or_lookup_or_default_double
 
 !> Retrieves an integer either from the json or from the corresponding scalar
 !! in the `neko_registry`, otherwise sets the default value.
@@ -187,7 +242,7 @@ contains
   module subroutine json_get_or_lookup_real_array(json, name, val)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
-    real(kind=rp), allocatable, intent(inout) :: val(:)
+    real(kind=sp), allocatable, intent(inout) :: val(:)
 
     type(vector_t), pointer :: vec_ptr
     logical :: found
@@ -203,9 +258,34 @@ contains
 
     ! Retrieve the array from the registry
     vec_ptr => neko_const_registry%get_vector(reg_name)
-    val = vec_ptr%x
-    write(*,*) vec_ptr%x, val
+    val = real(vec_ptr%x, kind=sp)
   end subroutine json_get_or_lookup_real_array
+
+!> Sampe as `json_get_or_lookup_real_array`, but for double precision.
+!! @param[inout] json The json to retrieve the parameter from.
+!! @param[in] name The full path to the parameter.
+!! @param[out] value The variable to be populated with the retrieved parameter
+  module subroutine json_get_or_lookup_double_array(json, name, val)
+    type(json_file), intent(inout) :: json
+    character(len=*), intent(in) :: name
+    real(kind=dp), allocatable, intent(inout) :: val(:)
+
+    type(vector_t), pointer :: vec_ptr
+    logical :: found
+    character(:), allocatable :: reg_name
+
+    ! Try to find a real array
+    call json%get(name, val, found)
+    ! The value is retrieved from the JSON keyword, we are done
+    if (found) return
+
+    ! Try to find a string. It must exist
+    call json_get(json, name, reg_name)
+
+    ! Retrieve the array from the registry
+    vec_ptr => neko_const_registry%get_vector(reg_name)
+    val = real(vec_ptr%x, kind=dp)
+  end subroutine json_get_or_lookup_double_array
 
 !> Retrieves ain int array either from the json or from the corresponding vector
 !! in the `neko_registry`.

@@ -62,14 +62,14 @@ module json_utils
   end interface json_get_or_default
 
   interface json_get_or_lookup
-     module procedure json_get_or_lookup_real, &
-          json_get_or_lookup_real_array, &
-          json_get_or_lookup_integer, &
-          json_get_or_lookup_integer_array
+     module procedure json_get_or_lookup_real, json_get_or_lookup_double, &
+          json_get_or_lookup_real_array, json_get_or_lookup_double_array, &
+          json_get_or_lookup_integer, json_get_or_lookup_integer_array
   end interface json_get_or_lookup
 
   interface json_get_or_lookup_or_default
      module procedure json_get_or_lookup_or_default_real, &
+          json_get_or_lookup_or_default_double, &
           json_get_or_lookup_or_default_integer
   end interface json_get_or_lookup_or_default
 
@@ -78,15 +78,19 @@ module json_utils
   end interface json_extract_item
 
   interface
-     module subroutine json_get_or_lookup_real(json, name, &
-          val)
+     module subroutine json_get_or_lookup_real(json, name, val)
        type(json_file), intent(inout) :: json
        character(len=*), intent(in) :: name
-       real(kind=rp), intent(out) :: val
+       real(kind=sp), intent(out) :: val
      end subroutine json_get_or_lookup_real
 
-     module subroutine json_get_or_lookup_integer(json, name, &
-          val)
+     module subroutine json_get_or_lookup_double(json, name, val)
+       type(json_file), intent(inout) :: json
+       character(len=*), intent(in) :: name
+       real(kind=dp), intent(out) :: val
+     end subroutine json_get_or_lookup_double
+
+     module subroutine json_get_or_lookup_integer(json, name, val)
        type(json_file), intent(inout) :: json
        character(len=*), intent(in) :: name
        integer, intent(out) :: val
@@ -96,9 +100,18 @@ module json_utils
           name, val, default)
        type(json_file), intent(inout) :: json
        character(len=*), intent(in) :: name
-       real(kind=rp), intent(out) :: val
-       real(kind=rp), intent(in) :: default
+       real(kind=sp), intent(out) :: val
+       real(kind=sp), intent(in) :: default
      end subroutine json_get_or_lookup_or_default_real
+
+     module subroutine json_get_or_lookup_or_default_double(json, &
+          name, val, default)
+       type(json_file), intent(inout) :: json
+       character(len=*), intent(in) :: name
+       real(kind=dp), intent(out) :: val
+       real(kind=dp), intent(in) :: default
+     end subroutine json_get_or_lookup_or_default_double
+
      module subroutine json_get_or_lookup_or_default_integer(json,&
           name, val, default)
        type(json_file), intent(inout) :: json
@@ -107,15 +120,19 @@ module json_utils
        integer, intent(in) :: default
      end subroutine json_get_or_lookup_or_default_integer
 
-     module subroutine json_get_or_lookup_real_array(json, name, &
-          val)
+     module subroutine json_get_or_lookup_real_array(json, name, val)
        type(json_file), intent(inout) :: json
        character(len=*), intent(in) :: name
-       real(kind=rp), allocatable, intent(inout) :: val(:)
+       real(kind=sp), allocatable, intent(inout) :: val(:)
      end subroutine json_get_or_lookup_real_array
 
-     module subroutine json_get_or_lookup_integer_array(json, &
-          name, val)
+     module subroutine json_get_or_lookup_double_array(json, name, val)
+       type(json_file), intent(inout) :: json
+       character(len=*), intent(in) :: name
+       real(kind=dp), allocatable, intent(inout) :: val(:)
+     end subroutine json_get_or_lookup_double_array
+
+     module subroutine json_get_or_lookup_integer_array(json, name, val)
        type(json_file), intent(inout) :: json
        character(len=*), intent(in) :: name
        integer, allocatable, intent(inout) :: val(:)
@@ -155,6 +172,22 @@ contains
 
     call json%get(name, value)
   end subroutine json_get_double
+
+  !> Retrieves a single precision real parameter by name or throws an error
+  !! @param[inout] json The json to retrieve the parameter from.
+  !! @param[in] name The full path to the parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter
+  subroutine json_get_single(json, name, value)
+    type(json_file), intent(inout) :: json
+    character(len=*), intent(in) :: name
+    real(kind=sp), intent(out) :: value
+
+    if (.not. json%valid_path(name)) then
+       call neko_error("Parameter " // name // " missing from the case file")
+    end if
+
+    call json%get(name, value)
+  end subroutine json_get_single
 
   !> Retrieves an integer parameter by name or throws an error
   !! @param[inout] json The json to retrieve the parameter from.
@@ -229,7 +262,7 @@ contains
     call json%get(name, value)
   end subroutine json_get_real_array
 
-  !> Retrieves a real array parameter by name or throws an error
+  !> Retrieves a double precision array parameter by name or throws an error.
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
   !! @param[out] value The variable to be populated with the retrieved parameter
@@ -377,7 +410,8 @@ contains
     end if
   end subroutine json_get_or_default_real
 
-  !> Retrieves a real parameter by name or assigns a provided default value.
+  !> Retrieves a double precision parameter by name or assigns a provided
+  !! default value.
   !! In the latter case also adds the missing paramter to the json.
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
@@ -398,6 +432,29 @@ contains
        call neko_error("Parameter " // name // " missing from the case file")
     end if
   end subroutine json_get_or_default_double
+
+  !> Retrieves a signle precision parameter by name or assigns a provided
+  !! default value.
+  !! In the latter case also adds the missing paramter to the json.
+  !! @param[inout] json The json to retrieve the parameter from.
+  !! @param[in] name The full path to the parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter
+  subroutine json_get_or_default_single(json, name, value, default)
+    type(json_file), intent(inout) :: json
+    character(len=*), intent(in) :: name
+    real(kind=sp), intent(out) :: value
+    real(kind=sp), intent(in) :: default
+    logical :: found
+
+    call json%get(name, value, found)
+
+    if ((.not. found) .and. (json_no_defaults .eqv. .false.)) then
+       value = default
+       call json%add(name, value)
+    else if (.not. found) then
+       call neko_error("Parameter " // name // " missing from the case file")
+    end if
+  end subroutine json_get_or_default_single
 
   !> Retrieves an integer parameter by name or assigns a provided default value.
   !! In the latter case also adds the missing paramter to the json.

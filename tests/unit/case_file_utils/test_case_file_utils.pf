@@ -4,7 +4,7 @@ module test_case_file_utils
   use json_utils, only : json_get_or_lookup, json_no_defaults, &
        json_get_or_lookup_or_default
   use neko_config, only : NEKO_BCKND_DEVICE
-  use num_types, only : rp
+  use num_types, only : rp, sp, dp
   use registry, only : neko_const_registry
   use vector, only : vector_t
   use device, only : device_init, device_finalize, HOST_TO_DEVICE
@@ -67,8 +67,8 @@ contains
   subroutine test_registry_real_scalar(this)
     class(case_file_utils_tc), intent(inout) :: this
     type(json_file) :: json
-    real(kind=rp) :: value
-    real(kind=rp) :: expected = 9.875_rp
+    real(kind=sp) :: value
+    real(kind=sp) :: expected = 9.875_sp
 
     call neko_const_registry%add_scalar(expected, 'ref_scalar')
     call json%load_from_string('{"params":{"value":"ref_scalar"}}')
@@ -77,6 +77,21 @@ contains
 
     @assertEqual(expected, value, tolerance=1e-12_rp)
   end subroutine test_registry_real_scalar
+
+  @test
+  subroutine test_registry_double_scalar(this)
+    class(case_file_utils_tc), intent(inout) :: this
+    type(json_file) :: json
+    real(kind=dp) :: value
+    real(kind=dp) :: expected = 9.875_sp
+
+    call neko_const_registry%add_scalar(real(expected, kind=rp), 'ref_scalar')
+    call json%load_from_string('{"params":{"value":"ref_scalar"}}')
+
+    call json_get_or_lookup(json, 'params.value', value)
+
+    @assertEqual(expected, value, tolerance=1e-12_rp)
+  end subroutine test_registry_double_scalar
 
   @test
   subroutine test_registry_real_integer(this)
@@ -97,9 +112,9 @@ contains
   subroutine test_default_value_for_reals(this)
     class(case_file_utils_tc), intent(inout) :: this
     type(json_file) :: json
-    real(kind=rp) :: value, stored
+    real(kind=sp) :: value, stored
     logical :: found
-    real(kind=rp), parameter :: default_val = 3.14_rp
+    real(kind=sp), parameter :: default_val = 3.14_rp
 
     call json%load_from_string('{}')
 
@@ -113,26 +128,58 @@ contains
   end subroutine test_default_value_for_reals
 
   @test
+  subroutine test_default_value_for_doubles(this)
+    class(case_file_utils_tc), intent(inout) :: this
+    type(json_file) :: json
+    real(kind=dp) :: value, stored
+    logical :: found
+    real(kind=dp), parameter :: default_val = 3.14_dp
+
+    call json%load_from_string('{}')
+
+    call json_get_or_lookup_or_default(json, 'params.value', value, &
+         default_val)
+    call json%get('params.value', stored, found)
+
+    @assertTrue(found)
+    @assertEqual(default_val, value, tolerance=1e-12_dp)
+    @assertEqual(default_val, stored, tolerance=1e-12_dp)
+  end subroutine test_default_value_for_doubles
+
+  @test
   subroutine test_real_array_from_json(this)
     class(case_file_utils_tc), intent(inout) :: this
     type(json_file) :: json
-    real(kind=rp), allocatable :: values(:)
-    real(kind=rp), parameter :: expected(3) = [0.5_rp, 1.5_rp, 2.5_rp]
+    real(kind=sp), allocatable :: values(:)
+    real(kind=sp), parameter :: expected(3) = [0.5_sp, 1.5_sp, 2.5_sp]
 
     call json%load_from_string('{"params":{"arr":[0.5,1.5,2.5]}}')
 
     call json_get_or_lookup(json, 'params.arr', values)
 
-    @assertEqual(expected, values, tolerance=1e-12_rp)
+    @assertEqual(expected, values, tolerance=1e-12_sp)
   end subroutine test_real_array_from_json
-!
+
+  @test
+  subroutine test_double_array_from_json(this)
+    class(case_file_utils_tc), intent(inout) :: this
+    type(json_file) :: json
+    real(kind=dp), allocatable :: values(:)
+    real(kind=dp), parameter :: expected(3) = [0.5_dp, 1.5_dp, 2.5_dp]
+    call json%load_from_string('{"params":{"arr":[0.5,1.5,2.5]}}')
+
+    call json_get_or_lookup(json, 'params.arr', values)
+
+    @assertEqual(expected, values, tolerance=1e-12_dp)
+  end subroutine test_double_array_from_json
+
   @test
   subroutine test_real_array_from_registry(this)
     class(case_file_utils_tc), intent(inout) :: this
     type(json_file) :: json
-    real(kind=rp), allocatable :: values(:)
+    real(kind=sp), allocatable :: values(:)
     type(vector_t), pointer :: vec_ptr
-    real(kind=rp), parameter :: expected(4) = [2.0_rp, 4.0_rp, 6.0_rp, 8.0_rp]
+    real(kind=sp), parameter :: expected(4) = [2.0_sp, 4.0_sp, 6.0_sp, 8.0_sp]
 
     call neko_const_registry%add_vector(size(expected), 'arr_ref')
     vec_ptr => neko_const_registry%get_vector('arr_ref')
@@ -142,8 +189,27 @@ contains
 
     call json_get_or_lookup(json, 'params.arr', values)
 
-    @assertEqual(expected, values, tolerance=1e-12_rp)
+    @assertEqual(expected, values, tolerance=1e-12_sp)
   end subroutine test_real_array_from_registry
+
+  @test
+  subroutine test_double_array_from_registry(this)
+    class(case_file_utils_tc), intent(inout) :: this
+    type(json_file) :: json
+    real(kind=dp), allocatable :: values(:)
+    type(vector_t), pointer :: vec_ptr
+    real(kind=dp), parameter :: expected(4) = [2.0_dp, 4.0_dp, 6.0_dp, 8.0_dp]
+
+    call neko_const_registry%add_vector(size(expected), 'arr_ref')
+    vec_ptr => neko_const_registry%get_vector('arr_ref')
+    vec_ptr%x = expected
+
+    call json%load_from_string('{"params":{"arr":"arr_ref"}}')
+
+    call json_get_or_lookup(json, 'params.arr', values)
+
+    @assertEqual(expected, values, tolerance=1e-12_dp)
+  end subroutine test_double_array_from_registry
 
   @test
   subroutine test_integer_array_from_json(this)
