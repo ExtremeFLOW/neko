@@ -33,7 +33,7 @@
 !> Abstract types for mesh manager data redistribution
 module mesh_manager_transfer
   use mpi_f08
-  use num_types, only : i4, i8, rp, dp
+  use num_types, only : rp
   use comm, only : NEKO_COMM, pe_rank
   use logger, only : neko_log, NEKO_LOG_QUIET, NEKO_LOG_INFO, &
        NEKO_LOG_VERBOSE, NEKO_LOG_DEBUG, LOG_SIZE
@@ -58,6 +58,15 @@ module mesh_manager_transfer
      !> Construct new element distribution
      procedure(mesh_manager_element_dist), pass(this), deferred :: &
           elem_dist_construct
+     !> Get refinement/coarsening vector sizes and mappings
+     procedure(mesh_manager_vector_map), pass(this), deferred :: &
+          vector_map
+     !> Free refinement/coarsening vector sizes and mappings
+     procedure(mesh_manager_free), pass(this), deferred :: &
+          vector_map_free
+     !> Construct vectors for refinement/coarsening
+     procedure(mesh_manager_vector_constr), pass(this), deferred :: &
+          vector_constr
   end type mesh_manager_transfer_t
 
   abstract interface
@@ -74,6 +83,33 @@ module mesh_manager_transfer
        class(mesh_manager_transfer_t), intent(inout) :: this
        class(manager_mesh_t), intent(in) :: mesh
      end subroutine mesh_manager_element_dist
+
+     !> Get refinement/coarsening vectors sizes and mappings
+     !! @param[out]    nold    old element number
+     !! @param[out]    nnew    new element number
+     !! @param[out]    nref    refinement mapping size
+     !! @param[out]    ncrs    coarsening mapping size
+     !! @param[inout]  rmap    refinement mapping (element and child position)
+     !! @param[inout]  cmap    coarsening mapping (element position)
+     subroutine mesh_manager_vector_map(this, nold, nnew, nref, ncrs, rmap, &
+          cmap)
+       import mesh_manager_transfer_t, rp
+       class(mesh_manager_transfer_t), intent(inout) :: this
+       integer, intent(out) :: nold, nnew, nref, ncrs
+       integer, dimension(:, :), allocatable, intent(inout) :: rmap
+       integer, dimension(:), allocatable, intent(inout) :: cmap
+     end subroutine mesh_manager_vector_map
+
+     !> Construct vectors for refinement/coarsening
+     !! @param[in]   vin     original vector
+     !! @param[out]  vout    output vector for refinement
+     !! @param[out]  vcrs    vector with additional data for coarsening
+     subroutine mesh_manager_vector_constr(this, vin, vout, vcrs)
+       import mesh_manager_transfer_t, rp
+       class(mesh_manager_transfer_t), intent(inout) :: this
+       real(rp), dimension(:, :, :, :), intent(in) :: vin
+       real(rp), dimension(:, :, :, :), intent(out) :: vout, vcrs
+     end subroutine mesh_manager_vector_constr
   end interface
 
 contains

@@ -33,7 +33,7 @@
 !> The vector reconstruction/interpolation routines for AMR
 module amr_reconstruct
   use neko_config
-  use num_types, only : rp
+  use num_types, only : i8, rp
   use utils, only : neko_error, neko_warning
   use speclib, only : igllm
   use space, only : space_t, GLL
@@ -46,6 +46,9 @@ module amr_reconstruct
   implicit none
   private
 
+  ! number of children; 3D only
+  integer, parameter :: amr_nchildren = 8
+
   !> Type for vector/field reconstruction
   type, public :: amr_reconstruct_t
      !> pointer mesh manager data transfer
@@ -53,26 +56,42 @@ module amr_reconstruct
      !> Function space \f$ X_h \f$
      type(space_t) :: Xh
      !> Interpolation operators; coarse to fine
-     real(rp), allocatable, dimension(:,:,:) :: x_cr2fn, x_cr2fnT
-     real(rp), allocatable, dimension(:,:,:) :: y_cr2fn, y_cr2fnT
-     real(rp), allocatable, dimension(:,:,:) :: z_cr2fn, z_cr2fnT
+     real(rp), allocatable, dimension(:, :, :) :: x_cr2fn, x_cr2fnT
+     real(rp), allocatable, dimension(:, :, :) :: y_cr2fn, y_cr2fnT
+     real(rp), allocatable, dimension(:, :, :) :: z_cr2fn, z_cr2fnT
      !> Interpolation operators; fine to coarse
-     real(rp), allocatable, dimension(:,:,:) :: x_fn2cr, x_fn2crT
-     real(rp), allocatable, dimension(:,:,:) :: y_fn2cr, y_fn2crT
-     real(rp), allocatable, dimension(:,:,:) :: z_fn2cr, z_fn2crT
+     real(rp), allocatable, dimension(:, :, :) :: x_fn2cr, x_fn2crT
+     real(rp), allocatable, dimension(:, :, :) :: y_fn2cr, y_fn2crT
+     real(rp), allocatable, dimension(:, :, :) :: z_fn2cr, z_fn2crT
      ! used for coarsening after children face summation
      ! I assume lx=ly=lz, but in general there should be 3 face and edge arrays
      !> Point multiplicity; element
-     real(rp), allocatable, dimension(:,:,:) :: el_mult
+     real(rp), allocatable, dimension(:, :, :) :: el_mult
      !> Point multiplicity; face
-     real(rp), allocatable, dimension(:,:) :: fc_mult
+     real(rp), allocatable, dimension(:, :) :: fc_mult
      !> Point multiplicity; edge
      real(rp), allocatable, dimension(:) :: ed_mult
 
      !> Work space for single element refinement
-     real(rp), allocatable, dimension(:,:,:,:) :: tmp
-     !> Work space for the whole array
-     real(rp), allocatable, dimension(:,:,:,:) :: ftmp
+     real(rp), allocatable, dimension(:, :, :, :) :: tmp
+
+     ! Arrays sizes
+     !> Old element number
+     integer :: nold
+     !> New element number
+     integer :: nnew
+     !> Refinement mapping size
+     integer :: nref
+     !> Coarsening mapping size
+     integer :: ncrs
+     !> Refinement mapping (element and child position)
+     integer, dimension(:, :), allocatable :: rmap
+     !> Coarsening mapping (element position)
+     integer, dimension(:), allocatable :: cmap
+     !> Output vector for refinement
+     real(rp), allocatable, dimension(:, :, :, :) :: vout
+     !> Vector with additional data for coarsening
+     real(rp), allocatable, dimension(:, :, :, :, :) :: vcrs
 
      !
      ! Device pointers (if present)
@@ -98,6 +117,12 @@ module amr_reconstruct
      procedure, pass(this) :: init => amr_reconstruct_init
      !> Free type
      procedure, pass(this) :: free => amr_reconstruct_free
+     !> Get refinement/coarsening mapping
+     procedure, pass(this) :: map_get => amr_reconstruct_map_get
+     !> free refinement/coarsening mapping
+     procedure, pass(this) :: map_free => amr_reconstruct_map_free
+     !> Single field coarsening operation
+     procedure, pass(this) :: coarsen_single => amr_reconstruct_coarsen_single
      !> Map single coarse to fine element
      procedure, pass(this) :: map_c2f => amr_reconstruct_map_c2f
      !> Map single fine to coarse element
@@ -334,6 +359,11 @@ contains
 
     call this%Xh%free()
 
+    this%nold = 0
+    this%nnew = 0
+    this%nref = 0
+    this%ncrs = 0
+
     if (allocated(this%x_cr2fn)) deallocate(this%x_cr2fn)
     if (allocated(this%x_cr2fnT)) deallocate(this%x_cr2fnT)
     if (allocated(this%x_fn2cr)) deallocate(this%x_fn2cr)
@@ -354,7 +384,11 @@ contains
     if (allocated(this%ed_mult)) deallocate(this%ed_mult)
 
     if (allocated(this%tmp)) deallocate(this%tmp)
-    if (allocated(this%ftmp)) deallocate(this%ftmp)
+
+    if (allocated(this%rmap)) deallocate(this%rmap)
+    if (allocated(this%cmap)) deallocate(this%cmap)
+    if (allocated(this%vout)) deallocate(this%vout)
+    if (allocated(this%vcrs)) deallocate(this%vcrs)
 
     !
     ! Cleanup the device (if present)
@@ -378,7 +412,69 @@ contains
 
   end subroutine amr_reconstruct_free
 
-  
+  !> Get refinement/coarsening mapping
+  subroutine amr_reconstruct_map_get(this)
+    class(amr_reconstruct_t), intent(inout) :: this
+
+    call this%transfer%vector_map(this%nold, this%nnew, this%nref, this%ncrs, &
+         this%rmap, this%cmap)
+
+    ! get coarsening vector
+    allocate(this%vcrs(this%Xh%lx, this%Xh%ly, this%Xh%lz, amr_nchildren, &
+         this%ncrs))
+  end subroutine amr_reconstruct_map_get
+
+  !> Free refinement/coarsening mapping
+  subroutine amr_reconstruct_map_free(this)
+    class(amr_reconstruct_t), intent(inout) :: this
+
+    call this%transfer%vector_map_free()
+
+    this%nold = 0
+    this%nnew = 0
+    this%nref = 0
+    this%ncrs = 0
+
+    if (allocated(this%rmap)) deallocate(this%rmap)
+    if (allocated(this%cmap)) deallocate(this%cmap)
+    if (allocated(this%vout)) deallocate(this%vout)
+    if (allocated(this%vcrs)) deallocate(this%vcrs)
+
+  end subroutine amr_reconstruct_map_free
+
+  !> @brief Perform a single field coarsening operation
+  !! @param[inout] vcf     coarsened vector
+  subroutine amr_reconstruct_coarsen_single(this, vfc)
+    class(amr_reconstruct_t), intent(inout) :: this
+    real(rp), dimension(:,:,:,:), intent(inout) :: vfc
+    integer :: il, jl, itmp
+    integer, dimension(3) :: ch_pos
+
+!!$    ! JUST A PLACEHOLDER FOR NOW
+!!$    ! I assume el_lst(1) gives position of the coarse block
+!!$    ! and final ch_pos() = 1,1,1
+!!$    ! loop over coarsened elements
+!!$    do il= 1, this%transfer%coarsen_nr
+!!$       ! loop over all the children
+!!$       do jl= 1, amr_nchildren
+!!$          ! get child position
+!!$          itmp = this%transfer%coarsen(2, jl, il) ! new position in the array
+!!$          ch_pos(3) = (jl-1)/4 + 1 ! z position
+!!$          ch_pos(2) = mod((jl - 1)/2, 2) + 1 ! y position
+!!$          ch_pos(1) = mod(jl - 1, 2) +1 ! x position
+!!$          ! coarsen; 3D only
+!!$          call this%map_f2c(3, ch_pos, vfc(:,:,:,itmp), this%tmp(:,:,:,3))
+!!$          ! sum contributions
+!!$          if (jl == 1) then
+!!$             vfc(:,:,:,itmp) = this%tmp(:,:,:,3)
+!!$          else
+!!$             vfc(:,:,:,itmp) =  vfc(:,:,:,itmp) + this%tmp(:,:,:,3)
+!!$          end if
+!!$       end do
+!!$       vfc(:,:,:,itmp) =  vfc(:,:,:,itmp)*this%el_mult(:,:,:)
+!!$    end do
+
+  end subroutine amr_reconstruct_coarsen_single
 
   !> @brief Map a single coarse element to a fine one
   !! @param[in]    gdim    geometrical dimension
@@ -386,13 +482,11 @@ contains
   !! @param[in]    vc      coarse element vector
   !! @param[out]   vf      fine element vector
   subroutine amr_reconstruct_map_c2f(this, gdim, ch_pos, vc, vf)
-    ! argument list
     class(amr_reconstruct_t), intent(inout) :: this
     integer, intent(in) :: gdim
     integer, dimension(3), intent(in) :: ch_pos
     real(rp), dimension(:,:,:), intent(in) :: vc
     real(rp), dimension(:,:,:), intent(out) :: vf
-    ! local variables
     integer :: iz
 
     if (gdim == 3) then ! 3D
@@ -413,7 +507,6 @@ contains
             & this%Xh%ly, vf, this%Xh%ly)
     end if
 
-    return
   end subroutine amr_reconstruct_map_c2f
 
   !> @brief Map a single fine element to a coarse one
@@ -422,13 +515,11 @@ contains
   !! @param[in]    vf      fine element vector
   !! @param[out]   vc      coarse element vector
   subroutine amr_reconstruct_map_f2c(this, gdim, ch_pos, vf, vc)
-    ! argument list
     class(amr_reconstruct_t), intent(inout) :: this
     integer, intent(in) :: gdim
     integer, dimension(3), intent(in) :: ch_pos
     real(rp), dimension(:,:,:), intent(in) :: vf
     real(rp), dimension(:,:,:), intent(out) :: vc
-    ! local variables
     integer :: iz
 
     if (gdim == 3) then ! 3D
@@ -449,7 +540,6 @@ contains
             & this%Xh%ly, vc, this%Xh%ly)
     end if
 
-    return
   end subroutine amr_reconstruct_map_f2c
 
 end module amr_reconstruct

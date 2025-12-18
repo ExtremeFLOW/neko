@@ -282,15 +282,17 @@ contains
           write(log_buf, '(a)') 'Restarting solver'
           call neko_log%message(log_buf, NEKO_LOG_INFO)
 
-          ! place to reconstruct geometry and correct mesh manager vertex
-          ! position
-          ! one should do gs here as well
-
           ! Reconstruct neko mesh
           call mesh_manager%mesh_construct(mesh, .false.)
 
+          ! Get mapping for vector reconstruction
+          call this%reconstruct%map_get()
+
           ! restart solver
           call this%restart(user)
+
+          ! Free mapping for vector reconstruction
+          call this%reconstruct%map_free()
        end if
 
        call profiler_end_region("Mesh refinement", 30)

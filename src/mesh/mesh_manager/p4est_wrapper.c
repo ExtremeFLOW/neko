@@ -2027,7 +2027,7 @@ void iter_msh_hst(p4est_iter_volume_info_t * info, void *user_data) {
     trans_data->rfn_nr = trans_data->rfn_nr + 1;
     // set dummy element map
     trans_data->elgl_mapg[iwlt] = 0;
-    trans_data->elgl_map[2 * iwlt] = 0;
+    trans_data->elgl_map[2 * iwlt] = (int) trans_data->rfn_nr;
     trans_data->elgl_map[2 * iwlt + 1] = 0;
     icg = (trans_data->rfn_nr - 1) * 2;
     ic = (trans_data->rfn_nr - 1) * 3;
@@ -2046,7 +2046,7 @@ void iter_msh_hst(p4est_iter_volume_info_t * info, void *user_data) {
     // set dummy element map
     trans_data->elgl_mapg[iwlt] = 0;
     trans_data->elgl_map[2 * iwlt] = 0;
-    trans_data->elgl_map[2 * iwlt + 1] = 0;
+    trans_data->elgl_map[2 * iwlt + 1] = (int) trans_data->crs_nr;
     // new global position
     ic =(trans_data->crs_nr - 1) * 2 * P4EST_CHILDREN;
     trans_data->elgl_crsg[ic] = iwg + 1;

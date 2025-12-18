@@ -63,29 +63,51 @@ module mesh_manager_transfer_p4est
      !> Backward communication (mm<-neko); local element number and MPI rank
      integer(i4), allocatable, dimension(:, :) :: bwd_cmm
      ! element reconstruction data
+     !> Old local element number on neko side
+     integer(i4) :: nelt_old
+     !> Old element global id on neko side
+     integer(i8), allocatable, dimension(:) :: gidx_old
      !> Number of untouched elements
      integer(i4) :: same_nr
      !> Old global id of untouched elements
+     ! of size nelt_mm
      integer(i8), allocatable, dimension(:) :: same_gidx
      !> Mapping of untouched elements
+     ! of size nelt_mm
+     ! if same_gidx /= 0:
      ! 1 - old local id; 2 - old MPI rank
+     ! if same_gidx == 0:
+     ! 1 - corresponding position in refine;
+     ! 2 - corresponding position in coarsen
      integer(i4), allocatable, dimension(:, :) :: same
      !> Number of refined elements
      integer(i4) :: refine_nr
      !> Global id of refined elements
+     ! of size refine_nr
      ! 1 - current global id; 2 - old parent global id
      integer(i8), allocatable, dimension(:, :) :: refine_gidx
      !> Mapping of refined elements
+     ! of size refine_nr
      ! 1 - old parent local id; 2 - old parent MPI rank; 3 - child position
      integer(i4), allocatable, dimension(:, :) :: refine
      !> Number of coarsened elements
      integer(i4) :: coarsen_nr
      !> Global id of coarsened elements
+     ! of size coarsen_nr
      ! 1 - new global id; 2 - old child global id
      integer(i8), allocatable, dimension(:, :, :) :: coarsen_gidx
      !> Mapping of coarsened elements
+     ! of size coarsen_nr
      ! 1 - old child local id; 2 - old child MPI rank
      integer(i4), allocatable, dimension(:, :, :) :: coarsen
+     ! Communication part
+     !> Communication flag for vector refinement/coarsening step
+     logical :: ifcomm
+     !> Mapping for filling output vector with same and refine elements
+     ! positive - element from local vector
+     ! negative - element fetched from other rank
+     ! 0 - coarsening; do not fill
+     integer(i4), allocatable, dimension(:) :: same_ref_fill_map
    contains
      !> Destructor.
      procedure, pass(this) :: free => p4est_free
@@ -97,6 +119,12 @@ module mesh_manager_transfer_p4est
      procedure, pass(this) :: neko_elem_dist_set => p4est_neko_elem_dist_set
      !> Set element distribution for field reconstruction
      procedure, pass(this) :: reconstruct_data_set => p4est_reconstruct_data_set
+     !> Get refinement/coarsening vector sizes and mappings
+     procedure, pass(this) :: vector_map => p4est_vector_map
+     !> Free refinement/coarsening vector mappings
+     procedure, pass(this) :: vector_map_free => p4est_vector_map_free
+     !> Construct vectors for refinement/coarsening
+     procedure, pass(this) :: vector_constr => p4est_vector_constr
   end type mesh_manager_transfer_p4est_t
 
 contains
@@ -109,20 +137,24 @@ contains
 
     this%nelt_mm = 0
     this%nelt_neko = 0
+    this%nelt_old = 0
     this%same_nr = 0
     this%refine_nr = 0
     this%coarsen_nr = 0
+    this%ifcomm = .false.
 
     if (allocated(this%gidx_mm)) deallocate(this%gidx_mm)
     if (allocated(this%gidx_neko)) deallocate(this%gidx_neko)
     if (allocated(this%fwd_cmm)) deallocate(this%fwd_cmm)
     if (allocated(this%bwd_cmm)) deallocate(this%bwd_cmm)
+    if (allocated(this%gidx_old)) deallocate(this%gidx_old)
     if (allocated(this%same_gidx)) deallocate(this%same_gidx)
     if (allocated(this%same)) deallocate(this%same)
     if (allocated(this%refine_gidx)) deallocate(this%refine_gidx)
     if (allocated(this%refine)) deallocate(this%refine)
     if (allocated(this%coarsen_gidx)) deallocate(this%coarsen_gidx)
     if (allocated(this%coarsen)) deallocate(this%coarsen)
+    if (allocated(this%same_ref_fill_map)) deallocate(this%same_ref_fill_map)
 
   end subroutine p4est_free
 
@@ -133,11 +165,15 @@ contains
     class(manager_mesh_t), intent(in) :: mesh
     integer :: il
 
+    ! save old element distribution
+    this%nelt_old = this%nelt_neko
+    if (allocated(this%gidx_neko)) call move_alloc(this%gidx_neko, &
+         this%gidx_old)
+
     ! clean old element distribution
     this%nelt_mm = 0
     this%nelt_neko = 0
     if (allocated(this%gidx_mm)) deallocate(this%gidx_mm)
-    if (allocated(this%gidx_neko)) deallocate(this%gidx_neko)
     if (allocated(this%fwd_cmm)) deallocate(this%fwd_cmm)
     if (allocated(this%bwd_cmm)) deallocate(this%bwd_cmm)
 
@@ -150,7 +186,7 @@ contains
           allocate(this%gidx_mm(this%nelt_mm), this%fwd_cmm(2, this%nelt_mm))
           this%gidx_mm(:) = mesh%gidx(:)
 
-          call neko_error('Nothing done yet')
+          call neko_error('Nothing done yet; partitioning')
        else
           ! no partitioning; mesh manager and neko share element distribution
           this%nelt_mm = mesh%nelt
@@ -190,7 +226,7 @@ contains
     if (this%ifpartition) then
        ! backward communication
 
-       call neko_error('Nothing done yet')
+       call neko_error('Nothing done yet; mark_transfer')
     else
        ! the same distribution
        pref_mark(:) = ref_mark(:)
@@ -239,5 +275,146 @@ contains
     call move_alloc(coarsen, this%coarsen)
 
   end subroutine p4est_reconstruct_data_set
+
+  !> Get refinement/coarsening vectors sizes and mappings
+  !! @param[out]    nold    old element number
+  !! @param[out]    nnew    new element number
+  !! @param[out]    nref    refinement mapping size
+  !! @param[out]    ncrs    coarsening mapping size
+  !! @param[inout]  rmap    refinement mapping (element and child position)
+  !! @param[inout]  cmap    coarsening mapping (element position)
+  subroutine p4est_vector_map(this, nold, nnew, nref, ncrs, rmap, cmap)
+    class(mesh_manager_transfer_p4est_t), intent(inout) :: this
+    integer, intent(out) :: nold, nnew, nref, ncrs
+    integer, dimension(:, :), allocatable, intent(inout) :: rmap
+    integer, dimension(:), allocatable, intent(inout) :: cmap
+    integer :: il, jl, iref, icrs, nchildren
+
+    ! reset communication
+    call this%vector_map_free()
+
+    if (allocated(rmap)) deallocate(rmap)
+    if (allocated(cmap)) deallocate(cmap)
+
+    nold = this%nelt_old
+    nnew = this%nelt_neko
+
+    ! partitioned mesh
+    if (this%ifpartition) then
+       ! forward communication
+
+       call neko_error('Nothing done yet; vector_map')
+    else
+       ! same distribution
+       nref = this%refine_nr
+       ncrs = this%coarsen_nr
+       allocate(rmap(2, this%refine_nr), cmap(this%coarsen_nr))
+
+       ! fill in map arrays
+       iref = 0
+       icrs = 0
+       do il = 1, this%nelt_mm
+          if (this%same_gidx(il) .eq. 0) then
+             if (this%same(1, il) .eq. 0) then
+                icrs = icrs + 1
+                cmap(icrs) = il
+             else
+                iref = iref + 1
+                rmap(1, il) = il
+                rmap(2, il) = this%refine(3, this%same(1, il))
+             end if
+          end if
+       end do
+       if (icrs .ne. this%coarsen_nr .or. iref .ne. this%refine_nr) &
+            call neko_error('Inconsistent number of refined/coarsened elements')
+
+       ! Is communication at this stage needed
+       nchildren = size(this%coarsen, 2)
+       do il = 1, this%nelt_mm
+          if (this%same_gidx(il) .ne. 0 .and. &
+               this%same(2, il) .ne. pe_rank) then
+             this%ifcomm = .true.
+             exit
+          end if
+       end do
+       if (.not. this%ifcomm) then
+          do il = 1, this%refine_nr
+             if (this%refine(2, il) .ne. pe_rank) then
+                this%ifcomm = .true.
+                exit
+             end if
+          end do
+       end if
+       if (.not. this%ifcomm) then
+          element : do il = 1, this%coarsen_nr
+             do jl = 1, nchildren
+                if (this%coarsen(2, jl, il) .ne. pe_rank) then
+                   this%ifcomm = .true.
+                   exit element
+                end if
+             end do
+          end do element
+       end if
+       call MPI_Allreduce(MPI_IN_PLACE, this%ifcomm, 1, MPI_LOGICAL, MPI_LOR, &
+            NEKO_COMM)
+
+       if (this%ifcomm) then
+          ! build data exchange information
+
+          call neko_error('Nothing done yet; vector_map ifcomm')
+       end if
+
+       ! get mapping for filling same and refined elements
+       allocate(this%same_ref_fill_map(this%nelt_mm))
+       this%same_ref_fill_map(:) = 0
+       do il = 1, this%nelt_mm
+          if (this%same_gidx(il) .ne. 0) then
+             ! unchanged element
+             if (this%same(2, il) .eq. pe_rank) then
+                ! local element
+                this%same_ref_fill_map(il) = this%same(1, il)
+             else
+                ! fetched data
+
+                call neko_error('Nothing done yet; vector_map same fetched')
+             end if
+          else
+             ! changed element
+             if (this%same(1, il) .ne. 0) then
+                ! refinement
+                if (this%refine(2, this%same(1, il)) .eq. pe_rank) then
+                   ! local element
+                   this%same_ref_fill_map(il) = this%refine(1, this%same(1, il))
+                else
+                   ! fetched data
+
+                   call neko_error('Nothing done yet; vector_map ref fetched')
+                end if
+             end if
+          end if
+       end do
+    end if ! ifpartition
+
+  end subroutine p4est_vector_map
+
+  !> Free refinement/coarsening vector mappings
+  subroutine p4est_vector_map_free(this)
+    class(mesh_manager_transfer_p4est_t), intent(inout) :: this
+
+    this%ifcomm = .false.
+    if (allocated(this%same_ref_fill_map)) deallocate(this%same_ref_fill_map)
+
+  end subroutine p4est_vector_map_free
+
+  !> Construct vectors for refinement/coarsening
+  !! @param[in]   vin     original vector
+  !! @param[out]  vout    output vector for refinement
+  !! @param[out]  vcrs    vector with additional data for coarsening
+  subroutine p4est_vector_constr(this, vin, vout, vcrs)
+    class(mesh_manager_transfer_p4est_t), intent(inout) :: this
+    real(rp), dimension(:, :, :, :), intent(in) :: vin
+    real(rp), dimension(:, :, :, :), intent(out) :: vout, vcrs
+
+  end subroutine p4est_vector_constr
 
 end module mesh_manager_transfer_p4est
