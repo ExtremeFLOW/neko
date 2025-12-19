@@ -81,9 +81,6 @@ contains
     real(kind=rp) :: rand, r,z
     type(field_t), pointer :: s
 
-
-    call neko_registry%print_contents()
-
     ! See scalar.name in the case file, makes sure that we only
     ! run this for the scalar field.
     if (scheme_name .ne. 'temperature') return
