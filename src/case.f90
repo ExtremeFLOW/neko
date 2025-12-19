@@ -109,6 +109,7 @@ contains
     call neko_log%message('Reading case file ' // trim(case_file), &
          NEKO_LOG_QUIET)
 
+    call this%params%initialize()
     if (pe_rank .eq. 0) then
        call this%params%load_file(filename = trim(case_file))
        call this%params%print_to_string(json_buffer)
@@ -149,7 +150,7 @@ contains
     type(mesh_fld_t) :: msh_part, parts
     logical :: found, logical_val
     logical :: temperature_found = .false.
-    integer :: integer_val
+    integer :: integer_val, var_type
     real(kind=rp) :: real_val
     real(kind=rp), allocatable :: real_vals(:)
     type(vector_t), pointer :: vec
@@ -185,18 +186,27 @@ contains
                'case.constants', i, json_subdict)
           call json_get(json_subdict, 'name', string_val)
 
-          ! Try to find an array
-          call json_subdict%get('value', real_vals, found)
-          if (found) then
+          call json_subdict%info('value', found = found, var_type = var_type)
+
+          select case (var_type)
+          case (5) ! integer
+             call json_get(json_subdict, 'value', integer_val)
+             call neko_const_registry%add_integer_scalar(integer_val, &
+                  trim(string_val))
+          case (6) ! real
+             call json_get(json_subdict, 'value', real_val)
+             call neko_const_registry%add_real_scalar(real_val, &
+                  trim(string_val))
+          case (3) ! array
+             call json_get(json_subdict, 'value', real_vals)
              call neko_const_registry%add_vector(size(real_vals), &
                   trim(string_val))
              vec => neko_const_registry%get_vector(trim(string_val))
              vec%x = real_vals
-             ! Try to find a single value
-          else
-             call json_get(json_subdict, 'value', real_val)
-             call neko_const_registry%add_real_scalar(real_val, trim(string_val))
-          end if
+          case default
+             call neko_error('case_init_common: Unsupported constant ' // &
+                  'type in case.constants for entry '//trim(string_val)//'.')
+          end select
        end do
     end if
 
@@ -239,6 +249,7 @@ contains
     ! Time control
     !
     call json_get(this%params, 'case.time', json_subdict)
+    call json_subdict%print()
     call this%time%init(json_subdict)
 
     !

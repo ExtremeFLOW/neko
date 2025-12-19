@@ -53,8 +53,15 @@ contains
     character(len=*), intent(in) :: name
     real(kind=sp), intent(out) :: val
 
-    character(:), allocatable :: reg_name
+    character(len=:), allocatable :: reg_name
     logical :: found
+    integer :: var_type
+
+    call json%info(name, found = found, var_type = var_type)
+    if (found .and. (var_type .ne. 6) .and. (var_type .ne. 7)) then
+        call neko_error("Parameter " // name // &
+             " is neither a real nor a string.")
+    end if
 
     ! Try to find a real
     call json%get(name, val, found)
@@ -65,7 +72,7 @@ contains
     call json_get(json, name, reg_name)
 
     ! Retrieve the value from the registry
-    val = real(neko_const_registry%get_scalar(reg_name), kind=sp)
+    val = real(neko_const_registry%get_real_scalar(reg_name), kind=sp)
   end subroutine json_get_or_lookup_real
 
 !> Same as `json_get_or_lookup_real`, but for double precision.
@@ -77,8 +84,15 @@ contains
     character(len=*), intent(in) :: name
     real(kind=dp), intent(out) :: val
 
-    character(:), allocatable :: reg_name
+    character(len=:), allocatable :: reg_name
     logical :: found
+    integer :: var_type
+
+    call json%info(name, found = found, var_type = var_type)
+    if (found .and. (var_type .ne. 6) .and. (var_type .ne. 7)) then
+        call neko_error("Parameter " // name // &
+             " is neither a real nor a string.")
+    end if
 
     ! Try to find a real
     call json%get(name, val, found)
@@ -88,8 +102,9 @@ contains
     ! Try to find a string. It must exist
     call json_get(json, name, reg_name)
 
+    call json%print()
     ! Retrieve the value from the registry
-    val = real(neko_const_registry%get_scalar(reg_name), kind=dp)
+    val = real(neko_const_registry%get_real_scalar(reg_name), kind=dp)
   end subroutine json_get_or_lookup_double
 
 !> Retrieves an intiger either from the json or from the corresponding scalar
@@ -107,8 +122,15 @@ contains
     character(len=*), intent(in) :: name
     integer, intent(out) :: val
 
-    character(:), allocatable :: reg_name
+    character(len=:), allocatable :: reg_name
     logical :: found
+    integer :: var_type
+
+    call json%info(name, found = found, var_type = var_type)
+    if (found .and. (var_type .ne. 5) .and. (var_type .ne. 7)) then
+        call neko_error("Parameter " // name // &
+             " is neither an integer nor a string.")
+    end if
 
     ! Try to find an int
     call json%get(name, val, found)
@@ -119,8 +141,7 @@ contains
     call json_get(json, name, reg_name)
 
     ! Retrieve the value from the registry
-    val = int(neko_const_registry%get_scalar(reg_name))
-    call test_integer_conversion(val, reg_name)
+    val = neko_const_registry%get_integer_scalar(reg_name)
   end subroutine json_get_or_lookup_integer
 
 !> Retrieves a real either from the json or from the corresponding scalar
@@ -141,8 +162,16 @@ contains
     real(kind=sp), intent(out) :: val
     real(kind=sp), intent(in) :: default
 
-    character(:), allocatable :: reg_name
+    character(len=:), allocatable :: reg_name
     logical :: found
+    integer :: var_type
+
+    call json%info(name, found = found, var_type = var_type)
+    if (found .and. (var_type .ne. 6) .and. (var_type .ne. 7)) then
+        call neko_warning("Parameter " // name // &
+             " is neither a real nor a string." // &
+             " Using default value if allowed.")
+    end if
 
     call json%get(name, val, found)
     ! The value is retrieved from the JSON keyword, we are done
@@ -156,7 +185,7 @@ contains
        call json_get_or_default(json, name, val, default)
     else
        ! Retrieve the array from the registry
-       val = real(neko_const_registry%get_scalar(reg_name), kind=sp)
+       val = real(neko_const_registry%get_real_scalar(reg_name), kind=sp)
     end if
   end subroutine json_get_or_lookup_or_default_real
 
@@ -172,8 +201,16 @@ contains
     real(kind=dp), intent(out) :: val
     real(kind=dp), intent(in) :: default
 
-    character(:), allocatable :: reg_name
+    character(len=:), allocatable :: reg_name
     logical :: found
+    integer :: var_type
+
+    call json%info(name, found = found, var_type = var_type)
+    if (found .and. (var_type .ne. 6) .and. (var_type .ne. 7)) then
+        call neko_warning("Parameter " // name // &
+             " is neither a real nor a string." // &
+             " Using default value if allowed.")
+    end if
 
     call json%get(name, val, found)
     ! The value is retrieved from the JSON keyword, we are done
@@ -187,7 +224,7 @@ contains
        call json_get_or_default(json, name, val, default)
     else
        ! Retrieve the array from the registry
-       val = real(neko_const_registry%get_scalar(reg_name), kind=dp)
+       val = real(neko_const_registry%get_real_scalar(reg_name), kind=dp)
     end if
   end subroutine json_get_or_lookup_or_default_double
 
@@ -210,8 +247,16 @@ contains
     integer, intent(out) :: val
     integer, intent(in) :: default
 
-    character(:), allocatable :: reg_name
+    character(len=:), allocatable :: reg_name
     logical :: found
+    integer :: var_type
+
+    call json%info(name, found = found, var_type = var_type)
+    if (found .and. (var_type .ne. 5) .and. (var_type .ne. 7)) then
+        call neko_warning("Parameter " // name // &
+             " is neither an integer nor a string." // &
+             " Using default value if allowed.")
+    end if
 
     call json%get(name, val, found)
     ! The value is retrieved from the JSON keyword, we are done
@@ -225,8 +270,7 @@ contains
        call json_get_or_default(json, name, val, default)
     else
        ! Retrieve the array from the registry
-       val = int(neko_const_registry%get_scalar(reg_name))
-       call test_integer_conversion(val, reg_name)
+       val = neko_const_registry%get_integer_scalar(reg_name)
     end if
   end subroutine json_get_or_lookup_or_default_integer
 
@@ -246,12 +290,27 @@ contains
 
     type(vector_t), pointer :: vec_ptr
     logical :: found
-    character(:), allocatable :: reg_name
+    character(len=:), allocatable :: reg_name
+    integer :: var_type
+
+    call json%info(name, found = found, var_type = var_type)
+    if (found .and. (var_type .ne. 3) .and. (var_type .ne. 7)) then
+        call neko_error("Parameter " // name // &
+             " is neither an array nor a string.")
+    end if
 
     ! Try to find a real array
     call json%get(name, val, found)
     ! The value is retrieved from the JSON keyword, we are done
     if (found) return
+
+    ! Finding an array failed. Check if it is a string, otherwise error.
+    ! If found is false here, json_get will emit the correct error.
+    call json%info(name, found = found, var_type = var_type)
+    if (found .and. (var_type .ne. 7)) then
+        call neko_error("Parameter " // name // &
+             " is neither a real array nor a string.")
+    end if
 
     ! Try to find a string. It must exist
     call json_get(json, name, reg_name)
@@ -272,12 +331,21 @@ contains
 
     type(vector_t), pointer :: vec_ptr
     logical :: found
-    character(:), allocatable :: reg_name
+    character(len=:), allocatable :: reg_name
+    integer :: var_type
 
     ! Try to find a real array
     call json%get(name, val, found)
     ! The value is retrieved from the JSON keyword, we are done
     if (found) return
+
+    ! Finding an array failed. Check if it is a string, otherwise error.
+    ! If found is false here, json_get will emit the correct error.
+    call json%info(name, found = found, var_type = var_type)
+    if (found .and. (var_type .ne. 7)) then
+        call neko_error("Parameter " // name // &
+             " is neither a real array nor a string.")
+    end if
 
     ! Try to find a string. It must exist
     call json_get(json, name, reg_name)
@@ -304,13 +372,22 @@ contains
 
     type(vector_t), pointer :: vec_ptr
     logical :: found
-    character(:), allocatable :: reg_name
+    character(len=:), allocatable :: reg_name
     integer :: i
+    integer :: var_type
 
     ! Try to find an integer array
     call json%get(name, val, found)
     ! The value is retrieved from the JSON keyword, we are done
     if (found) return
+
+    ! Finding an array failed. Check if it is a string, otherwise error.
+    ! If found is false here, json_get will emit the correct error.
+    call json%info(name, found = found, var_type = var_type)
+    if (found .and. (var_type .ne. 7)) then
+        call neko_error("Parameter " // name // &
+             " is neither an integer array nor a string.")
+    end if
 
     ! Try to find a string. It must exist
     call json_get(json, name, reg_name)
@@ -327,22 +404,5 @@ contains
        end if
     end do
   end subroutine json_get_or_lookup_integer_array
-
-!> Tests that the value retrieved from the registry as a scalar is indeed an
-!! integer, by comparing it to the integer value passed.
-  subroutine test_integer_conversion(int, reg_entry)
-    integer, intent(in) :: int
-    character(len=*), intent(in) :: reg_entry
-    real(kind=rp) :: reg_scalar
-
-    reg_scalar = neko_const_registry%get_scalar(reg_entry)
-
-    if (.not. abscmp(real(int, kind=rp), reg_scalar)) then
-       call neko_error("test_integer_conversion: " &
-            // "Value retrieved from registry entry '" // reg_entry &
-            // "' is not an integer.")
-    end if
-
-  end subroutine test_integer_conversion
 
 end submodule case_file_utils
