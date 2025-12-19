@@ -181,7 +181,6 @@ contains
        call this%params%info('case.constants', &
             n_children = integer_val)
        do i = 1, integer_val
-          write(*,*) 'Loading constant ', i
           call json_extract_item(this%params, &
                'case.constants', i, json_subdict)
           call json_get(json_subdict, 'name', string_val)
