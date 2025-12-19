@@ -249,7 +249,6 @@ contains
     ! Time control
     !
     call json_get(this%params, 'case.time', json_subdict)
-    call json_subdict%print()
     call this%time%init(json_subdict)
 
     !
