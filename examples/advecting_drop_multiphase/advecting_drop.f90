@@ -150,11 +150,11 @@ contains
 
     s => fields%items(1)%ptr
 
-    ! Drop with diameter D=1.0 (radius=0.5) centered at (1.0, 1.0, 0) in 2x2 domain
+    ! Drop with diameter D=1.0 (radius=0.5) centered at (1.0, 1.0) in 2x2 domain
+    ! 2D problem: radius only depends on x and y, not z
     do i = 1, s%dof%size()
        rad = sqrt((s%dof%x(i,1,1,1)-1.0_rp)**2 + &
-                  (s%dof%y(i,1,1,1)-1.0_rp)**2 + &
-                   s%dof%z(i,1,1,1)**2)
+                  (s%dof%y(i,1,1,1)-1.0_rp)**2)
        s%x(i,1,1,1) = 0.5_rp*(1.0_rp + tanh((rad - 0.5_rp)/(2.0_rp*eps)))
     end do
 
