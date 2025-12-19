@@ -31,14 +31,16 @@ contains
     call registry%init()
     @assertEqual(25, registry%get_size())
     @assertEqual(0, registry%n_entries())
-    @assertEqual(0, registry%n_scalars())
+    @assertEqual(0, registry%n_real_scalars())
+    @assertEqual(0, registry%n_integer_scalars())
     @assertEqual(0, registry%n_aliases())
     @assertEqual(5, registry%get_expansion_size())
 
     call registry%free()
     @assertEqual(0, registry%get_size())
     @assertEqual(0, registry%n_entries())
-    @assertEqual(0, registry%n_scalars())
+    @assertEqual(0, registry%n_real_scalars())
+    @assertEqual(0, registry%n_integer_scalars())
     @assertEqual(0, registry%n_aliases())
     @assertEqual(5, registry%get_expansion_size())
   end subroutine test_registry_init
@@ -51,7 +53,8 @@ contains
     call registry%init(5, 10)
     @assertEqual(5, registry%get_size())
     @assertEqual(0, registry%n_entries())
-    @assertEqual(0, registry%n_scalars())
+    @assertEqual(0, registry%n_real_scalars())
+    @assertEqual(0, registry%n_integer_scalars())
     @assertEqual(0, registry%n_aliases())
     @assertEqual(10, registry%get_expansion_size())
 
@@ -66,19 +69,43 @@ contains
 
     call registry%init()
 
-    call registry%add_scalar(3.14_rp, 'test_scalar')
+    call registry%add_real_scalar(3.14_rp, 'test_scalar')
 
-    @assertEqual(1, registry%n_scalars())
-    @assertTrue(registry%scalar_exists('test_scalar'))
+    @assertEqual(1, registry%n_real_scalars())
+    @assertEqual(0, registry%n_integer_scalars())
+    @assertTrue(registry%real_scalar_exists('test_scalar'))
 
-    value = registry%get_scalar('test_scalar')
+    value = registry%get_real_scalar('test_scalar')
     @assertEqual(3.14_rp, value, tolerance=1e-12_rp)
 
-    call registry%add_scalar(2.71_rp, 'test_scalar', ignore_existing=.true.)
-    @assertEqual(1, registry%n_scalars())
+    call registry%add_real_scalar(2.71_rp, 'test_scalar', ignore_existing=.true.)
+    @assertEqual(1, registry%n_real_scalars())
 
     call registry%free()
   end subroutine test_registry_add_scalar
+
+  @test
+  subroutine test_registry_add_integer_scalar(this)
+    class(test_scalar_reg), intent(inout) :: this
+    type(registry_t) :: registry
+    integer :: value
+
+    call registry%init()
+
+    call registry%add_integer_scalar(5, 'test_int_scalar')
+
+    @assertEqual(0, registry%n_real_scalars())
+    @assertEqual(1, registry%n_integer_scalars())
+    @assertTrue(registry%integer_scalar_exists('test_int_scalar'))
+
+    value = registry%get_integer_scalar('test_int_scalar')
+    @assertEqual(5, value)
+
+    call registry%add_integer_scalar(6, 'test_int_scalar', ignore_existing=.true.)
+    @assertEqual(1, registry%n_integer_scalars())
+
+    call registry%free()
+  end subroutine test_registry_add_integer_scalar
 
   @test
   subroutine test_registry_add_alias(this)
@@ -88,20 +115,20 @@ contains
 
     call registry%init()
 
-    call registry%add_scalar(1.23_rp, 'test_scalar')
+    call registry%add_real_scalar(1.23_rp, 'test_scalar')
     call registry%add_alias('test_alias', 'test_scalar')
     call registry%add_alias('test_alias2', 'test_scalar')
 
-    @assertEqual(1, registry%n_scalars())
+    @assertEqual(1, registry%n_real_scalars())
     @assertEqual(2, registry%n_aliases())
-    @assertTrue(registry%scalar_exists('test_scalar'))
-    @assertTrue(registry%scalar_exists('test_alias'))
-    @assertTrue(registry%scalar_exists('test_alias2'))
+    @assertTrue(registry%real_scalar_exists('test_scalar'))
+    @assertTrue(registry%real_scalar_exists('test_alias'))
+    @assertTrue(registry%real_scalar_exists('test_alias2'))
 
-    value_alias = registry%get_scalar('test_alias')
+    value_alias = registry%get_real_scalar('test_alias')
     @assertEqual(1.23_rp, value_alias, tolerance=1e-12_rp)
 
-    value_alias = registry%get_scalar('test_alias2')
+    value_alias = registry%get_real_scalar('test_alias2')
     @assertEqual(1.23_rp, value_alias, tolerance=1e-12_rp)
 
     call registry%free()
@@ -115,14 +142,14 @@ contains
 
     call registry%init(1, 1)
 
-    call registry%add_scalar(1.5_rp, 'test_scalar1')
-    call registry%add_scalar(2.5_rp, 'test_scalar2')
+    call registry%add_real_scalar(1.5_rp, 'test_scalar1')
+    call registry%add_real_scalar(2.5_rp, 'test_scalar2')
 
     @assertEqual(2, registry%n_entries())
-    @assertEqual(2, registry%n_scalars())
+    @assertEqual(2, registry%n_real_scalars())
 
-    value1 = registry%get_scalar('test_scalar1')
-    value2 = registry%get_scalar('test_scalar2')
+    value1 = registry%get_real_scalar('test_scalar1')
+    value2 = registry%get_real_scalar('test_scalar2')
 
     @assertEqual(1.5_rp, value1, tolerance=1e-12_rp)
     @assertEqual(2.5_rp, value2, tolerance=1e-12_rp)
