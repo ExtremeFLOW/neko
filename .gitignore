@@ -91,3 +91,6 @@ libneko*.so
 
 pixi.lock
 install
+
+# Mac
+.DS_Store

@@ -9,12 +9,14 @@
             "end_time": 3,
             "timestep": 1e-4,
             "variable_timestep": true,
-            "target_cfl": 0.4
+            "target_cfl": 0.3
         },
 
         "numerics": {
             "time_order": 3,
-            "polynomial_order": 5
+            "polynomial_order": 5,
+            "c_avisc_low": 0.5,
+            "c_avisc_entropy": 0.5
         },
 
         "fluid": {
@@ -44,11 +46,20 @@
                 {
                     "type": "symmetry",
                     "zone_indices": [ 3, 4 ]
-                },
+                }
             ],
 
             "output_control": "nsamples",
             "output_value": 20
-        }
+        },
+
+        "simulation_components": [
+            {
+                "type": "field_writer",
+                "fields": ["fluid_rho", "S", "effective_visc", "max_wave_speed"], // s2, s3, s4, s5 in Paraview
+                "output_control": "nsamples",
+                "output_value": 20
+            }
+        ]
     }
 }
