@@ -95,9 +95,6 @@ module registry
      !> Get pointer to a stored integer scalar by index.
      procedure, pass(this) :: get_integer_scalar_by_index => &
           registry_get_integer_scalar_by_index
-     !> Backwards compatible scalar getter (real).
-     procedure, pass(this) :: get_scalar_by_index => &
-          registry_get_real_scalar_by_index
 
      !> Get pointer to a stored field by name.
      procedure, pass(this) :: get_field_by_name => registry_get_field_by_name
@@ -111,9 +108,6 @@ module registry
      !> Get pointer to a stored integer scalar by name.
      procedure, pass(this) :: get_integer_scalar_by_name => &
           registry_get_integer_scalar_by_name
-     !> Backwards compatible scalar getter (real).
-     procedure, pass(this) :: get_scalar_by_name => &
-          registry_get_real_scalar_by_name
 
      !> Generic field getter
      generic :: get_field => get_field_by_index, get_field_by_name
@@ -121,8 +115,6 @@ module registry
      generic :: get_vector => get_vector_by_index, get_vector_by_name
      !> Generic matrix getter
      generic :: get_matrix => get_matrix_by_index, get_matrix_by_name
-     !> Generic scalar getter (real, kept for compatibility)
-     generic :: get_scalar => get_scalar_by_index, get_scalar_by_name
      !> Generic real scalar getter
      generic :: get_real_scalar => get_real_scalar_by_index, &
           get_real_scalar_by_name
