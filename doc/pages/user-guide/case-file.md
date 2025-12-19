@@ -20,14 +20,14 @@ The current high-level structure of the case file is shown below.
 
 ~~~~~~~~~~~~~~~{.json}
 {
-    "version": 1.0
+    "version": 1.0,
     "case": {
-        "constants": {}
-        "time": {}
-        "numerics": {}
-        "fluid": {}
-        "scalar": {}
-        "simulation_components" : []
+        "constants": [],
+        "time": {},
+        "numerics": {},
+        "fluid": {},
+        "scalar": {},
+        "simulation_components" : [],
         "point_zones" : []
     }
 }
@@ -54,9 +54,9 @@ The frequency is controlled by two parameters, ending with `_control` and
 The latter name is perhaps not ideal, but it is somewhat difficult to come up
 with a good one, suggestions are welcome.
 
-The `_value` parameter is a number, that defines the output frequency, but the
-interpretation of that number depends on the choice of `_control`.
-The three following options are possible.
+The `_value` parameter is a *real* number, that defines the output frequency,
+but the interpretation of that number depends on the choice of `_control`. The
+three following options are possible.
 1. `simulationtime`, then `_value` is the time interval between the outputs.
 2. `tsteps`, then `_value` is the number of time steps between the outputs.
 3. `nsamples`, then `_value` is the total number of outputs that will be
