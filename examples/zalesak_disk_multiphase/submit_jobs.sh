@@ -10,7 +10,7 @@
 
 # MODE 1: Test with single job
 TEST_DIR="gamma_0.01_epsilon_0.02"  # Specify which combination to test
-MODE="single"
+MODE="array"
 
 # MODE 2: Submit all as job array (uncomment for full sweep)
 # MODE="array"
