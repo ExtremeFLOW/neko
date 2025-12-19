@@ -39,11 +39,11 @@ def initial_condition(x, y, z, eps):
     Returns:
         field: Initial condition field
     """
-    # Spherical drop centered at origin
-    center_x = 0.0
-    center_y = 0.0
+    # Spherical drop with diameter D=1.0 (radius=0.5) centered at (1.0, 1.0, 0) in 2x2 domain
+    center_x = 1.0
+    center_y = 1.0
     center_z = 0.0
-    radius = 0.15
+    radius = 0.5
 
     # Create the spherical drop with tanh profile
     rad = np.sqrt((x - center_x) ** 2 + (y - center_y) ** 2 + (z - center_z) ** 2)
@@ -104,7 +104,7 @@ def main():
         "../advecting_drop_param_analysis_data"
     )  # Data directory containing gamma_* folders
     output_dir = Path(".")  # Current directory for outputs
-    field_file_name = "field0.f00010"  # Final time step (t=1.0)
+    field_file_name = "field0.f00001"  # Final time step (t=1.0, with output_value=1.0)
     initial_file_name = "field0.f00000"  # Initial time step
 
     print("=" * 80)

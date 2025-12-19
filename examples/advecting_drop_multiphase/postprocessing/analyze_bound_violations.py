@@ -99,7 +99,7 @@ def main():
     # Configuration
     base_dir = Path("../advecting_drop_param_analysis_data")  # Data directory containing gamma_* folders
     output_dir = Path(".")  # Current directory for outputs
-    field_file_name = "field0.f00010"  # Final time step (t=1.0)
+    field_file_name = "field0.f00001"  # Final time step (t=1.0, with output_value=1.0)
 
     print("=" * 80)
     print("Bound Violation Analysis for Advecting Drop Parameter Sweep")

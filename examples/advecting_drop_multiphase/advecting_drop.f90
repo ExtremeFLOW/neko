@@ -150,9 +150,12 @@ contains
 
     s => fields%items(1)%ptr
 
+    ! Drop with diameter D=1.0 (radius=0.5) centered at (1.0, 1.0, 0) in 2x2 domain
     do i = 1, s%dof%size()
-       rad = sqrt(s%dof%x(i,1,1,1)**2 +s%dof%y(i,1,1,1)**2+ s%dof%z(i,1,1,1)**2)
-       s%x(i,1,1,1) = 0.5*(1+tanh((rad-0.15_rp)/(2*eps)))
+       rad = sqrt((s%dof%x(i,1,1,1)-1.0_rp)**2 + &
+                  (s%dof%y(i,1,1,1)-1.0_rp)**2 + &
+                   s%dof%z(i,1,1,1)**2)
+       s%x(i,1,1,1) = 0.5*(1+tanh((rad-0.5_rp)/(2*eps)))
     end do
 
     if ((NEKO_BCKND_DEVICE .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &

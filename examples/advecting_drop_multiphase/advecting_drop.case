@@ -4,7 +4,7 @@
         "mesh_file": "box.nmsh",
         "output_boundary": true,
         "time": {
-            "end_time": 1,
+            "end_time": 2.82842712475,
             "variable_timestep": true,
             "target_cfl": 0.2
         },
@@ -38,7 +38,7 @@
                 "max_iterations": 800
             },
             "output_control": "simulationtime",
-            "output_value": 0.01,
+            "output_value": 2.82842712475,
             "boundary_conditions": []
         },
         "scalar": {
