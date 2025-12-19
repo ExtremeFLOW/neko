@@ -7,7 +7,7 @@
         "output_checkpoints": false,
         "output_directory": "results_rot",
         "time": {
-            "end_time": 100,
+            "end_time": 100.0,
             "timestep": 5e-4
         },
         "numerics": {
@@ -17,7 +17,7 @@
         },
         "fluid": {
             "scheme": "pnpn",
-            "Re": 500,
+            "Re": 500.0,
             "initial_condition": {
                 "type": "user",
             },
@@ -75,7 +75,7 @@
                 }
             ],
             "output_control": "nsamples",
-            "output_value": 400
+            "output_value": 400.0
         }
     }
 }
