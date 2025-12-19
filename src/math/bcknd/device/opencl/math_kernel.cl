@@ -791,7 +791,14 @@ __kernel void pwmin_sca3_kernel(__global real * __restrict a,
   const int str = get_global_size(0);
 
   for (int i = idx; i < n; i += str) a[i] = MIN(b[i], c);
+}
 
+__kernel void absval_kernel(__global real* __restrict__ a,
+                            const int n) {
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) { a[i] = fabs(a[i]); }
 }
 
 #endif // __MATH_MATH_KERNEL_CL__

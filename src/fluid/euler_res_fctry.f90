@@ -32,10 +32,9 @@
 !
 !> Defines Pressure residual factory for the Pn-Pn formulation
 submodule (euler_residual) euler_res_fctry
-  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX
+  use neko_config, only : NEKO_BCKND_DEVICE
   use euler_res_cpu, only : euler_res_cpu_t
   use euler_res_device, only : euler_res_device_t
-  use euler_res_sx, only : euler_res_sx_t
   implicit none
 
 contains
@@ -51,10 +50,8 @@ contains
        deallocate(object)
     end if
 
-
-    if (NEKO_BCKND_SX .eq. 1) then
-       allocate(euler_res_sx_t::object)
-    else if (NEKO_BCKND_DEVICE .eq. 1) then
+    !> TODO: Add support for SX
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        allocate(euler_res_device_t::object)
     else
        allocate(euler_res_cpu_t::object)

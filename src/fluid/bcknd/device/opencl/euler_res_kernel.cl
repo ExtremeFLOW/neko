@@ -39,15 +39,14 @@ __kernel
 void euler_res_part_visc_kernel(__global real * __restrict__ rhs,
                                 __global const real * __restrict__ Binv,
                                 __global const real * __restrict__ lap_sol,
-                                __global const real * __restrict__ h,
-                                const real c_avisc,
+                                __global const real * __restrict__ effective_visc,
                                 const int n) {
   
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
   
   for (int i = idx; i < n; i += str) {
-    rhs[i] =  -rhs[i] - c_avisc * h[i] * Binv[i] * lap_sol[i];
+    rhs[i] =  -rhs[i] - effective_visc[i] * Binv[i] * lap_sol[i];
   }
 }
 

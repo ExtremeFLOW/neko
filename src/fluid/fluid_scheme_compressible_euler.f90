@@ -36,13 +36,18 @@ module fluid_scheme_compressible_euler
   use device, only : device_memcpy, HOST_TO_DEVICE
   use field_math, only : field_add2, field_cfill, field_cmult, &
        field_copy, field_col2, field_col3, &
-       field_addcol3, field_sub2, field_invcol2
+       field_addcol3, field_sub2, field_invcol2, field_cpwmax2
+  use operators, only : div, rotate_cyc
+  use field_series, only : field_series_t
+  use bdf_time_scheme, only : bdf_time_scheme_t
+  use time_scheme_controller, only : time_scheme_controller_t
   use math, only : col2
   use device_math, only : device_col2
   use field, only : field_t
   use fluid_scheme_compressible, only: fluid_scheme_compressible_t
   use scratch_registry, only : neko_scratch_registry
-  use gs_ops, only : GS_OP_ADD
+  use gs_ops, only : GS_OP_ADD, GS_OP_MIN, GS_OP_MAX
+  use gather_scatter, only : gs_t
   use num_types, only : rp
   use mesh, only : mesh_t
   use checkpoint, only : chkp_t
@@ -62,6 +67,7 @@ module fluid_scheme_compressible_euler
   use logger, only : LOG_SIZE
   use time_state, only : time_state_t
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
+  use regularization, only: regularization_t, regularization_factory
   implicit none
   private
 
@@ -76,6 +82,8 @@ module fluid_scheme_compressible_euler
      class(euler_rhs_t), allocatable :: euler_rhs
      type(runge_kutta_time_scheme_t) :: rk_scheme
 
+     class(regularization_t), allocatable :: regularization
+
      ! List of boundary conditions for velocity
      type(bc_list_t) :: bcs_density
    contains
@@ -87,6 +95,7 @@ module fluid_scheme_compressible_euler
      procedure, pass(this) :: setup_bcs &
           => fluid_scheme_compressible_euler_setup_bcs
      procedure, pass(this) :: compute_h
+     procedure, pass(this), private :: setup_regularization
   end type fluid_scheme_compressible_euler_t
 
   interface
@@ -181,7 +190,8 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        associate(p => this%p, rho => this%rho, &
             u => this%u, v => this%v, w => this%w, &
-            m_x => this%m_x, m_y => this%m_y, m_z => this%m_z)
+            m_x => this%m_x, m_y => this%m_y, m_z => this%m_z, &
+            effective_visc => this%effective_visc)
          call device_memcpy(p%x, p%x_d, p%dof%size(), &
               HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(rho%x, rho%x_d, rho%dof%size(), &
@@ -198,6 +208,8 @@ contains
               HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(m_z%x, m_z%x_d, m_z%dof%size(), &
               HOST_TO_DEVICE, sync = .false.)
+         call device_memcpy(effective_visc%x, effective_visc%x_d, effective_visc%dof%size(), &
+              HOST_TO_DEVICE, sync = .false.)
        end associate
     end if
 
@@ -206,8 +218,9 @@ contains
 
     ! Compute h
     call this%compute_h()
-    call json_get_or_default(params, 'case.numerics.c_avisc_low', &
-         this%c_avisc_low, 0.5_rp)
+
+    ! Initialize regularization
+    call this%setup_regularization(params)
 
     ! Initialize Runge-Kutta scheme
     call json_get_or_default(params, 'case.numerics.time_order', rk_order, 4)
@@ -229,13 +242,24 @@ contains
        deallocate(this%Ax)
     end if
 
+    if (allocated(this%euler_rhs)) then
+       deallocate(this%euler_rhs)
+    end if
+
     call this%drho%free()
     call this%dm_x%free()
     call this%dm_y%free()
     call this%dm_z%free()
     call this%dE%free()
+    call this%h%free()
 
-    ! call this%scheme_free()
+    if (allocated(this%regularization)) then
+       call this%regularization%free()
+       deallocate(this%regularization)
+    end if
+
+    call this%bcs_density%free()
+
   end subroutine fluid_scheme_compressible_euler_free
 
   !> Advance the fluid simulation one timestep
@@ -244,6 +268,7 @@ contains
   !> @param ext_bdf Time integration controller
   !> @param dt_controller Timestep size controller
   subroutine fluid_scheme_compressible_euler_step(this, time, dt_controller)
+    use entropy_viscosity, only: entropy_viscosity_t
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
     type(time_state_t), intent(in) :: time
     type(time_step_controller_t), intent(in) :: dt_controller
@@ -269,12 +294,15 @@ contains
          dm_z => this%dm_z, dE => this%dE, &
          euler_rhs => this%euler_rhs, h => this%h, &
          t => time%t, tstep => time%tstep, dt => time%dt, &
-         ext_bdf => this%ext_bdf, &
          c_avisc_low => this%c_avisc_low, rk_scheme => this%rk_scheme)
 
+      ! Compute artificial viscosity
+      call this%regularization%compute(time, time%tstep, time%dt)
+
+      ! Execute RHS step with effective viscosity field
       call euler_rhs%step(rho, m_x, m_y, m_z, E, &
            p, u, v, w, Ax, &
-           c_Xh, gs_Xh, h, c_avisc_low, &
+           c_Xh, gs_Xh, h, this%effective_visc, &
            rk_scheme, dt)
 
       !> Apply density boundary conditions
@@ -292,6 +320,8 @@ contains
       !> Apply velocity boundary conditions
       call this%bcs_vel%apply_vector(u%x, v%x, w%x, &
            dm_Xh%size(), time, strong = .true.)
+
+
       call field_copy(m_x, u, n)
       call field_col2(m_x, rho, n)
       call field_copy(m_y, v, n)
@@ -311,7 +341,8 @@ contains
 
       !> Apply pressure boundary conditions
       call this%bcs_prs%apply(p, time)
-      ! TODO: Make sure pressure is positive
+      ! Ensure pressure is positive
+      call field_cpwmax2(p, 1.0e-12_rp, n)
       ! E = p / (gamma - 1) + 0.5 * rho * (u^2 + v^2 + w^2)
       call field_copy(E, p, n)
       call field_cmult(E, 1.0_rp / (this%gamma - 1.0_rp), n)
@@ -320,6 +351,14 @@ contains
 
       !> Compute entropy S = 1/(gamma-1) * rho * (log(p) - gamma * log(rho))
       call this%compute_entropy()
+
+      !> Update entropy lag series for entropy viscosity
+      if (allocated(this%regularization)) then
+         select type (reg => this%regularization)
+         type is (entropy_viscosity_t)
+            call reg%update_lag()
+         end select
+      end if
 
       !> Update maximum wave speed for CFL computation
       call this%compute_max_wave_speed()
@@ -534,5 +573,46 @@ contains
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
     type(chkp_t), intent(inout) :: chkp
   end subroutine fluid_scheme_compressible_euler_restart
+
+  subroutine setup_regularization(this, params)
+    use entropy_viscosity, only: entropy_viscosity_t, entropy_viscosity_set_fields
+    class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
+    type(json_file), intent(inout) :: params
+    type(json_file) :: reg_json
+    type(json_core) :: json_core_inst
+    type(json_value), pointer :: reg_params
+    character(len=:), allocatable :: buffer
+    real(kind=rp) :: c_avisc_entropy_val
+    character(len=:), allocatable :: regularization_type
+
+    call json_get_or_default(params, 'case.numerics.c_avisc_low', &
+         this%c_avisc_low, 0.5_rp)
+    call json_get_or_default(params, 'case.numerics.c_avisc_entropy', &
+         c_avisc_entropy_val, 1.0_rp)
+
+    call json_core_inst%initialize()
+    call json_core_inst%create_object(reg_params, '')
+    call json_core_inst%add(reg_params, 'c_avisc_entropy', c_avisc_entropy_val)
+    call json_core_inst%add(reg_params, 'c_avisc_low', this%c_avisc_low)
+    call json_core_inst%print_to_string(reg_params, buffer)
+    call json_core_inst%destroy(reg_params)
+
+    call reg_json%initialize()
+    call reg_json%load_from_string(buffer)
+
+    regularization_type = 'entropy_viscosity'
+
+    call regularization_factory(this%regularization, regularization_type, reg_json, &
+         this%c_Xh, this%dm_Xh, this%effective_visc)
+
+    select type (reg => this%regularization)
+    type is (entropy_viscosity_t)
+       call entropy_viscosity_set_fields(reg, this%S, this%u, this%v, this%w, &
+            this%h, this%max_wave_speed, this%msh, this%Xh, this%gs_Xh)
+    end select
+
+    call reg_json%destroy()
+
+  end subroutine setup_regularization
 
 end module fluid_scheme_compressible_euler
