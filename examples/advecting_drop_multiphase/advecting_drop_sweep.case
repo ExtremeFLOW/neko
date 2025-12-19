@@ -2,7 +2,9 @@
     "version": 1.0,
     "case": {
         "mesh_file": "box.nmsh",
-        "output_boundary": true,
+        "output_boundary": false,
+        "output_directory":"[insert path to scratch storage location]",
+        "output_checkpoints": false,
         "time": {
             "end_time": 1,
             "variable_timestep": true,
@@ -38,13 +40,13 @@
                 "max_iterations": 800
             },
             "output_control": "simulationtime",
-            "output_value": 0.01,
+            "output_value": 0.1,
             "boundary_conditions": []
         },
         "scalar": {
             "enabled": true,
-            "epsilon": 0.05,
-            "gamma": 1,
+            "epsilon": 0.01,
+            "gamma": 0.01,
             "source_terms": [
                 {
                     "type": "user"
