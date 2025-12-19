@@ -155,7 +155,7 @@ contains
        rad = sqrt((s%dof%x(i,1,1,1)-1.0_rp)**2 + &
                   (s%dof%y(i,1,1,1)-1.0_rp)**2 + &
                    s%dof%z(i,1,1,1)**2)
-       s%x(i,1,1,1) = 0.5*(1+tanh((rad-0.5_rp)/(2*eps)))
+       s%x(i,1,1,1) = 0.5_rp*(1.0_rp + tanh((rad - 0.5_rp)/(2.0_rp*eps)))
     end do
 
     if ((NEKO_BCKND_DEVICE .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &

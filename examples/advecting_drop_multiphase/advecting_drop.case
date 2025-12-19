@@ -2,7 +2,9 @@
     "version": 1.0,
     "case": {
         "mesh_file": "box.nmsh",
-        "output_boundary": true,
+        "output_boundary": false,
+        "output_directory": "visualization_output",
+        "output_checkpoints": false,
         "time": {
             "end_time": 2.82842712475,
             "variable_timestep": true,
@@ -38,13 +40,13 @@
                 "max_iterations": 800
             },
             "output_control": "simulationtime",
-            "output_value": 2.82842712475,
+            "output_value": 0.1,
             "boundary_conditions": []
         },
         "scalar": {
             "enabled": true,
             "epsilon": 0.05,
-            "gamma": 1,
+            "gamma": 0.1,
             "source_terms": [
                 {
                     "type": "user"
