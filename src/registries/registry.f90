@@ -78,8 +78,6 @@ module registry
      procedure, pass(this) :: add_real_scalar => registry_add_real_scalar
      !> Add an integer scalar to the registry.
      procedure, pass(this) :: add_integer_scalar => registry_add_integer_scalar
-     !> Backwards compatible scalar adder (real).
-     procedure, pass(this) :: add_scalar => registry_add_real_scalar
      !> Add an alias to a field in the registry.
      procedure, pass(this) :: add_alias => registry_add_alias
 

@@ -195,7 +195,7 @@ contains
              ! Try to find a single value
           else
              call json_get(json_subdict, 'value', real_val)
-             call neko_const_registry%add_scalar(real_val, trim(string_val))
+             call neko_const_registry%add_real_scalar(real_val, trim(string_val))
           end if
        end do
     end if
