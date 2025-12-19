@@ -299,16 +299,16 @@ contains
           ! For backward compatibility
           call json_get(this%params, 'case.scalar', scalar_params)
           call this%scalars%init(this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
-               scalar_params, numerics_params, this%user, this%chkp, this%fluid%ulag, &
-               this%fluid%vlag, this%fluid%wlag, this%fluid%ext_bdf, &
-               this%fluid%rho)
+               scalar_params, numerics_params, this%user, this%chkp, &
+               this%fluid%ulag, this%fluid%vlag, this%fluid%wlag, &
+               this%fluid%ext_bdf, this%fluid%rho)
        else
           ! Multiple scalars
           call json_get(this%params, 'case.scalars', json_subdict)
-          call this%scalars%init(n_scalars, this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
-               json_subdict, numerics_params, this%user, this%chkp, this%fluid%ulag, &
-               this%fluid%vlag, this%fluid%wlag, this%fluid%ext_bdf, &
-               this%fluid%rho)
+          call this%scalars%init(n_scalars, this%msh, this%fluid%c_Xh, &
+               this%fluid%gs_Xh, json_subdict, numerics_params, this%user, &
+               this%chkp, this%fluid%ulag, this%fluid%vlag, this%fluid%wlag, &
+               this%fluid%ext_bdf, this%fluid%rho)
        end if
     end if
 
@@ -509,16 +509,22 @@ contains
 
     if (trim(string_val) .eq. 'org') then
        ! yes, it should be real_val below for type compatibility
-       call json_get(this%params, 'case.nsamples', real_val)
+       call json_get(this%params, 'case.nsamples', integer_val)
+       real_val = real(integer_val, kind=rp)
        call this%output_controller%add(this%f_out, real_val, 'nsamples')
     else if (trim(string_val) .eq. 'never') then
-       ! Fix a dummy 0.0 output_value
-       call json_get_or_lookup_or_default(this%params, &
-            'case.fluid.output_value', real_val, 0.0_rp)
-       call this%output_controller%add(this%f_out, 0.0_rp, string_val)
-    else
+       call this%output_controller%add(this%f_out, 0.0_rp, 'never')
+    else if (trim(string_val) .eq. 'tsteps' .or. &
+         trim(string_val) .eq. 'nsamples') then
+       call json_get(this%params, 'case.fluid.output_value', integer_val)
+       real_val = real(integer_val, kind=rp)
+       call this%output_controller%add(this%f_out, real_val, string_val)
+    else if (trim(string_val) .eq. 'simulationtime') then
        call json_get_or_lookup(this%params, 'case.fluid.output_value', real_val)
        call this%output_controller%add(this%f_out, real_val, string_val)
+    else
+       call neko_log%error('Unknown output control type for the fluid: ' // &
+            trim(string_val))
     end if
 
     !
