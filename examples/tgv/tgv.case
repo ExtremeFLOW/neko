@@ -19,7 +19,7 @@
         },
         "fluid": {
             "scheme": "pnpn",
-            "Re": 360,
+            "Re": 360.0,
             "initial_condition": {
                 "type": "user"
             },
@@ -42,7 +42,7 @@
                 "max_iterations": 800
             },
             "output_control": "simulationtime",
-            "output_value": 1
+            "output_value": 1.0
         },
         "simulation_components":
         [

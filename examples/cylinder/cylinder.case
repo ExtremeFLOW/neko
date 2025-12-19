@@ -81,7 +81,7 @@
             {
                 "type": "force_torque",
                 "compute_control": "tsteps",
-                "compute_value": 10.0,
+                "compute_value": 10,
                 "zone_id": 7,
                 "zone_name": "Cylinder",
                 "center": [ 0.0, 0.0, 0.0 ]
@@ -92,7 +92,7 @@
                 "output_value": 10.0,
                 "start_time": 50.0,
                 "compute_control": "tsteps",
-                "compute_value": 10.0,
+                "compute_value": 10,
                 "avg_direction": "z",
                 "set_of_stats": "basic"
             }

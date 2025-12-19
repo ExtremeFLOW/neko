@@ -6,7 +6,7 @@
         "output_boundary": true,
         "output_checkpoints": true,
         "checkpoint_control": "simulationtime",
-        "checkpoint_value": 50,
+        "checkpoint_value": 50.0,
         "time": {
             "end_time": 200.0,
             "variable_timestep": true,
@@ -20,7 +20,7 @@
         },
         "fluid": {
             "scheme": "pnpn",
-            "Re": 2800,
+            "Re": 2800.0,
             "initial_condition": {
                 "type": "user"
             },
@@ -67,7 +67,7 @@
                 "compute_value": 10,
                 "zone_id": 3,
                 "zone_name": "Bottom wall",
-                "center": [ 0, 0, 0 ],
+                "center": [ 0.0, 0.0, 0.0 ],
                 "scale": 0.01899, // 1 over area of wall (scale=1/(4pi*4/3pi))
             },
             {
@@ -76,14 +76,14 @@
                 "compute_value": 10,
                 "zone_id": 4,
                 "zone_name": "Top wall",
-                "center": [ 0, 0, 0 ],
+                "center": [ 0.0, 0.0, 0.0 ],
                 "scale": 0.01899, // 1 over area of wall (scale=1/(4pi*4/3pi))
             },
             {
                 "type": "fluid_stats",
                 "output_control": "simulationtime",
-                "output_value": 5, // For example purposes we output relatively often, usually we do larger batches.
-                "start_time": 60, // Compute statistics after an initial transient of ~60 convective time units.
+                "output_value": 5.0, // For example purposes we output relatively often, usually we do larger batches.
+                "start_time": 60.0, // Compute statistics after an initial transient of ~60 convective time units.
                 "compute_control": "tsteps",
                 "compute_value": 50,
                 "avg_direction": "xz", // Computes average in homogenous directions xz.

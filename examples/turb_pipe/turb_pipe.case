@@ -6,9 +6,9 @@
         "output_boundary": true,
         "output_checkpoints": true,
         "checkpoint_control": "simulationtime",
-        "checkpoint_value": 5,
+        "checkpoint_value": 5.0,
         "time": {
-            "end_time": 30,
+            "end_time": 30.0,
             "timestep": 2.5e-3
         },
         "istream": 100, // Used for data-streaming only
@@ -19,7 +19,7 @@
         },
         "fluid": {
             "scheme": "pnpn",
-            "Re": 2650,
+            "Re": 2650.0,
             "initial_condition": {
                 "type": "user"
             },
@@ -47,7 +47,7 @@
                 "use_averaged_flow": true
             },
             "output_control": "simulationtime",
-            "output_value": 5,
+            "output_value": 5.0,
             "boundary_conditions": [
                 {
                     "type": "no_slip",
