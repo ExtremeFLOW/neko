@@ -6,15 +6,12 @@
     "output_boundary": true,
     "output_checkpoints": false,
     "constants":
-    {
-        "arrays":
-        [
-            {
-                "name": "U0",
-                "value": [1.0, 0.0, 0.0] 
-            }
-        ]
-    },
+    [
+        {
+            "name": "U0",
+            "value": [1.0, 0.0, 0.0] 
+        }
+    ],
     "time": {
         "end_time": 2,
         "timestep": 0.001

@@ -92,34 +92,24 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `output_at_end`       | Whether to always write all enabled output at the end of the run.                                     | `true` or `false`                               | `true`        |
 
 ### Constants
-The `constants` object allows the user to define parameters that are global to
+The `constants` array allows the user to define parameters that are global to
 the case file, and can be referred to when setting the values of other
 parameters. Two types of parameters can be defined: scalars and arrays. Each is
-represented as an array in the `constants` object. In turn, each object inside
-these arrays has a `name` and `value` entry. Here is an example:
+represented as a subobject inside the `constants` object and should containt two
+entries: `name` and `value`. Here is an example:
 
 ```json
 "constants":
-{
-  "scalars":
-  [
-    {
-      "name": "const1",
-      "value": 3.5
-    },
-    {
-      "name": "param2",
-      "value": 5
-    }
-  ],
-  "arrays":
-  [
-    {
-      "name": "vector1",
-      "value": [1, 0, 1]
-    }
-  ]
-}
+[
+  {
+    "name": "const1",
+    "value": 3.5
+  },
+  {
+    "name": "vector1",
+    "value": [1, 0, 1]
+  }
+]
 ```
 
 Other parameters in the case file that require a scalar or array entry, can
@@ -132,15 +122,12 @@ case-file_scalar) solvers active, the following could be used.
 
 ```json
 "constants":
-{
-  "scalars":
-  [
-    {
-      "name": "common_output_value",
-      "value": 10
-    }
-  ]
-},
+[
+  {
+    "name": "common_output_value",
+    "value": 10
+  }
+],
 "fluid":
 {
   "output_value": "common_output_value"

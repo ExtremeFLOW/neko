@@ -178,33 +178,27 @@ contains
     ! Populate const registry with global data from the case file
     !
     if (this%params%valid_path('case.constants')) then
-       if (this%params%valid_path('case.constants.scalars')) then
-          call this%params%info('case.constants.scalars', &
-               n_children = integer_val)
-          do i = 1, integer_val
-             call json_extract_item(this%params, &
-                  'case.constants.scalars', i, json_subdict)
-             call json_get(json_subdict, 'name', string_val)
-             call json_get(json_subdict, 'value', real_val)
-             call neko_const_registry%add_scalar(real_val, trim(string_val))
-          end do
+       call this%params%info('case.constants', &
+            n_children = integer_val)
+       do i = 1, integer_val
+          write(*,*) 'Loading constant ', i
+          call json_extract_item(this%params, &
+               'case.constants', i, json_subdict)
+          call json_get(json_subdict, 'name', string_val)
 
-       end if
-
-       if (this%params%valid_path('case.constants.arrays')) then
-          call this%params%info('case.constants.arrays', &
-               n_children = integer_val)
-          do i = 1, integer_val
-             call json_extract_item(this%params, 'case.constants.arrays',&
-                  i, json_subdict)
-             call json_get(json_subdict, 'name', string_val)
-             call json_get(json_subdict, 'value', real_vals)
-             call neko_const_registry%add_vector(size(real_vals), trim(string_val))
+          ! Try to find an array
+          call json_subdict%get('value', real_vals, found)
+          if (found) then
+             call neko_const_registry%add_vector(size(real_vals), &
+                  trim(string_val))
              vec => neko_const_registry%get_vector(trim(string_val))
              vec%x = real_vals
-          end do
-
-       end if
+             ! Try to find a single value
+          else
+             call json_get(json_subdict, 'value', real_val)
+             call neko_const_registry%add_scalar(real_val, trim(string_val))
+          end if
+       end do
     end if
 
     !
