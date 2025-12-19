@@ -144,6 +144,7 @@ contains
        call neko_error("Neumann BC flux must be a scalar or a 3-component" // &
             " vector.")
     end if
+    allocate(this%flux(size(this%init_flux_)))
   end subroutine neumann_init_from_components_array
 
   !> Constructor from components, using an signle flux.
@@ -157,7 +158,7 @@ contains
     call this%init_base(coef)
     allocate(this%init_flux_(1))
     this%init_flux_(1) = flux
-
+    allocate(this%flux(size(this%init_flux_)))
   end subroutine neumann_init_from_components_single
 
   !> Boundary condition apply for a generic Neumann condition
