@@ -59,8 +59,8 @@ contains
 
     call json%info(name, found = found, var_type = var_type)
     if (found .and. (var_type .ne. 6) .and. (var_type .ne. 7)) then
-        call neko_error("Parameter " // name // &
-             " is neither a real nor a string.")
+       call neko_error("Parameter " // name // &
+            " is neither a real nor a string.")
     end if
 
     ! Try to find a real
@@ -90,8 +90,8 @@ contains
 
     call json%info(name, found = found, var_type = var_type)
     if (found .and. (var_type .ne. 6) .and. (var_type .ne. 7)) then
-        call neko_error("Parameter " // name // &
-             " is neither a real nor a string.")
+       call neko_error("Parameter " // name // &
+            " is neither a real nor a string.")
     end if
 
     ! Try to find a real
@@ -107,7 +107,7 @@ contains
     val = real(neko_const_registry%get_real_scalar(reg_name), kind=dp)
   end subroutine json_get_or_lookup_double
 
-!> Retrieves an intiger either from the json or from the corresponding scalar
+!> Retrieves an integer either from the json or from the corresponding scalar
 !! in the `neko_const_registry`.
 !! @details First tries to retrieve the value from the JSON, looking for an int
 !! entry under the given name. If not found, it looks for the same entry, but
@@ -128,8 +128,8 @@ contains
 
     call json%info(name, found = found, var_type = var_type)
     if (found .and. (var_type .ne. 5) .and. (var_type .ne. 7)) then
-        call neko_error("Parameter " // name // &
-             " is neither an integer nor a string.")
+       call neko_error("Parameter " // name // &
+            " is neither an integer nor a string.")
     end if
 
     ! Try to find an int
@@ -168,8 +168,8 @@ contains
 
     call json%info(name, found = found, var_type = var_type)
     if (found .and. (var_type .ne. 6) .and. (var_type .ne. 7)) then
-        call neko_error("Parameter " // name // &
-             " is neither a real nor a string.")
+       call neko_error("Parameter " // name // &
+            " is neither a real nor a string.")
     end if
 
     call json%get(name, val, found)
@@ -206,8 +206,8 @@ contains
 
     call json%info(name, found = found, var_type = var_type)
     if (found .and. (var_type .ne. 6) .and. (var_type .ne. 7)) then
-        call neko_error("Parameter " // name // &
-             " is neither a real nor a string.")
+       call neko_error("Parameter " // name // &
+            " is neither a real nor a string.")
     end if
 
     call json%get(name, val, found)
@@ -232,7 +232,7 @@ contains
 !! entry under the given name. If not found, it looks for the same entry, but
 !! with a string value. If this fails, the default value is assigned. Otherwise,
 !! the retrieved string is the name looked up in the `neko_const_registry` as a
-!! scalar, and the data is copied from there, using explicit convresionto an
+!! scalar, and the data is copied from there, using explicit convresion to an
 !! int.
 !! @param[inout] json The json to retrieve the parameter from.
 !! @param[in] name The full path to the parameter.
@@ -251,8 +251,8 @@ contains
 
     call json%info(name, found = found, var_type = var_type)
     if (found .and. (var_type .ne. 5) .and. (var_type .ne. 7)) then
-        call neko_error("Parameter " // name // &
-             " is neither an integer nor a string.")
+       call neko_error("Parameter " // name // &
+            " is neither an integer nor a string.")
     end if
 
     call json%get(name, val, found)
@@ -292,8 +292,8 @@ contains
 
     call json%info(name, found = found, var_type = var_type)
     if (found .and. (var_type .ne. 3) .and. (var_type .ne. 7)) then
-        call neko_error("Parameter " // name // &
-             " is neither an array nor a string.")
+       call neko_error("Parameter " // name // &
+            " is neither an array nor a string.")
     end if
 
     ! Try to find a real array
@@ -305,8 +305,8 @@ contains
     ! If found is false here, json_get will emit the correct error.
     call json%info(name, found = found, var_type = var_type)
     if (found .and. (var_type .ne. 7)) then
-        call neko_error("Parameter " // name // &
-             " is neither a real array nor a string.")
+       call neko_error("Parameter " // name // &
+            " is neither a real array nor a string.")
     end if
 
     ! Try to find a string. It must exist
@@ -340,8 +340,8 @@ contains
     ! If found is false here, json_get will emit the correct error.
     call json%info(name, found = found, var_type = var_type)
     if (found .and. (var_type .ne. 7)) then
-        call neko_error("Parameter " // name // &
-             " is neither a real array nor a string.")
+       call neko_error("Parameter " // name // &
+            " is neither a real array nor a string.")
     end if
 
     ! Try to find a string. It must exist
@@ -352,7 +352,7 @@ contains
     val = real(vec_ptr%x, kind=dp)
   end subroutine json_get_or_lookup_double_array
 
-!> Retrieves ain int array either from the json or from the corresponding vector
+!> Retrieves an int array either from the json or from the corresponding vector
 !! in the `neko_registry`.
 !! @details First tries to retrieve the values from the JSON, looking for an int
 !! array entry under the given name. If not found, it looks for the same entry,
@@ -382,8 +382,8 @@ contains
     ! If found is false here, json_get will emit the correct error.
     call json%info(name, found = found, var_type = var_type)
     if (found .and. (var_type .ne. 7)) then
-        call neko_error("Parameter " // name // &
-             " is neither an integer array nor a string.")
+       call neko_error("Parameter " // name // &
+            " is neither an integer array nor a string.")
     end if
 
     ! Try to find a string. It must exist
