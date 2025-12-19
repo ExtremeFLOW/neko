@@ -168,9 +168,8 @@ contains
 
     call json%info(name, found = found, var_type = var_type)
     if (found .and. (var_type .ne. 6) .and. (var_type .ne. 7)) then
-        call neko_warning("Parameter " // name // &
-             " is neither a real nor a string." // &
-             " Using default value if allowed.")
+        call neko_error("Parameter " // name // &
+             " is neither a real nor a string.")
     end if
 
     call json%get(name, val, found)
@@ -207,9 +206,8 @@ contains
 
     call json%info(name, found = found, var_type = var_type)
     if (found .and. (var_type .ne. 6) .and. (var_type .ne. 7)) then
-        call neko_warning("Parameter " // name // &
-             " is neither a real nor a string." // &
-             " Using default value if allowed.")
+        call neko_error("Parameter " // name // &
+             " is neither a real nor a string.")
     end if
 
     call json%get(name, val, found)
@@ -253,9 +251,8 @@ contains
 
     call json%info(name, found = found, var_type = var_type)
     if (found .and. (var_type .ne. 5) .and. (var_type .ne. 7)) then
-        call neko_warning("Parameter " // name // &
-             " is neither an integer nor a string." // &
-             " Using default value if allowed.")
+        call neko_error("Parameter " // name // &
+             " is neither an integer nor a string.")
     end if
 
     call json%get(name, val, found)

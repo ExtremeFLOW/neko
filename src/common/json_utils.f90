@@ -315,13 +315,6 @@ contains
     end if
 
     call json%get(name, value)
-    call json%get(name, test_real)
-
-    do i = 1, size(value)
-       if (.not. abscmp(real(value(i), kind=rp), test_real(i))) then
-          call neko_error("Parameter " // name // " is not an array")
-       end if
-    end do
   end subroutine json_get_integer_array
 
   !> Retrieves a logical array parameter by name or throws an error
