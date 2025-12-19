@@ -168,6 +168,7 @@ contains
   subroutine field_free(this)
     class(field_t), intent(inout) :: this
 
+    this%name = ""
     if (allocated(this%x)) then
        deallocate(this%x)
     end if
